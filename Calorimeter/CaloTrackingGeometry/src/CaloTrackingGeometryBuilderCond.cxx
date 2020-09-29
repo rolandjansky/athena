@@ -291,8 +291,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
       if ( msCutouts.empty() ) msCutouts.push_back( envelopeDefs[i] );
       else {
 	RZPairVector::iterator envIter = msCutouts.begin();
-        while (envIter!= msCutouts.end() && (*envIter).second < envelopeDefs[i].second ) envIter++;
-        while (envIter!= msCutouts.end() && (*envIter).second == envelopeDefs[i].second && (*envIter).first  > envelopeDefs[i].first ) envIter++;
+        while (envIter!= msCutouts.end() && (*envIter).second < envelopeDefs[i].second ) ++envIter;
+        while (envIter!= msCutouts.end() && (*envIter).second == envelopeDefs[i].second && (*envIter).first  > envelopeDefs[i].first ) ++envIter;
 	msCutouts.insert(envIter, envelopeDefs[i]);
       }
     }

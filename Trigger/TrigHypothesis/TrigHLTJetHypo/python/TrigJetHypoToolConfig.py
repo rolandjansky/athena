@@ -129,6 +129,25 @@ def  trigJetHypoToolFromDict(chain_dict):
 
     return tool
 
+def  trigJetTLAHypoToolFromDict(chain_dict):
+    """Produce  a TLA jet trigger hypo tool from a chainDict"""
+
+    log.info('trigJetTLAHypoToolFromDict chainDict %s', str(chain_dict))
+
+    chain_name = chain_dict['chainName']
+    tool = CompFactory.TrigJetTLAHypoToolMT(name=chain_name)
+
+    # obtain  a Helper Tool (possibly a tree of tools) to
+    # make the hypo decision.
+    # CD: why do we do this? Question to TJ
+    tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
+
+    # controls whether debug visitor is sent to helper tool
+    debug = False  # SET TO False WHEN COMMITTING
+    tool.visit_debug = debug
+    log.debug('%s', tool)
+
+    return tool
 
 import unittest
 class TestStringMethods(unittest.TestCase):

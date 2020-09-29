@@ -61,19 +61,16 @@ TCS::EtaPhiWindow::initialize()
     TRG_MSG_INFO("PhiMin   : "<<p_PhiMin);
     TRG_MSG_INFO("PhiMax   : "<<p_PhiMax);
     TRG_MSG_INFO("number of output bits : "<<numberOutputBits());
-    // book histograms
-    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-      const int buf_len = 512;
-      char hname_accept[buf_len], hname_reject[buf_len];
-      int EtaPhi_bin=100;
-      float EtaPhi_min=-50;
-      float EtaPhi_max=50;
-      // eta2 vs. eta1
-      snprintf(hname_accept, buf_len, "Accept_EtaPhiWindow_bit%d", i);
-      snprintf(hname_reject, buf_len, "Reject_EtaPhiWindow_bit%d", i);
-      registerHist(m_histAccept[i] = new TH2F(hname_accept, hname_accept, EtaPhi_bin, EtaPhi_min, EtaPhi_max, EtaPhi_bin, EtaPhi_min, EtaPhi_max));
-      registerHist(m_histReject[i] = new TH2F(hname_reject, hname_reject, EtaPhi_bin, EtaPhi_min, EtaPhi_max, EtaPhi_bin, EtaPhi_min, EtaPhi_max));
-    }
+
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hEtaPhiWindow_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hEtaPhiWindow_reject_bit"+std::to_string((int)i);
+       // deta vs dphi
+       bookHist(m_histAccept, hname_accept, "ETA vs PHI", 100, p_EtaMin, p_EtaMax, 100, p_PhiMin, p_PhiMax);
+       bookHist(m_histReject, hname_reject, "ETA vs PHI", 100, p_EtaMin, p_EtaMax, 100, p_PhiMin, p_PhiMax);
+   }
+   
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
@@ -103,9 +100,9 @@ TCS::EtaPhiWindow::processBitCorrect(const std::vector<TCS::TOBArray const *> &i
 		const bool alreadyFilled = decision.bit(0);
                 output[0]->push_back(TCS::CompositeTOB(*tob1));
 		if(fillAccept and not alreadyFilled) {
-		  fillHist2D(m_histAccept[0]->GetName(),(float)(*tob1)->eta(),(float)(*tob1)->phi());
+		  fillHist2D(m_histAccept[0],(float)(*tob1)->eta(),(float)(*tob1)->phi());
 		} else if(fillReject) {
-		  fillHist2D(m_histReject[0]->GetName(),(float)(*tob1)->eta(),(float)(*tob1)->phi());
+		  fillHist2D(m_histReject[0],(float)(*tob1)->eta(),(float)(*tob1)->phi());
 		}
                 TRG_MSG_DEBUG("TOB "<<iTob
                               <<" ET = "<<(*tob1)->Et()
@@ -144,9 +141,9 @@ TCS::EtaPhiWindow::process(const std::vector<TCS::TOBArray const *> &input,
 	    const bool alreadyFilled = decision.bit(0);
             output[0]->push_back(TCS::CompositeTOB(*tob1));
 	    if(fillAccept and not alreadyFilled) {
-	      fillHist2D(m_histAccept[0]->GetName(),(float)(*tob1)->eta(),(float)(*tob1)->phi());
+	      fillHist2D(m_histAccept[0],(float)(*tob1)->eta(),(float)(*tob1)->phi());
 	    } else if(fillReject) {
-	      fillHist2D(m_histReject[0]->GetName(),(float)(*tob1)->eta(),(float)(*tob1)->phi());
+	      fillHist2D(m_histReject[0],(float)(*tob1)->eta(),(float)(*tob1)->phi());
 	    }
              TRG_MSG_DEBUG("TOB "<<iTob
                           <<" ET = "<<(*tob1)->Et()

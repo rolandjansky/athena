@@ -176,7 +176,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
 
     // Loop through jets, get links to clusters
     std::vector<const xAOD::CaloCluster*> clusterList;
-    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr));
+    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_useSubtractedCluster));
 
     std::bitset<200000> cellSeen;
 

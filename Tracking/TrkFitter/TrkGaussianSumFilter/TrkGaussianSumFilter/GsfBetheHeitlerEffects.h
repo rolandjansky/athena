@@ -27,35 +27,8 @@ class GsfBetheHeitlerEffects
 {
 
 public:
-  /** Helper class for construction and evaluation of polynomial */
-  class Polynomial
-  {
-  public:
-    // Default constructor
-    Polynomial() = default;
-
-    /** Constructor from a vector of coefficients (in decreasing order of powers
-     * of x */
-    Polynomial(const std::vector<double>& coefficients)
-      : m_coefficients(coefficients){};
-
-    // Evaluation of the polynomial for given material thickness (t)
-    double operator()(const double& t) const
-    {
-      double sum(0.);
-      std::vector<double>::const_iterator coefficient = m_coefficients.begin();
-
-      for (; coefficient != m_coefficients.end(); ++coefficient) {
-        sum = t * sum + (*coefficient);
-      }
-
-      return sum;
-    }
-
-  private:
-    std::vector<double> m_coefficients;
-  };
-
+  static constexpr int maxNumberofComponents = 8;
+  static constexpr int maxOrderPolynomial = 10;
   struct ComponentValues
   {
     // Default ctors/dtor/assignment operators
@@ -76,6 +49,41 @@ public:
     double variance;
   };
 
+  using MixtureParameters = std::array<ComponentValues, maxNumberofComponents>;
+
+  /** Helper class for construction and evaluation of polynomial */
+  class Polynomial
+  {
+  public:
+    Polynomial() = default;
+    ~Polynomial() = default;
+    Polynomial(const Polynomial&) = default;
+    Polynomial& operator=(const Polynomial&) = default;
+    Polynomial(Polynomial&&) = default;
+    Polynomial& operator=(Polynomial&&) = default;
+    
+    /** Constructor from a vector of coefficients 
+     * (in decreasing order of powers of x) */
+    Polynomial(const std::vector<double>& coefficients)
+      : m_coefficients(coefficients){};
+
+    // Evaluation of the polynomial for given material thickness (t)
+    double operator()(const double& t) const
+    {
+      double sum(0.);
+      std::vector<double>::const_iterator coefficient = m_coefficients.begin();
+
+      for (; coefficient != m_coefficients.end(); ++coefficient) {
+        sum = t * sum + (*coefficient);
+      }
+
+      return sum;
+    }
+
+  private:
+    std::vector<double> m_coefficients;
+  };
+
   GsfBetheHeitlerEffects(const std::string&,
                          const std::string&,
                          const IInterface*);
@@ -93,15 +101,12 @@ public:
                        ParticleHypothesis particleHypothesis =
                          nonInteracting) const override final;
 
-  typedef std::vector<ComponentValues> MixtureParameters;
 private:
-
   // Read polynomial fit parameters from a specified file
   bool readParameters();
 
   // Read coeffients for a single polynomial fit
   Polynomial readPolynomial(std::ifstream&, const int);
-
 
   std::vector<Polynomial> m_polynomialWeights;
   std::vector<Polynomial> m_polynomialMeans;
@@ -109,7 +114,6 @@ private:
   std::vector<Polynomial> m_polynomialWeightsHighX0;
   std::vector<Polynomial> m_polynomialMeansHighX0;
   std::vector<Polynomial> m_polynomialVariancesHighX0;
-
 
   int m_numberOfComponents;
   int m_transformationCode;
@@ -122,11 +126,10 @@ private:
   double m_xOverRange;
   double m_upperRange;
   double m_componentMeanCut;
-  
+
   bool m_useHighX0;
   std::string m_parameterisationFileName;
   std::string m_parameterisationFileNameHighX0;
-
 };
 
 }

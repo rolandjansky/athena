@@ -35,6 +35,8 @@ elif InDetFlags.writePRDs():
       InDetESDList+=["InDet::PixelGangedClusterAmbiguities#"+InDetKeys.SplitClusterAmbiguityMap()]
    # Save SCT_FlaggedCondData for SCT_FlaggedConditionTool
    InDetESDList+=['IDCInDetBSErrContainer#'+'SCT_FlaggedCondData']
+   from InDetRecExample import TrackingCommon
+   InDetESDList+=['Trk::ClusterSplitProbabilityContainer#'+TrackingCommon.pixelClusterSplitProbName()]
 
 # add tracks
 # ----------

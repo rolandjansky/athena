@@ -14,7 +14,7 @@ PixelGeometryManager::~PixelGeometryManager()
 {}
 
 // Default implementation return 0.
-PixelLegacyManager * PixelGeometryManager::legacyManager() const
+PixelLegacyManager * PixelGeometryManager::legacyManager()
 {
   return 0;
 }

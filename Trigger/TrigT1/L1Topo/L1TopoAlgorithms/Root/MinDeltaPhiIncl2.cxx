@@ -26,10 +26,8 @@
 
 REGISTER_ALG_TCS(MinDeltaPhiIncl2)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::MinDeltaPhiIncl2:     "
+#define LOG std::cout << "TCS::MinDeltaPhiIncl2:     "
 
 TCS::MinDeltaPhiIncl2::MinDeltaPhiIncl2(const std::string & name) : DecisionAlg(name)
 {
@@ -70,23 +68,15 @@ TCS::MinDeltaPhiIncl2::initialize() {
    TRG_MSG_INFO("MinET2         : " << p_MinET2);
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
 
-   // create strings for histogram names
-   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
-   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hMinDeltaPhiIncl2_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hMinDeltaPhiIncl2_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "DPHI", 100, p_DeltaPhiMin[i], 70);
+       bookHist(m_histReject, hname_reject, "DPHI", 100, p_DeltaPhiMin[i], 70);
+   }
    
-   for (unsigned int i=0;i< numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i]  << "MinDPhi2"; 
-     MyRejectHist[i] << "Reject" << p_DeltaPhiMin[i]  << "MinDPhi2";
-   }
-
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-     const std::string& MyTitle1 = MyAcceptHist[i].str();
-     const std::string& MyTitle2 = MyRejectHist[i].str();
-       
-     registerHist(m_histAcceptMinDPhi2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,3.5));
-     registerHist(m_histRejectMinDPhi2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,3.5));
-   }
-
    return StatusCode::SUCCESS;
 }
 
@@ -99,7 +89,7 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
 {
 
    // mindphi 
-   unsigned int mindphi = *min_element(begin(p_DeltaPhiMin),end(p_DeltaPhiMin));
+   unsigned int mindphi = *std::min_element(std::begin(p_DeltaPhiMin),std::end(p_DeltaPhiMin));
    bool firstphi = true;
 
    // declare iterator for the tob with min dphi
@@ -151,9 +141,9 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
               output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
           }
           if(fillAccept and not alreadyFilled){
-              fillHist1D(m_histAcceptMinDPhi2[i]->GetName(),(float)mindphi*0.10);
+              fillHist1D(m_histAccept[i],(float)mindphi);
           } else if(fillReject){
-              fillHist1D(m_histRejectMinDPhi2[i]->GetName(),(float)mindphi*0.10);
+              fillHist1D(m_histReject[i],(float)mindphi);
           }
           TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
       } // for(i)
@@ -171,7 +161,7 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
 {
 
    // mindphi 
-   unsigned int mindphi = *min_element(begin(p_DeltaPhiMin),end(p_DeltaPhiMin));
+   unsigned int mindphi = *std::min_element(std::begin(p_DeltaPhiMin),std::end(p_DeltaPhiMin));
    bool firstphi = true;
 
    // declare iterator for the tob with min dphi
@@ -223,9 +213,9 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
               output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
           }
           if(fillAccept and not alreadyFilled){
-              fillHist1D(m_histAcceptMinDPhi2[i]->GetName(),(float)mindphi*0.10);
+              fillHist1D(m_histAccept[i],(float)mindphi);
           } else if(fillReject) {
-              fillHist1D(m_histRejectMinDPhi2[i]->GetName(),(float)mindphi*0.10);
+              fillHist1D(m_histReject[i],(float)mindphi);
           }
           TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
       }

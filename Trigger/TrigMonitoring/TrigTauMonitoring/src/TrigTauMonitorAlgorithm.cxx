@@ -244,6 +244,20 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
   auto monGroup = getGroup(trigger+( online ? "/RNN/HLT/InputTrack" : "/RNN/Offline/InputTrack"));
   
     for(auto tau: tau_vec){
+      // Don't call ->allTracks() unless the element links are valid
+      static const SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TauTrackContainer>> > tauTrackAcc("tauTrackLinks");
+      bool linksValid = true;
+      for (const ElementLink<xAOD::TauTrackContainer>& trackEL : tauTrackAcc(*tau)) {
+        if (!trackEL.isValid()) {
+          linksValid = false;
+        }
+        break;
+      }
+      if (!linksValid) {
+      	ATH_MSG_WARNING("Invalid track element links from TauJet in " << trigger);
+      	continue;
+      }
+
       auto tracks = tau->allTracks();
  
       auto track_pt_jetseed_log           = Monitored::Collection("track_pt_jetseed_log", tau_vec,  [] (const xAOD::TauJet* tau){ return TMath::Log10( tau->ptJetSeed());});

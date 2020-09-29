@@ -24,6 +24,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
+#include "SGTools/transientKey.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
 #include "AthenaKernel/CLIDRegistry.h"
@@ -648,12 +649,18 @@ StatusCode AthenaOutputStream::collectAllObjects() {
       folderclids.push_back(i->id());
    }
 
-   // FIXME This is a bruteforece hack to remove items erroneously 
+   // FIXME This is a bruteforce hack to remove items erroneously 
    // added somewhere in the morass of the addItemObjects logic
    IDataSelector prunedList;
    for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
       if (std::find(folderclids.begin(),folderclids.end(),(*it)->clID())!=folderclids.end()) {
-         prunedList.push_back(*it);  // build new list that is correct
+         if (SG::isTransientKey ((*it)->name())) {
+           ATH_MSG_ERROR("Request to write transient object key " <<
+                         (*it)->name() << " ignored");
+         }
+         else {
+           prunedList.push_back(*it);  // build new list that is correct
+         }
       }
       else {
          ATH_MSG_DEBUG("Object " << (*it)->clID() <<","<< (*it)->name() << " found that was not in itemlist");

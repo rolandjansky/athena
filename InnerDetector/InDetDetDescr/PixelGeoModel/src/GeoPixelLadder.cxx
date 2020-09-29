@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelLadder.h"
@@ -25,8 +25,11 @@
 
 using std::max;
 
-GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
+GeoPixelLadder::GeoPixelLadder(InDetDD::PixelDetectorManager* m_DDmgr,
+                               PixelGeometryManager* mgr,
+                               GeoPixelSiCrystal& theSensor,
 			       GeoPixelStaveSupport* staveSupport) :
+  GeoVPixelFactory (m_DDmgr, mgr),
   m_theLadder(0),
   m_theSensor(theSensor),
   m_staveSupport(staveSupport)
@@ -111,7 +114,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   if(not ladderShape)
   { 
      m_gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined in "<<__FILE__<<endmsg;
-     exit(EXIT_FAILURE);
+     std::abort();
   } else {
     const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
     m_theLadder = new GeoLogVol("Ladder",ladderShape,air);
@@ -163,13 +166,13 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
   //
   // Place the Modules
   //
-  GeoPixelModule pm(m_theSensor);
+  GeoPixelModule pm(m_DDmgr, m_gmt_mgr, m_theSensor);
   
   bool isBLayer=(m_gmt_mgr->GetLD() == 0);
   bool isModule3D=true;
   if (m_gmt_mgr->PixelStaveLayout()<5) isModule3D=false;
-  GeoPixelSiCrystal theSensor3D(isBLayer,isModule3D);
-  GeoPixelModule pm3D(theSensor3D);
+  GeoPixelSiCrystal theSensor3D(m_DDmgr, m_gmt_mgr, isBLayer,isModule3D);
+  GeoPixelModule pm3D(m_DDmgr, m_gmt_mgr, theSensor3D);
   //  double pm3DLength=pm3D.Length();
 
   // Pixel module parameters

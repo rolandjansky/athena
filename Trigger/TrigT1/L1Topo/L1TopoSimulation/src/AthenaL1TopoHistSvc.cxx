@@ -41,10 +41,9 @@ public:
      if(m_histSvc) {
        string histName = h->GetName();
        auto colPos = histName.find_first_of('/');
-       //Key will use original name when all algorithms changed with bookHist()
-       const string key = histName.substr(colPos+1);
+       const string key = histName;
        const string fullName( m_baseDir + histName );
-       h->SetName(key.c_str());
+       h->SetName(histName.substr(colPos+1).c_str());
        std::unique_ptr<TH1> uhist(h);
        LockedHandle<TH1> lh;
        if( ! m_histSvc->regShared(fullName, std::move(uhist), lh).isSuccess() ) {
@@ -62,10 +61,9 @@ public:
       if(m_histSvc) {
         string histName = h->GetName();
         auto colPos = histName.find_first_of('/');
-	//Key will use original name when all algorithms changed with bookHist()
-        const string key = histName.substr(colPos+1);
+	const string key = histName;
         const string fullName( m_baseDir + histName );
-        h->SetName(key.c_str());
+        h->SetName(histName.substr(colPos+1).c_str());
         std::unique_ptr<TH2> uhist(h);
         LockedHandle<TH2> lh;
         if( ! m_histSvc->regShared(fullName, std::move(uhist), lh).isSuccess() ) {
@@ -89,9 +87,7 @@ public:
    }
 
    void fillHist1D(const std::string & histName,double x) {
-     //This will be removed when all algorithms changed with bookHist()
-      auto colPos = histName.find_first_of('/');
-      const string key = histName.substr(colPos+1);
+      const string key = histName;
       if(m_hist1D.find(key) == m_hist1D.end()) {
 	TRG_MSG_ERROR("1D-hist with registration key " << key << " does not exist");
       }
@@ -99,9 +95,7 @@ public:
    }
 
    void fillHist2D(const std::string & histName,double x,double y) {
-     //This will be removed when all algorithms changed with bookHist()
-      auto colPos = histName.find_first_of('/');
-      const string key = histName.substr(colPos+1);
+      const string key = histName;
       if(m_hist2D.find(key) == m_hist2D.end()) {
 	TRG_MSG_ERROR("2D-hist with registration key " << key << " does not exist");
       }

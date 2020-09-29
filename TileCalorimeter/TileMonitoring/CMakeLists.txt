@@ -89,6 +89,11 @@ atlas_add_test( TileMuonFitMonitorAlgorithm_test
                 PROPERTIES TIMEOUT 600
                 POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( TileRODMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileRODMonitorAlgorithm
+                PROPERTIES TIMEOUT 600
+                POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( TileMonitoringConfig_test
                 SCRIPT python -m TileMonitoring.TileMonitoringConfig
                 PROPERTIES TIMEOUT 300

@@ -415,6 +415,7 @@ if doPixel:
     ToolSvc += NeuralNetworkToHistoTool
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
     NnClusterizationFactory = InDet__NnClusterizationFactory(name                         = "NnClusterizationFactory",
+                                                             NnCollectionJSONReadKey      = "",
                                                              PixelLorentzAngleTool        = ToolSvc.PixelLorentzAngleTool,
                                                              useToT                       = InDetFlags.doNNToTCalibration(),
                                                              NnCollectionReadKey          = "PixelClusterNN",

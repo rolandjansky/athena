@@ -9,7 +9,7 @@
   Algorithm which creates calo extension for all GSF
   Track Particles
   */
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
@@ -18,7 +18,7 @@
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
-class EMGSFCaloExtensionBuilder : public AthAlgorithm
+class EMGSFCaloExtensionBuilder : public AthReentrantAlgorithm
 {
 public:
   /** @brief Default constructor*/
@@ -26,12 +26,7 @@ public:
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final { 
-    return execute_r(Algorithm::getContext()); 
-  }
-  // This will become the normal execute when
-  // inheriting from AthReentrantAlgorithm
-  StatusCode execute_r(const EventContext& ctx) const;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   /** @brief the Calo Extension tool*/
@@ -41,11 +36,12 @@ private:
     "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"
   };
 
-  ToolHandle<Trk::IParticleCaloExtensionTool> m_perigeeParticleCaloExtensionTool{
-    this,
-    "PerigeeCaloExtensionTool",
-    "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
-  };
+  ToolHandle<Trk::IParticleCaloExtensionTool>
+    m_perigeeParticleCaloExtensionTool{
+      this,
+      "PerigeeCaloExtensionTool",
+      "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
+    };
 
   // Cache collections for GSF Track Particle extrapolation Perigee
   SG::WriteHandleKey<CaloExtensionCollection> m_GSFPerigeeCacheKey{

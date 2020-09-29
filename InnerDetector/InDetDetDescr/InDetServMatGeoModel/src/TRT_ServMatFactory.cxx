@@ -46,7 +46,7 @@ TRT_ServMatFactory::~TRT_ServMatFactory()
 
 
 //## Other Operations (implementation)
-void TRT_ServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc method is used.
+void TRT_ServMatFactory::create(GeoPhysVol *mother)
 {
 
   msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;

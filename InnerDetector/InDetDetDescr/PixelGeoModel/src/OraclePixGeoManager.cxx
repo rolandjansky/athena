@@ -74,7 +74,7 @@ OraclePixGeoManager::OraclePixGeoManager(PixelGeoModelAthenaComps * athenaComps)
 }
 
 void
-OraclePixGeoManager::init ATLAS_NOT_THREAD_SAFE () // Thread unsafe InDetDD::AthenaComps::rdbAccessSvc method is used.
+OraclePixGeoManager::init()
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endmsg;
 
@@ -222,7 +222,7 @@ InDetMaterialManager* OraclePixGeoManager::getMaterialManager()
   return m_pMatMgr;
 }
 
-PixelLegacyManager * OraclePixGeoManager::legacyManager ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
+PixelLegacyManager * OraclePixGeoManager::legacyManager()
 {
   return m_legacyManager;
 }
@@ -244,7 +244,14 @@ OraclePixGeoManager::~OraclePixGeoManager()
 
 
 InDetDD::SiCommonItems * 
-OraclePixGeoManager::commonItems ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
+OraclePixGeoManager::commonItems()
+{
+  return m_commonItems;
+}
+
+
+const InDetDD::SiCommonItems * 
+OraclePixGeoManager::commonItems() const
 {
   return m_commonItems;
 }
@@ -415,7 +422,7 @@ bool OraclePixGeoManager::Alignable() const {
 }
 
 
-PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager ATLAS_NOT_THREAD_SAFE () { // Thread unsafe InDetDD::AthenaComps::detStore method is used.
+PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
   if(m_pDDmgr == NULL) {
     //
     // retrieve the pointer to the DD manager

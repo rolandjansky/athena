@@ -19,9 +19,6 @@
 
 REGISTER_ALG_TCS(EtCut)
 
-using namespace std;
-
-
 
 TCS::EtCut::EtCut(const std::string & name) : DecisionAlg(name)
 {

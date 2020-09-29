@@ -45,13 +45,16 @@ class PerfMonSvc( _PerfMonSvc ):
         if not isinstance(handle, PerfMonSvc):
             return
 
-        from AthenaCommon import CfgMgr
-        ## get a handle on the application manager
+        ## get a handle on the application manager and attach the auditors
         from AthenaCommon.AppMgr import theApp
-        if not jobproperties.PerfMonFlags.doFastMon() or jobproperties.PerfMonFlags.doSemiDetailedMonitoring():
-            theApp.AuditAlgorithms = True
-            theApp.AuditTools      = True
-            theApp.AuditServices   = True
+        theApp.AuditAlgorithms = True
+        theApp.AuditTools      = True
+        theApp.AuditServices   = True
+
+        ## For MT=1 jobs use IncidentProcAlgs to trigger begin/end event
+        if jp.ConcurrencyFlags.NumThreads() == 1:
+            handle.compBeginEvent = "IncidentProcAlg1"
+            handle.compEndEvent = "IncidentProcAlg2"
 
         ## get output levels
         import AthenaCommon.Constants as Lvl
@@ -59,7 +62,7 @@ class PerfMonSvc( _PerfMonSvc ):
         ## make sure the application manager explicitly creates the service
         if hasattr(handle, "getFullJobOptName") :
             handleName = handle.getFullJobOptName()
-            if not handleName in theApp.CreateSvc:
+            if handleName not in theApp.CreateSvc:
                 # we want to be the very first service to be initialized
                 # so we can monitor what happens during initialize
                 theApp.CreateSvc = [ handleName ] + theApp.CreateSvc
@@ -99,7 +102,7 @@ class PerfMonSvc( _PerfMonSvc ):
                 if isinstance( v, ( ConfigurableAlgorithm,
                                     ConfigurableAlgTool,
                                     ConfigurableService ) ) \
-                   and not k in ('PerfMonSvc',
+                   and k not in ('PerfMonSvc',
                                  'AthenaEventLoopMgr',):
                     componentNames.append (v.getJobOptName())
                     pass
@@ -115,7 +118,8 @@ class PerfMonSvc( _PerfMonSvc ):
             not jobproperties.PerfMonFlags.doFastMon()) :
                     
             ## make sure the AthenaPoolCnvSvc is correctly configured
-            try:   svcMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
+            try:
+                svcMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
             except AttributeError:
                 # ok... maybe not a 'writeAthenaPool' job...
                 pass
@@ -129,7 +133,8 @@ class PerfMonSvc( _PerfMonSvc ):
                 if 'Streams' in Configurable.configurables:
                     outStreams = Configurable.configurables['Streams']
                     for o in outStreams:
-                        if not hasattr(o, 'ItemList'): continue
+                        if not hasattr(o, 'ItemList'):
+                            continue
                         ioContainers += [ i for i in o.ItemList
                                           if not i.endswith("#*") ]
                     pass

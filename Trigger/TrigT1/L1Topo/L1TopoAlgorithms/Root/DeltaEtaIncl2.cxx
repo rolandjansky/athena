@@ -25,8 +25,6 @@
 
 REGISTER_ALG_TCS(DeltaEtaIncl2)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << fullname() << ":     "
 
@@ -88,26 +86,17 @@ TCS::DeltaEtaIncl2::initialize() {
     TRG_MSG_INFO("MinET2          : " << p_MinET2[i]);
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
-
-   // create strings for histogram names
-   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
-   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
    
-   for (unsigned int i=0;i<numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << p_DeltaEtaMin[i] << "DEta"; 
-     MyRejectHist[i] << "Reject" << p_DeltaEtaMin[i] << "DEta";
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hDeltaEtaIncl2_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hDeltaEtaIncl2_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "DETA", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i]);
+       bookHist(m_histReject, hname_reject, "DETA", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i]);
    }
 
-   for (unsigned int i=0; i<numberOutputBits();i++) {
 
-     const std::string& MyTitle1 = MyAcceptHist[i].str();
-     const std::string& MyTitle2 = MyRejectHist[i].str();
-       
-     registerHist(m_histAcceptDEta2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0.,4.));
-     registerHist(m_histRejectDEta2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0.,4.));
-   }
-
-   
    return StatusCode::SUCCESS;
 }
 
@@ -140,9 +129,9 @@ TCS::DeltaEtaIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                             output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
                         if(fillAccept and not alreadyFilled) {
-                            fillHist1D(m_histAcceptDEta2[i]->GetName(),(float)deltaEta*0.10);
+                            fillHist1D(m_histAccept[i],(float)deltaEta);
                         } else if(fillReject) {
-                            fillHist1D(m_histRejectDEta2[i]->GetName(),(float)deltaEta*0.10);
+                            fillHist1D(m_histReject[i],(float)deltaEta);
                         }
                         TRG_MSG_DEBUG("DeltaEta = " << deltaEta << " -> accept bit  " << i << " -> "
                                       << (accept?"pass":"fail"));
@@ -183,9 +172,9 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                             output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
                         if(fillAccept and not alreadyFilled) {
-                            fillHist1D(m_histAcceptDEta2[i]->GetName(),(float)deltaEta*0.10);
+                            fillHist1D(m_histAccept[i],(float)deltaEta);
                         } else if(fillReject) {
-                            fillHist1D(m_histRejectDEta2[i]->GetName(),(float)deltaEta*0.10);
+                            fillHist1D(m_histReject[i],(float)deltaEta);
                         }
                         TRG_MSG_DEBUG("DeltaEta = " << deltaEta << " -> accept bit  " << i << " -> " 
                                       << (accept?"pass":"fail"));

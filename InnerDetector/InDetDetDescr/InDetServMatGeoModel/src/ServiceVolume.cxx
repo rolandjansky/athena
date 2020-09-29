@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/ServiceVolume.h"
@@ -23,7 +23,7 @@ void ServiceVolume::dump( bool dumpMaterial) const
   if ( dumpMaterial && !materials().empty()) {
     for (std::vector<ServiceMaterial>::const_iterator i=materials().begin(); i!=materials().end(); ++i) {
       cout << "   service material " << i->name() << " has the following components" << endl;
-      for ( ServiceMaterial::EntryIter ient= i->components().begin(); ient!=i->components().end(); ient++) {
+      for ( ServiceMaterial::EntryIter ient= i->components().begin(); ient!=i->components().end(); ++ient) {
 	cout << ient->name << " linear? " << ient->linear 
 	     << " number " << ient->number 
 	     << " l/w " << ient->weight 

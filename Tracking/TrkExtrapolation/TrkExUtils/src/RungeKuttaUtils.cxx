@@ -17,6 +17,7 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 
+#include "CxxUtils/vec.h"
 #include "CxxUtils/vectorize.h"
 ATH_ENABLE_VECTORIZATION;
 
@@ -27,6 +28,101 @@ namespace{
  * inside an anonymous namespace
  */
 
+inline
+void globalToLocalVecHelper(double* ATH_RESTRICT P,
+    const double s0,
+       const double s1,
+       const double s2,
+       const double s3,
+       const double s4)
+{
+  using namespace CxxUtils;
+  using vec2 = CxxUtils::vec<double, 2>;
+  using vec4 = CxxUtils::vec<double, 4>;
+
+  /*
+      P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
+      P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
+      P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
+      P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
+      P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
+      P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
+      P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
+      P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
+      P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
+      P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+      */
+
+  /*
+   * The naming convention we follow is
+   *
+   * A_B -->SIMD vector of
+   * of size 2 containing
+   * {A,B}
+   * For example :
+   * dZdTheta_dAxdTheta --> {dZ/dTheta, dAx/dTheta}
+   * --> {P[30],P[31]}
+   *
+   * using the notation of this package
+   *
+   *        /dL0    /dL1    /dPhi   /dThe   /dCM
+   * dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]
+   * dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]
+   * dZ /   P[ 9]   P[16]   P[23]   P[30]   P[37]
+   * dAx/   P[10]   P[17]   P[24]   P[31]   P[38]
+   * dAy/   P[11]   P[18]   P[25]   P[32]   P[39]
+   * dAz/   P[12]   P[19]   P[26]   P[33]   P[40]
+   * dCM/   P[13]   P[20]   P[27]   P[34]   P[41]
+   */
+
+  vec2 Pmult1 = { P[3], P[4] };
+  vec4 Pmult2 = { P[5], P[42], P[43], P[44] };
+
+  vec2 dXdL0_dYdL0;
+  vload(dXdL0_dYdL0, &P[7]);
+  vec4 dZdL0_dAxdL0_dAydL0_dAzdL0;
+  vload(dZdL0_dAxdL0_dAydL0_dAzdL0, &P[9]);
+  dXdL0_dYdL0 -= s0 * Pmult1;
+  dZdL0_dAxdL0_dAydL0_dAzdL0 -= s0 * Pmult2;
+  vstore(&P[7], dXdL0_dYdL0);
+  vstore(&P[9], dZdL0_dAxdL0_dAydL0_dAzdL0);
+
+  vec2 dXdL1_dYdL1;
+  vload(dXdL1_dYdL1, &P[14]);
+  vec4 dZdL1_dAxdL1_dAydL1_dAzdL1;
+  vload(dZdL1_dAxdL1_dAydL1_dAzdL1, &P[16]);
+  dXdL1_dYdL1 -= s1 * Pmult1;
+  dZdL1_dAxdL1_dAydL1_dAzdL1 -= s1 * Pmult2;
+  vstore(&P[14], dXdL1_dYdL1);
+  vstore(&P[16], dZdL1_dAxdL1_dAydL1_dAzdL1);
+
+  vec2 dXdPhi_dYdPhi;
+  vload(dXdPhi_dYdPhi, &P[21]);
+  vec4 dZdPhi_dAxdPhi_dAydPhi_dAzdPhi;
+  vload(dZdPhi_dAxdPhi_dAydPhi_dAzdPhi, &P[23]);
+  dXdPhi_dYdPhi -= s2 * Pmult1;
+  dZdPhi_dAxdPhi_dAydPhi_dAzdPhi -= s2 * Pmult2;
+  vstore(&P[21], dXdPhi_dYdPhi);
+  vstore(&P[23], dZdPhi_dAxdPhi_dAydPhi_dAzdPhi);
+
+  vec2 dXdTheta_dYdTheta;
+  vload(dXdTheta_dYdTheta, &P[28]);
+  vec4 dZdTheta_dAxdTheta_dAydTheta_dAzdTheta;
+  vload(dZdTheta_dAxdTheta_dAydTheta_dAzdTheta, &P[30]);
+  dXdTheta_dYdTheta -= s3 * Pmult1;
+  dZdTheta_dAxdTheta_dAydTheta_dAzdTheta -= s3 * Pmult2;
+  vstore(&P[28], dXdTheta_dYdTheta);
+  vstore(&P[30], dZdTheta_dAxdTheta_dAydTheta_dAzdTheta);
+
+  vec2 dXdCM_dYdCM;
+  vload(dXdCM_dYdCM, &P[35]);
+  vec4 dZdCM_dAxdCM_AydCM_dAzdCM;
+  vload(dZdCM_dAxdCM_AydCM_dAzdCM, &P[37]);
+  dXdCM_dYdCM -= s4 * Pmult1;
+  dZdCM_dAxdCM_AydCM_dAzdCM -= s4 * Pmult2;
+  vstore(&P[35], dXdCM_dYdCM);
+  vstore(&P[37], dZdCM_dAxdCM_AydCM_dAzdCM);
+}
 
 void
 transformGlobalToPlane(const Amg::Transform3D&  T,
@@ -59,16 +155,7 @@ transformGlobalToPlane(const Amg::Transform3D&  T,
   const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
   const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   // Jacobian production
   //
@@ -122,16 +209,7 @@ transformGlobalToDisc(const Amg::Transform3D&  T,
   const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
   const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   // Jacobian production
   //
@@ -198,16 +276,7 @@ transformGlobalToCylinder(const Amg::Transform3D&  T,
   const double s3 = P[28]*x+P[29]*y+P[30]*z;
   const double s4 = P[35]*x+P[36]*y+P[37]*z;
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   // Jacobian production
   //
@@ -270,16 +339,8 @@ transformGlobalToLine(const Amg::Transform3D&  T,
   const double s4 = (((P[28]*X+P[29]*Y+P[30]*Z)+x*(d4*A[0]-P[31]))+(y*(d4*A[1]-P[32])+z*(d4*A[2]-P[33])))*a;
   const double s5 = (((P[35]*X+P[36]*Y+P[37]*Z)+x*(d5*A[0]-P[38]))+(y*(d5*A[1]-P[39])+z*(d5*A[2]-P[40])))*a;
 
-  P[ 7]+=(s1*P[ 3]); P[ 8]+=(s1*P[ 4]); P[ 9]+=(s1*P[ 5]);
-  P[10]+=(s1*P[42]); P[11]+=(s1*P[43]); P[12]+=(s1*P[44]);
-  P[14]+=(s2*P[ 3]); P[15]+=(s2*P[ 4]); P[16]+=(s2*P[ 5]);
-  P[17]+=(s2*P[42]); P[18]+=(s2*P[43]); P[19]+=(s2*P[44]);
-  P[21]+=(s3*P[ 3]); P[22]+=(s3*P[ 4]); P[23]+=(s3*P[ 5]);
-  P[24]+=(s3*P[42]); P[25]+=(s3*P[43]); P[26]+=(s3*P[44]);
-  P[28]+=(s4*P[ 3]); P[29]+=(s4*P[ 4]); P[30]+=(s4*P[ 5]);
-  P[31]+=(s4*P[42]); P[32]+=(s4*P[43]); P[33]+=(s4*P[44]);
-  P[35]+=(s5*P[ 3]); P[36]+=(s5*P[ 4]); P[37]+=(s5*P[ 5]);
-  P[38]+=(s5*P[42]); P[39]+=(s5*P[43]); P[40]+=(s5*P[44]);
+  //pass -1 (As we want do add rather subtract in the helper)
+  globalToLocalVecHelper(P, -1.*s1, -1.*s2, -1.*s3, -1.*s4, -1.*s5);
 
   // Jacobian production
   //
@@ -1058,16 +1119,7 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
   const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   double P3,P4,C = P[3]*P[3]+P[4]*P[4];
   if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}

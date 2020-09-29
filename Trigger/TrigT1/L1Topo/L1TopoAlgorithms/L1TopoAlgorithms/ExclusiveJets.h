@@ -33,10 +33,7 @@ namespace TCS {
       parType_t      p_MaxEta1[6] = { 0,0,0,0,0,0 };
       parType_t      p_MinEta2[6] = { 0,0,0,0,0,0 };
       parType_t      p_MaxEta2[6] = { 0,0,0,0,0,0 };
-      TH2F * m_histAcceptExclusiveJets[6] = {};
-      TH2F * m_histRejectExclusiveJets[6] = {};
-      TH2F * m_histAcceptEta1Eta2[6] = {};
-      TH2F * m_histRejectEta1Eta2[6] = {};
+
    };
    
 }

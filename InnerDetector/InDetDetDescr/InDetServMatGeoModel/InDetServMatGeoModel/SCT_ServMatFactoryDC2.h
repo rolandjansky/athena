@@ -31,7 +31,7 @@ class SCT_ServMatFactoryDC2   {
   // Creation of geometry:
   void create(GeoPhysVol *mother);
 
-  MsgStream& msg (MSG::Level lvl) const{ return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
  private:  
   const GeoShape* createShape(int volType, 
@@ -58,7 +58,7 @@ class SCT_ServMatFactoryDC2   {
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
   const StoredMaterialManager    *m_materialManager;
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+  Athena::MsgStreamMember m_msg;
 };
 
 #endif //  INDETSERVMATGEOMODEL_SCT_SERVMATFACTORYDC2_H
