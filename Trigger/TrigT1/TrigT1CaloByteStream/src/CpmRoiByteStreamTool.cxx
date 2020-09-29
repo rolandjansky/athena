@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,6 @@
 
 #include "CpmRoiSubBlock.h"
 #include "L1CaloErrorByteStreamTool.h"
-#include "L1CaloSrcIdMap.h"
 #include "L1CaloUserHeader.h"
 
 #include "CpmRoiByteStreamTool.h"
@@ -41,8 +40,8 @@ CpmRoiByteStreamTool::CpmRoiByteStreamTool(const std::string& type,
                                            const IInterface*  parent)
   : AthAlgTool(type, name, parent),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
-    m_crates(4), m_modules(14), m_srcIdMap(0), m_subBlock(0), m_rodStatus(0),
-    m_fea(0)
+    m_crates(4), m_modules(14),
+    m_subDetector (eformat::TDAQ_CALO_CLUSTER_PROC_ROI)
 {
   declareInterface<CpmRoiByteStreamTool>(this);
 
@@ -52,9 +51,9 @@ CpmRoiByteStreamTool::CpmRoiByteStreamTool(const std::string& type,
                   "Offset of CP crate numbers in RDOs");
 
   // Properties for reading bytestream only
-  declareProperty("ROBSourceIDs",       m_sourceIDs,
+  declareProperty("ROBSourceIDs",       m_sourceIDsProp,
                   "ROB fragment source identifiers");
-  declareProperty("ROBSourceIDsRoIB",   m_sourceIDsRoIB,
+  declareProperty("ROBSourceIDsRoIB",   m_sourceIDsRoIBProp,
                   "ROB fragment source identifiers for RoIBs");
 
   // Properties for writing bytestream only
@@ -78,31 +77,11 @@ CpmRoiByteStreamTool::~CpmRoiByteStreamTool()
 
 StatusCode CpmRoiByteStreamTool::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO ("Initializing " << name() << " - package version "
+                << PACKAGE_VERSION);
 
-  StatusCode sc = m_errorTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
-    return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
+  ATH_CHECK( m_errorTool.retrieve() );
 
-  m_subDetector = eformat::TDAQ_CALO_CLUSTER_PROC_ROI;
-  m_srcIdMap    = new L1CaloSrcIdMap();
-  m_rodStatus   = new std::vector<uint32_t>(2);
-  m_subBlock    = new CpmRoiSubBlock();
-  m_fea         = new FullEventAssembler<L1CaloSrcIdMap>();
-  return StatusCode::SUCCESS;
-}
-
-// Finalize
-
-StatusCode CpmRoiByteStreamTool::finalize()
-{
-  delete m_fea;
-  delete m_subBlock;
-  delete m_rodStatus;
-  delete m_srcIdMap;
   return StatusCode::SUCCESS;
 }
 
@@ -110,10 +89,13 @@ StatusCode CpmRoiByteStreamTool::finalize()
 
 StatusCode CpmRoiByteStreamTool::convert(
                             const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            DataVector<LVL1::CPMRoI>* const roiCollection)
+                            DataVector<LVL1::CPMRoI>* const roiCollection) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
+
+  // Sub-block for neutral format
+  CpmRoiSubBlock subBlock;
 
   // Loop over ROB fragments
 
@@ -165,12 +147,12 @@ StatusCode CpmRoiByteStreamTool::convert(
 
     // Check identifier
     const uint32_t sourceID = (*rob)->rod_source_id();
-    if (m_srcIdMap->getRobID(sourceID) != robid           ||
-        m_srcIdMap->subDet(sourceID)   != m_subDetector   ||
-        m_srcIdMap->daqOrRoi(sourceID) != 1               ||
-       (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
-	m_srcIdMap->crate(sourceID)    <  m_crateOffsetHw ||
-	m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates) {
+    if (m_srcIdMap.getRobID(sourceID) != robid           ||
+        m_srcIdMap.subDet(sourceID)   != m_subDetector   ||
+        m_srcIdMap.daqOrRoi(sourceID) != 1               ||
+       (m_srcIdMap.slink(sourceID) != 0 && m_srcIdMap.slink(sourceID) != 2) ||
+	m_srcIdMap.crate(sourceID)    <  m_crateOffsetHw ||
+	m_srcIdMap.crate(sourceID)    >= m_crateOffsetHw + m_crates) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_ROD_ID);
       if (debug) {
         msg() << "Wrong source identifier in data: "
@@ -178,10 +160,10 @@ StatusCode CpmRoiByteStreamTool::convert(
       }
       continue;
     }
-    const int rodCrate = m_srcIdMap->crate(sourceID);
+    const int rodCrate = m_srcIdMap.crate(sourceID);
     if (debug) {
       msg() << "Treating crate " << rodCrate 
-            << " slink " << m_srcIdMap->slink(sourceID) << endmsg;
+            << " slink " << m_srcIdMap.slink(sourceID) << endmsg;
     }
 
     // First word may be User Header
@@ -205,26 +187,26 @@ StatusCode CpmRoiByteStreamTool::convert(
     while (payload != payloadEnd) {
       
       if (L1CaloSubBlock::wordType(*payload) == L1CaloSubBlock::HEADER) {
-        m_subBlock->clear();
-        payload = m_subBlock->read(payload, payloadEnd);
+        subBlock.clear();
+        payload = subBlock.read(payload, payloadEnd);
         if (debug) {
-          msg() << "CPM RoI sub-block: Crate " << m_subBlock->crate()
-                << "  Module " << m_subBlock->module() << endmsg;
+          msg() << "CPM RoI sub-block: Crate " << subBlock.crate()
+                << "  Module " << subBlock.module() << endmsg;
         }
         // Unpack sub-block
-        if (m_subBlock->dataWords() && !m_subBlock->unpack()) {
+        if (subBlock.dataWords() && !subBlock.unpack()) {
           if (debug) {
-            std::string errMsg(m_subBlock->unpackErrorMsg());
+            std::string errMsg(subBlock.unpackErrorMsg());
 	    msg() << "CPM RoI sub-block unpacking failed: " << errMsg << endmsg;
 	  }
-	  rodErr = m_subBlock->unpackErrorCode();
+	  rodErr = subBlock.unpackErrorCode();
 	  break;
         }
 	const int numChips = 8;
 	const int numLocs  = 2;
 	for (int chip = 0; chip < numChips; ++chip) {
 	  for (int loc = 0; loc < numLocs; ++loc) {
-	    const LVL1::CPMRoI roi = m_subBlock->roi(chip, loc);
+	    const LVL1::CPMRoI roi = subBlock.roi(chip, loc);
             if (roi.hits() || roi.error()) {
               roiCollection->push_back(new LVL1::CPMRoI(roi));
             }
@@ -277,27 +259,31 @@ StatusCode CpmRoiByteStreamTool::convert(
 
 StatusCode CpmRoiByteStreamTool::convert(
            const DataVector<LVL1::CPMRoI>* const roiCollection,
-	   RawEventWrite* const re)
+	   RawEventWrite* const re) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 
   // Clear the event assembler
 
-  m_fea->clear();
-  const uint16_t minorVersion = m_srcIdMap->minorVersion();
-  m_fea->setRodMinorVersion(minorVersion);
-  m_rodStatusMap.clear();
+  FullEventAssembler<L1CaloSrcIdMap> fea;
+  const uint16_t minorVersion = m_srcIdMap.minorVersion();
+  fea.setRodMinorVersion(minorVersion);
 
   // Pointer to ROD data vector
 
   FullEventAssembler<L1CaloSrcIdMap>::RODDATA* theROD = 0;
 
+  // Sub-block for neutral format
+  CpmRoiSubBlock subBlock;
+
   // Set up the container map
 
-  setupCpmRoiMap(roiCollection);
-  CpmRoiMap::const_iterator mapIter    = m_roiMap.begin();
-  CpmRoiMap::const_iterator mapIterEnd = m_roiMap.end();
+  // CPM RoI map
+  CpmRoiMap roiMap;
+  setupCpmRoiMap(roiCollection, roiMap);
+  CpmRoiMap::const_iterator mapIter    = roiMap.begin();
+  CpmRoiMap::const_iterator mapIterEnd = roiMap.end();
 
   // Loop over data
 
@@ -322,22 +308,21 @@ StatusCode CpmRoiByteStreamTool::convert(
 	        << "Data Version/Format: " << m_version
 	        << " " << m_dataFormat << endmsg;
         }
-	const uint32_t rodIdCpm = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
+	const uint32_t rodIdCpm = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
 	                                                        m_subDetector);
-	theROD = m_fea->getRodData(rodIdCpm);
+	theROD = fea.getRodData(rodIdCpm);
 	if (neutralFormat) {
           const L1CaloUserHeader userHeader;
 	  theROD->push_back(userHeader.header());
         }
-	m_rodStatusMap.insert(make_pair(rodIdCpm, m_rodStatus));
       }
       if (debug) msg() << "Module " << module << endmsg;
 
       // Create a sub-block (Neutral format only)
 
       if (neutralFormat) {
-        m_subBlock->clear();
-	m_subBlock->setRoiHeader(m_version, hwCrate, module);
+        subBlock.clear();
+	subBlock.setRoiHeader(m_version, hwCrate, module);
       }
 
       // Find CPM RoIs for this module
@@ -349,7 +334,7 @@ StatusCode CpmRoiByteStreamTool::convert(
 	if (roi->cpm()   < module) continue;
 	if (roi->cpm()   > module) break;
 	if (roi->hits() || roi->error()) {
-	  if (neutralFormat) m_subBlock->fillRoi(*roi);
+	  if (neutralFormat) subBlock.fillRoi(*roi);
           else theROD->push_back(roi->roiWord());
         }
       }
@@ -357,71 +342,94 @@ StatusCode CpmRoiByteStreamTool::convert(
       // Pack and write the sub-block
 
       if (neutralFormat) {
-        if ( !m_subBlock->pack()) {
+        if ( !subBlock.pack()) {
           msg(MSG::ERROR) << "CPMRoI sub-block packing failed" << endmsg;
  	  return StatusCode::FAILURE;
         }
 	if (debug) {
 	  msg() << "CPMRoI sub-block data words: "
-	        << m_subBlock->dataWords() << endmsg;
+	        << subBlock.dataWords() << endmsg;
         }
-        m_subBlock->write(theROD);
+        subBlock.write(theROD);
       }
     }
   }
 
   // Fill the raw event
 
-  m_fea->fill(re, msg());
-
-  // Set ROD status words
-
-  //L1CaloRodStatus::setStatus(re, m_rodStatusMap, m_srcIdMap);
+  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }
 
 // Return reference to vector with all possible Source Identifiers
 
+std::vector<uint32_t> CpmRoiByteStreamTool::makeSourceIDs (bool roiDaq) const
+{
+  std::vector<uint32_t> sourceIDs;
+
+  if (roiDaq) {
+    sourceIDs = m_sourceIDsProp;
+  }
+  else {
+    sourceIDs = m_sourceIDsRoIBProp;
+  }
+
+  if (sourceIDs.empty()) {
+        const int maxCrates = m_crates + m_crateOffsetHw;
+        const int maxSlinks = m_srcIdMap.maxSlinks();
+        for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate)
+        {
+            for (int slink = 0; slink < maxSlinks; ++slink)
+            {
+                const int daqOrRoi = 1;
+                const uint32_t rodId = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
+                                       m_subDetector);
+                const uint32_t robId = m_srcIdMap.getRobID(rodId);
+                if (roiDaq)
+                {
+                    if (slink < 2) sourceIDs.push_back(robId);
+                }
+                else if (slink >= 2) sourceIDs.push_back(robId);
+            }
+        }
+
+  }
+  return sourceIDs;
+}
+
 const std::vector<uint32_t>& CpmRoiByteStreamTool::sourceIDs(
-                                                      const std::string& sgKey)
+                                                      const std::string& sgKey) const
 {
   const std::string flag("RoIB");
   const std::string::size_type pos = sgKey.find(flag);
   const bool roiDaq =
            (pos == std::string::npos || pos != sgKey.length() - flag.length());
-  const bool empty  = (roiDaq) ? m_sourceIDs.empty() : m_sourceIDsRoIB.empty();
-  if (empty) {
-    const int maxCrates = m_crates + m_crateOffsetHw;
-    const int maxSlinks = m_srcIdMap->maxSlinks();
-    for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate) {
-      for (int slink = 0; slink < maxSlinks; ++slink) {
-        const int daqOrRoi = 1;
-        const uint32_t rodId = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-                                                             m_subDetector);
-        const uint32_t robId = m_srcIdMap->getRobID(rodId);
-	if (roiDaq) {
-	  if (slink < 2) m_sourceIDs.push_back(robId);
-	} else if (slink >= 2) m_sourceIDsRoIB.push_back(robId);
-      }
-    }
+
+  if (roiDaq) {
+    static const std::vector<uint32_t> sourceIDs = makeSourceIDs(roiDaq);
+    return sourceIDs;
   }
-  return (roiDaq) ? m_sourceIDs : m_sourceIDsRoIB;
+  else {
+    static const std::vector<uint32_t> sourceIDsRoIB = makeSourceIDs(roiDaq);
+    return sourceIDsRoIB;
+  }
 }
 
 // Set up CPM RoI map
 
 void CpmRoiByteStreamTool::setupCpmRoiMap(const CpmRoiCollection*
-                                                          const roiCollection)
+                                                          const roiCollection,
+                                            CpmRoiMap& roiMap) const
 {
-  m_roiMap.clear();
+  roiMap.clear();
   if (roiCollection) {
     CpmRoiCollection::const_iterator pos  = roiCollection->begin();
     CpmRoiCollection::const_iterator pose = roiCollection->end();
     for (; pos != pose; ++pos) {
       const LVL1::CPMRoI* const roi = *pos;
       const uint32_t key = roi->roiWord();
-      m_roiMap.insert(std::make_pair(key, roi));
+      roiMap.insert(std::make_pair(key, roi));
     }
   }
 }
