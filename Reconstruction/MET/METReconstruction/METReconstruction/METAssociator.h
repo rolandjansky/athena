@@ -90,12 +90,11 @@ namespace met {
     std::string m_pvcoll;
     std::string m_trkcoll;
     std::string m_clcoll;
-    std::string m_pfcoll;
 
     SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey;
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey;
     SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey;
-    SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey;
+    SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey{this,"PFlowColl","CHSParticleFlowObjects","PFO Collection"};
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_forcollKey;
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey;
 
