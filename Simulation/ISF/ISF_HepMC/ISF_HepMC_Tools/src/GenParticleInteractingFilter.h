@@ -18,6 +18,7 @@
 // STL includes
 #include <string>
 
+#include "AtlasHepMC/GenParticle.h"
 namespace ISF {
 
     class ISFParticle;
@@ -40,9 +41,14 @@ namespace ISF {
 
       /** Framework methods */
       virtual StatusCode initialize() override;
+#ifdef HEPMC3
+      /** passes through to the private version */
+      virtual bool pass(HepMC::ConstGenParticlePtr particle ) const override;
+#else
 
       /** passes through to the private version */
       virtual bool pass(const HepMC::GenParticle& particle ) const override;
+#endif
 
       /** Additional PDG codes to classify as interacting */
       std::vector<int> m_additionalInteractingParticleTypes;
