@@ -395,6 +395,35 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
 
 }
 
+void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,bool online) const
+{
+  ATH_MSG_DEBUG("Fill Basic Variables: " << trigger); 
+
+  auto monGroup = getGroup(trigger+( online ? "/basicVars/HLT" : "/basicVars/Offline"));  
+
+  //auto hEFEt           = Monitored::Collection("hEFEt", tau_vec,  [] (const xAOD::TauJet* tau){return tau->pt()/GeV; });
+  auto hEFEt           = Monitored::Collection("hEFEt", tau_vec,  [] (const xAOD::TauJet* tau){return tau->pt(); });
+  auto hEFEta          = Monitored::Collection("hEFEta", tau_vec,  [] (const xAOD::TauJet* tau){return tau->eta(); });                                                     
+
+  //int num_vxt = m_mu_online;
+  //auto hEFNUM          = Monitored::Collection("hEFNUM", tau_vec,  [] (const xAOD::TauJet* tau){return num_vxt; });   
+  //hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
+  auto hEFPhi          = Monitored::Collection("hEFPhi", tau_vec,  [] (const xAOD::TauJet* tau){return tau->phi(); });
+  auto hEFnTrack       = Monitored::Collection("hEFnTrack", tau_vec,  [] (const xAOD::TauJet* tau){
+      int nTracks=-1;
+      tau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
+      return EFnTrack; }); 
+  auto hEFnWideTrack   = Monitored::Collection("hEFnWideTrack", tau_vec,  [] (const xAOD::TauJet* tau){
+      int EFWidenTrack(-1);
+      // XAODTAU_VERSIONS_TAUJET_V3_H 
+      EFWidenTrack = tau->nTracksIsolation();
+      return EFWidenTrack; }); 
+  //hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
+  //hist2("hEFEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/GeV);
+  //hist2("hEFEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/GeV);
+  fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack);
+}
+
 TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string trigger) const{ 
   return m_trigInfo.at(trigger); 
 }

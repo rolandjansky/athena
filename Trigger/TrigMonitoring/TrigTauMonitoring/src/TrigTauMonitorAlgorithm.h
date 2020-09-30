@@ -49,6 +49,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillRNNInputVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng, bool online) const;
   void fillRNNTrack(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillRNNCluster(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
+  void fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet> tau_vec, bool online) const;
   void fillDistributions(std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, const std::string trigger) const;
 
   inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const
