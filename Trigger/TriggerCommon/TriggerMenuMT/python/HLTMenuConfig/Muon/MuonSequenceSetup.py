@@ -147,8 +147,9 @@ def muCombAlgSequence(ConfigFlags):
     insideoutMuonChainFilter.ChainsToFilter = insideoutMuonChains
     insideoutMuonChainFilter.InputDecisions = [ CFNaming.inputMakerOutName(l2muCombViewsMaker.name()) ]
     insideoutMuonChainFilter.L2MuFastContainer = sequenceOutL2SAIO
+    insideoutMuonChainFilter.L2MuCombContainer = muNames.L2CBName+"IOmode"
     insideoutMuonChainFilter.WriteMuFast = True
-    insideoutMuonChainFilter.WriteMuComb = False
+    insideoutMuonChainFilter.WriteMuComb = True
 
     muFastIOFilterSequence = seqAND("l2muFastIOFilterSequence", [insideoutMuonChainFilter, muFastIORecoSequence])
 
