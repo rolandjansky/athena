@@ -597,7 +597,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
 	    if( !m_doInducedChargedModel ){ 
 	      diffusionSigma = DiffusionSigma(zReadout);
 	      y1 += m_tanLorentz * zReadout; // !< Taking into account the magnetic field	      
-	    } // Diffusion and Lorentz angle will be treated in the Induced Charged Model if it used.
+	    } // Diffusion and Lorentz angle will be treated in the Induced Charged Model if it is used.
 	    
             for (int i = 0; i < m_numberOfCharges; ++i) {
                 float rx = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
