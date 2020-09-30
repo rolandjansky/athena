@@ -33,6 +33,8 @@ namespace InDet {
       declareProperty("maxDoubleHoles",          m_maxDoubleHoles       =          {1}); // max number of double holes
       declareProperty("maxPrimaryImpact",        m_maxPrimaryImpact     =        {2.0}); // max Rphi IP (primaries) 
       declareProperty("maxZImpact",              m_maxZImpact           =      {200.0}); // max Z IP
+      declareProperty("IPsigd0Max",              m_sigIPd0Max           =      {999.0}); // error d0Max 
+      declareProperty("IPsigz0Max",              m_sigIPz0Max           =      {999.0}); // error z0Max 
       declareProperty("maxHolesPattern",         m_maxHolesPattern      =          {2}); // max holes in pattern
       declareProperty("maxHolesGapPattern",      m_maxHolesGapPattern   =          {2}); // max holes gap in pattern
       declareProperty("Xi2max",                  m_Xi2max               =        {9.0}); // Xi2 max
@@ -87,7 +89,9 @@ namespace InDet {
                                                                &m_minPTBrem           ,
                                                                &m_phiWidthBrem        ,
                                                                &m_Xi2max              ,
-                                                               &m_Xi2maxNoAdd         };
+                                                               &m_Xi2maxNoAdd         ,
+							       &m_sigIPd0Max          ,
+							       &m_sigIPz0Max          };
                                             
       std::vector < std::vector <int>* > sets_of_cuts_i    = { &m_maxDoubleHoles      ,
                                                                &m_maxHoles            ,
@@ -127,6 +131,8 @@ namespace InDet {
       ATH_MSG_INFO ("minPixelHits: " << m_minPixelHits);
       ATH_MSG_INFO ("minStripHits: " << m_minStripHits);
       ATH_MSG_INFO ("minPT: " << m_minPT);
+      ATH_MSG_INFO ("sigd0Max: " << m_sigIPd0Max);
+      ATH_MSG_INFO ("sigz0Max: " << m_sigIPz0Max);
       ATH_MSG_INFO ("minPTBrem: " << m_minPTBrem);
       ATH_MSG_INFO ("minSiNotShared: " << m_minSiNotShared);
       ATH_MSG_INFO ("nHolesGapMax: " << m_maxHolesGapPattern);
@@ -147,6 +153,8 @@ namespace InDet {
       m_mapDoubleCuts[InDet::CutName::minPTBrem]          = m_minPTBrem;
       m_mapDoubleCuts[InDet::CutName::etaWidthBrem]       = m_etaWidthBrem;
       m_mapDoubleCuts[InDet::CutName::phiWidthBrem]       = m_phiWidthBrem;
+      m_mapDoubleCuts[InDet::CutName::sigIPd0Max]         = m_sigIPd0Max;
+      m_mapDoubleCuts[InDet::CutName::sigIPz0Max]         = m_sigIPz0Max;
 
       m_mapIntCuts[InDet::CutName::minClusters]           = m_minClusters;
       m_mapIntCuts[InDet::CutName::minSiNotShared]        = m_minSiNotShared;
@@ -264,8 +272,13 @@ namespace InDet {
     double  InDetEtaDependentCutsSvc::getMaxPrimaryImpactAtEta(double eta) {
       return getValueAtEta<double>(m_maxPrimaryImpact, eta);
     }
-
-  double  InDetEtaDependentCutsSvc::getMaxChi2AtEta(double eta) {
+    double InDetEtaDependentCutsSvc::getSigIPd0MaxAtEta(double eta) {
+      return getValueAtEta<double>(m_sigIPd0Max,eta);
+    }  
+    double InDetEtaDependentCutsSvc::getSigIPz0MaxAtEta(double eta) {
+      return getValueAtEta<double>(m_sigIPz0Max,eta);
+    }  
+   double  InDetEtaDependentCutsSvc::getMaxChi2AtEta(double eta) {
       return getValueAtEta<double>(m_Xi2max, eta);
     }
       

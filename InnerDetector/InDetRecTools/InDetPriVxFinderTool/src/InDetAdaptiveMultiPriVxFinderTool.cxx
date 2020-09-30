@@ -69,6 +69,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     m_trkFilter("InDet::InDetTrackSelection"),
     m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
     m_iBeamCondSvc("BeamCondSvc",n),
+    m_etaDependentCutsSvc("",n),
     m_useBeamConstraint(true),
     m_TracksMaxZinterval(0.5),
     m_maxVertexChi2(18.42),
@@ -113,6 +114,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     declareProperty("do3dSplitting",m_do3dSplitting);
     declareProperty("zBfieldApprox",m_zBfieldApprox);
     declareProperty("maximumVertexContamination",m_maximumVertexContamination);
+    declareProperty("InDetEtaDependentCutsSvc", m_etaDependentCutsSvc);
 }
 
 InDetAdaptiveMultiPriVxFinderTool::~InDetAdaptiveMultiPriVxFinderTool()
@@ -132,6 +134,12 @@ StatusCode InDetAdaptiveMultiPriVxFinderTool::initialize()
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
     if (msgLvl(MSG::DEBUG)) m_printParameterSettings();
+    
+    if (not m_etaDependentCutsSvc.name().empty()){
+      ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+      ATH_MSG_INFO("m_etaDependentCutsSvc not empty");
+    }
+
 
     ATH_MSG_INFO("Initialization successful");
 
@@ -275,7 +283,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
   typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
-  Root::TAccept selectionPassed;
+  bool selectionPassed;
   for (TrackParticleDataVecIter itr  = (*trackParticles).begin(); itr != (*trackParticles).end(); itr++) {
     if (m_useBeamConstraint) {
       selectionPassed=m_trkFilter->accept(**itr,&beamposition);
@@ -290,15 +298,18 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       null.setCovariancePosition(vertexError);
       selectionPassed=m_trkFilter->accept(**itr,&null);
     }
-    
-    if (selectionPassed)
-    {
+
+    /// eta dependent cuts ////
+    bool etaCuts = not m_etaDependentCutsSvc.name().empty(); 
+    if (etaCuts) selectionPassed &= vtxEtaDependentCut(*itr); 
+    if (selectionPassed) {
       ElementLink<xAOD::TrackParticleContainer> link;
       link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
       Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
       linkTT->setStorableObject(*trackParticles); //@TODO: really?!
       selectedTracks.push_back(linkTT);
     }
+
   }
 
   ATH_MSG_DEBUG("Of " << trackParticles->size() << " tracks " << selectedTracks.size() << " survived the preselection.");
@@ -320,7 +331,51 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
 }
 
-
+bool InDetAdaptiveMultiPriVxFinderTool::vtxEtaDependentCut(const xAOD::TrackParticle* trk)
+{
+  // vertex's eta dependent cuts method.
+  // If the truck does not pass one of the cuts than etaSelectionPassed flag become false 
+  // and the truck is not stored
+  
+  ATH_MSG_DEBUG("in vtxEtaDependentCut ");
+  bool etaSelectionPassed_temp = true ; 
+  double trackEta = (trk)->eta();
+  const xAOD::ParametersCovMatrix_t covTrk = trk->definingParametersCovMatrix();
+  
+  if ( getCount(*trk,xAOD::numberOfSCTHits)==-1 || getCount(*trk,xAOD::numberOfPixelHits)==-1 ) {
+    etaSelectionPassed_temp = false; // track rejected, missing summaryValue() infos
+    ATH_MSG_WARNING("Failed to access Strips or Pixels infos, missing summaryValue() ");
+  }
+  else {
+    if ( fabs((trk)->pt()) < m_etaDependentCutsSvc->getMinPtAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track pt: " << fabs((trk)->pt()) << " LOWER than min pt: " << m_etaDependentCutsSvc->getMinPtAtEta(trackEta) << "");
+    }
+    else if ( fabs((trk)->d0()) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track d0: " << fabs((trk)->d0()) << " HIGHER than max d0: "<< m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) << "" );
+    }
+    else if ( fabs((trk)->z0()) > m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track z0: " << fabs((trk)->z0()) << " HIGHER than max z0: "<< m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) << "" );
+    }
+    else if ( fabs((trk)->d0())/Amg::error(covTrk,Trk::d0) > m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track error d0 significance: " << fabs(Amg::error(covTrk, 0))/Amg::error(covTrk,Trk::d0) << " HIGHER than max err d0 significance: "<< m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) << "" );
+    }
+    else if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("SilHits: " << getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min SilHits: " << m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) << "");
+    }
+    else if ( getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("PixHits: " << getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min PixHits: " << m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) << ""); 
+    }
+  }
+  ATH_MSG_DEBUG(" etaSelectionPassed (y/n): " << etaSelectionPassed_temp << "");
+  return etaSelectionPassed_temp ; 
+}
+  
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiPriVxFinderTool::findVertex(const std::vector<const Trk::ITrackLink*> & trackVector)
 {
 

@@ -50,6 +50,8 @@ namespace InDet {
       double  getMaxZImpactAtEta      (double eta);
       double  getMaxPrimaryImpactAtEta(double eta);
       double  getMaxChi2AtEta         (double eta);
+      double  getSigIPd0MaxAtEta      (double eta);
+      double  getSigIPz0MaxAtEta      (double eta);
       
       int     getMinSiHitsAtEta       (double eta);
       int     getMinSiNotSharedAtEta  (double eta);
@@ -86,6 +88,9 @@ namespace InDet {
       std::vector<double>  m_phiWidthBrem         ; // phi Width of road for brem (cut for brem)
       std::vector<double>  m_Xi2max               ; // Xi2 max
       std::vector<double>  m_Xi2maxNoAdd          ; // Xi2 max no add
+      std::vector<double>  m_sigIPd0Max           ; // max sigma IP d0
+      std::vector<double>  m_sigIPz0Max           ; // max sigma IP z0
+
       std::vector<int>     m_maxDoubleHoles       ; // max number of double holes
       std::vector<int>     m_maxHoles             ; // max number of Si holes 
       std::vector<int>     m_maxPixelHoles        ; // max number of Pixel holes

@@ -15,6 +15,7 @@ namespace InDet {
     etaBins, etaWidthBrem, maxdImpactSSSSeeds, maxDoubleHoles,
     maxHoles, maxPixelHoles, maxPrimaryImpact, maxSctHoles, 
     maxShared, maxZImpact, minClusters, minPixelHits, minInPixelHits, minStripHits, minPT,
+    sigIPd0Max, sigIPz0Max,
     minPTBrem, minSiNotShared, maxHolesGapPattern, maxHolesPattern,
     nWeightedClustersMin, phiWidthBrem, Xi2max, Xi2maxNoAdd
   };
@@ -43,6 +44,9 @@ namespace InDet {
     virtual double  getMaxZImpactAtEta      (double eta) = 0;
     virtual double  getMaxPrimaryImpactAtEta(double eta) = 0;
     virtual double  getMaxChi2AtEta         (double eta) = 0;
+    virtual double  getSigIPd0MaxAtEta      (double eta) = 0;
+    virtual double  getSigIPz0MaxAtEta      (double eta) = 0;
+
     virtual int     getMinSiHitsAtEta       (double eta) = 0;
     virtual int     getMinSiNotSharedAtEta  (double eta) = 0;
     virtual int     getMaxSharedAtEta       (double eta) = 0;
