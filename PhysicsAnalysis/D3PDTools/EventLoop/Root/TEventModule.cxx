@@ -50,7 +50,7 @@ namespace EL
 
 
     ::StatusCode TEventModule ::
-    preFileInitialize (ModuleData& data)
+    preFileInitialize (ModuleData& /*data*/)
     {
       using namespace msgEventLoop;
 
