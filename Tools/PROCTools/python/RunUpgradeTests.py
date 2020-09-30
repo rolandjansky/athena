@@ -589,6 +589,13 @@ def main():
                       dest="oldtest_flag",
                       default=False,
                       help="Run older version tests")
+    
+    parser.add_option("-I",
+                      "--sim-input-file",
+                      dest="siminputfile_flag",
+                      default="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root",
+                      help="Input file for simulation tests")
+
 
     (options,args)=parser.parse_args()
 
@@ -718,7 +725,7 @@ def main():
 #        mysetup=mysetup+",builds"
         logging.info("------------------ Run Athena q-test jobs---------------"                )
 
-        sim_input_file = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root" # For sim test
+        sim_input_file = options.siminputfile_flag
 
         if RunFast:
             for qtest in qTestsToRun:
