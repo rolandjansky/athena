@@ -105,6 +105,7 @@ private:
   bool m_originCorrectedClusters;
   std::string m_rhoKey;
   bool m_useNjetInResidual;
+  bool m_doMuOnlyInResidual;
   bool m_saveAreaCorrectedScaleMomentum;
   float m_nJetPtThreshold;
   std::string m_nJetContainerName;
