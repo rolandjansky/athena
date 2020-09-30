@@ -141,7 +141,7 @@ namespace InDet {
 
     /* Estimate number of particles for both with and w/o tracks */
     /* Method 2: using lwtnn for more flexible interfacing */
-    //std::vector<double> estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input) const;
+    std::vector<double> estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input) const;
 
     /* Estimate position for both with and w/o tracks */
     /* Method 1: using older TTrainedNetworks */

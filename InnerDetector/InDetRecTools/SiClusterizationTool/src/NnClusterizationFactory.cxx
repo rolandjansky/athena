@@ -302,12 +302,6 @@ namespace InDet {
 
     double tanl=0;
 
-    // Move this to if (m_useTTrainedNetworks) clause when validated
-    SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
-    if (!nn_collection.isValid()) {
-      std::stringstream msg; msg  << "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key();
-      throw std::runtime_error(msg.str() );
-    }
     NNinput input( createInput(pCluster,
                                beamSpotPosition,
                                tanl,
@@ -321,28 +315,22 @@ namespace InDet {
 
 
     std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
-    // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-    std::vector<double> resultNN_NoTrack( ((*(nn_collection->at(m_nParticleNNId))).*m_calculateOutput)(inputData) );  
 
-    ATH_MSG_VERBOSE(" NOTRACK Prob of n. particles (1): " << resultNN_NoTrack[0] <<
-                    " (2): " << resultNN_NoTrack[1] <<
-                    " (3): " << resultNN_NoTrack[2]);
+    // If using old TTrainedNetworks, fetch correct ones for the
+    // without-track situation and call them now.
+    if (m_useTTrainedNetworks) {
+      SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
+      if (!nn_collection.isValid()) {
+        std::stringstream msg; msg  << "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key();
+        throw std::runtime_error( msg.str() );
+      }
+      return estimateNumberOfParticlesTTN(**nn_collection, inputData);
+    }
 
-    std::vector<double> resultNN_NoTrack_sanity = estimateNumberOfParticlesTTN(**nn_collection, inputData);
+    // Otherwise, prepare lwtnn input map and use new networks.
+    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
+    return estimateNumberOfParticlesLWTNN(nnInputData);
 
-    std::cout<<"yoyoma_p1_orig,"<<resultNN_NoTrack[0]<<std::endl;
-    std::cout<<"yoyoma_p2_orig,"<<resultNN_NoTrack[1]<<std::endl;
-    std::cout<<"yoyoma_p3_orig,"<<resultNN_NoTrack[2]<<std::endl;
-
-    std::cout<<"yoyoma_p1_sanity,"<<resultNN_NoTrack_sanity[0]<<std::endl;
-    std::cout<<"yoyoma_p2_sanity,"<<resultNN_NoTrack_sanity[1]<<std::endl;
-    std::cout<<"yoyoma_p3_sanity,"<<resultNN_NoTrack_sanity[2]<<std::endl;
-
-    std::cout<<"yoyoma_p1_sanitydiff,"<<resultNN_NoTrack[0] - resultNN_NoTrack_sanity[0]<<std::endl;
-    std::cout<<"yoyoma_p2_sanitydiff,"<<resultNN_NoTrack[1] - resultNN_NoTrack_sanity[1]<<std::endl;
-    std::cout<<"yoyoma_p3_sanitydiff,"<<resultNN_NoTrack[2] - resultNN_NoTrack_sanity[2]<<std::endl;
-
-    return resultNN_NoTrack;
   }
 
   std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
@@ -351,13 +339,6 @@ namespace InDet {
                                                                          int sizeX,
                                                                          int sizeY) const
   {
-
-    // Move this to if (m_useTTrainedNetworks) clause when validated
-    SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
-    if (!nn_collection.isValid()) {
-      std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithTrack.key();
-      throw std::runtime_error(msg.str() );
-    }
 
     Amg::Vector3D dummyBS(0,0,0);
 
@@ -377,26 +358,22 @@ namespace InDet {
     addTrackInfoToInput(input,pixelSurface,trackParsAtSurface,tanl);
 
     std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
-    // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-    std::vector<double> resultNN( ( ( *(nn_collection->at(m_nParticleNNId))).*m_calculateOutput)(inputData) );
 
-    ATH_MSG_VERBOSE(" Prob of n. particles (1): " << resultNN[0] << " (2): " << resultNN[1] << " (3): " << resultNN[2]);
+    // If using old TTrainedNetworks, fetch correct ones for the
+    // with-track situation and call them now.
+    if (m_useTTrainedNetworks) {
+      SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
+      if (!nn_collection.isValid()) {
+        std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithTrack.key();
+        throw std::runtime_error( msg.str() );
+      }
+      return estimateNumberOfParticlesTTN(**nn_collection, inputData);
+    }
 
-    std::vector<double> resultNN_sanity = estimateNumberOfParticlesTTN(**nn_collection, inputData);
+    // Otherwise, prepare lwtnn input map and use new networks.
+    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
+    return estimateNumberOfParticlesLWTNN(nnInputData);
 
-    std::cout<<"yoyoma_p1_orig,"<<resultNN[0]<<std::endl;
-    std::cout<<"yoyoma_p2_orig,"<<resultNN[1]<<std::endl;
-    std::cout<<"yoyoma_p3_orig,"<<resultNN[2]<<std::endl;
-
-    std::cout<<"yoyoma_p1_sanity,"<<resultNN_sanity[0]<<std::endl;
-    std::cout<<"yoyoma_p2_sanity,"<<resultNN_sanity[1]<<std::endl;
-    std::cout<<"yoyoma_p3_sanity,"<<resultNN_sanity[2]<<std::endl;
-
-    std::cout<<"yoyoma_p1_sanitydiff,"<<resultNN[0] - resultNN_sanity[0]<<std::endl;
-    std::cout<<"yoyoma_p2_sanitydiff,"<<resultNN[1] - resultNN_sanity[1]<<std::endl;
-    std::cout<<"yoyoma_p3_sanitydiff,"<<resultNN[2] - resultNN_sanity[2]<<std::endl;
-
-    return resultNN;
   }
 
   std::vector<double> NnClusterizationFactory::estimateNumberOfParticlesTTN(const TTrainedNetworkCollection &nn_collection,
@@ -404,25 +381,48 @@ namespace InDet {
   {
     ATH_MSG_DEBUG("Using TTN number network");
     // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-    std::vector<double> resultNN_TTN( ((*(nn_collection.at(m_nParticleNNId))).*m_calculateOutput)(inputData) );  
+    std::vector<double> resultNN_TTN( ((*(nn_collection.at(m_nParticleNNId))).*m_calculateOutput)(inputData) );
+
+    ATH_MSG_VERBOSE(" TTN Prob of n. particles (1): " << resultNN_TTN[0] <<
+                                             " (2): " << resultNN_TTN[1] <<
+                                             " (3): " << resultNN_TTN[2]);
+
+    std::cout<<"yoyoma_p1_orig,"<<resultNN_TTN[0]<<std::endl;
+    std::cout<<"yoyoma_p2_orig,"<<resultNN_TTN[1]<<std::endl;
+    std::cout<<"yoyoma_p3_orig,"<<resultNN_TTN[2]<<std::endl;
+
     return resultNN_TTN;
   }
 
-  // std::vector<double> NnClusterizationFactory::estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input)
-  // {
-  //   ATH_MSG_DEBUG("Using lwtnn number network");
-  //   // Evaluate the number network once per cluster
-  //   lwt::ValueMap discriminant = m_lwnnNumber->compute(input);
-  //   double num0 = discriminant["output_number0"];
-  //   double num1 = discriminant["output_number1"];
-  //   double num2 = discriminant["output_number2"];
-  //   // Get normalized predictions
-  //   double prob1 = num0/(num0+num1+num2);
-  //   double prob2 = num1/(num0+num1+num2);
-  //   double prob3 = num2/(num0+num1+num2);
-  //   std::vector<double> number_probabilities{prob1, prob2, prob3};
-  //   return number_probabilities;
-  // }
+  std::vector<double> NnClusterizationFactory::estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input) const
+  {
+    SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
+    if (!lwtnn_collection.isValid()) {
+      std::stringstream msg; msg << "Failed to get LWTNN network collection with key " << m_readKeyJSON.key();
+      throw std::runtime_error( msg.str() );      
+    }
+    ATH_MSG_DEBUG("Using lwtnn number network");
+    // Evaluate the number network once per cluster
+    lwt::ValueMap discriminant = lwtnn_collection->at(0)->compute(input);
+    double num0 = discriminant["output_number0"];
+    double num1 = discriminant["output_number1"];
+    double num2 = discriminant["output_number2"];
+    // Get normalized predictions
+    double prob1 = num0/(num0+num1+num2);
+    double prob2 = num1/(num0+num1+num2);
+    double prob3 = num2/(num0+num1+num2);
+    std::vector<double> number_probabilities{prob1, prob2, prob3};
+
+    ATH_MSG_VERBOSE(" LWTNN Prob of n. particles (1): " << number_probabilities[0] <<
+                                               " (2): " << number_probabilities[1] <<
+                                               " (3): " << number_probabilities[2]);
+
+    std::cout<<"yoyoma_p1_lwtnn,"<<number_probabilities[0]<<std::endl;
+    std::cout<<"yoyoma_p2_lwtnn,"<<number_probabilities[1]<<std::endl;
+    std::cout<<"yoyoma_p3_lwtnn,"<<number_probabilities[2]<<std::endl;
+
+    return number_probabilities;
+  }
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
                                                                              Amg::Vector3D & beamSpotPosition,
