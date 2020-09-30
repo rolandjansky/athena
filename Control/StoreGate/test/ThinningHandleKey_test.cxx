@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file StoreGate/test/ThinningHandleKey_test.cxx
@@ -51,7 +51,7 @@ void test1()
     assert (!k2.storeHandle().isSet());
     assert (owner.getProperty ("AAB").name() == "AAB");
     assert (owner.getProperty ("AAB").documentation() == "doc string");
-    assert (owner.getProperty ("AAB").type_info() == &typeid(SG::VarHandleKey));
+    assert (owner.getProperty ("AAB").type_info() == &typeid(SG::ReadHandleKey<MyObj>));
     assert (owner.getProperty ("AAB").toString() == "'StoreGateSvc+aab'");
     assert (owner.getProperty ("AAB").ownerTypeName() == "TestOwner");
     assert (k2.initialize("stream").isSuccess());

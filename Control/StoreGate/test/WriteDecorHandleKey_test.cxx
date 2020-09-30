@@ -109,7 +109,7 @@ void test1()
   assert (k3.contHandleKey().mode() == Gaudi::DataHandle::Reader);
   assert (owner.getProperty ("CCCKey").name() == "CCCKey");
   assert (owner.getProperty ("CCCKey").documentation() == "doc string");
-  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::VarHandleKey));
+  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::WriteHandleKey<MyObj>));
   assert (owner.getProperty ("CCCKey").toString() == "'StoreGateSvc+ccc.dec'");
   assert (owner.getProperty ("CCCKey").ownerTypeName() == "TestOwner");
 }

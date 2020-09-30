@@ -11,14 +11,18 @@
  */
 
 
+#include "GaudiKernel/DataHandle.h"
+#include "GaudiKernel/ToStream.h"
+
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/exceptions.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/StoreID.h"
 #include <boost/tokenizer.hpp>
 
-#include "StoreGate/StoreGateSvc.h"
+#include <sstream>
 
 static const char* const storeSeparator = "+";
 
@@ -304,6 +308,33 @@ void VarHandleKey::updateHandle (const std::string& name)
                        name == StoreID::storeName(StoreID::PILEUP_STORE));
   }
 }
+
+/**
+ * @brief Python representation of Handle.
+ */
+std::string VarHandleKey::pythonRepr() const
+{
+  // FIXME: use Gaudi!1126
+  std::string className = fullKey().fullKey();
+  className = className.substr(0, className.find('/'));
+  if (className.empty()) className = Gaudi::DataHandle::default_type;
+
+  std::ostringstream ost;
+  ost << "DataHandle(";
+  Gaudi::Utils::toStream(m_storeHandle.name() + storeSeparator + m_sgKey, ost);
+  ost << ",";
+  switch (mode()) {
+  case Gaudi::DataHandle::Writer: Gaudi::Utils::toStream("W", ost); break;
+  case Gaudi::DataHandle::Updater: Gaudi::Utils::toStream("U", ost); break;
+  default: Gaudi::Utils::toStream("R", ost); break;
+  }
+  ost << ","; Gaudi::Utils::toStream(className, ost);
+  ost << ","; Gaudi::Utils::toStream(isCondition(), ost);
+  ost << ")";
+
+  return ost.str();
+}
+
 
 } // namespace SG
 
