@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOL_CSCRODREADOUTV1_H
@@ -50,7 +50,7 @@ public:
 
   // encoding
   uint32_t getSourceID(uint16_t side, uint16_t rodId);  
-  void encodeFragments(const std::vector<uint16_t> amplitude,  
+  void encodeFragments(const std::vector<uint16_t>& amplitude,  
 		       std::vector<uint32_t>& v) const;
 
   // initialize helper

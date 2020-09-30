@@ -213,7 +213,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
                            ((neutron & 1) << 23)         |
                            ((calAmplitude & 0x3f)<<24)   |
                            ((enableCal & 1) << 30)       |
-                           ((m_samplingRate==20?0:1)<<31);
+                           ((m_samplingRate==20?0u:1u)<<31);
 
       cscRdoCollection->set_eventType( eventType );
 

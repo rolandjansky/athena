@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCCABLINGSERVICE_H
@@ -26,7 +26,7 @@ class ZdcCablingService
 public:
 
     /** get pointer to service instance*/
-    static ZdcCablingService * getInstance() ;
+    static const ZdcCablingService * getInstance() ;
 
     /** delete service instance */
     static void deleteInstance() ;
@@ -62,7 +62,8 @@ public:
  protected:
 
     /** Default constructor protected */
-    ZdcCablingService() ;
+    ZdcCablingService(const ZdcID* zdcID,
+                      const ZdcHardwareID* zdcHWID) ;
 
     /** Destructor protected */
     virtual ~ZdcCablingService() ;
@@ -91,29 +92,11 @@ public:
     const ZdcHardwareID*    m_zdcHWID;
 
 
-    enum ZdcCablingType { TestBeam = -1,
-			  Sim    = 0,
-			  FirstData = 1};
-
-    ZdcCablingType m_cablingType;
-
- public:
-
-    static ZdcCablingService * s_zdcCablingService ;
-
-    void setCablingType (ZdcCablingType type);
-
     int m_connected[16][16];
     void setConnected(int ppm, int channel);
     void fillConnectionTables();
     void fillDB();
 
-    void setZdcID   (const ZdcID* zdcID)     {m_zdcID   = zdcID;}
-    void setZdcHWID (const ZdcHardwareID* zdcHWID) {m_zdcHWID = zdcHWID;}
-
-    inline const ZdcID*       getZdcID()         const { return m_zdcID; }
-    inline const ZdcHardwareID*     getZdcHWID()       const { return m_zdcHWID; }
-    inline int                 getCablingType()    const { return m_cablingType; }
     inline int crate_index_lookup(int& crate) const
       {
 	int ic=0;

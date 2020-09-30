@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRODReadOutV1.h"
@@ -74,7 +74,7 @@ CscRODReadOutV1::CscRODReadOutV1(double startTime, uint16_t samplingTime,
 CscRODReadOutV1::~CscRODReadOutV1()
 {}
 
-void CscRODReadOutV1::encodeFragments(const std::vector<uint16_t>  amplitude,  
+void CscRODReadOutV1::encodeFragments(const std::vector<uint16_t>&  amplitude,  
 				    std::vector<uint32_t>& v) const {
   
   int numberOfFragments = amplitude.size();
