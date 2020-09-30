@@ -398,8 +398,12 @@ namespace EL
       ("EventLoop_JobStats", "EventLoop job statistics");
     m_jobStats->SetDirectory (nullptr);
 
+    ANA_MSG_INFO ("calling firstInitialize on all modules");
     for (auto& module : m_modules)
-      ANA_CHECK (module->preInitialize (*this));
+      ANA_CHECK (module->firstInitialize (*this));
+    ANA_MSG_INFO ("calling preFileInitialize on all modules");
+    for (auto& module : m_modules)
+      ANA_CHECK (module->preFileInitialize (*this));
     
     return ::StatusCode::SUCCESS;
   }
