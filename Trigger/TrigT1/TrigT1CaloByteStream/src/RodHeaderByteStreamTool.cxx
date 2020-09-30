@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -48,30 +48,28 @@ RodHeaderByteStreamTool::RodHeaderByteStreamTool(const std::string& type,
     const IInterface*  parent)
   : AthAlgTool(type, name, parent),
     m_robDataProvider("ROBDataProviderSvc", name),
-    m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
-    m_srcIdMap(0)
+    m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool")
 {
   declareInterface<RodHeaderByteStreamTool>(this);
 
   declareProperty("ErrorTool", m_errorTool,
                   "Tool to collect errors for monitoring");
-  declareProperty("ROBSourceIDs",        m_sourceIDs,
+  declareProperty("ROBSourceIDs",        m_sourceIDsProp,
                   "ROB fragment source identifiers - All except RoIB");
-  declareProperty("ROBSourceIDsPP",      m_sourceIDsPP,
+  declareProperty("ROBSourceIDsPP",      m_sourceIDsPPProp,
                   "ROB fragment source identifiers - PP only");
-  declareProperty("ROBSourceIDsCP",      m_sourceIDsCP,
+  declareProperty("ROBSourceIDsCP",      m_sourceIDsCPProp,
                   "ROB fragment source identifiers - CP DAQ only");
-  declareProperty("ROBSourceIDsJEP",     m_sourceIDsJEP,
+  declareProperty("ROBSourceIDsJEP",     m_sourceIDsJEPProp,
                   "ROB fragment source identifiers - JEP DAQ only");
-  declareProperty("ROBSourceIDsCPRoI",   m_sourceIDsCPRoI,
+  declareProperty("ROBSourceIDsCPRoI",   m_sourceIDsCPRoIProp,
                   "ROB fragment source identifiers - CP RoI only");
-  declareProperty("ROBSourceIDsJEPRoI",  m_sourceIDsJEPRoI,
+  declareProperty("ROBSourceIDsJEPRoI",  m_sourceIDsJEPRoIProp,
                   "ROB fragment source identifiers - JEP RoI only");
-  declareProperty("ROBSourceIDsCPRoIB",  m_sourceIDsCPRoIB,
+  declareProperty("ROBSourceIDsCPRoIB",  m_sourceIDsCPRoIBProp,
                   "ROB fragment source identifiers - CP RoIB only");
-  declareProperty("ROBSourceIDsJEPRoIB", m_sourceIDsJEPRoIB,
+  declareProperty("ROBSourceIDsJEPRoIB", m_sourceIDsJEPRoIBProp,
                   "ROB fragment source identifiers - JEP RoIB only");
-
 }
 
 // Destructor
@@ -85,16 +83,11 @@ RodHeaderByteStreamTool::~RodHeaderByteStreamTool()
 
 StatusCode RodHeaderByteStreamTool::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version "
+                << PACKAGE_VERSION );
 
-  StatusCode sc = m_errorTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
-    return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
+  ATH_CHECK( m_errorTool.retrieve() );
 
-  m_srcIdMap = new L1CaloSrcIdMap();
   return StatusCode::SUCCESS;
 }
 
@@ -102,7 +95,6 @@ StatusCode RodHeaderByteStreamTool::initialize()
 
 StatusCode RodHeaderByteStreamTool::finalize()
 {
-  delete m_srcIdMap;
   return StatusCode::SUCCESS;
 }
 
@@ -111,7 +103,7 @@ StatusCode RodHeaderByteStreamTool::finalize()
 // Conversion bytestream to CMX-CP TOBs
 StatusCode RodHeaderByteStreamTool::convert(
   const std::string& sgKey,
-  DataVector<LVL1::RODHeader>* const rhCollection)
+  DataVector<LVL1::RODHeader>* const rhCollection) const
 {
   const std::vector<uint32_t>& vID(sourceIDs(sgKey));
   // // get ROB fragments
@@ -123,7 +115,7 @@ StatusCode RodHeaderByteStreamTool::convert(
 
 StatusCode RodHeaderByteStreamTool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
-  DataVector<LVL1::RODHeader>* const rhCollection)
+  DataVector<LVL1::RODHeader>* const rhCollection) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -211,104 +203,113 @@ StatusCode RodHeaderByteStreamTool::convert(
 // Return reference to vector with all possible Source Identifiers
 
 const std::vector<uint32_t>& RodHeaderByteStreamTool::sourceIDs(
-  const std::string& sgKey)
+  const std::string& sgKey) const
 {
-  const bool pp      = isAppended(sgKey, "PP");
-  const bool cp      = isAppended(sgKey, "CP");
-  const bool jep     = isAppended(sgKey, "JEP");
-  const bool cpRoi   = isAppended(sgKey, "CPRoI");
-  const bool jepRoi  = isAppended(sgKey, "JEPRoI");
-  const bool cpRoib  = isAppended(sgKey, "CPRoIB");
-  const bool jepRoib = isAppended(sgKey, "JEPRoIB");
-  const bool all = !(pp || cp || jep || cpRoi || jepRoi || cpRoib || jepRoib);
-  if (all     && !m_sourceIDs.empty())        return m_sourceIDs;
-  if (pp      && !m_sourceIDsPP.empty())      return m_sourceIDsPP;
-  if (cp      && !m_sourceIDsCP.empty())      return m_sourceIDsCP;
-  if (jep     && !m_sourceIDsJEP.empty())     return m_sourceIDsJEP;
-  if (cpRoi   && !m_sourceIDsCPRoI.empty())   return m_sourceIDsCPRoI;
-  if (jepRoi  && !m_sourceIDsJEPRoI.empty())  return m_sourceIDsJEPRoI;
-  if (cpRoib  && !m_sourceIDsCPRoIB.empty())  return m_sourceIDsCPRoIB;
-  if (jepRoib && !m_sourceIDsJEPRoIB.empty()) return m_sourceIDsJEPRoIB;
-  // PP
-  if (all || pp) {
-    std::vector<int> slinks(4);
-    for (int i = 1; i < 4; ++i) slinks[i] = i;
-    fillRobIds(all, 8, 0, slinks, 0, eformat::TDAQ_CALO_PREPROC,
-               m_sourceIDsPP);
-    if (pp) return m_sourceIDsPP;
+  if (isAppended(sgKey, "PP")) {
+    static const std::vector<int> slinksPP { 0, 1, 2, 3 };
+    static const std::vector<uint32_t> sourceIDsPP =
+      makeRobIds(8, 0, slinksPP, 0, eformat::TDAQ_CALO_PREPROC,
+                 m_sourceIDsPPProp);
+    return sourceIDsPP;
   }
-  // CP
-  if (all || cp) {
-    std::vector<int> slinks(2);
-    slinks[1] = 2;
-    fillRobIds(all, 4, 8, slinks, 0, eformat::TDAQ_CALO_CLUSTER_PROC_DAQ,
-               m_sourceIDsCP);
-    if (cp) return m_sourceIDsCP;
+
+  if (isAppended(sgKey, "CP")) {
+    static const std::vector<int> slinksCP { 0, 2 };
+    static const std::vector<uint32_t> sourceIDsCP =
+      makeRobIds(4, 8, slinksCP, 0, eformat::TDAQ_CALO_CLUSTER_PROC_DAQ,
+                 m_sourceIDsCPProp);
+    return sourceIDsCP;
   }
-  // CP RoI
-  if (all || cpRoi) {
-    const std::vector<int> slinks(1);
-    fillRobIds(all, 4, 8, slinks, 1, eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
-               m_sourceIDsCPRoI);
-    if (cpRoi) return m_sourceIDsCPRoI;
+
+  if (isAppended(sgKey, "CPRoI")) {
+    static const std::vector<int> slinksCPRoI { 0 };
+    static const std::vector<uint32_t> sourceIDsCPRoI =
+      makeRobIds(4, 8, slinksCPRoI, 1, eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
+                 m_sourceIDsCPRoIProp);
+    return sourceIDsCPRoI;
   }
-  // JEP
-  if (all || jep) {
-    std::vector<int> slinks(4);
-    for (int i = 1; i < 4; ++i) slinks[i] = i;
-    fillRobIds(all, 2, 12, slinks, 0, eformat::TDAQ_CALO_JET_PROC_DAQ,
-               m_sourceIDsJEP);
-    if (jep) return m_sourceIDsJEP;
+
+  if (isAppended(sgKey, "JEP")) {
+    static const std::vector<int> slinksJEP { 0, 1, 2, 3 };
+    static const std::vector<uint32_t> sourceIDsJEP =
+      makeRobIds(2, 12, slinksJEP, 0, eformat::TDAQ_CALO_JET_PROC_DAQ,
+                 m_sourceIDsJEPProp);
+    return sourceIDsJEP;
   }
-  // JEP RoI
-  if (all || jepRoi) {
-    const std::vector<int> slinks(1);
-    fillRobIds(all, 2, 12, slinks, 1, eformat::TDAQ_CALO_JET_PROC_ROI,
-               m_sourceIDsJEPRoI);
-    if (jepRoi) return m_sourceIDsJEPRoI;
+
+  if (isAppended(sgKey, "JEPRoI")) {
+    static const std::vector<int> slinksJEPRoI { 0 };
+    static const std::vector<uint32_t> sourceIDsJEPRoI =
+      makeRobIds(2, 12, slinksJEPRoI, 1, eformat::TDAQ_CALO_JET_PROC_ROI,
+                 m_sourceIDsJEPRoIProp);
+    return sourceIDsJEPRoI;
   }
-  // Don't include RoIBs (LVL2) in complete set
-  // CP RoIB
-  if (cpRoib) {
-    const std::vector<int> slinks(1, 2);
-    fillRobIds(false, 4, 8, slinks, 1, eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
-               m_sourceIDsCPRoIB);
-    return m_sourceIDsCPRoIB;
+
+  if (isAppended(sgKey, "CPRoIB")) {
+    static const std::vector<int> slinksCPRoIB { 2 };
+    static const std::vector<uint32_t> sourceIDsCPRoIB =
+      makeRobIds(4, 8, slinksCPRoIB, 1, eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
+                 m_sourceIDsCPRoIBProp);
+    return sourceIDsCPRoIB;
   }
-  // JEP RoIB
-  if (jepRoib) {
-    const std::vector<int> slinks(1, 2);
-    fillRobIds(false, 2, 12, slinks, 1, eformat::TDAQ_CALO_JET_PROC_ROI,
-               m_sourceIDsJEPRoIB);
-    return m_sourceIDsJEPRoIB;
+
+  if (isAppended(sgKey, "JEPRoIB")) {
+    static const std::vector<int> slinksJEPRoIB { 2 };
+    static const std::vector<uint32_t> sourceIDsJEPRoIB =
+      makeRobIds(2, 12, slinksJEPRoIB, 1, eformat::TDAQ_CALO_JET_PROC_ROI,
+                 m_sourceIDsJEPRoIBProp);
+    return sourceIDsJEPRoIB;
   }
-  return m_sourceIDs;
+
+  // all
+  static const std::vector<uint32_t> sourceIDs = makeAllRobIds();
+  return sourceIDs;
 }
 
 // Fill vector with ROB IDs for given sub-detector
 
-void RodHeaderByteStreamTool::fillRobIds(const bool all, const int numCrates,
+std::vector<uint32_t> RodHeaderByteStreamTool::makeAllRobIds() const
+{
+  std::vector<uint32_t> robIds;
+
+  auto append = [&robIds] (const std::vector<uint32_t>& v)
+                { robIds.insert (robIds.end(), v.begin(), v.end()); };
+
+  append (sourceIDs ("PP"));
+  append (sourceIDs ("CP"));
+  append (sourceIDs ("CPRoI"));
+  append (sourceIDs ("JEP"));
+  append (sourceIDs ("JEPRoI"));
+
+  // Don't include RoIBs (LVL2) in complete set
+  return robIds;
+}
+
+
+std::vector<uint32_t> RodHeaderByteStreamTool::makeRobIds(const int numCrates,
     const int crateOffset,
     const std::vector<int>& slinks,
     const int daqOrRoi,
     const eformat::SubDetector subdet,
-    std::vector<uint32_t>& detSourceIDs)
+    const std::vector<uint32_t>& prop) const
 {
-  if (all && !detSourceIDs.empty()) {
-    std::copy(detSourceIDs.begin(), detSourceIDs.end(),
-              std::back_inserter(m_sourceIDs));
-  } else {
+  std::vector<uint32_t> robs;
+
+  if (!prop.empty()) {
+    robs = prop;
+  }
+  else {
     for (int crate = 0; crate < numCrates; ++crate) {
       const int numSlinks = slinks.size();
       for (int i = 0; i < numSlinks; ++i) {
-        const uint32_t rodId = m_srcIdMap->getRodID(crate + crateOffset,
-                               slinks[i], daqOrRoi, subdet);
-        const uint32_t robId = m_srcIdMap->getRobID(rodId);
-        if (all) m_sourceIDs.push_back(robId);
-        else     detSourceIDs.push_back(robId);
+        const uint32_t rodId = m_srcIdMap.getRodID(crate + crateOffset,
+                                                    slinks[i], daqOrRoi, subdet);
+        const uint32_t robId = m_srcIdMap.getRobID(rodId);
+        robs.push_back (robId);
       }
     }
   }
+  return robs;
 }
 
 // Return true if StoreGate key ends in given string
