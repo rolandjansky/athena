@@ -747,8 +747,8 @@ GeoVPhysVol* MuonChamber::build(
       std::string key=stName+techname;
 
       // for cutouts:
-      // MDT cutouts for BOS1,5, BMS7,14, (problem with BMS4,10),  EMS
-      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) || stname == "BMG" ||
+      // MDT cutouts for BOS1,5, BMS7,14, (problem with BMS4,10), EMS, BMG and BIS MDT14
+      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) || stname == "BMG" || techname=="MDT14" ||
                             (stname == "BMS" && (std::abs(zi) == 1 && fi == 3)) ||
                             (stname == "EMS" && (std::abs(zi) == 1 || std::abs(zi) == 3)));
       if (((manager->IncludeCutoutsFlag() &&  mdtCutoutFlag) ||
@@ -1396,17 +1396,18 @@ GeoVPhysVol* MuonChamber::build(
       ndbz[doubletR-1]++;
 
       float zdivision=100.;// point between doubletZ=1 and 2;
-      if (stname.find("BI")!=std::string::npos && std::abs(zi)==7) zdivision=400.;//BIS78 : RPC8 is smaller than other RPCs
 
-      // do the following check for all RPCs but the BI (station1-6) ones
-      if (stname.find("BI")==std::string::npos || std::abs(zi)==7) {
+      // the BIS RPCs are 3-gap RPCs mounted inside of the BIS sMDTs, 
+      // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
+      if (stname.find("BI")!=std::string::npos) {
+        if (std::abs(stationPhi)>=7 && rp->posz>100) doubletZ=2;
+        else doubletZ = ndbz[doubletR-1];
+      } else {
         if (zi <= 0 && !is_mirrored) {
           if (zpos < -zdivision*Gaudi::Units::mm) doubletZ=2;
         } else {
           if (zpos > zdivision*Gaudi::Units::mm) doubletZ=2;
         }
-      } else {
-        doubletZ = ndbz[doubletR-1];
       }
 
       // BMS (BOG) RPCs can have |xpos|=950 (|xpos|=350)
