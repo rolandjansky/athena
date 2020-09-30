@@ -410,7 +410,7 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
   //hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
   auto hEFPhi          = Monitored::Collection("hEFPhi", tau_vec,  [] (const xAOD::TauJet* tau){return tau->phi(); });
   auto hEFnTrack       = Monitored::Collection("hEFnTrack", tau_vec,  [] (const xAOD::TauJet* tau){
-      int nTracks=-1;
+      int EFnTrack=-1;
       tau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
       return EFnTrack; }); 
   auto hEFnWideTrack   = Monitored::Collection("hEFnWideTrack", tau_vec,  [] (const xAOD::TauJet* tau){
