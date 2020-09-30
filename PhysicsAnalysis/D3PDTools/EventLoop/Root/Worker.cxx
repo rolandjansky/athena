@@ -52,6 +52,7 @@
 #include <TTree.h>
 #include <fstream>
 #include <memory>
+#include <xAODRootAccess/LoadDictionaries.h>
 
 //
 // method implementations
@@ -812,6 +813,16 @@ namespace EL
         return ::StatusCode::FAILURE;
       }
 
+      // This is a temporary (30 Sep 20) hot-fix to ensure that
+      // `LoadDictionaries()` gets called before any algorithm gets
+      // instantiated.  This is not ideal.  To do it proper, the
+      // algorithms should be loaded at a later point, instead of
+      // together with `BatchJob`.  Or `BatchJob` should be loaded
+      // later and the modules should be set up without relying on
+      // `BatchJob`.  Either way, `BatchJob` should be split up, which
+      // was anyways planned for unrelated reasons.
+      ANA_CHECK (xAOD::LoadDictionaries());
+
       std::unique_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
       if (job.get() == nullptr)
       {
@@ -901,6 +912,16 @@ namespace EL
       ANA_MSG_ERROR ("Could not read jobdef");
       return ::StatusCode::FAILURE;
     }
+
+    // This is a temporary (30 Sep 20) hot-fix to ensure that
+    // `LoadDictionaries()` gets called before any algorithm gets
+    // instantiated.  This is not ideal.  To do it proper, the
+    // algorithms should be loaded at a later point, instead of
+    // together with `JobConfig`.  Or `JobConfig` should be loaded
+    // later and the modules should be set up without relying on
+    // `JobConfig`.  Either way, `JobConfig` should be split up, which
+    // was anyways planned for unrelated reasons.
+    ANA_CHECK (xAOD::LoadDictionaries());
 
     mo = dynamic_cast<SH::MetaObject*>(f->Get(sampleName.c_str()));
     if (!mo) {
