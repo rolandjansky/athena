@@ -9,6 +9,8 @@ import os,time,subprocess,shutil,glob,re,stat
 from AthenaCommon import Logging
 mglog = Logging.logging.getLogger('MadGraphUtils')
 
+# Name of python executable
+python='python'
 # Magic name of gridpack directory
 MADGRAPH_GRIDPACK_LOCATION='madevent'
 # Name for the run (since we only have 1, just needs consistency)
@@ -82,6 +84,9 @@ def error_check(errors):
             if 'More information is found in' in err:
                 my_debug_file = err.split("'")[1]
             if err.startswith('tar'):
+                mglog.info(err)
+                continue
+            if 'python2 support will be removed' in err:
                 mglog.info(err)
                 continue
             mglog.error(err)
@@ -163,7 +168,7 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
 
     mglog.info('Started process generation at '+str(time.asctime()))
 
-    generate = subprocess.Popen([madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    generate = subprocess.Popen([python,madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
     error_check(err)
 
@@ -371,7 +376,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
 
     # Build up the generate command
     # Use the new-style way of passing things: just --name, everything else in config
-    command = ['bin/generate_events']
+    command = [python,'bin/generate_events']
     if isNLO:
         command += ['--name='+MADGRAPH_RUN_NAME]
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
@@ -575,7 +580,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             mglog.info('Copying make_opts from Template')
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',MADGRAPH_GRIDPACK_LOCATION+'/Source/')
 
-            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+            generate = subprocess.Popen([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
             (out,err) = generate.communicate()
             error_check(err)
         else:
@@ -584,7 +589,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
                 mglog.info('Unlinking '+MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a')
                 os.unlink(MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a')
 
-            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+            generate = subprocess.Popen([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
             (out,err) = generate.communicate()
             error_check(err)
 
@@ -606,7 +611,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     if isNLO and not systematics_settings is None:
         mglog.info('Running systematics standalone')
         systematics_path=MADGRAPH_GRIDPACK_LOCATION+'/bin/internal/systematics.py'
-        systematics = subprocess.Popen(['python',systematics_path]+['events.lhe']*2+["--"+k+"="+systematics_settings[k] for k in systematics_settings])
+        systematics = subprocess.Popen([python,systematics_path]+['events.lhe']*2+["--"+k+"="+systematics_settings[k] for k in systematics_settings])
         systematics.wait()
 
     unzip.wait()
@@ -913,7 +918,7 @@ add_time_of_flight '''+run+((' --threshold='+str(threshold)) if threshold is not
 
     mglog.info('Started adding time of flight info '+str(time.asctime()))
 
-    generate = subprocess.Popen([me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    generate = subprocess.Popen([python,me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
     error_check(err)
 
@@ -1025,7 +1030,7 @@ def madspin_on_lhe(input_LHE,madspin_card,runArgs=None,keep_original=False):
     if not os.access(madpath+'/MadSpin/madspin',os.R_OK):
         raise RuntimeError('madspin executable not found in '+madpath)
     mglog.info('Starting madspin at '+str(time.asctime()))
-    generate = subprocess.Popen([madpath+'/MadSpin/madspin','madspin_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    generate = subprocess.Popen([python,madpath+'/MadSpin/madspin','madspin_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
     error_check(err)
     mglog.info('Done with madspin at '+str(time.asctime()))
