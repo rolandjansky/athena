@@ -50,19 +50,9 @@ namespace EL
 
 
     ::StatusCode TEventModule ::
-    onInitialize (ModuleData& data)
+    preFileInitialize (ModuleData& /*data*/)
     {
       using namespace msgEventLoop;
-      if (m_event != nullptr || m_store != nullptr)
-      {
-        ANA_MSG_ERROR ("module initialized twice");
-        return ::StatusCode::FAILURE;
-      }
-      if (data.m_tevent != nullptr || data.m_tstore != nullptr)
-      {
-        ANA_MSG_ERROR ("duplicate TEventModule??");
-        return ::StatusCode::FAILURE;
-      }
 
       // In order to properly read some of the xAOD objects and tools
       // operating on them the dictionaries, some of the xAOD
@@ -76,6 +66,26 @@ namespace EL
       // lightweight operation.  Should more flexibility be required,
       // an option and/or a dedicated module could be added for it.
       ANA_CHECK (xAOD::LoadDictionaries());
+
+      return StatusCode::SUCCESS;
+    }
+
+
+
+    ::StatusCode TEventModule ::
+    onInitialize (ModuleData& data)
+    {
+      using namespace msgEventLoop;
+      if (m_event != nullptr || m_store != nullptr)
+      {
+        ANA_MSG_ERROR ("module initialized twice");
+        return ::StatusCode::FAILURE;
+      }
+      if (data.m_tevent != nullptr || data.m_tstore != nullptr)
+      {
+        ANA_MSG_ERROR ("duplicate TEventModule??");
+        return ::StatusCode::FAILURE;
+      }
 
       std::string modeStr = data.m_metaData->castString
         (Job::optXaodAccessMode);
