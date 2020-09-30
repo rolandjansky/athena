@@ -37,7 +37,7 @@ InDetPhysHitDecoratorTool::InDetPhysHitDecoratorTool(const std::string& type, co
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
   m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-  m_ptThreshold(0.8), m_isUnbiased(true), m_doUpgrade(false),
+  m_ptThreshold(0.8), m_isUnbiased(true), m_doUpgrade(false), m_useNewITkLayerNumbering(true),
   m_idHelper(nullptr),
   m_pixelID(nullptr),
   m_sctID(nullptr),
@@ -46,7 +46,7 @@ InDetPhysHitDecoratorTool::InDetPhysHitDecoratorTool(const std::string& type, co
   declareProperty("InDetTrackHoleSearchTool", m_holeSearchTool);
   declareProperty("Updator", m_updatorHandle);
   declareProperty("ResidualPullCalculator", m_residualPullCalculator);
-  // do I need to retrieve the 'Tracks' container?
+  declareProperty("UseNewITkLayerNumbering", m_useNewITkLayerNumbering);
 }
 
 InDetPhysHitDecoratorTool::~InDetPhysHitDecoratorTool () {
@@ -84,6 +84,7 @@ InDetPhysHitDecoratorTool::initialize() {
   } else {
     ATH_MSG_INFO("Generic hit residuals & pulls will be calculated in one or both available local coordinates");
   }
+  if(m_useNewITkLayerNumbering) ATH_MSG_INFO("Using new ITk layout numbering scheme");
   return StatusCode::SUCCESS;
 }
 
@@ -361,6 +362,10 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier& id, Subdetecto
     bec = abs(m_pixelID->barrel_ec(id));
     r = (bec == normalBarrel) ? (BARREL) : (ENDCAP);
     layer = m_pixelID->layer_disk(id);
+    if(m_useNewITkLayerNumbering && r==ENDCAP){
+      if(layer%2==0) r = BARREL; // Inclined barrel region
+      layer = layer/2 + 1; // L2 = layer 2+3, L3 = layer 4+5, L4 = layer 6+7
+    }
     if (BARREL == r and layer == 0) {
       det = L0PIXBARR;
     }
