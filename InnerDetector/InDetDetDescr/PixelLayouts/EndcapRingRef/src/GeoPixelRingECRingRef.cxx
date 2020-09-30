@@ -400,7 +400,11 @@ std::pair<GeoFullPhysVol*,GeoFullPhysVol*> GeoPixelRingECRingRef::BuildSplit(con
   for (int imod=0; imod<nmodules; imod++) {
     // Fi stagger is non zero, alternating modules are stagger low/high.
     double local_front_back = (imod%2 ? -1 : 1);
-    if(m_front_back==local_front_back) {
+    bool condition = true;
+    if (ringHelper.swapFrontBackModulePhiPosition()) {
+        condition = bool (m_front_back!=local_front_back);
+    } else condition = bool (m_front_back==local_front_back);
+     if (condition) {
       //
       // Build both endcaps the same but re-number phiId in endcap C to
       // get correct offline numbering.  Endcap C is obtained by

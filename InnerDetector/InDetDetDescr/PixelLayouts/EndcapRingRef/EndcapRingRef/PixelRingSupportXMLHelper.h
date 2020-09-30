@@ -16,7 +16,8 @@ class PixelRingSupportXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
  public:
   PixelRingSupportXMLHelper(const PixelGeoBuilderBasics* basics);
   ~PixelRingSupportXMLHelper();
-
+  bool  putLHBeforeRHrings();
+  bool swapFrontBackModulePhiPosition();
   int getNbSupport(int layer, int ring=0);
   double getRingSupportRMin(int iSupport) const;
   double getRingSupportRMax(int iSupport) const;

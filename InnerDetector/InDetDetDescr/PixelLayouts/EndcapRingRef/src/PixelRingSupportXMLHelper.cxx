@@ -13,7 +13,6 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
 
   std::string fileName="GenericRingSupport.xml";
   if(const char* env_p = std::getenv("PIXEL_PIXELDISCSUPPORT_GEO_XML")) fileName = std::string(env_p);
-
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed=false;
   if(readXMLfromDB)
@@ -21,6 +20,7 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
       basics->msgStream()<<MSG::DEBUG<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      setSchemaVersion(dbUtils.getSchemaVersion(fileName)); //my 
       InitializeXML();
       bParsed = ParseBuffer(XMLtext,std::string(""));
     }
@@ -44,6 +44,20 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
 PixelRingSupportXMLHelper::~PixelRingSupportXMLHelper()
 {
   TerminateXML();
+}
+
+bool PixelRingSupportXMLHelper::putLHBeforeRHrings(){
+  bool m_LHBeforeRHrings = 0;
+  if(getSchemaVersion() > 6) {
+    return getBoolean("LHBeforeRHRings",m_LHBeforeRHrings, "putLHBeforeRHRings");
+  }
+  else return true;
+}
+
+bool PixelRingSupportXMLHelper::swapFrontBackModulePhiPosition(){
+  bool m_swapFrontBack = 0;
+  if(getSchemaVersion() > 6) return getBoolean("ModulePhiPosition",m_swapFrontBack, "swapFrontBack");
+  else return false;
 }
 
 int PixelRingSupportXMLHelper::getNbSupport(int layer, int ring) 
