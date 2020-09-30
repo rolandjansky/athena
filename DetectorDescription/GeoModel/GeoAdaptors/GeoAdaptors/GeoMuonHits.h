@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOADAPTORS_GEOMUONHITS_H
@@ -49,8 +49,19 @@ namespace MuonGM{
   }
 class Identifier;
 
-class GeoMDTHit {
 
+class GeoMuonHitBase
+{
+protected:
+  const MuonGM::MuonDetectorManager* mgr() const;
+
+private:
+  static const MuonGM::MuonDetectorManager* init();
+};
+
+
+class GeoMDTHit : public GeoMuonHitBase
+{
  public:
 
   // Constructor:
@@ -63,19 +74,15 @@ class GeoMDTHit {
   const MDTSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return s_man; }
+  operator bool () const { return true; }
 
  private:
-
-  static void init();
-  
   const MDTSimHit* m_hit;
-  static const MuonGM::MuonDetectorManager* s_man;
-  static const MdtIdHelper* s_mdtID;
 };
 
-class GeoRPCHit {
 
+class GeoRPCHit : public GeoMuonHitBase
+{
  public:
 
   // Constructor:
@@ -88,19 +95,15 @@ class GeoRPCHit {
   const RPCSimHit &data() const { return *m_hit;}
   
   // Is this hit OK?
-  operator bool () const { return s_man; }
+  operator bool () const { return true; }
 
  private:
-  static void init();
-  
   const RPCSimHit* m_hit;
-  static const MuonGM::MuonDetectorManager* s_man;
-  static const RpcIdHelper* s_rpcID;
-
 };
 
-class GeoTGCHit {
 
+class GeoTGCHit : public GeoMuonHitBase
+{
  public:
 
   // Constructor:
@@ -113,22 +116,17 @@ class GeoTGCHit {
   const TGCSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return s_man; }
+  operator bool () const { return true; }
 
  
 
  private:
-  static void init();
-  
   const TGCSimHit *m_hit;
-  static const MuonGM::MuonDetectorManager* s_man;
-  static const TgcIdHelper* s_tgcID;
-
 };
 
 
-class GeoCSCHit {
-
+class GeoCSCHit : public GeoMuonHitBase
+{
  public:
 
   // Constructor:
@@ -141,19 +139,15 @@ class GeoCSCHit {
   const CSCSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return s_man; }
+  operator bool () const { return true; }
 
  private:
-  static void init();
-  
   const CSCSimHit                                 *m_hit;
-  static const MuonGM::MuonDetectorManager* s_man;
-  static const CscIdHelper* s_cscID;
-
 };
 
-class GeoMMHit {
 
+class GeoMMHit : public GeoMuonHitBase
+{
  public:
 
   // Constructor:
@@ -172,21 +166,17 @@ class GeoMMHit {
   const MMSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return s_man; }
+  operator bool () const { return true; }
 
  
 
  private:
-  static void init();
-  
   const MMSimHit *m_hit;
-  static const MuonGM::MuonDetectorManager* s_man;
-  static const MmIdHelper* s_mmID;
-
 };
 
-class GeosTGCHit {
 
+class GeosTGCHit : public GeoMuonHitBase
+{
  public:
 
   // Constructor:
@@ -199,17 +189,11 @@ class GeosTGCHit {
   const sTGCSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return s_man; }
+  operator bool () const { return true; }
 
- 
 
  private:
-  static void init();
-  
   const sTGCSimHit *m_hit;
-  static const MuonGM::MuonDetectorManager* s_man;
-  static const sTgcIdHelper* s_stgcID;
-
 };
 
 #include "GeoAdaptors/GeoMuonHits.icc"
