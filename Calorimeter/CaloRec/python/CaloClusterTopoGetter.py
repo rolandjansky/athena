@@ -370,9 +370,8 @@ class CaloClusterTopoGetter ( Configured )  :
         TopoMaker.SeedThresholdOnEorAbsEinSigma     =    4.0
         #timing
         TopoMaker.SeedCutsInT = jobproperties.CaloTopoClusterFlags.doTimeCut()
-        TopoMaker.CutOOTseedFromNeighbour = jobproperties.CaloTopoClusterFlags.extendTimeCutOnNeighbor() and jobproperties.CaloTopoClusterFlags.doTimeCut()
-        TopoMaker.CutOOTseedFromCell = jobproperties.CaloTopoClusterFlags.extendTimeCutOnCell() and jobproperties.CaloTopoClusterFlags.doTimeCut()
-        TopoMaker.NeighborCutsInT = jobproperties.CaloTopoClusterFlags.doNeighborTimeCut()
+        TopoMaker.CutOOTseed = jobproperties.CaloTopoClusterFlags.extendTimeCut() and jobproperties.CaloTopoClusterFlags.doTimeCut()
+
 
         # note E or AbsE 
         #

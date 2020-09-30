@@ -116,27 +116,12 @@ class doTimeCut(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class extendTimeCutOnNeighbor(JobProperty):
+class extendTimeCut(JobProperty):
     """                                                                                                                    
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
-
-class extendTimeCutOnCell(JobProperty):
-    """                                                                                                                    
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class doNeighborTimeCut(JobProperty):
-    """                                                                                                                    
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 
 
 # add the flags container to the top container 
@@ -160,9 +145,7 @@ list_jobproperties = [
     ,doTreatEnergyCutAsAbsolute
     ,doMomentsfromAbs
     ,doTimeCut
-    ,extendTimeCutOnNeighbor
-    ,extendTimeCutOnCell
-    ,doNeighborTimeCut
+    ,extendTimeCut
     ]
 
 for i in list_jobproperties:

@@ -158,11 +158,6 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * threshold used for timing cut on seed cells. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighboring cells.*/
   float m_seedThresholdOnTAbs;
 
-  /**                                                                                                             
-   * threshold used for timing cut on neighboring cells. Implemented as |neighbor_cell_time|<m_neighborThresholdOnTAbs.*/
-  float m_neighborThresholdOnTAbs;
-
-
 
 
   /**
@@ -288,19 +283,9 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
   bool m_seedCutsInT;
 
   /**                                                                                              
-   * if set to true, seed cells failing the time cut are also excluded from neighbouring stage 
-   */
-  bool m_cutOOTseedFromNeighbour;
-
-  /**                                                                                              
    * if set to true, seed cells failing the time cut are also excluded from cluster at all 
    */
-  bool m_cutOOTseedFromCell;
-
-  /**                                                                                              
-   * if set to true, time cut is applied to neighbouring cells, no cut otherwise 
-   */
-  bool m_neighCutsInT;
+  bool m_cutOOTseed;
 
                                                  
   /**
