@@ -1,4 +1,4 @@
-1# Versions of the various externals to build before starting the build of
+# Versions of the various externals to build before starting the build of
 # this project, when doing a full stack nightly build.
 #
 # Remember that when specifying the name of a branch, you *must* put
