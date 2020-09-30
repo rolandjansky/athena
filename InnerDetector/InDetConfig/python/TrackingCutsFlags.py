@@ -375,19 +375,8 @@ def createSLHCTrackingFlags():
     # --- cluster cuts
     icf.minClusters             = 9
     icf.minSiNotShared          = 8
-    #icf.maxShared               = 3 # cut is now on number of shared modules
-    #icf.maxHoles                = 3
-    #icf.maxPixelHoles           = D2
-    #icf.maxSctHoles             = 2
-    #icf.maxDoubleHoles          = 2
     # --- also tighten pattern cuts
     icf.radMax                  = 1000. * Units.mm
-    #icf.seedFilterLevel         = 1
-    #icf.nHolesMax               = max_holes
-    #icf.nHolesGapMax            = max_holes
-    #icf.Xi2max                  = 15.0
-    #icf.Xi2maxNoAdd             = 35.0
-    #icf.nWeightedClustersMin    = icf.InDet.Tracking.minClusters-1
     
     return icf
 
@@ -489,7 +478,7 @@ def createR3LargeD0TrackingFlags():
     icf.nWeightedClustersMin    = 8   
     icf.maxdImpactSSSSeeds      = 300.0
     icf.doZBoundary             = True
-    icf.keepAllConfirmedSeeds   = True
+    icf.keepAllConfirmedStripSeeds   = True
     icf.maxSeedsPerSP_Strips           = 1
     icf.keepAllConfirmedStripSeeds  = True
 
@@ -552,19 +541,9 @@ def createSLHCConversionFindingTrackingFlags():
     icf.maxZImpact              = 150.0 * Units.mm
     icf.minClusters             = 6
     icf.minSiNotShared          = 4
-    #icf.maxShared               = 3
     icf.maxHoles                = 0
-    #icf.maxPixelHoles           = D2
-    #icf.maxSctHoles             = 2
-    #icf.maxDoubleHoles          = 2
     # --- also tighten pattern cuts
     icf.radMax                  = 1000. * Units.mm
-    #icf.seedFilterLevel         = 1
-    #icf.nHolesMax               = max_holes
-    #icf.nHolesGapMax            = max_holes
-    #icf.Xi2max                  = 15.0
-    #icf.Xi2maxNoAdd             = 35.0
-    #icf.nWeightedClustersMin    = icf.InDet.Tracking.minClusters-1
     # --- turn on Z Boundary seeding
     icf.doZBoundary              = False #
 
@@ -609,16 +588,6 @@ def createForwardTracksTrackingFlags():
     icf.nHolesGapMax     = icf.maxHoles
     icf.radMax           = 600. * Units.mm
     icf.useTRT           = False # no TRT for forward tracks
-    icf.useSCTSeeding    = False
-    icf.minSecondaryPt   = 3 * Units.GeV
-    icf.maxPrimaryImpact = 5. * Units.mm
-    icf.roadWidth        = 12.
-    icf.maxdImpactSSSSeeds = 5.0
-    icf.keepAllConfirmedSeeds = True
-    icf.SecondarynHolesMax = 2
-    icf.SecondarynHolesGapMax = 2
-    icf.RoISeededBackTracking = False
-    icf.minRoIClusterEt = 6000. * Units.MeV
 
     return icf
 
@@ -772,12 +741,12 @@ def createHeavyIonTrackingFlags():
     icf.maxdImpactPPSSeeds = lambda pcf: \
                              1.7 if pcf.InDet.cutLevel >= 4 else True
     
-    icf.maxHoles = lambda pcf: 2 if pcf.InDet.cutLevel >= 4 else 0
-    icf.maxPixelHoles = lambda pcf: 1 if pcf.InDet.cutLevel >= 4 else 0
-    icf.maxSctHoles = lambda pcf: 1 if pcf.InDet.cutLevel >= 4 else 0
+    icf.maxHoles = lambda pcf: 2 if pcf.InDet.cutLevel in [4, 5] else 0
+    icf.maxPixelHoles = lambda pcf: 1 if pcf.InDet.cutLevel in [4, 5] else 0
+    icf.maxSctHoles = lambda pcf: 1 if pcf.InDet.cutLevel in [4, 5] else 0
     icf.maxDoubleHoles   = 0    
-    icf.Xi2max           = lambda pcf: 9. if pcf.InDet.cutLevel >= 4 else 6.
-    icf.Xi2maxNoAdd      = lambda pcf: 25. if pcf.InDet.cutLevel >= 4 else 10.        
+    icf.Xi2max           = lambda pcf: 9. if pcf.InDet.cutLevel in [4, 5] else 6.
+    icf.Xi2maxNoAdd      = lambda pcf: 25. if pcf.InDet.cutLevel in [4, 5] else 10.        
     icf.radMax           = 600. * Units.mm # restrict to pixels + first SCT layer
     icf.useTRT           = False
 
@@ -823,19 +792,12 @@ def createPixelTrackingFlags():
     icf.nHolesGapMax     = _pick( default = 1, hion = 0, cosmics = 3 )
     icf.useSCT           = False
     icf.useTRT           = False
-    icf.useSCTSeeding    = True
     icf.minSecondaryPt   = 3 * Units.GeV
     icf.maxPrimaryImpact = lambda pcf: 1000. * Units.mm if pcf.Beam.Type =="cosmics" else 5. * Units.mm 
     icf.roadWidth        = lambda pcf: 60.0 if pcf.Beam.Type =="cosmics" else 12.0
-    icf.maxdImpactSSSSeeds = 5.0
-    icf.keepAllConfirmedSeeds = True
-    icf.SecondarynHolesMax = 2
-    icf.SecondarynHolesGapMax = 2
-    icf.RoISeededBackTracking = False
-    icf.minRoIClusterEt = 6000. * Units.MeV
-    
     icf.maxZImpact       = lambda pcf: 10000. * Units.mm if pcf.Beam.Type == "cosmics" else maxZImpact_ranges
     icf.Xi2max           = lambda pcf: 60.0  if pcf.Beam.Type =="cosmics" else Xi2max_ranges
+    icf.Xi2maxNoAdd      = lambda pcf: 100.0  if pcf.Beam.Type =="cosmics" else Xi2maxNoAdd_ranges
     icf.nWeightedClustersMin = lambda pcf: 6 if pcf.Beam.Type =="cosmics" else 6 # why change if detault is also 6!
 
     return icf
