@@ -113,6 +113,8 @@ namespace InDet {
     declareProperty("useRecenteringNNWithTracks",m_useRecenteringNNWithTracks);
     declareProperty("correctLorShiftBarrelWithoutTracks",m_correctLorShiftBarrelWithoutTracks);
     declareProperty("correctLorShiftBarrelWithTracks",m_correctLorShiftBarrelWithTracks);
+    declareProperty("useLWTNNNumber",   m_useLwtnnNumber);
+    declareProperty("useLWTNNPosition", m_useLwtnnPosition);
 
     declareInterface<NnClusterizationFactory>(this);   
   } 
@@ -191,15 +193,29 @@ namespace InDet {
     // Check if json folder is available (will not be during initial transition)
     bool hasFolderJson = detStore()->contains<CondAttrListCollection>(m_coolFolderJson);
 
-    // If not, don't continue with setup.
-    if (!hasFolderJson) {
-      ATH_MSG_INFO("No folder " << m_coolFolderJson << " available. Will access NN configuration using TTrainedNetwork."); 
-      m_useLwtnnNumber = false;
-      m_useLwtnnPosition = false;
+    ATH_MSG_INFO("Setup NN versions");
+    ATH_MSG_INFO("\t collFolderJson   \t" << m_coolFolderJson);
+    ATH_MSG_INFO("\t hasFolderJson    \t" << hasFolderJson);
+    ATH_MSG_INFO("\t useLWTNNNumber   \t" << m_useLwtnnNumber);
+    ATH_MSG_INFO("\t useLWTNNPosition \t" << m_useLwtnnPosition);
+
+    // If not, don't continue with setup of lwtnn
+    // If don't want lwtnn, also don't continue with setup of lwtnn
+    if (!hasFolderJson or (!m_useLwtnnNumber and !m_useLwtnnPosition)) {
+
+      if (m_useLwtnnPosition || m_useLwtnnNumber) {
+        ATH_MSG_WARNING("CANNOT SETUP LWTNN");
+        ATH_MSG_WARNING("No folder " << m_coolFolderJson << " available. Will access NN configuration using TTrainedNetwork."); 
+        ATH_MSG_ERROR("Could not configure LTWNN as requested.");
+        return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_INFO("Did not request lwtnn");
+      }
     }
     
     // If yes, set up callback for json folder.
     else {
+      ATH_MSG_INFO("Setup callback for lwtnn json folder");
 
       const DataHandle<CondAttrListCollection> lwtnnDatahandle;
       if ( (detStore()->regFcn(&NnClusterizationFactory::setUpNNLwtnn,this,lwtnnDatahandle,m_coolFolderJson)).isFailure() ){
@@ -207,7 +223,6 @@ namespace InDet {
           return StatusCode::FAILURE;
       } else 
          ATH_MSG_INFO("Registered IOV callback for " << m_coolFolderJson); 
-
     }
     
     if (m_calibSvc.retrieve().isFailure()){
@@ -251,47 +266,45 @@ namespace InDet {
     std::ostringstream configStream;
 
     // First, extract configuration for the number network.
-    m_useLwtnnNumber = true;
-    pt::ptree subtreeNumberNetwork = parentTree.get_child("NumberNetwork");
-    // If this json is empty, we aren't using
-    // lwtnn for the number network.
-    if(subtreeNumberNetwork.empty()) {
-      ATH_MSG_INFO("Not using lwtnn for number network.");
-      m_useLwtnnNumber = false;
-    }
-    // Otherwise, set up lwtnn.
-    else {      
+    if( m_useLwtnnNumber ) {
+      pt::ptree subtreeNumberNetwork = parentTree.get_child("NumberNetwork");
+      // If this json is empty, we aren't using lwtnn for the number network.
+      if(subtreeNumberNetwork.empty()) {
+        ATH_MSG_ERROR("subtreeNumberNetwork empty for lwtnn Number Network");
+        return StatusCode::FAILURE;      
+      }
       ATH_MSG_INFO("Setting up lwtnn for number network...");
       pt::write_json(configStream, subtreeNumberNetwork);
       std::string numberNetworkConfig = configStream.str();      
-      if ((configureLwtnn(m_lwnnNumber, numberNetworkConfig)).isFailure())
+      if ((configureLwtnn(m_lwnnNumber, numberNetworkConfig)).isFailure()) {
+        ATH_MSG_ERROR("Number Network configureLwtnn failed!");
         return StatusCode::FAILURE;      
+      }
     }
 
     // Now extract configuration for each position network.
     // For simplicity, we'll require all three configurations
     // in order to use lwtnn for positions.
-    m_useLwtnnPosition = true;
-    for (int i=1; i<4; i++) {
-      const std::string key = "PositionNetwork_N"+std::to_string(i);
-      configStream.str("");
-      pt::ptree subtreePosNetwork = parentTree.get_child(key);
-      pt::write_json(configStream, subtreePosNetwork);
-      std::string posNetworkConfig = configStream.str();
+    if(m_useLwtnnPosition) {
+      for (int i=1; i<4; i++) {
+        const std::string key = "PositionNetwork_N"+std::to_string(i);
+        configStream.str("");
+        pt::ptree subtreePosNetwork = parentTree.get_child(key);
+        pt::write_json(configStream, subtreePosNetwork);
+        std::string posNetworkConfig = configStream.str();
       
-      // Now do empty check: if any one of these is empty we won't use lwtnn
-      if(subtreePosNetwork.empty()) {
-        ATH_MSG_INFO("Not using lwtnn for position networks.");
-        m_useLwtnnPosition = false;
-      } else {
-        // Don't bother configuring if we aren't using this
-        if (!m_useLwtnnPosition) continue;
+        // Now do empty check: if any one of these is empty we won't use lwtnn
+        if(subtreePosNetwork.empty()) {
+          ATH_MSG_ERROR("subtreeNumberNetwork empty for lwtnn Position Network");
+          return StatusCode::FAILURE; 
+        }
         // Otherwise, set up lwtnn
         ATH_MSG_INFO("Setting up lwtnn for n = " << i << " position network...");
-        if ((configureLwtnn(m_lwnnPosition[i], posNetworkConfig)).isFailure())
+        if ((configureLwtnn(m_lwnnPosition[i], posNetworkConfig)).isFailure()) {
+          ATH_MSG_ERROR("Position Network " << i << " configureLwtnn failed!");
           return StatusCode::FAILURE;
-      }
-
+        }
+      } // loop over networks
     }
 
     return StatusCode::SUCCESS;        
@@ -758,6 +771,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
     // If we're using new networks via lwtnn, call those now
     if (m_useLwtnnPosition) {
+      ATH_MSG_DEBUG("Using lwtnn position network");
       NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
       auto test_position = estimatePositions(nnInputData,input,pCluster,numberSubClusters,errors);
       return test_position;
