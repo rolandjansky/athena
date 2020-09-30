@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DisambiguationDetaDPhiIncl3.cpp
@@ -128,16 +128,16 @@ TCS::DisambiguationDetaDPhiIncl3::processBitCorrect( const std::vector<TCS::TOBA
          {
 
             if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
-            if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1 ) continue; // Eta cut
-            if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1 ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) > p_EtaMax1 ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) < p_EtaMin1 ) continue; // Eta cut
 
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
-               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
-               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
 
                // DeltaPhi cuts
                unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
@@ -151,8 +151,8 @@ TCS::DisambiguationDetaDPhiIncl3::processBitCorrect( const std::vector<TCS::TOBA
                     tob3 != input[2]->end() ;
                     ++tob3) {
                    if( parType_t((*tob3)->Et()) <= p_MinET3) continue; // ET cut
-                   if( parType_t(fabs((*tob3)->eta())) > p_EtaMax3 ) continue; // Eta cut
-                   if( parType_t(fabs((*tob3)->eta())) < p_EtaMin3 ) continue; // Eta cut
+                   if( parType_t(std::abs((*tob3)->eta())) > p_EtaMax3 ) continue; // Eta cut
+                   if( parType_t(std::abs((*tob3)->eta())) < p_EtaMin3 ) continue; // Eta cut
                    unsigned int deltaR13 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob3 );
                    unsigned int deltaR23 = TSU::Kinematics::calcDeltaR2BW( *tob2, *tob3 );
                    for(unsigned int i=0; i<numberOutputBits(); ++i) {
@@ -190,16 +190,16 @@ TCS::DisambiguationDetaDPhiIncl3::process( const std::vector<TCS::TOBArray const
          {
 
             if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
-            if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1 ) continue; // Eta cut
-            if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1 ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) > p_EtaMax1 ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) < p_EtaMin1 ) continue; // Eta cut
 
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
-               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
-               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
 
                // DeltaPhi cuts
                unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhi( *tob1, *tob2 );
@@ -213,8 +213,8 @@ TCS::DisambiguationDetaDPhiIncl3::process( const std::vector<TCS::TOBArray const
                     tob3 != input[2]->end() ;
                     ++tob3) {
                    if( parType_t((*tob3)->Et()) <= p_MinET3) continue; // ET cut
-                   if( parType_t(fabs((*tob3)->eta())) > p_EtaMax3 ) continue; // Eta cut
-                   if( parType_t(fabs((*tob3)->eta())) < p_EtaMin3 ) continue; // Eta cut
+                   if( parType_t(std::abs((*tob3)->eta())) > p_EtaMax3 ) continue; // Eta cut
+                   if( parType_t(std::abs((*tob3)->eta())) < p_EtaMin3 ) continue; // Eta cut
                    unsigned int deltaR13 = TSU::Kinematics::calcDeltaR2( *tob1, *tob3 );
                    unsigned int deltaR23 = TSU::Kinematics::calcDeltaR2( *tob2, *tob3 );
                    for(unsigned int i=0; i<numberOutputBits(); ++i) {
