@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
@@ -24,6 +24,19 @@ CaloCondBlobFlt::getInstance(const coral::Blob& blob)
 //
 //_______________________________________________________________
 CaloCondBlobFlt::CaloCondBlobFlt(const coral::Blob& blob) 
+  : CaloCondBlobDat<float>(blob)
+{
+  //=== check for correct blob type
+  if(getBlobSize()){
+    if(getObjType() != getType()){
+      throw CaloCond::TypeConflict("CaloCondBlobFlt::Ctor",getObjType(),getType());
+    }
+  }
+}
+
+//
+//_______________________________________________________________
+CaloCondBlobFlt::CaloCondBlobFlt(coral::Blob& blob) 
   : CaloCondBlobDat<float>(blob)
 {
   //=== check for correct blob type
