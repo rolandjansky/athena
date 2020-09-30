@@ -145,6 +145,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       
       //design the vector of ElementLinks
       std::vector<MuonLink_t> FEMuonLinks;
+      std::vector<double> FE_efrac_clustermatch;
       for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
 	//Retrieve the ElementLink vector of clusters      
 	const ElementLink<xAOD::CaloClusterContainer> ClusterLink=muon->clusterLink();
@@ -181,23 +182,35 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	    CaloClusterCellLink::const_iterator Muon_Clus_FirstCell=Muon_Clus_CellLink->begin();
 	    CaloClusterCellLink::const_iterator Muon_Clus_LastCell=Muon_Clus_CellLink->end();
 
-	    //Now we check if any match. Current algo allows for at least one match.
+	    //Now we check if any match and sum the energy of the cells that are matched. Current algo allows for at least one match.
 	    bool isCellMatched=false;
-	    for(; Muon_Clus_FirstCell != Muon_Clus_LastCell; ++Muon_Clus_FirstCell){
-	      Identifier index_muoncell=Muon_Clus_FirstCell->ID();
-	      for (; FE_FirstCell != FE_LastCell; FE_FirstCell++){
-		Identifier index_FEcell=FE_FirstCell->ID();
-		if(index_FEcell==index_muoncell){
+	    double FE_sum_matched_cellEnergy=0;
+	    for(;FE_FirstCell != FE_LastCell; ++FE_FirstCell){
+	      Identifier index_FECell=FE_FirstCell->ID();
+	      for(; Muon_Clus_FirstCell != Muon_Clus_LastCell; ++Muon_Clus_FirstCell){
+		Identifier index_muoncell=Muon_Clus_FirstCell->ID();
+		if(index_FECell==index_muoncell){
 		  isCellMatched=true;
+		  double FE_cell_energy=FE_FirstCell->e();
+		  FE_sum_matched_cellEnergy=FE_sum_matched_cellEnergy+FE_cell_energy;
 		}
 	      }
-	    } // end of double loop block for cell matching
+	    } // end of cell matching double loop
+	    double frac_FE_cluster_energy_matched=0;
+	    //retrieve total cluster energy from the FE cluster
+	    double tot_FE_cluster_energy=FE_cluster->e();
+	    if(tot_FE_cluster_energy!=0){ // ! div 0
+	      frac_FE_cluster_energy_matched=FE_sum_matched_cellEnergy / tot_FE_cluster_energy ;
+	    }
+	    
 	    if(isCellMatched){ // cell matched => Link the two objects.
 	      // Add Muon element link to a vector
 	      // index() is the unique index of the muon in the muon container   
 	      FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
 	      // index() is the unique index of the cFlowElement in the cFlowElementcontaine
 	      muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
+	      // save the energy fraction used in the cluster matching
+	      FE_efrac_clustermatch.push_back(frac_FE_cluster_energy_matched);	      
 	    }
 
 	    
