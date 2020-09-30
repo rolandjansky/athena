@@ -55,32 +55,21 @@ StatusCode Trk::TrackingGeometryCondAlgTest::execute(const EventContext& ctx) co
   ATH_MSG_INFO( "eventID: "  << ctx.eventID());
   m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
   if( m_trackingGeometry == nullptr){
-    std::cout << "TRACKING GEOMETRY NOT FOUND IN SVC" << std::endl;
+    ATH_MSG_FATAL( "TRACKING GEOMETRY NOT FOUND IN SVC");
     return StatusCode::FAILURE;
   }
 
   for (ToolHandle<Trk::IGeometryProcessor> proc : m_trackingGeometryProcessors) {
-    std::cout << "PRINT SVC TG" << std::endl;
+    ATH_MSG_VERBOSE("PRINT SVC TG");
     if(proc->process(*m_trackingGeometry).isFailure()){
       ATH_MSG_FATAL("Could not process the TrackingGeometry from SVC");
       return StatusCode::FAILURE;
     }
-    std::cout << "PRINT COND TG" << std::endl;
+    ATH_MSG_VERBOSE("PRINT COND TG");
     if(proc->process(*trkGeom).isFailure()){
       ATH_MSG_FATAL("Could not process the TrackingGeometry from CONDALG");
       return StatusCode::FAILURE;
     }
   }
-
-//  const std::vector<const Trk::Layer*>* layersCond = trkGeom->highestTrackingVolume()->confinedArbitraryLayers();
-//  const std::vector<const Trk::Layer*>* layersSvc = m_trackingGeometry->highestTrackingVolume()->confinedArbitraryLayers();
-//  std::cout << "Layers in highestTrackingVolume from condAlg and svc:" << std::endl;
-//  if(layersCond != nullptr){
-//    for (size_t i = 0; i<layersCond->size(); i++){
-//      std::cout << "Layer subsurface from CondAlg at 0,0:" << std::endl<< layersCond->at(i)->subSurface(Amg::Vector2D(0.,0.)) << std::endl;
-//      std::cout << "Layer subsurface from Svc at 0,0:" << std::endl<< layersSvc->at(i)->subSurface(Amg::Vector2D(0.,0.)) << std::endl;
-//    }
-//  }
-//  ATH_MSG_INFO("TrackingGeometry retrieved");
   return StatusCode::SUCCESS;
 }
