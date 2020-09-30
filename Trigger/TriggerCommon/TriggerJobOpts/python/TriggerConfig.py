@@ -433,10 +433,17 @@ def triggerPOOLOutputCfg(flags, edmSet):
     return acc
 
 
-def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
+def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
 
     HLTEDMCreatorAlg, HLTEDMCreator=CompFactory.getComps("HLTEDMCreatorAlg","HLTEDMCreator",)
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, addExtraCollectionsToEDMList
+
+    __log.info( "Number of EDM items in triggerMergeViewsAndAddMissingEDMCfg: {}".format(len(TriggerHLTListRun3)) )
+    if flags.Trigger.ExtraEDMList:
+        __log.info( "Adding extra collections to EDM: {}".format(flags.Trigger.ExtraEDMList) )
+        addExtraCollectionsToEDMList(TriggerHLTListRun3, flags.Trigger.ExtraEDMList)
+        __log.info( "Number of EDM items after adding extra collections: {}".format(len(TriggerHLTListRun3)) )
+
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")
 
@@ -577,14 +584,16 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
 
     # Add HLT Navigation to EDM list
     from TrigEDMConfig import TriggerEDMRun3
+    __log.info( "Number of EDM items before adding navigation: {}".format(len(TriggerEDMRun3.TriggerHLTListRun3)) )
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
+    __log.info( "Number of EDM items after adding navigation: {}".format(len(TriggerEDMRun3.TriggerHLTListRun3)) )
 
     # Configure output writing
     outputAcc, edmSet = triggerOutputCfg( flags, summaryAlg )
     acc.merge( outputAcc )
 
     if edmSet:
-        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
+        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( flags, [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTFinalizeSeq" )
 
     return acc
