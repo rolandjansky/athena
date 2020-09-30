@@ -484,11 +484,15 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
     PixelRawDataProvider=CompFactory.PixelRawDataProvider
     InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
                                                      RDOKey       = InDetKeys.PixelRDOs(),
-                                                     ProviderTool = InDetPixelRawDataProviderTool,)
+                                                     ProviderTool = InDetPixelRawDataProviderTool )
 
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = roisKey
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
+
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+    InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+
     acc.addEventAlgo(InDetPixelRawDataProvider)
 
 
@@ -575,10 +579,12 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
                                                         AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
                                                         ClustersName            = "PixelTrigClusters",)
-  InDetPixelClusterization
+
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = roisKey
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+  InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
   acc.addEventAlgo(InDetPixelClusterization)
 
   from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg

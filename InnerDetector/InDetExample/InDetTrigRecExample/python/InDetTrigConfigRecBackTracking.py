@@ -34,6 +34,9 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
    def __init__(self, name="InDetTrigTRT_TrackSegmentsFinder_Photon_EF", type="photon", seqType="InsideOut"):
       super( InDet__TRT_TrigTrackSegmentsFinder, self ).__init__( name )
 
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+      self.RegSelTool = makeRegSelTool_TRT()
+
       from AthenaCommon.AppMgr import ToolSvc
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -150,6 +153,9 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
    def __init__(self, name="InDetTrigTRT_SeededTrackFinder_Photon_EF", type="photon"):
       super( InDet__TRT_TrigSeededTrackFinder, self ).__init__( name )
       
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+      self.RegSelTool = makeRegSelTool_TRT()
+
       from AthenaCommon.AppMgr import ToolSvc         
       from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
       InDetTrigCutValues = EFIDTrackingCuts
@@ -174,14 +180,13 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
            InDetTrigTRT_SeededSpacePointFinder.PRDtoTrackMap = 'InDetTrigPRDtoTrackMap_Photon_EF'
 
       elif InDetTrigFlags.loadSimpleTRTSeededSPFinder():
-         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-         InDetTrigRegSelSvc = RegSelSvcDefault()
-         InDetTrigRegSelSvc.enablePixel = DetFlags.pixel_on()
-         InDetTrigRegSelSvc.enableSCT   = DetFlags.SCT_on()
-
-         ServiceMgr += InDetTrigRegSelSvc
-         if (InDetTrigFlags.doPrintConfigurables()):
-            print (              InDetTrigRegSelSvc)
+         # from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+         # InDetTrigRegSelSvc = RegSelSvcDefault()
+         # InDetTrigRegSelSvc.enablePixel = DetFlags.pixel_on()
+         # InDetTrigRegSelSvc.enableSCT   = DetFlags.SCT_on()
+         # ServiceMgr += InDetTrigRegSelSvc
+         # if (InDetTrigFlags.doPrintConfigurables()):
+         #    print (              InDetTrigRegSelSvc)
 
          from TRT_SeededSpacePointFinderTool.TRT_SeededSpacePointFinderToolConf import InDet__SimpleTRT_SeededSpacePointFinder_ATL
          InDetTrigTRT_SeededSpacePointFinder =  InDet__SimpleTRT_SeededSpacePointFinder_ATL(name                   = 'InDetTrigTRT_SeededSpFinder_'+type  ,

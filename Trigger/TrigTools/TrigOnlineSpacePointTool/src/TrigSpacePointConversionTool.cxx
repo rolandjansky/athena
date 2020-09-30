@@ -30,7 +30,6 @@ TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t,
 {
   declareInterface< ITrigSpacePointConversionTool >( this );
 
-  //  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
   declareProperty( "RegSel_Pixel",           m_regsel_pix);
   declareProperty( "RegSel_SCT",             m_regsel_sct);
 

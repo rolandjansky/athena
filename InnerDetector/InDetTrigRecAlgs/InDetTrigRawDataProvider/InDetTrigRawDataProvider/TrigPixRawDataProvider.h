@@ -26,12 +26,14 @@
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
 #include <string>
 
 class IRoiDescriptor;
 class PixelID;
 class IROBDataProviderSvc;
-class IRegSelSvc;
+
 class IPixelRawDataProviderTool;
 
 namespace InDet {
@@ -55,7 +57,9 @@ namespace InDet {
 
     
   private:
-    ServiceHandle<IRegSelSvc>             m_regionSelector;     
+
+    ToolHandle<IRegSelTool>               m_regionSelector { this, "RegSelTool", "RegSelTool/RegSelTool_Pixel" };     
+
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;
     ToolHandle<IPixelRawDataProviderTool>  m_rawDataTool;
     const PixelID*                        m_id; 

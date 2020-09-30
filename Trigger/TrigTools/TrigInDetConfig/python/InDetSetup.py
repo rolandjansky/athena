@@ -112,6 +112,10 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
     InDetPixelRawDataProvider.BSErrorsCacheKey = InDetCacheNames.PixBSErrCacheKey
 
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel 
+
+    InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+
     viewAlgs.append(InDetPixelRawDataProvider)
 
 
@@ -193,6 +197,9 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = rois
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
+
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+  InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
 
   viewAlgs.append(InDetPixelClusterization)
 

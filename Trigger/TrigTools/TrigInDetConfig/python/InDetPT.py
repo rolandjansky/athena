@@ -156,6 +156,9 @@ def makeInDetPrecisionTracking( config = None,
                                                      TRT_DriftCircleTool = InDetTrigTRT_DriftCircleTool )
             InDetTrigTRTRIOMaker.isRoI_Seeded = True
             InDetTrigTRTRIOMaker.RoIs = rois
+
+            from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+            InDetTrigTRTRIOMaker.RegSelTool = makeRegSelTool_TRT()
  
  
             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPatternPropagator, InDetTrigPatternUpdator

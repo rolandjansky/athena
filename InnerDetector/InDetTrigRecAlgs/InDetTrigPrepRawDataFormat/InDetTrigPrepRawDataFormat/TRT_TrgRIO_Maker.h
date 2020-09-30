@@ -33,7 +33,8 @@
 //typedef - cannot be declared forward
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 
-class IRegSelSvc;
+#include "IRegionSelector/IRegSelTool.h"
+
 class TrigTimer;
 class ITRT_ByteStream_ConditionsSvc;
 class IROBDataProviderSvc;
@@ -84,7 +85,7 @@ namespace InDet{
     InDet::TRT_DriftCircleContainer* m_riocontainer       ;
     int                            m_mode_rio_production;
 
-    ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service
+    ToolHandle<IRegSelTool>    m_regionSelector { this, "RegSelTool", "RegSelTool/RegSelTool_TRT" }; //!<  region selector service
     ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_bsErrorSvc;
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
     

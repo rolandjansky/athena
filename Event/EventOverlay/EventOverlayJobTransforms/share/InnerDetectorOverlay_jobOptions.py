@@ -24,6 +24,10 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
                 job.InDetPixelRawDataProvider.RDOKey = overlayFlags.bkgPrefix()+"PixelRDOs"
             else:
                 job.InDetPixelRawDataProvider.RDOKey = overlayFlags.dataStore()+"+PixelRDOs"
+
+            from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+            job.InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
         else:
@@ -65,6 +69,10 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::SCT_ClusterContainer/SCT_OnlineClusters" ]
 
+#           from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+#           job.InDetSCTRawDataProvider.RegSelTool_SCT = makeRegSelTool_SCT()
+
+
     if DetFlags.overlay.TRT_on():
         if overlayFlags.isDataOverlay():
             conddb.blockFolder("/TRT/Cond/DigVers")
@@ -91,6 +99,9 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             else:
                 job.InDetTRTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+TRT_RDOs"
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
+
+#           from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+#           job.InDetTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
 
             #from IOVDbSvc.CondDB import conddb
             #conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibt0-UPD2-FDR2-01</tag>")

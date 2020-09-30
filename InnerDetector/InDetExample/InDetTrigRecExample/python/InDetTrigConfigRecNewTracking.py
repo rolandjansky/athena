@@ -31,6 +31,13 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
   def __init__(self, name="SiTrigTrackFinder_Electron_EF", type="electron", lowPt=False):
     super( InDet__SiTrigSPSeededTrackFinder, self ).__init__( name )
     
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+
+    self.RegSelTool_Pixel = makeRegSelTool_Pixel()
+    self.RegSelTool_SCT   = makeRegSelTool_SCT()
+
+
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, \
         InDetTrigPatternPropagator, InDetTrigPatternUpdator, \
         InDetTrigRotCreator

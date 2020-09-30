@@ -40,6 +40,8 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
    def __init__(self, name="PixelClustering_Electron_EF", type="electron"):
       super( InDet__Pixel_TrgClusterization, self ).__init__( name )
       
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+      self.RegSelTool = makeRegSelTool_Pixel()
       
       from AthenaCommon.AppMgr import ToolSvc
       # configure tools used
@@ -65,6 +67,10 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
           InDet__TrigPixRawDataProvider(name="TrigPixRawDataProvider_EF",
                                         RawDataProviderTool = InDetTrigPixelRawDataProviderTool,
                                         RDOKey = EF_PixRDOKey)
+
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+      InDetTrigPixRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+
       ToolSvc += InDetTrigPixRawDataProvider
 
 
@@ -123,6 +129,9 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
    def __init__(self, name= "SCTClustering_Electron_EF", type="electron" ):
       super(InDet__SCT_TrgClusterization, self).__init__(name)
 
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+      self.RegSelTool = makeRegSelTool_SCT()
+
       from AthenaCommon.AppMgr import ToolSvc
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
@@ -143,6 +152,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
       InDetTrigSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetTrigSCTRawDataProviderTool",
                                                                Decoder = InDetTrigSCTRodDecoder)
+
       ToolSvc += InDetTrigSCTRawDataProviderTool
 
 
@@ -151,6 +161,12 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
           InDet__TrigSCTRawDataProvider(name="TrigSCTRawDataProvider_EF",
                                         RDOKey = EF_SCTRDOKey,
                                         RawDataTool = InDetTrigSCTRawDataProviderTool)
+
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+      InDetTrigSCTRawDataProvider.RegSelTool = makeRegSelTool_SCT()
+
+
+
       ToolSvc += InDetTrigSCTRawDataProvider
 
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigClusterMakerTool
@@ -204,6 +220,10 @@ class TRTDriftCircleMaker_EF(  InDet__TRT_TrgRIO_Maker ):
    def __init__(self, name= "TRTDriftCircleMaker_Electron_EF", type="electron" ):
       super(InDet__TRT_TrgRIO_Maker, self).__init__(name)
 
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+      self.RegSelTool = makeRegSelTool_TRT()
+      
+
       from AthenaCommon.AppMgr import ToolSvc
 
       from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTRodDecoder
@@ -220,6 +240,9 @@ class TRTDriftCircleMaker_EF(  InDet__TRT_TrgRIO_Maker ):
           InDet__TrigTRTRawDataProvider(name="TrigTRTRawDataProvider_EF",
                                         RDOKey = EF_TRTRDOKey,
                                         RawDataTool="TRTRawDataProviderTool/InDetTrigTRTRawDataProviderTool")
+
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+      InDetTrigTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
 
       ToolSvc += InDetTrigTRTRawDataProvider
       
@@ -279,6 +302,11 @@ class SiTrigSpacePointFinder_EF( InDet__SiTrigSpacePointFinder ):
    def __init__(self, name = "SiTrigSpacePointFinder_Electron_EF", type="electron", lowPt=False):
       super (InDet__SiTrigSpacePointFinder, self).__init__(name)
 
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+      self.RegSelTool_Pixel = makeRegSelTool_Pixel()
+      self.RegSelTool_SCT   = makeRegSelTool_SCT()
+
       from AthenaCommon.AppMgr import ToolSvc
       
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
@@ -301,6 +329,12 @@ class SiTrigSpacePointFinder_EF( InDet__SiTrigSpacePointFinder ):
       self.ProcessPixels = True
       self.ProcessSCTs = True
       self.ProcessOverlaps = InDetTrigFlags.doOverlapSP()
+
+#      from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+#      from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+
+#      self.RegSelTool_Pixel = makeRegSelTool_Pixel()
+#      self.RegSelTool_SCT   = makeRegSelTool_SCT()
 
       if type=='cosmicsN':
          from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import \

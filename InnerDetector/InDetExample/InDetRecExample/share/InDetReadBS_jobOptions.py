@@ -28,7 +28,13 @@ if DetFlags.readRDOBS.pixel_on():
   InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
                                                    RDOKey       = InDetKeys.PixelRDOs(),
                                                    ProviderTool = InDetPixelRawDataProviderTool)
+
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+  InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+
   topSequence += InDetPixelRawDataProvider
+
+
   if (InDetFlags.doPrintConfigurables()):
     printfunc          (InDetPixelRawDataProvider)
   #InDetPixelRawDataProvider.OutputLevel = VERBOSE
@@ -80,6 +86,8 @@ if DetFlags.readRDOBS.TRT_on():
   from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
   InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
                                                       Decoder = InDetTRTRodDecoder)
+
+
   #ToolSvc += InDetTRTRawDataProviderTool
   if (InDetFlags.doPrintConfigurables()):
     printfunc      (InDetTRTRawDataProviderTool)
@@ -90,6 +98,10 @@ if DetFlags.readRDOBS.TRT_on():
   InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
                                               RDOKey       = InDetKeys.TRT_RDOs(),
                                               ProviderTool = InDetTRTRawDataProviderTool)
+
+# from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+# InDetTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
+
   topSequence += InDetTRTRawDataProvider
   if (InDetFlags.doPrintConfigurables()):
     printfunc          (InDetTRTRawDataProvider)

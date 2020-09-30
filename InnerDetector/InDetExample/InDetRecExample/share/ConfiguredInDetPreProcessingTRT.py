@@ -174,6 +174,11 @@ class ConfiguredInDetPreProcessingTRT:
                                                    TrtDescrManageLocation = InDetKeys.TRT_Manager(),
                                                    TRTRDOLocation         = InDetKeys.TRT_RDOs(),
                                                    TRTRIOLocation         = collection)
+
+         from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+         InDetTRT_RIO_Maker.RegSelTool = makeRegSelTool_TRT()
+
+
          topSequence += InDetTRT_RIO_Maker
          if (InDetFlags.doPrintConfigurables()):
             printfunc (InDetTRT_RIO_Maker)
