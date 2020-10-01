@@ -387,10 +387,6 @@ namespace InDet {
                                              " (2): " << resultNN_TTN[1] <<
                                              " (3): " << resultNN_TTN[2]);
 
-    std::cout<<"yoyoma_p1_orig,"<<resultNN_TTN[0]<<std::endl;
-    std::cout<<"yoyoma_p2_orig,"<<resultNN_TTN[1]<<std::endl;
-    std::cout<<"yoyoma_p3_orig,"<<resultNN_TTN[2]<<std::endl;
-
     return resultNN_TTN;
   }
 
@@ -416,10 +412,6 @@ namespace InDet {
     ATH_MSG_VERBOSE(" LWTNN Prob of n. particles (1): " << number_probabilities[0] <<
                                                " (2): " << number_probabilities[1] <<
                                                " (3): " << number_probabilities[2]);
-
-    std::cout<<"yoyoma_p1_lwtnn,"<<number_probabilities[0]<<std::endl;
-    std::cout<<"yoyoma_p2_lwtnn,"<<number_probabilities[1]<<std::endl;
-    std::cout<<"yoyoma_p3_lwtnn,"<<number_probabilities[2]<<std::endl;
 
     return number_probabilities;
   }
