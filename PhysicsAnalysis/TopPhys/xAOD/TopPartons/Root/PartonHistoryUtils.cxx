@@ -72,10 +72,10 @@ namespace PartonHistoryUtils {
       return 0;
     };
 
-    if (std::fabs(result.decay1_pdgId) == 15) {
+    if (std::abs(result.decay1_pdgId) == 15) {
       result.tau_decay1_isHadronic = tauHadronicIndex(higgs_fsr->child(0));
     }
-    if (std::fabs(result.decay2_pdgId) == 15) {
+    if (std::abs(result.decay2_pdgId) == 15) {
       result.tau_decay2_isHadronic = tauHadronicIndex(higgs_fsr->child(1));
     }
 
@@ -97,16 +97,16 @@ namespace PartonHistoryUtils {
     result.decay1_from_decay2_pdgId  = decay2->child(0)->pdgId();
     result.decay2_from_decay2_pdgId  = decay2->child(1)->pdgId();
 
-    if (std::fabs(result.decay1_from_decay1_pdgId) == 15) {
+    if (std::abs(result.decay1_from_decay1_pdgId) == 15) {
       result.tau_decay1_from_decay1_isHadronic = tauHadronicIndex(decay1->child(0));
     }
-    if (std::fabs(result.decay2_from_decay1_pdgId) == 15) {
+    if (std::abs(result.decay2_from_decay1_pdgId) == 15) {
       result.tau_decay2_from_decay1_isHadronic = tauHadronicIndex(decay1->child(1));
     }
-    if (std::fabs(result.decay1_from_decay2_pdgId) == 15) {
+    if (std::abs(result.decay1_from_decay2_pdgId) == 15) {
       result.tau_decay1_from_decay2_isHadronic = tauHadronicIndex(decay2->child(0));
     }
-    if (std::fabs(result.decay2_from_decay2_pdgId) == 15) {
+    if (std::abs(result.decay2_from_decay2_pdgId) == 15) {
       result.tau_decay2_from_decay2_isHadronic = tauHadronicIndex(decay2->child(1));
     }
     
@@ -120,7 +120,7 @@ namespace PartonHistoryUtils {
       return false;
     }
 
-    if (std::fabs(tau->pdgId()) != 15) {
+    if (std::abs(tau->pdgId()) != 15) {
       isOk = false;
       return false;
     }
@@ -135,9 +135,9 @@ namespace PartonHistoryUtils {
     const xAOD::TruthParticle* child1 = findAfterFSR(afterFsr->child(0));
     const xAOD::TruthParticle* child2 = findAfterFSR(afterFsr->child(1));
 
-    if (std::fabs(child1->pdgId()) == 16) {
+    if (std::abs(child1->pdgId()) == 16) {
       // it means the other particle ahs to be W
-      if (std::fabs(child2->pdgId()) != 24) {
+      if (std::abs(child2->pdgId()) != 24) {
         isOk = false;
         return false;
       }
@@ -151,14 +151,14 @@ namespace PartonHistoryUtils {
       isOk = true;
 
       // everything is fine, check if the W decays hadronically or leptonically
-      if (std::fabs(child2->child(0)->pdgId()) < 16) {
+      if (std::abs(child2->child(0)->pdgId()) < 16) {
         return true;
       } else {
         return false;
       }
     } else {
       // it means the other particle has to be nu
-      if (std::fabs(child2->pdgId()) != 16) {
+      if (std::abs(child2->pdgId()) != 16) {
         isOk = false;
         return false;
       }
@@ -172,7 +172,7 @@ namespace PartonHistoryUtils {
       isOk = true;
 
       // everything is fine, check if the W decays hadronically or leptonically
-      if (std::fabs(child1->child(0)->pdgId()) < 16) {
+      if (std::abs(child1->child(0)->pdgId()) < 16) {
         return true;
       } else {
         return false;
