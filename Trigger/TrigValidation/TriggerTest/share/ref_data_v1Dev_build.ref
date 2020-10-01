@@ -166,6 +166,9 @@ TrigSignatureMoniMT                                 INFO -- #1703681121 Features
 TrigSignatureMoniMT                                 INFO HLT_e26_lhtight_L1EM22VHI #1995263521
 TrigSignatureMoniMT                                 INFO -- #1995263521 Events         20         20         0          0          0          0          -          -          -          -          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #1995263521 Features                             0          0          0          0          -          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_e26_lhtight_ivarloose_L1EM22VHI #2918307206
+TrigSignatureMoniMT                                 INFO -- #2918307206 Events         20         20         0          0          0          0          -          -          -          -          -          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #2918307206 Features                             0          0          0          0          -          -          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e26_lhtight_nod0_L1EM22VHI #939763520
 TrigSignatureMoniMT                                 INFO -- #939763520 Events          20         20         0          0          0          0          -          -          -          -          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #939763520 Features                              0          0          0          0          -          -          -          -          -          -          -          -          -          
