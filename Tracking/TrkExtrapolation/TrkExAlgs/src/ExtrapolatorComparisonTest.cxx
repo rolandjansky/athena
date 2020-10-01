@@ -291,7 +291,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
     // Perigee, no alignment -> default geo context
     ActsGeometryContext gctx = m_extrapolationTool->trackingGeometryTool()->getNominalGeometryContext();
     auto anygctx = gctx.any();
-    const Acts::BoundParameters* startParameters = new const Acts::BoundParameters(anygctx, std::move(cov), std::move(pars), std::move(actsPerigeeSurface));
+    const Acts::BoundTrackParameters* startParameters = new const Acts::BoundTrackParameters(std::move(actsPerigeeSurface), std::move(pars), std::move(cov));
     
     for (unsigned int surface = 0; surface < m_actsReferenceSurfaceTriples.size(); surface++) {
       n_extraps++;
@@ -334,10 +334,10 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
            ATH_MSG_DEBUG(" ACTS Extrapolation to perigee failed for input parameters: " << destParameters->parameters());
          }
          
-         m_actsPropResultWriterSvc->write<Acts::BoundParameters>(startParameters, destParameters.release(), ms_fwd, finalperigee.release(), ms_bkw);
+         m_actsPropResultWriterSvc->write<Acts::BoundTrackParameters>(startParameters, destParameters.release(), ms_fwd, finalperigee.release(), ms_bkw);
       } else if (!destParameters) {
         ATH_MSG_DEBUG(" ACTS Extrapolation not successful! " );
-        m_actsPropResultWriterSvc->write<Acts::BoundParameters>(startParameters);
+        m_actsPropResultWriterSvc->write<Acts::BoundTrackParameters>(startParameters);
       }
     }
     delete startParameters;
