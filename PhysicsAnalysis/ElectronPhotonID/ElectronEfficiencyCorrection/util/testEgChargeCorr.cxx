@@ -94,12 +94,12 @@ int main( int argc, char* argv[] ) {
 
     CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", (unsigned int)311481 ) );
     CHECK( myEgCorrections.setProperty("UseRandomRunNumber",false) );
-    myEgCorrections.initialize();
+    CHECK( myEgCorrections.initialize() );
 
     AsgElectronLikelihoodTool * m_LHToolTight = new AsgElectronLikelihoodTool("m_LHToolTight");
     CHECK (m_LHToolTight->setProperty("primaryVertexContainer","PrimaryVertices") );
     m_LHToolTight->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf").ignore();
-    m_LHToolTight->initialize();
+    CHECK ( m_LHToolTight->initialize() );
 
 
     // Get a list of systematics
