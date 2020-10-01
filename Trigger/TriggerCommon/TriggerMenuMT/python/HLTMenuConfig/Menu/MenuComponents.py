@@ -779,8 +779,8 @@ class ChainStep(object):
             multiplicity=[]
 
         # sanity check on inputs
-        if len(Sequences) != len(multiplicity):
-            raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
+        #if len(Sequences) != len(multiplicity):
+        #    raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
 
         self.name = name
         self.sequences=Sequences

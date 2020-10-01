@@ -53,7 +53,7 @@ def setupMenu(flags):
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e3_etcut_L12EM3', groups=MultiElectronGroup),
 # this chain does not work yet        
-#        ChainProp(name='HLT_e3_etcut_e5_etcut_L12EM3', groups=MultiElectronGroup),
+        ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup)
     ]

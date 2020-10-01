@@ -23,14 +23,6 @@ StatusCode RoIsUnpackingToolBase::initialize()
   return StatusCode::SUCCESS;
 }
 
-/**
- * Retruns true if the seed is single threshold multiplicity item: L1_3MU6
- * In such case the threashold name is prefixed by digit.
- */
-bool isMultilpicity(const std::string& itemName, const std::string& thName) {
-  const size_t thPos = itemName.find( thName );
-  return std::isdigit(itemName[thPos-1]);
-}
 
 StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
 
@@ -46,7 +38,7 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
         const HLT::Identifier thresholIdentifier(th);
         m_thresholdToChainMapping[ thresholIdentifier ].push_back( chainIdentifier );
         ATH_MSG_DEBUG( "Associating " << chainIdentifier << " with threshold " << th );        
-        if ( thresholds.size() > 1 or isMultilpicity( chain.l1item(), th ) ) {
+        if ( thresholds.size() > 1 ) {
           HLT::Identifier legIdentifier = TrigCompositeUtils::createLegName( chainIdentifier, counter );
           m_thresholdToChainMapping[ thresholIdentifier ].push_back( legIdentifier );
           m_legToChainMapping.insert( std::make_pair( legIdentifier,  chainIdentifier ) );
