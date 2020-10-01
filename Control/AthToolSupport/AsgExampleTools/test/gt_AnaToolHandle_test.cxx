@@ -351,7 +351,7 @@ namespace asg
   // check makeNew<type>()
   TEST_F (AnaToolHandleUseTest, makeNew)
   {
-    ASSERT_DEATH (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1").ignore(), "");
+    ASSERT_FAILURE (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"));
   }
 #endif
 
