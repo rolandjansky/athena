@@ -90,11 +90,16 @@ StatusCode InDetGlobalBeamSpotMonAlg::fillHistograms( const EventContext& ctx ) 
     
     const Amg::Vector3D &bpos = beamSpotHandle->beamPos();
     
-    auto beamSpotX_m = Monitored::Scalar<float>("m_bsX", bpos.x() );
-    auto beamSpotY_m = Monitored::Scalar<float>("m_bsY", bpos.y() );
-    auto beamSpotZ_m = Monitored::Scalar<float>("m_bsZ", bpos.z() );
-    auto beamTiltX_m = Monitored::Scalar<float>("m_bsTiltX", 1e6*beamSpotHandle->beamTilt(0) );
-    auto beamTiltY_m = Monitored::Scalar<float>("m_bsTiltY", 1e6*beamSpotHandle->beamTilt(1) );
+    beamSpotX = bpos.x();
+    beamSpotY = bpos.y();
+    beamSpotZ = bpos.z();
+    auto beamSpotX_m = Monitored::Scalar<float>("m_bsX", beamSpotX );
+    auto beamSpotY_m = Monitored::Scalar<float>("m_bsY", beamSpotY );
+    auto beamSpotZ_m = Monitored::Scalar<float>("m_bsZ", beamSpotZ );
+    beamTiltX = beamSpotHandle->beamTilt(0);
+    beamTiltY = beamSpotHandle->beamTilt(1);
+    auto beamTiltX_m = Monitored::Scalar<float>("m_bsTiltX", 1e6*beamTiltX );
+    auto beamTiltY_m = Monitored::Scalar<float>("m_bsTiltY", 1e6*beamTiltY );
     scaleFactor = 1000.;   // Use microns for some histograms when showing distance relative to beamspot PJ not used here?!
     
     fill(bsGroup,beamSpotX_m);

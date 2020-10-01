@@ -29,11 +29,11 @@ except getopt.GetoptError:
     print("-n  N          run only on N events per job")
 
 
-LEvents  = 0
-local    = False
-exclude  = False
-postproc = False
-
+Events_local  = 0
+local         = False
+exclude       = False
+postproc      = False
+lowpt_local   = []
 
 for opt,arg in opts:
     if opt in ("-l", "--local"):
@@ -43,7 +43,7 @@ for opt,arg in opts:
     if opt=="-p":
         postproc=True
     if opt=="-n":
-        LEvents=arg
+        Events_local=arg
 
 if 'postexec' in dir() :
     rdo2aod = TrigInDetReco( postexec_file=postexec )
@@ -56,18 +56,26 @@ rdo2aod.slices            = Slices
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
 
+if "Lowpt" in locals() : 
+    if isinstance( Lowpt, list ) : 
+        lowpt_local = Lowpt
+    else : 
+        lowpt_local = [ Lowpt ]
+else : 
+    lowpt_local = [ False ]
+
 
 # allow command line to override programed number of events to process
 
-if LEvents != 0 : 
-    rdo2aod.max_events        = LEvents 
+if Events_local != 0 : 
+    rdo2aod.max_events        = Events_local 
 else :
     rdo2aod.max_events        = Events 
 
 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = Input    # defined in TrigValTools/share/TrigValInputs.json  
+rdo2aod.input   = Input    # defined in TrigValTools/share/TrigValInputs.json  
 
 if local:
 #   rdo2aod.input = 'Single_el_larged0'    # defined in TrigValTools/share/TrigValInputs.json  
@@ -99,16 +107,15 @@ for ref in TrackReference :
 
     hist_file = 'data-hists.root'
     ext       = ''
-    ext1      = ''
 
     if   ( ref == 'Truth' ) :
-        args      = 'TIDAdata-run3.dat  -b Test_bin.dat -o '+hist_file
+        args = 'TIDAdata-run3.dat  -b Test_bin.dat -o '+hist_file
     elif ( ref == 'Offline' ) :
+        # if more than one reefrence ...
         if len(TrackReference)>1 : 
             hist_file = 'data-hists-offline.root'
-            ext       = '_off'
-            ext1      = 'offl'
-        args      = 'TIDAdata-run3-offline.dat  -b Test_bin.dat -o '+hist_file
+            ext       = 'offline'
+        args = 'TIDAdata-run3-offline.dat  -b Test_bin.dat -o '+hist_file
     else :
         # here actually we should allow functionality 
         # to use different pdgid truth or offline as
@@ -126,18 +133,26 @@ for ref in TrackReference :
        
     # Now the comparitor steps
     # here, the compararitor must know the name of the root file to process
-    # we set it in the comparitor job, using the _off extension
-    # this isn't ideal, since we set the hist file in this code, 
+    # we set it in the comparitor job, using the "offline" extension
+    # this isn't ideal, since we set the hist file in this code also 
     # so really we should pass it in consistently, and the options 
     # for the directory names should be unrelated 
-
+    
     for slice in Slices :
-      comp1=TrigInDetCompStep( 'Comp_L2'+slice+ext, 'L2', slice, type=ext1)
-      test.check_steps.append(comp1)
-
-      if ( RunEF ) : 
-        comp2=TrigInDetCompStep( 'Comp_EF'+slice+ext, 'EF', slice, type=ext1)
-        test.check_steps.append(comp2)
+        for _lowpt in lowpt_local :
+            
+            stagetag = slice+ext
+            if _lowpt :
+                stagetag += "-lowpt"
+                
+            print( "stagetag "+stagetag )
+                
+            comp1=TrigInDetCompStep( 'Comp_L2'+stagetag, 'L2', slice, type=ext, lowpt=_lowpt )
+            test.check_steps.append(comp1)
+            
+            if ( RunEF ) : 
+                comp2=TrigInDetCompStep( 'Comp_EF'+stagetag, 'EF', slice, type=ext, lowpt=_lowpt )
+                test.check_steps.append(comp2)
 
 
 

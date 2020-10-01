@@ -276,7 +276,8 @@ def analyseChainName(chainName, L1thresholds, L1item):
                                   (AllowedCalibChainIdentifiers, 'Calib', 'calib'),
                                   (AllowedMonitorChainIdentifiers, 'Monitor', 'calib'),
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
-                                  (['eb'], 'EnhancedBias', 'eb') ]:
+                                  (['eb'], 'EnhancedBias', 'eb'),
+                                  (['unconvtrk'], 'UnconventionalTracking', 'unconvtrk')]:
                 if cpart in chainCategory[0]:
                     log.debug('Doing chain type {}'.format(chainCategory[1]))
                     multichainindex.append(hltChainNameShort.index(cpart))

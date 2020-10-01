@@ -23,6 +23,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 // HepMC includes
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/Operators.h"
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -33,17 +34,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "GeneratorObjects/McEventCollection.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-#ifdef HEPMC3
-// This suboptimal piece of code is here because the googletest is the worst testing suite ever.
-namespace HepMC3 {
-bool operator ==(const std::shared_ptr<HepMC3::GenParticle> a, const HepMC3::GenParticle* const b){return a.get()==b;}
-bool operator ==(const std::shared_ptr<const HepMC3::GenParticle> a, const HepMC3::GenParticle* const b){return a.get()==b;}
-bool operator ==(const HepMC3::GenParticle a, const HepMC3::GenParticle b) {return a.id()==b.id();}
-bool operator !=(const std::shared_ptr<HepMC3::GenParticle> a, const HepMC3::GenParticle* const b){return a.get()!=b;}
-bool operator !=(const std::shared_ptr<const HepMC3::GenParticle> a, const HepMC3::GenParticle* const b){return a.get()!=b;}
-bool operator !=(const HepMC3::GenParticle a, const HepMC3::GenParticle b){return a.id()!=b.id();}
-}
-#endif
 
 namespace MCTesting {
 

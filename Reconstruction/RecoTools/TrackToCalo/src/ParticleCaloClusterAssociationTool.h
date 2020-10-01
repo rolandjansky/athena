@@ -32,7 +32,7 @@ namespace Rec {
    * as it still uses the old style caching
    * to be updated if needed
    */
-  class ATLAS_NOT_THREAD_SAFE ParticleCaloClusterAssociationTool :
+  class  ParticleCaloClusterAssociationTool :
     virtual public IParticleCaloClusterAssociationTool, public AthAlgTool {
   public:
     

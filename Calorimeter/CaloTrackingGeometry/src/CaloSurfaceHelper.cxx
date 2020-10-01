@@ -81,7 +81,10 @@ const Trk::Surface&  CaloSurfaceHelper::GetFlatEntrySurface (const CaloCell_ID::
 
   const Trk::Surface* surf = side>0 ? m_flatEntrySurfs[sample].first : m_flatEntrySurfs[sample].second;
 
-  if (!surf) ATH_MSG_FATAL(" failed to retrieve flat entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+  if (!surf) {
+    ATH_MSG_FATAL(" failed to retrieve flat entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+    std::abort();
+  }
   return *surf;
 }
 
@@ -89,7 +92,10 @@ const Trk::Surface& CaloSurfaceHelper::GetEntrySurface(const CaloCell_ID::CaloSa
 
   const Trk::Surface* surf = side>0 ? m_entrySurfs[sample].first : m_entrySurfs[sample].second;
 
-  if (!surf) ATH_MSG_FATAL(" failed to retrieve entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+  if (!surf) {
+    ATH_MSG_FATAL(" failed to retrieve entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+    std::abort();
+  }
   return *surf;
 }
 
@@ -97,7 +103,10 @@ const Trk::Surface& CaloSurfaceHelper::GetExitSurface (const CaloCell_ID::CaloSa
 
   const Trk::Surface* surf = side>0 ? m_exitSurfs[sample].first : m_exitSurfs[sample].second;
 
-  if (!surf) ATH_MSG_FATAL(" failed to retrieve exit layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+  if (!surf) {
+    ATH_MSG_FATAL(" failed to retrieve exit layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+    std::abort();
+  }
   return *surf;
 }
 

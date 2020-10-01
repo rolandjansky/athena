@@ -134,8 +134,6 @@ StatusCode ZdcRecChannelTool::initialize()
 	}
 	m_zdcId = zdcId;
 
-	ZdcCablingService::getInstance()->setZdcID(m_zdcId);
-
 	msg(MSG::DEBUG) << "--> ZDC : END OF MODIFICATION 0" << endmsg ;
 	return StatusCode::SUCCESS;
 }

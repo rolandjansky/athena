@@ -26,7 +26,7 @@ class TauRecConfigured ( Configured ) :
     into a tauRec/TauProcessorAlg algorithm
     """
 
-    def __init__(self, name = "TauRecConfigured", msglevel=3, ignoreExistingDataObject=True) :
+    def __init__(self, name = "TauRecConfigured", doPi0Clus = True, msglevel=3, ignoreExistingDataObject=True) :
         self.name = name
         self.msglevel = msglevel
         from tauRec.tauRecConf import TauProcessorAlg 
@@ -42,7 +42,7 @@ class TauRecConfigured ( Configured ) :
                                                         Key_tauTrackOutputContainer="TauTracks",
                                                         Key_tauShotClusOutputContainer="TauShotClusters",
                                                         Key_tauShotPFOOutputContainer="TauShotParticleFlowObjects",
-                                                        Key_tauPi0CellOutputContainer="TauCommonPi0Cells",
+                                                        Key_tauPi0CellOutputContainer = "TauCommonPi0Cells" if doPi0Clus else "",
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
                                                         MinPt = tauFlags.tauRecSeedMinPt(),
                                                         CellMakerTool = TauCellContainerFinalizer)

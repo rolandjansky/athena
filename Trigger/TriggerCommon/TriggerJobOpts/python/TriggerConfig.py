@@ -33,7 +33,7 @@ def collectHypos( steps ):
         __log.debug( "collecting hypos from step " + stepSeq.getName() )
 #        start = {}
         for seq,algs in six.iteritems (flatAlgorithmSequences( stepSeq )):
-            for alg in algs:
+            for alg in sorted(algs, key=lambda t: str(t.name)):
                 if isSequence( alg ):
                     continue
                 # will replace by function once dependencies are sorted
@@ -45,7 +45,7 @@ def collectHypos( steps ):
                 else:
                     __log.verbose("Not a hypo" + alg.getName())
 
-    return hypos
+    return OrderedDict(hypos)
 
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
@@ -159,7 +159,7 @@ def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
     decisionObjects.update(decObjHypo)
     decisionObjects.update(decObjFilter)
     decisionObjects.update(decObjSummary)
-    return sorted(decisionObjects)
+    return list(sorted(decisionObjects))
 
 def triggerSummaryCfg(flags, hypos):
     """
@@ -335,9 +335,10 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
-    for item, modules in six.iteritems (ItemModuleDict):
-        __log.debug('adding to serialiser list: %s, modules: %s', item, modules)
-        serialiser.addCollection(item, modules)
+    for item, modules in ItemModuleDict.items():
+        sModules = sorted(modules)
+        __log.debug('adding to serialiser list: %s, modules: %s', item, sModules)
+        serialiser.addCollection(item, sModules)
 
     # Tools adding stream tags and trigger bits to HLT result
     stmaker = StreamTagMakerToolCfg()

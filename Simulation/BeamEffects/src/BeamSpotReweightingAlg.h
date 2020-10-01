@@ -53,7 +53,7 @@ namespace Simulation
   private:
 
     /** Ensure that the GenEvent::signal_process_vertex has been set */
-    HepMC::GenVertex* GetSignalProcessVertex(const HepMC::GenEvent& ge) const;
+    HepMC::ConstGenVertexPtr GetSignalProcessVertex(const HepMC::GenEvent& ge) const;
     
     SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection { this, "InputMcEventCollection", "TruthEvent", "The name of the input McEventCollection" };
     

@@ -223,7 +223,11 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     aux = None
                     if key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances:
                         aux = persistent_instances['TriggerMenuAux.']
+                    elif key == 'DataVector<xAOD::TriggerMenu_v1>_TriggerMenu' and 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.' in persistent_instances:
+                        aux = persistent_instances['xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.']
                     elif key == 'TriggerMenuAux.':
+                        continue
+                    elif key == 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.':
                         continue
 
                     meta_dict[filename][key] = _convert_value(content, aux)
@@ -608,9 +612,8 @@ def _extract_fields_triggermenu(interface, aux):
             firstMenu = interface.at(0)
             L1Items = [ item for item in firstMenu.itemNames() ]
             HLTChains = [ chain for chain in firstMenu.chainNames() ]
-    except Exception as err:
+    except Exception as err: # noqa: F841
         msg.warn('Problem reading xAOD::TriggerMenu:')
-        msg.warn(err)
 
     result = {}
     result['L1Items'] = L1Items
