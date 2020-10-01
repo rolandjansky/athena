@@ -123,7 +123,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 	ATH_MSG_ERROR( name << " "
                        << eta << " " << phi << " "
                        << "and dummy multilayer=1, layer=1, tube=1 ."  );
-        std::abort();
+        return StatusCode::FAILURE;
       } 
 
       Identifier chid1, chid2;
@@ -173,7 +173,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 	    ATH_MSG_ERROR( name << " "
                            << eta << " " << phi << " "
                            << " and dummy multilayer=1, layer=1, tube=1 ."  );
-            std::abort();
+            return StatusCode::FAILURE;
 	  } 
 
 	  mdtCsm_2nd = new MdtCsm(chid2, elementHash_2nd, subsystem_2ndcsm, mrod_2ndcsm, link_2ndcsm);
@@ -200,13 +200,21 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 					     subsystem, mrod, link, 
 					     tdc, channel);
 	            
-	      if (!cabling) {
-		ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
-		ATH_MSG_ERROR( name << " "
-                               << eta << " " << phi << " "
-                               << multilayer << " " << layer << " " << tube  );
-                std::abort();
-	      } 
+        if (!cabling) {
+          // as long as there is no BIS78 cabling, to avoid a hard crash, replace the tubeNumber
+          // of tubes not covered in the cabling by 1
+          if (m_idHelperSvc->mdtIdHelper().stationName(channelId)==1
+             && std::abs(m_idHelperSvc->mdtIdHelper().stationEta(channelId))>6
+             && m_idHelperSvc->issMdt(channelId)) {
+             ATH_MSG_WARNING("Found BIS78 sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 for now...");
+            cabling = readCdo->getOnlineId(name, eta, phi, multilayer, 1, 1,subsystem, mrod, link, tdc, channel);
+          }
+          if (!cabling) {
+            ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
+            ATH_MSG_ERROR( name << " " << eta << " " << phi << " " << multilayer << " " << layer << " " << tube  );
+            return StatusCode::FAILURE;
+          }
+        } 
 
 	      bool masked = mdtDigit->is_masked();
 	      // Create the new AMT hit
