@@ -96,6 +96,8 @@ private:
   InDetPerfPlot_ANTracking m_anTrackingPlots;
   std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;
+  std::unique_ptr<InDetPerfPlot_Hits> m_hitsFakeTracksPlots{nullptr};
+  std::unique_ptr<InDetPerfPlot_Hits> m_hitsUnlinkedTracksPlots{nullptr};
   std::unique_ptr<InDetPerfPlot_VertexTruthMatching> m_vertexTruthMatchingPlots;
   bool m_doTrackInJetPlots;
   bool m_doTrackInBJetPlots;

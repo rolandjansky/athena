@@ -42,6 +42,8 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   if(m_iDetailLevel >= 200){
     m_resolutionPlotSecd = std::make_unique<InDetPerfPlot_Resolution>(this, "Tracks/Matched/Resolutions/Secondary");
     m_hitsMatchedTracksPlots = std::make_unique<InDetPerfPlot_Hits>(this, "Tracks/Matched/HitsOnTracks");
+    m_hitsFakeTracksPlots = std::make_unique<InDetPerfPlot_Hits>(this, "Tracks/Fakes/HitsOnTracks");
+    m_hitsUnlinkedTracksPlots = std::make_unique<InDetPerfPlot_Hits>(this, "Tracks/Unlinked/HitsOnTracks");
     m_vertexTruthMatchingPlots = std::make_unique<InDetPerfPlot_VertexTruthMatching>(this, "Vertices/AllPrimaryVertices", m_iDetailLevel);
 
     //Split by track author
@@ -230,7 +232,10 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
 
   m_missingTruthFakePlots.fill(track, !isAssociatedTruth);
   m_anTrackingPlots.fillUnlinked(track, !isAssociatedTruth, mu, nVtx);
-
+  if(m_iDetailLevel >= 200){
+    if (!isAssociatedTruth) m_hitsUnlinkedTracksPlots->fill(track);
+    else m_hitsFakeTracksPlots->fill(track);
+  }
   if(isAssociatedTruth) {
     m_fakePlots.fill(track, isFake);
       m_anTrackingPlots.fillFakeRate(track, isFake, mu, nVtx);
