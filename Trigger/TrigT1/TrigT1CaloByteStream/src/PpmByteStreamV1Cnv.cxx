@@ -115,7 +115,7 @@ StatusCode PpmByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
     return StatusCode::SUCCESS;
   }
 
-  ATH_CHECK( m_tool->convert(robFrags, ttCollection.get()) );
+  ATH_CHECK( m_tool->convert(nm, robFrags, ttCollection.get()) );
 
   pObj = SG::asStorable(std::move(ttCollection));
 
