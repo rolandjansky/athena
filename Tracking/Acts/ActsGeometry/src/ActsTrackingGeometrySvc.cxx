@@ -435,12 +435,10 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   trtPosEC.zMin = trtBrl.zMax;
   sctPosEC.zMin = trtBrl.zMax;
 
-  // extend SCT endcaps in R so they touch TRT barel
+  // extend SCT in R so they touch TRT barel
   sctBrl.rMax = trtBrl.rMin;
-
-  // extend TRT endcaps in R so they touch SCT endcaps
-  trtNegEC.rMin = sctNegEC.rMax;
-  trtPosEC.rMin = sctPosEC.rMax;
+  sctNegEC.rMax = trtNegEC.rMin;
+  sctPosEC.rMax = trtPosEC.rMin;
 
   // extend TRT endcaps in r to that of Barrel
   trtNegEC.rMax = trtBrl.rMax;
