@@ -109,10 +109,6 @@ public:
   virtual StatusCode markInvisible(const xAOD::IParticleContainer* collection,
 				   xAOD::MissingETAssociationHelper* helper,
 				   xAOD::MissingETContainer* metCont) = 0;
-
-  virtual StatusCode buildMETSum(const std::string& totalName,
-                                 xAOD::MissingETContainer* metCont,
-                                 MissingETBase::Types::bitmask_t softTermsSource) = 0;
 };
 
 #endif

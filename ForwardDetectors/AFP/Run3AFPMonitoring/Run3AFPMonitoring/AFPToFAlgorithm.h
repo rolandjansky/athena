@@ -21,15 +21,14 @@ public:
 	virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
 private:
-	std::map<std::string,int> m_HitmapGroupsToF;
-   
+	std::map<std::string,int> m_StationNamesGroup;
+	std::map<std::string,int> m_TrainsToFGroup;
 	SG::ReadHandleKey<xAOD::AFPToFHitContainer> m_afpToFHitContainerKey;
 
 protected:
 	// Only 0 and 3 are ToF stations (farAside and farCside)
 	std::vector<std::string> m_stationNamesToF = { "farAside", "nearAside" , "nearCside" , "farCside" };
-
-   
+	std::vector<std::string> m_trainsToF = { "train0", "train1" , "train2" , "train3" };
 };
 #endif
 

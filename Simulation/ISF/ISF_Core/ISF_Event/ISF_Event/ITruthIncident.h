@@ -17,7 +17,7 @@
 
 // forward declarations
 #include "AtlasHepMC/GenParticle_fwd.h"
-#include "AtlasHepMC/SimpleVector_fwd.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 namespace ISF {
 

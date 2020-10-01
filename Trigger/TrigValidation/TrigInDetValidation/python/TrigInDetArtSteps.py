@@ -85,7 +85,7 @@ class TrigInDetReco(ExecStep):
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
-                chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20',"
+                chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20','HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
                 flags  += 'doBjetSlice=True;'
             if ( i=='fsjet' or i=='fs' or i=='jet' ) :
                 chains += "'HLT_j45_ftf_L1J15',"
@@ -211,8 +211,8 @@ class TrigInDetCompStep(RefComparisonStep):
         if (self.test=='ttbar'):
             self.output_dir = self.output_dir+"-"+self.slice
 
-        if (self.type == 'offl'):
-            self.output_dir = self.output_dir+'-offl'    
+        if (self.type == 'offline'):
+            self.output_dir = self.output_dir+'-offline'    
             self.input_file = 'data-hists-offline.root'
 
         self.args += self.input_file + ' ' 

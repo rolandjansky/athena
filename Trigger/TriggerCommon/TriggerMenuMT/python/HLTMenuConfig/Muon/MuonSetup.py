@@ -13,8 +13,8 @@ from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheNames
 
 
-TrackParticlesName = recordable("HLT_IDTrack_Muon_FTF")
-theFTF_name = "FTFTracks_Muons"
+TrackParticlesName = recordable("HLT_IDTrack_Muon_FTF") #FIXME: Unify this with ID Trig configuration ? config.FT().trkTracksFTF( doRecord = config.isRecordable )
+theFTF_name = "FTFTracks_Muons" #Obsolete?
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
 CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
 ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
@@ -478,8 +478,11 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None ):
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
+  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  IDTrigConfig = getInDetTrigConfig( "muon"+name ) 
+
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  viewAlgs, viewVerify = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
+  viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
   if extraLoads:
     viewVerify.DataObjects += extraLoads
@@ -499,9 +502,6 @@ def muCombRecoSequence( RoIs, name ):
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
 
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
-    ViewVerify.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
@@ -567,13 +567,6 @@ def muEFSARecoSequence( RoIs, name ):
                                         ( 'TrackCollection' , 'StoreGateSvc+Tracks' ),
                                         ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
   efAlgs.append( EFMuonViewDataVerifier )
-
-  # Only load these objects if they aren't available in conddb
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested( "/MDT/DQMF/DEAD_ELEMENT" ):
-    EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/DQMF/DEAD_ELEMENT' )]
-  if not conddb.folderRequested( "/MDT/TUBE_STATUS/DEAD_TUBE" ):
-    EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/TUBE_STATUS/DEAD_TUBE' )]
 
   #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
   from AthenaCommon.AlgSequence import AthSequencer
@@ -683,32 +676,29 @@ def muEFCBRecoSequence( RoIs, name ):
 
   muEFCBRecoSequence += ViewVerifyMS
 
-  # Add conditions data if not already available
-  from IOVDbSvc.CondDB import conddb
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  if not conddb.folderRequested( "/PIXEL/PixdEdx" ):
-    ViewVerifyMS.DataObjects += [( 'AthenaAttributeList' , 'ConditionStore+/PIXEL/PixdEdx' )]
 
   if not globalflags.InputFormat.is_bytestream():
     topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
     ViewVerifyMS.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
+
+  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  signatureName = 'muon{}'.format( 'FS' if 'FS' in name else '' ) 
+  IDTrigConfig = getInDetTrigConfig( signatureName )
+
   if "FS" in name:
     #Need to run tracking for full scan chains
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs(whichSignature = "MuonFS", rois = RoIs) 
+    viewAlgs, viewVerify = makeInDetAlgs(config = IDTrigConfig, rois = RoIs) 
 
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
-      if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-        TrackCollection = viewAlg.TrackName
 
   else:
-    TrackCollection="TrigFastTrackFinder_Tracks_Muon" # this is hacking, please FIX IT
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
-                                 ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -730,10 +720,10 @@ def muEFCBRecoSequence( RoIs, name ):
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
   if 'FS' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonFS", rois = RoIs, verifier = False, inputFTFtracks=TrackCollection)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs, verifier = False)
     PTSeq = parOR("precisionTrackingInMuonsFS", PTAlgs  )
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muon", rois = RoIs,  verifier = ViewVerifyTrk, inputFTFtracks= TrackCollection)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
     PTSeq = parOR("precisionTrackingInMuons", PTAlgs  )
   #Get last tracks from the list as input for other alg
 
@@ -850,16 +840,19 @@ def muEFInsideOutRecoSequence(RoIs, name):
       efAlgs.append(theSegmentFinderAlg)
 
     # need to run precisions tracking for late muons, since we don't run it anywhere else
-    TrackCollection="TrigFastTrackFinder_Tracks_MuonLate" 
 
     #Precision Tracking
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'muonLate' )
+
+
     PTAlgs = [] #List of precision tracking algs
     PTTracks = [] #List of TrackCollectionKeys
     PTTrackParticles = [] #List of TrackParticleKeys
 
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonLate", rois=RoIs, inputFTFtracks= TrackCollection)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs)
     PTSeq = parOR("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
@@ -931,22 +924,23 @@ def efmuisoRecoSequence( RoIs, Muons ):
   #efmuisoRecoSequence = parOR("efmuIsoViewNode")
   efmuisoRecoSequence = seqAND("efmuIsoViewNode")
 
+  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  IDTrigConfig = getInDetTrigConfig( 'muonIso' )
+
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  viewAlgs, viewVerify = makeInDetAlgs(whichSignature="MuonIso",rois = RoIs)
+  viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUEFIsoRoIs' ),
                              ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons' )]
 
   # Make sure required objects are still available at whole-event level
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
   if not globalflags.InputFormat.is_bytestream():
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
     viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
     topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
   for viewAlg in viewAlgs:
     efmuisoRecoSequence += viewAlg
-    if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-        TrackCollection = viewAlg.TrackName
 
   #Precision Tracking
   PTAlgs = [] #List of precision tracking algs
@@ -954,7 +948,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   PTTrackParticles = [] #List of TrackParticleKeys
   
   from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonIso", rois=RoIs, inputFTFtracks=TrackCollection)
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs )
 
   PTSeq = parOR("precisionTrackingInMuonsIso", PTAlgs  )
   efmuisoRecoSequence += PTSeq

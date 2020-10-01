@@ -70,7 +70,7 @@ private:
     std::unique_ptr<TauJetRNN> m_net_1p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
 
-    bool m_incShowerSubtr;
+    bool m_useSubtractedCluster;
 
     ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
       "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};

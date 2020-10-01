@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -27,16 +27,20 @@
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Vector/LorentzVector.h"
-
+//#include "TrkParticleBase/LinkToTrackParticleBase.h"
+//#include "TrkParticleBase/TrackParticleBaseCollection.h"
+//#include "TrkParticleBase/TrackParticleBase.h"
+//#include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/Vertex.h" 
+
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 
 namespace Trk {
   class VxCandidate;
   class LinearizedTrack;
-  class IVertexLinearizedTrackFactory;
   class RecVertex;
-  class IExtrapolator;
   class Vertex;
   class LinkToTrackParticleBase;
   class ITrackLink;
@@ -132,11 +136,9 @@ namespace InDet {
 										const AmgSymMatrix(3) & vrt_weight) const;
                                                                                                            
 
-    
-    
 
-    ToolHandle<Trk::IVertexLinearizedTrackFactory> m_LinearizedTrackFactory;
-    ToolHandle<Trk::IExtrapolator>  m_extrapolator;   
+    ToolHandle<Trk::IVertexLinearizedTrackFactory> m_LinearizedTrackFactory {this,"LinearizedTrackFactory","Trk::FullLinearizedTrackFactory/FullLinearizedTrackFactory",""};
+    ToolHandle<Trk::IExtrapolator>  m_extrapolator {this,"Extrapolator","Trk::Extrapolator/InDetExtrapolator",""};   
 
     bool m_extrapolatorIsAvailable;
     bool m_linearizedTrackFactoryIsAvailable;

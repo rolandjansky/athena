@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelBarrel.h"
@@ -29,8 +29,11 @@
 #include <sstream>
 
 using namespace std;
-GeoPixelBarrel::GeoPixelBarrel(const GeoPixelServices * pixServices)
-  : m_pixServices(pixServices)
+GeoPixelBarrel::GeoPixelBarrel(InDetDD::PixelDetectorManager* ddmgr,
+                               PixelGeometryManager* mgr,
+                               GeoPixelServices * pixServices)
+  : GeoVPixelFactory (ddmgr, mgr),
+    m_pixServices(pixServices)
 {}
 
 GeoVPhysVol* GeoPixelBarrel::Build( ) {
@@ -60,7 +63,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
   //
   // Build the layers inside
   //
-  GeoPixelLayer layer;
+  GeoPixelLayer layer (m_DDmgr, m_gmt_mgr);
   for(int ii = 0; ii < m_gmt_mgr->PixelBarrelNLayer(); ii++){
     //cout << "Layer" << ii << endl;
     m_gmt_mgr->SetCurrentLD(ii);
@@ -116,7 +119,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
 	  // ----------- end of stave PP0 services (insde barrel)
 	  
 	  if(m_gmt_mgr->IBLFlexAndWingDefined()){
-	    GeoPixelIFlexServices iFlexSrv(0);
+	    GeoPixelIFlexServices iFlexSrv(m_DDmgr, m_gmt_mgr, 0);
 	    iFlexSrv.Build();
 	    
 	    GeoNameTag * tagFlexA = new GeoNameTag("PP0Flex_A");
@@ -154,7 +157,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     // Add the pixel frame inside the barrel volume
     // In recent versions this taken care of in the general services.
     if (m_gmt_mgr->oldFrame()) {
-      GeoPixelOldFrame frame;
+      GeoPixelOldFrame frame (m_DDmgr, m_gmt_mgr);
       frame.BuildInBarrel(barrelPhys);      
     }
   }

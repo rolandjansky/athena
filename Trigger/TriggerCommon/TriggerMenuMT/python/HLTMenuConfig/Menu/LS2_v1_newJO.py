@@ -42,7 +42,11 @@ def setupMenu(flags):
     flags.Trigger.menu.muon = [        
         ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup)
+        ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup),
+
+        ChainProp(name='HLT_mu20_msonly_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu10_msonly_L1MU10', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup)
     ]
 
     flags.Trigger.menu.electron = [

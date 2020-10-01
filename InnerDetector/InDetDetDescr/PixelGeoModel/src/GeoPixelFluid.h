@@ -10,10 +10,11 @@
 
 class GeoLogVol;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelFluid : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelFluid : public GeoVPixelFactory {
 public:
-  GeoPixelFluid(int type);
-  virtual GeoVPhysVol* Build();
+  GeoPixelFluid(InDetDD::PixelDetectorManager* ddmgr,
+                PixelGeometryManager* mgr, int type);
+  virtual GeoVPhysVol* Build() override;
   double posX() {return m_posX;}
   double posY() {return m_posY;}
   double posZ() {return m_posZ;}

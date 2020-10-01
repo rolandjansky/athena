@@ -2287,7 +2287,7 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
 ///////////////////////////////// makeStrawPlane /////////////////////////////////
 //
 //GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w) const {
-GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixture gasMixture) const {
+GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixture gasMixture) {
   // -----------------------------------------------------------------------------------//
   //                                                                                    //
   // There are twelve straw planes; however there are only two kinds, one for sector    //
@@ -2295,29 +2295,29 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
   // In order to economize, we shall only create two planes.                            //
   // -----------------------------------------------------------------------------------//
 
-  static GeoFullPhysVol *type1Plane=nullptr, *type2Plane=nullptr, *type1PlaneAr=nullptr, *type2PlaneAr=nullptr, *type1PlaneKr=nullptr, *type2PlaneKr=nullptr;
   size_t nstraws=0;
 
   //A and B wheels have similar straw planes, but the C wheels are different.
   //  const size_t firstIndexOfC = 15; //hardcoded
   const size_t firstIndexOfC = 14; //hardcoded
 
-  GeoFullPhysVol *&cur_type1Plane = (gasMixture == GM_KRYPTON) ? type1PlaneKr :
-                                    (gasMixture == GM_ARGON  ) ? type1PlaneAr :
-                                                                 type1Plane;
-  GeoFullPhysVol *&cur_type2Plane = (gasMixture == GM_KRYPTON) ? type2PlaneKr :
-                                    (gasMixture == GM_ARGON  ) ? type2PlaneAr :
-                                                                 type2Plane;
+  unsigned iplane = 0;
+  if (gasMixture == GM_ARGON) {
+    iplane = 1;
+  }
+  else if (gasMixture == GM_KRYPTON) {
+    iplane = 2;
+  }
 
   if (w>=firstIndexOfC) {
-    if (cur_type2Plane!=nullptr) {
-      return cur_type2Plane;
+    if (m_type2Planes[iplane] != nullptr) {
+      return m_type2Planes[iplane];
     }
     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
   } 
   else {
-    if (cur_type1Plane!=nullptr) {
-      return cur_type1Plane;
+    if (m_type1Planes[iplane] != nullptr) {
+      return m_type1Planes[iplane];
     }
     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
     //Check here that (m_data->endcapNumberOfStrawsInStrawLayer_AWheels == m_data->endcapNumberOfStrawsInStrawLayer_BWheels) !!
@@ -2415,15 +2415,13 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixt
   GeoPhysVol *pWire = new GeoPhysVol(lWire);
   pStraw->add(pWire);
 
-  // Look above *type2Plane=nullptr
-  if (w>=firstIndexOfC && type2Plane!=nullptr) {
-    cur_type2Plane=pStrawPlane;
-    return cur_type2Plane;
+  if (w>=firstIndexOfC) {
+    m_type2Planes[iplane] = pStrawPlane;
   }
   else {
-    cur_type1Plane=pStrawPlane;
-    return cur_type1Plane;
+    m_type1Planes[iplane] = pStrawPlane;
   }
+  return pStrawPlane;
 
 }
 

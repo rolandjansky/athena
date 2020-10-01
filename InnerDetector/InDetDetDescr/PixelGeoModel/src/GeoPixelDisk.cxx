@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelDisk.h"
@@ -22,8 +22,10 @@
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include <sstream>
 
-GeoPixelDisk::GeoPixelDisk() {
-
+GeoPixelDisk::GeoPixelDisk(InDetDD::PixelDetectorManager* ddmgr,
+                           PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
 }
 
 GeoVPhysVol* GeoPixelDisk::Build( ) {
@@ -48,13 +50,13 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   const GeoLogVol* theDisk = new GeoLogVol("Disk"+ostr.str(),diskTube,air);
   //
   // Define the Sensor to be used here, so it will be the same for all the disk
-  GeoPixelSiCrystal theSensor(false);
+  GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, false);
   GeoFullPhysVol* diskPhys = new GeoFullPhysVol(theDisk);
   //
   // Place the disk sectors (on both sides):
   //
   // Need to specify some eta. Assume all module the same
-  GeoPixelModule psd(theSensor);
+  GeoPixelModule psd(m_DDmgr, m_gmt_mgr, theSensor);
   double zpos = m_gmt_mgr->PixelECSiDz1()*0.5;
   double deltaPhi = 360.*Gaudi::Units::deg/ (float) nbECSector;
   // This is the start angle of the even modules (3.75 deg):
@@ -165,7 +167,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
   // Place the supports for the disks:
   //
-  GeoPixelDiskSupports pds;
+  GeoPixelDiskSupports pds (m_DDmgr, m_gmt_mgr);
   for(int ii =0; ii< pds.NCylinders(); ii++) {
     pds.SetCylinder(ii);
     GeoTransform* xform = new GeoTransform( GeoTrf::Translate3D(0, 0, pds.ZPos()) );

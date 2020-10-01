@@ -82,7 +82,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
         else:
             mlog.info("Will load algos from xml")
             allalgs = []
-            doc = ET.parse(self.XMLMenuFile)
+            doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
             algs = self.getAllAlgorithms(doc)
             l2TEs, efTEs = self.getTEsByLevel(doc)
 
@@ -111,7 +111,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
             mlog.info("Will load algos from xml")
             l2algs = []
             efalgs = []
-            doc = ET.parse(self.XMLMenuFile)
+            doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
             algs = self.getAllAlgorithms(doc)
             l2TEs, efTEs = self.getTEsByLevel(doc)
 
@@ -130,7 +130,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
         l2TEs = []
         efTEs = []
         #print "INFO parsing: " + self.XMLMenuFile
-        if not doc: doc = ET.parse(self.XMLMenuFile)
+        if not doc: doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
 
         #print "INFO got chains " + str(chainlist)
         for ch in doc.getiterator("CHAIN"):
@@ -173,7 +173,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
 
     def getAllSequenceInputs (self, doc = None):
         """ Produce dictionaries where key is outout TE name and values are tuples of TEs """
-        if not doc: doc = ET.parse(self.XMLMenuFile)
+        if not doc: doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
         inp = {}
         for seq in doc.getiterator("SEQUENCE"):
             #print "INFO Discovered algorithms in the sequence: " + seq.getAttribute("algorithm")
@@ -183,7 +183,7 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
     def getAllAlgorithms(self, doc = None):
         """ Produce dictionary where key is output TE name of the sequence and value is a list of algos in sequence"""
         #print "INFO parsing: " + self.XMLMenuFile
-        if not doc: doc = ET.parse(self.XMLMenuFile)
+        if not doc: doc = ET.parse( findFileInXMLPATH(self.XMLMenuFile) )
         #print "INFO getting sequences "
         algos = {}
         for seq in doc.getiterator("SEQUENCE"):

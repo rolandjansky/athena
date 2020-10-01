@@ -134,9 +134,10 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
 
     // online monitoring for btagging, with a check to ensure the PV is marked
     ElementLink< xAOD::VertexContainer > vertexEL;
-        CHECK( retrieveObjectFromNavigation(  m_prmVtxLink.value(), vertexEL, prevDecisionContainer->at(index) ) );
+    CHECK( retrieveObjectFromNavigation(  m_prmVtxLink.value(), vertexEL, prevDecisionContainer->at(index) ) );
         
     if ( (*vertexEL)->vertexType() == xAOD::VxType::VertexType::PriVtx ) {
+      CHECK( monitor_primary_vertex( vertexEL ) );
       CHECK( monitor_btagging( bTaggingEL ) );
     }
 
@@ -264,7 +265,7 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( const ElementLinkVector< xAOD:
 }
 
 
-StatusCode TrigBjetBtagHypoAlgMT::monitor_flavor_tag_variable( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name ) const {
+StatusCode TrigBjetBtagHypoAlgMT::monitor_flavor_probabilities( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name ) const {
   auto monitor_pu = Monitored::Collection( "btag_"+var_name+"_pu", bTaggingEL,
     [var_name](const ElementLink< xAOD::BTaggingContainer >& bTagLink) { 
       double pu = -1; 
@@ -286,19 +287,83 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_flavor_tag_variable( const ElementLink
       return pc;
     } );
 
-  auto monitor_group_for_flavor_tag_var = Monitored::Group( m_monTool, monitor_pu, monitor_pb, monitor_pc );
+  auto monitor_llr = Monitored::Collection( "btag_"+var_name+"_llr", bTaggingEL,
+    [var_name](const ElementLink< xAOD::BTaggingContainer >& bTagLink) { 
+      double llr = -1;
+      (*bTagLink)->loglikelihoodratio( var_name, llr );
+      return llr;
+    } );
+
+  auto monitor_group_for_flavor_tag_var = Monitored::Group( m_monTool, monitor_pu, monitor_pb, monitor_pc, monitor_llr );
 
   return StatusCode::SUCCESS;
 }
-  
+
+
+StatusCode TrigBjetBtagHypoAlgMT::monitor_primary_vertex( const ElementLink< xAOD::VertexContainer >& primVertexEL ) const {
+  auto monitor_for_primVtx_x = Monitored::Scalar( "primVtx_x", (*primVertexEL)->x() );  
+  auto monitor_for_primVtx_y = Monitored::Scalar( "primVtx_y", (*primVertexEL)->y() );  
+  auto monitor_for_primVtx_z = Monitored::Scalar( "primVtx_z", (*primVertexEL)->z() );  
+
+  auto monitor_group_for_primary_vertex = Monitored::Group( m_monTool, monitor_for_primVtx_x, monitor_for_primVtx_y, monitor_for_primVtx_z );
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode TrigBjetBtagHypoAlgMT::monitor_btagging( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL ) const {
-  // Monitor IP2D, IP3D, SV1, DL1r, RNNIP
-  CHECK( monitor_flavor_tag_variable(bTaggingEL, "IP2D") );
-  CHECK( monitor_flavor_tag_variable(bTaggingEL, "IP3D") );
-  CHECK( monitor_flavor_tag_variable(bTaggingEL, "SV1") );
-  CHECK( monitor_flavor_tag_variable(bTaggingEL, "DL1r") );
-  CHECK( monitor_flavor_tag_variable(bTaggingEL, "RNNIP") );
+  // Monitor flavor probabilites
+  CHECK( monitor_flavor_probabilities(bTaggingEL, "IP2D") );
+  CHECK( monitor_flavor_probabilities(bTaggingEL, "IP3D") );
+  CHECK( monitor_flavor_probabilities(bTaggingEL, "DL1r") );
+  CHECK( monitor_flavor_probabilities(bTaggingEL, "rnnip") );
+
+  MONITOR_BTAG_AUX_VAR(JetFitter_N2Tpair, int, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_nVTX, int, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_nSingleTracks, int, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_nTracksAtVtx, int, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_mass, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_energyFraction, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_significance3d, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_deltaeta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_deltaphi, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_isDefaults, char, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitter_deltaR, float, bTaggingEL);
+
+  MONITOR_BTAG_AUX_VAR(SV1_NGTinSvx, int, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_masssvx, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_isDefaults, char, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_N2Tpair, int, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_efracsvx, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_deltaR, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_Lxy, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_L3d, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(SV1_significance3d, float, bTaggingEL);
+
+  MONITOR_BTAG_AUX_VAR(IP2D_isDefaults, char, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP2D_bu, double, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP2D_bc, double, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP2D_cu, double, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP3D_isDefaults, char, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP3D_bu, double, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP3D_bc, double, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP3D_cu, double, bTaggingEL);
+
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_nTracks, int, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_isDefaults, char, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_mass, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_energy, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_energyFraction, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_displacement3d, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_displacement2d, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_maximumTrackRelativeEta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_minimumTrackRelativeEta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_averageTrackRelativeEta, float, bTaggingEL);
+
+  MONITOR_BTAG_AUX_VAR(maximumTrackRelativeEta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(minimumTrackRelativeEta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(averageTrackRelativeEta, float, bTaggingEL);
+
+
 
   // Monitor MV2c10
   auto monitor_for_MV2c10 = Monitored::Collection( "btag_MV2c10", bTaggingEL,
@@ -307,26 +372,64 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_btagging( const ElementLinkVector< xAO
       (*bTagLink)->MVx_discriminant( "MV2c10", mv2c10_discriminant );
       return mv2c10_discriminant;
     } );
-  auto monitor_group_for_btagging = Monitored::Group( m_monTool, monitor_for_MV2c10);
+
+  auto monitor_group_for_btagging = Monitored::Group( m_monTool, 
+    monitor_for_JetFitter_N2Tpair,
+    monitor_for_JetFitter_nVTX,
+    monitor_for_JetFitter_nSingleTracks,
+    monitor_for_JetFitter_nTracksAtVtx,
+    monitor_for_JetFitter_mass,
+    monitor_for_JetFitter_energyFraction,
+    monitor_for_JetFitter_significance3d,
+    monitor_for_JetFitter_deltaeta,
+    monitor_for_JetFitter_deltaphi,
+    monitor_for_JetFitter_isDefaults,
+    monitor_for_JetFitter_deltaR,
+    monitor_for_SV1_NGTinSvx,
+    monitor_for_SV1_masssvx,
+    monitor_for_SV1_isDefaults,
+    monitor_for_SV1_N2Tpair,
+    monitor_for_SV1_efracsvx,
+    monitor_for_SV1_deltaR,
+    monitor_for_SV1_Lxy,
+    monitor_for_SV1_L3d,
+    monitor_for_SV1_significance3d,
+    monitor_for_IP2D_bu,
+    monitor_for_IP2D_isDefaults,
+    monitor_for_IP2D_bc,
+    monitor_for_IP2D_cu,
+    monitor_for_IP3D_bu,
+    monitor_for_IP3D_isDefaults,
+    monitor_for_IP3D_bc,
+    monitor_for_IP3D_cu,
+    monitor_for_JetFitterSecondaryVertex_nTracks,
+    monitor_for_JetFitterSecondaryVertex_isDefaults,
+    monitor_for_JetFitterSecondaryVertex_mass,
+    monitor_for_JetFitterSecondaryVertex_energy,
+    monitor_for_JetFitterSecondaryVertex_energyFraction,
+    monitor_for_JetFitterSecondaryVertex_displacement3d,
+    monitor_for_JetFitterSecondaryVertex_displacement2d,
+    monitor_for_JetFitterSecondaryVertex_maximumTrackRelativeEta,
+    monitor_for_JetFitterSecondaryVertex_minimumTrackRelativeEta,
+    monitor_for_JetFitterSecondaryVertex_averageTrackRelativeEta,
+    monitor_for_maximumTrackRelativeEta,
+    monitor_for_minimumTrackRelativeEta,
+    monitor_for_averageTrackRelativeEta,
+    monitor_for_MV2c10
+  );
 
 
-  // Monitor tracks used in calculating btagging quantities
   for ( const ElementLink< xAOD::BTaggingContainer >& bTagLink : bTaggingEL ) {
-    auto monitor_for_btag_valD0wrtPVofTracks = Monitored::Collection( "btag_valD0wrtPVofTracks",
-      (*bTagLink)->auxdata< std::vector<float> >("IP3D_valD0wrtPVofTracks"));
-    auto monitor_for_btag_sigD0wrtPVofTracks = Monitored::Collection( "btag_sigD0wrtPVofTracks",
-      (*bTagLink)->auxdata< std::vector<float> >("IP3D_sigD0wrtPVofTracks"));
-    auto monitor_for_btag_valZ0wrtPVofTracks = Monitored::Collection( "btag_valZ0wrtPVofTracks",
-      (*bTagLink)->auxdata< std::vector<float> >("IP3D_valZ0wrtPVofTracks"));
-    auto monitor_for_btag_sigZ0wrtPVofTracks = Monitored::Collection( "btag_sigZ0wrtPVofTracks",
-      (*bTagLink)->auxdata< std::vector<float> >("IP3D_sigZ0wrtPVofTracks"));
+    MONITOR_BTAG_AUX_TRACK_VAR(IP3D_valD0wrtPVofTracks, float);
+    MONITOR_BTAG_AUX_TRACK_VAR(IP3D_sigD0wrtPVofTracks, float);
+    MONITOR_BTAG_AUX_TRACK_VAR(IP3D_valZ0wrtPVofTracks, float);
+    MONITOR_BTAG_AUX_TRACK_VAR(IP3D_sigZ0wrtPVofTracks, float);
 
     auto monitor_group_for_btag_track_vars = Monitored::Group( m_monTool,
-      monitor_for_btag_valD0wrtPVofTracks, monitor_for_btag_sigD0wrtPVofTracks,
-      monitor_for_btag_valZ0wrtPVofTracks, monitor_for_btag_sigZ0wrtPVofTracks
+      monitor_for_IP3D_valD0wrtPVofTracks, monitor_for_IP3D_sigD0wrtPVofTracks,
+      monitor_for_IP3D_valZ0wrtPVofTracks, monitor_for_IP3D_sigZ0wrtPVofTracks
     );
   }
-
 
 
   return StatusCode::SUCCESS;

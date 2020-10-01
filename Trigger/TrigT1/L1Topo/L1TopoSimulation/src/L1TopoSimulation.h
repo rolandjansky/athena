@@ -53,6 +53,10 @@ namespace LVL1 {
       virtual StatusCode execute() override;
 
       virtual StatusCode finalize() override;
+     
+      // make algorithm is clonable
+      virtual bool isClonable() const override;
+     
       /**
          @brief Retrieve the L1Topo hardware bits from the DAQ RODs
          

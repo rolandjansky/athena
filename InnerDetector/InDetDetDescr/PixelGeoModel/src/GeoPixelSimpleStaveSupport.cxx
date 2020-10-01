@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build simple stave support as a box
@@ -13,8 +13,10 @@
 
 
 
-GeoPixelSimpleStaveSupport::GeoPixelSimpleStaveSupport()
-  : m_transform(GeoTrf::Transform3D::Identity())
+GeoPixelSimpleStaveSupport::GeoPixelSimpleStaveSupport(InDetDD::PixelDetectorManager* ddmgr,
+                                                       PixelGeometryManager* mgr)
+  : GeoPixelStaveSupport(ddmgr, mgr),
+    m_transform(GeoTrf::Transform3D::Identity())
 {
   m_physVol = Build();
   m_physVol->ref();

@@ -14,7 +14,7 @@ atlas_add_component( MuonDQAMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests GaudiKernel DataQualityInterfaces EventInfo TrigT1Result )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests GaudiKernel EventInfo TrigT1Result )
 
 # Install files from the package:
 atlas_install_headers( MuonDQAMonitoring )

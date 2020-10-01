@@ -11,6 +11,7 @@
 
 // METUtilities includes
 #include "METUtilities/METRebuilder.h"
+#include "METUtilities/METHelpers.h"
 
 // MET EDM
 #include "xAODMissingET/MissingETContainer.h"
@@ -684,34 +685,6 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  // **** Sum up MET terms ****
-
-  StatusCode METRebuilder::buildMETSum(const std::string& totalName,
-                                       xAOD::MissingETContainer* metCont)
-  {
-    ATH_MSG_DEBUG("Build MET total: " << totalName);
-
-    MissingET* metFinal = nullptr; // new MissingET(0.,0.,0.,"Final",MissingETBase::Source::total());
-    if(fillMET(metFinal, metCont, totalName, MissingETBase::Source::total()) != StatusCode::SUCCESS){
-      ATH_MSG_ERROR("failed to fill MET term");
-      return StatusCode::FAILURE;
-    }
-    //    metCont->push_back(metFinal);
-
-    for(MissingETContainer::const_iterator iMET=metCont->begin();
-        iMET!=metCont->end(); ++iMET) {
-      if(*iMET==metFinal) continue;
-      *metFinal += **iMET;
-    }
-
-    ATH_MSG_DEBUG( "Rebuilt MET Final --"
-                  << " mpx: " << metFinal->mpx()
-                  << " mpy: " << metFinal->mpy()
-                  );
-
-    return StatusCode::SUCCESS;
-  }
-
   ///////////////////////////////////////////////////////////////////
   // Const methods:
   ///////////////////////////////////////////////////////////////////
@@ -802,23 +775,5 @@ namespace met {
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
   ///////////////////////////////////////////////////////////////////
-  StatusCode METRebuilder::fillMET(xAOD::MissingET *& met,
-				   xAOD::MissingETContainer * metCont,
-				   const std::string& metKey,
-				   const MissingETBase::Types::bitmask_t metSource){
-    if(met){
-      ATH_MSG_ERROR("You can't fill a filled MET value");
-      return StatusCode::FAILURE;
-    }
-
-    met = new xAOD::MissingET;
-    metCont->push_back(met);
-
-    met->setName  (metKey);
-    met->setSource(metSource);
-
-    return StatusCode::SUCCESS;
-}
-
 
 } //> end namespace met

@@ -118,6 +118,7 @@ def setupMenu():
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
@@ -187,6 +188,7 @@ def setupMenu():
         ChainProp(name='HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50', l1SeedThresholds=['XE50']*3, mergingStrategy='parallel',  groups=MultiMETGroup),
     ]
 
+
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
@@ -234,6 +236,10 @@ def setupMenu():
 
         # ATR-20624
         ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=SingleJetGroup),
+
+        # TLA test chain, ATR-20395 
+        ChainProp(name='HLT_JetDS_j0_L1J100', stream=['JetDS'], groups=SingleJetGroup), 
+
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -316,7 +322,7 @@ def setupMenu():
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
-        ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
+        ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
     ]
     TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
         # ChainProp(name='HLT_mb_sp400_trk40_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
@@ -343,4 +349,7 @@ def setupMenu():
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
 
+    TriggerFlags.UnconventionalTrackingSlice.signatures = TriggerFlags.UnconventionalTrackingSlice.signatures() + [
+        ChainProp(name='HLT_unconvtrk0_L1EM3', groups=SinglePhotonGroup, l1SeedThresholds=['FSNOSEED']),
+    ]
 

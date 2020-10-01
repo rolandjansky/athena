@@ -22,11 +22,13 @@ SliceIDDict = {
     'MinBias' : 'mb',
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
-    'Calibration'   : 'calib',
+    'Calib'   : 'calib',
+    #'Calib'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
     'EnhancedBias'  : 'eb',
+    'UnconventionalTracking'  : 'unconvtrk',
     'Test'          : 'TestChain',
 }
 
@@ -35,6 +37,7 @@ AllowedSignatures = ["jet", "bjet", "ht",
                      "muon",
                      "met",
                      "tau",
+                     "unconvtrk",
                      "minbias",
                      "heavyion",
                      "cosmic",
@@ -61,7 +64,7 @@ ChainDictTemplate = {
 #==========================================================
 # Test chains
 #==========================================================
-# ---- Test Dictinary of all allowed Values ----
+# ---- Test Dictionary of all allowed Values ----
 TestChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Test'],
@@ -89,7 +92,7 @@ TestChainParts_Default = {
 # Jet
 #==========================================================
 AllowedTopos_jet = []
-# ---- Jet Dictinary of all allowed Values ----
+# ---- Jet Dictionary of all allowed Values ----
 JetChainParts = {
     'signature'     : ['Jet'],
     'alignmentGroup': ['Jet','JetMET'],
@@ -113,7 +116,7 @@ JetChainParts = {
     'addInfo'      : ['perf'],
 
     'TLA'          : [],
-    'dataScouting' : [],
+    'dataScouting' : ['JetDS'],
 
     'topo'         : AllowedTopos_jet,
 
@@ -134,7 +137,7 @@ JetChainParts = {
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
 }
 
-# ---- Jet Dictinary of default Values ----
+# ---- Jet Dictionary of default Values ----
 JetChainParts_Default = {
     'signature'     : ['Jet'],
     'alignmentGroup': ['Jet'],
@@ -172,13 +175,13 @@ bJetChainParts_Default = {
 #==========================================================
 # HT chains
 #==========================================================
-# ---- HT Dictinary of all allowed Values ----
+# ---- HT Dictionary of all allowed Values ----
 HTChainParts = deepcopy(JetChainParts)
 HTChainParts['signature']    = ['HT']
 HTChainParts['trigType']     = ['ht']
 HTChainParts['extra']     = ['j20', 'j25', 'j30', 'test4']
 
-# ---- HTDictinary of default Values ----
+# ---- HTDictionary of default Values ----
 HTChainParts_Default = deepcopy(JetChainParts_Default)
 HTChainParts_Default['signature']    = ['HT']
 HTChainParts_Default['trigType']     = 'ht'
@@ -189,7 +192,7 @@ HTChainParts_Default['extra']     = ''
 #==========================================================
 AllowedTopos_mu = []
 
-# ---- Muon Dictinary of all allowed Values ----
+# ---- Muon Dictionary of all allowed Values ----
 MuonChainParts = {
     'signature'      : ['Muon'],
     'alignmentGroup' : ['Muon','MuonnoL1'],
@@ -207,7 +210,7 @@ MuonChainParts = {
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
 }
-# ---- MuonDictinary of default Values ----
+# ---- MuonDictionary of default Values ----
 MuonChainParts_Default = {
     'signature'      : ['Muon'],
     'alignmentGroup' : ['Muon'],
@@ -230,12 +233,12 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau']
 
-# ---- Bphysics Dictinary of all allowed Values ----
+# ---- Bphysics Dictionary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
 BphysicsChainParts['signature'] = ['Bphysics']
 BphysicsChainParts['topo'] = AllowedTopos_Bphysics
 
-# ---- Bphysics Dictinary of default Values ----
+# ---- Bphysics Dictionary of default Values ----
 BphysicsChainParts_Default = deepcopy(MuonChainParts_Default)
 BphysicsChainParts_Default['signature'] = ['Bphysics']
 BphysicsChainParts_Default['topo'] = []
@@ -285,7 +288,7 @@ TauChainParts_Default = {
 # MET
 #==========================================================
 AllowedTopos_xe = []
-# ---- Met Dictinary of all allowed Values ----
+# ---- Met Dictionary of all allowed Values ----
 METChainParts = {
     'signature'      : ['MET'],
     'alignmentGroup' : ['MET','JetMET'],
@@ -305,7 +308,7 @@ METChainParts = {
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
 }
-# ---- MetDictinary of default Values ----
+# ---- MetDictionary of default Values ----
 METChainParts_Default = {
     'signature'      : ['MET'],
     'alignmentGroup' : ['MET'],
@@ -326,12 +329,12 @@ METChainParts_Default = {
 #==========================================================
 # XS
 #==========================================================
-# ---- xs Dictinary of all allowed Values ----
+# ---- xs Dictionary of all allowed Values ----
 XSChainParts = METChainParts
 XSChainParts['signature'] = ['XS']
 XSChainParts['trigType']  = ['xs']
 
-# ---- xs Dictinary of default Values ----
+# ---- xs Dictionary of default Values ----
 XSChainParts_Default = METChainParts_Default
 XSChainParts_Default['signature'] = ['XS']
 XSChainParts_Default['trigType']  = ['xs']
@@ -339,12 +342,12 @@ XSChainParts_Default['trigType']  = ['xs']
 #==========================================================
 # TE
 #==========================================================
-# ---- te Dictinary of all allowed Values ----
+# ---- te Dictionary of all allowed Values ----
 TEChainParts = METChainParts
 TEChainParts['signature'] = ['TE']
 TEChainParts['trigType']  = ['te']
 
-# ---- te Dictinary of default Values ----
+# ---- te Dictionary of default Values ----
 TEChainParts_Default = METChainParts_Default
 TEChainParts_Default['signature'] = ['TE']
 TEChainParts_Default['trigType']  = ['te']
@@ -353,7 +356,7 @@ TEChainParts_Default['trigType']  = ['te']
 # Electron Chains
 #==========================================================
 AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
-# ---- Electron Dictinary of all allowed Values ----
+# ---- Electron Dictionary of all allowed Values ----
 ElectronChainParts = {
     'signature'      : ['Electron'],
     'alignmentGroup' : ['Electron','Egamma'],
@@ -365,14 +368,14 @@ ElectronChainParts = {
     'threshold'      : '',
     'etaRange'       : [],
     'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight'],
-    'isoInfo'        : [],
+    'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'trkInfo'        : ['nod0', 'idperf'],
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : ['noringer'],
     'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
 }
-# ---- Egamma Dictinary of default Values ----
+# ---- Egamma Dictionary of default Values ----
 ElectronChainParts_Default = {
     'signature'      : ['Electron'],
     'alignmentGroup' : ['Electron'],
@@ -399,7 +402,7 @@ ElectronChainParts_Default = {
 #==========================================================
 # Photon chains
 #==========================================================
-# ---- Photon Dictinary of all allowed Values ----
+# ---- Photon Dictionary of all allowed Values ----
 PhotonChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Photon'],
@@ -420,7 +423,7 @@ PhotonChainParts = {
     'addInfo'        : ['etcut',],
     }
 
-# ---- Photon Dictinary of default Values ----
+# ---- Photon Dictionary of default Values ----
 PhotonChainParts_Default = {
     'signature'      : ['Photon'],
     'alignmentGroup' : ['Photon'],
@@ -469,7 +472,7 @@ MinBiasChainParts = {
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : ['peb'],
     }
-# ---- MinBiasDictinary of default Values ----
+# ---- MinBiasDictionary of default Values ----
 MinBiasChainParts_Default = {
     'signature'      : ['MinBias'],
     'alignmentGroup' : ['MinBias'],
@@ -516,7 +519,7 @@ HeavyIonChainParts = {
     'gap'            : [],
     }
 
-# ---- HeavyIonDictinary of default Values ----
+# ---- HeavyIonDictionary of default Values ----
 HeavyIonChainParts_Default = { 
     'signature'      : ['HeavyIon'],
     'alignmentGroup' : ['HeavyIon'],
@@ -546,7 +549,7 @@ AllowedCosmicChainIdentifiers = ['larps','larhec',
                                  'tilecalib', 
                                  'sct',  'id',]
 
-# ---- Cosmic Chain Dictinary of all allowed Values ----
+# ---- Cosmic Chain Dictionary of all allowed Values ----
 CosmicChainParts = {
     'signature'      : ['Cosmic'],
     'alignmentGroup' : ['Cosmic'],
@@ -562,7 +565,7 @@ CosmicChainParts = {
     'extra'          : '',
     }
 
-# ---- Cosmic Chain Default Dictinary of all allowed Values ----
+# ---- Cosmic Chain Default Dictionary of all allowed Values ----
 CosmicChainParts_Default = {
     'signature'      : ['Cosmic'],
     'alignmentGroup' : ['Cosmic'],
@@ -584,7 +587,7 @@ CosmicChainParts_Default = {
 #==========================================================
 AllowedStreamingChainIdentifiers = ['noalg']
 
-# ---- Streaming Chain Dictinary of all allowed Values ----
+# ---- Streaming Chain Dictionary of all allowed Values ----
 StreamingChainParts = {
     'signature'      : ['Streaming'],
     'alignmentGroup' : ['Streaming'],
@@ -602,7 +605,7 @@ StreamingChainParts = {
     'algo' : ['NoAlg']
     }
 
-# ---- Cosmic Chain Default Dictinary of all allowed Values ----
+# ---- Cosmic Chain Default Dictionary of all allowed Values ----
 StreamingChainParts_Default = {
     'signature'      : ['Streaming'],
     'alignmentGroup' : ['Streaming'],
@@ -628,12 +631,12 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'calibAFP',
                                 ]
 
-# ---- Calib Chain Dictinary of all allowed Values ----
+# ---- Calib Chain Dictionary of all allowed Values ----
 ##stramingInfo not use in ChainConfiguration, only to distinguish streaming
 
 CalibChainParts = {
-    'signature'      : ['Calibration'],
-    'alignmentGroup' : ['Calibration'],
+    'signature'      : ['Calib'],
+    'alignmentGroup' : ['Calib'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'purpose'        : AllowedCalibChainIdentifiers,
@@ -647,16 +650,16 @@ CalibChainParts = {
     'extra'          : ['rerun','bs',''],
     }
 
-# ---- Calib Chain Default Dictinary of all allowed Values ----
+# ---- Calib Chain Default Dictionary of all allowed Values ----
 CalibChainParts_Default = {
-    'signature'      : ['Calibration'],
-    'alignmentGroup' : ['Calibration'],
+    'signature'      : ['Calib'],
+    'alignmentGroup' : ['Calib'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'purpose'        : [],
     'addInfo'        : [],
     'hypo'           : '',
-    'hits'           : [],
+    # 'hits'           : [],
     'streamingInfo'  : [],
     'threshold'      : '',
     'multiplicity'   : '',
@@ -675,7 +678,7 @@ AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner',  'costmonitor',
                                   'mistimemoncaltimenomu','mistimemoncaltime',
                                   'mistimemonj400',]
 
-# ---- Monitor Chain Dictinary of all allowed Values ----
+# ---- Monitor Chain Dictionary of all allowed Values ----
 MonitorChainParts = {
     'signature'      : ['Monitor'],
     'alignmentGroup' : ['Monitor'],
@@ -689,7 +692,7 @@ MonitorChainParts = {
     'extra'          : '',
     }
 
-# ---- Monitor Chain Default Dictinary of all allowed Values ----
+# ---- Monitor Chain Default Dictionary of all allowed Values ----
 MonitorChainParts_Default = {
     'signature'      : ['Monitor'],
     'alignmentGroup' : ['Monitor'],
@@ -709,7 +712,7 @@ MonitorChainParts_Default = {
 #==========================================================
 AllowedEBChainIdentifiers = ['eb']
 
-# ---- Enhanced Bias Chain Dictinary of all allowed Values ----
+# ---- Enhanced Bias Chain Dictionary of all allowed Values ----
 EnhancedBiasChainParts = {
     'signature'      : ['EnhancedBias'],
     'alignmentGroup' : ['EnhancedBias'],
@@ -722,7 +725,7 @@ EnhancedBiasChainParts = {
     'extra'          : '',
     }
 
-# ---- EnhancedBias Chain Default Dictinary of all allowed Values ----
+# ---- EnhancedBias Chain Default Dictionary of all allowed Values ----
 EnhancedBiasChainParts_Default = {
     'signature'      : ['EnhancedBias'],
     'alignmentGroup' : ['EnhancedBias'],
@@ -755,7 +758,7 @@ BeamspotChainParts = {
     'extra'          : '',
     }
 
-# ---- Beamspot Chain Default Dictinary of all allowed Values ----
+# ---- Beamspot Chain Default Dictionary of all allowed Values ----
 BeamspotChainParts_Default = {
     'signature'      : ['Beamspot'],
     'alignmentGroup' : ['Beamspot'],
@@ -773,16 +776,44 @@ BeamspotChainParts_Default = {
     }
 
 #==========================================================
+# Unconventional Tracking
+#==========================================================
+# ---- Unconventional Tracking Dictionary of all allowed Values ----
+UnconventionalTrackingChainParts = {
+    'signature'      : ['UnconventionalTracking'],
+    'alignmentGroup' : ['UnconventionalTracking'],
+    'L1threshold'    : '',
+    'chainPartName'  : [],
+    'multiplicity'   : '',
+    'trigType'       : ['unconvtrk'],
+    'threshold'      : '',
+    'extra'          : '',
+    'addInfo'        : [],
+}
+# ---- Unconventional Tracking Dictionary of default Values ----
+UnconventionalTrackingChainParts_Default = {
+    'signature'      : ['UnconventionalTracking'],
+    'alignmentGroup' : ['UnconventionalTracking'],
+    'L1threshold'    : '',
+    'chainPartName'  : [],
+    'multiplicity'   : '',
+    'trigType'       : ['unconvtrk'],
+    'threshold'      : '',
+    'extra'          : '',
+    'addInfo'        : [],
+}
+
+#==========================================================
 # Combined Chains
 #==========================================================
 AllowedTopos_comb = []
 
-# ---- Combined Dictinary of all allowed Values ----
+# ---- Combined Dictionary of all allowed Values ----
 CombinedChainParts = deepcopy(PhotonChainParts)
 CombinedChainParts['signature'] = ['Photon','Muon']
 CombinedChainParts['chainParts'] = ['g','mu'],
 CombinedChainParts['topo'] = AllowedTopos_comb
-# ---- Combined Dictinary of default Values ----
+# ---- Combined Dictionary of default Values ----
 CombinedChainParts_Default = deepcopy(PhotonChainParts_Default)
 CombinedChainParts_Default['signature'] = ['Photon','Muon']
 CombinedChainParts_Default['chainParts'] = ['g','mu'],
@@ -849,7 +880,7 @@ def getSignatureInformation(signature):
         return [HeavyIonChainParts_Default, HeavyIonChainParts]
     if signature == "Cosmic":
         return [CosmicChainParts_Default, CosmicChainParts]
-    if signature == "Calibration":
+    if signature == "Calib":
         return [CalibChainParts_Default, CalibChainParts]
     if signature == "Streaming":
         return [StreamingChainParts_Default, StreamingChainParts]
@@ -859,10 +890,12 @@ def getSignatureInformation(signature):
         return [BeamspotChainParts_Default, BeamspotChainParts]
     if signature == "EnhancedBias":
         return [EnhancedBiasChainParts_Default, EnhancedBiasChainParts]
+    if signature == "UnconventionalTracking":
+        return [UnconventionalTrackingChainParts_Default, UnconventionalTrackingChainParts]
     if signature == "Test":
         return [TestChainParts_Default, TestChainParts]
     else:
-        raise RuntimeError("ERROR Cannot find corresponding dictionary")
+        raise RuntimeError("ERROR Cannot find corresponding dictionary for signature", signature)
 
 #==========================================================
 # Analysis the base pattern: <mult><signatureType><threshold><extraInfo>

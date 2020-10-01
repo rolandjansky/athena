@@ -178,7 +178,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
   RZPairVector envelopeDefs;
   if (m_enclosingEnvelopeSvc) {
     // get the dimensions from the envelope service
-    RZPairVector& envelopeDefsIn = m_enclosingEnvelopeSvc->getMuonRZValues();
+    const RZPairVector& envelopeDefsIn = m_enclosingEnvelopeSvc->getMuonRZBoundary();
 
     // find the max,max pair
     unsigned int ii=0;
@@ -379,7 +379,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
     
   } else {     // no input, create the enclosed volume
     if (m_loadMSentry && m_enclosingEnvelopeSvc ) {
-      RZPairVector& envelopeDefs = m_enclosingEnvelopeSvc->getCaloRZValues();
+      const RZPairVector& envelopeDefs = m_enclosingEnvelopeSvc->getCaloRZBoundary();
       // to be implemented in detail - for the moment, take just maximal extent
       ATH_MSG_DEBUG( " m_loadMSentry " << m_loadMSentry << " m_enclosingEnvelopeSvc " << m_enclosingEnvelopeSvc );
       double rmax = 0.; double zmax = 0.;

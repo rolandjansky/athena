@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOL_H
@@ -39,7 +39,7 @@ class ATLAS_NOT_THREAD_SAFE MDT_RawDataProviderTool : virtual public IMuonRawDat
   virtual StatusCode finalize  ();
   
   /** Convert method - declared in Muon::IMuonRdoToPrepDataTool*/
-  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs);
+  virtual StatusCode convert ATLAS_NOT_THREAD_SAFE ( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs);
   virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&);
   /** the new ones */
   virtual StatusCode convert(); //!< for the entire event 

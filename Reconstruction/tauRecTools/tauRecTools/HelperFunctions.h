@@ -24,7 +24,7 @@ namespace tauRecTools
 {
   ANA_MSG_HEADER(msgHelperFunction)
 
-  const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted);
+  const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool useSubtractedCluster);
 
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);

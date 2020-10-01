@@ -275,6 +275,8 @@ def createTriggerFlags():
         return createMuonConfigFlags()
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
+    from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
+    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
 
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags
     flags.join( createMenuFlags() )

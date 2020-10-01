@@ -12,6 +12,7 @@
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
 //need to include the following, since its a typedef and can't be forward declared.
 #include "TrkTrack/TrackCollection.h"
@@ -106,6 +107,11 @@ namespace Trk {
     /** selection tool - here the decision which hits remain on a track and
         which are removed are made */
     ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
+
+    SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerIn
+       {this, "InputClusterSplitProbabilityName", "",""};
+    SG::WriteHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerOut
+       {this, "OutputClusterSplitProbabilityName", "",""};
 
     bool m_rejectInvalidTracks;
   };

@@ -500,11 +500,8 @@ void ISF::TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) cons
 int ISF::TruthSvc::maxGeneratedParticleBarcode(HepMC::GenEvent *genEvent) const {
   int maxBarcode=0;
   const int firstSecondaryParticleBarcode(m_barcodeSvc->secondaryParticleBcOffset());
-  HepMC::GenEvent::particle_const_iterator currentGenParticleIter;
-  for (currentGenParticleIter= genEvent->particles_begin();
-       currentGenParticleIter!= genEvent->particles_end();
-       ++currentGenParticleIter) {
-    const int barcode((*currentGenParticleIter)->barcode());
+  for (auto currentGenParticle: *genEvent) {
+    const int barcode=HepMC::barcode(currentGenParticle);
     if(barcode > maxBarcode && barcode < firstSecondaryParticleBarcode) { maxBarcode=barcode; }
   }
   return maxBarcode;

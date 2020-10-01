@@ -21,7 +21,7 @@ class G4HCofThisEvent;
 class G4Step;
 class G4TouchableHistory;
 
-class ATLAS_NOT_THREAD_SAFE TRTSensitiveDetector : public G4VSensitiveDetector // Thread unsafe TRTParameters, TRTProcessingOfBarrelHits, TRTProcessingOfEndCapHits classes is used.
+class TRTSensitiveDetector : public G4VSensitiveDetector
 {
  FRIEND_TEST( TRTSensitiveDetectortest, Initialize);
  FRIEND_TEST( TRTSensitiveDetectortest, ProcessHits );

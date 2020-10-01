@@ -21,9 +21,9 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
-  m_incShowerSubtr(true)
+  m_useSubtractedCluster(true)
 {
-  declareProperty("IncShowerSubtr", m_incShowerSubtr);
+  declareProperty("UseSubtractedCluster", m_useSubtractedCluster);
 }
 
 StatusCode TauIDVarCalculator::initialize()
@@ -95,14 +95,14 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
   TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
 
   std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster));
   
   float eEMAtEMScaleFixed = 0.;
   float eHadAtEMScaleFixed = 0.;
   float eHad1AtEMScaleFixed = 0.;
 
   for (const xAOD::CaloCluster* cluster  : clusterList) {
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
     
     if( tauAxis.DeltaR(clusterP4) > 0.2 ) continue;
     

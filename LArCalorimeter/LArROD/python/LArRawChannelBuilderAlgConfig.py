@@ -13,15 +13,22 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
     kwargs.setdefault("firstSample", configFlags.LAr.ROD.FirstSample)
     obj = "AthenaAttributeList"
     dspkey = 'Run2DSPThresholdsKey'
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     if configFlags.Input.isMC:
         # need OFC configuration, which includes appropriate ElecCalibDb
         acc.merge(LArOFCCondAlgCfg(configFlags))
         kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
         kwargs.setdefault("ShapeKey", "LArShapeSym")
-        fld="/LAR/NoiseOfl/DSPThresholds"
-        sgkey=fld
-        dbString="OFLP200"
-        dbInstance="LAR_OFL"
+        if configFlags.GeoModel.Run == "RUN1": # back to flat threshold
+           kwargs.setdefault("useDB", False)
+           dspkey = ''
+        else:
+           fld="/LAR/NoiseOfl/DSPThresholds"
+           sgkey=fld
+           dbString="OFLP200"
+           dbInstance="LAR_OFL"
+           acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
+
         if configFlags.Digitization.PileUpPremixing:
             kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix() + "LArDigitContainer_MC")
         else:
@@ -43,9 +50,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
             sgkey=fld
         dbString="CONDBR2"
         dbInstance="LAR_ONL"
-
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
+        acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
     kwargs.setdefault(dspkey, sgkey)
 

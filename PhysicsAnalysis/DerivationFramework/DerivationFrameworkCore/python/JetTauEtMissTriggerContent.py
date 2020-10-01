@@ -14,5 +14,10 @@ JetTauEtMissTriggerContent = [
 'xAOD::JetContainer#HLT_xAOD__JetContainer_SplitJet',
 'xAOD::JetTrigAuxContainer#HLT_xAOD__JetContainer_SplitJetAux.',
 'xAOD::TauJetContainer#HLT_xAOD__TauJetContainer_TrigTauRecMerged',
-'xAOD::TauJetAuxContainer#HLT_xAOD__TauJetContainer_TrigTauRecMergedAux.'
+'xAOD::TauJetAuxContainer#HLT_xAOD__TauJetContainer_TrigTauRecMergedAux.',
+# Run 3 collections
+'xAOD::JetContainer#HLT_bJets',
+'xAOD::JetAuxContainer#HLT_bJetsAux.btaggingLink',
+'xAOD::BTaggingContainer#HLT_BTagging',
+'xAOD::BTaggingAuxContainer#HLT_BTaggingAux.'
 ]

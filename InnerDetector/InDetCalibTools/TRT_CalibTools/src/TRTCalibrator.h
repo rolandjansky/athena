@@ -87,7 +87,7 @@ public:
   /**
      returns true if the ...
   */
-  bool IsSubLev(std::string, int, std::string);  
+  bool IsSubLev(const std::string&, int, const std::string&);  
 
   /**
      returns true if the ...
@@ -97,7 +97,7 @@ public:
   /**
      fills a set of integers with the indexes af the sub-modules that are conatined in a selection 
   */
-  int GetSubLevels(std::string, int, std::set<int>*);  
+  int GetSubLevels(const std::string&, int, std::set<int>*);  
 
   /**
      makes the key strings for a sub-module

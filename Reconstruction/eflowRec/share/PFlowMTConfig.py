@@ -13,7 +13,7 @@ TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExte
 
 #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
 from RecExConfig.RecFlags import rec
-if True == rec.readESD:
+if rec.readESD==True:
    TrackCaloExtensionTool.PFParticleCache = ""
 
 PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
@@ -243,15 +243,18 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
     PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
 
 topSequence += PFONeutralCreatorAlgorithm
+from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
+jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
+
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
-
+   
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
 
 #Add new FlowElement creators
-if jobproperties.eflowRecFlags.useFlowElements:
+if jobproperties.eflowRecFlags.useFlowElements: 
   from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
   PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
   topSequence += PFChargedFlowElementCreatorAlgorithm 
@@ -263,3 +266,7 @@ if jobproperties.eflowRecFlags.useFlowElements:
   from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
+  PFEGamFlowElementAssoc=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
+  topSequence +=PFEGamFlowElementAssoc

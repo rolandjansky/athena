@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcConditions/ZdcCablingSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "ZdcIdentifier/ZdcID.h"
-#include "ZdcIdentifier/ZdcHardwareID.h"
 #include <cstdlib>
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
@@ -76,29 +74,12 @@ ZdcCablingSvc::initialize()
   }
   */
 
-  const ZdcID* zdcID(0);
-  if(m_detStore->retrieve(zdcID).isFailure()){
-    log << MSG::ERROR << "Unable to retrieve ZdcID helper from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  const ZdcHardwareID* zdcHWID(0);
-  if(m_detStore->retrieve(zdcHWID).isFailure()){
-    log << MSG::ERROR << "Unable to retrieve ZdcHWID helper from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   //=== Initialize ZdcCablingService singleton
   m_cablingService = ZdcCablingService::getInstance();
   if(!m_cablingService){
     log << MSG::ERROR << "Cannot get instance of ZdcCablingService"<< endmsg ;
     return StatusCode::FAILURE ;
   }
-
-  //m_cablingService->setCaloLVL1(caloID);
-  m_cablingService->setZdcID(zdcID);
-  m_cablingService->setZdcHWID(zdcHWID);
-
 
   IGeoModelSvc *geoModel=0;
   StatusCode sc = service("GeoModelSvc", geoModel);
@@ -128,9 +109,6 @@ ZdcCablingSvc::initialize()
         log << MSG::INFO << "Using cabling type from jobOptions " << endmsg;
     }
   }
-
-  log << MSG::INFO << "Setting Cabling type to " << m_cablingType << endmsg;
-  m_cablingService->setCablingType((ZdcCablingService::ZdcCablingType)m_cablingType);
 
   MSG::Level logLevel = log.level();
   if (logLevel <= MSG::VERBOSE) {

@@ -1142,8 +1142,8 @@ void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackState
   // delete the view container
   delete caloTSOS;
 }
-void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
-						  DataVector<const Trk::TrackStateOnSurface>::iterator firstMS, 
+void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS,
+						  const DataVector<const Trk::TrackStateOnSurface>::iterator& firstMS, 
                                                   double X0ScaleMS, double ElossScaleMS) const
 {
 

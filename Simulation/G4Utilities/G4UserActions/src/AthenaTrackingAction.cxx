@@ -46,10 +46,15 @@ namespace G4UA
     {
       // Why a const_cast???
       // This is an ugly way to communicate the GenParticle...
+#ifdef HEPMC3
+      HepMC::GenParticlePtr part =
+        std::const_pointer_cast<HepMC3::GenParticle>( trackHelper.GetTrackInformation()->
+                                         GetHepMCParticle() );
+#else
       HepMC::GenParticlePtr part =
         const_cast<HepMC::GenParticlePtr>( trackHelper.GetTrackInformation()->
                                          GetHepMCParticle() );
-
+#endif
       // Assign the GenParticle to the AtlasG4EventUserInfo.
       AtlasG4EventUserInfo* atlasG4EvtUserInfo = static_cast<AtlasG4EventUserInfo*>
         (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());

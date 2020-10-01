@@ -297,12 +297,12 @@ def vertexFinder_builder( signature, inputTracks, outputVertices ) :
     return  [ vertexFinder ]
 
 
-
 # old function for backwards compatability
+#TODO inputTrackCollection is obsolete, remove in the next MR iteration
+def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection, config ) :
 
-def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection ) :
     return vertexFinder_builder( signature      = whichSignature, 
-                                 inputTracks    = inputTrackCollection,
+                                 inputTracks    = config.FT.tracksFTF(),
                                  outputVertices = outputVtxCollection )
     
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -176,13 +176,13 @@ private:
   //IMessageSvc*  m_msgSvc;
 };
 
-inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces ATLAS_THREAD_SAFE() const
+inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces() const
 {
   std::call_once( m_fillOnce, [this](){fill_tg_surfaces();} );
   return m_layerEntries;
 }
 
-inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::exitSurfaces ATLAS_THREAD_SAFE() const
+inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::exitSurfaces() const
 {
   std::call_once( m_fillOnce, [this](){fill_tg_surfaces();} );
   return m_layerExits;

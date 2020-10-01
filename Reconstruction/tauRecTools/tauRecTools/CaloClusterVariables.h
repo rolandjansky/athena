@@ -28,7 +28,7 @@ public:
 
     bool update(const xAOD::TauJet& pTau, const ToolHandle<ITauVertexCorrection>& handle); //!< update the internal variables for the given tau
 
-    void setIncSub(bool flag) {m_incShowerSubtr=flag;}
+    void setIncSub(bool flag) {m_useSubtractedCluster=flag;}
 
     // ID Variables
     unsigned int numConstituents() { return (unsigned int) m_numConstit; }
@@ -61,7 +61,7 @@ private:
     TLorentzVector calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector);
 
     // use shower subtracted clusters with PFlow jet seeds
-    bool m_incShowerSubtr;
+    bool m_useSubtractedCluster;
 };
 
 //-------------------------------------------------------------------------

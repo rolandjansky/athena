@@ -59,7 +59,8 @@ StatusCode  ISF::CylinderVolumeTruthStrategy::finalize()
 bool ISF::CylinderVolumeTruthStrategy::pass( ITruthIncident& ti) const
 {
   // the current truth incident radius
-  double r = ti.position().rho();
+  auto t_pos=ti.position();
+  double r = std::sqrt(t_pos.x()*t_pos.x()+t_pos.y()*t_pos.y()+t_pos.z()*t_pos.z());
 
   // is the current radius on the surface?
   bool onSurf = (r>m_ri) && (r<m_ro);

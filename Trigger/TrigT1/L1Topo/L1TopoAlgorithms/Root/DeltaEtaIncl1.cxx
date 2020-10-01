@@ -25,8 +25,6 @@
 
 REGISTER_ALG_TCS(DeltaEtaIncl1)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << fullname() << ":     "
 
@@ -89,23 +87,15 @@ TCS::DeltaEtaIncl1::initialize() {
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
-   // create strings for histogram names
-   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
-   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
-
-   for (unsigned int i=0;i<numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << p_DeltaEtaMin[i] << "DEta";
-     MyRejectHist[i] << "Reject" << p_DeltaEtaMin[i] << "DEta";
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hDeltaEtaIncl1_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hDeltaEtaIncl1_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "DETA", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i]);
+       bookHist(m_histReject, hname_reject, "DETA", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i]);
    }
 
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-
-     const std::string& MyTitle1 = MyAcceptHist[i].str();
-     const std::string& MyTitle2 = MyRejectHist[i].str();
-
-     registerHist(m_histAcceptDEta1[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0.,4.));
-     registerHist(m_histRejectDEta1[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0.,4.));
-   }
 
    return StatusCode::SUCCESS;
 }
@@ -130,9 +120,9 @@ TCS::DeltaEtaIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                     ++tob2) {
                    for(unsigned int i=0; i < numberOutputBits(); ++i) {
                    bool accept = false;
-                   if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                   if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                   if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                   if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                   if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                    // DeltaEta cuts
                    unsigned int deltaEta = TSU::Kinematics::calcDeltaEtaBW( *tob1, *tob2 );
                    std::stringstream msgss;
@@ -150,9 +140,9 @@ TCS::DeltaEtaIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       fillHist1D(m_histAcceptDEta1[i]->GetName(),(float)deltaEta*0.10);
+                       fillHist1D(m_histAccept[i],(float)deltaEta);
                    } else if(fillReject) {
-                       fillHist1D(m_histRejectDEta1[i]->GetName(),(float)deltaEta*0.10);
+                       fillHist1D(m_histReject[i],(float)deltaEta);
                    }
                    msgss << (accept?"pass":"fail") << "|";
                    TRG_MSG_DEBUG(msgss.str());
@@ -184,9 +174,9 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                     ++tob2) {
                    for(unsigned int i=0; i < numberOutputBits(); ++i) {
                    bool accept = false;
-                   if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                   if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                   if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                   if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                   if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                    // DeltaEta cuts
                    unsigned int deltaEta = TSU::Kinematics::calcDeltaEta( *tob1, *tob2 );
                    std::stringstream msgss;
@@ -204,9 +194,9 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       fillHist1D(m_histAcceptDEta1[i]->GetName(),(float)deltaEta*0.10);
+                       fillHist1D(m_histAccept[i],(float)deltaEta);
                    } else if(fillReject) {
-                       fillHist1D(m_histRejectDEta1[i]->GetName(),(float)deltaEta*0.10);
+                       fillHist1D(m_histReject[i],(float)deltaEta);
                    }
                    msgss << (accept?"pass":"fail") << "|";
                    TRG_MSG_DEBUG(msgss.str());

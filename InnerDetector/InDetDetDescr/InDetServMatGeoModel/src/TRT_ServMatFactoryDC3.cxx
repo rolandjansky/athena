@@ -48,7 +48,7 @@ TRT_ServMatFactoryDC3::~TRT_ServMatFactoryDC3()
 
 
 //## Other Operations (implementation)
-void TRT_ServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc and materialManager methods are used.
+void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 {
 
   msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
@@ -229,7 +229,7 @@ void TRT_ServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) //
   return IDShape;
 }
 
-const GeoMaterial* TRT_ServMatFactoryDC3::createMaterial ATLAS_NOT_THREAD_SAFE // Thread unsafe materialManager method is used.
+const GeoMaterial* TRT_ServMatFactoryDC3::createMaterial
                                                   (const std::string & name,
 						   int volType, 
 						   double fractionRL,

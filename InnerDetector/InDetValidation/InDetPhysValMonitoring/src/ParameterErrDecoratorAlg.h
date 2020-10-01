@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_ParameterErrDecoratorAlg_H
@@ -37,7 +37,7 @@ private:
     {this, "Prefix", "", "Decoration prefix to avoid clashes."};
 
   // need tracks particle key, to compose decoration keys
-  SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkParticleName
+  SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkParticleKey
     {this,"TrackParticleContainerName", "InDetTrackParticles",""};
 
   enum EDecorations {

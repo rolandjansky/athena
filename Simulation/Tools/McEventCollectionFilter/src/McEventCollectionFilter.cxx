@@ -9,6 +9,9 @@
 //
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Flow.h"
+#include "AtlasHepMC/Polarization.h"
 //
 #include "InDetSimEvent/SiHit.h"
 #include "MuonSimEvent/TGCSimHit.h"
@@ -203,8 +206,13 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
     const HepMC::FourVector& pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
+#ifdef HEPMC3 
+    auto itrp = hScatVx->particles_in().begin();
+    if (hScatVx->particles_in().size()==2){
+#else
     HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
     if (hScatVx->particles_in_size()==2){
+#endif
       HepMC::FourVector mom1=(*itrp)->momentum();
       HepMC::FourVector mom2=(*(++itrp))->momentum();
       HepMC::FourVector vxmom;
@@ -217,6 +225,9 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
     }
   }
 
+#ifdef HEPMC3 
+  if(!evt->vertices().empty()) for (auto vtx: evt->vertices()) evt->remove_vertex(vtx);
+#else
   if(!evt->vertices_empty()){
     HepMC::GenEvent::vertex_iterator itvtx = evt->vertices_begin();
     for (;itvtx != evt ->vertices_end(); ++itvtx ) {
@@ -225,6 +236,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
       delete vtx;
     }
   }
+#endif
 
   //--------------------------------------
   if(m_IsKeepTRTElect){

@@ -234,7 +234,6 @@ StatusCode AddFlowByShifting::execute() {
   m_psi_n[1]=hijing_pars->get_bphi()                   ;//the psi2 plane is aligned with the impact parameter
   m_psi_n[1]=std::atan2(std::sin(2*m_psi_n[1]),std::cos(2*m_psi_n[1]))/2.0;//ensure that Psi2 is within [-PI/2,PI/2]
   hijing_pars_nc->set_psi(2,m_psi_n[1]);
-  (*hijing_pars).set_psi(2,m_psi_n[1]);
   ATH_MSG_DEBUG(" Psi2 for event : "<<(*hijing_pars).get_psi(2));
 
 

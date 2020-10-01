@@ -13,7 +13,7 @@ __doc__ = "simple jobo to copy any file, leveraging the auto-config fwk"
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 acf = jp.AthenaCommonFlags
 _input_files = globals()['FNAME']
-if isinstance(_input_files, basestring):
+if isinstance(_input_files, str):
     _input_files = [_input_files]
 acf.FilesInput = _input_files
 del _input_files

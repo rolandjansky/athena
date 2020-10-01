@@ -10,7 +10,7 @@ defaultFile = "$ASG_TEST_FILE_MC"
 defaultNevents = 10
 
 def printMethod(x):
-  print x
+  print (x)
 
 def getViewContainer(container):
   """getViewContainer(container) --> return a view container with at most 2 egamma
@@ -21,7 +21,7 @@ def getViewContainer(container):
     return x.author() not in [xAOD.EgammaParameters.AuthorCaloTopo35, xAOD.EgammaParameters.AuthorFwdElectron]
 
   egammas = container.__class__(ROOT.SG.VIEW_ELEMENTS)
-  for eg in filter(filterAuthor, container)[:2]:
+  for eg in list(filter(filterAuthor, container))[:2]:
     egammas.push_back( eg )
   return egammas
 
@@ -122,13 +122,16 @@ else:
   (options, _ ) = parser.parse_args()
   if len( _ ):
     raise ValueError('Only named options are allowed, got %s' % _ )
-  print 'Analysing %s from %s' % (options.container, options.inputfile)
+  print ('Analysing %s from %s' % (options.container, options.inputfile))
 
   import ROOT
-  ROOT.gROOT.Macro( '$ROOTCOREDIR/scripts/load_packages.C' )
 
   # Initialize the xAOD infrastructure:
   ROOT.xAOD.Init().ignore()
+  ROOT.xAOD.L2CombinedMuonContainer()
+  ROOT.xAOD.TrigElectronContainer()
+  ROOT.xAOD.MuonContainer()
+  ROOT.xAOD.ParticleContainer()
 
   # Setup the tools
   vertexTool = ROOT.CP.PhotonVertexSelectionTool("PhotonVertexSelectionTool")
@@ -144,10 +147,10 @@ else:
     sys.exit( 1 )
     pass
 
-  for entry in xrange(options.nEvents):
-    print '*** Analysing entry %s ***' % entry
+  for entry in range(options.nEvents):
+    print ('*** Analysing entry %s ***' % entry)
     _ = t.GetEntry(entry)
     container = getattr(t, options.container)
     viewContainer = getViewContainer( container )
     printOutput(viewContainer, vertexTool)
-    print ''
+    print ('')

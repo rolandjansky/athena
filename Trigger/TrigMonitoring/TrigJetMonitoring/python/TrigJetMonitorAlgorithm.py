@@ -60,12 +60,12 @@ Chain2JetCollDict['MT'] = {
   'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_AntiKt10LCTopoJets_subjes',
   'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
-  'HLT_j45_ftf_pf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
-  'HLT_j45_ftf_subjesgscIS_pf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
-  'HLT_j45_ftf_subresjesgscIS_pf_L1J20'    : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
-  'HLT_j85_ftf_pf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
-  'HLT_j45_ftf_pf_nojcalib_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
-  'HLT_j45_ftf_csskpf_nojcalib_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
+  'HLT_j45_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
+  'HLT_j45_pf_subjesgscIS_ftf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
+  'HLT_j45_pf_subresjesgscIS_ftf_L1J20'    : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
+  'HLT_j85_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
+  'HLT_j45_pf_nojcalib_ftf_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
+  'HLT_j45_csskpf_nojcalib_ftf_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
 }
 TurnOnCurves['MT'] = { # ref chain, offline jet coll
   'HLT_j420_L1J100'                        : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
@@ -74,7 +74,7 @@ TurnOnCurves['MT'] = { # ref chain, offline jet coll
   'HLT_j460_a10_lcw_subjes_L1J100'         : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
   'HLT_j460_a10t_lcw_jes_L1J100'           : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_j85_ftf_pf_L1J20'                   : ['HLT_j45_ftf_pf_L1J20','AntiKt4EMPFlowJets'],
+  'HLT_j85_pf_ftf_L1J20'                   : ['HLT_j45_pf_ftf_L1J20','AntiKt4EMPFlowJets'],
 }
 
 # Legacy
@@ -127,9 +127,9 @@ from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHis
 
 # All offline jet collections
 ExtraOfflineHists = [
-  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
-  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
-  HistoSpec('Jvt', (50,-0.1,1), title="JVT;JVT;Entries" ),
+  "EMFrac",
+  "HECFrac",
+  "Jvt",
   "JVFCorr",
   "JvtRpt",
   "NumTrkPt1000[0]",
@@ -140,11 +140,11 @@ ExtraOfflineHists = [
 
 # All online small-R jet collections
 ExtraSmallROnlineHists = [
-  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
-  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
-  HistoSpec('DetectorEta', (100,-5,5), title="DetectorEta;Detector #eta;Entries" ), 
-  HistoSpec('ActiveArea', (80,0,0.8), title="ActiveArea;Active Area;Entries" ), 
   HistoSpec('et:GeV;eta',  (100,0,750, 50,-5,5) , title='#eta vs E_{T};E_{T} [GeV];#eta;Entries'),
+  "EMFrac",
+  "HECFrac",
+  "DetectorEta",
+  "ActiveArea", 
   "EM3Frac",
   "Tile0Frac",
 ]
@@ -204,8 +204,11 @@ def TrigJetMonConfig(inputFlags):
   # Loop over HLT jet chains
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
     # kinematic plots
-    chainMonitorConf = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT)
-    chainMonitorConf.toAlg(helper)
+    if AthenaMT:
+      chainMonitorConfT = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT,True)
+      chainMonitorConfT.toAlg(helper)
+    chainMonitorConfF = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT,False)
+    chainMonitorConfF.toAlg(helper)
     # efficiency plots
     refChain       = 'NONE'
     offlineJetColl = 'NONE'
@@ -268,7 +271,9 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     SelectSpec( 'lowmu', 'avgMu<30', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
     SelectSpec( 'highmu', '30<avgMu', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
 
-    EventHistoSpec('njetsPt20', (20,0,20), title='NJetsPt20;NJetsPt20;Entries' ),
+    EventHistoSpec('njets', (25,0,25), title='NJets;NJets;Entries' ),
+    EventHistoSpec('njetsPt20', (25,0,25), title='NJetsPt20;NJetsPt20;Entries' ),
+    EventHistoSpec('njetsPt50', (25,0,25), title='NJetsPt50;NJetsPt50;Entries' ),
     # Jet multiplicity histograms can be added by using an EventHistoSpec
     # Their specifications (pT cut, ET cut, eta cuts) must be defined in the knownEventVar dictionary within JetStandardHistoSpecs.py
     # The following line is an example for a jet multiplicity histogram with ET>40 GeV, 1.0<|eta|<2.0, and binning of (10,0,10):
@@ -331,7 +336,7 @@ def l1JetMonitoringConfig(inputFlags,jetcoll,chain=''):
   conf = L1JetMonAlg(name,jetcoll,chain)
   return conf
 
-def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
+def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJets=True):
    '''Function to configures some algorithms in the monitoring system.'''
 
    # Remap online Run 2 jet collections
@@ -347,14 +352,45 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    else:
      chainFolder = chain
 
-   trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec
-       chain+"TrigMon",
+   if not athenaMT:
+     onlyUsePassingJets = False #does not work for legacy samples yet
+   jetMonAlgSpecName = chain+"TrigMon"
+   if not onlyUsePassingJets:
+     chainFolder = chainFolder + "/ExpertHistos"
+     jetMonAlgSpecName = jetMonAlgSpecName + "_ExpertHistos"
+
+   # Define helper functions to automatize ET & eta selection strings for NJet histograms of chains
+   def getThreshold(parts):
+     return parts[1].split('_')[0]
+
+   def getEtaRangeString(chain):
+     if 'eta' in chain:
+       etaParts    = chain.split('eta')
+       etaMinTemp  = etaParts[0].split('_')
+       etaMin      = etaMinTemp[len(etaMinTemp)-1]
+       if int(etaMin) > 0 : etaMin = str(int(int(etaMin)/10))
+       etaMax      = etaParts[1].split('_')[0]
+       if int(etaMax) > 0 : etaMax = str(int(int(etaMax)/10))
+       return 'Eta{}_{}'.format(etaMin,etaMax)
+     else: return 'Eta0_32'
+
+   def getNjetHistName(chain):
+     parts         = chain.split('j')
+     # check if it is a multi-threshold multijet chain or a single-threshold multijet chain
+     multiplicity  = parts[0].split('_')[1] # for single-threshold multijet chains
+     if (chain.count('_j')-chain.count('_jes')) > 1  or multiplicity != '':
+       return 'njetsEt{}{}'.format(getThreshold(parts),getEtaRangeString(chain))
+     else: return 'NONE'
+
+   trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
+       jetMonAlgSpecName,
        JetContainerName = jetcoll,
        TriggerChain = chain,
        defaultPath = chainFolder,
        topLevelDir="HLT/JetMon/Online/",
        bottomLevelDir=jetcollFolder,
        failureOnMissingContainer=True,
+       onlyPassingJets=onlyUsePassingJets,
        )
    trigConf.appendHistos(
            "pt",
@@ -362,7 +398,16 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
            "eta",
            "et",
            "phi",
+           EventHistoSpec('njets', (25,0,25), title='njets;njets;Entries' ),
+           EventHistoSpec('njetsEt20Eta0_32', (25,0,25), title='njetsEt20Eta0_32;njetsEt20Eta0_32;Entries' ),
+           EventHistoSpec('njetsEt50Eta0_32', (25,0,25), title='njetsEt50Eta0_32;njetsEt50Eta0_32;Entries' ),
    )
+   NjetHistName = getNjetHistName(chain)
+   from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+   if knownEventVar.get(NjetHistName,None) is not None:
+     trigConf.appendHistos(
+       EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
+     )
 
    return trigConf
 
@@ -409,6 +454,7 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
        topLevelDir               = "HLT/JetMon/Online/",
        bottomLevelDir            = jetcollFolder,
        failureOnMissingContainer = True,
+       onlyPassingJets           = False,
        )
    trigConf.appendHistos(
        SelectSpec( 'eff', '{}<|eta|<{}'.format(etaMin,etaMax), chainFolder, SelectedIndex=index, FillerTools = [
@@ -441,7 +487,6 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
      )
 
    return trigConf
-
 
 if __name__=='__main__':
 
@@ -520,11 +565,13 @@ if __name__=='__main__':
 
   # Loop over HLT jet chains
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
-    chainMonitorConf = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT)
-    chainMonitorConf.toAlg(helper)
+    if AthenaMT:
+      chainMonitorConfT = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,True)
+      chainMonitorConfT.toAlg(helper)
+    chainMonitorConfF = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,False)
+    chainMonitorConfF.toAlg(helper)
 
-  # Produce efficiency plots
-  for chain in Chain2JetCollDict[InputType]:
+    # Produce efficiency plots
     refChain       = 'NONE'
     offlineJetColl = 'NONE'
     if chain in TurnOnCurves[InputType]:

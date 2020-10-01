@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCCONDITIONS_ZDCCABLINGSVC_H
@@ -35,7 +35,7 @@ class ZdcCablingSvc : public AthService
 
  private:
 
-  ZdcCablingService* m_cablingService;
+  const ZdcCablingService* m_cablingService;
 
   ServiceHandle<StoreGateSvc> m_detStore;
 

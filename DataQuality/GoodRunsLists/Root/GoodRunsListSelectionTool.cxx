@@ -184,3 +184,14 @@ GoodRunsListSelectionTool::readXMLs( Root::TGRLCollection& grl,
    // Return gracefully:
    return StatusCode::SUCCESS;
 }
+
+#ifndef XAOD_STANDALONE
+bool GoodRunsListSelectionTool::eventPassesFilter() const {
+  const xAOD::EventInfo* ei = 0;
+  if( evtStore()->retrieve( ei , "EventInfo" ).isFailure() ) {
+    ATH_MSG_ERROR("Unable to retrieve EventInfo, returning false");
+    return false;
+  }
+  return passRunLB( *ei );
+}
+#endif

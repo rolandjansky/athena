@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelEndCap.h"
@@ -24,8 +24,11 @@
 
 #include "InDetGeoModelUtils/VolumeBuilder.h"
 
-GeoPixelEndCap::GeoPixelEndCap(const GeoPixelServices * pixServices)
-  : m_pixServices(pixServices)
+GeoPixelEndCap::GeoPixelEndCap(InDetDD::PixelDetectorManager* ddmgr,
+                               PixelGeometryManager* mgr,
+                               GeoPixelServices * pixServices)
+  : GeoVPixelFactory(ddmgr, mgr),
+    m_pixServices(pixServices)
 {}
 
 GeoVPhysVol* GeoPixelEndCap::Build( ) {
@@ -58,10 +61,10 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   GeoPixelDisk * pd = 0;
   GeoPixelECCable * pecc = 0;
   if (m_gmt_mgr->slhc()) {
-    pdslhc = new GeoPixelDiskSLHC;
+    pdslhc = new GeoPixelDiskSLHC (m_DDmgr, m_gmt_mgr);
   } else {
-    pd = new GeoPixelDisk;
-    pecc = new GeoPixelECCable;      
+    pd = new GeoPixelDisk (m_DDmgr, m_gmt_mgr);
+    pecc = new GeoPixelECCable (m_DDmgr, m_gmt_mgr);
   }  
   for(int idisk = 0; idisk < ndisks; idisk++) {
     m_gmt_mgr->SetCurrentLD(idisk);

@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TriggerJobOpts/runHLT_standalone.py
@@ -30,7 +31,6 @@ class opt:
     doMuon           = True           # ConfigFlags.Trigger.doMuon
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
-    enableCostD3PD   = False          # enable cost monitoring
     doWriteRDOTrigger = False         # Write out RDOTrigger?
     doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
@@ -44,6 +44,10 @@ class opt:
     enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
 #Individual slice flags
+    doCalibSlice        = True
+    doTestSlice         = True
+    doHeavyIonSlice     = True
+    doEnhancedBiasSlice = True
     doEgammaSlice     = True
     doMuonSlice       = True
     doMinBiasSlice    = True
@@ -57,6 +61,7 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     doCosmicSlice     = True
+    doUnconventionalTrackingSlice   = True
     reverseViews      = False
     filterViews       = False
     enabledSignatures = []

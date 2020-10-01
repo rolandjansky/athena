@@ -106,7 +106,7 @@ etaphi_range(const CaloDetDescrManager& dd_man,
 // Constructor.
 egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 
   m_searchWindowPhiBarrel = m_searchWindowPhiCellsBarrel * s_cellPhiSize * 0.5;
@@ -183,11 +183,11 @@ egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster* ref,
     float dEta(fabs(ref->eta() - clus->eta()));
     float dPhi(fabs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     return (dEta < m_searchWindowEtaBarrel && dPhi < m_searchWindowPhiBarrel);
-  } 
+  }
     float dEta(fabs(ref->eta() - clus->eta()));
     float dPhi(fabs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     return (dEta < m_searchWindowEtaEndcap && dPhi < m_searchWindowPhiEndcap);
-  
+
 }
 
 std::unique_ptr<xAOD::CaloCluster>
