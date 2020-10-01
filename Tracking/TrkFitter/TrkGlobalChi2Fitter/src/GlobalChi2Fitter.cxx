@@ -183,7 +183,8 @@ namespace Trk {
     ATH_CHECK(m_navigator.retrieve());
     ATH_CHECK(m_residualPullCalculator.retrieve());
     ATH_CHECK(m_propagator.retrieve());
-    
+    ATH_CHECK(m_boundaryCheckTool.retrieve());
+
     if (m_calomat) {
       ATH_CHECK(m_calotool.retrieve());
       
