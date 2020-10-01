@@ -29,7 +29,9 @@ PFMuonFlowElementAssoc::PFMuonFlowElementAssoc(const std::string& name,
   declareProperty("ChargedFlowElementMuonDecorKey", m_ChargedFEmuonWriteDecorKey="JetETMissChargedFlowElements.FE_MuonLinks"); // updated Charge
   declareProperty ("MuonNeutralFlowElementDecorKey", m_muonNeutralFEWriteDecorKey = "Muons.neutralFELinks");
   declareProperty ("NeutralFlowElementMuonDecorKey",m_NeutralFEmuonWriteDecorKey = "JetETMissNeutralFlowElements.FE_MuonLinks");
-} 
+  declareProperty ("NeutralFlowElement_efrac_matched_MuonDecorKey",m_NeutralFE_efrac_match_muonWriteDecorKey= "JetETMissNeutralFlowElements.FE_efrac_matched_muon");
+}
+
 PFMuonFlowElementAssoc::~PFMuonFlowElementAssoc() {} 
 
 // ============================================================= 
@@ -48,6 +50,7 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
   ATH_CHECK(m_muonReadHandleKey.initialize());
   ATH_CHECK(m_chargedFEReadHandleKey.initialize());
   ATH_CHECK(m_neutralFEReadHandleKey.initialize());
+  ATH_CHECK(m_NeutralFE_efrac_match_muonWriteDecorKey.initialize());
 
   ATH_MSG_DEBUG("Initialization completed successfully");   
 
@@ -74,6 +77,9 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   // get container for charged flow elements
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorKey,ctx);
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteDecorKey,ctx);
+
+  //extra container handle with frac_e matched between neutral FE cluster and Muon CaloCluster
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<double> > NeutralFE_efrac_match_muonWriteDecorHandle(m_NeutralFE_efrac_match_muonWriteDecorKey,ctx);
 
   //store readhandles for muon and charged flow elements
   SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonReadHandleKey,ctx); // readhandle for muon
@@ -219,6 +225,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	}  // loop over caloclusters
       } // loop over muons
       NeutralFEmuonWriteDecorHandle(*FE)=FEMuonLinks;
+      NeutralFE_efrac_match_muonWriteDecorHandle(*FE)=FE_efrac_clustermatch;
     } // loop over neutral FE
   }// end of the Gaudi check block
   
