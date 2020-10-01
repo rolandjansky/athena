@@ -1274,11 +1274,11 @@ GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( do
     double xMid = xVertices[0]-m_width_svc*xDir;
     double yMid = yVertices[0]-m_width_svc*yDir+1.;
     m_convexStaveEnvelopShape->addVertex(xMid, yMid);
-    m_convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
+    m_convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc, yMid);
 
     xMid = xVertices[0]-m_width_svc*xDir;
-    yMid = yVertices[0]-m_width_svc*.5*yDir+1.;
-    m_convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
+    yMid = yVertices[0]-m_width_svc*.25*yDir+1.;
+    m_convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc, yMid);
     m_convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yMid);
     m_convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yVertices[0]);
 
