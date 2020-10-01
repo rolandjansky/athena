@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from PyUtils.Decorators import memoize
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from functools import lru_cache
 from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqAND
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -22,22 +22,13 @@ def printStepsMatrix(matrix):
             print('---- {}: {}'.format(chainName, namesInCell))  # noqa: ATL901
     print('-------------------------')  # noqa: ATL901
 
-# def memoize(f):
-#     """ caches call of the helper functions, (copied from the internet) remove when we move to python 3.2 or newer and rplace by functools.lru_cache"""
-#     memo = {}
-#     def helper(*x):
-#         tupledx = tuple(x)
-#         if tupledx not in memo:
-#             memo[tupledx] = f(*x)
-#         return memo[tupledx]
-#     return helper
 
 def generateDecisionTree(chains):
     acc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
     acc.addSequence( seqAND(mainSequenceName) )
 
-    @memoize
+    @lru_cache(None)
     def getFiltersStepSeq( stepNumber ):
         """
         Returns sequence containing all filters for a step
@@ -49,7 +40,7 @@ def generateDecisionTree(chains):
         acc.addSequence( seq, parentName = mainSequenceName )
         return seq
 
-    @memoize
+    @lru_cache(None)
     def getRecosStepSeq( stepNumber ):
         """
         """
@@ -59,7 +50,7 @@ def generateDecisionTree(chains):
         acc.addSequence( seq, parentName = mainSequenceName )
         return seq
 
-    @memoize
+    @lru_cache(None)
     def getSingleMenuSeq( stepNumber, stepName ):
         """
         """
@@ -70,7 +61,7 @@ def generateDecisionTree(chains):
         acc.addSequence(seq, parentName = allRecoSeqName )
         return seq
 
-    @memoize
+    @lru_cache(None)
     def getComboSequences( stepNumber, stepName ):
         """
         """
@@ -83,7 +74,7 @@ def generateDecisionTree(chains):
         acc.addSequence( parOR(stepComboRecoName), parentName=stepComboName )
         return acc.getSequence(stepComboName), acc.getSequence(stepComboRecoName)
 
-    @memoize
+    @lru_cache(None)
     def getFilterAlg( stepNumber, stepName ):
         """
         Returns, if need be created, filter for a given step
@@ -101,7 +92,7 @@ def generateDecisionTree(chains):
         log.debug('Creted filter {}'.format(filterName))
         return filterAlg
 
-    @memoize
+    @lru_cache(None)
     def findInputMaker( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
         algs = findAllAlgorithms( seq )
@@ -110,7 +101,7 @@ def generateDecisionTree(chains):
                 return alg
         raise Exception("No input maker in seq "+seq.name)
 
-    @memoize
+    @lru_cache(None)
     def findAllInputMakers( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
         algs = findAllAlgorithms( seq )
@@ -123,7 +114,7 @@ def generateDecisionTree(chains):
             return result
         else:
             raise Exception("No input maker in seq "+seq.name)
-    @memoize
+    @lru_cache(None)
     def findComboHypoAlg( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
         algs = findAllAlgorithms( seq )
@@ -132,7 +123,7 @@ def generateDecisionTree(chains):
                 return alg
         raise Exception("No combo hypo alg in seq "+seq.name)
 
-    @memoize
+    @lru_cache(None)
     def findHypoAlg( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
         algs = findAllAlgorithms( seq )
@@ -142,7 +133,7 @@ def generateDecisionTree(chains):
         raise Exception("No hypo alg in seq "+seq.name)
 
 
-    @memoize
+    @lru_cache(None)
     def findAllHypoAlgs( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
         algs = findAllAlgorithms( seq )
@@ -183,7 +174,7 @@ def generateDecisionTree(chains):
                 return p.rstrip("_")
             p = n
 
-    @memoize
+    @lru_cache(None)
     def prevStepOutput( chain, stepCounter ):
         """
         Returns list of decision collections that are outputs of previous step as well as the hypo alg name that outpus it
@@ -194,7 +185,6 @@ def generateDecisionTree(chains):
         else:
             prevCounter = stepCounter-1
             prevName = chain.steps[prevCounter-1].name # counting steps from 1, for indexing need one less
-            prevStep = chain.steps[prevCounter-1]
             prevHypoAlg = findComboHypoAlg( prevCounter, prevName )
             out = prevHypoAlg.HypoOutputDecisions
             prevHypoAlgName = prevHypoAlg.name
@@ -206,9 +196,7 @@ def generateDecisionTree(chains):
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):
             getFilterAlg( stepCounter, step.name )
-            menuSeqName = getSingleMenuSeq( stepCounter, step.name ).name
-
-
+            getSingleMenuSeq( stepCounter, step.name ).name
             # add sequences that allows reconstructions to be run in parallel, followed (in sequence) by the combo hypo
             comboSeq, comboRecoSeq = getComboSequences( stepCounter, step.name )
             for sequence in step.sequences:
@@ -320,7 +308,7 @@ def generateDecisionTree(chains):
             else:
                 hypoAlg = findHypoAlg( stepCounter, step.name )
                 log.info("  HypoAlg {} Inputs {} Outputs {} Tools {}".format( hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions, [t.name for t in hypoAlg.HypoTools] ) )
-    #kaboom
+
     return acc
 
 

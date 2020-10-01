@@ -23,7 +23,6 @@ StatusCode RoIsUnpackingToolBase::initialize()
   return StatusCode::SUCCESS;
 }
 
-
 StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
 
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
@@ -37,9 +36,9 @@ StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::
       if ( filter(th) ) {
         const HLT::Identifier thresholIdentifier(th);
         m_thresholdToChainMapping[ thresholIdentifier ].push_back( chainIdentifier );
-        ATH_MSG_DEBUG( "Associating " << chainIdentifier << " with threshold " << th );        
+        ATH_MSG_DEBUG( "Associating " << chainIdentifier << " with threshold " << th );
         if ( thresholds.size() > 1 ) {
-          HLT::Identifier legIdentifier = TrigCompositeUtils::createLegName( chainIdentifier, counter );
+          HLT::Identifier legIdentifier = TrigCompositeUtils::createLegName(chainIdentifier, counter);
           m_thresholdToChainMapping[ thresholIdentifier ].push_back( legIdentifier );
           m_legToChainMapping.insert( std::make_pair( legIdentifier,  chainIdentifier ) );
           ATH_MSG_INFO( "Associating additional chain leg " << legIdentifier << " with threshold " << thresholIdentifier );

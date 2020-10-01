@@ -55,7 +55,7 @@ StatusCode ComboHypo::initialize() {
   }
 
   ATH_CHECK( m_multiplicitiesReqMap.size() != 0 );
- 
+
   bool errorOccured = false;
   if (m_checkMultiplicityMap) {
     for ( const auto& m : m_multiplicitiesReqMap ) {
@@ -177,8 +177,8 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     for ( size_t legIndex = 0; legIndex <  multiplicityPerLeg.size(); ++legIndex ) {
       const size_t requiredMultiplicity =  multiplicityPerLeg.at( legIndex );
       nRequiredUnique += requiredMultiplicity;
-      HLT::Identifier legId = TrigCompositeUtils::createLegName(chainId, legIndex);
 
+      HLT::Identifier legId = TrigCompositeUtils::createLegName(chainId, legIndex);
       // If there is only one leg, then we just use the chain's name.
       if (multiplicityPerLeg.size() == 1) {
         ATH_MSG_DEBUG(chainId << " has multiplicityPerLeg.size() == 1, so we don't use legXXX_HLT_YYY, we just use HLT_YYY");
@@ -187,7 +187,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 
       const DecisionID requiredDecisionIDLeg = legId.numeric();
       ATH_MSG_DEBUG("Container " << legIndex << ", looking at leg : " << legId );
-
+     
       LegDecisionsMap::const_iterator it = dmap.find(requiredDecisionIDLeg);
       if ( it == dmap.end() ) {
         overallDecision = false;

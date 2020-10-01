@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import seqAND
 
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
@@ -82,7 +81,7 @@ def generateMenu( flags ):
 
             chainDicts = splitInterSignatureChainDict(mainChainDict)
             listOfChainConfigs = []
-            print("aaa", chainDicts)
+
             for chainDict in chainDicts:
                 signature = chainDict['signature'].lower()
 
