@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
    Control/CxxUtils
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTruth
+   Generators/AtlasHepMC
    ${extra_dep} )
 
 # Component(s) in the package:
