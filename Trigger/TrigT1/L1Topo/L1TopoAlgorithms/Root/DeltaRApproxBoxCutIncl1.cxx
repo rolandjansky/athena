@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * DeltaRApproxBoxCutIncl1.cpp
@@ -33,7 +33,7 @@ namespace {
 
    unsigned int
    calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double deta = fabs( tob1->eta() - tob2->eta() );
+      double deta = std::abs( tob1->eta() - tob2->eta() );
       return deta;
    }
 }
