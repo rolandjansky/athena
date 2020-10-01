@@ -1371,6 +1371,9 @@ def get_expected_reweight_names(reweight_card_loc):
 
 def get_expected_systematic_names(syst_setting):
     names=[]
+    if syst_setting is None or not 'central_pdf' in syst_setting:
+        mglog.warning("Systematics have not been defined via base fragment or 'MADGRAPH_PDFSETTING', cannot check for expected weights")
+        return []
     names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':syst_setting['central_pdf']}]
     if 'pdf_variations' in syst_setting and isinstance(syst_setting['pdf_variations'],list):
         for pdf in syst_setting['pdf_variations']:
