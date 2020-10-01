@@ -1965,6 +1965,11 @@ class L2EFChain_mu(L2EFChainDef):
       RoiUpdater.EtaHalfWidth = 0.10
       RoiUpdater.PhiHalfWidth = 0.10
     
+    from RegionSelector.RegSelToolConfif import makeRegSelTool_Pixel
+    from RegionSelector.RegSelToolConfif import makeRegSelTool_SCT
+    RoiUpdater.RegSelTool_Pixel = makeRegSelTool_Pixel()
+    RoiUpdater.RegSelTool_SCT   = makeRegSelTool_SCT()
+
     from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
     theL2StandAloneAlg  = TrigL2MuonSAConfig(L2AlgName)
     from TrigMuonHypo.TrigMuonHypoConfig import MufastHypoConfig

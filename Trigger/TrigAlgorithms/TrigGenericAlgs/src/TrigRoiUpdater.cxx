@@ -20,7 +20,6 @@ namespace PESA
       m_etaHalfWidth(0.),
       m_phiHalfWidth(0.),
       m_zHalfWidth(0.),
-      m_regionSelector("RegSelSvc", name),
       m_requestPIXRobs(true),
       m_requestSCTRobs(true),
       m_monitorDuplicateRoIs(true),
@@ -29,7 +28,6 @@ namespace PESA
   {
     declareProperty("EtaHalfWidth",           m_etaHalfWidth);
     declareProperty("PhiHalfWidth",           m_phiHalfWidth);
-    declareProperty("RegionSelectorTool",     m_regionSelector);
     declareProperty("RequestPIXRobs",         m_requestPIXRobs);
     declareProperty("RequestSCTRobs",         m_requestSCTRobs);
     declareProperty("MonitorDuplicateRoIs",   m_monitorDuplicateRoIs);
@@ -73,10 +71,19 @@ namespace PESA
     }
 
     // Retrieving Region Selector Tool:
-    if ( (m_requestPIXRobs || m_requestSCTRobs) && m_regionSelector.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( m_regionSelector.propertyName()
+    if ( m_requestPIXRobs && m_regionSelector_pix.retrieve().isFailure() ) {
+      ATH_MSG_FATAL( m_regionSelector_pix.propertyName()
 		     << " : Unable to retrieve RegionSelector tool "  
-		     << m_regionSelector.type() );
+		     << m_regionSelector_pix.type() );
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+
+
+    // Retrieving Region Selector Tool:
+    if ( m_requestSCTRobs && m_regionSelector_sct.retrieve().isFailure() ) {
+      ATH_MSG_FATAL( m_regionSelector_sct.propertyName()
+		     << " : Unable to retrieve RegionSelector tool "  
+		     << m_regionSelector_sct.type() );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
@@ -258,7 +265,7 @@ namespace PESA
     std::vector<unsigned int> uIntListOfRobs;
 
     if (m_requestPIXRobs) {
-      m_regionSelector->DetROBIDListUint( PIXEL, *roi, uIntListOfRobs );
+      m_regionSelector->ROBIDList( *roi, uIntListOfRobs );
 
       ATH_MSG_DEBUG( "list of ROBs ID in PIX: " );
       for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)

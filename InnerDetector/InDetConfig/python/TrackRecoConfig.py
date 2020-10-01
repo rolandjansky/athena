@@ -21,7 +21,6 @@ def PixelClusterizationCfg(flags, **kwargs) :
     ambi_finder=sub_acc.getPrimary()
     acc.merge(sub_acc)
 
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
     acc.addEventAlgo( CompFactory.InDet.PixelClusterization(   name         = "InDetPixelClusterization",
                                                     clusteringTool          = merged_pixels_tool,
                                                     gangedAmbiguitiesFinder = ambi_finder,
