@@ -154,6 +154,9 @@ def createTriggerFlags():
     # list of objects to be written to ESD
     flags.addFlag('Trigger.ESDEDMSet', 'ESD')
 
+    # to allow stroing extra EDM items via preExec
+    flags.addFlag('Trigger.ExtraEDMList', [])
+
     # tag to be used for condutions used by HLT code
     flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
 
