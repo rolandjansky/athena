@@ -105,8 +105,12 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     const GeoShape* scustrpan = sstrpan;
     GeoLogVol* lcustrpan = new GeoLogVol("RPC_StripPanelCuSkin", scustrpan,
                                          matManager->getMaterial("std::Copper"));        
-    GeoLogVol* lfoamstrpan = new GeoLogVol("RPC_StripPanelFoam", sfoamstrpan,
-                                           matManager->getMaterial("muo::RpcFoam"));
+    auto stripMaterial = matManager->getMaterial("muo::RpcFoam");
+    if (m->nGasGaps()==3) { // for BIS RPCs
+      stripMaterial = matManager->getMaterial("muo::Forex");
+    }
+    GeoLogVol* lfoamstrpan = new GeoLogVol("RPC_StripPanelFoam", sfoamstrpan,  // "foam" in variable name is legacy, it is Forex for BIS
+                                           stripMaterial);
 
     newpos += strpanThickness/2. + tol/2.;
     GeoPhysVol* pcustrpan11 = new GeoPhysVol(lcustrpan);
@@ -173,23 +177,23 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
           if (name == "RPC26" ) { //big RPC7
             gasLength   = ggLength - 93.25; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-            y_translation = -45.715;
-            z_translation = -37.85;
+            y_translation = -9.1;
+            z_translation = 3.22;
           } else if (name == "RPC27" ){//small RPC7
             gasLength   = ggLength - 93.12; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-            y_translation = -45.715;
-            z_translation = -37.63;
+            y_translation = -9.1;
+            z_translation = 3.06;
           } else if (name == "RPC28"){//big RPC8
             gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-            y_translation = -26.99;
-            z_translation = -37.64;
+            y_translation = -27.7;
+            z_translation = 3.11;
           } else if (name == "RPC29"){//small RPC8
             gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.2; // ggWidth - deadframesizePhi
-            y_translation = -45.8;
-            z_translation = -37.64;
+            y_translation = -8.8;
+            z_translation = 3.11;
           }
         }
 
