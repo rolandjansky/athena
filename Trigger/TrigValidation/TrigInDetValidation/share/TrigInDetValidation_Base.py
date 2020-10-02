@@ -65,6 +65,9 @@ else :
     lowpt_local = [ False ]
 
 
+if "Args" not in locals() : 
+    Args = " "
+
 # allow command line to override programed number of events to process
 
 if Events_local != 0 : 
@@ -109,13 +112,13 @@ for ref in TrackReference :
     ext       = ''
 
     if   ( ref == 'Truth' ) :
-        args = 'TIDAdata-run3.dat  -b Test_bin.dat -o '+hist_file
+        args = 'TIDAdata-run3.dat  -b Test_bin.dat -o ' + hist_file + Args
     elif ( ref == 'Offline' ) :
         # if more than one reefrence ...
         if len(TrackReference)>1 : 
             hist_file = 'data-hists-offline.root'
             ext       = 'offline'
-        args = 'TIDAdata-run3-offline.dat  -b Test_bin.dat -o '+hist_file
+        args = 'TIDAdata-run3-offline.dat -r Offline  -b Test_bin.dat -o ' + hist_file
     else :
         # here actually we should allow functionality 
         # to use different pdgid truth or offline as
