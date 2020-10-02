@@ -50,17 +50,19 @@ private:
 
 
   /** Write key for adding charged Flow Element link decorations to muons **/
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonChargedFEWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonChargedFEWriteHandleKey{this,"MuonContainer","Muons.chargedFELinks","WriteHandleKey for muon link to charged FlowElements"};
+
   /** Write key for adding Muon link decorations to charged Flow Elements **/
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_ChargedFEmuonWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_ChargedFEmuonWriteHandleKey{this,"FlowElementOutputName","JetETMissChargedFlowElements.FE_MuonLinks","WriteHandleKey for Charged Flow Elements coupled to muons"};
 
   /** Write key for adding neutral Flow Element link decorations to muons **/
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonNeutralFEWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonNeutralFEWriteHandleKey{this,"MuonContainer","Muons.neutralFELinks","WriteHandleKey for muon links to neutral FlowElement"};
+
   /** Write key for adding Muon link decorations to neutral Flow Elements **/
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_NeutralFEmuonWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_NeutralFEmuonWriteHandleKey{this,"FlowElementContainer","JetETMissNeutralFlowElements.MuonLinks","WriteHandleKey for neutral flow Elements to Muons"};
 
   /** Write key for adding fraction of energy used in cell matching decorations to muons **/
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_NeutralFE_efrac_match_muonWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_NeutralFE_efrac_match_muonWriteHandleKey{this,"FlowElementContainer","JetETMissNeutralFlowElements.FE_efrac_matched_muon","WriteHandleKey for neutral FlowElements to Muons"};
 
   /***Gaudi Property to configure linkage of Neutral Flow Elements to Muon clusters (EXPERIMENTAL - default = False/OFF) **/
   Gaudi::Property<bool> m_LinkNeutralFEClusters{this,"m_LinkNeutralFEClusters",false,"Toggle usage of linkage of Neutral FlowElements - false by default (EXPERIMENTAL)"};

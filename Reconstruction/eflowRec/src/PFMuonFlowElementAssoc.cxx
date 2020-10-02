@@ -25,11 +25,7 @@ PFMuonFlowElementAssoc::PFMuonFlowElementAssoc(const std::string& name,
   AthReentrantAlgorithm(name, pSvcLocator)
 {   
   // Declare the decoration keys   
-  declareProperty ("MuonChargedFlowElementDecorKey", m_muonChargedFEWriteDecorKey = "Muons.chargedFELinks");   // updated muon container with the new link 
-  declareProperty("ChargedFlowElementMuonDecorKey", m_ChargedFEmuonWriteDecorKey="JetETMissChargedFlowElements.FE_MuonLinks"); // updated Charge
-  declareProperty ("MuonNeutralFlowElementDecorKey", m_muonNeutralFEWriteDecorKey = "Muons.neutralFELinks");
-  declareProperty ("NeutralFlowElementMuonDecorKey",m_NeutralFEmuonWriteDecorKey = "JetETMissNeutralFlowElements.FE_MuonLinks");
-  declareProperty ("NeutralFlowElement_efrac_matched_MuonDecorKey",m_NeutralFE_efrac_match_muonWriteDecorKey= "JetETMissNeutralFlowElements.FE_efrac_matched_muon");
+ 
 }
 
 PFMuonFlowElementAssoc::~PFMuonFlowElementAssoc() {} 
@@ -40,17 +36,18 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
   ATH_MSG_DEBUG("Initializing " << name() << "...");   
 
   // Initialise the decoration keys   
-  ATH_CHECK(m_muonChargedFEWriteDecorKey.initialize());
-  ATH_CHECK(m_muonNeutralFEWriteDecorKey.initialize());
+  ATH_CHECK(m_muonChargedFEWriteHandleKey.initialize());
+  ATH_CHECK(m_muonNeutralFEWriteHandleKey.initialize());
   
-  ATH_CHECK(m_ChargedFEmuonWriteDecorKey.initialize());
-  ATH_CHECK(m_NeutralFEmuonWriteDecorKey.initialize());
+  ATH_CHECK(m_ChargedFEmuonWriteHandleKey.initialize());
+  ATH_CHECK(m_NeutralFEmuonWriteHandleKey.initialize());
+  ATH_CHECK(m_NeutralFE_efrac_match_muonWriteHandleKey.initialize());
 
   //init ReadHandleKeys
   ATH_CHECK(m_muonReadHandleKey.initialize());
   ATH_CHECK(m_chargedFEReadHandleKey.initialize());
   ATH_CHECK(m_neutralFEReadHandleKey.initialize());
-  ATH_CHECK(m_NeutralFE_efrac_match_muonWriteDecorKey.initialize());
+
 
   ATH_MSG_DEBUG("Initialization completed successfully");   
 
@@ -72,14 +69,14 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   ATH_MSG_DEBUG("Started execute step");
 
   // Get container for muons
-  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteDecorKey,ctx);
-  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonNeutralFEWriteDecorHandle (m_muonNeutralFEWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonNeutralFEWriteDecorHandle (m_muonNeutralFEWriteHandleKey,ctx);
   // get container for charged flow elements
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorKey,ctx);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteHandleKey,ctx);
 
   //extra container handle with frac_e matched between neutral FE cluster and Muon CaloCluster
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<double> > NeutralFE_efrac_match_muonWriteDecorHandle(m_NeutralFE_efrac_match_muonWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<double> > NeutralFE_efrac_match_muonWriteDecorHandle(m_NeutralFE_efrac_match_muonWriteHandleKey,ctx);
 
   //store readhandles for muon and charged flow elements
   SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonReadHandleKey,ctx); // readhandle for muon
