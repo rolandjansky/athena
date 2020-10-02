@@ -67,6 +67,7 @@
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/AnalysisCommon/ThinningUtils
++ PhysicsAnalysis/AnalysisCommon/TruthClassification
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/D3PDTools/SampleHandler

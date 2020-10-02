@@ -45,6 +45,7 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/TruthClassification
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
