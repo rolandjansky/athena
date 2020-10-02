@@ -102,7 +102,7 @@ def BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs):
     alg = Simulation__BeamEffectsAlg(name="BeamEffectsAlg", **kwargs)
 
     # Set default properties
-    alg.ISFRun = False 
+    alg.ISFRun = ConfigFlags.Sim.ISFRun
     alg.InputMcEventCollection = "GEN_EVENT"
     alg.OutputMcEventCollection = "BeamTruthEvent"
 

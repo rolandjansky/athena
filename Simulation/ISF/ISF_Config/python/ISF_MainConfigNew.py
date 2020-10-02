@@ -87,9 +87,8 @@ def Kernel_FullG4MTCfg(flags, name="ISF_Kernel_FullG4MT", **kwargs):
     acc = ComponentAccumulator()
 
     acc.merge(ParticleKillerToolCfg(flags))
-    acc.merge(FullGeant4ToolCfg(flags))
+    Fulltool = acc.popToolsAndMerge(FullGeant4ToolCfg(flags))
     PKtool = acc.getPublicTool("ISF_ParticleKillerTool")
-    Fulltool = acc.getPublicTool("ISF_FullGeant4Tool")
     kwargs.setdefault("SimulationTools", [PKtool, Fulltool])
 
     acc.merge(Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs))
