@@ -8,7 +8,6 @@
 #include <xAODTruth/TruthParticle.h>
 #include <xAODTruth/xAODTruthHelpers.h>
 
-#include "TruthClassification/TruthClassificationDefs.h"
 #include "TruthClassification/TruthClassificationTool.h"
 
 namespace
@@ -180,7 +179,7 @@ StatusCode TruthClassificationTool::classify(const xAOD::Electron &electron,
   // very likely these are internal conversions;  last_mum_pdgId == 22 important as the cases with last_mum_pdgId == 11 were found to be quite often close to a true electron
   if (type == MC::BkgElectron && firstMotherType == MC::BkgElectron
     && origin == MC::PhotonConv && firstMotherOrigin == MC::PhotonConv
-    && std::abs(firstMotherPdgId) == 11 && std::abs(firstMotherPdgId) == 11 )
+    && std::abs(firstMotherPdgId) == 11 && std::abs(pdgId) == 11)
   {  // electron
     if(lastMotherType == -1 || (lastMotherType == MC::GenParticle && (lastMotherPdgId == 22 || std::abs(lastMotherPdgId) == 11)))
     {

@@ -7,17 +7,16 @@
 
 #include <string>
 
+#include <AsgAnalysisInterfaces/ITruthClassificationTool.h>
 #include <AsgTools/AsgTool.h>
 #include <xAODEgamma/Electron.h>
 #include <xAODMuon/Muon.h>
 
-#include "TruthClassification/ITruthClassificationTool.h"
-#include "TruthClassification/TruthClassificationDefs.h"
 
 /// \brief a tool to classify particles based on their type and origin
 class TruthClassificationTool : virtual public ITruthClassificationTool, public asg::AsgTool
 {
-  ASG_TOOL_CLASS(TruthClassificationTool, ITruthClassificationTool)
+  ASG_TOOL_CLASS2(TruthClassificationTool, IClassificationTool, ITruthClassificationTool)
 
 public:
   explicit TruthClassificationTool(const std::string &type);

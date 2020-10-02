@@ -21,13 +21,12 @@ if (NOT XAOD_STANDALONE)
     LINK_LIBRARIES TruthClassificationLib)
 endif ()
 
-# Extra libraries based on the build environment:
+# Extra test libraries based on the build environment:
 set(xaod_access_lib)
 set(extra_libs)
 # ... for AnalysisBase
 if (XAOD_STANDALONE)
   set(xaod_access_lib xAODRootAccess)
-  set(extra_libs MuonSelectorToolsLib)
 else()
   # ... for AthAnalysisBase (Athena calls this POOLRootAccess)
   set(xaod_access_lib POOLRootAccessLib)
@@ -36,11 +35,12 @@ endif()
 # Executable(s) in the package:
 atlas_add_executable(testTruthClassificationTool
   test/test_TruthClassificationTool.cxx
-  LINK_LIBRARIES TruthClassificationLib MuonAnalysisInterfacesLib xAODEventInfo xAODTruth
+  LINK_LIBRARIES TruthClassificationLib xAODEventInfo xAODTruth MuonAnalysisInterfacesLib
   ${xaod_access_lib} ${extra_libs})
 
 # Tests
+# this test currently needs a special input file as the default ASG test files
+# do not contain all necessary information
 atlas_add_test(TruthClassificationToolTest
   SCRIPT testTruthClassificationTool
-  /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root
-  PROPERTIES TIMEOUT 600 )
+  /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root)

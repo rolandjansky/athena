@@ -18,11 +18,6 @@
 #include <AsgAnalysisInterfaces/IClassificationTool.h>
 #include <MuonAnalysisInterfaces/IMuonSelectionTool.h>
 
-#ifdef XAOD_STANDALONE
-#include <MuonSelectorTools/MuonSelectionTool.h>
-#include "TruthClassification/TruthClassificationTool.h"
-#endif
-
 // EDM include(s):
 #include <xAODEventInfo/EventInfo.h>
 #include <xAODEgamma/ElectronContainer.h>
@@ -34,6 +29,7 @@
 #include <TFile.h>
 
 // std
+#include <iomanip>
 #include <memory>
 
 // messaging
@@ -101,15 +97,8 @@ int main(int argc, char* argv[])
 
   // Create the truth classification tool:
   ANA_MSG_INFO("Creating TruthClassificationTool...");
-#ifdef XAOD_STANDALONE
-  asg::AnaToolHandle< CP::IClassificationTool > tool;
-  ASG_SET_ANA_TOOL_TYPE(tool, TruthClassificationTool);
-  tool.setName("TruthClassificationTool");
-  ANA_CHECK(tool.initialize());
-#else
   asg::AnaToolHandle< CP::IClassificationTool > tool("TruthClassificationTool/TruthClassificationTool");
   ANA_CHECK(tool.retrieve());
-#endif
 
   const SG::AuxElement::ConstAccessor<int> truthTypeAcc("truthType");
   const SG::AuxElement::ConstAccessor<int> truthOriginAcc("truthOrigin");
@@ -131,21 +120,11 @@ int main(int argc, char* argv[])
   const SG::AuxElement::ConstAccessor<char> passDFTightAcc("DFCommonElectronsLHTight");
 
   // Muon selection tool
-#ifdef XAOD_STANDALONE
-  asg::AnaToolHandle< CP::IMuonSelectionTool > muonSelectionTool;
-  ASG_SET_ANA_TOOL_TYPE(muonSelectionTool, CP::MuonSelectionTool);
-  muonSelectionTool.setName("MuonSelectionTool");
-  // Tight: 0, Med: 1, Loose: 2, VeryLoose: 3
-  ANA_CHECK(muonSelectionTool.setProperty("MuQuality", 1));
-  ANA_CHECK(muonSelectionTool.setProperty("MaxEta", 2.4));
-  ANA_CHECK(muonSelectionTool.initialize());
-#else
   asg::AnaToolHandle< CP::IMuonSelectionTool > muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool");
   // Tight: 0, Med: 1, Loose: 2, VeryLoose: 3
   ANA_CHECK(muonSelectionTool.setProperty("MuQuality", 1));
   ANA_CHECK(muonSelectionTool.setProperty("MaxEta", 2.4));
   ANA_CHECK(muonSelectionTool.retrieve());
-#endif
 
   std::map<int, int> el_counter;
   std::map<int, int> mu_counter;
