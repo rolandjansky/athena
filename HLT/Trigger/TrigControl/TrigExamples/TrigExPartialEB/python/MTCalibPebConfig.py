@@ -271,10 +271,10 @@ def configure_hlt_result(hypo_algs):
 
     # Give the menu json name to HLTConfigSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    if not hasattr(svcMgr, 'HLTConfigSvc'):
-        from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc
-        svcMgr += HLTConfigSvc()
-    svcMgr.HLTConfigSvc.JsonFileName = menu_json
+    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+    hltConfigSvc = getHLTConfigSvc(ConfigFlags)
+    hltConfigSvc.JsonFileName = menu_json
+    svcMgr += hltConfigSvc
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerToolCfg()
