@@ -271,7 +271,3 @@ if jobproperties.eflowRecFlags.useFlowElements:
   from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
   PFEGamFlowElementAssoc=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
   topSequence +=PFEGamFlowElementAssoc
-
-  from eflowRec.eflowRecConf import PFTauFlowElementAssoc
-  PFTauFlowElementAssoc=PFTauFlowElementAssoc("PFTauFlowElementAssoc")
-  topSequence += PFTauFlowElementAssoc
