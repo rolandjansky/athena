@@ -13,9 +13,9 @@ Trk::CompoundLayerMaterial::CompoundLayerMaterial() :
   Trk::LayerMaterialProperties(),
   m_materialProperties(new Trk::MaterialProperties()),
   m_binUtility(nullptr),
-  m_fullComposition(false)
+  m_fullComposition(false),
+  m_elementTable (Trk::SharedObject<const Trk::ElementTable>(nullptr))
 {
-    m_elementTable = Trk::SharedObject<const Trk::ElementTable>(nullptr);
 }
 
 Trk::CompoundLayerMaterial::CompoundLayerMaterial(const Trk::BinUtility& binutility,

@@ -107,9 +107,8 @@ def createCFTree(CFseq):
     for menuseq in CFseq.step.sequences:
         menuseq.addToSequencer(recoSeqSet,hypoSet)
   
-    #list(dict.fromkeys()) is guaranteed to respect ordering from python 3.7 onwards
-    stepReco += list(dict.fromkeys([recoseq for recoseq in recoSeqSet]))
-    seqAndView += list(dict.fromkeys([hypo for hypo in hypoSet]))
+    stepReco += sorted(list(recoSeqSet), key=lambda t: t.name())
+    seqAndView += sorted(list(hypoSet), key=lambda t: t.name())
        
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
@@ -190,7 +189,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     appendCAtoAthena( monAcc )
 
     Configurable.configurableRun3Behavior=1
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(ConfigFlags, ['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     Configurable.configurableRun3Behavior=0
     # C) Finally, we create the EDM output
     hltFinalizeSeq += conf2toConfigurable(edmAlg)

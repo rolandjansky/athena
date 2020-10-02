@@ -12,9 +12,11 @@
 
 #include "GaudiKernel/INamedInterface.h"
 #include "AthenaKernel/MetaCont.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include <string>
 #include <mutex>
+#include <typeinfo>
 
 /** @class IMetaDataSvc
  *  @brief This class provides the interface for MetaDataSvc
@@ -55,6 +57,12 @@ public: // Non-static members
 
    /// Gaudi boilerplate
    static const InterfaceID& interfaceID();
+
+   /// Hook for implementation to react to recording an object
+   virtual void recordHook(const std::type_info&) {}
+
+   /// Hook for implementation to react to removing an object
+   virtual void removeHook(const std::type_info&) {}
 
 private: // Data
    std::mutex    m_mutex;
@@ -99,7 +107,9 @@ StatusCode IMetaDataSvc::record(T* pObject, const TKEY& key)
    if( !container ) {
       auto cont_uptr = std::make_unique< MetaCont<T> >();
       if( cont_uptr->insert( currentRangeID() , pObject) ) {
-         return outputDataStore()->record( std::move(cont_uptr), key );
+         StatusCode sc = outputDataStore()->record( std::move(cont_uptr), key );
+         if (sc.isSuccess()) recordHook(typeid(T));
+         return sc;
       }
       return StatusCode::FAILURE;
    }
@@ -112,6 +122,7 @@ template <typename T, typename TKEY>
 StatusCode IMetaDataSvc::record(std::unique_ptr<T> pUnique, const TKEY& key)
 {
    if( this->record( pUnique.get(), key ).isSuccess() ) {
+      recordHook(typeid(T));
       pUnique.release();
       return StatusCode::SUCCESS;
    }
@@ -126,6 +137,7 @@ StatusCode IMetaDataSvc::remove(const TKEY& key, bool ignoreIfAbsent)
    std::lock_guard lock(m_mutex);
    // change erase to setting nullptr?
    MetaCont<T>* container = outputDataStore()->tryRetrieve< MetaCont<T> >(key);
+   removeHook(typeid(T));
    if( container and container->erase( currentRangeID() ) )  return StatusCode::SUCCESS;
    return ignoreIfAbsent? StatusCode::SUCCESS : StatusCode::FAILURE;
 }

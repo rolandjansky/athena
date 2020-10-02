@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GeoCaloCalibHit_h_
-#define _GeoCaloCalibHit_h_
+#ifndef GEOADAPTORS_GEOCALOCALIBHIT_H
+#define GEOADAPTORS_GEOCALOCALIBHIT_H
 //----------------------------------------------------------//
 //                                                          //
 // Adaptor for CaloCalibHits.                               //
@@ -68,13 +68,13 @@ class GeoCaloCalibHit
   const CaloDetDescrElement* getDetDescrElement() const;
 
  private:
+  static const CaloDetDescrManager* initDDMgr();
+  const CaloDetDescrManager* ddmgr() const;
 
   void init(const std::string & collectionName);
   
   const CaloCalibrationHit         *m_hit;
-  static const CaloIdManager       *s_man;
-  static const CaloDM_ID           *s_dmid;
-  static const CaloDetDescrManager *s_caloMan;
+
   int m_subdet;
   int m_type; // i.e. in the barrel or in the endcap.
   int m_sampling;

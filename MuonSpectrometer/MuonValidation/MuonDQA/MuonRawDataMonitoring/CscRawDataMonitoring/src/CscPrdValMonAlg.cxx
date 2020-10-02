@@ -2,20 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-/*   NAME    : CscPrdValMonAlg.cxx
- *   PACKAGE : MuonRawDataMonitoring/CscRawDataMonitoring
- *   PURPOSE : CSC PrepRawData (PRD) monitoring
- *   AUTHOR  : Ken Johns, Xiaowen Lei (U.Arizona)
- *
- *   MODIFIED: N. Benekos(Illinois)
- *             V. Kaushik(U.Arizona) : 2009-05-12
- *             J. Veatch(U.Arizona)  : 2012-02-08
- 
- *   MODIFIED: C.Kitsaki, C.Paraskevopoulos
- */
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 // Athena include(s)
@@ -26,13 +12,9 @@
 using namespace Muon;
 
 CscPrdValMonAlg::CscPrdValMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthMonitorAlgorithm(name,pSvcLocator)
-  {
-    declareProperty("NoiseCutADC", m_cscNoiseCut = 50);
-    declareProperty("MapYXandRZ", m_mapxyrz = false);
-  }
-
-
+  AthMonitorAlgorithm(name,pSvcLocator) 
+  { }
+  
 StatusCode CscPrdValMonAlg::initialize() {
   ATH_MSG_INFO( "CscPrdValMonAlg: in initialize" );
   ATH_CHECK(m_idHelperSvc.retrieve());

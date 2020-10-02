@@ -3,10 +3,6 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
-test_HighPtMinbiasHitsFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
-test_LowPtMinbiasHitsFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
-
-
 # lifted from preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py
 test_BeamIntensityPattern = [0.0, # bunch crossing zero is always empty
 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
@@ -342,8 +338,9 @@ JobMaker=[
 ]
 
 import math
+# TODO this should be integrated into the test (ConfigFlags.Exec.MaxEvents?)
 trfJobNumber = 1
-trfMaxEvents = 25
+trfMaxEvents = 4
 corrMaxEvents = float(trfMaxEvents)
 
 #We may need to repeat this run for long production jobs.
@@ -406,6 +403,7 @@ def makeBkgInputCol(flags, initialList, nBkgEvtsPerCrossing, correctForEmptyBunc
     nBkgEventsPerFile = 5000
     try:
         from PyUtils.MetaReader import read_metadata
+        # TODO fix traceback messages generated here
         metadata = read_metadata(initialList[0])
         metadata = metadata[initialList[0]]  # promote all keys one level up
         nBkgEventsPerFile = int(metadata["nentries"])

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -55,9 +55,7 @@ CpByteStreamV2Tool::CpByteStreamV2Tool(const std::string &type,
       m_robDataProvider("ROBDataProviderSvc", name),
       m_channels(80), m_crates(4), m_modules(14), m_cmxs(2), m_maxTobs(5),
       m_chips(16), m_locs(4),
-      m_coreOverlap(0), m_subDetector(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ),
-      m_srcIdMap(0), m_towerKey(0), m_cpmSubBlock(0), m_cmxCpSubBlock(0),
-      m_rodStatus(0), m_fea(0)
+      m_subDetector(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ)
 {
     declareInterface<CpByteStreamV2Tool>(this);
 
@@ -72,7 +70,7 @@ CpByteStreamV2Tool::CpByteStreamV2Tool(const std::string &type,
                     "Offset of CP crate numbers in RDOs");
 
     // Properties for reading bytestream only
-    declareProperty("ROBSourceIDs",       m_sourceIDs,
+    declareProperty("ROBSourceIDs",       m_sourceIDsProp,
                     "ROB fragment source identifiers");
 
     // Properties for writing bytestream only
@@ -111,13 +109,6 @@ StatusCode CpByteStreamV2Tool::initialize()
     CHECK(m_errorTool.retrieve());
     CHECK(m_robDataProvider.retrieve());
     
-    m_srcIdMap      = new L1CaloSrcIdMap();
-    m_towerKey      = new LVL1::TriggerTowerKey();
-    m_cpmSubBlock   = new CpmSubBlockV2();
-    m_cmxCpSubBlock = new CmxCpSubBlock();
-    m_rodStatus     = new std::vector<uint32_t>(2);
-    m_fea           = new FullEventAssembler<L1CaloSrcIdMap>();
-    
     return StatusCode::SUCCESS;
 }
 
@@ -125,92 +116,88 @@ StatusCode CpByteStreamV2Tool::initialize()
 
 StatusCode CpByteStreamV2Tool::finalize()
 {
-    delete m_fea;
-    delete m_rodStatus;
-    delete m_cmxCpSubBlock;
-    delete m_cpmSubBlock;
-    delete m_towerKey;
-    delete m_srcIdMap;
     return StatusCode::SUCCESS;
 }
 
 // Conversion bytestream to CPM towers
 StatusCode CpByteStreamV2Tool::convert(
     const std::string& sgKey,
-    DataVector<LVL1::CPMTower> *const ttCollection)
+    DataVector<LVL1::CPMTower> *const ttCollection) const
 {
- const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  const std::vector<uint32_t>& vID(sourceIDs());
   // // get ROB fragments
   IROBDataProviderSvc::VROBFRAG robFrags;
   m_robDataProvider->getROBData(vID, robFrags, "CpByteStreamV2Tool");
   ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
-  return convert(robFrags, ttCollection);
+  return convert(sgKey, robFrags, ttCollection);
 }
 
 StatusCode CpByteStreamV2Tool::convert(
+    const std::string& sgKey,
     const IROBDataProviderSvc::VROBFRAG &robFrags,
-    DataVector<LVL1::CPMTower> *const ttCollection)
+    DataVector<LVL1::CPMTower> *const ttCollection) const
 {
     CpmTowerData data (ttCollection);
-    return convertBs(robFrags, data);
+    return convertBs(sgKey, robFrags, data);
 }
 
 // Conversion bytestream to CMX-CP TOBs
 StatusCode CpByteStreamV2Tool::convert(
     const std::string& sgKey,
-    DataVector<LVL1::CMXCPTob> *const tobCollection)
+    DataVector<LVL1::CMXCPTob> *const tobCollection) const
 {
-  const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  const std::vector<uint32_t>& vID(sourceIDs());
   // // get ROB fragments
   IROBDataProviderSvc::VROBFRAG robFrags;
   m_robDataProvider->getROBData(vID, robFrags, "CpByteStreamV2Tool");
   ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
-  return convert(robFrags, tobCollection);
+  return convert(sgKey, robFrags, tobCollection);
 }
 
 StatusCode CpByteStreamV2Tool::convert(
+    const std::string& sgKey,
     const IROBDataProviderSvc::VROBFRAG &robFrags,
-    DataVector<LVL1::CMXCPTob> *const tobCollection)
+    DataVector<LVL1::CMXCPTob> *const tobCollection) const
 {
     CmxCpTobData data (tobCollection);
-    return convertBs(robFrags, data);
+    return convertBs(sgKey, robFrags, data);
 }
 
 // Conversion bytestream to CMX-CP hits
 StatusCode CpByteStreamV2Tool::convert(
     const std::string& sgKey,
-    DataVector<LVL1::CMXCPHits> *const hitCollection)
+    DataVector<LVL1::CMXCPHits> *const hitCollection) const
 {
-  const std::vector<uint32_t>& vID(sourceIDs(sgKey));
+  const std::vector<uint32_t>& vID(sourceIDs());
   // // get ROB fragments
   IROBDataProviderSvc::VROBFRAG robFrags;
   m_robDataProvider->getROBData(vID, robFrags, "CpByteStreamV2Tool");
   ATH_MSG_DEBUG("Number of ROB fragments:" << robFrags.size());
-  return convert(robFrags, hitCollection);
+  return convert(sgKey, robFrags, hitCollection);
 }
 
 StatusCode CpByteStreamV2Tool::convert(
+    const std::string& sgKey,
     const IROBDataProviderSvc::VROBFRAG &robFrags,
-    DataVector<LVL1::CMXCPHits> *const hitCollection)
+    DataVector<LVL1::CMXCPHits> *const hitCollection) const
 {
     CmxCpHitsData data (hitCollection);
-    return convertBs(robFrags, data);
+    return convertBs(sgKey, robFrags, data);
 }
 
 // Conversion of CP container to bytestream
 
 StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
-                                       RawEventWrite *const re)
+                                       RawEventWrite *const re) const
 {
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
 
     // Clear the event assembler
-
-    m_fea->clear();
-    const uint16_t minorVersion = m_srcIdMap->minorVersion();
-    m_fea->setRodMinorVersion(minorVersion);
-    m_rodStatusMap.clear();
+    FullEventAssembler<L1CaloSrcIdMap> fea;
+    fea.clear();
+    const uint16_t minorVersion = m_srcIdMap.minorVersion();
+    fea.setRodMinorVersion(minorVersion);
 
     // Pointer to ROD data vector
 
@@ -218,9 +205,19 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
 
     // Set up the container maps
 
-    setupCpmTowerMap(cp->towers());
-    setupCmxCpTobMap(cp->tobs());
-    setupCmxCpHitsMap(cp->hits());
+    LVL1::TriggerTowerKey towerKey;
+
+   // CPM tower map
+    ConstCpmTowerMap  ttMap;
+    setupCpmTowerMap(cp->towers(), ttMap, towerKey);
+
+    // CMX-CP TOB map
+    ConstCmxCpTobMap tobMap;
+    setupCmxCpTobMap(cp->tobs(), tobMap);
+
+    // CMX-CP hits map
+    ConstCmxCpHitsMap hitsMap;
+    setupCmxCpHitsMap(cp->hits(), hitsMap);
 
     // Loop over data
 
@@ -254,7 +251,11 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                 // Get number of CPM slices and triggered slice offset
                 // for this slink
                 if ( ! slinkSlices(crate, module, modulesPerSlink,
-                                   timeslices, trigCpm))
+                                   timeslices, trigCpm,
+                                   ttMap,
+                                   tobMap,
+                                   hitsMap,
+                                   towerKey))
                 {
                     msg(MSG::ERROR) << "Inconsistent number of slices or "
                                     << "triggered slice offsets in data for crate "
@@ -276,23 +277,22 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                 }
                 L1CaloUserHeader userHeader;
                 userHeader.setCpm(trigCpmNew);
-                const uint32_t rodIdCpm = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
+                const uint32_t rodIdCpm = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
                                           m_subDetector);
-                theROD = m_fea->getRodData(rodIdCpm);
+                theROD = fea.getRodData(rodIdCpm);
                 theROD->push_back(userHeader.header());
-                m_rodStatusMap.insert(make_pair(rodIdCpm, m_rodStatus));
             }
             if (debug) msg() << "Module " << module << endmsg;
 
             // Create a sub-block for each slice (except Neutral format)
 
-            m_cpmBlocks.clear();
+            DataVector<CpmSubBlockV2> cpmBlocks;
             for (int slice = 0; slice < timeslicesNew; ++slice)
             {
                 CpmSubBlockV2 *const subBlock = new CpmSubBlockV2();
                 subBlock->setCpmHeader(m_version, m_dataFormat, slice,
                                        hwCrate, module, timeslicesNew);
-                m_cpmBlocks.push_back(subBlock);
+                cpmBlocks.push_back(subBlock);
                 if (neutralFormat) break;
             }
 
@@ -306,8 +306,8 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                 int layer = 0;
                 if (m_cpmMaps->mapping(crate, module, chan, eta, phi, layer))
                 {
-                    const unsigned int key = m_towerKey->ttKey(phi, eta);
-                    const LVL1::CPMTower *const tt = findCpmTower(key);
+                    const unsigned int key = towerKey.ttKey(phi, eta);
+                    const LVL1::CPMTower *const tt = findCpmTower(key, ttMap);
                     if (tt )
                     {
                         std::vector<int> emData;
@@ -329,7 +329,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                                 (hadErrBits.get(LVL1::DataError::LinkDown) << 1) |
                                 hadErrBits.get(LVL1::DataError::Parity);
                             const int index  = ( neutralFormat ) ? 0 : slice;
-                            CpmSubBlockV2 *const subBlock = m_cpmBlocks[index];
+                            CpmSubBlockV2 *const subBlock = cpmBlocks[index];
                             subBlock->fillTowerData(slice, chan, emData[slice],
                                                     hadData[slice], emErr, hadErr);
                             if ((emErrBits.error() >> LVL1::DataError::GLinkParity))
@@ -354,7 +354,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
             // Pack and write the sub-blocks
 
             DataVector<CpmSubBlockV2>::iterator pos;
-            for (pos = m_cpmBlocks.begin(); pos != m_cpmBlocks.end(); ++pos)
+            for (pos = cpmBlocks.begin(); pos != cpmBlocks.end(); ++pos)
             {
                 CpmSubBlockV2 *const subBlock = *pos;
                 if ( !subBlock->pack())
@@ -378,7 +378,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
 
             // Create a sub-block for each slice (except Neutral format)
 
-            m_cmxBlocks.clear();
+            DataVector<CmxCpSubBlock> cmxBlocks;
             const int summing = (crate == m_crates - 1) ? CmxSubBlock::SYSTEM
                                 : CmxSubBlock::CRATE;
             for (int slice = 0; slice < timeslicesNew; ++slice)
@@ -386,7 +386,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                 CmxCpSubBlock *const block = new CmxCpSubBlock();
                 block->setCmxHeader(m_version, m_dataFormat, slice, hwCrate,
                                     summing, CmxSubBlock::CMX_CP, cmx, timeslicesNew);
-                m_cmxBlocks.push_back(block);
+                cmxBlocks.push_back(block);
                 if (neutralFormat) break;
             }
 
@@ -399,7 +399,8 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                     for (int loc = 0; loc < m_locs; ++loc)
                     {
                         const int key = tobKey(crate, cmx, cpm, chip, loc);
-                        const LVL1::CMXCPTob *const ct = findCmxCpTob(key);
+                        const LVL1::CMXCPTob *const ct = findCmxCpTob(key,
+                                                                      tobMap);
                         if ( ct )
                         {
                             std::vector<int> energy;
@@ -420,7 +421,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                                 err |= (errBits.get(LVL1::DataError::ParityPhase3)) << 4;
                                 err |= (errBits.get(LVL1::DataError::Overflow)) << 5;
                                 const int index = ( neutralFormat ) ? 0 : slice;
-                                CmxCpSubBlock *const subBlock = m_cmxBlocks[index];
+                                CmxCpSubBlock *const subBlock = cmxBlocks[index];
                                 subBlock->setTob(slice, cpm, chip, loc, energy[slice],
                                                  isolation[slice], err);
                                 subBlock->setPresenceMap(slice, cpm, presence[slice]);
@@ -435,7 +436,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
             for (int source = 0; source < LVL1::CMXCPHits::MAXSOURCE; ++source)
             {
                 const int key = hitsKey(crate, cmx, source);
-                const LVL1::CMXCPHits *const ch = findCmxCpHits(key);
+                const LVL1::CMXCPHits *const ch = findCmxCpHits(key, hitsMap);
                 if ( ch )
                 {
                     std::vector<unsigned int> hits0;
@@ -451,7 +452,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                         const LVL1::DataError err0Bits(err0[slice]);
                         const LVL1::DataError err1Bits(err1[slice]);
                         const int index = ( neutralFormat ) ? 0 : slice;
-                        CmxCpSubBlock *const subBlock = m_cmxBlocks[index];
+                        CmxCpSubBlock *const subBlock = cmxBlocks[index];
                         subBlock->setHits(slice, source, 0, hits0[slice],                // Assuming CMXCPHits::source == CmxCpSubBlock::source
                                           err0Bits.get(LVL1::DataError::Parity));
                         subBlock->setHits(slice, source, 1, hits1[slice],
@@ -464,7 +465,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                     }
                 }
             }
-            for (CmxCpSubBlock* subBlock : m_cmxBlocks)
+            for (CmxCpSubBlock* subBlock : cmxBlocks)
             {
                 if ( !subBlock->pack())
                 {
@@ -483,55 +484,65 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
 
     // Fill the raw event
 
-    m_fea->fill(re, msg());
-
-    // Set ROD status words
-
-    //L1CaloRodStatus::setStatus(re, m_rodStatusMap, m_srcIdMap);
+    fea.fill(re, msg());
 
     return StatusCode::SUCCESS;
 }
 
 // Return reference to vector with all possible Source Identifiers
 
-const std::vector<uint32_t> &CpByteStreamV2Tool::sourceIDs(
-    const std::string &sgKey)
+std::vector<uint32_t> CpByteStreamV2Tool::makeSourceIDs() const
 {
-    // Check if overlap tower channels wanted
-    const std::string flag("Overlap");
-    const std::string::size_type pos = sgKey.find(flag);
-    m_coreOverlap =
-        (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;
+  std::vector<uint32_t> sourceIDs;
 
-    if (m_sourceIDs.empty())
+  if (!m_sourceIDsProp.empty()) {
+    sourceIDs = m_sourceIDsProp;
+  }
+  else {
+    const int maxCrates = m_crates + m_crateOffsetHw;
+    const int maxSlinks = m_srcIdMap.maxSlinks();
+    for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate)
     {
-        const int maxCrates = m_crates + m_crateOffsetHw;
-        const int maxSlinks = m_srcIdMap->maxSlinks();
-        for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate)
-        {
-            for (int slink = 0; slink < maxSlinks; ++slink)
-            {
-                const int daqOrRoi = 0;
-                const uint32_t rodId = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-                                       m_subDetector);
-                const uint32_t robId = m_srcIdMap->getRobID(rodId);
-                m_sourceIDs.push_back(robId);
-            }
-        }
+      for (int slink = 0; slink < maxSlinks; ++slink)
+      {
+        const int daqOrRoi = 0;
+        const uint32_t rodId = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
+                                                   m_subDetector);
+        const uint32_t robId = m_srcIdMap.getRobID(rodId);
+        sourceIDs.push_back(robId);
+      }
     }
-    return m_sourceIDs;
+  }
+  return sourceIDs;
+}
+
+const std::vector<uint32_t> &CpByteStreamV2Tool::sourceIDs() const
+{
+    static const std::vector<uint32_t> sourceIDs = makeSourceIDs();
+    return sourceIDs;
 }
 
 // Convert bytestream to given container type
 
 StatusCode CpByteStreamV2Tool::convertBs(
+    const std::string& sgKey,
     const IROBDataProviderSvc::VROBFRAG &robFrags,
-    CpByteStreamToolData& data)
+    CpByteStreamToolData& data) const
 {
+    LocalData ld;
+
+    const std::string flag("Overlap");
+    const std::string::size_type pos = sgKey.find(flag);
+    ld.coreOverlap =
+        (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;
+
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
 
-    // Loop over ROB fragments
+    CmxCpSubBlock cmxCpSubBlock;
+    CpmSubBlockV2 cpmSubBlock;
+
+   // Loop over ROB fragments
 
     int robCount = 0;
     std::set<uint32_t> dupCheck;
@@ -582,12 +593,12 @@ StatusCode CpByteStreamV2Tool::convertBs(
 
         // Check identifier
         const uint32_t sourceID = (*rob)->rod_source_id();
-        if (m_srcIdMap->getRobID(sourceID) != robid           ||
-                m_srcIdMap->subDet(sourceID)   != m_subDetector   ||
-                m_srcIdMap->daqOrRoi(sourceID) != 0               ||
-                (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
-                m_srcIdMap->crate(sourceID)    <  m_crateOffsetHw ||
-                m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates)
+        if (m_srcIdMap.getRobID(sourceID) != robid           ||
+                m_srcIdMap.subDet(sourceID)   != m_subDetector   ||
+                m_srcIdMap.daqOrRoi(sourceID) != 0               ||
+                (m_srcIdMap.slink(sourceID) != 0 && m_srcIdMap.slink(sourceID) != 2) ||
+                m_srcIdMap.crate(sourceID)    <  m_crateOffsetHw ||
+                m_srcIdMap.crate(sourceID)    >= m_crateOffsetHw + m_crates)
         {
             m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_ROD_ID);
             if (debug)
@@ -602,16 +613,16 @@ StatusCode CpByteStreamV2Tool::convertBs(
         // Check minor version
         const int minorVersion = (*rob)->rod_version() & 0xffff;
 
-        if (minorVersion <= m_srcIdMap->minorVersionPreLS1())
+        if (minorVersion <= m_srcIdMap.minorVersionPreLS1())
         {
             if (debug) msg() << "Skipping pre-LS1 data" << endmsg;
             continue;
         }
-        const int rodCrate = m_srcIdMap->crate(sourceID);
+        const int rodCrate = m_srcIdMap.crate(sourceID);
         if (debug)
         {
             msg() << "Treating crate " << rodCrate
-                  << " slink " << m_srcIdMap->slink(sourceID) << endmsg;
+                  << " slink " << m_srcIdMap.slink(sourceID) << endmsg;
         }
 
         // First word should be User Header
@@ -643,13 +654,13 @@ StatusCode CpByteStreamV2Tool::convertBs(
 
         // Loop over sub-blocks
 
-        m_rodErr = L1CaloSubBlock::ERROR_NONE;
+        ld.rodErr = L1CaloSubBlock::ERROR_NONE;
         while (payload != payloadEnd)
         {
             if (L1CaloSubBlock::wordType(*payload) != L1CaloSubBlock::HEADER)
             {
                 if (debug) msg() << "Unexpected data sequence" << endmsg;
-                m_rodErr = L1CaloSubBlock::ERROR_MISSING_HEADER;
+                ld.rodErr = L1CaloSubBlock::ERROR_MISSING_HEADER;
                 break;
             }
 
@@ -665,20 +676,20 @@ StatusCode CpByteStreamV2Tool::convertBs(
                 // CMX
                 if (CmxSubBlock::cmxType(*payload) == CmxSubBlock::CMX_CP)
                 {
-                    m_cmxCpSubBlock->clear();
-                    payload = m_cmxCpSubBlock->read(payload, payloadEnd);
-                    if (m_cmxCpSubBlock->crate() != rodCrate)
+                    cmxCpSubBlock.clear();
+                    payload = cmxCpSubBlock.read(payload, payloadEnd);
+                    if (cmxCpSubBlock.crate() != rodCrate)
                     {
                         if (debug) msg() << "Inconsistent crate number in ROD source ID"
                                              << endmsg;
-                        m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
+                        ld.rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                         break;
                     }
 
                     if (data.m_collection == CMX_CP_TOBS || data.m_collection == CMX_CP_HITS)
                     {
-                        decodeCmxCp(m_cmxCpSubBlock, trigCpm, data);
-                        if (m_rodErr != L1CaloSubBlock::ERROR_NONE)
+                        decodeCmxCp(&cmxCpSubBlock, trigCpm, data, ld);
+                        if (ld.rodErr != L1CaloSubBlock::ERROR_NONE)
                         {
                             if (debug) msg() << "decodeCmxCp failed" << endmsg;
                             break;
@@ -688,26 +699,26 @@ StatusCode CpByteStreamV2Tool::convertBs(
                 else
                 {
                     if (debug) msg() << "Invalid CMX type in module field" << endmsg;
-                    m_rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
+                    ld.rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
                     break;
                 }
             }
             else
             {
                 // CPM
-                m_cpmSubBlock->clear();
-                payload = m_cpmSubBlock->read(payload, payloadEnd);
-                if (m_cpmSubBlock->crate() != rodCrate)
+                cpmSubBlock.clear();
+                payload = cpmSubBlock.read(payload, payloadEnd);
+                if (cpmSubBlock.crate() != rodCrate)
                 {
                     if (debug) msg() << "Inconsistent crate number in ROD source ID"
                                          << endmsg;
-                    m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
+                    ld.rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                     break;
                 }
                 if (data.m_collection == CPM_TOWERS)
                 {
-                    decodeCpm(m_cpmSubBlock, trigCpm, static_cast<CpmTowerData&>(data));
-                    if (m_rodErr != L1CaloSubBlock::ERROR_NONE)
+                    decodeCpm(&cpmSubBlock, trigCpm, static_cast<CpmTowerData&>(data), ld);
+                    if (ld.rodErr != L1CaloSubBlock::ERROR_NONE)
                     {
                         if (debug) msg() << "decodeCpm failed" << endmsg;
                         break;
@@ -715,9 +726,9 @@ StatusCode CpByteStreamV2Tool::convertBs(
                 }
             }
         }
-        if (m_rodErr != L1CaloSubBlock::ERROR_NONE)
+        if (ld.rodErr != L1CaloSubBlock::ERROR_NONE)
         {
-            m_errorTool->rodError(robid, m_rodErr);
+            m_errorTool->rodError(robid, ld.rodErr);
         }
     }
     return StatusCode::SUCCESS;
@@ -726,7 +737,8 @@ StatusCode CpByteStreamV2Tool::convertBs(
 // Unpack CMX-CP sub-block
 
 void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
-                                     CpByteStreamToolData& data)
+                                     CpByteStreamToolData& data,
+                                     LocalData& ld) const
 {
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
@@ -752,14 +764,14 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
         if (debug) msg() << "Triggered slice from header "
                              << "inconsistent with number of slices: "
                              << trigCpm << ", " << timeslices << endmsg;
-        m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+        ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
         return;
     }
     if (timeslices <= sliceNum)
     {
         if (debug) msg() << "Total slices inconsistent with slice number: "
                              << timeslices << ", " << sliceNum << endmsg;
-        m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+        ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
         return;
     }
     // Unpack sub-block
@@ -770,7 +782,7 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
             std::string errMsg(subBlock->unpackErrorMsg());
             msg() << "CMX-CP sub-block unpacking failed: " << errMsg << endmsg;
         }
-        m_rodErr = subBlock->unpackErrorCode();
+        ld.rodErr = subBlock->unpackErrorCode();
         return;
     }
 
@@ -821,47 +833,47 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
                     LVL1::CMXCPTob *tb = findCmxCpTob(tdata, key);
                     if ( ! tb )   // create new CMX TOB
                     {
-                        m_energyVec.assign(timeslices, 0);
-                        m_isolVec.assign(timeslices, 0);
-                        m_errorVec.assign(timeslices, 0);
-                        m_presenceMapVec.assign(timeslices, 0);
-                        m_energyVec[slice] = energy;
-                        m_isolVec[slice]   = isolation;
-                        m_errorVec[slice]  = error;
-                        m_presenceMapVec[slice] = presenceMap;
+                        ld.energyVec.assign(timeslices, 0);
+                        ld.isolVec.assign(timeslices, 0);
+                        ld.errorVec.assign(timeslices, 0);
+                        ld.presenceMapVec.assign(timeslices, 0);
+                        ld.energyVec[slice] = energy;
+                        ld.isolVec[slice]   = isolation;
+                        ld.errorVec[slice]  = error;
+                        ld.presenceMapVec[slice] = presenceMap;
                         auto tbp =
                           std::make_unique<LVL1::CMXCPTob>(swCrate, cmx, cpm, chip, loc,
-                                                           m_energyVec, m_isolVec, m_errorVec,
-                                                           m_presenceMapVec, trigCpm);
+                                                           ld.energyVec, ld.isolVec, ld.errorVec,
+                                                           ld.presenceMapVec, trigCpm);
                         tdata.m_tobMap.insert(std::make_pair(key, tbp.get()));
                         tdata.m_tobCollection->push_back(std::move(tbp));
                     }
                     else
                     {
-                        m_energyVec = tb->energyVec();
-                        m_isolVec   = tb->isolationVec();
-                        m_errorVec  = tb->errorVec();
-                        m_presenceMapVec = tb->presenceMapVec();
-                        const int nsl = m_energyVec.size();
+                        ld.energyVec = tb->energyVec();
+                        ld.isolVec   = tb->isolationVec();
+                        ld.errorVec  = tb->errorVec();
+                        ld.presenceMapVec = tb->presenceMapVec();
+                        const int nsl = ld.energyVec.size();
                         if (timeslices != nsl)
                         {
                             if (debug) msg() << "Inconsistent number of slices in sub-blocks"
                                                  << endmsg;
-                            m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+                            ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
                             return;
                         }
-                        if (m_energyVec[slice] != 0 || m_isolVec[slice] != 0 ||
-                                m_errorVec[slice]  != 0)
+                        if (ld.energyVec[slice] != 0 || ld.isolVec[slice] != 0 ||
+                                ld.errorVec[slice]  != 0)
                         {
                             if (debug) msg() << "Duplicate data for slice " << slice << endmsg;
-                            m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
+                            ld.rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
                             return;
                         }
-                        m_energyVec[slice] = energy;
-                        m_isolVec[slice]   = isolation;
-                        m_errorVec[slice]  = error;
-                        m_presenceMapVec[slice] = presenceMap;
-                        tb->addTob(m_energyVec, m_isolVec, m_errorVec, m_presenceMapVec);
+                        ld.energyVec[slice] = energy;
+                        ld.isolVec[slice]   = isolation;
+                        ld.errorVec[slice]  = error;
+                        ld.presenceMapVec[slice] = presenceMap;
+                        tb->addTob(ld.energyVec, ld.isolVec, ld.errorVec, ld.presenceMapVec);
                     }
                 }
             }
@@ -899,47 +911,47 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
                     LVL1::CMXCPHits *ch = findCmxCpHits(hdata, key);
                     if ( ! ch )     // create new CMX hits
                     {
-                        m_hitsVec0.assign(timeslices, 0);
-                        m_hitsVec1.assign(timeslices, 0);
-                        m_errVec0.assign(timeslices, 0);
-                        m_errVec1.assign(timeslices, 0);
-                        m_hitsVec0[slice] = hits0;
-                        m_hitsVec1[slice] = hits1;
-                        m_errVec0[slice]  = err0;
-                        m_errVec1[slice]  = err1;
+                        ld.hitsVec0.assign(timeslices, 0);
+                        ld.hitsVec1.assign(timeslices, 0);
+                        ld.errVec0.assign(timeslices, 0);
+                        ld.errVec1.assign(timeslices, 0);
+                        ld.hitsVec0[slice] = hits0;
+                        ld.hitsVec1[slice] = hits1;
+                        ld.errVec0[slice]  = err0;
+                        ld.errVec1[slice]  = err1;
                         auto chp =
                           std::make_unique<LVL1::CMXCPHits>(swCrate, cmx, source,
-                                                            m_hitsVec0, m_hitsVec1,
-                                                            m_errVec0, m_errVec1, trigCpm);
+                                                            ld.hitsVec0, ld.hitsVec1,
+                                                            ld.errVec0, ld.errVec1, trigCpm);
                         hdata.m_hitsMap.insert(std::make_pair(key, chp.get()));
                         hdata.m_hitCollection->push_back(std::move(chp));
                     }
                     else
                     {
-                        m_hitsVec0 = ch->hitsVec0();
-                        m_hitsVec1 = ch->hitsVec1();
-                        m_errVec0  = ch->errorVec0();
-                        m_errVec1  = ch->errorVec1();
-                        const int nsl = m_hitsVec0.size();
+                        ld.hitsVec0 = ch->hitsVec0();
+                        ld.hitsVec1 = ch->hitsVec1();
+                        ld.errVec0  = ch->errorVec0();
+                        ld.errVec1  = ch->errorVec1();
+                        const int nsl = ld.hitsVec0.size();
                         if (timeslices != nsl)
                         {
                             if (debug) msg() << "Inconsistent number of slices in sub-blocks"
                                                  << endmsg;
-                            m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+                            ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
                             return;
                         }
-                        if (m_hitsVec0[slice] != 0 || m_hitsVec1[slice] != 0 ||
-                                m_errVec0[slice]  != 0 || m_errVec1[slice]  != 0)
+                        if (ld.hitsVec0[slice] != 0 || ld.hitsVec1[slice] != 0 ||
+                                ld.errVec0[slice]  != 0 || ld.errVec1[slice]  != 0)
                         {
                             if (debug) msg() << "Duplicate data for slice " << slice << endmsg;
-                            m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
+                            ld.rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
                             return;
                         }
-                        m_hitsVec0[slice] = hits0;
-                        m_hitsVec1[slice] = hits1;
-                        m_errVec0[slice]  = err0;
-                        m_errVec1[slice]  = err1;
-                        ch->addHits(m_hitsVec0, m_hitsVec1, m_errVec0, m_errVec1);
+                        ld.hitsVec0[slice] = hits0;
+                        ld.hitsVec1[slice] = hits1;
+                        ld.errVec0[slice]  = err0;
+                        ld.errVec1[slice]  = err1;
+                        ch->addHits(ld.hitsVec0, ld.hitsVec1, ld.errVec0, ld.errVec1);
                     }
                 }
             }
@@ -952,7 +964,8 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
 // Unpack CPM sub-block
 
 void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
-                                   CpmTowerData& data)
+                                   CpmTowerData& data,
+                                   LocalData& ld) const
 {
     const bool debug   = msgLvl(MSG::DEBUG);
     const bool verbose = msgLvl(MSG::VERBOSE);
@@ -972,7 +985,7 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
     if (module < 1 || module > m_modules)
     {
         if (debug) msg() << "Unexpected module number: " << module << endmsg;
-        m_rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
+        ld.rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
         return;
     }
     if (timeslices <= trigCpm)
@@ -980,14 +993,14 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
         if (debug) msg() << "Triggered slice from header "
                              << "inconsistent with number of slices: "
                              << trigCpm << ", " << timeslices << endmsg;
-        m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+        ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
         return;
     }
     if (timeslices <= sliceNum)
     {
         if (debug) msg() << "Total slices inconsistent with slice number: "
                              << timeslices << ", " << sliceNum << endmsg;
-        m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+        ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
         return;
     }
     // Unpack sub-block
@@ -998,7 +1011,7 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
             std::string errMsg(subBlock->unpackErrorMsg());
             msg() << "CPM sub-block unpacking failed: " << errMsg << endmsg;
         }
-        m_rodErr = subBlock->unpackErrorCode();
+        ld.rodErr = subBlock->unpackErrorCode();
         return;
     }
 
@@ -1045,33 +1058,33 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
                 int layer = 0;
                 if (m_cpmMaps->mapping(crate, module, chan, eta, phi, layer))
                 {
-                    if (layer == m_coreOverlap)
+                    if (layer == ld.coreOverlap)
                     {
-                        const unsigned int key = m_towerKey->ttKey(phi, eta);
+                        const unsigned int key = ld.towerKey.ttKey(phi, eta);
                         LVL1::CPMTower *tt = findCpmTower(data, key);
                         if ( ! tt )     // create new CPM tower
                         {
-                            m_emVec.assign(timeslices, 0);
-                            m_hadVec.assign(timeslices, 0);
-                            m_emErrVec.assign(timeslices, 0);
-                            m_hadErrVec.assign(timeslices, 0);
-                            m_emVec[slice]     = em;
-                            m_hadVec[slice]    = had;
-                            m_emErrVec[slice]  = emErr1;
-                            m_hadErrVec[slice] = hadErr1;
+                            ld.emVec.assign(timeslices, 0);
+                            ld.hadVec.assign(timeslices, 0);
+                            ld.emErrVec.assign(timeslices, 0);
+                            ld.hadErrVec.assign(timeslices, 0);
+                            ld.emVec[slice]     = em;
+                            ld.hadVec[slice]    = had;
+                            ld.emErrVec[slice]  = emErr1;
+                            ld.hadErrVec[slice] = hadErr1;
                             auto ttp =
-                              std::make_unique<LVL1::CPMTower>(phi, eta, m_emVec, m_emErrVec,
-                                                               m_hadVec, m_hadErrVec, trigCpm);
+                              std::make_unique<LVL1::CPMTower>(phi, eta, ld.emVec, ld.emErrVec,
+                                                               ld.hadVec, ld.hadErrVec, trigCpm);
                             data.m_ttMap.insert(std::make_pair(key, ttp.get()));
                             data.m_ttCollection->push_back(std::move(ttp));
                         }
                         else
                         {
-                            m_emVec     = tt->emEnergyVec();
-                            m_hadVec    = tt->hadEnergyVec();
-                            m_emErrVec  = tt->emErrorVec();
-                            m_hadErrVec = tt->hadErrorVec();
-                            const int nsl = m_emVec.size();
+                            ld.emVec     = tt->emEnergyVec();
+                            ld.hadVec    = tt->hadEnergyVec();
+                            ld.emErrVec  = tt->emErrorVec();
+                            ld.hadErrVec = tt->hadErrorVec();
+                            const int nsl = ld.emVec.size();
                             if (timeslices != nsl)
                             {
                                 if (debug)
@@ -1079,22 +1092,22 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
                                     msg() << "Inconsistent number of slices in sub-blocks"
                                           << endmsg;
                                 }
-                                m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+                                ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
                                 return;
                             }
-                            if (m_emVec[slice]    != 0 || m_hadVec[slice]    != 0 ||
-                                    m_emErrVec[slice] != 0 || m_hadErrVec[slice] != 0)
+                            if (ld.emVec[slice]    != 0 || ld.hadVec[slice]    != 0 ||
+                                    ld.emErrVec[slice] != 0 || ld.hadErrVec[slice] != 0)
                             {
                                 if (debug) msg() << "Duplicate data for slice "
                                                      << slice << endmsg;
-                                m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
+                                ld.rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
                                 return;
                             }
-                            m_emVec[slice]     = em;
-                            m_hadVec[slice]    = had;
-                            m_emErrVec[slice]  = emErr1;
-                            m_hadErrVec[slice] = hadErr1;
-                            tt->fill(m_emVec, m_emErrVec, m_hadVec, m_hadErrVec, trigCpm);
+                            ld.emVec[slice]     = em;
+                            ld.hadVec[slice]    = had;
+                            ld.emErrVec[slice]  = emErr1;
+                            ld.hadErrVec[slice] = hadErr1;
+                            tt->fill(ld.emVec, ld.emErrVec, ld.hadVec, ld.hadErrVec, trigCpm);
                         }
                     }
                 }
@@ -1119,10 +1132,11 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
 // Find a CPM tower for given key
 
 const
-LVL1::CPMTower *CpByteStreamV2Tool::findCpmTower(const unsigned int key) const
+LVL1::CPMTower *CpByteStreamV2Tool::findCpmTower(const unsigned int key,
+                                                 const ConstCpmTowerMap& ttMap) const
 {
-    ConstCpmTowerMap::const_iterator mapIter = m_ttMap.find(key);
-    if (mapIter != m_ttMap.end()) return mapIter->second;
+    ConstCpmTowerMap::const_iterator mapIter = ttMap.find(key);
+    if (mapIter != ttMap.end()) return mapIter->second;
     return nullptr;
 }
 
@@ -1137,10 +1151,11 @@ LVL1::CPMTower *CpByteStreamV2Tool::findCpmTower(const CpmTowerData& data,
 // Find CMX-CP TOB for given key
 
 const
-LVL1::CMXCPTob *CpByteStreamV2Tool::findCmxCpTob(const int key) const
+LVL1::CMXCPTob *CpByteStreamV2Tool::findCmxCpTob(const int key,
+                                                 const ConstCmxCpTobMap& tobMap) const
 {
-    ConstCmxCpTobMap::const_iterator mapIter = m_tobMap.find(key);
-    if (mapIter != m_tobMap.end()) return mapIter->second;
+    ConstCmxCpTobMap::const_iterator mapIter = tobMap.find(key);
+    if (mapIter != tobMap.end()) return mapIter->second;
     return nullptr;
 }
 
@@ -1155,10 +1170,11 @@ LVL1::CMXCPTob *CpByteStreamV2Tool::findCmxCpTob(const CmxCpTobData& data,
 // Find CMX-CP hits for given key
 
 const
-LVL1::CMXCPHits *CpByteStreamV2Tool::findCmxCpHits(const int key) const
+LVL1::CMXCPHits *CpByteStreamV2Tool::findCmxCpHits(const int key,
+                                                   const ConstCmxCpHitsMap& hitsMap) const
 {
-    ConstCmxCpHitsMap::const_iterator mapIter = m_hitsMap.find(key);
-    if (mapIter != m_hitsMap.end()) return mapIter->second;
+    ConstCmxCpHitsMap::const_iterator mapIter = hitsMap.find(key);
+    if (mapIter != hitsMap.end()) return mapIter->second;
     return nullptr;
 }
 
@@ -1173,9 +1189,11 @@ LVL1::CMXCPHits *CpByteStreamV2Tool::findCmxCpHits(const CmxCpHitsData& data,
 // Set up CPM tower map
 
 void CpByteStreamV2Tool::setupCpmTowerMap(const CpmTowerCollection *
-        const ttCollection)
+        const ttCollection,
+        ConstCpmTowerMap& ttMap,
+        LVL1::TriggerTowerKey& towerKey) const
 {
-    m_ttMap.clear();
+    ttMap.clear();
     if (ttCollection)
     {
         CpmTowerCollection::const_iterator pos  = ttCollection->begin();
@@ -1183,8 +1201,8 @@ void CpByteStreamV2Tool::setupCpmTowerMap(const CpmTowerCollection *
         for (; pos != pose; ++pos)
         {
             const LVL1::CPMTower *const tt = *pos;
-            const unsigned int key = m_towerKey->ttKey(tt->phi(), tt->eta());
-            m_ttMap.insert(std::make_pair(key, tt));
+            const unsigned int key = towerKey.ttKey(tt->phi(), tt->eta());
+            ttMap.insert(std::make_pair(key, tt));
         }
     }
 }
@@ -1192,9 +1210,10 @@ void CpByteStreamV2Tool::setupCpmTowerMap(const CpmTowerCollection *
 // Set up CMX-CP TOB map
 
 void CpByteStreamV2Tool::setupCmxCpTobMap(const CmxCpTobCollection *
-        const tobCollection)
+        const tobCollection,
+        ConstCmxCpTobMap& tobMap) const
 {
-    m_tobMap.clear();
+    tobMap.clear();
     if (tobCollection)
     {
         CmxCpTobCollection::const_iterator pos  = tobCollection->begin();
@@ -1208,7 +1227,7 @@ void CpByteStreamV2Tool::setupCmxCpTobMap(const CmxCpTobCollection *
             const int chip = tob->chip();
             const int loc = tob->location();
             const int key = tobKey(crate, cmx, cpm, chip, loc);
-            m_tobMap.insert(std::make_pair(key, tob));
+            tobMap.insert(std::make_pair(key, tob));
         }
     }
 }
@@ -1216,9 +1235,10 @@ void CpByteStreamV2Tool::setupCmxCpTobMap(const CmxCpTobCollection *
 // Set up CMX-CP hits map
 
 void CpByteStreamV2Tool::setupCmxCpHitsMap(const CmxCpHitsCollection *
-        const hitCollection)
+        const hitCollection,
+        ConstCmxCpHitsMap& hitsMap) const
 {
-    m_hitsMap.clear();
+    hitsMap.clear();
     if (hitCollection)
     {
         CmxCpHitsCollection::const_iterator pos  = hitCollection->begin();
@@ -1230,7 +1250,7 @@ void CpByteStreamV2Tool::setupCmxCpHitsMap(const CmxCpHitsCollection *
             const int cmx = hits->cmx();
             const int source = hits->source();
             const int key = hitsKey(crate, cmx, source);
-            m_hitsMap.insert(std::make_pair(key, hits));
+            hitsMap.insert(std::make_pair(key, hits));
         }
     }
 }
@@ -1254,7 +1274,11 @@ int CpByteStreamV2Tool::hitsKey(const int crate, const int cmx,
 // Get number of slices and triggered slice offset for next slink
 
 bool CpByteStreamV2Tool::slinkSlices(const int crate, const int module,
-                                     const int modulesPerSlink, int &timeslices, int &trigCpm)
+                                     const int modulesPerSlink, int &timeslices, int &trigCpm,
+                                     const ConstCpmTowerMap& ttMap,
+                                     const ConstCmxCpTobMap& tobMap,
+                                     const ConstCmxCpHitsMap& hitsMap,
+                                     LVL1::TriggerTowerKey& towerKey) const
 {
     int slices = -1;
     int trigC  = m_dfltSlices / 2;
@@ -1266,8 +1290,8 @@ bool CpByteStreamV2Tool::slinkSlices(const int crate, const int module,
             double phi = 0.;
             int layer = 0;
             if ( !m_cpmMaps->mapping(crate, mod, chan, eta, phi, layer)) continue;
-            const unsigned int key = m_towerKey->ttKey(phi, eta);
-            const LVL1::CPMTower *const tt = findCpmTower(key);
+            const unsigned int key = towerKey.ttKey(phi, eta);
+            const LVL1::CPMTower *const tt = findCpmTower(key, ttMap);
             if ( !tt ) continue;
             const int numdat = 4;
             std::vector<int> sums(numdat);
@@ -1309,7 +1333,8 @@ bool CpByteStreamV2Tool::slinkSlices(const int crate, const int module,
                     for (int loc = 0; loc < m_locs; ++loc)
                     {
                         const int key = tobKey(crate, cmx, cpm, chip, loc);
-                        const LVL1::CMXCPTob *const tob = findCmxCpTob(key);
+                        const LVL1::CMXCPTob *const tob = findCmxCpTob(key,
+                                                                       tobMap);
                         if (tob)
                         {
                             const int numdat = 3;
@@ -1342,7 +1367,9 @@ bool CpByteStreamV2Tool::slinkSlices(const int crate, const int module,
             for (int source = 0; source < LVL1::CMXCPHits::MAXSOURCE; ++source)
             {
                 const int key = hitsKey(crate, cmx, source);
-                const LVL1::CMXCPHits *const hits = findCmxCpHits(key);
+
+                const LVL1::CMXCPHits *const hits = findCmxCpHits(key,
+                                                                  hitsMap);
                 if (hits)
                 {
                     const int numdat = 4;

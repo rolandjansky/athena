@@ -23,6 +23,7 @@ class PileupReweightingProvider : public AthAlgorithm {
          declareProperty("Input",m_inputKey="","Specify a specific EventInfo object");
          declareProperty("Output",m_outputKey="","Specify an output EventInfo object. If differs from input, will create a clone of EventInfo and decorate that");
          declareProperty("ConfigOutputStream",m_configStream="","Specify the stream to output config file to");
+         declareProperty("RunSystematics",m_systematics=true,"Enable systematics during run");
       }
 
       ~PileupReweightingProvider() { }
@@ -69,15 +70,17 @@ class PileupReweightingProvider : public AthAlgorithm {
 
 
             //here's an example of systematic variations 
-            for(auto& syst : m_allSysts) {
-               ATH_MSG_VERBOSE("Doing systematic : " << syst.name());
-               if(! m_tool->isAffectedBySystematic( syst )) continue;
-               CP::SystematicSet tmp; tmp.insert( syst );
-               if( m_tool->applySystematicVariation( tmp ) != CP::SystematicCode::Ok ) continue;
-               CHECK( m_tool->apply(*evtInfo) );
+            if (m_systematics){
+               for(auto& syst : m_allSysts) {
+                  ATH_MSG_VERBOSE("Doing systematic : " << syst.name());
+                  if(! m_tool->isAffectedBySystematic( syst )) continue;
+                  CP::SystematicSet tmp; tmp.insert( syst );
+                  if( m_tool->applySystematicVariation( tmp ) != CP::SystematicCode::Ok ) continue;
+                  CHECK( m_tool->apply(*evtInfo) );
+               }
+               //make sure we leave the tool in the nominal mode
+               if( m_tool->applySystematicVariation( CP::SystematicSet() ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
             }
-            //make sure we leave the tool in the nominal mode 
-            if( m_tool->applySystematicVariation( CP::SystematicSet() ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE; 
 
             return StatusCode::SUCCESS; 
       }
@@ -88,6 +91,8 @@ class PileupReweightingProvider : public AthAlgorithm {
       std::string m_inputKey,m_outputKey,m_configStream;
 
       CP::SystematicSet m_allSysts;
+
+      bool m_systematics;
 
 }; 
 

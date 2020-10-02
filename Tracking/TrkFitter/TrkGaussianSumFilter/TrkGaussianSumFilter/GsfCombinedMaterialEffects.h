@@ -16,7 +16,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
@@ -35,10 +34,7 @@ public:
   virtual ~GsfCombinedMaterialEffects() override;
 
   /** AlgTool initialise method */
-  virtual StatusCode initialize() override;
-
-  /** AlgTool finalise method */
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override final;
 
   virtual void compute(
     IMultiStateMaterialEffects::Cache&,
@@ -73,12 +69,6 @@ private:
                   PropDirection direction = anyDirection,
                   ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  ToolHandle<IMultipleScatteringUpdator> m_msUpdator{
-    this,
-    "MultipleScatteringUpdator",
-    "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",
-    ""
-  };
 
   ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator{
     this,

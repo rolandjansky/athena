@@ -18,7 +18,7 @@ def BunchCrossingCondAlgCfg(configFlags):
         result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList"))
     else: #data case
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
-        result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList'))
+        result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList',tag='HEAD'))
 
 
     alg = BunchCrossingCondAlg(Run1=run1,

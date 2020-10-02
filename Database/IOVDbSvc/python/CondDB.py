@@ -267,7 +267,11 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
             if (self.iovdbsvc.Folders[i].find(folder)>=0):
                 del self.iovdbsvc.Folders[i]
                 break
-            
+        for i in range(0, len(condInputLoader.Load)):
+            if (condInputLoader.Load[i][-1] == self.extractFolder(folder)):
+                del condInputLoader.Load[i]
+                break
+
     def folderRequested(self,folder):
         "Return true if the given folder has already been requested"
         for i in self.iovdbsvc.Folders:

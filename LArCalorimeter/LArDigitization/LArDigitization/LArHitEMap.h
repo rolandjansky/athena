@@ -1,6 +1,6 @@
 //Dear emcas this is -*-c++-*--
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITIZATION_LARHITEMAP_H
@@ -14,6 +14,9 @@
 #include "LArRawEvent/LArDigit.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "AthenaKernel/CLASS_DEF.h"
+
+
+class McEventCollection;
 
 
 class LArHitEMap
@@ -42,7 +45,8 @@ public:
   ~LArHitEMap(void);
   bool AddEnergy(const IdentifierHash index, const float energy, const float time);
   bool AddEnergy(const Identifier cellid, const float energy, const float time);
-  bool BuildWindows(float deta, float dphi, float ptmin);
+  bool BuildWindows(const McEventCollection* mcCollptr,
+                    float deta, float dphi, float ptmin);
   int GetNbCells(void) const;
   inline const LArHitList& GetCell(const unsigned int index) const {return m_emap[index];} ;
   inline const std::vector<std::pair<float,float> >& GetTimeE(const IdentifierHash index) const { return  m_emap[index].getData();}

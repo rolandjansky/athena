@@ -146,13 +146,13 @@ if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
     svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 #==========================================================
-# Use LZIB for compression of temporary outputs of AthenaMP
+# Use ZLIB for compression of all temporary outputs
 #==========================================================
-if hasattr(runArgs, "outputESDFile") and '_000' in runArgs.outputESDFile:
+if hasattr(runArgs, "outputESDFile") and ('_000' in runArgs.outputESDFile or 'tmp.' in runArgs.outputESDFile):
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
-if hasattr(runArgs, "outputAODFile") and '_000' in runArgs.outputAODFile:
+if hasattr(runArgs, "outputAODFile") and ('_000' in runArgs.outputAODFile or 'tmp.' in runArgs.outputAODFile):
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 

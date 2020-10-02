@@ -247,24 +247,24 @@ if doPixel:
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
 
-        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                      UseDeadmapConditions=(not athenaCommonFlags.isOnline()),
-                                      UseDCSStateConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
-                                      UseDCSStatusConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
-                                      UseTDAQConditions=athenaCommonFlags.isOnline(),
-                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
-                                      UseCalibConditions=True,
-                                      UseCablingConditions=useCablingConditions,
-                                      CablingMapFileName=IdMappingDat)
+        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                 UseCablingConditions=useCablingConditions,
+                                 CablingMapFileName=IdMappingDat)
+        if athenaCommonFlags.isOnline():
+            alg.ReadDeadMapKey = ''
+        condSeq += alg
 
     if useNewDeadmapFormat:
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
         if not hasattr(condSeq, "PixelDeadMapCondAlg"):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+            alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="/PIXEL/PixelModuleFeMask")
+            if athenaCommonFlags.isOnline():
+                alg.ReadKey = ''
+            condSeq += alg
 
-    if not athenaCommonFlags.isOnline():
+    if globalflags.DataSource=='data' and InDetFlags.usePixelDCS():
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
             conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
@@ -442,7 +442,6 @@ if doPixel:
     InDetClusterMakerTool.PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool
 else:
     InDetClusterMakerTool.PixelCablingSvc = None
-    InDetClusterMakerTool.PixelModuleData = ""
     InDetClusterMakerTool.PixelChargeCalibCondData = ""
     InDetClusterMakerTool.PixelLorentzAngleTool = None
     InDetClusterMakerTool.PixelOfflineCalibData = ""

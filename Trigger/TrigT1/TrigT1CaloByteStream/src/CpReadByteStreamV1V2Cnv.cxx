@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -117,7 +117,7 @@ StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
 
   // get SourceIDs
   const std::vector<uint32_t>& vID1(m_tool1->sourceIDs(nm));
-  const std::vector<uint32_t>& vID2(m_tool2->sourceIDs(nm));
+  const std::vector<uint32_t>& vID2(m_tool2->sourceIDs());
 
   // get ROB fragments
   IROBDataProviderSvc::VROBFRAG robFrags1;
@@ -147,7 +147,7 @@ StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
   }
   // Post-LS1 data
   if (robFrags2.size() > 0) {
-    StatusCode sc = m_tool2->convert(robFrags2, towerCollection);
+    StatusCode sc = m_tool2->convert(nm, robFrags2, towerCollection);
     if ( sc.isFailure() ) {
       m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
       delete towerCollection;

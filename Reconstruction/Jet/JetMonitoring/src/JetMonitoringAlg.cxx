@@ -52,7 +52,7 @@ StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
       const xAOD::Jet *trigjet = dynamic_cast<const xAOD::Jet*>(*j);
       tmpList.push_back( trigjet );
     }
-    auto sort = [this] (const xAOD::Jet * j1, const xAOD::Jet * j2) {return j1->p4().Et() > j2->p4().Et(); } ;
+    auto sort = [] (const xAOD::Jet * j1, const xAOD::Jet * j2) {return j1->p4().Et() > j2->p4().Et(); } ;
     tmpList.sort( sort );
     ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
     for(const xAOD::Jet* jet : tmpList ) tmpCont.push_back(jet);

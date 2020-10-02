@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TriggerJobOpts/runHLT_standalone.py
@@ -60,6 +61,7 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     doCosmicSlice     = True
+    doUnconventionalTrackingSlice   = True
     reverseViews      = False
     filterViews       = False
     enabledSignatures = []

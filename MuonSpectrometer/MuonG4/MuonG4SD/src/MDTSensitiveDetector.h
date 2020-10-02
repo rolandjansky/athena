@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class MDTSensitiveDetector
@@ -88,8 +88,8 @@ FRIEND_TEST( MDTSensitiveDetectortest, GetIdentifier );
 
 public:
     /** construction/destruction */
-    MDTSensitiveDetector(const std::string& name, const std::string& hitCollectionName);
-    ~MDTSensitiveDetector() {}
+    MDTSensitiveDetector(const std::string& name, const std::string& hitCollectionName, const unsigned int nTubesMax);
+    ~MDTSensitiveDetector()=default;
     
     /** member functions */
     void   Initialize(G4HCofThisEvent* HCE) override final;

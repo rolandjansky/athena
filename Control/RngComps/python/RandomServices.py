@@ -18,8 +18,8 @@ AthEngines = {
 
 def dSFMT(seed, name="AtDSFMTGenSvc"):
     """Return a ComponentAccumulator containing an AtDSFMTGenSvc with seed"""
-    acc = ComponentAccumulator(name)
-    service = AtDSFMTGenSvc()
+    acc = ComponentAccumulator()
+    service = AtDSFMTGenSvc(name)
     service.Seeds.append(seed)
     acc.addService(service)
     return acc

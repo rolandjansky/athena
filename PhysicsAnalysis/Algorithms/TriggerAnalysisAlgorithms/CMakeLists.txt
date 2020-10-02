@@ -27,9 +27,6 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-  # FIX ME: temporarily disabled as part of the migration of AnalysisBase
-  #         to master
-
   atlas_add_test( TriggerAlgorithmsTestJobData
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type data --unit-test
      PROPERTIES TIMEOUT 600 )

@@ -33,7 +33,7 @@ def collectHypos( steps ):
         __log.debug( "collecting hypos from step " + stepSeq.getName() )
 #        start = {}
         for seq,algs in six.iteritems (flatAlgorithmSequences( stepSeq )):
-            for alg in algs:
+            for alg in sorted(algs, key=lambda t: str(t.name)):
                 if isSequence( alg ):
                     continue
                 # will replace by function once dependencies are sorted
@@ -45,7 +45,7 @@ def collectHypos( steps ):
                 else:
                     __log.verbose("Not a hypo" + alg.getName())
 
-    return hypos
+    return OrderedDict(hypos)
 
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
@@ -159,7 +159,7 @@ def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
     decisionObjects.update(decObjHypo)
     decisionObjects.update(decObjFilter)
     decisionObjects.update(decObjSummary)
-    return sorted(decisionObjects)
+    return list(sorted(decisionObjects))
 
 def triggerSummaryCfg(flags, hypos):
     """
@@ -335,9 +335,10 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
-    for item, modules in six.iteritems (ItemModuleDict):
-        __log.debug('adding to serialiser list: %s, modules: %s', item, modules)
-        serialiser.addCollection(item, modules)
+    for item, modules in ItemModuleDict.items():
+        sModules = sorted(modules)
+        __log.debug('adding to serialiser list: %s, modules: %s', item, sModules)
+        serialiser.addCollection(item, sModules)
 
     # Tools adding stream tags and trigger bits to HLT result
     stmaker = StreamTagMakerToolCfg()
@@ -433,10 +434,17 @@ def triggerPOOLOutputCfg(flags, edmSet):
     return acc
 
 
-def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
+def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decObj, decObjHypoOut ):
 
     HLTEDMCreatorAlg, HLTEDMCreator=CompFactory.getComps("HLTEDMCreatorAlg","HLTEDMCreator",)
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, addExtraCollectionsToEDMList
+
+    __log.info( "Number of EDM items in triggerMergeViewsAndAddMissingEDMCfg: {}".format(len(TriggerHLTListRun3)) )
+    if flags.Trigger.ExtraEDMList:
+        __log.info( "Adding extra collections to EDM: {}".format(flags.Trigger.ExtraEDMList) )
+        addExtraCollectionsToEDMList(TriggerHLTListRun3, flags.Trigger.ExtraEDMList)
+        __log.info( "Number of EDM items after adding extra collections: {}".format(len(TriggerHLTListRun3)) )
+
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")
 
@@ -577,14 +585,16 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
 
     # Add HLT Navigation to EDM list
     from TrigEDMConfig import TriggerEDMRun3
+    __log.info( "Number of EDM items before adding navigation: {}".format(len(TriggerEDMRun3.TriggerHLTListRun3)) )
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
+    __log.info( "Number of EDM items after adding navigation: {}".format(len(TriggerEDMRun3.TriggerHLTListRun3)) )
 
     # Configure output writing
     outputAcc, edmSet = triggerOutputCfg( flags, summaryAlg )
     acc.merge( outputAcc )
 
     if edmSet:
-        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
+        mergingAlg = triggerMergeViewsAndAddMissingEDMCfg( flags, [edmSet] , hypos, viewMakers, decObj, decObjHypoOut )
         acc.addEventAlgo( mergingAlg, sequenceName="HLTFinalizeSeq" )
 
     return acc

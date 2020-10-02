@@ -424,8 +424,9 @@ namespace xAOD {
       }
 
       // Check if the EventFormat branch is available:
-      static const char* EVENTFORMAT_BRANCH_NAME = "EventFormat";
-      if( ! m_inMetaTree->GetBranch( EVENTFORMAT_BRANCH_NAME ) ) {
+      static const std::string eventFormatBranchName =
+         Utils::getFirstBranchMatch( m_inMetaTree, "EventFormat");
+      if( ! m_inMetaTree->GetBranch( eventFormatBranchName.c_str() ) ) {
          // This can happen when the file was produced by an Athena job that
          // didn't have any input events itself. This means that the file
          // doesn't actually have any useful metadata.
@@ -439,7 +440,7 @@ namespace xAOD {
       // Read in the event format object:
       EventFormat* format = 0; ::TBranch* br = 0;
       const Int_t status =
-         m_inMetaTree->SetBranchAddress( EVENTFORMAT_BRANCH_NAME,
+         m_inMetaTree->SetBranchAddress( eventFormatBranchName.c_str(),
                                          &format, &br );
       if( status < 0 ) {
          ::Error( "xAOD::TEvent::readFrom",
@@ -3398,5 +3399,6 @@ namespace xAOD {
 
       return getOutputObject( key, ti, metadata );
    }
+
 
 } // namespace xAOD

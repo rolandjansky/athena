@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsData/PixelModuleData.h"
@@ -35,27 +35,6 @@ int PixelModuleData::getChipStatus(const int chanNum) const {
 }
 
 // Switch parameters
-void PixelModuleData::setUseCalibConditions(bool UseCalibConditions) { m_useCalibConditions = UseCalibConditions; }
-bool PixelModuleData::getUseCalibConditions() const { return m_useCalibConditions; }
-
-void PixelModuleData::setUseDeadmapConditions(bool UseDeadmapConditions) { m_useDeadmapConditions = UseDeadmapConditions; }
-bool PixelModuleData::getUseDeadmapConditions() const { return m_useDeadmapConditions; }
-
-void PixelModuleData::setUseDCSStateConditions(bool UseDCSStateConditions) { m_useDCSStateConditions = UseDCSStateConditions; }
-bool PixelModuleData::getUseDCSStateConditions() const { return m_useDCSStateConditions; }
-
-void PixelModuleData::setUseDCSStatusConditions(bool UseDCSStatusConditions) { m_useDCSStatusConditions = UseDCSStatusConditions; }
-bool PixelModuleData::getUseDCSStatusConditions() const { return m_useDCSStatusConditions; }
-
-void PixelModuleData::setUseDCSHVConditions(bool UseDCSHVConditions) { m_useDCSHVConditions = UseDCSHVConditions; }
-bool PixelModuleData::getUseDCSHVConditions() const { return m_useDCSHVConditions; }
-
-void PixelModuleData::setUseDCSTemperatureConditions(bool UseDCSTemperatureConditions) { m_useDCSTemperatureConditions = UseDCSTemperatureConditions; }
-bool PixelModuleData::getUseDCSTemperatureConditions() const { return m_useDCSTemperatureConditions; }
-
-void PixelModuleData::setUseTDAQConditions(bool UseTDAQConditions) { m_useTDAQConditions = UseTDAQConditions; }
-bool PixelModuleData::getUseTDAQConditions() const { return m_useTDAQConditions; }
-
 void PixelModuleData::setUseCablingConditions(bool UseCablingConditions) { m_useCablingConditions = UseCablingConditions; }
 bool PixelModuleData::getUseCablingConditions() const { return m_useCablingConditions; }
 

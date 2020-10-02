@@ -4,6 +4,7 @@ from collections import OrderedDict as odict
 
 from ..Base.L1MenuFlags import L1MenuFlags
 from ..Base.MenuConfObj import TopoMenuDef
+from ..Config.LegacyTopoMergerMap import createMergerBoard
 
 def defineLegacyInputsMenu():
 
@@ -12,6 +13,7 @@ def defineLegacyInputsMenu():
 
     #----------------------------------------
     # SLOT 7 / CON 0-3 (EM1, EM2, TAU1, TAU2)
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/LevelOneCentralTriggerSetup#CTPIN_Slot_7
     #----------------------------------------
     legacyBoards["Ctpin7"] = odict()
     legacyBoards["Ctpin7"]["legacy"] = True
@@ -56,6 +58,7 @@ def defineLegacyInputsMenu():
 
     #--------------------------------------
     # SLOT 8 / CON 0 (JET1, JET2, EN1, EN2)
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/LevelOneCentralTriggerSetup#CTPIN_Slot_8
     #--------------------------------------
     legacyBoards["Ctpin8"] = odict()
     legacyBoards["Ctpin8"]["legacy"] = True
@@ -127,7 +130,7 @@ def defineLegacyInputsMenu():
             "legacy" : True,
             "algorithmGroups" : [
                 {
-                "fpga" : 0,
+                    "fpga" : 0,
                     "clock" : 0,
                     "algorithms" : [
                         TopoMenuDef( "INVM_AJ_HighMass",     outputbits = (0,3), outputlines = [ "900INVM9999-AJ30s6-AJ20s6",
@@ -147,66 +150,67 @@ def defineLegacyInputsMenu():
                         TopoMenuDef( "05MINDPHI-EM12s6-XE0", outputbits = 14 ),
                         TopoMenuDef( "400INVM9999-AJ30s6pETA31-AJ20s6p31ETA49", outputbits = 15 ),
                     ]
-            },
-            {
-                "fpga" : 0,
-                "clock" : 1,
-                "algorithms" : [
-                    TopoMenuDef( "05MINDPHI-EM15s6-XE0",              outputbits = 0 ),
-                    TopoMenuDef( "25MT-EM12s6-XE0",                   outputbits = 1 ),
-                    TopoMenuDef( "ZEE-EM20shi2",                      outputbits = 2 ),
-                    TopoMenuDef( "35MT-EM15s6-XE0",                   outputbits = 3 ),
-                    TopoMenuDef( "0DR03-EM7ab-CJ15ab",                outputbits = 4 ),
-                    TopoMenuDef( "10MINDPHI-J20s2-XE30",              outputbits = 5 ),
-                    TopoMenuDef( "10MINDPHI-J20s2-XE50",              outputbits = 6 ),
-                    TopoMenuDef( "100RATIO-0MATCH-TAU30si2-EMall",    outputbits = 7 ),
-                    TopoMenuDef( "NOT-0MATCH-TAU30si1-EMall",         outputbits = 8 ),
-                    TopoMenuDef( "LAR-EM20shi1",                      outputbits = 9 ),
-                    TopoMenuDef( "LAR-J100s1",                        outputbits = 10 ),
-                    TopoMenuDef( "NOT-02MATCH-EM10s1-AJj15allpETA49", outputbits = 11 ),
-                    TopoMenuDef( "27DPHI32-EMs1-EMs6",                outputbits = 12 ),
-                    TopoMenuDef( "35MT-EM12s6-XE0",                   outputbits = 13 ),
-                    TopoMenuDef( "15MINDPHI-EM12s6-XE0",              outputbits = 14 ),
-                    TopoMenuDef( "15MINDPHI-EM15s6-XE0",              outputbits = 15 ),
-                ]
-            },
-            {
-                "fpga" : 1,
-                "clock" : 0,
-                "algorithms" : [
-                    TopoMenuDef( "1DISAMB-EM15his2-TAU12abi-J25ab",       outputbits = 2 ),
-                    TopoMenuDef( "1DISAMB-J25ab-0DR28-EM15his2-TAU12abi", outputbits = 3 ),
-                    TopoMenuDef( "2INVM9-2MU6ab",                         outputbits = 4 ),
-                    TopoMenuDef( "2INVM8-ONEBARREL-MU6ab-MU4ab",          outputbits = 6 ),
-                    TopoMenuDef( "5DETA99-5DPHI99-MU6ab-MU4ab",           outputbits = 8 ),
-                    TopoMenuDef( "5DETA99-5DPHI99-2MU6ab",                outputbits = 9 ),
-                    TopoMenuDef( "1DISAMB-TAU20abi-TAU12abi-J25ab",       outputbits = 10 ),
-                    TopoMenuDef( "0DR28-MU10ab-TAU12abi",                 outputbits = 11 ),
-                    TopoMenuDef( "0DETA20-0DPHI20-TAU20abi-TAU12abi",     outputbits = 12 ),
-                    TopoMenuDef( "DISAMB-0DR28-EM15his2-TAU12abi",        outputbits = 15 ),
-                ]
-            },
-            {
-                "fpga" : 1,
-                "clock" : 1,
-                "algorithms" : [
-                    TopoMenuDef( "DISAMB-30INVM-EM20his2-TAU12ab", outputbits = 0 ),
-                    TopoMenuDef( "0DR22-2MU6ab",                   outputbits = 4 ),
-                    TopoMenuDef( "7INVM15-2MU4ab",                 outputbits = 5 ),
-                    TopoMenuDef( "0DR22-MU6ab-MU4ab",              outputbits = 6 ),
-                    TopoMenuDef( "0DR15-2MU4ab",                   outputbits = 7 ),
-                    TopoMenuDef( "0DR24-2MU4ab",                   outputbits = 8 ),
-                    TopoMenuDef( "0DR15-2MU6ab",                   outputbits = 9 ),
-                    TopoMenuDef( "2INVM9-2MU4ab",                  outputbits = 10 ),
-                    TopoMenuDef( "2INVM9-MU6ab-MU4ab",             outputbits = 11 ),
-                    TopoMenuDef( "INVM_NFF",                       outputbits = (12,15), outputlines = [ "600INVM9999-J30s6-AJ20s6", 
-                                                                                                         "500INVM9999-J30s6-AJ20s6",
-                                                                                                         "400INVM9999-J30s6-AJ20s6",
-                                                                                                         "200INVM9999-J30s6-AJ20s6" ])
-                ]
-            }
-        ]
-    }]
+                },
+                {
+                    "fpga" : 0,
+                    "clock" : 1,
+                    "algorithms" : [
+                        TopoMenuDef( "05MINDPHI-EM15s6-XE0",              outputbits = 0 ),
+                        TopoMenuDef( "25MT-EM12s6-XE0",                   outputbits = 1 ),
+                        TopoMenuDef( "ZEE-EM20shi2",                      outputbits = 2 ),
+                        TopoMenuDef( "35MT-EM15s6-XE0",                   outputbits = 3 ),
+                        TopoMenuDef( "0DR03-EM7ab-CJ15ab",                outputbits = 4 ),
+                        TopoMenuDef( "10MINDPHI-J20s2-XE30",              outputbits = 5 ),
+                        TopoMenuDef( "10MINDPHI-J20s2-XE50",              outputbits = 6 ),
+                        TopoMenuDef( "100RATIO-0MATCH-TAU30si2-EMall",    outputbits = 7 ),
+                        TopoMenuDef( "NOT-0MATCH-TAU30si1-EMall",         outputbits = 8 ),
+                        TopoMenuDef( "LAR-EM20shi1",                      outputbits = 9 ),
+                        TopoMenuDef( "LAR-J100s1",                        outputbits = 10 ),
+                        TopoMenuDef( "NOT-02MATCH-EM10s1-AJj15allpETA49", outputbits = 11 ),
+                        TopoMenuDef( "27DPHI32-EMs1-EMs6",                outputbits = 12 ),
+                        TopoMenuDef( "35MT-EM12s6-XE0",                   outputbits = 13 ),
+                        TopoMenuDef( "15MINDPHI-EM12s6-XE0",              outputbits = 14 ),
+                        TopoMenuDef( "15MINDPHI-EM15s6-XE0",              outputbits = 15 ),
+                    ]
+                },
+                {
+                    "fpga" : 1,
+                    "clock" : 0,
+                    "algorithms" : [
+                        TopoMenuDef( "1DISAMB-EM15his2-TAU12abi-J25ab",       outputbits = 2 ),
+                        TopoMenuDef( "1DISAMB-J25ab-0DR28-EM15his2-TAU12abi", outputbits = 3 ),
+                        TopoMenuDef( "2INVM9-2MU6ab",                         outputbits = 4 ),
+                        TopoMenuDef( "2INVM8-ONEBARREL-MU6ab-MU4ab",          outputbits = 6 ),
+                        TopoMenuDef( "5DETA99-5DPHI99-MU6ab-MU4ab",           outputbits = 8 ),
+                        TopoMenuDef( "5DETA99-5DPHI99-2MU6ab",                outputbits = 9 ),
+                        TopoMenuDef( "1DISAMB-TAU20abi-TAU12abi-J25ab",       outputbits = 10 ),
+                        TopoMenuDef( "0DR28-MU10ab-TAU12abi",                 outputbits = 11 ),
+                        TopoMenuDef( "0DETA20-0DPHI20-TAU20abi-TAU12abi",     outputbits = 12 ),
+                        TopoMenuDef( "DISAMB-0DR28-EM15his2-TAU12abi",        outputbits = 15 ),
+                    ]
+                },
+                {
+                    "fpga" : 1,
+                    "clock" : 1,
+                    "algorithms" : [
+                        TopoMenuDef( "DISAMB-30INVM-EM20his2-TAU12ab", outputbits = 0 ),
+                        TopoMenuDef( "0DR22-2MU6ab",                   outputbits = 4 ),
+                        TopoMenuDef( "7INVM15-2MU4ab",                 outputbits = 5 ),
+                        TopoMenuDef( "0DR22-MU6ab-MU4ab",              outputbits = 6 ),
+                        TopoMenuDef( "0DR15-2MU4ab",                   outputbits = 7 ),
+                        TopoMenuDef( "0DR24-2MU4ab",                   outputbits = 8 ),
+                        TopoMenuDef( "0DR15-2MU6ab",                   outputbits = 9 ),
+                        TopoMenuDef( "2INVM9-2MU4ab",                  outputbits = 10 ),
+                        TopoMenuDef( "2INVM9-MU6ab-MU4ab",             outputbits = 11 ),
+                        TopoMenuDef( "INVM_NFF",                       outputbits = (12,15), outputlines = [ "600INVM9999-J30s6-AJ20s6", 
+                                                                                                             "500INVM9999-J30s6-AJ20s6",
+                                                                                                             "400INVM9999-J30s6-AJ20s6",
+                                                                                                             "200INVM9999-J30s6-AJ20s6" ])
+                    ]
+                }
+            ]
+        }
+    ]
 
     legacyTopoBoards["LegacyTopo1"] = odict()
     legacyTopoBoards["LegacyTopo1"]["legacy"] = True
@@ -218,7 +222,7 @@ def defineLegacyInputsMenu():
             "legacy" : True,
             "algorithmGroups" : [
                 {
-                "fpga" : 0,
+                    "fpga" : 0,
                     "clock" : 0,
                     "algorithms" : [
                         TopoMenuDef( "05MINDPHI-AJj10s6-XE0", outputbits = 0  ),
@@ -309,4 +313,6 @@ def defineLegacyInputsMenu():
     L1MenuFlags.legacyBoards().update( legacyBoards )  # EM1/2, TAU1/2, JET1/2, EN1/2
 
     L1MenuFlags.legacyBoards().update( legacyTopoBoards) # LegacyTopo0/1
+
+    L1MenuFlags.legacyBoards().update( createMergerBoard( legacyTopoBoards["LegacyTopo0"], legacyTopoBoards["LegacyTopo1"] ) )
 

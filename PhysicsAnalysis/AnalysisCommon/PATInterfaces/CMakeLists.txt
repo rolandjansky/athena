@@ -1,17 +1,7 @@
-# $Id: CMakeLists.txt 744627 2016-05-03 18:51:43Z krasznaa $
-################################################################################
-# Package: PATInterfaces
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PATInterfaces )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   PRIVATE
-   PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex )
@@ -23,7 +13,7 @@ atlas_add_root_dictionary( PATInterfaces _dictionary
    ROOT_HEADERS PATInterfaces/SystematicVariation.h
    PATInterfaces/SystematicSet.h PATInterfaces/SystematicRegistry.h
    PATInterfaces/SystematicsUtil.h PATInterfaces/StreamTestWrapper.h
-   Root/LinkDef.h
+   PATInterfaces/CorrectionCode.h Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
 # Component(s) in the package:

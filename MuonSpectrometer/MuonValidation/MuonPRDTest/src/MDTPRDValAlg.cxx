@@ -529,7 +529,7 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
   }
 
   
-  MdtHitIdHelper* mdthelper = MdtHitIdHelper::GetHelper();
+  MdtHitIdHelper* mdthelper = MdtHitIdHelper::GetHelper(m_idHelperSvc->mdtIdHelper().tubeMax());
   
   for(MDTSimHitCollection::const_iterator i_hit=p_collection->begin(); i_hit!=p_collection->end(); ++i_hit) {
 
