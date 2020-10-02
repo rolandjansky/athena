@@ -9,7 +9,7 @@
 #include "RoiDescriptor/RoiDescriptor.h"
 #include "IRegionSelector/RoiUtil.h"
 #include "IRegionSelector/IRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 
 namespace PESA
 {
@@ -276,7 +276,7 @@ namespace PESA
     }
 
     if (m_requestSCTRobs){
-      m_regionSelector_sct->DetROBIDListUint( SCT, *roi, uIntListOfRobs );
+      m_regionSelector_sct->ROBIDList( *roi, uIntListOfRobs );
 
       ATH_MSG_DEBUG( "list of ROBs ID in SCT: " );
       for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)

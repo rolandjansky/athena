@@ -10,8 +10,8 @@ class IDTrigRoiUpdater ( PESA__TrigRoiUpdater ):
     print( "\n\n\n\nRoiUpdater:: ", name ) 
     
 
-    from RegionSelector.RegSelToolConfif import makeRegSelTool_Pixel
-    from RegionSelector.RegSelToolConfif import makeRegSelTool_SCT
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
 
     self.RegSelTool_Pixel = makeRegSelTool_Pixel()
     self.RegSelTool_SCT   = makeRegSelTool_SCT()
