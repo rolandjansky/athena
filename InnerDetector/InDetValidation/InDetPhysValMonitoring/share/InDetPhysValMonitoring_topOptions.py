@@ -20,7 +20,7 @@ MyArgs = GetCustomAthArgs()
 from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
 InDetPhysValFlags.setTruthStrategy.set_Value_and_Lock(MyArgs.HSFlag)
 InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(MyArgs.doExpertPlots)
-InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True)
+InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(not MyArgs.doExpertPlots)
 InDetPhysValFlags.doValidateTracksInBJets.set_Value_and_Lock(MyArgs.doTracksInBJets)
 InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(MyArgs.doTracksInJets)
 InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(MyArgs.doTightPrimary)
