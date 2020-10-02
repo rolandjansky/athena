@@ -169,8 +169,6 @@ def _loadSingleFile(fname, args):
             for dic in conf
             if isinstance(dic, dict)
         ]
-    # import code
-    # code.interact(local=locals())
     return conf
 
 
