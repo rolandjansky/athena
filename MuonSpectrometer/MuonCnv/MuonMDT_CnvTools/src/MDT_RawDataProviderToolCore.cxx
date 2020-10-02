@@ -48,17 +48,15 @@ StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer( const std::v
 {
   ATH_MSG_VERBOSE("convert(): " << vecRobs.size()<<" ROBFragments.");    
 
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator itFrag;
-  
-  for (itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
+  for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* frag : vecRobs)
     {
       //convert only if data payload is delivered
-      if ( (**itFrag).rod_ndata()!=0 )
+      if ( frag->rod_ndata()!=0 )
 	{
 	  //std::vector<IdentifierHash> coll =
-	  //                          to_be_converted(**itFrag,collections);
+	  //                          to_be_converted(*frag,collections);
 	  
-	  if (m_decoder->fillCollections(**itFrag, mdtContainer).isFailure())
+	  if (m_decoder->fillCollections(*frag, mdtContainer).isFailure())
             {
 	      // store the error conditions into the StatusCode and continue
             }
@@ -67,7 +65,7 @@ StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer( const std::v
 	{
 	  if(msgLvl(MSG::DEBUG))
 	    {
-	      uint32_t sourceId= (**itFrag).source_id();
+	      uint32_t sourceId= frag->source_id();
 	      msg(MSG::DEBUG) << " ROB " << MSG::hex << sourceId
 			    << " is delivered with an empty payload" << MSG::dec;
 	    }

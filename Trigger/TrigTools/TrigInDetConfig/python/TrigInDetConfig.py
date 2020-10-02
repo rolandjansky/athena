@@ -386,15 +386,7 @@ def TrigInDetCondCfg( flags ):
   from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 
   # module parameters
-  acc.merge(PixelConfigCondAlgCfg(flags,
-                                  UseCalibConditions=False,
-                                  UseDeadmapConditions=True,
-                                  UseDCSStateConditions=False,
-                                  UseDCSStatusConditions=False,
-                                  UseDCSHVConditions=True,
-                                  UseDCSTemperatureConditions=True,
-                                  UseTDAQConditions=False))
-
+  acc.merge(PixelConfigCondAlgCfg(flags))
   # charge calibration
   acc.merge(PixelChargeCalibCondAlgCfg(flags))
 # NEW FOR RUN3  acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))

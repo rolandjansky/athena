@@ -402,9 +402,9 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   ATH_MSG_DEBUG ("");
 
   // Jared - ToT Implementation
-  dEdx = m_TRTdEdxTool->dEdx(&track, false); // Divide by L, exclude HT hits
-  double usedHits = m_TRTdEdxTool->usedHits(&track, false);
-  prob_El_ToT = m_TRTdEdxTool->getTest(dEdx, pTrk, Trk::electron, Trk::pion, usedHits);
+  dEdx = m_TRTdEdxTool->dEdx(ctx,&track, false); // Divide by L, exclude HT hits
+  double usedHits = m_TRTdEdxTool->usedHits(ctx,&track, false);
+  prob_El_ToT = m_TRTdEdxTool->getTest(ctx,dEdx, pTrk, Trk::electron, Trk::pion, usedHits);
 
   // Limit the probability values the upper and lower limits that are given/trusted for each part:
   double limProbHT = HTcalc->Limit(prob_El_HT);

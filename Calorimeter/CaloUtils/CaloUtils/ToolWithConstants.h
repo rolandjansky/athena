@@ -20,6 +20,7 @@
 
 
 #include "CaloUtils/exceptions.h"
+#include "CaloInterface/IToolWithConstants.h"
 #include "CaloConditions/ToolConstants.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -434,7 +435,7 @@ private:
 template <class BASE>
   ATH_REQUIRES( requires (BASE& b, Gaudi::Property<int>& p) { { b.declareProperty(p) }; } )
 class ToolWithConstants
-  : public BASE
+  : public extends<BASE, IToolWithConstants>
 {
 public:
   /// Shorthand for derived classes.
@@ -442,7 +443,7 @@ public:
 
 
   /// Inherit constructor.
-  using BASE::BASE;
+  using extends<BASE, IToolWithConstants>::extends;
 
 
   /// Convenient alias for the Context type.
@@ -485,7 +486,7 @@ public:
    * @param ctx Event context.
    */
   virtual StatusCode mergeConstants (CaloRec::ToolConstants& out,
-                                     const EventContext& ctx) const;
+                                     const EventContext& ctx) const override;
 
 
   /**

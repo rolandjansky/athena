@@ -149,8 +149,8 @@ if ( True ) :
     #    ":HLT_IDTrack_FS_FTF",
     #    ":HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
 
-
-    "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+    "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_FTF",
+    "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_IDTrig",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
 

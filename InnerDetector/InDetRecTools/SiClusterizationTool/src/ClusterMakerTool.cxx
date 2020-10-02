@@ -60,12 +60,7 @@ StatusCode  ClusterMakerTool::initialize(){
    if (not m_pixelCabling.empty()) {
      ATH_CHECK(m_pixelCabling.retrieve());
    }
-   if (not m_moduleDataKey.empty()) {
-     ATH_CHECK(m_moduleDataKey.initialize());
-   }
-   if (not m_chargeDataKey.empty()) {
-     ATH_CHECK(m_chargeDataKey.initialize());
-   }
+   ATH_CHECK(m_chargeDataKey.initialize(SG::AllowEmpty));
 
    if (not m_pixelLorentzAngleTool.empty()) {
      ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
@@ -136,13 +131,11 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   	return nullptr;
   }
   
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
-
   if ( errorStrategy==2 && m_forceErrorStrategy1A ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
-  if (moduleData->getUseCalibConditions()) {
+  if (!m_chargeDataKey.empty()) {
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
     int nRDO=rdoList.size();
     chargeList.reserve(nRDO);
     for (int i=0; i<nRDO; i++) {
@@ -283,9 +276,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
   if ( errorStrategy==2 && m_forceErrorStrategy1B ) errorStrategy=1;
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
-
   // Fill vector of charges and compute charge balance
   const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
   if (not design){
@@ -300,51 +290,60 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   float qColMin = 0;  float qColMax = 0;
   std::vector<float> chargeList;
   int nRDO=rdoList.size();
-  if (moduleData->getUseCalibConditions()) { chargeList.reserve(nRDO); }
-  for (int i=0; i<nRDO; i++) {
-     Identifier pixid=rdoList[i];
-     int ToT=totList[i];
-     
-     float charge = ToT;
-     if (moduleData->getUseCalibConditions()) {
+  if (!m_chargeDataKey.empty()) { 
+    chargeList.reserve(nRDO); 
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    for (int i=0; i<nRDO; i++) {
+      Identifier pixid=rdoList[i];
+      int ToT=totList[i];
 
-       Identifier moduleID = pixelID.wafer_id(pixid);
-       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-       int circ = m_pixelCabling->getFE(&pixid,moduleID);
-       int type = m_pixelCabling->getPixelType(pixid);
-       charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
-       if (moduleHash<12 || moduleHash>2035) {
-         charge = ToT/8.0*(8000.0-1200.0)+1200.0;
-       }
-
-       chargeList.push_back(charge);
-     }
-     //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
-     int row = pixelID.phi_index(pixid);
-     int col = pixelID.eta_index(pixid);
-     if (row == rowMin) qRowMin += charge;
-	   if (row < rowMin){ 
-       rowMin = row; 
-       qRowMin = charge;
-	   }
-	
-     if (row == rowMax) qRowMax += charge;
-	   if (row > rowMax){
-       rowMax = row;
-	     qRowMax = charge;
-	   }
-     if (col == colMin) qColMin += charge;
-	   if (col < colMin){
-       colMin = col;
-       qColMin = charge;
-	   }
-
-     if (col == colMax) qColMax += charge;
-	   if (col > colMax){
-       colMax = col;
-	     qColMax = charge;
-	   }
+      float charge = ToT;
+      Identifier moduleID = pixelID.wafer_id(pixid);
+      IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
+      int circ = m_pixelCabling->getFE(&pixid,moduleID);
+      int type = m_pixelCabling->getPixelType(pixid);
+      charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
+      if (moduleHash<12 || moduleHash>2035) {
+        charge = ToT/8.0*(8000.0-1200.0)+1200.0;
+      }
+      chargeList.push_back(charge);
+    }
   }
+
+  for (int i=0; i<nRDO; i++) {
+    Identifier pixid=rdoList[i];
+    int ToT=totList[i];
+
+    float charge = ToT;
+    if (!m_chargeDataKey.empty()) { charge=chargeList[i]; }
+
+    //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
+    int row = pixelID.phi_index(pixid);
+    int col = pixelID.eta_index(pixid);
+    if (row == rowMin) qRowMin += charge;
+    if (row < rowMin){ 
+      rowMin = row; 
+      qRowMin = charge;
+    }
+
+    if (row == rowMax) qRowMax += charge;
+    if (row > rowMax){
+      rowMax = row;
+      qRowMax = charge;
+    }
+    if (col == colMin) qColMin += charge;
+    if (col < colMin){
+      colMin = col;
+      qColMin = charge;
+    }
+
+    if (col == colMax) qColMax += charge;
+    if (col > colMax){
+      colMax = col;
+      qColMax = charge;
+    }
+  }
+
   Identifier newClusterID = pixelID.pixel_id(pixelID.wafer_id(clusterID),rowMin,colMin);
   // Compute omega for charge interpolation correction (if required)
   // Two pixels may have charge=0 (very rarely, hopefully)

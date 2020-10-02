@@ -29,9 +29,7 @@ StatusCode PixelConfigCondAlg::initialize() {
   }
 
   ATH_CHECK(m_condSvc.retrieve());
-
-  if (m_useDeadmapConditions) { ATH_CHECK(m_readDeadMapKey.initialize()); }
-
+  ATH_CHECK(m_readDeadMapKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -62,7 +60,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   // Set dead map
   //==============
   EventIDRange rangeDeadMap{start, stop};
-  if (m_useDeadmapConditions) {
+  if (!m_readDeadMapKey.empty()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readDeadMapKey, ctx);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {
@@ -111,13 +109,6 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   }
 
   // Switch parameters
-  writeCdo -> setUseCalibConditions(m_useCalibConditions);
-  writeCdo -> setUseDeadmapConditions(m_useDeadmapConditions);
-  writeCdo -> setUseDCSStateConditions(m_useDCSStateConditions);
-  writeCdo -> setUseDCSStatusConditions(m_useDCSStatusConditions);
-  writeCdo -> setUseDCSHVConditions(m_useDCSHVConditions);
-  writeCdo -> setUseDCSTemperatureConditions(m_useDCSTemperatureConditions);
-  writeCdo -> setUseTDAQConditions(m_useTDAQConditions);
   writeCdo -> setUseCablingConditions(m_useCablingConditions);
 
   // Digitization parameters

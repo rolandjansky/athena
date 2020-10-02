@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "PixelCabling/IPixelCablingSvc.h"
-#include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -145,9 +144,6 @@ private:
 
   ServiceHandle<IPixelCablingSvc> m_pixelCabling
   {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
-
-  SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
-  {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
 
   SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
   {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};

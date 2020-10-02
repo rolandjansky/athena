@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCBYTESTREAMCNV_H
@@ -38,6 +38,7 @@ class ISvcLocator;
 class StatusCode;
 class ZdcByteStreamTool;
 class ZdcByteStreamReadV1V2Tool;
+class StoreGateSvc;
 
 // Abstract factory to create the converter
 template <typename > class CnvFactory;
@@ -77,8 +78,9 @@ private:
 	/// Service for WRITING bytestream
 	ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
 
-	/// Message log
-	mutable MsgStream m_log;
+        ServiceHandle<StoreGateSvc> m_evtStore;
+
+        /// Message log
 	bool m_debug;
 };
 

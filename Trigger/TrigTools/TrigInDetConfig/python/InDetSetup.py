@@ -158,9 +158,6 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   #Pixel clusterisation
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
 
-  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-  PixelConfigCondAlg.UseCalibConditions = False
-
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool_" + signature,
                                                   SCTLorentzAngleTool = TrigSCTLorentzAngleTool,

@@ -68,7 +68,6 @@ protected:
      IntegerProperty m_splitClusters{this, "splitClusters", 0};
      ToolHandle<IInDetConditionsTool> m_summaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
      BooleanProperty m_useModuleMap{this, "UsePixelModuleMap", true, "Use bad modules map"};
-     BooleanProperty m_usePixelMap{this, "UseSpecialPixelMap", true, "Use bad pixel map"};
 
 };
 
