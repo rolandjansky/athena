@@ -48,6 +48,7 @@ AtlasDetectorID::AtlasDetectorID(void)
         m_PIXEL_ID(1),
         m_SCT_ID(2),
         m_TRT_ID(3),
+        m_HGTD_ID(4),
         m_LAR_EM_ID(1),
         m_LAR_HEC_ID(2),
         m_LAR_FCAL_ID(3),
@@ -99,6 +100,7 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_PIXEL_ID                (other.m_PIXEL_ID),
         m_SCT_ID                  (other.m_SCT_ID),
         m_TRT_ID                  (other.m_TRT_ID),
+        m_HGTD_ID                 (other.m_HGTD_ID),
         m_LAR_EM_ID               (other.m_LAR_EM_ID),
         m_LAR_HEC_ID              (other.m_LAR_HEC_ID),
         m_LAR_FCAL_ID             (other.m_LAR_FCAL_ID),
@@ -165,6 +167,7 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_PIXEL_ID              = other.m_PIXEL_ID;
         m_SCT_ID                = other.m_SCT_ID;
         m_TRT_ID                = other.m_TRT_ID;
+        m_HGTD_ID               = other.m_HGTD_ID;
         m_LAR_EM_ID             = other.m_LAR_EM_ID;
         m_LAR_HEC_ID            = other.m_LAR_HEC_ID;
         m_LAR_FCAL_ID           = other.m_LAR_FCAL_ID;
@@ -288,6 +291,16 @@ AtlasDetectorID::trt          (void) const
     // Pack field
     m_det_impl.pack       (indet_field_value(), result);
     m_indet_part_impl.pack(m_TRT_ID, result);
+    return (result);
+}
+
+Identifier
+AtlasDetectorID::hgtd        (void) const
+{
+    Identifier result((Identifier::value_type)0);
+    // Pack field
+    m_det_impl.pack       (indet_field_value(), result);
+    m_indet_part_impl.pack(m_HGTD_ID, result);
     return (result);
 }
 
@@ -625,6 +638,16 @@ AtlasDetectorID::is_trt         (const ExpandedIdentifier& id) const
     bool result = false;
     if ( is_indet(id) && id.fields() > 1 ){
         if ( id[1] == m_TRT_ID ) result = true;
+    }
+    return result;
+}
+
+bool
+AtlasDetectorID::is_hgtd        (const ExpandedIdentifier& id) const
+{
+    bool result = false;
+    if ( is_indet(id) && id.fields() > 1 ){
+        if ( id[1] == m_HGTD_ID) result = true;
     }
     return result;
 }
@@ -993,6 +1016,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
     m_PIXEL_ID              = -1;
     m_SCT_ID                = -1;
     m_TRT_ID                = -1;
+    m_HGTD_ID               = -1;
     m_FWD_ID                = -1;
     m_ALFA_ID               = -1;
     m_BCM_ID                = -1;
@@ -1120,6 +1144,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
             }
             return (1);
         }
+
         if (!m_isSLHC) {
             label = field->find_label("TRT");
             if (label) {
@@ -1152,6 +1177,38 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
                 return (1);
             }
         }
+
+        label = field->find_label("HGTD");
+        if (label) {
+            if (label->m_valued) {
+                m_HGTD_ID = label->m_value;
+            }
+            else {
+                if(m_msgSvc) {
+                    MsgStream log(m_msgSvc, "AtlasDetectorID" );
+                    log << MSG::ERROR << "initLevelsFromDict - label HGTD does NOT have a value "
+                        << endreq;
+                }
+                else {
+                    std::cout << "AtlasDetectorID::initLevelsFromDict - label HGTD does NOT have a value "
+                              << std::endl;
+                }
+                return (1);
+            }
+        }
+        else {
+            if(m_msgSvc) {
+                MsgStream log(m_msgSvc, "AtlasDetectorID" );
+                log << MSG::ERROR << "initLevelsFromDict - unable to find 'HGTD' label "
+                    << endreq;
+            }
+            else {
+                std::cout << "AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label "
+                          << std::endl;
+            }
+            return (1);
+        }
+
     }
 
 
