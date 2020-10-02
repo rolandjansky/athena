@@ -36,6 +36,13 @@
 #include "../CaloCellContainerAliasAlg.h"
 #include "../ToolConstantsCondAlg.h"
 
+//Includes for CaloTopoTowers
+#include "../CaloTowerGeometrySvc.h"
+#include "../CaloTopoClusterTowerMerger.h"
+#include "../CaloTopoClusterFromTowerMonitor.h"
+#include "../CaloTopoTowerFromClusterCalibrator.h"
+#include "../CaloTopoTowerFromClusterMaker.h"
+#include "../CaloTopoTowerMaker.h"
 
 DECLARE_COMPONENT( CaloTowerMonitor )
 DECLARE_COMPONENT( CaloTowerAlgorithm )
@@ -80,3 +87,10 @@ DECLARE_COMPONENT (CaloThinCellsByClusterAlg)
 DECLARE_COMPONENT (CaloThinCellsBySamplingAlg)
 DECLARE_COMPONENT (CaloCellContainerAliasAlg)
 DECLARE_COMPONENT (ToolConstantsCondAlg)
+
+DECLARE_COMPONENT( CaloTopoClusterFromTowerMonitor )
+DECLARE_COMPONENT( CaloTowerGeometrySvc )
+DECLARE_COMPONENT( CaloTopoClusterTowerMerger )
+DECLARE_COMPONENT( CaloTopoTowerFromClusterMaker )
+DECLARE_COMPONENT( CaloTopoTowerFromClusterCalibrator )
+DECLARE_COMPONENT( CaloTopoTowerMaker )
