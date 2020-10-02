@@ -45,7 +45,7 @@
 #ifndef XAOD_STANDALONE
 #include "AthenaBaseComps/AthCheckMacros.h"
 #else
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #endif
 
 

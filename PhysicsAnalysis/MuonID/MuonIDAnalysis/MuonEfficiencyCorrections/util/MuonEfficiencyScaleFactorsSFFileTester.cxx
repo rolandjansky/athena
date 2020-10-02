@@ -23,7 +23,7 @@
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #   include "xAODRootAccess/tools/ReturnCheck.h"
-#   include "AsgTools/Check.h"
+#   include "AsgMessaging/Check.h"
 #endif // ROOTCORE
 
 // EDM include(s):

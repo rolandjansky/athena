@@ -5,7 +5,7 @@
 // author: jie.yu@cern.ch
 
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #include "TLorentzVector.h"
 
 using namespace std;

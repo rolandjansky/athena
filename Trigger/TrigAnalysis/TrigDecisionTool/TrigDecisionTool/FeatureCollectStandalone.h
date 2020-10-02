@@ -42,7 +42,7 @@
 
 #include "TrigNavStructure/TrigNavStructure.h"
 
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 #include "TrigNavStructure/TypedHolder.h"
 
