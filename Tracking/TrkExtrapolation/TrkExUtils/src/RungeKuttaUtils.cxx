@@ -947,77 +947,52 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
 // New covariance matrix calculation from old matrix and jacobian
 /////////////////////////////////////////////////////////////////////////////////
 
-AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
-(const double* J,const AmgSymMatrix(5)& M)
+AmgSymMatrix(5) * Trk::RungeKuttaUtils::newCovarianceMatrix(
+                    const double* J,
+                    const AmgSymMatrix(5) & M)
 {
   AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
   AmgSymMatrix(5)& m = (*nM);
 
-  const double V[15]={M(0,0),
-    M(1,0),M(1,1),
-		M(2,0),M(2,1),M(2,2),
-		M(3,0),M(3,1),M(3,2),M(3,3),
-		M(4,0),M(4,1),M(4,2),M(4,3),M(4,4)};
+  Eigen::Map<const AmgVector(5)> JacMap0(&J[0], 5, 1);
+  const AmgVector(5) a1 = M * JacMap0; //(5x5 * 5x1)
+  m(0, 0) = a1.dot(JacMap0);           // dot product
 
-  const double a11 = (J[ 0]*V[ 0]+J[ 1]*V[ 1]+J[ 2]*V[ 3])+(J[ 3]*V[ 6]+J[ 4]*V[10]);
-  const double a12 = (J[ 0]*V[ 1]+J[ 1]*V[ 2]+J[ 2]*V[ 4])+(J[ 3]*V[ 7]+J[ 4]*V[11]);
-  const double a13 = (J[ 0]*V[ 3]+J[ 1]*V[ 4]+J[ 2]*V[ 5])+(J[ 3]*V[ 8]+J[ 4]*V[12]);
-  const double a14 = (J[ 0]*V[ 6]+J[ 1]*V[ 7]+J[ 2]*V[ 8])+(J[ 3]*V[ 9]+J[ 4]*V[13]);
-  const double a15 = (J[ 0]*V[10]+J[ 1]*V[11]+J[ 2]*V[12])+(J[ 3]*V[13]+J[ 4]*V[14]);
+  Eigen::Map<const AmgVector(5)> JacMap5(&J[5]);
+  const AmgVector(5) a2 = M * JacMap5;
+  m(1, 0) = a2.dot(JacMap0);
+  m(1, 1) = a2.dot(JacMap5);
+  m(0, 1) = m(1, 0);
 
-  m(0,0) = (a11*J[ 0]+a12*J[ 1]+a13*J[ 2])+(a14*J[ 3]+a15*J[ 4]);
+  Eigen::Map<const AmgVector(5)> JacMap10(&J[10], 5, 1);
+  const AmgVector(5) a3 = M * JacMap10;
+  m(2, 0) = a3.dot(JacMap0);
+  m(2, 1) = a3.dot(JacMap5);
+  m(2, 2) = a3.dot(JacMap10);
+  m(0, 2) = m(2, 0);
+  m(1, 2) = m(2, 1);
 
-  const double a21 = (J[ 5]*V[ 0]+J[ 6]*V[ 1]+J[ 7]*V[ 3])+(J[ 8]*V[ 6]+J[ 9]*V[10]);
-  const double a22 = (J[ 5]*V[ 1]+J[ 6]*V[ 2]+J[ 7]*V[ 4])+(J[ 8]*V[ 7]+J[ 9]*V[11]);
-  const double a23 = (J[ 5]*V[ 3]+J[ 6]*V[ 4]+J[ 7]*V[ 5])+(J[ 8]*V[ 8]+J[ 9]*V[12]);
-  const double a24 = (J[ 5]*V[ 6]+J[ 6]*V[ 7]+J[ 7]*V[ 8])+(J[ 8]*V[ 9]+J[ 9]*V[13]);
-  const double a25 = (J[ 5]*V[10]+J[ 6]*V[11]+J[ 7]*V[12])+(J[ 8]*V[13]+J[ 9]*V[14]);
+  Eigen::Map<const AmgVector(5)> JacMap15(&J[15], 5, 1);
+  const AmgVector(5) a4 = M * JacMap15;
+  m(3, 0) = a4.dot(JacMap0);
+  m(3, 1) = a4.dot(JacMap5);
+  m(3, 2) = a4.dot(JacMap10);
+  m(3, 3) = a4.dot(JacMap15);
+  m(0, 3) = m(3, 0);
+  m(1, 3) = m(3, 1);
+  m(2, 3) = m(3, 2);
 
-  m(1,0) = (a21*J[ 0]+a22*J[ 1]+a23*J[ 2])+(a24*J[ 3]+a25*J[ 4]);
-  m(1,1) = (a21*J[ 5]+a22*J[ 6]+a23*J[ 7])+(a24*J[ 8]+a25*J[ 9]);
-  m(0,1) = m(1,0);
+  const AmgVector(5) a5 = M.row(4) * J[20];
+  m(4, 0) = a5.dot(JacMap0);
+  m(4, 1) = a5.dot(JacMap5);
+  m(4, 2) = a5.dot(JacMap10);
+  m(4, 3) = a5.dot(JacMap15);
+  m(4, 4) = a5[4] * J[20];
+  m(0, 4) = m(4, 0);
+  m(1, 4) = m(4, 1);
+  m(2, 4) = m(4, 2);
+  m(3, 4) = m(4, 3);
 
-  const double a31 = (J[10]*V[ 0]+J[11]*V[ 1]+J[12]*V[ 3])+(J[13]*V[ 6]+J[14]*V[10]);
-  const double a32 = (J[10]*V[ 1]+J[11]*V[ 2]+J[12]*V[ 4])+(J[13]*V[ 7]+J[14]*V[11]);
-  const double a33 = (J[10]*V[ 3]+J[11]*V[ 4]+J[12]*V[ 5])+(J[13]*V[ 8]+J[14]*V[12]);
-  const double a34 = (J[10]*V[ 6]+J[11]*V[ 7]+J[12]*V[ 8])+(J[13]*V[ 9]+J[14]*V[13]);
-  const double a35 = (J[10]*V[10]+J[11]*V[11]+J[12]*V[12])+(J[13]*V[13]+J[14]*V[14]);
-
-  m(2,0) = (a31*J[ 0]+a32*J[ 1]+a33*J[ 2])+(a34*J[ 3]+a35*J[ 4]);
-  m(2,1) = (a31*J[ 5]+a32*J[ 6]+a33*J[ 7])+(a34*J[ 8]+a35*J[ 9]);
-  m(2,2) = (a31*J[10]+a32*J[11]+a33*J[12])+(a34*J[13]+a35*J[14]);
-  m(0,2) = m(2,0);
-  m(1,2) = m(2,1);
-
-  const double a41 = (J[15]*V[ 0]+J[16]*V[ 1]+J[17]*V[ 3])+(J[18]*V[ 6]+J[19]*V[10]);
-  const double a42 = (J[15]*V[ 1]+J[16]*V[ 2]+J[17]*V[ 4])+(J[18]*V[ 7]+J[19]*V[11]);
-  const double a43 = (J[15]*V[ 3]+J[16]*V[ 4]+J[17]*V[ 5])+(J[18]*V[ 8]+J[19]*V[12]);
-  const double a44 = (J[15]*V[ 6]+J[16]*V[ 7]+J[17]*V[ 8])+(J[18]*V[ 9]+J[19]*V[13]);
-  const double a45 = (J[15]*V[10]+J[16]*V[11]+J[17]*V[12])+(J[18]*V[13]+J[19]*V[14]);
-
-  m(3,0) = (a41*J[ 0]+a42*J[ 1]+a43*J[ 2])+(a44*J[ 3]+a45*J[ 4]);
-  m(3,1) = (a41*J[ 5]+a42*J[ 6]+a43*J[ 7])+(a44*J[ 8]+a45*J[ 9]);
-  m(3,2) = (a41*J[10]+a42*J[11]+a43*J[12])+(a44*J[13]+a45*J[14]);
-  m(3,3) = (a41*J[15]+a42*J[16]+a43*J[17])+(a44*J[18]+a45*J[19]);
-  m(0,3) = m(3,0);
-  m(1,3) = m(3,1);
-  m(2,3) = m(3,2);
-
-  const double a51 = J[20]*V[10];
-  const double a52 = J[20] * V[11];
-  const double a53 = J[20] * V[12];
-  const double a54 = J[20] * V[13];
-  const double a55 = J[20] * V[14];
-
-  m(4,0) = (a51*J[ 0]+a52*J[ 1]+a53*J[ 2])+(a54*J[ 3]+a55*J[ 4]);
-  m(4,1) = (a51*J[ 5]+a52*J[ 6]+a53*J[ 7])+(a54*J[ 8]+a55*J[ 9]);
-  m(4,2) = (a51*J[10]+a52*J[11]+a53*J[12])+(a54*J[13]+a55*J[14]);
-  m(4,3) = (a51*J[15]+a52*J[16]+a53*J[17])+(a54*J[18]+a55*J[19]);
-  m(4,4) =                                            a55*J[20];
-  m(0,4) = m(4,0);
-  m(1,4) = m(4,1);
-  m(2,4) = m(4,2);
-  m(3,4) = m(4,3);
   return nM;
 }
 
