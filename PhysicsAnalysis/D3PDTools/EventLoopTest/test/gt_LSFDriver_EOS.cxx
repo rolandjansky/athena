@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/LSFDriver.h>
 #include <EventLoopTest/UnitTestConfig.h>

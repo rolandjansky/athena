@@ -11,7 +11,7 @@
 
 #include <SelectionHelpers/SelectionReadHandle.h>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTools/StatusCode.h>
 
 //

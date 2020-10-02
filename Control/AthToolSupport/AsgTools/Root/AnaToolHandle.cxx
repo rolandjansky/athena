@@ -22,7 +22,7 @@
 #include <regex>
 #else
 #include <GaudiKernel/AlgTool.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <GaudiKernel/IToolSvc.h>
 #include <GaudiKernel/IJobOptionsSvc.h>
 #endif

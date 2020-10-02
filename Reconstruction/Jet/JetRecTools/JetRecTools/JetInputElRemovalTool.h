@@ -12,7 +12,7 @@
 
 
 #include "AsgTools/AsgTool.h"
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTools/MsgStream.h>
 #include <AsgTools/MsgStreamMacros.h>
 

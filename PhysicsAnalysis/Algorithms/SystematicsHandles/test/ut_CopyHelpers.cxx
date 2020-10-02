@@ -12,7 +12,7 @@
 #include "xAODRootAccess/TStore.h"
 #include "xAODRootAccess/Init.h"
 #include "AsgTools/MsgStream.h"
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 #include "AsgTools/SgTEvent.h"
 
 // EDM include(s):

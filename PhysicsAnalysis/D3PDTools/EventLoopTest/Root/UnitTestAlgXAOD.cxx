@@ -16,7 +16,7 @@
 #include <EventLoop/Worker.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TTree.h>

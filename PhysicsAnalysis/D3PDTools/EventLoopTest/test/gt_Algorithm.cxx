@@ -11,7 +11,7 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/IMessagePrinter.h>
 #include <AsgTools/MessagePrinterOverlay.h>
 #include <AsgTesting/UnitTest.h>

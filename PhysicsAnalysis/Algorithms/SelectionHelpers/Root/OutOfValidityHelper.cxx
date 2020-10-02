@@ -11,7 +11,7 @@
 
 #include <SelectionHelpers/OutOfValidityHelper.h>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTools/StatusCode.h>
 #include <PATInterfaces/CorrectionCode.h>
 

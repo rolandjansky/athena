@@ -25,7 +25,7 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 //
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 #include "AsgTools/MsgStream.h"
 // Derivation include
 #include "xAODCore/tools/IOStats.h"
