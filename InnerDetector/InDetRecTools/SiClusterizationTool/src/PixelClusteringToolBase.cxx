@@ -39,7 +39,7 @@ namespace InDet
    StatusCode sc = m_summaryTool.retrieve();
    if (sc.isFailure() || !m_summaryTool) {
       ATH_MSG_WARNING(m_summaryTool.type() << " not found! ");
-      if ( m_usePixelMap || m_useModuleMap ) {
+      if (m_useModuleMap ) {
 	ATH_MSG_FATAL(m_summaryTool.type() << " is compulsory with this tool configuration");
 	return StatusCode::FAILURE;
       }
