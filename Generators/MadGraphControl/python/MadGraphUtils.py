@@ -297,7 +297,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
         from distutils.spawn import find_executable
         if find_executable('f2py2') is not None:
             mglog.info('found f2py2, will update configuration')
-            modify_config_card(process_dir=process_dir,settings={'f2py_compiler':'f2py2'})
+            modify_config_card(process_dir=process_dir,settings={'f2py_compiler':'f2py2','f2py_compiler_py2':'f2py2'})
         elif find_executable('f2py') is not None:
             mglog.info('Found f2py, will use it for reweighting')
         else:
