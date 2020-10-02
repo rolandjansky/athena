@@ -22,7 +22,6 @@
 #include "AthenaKernel/RNGWrapper.h"
 
 // ACTS
-#include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
@@ -31,7 +30,6 @@
 #include "Acts/Utilities/Logger.hpp"
 #include "ActsInterop/Logger.h"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Utilities/Definitions.hpp"
@@ -138,13 +136,13 @@ StatusCode Trk::ExtrapolatorComparisonTest::initialize()
        // create the Surface triplet
        std::vector<std::shared_ptr<const Acts::Surface>> actsSurfaceTriplet;
        
-       const Acts::Transform3D * posTransf = new Acts::Transform3D(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0., halfZ)));
-       const Acts::Transform3D *   cTransf = new Acts::Transform3D(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0.,    0.)));
-       const Acts::Transform3D * negTransf = new Acts::Transform3D(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0.,-halfZ)));
+       Acts::Transform3D posTransf(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0., halfZ)));
+       Acts::Transform3D   cTransf(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0.,    0.)));
+       Acts::Transform3D negTransf(Acts::Transform3D::Identity()*Acts::Translation3D(Acts::Vector3D(0.,0.,-halfZ)));
        
-       auto posSurface = Acts::Surface::makeShared<Acts::DiscSurface>    (std::shared_ptr<const Acts::Transform3D>(posTransf),    0.,radius);
-       auto cSurface   = Acts::Surface::makeShared<Acts::CylinderSurface>(std::shared_ptr<const Acts::Transform3D>(  cTransf),radius, halfZ);
-       auto negSurface = Acts::Surface::makeShared<Acts::DiscSurface>    (std::shared_ptr<const Acts::Transform3D>(negTransf),    0.,radius);
+       auto posSurface = Acts::Surface::makeShared<Acts::DiscSurface>    (posTransf ,    0.,radius);
+       auto cSurface   = Acts::Surface::makeShared<Acts::CylinderSurface>(  cTransf ,radius, halfZ);
+       auto negSurface = Acts::Surface::makeShared<Acts::DiscSurface>    (negTransf ,    0.,radius);
        
        actsSurfaceTriplet.push_back(posSurface);
        actsSurfaceTriplet.push_back(cSurface  );
@@ -314,7 +312,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
       
       if (destParameters) {
         ATH_MSG_VERBOSE(" ACTS Extrapolator succeded!! --> Forward" );           
-        ATH_MSG_VERBOSE(" [ intersection ] with surface at (x,y,z) = " << destParameters->position().x() << ", " << destParameters->position().y() << ", " << destParameters->position().z() );   
+        ATH_MSG_VERBOSE(" [ intersection ] with surface at (x,y,z) = " << destParameters->position(anygctx).x() << ", " << destParameters->position(anygctx).y() << ", " << destParameters->position(anygctx).z() );   
         ATH_MSG_VERBOSE(" [ intersection ] parameters: " << destParameters->parameters() );   
         ATH_MSG_VERBOSE(" [ intersection ] cov matrix: " << *destParameters->covariance() );
         
@@ -333,11 +331,22 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
          } else if (!finalperigee) {
            ATH_MSG_DEBUG(" ACTS Extrapolation to perigee failed for input parameters: " << destParameters->parameters());
          }
-         
-         m_actsPropResultWriterSvc->write<Acts::BoundTrackParameters>(startParameters, destParameters.release(), ms_fwd, finalperigee.release(), ms_bkw);
+
+         // Construct wrappers for Acts track parameters
+         const ActsTrackWrapper* startWrapper = new ActsTrackWrapper(startParameters, anygctx);
+         const ActsTrackWrapper* destWrapper = new ActsTrackWrapper(destParameters.release(), anygctx);
+         const ActsTrackWrapper* finalWrapper = new ActsTrackWrapper(finalperigee.release(), anygctx);
+
+         m_actsPropResultWriterSvc->write<ActsTrackWrapper>(startWrapper, destWrapper, ms_fwd, finalWrapper, ms_bkw);
+
+         delete startWrapper;
+         delete destWrapper;
+         delete finalWrapper;
       } else if (!destParameters) {
         ATH_MSG_DEBUG(" ACTS Extrapolation not successful! " );
-        m_actsPropResultWriterSvc->write<Acts::BoundTrackParameters>(startParameters);
+        const ActsTrackWrapper* startWrapper = new ActsTrackWrapper(startParameters, anygctx);
+        m_actsPropResultWriterSvc->write<ActsTrackWrapper>(startWrapper);
+        delete startWrapper;
       }
     }
     delete startParameters;

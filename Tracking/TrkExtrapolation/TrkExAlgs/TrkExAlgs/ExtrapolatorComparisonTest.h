@@ -24,6 +24,7 @@
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "TrkExAlgs/PropResultRootWriterSvc.h"
+#include "Acts/EventData/TrackParameters.hpp"
 // STL
 #include <memory>
 #include <vector>
@@ -82,6 +83,31 @@ namespace Trk
        StatusCode          finalize() override;
        
     private:
+
+      /** @struct ActsTrackWrapper
+         Wrapper code for Acts track parameters, to provide a position() method
+         without the need of explicitly passing the Acts::GeometryContext
+      */
+      struct ActsTrackWrapper
+      {
+        /** Constructor */
+        ActsTrackWrapper(const Acts::BoundTrackParameters* trackParams, Acts::GeometryContext& ctx)
+        : m_params(trackParams)
+        , m_geometryContext(ctx) {};
+
+        /** Position getter */
+        Acts::Vector3D position() const {return m_params->position(m_geometryContext);}
+        /** Parameter getter */
+        Acts::BoundVector parameters() const {return m_params->parameters();}
+        /** Covariance getter */
+        const std::optional<Acts::BoundSymMatrix>& covariance() const {return m_params->covariance();}
+
+      private:
+        /** The Acts track parameters */
+        const Acts::BoundTrackParameters* m_params;
+        /** The Acts geometry context */
+        Acts::GeometryContext m_geometryContext;
+      };
       
       void generatePerigee(std::vector<perigeeParameters>& parameters);
 
