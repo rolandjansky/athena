@@ -60,7 +60,7 @@ namespace xAOD {
     void IniVarWtb();
     void IniVarZ();
     void IniVarTtGamma();
-    void IniVarThqtautau();
+    void IniVarThq();
   };
   typedef DataVector < xAOD::PartonHistory > PartonHistoryContainer;
 }

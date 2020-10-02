@@ -25,30 +25,24 @@ namespace top {
     struct tH_values {
       //Higgs
       TLorentzVector Higgs_p4;
-      TLorentzVector Tau1_from_Higgs_p4;
-      int Tau1_from_Higgs_pdgId;
-      TLorentzVector Tau2_from_Higgs_p4;
-      int Tau2_from_Higgs_pdgId;
-      TLorentzVector nu_from_Tau1_p4;
-      int nu_from_Tau1_pdgId;
-      TLorentzVector nu_from_Tau2_p4;
-      int nu_from_Tau2_pdgId;
-      TLorentzVector W_decay1_from_Tau1_p4;
-      int W_decay1_from_Tau1_pdgId;
-      TLorentzVector W_decay2_from_Tau1_p4;
-      int W_decay2_from_Tau1_pdgId;
-      TLorentzVector W_decay1_from_Tau2_p4;
-      int W_decay1_from_Tau2_pdgId;
-      TLorentzVector W_decay2_from_Tau2_p4;
-      int W_decay2_from_Tau2_pdgId;
-
-      //Bools
-      int TauJets1;
-      int TauJets2;
-
-      //b
-      TLorentzVector b_p4;
-      int b_pdgId;
+      TLorentzVector decay1_p4;
+      TLorentzVector decay2_p4;
+      int decay1_pdgId;
+      int decay2_pdgId;
+      int tau_decay1_isHadronic;
+      int tau_decay2_isHadronic;
+      TLorentzVector decay1_from_decay1_p4;
+      TLorentzVector decay2_from_decay1_p4;
+      int decay1_from_decay1_pdgId;
+      int decay2_from_decay1_pdgId;
+      TLorentzVector decay1_from_decay2_p4;
+      TLorentzVector decay2_from_decay2_p4;
+      int decay1_from_decay2_pdgId;
+      int decay2_from_decay2_pdgId;
+      int tau_decay1_from_decay1_isHadronic;
+      int tau_decay2_from_decay1_isHadronic;
+      int tau_decay1_from_decay2_isHadronic;
+      int tau_decay2_from_decay2_isHadronic;
     } tH;
     //Storing parton history for ttbar resonance analysis
     CalcThqPartonHistory(const CalcThqPartonHistory& rhs) = delete;
@@ -57,16 +51,8 @@ namespace top {
 
     void THHistorySaver(const xAOD::TruthParticleContainer* truthParticles, xAOD::PartonHistory* ThqPartonHistory);
 
-    //handle gamma radiation of taus
-    const xAOD::TruthParticle* findAfterGamma(const xAOD::TruthParticle* particle);
-
     ///Store the four-momentum of several particles in the Higgs decay chain
-    bool Higgstautau(const xAOD::TruthParticleContainer* truthParticles, int start);
-
-    //Store four-momentum of bottom quark
-    bool bottom(const xAOD::TruthParticleContainer* truthParticles, int start);
-
-    int sign(int a);
+    bool HiggsAndDecay(const xAOD::TruthParticleContainer* truthParticles);
 
     virtual StatusCode execute();
   };

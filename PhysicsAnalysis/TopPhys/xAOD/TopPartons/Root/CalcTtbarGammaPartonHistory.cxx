@@ -4,6 +4,7 @@
 
 #include "TopPartons/CalcTtbarGammaPartonHistory.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopPartons/PartonHistoryUtils.h"
 
 namespace top {
   CalcTtbarGammaPartonHistory::CalcTtbarGammaPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
@@ -67,7 +68,7 @@ namespace top {
       for (const xAOD::TruthParticle* particle : *truthParticles) {
         if (particle->barcode() != 3) continue;
         for (size_t q = 0; q < particle->nChildren(); q++) {
-          if (particle->child(q) && particle->child(q)->pdgId() == -5) bbar = CalcTopPartonHistory::findAfterFSR(particle->child(
+          if (particle->child(q) && particle->child(q)->pdgId() == -5) bbar =PartonHistoryUtils::findAfterFSR(particle->child(
                                                                                                                    q))->
                                                                                p4();
           if (particle->child(q) && particle->child(q)->pdgId() == -24) {
@@ -75,11 +76,11 @@ namespace top {
             Wonshell = true;
             for (size_t Wc = 0; Wc < particle->child(q)->nChildren(); Wc++) {
               if (particle->child(q)->child(Wc)->pdgId() > 0) {
-                WmDecay1 = CalcTopPartonHistory::findAfterFSR(particle->child(q)->child(Wc))->p4();
+                WmDecay1 = PartonHistoryUtils::findAfterFSR(particle->child(q)->child(Wc))->p4();
                 WmDecay1_pdgId = particle->child(q)->child(Wc)->pdgId();
               }
               if (particle->child(q)->child(Wc)->pdgId() < 0) {
-                WmDecay2 = CalcTopPartonHistory::findAfterFSR(particle->child(q)->child(Wc))->p4();
+                WmDecay2 = PartonHistoryUtils::findAfterFSR(particle->child(q)->child(Wc))->p4();
                 WmDecay2_pdgId = particle->child(q)->child(Wc)->pdgId();
               }
             }
@@ -87,12 +88,12 @@ namespace top {
           if (!Wonshell) {
             if (particle->child(q) && particle->child(q)->pdgId() != 6 && particle->child(q)->pdgId() != 22 &&
                 particle->child(q)->pdgId() > 0) {
-              WmDecay1 = CalcTopPartonHistory::findAfterFSR(particle->child(q))->p4();
+              WmDecay1 = PartonHistoryUtils::findAfterFSR(particle->child(q))->p4();
               WmDecay1_pdgId = particle->child(q)->pdgId();
             }
             if (particle->child(q) && particle->child(q)->pdgId() != -6 && particle->child(q)->pdgId() != 22 &&
                 particle->child(q)->pdgId() < 0) {
-              WmDecay2 = CalcTopPartonHistory::findAfterFSR(particle->child(q))->p4();
+              WmDecay2 = PartonHistoryUtils::findAfterFSR(particle->child(q))->p4();
               WmDecay2_pdgId = particle->child(q)->pdgId();
             }
             Wm = WmDecay1 + WmDecay2;
@@ -112,7 +113,7 @@ namespace top {
       for (const xAOD::TruthParticle* particle : *truthParticles) {
         if (particle->barcode() != 3) continue;
         for (size_t q = 0; q < particle->nChildren(); q++) {
-          if (particle->child(q) && particle->child(q)->pdgId() == 5) b = CalcTopPartonHistory::findAfterFSR(particle->child(
+          if (particle->child(q) && particle->child(q)->pdgId() == 5) b = PartonHistoryUtils::findAfterFSR(particle->child(
                                                                                                                q))->p4();
 
           if (particle->child(q) && particle->child(q)->pdgId() == 24) {
@@ -120,11 +121,11 @@ namespace top {
             Wonshell = true;
             for (size_t Wc = 0; Wc < particle->child(q)->nChildren(); Wc++) {
               if (particle->child(q)->child(Wc)->pdgId() > 0) {
-                WmDecay1 = CalcTopPartonHistory::findAfterFSR(particle->child(q)->child(Wc))->p4();
+                WmDecay1 = PartonHistoryUtils::findAfterFSR(particle->child(q)->child(Wc))->p4();
                 WmDecay1_pdgId = particle->child(q)->child(Wc)->pdgId();
               }
               if (particle->child(q)->child(Wc)->pdgId() < 0) {
-                WmDecay2 = CalcTopPartonHistory::findAfterFSR(particle->child(q)->child(Wc))->p4();
+                WmDecay2 = PartonHistoryUtils::findAfterFSR(particle->child(q)->child(Wc))->p4();
                 WmDecay2_pdgId = particle->child(q)->child(Wc)->pdgId();
               }
             }
@@ -132,12 +133,12 @@ namespace top {
           if (!Wonshell) {
             if (particle->child(q) && particle->child(q)->pdgId() != 6 && particle->child(q)->pdgId() != 22 &&
                 particle->child(q)->pdgId() > 0) {
-              WmDecay1 = CalcTopPartonHistory::findAfterFSR(particle->child(q))->p4();
+              WmDecay1 = PartonHistoryUtils::findAfterFSR(particle->child(q))->p4();
               WmDecay1_pdgId = particle->child(q)->pdgId();
             }
             if (particle->child(q) && particle->child(q)->pdgId() != -6 && particle->child(q)->pdgId() != 22 &&
                 particle->child(q)->pdgId() < 0) {
-              WmDecay2 = CalcTopPartonHistory::findAfterFSR(particle->child(q))->p4();
+              WmDecay2 = PartonHistoryUtils::findAfterFSR(particle->child(q))->p4();
               WmDecay2_pdgId = particle->child(q)->pdgId();
             }
             Wp = WpDecay1 + WpDecay2;

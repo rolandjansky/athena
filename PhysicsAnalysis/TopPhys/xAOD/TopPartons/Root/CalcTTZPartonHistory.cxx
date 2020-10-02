@@ -4,6 +4,7 @@
 
 #include "TopPartons/CalcTTZPartonHistory.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopPartons/PartonHistoryUtils.h"
 
 namespace top {
   CalcTTZPartonHistory::CalcTTZPartonHistory(const std::string& name) : CalcTtbarPartonHistory(name) {}
@@ -76,9 +77,9 @@ namespace top {
     // something else than a Z).
     for (const auto& p : *truthParticles) {
       if (!p->isZ()) continue;
-      if (hasParticleIdenticalParent(p)) continue;
+      if (PartonHistoryUtils::hasParticleIdenticalParent(p)) continue;
 
-      const auto& z = findAfterFSR(p);
+      const auto& z = PartonHistoryUtils::findAfterFSR(p);
       *is_on_shell = true;
       if (z->nChildren() != 2) continue;
 
@@ -89,11 +90,11 @@ namespace top {
         const auto& child = z->child(i);
         if (!child) continue;
         if (child->pdgId() > 0) {
-          *ZDecay1 = findAfterFSR(child)->p4();
+          *ZDecay1 = PartonHistoryUtils::findAfterFSR(child)->p4();
           *ZDecay1_pdgId = child->pdgId();
           hasZDecay1 = true;
         } else {
-          *ZDecay2 = findAfterFSR(child)->p4();
+          *ZDecay2 = PartonHistoryUtils::findAfterFSR(child)->p4();
           *ZDecay2_pdgId = child->pdgId();
           hasZDecay2 = true;
         }

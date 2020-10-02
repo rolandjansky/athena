@@ -385,7 +385,7 @@ int main(int argc, char** argv) {
                                                     "top::CalcTtbarGammaPartonHistory"));
     top::check(topPartonHistory->setProperty("config",
                                              topConfig), "Failed to setProperty of top::CalcTtbarGammaPartonHistory");
-  } else if (settings->value("TopPartonHistory") == "tHqtautau") {
+  } else if (settings->value("TopPartonHistory") == "tHq") {
     topPartonHistory =
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcThqPartonHistory("top::CalcThqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
