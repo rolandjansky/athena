@@ -41,6 +41,10 @@ ANA_MSG_HEADER(msgMMC)
 
 int main( int argc, char* argv[] ) {
 
+  // setup for ANA_CHECK()
+  using namespace msgMMC;
+  ANA_CHECK_SET_TYPE (int);
+
   bool useCorrectedCopy = false;
 
   // The application's name:
@@ -92,7 +96,7 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
-  xAOD::Init( APP_NAME );
+  ANA_CHECK (xAOD::Init( APP_NAME ));
   xAOD::TReturnCode::enableFailure();
 
   //::: Open the input file:
@@ -221,14 +225,14 @@ int main( int argc, char* argv[] ) {
 
     // Print some event information
     const xAOD::EventInfo* evtInfo = 0;
-    event.retrieve( evtInfo, "EventInfo" );
+    ANA_CHECK( event.retrieve( evtInfo, "EventInfo" ));
     if(Ievent!=-1 && static_cast <int> (evtInfo->eventNumber())!=Ievent) {
       continue;
     }
 
     //::: Get the Muons from the event:
     const xAOD::MuonContainer* muons = 0;
-    event.retrieve( muons, "Muons" );
+    ANA_CHECK( event.retrieve( muons, "Muons" ));
 
     // create a shallow copy of the muons container
     std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
