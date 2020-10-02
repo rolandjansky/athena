@@ -76,8 +76,18 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   //A lot of Jets... do we need these at all???
   if(m_doTrackInJetPlots){
     m_trkInJetPlots = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Tracks");
+    if (m_iDetailLevel >= 200){
+      m_trkInJetPlots_matched = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Tracks/Matched",false);
+      m_trkInJetPlots_fake = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Tracks/Fakes",false);
+      m_trkInJetPlots_unlinked = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Tracks/Unlinked",false);
+    }
     if(m_doTrackInBJetPlots){
       m_trkInJetPlots_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Tracks");
+      if (m_iDetailLevel >= 200){
+        m_trkInJetPlots_matched_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Tracks/Matched",false);
+        m_trkInJetPlots_fake_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Tracks/Fakes",false);
+        m_trkInJetPlots_unlinked_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Tracks/Unlinked",false);
+      }
     }
   }
 }
@@ -303,9 +313,33 @@ InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks:
 
 //Track in Jet Plots
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet){
+InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet, bool isFake, bool isUnlinked){
   m_trkInJetPlots->fill(track, jet);
-  if(isBjet) m_trkInJetPlots_bjets->fill(track, jet);
+  if (m_iDetailLevel >= 200){
+    if (isFake){
+      m_trkInJetPlots_fake->fill(track,jet); 
+    }
+    else if (isUnlinked){
+      m_trkInJetPlots_unlinked->fill(track,jet); 
+    }
+    else {
+      m_trkInJetPlots_matched->fill(track,jet); 
+    }
+  }
+  if(isBjet){
+     m_trkInJetPlots_bjets->fill(track, jet);
+    if (m_iDetailLevel >= 200){
+      if (isFake){
+        m_trkInJetPlots_fake_bjets->fill(track,jet); 
+      }
+      else if (isUnlinked){
+        m_trkInJetPlots_unlinked_bjets->fill(track,jet); 
+      }
+      else {
+        m_trkInJetPlots_matched_bjets->fill(track,jet); 
+      }
+    }
+  }
 }
 
 void

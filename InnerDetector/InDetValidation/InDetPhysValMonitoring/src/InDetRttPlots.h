@@ -67,7 +67,7 @@ public:
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
 
-  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false);
+  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false);
   void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false);
   void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false);
   
@@ -103,6 +103,12 @@ private:
   bool m_doTrackInBJetPlots;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_bjets;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_matched;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_matched_bjets;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_fake;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_fake_bjets;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked_bjets;
 
   //By track authors
   std::unique_ptr<InDetPerfPlot_Efficiency> m_effSiSPSeededFinderPlots;
