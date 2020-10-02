@@ -22,7 +22,7 @@ StatusCode PixelChargeLUTCalibCondAlg::initialize() {
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_configKey.initialize());
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_readKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -56,7 +56,7 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
   const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
 
   EventIDRange rangeW{start, stop};
-  if (configData->getUseCalibConditions()) {
+  if (!m_readKey.empty()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {
