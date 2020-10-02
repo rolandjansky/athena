@@ -7,7 +7,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationCorrections/IsolationCorrection.h"
 

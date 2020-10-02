@@ -7,7 +7,8 @@
 
 #include "JetUncertainties/UncertaintyEnum.h"
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "TString.h"
 class TEnv;

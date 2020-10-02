@@ -11,7 +11,8 @@
 #define INDETTRACKSELECTIONTOOL_INDETTRACKACCESSOR_H
 
 #include "AsgMessaging/StatusCode.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgTools/IAsgTool.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"

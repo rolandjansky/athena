@@ -5,7 +5,7 @@
 #ifndef PATHRESOLVER_PATHRESOLVER_H
 #define PATHRESOLVER_PATHRESOLVER_H
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 #include <string>
 #include <atomic>

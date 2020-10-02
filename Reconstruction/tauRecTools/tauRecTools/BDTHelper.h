@@ -5,7 +5,7 @@
 #ifndef TAURECTOOLS_BDTHELPER_H
 #define TAURECTOOLS_BDTHELPER_H
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "AsgMessaging/StatusCode.h"
 #include "xAODTau/TauJet.h"
 #include "MVAUtils/BDT.h"
