@@ -454,7 +454,7 @@ VetoedFinalState vfs(FinalState(Cuts::abseta < 4.5));
 vfs.addVetoOnThisFinalState(all_dressed_el);
 vfs.addVetoOnThisFinalState(all_dressed_mu);
       
-FastJets jet(vfs, FastJets::ANTIKT, 0.4, JetAlg::Muons::ALL, JetAlg::Invisibles::NONE);
+FastJets jet(vfs, FastJets::ANTIKT, 0.4, JetAlg::Muons::ALL, JetAlg::Invisibles::DECAY);
 ```
 
 
