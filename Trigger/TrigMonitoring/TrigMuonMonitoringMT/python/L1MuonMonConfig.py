@@ -4,7 +4,7 @@
 def L1MuonMonConfig(helper):
     
     from AthenaConfiguration.ComponentFactory import CompFactory
-    monAlg = helper.addAlgorithm(CompFactory.L1MuonMonMT,'L1MuonMonMT')
+    monAlg = helper.addAlgorithm(CompFactory.L1MuonMonMT,'L1MuonMonMTAlg')
 
 
     histGroup = helper.addGroup(monAlg, 'L1MuonMonMT', 'HLT/MuonMon/')
