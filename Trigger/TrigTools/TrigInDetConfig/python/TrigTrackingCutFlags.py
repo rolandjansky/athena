@@ -20,9 +20,15 @@ def __electronFlags():
     flags.checkRedundantSeeds=True
     return flags
 
+def __muonFlags():
+    flags = __sliceFlags()
+    flags.minPT=Units.GeV * 1.0
+    return flags
+
 def createTrigTrackingFlags():
     flags = AthConfigFlags() 
     flags.addFlagsCategory('Trigger.InDetTracking.Electron', __electronFlags, prefix=True)
+    flags.addFlagsCategory('Trigger.InDetTracking.Muon', __muonFlags, prefix=True)
     return flags
 
 if __name__ == "__main__":
