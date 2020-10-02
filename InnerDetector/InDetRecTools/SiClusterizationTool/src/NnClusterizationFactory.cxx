@@ -522,7 +522,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     // If we're using new networks via lwtnn, call those now
     if (m_useLwtnnNumber) {
       NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
-      auto test_num = estimateNumberOfParticles(nnInputData);
+      std::vector<double> test_num = estimateNumberOfParticles(nnInputData);
       ATH_MSG_DEBUG("NEW lwtnn Prob of n. particles (1): " << test_num[0] << " (2): " << test_num[1] << " (3): " << test_num[2]);
       delete input;
       input=0;
@@ -580,7 +580,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     // If we're using new networks via lwtnn, call those now
     if (m_useLwtnnNumber) {
       NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
-      auto test_num = estimateNumberOfParticles(nnInputData);
+      std::vector<double> test_num = estimateNumberOfParticles(nnInputData);
       ATH_MSG_DEBUG("NEW lwtnn Prob of n. particles (1): " << test_num[0] << " (2): " << test_num[1] << " (3): " << test_num[2]);
       delete input;
       input=0;
