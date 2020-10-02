@@ -95,28 +95,32 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
    if( slot == EventContext::INVALID_CONTEXT_ID )  slot = 0;
 
    if( inc.type() == incidentName() ) {  // NextEventRange 
-      // finish the old range if needed
-      if( m_fileSequenceNumber >= 0 and !inConcurrentEventsMode() ) {
-         // When processing events sequentially (threads<2) write metadata on the NextRange incident
-         // but ignore the first incident because it only starts the first sequence
-         ATH_MSG_DEBUG("MetaData transition");
-         // Retrieve MetaDataSvc
-         if( !m_metaDataSvc.isValid() and !m_metaDataSvc.retrieve().isSuccess() ) {
-            throw GaudiException("Cannot get MetaDataSvc", name(), StatusCode::FAILURE);
-         }
-         if( !m_metaDataSvc->transitionMetaDataFile().isSuccess() ) {
-            throw GaudiException("Cannot transition MetaData", name(), StatusCode::FAILURE);
-         }
-      }
-      // start a new range
-      std::lock_guard lockg( m_mutex );
       std::string rangeID;
-      m_fileSequenceNumber++;
       const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
       if (fileInc != nullptr) {
          rangeID = fileInc->fileName();
-         ATH_MSG_DEBUG("Requested (through incident) next event range filename extension: " << rangeID);
+         ATH_MSG_DEBUG("Requested (through incident) Next Event Range filename extension: " << rangeID);
       }
+      if( rangeID=="dummy") {
+         // finish the previous range
+         if( not inConcurrentEventsMode() ) {
+            // SEQUENTIAL (threads<2) event processing
+            // Write metadata on the incident finishing a Range (filename=="dummy")
+            ATH_MSG_DEBUG("MetaData transition");
+            // Retrieve MetaDataSvc
+            if( !m_metaDataSvc.isValid() and !m_metaDataSvc.retrieve().isSuccess() ) {
+               throw GaudiException("Cannot get MetaDataSvc", name(), StatusCode::FAILURE);
+            }
+            if( !m_metaDataSvc->transitionMetaDataFile().isSuccess() ) {
+               throw GaudiException("Cannot transition MetaData", name(), StatusCode::FAILURE);
+            }
+         }
+         // exit now, wait for the next incident that will start the next range
+         return;
+      }
+      // start a new range
+      std::lock_guard lockg( m_mutex );
+      m_fileSequenceNumber++;
       if( rangeID.empty() ) {
          std::ostringstream n;
          n << "_" << std::setw(4) << std::setfill('0') << m_fileSequenceNumber;

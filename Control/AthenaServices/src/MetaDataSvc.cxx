@@ -292,6 +292,7 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
       return StatusCode::FAILURE;
    }
    const std::string guid = fileInc->fileGuid();
+   ATH_MSG_DEBUG("retireMetadataSource: " << fileInc->fileName());
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       if ( (*it)->endInputFile(guid).isFailure() ) {
          ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
@@ -396,11 +397,17 @@ void MetaDataSvc::handle(const Incident& inc) {
       }
    } 
 }
+
 //__________________________________________________________________________
-StatusCode MetaDataSvc::transitionMetaDataFile() {
-   if( !m_allowMetaDataStop ) {
-      return(StatusCode::FAILURE);
-   }
+// This method is currently called only from OutputStreamSequencerSvc for MP EventService
+StatusCode MetaDataSvc::transitionMetaDataFile()
+{
+   ATH_MSG_DEBUG("transitionMetaDataFile()");
+
+   // this is normally called through EndInputFile inc, simulate it for EvSvc 
+   FileIncident inc("transitionMetaDataFile", "EndInputFile", "dummyMetaInputFileName", "");
+   ATH_CHECK(retireMetadataSource(inc));
+
    // Make sure metadata is ready for writing
    ATH_CHECK(this->prepareOutput());
 
@@ -418,6 +425,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile() {
 
    return(StatusCode::SUCCESS);
 }
+
 //__________________________________________________________________________
 StatusCode MetaDataSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
