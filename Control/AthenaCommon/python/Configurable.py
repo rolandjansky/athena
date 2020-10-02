@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Configurable.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -11,6 +11,7 @@ from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
 import GaudiKernel.GaudiHandles as GaudiHandles
+import GaudiKernel.DataHandle as DataHandle
 
 ### data ---------------------------------------------------------------------
 __version__ = '3.2.0'
@@ -721,7 +722,9 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
                   vv = v.getGaudiHandle()
                else:
                   vv = v
-               if isinstance(vv,(GaudiHandles.GaudiHandle,GaudiHandles.GaudiHandleArray)):
+               if isinstance(vv,(GaudiHandles.GaudiHandle,
+                                 GaudiHandles.GaudiHandleArray,
+                                 DataHandle.DataHandle)):
                   strVal = repr(vv)
                   strDef = repr(default.toStringProperty())
                   if strDef == repr(vv.toStringProperty()):
