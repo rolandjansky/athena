@@ -777,7 +777,9 @@ class ChainStep(object):
         # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
-
+        
+        # This check is commented out (temporarily before can be removed completely) to support signatures wiht one sequence and multiplicty > 1, e.g. HLT_2e3
+        # In such case there is only one sequence, however the multiplicty is == 2 
         # sanity check on inputs
         #if len(Sequences) != len(multiplicity):
         #    raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
