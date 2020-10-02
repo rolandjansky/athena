@@ -66,7 +66,7 @@ class GenerateMenuMT(object):
         self.signaturesToGenerate = []
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
-                              'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias', 'Test'] #, AFP
+                              'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias', 'UnconventionalTracking', 'Test'] #, AFP
         self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
@@ -86,6 +86,7 @@ class GenerateMenuMT(object):
         self.doMonitorChains        = True
         self.doBeamspotChains       = True
         self.doEnhancedBiasChains   = True
+        self.doUnconventionalTrackingChains   = True
         self.doCombinedChains       = True
         self.doTestChains           = True
 

@@ -164,13 +164,17 @@ void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) 
 /** return attached truth particle */
 HepMC::GenParticlePtr ISF::ISFTruthIncident::getHepMCTruthParticle( const ISF::ISFParticle& particle ) const {
   auto* truthBinding     = particle.getTruthBinding();
-  auto* hepTruthParticle = truthBinding ? truthBinding->getTruthParticle() : nullptr;
+  HepMC::GenParticlePtr hepTruthParticle = truthBinding ? truthBinding->getTruthParticle() : nullptr;
 
   // HepMC::GenParticle not in TruthBinding -> see if the HepMcParticleLink can retrieve it
   if (!hepTruthParticle) {
     const HepMcParticleLink* oldHMPL = particle.getParticleLink();
     if (oldHMPL && oldHMPL->cptr())
+#ifdef HEPMC3
+      hepTruthParticle = std::shared_ptr<HepMC3::GenParticle>(const_cast<HepMC3::GenParticle*>(oldHMPL->cptr()));
+#else
       hepTruthParticle = const_cast<HepMC::GenParticlePtr>(oldHMPL->cptr());
+#endif
   }
 
   return hepTruthParticle;
@@ -181,14 +185,14 @@ HepMC::GenParticlePtr ISF::ISFTruthIncident::getHepMCTruthParticle( const ISF::I
 HepMC::GenParticlePtr ISF::ISFTruthIncident::updateHepMCTruthParticle( ISF::ISFParticle& particle,
                                                                        const ISF::ISFParticle* parent ) const {
   auto* truthBinding     = particle.getTruthBinding();
-  auto* hepTruthParticle = ParticleHelper::convert( particle );
+  HepMC::GenParticlePtr hepTruthParticle = ParticleHelper::convert( particle );
 
   if (truthBinding) {
     truthBinding->setTruthParticle(hepTruthParticle);
   } else {
-    auto* parentTruthBinding = parent ? parent->getTruthBinding() : nullptr;
-    auto* hepPrimaryParticle = parentTruthBinding ? parentTruthBinding->getPrimaryTruthParticle() : nullptr;
-    auto* hepGenZeroParticle = hepTruthParticle;
+    auto parentTruthBinding = parent ? parent->getTruthBinding() : nullptr;
+    auto hepPrimaryParticle = parentTruthBinding ? parentTruthBinding->getPrimaryTruthParticle() : nullptr;
+    auto hepGenZeroParticle = hepTruthParticle;
     truthBinding = new TruthBinding( hepTruthParticle, hepPrimaryParticle, hepGenZeroParticle );
     particle.setTruthBinding(truthBinding);
   }
