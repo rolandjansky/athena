@@ -471,14 +471,14 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
    if 'smc' in chain:
      trigConf.appendHistos(
              SelectSpec( 'm50', '50<m', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain,
+               ToolSpec('JetHistoTriggEfficiency', chain+'_m50',
                  Group='jetTrigGroup_'+chain+'_m50',
                  Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
              SelectSpec( 'et500', '500<et', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain,
+               ToolSpec('JetHistoTriggEfficiency', chain+'_et500',
                  Group='jetTrigGroup_'+chain+'_et500',
                  Var=retrieveVarToolConf("m"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg

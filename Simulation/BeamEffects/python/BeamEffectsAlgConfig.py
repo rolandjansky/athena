@@ -170,7 +170,7 @@ if __name__ == "__main__":
     #included to stop segmentation error - TODO see why it's failing
     ConfigFlags.Input.isMC = True
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14" #conditions tag for conddb (which one to use - old one for simulation)
-    ConfigFlags.Input.RunNumber = 284500 # run test job with and without run number and 222510
+    ConfigFlags.Input.RunNumber = [284500] # run test job with and without run number and 222510
 
     # Finalize 
     ConfigFlags.lock()
