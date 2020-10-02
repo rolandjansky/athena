@@ -66,7 +66,9 @@ public:
   {
     const int signalProcessId = 1000082;
     const int evtNbr = 1;
-    m_evt = new HepMC::GenEvent( signalProcessId, evtNbr );
+    m_evt = new HepMC::GenEvent();
+    HepMC::set_signal_process_id(m_evt,signalProcessId); 
+    m_evt->set_event_number(evtNbr );
     m_evt->set_event_scale( -1 );
     m_evt->set_alphaQCD( -1 );
     m_evt->set_alphaQED( -1 );
@@ -81,13 +83,13 @@ public:
     m_evt->set_random_states( rdmStates );
     
     // Add 2 vertices
-    HepMC::GenVertex * v1 = HepMC::newGenVertexPtr();
+    HepMC::GenVertexPtr v1 = HepMC::newGenVertexPtr();
     m_evt->add_vertex( v1 );
     v1->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector(0,0,
 						       7000*GeV,
 						       7000*GeV),
 						 2212, 3 ) );
-    HepMC::GenVertex* v2 = new HepMC::GenVertex;
+    HepMC::GenVertexPtr v2 = HepMC::newGenVertexPtr();
     m_evt->add_vertex( v2 );
     v2->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector(0,0,
 						       -7000*GeV,
@@ -96,13 +98,13 @@ public:
 
     //
     // create the outgoing particles of v1 and v2
-    HepMC::GenParticle* p3 = 
+    HepMC::GenParticlePtr p3 = 
       HepMC::newGenParticlePtr( HepMC::FourVector(.750*GeV,
 				    -1.569*GeV,
 				    32.191*GeV,
 				    32.238*GeV), 1, 3 );
     v1->add_particle_out( p3 );
-    HepMC::GenParticle* p4 = 
+    HepMC::GenParticlePtr p4 = 
       HepMC::newGenParticlePtr( HepMC::FourVector( -3.047*GeV,
 				     -19.*GeV,
 				     -54.629*GeV,
@@ -111,7 +113,7 @@ public:
     
     //
     // create v3
-    HepMC::GenVertex* v3 = HepMC::newGenVertexPtr();
+    HepMC::GenVertexPtr v3 = HepMC::newGenVertexPtr();
     m_evt->add_vertex( v3 );
     v3->add_particle_in( p3 );
     v3->add_particle_in( p4 );
@@ -119,7 +121,7 @@ public:
 	HepMC::newGenParticlePtr( HepMC::FourVector(-3.813,0.113,-1.833,4.233 ), 
 				22, 1 )
 	);
-    HepMC::GenParticle* p5 = 
+    HepMC::GenParticlePtr p5 = 
 	HepMC::newGenParticlePtr( HepMC::FourVector(1.517,-20.68,-20.605,85.925), 
 				-24,3);
     v3->add_particle_out( p5 );
@@ -176,7 +178,7 @@ public:
 
     //
     // Add a Z->e+e-
-    HepMC::GenVertex * vZee = new HepMC::GenVertex;
+    HepMC::GenVertexPtr vZee = HepMC::newGenVertexPtr();
     m_evt->add_vertex( vZee );
     vZee->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector( +7.29e+03,
 							  +2.34e+04,
@@ -198,7 +200,7 @@ public:
    
     //
     // Add a t->W+bgg
-    HepMC::GenVertex * vtWbgg = new HepMC::GenVertex;
+    HepMC::GenVertexPtr  vtWbgg = HepMC::newGenVertexPtr();
     m_evt->add_vertex( vtWbgg );
     // top
     vtWbgg->add_particle_in(HepMC::newGenParticlePtr(HLV_t(-2.35e+05,
@@ -457,7 +459,7 @@ public:
   /// Test full vtx
   void testFullVtx()
   {
-    HepMC::GenVertex * vtx = new HepMC::GenVertex;
+    HepMC::GenVertexPtr vtx = HepMC::newGenVertexPtr();
     m_evt->add_vertex( vtx );
     vtx->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector( -2.45e+04,
 							 +1.88e+04,
@@ -507,7 +509,7 @@ public:
     McVtxFilter filter;
     filter.setDecayPattern( "23 -> -11 + 11" );
 
-    const HepMC::GenVertex * vtx = m_evt->barcode_to_vertex(m_bcZee);
+    auto vtx = HepMC::barcode_to_vertex(m_evt,m_bcZee);
     CPPUNIT_ASSERT( 0 != vtx );
 
     CPPUNIT_ASSERT( filter.isAccepted(vtx) );
@@ -544,7 +546,7 @@ public:
   /// Test some vertices
   void testTopWbggVertices()
   {
-    const HepMC::GenVertex * vtx = m_evt->barcode_to_vertex(m_bcTopWbgg);
+    auto vtx = HepMC::barcode_to_vertex(m_evt,m_bcTopWbgg);
     CPPUNIT_ASSERT( 0 != vtx );
 
     {
@@ -573,7 +575,7 @@ public:
   void testWlnuVertices()
   {
     
-    HepMC::GenVertex * vtx = new HepMC::GenVertex;
+    HepMC::GenVertexPtr vtx = HepMC::newGenVertexPtr();
     m_evt->add_vertex( vtx );
     vtx->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector( -6.76e+04,
 							 +4.85e+03,
@@ -625,7 +627,7 @@ GenVertex:      -39 ID:    0 (X,cT):0
   void testQuarkVertices()
   {
     // create a b->g+b vertex
-    HepMC::GenVertex * vtxgb = new HepMC::GenVertex;
+    HepMC::GenVertexPtr vtxgb = HepMC::newGenVertexPtr();
     m_evt->add_vertex( vtxgb );
     vtxgb->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector( -3.21e+04,
 							   -6.19e+03,
@@ -645,7 +647,7 @@ GenVertex:      -39 ID:    0 (X,cT):0
 						     21, 2 ) );
 
     // create a gg->b+bbar vertex
-    HepMC::GenVertex * vtxbb = new HepMC::GenVertex;
+    HepMC::GenVertex * vtxbb = HepMC::newGenVertexPtr();
     m_evt->add_vertex( vtxbb );
     vtxbb->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector( +1.23e+04,
 							   -4.79e+03,
@@ -703,7 +705,7 @@ GenVertex:      -39 ID:    0 (X,cT):0
   /// Test Stable particles (no end_vertex)
   void testStableParticle()
   {
-    HepMC::GenVertex * vtx = new HepMC::GenVertex;
+    HepMC::GenVertexPtr vtx = HepMC::newGenVertexPtr();
     m_evt->add_vertex( vtx );
     vtx->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector( -2.45e+04,
 							 +1.88e+04,
