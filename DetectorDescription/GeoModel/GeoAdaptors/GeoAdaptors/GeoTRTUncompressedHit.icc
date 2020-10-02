@@ -1,26 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 
 #include <bitset>
 
-inline void GeoTRTUncompressedHit::init() {
-
-  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if(detStore->retrieve(s_mgr,"TRT").isFailure())
-    std::cout << "GeoTRTUncompressedHit::init() WARNING  Unable to retrieve InDetDD::TRT_DetectorManager" << std::endl;
-}
 
 inline GeoTRTUncompressedHit::GeoTRTUncompressedHit (const TRTUncompressedHit & h) {
   m_hit = &h;
-  if (!s_mgr) init();
 }
 
 inline HepGeom::Point3D<double> GeoTRTUncompressedHit::getGlobalPosition() const {
@@ -38,7 +29,7 @@ inline HepGeom::Point3D<double> GeoTRTUncompressedHit::getGlobalPosition() const
    hitID >>= shift;
    ringID = hitID & mask;
    trtID = hitID >> shift;
-   const InDetDD::TRT_BarrelElement *element = s_mgr->getBarrelElement(trtID,ringID,moduleID,layerID);
+   const InDetDD::TRT_BarrelElement *element = mgr()->getBarrelElement(trtID,ringID,moduleID,layerID);
    if (element) {
      HepGeom::Point3D<double> v(m_hit->GetPreStepX(), m_hit->GetPreStepY(), m_hit->GetPreStepZ());
      return element->getAbsoluteTransform(strawID)*v;
@@ -54,7 +45,7 @@ inline HepGeom::Point3D<double> GeoTRTUncompressedHit::getGlobalPosition() const
    wheelID = hitID & mask;
    trtID = hitID >> shift;
    bool isPositive = trtID==2 ? 1:0;
-   const InDetDD::TRT_EndcapElement *element = s_mgr->getEndcapElement(isPositive,wheelID,planeID,sectorID);
+   const InDetDD::TRT_EndcapElement *element = mgr()->getEndcapElement(isPositive,wheelID,planeID,sectorID);
    if (element) {
      HepGeom::Point3D<double> v(m_hit->GetPreStepX(), m_hit->GetPreStepY(), m_hit->GetPreStepZ());
      return element->getAbsoluteTransform(strawID)*v;
