@@ -13,8 +13,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 
-using Amg::Transform3D;
-
 namespace TrigL2MuonSA {
 
   // --------------------------------------------------------------------------------

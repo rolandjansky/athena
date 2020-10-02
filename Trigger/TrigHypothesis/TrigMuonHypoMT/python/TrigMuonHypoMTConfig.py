@@ -402,7 +402,7 @@ def TrigmuCombHypoToolwORFromDict( chainDict ):
     return tool
 
 
-
+# muComb Hypo for L2 inside-out
 def Trigl2IOHypoToolwORFromDict( chainDict ):
 
     thresholds = getThresholdsFromDict( chainDict )

@@ -989,6 +989,8 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+// findMuonSignature of L2 inside-out version
+// try to find MS tracks seeded by FTF tracks
 StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContainer&         idtracks,
 					       const std::vector<const TrigRoiDescriptor*> roids,
 					       const std::vector<const LVL1::RecMuonRoI*>  muonRoIs,

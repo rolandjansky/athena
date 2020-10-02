@@ -36,8 +36,8 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* i
   double extFtfMiddleEta=0., extFtfMiddleZ=0., extFtfMiddleR=0., extFtfMiddlePhi=0.;
   double extFtfOuterEta=0.,  extFtfOuterZ=0.,  extFtfOuterR=0.,  extFtfOuterPhi=0.;
 
-  double aw_ftf[3]={0.,0.,0.};
-  double bw_ftf[3]={0.,0.,0.};
+  double aw_ftf[3]={0.,0.,0.}; // slope of FTF Road for Inner/Middle/Outer
+  double bw_ftf[3]={0.,0.,0.}; // intercept of FTF Road for Inner/Middle/Outer
 
   // Inner
   const Trk::TrackParameters* extFtfInner = extTrack( idtrack, 5000., 6000., muonRoad.ext_ftf_flag[0][0]); //Large secotr
@@ -90,7 +90,7 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* i
   muonRoad.extFtfMiddleEta = extFtfMiddleEta;
   muonRoad.extFtfMiddlePhi = extFtfMiddlePhi;
 
-  for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
+  for (int i_sector=0; i_sector<N_SECTOR; i_sector++) { // 0: normal sector, 1: overlap sector, which is used when a muon pass through boundary of MS sectors
     muonRoad.aw_ftf[0][i_sector]  = aw_ftf[0];
     muonRoad.bw_ftf[0][i_sector]  = bw_ftf[0];
     muonRoad.aw_ftf[1][i_sector]  = aw_ftf[1];
@@ -144,6 +144,7 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* i
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+// extrapolate a FTF track to MS in order to define FTF Road
 const Trk::TrackParameters* TrigL2MuonSA::FtfRoadDefiner::extTrack( const xAOD::TrackParticle* trk, const double R, const double halflength, int& extFlag ) {
 
   const bool boundaryCheck = true;
@@ -158,7 +159,7 @@ const Trk::TrackParameters* TrigL2MuonSA::FtfRoadDefiner::extTrack( const xAOD::
   const Trk::TrackParameters* param1 = m_extrapolator->extrapolate(*trk, *surface1, Trk::anyDirection, boundaryCheck, Trk::muon);
 
   // Disk
-  Transform3D* matrix = new Transform3D( Amg::Vector3D( 0.,0.,Z ) );
+  Amg::Transform3D* matrix = new Amg::Transform3D( Amg::Vector3D( 0.,0.,Z ) );
 
   Trk::DiscSurface* disc = new Trk::DiscSurface( matrix, 0, R );
   const Trk::Surface* surface2 = disc;
