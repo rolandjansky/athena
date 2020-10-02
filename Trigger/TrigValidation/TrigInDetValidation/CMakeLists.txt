@@ -10,7 +10,7 @@ find_package( requests )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/TrigInDetValidation_*.py share/Cosmic.py)
+atlas_install_joboptions( share/TrigInDetValidation_*.py share/Cosmic.py share/*.py )
 atlas_install_data( share/*.json)
 atlas_install_runtime( test/TrigInDetValidation_TestConfiguration.xml share/TrigInDetValidation_*.py TIDAbuild )
 
