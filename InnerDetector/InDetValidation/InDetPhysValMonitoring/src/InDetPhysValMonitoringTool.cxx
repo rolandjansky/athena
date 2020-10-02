@@ -461,12 +461,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
         }
         float prob = getMatchingProbability(*thisTrack);
         if(std::isnan(prob)) prob = 0.0;
-        m_monPlots->fill(*thisTrack, *thisJet,isBjet);
       
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
+        bool unlinked = (associatedTruth==nullptr);
+        bool isFake = (associatedTruth && prob < m_lowProb);  
+        m_monPlots->fill(*thisTrack, *thisJet,isBjet,isFake,unlinked);
                                                                                          
         if (associatedTruth){
-          if(m_truthSelectionTool->accept(associatedTruth) and prob < m_lowProb ) {
+          if(prob < m_lowProb ) {
             isFakeJet = true;
           } 
           m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFakeJet,isBjet);
