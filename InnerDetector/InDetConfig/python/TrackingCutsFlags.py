@@ -957,13 +957,13 @@ if __name__ == "__main__":
   ConfigFlags.loadAllDynamicFlags()
 
   assert ConfigFlags.InDet.cutLevel == 19 , "default cut level is wrong"
-  assert ConfigFlags.InDet.Tracking.minRoIClusterEt == 6000.0 * Units.MeV, "wrong value {} ".format(ConfigFlags.InDet.Tracking.minRoIClusterEt)
+  assert ConfigFlags.InDet.Tracking.minRoIClusterEt == 6000.0 * Units.MeV, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.minRoIClusterEt)
   ConfigFlags.InDet.cutLevel = 2
-  assert ConfigFlags.InDet.Tracking.minRoIClusterEt == 0.0, "wrong value {} ".format(ConfigFlags.InDet.Tracking.minRoIClusterEt)  
-  assert ConfigFlags.InDet.BeamGasTracking.minRoIClusterEt == 0.0, "wrong value {}, not following cutLevel setting ".format(ConfigFlags.InDet.BeamGasTracking.minRoIClusterEt)   
+  assert ConfigFlags.InDet.Tracking.minRoIClusterEt == 0.0, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.minRoIClusterEt)  
+  assert ConfigFlags.InDet.BeamGasTracking.minRoIClusterEt == 0.0, "wrong cut value {}, not following cutLevel setting ".format(ConfigFlags.InDet.BeamGasTracking.minRoIClusterEt)   
 
-  assert ConfigFlags.InDet.HeavyIonTracking.minSiNotShared == 7, "wrong value, overwrite"
-  assert ConfigFlags.InDet.HeavyIonTracking.minRoIClusterEt == 0.0, "wrong value, overwrite"
+  assert ConfigFlags.InDet.HeavyIonTracking.minSiNotShared == 7, "wrong cut value, overwrite"
+  assert ConfigFlags.InDet.HeavyIonTracking.minRoIClusterEt == 0.0, "wrong cut value, overwrite"
 
   print("ConfigFlags.InDet.SCTandTRTTracking.minPT",ConfigFlags.InDet.SCTandTRTTracking.minPT)
   print("type(ConfigFlags.InDet.SCTandTRTTracking)",type(ConfigFlags.InDet.SCTandTRTTracking)) 
