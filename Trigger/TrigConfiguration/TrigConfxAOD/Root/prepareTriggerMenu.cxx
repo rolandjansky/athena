@@ -5,7 +5,7 @@
 // $Id: prepareTriggerMenu.cxx 792850 2017-01-18 18:58:03Z ssnyder $
 
 // Infrastructure include(s):
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 // Trigger configuration include(s):
 #include "TrigConfL1Data/CTPConfig.h"

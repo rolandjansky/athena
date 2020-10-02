@@ -26,7 +26,7 @@
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 //
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 // Derivation include
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"

@@ -21,8 +21,8 @@
 #include <TH1.h>
 #include <TTree.h>
 
-#include <AsgTools/MsgStream.h>
-#include <AsgTools/MsgStreamMacros.h>
+#include <AsgMessaging/MsgStream.h>
+#include <AsgMessaging/MsgStreamMacros.h>
 #include <xAODEventInfo/EventInfo.h>
 
 //
