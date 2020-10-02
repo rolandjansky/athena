@@ -52,11 +52,19 @@ typedef std::vector<int>      PDGCodes;
     StatusCode  finalize();
 
     /// Interface method that returns whether the given particle passes all cuts or not
+#ifdef HEPMC3
+    bool pass(HepMC::ConstGenParticlePtr particle) const;
+#else
     bool pass(const HepMC::GenParticle& particle) const;
+#endif
 
   private:
     /// Check whether the given particle passes all configure cuts or not
+#ifdef HEPMC3
+    bool check_cuts_passed(HepMC::ConstGenParticlePtr particle) const;
+#else
     bool check_cuts_passed(const HepMC::GenParticle& particle) const;
+#endif
 
     /// the cuts defined by the use
     double        m_minEta;     //!< min pseudorapidity cut

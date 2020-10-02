@@ -48,11 +48,6 @@ namespace TCS {
       parType_t      p_DeltaPhiMin[6] = { 0,0,0,0,0,0 };
       parType_t      p_DeltaPhiMax[6] = { 0,0,0,0,0,0 };
 
-      std::vector<std::string> m_histAcceptM;
-      std::vector<std::string> m_histRejectM;
-      std::vector<std::string> m_histAcceptEta1Eta2;
-      std::vector<std::string> m_histRejectEta1Eta2;
-
    };
    
 }

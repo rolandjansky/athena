@@ -7,6 +7,7 @@
 #include "CxxUtils/vec.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include <limits>
+#include <stdexcept>
 
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
@@ -39,6 +40,26 @@ struct triangularToIJ
   int16_t J = -1;
 };
 
+std::vector<triangularToIJ>
+createToIJ128()
+{
+  // Create a trangular array mapping for the maximum size
+  // we will ever have 8 (max bethe heitle material) x16 (state components)
+  // =128. 128 * (128-1)/2 = 8128
+  //
+  // The typical number we use is 6x12 = 72.
+  //
+  constexpr int16_t n = 128;
+  constexpr int32_t nn = n * (n - 1) / 2;
+  std::vector<triangularToIJ> indexMap(nn);
+  for (int16_t i = 1; i < n; ++i) {
+    const int32_t indexConst = (i - 1) * i / 2;
+    for (int16_t j = 0; j < i; ++j) {
+      indexMap[indexConst + j] = { i, j };
+    }
+  }
+  return indexMap;
+}
 /**
  * Based on
  * https://www.sciencedirect.com/science/article/pii/089812218990103X
@@ -187,7 +208,7 @@ resetDistances(float* distancesIn, const int32_t minj, const int32_t n)
   }
 }
 
-}
+} // anonymous namespace
 namespace GSFUtils {
 
 /**
@@ -201,21 +222,18 @@ findMerges(Component1D* componentsIn,
 {
   Component1D* components = static_cast<Component1D*>(
     __builtin_assume_aligned(componentsIn, alignment));
+
+  // Sanity check. Function  throw on invalid inputs
+  if (inputSize < 0 || inputSize > 128 || reducedSize > inputSize) {
+    throw std::runtime_error("Invalid InputSize or reducedSize");
+  }
+  // We need just one for the full duration of a job
+  const static std::vector<triangularToIJ> convert = createToIJ128();
+
   // Based on the inputSize allocate enough space for the pairwise distances
   const int16_t n = inputSize;
   const int32_t nn = n * (n - 1) / 2;
-  // Create a trianular mapping for the pairwise distances
-  // We now that the size is nn
-  std::vector<triangularToIJ> convert(nn);
-  for (int16_t i = 1; i < n; ++i) {
-    const int32_t indexConst = (i - 1) * i / 2;
-    for (int16_t j = 0; j < i; ++j) {
-      convert[indexConst + j] = { i, j };
-    }
-  }
   // We work with a  multiple of 8*floats (32 bytes).
-  // Ensures also that the  size parameter passed to aligned alloc
-  // is an integral multiple of alignment (32 bytes).
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
   AlignedDynArray<float, alignment> distances(
     nn2, std::numeric_limits<float>::max());

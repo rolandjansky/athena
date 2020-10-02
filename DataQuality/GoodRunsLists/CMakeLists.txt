@@ -15,15 +15,29 @@ atlas_add_root_dictionary( GoodRunsListsLib
    GoodRunsLists/DQHelperFunctions.h Root/LinkDef.h
    EXTERNAL_PACKAGES LibXml2 ROOT )
 
+if( NOT XAOD_STANDALONE )
+   if( XAOD_ANALYSIS )
+     set( extra_libs )
+   else()
+     set( extra_libs DerivationFrameworkInterfaces )
+   endif()
+endif()
+
 atlas_add_library( GoodRunsListsLib
    GoodRunsLists/*.h Root/*.cxx ${GoodRunsListsLibDictSource}
    PUBLIC_HEADERS GoodRunsLists
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgAnalysisInterfaces
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo AsgAnalysisInterfaces
+   AnaAlgorithmLib ${extra_libs}
    PRIVATE_LINK_LIBRARIES ${LIBXML2_LIBRARIES} PathResolver )
 
 if( NOT XAOD_STANDALONE )
+   if( XAOD_ANALYSIS )
+     set( extra_libs )
+   else()
+     set( extra_libs DetectorStatusLib )
+   endif()
    atlas_add_component( GoodRunsLists
       src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthenaBaseComps AthenaKernel EventInfo GaudiKernel GoodRunsListsLib PathResolver StoreGateLib xAODEventInfo )

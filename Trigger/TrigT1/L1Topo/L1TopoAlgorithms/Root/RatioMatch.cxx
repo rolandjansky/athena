@@ -19,10 +19,9 @@
 
 REGISTER_ALG_TCS(RatioMatch)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 /* NOT USED
 namespace {

@@ -72,6 +72,33 @@ StatusCode  ISF::GenParticleSimWhiteList::initialize()
 }
 
 /** passes through to the private version of the filter */
+#ifdef HEPMC3
+bool ISF::GenParticleSimWhiteList::pass(HepMC::ConstGenParticlePtr particle) const
+{
+
+  ATH_MSG_VERBOSE( "Checking whether " << particle << " passes the filter." );
+
+  static std::vector<int> vertices(500);
+  vertices.clear();
+  bool so_far_so_good = pass( particle , vertices );
+
+  // Test all parent particles
+  if (so_far_so_good && particle->production_vertex() && m_qs){
+    for (auto pit: particle->production_vertex()->particles_in()){
+      // Loop breaker
+      if ( HepMC::barcode(pit) == HepMC::barcode(particle) ) continue;
+      // Check this particle
+      vertices.clear();
+      bool parent_all_clear = pass( pit , vertices );
+      ATH_MSG_VERBOSE( "Parent all clear: " << parent_all_clear <<
+         "\nIf true, will not pass the daughter because it should have been picked up through the parent already (to avoid multi-counting)." );
+      so_far_so_good = so_far_so_good && !parent_all_clear;
+    } // Loop over parents
+  } // particle had parents
+
+  return so_far_so_good;
+}
+#else
 bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle) const
 {
 
@@ -98,8 +125,42 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle) cons
 
   return so_far_so_good;
 }
+#endif
 
 /** returns true if the the particle and all daughters are on the white list */
+#ifdef HEPMC3
+bool ISF::GenParticleSimWhiteList::pass(HepMC::ConstGenParticlePtr particle , std::vector<int> & used_vertices ) const
+{
+  // See if the particle is in the white list
+  bool passFilter = std::binary_search( m_pdgId.begin() , m_pdgId.end() , particle->pdg_id() ) || MC::PID::isNucleus( particle->pdg_id() );
+  // Remove documentation particles
+  passFilter = passFilter && particle->status()<3;
+  // Test all daughter particles
+  if (particle->end_vertex() && m_qs && passFilter){
+    // Break loops
+    if ( std::find( used_vertices.begin() , used_vertices.end() , HepMC::barcode(particle->end_vertex()) )==used_vertices.end() ){
+      used_vertices.push_back( HepMC::barcode(particle->end_vertex()) );
+      for (auto pit: particle->end_vertex()->particles_out()){
+        passFilter = passFilter && pass( pit , used_vertices );
+        if (!passFilter) {
+          ATH_MSG_VERBOSE( "Daughter particle " << pit << " does not pass." );
+          break;
+        }
+      } // Loop over daughters
+    } // Break loops
+  } // particle had daughters
+  else if (!particle->end_vertex() && !passFilter && particle->status()<3) { // no daughters... No end vertex... Check if this isn't trouble
+    ATH_MSG_ERROR( "Found a particle with no end vertex that does not appear in the white list." );
+    ATH_MSG_ERROR( "This is VERY likely pointing to a problem with either the configuration you ");
+    ATH_MSG_ERROR( "are using, or a bug in the generator.  Either way it should be fixed.  The");
+    ATH_MSG_ERROR( "particle will come next, and then we will throw.");
+    ATH_MSG_ERROR( particle );
+    throw; 
+  }
+
+  return passFilter;
+}
+#else
 bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std::vector<int> & used_vertices ) const
 {
   // See if the particle is in the white list
@@ -132,6 +193,7 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
 
   return passFilter;
 }
+#endif
 
 StatusCode  ISF::GenParticleSimWhiteList::finalize()
 {

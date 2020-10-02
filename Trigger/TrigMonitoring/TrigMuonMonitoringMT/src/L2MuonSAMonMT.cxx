@@ -128,8 +128,6 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
 
     // super point
     std::vector<float> sp_r, sp_z;
-    sp_r.clear();
-    sp_z.clear();
 
     auto mon_sp_r= Monitored::Collection(chain+"_MDTpoints_r", sp_r);
     auto mon_sp_z= Monitored::Collection(chain+"_MDTpoints_z", sp_z);
@@ -165,9 +163,6 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerChain(const EventContext &ctx, const
 
 
     std::vector<float> res_inn, res_mid, res_out;
-    res_inn.clear();
-    res_mid.clear();
-    res_out.clear();
 
     auto mon_res_inn = Monitored::Collection(chain+"_MDT_Inn_residual",res_inn);
     auto mon_res_mid = Monitored::Collection(chain+"_MDT_Mid_residual",res_mid);
@@ -296,8 +291,6 @@ StatusCode L2MuonSAMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
 
   // inverse pt resolution depends on charge of offline muon
   std::vector<float> invptresol_pos, invptresol_neg;
-  invptresol_pos.clear();
-  invptresol_neg.clear();
 
   auto mon_invptresol_pos = Monitored::Collection(chain+"_invptresol_pos",invptresol_pos);
   auto mon_invptresol_neg = Monitored::Collection(chain+"_invptresol_neg",invptresol_neg);

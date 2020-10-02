@@ -22,7 +22,7 @@ m_totMass(DEFAULT),
 m_effMass(DEFAULT),
 m_totEnergy(DEFAULT),
 m_effEnergy(DEFAULT),
-m_incShowerSubtr(true){
+m_useSubtractedCluster(true){
 }
 
 //*******************************************
@@ -40,7 +40,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, const ToolHandle<ITa
     if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
  
     std::vector<const xAOD::CaloCluster*> clusterList;
-    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr);
+    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster);
 
     std::vector<TLorentzVector> clusterP4Vector;
     for (const xAOD::CaloCluster* cluster : clusterList) {

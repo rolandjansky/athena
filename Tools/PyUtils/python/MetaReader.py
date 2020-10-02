@@ -608,9 +608,8 @@ def _extract_fields_triggermenu(interface, aux):
             firstMenu = interface.at(0)
             L1Items = [ item for item in firstMenu.itemNames() ]
             HLTChains = [ chain for chain in firstMenu.chainNames() ]
-    except Exception as err:
+    except Exception as err: # noqa: F841
         msg.warn('Problem reading xAOD::TriggerMenu:')
-        msg.warn(err)
 
     result = {}
     result['L1Items'] = L1Items

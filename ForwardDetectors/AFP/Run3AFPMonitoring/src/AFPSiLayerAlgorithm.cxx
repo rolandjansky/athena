@@ -243,7 +243,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 	float clustersPerStationFloat = 0;
 	for(const auto& cluster : fast.clusters()) 
 	{
-		if(lb > previouslbStationA && previouslbStationA != 0)
+		if(lb != previouslbStationA && previouslbStationA != 0)
 		{
 			for(int i = 0; i < 4; i++)
 			{
@@ -254,7 +254,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 					clustersPerStationFloat = clustersPerStationFloat/(muPerBCID*counterForEventsStationA*4);
 				}
 				else{clustersPerStationFloat = -0.1;}
-	
+				
 				if(histogramType == 'S')
 				{
 					auto clustersPerStation = Monitored::Scalar<float>("clustersPerStation", 0.0);
@@ -282,7 +282,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 			}
 			previouslbStationA=lb;
 			++clusterCounterStationA[lb][cluster.station];
-			counterForEventsStationA=1;
+			counterForEventsStationA = 1;
 		}
 		else if (clusterCounterStationA[lb][cluster.station] == 0)
 		{
@@ -299,7 +299,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, i
 	float clustersPerPlaneFloat = 0;
 	for(const auto& cluster : fast.clusters()) 
 	{
-		if(lb > previouslbPlane && previouslbPlane != 0)
+		if(lb != previouslbPlane && previouslbPlane != 0)
 		{
 			for(int i=0; i<4; i++)
 			{
