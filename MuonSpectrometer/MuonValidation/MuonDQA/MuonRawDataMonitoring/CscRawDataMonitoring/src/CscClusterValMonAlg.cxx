@@ -2,16 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-/*   NAME    : CscClusterValMonAlg.cxx
- *   PACKAGE : MuonRawDataMonitoring/CscRawDataMonitoring
- *   PURPOSE : CSC cluster monitoring
- *   AUTHOR  : Venkatesh Kaushik <venkat.kaushik@cern.ch> (2009-04-27)
- *   
- *   MODIFIED: C.Paraskevopoulos, C.Kitsaki
- */
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 // Athena include(s)
@@ -27,13 +17,7 @@ using namespace Muon;
 
 CscClusterValMonAlg::CscClusterValMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name,pSvcLocator)
-  {
-    declareProperty("CSCQmaxCutADC", m_qmaxADCCut = 100);
- 
-  //trigger aware monitoring
-    declareProperty("CSCDoEventSelection",   m_doEvtSel = false );
-    declareProperty("CSCEventSelTriggers", m_sampSelTriggers );
-  }
+  { }
 
 StatusCode CscClusterValMonAlg::initialize() {
     
@@ -63,18 +47,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
   StatusCode sc = StatusCode::SUCCESS;
 
   // check if event passed sample-selection triggers
-  //if(m_doEvtSel) { if(!evtSelTriggersPassed()) return sc; }
-
-  bool check = false;
-
-  if(!m_doEvtSel) check = true;
-  std::vector<std::string>::const_iterator 
-  it = m_sampSelTriggers.begin(), itE = m_sampSelTriggers.end();
-  for ( ; it != itE; it++ ) {
-    if (m_trigDecTool->isPassed(*it, TrigDefs::eventAccepted)) check = true;
-  }
-
-  if(m_doEvtSel) { if(!check) return sc; }
+  if(m_doEvtSel) { if(!evtSelTriggersPassed()) return sc; }
   
   // retrieve cluster / strip collection
   SG::ReadHandle<CscPrepDataContainer> cscCluster(m_cscClusterKey, ctx);
@@ -453,3 +426,20 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
   return sc; 
 
 }
+
+//
+//  evtSelTriggersPassed ----------------------------------------------------------------
+//
+bool CscClusterValMonAlg::evtSelTriggersPassed() const {
+
+  if(!m_doEvtSel) return true;
+
+  for(const auto& trig : m_sampSelTriggers) {
+    if(m_trigDecTool->isPassed(trig,TrigDefs::eventAccepted)){
+      return true;
+    }
+  }
+  return false;
+  
+} // end evtSelTriggersPassed 
+
