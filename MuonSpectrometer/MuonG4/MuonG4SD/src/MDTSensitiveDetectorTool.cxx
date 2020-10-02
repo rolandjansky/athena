@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSensitiveDetectorTool.h"
 #include "MDTSensitiveDetector.h"
+#include <TString.h> // for Form
 
 MDTSensitiveDetectorTool::MDTSensitiveDetectorTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SensitiveDetectorBase( type , name , parent )
@@ -13,5 +14,7 @@ MDTSensitiveDetectorTool::MDTSensitiveDetectorTool(const std::string& type, cons
 G4VSensitiveDetector* MDTSensitiveDetectorTool::makeSD()
 {
   ATH_MSG_DEBUG( "Initializing SD" );
-  return new MDTSensitiveDetector(name(), m_outputCollectionNames[0]);
+  StatusCode sc = m_idHelperTool.retrieve();
+  if (sc.isFailure()) throw std::runtime_error(Form("File: %s, Line: %d\nMDTSensitiveDetectorTool::makeSD() - could not retrieve MuonIdHelperTool", __FILE__, __LINE__));
+  return new MDTSensitiveDetector(name(), m_outputCollectionNames[0], m_idHelperTool->mdtIdHelper().tubeMax());
 }

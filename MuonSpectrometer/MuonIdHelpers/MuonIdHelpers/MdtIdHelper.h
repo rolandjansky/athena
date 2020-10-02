@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -7,13 +7,8 @@
 // -----------------------------------------
 // ******************************************************************************
 
-//<doc><file> $Id: MdtIdHelper.h,v 1.34 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
-
 #ifndef MUONIDHELPERS_MDTIDHELPER_H
 #define MUONIDHELPERS_MDTIDHELPER_H
-
-// Includes
 
 #include "MuonIdHelpers/MuonIdHelper.h"
 
@@ -69,7 +64,7 @@ class MdtIdHelper : public MuonIdHelper
 
   // Destructor
 
-  virtual ~MdtIdHelper();
+  virtual ~MdtIdHelper()=default;
 
 
   ////////////// compact identifier stuff begins ////////////////////////////////////// 
@@ -199,6 +194,7 @@ class MdtIdHelper : public MuonIdHelper
       TubeMax             = 78
     };
   inline virtual void create_mlog() const;
+  unsigned int m_tubesMax; // maximum number of tubes in any chamber
 };
 
 // For backwards compatibility
@@ -429,7 +425,7 @@ inline int MdtIdHelper::tubeMin() const
 
 inline int MdtIdHelper::tubeMax() const
 {
-  return TubeMax;
+  return m_tubesMax;
 }
 /// Utility methods
 

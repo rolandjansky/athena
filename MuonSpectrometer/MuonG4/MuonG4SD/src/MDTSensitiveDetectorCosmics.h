@@ -89,8 +89,8 @@ class MDTSensitiveDetectorCosmics : public G4VSensitiveDetector {
     
 public:
     /** construction/destruction */
-    MDTSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName);
-    ~MDTSensitiveDetectorCosmics() {}
+    MDTSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName, const unsigned int nTubesMax);
+    ~MDTSensitiveDetectorCosmics()=default;
     
     /** member functions */
     void   Initialize(G4HCofThisEvent* HCE) override final;

@@ -27,7 +27,7 @@ StatusCode MDTSimHitVariables::fillVariables()
   CHECK( m_evtStore->retrieve(mdtContainer, m_ContainerName.c_str() ) );
   
   // Get the MDT Id hit helper
-  MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper();
+  MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(m_MdtIdHelper->tubeMax());
 
   if(mdtContainer->size()==0) ATH_MSG_WARNING(" MdtSimHit empty ");
   for( auto it : *mdtContainer ) {

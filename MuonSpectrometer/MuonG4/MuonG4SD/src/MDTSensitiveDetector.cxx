@@ -15,14 +15,14 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // construction/destruction
-MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
+MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::string& hitCollectionName, const unsigned int nTubesMax)
   : G4VSensitiveDetector( name )
   , m_MDTHitColl( hitCollectionName )
   , m_driftRadius(0.)
   , m_globalTime(0.)
   , m_DEFAULT_TUBE_RADIUS( std::numeric_limits<double>::max() )
 {
-  m_muonHelper = MdtHitIdHelper::GetHelper();
+  m_muonHelper = MdtHitIdHelper::GetHelper(nTubesMax);
 }
 
 // Implemenation of memebr functions

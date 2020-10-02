@@ -17,6 +17,8 @@
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
+#include <string>
+
 // Histograms quantities related to G4 Hits in the Atlas
 // Detector.  Used to validate GeoModel + much more.
 

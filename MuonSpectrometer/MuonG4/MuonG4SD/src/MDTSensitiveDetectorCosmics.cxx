@@ -18,7 +18,7 @@
 typedef std::istringstream my_isstream;
 
 // construction/destruction
-MDTSensitiveDetectorCosmics::MDTSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName)
+MDTSensitiveDetectorCosmics::MDTSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName, const unsigned int nTubesMax)
   : G4VSensitiveDetector( name )
   , m_momMag(0.)
   , m_MDTHitColl( hitCollectionName )
@@ -26,7 +26,7 @@ MDTSensitiveDetectorCosmics::MDTSensitiveDetectorCosmics(const std::string& name
   , m_globalTime(0.)
   , m_DEFAULT_TUBE_RADIUS( std::numeric_limits<double>::max() )
 {
-  m_muonHelper = MdtHitIdHelper::GetHelper();
+  m_muonHelper = MdtHitIdHelper::GetHelper(nTubesMax);
 }
 
 // Implemenation of member functions
