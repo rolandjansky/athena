@@ -14,7 +14,7 @@ int main()
   ATH_MSG_INFO ("Unit test for SUSYTools on data");
 
   // Stored updated references in SUSY ART area for now
-  std::string inputFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.data18_p4016.PHYSVAL.pool.root";
+  std::string inputFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.data18_13TeV.348403.data18_p4238.PHYSVAL.pool.root";
 
   std::string cmd("SUSYToolsTester " + inputFile + " maxEvents=500 isData=1 isAtlfast=0 Debug=0");
   ATH_MSG_INFO ("Will now run this command: " << cmd);

@@ -19,9 +19,8 @@ class TestSUSYTools(unittest.TestCase):
     PRW_ilcs  = []
 
     #guess the MC campaign for the prw file, if necessary
-    PRW_files.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root');
-    PRW_ilcs.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154_IBLOFF.root')
-    #PRW_ilcs.append('/afs/cern.ch/work/k/khoo/public/SUSYTools_example/ilumicalc_histograms_None_266904-267639.root')
+    PRW_files.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root')
+    PRW_ilcs.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20190219/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root')
 
     def vec_str(self,iterable):
         vs = ROOT.std.vector( ROOT.std.string )()
