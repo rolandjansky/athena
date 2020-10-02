@@ -45,8 +45,8 @@ for opt,arg in opts:
     if opt=="-n":
         Events_local=arg
 
-if 'postexec' in dir() :
-    rdo2aod = TrigInDetReco( postexec_file=postexec )
+if 'postinclude_file' in dir() :
+    rdo2aod = TrigInDetReco( postinclude_file = postinclude_file )
 else :
     rdo2aod = TrigInDetReco()
 
