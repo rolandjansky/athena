@@ -12,7 +12,7 @@
 #include <SelectionHelpers/SelectionReadHandle.h>
 
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 
 //
 // method implementations

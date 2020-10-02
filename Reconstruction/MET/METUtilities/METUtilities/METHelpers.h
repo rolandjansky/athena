@@ -14,7 +14,7 @@
 
 // Framework includes
 #include "AsgMessaging/MessageCheck.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"

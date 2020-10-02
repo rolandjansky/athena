@@ -10,7 +10,7 @@
 #ifndef INDETTRACKSELECTIONTOOL_INDETTRACKACCESSOR_H
 #define INDETTRACKSELECTIONTOOL_INDETTRACKACCESSOR_H
 
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "AsgTools/AsgMessaging.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticle.h"

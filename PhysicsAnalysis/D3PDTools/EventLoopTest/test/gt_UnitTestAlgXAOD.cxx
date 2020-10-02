@@ -13,7 +13,7 @@
 #include <EventLoopTest/UnitTestAlgXAOD.h>
 #include <AsgTesting/UnitTest.h>
 #include <AthContainers/AuxStoreStandalone.h>
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ShellExec.h>
 #include <SampleHandler/SampleLocal.h>

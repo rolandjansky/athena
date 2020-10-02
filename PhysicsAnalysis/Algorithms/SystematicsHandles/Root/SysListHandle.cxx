@@ -12,7 +12,7 @@
 #include <SystematicsHandles/SysListHandle.h>
 
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <regex>

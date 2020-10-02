@@ -12,7 +12,7 @@
 #include <SelectionHelpers/OutOfValidityHelper.h>
 
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <PATInterfaces/CorrectionCode.h>
 
 //

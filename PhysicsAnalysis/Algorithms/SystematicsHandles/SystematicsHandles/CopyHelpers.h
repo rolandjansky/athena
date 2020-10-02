@@ -10,7 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <xAODBase/IParticleContainer.h>
 #include <xAODBase/IParticleHelpers.h>
 #include <xAODCore/ShallowCopy.h>
