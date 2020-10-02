@@ -98,7 +98,7 @@ augmentationTools.append(HIGG8D1TauOrlElLLHDecWrapper)
 #==============================================================================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/trunk/src/BkgElectronClassification.cxx
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
     from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification 
     HIGG8D1BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool", MCTruthClassifierTool = BkgElectronMCTruthClassifier)
@@ -120,7 +120,7 @@ if globalflags.DataSource()=='geant4':
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
 # these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
 
     HIGG8D1ttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusBFilterTool")
@@ -212,13 +212,21 @@ HIGG8D1ThinningHelper.AppendToStream( HIGG8D1Stream )
 
 # Jet tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG8D1JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG8D1JetTPThinningTool",
+HIGG8D1Akt4PFlowJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG8D1Akt4PFlowJetTPThinningTool",
+                                                                ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                JetKey                  = "AntiKt4EMPFlowJets",
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                ApplyAnd                = False)
+ToolSvc += HIGG8D1Akt4PFlowJetTPThinningTool
+thinningTools.append(HIGG8D1Akt4PFlowJetTPThinningTool)
+
+HIGG8D1Akt4EMTopoJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG8D1Akt4EMTopoJetTPThinningTool",
                                                                 ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
                                                                 JetKey                  = "AntiKt4EMTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += HIGG8D1JetTPThinningTool
-thinningTools.append(HIGG8D1JetTPThinningTool)
+                                                                ApplyAnd                = False)
+ToolSvc += HIGG8D1Akt4EMTopoJetTPThinningTool
+thinningTools.append(HIGG8D1Akt4EMTopoJetTPThinningTool)
 
 
 # Tracks associated with Muons
@@ -235,7 +243,12 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 HIGG8D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "HIGG8D1ElectronTPThinningTool",
                                                                                  ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
                                                                                  SGKey                   = "Electrons",
-                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                                 GSFTrackParticlesKey    = "GSFTrackParticles",
+                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                 SelectionString         = "Electrons.pt > 0*GeV",
+                                                                                 BestMatchOnly = False,
+                                                                                 ConeSize = 0.3,
+                                                                                 ApplyAnd = False)
 ToolSvc += HIGG8D1ElectronTPThinningTool
 thinningTools.append(HIGG8D1ElectronTPThinningTool)
 
@@ -278,8 +291,8 @@ thinningTools.append(HIGG8D1TauTPThinningTool)
 #====================================================================
 
 #Truth tau/nutau and their ancestors and descendants
-truth_cond_tau = " ((abs(TruthParticles.pdgId) == 15 || abs(TruthParticles.pdgId) == 16) && (TruthParticles.pt > 0.01*GeV) && (TruthParticles.barcode<200000)) "
-truth_cond_lep = " ((abs(TruthParticles.pdgId) >= 11 && abs(TruthParticles.pdgId) <= 14) && (TruthParticles.pt > 4.0*GeV) && (TruthParticles.status == 1) && (TruthParticles.barcode<200000)) "
+truth_cond_tau = " ((abs(TruthParticles.pdgId) == 15 || abs(TruthParticles.pdgId) == 16) && (TruthParticles.pt > 0.01*GeV))" #&& (TruthParticles.barcode<200000)) "
+truth_cond_lep = " ((abs(TruthParticles.pdgId) >= 11 && abs(TruthParticles.pdgId) <= 14) && (TruthParticles.pt > 4.0*GeV) && (TruthParticles.status == 1))"# && (TruthParticles.barcode<200000)) "
 truth_photon = " ((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV)) "
 truth_cond_comb = "("+truth_cond_lep+"||"+truth_cond_tau+"||"+truth_photon+")"
 
@@ -331,7 +344,7 @@ HIGG8D1TruthTool3 = DerivationFramework__MenuTruthThinning(name                 
                                                            PreserveParentsSiblingsChildren = True,
                                                            WriteFirstN                = -1)
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     #ToolSvc += HIGG8D1TruthTool
     #thinningTools.append(HIGG8D1TruthTool)
     ToolSvc += HIGG8D1TruthTool2
@@ -419,7 +432,7 @@ HIGG8D1Seq = CfgMgr.AthSequencer("HIGG8D1Sequence")
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG8D1Kernel",
@@ -486,6 +499,7 @@ HIGG8D1SlimmingHelper.SmartCollections = ["AntiKt4EMPFlowJets",
                                           "BTagging_AntiKt4EMTopo_201810",
                                           "Electrons",
                                           "InDetTrackParticles",
+                                          "MET_Reference_AntiKt4EMPFlow",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "Muons",
                                           "PrimaryVertices",
@@ -493,7 +507,7 @@ HIGG8D1SlimmingHelper.SmartCollections = ["AntiKt4EMPFlowJets",
                                           "TauMVATESJets"]
 
 # Adding PFlow MET
-HIGG8D1SlimmingHelper.SmartCollections += ["MET_Reference_AntiKt4EMPFlow"] 
+HIGG8D1SlimmingHelper.AllVariables = ["GSFTrackParticles"] 
 
 HIGG8D1SlimmingHelper.ExtraVariables = [
                                         "Muons.TruthClassifierFallback_truthType.TruthClassifierFallback_truthOrigin.TruthClassifierFallback_dR",
@@ -503,7 +517,6 @@ HIGG8D1SlimmingHelper.ExtraVariables = [
                                         "AntiKt4TruthDressedWZJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
                                         "AntiKt4TruthJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
                                         "AntiKt4TruthWZJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
-                                        "GSFTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "PrimaryVertices.x.y",
