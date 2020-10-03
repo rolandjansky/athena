@@ -57,14 +57,25 @@ namespace InDet{
       void  set(double,double,double,double,double);
       void  add(const SiDetElementLink_xk&);
       int   nElements() const;
+
+
+      ////////////////////////////////////////////////////////////////////
+      /// Get barrel detector elements
+      /// Input parameters: startPoint[0] - X     searchDirection[0] - Ax 
+      ///                   startPoint[1] - Y     searchDirection[1] - Ay
+      ///                   startPoint[2] - Z     searchDirection[2] - Az
+      ///                   startPoint[3] - R
+      ///                   startPoint[4] - width
+      ///                   startPoint[5] - step
+      ////////////////////////////////////////////////////////////////////
       void getBarrelDetElements
-        (float*,
-         float*,
+        (std::array<float,6> startingPoint,
+         std::array<float,3> searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
       void getEndcapDetElements
-	(float*,
-         float*,
+	      (std::array<float,6> startingPoint,
+         std::array<float,3> searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
 
@@ -86,10 +97,10 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
-      void getDetElements(float*,
-                          float*,
-                          float,
-                          float,
+      void getDetElements(std::array<float,6> startingPoint,
+                          std::array<float,3> searchDirection,
+                          float Fc,
+                          float dW,
                           std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
                           std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
     };
