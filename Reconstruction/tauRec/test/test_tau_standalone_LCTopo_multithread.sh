@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# art-description: standalone tau reconstruction on MC in serial mode
+# art-description: standalone tau reconstruction ART on MC in multithread mode
 # art-type: grid
+# art-athena-mt: 8
 # art-include: master/Athena
 # art-output: *.root
 # art-output: *.log
@@ -13,11 +14,11 @@ NEVENTS=1000
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/standalone"
 
 # run the reconstruction
-athena.py --evtMax ${NEVENTS}  tauRec/tau_standalone_ESDtoAOD.py >> tau_standalone.log 2>&1
+athena.py --threads 4 --evtMax ${NEVENTS}  tauRec/tau_standalone_LCTopo_ESDtoAOD.py >> tau_standalone.log 2>&1
 echo "art-result: $? Reconstrution"
 
 # compare the AOD file
-art.py compare ref --entries ${NEVENTS} --mode semi-detailed --order-trees --diff-root AOD.pool.root ${REF_DIR}/AOD.pool.root >> AOD_diff_root.log 2>&1
+art.py compare ref --entries ${NEVENTS} --mode detailed --excluded-vars=mc_event_number --order-trees --diff-root AOD.pool.root ${REF_DIR}/LCTopo_AOD.pool.root >> AOD_diff_root.log 2>&1
 echo "art-result: $? diff-root"
 
 # run the physics validation
