@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include "AthViews/SimpleView.h"
 #include "AthViews/View.h"
+#include "SGTools/transientKey.h"
 
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
   m_store( storeName, Name ),
@@ -25,7 +26,7 @@ SimpleView::~SimpleView()
  */
 std::string SimpleView::viewKey (const std::string& key) const
 {
-  return m_name + "_" + key;
+  return SG::transientKey (m_name + "_" + key);
 }
 
 
