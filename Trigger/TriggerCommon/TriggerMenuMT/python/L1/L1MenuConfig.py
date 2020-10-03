@@ -3,11 +3,13 @@
 import re
 from importlib import import_module
 from collections import defaultdict as ddict
+from itertools import chain
 
 from AthenaCommon.Logging import logging
 
 from .Base.L1MenuFlags import L1MenuFlags
 from .Base.Limits import Limits
+from .Base.Boards import BoardType
 from .Base.L1Menu import L1Menu
 from .Base.Thresholds import TopoThreshold
 from .Base.TopoAlgorithms import AlgCategory
@@ -140,7 +142,7 @@ class L1MenuConfig(object):
 
     def _addThrToRegistry(self, thr):
         if self.thresholdExists(thr.name):
-            raise RuntimeError("LVL1 threshold of name '%s' already defined, need to abort", thr.name)
+            raise RuntimeError("LVL1 threshold of name '%s' already defined, need to abort" % thr.name)
 
         self._registeredThresholds[thr.name] = thr
 
@@ -168,38 +170,32 @@ class L1MenuConfig(object):
         Add all L1Topo triggers that are part of the menu as allowed input to the menu
         """
 
-        self._topoTriggers = {}
+        _topoTriggers = {}
 
         # for all topo algorithm categories the outputs (sometimes multiple) are defined as thresholds
         for cat in AlgCategory.getAllCategories():
-            outputLines = []        
+            outputLines = []
             for algo in self._registeredTopoAlgos[cat].values():
                 outputLines += algo.outputs if (type(algo.outputs) == list) else [ algo.outputs ]
-            self._topoTriggers[cat] = sorted(outputLines)
-            log.info("... found %i topo triggerlines (source: %s)", len(self._topoTriggers[cat]), cat )
-            log.debug("%r", self._topoTriggers[cat])
+            _topoTriggers[cat] = sorted(outputLines)
+            log.info("... found %i topo triggerlines (source: %s)", len(_topoTriggers[cat]), cat )
+            log.debug("%r", _topoTriggers[cat])
 
 
-        for cat in [AlgCategory.TOPO, AlgCategory.MUCTPI]:
-            for topoLineName in self._topoTriggers[cat]:
-                topoThrName = cat.prefix + topoLineName
-                TopoThreshold( name = topoThrName, algCategory = cat )
-
-        # multibit topo triggers are only supported for legacy central muon trigger
-        multibitTopoTriggers = set()
         multibitPattern = re.compile(r"(?P<line>.*)\[(?P<bit>\d+)\]")
-        for topoLineName in self._topoTriggers[AlgCategory.LEGACY]:
-            m = multibitPattern.match(topoLineName) # tries to match "trigger[bit]"
-            if m:
-                topoThrName = AlgCategory.LEGACY.prefix + m.groupdict()['line']
-                multibitTopoTriggers.add( topoThrName )
-            else:
-                topoThrName = AlgCategory.LEGACY.prefix + topoLineName # "topo", "muctpi", "legacy"
-                TopoThreshold( name = topoThrName, algCategory = AlgCategory.LEGACY )
-
-        # create thresholds from topo-multibit 
-        for topoThrName in multibitTopoTriggers:  # ( 'MULT-CMU4ab', ...)
-            TopoThreshold( name = topoThrName, algCategory = AlgCategory.LEGACY )
+        for cat in [AlgCategory.TOPO, AlgCategory.MUCTPI, AlgCategory.LEGACY]:
+            multibitTopoTriggers = set()
+            for topoLineName in _topoTriggers[cat]:
+                m = multibitPattern.match(topoLineName) # tries to match "trigger[bit]"
+                if m:
+                    topoThrName = cat.prefix + m.groupdict()['line']
+                    multibitTopoTriggers.add( topoThrName )
+                else:
+                    topoThrName = cat.prefix + topoLineName
+                    TopoThreshold( name = topoThrName, algCategory = cat )
+            # create thresholds from topo-multibit 
+            for topoThrName in multibitTopoTriggers:  # ( 'MULT-CMU4ab', ...)
+                TopoThreshold( name = topoThrName, algCategory = cat )
 
 
 
@@ -287,9 +283,11 @@ class L1MenuConfig(object):
             legacymenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s_inputs_legacy' % self.menuFilesToLoad, globals(), locals(), ['defineMenu'], 0)
             legacymenumodule.defineLegacyInputsMenu()
             log.info("... L1 legacy menu %s contains %i legacy boards (%s)", self.menuFilesToLoad, len(L1MenuFlags.legacyBoards()), ', '.join(L1MenuFlags.legacyBoards().keys()))
-        except ImportError:
-            log.info("==> No menu defining the legacy inputs was found, will assume this intended")
-
+        except ImportError as ie:
+            if ie.name == 'TriggerMenuMT.L1.Menu.Menu_%s_inputs_legacy' % self.menuFilesToLoad:
+                log.info(f"==> No menu defining the legacy inputs was found, will assume this intended. {ie.msg} {ie.name} {ie.path}")
+            else:
+                raise
 
     def _registerDefinedConfigurationObjects(self):
         """
@@ -386,9 +384,11 @@ class L1MenuConfig(object):
 
     def _generateTopoMenu(self):
 
-        allBoards = (list(L1MenuFlags.boards().items()) + list(L1MenuFlags.legacyBoards().items()))
-        allBoardsWithTopo = list(filter( lambda n : ('topo' in n[0].lower() or 'muctpi' in n[0].lower()), allBoards ))
-
+        allBoardsWithTopo = list( filter (
+            lambda b : BoardType.fromBoardName(b[0]) in [BoardType.TOPO, BoardType.MUCTPI], 
+            chain(L1MenuFlags.boards().items(), L1MenuFlags.legacyBoards().items())
+        ))
+                
         #
         # Add the topo thresholds to the menu
         #
@@ -668,19 +668,18 @@ class L1MenuConfig(object):
         NIM and CALREQ types are not remapped !!
         """
 
-        existingMappings = ddict(set)
+        alreadyUsedMappingNumbers = ddict(set)
         for thr in self.l1menu.thresholds:
             if thr.mapping<0:
                 continue
-            existingMappings[thr.ttype].add(thr.mapping)
+            alreadyUsedMappingNumbers[thr.ttype].add(thr.mapping)
 
         nextFreeMapping = ddict(lambda: 0)
-        for k in  existingMappings:
+        for k in  alreadyUsedMappingNumbers:
             nextFreeMapping[k] = 0
-
         for thr in self.l1menu.thresholds():
             if thr.mapping < 0:
-                while nextFreeMapping[thr.ttype] in existingMappings[thr.ttype]:
+                while nextFreeMapping[thr.ttype] in alreadyUsedMappingNumbers[thr.ttype]:
                     nextFreeMapping[thr.ttype] += 1
                 log.debug('Setting mapping of threshold %s as %i', thr, nextFreeMapping[thr.ttype])
                 thr.mapping = nextFreeMapping[thr.ttype]

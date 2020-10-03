@@ -49,7 +49,7 @@ class MDTSensitiveDetectorCosmicstest : public ::testing::Test {
 TEST_F ( MDTSensitiveDetectorCosmicstest, Initialize )
 {
   G4HCofThisEvent hce;
-  MDTSensitiveDetectorCosmics sd1("name1", "name1" );
+  MDTSensitiveDetectorCosmics sd1("name1", "name1", 78); // all MDT/sMDT chambers used in Run1/2 have maximum 78 tubes
   sd1.Initialize( &hce );
   ASSERT_TRUE(sd1.m_MDTHitColl.isValid()); //check if initialization of m_MDTHitColl is successful
 }
@@ -208,7 +208,7 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, ProcessHits )
 
   sp.SetTrack(track);
 
-  MDTSensitiveDetectorCosmics sd2("name2", "name2");
+  MDTSensitiveDetectorCosmics sd2("name2", "name2", 78); // all MDT/sMDT chambers used in Run1/2 have maximum 78 tubes
   sd2.Initialize( &hce );
   sd2.ProcessHits(&sp, &th );//invoke the memberfunction that is being tested
 
@@ -254,7 +254,7 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, GetIdentifier )
   navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
   G4TouchableHistory* touchableHistory = new G4TouchableHistory(*navigationHistory);
 
-  MDTSensitiveDetectorCosmics sd3("name3", "name3");
+  MDTSensitiveDetectorCosmics sd3("name3", "name3", 78); // all MDT/sMDT chambers used in Run1/2 have maximum 78 tubes
   sd3.Initialize( &hce );
   int theID = sd3.GetIdentifier(touchableHistory);
 

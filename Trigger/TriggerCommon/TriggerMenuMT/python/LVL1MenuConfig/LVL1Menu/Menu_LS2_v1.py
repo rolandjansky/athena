@@ -111,7 +111,7 @@ def defineMenu():
         #'RXE35', 'RXE40', 'RXE45', 'RXE50', 'RXE55', 'RXE60', 'RXE70', 'RXE80', # FTHR
 
         # 8 x restricted eta range
-        #'TE5.24ETA49', 'TE10.24ETA49', 'TE15.24ETA49', 'TE20.24ETA49', 'TE25.24ETA49', 'TE30.24ETA49', 'TE40.24ETA49', 'TE70.24ETA49',
+        'TE5.0ETA24', 'TE10.0ETA24', 'TE15.0ETA24', 'TE20.0ETA24', 'TE25.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24', 'TE70.0ETA24',
 
 
 
@@ -185,8 +185,8 @@ def defineMenu():
 
         # AFP
         'AFP_NSC', 'AFP_NSA',
-        #'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
-        #'AFP_FSC_SIT', 'AFP_FSC_LOG', 'AFP_FSC_TOF',
+        'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
+        'AFP_FSC_SIT', 'AFP_FSC_LOG', 'AFP_FSC_TOF',
 
         
         #-------------------------------------------------------------------

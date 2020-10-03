@@ -69,7 +69,7 @@ class MdtIdHelper : public MuonIdHelper
 
   // Destructor
 
-  virtual ~MdtIdHelper();
+  virtual ~MdtIdHelper()=default;
 
 
   ////////////// compact identifier stuff begins ////////////////////////////////////// 
@@ -198,6 +198,7 @@ class MdtIdHelper : public MuonIdHelper
       TubeMin             =  1,
       TubeMax             = 78
     };
+  unsigned int m_tubesMax; // maximum number of tubes in any chamber
 };
 
 // For backwards compatibility
@@ -430,7 +431,7 @@ inline int MdtIdHelper::tubeMin() const
 
 inline int MdtIdHelper::tubeMax() const
 {
-  return TubeMax;
+  return m_tubesMax;
 }
 /// Utility methods
 

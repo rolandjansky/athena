@@ -50,6 +50,13 @@ if hasattr(runArgs,"outputAODFile"):
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
     # Begin temporary trigger block
     if TriggerFlags.doMT():
+        # Lock DQ configuration to prevent downstream override
+        from AthenaMonitoring.DQMonFlags import DQMonFlags
+        print('DQMonFlags override')
+        if not rec.doTrigger():
+            DQMonFlags.useTrigger.set_Value_and_Lock(False)
+        if DQMonFlags.useTrigger() and rec.doTrigger():
+            DQMonFlags.useTrigger.set_Value_and_Lock(True)
         # Don't run any trigger - only pass the HLT contents from ESD to AOD
         from RecExConfig.RecAlgsFlags import recAlgs
         recAlgs.doTrigger.set_Value_and_Lock( False )
@@ -80,7 +87,6 @@ if hasattr(runArgs,"tmpAOD"):
 
 if hasattr(runArgs,"outputHIST_AOD_INTFile"):
     rec.doMonitoring.set_Value_and_Lock(True)
-    from AthenaMonitoring.DQMonFlags import DQMonFlags
     DQMonFlags.histogramFile.set_Value_and_Lock( runArgs.outputHIST_AOD_INTFile )
 
 if hasattr(runArgs,"outputNTUP_BTAGFile"):
@@ -154,9 +160,9 @@ if hasattr(runArgs,"outputDESDM_BEAMSPOTFile"):
     include("InDetBeamSpotFinder/DESDM_BEAMSPOTFragment.py")
 
 #==========================================================
-# Use LZIB for compression of temporary outputs of AthenaMP
+# Use ZLIB for compression of all temporary outputs
 #==========================================================
-if hasattr(runArgs, "outputAODFile") and '_000' in runArgs.outputAODFile:
+if hasattr(runArgs, "outputAODFile") and ('_000' in runArgs.outputAODFile or 'tmp.' in runArgs.outputAODFile):
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 

@@ -35,7 +35,7 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
         idScanEndcap2Res = [0.030, 0.0000002]
         idScanEndcap3Res = [0.036, 0.0000004]
         idScanEndcap4Res = [0.046, 0.0000002]
-
+    from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
     muCombMT = CompFactory.muCombMT
     muCombAlg = muCombMT(name                  = "MuComb"+postFix,
                          MuCombStrategy        = 0,
@@ -50,7 +50,7 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
                          IDSCANEndcap3Res      = idScanEndcap3Res,
                          IDSCANEndcap4Res      = idScanEndcap4Res,
                          IDalgo                = "InDetTrigTrackingxAODCnv_Muon_FTF",
-                         MonTool = None)
+                         MonTool = TrigMuCombMonitoring())
 
     return acc, muCombAlg
 
