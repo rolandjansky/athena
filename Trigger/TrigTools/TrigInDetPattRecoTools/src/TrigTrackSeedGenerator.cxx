@@ -780,10 +780,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
         output.erase(it);
       }
 
-      TrigInDetTriplet t(*m_SoA.m_spi[innIdx], *pS, *m_SoA.m_spo[outIdx-nInner], Q);
-
-
-      output.push_back(t);
+      output.emplace_back(*m_SoA.m_spi[innIdx], *pS, *m_SoA.m_spo[outIdx-nInner], Q);
     }
   }
 }
@@ -1082,8 +1079,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
       const TrigSiSpacePointBase* pSPI = (type1==0) ? m_SoA.m_sorted_sp[iter1] : m_SoA.m_sorted_sp[iter2];
       const TrigSiSpacePointBase* pSPO = (type1==0) ? m_SoA.m_sorted_sp[iter2] : m_SoA.m_sorted_sp[iter1];
 
-      TrigInDetTriplet t(*pSPI, *pS, *pSPO, Q);
-      output.push_back(t);
+      output.emplace_back(*pSPI, *pS, *pSPO, Q);
     }
 
     iter1++;
