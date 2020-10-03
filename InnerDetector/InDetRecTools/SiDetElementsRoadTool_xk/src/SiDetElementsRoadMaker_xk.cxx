@@ -293,7 +293,7 @@ std::ostream& InDet::operator <<
 void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (std::list<Amg::Vector3D>& GP,
  std::list<const InDetDD::SiDetectorElement*>& Road,
- bool test) const
+ bool testDirection) const
 {  
   if (!m_usePIX && !m_useSCT) return;
 
@@ -310,8 +310,12 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   /// phi in Z. 
   const SiDetElementsLayerVectors_xk &layer = *getLayers();
 
+  /// iterators over the positions to consider
   std::list<Amg::Vector3D>::iterator currentPosition=GP.begin(), endPositions=GP.end();
-  std::array<float,6> par_prevPoint{static_cast<float>((*currentPosition).x()),            // x of first position
+
+  /// fill an array with the reference point (start with the first one), the road width and a placeholder
+  /// for the step length
+  std::array<float,6> par_startingPoint{static_cast<float>((*currentPosition).x()),            // x of first position
                 static_cast<float>((*currentPosition).y()),             // y of first position
                 static_cast<float>((*currentPosition).z()),             // Z of first position
                 static_cast<float>(sqrt((*currentPosition).x()*(*currentPosition).x()+(*currentPosition).y()*(*currentPosition).y())),    // r of first position 
@@ -323,7 +327,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   /// the first position from the left side
   int n0 = 0;
   for (; n0!=static_cast<int>(layer[0].size()); ++n0) {
-    if (par_prevPoint[2] > layer[0].at(n0).z()) break;
+    if (par_startingPoint[2] > layer[0].at(n0).z()) break;
   }
 
   /// check the barrel layers
@@ -331,13 +335,13 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   /// the first position in the radial direction
   int n1 = 0;
   for (; n1!=static_cast<int>(layer[1].size()); ++n1) {
-    if (par_prevPoint[3] < layer[1].at(n1).r()) break;
+    if (par_startingPoint[3] < layer[1].at(n1).r()) break;
   }
   /// and finally, the left endcap. 
   /// this time, look for the layer closest on the right side. 
   int n2 = 0;
   for (; n2!=static_cast<int>(layer[2].size()); ++n2) {
-    if (par_prevPoint[2] < layer[2].at(n2).z()) break;
+    if (par_startingPoint[2] < layer[2].at(n2).z()) break;
   }
 
   
@@ -354,48 +358,54 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
      }
   }
 
-  /// done with the first probed position. Now we look at the others
+  /// done with the first probed position. Now we can start to move along the trajectory
   ++currentPosition;
-  /// do the following for every point
   while (currentPosition!=endPositions) {
-    std::array<float,4>  par_currentPoint{static_cast<float>((*currentPosition).x()),         /// x of the current position
+    /// store the point we are aiming towards
+    std::array<float,4>  par_targetPoint{static_cast<float>((*currentPosition).x()),         /// x of the current position
                     static_cast<float>((*currentPosition).y()),         /// y of the current position
                     static_cast<float>((*currentPosition).z()),         /// z of the current position
 		                static_cast<float>(sqrt((*currentPosition).x()*(*currentPosition).x()+(*currentPosition).y()*(*currentPosition).y()))   /// r of the current position
                     };
 
-    float dx = par_currentPoint[0]-par_prevPoint[0];         /// dx between the current and the first position
-    float dy = par_currentPoint[1]-par_prevPoint[1];         /// dy between the current and the first position 
-    float dz = par_currentPoint[2]-par_prevPoint[2];         /// dz between the current and the first position 
+    /// perform linearisation
+    float dx = par_targetPoint[0]-par_startingPoint[0];         /// dx between the current and the first position
+    float dy = par_targetPoint[1]-par_startingPoint[1];         /// dy between the current and the first position 
+    float dz = par_targetPoint[2]-par_startingPoint[2];         /// dz between the current and the first position 
     float dist3D = sqrt(dx*dx+dy*dy+dz*dz);   /// 3D distance between the current and the first position
-    if (dist3D <=0.) {                   /// if geometry breaks down or two points are duplicates, 
-      ++currentPosition;                /// we whistle innocently and make a point of looking somewhere else 
+    if (dist3D <=0.) {                    /// if geometry breaks down or two points are duplicates, 
+      ++currentPosition;                  /// we whistle innocently and make a point of looking somewhere else 
       continue;
     }
     float inverseDistance = 1./dist3D;                   /// inverse distance to the first position 
-    std::array<float,3> unitSepVector{dx*inverseDistance, dy*inverseDistance, dz*inverseDistance};  /// unit vector with the linearised direction we are currently moving in 
+    /// now we can book the linearised search direction 
+    std::array<float,3> searchDirection{dx*inverseDistance, dy*inverseDistance, dz*inverseDistance};
 
-    /// Min. radius test between this two points
-    float unitSepTransverseComp = unitSepVector[0]*unitSepVector[0]+unitSepVector[1]*unitSepVector[1];     /// transverse component of the separation vector 
+    /// Having found the search direction, we are ready to look for detector elements and iterate.
+    /// Before doing so, we add an additional test to ensure we probe the perigee point
+    /// if we cross it on the way. 
+    float unitSepTransverseComp = searchDirection[0]*searchDirection[0]+searchDirection[1]*searchDirection[1];     /// transverse component of the separation vector 
     float dr = 0.                 ;     
     if (unitSepTransverseComp!=0.) {                               
       /// *negative* component of the global location of the previous position into the direction connecting our positions in the x-y plane 
-      float sm = -( unitSepVector[0]*par_prevPoint[0] +
-                    unitSepVector[1]*par_prevPoint[1])
+      /// corresponds to the path length opposite to the linearised direction to reach the perigee 
+      float sm = -( searchDirection[0]*par_startingPoint[0] +
+                    searchDirection[1]*par_startingPoint[1])
                     /unitSepTransverseComp; 
 
       /// a positive value of SM means the closest approach to the beamline is between the two positions we are considering. 
-      /// This occasionally happens for the first position along the search trajectory generated by the propagator tool. 
-      /// In this case, we do not iterate, but instead repeat the current step with a different 'previous' point
-      /// which attempts to approximate the perigee location 
-      if (sm > 1. && sm < dist3D) {
-        par_currentPoint[0] = par_prevPoint[0]+unitSepVector[0]*sm;
-        par_currentPoint[1] = par_prevPoint[1]+unitSepVector[1]*sm;
-        par_currentPoint[2] = par_prevPoint[2]+unitSepVector[2]*sm;
-        par_currentPoint[3] = sqrt(par_currentPoint[0]*par_currentPoint[0]+par_currentPoint[1]*par_currentPoint[1]);
-        /// now, the current point is the perigee estimate and the previous point is 
-        /// the (likely innermost) one beyond the perigee 
-	      dr    = 20.;
+      /// In this case, we do not want to iterate to the next point, but instead insert an additional step where we use the 
+      /// perigee point as our reference. We do this by setting the target point to the perigee, which will be made the 
+      /// reference point when repeating the loop. 
+      /// Since the perigee is estimated using the linearised direction, this direction stays valid and does not need to be updated.
+      if (sm > 1. && sm < dist3D) {   /// only add the perigee point if the next point is beyond the perigee, and if we are not too close anyway
+        par_targetPoint[0] = par_startingPoint[0]+searchDirection[0]*sm;
+        par_targetPoint[1] = par_startingPoint[1]+searchDirection[1]*sm;
+        par_targetPoint[2] = par_startingPoint[2]+searchDirection[2]*sm;
+        par_targetPoint[3] = sqrt(par_targetPoint[0]*par_targetPoint[0]+par_targetPoint[1]*par_targetPoint[1]);
+        /// now, the target point is the perigee estimate, while 
+        /// the reference point for this round stays unchanged.
+	      dr    = 20.;  /// allow 2cm on top of the perigee location when extrapolating inward. 
       } else {
         ++currentPosition;
       }
@@ -403,103 +413,87 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       ++currentPosition;
     }
 
-    /// Barrel
+    /// Start collecting detector elements traversed by our linearised path. 
+
+    /// First, barrel elements
+
     /// if we are moving outwards in r: 
-    if (par_currentPoint[3]>par_prevPoint[3]) {
-      /// loop over all barrel layers (starting with the one previously identified)
+    if (par_targetPoint[3]>par_startingPoint[3]) {
+      /// loop over all barrel layers (starting with the closest one previously identified)
       for (; n1<static_cast<int>(layer[1].size()); ++n1) {
-        /// stop if we moved past the test point in R
-	      if (par_currentPoint[3] < layer[1].at(n1).r()) break;
+        /// stop if we moved past the targer point in R
+	      if (par_targetPoint[3] < layer[1].at(n1).r()) break;
         assert( used.at(1).size() > static_cast<unsigned int>(n1) );
-        /// collect all compatible detector elements
-	      layer[1].at(n1).getBarrelDetElements(par_prevPoint, unitSepVector, lDE, used[1][n1]);
+        /// collect all compatible detector elements from the current layer
+	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
       }
       /// if we are moving inward in R, iterate the other way for the barrel
     } else {
       for (--n1; n1>=0; --n1) {
         /// stop if we moved past the test point in R
-	      if (par_currentPoint[3] > layer[1].at(n1).r()+dr) break;
+	      if (par_targetPoint[3] > layer[1].at(n1).r()+dr) break;
         assert( used.at(1).size() > static_cast<unsigned int>(n1) );
         /// collect all compatible detector elements        
-	      layer[1].at(n1).getBarrelDetElements(par_prevPoint, unitSepVector, lDE, used[1][n1]);
+	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
       }
       ++n1;
     }
 
     /// Positive endcap
     /// again check if we are moving forward or back in z
-    if (par_currentPoint[2]>par_prevPoint[2]) {
+    if (par_targetPoint[2]>par_startingPoint[2]) {
       for (; n2<static_cast<int>(layer[2].size()); ++n2) {
-	      if (par_currentPoint[2] < layer[2].at(n2).z()) break;
+	      if (par_targetPoint[2] < layer[2].at(n2).z()) break;
         assert( used.at(2).size() > static_cast<unsigned int>(n2) );
         /// collect all compatible detector elements        
-	      layer[2].at(n2).getEndcapDetElements(par_prevPoint, unitSepVector, lDE,used[2][n2]);
+	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
-	      if (par_currentPoint[2] > layer[2].at(n2).z()) break;
+	      if (par_targetPoint[2] > layer[2].at(n2).z()) break;
         assert( used.at(2).size() > static_cast<unsigned int>(n2) );
         /// collect all compatible detector elements        
-	      layer[2].at(n2).getEndcapDetElements(par_prevPoint, unitSepVector, lDE, used[2][n2]);
+	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE, used[2][n2]);
       }
       ++n2;
     }
 
     /// Negative endcap
     /// same game as above
-    if (par_currentPoint[2]<par_prevPoint[2]) {
+    if (par_targetPoint[2]<par_startingPoint[2]) {
       for (; n0<static_cast<int>(layer[0].size()); ++n0) {
-	      if (par_currentPoint[2] > layer[0].at(n0).z()) break;
+	      if (par_targetPoint[2] > layer[0].at(n0).z()) break;
         assert( used.at(0).size() > static_cast<unsigned int>(n0) );
         /// collect all compatible detector elements        
-	      layer[0].at(n0).getEndcapDetElements(par_prevPoint, unitSepVector, lDE,used[0][n0]);
+	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
       }
     } else {
       for (--n0; n0>=0; --n0) {
-	      if (par_currentPoint[2] < layer[0].at(n0).z()) break;
+	      if (par_targetPoint[2] < layer[0].at(n0).z()) break;
         assert( used.at(0).size() > static_cast<unsigned int>(n0) );
         /// collect all compatible detector elements        
-	      layer[0].at(n0).getEndcapDetElements(par_prevPoint, unitSepVector, lDE,used[0][n0]);
+	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
       }
       ++n0;
     }
-
-
-    /// update the "previous point" to be the current one
-    par_prevPoint[0] = par_currentPoint[0];
-    par_prevPoint[1] = par_currentPoint[1];
-    par_prevPoint[2] = par_currentPoint[2];
-    par_prevPoint[3] = par_currentPoint[3];
-    par_prevPoint[5]+= dist3D;
+    /// update the starting point to be the current target point
+    par_startingPoint[0] = par_targetPoint[0];
+    par_startingPoint[1] = par_targetPoint[1];
+    par_startingPoint[2] = par_targetPoint[2];
+    par_startingPoint[3] = par_targetPoint[3];
+    /// and increment the total propagation distance
+    par_startingPoint[5]+= dist3D;
   }
 
-  // Sort list in propogation order
-  //
-  std::vector<InDet::SiDetElementLink_xk::ElementWay>::iterator l=lDE.begin(), le=lDE.end(), n, m;
-  if (l==le) return;
-
-  bool nc =true;
-  while (nc) {
-    nc =false; m=l; n=l;
-    for (++n; n!=le; ++n) {
-      if (m->way() > n->way()) {
-        InDet::SiDetElementLink_xk::ElementWay d=(*m);
-        (*m)=(*n);
-        (*n)=d;
-        nc=true;
-      }
-      ++m;
-    }
-  }
+  // Sort list in propagation order
+  std::sort(lDE.begin(),lDE.end(),[](const InDet::SiDetElementLink_xk::ElementWay& l1, const InDet::SiDetElementLink_xk::ElementWay & l2){
+    return l1.way() < l2.way(); 
+  });
 
   // Fill list pointers to detector elements
-  //
-  for (l=lDE.begin(); l!=le; ++l) {
-    if (test) {
-      if (l->way() >= 0.) Road.push_back(l->link()->detElement());
-    } else {
-      Road.push_back(l->link()->detElement());
-    }
+  for (auto & d : lDE){
+    if (testDirection && d.way() < 0) continue; 
+    Road.push_back(d.link()->detElement());
   }
 }
 
@@ -524,9 +518,9 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   /// upper limit to step size: 1000               ;
   if (S  > 1000. ) S  = 1000. ;
 
-  bool test = true;
+  bool testDirection = true;
   if (D<0) {
-    test = false;
+    testDirection = false;
     S=-S;
   }
 
@@ -565,7 +559,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     }
   }
   /// now perform the road building using our set of positions
-  detElementsRoad(G, R,test);
+  detElementsRoad(G, R,testDirection);
 }
 
 

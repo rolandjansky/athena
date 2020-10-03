@@ -43,10 +43,14 @@ class MsgStream;
 namespace InDet{
   /**
      @class SiDetElementsRoadMaker_xk 
-     InDet::SiDetElementsRoadMaker_xk is algorithm which produce list of 
-     InDetDD::SiDetectorElement* sorted in propagation order according
-     global positions of the trajectory between perigee point and max radius
-     for direction along momentum.
+     InDet::SiDetElementsRoadMaker_xk is a tool which produces a list of 
+     InDetDD::SiDetectorElement* sorted in propagation order expected to be crossed
+     by a trajectory. 
+     The elements are found by locally linearising the trajectory between
+     pairs of space points obtained by propagating the track parameters between
+     the perigee point and max radius for direction along momentum, and 
+     testing the intersection of each local trajectory element with the layers
+     /// of the detector.  
      @author Igor.Gavrilenko@cern.ch     
   */
 

@@ -67,15 +67,22 @@ namespace InDet{
       ///                   startPoint[3] - R
       ///                   startPoint[4] - width
       ///                   startPoint[5] - step
+      /// Will populate 'lDE' and update 'used' with the detector elements
+      /// compatible with a crossing by a straight trajectory starting 
+      /// at 'startPoint' and moving in direction 'searchDirection'. 
+      /// The two additional elements of startPoint are the 
+      /// road width used as tolerance in the crossing test (in mm) 
+      /// and the step (distance to travel to the module). 
       ////////////////////////////////////////////////////////////////////
       void getBarrelDetElements
-        (std::array<float,6> startingPoint,
-         std::array<float,3> searchDirection,
+        (const std::array<float,6> & startingPoint,
+         const std::array<float,3> & searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
+
       void getEndcapDetElements
-	      (std::array<float,6> startingPoint,
-         std::array<float,3> searchDirection,
+	      (const std::array<float,6> & startingPoint,
+         const std::array<float,3> & searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
 
@@ -94,13 +101,15 @@ namespace InDet{
       float  m_dfe ;                               // max azimuthal width of de
       std::vector<SiDetElementLink_xk> m_elements; // detector elements
  
-      ///////////////////////////////////////////////////////////////////
-      // Methods
-      ///////////////////////////////////////////////////////////////////
-      void getDetElements(std::array<float,6> startingPoint,
-                          std::array<float,3> searchDirection,
-                          float Fc,
-                          float dW,
+      /// internal helper which resolves the phi-multiplicity of elements
+      /// within a layer. Same logic as above. Extra args: 
+      /// 'phiCrossing' is the phi coordinate of the layer crossing
+      /// and 'reducedRoadWidth' is a phi tolerance obtained by 
+      /// dividing the search road width by the radius of the layer  
+      void getDetElements(const std::array<float,6> & startingPoint,
+                          const std::array<float,3> & searchDirection,
+                          float phiCrossing,
+                          float reducedRoadWidth,
                           std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
                           std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
     };

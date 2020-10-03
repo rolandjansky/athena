@@ -26,18 +26,15 @@
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiDetElementsLayer_xk::getBarrelDetElements
-(std::array<float,6> startingPoint,
- std::array<float,3> searchDirection,
+(const std::array<float,6> & startingPoint,
+ const std::array<float,3> & searchDirection,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
  std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const
 {
 
-  /// In the following, identify where we cross the layer
+  /// In the following, identify where we cross the layer in r
   /// by solving the quadratic equation 
-  /// ( startingPoint_xy + X * searchDirection_xy )² = r_layer² 
-  /// We only take into account the x-y plane for this
-
-
+  /// ( startingPoint_xy + s * searchDirection_xy )² = r_layer² 
   float minusB  =2*( searchDirection[0]*startingPoint[0]
                     +searchDirection[1]*startingPoint[1]); 
   float C  = (m_r-startingPoint[0]-startingPoint[1])
@@ -61,21 +58,11 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
   /// if both solution occur for the same direction, 
   /// we pick the crossing that occurs first 
   if((s1*s2) > 0.) {
-    if (fabs(s1) < fabs(s2)){
-      s = s1;
-    }
-    else {
-      s = s2;
-    }
+    s = (fabs(s1) < fabs(s2) ? s1 : s2); 
   }
   /// otherwise, pick the one in the positive direction
   else{     
-    if (s1  > 0.){
-      s = s1; 
-    }
-    else{
-      s = s2;
-    }
+    s = (s1  > 0. ? s1 : s2); 
   }  
   /// Z-coordinate of the layer crossing 
   float zc   = startingPoint[2]+searchDirection[2]*s;
@@ -106,8 +93,8 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiDetElementsLayer_xk::getEndcapDetElements
-(std::array<float,6> startingPoint,
- std::array<float,3> searchDirection,
+(const std::array<float,6> & startingPoint,
+ const std::array<float,3> & searchDirection,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
  std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const
 {
@@ -141,16 +128,19 @@ void InDet::SiDetElementsLayer_xk::getEndcapDetElements
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiDetElementsLayer_xk::getDetElements
-(std::array<float,6> startingPoint,
- std::array<float,3> searchDirection,
+(const std::array<float,6> & startingPoint,
+ const std::array<float,3> & searchDirection,
  float phiCrossing,
  float reducedRoadWidth,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
  std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const
 {
-  constexpr float pi = M_PI, pi2 = 2.*pi; 
-  int im  = int(m_elements.size())-1; if(im<0) return;
-  int i0  = 0, i1  = im;
+  constexpr float pi = M_PI;
+  constexpr float pi2 = 2.*pi; 
+  int im  = int(m_elements.size())-1; 
+  if(im<0) return;
+  int i0  = 0;
+  int i1  = im;
 
   /// iteratively search for the index of the crossing by splitting the remaining search region in half
   if (phiCrossing> m_elements[i0].phi() && phiCrossing< m_elements[i1].phi()) {
@@ -168,6 +158,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
   //
   std::array<float,3> intersectionOutcome;
   int i = i0;
+  /// first, rotate in the positive phi direction
   while(1) {
     assert( static_cast<unsigned int>(i)<m_elements.size() );
     /// if detector element i on this layer is not already used for this road
@@ -175,9 +166,11 @@ void InDet::SiDetElementsLayer_xk::getDetElements
       /// 
       float dPhi =fabs(m_elements[i].phi()-phiCrossing); 
       if(dPhi>pi) dPhi=fabs(dPhi-pi2);    /// project delta phi into -pi..pi
+
       /// dPhi must be compatible with the phi half-width within a tolerance
       /// specified by the road width divided by the radius 
       if((dPhi-reducedRoadWidth)>m_dfe) break;
+
       /// intersect our projection with the detector element. 
       /// Output: intersectionOutcome[0] - close distance in azimuthal direction
       ///         intersectionOutcome[1] - close distance in r or z    direction
@@ -197,21 +190,26 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     if(i>im) i=0; /// loop around if we have to 
     if(i==i0) return; /// stop when we have tried all detector elements
   }
-  /// This is dead code?!
+  /// we get here by triggering the 'break' clause in the positive-direction loop above 
   i1 = i; i = i0;
   while(1) {
-
-    --i; if(i<0) i=im; if(i==i1) return;
-
+    /// now rotate in the negative phi direction
+    --i; 
+    /// loop around at zero
+    if(i<0) i=im; 
+    /// stop at full circle
+    if(i==i1) return;
     assert( static_cast<unsigned int>(i)<m_elements.size() );
     if(!used[i].used()) {
 
-      float dPhi =fabs(m_elements[i].phi()-phiCrossing); if(dPhi>pi) dPhi=fabs(dPhi-pi2);
+      float dPhi =fabs(m_elements[i].phi()-phiCrossing); 
+      if(dPhi>pi) dPhi=fabs(dPhi-pi2);
       if((dPhi-reducedRoadWidth)>m_dfe) return;
       m_elements[i].intersect(&(startingPoint[0]),&(searchDirection[0]),&(intersectionOutcome[0]));
       
       if((intersectionOutcome[0]-startingPoint[4])<=0 && (intersectionOutcome[1]-startingPoint[4])<=0.) {
-         lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2])); used[i].setUsed();
+         lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2])); 
+         used[i].setUsed();
       }
     }
   }
