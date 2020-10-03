@@ -104,7 +104,7 @@ class TrigInDetReco(ExecStep):
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
         if (self.postexec_trig != ' '):
             self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
-        if (self.postinclude_trig != ' '):
+        if (self.postinclude_trig != ''):
             self.args += ' --postInclude "RDOtoRDOTrigger:{:s}" '.format(self.postinclude_trig)
         super(TrigInDetReco, self).configure(test)
 
