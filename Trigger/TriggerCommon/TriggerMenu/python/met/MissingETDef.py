@@ -52,7 +52,7 @@ from TrigMissingETMuon.TrigMissingETMuonConfig import (EFTrigMissingETMuon_Fex,
                                                        EFTrigMissingETMuon_Fex_topoclPUC,
                                                        L2TrigMissingETMuon_Fex)
 
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
+from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo
 
 from TriggerMenu.jet.JetDef import generateHLTChainDef
 from TriggerMenu.menu import DictFromChainName
@@ -417,7 +417,7 @@ class L2EFChain_met(L2EFChainDef):
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
                 trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
                 print (trk_algs[0])
-                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+                dummyAlg = GenericDummyUnseededAllTEAlgo("EF_DummyFEX_xe")
                 self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
 
         elif EFrecoAlg=='trkmht':
@@ -430,7 +430,7 @@ class L2EFChain_met(L2EFChainDef):
             #adding FullScan tracks
             from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
             trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-            dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+            dummyAlg = GenericDummyUnseededAllTEAlgo("EF_DummyFEX_xe")
             self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
 
             self.EFsequenceList +=[[ [output4,'EF_xe_step0',muonSeed], [theEFMETFex], 'EF_xe_step1' ]]                                                                               
@@ -447,7 +447,7 @@ class L2EFChain_met(L2EFChainDef):
             ##adding FullScan tracks
             from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
             trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-            dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+            dummyAlg = GenericDummyUnseededAllTEAlgo("EF_DummyFEX_xe")
             self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
 
             self.EFsequenceList +=[[ [output3,'EF_xe_step0',muonSeed], [theEFMETFex], 'EF_xe_step1' ]]                                                                               
