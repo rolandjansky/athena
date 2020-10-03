@@ -125,11 +125,9 @@ void ToolConstants::error (const std::string& context,
 void ToolConstants::writeConstants(std::ostream& stream,
                                    const std::string& name) const
 {
-  Maptype::const_iterator it=m_map.begin();
-  Maptype::const_iterator it_e=m_map.end();
-  for (;it!=it_e;it++) {
-    stream << name << "." << it->first << " = ";
-    it->second.write_array(stream);
+  for (const std::pair<const std::string, CxxUtils::Arrayrep>& p : m_map) {
+    stream << name << "." << p.first << " = ";
+    p.second.write_array(stream);
   }
   stream << std::endl;
 }

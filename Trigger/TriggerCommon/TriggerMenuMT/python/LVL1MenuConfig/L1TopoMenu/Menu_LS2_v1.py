@@ -22,7 +22,7 @@ def defineMenu():
         TopoOutput( algoname='2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',       module=0, fpga=0, clock=0, firstbit=2 ),
         TopoOutput( algoname='2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',       module=0, fpga=0, clock=0, firstbit=3 ),
         TopoOutput( algoname='INVM_DPHI_NFF',                               module=0, fpga=0, clock=0, firstbit=4 ), # 4 bits
-        TopoOutput( algoname='0INVM10-3MU4ab',                              module=0, fpga=0, clock=0, firstbit=8 ),
+        TopoOutput( algoname='0INVM10-3MU4ab',                              module=0, fpga=0, clock=0, firstbit=9 ),
 
 
     

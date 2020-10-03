@@ -241,7 +241,7 @@ StatusCode MVATrackVertexAssociationTool::initializeNetwork() {
   // For sequential:
   if (m_isSequential) {
     lwt::JSONConfig netDef = lwt::parse_json(netFile);
-    m_network = std::move(std::unique_ptr<lwt::LightweightNeuralNetwork>(new lwt::LightweightNeuralNetwork(netDef.inputs, netDef.layers, netDef.outputs)));
+    m_network = std::unique_ptr<lwt::LightweightNeuralNetwork>(new lwt::LightweightNeuralNetwork(netDef.inputs, netDef.layers, netDef.outputs));
   }
   // For functional:
   else {
@@ -251,7 +251,7 @@ StatusCode MVATrackVertexAssociationTool::initializeNetwork() {
       return StatusCode::FAILURE;
     }
     m_inputNodeName = netDef.inputs[0].name;
-    m_graph = std::move(std::unique_ptr<lwt::LightweightGraph>(new lwt::LightweightGraph(netDef)));
+    m_graph = std::unique_ptr<lwt::LightweightGraph>(new lwt::LightweightGraph(netDef));
   }
 
   return StatusCode::SUCCESS;

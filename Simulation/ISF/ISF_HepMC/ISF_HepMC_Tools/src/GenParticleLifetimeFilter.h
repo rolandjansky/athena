@@ -34,7 +34,11 @@ namespace ISF {
     ~GenParticleLifetimeFilter(){}
 
     /** does the given particle pass the filter? */
+#ifdef HEPMC3
+    bool pass(HepMC::ConstGenParticlePtr particle) const;
+#else
     bool pass(const HepMC::GenParticle& particle) const;
+#endif
 
   private:
     double m_minLifetime{0.000001}; //units of c*ns

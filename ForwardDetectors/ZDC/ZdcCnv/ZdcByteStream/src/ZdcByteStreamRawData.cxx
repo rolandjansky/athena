@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -73,8 +73,7 @@ StatusCode ZdcByteStreamRawData::execute()
 	/// otherwise just skip this
 	/// TODO keep record somewhere of this type of error?
 
-	//ZdcDigitsCollection* ttCollection = 0;
-	const DataHandle<ZdcDigitsCollection> ttCollection;
+	const ZdcDigitsCollection* ttCollection = nullptr;
 
 	msg(MSG::DEBUG) << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << endmsg;
 	//std::cout << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << std::endl;

@@ -45,6 +45,12 @@ def _getClassIfDictionaryExists (cname):
         if cl.HasDictionary(): return cl
     return None
 
+# Force-load the main Gaudi library if it's available. If this package's library
+# is loaded before Gaudi, the application gets into a weird state. Hopefully we
+# will be able to remove this with future compiler versions. (GCC 10?...)
+if cppyy.gbl.gSystem.FindDynamicLibrary( 'libGaudiKernel', True ):
+    cppyy.load_library( 'libGaudiKernel' )
+    pass
 
 ROOT.RootUtils.PyLogger
 ROOT.RootUtils.PyROOTTypePatch.initialize()

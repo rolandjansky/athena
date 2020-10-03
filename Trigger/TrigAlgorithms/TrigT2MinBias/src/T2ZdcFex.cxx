@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "T2ZdcFex.h"
@@ -194,7 +194,6 @@ HLT::ErrorCode T2ZdcFex::hltInitialize() {
   }
   
   m_zdcID = zdcID;
-  ZdcCablingService::getInstance()->setZdcID(m_zdcID);
   
   // Create timers
   if(timerSvc()) {

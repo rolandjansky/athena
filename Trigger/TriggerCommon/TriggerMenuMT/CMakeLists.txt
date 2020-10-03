@@ -111,6 +111,7 @@ atlas_install_scripts( scripts/generateMenuMT.py
                        scripts/test_HLTmenu.sh
                        scripts/generateL1MenuRun3.py
                        scripts/trigCompareOldandNewL1Menus.py
+                       scripts/trigL1MenuMigrationCheck.sh
                        scripts/verify_menu_config.py
                        scripts/test_full_menu_cf.py )
 

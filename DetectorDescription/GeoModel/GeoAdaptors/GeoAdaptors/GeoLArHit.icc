@@ -1,45 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-inline void GeoLArHit::init()
-{
-  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if(detStore->retrieve(s_man).isFailure())
-    std::cout << "GeoLArHit::init() WARNING  Unable to retrieve CaloDetDescrManager!" << std::endl;
-}
-
 inline GeoLArHit::GeoLArHit(const LArHit & h) 
+  : m_hit (h)
 {
-  m_hit = &h;
-  if(!s_man) init();
 }
 
 inline const CaloDetDescrElement* GeoLArHit::getDetDescrElement() const
 {
-  return s_man->get_element(m_hit->cellID());
+  return mgr()->get_element(m_hit.cellID());
 }
 
 inline double GeoLArHit::Energy() const
 {
-  return m_hit->energy();
+  return m_hit.energy();
 }
 
 inline double GeoLArHit::Time() const
 {
-  return m_hit->time();
+  return m_hit.time();
 }
 
 inline int GeoLArHit::SamplingLayer() const {
-  const CaloCell_ID *caloID = s_man->getCaloCell_ID();
-  int layer = caloID->sampling(m_hit->cellID());
+  const CaloCell_ID *caloID = mgr()->getCaloCell_ID();
+  int layer = caloID->sampling(m_hit.cellID());
   return layer;
 }

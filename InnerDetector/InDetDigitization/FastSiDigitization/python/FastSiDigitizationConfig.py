@@ -41,6 +41,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     # Module status #
     #################
     useNewChargeFormat  = False
+    useNewDeadmapFormat = False
 
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
@@ -72,17 +73,27 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
         
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                      UseDeadmapConditions=False,
-                                      UseDCSStateConditions=False,
-                                      UseDCSStatusConditions=False,
-                                      UseTDAQConditions=False,
-                                      UseCalibConditions=True,
+                                      ReadDeadMapKey = "",
                                       UseCablingConditions=False,
                                       CablingMapFileName=IdMappingDat)
 
+    if useNewDeadmapFormat:
+        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
+
     #FIXME: at some point we should move away from being dependent on the experimentalDigi flags.
     if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and not 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
-        PixelConfigCondAlg.UseCalibConditions=False
+        # Set empty Folder
+        if not useNewChargeFormat:
+            if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+                condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="")
+        else:
+            if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
+                condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="")
+
     else:
         #####################
         # Calibration Setup #

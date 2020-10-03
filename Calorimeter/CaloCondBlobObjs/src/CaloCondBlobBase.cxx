@@ -9,19 +9,32 @@
 
 //
 //_____________________________________________________________
-CaloCondBlobBase::CaloCondBlobBase(const coral::Blob& blob)
-  : m_blob(const_cast<coral::Blob*>(&blob))
+CaloCondBlobBase::CaloCondBlobBase(coral::Blob* blob_nc,
+                                   const coral::Blob* blob)
+  : m_blob_nc(blob_nc),
+    m_blob(blob)
   , m_isBlobOwner(false),m_sizeOfObj(0),m_nChans(0),m_nGains(0) 
 {
   if(uint64_t(m_blob->size())>=getHdrSize()*sizeof(uint32_t)) {
-    m_sizeOfObj=static_cast<uint32_t*>(m_blob->startingAddress())[1];
+    m_sizeOfObj=static_cast<const uint32_t*>(m_blob->startingAddress())[1];
     //m_nChans=static_cast<uint16_t*>(m_blob->startingAddress())[6];
     //m_nGains=static_cast<uint16_t*>(m_blob->startingAddress())[7];
-    m_nChans=unpacknChans(getBlobStart()[3]);
-    m_nGains=unpacknGains(getBlobStart()[3]);
+    const CaloCondBlobBase& this_c = *this;
+    m_nChans=unpacknChans(this_c.getBlobStart()[3]);
+    m_nGains=unpacknGains(this_c.getBlobStart()[3]);
     //std::cout << "CaloCondBlobObj: nChans=" << m_nChans << " nGains=" << m_nGains << std::endl;
   }
   return;
+}
+
+CaloCondBlobBase::CaloCondBlobBase(const coral::Blob& blob)
+  : CaloCondBlobBase (nullptr, &blob)
+{
+}
+
+CaloCondBlobBase::CaloCondBlobBase(coral::Blob& blob)
+  : CaloCondBlobBase (&blob, &blob)
+{
 }
 
 //
@@ -35,7 +48,8 @@ CaloCondBlobBase::~CaloCondBlobBase()
 //
 //_____________________________________________________________
 CaloCondBlobBase::CaloCondBlobBase(const CaloCondBlobBase& other)
-  : m_blob(new coral::Blob(*other.m_blob))
+  : m_blob_nc(new coral::Blob(*other.m_blob))
+  , m_blob (m_blob_nc)
   , m_isBlobOwner(true),
     m_sizeOfObj(other.getObjSizeUint32()),
     m_nChans(other.getNChans()),
@@ -50,7 +64,13 @@ CaloCondBlobBase::operator=(const CaloCondBlobBase& other)
 {
   //=== catch self-assignment
   if(&other == this) {return *this;}
+  if (m_isBlobOwner) delete m_blob;
   m_blob = other.m_blob;
+  m_blob_nc = other.m_blob_nc;
+  m_isBlobOwner = false;
+  m_sizeOfObj=static_cast<const uint32_t*>(m_blob->startingAddress())[1];
+  m_nChans=unpacknChans(getBlobStart()[3]);
+  m_nGains=unpacknGains(getBlobStart()[3]);
   return *this;
 }
 
@@ -83,7 +103,7 @@ CaloCondBlobBase::createBlob(uint16_t objType,
   
   //=== create blob
   const uint32_t blobSizeInBytes = dataSizeByte+commentSizeChar;
-  m_blob->resize(blobSizeInBytes);
+  m_blob_nc->resize(blobSizeInBytes);
   
   //=== fill header
   reinterpret_cast<uint16_t*>(getBlobStart())[0] = objType;
@@ -153,9 +173,10 @@ std::string
 CaloCondBlobBase::getAuthor() const
 {
   if(!getCommentSizeUint32()) return std::string("");
-  char* iBeg = reinterpret_cast<char*>(getBlobStart()+getHdrSize()     +
-				       getNObjs()*getObjSizeUint32()   +
-				       sizeof(uint64_t)/sizeof(uint32_t));
+  const char* iBeg =
+    reinterpret_cast<const char*>(getBlobStart()+getHdrSize()     +
+                                  getNObjs()*getObjSizeUint32()   +
+                                  sizeof(uint64_t)/sizeof(uint32_t));
   return std::string(iBeg);
 }
 
@@ -166,10 +187,11 @@ std::string
 CaloCondBlobBase::getComment() const
 {
   if(!getCommentSizeUint32()) return std::string("");
-  char* iBeg = reinterpret_cast<char*>(getBlobStart()+getHdrSize()     +
-				       getNObjs()*getObjSizeUint32()   +
-				       sizeof(uint64_t)/sizeof(uint32_t));
-  char* iEnd = iBeg + getCommentSizeChar();
+  const char* iBeg =
+    reinterpret_cast<const char*>(getBlobStart()+getHdrSize()     +
+                                  getNObjs()*getObjSizeUint32()   +
+                                  sizeof(uint64_t)/sizeof(uint32_t));
+  const char* iEnd = iBeg + getCommentSizeChar();
   iBeg = std::find(iBeg,iEnd,0);
   return std::string(++iBeg);
 }
@@ -181,7 +203,8 @@ CaloCondBlobBase::getDate() const
 {
   if(!getCommentSizeUint32()) return std::string("");
   ::time_t timeStamp = getTimeStamp();
-  char* iBeg = ::ctime(&timeStamp);
+  char buf[23];
+  char* iBeg = ::ctime_r(&timeStamp, buf);
   char* iEnd = iBeg;
   while(*iEnd!='\n'){++iEnd;}
   return std::string(iBeg,iEnd-iBeg);

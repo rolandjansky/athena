@@ -92,7 +92,7 @@ class WriteDAOD_TRIGStream(JobProperty):
     StreamName   = "StreamDAOD_TRIG"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/TRIG.py"
+    DPDMakerScript = "DerivationFrameworkTrigger/TRIG.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIGStream)
 listAODtoDPD.append(WriteDAOD_TRIGStream.StreamName)

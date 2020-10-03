@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCONDBLOBOBJS_CALOCONDBLOBBASE_H
@@ -104,12 +104,16 @@ class CaloCondBlobBase{
   //==================================================================
   /** @brief Returns start address of iEle-th basic unit. 
       @param iEle sequential basic unit number */
-  void* getAddress(unsigned int iEle) const;
+  const void* getAddress(unsigned int iEle) const;
+  void* getAddress(unsigned int iEle);
   
   
  protected:
   /** @brief Ctor for const blob. */
   CaloCondBlobBase(const coral::Blob& blob);
+
+  /** @brief Ctor for non-const blob. */
+  CaloCondBlobBase(coral::Blob& blob);
 
   /** @brief (re-)creation of the referenced BLOB object.
       @param objType Object type
@@ -136,16 +140,24 @@ class CaloCondBlobBase{
   void dumpHeader(std::ostream& stm) const; 
 
  private:
+  /** @brief Internal ctor. */
+  CaloCondBlobBase(coral::Blob* blob_nc, const coral::Blob* blob);
 
   uint32_t packGainAndNchans(const uint32_t gain, const uint32_t nChans);
   uint32_t unpacknGains(const uint32_t gainAndnChans);
   uint32_t unpacknChans(const uint32_t gainAndnChans);
 
   /** @brief Returns the BLOB start address as uint32_t pointer. */
-  uint32_t* getBlobStart() const;
+  const uint32_t* getBlobStart() const;
+  /** @brief Returns the BLOB start address as uint32_t pointer. */
+  uint32_t* getBlobStart();
 
-  /** @brief Reference to the BLOB*/
-  coral::Blob*  m_blob;
+  /** @brief Non-const reference to the BLOB
+      (Only present if we were created with a non-const blob. */
+  coral::Blob*  m_blob_nc;
+
+  /** @brief Const reference to the BLOB (always there) */
+  const coral::Blob*  m_blob;
 
   /** Do I own the BLOB? */
   bool          m_isBlobOwner;
@@ -159,10 +171,18 @@ class CaloCondBlobBase{
 
 //
 //_________________________________________________________
-inline uint32_t*
+inline const uint32_t*
 CaloCondBlobBase::getBlobStart() const
 {
-  return static_cast<uint32_t*>(m_blob->startingAddress());
+  return static_cast<const uint32_t*>(m_blob->startingAddress());
+}
+
+//
+//_________________________________________________________
+inline uint32_t*
+CaloCondBlobBase::getBlobStart() 
+{
+  return static_cast<uint32_t*>(m_blob_nc->startingAddress());
 }
 
 //
@@ -172,7 +192,7 @@ CaloCondBlobBase::getObjType() const
 {
   if(uint64_t(m_blob->size())<getHdrSize()*sizeof(uint32_t)) 
     throw CaloCond::InvalidBlob("CaloCondBlobBase::getObjType");
-  return static_cast<uint16_t*>(m_blob->startingAddress())[0];
+  return static_cast<const uint16_t*>(m_blob->startingAddress())[0];
 }
 
 //
@@ -182,7 +202,7 @@ CaloCondBlobBase::getObjVersion() const
 {
   if(uint64_t(m_blob->size())<getHdrSize()*sizeof(uint32_t)) 
     throw CaloCond::InvalidBlob("CaloCondBlobBase::getObjVersion");
-  return static_cast<uint16_t*>(m_blob->startingAddress())[1];
+  return static_cast<const uint16_t*>(m_blob->startingAddress())[1];
 }
 
 //
@@ -200,7 +220,7 @@ CaloCondBlobBase::getNObjs() const
 {
   if(uint64_t(m_blob->size())<getHdrSize()*sizeof(uint32_t)) 
     throw CaloCond::InvalidBlob("CaloCondBlobBase::getNObjs");
-  return static_cast<uint32_t*>(m_blob->startingAddress())[2];
+  return static_cast<const uint32_t*>(m_blob->startingAddress())[2];
 }
 
 //
@@ -228,13 +248,25 @@ CaloCondBlobBase::getCommentSizeUint32() const
 {
   if(uint64_t(m_blob->size())<getHdrSize()*sizeof(uint32_t)) 
     throw CaloCond::InvalidBlob("CaloCondBlobBase::getCommentSizeUint32");
-  return static_cast<uint32_t*>(m_blob->startingAddress())[4];
+  return static_cast<const uint32_t*>(m_blob->startingAddress())[4];
+}
+
+//
+//_________________________________________________________
+inline const void* 
+CaloCondBlobBase::getAddress(unsigned int iEle) const
+{
+  if(iEle>=getNObjs()){ 
+    throw CaloCond::IndexOutOfRange("CaloCondBlobBase::getAddress", iEle, getNObjs());
+  }
+  return static_cast<const void*>
+    ( getBlobStart() + getHdrSize() + getObjSizeUint32()*iEle );
 }
 
 //
 //_________________________________________________________
 inline void* 
-CaloCondBlobBase::getAddress(unsigned int iEle) const
+CaloCondBlobBase::getAddress(unsigned int iEle) 
 {
   if(iEle>=getNObjs()){ 
     throw CaloCond::IndexOutOfRange("CaloCondBlobBase::getAddress", iEle, getNObjs());
@@ -249,8 +281,8 @@ inline uint64_t
 CaloCondBlobBase::getTimeStamp() const 
 {
   if(!getCommentSizeUint32()) return 0;
-  return *(reinterpret_cast<uint64_t*>(getBlobStart()+getHdrSize() +
-				       getNObjs()*getObjSizeUint32()));
+  return *(reinterpret_cast<const uint64_t*>(getBlobStart()+getHdrSize() +
+                                             getNObjs()*getObjSizeUint32()));
 }
 
 #endif

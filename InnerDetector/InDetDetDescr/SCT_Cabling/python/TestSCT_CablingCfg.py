@@ -39,7 +39,7 @@ if __name__=="__main__":
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.RunNumber = 300000
+    ConfigFlags.Input.RunNumber = [300000]
     ConfigFlags.addFlag("Input.InitialTimeStamp", 1500000000)
     # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConditionsRun1RunNumbers
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-RUN12-SDR-25"

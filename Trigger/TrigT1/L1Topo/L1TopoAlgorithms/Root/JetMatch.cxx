@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * JetMatch.cpp
@@ -86,8 +86,8 @@ TCS::JetMatch::process( const std::vector<TCS::TOBArray const *> & input,
    for( TCS::GenericTOB * tob : *input[0]) {
       ++objC;
 
-      if( parType_t(fabs(tob->eta())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs(tob->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) < p_EtaMin ) continue; // Eta cut
       if( tob->EtWide() <= p_MinET1 ) continue; // E_T cut
 
       if( tob->EtNarrow() <= p_MinET2 ) continue; // E_T cut

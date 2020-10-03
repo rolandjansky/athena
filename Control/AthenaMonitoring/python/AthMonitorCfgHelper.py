@@ -102,6 +102,8 @@ class AthMonitorCfgHelper(object):
         tool -- a GenericMonitoringTool Configurable object. This can be used to define
                 histograms associated with that group (using defineHistogram).
         '''
+        if name == alg.getName():
+            raise ValueError(f"Cannot have a monitoring group with the same name as the parent algorithm ({name})")
         array = self.addArray([1],alg,name,topPath=topPath,defaultDuration=defaultDuration)
         return array[0]
 

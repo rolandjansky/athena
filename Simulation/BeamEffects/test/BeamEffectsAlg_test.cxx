@@ -20,6 +20,7 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Operators.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
@@ -94,41 +95,49 @@ namespace SimTesting {
   TEST_F(BeamEffectsAlg_test, patchSignalProcessVertex_empty_GenEvent) {
     HepMC::GenEvent ge;
     ASSERT_TRUE( patchSignalProcessVertex(ge).isSuccess() );
-    ASSERT_TRUE( ge.signal_process_vertex()==nullptr );
+    ASSERT_TRUE( HepMC::signal_process_vertex(&ge)==nullptr );
   }
 
   TEST_F(BeamEffectsAlg_test, signal_process_vertex_exists) {
     HepMC::GenEvent ge;
     CLHEP::HepLorentzVector myPos( 1.0, 1.0, 1.0, 1.0);
-    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
-    ge.set_signal_process_vertex( myVertex );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
+    HepMC::set_signal_process_vertex(&ge, myVertex );
     ASSERT_TRUE( patchSignalProcessVertex(ge).isSuccess() );
-    ASSERT_TRUE( ge.signal_process_vertex()==myVertex );
+    ASSERT_TRUE( HepMC::signal_process_vertex(&ge)==myVertex );
   }
 
   TEST_F(BeamEffectsAlg_test, add_signal_process_vertex_atlasG4) {
     HepMC::GenEvent ge;
     CLHEP::HepLorentzVector myPos( 1.0, 1.0, 1.0, 1.0);
-    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     ge.add_vertex( myVertex );
-    ASSERT_TRUE( ge.signal_process_vertex()==nullptr );
+    ASSERT_TRUE( HepMC::signal_process_vertex(&ge)==nullptr );
     ASSERT_TRUE( m_alg->setProperty( "ISFRun", false).isSuccess()  );
     ASSERT_TRUE( patchSignalProcessVertex(ge).isSuccess() );
-    ASSERT_TRUE( ge.signal_process_vertex()==myVertex );
-    ASSERT_EQ( *ge.signal_process_vertex(), *myVertex );
+    ASSERT_TRUE( HepMC::signal_process_vertex(&ge)==myVertex );
+#ifdef HEPMC3
+//Not needed for HepMC3
+#else
+    ASSERT_EQ( *HepMC::signal_process_vertex(&ge), *myVertex );
+#endif
   }
 
   TEST_F(BeamEffectsAlg_test, add_signal_process_vertex_isfG4) {
     HepMC::GenEvent ge;
     CLHEP::HepLorentzVector myPos( 1.0, 1.0, 1.0, 1.0);
-    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     HepMC::GenVertexPtr  dummyVertex = HepMC::newGenVertexPtr();
     ge.add_vertex( myVertex );
-    ASSERT_TRUE( ge.signal_process_vertex()==nullptr );
+    ASSERT_TRUE( HepMC::signal_process_vertex(&ge)==nullptr );
     ASSERT_TRUE( m_alg->setProperty( "ISFRun", true).isSuccess()  );
     ASSERT_TRUE( patchSignalProcessVertex(ge).isSuccess() );
-    ASSERT_TRUE( ge.signal_process_vertex()!=myVertex );
-    ASSERT_EQ( *ge.signal_process_vertex(), *dummyVertex );
+    ASSERT_TRUE( HepMC::signal_process_vertex(&ge)!=myVertex );
+#ifdef HEPMC3
+//Not needed for HepMC3
+#else
+    ASSERT_EQ( *HepMC::signal_process_vertex(&ge), *dummyVertex );
+#endif
   }
 
   TEST_F(BeamEffectsAlg_test, execute_pass_through) {
@@ -142,7 +151,7 @@ namespace SimTesting {
     inputTestDataHandle->push_back(new HepMC::GenEvent());
     HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
     CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
     HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, 2, 10);
     myVertex->add_particle_in(inParticle1);
@@ -156,7 +165,7 @@ namespace SimTesting {
     HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, -2, 10);
     myVertex->add_particle_out(inParticle4);
     ge.add_vertex( myVertex );
-    ge.set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(&ge, myVertex );
     ge.set_beam_particles(inParticle1,inParticle2);
     //
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
@@ -165,10 +174,17 @@ namespace SimTesting {
     ASSERT_TRUE( outputTestDataKey.initialize().isSuccess() );
     SG::ReadHandle<McEventCollection>     outputTestDataHandle{outputTestDataKey,ctx};
     ASSERT_TRUE( outputTestDataHandle.isValid() );
+#ifdef HEPMC3
+    ASSERT_EQ(HepMC::signal_process_vertex(outputTestDataHandle->at(0)), HepMC::signal_process_vertex(inputTestDataHandle->at(0)));
+    ASSERT_EQ(outputTestDataHandle->at(0)->vertices().begin(), ((const HepMC::GenEvent*)inputTestDataHandle->at(0))->vertices().begin());
+    ASSERT_EQ(outputTestDataHandle->at(0)->beams().at(0), inputTestDataHandle->at(0)->beams().at(0));
+    ASSERT_EQ(outputTestDataHandle->at(0)->beams().at(1),inputTestDataHandle->at(0)->beams().at(1));
+#else
     ASSERT_EQ(*(outputTestDataHandle->at(0)->signal_process_vertex()), *(inputTestDataHandle->at(0)->signal_process_vertex()));
     ASSERT_EQ(**(outputTestDataHandle->at(0)->vertices_begin()), **(inputTestDataHandle->at(0)->vertices_begin()));
     ASSERT_EQ(*(outputTestDataHandle->at(0)->beam_particles().first), *(inputTestDataHandle->at(0)->beam_particles().first));
     ASSERT_EQ(*(outputTestDataHandle->at(0)->beam_particles().second), *(inputTestDataHandle->at(0)->beam_particles().second));
+#endif
   }
 
 } // <-- namespace SimTesting

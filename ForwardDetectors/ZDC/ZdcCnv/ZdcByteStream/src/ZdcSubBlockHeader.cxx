@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcByteStream/ZdcSubBlockHeader.h"
@@ -9,7 +9,7 @@
 //using namespace LVL1BS;
 
 namespace {
-  ZdcWordDecoder subBlockHeaderDecoder(
+  const ZdcWordDecoder subBlockHeaderDecoder(
       {
         BitField("Type", 28, 4),
         BitField("Version", 25, 3),

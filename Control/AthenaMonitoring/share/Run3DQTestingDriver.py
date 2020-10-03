@@ -42,6 +42,10 @@ if __name__=='__main__':
     from AthenaCommon.Constants import *
     log.setLevel(INFO)
 
+    # set threads
+    ConfigFlags.Concurrency.NumThreads=args.threads
+    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads
+
     # Set the Athena configuration flags
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
     
@@ -129,7 +133,6 @@ if __name__=='__main__':
 
     # Force loading of conditions in MT mode
     if ConfigFlags.Concurrency.NumThreads > 0:
-        from AthenaConfiguration.ComponentFactory import CompFactory
         if len([_ for _ in cfg._conditionsAlgs if _.name=="PixelDetectorElementCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
             beginseq.Members.append(CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg"))
