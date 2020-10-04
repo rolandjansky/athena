@@ -138,7 +138,8 @@ std::vector<float>
 InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) const {
 
  // Get the probability calculator
- SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey};
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+ SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey,ctx};
  const HTcalculator* HTcalc = (*readHandle);
  // make sure some calibration is available
  if(HTcalc==nullptr) {
@@ -189,7 +190,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
   ATH_MSG_DEBUG ("check  Got track:   pT: " << pT << "   eta: " << eta << "   phi: " << phi);
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
- 
+
   // For calculation of HT probability:
   double pHTel_prod = 1.0;
   double pHTpi_prod = 1.0;
@@ -228,7 +229,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
         driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
       }
     }
-    
+
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
@@ -316,7 +317,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
     int GasType=0; // Xenon is default
     if (!m_TRTStrawSummaryTool.empty()) {
-      int stat = m_TRTStrawSummaryTool->getStatusHT(DCid);
+      int stat = m_TRTStrawSummaryTool->getStatusHT(DCid,ctx);
       if       ( stat==2 || stat==3 ) { GasType = 0; } // Xe
       else if  ( stat==1 || stat==4 ) { GasType = 1; } // Ar
       else if  ( stat==5 )            { GasType = 1; } // Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
@@ -377,11 +378,11 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (isHTMB) {pHTel_prod *=     pHTel;  pHTpi_prod *=     pHTpi;}
     else        {pHTel_prod *= 1.0-pHTel;  pHTpi_prod *= 1.0-pHTpi;}
     ATH_MSG_DEBUG ("check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi );
-    
-    // Jared - Development Output... 
-    
+
+    // Jared - Development Output...
+
     //std::cout << "check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi << std::endl;
-    
+
   }//of loop over hits
 
 
@@ -399,24 +400,24 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("");
-    
+
   // Jared - ToT Implementation
-  dEdx = m_TRTdEdxTool->dEdx(&track, false); // Divide by L, exclude HT hits
-  double usedHits = m_TRTdEdxTool->usedHits(&track, false);
-  prob_El_ToT = m_TRTdEdxTool->getTest(dEdx, pTrk, Trk::electron, Trk::pion, usedHits); 
-  
+  dEdx = m_TRTdEdxTool->dEdx(ctx,&track, false); // Divide by L, exclude HT hits
+  double usedHits = m_TRTdEdxTool->usedHits(ctx,&track, false);
+  prob_El_ToT = m_TRTdEdxTool->getTest(ctx,dEdx, pTrk, Trk::electron, Trk::pion, usedHits);
+
   // Limit the probability values the upper and lower limits that are given/trusted for each part:
-  double limProbHT = HTcalc->Limit(prob_El_HT); 
-  double limProbToT = HTcalc->Limit(prob_El_ToT); 
-  
+  double limProbHT = HTcalc->Limit(prob_El_HT);
+  double limProbToT = HTcalc->Limit(prob_El_ToT);
+
   // Calculate the combined probability, assuming no correlations (none are expected).
   prob_El_Comb = (limProbHT * limProbToT ) / ( (limProbHT * limProbToT) + ( (1.0-limProbHT) * (1.0-limProbToT)) );
-  
+
   // Troels: VERY NASTY NAMING, BUT AGREED UPON FOR NOW (for debugging, 27. NOV. 2014):
-  prob_El_Brem = pHTel_prod; // decorates electron LH to el brem for now... (still used?) 
-  
+  prob_El_Brem = pHTel_prod; // decorates electron LH to el brem for now... (still used?)
+
   //std::cout << "Prob_HT = " << prob_El_HT << "   Prob_ToT = " << prob_El_ToT << "   Prob_Comb = " << prob_El_Comb << std::endl;
-     
+
   return PIDvalues;
 }
 
@@ -442,9 +443,9 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
     ATH_MSG_ERROR("Found a negative TRT Layer");
     return false; //must be positive
   }
-  
+
   static const int nlayers[2]={3,14};
-  
+
   if( not ( Layer < nlayers[part] ) ){
     ATH_MSG_ERROR("Found TRT Layer index "<<Layer<<" in part "<<BEC<<" but part only has "<<nlayers[part]<<" layers.");
     return false;
@@ -455,15 +456,15 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
     ATH_MSG_ERROR("Found a negative TRT StrawLayer");
     return false; //must be positive
   }
-  
+
   static const int strawsPerBEC[2][14]={{19,24,30, 0, 0, 0,0,0,0,0,0,0,0,0},
                                         {16,16,16,16,16,16,8,8,8,8,8,8,8,8}};
-  
+
   if(not(StrawLayer < strawsPerBEC[part][Layer])){
     ATH_MSG_ERROR("TRT part "<<BEC<<" Layer "<<Layer<<" only has "<<strawsPerBEC[part][Layer]<<" straws. Found index "<<StrawLayer);
     return false;
   }
-  
+
   return true;
 }
 

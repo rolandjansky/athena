@@ -1,0 +1,3 @@
+xAOD::EventFormat:
+1. element: Branch name:                         SGKey1, Class name:                    xAOD::Type1, Hash: 0x00000101
+2. element: Branch name:                         SGKey2, Class name:                    xAOD::Type2, Hash: 0x00000102

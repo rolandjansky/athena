@@ -18,7 +18,7 @@ athena.py --threads 4 --evtMax ${NEVENTS}  tauRec/tau_standalone_ESDtoAOD.py >> 
 echo "art-result: $? Reconstrution"
 
 # compare the AOD file
-art.py compare ref --entries ${NEVENTS} --mode semi-detailed --excluded-vars=mc_event_number --order-trees --diff-root AOD.pool.root ${REF_DIR}/AOD.pool.root >> AOD_diff_root.log 2>&1
+art.py compare ref --entries ${NEVENTS} --mode detailed --excluded-vars=mc_event_number --order-trees --diff-root AOD.pool.root ${REF_DIR}/AOD.pool.root >> AOD_diff_root.log 2>&1
 echo "art-result: $? diff-root"
 
 # run the physics validation

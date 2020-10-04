@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * JetHT.cpp
@@ -108,8 +108,8 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
            ++tob)
          {
 
-      if( parType_t(fabs((*tob)->eta())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs((*tob)->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t(std::abs((*tob)->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(std::abs((*tob)->eta())) < p_EtaMin ) continue; // Eta cut
       if( parType_t((*tob)->Et()) <= p_MinET ) continue; // E_T cut
 
       TRG_MSG_DEBUG("Jet : ET = " << (*tob)->Et());

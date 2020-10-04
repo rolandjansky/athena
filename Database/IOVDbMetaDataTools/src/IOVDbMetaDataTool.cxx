@@ -21,7 +21,6 @@
 #include "StoreGate/StoreGate.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
-#include "AthenaKernel/MetaCont.h"
 #include "CxxUtils/checker_macros.h"
 
 IOVDbMetaDataTool::IOVDbMetaDataTool(const std::string& type, 
@@ -127,8 +126,7 @@ StatusCode IOVDbMetaDataTool::endInputFile(const SG::SourceID&)
 
 StatusCode IOVDbMetaDataTool::metaDataStop()
 {
-  StatusCode sc = dumpMetaConts();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------------------------
@@ -459,11 +457,6 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
     IOVMetaDataContainer* contMaster = getMetaDataContainer(cont->folderName()
 							    , cont->folderDescription());
 
-    // At the same time we want to create a new instance of IOVMetaDataContainer for new SID
-    // and store it into MetaCont<IOVMetaDataContainer>
-    IOVMetaDataContainer* newCont4Sid = new IOVMetaDataContainer(cont->folderName()
-								 , cont->folderDescription()); 
-
     // We assume that the folder is the same for all versions, and
     // now we loop over versions for the payloads
     std::list<SG::ObjectWithVersion<IOVMetaDataContainer> > allVersions;
@@ -537,20 +530,6 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
           }
         }
 
-	// Do the same with newCont4Sid
-        {
-          // Should be ok.
-          StatusCode sc ATLAS_THREAD_SAFE =
-            modifyPayload (newCont4Sid->folderName(), coll);
-          if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("processInputFileMetaData: Could not modify the payload for folder " << newCont4Sid->folderName());
-            return StatusCode::FAILURE;
-          }
-        }
-
-	// Before starting merging, make a copy for newCont4Sid
-	CondAttrListCollection* collCopy = new CondAttrListCollection(*coll);
-
 	ATH_MSG_VERBOSE("processInputFileMetaData: merge minRange: " << coll->minRange());
 	if (!contMaster->merge(coll)) {
 	  // Did not merge it in - was a duplicate, so we need to delete it 
@@ -560,16 +539,6 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 	}
 	else {
 	  ++ncolls;
-	  ATH_MSG_VERBOSE(" => merged ");
-	}
-
-	ATH_MSG_VERBOSE("processInputFileMetaData:  merge for MetaCont minRange: " << collCopy->minRange());
-	if (!newCont4Sid->merge(collCopy)) {
-	  // Did not merge it in - was a duplicate, so we need to delete it 
-	  delete collCopy;
-	  ATH_MSG_VERBOSE(" => not merged ");
-	}
-	else {
 	  ATH_MSG_VERBOSE(" => merged ");
 	}
 
@@ -602,12 +571,6 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 	    ATH_MSG_ERROR(iPayload << " " << (*itColl)->minRange() << " " << (*itColl)->size());
 	  }
 	}
-      }
-
-      // Insert the merged container into MetaCont
-      if(fillMetaCont(fileName,newCont4Sid).isFailure()) {
-	ATH_MSG_ERROR("processInputFileMetaData: Failed to insert the merged IOVMetaDataContainer into MetaCont");
-	return StatusCode::FAILURE;
       }
 
       // detailed printout after merge

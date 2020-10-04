@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -15,7 +15,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IService.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
@@ -73,7 +72,8 @@ int LArHitEMap::GetNbCells(void) const
   return m_emap.size()  ;
 }
 
-bool LArHitEMap::BuildWindows(float deta,float dphi, float ptmin)
+bool LArHitEMap::BuildWindows(const McEventCollection* mcCollptr,
+                              float deta,float dphi, float ptmin)
 {
 // get list of particles
     std::vector<double> phiPart;
@@ -82,16 +82,11 @@ bool LArHitEMap::BuildWindows(float deta,float dphi, float ptmin)
 //    std::cout << " in BuildWindows " << deta << dphi << ptmin << std::endl;
     etaPart.clear();
     phiPart.clear();
-    //get pointer of MC collection
-    StoreGateSvc* SgSvc = StoreGate::pointer();
-    const McEventCollection* mcCollptr = nullptr;
-    if ( SgSvc->retrieve(mcCollptr,"").isFailure() ) {
-       MsgStream log(Athena::getMessageSvc(), "LArHitEMap");
-       log << MSG::WARNING 
-           << "LArHitEMap:cannot retrieve McEventCollection  (keyless)"
-           << endmsg;
-        return false;
+
+    if (!mcCollptr) {
+      return false;
     }
+
     McEventCollection::const_iterator itr;
 //    std::cout << " start loop over particles " << std::endl;
     for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {

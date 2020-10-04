@@ -37,6 +37,11 @@ public:
    double cutoutTubeLength[5]; // tube length
    bool cutoutFullLength[5];   // true if this region is outside the cutout
    bool cutoutAtAngle;      // true if this station has cutouts at an angle; //EMS1,3 and BOS6
+
+   // the same but for several cutouts along the amdb x (GeoModel y)
+   // gives the (x1,x2) and (y1,y2) tuples of rectangles which are NOT cutout
+   std::vector<std::pair<double,double>> m_nonCutoutXSteps;
+   std::vector<std::pair<double,double>> m_nonCutoutYSteps;
     
 };
 } // namespace MuonGM

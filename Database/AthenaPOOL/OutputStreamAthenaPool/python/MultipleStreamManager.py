@@ -558,8 +558,6 @@ class MultipleStreamManager:
         theStream = self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
         from AthenaCommon.AppMgr import theApp
         svcMgr = theApp.serviceMgr()
-        theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-        theStream.AddMetaDataItem("xAOD::EventFormat#EventFormat")
 
         from AthenaCommon import CfgMgr
         streamMarkUpTool = CfgMgr.xAODMaker__FileMetaDataMarkUpTool( StreamName + "_FileMetaDataMarkUpTool" )

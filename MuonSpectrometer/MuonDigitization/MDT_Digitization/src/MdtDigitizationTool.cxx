@@ -140,7 +140,7 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Output Digits: '" << m_outputObjectKey.key() << "'" );
 
   //simulation identifier helper
-  m_muonHelper = MdtHitIdHelper::GetHelper();
+  m_muonHelper = MdtHitIdHelper::GetHelper(m_idHelperSvc->mdtIdHelper().tubeMax());
 
   //get the r->t conversion tool
   ATH_CHECK(m_digiTool.retrieve());

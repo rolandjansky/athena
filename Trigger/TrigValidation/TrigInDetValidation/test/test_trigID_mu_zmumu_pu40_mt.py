@@ -29,11 +29,13 @@
 
 Slices  = ['muon']
 RunEF   = True
-Events  = 2000 
+Events  = 8000 
 Threads = 4 
 Slots   = 4 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
+GridFiles=True
 
+Args = " -p 13 "
 TrackReference = [ 'Truth', 'Offline' ]
 Lowpt          = [ False, True ] 
 

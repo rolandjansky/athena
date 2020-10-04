@@ -24,7 +24,7 @@ StatusCode RPCMonitorAlgorithm::initialize()
 {
   ATH_CHECK( m_MuonContainerKey  .initialize());
   ATH_CHECK( m_rpcPadContainerKey.initialize());
-  ATH_CHECK( m_l1RoiContainerKey .initialize());
+  ATH_CHECK( m_l1RoiContainerKey .initialize(SG::AllowEmpty));
 
   ATH_CHECK( m_muonSelectionTool.retrieve());
 
@@ -74,29 +74,31 @@ StatusCode RPCMonitorAlgorithm::fillHistograms(const EventContext& ctx) const
   //
   // read rois
   // 
-  SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiContainerKey, ctx);
-  if(!muonRoIs.isValid()){
-    ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_l1RoiContainerKey);
-    return StatusCode::FAILURE;
-  }
-
   std::vector<const xAOD::MuonRoI*> roisBarrel;
   std::vector<const xAOD::MuonRoI*> roisBarrelThr1;
 
-  for(const auto& roi : *muonRoIs) {
-    roiEtaVec.push_back(roi->eta());
-    if(roi->getSource() != xAOD::MuonRoI::RoISource::Barrel) {
-      continue;
+  if (! m_l1RoiContainerKey.empty()) {
+    SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiContainerKey, ctx);
+    if(!muonRoIs.isValid()){
+      ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_l1RoiContainerKey);
+      return StatusCode::FAILURE;
     }
 
-    roiBarrelEtaVec.push_back(roi->eta());
-    roiBarrelThrVec.push_back(roi->getThrNumber());
-    roisBarrel.push_back(roi);
-    //
-    // collect roi according to the threshold
-    //
-    int thr = roi->getThrNumber();
-    if(thr >= 1) roisBarrelThr1.push_back(roi);
+    for(const auto& roi : *muonRoIs) {
+      roiEtaVec.push_back(roi->eta());
+      if(roi->getSource() != xAOD::MuonRoI::RoISource::Barrel) {
+        continue;
+      }
+
+      roiBarrelEtaVec.push_back(roi->eta());
+      roiBarrelThrVec.push_back(roi->getThrNumber());
+      roisBarrel.push_back(roi);
+      //
+      // collect roi according to the threshold
+      //
+      int thr = roi->getThrNumber();
+      if(thr >= 1) roisBarrelThr1.push_back(roi);
+    }
   }
   auto roiEtaCollection       = Collection("roiEtaCollection", roiEtaVec);
   auto roiBarrelEtaCollection = Collection("roiBarrelEtaCollection", roiBarrelEtaVec);

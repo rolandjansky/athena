@@ -43,7 +43,7 @@ StatusCode DQTBackgroundMon::fillHistograms( const EventContext& ctx ) const {
     RH<xAOD::VertexContainer> vertexContainer(m_VertexContainerKey,ctx);
 
     if ( eventInfo.isValid() ) {
-        if (m_doTrigger) {
+        if (!getTrigDecisionTool().empty()) {
             unsigned int bgCode = getTrigDecisionTool()->getBGCode();
             filled = bgCode & (1<<m_filledBG);
             empty = bgCode & (1<<m_emptyBG);

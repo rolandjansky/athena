@@ -20,7 +20,8 @@ the_signature_grouping = OrderedDict([
     ('Jet','JetMET'),
     ('MET','JetMET'),
     ('Bjet','JetMET'),
-    ('MuonnoL1', 'MuonnoL1')
+    ('MuonnoL1', 'MuonnoL1'),
+    ('UnconventionalTracking','UnconventionalTracking'),
     ])
 
 def getAlignmentGroupFromPattern(sName, extra):
@@ -122,4 +123,3 @@ def setChainSignatures(signatures, lengthOfChainConfigs):
         # maybe they should all be added to the_signature_grouping, even if they never
         # need to be merged together
     return signatures, lengthOfChainConfigs
-

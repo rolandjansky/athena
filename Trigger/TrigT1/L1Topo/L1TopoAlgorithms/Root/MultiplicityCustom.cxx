@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * MultiplicityCustom.cpp
@@ -85,8 +85,8 @@ TCS::MultiplicityCustom::process( const std::vector<TCS::TOBArray const *> & inp
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < nLeading;
            ++tob1) 
          {
-          if (parType_t(fabs((*tob1)-> eta())) < p_EtaMin) continue;
-          if (parType_t(fabs((*tob1)-> eta())) > p_EtaMax) continue;
+          if (parType_t(std::abs((*tob1)-> eta())) < p_EtaMin) continue;
+          if (parType_t(std::abs((*tob1)-> eta())) > p_EtaMax) continue;
 
           if( parType_t((*tob1)->Et())  <= p_MinET ) continue; // E_T cut
      //
