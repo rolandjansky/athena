@@ -90,16 +90,9 @@ namespace InDet{
   class compDetElementWays{
     public:
       bool operator() (const SiDetElementLink_xk::ElementWay& l1, const SiDetElementLink_xk::ElementWay & l2) const{
-        static const compDetElements_RAZ compRAZ;
-        static const compDetElements_ZRA compZRA;
         /// in case of equality, use the sorting logic in the layer vectors
         if (l1.way() == l2.way()){
-          if (l1.link()->detElement()->isBarrel()){
-            return compRAZ(l1.link()->detElement(), l2.link()->detElement()); 
-          }
-          else {
-            return compZRA(l1.link()->detElement(), l2.link()->detElement()); 
-          }
+          return l1.distance() < l2.distance();
         }
         /// otherwise compare by distance
         else return l1.way() < l2.way(); 

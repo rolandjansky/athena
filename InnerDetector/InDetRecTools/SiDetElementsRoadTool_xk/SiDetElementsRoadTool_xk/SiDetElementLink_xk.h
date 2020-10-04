@@ -40,13 +40,14 @@ namespace InDet{
           bool m_used;
        };
 
-       class ElementWay : public std::pair<const InDet::SiDetElementLink_xk*, float> {
+       class ElementWay : public std::pair<const InDet::SiDetElementLink_xk*, std::pair<float,float> > {
        public:
-          ElementWay(const InDet::SiDetElementLink_xk*link, float way)
-             : std::pair<const InDet::SiDetElementLink_xk*, float>(link,way) {}
+          ElementWay(const InDet::SiDetElementLink_xk*link, float way, float distance)
+             : std::pair<const InDet::SiDetElementLink_xk*, std::pair<float,float> >(link,std::make_pair(way,distance)) {}
 
           const InDet::SiDetElementLink_xk* link() const { return this->first; }
-          float way()                              const { return this->second; }
+          float way()                              const { return this->second.first; }
+          float distance()                              const { return this->second.second; }
        };
 
       SiDetElementLink_xk();
