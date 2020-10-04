@@ -484,12 +484,8 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     /// and increment the total propagation distance
     par_startingPoint[5]+= dist3D;
   }
-
-  // Sort list in propagation order
-  std::sort(lDE.begin(),lDE.end(),[](const InDet::SiDetElementLink_xk::ElementWay& l1, const InDet::SiDetElementLink_xk::ElementWay & l2){
-    return l1.way() < l2.way(); 
-  });
-
+  auto vec2 = lDE; 
+  std::sort(lDE.begin(),lDE.end(),InDet::compDetElementWays());
   // Fill list pointers to detector elements
   for (auto & d : lDE){
     if (testDirection && d.way() < 0) continue; 
