@@ -73,18 +73,11 @@ SiRegionSelectorTable::initialize(){
 
   if (m_managerName.empty()) {
     msg(MSG::WARNING) << "Tool disabled." << endmsg;
-    return StatusCode::FAILURE;
   } 
  
-  ATH_CHECK(m_condCablingKey.initialize());
+  //  ATH_CHECK(m_condCablingKey.initialize());
 
   ATH_MSG_WARNING("So far, this prevents the conditions migration!! The createTable() should NOT be used in the initilization step...");
-  const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
-  const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
-  EventContext ctx = Gaudi::Hive::currentContext();
-  ctx.setEventID (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0));
-  Atlas::getExtendedEventContext(ctx).setConditionsRun (0);
-  ATH_CHECK(createTable (ctx));
 
   return StatusCode::SUCCESS;
 }
@@ -92,10 +85,6 @@ SiRegionSelectorTable::initialize(){
 
 SiRegionSelectorTable::~SiRegionSelectorTable()
 {
-  // table is stored in storegate so nothing to delete.
-#ifndef USE_STOREGATE
-  if ( m_regionLUT ) delete m_regionLUT;
-#endif
 }
 
 
@@ -109,162 +98,9 @@ RegSelSiLUT* SiRegionSelectorTable::getLUT()
 
 
 StatusCode 
-SiRegionSelectorTable::createTable (const EventContext& ctx)
+SiRegionSelectorTable::createTable (const EventContext& /* ctx */ )
 {
-
-  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
-
-  StatusCode sc;
-
-  // Retrieve manager
-  const SiDetectorManager * manager;
-  sc=detStore()->retrieve(manager, m_managerName);
-
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find the Manager: "
-	<< m_managerName << " !" << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
-  }
-
-  ATH_CHECK(m_sctCablingToolInc.retrieve( DisableTool{manager->isPixel()} ));
-
-  // Create RegionSelectorLUT pointers for Pixel or Sct
-  //  RegionSelectorLUT*  rslut = new RegionSelectorLUT;
-  
-  RegSelSiLUT* rd;
-
-  if   ( manager->isPixel() ) rd = new RegSelSiLUT(RegSelSiLUT::PIXEL);
-  else                        rd = new RegSelSiLUT(RegSelSiLUT::SCT);
-
-
-  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey, ctx);
-
-  SiDetectorElementCollection::const_iterator iter;
-  for (iter = manager->getDetectorElementBegin(); iter != manager->getDetectorElementEnd(); ++iter){
-
-    const SiDetectorElement* element = *iter; 
-
-    if (element) {
-
-      IdentifierHash hashId = element->identifyHash();    
-      
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endmsg;
-   
-      // new region selector detector element extent.
-      double rMin, rMax, zMin, zMax, phiMin, phiMax;
-
-      rMin    = element->rMin();
-      rMax    = element->rMax();
-      zMin    = element->zMin();
-      zMax    = element->zMax();
-      phiMin  = element->phiMin();
-      phiMax  = element->phiMax();
-
-
-      int barrelEC = 0; 
-      int layerDisk = 0;
-      uint32_t robId = 0;
-
-      if (element->isPixel()) {
-
-	const PixelID* pixelId = dynamic_cast<const PixelID*>(element->getIdHelper());
-	if ( pixelId!=0 ) { 
-	  barrelEC  = pixelId->barrel_ec(element->identify());
-
-	  if ( m_noDBM && std::fabs(barrelEC)>3 ) continue; // skip DBM modules
-
-	  layerDisk = pixelId->layer_disk(element->identify());
-    robId=pixCabling->find_entry_offrob(element->identify());
-	}
-	else { 
-	  msg(MSG::ERROR) << " could not get PixelID for " << element->getIdHelper() << endmsg;
-	}
-      } else { // Its an SCT.
-
-	const SCT_ID* sctId = dynamic_cast<const SCT_ID*>(element->getIdHelper());
-	if ( sctId!=0 ) {      
-	  barrelEC  = sctId->barrel_ec(element->identify());
-	  layerDisk = sctId->layer_disk(element->identify());
-	  robId=m_sctCablingToolInc->getRobIdFromOfflineId(element->identify());
-	}
-	else { 
-	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endmsg;
-	}
-      }
-
-      // write in new Region Selector Si LUT
-      // create module      
-      RegSelModule smod(zMin,zMax,rMin,rMax,phiMin,phiMax,layerDisk,barrelEC,robId,hashId);
-	
-      // if ( robId ) {
-      // add to the new RegionSelector map     
-      rd->addModule(smod);
-      // }
-      // else { 
-      //	msg(MSG::WARNING) << "module with RobID=0x0 - not added to look up table " << smod << endmsg;
-      // }
-      
-      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << smod << endmsg;
-	
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "      " 
-						    << " robId = " << robId
-						    << " barrelEC = " << barrelEC 
-						    << ", layerDisk = " << layerDisk 
-						    << ", phiMin, phiMax = " << phiMin/CLHEP::degree << " " << phiMax/CLHEP::degree
-						    << ", rMin = " << rMin/CLHEP::mm << " mm, rMax = " << rMax/CLHEP::mm << " mm"  
-						    << endmsg;
-
-    }
-  }
-
-  msg(MSG::INFO) << " initialising new map " << endmsg;
-
-  rd->initialise();
-
-  // write out new new LUT to a file if need be
-  if ( m_printTable ) {
-    if ( manager->isPixel() ) rd->write("NewPixel"+m_roiFileName);
-    else                      rd->write("NewSCT"+m_roiFileName);
-  }
-
-  //  std::string key;
-  std::string detName;
-
-  std::string newkey;
-
-  if (manager->isPixel()) {
-    newkey = "PixelRegSelSiLUT";
-    detName = "Pixel";
-  } else {
-    newkey = "SCTRegSelSiLUT";
-    detName = "SCT";
-  }
-
-#ifndef USE_STOREGATE
-  if ( m_regionLUT ) delete m_regionLUT;
-#endif
-  m_regionLUT = rd;
-
-#ifdef USE_STOREGATE
-  // save new map in StoreGate RegSelSiLUT
-  if ( detStore()->contains< RegSelSiLUT >(newkey) ) {
-    msg(MSG::FATAL) << " RegSelSiLUT " << newkey << " already exists " << endmsg;
-  } else {
-    // create and store LUT
-    // needs to be modifiable so we can enable/disable modules 
-    // from the RegSelSvc
-    sc = detStore()->record(rd, newkey, true);
-    if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << " could not register " << detName << " RegSelSiLUT" << endmsg;
-      return( StatusCode::FAILURE );
-    } else {
-      msg(MSG::INFO) << detName << " RegSelSiLUT successfully saved in detector Store" << endmsg;
-    }
-  }
-#endif
- 
+  ATH_MSG_INFO( "SiRegionSelectorTable::createTable() - no longer in use" );
   return StatusCode::SUCCESS;
 }
 

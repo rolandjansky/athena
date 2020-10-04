@@ -175,20 +175,6 @@ StatusCode RegSelSvc::initialize() {
   ATH_MSG_INFO( "DeltaZ = " << m_DeltaZ );
 
 
-  
-  std::string sctflag("enabled");
-  std::string pixelflag("enabled");
-  std::string trtflag("enabled");
-
-  if ( m_initOnlyID.value() ) { 
-    if ( !m_initSCT.value() )   sctflag   = "disabled"; 
-    else ATH_CHECK(m_SCTCablingToolInc.retrieve()); // SCT_CablingToolInc has to be retrieved now.
-    // Otherwise, SCT_RegionSelectorTable cannot use ready SCT_CablingToolInc.
-
-    if ( !m_initPixel.value() ) pixelflag = "disabled"; 
-    if ( !m_initTRT.value() )   trtflag   = "disabled"; 
-  }
-   
   std::string rpcflag("enabled");
   std::string mdtflag("enabled");
   std::string tgcflag("enabled");
@@ -209,8 +195,6 @@ StatusCode RegSelSvc::initialize() {
   
   msg(MSG::INFO) << "detector switches:" 
                  << " indet=" << (m_initOnlyID.value() ? "enabled":"disabled");
-  if( m_initOnlyID.value() )
-    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " )"; 
 
   msg() << " calo="  << (m_initOnlyCalo.value() ? "enabled":"disabled") 
         << " muon="  << (m_initOnlyMuon.value() ? "enabled":"disabled");
@@ -301,7 +285,6 @@ void RegSelSvc::handle(const Incident& incident) {
     initialised = true;
 
     // call Innr detector, Calo and Muon handlers 
-    if ( m_initOnlyID )    handleID();
     if ( m_initOnlyMuon )  handleMuon();
     //    if ( m_initOnlyCalo )  handleCalo();
 
@@ -312,21 +295,7 @@ void RegSelSvc::handle(const Incident& incident) {
         msg() << " " << *d;
       msg() << " detectors have been initialized" << endmsg; // " with Region Type " << m_regionType << endmsg;
     }
-    
-    if ( m_dumpTable ) { 
-      RegSelSiLUT* tables[7] = { m_newpixel, m_newsct, m_newtrt, m_newrpc, m_newmdt, m_newtgc, m_newcsc };
-      for ( int it=0 ; it<7 ; it++ ) { 
-	if ( tables[it] ) { 
-	  char table[64];
-	  std::sprintf( table, "table-%d.map", it ); 
-	  ATH_MSG_INFO( "dumping table " << it << " to file: " << table );
-	  tables[it]->write(table);
-	}
-      }
-    }
-    
-    //  if ( m_errorFlag ) return StatusCode::FAILURE;
-    //  else               return StatusCode::SUCCESS;
+
   }
 
 }
@@ -335,99 +304,7 @@ void RegSelSvc::handle(const Incident& incident) {
 
 
 
-void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string& serviceName) { 
-
-  ATH_MSG_INFO( " reading detector conditions from " << serviceName );
-
-  if (serviceName.empty()){
-    ATH_MSG_INFO( "Unspecified conditions summary service, skipping disableIDFromConditions" );
-    return;
-  }
-
-  if ( detector ) { 
-
-    // get list of all detector elements for this detector
-
-    std::vector<IdentifierHash> IDList;
-
-    if ( detector==m_newpixel )  DetHashIDList(PIXEL, IDList);
-    if ( detector==m_newsct )    DetHashIDList(SCT,   IDList);
-    if ( detector==m_newtrt )    DetHashIDList(TRT,   IDList);
-    
-    // there must be a nicer way to do this.
-    // basically, I have to enable all modules, 
-    // then go through them getting the list of 
-    // modules to enable and the list to disable, 
-    // then I have to enable and disable them 
-    // appropriately. hmmm 
-
-    // get lists of modules to enable and disable
-    std::vector<IdentifierHash> DisableList;
-    std::vector<IdentifierHash> EnableList;
-
-    int active_modules   = 0;
-    int disabled_modules = 0;
-
-    std::vector<IdentifierHash>::iterator mitr(IDList.begin());
-    std::vector<IdentifierHash>::iterator mend(IDList.end());
-    
-    if ( detector==m_newpixel or detector==m_newsct ) {
-      // get ConditionsSummaryTool
-      ToolHandle<IInDetConditionsTool> condsummary(serviceName, this);
-      if ( condsummary.retrieve().isFailure() ) {
-        ATH_MSG_ERROR( "failed to get " << serviceName );
-        return;
-      }
-
-      while ( mitr!=mend ) {
-        if ( condsummary->isActive(*mitr) )  {
-          EnableList.push_back(*mitr);
-          active_modules++;
-        }
-        else {
-          DisableList.push_back(*mitr);
-          disabled_modules++;
-        }
-        ATH_MSG_VERBOSE( serviceName << " module 0x" << std::hex << *mitr << std::dec
-                         << " isActive()=" << condsummary->isActive(*mitr) );
-        mitr++;
-      }
-    } else {
-      // get ConditionsSummarySvc
-      ServiceHandle<IInDetConditionsSvc> condsummary(serviceName, name());
-      if ( condsummary.retrieve().isFailure() ) {
-        ATH_MSG_ERROR( "failed to get " << serviceName );
-        return;
-      }
-
-      while ( mitr!=mend ) {
-        if ( condsummary->isActive(*mitr) )  {
-          EnableList.push_back(*mitr);
-          active_modules++;
-        }
-        else {
-          DisableList.push_back(*mitr);
-          disabled_modules++;
-        }
-        ATH_MSG_VERBOSE( serviceName << " module 0x" << std::hex << *mitr << std::dec
-                         << " isActive()=" << condsummary->isActive(*mitr) );
-        mitr++;
-      }
-    }
-
-    ATH_MSG_INFO( serviceName << " Number of modules active   " << active_modules );
-    ATH_MSG_INFO( serviceName << " Number of modules disabled " << disabled_modules );
-    
-    // these methods have to be tidied up, since they 
-    // each rebuild the Disabled module maps, I need 
-    // methods to enable/disable, and *after* to rebuild 
-    // the disabled module map 
-    
-    detector->disableModuleList(DisableList);
-    //    detector->enableModuleList(EnableList);
-	
-  }
-
+void RegSelSvc::disableIDFromConditions(RegSelSiLUT* /* detector */, const std::string& /* serviceName */ ) { 
 }
 
 
@@ -437,87 +314,8 @@ void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string
 
 
 bool RegSelSvc::handleID() { 
-
-  bool errorFlag = false;
-
-  ATH_MSG_INFO( " Initialising Inner Detector maps" );
-
-  // new region selector code, we make the (reasonably simple) 
-  // structures in the SiRegionSelectorTable so we don't need to 
-  // do any more than just extract the tables.
-  
-
-  //! Read PIXEL data from Detector Store
-  if ( m_initPixel.value() ) { 
-    StatusCode sc = readFromSG(m_lutCreatorToolPixel, m_newpixel);
-    //     sc = m_detStore->retrieve(m_newpixel, "PixelRegSelSiLUT");
-    if (sc.isFailure()){
-      ATH_MSG_WARNING( "Failed to initialize pixel data" );
-      errorFlag = true;
-    } 
-    else { 
-      if ( m_newpixel ) { 
-        ATH_MSG_INFO( "retrieved new pixel RegSelSiLUT map " << m_newpixel->getName() );
-      }
-      else { 
-        ATH_MSG_ERROR( "retrieved new pixel RegSelSiLUT map is NULL" );
-	errorFlag = true;
-      }
-    }      
-  }
-  
-  //! Read SCT data from Detector Store
-  if ( m_initSCT.value() ) {  
-    StatusCode sc = readFromSG(m_lutCreatorToolSCT, m_newsct);
-    //     sc = m_detStore->retrieve(m_newsct, "SCTRegSelSiLUT");
-    if (sc.isFailure()){
-      ATH_MSG_WARNING( "Failed to initialize SCT data" );
-      errorFlag = true;
-    }
-    else { 
-      if ( m_newsct ) 
-	ATH_MSG_INFO( "retrieved new sct RegSelSiLUT map " << m_newsct->getName() );
-      else {
-	ATH_MSG_ERROR( "retrieved new sct RegSelSiLUT map is NULL" );
-	errorFlag = true;
-      }
-    }
-  }
-  
-  
-  //! Read TRT data from Detector Store
-  
-  if ( m_initTRT.value() ) { 
-    StatusCode sc = readFromSG(m_lutCreatorToolTRT, m_newtrt);
-    //     sc = m_detStore->retrieve(m_newtrt, "TRTRegSelSiLUT");
-    if (sc.isFailure()){
-      ATH_MSG_WARNING( "Failed to initialize TRT data" );
-      errorFlag = true;
-    }
-    else { 
-      if ( m_newtrt ) 
-	ATH_MSG_INFO( "retrieved new trt RegSelSiLUT map " << m_newtrt->getName() );
-      else {  
-	ATH_MSG_ERROR( "retrieved new trt RegSelSiLUT is NULL" );
-	errorFlag = true;
-      }
-    }    
-  }      
-
-  // now enable/disable requested robs and modules from OKS 
-  if ( !reinitialiseInternalFromOKS() )  { 
-    ATH_MSG_WARNING( " could not enable robs from OKS " );
-  }
-  
-  if ( !reinitialiseInternal() )  {
-    ATH_MSG_WARNING( " could not disable requested detector elements " );
-  }
-
-  m_enabledDetectors.emplace_back("Inner");
-  
-  m_errorFlag |= errorFlag; 
-
-  return errorFlag; 
+  ATH_MSG_INFO( " Initialising Inner Detector maps - no longer used" );
+  return true;
 }
 
 
@@ -823,22 +621,14 @@ void RegSelSvc::getRoIData(DETID detectorID,
   } 
   modules.clear();
 
-  //  std::cout << "RegSelSvc::getRoIData()" << detectorID << std::endl; 
-
 
   RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
 
   switch(detectorID){
-  case PIXEL: { // Pixel
-    if ( m_newpixel) m_newpixel->getRoIData( selroi, modules );
-    break;    
-  }
-  case SCT:  { // Semiconductor Tracker
-    if ( m_newsct ) m_newsct->getRoIData( selroi, modules );    
-    break;
-  }
-  case TRT:  { // TRT
-    if ( m_newtrt ) m_newtrt->getRoIData( selroi, modules );    
+  case PIXEL: 
+  case SCT:  
+  case TRT:  { 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case RPC: { // RPC (obviously)
@@ -883,12 +673,11 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 			      const IRoiDescriptor& roi,
 			      std::vector<IdentifierHash>& IDList) 
 {
-  //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
 
   if ( roi.composite() ) { 
     for ( unsigned iroi=roi.size() ; iroi-- ;  ) {
       DetHashIDList( detectorID, *(roi.at(iroi)), IDList );
-      // std::cout << "DetHashIDList:: SuperRoi memeber " << iroi << " IDList.size() " << IDList.size() << *roi.at(iroi) << std::endl;
+
     }  
     if ( roi.size()>1 ) RegSelSiLUT::removeDuplicates( IDList );
     return;
@@ -911,19 +700,10 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
 
   switch(detectorID){
-  case PIXEL: { // Pixel    
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getHashList(selroi, IDList); 
-    break;
-  }
-  case SCT: { // Semiconductor Tracker (and pixel)
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getHashList(selroi, IDList); 
-    break;
-  }
+  case PIXEL:
+  case SCT:
   case TRT: { // TRT (obviously)
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getHashList(selroi, IDList); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { // etc
@@ -994,8 +774,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 			      const IRoiDescriptor& roi,
 			      std::vector<IdentifierHash>& IDList) 
 {
-  //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
-
   if ( roi.composite() ) { 
     for ( unsigned iroi=roi.size() ; iroi-- ;  ) {
       DetHashIDList( detectorID, layer, *(roi.at(iroi)), IDList );
@@ -1022,19 +800,10 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   long sampling = layer; 
 
   switch(detectorID){
-  case PIXEL: { // Pixel    
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getHashList(selroi, layer, IDList); 
-    break;
-  }
-  case SCT: { // Semiconductor Tracker 
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getHashList(selroi, layer, IDList); 
-    break;
-  }
+  case PIXEL: 
+  case SCT: 
   case TRT: { // TRT (obviously)
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getHashList(selroi, layer, IDList); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { 
@@ -1106,7 +875,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 void RegSelSvc::DetHashIDList(DETID detectorID, 
 			      std::vector<IdentifierHash>& IDList ) 
 { 
-  //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl;   
   
   if(IDList.size()!=0 ){
     ATH_MSG_VERBOSE( " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID );
@@ -1115,16 +883,10 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   IDList.clear();
 
   switch(detectorID){
-  case PIXEL: { // Pixel    
-    if ( m_newpixel ) m_newpixel->getHashList(IDList); 
-    break;
-  }
-  case SCT: { // Semiconductor Tracker (and pixel)
-    if ( m_newsct ) m_newsct->getHashList(IDList); 
-    break;
-  }
+  case PIXEL:
+  case SCT:
   case TRT: { // TRT (obviously)
-    if ( m_newtrt ) m_newtrt->getHashList(IDList); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { 
@@ -1194,7 +956,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 			      std::vector<IdentifierHash>& IDList) 
 {
-  //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
 
   if(IDList.size()!=0 ){
     ATH_MSG_VERBOSE( " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID );
@@ -1205,16 +966,10 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   long sampling = layer; 
 
   switch(detectorID){
-  case PIXEL: { // Pixel    
-    if ( m_newpixel ) m_newpixel->getHashList( layer, IDList); 
-    break;
-  }
-  case SCT: { // Semiconductor Tracker 
-    if ( m_newsct ) m_newsct->getHashList( layer, IDList); 
-    break;
-  }
+  case PIXEL:
+  case SCT:
   case TRT: { // TRT (obviously)
-    if ( m_newtrt ) m_newtrt->getHashList( layer, IDList); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { 
@@ -1284,7 +1039,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     setDuplicateRemoval( false );
     for ( unsigned iroi=roi.size() ; iroi-- ;  ) {
       DetROBIDListUint( detectorID, *(roi.at(iroi)), outputROBIDList );
-      // std::cout << "DetROBIDListUint:: SuperRoi memeber " << iroi << " outputROBIDList.size() " << outputROBIDList.size() << std::endl;
     }  
     RegSelSiLUT::removeDuplicates( outputROBIDList );
     setDuplicateRemoval( true );
@@ -1292,8 +1046,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   }
 
   if ( roi.isFullscan() ) return DetROBIDListUint( detectorID, outputROBIDList );
-
-  //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
 
   if(outputROBIDList.size()!=0 ){
     ATH_MSG_VERBOSE( " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID );
@@ -1313,19 +1065,10 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
 
 
   switch (detectorID) {
-  case PIXEL: { // Pixel
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
-  case SCT: {  // SCT
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
+  case PIXEL: 
+  case SCT:
   case TRT: {  // TRT
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { 
@@ -1395,8 +1138,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 				 const IRoiDescriptor& roi, 
 				 std::vector<uint32_t>& outputROBIDList) 
 {
-  //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
-
   if ( roi.composite() ) { 
     setDuplicateRemoval(false);
     for ( unsigned iroi=roi.size() ; iroi-- ;  ) {
@@ -1425,19 +1166,10 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   long sampling = layer; 
 
   switch (detectorID) {
-  case PIXEL: { // Pixel
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval );
-    break;
-  }
-  case SCT: {  // SCT
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
+  case PIXEL: 
+  case SCT: 
   case TRT: { // TRT
-    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { 
@@ -1510,16 +1242,10 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   outputROBIDList.clear();
 
   switch (detectorID) {
-  case PIXEL: { // Pixel
-    if ( m_newpixel ) m_newpixel->getRobList(outputROBIDList); 
-    break;
-  }
-  case SCT: {  // SCT
-    if ( m_newsct ) m_newsct->getRobList(outputROBIDList); 
-    break;
-  }
+  case PIXEL: 
+  case SCT:
   case TRT: {  // TRT
-    if ( m_newtrt ) m_newtrt->getRobList(outputROBIDList); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { 
@@ -1577,8 +1303,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
 void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 				 std::vector<uint32_t>& outputROBIDList) 
 {
-  //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
-
   if(outputROBIDList.size()!=0 ){
     ATH_MSG_VERBOSE( " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
@@ -1587,16 +1311,11 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   long sampling = layer;
 
   switch (detectorID) {
-  case PIXEL: { // Pixel
-    if ( m_newpixel ) m_newpixel->getRobList( layer, outputROBIDList ); 
-    break;
-  }
-  case SCT: {  // SCT
-    if ( m_newsct ) m_newsct->getRobList( layer, outputROBIDList ); 
-    break;
-  }
+  case PIXEL: 
+  case SCT: 
   case TRT: { // TRT
     if ( m_newtrt ) m_newtrt->getRobList( layer, outputROBIDList ); 
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
     break;
   }
   case MDT: { 
@@ -2168,63 +1887,21 @@ void RegSelSvc::printTable(const RegionSelectorLUT * lut){
   }
 }
 
-void RegSelSvc::DisableSiRobList(const std::vector<uint32_t>& RobIdList) { 
-  // if the list of robs to disable is not empty... 
-  if ( RobIdList.size()>0 ) { 
-    // check the look up tables actually already exist before
-    // trying to disable the robs from them
-    if ( m_newpixel ) m_newpixel->disableRobList(RobIdList);
-    if ( m_newsct )   m_newsct->disableRobList(RobIdList);
-    if ( m_newtrt )   m_newtrt->disableRobList(RobIdList);
-  } 
+void RegSelSvc::DisableSiRobList(const std::vector<uint32_t>& /* RobIdList */ ) { 
 }
 
-void RegSelSvc::DisablePixelHashList(const std::vector<unsigned int>& HashList) { 
-  // if the list of hashids to disable is not empty... 
-  if ( HashList.size()>0 ) { 
-    // check the look up tables actually already exist before
-    // trying to disable the modules from them
-    
-    std::vector<IdentifierHash> hashlist;
-    for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
-
-    if ( m_newpixel ) m_newpixel->disableModuleList(hashlist);
-  } 
+void RegSelSvc::DisablePixelHashList(const std::vector<unsigned int>& /* HashList */ ) { 
 }
 
-void RegSelSvc::DisableSCTHashList(const std::vector<unsigned int>& HashList) { 
-  // if the list of hashids to disable is not empty... 
-  if ( HashList.size()>0 ) { 
-    // check the look up tables actually already exist before
-    // trying to disable the modules from them
-    std::vector<IdentifierHash> hashlist;
-    for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
-    if ( m_newsct )   m_newsct->disableModuleList(hashlist);
-  } 
+void RegSelSvc::DisableSCTHashList(const std::vector<unsigned int>& /* HashList */ ) { 
 }
 
 
-void RegSelSvc::DisableTRTHashList(const std::vector<unsigned int>& HashList) { 
-  // if the list of hashids to disable is not empty... 
-  if ( HashList.size()>0 ) { 
-    // check the look up tables actually already exist before
-    // trying to disable the modules from them
-    std::vector<IdentifierHash> hashlist;
-    for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
-    if ( m_newtrt )   m_newtrt->disableModuleList(hashlist);
-  } 
+void RegSelSvc::DisableTRTHashList(const std::vector<unsigned int>& /* HashList*/ ) { 
 }
 
 
 void RegSelSvc::RestoreSiRobList() {
-  // check the look up tables actually already exist before
-  // trying to disable the robs from them
-  if ( m_newpixel ) m_newpixel->enableRobs();
-  if ( m_newsct )   m_newsct->enableRobs();
-  if ( m_newtrt )   m_newtrt->enableRobs();
 }
 
 
@@ -2240,33 +1917,6 @@ StatusCode RegSelSvc::reinitialize() {
 // ids from oks and enable the modules corresponding to the 
 // specified robs
 bool RegSelSvc::reinitialiseInternalFromOKS() { 
-
-  // don't disable anything if not initialising from oks
-  if ( m_readSiROBListFromOKS.value()==false ) return true;
-
-  if ( m_initPixel.value() )  {   
-    // disable everything
-    m_newpixel->disableRobs();
-    
-    // enable the robs from OKS
-    m_newpixel->enableRobList(m_enabledROBs.value());
-  }
-
-  if ( m_initSCT.value() ) { 
-    m_newsct->disableRobs();
-    
-    // enable robs from list for pixel and sct
-    m_newsct->enableRobList(m_enabledROBs.value());
-  }
-  
-  if ( m_initTRT.value() )  {   
-    // disable everything
-    m_newtrt->disableRobs();
-    
-    // enable the robs from OKS
-    m_newtrt->enableRobList(m_enabledROBs.value());
-  }
-
   return true;
 }
 
@@ -2275,69 +1925,6 @@ bool RegSelSvc::reinitialiseInternalFromOKS() {
 
 
 bool RegSelSvc::reinitialiseInternal() { 
-
-  // NB: the conditions summary service names, and probably the services 
-  //     themselves should be setable from a job option, but why make
-  //     life even more complicated with configurability that may never
-  //     be used. If it needs it, it can easily be added  
-
-  // now handle all the disabling for the pixel ... 
-  if ( m_initPixel.value() )  { 
-
-    // first disable modules from the conditions summary services
-    //    if ( m_disableFromConditions ) disableIDFromConditions(m_newpixel, "PixelConditionsSummarySvc");
-    if ( m_disableFromConditions && m_disablePixelFromConditions ) disableIDFromConditions(m_newpixel, m_PixConditionsTool);
-
-    // now *disable* the modules from robs the user has flagged
-    if ( m_deleteRobList.size() ) m_newpixel->disableRobList(m_deleteRobList);
-
-    // and disable any other modules from the module list
-    // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
-    std::vector<IdentifierHash> hashlist;
-    for ( std::vector<unsigned int>::const_iterator hptr(m_deletePixelHashList.begin()) ; 
-	  hptr!=m_deletePixelHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
-    
-    if ( m_deletePixelHashList.size() ) m_newpixel->disableModuleList(hashlist);    
-  }
-  
-  // and now handle all the disabling for the sct ... 
-  if ( m_initSCT.value() ) { 
-    
-    // first disable modules from the conditions summary tool
-    if ( m_disableFromConditions  && m_disableSCTFromConditions ) disableIDFromConditions(m_newsct, m_SCTConditionsTool);
-
-    // now *disable* the modules from robs the user has flagged
-    if ( m_deleteRobList.size() ) m_newsct->disableRobList(m_deleteRobList);
-    
-    // and disable any other modules from the module list
-    // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
-    std::vector<IdentifierHash> hashlist;
-    for ( std::vector<unsigned int>::const_iterator hptr(m_deleteSCTHashList.begin()) ; 
-	  hptr!=m_deleteSCTHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
-    
-    if ( m_deleteSCTHashList.size() ) m_newsct->disableModuleList(hashlist);
-  }
-
-  // and now handle all the disabling for the trt ... 
-  if ( m_initTRT.value() ) { 
-
-    // first disable modules from the conditions summary services
-    //    if ( m_disableFromConditions ) disableIDFromConditions(m_newtrt, "TRT_ConditionsSummarySvc");
-    if ( m_disableFromConditions  && m_disableTRTFromConditions ) disableIDFromConditions(m_newtrt, m_TRTConditionsSvc);
-    
-    // now *disable* the modules from robs the user has flagged
-    if ( m_deleteRobList.size() ) m_newtrt->disableRobList(m_deleteRobList);
-
-    // and disable any other modules from the module list
-    // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
-    std::vector<IdentifierHash> hashlist;
-    for ( std::vector<unsigned int>::const_iterator hptr(m_deleteTRTHashList.begin()) ; 
-	  hptr!=m_deleteTRTHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
-    
-    if ( m_deleteTRTHashList.size() ) m_newtrt->disableModuleList(hashlist);
-  }
-
-
   return true;
 }
 
