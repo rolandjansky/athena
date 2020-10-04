@@ -37,27 +37,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
 
     // Switch parameters
-    Gaudi::Property<bool> m_useCalibConditions
-    {this, "UseCalibConditions", true, "Use conditions DB for charge calibration"};
-
-    Gaudi::Property<bool> m_useDeadmapConditions
-    {this, "UseDeadmapConditions", true, "Use conditions DB for pixel deadmap module/FE"};
-
-    Gaudi::Property<bool> m_useDCSStateConditions
-    {this, "UseDCSStateConditions", false, "Use DCSState conditions DB"};
-
-    Gaudi::Property<bool> m_useDCSStatusConditions
-    {this, "UseDCSStatusConditions", false, "Use DCSStatus conditions DB"};
-
-    Gaudi::Property<bool> m_useDCSHVConditions
-    {this, "UseDCSHVConditions", true, "Use DCS HV conditions DB"};
-
-    Gaudi::Property<bool> m_useDCSTemperatureConditions
-    {this, "UseDCSTemperatureConditions", true, "Use DCS temperature conditions DB"};
-
-    Gaudi::Property<bool> m_useTDAQConditions
-    {this, "UseTDAQConditions", false, "Use TDAQ conditions DB (NOTE only valid in RUN-1)"};
-
     Gaudi::Property<bool> m_useCablingConditions
     {this, "UseCablingConditions", true, "Use cabling map conditions DB"};
 

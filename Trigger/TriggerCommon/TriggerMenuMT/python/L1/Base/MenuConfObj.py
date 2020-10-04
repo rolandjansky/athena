@@ -20,8 +20,11 @@ class TopoMenuDef:
         self.outputlines = outputlines
         self.outputbits = outputbits
 
-    def __repr__(self):
+    def __str__(self):
         return self.algoname
+
+    def __repr__(self):
+        return f"name = {self.algoname}, outputlines = {self.outputlines}, outputbits = {self.outputbits}"
 
     def isMultiplicityDefinition(self):
         return self.algoname.startswith("Mult")

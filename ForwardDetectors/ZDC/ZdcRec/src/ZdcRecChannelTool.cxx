@@ -134,8 +134,6 @@ StatusCode ZdcRecChannelTool::initialize()
 	}
 	m_zdcId = zdcId;
 
-	ZdcCablingService::getInstance()->setZdcID(m_zdcId);
-
 	msg(MSG::DEBUG) << "--> ZDC : END OF MODIFICATION 0" << endmsg ;
 	return StatusCode::SUCCESS;
 }
@@ -291,10 +289,10 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 		//We need to be carefull. Sometimes the vector size here is zero (PPM flaw) and
 		//the code crashs if we do not treat this.
 		i = 0;
-	    for (vit = wfm.begin(); vit<wfm.end(); vit++) {
+	    for (vit = wfm.begin(); vit<wfm.end(); ++vit) {
 	    	if (vit->size() == 0) vit->resize(7);
 	    	ped = *vit->begin();
-	    	for (it=vit->begin(); it<vit->end();it++) {
+	    	for (it=vit->begin(); it<vit->end();++it) {
 	    		(*it) -= ped;
 	    		//if ((i==1) || (i==3) ) (*it) = (*it) * s_GAIN_RATIO;
 	    	}
@@ -358,7 +356,7 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 	    /// Traditional code bellow (Energy by peak or sum,
 	    /// time by ratio of samples
 	    //////////////////////////////////////////////////
-	    for (vit = wfm.begin(); vit<wfm.end(); vit++) {
+	    for (vit = wfm.begin(); vit<wfm.end(); ++vit) {
 	    	v = *vit;
 	    	soma =   std::accumulate(v.begin(), v.end(), 0) ;
 	    	pico =  *(std::max_element(v.begin(),v.end()) );
@@ -402,7 +400,7 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 					       "  m="   << m <<
 					       "  Time by CFD=" << tzc <<
 					       "  Peak at imax = " << imax <<
-					       "  v[imax-1] = " << v[imax-1] <<
+                                               "  v[imax-1] = " << (imax > 0 ? v[imax-1] : 0) <<
 					       "  V[imax] = " << v[imax] <<
 			               "  Sample Ratio A1/A2=" << tsr << endmsg;
 			k++;
@@ -530,10 +528,10 @@ int ZdcRecChannelTool::getTimingCFD(const Identifier& id,  const std::vector<std
 		vf[i] = 0.;
 	}
 
-	for (vit = wfm.begin(); vit<wfm.end(); vit++) {
+	for (vit = wfm.begin(); vit<wfm.end(); ++vit) {
 		y = *vit;
 		i = 4;
-		for (it=y.begin();it != y.end();it++) {
+		for (it=y.begin();it != y.end();++it) {
 			v[i] = *it;
 			i++;
 		}
@@ -681,7 +679,7 @@ int ZdcRecChannelTool::getTimingSinc(const Identifier& id,  const std::vector<st
                         << mType    << ";"
                         << mChannel << endmsg;
 
-	for (vvi_it = wfm.begin(); vvi_it<wfm.end(); vvi_it++) {
+	for (vvi_it = wfm.begin(); vvi_it<wfm.end(); ++vvi_it) {
 		//FIXME: Change to the method of ID identification
 	    //if ((zId == 0xec000000) || (zId == 0xed000000) ||
 	    //	(zId ==	0xec200000) || (zId == 0xed200000) ||
@@ -694,7 +692,7 @@ int ZdcRecChannelTool::getTimingSinc(const Identifier& id,  const std::vector<st
 
 	        t = 0;
 	        //Fill the interpolated vector
-	        for (vf_it = m_wfm_bwl.begin(); vf_it != m_wfm_bwl.end(); vf_it++ ) {
+	        for (vf_it = m_wfm_bwl.begin(); vf_it != m_wfm_bwl.end(); ++vf_it ) {
 	            z = 0.;
 	            for (i=0;i<m_nsamples;i++) {
 	                x =  (TMath::Pi() *(t*0.1 - i*25.))/25. ;
@@ -819,7 +817,7 @@ int ZdcRecChannelTool::getTimingSinc2(const Identifier& id, const std::vector<st
 	  //from only a subset
 	  wfmIndex = 2;
 	  i = 0;
-	  for (vit = wfm.begin(); vit<wfm.end(); vit++) {
+	  for (vit = wfm.begin(); vit<wfm.end(); ++vit) {
 	      if ( (i < wfmIndex) && (mType == 0) )
 	        {
 	          y = *vit;

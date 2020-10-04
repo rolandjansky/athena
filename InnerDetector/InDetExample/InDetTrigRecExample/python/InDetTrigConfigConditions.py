@@ -126,15 +126,12 @@ class PixelConditionsServicesSetup:
           else:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
-      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                    UseDeadmapConditions=self.usePixMap,
-                                    UseDCSStateConditions=self.useDCS,
-                                    UseDCSStatusConditions=self.useDCS,
-                                    UseTDAQConditions=self.useTDAQ,     # should be false. This is only valid in RUN-1.
-                                    UseCalibConditions=True,
-                                    UseCablingConditions=useCablingConditions,
-                                    CablingMapFileName=IdMappingDat)
-
+      alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                               UseCablingConditions=useCablingConditions,
+                               CablingMapFileName=IdMappingDat)
+      if not self.usePixMap:
+        alg.ReadDeadMapKey = ""
+      condSeq += alg
 
     #########################
     # Deadmap Setup (RUN-3) #
@@ -144,7 +141,10 @@ class PixelConditionsServicesSetup:
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
       if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+        alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+        if not self.usePixMap:
+          alg.ReadKey = ""
+        condSeq += alg
 
     ########################
     # DCS Conditions Setup #
@@ -163,8 +163,8 @@ class PixelConditionsServicesSetup:
       conddb.addFolder(PixelDBInstance, PixelHVFolder, className="CondAttrListCollection")
     if not conddb.folderRequested(PixelTempFolder):
       conddb.addFolder(PixelDBInstance, PixelTempFolder, className="CondAttrListCollection")
-      
-    if not self.onlineMode:   #this is only for testing in offline like setup 
+
+    if not self.onlineMode and self.useDCS:   #this is only for testing in offline like setup 
       if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
         conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
       if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCONDBLOBOBJS_CALOCONDBLOBDAT_H
@@ -86,12 +86,15 @@ class CaloCondBlobDat : public CaloCondBlobBase
  protected:
   /** @brief Ctor. */
   CaloCondBlobDat(const coral::Blob& blob) : CaloCondBlobBase(blob){}
+  /** @brief Ctor. */
+  CaloCondBlobDat(coral::Blob& blob) : CaloCondBlobBase(blob){}
 
 
   /** @brief Returns a pointer to the first value for the specified channel/gain. 
       @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy)   
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy) */
-  T* getAddress(const unsigned int channel, const unsigned int adc) const;
+  const T* getAddress(const unsigned int channel, const unsigned int adc) const;
+  T* getAddress(const unsigned int channel, const unsigned int adc);
 };
 
 //
@@ -147,8 +150,25 @@ CaloCondBlobDat<T>::setData(unsigned int channel, unsigned int adc, const std::v
 
 //
 //______________________________________________________________
-template<class T> T* 
+template<class T> const T* 
 CaloCondBlobDat<T>::getAddress(const unsigned int channel, const unsigned int adc) const
+{
+  //=== check for out of bounds
+  if(channel >= getNChans()){
+    throw CaloCond::IndexOutOfRange("CaloCondBlobDat::getAddress(channel)",channel,getNChans());
+  }
+  if(adc>=getNGains()){
+    throw CaloCond::IndexOutOfRange("CaloCondBlobDat::getAddress(gain)",adc,getNGains());
+  }
+  
+  const unsigned int idx = channel*getNGains() + adc;
+  return static_cast<const T*>(CaloCondBlobBase::getAddress(idx));
+}
+
+//
+//______________________________________________________________
+template<class T> T* 
+CaloCondBlobDat<T>::getAddress(const unsigned int channel, const unsigned int adc)
 {
   //=== check for out of bounds
   if(channel >= getNChans()){

@@ -25,7 +25,7 @@ PURPOSE:  Performs Calo Extension for all GSF tracks
 
 EMGSFCaloExtensionBuilder::EMGSFCaloExtensionBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
 StatusCode
@@ -52,7 +52,7 @@ EMGSFCaloExtensionBuilder::EMGSFCaloExtensionBuilder::finalize()
 }
 
 StatusCode
-EMGSFCaloExtensionBuilder::execute_r(const EventContext& ctx) const
+EMGSFCaloExtensionBuilder::execute(const EventContext& ctx) const
 {
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_GSFTrkPartContainerKey, ctx);
 

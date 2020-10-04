@@ -33,7 +33,6 @@ private:
     template <class T> using GP = Gaudi::Property<T>;
 
 	// Activates trigger and muon parts of the algorithm
-    GP<bool> m_doTrigger {this, "Trigger", true};
     GP<bool> m_doMuons {this, "Muons", true};
 
     // StoreGate keys

@@ -105,7 +105,7 @@ bool InDetServMatGeometryManager::buildServices() const
   return false;
 }
 
-int InDetServMatGeometryManager::SupportTubeIndex(std::string name) const 
+int InDetServMatGeometryManager::SupportTubeIndex(const std::string& name) const 
 {
   for (unsigned int i = 0; i < db()->getTableSize(m_InDetSimpleServices); i++) 
   {
@@ -114,35 +114,35 @@ int InDetServMatGeometryManager::SupportTubeIndex(std::string name) const
   return -1;
 }
 
-double InDetServMatGeometryManager::SupportTubeRMin(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeRMin(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMIN", ind);
   return 0;
 }
 
-double InDetServMatGeometryManager::SupportTubeRMax(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeRMax(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMAX", ind);
   return 0;
 }
 
-double InDetServMatGeometryManager::SupportTubeZMin(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeZMin(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "ZMIN", ind);
   return 0;
 }
 
-double InDetServMatGeometryManager::SupportTubeZMax(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeZMax(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "ZMAX", ind);
   return 0;
 }
 
-int InDetServMatGeometryManager::SupportTubeExists(std::string name) const 
+int InDetServMatGeometryManager::SupportTubeExists(const std::string& name) const 
 {
   if (SupportTubeIndex(name) != -1) return 1;
   return 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOADAPTORS_GEOTRTUNCOMPRESSEDHIT_H
@@ -33,15 +33,13 @@ class GeoTRTUncompressedHit {
   HepGeom::Point3D<double> getGlobalPosition() const;
 
   // Is this hit OK? 
-  operator bool () const { return s_mgr; }
+  operator bool () const { return true; }
 
  private:
-  
-  static void init();
+  static const InDetDD::TRT_DetectorManager* init();
+  const InDetDD::TRT_DetectorManager* mgr() const;
 
   const TRTUncompressedHit                        *m_hit;
-  static const InDetDD::TRT_DetectorManager       *s_mgr;
-
 };
 
 #include "GeoAdaptors/GeoTRTUncompressedHit.icc"

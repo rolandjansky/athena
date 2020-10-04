@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -28,8 +28,8 @@
 #include <iomanip>
 
 ZdcRawData::ZdcRawData( const Identifier& id )
+  : m_id (id)
 {
-    m_id = id;
 }
 
 void ZdcRawData::print() const
@@ -77,12 +77,9 @@ void ZdcRawData::print_to_stream ( const std::vector<double>& val,
                                     std::ostringstream & text)
 {
     text << label;
-
-    std::vector<double>::const_iterator it1=val.begin();
-    std::vector<double>::const_iterator it2=val.end();
-
-    for ( ; it1!=it2; ++it1) text << " " << (*it1);
-
+    for (double v : val) {
+      text << " " << v;
+    }
 }
 
 void ZdcRawData::print_to_stream ( const std::vector<int>& val,
@@ -90,11 +87,8 @@ void ZdcRawData::print_to_stream ( const std::vector<int>& val,
                                     std::ostringstream & text)
 {
     text << label;
-
-    std::vector<int>::const_iterator it1=val.begin();
-    std::vector<int>::const_iterator it2=val.end();
-
-    for ( ; it1!=it2; ++it1) text << " " << (*it1);
-
+    for (double v : val) {
+      text << " " << v;
+    }
 }
 

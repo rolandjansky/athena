@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
+from BTagging.InDetImprovedJetFitterVxFinderConfig import InDetImprovedJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 
 Analysis__JetSecVtxFindingAlg=CompFactory.Analysis.JetSecVtxFindingAlg
@@ -21,7 +21,7 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNa
     jetcol = JetCollection
 
     if SVFinder == 'JetFitter':
-        secVtxFinder = acc.popToolsAndMerge(NewJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder'))
+        secVtxFinder = acc.popToolsAndMerge(InDetImprovedJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder'))
     elif SVFinder == 'SV1':
         secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalVxInJet"))
     elif SVFinder == 'MSV':

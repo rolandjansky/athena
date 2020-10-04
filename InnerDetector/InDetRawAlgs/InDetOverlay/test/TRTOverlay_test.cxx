@@ -73,11 +73,11 @@ namespace OverlayTesting {
 
     // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
     /** Return the local occupancy for the sectors crossed by a given track */
-    virtual float LocalOccupancy( const Trk::Track& ) const { return 1.0; }; // not used - dummy implementation
-    virtual float LocalOccupancy(const double, const double) const  { return 1.0; }; // not used - dummy implementation
+    virtual float LocalOccupancy( const Trk::Track& ) const override { return 1.0; }; // not used - dummy implementation
+    virtual float LocalOccupancy(const double, const double) const  override{ return 1.0; }; // not used - dummy implementation
 
     /** Return the global occupancy of the event*/
-    virtual std::vector<float> GlobalOccupancy( ) const { std::vector<float> dummyVect{}; return dummyVect; }; // not used - dummy implementation
+    virtual std::vector<float> GlobalOccupancy( ) const override { std::vector<float> dummyVect{}; return dummyVect; }; // not used - dummy implementation
   };
 
   DECLARE_COMPONENT( MockTRT_LocalOccupancy )
@@ -102,18 +102,18 @@ namespace OverlayTesting {
       return StatusCode::SUCCESS;
     };
 
-    virtual int getStatus(const Identifier ) const { return 1; }; // not used - dummy implementation
-    virtual int getStatusPermanent(const Identifier) const { return 1; }; // not used - dummy implementation
+    virtual int getStatus(const Identifier ) const override { return 1; }; // not used - dummy implementation
+    virtual int getStatusPermanent(const Identifier) const override { return 1; }; // not used - dummy implementation
     MOCK_CONST_METHOD1(getStatusHT, int(const Identifier)); // This is the only method that we actually need! <--------------
-    virtual bool get_status(const Identifier) const { return false; }; // not used - dummy implementation
-    virtual bool get_statusHT(const Identifier) const { return false; }; // not used - dummy implementation
-    virtual const StrawStatusContainer* getStrawStatusHTContainer() const {return nullptr;}; // not used - dummy implementation
+    virtual bool get_status(const Identifier) const override { return false; }; // not used - dummy implementation
+    virtual bool get_statusHT(const Identifier) const override { return false; }; // not used - dummy implementation
+    virtual const StrawStatusContainer* getStrawStatusHTContainer() const override {return nullptr;}; // not used - dummy implementation
 
-    virtual int getStatus(const Identifier, const EventContext&  ) const { return 1; }; // not used - dummy implementation
-    virtual int getStatusPermanent(const Identifier, const EventContext& ) const { return 1; }; // not used - dummy implementation
-    virtual int getStatusHT(const Identifier, const EventContext& ) const { return 1; }; // not used - dummy implementation
-    virtual bool get_status(const Identifier, const EventContext& ) const { return false; }; // not used - dummy implementation
-    virtual bool get_statusHT(const Identifier, const EventContext& ) const { return false; }; // not used - dummy implementation
+    virtual int getStatus(const Identifier, const EventContext&  ) const override { return 1; }; // not used - dummy implementation
+    virtual int getStatusPermanent(const Identifier, const EventContext& ) const override { return 1; }; // not used - dummy implementation
+    virtual int getStatusHT(const Identifier, const EventContext& ) const override { return 1; }; // not used - dummy implementation
+    virtual bool get_status(const Identifier, const EventContext& ) const override { return false; }; // not used - dummy implementation
+    virtual bool get_statusHT(const Identifier, const EventContext& ) const override { return false; }; // not used - dummy implementation
 
   };
 

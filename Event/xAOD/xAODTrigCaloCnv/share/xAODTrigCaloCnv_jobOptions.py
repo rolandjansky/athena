@@ -38,10 +38,6 @@ xaodStream.AddItem( "xAOD::TrigCaloClusterAuxContainer_v1#*" )
 xaodStream.AddItem( "xAOD::TrigEMClusterContainer_v1#*" )
 xaodStream.AddItem( "xAOD::TrigEMClusterAuxContainer_v1#*" )
 
-# Make sure that the event format object is added to the output:
-theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-xaodStream.AddMetaDataItem( "xAOD::EventFormat_v1#EventFormat" )
-
 # Check what happened to the stream:
 xaodStream.Print()
 

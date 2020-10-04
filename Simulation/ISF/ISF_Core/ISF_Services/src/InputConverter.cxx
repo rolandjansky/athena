@@ -154,7 +154,7 @@ ISF::InputConverter::convert(const McEventCollection& inputGenEvents,
     const auto passedGenParticles = getSelectedParticles(*eventPtr, legacyOrdering);
 
     for ( auto& genPartPtr : passedGenParticles ) {
-      ATH_MSG_VERBOSE("Picking up following GenParticle for conversion to ISFParticle: " <<  *genPartPtr);
+      ATH_MSG_VERBOSE("Picking up following GenParticle for conversion to ISFParticle: " <<  genPartPtr);
       auto simParticlePtr = convertParticle(genPartPtr, kindOfCollection);
       if (!simParticlePtr) {
         ATH_MSG_ERROR("Error while trying to convert input generator particles. Aborting.");
@@ -227,50 +227,49 @@ ISF::InputConverter::getSelectedParticles(const HepMC::GenEvent& evnt, bool lega
 ISF::ISFParticle*
 ISF::InputConverter::convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOLL kindOfCollection) const {
   if (!genPartPtr) { return nullptr; }
-  auto& genPart = *genPartPtr;
 
-  // @FIXME: set the bunch-crossing identifier for pile-up dynamically
-  // rather than a constant '1' (e.g. could use GenEvent index for that?)
-  const int bcid = (kindOfCollection==EBC_MAINEVCOLL) ? 0 : 1;
-
-  HepMC::GenVertexPtr  pVertex = genPart.production_vertex();
+  auto  pVertex = genPartPtr->production_vertex();
   if (!pVertex) {
-    ATH_MSG_ERROR("Unable to convert following generator particle due to missing "
-                  << "production vertex: " << genPart);
+    ATH_MSG_ERROR("Unable to convert following generator particle due to missing production vertex for: " << genPartPtr);
+    return nullptr;
+  }
+  auto parentEvent = genPartPtr->parent_event();
+  if(!parentEvent) {
+    ATH_MSG_ERROR("Cannot convert a GenParticle without a parent GenEvent into an ISFParticle!!!");
     return nullptr;
   }
 
-
   const Amg::Vector3D pos(pVertex->position().x(), pVertex->position().y(), pVertex->position().z());
-  const auto& pMomentum(genPart.momentum());
+  const auto& pMomentum(genPartPtr->momentum());
   const Amg::Vector3D mom(pMomentum.px(), pMomentum.py(), pMomentum.pz());
-  const double pMass = this->getParticleMass(genPart);
-
+#ifdef HEPMC3
+  const double pMass = this->getParticleMass(genPartPtr);
+#else
+  const double pMass = this->getParticleMass(*genPartPtr);
+#endif  
   double e=pMomentum.e();
   if(e>1) { //only test for >1 MeV in momentum
     double px=pMomentum.px();
     double py=pMomentum.py();
     double pz=pMomentum.pz();
-    double teste=sqrt(px*px + py*py + pz*pz + pMass*pMass);
-    if(std::abs(e-teste)/e>0.01) {
-      ATH_MSG_WARNING("Difference in energy for: " << genPart<<" Morg="<<pMomentum.m()<<" Mmod="<<pMass<<" Eorg="<<e<<" Emod="<<teste);
+    double teste=std::sqrt(px*px + py*py + pz*pz + pMass*pMass);
+    if(std::abs(e-teste)>0.01*e) {
+      ATH_MSG_WARNING("Difference in energy for: " << genPartPtr<<" Morg="<<pMomentum.m()<<" Mmod="<<pMass<<" Eorg="<<e<<" Emod="<<teste);
     }
   }  
 
-  const int pPdgId = genPart.pdg_id();
+  const int pPdgId = genPartPtr->pdg_id();
   const double charge = HepPDT::ParticleID(pPdgId).charge();
   const double pTime = pVertex->position().t() / Gaudi::Units::c_light;
   /// particle origin (TODO: add proper GeoID, collision/cosmics)
   DetRegionSvcIDPair origin(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
-  const auto pBarcode = HepMC::barcode(genPart);
+  const auto pBarcode = HepMC::barcode(genPartPtr);
   auto tBinding = std::make_unique<ISF::TruthBinding>(genPartPtr);
+  // @FIXME: set the bunch-crossing identifier for pile-up dynamically
+  // rather than a constant '1' (e.g. could use GenEvent index for that?)
+  const int bcid = (kindOfCollection==EBC_MAINEVCOLL) ? 0 : 1;
 
-  auto *parentEvent = genPart.parent_event();
-  if(!parentEvent) {
-    ATH_MSG_ERROR("Cannot convert a GenParticle without a parent GenEvent into an ISFParticle!!!");
-    return nullptr;
-  }
-  auto hmpl = std::make_unique<HepMcParticleLink>(&genPart, parentEvent->event_number(), kindOfCollection);
+  auto hmpl = std::make_unique<HepMcParticleLink>(genPartPtr, parentEvent->event_number(), kindOfCollection);
   auto sParticle = std::make_unique<ISF::ISFParticle>( std::move(pos),
                                                        std::move(mom),
                                                        pMass,
@@ -540,7 +539,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
         ATH_MSG_VERBOSE( "Will add the primary particle set on." );
         ATH_MSG_VERBOSE( "ISF Particle: " << isp );
-        ATH_MSG_VERBOSE( "Primary Particle: " << *genpart );
+        ATH_MSG_VERBOSE( "Primary Particle: " << genpart );
         ATH_MSG_VERBOSE( "Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
       }
       else {
@@ -549,19 +548,22 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         ATH_MSG_WARNING( "yet validated - you'd better know what you're doing.  Will add the primary" );
         ATH_MSG_WARNING( "particle set on." );
         ATH_MSG_WARNING( "ISF Particle: " << isp );
-        ATH_MSG_WARNING( "Primary Particle: " << *genpart );
+        ATH_MSG_WARNING( "Primary Particle: " << genpart );
         ATH_MSG_WARNING( "Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
       }
       // Add all necessary daughter particles
-      for ( auto daughterIter=genpart->end_vertex()->particles_out_const_begin();
-            daughterIter!=genpart->end_vertex()->particles_out_const_end(); ++daughterIter ) {
+      for ( auto daughter: *(genpart->end_vertex())) {
         if(m_quasiStableParticlesIncluded) {
-          ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << **daughterIter );
+          ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << daughter );
         }
         else {
-          ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << **daughterIter );
+          ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << daughter );
         }
-        G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
+#ifdef HEPMC3
+        G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( daughter );
+#else
+        G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( *daughter );
+#endif
         if(!daughterG4Particle) {
           ATH_MSG_ERROR("Bailing out of loop over daughters of particle with barcode: "<<HepMC::barcode(genpart) <<
                         " due to errors - will not return G4Particle.");
@@ -616,7 +618,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
       }
     }  
 
-    genpart->set_momentum(CLHEP::HepLorentzVector(px,py,pz,pe));
+    genpart->set_momentum(HepMC::FourVector(px,py,pz,pe));
   } // Truth was detected
 
   ATH_MSG_VERBOSE("PrimaryParticleInformation:");

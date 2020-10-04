@@ -49,7 +49,7 @@ class MDTSensitiveDetectortest : public ::testing::Test {
 TEST_F ( MDTSensitiveDetectortest, Initialize )
 {
   G4HCofThisEvent hce;
-  MDTSensitiveDetector sd1("name1", "name1" );
+  MDTSensitiveDetector sd1("name1", "name1", 78); // all MDT/sMDT chambers used in Run1/2 have maximum 78 tubes
   sd1.Initialize( &hce );
   ASSERT_TRUE(sd1.m_MDTHitColl.isValid()); //check if initialization of m_MDTHitColl is successful
 
@@ -208,7 +208,7 @@ TEST_F ( MDTSensitiveDetectortest, ProcessHits )
   sp.SetTrack(track);
 //end
 
-  MDTSensitiveDetector sd2("name2", "name2");
+  MDTSensitiveDetector sd2("name2", "name2", 78); // all MDT/sMDT chambers used in Run1/2 have maximum 78 tubes
   sd2.Initialize( &hce );
   sd2.ProcessHits(&sp, &th );
 
@@ -254,7 +254,7 @@ TEST_F ( MDTSensitiveDetectortest, GetIdentifier )
   navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
   G4TouchableHistory* touchableHistory = new G4TouchableHistory(*navigationHistory);
 
-  MDTSensitiveDetector sd3("name3", "name3");
+  MDTSensitiveDetector sd3("name3", "name3", 78); // all MDT/sMDT chambers used in Run1/2 have maximum 78 tubes
   sd3.Initialize( &hce );
   int theID = sd3.GetIdentifier(touchableHistory);
 

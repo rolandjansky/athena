@@ -8,7 +8,14 @@ log = logging.getLogger("TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool")
 from AthenaCommon.SystemOfUnits import GeV
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigElectronSelectors
 
-def _IncTool(name, threshold, sel):
+# isolation cuts
+IsolationCut = {
+        None: None,
+        'ivarloose': 0.1,
+        'ivarmedium': 0.065,
+        'ivartight': 0.05
+        }
+def _IncTool(name, threshold, sel, iso):
 
     log.debug('TrigEgammaPrecisionElectronHypoTool _IncTool("'+name+'", threshold = '+str(threshold) + ', sel = '+str(sel))
 
@@ -59,6 +66,13 @@ def _IncTool(name, threshold, sel):
         # No other cuts applied
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
+
+
+    if  iso  and iso != '':
+        if iso not in IsolationCut:
+            log.error('Isolation cut %s not defined!', iso)
+        log.debug('Configuring Isolation cut %s with value %d',iso,IsolationCut[iso])
+        tool.RelPtConeCut = IsolationCut[iso]
     
     return tool
 
@@ -75,10 +89,14 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
     
     def __sel(cpart):
         return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+
+    def __iso(cpart):
+        return cpart['isoInfo']
+
     
     name = d['chainName']
         
-    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ) )
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0])  )
                    
     
 

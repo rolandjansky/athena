@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -69,31 +69,28 @@ void ZdcDigits::print() const
   //std::cout << std::setiosflags( std::ios::showpoint );
   //std::cout << std::setprecision(2);
   
-  std::vector<int>::const_iterator it;
-  std::vector<int>::const_iterator it_end;
-
   std::cout << "gain0/delay0 (" << m_digits_gain0_delay0.size() << " elements): ";
-  it = m_digits_gain0_delay0.begin();
-  it_end = m_digits_gain0_delay0.end();
-  while (it!=it_end) { std::cout << " " << (*it); it++;}
+  for (int val : m_digits_gain0_delay0) {
+    std::cout << " " << val;
+  }
   std::cout << std::endl;
 
   std::cout << "gain0/delay1 (" << m_digits_gain0_delay1.size() << " elements): ";
-  it = m_digits_gain0_delay1.begin();
-  it_end = m_digits_gain0_delay1.end();
-  while (it!=it_end) { std::cout << " " << (*it); it++;}
+  for (int val : m_digits_gain0_delay1) {
+    std::cout << " " << val;
+  }
   std::cout << std::endl;
 
   std::cout << "gain1/delay0 (" << m_digits_gain1_delay0.size() << " elements): ";
-  it = m_digits_gain1_delay0.begin();
-  it_end = m_digits_gain1_delay0.end();
-  while (it!=it_end) { std::cout << " " << (*it); it++;}
+  for (int val : m_digits_gain1_delay0) {
+    std::cout << " " << val;
+  }
   std::cout << std::endl;
 
   std::cout << "gain1/delay1 (" << m_digits_gain1_delay1.size() << " elements): ";
-  it = m_digits_gain1_delay1.begin();
-  it_end = m_digits_gain1_delay1.end();
-  while (it!=it_end) { std::cout << " " << (*it); it++;}
+  for (int val : m_digits_gain1_delay1) {
+    std::cout << " " << val;
+  }
   std::cout << std::endl;
 
 

@@ -386,15 +386,7 @@ def TrigInDetCondCfg( flags ):
   from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 
   # module parameters
-  acc.merge(PixelConfigCondAlgCfg(flags,
-                                  UseCalibConditions=False,
-                                  UseDeadmapConditions=True,
-                                  UseDCSStateConditions=False,
-                                  UseDCSStatusConditions=False,
-                                  UseDCSHVConditions=True,
-                                  UseDCSTemperatureConditions=True,
-                                  UseTDAQConditions=False))
-
+  acc.merge(PixelConfigCondAlgCfg(flags))
   # charge calibration
   acc.merge(PixelChargeCalibCondAlgCfg(flags))
 # NEW FOR RUN3  acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
@@ -431,7 +423,10 @@ def TrigInDetCondCfg( flags ):
   acc.merge( mfsc )
   return acc
 
-def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
+def TrigInDetConfig( inflags, roisKey="EMRoIs", signatureName='' ):
+
+  # redirect InDet.Tracking flags to point to a specific trigger setting
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
 
   #If signature specified add suffix to the name of each algorithms
   signature =  "_" + signatureName if signatureName else ''
@@ -715,13 +710,10 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   return acc
 
-def indetInViewRecoCfg( inflags, viewMakerName, signature='' ):
+def indetInViewRecoCfg( flags, viewMakerName, signature='' ):
   """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now
   There would certainly be additional algorithms
   """
-  # redirect InDet.Tracking flags to point to a specific trigger setting
-  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signature)
-
 
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )

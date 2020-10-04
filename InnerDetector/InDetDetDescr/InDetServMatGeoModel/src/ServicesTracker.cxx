@@ -85,7 +85,7 @@ void ServicesTracker::finaliseServices()
   std::map<const ServicesLayer*, ServiceMaterial> layerMaterial; // cache the layer services
 
   typedef  std::vector<ServiceVolume*>::iterator VolumeIter;
-  for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); iv++) {
+  for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); ++iv) {
     std::vector<ServiceMaterial> result; // = (**iv).materials(); // preserve already present mat. (EOS)
     if ((**iv).isEOS()) addEosMaterial(**iv, result);
     

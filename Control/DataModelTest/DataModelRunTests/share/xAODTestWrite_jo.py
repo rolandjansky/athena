@@ -63,7 +63,6 @@ topSequence += DMTest__MetaWriterAlg ("MetaWriterAlg")
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
-theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
@@ -83,29 +82,9 @@ fullItemList+=["DMTest::HAuxContainer#hvecAux."]
 fullItemList+=["DMTest::HView#hview"]
 fullItemList+=["DMTest::S2#S2"]
 
-from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
-fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
-                                    ['DataVector<DMTest::C_v1>',
-                                     'DMTest::CVecWithData_v1',
-                                     'DMTest::CAuxContainer_v1',
-                                     'DMTest::CTrigAuxContainer_v1',
-                                     'ViewVector<DataVector<DMTest::C_v1,DataModel_detail::NoBase> >',
-                                     'DMTest::C_v1',
-                                     'DMTest::CInfoAuxContainer_v1',
-                                     'DataVector<DMTest::G_v1>',
-                                     'DMTest::GAuxContainer_v1',
-                                     'DMTest::G_v1',
-                                     'DMTest::H_v1',
-                                     'DataVector<DMTest::H_v1>',
-                                     'ViewVector<DataVector<DMTest::H_v1,DataModel_detail::NoBase> >',
-                                     'DMTest::HAuxContainer_v1',
-                                     ])
-ServiceMgr += fmtsvc
-
 # Stream's output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata.root', asAlg=True, noTag=True)
-Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
 # List of DO's to write out
@@ -114,6 +93,27 @@ Stream1.MetadataItemList += [ 'DMTest::S1#MetaS1',
                               'DMTest::C#MetaC',
                               'DMTest::CInfoAuxContainer#MetaCAux.' ]
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
+
+from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatStreamHelperTool
+for tool in Stream1.HelperTools:
+    if isinstance(tool, xAODMaker__EventFormatStreamHelperTool):
+        tool.TypeNames += [
+            'DataVector<DMTest::C_v1>',
+            'DMTest::CVecWithData_v1',
+            'DMTest::CAuxContainer_v1',
+            'DMTest::CTrigAuxContainer_v1',
+            'ViewVector<DataVector<DMTest::C_v1,DataModel_detail::NoBase> >',
+            'DMTest::C_v1',
+            'DMTest::CInfoAuxContainer_v1',
+            'DataVector<DMTest::G_v1>',
+            'DMTest::GAuxContainer_v1',
+            'DMTest::G_v1',
+            'DMTest::H_v1',
+            'DataVector<DMTest::H_v1>',
+            'ViewVector<DataVector<DMTest::H_v1,DataModel_detail::NoBase> >',
+            'DMTest::HAuxContainer_v1',
+        ]
+        break
 
 
 # Increment LBN every two events.

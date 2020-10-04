@@ -240,16 +240,27 @@ namespace G4UA{
 	m_scIn = creation? creation->GetProcessSubType() : -1;
 	
 	VTrackInformation * trackInfo= static_cast<VTrackInformation*>(track->GetUserInformation());
+#ifdef HEPMC3
+	HepMC::GenParticlePtr  genpart=trackInfo ? std::const_pointer_cast<HepMC3::GenParticle>(trackInfo->GetHepMCParticle()):nullptr;
+#else 
 	HepMC::GenParticlePtr genpart= trackInfo ? const_cast<HepMC::GenParticlePtr>(trackInfo->GetHepMCParticle()):0;
-	HepMC::GenVertex* vtx = genpart ? genpart->production_vertex() : 0;
+#endif
+	HepMC::GenVertexPtr vtx = genpart ? genpart->production_vertex() : 0;
 	m_gen = genpart? 0 : -1;
 	
 	if (genpart)  { // mc truth known
 	  while (genpart && vtx ) {
 	    int pdgID=genpart->pdg_id();
+#ifdef HEPMC3
+	    HepMC::GenParticlePtr  genmom = vtx->particles_in().size()>0 ? vtx->particles_in().front() : nullptr;
+	    if ( genmom && pdgID!=genmom->pdg_id() ) m_gen++;
+	    else if (vtx->particles_out().size()>0 && genpart!=vtx->particles_out().front()) m_gen++;
+
+#else
 	    HepMC::GenParticlePtr genmom = vtx->particles_in_size()>0 ? *(vtx->particles_in_const_begin()) : 0;
 	    if ( genmom && pdgID!=genmom->pdg_id() ) m_gen++;
 	    else if (vtx->particles_out_size()>0 && genpart!=*(vtx->particles_out_const_begin())) m_gen++;
+#endif
 	    vtx = genmom ? genmom->production_vertex() : 0;
 	    genpart = genmom;
 	  }

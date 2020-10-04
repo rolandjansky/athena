@@ -16,4 +16,5 @@ import TriggerJobOpts.StreamingSliceFlags
 import TriggerJobOpts.MonitorSliceFlags
 import TriggerJobOpts.BeamspotSliceFlags
 import TriggerJobOpts.EnhancedBiasSliceFlags
+import TriggerJobOpts.UnconventionalTrackingSliceFlags
 import TriggerJobOpts.TestSliceFlags

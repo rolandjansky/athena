@@ -106,7 +106,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     ]
     doTrigger=False
     if isRun3Cfg():
-      if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
+      if inputFlags.DQ.useTrigger or LArNoisyROMonForceTrigger:
         doTrigger=True
     else:    
       if inputFlags.doHLTMon or LArNoisyROMonForceTrigger:
