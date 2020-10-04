@@ -19,13 +19,10 @@
 #include "TRT_LoLumRawDataContainerCnv_p2.h"
 #include "TRT_LoLumRawDataContainerCnv_p3.h"
 
-
-// the latest persistent representation type of DataCollection:
-typedef  InDetRawDataContainer_p2         TRT_RDO_Container_PERS;
-typedef  TRT_LoLumRawDataContainerCnv_p2  TRT_RDO_ContainerCnv_PERS;
-// To switch to the p3 version (20% RDO size reduction), comment the two lines above and uncomment the two below.
-// typedef  InDetRawDataContainer_p3         TRT_RDO_Container_PERS;
-// typedef  TRT_LoLumRawDataContainerCnv_p3  TRT_RDO_ContainerCnv_PERS;
+// The latest persistent representation type of DataCollection:
+// p3 version (20% RDO size reduction)
+typedef  InDetRawDataContainer_p3         TRT_RDO_Container_PERS;
+typedef  TRT_LoLumRawDataContainerCnv_p3  TRT_RDO_ContainerCnv_PERS;
 
 typedef  T_AthenaPoolCustomCnv<TRT_RDO_Container, TRT_RDO_Container_PERS >   TRT_RDO_ContainerCnvBase;
 
