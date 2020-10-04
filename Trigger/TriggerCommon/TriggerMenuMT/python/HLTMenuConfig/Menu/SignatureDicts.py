@@ -413,7 +413,7 @@ PhotonChainParts = {
     'threshold'      : '',
     'extra'          : [],
     'IDinfo'         : ['etcut','loose','medium','tight'],
-    'isoInfo'        : [],
+    'isoInfo'        : ['icaloloose','icalomedium','icalotight'],
     'reccalibInfo'   : [],
     'trkInfo'        : [],
     'caloInfo'       : [],

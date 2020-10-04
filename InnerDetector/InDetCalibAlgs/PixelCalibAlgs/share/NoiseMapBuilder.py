@@ -137,7 +137,6 @@ else :
 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
 
 ServiceMgr += PixelConditionsSummarySvc()
-ServiceMgr.PixelConditionsSummarySvc.UseSpecialPixelMap = False
 ServiceMgr.PixelConditionsSummarySvc.UseDCS = False
 ServiceMgr.PixelConditionsSummarySvc.UseByteStream = True
 

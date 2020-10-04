@@ -379,17 +379,20 @@ namespace InDet {
 }
 
 StatusCode TrigFastTrackFinder::execute() {
+
   auto ctx = getContext();
   //RoI preparation/update 
+
   SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
+
   ATH_CHECK(roiCollection.isValid());
-  TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
-  TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+
   TrigRoiDescriptor internalRoI;
-  for (; roi != roiE; ++roi) {
-    internalRoI.push_back(*roi);
-  }
-  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
+
+  if ( roiCollection->size()>1 ) ATH_MSG_WARNING( "More than one Roi in the collection: " << m_roiCollectionKey << ", this is not supported - use a composite Roi" );  
+  if ( roiCollection->size()>0 ) internalRoI = **roiCollection->begin();
+
+  //  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_countTotalRoI++;
 
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey, ctx);

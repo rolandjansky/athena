@@ -4,7 +4,9 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
 from RngComps.RandomServices import RNG
-from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
+from G4AtlasServices.G4AtlasServicesConfigNew import (
+    DetectorGeometrySvcCfg, PhysicsListSvcCfg
+)
 from G4AtlasServices.G4AtlasUserActionConfigNew import (
     ISFUserActionSvcCfg, ISFFullUserActionSvcCfg,
     ISFPassBackUserActionSvcCfg, ISF_AFIIUserActionSvcCfg,
@@ -19,7 +21,7 @@ from ISF_FatrasServices.ISF_FatrasConfig import G4RunManagerHelperCfg
 
 
 def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
-    acc = RNG(flags.Random.Engine)
+    acc = RNG(flags.Random.Engine, name="AthRNGSvc")
     kwargs.setdefault("RandomNumberService", acc.getService("AthRNGSvc"))
 
     acc.merge(DetectorGeometrySvcCfg(flags))
@@ -28,8 +30,11 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     acc.merge(InputConverterCfg(flags))
     kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
 
-    acc.merge(ISFUserActionSvcCfg(flags))
-    kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFUserActionSvc"))
+    #Only add it if it's not added already
+    if "UserActionSvc" not in kwargs.keys():
+        acc.merge(ISFUserActionSvcCfg(flags))
+        kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFUserActionSvc"))
+
     kwargs.setdefault("RecordFlux", flags.Sim.RecordFlux)
 
     kwargs.setdefault("MultiThreading", flags.Concurrency.NumThreads > 0)
@@ -42,20 +47,26 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     acc.merge(FastSimulationMasterToolCfg(flags))
     tool = acc.getPublicTool("FastSimulationMasterTool")
     kwargs.setdefault("FastSimMasterTool", tool)
+
+    #PhysicsListSvc
+    acc.merge( PhysicsListSvcCfg(flags) )
+    kwargs.setdefault("PhysicsListSvc", acc.getService( "PhysicsListSvc") )
+
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
     if flags.Sim.ISF.Simulator in ["FullG4", "FullG4MT", "PassBackG4", "PassBackG4MT", "G4FastCalo", "G4FastCaloMT"]:
-        acc.addPublicTool(CompFactory.iGeant4.G4TransportTool(name, **kwargs))
+        acc.setPrivateTools(CompFactory.iGeant4.G4TransportTool(name, **kwargs))
     else:
         acc.merge(G4RunManagerHelperCfg(flags))
         kwargs.setdefault("G4RunManagerHelper", acc.getPublicTool("ISF_G4RunManagerHelper"))
-        acc.addPublicTool(CompFactory.iGeant4.G4LegacyTransportTool(name, **kwargs))
+        acc.setPrivateTools(CompFactory.iGeant4.G4LegacyTransportTool(name, **kwargs))
     return acc
 
 
 def FullGeant4ToolCfg(flags, name="ISF_FullGeant4Tool", **kwargs):
     acc = ISFFullUserActionSvcCfg(flags)
     kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFFullUserActionSvc"))
-    acc.merge(Geant4ToolCfg(flags, name, **kwargs))
+    FullGeant4Tool = acc.popToolsAndMerge(Geant4ToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(FullGeant4Tool)
     return acc
 
 

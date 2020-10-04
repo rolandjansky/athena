@@ -341,6 +341,7 @@ if DQMonFlags.doMonitoring():
       ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
       ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
       ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
+      ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
       ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
       ConfigFlags.DQ.isReallyOldStyle=False
 

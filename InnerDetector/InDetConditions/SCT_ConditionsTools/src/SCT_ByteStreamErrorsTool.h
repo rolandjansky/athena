@@ -36,7 +36,7 @@
 #include <array>
 #include <atomic>
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include <vector>
 
@@ -110,8 +110,8 @@ private:
     // 0 as the value denotes no error
     // error encoding is as follows: pattern for a module has length of 6 bits, side 0 is encoded in bits 0-5, side 1 in bits 6-11
     // so bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
-    std::map<Identifier, unsigned int> tempMaskedChips;
-    std::map<Identifier, unsigned int> abcdErrorChips;
+    std::unordered_map<Identifier, unsigned int> tempMaskedChips;
+    std::unordered_map<Identifier, unsigned int> abcdErrorChips;
 
     void reset(EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
       eventId = evtId;
@@ -155,7 +155,7 @@ private:
    * Method that returns BS Error code from the map passed @rag where-Expected
    * If the information is initially missing, the cache update is triggered
    **/
-  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate(const Identifier& id, const EventContext& ctx, std::map<Identifier, unsigned int>& whereExected) const;
+  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate(const Identifier& id, const EventContext& ctx, std::unordered_map<Identifier, unsigned int>& whereExected) const;
 
 };
 

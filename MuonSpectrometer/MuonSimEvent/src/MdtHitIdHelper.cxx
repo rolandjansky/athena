@@ -22,19 +22,31 @@ MdtHitIdHelper::MdtHitIdHelper() : HitIdHelper()
   Initialize();
 }
 
+MdtHitIdHelper::MdtHitIdHelper(const unsigned int nTubes) : HitIdHelper()
+{
+  InitializeStationName();
+  Initialize(nTubes);
+}
+
 MdtHitIdHelper* MdtHitIdHelper::GetHelper()
 {
   if (!m_help) m_help = new MdtHitIdHelper();
   return m_help;
 }
 
-void MdtHitIdHelper::Initialize()
+MdtHitIdHelper* MdtHitIdHelper::GetHelper(const unsigned int nTubes)
+{
+  if (!m_help) m_help = new MdtHitIdHelper(nTubes);
+  return m_help;
+}
+
+void MdtHitIdHelper::Initialize(const unsigned int nTubes)
 {
   InitializeField("PhiSector",1,8);
   InitializeField("ZSector",-8,8);
   InitializeField("MultiLayer",1,2);
   InitializeField("Layer",1,4);
-  InitializeField("Tube",1,78);
+  InitializeField("Tube",1,nTubes);
 }
 
 void MdtHitIdHelper::InitializeStationName()

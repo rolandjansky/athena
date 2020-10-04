@@ -421,10 +421,10 @@ if hasattr(runArgs,"AMITag"):
     svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
 
 #==========================================================
-# Use LZIB for compression of temporary outputs of AthenaMP
+# Use ZLIB for compression of all temporary outputs
 #==========================================================
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr; import AthenaPoolCnvSvc.AthenaPool 
-if hasattr(runArgs, "outputRDOFile") and '_000' in runArgs.outputRDOFile:
+if hasattr(runArgs, "outputRDOFile") and ('_000' in runArgs.outputRDOFile or 'tmp.' in runArgs.outputRDOFile):
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 

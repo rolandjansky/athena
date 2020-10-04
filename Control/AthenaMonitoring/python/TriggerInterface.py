@@ -28,10 +28,10 @@ def getTrigDecisionTool(flags):
     tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
     tdt.TrigConfigSvc = cfgsvc
 
-    if not flags.Input.isMC and flags.Input.Format == 'BS' and min(flags.Input.RunNumber) <= 380000:
+    if not flags.Input.isMC:
         # need to work through exact details here
         # tdt.UseOldEventInfoDecisionFormat = True
-        tdt.NavigationFormat = "TrigComposite"
+        tdt.NavigationFormat = "TrigComposite" if flags.Trigger.EDMDecodingVersion == 3 else "TriggerElement"
     else:
         tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)

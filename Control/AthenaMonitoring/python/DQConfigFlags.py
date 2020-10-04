@@ -27,9 +27,11 @@ def createDQConfigFlags():
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
     acf.addFlag('DQ.enableLumiAccess', True)
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
-    from PyUtils.moduleExists import moduleExists
-    hlt_exists = moduleExists ('TrigHLTMonitoring')
-    acf.addFlag('DQ.useTrigger', hlt_exists)
+    # two flags here, with different meaning.
+    # triggerDataAvailable determines whether we expect trigger objects in the event store
+    acf.addFlag('DQ.triggerDataAvailable', True)
+    # useTrigger determines whether we should use TrigDecisionTool
+    acf.addFlag('DQ.useTrigger', getUseTrigger)
 
     # temp thing for steering from inside old-style ...
     acf.addFlag('DQ.isReallyOldStyle', False)
@@ -51,6 +53,11 @@ def createDQConfigFlags():
         from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
         acf.join(createHLTDQConfigFlags())
     return acf
+
+def getUseTrigger(flags):
+    from PyUtils.moduleExists import moduleExists
+    hlt_exists = moduleExists ('TrigHLTMonitoring')
+    return hlt_exists and flags.DQ.triggerDataAvailable
 
 def getDataType(flags):
     if flags.Input.isMC:

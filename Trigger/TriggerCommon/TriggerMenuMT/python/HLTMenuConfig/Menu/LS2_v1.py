@@ -148,12 +148,17 @@ def setupMenu():
         ChainProp(name='HLT_g25_loose_L1EM20VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g25_medium_L1EM20VH', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g25_tight_L1EM20VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_tight_L1EM15VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_tight_icaloloose_L1EM15VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_tight_icalomedium_L1EM15VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_tight_icalotight_L1EM15VH', groups=SinglePhotonGroup),
         # Primary photon chains
         ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g20_tight_L12EM15VH', groups=MultiPhotonGroup),
         #ChainProp(name='HLT_2g22_tight_L12EM15VHI', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_2g20_tight_icaloloose_L12EM15VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g22_tight_L12EM15VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g50_loose_L12EM20VH', groups=MultiPhotonGroup),
 
@@ -367,6 +372,7 @@ def setupMenu():
         #ChainProp(name='HLT_noalg_zb_L1ZB', l1SeedThresholds=['FSNOSEED'], stream=['ZeroBias'], groups=ZeroBiasGroup),
         ChainProp(name='HLT_noalg_L1MBTS_2_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup), #ATR-21999
         ChainProp(name='HLT_noalg_L1MBTS_1_1_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup), #ATR-21999
+        ChainProp(name='HLT_noalg_L1All', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['RATE:SeededStreamers', 'BW:Other']), # ATR-22072, for rates in MC. To move to MC menu once good nightly in LS2_v1.
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [

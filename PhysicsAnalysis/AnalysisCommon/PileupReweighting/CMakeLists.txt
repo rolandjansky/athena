@@ -5,26 +5,6 @@
 # Declare the package name:
 atlas_subdir( PileupReweighting )
 
-# Extra dependencies based on the environment:
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep PhysicsAnalysis/AnalysisCommon/ReweightUtils )
-else()
-   set( extra_Dep GaudiKernel Control/AthenaBaseComps )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   Trigger/TrigEvent/TrigDecisionInterface
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PRIVATE
-   Event/xAOD/xAODEventInfo
-   Tools/PathResolver
-   ${extra_dep} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS MathCore RIO Core Tree Hist )
 
@@ -92,4 +72,4 @@ atlas_add_test( ut_PRWDataWeightExample_test
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( scripts/PURW_create_actual_mu_profile.py )
+atlas_install_runtime( scripts/*.py )

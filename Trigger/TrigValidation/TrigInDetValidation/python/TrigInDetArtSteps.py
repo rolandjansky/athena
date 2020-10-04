@@ -22,7 +22,7 @@ from AthenaCommon.Utils.unixtools import FindFile
 
 class TrigInDetReco(ExecStep):
 
-    def __init__(self, name='TrigInDetReco', postexec_file='' ):
+    def __init__(self, name='TrigInDetReco', postinclude_file='' ):
         ExecStep.__init__(self, name)
 ##        super(TrigInDetReco, self).__init__(name)
         self.type = 'Reco_tf'
@@ -34,6 +34,7 @@ class TrigInDetReco(ExecStep):
         self.timeout = 18*3600
         self.slices = []
         self.preexec_trig = ' '
+        self.postinclude_trig = postinclude_file
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
@@ -57,11 +58,6 @@ class TrigInDetReco(ExecStep):
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
-
-        if postexec_file!='' : 
-            pe_file = open( postexec_file )
-            self.postexec_trig += ";"+pe_file.read()            
-            print( "postexec_trig: ", self.postexec_trig )
 
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
@@ -103,10 +99,13 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
         if (self.postexec_trig != ' '):
             self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
+        if (self.postinclude_trig != ''):
+            self.args += ' --postInclude "RDOtoRDOTrigger:{:s}" '.format(self.postinclude_trig)
         super(TrigInDetReco, self).configure(test)
 
 
