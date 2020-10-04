@@ -2,17 +2,6 @@
 # Packages to build as part of AnalysisBase:
 #
 
-# These packages were picked up by patterns below, but don't compile
-# in AnalysisBase yet.  Most likely these are packages that still need
-# to be fixed up.  These lines should either be removed as the
-# packages get fixed up, or moved to the main list if these packages
-# are not intended for analysis.
-
-- PhysicsAnalysis/Algorithms/JetAnalysisAlgorithms
-- PhysicsAnalysis/Algorithms/MetAnalysisAlgorithms
-
-
-
 # these packages existed in 21.2, but no longer exist in master.
 # remove these lines if you are confident that these packages have
 # been retired.

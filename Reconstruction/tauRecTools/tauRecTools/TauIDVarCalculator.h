@@ -35,7 +35,7 @@ class TauIDVarCalculator: public TauRecToolBase
   
  private:
 
-  bool m_incShowerSubtr;
+  bool m_useSubtractedCluster;
 
   ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
       "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};

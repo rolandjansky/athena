@@ -9,7 +9,7 @@ include.block ('InDetRecExample/ConfiguredBackTracking.py')
 
 class ConfiguredBackTracking:
 
-   def __init__(self, InputCollections = None, NewTrackingCuts = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[]):
+   def __init__(self, InputCollections = None, NewTrackingCuts = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[], ClusterSplitProbContainer=''):
 
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
@@ -266,6 +266,8 @@ class ConfiguredBackTracking:
                                                                                AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                                                TrackSummaryTool   = InDetTRT_SeededSummaryTool,
                                                                                SelectionTool      = InDetTRT_SeededAmbiTrackSelectionTool,
+                                                                               InputClusterSplitProbabilityName = ClusterSplitProbContainer,
+                                                                               OutputClusterSplitProbabilityName = 'InDetTRT_SeededAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
                                                                                RefitPrds          = not InDetFlags.refitROT(),
                                                                                SuppressTrackFit   = False,
                                                                                SuppressHoleSearch = False,

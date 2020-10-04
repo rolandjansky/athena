@@ -44,7 +44,7 @@ SquirrelCageFactory::~SquirrelCageFactory()
 
 
 //## Other Operations (implementation)
-void SquirrelCageFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc method is used.
+void SquirrelCageFactory::create(GeoPhysVol *mother)
 {
 
   DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");

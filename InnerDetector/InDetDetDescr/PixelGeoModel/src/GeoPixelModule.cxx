@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelModule.h"
@@ -20,7 +20,10 @@
 
 using std::max;
 
-GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
+GeoPixelModule::GeoPixelModule(InDetDD::PixelDetectorManager* m_DDmgr,
+                               PixelGeometryManager* mgr,
+                               GeoPixelSiCrystal& theSensor) :
+  GeoVPixelFactory (m_DDmgr, mgr),
   m_theSensor(theSensor)
 {
   //
@@ -139,7 +142,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   // Place the Hybrid
   //
   if (m_gmt_mgr->PixelHybridThickness(m_isModule3D)>0.00001*Gaudi::Units::mm){
-    GeoPixelHybrid ph(m_isModule3D);
+    GeoPixelHybrid ph(m_DDmgr, m_gmt_mgr, m_isModule3D);
     double hybxpos = -0.5*(m_gmt_mgr->PixelBoardThickness(m_isModule3D)+m_gmt_mgr->PixelHybridThickness(m_isModule3D));
     GeoTransform* xform = new GeoTransform(GeoTrf::TranslateX3D(hybxpos));
     modulePhys->add(xform);
@@ -149,7 +152,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   // Place the Chip
   //
-  GeoPixelChip pc(m_isModule3D);
+  GeoPixelChip pc(m_DDmgr, m_gmt_mgr ,m_isModule3D);
   double chipxpos = 0.5*(m_gmt_mgr->PixelBoardThickness(m_isModule3D)+m_gmt_mgr->PixelChipThickness(m_isModule3D))+m_gmt_mgr->PixelChipGap(m_isModule3D);
   double chipypos =m_gmt_mgr->PixelChipOffset(m_isModule3D);
   GeoTransform* xform = new GeoTransform(GeoTrf::TranslateX3D(chipxpos)*GeoTrf::TranslateY3D(chipypos));

@@ -168,6 +168,14 @@ const xAOD::TrackParticle* MuonMatchingTool :: SearchEFTrack(const EventContext 
 
 }
 
+const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matchEFIsoLinkInfo( const xAOD::Muon *mu, std::string trig) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchEFCBLinkInfo()");
+  bool pass = false;
+  TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> muonLinkInfo;
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
+  return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, "HLT_MuonsIso", &MuonMatchingTool::PosForMatchCBTrack) : muonLinkInfo;
+}
+
 
 const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchL2SA(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchL2SA()");

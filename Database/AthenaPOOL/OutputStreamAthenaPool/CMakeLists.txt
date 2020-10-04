@@ -11,7 +11,7 @@ atlas_add_component( OutputStreamAthenaPool
                      src/EventInfoAttListTool.cxx
                      src/EventInfoTagBuilder.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel EventInfo EventInfoUtils GaudiKernel PersistentDataModel StoreGateLib xAODEventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel EventInfo EventInfoUtils GaudiKernel PersistentDataModel StoreGateLib xAODEventInfo )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

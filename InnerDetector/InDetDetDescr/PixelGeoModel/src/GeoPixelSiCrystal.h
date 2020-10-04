@@ -17,10 +17,12 @@ namespace InDetDD {
   class PixelDiodeMatrix;
 }
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelSiCrystal : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelSiCrystal : public GeoVPixelFactory {
  public:
-  GeoPixelSiCrystal(bool isBLayer, bool isModule3D=false);
-  virtual GeoVPhysVol* Build();
+  GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
+                    PixelGeometryManager* mgr,
+                    bool isBLayer, bool isModule3D=false);
+  virtual GeoVPhysVol* Build() override;
   inline Identifier getID();
 
   bool GetModule3DFlag() { return m_isModule3D; };

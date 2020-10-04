@@ -40,3 +40,6 @@ atlas_add_component( Sherpa_i
 # Install files from the package:
 atlas_install_headers( Sherpa_i )
 
+# Install JOs common fragments from the package share directory
+atlas_install_joboptions( share/common/*.py )
+

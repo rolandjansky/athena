@@ -135,5 +135,9 @@
     <!-- Identifier -->
     <class name="Trk::DetElementSurface_p1" />
     <class name="std::vector<Trk::DetElementSurface_p1>" />
-    
+
+    <class name="Trk::ClusterSplitProbabilityContainer_p1" id="33129502-20bc-44f9-acff-62e5c3670d46" /> 
+    <class name="Trk::ClusterSplitProbability_p1" />
+    <class name="std::vector<Trk::ClusterSplitProbability_p1>" />
+
 </lcgdict>

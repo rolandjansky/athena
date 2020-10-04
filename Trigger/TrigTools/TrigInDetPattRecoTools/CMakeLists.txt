@@ -14,5 +14,6 @@ find_package(Boost)
 
 atlas_add_test( mockSeeds
                 SOURCES test/mockSeeds.cxx
-                LINK_LIBRARIES PathResolver TrigInDetEvent TrigInDetPattRecoEvent TrigInDetPattRecoTools TrigSteeringEvent IRegionSelector )
+                LINK_LIBRARIES PathResolver TrigInDetEvent TrigInDetPattRecoEvent TrigInDetPattRecoTools TrigSteeringEvent IRegionSelector
+                PROPERTIES TIMEOUT 300 )
 

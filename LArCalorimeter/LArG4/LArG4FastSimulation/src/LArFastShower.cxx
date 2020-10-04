@@ -339,7 +339,8 @@ HepMC::GenEvent * LArFastShower::GetGenEvent(const G4FastTrack &fastTrack)
   if (pdgcode < 0) pdgcode = -pdgcode; // hack for positrons. let it be electrons.
 
   // new event. Signal processing = 0, event number "next"
-  HepMC::GenEvent* ge = new HepMC::GenEvent( 0, ++m_eventNum);
+  HepMC::GenEvent* ge = new HepMC::GenEvent();
+  ge->set_event_number(++m_eventNum);
   // vertex. Position of the shower, time = 0
   HepMC::GenVertexPtr gv = HepMC::newGenVertexPtr(
       HepMC::FourVector(showerPos.x(), showerPos.y(), showerPos.z(), 0) );

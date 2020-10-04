@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,7 +28,10 @@
 #include <cmath>
 using std::max;
 
-GeoPixelIBLFwdSvcModel1::GeoPixelIBLFwdSvcModel1(int /*section*/): 
+GeoPixelIBLFwdSvcModel1::GeoPixelIBLFwdSvcModel1(InDetDD::PixelDetectorManager* ddmgr,
+                                                 PixelGeometryManager* mgr,
+                                                 int /*section*/)
+  : GeoVPixelFactory (ddmgr, mgr),
   m_supportPhysA(0),
   m_supportPhysC(0),
   m_xformSupportA(0),

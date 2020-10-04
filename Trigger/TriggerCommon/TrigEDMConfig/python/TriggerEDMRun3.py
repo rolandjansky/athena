@@ -338,6 +338,11 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
 
+    # TLA jets
+
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS JetDS ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS JetDS ESD', 'Jet'),
+
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.',          'BS ESD AODFULL', 'Jet'),
@@ -534,3 +539,42 @@ def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
         edmList.extend([
             (typeName,    HLTNavEDMTargets, 'Steer'),
             (typeNameAux, HLTNavEDMTargets, 'Steer')])
+
+def addExtraCollectionsToEDMList(edmList, extraList):
+    """
+    Extend edmList with extraList, keeping track whether a completely new
+    collection is being added, or a dynamic variable is added to an existing collection.
+    The format of extraList is the same as those of TriggerHLTListRun3.
+    """
+    existing_collections = [(c[0].split("#")[1]).split(".")[0] for c in edmList]
+    for item in extraList:
+        colname = (item[0].split("#")[1]).split(".")[0]
+        if colname not in existing_collections:
+            # a new collection is added
+            edmList.append(item)
+            __log.info("added new item to Trigger EDM: {}".format(item))
+        else:
+            if "Aux." in item[0]:
+                # probably an extra dynamic variable is added
+                # new variables to add:
+                dynVars = (item[0].split("#")[1]).split(".")[1:]
+                # find the index of the existing item
+                existing_item_nr = [i for i,s in enumerate(edmList) if colname == (s[0].split("#")[1]).split(".")[0]]
+                if len(existing_item_nr) != 1:
+                    __log.error("Found {} existing edm items corresponding to new item {}, but it must be exactly one!".format(len(existing_item_nr), item))
+                # merge lists of variables
+                existing_dynVars = (edmList[existing_item_nr[0]][0].split("#")[1]).split(".")[1:]
+                dynVars.extend(existing_dynVars)
+                # remove duplicates:
+                dynVars = list(dict.fromkeys(dynVars))
+                newVars = '.'.join(dynVars)
+                typename = item[0].split("#")[0]
+                __log.info("old item in Trigger EDM: {}".format(edmList[existing_item_nr[0]]))
+                targets = edmList[existing_item_nr[0]][1]
+                signature = edmList[existing_item_nr[0]][2]
+                edmList.pop(existing_item_nr[0])
+                edmList.insert(existing_item_nr[0] , (typename + "#" + colname + "." + newVars, targets, signature))
+                __log.info("updated item in Trigger EDM: {}".format(edmList[existing_item_nr[0]]))
+            else:
+                # asking to add some collection which is already in the list - do nothing
+                pass

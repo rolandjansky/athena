@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/Identifier.h"
@@ -47,14 +47,14 @@ TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume,
 
 
   TRT_BarrelElement::TRT_BarrelElement(const TRT_BarrelElement &right, const GeoAlignmentStore* geoAlignStore) :
-    TRT_BaseElement(right,geoAlignStore)
-{   
-  m_code          = right.m_code;
-  m_descriptor    = right.m_descriptor;
-  m_nextInPhi     = right.m_nextInPhi;
-  m_previousInPhi = right.m_previousInPhi;
-  m_nextInR       = right.m_nextInR;
-  m_previousInR   = right.m_previousInR;
+    TRT_BaseElement(right,geoAlignStore),
+    m_code (right.m_code),
+    m_descriptor (right.m_descriptor),
+    m_nextInPhi (right.m_nextInPhi),
+    m_previousInPhi (right.m_previousInPhi),
+    m_nextInR (right.m_nextInR),
+    m_previousInR (right.m_previousInR)
+  {   
   }
 
 

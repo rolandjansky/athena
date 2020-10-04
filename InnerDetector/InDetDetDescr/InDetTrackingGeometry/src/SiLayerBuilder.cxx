@@ -210,7 +210,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
   // [-A-] ------------------------ LOOP over Detector Elements of sensitive layers -----------------------------------
   // iterate over the detector elements for layer dimension, etc.   
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = m_siMgr->getDetectorElementBegin();    
-  for (; sidetIter != m_siMgr->getDetectorElementEnd(); sidetIter++){
+  for (; sidetIter != m_siMgr->getDetectorElementEnd(); ++sidetIter){
      // Barrel check
      if ((*sidetIter) && (*sidetIter)->isBarrel()){
        // unit test
@@ -474,13 +474,13 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       // (3) register the layers --- either in the split vector or in the return vector 
       if (splitDone) {
           ATH_MSG_DEBUG( "[ Split mode / Part 1 ] Layer cached for Part 2" );
-          if (activeLayer) s_splitCylinderLayers.push_back(activeLayer);   
+          s_splitCylinderLayers.push_back(activeLayer);   
           // get the split radius to the smallest one possible
           if (m_splitMode > 0) takeSmaller( s_splitRadius, currentLayerRadius);
           ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius (temproarily) set to : " << s_splitRadius );
        } else {
           if (m_splitMode < 0) takeBigger ( s_splitRadius, currentLayerRadius );
-          if (activeLayer) cylinderDetectionLayers.push_back(activeLayer);
+          cylinderDetectionLayers.push_back(activeLayer);
        } 
        // increase the layer counter --- it is built
        ++layerCounter;            
@@ -606,7 +606,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
   // [-A1-] ------------------------ first LOOP over Detector Elements of sensitive layers -------------------------------                 
   // -- get the missing dimensions by loop over DetElements
   sidetIter = m_siMgr->getDetectorElementBegin();  
-  for (; sidetIter != m_siMgr->getDetectorElementEnd(); sidetIter++){
+  for (; sidetIter != m_siMgr->getDetectorElementEnd(); ++sidetIter){
      // take it - if 
      // a) you have a detector element ... protection
      // b) the detector element is EC (in the non-DBM case)

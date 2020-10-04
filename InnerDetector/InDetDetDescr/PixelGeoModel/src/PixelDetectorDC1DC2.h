@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Legacy code
 
 class GeoLogVol;
 class GeoVPhysVol;
@@ -47,14 +46,15 @@ class PixelGeometryManager;
 
 class GeoVPixelFactory {
  public:
-  GeoVPixelFactory();
+  GeoVPixelFactory(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr);
   virtual ~GeoVPixelFactory();
-  virtual GeoVPhysVol* Build( )=0;
-  static void SetDDMgr(InDetDD::PixelDetectorManager* mgr);
+  virtual GeoVPhysVol* Build()=0;
+     
  protected:
   PixelGeometryManager* m_gmt_mgr;
   const StoredMaterialManager* m_mat_mgr;
-  static InDetDD::PixelDetectorManager* m_DDmgr;
+  InDetDD::PixelDetectorManager* m_DDmgr;
   const double m_epsilon;
 
  private:
@@ -71,7 +71,8 @@ class GeoVPixelFactory {
 
 class GeoPixelBarrel : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif
@@ -81,8 +82,11 @@ class GeoPixelBarrel : public GeoVPixelFactory {
 
 class GeoPixelCable : public GeoVPixelFactory {
  public:
-  GeoPixelCable():m_moduleNumber(0){}
-  virtual GeoVPhysVol* Build();
+  GeoPixelCable(InDetDD::PixelDetectorManager* ddmgr,
+                PixelGeometryManager* mgr)
+    : GeoVPixelFactory (ddmgr, mgr),
+      m_moduleNumber(0) {}
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double Length();
   void SetModuleNumber(int moduleNumber) {m_moduleNumber = moduleNumber;}
@@ -102,7 +106,8 @@ class GeoPixelCable : public GeoVPixelFactory {
 
 class GeoPixelChip : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif
@@ -113,9 +118,10 @@ class GeoPixelChip : public GeoVPixelFactory {
 
 class GeoPixelDisk : public GeoVPixelFactory {
  public:
-  GeoPixelDisk();
+  GeoPixelDisk(InDetDD::PixelDetectorManager* ddmgr,
+               PixelGeometryManager* mgr);
   virtual ~GeoPixelDisk();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double RMax();
   double RMin();
@@ -132,8 +138,9 @@ class GeoPixelDisk : public GeoVPixelFactory {
 
 class GeoPixelDiskSupports : public GeoVPixelFactory {
  public:
-  GeoPixelDiskSupports();
-  virtual GeoVPhysVol* Build();
+  GeoPixelDiskSupports(InDetDD::PixelDetectorManager* ddmgr,
+                       PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
   int NCylinders(){return m_rmin.size();}
   void SetCylinder(int n) {m_nframe = n;}
   double ZPos() {return m_zpos[m_nframe];}
@@ -152,8 +159,9 @@ class GeoPixelDiskSupports : public GeoVPixelFactory {
 
 class GeoPixelECCable : public GeoVPixelFactory {
  public:
-  GeoPixelECCable();
-  virtual GeoVPhysVol* Build();
+  GeoPixelECCable(InDetDD::PixelDetectorManager* ddmgr,
+                  PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
   virtual ~GeoPixelECCable();
  private:
   const GeoLogVol* m_theECCable;
@@ -167,7 +175,8 @@ class GeoPixelECCable : public GeoVPixelFactory {
 
 class GeoPixelEndCap : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif
@@ -178,7 +187,8 @@ class GeoPixelEndCap : public GeoVPixelFactory {
 
 class GeoPixelEnvelope : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif
@@ -189,7 +199,8 @@ class GeoPixelEnvelope : public GeoVPixelFactory {
 
 class GeoPixelHybrid : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif
@@ -201,9 +212,11 @@ class GeoPixelSiCrystal;
 
 class GeoPixelLadder : public GeoVPixelFactory {
  public:
-  GeoPixelLadder(GeoPixelSiCrystal& theSensor);
+  GeoPixelLadder(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelSiCrystal& theSensor);
   virtual ~GeoPixelLadder();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
  private:
   const GeoLogVol* m_theLadder ;
@@ -219,7 +232,8 @@ class GeoPixelLadder : public GeoVPixelFactory {
 
 class GeoPixelLadderStruct : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif
@@ -230,7 +244,8 @@ class GeoPixelLadderStruct : public GeoVPixelFactory {
 
 class GeoPixelLayer : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif
@@ -242,9 +257,11 @@ class GeoPixelSiCrystal;
 
 class GeoPixelModule : public GeoVPixelFactory {
  public:
-  GeoPixelModule(GeoPixelSiCrystal &theSensor);
+  GeoPixelModule(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelSiCrystal &theSensor);
   virtual ~GeoPixelModule();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double Width();
   double Length();
@@ -262,8 +279,10 @@ class GeoPixelModule : public GeoVPixelFactory {
 
 class GeoPixelServices : public GeoVPixelFactory {
  public:
-  GeoPixelServices(std::string);
-  virtual GeoVPhysVol* Build();
+  GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr,
+                   const std::string&);
+  virtual GeoVPhysVol* Build() override;
   int NCylinders(){return m_rmin.size();}
   void SetCylinder(int n) {m_nframe = n;}
   double ZPos() {return m_zpos[m_nframe];}
@@ -286,8 +305,10 @@ class GeoPixelServices : public GeoVPixelFactory {
 
 class GeoPixelSiCrystal : public GeoVPixelFactory {
  public:
-  GeoPixelSiCrystal(bool isBLayer);
-  virtual GeoVPhysVol* Build();
+  GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
+                    PixelGeometryManager* mgr,
+                    bool isBLayer);
+  virtual GeoVPhysVol* Build() override;
   inline Identifier getID();
  private:
   Identifier m_id;
@@ -308,9 +329,11 @@ class GeoPixelSiCrystal;
 
 class GeoPixelSubDisk : public GeoVPixelFactory {
  public:
-  GeoPixelSubDisk(GeoPixelSiCrystal &theSensor);
+  GeoPixelSubDisk(InDetDD::PixelDetectorManager* ddmgr,
+                  PixelGeometryManager* mgr,
+                  GeoPixelSiCrystal &theSensor);
   virtual ~GeoPixelSubDisk();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double RMax();
   double RMin();
@@ -327,9 +350,10 @@ class GeoPixelSubDisk : public GeoVPixelFactory {
 
 class GeoPixelTubeCables : public GeoVPixelFactory {
  public:
-  GeoPixelTubeCables();
+  GeoPixelTubeCables(InDetDD::PixelDetectorManager* ddmgr,
+                     PixelGeometryManager* mgr);
   virtual ~GeoPixelTubeCables();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
  private:
   const GeoLogVol* m_theBox;
@@ -346,15 +370,8 @@ class PixelGeometryManager {
 
  public:
 
-  //enum TYPE {NOVA, Oracle};
-  
-  // Do this first!!  Specify your data source!!
-  static void init();
-  // virtual TYPE managerType()=0;
-  
   PixelGeometryManager();
   virtual ~PixelGeometryManager();
-  static PixelGeometryManager* GetPointer(); 
 
   //
   // GET THE OTHER MANAGERS FROM STOREGATE
@@ -568,31 +585,24 @@ class PixelGeometryManager {
   virtual double Voltage(bool isBLayer)=0;
   virtual double Temperature(bool isBLayer)=0;
 
-  // Magnetic field
-  virtual const GeoTrf::Vector3D & magneticField(bool isBLayer = false) const=0;
-  virtual void setMagneticField(const GeoTrf::Vector3D & field)=0;
-  virtual bool useMagneticFieldSvc() const=0;
-  virtual void setUseMagneticFieldSvc(bool flag)=0;  
-
   // CommonItems for Det Elements
-  virtual InDetDD::SiCommonItems * commonItems() const=0;
+  virtual InDetDD::SiCommonItems * commonItems()=0;
+  virtual const InDetDD::SiCommonItems * commonItems() const=0;
   virtual void setCommonItems(InDetDD::SiCommonItems * commonItems)=0; 
 
   // ID helper
   virtual const PixelID * getIdHelper()=0;
 
   //Declaring the Message method for further use
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
  private:
   
-  static PixelGeometryManager *s_geometry_manager;
-
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
+  Athena::MsgStreamMember m_msg;
 
 
 };
@@ -657,11 +667,6 @@ class OraclePixGeoManager : public PixelGeometryManager {
   // control whether callbacks get registered 
   bool m_alignable;
 
-  // Magnetic Field
-  bool m_magFieldFromNova;
-  bool m_useMagFieldSvc;
-  mutable GeoTrf::Vector3D m_magField;
-  
   // Class holding items that only one instance is needed for all detector elements.
   InDetDD::SiCommonItems * m_commonItems;
 
@@ -700,81 +705,81 @@ class OraclePixGeoManager : public PixelGeometryManager {
   // -------------------------------------
 
   // Get the material manager:
-  const StoredMaterialManager* getMaterialManager();
+  virtual const StoredMaterialManager* getMaterialManager() override;
 
   // PixelDetectorManager
-  InDetDD::PixelDetectorManager *GetPixelDDManager();
+  virtual InDetDD::PixelDetectorManager *GetPixelDDManager() override;
 
   // 
   // VERSION TAG
   // -----------
-  virtual std::string versionTag() const {return m_versionTag;}
+  virtual std::string versionTag() const override {return m_versionTag;}
 
   //
   // DESIGN AND ELEMENT NAMES
   // ------------------------
-  void SetDetElementName(std::string);
-  std::string GetDetElementName();
-  void SetDesignName(std::string);
-  std::string GetDesignName();
+  virtual void SetDetElementName(std::string) override;
+  virtual std::string GetDetElementName() override;
+  virtual void SetDesignName(std::string) override;
+  virtual std::string GetDesignName() override;
 
-  void SetBarrelModuleName(std::string);
-  std::string GetBarrelModuleName();
-  void SetEndcapModuleName(std::string);
-  std::string GetEndcapModuleName();
-  void SetLayer0ModuleName(std::string);
-  std::string GetLayer0ModuleName();
+  virtual void SetBarrelModuleName(std::string) override;
+  virtual std::string GetBarrelModuleName() override;
+  virtual void SetEndcapModuleName(std::string) override;
+  virtual std::string GetEndcapModuleName() override;
+  virtual void SetLayer0ModuleName(std::string) override;
+  virtual std::string GetLayer0ModuleName() override;
 
   //
   // BUILDING DEFINITIONS
   // --------------------
 
   // Do I want the services?
-  void SetServices(bool isservice) {m_services = isservice;}
-  bool DoServices();
+  virtual void SetServices(bool isservice) override {m_services = isservice;}
+  virtual bool DoServices() override;
 
   // Make elements compatible with G3 digits
-  void SetG3CompatibleDigits(bool flag) {m_g3CompatibleDigits = flag;}
-  bool G3CompatibleDigits() const;
+  virtual void SetG3CompatibleDigits(bool flag) override {m_g3CompatibleDigits = flag;}
+  virtual bool G3CompatibleDigits() const override;
 
   // Initial layout (2nd layer missing)
-  void SetInitialLayout(bool flag) {m_initialLayout = flag;}
-  bool InitialLayout() const;
+  virtual void SetInitialLayout(bool flag) override {m_initialLayout = flag;}
+  virtual bool InitialLayout() const override;
 
   // DC1 Geometry. 300 um long pixels and 200 um thick sensor in B layer. 
-  void SetDC1Geometry(bool flag) {m_dc1Geometry = flag;}
-  bool DC1Geometry() const;
+  virtual void SetDC1Geometry(bool flag) override {m_dc1Geometry = flag;}
+  virtual bool DC1Geometry() const override;
 
   // Control whether callbacks get registered
-  void SetAlignable(bool flag) {m_alignable = flag;}
-  bool Alignable() const;
+  virtual void SetAlignable(bool flag) override {m_alignable = flag;}
+  virtual bool Alignable() const override;
 
   //
   // BUILDER HELPERS
   // ----------------
 
-  void SetEta(int eta) {m_eta = eta;}
-  void SetPhi(int phi) {m_phi = phi;}
-  int Eta() {return m_eta;}
-  int Phi() {return m_phi;}
+  virtual void SetEta(int eta) override {m_eta = eta;}
+  virtual void SetPhi(int phi) override {m_phi = phi;}
+  virtual int Eta() override {return m_eta;}
+  virtual int Phi() override {return m_phi;}
 
   // What am I building?
-  bool isBarrel();
-  bool isEndcap();
-  void SetBarrel();
-  void SetEndcap();
+  virtual bool isBarrel() override;
+  virtual bool isEndcap() override;
+  virtual void SetBarrel() override;
+  virtual void SetEndcap() override;
 
   // The layer/disk barrel/endcap can be changed by these function.
-  void SetCurrentLD(int i);
-  int GetLD() {return m_currentLD;}
+  virtual void SetCurrentLD(int i) override;
+  virtual int GetLD() override {return m_currentLD;}
 
   // Which layers/disks are present?
-  bool isLDPresent();
+  virtual bool isLDPresent() override;
 
   // The side
-  void SetPos() {m_side = 1;}
-  void SetNeg() {m_side = -1;}
-  int GetSide() {return m_side;}
+  virtual void SetPos() override {m_side = 1;}
+  virtual void SetNeg() override {m_side = -1;}
+  virtual int GetSide() override {return m_side;}
 
   //
   // DETECTOR PARAMTERS
@@ -782,143 +787,138 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
 
   // Version Number, for the Barrel/EndCap
-  inline int PixelBarrelMajorVersion();
-  inline int PixelBarrelMinorVersion();
-  inline int PixelEndcapMajorVersion();
-  inline int PixelEndcapMinorVersion();  
+  inline virtual int PixelBarrelMajorVersion() override;
+  inline virtual int PixelBarrelMinorVersion() override;
+  inline virtual int PixelEndcapMajorVersion() override;
+  inline virtual int PixelEndcapMinorVersion() override;
 
   // Si Board
-  double PixelBoardWidth();
-  double PixelBoardLength();
-  double PixelBoardThickness();
-  double PixelBoardActiveLen();
+  virtual double PixelBoardWidth() override;
+  virtual double PixelBoardLength() override;
+  virtual double PixelBoardThickness() override;
+  virtual double PixelBoardActiveLen() override;
 
   // Hybrid
-  double PixelHybridWidth();
-  double PixelHybridLength();
-  double PixelHybridThickness();
+  virtual double PixelHybridWidth() override;
+  virtual double PixelHybridLength() override;
+  virtual double PixelHybridThickness() override;
 
   //  Fe Chips (PBRN)
-  double PixelChipWidth();
-  double PixelChipLength();
-  double PixelChipGap();
-  double PixelChipThickness();
+  virtual double PixelChipWidth() override;
+  virtual double PixelChipLength() override;
+  virtual double PixelChipGap() override;
+  virtual double PixelChipThickness() override;
 
   // Disk Carbon Structure
-  double PixelECCarbonRMin(std::string);
-  double PixelECCarbonRMax(std::string);
-  double PixelECCarbonThickness(std::string);
-  std::string PixelECCarbonMaterial(std::string);
+  virtual double PixelECCarbonRMin(std::string) override;
+  virtual double PixelECCarbonRMax(std::string) override;
+  virtual double PixelECCarbonThickness(std::string) override;
+  virtual std::string PixelECCarbonMaterial(std::string) override;
 
   // Services
-  double* PixelServiceR(std::string, int );
-  double* PixelServiceZ(std::string, int );
-  std::string PixelServiceMaterial(std::string, int );
-  int PixelServiceLD(std::string, int );
-  int PixelServiceNFrame(std::string);
+  virtual double* PixelServiceR(std::string, int ) override;
+  virtual double* PixelServiceZ(std::string, int ) override;
+  virtual std::string PixelServiceMaterial(std::string, int ) override;
+  virtual int PixelServiceLD(std::string, int ) override;
+  virtual int PixelServiceNFrame(std::string) override;
 
   //  Atlas Global volume (from ATLS)
-  inline double GetATLSRadius();
-  inline double GetATLSRmin();
-  inline double GetATLSLength();
+  inline virtual double GetATLSRadius() override;
+  inline virtual double GetATLSRmin() override;
+  inline virtual double GetATLSLength() override;
 
   //  Pixel container (from PXBG)
-  inline double PixelRMin();
-  inline double PixelRMax();
-  inline double PixelHalfLength();
-  inline int PixelBarrelNLayer();
+  inline virtual double PixelRMin() override;
+  inline virtual double PixelRMax() override;
+  inline virtual double PixelHalfLength() override;
+  inline virtual int PixelBarrelNLayer() override;
 
   // Pixel Barrel  (from PXBO)
-  inline double PixelBarrelRMin();
-  inline double PixelBarrelRMax();
-  inline double PixelBarrelHalfLength();
+  inline virtual double PixelBarrelRMin() override;
+  inline virtual double PixelBarrelRMax() override;
+  inline virtual double PixelBarrelHalfLength() override;
   
   // Pixel Layers Geomtry (PXBI)
-  inline double PixelLayerRadius();
-  inline double PixelLadderHalfLength();
-  inline double PixelLadderWidth();
-  double PixelLadderThickness();
-  inline double PixelLadderTilt();
-  inline int NPixelSectors();
-  inline double PixelBalcony();
-  inline int PixelNModule();
-  inline double PixelModuleDrDistance();
-  inline double PixelModuleAngle();
-  inline double PixelModulePosition(int);
-  inline double PixelModuleShiftFlag(int);
-  inline double PixelModuleAngleSign(int);
+  inline virtual double PixelLayerRadius() override;
+  inline virtual double PixelLadderHalfLength() override;
+  inline virtual double PixelLadderWidth() override;
+         virtual double PixelLadderThickness() override;
+  inline virtual double PixelLadderTilt() override;
+  inline virtual int NPixelSectors() override;
+  inline virtual double PixelBalcony() override;
+  inline virtual int PixelNModule() override;
+  inline virtual double PixelModuleDrDistance() override;
+  inline virtual double PixelModuleAngle() override;
+  inline virtual double PixelModulePosition(int) override;
+  inline virtual double PixelModuleShiftFlag(int) override;
+  inline virtual double PixelModuleAngleSign(int) override;
 
   // Barrel LAYER CABLES (PBAC)
-  inline double PixelCableWidth();
-  inline double PixelCableThickness();
-  inline double PixelCableZMax();
-  inline double PixelCableZMin();
-  inline double PixelCableDeltaZ();
+  inline virtual double PixelCableWidth() override;
+  inline virtual double PixelCableThickness() override;
+  inline virtual double PixelCableZMax() override;
+  inline virtual double PixelCableZMin() override;
+  inline virtual double PixelCableDeltaZ() override;
 
   // Pixel Endcap PXEG
-  inline int PixelEndcapNDisk();
+  inline int PixelEndcapNDisk() override;
 
   // Pixel Endcap Container PEVO
-  inline double PixelEndcapRMin();
-  inline double PixelEndcapRMax();
-  inline double PixelEndcapZMin();
-  inline double PixelEndcapZMax();
-  inline int PixelEndcapNSupportFrames();
+  inline virtual double PixelEndcapRMin() override;
+  inline virtual double PixelEndcapRMax() override;
+  inline virtual double PixelEndcapZMin() override;
+  inline virtual double PixelEndcapZMax() override;
+  inline virtual int PixelEndcapNSupportFrames() override;
 
   // Pixel Disks PXEI
-  inline double PixelDiskPosition();
-  inline double PixelECSiDz1();
-  inline double PixelECSiDz2();
-  inline double PixelDiskRMin();
-  inline int PixelECNSectors1();
-  inline int PixelECNSectors2();
+  inline virtual double PixelDiskPosition() override;
+  inline virtual double PixelECSiDz1() override;
+  inline virtual double PixelECSiDz2() override;
+  inline virtual double PixelDiskRMin() override;
+  inline virtual int PixelECNSectors1() override;
+  inline virtual int PixelECNSectors2() override;
 
   // Endcap CABLES (PEAC)
-  inline double PixelECCablesRMin();
-  inline double PixelECCablesRMax();
-  double PixelECCablesThickness();
-  inline double PixelECCablesDistance();
+  inline virtual double PixelECCablesRMin() override;
+  inline virtual double PixelECCablesRMax() override;
+         virtual double PixelECCablesThickness() override;
+  inline virtual double PixelECCablesDistance() override;
 
   // Design Parameter
   //
-  inline double DesignRPActiveArea();
-  inline double DesignZActiveArea();
+  inline virtual double DesignRPActiveArea() override;
+  inline virtual double DesignZActiveArea() override;
 
-  inline int DesignCircuitsPerColumn();
-  inline int DesignCircuitsPerRow();
+  inline virtual int DesignCircuitsPerColumn() override;
+  inline virtual int DesignCircuitsPerRow() override;
 
-  int DesignCellColumnsPerCircuit(bool isBLayer);
-  int DesignCellRowsPerCircuit(bool isBLayer);
-  int DesignDiodeColumnsPerCircuit(bool isBLayer);
-  int DesignDiodeRowsPerCircuit(bool isBLayer);
+  virtual int DesignCellColumnsPerCircuit(bool isBLayer) override;
+  virtual int DesignCellRowsPerCircuit(bool isBLayer) override;
+  virtual int DesignDiodeColumnsPerCircuit(bool isBLayer) override;
+  virtual int DesignDiodeRowsPerCircuit(bool isBLayer) override;
 
-  inline double DesignPitchRP(bool isBLayer);
-  inline double DesignGapRP();
-  inline double DesignPitchZ(bool isBLayer);
-  inline double DesignGapZ();
+  inline virtual double DesignPitchRP(bool isBLayer) override;
+  inline virtual double DesignGapRP() override;
+  inline virtual double DesignPitchZ(bool isBLayer) override;
+  inline virtual double DesignGapZ() override;
 
   // Ganged Pixels
-  int NumberOfEmptyRows();
-  int EmptyRows(int index);
-  int EmptyRowConnections(int index);
+  virtual int NumberOfEmptyRows() override;
+  virtual int EmptyRows(int index) override;
+  virtual int EmptyRowConnections(int index) override;
 
   // 
   // conditions stuff (probably it shouldnt be here)
-  double Voltage(bool isBLayer);
-  double Temperature(bool isBLayer);
-
-  // Magnetic field
-  const GeoTrf::Vector3D& magneticField(bool isBLayer = false) const;
-  void setMagneticField(const GeoTrf::Vector3D& field);
-  bool useMagneticFieldSvc() const;
-  void setUseMagneticFieldSvc(bool flag);  
+  virtual double Voltage(bool isBLayer) override;
+  virtual double Temperature(bool isBLayer) override;
 
   // CommonItems for Det Elements
-  InDetDD::SiCommonItems * commonItems() const;
-  void setCommonItems(InDetDD::SiCommonItems * commonItems); 
+  virtual InDetDD::SiCommonItems * commonItems() override;
+  virtual const InDetDD::SiCommonItems * commonItems() const override;
+  virtual void setCommonItems(InDetDD::SiCommonItems * commonItems) override; 
 
   // ID helper
-  const PixelID * getIdHelper();
+  const PixelID * getIdHelper() override;
 
 };
 

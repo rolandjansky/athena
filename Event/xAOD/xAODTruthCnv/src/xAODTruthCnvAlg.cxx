@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -10,8 +10,6 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
-#include "EventInfo/EventStreamInfo.h"
 
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthEventContainer.h"
@@ -32,6 +30,9 @@
 #include "xAODTruth/TruthMetaDataAuxContainer.h"
 #include "xAODTruth/TruthMetaData.h"
 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "IOVDbDataModel/IOVMetaDataContainer.h"
+
 #include "xAODTruthCnvAlg.h"
 
 
@@ -41,7 +42,9 @@ namespace xAODMaker {
     
     
     xAODTruthCnvAlg::xAODTruthCnvAlg( const string& name, ISvcLocator* svcLoc )
-    : AthReentrantAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
+      : AthReentrantAlgorithm( name, svcLoc )
+      , m_metaStore( "MetaDataStore", name )
+      , m_firstBeginRun(true)
     {
       // leaving metadata alone for now--to be updated
         declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );
@@ -69,6 +72,11 @@ namespace xAODMaker {
 	ATH_CHECK(m_xaodTruthParticleContainerKey.initialize());
 	ATH_CHECK(m_xaodTruthVertexContainerKey.initialize());
 
+	ATH_CHECK(m_evtInfo.initialize());
+
+	ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
+	ATH_CHECK(incSvc.retrieve());
+	incSvc->addListener( this, "BeginRun", 10);
 
         ATH_MSG_DEBUG("Initializing; package version: " << PACKAGE_VERSION );
         ATH_MSG_DEBUG("AODContainerName = " << m_aodContainerKey.key() );
@@ -196,17 +204,18 @@ namespace xAODMaker {
                     
 	    if (m_writeMetaData) {
 	      //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
-	      const EventStreamInfo* esi = nullptr;
-	      std::vector<std::string> keys;
-	      m_inputMetaStore->keys<EventStreamInfo>(keys);
-	      if (keys.size() > 1) { // Multiple EventStreamInfo (default retrieve won't work), just take the first
-	        CHECK( m_inputMetaStore->retrieve(esi, keys[0]));
-	      } else {
-	        CHECK( m_inputMetaStore->retrieve(esi));
+	      uint32_t mcChannelNumber = 0;
+	      SG::ReadHandle<xAOD::EventInfo> evtInfo (m_evtInfo,ctx);
+	      if (evtInfo.isValid()) {
+		mcChannelNumber = evtInfo->mcChannelNumber();
+		if (mcChannelNumber==0) mcChannelNumber = evtInfo->runNumber();
 	      }
-	      uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
-                        
-              ATH_CHECK( m_meta.maybeWrite (mcChannelNumber, *genEvt) );
+	      else {
+		ATH_MSG_FATAL("Faied to retrieve EventInfo");
+		return StatusCode::FAILURE;
+	      }
+
+              ATH_CHECK( m_meta.maybeWrite (mcChannelNumber, *genEvt, m_metaFields) );
 	    }
 	    // Event weights
 	    vector<float> weights;
@@ -400,7 +409,55 @@ namespace xAODMaker {
         return StatusCode::SUCCESS;
     }
     
-    
+	void xAODTruthCnvAlg::handle(const Incident& incident) {
+	  if (m_firstBeginRun && incident.type()==IncidentType::BeginRun) {
+	    m_firstBeginRun = false;
+	    ServiceHandle<StoreGateSvc> inputStore("StoreGateSvc/InputMetaDataStore", name());
+	    if(inputStore.retrieve().isFailure()) {
+	      ATH_MSG_ERROR("Failed to retrieve Input Metadata Store");
+	      return;
+	    }
+	    const IOVMetaDataContainer* tagInfo{nullptr};
+	    if(inputStore->retrieve(tagInfo,"/TagInfo").isFailure()) {
+	      ATH_MSG_WARNING("Failed to retrieve /TagInfo metadata from the input store");
+	      return;
+	    }
+	    if(tagInfo->payloadContainer()->size()>0) {
+	      CondAttrListCollection* tagInfoPayload = tagInfo->payloadContainer()->at(0);
+	      if(tagInfoPayload->size()>0) {
+		const CondAttrListCollection::AttributeList& al = tagInfoPayload->attributeList(0);
+		if (al.exists("lhefGenerator")){
+		  m_metaFields.lhefGenerator = al["lhefGenerator"].data<std::string>();
+		}
+
+		if (al.exists("generators")){
+		  m_metaFields.generators = al["generators"].data<std::string>();
+		}
+
+		if (al.exists("evgenProcess")){
+		  m_metaFields.evgenProcess = al["evgenProcess"].data<std::string>();
+		}
+
+		if (al.exists("evgenTune")){
+		  m_metaFields.evgenTune = al["evgenTune"].data<std::string>();
+		}
+
+		if (al.exists("hardPDF")){
+		  m_metaFields.hardPDF = al["hardPDF"].data<std::string>();
+		}
+
+		if (al.exists("softPDF")){
+		  m_metaFields.softPDF = al["softPDF"].data<std::string>();
+		}
+	      }
+	    }
+	    else {
+	      ATH_MSG_WARNING("Empty Tag Info metadata!");
+	    }
+	  }
+	}
+
+
     // A helper to set up a TruthVertex (without filling the ELs)
     void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, HepMC::ConstGenVertexPtr gv) {
         tv->setId(gv->id());
@@ -459,7 +516,8 @@ namespace xAODMaker {
 
     StatusCode
     xAODTruthCnvAlg::MetaDataWriter::maybeWrite (uint32_t mcChannelNumber,
-                                                 const HepMC::GenEvent& genEvt)
+                                                 const HepMC::GenEvent& genEvt,
+						 const MetadataFields& metaFields)
     {
       // This bit needs to be serialized.
       lock_t lock (m_mutex);
@@ -494,6 +552,25 @@ namespace xAODMaker {
         md->setMcChannelNumber(mcChannelNumber);
         md->setWeightNames( std::move(orderedWeightNameVec) );
 #endif
+
+	if(!metaFields.lhefGenerator.empty()) {
+	  md->setLhefGenerator(metaFields.lhefGenerator);
+	}
+	if(!metaFields.generators.empty()) {
+	  md->setGenerators(metaFields.generators);
+	}
+	if(!metaFields.evgenProcess.empty()) {
+	  md->setEvgenProcess(metaFields.evgenProcess);
+	}
+	if(!metaFields.evgenTune.empty()) {
+	  md->setEvgenTune(metaFields.evgenTune);
+	}
+	if(!metaFields.hardPDF.empty()) {
+	  md->setHardPDF(metaFields.hardPDF);
+	}
+	if(!metaFields.softPDF.empty()) {
+	  md->setSoftPDF(metaFields.softPDF);
+	}
       }
 
       return StatusCode::SUCCESS;

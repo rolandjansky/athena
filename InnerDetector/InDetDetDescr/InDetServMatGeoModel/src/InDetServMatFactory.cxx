@@ -56,7 +56,7 @@ InDetServMatFactory::~InDetServMatFactory()
 
 
 //## Other Operations (implementation)
-void InDetServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world ) // Thread unsafe rdbAccessSvc method and InDetMaterialManager constructor are used.
+void InDetServMatFactory::create(GeoPhysVol *world )
 {
 
   // create a new det manager

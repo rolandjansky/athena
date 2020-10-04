@@ -101,9 +101,13 @@ struct Component1D
  * @brief Merge the componentsIn and return
  * which componets got merged
  *
- * The input component array is assumed to be
- * GSFUtils::alignment aligned.
+ * inputSize is expected to be >0, <128
+ * and reducedSize < inputsize. Invalid input
+ * will cause a runtime exception
  *
+ * Furthemore, the input component array is assumed to be
+ * GSFUtils::alignment aligned.
+ * Can be created via the AlignedDynArray.
  */
 std::vector<std::pair<int16_t, int16_t>>
 findMerges(Component1D* componentsIn,

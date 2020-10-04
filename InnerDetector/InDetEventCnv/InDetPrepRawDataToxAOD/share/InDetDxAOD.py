@@ -424,10 +424,7 @@ if dumpPixInfo:
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "PixelConfigCondAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                    UseDCSStateConditions=True,
-                                    UseDCSStatusConditions=True)
-
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
@@ -440,8 +437,11 @@ if dumpPixInfo:
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
+    import InDetRecExample.TrackingCommon as TrackingCommon
+
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
+    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
+                                                    ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName())
     xAOD_PixelPrepDataToxAOD.LorentzAngleTool       = ToolSvc.PixelLorentzAngleTool
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo

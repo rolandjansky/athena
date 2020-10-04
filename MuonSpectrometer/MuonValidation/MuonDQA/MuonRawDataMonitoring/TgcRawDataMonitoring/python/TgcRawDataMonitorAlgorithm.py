@@ -26,6 +26,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu6_L1MU6'
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu20_mu8noL1;HLT_mu20'
 
+    if not inputFlags.DQ.triggerDataAvailable:
+        tgcRawDataMonAlg.MuonRoIContainerName = ''
+
     if 'HLT_xAOD__MuonContainer_MuonEFInfo' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.MuonEFContainerName='HLT_xAOD__MuonContainer_MuonEFInfo'
     if 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:

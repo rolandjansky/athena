@@ -706,7 +706,6 @@ _flags.append(inputLVL1configFile)
 
 # remove prescale suffixes
 def _getMenuBaseName(menuName):
-    log = logging.getLogger(__name__)
     m = re.match(r'(.*v\d(?:_primaries)?).*', menuName)
     if m:
         menuName = m.groups()[0]

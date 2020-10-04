@@ -6,6 +6,7 @@
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "MuonMatchingTool.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 EFMuonMonMT :: EFMuonMonMT(const std::string& name, ISvcLocator* pSvcLocator )
   : TrigMuonMonitorAlgorithm(name, pSvcLocator)
@@ -18,6 +19,7 @@ StatusCode EFMuonMonMT :: initialize(){
   ATH_CHECK( m_EFCBMuonContainerKey.initialize() );
   ATH_CHECK( m_MStrackContainerKey.initialize() );
   ATH_CHECK( m_CBtrackContainerKey.initialize() );
+  ATH_CHECK( m_muonIso30Key.initialize() );
   return sc;
 }
 
@@ -25,6 +27,8 @@ StatusCode EFMuonMonMT :: initialize(){
 StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const {
 
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
+
+  const float ZERO_LIMIT = 0.00001;
 
   // EFSA
   std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContSA = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_Muons_");
@@ -65,6 +69,29 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext &ctx, const s
     fill(m_group+"_"+chain, CBTrackPt, CBTrackEta, CBTrackPhi);
   }
 
+
+  // EFIso
+  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContIso = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_MuonsIso");
+  for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muIsoLinkInfo : featureContIso) {
+    ATH_CHECK( muIsoLinkInfo.isValid() );
+    const ElementLink<xAOD::MuonContainer> muIsoEL = muIsoLinkInfo.link;
+    if ( (*muIsoEL)->muonType() != xAOD::Muon::MuonType::Combined ) continue;
+
+    // basic variables used decision
+    auto PtCone03 = Monitored::Scalar<float>(chain+"_PtCone03",-999.);
+    auto PtCone03overMuonPt = Monitored::Scalar<float>(chain+"_PtCone03overMuonPt",-999.);
+
+    SG::ReadDecorHandle<xAOD::MuonContainer, double> muonIso30 ( m_muonIso30Key, ctx );
+    float ptcone30 = muonIso30(*(*muIsoEL));
+
+    if (ptcone30 > ZERO_LIMIT ){
+      PtCone03 = ptcone30/1e3;
+      PtCone03overMuonPt = ptcone30 / (*muIsoEL)->pt();
+    }
+
+    fill(m_group+"_"+chain, PtCone03, PtCone03overMuonPt);
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -72,6 +99,8 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext &ctx, const s
 StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext &ctx, const xAOD::Muon* mu, const std::string &chain) const {
 
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
+
+  const float ZERO_LIMIT = 0.00001;
 
   const xAOD::TrackParticle* OfflineSATrack = mu->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
   const xAOD::TrackParticle* OfflineCBTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
@@ -214,6 +243,36 @@ StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext
     }
     fill(m_group+"_"+chain, OfflineCBPt, OfflineCBEta, OfflineCBPhi, OfflineCBmatchedL2CBPt, OfflineCBmatchedL2CBEta, OfflineCBmatchedL2CBPhi,
          MatchedEFCBPt, MatchedEFCBEta, MatchedEFCBPhi, CBdPt, CBdEta, CBdPhi, CBdR, matchedEFCB, matchedL2CB);
+  }
+
+
+  // offoine isolation variable
+  float OfflineIsoptcone30=-1.;
+  mu->isolation(OfflineIsoptcone30, xAOD::Iso::IsolationType::ptvarcone30);
+  if ( OfflineIsoptcone30 > ZERO_LIMIT ){
+
+    auto OfflineIsoPtCone03 = Monitored::Scalar<float>(chain+"_OfflineIsoPtCone03",-999.);
+    auto OfflineIsoPtCone03overMuonPt = Monitored::Scalar<float>(chain+"_OfflineIsoPtCone03overMuonPt",-999.);
+    auto MatchedEFIsoPtCone03 = Monitored::Scalar<float>(chain+"_MatchedEFPIsotCone03",-999.);
+    auto MatchedEFIsoPtCone03overMuonPt = Monitored::Scalar<float>(chain+"_MatchedEFIsoPtCone03overMuonPt",-999.);
+
+    OfflineIsoPtCone03 = OfflineIsoptcone30/1e3;
+    OfflineIsoPtCone03overMuonPt = OfflineIsoptcone30 / mu->pt();
+
+    // get the closest EFIso muon
+    const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> EFIsoMuonLinkInfo = m_matchTool->matchEFIsoLinkInfo(mu, chain);
+    if( EFIsoMuonLinkInfo.isValid() ){
+      const ElementLink<xAOD::MuonContainer> EFIsoMuon = EFIsoMuonLinkInfo.link;
+
+      SG::ReadDecorHandle<xAOD::MuonContainer, double> muonIso30 ( m_muonIso30Key, ctx );
+      float EFIsoptcone30 = muonIso30(*(*EFIsoMuon));
+
+      if ( EFIsoptcone30 > ZERO_LIMIT ){
+        MatchedEFIsoPtCone03 = EFIsoptcone30/1e3;
+        MatchedEFIsoPtCone03overMuonPt = EFIsoptcone30 / (*EFIsoMuon)->pt();
+      }
+    }
+    fill(m_group+"_"+chain, OfflineIsoPtCone03, OfflineIsoPtCone03overMuonPt, MatchedEFIsoPtCone03, MatchedEFIsoPtCone03overMuonPt);
   }
 
   return StatusCode::SUCCESS;

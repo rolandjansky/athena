@@ -8,10 +8,10 @@
 #include "GeoVPixelFactory.h"
 class GeoLogVol;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelDisk : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelDisk : public GeoVPixelFactory {
  public:
-  GeoPixelDisk();
-  virtual GeoVPhysVol* Build();
+  GeoPixelDisk(InDetDD::PixelDetectorManager* ddmgr, PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double RMax();
   double RMin();

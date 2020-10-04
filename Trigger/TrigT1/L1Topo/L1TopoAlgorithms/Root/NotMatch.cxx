@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * NotMatch.cpp
@@ -18,7 +18,6 @@
 
 REGISTER_ALG_TCS(NotMatch)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::NotMatch:     "
@@ -122,22 +121,22 @@ TCS::NotMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & inp
       unsigned int deltaR2= 999;
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
           bool all_unmatched = true;
-          vector<GenericTOB*> unmatched_tobs;
+	  std::vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
             if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-            if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1[i] ) continue; // Eta cut
-            if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1[i] ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) > p_EtaMax1[i] ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) < p_EtaMin1[i] ) continue; // Eta cut
             matched = false;
             deltaR2 = 999;
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2 && matched != true ;
                  ++tob2) {
                if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2[i] ) continue; // Eta cut
-               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2[i] ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) > p_EtaMax2[i] ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) < p_EtaMin2[i] ) continue; // Eta cut
                // test DeltaR2Min, DeltaR2Max
                deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
                if (deltaR2 <= p_DRCut[i]) matched = true; 
@@ -172,22 +171,22 @@ TCS::NotMatch::process( const std::vector<TCS::TOBArray const *> & input,
       unsigned int deltaR2= 999;
       for(unsigned int i=0; i<numberOutputBits(); ++i) { 
        bool all_unmatched = true;
-       vector<GenericTOB*> unmatched_tobs;
+       std::vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
             if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-            if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1[i] ) continue; // Eta cut
-            if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1[i] ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) > p_EtaMax1[i] ) continue; // Eta cut
+            if( parType_t(std::abs((*tob1)->eta())) < p_EtaMin1[i] ) continue; // Eta cut
             matched = false;
             deltaR2 = 999;
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2 && matched != true ;
                  ++tob2) {
                if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2[i] ) continue; // Eta cut
-               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2[i] ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) > p_EtaMax2[i] ) continue; // Eta cut
+               if( parType_t(std::abs((*tob2)->eta())) < p_EtaMin2[i] ) continue; // Eta cut
                // test DeltaR2Min, DeltaR2Max
                deltaR2 = calcDeltaR2( *tob1, *tob2 );
                if (deltaR2 <= p_DRCut[i]) matched = true; 

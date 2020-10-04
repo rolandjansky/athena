@@ -17,6 +17,7 @@ extern "C" {
 
 // ROOT include(s):
 #include <TDataType.h>
+#include <TTree.h>
 
 namespace xAOD {
 
@@ -36,6 +37,9 @@ namespace xAOD {
 
       /// Get the type name as it is known to ROOT, based on std::type_info
       std::string getTypeName( const std::type_info& ti );
+
+      /// Search for branches, returns search term on no result
+      std::string getFirstBranchMatch( TTree* tree, const std::string& pre );
 
    } // namespace Utils
 

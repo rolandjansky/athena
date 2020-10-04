@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * Ratio.cpp
@@ -19,10 +19,8 @@
 
 REGISTER_ALG_TCS(Ratio)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::Ratio::Ratio(const std::string & name) : DecisionAlg(name)
@@ -102,8 +100,8 @@ TCS::Ratio::process( const std::vector<TCS::TOBArray const *> & input,
    for( TCS::GenericTOB * tob : *input[1]) {
       
 
-      if( parType_t(fabs(tob->eta())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs(tob->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) < p_EtaMin ) continue; // Eta cut
       if( tob->Et() <= p_MinET2 ) continue; // E_T cut
 
       TRG_MSG_DEBUG("Jet  ET = " << tob->Et());

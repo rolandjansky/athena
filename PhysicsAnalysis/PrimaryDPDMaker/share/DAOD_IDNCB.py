@@ -130,8 +130,10 @@ if dumpSctInfo:
         print(xAOD_SCT_PrepDataToxAOD.properties())
 
 if dumpPixInfo:
+    import InDetRecExample.TrackingCommon as TrackingCommon
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "NCBxAOD_PixelPrepDataToxAOD")
+    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "NCBxAOD_PixelPrepDataToxAOD",
+                                                    ClusterSplitProbabilityName = TrackingCommon.combinedClusterSplitProbName())
     ## Content steering Properties (default value shown as comment)
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
