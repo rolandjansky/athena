@@ -1,0 +1,38 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+inline Trk::MagneticFieldProperties::MagneticFieldProperties(
+  Trk::MagneticFieldMode mode)
+  : m_magneticFieldMode(mode)
+  , m_magneticField(0., 0., 0.)
+{}
+
+inline Trk::MagneticFieldProperties::MagneticFieldProperties(
+  const Amg::Vector3D& field)
+  : m_magneticFieldMode(Trk::ConstantField)
+  , m_magneticField(field)
+{}
+
+inline Trk::MagneticFieldProperties::operator MagneticFieldMode() const
+{
+  return m_magneticFieldMode;
+}
+
+inline Trk::MagneticFieldMode
+Trk::MagneticFieldProperties::magneticFieldMode() const
+{
+  return m_magneticFieldMode;
+}
+
+inline const Amg::Vector3D&
+Trk::MagneticFieldProperties::magneticField() const
+{
+  if (m_magneticFieldMode != Trk::ConstantField)
+    throw GaudiException(
+      "Trk::MagneticFieldProperties",
+      "You can only ask for a field value if you have a constant field!",
+      StatusCode::FAILURE);
+  return m_magneticField;
+}
+
