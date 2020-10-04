@@ -463,7 +463,7 @@ namespace InDet {
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositionsTTN(
                                                 const TTrainedNetworkCollection &nn_collection,
-                                                std::vector<double> inputData,
+                                                const std::vector<double>& inputData,
                                                 const NNinput& input,
                                                 const InDet::PixelCluster& pCluster,
                                                 int sizeX,
@@ -545,7 +545,7 @@ namespace InDet {
       std::map<std::string, double> position = lwtnn_collection->at(numberSubClusters)->compute(input, {},outNodeName);
 
       ATH_MSG_DEBUG("Testing for numberSubClusters " << numberSubClusters << " and cluster " << cluster);
-      for (auto item : position) {
+      for (const auto& item : position) {
         ATH_MSG_DEBUG(item.first << ": " << item.second);
       }
       positionValues.push_back(position["mean_x"]);
@@ -1056,7 +1056,8 @@ namespace InDet {
   for (int a=0;a<sizeX;a++)
   {
     std::vector<float> Yvector;
-    for (int b=0;b<sizeY;b++)
+    Yvector.reserve(sizeY);
+for (int b=0;b<sizeY;b++)
     {
       Yvector.push_back(0);
     }
