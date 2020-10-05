@@ -306,7 +306,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
         std::string Syst_Name = settings.GetValue(prefix+"Name","");
 
-        if( Syst_Name != ""){
+        if( !Syst_Name.empty()){
             m_SysList.insert( CP::SystematicVariation(Syst_Name, 1) );
             m_SysList.insert( CP::SystematicVariation(Syst_Name, -1) );
 
@@ -330,7 +330,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         std::string Syst_Name = settings.GetValue(prefix+"Name","");
 
 
-        if( Syst_Name != ""){
+        if( !Syst_Name.empty()){
             m_SysList.insert( CP::SystematicVariation(Syst_Name, 1) );
             m_SysList.insert( CP::SystematicVariation(Syst_Name, -1) );
 
