@@ -99,8 +99,8 @@ if DetFlags.readRDOBS.TRT_on():
                                               RDOKey       = InDetKeys.TRT_RDOs(),
                                               ProviderTool = InDetTRTRawDataProviderTool)
 
-# from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
-# InDetTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+  InDetTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
 
   topSequence += InDetTRTRawDataProvider
   if (InDetFlags.doPrintConfigurables()):

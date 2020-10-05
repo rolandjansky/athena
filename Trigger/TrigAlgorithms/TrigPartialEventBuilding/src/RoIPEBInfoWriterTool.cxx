@@ -25,10 +25,8 @@ StatusCode RoIPEBInfoWriterTool::initialize() {
   ATH_MSG_DEBUG("Extra PEBInfo attached to every passed event: " << m_extraPebInfo);
 
   // Ugly solution - need to translate strings into enums. Wouldn't be needed if DETID enum was accessible from python.
+
   const std::unordered_map<std::string_view,DETID> detNameDict = {
-    {"PIXEL",   DETID::PIXEL},
-    {"SCT",     DETID::SCT},
-    {"TRT",     DETID::TRT},
     {"LAR",     DETID::LAR},
     {"TTEM",    DETID::TTEM},
     {"TTHEC",   DETID::TTHEC},
@@ -43,18 +41,46 @@ StatusCode RoIPEBInfoWriterTool::initialize() {
     {"MM",      DETID::MM},
     {"STGC",    DETID::STGC},
   };
+
+#if 1
+  const std::unordered_map< std::string_view, ToolHandle<IRegSelTool> > detTools = {
+    { "PIXEL",   m_regionSelector_pix },
+    { "SCT",     m_regionSelector_sct },
+    { "TRT",     m_regionSelector_trt }
+  };
+#else
+
+  std::unordered_map< std::string_view, ToolHandle<IRegSelTool> > detTools;
+
+  detTools.insert( std::unordered_map< std::string_view, ToolHandle<IRegSelTool> >::value_type( "PIXEL",   m_regionSelector_pix ) );
+  detTools.insert( std::unordered_map< std::string_view, ToolHandle<IRegSelTool> >::value_type( "SCT",     m_regionSelector_sct ) );
+  detTools.insert( std::unordered_map< std::string_view, ToolHandle<IRegSelTool> >::value_type( "TRT",     m_regionSelector_trt ) );
+
+
+#endif
+
   for (std::string_view name : m_detNames) {
     if (name=="All") {
       for (const auto& p : detNameDict) m_dets.insert(p.second);
+      for (const auto& p : detTools)    m_tools.insert(p.second);
       break;
     }
-    const auto it = detNameDict.find(name);
-    if (it==detNameDict.cend()) {
-      ATH_MSG_ERROR("The detector name " << name << " cannot be translated into RegSelEnum DETID");
-      return StatusCode::FAILURE;
+
+    const auto itt = detTools.find(name);
+    if ( itt!=detTools.cend() ) {
+      ATH_MSG_DEBUG("The detector name " << name << " being inserted from the RegSelTools database");
+      m_tools.insert(itt->second);
     }
-    ATH_MSG_DEBUG("Adding " << name << "=" << it->second << " to detector list");
-    m_dets.insert(it->second);
+    else {  
+      ATH_MSG_DEBUG("The detector name " << name << " not in the RegSelTools database - trying RegSelEnum database");
+      const auto it = detNameDict.find(name);
+      if (it==detNameDict.cend()) {
+	ATH_MSG_ERROR("The detector name " << name << " cannot be translated into RegSelEnum DETID");
+	return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG("Adding " << name << "=" << it->second << " to detector list");
+      m_dets.insert(it->second);
+    }
   }
 
   return StatusCode::SUCCESS;
@@ -85,6 +111,20 @@ PEBInfoWriterToolBase::PEBInfo RoIPEBInfoWriterTool::createPEBInfo(const PEBInfo
   float phiMax = CxxUtils::wrapToPi(phi + m_phiWidth); // range (-pi, pi)
 
   TrigRoiDescriptor roiForPEB(eta, etaMin, etaMax, phi, phiMin, phiMax);
+
+#if 0
+  std::vector<IRegSelTool*> tools = { 
+    m_regionSelectot_pix, 
+    m_regionSelectot_sct, 
+    m_regionSelectot_trt 
+  }; 
+#endif
+
+  for ( auto tool : m_tools ) { 
+    std::vector<uint32_t> detROBs;
+    tool->ROBIDList( roiForPEB, detROBs);
+    pebi.robs.insert(detROBs.begin(),detROBs.end());
+  }
 
   for (const DETID detid : m_dets) {
     std::vector<uint32_t> detROBs;

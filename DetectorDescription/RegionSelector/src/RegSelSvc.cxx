@@ -628,7 +628,7 @@ void RegSelSvc::getRoIData(DETID detectorID,
   case PIXEL: 
   case SCT:  
   case TRT:  { 
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case RPC: { // RPC (obviously)
@@ -703,7 +703,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   case PIXEL:
   case SCT:
   case TRT: { // TRT (obviously)
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { // etc
@@ -803,7 +803,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   case PIXEL: 
   case SCT: 
   case TRT: { // TRT (obviously)
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { 
@@ -886,7 +886,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   case PIXEL:
   case SCT:
   case TRT: { // TRT (obviously)
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { 
@@ -969,7 +969,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   case PIXEL:
   case SCT:
   case TRT: { // TRT (obviously)
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { 
@@ -1068,7 +1068,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   case PIXEL: 
   case SCT:
   case TRT: {  // TRT
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { 
@@ -1169,7 +1169,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   case PIXEL: 
   case SCT: 
   case TRT: { // TRT
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { 
@@ -1245,7 +1245,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   case PIXEL: 
   case SCT:
   case TRT: {  // TRT
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { 
@@ -1314,8 +1314,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   case PIXEL: 
   case SCT: 
   case TRT: { // TRT
-    if ( m_newtrt ) m_newtrt->getRobList( layer, outputROBIDList ); 
-    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID" << detectorID );
+    ATH_MSG_ERROR( "RegSelSvc: should no longer be called for ID: " << detectorID );
     break;
   }
   case MDT: { 

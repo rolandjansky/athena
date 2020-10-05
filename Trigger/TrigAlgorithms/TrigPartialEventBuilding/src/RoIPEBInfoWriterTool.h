@@ -8,6 +8,7 @@
 #include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 
 /** @class RoIPEBInfoWriterTool
  *  @brief Tool writing ROB list corresponding to an RoI in given detectors for use in PEBInfoWriterAlg
@@ -30,6 +31,20 @@ private:
   ServiceHandle<IRegSelSvc> m_regionSelector {
     this, "RegionSelector", "RegSelSvc/RegSelSvc", "Region Selector service"
   };
+
+  ToolHandle<IRegSelTool> m_regionSelector_pix {
+    this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel", "Region Selector Tool"
+  };
+
+  ToolHandle<IRegSelTool> m_regionSelector_sct {
+    this, "RegSelTool_SCT", "RegSelTool/RegSelTool_SCT", "Region Selector Tool"
+  };
+
+  ToolHandle<IRegSelTool> m_regionSelector_trt {
+    this, "RegSelTool_TRT", "RegSelTool/RegSelTool_TRT", "Region Selector Tool"
+  };
+
+
 
   // ------------------------- Properties --------------------------------------
   Gaudi::Property<float> m_etaEdge {
@@ -58,7 +73,9 @@ private:
   /// Static PEB Info which contains ExtraROBs and ExtraSubDets
   PEBInfoWriterToolBase::PEBInfo m_extraPebInfo;
   /// m_detNames translated into set of DETID, filled at initialisation
-  std::set<DETID> m_dets;
+  std::set<DETID>       m_dets;
+  std::set<ToolHandle<IRegSelTool> > m_tools;
+
 };
 
 #endif // TrigPartialEventBuilding_RoIPEBInfoWriterTool_h

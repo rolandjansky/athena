@@ -122,13 +122,21 @@ def makeInDetPrecisionTracking( config = None,
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
                 InDetTRTRawDataProviderTool = TRTRawDataProviderTool( name    = "%sTRTRawDataProviderTool%s"%(algNamePrefix, signature),
                                                                       Decoder = InDetTRTRodDecoder )
+
                 ToolSvc += InDetTRTRawDataProviderTool
              
+
+
+
                 # load the TRTRawDataProvider
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
                 InDetTRTRawDataProvider = TRTRawDataProvider(name         = "%sTRTRawDataProvider%s"%(algNamePrefix, signature),
                                                              RDOKey       = TrigTRTKeys.RDOs,
                                                              ProviderTool = InDetTRTRawDataProviderTool)
+
+                from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+                InDetTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
+
                 InDetTRTRawDataProvider.isRoI_Seeded = True
                 InDetTRTRawDataProvider.RoIs = rois
 
