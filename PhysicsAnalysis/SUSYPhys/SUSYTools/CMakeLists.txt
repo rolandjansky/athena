@@ -173,12 +173,12 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_SUSYTools_config_checker
       SCRIPT test/ut_SUSYTools_config_checker.py
       PROPERTIES TIMEOUT 300
-      EXTRA_PATTERNS "^Ran [0-9]+ tests in [0-9.]+s|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|x86_64-centos7-gcc8-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt|build/Analysis.*/x86_64-centos7-gcc8-opt")
+      EXTRA_PATTERNS "^Ran [0-9]+ tests in [0-9.]+s|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|x86_64-centos7-gcc8-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt|build/Analysis.*/x86_64-centos7-gcc8-opt|create data set info.*")
    # Additional veto lines: more timing, local conf file this thing is writing
    atlas_add_test( ut_SUSYTools_wp_checker
       SCRIPT test/ut_SUSYTools_wp_checker.py
       PROPERTIES TIMEOUT 700
-      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|x86_64-centos7-gcc8-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt|build/Analysis.*/x86_64-centos7-gcc8-opt|mySTdefs_conf\.tmp|^Ran [0-9]+ tests in [0-9.]+s")
+      EXTRA_PATTERNS "^  Entire loop [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|^  Excluding first event - [0-9.]+ / [0-9.]+ ms|INFO|^  First event [ ]+- [0-9.]+ / [0-9.]+ ms|INFO|cvmfs/atlas-nightlies\.cern\.ch/repo|x86_64-slc6-gcc62-opt/data/SUSYTools|x86_64-centos7-gcc8-opt/data/SUSYTools|build/Analysis.*/x86_64-slc6-gcc62-opt|build/Analysis.*/x86_64-centos7-gcc8-opt|mySTdefs_conf\.tmp|^Ran [0-9]+ tests in [0-9.]+s|create data set info.*")
    atlas_add_test( ut_SUSYToolsTester_atlfast
       SOURCES test/ut_SUSYToolsTester_atlfast.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

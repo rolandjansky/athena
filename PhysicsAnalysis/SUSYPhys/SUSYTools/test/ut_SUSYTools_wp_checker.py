@@ -105,7 +105,6 @@ Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
 Btag.MinPt: 20000.
 #
-BtagTrkJet.TimeStamp: 
 BtagTrkJet.MinPt: 10000.
 #
 # set the -999. to positive number to override default
@@ -180,7 +179,7 @@ class TestSUSYTools(unittest.TestCase):
     #Files and commands
     theConfig = 'mySTdefs_conf.tmp'
 
-    theSample = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root'
+    theSample = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4237.PHYSVAL.pool.root'
 
     theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 

@@ -14,7 +14,7 @@ int main()
   ATH_MSG_INFO ("Unit test for SUSYTools on MC");
 
   // Stored updated references in SUSY ART area for now
-  std::string inputFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root";
+  std::string inputFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4237.PHYSVAL.pool.root";
 
   std::string cmd("SUSYToolsTester " + inputFile + " maxEvents=100 isData=0 isAtlfast=0 Debug=0 NoSyst=0");
   cmd.append(" PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root");

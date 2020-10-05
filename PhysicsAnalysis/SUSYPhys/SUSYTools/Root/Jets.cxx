@@ -287,6 +287,9 @@ namespace ST {
     }
 
     for (const auto& jet : *copy) {
+      // Truth Labeling (MC only)
+      if (!isData()) m_jetTruthLabelingTool->modifyJet(*jet);
+      //
       ATH_CHECK( this->FillJet(*jet, true, true, true) );
       //...
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
@@ -307,8 +310,6 @@ namespace ST {
       else{
         dec_selected(*jet) = 0;
       }
-      // Truth Labeling (MC only)
-      m_jetTruthLabelingTool->modifyJet(*jet);
     }
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
