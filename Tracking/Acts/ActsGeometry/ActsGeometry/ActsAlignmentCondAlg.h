@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSALIGNMENTCONDALG_H
@@ -15,13 +15,6 @@
 
 // STL
 #include <string>
-
-namespace InDetDD {
-class InDetDetectorManager;
-class PixelDetectorManager;
-class SCT_DetectorManager;
-class TRT_DetectorManager;
-} // namespace InDetDD
 
 class EventInfo;
 class ICondSvc;
@@ -57,10 +50,6 @@ private:
 
   ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
-
-  const InDetDD::PixelDetectorManager *p_pixelManager;
-  const InDetDD::SCT_DetectorManager *p_SCTManager;
-  const InDetDD::TRT_DetectorManager *p_TRTManager;
 };
 
 #endif
