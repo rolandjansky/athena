@@ -318,10 +318,11 @@ BPHY9SlimmingHelper = SlimmingHelper('BPHY9SlimmingHelper')
 # Slimming for recontruction content
 BPHY9SlimmingHelper.AllVariables = []
 
-
-BPHY9SlimmingHelper.SmartCollections = ['AntiKt4EMPFlowJets_BTagging201810', 'AntiKt4EMPFlowJets_BTagging201903',
+BPHY9SlimmingHelper.SmartCollections = ['AntiKt4EMPFlowJets',
+                                        'AntiKt4EMPFlowJets_BTagging201903',
+                                        'AntiKt4EMTopoJets',
                                         'AntiKt4EMTopoJets_BTagging201810',
-                                        'BTagging_AntiKt4EMPFlow_201810', 'BTagging_AntiKt4EMPFlow_201903',
+                                        'BTagging_AntiKt4EMPFlow_201903',
                                         'BTagging_AntiKt4EMTopo_201810',
                                         'Electrons',
                                         'InDetTrackParticles',
@@ -330,32 +331,12 @@ BPHY9SlimmingHelper.SmartCollections = ['AntiKt4EMPFlowJets_BTagging201810', 'An
                                         'Muons',
                                         'PrimaryVertices']
 
-BPHY9SlimmingHelper.ExtraVariables = ['AntiKt4EMPFlowJets_BTagging201810'+'.JetEMScaleMomentum_pt'
-                                                          +'.JetEMScaleMomentum_eta'
-                                                          +'.JetEMScaleMomentum_phi'
-                                                          +'.JetEMScaleMomentum_m'
-                                                          +'.ConeTruthLabelID'
-                                                          +'.PartonTruthLabelID'
-                                                          +'.SumPtTrkPt1000'
-                                                          +'.Jvt.JvtJvfcorr.JvtRpt',
-                                      'AntiKt4EMPFlowJets_BTagging201903'+'.JetEMScaleMomentum_pt'
-                                                          +'.JetEMScaleMomentum_eta'
-                                                          +'.JetEMScaleMomentum_phi'
-                                                          +'.JetEMScaleMomentum_m'
-                                                          +'.ConeTruthLabelID'
-                                                          +'.PartonTruthLabelID'
-                                                          +'.SumPtTrkPt1000'
-                                                          +'.Jvt.JvtJvfcorr.JvtRpt',
-                                      'AntiKt4EMTopoJets_BTagging201810'+'.JetEMScaleMomentum_pt'
-                                                         +'.JetEMScaleMomentum_eta'
-                                                         +'.JetEMScaleMomentum_phi'
-                                                         +'.JetEMScaleMomentum_m'
-                                                         +'.ConeTruthLabelID'
-                                                         +'.PartonTruthLabelID'
-                                                         +'.SumPtTrkPt1000'
-                                                         +'.Jvt'
-                                                         +'.JvtJvfcorr'
-                                                         +'.JvtRpt',
+extraJetVariables = '.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m'\
+                   +'.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt'\
+                   +'.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF'
+
+BPHY9SlimmingHelper.ExtraVariables = ['AntiKt4EMPFlowJets'+extraJetVariables,
+                                      'AntiKt4EMTopoJets'+extraJetVariables,
                                       'CombinedMuonTrackParticles'+'.z0'
                                                                   +'.vz'
                                                                   +'.definingParametersCovMatrix',
