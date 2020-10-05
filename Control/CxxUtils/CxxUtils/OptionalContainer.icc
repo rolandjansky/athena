@@ -1,0 +1,97 @@
+/*
+* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+* @file CxxUtils/OptionalContainer.icc
+* @author Stephen Nicholas Swatman <stephen.nicholas.swatman@cern.ch>
+* @date September 2020
+* @brief A container of optional values, with ergonomic methods.
+*/
+
+template<template <typename> typename C, typename I, typename V>
+bool CxxUtils::OptionalBase<C, I, V>::is_set(const I & i) const {
+    return this->get(i).has_value();
+}
+
+template<template <typename> typename C, typename I, typename V>
+template<typename W>
+bool CxxUtils::OptionalBase<C, I, V>::update(const I & i, W && v) {
+    static_assert(std::is_convertible<V, std::remove_reference_t<W>>::value);
+
+    if (this->get(i).has_value()) {
+        this->get(i) = std::forward<W>(v);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+template<template <typename> typename C, typename I, typename V>
+template<typename W>
+bool CxxUtils::OptionalBase<C, I, V>::set_if_unset(const I & i, W && v) {
+    static_assert(std::is_convertible<V, std::remove_reference_t<W>>::value);
+
+    if (this->get(i).has_value()) {
+        return false;
+    } else {
+        this->get(i) = std::forward<W>(v);
+        return true;
+    }
+}
+
+template<template <typename> typename C, typename I, typename V>
+template<typename W>
+bool CxxUtils::OptionalBase<C, I, V>::set(const I & i, W && v) {
+    static_assert(std::is_convertible<V, std::remove_reference_t<W>>::value);
+
+    this->get(i) = std::forward<W>(v);
+    return true;
+}
+
+template<template <typename> typename C, typename I, typename V>
+void CxxUtils::OptionalBase<C, I, V>::unset(const I & i) {
+    this->get(i).reset();
+}
+
+template<template <typename> typename C, typename I, typename V>
+void CxxUtils::OptionalBase<C, I, V>::increment(const I & i) {
+    this->set_if_unset(i, static_cast<V>(0));
+    (*this->get(i))++;
+}
+
+template<template <typename> typename C, typename I, typename V>
+const std::optional<V> & CxxUtils::OptionalBase<C, I, V>::get(const I & i) const {
+    return this->m_data[static_cast<typename F::size_type>(i)];
+}
+
+template<template <typename> typename C, typename I, typename V>
+std::optional<V> & CxxUtils::OptionalBase<C, I, V>::get(const I & i) {
+    return this->m_data[static_cast<typename F::size_type>(i)];
+}
+
+template<template <typename> typename C, typename I, typename V>
+void CxxUtils::OptionalBase<C, I, V>::coalesce_l(const I & i, const std::optional<V> & v) {
+    if (v.has_value()) {
+        this->set_if_unset(i, *v);
+    }
+}
+
+template<template <typename> typename C, typename I, typename V>
+void CxxUtils::OptionalBase<C, I, V>::coalesce_r(const I & i, const std::optional<V> & v) {
+    if (v.has_value()) {
+        this->set(i, *v);
+    }
+}
+
+template<template <typename> typename C, typename I, typename V>
+void CxxUtils::OptionalArrayLike<C, I, V>::coalesce_all_l(const OptionalArrayLike<C, I, V> & rhs) {
+    for (size_t i = 0; i < std::min(this->m_data.size(), rhs.m_data.size()); i++) {
+        this->coalesce_l(i, rhs.get(i));
+    }
+}
+
+template<template <typename> typename C, typename I, typename V>
+void CxxUtils::OptionalArrayLike<C, I, V>::coalesce_all_r(const OptionalArrayLike<C, I, V> & rhs) {
+    for (size_t i = 0; i < std::min(this->m_data.size(), rhs.m_data.size()); i++) {
+        this->coalesce_r(i, rhs.get(i));
+    }
+}
