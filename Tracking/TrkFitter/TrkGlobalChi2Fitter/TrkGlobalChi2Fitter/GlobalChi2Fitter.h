@@ -882,7 +882,7 @@ namespace Trk {
     ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider {this, "CaloMaterialProvider", "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", ""};
     ToolHandle<IMaterialEffectsOnTrackProvider> m_calotool {this, "MuidTool", "Rec::MuidMaterialEffectsOnTrackProvider/MuidMaterialEffectsOnTrackProvider", ""};
     ToolHandle<IMaterialEffectsOnTrackProvider> m_calotoolparam {this, "MuidToolParam", "", ""};
-    ToolHandle<IBoundaryCheckTool> m_boundaryCheckTool {this, "BoundaryCheckTool", "InDet::InDetBoundaryCheckTool", "Boundary checking tool for detector sensitivities" };
+    ToolHandle<IBoundaryCheckTool> m_boundaryCheckTool {this, "BoundaryCheckTool", "", "Boundary checking tool for detector sensitivities" };
 
     ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc;
 

@@ -183,7 +183,13 @@ namespace Trk {
     ATH_CHECK(m_navigator.retrieve());
     ATH_CHECK(m_residualPullCalculator.retrieve());
     ATH_CHECK(m_propagator.retrieve());
-    ATH_CHECK(m_boundaryCheckTool.retrieve());
+
+    if (!m_boundaryCheckTool.name().empty()) {
+      ATH_CHECK(m_boundaryCheckTool.retrieve());
+    } else if (m_holeSearch.value()) {
+      ATH_MSG_WARNING("Hole search requested but no boundary check tool provided, disabling hole search.");
+      m_holeSearch.set(false);
+    }
 
     if (m_calomat) {
       ATH_CHECK(m_calotool.retrieve());
