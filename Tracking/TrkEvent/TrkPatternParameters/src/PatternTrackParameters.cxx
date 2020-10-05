@@ -35,7 +35,7 @@ const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert
       c[ 6],c[ 7],c[ 8],c[ 9],c[13],
       c[10],c[11],c[12],c[13],c[14];
   }
-  const double* p = &m_parameters[0];
+  const AmgVector(5)& p = m_parameters;
   return m_surface ? (m_surface->createTrackParameters(p[0],p[1],p[2],p[3],p[4],e)): nullptr;
 }
 
@@ -51,12 +51,7 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
   m_surface = &T->associatedSurface(); if(!m_surface) { return false;
 }
 
-  const AmgVector(5) Vp = T->parameters() ;
-  m_parameters[0] = Vp[0];
-  m_parameters[1] = Vp[1];
-  m_parameters[2] = Vp[2];
-  m_parameters[3] = Vp[3];
-  m_parameters[4] = Vp[4];
+  m_parameters = T->parameters();
 
   const AmgSymMatrix(5)* C = T->covariance();   
 
@@ -206,8 +201,8 @@ MsgStream& Trk::operator    <<
 
 std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 {
-  const Trk::Surface*  s = m_surface; 
-  const double* P        = &m_parameters[0];
+  const Trk::Surface*  s = m_surface;
+  const AmgVector(5)&  P = m_parameters;
   const double* V        = &m_covariance[0];
   std::string name;
   std::string iscov;
@@ -274,7 +269,7 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
 {
   const Trk::Surface*  s = m_surface; 
-  const double* P        = &m_parameters[0];
+  const AmgVector(5)&  P = m_parameters;
   const double* V        = &m_covariance[0];
   std::string name;
   std::string iscov;

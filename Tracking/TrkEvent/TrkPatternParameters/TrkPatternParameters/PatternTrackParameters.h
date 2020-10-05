@@ -48,14 +48,14 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const double*    par               ()     const {return  &m_parameters[0];}
+      const double*    par               ()     const {return   m_parameters.data();}
       const double*    cov               ()     const {return  &m_covariance[0];}
       const Surface*   associatedSurface ()     const {return   m_surface      ;}
       const bool&      iscovariance      ()     const {return   m_iscovariance ;}
       Amg::Vector2D    localPosition     ()     const;
       Amg::Vector3D    momentum          ()     const; 
       Amg::Vector3D    position          ()     const; 
-      AmgVector(5)     parameters        ()     const;
+      const AmgVector(5)& parameters     ()     const;
       AmgSymMatrix(5)  covariance        ()     const;
       double           charge            ()     const;	
       double           sinPhi            ()     const;
@@ -118,7 +118,7 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
 
       const  Surface* m_surface       ;
-      double          m_parameters[ 5];
+      AmgVector(5)    m_parameters    ;
       double          m_covariance[15];
       bool            m_iscovariance  ;
 
@@ -168,7 +168,7 @@ namespace Trk {
     {
       m_surface      =     nullptr;
       m_iscovariance =     false;
-      std::fill (std::begin(m_parameters), std::end(m_parameters), 0);
+      m_parameters.setZero();
       std::fill (std::begin(m_covariance), std::end(m_covariance), 0);
     }
 
@@ -183,11 +183,7 @@ namespace Trk {
     {
       if (&P != this){
 				m_surface        = P.m_surface       ;
-				m_parameters[ 0] = P.m_parameters[ 0];
-				m_parameters[ 1] = P.m_parameters[ 1];
-				m_parameters[ 2] = P.m_parameters[ 2];
-				m_parameters[ 3] = P.m_parameters[ 3];
-				m_parameters[ 4] = P.m_parameters[ 4];
+				m_parameters     = P.m_parameters    ;
 				m_covariance[ 0] = P.m_covariance[ 0];
 				m_covariance[ 1] = P.m_covariance[ 1];
 				m_covariance[ 2] = P.m_covariance[ 2];
@@ -385,16 +381,9 @@ namespace Trk {
       return -log(tan(.5*m_parameters[3]));
     }   
   
-  inline AmgVector(5) PatternTrackParameters::parameters    () const
+  inline const AmgVector(5)& PatternTrackParameters::parameters    () const
     {
-      AmgVector(5) p;
-
-      p[0] = m_parameters[0];
-      p[1] = m_parameters[1];
-      p[2] = m_parameters[2];
-      p[3] = m_parameters[3];
-      p[4] = m_parameters[4];
-      return p;
+      return m_parameters;
     }          
   
   inline Amg::Vector3D PatternTrackParameters::momentum      () const
