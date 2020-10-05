@@ -64,9 +64,6 @@ namespace MuonGM {
     double dlStereoTop; // length between the first eta and stereo
     double dlStereoBottom;
     int totalStrips; //total strips per MM module
-    double offset; //Small MM chambers: offset from the center RASNIK mask is needed to define the strips positions. (slide 5: https://indico.cern.ch/event/903900/contributions/3850544/attachments/2031637/3400335/MMStrips_Software_4May2020.pdf)
-                   //The strips positions of MM modules with even total active strips should be shifted by 0.5*pitch. 
-                   //in order the transformation from local to global coords be applied correctly   
       
     /** channel transform */
     //HepGeom::Transform3D  channelTransform( int channel ) const;
@@ -103,7 +100,7 @@ namespace MuonGM {
     
     int chNum = channelNumber( pos );
 
-    if (chNum <0 ) return -1.;
+    if (chNum <1 ) return -1.;
     Amg::Vector2D chPos;
     if (!channelPosition( chNum, chPos) ) return -1.;
 
@@ -126,7 +123,7 @@ namespace MuonGM {
     // if channel number is out of bounds, get the nearest channel ( mostly for validation purposes )
     bool validMode = false;
     if (type==MuonChannelDesign::etaStrip && detType==MuonChannelDesign::DetType::MM) {
-        if( chNum < 0 || chNum > totalStrips ){
+        if( chNum < 1 || chNum > totalStrips ){
             chNum = channelNumber(pos);
             validMode = true;
         }
@@ -399,7 +396,7 @@ namespace MuonGM {
             
             else if (detType==MuonChannelDesign::DetType::MM)
             {
-                if( (st >= nMissedBottomEta) || (st < (totalStrips-nMissedTopEta))){
+                if( (st > nMissedBottomEta) || (st < (totalStrips-nMissedTopEta))){
                     
                     stLen = inputLength + 2*(0.5*(maxYSize-minYSize)*(st-nMissedBottomEta)*inputPitch/xSize);
                     return stLen;
@@ -418,16 +415,16 @@ namespace MuonGM {
                
 
                  
-             if( st >= nMissedBottomStereo && st < (nMissedBottomStereo+nRoutedBottom) )
+             if( st > nMissedBottomStereo && st < (nMissedBottomStereo+nRoutedBottom) )
              stLen = (minYPhiR + (st-nMissedBottomStereo)*inputPitch)/sin(sAngle);
                  
-                 if(st >= (nMissedBottomStereo+nRoutedBottom) )
+                 if(st > (nMissedBottomStereo+nRoutedBottom) )
                  stLen = (inputLength + 2*(0.5*(maxYSize-minYSize)*(st-nMissedBottomEta)*inputPitch/xSize) )/cos(sAngle);
                  
                  return stLen;
              }
              //length for routed strips is not defined
-             else if(st>=(totalStrips-(nMissedTopStereo+nRoutedTop)) && st < (totalStrips-nMissedTopStereo))
+             else if(st>(totalStrips-(nMissedTopStereo+nRoutedTop)) && st < (totalStrips-nMissedTopStereo))
              {
                  stLen = ( maxYPhi + (totalStrips-nMissedTopStereo-(st+1))*inputPitch)/sin(sAngle);
                  return stLen;

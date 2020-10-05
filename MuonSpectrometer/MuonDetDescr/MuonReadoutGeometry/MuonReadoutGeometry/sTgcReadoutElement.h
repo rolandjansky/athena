@@ -65,6 +65,8 @@ namespace MuonGM {
 	If the strip number is outside the range of valid strips, the function will return false */
     bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
 
+    bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
+
     /** pad number corresponding to local position */
     int padNumber( const Amg::Vector2D& pos, const Identifier& id) const;
 
@@ -167,6 +169,7 @@ namespace MuonGM {
     int m_nlayers;
     
     int m_ml;
+    double m_offset;
 
     int m_sTGC_type;
 
@@ -343,6 +346,16 @@ namespace MuonGM {
     if( !design ) return 0;
     return design->channelPosition(manager()->stgcIdHelper()->channel(id),pos);
 
+  }
+
+  inline bool sTgcReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {
+    Amg::Vector2D lpos(0., 0.);
+    int gasgap = manager()->stgcIdHelper()->gasGap(id);
+    int surfHash_strip = surfaceHash(gasgap, 1);
+
+    if (!stripPosition(id, lpos)) return false;
+    surface(id).localToGlobal(lpos, Amg::Vector3D(0., 0., 0.), gpos);
+    return true;
   }
 
   inline bool sTgcReadoutElement::padPosition( const Identifier& id, Amg::Vector2D& pos ) const {

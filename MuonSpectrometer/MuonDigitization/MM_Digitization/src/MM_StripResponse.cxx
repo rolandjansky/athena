@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_StripResponse.h"
@@ -109,32 +109,32 @@ void MM_StripResponse::calculateSummaries(float chargeThreshold) {
       // Last active strip numbrer is maxStripID-1
       if (stripVal < m_minstripID || stripVal > m_maxstripID-1) continue;
       // remove PCB gap strips
-      if (stripVal == 1023 || stripVal == 1024 || stripVal == 2047 || stripVal == 2048 || stripVal == 3071 || stripVal == 3072 || stripVal == 4095 || stripVal == 4096) continue;
-			float stripChargeVal = stripCharge.second;
-			if(stripChargeVal < chargeThreshold) continue;
-			
-			bool found=false;
-			for(size_t ii = 0; ii<m_v_strip.size(); ii++ ){
-				if(m_v_strip[ii]==stripVal){
-					m_v_stripTimeThreshold[ii].push_back(timeBin*m_timeResolution);
-					m_v_stripTotalCharge[ii].push_back(stripChargeVal);
-					found=true;
-					break;
-				}
-			}
-			if(!found){ // 	// strip not in vector, add new entry
-        m_v_strip.push_back(stripVal);
-        vector<float> qTemp;
-        qTemp.push_back(stripChargeVal);
-        m_v_stripTotalCharge.push_back(qTemp);
-        vector<float> tTemp;
-        tTemp.push_back(timeBin*m_timeResolution);
-        m_v_stripTimeThreshold.push_back(tTemp);
-			}
-		}
-	}
-}
+      if (stripVal == 1024 || stripVal == 1025 || stripVal == 2048 || stripVal == 2049 || stripVal == 3072 || stripVal == 3073 || stripVal == 4096 || stripVal == 4097) continue;
+      float stripChargeVal = stripCharge.second;
+      if(stripChargeVal < chargeThreshold) continue;
+      bool found = false;
 
+      for(size_t ii = 0; ii<m_v_strip.size(); ii++ ){
+      	if(m_v_strip[ii]==stripVal){
+      		m_v_stripTimeThreshold[ii].push_back(timeBin*m_timeResolution);
+      		m_v_stripTotalCharge[ii].push_back(stripChargeVal);
+      		found = true;
+      		break;
+      	}
+      }
+
+      if(!found){ // 	// strip not in vector, add new entry
+      	m_v_strip.push_back(stripVal);
+      	vector<float> qTemp;
+      	qTemp.push_back(stripChargeVal);
+      	m_v_stripTotalCharge.push_back(qTemp);
+      	vector<float> tTemp;
+      	tTemp.push_back(timeBin*m_timeResolution);
+      	m_v_stripTimeThreshold.push_back(tTemp);
+      }
+  }
+}
+}
 
 // accessors
 std::map<int, int> MM_StripResponse::getTimeThreshold() const { return m_stripTimeThreshold; }

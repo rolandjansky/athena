@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "MuonGeoModel/Micromegas.h"
 #include "MuonAGDDDescription/MM_Technology.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "MuonAGDDDescription/MMDetectorHelper.h"
+
 #include "MuonGeoModel/Station.h"
 #include "MuonGeoModel/MYSQL.h"
 #include "MuonGeoModel/MicromegasComponent.h"
@@ -55,15 +58,19 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
 {
 //  std::cout<<"this is Micromegas::build "<<std::endl;
   AGDDDetectorStore* ds = AGDDDetectorStore::GetDetectorStore();	
+ 
+  MMDetectorHelper mmHelper;
+  MMDetectorDescription* mm_descr = mmHelper.Get_MMDetectorSubType(m_component->subType);
+
 //  std::cout<<"fetching technology "<<std::endl;
   MM_Technology* t = (MM_Technology*) ds->GetTechnology(name);
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
   double pcbTck=t->pcbThickness;
   double roTck=t->roThickness;
-  double f1=t->f1Thickness;
-  double f2=t->f2Thickness;
-  double f3=t->f3Thickness;	
+  double f1=mm_descr->ylFrame();
+  double f2=mm_descr->ysFrame();
+  double f3=mm_descr->xFrame();	
 
   
   minimalgeo=t->geoLevel;
@@ -86,7 +93,6 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
   const GeoMaterial* mtrd = matManager->getMaterial("sct::PCB");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
   GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);
-
   if (!minimalgeo) return ptrd;
 
   double newpos = -thickness/2.;
