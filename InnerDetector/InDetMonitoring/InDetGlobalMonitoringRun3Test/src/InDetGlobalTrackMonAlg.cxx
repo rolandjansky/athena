@@ -15,7 +15,7 @@
  ****************************************************************************/
 
 //main header
-#include "InDetGlobalMonitoringRun3Test/InDetGlobalTrackMonAlg.h"
+#include "InDetGlobalTrackMonAlg.h"
 
 //Standard c++
 #include <vector>

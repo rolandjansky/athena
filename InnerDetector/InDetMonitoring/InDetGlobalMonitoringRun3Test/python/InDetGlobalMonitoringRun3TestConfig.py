@@ -38,7 +38,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         for k, v in kwargsInDetGlobalTrackMonAlg.items():
             setattr(inDetGlobalTrackMonAlg, k, v)
 
-        inDetGlobalTrackMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool()
+        inDetGlobalTrackMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalTrackMonAlg_TrackSelectionTool')
         inDetGlobalTrackMonAlg.TrackSelectionTool.UseTrkTrackTools = True
         inDetGlobalTrackMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
@@ -46,7 +46,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         #        InDetGlobalTrackMonAlg.Baseline_TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
         #        InDetGlobalTrackMonAlg.Baseline_TrackSelectionTool.Extrapolator     = InDetExtrapolator
         #
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool()
+        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalTrackMonAlg_TightTrackSelectionTool')
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.UseTrkTrackTools = True
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
@@ -111,5 +111,6 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         InDetGlobalBeamSpotMonAlgCfg(helper, myInDetGlobalBeamSpotMonAlg, **kwargsInDetGlobalBeamSpotMonAlg)
 
         ########### here ends InDetGlobalBeamSpotMonAlg ###########
-        acc.merge(helper.result())
+        
+    acc.merge(helper.result())
     return acc
