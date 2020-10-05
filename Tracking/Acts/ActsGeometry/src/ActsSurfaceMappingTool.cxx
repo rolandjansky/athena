@@ -49,7 +49,7 @@ ActsSurfaceMappingTool::initialize()
   m_mapper = std::make_shared<Acts::SurfaceMaterialMapper>(
       smmConfig,
       std::move(propagator),
-      Acts::getDefaultLogger("SurfaceMaterialMapper", Acts::Logging::INFO));
+      makeActsAthenaLogger(this, "SurfaceMaterialMapper"));
 
   m_geoContext = m_trackingGeometryTool->getNominalGeometryContext().any();
 

@@ -1,6 +1,7 @@
 #
 # This is based on Tracking/TrkG4Components/TrkG4UserActions/share/GeantinoMapping_jobOptions.py
 # Copied 11/04/2018
+# Updated 22/09/2020
 #
 
 
@@ -17,7 +18,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
 #--- Output threshold (DEBUG, INFO, WARNING, ERROR, FATAL) ----
-#from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.Constants import VERBOSE, INFO
 ServiceMgr.MessageSvc.OutputLevel  = INFO
 ServiceMgr.MessageSvc.defaultLimit = 20000
 
@@ -50,29 +52,31 @@ if 'myPt' not in dir() :
 if 'myGeo' not in dir() :
     myGeo = 'ATLAS-R2-2016-00-00-00'
 
-print 'Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset
+print('Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset)
 
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
-DetFlags.Calo_setOff()
+DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
 # the global flags
 globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
-print globalflags.ConditionsTag
+print(globalflags.ConditionsTag)
 
 
 #--- AthenaCommon flags ---------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
 athenaCommonFlags.PoolHitsOutput = 'Hits.pool.root'
-athenaCommonFlags.EvtMax = 1000000
+athenaCommonFlags.EvtMax = 100000
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags() # Going to use an ATLAS layout
 simFlags.SimLayout = myGeo
+simFlags.RunNumber = 284500 # MC16a run number used for all Run2 simulation
 simFlags.EventFilter.set_Off()
+
 
 myMinEta = -2.5
 myMaxEta =  2.5
@@ -80,7 +84,7 @@ myMaxEta =  2.5
 myPDG    = 999   # 999 = Geantinos, 13 = Muons
 
 include("GeneratorUtils/StdEvgenSetup.py")
-theApp.EvtMax = 20000
+theApp.EvtMax = 100000
 
 import ParticleGun as PG
 pg = PG.ParticleGun()
@@ -137,7 +141,10 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
-## Populate alg sequence
+from AthenaCommon.CfgGetter import getPublicTool
+topSeq.BeamEffectsAlg.GenEventManipulators = [getPublicTool("GenEventValidityChecker")]
+
+# Populate alg sequence
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # Conditions sequence for Athena MT

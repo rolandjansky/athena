@@ -28,9 +28,6 @@
 #include <iostream>
 #include <fstream>
 
-using Acts::Transform3D;
-using Acts::Vector3D;
-
 using namespace Acts::UnitLiterals;
 
 const Acts::LayerVector
@@ -112,9 +109,9 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
 
           for(unsigned int istraw=0;istraw<nStraws;istraw++) {
 
-            auto trf = std::make_shared<Transform3D>(brlElem->strawTransform(istraw));
+            Acts::Transform3D trf = brlElem->strawTransform(istraw);
             // need to convert translation to length unit
-            trf->translation() *= 1_mm;
+            trf.translation() *= 1_mm;
             auto code = brlElem->getCode();
             Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 1 : -1,
                                                     code.getPhiIndex(),
@@ -137,7 +134,7 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
             fudge = radius / 4.;
 
             // calculate min/max R and Z
-            Vector3D ctr = straw->center(gctx);
+            Acts::Vector3D ctr = straw->center(gctx);
             ext.max(Acts::binR) = std::max(ext.max(Acts::binR), ctr.perp() + radius);
             ext.min(Acts::binR) = std::min(ext.min(Acts::binR), ctr.perp() - radius);
             ext.max(Acts::binZ) = std::max(ext.max(Acts::binZ), ctr.z() + length);
@@ -211,9 +208,9 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
 
         for(unsigned int istraw=0;istraw<nStraws;istraw++) {
 
-          auto trf = std::make_shared<Transform3D>(ecElem->strawTransform(istraw));
+          Acts::Transform3D trf = (ecElem->strawTransform(istraw));
           // need to convert translation to length unit
-          trf->translation() *= 1_mm;
+          trf.translation() *= 1_mm;
 
           auto code = ecElem->getCode();
           Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 2 : -2,
@@ -235,7 +232,7 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
               double radius = strawBounds->get(LBBV::eR);
               double length = strawBounds->get(LBBV::eHalfLengthZ);
 
-              Vector3D ctr = straw->center(gctx);
+              Acts::Vector3D ctr = straw->center(gctx);
               ext.max(Acts::binZ) = std::max(ext.max(Acts::binZ), ctr.z() + radius);
               ext.min(Acts::binZ) = std::min(ext.min(Acts::binZ), ctr.z() - radius);
               ext.max(Acts::binR) = std::max(ext.max(Acts::binR), ctr.perp() + length);
