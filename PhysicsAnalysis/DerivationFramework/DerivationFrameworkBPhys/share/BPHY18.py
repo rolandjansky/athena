@@ -42,7 +42,7 @@ print '********************** END VERTEX TOOLS ***********************'
 # TriggerCounting for Kernel1 #Added by Matteo
 #====================================================================
 #List of trigggers to be counted (high Sig-eff*Lumi ones are in)
-triggersToMetadata= [
+triggersToMetadata = [
 "HLT_2e5_lhvloose_nod0_bBeexM6000t",  #37,143,877  inb
 "HLT_e5_lhvloose_nod0_bBeexM6000t",  #37,143,877
 "HLT_e5_lhvloose_nod0_bBeexM6000t_2mu4_nomucomb_L1BPH-0DR3-EM7J15_2MU4",   #37,312,506
@@ -60,12 +60,12 @@ triggersToMetadata= [
 "HLT_e9_lhvloose_nod0_e5_lhvloose_nod0_bBeexM6000t_mu6_nomucomb_L1BPH-0M9-EM7-EM5_MU6",   #37,312,506
 "HLT_e9_lhvloose_nod0_e5_lhvloose_nod0_bBeexM6000_mu6_nomucomb_L1BPH-0M9-EM7-EM5_MU6",   #677,340
 
- 'HLT_3mu4_bDimu2700',  'HLT_3mu6_bDimu',  'HLT_mu6_2mu4_bDimu2700','HLT_mu11_mu6_bJpsimumu',  'HLT_3mu4_bJpsi', 'HLT_mu11_mu6_bDimu', 'HLT_2mu6_bBmumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6','HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',   'HLT_2mu10_bBmumuxv2',  'HLT_mu6_mu4_bDimu',   'HLT_2mu6_bBmumuxv2_L1LFV-MU6', 'HLT_mu11_mu6_bJpsimumu_Lxy0',  'HLT_mu11_mu6_bDimu2700', 'HLT_mu11_mu6_bBmumux_BpmumuKp', 'HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',   'HLT_mu11_mu6_bBmumuxv2', 'HLT_mu6_2mu4_bJpsi', 'HLT_2mu6_bBmumux_BpmumuKp_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 'HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 'HLT_3mu6_bJpsi', 'HLT_mu11_mu6_bBmumu']
+'HLT_3mu4_bDimu2700',  'HLT_3mu6_bDimu',  'HLT_mu6_2mu4_bDimu2700','HLT_mu11_mu6_bJpsimumu',  'HLT_3mu4_bJpsi', 'HLT_mu11_mu6_bDimu', 'HLT_2mu6_bBmumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6','HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',   'HLT_2mu10_bBmumuxv2',  'HLT_mu6_mu4_bDimu',   'HLT_2mu6_bBmumuxv2_L1LFV-MU6', 'HLT_mu11_mu6_bJpsimumu_Lxy0',  'HLT_mu11_mu6_bDimu2700', 'HLT_mu11_mu6_bBmumux_BpmumuKp', 'HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',   'HLT_mu11_mu6_bBmumuxv2', 'HLT_mu6_2mu4_bJpsi', 'HLT_2mu6_bBmumux_BpmumuKp_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 'HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 'HLT_3mu6_bJpsi', 'HLT_mu11_mu6_bBmumu']
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
 BPHY18TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name = "BPHY18TriggerCount",
-                                                                          TriggerList = triggersToMetadata,
-                                                                          FolderName = "BPHY18")
+                                                                           TriggerList = triggersToMetadata,
+                                                                           FolderName = "BPHY18")
 
 ToolSvc += BPHY18TriggerCountToMetadata
 
@@ -99,18 +99,17 @@ triggerList_unseeded = ["HLT_2e5_lhvloose_nod0_bBeexM6000t",  #37,143,877  inb
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 BPHY18TriggerSkim = DerivationFramework__TriggerSkimmingTool(name = "BPHY18TriggerSkim",
-                                                            TriggerListOR = triggerList,
-							    TriggerListORHLTOnly = triggerList_unseeded )
+                                                             TriggerListOR = triggerList,
+							                                 TriggerListORHLTOnly = triggerList_unseeded )
 
 ToolSvc += BPHY18TriggerSkim
 print BPHY18TriggerSkim
 
 #do not know what this does, but let's leave it for now, until we see if it's useful or not!
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__AugOriginalCounts
-BPHY18_AugOriginalCounts = DerivationFramework__AugOriginalCounts(
-   name = "BPHY18_AugOriginalCounts",
-   VertexContainer = "PrimaryVertices",
-   TrackContainer = "InDetTrackParticles" )
+BPHY18_AugOriginalCounts = DerivationFramework__AugOriginalCounts(name = "BPHY18_AugOriginalCounts",
+                                                                  VertexContainer = "PrimaryVertices",
+                                                                  TrackContainer = "InDetTrackParticles" )
 ToolSvc += BPHY18_AugOriginalCounts
 
 #lhvloose_nod0
@@ -122,12 +121,12 @@ ToolSvc += ElectronLHSelectorLHvloose_nod0
 print ElectronLHSelectorLHvloose_nod0
 
 # decorate electrons with the output of LH vloose nod0
-ElectronPassLHvloosenod0 = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHvloosenod0",
-                                                                      EGammaSelectionTool = ElectronLHSelectorLHvloose_nod0,
-                                                                     EGammaFudgeMCTool = "",
-                                                                     CutType = "",
-                                                                     StoreGateEntryName = "DFCommonElectronsLHVeryLoosenod0",
-                                                                     ContainerName = "Electrons")
+ElectronPassLHvloosenod0 = DerivationFramework__EGSelectionToolWrapper(name = "ElectronPassLHvloosenod0",
+                                                                       EGammaSelectionTool = ElectronLHSelectorLHvloose_nod0,
+                                                                       EGammaFudgeMCTool = "",
+                                                                       CutType = "",
+                                                                       StoreGateEntryName = "DFCommonElectronsLHVeryLoosenod0",
+                                                                       ContainerName = "Electrons")
 ToolSvc += ElectronPassLHvloosenod0
 print ElectronPassLHvloosenod0
 
@@ -145,8 +144,8 @@ BPHY18DiElectronFinder = Analysis__JpsiFinder_ee(
     invMassUpper                = 7000.0,
     invMassLower                = 1.0,
     Chi2Cut                     = 30.,
-    oppChargesOnly	        = True,
-    allChargeCombinations       = False,
+    oppChargesOnly	            = False,
+    allChargeCombinations       = True,
     useElectronTrackMeasurement = True, 
     electronCollectionKey       = "Electrons",
     TrackParticleCollection     = "GSFTrackParticles",
@@ -156,7 +155,7 @@ BPHY18DiElectronFinder = Analysis__JpsiFinder_ee(
     TrkVertexFitterTool         = BPHY18_VertexTools.TrkVKalVrtFitter,      
     TrackSelectorTool           = BPHY18_VertexTools.InDetTrackSelectorTool,
     VertexPointEstimator        = BPHY18_VertexTools.VtxPointEstimator,
-    ElectronSelection 		= "d0_or_nod0"
+    ElectronSelection 		      = "d0_or_nod0"
     )
 
 ToolSvc += BPHY18DiElectronFinder
@@ -165,26 +164,29 @@ print      BPHY18DiElectronFinder
 #--------------------------------------------------------------------
 ## 3/ setup the vertex reconstruction "call" tool(s).
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
-BPHY18DiElectronSelectAndWrite   = DerivationFramework__Reco_mumu(
+BPHY18DiElectronSelectAndWrite = DerivationFramework__Reco_mumu(
     name                   = "BPHY18DiElectronSelectAndWrite",
     JpsiFinder             = BPHY18DiElectronFinder,
     OutputVtxContainerName = "BPHY18DiElectronCandidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
-    DoVertexType = 7)
+    DoVertexType           = 7
+    )
 
 ToolSvc += BPHY18DiElectronSelectAndWrite
 print BPHY18DiElectronSelectAndWrite
+
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
 BPHY18_Select_DiElectrons = DerivationFramework__Select_onia2mumu(
-  name                  = "BPHY18_Select_DiElectrons",
-  HypothesisName        = "Jpsi",
-  InputVtxContainerName = "BPHY18DiElectronCandidates",
-  VtxMassHypo           = 3096.916,
-  MassMin               = 1.0,
-  MassMax               = 7000.0,
-  Chi2Max               = 30,
-  DoVertexType =7)
+    name                  = "BPHY18_Select_DiElectrons",
+    HypothesisName        = "Jpsi",
+    InputVtxContainerName = "BPHY18DiElectronCandidates",
+    VtxMassHypo           = 3096.916,
+    MassMin               = 1.0,
+    MassMax               = 7000.0,
+    Chi2Max               = 30,
+    DoVertexType          = 7
+    )
   
 ToolSvc += BPHY18_Select_DiElectrons
 print      BPHY18_Select_DiElectrons
@@ -195,7 +197,8 @@ BeeKstVertexFit = Trk__TrkVKalVrtFitter(
     name                = "BeeKstVertexFit",
     Extrapolator        = BPHY18_VertexTools.InDetExtrapolator,
     FirstMeasuredPoint  = True,
-    MakeExtendedVertex  = True)
+    MakeExtendedVertex  = True
+    )
 
 ToolSvc += BeeKstVertexFit
 print      BeeKstVertexFit
@@ -208,11 +211,13 @@ BPHY18BeeKst = Analysis__JpsiPlus2Tracks(
     kaonkaonHypothesis	    = False,
     pionpionHypothesis      = False,
     kaonpionHypothesis      = True,
+    oppChargesOnly          = False,
+    SameChargesOnly         = False,
     trkThresholdPt          = 500.0,
-    trkMaxEta		    = 3.0, 
+    trkMaxEta		        = 3.0, 
     BThresholdPt            = 1000.,
     BMassLower              = 3000.0,
-    BMassUpper		    = 6500.0,
+    BMassUpper		        = 6500.0,
     JpsiContainerKey	    = "BPHY18DiElectronCandidates",
     TrackParticleCollection = "InDetTrackParticles",
     ExcludeCrossJpsiTracks  = False,   
@@ -230,7 +235,8 @@ BPHY18BeeKst = Analysis__JpsiPlus2Tracks(
     )
 
 ToolSvc += BPHY18BeeKst
-print      BPHY18BeeKst   
+print      BPHY18BeeKst
+
 ## 6/ setup the combined augmentation/skimming tool for the BeeKst
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk	
 BPHY18BeeKstSelectAndWrite  = DerivationFramework__Reco_dimuTrkTrk(
@@ -241,83 +247,125 @@ BPHY18BeeKstSelectAndWrite  = DerivationFramework__Reco_dimuTrkTrk(
     RefPVContainerName     = "BPHY18RefittedPrimaryVertices",
     RefitPV                = True,
     MaxPVrefit             = 10000,
-    DoVertexType = 7)
+    DoVertexType           = 7
+    )
 
 ToolSvc += BPHY18BeeKstSelectAndWrite 
 print      BPHY18BeeKstSelectAndWrite
 
 ## b/ augment and select B->eeKst candidates
 BPHY18_Select_BeeKst = DerivationFramework__Select_onia2mumu(
-    name                       = "BPHY18_Select_BeeKst",
-    HypothesisName             = "Bd", 
-    InputVtxContainerName      = "BeeKstCandidates",
-    TrkMasses                  = [0.511, 0.511, 493.677, 139.570],
-    VtxMassHypo                = 5279.6, 
-    MassMin                    = 1.0,     
-    MassMax                    = 10000.0,  
-    Chi2Max                    = 30.0) 
+    name                  = "BPHY18_Select_BeeKst",
+    HypothesisName        = "Bd", 
+    InputVtxContainerName = "BeeKstCandidates",
+    TrkMasses             = [0.511, 0.511, 493.677, 139.570],
+    VtxMassHypo           = 5279.6, 
+    MassMin               = 1.0,     
+    MassMax               = 10000.0,  
+    Chi2Max               = 30.0
+    ) 
 
 ToolSvc += BPHY18_Select_BeeKst
 print      BPHY18_Select_BeeKst
 
 ## c/ augment and select Bdbar->eeKstbar candidates
 BPHY18_Select_BeeKstbar = DerivationFramework__Select_onia2mumu(
-    name                       = "BPHY18_Select_Bd2JpsiKstbar",
-    HypothesisName             = "Bdbar", 
-    InputVtxContainerName      = "BeeKstCandidates",
-    TrkMasses                  = [0.511, 0.511, 139.570, 493.677],
-    VtxMassHypo                = 5279.6,
-    MassMin                    = 1.0,      
-    MassMax                    = 10000.0,   
-    Chi2Max                    = 30.0)
+    name                  = "BPHY18_Select_Bd2JpsiKstbar",
+    HypothesisName        = "Bdbar", 
+    InputVtxContainerName = "BeeKstCandidates",
+    TrkMasses             = [0.511, 0.511, 139.570, 493.677],
+    VtxMassHypo           = 5279.6,
+    MassMin               = 1.0,      
+    MassMax               = 10000.0,   
+    Chi2Max               = 30.0
+    )
 
 ToolSvc += BPHY18_Select_BeeKstbar
 print      BPHY18_Select_BeeKstbar
 
-if True:
-   from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-   BPHY18_SelectBeeKstEvent = DerivationFramework__xAODStringSkimmingTool(
-     name = "BPHY18_SelectBeeKstEvent",
-     expression = "(count(BeeKstCandidates.passed_Bd > 0) + count(BeeKstCandidates.passed_Bdbar > 0)) > 0") 
-   ToolSvc += BPHY18_SelectBeeKstEvent
-   print BPHY18_SelectBeeKstEvent
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__ReVertex
+BPHY18_diMeson_revertex = DerivationFramework__ReVertex(
+    name                   = "BPHY18_diMeson_revertex",
+    InputVtxContainerName  = "BeeKstCandidates",
+    TrackIndices           = [ 2, 3 ],
+    TrkVertexFitterTool    = BeeKstVertexFit,
+    OutputVtxContainerName = "BPHY18DiMeson"
+    )
 
-   #====================================================================
-   # Make event selection based on an OR of the input skimming tools
-   #====================================================================
-   from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
-   BPHY18SkimmingAND = CfgMgr.DerivationFramework__FilterCombinationAND(
-       "BPHY18SkimmingAND",
-       FilterList = [BPHY18_SelectBeeKstEvent, 
-                     BPHY18TriggerSkim]) 
-   ToolSvc += BPHY18SkimmingAND
-   print      BPHY18SkimmingAND
+ToolSvc += BPHY18_diMeson_revertex
+print      BPHY18_diMeson_revertex
+
+BPHY18_Select_Kpi = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY18_Select_Kpi",
+    HypothesisName        = "Kpi", 
+    InputVtxContainerName = "BPHY18DiMeson",
+    TrkMasses             = [ 493.677, 139.570 ],
+    VtxMassHypo           = 891.66, 
+    MassMin               = 1.0,     
+    MassMax               = 100000.0,  
+    Chi2Max               = 100.0
+    ) 
+
+ToolSvc += BPHY18_Select_Kpi
+print      BPHY18_Select_Kpi
+
+BPHY18_Select_piK = DerivationFramework__Select_onia2mumu(
+    name                  = "BPHY18_Select_piK",
+    HypothesisName        = "piK", 
+    InputVtxContainerName = "BPHY18DiMeson",
+    TrkMasses             = [ 139.570, 493.677 ],
+    VtxMassHypo           = 891.66, 
+    MassMin               = 1.0,     
+    MassMax               = 100000.0,  
+    Chi2Max               = 100.0
+    ) 
+
+ToolSvc += BPHY18_Select_piK
+print      BPHY18_Select_piK
+
+if True:
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    BPHY18_SelectBeeKstEvent = DerivationFramework__xAODStringSkimmingTool(
+        name = "BPHY18_SelectBeeKstEvent",
+        expression = "(count(BeeKstCandidates.passed_Bd > 0) + count(BeeKstCandidates.passed_Bdbar > 0)) > 0") 
+    ToolSvc += BPHY18_SelectBeeKstEvent
+    print BPHY18_SelectBeeKstEvent
+
+    #====================================================================
+    # Make event selection based on an OR of the input skimming tools
+    #====================================================================
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+    BPHY18SkimmingAND = CfgMgr.DerivationFramework__FilterCombinationAND(
+        "BPHY18SkimmingAND",
+        FilterList = [BPHY18_SelectBeeKstEvent, BPHY18TriggerSkim]) 
+    ToolSvc += BPHY18SkimmingAND
+    print      BPHY18SkimmingAND
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 BPHY18_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
-  name                       = "BPHY18_thinningTool_Tracks",
-  ThinningService            = "BPHY18ThinningSvc",
-  TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BeeKstCandidates"],
-  PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
+    name                       = "BPHY18_thinningTool_Tracks",
+    ThinningService            = "BPHY18ThinningSvc",
+    TrackParticleContainerName = "InDetTrackParticles",
+    VertexContainerNames       = ["BeeKstCandidates"],
+    PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
 
 BPHY18_thinningTool_GSFTracks = DerivationFramework__Thin_vtxTrk(
-  name                       = "BPHY18_thinningTool_GSFTracks",
-  ThinningService            = "BPHY18ThinningSvc",
-  TrackParticleContainerName = "GSFTrackParticles",
-  VertexContainerNames       = ["BeeKstCandidates"],
-  PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
+    name                       = "BPHY18_thinningTool_GSFTracks",
+    ThinningService            = "BPHY18ThinningSvc",
+    TrackParticleContainerName = "GSFTrackParticles",
+    VertexContainerNames       = ["BeeKstCandidates"],
+    PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
 
 ToolSvc += BPHY18_thinningTool_Tracks
 ToolSvc += BPHY18_thinningTool_GSFTracks
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysPVThinningTool
 BPHY18_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
-  name                       = "BPHY18_thinningTool_PV",
-  ThinningService            = "BPHY18ThinningSvc",
-  CandidateCollections       = ["BeeKstCandidates"],
-  KeepPVTracks  =True
- )
+    name                 = "BPHY18_thinningTool_PV",
+    ThinningService      = "BPHY18ThinningSvc",
+    CandidateCollections = ["BeeKstCandidates"],
+    KeepPVTracks         = True
+    )
  
 ToolSvc += BPHY18_thinningTool_PV
 
@@ -341,27 +389,27 @@ ToolSvc += BPHY18EgammaTPThinningTool
 # Only save truth informtion directly associated with: mu Ds+ D+ D*+ Ds*+ D0 D*0 B+ B*+ B0 B*0 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY18TruthThinTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY18TruthThinTool",
-                                                               ParticleSelectionString = "abs(TruthParticles.pdgId) == 11 || abs(TruthParticles.pdgId) == 13 || abs(TruthParticles.pdgId) == 10311 || abs(TruthParticles.pdgId) == 521 || abs(TruthParticles.pdgId) == 523 || TruthParticles.pdgId == 511 || TruthParticles.pdgId == 513",
-                                                               PreserveDescendants     = True,
-                                                               PreserveAncestors      = True)
+                                                                ParticleSelectionString = "abs(TruthParticles.pdgId) == 11 || abs(TruthParticles.pdgId) == 13 || abs(TruthParticles.pdgId) == 10311 || abs(TruthParticles.pdgId) == 521 || abs(TruthParticles.pdgId) == 523 || TruthParticles.pdgId == 511 || TruthParticles.pdgId == 513",
+                                                                PreserveDescendants     = True,
+                                                                PreserveAncestors       = True)
 ToolSvc += BPHY18TruthThinTool
 
 # Only save truth neutrino and b/c quarks information
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY18TruthThinNoChainTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY18TruthThinNoChainTool",
-                                                              ParticleSelectionString = "abs(TruthParticles.pdgId) == 5 || abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14",
-                                                              PreserveDescendants     = False,
-                                                              PreserveAncestors      = False)
+                                                                       ParticleSelectionString = "abs(TruthParticles.pdgId) == 5 || abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14",
+                                                                       PreserveDescendants     = False,
+                                                                       PreserveAncestors       = False)
 ToolSvc += BPHY18TruthThinNoChainTool
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
-thinningCollection = [   BPHY18_thinningTool_Tracks,  BPHY18_thinningTool_GSFTracks,
-                         BPHY18_thinningTool_PV, #BPHY18_thinningTool_PV_GSF, 
-                         BPHY18EgammaTPThinningTool, BPHY18MuonTPThinningTool
-                            ]
+thinningCollection = [ BPHY18_thinningTool_Tracks,  BPHY18_thinningTool_GSFTracks,
+                       BPHY18_thinningTool_PV, #BPHY18_thinningTool_PV_GSF, 
+                       BPHY18EgammaTPThinningTool, BPHY18MuonTPThinningTool
+                     ]
 
 #if we're doing truth, add these [BPHY18TruthThinTool,BPHY18TruthThinNoChainTool] 
 if isSimulation:
@@ -372,9 +420,12 @@ print thinningCollection
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY18Kernel",
-    AugmentationTools = [ElectronPassLHvloosenod0,BPHY18DiElectronSelectAndWrite,  
-                         BPHY18_Select_DiElectrons,
-                         BPHY18BeeKstSelectAndWrite, BPHY18_Select_BeeKst, BPHY18_Select_BeeKstbar ],
+
+    AugmentationTools = [ ElectronPassLHvloosenod0,BPHY18DiElectronSelectAndWrite,  
+                          BPHY18_Select_DiElectrons,
+                          BPHY18BeeKstSelectAndWrite, BPHY18_Select_BeeKst, BPHY18_Select_BeeKstbar,
+                          BPHY18_diMeson_revertex, BPHY18_Select_Kpi, BPHY18_Select_piK ],
+
     #Only skim if not MC
     SkimmingTools     = [BPHY18SkimmingAND],
     ThinningTools     = thinningCollection
@@ -404,15 +455,15 @@ svcMgr += BPHY18ThinningSvc
 # Added by ASC
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY18SlimmingHelper = SlimmingHelper("BPHY18SlimmingHelper")
-AllVariables  = []
-StaticContent = []
+AllVariables   = []
+StaticContent  = []
 ExtraVariables = []
 BPHY18SlimmingHelper.SmartCollections = ["Electrons", "Muons", "InDetTrackParticles" ] 
 
 # Needed for trigger objects
-BPHY18SlimmingHelper.IncludeMuonTriggerContent  = False
-BPHY18SlimmingHelper.IncludeBPhysTriggerContent = False
-BPHY18SlimmingHelper.IncludeEGammaTriggerContent  = True
+BPHY18SlimmingHelper.IncludeMuonTriggerContent   = False
+BPHY18SlimmingHelper.IncludeBPhysTriggerContent  = False
+BPHY18SlimmingHelper.IncludeEGammaTriggerContent = True
 
 ## primary vertices
 AllVariables  += ["PrimaryVertices"]
@@ -430,6 +481,10 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY18DiEl
 
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY18BeeKstSelectAndWrite.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY18BeeKstSelectAndWrite.OutputVtxContainerName]
+
+StaticContent += ["xAOD::VertexContainer#%s"        % BPHY18_diMeson_revertex.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY18_diMeson_revertex.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY18_diMeson_revertex.OutputVtxContainerName]
 
 AllVariables += [ "GSFTrackParticles"] 
 
@@ -451,4 +506,3 @@ BPHY18SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 BPHY18SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 
 BPHY18SlimmingHelper.AppendContentToStream(BPHY18Stream)
-
