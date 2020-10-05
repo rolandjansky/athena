@@ -49,10 +49,6 @@ find_package( ${ATLAS_PROJECT} REQUIRED )
 atlas_ctest_setup()
 
 		
-# Generate a compile_commands.json file, which VS Code can use to interpret	
-# our code correctly.	
-set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL	
-   "Create compile_commands.json" FORCE )
 
 # Set up a work directory project:
 set( _useFortran )
