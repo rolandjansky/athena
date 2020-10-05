@@ -1,9 +1,4 @@
-################################################################################
-# Package: VP1HEPVis
-################################################################################
-# Author: Joe Boudreau (Importer)
-# Author: Riccardo Maria BIANCHI <rbianchi@cern.ch>
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1HEPVis )
