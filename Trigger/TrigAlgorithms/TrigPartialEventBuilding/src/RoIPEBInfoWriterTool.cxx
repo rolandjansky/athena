@@ -42,22 +42,11 @@ StatusCode RoIPEBInfoWriterTool::initialize() {
     {"STGC",    DETID::STGC},
   };
 
-#if 1
   const std::unordered_map< std::string_view, ToolHandle<IRegSelTool> > detTools = {
     { "PIXEL",   m_regionSelector_pix },
     { "SCT",     m_regionSelector_sct },
     { "TRT",     m_regionSelector_trt }
   };
-#else
-
-  std::unordered_map< std::string_view, ToolHandle<IRegSelTool> > detTools;
-
-  detTools.insert( std::unordered_map< std::string_view, ToolHandle<IRegSelTool> >::value_type( "PIXEL",   m_regionSelector_pix ) );
-  detTools.insert( std::unordered_map< std::string_view, ToolHandle<IRegSelTool> >::value_type( "SCT",     m_regionSelector_sct ) );
-  detTools.insert( std::unordered_map< std::string_view, ToolHandle<IRegSelTool> >::value_type( "TRT",     m_regionSelector_trt ) );
-
-
-#endif
 
   for (std::string_view name : m_detNames) {
     if (name=="All") {
