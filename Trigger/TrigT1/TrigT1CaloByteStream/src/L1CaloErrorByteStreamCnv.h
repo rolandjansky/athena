@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_L1CALOERRORBYTESTREAMCNV_H
@@ -54,9 +54,7 @@ private:
   ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_tool;
 
   /// Message log
-  mutable MsgStream m_log;
   bool m_debug;
-
 };
 
 } // end namespace
