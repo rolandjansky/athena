@@ -21,7 +21,7 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_xml_SLHCVersion("SLHC"),
   m_doPix(true),
   m_doSCT(true),
-  m_doHGTD(true),
+  m_doHGTD(false),
   m_isGMX(false),
   m_createDict(true),
   m_readXMLfromDB(false)
