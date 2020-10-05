@@ -12,6 +12,7 @@
 // HepMC includes
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 /** Constructor **/
 ISF::GenParticlePositionFilter::GenParticlePositionFilter( const std::string& t,
@@ -48,10 +49,17 @@ StatusCode  ISF::GenParticlePositionFilter::initialize()
 
 
 /** does the given particle pass the filter? */
+#ifdef HEPMC3
+bool ISF::GenParticlePositionFilter::pass(HepMC::ConstGenParticlePtr particle) const
+{
+  // the GenParticle production vertex
+  auto  vtx = particle->production_vertex();
+#else
 bool ISF::GenParticlePositionFilter::pass(const HepMC::GenParticle& particle) const
 {
   // the GenParticle production vertex
   HepMC::GenVertexPtr vtx = particle.production_vertex();
+#endif
 
   // no production vertex?
   if (!vtx) {

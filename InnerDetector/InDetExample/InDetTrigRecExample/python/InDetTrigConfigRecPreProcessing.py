@@ -79,8 +79,8 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       InDetTrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetTrigMergedPixelsTool",
                                                            globalPosAlg  = InDetTrigClusterMakerTool,
                                                            PixelConditionsSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                           #UseSpecialPixelMap = False  #simpler setup for EFID
-                                                           UseSpecialPixelMap = True)
+                                                           #UsePixelModuleMap = False  #simpler setup for EFID
+                                                           UsePixelModuleMap = True)
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       from RecExConfig.RecFlags import rec
       if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":

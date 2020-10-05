@@ -52,7 +52,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
   std::vector<double> cellRingEnergys(7,0.);
 
   std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr));
+  ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_useSubtractedCluster));
 
   int numCells = 0;
   std::bitset<200000> cellSeen;

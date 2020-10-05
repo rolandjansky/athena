@@ -20,10 +20,6 @@ to the third digit of decimal number of the  pdgid.
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonSimEvent/MdtHitIdHelper.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PathResolver/PathResolver.h"

@@ -26,6 +26,7 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "EventInfoUtils/EventIDFromStore.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -292,10 +293,19 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
 
   if (m_Windows) {
     ATH_MSG_DEBUG(" redefine windows list ");
-    m_hitmap->BuildWindows(m_WindowsEtaSize,m_WindowsPhiSize,
-                          m_WindowsPtCut);
+
+    // FIXME: Use a ReadHandle.
+    const McEventCollection* mcCollptr = nullptr;
+    if ( evtStore()->retrieve(mcCollptr).isFailure() ) {
+      ATH_MSG_WARNING ("LArHitEMap:cannot retrieve McEventCollection  (keyless)");
+    }
+    
+    m_hitmap->BuildWindows(mcCollptr,
+                           m_WindowsEtaSize,m_WindowsPhiSize,
+                           m_WindowsPtCut);
     if(m_doDigiTruth) {
-      m_hitmap_DigiHSTruth->BuildWindows(m_WindowsEtaSize,m_WindowsPhiSize, m_WindowsPtCut);
+      m_hitmap_DigiHSTruth->BuildWindows(mcCollptr,
+                                         m_WindowsEtaSize,m_WindowsPhiSize, m_WindowsPtCut);
     }
 
   }

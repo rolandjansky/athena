@@ -17,6 +17,7 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 
+#include "CxxUtils/vec.h"
 #include "CxxUtils/vectorize.h"
 ATH_ENABLE_VECTORIZATION;
 
@@ -27,6 +28,101 @@ namespace{
  * inside an anonymous namespace
  */
 
+inline
+void globalToLocalVecHelper(double* ATH_RESTRICT P,
+    const double s0,
+       const double s1,
+       const double s2,
+       const double s3,
+       const double s4)
+{
+  using namespace CxxUtils;
+  using vec2 = CxxUtils::vec<double, 2>;
+  using vec4 = CxxUtils::vec<double, 4>;
+
+  /*
+      P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
+      P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
+      P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
+      P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
+      P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
+      P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
+      P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
+      P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
+      P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
+      P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+      */
+
+  /*
+   * The naming convention we follow is
+   *
+   * A_B -->SIMD vector of
+   * of size 2 containing
+   * {A,B}
+   * For example :
+   * dZdTheta_dAxdTheta --> {dZ/dTheta, dAx/dTheta}
+   * --> {P[30],P[31]}
+   *
+   * using the notation of this package
+   *
+   *        /dL0    /dL1    /dPhi   /dThe   /dCM
+   * dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]
+   * dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]
+   * dZ /   P[ 9]   P[16]   P[23]   P[30]   P[37]
+   * dAx/   P[10]   P[17]   P[24]   P[31]   P[38]
+   * dAy/   P[11]   P[18]   P[25]   P[32]   P[39]
+   * dAz/   P[12]   P[19]   P[26]   P[33]   P[40]
+   * dCM/   P[13]   P[20]   P[27]   P[34]   P[41]
+   */
+
+  vec2 Pmult1 = { P[3], P[4] };
+  vec4 Pmult2 = { P[5], P[42], P[43], P[44] };
+
+  vec2 dXdL0_dYdL0;
+  vload(dXdL0_dYdL0, &P[7]);
+  vec4 dZdL0_dAxdL0_dAydL0_dAzdL0;
+  vload(dZdL0_dAxdL0_dAydL0_dAzdL0, &P[9]);
+  dXdL0_dYdL0 -= s0 * Pmult1;
+  dZdL0_dAxdL0_dAydL0_dAzdL0 -= s0 * Pmult2;
+  vstore(&P[7], dXdL0_dYdL0);
+  vstore(&P[9], dZdL0_dAxdL0_dAydL0_dAzdL0);
+
+  vec2 dXdL1_dYdL1;
+  vload(dXdL1_dYdL1, &P[14]);
+  vec4 dZdL1_dAxdL1_dAydL1_dAzdL1;
+  vload(dZdL1_dAxdL1_dAydL1_dAzdL1, &P[16]);
+  dXdL1_dYdL1 -= s1 * Pmult1;
+  dZdL1_dAxdL1_dAydL1_dAzdL1 -= s1 * Pmult2;
+  vstore(&P[14], dXdL1_dYdL1);
+  vstore(&P[16], dZdL1_dAxdL1_dAydL1_dAzdL1);
+
+  vec2 dXdPhi_dYdPhi;
+  vload(dXdPhi_dYdPhi, &P[21]);
+  vec4 dZdPhi_dAxdPhi_dAydPhi_dAzdPhi;
+  vload(dZdPhi_dAxdPhi_dAydPhi_dAzdPhi, &P[23]);
+  dXdPhi_dYdPhi -= s2 * Pmult1;
+  dZdPhi_dAxdPhi_dAydPhi_dAzdPhi -= s2 * Pmult2;
+  vstore(&P[21], dXdPhi_dYdPhi);
+  vstore(&P[23], dZdPhi_dAxdPhi_dAydPhi_dAzdPhi);
+
+  vec2 dXdTheta_dYdTheta;
+  vload(dXdTheta_dYdTheta, &P[28]);
+  vec4 dZdTheta_dAxdTheta_dAydTheta_dAzdTheta;
+  vload(dZdTheta_dAxdTheta_dAydTheta_dAzdTheta, &P[30]);
+  dXdTheta_dYdTheta -= s3 * Pmult1;
+  dZdTheta_dAxdTheta_dAydTheta_dAzdTheta -= s3 * Pmult2;
+  vstore(&P[28], dXdTheta_dYdTheta);
+  vstore(&P[30], dZdTheta_dAxdTheta_dAydTheta_dAzdTheta);
+
+  vec2 dXdCM_dYdCM;
+  vload(dXdCM_dYdCM, &P[35]);
+  vec4 dZdCM_dAxdCM_AydCM_dAzdCM;
+  vload(dZdCM_dAxdCM_AydCM_dAzdCM, &P[37]);
+  dXdCM_dYdCM -= s4 * Pmult1;
+  dZdCM_dAxdCM_AydCM_dAzdCM -= s4 * Pmult2;
+  vstore(&P[35], dXdCM_dYdCM);
+  vstore(&P[37], dZdCM_dAxdCM_AydCM_dAzdCM);
+}
 
 void
 transformGlobalToPlane(const Amg::Transform3D&  T,
@@ -59,16 +155,7 @@ transformGlobalToPlane(const Amg::Transform3D&  T,
   const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
   const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   // Jacobian production
   //
@@ -122,16 +209,7 @@ transformGlobalToDisc(const Amg::Transform3D&  T,
   const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
   const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   // Jacobian production
   //
@@ -198,16 +276,7 @@ transformGlobalToCylinder(const Amg::Transform3D&  T,
   const double s3 = P[28]*x+P[29]*y+P[30]*z;
   const double s4 = P[35]*x+P[36]*y+P[37]*z;
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   // Jacobian production
   //
@@ -270,16 +339,8 @@ transformGlobalToLine(const Amg::Transform3D&  T,
   const double s4 = (((P[28]*X+P[29]*Y+P[30]*Z)+x*(d4*A[0]-P[31]))+(y*(d4*A[1]-P[32])+z*(d4*A[2]-P[33])))*a;
   const double s5 = (((P[35]*X+P[36]*Y+P[37]*Z)+x*(d5*A[0]-P[38]))+(y*(d5*A[1]-P[39])+z*(d5*A[2]-P[40])))*a;
 
-  P[ 7]+=(s1*P[ 3]); P[ 8]+=(s1*P[ 4]); P[ 9]+=(s1*P[ 5]);
-  P[10]+=(s1*P[42]); P[11]+=(s1*P[43]); P[12]+=(s1*P[44]);
-  P[14]+=(s2*P[ 3]); P[15]+=(s2*P[ 4]); P[16]+=(s2*P[ 5]);
-  P[17]+=(s2*P[42]); P[18]+=(s2*P[43]); P[19]+=(s2*P[44]);
-  P[21]+=(s3*P[ 3]); P[22]+=(s3*P[ 4]); P[23]+=(s3*P[ 5]);
-  P[24]+=(s3*P[42]); P[25]+=(s3*P[43]); P[26]+=(s3*P[44]);
-  P[28]+=(s4*P[ 3]); P[29]+=(s4*P[ 4]); P[30]+=(s4*P[ 5]);
-  P[31]+=(s4*P[42]); P[32]+=(s4*P[43]); P[33]+=(s4*P[44]);
-  P[35]+=(s5*P[ 3]); P[36]+=(s5*P[ 4]); P[37]+=(s5*P[ 5]);
-  P[38]+=(s5*P[42]); P[39]+=(s5*P[43]); P[40]+=(s5*P[44]);
+  //pass -1 (As we want do add rather subtract in the helper)
+  globalToLocalVecHelper(P, -1.*s1, -1.*s2, -1.*s3, -1.*s4, -1.*s5);
 
   // Jacobian production
   //
@@ -886,77 +947,52 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
 // New covariance matrix calculation from old matrix and jacobian
 /////////////////////////////////////////////////////////////////////////////////
 
-AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
-(const double* J,const AmgSymMatrix(5)& M)
+AmgSymMatrix(5) * Trk::RungeKuttaUtils::newCovarianceMatrix(
+                    const double* J,
+                    const AmgSymMatrix(5) & M)
 {
   AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
   AmgSymMatrix(5)& m = (*nM);
 
-  const double V[15]={M(0,0),
-    M(1,0),M(1,1),
-		M(2,0),M(2,1),M(2,2),
-		M(3,0),M(3,1),M(3,2),M(3,3),
-		M(4,0),M(4,1),M(4,2),M(4,3),M(4,4)};
+  Eigen::Map<const AmgVector(5)> JacMap0(&J[0], 5, 1);
+  const AmgVector(5) a1 = M * JacMap0; //(5x5 * 5x1)
+  m(0, 0) = a1.dot(JacMap0);           // dot product
 
-  const double a11 = (J[ 0]*V[ 0]+J[ 1]*V[ 1]+J[ 2]*V[ 3])+(J[ 3]*V[ 6]+J[ 4]*V[10]);
-  const double a12 = (J[ 0]*V[ 1]+J[ 1]*V[ 2]+J[ 2]*V[ 4])+(J[ 3]*V[ 7]+J[ 4]*V[11]);
-  const double a13 = (J[ 0]*V[ 3]+J[ 1]*V[ 4]+J[ 2]*V[ 5])+(J[ 3]*V[ 8]+J[ 4]*V[12]);
-  const double a14 = (J[ 0]*V[ 6]+J[ 1]*V[ 7]+J[ 2]*V[ 8])+(J[ 3]*V[ 9]+J[ 4]*V[13]);
-  const double a15 = (J[ 0]*V[10]+J[ 1]*V[11]+J[ 2]*V[12])+(J[ 3]*V[13]+J[ 4]*V[14]);
+  Eigen::Map<const AmgVector(5)> JacMap5(&J[5]);
+  const AmgVector(5) a2 = M * JacMap5;
+  m(1, 0) = a2.dot(JacMap0);
+  m(1, 1) = a2.dot(JacMap5);
+  m(0, 1) = m(1, 0);
 
-  m(0,0) = (a11*J[ 0]+a12*J[ 1]+a13*J[ 2])+(a14*J[ 3]+a15*J[ 4]);
+  Eigen::Map<const AmgVector(5)> JacMap10(&J[10], 5, 1);
+  const AmgVector(5) a3 = M * JacMap10;
+  m(2, 0) = a3.dot(JacMap0);
+  m(2, 1) = a3.dot(JacMap5);
+  m(2, 2) = a3.dot(JacMap10);
+  m(0, 2) = m(2, 0);
+  m(1, 2) = m(2, 1);
 
-  const double a21 = (J[ 5]*V[ 0]+J[ 6]*V[ 1]+J[ 7]*V[ 3])+(J[ 8]*V[ 6]+J[ 9]*V[10]);
-  const double a22 = (J[ 5]*V[ 1]+J[ 6]*V[ 2]+J[ 7]*V[ 4])+(J[ 8]*V[ 7]+J[ 9]*V[11]);
-  const double a23 = (J[ 5]*V[ 3]+J[ 6]*V[ 4]+J[ 7]*V[ 5])+(J[ 8]*V[ 8]+J[ 9]*V[12]);
-  const double a24 = (J[ 5]*V[ 6]+J[ 6]*V[ 7]+J[ 7]*V[ 8])+(J[ 8]*V[ 9]+J[ 9]*V[13]);
-  const double a25 = (J[ 5]*V[10]+J[ 6]*V[11]+J[ 7]*V[12])+(J[ 8]*V[13]+J[ 9]*V[14]);
+  Eigen::Map<const AmgVector(5)> JacMap15(&J[15], 5, 1);
+  const AmgVector(5) a4 = M * JacMap15;
+  m(3, 0) = a4.dot(JacMap0);
+  m(3, 1) = a4.dot(JacMap5);
+  m(3, 2) = a4.dot(JacMap10);
+  m(3, 3) = a4.dot(JacMap15);
+  m(0, 3) = m(3, 0);
+  m(1, 3) = m(3, 1);
+  m(2, 3) = m(3, 2);
 
-  m(1,0) = (a21*J[ 0]+a22*J[ 1]+a23*J[ 2])+(a24*J[ 3]+a25*J[ 4]);
-  m(1,1) = (a21*J[ 5]+a22*J[ 6]+a23*J[ 7])+(a24*J[ 8]+a25*J[ 9]);
-  m(0,1) = m(1,0);
+  const AmgVector(5) a5 = M.row(4) * J[20];
+  m(4, 0) = a5.dot(JacMap0);
+  m(4, 1) = a5.dot(JacMap5);
+  m(4, 2) = a5.dot(JacMap10);
+  m(4, 3) = a5.dot(JacMap15);
+  m(4, 4) = a5[4] * J[20];
+  m(0, 4) = m(4, 0);
+  m(1, 4) = m(4, 1);
+  m(2, 4) = m(4, 2);
+  m(3, 4) = m(4, 3);
 
-  const double a31 = (J[10]*V[ 0]+J[11]*V[ 1]+J[12]*V[ 3])+(J[13]*V[ 6]+J[14]*V[10]);
-  const double a32 = (J[10]*V[ 1]+J[11]*V[ 2]+J[12]*V[ 4])+(J[13]*V[ 7]+J[14]*V[11]);
-  const double a33 = (J[10]*V[ 3]+J[11]*V[ 4]+J[12]*V[ 5])+(J[13]*V[ 8]+J[14]*V[12]);
-  const double a34 = (J[10]*V[ 6]+J[11]*V[ 7]+J[12]*V[ 8])+(J[13]*V[ 9]+J[14]*V[13]);
-  const double a35 = (J[10]*V[10]+J[11]*V[11]+J[12]*V[12])+(J[13]*V[13]+J[14]*V[14]);
-
-  m(2,0) = (a31*J[ 0]+a32*J[ 1]+a33*J[ 2])+(a34*J[ 3]+a35*J[ 4]);
-  m(2,1) = (a31*J[ 5]+a32*J[ 6]+a33*J[ 7])+(a34*J[ 8]+a35*J[ 9]);
-  m(2,2) = (a31*J[10]+a32*J[11]+a33*J[12])+(a34*J[13]+a35*J[14]);
-  m(0,2) = m(2,0);
-  m(1,2) = m(2,1);
-
-  const double a41 = (J[15]*V[ 0]+J[16]*V[ 1]+J[17]*V[ 3])+(J[18]*V[ 6]+J[19]*V[10]);
-  const double a42 = (J[15]*V[ 1]+J[16]*V[ 2]+J[17]*V[ 4])+(J[18]*V[ 7]+J[19]*V[11]);
-  const double a43 = (J[15]*V[ 3]+J[16]*V[ 4]+J[17]*V[ 5])+(J[18]*V[ 8]+J[19]*V[12]);
-  const double a44 = (J[15]*V[ 6]+J[16]*V[ 7]+J[17]*V[ 8])+(J[18]*V[ 9]+J[19]*V[13]);
-  const double a45 = (J[15]*V[10]+J[16]*V[11]+J[17]*V[12])+(J[18]*V[13]+J[19]*V[14]);
-
-  m(3,0) = (a41*J[ 0]+a42*J[ 1]+a43*J[ 2])+(a44*J[ 3]+a45*J[ 4]);
-  m(3,1) = (a41*J[ 5]+a42*J[ 6]+a43*J[ 7])+(a44*J[ 8]+a45*J[ 9]);
-  m(3,2) = (a41*J[10]+a42*J[11]+a43*J[12])+(a44*J[13]+a45*J[14]);
-  m(3,3) = (a41*J[15]+a42*J[16]+a43*J[17])+(a44*J[18]+a45*J[19]);
-  m(0,3) = m(3,0);
-  m(1,3) = m(3,1);
-  m(2,3) = m(3,2);
-
-  const double a51 = J[20]*V[10];
-  const double a52 = J[20] * V[11];
-  const double a53 = J[20] * V[12];
-  const double a54 = J[20] * V[13];
-  const double a55 = J[20] * V[14];
-
-  m(4,0) = (a51*J[ 0]+a52*J[ 1]+a53*J[ 2])+(a54*J[ 3]+a55*J[ 4]);
-  m(4,1) = (a51*J[ 5]+a52*J[ 6]+a53*J[ 7])+(a54*J[ 8]+a55*J[ 9]);
-  m(4,2) = (a51*J[10]+a52*J[11]+a53*J[12])+(a54*J[13]+a55*J[14]);
-  m(4,3) = (a51*J[15]+a52*J[16]+a53*J[17])+(a54*J[18]+a55*J[19]);
-  m(4,4) =                                            a55*J[20];
-  m(0,4) = m(4,0);
-  m(1,4) = m(4,1);
-  m(2,4) = m(4,2);
-  m(3,4) = m(4,3);
   return nM;
 }
 
@@ -1058,16 +1094,7 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
   const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
 
-  P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
-  P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
-  P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
-  P[17]-=(s1*P[42]); P[18]-=(s1*P[43]); P[19]-=(s1*P[44]);
-  P[21]-=(s2*P[ 3]); P[22]-=(s2*P[ 4]); P[23]-=(s2*P[ 5]);
-  P[24]-=(s2*P[42]); P[25]-=(s2*P[43]); P[26]-=(s2*P[44]);
-  P[28]-=(s3*P[ 3]); P[29]-=(s3*P[ 4]); P[30]-=(s3*P[ 5]);
-  P[31]-=(s3*P[42]); P[32]-=(s3*P[43]); P[33]-=(s3*P[44]);
-  P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
-  P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
+  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
 
   double P3,P4,C = P[3]*P[3]+P[4]*P[4];
   if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}

@@ -1,8 +1,0 @@
-rm -rf testdb.sql
-export CAN_CALIB_DB="sqlite_file:testdb.sql"
-CORAL-fill 1 "tag:mytag revision:1234 sources:Offline:0 file:pixelcalibsvc_dump.txt"
-CORAL-fill 1 "tag:mytag1 revision:5678 sources:Offline:0 file:pixelcalibsvc_dump_assembly_02.txt"
-echo "========= reading first calibration ========="
-CORAL-read 1 "tag:mytag revision:1234"
-echo "========= reading second calibration ========="
-CORAL-read 1 "tag:mytag1 revision:5678"

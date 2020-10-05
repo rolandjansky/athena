@@ -477,7 +477,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
   ASSERT_TRUE( outputDataHandle2.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_" + DATA_NAME, "testView_" + DATA_NAME + "2", 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "_testView_" + DATA_NAME, "_testView_" + DATA_NAME + "2", 0 );
 
   // Test the link again - should not have changed
   ASSERT_TRUE( dataLink.isValid() );
@@ -566,8 +566,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
   ASSERT_TRUE( outputDataHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_1_" + DATA_NAME, DATA_NAME, 0 );
-  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "_testView_1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "_testView_2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );
@@ -665,8 +665,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   ASSERT_TRUE( auxHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView_1_" + DATA_NAME, DATA_NAME, 0 );
-  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView_2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "_testView_1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "_testView_2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );

@@ -1,48 +1,47 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcConditions/ZdcCablingService.h"
+#include "StoreGate/StoreGateSvc.h"
 #include <string>
 #include <iostream>
 #include <algorithm>
 
-// initialization of singleton instance pointer
-
-ZdcCablingService * ZdcCablingService::s_zdcCablingService = 0 ;
-
 // Singleton methods
 
 //------------------------------------------------------------
-ZdcCablingService * ZdcCablingService::getInstance()
+const ZdcCablingService * ZdcCablingService::getInstance()
 {
-
-    if(s_zdcCablingService == 0){
-        std::cout << "==> New ZdcCablingService created" << std::endl;
-        s_zdcCablingService = new ZdcCablingService() ;
-    }
-    return s_zdcCablingService ;
+  static const ZdcCablingService svc (nullptr, nullptr);
+  return &svc;
 }
 
 //-------------------------------------------------------------
 void ZdcCablingService::deleteInstance()
 {
-    if(s_zdcCablingService != 0){
-        delete s_zdcCablingService ;
-        s_zdcCablingService = 0 ;
-    }
 }
 
 // default constructor
 
 //-------------------------------------------------------------
-ZdcCablingService::ZdcCablingService()
-  : m_dbFilled(0), m_zdcID(0), m_zdcHWID(0)
-  , m_cablingType(ZdcCablingService::Sim)
+ZdcCablingService::ZdcCablingService (const ZdcID* zdcID,
+                                      const ZdcHardwareID* zdcHWID)
+  : m_dbFilled(0), m_zdcID(zdcID), m_zdcHWID(zdcHWID)
 {
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "ZdcCablingSevice");
+  if (!m_zdcID) {
+    if (detStore->retrieve (m_zdcID).isFailure()) {
+      std::abort();
+    }
+  }
+  if (!m_zdcHWID) {
+    if (detStore->retrieve (m_zdcHWID).isFailure()) {
+      std::abort();
+    }
+  }
 
   fillConnectionTables();
-
   fillDB();
 
 }
@@ -261,16 +260,6 @@ void ZdcCablingService::fillDB()
 //-------------------------------------------------------------
 ZdcCablingService::~ZdcCablingService()
 {
-}
-
-void
-ZdcCablingService::setCablingType(ZdcCablingService::ZdcCablingType type)
-{
-// cabling type can be:
-//  -1 for testbeam
-//   0 for standard simulation
-//   1 new configuration
-  m_cablingType = type;
 }
 
 void

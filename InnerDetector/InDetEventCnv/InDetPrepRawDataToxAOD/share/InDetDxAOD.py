@@ -424,10 +424,7 @@ if dumpPixInfo:
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "PixelConfigCondAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                    UseDCSStateConditions=True,
-                                    UseDCSStatusConditions=True)
-
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")

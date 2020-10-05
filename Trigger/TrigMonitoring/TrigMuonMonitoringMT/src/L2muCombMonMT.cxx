@@ -152,7 +152,6 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
 
     // Muon Feature error
     std::vector<int> vec_MF_error;
-    vec_MF_error.clear();
     auto MF_error = Monitored::Collection(chain+"_MF_error",vec_MF_error);
 
     bool error = false;

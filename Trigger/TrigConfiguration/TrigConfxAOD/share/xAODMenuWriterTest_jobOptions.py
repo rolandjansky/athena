@@ -55,10 +55,6 @@ xaodStream.AddItem( "xAOD::TruthVertexAuxContainer_v1#*" )
 xaodStream.AddItem( "xAOD::TruthEventContainer_v1#*" )
 xaodStream.AddItem( "xAOD::TruthEventAuxContainer_v1#*" )
 
-# Make sure that the event format object is added to the output:
-theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-xaodStream.AddMetaDataItem( "xAOD::EventFormat_v1#EventFormat" )
-
 # Convert the LVL1 information:
 from xAODTriggerCnv.xAODRoICreator import xAODRoICreator
 xAODRoICreator()

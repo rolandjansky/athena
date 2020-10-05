@@ -7,6 +7,9 @@
 #include "AmdcDb/AmdcDbSvc.h"
 #include "AmdcDb/AmdcDbRecordset.h"
 #include "AmdcDb/AmdcDbRecord.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <cmath>
  
 AmdcDbSvcMakerFromAmdc::AmdcDbSvcMakerFromAmdc(){
@@ -1339,7 +1342,30 @@ if ((StationNameHEAD[0] != 'T'
               DbVar = "VERS"     ; DbVarComment="VERSION"                                  ; iDbVal = m_version		                                                                     ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
               DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = pAmdcsimrec->Cutdx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "DY"       ; DbVarComment="Y RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = pAmdcsimrec->Cutdy (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; 
+              DbVar = "DY";
+              DbVarComment="Y RELATIVE POSITION OF THE SUB-CUT";
+              int theDbIdx = DB_INDX;
+              // when amdb is mirroring chambers from the Aside to the Cside, it increments the station numbers, e.g. BIS7 becomes BIS17 etc.
+              // however, something inside the INOCUT function (https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/Amdcsimrec/AmdcStand/src/readmdb.F90#0611)
+              // cannot translate these larger station numbers to the correct amdb numbers needed by the amdb Cut_dy function 
+              // (https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/Amdcsimrec/AmdcStand/src/readmdb.F90#0971)
+              // this Cut_dy function only returns the correct H Line dy values in case the original amdb station number is given.
+              // This only happens for BI upgrades, BIS78 and BI1-6
+              if (TheStationName.find("BI")!=std::string::npos) {
+                if (DB_INDX>16) {
+                  MsgStream log(Athena::getMessageSvc(),"AmdcDbSvcMakerFromAmdc::ALIN");
+                  log<<MSG::WARNING<<"ATTENTION: Adjusting DB_INDX value for H Line Cutdy method call. This should only be done for BI upgrade chambers."<<endmsg;
+                }
+                if (DB_INDX==17) theDbIdx=7;
+                else if (DB_INDX==18) theDbIdx=13;
+                else if (DB_INDX==19) theDbIdx=9;
+                else if (DB_INDX==20) theDbIdx=10;
+                else if (DB_INDX==21) theDbIdx=8;
+                else if (DB_INDX==24) theDbIdx=11;
+                else if (DB_INDX==25) theDbIdx=12;
+                else if (DB_INDX==26) theDbIdx=14;
+              }
+              dDbVal = pAmdcsimrec->Cutdy(pAmdcsimrec->INOCUT(DB_JTYP,theDbIdx,DB_ICUT),KounterCutLines)/10.; 
 // JFL Thu Apr  3 14:47:44 CEST 2008: 
 //  found by Stefania Spagnolo: When computed for the -Z part there are rounding errors which giving non nul value to Dy while it should be null
 //  patch: put it a 0. if too small

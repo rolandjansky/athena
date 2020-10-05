@@ -48,7 +48,9 @@ def MdtMonitoringConfig(inputFlags):
     mdtMonAlg.do_mdtChamberHits=True
     mdtMonAlg.do_mdttdccut_sector=True
     mdtMonAlg.do_mdtchamberstatphislice=True
-    # Add a gezneric monitoring tool (a "group" in old language). The returned 
+    if not inputFlags.DQ.triggerDataAvailable:
+        mdtMonAlg.L1RoiKey=''
+    # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
     mdtGroup = helper.addGroup(mdtMonAlg,'MdtMonitor','Muon/MuonRawDataMonitoring/MDT/')
 

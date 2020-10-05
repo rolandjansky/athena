@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file ReadAthena.py
 ## @brief AthenaPool python module for reading event objects.
@@ -59,26 +59,26 @@ def _configureReadAthenaPool():
     # Add in EventSelector
     svcMgr += CfgMgr.EventSelectorAthenaPool ("EventSelector")
     #default InputCollections to FilesInput value of AthenaCommonFlags
-    from AthenaCommon.JobProperties import jobproperties as jps
+    from AthenaCommon.AthenaCommonFlags import jobproperties as jps
     svcMgr.EventSelector.InputCollections = jps.AthenaCommonFlags.FilesInput()
-    
+
     _n = svcMgr.EventSelector.getFullJobOptName()
     theApp.EvtSel = _n
     del _n
 
     # For Analysis release use lower heartbeat
-    import os 
-    if "AthAnalysisBase" in os.environ.get('CMTEXTRATAGS',""): 
-        # From Will Buttinger to suppress the event loop heartbeat as it is somewhat I/O hungry for 
-        # no real gain in analysis scenarii 
-        if not hasattr(svcMgr, theApp.EventLoop): 
-            svcMgr += getattr(CfgMgr, theApp.EventLoop)() 
-        evtloop = getattr(svcMgr, theApp.EventLoop) 
-        try: 
-            evtloop.EventPrintoutInterval = 10000 
+    import os
+    if "AthAnalysisBase" in os.environ.get('CMTEXTRATAGS',""):
+        # From Will Buttinger to suppress the event loop heartbeat as it is somewhat I/O hungry for
+        # no real gain in analysis scenarii
+        if not hasattr(svcMgr, theApp.EventLoop):
+            svcMgr += getattr(CfgMgr, theApp.EventLoop)()
+        evtloop = getattr(svcMgr, theApp.EventLoop)
+        try:
+            evtloop.EventPrintoutInterval = 10000
         except Exception:
-            msg.info('failed suppressing event loop heartbeat. performances might be sub-par... sorry.') 
-            pass 
+            msg.info('failed suppressing event loop heartbeat. performances might be sub-par... sorry.')
+            pass
 
     # Add in AthenaPoolAddressProviderSvc
     if not hasattr (svcMgr, 'AthenaPoolAddressProviderSvc'):

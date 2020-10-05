@@ -45,7 +45,7 @@ class TauAxisSetter : public TauRecToolBase {
 
     Gaudi::Property<double> m_clusterCone {this, "ClusterCone", 0.2, "cone of tau candidate"};
     Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of tau vertex correction"};
-    Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
+    Gaudi::Property<bool> m_useSubtractedCluster {this, "UseSubtractedCluster", true, "use shower subtracted clusters in calo calculations"};
 
     ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
       "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};

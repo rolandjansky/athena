@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * SimpleCone.cpp
@@ -24,10 +24,8 @@
 
 REGISTER_ALG_TCS(SimpleCone)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::SimpleCone::SimpleCone(const std::string & name) : DecisionAlg(name)
@@ -73,24 +71,14 @@ TCS::SimpleCone::initialize() {
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
-   // create strings for histogram names
-   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
-   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
-   
-   for (unsigned int i=0;i<numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << p_MinSumET[i] << "SimpleCone"; 
-     MyRejectHist[i] << "Reject" << p_MinSumET[i] << "SimpleCone";
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hSimpleCone_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hSimpleCone_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "ET", 100, 0, p_MinSumET[i]);
+       bookHist(m_histReject, hname_reject, "ET", 100, 0, p_MinSumET[i]);
    }
-
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-
-     const std::string& MyTitle1 = MyAcceptHist[i].str();
-     const std::string& MyTitle2 = MyRejectHist[i].str();
-     
-     registerHist(m_histAcceptSimpleCone[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,p_MinSumET[i]*2));
-     registerHist(m_histRejectSimpleCone[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,p_MinSumET[i]*2));
-   }
-
 
    return StatusCode::SUCCESS;
 }
@@ -122,8 +110,8 @@ TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
        tob != input[0]->end() && distance(input[0]->begin(), tob) < p_NumberLeading1;
        ++tob) {
 
-    if( parType_t(fabs((*tob)->eta())) > p_EtaMax ) continue; // Eta cut
-    if( parType_t(fabs((*tob)->eta())) < p_EtaMin ) continue; // Eta cut
+    if( parType_t(std::abs((*tob)->eta())) > p_EtaMax ) continue; // Eta cut
+    if( parType_t(std::abs((*tob)->eta())) < p_EtaMin ) continue; // Eta cut
     if( parType_t((*tob)->Et()) <= p_MinET ) continue; // E_T cut
 
     TRG_MSG_DEBUG("Jet : ET = " << (*tob)->Et());      
@@ -135,8 +123,8 @@ TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
 	 ++tob1) {
 	  
       if( tob1 == tob ) continue; // Avoid double counting of central jet 
-      if( parType_t(fabs((*tob1)->eta())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs((*tob1)->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t(std::abs((*tob1)->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(std::abs((*tob1)->eta())) < p_EtaMin ) continue; // Eta cut
       if( parType_t((*tob1)->Et()) <= p_MinET ) continue; // E_T cut
       
       double deta = ( (*tob)->etaDouble() - (*tob1)->etaDouble() );
@@ -163,9 +151,9 @@ TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
       output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(leadingET,0,0) ) ));
     }
     if(fillAccept)
-        fillHist1D(m_histAcceptSimpleCone[i]->GetName(),leadingET);
+        fillHist1D(m_histAccept[i],leadingET);
     else if(fillReject)
-        fillHist1D(m_histRejectSimpleCone[i]->GetName(),leadingET);
+        fillHist1D(m_histReject[i],leadingET);
     
     
     TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " SimpleCone = " << leadingET);

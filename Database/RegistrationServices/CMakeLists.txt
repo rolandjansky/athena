@@ -20,7 +20,7 @@ atlas_add_component( RegistrationServices
                      src/IOVRegistrationSvc.cxx
                      src/OutputConditionsAlg.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CollectionBase DBDataModel FileCatalog IOVDbSvcLib PersistentDataModel PoolSvcLib RegistrationServicesLib SGTools StoreGateLib )
 
 # Install files from the package:
