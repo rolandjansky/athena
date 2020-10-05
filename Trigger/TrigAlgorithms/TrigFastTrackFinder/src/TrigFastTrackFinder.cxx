@@ -585,7 +585,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
-    TrigInDetTriplet seed = triplets[tripletIdx];
+    const TrigInDetTriplet &seed = triplets[tripletIdx];
 
     const Trk::SpacePoint* osp1 = seed.s1().offlineSpacePoint();
     const Trk::SpacePoint* osp2 = seed.s2().offlineSpacePoint();
@@ -1278,8 +1278,7 @@ void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, c
       const TrigSiSpacePointBase& SPi = vsp[pOutput->m_innerIndex[k]];
       const TrigSiSpacePointBase& SPm = vsp[pOutput->m_middleIndex[k]];
       const TrigSiSpacePointBase& SPo = vsp[pOutput->m_outerIndex[k]];
-      TrigInDetTriplet t(SPi, SPm, SPo, pOutput->m_Q[k]);
-      output.push_back(t);
+      output.emplace_back(SPi, SPm, SPo, pOutput->m_Q[k]);
     }
   }
 
