@@ -1138,7 +1138,9 @@ class athenaExecutor(scriptExecutor):
         self.setValStart()
         self._hasValidated = True
         deferredException = None
-        
+        memLeakThreshold = 5000
+        _hasMemLeak = False
+
         ## Our parent will check the RC for us
         try:
             super(athenaExecutor, self).validate()
@@ -1146,7 +1148,26 @@ class athenaExecutor(scriptExecutor):
             # In this case we hold this exception until the logfile has been scanned
             msg.error('Validation of return code failed: {0!s}'.format(e))
             deferredException = e
-                
+
+        ## Get results of memory monitor analysis (slope and chi2)
+        # the analysis is a linear fit to 'pss' va 'Time' (fit to at least 5 data points)
+        # to obtain a good fit, tails are excluded from data
+        # if the slope of 'pss' is higher than 'memLeakThreshold' and an error is already caught,
+        # a message will be added to the exit message
+        # the memory leak threshold is defined based on analysing several jobs with memory leak,
+        # however it is rather arbitrary and could be modified
+        if self._memFullFile:
+            msg.info('Analysing memory monitor output file {0} for possible memory leak'.format(self._memFullFile))
+            self._memLeakResult = analytic().getFittedData(self._memFullFile)
+            if self._memLeakResult:
+                if self._memLeakResult['slope'] > memLeakThreshold:
+                    _hasMemLeak = True
+                    msg.warning('Possible memory leak; abnormally high values in memory monitor parameters (ignore this message if the job has finished successfully)')
+            else:
+                msg.warning('Failed to analyse the memory monitor file {0}'.format(self._memFullFile))
+        else:
+            msg.info('No memory monitor file to be analysed')
+
         # Logfile scan setup
         # Always use ignorePatterns from the command line
         # For patterns in files, pefer the command line first, then any special settings for
@@ -1190,6 +1211,9 @@ class athenaExecutor(scriptExecutor):
             # Add any logfile information we have
             if worstError['nLevel'] >= stdLogLevels['ERROR']:
                 deferredException.errMsg = deferredException.errMsg + "; {0}".format(exitErrorMessage)
+            # Add the result of memory analysis
+            if _hasMemLeak:
+                deferredException.errMsg = deferredException.errMsg + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
             raise deferredException
         
         
@@ -1199,6 +1223,9 @@ class athenaExecutor(scriptExecutor):
         elif worstError['nLevel'] >= stdLogLevels['ERROR']:
             self._isValidated = False
             msg.error('Fatal error in athena logfile (level {0})'.format(worstError['level']))
+            # Add the result of memory analysis
+            if _hasMemLeak:
+                exitErrorMessage = exitErrorMessage + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
             raise trfExceptions.TransformLogfileErrorException(trfExit.nameToCode('TRF_EXEC_LOGERROR'), 
                                                                    'Fatal error in athena logfile: "{0}"'.format(exitErrorMessage))
 
@@ -1208,24 +1235,6 @@ class athenaExecutor(scriptExecutor):
 
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
-
-        ## Get results of memory monitor analysis (slope and chi2)
-        # the analysis is a linear fit to 'Time' vs 'pss' (fit to at least 5 data points)
-        # to obtain a good fit, tails are excluded from data
-        # if the slope of 'pss' is high (>5MB/s) and an error is already caught,
-        # a message will be added to the exit message
-        if self._memFullFile:
-            msg.info('Analysing memory monitor output file {0} for possible memory leak'.format(self._memFullFile))
-            self._memLeakResult = analytic().getFittedData(self._memFullFile)
-            if self._memLeakResult:
-                if self._memLeakResult['slope'] > 5000:
-                    msg.warning('Possible memory leak; abnormal high values in memory monitor parameters (ignore this message if the job has finished successfully)')
-                    if deferredException is not None:
-                        deferredException.errMsg = deferredException.errMsg + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
-            else:
-                msg.warning('Failed to analyse the memory monitor file {0}'.format(self._memFullFile))
-        else:
-            msg.info('No memory monitor file to be analysed')
 
 
     ## @brief Prepare the correct command line to be used to invoke athena
@@ -1808,22 +1817,6 @@ class DQMergeExecutor(scriptExecutor):
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
 
-        ## Get results of memory monitor analysis (slope and chi2)
-        # the analysis is a linear fit to 'Time' vs 'pss' (fit to at least 5 data points)
-        # if the slope of 'pss' is high (>5MB/s) and an error is already caught,
-        # a message will be added to the exit message
-        if self._memFullFile:
-            msg.info('Analysing memory monitor output file {0} for possible memory leak'.format(self._memFullFile))
-            self._memLeakResult = analytic().getFittedData(self._memFullFile)
-            if self._memLeakResult:
-                if self._memLeakResult['slope'] > 5000:
-                    msg.warning('Possible memory leak; abnormal high values in memory monitor parameters (ignore this message if the job has finished successfully)')
-                    if deferredException is not None:
-                        deferredException.errMsg = deferredException.errMsg + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
-            else:
-                msg.warning('Failed to analyse the memory monitor file {0}'.format(self._memFullFile))
-        else:
-            msg.info('No memory monitor file to be analysed')
 
 
 ## @brief Specialist execution class for merging NTUPLE files
