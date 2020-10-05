@@ -11,32 +11,20 @@
 TauAODList = []
 
 #------------------------------------------------------------------------------
-# Tau1P3P cell cluster
-#------------------------------------------------------------------------------
-#TauAODList += [ "CaloClusterContainer#Tau1P3PCellCluster" ]
-
-#------------------------------------------------------------------------------
-# TauRec cell cluster
-#------------------------------------------------------------------------------
-#TauAODList += [ "CaloClusterContainer#TauRecCellCluster" ]
-
-#------------------------------------------------------------------------------
 # Tau Pi0 cluster
 #------------------------------------------------------------------------------
-TauAODList += [ "xAOD::CaloClusterContainer#TauPi0Clusters" ]
-TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
+#TauAODList += [ "xAOD::CaloClusterContainer#TauPi0Clusters" ]
+#TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 
-#------------------------------------------------------------------------------
-# Tau1P3P cell EM012 cluster
-#------------------------------------------------------------------------------
-#TauAODList += [ "CaloClusterContainer#Tau1P3PCellEM012ClusterContainer" ]
+TauAODList += [ "xAOD::CaloClusterContainer#TauPi0SubtractedClusters" ]
+TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0SubtractedClustersAux." ]
+TauAODList += [ "CaloClusterCellLinkContainer#TauPi0SubtractedClusters_links" ]
 
 #------------------------------------------------------------------------------
 # TauRec main xAOD containers
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::TauJetContainer#TauJets" ]
-#TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-ABS_ETA_LEAD_TRACK.-CORRCENTFRAC.-CORRFTRK.-EMFRACTIONATEMSCALE_MOVEE3.-HADLEAKET.-NUMTRACK.-TAU_ABSDELTAETA.-TAU_ABSDELTAPHI.-TAU_SEEDTRK_SECMAXSTRIPETOVERPT.-TAU_TRT_NHT_OVER_NLT.-NUMVERTICES" ]
-TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-mu.-nVtx.-NUMTRACK.-NUMVERTICES.-nVtxPU.-MU" ]
+TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-mu.-nVtxPU.-ABS_ETA_LEAD_TRACK.-TAU_ABSDELTAPHI.-TAU_ABSDELTAETA.-absipSigLeadTrk" ]
 
 #------------------------------------------------------------------------------
 # TauRec tauTrack xAOD containers
@@ -84,7 +72,6 @@ from DiTauRec.DiTauRecFlags import jobproperties
 if jobproperties.DiTauRecFlags.doDiTauRec():
     include("DiTauRec/DiTauAODList.py")
     TauAODList += DiTauAODList
-    pass
 
 
 #-------------------------------------------------------------------------
