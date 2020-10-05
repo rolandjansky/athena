@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDDescription/MMDetectorHelper.h"
@@ -18,8 +18,10 @@ MMDetectorHelper::MMDetectorHelper()
 	for ( auto vl_iter: vl)
 	{
 		MMDetectorDescription* st=dynamic_cast<MMDetectorDescription*>(vl_iter.second);
-		if (st) 
+		if (st) {
 			m_MicromegasList[vl_iter.first]=st;
+			m_MicromegasListSubType[vl_iter.second->subType()]=st;
+		}
 	}
 	
 }
@@ -96,8 +98,15 @@ AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int 
 	return p_mm;
 }
 
-MMDetectorDescription* MMDetectorHelper::Get_MMDetectorType(std::string type)
+MMDetectorDescription* MMDetectorHelper::Get_MMDetectorType(const std::string& type)
 {
 	if (m_MicromegasList.find(type) != m_MicromegasList.end()) return m_MicromegasList[type];
 	return nullptr;
 }
+
+MMDetectorDescription* MMDetectorHelper::Get_MMDetectorSubType(const std::string& type)
+{
+	if (m_MicromegasListSubType.find(type) != m_MicromegasListSubType.end()) return m_MicromegasListSubType[type];
+	return nullptr;
+}
+

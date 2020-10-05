@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,17 +8,12 @@
 
 void ZdcDigitsCollection::print()
 {
-  iterator it = this->begin();
-  iterator it_end = this->end();
-
   std::cout << "Dumping ZdcDigitsCollection" << std::endl;
   int i = 0;
-  while (it != it_end)
+  for (const ZdcDigits* dig : *this)
     {
       std::cout << "Printing Digit #" << i << std::endl;
-      (*it)->print();
-      //std::cout << (*it) << std::endl;
-      it++;
+      dig->print();
       i++;
     }
   return;

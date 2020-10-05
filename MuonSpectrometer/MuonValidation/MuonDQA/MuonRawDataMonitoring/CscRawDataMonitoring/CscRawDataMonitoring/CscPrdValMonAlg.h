@@ -30,13 +30,14 @@ public:
  private:
     
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    
-  size_t m_cscNoiseCut;
+
   SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPrdKey{this,"CSCPrepRawDataKey","CSC_Measurements","CSC PRDs"};
-  bool m_mapxyrz;
         
   // Strip fitter
   ToolHandle<ICscStripFitter> m_stripFitter{this, "CSCStripFitter", "CSCStripFitter", "Strip fitter Tool"};
+
+  Gaudi::Property<bool> m_mapxyrz{this,"MapYXandRZ",false};
+  Gaudi::Property<size_t> m_cscNoiseCut{this,"NoiseCutADC",50};
 
 };
 

@@ -16,13 +16,9 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "TrkMultiComponentStateOnSurface/ComponentParameters.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
-#include <Eigen/StdVector>
-#include <memory>
 
 namespace Trk {
 struct GSFEnergyLossCache

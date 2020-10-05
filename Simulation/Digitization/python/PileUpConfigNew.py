@@ -5,12 +5,17 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from RngComps.RandomServices import RNG
+from RngComps.RandomServices import dSFMT
 from Digitization import PileUpEventType
 from Digitization.RunDependentConfigNew import (
-    MaxNevtsPerXing,
+    maxNevtsPerXing,
     LumiProfileSvcCfg, NoProfileSvcCfg,
 )
+
+
+def PileUpConfigdSFMT(name):
+    """Local wrapper for dSFMT RNG service"""
+    return dSFMT(name + " OFFSET 340 123 345")
 
 
 def StepArrayBMCfg(flags, name="StepArrayBM", **kwargs):
@@ -32,8 +37,8 @@ def FixedArrayBMCfg(flags, name="FixedArrayBM", **kwargs):
 def ArrayBMCfg(flags, name="ArrayBM", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("IntensityPattern", flags.Digitization.PU.BeamIntensityPattern)
-    acc.merge(RNG())
-    kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc"))
+    acc.merge(PileUpConfigdSFMT("PileUpCollXingStream"))
+    kwargs.setdefault("RandomSvc", acc.getService("AtDSFMTGenSvc"))
     acc.addService(CompFactory.ArrayBM(name, **kwargs))
     return acc
 
@@ -81,6 +86,7 @@ def BeamHaloEventSelectorCfg(flags, name="BeamHaloEventSelector", **kwargs):
     return acc
 
 
+
 def MinBiasCacheCfg(flags, name="MinBiasCache", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("CollPerXing", flags.Digitization.PU.NumberOfLowPtMinBias + flags.Digitization.PU.NumberOfHighPtMinBias)
@@ -98,9 +104,10 @@ def MinBiasCacheCfg(flags, name="MinBiasCache", **kwargs):
 
     kwargs.setdefault("OccupationFraction", (float(flags.Digitization.PU.BunchSpacing)/
                                              float(flags.Beam.BunchSpacing)))
+    
     RndmStreamName = "PileUpCollXingStream"
-    acc.merge(RNG(name=RndmStreamName))
-    kwargs.setdefault("RndmGenSvc", acc.getService(RndmStreamName))
+    acc.merge(PileUpConfigdSFMT(RndmStreamName))
+    kwargs.setdefault("RndmGenSvc", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RndmStreamName", RndmStreamName)
 
     # FIXME migrated, but SplitBkgStreamsCache does not exist
@@ -120,9 +127,10 @@ def LowPtMinBiasCacheCfg(flags, name="LowPtMinBiasCache", **kwargs):
 
     kwargs.setdefault("OccupationFraction", (float(flags.Digitization.PU.BunchSpacing)/
                                              float(flags.Beam.BunchSpacing)))
+    
     RndmStreamName = "PileUpCollXingStream"
-    acc.merge(RNG(name=RndmStreamName))
-    kwargs.setdefault("RndmGenSvc", acc.getService(RndmStreamName))
+    acc.merge(PileUpConfigdSFMT(RndmStreamName))
+    kwargs.setdefault("RndmGenSvc", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RndmStreamName", RndmStreamName)
 
     # Use BkgStreamsStepCaches when using the StepArrayBM and BkgStreamsCache otherwise
@@ -146,9 +154,10 @@ def HighPtMinBiasCacheCfg(flags, name="HighPtMinBiasCache", **kwargs):
     kwargs.setdefault("EventSelector", acc.getService("HighPtMinBiasEventSelector"))
     kwargs.setdefault("OccupationFraction", (float(flags.Digitization.PU.BunchSpacing)/
                                              float(flags.Beam.BunchSpacing)))
+    
     RndmStreamName = "PileUpCollXingStream"
-    acc.merge(RNG(name=RndmStreamName))
-    kwargs.setdefault("RndmGenSvc", acc.getService(RndmStreamName))
+    acc.merge(PileUpConfigdSFMT(RndmStreamName))
+    kwargs.setdefault("RndmGenSvc", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RndmStreamName", RndmStreamName)
 
     # Use BkgStreamsStepCaches when using the StepArrayBM and BkgStreamsCache otherwise
@@ -179,9 +188,10 @@ def CavernCacheCfg(flags, name="CavernCache", **kwargs):
     kwargs.setdefault("OccupationFraction", OccupationFraction)
     acc.merge(CavernEventSelectorCfg(flags))
     kwargs.setdefault("EventSelector", acc.getService("cavernEventSelector"))
+    
     RndmStreamName = "PileUpCollXingStream"
-    acc.merge(RNG(name=RndmStreamName))
-    kwargs.setdefault("RndmGenSvc", acc.getService(RndmStreamName))
+    acc.merge(PileUpConfigdSFMT(RndmStreamName))
+    kwargs.setdefault("RndmGenSvc", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RndmStreamName", RndmStreamName)
 
     # Use BkgStreamsStepCaches when using the StepArrayBM and BkgStreamsCache otherwise
@@ -206,8 +216,8 @@ def BeamGasCacheCfg(flags, name="BeamGasCache", **kwargs):
     kwargs.setdefault("EventSelector", acc.getService("BeamGasEventSelector"))
 
     RndmStreamName = "PileUpCollXingStream"
-    acc.merge(RNG(name=RndmStreamName))
-    kwargs.setdefault("RndmGenSvc", acc.getService(RndmStreamName))
+    acc.merge(PileUpConfigdSFMT(RndmStreamName))
+    kwargs.setdefault("RndmGenSvc", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RndmStreamName", RndmStreamName)
 
     # Use BkgStreamsStepCaches when using the StepArrayBM and BkgStreamsCache otherwise
@@ -233,8 +243,8 @@ def BeamHaloCacheCfg(flags, name="BeamHaloCache", **kwargs):
     kwargs.setdefault("EventSelector", acc.getService("BeamHaloEventSelector"))
 
     RndmStreamName = "PileUpCollXingStream"
-    acc.merge(RNG(name=RndmStreamName))
-    kwargs.setdefault("RndmGenSvc", acc.getService(RndmStreamName))
+    acc.merge(PileUpConfigdSFMT(RndmStreamName))
+    kwargs.setdefault("RndmGenSvc", acc.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RndmStreamName", RndmStreamName)
 
     #Use BkgStreamsStepCaches when using the StepArrayBM and BkgStreamsCache otherwise
@@ -295,7 +305,7 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
     kwargs.setdefault("lastXing", flags.Digitization.PU.FinalBunchCrossing)
 
     if flags.Digitization.PU.RunAndLumiOverrideList:
-        kwargs.setdefault("MaxMinBiasCollPerXing", MaxNevtsPerXing(flags))
+        kwargs.setdefault("MaxMinBiasCollPerXing", maxNevtsPerXing(flags))
         acc.merge(LumiProfileSvcCfg(flags))
         kwargs.setdefault("BeamLuminosity", acc.getService("LumiProfileSvc"))
     else:

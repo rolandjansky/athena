@@ -138,6 +138,7 @@ namespace MuonGM {
     double m_halfX;   // 0.5*radial_size
     double m_minHalfY; // 0.5*bottom length (active area)
     double m_maxHalfY; // 0.5*top length (active area)
+    double m_offset;
 
     double m_rots;
     double m_rotz;

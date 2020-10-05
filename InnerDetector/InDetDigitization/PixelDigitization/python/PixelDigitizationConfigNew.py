@@ -149,14 +149,7 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     acc = PixelGeometryCfg(flags)
 
     # module parameters
-    acc.merge(PixelConfigCondAlgCfg(flags,
-                                    UseCalibConditions=True,
-                                    UseDeadmapConditions=True,
-                                    UseDCSStateConditions=False,
-                                    UseDCSStatusConditions=False,
-                                    UseDCSHVConditions=True,
-                                    UseDCSTemperatureConditions=True,
-                                    UseTDAQConditions=False))
+    acc.merge(PixelConfigCondAlgCfg(flags))
     # charge calibration
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))

@@ -161,7 +161,19 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
         TgcRdo::const_iterator itD   = (*iRdo)->begin(); 
         TgcRdo::const_iterator itD_e = (*iRdo)->end();
         for(; itD!=itD_e; itD++) { 
-          selectDecoder(itD, (*iRdo));
+	  //Since OnlineIds are not unique, need some additional filtering on offline hashId 
+	  //to avoid decoding RDO outside of an RoI
+	  Identifier offlineId;
+	  IdentifierHash tgcHashId;
+	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
+
+	  if(m_tgcCabling->getElementIDfromReadoutID(offlineId, (*itD)->subDetectorId(), (*itD)->rodId(), (*itD)->sswId(), (*itD)->slbId(), (*itD)->bitpos())){
+	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)){
+	      if(std::find(requestedIdHashVect.begin(), requestedIdHashVect.end(), tgcHashId) != requestedIdHashVect.end()){
+		selectDecoder(itD, (*iRdo));
+	      }
+	    }
+	  }
         }
         m_decodedRdoCollVec.push_back(*iRdo);
       }

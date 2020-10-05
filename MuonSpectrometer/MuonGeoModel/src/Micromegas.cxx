@@ -2,9 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MuonGeoModel/Micromegas.h"
+
 #include "MuonAGDDDescription/MM_Technology.h"
+#include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "MuonAGDDDescription/MMDetectorHelper.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "MuonGeoModel/Station.h"
 #include "MuonGeoModel/MicromegasComponent.h"
@@ -21,7 +23,6 @@
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
-// for cutouts:
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
 #include "GeoModelKernel/GeoShapeShift.h"
@@ -49,15 +50,17 @@ GeoFullPhysVol* Micromegas::build(int minimalgeo)
 GeoFullPhysVol* Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
 {
   AGDDDetectorStore* ds = AGDDDetectorStore::GetDetectorStore();
+  MMDetectorHelper mmHelper;
+  MMDetectorDescription* mm_descr = mmHelper.Get_MMDetectorSubType(m_component->subType);
+
   MM_Technology* t = (MM_Technology*) ds->GetTechnology(name);
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
   double pcbTck=t->pcbThickness;
   double roTck=t->roThickness;
-  double f1=t->f1Thickness;
-  double f2=t->f2Thickness;
-  double f3=t->f3Thickness;
-
+  double f1=mm_descr->ylFrame();
+  double f2=mm_descr->ysFrame();
+  double f3=mm_descr->xFrame(); 
 
   minimalgeo=t->geoLevel;
 

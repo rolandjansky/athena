@@ -235,9 +235,7 @@ def generateChains( flags, chainDict ):
         recoL2CB.mergeReco( MuCombViewDataVerifier() )
 
         #ID tracking
-        #(Using electron specific flags for now until muon specific flags are available)
-        flagsID = flags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking.Electron")
-        accID = TrigInDetConfig( flagsID, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
+        accID = TrigInDetConfig( flags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
         recoL2CB.mergeReco(accID)
         
         accL2CB.merge(recoL2CB, sequenceName = stepL2CBReco.getName())

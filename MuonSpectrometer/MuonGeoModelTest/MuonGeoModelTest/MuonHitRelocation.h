@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+
 #include "MuonSimEvent/MdtHitIdHelper.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
@@ -14,6 +15,8 @@
 #include "MuonSimEvent/sTgcHitIdHelper.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <string>
 
 // Histograms quantities related to G4 Hits in the Atlas
 // Detector.  Used to validate GeoModel + much more.

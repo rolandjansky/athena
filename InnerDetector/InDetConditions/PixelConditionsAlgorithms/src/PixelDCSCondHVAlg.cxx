@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDCSCondHVAlg.h"
@@ -18,7 +18,7 @@ StatusCode PixelDCSCondHVAlg::initialize() {
 
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_moduleDataKey.initialize());
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_readKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -35,28 +35,33 @@ StatusCode PixelDCSCondHVAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
-
-
   
   SG::ReadCondHandle<PixelModuleData> modDataHdl(m_moduleDataKey,ctx);
   const PixelModuleData* modData=(*modDataHdl);
-  writeHandle.addDependency(modDataHdl);
   ATH_MSG_INFO("Range of input PixelModule data is " << modDataHdl.getRange()); 
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelDCSHVData> writeCdo(std::make_unique<PixelDCSHVData>());
 
-  //if (SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getUseDCSHVConditions()) {
-  if (modData->getUseDCSHVConditions()) {
+  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+  const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+
+  EventIDRange rangeW{start, stop};
+
+  if (!m_readKey.empty()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
-    writeHandle.addDependency(readHandle);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
+    // Get the validitiy range
+    if (not readHandle.range(rangeW)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    }
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of DCS input is " << readHandle.getRange());
+    ATH_MSG_INFO("Range of DCS input is " << rangeW);
 
     // Read HV info
     std::string param("HV");
@@ -84,7 +89,7 @@ StatusCode PixelDCSCondHVAlg::execute(const EventContext& ctx) const {
     }
   }
 
-  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record PixelDCSHVData " << writeHandle.key() << " with EventRange " 
 		  << writeHandle.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;

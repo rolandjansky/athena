@@ -341,7 +341,7 @@ namespace InDet {
     std::unordered_set<Identifier> setOfIdentifiers{};
     for(const auto & rdo : collection) {
       const Identifier rdoID= rdo->identify();
-      if (m_usePixelMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
+      if (m_useModuleMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
       //check for duplication:
       //add to set of existing identifiers. If it fails (.second = false) then skip it.
       if (not setOfIdentifiers.insert(rdoID).second)   continue;

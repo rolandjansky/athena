@@ -43,7 +43,11 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
   double charge  = particleDefinition.GetPDGCharge();
   int    pdgID   = particleDefinition.GetPDGEncoding();
 
+#ifdef HEPMC3
+  HepMC::GenParticlePtr genParticle = (truth) ? truth->getTruthParticle(): nullptr;
+#else  
   auto* genParticle = (truth) ? truth->getTruthParticle(): nullptr;
+#endif
   Barcode::ParticleBarcode barcode = (genParticle) ? HepMC::barcode(genParticle) : Barcode::fUndefinedBarcode;
 
   ISF::ISFParticle *isp = new ISF::ISFParticle( position,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCID_EXCEPTION_H
@@ -24,12 +24,12 @@ public:
     /**
      * constructor to be used 
      */
-    ZdcID_Exception(std::string  l_message , int l_code) : m_message ( l_message ) , m_code ( l_code ) { }
+    ZdcID_Exception(const std::string&  l_message , int l_code) : m_message ( l_message ) , m_code ( l_code ) { }
 
     /**
      * set error message 
      */
-    void message(std::string l_message) { m_message = l_message ;}
+    void message(const std::string& l_message) { m_message = l_message ;}
 
     /**
      * return error message  

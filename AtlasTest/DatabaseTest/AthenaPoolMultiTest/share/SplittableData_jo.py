@@ -72,8 +72,6 @@ topSequence        += AddTrigMap
 #topSequence        += TagEventTagWriter
 topSequence        += DummyLumirangeTool
 
-theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
-
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__WriteData
 topSequence += AthPoolEx__WriteData("WriteData")
 

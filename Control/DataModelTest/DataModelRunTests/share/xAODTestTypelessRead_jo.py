@@ -65,16 +65,6 @@ fullItemList+=["DMTest::HVec#copy_hvec"]
 fullItemList+=["DMTest::HAuxContainer#copy_hvecAux."]
 fullItemList+=["DMTest::HView#copy_hview"]
 
-from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
-fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
-                                    ['DataVector<DMTest::C_v1>',
-                                     'DMTest::CVecWithData_v1',
-                                     'DMTest::CAuxContainer_v1',
-                                     'DMTest::CTrigAuxContainer_v1',
-                                     'DMTest::C_v1',
-                                     'DMTest::CInfoAuxContainer_v1'])
-ServiceMgr += fmtsvc
-
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 
 #--------------------------------------------------------------
@@ -94,11 +84,23 @@ topSequence += DMTest__xAODTestTypelessRead ("xAODTestTypelessRead",
 # Stream's output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata3.root',asAlg=True,noTag=True)
-Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
 # List of DO's to write out
 Stream1.ItemList   += fullItemList
+
+from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatStreamHelperTool
+for tool in Stream1.HelperTools:
+    if isinstance(tool, xAODMaker__EventFormatStreamHelperTool):
+        tool.TypeNames += [
+            'DataVector<DMTest::C_v1>',
+            'DMTest::CVecWithData_v1',
+            'DMTest::CAuxContainer_v1',
+            'DMTest::CTrigAuxContainer_v1',
+            'DMTest::C_v1',
+            'DMTest::CInfoAuxContainer_v1',
+        ]
+        break
 
 
 # Avoid races when running tests in parallel.

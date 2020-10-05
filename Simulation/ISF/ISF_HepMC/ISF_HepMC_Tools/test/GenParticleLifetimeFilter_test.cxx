@@ -25,6 +25,7 @@
 // Truth related includes
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 
 namespace ISFTesting {
@@ -106,7 +107,11 @@ protected:
 TEST_F(GenParticleLifetimeFilter_test, allPropertiesUnset_expectPass) {
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
+#ifdef HEPMC3
+   auto part = HepMC::newGenParticlePtr();
+#else
   const HepMC::GenParticle part{};
+#endif
   ASSERT_TRUE( m_filterTool->pass(part) ); // will pass as no end vertex
 }
 
@@ -115,7 +120,11 @@ TEST_F(GenParticleLifetimeFilter_test, setMinimumLifetime_expectPass) {
   EXPECT_TRUE( m_filterTool->setProperty("MinimumLifetime", "1.3").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
+#ifdef HEPMC3
+   auto part = HepMC::newGenParticlePtr();
+#else
   const HepMC::GenParticle part{};
+#endif
   ASSERT_TRUE( m_filterTool->pass(part) ); // will pass as no end vertex
 }
 
@@ -129,7 +138,11 @@ TEST_F(GenParticleLifetimeFilter_test, addProdVtx_expectPass) {
   HepMC::GenVertex prodVtx(prodPos);
   auto part = HepMC::newGenParticlePtr(); // need dynamic allocation as GenVertex takes ownership
   prodVtx.add_particle_out(part);
+#ifdef HEPMC3
+  ASSERT_TRUE( m_filterTool->pass(part) ); // will pass as no end vertex
+#else  
   ASSERT_TRUE( m_filterTool->pass(*part) ); // will pass as no end vertex
+#endif
 }
 
 
@@ -144,7 +157,11 @@ TEST_F(GenParticleLifetimeFilter_test, minLifetimeGreaterThanParticleLifetime_ex
   const HepMC::FourVector endPos(0., 0., 0., 1.);
   HepMC::GenVertex endVtx(endPos);
   endVtx.add_particle_in(part);
+#ifdef HEPMC3
+  ASSERT_FALSE( m_filterTool->pass(part) ); // will fail as particle lifetime is only 1.0
+#else
   ASSERT_FALSE( m_filterTool->pass(*part) ); // will fail as particle lifetime is only 1.0
+#endif
 }
 
 
@@ -159,7 +176,11 @@ TEST_F(GenParticleLifetimeFilter_test, minLifetimeLessThanParticleLifetime_expec
   const HepMC::FourVector endPos(0., 0., 0., 2.);
   HepMC::GenVertex endVtx(endPos);
   endVtx.add_particle_in(part);
+#ifdef HEPMC3
+  ASSERT_TRUE( m_filterTool->pass(part) ); // will pass as particle lifetime is 2.0
+#else
   ASSERT_TRUE( m_filterTool->pass(*part) ); // will pass as particle lifetime is 2.0
+#endif
 }
 
 
@@ -171,7 +192,11 @@ TEST_F(GenParticleLifetimeFilter_test, endVtxButNoProdVtx_expectNoPass) {
   const HepMC::FourVector endPos(0., 0., 0., 2.);
   HepMC::GenVertex endVtx(endPos);
   endVtx.add_particle_in(part);
+#ifdef HEPMC3
+  ASSERT_FALSE( m_filterTool->pass(part) ); // will fail as prodVtx undefined
+#else
   ASSERT_FALSE( m_filterTool->pass(*part) ); // will fail as prodVtx undefined
+#endif
 }
 
 } // namespace ISFTesting

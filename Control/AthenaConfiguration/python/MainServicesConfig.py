@@ -79,7 +79,7 @@ def MainServicesCfg(cfgFlags):
     cfg.addService(StoreGateSvc("ConditionStore"))
 
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    cfg.merge( GeoModelCfg(cfgFlags) )
+    cfg.merge(GeoModelCfg(cfgFlags))
     cfg.addService(CompFactory.DetDescrCnvSvc(), create=True)
     cfg.addService(CompFactory.CoreDumpSvc(), create=True)
 

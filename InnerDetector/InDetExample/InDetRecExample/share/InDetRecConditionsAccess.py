@@ -105,23 +105,24 @@ if DetFlags.pixel_on():
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
-        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                      UseDeadmapConditions=(not athenaCommonFlags.isOnline()),
-                                      UseDCSStateConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
-                                      UseDCSStatusConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
-                                      UseTDAQConditions=athenaCommonFlags.isOnline(),
-                                      UseCalibConditions=True,
-                                      UseCablingConditions=useCablingConditions,
-                                      CablingMapFileName=IdMappingDat)
+        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                 UseCablingConditions=useCablingConditions,
+                                 CablingMapFileName=IdMappingDat)
+        if athenaCommonFlags.isOnline():
+            alg.ReadDeadMapKey = ""
+        condSeq += alg
 
     if useNewDeadmapFormat:
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
         if not hasattr(condSeq, "PixelDeadMapCondAlg"):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+            alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+            if athenaCommonFlags.isOnline():
+                alg.ReadKey = ""
+            condSeq += alg
 
-    if not athenaCommonFlags.isOnline():
+    if globalflags.DataSource=='data' and InDetFlags.usePixelDCS():
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
             conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
@@ -228,7 +229,17 @@ if DetFlags.pixel_on():
                 PixeldEdxAlg.CalibrationFile="dtpar_signed_234.txt"
             else:
                 PixeldEdxAlg.CalibrationFile="mcpar_signed_234.txt"
- 
+
+    ################
+    # RUN-1 legacy #
+    ################
+    if commonGeoFlags.Run()=="RUN1" and athenaCommonFlags.isOnline():
+        if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):
+            conddb.addFolder("TDAQ_ONL", "/TDAQ/Resources/ATLAS/PIXEL/Modules", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelTDAQCondAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+            condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey="/TDAQ/Resources/ATLAS/PIXEL/Modules")
+
 #
 # --- Load SCT Conditions Services
 #

@@ -9,10 +9,9 @@
  */
 
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
-
-#include "GaudiKernel/ToolHandle.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "TrkGeometry/Layer.h"
+#include "TrkExUtils/MaterialInteraction.h"
+#include "TrkGeometry/MaterialProperties.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
@@ -35,17 +34,8 @@ Trk::GsfCombinedMaterialEffects::~GsfCombinedMaterialEffects() = default;
 StatusCode
 Trk::GsfCombinedMaterialEffects::initialize()
 {
-  ATH_CHECK(m_msUpdator.retrieve());
   ATH_CHECK(m_EnergyLossUpdator.retrieve());
   ATH_CHECK(m_betheHeitlerEffects.retrieve());
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::GsfCombinedMaterialEffects::finalize()
-{
-  ATH_MSG_INFO("Finalisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
 
@@ -68,10 +58,8 @@ Trk::GsfCombinedMaterialEffects::compute(
    * 1.  Retrieve multiple scattering corrections
    */
   GSFScatteringCache cache_multipleScatter;
-  this->scattering(cache_multipleScatter,
-                   componentParameters,
-                   materialProperties,
-                   pathLength);
+  this->scattering(
+    cache_multipleScatter, componentParameters, materialProperties, pathLength);
 
   /*
    * 2. Retrieve energy loss corrections
@@ -157,20 +145,20 @@ Trk::GsfCombinedMaterialEffects::scattering(
   }
 
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
-  double p = globalMomentum.mag();
-
+  const double p = globalMomentum.mag();
   double pathcorrection = 1.;
   if (materialProperties.thickness() != 0) {
     pathcorrection = pathLength / materialProperties.thickness();
   }
-
-  // Here we know the path length to be meff.thicknessX0, so we set
-  // pathcorrection = 1 and create a dummy materialProperties with the
-  // properties we are interested in
-  MaterialProperties mprop(
-    materialProperties.thicknessInX0(), 1., 0., 0., 0., 0.);
-  const double angularVariation =
-    m_msUpdator->sigmaSquare(mprop, p, pathcorrection, Trk::muon);
+  const double t = pathcorrection * materialProperties.thicknessInX0();
+  // We were/are using muon here,
+  // not sure is what we want 100%.
+  const double m = s_particleMasses.mass[Trk::muon];
+  const double E = sqrt(p * p + m * m);
+  const double beta = p / E;
+  const Trk::MaterialInteraction matInt;
+  const double sigma = matInt.sigmaMS(t, p, beta);
+  const double angularVariation = sigma * sigma;
 
   const double sinTheta = std::sin(trackParameters->parameters()[Trk::theta]);
   cache.deltaThetaCov = angularVariation;

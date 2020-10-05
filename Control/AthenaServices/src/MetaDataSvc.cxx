@@ -17,6 +17,7 @@
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/FileIncident.h"
+#include "GaudiKernel/System.h"
 
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -613,13 +614,67 @@ const std::string MetaDataSvc::currentRangeID() const
 }
 
 
-CLID MetaDataSvc::remapMetaContCLID( const CLID& item_id ) const
+CLID MetaDataSvc::remapMetaContCLID( const CLID& itemID ) const
 {
-   // for now just a simple dumb if
-   if( item_id == 167728019 ) {
-      return 167729019;   //  MetaCont<EventStreamInfo> CLID
+   auto it =  m_handledClasses.find(itemID);
+   if (it == m_handledClasses.end()) {
+      ATH_MSG_DEBUG("Not translating metadata item ID #" << itemID);
+      return itemID;
    }
-   return item_id;
+
+   std::string itemName;
+   CLID contID = 0;
+   if (m_classIDSvc->getTypeNameOfID(itemID, itemName).isSuccess()) {
+     const std::string contName = "MetaCont<" + itemName + ">";
+     ATH_MSG_DEBUG("Transforming " << contName << " to " << itemName
+                   << " for output");
+     if (m_classIDSvc->getIDOfTypeName(contName, contID).isSuccess())
+       return contID;
+   }
+
+   return itemID;
+}
+
+void MetaDataSvc::recordHook(const std::type_info& typeInfo) {
+  const std::string& typeName = System::typeinfoName(typeInfo);
+  ATH_MSG_VERBOSE("Handling recod event of type " << typeName);
+
+  CLID itemID = 0;
+  if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
+
+    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
+    auto it =  m_handledClasses.find(itemID);
+
+    if (it == m_handledClasses.end())
+      m_handledClasses[itemID] = 1;
+    else
+      (it->second)++;
+
+  }
+
+}
+
+void MetaDataSvc::removeHook(const std::type_info& typeInfo) {
+  const std::string& typeName = System::typeinfoName(typeInfo);
+  ATH_MSG_VERBOSE("Handling removal of event of type " << typeName);
+
+  CLID itemID = 0;
+  // use Gaudi::System to get type name
+  if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
+
+    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
+    auto it =  m_handledClasses.find(itemID);
+
+    if (it == m_handledClasses.end())
+      return;
+
+    (it->second)--;
+
+    if (it->second == 0)
+      m_handledClasses.erase(it);
+
+  }
+
 }
 
 

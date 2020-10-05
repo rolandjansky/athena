@@ -93,7 +93,7 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
   // Get IdHelper from ToolService
   ATH_CHECK(m_idHelperSvc.retrieve());
   // the MS helpers for the different technologies
-  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper();
+  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper(m_idHelperSvc->mdtIdHelper().tubeMax());
   m_rpcHitIdHelper = RpcHitIdHelper::GetHelper(m_idHelperSvc->rpcIdHelper().gasGapMax());
   m_tgcHitIdHelper = TgcHitIdHelper::GetHelper();
   m_cscHitIdHelper = CscHitIdHelper::GetHelper();

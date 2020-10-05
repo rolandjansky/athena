@@ -449,7 +449,7 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
   const HepMC::GenEvent& currentBackgroundEvent(**(pMcEvtColl->begin()));         //background event
   //handle the slimming case
   //ATH_MSG_VERBOSE( "The MB Event Number is " << currentBkgEventIndex << ". m_nBkgEventsReadSoFar = " << m_nBkgEventsReadSoFar );
-  HepMC::GenVertex *pCopyOfGenVertex(NULL);
+  HepMC::GenVertexPtr  pCopyOfGenVertex(NULL);
   if ( currentBackgroundEvent.signal_process_vertex() ) pCopyOfGenVertex = new HepMC::GenVertex ( *currentBackgroundEvent.signal_process_vertex() );
   //insert the GenEvent into the overlay McEventCollection.
   m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar) = new HepMC::GenEvent(currentBackgroundEvent.signal_process_id(), currentBkgEventIndex, pCopyOfGenVertex );
@@ -462,9 +462,9 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
   ATH_MSG_VERBOSE( "Starting a vertex loop ... " );
   //cout << "Starting a vertex loop ... " <<endl;
   for (; currentVertexIter != endOfCurrentListOfVertices; ++currentVertexIter) {
-    const HepMC::GenVertex *pCurrentVertex(*currentVertexIter);
-    HepMC::GenVertex *pCopyOfVertexForClassification[NOPUTYPE];
-    for (int type(INTIME); type<NOPUTYPE; ++type) pCopyOfVertexForClassification[type]=(HepMC::GenVertex*)0;
+    const HepMC::GenVertexPtr  pCurrentVertex(*currentVertexIter);
+    HepMC::GenVertexPtr  pCopyOfVertexForClassification[NOPUTYPE];
+    for (int type(INTIME); type<NOPUTYPE; ++type) pCopyOfVertexForClassification[type]=(HepMC::GenVertexPtr )0;
 
     //check for collision vertices for in-time events
     bool isCollisionVertex(false);
@@ -480,8 +480,8 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
     const HepMC::GenVertex::particles_out_const_iterator endOfListOfParticlesFromCurrentVertex(pCurrentVertex->particles_out_const_end());
     for (; currentVertexParticleIter != endOfListOfParticlesFromCurrentVertex; ++currentVertexParticleIter) {
       ATH_MSG_VERBOSE( "Found a particle at location " << std::hex << *currentVertexParticleIter << std::dec  << " with PDG ID = " << (*currentVertexParticleIter)->pdg_id() );
-      const HepMC::GenParticle *pCurrentVertexParticle(*currentVertexParticleIter);
-      const HepMC::GenVertex *pCurrentParticleProductionVertex(pCurrentVertexParticle->production_vertex());
+      const HepMC::GenParticlePtr  pCurrentVertexParticle(*currentVertexParticleIter);
+      const HepMC::GenVertexPtr  pCurrentParticleProductionVertex(pCurrentVertexParticle->production_vertex());
       puType particleClassification(classifyVertex(pCurrentVertexParticle, pCurrentParticleProductionVertex,currentEventTime));
       //hack to keep the complete vertex information for the interaction vertices of in-time background events
       if(isCollisionVertex && NOPUTYPE==particleClassification) {
@@ -525,11 +525,11 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
   return StatusCode::SUCCESS;
 }
 
-bool MergeMcEventCollTool::isInitialCollisionVertex(const HepMC::GenVertex *pCurrentVertex) const {
+bool MergeMcEventCollTool::isInitialCollisionVertex(const HepMC::GenVertexPtr  pCurrentVertex) const {
   HepMC::GenVertex::particles_in_const_iterator currentVertexParticleIter(pCurrentVertex->particles_in_const_begin());
   const HepMC::GenVertex::particles_in_const_iterator endOfListOfParticlesFromCurrentVertex(pCurrentVertex->particles_in_const_end());
   while(currentVertexParticleIter != endOfListOfParticlesFromCurrentVertex) {
-    const HepMC::GenParticle *pCurrentVertexParticle(*currentVertexParticleIter);
+    const HepMC::GenParticlePtr  pCurrentVertexParticle(*currentVertexParticleIter);
     // FIXME: Nasty kludge will only work for Pythia minbias currently
     // Eventually just look for beam particles with status 4, but this
     // requires an update to the HepMC version used by ATLAS.
@@ -543,7 +543,7 @@ bool MergeMcEventCollTool::isInitialCollisionVertex(const HepMC::GenVertex *pCur
   return false;
 }
 
-MergeMcEventCollTool::puType MergeMcEventCollTool::classifyVertex(const HepMC::GenParticle *pCurrentVertexParticle, const HepMC::GenVertex *pCurrentParticleProductionVertex, double currentEventTime) {
+MergeMcEventCollTool::puType MergeMcEventCollTool::classifyVertex(const HepMC::GenParticlePtr  pCurrentVertexParticle, const HepMC::GenVertexPtr  pCurrentParticleProductionVertex, double currentEventTime) {
   //=======================================================================
   //handle the slimming case
   //=======================================================================

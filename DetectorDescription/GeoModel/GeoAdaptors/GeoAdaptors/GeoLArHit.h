@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOADAPTORS_GEOLARHIT_H
@@ -33,17 +33,16 @@ class GeoLArHit
   int SamplingLayer() const;
 
   // Underlying hit.
-  const LArHit &data() const { return *m_hit;}
+  const LArHit &data() const { return m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return s_man; }
+  operator bool () const { return true; }
 
  private:
-
-  static void init();
+  static const CaloDetDescrManager* init();
+  const CaloDetDescrManager* mgr() const;
   
-  const LArHit* m_hit;
-  static const CaloDetDescrManager *s_man;
+  const LArHit& m_hit;
 };
 
 #include "GeoAdaptors/GeoLArHit.icc"

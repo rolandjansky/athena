@@ -24,6 +24,18 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#define MONITOR_BTAG_AUX_TRACK_VAR(VAR_NAME, VAR_TYPE ) \
+      auto monitor_for_##VAR_NAME = Monitored::Collection( #VAR_NAME, \
+        (*bTagLink)->auxdata< std::vector<VAR_TYPE> >( #VAR_NAME ));
+
+#define MONITOR_BTAG_AUX_VAR(VAR_NAME, VAR_TYPE, CONTAINER ) \
+    auto monitor_for_##VAR_NAME = Monitored::Collection( #VAR_NAME, CONTAINER, \
+      [](const ElementLink< xAOD::BTaggingContainer >& bTagLink) {  \
+        return (*bTagLink)->auxdata<VAR_TYPE>( #VAR_NAME ); \
+      } \
+    );
+
+
 class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
  public:
   TrigBjetBtagHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
@@ -37,7 +49,8 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
   // online monitoring 
   virtual StatusCode monitor_jets( const ElementLinkVector<xAOD::JetContainer >& jetELs ) const ;
   virtual StatusCode monitor_tracks( const ElementLinkVector< xAOD::TrackParticleContainer >& trackELs ) const;
-  virtual StatusCode monitor_flavor_tag_variable( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name) const;
+  virtual StatusCode monitor_primary_vertex( const ElementLink< xAOD::VertexContainer >& primVertexEL ) const;
+  virtual StatusCode monitor_flavor_probabilities( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name) const;
   virtual StatusCode monitor_btagging( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL ) const;
   
  private:

@@ -404,13 +404,12 @@ void Muon::MdtRdoToPrepDataToolCore::printPrepData(  )
       if ( mdtColl->size() > 0 ) 
         {            
           ATH_MSG_DEBUG("PrepData Collection ID "<<m_idHelperSvc->toString(mdtColl->identify()));
-          MdtPrepDataCollection::const_iterator it_mdtPrepData;
-          for (it_mdtPrepData=mdtColl->begin(); it_mdtPrepData != mdtColl->end(); it_mdtPrepData++) {
+          for (const MdtPrepData* prepData : *mdtColl) {
             nhitcoll++;
             nhits++;
             ATH_MSG_DEBUG(" in this coll. "<<nhitcoll<<" prepData id = "
-                         <<m_idHelperSvc->toString((*it_mdtPrepData)->identify())
-                         <<" tdc/adc ="<<(*it_mdtPrepData)->tdc()<<"/"<< (*it_mdtPrepData)->adc());
+                         <<m_idHelperSvc->toString(prepData->identify())
+                         <<" tdc/adc ="<<prepData->tdc()<<"/"<< prepData->adc());
           }
           ncoll++;
           ATH_MSG_DEBUG("*** Collection "<<ncoll<<" Summary: N. hits = "<<nhitcoll);
@@ -552,7 +551,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
       ATH_MSG_WARNING("Found issue MDT RDO decoder for subdetId/mrodId/csmId "
                       <<subdetId<<"/"<<mrodId<<"/"<<csmId<<" amtHit channelId/tdcId ="
                       <<amtHit->channelId()<<"/"<<amtHit->tdcId());
-      itD++;
+      ++itD;
       continue;
     }
 
@@ -565,7 +564,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
           ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
           delete newDigit;
-	  itD++;
+	  ++itD;
           continue;
         }
       }
@@ -637,7 +636,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
       ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                       <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
-      itD++;
+      ++itD;
       continue;
     }
     if (!descriptor->containsId(channelId)) {
@@ -645,7 +644,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
                       <<" does not contains candidate prd Identifier <"
                       <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
-      itD++;
+      ++itD;
       continue;
     }
       
@@ -893,15 +892,12 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm* rdoColl,
     }
   }// end for-loop over rdoColl  
  
-  // make iterator over mdtDigitColl map
-  std::map<int, std::pair<MdtDigit*, MdtDigit*> >::iterator iter_map;
-
   //iterate over mdtDigitColl
-  for( iter_map = mdtDigitColl.begin(); iter_map != mdtDigitColl.end(); iter_map++ ) {
+  for (const std::pair<const int, std::pair<MdtDigit*, MdtDigit*> >& digitPair : mdtDigitColl) {
 
     // get the twin hits from mdtDigitColl
-    MdtDigit* digit = iter_map->second.first;
-    MdtDigit* second_digit = iter_map->second.second;
+    MdtDigit* digit = digitPair.second.first;
+    MdtDigit* second_digit = digitPair.second.second;
 
     if (!digit) {
       ATH_MSG_FATAL("nullptr to a digit ");

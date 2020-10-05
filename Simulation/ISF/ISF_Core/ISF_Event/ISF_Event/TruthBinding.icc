@@ -59,21 +59,33 @@ namespace ISF {
 
     const auto rhsTruth = rhs.getTruthParticle();
     if (m_truthParticle && rhsTruth) {
+#ifdef HEPMC3
+      pass &= (m_truthParticle == rhsTruth);
+#else
       pass &= *m_truthParticle == *rhsTruth;
+#endif
     } else {
       return false;
     }
 
     const auto rhsPrimary = rhs.getPrimaryTruthParticle();
     if (m_primaryTruthParticle && rhsPrimary) {
+#ifdef HEPMC3
+      pass &= (m_primaryTruthParticle == rhsPrimary);
+#else
       pass &= *m_primaryTruthParticle == *rhsPrimary;
+#endif
     } else {
       return false;
     }
 
     const auto rhsGenZero = rhs.getGenerationZeroTruthParticle();
     if (m_generationZeroTruthParticle && rhsGenZero) {
+#ifdef HEPMC3
+      pass &= (m_generationZeroTruthParticle == rhsGenZero);
+#else
       pass &= *m_generationZeroTruthParticle == *rhsGenZero;
+#endif
     } else {
       return false;
     }
