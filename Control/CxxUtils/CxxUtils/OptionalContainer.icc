@@ -83,6 +83,16 @@ void CxxUtils::OptionalBase<C, I, V>::coalesce_r(const I & i, const std::optiona
 }
 
 template<template <typename> typename C, typename I, typename V>
+auto CxxUtils::OptionalBase<C, I, V>::data(void) -> F & {
+    return m_data;
+}
+
+template<template <typename> typename C, typename I, typename V>
+auto CxxUtils::OptionalBase<C, I, V>::data(void) const -> const F & {
+    return m_data;
+}
+
+template<template <typename> typename C, typename I, typename V>
 void CxxUtils::OptionalArrayLike<C, I, V>::coalesce_all_l(const OptionalArrayLike<C, I, V> & rhs) {
     for (size_t i = 0; i < std::min(this->m_data.size(), rhs.m_data.size()); i++) {
         this->coalesce_l(i, rhs.get(i));

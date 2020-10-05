@@ -309,6 +309,25 @@ namespace CxxUtils {
          */
         void coalesce_r(const I & i, const std::optional<V> & v);
 
+        /**
+         * @brief Mutable accessor to the underlying container.
+         *
+         * A simple mutable accessor to the underlying container of this class.
+         *
+         * @return a mutable reference to the underlying container.
+         */
+        F & data(void);
+
+        /**
+         * @brief Immutable accessor to the underlying container.
+         *
+         * A simple immutable accessor to the underlying container of this
+         * class.
+         *
+         * @return an immutable reference to the underlying container.
+         */
+        const F & data(void) const;
+
     protected:
         F m_data;
     };
