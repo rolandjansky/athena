@@ -1,21 +1,7 @@
-################################################################################
-# Package: VP1TestSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1TestSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          graphics/VP1/VP1Base
-                          graphics/VP1/VP1Utils
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack )
 
 # External dependencies:
 find_package( Coin3D )
