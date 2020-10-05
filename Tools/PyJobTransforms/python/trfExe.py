@@ -1236,7 +1236,6 @@ class athenaExecutor(scriptExecutor):
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
 
-
     ## @brief Prepare the correct command line to be used to invoke athena
     def _prepAthenaCommandLine(self):
         ## Start building up the command line
@@ -1816,7 +1815,6 @@ class DQMergeExecutor(scriptExecutor):
 
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
-
 
 
 ## @brief Specialist execution class for merging NTUPLE files
