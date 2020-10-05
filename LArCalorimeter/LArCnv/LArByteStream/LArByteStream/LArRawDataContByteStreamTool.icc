@@ -47,7 +47,13 @@ StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION*
             try {
               OFFLINE_FRAGMENTS_NAMESPACE::PointerType p;
 	      OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag(*rob_add);
+              uint32_t fragSourceID = robFrag.rod_source_id();
             
+              if( fragSourceID & 0x1000 ){
+                  ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << fragSourceID);
+                  continue;
+              }
+
 	      if (!m_decoder->check_valid (&robFrag, msg())) {
 	        ATH_MSG_WARNING ( "Error reading bytestream event: "
                                   << "Invalid ROB fragment for source ID " << robFrag.rod_source_id() );
