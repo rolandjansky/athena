@@ -21,7 +21,7 @@ class IJetCorrectionTool : virtual public asg::IAsgTool
     public:
 
         /// Virtual destructor
-        virtual ~IJetCorrectionTool(){};
+        virtual ~IJetCorrectionTool()=default;
 
 
         //All the public functions from the tool that will be used by the tool are live inside "CP" so they are declared in "JetCPInterfaces/ICPJetCorrectionTool"
