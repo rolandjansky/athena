@@ -538,7 +538,6 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
   // now create the exact number of particles which was just computed before
   double energyRest = m_initEnergy;
   double minEnergy = p->getMinEnergy();
-  std::cout << "min energy " << minEnergy << std::endl;
   int numCreated = 0;
 
   for ( numCreated = 0; (numCreated < numParticles) && (energyRest > minEnergy); numCreated++ )
@@ -693,11 +692,9 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
       // calculate the exact theta value of the later created
       // punch-through particle
       theta = m_initTheta + deltaTheta*p->getPosAngleFactor();
-      std::cout << "particle deltaTheta " << deltaTheta << std::endl;
 
     }
   while ( (theta > M_PI) || (theta < 0.) );
-  std::cout << "particle theta " << theta << " eta " << -log(tan(theta/2.)) << std::endl;
   // (2.3) get the particle's delta phi relative to the incoming particle
 
   double deltaPhi = p->getExitDeltaPhiPDF()->getRand(
@@ -732,11 +729,9 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
       // calculate the exact momentum theta value of the later created
       // punch-through particle
       momTheta = theta + momDeltaTheta*p->getMomAngleFactor();
-      std::cout << "particle momDeltaTheta " << momDeltaTheta << std::endl;
 
     }
   while ( (momTheta > M_PI) || (momTheta < 0.) );
-  std::cout << "particle momTheta " << momTheta << std::endl;
 
   // (2.5) get the particle momentum delta phi, relative to its position
 
@@ -929,6 +924,7 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
       }
 
 
+
       //Get list of all objects in directory
       TIter keyList(dir->GetListOfKeys());
       TKey *key;
@@ -963,8 +959,9 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
         //create vector with just eta range and energy double
         double energy = std::stod(strEnergy);
         std::vector<double> etaMinEtaMax;
-        etaMinEtaMax.push_back(std::stod(strEtaMin));
-        etaMinEtaMax.push_back(std::stod(strEtaMax));
+        etaMinEtaMax.push_back(std::stod(strEtaMin)/100.);
+        etaMinEtaMax.push_back(std::stod(strEtaMax)/100.);
+
 
         //Add entry to pdf map 
         if(strcmp(key->GetClassName(), "TH1F") == 0){

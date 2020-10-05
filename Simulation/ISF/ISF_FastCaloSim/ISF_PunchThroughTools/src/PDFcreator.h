@@ -40,8 +40,31 @@ namespace ISF
 
     /** all following is used to set up the class */
     void setName( std::string PDFname ){ m_name = PDFname; }; //get the pdf's name
-    void addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist) { std::map<std::vector<double>, TH1*> inner; inner.insert(std::make_pair(etaMinEtaMax, hist)); m_energy_etaRange_hists1D.insert(std::make_pair(energy, inner)); }; //add entry to map linking energy, eta window and histogram
-    void addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, TH2 *hist) { std::map<std::vector<double>, TH2*> inner; inner.insert(std::make_pair(etaMinEtaMax, hist)); m_energy_etaRange_hists2D.insert(std::make_pair(energy, inner)); }; //add entry to map linking energy, eta window and histogram
+    void addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist) { //add entry to map linking energy, eta window and histogram
+    std::map<std::vector<double>, TH1*> inner; 
+    if(m_energy_etaRange_hists1D.find(energy) != m_energy_etaRange_hists1D.end()){
+      inner = m_energy_etaRange_hists1D.find(energy)->second;
+      m_energy_etaRange_hists1D.erase(energy);
+      inner.insert(std::make_pair(etaMinEtaMax, hist));
+    }
+    else{
+      inner.insert(std::make_pair(etaMinEtaMax, hist)); 
+    } 
+    m_energy_etaRange_hists1D.insert(std::make_pair(energy, inner));
+
+    }; 
+    void addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, TH2 *hist) { //add entry to map linking energy, eta window and histogram
+    std::map< std::vector<double>, TH2*> inner;
+    if(m_energy_etaRange_hists2D.find(energy) != m_energy_etaRange_hists2D.end()){
+      inner = m_energy_etaRange_hists2D.find(energy)->second;
+      m_energy_etaRange_hists2D.erase(energy);
+      inner.insert(std::make_pair(etaMinEtaMax, hist));
+    }
+    else{ 
+      inner.insert(std::make_pair(etaMinEtaMax, hist)); 
+    }  
+    m_energy_etaRange_hists2D.insert(std::make_pair(energy, inner));
+    };
 
     /** get the random value with this methode, by providing the input parameters */
     double getRand( std::vector<double> inputPar, double outEnergy = 0., double randMin = 0., double randMax = 0.);
