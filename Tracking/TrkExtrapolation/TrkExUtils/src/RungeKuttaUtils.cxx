@@ -188,14 +188,9 @@ transformGlobalToPlane(const Amg::Transform3D&  T,
   if(A!=0.) A=1./A;
   S[0]*=A; S[1]*=A; S[2]*=A;
 
-  const double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  const double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2];
-  const double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
-
+  double s[5]={};
+  mutl3x5Helper(s,S,&P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
   mutl3x5Helper(&Jac[0],Ax,&P[7]);
   mutl3x5Helper(&Jac[5],Ay,&P[7]);
@@ -233,14 +228,9 @@ transformGlobalToDisc(const Amg::Transform3D&  T,
   if(A!=0.) A=1./A;
   S[0]*=A; S[1]*=A; S[2]*=A;
 
-  const double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  const double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2];
-  const double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
-
+  double s[5]={};
+  mutl3x5Helper(s,S,&P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
   //
   double Ri = 1./par[0];
@@ -292,14 +282,10 @@ transformGlobalToCylinder(const Amg::Transform3D&  T,
   const double az = P[5]-Az[2]*C; z-=(B*Az[2]);
   double A  =(ax*x+ay*y+az*z);  if(A!=0.) A=1./A; x*=A; y*=A; z*=A;
 
-  const double s0 = P[ 7]*x+P[ 8]*y+P[ 9]*z;
-  const double s1 = P[14]*x+P[15]*y+P[16]*z;
-  const double s2 = P[21]*x+P[22]*y+P[23]*z;
-  const double s3 = P[28]*x+P[29]*y+P[30]*z;
-  const double s4 = P[35]*x+P[36]*y+P[37]*z;
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
-
+  const double S[3] = { x, y, z };
+  double s[5] = {};
+  mutl3x5Helper(s, S, &P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
   //
   const double Av[3] = { (RC * Ay[0] - RS * Ax[0]) * (R = 1. / R),
@@ -955,7 +941,7 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
 /////////////////////////////////////////////////////////////////////////////////
 
 AmgSymMatrix(5) * Trk::RungeKuttaUtils::newCovarianceMatrix(
-                    const double* J,
+                    const double* ATH_RESTRICT J,
                     const AmgSymMatrix(5) & M)
 {
   AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
@@ -1095,13 +1081,9 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   if(A!=0.) A=1./A;
   S[0]*=A; S[1]*=A; S[2]*=A;
 
-  const double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  const double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2];
-  const double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
+  double s[5]={};
+  mutl3x5Helper(s,S,&P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
 
   double P3,P4,C = P[3]*P[3]+P[4]*P[4];
   if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}

@@ -155,7 +155,7 @@ namespace RungeKuttaUtils
   // Covariance matrix production for Trk::TrackParameters
   /////////////////////////////////////////////////////////////////////////////////
 
-  AmgSymMatrix(5)* newCovarianceMatrix(const double*, const AmgSymMatrix(5) &);
+  AmgSymMatrix(5)* newCovarianceMatrix(const double* ATH_RESTRICT, const AmgSymMatrix(5) &);
 
   /////////////////////////////////////////////////////////////////////////////////
   // Transformations from curvilinear to global system coordinates
