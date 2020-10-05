@@ -15,7 +15,7 @@
  ****************************************************************************/
 
 //main header
-#include "InDetGlobalMonitoringRun3Test/InDetGlobalBeamSpotMonAlg.h"
+#include "InDetGlobalBeamSpotMonAlg.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
