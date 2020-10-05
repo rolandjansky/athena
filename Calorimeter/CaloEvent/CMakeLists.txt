@@ -1,42 +1,13 @@
-################################################################################
-# Package: CaloEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloEvent )
 
 # Extra dependencies, based on the environment:
-set( extra_deps )
 set( extra_libs )
 if( NOT GENERATIONBASE )
-   set( extra_deps LArCalorimeter/LArRawConditions ) # not ideal... LAr should depend on Calo
    set( extra_libs LArRawConditions )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Calorimeter/CaloConditions
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloGeoHelpers
-   Calorimeter/CaloIdentifier
-   Control/AthAllocators
-   Control/AthContainers
-   Control/AthLinks
-   Control/AthenaKernel
-   Control/CxxUtils
-   Control/Navigation
-   DetectorDescription/GeoPrimitives
-   DetectorDescription/Identifier
-   Event/EventKernel
-   Event/FourMom
-   Event/NavFourMom
-   ${extra_deps}
-   PRIVATE
-   AtlasTest/TestTools
-   Control/StoreGate
-   DetectorDescription/IdDictParser
-   GaudiKernel )
 
 # External dependencies:
 find_package( Boost )

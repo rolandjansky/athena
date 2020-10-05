@@ -11,11 +11,8 @@ find_package( CLHEP )
 atlas_add_library( CaloUtilsLib CaloUtils/*.h CaloUtils/*.icc src/*.h src/*.cxx
    PUBLIC_HEADERS CaloUtils
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES CaloConditions CaloEvent CaloGeoHelpers CaloIdentifier
-   AthenaBaseComps AthenaKernel Navigation FourMom xAODCaloEvent xAODCore GaudiKernel
-   CaloDetDescrLib StoreGateLib CaloInterfaceLib
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils
-   SGTools IdDictParser Identifier )
+   LINK_LIBRARIES AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloInterfaceLib CxxUtils FourMom GaudiKernel Navigation StoreGateLib xAODCaloEvent
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelInterfaces Identifier SGTools )
 
 atlas_add_component( CaloUtils src/components/*.cxx
    LINK_LIBRARIES CaloUtilsLib )
@@ -33,24 +30,21 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 atlas_add_test( CaloLayerCalculator_test
    SOURCES test/CaloLayerCalculator_test.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier
-   StoreGateLib xAODCaloEvent GaudiKernel TestTools IdDictParser CaloUtilsLib
+   LINK_LIBRARIES LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloUtilsLib CxxUtils IdDictParser TestTools
    LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( CaloVertexedCell_test
    SOURCES test/CaloVertexedCell_test.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier
-   StoreGateLib GaudiKernel TestTools IdDictParser CaloUtilsLib
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloUtilsLib TestTools
    LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( CaloVertexedCluster_test
    SOURCES test/CaloVertexedCluster_test.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDetDescrLib CaloIdentifier StoreGateLib
-   xAODCaloEvent GaudiKernel TestTools IdDictParser CaloUtilsLib
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloUtilsLib TestTools
    LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

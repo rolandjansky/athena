@@ -1,43 +1,7 @@
-################################################################################
-# Package: CaloRec
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloRec )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Calorimeter/CaloConditions
-   Calorimeter/CaloEvent
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/StoreGate
-   Database/AthenaPOOL/AthenaPoolUtilities
-   Event/xAOD/xAODCaloEvent
-   GaudiKernel
-   PRIVATE
-   AtlasTest/TestTools
-   Control/CxxUtils
-   Control/AthAllocators
-   DetectorDescription/IdDictParser
-   DetectorDescription/Identifier
-   Event/EventKernel
-   Event/FourMom
-   Event/NavFourMom
-   Event/xAOD/xAODEventInfo	
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloGeoHelpers
-   Calorimeter/CaloIdentifier
-   Calorimeter/CaloInterface
-   Calorimeter/CaloUtils
-   Calorimeter/CaloLumiConditions
-   LArCalorimeter/LArTools
-   LArCalorimeter/LArElecCalib
-   LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArRawConditions
-   LumiBlock/LumiBlockComps
-   Control/AthenaMonitoringKernel )
 
 # External dependencies:
 find_package( AIDA )
@@ -60,8 +24,7 @@ atlas_add_library( CaloRecLib
    StoreGateLib LArToolsLib LumiBlockCompsLib AthenaMonitoringKernelLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
    ${EIGEN_LIBRARIES} AthAllocators IdDictParser EventKernel CaloLumiConditions
-   LArRawConditions
-   FourMom NavFourMom )
+   LArRawConditions FourMom NavFourMom )
 
 atlas_add_component( CaloRec
    src/components/*.cxx
