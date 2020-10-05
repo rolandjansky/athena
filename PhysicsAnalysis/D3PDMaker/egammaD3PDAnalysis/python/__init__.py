@@ -16,6 +16,3 @@ for k, v in egammaD3PDAnalysisConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
 
-# Bring this into this scope.
-from .egammaShowerDepthAlg import egammaShowerDepthAlg
-
