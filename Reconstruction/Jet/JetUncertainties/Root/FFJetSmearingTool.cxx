@@ -61,7 +61,7 @@ StatusCode FFJetSmearingTool::initialize()
         ATH_MSG_FATAL("No name specified.  Aborting.");
         return StatusCode::FAILURE;
     }
-    if (m_MassDef_string == "")
+    if (m_MassDef_string.empty())
     {
         ATH_MSG_FATAL("No kind of jet mass specified.  Aborting.");
         return StatusCode::FAILURE;
@@ -101,7 +101,7 @@ StatusCode FFJetSmearingTool::initialize()
 
     // Check the jet definition
     m_truth_jetColl = settings.GetValue("TruthJetColl","");
-    if (m_truth_jetColl == "")
+    if (m_truth_jetColl.empty())
     {
         ATH_MSG_ERROR("Cannot find the truth jet collection to use in config");
         return StatusCode::FAILURE;
@@ -109,7 +109,7 @@ StatusCode FFJetSmearingTool::initialize()
     ATH_MSG_INFO("  Truth Jet Collection: " << m_truth_jetColl);
     // Check the name of the truth label accessor for BoostjetTaggers
     m_truthlabelaccessor = settings.GetValue("TruthLabelAccessor","");
-    if (m_truthlabelaccessor == "")
+    if (m_truthlabelaccessor.empty())
     {
         ATH_MSG_ERROR("Cannot find the TruthLabelAccessor to use in config");
         return StatusCode::FAILURE;
@@ -142,7 +142,7 @@ StatusCode FFJetSmearingTool::initialize()
     // Get the file to read uncertainties in from
     m_histFileName = settings.GetValue("UncertaintyRootFile","");
     m_HistogramsFilePath = jet::utils::findFilePath(m_histFileName.c_str(),m_path.c_str(),m_calibArea.c_str());
-    if (m_histFileName == "")
+    if (m_histFileName.empty())
     {
         ATH_MSG_ERROR("Cannot find uncertainty histogram file in the config file");
         return StatusCode::FAILURE;
@@ -274,7 +274,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
     TString CaloResponseMap_path = settings.GetValue("CaloResponseMap","");
 
-    if(CaloResponseMap_path == "")
+    if(CaloResponseMap_path.IsNull())
     {
         ATH_MSG_ERROR("Cannot find the CaloResponseMap in the config file");
         return StatusCode::FAILURE;
@@ -287,7 +287,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
         TString TAResponseMap_path = settings.GetValue("TAResponseMap","");
 
-        if(TAResponseMap_path == "")
+        if(TAResponseMap_path.IsNull())
         {
             ATH_MSG_ERROR("Cannot find the TAResponseMap in the config file");
             return StatusCode::FAILURE;
@@ -356,21 +356,21 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
     TString Calo_TA_weight_file_name = settings.GetValue("JetUncertainties_UncertaintyRootFile","");
     const TString Calo_TA_weight_file_path = jet::utils::findFilePath(Calo_TA_weight_file_name.Data(),m_path.c_str(),m_calibArea.c_str());
 
-    if (Calo_TA_weight_file_path == "")
+    if (Calo_TA_weight_file_path.IsNull())
     {
         ATH_MSG_ERROR("Cannot find the file with the Calo and TA weights");
         return StatusCode::FAILURE;
     }
 
     TString Calo_weight_hist_name = settings.GetValue("CombMassWeightCaloHist","");
-    if (Calo_weight_hist_name == "")
+    if (Calo_weight_hist_name.IsNull())
     {
         ATH_MSG_ERROR("Cannot find the histogram name that contains the Calo weights in the config file");
         return StatusCode::FAILURE;
     }
 
     TString TA_weight_hist_name = settings.GetValue("CombMassWeightTAHist","");
-    if (TA_weight_hist_name == "")
+    if (TA_weight_hist_name.IsNull())
     {
         ATH_MSG_ERROR("Cannot find the histogram name that contains the TA weights in the config file");
         return StatusCode::FAILURE;
