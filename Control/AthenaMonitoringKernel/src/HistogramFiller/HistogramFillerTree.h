@@ -59,7 +59,6 @@ namespace Monitored {
           ++idx; continue;
         }
         TBranch* branch = static_cast<TBranch*>(branchList->At(idxgood));
-	std::cout << "Calling filler function for var : " <<  vars.var[idx]->name() << " branch " << branch->GetName() << "\n";
         m_fillerFunctions[idx](branch, *vars.var[idx]);
         ++idx; ++idxgood;
       }
