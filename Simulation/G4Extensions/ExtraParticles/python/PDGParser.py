@@ -149,8 +149,8 @@ class PDGParser(object):
                         self.extraParticles[name] = ExtraParticle(**kwargs)
                     else:
                         if getattr(self.extraParticles[name], prop) != -1:
-                            self.log.warning("Property %s is already set for particle %s. Current value is %s and incoming value is %s." ,
-                                             (prop, name, getattr(self.extraParticles[name], prop), value))
+                            self.log.warning("Property %s is already set for particle %s. Current value is %s and incoming value is %s." % (
+                                prop, name, getattr(self.extraParticles[name], prop), value))
                             continue
                         setattr(self.extraParticles[name], prop, value)
 
