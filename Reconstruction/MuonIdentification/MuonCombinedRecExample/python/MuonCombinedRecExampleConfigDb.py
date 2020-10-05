@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
      addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
@@ -7,8 +7,6 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
      addTypesOnlyToSkip
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from InDetRecExample.InDetKeys import InDetKeys
-from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
 # combined tools
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
 
@@ -38,69 +36,26 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","
 
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg_LargeD0",
-                                                                      InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),  
-                                                                                                     
-                                                                      TagMap="caloTagMap_LargeD0")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg_LRT","MuonCaloTagAlg_LRT")
 
 
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInsideOutRecoAlg","MuonInsideOutRecoAlg")
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInsideOutRecoAlg","MuGirlAlg_LargeD0",
-                                  InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
-                                  CombinedTrackCollection=MuonCbKeys.MuGirlMuonsLargeD0(),
-                                  METrackCollection="MuGirlMETracksLargeD0",
-                                  SegmentCollection="MuGirlSegmentsLargeD0",
-                                  TagMap="MuGirlMap_LargeD0")
-
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg_LRT","MuGirlAlg_LRT")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlStauAlg","MuGirlStauAlg")
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg")
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg",
-                                    "MuonCombinedInDetCandidateAlg_LargeD0",
-                                    TrackParticleLocation=[InDetKeys.xAODLargeD0TrackParticleContainer()],
-                                    InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),  
-									TrackSelector="MuonCombinedInDetDetailedTrackSelectorTool_LargeD0",
-                                    DoSiliconAssocForwardMuons=False)
-
-
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg_LRT","MuonCombinedInDetCandidateAlg_LRT")
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg","MuonCombinedAlg")
-## Large D0 version
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg", "MuonCombinedAlg_LargeD0",
-                                                                        InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
-                                                                        CombinedTagMaps=["muidcoTagMap_LargeD0","stacoTagMap_LargeD0"],
-                                                                        MuidCombinedTracksLocation="MuidCombinedTracks_LargeD0",
-                                                                        MuidMETracksLocation="MuidMETracks_LargeD0")
-
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg_LRT", "MuonCombinedAlg_LRT")
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg")
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg_LargeD0",
-                                                                        InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
-                                                                        TagMap="segmentTagMap_LargeD0",
-                                                                        MuonSegmentLocation="MuonSegments")
-
-
-
-
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg_LRT","MuonSegmentTagAlg_LRT")
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg")
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg_LargeD0",
-                                                                      MuonContainerLocation=MuonCbKeys.FinalMuonsLargeD0(),
-                                                                      InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
-                                                                      ExtrapolatedLocation="ExtraPolated"+MuonCbKeys.FinalMuonsLargeD0(),
-                                                                      #ExtrapolatedTrackLocation="ExtraPolatedMuonLRT",
-                                                                      MSOnlyExtrapolatedLocation="MSOnlyExtraPolated"+MuonCbKeys.FinalMuonsLargeD0(),
-                                                                      #MSOnlyExtrapolatedTrackLocation="MSOnlyExtraPolated"+MuonCbKeys.FinalMuonsLargeD0(),
-                                                                      CombinedLocation="Combined"+MuonCbKeys.FinalMuonsLargeD0(),
-                                                                      SegmentContainerName="MuonSegments_LargeD0",
-                                                                      TrackSegmentContainerName="TrakMuonSegments_LargeD0",
-                                                                      TagMaps=["muidcoTagMap_LargeD0","stacoTagMap_LargeD0","segmentTagMap_LargeD0","MuGirlMap_LargeD0","caloTagMap_LargeD0"],
-                                                                      BuildSlowMuon= False,
-                                                                      MakeClusters=False ,
-                                                                      MuonCreatorTool="MuonCombined::MuonCreatorTool/MuonCreatorTool_LRT",
-                                                                      OutputLevel=DEBUG   )
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg_LRT","MuonCreatorAlg_LRT" )
 
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreatorAlg")
@@ -115,13 +70,8 @@ addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagAmbiguitySolverTool"
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuonSegmentTagTool","MuonSegmentTagTool")
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedTrackSelectorTool")
-addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool",
-        "MuonCombinedInDetDetailedTrackSelectorTool_LargeD0",
-        IPd0Max=1.e4,
-        nHitPix=0,
-        nHitSct=4,
-        
-)
+
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool_LRT", "MuonCombinedInDetDetailedTrackSelectorTool_LRT")
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedForwardTrackSelectorTool", nHitSct=0)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonInDetForwardCandidateTool","MuonInDetForwardCandidateTool")
@@ -129,7 +79,7 @@ addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedParticleCreator","
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCaloParticleCreator","MuonCaloParticleCreator")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorTool",BuildStauContainer=True)
-addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorTool_LRT",RequireIDTrack=True)
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool_LRT","MuonCreatorTool_LRT")
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.ExtrapolateMuonToIPTool","ExtrapolateMuonToIPTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool","MuonCandidateTool")
