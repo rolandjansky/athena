@@ -7,7 +7,6 @@
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 
-#include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauDefs.h"
 #include "xAODTau/TauTrackContainer.h"
@@ -17,7 +16,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "CaloInterface/ICaloCellMakerTool.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 using Gaudi::Units::GeV;
