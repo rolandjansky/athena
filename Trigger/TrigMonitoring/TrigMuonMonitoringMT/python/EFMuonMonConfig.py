@@ -41,37 +41,37 @@ def EFMuonMonConfig(helper):
 
         # basic EDM variables
         # EFSA
-        histGroup.defineHistogram(chain+'_MSTrack_Pt;EFSA_Pt',
+        histGroup.defineHistogram(chain+'_EFSA_Pt;EFSA_Pt',
                                   title='EFSA Pt '+chain+';p_{T} [GeV];Events', 
                                   type='TH1F', path='',xbins=210,xmin=-105.,xmax=105.)
 
-        histGroup.defineHistogram(chain+'_MSTrack_Eta;EFSA_Eta',
+        histGroup.defineHistogram(chain+'_EFSA_Eta;EFSA_Eta',
                                   title='EFSA Eta '+chain+';#eta;Events', 
                                   type='TH1F', path='',xbins=108,xmin=-2.7,xmax=2.7)
 
-        histGroup.defineHistogram(chain+'_MSTrack_Phi;EFSA_Phi',
+        histGroup.defineHistogram(chain+'_EFSA_Phi;EFSA_Phi',
                                   title='EFSA Phi '+chain+';#phi;Events', 
                                   type='TH1F', path='',xbins=96,xmin=-ROOT.TMath.Pi(),xmax=ROOT.TMath.Pi())
 
-        histGroup.defineHistogram(chain+'_MSTrack_Eta,'+chain+'_MSTrack_Phi;EFSA_Eta_vs_Phi',
+        histGroup.defineHistogram(chain+'_EFSA_Eta,'+chain+'_EFSA_Phi;EFSA_Eta_vs_Phi',
                                   title='EFSA Eta vs Phi '+chain+';#eta;#phi', 
                                   type='TH2F', path='',xbins=108,xmin=-2.7,xmax=2.7, ybins=96,ymin=-ROOT.TMath.Pi(),ymax=ROOT.TMath.Pi())
 
 
         # EFCB
-        histGroup.defineHistogram(chain+'_CBTrack_Pt;EFCB_Pt',
+        histGroup.defineHistogram(chain+'_EFCB_Pt;EFCB_Pt',
                                   title='EFCB Pt '+chain+';p_{T} [GeV];Events', 
                                   type='TH1F', path='',xbins=210,xmin=-105.,xmax=105.)
 
-        histGroup.defineHistogram(chain+'_CBTrack_Eta;EFCB_Eta',
+        histGroup.defineHistogram(chain+'_EFCB_Eta;EFCB_Eta',
                                   title='EFCB Eta '+chain+';#eta;Events', 
                                   type='TH1F', path='',xbins=108,xmin=-2.7,xmax=2.7)
 
-        histGroup.defineHistogram(chain+'_CBTrack_Phi;EFCB_Phi',
+        histGroup.defineHistogram(chain+'_EFCB_Phi;EFCB_Phi',
                                   title='EFCB Phi '+chain+';#phi;Events', 
                                   type='TH1F', path='',xbins=96,xmin=-ROOT.TMath.Pi(),xmax=ROOT.TMath.Pi())
 
-        histGroup.defineHistogram(chain+'_CBTrack_Eta,'+chain+'_CBTrack_Phi;EFCB_Eta_vs_Phi',
+        histGroup.defineHistogram(chain+'_EFCB_Eta,'+chain+'_EFCB_Phi;EFCB_Eta_vs_Phi',
                                   title='EFCB Eta vs Phi '+chain+';#eta;#phi', 
                                   type='TH2F', path='',xbins=108,xmin=-2.7,xmax=2.7, ybins=96,ymin=-ROOT.TMath.Pi(),ymax=ROOT.TMath.Pi())
 

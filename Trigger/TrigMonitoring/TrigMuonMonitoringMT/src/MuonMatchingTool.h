@@ -170,7 +170,15 @@ class MuonMatchingTool : public AthAlgTool {
   const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFIsoLinkInfo( const xAOD::Muon *mu, std::string trig) const;
 
 
+  /**
+   * @brief Function that searches for an EF muon track (e.g. ExtrapolatedMuonSpectrometerTrackParticle, CombinedTrackParticle) matched to a EF muon.
+   * @param ctx Reference to the @c EventContext needed for accessing the @c TrackParticle container.
+   * @param muLinkInfo LinkInfo of EF muon.
+   * @param ReadHandleKey of TrackParticle container.
+   * @return Pointer to the matched TrackParticle. This is @c nullpt rwhen there is no TrackParticle found.
+   */
   const xAOD::TrackParticle* SearchEFTrack(const EventContext &ctx, const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muLinkInfo, SG::ReadHandleKey<xAOD::TrackParticleContainer> ReadHandleKey) const;
+
 
   /**
    * @brief Function that searches for an offline muon matched to L2SA muon

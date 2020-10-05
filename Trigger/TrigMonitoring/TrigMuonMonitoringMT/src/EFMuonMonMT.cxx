@@ -35,18 +35,18 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext &ctx, const s
 
   for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muSALinkInfo : featureContSA) {
     ATH_CHECK( muSALinkInfo.isValid() );
-    auto MSTrackPt = Monitored::Scalar<float>(chain+"_MSTrack_Pt", -999.);
-    auto MSTrackEta = Monitored::Scalar<float>(chain+"_MSTrack_Eta", -999.);
-    auto MSTrackPhi = Monitored::Scalar<float>(chain+"_MSTrack_Phi", -999.);
+    const ElementLink<xAOD::MuonContainer> muSAEL = muSALinkInfo.link;
+    if ( (*muSAEL)->muonType() != xAOD::Muon::MuonType::MuonStandAlone ) continue;
 
-    const xAOD::TrackParticle* MatchedMSTrack = m_matchTool->SearchEFTrack(ctx, muSALinkInfo, m_MStrackContainerKey);
-    if(MatchedMSTrack){
-      MSTrackPt = MatchedMSTrack->pt()/1e3 * MatchedMSTrack->charge();
-      MSTrackEta = MatchedMSTrack->eta();
-      MSTrackPhi = MatchedMSTrack->phi(); 
-    }
+    auto EFSAPt = Monitored::Scalar<float>(chain+"_EFSA_Pt", -999.);
+    auto EFSAEta = Monitored::Scalar<float>(chain+"_EFSA_Eta", -999.);
+    auto EFSAPhi = Monitored::Scalar<float>(chain+"_EFSA_Phi", -999.);
 
-    fill(m_group+"_"+chain, MSTrackPt, MSTrackEta, MSTrackPhi);
+    EFSAPt = (*muSAEL)->pt()/1e3 * (*muSAEL)->charge();
+    EFSAEta = (*muSAEL)->eta();
+    EFSAPhi = (*muSAEL)->phi(); 
+
+    fill(m_group+"_"+chain, EFSAPt, EFSAEta, EFSAPhi);
   }
 
 
@@ -55,18 +55,18 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext &ctx, const s
 
   for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muCBLinkInfo : featureContCB) {
     ATH_CHECK( muCBLinkInfo.isValid() );
-    auto CBTrackPt = Monitored::Scalar<float>(chain+"_CBTrack_Pt", -999.);
-    auto CBTrackEta = Monitored::Scalar<float>(chain+"_CBTrack_Eta", -999.);
-    auto CBTrackPhi = Monitored::Scalar<float>(chain+"_CBTrack_Phi", -999.);
+    const ElementLink<xAOD::MuonContainer> muCBEL = muCBLinkInfo.link;
+    if ( (*muCBEL)->muonType() != xAOD::Muon::MuonType::Combined ) continue;
 
-    const xAOD::TrackParticle* MatchedCBTrack = m_matchTool->SearchEFTrack(ctx, muCBLinkInfo, m_CBtrackContainerKey);
-    if(MatchedCBTrack){
-      CBTrackPt = MatchedCBTrack->pt()/1e3 * MatchedCBTrack->charge();
-      CBTrackEta = MatchedCBTrack->eta();
-      CBTrackPhi = MatchedCBTrack->phi(); 
-    }
+    auto EFCBPt = Monitored::Scalar<float>(chain+"_EFCB_Pt", -999.);
+    auto EFCBEta = Monitored::Scalar<float>(chain+"_EFCB_Eta", -999.);
+    auto EFCBPhi = Monitored::Scalar<float>(chain+"_EFCB_Phi", -999.);
 
-    fill(m_group+"_"+chain, CBTrackPt, CBTrackEta, CBTrackPhi);
+    EFCBPt = (*muCBEL)->pt()/1e3 * (*muCBEL)->charge();
+    EFCBEta = (*muCBEL)->eta();
+    EFCBPhi = (*muCBEL)->phi(); 
+
+    fill(m_group+"_"+chain, EFCBPt, EFCBEta, EFCBPhi);
   }
 
 
@@ -283,8 +283,8 @@ StatusCode EFMuonMonMT :: fillVariables(const EventContext &ctx) const {
 
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
 
-  ATH_CHECK( fillVariableEtaPhi<xAOD::Muon>(ctx, m_EFSAMuonContainerKey, "EFSA", &MuonMatchingTool::PosForMatchSATrack));
-  ATH_CHECK( fillVariableEtaPhi<xAOD::Muon>(ctx, m_EFCBMuonContainerKey, "EFCB", &MuonMatchingTool::PosForMatchCBTrack));
+  ATH_CHECK( fillVariableEtaPhi<xAOD::Muon>(ctx, m_EFSAMuonContainerKey, "EFSA", &MuonMatchingTool::trigPosForMatchSATrack));
+  ATH_CHECK( fillVariableEtaPhi<xAOD::Muon>(ctx, m_EFCBMuonContainerKey, "EFCB", &MuonMatchingTool::trigPosForMatchCBTrack));
 
   return StatusCode::SUCCESS;
 
