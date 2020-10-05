@@ -22,9 +22,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <TMath.h>
-#include <TH1.h>
-#include <TH1F.h>
-#include <TH2F.h>
 #include "TrkNeuralNetworkUtils/TTrainedNetwork.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "SiClusterizationTool/NnNormalization.h"
@@ -463,7 +460,7 @@ namespace InDet {
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositionsTTN(
                                                 const TTrainedNetworkCollection &nn_collection,
-                                                std::vector<double> inputData,
+                                                const std::vector<double>& inputData,
                                                 const NNinput& input,
                                                 const InDet::PixelCluster& pCluster,
                                                 int sizeX,
@@ -532,6 +529,8 @@ namespace InDet {
     // Save the output
     std::vector<double> positionValues;
     std::vector<Amg::MatrixX> errorMatrices;
+    errorMatrices.reserve(numberSubClusters);
+    positionValues.reserve(numberSubClusters * 2);
     for (int cluster = 1; cluster < numberSubClusters+1; cluster++) {
 
       // Check that the network is defined. 
@@ -545,7 +544,7 @@ namespace InDet {
       std::map<std::string, double> position = lwtnn_collection->at(numberSubClusters)->compute(input, {},outNodeName);
 
       ATH_MSG_DEBUG("Testing for numberSubClusters " << numberSubClusters << " and cluster " << cluster);
-      for (auto item : position) {
+      for (const auto& item : position) {
         ATH_MSG_DEBUG(item.first << ": " << item.second);
       }
       positionValues.push_back(position["mean_x"]);
@@ -1050,22 +1049,12 @@ namespace InDet {
     return input;
   }
 
-  std::vector<std::vector<float> > matrixOfToT;
-  std::vector<float> vectorOfPitchesY;
-
+  input.matrixOfToT.reserve(sizeX);
   for (int a=0;a<sizeX;a++)
   {
-    std::vector<float> Yvector;
-    for (int b=0;b<sizeY;b++)
-    {
-      Yvector.push_back(0);
-    }
-    input.matrixOfToT.push_back(Yvector);
+    input.matrixOfToT.emplace_back(sizeY, 0.0);
   }
-  for (int b=0;b<sizeY;b++)
-  {
-    input.vectorOfPitchesY.push_back(0.4);
-  }
+  input.vectorOfPitchesY.assign(sizeY, 0.4);
 
   rdosBegin = rdos.begin();
   //charge = chList.size() ? chList.begin() : chListRecreated.begin();
@@ -1162,9 +1151,9 @@ namespace InDet {
   Amg::Vector3D globalPos = element->globalPosition(centroid);
   Amg::Vector3D my_track = globalPos-beamSpotPosition;
 
-  Amg::Vector3D my_normal = element->normal();
-  Amg::Vector3D my_phiax = element->phiAxis();
-  Amg::Vector3D my_etaax = element->etaAxis();
+  const Amg::Vector3D &my_normal = element->normal();
+  const Amg::Vector3D &my_phiax = element->phiAxis();
+  const Amg::Vector3D &my_etaax = element->etaAxis();
   float trkphicomp = my_track.dot(my_phiax);
   float trketacomp = my_track.dot(my_etaax);
   float trknormcomp = my_track.dot(my_normal);
