@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMRDP_OUTPUTSVC_H
@@ -17,6 +17,7 @@
 
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvc/ByteStreamOutputSvc.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class IROBDataProviderSvc;
@@ -25,25 +26,32 @@ class ByteStreamRDP_OutputSvc: public ByteStreamOutputSvc {
 public:
    /// Constructors:
    ByteStreamRDP_OutputSvc(const std::string& name, ISvcLocator* svcloc);
-   /// Destructor.
-   virtual ~ByteStreamRDP_OutputSvc();
 
    /// Required of all Gaudi Services
-   virtual StatusCode initialize();
+   virtual StatusCode initialize() override;
+
    /// Implementation of the ByteStreamOutputSvc interface methods.
-   virtual bool putEvent(RawEvent* re);
+   virtual bool putEvent(RawEvent* re) override;
+   virtual bool putEvent(RawEvent* re, const EventContext& ctx) override;
 
    /// Required of all Gaudi services:  see Gaudi documentation for details
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
 private: // data
-   int                m_totalEventCounter; //!< number of event counter
-   RawEvent* m_re;
-   OFFLINE_FRAGMENTS_NAMESPACE::DataType* m_buf;
-   ServiceHandle<IROBDataProviderSvc> m_robProvider; 
+   struct EventCache {
+      void releaseEvent() {
+         this->rawEvent.reset();
+         this->dataBuffer.reset();
+      }
+      std::unique_ptr<RawEvent> rawEvent {nullptr}; //!< Current event fragment
+      std::unique_ptr<uint32_t[]> dataBuffer {nullptr}; //!< Underlying data structure
+   };
+   SG::SlotSpecificObj<EventCache> m_eventsCache; //!< Cache of event data for each slot
 
-private: // properties
-   Gaudi::Property<std::string> m_bsOutputStreamName; //!< stream name for multiple output 
+   ServiceHandle<IROBDataProviderSvc> m_robProvider {
+      this, "ROBDataProviderSvc", "ROBDataProviderSvc", "ROB data provider"};
+   Gaudi::Property<std::string> m_bsOutputStreamName {
+      this, "BSOutputStreamName", "", "Stream name for multiple output"};
 };
 
 #endif  

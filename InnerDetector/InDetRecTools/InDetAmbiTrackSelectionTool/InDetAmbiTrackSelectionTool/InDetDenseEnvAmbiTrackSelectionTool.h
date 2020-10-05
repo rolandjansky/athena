@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,8 +13,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -33,6 +33,7 @@
 #include <cmath> //for std::fabs in implementation of structs in this header
 #include <iostream> //for cout in dumpInfo 
 #include <map>
+#include <mutex>
 #include <vector>
 
 class Identifier;
@@ -55,7 +56,7 @@ namespace InDet
       this tool, the tracks have to be deleted by this client.
       
   */  
-  class InDetDenseEnvAmbiTrackSelectionTool : public extends<AthAlgTool, Trk::IAmbiTrackSelectionTool, IIncidentListener>
+  class InDetDenseEnvAmbiTrackSelectionTool : public extends<AthAlgTool, Trk::IAmbiTrackSelectionTool>
   {
   public:
     InDetDenseEnvAmbiTrackSelectionTool(const std::string&,const std::string&,const IInterface*);
@@ -67,11 +68,10 @@ namespace InDet
     virtual StatusCode initialize() override;
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize() override;
-    /** handle for incident service */
-    virtual void handle(const Incident& inc) override;
 
-    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track*,
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
+                                                            Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                             Trk::PRDtoTrackMap &prd_to_track_map) const override;
 
   private:
@@ -248,13 +248,32 @@ namespace InDet
       };
     };   
      
-     
+    mutable std::mutex m_mutex;
+    struct CacheEntry {
+      EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+
+      int m_maxShared;    // Max shared hits -- calulated from  m_maxSharedModules
+      int m_minNotShared; // Min number of hits that are not shared -- can change if we are in ROI
+      int m_minSiHits;    // Min number of hits before we allow split sharing of hits -- can change if we are in ROI
+
+      std::vector<double> m_hadF;
+      std::vector<double> m_hadE;
+      std::vector<double> m_hadR;
+      std::vector<double> m_hadZ;
+
+      std::vector<double> m_emF;
+      std::vector<double> m_emE;
+      std::vector<double> m_emR;
+      std::vector<double> m_emZ;
+    };
+    mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
       
     /** method to create a new track from a vector of TSOS's */
     Trk::Track* createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const ;
       
     /** Fill the two structs TrackHitDetails & TSoS_Details full of information*/
     void fillTrackDetails(const Trk::Track* ptrTrack,
+                          Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                           const Trk::PRDtoTrackMap &prd_to_track_map,
                           TrackHitDetails& trackHitDetails,
                           TSoS_Details& tsosDetails ) const;
@@ -262,22 +281,25 @@ namespace InDet
     /** Determine which hits to keep on this track*/
     bool decideWhichHitsToKeep(const Trk::Track*,
                                const Trk::TrackScore score,
+                               Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                Trk::PRDtoTrackMap &prd_to_track_map,
                                TrackHitDetails& trackHitDetails,
                                TSoS_Details& tsosDetails,
-                               int nCutTRT )const;
+                               int nCutTRT,
+                               CacheEntry* ent) const;
 
     /** Update the pixel clusters split information*/
-    void updatePixelClusterInformation(TSoS_Details& tsosDetails) const;
+    void setPixelClusterSplitInformation(TSoS_Details& tsosDetails,
+                                         Trk::ClusterSplitProbabilityContainer &clusterSplitProbMap) const;
       
     /** Check if the cluster is compatible with a hadronic cluster*/
-    bool isHadCaloCompatible(const Trk::TrackParameters& Tp) const;      
+    bool isHadCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const;
 
     /** Check if the cluster is compatible with a EM cluster*/
-    bool isEmCaloCompatible(const Trk::TrackParameters& Tp) const;      
+    bool isEmCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const;
       
     /** Fill hadronic & EM cluster map*/
-    void newEvent() const;
+    void newEvent(CacheEntry* ent) const;
       
     /** Returns the number of track that use that hit already
         Need to let it know if that cluster is splittable
@@ -286,11 +308,13 @@ namespace InDet
     */
     int checkOtherTracksValidity(const Trk::RIO_OnTrack*,
                                  bool isSplitable,
+                                 Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                  Trk::PRDtoTrackMap &prd_to_track_map,
                                  int& maxiShared,
                                  int& maxothernpixel,
                                  bool& maxotherhasblayer,
-                                 bool& failMinHits) const;
+                                 bool& failMinHits,
+                                 CacheEntry* ent) const;
 
 
     /** Returns the Trackparameters of the two tracks on the n'th TrackStateOnSurface of the first track*/
@@ -308,8 +332,6 @@ namespace InDet
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool>  m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
     ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this, "IBLParameterSvc", "IBLParameterSvc"};
-    /** IncidentSvc to catch begining of event and end of event */   
-    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentService", "IncidentSvc"};
       
     /**atlas id helper*/
     const SiliconID* m_detID{nullptr};
@@ -320,11 +342,9 @@ namespace InDet
     /** some cut values */
     IntegerProperty m_minHits{this, "minHits", 5, "Min Number of hits on track"};
     IntegerProperty m_minTRT_Hits{this, "minTRTHits", 0, "Min Number of TRT hits on track"};
-    mutable int m_maxShared;        // Max shared hits -- calulated from  m_maxSharedModules
     IntegerProperty m_maxSharedModules{this, "maxShared", 1, "Max number of shared modules"};
     IntegerProperty m_maxSharedModulesInROI{this, "maxSharedModulesInROI", 2, "Max number of shared modules in ROI. Test value for recovering B jet efficiency at high pt"};
     IntegerProperty m_maxTracksPerPRD{this, "maxTracksPerSharedPRD", 2, "Max number of tracks per hit if it is nor split"};
-    mutable int m_minNotShared;     // Min number of hits that are not shared -- can change if we are in ROI
     IntegerProperty m_minNotSharedModules{this, "minNotShared", 6, "Min number of non shared modules"};
     IntegerProperty m_minNotSharedModulesInROI{this, "minNotSharedInROI", 4, "Min number of non shared modules  in ROI. Test value for recovering B jet efficiency at high pt"};
     FloatProperty m_minScoreShareTracks{this, "minScoreShareTracks", 0.0, "Min track score to alow it to share hits"};
@@ -337,7 +357,6 @@ namespace InDet
       
     FloatProperty m_minTrackChi2ForSharedHits{this, "minTrackChi2ForSharedHits", 3, "Min track chi2 to split share hits"};
     IntegerProperty m_minUniqueSCTHits{this, "minUniqueSCTHits", 2, "Min number of hits in the SCT that we need before we allow hit sharing in the SCT"};
-    mutable int m_minSiHits;                 // Min number of hits before we allow split sharing of hits -- can change if we are in ROI
     IntegerProperty m_minSiHitsToAllowSplitting{this, "minSiHitsToAllowSplitting", 9, "Min number of hits before we allow split sharing of hits"};
     IntegerProperty m_minSiHitsToAllowSplittingInROI{this, "minSiHitsToAllowSplittingInROI", 7, "Min number of hits before we allow split sharing of hits In ROI. Test value for recovering B jet efficiency"}; 
     IntegerProperty m_maxPixMultiCluster{this, "maxPixMultiCluster", 4, "Max number of tracks that can be associated to a split cluster"};
@@ -350,23 +369,12 @@ namespace InDet
     FloatProperty m_etaWidth{this, "etaWidth", 0.2};
     SG::ReadHandleKey<CaloClusterROI_Collection> m_inputHadClusterContainerName{this, "InputHadClusterContainerName", "InDetHadCaloClusterROIs"};
       
-    mutable std::vector<double>   m_hadF;
-    mutable std::vector<double>   m_hadE;
-    mutable std::vector<double>   m_hadR;
-    mutable std::vector<double>   m_hadZ;
-
     BooleanProperty m_useEmClusSeed{this, "doEmCaloSeed", false};
     FloatProperty m_minPtEm{this, "minPtConv", 10000., "in MeV"};
     FloatProperty m_phiWidthEm{this, "phiWidthEM", 0.05};
     FloatProperty m_etaWidthEm{this, "etaWidthEM", 0.05};
 
     SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName{this, "InputEmClusterContainerName", "InDetCaloClusterROIs"};
-    mutable std::vector<double>   m_emF;
-    mutable std::vector<double>   m_emE;
-    mutable std::vector<double>   m_emR;
-    mutable std::vector<double>   m_emZ;
-
-    mutable bool m_mapFilled{false};
 
     //Track Pair Selection
     BooleanProperty m_doPairSelection{this, "doPairSelection", true};
@@ -379,7 +387,6 @@ namespace InDet
     BooleanProperty m_monitorTracks{this, "MonitorAmbiguitySolving", false, "to track observeration/monitoring (default is false)"};
     BooleanProperty m_doSCTSplitting{this, "doSCTSplitting", false}; //WPM
 
-      
   }; 
 } // end of namespace
 

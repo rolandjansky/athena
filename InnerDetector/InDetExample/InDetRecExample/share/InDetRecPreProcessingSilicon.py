@@ -125,15 +125,11 @@ if InDetFlags.doPRDFormation():
       #
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
       InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool", 
-                                                      globalPosAlg            = InDetClusterMakerTool,
-                                                      MinimalSplitSize        = 0,
-                                                      MaximalSplitSize        = 49,
-                                                      MinimalSplitProbability = 0,
-                                                      DoIBLSplitting = True)
-      # assign the tools if there are any                                                
-      if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
-      if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
-
+                                                      globalPosAlg            = InDetClusterMakerTool)
+      # Enable duplcated RDO check for data15 because duplication mechanism was used.
+      from RecExConfig.RecFlags import rec
+      if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+        InDetMergedPixelsTool.CheckDuplicatedRDO = True
       
       ToolSvc += InDetMergedPixelsTool
       if (InDetFlags.doPrintConfigurables()):

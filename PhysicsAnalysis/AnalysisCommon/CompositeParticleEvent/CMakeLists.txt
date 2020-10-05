@@ -5,10 +5,9 @@
 # Declare the package name:
 atlas_subdir( CompositeParticleEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          PhysicsAnalysis/AnalysisCommon/ParticleEvent )
-
-# Install files from the package:
-atlas_install_headers( CompositeParticleEvent )
+atlas_add_library( CompositeParticleEvent
+                   CompositeParticleEvent/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS CompositeParticleEvent
+                   LINK_LIBRARIES ParticleEvent )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################################################################################################
 #  file: TrigJetMonitoring_cosmics.py
@@ -103,7 +103,7 @@ def TrigJetMonitoringTool():
             histoPathBase        = "/Trigger/HLT",
             JetMonBase           = "/HLT/JetMon",
             DoL1Efficiency       = False,         # w.r.t offline
-	    DoOfflineJets        = False,         # fill offline jet plots
+            DoOfflineJets        = False,         # fill offline jet plots
             DoHLTEfficiency      = False,         # w.r.t offline (EF eff = L1 & L2 & EF)
 
             # Select events based on any of these passing EvtSelTriggers 
@@ -244,8 +244,7 @@ def TrigJetMonitoringTool():
             ## Out-of-time Calo Jet Energy (not to exceed X ns)
             #DoOFMaxJetTimeCut = True,
             #OFMaxTimens = 50.
-        );
-  #from AthenaCommon.AppMgr import ToolSvc
-  #ToolSvc += HLTJetMon;
-  list = [ HLTJetMon ];
+        )
+
+  list = [ HLTJetMon ]
   return list

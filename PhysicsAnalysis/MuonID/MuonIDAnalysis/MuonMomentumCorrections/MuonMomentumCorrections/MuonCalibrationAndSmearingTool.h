@@ -8,7 +8,7 @@
 // Framework include(s):
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"

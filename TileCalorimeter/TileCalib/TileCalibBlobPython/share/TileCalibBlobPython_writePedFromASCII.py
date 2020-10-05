@@ -23,7 +23,7 @@ log.setLevel(logging.DEBUG)
 #________________________________________________________________________
 def fillPed(filePed, tag, comment, since,
             until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
-    
+
     #=== construct folder path
     folder = TileCalibTools.getTilePrefix(True,True)+"NOISE/SAMPLE"
 
@@ -35,12 +35,12 @@ def fillPed(filePed, tag, comment, since,
     loGainDef = 0.8
     hiGainDef = 1.6
     defaultLo = cppyy.gbl.std.vector('float')()
-    defaultLo.push_back(pedDef[0]) # pedestal mean value  
+    defaultLo.push_back(pedDef[0]) # pedestal mean value
     defaultLo.push_back(loGainDef) # pedestal rms
     defaultLo.push_back(0.0)       # pedestal low frequency noise
-    defaultLo.push_back(loGainDef) # pedestal HFN1 
-    defaultLo.push_back(0.0)       # pedestal HFN2 
-    defaultLo.push_back(0.0)       # pedestal HFN2/HFN1 ratio 
+    defaultLo.push_back(loGainDef) # pedestal HFN1
+    defaultLo.push_back(0.0)       # pedestal HFN2
+    defaultLo.push_back(0.0)       # pedestal HFN2/HFN1 ratio
     defaultHi = cppyy.gbl.std.vector('float')()
     defaultHi.push_back(pedDef[1]) # pedestal mean value
     defaultHi.push_back(hiGainDef) # pedestal rms
@@ -51,9 +51,9 @@ def fillPed(filePed, tag, comment, since,
     defVec = cppyy.gbl.std.vector('std::vector<float>')()
     defVec.push_back(defaultLo)
     defVec.push_back(defaultHi)
-    
+
     #=====================================================
-    #=== fill 
+    #=== fill
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db,folder,'Flt')
     writer.setComment(os.getlogin(),comment)

@@ -1,0 +1,10 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+AntiKt10UFOCHSJetsCPContent = [
+"AntiKt10UFOCHSJets",
+"AntiKt10UFOCHSJetsAux.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m",
+"AntiKt10UFOCHSJetsAux.PartonTruthLabelID.DetectorEta.DetectorY",
+"AntiKt10UFOCHSJetsAux.GhostBHadronsFinalCount.GhostHBosonsCount.GhostTQuarksFinalCount.GhostTrack.GhostWBosonsCount.GhostZBosonsCount",
+"AntiKt10UFOCHSJetsAux.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetGhostTag.GhostVR30Rmax4Rmin02TrackJet_BTagging201810.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag.GhostVR30Rmax4Rmin02TrackJet_BTagging201903",
+"AntiKt10UFOCHSJetsAux.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.NumTrkPt500.SumPtTrkPt500",
+]

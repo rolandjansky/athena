@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Framework import(s):
 import ROOT
@@ -6,6 +6,11 @@ import ROOT
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+
+# E/gamma import(s).
+from xAODEgamma.xAODEgammaParameters import xAOD
+
+import PATCore.ParticleDataType
 
 def makePhotonAnalysisSequence( dataType, workingPoint,
                                 deepCopyOutput = False,
@@ -87,7 +92,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonObjectQualityAlg' + postfix )
     alg.selectionDecoration = 'goodOQ'
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
-    alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSPHOTON
+    alg.selectionTool.Mask = xAOD.EgammaParameters.BADCLUSPHOTON
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
                 stageName = 'calibration' )
@@ -164,10 +169,10 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         'PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt'
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Fast
+          PATCore.ParticleDataType.Fast
     elif dataType == 'mc':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Full
+          PATCore.ParticleDataType.Full
         pass
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix

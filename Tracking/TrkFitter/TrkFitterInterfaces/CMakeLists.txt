@@ -12,10 +12,11 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
+                          Tracking/TrkEvent/TrkTrack
                           Tracking/TrkFitter/TrkFitterUtils )
 
 # Component(s) in the package:
 atlas_add_library( TrkFitterInterfaces
                    PUBLIC_HEADERS TrkFitterInterfaces
-                   LINK_LIBRARIES AthContainers EventPrimitives GaudiKernel TrkEventPrimitives TrkParameters TrkFitterUtils )
+                   LINK_LIBRARIES AthContainers EventPrimitives GaudiKernel TrkEventPrimitives TrkParameters TrkTrack TrkFitterUtils )
 

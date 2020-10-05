@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //only in full Athena
@@ -14,6 +14,8 @@
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
 #include "TrigDecisionTool/DecisionObjectHandleAthena.h"
 #include "TrigNavigation/NavigationCore.h"
+#include "TrigDecisionEvent/TrigDecision.h"
+
 
 namespace Trig {
   DecisionUnpackerAthena::DecisionUnpackerAthena(SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey) : m_handle(new DecisionObjectHandleAthena(olddeckey)){
@@ -55,7 +57,7 @@ namespace Trig {
     output.reserve( output.size() + cache.size() );
 
     std::vector<uint32_t>::const_iterator rawIt = serialized_chains.begin();
-    rawIt++; // skip first number as it is count
+    ++rawIt; // skip first number as it is count
     for ( ; rawIt != serialized_chains.end(); ++rawIt ) {
 
       unsigned cntr = HLT::Chain::inquireChainCounter(*rawIt);

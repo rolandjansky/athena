@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactorySLHC.h"
@@ -35,10 +35,12 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
-InDetServMatFactorySLHC::InDetServMatFactorySLHC(const InDetServMatAthenaComps * athenaComps)
+InDetServMatFactorySLHC::InDetServMatFactorySLHC(InDetServMatAthenaComps * athenaComps)
   :  InDetDD::DetectorFactoryBase(athenaComps),
      m_athenaComps(athenaComps),
      m_manager(0)
@@ -131,7 +133,7 @@ const InDetDD::InDetServMatManager* InDetServMatFactorySLHC::getDetectorManager 
 }
 
 void
-InDetServMatFactorySLHC::fetchTables() 
+InDetServMatFactorySLHC::fetchTables()
 {
   DecodeVersionKey indetVersionKey(geoDbTagSvc(), "InnerDetector");
 

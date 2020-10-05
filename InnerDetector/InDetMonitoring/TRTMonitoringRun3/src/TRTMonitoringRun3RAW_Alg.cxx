@@ -17,7 +17,6 @@
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_ConditionsServices/ITRT_DAQ_ConditionsSvc.h"
-#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
@@ -41,15 +40,11 @@ TRTMonitoringRun3RAW_Alg::TRTMonitoringRun3RAW_Alg( const std::string& name, ISv
 ,m_mgr(0)
 ,m_minTRThits(10)
 ,m_minP(0)
-,p_toolSvc("IToolSvc", name)
 ,m_sumTool("TRT_StrawStatusSummaryTool", this)
-,m_BSSvc("TRT_ByteStream_ConditionsSvc", name)
 ,m_isCosmics(false)
 ,m_EventBurstCut(-1)
 {
-    declareProperty("ToolSvc",                        p_toolSvc);
     declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
-    declareProperty("TRT_ByteStream_ConditionsSvc",   m_BSSvc);
     declareProperty("doStraws",                       m_doStraws         = true);
     declareProperty("doExpert",                       m_doExpert         = true);
     declareProperty("doChips",                        m_doChips          = true);
@@ -84,9 +79,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::initialize() {
     // initialize superclass
     ATH_CHECK( AthMonitorAlgorithm::initialize() );
     
-    IToolSvc *p_toolSvc; // NOTE: recreation of ToolSvc
-
-	ATH_CHECK( service("ToolSvc", p_toolSvc) );
     
     // Retrieve detector manager.
     ATH_CHECK( detStore()->retrieve(m_mgr, "TRT") );
@@ -100,13 +92,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::initialize() {
             ATH_MSG_WARNING("TRT_StrawStatusTool not given.");
         } else {
             ATH_CHECK( m_sumTool.retrieve() );
-        }
-
-        // Retrieve the TRT_ByteStreamService.
-        if (m_BSSvc.name().empty()) {
-            ATH_MSG_WARNING("TRT_ByteStreamSvc not given.");
-        } else {
-            ATH_CHECK( m_BSSvc.retrieve() );
         }
 
         Identifier ident;
@@ -137,6 +122,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::initialize() {
     ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
     ATH_CHECK( m_combTrackCollectionKey.initialize() );
     ATH_CHECK( m_trackCollectionKey.initialize() );
+    ATH_CHECK( m_bsErrContKey.initialize(SG::AllowEmpty) );
 
     return StatusCode::SUCCESS;
 }
@@ -147,6 +133,18 @@ StatusCode TRTMonitoringRun3RAW_Alg::checkTRTReadoutIntegrity(const xAOD::EventI
 //-------------------------------------------------------------------------------------------------//
     StatusCode sc = StatusCode::SUCCESS;
 
+    const TRT_BSErrContainer emptyErrCont;//Empty dummy instance for MC
+    const TRT_BSErrContainer* bsErrCont=&emptyErrCont;
+	
+    if (!m_bsErrContKey.empty()) { 
+      //Regular real-data case, get the byte-stream errors from SG
+      SG::ReadHandle<TRT_BSErrContainer> bsErrContHdl{m_bsErrContKey};
+      bsErrCont=bsErrContHdl.cptr();
+    }
+    else {
+      ATH_MSG_DEBUG("MC case, using dummy TRT_BSErrContainer");
+    }
+
     const unsigned int lumiBlock = eventInfo.lumiBlock();
     ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
 
@@ -154,18 +152,18 @@ StatusCode TRTMonitoringRun3RAW_Alg::checkTRTReadoutIntegrity(const xAOD::EventI
 //        m_lastLumiBlock = lumiBlock;
 //    }
 
-    //Get BSConversion Errors from BSConditionsServices:
-    std::set<std::pair<uint32_t, uint32_t> > *L1IDErrorSet      = m_BSSvc->getIdErrorSet(TRTByteStreamErrors::L1IDError);
-    std::set<std::pair<uint32_t, uint32_t> > *BCIDErrorSet      = m_BSSvc->getIdErrorSet(TRTByteStreamErrors::BCIDError);
-    std::set<uint32_t>                       *MissingErrorSet   = m_BSSvc->getErrorSet(TRTByteStreamErrors::MISSINGError);
-    std::set<uint32_t>                       *SidErrorSet       = m_BSSvc->getErrorSet(TRTByteStreamErrors::SIDError);
-    std::set<std::pair<uint32_t, uint32_t> > *RobStatusErrorSet = m_BSSvc->getRodRobErrorSet(TRTByteStreamErrors::RobStatusError);
+    //Get BSConversion errors
+    const std::set<std::pair<uint32_t, uint32_t> > &L1IDErrorSet      = bsErrCont->getL1ErrorSet();
+    const std::set<std::pair<uint32_t, uint32_t> > &BCIDErrorSet      = bsErrCont->getBCIDErrorSet();
+    const std::set<uint32_t>                       &MissingErrorSet   = bsErrCont->getMissingErrorSet();
+    const std::set<uint32_t>                       &SidErrorSet       = bsErrCont->getSidErrorSet();
+    const std::set<std::pair<uint32_t, uint32_t> > &RobStatusErrorSet = bsErrCont->getRobErrorSet();
     const unsigned int rod_id_base[2][2] = { { 0x310000, 0x320000 }, { 0x330000, 0x340000 } };
     const unsigned int nChipsTotal[2][2] = { {     3328,     3328 }, {     7680,     7680 } };
     const unsigned int nRobsTotal[2][2]  = { {       32,       32 }, {       64,       64 } };
     float nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
     float nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
-    const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { BCIDErrorSet, L1IDErrorSet };
+    const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { &BCIDErrorSet, &L1IDErrorSet };
 
     for (int iset = 0; iset < 2; ++iset) {
         for (auto setIt = errorset1[iset]->begin(); setIt != errorset1[iset]->end(); ++setIt) {
@@ -179,7 +177,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::checkTRTReadoutIntegrity(const xAOD::EventI
         }
     }
 
-    const std::set<uint32_t> *errorset2[2] = { MissingErrorSet, SidErrorSet };
+    const std::set<uint32_t> *errorset2[2] = { &MissingErrorSet, &SidErrorSet };
 
     for (int iset = 0; iset < 2; ++iset) {
         for (auto setIt = errorset2[iset]->begin(); setIt != errorset2[iset]->end(); ++setIt) {
@@ -200,7 +198,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::checkTRTReadoutIntegrity(const xAOD::EventI
         }
     }
 
-    for (auto setIt = RobStatusErrorSet->begin(); setIt != RobStatusErrorSet->end(); ++setIt) {
+    for (auto setIt = RobStatusErrorSet.begin(); setIt != RobStatusErrorSet.end(); ++setIt) {
         for (int ibe = 0; ibe < 2; ++ibe) {
             for (int iside = 0; iside < 2; ++iside) {
                 if (setIt->first % rod_id_base[ibe][iside] < 0xffff) {
@@ -1201,7 +1199,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
 			continue;
 		}
 
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->summary(*(*track)));
 		int n_trt_hits = summary->get(Trk::numberOfTRTHits);
 		int n_sct_hits = summary->get(Trk::numberOfSCTHits);
 		int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
@@ -1527,7 +1525,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
 	}
 
 	for (; p_trk != trackCollection.end(); ++p_trk) {
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->summary(*(*p_trk)));
 		int nTRTHits = summary->get(Trk::numberOfTRTHits);
 
 		if (nTRTHits < m_minTRThits) continue;

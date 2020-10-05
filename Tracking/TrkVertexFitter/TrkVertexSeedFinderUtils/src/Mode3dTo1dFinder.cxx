@@ -6,11 +6,11 @@
           Mode3dTo1dFinder.cxx - Description in header file
 *********************************************************************/
 
-#include "TrkVertexSeedFinderUtils/IMode1dFinder.h"
 #include "TrkVertexSeedFinderUtils/Mode3dTo1dFinder.h"
-#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 #include "TrkParameters/TrackParameters.h"
-#include <math.h>
+#include "TrkVertexSeedFinderUtils/IMode1dFinder.h"
+#include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
+#include <cmath>
 
 namespace Trk
 {
@@ -39,7 +39,7 @@ namespace Trk
   }
 
 
-  const Amg::Vector3D
+  Amg::Vector3D
   Mode3dTo1dFinder::getMode(const double /*vx*/,
                             const double /*vy*/,
                             const std::vector<Trk::PositionAndWeight> & myVectorOfPoints) const
@@ -54,9 +54,9 @@ namespace Trk
     std::vector<Trk::DoubleAndWeight> allz;
     
     for (std::vector<PositionAndWeight>::const_iterator i = begin; i!=end; i++) {
-      allx.push_back(Trk::DoubleAndWeight(i->first.x(),i->second));
-      ally.push_back(Trk::DoubleAndWeight(i->first.y(),i->second));
-      allz.push_back(Trk::DoubleAndWeight(i->first.z(),i->second));
+      allx.emplace_back(i->first.x(),i->second);
+      ally.emplace_back(i->first.y(),i->second);
+      allz.emplace_back(i->first.z(),i->second);
     }
     
     //  now find the mode separately for the distributions in x, y and z
@@ -66,7 +66,7 @@ namespace Trk
   }
 
 
-  const Amg::Vector3D
+  Amg::Vector3D
   Mode3dTo1dFinder::getMode(const double vx,
                             const double vy,
                             const std::vector<Trk::PositionAndWeight> & myVectorOfPoints,
@@ -77,7 +77,7 @@ namespace Trk
 
 
   //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
-  const Amg::Vector3D
+  Amg::Vector3D
   Mode3dTo1dFinder::getMode(const double /*vx*/,
                             const double /*vy*/,
                             const std::vector<Amg::Vector3D> & myVectorOfPoints) const
@@ -104,7 +104,7 @@ namespace Trk
   }
 
 
-  const Amg::Vector3D
+  Amg::Vector3D
   Mode3dTo1dFinder::getMode(const double vx,
                             const double vy,
                             const std::vector<Amg::Vector3D> & myVectorOfPoints,

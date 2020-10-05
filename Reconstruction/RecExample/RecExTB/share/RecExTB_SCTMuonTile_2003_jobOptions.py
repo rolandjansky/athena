@@ -19,10 +19,11 @@ ByteStreamInputSvc.InputDirectory = ["/castor/cern.ch/atlas/testbeam/combined/20
 ByteStreamInputSvc.FilePrefix = ["daq_SFO-1_combined"] ; 
 # Run number 
 ByteStreamInputSvc.RunNumber = [1222] ; 
-ByteStreamInputSvc.MaxBadEvents=200
 # Reader type "Castor" or "Simple" 
 ByteStreamEventStorageInputSvc = Service( "ByteStreamEventStorageInputSvc" )
 ByteStreamEventStorageInputSvc.ReaderType = "Castor";
+
+theApp.serviceMgr().EventSelector.MaxBadEvents = 200
 
 # This does not work for some unknown reason. That means that the SCT
 # reconstruction needs to be commented (even if what we try to say here

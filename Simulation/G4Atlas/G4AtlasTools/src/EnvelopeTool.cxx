@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -39,21 +39,21 @@ void EnvelopeTool::BuildGeometry()
 {
   ATH_MSG_INFO( "this is EnvelopeTool::BuildGeometry: " );
 
-  ATH_MSG_INFO("Building '" << m_detectorName << "' Envelope using the envelope definition service '");
+  ATH_MSG_INFO("Building '" << m_detectorName.value() << "' Envelope using the envelope definition service '");
 
   // retrieve the vector of (r,z) values from the EnvelopeDefSvc
   const RZPairVector *rz = 0;
-  if ( m_detectorName == "BeamPipe")
+  if ( m_detectorName.value() == "BeamPipe")
     rz = &( m_envelopeDefSvc->getBeamPipeRZBoundary() );
-  else if ( m_detectorName == "IDET")
+  else if ( m_detectorName.value() == "IDET")
     rz = &( m_envelopeDefSvc->getInDetRZBoundary() );
-  else if ( m_detectorName == "CALO")
+  else if ( m_detectorName.value() == "CALO")
     rz = &( m_envelopeDefSvc->getCaloRZBoundary() );
-  else if ( m_detectorName == "MUON")
+  else if ( m_detectorName.value() == "MUON")
     rz = &( m_envelopeDefSvc->getMuonRZBoundary() );
   else
     {
-      ATH_MSG_ERROR("Unknown envelope volume name '"<< m_detectorName << "'. Unable to build envelope.");
+      ATH_MSG_ERROR("Unknown envelope volume name '"<< m_detectorName.value() << "'. Unable to build envelope.");
       return;
     }
 
@@ -62,7 +62,7 @@ void EnvelopeTool::BuildGeometry()
   size_t numPoints = rz->size();
   if ( !numPoints)
     {
-      ATH_MSG_ERROR("No entries for " << m_detectorName << " envelope in envelope definition service. Unable to build envelope.");
+      ATH_MSG_ERROR("No entries for " << m_detectorName.value() << " envelope in envelope definition service. Unable to build envelope.");
       return;
     }
 
@@ -83,8 +83,8 @@ void EnvelopeTool::BuildGeometry()
   // create the G4 Volume
   double phimin    = 0.;
   double deltaphi  = 360.*CLHEP::deg;
-  G4Polycone *pcone = new G4Polycone( m_detectorName, phimin, deltaphi, numPoints, r, z);
-  G4LogicalVolume* logVolume = new G4LogicalVolume( pcone, 0, m_detectorName);
+  G4Polycone *pcone = new G4Polycone( m_detectorName.value(), phimin, deltaphi, numPoints, r, z);
+  G4LogicalVolume* logVolume = new G4LogicalVolume( pcone, 0, m_detectorName.value());
 
   G4NistManager* nist = G4NistManager::Instance();
 

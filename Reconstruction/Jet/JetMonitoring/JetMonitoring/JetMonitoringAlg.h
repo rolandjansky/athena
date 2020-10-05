@@ -37,6 +37,9 @@ private:
   SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerKey;
   
   ToolHandleArray<IJetHistoFiller> m_jetFillerTools;
-  
+
+  bool m_failureOnMissingContainer;
+  bool m_onlyPassingJets;
+
 };
 #endif

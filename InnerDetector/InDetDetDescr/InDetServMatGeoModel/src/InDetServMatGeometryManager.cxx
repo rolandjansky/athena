@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatGeometryManager.h"
@@ -12,14 +12,14 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 
-InDetServMatGeometryManager::InDetServMatGeometryManager(const InDetDD::AthenaComps * athenaComps)   
+InDetServMatGeometryManager::InDetServMatGeometryManager(InDetDD::AthenaComps * athenaComps)   
   : m_athenaComps(athenaComps),
     m_matMgr(0)
 {
   
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing InDetServMatGeometryManager" << endmsg;
    
-  IGeoDbTagSvc *geoDbTag = m_athenaComps->geoDbTagSvc();
+  const IGeoDbTagSvc *geoDbTag = m_athenaComps->geoDbTagSvc();
   IRDBAccessSvc *rdbSvc = m_athenaComps->rdbAccessSvc();
 
   // Get version tag and node for Pixel.
@@ -105,7 +105,7 @@ bool InDetServMatGeometryManager::buildServices() const
   return false;
 }
 
-int InDetServMatGeometryManager::SupportTubeIndex(std::string name) const 
+int InDetServMatGeometryManager::SupportTubeIndex(const std::string& name) const 
 {
   for (unsigned int i = 0; i < db()->getTableSize(m_InDetSimpleServices); i++) 
   {
@@ -114,35 +114,35 @@ int InDetServMatGeometryManager::SupportTubeIndex(std::string name) const
   return -1;
 }
 
-double InDetServMatGeometryManager::SupportTubeRMin(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeRMin(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMIN", ind);
   return 0;
 }
 
-double InDetServMatGeometryManager::SupportTubeRMax(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeRMax(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMAX", ind);
   return 0;
 }
 
-double InDetServMatGeometryManager::SupportTubeZMin(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeZMin(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "ZMIN", ind);
   return 0;
 }
 
-double InDetServMatGeometryManager::SupportTubeZMax(std::string name) const 
+double InDetServMatGeometryManager::SupportTubeZMax(const std::string& name) const 
 {
   int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "ZMAX", ind);
   return 0;
 }
 
-int InDetServMatGeometryManager::SupportTubeExists(std::string name) const 
+int InDetServMatGeometryManager::SupportTubeExists(const std::string& name) const 
 {
   if (SupportTubeIndex(name) != -1) return 1;
   return 0;

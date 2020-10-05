@@ -1,19 +1,7 @@
-################################################################################
-# Package: RootAuxDynIO
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RootAuxDynIO )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          AtlasTest/TestTools
-                          Control/RootUtils
-                          Control/AthContainers
-                          Control/AthContainersRoot
-                          Control/AthContainersInterfaces
-                          Database/AthenaRoot/AthenaRootComps
-                          GaudiKernel )
 
 find_package( ROOT COMPONENTS Core RIO Tree )
 
@@ -23,4 +11,4 @@ atlas_add_library( RootAuxDynIO
                    PUBLIC_HEADERS RootAuxDynIO
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} 
-                   PRIVATE_LINK_LIBRARIES TestTools AthContainers AthContainersRoot RootUtils GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthContainersInterfaces AthContainersRoot RootUtils )

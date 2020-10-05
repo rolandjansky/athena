@@ -106,7 +106,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     ]
     doTrigger=False
     if isRun3Cfg():
-      if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
+      if inputFlags.DQ.useTrigger or LArNoisyROMonForceTrigger:
         doTrigger=True
     else:    
       if inputFlags.doHLTMon or LArNoisyROMonForceTrigger:
@@ -294,9 +294,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     
     # try NoisyRO algo 

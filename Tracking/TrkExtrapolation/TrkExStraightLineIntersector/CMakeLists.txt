@@ -24,11 +24,11 @@ atlas_add_component( TrkExStraightLineIntersector
                      src/StraightLineIntersector.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps TrkExInterfaces TrkExUtils GaudiKernel TrkSurfaces TrkParameters )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps TrkExInterfaces TrkExUtils GaudiKernel TrkSurfaces TrkParameters TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkExStraightLineIntersector )
 
 atlas_add_test( StraightLineIntersector_test
                 SOURCES test/StraightLineIntersector_test.cxx
-                LINK_LIBRARIES TrkExUtils TestTools GaudiKernel )
+                LINK_LIBRARIES TrkExUtils TestTools GaudiKernel TrkExInterfaces )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,8 +15,8 @@
 //
 // ********************************************************************
 
-#include "TrigT2CaloCalibration/EgammaTransitionRegions.h"
-#include "TrigT2CaloCalibration/EgammaHitsShowerDepth.h"
+#include "EgammaTransitionRegions.h"
+#include "EgammaHitsShowerDepth.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "GaudiKernel/MsgStream.h"
 // Need Cosh
@@ -42,8 +42,7 @@ const CaloSampling::CaloSample samps[2][4] =
 
 StatusCode EgammaTransitionRegions::initialize(){
 
-    CHECK (AthAlgTool::initialize());
-    CHECK (CaloRec::ToolWithConstantsMixin::initialize() );
+    CHECK (base_class::initialize());
     m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
     (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endmsg;
@@ -76,8 +75,9 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
     (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;       
 #endif
 
-    CaloRec::Array<1> tr00	= m_correction[0];
-    CaloRec::Array<1> tr08	= m_correction[1];
+    CxxUtils::Array<2> correction = m_correction();
+    CaloRec::Array<1> tr00	= correction[0];
+    CaloRec::Array<1> tr08	= correction[1];
 
 #ifndef NDEBUG
     (*m_log) << MSG::DEBUG <<  "************************************************************************************************" << endmsg;
@@ -89,14 +89,14 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
     // Compute correction for eta = 0 
     // -------------------------------------------------------------
 
-    if (the_aeta < m_etamax_TR00 && the_aeta > m_etamin_TR00 ) {
+    if (the_aeta < m_etamax_TR00() && the_aeta > m_etamin_TR00() ) {
 #ifndef NDEBUG
 	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (loose) " << endmsg;
 	(*m_log) << MSG::DEBUG << tr00[0] << " " <<  tr00[1] << " " <<  tr00[2] << endmsg;
 #endif
 	corr = ( tr00[0] - tr00[1] / (exp( tr00[2] - the_aeta ) + exp( tr00[3]*( the_aeta - tr00[4]))+tr00[5]));
     }
-    else if ( the_aeta < m_etamin_TR00 ) {
+    else if ( the_aeta < m_etamin_TR00() ) {
 	corr = tr00[6];
 #ifndef NDEBUG
 	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0 (tight) " << endmsg;
@@ -107,7 +107,7 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
     // Compute correction for eta = 0.8
     // -------------------------------------------------------------
 
-    if (the_aeta < m_etamax_TR08 && the_aeta > m_etamin_TR08 ) {
+    if (the_aeta < m_etamax_TR08() && the_aeta > m_etamin_TR08() ) {
 #ifndef NDEBUG
 	(*m_log) << MSG::DEBUG << "Applying correction for eta = 0.8 (loose) " << endmsg;
 	(*m_log) << MSG::DEBUG << tr08[0] << " " <<  tr08[1] << " " <<  tr08[2] << endmsg;
@@ -139,22 +139,5 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
 
     clus->setEt(clus->energy()/cosh(the_aeta));
 
-}
-
-StatusCode
-EgammaTransitionRegions::setProperty (const std::string& propname,
-        const std::string& value)
-{
-    CHECK( AthAlgTool::setProperty(propname,value) );
-    CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
-    return StatusCode::SUCCESS;
-}
-
-StatusCode
-EgammaTransitionRegions::setProperty (const Property& p)
-{
-    CHECK( AthAlgTool::setProperty(p) );
-    CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
-    return StatusCode::SUCCESS;
 }
 

@@ -7,7 +7,7 @@
 # Each Tile cell has 5 values stored in COOL.
 # The first two values are the RMS of a sigle gaussian model of the electronic noise
 # and the pile-up noise normalized at 10^33cm-2s-1, (backwards compatibility)
-# The next three values are used for a two gaussian model. 
+# The next three values are used for a two gaussian model.
 # These are: ratio between first and second gaussian, RMS of the first gaussian, and RMS of the second gaussian
 # change Yuri Smirnov <iouri.smirnov@cern.ch> 2014-12-24
 
@@ -32,7 +32,7 @@ def usage():
     print ("-i, --index=    specify parameter index (0-4), default is -1, means all parameters")
     print ("-b, --brief     print only numbers without character names")
     print ("-d, --double    print values with double precision")
-    
+
 letters = "hs:t:f:r:l:n:c:g:i:bd"
 keywords = ["help","schema=","tag=","folder=","run=","lumi=","channel=","cell=","gain=","index=","brief","double"]
 
@@ -43,7 +43,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run    = 2147483647
 lumi   = 0
 schema = 'OFL2'
@@ -85,7 +85,7 @@ for o, a in opts:
     else:
         usage()
         sys.exit(2)
-        
+
 tile=(chan==48)
 
 import cppyy
@@ -127,7 +127,7 @@ elif schema=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
     else:
         schema='COOLOFL_TILE/CONDBR2'
         folderPath='/TILE/OFL02/NOISE/CELL'
-elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200 
+elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200
     schema='COOLONL_CALO/OFLP200'
     folderPath='/CALO/Noise/CellNoise'
     if tag=='UPD4':
@@ -225,33 +225,33 @@ else:
     indexmax=index+1
 
 if brief or doubl:
-  name1 = ["","","0.0     "]
-  names = []
-  dm=" "
-  for i in range(indexmax):
-      names += [""]
+    name1 = ["","","0.0     "]
+    names = []
+    dm=" "
+    for i in range(indexmax):
+        names += [""]
 else:
-  name1 = ["Noise cell ", "gain ","0.00    "]
-  names = ["RMS ", "pileup ", "RMS1 ", "RMS2 ", "Ratio "]
-  for i in range(len(names),indexmax):
-      names += ["c"+str(i)+" "]
-  dm="\t"
+    name1 = ["Noise cell ", "gain ","0.00    "]
+    names = ["RMS ", "pileup ", "RMS1 ", "RMS2 ", "Ratio "]
+    for i in range(len(names),indexmax):
+        names += ["c"+str(i)+" "]
+    dm="\t"
 for cell in range(cellmin,cellmax):
-  if tile and len(name1[0]):
-    name1[0] = "%s %6s hash " % hashMgr.getNames(cell) 
-  for gain in range(gainmin,gainmax):
-    msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
-    for index in range(indexmin,indexmax):
-      v=blobFlt.getData(cell, gain, index)
-      if doubl:
-          msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v).ljust(15),dm)
-      elif v<5.e-7:
-          msg += "%s%s%s" % (names[index],name1[2],dm)
-      elif v<1:
-          msg += "%s%8.6f%s" % (names[index],v,dm)
-      else:
-          msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v).ljust(8),dm)
-    print (msg)
+    if tile and len(name1[0]):
+        name1[0] = "%s %6s hash " % hashMgr.getNames(cell)
+    for gain in range(gainmin,gainmax):
+        msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
+        for index in range(indexmin,indexmax):
+            v=blobFlt.getData(cell, gain, index)
+            if doubl:
+                msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v).ljust(15),dm)
+            elif v<5.e-7:
+                msg += "%s%s%s" % (names[index],name1[2],dm)
+            elif v<1:
+                msg += "%s%8.6f%s" % (names[index],v,dm)
+            else:
+                msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v).ljust(8),dm)
+        print (msg)
 
 #=== close DB
 db.closeDatabase()

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //
-//  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 #ifndef ATHASGEXUNITTEST_MYPACKAGEALG_H
@@ -15,21 +15,21 @@
 #include "AthAsgExUnittest/IMyPackageTool.h"
 
 
-class MyPackageAlg: public ::AthAnalysisAlgorithm { 
-public: 
+class MyPackageAlg: public ::AthAnalysisAlgorithm {
+public:
 
   MyPackageAlg( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~MyPackageAlg(); 
+  virtual ~MyPackageAlg();
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
 
-private: 
+private:
 
   int m_property;
   ToolHandle<IMyPackageTool> m_tool;
 
-}; 
+};
 
 #endif //> !ATHASGEXUNITTEST_MYPACKAGEALG_H

@@ -27,6 +27,6 @@ atlas_add_library( TrkPrepRawData
                    PUBLIC_HEADERS TrkPrepRawData
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers AthenaKernel GeoPrimitives Identifier EventPrimitives
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers AthenaKernel GeoPrimitives Identifier EventPrimitives EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 

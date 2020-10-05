@@ -1,58 +1,32 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-////////////////////////////////////////////////////////////////////
-//   Implementation file for class MdtDriftCircleOnTrackCreator
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// AlgTool used for MdtDriftCircleOnTrack object production
-///////////////////////////////////////////////////////////////////
-// Version 1.0 18/07/2004
-///////////////////////////////////////////////////////////////////
-
 #include "MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MdtCalibSvc/MdtCalibrationTool.h"
-#include "MdtCalibSvc/MdtCalibrationDbTool.h"
-#include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MdtCalibData/MdtRtRelation.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
 #include "MdtCalibData/TrRelation.h"
-
 #include "MuonCalibEvent/MdtCalibHit.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
-
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkDistortedSurfaces/DistortedSurface.h"
-#include "Identifier/IdentifierHash.h"
+
 #include <boost/assign/std/vector.hpp>
 
-Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::string& ty,const std::string& na,const IInterface* pa)
-  : AthAlgTool(ty,na,pa),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_mdtCalibrationTool("MdtCalibrationTool", this),
-    m_mdtCalibrationDbTool("MdtCalibrationDbTool", this),
-    m_invSpeed(1./299.792458),
-    m_mdtCalibSvcSettings( 0 ),
+Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::string& ty,const std::string& na,const IInterface* pa) :
+    AthAlgTool(ty,na,pa),
+    m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()), // create calibration service settings 
     m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
 {
-  // create calibration service settings 
-  m_mdtCalibSvcSettings = new MdtCalibrationSvcSettings();
-  
-  // algtool interface - necessary!
+    // algtool interface - necessary!
   declareInterface<IMdtDriftCircleOnTrackCreator>(this);
   declareInterface<IRIO_OnTrackCreator>(this);
   
@@ -90,14 +64,7 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::stri
   declareProperty("DoSegmentErrors",m_doSegments=true , "Use error strategy for segments");
   declareProperty("UseLooseErrors",m_looseErrors=false , "Use error strategy for MC");
   declareProperty("IsMC",m_isMC=false);
-
-  declareProperty("CalibrationTool",m_mdtCalibrationTool);
-  declareProperty("CalibrationDbTool",m_mdtCalibrationDbTool);
 }
-
-
-Muon::MdtDriftCircleOnTrackCreator::~MdtDriftCircleOnTrackCreator(){}
-
 
 StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
 {
@@ -130,31 +97,35 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
     // By default use one of the real strategies - don't default to unknown!
     m_errorStrategy.setStrategy(MuonDriftCircleErrorStrategy::Muon);
   }
-  msg(MSG::INFO) << "Constructed default MuonDriftCircleErrorStrategy: ";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BroadError ) ) msg(MSG::INFO) << " Broad";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ScaledError ) ) msg(MSG::INFO) << " Scaled"; 
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::FixedError ) ) msg(MSG::INFO) << " Fixed";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ParameterisedErrors ) ) msg(MSG::INFO) << " Parm";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::StationError ) ) msg(MSG::INFO) << " Station";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ErrorAtPredictedPosition ) ) msg(MSG::INFO) << " ErrAtPos";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::T0Refit ) ) msg(MSG::INFO) << " T0";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagGeomCorrection ) ) msg(MSG::INFO) << " WireG";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection ) ) msg(MSG::INFO) << " TOF";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::PropCorrection ) ) msg(MSG::INFO) << " Prop";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TempCorrection ) ) msg(MSG::INFO) << " Temp";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::MagFieldCorrection ) ) msg(MSG::INFO) << " Mag";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagTimeCorrection ) ) msg(MSG::INFO) << " WireT";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::SlewCorrection ) ) msg(MSG::INFO) << " Slew";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BackgroundCorrection ) ) msg(MSG::INFO) << " Back";
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::Segment ) ) msg(MSG::INFO) << " Seg";
-  msg(MSG::INFO) << endmsg;
-  
-  if( !m_isMC && m_looseErrors )  ATH_MSG_INFO( "Using Data Loose error tuning");
-  if( !m_isMC && !m_looseErrors ) ATH_MSG_INFO( "Using Data Tight error tuning");
+  if (msgLevel(MSG::INFO)) {
+    std::stringstream ss;
+    ss << "Constructed default MuonDriftCircleErrorStrategy:";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BroadError ) ) ss << " Broad";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ScaledError ) ) ss << " Scaled"; 
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::FixedError ) ) ss << " Fixed";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ParameterisedErrors ) ) ss << " Parm";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::StationError ) ) ss << " Station";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ErrorAtPredictedPosition ) ) ss << " ErrAtPos";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::T0Refit ) ) ss << " T0";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagGeomCorrection ) ) ss << " WireG";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection ) ) ss << " TOF";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::PropCorrection ) ) ss << " Prop";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TempCorrection ) ) ss << " Temp";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::MagFieldCorrection ) ) ss << " Mag";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagTimeCorrection ) ) ss << " WireT";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::SlewCorrection ) ) ss << " Slew";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BackgroundCorrection ) ) ss << " Back";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::Segment ) ) ss << " Seg";
+    ss << ". ";
+    if( !m_isMC && m_looseErrors )  ss << "Using Data Loose error tuning";
+    if( !m_isMC && !m_looseErrors ) ss <<  "Using Data Tight error tuning";
+
+    msg(MSG::INFO) << ss.str() << endmsg;
+  }
   if( m_isMC )                    ATH_MSG_INFO( "Using MC error tuning");
   ATH_MSG_VERBOSE( "A correction is made if set to true: do_MDT = " << m_doMdt ); 
   
-  ATH_CHECK( m_idHelper.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if( m_timeCorrectionType == COSMICS_TOF ){
     if( !m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection) ){
@@ -170,11 +141,6 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   return StatusCode::SUCCESS; 
 } 
 
-StatusCode Muon::MdtDriftCircleOnTrackCreator::finalize()
-{
-  delete m_mdtCalibSvcSettings;
-  return AthAlgTool::finalize(); 
-}
 
 Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTrack( 
                                                                                          const MdtPrepData& mdtPrd,
@@ -192,7 +158,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
   // check whether the MdtPrepData is not a masked hit
   if( m_discardMaskedHits && mdtPrd.status() == Muon::MdtStatusMasked ){
     ATH_MSG_VERBOSE( "Unable to calibrate Masked hit, returning zero: channel "
-                    << m_idHelper->toString(iD) );
+                    << m_idHelperSvc->toString(iD) );
     return 0;
   }
   
@@ -317,7 +283,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
   ATH_MSG_DEBUG( "MDT ROT: radius = " << rot->localParameters().get(Trk::driftRadius) 
                 << " error = " << Amg::error(rot->localCovariance(),Trk::locR)
                 << " error = " << calibOutput.locErr
-			 << " ,channel " << m_idHelper->toString(iD) );
+			 << " ,channel " << m_idHelperSvc->toString(iD) );
   
   return rot;
 }
@@ -384,7 +350,7 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
     switch (m_timeCorrectionType){
       case ATLTIME:
         // normal time of flight corrections assuming IP + light speed
-        inputData.tof = gpos.mag()*m_invSpeed;
+        inputData.tof = gpos.mag()*m_inverseSpeedOfLight;
         ATH_MSG_VERBOSE( " running in ATLTIME mode, tof: " << inputData.tof );
         break;
       case NO_CORRECTIONS:
@@ -441,7 +407,7 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
   
   // Handle the errors here.  Begin by getting the first part of the resolution term
   if (!m_doMdt){
-    sigmaR = sqrt(DC.localCovariance()(0,0));
+    sigmaR = std::sqrt(DC.localCovariance()(0,0));
   } else if( myStrategy->creationParameter(MuonDriftCircleErrorStrategy::ParameterisedErrors) ){
     if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Moore ){
       sigmaR   = parametrisedSigma(errRadius);
@@ -452,9 +418,9 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
     }
   }else{
     // Use calib service errors.
-    if(calibHit) sigmaR   =sqrt(calibHit->sigma2DriftRadius());
+    if(calibHit) sigmaR   =std::sqrt(calibHit->sigma2DriftRadius());
   }
-  ATH_MSG_DEBUG("Tube : " << m_idHelper->toString(DC.identify()) << " SigmaR = "<<sigmaR);
+  ATH_MSG_DEBUG("Tube : " << m_idHelperSvc->toString(DC.identify()) << " SigmaR = "<<sigmaR);
   double sigmaR2=0.0;
   // Handle the errors scaling / addition of fixed terms 
   if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Moore ) {
@@ -516,7 +482,7 @@ double Muon::MdtDriftCircleOnTrackCreator::getErrorFromRt(const Muon::MdtDriftCi
   MuonCalib::MdtFullCalibData data = m_mdtCalibrationDbTool->getCalibration( detEl->collectionHash(), detEl->detectorElementHash() );
   const MuonCalib::MdtRtRelation* rtRelation = data.rtRelation;
   if( !rtRelation ){
-    ATH_MSG_WARNING("no calibration found for tube " << m_idHelper->toString(DCT.identify()));
+    ATH_MSG_WARNING("no calibration found for tube " << m_idHelperSvc->toString(DCT.identify()));
     return 0; //FIXME!!!
   }
   
@@ -525,12 +491,12 @@ double Muon::MdtDriftCircleOnTrackCreator::getErrorFromRt(const Muon::MdtDriftCi
     if( t < rtRelation->rt()->tLower() )      t = rtRelation->rt()->tLower();
     else if( t > rtRelation->rt()->tUpper() ) t = rtRelation->rt()->tUpper();
   }else{
-    ATH_MSG_WARNING("no rt found for tube " << m_idHelper->toString(DCT.identify()));
+    ATH_MSG_WARNING("no rt found for tube " << m_idHelperSvc->toString(DCT.identify()));
     return 0;//FIXME!!!
   }
   
   if( !rtRelation->rtRes() ){
-    ATH_MSG_WARNING("no rtRes found for tube " << m_idHelper->toString(DCT.identify()) );
+    ATH_MSG_WARNING("no rtRes found for tube " << m_idHelperSvc->toString(DCT.identify()) );
     return 0;//FIXME!!!
   }
   
@@ -550,7 +516,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError(
   
   const MuonGM::MdtReadoutElement* detEl = DCT.detectorElement();
   if( !detEl ){
-    ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement " << m_idHelper->toString(DCT.identify()));
+    ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement " << m_idHelperSvc->toString(DCT.identify()));
     return 0;
   }
   
@@ -559,7 +525,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError(
   if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError ) && 
      !myStrategy->creationParameter( MuonDriftCircleErrorStrategy::ScaledError ) &&
      !myStrategy->creationParameter( MuonDriftCircleErrorStrategy::FixedError )){
-    sigmaR = detEl->innerTubeRadius()/sqrt(3.0); // Tube hit
+    sigmaR = detEl->innerTubeRadius()/std::sqrt(3.0); // Tube hit
   } else {  
     if( myStrategy->creationParameter(MuonDriftCircleErrorStrategy::ErrorAtPredictedPosition) )
       ATH_MSG_WARNING("updateError: ErrorAtPredictedPosition is not yet supported!");
@@ -575,7 +541,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError(
     }else{
       sigmaR = getErrorFromRt(DCT);
       if( sigmaR < 0.0001 || sigmaR*sigmaR < 0.0001 ){
-        ATH_MSG_WARNING( "Bad obtained from calibration service: error " << m_idHelper->toString(DCT.identify()) << " reso " << sigmaR << " sigma2 " << sigmaR*sigmaR
+        ATH_MSG_WARNING( "Bad obtained from calibration service: error " << m_idHelperSvc->toString(DCT.identify()) << " reso " << sigmaR << " sigma2 " << sigmaR*sigmaR
                         << " drift time " << t << " original " << DCT.driftTime() );
         return 0;
       } 
@@ -596,7 +562,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError(
  rot->setErrorStrategy(myStrategy);
   
   
-  ATH_MSG_VERBOSE("updated error for " << m_idHelper->toString(DCT.identify()) << " new error " << Amg::error(rot->localCovariance(),Trk::locR)
+  ATH_MSG_VERBOSE("updated error for " << m_idHelperSvc->toString(DCT.identify()) << " new error " << Amg::error(rot->localCovariance(),Trk::locR)
                   << " old error " << Amg::error(DCT.localCovariance(),Trk::locR) );
   
   // return result
@@ -621,7 +587,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExte
   sigmaRT = getErrorFromRt(DCT);
 
   if( sigmaRT < 0.0001 || sigmaRT*sigmaRT < 0.0001 ){
-    ATH_MSG_WARNING( "Bad obtained from calibration service: error " << m_idHelper->toString(detElId) << " reso " << sigmaRT << " sigma2 " << sigmaRT*sigmaRT
+    ATH_MSG_WARNING( "Bad obtained from calibration service: error " << m_idHelperSvc->toString(detElId) << " reso " << sigmaRT << " sigma2 " << sigmaRT*sigmaRT
                     << " drift time " << t << " original " << DCT.driftTime() << " => Only external error is applied (if any)!" );
     sigmaRT=0.;
     if(!errorlist) {
@@ -637,7 +603,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExte
     if( errorlist->find(DCT.identify()) != errorlist->end() )
       sigmaEXT = errorlist->find(DCT.identify())->second;
     else {
-      ATH_MSG_DEBUG("There is no external error stored in the map for " << m_idHelper->toString(detElId) << ". Applying only error from RT.");
+      ATH_MSG_DEBUG("There is no external error stored in the map for " << m_idHelperSvc->toString(detElId) << ". Applying only error from RT.");
       sigmaEXT = 0.;
     }
   }
@@ -645,7 +611,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExte
   Muon::MdtDriftCircleOnTrack* rot = DCT.clone();
   rot->m_localCovariance(0,0) = sigmaRT*sigmaRT + sigmaEXT*sigmaEXT;
 
-  ATH_MSG_DEBUG("updated error for " << m_idHelper->toString(DCT.identify()) << " new error " << Amg::error(rot->localCovariance(),Trk::locR)
+  ATH_MSG_DEBUG("updated error for " << m_idHelperSvc->toString(DCT.identify()) << " new error " << Amg::error(rot->localCovariance(),Trk::locR)
                   << " old error " << Amg::error(DCT.localCovariance(),Trk::locR) << " with RT error " << sigmaRT << " and external error " << sigmaEXT );
 
   return rot;
@@ -655,7 +621,7 @@ Muon::MdtDriftCircleStatus Muon::MdtDriftCircleOnTrackCreator::driftCircleStatus
 {
   const MuonGM::MdtReadoutElement* detEl = DCT.detectorElement();
   if( !detEl ){
-    ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement " << m_idHelper->toString(DCT.identify()));
+    ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement " << m_idHelperSvc->toString(DCT.identify()));
     return Muon::MdtStatusUnDefined;
   }
   
@@ -663,7 +629,7 @@ Muon::MdtDriftCircleStatus Muon::MdtDriftCircleOnTrackCreator::driftCircleStatus
   MuonCalib::MdtFullCalibData data = m_mdtCalibrationDbTool->getCalibration( detEl->collectionHash(), detEl->detectorElementHash() );
   const MuonCalib::MdtRtRelation* rtRelation = data.rtRelation;
   if( !rtRelation ){
-    ATH_MSG_WARNING("no calibration found for tube " << m_idHelper->toString(DCT.identify()));
+    ATH_MSG_WARNING("no calibration found for tube " << m_idHelperSvc->toString(DCT.identify()));
     return Muon::MdtStatusUnDefined;
   }
   
@@ -677,7 +643,7 @@ double Muon::MdtDriftCircleOnTrackCreator::timeOfFlight(const Amg::Vector3D& pos
 }
 
 double Muon::MdtDriftCircleOnTrackCreator::parametrisedSigma( double r ) const {
-  return 0.23*exp(-fabs(r)/6.06)+0.0362;
+  return 0.23*std::exp(-std::abs(r)/6.06)+0.0362;
 }
 
 double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, 
@@ -717,19 +683,19 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const MuonDriftC
     }
     // Don't know how to handle other cases - error?
   } else { // Track
-    Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+    Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
     if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::StationError ) ){
       if( stIndex == MuonStationIndex::BE ){
 	ATH_MSG_VERBOSE(" track error BEE ");
 	return 1.44*sigmaR2 + 1.44; // 1.2* + 1.2 mm
       }else if( stIndex == MuonStationIndex::EE ){
 	ATH_MSG_VERBOSE(" track error EE ");
-	if( !m_isMC && m_idHelper->stationEta(id) < 0 ) return 1.44*sigmaR2 + 0.16; // 1.2* + 0.4 mm
+	if( !m_isMC && m_idHelperSvc->stationEta(id) < 0 ) return 1.44*sigmaR2 + 0.16; // 1.2* + 0.4 mm
 	return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
-      }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
- 	        abs(m_idHelper->stationEta(id)) > 6 ){
+      }else if( stIndex == MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIS &&
+ 	        std::abs(m_idHelperSvc->stationEta(id)) > 6 ){
 	ATH_MSG_VERBOSE(" track error BIS78 ");
-	if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+	if( std::abs(m_idHelperSvc->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
 	else                                       return 4*sigmaR2 + 25;    // 2* + 5. mm
       }
       ATH_MSG_VERBOSE(" track station error  ");
@@ -753,8 +719,8 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const MuonDriftC
       }else{
 	// use slightly smaller errors for the barrel
 	double fixedTerm = (stIndex == MuonStationIndex::BI||stIndex == MuonStationIndex::BM||stIndex == MuonStationIndex::BO) ? 0.014 : 0.04;
-	if( m_doIndividualChamberReweights && stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIL &&
-	    m_idHelper->stationEta(id) == 1 && m_idHelper->sector(id) == 13 && m_idHelper->mdtIdHelper().multilayer(id) == 1 ){
+	if( m_doIndividualChamberReweights && stIndex == MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIL &&
+	    m_idHelperSvc->stationEta(id) == 1 && m_idHelperSvc->sector(id) == 13 && m_idHelperSvc->mdtIdHelper().multilayer(id) == 1 ){
 	  fixedTerm = 1;
 	  ATH_MSG_VERBOSE(" track error Scaled: BIL1A13, first multi layer ");
 	}else{
@@ -797,7 +763,7 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyLoose(const MuonDri
     } 
     // Don't know how to handle other cases - error?
   } else { // Track
-    Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+    Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
     if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::StationError ) ){
       if( stIndex == MuonStationIndex::BE ){
         ATH_MSG_VERBOSE(" track error BEE ");
@@ -805,17 +771,17 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyLoose(const MuonDri
       }else if( stIndex == MuonStationIndex::EE ){
         ATH_MSG_VERBOSE(" track error EE ");
         return 1.44*sigmaR2 + 0.04; // 1.2* + 0.2 mm
-      }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
-                abs(m_idHelper->stationEta(id)) > 6 ){
+      }else if( stIndex == MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIS &&
+                std::abs(m_idHelperSvc->stationEta(id)) > 6 ){
         ATH_MSG_VERBOSE(" track error BIS78 ");
-        if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+        if( std::abs(m_idHelperSvc->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
         else                                       return 4*sigmaR2 + 25;    // 2* + 5. mm
-      }else if( stIndex == MuonStationIndex::BM && m_idHelper->stationPhi(id) == 7 && 
-                (m_idHelper->mdtIdHelper()).stationName(id) == 53 ){
+      }else if( stIndex == MuonStationIndex::BM && m_idHelperSvc->stationPhi(id) == 7 && 
+                (m_idHelperSvc->mdtIdHelper()).stationName(id) == 53 ){
         ATH_MSG_VERBOSE(" track error BME ");
         return 1.44*sigmaR2 + 0.25; // 1.2* + 0.5 mm
-      }else if( stIndex == MuonStationIndex::BO && m_idHelper->chamberIndex(id) == MuonStationIndex::BOL &&
-                abs(m_idHelper->stationEta(id)) == 7 && m_idHelper->stationPhi(id) == 7 ){
+      }else if( stIndex == MuonStationIndex::BO && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BOL &&
+                std::abs(m_idHelperSvc->stationEta(id)) == 7 && m_idHelperSvc->stationPhi(id) == 7 ){
         ATH_MSG_VERBOSE(" track error BOE ");
         return 1.44*sigmaR2 + 0.25; // 1.2* + 0.5 mm
       }
@@ -840,8 +806,8 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyLoose(const MuonDri
       }else{
         // use slightly smaller errors for the barrel
         double fixedTerm = (stIndex == MuonStationIndex::BI||stIndex == MuonStationIndex::BM||stIndex == MuonStationIndex::BO) ? 0.015 : 0.015;
-        if( m_doIndividualChamberReweights && stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIL && 
-        m_idHelper->stationEta(id) == 1 && m_idHelper->sector(id) == 13 && m_idHelper->mdtIdHelper().multilayer(id) == 1 ){
+        if( m_doIndividualChamberReweights && stIndex == MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIL && 
+        m_idHelperSvc->stationEta(id) == 1 && m_idHelperSvc->sector(id) == 13 && m_idHelperSvc->mdtIdHelper().multilayer(id) == 1 ){
           fixedTerm = 1;
           ATH_MSG_VERBOSE(" track error Scaled: BIL1A13, first multi layer ");
         }else{
@@ -885,30 +851,30 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
     } 
     // Don't know how to handle other cases - error?
   } else { // Track
-    Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
+    Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
     if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::StationError ) ){
       if( stIndex == MuonStationIndex::BE ){
         ATH_MSG_VERBOSE(" track error BEE ");
         return 1.44*sigmaR2 + 0.04; // 1.2* + 0.2 mm
       }else if( stIndex == MuonStationIndex::EE ){
         ATH_MSG_VERBOSE(" track error EE ");
-        if(  m_idHelper->isSmallChamber(id) ) return 1.21*sigmaR2 + 0.01; // 1.1* + 0.1 mm
+        if(  m_idHelperSvc->isSmallChamber(id) ) return 1.21*sigmaR2 + 0.01; // 1.1* + 0.1 mm
         else                                  return 1.21*sigmaR2 + 0.01; // 1.1* + 0.1 mm
-      }else if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
-        abs(m_idHelper->stationEta(id)) > 6 ){
+      }else if( stIndex == MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIS &&
+        std::abs(m_idHelperSvc->stationEta(id)) > 6 ){
           ATH_MSG_VERBOSE(" track error BIS78 ");
-          if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
+          if( std::abs(m_idHelperSvc->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
           else                                       return 4*sigmaR2 + 1.;    // 2* + 1. mm
-      }else if( stIndex == MuonStationIndex::BM && m_idHelper->stationPhi(id) == 7 && 
-		(m_idHelper->mdtIdHelper()).stationName(id) == 53 ){
+      }else if( stIndex == MuonStationIndex::BM && m_idHelperSvc->stationPhi(id) == 7 && 
+		(m_idHelperSvc->mdtIdHelper()).stationName(id) == 53 ){
           ATH_MSG_VERBOSE(" track error BME ");
           return 1.21*sigmaR2 + 0.25; // 1.1* + 0.5 mm
-      }else if( stIndex == MuonStationIndex::BO && m_idHelper->chamberIndex(id) == MuonStationIndex::BOL &&
-        abs(m_idHelper->stationEta(id)) == 7 && m_idHelper->stationPhi(id) == 7 ){
+      }else if( stIndex == MuonStationIndex::BO && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BOL &&
+        std::abs(m_idHelperSvc->stationEta(id)) == 7 && m_idHelperSvc->stationPhi(id) == 7 ){
           ATH_MSG_VERBOSE(" track error BOE ");
           return 1.21*sigmaR2 + 0.25; // 1.1* + 0.5 mm
-      }else if( stIndex == MuonStationIndex::EE && m_idHelper->chamberIndex(id) == MuonStationIndex::EEL &&
-        m_idHelper->stationEta(id) < 0 && m_idHelper->stationPhi(id) == 3 ){
+      }else if( stIndex == MuonStationIndex::EE && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::EEL &&
+        m_idHelperSvc->stationEta(id) < 0 && m_idHelperSvc->stationPhi(id) == 3 ){
           ATH_MSG_VERBOSE(" track error EEL1C05 ");
           return 1.21*sigmaR2 + 25.; // 1.1* + 5 mm
       }
@@ -935,7 +901,7 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
         // use slightly smaller errors for the barrel
 	// 
         double fixedTerm = 0.01;
-	bool isSmall = m_idHelper->isSmallChamber(id);
+	bool isSmall = m_idHelperSvc->isSmallChamber(id);
 	if( stIndex == MuonStationIndex::BI||stIndex == MuonStationIndex::BM||stIndex == MuonStationIndex::BO) {
 	  if( isSmall ) fixedTerm = 0.01;
 	  else          fixedTerm = 0.01;
@@ -944,8 +910,8 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
 	  else          fixedTerm = 0.01;
 	}
         if( m_doIndividualChamberReweights ){
-	  if( stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIL && 
-	      m_idHelper->stationEta(id) == 1 && m_idHelper->sector(id) == 13 && m_idHelper->mdtIdHelper().multilayer(id) == 1 ){
+	  if( stIndex == MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == MuonStationIndex::BIL && 
+	      m_idHelperSvc->stationEta(id) == 1 && m_idHelperSvc->sector(id) == 13 && m_idHelperSvc->mdtIdHelper().multilayer(id) == 1 ){
 	    fixedTerm = 1;
 	    ATH_MSG_VERBOSE(" track error Scaled: BIL1A13, first multi layer ");
 	  }

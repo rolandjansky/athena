@@ -13,8 +13,6 @@
 
 #include "GaudiKernel/EventContext.h"
 
-using namespace std;
-
 // Constructor
 SCT_ConditionsSummaryTool::SCT_ConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
@@ -62,6 +60,26 @@ SCT_ConditionsSummaryTool::activeFraction(const IdentifierHash& elementHash, con
   return goodFraction(elementHash, idStart, idEnd);
 }
 
+double
+SCT_ConditionsSummaryTool::activeFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd, const EventContext& ctx) const {
+  return goodFraction(elementHash, idStart, idEnd, ctx);
+}
+
+bool 
+SCT_ConditionsSummaryTool::isActive(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const {
+  return isGood(elementId, h, ctx);
+}
+
+bool 
+SCT_ConditionsSummaryTool::isActive(const IdentifierHash& elementHash, const EventContext& ctx) const {
+  return isGood(elementHash, ctx);
+}
+
+bool 
+SCT_ConditionsSummaryTool::isActive(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const {
+  return isGood(elementHash, elementId, ctx);
+}
+
 bool
 SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetConditions::Hierarchy h) const {
   if (not m_noReports) {
@@ -99,6 +117,40 @@ SCT_ConditionsSummaryTool::isGood(const IdentifierHash& /*elementHash*/, const I
   return true;
 }
 
+bool 
+SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const {
+  if (not m_noReports) {
+    for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
+      if (tool->canReportAbout(h) and (not tool->isGood(elementId, ctx, h))) return false;
+    }
+  }
+  return true;
+}
+
+bool 
+SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash, const EventContext& ctx) const {
+  if (not m_noReports) {
+    for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
+      if ((tool->canReportAbout(InDetConditions::SCT_SIDE) or
+           tool->canReportAbout(InDetConditions::SCT_MODULE)) and
+          (not tool->isGood(elementHash, ctx))) {
+        return false;
+      }
+    }    
+  }
+  return true;
+}
+
+bool 
+SCT_ConditionsSummaryTool::isGood(const IdentifierHash& /*elementHash*/, const Identifier& elementId, const EventContext& ctx) const {
+  if (not m_noReports) {
+    for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
+      if (tool->canReportAbout(InDetConditions::SCT_STRIP) and (not tool->isGood(elementId, ctx))) return false;
+    } 
+  }
+  return true;
+}
+
 double 
 SCT_ConditionsSummaryTool::goodFraction(const IdentifierHash& /*elementHash*/, const Identifier& /*idStart*/, const Identifier& /*idEnd*/) const {
   double result{1.0};
@@ -106,14 +158,40 @@ SCT_ConditionsSummaryTool::goodFraction(const IdentifierHash& /*elementHash*/, c
   return result;
 }
 
+double 
+SCT_ConditionsSummaryTool::goodFraction(const IdentifierHash& /*elementHash*/, const Identifier& /*idStart*/, const Identifier& /*idEnd*/, const EventContext& /*ctx*/) const {
+  double result{1.0};
+  ATH_MSG_WARNING("goodFraction is a deprecated function always returning 1.0 ");
+  return result;
+}
+
 bool
-SCT_ConditionsSummaryTool::isBSActive(const IdentifierHash& /*elementHash*/) const {
-  ATH_MSG_WARNING("isBSActive() is not implemented for SCT_ConditionsSummaryTool");
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
   return true;
 }
 
 bool
-SCT_ConditionsSummaryTool::isBSError(const IdentifierHash& /*elementHash*/) const {
-  ATH_MSG_WARNING("isBSError() is not implemented for SCT_ConditionsSummaryTool");
-  return false;
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, Identifier /*elementId*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
 }
+
+bool
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
+}
+
+bool
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, Identifier /*elementId*/, const EventContext& /*ctx*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
+}
+
+uint64_t
+SCT_ConditionsSummaryTool::getBSErrorWord(const IdentifierHash& /*moduleHash*/, const EventContext& /*ctx*/) const {
+  ATH_MSG_WARNING("getBSErrorWord() is not implemented for SCT_ConditionsSummaryTool");
+  return 0;
+}
+

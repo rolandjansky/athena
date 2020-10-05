@@ -9,7 +9,7 @@
 '''
 
 from __future__ import print_function
-from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec
 
 
 # *********************************************
@@ -63,11 +63,6 @@ commonHistoSpecs = [
                 ] ),
 
 
-    SelectSpec( 'highJVF',
-                '0.3<JVF[0]', # JVF is a vector<float> for each jets. Here we cut on the 0th entry of this vector
-                FillerTools = [
-                    "pt",
-                ] ),
     # Selecting jets passing the LooseBad selection from the JetCleaningTool.
     SelectSpec( 'LooseBadJets',
                 'LooseBad', # this is not in the form 'min<x<max', so it will be assumed 'LooseBad' is an entry existing in JetStandardHistoSpecs.knownSelector
@@ -76,6 +71,15 @@ commonHistoSpecs = [
                 ] ),
 
     ]
+
+# Separate these out because they cannot run in cosmics
+jvfHistosSpec = [
+    SelectSpec( 'highJVF',
+                '0.3<JVF[0]', # JVF is a vector<float> for each jets. Here we cut on the 0th entry of this vector
+                FillerTools = [
+                    "pt",
+                ] ),
+]
 
 
 topoHistosSpec = [
@@ -90,7 +94,7 @@ pflowHistosSpec = [
 
 
 
-def jetMonAlgConfig(  jetName, truthJetName='', trigger=''):
+def jetMonAlgConfig(  jetName, inputFlags, truthJetName='', trigger=''):
     """returns a specification of a JetMonitoringAlg (in the form of a JetMonAlgSpec dictionnary).
     """
     
@@ -106,6 +110,9 @@ def jetMonAlgConfig(  jetName, truthJetName='', trigger=''):
 
     # then add pre-defined lists as defined above :
     histoSpecs += commonHistoSpecs 
+
+    if inputFlags.DQ.DataType != 'cosmics':
+        histoSpecs += jvfHistosSpec
 
     if 'Topo' in jetName:
         histoSpecs += topoHistosSpec
@@ -138,6 +145,13 @@ def standardJetMonitoring(inputFlags):
     Details of what goes into jet monitoring is implemented by dedicated functions such as jetMonAlgConfig().
     """
 
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    rv = ComponentAccumulator()
+
+    # do not run monitoring in RAWtoESD
+    if inputFlags.DQ.Environment == 'tier0Raw':
+        return rv
+
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'JetMonitoring')
 
@@ -145,13 +159,14 @@ def standardJetMonitoring(inputFlags):
     # create a list of JetMonitoringAlg specifications
     jetAlgConfs = [
         # use the helper function defined above :
-        jetMonAlgConfig( "AntiKt4LCTopoJets", ),
+        jetMonAlgConfig( "AntiKt4LCTopoJets", inputFlags),
         #jetMonAlgConfig( "AntiKt4LCTopoJets", truthJetName="AntiKt4TruthJets"),     #How can we make sure truth jets are available ??
-        jetMonAlgConfig( "AntiKt4EMPFlowJets"),
+        jetMonAlgConfig( "AntiKt4EMPFlowJets", inputFlags),
         ]
     
     # schedule each JetMonitoringAlg by invoking the toAlg() methods of the config specification
     for conf in jetAlgConfs:        
         conf.toAlg(helper) # adds the conf as a JetMonitoringAlg to the helper
     
-    return helper.result() # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
+    rv.merge(helper.result())  # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
+    return rv

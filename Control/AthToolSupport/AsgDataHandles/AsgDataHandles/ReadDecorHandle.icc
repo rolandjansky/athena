@@ -1,0 +1,301 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ */
+
+/**
+ * @file AsgDataHandles/ReadDecorHandle.icc
+ * @author Nils Krumnack <Nils.Erik.Krumnack@cern.h>
+ * @author scott snyder <snyder@bnl.gov> (for original)
+ * @brief Handle class for reading a decoration on an object.
+ */
+
+
+namespace SG {
+
+/**
+ * @brief Constructor from a ReadDecorHandleKey.
+ * @param key The key object holding the clid/key/store/attr.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T, class D>
+ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
+  : Base (key),
+    m_acc (SG::decorKeyFromKey (key.key()))
+{
+}
+
+
+// /**
+//  * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
+//  * @param key The key object holding the clid/key.
+//  * @param ctx The event context.
+//  *
+//  * This will raise an exception if the StoreGate key is blank,
+//  * or if the event store cannot be found.
+//  *
+//  * If the default event store has been requested, then the thread-specific
+//  * store from the event context will be used.
+//  */
+// template <class T, class D>
+// ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key,
+//                                         const EventContext& ctx)
+//   : Base (key, ctx),
+//     m_acc (SG::decorKeyFromKey (key.key()))
+// {
+// }
+
+
+// /**
+//  * @brief Copy constructor.
+//  */
+// template <class T, class D>
+// ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandle& rhs)
+//   : Base (rhs),
+//     m_acc (rhs.m_acc)
+// {
+// }
+
+
+// /**
+//  * @brief Move constructor.
+//  */
+// template <class T, class D>
+// ReadDecorHandle<T, D>::ReadDecorHandle (ReadDecorHandle&& rhs)
+//   : Base (std::move (rhs)),
+//     m_acc (std::move (rhs.m_acc))
+// {
+// }
+
+
+// /**
+//  * @brief Assignment operator.
+//  */
+// template <class T, class D>
+// ReadDecorHandle<T, D>& ReadDecorHandle<T, D>::operator= (const ReadDecorHandle& rhs)
+// {
+//   if (this != &rhs) {
+//     *static_cast<Base*>(this) = rhs;
+//     m_acc = rhs.m_acc;
+//   }
+//   return *this;
+// }
+
+
+// /**
+//  * @brief Move operator.
+//  */
+// template <class T, class D>
+// ReadDecorHandle<T, D>& ReadDecorHandle<T, D>::operator= (ReadDecorHandle&& rhs)
+// {
+//   if (this != &rhs) {
+//     *static_cast<Base*>(this) = std::move (rhs);
+//     m_acc = std::move (rhs.m_acc);
+//   }
+//   return *this;
+// }
+
+
+/**
+ * @brief Is the referenced container present in SG?
+ *
+ * Note that this tests for the presence of the _container_,
+ * not for the decoration.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T, class D>
+bool ReadDecorHandle<T, D>::isPresent() const
+{
+  return this->isPresent_impl (contKeyFromKey (this->key()));
+}
+
+
+/**
+ * @brief Fetch the variable for one element, as a const reference.
+ * @param e The element for which to fetch the variable.
+ */
+template <class T, class D>
+inline
+typename ReadDecorHandle<T, D>::const_reference_type
+ReadDecorHandle<T, D>::operator() (const AuxElement& e) const
+{
+  return m_acc (e);
+}
+
+
+/**
+ * @brief Fetch the variable for one element, as a const reference.
+ * @param index The index of the desired element.
+ *
+ * This looks up the variable in the object referenced by this handle.
+ * For a standalone object, pass an index of 0.
+ */
+template <class T, class D>
+inline
+typename ReadDecorHandle<T, D>::const_reference_type
+ReadDecorHandle<T, D>::operator() (size_t i)
+{
+  return m_acc (*this->vectorData(), i);
+}
+
+
+// /**
+//  * @brief Get a pointer to the start of the auxiliary data array.
+//  *        for the referenced object.
+//  */
+// template <class T, class D>
+// typename ReadDecorHandle<T, D>::const_container_pointer_type
+// ReadDecorHandle<T, D>::getDataArray()
+// {
+//   return reinterpret_cast<const_container_pointer_type>
+//     (this->vectorData()->getDataArray (m_acc.auxid()));
+// }
+
+
+// /**
+//  * @brief Test to see if this variable exists in the store,
+//  *        for the referenced object.
+//  */
+// template <class T, class D>
+// inline
+// bool ReadDecorHandle<T, D>::isAvailable()
+// {
+//   const SG::AuxVectorData* vec = this->vectorData();
+//   return vec && vec->isAvailable (m_acc.auxid());
+// }
+
+
+// /**
+//  * @brief Return the aux id for this variable.
+//  */
+// template <class T, class D>
+// inline
+// SG::auxid_t ReadDecorHandle<T, D>::auxid() const
+// {
+//   return m_acc.auxid();
+// }
+
+
+/** 
+ * @brief Return the referenced object as a @c SG::AuxVectorData.
+ *        Specialization for the case of a standalone object
+ *        (@c T derives from @c SG::AuxElement).
+ */
+template <class T, class D>
+inline
+const SG::AuxVectorData* ReadDecorHandle<T, D>::vectorData (std::true_type)
+{
+  return (*this)->container();
+}
+
+
+/** 
+ * @brief Return the referenced object as a @c SG::AuxVectorData.
+ *        Specialization for the case of a container
+ *        (@c T does not derive from @c SG::AuxElement).
+ */
+template <class T, class D>
+inline
+const SG::AuxVectorData* ReadDecorHandle<T, D>::vectorData (std::false_type)
+{
+  return this->cptr();
+}
+
+
+/** 
+ * @brief Return the referenced object as a @c SG::AuxVectorData.
+ *
+ * If @c T is a container object, then this should be the object itself.
+ * But if it is a standalone object, deriving from @c SG::AuxElement,
+ * then we need to call container() on the object.
+ */
+template <class T, class D>
+inline
+const SG::AuxVectorData* ReadDecorHandle<T, D>::vectorData()
+{
+  // Dispatch to the appropriate specialization, depending on whether or not
+  // @c T derives from @c SG::AuxElement.
+  return vectorData (typename std::is_base_of<SG::AuxElement, T>::type());
+}
+
+
+// /**
+//  * @brief Return a @c ReadDecorHandle referencing @c key.
+//  * @param key The key object holding the clid/key/store.
+//  *
+//  * This will raise an exception if the StoreGate key is blank,
+//  * or if the event store cannot be found.
+//  *
+//  * The type of the decoration must be included as an explicit template parameter:
+//  *
+//  *@code
+//  *   auto handle = SG::makeHandle<float> (key);
+//  @endcode
+//  *
+//  * Note that @c D comes first in the argument list.  It's given explicitly,
+//  * while @c T is inferred from @c key.
+//  */
+// template <class D, class T>
+// ReadDecorHandle<T, D> makeHandle (const ReadDecorHandleKey<T>& key)
+// {
+//   return ReadDecorHandle<T, D> (key);
+// }
+
+
+// /**
+//  * @brief Return a @c ReadDecorHandle referencing @c key for an explicit context.
+//  * @param key The key object holding the clid/key/store.
+//  * @param ctx The event context.
+//  *
+//  * This will raise an exception if the StoreGate key is blank,
+//  * or if the event store cannot be found.
+//  *
+//  * If the default event store has been requested, then the thread-specific
+//  * store from the event context will be used.
+//  *
+//  * The type of the decoration must be included as an explicit template parameter:
+//  *
+//  *@code
+//  *   auto handle = SG::makeHandle<float> (key, ctx);
+//  @endcode
+//  *
+//  * Note that @c D comes first in the argument list.  It's given explicitly,
+//  * while @c T is inferred from @c key.
+//  */
+// template <class D, class T>
+// ReadDecorHandle<T, D> makeHandle (const ReadDecorHandleKey<T>& key,
+//                                   const EventContext& ctx)
+// {
+//   return ReadDecorHandle<T, D> (key, ctx);
+// }
+
+
+// /**
+//  * @brief These two signatures are to catch cases where the explicit
+//  *        template argument is omitted from the @c makeHandle call
+//  *        and give an error tailored to that.  Otherwise, the @c makeHandle
+//  *        call for @c ReadHandle would match, potentially giving a much
+//  *        more confusing error.
+//  */
+// template <class T>
+// void makeHandle (const ReadDecorHandleKey<T>& /*key*/)
+// {
+//   // If you see an error from here, you've forgotten the explicit template
+//   // argument to @c makeHandle giving the decoration type.
+//   // See the examples of @c makeHandle above.
+//   return T::makeHandleForDecorationsRequiresExplicitTemplateArgument();
+// }
+// template <class T>
+// void makeHandle (const ReadDecorHandleKey<T>& /*key*/,
+//                  const EventContext& /*ctx*/)
+// {
+//   // If you see an error from here, you've forgotten the explicit template
+//   // argument to @c makeHandle giving the decoration type.
+//   // See the examples of @c makeHandle above.
+//   return T::makeHandleForDecorationsRequiresExplicitTemplateArgument();
+// }
+
+
+} // namespace SG

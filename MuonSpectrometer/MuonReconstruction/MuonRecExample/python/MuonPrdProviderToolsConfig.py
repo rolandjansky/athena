@@ -20,7 +20,6 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
   import MuonCnvExample.MuonCablingConfig
 
   if source == 'data':
-    kwargs["processingData"] = True
     kwargs["reduceCablingOverlap"] = True
     kwargs["produceRpcCoinDatafromTriggerWords"] = True
     kwargs["overlap_timeTolerance"] = 1000
@@ -43,6 +42,7 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
 
   # setup dependencies which are not yet in C++
   import MuonCnvExample.MuonCablingConfig
+  from MuonRecExample import MuonAlignConfig
   from MuonCnvExample import MuonCalibConfig
   MuonCalibConfig.setupMdtCondDB()
   include("AmdcAth/AmdcAth_jobOptions.py")

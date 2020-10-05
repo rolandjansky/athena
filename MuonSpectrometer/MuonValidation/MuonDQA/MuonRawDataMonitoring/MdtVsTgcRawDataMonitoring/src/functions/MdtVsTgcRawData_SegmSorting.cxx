@@ -54,8 +54,8 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegm
       Identifier id = rio->identify();
       
       // Identify MDT Endcap Segments
-      if(m_idHelperSvc->mdtIdHelper().is_mdt(id))isMdt=true;
-      if(m_idHelperSvc->mdtIdHelper().isEndcap(id))isEndcap=true;
+      if(m_idHelperSvc->isMdt(id))isMdt=true;
+      if(m_idHelperSvc->isEndcap(id))isEndcap=true;
       
       int stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
       // Large (L) = odd, greater r, Small (S) = even, lower r

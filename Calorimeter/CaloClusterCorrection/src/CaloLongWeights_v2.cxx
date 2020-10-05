@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -20,37 +20,28 @@ PURPOSE:  correction for the energy lost in the dead material
 using xAOD::CaloCluster;
 using CaloClusterCorr::interpolate;
  
-CaloLongWeights_v2::CaloLongWeights_v2(const std::string& type,
-                                     const std::string& name,
-                                     const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
-{ 
-  declareConstant("correction",      m_correction);
-  declareConstant("energies",        m_energies);
-  declareConstant("degree",          m_degree);
-  declareConstant("EtaMax",          m_etamax);
-  declareConstant("EtaBarrel",       m_barrel_frontier);
-  declareConstant("EtaEndCap",       m_endcap_frontier);
-}
- 
-void CaloLongWeights_v2::makeTheCorrection(const EventContext& /*ctx*/,
-                                           CaloCluster* cluster,
-                                           const CaloDetDescrElement* /*elt*/,
-                                           float eta,
-                                           float /*adj_eta*/,
-                                           float /*phi*/,
-                                           float /*phi*/,
-                                           CaloSampling::CaloSample /*samp*/) const
-{ 
+void CaloLongWeights_v2::makeTheCorrection (const Context& myctx,
+                                            CaloCluster* cluster,
+                                            const CaloDetDescrElement* /*elt*/,
+                                            float eta,
+                                            float /*adj_eta*/,
+                                            float /*phi*/,
+                                            float /*phi*/,
+                                            CaloSampling::CaloSample /*samp*/) const
+{
   float the_eta = std::abs (eta);
-  if (the_eta >= m_etamax) return;
+  if (the_eta >= m_etamax (myctx)) return;
 
 
   bool inBarrel = false;
-  if (the_eta < m_barrel_frontier)
+  if (the_eta < m_barrel_frontier (myctx))
     inBarrel= true;
-  else if (the_eta <= m_endcap_frontier)
+  else if (the_eta <= m_endcap_frontier (myctx))
     return;
+
+  const CxxUtils::Array<3> correction = m_correction (myctx);
+  const CxxUtils::Array<1> energies   = m_energies (myctx);
+  const int degree = m_degree (myctx);
 
   //initial cluster energy
   float energy = cluster->e();
@@ -62,30 +53,30 @@ void CaloLongWeights_v2::makeTheCorrection(const EventContext& /*ctx*/,
   int etaIndex = (int) (the_eta * (1./0.025));
 
   //samples
-  unsigned int n_samples = m_energies.size();
+  unsigned int n_samples = energies.size();
   
   
   unsigned int shape[] = {n_samples, 6};
   CaloRec::WritableArrayData<2> vectParm (shape);
 
-  
+
   for(unsigned int i=0;i<n_samples;i++)
     {
-      vectParm[i][0] = m_energies[i];
+      vectParm[i][0] = energies[i];
       for(unsigned int j=0;j<5;j++)
 	{
-	  vectParm[i][j+1] = m_correction[i][etaIndex][j+1];
+	  vectParm[i][j+1] = correction[i][etaIndex][j+1];
 	}
     }
 
   for(unsigned int k=0; k<5;k++)
     {
-      if(energy < m_energies[0])
+      if(energy < energies[0])
         coefs[k] = vectParm[0][k+1];
-      else if(energy > m_energies[n_samples-1])
+      else if(energy > energies[n_samples-1])
         coefs[k] = vectParm[n_samples-1][k+1];
       else
-	coefs[k] = interpolate (vectParm, energy, m_degree, k+1);
+	coefs[k] = interpolate (vectParm, energy, degree, k+1);
     }
 
 

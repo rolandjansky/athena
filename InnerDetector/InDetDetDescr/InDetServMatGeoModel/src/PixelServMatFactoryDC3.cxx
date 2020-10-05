@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactoryDC3.h"
@@ -24,12 +24,15 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/SystemOfUnits.h"
+
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
 #define SKIPCYLINDER 3
 //#define NUMBEROFCYLINDER 7
 
-PixelServMatFactoryDC3::PixelServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps, 
+PixelServMatFactoryDC3::PixelServMatFactoryDC3(InDetDD::AthenaComps * athenaComps, 
 					       InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  

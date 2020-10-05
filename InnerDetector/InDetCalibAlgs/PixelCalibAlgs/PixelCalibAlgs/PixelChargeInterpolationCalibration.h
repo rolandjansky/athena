@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationCalibration_h
 #define PixelChargeInterpolationCalibration_h
+
+#include "CxxUtils/checker_macros.h"
 
 class string;
 template < class T, class Allocator > class vector;
@@ -14,8 +16,6 @@ namespace PixelCalib{
 class PixelChargeInterpolationHistograms;
 class PixelChargeInterpolationPlot;
 class PixelChargeInterpolationParameters;
-
-class PixelChargeInterpolationCalibration;
 
 class PixelChargeInterpolationCalibration{
 

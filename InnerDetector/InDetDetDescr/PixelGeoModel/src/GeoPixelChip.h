@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELCHIP_H
@@ -10,8 +10,13 @@ class GeoLogVol;
 
 class GeoPixelChip : public GeoVPixelFactory {
  public:
-  GeoPixelChip(bool isModule3D): m_isModule3D(isModule3D) {};
-  virtual GeoVPhysVol* Build();
+  GeoPixelChip(InDetDD::PixelDetectorManager* ddmgr,
+               PixelGeometryManager* mgr,
+               bool isModule3D)
+    : GeoVPixelFactory (ddmgr, mgr),
+      m_isModule3D(isModule3D)
+  {};
+  virtual GeoVPhysVol* Build() override;
 
  private:
   bool m_isModule3D;

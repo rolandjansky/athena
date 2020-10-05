@@ -90,8 +90,8 @@ if dumpPixInfo:
     PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "NCBPixelChargeToTConversionSetter") 
     topSequence += PixelChargeToTConversionSetter 
     if (printIdTrkDxAODConf):
-        print PixelChargeToTConversionSetter
-        print PixelChargeToTConversionSetter.properties()
+        print(PixelChargeToTConversionSetter)
+        print(PixelChargeToTConversionSetter.properties())
 
 #Setup SCT extension efficiency algorithm if running pixel tracklets
 #if InDetFlags.doTrackSegmentsPixel():
@@ -111,8 +111,8 @@ if dumpTrtInfo:
 
     topSequence += xAOD_TRT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_TRT_PrepDataToxAOD
-        print xAOD_TRT_PrepDataToxAOD.properties()
+        print(xAOD_TRT_PrepDataToxAOD)
+        print(xAOD_TRT_PrepDataToxAOD.properties())
 
 if dumpSctInfo:
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
@@ -126,12 +126,14 @@ if dumpSctInfo:
 
     topSequence += xAOD_SCT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_SCT_PrepDataToxAOD
-        print xAOD_SCT_PrepDataToxAOD.properties()
+        print(xAOD_SCT_PrepDataToxAOD)
+        print(xAOD_SCT_PrepDataToxAOD.properties())
 
 if dumpPixInfo:
+    import InDetRecExample.TrackingCommon as TrackingCommon
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "NCBxAOD_PixelPrepDataToxAOD")
+    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "NCBxAOD_PixelPrepDataToxAOD",
+                                                    ClusterSplitProbabilityName = TrackingCommon.combinedClusterSplitProbName())
     ## Content steering Properties (default value shown as comment)
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
@@ -144,8 +146,8 @@ if dumpPixInfo:
 
     topSequence += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_PixelPrepDataToxAOD
-        print xAOD_PixelPrepDataToxAOD.properties()
+        print(xAOD_PixelPrepDataToxAOD)
+        print(xAOD_PixelPrepDataToxAOD.properties())
 
 
 #################
@@ -179,8 +181,8 @@ ToolSvc += DFIDNCB
 augmentationTools+=[DFIDNCB]
 
 if (printIdTrkDxAODConf):
-    print DFIDNCB
-    print DFIDNCB.properties()
+    print(DFIDNCB)
+    print(DFIDNCB.properties())
 
 # Add BS error augmentation tool
 if dumpBytestreamErrors:
@@ -192,8 +194,8 @@ if dumpBytestreamErrors:
     ToolSvc += DFEI
     augmentationTools+=[DFEI]
     if (printIdTrkDxAODConf):
-        print DFEI
-        print DFEI.properties()
+        print(DFEI)
+        print(DFEI.properties())
 
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
@@ -205,8 +207,8 @@ if dumpUnassociatedHits:
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
     ToolSvc += unassociatedHitsGetterTool
     if (printIdTrkDxAODConf):
-        print unassociatedHitsGetterTool
-        print unassociatedHitsGetterTool.properties()
+        print(unassociatedHitsGetterTool)
+        print(unassociatedHitsGetterTool.properties())
 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsDecorator
     unassociatedHitsDecorator = DerivationFramework__UnassociatedHitsDecorator (name ='NCBunassociatedHitsDecorator',
@@ -218,8 +220,8 @@ if dumpUnassociatedHits:
     augmentationTools+=[unassociatedHitsDecorator]
 
     if (printIdTrkDxAODConf):
-        print unassociatedHitsDecorator
-        print unassociatedHitsDecorator.properties()
+        print(unassociatedHitsDecorator)
+        print(unassociatedHitsDecorator.properties())
 
 # Add LArCollisionTime augmentation tool
 if dumpLArCollisionTime:
@@ -236,8 +238,8 @@ if dumpLArCollisionTime:
         augmentationTools+=[lArCollisionTimeDecorator]
 
         if (printIdTrkDxAODConf):
-            print lArCollisionTimeDecorator
-            print lArCollisionTimeDecorator.properties()
+            print(lArCollisionTimeDecorator)
+            print(lArCollisionTimeDecorator.properties())
 
 
 #====================================================================
@@ -304,8 +306,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFIDNCB_
 
 topSequence += DerivationFrameworkJob
 if (printIdTrkDxAODConf):
-    print DerivationFrameworkJob
-    print DerivationFrameworkJob.properties()
+    print(DerivationFrameworkJob)
+    print(DerivationFrameworkJob.properties())
 
 #################
 ### Steer output file content
@@ -381,4 +383,4 @@ if dumpTriggerInfo:
     IDNCBStream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
 
 if (printIdTrkDxAODConf):
-    print IDNCBStream
+    print(IDNCBStream)

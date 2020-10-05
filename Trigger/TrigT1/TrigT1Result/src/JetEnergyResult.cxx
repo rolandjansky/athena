@@ -16,19 +16,15 @@
 
 namespace ROIB {
 
-  JetEnergyResult::JetEnergyResult( const Header& head, const Trailer& trail, const std::vector< JetEnergyRoI >& roIVector )
-    : m_JetEnergyResultHeader( head ), m_JetEnergyResultTrailer( trail ),
-      m_JetEnergyResultRoIVec( roIVector ) {
+  JetEnergyResult::JetEnergyResult( Header&& head, Trailer&& trail, std::vector< JetEnergyRoI >&& roIVector )
+    : m_JetEnergyResultHeader( std::move(head) ), m_JetEnergyResultTrailer( std::move(trail) ),
+      m_JetEnergyResultRoIVec( std::move(roIVector) ) {
 
   }
 
   JetEnergyResult::JetEnergyResult()
     : m_JetEnergyResultHeader(), m_JetEnergyResultTrailer(),
       m_JetEnergyResultRoIVec() {
-
-  }
-
-  JetEnergyResult::~JetEnergyResult() {
 
   }
 

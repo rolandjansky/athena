@@ -39,6 +39,8 @@ StatusCode CP::EventFlagSelectionAlg::initialize()
     }
   }
 
+  ANA_CHECK(m_filterParams.initialize());
+
   return StatusCode::SUCCESS;
 }
 

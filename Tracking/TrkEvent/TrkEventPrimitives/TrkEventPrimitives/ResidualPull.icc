@@ -1,0 +1,74 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <stdexcept>
+
+namespace Trk {
+// constructor with parameters
+inline Trk::ResidualPull::ResidualPull(
+  const std::vector<double>& residual,
+  const std::vector<double>& pull,
+  bool pullValid,
+  Trk::ResidualPull::ResidualType type,
+  int parameterKey,
+  double sineStripAngle)
+  : m_residual(residual)
+  , m_pull(pull)
+  , m_pullValid(pullValid)
+  , m_residualType(type)
+  , m_parameterKey(parameterKey)
+  , m_sineStripAngle(sineStripAngle)
+{
+  if (m_residual.size() != m_pull.size()) {
+    throw std::runtime_error(
+      "Trk::ResidualPull: residual and pull sizes differ");
+  }
+}
+
+// return the parameter key of the Trk::LocalParameters (of the measurement)
+// used for the calculation
+inline int
+Trk::ResidualPull::parameterKey() const
+{
+  return m_parameterKey;
+}
+
+// return the dimension of the residual and pull
+inline int
+Trk::ResidualPull::dimension() const
+{
+  return m_residual.size();
+}
+inline const std::vector<double>&
+ResidualPull::residual() const
+{
+  return m_residual;
+}
+
+inline const std::vector<double>&
+ResidualPull::pull() const
+{
+  return m_pull;
+}
+
+inline bool
+ResidualPull::isPullValid() const
+{
+  return m_pullValid;
+}
+
+inline ResidualPull::ResidualType
+ResidualPull::residualType() const
+{
+  return m_residualType;
+}
+
+inline double
+ResidualPull::sineStripAngle() const
+{
+  return m_sineStripAngle;
+}
+
+}
+

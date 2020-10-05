@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -69,7 +69,7 @@ StatusCode HLT::EventInfoAccessTool::getStreamTags(std::vector< xAOD::EventInfo:
     ATH_MSG_DEBUG("[xAOD::EventInfo] Event has no trigger streams");
   } else {
     ATH_MSG_DEBUG("[xAOD::EventInfo] Event has " << streams.size() << " stream(s)");
-    for(const xAOD::EventInfo::StreamTag st : streams ) {
+    for(const xAOD::EventInfo::StreamTag& st : streams ) {
       ATH_MSG_DEBUG("xAOD::EventInfo::StreamTag stream = "<<st.name()<<" type = "<< st.type());
     }
   }
@@ -89,7 +89,8 @@ StatusCode HLT::EventInfoAccessTool::addStreamTags(const std::vector< xAOD::Even
 
   // merge new and old
   std::vector< xAOD::EventInfo::StreamTag > xAODStreamTags;
-  for(const xAOD::EventInfo::StreamTag& st : streams ) {
+  xAODStreamTags.reserve(streams.size());
+for(const xAOD::EventInfo::StreamTag& st : streams ) {
     xAODStreamTags.push_back(st);
   }
   for(const xAOD::EventInfo::StreamTag& st : new_streams ) {
@@ -148,14 +149,14 @@ StatusCode HLT::EventInfoAccessTool::setStreamTags(const std::vector< xAOD::Even
   ATH_MSG_VERBOSE("Updated xAOD::StreamTags in xAOD::EventInfo:");
   ATH_MSG_DEBUG("After update, event has " << xeventInfo->streamTags().size() << " stream(s) in xAOD::EventInfo");
 
-  for(const xAOD::EventInfo::StreamTag st : set_streams ) {
+  for(const xAOD::EventInfo::StreamTag& st : set_streams ) {
     ATH_MSG_DEBUG("xAOD::EventInfo::StreamTag stream = "<<st.name()<<" type = "<< st.type());
   }
 
   // record non xAOD - backwards compatability
   //create StreamTags from xAODStreamTag
   std::vector < TriggerInfo::StreamTag > StreamTags;
-  for (auto streamtag : set_streams){
+  for (const auto& streamtag : set_streams){
     //copy into streamtag 
     TriggerInfo::StreamTag newst(streamtag.name(), streamtag.type(), streamtag.obeysLumiblock(), streamtag.robs(), streamtag.dets());
     StreamTags.push_back(newst);
@@ -169,7 +170,7 @@ StatusCode HLT::EventInfoAccessTool::setStreamTags(const std::vector< xAOD::Even
   triggerInfo->setStreamTags(StreamTags);
   ATH_MSG_VERBOSE("Updated TriggerInfo::StreamTags in EventInfo:");
   ATH_MSG_DEBUG("Back compatiblity: After update, event has " << triggerInfo->streamTags().size() << " stream(s) in EventInfo");
-  for(const TriggerInfo::StreamTag st : StreamTags ) {
+  for(const TriggerInfo::StreamTag& st : StreamTags ) {
     ATH_MSG_DEBUG("TriggerInfo::StreamTag stream = "<<st.name()<<" type = "<< st.type());
   }
 
@@ -212,13 +213,13 @@ StatusCode HLT::EventInfoAccessTool::updateStreamTag(const std::vector<SteeringC
 
     // check if the stream is already in
     bool already_in=false;
-    for(const xAOD::EventInfo::StreamTag st : streams ) {
+    for(const xAOD::EventInfo::StreamTag& st : streams ) {
       if(stream_to_add == st.name()) {
         already_in=true;
         break;
       }
     }
-    for(const xAOD::EventInfo::StreamTag st : new_streams ) {
+    for(const xAOD::EventInfo::StreamTag& st : new_streams ) {
       if(stream_to_add == st.name()) {
         already_in=true;
         break;

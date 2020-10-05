@@ -42,7 +42,6 @@ HLTCaloFEBTool::HLTCaloFEBTool(const std::string & type, const std::string & nam
         declareProperty ("sigma", m_nsigma);
         declareProperty ("useLoadFullCollection", m_useloadfullcoll);
         declareProperty ("DiffLimit", m_difflimit);
-        declareProperty ("TCRTools", m_tcrAlgTools);
 	// Nothing for the moment
 	return;
 }

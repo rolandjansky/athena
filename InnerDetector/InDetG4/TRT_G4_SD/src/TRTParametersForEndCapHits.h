@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTParametersForEndCapHits_hh
 #define TRT_G4_SD_TRTParametersForEndCapHits_hh
+
+#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 class TRTProcessingOfEndCapHits;
@@ -20,7 +22,7 @@ private:
 
   int m_printMessages; // FIXME not used?
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTProcessingOfEndCapHits* m_pProcessingOfEndCapHits;
 
   int m_verboseLevel;

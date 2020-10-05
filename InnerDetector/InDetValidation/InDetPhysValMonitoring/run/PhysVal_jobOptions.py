@@ -1,5 +1,4 @@
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: PhysVal_jobOptions.py 795792 2017-02-06 14:45:08Z sroe $
 
@@ -9,19 +8,11 @@ FNAME = "AOD.pool.root"
 mode = "Fwd" #Set this to "Back" for backtracking
 usingTrackSelection = False
 #
-#options for Max to explore backtracking
-if (getpass.getuser())=="mbaugh":
-  mode="Back"
-  FNAME = "../command/target.pool.root"
-  '''
-  The following sets an environment variable to enable backtracking debug messages.
-  To use in C++:
-  const char * debugBacktracking = std::getenv("BACKTRACKDEBUG");
-  '''
-  os.environ["BACKTRACKDEBUG"] = "1"
-  #
-include( "AthenaPython/iread_file.py" )
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doSlimming.set_Value_and_Lock(False)
+rec.doTrigger.set_Value_and_Lock(False);
 
+include( "AthenaPython/iread_file.py" )
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -37,42 +28,21 @@ for decorator in InDetPhysValMonitoring.InDetPhysValDecoration.getDecorators() :
   topSequence += decorator
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-monMan = AthenaMonManager( "PhysValMonManager" )
-monMan.ManualDataTypeSetup = True
-monMan.DataType            = "monteCarlo"
-monMan.Environment         = "altprod"
-monMan.ManualRunLBSetup    = True
-monMan.Run                 = 1
-monMan.LumiBlock           = 1
-monMan.FileKey = "M_output"
+monMan = AthenaMonManager( "PhysValMonManager",
+  FileKey = "M_output",
+  Environment = "altprod",
+  ManualDataTypeSetup = True,
+  DataType = "monteCarlo",
+  ManualRunLBSetup = True,
+  Run = 1,
+  LumiBlock = 1  )
+  
+print (monMan)
+
 topSequence += monMan
 
 
-#this works:
-'''
-from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectorTool",
-                                                        CutLevel = InDetPrimaryVertexingCuts.TrackCutLevel(),
-                                                        minPt = InDetPrimaryVertexingCuts.minPT(),
-                                                        maxD0 = InDetPrimaryVertexingCuts.IPd0Max(),
-                                                        maxZ0 = InDetPrimaryVertexingCuts.z0Max(),
-                                                        maxZ0SinTheta = InDetPrimaryVertexingCuts.IPz0Max(),
-                                                        maxSigmaD0 = InDetPrimaryVertexingCuts.sigIPd0Max(),
-                                                        maxSigmaZ0SinTheta = InDetPrimaryVertexingCuts.sigIPz0Max(),
-                                                        # maxChiSqperNdf = InDetPrimaryVertexingCuts.fitChi2OnNdfMax(), # Seems not to be implemented?
-                                                        maxAbsEta = InDetPrimaryVertexingCuts.etaMax(),
-                                                        minNInnermostLayerHits = InDetPrimaryVertexingCuts.nHitInnermostLayer(),
-                                                        minNPixelHits = InDetPrimaryVertexingCuts.nHitPix(),
-                                                        maxNPixelHoles = InDetPrimaryVertexingCuts.nHolesPix(),
-                                                        minNSctHits = InDetPrimaryVertexingCuts.nHitSct(),
-                                                        minNTrtHits = InDetPrimaryVertexingCuts.nHitTrt(),
-                                                        minNSiHits = InDetPrimaryVertexingCuts.nHitSi(),
-                                                        TrackSummaryTool = InDetTrackSummaryTool,
-                                                        Extrapolator = InDetExtrapolator)
 
-
-ToolSvc += InDetTrackSelectorTool
-'''
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 InDetTrackSelectorTool=InDet__InDetTrackSelectionTool()
 ToolSvc += InDetTrackSelectorTool
@@ -91,25 +61,31 @@ if mode=="Back":
   AthTruthSelectionTool.poselectronfromgamma = True
   os.environ["BACKTRACKDEBUG"] = "1"
 
-print AthTruthSelectionTool
-#ToolSvc += AthTruthSelectionTool
+print (AthTruthSelectionTool)
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 tool1 = InDetPhysValMonitoringTool()
 tool1.TruthSelectionTool = AthTruthSelectionTool
 tool1.useTrackSelection = usingTrackSelection
 tool1.TrackSelectionTool=InDetTrackSelectorTool
-tool1.useTrkSelectPV= False
 tool1.FillTrackInJetPlots = True
-print tool1
-#ToolSvc += tool1
+print (tool1)
+tool1.ManagerName = 'PhysValMonManager'
+
+
 
 monMan.AthenaMonTools += [tool1]
 
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+InDetBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetBoundaryCheckTool"
+)
+ToolSvc += InDetBoundaryCheckTool
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, usePixel = True, useSCT= True, CountDeadModulesAfterLastHit = True)
+InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, BoundaryCheckTool=InDetBoundaryCheckTool, CountDeadModulesAfterLastHit = True)
 ToolSvc += InDetHoleSearchTool
-print InDetHoleSearchTool
+print (InDetHoleSearchTool)
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()

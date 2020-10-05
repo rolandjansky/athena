@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include <sstream>
 
 // Local helpers
@@ -64,27 +63,25 @@ HLTResultMTMaker::~HLTResultMTMaker() {}
 // =============================================================================
 StatusCode HLTResultMTMaker::initialize() {
   ATH_CHECK(m_hltResultWHKey.initialize());
+  ATH_CHECK(m_streamTagMaker.retrieve(DisableTool{m_streamTagMaker.name().empty()}));
   ATH_CHECK(m_makerTools.retrieve());
   ATH_CHECK(m_monTool.retrieve());
   ATH_CHECK(m_jobOptionsSvc.retrieve());
 
   // Initialise the enabled ROBs/SubDets list from DataFlowConfig config and extra properties.
   // DataFlowConfig is a special object used online to hold DF properties passed from TDAQ to HLT as run parameters.
-  const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_Enabled_ROB_IDs");
   Gaudi::Property<std::vector<uint32_t>> enabledROBsProp("EnabledROBs",{});
-  if (prop && enabledROBsProp.assign(*prop)) {
+  if (enabledROBsProp.fromString(m_jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs","[]")).isSuccess()) {
     m_enabledROBs.insert(enabledROBsProp.value().begin(), enabledROBsProp.value().end());
     ATH_MSG_DEBUG("Retrieved a list of " << m_enabledROBs.size()
                   << " ROBs from DataFlowConfig.DF_Enabled_ROB_IDs");
   }
   else {
-    ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_Enabled_ROB_IDs from JobOptionsSvc. This is fine if running "
-                  << "offline, but should not happen online");
+    ATH_MSG_ERROR("Could not parse DataFlowConfig.DF_Enabled_ROB_IDs from JobOptionsSvc");
   }
 
-  prop = m_jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_Enabled_SubDet_IDs");
   Gaudi::Property<std::vector<uint32_t>> enabledSubDetsProp("EnabledSubDets",{});
-  if (prop && enabledSubDetsProp.assign(*prop)) {
+  if (enabledSubDetsProp.fromString(m_jobOptionsSvc->get("DataFlowConfig.DF_Enabled_SubDet_IDs","[]")).isSuccess()) {
     // Need to convert from uint32_t to eformat::SubDetector representable by uint8_t
     for (const uint32_t id : enabledSubDetsProp.value()) {
       m_enabledSubDets.insert( static_cast<eformat::SubDetector>(id & 0xFF) );
@@ -93,8 +90,7 @@ StatusCode HLTResultMTMaker::initialize() {
                   << " SubDets from DataFlowConfig.DF_Enabled_SubDet_IDs");
   }
   else {
-    ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_Enabled_SubDet_IDs from JobOptionsSvc. This is fine if running "
-                  << "offline, but should not happen online");
+    ATH_MSG_ERROR("Could not parse DataFlowConfig.DF_Enabled_SubDet_IDs from JobOptionsSvc");
   }
 
   if (m_enabledROBs.empty() && m_enabledSubDets.empty()) {
@@ -126,40 +122,39 @@ StatusCode HLTResultMTMaker::finalize() {
 // The main method of the tool
 // =============================================================================
 StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const {
+  auto monTime =  Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_makeResult");
 
   // Create and record the HLTResultMT object
   auto hltResult = SG::makeHandle(m_hltResultWHKey,eventContext);
   ATH_CHECK( hltResult.record(std::make_unique<HLT::HLTResultMT>()) );
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
 
-  // Fill the object using the result maker tools
-  auto time =  Monitored::Timer("TIME_build" );
+  // Fill the stream tags
   StatusCode finalStatus = StatusCode::SUCCESS;
-  for (auto& maker: m_makerTools) {
-    if (StatusCode sc = maker->fill(*hltResult, eventContext); sc.isFailure()) {
-      ATH_MSG_ERROR(maker->name() << " failed");
-      finalStatus = sc;
-    }
+  if (m_streamTagMaker.isEnabled() && m_streamTagMaker->fill(*hltResult, eventContext).isFailure()) {
+    ATH_MSG_ERROR(m_streamTagMaker->name() << " failed");
+    finalStatus = StatusCode::FAILURE;
   }
-  time.stop();
 
-  if (!m_skipValidatePEBInfo) validatePEBInfo(*hltResult);
+  // Fill the result using all other tools if the event was accepted
+  if (hltResult->isAccepted()) {
+    for (auto& maker: m_makerTools) {
+      ATH_MSG_DEBUG("Calling " << maker->name() << " for accepted event");
+      if (StatusCode sc = maker->fill(*hltResult, eventContext); sc.isFailure()) {
+        ATH_MSG_ERROR(maker->name() << " failed");
+        finalStatus = sc;
+      }
+    }
+
+    if (!m_skipValidatePEBInfo) validatePEBInfo(*hltResult);
+  }
+  else {
+    ATH_MSG_DEBUG("Rejected event, further result filling skipped after stream tag maker");
+  }
 
   ATH_MSG_DEBUG(*hltResult);
 
-  // Fill monitoring histograms
-  auto nstreams = Monitored::Scalar("nstreams", hltResult->getStreamTags().size());
-  auto bitWords = Monitored::Scalar("bitWords", hltResult->getHltPassRawBits().size() 
-    + hltResult->getHltPrescaledBits().size()
-    + hltResult->getHltRerunBits().size() );
-  auto nfrags   = Monitored::Scalar("nfrags",   hltResult->getSerialisedData().size());
-  auto sizeMain = Monitored::Scalar("sizeMain", -1.);
-  auto iter = hltResult->getSerialisedData().find(0); // this is the main fragment of the HLT result
-  if (iter != hltResult->getSerialisedData().end())
-    sizeMain = double(iter->second.size()*sizeof(uint32_t))/1024;
-
-  Monitored::Group(m_monTool, time, nstreams, nfrags, sizeMain, bitWords);
-
+  Monitored::Group(m_monTool, monTime);
   return finalStatus;
 }
 

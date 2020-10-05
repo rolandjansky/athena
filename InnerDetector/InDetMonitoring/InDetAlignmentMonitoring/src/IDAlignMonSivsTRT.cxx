@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -16,7 +16,6 @@
 #include "TProfile.h"
 #include "TMath.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 
 
@@ -276,15 +275,13 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
       continue;
     }
 
-    const Trk::TrackSummary* summary = NULL;       
-    summary = m_trackSumTool->createSummary(*trackTRT);
+    std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(*trackTRT);
     int nhpix=0, nhsct=0, nhtrt=0;
 
-    if ( summary != NULL ){
+    if ( summary  ){
       nhpix = summary->get(Trk::numberOfPixelHits);
       nhsct = summary->get(Trk::numberOfSCTHits);
       nhtrt = summary->get(Trk::numberOfTRTHits);
-      delete summary;
     }
     
 

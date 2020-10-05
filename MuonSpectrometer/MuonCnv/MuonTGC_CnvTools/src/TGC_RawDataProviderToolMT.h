@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TGC_RawDataProviderToolMT.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOLMT_H
 #define MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOLMT_H
 
 #include "TGC_RawDataProviderToolCore.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+
 #include "TGC_Hid2RESrcID.h"
 #include "MuonRDO/TgcRdo_Cache.h"
 
@@ -31,12 +28,10 @@ namespace Muon
       /** Default constructor */
       TGC_RawDataProviderToolMT(const std::string& t, const std::string& n, const IInterface* p);
       /** Default destructor */
-      virtual ~TGC_RawDataProviderToolMT();
+      virtual ~TGC_RawDataProviderToolMT()=default;
       
       /** Standard AlgTool method */
       virtual StatusCode initialize();
-      /** Standard AlgTool method */
-      virtual StatusCode finalize();
       
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool */
       virtual StatusCode convert(const ROBFragmentList& vecRobs);

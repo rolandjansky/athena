@@ -70,6 +70,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
         ATH_MSG_DEBUG( "  -- Matched to existing, " << inputKey.key() << " index " << input_counter << " is merged into existing output index " << alreadyAddedIndex);
       } else { // Not already added, make new
         newDec = TrigCompositeUtils::newDecisionIn( outDecisions );
+        newDec->setName("IM");
         ATH_MSG_DEBUG( "  -- Did not match to existing, " << inputKey.key() << " index " << input_counter << " creates output index " << outDecisions->size()-1);
       }
 
@@ -81,6 +82,11 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
     } // loop over input decisions
 
   } // end of: for ( auto inputKey: decisionInputs() )
+
+  // Print some debug messages summarising the content of the outputHandles.
+  if (msgLvl(MSG::DEBUG)) {
+    debugPrintOut(context, outputHandle);
+  }
 
   return StatusCode::SUCCESS;
 }

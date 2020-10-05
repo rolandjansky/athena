@@ -12,18 +12,26 @@
 
 if __name__=='__main__':
     import sys
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from argparse import ArgumentParser
-    parser = ArgumentParser()
+    parser = ConfigFlags.getArgumentParser()
     parser.add_argument('--preExec', help='Code to execute before locking configs')
     parser.add_argument('--postExec', help='Code to execute after setup')
     parser.add_argument('--dqOffByDefault', action='store_true',
                         help='Set all DQ steering flags to False, user must then switch them on again explicitly')
+    # keep for compatibility reasons
+    parser.add_argument('--inputFiles',
+                        help='Comma-separated list of input files (alias for --filesInput)')
+    # keep for compatibility reasons
     parser.add_argument('--maxEvents', type=int,
-                        help='Maximum number of events to process')
-    parser.add_argument('--loglevel', type=int, default=3,
-                        help='Verbosity level')
-    parser.add_argument('flags', nargs='*', help='Config flag overrides')
-    args = parser.parse_args()
+                        help='Maximum number of events to process (alias for --evtMax)')
+    parser.add_argument('--printDetailedConfig', action='store_true',
+                        help='Print detailed Athena configuration')
+    parser.add_argument('--threads', type=int, default=0,
+                        help='Number of threads/concurrent events')
+    parser.add_argument('--perfmon', action='store_true',
+                        help='Run perfmon')
+    args, _ = parser.parse_known_args()
 
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -34,16 +42,27 @@ if __name__=='__main__':
     from AthenaCommon.Constants import *
     log.setLevel(INFO)
 
+    # set threads
+    ConfigFlags.Concurrency.NumThreads=args.threads
+    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads
+
     # Set the Athena configuration flags
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
     
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root']
+    # default input if nothing specified
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthenaMonitoring/q431/21.0/f946/myESD.pool.root']
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
     if args.dqOffByDefault:
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
         allSteeringFlagsOff()
-    ConfigFlags.fillFromArgs(args.flags)
+    ConfigFlags.fillFromArgs(parser=parser)
+    # override Input.Files with result from our own arguments
+    # if --filesInput was specified as well (!) this will override
+    if args.inputFiles is not None:
+        ConfigFlags.Input.Files = args.inputFiles.split(',')
+    # if --evtMax was specified as well this will override
+    if args.maxEvents is not None:
+        ConfigFlags.Exec.MaxEvents = args.maxEvents
     isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'BS')
     if isReadingRaw:
         if ConfigFlags.DQ.Environment not in ('tier0', 'tier0Raw', 'online'):
@@ -56,6 +75,10 @@ if __name__=='__main__':
             log.warning('Reading POOL file, but DQ.Environment set to %s',
                         ConfigFlags.DQ.Environment)
             log.warning('Will proceed but best guess is this is an error')
+
+    # perfmon
+    if args.perfmon:
+        ConfigFlags.PerfMon.doFullMonMT=True
 
     if args.preExec:
         # bring things into scope
@@ -82,12 +105,20 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg, MainServicesThreadedCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    if ConfigFlags.Concurrency.NumThreads == 0:
-        cfg = MainServicesSerialCfg()
-    else:
-        cfg = MainServicesThreadedCfg(ConfigFlags)
+    cfg = MainServicesCfg(ConfigFlags)
+
+    # add FPE auditor
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    cfg.addService(CompFactory.AuditorSvc(Auditors=[CompFactory.FPEAuditor().getFullJobOptName()]))
+
+    # add perfmon
+    if args.perfmon:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
+
+
     if isReadingRaw:
         # attempt to start setting up reco ...
         from CaloRec.CaloRecoConfig import CaloRecoCfg
@@ -102,7 +133,6 @@ if __name__=='__main__':
 
     # Force loading of conditions in MT mode
     if ConfigFlags.Concurrency.NumThreads > 0:
-        from AthenaConfiguration.ComponentFactory import CompFactory
         if len([_ for _ in cfg._conditionsAlgs if _.name=="PixelDetectorElementCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
             beginseq.Members.append(CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg"))
@@ -115,9 +145,7 @@ if __name__=='__main__':
         log.info('Executing postExec: %s', args.postExec)
         exec(args.postExec)
 
-    # If you want to turn on more detailed messages ...
-    # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
-    cfg.printConfig(withDetails=False) # set True for exhaustive info
+    cfg.printConfig(withDetails=args.printDetailedConfig) # set True for exhaustive info
 
-    sc = cfg.run(args.maxEvents, args.loglevel)
+    sc = cfg.run()
     sys.exit(0 if sc.isSuccess() else 1)

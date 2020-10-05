@@ -28,7 +28,7 @@
 
 using namespace TruthHelper;
 
-typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+typedef std::vector<HepMC::ConstGenParticlePtr>  MCparticleCollection ;
 
 CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -156,7 +156,6 @@ StatusCode CheckFlow::initialize(){
 
   m_tesIO = new GenAccessIO();
 
-  // return StatusCode::SUCCESS;
   return result;
 }
 
@@ -180,7 +179,6 @@ StatusCode CheckFlow::execute() {
 
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
-//  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
     msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"
 	   << endmsg;
     return StatusCode::FAILURE;
@@ -188,13 +186,6 @@ StatusCode CheckFlow::execute() {
   float b = hijing_pars->get_b();
   float phiR = hijing_pars->get_bphi();
 
-  //msglog << MSG::DEBUG<<"SOUMYA  "
-  // <<hijing_pars->get_psi(1)
-  // <<"   "<<hijing_pars->get_psi(2)
-  // <<"  "<<hijing_pars->get_psi(3)
-  // <<hijing_pars->get_psi(4)
-  // <<"   "<<hijing_pars->get_psi(5)
-  // <<"  "<<hijing_pars->get_psi(6)  << endmsg;
 
   // Check cut on impact parameter b
   if(b<m_bcut_min || b>m_bcut_max) 
@@ -212,7 +203,7 @@ StatusCode CheckFlow::execute() {
   // Iterate over MC particles  We are using the IsGenStable predicate from
   // IsGenStable ifs;
   GenAll ifs;
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
@@ -230,8 +221,8 @@ StatusCode CheckFlow::execute() {
 	   << " Eta = " << rapid << "  Phi = " << phi 
 	   << " PhiR = " << phiR << endmsg;
     
-    if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
+    if( (std::abs(rapid) >= m_rapcut_min) && (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt) >= m_ptcut_min) && (std::abs(pt) <= m_ptcut_max) ) {
       ngenerated++;
       m_phi->Fill(phi, 1.);
       double phi_corr = phi - phiR;
@@ -250,25 +241,25 @@ StatusCode CheckFlow::execute() {
       else         m_phi_vs_phiR_etan->Fill(phi_corr, 1.);
       // -------------------------------------------------
       if( rapid >= 0 ) { 
-	phi_reco_sin1phip += sin(1*phi);
-	phi_reco_cos1phip += cos(1*phi); 
+	phi_reco_sin1phip += std::sin(1*phi);
+	phi_reco_cos1phip += std::cos(1*phi); 
       } else {
-	phi_reco_sin1phin += sin(1*phi);
-	phi_reco_cos1phin += cos(1*phi);
+	phi_reco_sin1phin += std::sin(1*phi);
+	phi_reco_cos1phin += std::cos(1*phi);
       }
-      phi_reco_sin2phi += sin(2*phi);
-      phi_reco_cos2phi += cos(2*phi);
+      phi_reco_sin2phi += std::sin(2*phi);
+      phi_reco_cos2phi += std::cos(2*phi);
     }
   }
   m_hgenerated->Fill(ngenerated, 1.);
 
   // calculate event plane position 
-  phiv1_recop = atan2( phi_reco_sin1phip,phi_reco_cos1phip );
-  phiv1_recon = atan2( phi_reco_sin1phin,phi_reco_cos1phin ) + M_PI; 
+  phiv1_recop = std::atan2( phi_reco_sin1phip,phi_reco_cos1phip );
+  phiv1_recon = std::atan2( phi_reco_sin1phin,phi_reco_cos1phin ) + M_PI; 
   if( phiv1_recon > M_PI ) phiv1_recon -= 2*M_PI; 
   // averaged v1 plane position (in pos and neg eta ranges)
   phiv1_reco = (phiv1_recop + phiv1_recon)/2;
-  phiv2_reco = 0.5 * atan2( phi_reco_sin2phi,phi_reco_cos2phi );
+  phiv2_reco = 0.5 * std::atan2( phi_reco_sin2phi,phi_reco_cos2phi );
   msg(MSG::INFO)
 	 << " PhiR = " << phiR 
 	 << " PhiV1Reco = " << phiv1_reco 

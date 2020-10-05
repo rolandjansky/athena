@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/test/VarHandleProperty_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,9 +14,9 @@
 #include "StoreGate/exceptions.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/PropertyHolder.h"
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <cassert>
 #include <iostream>
@@ -52,19 +50,19 @@ public:
   virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override
   { std::abort(); }
 
-  virtual StatusCode setProperty( const Property& p ) override
-  { return mgr.setProperty(p); }
   virtual StatusCode setProperty( const std::string& s ) override
   { return mgr.setProperty(s); }
-  virtual StatusCode setProperty( const std::string& n, const std::string& v ) override
-  { return mgr.setProperty(n, v); }
-  virtual StatusCode getProperty( Property* p ) const override
+  virtual StatusCode setProperty( const std::string& n, const Gaudi::Details::PropertyBase& p ) override
+  { return mgr.setProperty(n, p); }
+  virtual StatusCode setPropertyRepr( const std::string& n, const std::string& r ) override
+  { return mgr.setPropertyRepr(n,r); }
+  virtual StatusCode getProperty( Gaudi::Details::PropertyBase* p ) const override
   { return mgr.getProperty (p); }
-  virtual const Property& getProperty( const std::string& name) const override
+  virtual const Gaudi::Details::PropertyBase& getProperty( const std::string& name) const override
   { return mgr.getProperty (name); }
   virtual StatusCode getProperty( const std::string& n, std::string& v ) const override
   { return mgr.getProperty (n, v); }
-  virtual const std::vector<Property*>& getProperties( ) const override
+  virtual const std::vector<Gaudi::Details::PropertyBase*>& getProperties( ) const override
   { return mgr.getProperties(); }
   virtual bool hasProperty(const std::string& name) const override
   { return mgr.hasProperty(name); }
@@ -78,19 +76,22 @@ void test1()
   std::cout << "test1\n";
 
   PropTest ptest;
+  std::vector<Gaudi::Details::PropertyBase*> props;
 
   SG::ReadHandle<MyObj> k1;
-  ptest.mgr.declareProperty ("k1", k1);
+  props.push_back(ptest.mgr.declareProperty ("k1", k1));
   SG::WriteHandle<MyObj> k2;
-  ptest.mgr.declareProperty ("k2", k2);
+  props.push_back(ptest.mgr.declareProperty ("k2", k2));
   SG::UpdateHandle<MyObj> k3;
-  ptest.mgr.declareProperty ("k3", k3);
+  props.push_back(ptest.mgr.declareProperty ("k3", k3));
   //SG::VarHandleBase k4 (1234, "", Gaudi::DataHandle::Reader);
-  //ptest.mgr.declareProperty ("k4", k4);
+  //props.push_back(ptest.mgr.declareProperty ("k4", k4));
 
-  ServiceHandle<IJobOptionsSvc> jo ("JobOptionsSvc", "test");
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> jo ("JobOptionsSvc", "test");
   assert (jo.retrieve().isSuccess());
-  assert (jo->setMyProperties ("test1", &ptest).isSuccess());
+  for (Gaudi::Details::PropertyBase* p : props) {
+    jo->bind ("test1", p);
+  }
 
   assert (k1.clid() == 293847295);
   assert (k1.key() == "aaa");
@@ -113,7 +114,7 @@ void test1()
 int main()
 {
   ISvcLocator* pDum;
-  if (!Athena_test::initGaudi("VarHandleProperty_test.txt", pDum)) {
+  if (!Athena_test::initGaudi("StoreGate/VarHandleProperty_test.txt", pDum)) {
     return 1;
   }
 

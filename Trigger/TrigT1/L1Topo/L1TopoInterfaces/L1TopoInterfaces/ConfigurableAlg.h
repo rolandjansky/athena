@@ -15,11 +15,13 @@
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoCommon/StatusCode.h"
 
+
 #include <vector>
 #include <string>
 #include <memory>
 
 class TH1;
+class TH2;
 class IL1TopoHistSvc;
 
 namespace TCS {
@@ -74,6 +76,10 @@ namespace TCS {
        */
       void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc>);
 
+      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax);
+      void bookHist(std::vector<std::string> &regName, const std::string name,const std::string title, const int binx, const float xmin, const float xmax, const int biny, const float ymin, const float ymax);
+
+
    protected:
 
       // define parameters by developer
@@ -84,6 +90,12 @@ namespace TCS {
       virtual StatusCode doReset() = 0;
       
       void registerHist(TH1 *);
+
+      void registerHist(TH2 *);
+
+      void fillHist1D(const std::string & histName, double x);
+
+      void fillHist2D(const std::string & histName, double x, double y);
       
    private:
 

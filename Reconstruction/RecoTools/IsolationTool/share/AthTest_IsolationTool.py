@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # inputFile = '/net/s3_datac/dzhang/SAMPLES/R20/MC15/mc15_13TeV.402211.MGPy8EG_A14N_C1C1_800_10_LLE12k.merge.AOD.e4097_a766_a768_r6282/AOD.05819610._000001.pool.root.1'
 # 
 # Input file
@@ -34,10 +36,8 @@ CaloIsoTool.saveOnlyRequestedCorrections = True
 # CaloIsoTool.OutputLevel = 2
 ToolSvc += CaloIsoTool
 
-import ROOT, cppyy
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
+# Import the xAOD isolation parameters.
+from xAODPrimitives.xAODIso import xAODIso as isoPar
 
 deco_ptcones = [isoPar.ptcone40, isoPar.ptcone30]
 deco_topoetcones = [isoPar.topoetcone40, isoPar.topoetcone20]

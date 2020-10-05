@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// CscSplitClusterFitter.h
 
 #ifndef CscSplitClusterFitter_H
 #define CscSplitClusterFitter_H
@@ -13,55 +11,54 @@
 // Tool to fit a CSC cluster using adjacent charge ratios.
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CscClusterization/ICscClusterFitter.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace Muon {
-  class CscPrepData;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
+class CscPrepData;
 }
 
 class CscSplitClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
-  
-public:
 
-  // Constructor.
-  CscSplitClusterFitter(std::string, std::string, const IInterface*);
-        
-  // Destructor.
-  ~CscSplitClusterFitter();
-        
-  // Initialization.
-  StatusCode initialize();
+  public:
+    CscSplitClusterFitter(std::string, std::string, const IInterface*);
 
-  // Finalization.
-  StatusCode finalize();
+    ~CscSplitClusterFitter() = default;
 
-  // Inherited methods.
-  //  using ICscClusterFitter::fit;
-  Results fit(const StripFitList& sfits) const;
-  Results fit(const StripFitList& sfits, double dposdz) const;
-  double getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
-  
-private:
+    StatusCode initialize();
 
-  // Properties
-  // Minimum distance between peaks and valley               
-  int m_min_dist;
-  // Maximum charge ratio between peak strip and valley strip
-  float m_max_qratio;
+    // Inherited methods.
+    Results fit(const StripFitList& sfits) const;
+    Results fit(const StripFitList& sfits, double dposdz) const;
+    double  getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  // Cluster fitters.
-  ToolHandle<ICscClusterFitter> m_pfitter_def;
-  ToolHandle<ICscClusterFitter> m_pfitter_prec;
-  
+  private:
+    // Properties
+    // Minimum distance between peaks and valley
+    int m_min_dist;
+    // Maximum charge ratio between peak strip and valley strip
+    float m_max_qratio;
+
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+
+    // Cluster fitters.
+    ToolHandle<ICscClusterFitter> m_pfitter_def{
+        this,
+        "default_fitter",
+        "SimpleCscClusterFitter/SimpleCscClusterFitter",
+    };
+    ToolHandle<ICscClusterFitter> m_pfitter_prec{
+        this,
+        "precision_fitter",
+        "QratCscClusterFitter/QratCscClusterFitter",
+    };
 };
 
 #endif

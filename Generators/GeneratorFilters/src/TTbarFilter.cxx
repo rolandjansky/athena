@@ -22,31 +22,26 @@ StatusCode TTbarFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();
-    for (; pitr!=genEvt->particles_end(); ++pitr) {
-      if (std::abs((*pitr)->pdg_id()) == 6) {
-        if ( (*pitr)->pdg_id() ==  6 ) N_quark_t_all++;
-        if ( (*pitr)->pdg_id() == -6 ) N_quark_tbar_all++;
-        int n_daughters = 0;
-        HepMC::GenParticle * mcpart = (*pitr);
-        const HepMC::GenVertex * decayVtx = mcpart->end_vertex();
-        if (decayVtx != 0) n_daughters = decayVtx->particles_out_size();
-
+    for (auto pitr: *genEvt) {
+        if (std::abs(pitr->pdg_id()) != 6) continue;
+        if ( pitr->pdg_id() ==  6 ) N_quark_t_all++;
+        if ( pitr->pdg_id() == -6 ) N_quark_tbar_all++;
+        auto decayVtx = pitr->end_vertex();
+        if (!decayVtx) continue;
+#ifdef HEPMC3
+        if (decayVtx->particles_out().size()<2) continue;
+#else
+        if (decayVtx->particles_out_size()<2) continue;
+#endif
         // For this analysis we are not interested in t->t MC structures, only in decays
-        if (n_daughters >= 2) {
-          HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = decayVtx->particles_out_const_begin();
-          HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = decayVtx->particles_out_const_end();
-          for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
-            HepMC::GenParticle * child_mcpart = (*child_mcpartItr);
-            //  Implicitly, I assume that tops always decay to W X
-            if (abs(child_mcpart->pdg_id()) == 24) {
-              if ( (*pitr)->pdg_id() ==  6 ) N_quark_t++;
-              if ( (*pitr)->pdg_id() == -6 ) N_quark_tbar++;
-              if ((*pitr)->momentum().perp() >= m_Ptmin) N_pt_above_cut++;
-            }
+        for ( auto child_mcpartItr: *decayVtx ) {
+        //  Implicitly, I assume that tops always decay to W X
+          if (std::abs(child_mcpartItr->pdg_id()) == 24) {
+              if ( pitr->pdg_id() ==  6 ) N_quark_t++;
+              if ( pitr->pdg_id() == -6 ) N_quark_tbar++;
+              if (pitr->momentum().perp() >= m_Ptmin) N_pt_above_cut++;
           }
         }
-      }
     }
   }
 

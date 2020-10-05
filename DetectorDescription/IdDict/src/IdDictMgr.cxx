@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/DetectorDescription/IdDict/src/IdDictMgr.cxx,v 1.43 2008-12-09 09:49:43 dquarrie Exp $  
@@ -1498,6 +1498,14 @@ int IdDictDictionary::reset (size_t index1,
    *  Unpack the bits32 id to an expanded Identifier, considering the  
    *  provided prefix (result will include the prefix) 
    */ 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 int
 IdDictDictionary::unpack (const Identifier& id, 
 			  const ExpandedIdentifier& prefix,

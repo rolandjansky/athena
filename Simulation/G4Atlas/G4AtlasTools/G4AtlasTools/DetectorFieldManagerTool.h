@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_DetectorFieldManagerTool_H
@@ -37,10 +37,10 @@ class DetectorFieldManagerTool : public G4FieldManagerToolBase
   protected:
 
     /// List of volumes to assign this field configuration to
-    std::vector<std::string> m_volumeList;
+    Gaudi::Property<std::vector<std::string> > m_volumeList{this, "LogicalVolumes", {}, "List of volumes to which the field will be applied"};
 
     /// Option for muons feeling the B-field only
-    bool m_muonOnlyField;
+    Gaudi::Property<bool> m_muonOnlyField{this, "MuonOnlyField", false, "Only muons experience the magnetic field"};
 
     /// My field manager
     thread_utils::ThreadLocalOwner<G4FieldManager> m_fieldMgrHolder;

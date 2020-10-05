@@ -8,7 +8,6 @@
 #
 from __future__ import with_statement, print_function
 
-__version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 __all__ = [
@@ -18,9 +17,8 @@ __all__ = [
     ]
 
 import sys
-import os
 import itertools
-from decorator import *
+from decorator import decorator
 
 @decorator
 def memoize(func, *args):
@@ -181,7 +179,7 @@ class Async(object):
         def func_wrapper():
             try:
                 result = func(*args, **kw)
-            except:
+            except Exception:
                 func.on_failure(sys.exc_info())
             else:
                 return func.on_success(result)

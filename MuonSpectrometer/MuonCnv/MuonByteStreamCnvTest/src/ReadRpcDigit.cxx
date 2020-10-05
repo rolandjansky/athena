@@ -20,16 +20,11 @@ ReadRpcDigit::ReadRpcDigit(const std::string &name, ISvcLocator *pSvcLocator)
   declareProperty("WriteRpcNtuple", m_rpcNtuple = false);
 }
 
-ReadRpcDigit::~ReadRpcDigit() 
-{ }
-
-// Initialize method
-
 StatusCode ReadRpcDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;  
 
@@ -84,19 +79,19 @@ StatusCode ReadRpcDigit::execute()
 	   dig != (*c)->end(); ++dig) 
 	{
 	  Identifier dig_id = (*dig)->identify();
-	  if ( m_muonIdHelperTool->rpcIdHelper().valid(dig_id) ) 
+	  if ( m_idHelperSvc->rpcIdHelper().valid(dig_id) ) 
 	    {
 	      
 	      m_time[m_nDig]         = (*dig)->time();
-	      m_station[m_nDig]      = m_muonIdHelperTool->rpcIdHelper().stationName(dig_id);
-	      m_eta[m_nDig]          = m_muonIdHelperTool->rpcIdHelper().stationEta(dig_id);
-	      m_phi[m_nDig]          = m_muonIdHelperTool->rpcIdHelper().stationPhi(dig_id);
-	      m_doubletR[m_nDig]     = m_muonIdHelperTool->rpcIdHelper().doubletR(dig_id);
-	      m_doubletZ[m_nDig]     = m_muonIdHelperTool->rpcIdHelper().doubletZ(dig_id);
-	      m_doubletPhi[m_nDig]   = m_muonIdHelperTool->rpcIdHelper().doubletPhi(dig_id);
-	      m_gasGap[m_nDig]       = m_muonIdHelperTool->rpcIdHelper().gasGap(dig_id); 
-	      m_measuresPhi[m_nDig]  = m_muonIdHelperTool->rpcIdHelper().measuresPhi(dig_id);
-	      m_strip[m_nDig]        = m_muonIdHelperTool->rpcIdHelper().strip(dig_id);
+	      m_station[m_nDig]      = m_idHelperSvc->rpcIdHelper().stationName(dig_id);
+	      m_eta[m_nDig]          = m_idHelperSvc->rpcIdHelper().stationEta(dig_id);
+	      m_phi[m_nDig]          = m_idHelperSvc->rpcIdHelper().stationPhi(dig_id);
+	      m_doubletR[m_nDig]     = m_idHelperSvc->rpcIdHelper().doubletR(dig_id);
+	      m_doubletZ[m_nDig]     = m_idHelperSvc->rpcIdHelper().doubletZ(dig_id);
+	      m_doubletPhi[m_nDig]   = m_idHelperSvc->rpcIdHelper().doubletPhi(dig_id);
+	      m_gasGap[m_nDig]       = m_idHelperSvc->rpcIdHelper().gasGap(dig_id); 
+	      m_measuresPhi[m_nDig]  = m_idHelperSvc->rpcIdHelper().measuresPhi(dig_id);
+	      m_strip[m_nDig]        = m_idHelperSvc->rpcIdHelper().strip(dig_id);
 	    }
 
 	  ++m_nDig;
@@ -122,15 +117,6 @@ StatusCode ReadRpcDigit::execute()
 
   return StatusCode::SUCCESS;  
 }
-
-
-// Finalize method
-
-StatusCode ReadRpcDigit::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode ReadRpcDigit::accessNtuple() 
 {

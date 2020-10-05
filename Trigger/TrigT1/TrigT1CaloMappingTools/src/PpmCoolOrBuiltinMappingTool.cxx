@@ -13,24 +13,6 @@
 namespace LVL1 {
 
 
-PpmCoolOrBuiltinMappingTool::PpmCoolOrBuiltinMappingTool(const std::string& type,
-            const std::string& name, const IInterface*  parent)
-          : AthAlgTool(type, name, parent),
-            m_coolTool("LVL1::PpmCoolMappingTool/PpmCoolMappingTool"),
-            m_builtinTool("LVL1::PpmMappingTool/PpmMappingTool"),
-	    m_coolCheckDone(false)
-{
-  declareInterface<IL1CaloMappingTool>(this);
-
-  declareProperty("CoolMappingTool", m_coolTool);
-  declareProperty("BuiltinMappingTool", m_builtinTool);
-
-}
-
-PpmCoolOrBuiltinMappingTool::~PpmCoolOrBuiltinMappingTool()
-{
-}
-
 // Initialise the mappings
 
 #ifndef PACKAGE_VERSION
@@ -68,7 +50,7 @@ StatusCode PpmCoolOrBuiltinMappingTool::finalize()
 // Return eta, phi and layer mapping for given crate/module/channel
 
 bool PpmCoolOrBuiltinMappingTool::mapping(const int crate, const int module,
-         const int channel, double& eta, double& phi, int& layer)
+         const int channel, double& eta, double& phi, int& layer) const
 {
   bool rc = false;
   if (coolWorks()) {
@@ -82,7 +64,7 @@ bool PpmCoolOrBuiltinMappingTool::mapping(const int crate, const int module,
 // Return crate, module and channel mapping for given eta/phi/layer
 
 bool PpmCoolOrBuiltinMappingTool::mapping(const double eta, const double phi,
-                    const int layer, int& crate, int& module, int& channel)
+                    const int layer, int& crate, int& module, int& channel) const
 {
   bool rc = false;
   if (coolWorks()) {
@@ -95,35 +77,37 @@ bool PpmCoolOrBuiltinMappingTool::mapping(const double eta, const double phi,
 
 // Check if COOL mappings are working
 
-bool PpmCoolOrBuiltinMappingTool::coolWorks()
+bool PpmCoolOrBuiltinMappingTool::coolWorks() const
 {
-  if ( !m_coolCheckDone ) {
+  // FIXME: This should be determined during initialization!
+
+  if (!m_coolCheck.isValid()) {
     const double testEta   = 3.8375;
     const double testPhi   = M_PI/16.;
     const int    testLayer = 1;
     int crate   = 0;
     int module  = 0;
     int channel = 0;
-    m_coolCheckResult = ((m_coolTool->mapping(testEta, testPhi, testLayer,
-                          crate, module, channel)) &&
-			 !(crate == 4 && module == 8 && channel == 48));
-    if (m_coolCheckResult) {
+    bool result = ((m_coolTool->mapping(testEta, testPhi, testLayer,
+                                        crate, module, channel)) &&
+                   !(crate == 4 && module == 8 && channel == 48));
+    if (result) {
       const double tolerance = 0.01;
       double eta   = 0.;
       double phi   = 0.;
       int    layer = 0;
-      m_coolCheckResult = ((m_coolTool->mapping(crate, module, channel,
-                            eta, phi, layer)) &&
-			   (fabs(eta-testEta) < tolerance) &&
-			   (fabs(phi-testPhi) < tolerance) &&
-			   (layer == testLayer));
+      result = ((m_coolTool->mapping(crate, module, channel,
+                                     eta, phi, layer)) &&
+                (fabs(eta-testEta) < tolerance) &&
+                (fabs(phi-testPhi) < tolerance) &&
+                (layer == testLayer));
     }
-    m_coolCheckDone = true;
-    if (m_coolCheckResult) {
+    if (result) {
       msg(MSG::INFO)      << "COOL mappings selected"     << endmsg;
     } else msg(MSG::INFO) << "Built-in mappings selected" << endmsg;
+    m_coolCheck.set (result);
   }
-  return m_coolCheckResult;
+  return *m_coolCheck.ptr();
 }
 
 } // end namespace

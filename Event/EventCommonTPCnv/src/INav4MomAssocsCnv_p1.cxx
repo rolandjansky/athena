@@ -72,9 +72,10 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
     log << MSG::DEBUG << "\tassLink=" << assKey << ", " << assLink.second << endmsg;
 
     if ( collections.find(objKey) == collections.end() ) {
+      const INavigable4MomentumCollection* coll = nullptr;
       collections[objKey] = 0;
-      if ( m_storeGate->retrieve( collections[objKey], objKey ).isFailure() ||
-           0 == collections[objKey] ) {
+      if ( m_storeGate->retrieve( coll, objKey ).isFailure() ||
+           nullptr == coll ) {
         log << MSG::ERROR
             << "Could not retrieve INavigable4MomentumCollection at : "
             << objKey
@@ -86,12 +87,13 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
             << objKey
             << endmsg;
       }
+      collections[objKey] = coll;
     }
 
     if ( collections.find(assKey) == collections.end() ) {
-      collections[assKey] = 0;
-      if ( m_storeGate->retrieve( collections[assKey], assKey ).isFailure() ||
-           0 == collections[assKey] ) {
+      const INavigable4MomentumCollection* coll = nullptr;
+      if ( m_storeGate->retrieve( coll, assKey ).isFailure() ||
+           nullptr == coll ) {
         log << MSG::ERROR
             << "Could not retrieve INavigable4MomentumCollection at : "
             << assKey
@@ -103,6 +105,7 @@ INav4MomAssocsCnv_p1::persToTrans( const INav4MomAssocs_p1* persObj,
             << assKey
             << endmsg;
       }
+      collections[assKey] = coll;
     }
 
     transObj->addAssociation( collections[objKey], objLink.second,

@@ -22,11 +22,12 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "GaudiKernel/EventContext.h"
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 
 #include <string>
+
+class EventContext;
 
 namespace Root{
   class TElectronIsEMSelector;
@@ -38,7 +39,7 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
 {
 
   ASG_TOOL_CLASS3(AsgElectronIsEMSelector, IAsgElectronIsEMSelector,
-		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
+		  IAsgEGammaIsEMSelector, IAsgSelectionTool)
 
   public:
   /** Standard constructor */

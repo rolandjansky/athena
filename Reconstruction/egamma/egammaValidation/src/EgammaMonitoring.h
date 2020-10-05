@@ -25,7 +25,7 @@
 #include "xAODTruth/xAODTruthHelpers.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -44,6 +44,7 @@
 #include "ShowerShapesHistograms.h"
 #include "ClusterHistograms.h"
 #include "EfficiencyPlot.h"
+#include "WidthPlot.h"
 
 #include "IsolationHistograms.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"

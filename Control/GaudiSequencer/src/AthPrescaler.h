@@ -13,7 +13,7 @@
 #define GAUDISEQUENCER_ATHPRESCALER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class AthPrescaler:public AthAlgorithm 
 {

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'Trigger_topOptions_standalone.py' )
 
@@ -10,6 +12,7 @@ if globalflags.InputFormat() == 'bytestream':
     TriggerFlags.doLVL1=False
 
 # Common alias for online EventLoopMgr used below
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 if hasattr(svcMgr,"HltEventLoopMgr"):
     onlEventLoopMgr = svcMgr.HltEventLoopMgr
 else:
@@ -36,16 +39,18 @@ if TriggerFlags.doCalo():
 else:
     DetFlags.Calo_setOff()
 
-# Always enable AtlasFieldSvc
-if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
+# Always enable magnetic field
+if hasattr(DetFlags,'BField_on'):
+    DetFlags.BField_setOn()
 
 # Setup IOVDbSvc
-from IOVDbSvc.CondDB import conddb
+from IOVDbSvc.CondDB import conddb  # noqa: F401 configuration by import, old Run-2 job options
 svcMgr.IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 
 # ----------------------------------------------------------------
 # Setting detector geometry 
 # ----------------------------------------------------------------
+from AthenaCommon.Include import include
 include ("RecExCond/AllDet_detDescr.py")
 
 #we have to reset these flags since the muons do a sync of flags in above fragment
@@ -59,18 +64,24 @@ if TriggerFlags.MuonSlice.doEFRoIDrivenAccess():
 # ----------------------------------------------------------------
 # Setup magnetic field
 # ----------------------------------------------------------------
-svcMgr.AtlasFieldSvc.UseDCS = False         # no DCS
-svcMgr.AtlasFieldSvc.LockMapCurrents = True  # no field scaling
-svcMgr.AtlasFieldSvc.SoleMinCurrent = 160  # Standby current is 150A
-svcMgr.AtlasFieldSvc.ToroMinCurrent = 210  # Standby current is 200A
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq.AtlasFieldMapCondAlg.LoadMapOnStart = True
+condSeq.AtlasFieldMapCondAlg.UseMapsFromCOOL = False  # not possible with LoadMapOnStart (ATLASRECTS-5604)
+condSeq.AtlasFieldMapCondAlg.SoleMinCurrent = 160     # Standby current is 150A
+condSeq.AtlasFieldMapCondAlg.ToroMinCurrent = 210     # Standby current is 200A
+condSeq.AtlasFieldCacheCondAlg.UseDCS = False         # no DCS
+condSeq.AtlasFieldCacheCondAlg.LockMapCurrents = True # no field scaling
+
 # Read currents from IS if available
-if onlEventLoopMgr: onlEventLoopMgr.setMagFieldFromPtree = True
+if onlEventLoopMgr:
+    onlEventLoopMgr.setMagFieldFromPtree = True
             
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
 if globalflags.InputFormat()=='pool':
-    import AthenaPoolCnvSvc.ReadAthenaPool
+    import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401 configuration by import, old Run-2 job options
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.EventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
     svcMgr.PoolSvc.AttemptCatalogPatch=True 
@@ -85,13 +96,11 @@ if globalflags.InputFormat()=='bytestream':
 
     # This is only needed running athena (as opposed to athenaMT/PT)
     if not hasattr(svcMgr,"ByteStreamCnvSvc"):
-        from ByteStreamCnvSvc import ReadByteStream
+        from ByteStreamCnvSvc import ReadByteStream  # noqa: F401 configuration by import, old Run-2 job options
         # Define the input
-        svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.BSRDOInput()
+        svcMgr.EventSelector.Input = athenaCommonFlags.BSRDOInput()
+        from AthenaCommon.AppMgr import theApp
         theApp.ExtSvc += [ "ByteStreamCnvSvc"]
-
-    # Online specific setup of BS converters
-    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )
 
 
 # ----------------------------------------------------------------
@@ -122,8 +131,8 @@ if TriggerFlags.doCalo():
 
 if TriggerFlags.doMuon():
     # load services needed for converters
-    import MuonCnvExample.MuonCablingConfig
-    import MuonRecExample.MuonReadCalib
+    import MuonCnvExample.MuonCablingConfig  # noqa: F401 configuration by import, old Run-2 job options
+    import MuonRecExample.MuonReadCalib  # noqa: F401 configuration by import, old Run-2 job options
     if (TriggerFlags.doEF() or TriggerFlags.doHLT()) and 'forceMuonDataPrep' in dir():
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
             include("MuonRdoToPrepData/CscRdoToCscPrepData_jobOptions.py")
@@ -189,13 +198,13 @@ else:
 
 try:
     svc.SetStates( ["xml"] )
-except:
-    log.error( 'failed to set state of TrigConfigSvc ...')
+except Exception as ex:
+    log.error('failed to set state of TrigConfigSvc, %s', str(ex))
 
 try:
     svc.InitialiseSvc()
-except:
-    log.error( 'failed to activate TrigConfigSvc ...')
+except Exception as ex:
+    log.error('failed to activate TrigConfigSvc, %s', str(ex))
 
 # Enable PSK/LB monitoring
 if 'doMonitoring' in svcMgr.HLTConfigSvc.getProperties():
@@ -206,19 +215,19 @@ from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
 hlt = HLTSimulationGetter(g)
 
 
-if 'stopAfterMenuGeneration' in dir() and stopAfterMenuGeneration is True:
+if 'stopAfterMenuGeneration' in globals() and globals()['stopAfterMenuGeneration'] is True:
     theApp.exit()
 
 
 # setup writing of temporary cool db for a possible reco-step afterwards
-log.info("Will create temporary cool file, sources are '%s' and '%s'" % (svc.l1XmlFile,svc.hltXmlFile) )
+log.info("Will create temporary cool file, sources are '%s' and '%s'", svc.l1XmlFile, svc.hltXmlFile )
 from TrigConfigSvc.TrigConf2COOL import theConfCOOLWriter
 theConfCOOLWriter.lvl1menu = svc.l1XmlFile
 theConfCOOLWriter.hltmenu  = svc.hltXmlFile
 theConfCOOLWriter.isWritingNeeded = True
 import re
 TrigCoolDbConnection = re.match(".*;schema=(.*);dbname=.*",theConfCOOLWriter.dbConnection).group(1)
-log.info("Start writing with TrigCoolDbConnection %s" % TrigCoolDbConnection )
+log.info("Start writing with TrigCoolDbConnection %s", TrigCoolDbConnection )
 theConfCOOLWriter.writeConf2COOL()
 f = open("MenuCoolDbLocation.txt","w")
 f.write(TrigCoolDbConnection)
@@ -228,37 +237,44 @@ del f
 # -------------------------------------------------------------
 # Message formatting and OutputLevel
 # -------------------------------------------------------------
-MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
+msgSvc = svcMgr.MessageSvc
+msgSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 
 if TriggerFlags.Online.doValidation():
     TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['Log']
 else:
-    MessageSvc.Format = "%t  " + MessageSvc.Format   # add time stamp
-    if hasattr(MessageSvc,'useErsError'):   # ERS forwarding with TrigMessageSvc
-        MessageSvc.useErsError = ['*']
+    msgSvc.Format = "%t  " + msgSvc.Format   # add time stamp
+    if hasattr(msgSvc,'useErsError'):   # ERS forwarding with TrigMessageSvc
+        msgSvc.useErsError = ['*']
 
 # ----------------------------------------------------------------
 # Setting individual OutputLevel 
 # ----------------------------------------------------------------
 trigSteerConf = []
-if TriggerFlags.doHLT(): trigSteerConf += [topSequence.TrigSteer_HLT]
-    
+if TriggerFlags.doHLT():
+    trigSteerConf += [topSequence.TrigSteer_HLT]
+
+HLTOutputLevel = globals()['HLTOutputLevel'] if 'HLTOutputLevel' in globals() else msgSvc.OutputLevel
 for s in trigSteerConf:
     s.OutputLevel = HLTOutputLevel
-    for algo in s.getChildren(): algo.OutputLevel = HLTOutputLevel
+    for algo in s.getChildren():
+        algo.OutputLevel = HLTOutputLevel
 
-if onlEventLoopMgr: onlEventLoopMgr.OutputLevel = HLTOutputLevel
+if onlEventLoopMgr:
+    onlEventLoopMgr.OutputLevel = HLTOutputLevel
+
+from AthenaCommon import Constants
 
 if hasattr(topSequence,'CTPSimulation'):
-    topSequence.CTPSimulation.OutputLevel = INFO
+    topSequence.CTPSimulation.OutputLevel = Constants.INFO
 
 # Special settings of random number service for online
-svcMgr.AtRanluxGenSvc.OutputLevel = WARNING
+svcMgr.AtRanluxGenSvc.OutputLevel = Constants.WARNING
 svcMgr.AtRanluxGenSvc.SaveToFile = False
 
 # Re-seed the RNG on every event
-if hasattr(ToolSvc,'HLT::RandomScaler'):
-    rng = getattr(ToolSvc,'HLT::RandomScaler')
+if hasattr(svcMgr.ToolSvc,'HLT::RandomScaler'):
+    rng = getattr(svcMgr.ToolSvc,'HLT::RandomScaler')
     rng.useEventSeed = True
     rng.config(seed=0, luxury=2)
 
@@ -273,7 +289,8 @@ if TriggerFlags.doHLT():
 
     # Enable timing except for hypos
     for alg in topSequence.TrigSteer_HLT.getChildren():
-        if not 'forceAccept' in alg.properties(): alg.doTiming = True
+        if 'forceAccept' not in alg.properties():
+            alg.doTiming = True
 
     steertime = topSequence.TrigSteer_HLT.MonTools['HLTSteeringTime']
     steertime.NumberOfHistBins = 200

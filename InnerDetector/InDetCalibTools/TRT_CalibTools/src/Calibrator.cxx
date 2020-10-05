@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -15,6 +15,7 @@ PURPOSE: Class for calibrating a TRT sub-level
 ********************************************************************/
 
 #include "Calibrator.h"
+#include "CxxUtils/checker_macros.h"
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH1D.h>
@@ -27,7 +28,6 @@ PURPOSE: Class for calibrating a TRT sub-level
 #include <iomanip>
 #include <fstream>
 #include <cmath>
-
 
 caldata::caldata(){
   res = -999; 
@@ -52,9 +52,6 @@ caldata::caldata(){
   calflag  = -999;
   rtflag  = -999;
   t0flag  = -999;
-  m_treshist  = nullptr;
-  reshist  = nullptr;
-  rthist  = nullptr;
   det = -999;
   lay = -999;
   mod = -999;
@@ -71,10 +68,6 @@ caldata::caldata(){
 }
 
 caldata::~caldata(){
-  delete[] m_treshist;
-  delete[] reshist;
-  delete[] rthist;
-
 }
 
 caldata::caldata(bool makehist, int nbinst, int nbinsr){
@@ -100,9 +93,6 @@ caldata::caldata(bool makehist, int nbinst, int nbinsr){
   calflag  = -999;
   rtflag  = -999;
   t0flag  = -999;
-  m_treshist  = nullptr;
-  reshist  = nullptr;
-  rthist  = nullptr;
   det = -999;
   lay = -999;
   mod = -999;
@@ -118,16 +108,9 @@ caldata::caldata(bool makehist, int nbinst, int nbinsr){
   rtgraph = nullptr;
 
   if (makehist) {
-    if (m_treshist) delete m_treshist;
-    m_treshist = new float[100];
-  }
-  if (makehist) {
-    if (reshist) delete reshist;
-    reshist = new float[100];
-  }
-  if (makehist) {
-    if (rthist) delete rthist;
-    rthist = new float[nbinsr*nbinst+200];
+    m_treshist.resize (100);
+    reshist.resize (100);
+    rthist.resize (nbinsr*nbinst+200);
   }
 }
 
@@ -299,18 +282,18 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
 
 RtGraph::~RtGraph(){  
 
- delete hslizes   ;
- delete m_btype     ;
- delete m_tv        ;
- delete m_dv        ;
- delete m_etv       ;
- delete m_edv       ;
- delete m_rightsig  ;
- delete m_leftsig   ;
- delete m_leftval   ;
- delete m_rightval  ;
- delete m_maxbin    ;
- delete m_maxval    ;
+ delete [] hslizes   ;
+ delete [] m_btype     ;
+ delete [] m_tv        ;
+ delete [] m_dv        ;
+ delete [] m_etv       ;
+ delete [] m_edv       ;
+ delete [] m_rightsig  ;
+ delete [] m_leftsig   ;
+ delete [] m_leftval   ;
+ delete [] m_rightval  ;
+ delete [] m_maxbin    ;
+ delete [] m_maxval    ;
 }
 
 
@@ -350,98 +333,94 @@ double rtrel_dines(double *x, double*par){
 
 
 
-Calibrator::Calibrator(){
-  level =-10;
-  m_name ="None"; 
-  m_rtbinning ="None";
-  m_minrtstat =-10;
-  m_mint0stat =-10;
-  m_t0shift =-100.;
-  m_mint=-5;
-  m_maxt=50;
-  m_nbinst=55;
+Calibrator::Calibrator()
+  : dort(false),
+    dot0(false),
+    dores(false),
+    nort(false),
+    not0(false),
+    usebref(false),
+    bequiet(false),
+    printlog(false),
+    printt0(false),
+    printrt(false),
+    usep0(false),
+    floatp3(false),
+    useshortstraws(true),
 
-  m_minr=0;
-  m_maxr=2;
-  m_nbinsr=100;
+    m_name ("None"),
+    m_rtbinning ("None"),
+    m_minrtstat (-10),
+    m_mint0stat (-10),
+    m_t0shift (-100.),
 
-  m_mintres=-10;
-  m_maxtres=10;
-  m_nbinstres=100;
+    m_nbinsr(100),
+    m_nbinst(55),
+    m_nbinstres(100),
+    m_nbinsres(100),
+    m_minr(0),
+    m_maxr(2),
+    m_mint(-5),
+    m_maxt(50),
+    m_mintres(-10),
+    m_maxtres(10),
+    m_minres(-0.6),
+    m_maxres(0.6),
 
-  m_minres=-0.6;
-  m_maxres=0.6;
-  m_nbinsres=100;
+    m_ntreshits(0),
+    m_nreshits(0),
+    m_nrthits(0),
+    m_nhits(0),
 
-  m_isdines = false;
-  dort=false;
-  dot0=false;
-  dores=false;
-  nort=false;
-  not0=false;
-  usebref=false;
-  bequiet=false;
-  printlog=false;
-  printt0=false;
-  printrt=false;
-  usep0=false;
-  floatp3=false;
+    m_isdines ( false)
+{
   selection.insert(-3);
-  useshortstraws=true;
-  m_ntreshits=0;
-  m_nreshits=0;
-  m_nrthits=0;
-  m_nhits=0;
-
-
-
-
-
+  level =-10;
 }
 
-Calibrator::Calibrator(int lev, std::string nme, int mint0, int minrt, std::string rtr, std::string rtb, float t0sft){
+Calibrator::Calibrator(int lev, const std::string& nme, int mint0, int minrt, const std::string& rtr, const std::string& rtb, float t0sft)
+  :  dort(false),
+     dot0(false),
+     dores(false),
+     nort(false),
+     not0(false),
+     usebref(false),
+     bequiet(false),
+     printlog(false),
+     printt0(false),
+     printrt(false),
+     usep0(false),
+     floatp3(false),
+     useshortstraws(true),
+
+     m_name(nme), 
+     m_rtbinning(rtb),
+     m_minrtstat(minrt),
+     m_mint0stat(mint0),
+     m_t0shift(t0sft),
+
+     m_nbinsr(100),
+     m_nbinst(55),
+     m_nbinstres(100),
+     m_nbinsres(100),
+     m_minr(0),
+     m_maxr(2),
+     m_mint(-5),
+     m_maxt(50),
+     m_mintres(-10),
+     m_maxtres(10),
+     m_minres(-0.6),
+     m_maxres(0.6),
+
+     m_ntreshits(0),
+     m_nreshits(0),
+     m_nrthits(0),
+     m_nhits(0),
+
+     m_isdines ( rtr.find("dines")!=std::string::npos)
+{
   level=lev;
-  m_name=nme; 
-  m_rtbinning=rtb;
-  m_minrtstat=minrt;
-  m_mint0stat=mint0;
-  m_t0shift=t0sft;
-
-  m_mint=-5;
-  m_maxt=50;
-  m_nbinst=55;
-
-  m_minr=0;
-  m_maxr=2;
-  m_nbinsr=100;
-
-  m_mintres=-10;
-  m_maxtres=10;
-  m_nbinstres=100;
-
-  m_minres=-0.6;
-  m_maxres=0.6;
-  m_nbinsres=100;
-
-  m_isdines = rtr.find("dines")!=std::string::npos;
-  dort=false;
-  dot0=false;
-  dores=false;
-  nort=false;
-  not0=false;
-  usebref=false;
-  bequiet=false;
-  printlog=false;
-  printt0=false;
-  printrt=false;
-  usep0=false;
-  floatp3=false;
   selection.insert(-3);
-  useshortstraws=true;
-  m_ntreshits=0;
-  m_nreshits=0;
-  m_nrthits=0;
-  m_nhits=0;
 }
 
 Calibrator::~Calibrator(){
@@ -482,10 +461,10 @@ bool Calibrator::Skip(){
 std::string Calibrator::PrintInfo(){
   std::string yn[2]={"NO","YES"};
   std::string info = std::string(Form("CONFIGURATION %-16s: dort=%-3s, dot0=%-3s, dores=%-3s, selection=",m_name.data(),yn[dort].data(),yn[dot0].data(),yn[dores].data()));
-  for (std::set<int>::iterator isel = selection.begin(); isel != selection.end(); isel++) {
-    if (*isel==-3) info += std::string("all"); 
-    else if (*isel==-4) info += std::string("none"); 
-    else info += std::string(Form("%2i,",*isel)); 
+  for (int isel : selection) {
+    if (isel==-3) info += std::string("all"); 
+    else if (isel==-4) info += std::string("none"); 
+    else info += std::string(Form("%2i,",isel)); 
   } 
   return info;
 }
@@ -520,7 +499,7 @@ std::string Calibrator::GetSelString(){
   std::string selstr="";
   if (selection.find(-3)!=selection.end()) selstr="*";
   else if (selection.find(-4)!=selection.end()) selstr="-";
-  else for (std::set<int>::iterator isel=selection.begin(); isel!=selection.end(); isel++) selstr += std::string(Form("%i",*isel));
+  else for (int isel : selection)  selstr += std::string(Form("%i",isel));
   return selstr;
 }
 
@@ -565,8 +544,8 @@ int Calibrator::UpdateOldConstants(){
   } 
 }
 
-float Calibrator::FitRt(std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){
-  
+float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){ // Global gStyle is used.
+
   float rtpars[4];
 
   //create r-m_t and m_t-r graphs
@@ -697,8 +676,7 @@ float Calibrator::FitRt(std::string key, std::string opt, TH2F* rtHist, TDirecto
 }
 
 
-float Calibrator::FitTimeResidual(std::string key, TH1F* tresHist){
-  
+float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* tresHist){ // Global gStyle is used.
 
   float mean = tresHist->GetMean();
   float rms = tresHist->GetRMS();
@@ -785,7 +763,7 @@ float Calibrator::FitTimeResidual(std::string key, TH1F* tresHist){
   }
 
 
-float Calibrator::FitResidual(std::string key, TH1F* resHist){
+float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resHist){ // Global gStyle is used.
 
   float mean = resHist->GetMean();
   //float rms = resHist->GetRMS();
@@ -805,7 +783,7 @@ float Calibrator::FitResidual(std::string key, TH1F* resHist){
 
 }
 
-TDirectory* Calibrator::Calibrate(TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){
+TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){ // Thread unsafe FitResidual, FitRt, FitTimeResidual are used.
 
   //set some bool flags
   bool calrt=opt.find("R")!=std::string::npos;
@@ -1213,9 +1191,8 @@ void Calibrator::DumpConstants(){
 
   std::ofstream dumpfile( "calib_constants_out.txt", std::ios::out | std::ios::app);
 
-  for(std::map<std::string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ihist++){
-    
-    dumpfile << ihist->first << " " << (ihist->second).t0 << " " << std::endl;
+  for (const std::pair<const std::string, caldata>& p : data) {
+    dumpfile << p.first << " " << p.second.t0 << " " << std::endl;
     
   }
   

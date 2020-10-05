@@ -113,8 +113,8 @@ ConfigFlags.needFlagsCategory('Tile')
 ConfigFlags.needFlagsCategory('LAr')
 
 ConfigFlags.lock()
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-acc=MainServicesSerialCfg()
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+acc=MainServicesCfg(ConfigFlags)
 
 acc.merge (testCfg (ConfigFlags))
 acc.run(1)

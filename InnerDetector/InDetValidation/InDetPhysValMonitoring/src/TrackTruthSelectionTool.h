@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_TRACKTRUTHSELECTORTOOL_H
@@ -10,6 +10,8 @@
 #include "xAODTruth/TruthParticle.h"
 #include "AsgTools/AsgTool.h"
 
+#include <atomic>
+#include <mutex>
 
 class TrackTruthSelectionTool:
   public virtual ::IAsgSelectionTool,
@@ -29,9 +31,10 @@ public:
 private:
   asg::AcceptInfo m_accept;
   std::vector<std::pair<std::string, std::string> > m_cuts;
-  mutable ULong64_t m_numTruthProcessed; // !< a counter of the number of tracks proccessed
-  mutable ULong64_t m_numTruthPassed; // !< a counter of the number of tracks that passed all cuts
-  mutable std::vector<ULong64_t> m_numTruthPassedCuts; // !< tracks the number of tracks that passed each cut family
+  mutable std::atomic<ULong64_t> m_numTruthProcessed; // !< a counter of the number of tracks proccessed
+  mutable std::atomic<ULong64_t> m_numTruthPassed; // !< a counter of the number of tracks that passed all cuts
+  mutable std::vector<ULong64_t> m_numTruthPassedCuts ATLAS_THREAD_SAFE; // !< tracks the number of tracks that passed each cut family. Guarded by m_mutex
+  mutable std::mutex m_mutex; // !< To guard m_numTruthPassedCuts
 
   // Cut values;
   float m_maxEta;

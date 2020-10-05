@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -28,19 +28,19 @@ StatusCode SimTimeEstimate::execute()
         m_particleEtas.clear();       
         m_particleEnergies.clear();       
         // Check particles
-        for (HepMC::GenEvent::particle_const_iterator pitr = itr->particles_begin(); pitr != itr->particles_end(); ++pitr )
+        for (auto part: *itr)
          { 
             // Only use stable particles
-            if ((*pitr)->status()!=1) continue;
+            if (part->status()!=1) continue;
             // Only use particles that are interacting
-            if (!(MC::isSimInteracting(*pitr))) continue;
+            if (!(MC::isSimInteracting(part))) continue;
             // Grab the momentum
-            const HepMC::FourVector pmom = (*pitr)->momentum();
+            const HepMC::FourVector pmom = part->momentum();
             // Only count particles with finite eta
-            if (pmom.perp()==0 || fabs(pmom.eta())>m_etaMax) continue;
+            if (pmom.perp()==0 || std::abs(pmom.eta())>m_etaMax) continue;
             m_particleEtas.push_back(pmom.eta());
             // add  ID of particle to list 
-            m_particleIDs.push_back(abs((*pitr)->pdg_id()));
+            m_particleIDs.push_back(std::abs(part->pdg_id()));
             // add energy per particle to get the distribution:
             m_particleEnergies.push_back(pmom.e());
 
@@ -50,7 +50,7 @@ StatusCode SimTimeEstimate::execute()
             //  it decays.  This algorithm will always be a little tricky 
             //  in those cases, but better to *overestimate* the sim time.
             
-            if(std::find(m_pidsToSkip.begin(), m_pidsToSkip.end(), abs((*pitr)->pdg_id())) != m_pidsToSkip.end()) continue; 
+            if(std::find(m_pidsToSkip.begin(), m_pidsToSkip.end(), std::abs(part->pdg_id())) != m_pidsToSkip.end()) continue; 
             // Add in the total energy
             m_total_Energy += pmom.e(); 
             m_eventEnergy += pmom.e();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@ public:
    unsigned int l1psk { 0 };
    unsigned int hltpsk { 0 };
    unsigned int bgsk { 0 };
-   std::string  dbalias { "TRIGGERDBDEV2" };
+   std::string  dbalias { "TRIGGERDBDEV1" };
 
    // output
    bool         write { false }; // flag to enable writing
@@ -170,6 +170,19 @@ namespace {
       fileLoader.saveFile(filename, ds);
       return true;
    }
+
+   std::string
+   outputFileName(const std::string & kind, const Config & cfg) {
+      if( ! cfg.write )
+         return "";
+      std::string filename = kind;
+      if ( cfg.base != "" ) {
+         filename += "_" + cfg.base;
+      }
+      filename += ".json";
+      return filename;
+   }
+
 }
 
 int main(int argc, char** argv) {
@@ -189,15 +202,10 @@ int main(int argc, char** argv) {
 
    if( cfg.inputFiles.size()>0 ) {
       // load config from files
-
-      // file loader
       TrigConf::JsonFileLoader fileLoader;
-
       for (const std::string & fn : cfg.inputFiles) {
-
          // check if the file is L1 or HLT
          std::string filetype = fileLoader.getFileType( fn );
-         
          if(filetype == "l1menu") {
             TrigConf::L1Menu l1menu;
             fileLoader.loadFile( fn, l1menu);
@@ -232,9 +240,9 @@ int main(int argc, char** argv) {
             fileLoader.loadFile( fn, jo);
             cout << "Loaded job options with " << jo.getObject("properties").getKeys().size() << " entries " << endl;
             if( cfg.detail ) {
-               for( const auto alg : jo.getObject("properties").data()) {
+               for( const auto& alg : jo.getObject("properties").data()) {
                   std::cout << alg.first << std::endl;
-                  for( const auto prop : alg.second ) {
+                  for( const auto& prop : alg.second ) {
                      std::cout << "      " << prop.first << " -> " << prop.second.data() << std::endl;
                   }
                }
@@ -243,7 +251,6 @@ int main(int argc, char** argv) {
          } else {
             cerr << "File " << fn << " not recognized as being an L1 or HLT menu or prescale set or bunchgroup set" << endl;
          }
-
       }
    }
 
@@ -252,45 +259,58 @@ int main(int argc, char** argv) {
 
       // db menu loader
       TrigConf::TrigDBMenuLoader dbloader(cfg.dbalias);
-
-      TrigConf::L1Menu l1menu;
-      TrigConf::HLTMenu hltmenu;
       
-      dbloader.loadL1Menu( cfg.smk, l1menu );
-      if (l1menu) {
-         cout << "Loaded L1 menu with " << l1menu.size() << " items" <<  endl;
-         l1menu.printMenu(cfg.detail);
-         writeJsonFile(l1menu, "L1Menu", cfg);
-      } else {
-         cout << "Did not load an L1 menu" << endl;
+      // L1 menu
+      TrigConf::L1Menu l1menu;
+      try {
+         dbloader.loadL1Menu( cfg.smk, l1menu, outputFileName("L1Menu", cfg) );
       }
+      catch(TrigConf::IOException & ex) {
+         cout << "Could not load L1 menu. An exception occurred: " << ex.what() << endl;
+      }
+      if(l1menu) {
+         cout << "Loaded L1 menu with " << l1menu.size() << " items" <<  endl;
+         if( cfg.detail ) {
+            l1menu.printMenu(true);
+         }
+      }
+      cout << endl;
 
-      dbloader.loadHLTMenu( cfg.smk, hltmenu );
+      // HLT menu
+      TrigConf::HLTMenu hltmenu;
+      try {
+         dbloader.loadHLTMenu( cfg.smk, hltmenu, outputFileName("HLTMenu", cfg));
+      }
+      catch(TrigConf::IOException & ex) {
+         cout << "Could not load HLT menu. An exception occurred: " << ex.what() << endl;
+      }
       if (hltmenu) {
          cout << "Loaded HLT menu with " << hltmenu.size() << " chains" << endl;
-         writeJsonFile(hltmenu, "HLTMenu", cfg);
-      } else {
-         cout << "Did not load an HLT menu" << endl;
+         if( cfg.detail ) {
+            hltmenu.printMenu(true);
+         }
       }
+      cout << endl;
 
-      // db job options loader
+      // Job options
       TrigConf::TrigDBJobOptionsLoader jodbloader(cfg.dbalias);
-
       TrigConf::DataStructure jo;
-      jodbloader.loadJobOptions( cfg.smk, jo );
+      try {
+         jodbloader.loadJobOptions( cfg.smk, jo, outputFileName("HLTJobOptions", cfg) );
+      }
+      catch(TrigConf::IOException & ex) {
+         cout << "Could not load HLT job options. An exception occurred: " << ex.what() << endl;
+      }
       if (jo) {
          cout << "Loaded job options with " << jo.getObject("properties").getKeys().size() << " entries " << endl;
          if( cfg.detail ) {
-            for( const auto alg : jo.getObject("properties").data()) {
+            for( const auto& alg : jo.getObject("properties").data()) {
                std::cout << alg.first << std::endl;
-               for( const auto prop : alg.second ) {
+               for( const auto& prop : alg.second ) {
                   std::cout << "      " << prop.first << " -> " << prop.second.data() << std::endl;
                }
             }
          }
-         writeJsonFile(jo, "HLTJobOptions", cfg);
-      } else {
-         cout << "Did not load job options" << endl;
       }
    }
 
@@ -299,13 +319,14 @@ int main(int argc, char** argv) {
       // load L1 prescales set from DB
       TrigConf::TrigDBL1PrescalesSetLoader dbloader(cfg.dbalias);
       TrigConf::L1PrescalesSet l1pss;
-      
-      dbloader.loadL1Prescales( cfg.l1psk, l1pss );
+      try {
+         dbloader.loadL1Prescales( cfg.l1psk, l1pss, outputFileName("L1PrescalesSet", cfg) );
+      }
+      catch(TrigConf::IOException & ex) {
+         cout << "Could not load L1 prescales. An exception occurred: " << ex.what() << endl;
+      }      
       if (l1pss) {
          cout << "Loaded L1 prescales set with " << l1pss.size() << " prescales" <<  endl;
-         writeJsonFile(l1pss, "L1PrescalesSet", cfg);
-      } else {
-         cout << "Did not load an L1 prescales set" << endl;
       }
    }
 
@@ -313,14 +334,15 @@ int main(int argc, char** argv) {
    if( cfg.hltpsk != 0 ) {
       // load L1 prescales set from DB
       TrigConf::TrigDBHLTPrescalesSetLoader dbloader(cfg.dbalias);
-      TrigConf::HLTPrescalesSet hltpss;
-      
-      dbloader.loadHLTPrescales( cfg.hltpsk, hltpss );
+      TrigConf::HLTPrescalesSet hltpss;    
+      try {
+         dbloader.loadHLTPrescales( cfg.hltpsk, hltpss, outputFileName("HLTPrescalesSet", cfg) );
+      }
+      catch(TrigConf::IOException & ex) {
+         cout << "Could not load HLT prescales. An exception occurred: " << ex.what() << endl;
+      }      
       if (hltpss) {
          cout << "Loaded HLT prescales set with " << hltpss.size() << " prescales" <<  endl;
-         writeJsonFile(hltpss, "HLTPrescalesSet", cfg);
-      } else {
-         cout << "Did not load an HLT prescales set" << endl;
       }
    }
 
@@ -329,14 +351,17 @@ int main(int argc, char** argv) {
       // load L1 prescales set from DB
       TrigConf::TrigDBL1BunchGroupSetLoader dbloader(cfg.dbalias);
       TrigConf::L1BunchGroupSet bgs;
-
-      dbloader.loadBunchGroupSet( cfg.bgsk, bgs );
+      try {
+         dbloader.loadBunchGroupSet( cfg.bgsk, bgs, outputFileName("BunchGroupSet", cfg) );
+      }
+      catch(TrigConf::IOException & ex) {
+         cout << "Could not load bunchgroup set. An exception occurred: " << ex.what() << endl;
+      }      
       if (bgs) {
          cout << "Loaded L1 bunchgroup set with " << bgs.size() << " bunchgroups" <<  endl;
-         bgs.printSummary(cfg.detail);
-         writeJsonFile(bgs, "BunchGroupSet", cfg);
-      } else {
-         cout << "Did not load an L1 bunchgroups set" << endl;
+         if( cfg.detail ) {
+            bgs.printSummary(true);
+         }
       }
    }
 

@@ -11,13 +11,10 @@
 
 #include "TRT_ByteStream_ConditionsSvc.h"
 
-#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+#include "InDetByteStreamErrors/TRT_BSErrContainer_p1.h"
 #include "InDetByteStreamErrors/TRT_BSIdErrContainer.h"
 
 #include "Identifier/Identifier.h"
-
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 
 //////////
 /// Constructor
@@ -40,12 +37,6 @@ TRT_ByteStream_ConditionsSvc::TRT_ByteStream_ConditionsSvc( const std::string& n
   m_tot_num_robStatus_errors(0)
 
 {
-  declareProperty( "writeBcidError", m_writeBCIDError = true );
-  declareProperty( "writeL1idError", m_writeL1IDError = true );
-  declareProperty( "writeMissingError", m_writeMISSINGError = true );
-  declareProperty( "writeErrorError", m_writeERRORError = true );
-  declareProperty( "writeSidError", m_writeSIDError = true );
-  declareProperty( "readCondFromESD", m_readCondFromESD = false );
 }
 
 //////////
@@ -60,11 +51,6 @@ StatusCode TRT_ByteStream_ConditionsSvc::initialize()
 {
   if(msgLvl(MSG::DEBUG)) msg() << "TRT_ByteStream_ConditionsSvc: Initialize." << endmsg;
 
-  // Initialize keys
-  ATH_CHECK(m_keyerrContid.initialize());
-  ATH_CHECK(m_keyerrCont.initialize());
-  ATH_CHECK(m_writekeyErrContID.initialize());
-  ATH_CHECK(m_writekeyErrCont.initialize());
 
   /*
    * Ask to be informed at the beginning of each new event so that we
@@ -97,12 +83,6 @@ StatusCode TRT_ByteStream_ConditionsSvc::initialize()
   m_tot_num_error_errors=0;
   m_tot_num_sid_errors=0;
   m_tot_num_robStatus_errors=0;
-
-  ATH_MSG_INFO( "writeBcidError    =" << (m_writeBCIDError?"TRUE":"FALSE") );
-  ATH_MSG_INFO( "writeL1idError    =" << (m_writeL1IDError?"TRUE":"FALSE") );
-  ATH_MSG_INFO( "writeMissingError =" << (m_writeMISSINGError?"TRUE":"FALSE") );
-  ATH_MSG_INFO( "writeErrorError   =" << (m_writeERRORError?"TRUE":"FALSE") );
-  ATH_MSG_INFO( "writeSidError     =" << (m_writeSIDError?"TRUE":"FALSE") );
 
   return StatusCode::SUCCESS;
 }
@@ -150,9 +130,6 @@ TRT_ByteStream_ConditionsSvc::handle(const Incident&)
 {
    this->resetSets();
    this->resetCounts();
-
-   if ( m_readCondFromESD )
-      this->readData().ignore();
 
    return;
 }
@@ -406,182 +383,5 @@ TRT_ByteStream_ConditionsSvc::getErrorSet( TRTByteStreamErrors::errorTypes ErrTy
   return 0;
 }
 
-
-StatusCode
-TRT_ByteStream_ConditionsSvc::readData() 
-{
-
-  StatusCode sc(StatusCode::SUCCESS);  
-
-  /*
-   * ByteStream ID (L1ID, BCID) errors
-   */
-  {
-     SG::ReadHandle<TRT_BSIdErrContainer> errCont(m_keyerrContid);
-     if (not errCont.isValid())
-     {
-	ATH_MSG_WARNING( "Failed to retrieve TRT BS Id error container from SG" );
-
-	return sc;
-     }
-
-
-     // = new TRT_BSIdErrContainer();
-
-
-     for (const auto* elt : *errCont)
-     {
-	int errorType = elt->first;
-
-	//	std::cout << "TRT BSerr: " << errorType << " " << ((*it)->second).first
-	//		  << " " << (uint32_t) ((*it)->second).second << std::endl;
-
-	switch(errorType) 
-	{
-	
-	case TRTByteStreamErrors::BCIDError:
-	   add_bcid_error( elt->second.first,  elt->second.second );
-	   break;
-
-	case TRTByteStreamErrors::L1IDError:
-	   add_l1id_error( elt->second.first,  elt->second.second );
-	   break;
-	}
-     }
-  }
-
-  /*
-   * ByteStream (Missing, Error, SID) errors
-   */
-  {
-     SG::ReadHandle<TRT_BSErrContainer> errCont(m_keyerrCont);
-     if (not errCont.isValid())
-     {
-	ATH_MSG_WARNING( "Failed to retrieve TRT BS error container from SG" );
-
-	return sc;
-     }
-
-
-     for (const auto* elt : *errCont)
-     {
-	int errorType = elt->first;
-
-	//	std::cout << "TRT BSerr: " << errorType << " " << (*it)->second << std::endl;
-
-	switch(errorType) 
-	{
-	
-	case TRTByteStreamErrors::MISSINGError:
-	   add_missing_error( elt->second );
-	   break;
-
-	case TRTByteStreamErrors::ERRORError:
-	   add_error_error( elt->second );
-	   break;
-
-	case TRTByteStreamErrors::SIDError:
-	   add_sid_error( elt->second );
-	   break;
-	}
-     }
-  }
-
-   return sc;
- }
-
-
-StatusCode 
-TRT_ByteStream_ConditionsSvc::recordData() 
-{
-
-  StatusCode sc(StatusCode::SUCCESS);
-
-  SG::WriteHandle<TRT_BSIdErrContainer> IdCont(m_writekeyErrContID);                                                    
-  sc = IdCont.record(std::make_unique<TRT_BSIdErrContainer>() );
-  if (sc.isFailure() )
-    msg(MSG::ERROR) <<"Failed to record BSIdErrors to SG"<<endmsg;
-
-  SG::WriteHandle<TRT_BSErrContainer> cont(m_writekeyErrCont);
-  sc = cont.record(std::make_unique<TRT_BSErrContainer>() );
-  if (sc.isFailure() )
-    msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endmsg;
-
-  /*
-   * ByteStream ID (L1ID, BCID) errors
-   */
-  {
-     TRTByteStreamErrors::errorTypes IdPairErrorTypes[2] = { TRTByteStreamErrors::BCIDError,
-							     TRTByteStreamErrors::L1IDError };
-
-  for (int errIdx=0; errIdx<2; errIdx++)
-  {
-     TRTByteStreamErrors::errorTypes errType = IdPairErrorTypes[errIdx];
-
-     if ( ((errType == TRTByteStreamErrors::BCIDError) && m_writeBCIDError) ||
-	  ((errType == TRTByteStreamErrors::L1IDError) && m_writeL1IDError) )
-     {
-	std::set<std::pair<uint32_t,uint32_t> >* errors = getIdErrorSet(errType);
-	if ( ! errors )
-	{
-#ifdef TRT_BS_ERR_DEBUG
-	   msg(MSG::INFO) << "No TRT BS errors of type " << errType << " to record" << endmsg;
-#endif // TRT_BS_ERR_DEBUG
-	   continue;
-	}
-
-	std::set<std::pair<uint32_t,uint32_t> >::iterator it = errors->begin();
-	std::set<std::pair<uint32_t,uint32_t> >::iterator itEnd = errors->end();
-	for (; it != itEnd; ++it) 
-	{
-	   std::pair<uint8_t, std::pair<uint32_t,uint8_t> >* err = 
-	      new std::pair<uint8_t, std::pair<uint32_t,uint8_t> >
-	      (std::make_pair( errType, *it ));
-	   IdCont->push_back(err);
-	}
-     }
-  }
-
-  }
-
-  /*
-   * ByteStream (Missing, Error, SID) errors
-   */
-  {
-     TRTByteStreamErrors::errorTypes IdErrorTypes[3] = { TRTByteStreamErrors::MISSINGError,
-							 TRTByteStreamErrors:: ERRORError,
-							 TRTByteStreamErrors::SIDError };
-  for (int errIdx=0; errIdx<3; errIdx++)
-  {
-     TRTByteStreamErrors::errorTypes errType = IdErrorTypes[errIdx];
-
-     if ( ((errType == TRTByteStreamErrors::MISSINGError) && m_writeMISSINGError) ||
-	  ((errType == TRTByteStreamErrors::ERRORError) && m_writeERRORError) ||
-	  ((errType == TRTByteStreamErrors::SIDError) && m_writeSIDError) )
-     { 
-
-	std::set<uint32_t>* errors = getErrorSet(errType);
-	if ( ! errors )
-	{
-#ifdef TRT_BS_ERR_DEBUG
-	   msg(MSG::INFO) << "No TRT BS errors of type " << errType << " to record" << endmsg;
-#endif // TRT_BS_ERR_DEBUG
-	   continue;
-	}
-	std::set<uint32_t>::iterator it = errors->begin();
-	std::set<uint32_t>::iterator itEnd = errors->end();
-	for (; it != itEnd; ++it)
-	{
-	   std::pair<uint8_t, uint32_t>* err = 
-	      new std::pair<uint8_t, uint32_t> (std::make_pair( errType, *it ));
-	   cont->push_back(err);
-	}
-     }
-  }
-
-  }
-
-  return sc;
- }
 
 #endif //ifndef SIMULATIONBASE

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelBuilderToolTileInfo.h"
@@ -252,11 +252,14 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
   
   time=time*(nanosecond/picosecond); //Convert time to ps
 
-  if (time>MAXINT) time=MAXINT;
-  if (time<MAXINT2) time=MAXINT2;
+  const float fMAXINT = static_cast<float>(MAXINT);
+  const float fMAXINT2 = static_cast<float>(MAXINT2);
 
-  if (energy>MAXINT) energy=MAXINT;
-  if (energy<MAXINT2) energy=MAXINT2;
+  if (time>fMAXINT) time=fMAXINT;
+  if (time<fMAXINT2) time=fMAXINT2;
+
+  if (energy>fMAXINT) energy=fMAXINT;
+  if (energy<fMAXINT2) energy=fMAXINT2;
   
   //Make LArRawChannel Object with new data
   LArRawChannel larRawChannel(digit->channelID(),

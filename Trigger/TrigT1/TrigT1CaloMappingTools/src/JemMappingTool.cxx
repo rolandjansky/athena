@@ -27,18 +27,6 @@ const double JemMappingTool::s_etaGran = 0.2;
 const double JemMappingTool::s_phiGran = M_PI/16.;
 
 
-JemMappingTool::JemMappingTool(const std::string& type,
-                               const std::string& name,
-			       const IInterface*  parent)
-			     : AthAlgTool(type, name, parent)
-{
-  declareInterface<IL1CaloMappingTool>(this);
-}
-
-JemMappingTool::~JemMappingTool()
-{
-}
-
 // Initialise the mappings
 
 #ifndef PACKAGE_VERSION
@@ -84,7 +72,7 @@ StatusCode JemMappingTool::finalize()
 // Return eta, phi and layer mapping for given crate/module/channel
 
 bool JemMappingTool::mapping(const int crate, const int module,
-               const int channel, double& eta, double& phi, int& layer)
+               const int channel, double& eta, double& phi, int& layer) const
 {
   if (crate < 0 || crate >= s_crates || module < 0 || module >= s_modules ||
       channel < 0 || channel >= s_channels) return false;
@@ -132,7 +120,7 @@ bool JemMappingTool::mapping(const int crate, const int module,
 // Return crate, module and channel mapping for given eta/phi/layer
 
 bool JemMappingTool::mapping(const double /*eta*/, const double /*phi*/,
-                    const int /*layer*/, int& crate, int& module, int& channel)
+                    const int /*layer*/, int& crate, int& module, int& channel) const
 {
   // Not implemented
   crate   = 0;

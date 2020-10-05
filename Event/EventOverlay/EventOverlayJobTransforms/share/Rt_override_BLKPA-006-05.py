@@ -9,20 +9,21 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/RT","TrtCalibRt-MCnewDigi_ToTon_7T
 conddb.blockFolder("/MDT/RT")
 conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-00",force=True,forceMC=True)
 conddb.blockFolder("/MDT/RTBLOB")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True)
+conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True,className="CondAttrListCollection")
 
 conddb.blockFolder("/PIXEL/HLT/DCS/HV")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-UPD1-00",force=True,forceData=True)
 conddb.blockFolder("/PIXEL/HLT/DCS/TEMPERATURE")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE","PixDCSTemp-UPD1-00",force=True,forceData=True)
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
-conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True,className="AthenaAttributeList")
 
 conddb.blockFolder("/TRT/Cond/DigVers")
-conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
+conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True,
+                        className = 'AthenaAttributeList')
 
 ###################################################
-print "Haas: RT OVERRIDE, for COMCOND-BLKPA-006-05"
+printfunc ("Haas: RT OVERRIDE, for COMCOND-BLKPA-006-05")
 
 #use data TRT T0 constants
 conddb.blockFolder("/TRT/Calib/T0")

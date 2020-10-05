@@ -17,13 +17,12 @@ IDC_WriteHandleBase::~IDC_WriteHandleBase() { ReleaseLock(); }
 void IDC_WriteHandleBase::ReleaseLock(){
    if(m_atomic==nullptr) return;
 //Convenience declarations
-   typedef std::lock_guard<decltype(m_mut->mutex)> lockguard;
+   typedef std::scoped_lock<decltype(m_mut->mutex)> lockguard;
    const void* waitstate = reinterpret_cast<const void*>(IdentifiableCacheBase::INVALIDflag);
    const void* ABORTstate = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
 
 //Running code
    assert(m_atomic->load() != ABORTstate);
-   assert(m_mut->counter >= 0);
    lockguard lk(m_mut->mutex);
    m_atomic->compare_exchange_strong(waitstate, ABORTstate);
    m_mut->condition.notify_all();

@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ROOTCORE
-
-int main() { return 0; }
-
-#else
-
 #include "IdDictParser/IdDictParser.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MmIdHelper.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonIdHelpers/TgcIdHelper.h"
 #include "GaudiKernel/System.h" 
 #include <iostream> 
 
@@ -176,11 +175,9 @@ int main ()
     // check Run 2 layout (no STgc/MM)
     if (checkDictFile("IdDictMuonSpectrometer_R.03.xml", true, false, false)) return 1;
     // check asymmetric Run 3 layout
-    if (checkDictFile("IdDictMuonSpectrometer_R.09.AsymNSW.xml")) return 1;
+    if (checkDictFile("IdDictMuonSpectrometer_R.09.02.Asym.xml")) return 1;
     // check symmetric Run 3 layout (no CSC)
-    if (checkDictFile("IdDictMuonSpectrometer_R.09.NSW.xml", false, true, true)) return 1;
+    if (checkDictFile("IdDictMuonSpectrometer_R.09.02.xml", false, true, true)) return 1;
 
     return 0;
 }  
-
-#endif // ROOTCORE

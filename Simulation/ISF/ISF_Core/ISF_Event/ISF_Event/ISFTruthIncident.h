@@ -67,7 +67,7 @@ namespace ISF {
     int                       parentPdgCode() const override final;
     /** Return the parent particle as a HepMC particle type
         (usually only called for particles that will enter the HepMC truth event) */
-    HepMC::GenParticle*       parentParticle() const override final;
+    HepMC::GenParticlePtr     parentParticle() const override final;
     /** Return the barcode of the parent particle */
     Barcode::ParticleBarcode  parentBarcode() const override final;
     /** Return the bunch-crossing identifier of the parent particle */
@@ -76,7 +76,7 @@ namespace ISF {
     bool                      parentSurvivesIncident() const override final;
     /** Return the parent particle after the TruthIncident vertex (and give
         it a new barcode) */
-    HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC) override final;
+    HepMC::GenParticlePtr     parentParticleAfterIncident(Barcode::ParticleBarcode newBC) override final;
 
     /** Return p^2 of the i-th child particle */
     double                    childP2(unsigned short index) const override final;
@@ -89,24 +89,24 @@ namespace ISF {
     /** Return the i-th child as a HepMC particle type and assign the given
         Barcode to the simulator particle (usually only called for particles that
         will enter the HepMC truth event) */
-    HepMC::GenParticle*       childParticle(unsigned short index,
+    HepMC::GenParticlePtr     childParticle(unsigned short index,
                                             Barcode::ParticleBarcode bc) const override final;
     /** Update the properties of a child particle from a pre-defined
         interaction based on the properties of the ith child of the
         current TruthIncident (only used in quasi-stable particle
         simulation) - TODO only a dummy implementation currently */
-    virtual HepMC::GenParticle*       updateChildParticle(unsigned short index,
-                                                          HepMC::GenParticle *existingChild) const override final;
+    virtual HepMC::GenParticlePtr     updateChildParticle(unsigned short index,
+                                                          HepMC::GenParticlePtr existingChild) const override final;
     /** Set the the barcode of all child particles to the given bc */
     void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) override final;
   private:
     ISFTruthIncident();
 
     /** return attached truth particle */
-    inline HepMC::GenParticle* getHepMCTruthParticle( const ISF::ISFParticle& particle ) const;
+    inline HepMC::GenParticlePtr getHepMCTruthParticle( const ISF::ISFParticle& particle ) const;
 
     /** convert ISFParticle to GenParticle and attach to ISFParticle's TruthBinding */
-    inline HepMC::GenParticle* updateHepMCTruthParticle( ISF::ISFParticle& particle, const ISF::ISFParticle* parent=nullptr ) const;
+    inline HepMC::GenParticlePtr updateHepMCTruthParticle( ISF::ISFParticle& particle, const ISF::ISFParticle* parent=nullptr ) const;
 
     ISF::ISFParticle&                  m_parent;
     const ISFParticleVector&           m_children;

@@ -25,63 +25,55 @@ namespace Monitored {
     HistogramFiller2DGeneric(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFiller2DGeneric* clone() const override {
-      return new HistogramFiller2DGeneric( *this );
-    }
-    
-    virtual unsigned fill() const override {
-      if (ATH_UNLIKELY(m_monVariables.size() != 2)) return 0;
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars) const override {
+      if (ATH_UNLIKELY(vars.var[0] == nullptr or vars.var[1] == nullptr )) return 0;
 
-      const IMonitoredVariable& var1 = m_monVariables[0].get();
-      const IMonitoredVariable& var2 = m_monVariables[1].get();
-      const size_t size1 = var1.size();
-      const size_t size2 = var2.size();
+      const size_t size0 = vars.var[0]->size();
+      const size_t size1 = vars.var[1]->size();
 
-      if (ATH_UNLIKELY(size1 == 0 || size2 == 0)) {
+      if (ATH_UNLIKELY(size0 == 0 || size1 == 0)) {
         // nothing to do
         return 0;
       }
 
-      if (ATH_UNLIKELY(size1 > 1 && size2 > 1 && size1 != size2)) {
+      if (ATH_UNLIKELY(size0 > 1 && size1 > 1 && size0 != size1)) {
         MsgStream log(Athena::getMessageSvc(), "HistogramFiller2D");
         log << MSG::ERROR << "Mismatch of provided vector sizes "
-            << size1 << "," << size2 << " for " << m_histDef->alias << endmsg;
+            << size0 << "," << size1 << " for " << m_histDef->alias << endmsg;
         return 0;
       }
 
       std::function<bool(size_t)> cutMaskAccessor;
-      if (m_monCutMask) {
+      if (vars.cut) {
         // handling of the cutmask
-        auto cutMaskValuePair = getCutMaskFunc();
+        auto cutMaskValuePair = getCutMaskFunc(vars.cut);
         if (cutMaskValuePair.first == 0) { return 0; }
-        if (ATH_UNLIKELY(size1 > 1 && size2 > 1 &&
-                         cutMaskValuePair.first > 1 && size1 != cutMaskValuePair.first)) {
+        if (ATH_UNLIKELY(size0 > 1 && size1 > 1 &&
+                         cutMaskValuePair.first > 1 && size0 != cutMaskValuePair.first)) {
           MsgStream log(Athena::getMessageSvc(), "HistogramFiller2D");
           log << MSG::ERROR << "CutMask does not match the size of plotted variable: "
-              << cutMaskValuePair.first << " " << size1 << endmsg;
+              << cutMaskValuePair.first << " " << size0 << endmsg;
           return 0;
         }
         cutMaskAccessor = cutMaskValuePair.second;
       }
 
-      if (m_monWeight) {
-        const std::vector<double> weightVector{m_monWeight->getVectorRepresentation()};
-        auto weightAccessor = [&](size_t i){ return weightVector[i]; };
-
-        if (ATH_UNLIKELY(size1 > 1 && size2 > 1 &&
-                         weightVector.size() > 1 && size1 != weightVector.size())) {
+      if (vars.weight) {
+        auto weightAccessor = [&](size_t i){ return vars.weight->get(i); };
+        if (ATH_UNLIKELY(size0 > 1 && size1 > 1 &&
+                         vars.weight->size() > 1 && size0 != vars.weight->size())) {
           MsgStream log(Athena::getMessageSvc(), "HistogramFiller2D");
           log << MSG::ERROR << "Weight does not match the size of plotted variable: "
-              << weightVector.size() << " " << size1 << endmsg;
+              << vars.weight->size() << " " << size0 << endmsg;
           return 0;
         }
         // Need to fill here while weightVector is still in scope
-        if (not m_monCutMask) return HistogramFiller::fill<H>(weightAccessor, detail::noCut, var1, var2);
-        else                  return HistogramFiller::fill<H>(weightAccessor, cutMaskAccessor, var1, var2);
+        if (not vars.cut) return HistogramFiller::fill<H>(weightAccessor, detail::noCut, *vars.var[0], *vars.var[1]);
+        else                  return HistogramFiller::fill<H>(weightAccessor, cutMaskAccessor, *vars.var[0], *vars.var[1]);
       }
 
-      if (not m_monCutMask) return HistogramFiller::fill<H>(detail::noWeight, detail::noCut, var1, var2);
-      else                  return HistogramFiller::fill<H>(detail::noWeight, cutMaskAccessor, var1, var2);
+      if (not vars.cut) return HistogramFiller::fill<H>(detail::noWeight, detail::noCut, *vars.var[0], *vars.var[1]);
+      else                  return HistogramFiller::fill<H>(detail::noWeight, cutMaskAccessor, *vars.var[0], *vars.var[1]);
     }
   };
 
@@ -89,3 +81,4 @@ namespace Monitored {
 }
 
 #endif /* AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h */
+

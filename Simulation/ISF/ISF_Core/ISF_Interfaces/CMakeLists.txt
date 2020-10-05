@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_Interfaces )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/GeoPrimitives
-                          Generators/GeneratorObjects
-                          GaudiKernel
-                          Generators/GeneratorObjects
-                          Simulation/Barcode/BarcodeEvent
-                          Simulation/G4Sim/TrackRecord
-                          Simulation/ISF/ISF_Core/ISF_Event )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

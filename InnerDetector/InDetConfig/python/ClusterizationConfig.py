@@ -1,23 +1,16 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from InDetConfig.TrackReco 	import InDetBCM_ZeroSuppressionCfg, InDetPixelClusterizationCfg, \
-                                   InDetPixelClusterizationPUCfg, InDet_SCTClusterizationCfg, \
-                                   InDet_SCTClusterizationPUCfg
+from InDetConfig.TrackRecoConfig 	import BCM_ZeroSuppressionCfg, PixelClusterizationCfg, \
+                                   PixelClusterizationPUCfg, SCTClusterizationCfg, \
+                                   SCTClusterizationPUCfg
 
 #arg_TrackingCuts             = 'TrackingCuts'
 #arg_TrackCollectionKeys      = 'tracks'
 #arg_TrackCollectionTruthKeys = 'truth'
 
 def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
-
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    #top_acc=MainServicesMiniCfg(flags)
-    top_acc = MainServicesThreadedCfg(flags)
-    #top_acc=MainServicesSerialCfg()
-    ##top_acc = ComponentAccumulator()
+    top_acc = ComponentAccumulator()
     ### configure top_acc to be able to read input file
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(flags))
@@ -31,21 +24,21 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
 
     #redoPatternRecoAndTracking = kwargs.pop('redoPatternRecoAndTracking')
     # @TODO propagate suffix and/or prefix ?
-    top_acc.merge(InDetBCM_ZeroSuppressionCfg(flags))
+    top_acc.merge( BCM_ZeroSuppressionCfg(flags))
    
     # Pixel clusterization
     ## @TODO is this correct flag to be used here to turn on pixel clusterization
     if flags.Detector.GeometryPixel:
-        top_acc.merge(InDetPixelClusterizationCfg(flags, **kwargs) )
+        top_acc.merge( PixelClusterizationCfg(flags, **kwargs) )
         if flags.InDet.doSplitReco :
-            top_acc.merge(InDetPixelClusterizationPUCfg(flags, **kwargs) )
+            top_acc.merge( PixelClusterizationPUCfg(flags, **kwargs) )
 
     # SCT clusterization
     ## @TODO is this correct flag to be used here to turn on SCT clusterization
     if flags.Detector.GeometrySCT:
-        top_acc.merge( InDet_SCTClusterizationCfg(flags, **kwargs) )
+        top_acc.merge( SCTClusterizationCfg(flags, **kwargs) )
         if flags.InDet.doSplitReco :
-            top_acc.merge( InDet_SCTClusterizationPUCfg(flags, **kwargs) )
+            top_acc.merge( SCTClusterizationPUCfg(flags, **kwargs) )
 
     # from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
     # top_acc.merge( PixelConditionsSummaryCfg(flags))
@@ -61,15 +54,13 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    flags = ConfigFlags
+
+    numThreads=1
+    ConfigFlags.Concurrency.NumThreads=numThreads
+    ConfigFlags.Concurrency.NumConcurrentEvents=numThreads # Might change this later, but good enough for the moment.
 
     ConfigFlags.Detector.GeometryPixel   = True 
     ConfigFlags.Detector.GeometrySCT   = True
-
-    ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.GeoModel.Align.Dynamic    = False
-    ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
     ConfigFlags.InDet.doPixelClusterSplitting = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -77,11 +68,20 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    acc = InDetClusterizationAlgorithmsCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    top_acc = MainServicesCfg(ConfigFlags)
 
+    msgService = top_acc.getService('MessageSvc')
+    msgService.Format = "S:%s E:%e % F%138W%S%7W%R%T  %0W%M"
+
+    acc = InDetClusterizationAlgorithmsCfg(ConfigFlags)
+    top_acc.merge(acc)
+    # import pdb ; pdb.set_trace()
+    iovsvc = top_acc.getService('IOVDbSvc')
+    iovsvc.OutputLevel=5
     ##acc.setAppProperty("EvtMax",25)
     ##acc.store(open("test_SiClusterization.pkl", "w"))
-    acc.run(25)
+    top_acc.run(25)
     #with open('test4.pkl', mode="wb") as f:
     #   dill.dump(acc, f)
-    acc.store(open("test00.pkl", "w"))
+    top_acc.store(open("test00.pkl", "wb"))

@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tools/PyJobTransformsCore )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS MathCore Core Tree Hist RIO pthread )
 
@@ -36,8 +35,8 @@ find_package( ROOT COMPONENTS MathCore Core Tree Hist RIO pthread )
 atlas_add_component( SCT_CalibAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier EventInfo GaudiKernel SCT_ConditionsData InDetIdentifier SCT_CablingLib InDetRawData InDetReadoutGeometry SCT_ReadoutGeometry PathResolver )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier EventInfo GaudiKernel SCT_ConditionsData InDetIdentifier SCT_CablingLib InDetRawData InDetReadoutGeometry SCT_ReadoutGeometry PathResolver InDetConditionsSummaryService SCT_ConditionsToolsLib RegistrationServicesLib )
 
 # Install files from the package:
 atlas_install_headers( SCT_CalibAlgs )

@@ -16,11 +16,11 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-#include "VxVertex/RecVertex.h"
-
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -58,37 +58,36 @@ public:
     //! Algorithm functions
     //-------------------------------------------------------------
     virtual StatusCode initialize() override;
-    virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
-    virtual StatusCode finalize() override;
+    virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon, const xAOD::TrackParticleContainer* trackContainer = nullptr) const override;
     
 private:
     //-------------------------------------------------------------
     //! Extrapolate track eta and phi to the calorimeter middle surface
     //-------------------------------------------------------------
-    StatusCode extrapolateToCaloSurface(xAOD::TauJet& pTau);
+    StatusCode extrapolateToCaloSurface(xAOD::TauJet& pTau) const;
 
     TauTrackType tauTrackType( const xAOD::TauJet& tauJet,
     		const xAOD::TrackParticle& trackParticle,
-    		const xAOD::Vertex* primaryVertex);
+    		const xAOD::Vertex* primaryVertex) const;
 
     void getTauTracksFromPV( const xAOD::TauJet& tauJet,
     		const xAOD::TrackParticleContainer& trackParticleCont,
     		const xAOD::Vertex* primaryVertex,
     		std::vector<const xAOD::TrackParticle*> &tauTracks,
     		std::vector<const xAOD::TrackParticle*> &wideTracks,
-    		std::vector<const xAOD::TrackParticle*> &otherTracks);
+    		std::vector<const xAOD::TrackParticle*> &otherTracks) const;
 
     // new xAOD version
     void removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::TrackParticle*> &tauTracks,
                                            std::vector<const xAOD::TrackParticle*> &wideTracks,
                                            std::vector<const xAOD::TrackParticle*> &otherTracks,
                                            const xAOD::Vertex* tauOrigin,
-                                           double maxDeltaZ0);
+                                           double maxDeltaZ0) const;
 
     //-------------------------------------------------------------
     //! Some internally used functions
     //-------------------------------------------------------------
-    float getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex);   //xAOD version
+    float getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex) const;   //xAOD version
 
     //-------------------------------------------------------------
     //! tools
@@ -96,23 +95,22 @@ private:
     ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, "ParticleCaloExtensionTool", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool for the extrapolation of charged tracks"};
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau {this, "TrackSelectorToolTau", "", "Tool for track selection"};
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool {this, "TrackToVertexTool", "Reco::TrackToVertex"};
-    //output particle calo extension collection
-    SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
-      "tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
+    ToolHandle<Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimator {this, "TrackToVertexIPEstimator", ""};
     
     Gaudi::Property<double>  m_maxJetDr_tau {this, "MaxJetDrTau", 0.2};
-    Gaudi::Property<double> m_maxJetDr_wide {this, "MaxJetDrWide", 0.4};
-   
+    Gaudi::Property<double> m_maxJetDr_wide {this, "MaxJetDrWide", 0.4};   
     Gaudi::Property<bool> m_applyZ0cut {this, "removeTracksOutsideZ0wrtLeadTrk", false};
-    Gaudi::Property<float> m_z0maxDelta {this, "maxDeltaZ0wrtLeadTrk", 1000};
-    
+    Gaudi::Property<float> m_z0maxDelta {this, "maxDeltaZ0wrtLeadTrk", 1000};    
     Gaudi::Property<bool> m_storeInOtherTrks {this, "StoreRemovedCoreWideTracksInOtherTracks", true};
     Gaudi::Property<bool> m_removeDuplicateCoreTracks {this, "removeDuplicateCoreTracks", true};
     Gaudi::Property<bool> m_bypassSelector {this, "BypassSelector", false};
     Gaudi::Property<bool> m_bypassExtrapolator {this, "BypassExtrapolator", false};
 
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
+    SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,"tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
     
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
     std::set<CaloSampling::CaloSample> m_EMSamplings;
     std::set<CaloSampling::CaloSample> m_HadSamplings;
 };

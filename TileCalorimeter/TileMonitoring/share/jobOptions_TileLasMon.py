@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 #*****************************************************************
@@ -7,6 +7,8 @@
 # """topOptions file for Tile Laser Reconstruciton and Monitoring in Athena""" 
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
+
+from __future__ import print_function
 
 MonitorOutput='Tile'
 
@@ -131,7 +133,7 @@ if not athenaCommonFlags.isOnline():
             FileNameVec = [ InputDirectory+'/'+FileName ]
             FormattedRunNumber = RunNumber
     else:
-       FormattedRunNumber = RunNumber
+        FormattedRunNumber = RunNumber
 
     svcMgr.EventSelector.SkipEvents = EvtMin
     theApp.EvtMax = EvtMax
@@ -143,7 +145,7 @@ if not athenaCommonFlags.isOnline():
     log.info( "Skip Events is " + str(EvtMin) )
     log.info( "Max events is " + str(EvtMax) )
 
-    svcMgr.ByteStreamInputSvc.FullFileName = FileNameVec
+    svcMgr.EventSelector.Input = FileNameVec
     svcMgr.EventSelector.MaxBadEvents = MaxBadEvents
    
     athenaCommonFlags.FilesInput = FileNameVec
@@ -156,7 +158,7 @@ if not athenaCommonFlags.isOnline():
 # init DetDescr
 from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+    DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion() ))
 
@@ -192,12 +194,12 @@ doTileFit = True
 TileCorrectTime = True    
 doTileOptATLAS = False
 
+TileLasRun = True
+TilePhysTiming = True
 
 # load conditions data
 include( "TileRec/TileDefaults_jobOptions.py" )
 include( "TileConditions/TileConditions_jobOptions.py" )
-from TileConditions.TileCondToolConf import getTileCondToolTiming
-tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
 
 # set reconstruction flags and reconstruct data
 from TileRecUtils.TileRecFlags import jobproperties
@@ -244,7 +246,7 @@ TileLasRawChannelTimeMon = CfgMgr.TileRawChannelTimeMonTool ( name              
                                                               , TileRawChannelContainer = "TileRawChannelFit")
 
 topSequence.TileLasMon.AthenaMonTools += [ TileLasRawChannelTimeMon ]
-print TileLasRawChannelTimeMon
+print(TileLasRawChannelTimeMon)
 
 #-------------------------------
 #   Tile DQFrag monitoring
@@ -264,8 +266,8 @@ TileLasDQFragMon = CfgMgr.TileDQFragMonTool( name               = 'TileLasDQFrag
                                              , histoPathBase      = "/Tile/DMUErrors");
 
 topSequence.TileLasMon.AthenaMonTools += [ TileLasDQFragMon ];
-print TileLasDQFragMon
-print topSequence.TileLasMon
+print(TileLasDQFragMon)
+print(topSequence.TileLasMon)
 
 
 import os
@@ -313,4 +315,6 @@ svcMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
 if TileUseCOOL:
     from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
     svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
+
+topSequence.TileDQstatusAlg.TileBeamElemContainer = ""
 

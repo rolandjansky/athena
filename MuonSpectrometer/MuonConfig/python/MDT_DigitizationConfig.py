@@ -8,8 +8,10 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
 from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+from MuonConfig.MuonCalibConfig import MdtCalibrationDbToolCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -23,40 +25,51 @@ def MDT_LastXing():
     return 150
 
 
-def MDT_RangeToolCfg(flags, name="MDT_Range", **kwargs):
+def MDT_RangeCfg(flags, name="MDT_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for MDT"""
     kwargs.setdefault("FirstXing", MDT_FirstXing())
     kwargs.setdefault("LastXing",  MDT_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["MDTSimHitCollection#MDT_Hits"])
-    PileUpXingFolder=CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
     """Return an RT_Relation_DB_DigiTool"""
+    acc = ComponentAccumulator()
     RT_Relation_DB_DigiTool = CompFactory.RT_Relation_DB_DigiTool
-    return RT_Relation_DB_DigiTool(name, **kwargs)
+    calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
+    kwargs.setdefault("CalibrationDbTool", calibDbTool)
+    acc.setPrivateTools(RT_Relation_DB_DigiTool(name, **kwargs))
+    return acc
 
 
 def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
+    acc = ComponentAccumulator()
     QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
     MDT_Response_DigiTool = CompFactory.MDT_Response_DigiTool
-    return MDT_Response_DigiTool(name, **kwargs)
+    acc.setPrivateTools(MDT_Response_DigiTool(name, **kwargs))
+    return acc
 
 
 def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with common MdtDigitizationTool config"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
     acc = MdtCondDbAlgCfg(flags)
+    if "GetT0FromBD" in kwargs and kwargs["GetT0FromBD"]:
+        calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
+        kwargs.setdefault("CalibrationDbTool", calibDbTool)
+    else:
+        kwargs.setdefault("CalibrationDbTool", '')
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
     kwargs.setdefault("UseTof", flags.Beam.Type != "cosmics")
     # "RT_Relation_DB_DigiTool" in jobproperties.Digitization.experimentalDigi() not migrated
-    kwargs.setdefault("DigitizationTool", MDT_Response_DigiToolCfg(flags))
+    digiTool = acc.popToolsAndMerge(MDT_Response_DigiToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", digiTool)
     QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
     kwargs.setdefault("DoQballCharge", QballConfig)
     if flags.Digitization.DoXingByXingPileUp:
@@ -69,12 +82,17 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
 
 def MDT_DigitizationToolCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MdtDigitizationTool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(MDT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MDT_SDO")
-    return MDT_DigitizationToolCommonCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(MDT_DigitizationToolCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def MDT_OverlayDigitizationToolCfg(flags, name="Mdt_OverlayDigitizationTool", **kwargs):

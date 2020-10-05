@@ -19,17 +19,6 @@
 #include "CxxUtils/checker_macros.h"
 #include <iterator>
 
-template <typename DATA>
-class DataHandle;
-
-template <class DATA>
-bool operator== (const DataHandle<DATA>& h1,
-                 const DataHandle<DATA>& h2);
-
-template <class DATA>
-bool operator!= (const DataHandle<DATA>& h1,
-                 const DataHandle<DATA>& h2);
-
 /** @class DataHandle
  * @brief an iterator over instances of a given type in StoreGateSvc. It d-casts
  * and caches locally the pointed-at object, to speed-up subsequent accesses.
@@ -131,11 +120,19 @@ public:
   virtual CLID clid() const override { return ClassID_traits<DATA>::ID(); }
 
   friend
-  bool operator==<>(const DataHandle<DATA>& h1,
-                    const DataHandle<DATA>& h2); 
+  bool operator== ATLAS_NOT_THREAD_SAFE (const DataHandle<DATA>& h1,
+                                         const DataHandle<DATA>& h2)
+  {
+    return h1.m_proxy == h2.m_proxy;
+  }
+
   friend
-  bool operator!=<>(const DataHandle<DATA>& h1,
-                    const DataHandle<DATA>& h2); 
+  bool operator!= ATLAS_NOT_THREAD_SAFE (const DataHandle<DATA>& h1,
+                                         const DataHandle<DATA>& h2)
+  {
+    return h1.m_proxy != h2.m_proxy;
+  }
+    
 private:
 
   // OK since DataHandle should only be used locally, not shared between threads.
@@ -145,22 +142,6 @@ private:
 
 
 };
-
-/// \name Comparison ops (compare proxies)
-//@{
-template <class DATA>
-bool operator== ATLAS_NOT_THREAD_SAFE (const DataHandle<DATA>& h1,
-                                       const DataHandle<DATA>& h2)
-{
-  return (h1.m_proxy == h2.m_proxy); 
-}
-template <class DATA>
-bool operator!= ATLAS_NOT_THREAD_SAFE (const DataHandle<DATA>& h1,
-                                       const DataHandle<DATA>& h2)
-{
-  return (h1.m_proxy != h2.m_proxy); 
-}
-//@}
 
 #include "StoreGate/DataHandle.icc"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OUTPUTSTREAMSEQUENCERSVC_H
@@ -11,12 +11,13 @@
  **/
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
+#include "Gaudi/Property.h"  // no forward decl: typedef
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <memory>
 #include <map>
+#include <mutex>
 
 // Forward declarations
 class MetaDataSvc;
@@ -46,14 +47,14 @@ public: // Constructor and Destructor
 
 public: // Non-static members
    /// Required of all Gaudi services:
-   StatusCode initialize();
+   virtual StatusCode initialize() override final;
    /// Required of all Gaudi services:
-   StatusCode finalize();
+   virtual StatusCode finalize() override final;
    /// Required of all Gaudi services:  see Gaudi documentation for details
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override final;
 
    /// Incident service handle
-   void handle(const Incident& /*inc*/);
+   virtual void handle(const Incident& /*inc*/) override final;
 
    /// Returns sequenced file name for output stream
    std::string buildSequenceFileName(const std::string&);
@@ -62,7 +63,10 @@ public: // Non-static members
 
    /// The name of the incident that starts a new event sequence
    std::string  incidentName() const            { return m_incidentName.value(); }
-  
+
+   /// The current Event Range ID (only one range is 
+   std::string  currentRangeID() const;
+
    /// Is the service in active use? (true after the first range incident is handled)
    bool         inUse() const;
   
@@ -75,8 +79,11 @@ private: // data
    /// The event sequence number
    int m_fileSequenceNumber;
 
-   /// Current EventRange ID constructed on the NextRange incident
+   /// Current EventRange ID constructed on the last NextRange incident
    std::string  m_currentRangeID;
+   
+   /// EventRange ID for all slots
+   std::vector<std::string>   m_rangeIDinSlot;
 
 private: // properties
    /// SequenceIncidentName, incident name for triggering file sequencing.
@@ -84,6 +91,8 @@ private: // properties
 
    std::map<std::string,std::string> m_fnToRangeId;
    std::map<std::string,std::string>::iterator m_finishedRange;
+
+   mutable std::mutex         m_mutex;
 };
 
 #endif

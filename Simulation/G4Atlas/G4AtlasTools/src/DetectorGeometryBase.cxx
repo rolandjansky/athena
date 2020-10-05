@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -10,28 +10,8 @@
 #include "G4RotationMatrix.hh"
 
 DetectorGeometryBase::DetectorGeometryBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent),
-    m_subDetTools(this),
-    m_notifierSvc("G4GeometryNotifierSvc", name),
-    m_theParent(nullptr),
-    m_detectorName(""),
-    m_isWorld(0),
-    m_rotateX(0.0),
-    m_rotateY(0.0),
-    m_rotateZ(0.0),
-    m_offsetX(0.0),
-    m_offsetY(0.0),
-    m_offsetZ(0.0)
+  : base_class(type,name,parent)
 {
-  declareProperty( "GeometryNotifierSvc", m_notifierSvc, "");
-  declareProperty( "SubDetectors" , m_subDetTools , "Tool handle array of all subdetector tools" );
-  declareProperty( "DetectorName" , m_detectorName , "Detector name (same as the Tool name if not set");
-  declareProperty( "RotateX" , m_rotateX , "Rotation around the X-axis");
-  declareProperty( "RotateY" , m_rotateY , "Rotation around the Y-axis");
-  declareProperty( "RotateZ" , m_rotateZ , "Rotation around the Z-axis");
-  declareProperty( "OffsetX" , m_offsetX , "Offset in the X-direction");
-  declareProperty( "OffsetY" , m_offsetY , "Offset in the Y-direction");
-  declareProperty( "OffsetZ" , m_offsetZ , "Offset in the Z-direction");
 }
 
 // Athena method, called at initialization time
@@ -42,16 +22,16 @@ StatusCode DetectorGeometryBase::initialize()
     {
       m_detectorName = this->name();
       // re-initialize m_detectorName in order to take the real detector name rather than the path to it
-      size_t ipos=m_detectorName.find_last_of(".");
-      size_t length=m_detectorName.size();
+      size_t ipos=m_detectorName.value().find_last_of('.');
+      size_t length=m_detectorName.value().size();
       if (ipos<length)
         {
-          ATH_MSG_VERBOSE( "m_detectorName: " << m_detectorName << " needs to be reset.");
-          m_detectorName=m_detectorName.substr(ipos+1,length-ipos-1);
-          ATH_MSG_VERBOSE( "m_detectorName default value reset to " << m_detectorName);
+          ATH_MSG_VERBOSE( "m_detectorName: " << m_detectorName.value() << " needs to be reset.");
+          m_detectorName=m_detectorName.value().substr(ipos+1,length-ipos-1);
+          ATH_MSG_VERBOSE( "m_detectorName default value reset to " << m_detectorName.value());
         }
     }
-  ATH_MSG_DEBUG( name() << "::initialize() (Base class method): Detector name = " << m_detectorName );
+  ATH_MSG_DEBUG( name() << "::initialize() (Base class method): Detector name = " << m_detectorName.value() );
   CHECK(m_notifierSvc.retrieve());
 
   //  This fires initialize() for each of those tools
@@ -73,7 +53,7 @@ void DetectorGeometryBase::Build()
 {
   ATH_MSG_VERBOSE( name() << "::Build() (Base class method): Starting" );
   SetEnvelope();
-  m_notifierSvc->SetCurrentDetectorName(m_detectorName);
+  m_notifierSvc->SetCurrentDetectorName(m_detectorName.value());
   BuildGeometry();
   SetRotationAndOffset();
   PositionInParent();
@@ -145,7 +125,7 @@ void DetectorGeometryBase::PositionInParent()
       // check that there is a parent
       if (!m_theParent)
         {
-          ATH_MSG_ERROR("Parent not set for "<<m_detectorName<<"!!!!!!!!!!");
+          ATH_MSG_ERROR("Parent not set for "<<m_detectorName.value()<<"!!!!!!!!!!");
         }
       else
         {
@@ -167,7 +147,7 @@ void DetectorGeometryBase::BuildSubDetectors()
   ATH_MSG_VERBOSE( name() << "::BuildSubDetectors() (Base class method): Starting");
   for (auto& subDetTool: m_subDetTools)
     {
-      ATH_MSG_VERBOSE(name() << "::BuildSubDetectors() (Base class method):  Positioning "<<subDetTool->GetDetectorName()<<" within "<<m_detectorName);
+      ATH_MSG_VERBOSE(name() << "::BuildSubDetectors() (Base class method):  Positioning "<<subDetTool->GetDetectorName()<<" within "<<m_detectorName.value());
       subDetTool->SetParent(this);
       subDetTool->Build();
     }
@@ -182,14 +162,14 @@ void DetectorGeometryBase::ResetEnvelope()
 {
 }
 
-void DetectorGeometryBase::SetDetectorName(const std::string s)
+void DetectorGeometryBase::SetDetectorName(const std::string& s)
 {
   m_detectorName=s;
 }
 
 std::string DetectorGeometryBase::GetDetectorName() const
 {
-  return m_detectorName;
+  return m_detectorName.value();
 }
 
 void DetectorGeometryBase::SetAsWorld()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -47,6 +47,7 @@
 #include "eformat/SourceIdentifier.h"  // change to new eformat v3
 #include "PathResolver/PathResolver.h"
 
+#include "CxxUtils/checker_macros.h"
 
 using eformat::helper::SourceIdentifier; 
 using namespace std;
@@ -350,7 +351,7 @@ void TRT_FillCablingData_DC3::defineTables()
      if ( (rodhalf < 0) || (rodhalf > 1) )
      {
 	ATH_MSG_WARNING( "Invalid rod half: " << rodhalf );
-	exit( -1 );
+        std::abort();
      }
 
      if ( 0 == rodhalf )
@@ -482,7 +483,7 @@ void TRT_FillCablingData_DC3::defineTables()
      if ( (rodhalf < 0) || (rodhalf > 1) )
      {
 	ATH_MSG_WARNING( "Invalid rod half: " << rodhalf );
-	exit( -1 );
+        std::abort();
      }
 
      if ( 0 == rodhalf )
@@ -874,7 +875,7 @@ void TRT_FillCablingData_DC3::defineTables()
 	   {
 	     ATH_MSG_WARNING( i << " " << j << " " << my_Phi << " " << hex << StrawNumber );
 
-	     exit( -1 );
+             std::abort();
 	   }
 
 

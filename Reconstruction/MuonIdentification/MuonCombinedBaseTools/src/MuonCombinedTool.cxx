@@ -12,52 +12,33 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "GaudiKernel/ConcurrencyFlags.h"
-#include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
-#include "MuonCombinedEvent/InDetCandidate.h"
-#include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedTool.h"
 
-namespace MuonCombined {
- 
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+#include "GaudiKernel/ConcurrencyFlags.h"
+#include "MuonCombinedEvent/InDetCandidate.h"
+#include "MuonCombinedEvent/MuonCandidate.h"
 
-  MuonCombinedTool::MuonCombinedTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-	m_muonCombDebugger("MuonCombined::MuonCombinedDebuggerTool/MuonCombinedDebuggerTool")
+namespace MuonCombined {
+
+  MuonCombinedTool::MuonCombinedTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCombinedTool>(this);
-    declareProperty("Printer",m_printer );
-    declareProperty("MuonCombinedTagTools",     m_muonCombinedTagTools);
-    declareProperty("DeltaEtaPreSelection",     m_deltaEtaPreSelection = 0.5 );
-    declareProperty("DeltaPhiPreSelection",     m_deltaPhiPreSelection = 1.  );
-    declareProperty("PtBalancePreSelection",    m_ptBalance = 1.  );
-    declareProperty("RunMuonCombinedDebugger",  m_runMuonCombinedDebugger = false );
   }
-
-  MuonCombinedTool::~MuonCombinedTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCombinedTool::initialize() {
 
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonCombinedTagTools.retrieve());
 
-    // debug tree, only in serial mode
-    if(m_runMuonCombinedDebugger && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
-      ATH_CHECK(m_muonCombDebugger.retrieve());
-      m_muonCombDebugger->bookBranches();
+    // debug tree, only for running with 1 thread
+    if(m_runMuonCombinedDebugger) {
+      if (!Gaudi::Concurrency::ConcurrencyFlags::concurrent() || Gaudi::Concurrency::ConcurrencyFlags::numThreads()==1) {
+        ATH_CHECK(m_muonCombDebugger.retrieve());
+        m_muonCombDebugger->bookBranches();
+      }
     }
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCombinedTool::finalize() {
     return StatusCode::SUCCESS;
   }
 

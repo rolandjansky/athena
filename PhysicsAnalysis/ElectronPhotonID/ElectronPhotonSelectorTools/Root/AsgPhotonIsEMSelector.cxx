@@ -13,7 +13,6 @@
 */
 
 // Include this class's header
-#include "GaudiKernel/EventContext.h"
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TPhotonIsEMSelector.h"
@@ -22,6 +21,7 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -221,9 +221,6 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(const std::string& myname) :
 // =================================================================
 AsgPhotonIsEMSelector::~AsgPhotonIsEMSelector() 
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgPhotonIsEMSelector finalize()");
-  }
   delete m_rootTool;
 }
 
@@ -335,10 +332,10 @@ asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xA
   if(part->type()==xAOD::Type::Photon || part->type()==xAOD::Type::Electron){
     return accept(ctx, static_cast<const xAOD::Egamma*> (part));
   }
-  else{
+  
     ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Photon/Electron");
     return m_rootTool->accept();
-  }
+  
 
 }
 asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xAOD::Egamma* eg ) const{
@@ -353,10 +350,10 @@ asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xA
     }
     return m_rootTool->fillAccept(isEM);
   }
-  else{
+  
     ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
     return m_rootTool->accept();
-  }
+  
 }
 asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xAOD::Photon* ph) const{
   ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
@@ -374,15 +371,15 @@ asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xA
 std::string AsgPhotonIsEMSelector::getOperatingPointName() const{
  
   if (m_rootTool->m_isEMMask == egammaPID::PhotonLoose){ return "Loose"; }
-  else if (m_rootTool->m_isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
-  else if (m_rootTool->m_isEMMask == egammaPID::PhotonTight){ return "Tight"; }
-  else if (m_rootTool->m_isEMMask == egammaPID::PhotonLooseEF ){ return "LooseEF"; }
-  else if (m_rootTool->m_isEMMask == egammaPID::PhotonMediumEF){ return "MediumEF"; }
-  else if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
-  else{
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonTight){ return "Tight"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonLooseEF ){ return "LooseEF"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonMediumEF){ return "MediumEF"; }
+  if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
+  
     ATH_MSG_ERROR( "Didn't recognize the given operating point with mask: " << m_rootTool->m_isEMMask );
     return "";
-  }
+  
 }
 
 // A simple execute command wrapper

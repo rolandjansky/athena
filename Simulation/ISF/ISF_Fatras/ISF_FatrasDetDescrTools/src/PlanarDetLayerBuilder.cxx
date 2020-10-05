@@ -1512,7 +1512,7 @@ void iFatras::PlanarDetLayerBuilder::registerSurfacesToLayer(const std::vector<c
 void iFatras::PlanarDetLayerBuilder::layerToSurfaceCollection(Trk::Layer *layer) const
 {
   const Trk::SurfaceArray* array = layer->surfaceArray();
-  const std::vector<const Trk::Surface*> lsurf = array->arrayObjects();
+  const std::vector<const Trk::Surface*>& lsurf = array->arrayObjects();
   for (unsigned int is=0;is<lsurf.size();is++) {
     m_surfcoll->push_back(lsurf.at(is));
     const iFatras::PlanarDetElement* pElement  = dynamic_cast<const iFatras::PlanarDetElement*>((lsurf.at(is))->associatedDetectorElement());
@@ -1521,7 +1521,7 @@ void iFatras::PlanarDetLayerBuilder::layerToSurfaceCollection(Trk::Layer *layer)
   }
 }
 
-void iFatras::PlanarDetLayerBuilder::computeRadiusMinMax(Amg::Transform3D trf, iFatras::PlanarDetElement* module, double &rMin, double &rMax) const
+void iFatras::PlanarDetLayerBuilder::computeRadiusMinMax(const Amg::Transform3D& trf, iFatras::PlanarDetElement* module, double &rMin, double &rMax) const
 {
   std::vector<Amg::Vector3D >corners;
   

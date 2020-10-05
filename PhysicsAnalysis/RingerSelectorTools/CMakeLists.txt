@@ -17,23 +17,6 @@ else()
   set( extra_dep Control/AthContainers Tracking/TrkEvent/TrkTrackSummary GaudiKernel )
 endif()
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          Control/CxxUtils
-                          Event/xAOD/xAODCaloRings
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODEventInfo
-                          PhysicsAnalysis/AnalysisCommon/PATCore
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-                          PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-                          ${extra_pub_dep}
-                          PRIVATE
-                          Event/xAOD/xAODBase
-                          Tools/PathResolver
-                          ${extra_dep} )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Gpad Tree MathCore Hist RIO pthread )
@@ -42,7 +25,7 @@ atlas_add_library( RingerSelectorToolsEnumsLib
                    Root/enums/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} PATCoreAcceptLib )
 
 atlas_add_library( RingerSelectorToolsLib
                    Root/*.cxx
@@ -50,8 +33,8 @@ atlas_add_library( RingerSelectorToolsLib
                    Root/tools/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib
-                   PRIVATE_LINK_LIBRARIES xAODBase PathResolver )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools CxxUtils xAODCaloRings xAODEgamma xAODTracking PATCoreLib EgammaAnalysisInterfacesLib RingerSelectorToolsEnumsLib 
+                   PRIVATE_LINK_LIBRARIES xAODBase PathResolver TrkTrackSummary )
 if( NOT XAOD_STANDALONE )
   atlas_add_component( RingerSelectorTools
                        src/components/*.cxx

@@ -21,10 +21,8 @@
 
 using namespace SCT_Monitoring;
 
-using namespace std;
-
 namespace {
-  static const string abbreviations[N_REGIONS] = {
+  static const std::string abbreviations[N_REGIONS] = {
     "ECm", "", "ECp"
   };
 
@@ -94,7 +92,7 @@ StatusCode SCTHitsNoiseMonAlg::fillHistograms(const EventContext& ctx) const {
   ++m_numberOfEventsRecent;
 
   // If track hits are selected, make the vector of track rdo identifiers
-  array<unordered_set<Identifier>, N_WAFERS> rdosOnTracks;
+  std::array<std::unordered_set<Identifier>, N_WAFERS> rdosOnTracks;
   if (m_doTrackHits) {
     if (makeVectorOfTrackRDOIdentifiers(rdosOnTracks, ctx).isFailure()) {
       ATH_MSG_WARNING("Couldn't make vector of track RDO identifiers");
@@ -110,7 +108,7 @@ StatusCode SCTHitsNoiseMonAlg::fillHistograms(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Identifier>, N_WAFERS>& rdosOnTracks, const EventContext& ctx) const{
+StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::array<std::unordered_set<Identifier>, N_WAFERS>& rdosOnTracks, const EventContext& ctx) const{
   static const unsigned int limits[N_REGIONS] = {
     N_DISKSx2, N_BARRELSx2, N_DISKSx2
   };
@@ -150,20 +148,20 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
 
   int local_tothits{0};
 
-  vector<int> barrel_local_nhitslayer(N_BARRELSx2, 0);
-  vector<int> ECp_local_nhitslayer(N_DISKSx2, 0);
-  vector<int> ECm_local_nhitslayer(N_DISKSx2, 0);
-  vector<int>* hitsInLayer[N_REGIONS] = {
+  std::vector<int> barrel_local_nhitslayer(N_BARRELSx2, 0);
+  std::vector<int> ECp_local_nhitslayer(N_DISKSx2, 0);
+  std::vector<int> ECm_local_nhitslayer(N_DISKSx2, 0);
+  std::vector<int>* hitsInLayer[N_REGIONS] = {
     &ECm_local_nhitslayer, &barrel_local_nhitslayer, &ECp_local_nhitslayer
   };
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
-
-  vector<int> vLumiBlock[N_REGIONS];
-  vector<int> vNumberOfHitsFromAllRDOs[N_REGIONS];
-  vector<int> vNumberOfHitsFromSPs[N_REGIONS];
-  vector<bool> vIsSelectedTriggerHits[N_REGIONS];
+  // vectors to store data to decrease number of fill() calls for better perfomance 
+  std::vector<int> vLumiBlock[N_REGIONS];
+  std::vector<int> vNumberOfHitsFromAllRDOs[N_REGIONS];
+  std::vector<int> vNumberOfHitsFromSPs[N_REGIONS];
+  std::vector<bool> vIsSelectedTriggerHits[N_REGIONS];
   for (unsigned int jReg{0}; jReg<N_REGIONS; jReg++) {
     unsigned int size{0};
     if (jReg==ENDCAP_C_INDEX or jReg==ENDCAP_A_INDEX) size = N_SIDES * N_MOD_ENDCAPS;
@@ -174,14 +172,14 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     vIsSelectedTriggerHits[jReg].reserve(size);
   }
 
-  vector<int> vEtaOnTrack;
-  vector<int> vPhiOnTrack;
-  vector<float> vSystemIndexOnTrack;
-  vector<bool> vDTbinOnTrack;
+  std::vector<int> vEtaOnTrack;
+  std::vector<int> vPhiOnTrack;
+  std::vector<float> vSystemIndexOnTrack;
+  std::vector<bool> vDTbinOnTrack;
 
-  vector<int> vEta;
-  vector<int> vPhi;
-  vector<int> vNumberOfStrips;
+  std::vector<int> vEta;
+  std::vector<int> vPhi;
+  std::vector<int> vNumberOfStrips;
 
   // Outer Loop on RDO Collection
   for (const InDetRawDataCollection<SCT_RDORawData>* rdoCollection: *rdoContainer) {
@@ -208,12 +206,12 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     // Now we want the space point container for this module
     // We have to compare module IDs- the SP collection is defined for the 'normal' (i.e. no stereo) module side
     // Define a set of spIDs
-    unordered_set<Identifier> mySetOfSPIds;
+    std::unordered_set<Identifier> mySetOfSPIds;
     for (int side{0}; side<N_SIDES; side++) {
-      SpacePointContainer::const_iterator spContainerIterator{spacePointContainer->indexFind(side==0 ? theModuleHash0 : theModuleHash1)};
-      if (spContainerIterator==spacePointContainer->end()) continue;
-      for (const Trk::SpacePoint* sp: **spContainerIterator) {
-        const vector<Identifier>& rdoList{(thisSide==side ? sp->clusterList().first : sp->clusterList().second)->rdoList()};
+      auto spContainerIterator{spacePointContainer->indexFindPtr(side==0 ? theModuleHash0 : theModuleHash1)};
+      if (spContainerIterator==nullptr) continue;
+      for (const Trk::SpacePoint* sp: *spContainerIterator) {
+        const std::vector<Identifier>& rdoList{(thisSide==side ? sp->clusterList().first : sp->clusterList().second)->rdoList()};
         mySetOfSPIds.insert(rdoList.begin(), rdoList.end());
       }
     }
@@ -266,14 +264,14 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
       // We can now do the NO calculation for this wafer
       // For the Time Dependent plots
 
-    const string streamhitmap{"mapsOfHitsOnTracks" + abbreviations[systemIndex] + "_" +
+    const std::string streamhitmap{"mapsOfHitsOnTracks" + abbreviations[systemIndex] + "_" +
         "trackhitsmap_" + layerSide.name()};
 
     auto etaMapsOfHitsOnTracksAcc{Monitored::Collection("eta_"+streamhitmap, vEtaOnTrack)};
     auto phiMapsOfHitsOnTracksAcc{Monitored::Collection("phi_"+streamhitmap, vPhiOnTrack)};
     fill("SCTHitsNoiseMonitor_" + std::to_string(systemIndex), etaMapsOfHitsOnTracksAcc, phiMapsOfHitsOnTracksAcc);
 
-    const string hitmap{"hitsmap" + abbreviations[systemIndex] + "_" + layerSide.name()};
+    const std::string hitmap{"hitsmap" + abbreviations[systemIndex] + "_" + layerSide.name()};
 
     auto etahitsmapAcc{Monitored::Collection("eta_"+hitmap, vEta)};
     auto phihitsmapAcc{Monitored::Collection("phi_"+hitmap, vPhi)};
@@ -319,7 +317,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
     ATH_MSG_WARNING("Couldn't retrieve clusters");
   }
 
-  vector<long unsigned int> vGroupSize;
+  std::vector<long unsigned int> vGroupSize;
   for (const InDet::SCT_ClusterCollection* clusterCollection: *clusterContainer) {
     for (const InDet::SCT_Cluster* cluster: *clusterCollection) {
       vGroupSize.push_back(cluster->rdoList().size());
@@ -331,6 +329,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
   fill("SCTHitsNoiseMonitorGeneral", hitsAcc);
 
   // Fill hit occupancy and noise occupancy plots
+  // vectors for storing the data and then use only one fill call to decrease time
   std::vector<int> vLB[N_REGIONS_INC_GENERAL];
   std::vector<float> vNO[N_REGIONS_INC_GENERAL];
   std::vector<float> vHO[N_REGIONS_INC_GENERAL];
@@ -406,7 +405,7 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
   for (unsigned int jReg{0}; jReg<N_REGIONS; ++jReg){
     for (unsigned int element{0}; element < limits[jReg]; ++element) {
       LayerSideFormatter layerSide{element, jReg};
-      const string occMap{"occupancymap" + abbreviations[jReg] + "_" + layerSide.name()};
+      const std::string occMap{"occupancymap" + abbreviations[jReg] + "_" + layerSide.name()};
       auto etaEacc{Monitored::Collection("eta_" + occMap, vEtaNOHO[jReg][element])};
       auto phiAcc{Monitored::Collection("phi_" + occMap, vPhiNOHO[jReg][element])};
       auto hoAcc{Monitored::Collection("HO_" + occMap, vHO2D[jReg][element])};
@@ -420,9 +419,9 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const array<unordered_set<Id
 }
 
 
-StatusCode SCTHitsNoiseMonAlg::makeVectorOfTrackRDOIdentifiers(array<unordered_set<Identifier>, N_WAFERS>& rdosOnTracks, const EventContext& ctx) const{
+StatusCode SCTHitsNoiseMonAlg::makeVectorOfTrackRDOIdentifiers(std::array<std::unordered_set<Identifier>, N_WAFERS>& rdosOnTracks, const EventContext& ctx) const{
   // Clear the rdosOnTracks vector
-  rdosOnTracks.fill(unordered_set<Identifier>());
+  rdosOnTracks.fill(std::unordered_set<Identifier>());
   SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_dataObjectName, ctx};
   if (not rdoContainer.isValid()) {
     ATH_MSG_FATAL("Could not find the data object " << m_dataObjectName.key() << " !");
@@ -465,7 +464,7 @@ StatusCode SCTHitsNoiseMonAlg::makeVectorOfTrackRDOIdentifiers(array<unordered_s
           }
           // if Cluster is in SCT ...
           if (RawDataClus->detectorElement()->isSCT()) {
-            const vector<Identifier>& rdoList{RawDataClus->rdoList()};
+            const std::vector<Identifier>& rdoList{RawDataClus->rdoList()};
             rdosOnTracks[RawDataClus->detectorElement()->identifyHash()].insert(rdoList.begin(), rdoList.end());
           }
         }

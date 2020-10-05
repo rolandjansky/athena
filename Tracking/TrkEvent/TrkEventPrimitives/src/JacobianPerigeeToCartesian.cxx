@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkEventPrimitives/JacobianPerigeeToCartesian.h"
-#include <math.h>
+#include <cmath>
 
 Trk::JacobianPerigeeToCartesian::JacobianPerigeeToCartesian(const double d0, 
                                                             const double,

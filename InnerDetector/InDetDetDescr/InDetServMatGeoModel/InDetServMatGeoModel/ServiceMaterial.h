@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ServiceMaterial_H
@@ -19,8 +19,8 @@ public:
       If the weight is zero it will be taken from the material DB
    */
   struct Entry {
-    Entry( std::string nam, int num, bool lin) : name(nam), number(num), linear(lin), weight(1) {}
-    Entry( std::string nam, int num, bool lin, double w) : name(nam), number(num), linear(lin), weight(w) {}
+    Entry( const std::string& nam, int num, bool lin) : name(nam), number(num), linear(lin), weight(1) {}
+    Entry( const std::string& nam, int num, bool lin, double w) : name(nam), number(num), linear(lin), weight(w) {}
 
     std::string name;
     int         number;
@@ -55,7 +55,7 @@ public:
 
   //ServiceMaterial operator*( double len) const {return ServiceMaterial( name(), len*linearWeight(), m_components);}
   void multiply( int factor) {
-    for ( std::vector< Entry>::iterator i=m_components.begin(); i!=m_components.end(); i++) {
+    for ( std::vector< Entry>::iterator i=m_components.begin(); i!=m_components.end(); ++i) {
       i->number *= factor;
     }
   }

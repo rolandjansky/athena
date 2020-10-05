@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // WriteThinnedData.cxx 
@@ -15,10 +15,8 @@
 #include <sstream>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
-
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "Gaudi/Property.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
@@ -160,7 +158,7 @@ StatusCode WriteThinnedData::test( const EventContext& ctx,
   // fetch Elephantino
   SG::ReadHandle<AthExElephantino> elephantino (m_elephantinoKeys[testNum], ctx);
 
-  const double igev = 1. / CLHEP::GeV;
+  const double igev = 1. / Gaudi::Units::GeV;
   ATH_MSG_DEBUG("IN particles: " << particles->size() << endmsg
 		<< "IN decay: " << endmsg
 		<< " p1: px= " << decay->p1()->px() * igev << endmsg
@@ -224,7 +222,7 @@ StatusCode WriteThinnedData::doThinningTest1( const EventContext& ctx,
   SG::ThinningHandle<AthExParticles> particles (particlesKey, ctx);
   std::vector<bool> filter = m_filter.value();
   
-  const double igev = 1. / CLHEP::GeV;
+  const double igev = 1. / Gaudi::Units::GeV;
   msg(MSG::INFO) << "Particles | filter :" << endmsg;
   for ( unsigned int i = 0; i != particles->size(); ++i ) {
     const std::string kr = filter[i] ? "keep" : "remove";
@@ -303,7 +301,7 @@ StatusCode WriteThinnedData::doThinningTest2( const EventContext& ctx,
   SG::ThinningHandle<AthExParticles> particles (particlesKey, ctx);
   std::vector<bool> filter = m_filter.value();
 
-  const double igev = 1. / CLHEP::GeV;
+  const double igev = 1. / Gaudi::Units::GeV;
   msg(MSG::INFO) << "Particles | filter :" << endmsg;
   for ( unsigned int i = 0; i != particles->size(); ++i ) {
     const std::string kr = filter[i] ? "keep" : "remove";
@@ -383,7 +381,7 @@ WriteThinnedData::doThinningTest3( const EventContext& ctx,
   SG::ThinningHandle<AthExIParticles> iparticles (iparticlesKey, ctx);
   std::vector<bool> filter = m_filter.value();
 
-  const double igev = 1. / CLHEP::GeV;
+  const double igev = 1. / Gaudi::Units::GeV;
   msg(MSG::INFO) << "IParticles | filter :" << endmsg;
   for ( unsigned int i = 0; i != iparticles->size(); ++i ) {
     const std::string kr = filter[i] ? "keep" : "remove";

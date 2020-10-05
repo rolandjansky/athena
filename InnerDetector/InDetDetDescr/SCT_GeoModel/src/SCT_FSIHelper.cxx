@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-FSILocation:: FSILocation(std::string name,
+FSILocation:: FSILocation(const std::string& name,
                           double radius,
                           double phi,
                           int side)
@@ -39,24 +39,12 @@ FSIHelper::FSIHelper(SCT_DataBase * rdb)
 {
   int numWheels =  m_rdb->fwdGeneral()->getInt("NUMWHEELS");
   m_wheelLocMap.resize(numWheels);
+  m_wheelLocMapConst.resize(numWheels);
   fill();
 }
 
 FSIHelper::~FSIHelper()
 {
-  std::map<std::string, FSILocation *>::iterator iter;
-  for (iter = m_locationTypes.begin(); iter != m_locationTypes.end(); ++iter) {
-    delete iter->second;
-  }
-
-  for(unsigned int i = 0; i < m_wheelLocMap.size(); i++) {
-    if (m_wheelLocMap[i]) {
-      for (unsigned int j = 0; j < m_wheelLocMap[i]->size(); j++) {
-        delete (*m_wheelLocMap[i])[j];
-      }
-      delete m_wheelLocMap[i];
-    }
-  }
 }
 
 
@@ -69,8 +57,7 @@ FSIHelper::fill()
     double radius =  m_rdb->fwdFSILocation(iLocIndex)->getDouble("LOCR") * Gaudi::Units::mm;
     double rphi = m_rdb->fwdFSILocation(iLocIndex)->getDouble("LOCPHI") * Gaudi::Units::deg;
     int side =  m_rdb->fwdFSILocation(iLocIndex)->getInt("SIDE");
-    FSILocation * location = new  FSILocation(locType, radius, rphi, side);
-    m_locationTypes[locType] = location;
+    m_locationTypes[locType] = std::make_unique<FSILocation>(locType, radius, rphi, side);
   }
 
   // Loop through all fsi's
@@ -84,17 +71,15 @@ FSIHelper::fill()
 
     if (simTypeCheck != simType)  std::cout << "Error in simType to index match in table SctFwdFSIType" << std::endl; 
 
-    FSILocation * location = m_locationTypes[locationType];
+    FSILocation * location = m_locationTypes[locationType].get();
     if (!location) std::cout << "Error filling FSI information. No FSI of type " <<  locationType << " found" << std::endl;
-    FSIDetails * fsi = new FSIDetails(location, simType, simTypeString, locationType, actualType);
+    std::unique_ptr<FSIDetails> fsi = std::make_unique<FSIDetails>(location, simType, simTypeString, locationType, actualType);
     
     if (iWheel >= m_wheelLocMap.size()) 
       std::cout << "Error in FSIHelper: wheel number is out of range: " << iWheel << std::endl;
     
-    if (!m_wheelLocMap[iWheel]) {
-      m_wheelLocMap[iWheel] = new std::vector<const FSIDetails *>;
-    }
-    m_wheelLocMap[iWheel]->push_back(fsi);
+    m_wheelLocMapConst[iWheel].push_back(fsi.get());
+    m_wheelLocMap[iWheel].push_back(std::move(fsi));
     
   }
 }
@@ -103,8 +88,5 @@ FSIHelper::fill()
 const std::vector<const FSIDetails *> &
 FSIHelper::fsiVector(int iWheel) const
 {
-  return *(m_wheelLocMap[iWheel]);
+  return m_wheelLocMapConst[iWheel];
 }
-  
-
-  

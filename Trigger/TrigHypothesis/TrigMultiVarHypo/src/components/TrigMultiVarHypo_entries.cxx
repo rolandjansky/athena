@@ -5,15 +5,8 @@
 
 #include "TrigMultiVarHypo/TrigL2CaloRingerFex.h"
 #include "TrigMultiVarHypo/TrigL2CaloRingerHypo.h"
-#include "../TrigL2CaloRingerHypoToolMT.h"
-#include "../TrigL2CaloRingerHypoToolMTMult.h"
-#include "../TrigL2CaloRingerHypoAlgMT.h"
-
 
 DECLARE_COMPONENT( TrigL2CaloRingerFex )
 DECLARE_COMPONENT( TrigL2CaloRingerHypo )
-DECLARE_COMPONENT( TrigL2CaloRingerHypoToolMT )
-DECLARE_COMPONENT( TrigL2CaloRingerHypoToolMTMult )
-DECLARE_COMPONENT( TrigL2CaloRingerHypoAlgMT )
 
 

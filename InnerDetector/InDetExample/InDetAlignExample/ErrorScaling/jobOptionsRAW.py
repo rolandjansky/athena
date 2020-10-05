@@ -189,7 +189,7 @@ InDetFlags.doPRDFormation = True
 # --- activate (memory/cpu) monitoring
 #InDetFlags.doPerfMon        = True
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 # --- active storegate delection
 #InDetFlags.doSGDeletion  = True
 

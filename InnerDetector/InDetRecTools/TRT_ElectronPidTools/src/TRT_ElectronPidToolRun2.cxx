@@ -1,6 +1,5 @@
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,18 +60,12 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   AthAlgTool(t,n,p),
   m_trtId(nullptr),
   m_TRTdetMgr(nullptr),
-  m_minTRThits(5),
-  m_TRTdEdxTool(),
-  m_LocalOccTool(),
-  m_TRTStrawSummaryTool("InDetTRTStrawStatusSummaryTool",this)
+  m_minTRThits(5)
 {
   declareInterface<ITRT_ElectronPidTool>(this);
   declareInterface<ITRT_ElectronToTTool>(this);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
-  declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
-  declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
-  declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
   declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID=true);
 }
 
@@ -82,7 +75,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
 \*****************************************************************************/
 
 InDet::TRT_ElectronPidToolRun2::~TRT_ElectronPidToolRun2()
-{}
+= default;
 
 /*****************************************************************************\
 |*%%%  Initialisation  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
@@ -145,7 +138,8 @@ std::vector<float>
 InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) const {
 
  // Get the probability calculator
- SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey};
+ const EventContext& ctx = Gaudi::Hive::currentContext();
+ SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey,ctx};
  const HTcalculator* HTcalc = (*readHandle);
  // make sure some calibration is available
  if(HTcalc==nullptr) {
@@ -174,7 +168,8 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
   // Check the parameters are reasonable:
   if (tan(theta/2.0) < 0.0001) {
-    ATH_MSG_DEBUG ("  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001). Returning default Pid values.");
+    ATH_MSG_DEBUG("  Track has negative theta or is VERY close to beampipe! "
+                  "(tan(theta/2) < 0.0001). Returning default Pid values.");
     return PIDvalues;
   }
 
@@ -195,13 +190,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
   ATH_MSG_DEBUG ("check  Got track:   pT: " << pT << "   eta: " << eta << "   phi: " << phi);
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
- 
-  // Jared - Development Output... 
-  /*
-  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "check  Got track:   pT: " << pT << "   eta: " << eta << "   phi: " << phi << std::endl;
-  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
-  */
+
   // For calculation of HT probability:
   double pHTel_prod = 1.0;
   double pHTpi_prod = 1.0;
@@ -232,11 +221,19 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (!measurement) continue;
 
     // Get drift circle (ensures that hit is from TRT):
-    const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(measurement);
+    const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+    if (measurement->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+      const Trk::RIO_OnTrack* tmpRio =
+        static_cast<const Trk::RIO_OnTrack*>(measurement);
+      if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+        driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+      }
+    }
+
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
-    bool isHTMB  = ((driftcircle->prepRawData()->getWord() & 0x00020000) > 0) ? true : false;
+    bool isHTMB  = (driftcircle->prepRawData()->getWord() & 0x00020000) > 0;
 
     nTRThits++;
     if (isHTMB) nTRThitsHTMB++;
@@ -320,7 +317,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
     int GasType=0; // Xenon is default
     if (!m_TRTStrawSummaryTool.empty()) {
-      int stat = m_TRTStrawSummaryTool->getStatusHT(DCid);
+      int stat = m_TRTStrawSummaryTool->getStatusHT(DCid,ctx);
       if       ( stat==2 || stat==3 ) { GasType = 0; } // Xe
       else if  ( stat==1 || stat==4 ) { GasType = 1; } // Ar
       else if  ( stat==5 )            { GasType = 1; } // Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
@@ -331,31 +328,49 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
            }
     }
 
-    ATH_MSG_DEBUG ("check Hit: " << nTRThits << "  TrtPart: " << TrtPart << "  GasType: " << GasType << "  SL: " << StrawLayer
-             << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local << "  HTMB: " << isHTMB );
-
-
-    // Jared - Development Output... 
-    /*    
-    std::cout << "check Hit: " << nTRThits << "  TrtPart: " << TrtPart << "  GasType: " << GasType << "  SL: " << StrawLayer
-             << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local 
-            << "  HTMB: " << isHTMB << std::endl;
-    */
+    ATH_MSG_DEBUG("check Hit: "
+                  << nTRThits << "  TrtPart: " << TrtPart
+                  << "  GasType: " << GasType << "  SL: " << StrawLayer
+                  << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire
+                  << "  Occ_Local: " << occ_local << "  HTMB: " << isHTMB);
 
     // Then call pHT functions with these values:
     // ------------------------------------------
 
-
-    double pHTel = HTcalc->getProbHT( pTrk, Trk::electron, TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
-    double pHTpi = HTcalc->getProbHT( pTrk, Trk::pion,     TrtPart, GasType, StrawLayer, ZRpos[TrtPart], rTrkWire, occ_local, hasTrackParameters);
+    double pHTel = HTcalc->getProbHT(pTrk,
+                                     Trk::electron,
+                                     TrtPart,
+                                     GasType,
+                                     StrawLayer,
+                                     ZRpos[TrtPart],
+                                     rTrkWire,
+                                     occ_local,
+                                     hasTrackParameters);
+    double pHTpi = HTcalc->getProbHT(pTrk,
+                                     Trk::pion,
+                                     TrtPart,
+                                     GasType,
+                                     StrawLayer,
+                                     ZRpos[TrtPart],
+                                     rTrkWire,
+                                     occ_local,
+                                     hasTrackParameters);
 
     if (pHTel > 0.999 || pHTpi > 0.999 || pHTel < 0.001 || pHTpi < 0.001) {
-      ATH_MSG_DEBUG("  pHT outside allowed range!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << StrawLayer << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local);
+      ATH_MSG_DEBUG("  pHT outside allowed range!  pHTel = "
+                    << pHTel << "  pHTpi = " << pHTpi
+                    << "     TrtPart: " << TrtPart << "  SL: " << StrawLayer
+                    << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire
+                    << "  Occ_Local: " << occ_local);
       continue;
     }
 
     if (pHTel > 0.80 || pHTpi > 0.50 || pHTel < 0.025 || pHTpi < 0.010) {
-      ATH_MSG_DEBUG("  pHT has abnormal value!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << StrawLayer << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ_Local: " << occ_local);
+      ATH_MSG_DEBUG("  pHT has abnormal value!  pHTel = "
+                    << pHTel << "  pHTpi = " << pHTpi
+                    << "     TrtPart: " << TrtPart << "  SL: " << StrawLayer
+                    << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire
+                    << "  Occ_Local: " << occ_local);
       continue;
     }
 
@@ -363,11 +378,11 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (isHTMB) {pHTel_prod *=     pHTel;  pHTpi_prod *=     pHTpi;}
     else        {pHTel_prod *= 1.0-pHTel;  pHTpi_prod *= 1.0-pHTpi;}
     ATH_MSG_DEBUG ("check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi );
-    
-    // Jared - Development Output... 
-    
+
+    // Jared - Development Output...
+
     //std::cout << "check         pHT(el): " << pHTel << "  pHT(pi): " << pHTpi << std::endl;
-    
+
   }//of loop over hits
 
 
@@ -378,36 +393,31 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   prob_El_HT = pHTel_prod / (pHTel_prod + pHTpi_prod);
 
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
-  ATH_MSG_DEBUG ("check  nTRThits: " << nTRThits << "  : " << nTRThitsHTMB << "  pHTel_prod: " << pHTel_prod << "  pHTpi_prod: " << pHTpi_prod << "  probEl: " << prob_El_HT);
+  ATH_MSG_DEBUG("check  nTRThits: " << nTRThits << "  : " << nTRThitsHTMB
+                                    << "  pHTel_prod: " << pHTel_prod
+                                    << "  pHTpi_prod: " << pHTpi_prod
+                                    << "  probEl: " << prob_El_HT);
   ATH_MSG_DEBUG ("check---------------------------------------------------------------------------------------");
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("");
-    
-  // Jared - Development Output... 
-  /*
-  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "check  nTRThits: " << nTRThits << "  : " << nTRThitsHTMB << "  pHTel_prod: " << pHTel_prod << "  pHTpi_prod: " << pHTpi_prod << "  probEl: " << prob_El_HT << std::endl;
-  std::cout << "check---------------------------------------------------------------------------------------" << std::endl;
-  std::cout << std::endl << std::endl;
-  */
 
   // Jared - ToT Implementation
-  dEdx = m_TRTdEdxTool->dEdx( &track, true, false, true); // Divide by L, exclude HT hits
-  double usedHits = m_TRTdEdxTool->usedHits( &track, true, false);
-  prob_El_ToT = m_TRTdEdxTool->getTest( dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
-  
+  dEdx = m_TRTdEdxTool->dEdx(ctx,&track, false); // Divide by L, exclude HT hits
+  double usedHits = m_TRTdEdxTool->usedHits(ctx,&track, false);
+  prob_El_ToT = m_TRTdEdxTool->getTest(ctx,dEdx, pTrk, Trk::electron, Trk::pion, usedHits);
+
   // Limit the probability values the upper and lower limits that are given/trusted for each part:
-  double limProbHT = HTcalc->Limit(prob_El_HT); 
-  double limProbToT = HTcalc->Limit(prob_El_ToT); 
-  
+  double limProbHT = HTcalc->Limit(prob_El_HT);
+  double limProbToT = HTcalc->Limit(prob_El_ToT);
+
   // Calculate the combined probability, assuming no correlations (none are expected).
   prob_El_Comb = (limProbHT * limProbToT ) / ( (limProbHT * limProbToT) + ( (1.0-limProbHT) * (1.0-limProbToT)) );
-  
+
   // Troels: VERY NASTY NAMING, BUT AGREED UPON FOR NOW (for debugging, 27. NOV. 2014):
-  prob_El_Brem = pHTel_prod; // decorates electron LH to el brem for now... (still used?) 
-  
+  prob_El_Brem = pHTel_prod; // decorates electron LH to el brem for now... (still used?)
+
   //std::cout << "Prob_HT = " << prob_El_HT << "   Prob_ToT = " << prob_El_ToT << "   Prob_Comb = " << prob_El_Comb << std::endl;
-     
+
   return PIDvalues;
 }
 
@@ -433,9 +443,9 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
     ATH_MSG_ERROR("Found a negative TRT Layer");
     return false; //must be positive
   }
-  
+
   static const int nlayers[2]={3,14};
-  
+
   if( not ( Layer < nlayers[part] ) ){
     ATH_MSG_ERROR("Found TRT Layer index "<<Layer<<" in part "<<BEC<<" but part only has "<<nlayers[part]<<" layers.");
     return false;
@@ -446,15 +456,15 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
     ATH_MSG_ERROR("Found a negative TRT StrawLayer");
     return false; //must be positive
   }
-  
+
   static const int strawsPerBEC[2][14]={{19,24,30, 0, 0, 0,0,0,0,0,0,0,0,0},
                                         {16,16,16,16,16,16,8,8,8,8,8,8,8,8}};
-  
+
   if(not(StrawLayer < strawsPerBEC[part][Layer])){
     ATH_MSG_ERROR("TRT part "<<BEC<<" Layer "<<Layer<<" only has "<<strawsPerBEC[part][Layer]<<" straws. Found index "<<StrawLayer);
     return false;
   }
-  
+
   return true;
 }
 
@@ -463,7 +473,14 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
 |*%%%  a geometry check is performed every time here  %%%%%%%%%%%%%%%%%%%%%%%*|
 \*****************************************************************************/
 
-double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk::ParticleHypothesis /*hypothesis*/, const int HitPart, const int Layer, const int StrawLayer) const {
+double
+InDet::TRT_ElectronPidToolRun2::probHT(
+  const double /*pTrk*/,
+  const Trk::ParticleHypothesis /*hypothesis*/,
+  const int HitPart,
+  const int Layer,
+  const int StrawLayer) const
+{
   if (not CheckGeometry(HitPart,Layer,StrawLayer) ){
     ATH_MSG_ERROR("TRT geometry fail. Returning default value.");
     return 0.5;
@@ -472,9 +489,26 @@ double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk:
   return 1.0;
 }
 
-
-double InDet::TRT_ElectronPidToolRun2::probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const {
-    SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey};
-    bool hasTrackPar=true;
-    return (*readHandle)->getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy, hasTrackPar );
+double
+InDet::TRT_ElectronPidToolRun2::probHTRun2(float pTrk,
+                                           Trk::ParticleHypothesis hypothesis,
+                                           int TrtPart,
+                                           int GasType,
+                                           int StrawLayer,
+                                           float ZR,
+                                           float rTrkWire,
+                                           float Occupancy) const
+{
+  SG::ReadCondHandle<HTcalculator> readHandle{ m_HTReadKey };
+  bool hasTrackPar = true;
+  return (*readHandle)
+    ->getProbHT(pTrk,
+                hypothesis,
+                TrtPart,
+                GasType,
+                StrawLayer,
+                ZR,
+                rTrkWire,
+                Occupancy,
+                hasTrackPar);
 }

@@ -29,13 +29,10 @@ namespace Muon{
     MuonHitTimingTool(const std::string&, const std::string&, const IInterface*);
 
     /** default destructor **/
-    virtual ~MuonHitTimingTool() {};
+    virtual ~MuonHitTimingTool()=default;
 
     /** standard initialization method **/
     virtual StatusCode initialize();
-    
-    /** standard finalization method **/
-    virtual StatusCode finalize();
 
     /** Calculate the time offset of a given set of hits wrt to the current bunch */
     TimingResult calculateTimingResult( const std::vector<const MuonClusterOnTrack*>& hits ) const;
@@ -44,8 +41,8 @@ namespace Muon{
     std::set<MuonStationIndex::TechnologyIndex> acceptedTechnologies() const { return m_acceptedTechnologies; }
 
   private:
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    std::vector<ToolHandle<IMuonHitTimingTool> > m_hitTimingTools;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this,"MuonIdHelperSvc","Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ToolHandleArray<IMuonHitTimingTool> m_hitTimingTools;
     std::set<MuonStationIndex::TechnologyIndex>  m_acceptedTechnologies;
   };
 }

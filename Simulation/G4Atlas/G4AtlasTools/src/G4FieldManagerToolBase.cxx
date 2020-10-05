@@ -7,8 +7,12 @@
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::perThousand;
-using CLHEP::perMillion;
+
+// Some geant headers erroneously expect these to be in the global namespace.
+// Don't use using, so as not to trigger warnings from the namespace
+// static checker.
+static constexpr double perThousand = CLHEP::perThousand;
+static constexpr double perMillion  = CLHEP::perMillion;
 
 // Geant4 steppers
 #include "G4AtlasRK4.hh"
@@ -51,31 +55,8 @@ using CLHEP::perMillion;
 G4FieldManagerToolBase::G4FieldManagerToolBase(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent)
-  : base_class(type, name, parent),
-    m_fieldSvc("G4FieldSvc", name),
-    m_fieldOn(true),
-    m_integratorStepper("AtlasRK4"),
-    m_equationOfMotion("", this), //private toolhandle
-    m_minEps(-1.0),
-    m_maxEps(-1.0),
-    m_deltaChord(-1.0),
-    m_deltaOneStep(-1.0),
-    m_deltaIntersection(-1.0),
-    m_maxStep(-1.0), // (1.*CLHEP::m)
-    m_minStep(1e-2) // (1.*CLHEP::mm)
+  : base_class(type, name, parent)
 {
-  // Declare common configurable properties
-  declareProperty( "FieldSvc", m_fieldSvc, "Service providing a G4MagneticField");
-  declareProperty( "FieldOn", m_fieldOn, "Toggles field on/off");
-  declareProperty( "IntegratorStepper", m_integratorStepper, "Integrator stepper name" );
-  declareProperty( "EquationOfMotion", m_equationOfMotion, "");
-  declareProperty( "DeltaChord", m_deltaChord, "Missing distance for the chord finder" );
-  declareProperty( "DeltaOneStep", m_deltaOneStep, "Delta(one-step)" );
-  declareProperty( "DeltaIntersection", m_deltaIntersection, "Accuracy for boundary intersection" );
-  declareProperty( "MinimumEpsilonStep", m_minEps, "Minimum epsilon (see G4 documentation)" );
-  declareProperty( "MaximumEpsilonStep", m_maxEps, "Maximum epsilon (see G4 documentation)" );
-  declareProperty( "MaximumStep", m_maxStep, "Maximum step length in field (see G4 documentation)" );
-  declareProperty( "MinimumStep", m_minStep, "Minimum step length in field (see G4 documentation)" );
 }
 
 //=============================================================================
@@ -209,7 +190,7 @@ G4FieldManagerToolBase::createDriverAndStepper(std::string name, G4MagneticField
 // Create the stepper (Geant4 < 10.4)
 //=============================================================================
 G4MagIntegratorStepper*
-G4FieldManagerToolBase::getStepper(std::string name, G4MagneticField* field) const
+G4FieldManagerToolBase::getStepper(const std::string& name, G4MagneticField* field) const
 {
   ATH_MSG_DEBUG("getStepper");
   G4Mag_EqRhs* eqRhs(nullptr);

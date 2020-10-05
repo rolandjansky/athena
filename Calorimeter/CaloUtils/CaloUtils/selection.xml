@@ -1,4 +1,5 @@
 <lcgdict>
   <class name="CaloClusterStoreHelper"/>
   <class name="CaloCellDetPos"/>
+  <class name="CaloUtils::ToolWithConstantsTestTool"/>
 </lcgdict>

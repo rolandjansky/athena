@@ -56,17 +56,20 @@ jetmoddict.update(jetcalibmods)
 from JetMomentTools import JetMomentToolsConfig
 jetmomentmods = {
     # Easy cases, no special config or prereqs, just default tool config
-    "CaloEnergies":    JetModifier("JetCaloEnergies", "jetens"),
     "ClusterMoments":  JetModifier("JetClusterMomentsTool", "clsmoms"),
-    "LArHVCorr":       JetModifier("JetLArHVTool", "larhvcorr"),
     "ECPSFrac":        JetModifier("JetECPSFractionTool", "ecpsfrac"),
     "Width":           JetModifier("JetWidthTool", "width"),
 
     # More complex cases here
+    "CaloEnergies":    JetModifier("JetCaloEnergies", "jetens",
+                                   prereqs=["mod:EMScaleMom"]),
     "CaloQuality":     JetModifier("JetCaloQualityTool", "caloqual",
                                    helperfn=JetMomentToolsConfig.getCaloQualityTool),
     "ConstitFourMom":  JetModifier("JetConstitFourMomTool", "constitfourmom_basename",
                                    helperfn=JetMomentToolsConfig.getConstitFourMomTool,
+                                   passJetDef=True),
+    "EMScaleMom":      JetModifier("JetEMScaleMomTool", "emscalemom_basename",
+                                   helperfn=JetMomentToolsConfig.getEMScaleMomTool,
                                    passJetDef=True),
     "JVF":             JetModifier("JetVertexFractionTool", "jvf",
                                    helperfn=JetMomentToolsConfig.getJVFTool,
@@ -74,6 +77,8 @@ jetmomentmods = {
     "JVT":             JetModifier("JetVertexTaggerTool", "jvt",
                                    helperfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ]),
+    "LArHVCorr":       JetModifier("JetLArHVTool", "larhvcorr",
+                                   prereqs = ["mod:EMScaleMom"]),
     "OriginSetPV":     JetModifier("JetOriginCorrectionTool", "origin_setpv",
                                    prereqs = [ "mod:JVF" ]),
     "TrackMoments":    JetModifier("JetTrackMomentsTool", "trkmoms",
@@ -89,11 +94,11 @@ jetmoddict.update(jetmomentmods)
 from ParticleJetTools import ParticleJetToolsConfig
 particlejetmods = {
     # Easy cases, no special config or prereqs, just default tool config
-    "PartonTruthLabel": JetModifier("Analysis__JetPartonTruthLabel","partontruthlabel",
+    "PartonTruthLabel": JetModifier("Analysis::JetPartonTruthLabel","partontruthlabel",
                                     prereqs=["ghost:TruthLabelPartons"]),
 
     # More complex cases here
-    "TruthPartonDR":    JetModifier("Analysis__JetConeLabeling","truthpartondr",
+    "TruthPartonDR":    JetModifier("Analysis::JetConeLabeling","truthpartondr",
                                     helperfn=ParticleJetToolsConfig.getJetConeLabeling),
     "JetDeltaRLabel":   JetModifier("ParticleJetDeltaRLabelTool","jetdrlabeler_jetptmin",
                                     helperfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,

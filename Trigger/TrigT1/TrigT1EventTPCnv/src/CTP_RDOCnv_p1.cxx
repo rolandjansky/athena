@@ -26,7 +26,7 @@ void CTP_RDOCnv_p1::persToTrans( const CTP_RDO_p1* persObj, CTP_RDO* transObj,
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state..." << endmsg;
 
-   *transObj = CTP_RDO (0, persObj->m_dataWords);
+   *transObj = CTP_RDO (0, std::vector<uint32_t>(persObj->m_dataWords)); //manual copy of dataWords
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state [OK]" << endmsg;
 

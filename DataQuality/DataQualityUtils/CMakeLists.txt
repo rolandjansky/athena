@@ -1,14 +1,7 @@
-################################################################################
-# Package: DataQualityUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          DataQuality/DataQualityInterfaces
-                          DataQuality/ZLumiScripts )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex filesystem thread system )
@@ -76,18 +69,18 @@ atlas_add_library( DataQualityUtils
 
 atlas_add_executable( han-results-print
                       src/han_results_print.cxx
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} DataQualityInterfaces DataQualityUtils )
+                      LINK_LIBRARIES DataQualityUtils )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_scripts( scripts/CreateDB.py scripts/CreateDB_Histo.py scripts/DQHistogramMerge.py scripts/DQHistogramPrintStatistics.py scripts/DQWebDisplay.py scripts/hancool_histo.py scripts/hancool.py scripts/handi.py scripts/DQFileMove.py scripts/CreateMDTConfig_algos.sh scripts/CreateMDTConfig_chambers.sh scripts/CreateMDTConfig_config.sh scripts/CreateMDTConfig_files.sh scripts/CreateMDTConfig_readme.sh scripts/DQM_Tier0Wrapper_trf.py scripts/DQM_Tier0Wrapper_tf.py scripts/DQHistogramMergeRegExp.py scripts/dq_make_web_display.py scripts/ScanHistFile.py scripts/physval_make_web_display.py )
+atlas_install_python_modules( python/*.py
+   POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,E402,W1 --extend-ignore E731 )
+
+atlas_install_scripts( scripts/DQHistogramMerge.py scripts/DQHistogramPrintStatistics.py scripts/DQWebDisplay.py scripts/hancool_histo.py scripts/hancool.py scripts/handi.py scripts/DQFileMove.py scripts/CreateMDTConfig_algos.sh scripts/CreateMDTConfig_chambers.sh scripts/CreateMDTConfig_config.sh scripts/CreateMDTConfig_files.sh scripts/CreateMDTConfig_readme.sh scripts/DQM_Tier0Wrapper_trf.py scripts/DQM_Tier0Wrapper_tf.py scripts/DQHistogramMergeRegExp.py scripts/dq_make_web_display.py scripts/ScanHistFile.py scripts/physval_make_web_display.py )
 
 # Aliases:
 atlas_add_alias( DQHistogramPrintStatistics "DQHistogramPrintStatistics.py" )
 atlas_add_alias( CreateMDTConfig_files "CreateMDTConfig_files.sh" )
 atlas_add_alias( CreateMDTConfig_algos "CreateMDTConfig_algos.sh" )
-atlas_add_alias( CreateDB_Histo "CreateDB_Histo.py" )
 atlas_add_alias( hancool "hancool.py" )
 atlas_add_alias( handi "handi.py" )
 atlas_add_alias( CreateMDTConfig_config "CreateMDTConfig_config.sh" )
@@ -96,8 +89,3 @@ atlas_add_alias( CreateMDTConfig_readme "CreateMDTConfig_readme.sh" )
 atlas_add_alias( DQHistogramMerge "DQHistogramMerge.py" )
 atlas_add_alias( DQWebDisplay "DQWebDisplay.py" )
 atlas_add_alias( CreateMDTConfig_chambers "CreateMDTConfig_chambers.sh" )
-
-# Code quality check
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,E11,E402,E71,E72,E9,W1,W6,F ${CMAKE_CURRENT_SOURCE_DIR}/python/
-   POST_EXEC_SCRIPT nopost.sh )

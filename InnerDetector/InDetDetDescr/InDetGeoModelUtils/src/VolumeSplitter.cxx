@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/VolumeSplitter.h"
@@ -25,7 +25,7 @@ namespace InDetDD {
   }
 
   const std::vector<const ServiceVolume*>&
-  VolumeSplitter::splitAll(const Zone& zone, const std::vector<const ServiceVolume*> origVolumeList) {
+  VolumeSplitter::splitAll(const Zone& zone, const std::vector<const ServiceVolume*>& origVolumeList) {
     for (unsigned int i = 0; i < origVolumeList.size(); ++i) {
       split(zone, *(origVolumeList[i]));
     }

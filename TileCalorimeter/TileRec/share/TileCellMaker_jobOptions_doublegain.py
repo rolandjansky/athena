@@ -1,12 +1,11 @@
 from AthenaCommon.Logging import logging
 mlog = logging.getLogger('TileRecLogger')
-
-try:        
-    from CaloRec.CaloRecConf import CaloCellMaker                
+try:
+    from CaloRec.CaloRecConf import CaloCellMaker
 except:
     mlog.error("could not import CaloRec.CaloCellMaker")
     mlog.error (traceback.format_exc())
-   
+
 theCaloCellMakerLG=CaloCellMaker("CaloCellMakerLG")
 theCaloCellMakerLG.CaloCellsOutputName = "AllCaloLG"
 
@@ -17,35 +16,31 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += theCaloCellMakerLG
 topSequence += theCaloCellMakerHG
- 
+
 from AthenaCommon.AppMgr import ToolSvc
 
-if not hasattr( ToolSvc, "TileCellBuilderLG" ):
-    from TileRecUtils.TileRecUtilsConf import TileCellBuilder
-    theTileCellBuilderLG=TileCellBuilder("TileCellBuilderLG")
-    theTileCellBuilderLG.MBTSContainer = "MBTSContainerLG"
-    theTileCellBuilderLG.E4prContainer = "E4prContainerLG"
-    ToolSvc += theTileCellBuilderLG
+from TileRecUtils.TileRecUtilsConf import TileCellBuilder
+theTileCellBuilderLG=TileCellBuilder("TileCellBuilderLG")
+theTileCellBuilderLG.MBTSContainer = "MBTSContainerLG"
+theTileCellBuilderLG.E4prContainer = "E4prContainerLG"
 
-if not hasattr( ToolSvc, "TileCellBuilderHG" ):
-    from TileRecUtils.TileRecUtilsConf import TileCellBuilder
-    theTileCellBuilderHG=TileCellBuilder("TileCellBuilderHG")
-    theTileCellBuilderHG.MBTSContainer = "MBTSContainerHG"
-    theTileCellBuilderHG.E4prContainer = "E4prContainerHG"
-    ToolSvc += theTileCellBuilderHG
+from TileRecUtils.TileRecUtilsConf import TileCellBuilder
+theTileCellBuilderHG=TileCellBuilder("TileCellBuilderHG")
+theTileCellBuilderHG.MBTSContainer = "MBTSContainerHG"
+theTileCellBuilderHG.E4prContainer = "E4prContainerHG"
 
 
 from TileRecUtils.TileRecFlags import jobproperties
-ToolSvc.TileCellBuilderLG.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
-ToolSvc.TileCellBuilderLG.maskBadChannels = True
-ToolSvc.TileCellBuilderLG.SkipGain = 1
+theTileCellBuilderLG.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+theTileCellBuilderLG.maskBadChannels = True
+theTileCellBuilderLG.SkipGain = 1
 
-ToolSvc.TileCellBuilderHG.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
-ToolSvc.TileCellBuilderHG.maskBadChannels = True
-ToolSvc.TileCellBuilderHG.SkipGain = 0
+theTileCellBuilderHG.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+theTileCellBuilderHG.maskBadChannels = True
+theTileCellBuilderHG.SkipGain = 0
 
-theCaloCellMakerLG.CaloCellMakerToolNames += [ ToolSvc.TileCellBuilderLG.getFullName() ]
-theCaloCellMakerHG.CaloCellMakerToolNames += [ ToolSvc.TileCellBuilderHG.getFullName() ]
+theCaloCellMakerLG.CaloCellMakerToolNames += [theTileCellBuilderLG]
+theCaloCellMakerHG.CaloCellMakerToolNames += [theTileCellBuilderHG]
 
 
 nf = jobproperties.TileRecFlags.noiseFilter()
@@ -55,72 +50,39 @@ n2 = nf - n3 - nf%10
 if n2 == 10:
     from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
     theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
-    ToolSvc += theTileRawChannelNoiseFilter
-    ToolSvc.TileCellBuilder.NoiseFilterTools = [theTileRawChannelNoiseFilter]
+    theTileCellBuilderLG.NoiseFilterTools = [theTileRawChannelNoiseFilter]
+    theTileCellBuilderHG.NoiseFilterTools = [theTileRawChannelNoiseFilter]
 
 if n3 == 100:
     from TileRecUtils.TileRecUtilsConf import TileCellNoiseFilter
     theTileCellNoiseFilter = TileCellNoiseFilter()
-    ToolSvc += theTileCellNoiseFilter
-    theCaloCellMakerLG.CaloCellMakerToolNames += [ ToolSvc.TileCellNoiseFilterLG.getFullName() ]
-    theCaloCellMakerHG.CaloCellMakerToolNames += [ ToolSvc.TileCellNoiseFilterHG.getFullName() ]
+    theCaloCellMakerLG.CaloCellMakerToolNames += [theTileCellNoiseFilter]
+    theCaloCellMakerHG.CaloCellMakerToolNames += [theTileCellNoiseFilter]
 
-if not hasattr( ToolSvc, "CaloCellContainerFinalizerToolLG" ):
-    from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    theCaloCellContainerFinalizerToolLG=CaloCellContainerFinalizerTool("theCaloCellContainerFinalizerToolLG")
-    ToolSvc += theCaloCellContainerFinalizerToolLG
-    theCaloCellMakerLG.CaloCellMakerToolNames += [theCaloCellContainerFinalizerToolLG ]
-else:
-    theCaloCellMakerLG.CaloCellMakerToolNames += ["CaloCellContainerFinalizerToolLG"]
-
-
-if not hasattr( ToolSvc, "CaloCellContainerFinalizerToolHG" ):
-    from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    theCaloCellContainerFinalizerToolHG=CaloCellContainerFinalizerTool("theCaloCellContainerFinalizerToolHG")
-    ToolSvc += theCaloCellContainerFinalizerToolHG
-    theCaloCellMakerHG.CaloCellMakerToolNames += [theCaloCellContainerFinalizerToolHG ]
-else:
-    theCaloCellMakerHG.CaloCellMakerToolNames += ["CaloCellContainerFinalizerToolHG"]
-
-
-
+from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
+theCaloCellContainerFinalizerTool = CaloCellContainerFinalizerTool()
+theCaloCellMakerLG.CaloCellMakerToolNames += [theCaloCellContainerFinalizerTool]
+theCaloCellMakerHG.CaloCellMakerToolNames += [theCaloCellContainerFinalizerTool]
 
 if ('doCaloNeighborsCorr' in dir()) and doCaloNeighborsCorr:
-    if not hasattr( ToolSvc, "CaloCellNeighborsAverageCorr" ):
-        from CaloCellCorrection.CaloCellCorrectionConf import CaloCellNeighborsAverageCorr
-        theCaloCellNeighborsAverageCorr = CaloCellNeighborsAverageCorr("CaloCellNeighborsAverageCorr")
-        theCaloCellNeighborsAverageCorr.testMode=False
-        ToolSvc +=  theCaloCellNeighborsAverageCorr
-        theCaloCellMakerLG.CaloCellMakerToolNames += [theCaloCellNeighborsAverageCorr]
-        theCaloCellMakerHG.CaloCellMakerToolNames += [theCaloCellNeighborsAverageCorr]
-    else:
-        theCaloCellMakerLG.CaloCellMakerToolNames += ["CaloCellNeighborsAverageCorr"]
-        theCaloCellMakerHG.CaloCellMakerToolNames += ["CaloCellNeighborsAverageCorr"]
+    from CaloCellCorrection.CaloCellCorrectionConf import CaloCellNeighborsAverageCorr
+    theCaloCellNeighborsAverageCorr = CaloCellNeighborsAverageCorr("CaloCellNeighborsAverageCorr")
+    theCaloCellNeighborsAverageCorr.testMode=False
+    theCaloCellMakerLG.CaloCellMakerToolNames += [theCaloCellNeighborsAverageCorr]
+    theCaloCellMakerHG.CaloCellMakerToolNames += [theCaloCellNeighborsAverageCorr]
 else:
     doCaloNeighborsCorr=False
 
-if not hasattr( ToolSvc, "CaloCellContainerCheckerToolLG" ):
-    from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
-    theCaloCellContainerCheckerToolLG=CaloCellContainerCheckerTool("CaloCellContainerCheckerToolLG")
-    ToolSvc += theCaloCellContainerCheckerToolLG
-    theCaloCellMakerLG.CaloCellMakerToolNames += [theCaloCellContainerCheckerToolLG]
-else:
-    theCaloCellMakerLG.CaloCellMakerToolNames += ["CaloCellContainerCheckerToolLG"]
-
-
-
-if not hasattr( ToolSvc, "CaloCellContainerCheckerToolHG" ):
-    from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
-    theCaloCellContainerCheckerToolHG=CaloCellContainerCheckerTool("CaloCellContainerCheckerToolHG")
-    ToolSvc += theCaloCellContainerCheckerToolHG
-    theCaloCellMakerHG.CaloCellMakerToolNames += [theCaloCellContainerCheckerToolHG]
-else:
-    theCaloCellMakerHG.CaloCellMakerToolNames += ["CaloCellContainerCheckerToolHG"]
+from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
+theCaloCellContainerCheckerTool = CaloCellContainerCheckerTool()
+theCaloCellMakerLG.CaloCellMakerToolNames += [theCaloCellContainerCheckerTool]
+theCaloCellMakerHG.CaloCellMakerToolNames += [theCaloCellContainerCheckerTool]
 
 printfunc (theCaloCellMakerLG)
-printfunc (ToolSvc.TileCellBuilderLG)
+printfunc (theTileCellBuilderLG)
 
 printfunc ("####################################################################################")
 
 printfunc (theCaloCellMakerHG)
-printfunc (ToolSvc.TileCellBuilderHG)
+printfunc (theTileCellBuilderHG)
+

@@ -2,13 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonStationBuilder.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
-// Muon
 #include "MuonTrackingGeometry/MuonStationBuilder.h"
-//MuonSpectrometer include
+
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -17,13 +12,7 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-// Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-// Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/IDetachedTrackingVolumeBuilder.h"
 #include "TrkDetDescrUtils/BinUtility.h"
@@ -48,13 +37,11 @@
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/HomogeneousLayerMaterial.h"
-#include<fstream>
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoCons.h"
-//mw
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
@@ -64,16 +51,15 @@
 #include "GeoModelKernel/GeoPgon.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
-
-// STD
-#include <map>
-
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
+
+#include <map>
+#include <fstream>
 
 // constructor
 Muon::MuonStationBuilder::MuonStationBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -89,13 +75,6 @@ StatusCode Muon::MuonStationBuilder::initialize()
 
     // get Muon Spectrometer Description Manager
     ATH_CHECK( detStore()->retrieve(m_muonMgr) );
-    
-    m_mdtIdHelper = m_muonMgr-> mdtIdHelper(); 
-    m_rpcIdHelper = m_muonMgr-> rpcIdHelper();
-    m_cscIdHelper = m_muonMgr-> cscIdHelper();
-    m_tgcIdHelper = m_muonMgr-> tgcIdHelper();
-    m_stgcIdHelper = m_muonMgr-> stgcIdHelper();
-    m_mmIdHelper  = m_muonMgr-> mmIdHelper();
 
     ATH_MSG_INFO( m_muonMgr->geometryVersion() ); 
     
@@ -122,7 +101,9 @@ StatusCode Muon::MuonStationBuilder::initialize()
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_INFO( name() <<" initialize() successful" );    
+    ATH_MSG_INFO( name() <<" initialize() successful" );
+
+    ATH_CHECK(m_idHelperSvc.retrieve());
     
   return StatusCode::SUCCESS;
 }
@@ -205,7 +186,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	  const Trk::DiamondBounds* dia=nullptr;
 	  const Trk::RotatedDiamondBounds* rdia=nullptr;
 	  Amg::Transform3D layTransf(Trk::s_idTransform);
-	  if (m_stgcIdHelper && m_stgcIdHelper->is_stgc(nswId)) {
+	  if (m_idHelperSvc->issTgc(nswId)) {
 	    const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(nswId);
 	    if (stgc) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*> (&stgc->bounds(nswId));
 	    if (stgc) trd = dynamic_cast<const Trk::TrapezoidBounds*> (&stgc->bounds(nswId));
@@ -214,7 +195,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
             if (stgc) layTransf = stgc->transform(nswId);
             if(stgc) ATH_MSG_DEBUG( " STGC readout element " );
             if(!stgc) ATH_MSG_DEBUG( " STGC and NO readout element " );
-	  } else if (m_mmIdHelper && m_mmIdHelper->is_mm(nswId)) {
+	  } else if (m_idHelperSvc->isMM(nswId)) {
 	    const MuonGM::MMReadoutElement* mm=m_muonMgr->getMMReadoutElement(nswId);
 	    if (mm) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*> (&mm->bounds(nswId));
             if (mm) layTransf = mm->transform(nswId);
@@ -291,7 +272,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    if (isLargeSector) sectorL.push_back(layer);
 	    else sectorS.push_back(layer);
 	    if(isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Large sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0() << " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
-	    if(!isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Large sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0()<< " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
+	    if(!isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Small sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0()<< " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
 	  } else {
             ATH_MSG_DEBUG( " NO layer build for: " << protoName);
 	  }
@@ -326,18 +307,18 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	      if (iType!=0) {
                 Identifier id(iType);
 		Identifier nid(0);
-		if (m_stgcIdHelper && m_stgcIdHelper->is_stgc(id)) {
-		  nid = m_stgcIdHelper->channelID(m_stgcIdHelper->stationName(id),
-							     m_stgcIdHelper->stationEta(id),
-							     m_stgcIdHelper->stationPhi(id)+it,
-							     m_stgcIdHelper->multilayer(id),
-							     m_stgcIdHelper->gasGap(id),1,1);
-		}  else if (m_mmIdHelper) {
-		  nid = m_mmIdHelper->channelID(m_mmIdHelper->stationName(id),
-							   m_mmIdHelper->stationEta(id),
-							   m_mmIdHelper->stationPhi(id)+it,
-							   m_mmIdHelper->multilayer(id),
-							   m_mmIdHelper->gasGap(id),1);
+		if (m_idHelperSvc->issTgc(id)) {
+		  nid = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().stationName(id),
+							     m_idHelperSvc->stgcIdHelper().stationEta(id),
+							     m_idHelperSvc->stgcIdHelper().stationPhi(id)+it,
+							     m_idHelperSvc->stgcIdHelper().multilayer(id),
+							     m_idHelperSvc->stgcIdHelper().gasGap(id),1,1);
+		}  else if (m_idHelperSvc->isMM(id)) {
+		  nid = m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().stationName(id),
+							   m_idHelperSvc->mmIdHelper().stationEta(id),
+							   m_idHelperSvc->mmIdHelper().stationPhi(id)+it,
+							   m_idHelperSvc->mmIdHelper().multilayer(id),
+							   m_idHelperSvc->mmIdHelper().gasGap(id),1);
 		}
 		
 		unsigned int nType = nid.get_identifier32().get_compact();
@@ -358,18 +339,18 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	      if (iType!=0) {
 		Identifier id(iType);
 		Identifier nid(0);
-		if (m_stgcIdHelper && m_stgcIdHelper->is_stgc(id)) {
-		  nid = m_stgcIdHelper->channelID(m_stgcIdHelper->stationName(id),
-							     -m_stgcIdHelper->stationEta(id),
-							     m_stgcIdHelper->stationPhi(id),
-							     m_stgcIdHelper->multilayer(id),
-							     m_stgcIdHelper->gasGap(id),1,1);
-		}  else if (m_mmIdHelper) {
-		  nid = m_mmIdHelper->channelID(m_mmIdHelper->stationName(id),
-							   -m_mmIdHelper->stationEta(id),
-							   m_mmIdHelper->stationPhi(id),
-							   m_mmIdHelper->multilayer(id),
-							   m_mmIdHelper->gasGap(id),1);
+		if (m_idHelperSvc->issTgc(id)) {
+		  nid = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().stationName(id),
+							     -m_idHelperSvc->stgcIdHelper().stationEta(id),
+							     m_idHelperSvc->stgcIdHelper().stationPhi(id),
+							     m_idHelperSvc->stgcIdHelper().multilayer(id),
+							     m_idHelperSvc->stgcIdHelper().gasGap(id),1,1);
+		}  else if (m_idHelperSvc->isMM(id)) {
+		  nid = m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().stationName(id),
+							   -m_idHelperSvc->mmIdHelper().stationEta(id),
+							   m_idHelperSvc->mmIdHelper().stationPhi(id),
+							   m_idHelperSvc->mmIdHelper().multilayer(id),
+							   m_idHelperSvc->mmIdHelper().gasGap(id),1);
 		}
 		
 		unsigned int nType = nid.get_identifier32().get_compact();
@@ -389,18 +370,18 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		if (iType!=0) {
 		  Identifier id(iType);
 		  Identifier nid(0);
-		  if (m_stgcIdHelper && m_stgcIdHelper->is_stgc(id)) {
-		    nid = m_stgcIdHelper->channelID(m_stgcIdHelper->stationName(id),
-							       m_stgcIdHelper->stationEta(id),
-							       m_stgcIdHelper->stationPhi(id)+it,
-							       m_stgcIdHelper->multilayer(id),
-							       m_stgcIdHelper->gasGap(id),1,1);
-		  }  else if (m_mmIdHelper) {
-		    nid = m_mmIdHelper->channelID(m_mmIdHelper->stationName(id),
-							     m_mmIdHelper->stationEta(id),
-							     m_mmIdHelper->stationPhi(id)+it,
-							     m_mmIdHelper->multilayer(id),
-							     m_mmIdHelper->gasGap(id),1);
+		  if (m_idHelperSvc->issTgc(id)) {
+		    nid = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().stationName(id),
+							       m_idHelperSvc->stgcIdHelper().stationEta(id),
+							       m_idHelperSvc->stgcIdHelper().stationPhi(id)+it,
+							       m_idHelperSvc->stgcIdHelper().multilayer(id),
+							       m_idHelperSvc->stgcIdHelper().gasGap(id),1,1);
+		  }  else if (m_idHelperSvc->isMM(id)) {
+		    nid = m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().stationName(id),
+							     m_idHelperSvc->mmIdHelper().stationEta(id),
+							     m_idHelperSvc->mmIdHelper().stationPhi(id)+it,
+							     m_idHelperSvc->mmIdHelper().multilayer(id),
+							     m_idHelperSvc->mmIdHelper().gasGap(id),1);
 		  }
 
 		  unsigned int nType = nid.get_identifier32().get_compact();
@@ -427,18 +408,18 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	      if (iType!=0) {
                 Identifier id(iType);
 		Identifier nid(0);
-		if (m_stgcIdHelper && m_stgcIdHelper->is_stgc(id)) {
-		  nid = m_stgcIdHelper->channelID(m_stgcIdHelper->stationName(id),
-							     m_stgcIdHelper->stationEta(id),
-							     m_stgcIdHelper->stationPhi(id)+it,
-							     m_stgcIdHelper->multilayer(id),
-							     m_stgcIdHelper->gasGap(id),1,1);
-		}  else if (m_mmIdHelper) {
-		  nid = m_mmIdHelper->channelID(m_mmIdHelper->stationName(id),
-							   m_mmIdHelper->stationEta(id),
-							   m_mmIdHelper->stationPhi(id)+it,
-							   m_mmIdHelper->multilayer(id),
-							   m_mmIdHelper->gasGap(id),1);
+		if (m_idHelperSvc->issTgc(id)) {
+		  nid = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().stationName(id),
+							     m_idHelperSvc->stgcIdHelper().stationEta(id),
+							     m_idHelperSvc->stgcIdHelper().stationPhi(id)+it,
+							     m_idHelperSvc->stgcIdHelper().multilayer(id),
+							     m_idHelperSvc->stgcIdHelper().gasGap(id),1,1);
+		}  else if (m_idHelperSvc->isMM(id)) {
+		  nid = m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().stationName(id),
+							   m_idHelperSvc->mmIdHelper().stationEta(id),
+							   m_idHelperSvc->mmIdHelper().stationPhi(id)+it,
+							   m_idHelperSvc->mmIdHelper().multilayer(id),
+							   m_idHelperSvc->mmIdHelper().gasGap(id),1);
 		}
 
 		unsigned int nType = nid.get_identifier32().get_compact();
@@ -462,18 +443,18 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	      if (iType!=0) {
 		Identifier id(iType);
 		Identifier nid(0);
-		if (m_stgcIdHelper && m_stgcIdHelper->is_stgc(id)) {
-		  nid = m_stgcIdHelper->channelID(m_stgcIdHelper->stationName(id),
-							     -m_stgcIdHelper->stationEta(id),
-							     m_stgcIdHelper->stationPhi(id),
-							     m_stgcIdHelper->multilayer(id),
-							     m_stgcIdHelper->gasGap(id),1,1);
-		}  else if (m_mmIdHelper) {
-		  nid = m_mmIdHelper->channelID(m_mmIdHelper->stationName(id),
-							   -m_mmIdHelper->stationEta(id),
-							   m_mmIdHelper->stationPhi(id),
-							   m_mmIdHelper->multilayer(id),
-							   m_mmIdHelper->gasGap(id),1);
+		if (m_idHelperSvc->issTgc(id)) {
+		  nid = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().stationName(id),
+							     -m_idHelperSvc->stgcIdHelper().stationEta(id),
+							     m_idHelperSvc->stgcIdHelper().stationPhi(id),
+							     m_idHelperSvc->stgcIdHelper().multilayer(id),
+							     m_idHelperSvc->stgcIdHelper().gasGap(id),1,1);
+		}  else if (m_idHelperSvc->isMM(id)) {
+		  nid = m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().stationName(id),
+							   -m_idHelperSvc->mmIdHelper().stationEta(id),
+							   m_idHelperSvc->mmIdHelper().stationPhi(id),
+							   m_idHelperSvc->mmIdHelper().multilayer(id),
+							   m_idHelperSvc->mmIdHelper().gasGap(id),1);
 		}
 		
 		unsigned int nType = nid.get_identifier32().get_compact();
@@ -493,18 +474,18 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		if (iType!=0) {
 		  Identifier id(iType);
 		  Identifier nid(0);
-		  if (m_stgcIdHelper && m_stgcIdHelper->is_stgc(id)) {
-		    nid = m_stgcIdHelper->channelID(m_stgcIdHelper->stationName(id),
-							       m_stgcIdHelper->stationEta(id),
-							       m_stgcIdHelper->stationPhi(id)+it,
-							       m_stgcIdHelper->multilayer(id),
-							       m_stgcIdHelper->gasGap(id),1,1);
-		  }  else if (m_mmIdHelper) {
-		    nid = m_mmIdHelper->channelID(m_mmIdHelper->stationName(id),
-							     m_mmIdHelper->stationEta(id),
-							     m_mmIdHelper->stationPhi(id)+it,
-							     m_mmIdHelper->multilayer(id),
-							     m_mmIdHelper->gasGap(id),1);
+		  if (m_idHelperSvc->issTgc(id)) {
+		    nid = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().stationName(id),
+							       m_idHelperSvc->stgcIdHelper().stationEta(id),
+							       m_idHelperSvc->stgcIdHelper().stationPhi(id)+it,
+							       m_idHelperSvc->stgcIdHelper().multilayer(id),
+							       m_idHelperSvc->stgcIdHelper().gasGap(id),1,1);
+		  }  else if (m_idHelperSvc->isMM(id)) {
+		    nid = m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().stationName(id),
+							     m_idHelperSvc->mmIdHelper().stationEta(id),
+							     m_idHelperSvc->mmIdHelper().stationPhi(id)+it,
+							     m_idHelperSvc->mmIdHelper().multilayer(id),
+							     m_idHelperSvc->mmIdHelper().gasGap(id),1);
 		  }
 
 		  unsigned int nType = nid.get_identifier32().get_compact();
@@ -569,8 +550,8 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    if (msTV && gmStation) {
 	      Amg::Transform3D transf = Amg::CLHEPTransformToEigen(gmStation->getTransform()); 
               Identifier stId(0);
-              if (m_cscIdHelper && stName.substr(0,1)=="C") {
-		stId = m_cscIdHelper->elementID(vname.substr(0,3),eta,phi);
+              if (m_idHelperSvc->hasCSC() && stName.substr(0,1)=="C") {
+		stId = m_idHelperSvc->cscIdHelper().elementID(vname.substr(0,3),eta,phi);
               }
               // adjust eta,phi
               if (msTypeName.substr(0,1)=="C") {
@@ -606,7 +587,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		if (msName.substr(7,2)=="21") eta = az ? 5 : 4;
 		if (msName.substr(7,2)=="22") eta = az ? 5 : 4;
 	      }     
-              if (m_tgcIdHelper && stName.substr(0,1)=="T") {
+              if (m_idHelperSvc->hasTGC() && stName.substr(0,1)=="T") {
 		int etaSt = eta - 4;
 		if (eta < 5) etaSt = eta - 5; 
 		double phic = transf.translation().phi(); 
@@ -615,11 +596,11 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		else
                   phi = static_cast<int> (phic<0 ? 12*phic/M_PI+24 : 12*phic/M_PI);
                 phi++;
-                stId = m_tgcIdHelper->elementID(vname.substr(0,3),etaSt,phi);
-              } else if (m_rpcIdHelper && stName.substr(0,3)=="BML") {
-		stId = m_rpcIdHelper->elementID(vname.substr(0,3),eta,phi,1);
-              } else if (m_mdtIdHelper && stName.substr(0,1)!="C" ) {
-		stId = m_mdtIdHelper->elementID(vname.substr(0,3),eta,phi);
+                stId = m_idHelperSvc->tgcIdHelper().elementID(vname.substr(0,3),etaSt,phi);
+              } else if (m_idHelperSvc->hasRPC() && stName.substr(0,3)=="BML") {
+		stId = m_idHelperSvc->rpcIdHelper().elementID(vname.substr(0,3),eta,phi,1);
+              } else if (m_idHelperSvc->hasMDT() && stName.substr(0,1)!="C" ) {
+		stId = m_idHelperSvc->mdtIdHelper().elementID(vname.substr(0,3),eta,phi);
               }
               if (!(stId.get_compact())) ATH_MSG_WARNING( "identifier of the station not found:"<<vname <<","<<eta<<","<<phi );
               unsigned int iD = stId.get_identifier32().get_compact();
@@ -842,7 +823,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	} // end if "Shift" (station)
 	vol.next();      
       }      
-      ATH_MSG_INFO( name() << stations.size() <<" station prototypes built " );    
+      ATH_MSG_INFO( name() << " " << stations.size() <<" station prototypes built " );
    }
    
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -850,13 +831,6 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
    return mStations;  
 }
 
-// finalize
-StatusCode Muon::MuonStationBuilder::finalize()
-{
-  ATH_MSG_INFO(  name() <<" finalize() successful" );
-  return StatusCode::SUCCESS;
-}
-//
 void Muon::MuonStationBuilder::glueComponents(const Trk::DetachedTrackingVolume* stat) const
 {
    const Trk::TrackingVolumeArray* volArray = stat->trackingVolume()->confinedVolumes();
@@ -904,7 +878,7 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
     if (!cscRE) cscRE = m_muonMgr->getCscReadoutElement(st,eta,phi,cLay);
     if (cscRE) {
       for (int gasgap = 0; gasgap < cscRE->Ngasgaps(); gasgap++) {
-	Identifier idi = m_cscIdHelper->channelID(cscRE->identify(),cscRE->ChamberLayer(),gasgap+1,0,1);   
+	Identifier idi = m_idHelperSvc->cscIdHelper().channelID(cscRE->identify(),cscRE->ChamberLayer(),gasgap+1,0,1);   
         const Trk::PlaneSurface* stripSurf = dynamic_cast<const Trk::PlaneSurface*> (&(cscRE->surface(idi)));
         const Amg::Vector3D gpi = stripSurf->center();
         const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(gpi);
@@ -949,9 +923,9 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
           phi = phit;
           // update station identity
           Identifier oldId(station->layerRepresentation()->layerType());
-          int stationName = m_tgcIdHelper->stationName(oldId);
-          int stationEta  = m_tgcIdHelper->stationEta(oldId);
-          Identifier stId = m_tgcIdHelper->elementID(stationName,stationEta,phi);
+          int stationName = m_idHelperSvc->tgcIdHelper().stationName(oldId);
+          int stationEta  = m_idHelperSvc->tgcIdHelper().stationEta(oldId);
+          Identifier stId = m_idHelperSvc->tgcIdHelper().elementID(stationName,stationEta,phi);
           station->layerRepresentation()->setLayerType(stId.get_identifier32().get_compact());
           break;
         }
@@ -965,7 +939,7 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
       int phiSt = tgc->getStationPhi();
 
       bool* validId=new bool(false);
-      Identifier wireId  = m_tgcIdHelper->channelID(stationName.substr(0,3),etaSt,phiSt,1,0,1,true,validId);
+      Identifier wireId  = m_idHelperSvc->tgcIdHelper().channelID(stationName.substr(0,3),etaSt,phiSt,1,0,1,true,validId);
       if (!(*validId)) ATH_MSG_ERROR( "invalid TGC channel:" << wireId );
       const Amg::Vector3D gp = tgc->channelPos(wireId);
       const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(gp);
@@ -973,7 +947,7 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
       if (assocVol && assocVol->confinedLayers()) {
 	const std::vector<const Trk::Layer*> layers = assocVol->confinedLayers()->arrayObjects();           
 	for (unsigned int il=0;il<layers.size();il++) {
-	  wireId  = m_tgcIdHelper->channelID(stationName.substr(0,3),etaSt,phiSt,il+1,0,1,true,validId);            
+	  wireId  = m_idHelperSvc->tgcIdHelper().channelID(stationName.substr(0,3),etaSt,phiSt,il+1,0,1,true,validId);            
 	  if (!(*validId)) layers[il]->setLayerType(1);
 	  else {
 	    if (!(*validId)) ATH_MSG_ERROR( "invalid TGC channel:" << wireId );
@@ -995,11 +969,11 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
     }
   }
 
-  if (m_mdtIdHelper && (stationName.substr(0,1)=="B" || stationName.substr(0,1)=="E" )) { 
+  if (m_idHelperSvc->hasMDT() && (stationName.substr(0,1)=="B" || stationName.substr(0,1)=="E" )) { 
     // recalculate id
     Identifier stId(station->layerRepresentation()->layerType());
    
-    int nameIndex = m_mdtIdHelper->stationNameIndex( stationName.substr(0,3) ); 
+    int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex( stationName.substr(0,3) ); 
     if (station->trackingVolume()->confinedVolumes()) {
       const std::vector<const Trk::TrackingVolume*> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
       for (unsigned int i=0; i<cVols.size() ; i++) {
@@ -1008,9 +982,9 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
           const MuonGM::MdtReadoutElement* mdtROE = 0;
 	  for (unsigned int il=0; il<cLays.size() ; il++) {
 	    Identifier id(cLays[il]->layerType());
-	    if (id.get_compact() > 0 && m_mdtIdHelper->is_mdt(id)) {
-              Identifier newId = m_mdtIdHelper->channelID(nameIndex,eta,phi,
-							  m_mdtIdHelper->multilayer(id),m_mdtIdHelper->tubeLayer(id),m_mdtIdHelper->tube(id));
+	    if (id.get_compact() > 0 && m_idHelperSvc->isMdt(id)) {
+              Identifier newId = m_idHelperSvc->mdtIdHelper().channelID(nameIndex,eta,phi,
+							  m_idHelperSvc->mdtIdHelper().multilayer(id),m_idHelperSvc->mdtIdHelper().tubeLayer(id),m_idHelperSvc->mdtIdHelper().tube(id));
               if (!mdtROE) mdtROE=m_muonMgr->getMdtReadoutElement(newId);
               unsigned int newid = newId.get_identifier32().get_compact();
               cLays[il]->setLayerType(newid); 
@@ -1035,10 +1009,10 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
 	  const std::vector<const Trk::Layer*>* cLays = cVols[i]->confinedArbitraryLayers();
 	  for (unsigned int il=0; il<cLays->size() ; il++) {
 	    Identifier id((*cLays)[il]->layerType());
-	    if (m_rpcIdHelper && id.get_compact() > 0 && m_rpcIdHelper->is_rpc(id)) {
-              Identifier newId = m_rpcIdHelper->channelID(nameIndex,eta,phi,m_rpcIdHelper->doubletR(id),
-							  m_rpcIdHelper->doubletZ(id),m_rpcIdHelper->doubletPhi(id),m_rpcIdHelper->gasGap(id),
-							  m_rpcIdHelper->measuresPhi(id),m_rpcIdHelper->strip(id));
+	    if (m_idHelperSvc->hasRPC() && id.get_compact() > 0 && m_idHelperSvc->isRpc(id)) {
+              Identifier newId = m_idHelperSvc->rpcIdHelper().channelID(nameIndex,eta,phi,m_idHelperSvc->rpcIdHelper().doubletR(id),
+							  m_idHelperSvc->rpcIdHelper().doubletZ(id),m_idHelperSvc->rpcIdHelper().doubletPhi(id),m_idHelperSvc->rpcIdHelper().gasGap(id),
+							  m_idHelperSvc->rpcIdHelper().measuresPhi(id),m_idHelperSvc->rpcIdHelper().strip(id));
               int newid = newId.get_identifier32().get_compact();
               (*cLays)[il]->setLayerType(newid);  
             }
@@ -1084,17 +1058,19 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
 {
   ATH_MSG_VERBOSE( name() <<" identifying prototype " );    
 
-  std::string stationName = station->volumeName();
-  ATH_MSG_VERBOSE( " for station " << stationName );    
+  const std::string stationName = station->volumeName();
+  ATH_MSG_VERBOSE( " for station " << stationName );
+  const std::string stationNameShort = stationName.substr(0,3);
+  const std::string stationFirstChar = stationName.substr(0,1);
 
-  if (m_mdtIdHelper && (stationName.substr(0,1)=="B" || stationName.substr(0,1)=="E" )) { 
+  if (m_idHelperSvc->hasMDT() && (stationFirstChar=="B" || stationFirstChar=="E" )) {
     // MDT
-    int nameIndex = m_mdtIdHelper->stationNameIndex( stationName.substr(0,3) ); 
+    int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex( stationNameShort );
     int nameIndexC = nameIndex;
-    if (stationName.substr(0,3)=="EIS") nameIndexC = 22; 
-    if (stationName.substr(0,3)=="BIM") nameIndexC = 23; 
-    if (stationName.substr(0,3)=="BME") nameIndexC = 24; 
-    if (stationName.substr(0,3)=="BMG") nameIndexC = 25; 
+    if (stationNameShort=="EIS") nameIndexC = 22;
+    if (stationNameShort=="BIM") nameIndexC = 23;
+    if (stationNameShort=="BME") nameIndexC = 24;
+    if (stationNameShort=="BMG") nameIndexC = 25;
 
     for (int multi = 0; multi < 2; multi++ ) {
       const MuonGM::MdtReadoutElement* multilayer = m_muonMgr->getMdtReadoutElement(nameIndexC,eta+8,phi-1,multi);
@@ -1102,12 +1078,11 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
         const Trk::TrackingVolume* assocVol = station->associatedSubVolume(transf.inverse()*multilayer->center());
         if (!assocVol ) {
 	  ATH_MSG_WARNING( "valid multilayer outside station:" << stationName );
-	  //ATH_MSG_WARNING( "multilayer position:" << multilayer->center()<<", local: "<< transf.inverse()*multilayer->center() );
 	}
         if (assocVol) {
 	  int nLayers = multilayer->getNLayers();
 	  for (int layer =1; layer <= nLayers ; layer++) {
-	    Identifier id = m_mdtIdHelper->channelID(nameIndex,eta,phi,multi+1,layer,1);           
+	    Identifier id = m_idHelperSvc->mdtIdHelper().channelID(nameIndex,eta,phi,multi+1,layer,1);           
 	    if (id.get_compact() > 0) {
 	      // retrieve associated layer
 	      Amg::Vector3D gp = multilayer->tubePos(id);
@@ -1117,47 +1092,70 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
 	    } 
           }
         }
-      }     
+      }
     }
     
     // RPC ?
     const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = station->confinedVolumes();
     if (confinedVolumes){
       const std::vector<const Trk::TrackingVolume*>& vols = confinedVolumes->arrayObjects();
-      for (unsigned int iv=0;iv<vols.size();iv++) if (m_rpcIdHelper && vols[iv]->volumeName() == "RPC") {
+      for (unsigned int iv=0;iv<vols.size();iv++) if (m_idHelperSvc->hasRPC() && vols[iv]->volumeName() == "RPC") {
         // for active layers do a search of associated ROE
         const std::vector<const Trk::Layer*>* layers = vols[iv]->confinedArbitraryLayers();
-        int nameIndex = m_rpcIdHelper->stationNameIndex( stationName.substr(0,3) ); 
-        if (stationName.substr(0,3)=="BME") nameIndex=12;              // hack for BME
-        if (stationName.substr(0,3)=="BMG") nameIndex=13;              // hack for BMG (even though BMG don't have RPC)
-        // loop over doubletR, doubletZ 
-	for (int doubletR = 0; doubletR < 2; doubletR++ ) {
-	for (int doubletZ = 0; doubletZ < 3; doubletZ++ ) {
-	for (int doubletPhi = 0; doubletPhi < 1; doubletPhi++ ) {
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(nameIndex-2,eta+8,phi-1,doubletR,doubletZ);
-	  if (rpc) {
-            if (doubletZ < rpc->getDoubletZ() ) {  
-	      for (int gasGap=0; gasGap<2; gasGap++) {
-		Identifier etaId = m_rpcIdHelper->channelID(nameIndex,eta,phi,
-							    doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,0,1); 
-		if (1/*m_rpcIdHelper->valid(etaId)*/){
-		  for (unsigned int il=0;il<layers->size();il++) {
-		    if ((*layers)[il]->layerType() != 0 && (*layers)[il]->surfaceRepresentation().isOnSurface(transf.inverse()*rpc->stripPos(etaId),false,0.5*(*layers)[il]->thickness() ) ) {
-                      const Amg::Vector3D locPos1 = (*layers)[il]->surfaceRepresentation().transform().inverse()*transf.inverse()*rpc->stripPos(etaId);
-                      const Amg::Vector3D locPos2 = rpc->surface(etaId).transform().inverse()*rpc->stripPos(etaId);
-                      double swap = ( fabs( locPos1[1] - locPos2[0] ) > 0.001 ) ? 20000. : 0. ;
-		      unsigned int id = etaId.get_identifier32().get_compact();
-		      (*layers)[il]->setLayerType(id);
-                      const Amg::Vector3D locPos = (*layers)[il]->surfaceRepresentation().transform().inverse()
-			*transf.inverse()*rpc->surface(etaId).center(); 
-		      (*layers)[il]->setRef(swap + locPos[0]);
-		    } 
-		  }
-		}
-	 }}}}}}                  
+        int nameIndex = m_idHelperSvc->rpcIdHelper().stationNameIndex(stationNameShort);
+        if (stationNameShort=="BME") continue; // BME chambers do not have RPCs
+        if (stationNameShort=="BMG") continue; // BMG chambers do not have RPCs
+        // the following checks are not necessarily needed, since calling channelID with check=true would catch them
+        // However, since these validity checks are slow, let's manually skip the obvious non-existant ones
+        //
+        // only BOG7/8 and BMS2/4 have doubletZ=3, the remaing BOG and BOF4 have doubletZ=1
+        int doubletZMax=2;
+        if (stationNameShort.find("BMS")!=std::string::npos && (std::abs(eta)==2 || std::abs(eta)==4)) doubletZMax=3;
+        else if (stationNameShort.find("BOG")!=std::string::npos) {
+          if (std::abs(eta)==7 || std::abs(eta)==8) doubletZMax=3;
+          else doubletZMax=1;
+        } else if (stationNameShort.find("BOF")!=std::string::npos && std::abs(eta)==4) doubletZMax=1;
+        // all BOL/BOS and BOF1 have doubletR=1
+        int doubletRMax=2;
+        if (stationNameShort.find("BOL")!=std::string::npos) doubletRMax=1;
+        else if (stationNameShort.find("BOS")!=std::string::npos) doubletRMax=1;
+        else if (stationNameShort.find("BOF")!=std::string::npos && std::abs(eta)==1) doubletRMax=1;
+        for (int doubletR = 0; doubletR < doubletRMax; doubletR++ ) {
+          for (int doubletZ = 0; doubletZ < doubletZMax; doubletZ++ ) {
+            for (int doubletPhi = 0; doubletPhi < 1; doubletPhi++ ) {
+              bool isValid=false;
+              // the RpcIdHelper expects doubletR/doubletZ/doubletPhi to start at 1
+              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(nameIndex,eta,phi,doubletR+1,doubletZ+1, doubletPhi+1, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+              if (!isValid) {
+                ATH_MSG_DEBUG("Could not find valid Identifier for station="<<nameIndex<<", eta="<<eta<<", phi="<<phi<<", doubletR="<<doubletR+1<<", doubletZ="<<doubletZ+1<<", doubletPhi="<<doubletPhi+1<<", continuing...");
+                continue;
+              }
+              const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(id);
+              if (rpc) {
+                if (doubletZ < rpc->getDoubletZ() ) {
+                  for (int gasGap=0; gasGap<2; gasGap++) {
+                    Identifier etaId = m_idHelperSvc->rpcIdHelper().channelID(nameIndex,eta,phi,doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,0,1);
+                    for (unsigned int il=0;il<layers->size();il++) {
+                      if ((*layers)[il]->layerType() != 0 && (*layers)[il]->surfaceRepresentation().isOnSurface(transf.inverse()*rpc->stripPos(etaId),false,0.5*(*layers)[il]->thickness() ) ) {
+                        const Amg::Vector3D locPos1 = (*layers)[il]->surfaceRepresentation().transform().inverse()*transf.inverse()*rpc->stripPos(etaId);
+                        const Amg::Vector3D locPos2 = rpc->surface(etaId).transform().inverse()*rpc->stripPos(etaId);
+                        double swap = ( fabs( locPos1[1] - locPos2[0] ) > 0.001 ) ? 20000. : 0. ;
+                        unsigned int id = etaId.get_identifier32().get_compact();
+                        (*layers)[il]->setLayerType(id);
+                        const Amg::Vector3D locPos = (*layers)[il]->surfaceRepresentation().transform().inverse()
+                        *transf.inverse()*rpc->surface(etaId).center();
+                        (*layers)[il]->setRef(swap + locPos[0]);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
-  } 
+  }
 
   // by now, all the layers should be identified - verify
   if (station->confinedVolumes()) {

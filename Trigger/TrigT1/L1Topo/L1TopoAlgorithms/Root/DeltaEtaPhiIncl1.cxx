@@ -12,6 +12,8 @@
 **********************************/
 
 #include <cmath>
+#include "TH1F.h"
+#include "TH2F.h"
 
 #include "L1TopoAlgorithms/DeltaEtaPhiIncl1.h"
 #include "L1TopoCommon/Exception.h"
@@ -20,7 +22,6 @@
 
 REGISTER_ALG_TCS(DeltaEtaPhiIncl1)
 
-using namespace std;
 
 TCS::DeltaEtaPhiIncl1::DeltaEtaPhiIncl1(const std::string & name) : DecisionAlg(name)
 {
@@ -81,6 +82,15 @@ TCS::DeltaEtaPhiIncl1::initialize() {
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);  // note that the reading of generic parameters doesn't work yet
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
    TRG_MSG_INFO("number output : " << numberOutputBits());
+
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hDeltaEtaPhiIncl1_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hDeltaEtaPhiIncl1_reject_bit"+std::to_string((int)i);
+       // deta vs dphi
+       bookHist(m_histAccept, hname_accept, "DETA vs DPHI", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i], 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+       bookHist(m_histReject, hname_reject, "DETA vs DPHI", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i], 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+   }
    
    return StatusCode::SUCCESS;
 }
@@ -90,7 +100,7 @@ TCS::DeltaEtaPhiIncl1::initialize() {
 TCS::StatusCode
 TCS::DeltaEtaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 1) {
        TRG_MSG_DEBUG("input size     : " << input[0]->size());
@@ -114,15 +124,23 @@ TCS::DeltaEtaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const 
                          << ", DeltaPhi = " << deltaPhi << ", DeltaEta = " << deltaEta << " -> ";
                    for(unsigned int i=0; i<numberOutputBits(); ++i) {
                        bool accept = false;
-                       if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                       if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                       if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                       if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                       if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                       if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                        accept = ( deltaEta >= p_DeltaEtaMin[i] ||  deltaPhi >= p_DeltaPhiMin[i] ) && deltaPhi <= p_DeltaPhiMax[i] && deltaEta <= p_DeltaEtaMax[i];
-                       if( accept ) {
-                           decison.setBit(i, true);  
-                           output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                       }
-                       msgss << (accept?"pass":"fail") << "|";
+			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
+                        if( accept ) {
+			  decision.setBit(i, true);  
+			  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+			}
+			if(fillAccept and not alreadyFilled) {
+			  fillHist2D(m_histAccept[i],(float)deltaEta,(float)deltaPhi);
+			} else if(fillReject) {
+			  fillHist2D(m_histReject[i],(float)deltaEta,(float)deltaPhi);
+			}
+                        msgss << "DeltaEtaPhiIncl1 alg bit" << i << (accept?" pass":" fail") << "|";
                    }
                    TRG_MSG_DEBUG(msgss.str());
                }
@@ -136,7 +154,7 @@ TCS::DeltaEtaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const 
 TCS::StatusCode
 TCS::DeltaEtaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 1) {
         TRG_MSG_DEBUG("input size     : " << input[0]->size());
@@ -164,16 +182,24 @@ TCS::DeltaEtaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input
                           << ", DeltaEta = " << deltaEta << " -> ";
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
                         bool accept = false;
-                        if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                        if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                        if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                        if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                        if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                        if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                         accept = ( deltaEta >= p_DeltaEtaMin[i] ||  deltaPhi >= p_DeltaPhiMin[i] ) && deltaPhi <= p_DeltaPhiMax[i] && deltaEta <= p_DeltaEtaMax[i];
-                        if( accept ) {
-                            decison.setBit(i, true);  
-                            output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
+			if( accept ) {
+			  decision.setBit(i, true);  
+			  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
-                        msgss << (accept?"pass":"fail") << "|";
-                    }
+			if(fillAccept and not alreadyFilled) {
+			  fillHist2D(m_histAccept[i],(float)deltaEta,(float)deltaPhi);
+			} else if(fillReject) {
+			  fillHist2D(m_histReject[i],(float)deltaEta,(float)deltaPhi);
+			}
+                        msgss << "DeltaEtaPhiIncl1 alg bit" << i << (accept?" pass":" fail") << "|";
+                     }
                     TRG_MSG_DEBUG(msgss.str());
                 }
             }

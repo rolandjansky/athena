@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,31 +7,18 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Asmp.cxx,v 1.5 2007-02-12 17:33:50 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Asmp.h"
-#include <iostream>
-//#include <stdio>
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
+#include <iostream>
 
 namespace MuonGM
 {
 
-DblQ00Asmp::DblQ00Asmp(std::unique_ptr<IRDBQuery>&& asmp)
- : m_nObj(0)
-{
+DblQ00Asmp::DblQ00Asmp(std::unique_ptr<IRDBQuery>&& asmp) :
+    m_nObj(0) {
   if(asmp) {
     asmp->execute();
     m_nObj = asmp->size();
@@ -53,7 +40,46 @@ DblQ00Asmp::DblQ00Asmp(std::unique_ptr<IRDBQuery>&& asmp)
     std::cerr<<"NO Asmp banks in the MuonDD Database"<<std::endl;
   }
 }
-    
+
+DblQ00Asmp::DblQ00Asmp(AmdcDb* asmp) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = asmp->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new ASMP[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Asmp banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
+  
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+
+     m_d[i].version = (*it)->getInt("VERS");
+     m_d[i].indx =  (*it)->getInt("INDX");
+     m_d[i].n = (*it)->getInt("N");
+     m_d[i].jtyp = (*it)->getInt("JTYP");
+  }
+}
+
 DblQ00Asmp::~DblQ00Asmp()
 {
     delete [] m_d;

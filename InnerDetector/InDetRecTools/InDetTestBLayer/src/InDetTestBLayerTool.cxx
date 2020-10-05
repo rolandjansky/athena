@@ -17,7 +17,6 @@
 
 #include "TrkGeometry/Layer.h"
 
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -31,7 +30,7 @@ using Amg::Transform3D;
 // don't want to include TrackSummary in the header
 // therefore anonymous "static" definition in the implementation file
 //namespace {
-  Trk::SummaryType s_layerSummaryTypeExpectHit[2] {
+  static const Trk::SummaryType s_layerSummaryTypeExpectHit[2] {
     Trk::expectInnermostPixelLayerHit,
     Trk::expectNextToInnermostPixelLayerHit
   };
@@ -39,7 +38,7 @@ using Amg::Transform3D;
 
 
 namespace InDet {
-  const char *InDetTestBLayerTool::s_layerNames[2] {
+  const std::string InDetTestBLayerTool::s_layerNames[2] {
     "innermost pixel layer",
     "next to innermost pixel layer"
   };
@@ -47,15 +46,11 @@ namespace InDet {
   InDetTestBLayerTool::InDetTestBLayerTool(const std::string& name,
 					   const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
-    m_extrapolator(""),
-    m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_idHelper(nullptr),
     m_pixelId(nullptr),
     m_configured(false)
   {
     declareInterface<IInDetTestBLayerTool>(this);
-    declareProperty("Extrapolator"   , m_extrapolator);
-    declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
     declareProperty("CheckAtLeastNearestNeighbors", m_checkAtLeastNearestNeighbors = false);
@@ -106,11 +101,11 @@ namespace InDet {
       m_configured=false;
     }
     else{
-      if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
-	ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
-	return StatusCode::FAILURE;
+      if (m_pixelCondSummaryTool.retrieve().isFailure() ) {
+        ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
+        return StatusCode::FAILURE;
       } else {
-	ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
+        ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
       }
     }
 
@@ -351,7 +346,7 @@ namespace InDet {
   bool InDet::InDetTestBLayerTool::expectHitInPixelLayer(const Trk::TrackParameters* trackpar,int layer) const
   {
     assert( layer >=0 && layer<=1);
-    const char *layer_name=s_layerNames[layer];
+    const std::string layer_name=s_layerNames[layer];
 
     if(!m_configured){
       ATH_MSG_WARNING("Unconfigured tool, unable to compute expected hit in the " << layer_name << ".");

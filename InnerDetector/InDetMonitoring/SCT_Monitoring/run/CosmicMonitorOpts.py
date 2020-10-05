@@ -182,7 +182,7 @@ if CosmicMonitorFlags.doMonitoring:
 theApp.Dlls += [ "CBNT_Utils","CBNT_Athena" ]
 
 if CosmicMonitorFlags.makeAlignNtp:
-    theApp.DLLs += ["HbookCnv"]
+    theApp.Dlls += ["HbookCnv"]
     theApp.HistogramPersistency = "HBOOK"
 else:    
     theApp.Dlls += [ "RootHistCnv" ]
@@ -202,8 +202,6 @@ CBNT_Athena.NtupleLocID="/FILE1/Cosmic/tree"
 #-------------------------------------------------
 # Write out Transient Event Store content in POOL
 #-------------------------------------------------
-
-AthenaSealSvc.CheckDictionary = True
 
 if CosmicMonitorFlags.doWriteESD:
     if not CosmicMonitorFlags.doSim:

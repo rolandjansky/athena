@@ -1,28 +1,7 @@
-################################################################################
-# Package: PhotonVertexSelection
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PhotonVertexSelection )
-
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODTracking
-   PRIVATE
-   Control/AthContainers
-   PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
-   Tools/PathResolver
-   ${extra_deps} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO Physics TMVA )
@@ -49,7 +28,5 @@ atlas_add_dictionary( PhotonVertexSelectionDict
    LINK_LIBRARIES PhotonVertexSelectionLib )
 
 # Test(s) in the package:
-if( XAOD_STANDALONE )
-   atlas_add_test( PhotonVertexSelection_test
-      SCRIPT test/testPhotonVertexSelection.py )
-endif()
+atlas_add_test( PhotonVertexSelection_test
+   SCRIPT test/testPhotonVertexSelection.py )

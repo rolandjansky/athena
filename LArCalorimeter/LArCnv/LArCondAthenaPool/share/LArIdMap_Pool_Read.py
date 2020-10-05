@@ -56,10 +56,6 @@ EventSelector.EventsPerRun=2
 EventSelector.FirstEvent=1
 
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
-AthenaSealSvc.CheckDictionary = True
-AthenaSealSvc.CheckDictAtInit = True
-
-theApp.Dlls += [ "EventSelectorAthenaPool","LArCondAthenaPoolPoolCnv" ]
 
 ProxyProviderSvc = Service( "ProxyProviderSvc" )
 ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]

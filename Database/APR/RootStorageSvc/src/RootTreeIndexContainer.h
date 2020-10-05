@@ -59,9 +59,11 @@ namespace pool {
       virtual DbStatus transAct(Transaction::Action action);
 
    private:
-      /// Pointer to index branch
+      /// Pointer to index branch (ref owns the branch, shr doesn't)
       TBranch* m_index_ref;
-      TBranch* m_index_foreign;
+      TBranch* m_index_shr;
+      long long int m_index_entries;
+      long long int m_ttree_entries;
       /// Index multiplier (e.g. pid - ppid), fill in c'tor
       int m_index_multi;
       /// Index (64 bit)

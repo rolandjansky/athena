@@ -21,13 +21,20 @@ atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
 muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
 
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+CombinedMuonIDBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="CombinedMuonIDBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on()
+)
+ToolSvc += CombinedMuonIDBoundaryCheckTool
+
 # load InDetHoleSearchTool
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 ToolSvc += InDet__InDetTrackHoleSearchTool( \
   name                         = "CombinedMuonIDHoleSearch",
   Extrapolator                 = atlasExtrapolator,
-  usePixel                     = DetFlags.haveRIO.pixel_on(),
-  useSCT                       = DetFlags.haveRIO.SCT_on(),
+  BoundaryCheckTool            = CombinedMuonIDBoundaryCheckTool,
   CountDeadModulesAfterLastHit = True)
 
 import InDetRecExample.TrackingCommon as TrackingCommon
@@ -42,7 +49,6 @@ if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   ToolSvc += InDet__InDetTestPixelLayerTool( 
     name = "CombinedMuonInDetTestPixelLayerTool",
     Extrapolator = atlasExtrapolator,
-    PixelSummaryTool = InDetPixelConditionsSummaryTool,
     CheckActiveAreas = True,
     CheckDeadRegions = True
     )
@@ -65,8 +71,14 @@ ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   HoleSearch      = ToolSvc.CombinedMuonIDHoleSearch,
   usePixel        = DetFlags.haveRIO.pixel_on(),
   useSCT          = DetFlags.haveRIO.SCT_on(),
-  useTRT          = DetFlags.haveRIO.TRT_on() )
- 
+  useTRT          = DetFlags.haveRIO.TRT_on(),
+  ClusterSplitProbabilityName = TrackingCommon.combinedClusterSplitProbName())
+
+#@TODO the value of the ClusterSplitProbabilityName depends on the input ID tracks that have been used
+#      for the combined muons. So, this tool is not universally usable. For example online muons are
+#      based on tracks for which the cluster splitting probabilities are not computed. For such cases
+#      the property should be set to an empty string.
+
 # default CombinedMuonTrackSummary
 # @TODO doHolesMuon = False correct ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
@@ -104,7 +116,6 @@ if DetFlags.haveRIO.pixel_on():
     name                       = "CombinedMuonPixelToTPID")
 
   # set properties into public tools
-  ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = InDetPixelConditionsSummaryTool
   ToolSvc.CombinedMuonIDSummaryHelper.PixelToTPIDTool = ToolSvc.CombinedMuonPixelToTPID
   ToolSvc.CombinedMuonIDSummaryHelper.TestBLayerTool  = ToolSvc.CombinedMuonTestBLayer
   ToolSvc.CombinedMuonTrackSummary.PixelToTPIDTool    = ToolSvc.CombinedMuonPixelToTPID
@@ -115,5 +126,5 @@ if DetFlags.haveRIO.SCT_on():
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetSCT_ConditionsSummaryTool
+  ToolSvc.CombinedMuonIDBoundaryCheckTool.SctSummaryTool = InDetSCT_ConditionsSummaryTool
 

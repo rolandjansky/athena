@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLUTILITIES_ATHENAATTRIBUTELISTSPECIFICATION_H
@@ -205,7 +205,7 @@ AthenaAttributeListSpecification::const_iterator::operator*() const
 inline void
 AthenaAttributeListSpecification::const_iterator::operator++()
 {
-  m_iterator++;
+  ++m_iterator;
 }
 
 inline bool

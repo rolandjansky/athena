@@ -1,152 +1,195 @@
-#
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-#
+#!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+"""Set up to read and/or write bytestream files.
 
+This module configures the Athena components required to read from
+RAW/bytestream input. Use either byteStreamReadCfg to set up for reading
+and byteStreamWriteCfg to set up for writing. Merge the component accumulator
+the functions return into your job configuration as needed.
+
+Executing this module will run a short test over 10 events. The events are read
+from the default bytestream input on CVMFS and written to a local bytestream
+file.
+
+    Typical usage examples:
+
+        component_accumulator.merge(byteStreamReadCfg(ConfigFlags))
+"""
+import AthenaConfiguration.ComponentFactory
+import AthenaConfiguration.AllConfigFlags
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.TestDefaults import defaultTestFiles
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+from AthenaCommon.Configurable import Configurable
+from AthenaCommon.Logging import logging
+from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 
 
-def ByteStreamReadCfg( inputFlags, typeNames=[] ):
+def ByteStreamReadCfg(flags, type_names=None):
+    """Set up to read from a bytestream file
+
+    The function adds the components required to read events and metadata from
+    bytestream input. May be used to read events from a secondary input as well
+    primary input file.
+
+    Args:
+        flags:      Job configuration, usually derived from ConfigFlags
+        type_names: (optional) specific type names for address provider to find
+
+    Returns:
+        A component accumulator fragment containing the components required to
+        read from bytestream. Should be merged into main job configuration.
     """
-    Creates accumulator for BS reading
-    """
+    result = ComponentAccumulator()
+    comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
 
-    acc = ComponentAccumulator()
-    
-    ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream=CompFactory.getComps("ByteStreamCnvSvc","ByteStreamEventStorageInputSvc","EventSelectorByteStream",)
+    bytestream_conversion = comp_factory.ByteStreamCnvSvc()
+    result.addService(bytestream_conversion)
 
-    if inputFlags.Input.SecondaryFiles:
-        filenames = inputFlags.Input.SecondaryFiles
-        eventSelector = EventSelectorByteStream("SecondaryEventSelector", IsSecondary=True)
-        acc.addService( eventSelector )
+    bytestream_input = comp_factory.ByteStreamEventStorageInputSvc(
+        name="ByteStreamInputSvc",
+        EventInfoKey="{}EventInfo".format(
+            flags.Overlay.BkgPrefix if flags.Overlay.DataOverlay else ""
+        ),
+    )
+    result.addService(bytestream_input)
+
+    if flags.Input.SecondaryFiles:
+        event_selector = comp_factory.EventSelectorByteStream(
+            name="SecondaryEventSelector",
+            IsSecondary=True,
+            Input=flags.Input.SecondaryFiles,
+            ByteStreamInputSvc=bytestream_input.name,
+        )
+        result.addService(event_selector)
     else:
-        filenames = inputFlags.Input.Files
-        xAODMaker__EventInfoSelectorTool = CompFactory.xAODMaker.EventInfoSelectorTool
-        xconv = xAODMaker__EventInfoSelectorTool()
-        eventSelector = EventSelectorByteStream("EventSelector")
-        eventSelector.HelperTools += [xconv]
-        acc.addService( eventSelector )
-        acc.setAppProperty( "EvtSel", eventSelector.name )
+        event_selector = comp_factory.EventSelectorByteStream(
+            name="EventSelector",
+            Input=flags.Input.Files,
+            SkipEvents=flags.Exec.SkipEvents,
+            ByteStreamInputSvc=bytestream_input.name,
+        )
+        event_selector.HelperTools += [
+            comp_factory.xAODMaker.EventInfoSelectorTool()
+        ]
+        result.addService(event_selector)
+        result.setAppProperty("EvtSel", event_selector.name)
 
-    bsInputSvc = ByteStreamEventStorageInputSvc( "ByteStreamInputSvc" )
-    bsInputSvc.FullFileName = filenames
-    if inputFlags.Overlay.DataOverlay:
-        bsInputSvc.EventInfoKey = inputFlags.Overlay.BkgPrefix + "EventInfo"
-    acc.addService( bsInputSvc )
+    event_persistency = comp_factory.EvtPersistencySvc(
+        name="EventPersistencySvc", CnvServices=[bytestream_conversion.name]
+    )
+    result.addService(event_persistency)
 
-    EvtPersistencySvc=CompFactory.EvtPersistencySvc
-    eventPersistencySvc = EvtPersistencySvc( "EventPersistencySvc" )
-    acc.addService( eventPersistencySvc )
-    
-    bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name
-    eventPersistencySvc.CnvServices = [ bsCnvSvc.name ]
-    acc.addService( bsCnvSvc )
+    result.addService(comp_factory.ROBDataProviderSvc())
 
-    ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
-    robDPSvc = ROBDataProviderSvc()
-    acc.addService( robDPSvc ) 
+    address_provider = comp_factory.ByteStreamAddressProviderSvc(
+        TypeNames=type_names if type_names else list(),
+    )
+    result.addService(address_provider)
 
-    ByteStreamAddressProviderSvc=CompFactory.ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
-    acc.addService( bsAddressProviderSvc )
-    
-    ProxyProviderSvc=CompFactory.ProxyProviderSvc
+    result.merge(
+        MetaDataSvcCfg(flags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"])
+    )
 
-    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
-    acc.merge(MetaDataSvcCfg(inputFlags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"]))
-    
-    proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name ]
-    acc.addService( proxy )
+    proxy = comp_factory.ProxyProviderSvc()
+    proxy.ProviderNames += [address_provider.name]
+    result.addService(proxy)
 
-    bsCnvSvc.InitCnvs += [ "EventInfo",]
-
-    return acc
-
-def TrigBSReadCfg(inputFlags):
-
-    acc=ByteStreamReadCfg( inputFlags )
-
-    bsCnvSvc=acc.getService("ByteStreamCnvSvc")
-    bsCnvSvc.InitCnvs += ["HLT::HLTResult" ]
-    
-    bsAddressProviderSvc=acc.getService("ByteStreamAddressProviderSvc")
-
-    bsAddressProviderSvc.TypeNames += [
-        "TileCellIDC/TileCellIDC",
-        "MdtDigitContainer/MDT_DIGITS",
-        "RpcDigitContainer/RPC_DIGITS",
-        "TgcDigitContainer/TGC_DIGITS",
-        "CscDigitContainer/CSC_DIGITS",
-        "MuCTPI_RIO/MUCTPI_RIO",
-        "CTP_RIO/CTP_RIO"
-    ]
-
-    bsAddressProviderSvc.TypeNames += [
-        "LArRawChannelContainer/LArRawChannels",
-        "TileRawChannelContainer/TileRawChannelCnt",
-        "MuCTPI_RDO/MUCTPI_RDO",
-        "HLT::HLTResult/HLTResult_L2",
-        "HLT::HLTResult/HLTResult_EF",
-        "CTP_RDO/CTP_RDO",
-        "L1TopoRDOCollection/L1TopoRDOCollection"
-    ]
+    return result
 
 
-    
-    if inputFlags.Input.isMC is False:
-        bsCnvSvc.GetDetectorMask=True
-        from IOVDbSvc.IOVDbSvcConfig import addFolders
-        acc.merge(addFolders(inputFlags,'/TDAQ/RunCtrl/SOR_Params','TDAQ' ))
-        # still need to figure out how conditions are setup in new system
-        #from IOVDbSvc.CondDB import conddb
-        #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
-        #acc.addService( conddb )    
+def ByteStreamWriteCfg(flags, type_names=None):
+    """Set up output stream in RAW/bytestream format
 
-    return acc
+    Configure components responsible for writing bytestream format. Write job
+    results to bytestream file. ATLAS file naming conventions are enforced as
+    determined from the given configuration flags.
 
+    Args:
+        flags:      Job configuration, usually derived from ConfigFlags
+        type_names: (optional) Specify item list for output stream to write
 
-def ByteStreamWriteCfg( flags, typeNames=[] ):
-    acc = ComponentAccumulator()
-    outputSvc = CompFactory.ByteStreamEventStorageOutputSvc()
-    outputSvc.MaxFileMB = 15000
-    # event (beyond which it creates a new file)
-    outputSvc.MaxFileNE = 15000000
-    outputSvc.OutputDirectory = "./"
-    outputSvc.AppName = "Athena"
+    Returns:
+        A component accumulator fragment containing the components required to
+        write to bytestream. Should be merged into main job configuration.
+    """
+    all_runs = set(flags.Input.RunNumber)
+    assert (
+        len(all_runs) == 1
+    ), "Input is from multiple runs, do not know which one to use {}".format(
+        all_runs
+    )
+
+    result = ComponentAccumulator("AthOutSeq")
+    comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
+
+    event_storage_output = comp_factory.ByteStreamEventStorageOutputSvc(
+        MaxFileMB=15000,
+        MaxFileNE=15000000,  # event (beyond which it creates a new file)
+        OutputDirectory="./",
+        AppName="Athena",
+        RunNumber=all_runs.pop(),
+        OutputLevel=2,
+    )
+    result.addService(event_storage_output)
     # release variable depends the way the env is configured
-    #FileTag = release
-    allRuns = set(flags.Input.RunNumber)
-    assert len(allRuns) == 1, "The input is from multiple runs, do not know which one to use {}".format(allRuns)
-    outputSvc.RunNumber = allRuns.pop()
+    # FileTag = release
 
-    bsCnvSvc  = CompFactory.ByteStreamCnvSvc("OutBSCnvSvc")
-    # TODO for technical reasons a separate instance of the ByteStreamCnvSvc have to be created, once all the config (i.e. trigger) is moved to CA based the name needs to be left default
-    # to test such change the test_trig_data_v1Dev_writeBS_build.py can be used
+    bytestream_conversion = comp_factory.ByteStreamCnvSvc(
+        name="ByteStreamCnvSvc",
+        ByteStreamOutputSvcList=[event_storage_output.getName()],
+        OutputLevel=2,
+    )
+    result.addService(bytestream_conversion)
 
-    bsCnvSvc.ByteStreamOutputSvcList = [ outputSvc.getName() ]
-    streamAlg = CompFactory.AthenaOutputStream( "BSOutputStreamAlg",
-                                                EvtConversionSvc = bsCnvSvc.getName(),
-                                                ItemList = typeNames )
+    output_stream = comp_factory.AthenaOutputStream(
+        name="BSOutputStreamAlg",
+        EvtConversionSvc=bytestream_conversion.name,
+        OutputFile="ByteStreamEventStorageOutputSvc",
+        ItemList=type_names if type_names else list(),
+        OutputLevel=2,
+    )
+    result.addEventAlgo(output_stream, primary=True)
 
-    acc.addService( outputSvc )
-    acc.addService( bsCnvSvc )
-    acc.addSequence( CompFactory.AthSequencer("AthOutSeq") )
-    acc.addEventAlgo( streamAlg, sequenceName="AthOutSeq", primary = True )
+    result.merge(IOVDbSvcCfg(flags))
 
-    return acc
+    result.merge(
+        MetaDataSvcCfg(flags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"])
+    )
 
+    return result
+
+
+def main():
+    """Run a functional test if module is executed"""
+    log = logging.getLogger('ByteStreamConfig')
+    Configurable.configurableRun3Behavior = True
+
+    config_flags = AthenaConfiguration.AllConfigFlags.ConfigFlags
+    config_flags.Input.Files = defaultTestFiles.RAW
+    config_flags.Output.doWriteBS = True
+    config_flags.lock()
+
+    read = ByteStreamReadCfg(config_flags)
+    read.store(open("test.pkl", "wb"))
+    print("All OK")
+
+    write = ByteStreamWriteCfg(config_flags)
+    write.printConfig()
+    log.info("Write setup OK")
+
+    acc = MainServicesCfg(config_flags)
+    acc.merge(read)
+    acc.merge(write)
+    acc.printConfig()
+    log.info("Config OK")
+
+    with open('ByteStreamConfig.pkl', 'wb') as pkl:
+        acc.store(pkl)
+
+    acc.run(10)
 
 
 if __name__ == "__main__":
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags    
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
-
-    acc = TrigBSReadCfg( ConfigFlags )
-    acc.store( open( "test.pkl", "wb" ) )
-    print("All OK")
+    main()

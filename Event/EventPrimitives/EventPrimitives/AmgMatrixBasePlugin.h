@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,14 +73,14 @@
         return -std::log(std::tan(this->theta()*.5)); //TODO: slow
     } //old method with safeguards, new method is in SymmetricMatrixHelpers.h 
 
-    inline Scalar deltaR(const MatrixBase<Derived>& vec){
+    inline Scalar deltaR(const MatrixBase<Derived>& vec) const {
     if (this->rows() < 2) return 0.;
     double a = this->eta() - vec.eta();
     double b = this->deltaPhi(vec);
     return std::sqrt ( a*a + b*b );
     }
 
-    inline Scalar deltaPhi(const MatrixBase<Derived>& vec){
+    inline Scalar deltaPhi(const MatrixBase<Derived>& vec) const {
     if (this->rows() < 2) return 0.;
     double dphi = vec.phi() - this->phi();
     if ( dphi > M_PI ) {

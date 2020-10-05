@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FatrasDetDescrTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrInterfaces
-                          Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
-                          Tracking/TrkDetDescr/TrkDetDescrInterfaces
-                          Tracking/TrkDetDescr/TrkDetDescrUtils
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          PRIVATE
-                          Control/StoreGate
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkVolumes )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS RIO Core Tree MathCore Hist pthread )
@@ -36,14 +19,8 @@ atlas_add_library( ISF_FatrasDetDescrToolsLib
 
 atlas_add_component( ISF_FatrasDetDescrTools
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel ISF_FatrasDetDescrInterfaces ISF_FatrasDetDescrModel TrkDetDescrInterfaces TrkDetDescrUtils TrkSurfaces StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry TrkGeometry TrkVolumes ISF_FatrasDetDescrToolsLib )
+                     LINK_LIBRARIES ISF_FatrasDetDescrToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/*.py )
-
-atlas_add_test( flake8_share
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900 ${CMAKE_CURRENT_SOURCE_DIR}/share
-                POST_EXEC_SCRIPT nopost.sh )
-
+atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )

@@ -23,31 +23,13 @@ def generateChainConfigs(chainDict):
         Muon = MuonChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Muon]
-
         
 
     if len(listOfChainDefs)>1:
-         ## if 'noL1' in chainDict['chainName']:
-         ##    theChainDef = mergeSerial(listOfChainDefs)
-         ## else:
-            theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
+        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
 
     return theChainDef
-
-def mergeSerial(listOfChainDefs):
-
-    chaindef = listOfChainDefs[0]
-    listOfChainDefs.pop(0)
-    steps = chaindef.steps
-
-    for cdef in listOfChainDefs:
-        csteps = cdef.steps 
-        for step in csteps:
-            steps.append(step)
-
-    return chaindef
-
 
 

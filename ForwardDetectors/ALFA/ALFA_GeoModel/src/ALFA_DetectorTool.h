@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_DETECTORTOOL_H
@@ -22,7 +22,7 @@ typedef struct _USERTRANSFORM
 } USERTRANSFORM, *PUSERTRANSFORM;
 
 
-class ALFA_DetectorTool : public GeoModelTool 
+class ALFA_DetectorTool final : public GeoModelTool 
 {
 	private:
 		CONFIGURATION m_Config;

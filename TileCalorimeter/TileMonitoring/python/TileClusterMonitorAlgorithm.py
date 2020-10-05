@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileClusterMonitorAlgorithm.py
@@ -36,6 +36,9 @@ def TileClusterMonitoringConfig(flags, **kwargs):
     #     bit4_RPC, bit5_FTK, bit6_CTP, bit7_Calib, AnyPhysTrig
     kwargs.setdefault('fillHistogramsForL1Triggers', ['AnyPhysTrig', 'bit7_Calib'])
     l1Triggers = kwargs['fillHistogramsForL1Triggers']
+
+    kwargs.setdefault('fillTimingHistograms', flags.Common.isOnline)
+    fillTimingHistograms = kwargs['fillTimingHistograms']
 
     for k, v in kwargs.items():
         setattr(tileClusterMonAlg, k, v)
@@ -152,6 +155,15 @@ def TileClusterMonitoringConfig(flags, **kwargs):
                              perGain = False, subDirectory = False, allPartitions = False)
 
 
+    if fillTimingHistograms:
+        # ) Configure histograms with Tile partition time vs lumiBlock per partition
+        titlePartitionTime = 'Tile partition time vs luminosity block;LumiBlock;t[ns]'
+        addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TilePartitionTimeLB',
+                                 xvalue = 'lumiBlock', value = 'time', title = titlePartitionTime, path = 'Tile/Cluster',
+                                 xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
+                                 subDirectory = False, perPartition = True, perSample = False, perGain = False, allPartitions = True)
+
+
     accumalator = helper.result()
     result.merge(accumalator)
     return result
@@ -179,15 +191,16 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     l1Triggers = ['bit0_RNDM', 'bit1_ZeroBias', 'bit2_L1Cal', 'bit3_Muon',
                   'bit4_RPC', 'bit5_FTK', 'bit6_CTP', 'bit7_Calib', 'AnyPhysTrig']
 
     cfg.merge( TileClusterMonitoringConfig(ConfigFlags,
+                                           fillTimingHistograms = True,
                                            fillHistogramsForL1Triggers = l1Triggers) )
 
     cfg.printConfig(withDetails = True, summariseProps = True)

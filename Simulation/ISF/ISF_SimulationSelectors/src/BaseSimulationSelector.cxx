@@ -11,7 +11,7 @@
 /** Constructor with parameters */
 ISF::BaseSimulationSelector::BaseSimulationSelector(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_simulator("DefaultSimulator", name),
+  m_simulator("", name),
   m_isDynamic(false),
   m_invertCuts(false)
 {
@@ -24,7 +24,7 @@ ISF::BaseSimulationSelector::BaseSimulationSelector(const std::string& type, con
   m_simFlavorProp.declareUpdateHandler(&ISF::BaseSimulationSelector::SimulationFlavorHandler, this);
 }
 
-void ISF::BaseSimulationSelector::SimulationFlavorHandler(Property&)
+void ISF::BaseSimulationSelector::SimulationFlavorHandler(Gaudi::Details::PropertyBase&)
 {
   // FIXME would probably be better to have this in SimulationFlavor.h
   switch(m_simFlavorProp.value())
@@ -44,7 +44,10 @@ void ISF::BaseSimulationSelector::SimulationFlavorHandler(Property&)
 StatusCode ISF::BaseSimulationSelector::sysInitialize()
 {
   ATH_CHECK( AthAlgTool::sysInitialize() );
-  ATH_CHECK( m_simulator.retrieve() );
+
+  if (!m_simulator.empty()) {
+    ATH_CHECK( m_simulator.retrieve() );
+  }
 
   return StatusCode::SUCCESS;
 }

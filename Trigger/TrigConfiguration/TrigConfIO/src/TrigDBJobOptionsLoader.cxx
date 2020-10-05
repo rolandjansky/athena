@@ -2,109 +2,95 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "./TrigDBHelper.h"
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
-
-#include "CoralBase/Exception.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/Blob.h"
-
-#include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IRelationalDomain.h"
-#include "RelationalAccess/ConnectionService.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
-#include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/IQuery.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ICursor.h"
-#include "RelationalAccess/ITransaction.h"
-
-
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
-#include "boost/iostreams/stream.hpp"
-
-#include <memory>
-#include <exception>
-
-using ptree = boost::property_tree::ptree;
 
 TrigConf::TrigDBJobOptionsLoader::TrigDBJobOptionsLoader(const std::string & connection) : 
    TrigDBLoader("TrigDBJobOptionsLoader", connection)
-{}
+{
+   { // query for schema version 1
+      auto & q = m_queries[1];
+      // tables
+      q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
+      q.addToTableList ( "JO_MASTER_TABLE", "JOMT" );
+      // bind vars
+      q.extendBinding<int>("smk");
+      // conditions
+      q.extendCondition("SMT.SMT_ID = :smk");
+      q.extendCondition(" AND SMT.SMT_JO_MASTER_TABLE_ID = JOMT.JO_ID");
+      // attributes
+      q.extendOutput<std::string>( "SMT.SMT_NAME" );
+      q.extendOutput<int>        ( "SMT.SMT_JO_MASTER_TABLE_ID" );
+      q.extendOutput<coral::Blob>( "JOMT.JO_CONTENT" );
+      // the field with the data
+      q.setDataName("JOMT.JO_CONTENT");
+   }
+   { // query for schema version 2
+      auto & q = m_queries[2];
+      // tables
+      q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
+      q.addToTableList ( "HLT_JOBOPTIONS", "HJO" );
+      // bind vars
+      q.extendBinding<int>("smk");
+      // conditions
+      q.extendCondition("SMT.SMT_ID = :smk");
+      q.extendCondition("AND HJO.HJO_ID=SMT.SMT_HLT_JOBOPTIONS_ID");
+      // attributes
+      q.extendOutput<std::string>( "SMT.SMT_NAME" );
+      q.extendOutput<int>        ( "SMT.SMT_HLT_JOBOPTIONS_ID" );
+      q.extendOutput<coral::Blob>( "HJO.HJO_DATA" );
+      // the field with the data
+      q.setDataName("HJO.HJO_DATA");
+   }
+}
 
-TrigConf::TrigDBJobOptionsLoader::~TrigDBJobOptionsLoader()
-{}
-
+TrigConf::TrigDBJobOptionsLoader::~TrigDBJobOptionsLoader() = default;
 
 bool
 TrigConf::TrigDBJobOptionsLoader::loadJobOptions ( unsigned int smk,
-                                                   boost::property_tree::ptree & jobOptions ) const
+                                                   boost::property_tree::ptree & jobOptions,
+                                                   const std::string & outFileName ) const
 {
    auto session = createDBSession();
    session->transaction().start( /*bool readonly=*/ true);
-   
-   std::unique_ptr< coral::IQuery > query( session->nominalSchema().newQuery() );
-   query->addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
-   query->addToTableList ( "JO_MASTER_TABLE", "JOMT" );
-
-   // bind list
-   coral::AttributeList bindList;
-   bindList.extend<int>("smk");
-   bindList[0].data<int>() = smk;
-
-   // condition clause
-   std::string theCondition = "";
-   theCondition += std::string( " SMT.SMT_ID = :smk"        );
-   theCondition += std::string( " AND SMT.SMT_JO_MASTER_TABLE_ID = JOMT.JO_ID" );
-
-   query->setCondition( theCondition, bindList );
-
-   // output data and types
-   coral::AttributeList attList;
-   attList.extend<std::string>( "SMT.SMT_NAME" );
-   attList.extend<int>        ( "SMT.SMT_VERSION" );
-   attList.extend<int>        ( "SMT.SMT_JO_MASTER_TABLE_ID" );
-   attList.extend<coral::Blob>( "JOMT.JO_CONTENT" );
-
-   query->defineOutput(attList);
-   for( const coral::Attribute & attr : attList) {
-      query->addToOutputList(attr.specification().name());
+   QueryDefinition qdef = getQueryDefinition(session.get(), m_queries);
+   try {
+      qdef.setBoundValue<int>("smk", smk);
+      auto q = qdef.createQuery( session.get() );
+      auto & cursor = q->execute();
+      if ( ! cursor.next() ) {
+         TRG_MSG_ERROR("Tried reading HLT job options, but SuperMasterKey " << smk << " is not available" );
+         throw TrigConf::NoSMKException("TrigDBJobOptionsLoader: SMK " + std::to_string(smk) + " not available");
+      }
+      const coral::AttributeList& row = cursor.currentRow();
+      const coral::Blob& dataBlob = row[qdef.dataName()].data<coral::Blob>();
+      writeRawFile( dataBlob, outFileName );
+      blobToPtree( dataBlob, jobOptions );
    }
-
-   coral::ICursor& cursor = query->execute();
-
-   if ( ! cursor.next() ) {
-      throw std::runtime_error( "TrigDBJobOptionsLoader: SuperMasterKey not available" );
+   catch(coral::QueryException & ex) {
+      TRG_MSG_ERROR("When reading HLT job options for SMK " << smk << " a coral::QueryException was caught ( " << ex.what() <<" )" );
+      throw TrigConf::QueryException("TrigDBJobOptionsLoader: " + std::string(ex.what()));
    }
-	
-   const coral::AttributeList& row = cursor.currentRow();
-
-   const coral::Blob& joBlob = row["JOMT.JO_CONTENT"].data<coral::Blob>();
-   boost::iostreams::stream<boost::iostreams::array_source> stream( static_cast<const char*> ( joBlob.startingAddress()), joBlob.size());
-   boost::property_tree::read_json(stream, jobOptions);
-
-   session->transaction().commit();
-
    return true;
 }
 
 
 bool
 TrigConf::TrigDBJobOptionsLoader::loadJobOptions ( unsigned int smk,
-                                                   DataStructure & jobOptions ) const
+                                                   DataStructure & jobOptions,
+                                                   const std::string & outFileName ) const
 {
 
    boost::property_tree::ptree ptJobOptions;
-
-   bool success = this -> loadJobOptions( smk, ptJobOptions);
-
-   if(!success)
-      return false;
-
-   if( ! ptJobOptions.empty() )
+   loadJobOptions( smk, ptJobOptions, outFileName );
+   try {
       jobOptions.setData(std::move(ptJobOptions));
-
+   }
+   catch(std::exception & ex) {
+      jobOptions.clear();
+      TRG_MSG_ERROR("When reading HLT job options for SMK " << smk << " a parsing error occured ( " << ex.what() <<" )" );
+      throw TrigConf::ParsingException("TrigDBJobOptionsLoader: parsing error " + std::string(ex.what()));
+   }
    return true;
 }
 

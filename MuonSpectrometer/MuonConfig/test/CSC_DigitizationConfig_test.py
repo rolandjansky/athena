@@ -8,7 +8,7 @@ from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from MuonConfig.CSC_DigitizationConfig import CSC_DigitBuilderDigitToRDOCfg
@@ -23,7 +23,7 @@ ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.lock()
 # Function tests
 # Construct our accumulator to run
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(CSC_DigitBuilderDigitToRDOCfg(ConfigFlags))
 # Dump config

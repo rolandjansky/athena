@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -67,7 +67,7 @@ public:
 
   int init_channels (const std::set<Identifier>& ids,
                      size_type end_index,
-                     const MultiRange* full_range = 0)
+                     const MultiRange* full_range = nullptr)
   {
     return channels().init (name() + ".channels",
                             ids, end_index, m_msgSvc, full_range);
@@ -75,7 +75,7 @@ public:
 
   int init_regions (const std::set<Identifier>& ids,
                     size_type end_index,
-                    const MultiRange* full_range = 0)
+                    const MultiRange* full_range = nullptr)
   {
     return regions().init (name() + ".regions",
                            ids, end_index, m_msgSvc, full_range);
@@ -91,7 +91,7 @@ void test_hashgroup()
   for (unsigned int i = 100; i < 200; i += 10)
     ids.insert (Identifier (i));
   CaloIDHelper::HashGroup hg;
-  assert (hg.init ("hg", ids, 3, 0) == 0);
+  assert (hg.init ("hg", ids, 3, nullptr) == 0);
   assert (hg.hash_max() == 10);
 
   std::vector<Identifier> vids (ids.begin(), ids.end());
@@ -134,7 +134,7 @@ void test_hashgroup()
   assert (mr.cardinality() == 10);
 
   CaloIDHelper::HashGroup hg2;
-  assert (hg2.init ("hg2", ids, 3, 0, &mr) == 0);
+  assert (hg2.init ("hg2", ids, 3, nullptr, &mr) == 0);
 
   CaloIDHelperTest helper ("helper");
   CaloIDHelper::HashGroup hg3;
@@ -152,7 +152,7 @@ void test_helper()
 
   CaloIDHelperTest helper ("helper");
   assert (helper.name() == "helper");
-  assert (helper.msgSvc() == 0);
+  assert (helper.msgSvc() == nullptr);
 
 
   IdDictParser parser;
@@ -162,7 +162,7 @@ void test_helper()
 
   assert (helper.initialize_base_from_dictionary(idd, "LArCalorimeterx") == 1);
   assert (helper.initialize_base_from_dictionary(idd, "LArCalorimeter") == 0);
-  assert (helper.dict() != 0);
+  assert (helper.dict() != nullptr);
 
   std::set<Identifier> chan_ids;
   for (unsigned int i = 1000; i < 1200; i += 10)

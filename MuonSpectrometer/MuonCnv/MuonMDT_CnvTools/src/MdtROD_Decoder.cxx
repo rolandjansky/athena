@@ -1,14 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Implementation of MDTROD_Decoder class 
-
 #include "MdtROD_Decoder.h"
-
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/GaudiException.h"
-//#include "GaudiKernel/MsgStream.h"
 
 #include "eformat/Issue.h"
 
@@ -20,25 +14,16 @@ static const InterfaceID IID_IMdtROD_Decoder
             ("MdtROD_Decoder", 1, 0);
 
 /** constructor 
-*/ 
-
+*/
 MdtROD_Decoder::MdtROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
 :  AthAlgTool(type,name,parent), 
    m_hid2re(0), m_rodReadOut(0), m_csmReadOut(0), 
    m_amtReadOut(0), m_hptdcReadOut(0), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1)
-   //   m_debug(false),
-   //   m_log (msgSvc(), name) 
 {
   declareInterface< MdtROD_Decoder  >( this );
 
   declareProperty("SpecialROBNumber",m_specialROBNumber=-1);
-}
-
-/** destructor 
-*/ 
-MdtROD_Decoder::~MdtROD_Decoder() {
-
 }
 
 const InterfaceID& MdtROD_Decoder::interfaceID( ) { 
@@ -46,19 +31,11 @@ const InterfaceID& MdtROD_Decoder::interfaceID( ) {
 }
 
 StatusCode MdtROD_Decoder::initialize() {
-
-  // m_log.setLevel(outputLevel());
-  
-  // Retrieve the MuonIdHelperTool
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   // Here the mapping service has to be initialized
   m_hid2re=new MDT_Hid2RESrcID();
-  StatusCode sc = m_hid2re->set(m_muonIdHelperTool.get()); 
-  if ( !sc.isSuccess() ) {
-    ATH_MSG_ERROR(" Can't initialize MDT mapping");
-    return sc;
-  }
+  ATH_CHECK(m_hid2re->set(&m_idHelperSvc->mdtIdHelper())); 
 
   // Initialize decoding classes
   m_rodReadOut = new MdtRODReadOut();
@@ -67,15 +44,15 @@ StatusCode MdtROD_Decoder::initialize() {
   m_hptdcReadOut = new MdtHptdcReadOut();
 
   // check if the layout includes elevator chambers
-  m_BMEpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME") != -1;
+  m_BMEpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME") != -1;
   if(m_BMEpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BME chambers.");
-    m_BMEid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BME");
+    m_BMEid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME");
   }
-  m_BMGpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
+  m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
   if(m_BMGpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_BMGid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
+    m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
   }
 
   ATH_CHECK( m_readKey.initialize() );
@@ -287,22 +264,18 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
     ATH_MSG_DEBUG("Name : " << StationName);
     ATH_MSG_DEBUG("Eta  : " << StationEta);
     ATH_MSG_DEBUG("Phi  : " << StationPhi);	
-       
-    //    bool isValid = true;
-    //    moduleId = m_muonIdHelperTool->mdtIdHelper().elementID(StationName, StationEta, StationPhi,
-    //                                    true,&isValid);
       
     if (m_BMEpresent) {
       // for layouts with BMEs (read out by 2 CSMs) the RDOs have to be registered with the detectorElement hash
       // registration of common chambers is always done with detectorElement hash of 1st multilayer
       // boundary in BME when 2nd CSM starts is (offline!) tube 43, 1st CMS is registered with ML1 hash, 2nd CSM is ML2 hash
       if (StationName == m_BMEid && Tube > 42)
-        moduleId = m_muonIdHelperTool->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 2, 1, 1);
+        moduleId = m_idHelperSvc->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 2, 1, 1);
       else
-        moduleId = m_muonIdHelperTool->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 1, 1, 1);
+        moduleId = m_idHelperSvc->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 1, 1, 1);
     } else
       // for layouts with no BME the module hash keeps being used for registration
-      moduleId = m_muonIdHelperTool->mdtIdHelper().elementID(StationName, StationEta, StationPhi);
+      moduleId = m_idHelperSvc->mdtIdHelper().elementID(StationName, StationEta, StationPhi);
 
     if (!cab) {
       ATH_MSG_DEBUG("Cabling not understood");
@@ -548,14 +521,14 @@ std::pair<IdentifierHash, Identifier>  MdtROD_Decoder::getHash ( Identifier iden
     IdentifierHash idHash;
     Identifier regid;
     if (m_BMEpresent) {
-      regid = m_muonIdHelperTool->mdtIdHelper().channelID(m_muonIdHelperTool->mdtIdHelper().stationName(ident),
-				       m_muonIdHelperTool->mdtIdHelper().stationEta(ident),
-				       m_muonIdHelperTool->mdtIdHelper().stationPhi(ident),
-				       m_muonIdHelperTool->mdtIdHelper().multilayer(ident), 1, 1 );
-      m_muonIdHelperTool->mdtIdHelper().get_detectorElement_hash(regid, idHash);
+      regid = m_idHelperSvc->mdtIdHelper().channelID(m_idHelperSvc->mdtIdHelper().stationName(ident),
+				       m_idHelperSvc->mdtIdHelper().stationEta(ident),
+				       m_idHelperSvc->mdtIdHelper().stationPhi(ident),
+				       m_idHelperSvc->mdtIdHelper().multilayer(ident), 1, 1 );
+      m_idHelperSvc->mdtIdHelper().get_detectorElement_hash(regid, idHash);
     } else {
       regid = ident;
-      m_muonIdHelperTool->mdtIdHelper().get_module_hash(regid, idHash);
+      m_idHelperSvc->mdtIdHelper().get_module_hash(regid, idHash);
     }
     return std::make_pair(idHash, regid);
 }

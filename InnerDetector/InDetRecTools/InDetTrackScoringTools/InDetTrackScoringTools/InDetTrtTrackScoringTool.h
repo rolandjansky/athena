@@ -12,6 +12,9 @@
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 #include <vector>
 #include <string>
 
@@ -20,9 +23,6 @@ namespace Trk {
   class TrackSummary;
 }
 
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 class TRT_ID   ;
 
@@ -58,16 +58,15 @@ private:
   const TRT_ID* m_trtId;
   
   //these are used for ScoreModifiers 
-  int m_maxSigmaChi2, m_maxLogProb, m_maxTrtRatio, m_maxTrtFittedRatio;
+  int m_maxSigmaChi2, m_maxTrtRatio, m_maxTrtFittedRatio;
   
-  std::vector<double> m_factorSigmaChi2, m_factorLogProb, m_factorTrtRatio, m_factorTrtFittedRatio;
+  std::vector<double> m_factorSigmaChi2, m_factorTrtRatio, m_factorTrtFittedRatio;
   
-  std::vector<double> m_boundsSigmaChi2, m_boundsLogProb, m_boundsTrtRatio, m_boundsTrtFittedRatio;
+  std::vector<double> m_boundsSigmaChi2, m_boundsTrtRatio, m_boundsTrtFittedRatio;
 
   
   /** use the scoring tuned to Ambiguity processing or not */
   bool m_useAmbigFcn;
-  bool m_useLogProbBins;
   bool m_useSigmaChi2;
   
   /**holds the scores assigned to each Trk::SummaryType from the track's Trk::TrackSummary*/
@@ -77,9 +76,9 @@ private:
   ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool;
   /** Returns minimum number of expected TRT drift circles depending on eta. */
   ToolHandle<ITrtDriftCircleCutTool> m_selectortool;
-  /** to query magnetic field configuration */
-  ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
 
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   
   /** cuts for selecting good tracks*/
   int    m_minTRTonTrk;      //!< minimum number of TRT hits

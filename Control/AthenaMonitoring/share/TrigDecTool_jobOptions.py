@@ -21,22 +21,19 @@ if DQMonFlags.useTrigger():
          cfg = TriggerConfigGetter()
 
    if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1]):
-      tdt_local_logger.error('DQ Monitoring is being asked to set up the TrigDecisionTool for some reason.  THIS IS A TERRIBLE IDEA AND SHOULD BE CONSIDERED A BUG!')
-      from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-      monTrigDecTool = Trig__TrigDecisionTool(name=DQMonFlags.nameTrigDecTool(),
-                                              OutputLevel=ERROR,
-                                              PublicChainGroups = {"EFTau": "EF_[0-9]?tau.*",
-                                                                   "EFPhoton": "EF_[0-9]?g*",
-                                                                   "EFJets":"EF_J.*",
-                                                                  }
-                                             )
-      ToolSvc += monTrigDecTool
-      # The following should be provided automatically when setting up the tool, but is not
-      # Still needs to be provided by the trigger
-      # When trigger has a standard procedure for this, switch
-      ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
-      from TrigEDMConfig.TriggerEDM import EDMLibraries
-      ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+      if rec.doTrigger():
+         tdt_local_logger.error('DQ Monitoring is being asked to set up the TrigDecisionTool for some reason.  THIS IS A TERRIBLE IDEA AND SHOULD BE CONSIDERED A BUG!')
+      from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
+      from AthenaConfiguration.AllConfigFlags import ConfigFlags
+      if globalflags.InputFormat() == 'bytestream':
+         ConfigFlags.Input.Files=athenaCommonFlags.BSRDOInput()
+      elif globalflags.InputFormat() == 'pool':
+         ConfigFlags.Input.Files=svcMgr.EventSelector.InputCollections
+
+      from AthenaConfiguration import ComponentAccumulator
+      ComponentAccumulator.CAtoGlobalWrapper(getTrigDecisionTool, ConfigFlags)
+
+      monTrigDecTool = getattr(ToolSvc, 'TrigDecisionTool')
    else:
       monTrigDecTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1])
    tdt_local_logger.info('Scheduled monitoring TDT %s', monTrigDecTool)

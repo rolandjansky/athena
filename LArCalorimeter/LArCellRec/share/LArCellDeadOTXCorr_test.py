@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: LArCellRec/share/LArCellDeadOTXCorr_test.py
 # Author: sss
@@ -7,6 +7,7 @@
 # Brief: Unit test for LArCellDeadOTXCorr.
 #
 
+from __future__ import print_function
 
 import ROOT
 ROOT.TH1F
@@ -55,6 +56,34 @@ BADFEBS2 = [[(0, 1, 12,  3), 'deadReadout'],  # tt  0.2 2.5 (below noise)
             [(1, 0,  3,  2), 'deadReadout'],  # tt -2.8 2.8
             [(0, 0, 10,  1), 'deadReadout'],  # tt -1.0 1.1
             ]
+
+
+###########################################################################
+
+
+# feb file format:
+# barrel_ec pos_neg feedthrough slot flags
+#  0       1       12      4  deadAll
+#  1       0       16      9 deadReadout deadAll
+# badfebs is a list of (barrel_ec, pos_neg, feedthrough, slot) tuples
+def make_bad_channel_condalg (name, badfebs = []):
+    from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+    febfile = ''
+    if badfebs:
+        febfile = name + '.badfebs'
+        f = open (febfile, 'w')
+        for (feb, err) in badfebs:
+            print (feb[0], feb[1], feb[2], feb[3], err, file=f)
+        f.close()
+    alg = LArBadFebCondAlg ('LArBadFebCondAlg' + name,
+                            ReadKey = '',
+                            WriteKey = name,
+                            InputFileName = febfile)
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    condSeq += alg
+    return
 
 
 ###########################################################################
@@ -228,6 +257,10 @@ class TestAlg (Alg):
         return
 
     def initialize (self):
+        # Work around issue with cling in root 6.20.06 getting confused
+        # by forward declarations.
+        ROOT.xAOD.TriggerTowerContainer_v2
+
         ROOT.ICaloCellMakerTool
         self.tool1 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArCellDeadOTXCorr/tool1')
         self.tool2 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArCellDeadOTXCorr/tool2')
@@ -235,14 +268,10 @@ class TestAlg (Alg):
         self.idmgr = self.detStore['CaloIdManager']
         self.onlineID = self.detStore['LArOnlineID']
         self.offlineID  = self.detStore['CaloCell_ID']
-        self.ccc = make_calo_cells (self.detStore)
+        self.ccc = None
         if not self.tool1.retrieve():
             return StatusCode.Failure
         if not self.tool2.retrieve():
-            return StatusCode.Failure
-
-        self.cabling = ROOT.ToolHandle(ROOT.LArCablingService)('LArCablingService')
-        if not self.cabling.retrieve():
             return StatusCode.Failure
 
         self.ttsvc = ROOT.ToolHandle(ROOT.CaloTriggerTowerService)('CaloTriggerTowerService')
@@ -252,7 +281,11 @@ class TestAlg (Alg):
         return StatusCode.Success
 
     def execute (self):
-        iev = self.getContext().evt()
+        if not self.ccc:
+            self.ccc = make_calo_cells (self.detStore)
+
+        ctx = self.getContext()
+        iev = ctx.evt()
 
         (t, a) = make_TriggerTowerContainer()
         if not self.evtStore.record (t, 'xAODTriggerTowers', False):
@@ -283,7 +316,7 @@ class TestAlg (Alg):
                 ([34442, 34506, 34570, 34634], 1314.39941406),
                 ]
 
-        if not tool.process (self.ccc):
+        if not tool.process (self.ccc, ctx):
             return StatusCode.Failure
  
         self.check_and_reset_cells (exp_diffs)
@@ -318,15 +351,16 @@ class TestAlg (Alg):
 
     # Print list of FEBS corresponding to each entry in tt_table.
     def print_tt_febs (self):
+        cabling = self.condStore()['LArOnOffIdMap'].find (ctx.eventID())
         for tt in tt_table:
-            emid, hadid, febs = self.tt_to_febs (tt[0], tt[1])
-            print 'tt ', tt[0], tt[1], hex(emid), hex(hadid),
+            emid, hadid, febs = self.tt_to_febs (cabling, tt[0], tt[1])
+            print ('tt ', tt[0], tt[1], hex(emid), hex(hadid), end='')
             for feb, idv in febs.items():
-                print feb, hex(idv),
-            print
+                print (feb, hex(idv), end='')
+            print()
         return
         
-    def tt_to_febs (self, eta, phi):
+    def tt_to_febs (self, cabling, eta, phi):
         lvl1Helper = self.idmgr.getLVL1_ID()
         pos_neg_z = self.pos_neg_z (eta)
         region = self.region_index (eta)
@@ -337,7 +371,7 @@ class TestAlg (Alg):
         febs = {}
         for ttid in (emid, hadid):
             for cellid in self.ttsvc.createCellIDvecTT (ttid):
-                febid = self.cabling.createSignalChannelID (cellid)
+                febid = cabling.createSignalChannelID (cellid)
                 barrel_ec = self.onlineID.barrel_ec (febid)
                 pos_neg = self.onlineID.pos_neg (febid)
                 feedthrough = self.onlineID.feedthrough (febid)
@@ -379,10 +413,18 @@ class TestAlg (Alg):
         return -1
 
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
+make_bad_channel_condalg ('GoodFebs')
+make_bad_channel_condalg ('BadFebs', BADFEBS2)
+
 tool1 = LArCellDeadOTXCorrToolDefault ('tool1')
+tool1.BadFebKey = 'GoodFebs'
 ToolSvc += tool1
 
 tool2 = LArCellDeadOTXCorrToolDefault ('tool2')
+tool2.BadFebKey = 'BadFebs'
 ToolSvc += tool2
 #tool2.useL1CaloDB = True
 

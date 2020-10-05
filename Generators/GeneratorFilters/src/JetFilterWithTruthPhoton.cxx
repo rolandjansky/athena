@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -54,11 +54,8 @@ JetFilterWithTruthPhoton::JetFilterWithTruthPhoton(const std::string& name,
    m_nphicell2 = 0;
    m_netacell2 = 0;
 }
-//--------------------------------------------------------------------------
  JetFilterWithTruthPhoton::~JetFilterWithTruthPhoton(){
-//--------------------------------------------------------------------------
 }
-//---------------------------------------------------------------------------
 StatusCode JetFilterWithTruthPhoton::filterInitialize() {
 //---------------------------------------------------------------------------
   msg( MSG:: INFO) << " JetFilterWithTruthPhoton INITIALISING.  \n"  << endmsg;
@@ -130,28 +127,24 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
     }
   }
 
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
+  std::vector<HepMC::ConstGenParticlePtr> MCTruthPhotonList;
   MCTruthPhotonList.clear();
 
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     // Loop over all particles in the event and build up the grid
     const HepMC::GenEvent* genEvt = (*itr);
-    for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();
-	pitr!=genEvt->particles_end(); ++pitr ){
-      if( (*pitr)->status() == 1 ){// stables only
-	if( ((*pitr)->pdg_id() != 13 ) &&  ((*pitr)->pdg_id() != -13 ) 
-	    &&((*pitr)->pdg_id() != 12 ) && ((*pitr)->pdg_id() != -12 ) 
-	    &&((*pitr)->pdg_id() != 14 ) && ((*pitr)->pdg_id() != -14 ) 
-	    &&((*pitr)->pdg_id() != 16 ) && ((*pitr)->pdg_id() != -16 ) 
-	    && (fabs((*pitr)->momentum().pseudoRapidity()) <= m_emaxeta) 
+    for(auto part: *genEvt){
+      if( part->status() == 1 ){// stables only
+	if( (part->pdg_id() != 13 ) &&  (part->pdg_id() != -13 ) 
+	    &&(part->pdg_id() != 12 ) && (part->pdg_id() != -12 ) 
+	    &&(part->pdg_id() != 14 ) && (part->pdg_id() != -14 ) 
+	    &&(part->pdg_id() != 16 ) && (part->pdg_id() != -16 ) 
+	    && (std::abs(part->momentum().pseudoRapidity()) <= m_emaxeta) 
 	     ){	// no neutrinos or muons and particles must be in active range
 	  int ip,ie;
-	  //	  std::cout << (*pitr)->momentum().phi() << "eta" << (*pitr)->momentum().pseudoRapidity() << std::endl;
-	  ip=(int) ((m_twopi/2.+ (*pitr)->momentum().phi())/m_edphi); //phi is in range -pi to pi
-	  ie=(int) (((*pitr)->momentum().pseudoRapidity()+m_emaxeta)/m_edeta);
-	  //	  	  std::cout << ip << "   "<< ie <<std::endl;
-	  //		  std::cout << " true rap " << (*pitr)->momentum().pseudoRapidity() << "false rap " << (ie+0.5)*m_edeta-m_emaxeta << " True phi " <<  (*pitr)->momentum().phi() << "  false phi  "  << -m_twopi/2.+(ip+0.5)*m_edphi << std::endl;
+	  ip=(int) ((m_twopi/2.+ part->momentum().phi())/m_edphi); //phi is in range -pi to pi
+	  ie=(int) ((part->momentum().pseudoRapidity()+m_emaxeta)/m_edeta);
 	  if( (ie<0) || (ie>=  m_greta)){ // its outside the ends so we should not be here
 	    msg( MSG::FATAL) << "  Jet too close to end"  << endmsg;
 	    return StatusCode::FAILURE;
@@ -162,22 +155,21 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	    ip-=m_grphi; //fix phi wrapping note that this is done after rr is calculated
 	  
 
-	  etgrid[ip][ie]=etgrid[ip][ie]+(*pitr)->momentum().perp(); // fortran had pt here
-	  if ((*pitr)->pdg_id() == 22 && 
-	      (*pitr)->momentum().perp() > m_photonPt && 
-	      fabs((*pitr)->momentum().pseudoRapidity()) < m_photonEta) {
-	    MCTruthPhotonList.push_back((*pitr));
+	  etgrid[ip][ie]=etgrid[ip][ie]+part->momentum().perp(); // fortran had pt here
+	  if (part->pdg_id() == 22 && 
+	      part->momentum().perp() > m_photonPt && 
+	      std::abs(part->momentum().pseudoRapidity()) < m_photonEta) {
+	    MCTruthPhotonList.push_back(part);
 	  }
 #if 0
-	  if ((*pitr)->pdg_id() == 22) {
-	    msg(MSG::DEBUG) << "Truth photon pt = " << (*pitr)->momentum().perp() << " eta = " << (*pitr)->momentum().pseudoRapidity() << endmsg;
+	  if (part->pdg_id() == 22) {
+	    msg(MSG::DEBUG) << "Truth photon pt = " << part->momentum().perp() << " eta = " << part->momentum().pseudoRapidity() << endmsg;
 	  }
 #endif
 	}
       }
     }	
   }
-  //
   // find the highest cell
   // we loop here until we cannot find more jets
   double ethigh=2.*m_Stop; // et of highest cell
@@ -196,19 +188,6 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	}
       }
     }
-    //std::cout << "Highest cell eta phi  " << etahigh << " , " << phihigh << "energy " << ethigh << std::endl;
-    //std::cout << "interesting cells  83 and 129  "<< etgrid[83][129] << "   " <<  etgrid[84][129] << std::endl;
-    /*
-    if(ltest<1 ){
-      for (int ie0=1+m_netacell; ie0< m_greta-m_netacell-1; ++ie0){// only look away from the edges
-	for (int ip0=0; ip0<m_grphi; ++ip0){
-	  std::cout << "ip  " <<ip0 << "ie " <<ie0 << "energy  "<<etgrid[ip0][ie0]/GeV << std::endl;
-	}
-      } 
-      std::cout << "Highest cell "<< ethigh/Gaudi::Units::GeV  << "eta " << etahigh*m_edeta-m_emaxeta << "phi  " << -m_twopi/2.+m_edphi*phihigh << std::endl;
-      ltest++;
-    }
-    */
     if(ethigh>m_Stop){ // this passes only if there is tower above threshold
       // new jet
       CLHEP::HepLorentzVector FoundJet;
@@ -216,10 +195,8 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
       double jetpy=0.;
       double jetpz=0.;
       double jete=0.;
-      //      std::cout <<" cell dimensions"  << m_netacell<< "   " << m_nphicell<< "   " <<m_netacell2<< "   " <<m_nphicell2 << std::endl ;    //  std::cout <<" high cell"  << etahigh<< "   " << phihigh<<  std::endl ;
 
       if(!m_Type){//grid handle differantly if there are an even number of cells
-	//std::cout << "etacall, phicell" << m_netacell2 << m_netacell2%2 << m_nphicell2 << m_nphicell2%2 << std::endl;
 	if(m_netacell2%2 == 0 && m_nphicell2%2 == 1){ //eta even
 	  double sum=0.;
 	  double sum1=0.;
@@ -249,13 +226,10 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	  double sum1=0.;
 	  double sum2=0.;
 	  double sum3=0.;
-	  //std::cout << "insdie mover" << m_netacell2 <<  m_nphicell2 << std::endl;
 	  for(int ie0=0; ie0<m_netacell2; ie0++){
-	    //std::cout << " ie0 " << ie0 << std::endl;
 	    for(int ip0=0; ip0<m_nphicell2 ; ip0++){
 	      int ip1=ip0-m_nphicell+phihigh;
 	      int ie1=ie0-m_netacell+etahigh;
-	      //std::cout << "checking loop " << ip1 << "   "<< ie1 << std::endl;
 	      if(!etgridused[ip1][ie1]) sum=sum+etgrid[ip1][ie1];
 	      if(!etgridused[ip1][ie1+1]) sum1=sum1+etgrid[ip1][ie1+1];
 	      if(!etgridused[ip1+1][ie1]) sum2=sum2+etgrid[(ip1+1)%m_grphi][ie1];
@@ -268,7 +242,6 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	    etahigh=etahigh+1;
 	    phihigh=(phihigh+1)%m_grphi;
 	  }
-	  //std::cout << "shifting phihigh " << phihigh << "  etahigh " <<etahigh<< "list of cells" << sum << sum1 <<sum2 <<sum3 << std::endl;
 	}
       }
       //add up stuff around high cell 
@@ -301,10 +274,9 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
       }
       FoundJet.setPx(jetpx);  
       FoundJet.setPy(jetpy);  
-      //std::cout << "long p" << jetpz << std::endl;
       FoundJet.setPz(jetpz);  
       FoundJet.setE(jete); 
-      if(fabs(FoundJet.pseudoRapidity())< m_UserEta && 
+      if(std::abs(FoundJet.pseudoRapidity())< m_UserEta && 
 	 FoundJet.vect().perp() > m_UserThresh){
 	int foundPhotons = 0;
 	//std::cout << "# of photons = " << MCTruthPhotonList.size() << std::endl;
@@ -312,10 +284,10 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	if (m_photonSumPt >= 0. && MCTruthPhotonList.size() > 0) {
 	  double sumPt = 0.;
 	  for (unsigned int ig=0;ig<MCTruthPhotonList.size();++ig) {
-	    double deta = fabs(MCTruthPhotonList[ig]->momentum().pseudoRapidity()-FoundJet.pseudoRapidity());
-	    double dphi = fabs(MCTruthPhotonList[ig]->momentum().phi()-FoundJet.phi());
+	    double deta = std::abs(MCTruthPhotonList[ig]->momentum().pseudoRapidity()-FoundJet.pseudoRapidity());
+	    double dphi = std::abs(MCTruthPhotonList[ig]->momentum().phi()-FoundJet.phi());
 	    if (dphi > M_PI) dphi = 2.*M_PI - dphi;
-	    double dR = sqrt(deta*deta+dphi*dphi);
+	    double dR = std::sqrt(deta*deta+dphi*dphi);
 	    if (dR < m_dRphotonjet) {
 	      sumPt += MCTruthPhotonList[ig]->momentum().perp();
 	    }
@@ -342,7 +314,6 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
   }
   int isOK = 1;
   if (m_UserNumber >= 2 && m_UserLeadingThresh > m_UserThresh && !hasLeadingJet) isOK = 0;
-  //std::cout << "# of jets = " << m_Jets.size() << std::endl;
   if (m_UserNumber >= 2 && m_Jets.size()>=2 && m_massDijet >= 0.) {
     isOK = 0;
     if (hasLeadingJet) {
@@ -350,7 +321,6 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	for (unsigned j=i+1;j<m_Jets.size();++j) {
 	  CLHEP::HepLorentzVector pjj = m_Jets[i].P()+m_Jets[j].P();
 	  double mjj = pjj.m();
-	  //std::cout << i << " " << j << " mjj = " << mjj << std::endl;
 	  if (mjj > m_massDijet && (m_Jets[i].P().perp() > m_UserLeadingThresh || m_Jets[j].P().perp() > m_UserLeadingThresh)) {
 	    isOK = 1;
 	    break;
@@ -360,7 +330,6 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
       }
     }
   }
-  //std::cout << "isOK = " << isOK << std::endl;
 
 #if 0
   if (0) {
@@ -382,7 +351,6 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
       return StatusCode::SUCCESS; 
     }
   }
-  //std::cout << "FAIL" << std::endl;
   setFilterPassed(false); // it failed to find any useful jets
   m_Jets.clear(); //clean out the found jets
   return StatusCode::SUCCESS;

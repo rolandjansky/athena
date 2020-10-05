@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -15,7 +15,7 @@
 #include "AtlasCLHEP_RandomGenerators/dSFMTEngine.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
 #include "CLHEP/Random/RanecuEngine.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/global_control.h"
 
   // assume large number of slots
 const size_t nSlots = 20;
@@ -122,7 +122,7 @@ int main() {
     TestScenario RanluxScenario( &Ranlux, "Ranlux" ); 
     TestScenario RanecuScenario( &Ranecu, "Ranecu" );
 
-    tbb::task_scheduler_init init( 10 );
+    tbb::global_control (tbb::global_control::max_allowed_parallelism, 10);
 
     for ( size_t rep = 0; rep < 100; ++rep ) {
       if (! ParallelCallTest::launchTests( 20, { &dSFMTScenario, &RanluxScenario, &RanecuScenario } ) ) {

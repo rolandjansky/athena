@@ -15,9 +15,10 @@
 #include <string>
 
 // FrameWork includes
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
 
 
 // METInterface includes
@@ -134,9 +135,6 @@ namespace met {
 			     float& stvf,
 			     const xAOD::MissingETComponent* comp_softtrk=0);
 
-    StatusCode buildMETSum(const std::string& totalName,
-                           xAOD::MissingETContainer* metCont);
-
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
@@ -152,12 +150,6 @@ namespace met {
     bool acceptTrack(const xAOD::TrackParticle* trk,
                      const xAOD::Vertex* pv) const;
     void associateTracks(const xAOD::IParticle* obj);
-    StatusCode fillMET(xAOD::MissingET *& met,
-		       xAOD::MissingETContainer * metCont,
-		       const std::string& metKey,
-		       const MissingETBase::Types::bitmask_t metSource);
-
-
 
     /// Default constructor:
     METRebuilder();

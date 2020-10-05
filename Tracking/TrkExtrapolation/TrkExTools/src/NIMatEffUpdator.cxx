@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,9 +39,9 @@ Trk::NIMatEffUpdator::initialize() {
   if (m_matUpdator.retrieve().isFailure()) {
     ATH_MSG_FATAL("Could not retrieve " << m_matUpdator);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_DEBUG("Successfully retrieved " << m_matUpdator);
-  }
+  
 
   return StatusCode::SUCCESS;
 }
@@ -61,7 +61,7 @@ Trk::NIMatEffUpdator::update(const Trk::TrackParameters *parm,
                              Trk::GeometrySignature /*geoID*/,
                              Trk::PropDirection dir,
                              Trk::ParticleHypothesis particle) const {
-  return m_matUpdator->update(parm, lay, dir, particle);
+  return m_matUpdator->update(parm, lay, dir, particle).release();
 }
 
 // update method
@@ -73,7 +73,7 @@ Trk::NIMatEffUpdator::update(double /*time*/,
                              Trk::PropDirection dir,
                              Trk::ParticleHypothesis particle,
                              Trk::MaterialUpdateMode) const {
-  return m_matUpdator->update(parm, matprop, pathCorrection, dir, particle);
+  return m_matUpdator->update(parm, matprop, pathCorrection, dir, particle).release();
 }
 
 const Trk::TrackParameters *
@@ -82,5 +82,5 @@ Trk::NIMatEffUpdator::update(double /*time*/,
                              const Trk::MaterialEffectsOnTrack &meff,
                              Trk::ParticleHypothesis particle,
                              Trk::MaterialUpdateMode) const {
-  return m_matUpdator->update(parm, meff, particle);
+  return m_matUpdator->update(parm, meff, particle).release();
 }

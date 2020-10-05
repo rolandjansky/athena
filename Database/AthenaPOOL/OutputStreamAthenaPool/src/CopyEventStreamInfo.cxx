@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file CopyEventStreamInfo.cxx
@@ -17,7 +17,7 @@
 CopyEventStreamInfo::CopyEventStreamInfo(const std::string& type,
 	const std::string& name,
 	const IInterface* parent) : ::AthAlgTool(type, name, parent),
-		m_metaDataStore("StoreGateSvc/MetaDataStore", name),
+                m_metaDataSvc("MetaDataSvc", name),
 		m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name) {
    // Declare IMetaDataTool interface
    declareInterface<IMetaDataTool>(this);
@@ -31,9 +31,9 @@ CopyEventStreamInfo::~CopyEventStreamInfo() {
 //___________________________________________________________________________
 StatusCode CopyEventStreamInfo::initialize() {
    ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   // Locate the MetaDataStore and InputMetaDataStore
-   if (!m_metaDataStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Could not find MetaDataStore");
+   // Locate the MetaDataSvc and InputMetaDataStore
+   if (!m_metaDataSvc.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Could not find MetaDataSvc");
       return(StatusCode::FAILURE);
    }
    if (!m_inputMetaDataStore.retrieve().isSuccess()) {
@@ -45,9 +45,9 @@ StatusCode CopyEventStreamInfo::initialize() {
 //___________________________________________________________________________
 StatusCode CopyEventStreamInfo::finalize() {
    ATH_MSG_DEBUG("in finalize()");
-   // release the MetaDataStore and InputMetaDataStore
-   if (!m_metaDataStore.release().isSuccess()) {
-      ATH_MSG_WARNING("Could not release MetaDataStore");
+   // release the MetaDataSvc and InputMetaDataStore
+   if (!m_metaDataSvc.release().isSuccess()) {
+      ATH_MSG_WARNING("Could not release MetaDataSvc");
    }
    if (!m_inputMetaDataStore.release().isSuccess()) {
       ATH_MSG_WARNING("Could not release InputMetaDataStore");
@@ -79,40 +79,37 @@ StatusCode CopyEventStreamInfo::beginInputFile(const SG::SourceID&)
          EventStreamInfo* evtStrInfo_out = 0;
          for (SG::ObjectWithVersion<EventStreamInfo>& obj : allVersions) {
             const EventStreamInfo* evtStrInfo_in = obj.dataObject.cptr();
-            if (!m_metaDataStore->contains<EventStreamInfo>(key)) {
-               evtStrInfo_out = new EventStreamInfo(*evtStrInfo_in);
-               if (!m_metaDataStore->record(evtStrInfo_out, key).isSuccess()) {
+            evtStrInfo_out = m_metaDataSvc->tryRetrieve<EventStreamInfo>(key);
+            if( !evtStrInfo_out ) {
+               auto esinfo_up = std::make_unique<EventStreamInfo>(*evtStrInfo_in);
+               if( m_metaDataSvc->record( std::move(esinfo_up), key ).isFailure()) {
                   ATH_MSG_ERROR("Could not record DataObject: " << key);
                   return StatusCode::FAILURE;
                }
             } else {
-               if (!m_metaDataStore->retrieve(evtStrInfo_out, key).isSuccess()) {
-                  ATH_MSG_ERROR("Could not find DataObject in output: " << key);
-                  return StatusCode::FAILURE;
-               }
                evtStrInfo_out->addEvent(evtStrInfo_in->getNumberOfEvents());
                for (auto elem = evtStrInfo_in->getRunNumbers().begin(),
-	                 lastElem = evtStrInfo_in->getRunNumbers().end(); 
+                         lastElem = evtStrInfo_in->getRunNumbers().end(); 
                          elem != lastElem; elem++) {
-               evtStrInfo_out->insertRunNumber(*elem);
+                  evtStrInfo_out->insertRunNumber(*elem);
                }
                for (auto elem = evtStrInfo_in->getLumiBlockNumbers().begin(),
-	                 lastElem = evtStrInfo_in->getLumiBlockNumbers().end(); 
+                         lastElem = evtStrInfo_in->getLumiBlockNumbers().end(); 
                          elem != lastElem; elem++) {
                   evtStrInfo_out->insertLumiBlockNumber(*elem);
                }
                for (auto elem = evtStrInfo_in->getProcessingTags().begin(),
-	                 lastElem = evtStrInfo_in->getProcessingTags().end(); 
+                         lastElem = evtStrInfo_in->getProcessingTags().end(); 
                          elem != lastElem; elem++) {
                   evtStrInfo_out->insertProcessingTag(*elem);
                }
                for (auto elem = evtStrInfo_in->getItemList().begin(),
-	                 lastElem = evtStrInfo_in->getItemList().end(); 
+                         lastElem = evtStrInfo_in->getItemList().end(); 
                          elem != lastElem; elem++) {
                   evtStrInfo_out->insertItemList((*elem).first, (*elem).second);
                }
                for (auto elem = evtStrInfo_in->getEventTypes().begin(),
-	                 lastElem = evtStrInfo_in->getEventTypes().end(); 
+                         lastElem = evtStrInfo_in->getEventTypes().end(); 
                          elem != lastElem; elem++) {
                   evtStrInfo_out->insertEventType(*elem);
                }

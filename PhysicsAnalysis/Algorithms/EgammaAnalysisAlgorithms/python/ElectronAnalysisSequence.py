@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Framework import(s):
 import ROOT
@@ -6,6 +6,11 @@ import ROOT
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+
+# E/gamma import(s).
+from xAODEgamma.xAODEgammaParameters import xAOD
+
+import PATCore.ParticleDataType
 
 def makeElectronAnalysisSequence( dataType, workingPoint,
                                   deepCopyOutput = False,
@@ -124,7 +129,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.preselection = "&&".join (selectionDecorNames)
     alg.selectionDecoration = 'goodOQ' + postfix + ',as_bits'
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
-    alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSELECTRON
+    alg.selectionTool.Mask = xAOD.EgammaParameters.BADCLUSELECTRON
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'calibration' )
     selectionDecorNames.append( alg.selectionDecoration )
@@ -257,10 +262,10 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Fast
+          PATCore.ParticleDataType.Fast
     elif dataType == 'mc':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Full
+          PATCore.ParticleDataType.Full
         pass
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix

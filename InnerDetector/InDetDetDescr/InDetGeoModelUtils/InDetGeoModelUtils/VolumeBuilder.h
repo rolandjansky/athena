@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_VolumeBuilder_H
@@ -8,6 +8,7 @@
 #include "InDetGeoModelUtils/VolumeSplitterUtils.h"
 #include "InDetGeoModelUtils/VolumeSplitter.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -46,8 +47,8 @@ namespace InDetDD {
     GeoTransform * getPlacement(int iElement, int iCopy);
     GeoTransform * getPlacementEnvelope(int iElement, int iCopy,  int iMothElement);
 
-    MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
-    bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
+    MsgStream& msg (MSG::Level lvl) { return m_msg.get() << lvl; }
+    bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
     bool isEnvelopeOrChild(int iElement);
     int  getEnvelopeNum(int iElement);
@@ -58,7 +59,7 @@ namespace InDetDD {
   private:
     //const GeoShape * getShape(const ServiceVolume & param, double & volume);
     
-    mutable Athena::MsgStreamMember m_msg;
+    Athena::MsgStreamMember m_msg;
     std::string m_region;
     double m_zcenter;
     const std::vector<const ServiceVolume *>* m_services;

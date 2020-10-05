@@ -396,9 +396,9 @@ const Rec::TrackParticle* egamma::trackParticle (unsigned int index) const
 
   if(index < m_trackParticle.size()){
     return ((m_trackParticle.at(index)).isValid()) ? *(m_trackParticle.at(index)) : nullptr;
-  }else{
-    return nullptr;
   }
+    return nullptr;
+  
 }   
 
 // ==========================================================
@@ -412,9 +412,9 @@ const Trk::VxCandidate* egamma::conversion (unsigned int index) const
 { 
   if(index < m_conversion.size()){
     return ((m_conversion.at(index)).isValid()) ? *(m_conversion.at(index)) : nullptr;
-  }else{
-    return nullptr;
   }
+    return nullptr;
+  
 }   
 
 // ==========================================================
@@ -434,9 +434,9 @@ ElementLink<Rec::TrackParticleContainer> egamma::trackParticleElementLink(unsign
 { 
   if(index < m_trackParticle.size()){
     return m_trackParticle.at(index);
-  }else{
-    return ElementLink<Rec::TrackParticleContainer>();
   }
+    return ElementLink<Rec::TrackParticleContainer>();
+  
 }
 
 // ==========================================================
@@ -451,9 +451,9 @@ ElementLink<VxContainer> egamma::conversionElementLink(unsigned int index) const
 { 
   if(index < m_conversion.size()){
     return m_conversion.at(index);
-  }else{
-    return ElementLink<VxContainer>();
   }
+    return ElementLink<VxContainer>();
+  
 }
 
 // ==========================================================

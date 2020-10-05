@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigTrackPreSelHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -18,7 +18,9 @@ TrigTrackPreSelHypoAlgMT::TrigTrackPreSelHypoAlgMT( const std::string& name,
 StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_fastTracksKey.initialize() );
+  ATH_CHECK( m_roiForID2ReadKey.initialize() );
   renounce( m_fastTracksKey );// tau candidates are made in views, so they are not in the EvtStore: hide them
+  renounce( m_roiForID2ReadKey);
 
   return StatusCode::SUCCESS;
 }
@@ -46,13 +48,8 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
   int counter=-1;
   for ( auto previousDecision: *previousDecisionsHandle ) {
     counter++;
-    
-    //get RoI
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString());
-    ATH_CHECK( roiELInfo.isValid() );
-    const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
-    // get View
+    //get View
     const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
     ATH_CHECK( viewEL.isValid() );
     auto tracksHandle = ViewHelper::makeHandle( *viewEL, m_fastTracksKey, context);
@@ -64,6 +61,15 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
       continue;
     }
 
+    //get RoI
+    auto roiHandle = ViewHelper::makeHandle( *viewEL, m_roiForID2ReadKey, context);
+    ATH_CHECK( roiHandle.isValid() );    
+    if( roiHandle ->size() != 1 ) {
+      ATH_MSG_ERROR("Expect exactly one updated ROI");
+      return StatusCode::FAILURE;
+    }
+    const TrigRoiDescriptor* updatedROI = roiHandle->at(0);
+
     // create new decision
     auto d = newDecisionIn( decisions, name() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
@@ -72,8 +78,7 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
     ATH_CHECK( el.isValid() );
     d->setObjectLink( featureString(),  el );
     
-    d->setObjectLink( roiString(), roiELInfo.link );
-    toolInput.emplace_back( d, roi, tracksHandle.cptr(), previousDecision );
+    toolInput.emplace_back( d, updatedROI, tracksHandle.cptr(), previousDecision );
 
     ATH_MSG_DEBUG( "Added view, roi, tracks, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
   }

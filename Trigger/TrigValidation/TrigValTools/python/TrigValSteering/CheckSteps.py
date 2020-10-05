@@ -6,17 +6,14 @@
 Definitions of post-exec check steps in Trigger ART tests
 '''
 
-import sys
 import os
 import re
 import subprocess
 import json
-import six
 import glob
 
-from TrigValTools.TrigValSteering.Step import Step
-from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
-
+from TrigValTools.TrigValSteering.Step import Step, get_step_from_list
+from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs, running_in_CI
 
 class RefComparisonStep(Step):
     '''Base class for steps comparing a file to a reference'''
@@ -24,10 +21,17 @@ class RefComparisonStep(Step):
     def __init__(self, name):
         super(RefComparisonStep, self).__init__(name)
         self.reference = None
+        self.ref_test_name = None
         self.input_file = None
         self.explicit_reference = False  # True if reference doesn't exist at configuration time
 
     def configure(self, test):
+        if self.reference and self.ref_test_name:
+            self.misconfig_abort('Both options "reference" and "ref_test_name" used. Use at most one of them.')
+
+        if not self.ref_test_name:
+            self.ref_test_name = test.name
+
         if self.reference is not None:
             # Do nothing if the reference will be produced later
             if self.explicit_reference:
@@ -48,21 +52,25 @@ class RefComparisonStep(Step):
                 return super(RefComparisonStep, self).configure(test)
 
         if self.input_file is None:
-            self.log.error('Cannot configure %s because input_file not specified',
-                           self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('input_file not specified')
 
         branch = os.environ.get('AtlasBuildBranch')  # Available after asetup
-        if branch is None:
+        if not branch:
             branch = os.environ.get('gitlabTargetBranch')  # Available in CI
-        if branch is None:
-            self.log.warning('Cannot determine the branch name, both variables '
-                             'AtlasBuildBranch and gitlabTargetBranch are empty')
-            branch = 'UNKNOWN_BRANCH'
+        if not branch:
+            jobName = os.environ.get('JOB_NAME')  # Available in nightly build system (ATR-21836)
+            if jobName:
+                branch = jobName.split('_')[0].split('--')[0]
+        if not branch:
+            msg = 'Cannot determine the branch name, all variables are empty: AtlasBuildBranch, gitlabTargetBranch, JOB_NAME'
+            if self.required:
+                self.misconfig_abort(msg)
+            else:
+                self.log.warning(msg)
+                branch = 'UNKNOWN_BRANCH'
 
         sub_path = '{}/ref/{}/test_{}/'.format(
-            test.package_name, branch, test.name)
+            test.package_name, branch, self.ref_test_name)
         ref_eos = art_input_eos + sub_path + self.input_file
         ref_cvmfs = art_input_cvmfs + sub_path + self.input_file
         if os.path.isfile(ref_eos):
@@ -124,10 +132,9 @@ class LogMergeStep(Step):
                 self.log_files.append(step.name)
         # Protect against infinite loop
         if self.merged_name in self.log_files:
-            self.log.error('%s output log name %s is same as one of the input log names.'\
-                           ' This will lead to infinite loop, aborting.', self.name, self.merged_name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort(
+                'output log name %s is same as one of the input log names.'
+                ' This will lead to infinite loop, aborting.', self.merged_name)
         super(LogMergeStep, self).configure(test)
 
     def process_extra_regex(self):
@@ -139,9 +146,8 @@ class LogMergeStep(Step):
                 self.log_files.append(f)
 
     def merge_logs(self):
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
         try:
-            with open(self.merged_name, 'w', **encargs) as merged_file:
+            with open(self.merged_name, 'w', encoding='utf-8') as merged_file:
                 for log_name in self.log_files:
                     if not os.path.isfile(log_name):
                         if self.warn_if_missing:
@@ -149,7 +155,7 @@ class LogMergeStep(Step):
                             merged_file.write(
                                 '### WARNING Missing {} ###\n'.format(log_name))
                         continue
-                    with open(log_name, **encargs) as log_file:
+                    with open(log_name, encoding='utf-8') as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
                         for line in log_file:
                             merged_file.write(line)
@@ -161,6 +167,8 @@ class LogMergeStep(Step):
 
     def run(self, dry_run=False):
         self.process_extra_regex()
+        # Sort log files by modification time
+        self.log_files.sort(key=lambda f : os.path.getmtime(f) if os.path.isfile(f) else 0)
         self.log.info('Running %s merging logs %s into %s',
                       self.name, self.log_files, self.merged_name)
         if dry_run:
@@ -243,9 +251,7 @@ class CheckLogStep(Step):
 
     def configure(self, test):
         if self.config_file is None:
-            if test.package_name == 'TrigUpgradeTest':
-                self.config_file = 'checklogTrigUpgradeTest.conf'
-            elif test.package_name == 'TrigP1Test':
+            if test.package_name == 'TrigP1Test':
                 self.config_file = 'checklogTrigP1Test.conf'
             elif test.package_name == 'TrigValTools':
                 self.config_file = 'checklogTrigValTools.conf'
@@ -297,11 +303,10 @@ class RegTestStep(RefComparisonStep):
         if not os.path.isfile(log_file):
             self.log.error('%s input file %s is missing', self.name, log_file)
             return False
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
-        with open(log_file, **encargs) as f_in:
+        with open(log_file, encoding='utf-8') as f_in:
             matches = re.findall('({}.*).*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
-            with open(self.input_file, 'w', **encargs) as f_out:
+            with open(self.input_file, 'w', encoding='utf-8') as f_out:
                 for line in matches:
                     linestr = str(line[0]) if type(line) is tuple else line
                     f_out.write(linestr+'\n')
@@ -351,6 +356,9 @@ class RootCompStep(RefComparisonStep):
 
     def configure(self, test):
         RefComparisonStep.configure(self, test)
+        if running_in_CI():
+            # drawing the diff output may be slow and is not needed for CI
+            self.args += ' --noRoot --noPS'
         self.args += ' {} {}'.format(self.reference, self.input_file)
         Step.configure(self, test)
 
@@ -360,7 +368,8 @@ class RootCompStep(RefComparisonStep):
                 self.log.debug(
                     'Skipping %s because both reference and input are missing',
                     self.name)
-                return 0, '# (internal) {} -> skipped'.format(self.name)
+                self.result = 0
+                return self.result, '# (internal) {} -> skipped'.format(self.name)
             else:  # input exists but reference not
                 self.log.error('Missing reference for %s', self.name)
                 self.result = 999
@@ -412,6 +421,28 @@ class TailStep(Step):
         self.args += ' '+self.log_file
         self.args += ' >'+self.output_name
         super(TailStep, self).configure(test)
+
+
+class DownloadRefStep(Step):
+    '''Execute art.py download to get results from previous days'''
+
+    def __init__(self, name='DownloadRef'):
+        super(DownloadRefStep, self).__init__(name)
+        self.executable = 'art.py'
+        self.args = 'download'
+        self.artpackage = None
+        self.artjobname = None
+        self.timeout = 20*60
+        self.required = True
+        self.auto_report_result = True
+
+    def configure(self, test):
+        if not self.artpackage:
+            self.artpackage = test.package_name
+        if not self.artjobname:
+            self.artjobname = 'test_'+test.name+'.py'
+        self.args += ' '+self.artpackage+' '+self.artjobname
+        super(DownloadRefStep, self).configure(test)
 
 
 class HistCountStep(InputDependentStep):
@@ -529,8 +560,7 @@ class ZeroCountsStep(Step):
                 self.name, input_file)
             return -1
         lines_checked = 0
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
-        with open(input_file, **encargs) as f_in:
+        with open(input_file, encoding='utf-8') as f_in:
             for line in f_in.readlines():
                 split_line = line.split()
                 lines_checked += 1
@@ -563,74 +593,70 @@ class MessageCountStep(Step):
     def __init__(self, name='MessageCount'):
         super(MessageCountStep, self).__init__(name)
         self.executable = 'messageCounter.py'
-        self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.log_regex = r'(athena\.(?!.*tail).*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.skip_logs = []
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
-        self.info_threshold = None
-        self.debug_threshold = None
-        self.verbose_threshold = None
-        self.other_threshold = None
+        self.print_on_fail = None
+        self.thresholds = {}
         self.auto_report_result = True
 
     def configure(self, test):
         self.args += ' -s "{:s}"'.format(self.start_pattern)
         self.args += ' -e "{:s}"'.format(self.end_pattern)
-        if self.info_threshold is None:
-            self.info_threshold = test.exec_steps[0].max_events
-        if self.debug_threshold is None:
-            self.debug_threshold = 0
-        if self.verbose_threshold is None:
-            self.verbose_threshold = 0
-        if self.other_threshold is None:
-            self.other_threshold = test.exec_steps[0].max_events
+        if self.print_on_fail is None:
+            self.print_on_fail = self.required
+        if self.print_on_fail:
+            self.args += ' --saveAll'
+        if 'WARNING' not in self.thresholds:
+            self.thresholds['WARNING'] = 0
+        if 'INFO' not in self.thresholds:
+            self.thresholds['INFO'] = test.exec_steps[0].max_events
+        if 'DEBUG' not in self.thresholds:
+            self.thresholds['DEBUG'] = 0
+        if 'VERBOSE' not in self.thresholds:
+            self.thresholds['VERBOSE'] = 0
+        if 'other' not in self.thresholds:
+            self.thresholds['other'] = test.exec_steps[0].max_events
         super(MessageCountStep, self).configure(test)
 
     def run(self, dry_run=False):
         files = os.listdir('.')
         r = re.compile(self.log_regex)
-        log_files = filter(r.match, files)
+        log_files = [f for f in filter(r.match, files) if f not in self.skip_logs]
         self.args += ' ' + ' '.join(log_files)
         auto_report = self.auto_report_result
         self.auto_report_result = False
         ret, cmd = super(MessageCountStep, self).run(dry_run)
         self.auto_report_result = auto_report
         if ret != 0:
-            self.log.error('%s failed')
+            self.log.error('%s failed', self.name)
             self.result = 1
             if self.auto_report_result:
                 self.report_result()
             return self.result, cmd
-        (num_info, num_debug, num_verbose, num_other) = (0, 0, 0, 0)
+
         for log_file in log_files:
             json_file = 'MessageCount.{:s}.json'.format(log_file)
+            if self.print_on_fail:
+                all_json_file = 'Messages.{:s}.json'.format(log_file)
             if not os.path.isfile(json_file):
                 self.log.warning('%s cannot open file %s', self.name, json_file)
             with open(json_file) as f:
                 summary = json.load(f)
-                num_info += summary['INFO']
-                num_debug += summary['DEBUG']
-                num_verbose += summary['VERBOSE']
-                num_other += summary['other']
-        if num_info > self.info_threshold:
-            self.log.info(
-                '%s Number of INFO messages %s is higher than threshold %s',
-                self.name, num_info, self.info_threshold)
-            self.result += 1
-        if num_debug > self.debug_threshold:
-            self.log.info(
-                '%s Number of DEBUG messages %s is higher than threshold %s',
-                self.name, num_debug, self.debug_threshold)
-            self.result += 1
-        if num_verbose > self.verbose_threshold:
-            self.log.info(
-                '%s Number of VERBOSE messages %s is higher than threshold %s',
-                self.name, num_verbose, self.verbose_threshold)
-            self.result += 1
-        if num_other > self.other_threshold:
-            self.log.info(
-                '%s Number of "other" messages %s is higher than threshold %s',
-                self.name, num_other, self.other_threshold)
-            self.result += 1
+                for level, threshold in self.thresholds.items():
+                    if summary[level] > threshold:
+                        self.result += 1
+                        self.log.info(
+                            '%s Number of %s messages %s in %s is higher than threshold %s',
+                            self.name, level, summary[level], log_file, threshold)
+                        if self.print_on_fail:
+                            self.log.info('%s Printing all %s messages from %s', self.name, level, log_file)
+                            with open(all_json_file) as af:
+                                all_msg = json.load(af)
+                                for msg in all_msg[level]:
+                                    print(msg.strip())  # noqa: ATL901
+
         if self.auto_report_result:
             self.report_result()
         return self.result, cmd
@@ -684,13 +710,16 @@ def default_check_steps(test):
         log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
-    step_types = [step.type for step in test.exec_steps]
-    if 'Reco_tf' in step_types:
+    reco_tf_steps = [step for step in test.exec_steps if step.type in ['Reco_tf', 'Trig_reco_tf']]
+    if len(reco_tf_steps) > 0:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL']
+                    'PhysicsValidation', 'RAWtoALL', 'BSRDOtoRAW']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
+        if not get_step_from_list('LogMerge', check_steps):
+            for step in reco_tf_steps:
+                reco_tf_logmerge.log_files.append(step.get_log_file_name())
         reco_tf_logmerge.extra_log_regex = r'athfile-.*\.log\.txt'
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name
@@ -725,6 +754,8 @@ def default_check_steps(test):
 
     # MessageCount
     msgcount = MessageCountStep('MessageCount')
+    for logmerge in [step for step in check_steps if isinstance(step, LogMergeStep)]:
+        msgcount.skip_logs.append(logmerge.merged_name)
     check_steps.append(msgcount)
 
     # Tail (probably not so useful these days)

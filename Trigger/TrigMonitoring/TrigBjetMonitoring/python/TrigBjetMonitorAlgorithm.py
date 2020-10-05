@@ -5,7 +5,7 @@
 '''@file TrigBjetMonitorAlgorithm.py
 @author E. Nagy
 @author T. Bold
-@date 2019-04-16
+@date 2020-05-27
 @brief Example trigger python configuration for the Run III AthenaMonitoring package, based on the example by C Burton and P Onyisi
 '''
 
@@ -113,8 +113,8 @@ def TrigBjetMonConfig(inputFlags):
 
     # Histograms which depend on the trigger chain
 
+    # mu-jet histograms
 
-    doRun2 = False
     AllChains = []
     for chain in bjet_triglist :
         AllChains.append(chain[2:])
@@ -125,16 +125,21 @@ def TrigBjetMonConfig(inputFlags):
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Expert/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
                 # print " ==> histogram ",HistName," is defined for Expert folder"
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Shifter/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
 
             continue
         else :                      # b-jets
             # print "        b-jet histogram is defined for ", chain[2:]
+
+      # b-jet histograms
+
+         # Primary vertex histograms
+
+            # PV associated to jets
 
             HistName = 'PVz_jet_' + chain[2:]
             if chain[0:1] == "E" :
@@ -144,7 +149,6 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV from jets;zPV from jets;Events',
                                              path='Shifter/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'PVx_jet_' + chain[2:]
             if chain[0:1] == "E" :
@@ -154,7 +158,6 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV from jets;xPV from jets;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'PVy_jet_' + chain[2:]
             if chain[0:1] == "E" :
@@ -164,7 +167,8 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV from jets;yPV from jets;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            # PV directly from SG
 
             HistName = 'nPV_tr_' + chain[2:]
             if chain[0:1] == "E" :
@@ -174,7 +178,6 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Number of online PV per event;nPV;Events',
                                              path='Shifter/'+chain[2:],xbins=101,xmin=-1.0,xmax=100.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'PVz_tr_' + chain[2:]
             if chain[0:1] == "E" :
@@ -184,7 +187,6 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
                                              path='Shifter/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'PVx_tr_' + chain[2:]
             if chain[0:1] == "E" :
@@ -194,7 +196,6 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV;xPV from jets;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'PVy_tr_' + chain[2:]
             if chain[0:1] == "E" :
@@ -204,7 +205,35 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV;yPV from jets;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+         # track histograms
+
+            HistName = 'nTrack_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of tracks;nTrack;Events',
+                                             path='Expert/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of tracks;nTrack;Events',
+                                             path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+
+            HistName = 'trkPt_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Pt of tracks;Pt;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.0,xmax=50.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Pt of tracks;Pt;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.0,xmax=50.0)
+
+            HistName = 'trkEta_' + chain[2:] + ',trkPhi_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName,type='TH2F',title='Phi vs Eta of tracks;Eta;Phi',
+                                             path='Expert/'+chain[2:],xbins=20,xmin=-5.0,xmax=+5.0,ybins=20,ymin=-3.1416,ymax=+3.1416)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName,type='TH2F',title='Phi vs Eta of tracks;Eta;Phi',
+                                             path='Shifter/'+chain[2:],xbins=20,xmin=-5.0,xmax=+5.0,ybins=20,ymin=-3.1416,ymax=+3.1416)
 
             HistName = 'd0_' + chain[2:]
             if chain[0:1] == "E" :
@@ -214,7 +243,35 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of d0;d0;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            HistName = 'ed0_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(d0);sig(d0);Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.,xmax=1.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(d0);sig(d0);Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.,xmax=1.0)
+
+            HistName = 'z0_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of z0;z0;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-250.0,xmax=250.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of z0;z0;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-250.0,xmax=250.0)
+
+            HistName = 'ez0_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(z0);sig(z0);Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.,xmax=5.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of sig(z0);sig(z0);Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.,xmax=5.0)
+
+         # jet histograms
 
             HistName = 'nJet_' + chain[2:]
             if chain[0:1] == "E" :
@@ -224,17 +281,15 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Number of jets;nJet;Events',
                                              path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Expert/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
                 # print " ==> histogram ",HistName," is defined for Expert folder"
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
-                                             path='Shifter/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
 
             HistName = 'jetEta_' + chain[2:] + ',jetPhi_' + chain[2:]
             if chain[0:1] == "E" :
@@ -244,23 +299,187 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName,type='TH2F',title='Phi vs Eta of jets;Eta_jet;Phi_jet',
                                              path='Shifter/'+chain[2:],xbins=20,xmin=-5.0,xmax=+5.0,ybins=20,ymin=-3.1416,ymax=+3.1416)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
 
-            HistName = 'wMV2c20_' + chain[2:]
+      # b-tagging quantities
+
+
+            HistName = 'IP3D_pu_tr_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
-                # print " ==> histogram ",HistName," is defined for Expert folder"
+                BjetMonGroup.defineHistogram(HistName, title='IP3D_pu probability distribution;IP3D_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c20 discriminant;MV2c20;Events',
+                BjetMonGroup.defineHistogram(HistName, title='IP3D_pu probability distribution;IP3D_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'IP3D_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='IP3D_pb probability distribution;IP3D_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='IP3D_pb probability distribution;IP3D_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'IP3D_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='IP3D_pc probability distribution;IP3D_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='IP3D_pc probability distribution;IP3D_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'wIP3D_Rbu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D_pb/IP3D_pu probability ratio distribution;LogLH IP3D_pb/IP3D_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D_pb/IP3D_pu probability ratio distribution;LogLH IP3D_pb/IP3D_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+
+            HistName = 'wSV1_Rbu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='LogLH SV1_pb/SV1_pu probability ratio distribution;LogLH SV1_pb/SV1_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='LogLH SV1_pb/SV1_pu probability ratio distribution;LogLH SV1_pb/SV1_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+
+            HistName = 'wCOMB_Rbu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D+SV1 probability ratio distribution;LogLH IP3D+SV1 probability ratio;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D+SV1 probability ratio distribution;LogLH IP3D+SV1 probability ratio;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-4.0,xmax=6.0)
+
+            HistName = 'wMV2c10_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c10 discriminant;MV2c10;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c10 discriminant;MV2c10;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-1.0,xmax=1.0)
-                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            HistName = 'xMVtx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='SV1 mass distribution;SV1 mass;Events',
+                                             path='Expert/'+chain[2:],xbins=50,xmin=0.0,xmax=10.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='SV1 mass distribution;SV1 mass;Events',
+                                             path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=10.0)
+
+            HistName = 'xEVtx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='SV1 E-fraction distribution;SV1 E-fraction;Events',
+                                             path='Expert/'+chain[2:],xbins=50,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='SV1 E-fraction distribution;SV1 E-fraction;Events',
+                                             path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=1.0)
+
+            HistName = 'xNVtx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of number of 2-track SV1;Number of 2-track SV1;Events',
+                                             path='Expert/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of number of 2-track SV1;Number of 2-track SV1;Events',
+                                             path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+
+
+            HistName = 'RNNIP_pu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pu probability;RNNIP_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pu probability;RNNIP_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'RNNIP_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pc probability;RNNIP_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pc probability;RNNIP_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'RNNIP_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pb probability;RNNIP_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pb probability;RNNIP_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+
+            HistName = 'DL1_pu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pu probability;DL1_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pu probability;DL1_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pc probability;DL1_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pc probability;DL1_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pb probability;DL1_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pb probability;DL1_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1_mv_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+
+
+            HistName = 'DL1r_pu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pu probability;DL1r_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pu probability;DL1r_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1r_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pc probability;DL1r_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pc probability;DL1r_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1r_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pb probability;DL1r_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pb probability;DL1r_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1r_mv_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+
+
             continue
 
 
     # print " ==> In TrigBjetMonitorAlgorithm.py: AllChains list: ", AllChains
     trigBjetMonAlg.AllChains = AllChains
-    trigBjetMonAlg.doRun2 = doRun2
 
 
     ### STEP 6 ###
@@ -298,21 +517,9 @@ if __name__=='__main__':
     #ConfigFlags.Input.Files = [nightly+file]
     #ConfigFlags.Input.isMC = False
 
-    # MC file found by me but can be used only w/ asetup Athena,r2019-06-28,master
-    #nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
-    #file = 'mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1'
-    #ConfigFlags.Input.Files = [nightly+file]
-    #ConfigFlags.Input.isMC = True
+    # AOD file to be run w/ MT access
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest310720.AOD.pool.root'
 
-    # MC input files proposed by Tim Martin in https://its.cern.ch/jira/browse/ATR-19881 for Run-3
-    # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/AOD.pool.root'
-    # file to be run w/ doRun2 = False
-    # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/AOD.pool.root'
-    # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
-    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest290120.AOD.pool.root'
-    # file to be run w/ doRun2 = True
-    # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_ST_240919/AOD.pool.root'
-    # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-09-16T2129/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
 
@@ -325,9 +532,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     trigBjetMonitorAcc = TrigBjetMonConfig(ConfigFlags)

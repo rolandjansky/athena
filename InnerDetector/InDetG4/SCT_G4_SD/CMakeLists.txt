@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( SCT_G4_SD )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/StoreGate
-                          GaudiKernel
-                          InnerDetector/InDetSimEvent
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/MCTruth
-                          AtlasTest/TestTools
-                           )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

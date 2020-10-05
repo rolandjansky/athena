@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_METADATASVC_H
@@ -12,23 +12,24 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
+#include "Gaudi/Property.h"  // no forward decl: typedef
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IMetaDataTool.h"
-#include "AthenaKernel/IMetadataTransition.h"
-
-#include "boost/bind.hpp"
+#include "AthenaKernel/IMetaDataSvc.h"
 
 #include <map>
+#include <typeinfo>
 
 // Forward declarations
 class IAddressCreator;
 class StoreGateSvc;
 class IAlgTool;
+class OutputStreamSequencerSvc;
 
 namespace Io {
    class FileAttr;
@@ -44,7 +45,7 @@ template <class TYPE> class SvcFactory;
 class ATLAS_CHECK_THREAD_SAFETY MetaDataSvc : public ::AthService,
 	virtual public IAddressProvider,
 	virtual public IIncidentListener,
-        virtual public IMetadataTransition,
+        virtual public IMetaDataSvc,
 	virtual public IIoComponent {
    // Allow the factory class access to the constructor
    friend class SvcFactory<MetaDataSvc>;
@@ -68,14 +69,14 @@ public: // Non-static members
    /// Required of all Gaudi services:  see Gaudi documentation for details
 
    /// Function called when a new metadata source becomes available
-   virtual StatusCode newMetadataSource(const Incident&) override;
+   virtual StatusCode newMetadataSource(const Incident&);
 
    /// Function called when a metadata source is closed
-   virtual StatusCode retireMetadataSource(const Incident&) override;
+   virtual StatusCode retireMetadataSource(const Incident&);
 
    /// Function called when the current state of metadata must be made 
    /// ready for output
-   virtual StatusCode prepareOutput() override;
+   virtual StatusCode prepareOutput();
 
    /// version of prepareOutput() for parallel streams
    virtual StatusCode prepareOutput(const std::string& outputName);
@@ -108,6 +109,28 @@ public: // Non-static members
 
    StatusCode rootOpenAction(FILEMGR_CALLBACK_ARGS);
 
+   virtual StoreGateSvc* outputDataStore() const override final { return &*m_outputDataStore; }
+
+   virtual const std::string currentRangeID() const override final;
+
+   CLID remapMetaContCLID( const CLID& item_id ) const;
+
+   class ToolLockGuard {
+   public:
+      ToolLockGuard(const MetaDataSvc& mds) : m_mds(mds) { m_mds.lockTools(); }
+      ~ToolLockGuard() { m_mds.unlockTools(); }
+      ToolLockGuard(const ToolLockGuard&) = delete;
+      void operator=(const ToolLockGuard&) = delete;
+   private:
+      const MetaDataSvc& m_mds;
+   };
+
+   void lockTools() const;
+   void unlockTools() const;
+   
+   void recordHook(const std::type_info&) override;
+   void removeHook(const std::type_info&) override;
+
 private:
    /// Add proxy to input metadata store - can be called directly or via BeginInputFile incident
    StatusCode addProxyToInputMetaDataStore(const std::string& tokenStr);
@@ -120,7 +143,9 @@ private: // data
    ServiceHandle<IAddressCreator> m_addrCrtr;
    ServiceHandle<IFileMgr> m_fileMgr;
    ServiceHandle<IIncidentSvc> m_incSvc;
-
+   ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
+   ServiceHandle< IClassIDSvc > m_classIDSvc{"ClassIDSvc", name()};
+ 
    long m_storageType;
    bool m_clearedInputDataStore;
    bool m_clearedOutputDataStore;
@@ -130,12 +155,14 @@ private: // data
    std::map<CLID, std::string> m_toolForClid;
    std::map<std::string, std::string> m_streamForKey;
 
+   std::map<CLID, unsigned int> m_handledClasses;
+
 private: // properties
    /// MetaDataContainer, POOL container name for MetaData.
    StringProperty                 m_metaDataCont;
-   /// MetaDataTools, vector with the MetaData tools.
+   /// MetaDataTools, vector with the MetaData tools
    ToolHandleArray<IMetaDataTool> m_metaDataTools;
+
 };
 
 #endif
-

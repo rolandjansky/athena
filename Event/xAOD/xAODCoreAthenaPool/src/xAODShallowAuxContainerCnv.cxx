@@ -30,7 +30,8 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
          {
            key2.erase (key2.size()-4, 4);
          }
-         const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key2);
+         const SG::ThinningInfo* info = SG::getThinningInfo (key2);
+         const SG::ThinningDecisionBase* dec = info ? info->m_decision : nullptr;
          if (dec) {
            nremaining = dec->thinnedSize();
          }
@@ -53,6 +54,7 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
             // Skip null auxids (happens if we don't have the dictionary)
             if(auxid == SG::null_auxid) continue;
             // Skip non-selected dynamic variables.
+            if (info && info->vetoed (auxid)) continue;
             if (sel_auxids.count(auxid) == 0) continue;
             // Create the target variable:
             void* dst = newcont->getStore()->getData (auxid, nremaining, nremaining); //use store's getData directly, not the container's getData ... saves on a copy!

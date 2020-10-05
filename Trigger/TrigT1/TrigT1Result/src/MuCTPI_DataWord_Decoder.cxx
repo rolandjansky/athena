@@ -24,13 +24,6 @@ MuCTPI_DataWord_Decoder::MuCTPI_DataWord_Decoder( uint32_t dataword )
 }
 
 /**
- * Another useless I-don't-do-anythin' destructor.
- */
-MuCTPI_DataWord_Decoder::~MuCTPI_DataWord_Decoder() {
-
-}
-
-/**
  * @return flag showing whether there were more than 2 candidates in this candidate's sector
  */
 uint16_t MuCTPI_DataWord_Decoder::getSectorOverflow() const {

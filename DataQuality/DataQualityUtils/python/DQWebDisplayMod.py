@@ -58,7 +58,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
     # we use the multiprocessing module to isolate code that possibly
     # has memory leaks, so they don't build up over time
 
-    if type(c.server) == str:
+    if isinstance(c.server, str):
         if c.server == '':
             c.server = []
         else:
@@ -601,13 +601,14 @@ def findCacheFile( inputFilePath, run, stream, cache ):
 
 
 def transferDirectoryToHandoffDir( dirName, localDir, targetDir, config ):
-    import time, ConfigParser, shutil, glob
+    import time, shutil, glob
+    import six.moves.configparser as configparser
     targetfname = repr(int(time.time())) + '-' + repr(os.getpid()) \
                   + '-' + os.uname()[1]  + '.tgz'
     targetfile = os.path.join(targetDir, targetfname)
 
     print('Creating tarball', targetfname, '...')
-    parser = ConfigParser.ConfigParser()
+    parser = configparser.ConfigParser()
     parser.set('DEFAULT', 'target', config.htmlDir)
     parser.add_section('execute')
     parser.set('execute', 'command', config.htmlDir + '/generateDQIndexFiles.py')
@@ -762,7 +763,7 @@ def importConfiguration(modname):
 def email(msg, subject, whofrom, addressees):
     import smtplib
     from email.mime.text import MIMEText
-    if type(addressees) == str:
+    if isinstance(addressees, str):
         addressees = [addressees]
     email = MIMEText(msg)
     email['Subject'] = subject

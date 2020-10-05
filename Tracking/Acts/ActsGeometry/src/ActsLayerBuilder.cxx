@@ -21,10 +21,13 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Acts/Utilities/BinningType.hpp"
+
 
 using Acts::Surface;
 using Acts::Transform3D;
 using Acts::Translation3D;
+
 
 using namespace Acts::UnitLiterals;
 
@@ -146,10 +149,12 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       ACTS_VERBOSE("Layer #" << n << " with layerKey: ("
           << key.first << ", " << key.second << ")");
       if (type == 0) {  // BARREL
-        ACTS_VERBOSE(" -> at rMin / rMax: " << pl.minR << " / " << pl.maxR);
+        ACTS_VERBOSE(" -> at rMin / rMax: " << pl.min(Acts::binR) << " / " << pl.max(Acts::binR));
+        ACTS_VERBOSE("    -> at zMin / zMax: " << pl.min(Acts::binZ) << " / " << pl.max(Acts::binZ));
       }
       else {
-        ACTS_VERBOSE(" -> at zMin / zMax: " << pl.minZ << " / " << pl.maxZ);
+        ACTS_VERBOSE(" -> at zMin / zMax: " << pl.min(Acts::binZ) << " / " << pl.max(Acts::binZ));
+        ACTS_VERBOSE("    -> at rMin / rMax: " << pl.min(Acts::binR) << " / " << pl.max(Acts::binR));
       }
 
       n++;
@@ -167,27 +172,27 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
       Acts::ProtoLayer pl(gctx, layerSurfaces);
-      pl.envR    = {0_mm, 0_mm};
-      pl.envZ    = {20_mm, 20_mm};
+      pl.envelope[Acts::binR] = std::make_pair(0_mm, 0_mm);
+      pl.envelope[Acts::binZ] = std::make_pair(20_mm, 20_mm);
 
-      double binPosZ   = 0.5 * (pl.minZ + pl.maxZ);
-      double envZShift = 0.5 * (-pl.envZ.first + pl.envZ.second);
+      double binPosZ   = 0.5 * (pl.min(Acts::binZ) + pl.max(Acts::binZ));
+      double envZShift = 0.5 * (-pl.envelope[Acts::binZ].first + pl.envelope[Acts::binZ].second);
       double layerZ    = binPosZ + envZShift;
       double layerHalfZ
-        = std::abs(pl.maxZ + pl.envZ.second - layerZ);
+        = std::abs(pl.max(Acts::binZ) + pl.envelope[Acts::binZ].second - layerZ);
 
       auto transform
         = std::make_shared<const Transform3D>(Translation3D(0., 0., -layerZ));
       // set up approach descriptor
 
       std::shared_ptr<Acts::CylinderSurface> innerBoundary
-        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.minR, layerHalfZ);
+        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.min(Acts::binR), layerHalfZ);
 
       std::shared_ptr<Acts::CylinderSurface> outerBoundary
-        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.maxR, layerHalfZ);
+        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, pl.max(Acts::binR), layerHalfZ);
 
       std::shared_ptr<Acts::CylinderSurface> centralSurface
-        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, (pl.minR + pl.maxR)/2., layerHalfZ);
+        = Acts::Surface::makeShared<Acts::CylinderSurface>(transform, (pl.min(Acts::binR) + pl.max(Acts::binR))/2., layerHalfZ);
 
       size_t binsPhi = m_cfg.barrelMaterialBins.first;
       size_t binsZ = m_cfg.barrelMaterialBins.second;
@@ -205,9 +210,9 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       ACTS_VERBOSE("with binning: [" << binsPhi << ", " << binsZ << "]");
 
       ACTS_VERBOSE("Created ApproachSurfaces for cylinder layer at:");
-      ACTS_VERBOSE(" - inner:   R=" << pl.minR);
-      ACTS_VERBOSE(" - central: R=" << (pl.minR + pl.maxR)/2.);
-      ACTS_VERBOSE(" - outer:   R=" << pl.maxR);
+      ACTS_VERBOSE(" - inner:   R=" << pl.min(Acts::binR));
+      ACTS_VERBOSE(" - central: R=" << (pl.min(Acts::binR) + pl.max(Acts::binR))/2.);
+      ACTS_VERBOSE(" - outer:   R=" << pl.max(Acts::binR));
 
       // set material on inner
       // @TODO: make this configurable somehow
@@ -232,15 +237,15 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       layersOutput.push_back(layer);
     } else {  // ENDCAP
       Acts::ProtoLayer pl(gctx, layerSurfaces);
-      pl.envR    = {0_mm, 0_mm};
-      pl.envZ    = {10_mm, 10_mm};
+      pl.envelope[Acts::binR] = std::make_pair(0_mm, 0_mm);
+      pl.envelope[Acts::binZ] = std::make_pair(10_mm, 10_mm);
 
       // copied from layercreator
       double layerZ
-        = 0.5 * (pl.minZ - pl.envZ.first + pl.maxZ
-            + pl.envZ.second);
-      double layerThickness = (pl.maxZ - pl.minZ)
-        + pl.envZ.first + pl.envZ.second;
+        = 0.5 * (pl.min(Acts::binZ) - pl.envelope[Acts::binZ].first + pl.max(Acts::binZ)
+            + pl.envelope[Acts::binZ].second);
+      double layerThickness = (pl.max(Acts::binZ) - pl.min(Acts::binZ))
+        + pl.envelope[Acts::binZ].first + pl.envelope[Acts::binZ].second;
 
       double layerZInner = layerZ - layerThickness/2.;
       double layerZOuter = layerZ + layerThickness/2.;
@@ -257,13 +262,13 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
         = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZOuter));
 
       std::shared_ptr<Acts::DiscSurface> innerBoundary
-        = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.minR, pl.maxR);
+        = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.min(Acts::binR), pl.max(Acts::binR));
 
       std::shared_ptr<Acts::DiscSurface> nominalSurface
-        = Acts::Surface::makeShared<Acts::DiscSurface>(transformNominal, pl.minR, pl.maxR);
+        = Acts::Surface::makeShared<Acts::DiscSurface>(transformNominal, pl.min(Acts::binR), pl.max(Acts::binR));
 
       std::shared_ptr<Acts::DiscSurface> outerBoundary
-        = Acts::Surface::makeShared<Acts::DiscSurface>(transformOuter, pl.minR, pl.maxR);
+        = Acts::Surface::makeShared<Acts::DiscSurface>(transformOuter, pl.min(Acts::binR), pl.max(Acts::binR));
 
       size_t matBinsPhi = m_cfg.endcapMaterialBins.first;
       size_t matBinsR = m_cfg.endcapMaterialBins.second;
@@ -271,7 +276,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       Acts::BinUtility materialBinUtil(
           matBinsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
       materialBinUtil += Acts::BinUtility(
-          matBinsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
+          matBinsR, pl.min(Acts::binR), pl.max(Acts::binR), Acts::open, Acts::binR, transformNominal);
 
       materialProxy
         = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);

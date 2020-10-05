@@ -25,13 +25,18 @@ namespace Trk {
   class ApproachDescriptor : public IApproachDescriptor {
       public: 
         // Default constructor
-        ApproachDescriptor(ApproachSurfaces* aSurfaces, bool rebuild=true) : 
-           IApproachDescriptor(aSurfaces,rebuild) {}
-        
+        ApproachDescriptor(std::unique_ptr<ApproachSurfaces> aSurfaces,
+                           bool rebuild = true)
+          : IApproachDescriptor(std::move(aSurfaces), rebuild)
+        {}
+
         // Default constructor
-        ApproachDescriptor(BinnedArray<ApproachSurfaces>* aSurfaceArray, Surface* aSurfaceArraySurface = nullptr) : 
-           IApproachDescriptor(aSurfaceArray,aSurfaceArraySurface) {}
-        
+        ApproachDescriptor(
+          std::unique_ptr<BinnedArray<ApproachSurfaces>> aSurfaceArray,
+          Surface* aSurfaceArraySurface = nullptr)
+          : IApproachDescriptor(std::move(aSurfaceArray), aSurfaceArraySurface)
+        {}
+
         /** get the compatible surfaces 
             - return : a boolean indicating if an actual intersection had been tried
             - fill vector of intersections

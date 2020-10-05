@@ -18,7 +18,6 @@
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
-#include "GaudiKernel/EventContext.h"
 // STL includes
 #include <string>
 #include <cstdint>
@@ -30,6 +29,8 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "TEnv.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
 
 
@@ -39,9 +40,7 @@
 AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname) :
   AsgTool(myname),
   m_configFile{""},
-  m_rootTool{nullptr},
-  m_HIESContKey{"CaloSums"},
-  m_primVtxContKey{"PrimaryVertices"}
+  m_rootTool{nullptr}
 {
 
   // Create an instance of the underlying ROOT tool
@@ -52,10 +51,8 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname) 
   declareProperty("ConfigFile",m_configFile="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
-  declareProperty("primaryVertexContainer", m_primVtxContKey="PrimaryVertices", "The primary vertex container name" );
   declareProperty("useCaloSumsContainer", m_useCaloSumsCont=true, "Whether to use the CaloSums container");
   declareProperty("fcalEtDefault", m_fcalEtDefault = 0, "The default FCal sum ET");
-  declareProperty("CaloSumsContainer", m_HIESContKey="CaloSums", "The CaloSums container name" );
   declareProperty("skipDeltaPoverP", m_skipDeltaPoverP=false, "If true, it wil skip the check of deltaPoverP" );
 
 
@@ -137,9 +134,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname) 
 //=============================================================================
 AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgElectronLikelihoodTool finalize()");
-  }
   delete m_rootTool;
 }
 
@@ -266,15 +260,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS ;
-}
-
-
-//=============================================================================
-// Asgena finalize method (now called by destructor)
-//=============================================================================
-StatusCode AsgElectronLikelihoodTool::finalize()
-{
-  return StatusCode::SUCCESS;
 }
 
 //=============================================================================
@@ -447,10 +432,10 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
     if(eg->type() == xAOD::Type::Electron){
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
     return accept(el, mu);
-    } else {
+    } 
       ATH_MSG_ERROR("Input is not an electron and not caloOnly is set");
       return m_rootTool->accept();
-    }
+    
   }
   
   //Calo only LH
@@ -772,10 +757,10 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
         const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
         return calculate(ctx, el);
       }
-      else {
+      
         ATH_MSG_ERROR("Input is not an electron and not Calo Only is required");
         return -999;
-      }
+      
   }
 
  const xAOD::CaloCluster* cluster = eg->caloCluster();
@@ -929,10 +914,10 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(part);
     return accept(ctx, el);
   }
-  else {
+  
     ATH_MSG_ERROR("Input is not an electron");
     return m_rootTool->accept();
-  }
+  
 }
 
 double AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
@@ -947,10 +932,10 @@ double AsgElectronLikelihoodTool::calculate(const EventContext& ctx, const xAOD:
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(part);
     return calculate(ctx, el);
   }
-  else {
+  
       ATH_MSG_ERROR ( "Input is not an electron" );
       return -999;
-  }
+  
 }
 
 //=============================================================================

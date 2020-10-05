@@ -245,31 +245,31 @@ Hydjet::fillEvt(HepMC::GenEvent* evt)
     // evt->set_random_states(m_seeds);
  
     // Set the generator id
-    evt->set_signal_process_id(HYDJET + int(m_a));
+    HepMC::set_signal_process_id(evt,HYDJET + int(m_a));
 
     // Create the event vertex
-    HepMC::GenVertex* v1 = new HepMC::GenVertex();     
+    HepMC::GenVertexPtr v1 = HepMC::newGenVertexPtr();     
     evt->add_vertex( v1 );
 
     double eproj = m_e/2.0;
     int proj_id = (int) m_a;
-    v1->add_particle_in( new HepMC::GenParticle( HepMC::FourVector(0., 0., eproj, eproj), proj_id, 101 ) );
+    v1->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector(0., 0., eproj, eproj), proj_id, 101 ) );
     
     double etarg = m_e/2.0;
     int targ_id = (int) m_a;
-    v1->add_particle_in( new HepMC::GenParticle( HepMC::FourVector(0., 0., -etarg, etarg), targ_id, 102 ) );
+    v1->add_particle_in( HepMC::newGenParticlePtr( HepMC::FourVector(0., 0., -etarg, etarg), targ_id, 102 ) );
 
     // Loop on all final particles and 
     // put them all as outgoing from the event vertex
     for (int i = 1; i <= m_lujets.n(); ++i)
       {
-	v1->add_particle_out( new HepMC::GenParticle( 
+	v1->add_particle_out( HepMC::newGenParticlePtr( 
 		   HepMC::FourVector(m_lujets.p(i, 1), m_lujets.p(i, 2), 
 		   m_lujets.p(i, 3), m_lujets.p(i, 4)), m_lujets.k(i, 2), 1 ) );
       }
 
     // Set the generator id
-    evt->set_signal_process_id(HYDJET + int(m_a));
+    HepMC::set_signal_process_id(evt,HYDJET + int(m_a));
 
     // Convert cm->mm and GeV->MeV
     // 
@@ -286,7 +286,7 @@ Hydjet::set_user_params	(void)
 
     // copy of HYDJET calculations
     m_hyipar.AW() = m_a;
-    m_hyipar.RA() = 1.15 * pow(m_a,0.333333);
+    m_hyipar.RA() = 1.15 * std::pow(m_a,0.333333);
 
     m_ifb      	= 1;
     m_bmin     	= 0;

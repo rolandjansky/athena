@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDENTIFIER_EXPANDEDIDENTIFIER_H
@@ -123,20 +123,14 @@ public:
     } max_value_type;
 
     //----------------------------------------------------------------
-    // Constructors
+    // Defaulted members
     //----------------------------------------------------------------
-
-    //----------------------------------------------------------------
-    // Default constructor
-    //----------------------------------------------------------------
-  ExpandedIdentifier ();
-
-    //----------------------------------------------------------------
-    // Copy constructor and assignment.
-    //----------------------------------------------------------------
-  ExpandedIdentifier (const ExpandedIdentifier& other);
-  ExpandedIdentifier& operator= (const ExpandedIdentifier& other);
-  ExpandedIdentifier& operator= (ExpandedIdentifier&& other);
+  ExpandedIdentifier() = default;
+  ExpandedIdentifier(const ExpandedIdentifier& other) = default;
+  ExpandedIdentifier(ExpandedIdentifier&& other) = default;
+  ExpandedIdentifier& operator=(const ExpandedIdentifier& other) = default;
+  ExpandedIdentifier& operator=(ExpandedIdentifier&& other) = default;
+  ~ExpandedIdentifier() = default;
 
     //----------------------------------------------------------------
     // Constructor from a subset of another ExpandedIdentifier
@@ -220,204 +214,7 @@ private:
 };
 //-----------------------------------------------
 
-// inline definitions
 
-
-  // Constructors
-//-----------------------------------------------
-inline
-ExpandedIdentifier::ExpandedIdentifier ()
-{
-}
-
-//-----------------------------------------------
-inline
-ExpandedIdentifier::ExpandedIdentifier (const ExpandedIdentifier& other)
-  : m_fields (other.m_fields)
-{
-}
-
-//-----------------------------------------------
-inline
-ExpandedIdentifier&
-ExpandedIdentifier::operator= (const ExpandedIdentifier& other)
-{
-  if (this != &other) {
-    m_fields = other.m_fields;
-  }
-  return *this;
-}
-
-//-----------------------------------------------
-inline
-ExpandedIdentifier&
-ExpandedIdentifier::operator= (ExpandedIdentifier&& other)
-{
-  if (this != &other) {
-    m_fields = std::move(other.m_fields);
-  }
-  return *this;
-}
-
-//-----------------------------------------------
-inline
-ExpandedIdentifier::ExpandedIdentifier (const ExpandedIdentifier& other, size_type start)
-{
-  if (start < other.fields ())
-    {
-      element_vector::const_iterator it = other.m_fields.begin ();
-      it += start;
-
-      m_fields.insert (m_fields.end (),
-                       it, 
-                       other.m_fields.end ());
-    }
-}
-
-  // Modifications
-//-----------------------------------------------
-inline
-void ExpandedIdentifier::add (element_type value)
-{
-  // Max size of id levels should be < 10
-  if(m_fields.capacity() < 10) m_fields.reserve(10);
-  m_fields.push_back (value);
-}
-
-//-----------------------------------------------
-inline
-ExpandedIdentifier& ExpandedIdentifier::operator << (element_type value)
-{
-  // Max size of id levels should be < 10
-  if(m_fields.capacity() < 10) m_fields.reserve(10);
-  m_fields.push_back (value);
-
-  return (*this);
-}
-
-//-----------------------------------------------
-inline
-ExpandedIdentifier::element_type & ExpandedIdentifier::operator [] (size_type index)
-{
-  // Raises an exception if index is out-of-bounds.
-  return m_fields.at (index);
-}
-
-//-----------------------------------------------
-inline
-void ExpandedIdentifier::clear ()
-{
-  m_fields.clear ();
-}
-
-
-
-  // Accessors
-//-----------------------------------------------
-inline
-ExpandedIdentifier::element_type ExpandedIdentifier::operator [] (size_type index) const
-{
-  // Raises an exception if index is out-of-bounds.
-  return m_fields.at (index);
-}
-
-//-----------------------------------------------
-inline
-ExpandedIdentifier::size_type ExpandedIdentifier::fields () const
-{
-  return (m_fields.size ());
-}
-
-  // Comparison operators
-
-//----------------------------------------------------------------
-inline
-int ExpandedIdentifier::operator == (const ExpandedIdentifier& other) const
-{
-  const ExpandedIdentifier& me = *this;
-  const size_type my_fields = fields ();
-  const size_type other_fields = other.fields ();
-  
-  if (my_fields != other_fields) return (0);
-  
-  size_type field = 0;
-  for (; field < my_fields; ++field) 
-    {
-      if (me[field] != other[field]) return (0);
-    }
-
-  return (1);
-}
-
-//----------------------------------------------------------------
-inline
-int ExpandedIdentifier::operator != (const ExpandedIdentifier& other) const
-{
-  const ExpandedIdentifier& me = *this;
-
-  return (!(me == other));
-}
-
-//-----------------------------------------------
-inline
-int ExpandedIdentifier::operator < (const ExpandedIdentifier& other) const
-{
-  const ExpandedIdentifier& me = *this;
-  const size_type my_fields = fields ();
-  const size_type other_fields = other.fields ();
-
-  size_type field = 0;
-  for (;;)
-    {
-      if ((field == my_fields) ||
-          (field == other_fields))
-        {
-            // Someone has run out of fields. And up to now my_id ==
-            // other_id. If the lengths are different, the following
-            // then defines the "shorter" one to be "less than". If
-            // the lengths are the same, then the two are NOT "less
-            // than".
-          return (my_fields < other_fields);
-        }
-
-      element_type my_field = me[field];
-      element_type other_field = other[field];
-
-      if (my_field < other_field) return (1);
-      if (my_field > other_field) return (0);
-
-      field++;
-    }
-
-  return (0);
-}
-
-//-----------------------------------------------
-inline
-int ExpandedIdentifier::operator > (const ExpandedIdentifier& other) const
-{
-  const ExpandedIdentifier& me = *this;
-
-  return (other < me);
-}
-
-//----------------------------------------------------------------
-inline
-int ExpandedIdentifier::match (const ExpandedIdentifier& other) const
-{
-  const ExpandedIdentifier& me = *this;
-  const size_type my_fields = fields ();
-  const size_type other_fields = other.fields ();
-
-  const size_type fs = (my_fields < other_fields) ? my_fields : other_fields;
-  
-  for (size_type field = 0; field < fs; ++field) 
-    {
-      if (me[field] != other[field]) return (0);
-    }
-
-  return (1);
-}
-
+#include "Identifier/ExpandedIdentifier.icc"
 
 #endif

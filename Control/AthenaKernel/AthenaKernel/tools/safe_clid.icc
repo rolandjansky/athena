@@ -1,0 +1,118 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+/**
+ * @file  AthenaeKernel/tools/safe_clid.icc
+ * @author scott snyder
+ * @date Nov 2005
+ * @brief Find the class ID of a type, without triggering an error
+ *        if it isn't defined.
+ *        Implementation file.
+ */
+
+#include "AthenaKernel/ClassID_traits.h"
+#include <type_traits>
+
+
+namespace SG {
+
+
+//-------------------------------------------------------------------------
+// Here's the first part.  @a safe_clid has the job of calling one of the
+// two @a safe_clid_1 overrides, depending on the state of the traits
+// class @a has_classID_tag definition.  We want the first one to be called
+// when @a has_classID_tag is @a true_tag, and the second to be called
+// in other cases (including the possibility that the typedef does not exist).
+// There are three possibilities to consider.
+//
+//   1. The traits class defines @a has_classID_tag as @a true_tag.
+//      Here, both decl 1 and 2 match the call.  It turns out
+//      that we can't use partial ordering to discriminate between
+//      these two on the basis of the tag (second) argument alone.
+//      That's the purpose of the first (dummy) argument.  By making
+//      it a pointer in decl 1 and completely generic in decl 2,
+//      we ensure that decl 1 is a more specific match when both
+//      decls are allowed.
+//
+//   2. The traits class defines @a has_classID_tag as something
+//      other than @a true_tag.  In this case, decl 1 doesn't match
+//      the call, but decl 2 will.  So decl 2 will be called.
+//
+//   3. The traits class has no definition for @a has_classID_tag.
+//      In this case, the type named in decl 1 does not exist.
+//      However, that is @e not an error --- it just means that
+//      decl 1 won't be considered as a candidate overload.
+//      (Look up ``substitution failure is not an error'' (SFINAE).)
+//      So again, decl 2 gets called.  Note that the requirement
+//      to handle this case (which comes about because the unspecialized
+//      version of @a ClassID_traits does not define this typedef)
+//      is why this may look backwards, using @a true_tag in the call,
+//      and the traits class typedef in the argument.
+
+
+// Decl 1
+template <class T>
+constexpr CLID safe_clid_1 (T*, typename ClassID_traits<T>::has_classID_tag);
+
+// Decl 2
+template <class T, class U>
+constexpr CLID safe_clid_1 (T, U);
+
+// This is the public entry point.
+template <class T>
+constexpr CLID safe_clid()
+{
+  return safe_clid_1 ((T*)0, std::true_type());
+}
+
+
+//-------------------------------------------------------------------------
+// Here is the definition for decl 1.  This gets called when the
+// traits class defines @a has_classID_tag as @a true_tag.
+// So we can go ahead and ask for the ID in this case.
+
+template <class T>
+constexpr CLID safe_clid_1 (T*, typename ClassID_traits<T>::has_classID_tag)
+{
+  return ClassID_traits<T>::ID();
+}
+
+
+//-------------------------------------------------------------------------
+// Here is the definition for decl 2.  This gets called when the traits
+// class does not define @a has_classID_tag is @a true_tag.
+// But there is one further decision to be made.  If @a T derives
+// from @a DataObject, then we can still get the class ID.
+// Otherwise, we must return @a CLID_NULL.
+
+// This is called if @a T does not derive from @a DataObject.
+// Return @a CLID_NULL.
+template <class T, bool B>
+struct safe_clid_2
+{
+  constexpr static CLID clid() { return CLID_NULL; }
+};
+
+// This specialization is used if @a T does derive from @a DataObject.
+// This returns the class ID.
+template <class T>
+struct safe_clid_2<T, true>
+{
+  constexpr static CLID clid() { return ClassID_traits<T>::ID(); }
+};
+
+// This is the definition corresponding to decl 2 above.
+// We test @a s_isDataObject in the traits class.
+// Note that here @a T will be a pointer to the class we're
+// actually interested in, so we need to strip a pointer.
+template <class T, class U>
+constexpr CLID safe_clid_1 (T, U)
+{
+  using typ = std::remove_pointer_t<T>;
+  return safe_clid_2<typ, ClassID_traits<typ>::s_isDataObject>::clid();
+}
+
+
+} // namespace SG
+
+

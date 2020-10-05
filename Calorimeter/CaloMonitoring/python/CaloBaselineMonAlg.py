@@ -3,6 +3,7 @@
 #
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloBaselineMonConfig(inputFlags, isTopLevel=True):
 
@@ -28,15 +29,7 @@ def CaloBaselineMonConfig(inputFlags, isTopLevel=True):
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     cfg.merge(CaloNoiseCondAlgCfg(inputFlags))
 
-    from LumiBlockComps.LuminosityCondAlgConfig import  LuminosityCondAlgCfg
-    cfg.merge(LuminosityCondAlgCfg(inputFlags))
-
-
-    from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-    from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
-
-    from CaloMonitoring.CaloMonitoringConf import CaloBaselineMonAlg
-    caloBaselineMonAlg = helper.addAlgorithm(CaloBaselineMonAlg,'caloBaselineMonAlg')
+    caloBaselineMonAlg = helper.addAlgorithm(CompFactory.CaloBaselineMonAlg,'caloBaselineMonAlg')
 
     GroupName="CaloBaseLineMon"
     caloBaselineMonAlg.MonGroupName = GroupName
@@ -51,8 +44,6 @@ def CaloBaselineMonConfig(inputFlags, isTopLevel=True):
     caloBaselineMonAlg.minimumEta = minEta
     maxEta = [3.2,5.]
     caloBaselineMonAlg.maximumEta = maxEta
-
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 
     # config settings based on flags
     tmp_CaloBaselineMon = {"useBadLBTool":False,
@@ -79,11 +70,15 @@ def CaloBaselineMonConfig(inputFlags, isTopLevel=True):
     #tmp_CaloBaselineMon["TriggerChain"] = "HLT_noalg_zb_L1ZB"
     tmp_CaloBaselineMon["TriggerChain"] = ""
 
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+
     caloBaselineMonAlg.useBadLBTool = tmp_CaloBaselineMon["useBadLBTool"]
-    caloBaselineMonAlg.BadLBTool = GetLArBadLBFilterTool()
-    caloBaselineMonAlg.BunchCrossingTool = BunchCrossingTool("TrigConf" if not inputFlags.Input.isMC else "MC")
+    caloBaselineMonAlg.BadLBTool = cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
+    # FIXME Do not have yet new config for BunchCrossingTool, shoulkd be put back once available
+    #caloBaselineMonAlg.BunchCrossingTool = BunchCrossingTool("TrigConf" if not inputFlags.Input.isMC else "MC")
     caloBaselineMonAlg.useReadyFilterTool = tmp_CaloBaselineMon["useReadyFilterTool"]
-    caloBaselineMonAlg.ReadyFilterTool = GetAtlasReadyFilterTool()
+    caloBaselineMonAlg.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
     caloBaselineMonAlg.useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"]
     caloBaselineMonAlg.useLArNoisyAlg = tmp_CaloBaselineMon["useLArNoisyAlg"]
     caloBaselineMonAlg.useBeamBackgroundRemoval = tmp_CaloBaselineMon["useBeamBackgroundRemoval"]
@@ -187,11 +182,11 @@ def CaloBaselineMonConfig(inputFlags, isTopLevel=True):
        idx=idx+1
 
 
-    if isTopLevel:
-       cfg.merge(helper.result())
-       return cfg
-    else:   
-       return helper.result()
+    #if isTopLevel:
+    cfg.merge(helper.result())
+    return cfg
+    #else:   
+    #   return helper.result()
     
 
 if __name__=='__main__':
@@ -220,11 +215,11 @@ if __name__=='__main__':
 
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    cfg = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg = MainServicesCfg(ConfigFlags)
 
-    from CaloRec.CaloRecoConfig import CaloRecoCfg
-    cfg.merge(CaloRecoCfg(ConfigFlags))
+    #from CaloRec.CaloRecoConfig import CaloRecoCfg
+    #cfg.merge(CaloRecoCfg(ConfigFlags))
 
     cfg.merge(CaloBaselineMonConfig(ConfigFlags,False)) 
 

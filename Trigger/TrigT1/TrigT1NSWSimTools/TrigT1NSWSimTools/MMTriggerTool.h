@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMTRIGGERTOOL_H
@@ -70,7 +70,7 @@ namespace NSWL1 {
     //Histogram
     StatusCode book_branches();                             //!< book the branches
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
-    void fillNtuple(MMLoadVariables loadedVariables);
+    void fillNtuple(const MMLoadVariables& loadedVariables);
 
 
     // properties: container and service names

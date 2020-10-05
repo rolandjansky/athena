@@ -1,49 +1,44 @@
-################################################################################
-# Package: AthenaMonitoringKernel
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaMonitoringKernel )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-    PUBLIC
-        Control/AthenaBaseComps
-    PRIVATE
-        AtlasTest/TestTools
-)
-
-# Options to steer cmake configuation:
-option(VALGRIND "Enable valgrind dependency for profiling" OFF)
-
 # External dependencies:
 find_package( nlohmann_json )
-if (${VALGRIND})
-   find_package( valgrind REQUIRED )
-   add_compile_definitions(ATHMON_VALGRIND)
-   set( _extra_includes ${VALGRIND_INCLUDE_DIRS})
-endif()
+find_package( valgrind )
+find_package( ROOT COMPONENTS Core Hist )
+find_package( Boost COMPONENTS program_options )
 
 atlas_add_library(
     AthenaMonitoringKernelLib
+    AthenaMonitoringKernel/*.h
     src/*.cxx
     src/HistogramFiller/*.cxx
     PUBLIC_HEADERS AthenaMonitoringKernel
-    PRIVATE_INCLUDE_DIRS nlohmann_json
-    LINK_LIBRARIES AthenaBaseComps
-    PRIVATE_LINK_LIBRARIES nlohmann_json::nlohmann_json
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps StoreGateLib
+                   CxxUtils xAODEventInfo
+    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} nlohmann_json::nlohmann_json
 )
 
 atlas_add_component(
     AthenaMonitoringKernel
     src/components/*.cxx
-    PRIVATE_LINK_LIBRARIES AthenaMonitoringKernelLib nlohmann_json::nlohmann_json
+    PRIVATE_LINK_LIBRARIES AthenaMonitoringKernelLib
 )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py 
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/*.py )
+
+# Decide whether to use Valgrind in the unit tests.
+set( _extra_includes )
+set( _test_definitions )
+if( VALGRIND_FOUND )
+   list( APPEND _extra_includes ${VALGRIND_INCLUDE_DIRS} )
+   list( APPEND _test_definitions DEFINITIONS ATHMON_VALGRIND )
+endif()
 
 # Unit tests C++:
 file( GLOB CXX_TEST_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test/*.cxx )
@@ -54,8 +49,12 @@ foreach ( test_file ${CXX_TEST_FILES} )
     file( MAKE_DIRECTORY ${rundir} )
     atlas_add_test( ${name}
         SOURCES ${test_file}
-        INCLUDE_DIRS ${_extra_includes}
-        LINK_LIBRARIES TestTools AthenaMonitoringKernelLib nlohmann_json::nlohmann_json
+        INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                     ${_extra_includes}
+        ${_test_definitions}
+        LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} TestTools
+                       GaudiKernel AthenaKernel CxxUtils
+                       AthenaMonitoringKernelLib nlohmann_json::nlohmann_json
         ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
         POST_EXEC_SCRIPT nopost.sh
         PROPERTIES TIMEOUT 300

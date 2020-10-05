@@ -1,22 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-////////////////////////////////////////////////////////////////////////////////
-//-----------------------------------------------------
-// sTgcDigitMaker.cxx
-//-----------------------------------------------------
-//
-// Authors:  Nectarios Benekos  <nectarios.benekos@cern.ch>
-//           Jiaming Yu  <jiaming.yu@cern.ch>  
-////////////////////////////////////////////////////////////////////////////////
-
-
- 
 #include "sTGC_Digitization/sTgcDigitMaker.h"
-
-#include <iostream>
-#include <fstream>
 
 #include "MuonDigitContainer/sTgcDigitCollection.h"
 #include "MuonSimEvent/sTGCSimHit.h"
@@ -27,10 +13,8 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "PathResolver/PathResolver.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -40,6 +24,8 @@
 
 #include "TF1.h" 
 #include <cmath>
+#include <iostream>
+#include <fstream>
 
 //---------------------------------------------------
 //  Constructor and Destructor
@@ -133,7 +119,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   if(energyDeposit==0.) return 0;
 
   //////////  convert ID for this digitizer system 
-  sTgcSimIdToOfflineId simToOffline(*m_idHelper);  
+  sTgcSimIdToOfflineId simToOffline(m_idHelper);  
   int simId = hit->sTGCId();
   Identifier layid = simToOffline.convert(simId);
   ATH_MSG_VERBOSE("sTgc hit:  time " << hit->globalTime() << " position " << hit->globalPosition().x() << "  " << hit->globalPosition().y() << "  " << hit->globalPosition().z() << " mclink " << hit->particleLink() << " PDG ID " << hit->particleEncoding() );
@@ -289,10 +275,18 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   int NumberOfStrips = detEl->numberOfStrips(newId); 
   double stripHalfWidth = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
 
+  //************************************ conversion of energy to charge **************************************
+
+  // Constant determined from ionization study within Garfield
+  // Note titled Charge Energy Relation which outlines conversion can be found here https://cernbox.cern.ch/index.php/apps/files/?dir=/__myshares/Documents (id:274113) 
+  double ionized_charge = (5.65E-6)*energyDeposit/CLHEP::keV; // initial ionized charge in pC per keV deposited
+  double gain = 1.6E5; // mean value for total gain due to E field; needs to be verified; statistical flucuation calculation incoming
+  double total_charge = gain*ionized_charge; // total charge after avalanche using average gain of 2E5
+
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution
   float charge_width = CLHEP::RandGauss::shoot(m_engine, m_GausMean, m_GausSigma);
-  float norm = 1000. * energyDeposit/(charge_width*std::sqrt(2.*M_PI)); //normalization: 1Kev --> Intergral=1
+  float norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI)); // each readout plane reads about half the total charge produced on the wire
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DBMModule_H
@@ -27,8 +27,9 @@ namespace InDetDD {
 class DBM_Module : public GeoVPixelFactory {
   public:
 
-  DBM_Module();
-  GeoVPhysVol* Build();
+  DBM_Module(InDetDD::PixelDetectorManager* ddmgr,
+             PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   private:
 

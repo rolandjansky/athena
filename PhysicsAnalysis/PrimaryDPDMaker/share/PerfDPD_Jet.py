@@ -166,7 +166,7 @@ filter_list += TauCombTools
 DESDM_CALJET_ORTool = DerivationFramework__FilterCombinationOR(
     name="TauCalTauTool", FilterList=filter_list)
 ToolSvc += DESDM_CALJET_ORTool
-print DESDM_CALJET_ORTool
+print(DESDM_CALJET_ORTool)
 
 
 

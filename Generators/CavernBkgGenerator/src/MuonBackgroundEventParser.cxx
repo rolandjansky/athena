@@ -102,7 +102,7 @@ std::istream& MuonBackgroundEventParser::read( std::istream& is )
     m_momentum.setPz( p * pz1 * CLHEP::GeV );
   
     CLHEP::Hep3Vector mom = m_momentum.vect();
-    m_momentum.setE( sqrt( mass*mass + mom.mag2() ) );
+    m_momentum.setE( std::sqrt( mass*mass + mom.mag2() ) );
   }
   
   return is;

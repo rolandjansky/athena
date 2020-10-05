@@ -16,7 +16,11 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( CLHEP )
+if (HEPMC3_USE)
+find_package( Photospp COMPONENTS Photospp PhotosppHepMC3 )
+else()
 find_package( Photospp COMPONENTS Photospp PhotosppHepMC )
+endif()
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
@@ -37,4 +41,5 @@ atlas_add_component( Photospp_i
    LINK_LIBRARIES GaudiKernel Photospp_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py )
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELECCABLE_H
@@ -10,8 +10,9 @@ class GeoLogVol;
 
 class GeoPixelECCable : public GeoVPixelFactory {
  public:
-  GeoPixelECCable();
-  virtual GeoVPhysVol* Build();
+  GeoPixelECCable(InDetDD::PixelDetectorManager* ddmgr,
+                  PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif

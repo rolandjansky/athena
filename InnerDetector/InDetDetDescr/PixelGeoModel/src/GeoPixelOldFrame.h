@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELOLDFRAME_H
@@ -13,8 +13,9 @@ class PixelLegacyManager;
 
 class GeoPixelOldFrame : public GeoVPixelFactory {
  public:
-  GeoPixelOldFrame();
-  virtual GeoVPhysVol* Build();
+  GeoPixelOldFrame(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   void BuildInBarrel(GeoFullPhysVol * parent);
   void BuildOutBarrel(GeoFullPhysVol * parent);

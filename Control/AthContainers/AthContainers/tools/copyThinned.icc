@@ -17,7 +17,7 @@ namespace SG {
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param svc The thinning service.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This overload handles @c DataVector types.  It returns a view container
  * copy of @c orig, from which any thinned elements are removed.
@@ -26,7 +26,7 @@ template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const void* /*dummy*/,
-              const SG::ThinningDecisionBase* /*dec*/)
+              const SG::ThinningInfo* /*info*/)
 {
   return std::make_unique<CONTAINER> (orig);
 }
@@ -36,7 +36,7 @@ copyThinned1 (const CONTAINER& orig,
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This overload handles @c DataVector types.  It returns a view container
  * copy of @c orig, from which any thinned elements are removed.
@@ -45,8 +45,9 @@ template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned1 (CONTAINER& orig,
               DataVector<typename CONTAINER::base_value_type>* /*dummy*/,
-              const SG::ThinningDecisionBase* dec)
+              const SG::ThinningInfo* info)
 {
+  const ThinningDecisionBase* dec = info ? info->m_decision : nullptr;
   size_t size = orig.size();
   if (size > 0 && dec) {
     auto newcont = std::make_unique<CONTAINER>();
@@ -72,7 +73,7 @@ copyThinned1 (CONTAINER& orig,
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This overload handles @c DataVector types.  It returns a view container
  * copy of @c orig, from which any thinned elements are removed.
@@ -81,8 +82,9 @@ template <class CONTAINER>
 std::unique_ptr<const CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const DataVector<typename CONTAINER::base_value_type>* /*dummy*/,
-              const SG::ThinningDecisionBase* dec)
+              const SG::ThinningInfo* info)
 {
+  const ThinningDecisionBase* dec = info ? info->m_decision : nullptr;
   size_t size = orig.size();
   if (size > 0 && dec) {
     auto newcont = std::make_unique<ConstDataVector<CONTAINER> >();
@@ -107,7 +109,7 @@ copyThinned1 (const CONTAINER& orig,
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This overload handles @c IAuxStore types.  It returns a new copy
  * of the store, with any thinned elements removed.
@@ -116,29 +118,24 @@ template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const SG::IAuxStore* /*dummy*/,
-              const SG::ThinningDecisionBase* dec)
+              const SG::ThinningInfo* info)
 {
   // T->P conversion is done from within copyAuxStoreThinned,
   // so we need to call it regardless of whether or not
-  // thinning is actually done.  Don't call it though if the
-  // container is empty.
-  // The cast is needed because some xAOD aux store classes
-  // declare a data member `size'.
-  if (static_cast<const SG::IAuxStore&>(orig).size() > 0)
-  {
-    auto newcont = std::make_unique<CONTAINER>();
-    copyAuxStoreThinned (orig, *newcont, dec);
-    return newcont;
-  }
-
-  return std::make_unique<CONTAINER> (orig);
+  // thinning is actually done.  Variable selection happens there
+  // as well, so need to call it even if the container is empty.
+  // (Actually, in that case, all dynamic variables will be removed,
+  // but that's ok.)
+  auto newcont = std::make_unique<CONTAINER>();
+  copyAuxStoreThinned (orig, *newcont, info);
+  return newcont;
 }
 
 
 /**
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * Returns a new copy of @c orig with elements removed according to the
  * thinning defined in @c svc.  Ownership of the new object is passed
@@ -152,16 +149,16 @@ copyThinned1 (const CONTAINER& orig,
 template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned (CONTAINER& orig,
-             const SG::ThinningDecisionBase* dec)
+             const SG::ThinningInfo* info)
 {
-  return copyThinned1 (orig, &orig, dec);
+  return copyThinned1 (orig, &orig, info);
 }
 
 
 /**
  * @brief Helper to copy an object while applying thinning, const version.
  * @param orig The object to copy.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * Returns a new copy of @c orig with elements removed according to the
  * thinning defined in @c svc.  Ownership of the new object is passed
@@ -174,9 +171,9 @@ copyThinned (CONTAINER& orig,
 template <class CONTAINER>
 std::unique_ptr<const CONTAINER>
 copyThinnedConst (const CONTAINER& orig,
-                  const SG::ThinningDecisionBase* dec)
+                  const SG::ThinningInfo* info)
 {
-  return copyThinned1 (orig, &orig, dec);
+  return copyThinned1 (orig, &orig, info);
 }
 
 

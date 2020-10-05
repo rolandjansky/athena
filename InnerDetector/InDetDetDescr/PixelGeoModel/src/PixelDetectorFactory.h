@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelDetectorFactory_h
@@ -10,6 +10,7 @@
 // readout includes:
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "CxxUtils/checker_macros.h"
 
 class PixelSwitches;
 class PixelGeometryManager;
@@ -20,7 +21,7 @@ class PixelDetectorFactory : public InDetDD::DetectorFactoryBase {
  public:
   
   // Constructor:
-  PixelDetectorFactory(const PixelGeoModelAthenaComps * athenaComps,
+  PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComps,
 		       const PixelSwitches & switches);
   
   // Destructor:

@@ -46,20 +46,18 @@ namespace MuonCalib {
       m_settings = new T0ClassicSettings(0.,300.,100,-100.,900.,1000,1,1000,1,8,params,10.,4); 
       m_delete_settings=true;
     }
-    if(m_settings->printLevel() <= 3)
-      std::cout<<"T0CalibrationClassic::T0CalibrationClassic"<<m_name<<" "<<name<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"T0ClassicSettings");
+    if (log.level()<=MSG::INFO) log << MSG::INFO << "T0CalibrationClassic::T0CalibrationClassic"<<m_name<<" "<<name<<endmsg;
     if(m_settings->printLevel() <= 2) m_settings->print();
     m_currentItnum=1;
     std::string HistoFileName="T0Classic_"+m_name+".root";
-    if(m_settings->printLevel() <= 3)
-      std::cout<<"T0CalibrationClassic::T0CalibrationClassic"<<m_name
-	       <<" "<<name<<" "<<HistoFileName<<std::endl;
+    if (log.level()<=MSG::INFO) log << MSG::INFO << "T0CalibrationClassic::T0CalibrationClassic"<<m_name
+	       <<" "<<name<<" "<<HistoFileName<<endmsg;
     p_file = new TFile(HistoFileName.c_str(),"recreate");
     m_regiondir = p_file->mkdir(m_name.c_str()); 
   }
 
   T0CalibrationClassic::~T0CalibrationClassic() {
-    if(m_settings->printLevel() <= 3) std::cout << "T0CalibrationClassic::~T0CalibrationClassic()" << std::endl;
     p_file->Write();
     p_file->Close();
     delete p_file;
@@ -86,11 +84,12 @@ namespace MuonCalib {
 	int nT=id.mdtTube();
 	const MdtTubeFitContainer::SingleTubeCalib * stc=m_result->getCalib(nML-1,nL-1,nT-1);
 	if(!stc) {
-	  std::cout<<"no Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<std::endl; 
-	  std::cout<<"container size "<<m_result->size()<<std::endl;
-	  std::cout<<"container nML "<<m_result->numMultilayers()<<std::endl;
-	  std::cout<<"container nL "<<m_result->numLayers()<<std::endl;
-	  std::cout<<"container nT "<<m_result->numTubes()<<std::endl;
+		MsgStream log(Athena::getMessageSvc(),"T0ClassicSettings");
+		log << MSG::WARNING << "no Single Tube Calib info found for ML="<<nML<<" L="<<nL<<" T="<<nT<<endmsg; 
+		log << MSG::WARNING << "container size "<<m_result->size()<<endmsg;
+		log << MSG::WARNING << "container nML "<<m_result->numMultilayers()<<endmsg;
+		log << MSG::WARNING << "container nL "<<m_result->numLayers()<<endmsg;
+		log << MSG::WARNING << "container nT "<<m_result->numTubes()<<endmsg;
 	}
 
 	// get histos
@@ -127,8 +126,8 @@ namespace MuonCalib {
   }
   
   bool  T0CalibrationClassic::analyse() {
-    if(m_settings->printLevel() <= 3)
-      std::cout << "T0CalibrationClassic::analyse iteration "<<m_currentItnum << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"T0ClassicSettings");
+    if (log.level()<=MSG::INFO) log << MSG::INFO << "T0CalibrationClassic::analyse iteration "<<m_currentItnum << endmsg;
 
     // loop over m_histos histograms 
     for(std::vector<T0ClassicHistos*>::iterator it=m_histos.begin(); it!=m_histos.end();++it) {
@@ -145,11 +144,9 @@ namespace MuonCalib {
 	  int nT=fId.mdtTube();
              
 	  bool setInfo=m_result->setCalib(nML-1,nL-1,nT-1,st);
-	  if(!setInfo) 
-	    std::cout<<"T0CalibrationClassic::PROBLEM! could not set SingleTubeCalib info "<<std::endl;
+	  if(!setInfo) log << MSG::WARNING << "T0CalibrationClassic::PROBLEM! could not set SingleTubeCalib info "<<endmsg;
 	  setInfo=m_result->setFit(nML-1,nL-1,nT-1,full);
-	  if(!setInfo) 
-	    std::cout<<"T0CalibrationClassic::PROBLEM! could not set SingleTubeFullInfo info "<<std::endl;
+	  if(!setInfo) log << MSG::WARNING << "T0CalibrationClassic::PROBLEM! could not set SingleTubeFullInfo info "<<endmsg;
 
 	}
       }
@@ -190,12 +187,13 @@ namespace MuonCalib {
 
     if (T0h->id==1 || T0h->id==2 || (T0h->id>10&&T0h->id<=23)) isMultilayer=1;
 
+    MsgStream log(Athena::getMessageSvc(),"T0ClassicSettings");
     if (( fId.isValid() && fId.is_mdt()) || isMultilayer ) {
-      std::cout<<" STARTING doTimeFit "<< std::endl;
+      if (log.level()<=MSG::INFO) log << MSG::INFO << " STARTING doTimeFit "<<endmsg;
       TH1* h = nullptr; 
 
       if ( isMultilayer) {
-        std::cout<< " DEBUGGGG : " << T0h->id << std::endl ;
+        if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << T0h->id << endmsg;
 	h=T0h->time;
       }
 
@@ -204,9 +202,9 @@ namespace MuonCalib {
 
 	ToString ts;
 	std::string HistoId(std::string("time_mezz_") + ts((hIdMezz)%(900000000)));
-	if (m_settings->printLevel() <= 2) {
-	  std::cout<<" doTimeFit HistogramId : "<< T0h->id << std::endl;
-	  std::cout<<" doTimeFit Histogram : "<< HistoId << std::endl;
+	if (log.level()<=MSG::DEBUG) {
+	   log << MSG::DEBUG << " doTimeFit HistogramId : "<< T0h->id <<endmsg;
+	   log << MSG::DEBUG << " doTimeFit Histogram : "<< HistoId <<endmsg;
 	}
 	TH1F * timeHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
 	if(!timeHis) {
@@ -224,7 +222,7 @@ namespace MuonCalib {
       Stat_t entries=h->GetEntries();
       fi.statistics=(int)entries;
 
-      if(m_settings->printLevel() <= 1) std::cout<<" histogram "<<h->GetName()
+      if(log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << " histogram "<<h->GetName()
 						 <<" "<<h->GetTitle()
 						 <<" entries="<<h->GetEntries()
 						 <<" min entries="<<m_settings->entries()
@@ -248,16 +246,15 @@ namespace MuonCalib {
 				    m_settings->minTime(),m_settings->maxTime()); 
 	for(int i=0;i<np;i++) {
 	  pfit[i]=*(pdefault++);
-	  if(m_settings->printLevel() <= 2) 
-	    std::cout<<"T0CalibrationClassic::doTimeFit initial parameters"
-		     <<i<<"="<<pfit[i]<<std::endl;
+	  if(log.level()<=MSG::DEBUG) 
+	    log << MSG::DEBUG << "T0CalibrationClassic::doTimeFit initial parameters"
+		     <<i<<"="<<pfit[i]<<endmsg;
         }
 	searchParams(h,&pfit[0],np);  
-	if(m_settings->printLevel() <= 2) {
-	  std::cout<<"T0CalibrationClassic::doTimeFit parameters after searchParams "<<std::endl;
-	  for(int i=0;i<np;++i){std::cout << "i,pfit(i) "<<i<<" "<<pfit[i]<<std::endl;}
+	if(log.level()<=MSG::DEBUG) {
+	  log << MSG::DEBUG << "T0CalibrationClassic::doTimeFit parameters after searchParams "<<endmsg;
+	  for(int i=0;i<np;++i){log << MSG::DEBUG << "i,pfit(i) "<<i<<" "<<pfit[i]<<endmsg;}
 	}
-	std::cout <<" Sto per mettere i limiti"<<std::endl;
 	TimeSpectrum->SetParameters(pfit);
 	TimeSpectrum->SetParLimits(0,0.,5.);
 	TimeSpectrum->SetParLimits(1,0.,1000.);
@@ -295,8 +292,8 @@ namespace MuonCalib {
       // THE NEW HISTOGRAM HAS BEEN FITTED 
       if( ndof == 0. ) ndof = -1;
 
-      if(m_settings->printLevel() <= 1) 
-	std::cout<<" fit results chi2/ndof="<<chi2/ndof<<" T0="<<pfit[4]<<" err="<<errfit[4]<<std::endl; 
+      if(log.level()<=MSG::VERBOSE) 
+	log << MSG::VERBOSE << " fit results chi2/ndof="<<chi2/ndof<<" T0="<<pfit[4]<<" err="<<errfit[4]<<endmsg; 
       if(chi2/ndof < m_settings->chi2max()) {
 	stc.statusCode=0 ;// success
       } else {
@@ -342,7 +339,7 @@ namespace MuonCalib {
     for(int i=0; i<np; i++) delete [] matrix[i];
     delete [] matrix;
 	
-    std::cout<<" ENDING doTimeFit "<< std::endl;
+    if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << " ENDING doTimeFit "<< endmsg;
 
   }
 
@@ -362,9 +359,10 @@ namespace MuonCalib {
       errpar[ii] = 0.0 ;
     }
 
+    MsgStream log(Athena::getMessageSvc(),"T0ClassicSettings");
     MuonFixedId fId(T0h->id);
     if (fId.isValid() && fId.is_mdt()) {
-      std::cout<<" doAdcFit : checking Single tube entries"<< std::endl;
+      if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << " doAdcFit : checking Single tube entries"<< endmsg;
       double adcThreshold = 50. ;
       TH1 * hcheck ;
       hcheck = T0h->adc;
@@ -372,12 +370,12 @@ namespace MuonCalib {
 
       int adcBinThreshold = (int)((adcThreshold-hcheck->GetBinLowEdge(1))/(hcheck->GetBinWidth(1))+1)   ;  //
       int nhitsAboveAdcCut = (int)  hcheck->Integral(adcBinThreshold,hcheck->GetNbinsX()) ;
-      std::cout<<" doAdcFit : TotHits, nhitsAboveAdcCut "<< nhits <<" "<<nhitsAboveAdcCut<< std::endl;
+      if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << " doAdcFit : TotHits, nhitsAboveAdcCut "<< nhits <<" "<<nhitsAboveAdcCut<< endmsg;
 
       fi.cov[20]=nhits ;
       fi.cov[21]=nhitsAboveAdcCut ;
  
-      std::cout<<" STARTING doAdcFit "<< std::endl;
+      if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << " STARTING doAdcFit "<< endmsg;
 
       TH1 * h = nullptr;
 
@@ -385,9 +383,9 @@ namespace MuonCalib {
 	int hIdMezz = fId.mdtMezzanine() ;
 	ToString ts;
 	std::string HistoId(std::string("charge_mezz_") + ts((hIdMezz)%(900000000)));
-	if (m_settings->printLevel() <= 2) {
-	  std::cout<<" doAdcFit HistogramId : "<< T0h->id << std::endl;
-	  std::cout<<" doAdcFit Histogram : "<< HistoId << std::endl;
+	if (log.level()<=MSG::DEBUG) {
+	  log << MSG::DEBUG <<" doAdcFit HistogramId : "<< T0h->id << endmsg;
+	  log << MSG::DEBUG <<" doAdcFit Histogram : "<< HistoId << endmsg;
 	}
 	TH1F * adcHis=(TH1F*) m_regiondir->Get(HistoId.c_str());
 	if(!adcHis) return;
@@ -395,16 +393,10 @@ namespace MuonCalib {
 	T0ClassicHistos* histosMezz = getHistos(fId.mdtMezzanine());
 	h= histosMezz->adc;
       }
-// E. Diehl 141211 This code cannot be executed since fitMezz!=1 option never implemented (see above)
-//    if (fitMezz==2) {                        // FIT MULTILAYER
-//      int nML=fId.mdtMultilayer();
-//      T0ClassicHistos* histosML = getHistos(nML);
-//      h= histosML->adc;
-//    }
 
-      if(m_settings->printLevel() <= 1)
-	std::cout<<" histogram "<<h->GetName()<<" "<<h->GetTitle()
-		 <<" entries="<<h->GetEntries()<<std::endl; 
+      if(log.level()<=MSG::VERBOSE)
+	log << MSG::VERBOSE <<" histogram "<<h->GetName()<<" "<<h->GetTitle()
+		 <<" entries="<<h->GetEntries()<<endmsg; 
       Stat_t entries=h->GetEntries();
 
       // CHECK whether the Selected Histogram has enough entries
@@ -444,20 +436,16 @@ namespace MuonCalib {
 	    par[i] = AdcSpectrum->GetParameter(i);
 	    errpar[i] = AdcSpectrum->GetParError(i);
 	  }
-	  if (m_settings->printLevel() <=1)
-	    std::cout<<"chi2/ndof="<<chi2/ndof<<" "<<"Mean="<<m<<" "<<"RMS="<<r
-		     <<" par 0 1 2 3 " << par[0] <<" "<<par[1]<<" "<<par[2]<< " "<<par[3]<< std::endl;
+	  if (log.level()<=MSG::VERBOSE)
+	    log << MSG::VERBOSE <<"chi2/ndof="<<chi2/ndof<<" "<<"Mean="<<m<<" "<<"RMS="<<r
+		     <<" par 0 1 2 3 " << par[0] <<" "<<par[1]<<" "<<par[2]<< " "<<par[3]<<endmsg;
 
 	}
 	// THE NEW HISTOGRAM HAS BEEN FITTED
-      
-	//    } else {
-	// stc.statusCode=2; // too few entries - DO NOT CHANGE statusCode coming from doTimeFit
+
       }
 
       stc.adcCal=par[1]; 
-      // fi.chi2Adc=chi2/ndof; //  ??? esiste fi.chi2Adc ????
-      // for (int i=0 ; i<np; i++) fi.par[i]=pfit[i] ;   ...dove li mettiamo ???
       fi.adc_par[0] = par[1] ;
       fi.adc_par[1] = par[2] ;
       fi.adc_err[0] = errpar[1] ;
@@ -475,12 +463,13 @@ namespace MuonCalib {
     // extract starting values for fit params p[np] from the Time Spectrum h
     TH1 *hnew = h->Rebin(RebinFactor,"hnew"); // creates a new histogram hnew
     //merging 5 bins of h1 in one bin
-    std::cout << "nbinsx,sizex,rebinfactor="<<nbinsX<<" "<<sizeX<<" "<<RebinFactor<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"T0ClassicSettings");
+    if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << "nbinsx,sizex,rebinfactor="<<nbinsX<<" "<<sizeX<<" "<<RebinFactor<<endmsg;
     float minDeriv(9999.); 
     int minDerivBin(0);
     sizeX = hnew->GetBinWidth(1);
     int newbins = hnew->GetNbinsX();
-    for(int i=0;i<np;++i){std::cout << "i,p(i) "<<i<<" "<<p[i]<<std::endl;}
+    for(int i=0;i<np;++i){if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << "i,p(i) "<<i<<" "<<p[i]<<endmsg;}
     for(int i=0; i<newbins-1; ++i) {
       if(hnew->GetBinContent(i)-hnew->GetBinContent(i+1)
 	 <minDeriv) {
@@ -492,7 +481,7 @@ namespace MuonCalib {
     if (minDerivBin<newbins-1) {
       t0guess += (hnew->GetBinCenter(minDerivBin+1)-hnew->GetBinCenter(minDerivBin))/2.;
     }
-    std::cout << " t0guess is "<<t0guess<<std::endl;
+    if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << " t0guess is "<<t0guess<<endmsg;
     //
     // =================== Noise level search ===================================
     //
@@ -517,18 +506,18 @@ namespace MuonCalib {
     }
 	   
     noise = noise/(float)(icount) ;
-    std::cout << " noise is "<<noise<<std::endl;
+    if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << " noise is "<<noise<<endmsg;
     //
     // =================== Normalization =========================================
     //
     int t0bin = minDerivBin;
     int ix1 = t0bin+(int)(50/sizeX);
     int ix2 = t0bin+(int)(500/sizeX);
-    std::cout << "t0bin,ix1,ix2 "<<t0bin<<" "<<ix1<<" "<<ix2<<std::endl;
+    if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << "t0bin,ix1,ix2 "<<t0bin<<" "<<ix1<<" "<<ix2<<endmsg;
     float P1=p[1];
     float P2=p[2];
     float P3=p[3];
-    std::cout <<"P1,P2,P3 start are "<<P1<<" "<<P2<<" "<<P3<<std::endl;
+    if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << "P1,P2,P3 start are "<<P1<<" "<<P2<<" "<<P3<<endmsg;
       p[0]=noise;
       p[4]=t0guess;
       p[5]=p[4]+700;
@@ -547,8 +536,10 @@ namespace MuonCalib {
       P1 = cont1/(1+P2*A1);
       P1=P1*oldSizeX/sizeX ;
       P2=P2*oldSizeX/sizeX ;
-      std::cout << "a1,a2 "<<a1<<" "<<a2<<" cont1,cont2 "<<cont1<<" "<<cont2<<" A1,A2 "<<A1<<" "<<A2<<std::endl;
-      std::cout << " t0Guess .... P1, P2 " <<P1<<" "<<P2<<std::endl;
+      if(log.level()<=MSG::DEBUG) {
+        log << MSG::DEBUG << "a1,a2 "<<a1<<" "<<a2<<" cont1,cont2 "<<cont1<<" "<<cont2<<" A1,A2 "<<A1<<" "<<A2<<endmsg;
+        log << MSG::DEBUG << " t0Guess .... P1, P2 " <<P1<<" "<<P2<<endmsg;
+      }
       p[1]=P1;
       p[2]=P2;
      }

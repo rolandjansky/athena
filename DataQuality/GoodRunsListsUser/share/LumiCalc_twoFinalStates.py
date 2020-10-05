@@ -1,6 +1,6 @@
 ########################################
 # Job to run RecExCommon, schedule
-# LumiBlockMetaDataTool and LumiCalcSvc
+# LumiBlockMetaDataTool 
 # but don't write out any AOD outputfile
 
 ########################################
@@ -29,19 +29,6 @@ GoodRunsListSelectorTool.BlackRunsListVec = [ 'blacklist1.xml' ]
 from GoodRunsListsUser.GoodRunsListsUserConf import DummyDumperAlg
 from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
 ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-LumiBlockMetaDataTool.calcLumi = True # False by default
-#LumiBlockMetaDataTool.storeXMLFiles = False # default is True
-#LumiBlockMetaDataTool.applyDQCuts = False # default is True
-#LumiBlockMetaDataTool.OutputLevel = DEBUG
-
-# add LumiCalcSvc and configure
-from LumiBlockComps.LumiBlockCompsConf import LumiCalcSvc
-LumiCalcSvc = LumiCalcSvc()
-LumiCalcSvc.UseMC = True
-LumiCalcSvc.LBCollNames = ["LumiBlocks", "IncompleteLumiBlocks"]
-LumiCalcSvc.Triggers = ["EF_mu20"]
-LumiCalcSvc.Verbose = False
-svcMgr += LumiCalcSvc
 
 ## This Athena job consists of algorithms that loop over events;
 ## here, the (default) top sequence is used:

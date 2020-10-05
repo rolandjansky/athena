@@ -78,6 +78,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFComm
                                                                          AugmentationTools = DFCommonMuonToolWrapperTools
                                                                         )
 
-import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+#import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+#if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+#  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()

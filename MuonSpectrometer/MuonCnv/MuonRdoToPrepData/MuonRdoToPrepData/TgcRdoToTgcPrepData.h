@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRDOTOTGCPREPDATA_H
@@ -13,7 +13,7 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 /** Algorithm to decode RDO into TgcPrepData, using the Muon::TgcRdoToTgcPrepDataTool 
@@ -28,13 +28,13 @@ class TgcRdoToTgcPrepData : public AthAlgorithm {
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
  private:
 
   void printTgcPrepRawData(); //!< Prints information about the resultant PRDs.
 
-  ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_tool; //!< Tool used to do actual decoding.
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tool{this,"DecodingTool","Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool","tgc rdo to prep data conversion tool"};
+  ToolHandle<IRegSelTool> m_regsel_tgc{this,"RegSel_TGC","RegSelTool/RegSelTool_TGC"};
 
   bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
   bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
@@ -44,7 +44,6 @@ class TgcRdoToTgcPrepData : public AthAlgorithm {
 
   bool m_seededDecoding;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
   SG::WriteHandleKey<Muon::TgcPrepDataContainer> m_tgcCollection;
 };
 

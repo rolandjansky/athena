@@ -112,10 +112,10 @@ namespace Trk
       if (handle.retrieve().isFailure()) {
         ATH_MSG_FATAL("Failed to retrieve tool " << handle);
         return false;
-      } else {
+      } 
         ATH_MSG_INFO("Retrieved tool " << handle);
         return true;
-      }
+      
     };
     if (!retrieveTool(m_materialAllocator)) { return StatusCode::FAILURE; }        
     if (!retrieveTool(m_rungeKuttaIntersector)) { return StatusCode::FAILURE; }
@@ -127,13 +127,13 @@ namespace Trk
     if (m_trackingVolumesSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
       m_calorimeterVolume = std::make_unique<Trk::Volume>(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
       m_indetVolume = std::make_unique<Volume>(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-    }
+    
 
     ATH_CHECK(m_trackSummaryTool.retrieve());
 
@@ -194,10 +194,11 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-  auto iPatFitter::fitWithState(
-    const Track& track,
-    const RunOutlierRemoval runOutlier,
-    const ParticleHypothesis particleHypothesis) const 
+  auto
+  iPatFitter::fitWithState(const EventContext& ctx,
+                           const Track& track,
+                           const RunOutlierRemoval runOutlier,
+                           const ParticleHypothesis particleHypothesis) const
     -> std::pair<std::unique_ptr<Track>, std::unique_ptr<FitState>>
   {
     ATH_MSG_VERBOSE(" track fit ");
@@ -246,7 +247,8 @@ namespace Trk
 
     fitState->newMeasurements();
 
-    bool haveMaterial = addMeasurements(fitState->getMeasurements(),
+    bool haveMaterial = addMeasurements(ctx,
+                                        fitState->getMeasurements(),
                                         *fitState->parameters,
                                         particleHypothesis,
                                         *track.trackStateOnSurfaces());
@@ -273,47 +275,54 @@ namespace Trk
 
     // validation
     for (int i = 0; i < m_forcedRefitsForValidation; ++i) {
-      if (fittedTrack) { refit(*fitState, *fittedTrack, runOutlier, particleHypothesis); }
+      if (fittedTrack) { refit(ctx,*fitState, *fittedTrack, runOutlier, particleHypothesis); }
     }
 
     return {std::move(fittedTrack), std::move(fitState)};
   }
 
-  Track*
-  iPatFitter::fit(const Track& track,
+  std::unique_ptr<Track> 
+  iPatFitter::fit(const EventContext& ctx, 
+                  const Track& track,
                   const RunOutlierRemoval runOutlier,
                   const ParticleHypothesis particleHypothesis) const {
-    auto [fittedTrack, fitState] = fitWithState(track, runOutlier, particleHypothesis);
-    return fittedTrack.release();
+    auto [fittedTrack, fitState] = fitWithState(ctx,track, runOutlier, particleHypothesis);
+    return std::move(fittedTrack);
   }
 
-  Track*
-  iPatFitter::fit(const Track& /*track*/,
+  std::unique_ptr<Track>
+  iPatFitter::fit(const EventContext&,
+                  const Track& /*track*/,
                   const PrepRawDataSet& /*prepRawDataSet*/,
                   const RunOutlierRemoval /*trackrunOutlier*/,
-                  const ParticleHypothesis /*trackparticleHypothesis*/) const {
+                  const ParticleHypothesis /*trackparticleHypothesis*/) const
+  {
     m_countFitAttempts++;
     // track + PrepRawDataSet interface not implemented
     m_messageHelper->printWarning(3);
     return nullptr;
   }
 
-  Track*
-  iPatFitter::fit(const PrepRawDataSet& /*prepRawDataSet*/,
+  std::unique_ptr<Track>
+  iPatFitter::fit(const EventContext&,
+                  const PrepRawDataSet& /*prepRawDataSet*/,
                   const TrackParameters& /*estimatedParametersNearOrigin*/,
                   const RunOutlierRemoval /*trackrunOutlier*/,
-                  const ParticleHypothesis /*trackparticleHypothesis*/) const {
+                  const ParticleHypothesis /*trackparticleHypothesis*/) const
+  {
     m_countFitAttempts++;
     // PrepRawDataSet interface not implemented
     m_messageHelper->printWarning(4);
     return nullptr;
   }
 
-  Track*
-  iPatFitter::fit(const Track& track,
+  std::unique_ptr<Track>
+  iPatFitter::fit(const EventContext& ctx,
+                  const Track& track,
                   const MeasurementSet& measurementSet,
                   const RunOutlierRemoval runOutlier,
-                  const ParticleHypothesis particleHypothesis) const {
+                  const ParticleHypothesis particleHypothesis) const
+  {
     ATH_MSG_VERBOSE(" track + measurementSet fit ");
     m_countFitAttempts++;
     // outlier removal not implemented
@@ -338,12 +347,15 @@ namespace Trk
 
     // set up the measurements (and material)
     fitState.newMeasurements();
-    if (addMeasurements(fitState.getMeasurements(), *fitState.parameters, particleHypothesis,
-                        *track.trackStateOnSurfaces())) m_messageHelper->printWarning(8); // FIX needed: material may
-                                                                                          // get double counted
-    addMeasurements(fitState.getMeasurements(),
-                    measurementSet,
-                    *fitState.parameters);
+    if (addMeasurements(ctx,
+                        fitState.getMeasurements(),
+                        *fitState.parameters,
+                        particleHypothesis,
+                        *track.trackStateOnSurfaces()))
+      m_messageHelper->printWarning(8); // FIX needed: material may
+                                        // get double counted
+    addMeasurements(
+      ctx, fitState.getMeasurements(), measurementSet, *fitState.parameters);
     Garbage_t garbage;
     if (particleHypothesis != Trk::nonInteracting) {
       const TrackParameters& endParams = *(track.trackStateOnSurfaces()->back()->trackParameters());
@@ -357,14 +369,21 @@ namespace Trk
     // perform fit and return fitted track
     TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
     trackInfo.addPatternReco(track.info());
-    return performFit(fitState, particleHypothesis, trackInfo, track.trackStateOnSurfaces(), track.fitQuality(), garbage);
+    return performFit(fitState,
+                      particleHypothesis,
+                      trackInfo,
+                      track.trackStateOnSurfaces(),
+                      track.fitQuality(),
+                      garbage);
   }
 
-  Track*
-  iPatFitter::fit(const MeasurementSet& measurementSet,
+  std::unique_ptr<Trk::Track>
+  iPatFitter::fit(const EventContext& ctx,
+                  const MeasurementSet& measurementSet,
                   const TrackParameters& perigeeStartValue,
                   const RunOutlierRemoval runOutlier,
-                  const ParticleHypothesis particleHypothesis) const {
+                  const ParticleHypothesis particleHypothesis) const
+  {
     ATH_MSG_VERBOSE(" fit from measurement set + perigeeStartValue ");
     m_countFitAttempts++;
     // outlier removal not implemented
@@ -382,7 +401,7 @@ namespace Trk
 
     // set up the measurements (and material)
     fitState.newMeasurements();
-    addMeasurements(fitState.getMeasurements(), measurementSet, *fitState.parameters);
+    addMeasurements(ctx,fitState.getMeasurements(), measurementSet, *fitState.parameters);
     Garbage_t garbage;
     if (particleHypothesis != Trk::nonInteracting) {
       m_materialAllocator->allocateMaterial(fitState.getMeasurements(),
@@ -397,11 +416,13 @@ namespace Trk
     return performFit(fitState, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
   }
 
-  Track*
-  iPatFitter::fit(const Track& indetTrack,
+  std::unique_ptr<Track>
+  iPatFitter::fit(const EventContext& ctx,
+                  const Track& indetTrack,
                   const Track& spectrometerTrack,
                   const RunOutlierRemoval runOutlier,
-                  const ParticleHypothesis particleHypothesis) const {
+                  const ParticleHypothesis particleHypothesis) const
+  {
     ATH_MSG_VERBOSE(" combined muon fit ");
     m_countFitAttempts++;
     // outlier removal not implemented
@@ -426,7 +447,7 @@ namespace Trk
     const Perigee* indetPerigee = dynamic_cast<const Perigee*>(indetTrack.perigeeParameters());
     const Perigee* spectrometerPerigee = dynamic_cast<const Perigee*>(spectrometerTrack.perigeeParameters());
     if (spectrometerPerigee
-        && !m_indetVolume->inside(spectrometerPerigee->associatedSurface().center())) { spectrometerPerigee = 0; }
+        && !m_indetVolume->inside(spectrometerPerigee->associatedSurface().center())) { spectrometerPerigee = nullptr; }
     if (!spectrometerTrack.info().trackProperties(Trk::TrackInfo::StraightTrack)
         && spectrometerPerigee) {
       if (indetTrack.info().trackProperties(Trk::TrackInfo::StraightTrack)
@@ -453,17 +474,23 @@ namespace Trk
         m_messageHelper->printWarning(13);
         return nullptr;
       }
-      if (!addMeasurements(fitState.getMeasurements(),
+      if (!addMeasurements(ctx,
+                           fitState.getMeasurements(),
                            *fitState.parameters,
                            particleHypothesis,
-                           *indetTrack.trackStateOnSurfaces())) { haveMaterial = false; }
+                           *indetTrack.trackStateOnSurfaces())) {
+        haveMaterial = false;
+      }
     }
 
     // add the spectrometer measurements
-    if (!addMeasurements(fitState.getMeasurements(),
+    if (!addMeasurements(ctx,
+                         fitState.getMeasurements(),
                          *fitState.parameters,
                          particleHypothesis,
-                         *spectrometerTrack.trackStateOnSurfaces())) { haveMaterial = false; }
+                         *spectrometerTrack.trackStateOnSurfaces())) {
+      haveMaterial = false;
+    }
     Garbage_t garbage;
     if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
       Perigee* startingPerigee = fitState.parameters->startingPerigee();
@@ -482,15 +509,18 @@ namespace Trk
     trackInfo.addPatternReco(indetTrack.info());
     trackInfo.addPatternReco(spectrometerTrack.info());
     if (m_fullCombinedFit) {
-      Trk::Track* fittedTrack = performFit(fitState, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
+      std::unique_ptr<Trk::Track> fittedTrack = performFit(
+        fitState, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
 
       // validation
       for (int i = 0; i < m_forcedRefitsForValidation; ++i) {
-        if (fittedTrack) { refit(fitState, *fittedTrack, runOutlier, particleHypothesis); }
+        if (fittedTrack) {
+          refit(ctx, fitState, *fittedTrack, runOutlier, particleHypothesis);
+        }
       }
 
       return fittedTrack;
-    } else { // hybrid fit
+    } // hybrid fit
       if (!indetPerigee) {
         // fail combined muon fit as indet track without measuredPerigee
         m_messageHelper->printWarning(14);
@@ -498,22 +528,31 @@ namespace Trk
       }
       fitState.getMeasurements().insert(fitState.getMeasurements().begin(), new FitMeasurement(*indetPerigee));
       FitParameters measuredParameters(*indetPerigee);
-      Trk::Track* fittedTrack = performFit(fitState, particleHypothesis, trackInfo, indetTrack.trackStateOnSurfaces(),
-          indetTrack.fitQuality(), garbage);
+      std::unique_ptr<Trk::Track> fittedTrack =
+        performFit(fitState,
+                   particleHypothesis,
+                   trackInfo,
+                   indetTrack.trackStateOnSurfaces(),
+                   indetTrack.fitQuality(),
+                   garbage);
 
       // validation
       for (int i = 0; i < m_forcedRefitsForValidation; ++i) {
-        if (fittedTrack) { refit(fitState, *fittedTrack, runOutlier, particleHypothesis); }
+        if (fittedTrack) {
+          refit(ctx, fitState, *fittedTrack, runOutlier, particleHypothesis);
+        }
       }
 
       return fittedTrack;
-    }
+    
   }
 
   void
-  iPatFitter::addMeasurements(std::vector<FitMeasurement*>& measurements,
+  iPatFitter::addMeasurements(const EventContext& ctx,
+                              std::vector<FitMeasurement*>& measurements,
                               const MeasurementSet& measurementSet,
-                              const FitParameters& parameters) const {
+                              const FitParameters& parameters) const
+  {
     // extrapolation to set FittedTrajectory
     double qOverP = parameters.qOverP();
     double previousDistance = -m_orderingTolerance;
@@ -526,16 +565,19 @@ namespace Trk
     ExtrapolationType type = FittedTrajectory;
     std::unique_ptr<const TrackSurfaceIntersection> intersection {parameters.intersection()};
 
+    const TrackSurfaceIntersection* startIntersection = intersection.get();
     int hit = measurements.size();
     for (MeasurementSet::const_iterator m = measurementSet.begin();
          m != measurementSet.end();
          m++, hit++) {
-      std::unique_ptr<const TrackSurfaceIntersection> newIntersection {
-        m_stepPropagator->intersectSurface((**m).associatedSurface(),
-                                            intersection.get(),
-                                            qOverP,
-                                            m_stepField,
-                                            Trk::muon)};
+      std::unique_ptr<const TrackSurfaceIntersection> newIntersection{
+        m_stepPropagator->intersectSurface(ctx,
+                                           (**m).associatedSurface(),
+                                           startIntersection,
+                                           qOverP,
+                                           m_stepField,
+                                           Trk::muon)
+      };
       if (newIntersection) {
         intersection = std::move(newIntersection);
 
@@ -565,12 +607,14 @@ namespace Trk
         // FIXME
         // no intersection to MeasurementSet
         m_messageHelper->printWarning(15);
-        intersection = std::make_unique<TrackSurfaceIntersection>(*intersection.get());
+        intersection = std::make_unique<TrackSurfaceIntersection>(*intersection);
       }
       auto measurement = std::make_unique<FitMeasurement>(hit, nullptr, *m);
-      measurement->intersection(type, intersection.get());
+      measurement->intersection(type, intersection.release());
       measurement->qOverP(qOverP);
       measurements.push_back(measurement.release());
+      //remember the last intersection for the next loop iteration
+      startIntersection=&(measurements.back()->intersection(type));
     }
 
     // reorder if necessary
@@ -578,10 +622,13 @@ namespace Trk
   }
 
   bool
-  iPatFitter::addMeasurements(std::vector<FitMeasurement*>& measurements,
-                              const FitParameters& parameters,
-                              ParticleHypothesis particleHypothesis,
-                              const DataVector<const TrackStateOnSurface>& trackStateOnSurfaces) const {
+  iPatFitter::addMeasurements(
+    const EventContext& ctx,
+    std::vector<FitMeasurement*>& measurements,
+    const FitParameters& parameters,
+    ParticleHypothesis particleHypothesis,
+    const DataVector<const TrackStateOnSurface>& trackStateOnSurfaces) const
+  {
     // create vector of any TSOS'es which require fitted alignment corrections
     std::vector<Identifier> misAlignedTSOS;
     std::vector<int> misAlignmentNumbers;
@@ -617,9 +664,9 @@ namespace Trk
     double previousDistanceR = -m_orderingTolerance;
     double previousDistanceZ = -m_orderingTolerance;
     bool reorder = false;
-    const bool skipVertexMeasurement = measurements.size() > 0;
+    const bool skipVertexMeasurement = !measurements.empty();
     const Amg::Vector3D startDirection = parameters.direction();
-    const Amg::Vector3D startPosition = parameters.position();
+    const Amg::Vector3D& startPosition = parameters.position();
     const TrackSurfaceIntersection* vertex = parameters.intersection();
     const TrackSurfaceIntersection* intersection = vertex;
     bool measurementsFlipped = false;
@@ -724,7 +771,6 @@ namespace Trk
         }
       } else if (!measurement1 && s.trackParameters()) {
         if (s.type(TrackStateOnSurface::Hole)) {
-          // ATH_MSG_VERBOSE( " addMeasurements: adding hole" );
           measurement2 = std::make_unique<FitMeasurement>(s);
         } else if (s.type(TrackStateOnSurface::Perigee)) {
           if (i == trackStateOnSurfaces.begin()) { continue; }
@@ -763,15 +809,11 @@ namespace Trk
                                                     direction,
                                                     0.);
       } else if (surface) {
-        const TrackSurfaceIntersection* newIntersection = m_stepPropagator->intersectSurface(*surface,
-                                                                                             intersection,
-                                                                                             qOverP,
-                                                                                             m_stepField,
-                                                                                             Trk::muon);
+        const TrackSurfaceIntersection* newIntersection =
+          m_stepPropagator->intersectSurface(
+            ctx, *surface, intersection, qOverP, m_stepField, Trk::muon);
 
         if (!newIntersection) {
-          // addMeasurements: skip measurement as fail to intersect
-          //                  associated surface from given starting parameters
           m_messageHelper->printWarning(18);
           measurement2.reset();
           continue;
@@ -783,7 +825,7 @@ namespace Trk
           intersection = newIntersection;
         }
         if (s.materialEffectsOnTrack()) {
-          Amg::Vector3D position = intersection->position();
+          const Amg::Vector3D& position = intersection->position();
           bool calo = (!m_indetVolume->inside(position)
                        && m_calorimeterVolume->inside(position));
           measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(), 
@@ -855,14 +897,15 @@ namespace Trk
     return haveMaterial;
   }
 
-  Track*
+  std::unique_ptr<Trk::Track>
   iPatFitter::performFit(
-      FitState& fitState,
-      const ParticleHypothesis particleHypothesis,
-      const TrackInfo& trackInfo,
-      const DataVector<const TrackStateOnSurface>* leadingTSOS,
-      const FitQuality* perigeeQuality,
-      Garbage_t& garbage) const {
+    FitState& fitState,
+    const ParticleHypothesis particleHypothesis,
+    const TrackInfo& trackInfo,
+    const DataVector<const TrackStateOnSurface>* leadingTSOS,
+    const FitQuality* perigeeQuality,
+    Garbage_t& garbage) const
+  {
     std::vector<FitMeasurement*>& measurements = fitState.getMeasurements();
     FitParameters* parameters = fitState.parameters.get();
     // initialize the scattering centres
@@ -962,7 +1005,7 @@ namespace Trk
               // conflicting energy deposit sign for inDet material
               if (m->energyLoss() * indetEloss < 0.) { m_messageHelper->printWarning(21); }
               continue;
-            } else if (m_calorimeterVolume->inside(
+            } if (m_calorimeterVolume->inside(
                          m->intersection(FittedTrajectory).position())) {
               calo++;
               caloX0 += m->materialEffects()->thicknessInX0();
@@ -1036,7 +1079,7 @@ namespace Trk
      m_trackSummaryTool->computeAndReplaceTrackSummary(*fittedTrack, nullptr, false);
    }
 
-    return fittedTrack.release();
+    return fittedTrack;
   }
 
   void
@@ -1083,10 +1126,13 @@ namespace Trk
   }
 
   void
-  iPatFitter::refit(FitState& fitState,
-                    const Track& track,
-                    const RunOutlierRemoval runOutlier,
-                    const ParticleHypothesis particleHypothesis) const {
+  iPatFitter::refit(
+    const EventContext& ctx,
+    FitState& fitState,
+    const Track& track,
+    const RunOutlierRemoval runOutlier,
+    const ParticleHypothesis particleHypothesis) const
+  {
     ATH_MSG_VERBOSE(" refit ");
     unsigned countGoodFits = m_countGoodFits;
     unsigned countIterations = m_countIterations;
@@ -1140,8 +1186,9 @@ namespace Trk
     }
     
     fitState.newMeasurements();
-    
-    bool haveMaterial = addMeasurements(fitState.getMeasurements(),
+
+    bool haveMaterial = addMeasurements(ctx,
+                                        fitState.getMeasurements(),
                                         *fitState.parameters,
                                         particleHypothesis,
                                         *track.trackStateOnSurfaces());
@@ -1165,7 +1212,5 @@ namespace Trk
     m_countGoodFits = countGoodFits;
     m_countRefitIterations += m_countIterations - countIterations;
     m_countIterations = countIterations;
-
-    return;
-  }
+ }
 } // end of namespace

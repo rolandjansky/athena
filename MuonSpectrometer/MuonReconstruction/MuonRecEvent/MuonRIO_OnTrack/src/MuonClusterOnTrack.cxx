@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ MuonClusterOnTrack::MuonClusterOnTrack():
     m_globalPosition()
 { 
   m_positionAlongStrip = rot.m_positionAlongStrip;
-  if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+  if (rot.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
 }
 
 
@@ -60,7 +60,7 @@ MuonClusterOnTrack& MuonClusterOnTrack::operator=( const MuonClusterOnTrack& rot
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator=(rot);//base class ass. op.
     m_positionAlongStrip = rot.m_positionAlongStrip;
-    if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+    if (rot.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
     else if (m_globalPosition) m_globalPosition.release().reset();
   }
   return *this;

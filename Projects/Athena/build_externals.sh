@@ -24,7 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=97 -DLCG_VERSION_POSTFIX="")
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -73,10 +73,10 @@ thisdir=$(cd ${thisdir};pwd)
 # Go to the main directory of the repository:
 cd ${thisdir}/../..
 
-{ 
+{
  test "X${NIGHTLY_STATUS}" != "X" && {
     scriptsdir_nightly_status=${NIGHTLY_STATUS_SCRIPTS}
-    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status 
+    test "X$scriptsdir_nightly_status" = "X" && scriptsdir_nightly_status=${scriptsdir}/nightly_status
     test -x $scriptsdir_nightly_status/externals_status_on_exit.sh  && trap $scriptsdir_nightly_status/externals_status_on_exit.sh EXIT
  }
 }
@@ -95,11 +95,24 @@ if [ "$FORCE" = "1" ]; then
     rm -fr ${BUILDDIR}/build/AthenaExternals ${BUILDDIR}/build/GAUDI
 fi
 
-# Create some directories:
-mkdir -p ${BUILDDIR}/{src,install}
-
 # Get the version of Athena for the build.
 version=`cat ${thisdir}/version.txt`
+# Generate hash of any extra cmake arguments.
+cmakehash=`echo -n "${EXTRACMAKE}" | openssl md5 | awk '{print $2}'`
+
+# Check if previous externals build can be reused:
+externals_stamp=${BUILDDIR}/build/AthenaExternals/externals-${version}-${cmakehash}.stamp
+if [ -f ${externals_stamp} ]; then
+    if diff -q ${externals_stamp} ${thisdir}/externals.txt; then
+        echo "Correct version of externals already available in ${BUILDDIR}"
+        exit 0
+    else
+        rm ${externals_stamp}
+    fi
+fi
+
+# Create some directories:
+mkdir -p ${BUILDDIR}/{src,install}
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -120,7 +133,7 @@ AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/ex
 # Check out AthenaExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthenaExternalsVersion} \
-    -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log 
+    -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log
 
 # log analyzer never affects return status in the parent shell:
 {
@@ -128,10 +141,10 @@ ${scriptsdir}/checkout_atlasexternals.sh \
     branch=$(basename $(cd .. ; pwd)) #FIXME: should be taken from env.
     timestamp_tmp=` basename ${BUILDDIR}/../.@@__* 2>/dev/null | sed 's,^\.,,' ` #to be used until the final stamp from ReleaseData is available
     test "X$timestamp_tmp" != "X" || {
-        timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ 
+        timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@
         touch ${BUILDDIR}/../.${timestamp_tmp}
     }
-   (set +e 
+   (set +e
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
    )
  } || true
@@ -149,9 +162,9 @@ ${scriptsdir}/build_atlasexternals.sh \
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
-   (set +e 
-    ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_config.log 
-    ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_build.log 
+   (set +e
+    ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_config.log
+    ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/build/AthenaExternals/cmake_build.log
    )
  } || true
 }
@@ -169,7 +182,7 @@ ${scriptsdir}/checkout_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
 
 {
- test "X${NIGHTLY_STATUS}" != "X" && { 
+ test "X${NIGHTLY_STATUS}" != "X" && {
    (set +e
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/src/checkout.GAUDI.log
    )
@@ -189,8 +202,8 @@ ${scriptsdir}/build_Gaudi.sh \
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
    (set +e
-    ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_config.log 
-    ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_build.log 
+    ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_config.log
+    ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_build.log
    )
  } || true
 }
@@ -198,5 +211,7 @@ ${scriptsdir}/build_Gaudi.sh \
 # Exit with the error count taken into account.
 if [ ${ERROR_COUNT} -ne 0 ]; then
     echo "Athena externals build encountered ${ERROR_COUNT} error(s)"
+else
+    cp ${thisdir}/externals.txt ${externals_stamp}
 fi
 exit ${ERROR_COUNT}

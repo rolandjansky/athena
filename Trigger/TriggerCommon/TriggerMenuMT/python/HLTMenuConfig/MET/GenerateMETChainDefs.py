@@ -4,7 +4,7 @@ from ..Menu.ChainDictTools import splitChainDict
 from .METChainConfiguration import METChainConfiguration
 from ..Menu.ChainMerging import mergeChainDefs
 
-
+import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.MET.generateChainConfigs' )
 log.info("Importing %s",__name__)
@@ -12,8 +12,7 @@ log.info("Importing %s",__name__)
 
 
 def generateChainConfigs( chainDict ):
-    import pprint
-    pprint.pprint( chainDict )
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
     
     listOfChainDicts = splitChainDict(chainDict)

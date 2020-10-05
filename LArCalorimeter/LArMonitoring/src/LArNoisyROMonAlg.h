@@ -26,7 +26,7 @@
 #include <string>
 #include <array>
 
-class LArNoisyROMonAlg: public AthMonitorAlgorithm
+class LArNoisyROMonAlg final: public AthMonitorAlgorithm
 {
 public:
   LArNoisyROMonAlg(const std::string& name, ISvcLocator* pSvcLocator);

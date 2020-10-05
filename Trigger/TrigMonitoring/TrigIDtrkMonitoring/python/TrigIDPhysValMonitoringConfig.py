@@ -1,18 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
 
-  from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
-
   # dataTypes: userDefined = 0, monteCarlo, collisions, cosmics
-  if not 'DQMonFlags' in dir():
-    from AthenaMonitoring.DQMonFlags import DQMonFlags
-  dataType = DQMonFlags.monManDataType()
+  if 'DQMonFlags' not in dir():
+    from AthenaMonitoring.DQMonFlags import DQMonFlags   # noqa: F401
 
   # disable everything
   outputlist = []
 
-  if not 'rec' in dir():
+  if 'rec' not in dir():
     from RecExConfig.RecFlags  import rec
     
   from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
@@ -34,30 +31,29 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
-      TestIDPhysValMon.OutputLevel = INFO
       TestIDPhysValMon.UseHighestPT = useHighestPT
 
       try:
         TestIDPhysValMon.EnableLumi = False
-      except:
+      except Exception:
         pass
 
       TestIDPhysValMon.buildNtuple = False
       TestIDPhysValMon.AnalysisConfig = "Tier0" #T0 Analysis
       # TestIDPhysValMon.AnalysisConfig = "nTuple" #nTuple Analysis
 
-      if (useOffline or rec.doTruth == False):
+      if (useOffline or rec.doTruth is False):
         TestIDPhysValMon.mcTruth = False
         TestIDPhysValMon.ntupleChainNames = ['Offline',name]
 #       use default values ? 
 #       TestIDPhysValMon.sctHitsOffline = 1
 #       TestIDPhysValMon.pixHitsOffline = 1
-        if (doFS == True):
+        if (doFS is True):
           TestIDPhysValMon.sctHitsOffline = 6
           TestIDPhysValMon.pixHitsOffline = 4
           TestIDPhysValMon.blayerHitsOffline = 1
           TestIDPhysValMon.pixHolesOffline = 1
-      elif (rec.doTruth == True):        
+      elif (rec.doTruth is True):
         TestIDPhysValMon.mcTruth = True
         TestIDPhysValMon.ntupleChainNames = ['Truth']
         TestIDPhysValMon.sctHitsOffline = -1
@@ -123,7 +119,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     if mt_chains:
       chainnames = [
         "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
-        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon"
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuonForEF",
+        "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
+        "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso"
       ]
     else:
       chainnames = [
@@ -158,10 +156,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso_TauID",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso_TauID"
       ]
     else:
       chainnames = [
@@ -181,8 +178,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
       ]

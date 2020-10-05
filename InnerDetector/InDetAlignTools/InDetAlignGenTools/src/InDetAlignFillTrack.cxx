@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////////////
@@ -877,8 +877,8 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
     int nshared = 0, nshpix = 0, nshsct = 0;
     int nholes = 0, nhpix = 0, nhsct = 0;
 
-    const Trk::TrackSummary* summary = m_trackSumTool->createSummary((*trk));
-    if (summary == 0) ATH_MSG_ERROR("Could not create TrackSummary");
+    std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary((*trk));
+    if (!summary) ATH_MSG_ERROR("Could not create TrackSummary");
 
     else {
       // hits
@@ -938,8 +938,6 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
         msg(MSG::DEBUG) << "  -- number of holes : " << nholes << endmsg;
       }
     }
-
-    delete summary;
 
     // get fit quality and chi2 probability of track
     // chi2Prob = TMath::Prob(chi2,DoF) ROOT function

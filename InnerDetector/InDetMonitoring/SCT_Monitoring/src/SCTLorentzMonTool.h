@@ -27,6 +27,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/TrackCollection.h"
 
 #include "GaudiKernel/ToolHandle.h"
@@ -74,11 +75,24 @@ class SCTLorentzMonTool : public ManagedMonitorToolBase {
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
+  //@name Tool members
+  //@{
+  ///Association tool
+  ToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
+  //@}
+
   //@name Service members
   //@{
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper{nullptr};
   //@}
+
+  //@name Flags
+  //@{
+  // Reject shared hits
+  BooleanProperty m_rejectSharedHits{this, "RejectSharedHits", false};
+  //@}
+
   //@name  Histograms related methods
   //@{
   // Book Histograms

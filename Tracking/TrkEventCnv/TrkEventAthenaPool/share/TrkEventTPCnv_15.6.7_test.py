@@ -1,10 +1,3 @@
-# Needed to work around some cling bugs seen in root 6.20.02.
-# Spurious error message like
-#  fatal error: cannot open file 'input_line_538': No such file or directory
-import ROOT
-getattr(ROOT,'SG::BaseInfo<DataVector<Trk::Track> >')
-getattr(ROOT,'ElementLink<Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::MdtPrepData> >')
-
 infile = 'aod/AOD-15.6.7/AOD-15.6.7-full.pool.root'
 keys = [
     #MVFVxContainer_tlp1
@@ -33,4 +26,3 @@ keys = [
          ]
 
 include ('AthenaPoolUtilities/TPCnvTest.py')
-

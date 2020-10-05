@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -7,7 +7,6 @@
 // AUTHORS: Beate Heinemann, Tobias Golling, John Alison, Lauren Tompkins
 // **********************************************************************
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "TrkParameters/TrackParameters.h"
@@ -1237,13 +1236,11 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       } // end of outliers 
     } // TSOS on track 
     
-    const Trk::TrackSummary* summary = m_trackSumTool->createSummary(**trksItr);
+    std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(**trksItr);
     if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) && (summary->get(Trk::numberOfPixelHoles)==0) && (summary->get(Trk::numberOfSCTHoles)==0) && (m_doHoleSearch)){
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endmsg;
-      delete summary;
       continue;
     }
-    delete summary;
 
     const DataVector<const Trk::TrackStateOnSurface>* HTSOS;
     HTSOS = m_holeSearchTool->getHolesOnTrack(**trksItr); 

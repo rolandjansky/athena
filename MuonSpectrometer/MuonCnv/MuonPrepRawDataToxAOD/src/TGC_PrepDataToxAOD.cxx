@@ -1,28 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TGC_PrepDataToxAOD.cxx
-//   Implementation file for class TGC_PrepDataToxAOD
-///////////////////////////////////////////////////////////////////
-
 #include "TGC_PrepDataToxAOD.h"
-#include <bitset>
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
+
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 
-// Constructor with parameters:
+#include <bitset>
+
 TGC_PrepDataToxAOD::TGC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonPrepDataToxAOD(name,pSvcLocator,"TGC_MeasurementsAllBCs","TGC_SDO"),
-  m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-  m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
-{  
-    
+  MuonPrepDataToxAOD(name,pSvcLocator,"TGC_MeasurementsAllBCs","TGC_SDO") {  
 }
 
 // Execute method:
@@ -54,9 +43,9 @@ StatusCode TGC_PrepDataToxAOD::initialize()
 
 void TGC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::TgcPrepData& prd ) const {
   xprd.auxdata<uint16_t>("bctag") = prd.getBcBitMap();
-  xprd.auxdata<uint16_t>("measPhi") = m_idHelper->measuresPhi(prd.identify());
+  xprd.auxdata<uint16_t>("measPhi") = m_idHelperSvc->measuresPhi(prd.identify());
   xprd.auxdata<uint16_t>("muonClusterSize") = (uint16_t)prd.rdoList().size();
-  ATH_MSG_DEBUG(m_idHelper->toString(prd.identify()) << "bctag " 
+  ATH_MSG_DEBUG(m_idHelperSvc->toString(prd.identify()) << "bctag " 
                 << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) << " "  
                 << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) << " " 
                 << ((prd.getBcBitMap()&Muon::TgcPrepData::BCBIT_NEXT)==Muon::TgcPrepData::BCBIT_NEXT)

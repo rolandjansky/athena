@@ -33,7 +33,7 @@ for ie in range(len(econ)):
     print "pt %f" % econ[ie].pt()
 
 # load dict for MyDetObj
-pylcgdict.loadDictionary("PyAnalysisExamplesDict")
+pylcgdict.load_library("libPyAnalysisExamplesDict")
 
 # retrieve an object from DetectorStore
 obj = PyKernel.retrieveDet(g.MyDetObj,'myDetObj')

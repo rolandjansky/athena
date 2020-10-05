@@ -15,10 +15,8 @@ find_package( ROOT COMPONENTS Core Tree RIO Net MathCore )
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( xAODRootAccess xAODRootAccessDictSource
    ROOT_HEADERS xAODRootAccess/tools/TTransTrees.h
-   xAODRootAccess/tools/TEventBranch.h xAODRootAccess/tools/TEventTree.h
-   xAODRootAccess/tools/TMetaBranch.h xAODRootAccess/tools/TMetaTree.h
-   xAODRootAccess/tools/TEventBranch.h xAODRootAccess/tools/TEventTree.h
-   xAODRootAccess/tools/TMetaBranch.h xAODRootAccess/tools/TMetaTree.h
+   xAODRootAccess/tools/xAODTEventBranch.h xAODRootAccess/tools/xAODTEventTree.h
+   xAODRootAccess/tools/xAODTMetaBranch.h xAODRootAccess/tools/xAODTMetaTree.h
    xAODRootAccess/tools/TFileChecker.h xAODRootAccess/tools/TFileMerger.h
    xAODRootAccess/MakeTransientTree.h xAODRootAccess/Init.h Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )

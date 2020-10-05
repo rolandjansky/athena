@@ -27,12 +27,11 @@ public:
     virtual ~TauPi0ScoreCalculator();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
+    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const override;
 
 private:
     /** @brief function used to calculate BDT score */
-    float calculateScore(const xAOD::PFO* neutralPFO);
+    float calculateScore(const xAOD::PFO* neutralPFO) const;
 
     std::string m_weightfile;    
     std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;

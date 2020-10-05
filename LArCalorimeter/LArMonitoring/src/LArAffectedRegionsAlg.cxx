@@ -22,7 +22,7 @@
 
 
 
-using namespace std;
+
 
 
 /*---------------------------------------------------------*/
@@ -131,12 +131,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_embpsName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_embpsName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/32);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -148,12 +148,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_embpsName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_embpsName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/32);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -163,12 +163,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_embpsName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_embpsName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/32);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -190,12 +190,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta >=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_embName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta <0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_embName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/128);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -207,12 +207,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta >=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_embName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta <0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_embName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/128);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -222,12 +222,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta >=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_embName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta <0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_embName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/128);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -244,17 +244,17 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
       while(eta<etamax){
 	// phimin < phimax
 	if(phimin<=phimax){
-	  phi = phimin;
+	  phi = phimin+0.01;
 	  while(phi<phimax){
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_emecpsName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_emecpsName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/64);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -266,27 +266,27 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_emecpsName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_emecpsName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/64);
-	    if(fabs(phi)<1.e-4) phi=0.;
+	    if(fabs(phi)<1.e-4) phi=0.01;
 	  }
-	  phi = -TMath::Pi();
+	  phi = -TMath::Pi()+0.01;
 	  while(phi<phimax){
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_emecpsName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_emecpsName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/64);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -309,12 +309,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_emecName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    } 
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_emecName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/256);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -326,12 +326,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_emecName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    } 
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_emecName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/256);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -341,12 +341,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	    if(eta>=0){
 	      etaPOS=eta;
 	      fill(m_MonGroupName.value()+m_emecName,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    } 
 	    if(eta<0){
 	      etaNEG=eta;
 	      fill(m_MonGroupName.value()+m_emecName,etaNEG,phi,problem);
-	      ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	    }
 	    phi+=(2*TMath::Pi()/256);
 	    if(fabs(phi)<1.e-4) phi=0.;
@@ -386,7 +386,7 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	  if(eta>=0){
 	      etaPOS=eta;
 	      fill(hec_layer_name,etaPOS,phi,problem);
-	      ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  if(eta<0){
 	      etaNEG=eta;
@@ -403,7 +403,7 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	  if(eta>=0){
 	    etaPOS=eta;
 	    fill(hec_layer_name,etaPOS,phi,problem);
-	    ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  if(eta<0){
 	    etaNEG=eta;
@@ -418,7 +418,7 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	  if(eta>=0){
 	    etaPOS=eta;
 	    fill(hec_layer_name,etaPOS,phi,problem);
-	    ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  if(eta<0){
 	    etaNEG=eta;
@@ -432,7 +432,7 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
     }
     
     // FCAL
-    ATH_MSG_INFO("layermin=" << layermin << " layermin-21=" << layermin-21);
+    ATH_MSG_DEBUG("layermin=" << layermin << " layermin-21=" << layermin-21);
     if(layermin>=21 && layermin<=23){
       //set the group to fill(only depends on layer)
       std::string fcal_layer_name=m_MonGroupName;
@@ -457,12 +457,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	  if(eta>=0){
 	    etaPOS=eta;
 	    fill(fcal_layer_name,etaPOS,phi,problem);
-	    ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  if(eta<0){
 	    etaNEG=eta;
 	    fill(fcal_layer_name,etaNEG,phi,problem);
-	    ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  phi+=(2*TMath::Pi()/16);
 	  if(fabs(phi)<1.e-4) phi=0.;
@@ -474,12 +474,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	  if(eta>=0){
 	    etaPOS=eta;
 	    fill(fcal_layer_name,etaPOS,phi,problem);
-	    ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  if(eta<0){
 	    etaNEG=eta;
 	    fill(fcal_layer_name,etaNEG,phi,problem);
-	    ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  phi+=(2*TMath::Pi()/16);
 	  if(fabs(phi)<1.e-4) phi=0.;
@@ -489,12 +489,12 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
 	  if(eta>=0){
 	    etaPOS=eta;
 	    fill(fcal_layer_name,etaPOS,phi,problem);
-	    ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  if(eta<0){
 	    etaNEG=eta;
 	    fill(fcal_layer_name,etaNEG,phi,problem);
-	    ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
+	    ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << phimin << " " << phimax << " " << etamin << " " << etamax << " " << region  );
 	  } 
 	  phi+=(2*TMath::Pi()/16);
 	  if(fabs(phi)<1.e-4) phi=0.;

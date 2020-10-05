@@ -2,6 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "TrigCompositeUtils/Combinators.h"
 #include "TrigMuonEFHypoTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -36,7 +38,7 @@ StatusCode TrigMuonEFHypoTool::initialize(){
 	return StatusCode::FAILURE;
       }
       for (std::vector<float>::size_type i=0; i<m_bins[j];++i) {
-	ATH_MSG_INFO( "bin " << m_ptBins[j][i] << " - " <<  m_ptBins[j][i+1]<<" with Pt Threshold of " << (m_ptThresholds[j][i])/CLHEP::GeV<< " GeV");
+	ATH_MSG_INFO( "bin " << m_ptBins[j][i] << " - " <<  m_ptBins[j][i+1]<<" with Pt Threshold of " << (m_ptThresholds[j][i])/Gaudi::Units::GeV<< " GeV");
       }
     }
   }
@@ -75,26 +77,15 @@ bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& in
     ATH_MSG_DEBUG("Retrieval of xAOD::MuonContainer failed");
     return false;
   }
-  if(m_threeStationCut){
-    uint8_t nGoodPrcLayers=0;
-    if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
-      ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
-      return false;
-    }
-    if(std::abs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
-      ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
-      return false;
-    }
-  }
 
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
     const xAOD::TrackParticle* tr = muon->trackParticle(m_type);
     if (!tr) {
       ATH_MSG_DEBUG("No TrackParticle found.");
     } else {
-      ATH_MSG_DEBUG("Retrieved Track track with abs pt "<< (*tr).pt()/CLHEP::GeV << " GeV ");
+      ATH_MSG_DEBUG("Retrieved Track track with abs pt "<< (*tr).pt()/Gaudi::Units::GeV << " GeV ");
       //fill monitored variables
-      fexPt.push_back(tr->pt()/CLHEP::GeV);
+      fexPt.push_back(tr->pt()/Gaudi::Units::GeV);
       fexEta.push_back(tr->eta());
       fexPhi.push_back(tr->phi());
       //Apply hypo cuts
@@ -103,17 +94,31 @@ bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& in
       for (std::vector<float>::size_type k=0; k<m_bins[0]; ++k) {
         if (absEta > m_ptBins[cutIndex][k] && absEta <= m_ptBins[cutIndex][k+1]) threshold = m_ptThresholds[cutIndex][k];
       }
-      if (std::abs(tr->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
-        selPt.push_back(tr->pt()/CLHEP::GeV);
-        selEta.push_back(tr->eta());
-        selPhi.push_back(tr->phi());
+      if (std::abs(tr->pt())/Gaudi::Units::GeV > (threshold/Gaudi::Units::GeV)){
         result = true;
         // If trigger path name includes "muonqual", check whether the muon passes those criteria   
         if(m_muonqualityCut == true) result = passedQualityCuts(muon);
+	//cut on Nprecision layers (for 3layerEC msonly triggers)
+	if(m_threeStationCut){
+	  uint8_t nGoodPrcLayers=0;
+	  if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
+	    ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
+	    result=false;
+	  }
+	  if(std::abs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
+	    ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
+	    result=false;
+	  }
+	}
       }
-      ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
+      if(result == true){
+        selPt.push_back(tr->pt()/Gaudi::Units::GeV);
+        selEta.push_back(tr->eta());
+        selPhi.push_back(tr->phi());
+      }
+      ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/Gaudi::Units::GeV << " GeV "
       	      << " with Charge " << tr->charge()
-      	      << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
+      	      << " and threshold cut is " << threshold/Gaudi::Units::GeV << " GeV"
       	      << " so hypothesis is " << (result?"true":"false"));
     }
   }

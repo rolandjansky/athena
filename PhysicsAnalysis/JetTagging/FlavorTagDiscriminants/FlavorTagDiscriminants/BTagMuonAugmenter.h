@@ -1,6 +1,6 @@
 // for text editors: this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAG_MUON_AUGMENTER_H
@@ -10,7 +10,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
-#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -31,7 +31,7 @@ namespace FlavorTagDiscriminants {
     void augment(const xAOD::Jet& jet) const;
   private:
     // You'll probably have to add some accessors here
-    BTagTrackAugmenter m_btag_track_aug;
+    BTagTrackIpAccessor m_btag_track_aug;
     std::string m_muonAssociationName;
     float m_muonMinDR;
     float m_muonMinpT;

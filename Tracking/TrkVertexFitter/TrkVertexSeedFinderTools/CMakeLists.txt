@@ -29,20 +29,25 @@ find_package( Eigen )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
+atlas_add_library( TrkVertexSeedFinderToolsLib
+                   TrkVertexSeedFinderTools/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrkVertexSeedFinderTools
+                   LINK_LIBRARIES GaudiKernel AthenaBaseComps TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib 
+		   xAODEventInfo GeneratorObjects AtlasHepMCLib CxxUtils )
+
 # Component(s) in the package:
 atlas_add_component( TrkVertexSeedFinderTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel TrkVertexFitterInterfaces GeoPrimitives EventPrimitives xAODEventInfo TruthHelper GeneratorObjects TrkEventPrimitives TrkParameters TrkTrack VxVertex )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} TrkVertexSeedFinderToolsLib GeoPrimitives EventPrimitives  
+		     TruthHelper  TrkEventPrimitives TrkParameters TrkTrack VxVertex  )
 
 # Install files from the package:
-atlas_install_headers( TrkVertexSeedFinderTools )
-
-
 atlas_install_joboptions( share/*.py )
 
-
+# Tests in the package:
 function( run_seed_test testName )
   cmake_parse_arguments( ARG "" "COMMAND;ARG" "" ${ARGN} )
 
@@ -74,5 +79,4 @@ run_seed_test( ZScanSeedFinder )
 run_seed_test( CrossDistancesSeedFinder )
 run_seed_test( IndexedCrossDistancesSeedFinder )
 run_seed_test( TrackDensitySeedFinder )
-run_seed_test( ImagingSeedFinder )
 run_seed_test( MCTrueSeedFinder )

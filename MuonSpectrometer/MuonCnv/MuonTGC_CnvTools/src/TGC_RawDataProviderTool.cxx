@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TGC_RawDataProviderTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "TGC_RawDataProviderTool.h"
 
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
 //================ Constructor =================================================
@@ -22,11 +17,6 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
   declareInterface<IMuonRawDataProviderTool>(this);
 }
 
-//================ Destructor =================================================
-
-Muon::TGC_RawDataProviderTool::~TGC_RawDataProviderTool()
-{}
-
 //================ Initialisation =================================================
 
 StatusCode Muon::TGC_RawDataProviderTool::initialize()
@@ -35,13 +25,6 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
   ATH_CHECK( TGC_RawDataProviderToolCore::initialize() );
   
   ATH_MSG_INFO( "initialize() successful in " << name() );
-  return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode Muon::TGC_RawDataProviderTool::finalize()
-{
   return StatusCode::SUCCESS;
 }
 

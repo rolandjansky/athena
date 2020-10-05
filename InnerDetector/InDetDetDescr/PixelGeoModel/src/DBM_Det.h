@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,8 +22,8 @@
 
 class DBM_Det : public GeoVPixelFactory {
  public:
-  DBM_Det();
-  virtual  GeoVPhysVol* Build();
+  DBM_Det(InDetDD::PixelDetectorManager* ddmgr, PixelGeometryManager* mgr);
+  virtual  GeoVPhysVol* Build() override;
   
  private:
   

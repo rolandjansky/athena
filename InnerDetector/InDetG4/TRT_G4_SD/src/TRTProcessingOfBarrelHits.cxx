@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -144,8 +144,8 @@ bool TRTProcessingOfBarrelHits::ProcessHit(G4Step* pStep)
   G4ThreeVector globalPostStepPoint = pPostStepPoint->GetPosition();
 
 
-  G4TouchableHistory* pTouchableHistory =
-    (G4TouchableHistory*) pPreStepPoint->GetTouchable();
+  const G4TouchableHistory* pTouchableHistory =
+    dynamic_cast<const G4TouchableHistory*>(pPreStepPoint->GetTouchable());
 
   const G4AffineTransform& topTransform = pTouchableHistory->GetHistory()->
     GetTopTransform();

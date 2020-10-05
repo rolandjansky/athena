@@ -66,9 +66,7 @@ private:
   std::string m_generic_path_tgcmonitoring;
   
   // Keys and Locations for retrieving collections
-  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataContainerName{this,"TgcPrepDataContainer","TGC_Measurements","current BC TGC PRD"};
-  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataPreviousContainerName{this,"TgcPrepDataPreviousContainer","TGC_MeasurementsPriorBC","previous BC TGC PRD"};
-  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataNextContainerName{this,"TgcPrepDataNextContainer","TGC_MeasurementsNextBC","next BC TGC PRD"};
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataContainerName{this,"TgcPrepDataContainerAllBCs","TGC_MeasurementsAllBCs","TGC PRD"};
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_outputCoinCollectionLocation{this,"OutputCoinCollection","TrigT1CoinDataCollection","TGC T1 coincidences"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"};
 
@@ -116,7 +114,7 @@ private:
   std::vector<double> m_hitPosPhi[2][2];    //[ac][ws]
   
   // read Tgc PRD Container
-  void readTgcPrepDataContainer(const Muon::TgcPrepDataContainer *tgc_prep_container, int pcn);
+  void readTgcPrepDataContainer(const Muon::TgcPrepDataContainer *tgc_prep_container, int pcn = -1);
   
   
   ///////////////////////////////////////////////////////////////////////////

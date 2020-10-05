@@ -97,12 +97,7 @@ msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)//2 # Floor division
 
-if athenaCommonFlags.isOnline():
-    #=== setup reading from COOL DB
-    msg.info("setting up COOL for TileCal online conditions data")
-    tileInfoConfigurator.setupCOOL()
-    tileInfoConfigurator.setupCOOLOFC()
-elif TileUseCOOL:
+if TileUseCOOL or athenaCommonFlags.isOnline():
     #=== setup reading from COOL DB
     msg.info("setting up COOL for TileCal conditions data")
     TileGapTiming=""
@@ -148,12 +143,7 @@ if not 'TileCommissioning' in dir():
     if jobproperties.Beam.beamType != 'collisions':
         TileCommissioning = True
     else:
-        try:
-            from RecExConfig.RecFlags import rec
-            TileCommissioning = rec.Commissioning()
-        except:
-            msg.info("No RecFlags available - looks like a simulation job")
-            TileCommissioning = False
+        TileCommissioning = False
         
 if TileCommissioning:
     msg.info("Adjusting TileInfo to return cell noise for Opt.Filter with iterations")

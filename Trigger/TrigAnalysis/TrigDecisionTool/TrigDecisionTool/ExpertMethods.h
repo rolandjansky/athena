@@ -30,10 +30,10 @@
 
 #include "TrigDecisionTool/Logger.h"
 
-#include "AthenaKernel/SlotSpecificObj.h"
 
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigNavigation/NavigationCore.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #endif
 
 namespace HLT {
@@ -53,7 +53,12 @@ namespace Trig {
   class ExpertMethods : public virtual Logger {
   public:      
 
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory);
+#else
+    ExpertMethods(Trig::CacheGlobalMemory* m_cacheGlobalMemory);
+#endif
+
     virtual ~ExpertMethods();
 
     /**
@@ -92,9 +97,9 @@ namespace Trig {
     /**
      * @brief return HLT::NavigationCore
      **/
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
     const HLT::NavigationCore* getNavigation() const;
-#else
+#else // Analysis or Standalone
     const HLT::TrigNavStructure* getNavigation() const;
 #endif
 
@@ -106,7 +111,12 @@ namespace Trig {
 
   private:
 
-    SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory;    
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+    SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory;
+#else // Analysis or Standalone
+    Trig::CacheGlobalMemory* m_cacheGlobalMemory;
+#endif    
+
     Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
 
     bool m_useExperimentalAndExpertMethods;

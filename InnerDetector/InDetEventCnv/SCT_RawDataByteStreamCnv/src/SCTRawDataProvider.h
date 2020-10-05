@@ -17,7 +17,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -62,15 +62,15 @@ class SCTRawDataProvider : public AthReentrantAlgorithm
 
  private:
 
-  /** Region Selector service for Athena. */
-  ServiceHandle<IRegSelSvc> m_regionSelector{this,
-                                             "RegSelSvc",
-                                             "RegSelSvc"};
-
   /** ROB Data Provider for accessing ROB data. */
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider{this,
                                                        "ROBDataProviderSvc",
                                                        "ROBDataProviderSvc"};
+
+  /** Region Selector tool for Athena. */
+  ToolHandle<IRegSelTool> m_regionSelector{this,
+                                           "RegSelTool",
+                                           "RegSelTool/RegSel_SCT"};
 
   /** Tool to fill Collections of SCT RDO Containers. */
   ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this,

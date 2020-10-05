@@ -21,13 +21,14 @@
 
 #include <TROOT.h>
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "CxxUtils/checker_macros.h"
 
 class CaloLocalHadCoeff;
 class CaloLocalHadCoeffHelper;
 class CaloHadDMCoeffData;
 
 
-class CaloHadDMCoeffMinim {
+class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffMinim {
   public :
 
     // to handle minuit parameters and fit results

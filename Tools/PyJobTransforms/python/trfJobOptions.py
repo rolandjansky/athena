@@ -55,7 +55,19 @@ class JobOptionsTemplate(object):
 
     ## @brief Write the runArgs Job Options file
     def writeRunArgs(self, input = dict(), output = dict()):
-        msg.info('Writing runArgs to file \"%s\"' % self._runArgsFile)
+        msg.info('Writing runArgs to file \"%s\"', self._runArgsFile)
+
+        ## Check consistency btw --CA flag and provided skeletons:
+        if self._exe._isCAEnabled():
+            if self._exe._skeletonCA is None:
+                errMsg = "Got the --CA option but this transform doesn't supply a ComponentAccumulator-based skeleton file"
+                msg.error(errMsg)
+                raise  trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_RUNARGS_ERROR'),errMsg)
+        else: # not self._exe._isCAEnabled():
+            if self._exe._skeleton is None:
+                errMsg = "No --CA option given, but this transform doesn't supply old-style skeleton file"
+                msg.error(errMsg)
+                raise  trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_RUNARGS_ERROR'),errMsg)
         
         with open(self._runArgsFile, 'w') as runargsFile:
             try:
@@ -191,6 +203,19 @@ class JobOptionsTemplate(object):
                             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
                     if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
                         print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
+                if self._exe._isCAEnabled():
+                    print(os.linesep, '# Threading flags', file=runargsFile)
+                    #Pass the number of threads
+                    threads = self._exe._athenaMT
+                    concurrentEvents = self._exe._athenaConcurrentEvents
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('threads', threads))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'threads', threads), file=runargsFile)
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('concurrentEvents', concurrentEvents))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'concurrentEvents', concurrentEvents), file=runargsFile)
+                    #ComponentAccumulator based config, import skeleton here:
+                    print(os.linesep, '# Import skeleton and execute it', file=runargsFile)
+                    print('from {0} import fromRunArgs'.format(self._exe._skeletonCA),file=runargsFile)
+                    print('fromRunArgs({0})'.format(self._runArgsName),file=runargsFile)
 
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
                 
@@ -208,12 +233,13 @@ class JobOptionsTemplate(object):
             msg.warning('No runArgs available')
 
         if not findFile(os.environ["JOBOPTSEARCHPATH"], self._runArgsFile):
-            msg.warning('Could not find runArgs file %s' % self._runArgsFile)
+            msg.warning('Could not find runArgs file %s', self._runArgsFile)
 
         # Check the skeleton(s):
-        for skeleton in self._exe._skeleton:
-            if not findFile(os.environ["JOBOPTSEARCHPATH"], skeleton):
-                msg.warning('Could not find job options skeleton file %s' % skeleton)
+        if  self._exe._skeleton:
+            for skeleton in self._exe._skeleton:
+                if not findFile(os.environ["JOBOPTSEARCHPATH"], skeleton):
+                    msg.warning('Could not find job options skeleton file %s', skeleton)
 
   
     ## @brief Get the runArgs and skeleton joboptions, Master function
@@ -225,5 +251,10 @@ class JobOptionsTemplate(object):
         self.writeRunArgs(input = input, output = output)
         # Make sure runArgs and skeleton are valid
         self.ensureJobOptions()
-        return [ self._runArgsFile ] + self._exe._skeleton
+        if self._exe._isCAEnabled():
+            #ComponentAccumulator based config, use only runargs file
+            return [ self._runArgsFile ]
+        else:
+            #Traditional athena: runargs + skeleton
+            return [ self._runArgsFile ] + self._exe._skeleton
 

@@ -1,20 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_TGC_STATUSCONDITIONSTOOL_H
 #define MUONCONDTOOL_TGC_STATUSCONDITIONSTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCondInterface/ITGC_STATUSConditionsTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "GaudiKernel/IChronoStatSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class IIOVSvc;
-class StatusCode;
 
 class TGC_STATUSConditionsTool: public AthAlgTool, virtual public ITGC_STATUSConditionsTool {
 
@@ -37,32 +35,24 @@ public:
   virtual StatusCode loadTgcDqStatus(IOVSVC_CALLBACK_ARGS);
   virtual std::string FolderName() const {return m_FolderName;}
   
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
            
   IIOVSvc* m_IOVSvc;
 
- 
   std::vector<Identifier> m_cachedDeadStationsId;
   
-  std::string      m_tgcDqFolder;
-  std::string      m_tgcDqStatusDataLocation;
-  std::string      m_FolderName;
+  std::string m_tgcDqFolder;
+  std::string m_tgcDqStatusDataLocation;
+  std::string m_FolderName;
 
-  
-        
   IChronoStatSvc* m_chronoSvc;
 
   std::string m_chrono1;
   std::string m_chrono2;
   std::string m_chrono3;
   std::string m_chrono4;
-  MsgStream m_log;
-  bool      m_debug;
-  bool      m_verbose;
 };
- 
-
 
 #endif

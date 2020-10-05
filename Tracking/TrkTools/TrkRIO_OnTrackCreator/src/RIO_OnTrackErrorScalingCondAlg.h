@@ -13,7 +13,7 @@
 #include "StoreGate/CondHandleKeyArray.h"
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include <iostream>
 
 class RIO_OnTrackErrorScalingKit;
@@ -29,7 +29,7 @@ class RIO_OnTrackErrorScalingCondAlg : public AthAlgorithm
 
  private:
 
-  StatusCode addErrorScaling ATLAS_NOT_THREAD_SAFE (const std::string &type_name);
+  StatusCode addErrorScaling(const std::string &type_name);
   void registerAttribute(const std::string& name, unsigned int type_idx, unsigned int param_idx);
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey

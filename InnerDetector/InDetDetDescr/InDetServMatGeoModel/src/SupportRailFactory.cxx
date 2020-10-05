@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SupportRailFactory.h"
@@ -26,11 +26,13 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 #include <math.h>
 
 
-SupportRailFactory::SupportRailFactory(const InDetDD::AthenaComps * athenaComps, 
+SupportRailFactory::SupportRailFactory(InDetDD::AthenaComps * athenaComps, 
 				       InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  

@@ -196,15 +196,16 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   // Check if the element to be inserted is greater than all existing entries.
   bool pastEnd = (!last || m_compare (last->first, range));
 
-  // Make sure the new element is not a duplicate of the last.  Fail if so.
-  if (last && !pastEnd && !m_compare (range, last->first)) {
-    // Duplicate of the last entry.
-    if (tryExtend) {
-      if (extendImpl (lock, range, ctx) > 0) {
-        return EmplaceResult::EXTENDED;
-      }
+  // See if we want to extend the last entry.  Also check for duplicates.
+  if (last && !pastEnd) {
+    RANGE extendedRange = last->first;
+    int flag = m_compare.extendRange (extendedRange, range);
+    if (tryExtend && flag > 0 && extendImpl (lock, extendedRange, ctx) > 0) {
+      return EmplaceResult::EXTENDED;
     }
-    return EmplaceResult::DUPLICATE;
+    if (flag < 0) {
+      return EmplaceResult::DUPLICATE;
+    }
   }
 
   // Can we add this to the end?
@@ -213,8 +214,22 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   value_type* end = last ? last+1 : begin;
   if (pastEnd && end < m_impl->data() + m_impl->capacity())
   {
-    // Yes --- copy the data to the container.
-    end->first = range;
+    // Yes, we can add it to the end.
+    // Check for overlap with the previous range.
+    EmplaceResult ret = EmplaceResult::SUCCESS;
+    RANGE newRange = range;
+    if (end > begin) {
+      int flag = m_compare.overlap (ctx, (end-1)->first, newRange);
+      if (flag < 0) {
+        return EmplaceResult::DUPLICATE;
+      }
+      else if (flag > 0) {
+        ret = EmplaceResult::OVERLAP;
+      }
+    }
+
+    // Copy the data to the container.
+    end->first = newRange;
     end->second = ptr.release();
 
     std::atomic_thread_fence (std::memory_order_seq_cst);
@@ -225,11 +240,7 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
     ++m_nInserts;
     m_maxSize = std::max (m_maxSize, static_cast<size_t> (end+1 - begin));
 
-    // Check for overlap with the previous range.
-    if (end > begin && m_compare.overlap ((end-1)->first, range)) {
-      return EmplaceResult::OVERLAP;
-    }
-    return EmplaceResult::SUCCESS;
+    return ret;
   }
 
   // No --- need to make a new implementation object and copy.
@@ -252,44 +263,78 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   // Separate out the case where the new item goes at the end,
   // since we can do that faster.
   if (pastEnd) {
-    new_end = std::copy (begin, end, new_end);
-    new_end->first = range;
-    new_end->second = ptr.release();
-    ++new_end;
-
-    if (end > begin && m_compare.overlap ((end-1)->first, range)) {
-      ret = EmplaceResult::OVERLAP;
+    // Check for overlap with the previous range.
+    RANGE newRange = range;
+    int flag = 0;
+    if (end) {
+      flag = m_compare.overlap (ctx, (end-1)->first, newRange);
     }
-        
+    if (flag < 0) {
+      ret = EmplaceResult::DUPLICATE;
+    }
+    else {
+      if (flag > 0) {
+        ret = EmplaceResult::OVERLAP;
+      }
+
+      new_end = std::copy (begin, end, new_end);
+      new_end->first = newRange;
+      new_end->second = ptr.release();
+
+      ++new_end;
+    }
   }
   else {
     // Otherwise we need to search for the proper place to insert the new entry.
-    while (begin < end) {
-      if (ptr && m_compare (range, begin->first)) {
-        // Make sure this isn't a duplicate.
+    RANGE newRange = range;
+    for (; begin < end; *new_end++ = *begin++) {
+      if (ptr && m_compare (newRange, begin->first)) {
+        // Check for overlap / duplicate
         if (begin > m_begin) {
-          if (!m_compare ((begin-1)->first, range)) {
+          int flag = m_compare.overlap (ctx, (begin-1)->first, newRange);
+          if (flag > 0) {
+            ret = EmplaceResult::OVERLAP;
+            // The range start may have been adjusted forward.  Make sure
+            // that we're still at the insertion point.
+            if (!m_compare (newRange, begin->first)) {
+              continue;
+            }
+          }
+          else if (flag < 0) {
             // Duplicate entry; fail.  Everything allocated is held by unique_ptr,
             // so should be cleaned up properly.
             return EmplaceResult::DUPLICATE;
           }
-          else if (m_compare.overlap ((begin-1)->first, range)) {
-            ret = EmplaceResult::OVERLAP;
-          }
-        }
-        if (m_compare.overlap (range, begin->first)) {
-          ret = EmplaceResult::OVERLAP;
         }
 
-        new_end->first = range;
+        int flag = m_compare.overlap (ctx, begin->first, newRange);
+        if (flag > 0) {
+          ret = EmplaceResult::OVERLAP;
+          // The range start may have been adjusted forward.  Make sure
+          // that we're still at the insertion point.
+          if (!m_compare (newRange, begin->first)) {
+            continue;
+          }
+        }
+        else if (flag < 0) {
+          // Duplicate entry; fail.  Everything allocated is held by unique_ptr,
+          // so should be cleaned up properly.
+          return EmplaceResult::DUPLICATE;
+        }
+
+        new_end->first = newRange;
         new_end->second = ptr.release();
         ++new_end;
       }
-      *new_end++ = *begin++;
     }
 
-    // Must have dealt with the new element by now.
-    assert (!ptr);
+    if (ptr) {
+      // Possible to get here if overlap() moved the start of the range
+      // forward past all existing ranges.
+      new_end->first = newRange;
+      new_end->second = ptr.release();
+      ++new_end;
+    }
   }
 
   // Install the new implementation.
@@ -371,22 +416,7 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
  * This will make a new version of implementation data.
  *
  * The semantics of what it means to extend a range are given by the
- * @c extendRange method of the @c COMPARE object:
- *
- *@code
- *  int extendRange (Range& range, const Range& newRange) const;
- @endif
- *
- * This is called with the existing range and the end range, and returns
- * a flag.  -1 indicates an error, 0 indicates that no change
- * was made to the range, and 1 indicates that the range was extended.
- * It should generally be safe to extend a range by making the end later.
- * Suggested semantics are:
- *  - Return -1 if the start keys don't match.
- *  - If the end value of @c newRange is later then then end value of @c range,
- *    then update the end value of @c range to match @c newRange and
- *    return 1.
- *  - Otherwise do nothing and return 0.
+ * @c extendRange method of the @c COMPARE object (see above).
  *
  * Returns -1 if there was an error; 1 if the last range was extended;
  * and 0 if nothing was changed.
@@ -398,7 +428,19 @@ CONCURRENTRANGEMAP::extendLastRange (const RANGE& newRange,
                                      /*= Updater_t::defaultContext()*/)
 {
   lock_t lock (m_mutex);
-  return extendImpl (lock, newRange, ctx);
+  value_type* last = m_last;
+  if (!last) {
+    return -1;
+  }
+  RANGE extendedRange = last->first;
+  int flag = m_compare.extendRange (extendedRange, newRange);
+  if (flag > 0) {
+    return extendImpl (lock, extendedRange, ctx);
+  }
+  if (flag == 0) {
+    return -1;
+  }
+  return 0;
 }
 
 
@@ -446,7 +488,7 @@ CONCURRENTRANGEMAP::updateRanges (std::function<void (RANGE&)> rangeUpdater,
 /**
  * @brief Extend the range of the last entry of the map.
  * @param Lock object.
- * @param newRange New range to use for the last entry.
+ * @param extendedRange New range to use for the last entry.
  * @param ctx Execution context.
  *
  * Implementation of @c extendLastRange; see there for details.
@@ -455,25 +497,12 @@ CONCURRENTRANGEMAP::updateRanges (std::function<void (RANGE&)> rangeUpdater,
 T_CONCURRENTRANGEMAP
 int
 CONCURRENTRANGEMAP::extendImpl (lock_t& /*lock*/,
-                                const RANGE& newRange,
+                                const RANGE& extendedRange,
                                 const typename Updater_t::Context_t& ctx)
 {
   // Return if the container's empty.
   value_type* last = m_last;
   if (last == nullptr) return -1;
-
-  // Test the range.
-  RANGE extendedRange = last->first;
-  int flag = m_compare.extendRange (extendedRange, newRange);
-
-  if (flag < 0) {
-    // Error.
-    return -1;
-  }
-  else if (flag == 0) {
-    // No-op.
-    return 0;
-  }
 
   // Make a new implementation object and copy data.
   size_t capacity = m_impl->capacity();

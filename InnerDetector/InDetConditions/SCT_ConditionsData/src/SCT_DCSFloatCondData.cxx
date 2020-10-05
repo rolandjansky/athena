@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for the SCT DCS float data object class for HV and temperature
@@ -24,7 +24,7 @@ void SCT_DCSFloatCondData::setValue(const CondAttrListCollection::ChanNum& chanN
 // get the float value for a channel
 bool SCT_DCSFloatCondData::getValue(const CondAttrListCollection::ChanNum& chanNum, float& value) const {
   auto itr{m_channelValues.find(chanNum)};
-  if(itr!=m_channelValues.end()) {
+  if (itr!=m_channelValues.end()) {
     value = itr->second;
     return true;
   }

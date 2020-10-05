@@ -137,7 +137,7 @@ IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2018-03"
 IOVDbSvc.OutputLevel = WARNING
 
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
-ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
+ServiceMgr.EventSelector.Input = inputBSFiles
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputBSFiles
 
@@ -247,24 +247,24 @@ if doPixel:
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
 
-        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                      UseDeadmapConditions=(not athenaCommonFlags.isOnline()),
-                                      UseDCSStateConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
-                                      UseDCSStatusConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
-                                      UseTDAQConditions=athenaCommonFlags.isOnline(),
-                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
-                                      UseCalibConditions=True,
-                                      UseCablingConditions=useCablingConditions,
-                                      CablingMapFileName=IdMappingDat)
+        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                 UseCablingConditions=useCablingConditions,
+                                 CablingMapFileName=IdMappingDat)
+        if athenaCommonFlags.isOnline():
+            alg.ReadDeadMapKey = ''
+        condSeq += alg
 
     if useNewDeadmapFormat:
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
         if not hasattr(condSeq, "PixelDeadMapCondAlg"):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+            alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="/PIXEL/PixelModuleFeMask")
+            if athenaCommonFlags.isOnline():
+                alg.ReadKey = ''
+            condSeq += alg
 
-    if not athenaCommonFlags.isOnline():
+    if globalflags.DataSource=='data' and InDetFlags.usePixelDCS():
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
             conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
@@ -277,14 +277,6 @@ if doPixel:
     if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
         condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
-
-    if athenaCommonFlags.isOnline():
-        if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):
-            conddb.addFolder("TDAQ_ONL", "/TDAQ/Resources/ATLAS/PIXEL/Modules", className="CondAttrListCollection")
-
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg")
 
     #####################
     # Calibration Setup #
@@ -450,9 +442,9 @@ if doPixel:
     InDetClusterMakerTool.PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool
 else:
     InDetClusterMakerTool.PixelCablingSvc = None
-    InDetClusterMakerTool.PixelModuleData = ""
     InDetClusterMakerTool.PixelChargeCalibCondData = ""
     InDetClusterMakerTool.PixelLorentzAngleTool = None
+    InDetClusterMakerTool.PixelOfflineCalibData = ""
 
 # Set up Pixel neutral network tools
 clusterSplitProbTool = None
@@ -490,14 +482,12 @@ if doPixel:
     clusterSplitterTool = NnPixelClusterSplitter
     from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
     InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool", 
-                                                    globalPosAlg            = InDetClusterMakerTool,
-                                                    MinimalSplitSize        = 0,
-                                                    MaximalSplitSize        = 49,
-                                                    MinimalSplitProbability = 0,
-                                                    DoIBLSplitting = True,
-                                                    SplitClusterAmbiguityMap= "SplitClusterAmbiguityMap")
-    if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
-    if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
+                                                    globalPosAlg            = InDetClusterMakerTool)
+    # Enable duplcated RDO check for data15 because duplication mechanism was used.
+    from RecExConfig.RecFlags import rec
+    if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+        InDetMergedPixelsTool.CheckDuplicatedRDO = True
+
     ToolSvc += InDetMergedPixelsTool
     from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
     InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder")

@@ -15,7 +15,7 @@
 
 #ifndef MUONPREPRAWDATA_TGCPREPDATA_H
 #define MUONPREPRAWDATA_TGCPREPDATA_H
-  
+
 // Base classes
 #include "MuonPrepRawData/MuonCluster.h"
 #include "TrkSurfaces/Surface.h"
@@ -41,9 +41,9 @@ namespace Muon
 
     TgcPrepData();
     TgcPrepData(const TgcPrepData &);
-    TgcPrepData(TgcPrepData &&);
+    TgcPrepData(TgcPrepData &&) noexcept = default;
     TgcPrepData &operator=(const TgcPrepData &);
-    TgcPrepData &operator=(TgcPrepData &&);
+    TgcPrepData &operator=(TgcPrepData &&) noexcept = default;
 
     /** @brief Full constructor.
     @param RDOId The identifier of the central strip of the cluster
@@ -51,7 +51,7 @@ namespace Muon
     @param locpos The local coords of the measurement (this object will now own the LocalPostion)
     @param rdoList Vector of all the Identifiers of the strips used in this cluster
     @param locErrMat The error of the measurement (this object will now own the ErrorMatrix)
-    @param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken 
+    @param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken
                 (the pointer is assumed to belong to GeoModel and will not be deleted)
     */
     TgcPrepData( const Identifier& RDOId,
@@ -70,11 +70,17 @@ namespace Muon
       // /////////////////////////////////////////////////////////////////
 
       /** @brief Returns the global position */
-      const Amg::Vector3D& globalPosition() const;
+      virtual const Amg::Vector3D& globalPosition() const override;
 
       /** @brief Returns the detector element corresponding to this PRD
       The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
-      virtual const MuonGM::TgcReadoutElement* detectorElement() const;
+      virtual const MuonGM::TgcReadoutElement* detectorElement() const override final;
+
+      /** Interface method checking the type*/
+      virtual bool type(Trk::PrepRawDataType::Type type) const override final
+      {
+        return type == Trk::PrepRawDataType::TgcPrepData;
+      }
 
       /** @brief Returns the bcBitMap of this PRD
       bit2 for Previous BC, bit1 for Current BC, bit0 for Next BC */
@@ -85,10 +91,10 @@ namespace Muon
       void setBcBitMap(const uint16_t);
 
       /** @brief Dumps information about the PRD*/
-      virtual MsgStream&    dump( MsgStream&    stream) const;
+      virtual MsgStream&    dump( MsgStream&    stream) const override;
 
       /** @brief Dumps information about the PRD*/
-      virtual std::ostream& dump( std::ostream& stream) const;
+      virtual std::ostream& dump( std::ostream& stream) const override;
 
   private:
 
@@ -110,7 +116,7 @@ namespace Muon
   inline const Amg::Vector3D& TgcPrepData::globalPosition() const
     {
       if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
-      
+
       if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
       return *m_globalPosition;
     }

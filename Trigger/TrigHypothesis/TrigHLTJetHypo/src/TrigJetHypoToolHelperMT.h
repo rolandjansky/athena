@@ -74,10 +74,10 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
    this, "HypoConfigurer", {}, "Configurer to set up TrigHLTJetHypoHelper2"}; 
 
  Gaudi::Property<int>
-  m_parentNodeID {this, "parent_id", {}, "hypo tool tree parent node id"};
+  m_parentNodeID {this, "parent_id", {0}, "hypo tool tree parent node id"};
 
 Gaudi::Property<int>
-  m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
+  m_nodeID {this, "node_id", {0}, "hypo tool tree node id"};
 
 Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};

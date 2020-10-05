@@ -4,53 +4,53 @@
 # @date:   March 2007
 #
 #
-from __future__ import with_statement, print_function
-
-__version__ = "$Revision$"
-__author__  = "Sebastien Binet <binet@cern.ch>"
 
 import sys
 import os
-import six
 
 from AthenaCommon.Logging import log
 
-# import xml before ROOT to prevent crashes (LCG_96): ATEAM-597
-# should be OK to remove from LCG_97 on
-import xml.etree.cElementTree
-
-def ROOT6Setup():
+def ROOT6Setup(batch=False):
    log.info('executing ROOT6Setup')
-   if six.PY3:
-      import builtins as builtin_mod
-   else:
-      import __builtin__ as builtin_mod
+   import builtins as builtin_mod
    oldimporthook = builtin_mod.__import__
    autoload_var_name = 'ROOT6_NamespaceAutoloadHook'
-   
-   def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
-       if six.PY3 and level < 0: level = 0
+   batch_mode = bool(batch)
+
+   def root6_importhook(name, globals={}, locals={}, fromlist=[], level=0):
+       nonlocal batch_mode
+       isroot = False
+       bm = batch_mode
+       if name=='ROOT' or (name[0:4]=='ROOT' and name!='ROOT.pythonization'):
+          isroot = True
+          batch_mode = None  # only set it on first ROOT import
+
        m = oldimporthook(name, globals, locals, fromlist, level)
-       if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT') \
-             and (name!='ROOT' or fromlist!=None): # prevent triggering on just 'import ROOT'; see ATEAM-597
-          log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
+
+       if m and isroot:
+          log.debug('Python import module=%s, fromlist=%s', name, fromlist)
+          if bm is not None:
+             log.debug('Setting ROOT batch mode to %s', bm)
+             m.gROOT.SetBatch(bm)
+
           if fromlist:
-             #MN: in this case 'm' is the final nested module already, don't walk the full 'name'
+             # in this case 'm' is the final nested module already, don't walk the full 'name'
              vars = [ '.'.join(['', fl, autoload_var_name]) for fl in fromlist]
           else:
              vars = [ '.'.join([name, autoload_var_name]) ]
+
           for v in vars:
              try:
                 mm = m
-                #MN: walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
+                # walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
                 for comp in v.split('.')[1:]:
                    mm = getattr(mm, comp)
-             except:
+             except Exception:
                 pass
+
        return m
-   
+
    builtin_mod.__import__ = root6_importhook
-      
 
 
 import re
@@ -117,8 +117,7 @@ class ShutUp(object):
     def __filterRootMessages(self, fd):
         fd.seek(0)
         for l in fd.readlines():
-            if six.PY3:
-               l = l.decode()
+            l = l.decode()
             printOut = True
             for filter in self.filters:
                 if re.match(filter, l):

@@ -58,11 +58,11 @@ namespace DerivationFramework {
     double m_minRandom;
 
     // Counters
-    mutable unsigned long m_nEventsProcessed;
-    mutable unsigned long m_nEventsAllTriggerTowersKeptByRandom;
-    mutable unsigned long m_nTriggerTowersProcessed;
-    mutable unsigned long m_nTriggerTowersKept;
-    mutable unsigned long m_nTriggerTowersRejected;
+    mutable std::atomic<unsigned long> m_nEventsProcessed;
+    mutable std::atomic<unsigned long> m_nEventsAllTriggerTowersKeptByRandom;
+    mutable std::atomic<unsigned long> m_nTriggerTowersProcessed;
+    mutable std::atomic<unsigned long> m_nTriggerTowersKept;
+    mutable std::atomic<unsigned long> m_nTriggerTowersRejected;
 
     // Tools and random number generator
     TRandom3* m_random;

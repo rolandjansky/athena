@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAMCNVTEST_CSCDIGITTOCSCRDO_H
 #define MUONBYTESTREAMCNVTEST_CSCDIGITTOCSCRDO_H
 
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-class IMuonDigitizationTool;
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 // Author: Ketevi A. Assamagan
 // BNL, October 27, 2003
@@ -25,11 +24,10 @@ class CscDigitToCscRDO : public AthAlgorithm {
  public:
 
   CscDigitToCscRDO(const std::string& name, ISvcLocator* pSvcLocator);
-  ~CscDigitToCscRDO();
+  ~CscDigitToCscRDO()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
  private:
    ToolHandle<IMuonDigitizationTool> m_digTool{this};

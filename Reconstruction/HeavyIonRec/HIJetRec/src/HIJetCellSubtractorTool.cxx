@@ -30,9 +30,9 @@ void HIJetCellSubtractorTool::subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
   const float phi0=cl->phi0();
 
   float mod=modulator->getModulation(phi0, eshape);
-
   //unsigned int eta_phi_index=HICaloCellHelper::FindEtaPhiBin(cl->eta0(),cl->phi0());
   xAOD::CaloCluster::const_cell_iterator cellIterEnd = cl->cell_end();
+
   for(xAOD::CaloCluster::const_cell_iterator cellIter=cl->cell_begin(); cellIter != cellIterEnd; cellIter++ )
   {
     CxxUtils::prefetchNext(cellIter, cellIterEnd);
@@ -55,6 +55,7 @@ void HIJetCellSubtractorTool::subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
     phi_cl+=cell_E_w*phi;
 
   }
+
   if(E_cl!=0.)
   {
     eta_cl/=E_cl;
@@ -134,6 +135,12 @@ void HIJetCellSubtractorTool::subtractWithMoments(xAOD::CaloCluster* cl, const x
 
   std::vector<float> E_sample(CaloSampling::Unknown,0);
   uint32_t samplingPattern=0;
+
+  auto cellLink = cl->getCellLinks();
+  if( cellLink == NULL){
+     ATH_MSG_ERROR("HIJetCellSubtraction: cellLink null - returning");
+     return;
+  }
   //unsigned int eta_phi_index=HICaloCellHelper::FindEtaPhiBin(cl->eta0(),cl->phi0());
   xAOD::CaloCluster::cell_iterator cellIterEnd = cl->cell_end();
   for(xAOD::CaloCluster::cell_iterator cellIter=cl->cell_begin(); cellIter != cellIterEnd; cellIter++ )
@@ -166,8 +173,6 @@ void HIJetCellSubtractorTool::subtractWithMoments(xAOD::CaloCluster* cl, const x
     float cell_z=(*cellIter)->z();
     etot2+=abs_weight;
     er2+=std::sqrt(cell_x*cell_x+cell_y*cell_y+cell_z*cell_z)*abs_weight;
-
-
   }
   if(E_cl!=0.)
   {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DBMModuleCage_h
@@ -19,7 +19,8 @@
 
 class DBM_ModuleCage : public GeoVPixelFactory {
   public:
-    GeoVPhysVol* Build();
+    using GeoVPixelFactory::GeoVPixelFactory;
+    virtual GeoVPhysVol* Build() override;
   private:
 };
 

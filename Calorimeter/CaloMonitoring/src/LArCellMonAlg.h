@@ -20,7 +20,7 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-#include "CaloMonitoring/LArCellBinning.h"
+#include "LArCellBinning.h"
           
 #include <vector>
 #include <string>

@@ -11,8 +11,8 @@
 
 
 Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
-						   const std::string& n,
-						   const IInterface*  p )
+               const std::string& n,
+               const IInterface*  p )
   :
   AthAlgTool(t,n,p),
   sTgcRdoToPrepDataToolCore(t,n,p)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigJiveXML/TrigSiSpacePointRetriever.h"
@@ -21,13 +21,13 @@ namespace JiveXML {
     AthAlgTool(type, name, parent),
     m_typeName("TrigS3D"),
     m_pixelHelper(nullptr),
-    m_sctHelper(nullptr)
+    m_sctHelper(nullptr),
+    m_pixelSpContainerName ("TrigPixelSpacePoints"),
+    m_SCT_SpContainerName  ("TrigSCT_SpacePoints")
   {
 
     declareInterface<IDataRetriever>(this);
 
-    m_pixelSpContainerName = "TrigPixelSpacePoints";
-    m_SCT_SpContainerName  = "TrigSCT_SpacePoints";
     declareProperty("PixelSpacePoints", m_pixelSpContainerName);
     declareProperty("SCTSpacePoints"  , m_SCT_SpContainerName);
   }
@@ -55,9 +55,9 @@ namespace JiveXML {
  
     int maxHash = m_pixelHelper->wafer_hash_max();
      for(int id=0;id<maxHash;++id){
-	    TrigSiSpacePointContainer::const_iterator spCollIt=pCont->indexFind(id);
-	    if(spCollIt==pCont->end()) continue;
-	    for(TrigSiSpacePointCollection::const_iterator spIt=(*spCollIt)->begin(); spIt!=(*spCollIt)->end();++spIt){
+	    auto spCollIt=pCont->indexFindPtr(id);
+	    if(spCollIt==nullptr) continue;
+	    for(TrigSiSpacePointCollection::const_iterator spIt=spCollIt->begin(); spIt!=spCollIt->end();++spIt){
 		x.push_back(DataType((*spIt)->x() /10.));
 		y.push_back(DataType((*spIt)->y() /10.));
 		z.push_back(DataType((*spIt)->z() /10.));
@@ -77,9 +77,9 @@ namespace JiveXML {
 
     int maxHash = m_sctHelper->wafer_hash_max();
        for(int id=0;id<maxHash;++id){
-	    TrigSiSpacePointContainer::const_iterator spCollIt=pCont->indexFind(id);
-	    if(spCollIt==pCont->end()) continue;
-	    for(TrigSiSpacePointCollection::const_iterator spIt=(*spCollIt)->begin(); spIt!=(*spCollIt)->end();++spIt){
+	    auto spCollIt=pCont->indexFindPtr(id);
+	    if(spCollIt==nullptr) continue;
+	    for(TrigSiSpacePointCollection::const_iterator spIt=spCollIt->begin(); spIt!=spCollIt->end();++spIt){
 		x.push_back(DataType((*spIt)->x() /10.));
 		y.push_back(DataType((*spIt)->y() /10.));
 		z.push_back(DataType((*spIt)->z() /10.));

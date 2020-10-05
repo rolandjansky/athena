@@ -55,8 +55,31 @@ StatusCode HtoVVFilter::filterEvent() {
   int nGoodParent = 0;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto pitr: genEvt->particles()) {
+      if (std::abs(pitr->pdg_id()) != m_PDGParent || pitr->status() != 3)  continue;
+        bool isGrandParentOK = false;
+        for (auto thisMother: pitr->production_vertex()->particles_in()) {
+          ATH_MSG_DEBUG(" Parent " << pitr->pdg_id() << " barcode = "   << HepMC::barcode(pitr) << " status = "  << pitr->status());
+          ATH_MSG_DEBUG(" a Parent mother "  << thisMother->pdg_id()<< " barc = " << HepMC::barcode(thisMother));
+          if ( thisMother->pdg_id() == m_PDGGrandParent ) isGrandParentOK = true;
+        }
+        ATH_MSG_DEBUG(" Grand Parent is OK? " << isGrandParentOK);
+        if (!isGrandParentOK) continue;
+        ++nGoodParent;
+        for (auto thisChild: pitr->end_vertex()->particles_out()) {
+          ATH_MSG_DEBUG(" child " << thisChild->pdg_id());
+          if (!okPDGChild1) {
+             if (find(m_PDGChild1.begin(),m_PDGChild1.end(),std::abs(thisChild->pdg_id()))!=m_PDGChild1.end()) okPDGChild1 = true;
+          }
+          if (!okPDGChild2) {
+           if (find(m_PDGChild2.begin(),m_PDGChild2.end(),std::abs(thisChild->pdg_id()))!=m_PDGChild2.end()) okPDGChild2 = true;
+          }
+        }
+    }
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if (abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
+      if (std::abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
         HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
         HepMC::GenVertex::particle_iterator thisMother = firstMother;
@@ -77,17 +100,18 @@ StatusCode HtoVVFilter::filterEvent() {
           ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
           if (!okPDGChild1) {
             for (size_t i = 0; i < m_PDGChild1.size(); ++i)
-              if (abs((*thisChild)->pdg_id()) == m_PDGChild1[i]) okPDGChild1 = true;
+              if (std::abs((*thisChild)->pdg_id()) == m_PDGChild1[i]) okPDGChild1 = true;
             if (okPDGChild1) break;
           }
           if (!okPDGChild2) {
             for (size_t i = 0; i < m_PDGChild2.size(); ++i)
-              if (abs((*thisChild)->pdg_id()) == m_PDGChild2[i]) okPDGChild2 = true;
+              if (std::abs((*thisChild)->pdg_id()) == m_PDGChild2[i]) okPDGChild2 = true;
             if (okPDGChild2) break;
           }
         }
       }
     }
+#endif
   }
 
   ATH_MSG_DEBUG("Result " << nGoodParent << " " << okPDGChild1 << " " << okPDGChild2);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************
@@ -12,6 +12,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 TRTOccupancyInclude::TRTOccupancyInclude(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm   (name, pSvcLocator),
@@ -59,25 +60,25 @@ StatusCode TRTOccupancyInclude::execute()
   std::vector<float> TRTOccu = m_LocalOccTool->GlobalOccupancy( );
   if (TRTOccu.size() > 6) {
 
-  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy0("TRTOccGlobal"); 
+  static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy0("TRTOccGlobal"); 
   decEventInfo_occupancy0( *eventInfo ) = TRTOccu.at(0); 
 
-  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy1("TRTOccBarrelC"); 
+  static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy1("TRTOccBarrelC"); 
   decEventInfo_occupancy1( *eventInfo ) = TRTOccu.at(1); 
 
-  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy2("TRTOccEndcapAC"); 
+  static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy2("TRTOccEndcapAC"); 
   decEventInfo_occupancy2( *eventInfo ) = TRTOccu.at(2); 
 
-  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy3("TRTOccEndcapBC"); 
+  static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy3("TRTOccEndcapBC"); 
   decEventInfo_occupancy3( *eventInfo ) = TRTOccu.at(3); 
 
-  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy4("TRTOccBarrelA"); 
+  static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy4("TRTOccBarrelA"); 
   decEventInfo_occupancy4( *eventInfo ) = TRTOccu.at(4); 
 
-  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy5("TRTOccEndcapAA"); 
+  static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy5("TRTOccEndcapAA"); 
   decEventInfo_occupancy5( *eventInfo ) = TRTOccu.at(5); 
 
-  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy6("TRTOccEndcapBA"); 
+  static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy6("TRTOccEndcapBA"); 
   decEventInfo_occupancy6( *eventInfo ) = TRTOccu.at(6); 
   }
 

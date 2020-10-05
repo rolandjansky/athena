@@ -80,11 +80,11 @@ ByteStreamEmonInputSvc.KeyCount = Nodes
 # ByteStreamEmonInputSvc.Frequency = 5
 
 # #################################
-# Set dispersion flag to false (so other can sample the same event
+# Set GroupName to empty (so others can sample the same event)
 # #################################
-if not 'Dispersion' in dir():
-  Dispersion=False
-ByteStreamEmonInputSvc.Dispersion=Dispersion
+if not 'GroupName' in dir():
+  GroupName=""
+ByteStreamEmonInputSvc.GroupName=GroupName
 
 # #################################
 # Set timeout (in ms?)

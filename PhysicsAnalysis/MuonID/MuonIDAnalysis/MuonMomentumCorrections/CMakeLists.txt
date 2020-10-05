@@ -5,32 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonMomentumCorrections )
 
-# Extra dependencies, based on the environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Control/AthToolSupport/AsgMessaging
-   Control/StoreGate
-   Event/xAOD/xAODMuon
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   PRIVATE
-   PhysicsAnalysis/MuonID/MuonSelectorTools
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODEventInfo
-   Tools/PathResolver
-   ${extra_deps} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree RIO Physics )
 
@@ -40,7 +14,7 @@ atlas_add_library( MuonMomentumCorrectionsLib
    PUBLIC_HEADERS MuonMomentumCorrections
    INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib AsgAnalysisInterfaces
-   PATInterfaces StoreGateLib AsgMessagingLib
+   PATInterfaces AsgDataHandlesLib AsgMessagingLib
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -56,13 +30,15 @@ atlas_add_dictionary( MuonMomentumCorrectionsDict
    MuonMomentumCorrections/selection.xml
    LINK_LIBRARIES MuonMomentumCorrectionsLib )
 
+if (NOT XAOD_STANDALONE)
 # Executable(s) in the package:
 atlas_add_executable( MCAST_Tester
    util/MCAST_Tester.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
    xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools AsgAnalysisInterfaces
-   MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib StoreGateLib AsgMessagingLib )
+   MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib AsgMessagingLib )
+endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

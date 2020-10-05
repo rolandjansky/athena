@@ -97,7 +97,7 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
         || indetTrack.perigeeParameters()->momentum().perp() < m_minPt)
     {
 
-        return 0;
+        return nullptr;
     }
 
     ++m_recoveryAttempts;
@@ -107,23 +107,23 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
                                           << " MS track " << m_printer->print(spectrometerTrack) << std::endl
                                           << m_printer->printStations(spectrometerTrack));
 
-    const Trk::TrackParameters* lastIndetPars = 0;
+    const Trk::TrackParameters* lastIndetPars = nullptr;
     int                         index         = static_cast<int>(indetTrack.trackParameters()->size());
 
     while (!lastIndetPars && index > 0) {
         --index;
-        lastIndetPars = (*indetTrack.trackParameters())[index] ? (*indetTrack.trackParameters())[index] : 0;
+        lastIndetPars = (*indetTrack.trackParameters())[index] ? (*indetTrack.trackParameters())[index] : nullptr;
     }
 
     if (!lastIndetPars) {
         ATH_MSG_WARNING("ID track parameters don't have error matrix!");
-        return 0;
+        return nullptr;
     }
 
     // track builder prefers estimate of inner, middle and outer spectrometer track parameters
-    const Trk::TrackParameters* innerParameters  = 0;
-    const Trk::TrackParameters* middleParameters = 0;
-    const Trk::TrackParameters* outerParameters  = 0;
+    const Trk::TrackParameters* innerParameters  = nullptr;
+    const Trk::TrackParameters* middleParameters = nullptr;
+    const Trk::TrackParameters* outerParameters  = nullptr;
     const Trk::TrackParameters* lastPars         = lastIndetPars;
 
     std::vector<const Trk::TrackStateOnSurface*> stations;
@@ -163,7 +163,7 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
             continue;
         }
 
-        const Trk::TrackParameters* exPars = 0;
+        const Trk::TrackParameters* exPars = nullptr;
         if (lastPars->associatedSurface() == meas->associatedSurface()) {
             ATH_MSG_DEBUG("Using existing pars");
             exPars = lastPars;
@@ -193,7 +193,7 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
         if (msgLvl(MSG::DEBUG)) {
 
             if (!m_idHelperSvc->measuresPhi(id)) {
-                const MuonGM::MuonReadoutElement* detEl = 0;
+                const MuonGM::MuonReadoutElement* detEl = nullptr;
 
                 if (m_idHelperSvc->isMdt(id)) {
                     const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(meas);
@@ -253,11 +253,11 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
         }
     } else {
         middleParameters = innerParameters;
-        innerParameters  = 0;
+        innerParameters  = nullptr;
 
         if (!middleParameters) {
             ATH_MSG_DEBUG("parameter extrapolation failed");
-            return 0;
+            return nullptr;
         }
     }
 
@@ -269,7 +269,7 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
         delete innerParameters;
         delete middleParameters;
         delete outerParameters;
-        return 0;
+        return nullptr;
     }
 
     if (badEtaIndices.size() == etaIndices.size()) {
@@ -277,7 +277,7 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
         delete innerParameters;
         delete middleParameters;
         delete outerParameters;
-        return 0;
+        return nullptr;
     }
 
     Trk::MeasurementSet spectrometerMeasurements;
@@ -305,11 +305,11 @@ MuidMuonRecovery::recoverableMatch(const Trk::Track& indetTrack, const Trk::Trac
         delete innerParameters;
         delete middleParameters;
         delete outerParameters;
-        return 0;
+        return nullptr;
     }
 
     // fit the combined track
-    Trk::Track* combinedTrack = 0;
+    Trk::Track* combinedTrack = nullptr;
     if (!m_trackBuilder.empty()) {
         combinedTrack = m_trackBuilder->indetExtension(indetTrack, spectrometerMeasurements, innerParameters,
                                                        middleParameters, outerParameters);

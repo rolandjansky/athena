@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  CaloSwGap_v3.cxx
  * Gap corrections using rel17 single particle MC
@@ -12,15 +10,15 @@
  */
 
 #include "CaloSwGap_v3.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/StatusCode.h"
 #include "StoreGate/ReadHandle.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 
 using xAOD::CaloCluster;
@@ -40,29 +38,6 @@ const double dphi = twopi / 64. ;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloSwGap_v3::CaloSwGap_v3 (const std::string& type,
-                            const std::string& name,
-                            const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
-{
-  declareConstant ("etamin_crack", m_etamin_crack);
-  declareConstant ("etamax_crack", m_etamax_crack);
-  declareConstant ("degree",       m_degree);
-  declareConstant ("correctionGoodPhi", m_correctionGoodPhi);
-  declareConstant ("correctionBadPhi",  m_correctionBadPhi);
-  declareConstant ("use_raw_eta",  m_use_raw_eta);
-  declareConstant ("use_raw_eta_boundaries",  m_use_raw_eta_boundaries);
-
-  declareProperty ("cells_name",   m_cells_name = "AllCalo");
-}
-
-
-/**
  * @brief Standard Gaudi initialize method.
  */
 StatusCode CaloSwGap_v3::initialize()
@@ -75,7 +50,7 @@ StatusCode CaloSwGap_v3::initialize()
 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -93,7 +68,7 @@ StatusCode CaloSwGap_v3::initialize()
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwGap_v3::makeTheCorrection (const EventContext& ctx,
+void CaloSwGap_v3::makeTheCorrection (const Context& myctx,
                                       CaloCluster* cluster,
                                       const CaloDetDescrElement*/*elt*/,
                                       float eta,
@@ -114,19 +89,22 @@ void CaloSwGap_v3::makeTheCorrection (const EventContext& ctx,
   }
 #endif
   float the_aeta_boundaries;
-  if (m_use_raw_eta_boundaries)
+  if (m_use_raw_eta_boundaries(myctx))
     the_aeta_boundaries = std::abs (adj_eta);
   else
     the_aeta_boundaries = std::abs (eta);
 
-  if (the_aeta_boundaries < m_etamin_crack || the_aeta_boundaries > m_etamax_crack) 
+  if (the_aeta_boundaries < m_etamin_crack(myctx) ||
+      the_aeta_boundaries > m_etamax_crack(myctx))
+  {
     return; // no correction required
+  }
 
   // use cluster positions from now on
   float eta_clus = cluster->eta();
   float phi_clus = cluster->phi();
 
-  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, ctx);
+  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, myctx.ctx());
 
   // Add up the tile scintillator energy in the region around the cluster.
   double eh_scint = 0;
@@ -164,14 +142,18 @@ void CaloSwGap_v3::makeTheCorrection (const EventContext& ctx,
   float offset = 0.;
 
   if(isGoodPhi(eta_clus,phi_clus)){
-    a = interpolate (m_correctionGoodPhi, fabs(eta_clus), m_degree, 1);
-    alpha = interpolate (m_correctionGoodPhi, fabs(eta_clus), m_degree, 2);
-    offset = interpolate (m_correctionGoodPhi, fabs(eta_clus), m_degree, 3);
+    const int degree = m_degree (myctx);
+    const CxxUtils::Array<2> correctionGoodPhi = m_correctionGoodPhi(myctx);
+    a = interpolate (correctionGoodPhi, fabs(eta_clus), degree, 1);
+    alpha = interpolate (correctionGoodPhi, fabs(eta_clus), degree, 2);
+    offset = interpolate (correctionGoodPhi, fabs(eta_clus), degree, 3);
   }
   else{
-    a = interpolate (m_correctionBadPhi, fabs(eta_clus), m_degree, 1);
-    alpha = interpolate (m_correctionBadPhi, fabs(eta_clus), m_degree, 2);
-    offset = interpolate (m_correctionBadPhi, fabs(eta_clus), m_degree, 3);
+    const int degree = m_degree (myctx);
+    const CxxUtils::Array<2> correctionBadPhi = m_correctionBadPhi(myctx);
+    a = interpolate (correctionBadPhi, fabs(eta_clus), degree, 1);
+    alpha = interpolate (correctionBadPhi, fabs(eta_clus), degree, 2);
+    offset = interpolate (correctionBadPhi, fabs(eta_clus), degree, 3);
   }
 
 

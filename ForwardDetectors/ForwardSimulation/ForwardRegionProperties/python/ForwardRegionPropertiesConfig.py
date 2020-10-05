@@ -32,9 +32,9 @@ def getForwardRegionProperties(name="ForwardRegionProperties", **kwargs):
                     f = af.fopen(inputfile)
                     if 'beam_energy' in f.infos and 'N/A' not in f.infos['beam_energy']:
                         if type(f.infos['beam_energy']) is list and float(f.infos['beam_energy'][0])>100.:
-                            twiss_energy = '%1.1fTeV'%(float(f.infos['beam_energy'])*0.000001)
+                            twiss_energy = '%1.1fTeV'%(float(f.infos['beam_energy'][0])*0.000001)
                         elif float(f.infos['beam_energy'])>100.:
-                            twiss_energy = '%1.1fTeV'%(float(f.infos['beam_energy'])*0.000001)
+                            twiss_energy = '%1.1fTeV'%(float(f.infos['beam_energy'][0])*0.000001)
                 except AssertionError:
                     print ("ForwardRegionPropertiesConfig.py ERROR Failed to open input file: %s", inputfile)
                     pass

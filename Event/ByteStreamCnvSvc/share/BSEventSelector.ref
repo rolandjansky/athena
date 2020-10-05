@@ -1,21 +1,40 @@
-ByteStreamInputSvc  DEBUG Recorded ByteStreamMetadata in InputMetadataStore
-ByteStreamInputSvc  DEBUG  run parameters  =  
-ByteStreamInputSvc  DEBUG Number of Free meta data strings: 0
-ByteStreamInputSvc   INFO Picked valid file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
-ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
-ByteStreamInputSvc  DEBUG Event Size 1038508
-ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
-ByteStreamInputSvc  DEBUG Format version 500
-ByteStreamInputSvc  DEBUG switched to next event in slot INVALID
-ByteStreamInputSvc  DEBUG ByteStream File GUID:1C43C4AA-2555-E711-BB1F-02163E01794D
-ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 1324
-EventPersistenc...   INFO Added successfully Conversion service:ByteStreamCnvSvc
-ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
-ByteStreamInputSvc  DEBUG Event Size 1000648
-ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
-ByteStreamInputSvc  DEBUG Format version 500
-ByteStreamInputSvc  DEBUG switched to next event in slot s: 0  e: 0
-ByteStreamInputSvc  DEBUG ByteStream File GUID:1C43C4AA-2555-E711-BB1F-02163E01794D
-ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 1039848
-ByteStreamInputSvc  DEBUG Calling ByteStreamInputSvc::stop()
-ByteStreamCnvSvc    DEBUG releasing all workers
+Py:Athena            INFO including file "ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py"
+ByteStreamAddressProviderSvc                       DEBUG Property update for OutputLevel : new value = 2
+ByteStreamAddressProviderSvc                        INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ByteStreamAddressProviderSvc                       DEBUG Service base class initialized successfully
+ByteStreamAddressProviderSvc                        INFO initialized 
+ByteStreamAddressProviderSvc                        INFO -- Will fill Store with id =  0
+ToolSvc.ByteStreamMetadataTool                      INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
+ByteStreamAddressProviderSvc                       DEBUG in preLoadAddress
+ByteStreamAddressProviderSvc                       DEBUG StoreID = 3 does not match required id (0) skip
+ByteStreamAddressProviderSvc                       DEBUG in preLoadAddress
+ByteStreamAddressProviderSvc                       DEBUG StoreID = 3 does not match required id (0) skip
+ByteStreamAddressProviderSvc                       DEBUG in preLoadAddress
+ByteStreamAddressProviderSvc                       DEBUG in preLoadAddress
+ByteStreamInputSvc                             0   DEBUG Property update for OutputLevel : new value = 2
+ByteStreamInputSvc                             0    INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
+ByteStreamInputSvc                             0   DEBUG Service base class initialized successfully
+ROBDataProviderSvc                             0    INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ByteStreamInputSvc                             0   DEBUG ByteStreamMetadata:
+ByteStreamInputSvc                             0   DEBUG Recorded ByteStreamMetadata in InputMetaDataStore
+ByteStreamInputSvc                             0    INFO Picked valid file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+ByteStreamInputSvc                         0   0   DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc                         0   0   DEBUG Event Size 1038508
+ByteStreamInputSvc                         0   0   DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc                         0   0   DEBUG Format version500
+ByteStreamInputSvc                         0   0   DEBUG Made an FullEventFragment from ES 0x17f98000
+ByteStreamInputSvc                         0   0   DEBUG switched to next event in slot s: 0  e: 0
+ByteStreamInputSvc                         0   0   DEBUG ByteStream File GUID:              1C43C4AA-2555-E711-BB1F-02163E01794D
+ByteStreamInputSvc                         0   0   DEBUG ByteStream Event Position in File: 1324
+ByteStreamCnvSvc                           0   0   DEBUG Property update for OutputLevel : new value = 2
+EventPersistencySvc                        0   0    INFO Added successfully Conversion service:ByteStreamCnvSvc
+ByteStreamInputSvc                         1   0   DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc                         1   0   DEBUG Event Size 1000648
+ByteStreamInputSvc                         1   0   DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc                         1   0   DEBUG Format version500
+ByteStreamInputSvc                         1   0   DEBUG Made an FullEventFragment from ES 0x18096000
+ByteStreamInputSvc                         1   0   DEBUG switched to next event in slot s: 0  e: 1
+ByteStreamInputSvc                         1   0   DEBUG ByteStream File GUID:              1C43C4AA-2555-E711-BB1F-02163E01794D
+ByteStreamInputSvc                         1   0   DEBUG ByteStream Event Position in File: 1039848
+ByteStreamInputSvc                                 DEBUG Calling ByteStreamInputSvc::stop()
+ByteStreamCnvSvc                                   DEBUG releasing all workers

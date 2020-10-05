@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <mutex>
@@ -22,8 +22,8 @@ namespace G4UA
   //---------------------------------------------------------------------------
   UserActionSvc::UserActionSvc(const std::string& name,
                                ISvcLocator* pSvcLocator)
-    : base_class(name, pSvcLocator),
-      m_userActionTools(this)
+    : base_class(name, pSvcLocator)
+    , m_userActionTools(this)
   {
     declareProperty("UserActionTools", m_userActionTools);
   }

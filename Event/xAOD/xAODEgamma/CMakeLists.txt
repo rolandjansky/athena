@@ -1,47 +1,36 @@
-# $Id$
-################################################################################
-# Package: xAODEgamma
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODEgamma )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   DetectorDescription/GeoPrimitives
-   Event/EventPrimitives
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODPrimitives
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODTruth )
-
-# External dependencies:
-find_package( Eigen )
+# External dependencies.
 find_package( ROOT COMPONENTS Core GenVector )
-
-# Extra dependencies, based on what environment we are in:
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs GenVector )
-    endif()
-endif()
+find_package( xAODUtilities )
 
 # Component(s) in the package:
 atlas_add_library( xAODEgamma
    xAODEgamma/*.h xAODEgamma/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODEgamma
-   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks
-   GeoPrimitives EventPrimitives xAODBase xAODCaloEvent xAODCore
-   xAODPrimitives xAODTracking xAODTruth ${extra_libs} )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks GeoPrimitives
+   EventPrimitives xAODBase xAODCaloEvent xAODCore xAODPrimitives xAODTracking
+   xAODTruth )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODEgamma/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::EgammaContainer_v1" "xAOD::ElectronContainer_v1"
+              "xAOD::PhotonContainer_v1" )
 
 atlas_add_dictionary( xAODEgammaDict
    xAODEgamma/xAODEgammaDict.h
-   xAODEgamma/selection.xml
-   LINK_LIBRARIES xAODEgamma
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODEgamma
    EXTRA_FILES Root/dict/*.cxx )
+
+atlas_add_dictionary( xAODEgammaParametersDict
+   xAODEgamma/xAODEgammaParametersDict.h
+   xAODEgamma/selectionParameters.xml )
+
+# Install files from the package.
+atlas_install_python_modules( python/*.py )

@@ -25,8 +25,8 @@ if dumpPixInfo:
     PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
     topSequence += PixelChargeToTConversionSetter 
     if (printIdTrkDxAODConf):
-        print PixelChargeToTConversionSetter
-        print PixelChargeToTConversionSetter.properties()
+        print(PixelChargeToTConversionSetter)
+        print(PixelChargeToTConversionSetter.properties())
 
 
 #################
@@ -35,8 +35,10 @@ if dumpPixInfo:
 
 
 if dumpPixInfo:
+    import InDetRecExample.TrackingCommon as TrackingCommon
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
+    xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
+                                                    ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName())
     ## Content steering Properties (default value shown as comment)
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = False
@@ -48,8 +50,8 @@ if dumpPixInfo:
 
     topSequence += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_PixelPrepDataToxAOD
-        print xAOD_PixelPrepDataToxAOD.properties()
+        print(xAOD_PixelPrepDataToxAOD)
+        print(xAOD_PixelPrepDataToxAOD.properties())
 
 
 #################
@@ -127,8 +129,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFTSOS_K
                                                                        OutputLevel =INFO)
 
 if (printIdTrkDxAODConf):
-    print DerivationFrameworkJob
-    print DerivationFrameworkJob.properties()
+    print(DerivationFrameworkJob)
+    print(DerivationFrameworkJob.properties())
 
  
 #====================================================================
@@ -147,4 +149,4 @@ IDPIXLUMISlimmingHelper.AppendContentToStream(IDPIXLUMIStream)
 # Add trigger information
 
 if (printIdTrkDxAODConf):
-    print IDPIXLUMIStream
+    print(IDPIXLUMIStream)

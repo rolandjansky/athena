@@ -32,8 +32,8 @@ ConfigFlags.lock()
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Get a ComponentAccumulator setting up the fundamental Athena job
-from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-cfg=MainServicesThreadedCfg(ConfigFlags) 
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+cfg=MainServicesCfg(ConfigFlags)
 
 # Add the components for reading in pool files
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -53,51 +53,53 @@ def JetInputCfg(ConfigFlags):
 
     inputcfg.addSequence( CompFactory.AthSequencer(sequencename) )
 
-    # Enable dictionary for xAODType enum
-    import cppyy
-    cppyy.loadDictionary('xAODBaseObjectTypeDict')
-    from ROOT import xAODType
+    from xAODBase.xAODType import xAODType
 
     # Apply some corrections to the topoclusters
     # Example with property assignments
-    jetmodseq = CompFactory.JetConstituentModSequence("JetMod_EMOrigin")
+    jetmodseq = CompFactory.JetConstituentModSequence("JetMod_LCOrigin")
     jetmodseq.InputType=xAODType.CaloCluster
     jetmodseq.InputContainer = "CaloCalTopoClusters"
-    jetmodseq.OutputContainer = "EMOriginTopoClusters"
+    jetmodseq.OutputContainer = "LCOriginTopoClusters"
 
     # Build the list of modifiers to run
     # Configuration with constructor keywords
     modlist = [
-        CompFactory.ClusterAtEMScaleTool("ClusterEM",InputType=xAODType.CaloCluster),
         CompFactory.CaloClusterConstituentsOrigin("ClusterOrigin",InputType=xAODType.CaloCluster)
     ]
     jetmodseq.Modifiers = modlist
 
     # We need a JetAlgorithm to run the modseq, which is a tool
     jetmodalg = CompFactory.JetAlgorithm(
-        "JetModAlg_EMOrigin",
+        "JetModAlg_LCOrigin",
         Tools = [jetmodseq])
 
     # Add the alg to the sequence in the ComponentAccumulator
     inputcfg.addEventAlgo(jetmodalg,sequencename)
 
-    # Create a PseudoJetGetter & corresponding algorithm
-    getter = CompFactory.PseudoJetGetter(
-        "pjg_EMTopo",
-        InputContainer = "EMOriginTopoClusters",
-        OutputContainer = "PseudoJetEMTopo",
-        Label = "EMTopo",
-        SkipNegativeEnergy=True,
-        GhostScale=0.)
+    # Create a PseudoJetAlgorithm
 
-    pjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_EMTopo",
-        PJGetter = getter)
+    constitpjgalg = CompFactory.PseudoJetAlgorithm(
+        "pjgalg_LCTopo",
+        InputContainer = "LCOriginTopoClusters",
+        OutputContainer = "PseudoJetLCTopo",
+        Label = "LCTopo",
+        SkipNegativeEnergy=True)
 
-    # Add the alg to the sequence in the ComponentAccumulator
-    inputcfg.addEventAlgo(pjgalg,sequencename)
+    ghostpjgalg = CompFactory.PseudoJetAlgorithm(
+        "pjgalg_GhostTruth",
+        InputContainer = "TruthParticles",
+        OutputContainer = "PseudoJetGhostTruth",
+        Label = "GhostTruth",
+        SkipNegativeEnergy=True)
 
-    return inputcfg
+    pjcs = [constitpjgalg.OutputContainer,ghostpjgalg.OutputContainer]
+
+    # Add the algs to the sequence in the ComponentAccumulator
+    inputcfg.addEventAlgo(constitpjgalg,sequencename)
+    inputcfg.addEventAlgo(ghostpjgalg,sequencename)
+
+    return inputcfg, pjcs
 
 # Return a ComponentAccumulator holding the jet building sequence
 def JetBuildAlgCfg(ConfigFlags,buildjetsname):
@@ -110,14 +112,23 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
     sequencename = "JetBuildSeq"
     buildcfg.addSequence( CompFactory.AthSequencer(sequencename) )
     # Merge in config to get jet inputs
-    buildcfg.merge(JetInputCfg(ConfigFlags))
+    inputcfg, pjcs = JetInputCfg(ConfigFlags)
+    buildcfg.merge(inputcfg)
+
+    # Create a merger to build the PseudoJetContainer for this specific jet collection
+    mergepjalg = CompFactory.PseudoJetMerger(
+        "pjmergealg_"+buildjetsname,
+        InputPJContainers = pjcs,
+        OutputContainer = "PseudoJetMerged_"+buildjetsname)
+
+    buildcfg.addEventAlgo(mergepjalg)
 
     # Create the JetClusterer, set some standard options
     jclust = CompFactory.JetClusterer("builder")
     jclust.JetAlgorithm = "AntiKt"
-    jclust.JetRadius = 0.4
-    jclust.PtMin = 500 # MeV
-    jclust.InputPseudoJets = "PseudoJetEMTopo"
+    jclust.JetRadius = 1.0
+    jclust.PtMin = 10e3 # MeV
+    jclust.InputPseudoJets = "PseudoJetMerged_"+buildjetsname
     jclust.JetInputType = 1 # Hardcoded "magic number" for now
     # See https://gitlab.cern.ch/atlas/athena/blob/master/Event/xAOD/xAODJet/xAODJet/JetContainerInfo.h
     # This should get its own dictionary.
@@ -139,6 +150,34 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
     buildcfg.addEventAlgo( jra, sequencename )
     return buildcfg
 
+# Return a ComponentAccumulator holding the jet groom sequence
+def JetGroomAlgCfg(ConfigFlags,buildjetsname,groomjetsname):
+    groomcfg = ComponentAccumulator()
+
+    # Create a sequence that holds a set of algorithms
+    # -- mainly for understanding how chunks of the job
+    #    relate to each other
+    sequencename = "JetGroomSeq"
+    groomcfg.addSequence( CompFactory.AthSequencer(sequencename) )
+
+    # Create the JetGroomer, provide it with a JetTrimmer
+    jtrim = CompFactory.JetTrimming("trimSmallR2Frac5",RClus=0.2,PtFrac=0.05)
+    jtrim.UngroomedJets = buildjetsname
+    jtrim.ParentPseudoJets = "PseudoJetMerged_"+buildjetsname
+
+    # Create the JetRecAlg, configure it to use the builder
+    # using constructor syntax instead
+    # (equivalent to setting properties with "=")
+    jra = CompFactory.JetRecAlg(
+        "JRA_trim",
+        Provider = jtrim,       # Single ToolHandle
+        Modifiers = [], # ToolHandleArray
+        OutputContainer = groomjetsname)
+
+    # Add the alg to the ComponentAccumulator in the named sequence
+    groomcfg.addEventAlgo( jra, sequencename )
+    return groomcfg
+
 # Return a ComponentAccumulator holding the jet copy sequence
 def JetCopyAlgCfg(ConfigFlags,buildjetsname,copyjetsname):
     copycfg = ComponentAccumulator()
@@ -149,7 +188,7 @@ def JetCopyAlgCfg(ConfigFlags,buildjetsname,copyjetsname):
     sequencename = "JetCopySeq"
     copycfg.addSequence( CompFactory.AthSequencer(sequencename) )
 
-    # Create the JetClusterer, set some standard options
+    # Create the JetCopier, set some standard options
     jcopy = CompFactory.JetCopier("copier")
     jcopy.InputJets = buildjetsname
 
@@ -170,30 +209,37 @@ def JetCopyAlgCfg(ConfigFlags,buildjetsname,copyjetsname):
     copycfg.addEventAlgo( jra, sequencename )
     return copycfg
 
-# Add the build config to the job
-# One could add options to make it more customisable
-buildjetsname = "MyAntiKt4EMTopoJets"
-copyjetsname = "CopyAntiKt4EMTopoJets"
-cfg.merge( JetBuildAlgCfg(ConfigFlags, buildjetsname) )
-cfg.merge( JetCopyAlgCfg(ConfigFlags, buildjetsname, copyjetsname) )
+if __name__=="__main__":
+    # Add the build config to the job
+    # One could add options to make it more customisable
+    buildjetsname = "MyAntiKt10LCTopoJets"
+    groomjetsname = "MyAntiKt10LCTopoTrimmedSmallR5Frac20Jets"
+    copyjetsname = "CopyAntiKt10LCTopoJets"
+    cfg.merge( JetBuildAlgCfg(ConfigFlags, buildjetsname) )
+    cfg.merge( JetGroomAlgCfg(ConfigFlags, buildjetsname, groomjetsname) )
+    cfg.merge( JetCopyAlgCfg(ConfigFlags, buildjetsname, copyjetsname) )
 
-# Write what we produced to AOD
-# First define the output list
-outputlist = ["EventInfo#*"]
-jetlist = ["AntiKt4EMTopoJets",buildjetsname,copyjetsname]
-for jetcoll in jetlist:
-    outputlist += ["xAOD::JetContainer#"+jetcoll,
-                   "xAOD::JetAuxContainer#"+jetcoll+"Aux.-PseudoJet"]
+    # Write what we produced to AOD
+    # First define the output list
+    outputlist = ["EventInfo#*"]
+    jetlist = [buildjetsname,groomjetsname,copyjetsname]
+    for jetcoll in jetlist:
+        if "Copy" in jetcoll:
+            outputlist += ["xAOD::JetContainer#"+copyjetsname,
+                           "xAOD::ShallowAuxContainer#"+copyjetsname+"Aux.-PseudoJet"]
+        else:
+            outputlist += ["xAOD::JetContainer#"+jetcoll,
+                           "xAOD::JetAuxContainer#"+jetcoll+"Aux.-PseudoJet"]
 
-# Now get the output stream components
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
-from pprint import pprint
-pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
+    # Now get the output stream components
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
+    from pprint import pprint
+    pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 
-# For local tests, not in the CI
-# Print the contents of the store every event
-# cfg.getService("StoreGateSvc").Dump = True
+    # For local tests, not in the CI
+    # Print the contents of the store every event
+    # cfg.getService("StoreGateSvc").Dump = True
 
-# Run the job
-cfg.run(maxEvents=1)
+    # Run the job
+    cfg.run(maxEvents=10)

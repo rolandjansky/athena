@@ -58,10 +58,6 @@ int IdentifiableCacheBase::tryLock(IdentifierHash hash, IDC_WriteHandleBase &loc
 
    if(ptr1 == INVALID){
       //Second call while not finished
-#ifndef NDEBUG
-      size_t slot = hash % m_NMutexes;
-      m_HoldingMutexes[slot].counter++;
-#endif
       wait.emplace_back(hash);
       return 1;
    }
@@ -84,12 +80,6 @@ void IdentifiableCacheBase::clear (deleter_f* deleter)
   }else{
     for (size_t i=0; i<s ;i++) m_vec[i].store(nullptr, std::memory_order_relaxed);//Need to clear incase of aborts
   }
-#ifndef NDEBUG
-  for(size_t i =0; i<m_NMutexes; i++){
-     if(m_HoldingMutexes[i].counter!=0) std::cout << " counter is " << m_HoldingMutexes[i].counter << std::endl;
-     assert(m_HoldingMutexes[i].counter==0);
-  }
-#endif
 }
 
 
@@ -103,12 +93,6 @@ void IdentifiableCacheBase::cleanUp (deleter_f* deleter)
       if(p && p < ABORTED) deleter (p);
     }
   }
-#ifndef NDEBUG
-  for(size_t i =0; i<m_NMutexes; i++){
-     if(m_HoldingMutexes[i].counter!=0) std::cout << "IdentifiableCacheBase counter is " << m_HoldingMutexes[i].counter << std::endl;
-     assert(m_HoldingMutexes[i].counter==0);
-  }
-#endif
 }
 
 int IdentifiableCacheBase::itemAborted (IdentifierHash hash){
@@ -146,13 +130,7 @@ const void* IdentifiableCacheBase::waitFor(IdentifierHash hash)
    }
    return item;
 }
-#ifndef NDEBUG
-void IdentifiableCacheBase::cancelWait(IdentifierHash hash){
-   assert(m_NMutexes > 0);
-   size_t slot = hash % m_NMutexes;
-   m_HoldingMutexes[slot].counter--;
-}
-#endif
+
 const void* IdentifiableCacheBase::findWait (IdentifierHash hash)
 {
   if (ATH_UNLIKELY(hash >= m_vec.size())) return nullptr;
@@ -248,56 +226,56 @@ std::vector<IdentifierHash> IdentifiableCacheBase::ids()
 }
 
 
-bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p) noexcept
+std::pair<bool, const void*> IdentifiableCacheBase::add (IdentifierHash hash, const void* p) noexcept
 {
-  if (ATH_UNLIKELY(hash >= m_vec.size())) return false;
-  if(p==nullptr) return false;
+  if (ATH_UNLIKELY(hash >= m_vec.size())) return std::make_pair(false, nullptr);
+  if(p==nullptr) return std::make_pair(false, nullptr);
   const void* nul=nullptr;
   if(m_vec[hash].compare_exchange_strong(nul, p)){
      m_currentHashes++;
-     return true;
+     return std::make_pair(true, p);
   }
   const void* invalid = INVALID;
   if(m_vec[hash].compare_exchange_strong(invalid, p)){
      m_currentHashes++;
-     return true;
+     return std::make_pair(true, p);
   }
-  return false;
+  return std::make_pair(false, invalid);
 }
 
 
-bool IdentifiableCacheBase::addLock (IdentifierHash hash, const void* p) noexcept
+std::pair<bool, const void*> IdentifiableCacheBase::addLock (IdentifierHash hash, const void* p) noexcept
 { //Same as method above except we check for invalid state first,
   // more optimal for calling using writehandle lock method
   assert(hash < m_vec.size());
-  if(p==nullptr) return false;
+  if(p==nullptr) return std::make_pair(false, nullptr);
   const void* invalid = INVALID;
   if(m_vec[hash].compare_exchange_strong(invalid, p)){
      m_currentHashes++;
-     return true;
+     return std::make_pair(true, p);
   }
   const void* nul=nullptr;
   if(m_vec[hash].compare_exchange_strong(nul, p)){
      m_currentHashes++;
-     return true;
+     return std::make_pair(true, p);
   }
-  return false;
+  return std::make_pair(false, nul);
 }
 
-bool IdentifiableCacheBase::addLock (IdentifierHash hash,
+std::pair<bool, const void*> IdentifiableCacheBase::addLock (IdentifierHash hash,
                                  void_unique_ptr p) noexcept
 {
-  bool b = addLock(hash, p.get());
-  if(b) p.release();
+  std::pair<bool, const void*> b = addLock(hash, p.get());
+  if(b.first) p.release();
   return b;
 }
 
 
-bool IdentifiableCacheBase::add (IdentifierHash hash,
+std::pair<bool, const void*> IdentifiableCacheBase::add (IdentifierHash hash,
                                  void_unique_ptr p) noexcept
 {
-  bool b = add(hash, p.get());
-  if(b) p.release();
+  std::pair<bool, const void*> b = add(hash, p.get());
+  if(b.first) p.release();
   return b;
 }
 

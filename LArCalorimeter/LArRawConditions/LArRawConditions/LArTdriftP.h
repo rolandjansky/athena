@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARTDRIFTP
@@ -10,7 +10,7 @@
 // persistent c-struct 
 class  LArTdriftP{
 public:
-    LArTdriftP(): m_Tdrift(-999999999) {} 
+    LArTdriftP(): m_Tdrift(-9999999) {} 
     LArTdriftP(float d): m_Tdrift(d) {} 
     bool isEmpty() const { return m_Tdrift < -9999 ; } ;
     float         m_Tdrift;

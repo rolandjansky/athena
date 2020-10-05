@@ -89,7 +89,7 @@ FTAG5HbbThinningTools = []
 for collection in ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"]:
     FTAG5HbbThinningTools.append(HbbThinner(
         name = "FTAG5HbbThinningTool_%s"%collection,
-        thinningService = FTAG5ThinningHelper.ThinningSvc(),
+        StreamName = streamName,
         jetCollectionName = collection,
         largeJetPtCut = 200e3,
         largeJetEtaCut = 2.1,
@@ -105,7 +105,7 @@ for collection in ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt10TrackCal
 # Tracks and CaloClusters associated with TCCs
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
 FTAG5TCCThinningTool = DerivationFramework__TCCTrackParticleThinning(name                         = "FTAG5TCCThinningTool",
-                                                                     ThinningService              = FTAG5ThinningHelper.ThinningSvc(),
+                                                                     StreamName                   = streamName,
                                                                      JetKey                       = "AntiKt10TrackCaloClusterJets",
                                                                      TCCKey                       = "TrackCaloClustersCombinedAndNeutral",
                                                                      InDetTrackParticlesKey       = "InDetTrackParticles",

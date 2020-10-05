@@ -9,6 +9,9 @@
 #include "eflowRec/PFTrackSelector.h"
 #include "eflowRec/PFClusterSelectorTool.h"
 #include "eflowRec/PFAlgorithm.h"
+#include "eflowRec/PFChargedFlowElementCreatorAlgorithm.h"
+#include "eflowRec/PFNeutralFlowElementCreatorAlgorithm.h"
+#include "eflowRec/PFLCNeutralFlowElementCreatorAlgorithm.h"
 #include "eflowRec/PFCellLevelSubtractionTool.h"
 #include "eflowRec/PFRecoverSplitShowersTool.h"
 #include "eflowRec/PFMomentCalculatorTool.h"
@@ -17,6 +20,7 @@
 #include "eflowRec/PFOChargedCreatorAlgorithm.h"
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
 #include "eflowRec/PFEGammaPFOAssoc.h"
+#include "eflowRec/PFEGamFlowElementAssoc.h"
 
 DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
@@ -24,6 +28,9 @@ DECLARE_COMPONENT( PFEGammaPFOAssoc )
 DECLARE_COMPONENT( PFClusterSelectorTool )
 DECLARE_COMPONENT( PFTrackSelector )
 DECLARE_COMPONENT( PFAlgorithm )
+DECLARE_COMPONENT( PFChargedFlowElementCreatorAlgorithm)
+DECLARE_COMPONENT( PFNeutralFlowElementCreatorAlgorithm)
+DECLARE_COMPONENT( PFLCNeutralFlowElementCreatorAlgorithm)
 DECLARE_COMPONENT( PFOChargedCreatorAlgorithm )
 DECLARE_COMPONENT( PFONeutralCreatorAlgorithm )
 DECLARE_COMPONENT( PFCellLevelSubtractionTool )
@@ -37,3 +44,4 @@ DECLARE_COMPONENT( PFTrackClusterMatchingTool )
 DECLARE_COMPONENT( eflowCellEOverPTool_mc12_JetETMiss)
 DECLARE_COMPONENT(  eflowCellEOverPTool_mc12_HLLHC)
 DECLARE_COMPONENT( eflowCellEOverPTool_mc12_LC)
+DECLARE_COMPONENT( PFEGamFlowElementAssoc )

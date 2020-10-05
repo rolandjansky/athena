@@ -14,7 +14,7 @@
 // STD
 //#include <iostream>
 //#include <iomanip>
-#include <assert.h>
+#include <cassert>
 
 // default constructor
 Trk::ConeSurface::ConeSurface()

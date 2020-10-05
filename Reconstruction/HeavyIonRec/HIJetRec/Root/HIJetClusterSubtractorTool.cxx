@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetClusterSubtractorTool.h"
+#include "HIJetClusterSubtractorTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
@@ -169,7 +169,7 @@ StatusCode HIJetClusterSubtractorTool::initializeTool()
 {
   if(m_useSamplings)
   {
-    std::string local_path=m_configDir+m_inputFile;
+    std::string local_path=static_cast<std::string>(m_configDir)+m_inputFile;
     std::string full_path=PathResolverFindCalibFile(local_path);
     TFile* f=TFile::Open(full_path.c_str());
     if(f==nullptr)

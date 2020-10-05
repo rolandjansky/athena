@@ -20,7 +20,7 @@
 // Utilities
 
 // This algorithm includes
-#include "TrigT1CaloSim/CPMSim.h"
+#include "CPMSim.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"
 

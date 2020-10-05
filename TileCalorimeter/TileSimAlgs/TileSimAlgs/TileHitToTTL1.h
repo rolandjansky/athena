@@ -124,6 +124,8 @@ class TileHitToTTL1: public AthAlgorithm {
         "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number generator engine to use
+    /// Random Stream Name
+    Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "Tile_HitToTTL1", ""};
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
         "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};

@@ -33,12 +33,12 @@ muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
 
-# ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
+# ESDtoAOD and AODtoTAG need a configured MuonIdHelperSvc (e.g. for the RPC_ResidualPullCalculator)
 # Since it is not automatically created by the job configuration (as for RDOtoESD),
 # do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
 if rec.readESD() or rec.readAOD():
-    from MuonRecExample.MuonRecTools import MuonIdHelperTool
-    MuonIdHelperTool()
+    from MuonRecExample.MuonRecTools import MuonIdHelperSvc
+    MuonIdHelperSvc()
 
 if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
 if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
@@ -117,9 +117,13 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from AthenaCommon import CfgGetter
    topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool(MCTruthClassifier(name="MCTruthClassifier",ParticleCaloExtensionTool=""))
    topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO"]
+   PRD_TruthMaps = ["RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"]
    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
        topSequence.MuonTruthDecorationAlg.SDOs+=["MM_SDO","sTGC_SDO"]
+       PRD_TruthMaps += ["MM_TruthMap", "STGC_TruthMap"]
    if not MuonGeometryFlags.hasCSC(): topSequence.MuonTruthDecorationAlg.CSCSDOs = ""
+   else: PRD_TruthMaps += ["CSC_TruthMap"]
+   topSequence.MuonTruthDecorationAlg.PRD_TruthMaps = PRD_TruthMaps
 
    try:
        from PyUtils.MetaReaderPeeker import metadata
@@ -161,7 +165,7 @@ if muonRecFlags.doStandalone():
                                              TrackTruthName=col+"Truth",
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
 
-        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
+        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
 
         try:
             from PyUtils.MetaReaderPeeker import metadata
@@ -182,8 +186,8 @@ if muonRecFlags.useAlignmentCorrections():
 # Make Calibration Ntuple or run Calibration Algorithm
 #--------------------------------------------------------------------------
 if muonRecFlags.doCalib() or muonRecFlags.doCalibNtuple():
+    from MuonRecExample import MuonAlignConfig
     from MuonRecExample import MuonCalibConfig
-
 
 #--------------------------------------------------------------------------
 # Evaluate tracking performance

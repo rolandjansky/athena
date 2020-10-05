@@ -3,7 +3,7 @@
 */
 
 #include "MuonGeoModelTest/MuonHitRelocation.h"
-#include "GaudiKernel/MsgStream.h"
+
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
@@ -19,11 +19,7 @@
 #include "MuonSimEvent/RPCSimHit.h"
 #include "MuonSimEvent/TGCSimHit.h"
 #include "MuonSimEvent/CSCSimHit.h"
-
 #include "GeoAdaptors/GeoMuonHits.h"
-
-
-#include <string>
 
 class MuonHitRelocation::Clockwork {
 
@@ -134,7 +130,7 @@ StatusCode MuonHitRelocation::initialize(){
   m_cmuonHelper = CscHitIdHelper::GetHelper();
   m_rmuonHelper = RpcHitIdHelper::GetHelper(m_idHelperSvc->rpcIdHelper().gasGapMax());
   m_tmuonHelper = TgcHitIdHelper::GetHelper();
-  m_mmuonHelper = MdtHitIdHelper::GetHelper();
+  m_mmuonHelper = MdtHitIdHelper::GetHelper(m_idHelperSvc->mdtIdHelper().tubeMax());
 
   return StatusCode::SUCCESS;
 }
@@ -564,13 +560,6 @@ StatusCode MuonHitRelocation::execute() {
   }
   
   //-------------------------------------------------------------------------------------------------------
-  return StatusCode::SUCCESS;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode MuonHitRelocation::finalize() {
-
-  ATH_MSG_INFO( "GOODBYE from MuonHitRelocation"  );
   return StatusCode::SUCCESS;
 }
 

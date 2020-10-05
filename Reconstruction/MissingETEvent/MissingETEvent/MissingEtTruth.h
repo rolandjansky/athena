@@ -51,7 +51,7 @@ class MissingEtTruth : public MissingET
   virtual ~MissingEtTruth();
 
   // add a cell
-  void addPart(const HepMC::GenParticle* aPart, double etaFull);
+  void addPart(HepMC::ConstGenParticlePtr aPart, double etaFull);
 
   // set Truth contributions
   void setExTruth(TruthIndex aTruth,  double theEx);

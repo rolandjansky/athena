@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoSimulation.h"
 #include "./AthenaL1TopoHistSvc.h"
-//#include "./getAthenaTopoHistSvc.h"
 
 #include "TH1F.h"
 
@@ -29,8 +28,6 @@
 #include "L1TopoRDO/L1TopoTOB.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 
-
-// #include "TrigSteering/Scaler.h"
 #include "./PeriodicScaler.h"
 
 
@@ -104,12 +101,17 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
 }
 
 
-L1TopoSimulation::~L1TopoSimulation()
+LVL1::L1TopoSimulation::~L1TopoSimulation()
 {}
 
+bool
+LVL1::L1TopoSimulation::isClonable() const
+{
+   return true;
+}
 
 StatusCode
-L1TopoSimulation::initialize() {
+LVL1::L1TopoSimulation::initialize() {
    ATH_MSG_INFO("initialize");
 
    m_topoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_topoSteeringOutputLevel) );
@@ -182,7 +184,7 @@ L1TopoSimulation::initialize() {
 
 // Exectued once per offline job and for every new run online
 StatusCode
-L1TopoSimulation::stop() {
+LVL1::L1TopoSimulation::stop() {
    ATH_MSG_DEBUG("stop");
 
    // monitoring
@@ -196,7 +198,7 @@ L1TopoSimulation::stop() {
 
 // Exectued once per offline job and for every new run online
 StatusCode
-L1TopoSimulation::start() {
+LVL1::L1TopoSimulation::start() {
    ATH_MSG_DEBUG("start");
 
    m_scaler->reset();
@@ -225,7 +227,7 @@ L1TopoSimulation::start() {
 
 
 StatusCode
-L1TopoSimulation::execute() {
+LVL1::L1TopoSimulation::execute() {
    const EventContext& ctx = Gaudi::Hive::currentContext();
 
    if (m_prescale>1 && not m_scaler->decision(m_prescale)){
@@ -311,9 +313,11 @@ L1TopoSimulation::execute() {
    // TODO: get the output combination data and put into SG
 
    // fill histograms
-   for (auto mt : m_monitors )
-      if ( ! mt->preSelector() ) 
-         mt->fillHists().ignore();
+   // Commenting out temporarily to avoid crash 
+   //when L1TopoSimulation run without menu confifuration.
+   //for (auto mt : m_monitors )
+   //   if ( ! mt->preSelector() ) 
+   //      mt->fillHists().ignore();
 
    return StatusCode::SUCCESS;
 }
@@ -322,7 +326,7 @@ L1TopoSimulation::execute() {
 
 
 StatusCode
-L1TopoSimulation::finalize() {
+LVL1::L1TopoSimulation::finalize() {
    m_topoSteering->inputEvent().dumpFinish();
 
    delete m_scaler;
@@ -331,7 +335,8 @@ L1TopoSimulation::finalize() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode L1TopoSimulation::retrieveHardwareDecision()
+StatusCode
+LVL1::L1TopoSimulation::retrieveHardwareDecision()
 {
     // some duplication with L1TopoRDO::Helpers
     // getDecisionAndOverflowBits() ?

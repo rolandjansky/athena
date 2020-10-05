@@ -1,167 +1,152 @@
-<!-- $Id: selection.xml 768384 2016-08-17 10:49:42Z krasznaa $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- V1 dictionaries: -->
+   <!-- xAOD::AFPData interface type(s). -->
+   <class name="xAOD::AFPData_v1" />
+   <class name="xAOD::AFPDataContainer_v1"
+          id="54E9EDA4-D489-4B3E-B82C-B75356137465" />
+   <typedef name="xAOD::AFPData" />
+   <typedef name="xAOD::AFPDataContainer" />
 
-  <!-- ALFA -->
-  <class name="xAOD::ALFAData_v1" />
-  <class name="xAOD::ALFADataContainer_v1"
-         id="8D245B28-F246-42D7-BD85-054A757D2A13" />
-  <class name="xAOD::ALFADataAuxContainer_v1"
-         id="7D575485-A862-404F-85D0-D66BFB39D680" />
+   <!-- xAOD::AFPData auxiliary type(s). -->
+   <class name="xAOD::AFPDataAuxContainer_v1"
+          id="4E14DF47-F942-4354-9355-0AE4FE715F18" />
+   <typedef name="xAOD::AFPDataAuxContainer" />
 
-  <!-- AFP -->
-  <class name="xAOD::AFPData_v1" />
-  <class name="xAOD::AFPDataContainer_v1" id="54E9EDA4-D489-4B3E-B82C-B75356137465" />
-  <class name="xAOD::AFPDataAuxContainer_v1" id="4E14DF47-F942-4354-9355-0AE4FE715F18" />
+   <!-- xAOD::AFPSiHit interface type(s). -->
+   <class name="xAOD::AFPSiHit_v1" />
+   <class name="xAOD::AFPSiHitContainer_v1"
+          id="6BE5A00E-A13D-4904-9358-CB28D4C57879" />
+   <class name="xAOD::AFPSiHit_v2" />
+   <class name="xAOD::AFPSiHitContainer_v2"
+          id="11AC58B6-10C2-4F0B-8E1F-B99E823F274E" />
+   <typedef name="xAOD::AFPSiHit" />
+   <typedef name="xAOD::AFPSiHitContainer" />
 
-  <class name="xAOD::AFPSiHit_v1" />
-  <class name="xAOD::AFPSiHitContainer_v1" id="6BE5A00E-A13D-4904-9358-CB28D4C57879" />
-  <class name="xAOD::AFPSiHitAuxContainer_v1" id="B7C50786-FA4B-4D48-86C3-180EF5E6DE43" />
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::AFPSiHitContainer_v1>" version="[1-]"
+        targetClass="DataLink<xAOD::AFPSiHitContainer_v2>"
+        source="" target="" />
+   <read sourceClass="ElementLink<xAOD::AFPSiHitContainer_v1>" version="[1-]"
+        targetClass="ElementLink<xAOD::AFPSiHitContainer_v2>"
+        source="" target="" />
 
-  <class name="xAOD::AFPSiHit_v2" />
-  <class name="xAOD::AFPSiHitContainer_v2" id="11AC58B6-10C2-4F0B-8E1F-B99E823F274E" />
-  <class name="xAOD::AFPSiHitAuxContainer_v2" id="E14F7E45-B4A5-4DC0-82AB-A1135FFD2C78" />
+   <!-- xAOD::AFPSiHit auxiliary type(s). -->
+   <class name="xAOD::AFPSiHitAuxContainer_v1"
+          id="B7C50786-FA4B-4D48-86C3-180EF5E6DE43" />
+   <class name="xAOD::AFPSiHitAuxContainer_v2"
+          id="E14F7E45-B4A5-4DC0-82AB-A1135FFD2C78" />
+   <typedef name="xAOD::AFPSiHitAuxContainer" />
 
-  <class name="xAOD::AFPSiHitsCluster_v1" />
-  <class name="xAOD::AFPSiHitsClusterContainer_v1" id="CCBFAFB3-9A9E-486B-AD37-43C0FFB68998" />
-  <class name="xAOD::AFPSiHitsClusterAuxContainer_v1" id="1B4F1207-38F5-42ED-BC5B-F9125F845C3F" />
+   <!-- xAOD::AFPSiHitsCluster interface type(s). -->
+   <class name="xAOD::AFPSiHitsCluster_v1" />
+   <class name="xAOD::AFPSiHitsClusterContainer_v1"
+          id="CCBFAFB3-9A9E-486B-AD37-43C0FFB68998" />
+   <typedef name="xAOD::AFPSiHitsCluster" />
+   <typedef name="xAOD::AFPSiHitsClusterContainer" />
 
-  <class name="xAOD::AFPTrack_v1" />
-  <class name="xAOD::AFPTrackContainer_v1" id="EF887FA6-D17C-4D30-A2E6-3F46CA2EB44B" />
-  <class name="xAOD::AFPTrackAuxContainer_v1" id="07BAB867-F028-4CCA-829A-3A6B93AD3411" />
+   <!-- xAOD::AFPSiHitsCluster auxiliary type(s). -->
+   <class name="xAOD::AFPSiHitsClusterAuxContainer_v1"
+          id="1B4F1207-38F5-42ED-BC5B-F9125F845C3F" />
+   <typedef name="xAOD::AFPSiHitsClusterAuxContainer" />
 
-  <class name="xAOD::AFPTrack_v2" />
-  <class name="xAOD::AFPTrackContainer_v2" id="2BCE47B1-7C55-48D0-AFA7-01563154AD02" />
-  <class name="xAOD::AFPTrackAuxContainer_v2" id="21E536F5-7B58-4BDE-8CEE-3FF40E355C3F" />
+   <!-- xAOD::AFPTrack interface type(s). -->
+   <class name="xAOD::AFPTrack_v1" />
+   <class name="xAOD::AFPTrackContainer_v1"
+          id="EF887FA6-D17C-4D30-A2E6-3F46CA2EB44B" />
+   <class name="xAOD::AFPTrack_v2" />
+   <class name="xAOD::AFPTrackContainer_v2"
+          id="2BCE47B1-7C55-48D0-AFA7-01563154AD02" />
+   <typedef name="xAOD::AFPTrack" />
+   <typedef name="xAOD::AFPTrackContainer" />
 
-  <class name="xAOD::AFPToFHit_v1" />
-  <class name="xAOD::AFPToFHitContainer_v1" id="AF3603F3-CDC9-4597-B111-155D9BC2E8D1" />
-  <class name="xAOD::AFPToFHitAuxContainer_v1" id="65012075-753E-4F3E-8A37-5BBB66C523D6" />
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::AFPTrackContainer_v1>" version="[1-]"
+        targetClass="DataLink<xAOD::AFPTrackContainer_v2>"
+        source="" target="" />
+   <read sourceClass="ElementLink<xAOD::AFPTrackContainer_v1>" version="[1-]"
+        targetClass="ElementLink<xAOD::AFPTrackContainer_v2>"
+        source="" target="" />
 
-  <class name="xAOD::AFPProton_v1" />
-  <class name="xAOD::AFPProtonContainer_v1" id="D6DBFC87-D5C9-40CD-BFD0-21B19D0ED7AB" />
-  <class name="xAOD::AFPProtonAuxContainer_v1" id="A5E4D2CC-2541-49D8-BAC7-3C5DFD51779B" />
+   <!-- xAOD::AFPTrack auxiliary type(s). -->
+   <class name="xAOD::AFPTrackAuxContainer_v1"
+          id="07BAB867-F028-4CCA-829A-3A6B93AD3411" />
+   <class name="xAOD::AFPTrackAuxContainer_v2"
+          id="21E536F5-7B58-4BDE-8CEE-3FF40E355C3F" />
+   <typedef name="xAOD::AFPTrackAuxContainer" />
 
-  <!-- ZDC -->
-  <class name="xAOD::ZdcModule_v1" />
-  <class name="xAOD::ZdcModuleContainer_v1"
-         id="C99119A0-E3AB-457F-85E7-EF0B44A3F5EB" />
-  <class name="xAOD::ZdcModuleAuxContainer_v1"
-         id="72D723CD-1C67-49D2-9C70-5EE14C3B26A6" />
+   <!-- xAOD::AFPToFHit interface type(s). -->
+   <class name="xAOD::AFPToFHit_v1" />
+   <class name="xAOD::AFPToFHitContainer_v1"
+          id="AF3603F3-CDC9-4597-B111-155D9BC2E8D1" />
+   <typedef name="xAOD::AFPToFHit" />
+   <typedef name="xAOD::AFPToFHitContainer" />
 
-  <!-- MBTSModules -->
-  <class name="xAOD::MBTSModule_v1" />
-  <class name="xAOD::MBTSModuleContainer_v1"
-         id="661BBB15-2F8C-41FD-A1A8-F075C328DB5A" />
-  <class name="xAOD::MBTSModuleAuxContainer_v1"
-         id="9D3409D5-8503-4994-BE9B-41F412D4E5A1" />
-       
-  <!-- ForwardEventInfo -->
-  <class name="xAOD::ForwardEventInfo_v1" />
-  <class name="xAOD::ForwardEventInfoContainer_v1" 
-         id="AAB8E87D-FEFB-481F-BA4C-AB35852A8026" />
-  <class name="xAOD::ForwardEventInfoAuxContainer_v1"
-         id="1795DED0-A289-4173-9BA9-E8A28D7FB2BE" />
+   <!-- xAOD::AFPToFHit auxiliary type(s). -->
+   <class name="xAOD::AFPToFHitAuxContainer_v1"
+          id="65012075-753E-4F3E-8A37-5BBB66C523D6" />
+   <typedef name="xAOD::AFPToFHitAuxContainer" />
 
-  <!-- Smart pointers to the V1 types: -->
-  <!-- ALFA -->
-  <class name="DataLink<xAOD::ALFADataContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::ALFADataContainer_v1> >" />
+   <!-- xAOD::AFPProton interface type(s). -->
+   <class name="xAOD::AFPProton_v1" />
+   <class name="xAOD::AFPProtonContainer_v1"
+          id="D6DBFC87-D5C9-40CD-BFD0-21B19D0ED7AB" />
+   <typedef name="xAOD::AFPProton" />
+   <typedef name="xAOD::AFPProtonContainer" />
 
-  <class name="ElementLink<xAOD::ALFADataContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::ALFADataContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::ALFADataContainer_v1> > >" />
+   <!-- xAOD::AFPProton auxiliary type(s). -->
+   <class name="xAOD::AFPProtonAuxContainer_v1"
+          id="A5E4D2CC-2541-49D8-BAC7-3C5DFD51779B" />
+   <typedef name="xAOD::AFPProtonAuxContainer" />
 
-  <!-- *** AFP *** -->
-  <!-- AFPDataContainer -->
-  <class name="DataLink<xAOD::AFPDataContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::AFPDataContainer_v1> >" />
+   <!-- xAOD::ALFAData interface type(s). -->
+   <class name="xAOD::ALFAData_v1" />
+   <class name="xAOD::ALFADataContainer_v1"
+          id="8D245B28-F246-42D7-BD85-054A757D2A13" />
+   <typedef name="xAOD::ALFAData" />
+   <typedef name="xAOD::ALFADataContainer" />
 
-  <class name="ElementLink<xAOD::AFPDataContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::AFPDataContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPDataContainer_v1> > >" />
+   <!-- xAOD::ALFAData auxiliary type(s). -->
+   <class name="xAOD::ALFADataAuxContainer_v1"
+          id="7D575485-A862-404F-85D0-D66BFB39D680" />
+   <typedef name="xAOD::ALFADataAuxContainer" />
 
-  <!-- AFPToFHitContainer -->
-  <class name="DataLink<xAOD::AFPToFHitContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::AFPToFHitContainer_v1> >" />
+   <!-- xAOD::ZdcModule interface type(s). -->
+   <class name="xAOD::ZdcModule_v1" />
+   <class name="xAOD::ZdcModuleContainer_v1"
+          id="C99119A0-E3AB-457F-85E7-EF0B44A3F5EB" />
+   <typedef name="xAOD::ZdcModule" />
+   <typedef name="xAOD::ZdcModuleContainer" />
 
-  <class name="ElementLink<xAOD::AFPToFHitContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::AFPToFHitContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPToFHitContainer_v1> > >" />
+   <!-- xAOD::ZdcModule auxiliary type(s). -->
+   <class name="xAOD::ZdcModuleAuxContainer_v1"
+          id="72D723CD-1C67-49D2-9C70-5EE14C3B26A6" />
+   <typedef name="xAOD::ZdcModuleAuxContainer" />
 
-  <!-- AFPSiHitContainer -->
-  <class name="DataLink<xAOD::AFPSiHitContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::AFPSiHitContainer_v1> >" />
- 
-  <class name="ElementLink<xAOD::AFPSiHitContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> > >" />
+   <!-- xAOD::MBTSModule interface type(s). -->
+   <class name="xAOD::MBTSModule_v1" />
+   <class name="xAOD::MBTSModuleContainer_v1"
+          id="661BBB15-2F8C-41FD-A1A8-F075C328DB5A" />
+   <typedef name="xAOD::MBTSModule" />
+   <typedef name="xAOD::MBTSModuleContainer" />
 
-  <class name="DataLink<xAOD::AFPSiHitContainer_v2>" />
-  <class name="std::vector<DataLink<xAOD::AFPSiHitContainer_v2> >" />
- 
-  <class name="ElementLink<xAOD::AFPSiHitContainer_v2>" />
-  <class name="std::vector<ElementLink<xAOD::AFPSiHitContainer_v2> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPSiHitContainer_v2> > >" />
+   <!-- xAOD::MBTSModule auxiliary type(s). -->
+   <class name="xAOD::MBTSModuleAuxContainer_v1"
+          id="9D3409D5-8503-4994-BE9B-41F412D4E5A1" />
+   <typedef name="xAOD::MBTSModuleAuxContainer" />
 
-  <!-- AFPSiHitsClusterContainer -->
-  <class name="DataLink<xAOD::AFPSiHitsClusterContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::AFPSiHitsClusterContainer_v1> >" />
- 
-  <class name="ElementLink<xAOD::AFPSiHitsClusterContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> > >" />
+   <!-- xAOD::ForwardEventInfo interface type(s). -->
+   <class name="xAOD::ForwardEventInfo_v1" />
+   <class name="xAOD::ForwardEventInfoContainer_v1"
+          id="AAB8E87D-FEFB-481F-BA4C-AB35852A8026" />
+   <typedef name="xAOD::ForwardEventInfo" />
+   <typedef name="xAOD::ForwardEventInfoContainer" />
 
-  <!-- AFPTrackContainer -->
-  <class name="DataLink<xAOD::AFPTrackContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::AFPTrackContainer_v1> >" />
- 
-  <class name="ElementLink<xAOD::AFPTrackContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::AFPTrackContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPTrackContainer_v1> > >" />
-
-  <class name="DataLink<xAOD::AFPTrackContainer_v2>" />
-  <class name="std::vector<DataLink<xAOD::AFPTrackContainer_v2> >" />
- 
-  <class name="ElementLink<xAOD::AFPTrackContainer_v2>" />
-  <class name="std::vector<ElementLink<xAOD::AFPTrackContainer_v2> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPTrackContainer_v2> > >" />
-  
-  <!-- AFPProtonContainer -->
-  <class name="DataLink<xAOD::AFPProtonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::AFPProtonContainer_v1> >" />
- 
-  <class name="ElementLink<xAOD::AFPProtonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::AFPProtonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::AFPProtonContainer_v1> > >" />
-
-  <!-- ZDC -->
-  <class name="DataLink<xAOD::ZdcModuleContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::ZdcModuleContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::ZdcModuleContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::ZdcModuleContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::ZdcModuleContainer_v1> > >" />
-
-  <class name="ElementLink<xAOD::TriggerTowerContainer_v2 >" />
-  <class name="std::vector<ElementLink<xAOD::TriggerTowerContainer_v2> >" />
-  <class name="std::vector< std::vector<short> >" />
-
- <!-- MBTSModules -->
-  <class name="DataLink<xAOD::MBTSModuleContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::MBTSModuleContainer_v1> >" />
- 
-  <class name="ElementLink<xAOD::MBTSModuleContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::MBTSModuleContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::MBTSModuleContainer_v1> > >" />
-
- <!-- ForwardEventInfo -->
-  <class name="DataLink<xAOD::ForwardEventInfoContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::ForwardEventInfoContainer_v1> >" />
-     
-  <class name="ElementLink<xAOD::ForwardEventInfoContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::ForwardEventInfoContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::ForwardEventInfoContainer_v1> > >" />
+   <!-- xAOD::ForwardEventInfo auxiliary type(s). -->
+   <class name="xAOD::ForwardEventInfoAuxContainer_v1"
+          id="1795DED0-A289-4173-9BA9-E8A28D7FB2BE" />
+   <typedef name="xAOD::ForwardEventInfoAuxContainer" />
 
 </lcgdict>

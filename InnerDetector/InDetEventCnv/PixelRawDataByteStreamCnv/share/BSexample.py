@@ -73,6 +73,6 @@ if not doReadBS:
   #ServiceMgr.EventSelector.InputCollections = ["castor:/castor/cern.ch/grid/atlas/datafiles/egamma/DC3.007040.singlepart_gamma_Et20/digit/120031/ideal0_mc12.007040.singlepart_gamma_Et20.digit.RDO.v12003108_tid005022._00001.pool.root"]
   #ServiceMgr.EventSelector.InputCollections += ["castor:/castor/cern.ch/grid/atlas/datafiles/egamma/DC3.007040.singlepart_gamma_Et20/digit/120031/ideal0_mc12.007040.singlepart_gamma_Et20.digit.RDO.v12003108_tid005022._00002.pool.root"]
 if doReadBS:
-  #ServiceMgr.ByteStreamInputSvc.FullFileName = [ "rfio:/castor/cern.ch/user/w/wildauer/calib0.007003.singlepart_e_Et25.digit.RDO.v12003101_tid003425._00001.bs.data" ] 
-  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "RawEvent.re" ] 
+  #ServiceMgr.EventSelector.Input = [ "rfio:/castor/cern.ch/user/w/wildauer/calib0.007003.singlepart_e_Et25.digit.RDO.v12003101_tid003425._00001.bs.data" ] 
+  ServiceMgr.EventSelector.Input = [ "RawEvent.re" ] 
   ServiceMgr.ByteStreamInputSvc.NumFile      = [1] # this might be the same as SkipEvents?? useless if it just specifies the number of input files ...

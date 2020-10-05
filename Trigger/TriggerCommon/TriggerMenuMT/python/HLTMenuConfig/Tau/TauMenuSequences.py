@@ -120,13 +120,14 @@ def tauIdTrackSeq():
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
-# ===============================================================================================
-#                                                                                                                                           
-# ===============================================================================================
+
+# ===============================================================================================                                
+#    Fast track core + RejectEmpty Hypo step (tracktwo, tracktwoEF, tracktwoMVA)                                                              
+# ===============================================================================================                                                   
 
 def tauTwoStepTrackSeqCore():
 
-    (sequence, ftfCoreViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreSequence,ConfigFlags)    
+    (sequence, ftfCoreViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreSequence,ConfigFlags)
 
     from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
     fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_RejectEmpty")
@@ -160,7 +161,9 @@ def tauTwoStepTrackSeqIso():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 
-# ===============================================================================================                                             #                                                                                                                                             # ===============================================================================================                                                                                 
+# ===============================================================================================                                             
+#                                                                                                                                             
+# ===============================================================================================                                                                                
 
 
 def tauTrackTwoEFSeq():

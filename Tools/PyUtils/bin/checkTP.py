@@ -20,7 +20,6 @@ from __future__ import print_function
 import sys
 import os
 
-__version__ = "$Revision: 1.3 $"
 __author__  = "Sebastien Binet"
 
 # MN: this has no effect when using RootType 

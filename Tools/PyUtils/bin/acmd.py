@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file PyUtils.acmd
 # @purpose main command line script for the general purpose athena scripts
 # @author Sebastien Binet
@@ -18,23 +18,22 @@ def main():
     msg = L.logging.getLogger('Acmd')
     msg.setLevel(L.logging.INFO)
     
-    acmdlib.Plugins.loadAll()
+    # To avoid loading all plugins every time, first try to find
+    # a specific plugin that matches the first N arguments:
+    cmd = None
+    for i in range(1,len(sys.argv)):
+        cmd_name = '.'.join(sys.argv[1:i+1])
+        if acmdlib.Plugins.exists(cmd_name):
+            cmd = acmdlib.Plugins.load(cmd_name)
+            break
+
+    # Otherwise load all plugins and leave the rest to the parser:
+    if cmd is None:
+        acmdlib.Plugins.loadAll()
 
     parser = acmdlib.ACMD_PARSER
     args = parser.parse_args()
 
-    msg.info('running sub-command [%s]...', args.command)
-    cmd_name = args.command
-
-    sys_args = sys.argv[1:]
-    if sys_args[0] != cmd_name:
-        # special case of a sub(sub,...) command:
-        # acmd a b c cmd arg1 arg2 ...
-        # -> a.b.c.cmd
-        idx = sys_args.index(cmd_name)
-        cmd_name = '.'.join(sys_args[:idx+1])
-
-    cmd = acmdlib.Plugins.load(cmd_name)
     exitcode = 1
     try:
         exitcode = cmd.main(args)

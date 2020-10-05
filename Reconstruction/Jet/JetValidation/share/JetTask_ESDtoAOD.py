@@ -59,8 +59,6 @@ from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
 
-#ServiceMgr.AthenaSealSvc.OutputLevel = VERBOSE
-
 #ServiceMgr.StoreGateSvc.Dump=True
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval = 100)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -29,7 +29,6 @@
 #include <set>
 #include <vector>
 #include <stdint.h> 
-
 
 class TRT_FillCablingData_DC3: public AthAlgTool {
 

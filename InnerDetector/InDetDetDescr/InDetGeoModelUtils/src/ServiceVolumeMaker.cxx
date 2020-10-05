@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/ServiceVolumeMaker.h"
@@ -84,7 +84,7 @@ namespace InDetDD {
   }
 
   ServiceVolumeMakerMgr::ServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema& schema,
-                                               const InDetDD::AthenaComps* athenaComps)
+                                               InDetDD::AthenaComps* athenaComps)
     : m_table(table),
     m_schema(schema),
     m_athenaComps(athenaComps)
@@ -222,7 +222,7 @@ namespace InDetDD {
     std::vector<double> layerShift;
 
     IRDBAccessSvc* rdbSvc = m_athenaComps->rdbAccessSvc();
-    IGeoDbTagSvc* geoDbTag = m_athenaComps->geoDbTagSvc();
+    const IGeoDbTagSvc* geoDbTag = m_athenaComps->geoDbTagSvc();
 
     DecodeVersionKey versionKey(geoDbTag, "Pixel");
     std::string detectorKey = versionKey.tag();
@@ -243,7 +243,7 @@ namespace InDetDD {
 
   ServiceVolumeMaker::ServiceVolumeMaker(const std::string& label,
                                          IRDBRecordset_ptr table, const ServiceVolumeSchema& schema,
-                                         const InDetDD::AthenaComps* athenaComps)
+                                         InDetDD::AthenaComps* athenaComps)
     : m_label(label) {
     m_mgr = new ServiceVolumeMakerMgr(table, schema, athenaComps);
     m_layerShift = m_mgr->readLayerShift();

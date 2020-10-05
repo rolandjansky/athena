@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_EMSHOWER_H
@@ -91,7 +91,7 @@ class EMShower : public egDetail
   double  e2ts1() const;    
   /** @brief energy of the cell corresponding to second energy maximum in the first sampling*/
   double  e2tsts1() const;  
-  /** @brief shower shape in the shower core : [E(+/-3)-E(+/-1)]/E(+/-1), where E(+/-n) is the energy in ± n strips around the strip with highest energy*/
+  /** @brief shower shape in the shower core : [E(+/-3)-E(+/-1)]/E(+/-1), where E(+/-n) is the energy in +- n strips around the strip with highest energy*/
   double  fracs1() const;   
   /** @brief same as egammaParameters::weta1 but without corrections 
   on particle impact point inside the cell*/
@@ -116,7 +116,7 @@ class EMShower : public egDetail
   double  pos7() const; 
   /** @brief  barycentre in sampling 1 calculated in 3 strips*/
   double  barys1() const;   
-  /** @brief shower width is determined in a window detaxdphi = 0,0625 ×~0,2, corresponding typically to 20 strips in eta : wtot1=sqrt{sum Ei x ( i-imax)^2 / sum Ei}, where i is the strip number and imax the strip number of the first local maximum*/
+  /** @brief shower width is determined in a window detaxdphi = 0,0625 x~0,2, corresponding typically to 20 strips in eta : wtot1=sqrt{sum Ei x ( i-imax)^2 / sum Ei}, where i is the strip number and imax the strip number of the first local maximum*/
   double  wtots1() const;   
   /** @brief energy reconstructed in the strip with the minimal value between the first and second maximum*/
   double  emins1() const;   
@@ -387,7 +387,7 @@ class EMShower : public egDetail
 
 
   std::vector < std::pair<egammaParameters::ParamDef , double > > m_parameters;
-  static std::string s_className;
+  static const std::string s_className;
 };
 
 #include "egammaEvent/EMShower.icc"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWPHIMOD_G3_H
@@ -40,25 +40,20 @@ Updated:  June, 2004    (sss)
 
 class CaloSwPhimod_g3 : public CaloClusterCorrection
 {
-
- public:
-
-  // constructor 
-  CaloSwPhimod_g3 (const std::string& type,
-                   const std::string& name,
-                   const IInterface* parent);
-  // destructor 
-  virtual ~CaloSwPhimod_g3() override;
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
   // virtual method in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
-
   CaloSwPhimod_g3() = delete;
-  std::vector<float> qphmop(float eta) const;
-  CaloRec::Array<2> m_correction;
+  std::vector<float> qphmop (const Context& myctx,
+                             float eta) const;
+
+  Constant<CxxUtils::Array<2> > m_correction { this, "correction", "" };
 };
 
 #endif

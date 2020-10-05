@@ -1,16 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/CMAdata.h"
-//#include "RPCcablingInterface/CablingRPCBase.h"
 
 #ifdef LVL1_STANDALONE
-// ==> #include "RPCcabling/CablingRPC.h"
+#include "RPCcablingInterface/CablingRPCBase.h"
 #endif
-
-
-using namespace std;
 
 CMAdata::CMAdata(unsigned long int debug) : 
     BaseObject(Data,"CMApatterns"),m_debug(debug)
@@ -20,89 +16,80 @@ CMAdata::CMAdata(unsigned long int debug) :
 }
 
 #ifdef LVL1_STANDALONE
-CMAdata::CMAdata(const RPCdata* rpc_data) : BaseObject(Data,"CMApatterns"),
+CMAdata::CMAdata(const RPCdata* rpcData) :
+    BaseObject(Data,"CMApatterns"),
     m_debug(0) 
 #else
-CMAdata::CMAdata(const RPCdata* rpc_data,const IRPCcablingSvc* cabling,
-                 unsigned long int debug) : 
-    BaseObject(Data,"CMApatterns"),m_debug(debug)
+CMAdata::CMAdata(const RPCdata* rpcData,const IRPCcablingSvc* rpcCabling, const unsigned long int debug) : 
+    BaseObject(Data,"CMApatterns"),
+    m_debug(debug)
 #endif
 {
     m_eta_cma_patterns.clear();
     m_phi_cma_patterns.clear();
 
 #ifdef LVL1_STANDALONE
-    const CablingRPCBase* cabling = RPCcabling::CablingRPC::instance();
+    const CablingRPCBase* rpcCabling = RPCcabling::CablingRPC::instance();
 #endif
-    //    cout << "Comincio:" << endl;
-    //    RPCcablingSvc*  cabling;
-    //    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    //    cout << "Istanziato il service locator" << endl;
-    //    StatusCode sc = svcLoc->service( "RPCcablingSvc", cabling );
-    //    if(sc.isFailure()) cout << "caZZo!" << endl; 
-    //#endif
 
-    if(!cabling) 
-    {
-        DISP << "Creation of CMA data is not possible: no cabling service!" 
-             << endl;
-	DISP_ERROR;
-        return;
-    }
-
-    RPCdata::digitList eta = rpc_data->eta_digits_list();
+    RPCdata::digitList eta = rpcData->eta_digits_list();
     RPCdata::digitList::const_iterator digi = eta.begin();
 
     while(digi != eta.end())
     {
-	const int sector       = (*digi)->decoding().logic_sector();
+    const int sector       = (*digi)->decoding().logic_sector();
         const ViewType type    = (*digi)->decoding().view();
-	const int station      = (*digi)->decoding().lvl1_station();
+    const int station      = (*digi)->decoding().lvl1_station();
         const int cabling_code = (*digi)->decoding().cabling_code();
 
-	const CMAparameters::CMAlist list =
-                          cabling->give_CMAs(sector,type,station,cabling_code);
+    const CMAparameters::CMAlist list = rpcCabling->give_CMAs(sector,type,station,cabling_code);
         CMAparameters::CMAlist::const_iterator cma = list.begin();
         while(cma != list.end())
-	{
+    {
             create_patterns(*cma,*digi);
-	    ++cma;
-	}
-	++digi;
+        ++cma;
+    }
+    ++digi;
     }     
 
-    RPCdata::digitList phi = rpc_data->phi_digits_list();
+    RPCdata::digitList phi = rpcData->phi_digits_list();
     digi = phi.begin();
     while(digi != phi.end())
     {
-	const int sector       = (*digi)->decoding().logic_sector();
+    const int sector       = (*digi)->decoding().logic_sector();
         const ViewType type    = (*digi)->decoding().view();
-	const int station      = (*digi)->decoding().lvl1_station();
+    const int station      = (*digi)->decoding().lvl1_station();
         const int cabling_code = (*digi)->decoding().cabling_code();
 
-	const CMAparameters::CMAlist list =
-                          cabling->give_CMAs(sector,type,station,cabling_code);
+    const CMAparameters::CMAlist list = rpcCabling->give_CMAs(sector,type,station,cabling_code);
         CMAparameters::CMAlist::const_iterator cma = list.begin();
         while(cma != list.end())
-	{
+    {
             create_patterns(*cma,*digi);
-	    ++cma;
-	}
-	++digi;
+        ++cma;
+    }
+    ++digi;
     }
 }
 
 #ifdef LVL1_STANDALONE
-CMAdata::CMAdata(const RPCdata* rpc_data) : BaseObject(Data,"CMApatterns"), m_debug(0) 
+CMAdata::CMAdata(const RPCdata* rpcData) :
+    BaseObject(Data,"CMApatterns"),
+    m_debug(0) 
 #else
-CMAdata::CMAdata(const RPCdata* rpc_data,const RpcCablingCondData* readCdo, unsigned long int debug) : 
-    BaseObject(Data,"CMApatterns"),m_debug(debug)
+CMAdata::CMAdata(const RPCdata* rpcData,const RpcCablingCondData* rpcCabling, const unsigned long int debug) : 
+    BaseObject(Data,"CMApatterns"),
+    m_debug(debug)
 #endif
 {
     m_eta_cma_patterns.clear();
     m_phi_cma_patterns.clear();
 
-    RPCdata::digitList eta = rpc_data->eta_digits_list();
+#ifdef LVL1_STANDALONE
+    const CablingRPCBase* rpcCabling = RPCcabling::CablingRPC::instance();
+#endif
+
+    RPCdata::digitList eta = rpcData->eta_digits_list();
     RPCdata::digitList::const_iterator digi = eta.begin();
 
     while(digi != eta.end())
@@ -112,7 +99,7 @@ CMAdata::CMAdata(const RPCdata* rpc_data,const RpcCablingCondData* readCdo, unsi
 	const int station      = (*digi)->decoding().lvl1_station();
         const int cabling_code = (*digi)->decoding().cabling_code();
 
-	const CMAparameters::CMAlist list = readCdo->give_CMAs(sector,type,station,cabling_code);
+	const CMAparameters::CMAlist list = rpcCabling->give_CMAs(sector,type,station,cabling_code);
         CMAparameters::CMAlist::const_iterator cma = list.begin();
         while(cma != list.end())
 	{
@@ -122,7 +109,7 @@ CMAdata::CMAdata(const RPCdata* rpc_data,const RpcCablingCondData* readCdo, unsi
 	++digi;
     }     
 
-    RPCdata::digitList phi = rpc_data->phi_digits_list();
+    RPCdata::digitList phi = rpcData->phi_digits_list();
     digi = phi.begin();
     while(digi != phi.end())
     {
@@ -131,7 +118,7 @@ CMAdata::CMAdata(const RPCdata* rpc_data,const RpcCablingCondData* readCdo, unsi
 	const int station      = (*digi)->decoding().lvl1_station();
         const int cabling_code = (*digi)->decoding().cabling_code();
 
-	const CMAparameters::CMAlist list = readCdo->give_CMAs(sector,type,station,cabling_code);
+	const CMAparameters::CMAlist list = rpcCabling->give_CMAs(sector,type,station,cabling_code);
         CMAparameters::CMAlist::const_iterator cma = list.begin();
         while(cma != list.end())
 	{
@@ -242,7 +229,7 @@ CMAdata::give_patterns()
 }
 
 
-void CMAdata::PrintElement(ostream& stream,std::string element,bool detail) 
+void CMAdata::PrintElement(std::ostream& stream,std::string element,bool detail) 
     const
 {
     bool all  = (element == name() || element == "")? true : false;
@@ -253,7 +240,7 @@ void CMAdata::PrintElement(ostream& stream,std::string element,bool detail)
     if(nEta && (element == (*m_eta_cma_patterns.begin()).name() || all))
     {
         stream << name() << " contains " << eta_cma_patterns().size()
-	       << " eta patterns:" << endl;  
+	       << " eta patterns:" << std::endl;  
         printed = true;
 	PATTERNSlist::const_iterator it = m_eta_cma_patterns.begin();
 	while(it != m_eta_cma_patterns.end())
@@ -266,7 +253,7 @@ void CMAdata::PrintElement(ostream& stream,std::string element,bool detail)
     if (nPhi && (element == (*m_phi_cma_patterns.begin()).name() || all))
     {
         stream << name() << " contains " << phi_cma_patterns().size()
-	       << " phi patterns:" << endl;  
+	       << " phi patterns:" << std::endl;  
         printed = true;
         PATTERNSlist::const_iterator it = m_phi_cma_patterns.begin();
 	while(it != m_phi_cma_patterns.end())
@@ -279,17 +266,17 @@ void CMAdata::PrintElement(ostream& stream,std::string element,bool detail)
     if(!printed)
     {
         if (element == "") element = "CMAs";
-        stream << name() << " contains no " << element << "!" << endl;
+        stream << name() << " contains no " << element << "!" << std::endl;
     }
 }
 
 
-void CMAdata::Print(ostream& stream,bool detail) const
+void CMAdata::Print(std::ostream& stream,bool detail) const
 {
     stream << name() << " contains " 
            << eta_cma_patterns().size()
 	   << " eta patterns and " << phi_cma_patterns().size()
-	   << " phi patterns" << endl;
+	   << " phi patterns" << std::endl;
     
     PATTERNSlist::const_iterator eta = eta_cma_patterns().begin();
     PATTERNSlist::const_iterator phi = phi_cma_patterns().begin();

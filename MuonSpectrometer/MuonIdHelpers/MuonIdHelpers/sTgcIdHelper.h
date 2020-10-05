@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -61,7 +61,7 @@ class sTgcIdHelper : public MuonIdHelper {
   sTgcIdHelper();
 
   // Destructor
-  virtual ~sTgcIdHelper();
+  virtual ~sTgcIdHelper()=default;
 
   ///////////// compact identifier stuff begins ////////////////////////////////////// 
 
@@ -74,15 +74,15 @@ class sTgcIdHelper : public MuonIdHelper {
 
   // Identifier builders
   Identifier elementID(int stationName, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
-  Identifier elementID(std::string stationNameStr, int stationEta,int stationPhi, bool check=false, bool* isValid=0) const ;
+  Identifier elementID(const std::string& stationNameStr, int stationEta,int stationPhi, bool check=false, bool* isValid=0) const ;
   Identifier elementID(const Identifier& channelID) const ;
 
   Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel, bool check=false, bool* isValid=0) const ;
-  Identifier channelID(std::string stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel, bool check=false, bool* isValid=0) const ;
+  Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel, bool check=false, bool* isValid=0) const ;
   Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channelType, int channel, bool check=false, bool* isValid=0) const ;
 
   Identifier padID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check=false, bool* isValid=0) const ;
-  Identifier padID(std::string stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check=false, bool* isValid=0) const ;
+  Identifier padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check=false, bool* isValid=0) const ;
   Identifier padID(const Identifier& id, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check=false, bool* isValid=0) const ;
 
   Identifier parentID (const Identifier& id) const;
@@ -224,7 +224,7 @@ CLASS_DEF(sTgcIdHelper, 4174, 1)
   return result;
 }
 /*******************************************************************************/
-inline Identifier sTgcIdHelper::elementID(std::string stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+inline Identifier sTgcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
   Identifier id;
   int stationName = stationNameIndex(stationNameStr);
   id = elementID(stationName, stationEta, stationPhi, check, isValid);
@@ -255,7 +255,7 @@ inline Identifier sTgcIdHelper::channelID(int stationName, int stationEta, int s
   return result;
 }
 /*******************************************************************************/
-inline Identifier sTgcIdHelper::channelID(std::string stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel, bool check, bool * isValid) const {
+inline Identifier sTgcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel, bool check, bool * isValid) const {
   Identifier id;
   int stationName = stationNameIndex(stationNameStr);
   id = channelID(stationName, stationEta, stationPhi, multilayer, gasGap, channelType, channel, check, isValid);
@@ -302,7 +302,7 @@ inline Identifier sTgcIdHelper::padID(int stationName, int stationEta, int stati
   return result;
 }
 /*******************************************************************************/
-inline Identifier sTgcIdHelper::padID(std::string stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check, bool * isValid) const {
+inline Identifier sTgcIdHelper::padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check, bool * isValid) const {
   Identifier id;
   int stationName = stationNameIndex(stationNameStr);
   id = padID(stationName, stationEta, stationPhi, multilayer, gasGap, channelType, padEta, padPhi, check, isValid);

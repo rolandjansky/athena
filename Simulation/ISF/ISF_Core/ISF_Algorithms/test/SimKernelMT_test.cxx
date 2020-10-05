@@ -25,7 +25,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -61,8 +60,8 @@ namespace ISFTesting {
     MOCK_CONST_METHOD3(convertHepMCToG4Event, StatusCode(McEventCollection&,
                                                          G4Event*&,
                                                          EBC_EVCOLL kindOfCollection));
-    MOCK_CONST_METHOD2(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
-                                                HepMC::GenEvent*));
+    MOCK_CONST_METHOD3(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
+                                                HepMC::GenEvent*,bool));
 
   }; // MockInputConverter class
 
@@ -248,9 +247,6 @@ protected:
 
     ASSERT_TRUE( m_appMgr->configure().isSuccess() );
     ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
-
-    m_jobOptionsSvc = m_svcLoc->service("JobOptionsSvc");
-    ASSERT_TRUE( m_jobOptionsSvc.isValid() );
   }
 
   void TearDownGaudi() {
@@ -266,7 +262,6 @@ protected:
   IAppMgrUI*               m_appMgr = nullptr;
   SmartIF<ISvcLocator>     m_svcLoc;
   SmartIF<ISvcManager>     m_svcMgr;
-  SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
   SmartIF<IToolSvc>        m_toolSvc;
   SmartIF<IProperty>       m_propMgr;
 };
@@ -390,10 +385,17 @@ protected:
   // checks if the two given HepMC::GenEvent instances are equal.
   // returns true if they are equal, false otherwise
   bool GenEventsEq(const HepMC::GenEvent& a, const HepMC::GenEvent& b) {
+#ifdef HEPMC3
+    auto aVertexIterator = a.vertices().begin();
+    auto bVertexIterator = b.vertices().begin();
+    auto aVertexIteratorEnd = a.vertices().end();
+    auto bVertexIteratorEnd = b.vertices().end();
+#else
     HepMC::GenEvent::vertex_const_iterator aVertexIterator = a.vertices_begin();
     HepMC::GenEvent::vertex_const_iterator bVertexIterator = b.vertices_begin();
     const auto& aVertexIteratorEnd = a.vertices_end();
     const auto& bVertexIteratorEnd = b.vertices_end();
+#endif
 
     bool eventsAreEqual = true;
 
@@ -404,7 +406,11 @@ protected:
         break;
       }
 
+#ifdef HEPMC3
+      eventsAreEqual = *aVertexIterator == *bVertexIterator;
+#else
       eventsAreEqual = **aVertexIterator == **bVertexIterator;
+#endif
 
       ++aVertexIterator;
       ++bVertexIterator;
@@ -514,12 +520,12 @@ protected:
 
   TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
     auto* genEvent = new HepMC::GenEvent{};
-    HepMC::GenParticle* genPart = new HepMC::GenParticle{};
+    HepMC::GenParticlePtr  genPart = HepMC::newGenParticlePtr();
     HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
-    HepMC::GenParticle* genPart2 = new HepMC::GenParticle{mom,
+    HepMC::GenParticlePtr  genPart2 = HepMC::newGenParticlePtr(mom,
                                                           11,  // pdg id (e-)
                                                           1  // status
-    };
+    );
     auto* genVertex = new HepMC::GenVertex{};
     genVertex->add_particle_out(genPart);
     genVertex->add_particle_out(genPart2);
@@ -731,10 +737,10 @@ protected:
   TEST_F(SimKernelMT_test, filledInputCollectionAndEmptySimulationTools_expectConvertedParticleSentToParticleKiller) {
     auto* genEvent = new HepMC::GenEvent{};
     HepMC::FourVector mom{12.3, 45.6, 78.9, 1234.5};
-    HepMC::GenParticle* genPart = new HepMC::GenParticle{mom,
+    HepMC::GenParticlePtr  genPart = HepMC::newGenParticlePtr(mom,
                                                          11,  // pdg id (e-)
                                                          1  // status
-    };
+    );
     HepMC::FourVector pos{9., 8., 7., 678.9};
     auto* genVertex = new HepMC::GenVertex{pos};
     genVertex->add_particle_out(genPart);

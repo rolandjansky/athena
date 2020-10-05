@@ -1,8 +1,8 @@
-from past.builtins import basestring
+import six
 
 from builtins import zip
 from builtins import range
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfFileUtils
 # @brief Transform utilities to deal with files.
@@ -44,7 +44,7 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
     AthFile.server.flush_cache()
     AthFile.server.disable_pers_cache()
 
-    if isinstance(fileNames, basestring):
+    if isinstance(fileNames, six.string_types):
         fileNames = [fileNames,]
 
     metaDict = {}
@@ -111,7 +111,7 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
                     msg.warning('Missing key in athFile info: {0}'.format(key))
             msg.debug('Found these metadata for {0}: {1}'.format(fname, list(metaDict[fname])))
         return metaDict
-    except ValueError as e:
+    except ValueError:
         msg.error('Problem in getting AthFile metadata for {0}'.format(fileNames))
         return None
 
@@ -187,13 +187,13 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
                     try: 
                         metaDict[filename][key] = meta['metadata']['/Simulation/Parameters']['G4Version']
                         msg.debug('Setting G4Version to {0}'.format(meta['metadata']['/Simulation/Parameters']['G4Version']))
-                    except (KeyError, TypeError) as e:
+                    except (KeyError, TypeError):
                         msg.debug('Could not find G4Version information in metadata for file {0}'.format(filename))
                 else:
                     metaDict[filename][key] = meta[key]
             except KeyError:
                 msg.warning('Missing key in athFile info: {0}'.format(key))
-    except (CalledProcessError, ValueError, AssertionError, ReferenceError) as e:
+    except (CalledProcessError, ValueError, AssertionError, ReferenceError):
         msg.error('Problem in getting AthFile metadata for {0}'.format(filename))
         return None
     msg.debug('Returning {0}'.format(metaDict))
@@ -228,7 +228,7 @@ def HISTEntries(fileName):
         if name.startswith('run_') and name != 'run_multiple':
             
             if rundir is not None:
-                msg.warning('Found two run_ directories in HIST file %s: %s and %s' % ( fileName, rundir, name) )
+                msg.warning('Found two run_ directories in HIST file %s: %s and %s', fileName, rundir, name)
                 return None
             else:
                 rundir = name
@@ -236,11 +236,11 @@ def HISTEntries(fileName):
         del name
        
     if rundir is None:
-        msg.warning( 'Unable to find run directory in HIST file %s' % fileName )
+        msg.warning( 'Unable to find run directory in HIST file %s', fileName )
         fname.Close()
         return None
     
-    msg.info( 'Using run directory %s for event counting of HIST file %s. ' % ( rundir, fileName ) )
+    msg.info( 'Using run directory %s for event counting of HIST file %s. ', rundir, fileName )
     
     hpath = '%s/GLOBAL/DQTDataFlow/events_lb' % rundir
     possibleLBs = []
@@ -257,14 +257,14 @@ def HISTEntries(fileName):
         possibleLBs.append(hpath)
     nev = 0
     if len(possibleLBs) == 0:
-        msg.warning( 'Unable to find events_lb histogram in HIST file %s' % fileName )
+        msg.warning( 'Unable to find events_lb histogram in HIST file %s', fileName )
         fname.Close()
         return None
     for hpath in possibleLBs:
         h = fname.Get(hpath)
         
         if not isinstance( h, root.TH1 ):
-            msg.warning( 'Unable to retrieve %s in HIST file %s.' % ( hpath, fileName ) )
+            msg.warning( 'Unable to retrieve %s in HIST file %s.', hpath, fileName )
             fname.Close()
             return None
         
@@ -274,7 +274,7 @@ def HISTEntries(fileName):
         for i in range(1, nBinsX):
             
             if h[i] < 0:
-                msg.warning( 'Negative number of events for step %s in HIST file %s.' %( h.GetXaxis().GetBinLabel(i), fileName ) )
+                msg.warning( 'Negative number of events for step %s in HIST file %s.', h.GetXaxis().GetBinLabel(i), fileName )
                 fname.Close()
                 return None
             
@@ -286,7 +286,7 @@ def HISTEntries(fileName):
                 
             else:
                 if nevLoc != h[i]:
-                    msg.warning( 'Mismatch in events per step in HIST file %s; most recent step seen is %s.' % ( fileName, h.GetXaxis().GetBinLabel(i) ) )
+                    msg.warning( 'Mismatch in events per step in HIST file %s; most recent step seen is %s.', fileName, h.GetXaxis().GetBinLabel(i) )
                     fname.Close()
                     return None
         nev += nevLoc        
@@ -332,11 +332,11 @@ def NTUPEntries(fileName, treeNames):
         num = tree.GetEntriesFast()
 
         if not num>=0:
-            msg.warning('GetEntriesFast returned non positive value for tree %s in NTUP file %s.' % ( treeName, fileName ))
+            msg.warning('GetEntriesFast returned non positive value for tree %s in NTUP file %s.', treeName, fileName )
             return None
                 
         if prevNum is not None and prevNum != num:
-            msg.warning( "Found diffferent number of entries in tree %s and tree %s of file %s." % ( treeName, prevTree, fileName  ))
+            msg.warning( "Found diffferent number of entries in tree %s and tree %s of file %s.", treeName, prevTree, fileName )
             return None
         
         numberOfEntries=num
@@ -372,7 +372,7 @@ def ROOTGetSize(filename):
                     extraparam = '&filetype=raw'
                 else:
                     extraparam = '?filetype=raw'
-            except:
+            except Exception:
                 extraparam = '?filetype=raw'
         fname = root.TFile.Open(filename + extraparam, 'READ')
         fsize = fname.GetSize()

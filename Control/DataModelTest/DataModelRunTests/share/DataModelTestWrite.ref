@@ -26,7 +26,6 @@ StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 2946 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 PyComponentMgr       INFO Initializing PyComponentMgr...
@@ -120,7 +119,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 SimplePoolFile....   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 6936FA3E-6824-6840-B49D-BCB4D15FFE1D

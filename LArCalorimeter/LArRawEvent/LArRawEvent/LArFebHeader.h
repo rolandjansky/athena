@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFEBHEADER_H
@@ -184,7 +184,7 @@ class LArFebHeader
  private:
 
   /** @brief like explained in: http://mathworld.wolfram.com/GrayCode.html */
-  int degray(int x);
+  int degray(unsigned int x);
 
   /** @brief Feb Identifier */
   const HWIdentifier m_FEBId;  

@@ -8,6 +8,7 @@
 
 #include "TFile.h"
 #include "TMath.h"
+#include "TObjString.h"
 
 #include <cmath>
 
@@ -258,9 +259,9 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
   if (mvaOutput == 0.) {
     if (m_clusterEif0) {
       return clus.e();
-    } else {
+    } 
       return 0.;
-    }
+    
   }
 
   // calcluate the unshifted energy
@@ -282,8 +283,8 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
   ATH_MSG_DEBUG("shift = " << shift);
   if (shift > 0.5) {
     return energy / shift;
-  } else {
+  } 
     ATH_MSG_WARNING("Shift value too small: " << shift << "; not applying shift");
     return energy;
-  }
+  
 }

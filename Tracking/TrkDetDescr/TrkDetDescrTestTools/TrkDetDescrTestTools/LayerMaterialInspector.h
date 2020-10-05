@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,14 +43,14 @@ namespace Trk {
       private:
 
         /** Processor Action to work on TrackingVolumes - the level is for the hierachy tree*/
-        virtual StatusCode processNode(const TrackingVolume& tvol, size_t level = 0);
+        virtual StatusCode processNode(const TrackingVolume& tvol, size_t level = 0) const;
        
         /** Processor Action to work on Layers */
-        virtual StatusCode processNode(const Layer& lay, size_t level = 0);
+        virtual StatusCode processNode(const Layer& lay, size_t level = 0) const;
        
         /** Processor Action to work on Surfaces */
-        virtual StatusCode processNode(const Surface& surf, size_t level = 0);
-      
+        virtual StatusCode processNode(const Surface& surf, size_t level = 0) const;
+     
         std::string m_treeFolder;
         
     };

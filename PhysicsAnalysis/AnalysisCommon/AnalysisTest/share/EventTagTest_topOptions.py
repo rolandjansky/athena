@@ -69,8 +69,6 @@ MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = 1
 ClassIDSvc = Service( "ClassIDSvc" )
 ClassIDSvc.OutputLevel = 3
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.OutputLevel = 3
 StoreGateSvc = Service( "StoreGateSvc" )
 StoreGateSvc.Dump = TRUE 
 

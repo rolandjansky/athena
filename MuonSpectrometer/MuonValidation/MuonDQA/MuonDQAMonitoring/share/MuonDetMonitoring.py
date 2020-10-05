@@ -14,16 +14,6 @@ topSequence = AlgSequence()
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec as recFlags
-
-##################################################################
-### To fix the bug --> https://savannah.cern.ch/bugs/?45447
-### This will make sure RegSelSvc is correctly configured
-from AthenaCommon.AppMgr import ServiceMgr
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-RegSelSvcMuonMon = RegSelSvcDefault()
-RegSelSvcMuonMon.enableMuon = True
-ServiceMgr += RegSelSvcMuonMon 
-##################################################################
  
 if not 'MuonDQADetFlags' in dir():
     printfunc ("MuonDQADetFlags.py: MuonDQADetFlags not yet imported - I import them now")
@@ -164,13 +154,23 @@ if DQMonFlags.doMuonSegmentMon():
 #------------- ---------#
 # Muon track monitoring #
 #------------- ---------#
+# switch between legacy and new code
+Run3_test = False
 if DQMonFlags.doMuonTrackMon():
-    if MuonESDMon:
-        try:
+    try:
+        if MuonESDMon and Run3_test:
             from MuonTrackMonitoring.MuonTrackMonitorAlgorithm import MuonTrackConfig
             topSequence += MuonTrackConfig(DQMonFlags,isOld=True)
-        except Exception:
-            treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon track monitoring")
+
+        # Legacy monitoring
+        elif MuonESDMon:
+            if DQMonFlags.useTrigger(): ## monitoring tool cannot have a dependence on TrigDecisionTool if DQMonFlags.useTrigger==False (ATLASRECTS-3549)
+                if MuonDQADetFlags.doMuonTrackMon():
+                    include ("MuonTrackMonitoring/MuonTrackDQA_options.py")
+                if MuonDQADetFlags.MuonTrkMonDoTrigger():
+                    include ("MuonTrackMonitoring/MuonTrigTrackDQA_options.py")
+    except Exception:
+        treatException("DataQualitySteering_jobOptions.py: exception when setting up Muon track monitoring")
 
 #-------------------------#
 # Muon physics monitoring #

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArSimEvent/LArHitContainer.h"
@@ -8,7 +8,7 @@
 
 #include <iostream> 
 
-LArHitContainer::LArHitContainer(std::string collectionName)
+LArHitContainer::LArHitContainer(const std::string& collectionName)
 : AthenaHitsVector<LArHit>(collectionName)
 {
 
@@ -37,7 +37,7 @@ LArHitContainer::operator std::string () const {
  int counter = 0 ;
  LArHit * hit ;    
  
-     for(it = this->begin() ; it != this->end() ; it++ ){ // Loop over Hits
+     for(it = this->begin() ; it != this->end() ; ++it ){ // Loop over Hits
      
        hit = *it ;
              

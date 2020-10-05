@@ -30,6 +30,13 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
 
   m_trigdec->ExperimentalAndExpertMethods()->enable();
 
+  
+
+  for(const auto& cut:m_trigLevel) 
+    m_accept.addCut(cut,cut);
+
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -138,44 +145,51 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
     
     ATH_MSG_DEBUG("setAccept");
 
+    unsigned int condition=TrigDefs::Physics;
 
-    asg::AcceptInfo accept;
-    for(const auto cut:m_trigLevel) accept.addCut(cut,cut);
-    asg::AcceptData acceptData (&accept);
-
-
+    asg::AcceptData acceptData (&m_accept);
+   
     bool passedL1Calo=false;
     bool passedL2Calo=false;
     bool passedEFCalo=false;
     bool passedL2=false;
     bool passedEFTrk=false;
     bool passedEF=false;
-
-    auto trigger = info.trigName;
-   
-    passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois");
-
-    if(!info.trigL1){ // HLT item get full decision
-        ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
-
-        passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_L2CaloEMClusters");  
-        passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters");
-
-
-        if(info.trigType == "electron"){
-            ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
-            passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_L2Electrons");
-            passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons");
-            passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
-        }
-        else if(info.trigType == "photon"){
-            ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
-            passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_L2Photons");
-            passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons");
-            passedEFTrk=true;// Assume true for photons
-        }
-    }
     
+    if (dec) {
+      auto trigger = info.trigName; 
+      passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois", condition);
+
+      if(!info.trigL1){ // HLT item get full decision
+          ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
+
+          passedL2Calo = match()->ancestorPassed<xAOD::TrigEMClusterContainer>(dec, trigger, "HLT_FastCaloEMClusters", condition);  
+          passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, "HLT_CaloEMClusters", condition);
+
+
+          if(info.trigType == "electron"){
+              ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
+              passedL2    = match()->ancestorPassed<xAOD::TrigElectronContainer>(dec, trigger, "HLT_FastElectrons", condition);
+              if (info.trigEtcut){
+                passedEF=true;
+              }else{
+                passedEF    = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, "HLT_egamma_Electrons", condition);
+              }
+              passedEFTrk = true; //match()->ancestorPassed<xAOD::TrackParticleContainer>(dec);
+          }
+          else if(info.trigType == "photon"){
+              ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
+              passedL2 = match()->ancestorPassed<xAOD::TrigPhotonContainer>(dec, trigger, "HLT_FastPhotons", condition);
+              if (info.trigEtcut){
+                passedEF=true;
+              }else{
+                passedEF = match()->ancestorPassed<xAOD::PhotonContainer>(dec, trigger, "HLT_egamma_Photons", condition);
+              }
+              passedEFTrk=true;// Assume true for photons
+          }
+      }
+    }
+
     acceptData.setCutResult("L1Calo",passedL1Calo);
     acceptData.setCutResult("L2Calo",passedL2Calo);
     acceptData.setCutResult("L2",passedL2);

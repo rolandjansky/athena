@@ -14,13 +14,7 @@ namespace EventContainers {
 struct mutexPair{
    std::condition_variable condition;
    std::mutex mutex;
-#ifndef NDEBUG
-   std::atomic<int> counter;
-#endif
    mutexPair() : condition(), mutex() {
-#ifndef NDEBUG
-      counter.store(0);
-#endif
    }
 };
 

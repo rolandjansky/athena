@@ -50,15 +50,15 @@ public:
 			// No radiating resonance found
 			scale = 0.8;
 		}
-		else if (abs(event[iRes].id()) == 6) {
+		else if (std::abs(event[iRes].id()) == 6) {
 			// Find top daughters
 			int idw = -1, idb = -1, idg = -1;
 			
 			for (int i = 0; i < nDau; i++) {
 				int iDau = event[iRes].daughterList()[i];
-				if (abs(event[iDau].id()) == 24) idw = iDau;
-				if (abs(event[iDau].id()) ==  5) idb = iDau;
-				if (abs(event[iDau].id()) == 21) idg = iDau;
+				if (std::abs(event[iDau].id()) == 24) idw = iDau;
+				if (std::abs(event[iDau].id()) ==  5) idb = iDau;
+				if (std::abs(event[iDau].id()) == 21) idg = iDau;
 			}
 			
 			// Get daughter 4-vectors in resonance frame
@@ -72,7 +72,7 @@ public:
 			pg.bstback(event[iRes].p());
 			
 			// Calculate scale
-			scale = sqrt(2*pg*pb*pg.e()/pb.e());
+			scale = std::sqrt(2*pg*pb*pg.e()/pb.e());
 		}
 		else {
 			scale = 1e30;
@@ -87,7 +87,7 @@ public:
 	// id wildcard is specified as 0 if match is obtained, the positions and the momenta of these particles are returned in vectors `positions` and `momenta` 
 	// respectively
 	// if exitOnExtraLegs==true, it will exit if the decay has more particles than expected, but not less
-	inline bool match_decay(int iparticle, const Event &e, const vector<int> &ids, vector<int> &positions, vector<Vec4> &momenta, bool exitOnExtraLegs = true){
+	inline bool match_decay(int iparticle, const Event &e, const std::vector<int> &ids, std::vector<int> &positions, std::vector<Vec4> &momenta, bool exitOnExtraLegs = true){
 		// compare sizes
 		if (e[iparticle].daughterList().size() != ids.size()) {
 			if (exitOnExtraLegs && e[iparticle].daughterList().size() > ids.size()) exit(-1);
@@ -114,13 +114,13 @@ public:
 	inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
 		p1.bstback(pt);
 		p2.bstback(pt);
-		return sqrt( 2*p1*p2*p2.e()/p1.e() );
+		return std::sqrt( 2*p1*p2*p2.e()/p1.e() );
 	}
 
 	inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
 		p1.bstback(pt);
 		p2.bstback(pt);		
-		return sqrt( 2*p1*p2*p1.e()*p2.e()/(pow(p1.e(),2)+pow(p2.e(),2)) );
+		return std::sqrt( 2*p1*p2*p1.e()*p2.e()/(std::pow(p1.e(),2)+std::pow(p2.e(),2)) );
 	}
 
 
@@ -156,11 +156,11 @@ public:
 		vector<int> positions;
 
 		// 1.) t > b W
-		if ( match_decay(i_top, e, vector<int> {wid, bid}, positions, momenta, false) ) {
+		if ( match_decay(i_top, e, std::vector<int> {wid, bid}, positions, momenta, false) ) {
 			double h;
 			int i_b = positions[1];
 			// a.+b.) b > 3 or b > b g 
-			if ( match_decay(i_b, e, vector<int> {bid, gid}, positions, momenta) )
+			if ( match_decay(i_b, e, std::vector<int> {bid, gid}, positions, momenta) )
 				h = qSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
 			// c.) b > other
 			else 
@@ -168,17 +168,17 @@ public:
 			return h;
 		} 
 		// 2.) t > b W g
-		else if ( match_decay(i_top, e, vector<int> {wid, bid, gid}, positions, momenta, false) ) {
+		else if ( match_decay(i_top, e, std::vector<int> {wid, bid, gid}, positions, momenta, false) ) {
 			double h1, h2;
 			int i_b = positions[1], i_g = positions[2];
 			// a.+b.) b > 3 or b > b g
-			if ( match_decay(i_b, e, vector<int> {bid, gid}, positions, momenta) )
+			if ( match_decay(i_b, e, std::vector<int> {bid, gid}, positions, momenta) )
 				h1 = qSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
 			// c.) b > other
 			else 
 				h1 = -1;
 			// i.+ii.) g > 3 or g > 2
-			if ( match_decay(i_g, e, vector<int> {wildcard, wildcard}, positions, momenta) )
+			if ( match_decay(i_g, e, std::vector<int> {wildcard, wildcard}, positions, momenta) )
 				h2 = gSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
 			// c.) b > other
 			else 
@@ -248,7 +248,7 @@ public:
 			// find the top resonance the radiator originates from
 			int iTop = e[iRadBef].mother1();
 			int distance = 1;
-			while (abs(e[iTop].id()) != 6 && iTop > 0) {
+			while (std::abs(e[iTop].id()) != 6 && iTop > 0) {
 				iTop = e[iTop].mother1();
 				distance ++;
 			}
@@ -266,7 +266,7 @@ public:
 			if (e[iRadBef].id() == 21)
 				scale = gSplittingScale(pt, pr, pe);
 			// quark emitting a gluon
-			else if (abs(e[iRadBef].id()) <= 5)
+			else if (std::abs(e[iRadBef].id()) <= 5)
 				scale = qSplittingScale(pt, pr, pe);
 			// other stuff (which we should not veto)
 			else {

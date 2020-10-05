@@ -5,18 +5,14 @@
 #ifndef CALOCLUSTERVARIABLES_H
 #define CALOCLUSTERVARIABLES_H
 
-#include <vector>
-#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
-#ifndef XAOD_ANALYSIS
-#include "CaloUtils/CaloVertexedCluster.h"
-typedef xAOD::CaloVertexedCluster CaloVertexedClusterType;
-#else
-typedef xAOD::CaloVertexedTopoCluster CaloVertexedClusterType;
-#endif
-#include "CxxUtils/fpcompare.h"
+#include "tauRecTools/ITauVertexCorrection.h"
+
 #include "xAODTau/TauJet.h"
+#include "AsgTools/ToolHandle.h"
+#include "CxxUtils/fpcompare.h"
 
 #include "TLorentzVector.h"
+#include <vector>
 
 
 /** Provide calculations of cluster based variables using the clusters associated to the jet seed of the tau candidate. */
@@ -30,9 +26,9 @@ public:
     ~CaloClusterVariables() {
     }
 
-    bool update(const xAOD::TauJet& pTau); //!< update the internal variables for the given tau
+    bool update(const xAOD::TauJet& pTau, const ToolHandle<ITauVertexCorrection>& handle); //!< update the internal variables for the given tau
 
-    void setVertexCorrection(bool flag) {m_doVertexCorrection=flag;}
+    void setIncSub(bool flag) {m_useSubtractedCluster=flag;}
 
     // ID Variables
     unsigned int numConstituents() { return (unsigned int) m_numConstit; }
@@ -61,24 +57,21 @@ private:
     double m_totEnergy;
     double m_effEnergy;
 
-    /** Calculate the geometrical center of the tau constituents */
-    TLorentzVector calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents);
-    
-    /** 
-     * Enable cell origin correction.
-     * Eta and phi of the cells are corrected wrt to the origin of the tau vertex
-     */
-    bool m_doVertexCorrection;
+    // Calculate the geometrical center of the tau constituents
+    TLorentzVector calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector);
+
+    // use shower subtracted clusters with PFlow jet seeds
+    bool m_useSubtractedCluster;
 };
 
 //-------------------------------------------------------------------------
 //! Descending order by energy
 //-------------------------------------------------------------------------
 struct CaloClusterCompare { 
-  bool operator()(const CaloVertexedClusterType& left, const CaloVertexedClusterType& right) {
+  bool operator()(const TLorentzVector& left, const TLorentzVector& right) {
     //volatile double leftE = left.e();
     //volatile double rightE = right.e();
-    return CxxUtils::fpcompare::greater (left.e(),right.e());
+    return CxxUtils::fpcompare::greater (left.E(),right.E());
   }
 };
 

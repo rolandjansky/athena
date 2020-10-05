@@ -22,6 +22,7 @@
 #include "Identifier/Identifier.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This class uses const_cast, regFcn (callback) and DataHandle. Legacy code
 
 TRT_StrawAlignDbSvc::TRT_StrawAlignDbSvc( const std::string& name,
 					  ISvcLocator* pSvcLocator )

@@ -13,6 +13,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/Relatives.h"
 #include<cmath>
 
 #include<fstream>

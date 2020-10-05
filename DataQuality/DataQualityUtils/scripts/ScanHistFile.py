@@ -1,21 +1,22 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #copied from DQPostProcessi.py and modified
 # Sami Kama
+from __future__ import print_function
 import sys
 def _dolsrwrapper(fname):
     import ROOT
     rf = ROOT.TFile.Open(fname, 'READ')
     if not rf or not rf.IsOpen():
-        print '   %s is empty or not accessible' % fname
+        print('   %s is empty or not accessible' % fname)
         return 3
     if rf.TestBit(ROOT.TFile.kRecovered):
-        print " %s is recovered. It means it was corrupt" % fname
+        print(" %s is recovered. It means it was corrupt" % fname)
         return 7
     cleancache = ROOT.gROOT.MustClean(); ROOT.gROOT.SetMustClean(False)
     RV=_dolsr(rf)
-    print "dolsr returned %s "%(RV)
+    print("dolsr returned %s "%(RV))
     rf.Close()
     ROOT.gROOT.SetMustClean(cleancache)
     return RV
@@ -56,10 +57,10 @@ def _dolsr(dir):
             del dirobj
         elif keyClass.InheritsFrom("TTree"):
             currObj=key.ReadObj()
-            if currObj == None:
-                print "WARNING TTree Object \"%s\" in file:directory \"%s\" is corrupt "\
+            if currObj is None:
+                print("WARNING TTree Object \"%s\" in file:directory \"%s\" is corrupt "\
                 "keylen=%s numbytes=%s objlen=%s fseekkey=%s"%(name,dir.GetPath(),key.GetKeylen(),
-                                                              key.GetNbytes(),key.GetObjlen(),key.GetSeekKey())
+                                                              key.GetNbytes(),key.GetObjlen(),key.GetSeekKey()))
                 return 9
             else:
                 nentries=currObj.GetEntriesFast()
@@ -67,7 +68,7 @@ def _dolsr(dir):
                 #"keylen=%s numbytes=%s objlen=%s fseekkey=%s "%(name,dir.GetPath(),key.GetKeylen(),
                 #                                              key.GetNbytes(),key.GetObjlen(),key.GetSeekKey()),
                 #print "Scanning tree %s"%name,
-                for j in xrange(nentries):
+                for j in range(nentries):
                     ientry=currObj.LoadTree(j)
                     if ientry<0:
                         break
@@ -79,10 +80,10 @@ def _dolsr(dir):
             del currObj
         else:
             currObj=key.ReadObj()
-            if currObj == None:
-                print "WARNING Object \"%s\" in file:directory \"%s\" is corrupt "\
+            if currObj is None:
+                print("WARNING Object \"%s\" in file:directory \"%s\" is corrupt "\
                 "keylen=%s numbytes=%s objlen=%s fseekkey=%s"%(name,dir.GetPath(),key.GetKeylen(),
-                                                              key.GetNbytes(),key.GetObjlen(),key.GetSeekKey())
+                                                              key.GetNbytes(),key.GetObjlen(),key.GetSeekKey()))
                 return 5
             currObj.Delete()
             del currObj

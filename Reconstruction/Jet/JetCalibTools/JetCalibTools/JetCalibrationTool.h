@@ -21,7 +21,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEventShape/EventShape.h"
-#include "StoreGate/ReadDecorHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
 
 // JetCalibTools includes
 #include "JetCalibTools/IJetCalibrationTool.h"
@@ -91,7 +91,9 @@ private:
   // ReadHandleKey(s)
   SG::ReadHandleKey<xAOD::EventInfo>        m_rhkEvtInfo;
   SG::ReadHandleKey<xAOD::EventShape>       m_rhkRhoKey;
-  SG::ReadHandleKey<xAOD::VertexContainer>  m_rhkPV;
+  SG::ReadHandleKey<xAOD::VertexContainer>  m_rhkPV {this,
+       "PrimaryVerticesContainerName",
+       "PrimaryVertices"};
   SG::ReadDecorHandleKey<xAOD::EventInfo>        m_rdhkEvtInfo {this
       ,"AveIntPerXKey"
       ,"EventInfo.AveIntPerXDecor"

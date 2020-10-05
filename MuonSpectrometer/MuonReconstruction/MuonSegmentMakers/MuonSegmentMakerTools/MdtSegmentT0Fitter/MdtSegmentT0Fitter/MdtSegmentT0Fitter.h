@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Fitting for in situ calibration of segments
@@ -19,9 +19,7 @@
 #include <vector>
 #include <memory>
 
-class IIdToFixedIdTool;
-class MdtCalibrationDbTool;
-class TMinuit;
+#include "TMinuit.h"
 
 namespace TrkDriftCircleMath {
 
@@ -29,13 +27,12 @@ namespace TrkDriftCircleMath {
     public:
 
       MdtSegmentT0Fitter(const std::string&,const std::string&,const IInterface*);
-      virtual ~MdtSegmentT0Fitter ();
+      virtual ~MdtSegmentT0Fitter()=default;
       virtual StatusCode initialize() override;
-      virtual StatusCode finalize  () override;
+      virtual StatusCode finalize() override;
       
       virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const override;
       virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const override;
-
  
       virtual const DCSLFitter* getFitter() const override { return this; }
 
@@ -60,23 +57,21 @@ namespace TrkDriftCircleMath {
       };
 
     private:
-      bool m_trace; // debug - traces operation
-      bool m_dumpToFile; // debug - dumps some performance info
-      bool m_dumpNoFit; // debug - print hit info where fit doesn't run		
+      ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool{this,"CalibrationDbTool","MdtCalibrationDbTool"};
 
-      bool m_useInternalRT; // whether to use an internal RT function or the one from Calibration Service
-      ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
+      Gaudi::Property<bool> m_trace{this,"TraceOperation",false,"debug - traces operation"};
+      Gaudi::Property<bool> m_dumpToFile{this,"DumpToFile",false,"debug - dumps some performance info"};
+      Gaudi::Property<bool> m_dumpNoFit{this,"DumpNoFit",false,"debug - print hit info where fit does not run"};
+      Gaudi::Property<bool> m_useInternalRT{this,"UseInternalRT",false,"whether to use an internal RT function or the one from Calibration Service"};
+      Gaudi::Property<bool> m_constrainShifts{this,"ConstrainShifts",false,"whether to constrain t0 shifts to a 50 ns window"};
+      Gaudi::Property<bool> m_rejectWeakTopologies{this,"RejectWeakTopologies",true,"reject topolgies that do not have at least one +- combination in one multilayer"};
+      Gaudi::Property<bool> m_scaleErrors{this,"RescaleErrors",true,"rescale errors in fit"};
+      Gaudi::Property<bool> m_propagateErrors{this,"PropagateErrors",true,"propagate errors"};
+      Gaudi::Property<int> m_minHits{this,"MinimumHits",4,"minimum number of selected hits for t0 fit. Otherwise use default"};
+      Gaudi::Property<double> m_constrainT0Error{this,"ConstrainT0Error",10,"t0 error that is used in the constraint"};
+      Gaudi::Property<float> m_dRTol{this,"dRTolerance",0.1};
 
-      int m_minHits; // minimum number of selected hits for t0 fit. Otherwise use default
-
-      bool m_constrainShifts; // whether to constrain t0 shifts to a 50 ns window
-      double m_constrainT0Error; // t0 error that is used in the constraint
-      bool   m_rejectWeakTopologies; // Reject topolgies that do not have at least one +- combination in one Multilayer
-      bool m_scaleErrors; //!< rescale errors in fit
-
-      bool m_propagateErrors; //!< propagate errors
-
-      TMinuit* m_minuit;
+      std::unique_ptr<TMinuit> m_minuit;
 
       // counters
       mutable std::atomic_uint m_ntotalCalls;
@@ -86,7 +81,6 @@ namespace TrkDriftCircleMath {
       mutable std::atomic_uint m_npassedMinHits;
       mutable std::atomic_uint m_npassedMinuitFit;
 
-      std::unique_ptr<MdtSegmentT0FcnData> m_fcnData; //!< Struct to hold data to pass to/from TMinuit fit function
     };
     
   inline bool MdtSegmentT0Fitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const { 
@@ -94,7 +88,5 @@ namespace TrkDriftCircleMath {
     return fit( result, line, dcs, selection, t0Seed ); 
   }
 }
-
-
 
 #endif

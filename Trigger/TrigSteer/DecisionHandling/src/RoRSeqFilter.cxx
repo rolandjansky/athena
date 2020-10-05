@@ -5,7 +5,7 @@
 // DecisionHandling includes
 #include "RoRSeqFilter.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::Decision;
@@ -18,7 +18,7 @@ using TrigCompositeUtils::newDecisionIn;
 
 RoRSeqFilter::RoRSeqFilter( const std::string& name, 
   ISvcLocator* pSvcLocator ) :
-  ::AthAlgorithm( name, pSvcLocator )
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {}
 
 
@@ -71,15 +71,17 @@ StatusCode RoRSeqFilter::initialize()
 }
 
 
-StatusCode RoRSeqFilter::execute() {  
+StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-  auto inputHandles  = m_inputKeys.makeHandles();
-  auto outputHandles = m_outputKeys.makeHandles();
+  auto inputHandles  = m_inputKeys.makeHandles(ctx);
+  auto outputHandles = m_outputKeys.makeHandles(ctx);
 
   std::vector<std::string> inputNames({"exec", "anyvalid"});
   std::vector<bool> inputStats({true, false}); // position 0 for number of execs, always true, bool at position 1 is set later
+  inputNames.reserve(inputHandles.size() + 2);
+  inputStats.reserve(inputHandles.size() + 2);
   bool validInputs = false;
-  for ( auto inputHandle: inputHandles ) {
+  for ( auto& inputHandle: inputHandles ) {
     inputNames.push_back(inputHandle.name());
     if( inputHandle.isValid() ) {// this is because input is implicit
       validInputs = true;
@@ -94,7 +96,7 @@ StatusCode RoRSeqFilter::execute() {
   Monitored::Group( m_monTool, inputStat, inputName );
   
   if (!validInputs) {
-    setFilterPassed(false);
+    setFilterPassed(false, ctx);
     ATH_MSG_DEBUG ( "No valid inputs found, filter failed. Return...." );
     return StatusCode::SUCCESS;
   }
@@ -108,25 +110,23 @@ StatusCode RoRSeqFilter::execute() {
     ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
     createAndStore(outputHandles[0]);
     DecisionContainer* output = outputHandles[0].ptr();
-    for ( auto inputKey: m_inputKeys ) {
-      auto inputHandle = SG::makeHandle( inputKey );
-      if( inputHandle.isValid() )
+    for ( auto& inputHandle: inputHandles) {
+      if( inputHandle.isValid() ) {
         passCounter += copyPassing( *inputHandle,  *output );
+      }
     }
     outputIndex++;
 
   } else { // Not merging inputs
 
-    for ( auto inputKey: m_inputKeys ) {
-      // already made handles, so this code could be simplified to a loop over inputHandles.
-      auto inputHandle = SG::makeHandle( inputKey );
+    for ( auto& inputHandle: inputHandles ) {
 
       if( not inputHandle.isValid() ) {
-        ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" not present" );
+        ATH_MSG_DEBUG( "InputHandle "<< inputHandle.key() <<" not present" );
       } else if ( inputHandle->empty() ) {
-        ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" contains all rejected decisions, skipping" );
+        ATH_MSG_DEBUG( "InputHandle "<< inputHandle.key() <<" contains all rejected decisions, skipping" );
       } else {
-        ATH_MSG_DEBUG( "Checking inputHandle: "<< inputKey.key() <<" has " << inputHandle->size() <<" elements");
+        ATH_MSG_DEBUG( "Checking inputHandle: "<< inputHandle.key() <<" has " << inputHandle->size() <<" elements");
         createAndStore(outputHandles[outputIndex]);
         DecisionContainer* output = outputHandles[outputIndex].ptr();
         passCounter += copyPassing( *inputHandle, *output );  
@@ -134,13 +134,12 @@ StatusCode RoRSeqFilter::execute() {
       }
       outputIndex++; // Keep the mapping of inputKey<->outputKey correct
     }
-
   }
 
-  setFilterPassed( passCounter != 0 );
-  ATH_MSG_DEBUG( "Filter " << ( filterPassed() ? "passed" : "rejected") <<"; creating "<< outputIndex<<" valid outDecisions DH:");
+  setFilterPassed( passCounter != 0, ctx );
+  ATH_MSG_DEBUG( "Filter " << ( filterPassed(ctx) ? "passed" : "rejected") <<"; creating "<< outputIndex<<" valid outDecisions DH:");
   if (msgLvl(MSG::DEBUG)){
-    for (auto output: outputHandles){
+    for (auto& output: outputHandles){
       if( output.isValid() ) ATH_MSG_DEBUG(" "<<output.key());
     }
   }
@@ -167,7 +166,7 @@ size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
 
     if ( not intersection.empty() ) {      
       // This sets up the 'self' link & the 'seed' link (seeds from inputDecision)
-      Decision* decisionCopy = newDecisionIn( &output, inputDecision, name() );
+      Decision* decisionCopy = newDecisionIn( &output, inputDecision, "F" );
 
       // Copy accross only the DecisionIDs which have passed through this Filter for this Decision object. 
       // WARNING: Still need to 100% confirm if the correct set to propagate forward is objDecisions or intersection.

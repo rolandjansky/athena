@@ -1,80 +1,31 @@
-################################################################################
-# Package: TrigL2MuonSA
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigL2MuonSA )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          DetectorDescription/RegionSelector
-                          Event/ByteStreamCnvSvcBase
-                          Event/xAOD/xAODTrigMuon
-                          Event/xAOD/xAODTrigger
-                          GaudiKernel
-                          MuonSpectrometer/MuonCablings/MuonMDT_Cabling
-                          MuonSpectrometer/MuonCablings/MuonRPC_Cabling
-                          MuonSpectrometer/MuonCablings/MuonTGC_Cabling
-                          MuonSpectrometer/MuonCablings/RPCcablingInterface
-                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibSvc
-                          MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
-                          MuonSpectrometer/MuonRDO
-                          MuonSpectrometer/MuonReconstruction/MuonDataPrep/CscClusterization
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1RPCRecRoiSvc
-                          Trigger/TrigTools/TrigMuonBackExtrapolator
-                          Trigger/TrigTools/TrigTimeAlgs
-                          PRIVATE
-                          Control/AthenaInterprocess
-                          Control/CxxUtils
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          Event/EventInfo
-                          Event/xAOD/xAODEventInfo
-                          MuonSpectrometer/MuonCablings/MuonCablingData
-                          MuonSpectrometer/MuonCalib/MuonCalibEvent
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( CLHEP )
-find_package( Eigen )
 find_package( GSL )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common COMPONENTS MuCalDecode circ_proc )
 
 # Component(s) in the package:
 atlas_add_library( TrigL2MuonSALib
-                     src/*.cxx
-                     PUBLIC_HEADERS TrigL2MuonSA
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib AthenaInterprocess StoreGateLib SGtests EventInfo xAODEventInfo MuonCablingData MuonCalibEvent MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities RPC_CondCablingLib MuonCnvToolInterfacesLib MuonRPC_CablingLib TrigMuonBackExtrapolatorLib )
+                   src/*.cxx
+                   PUBLIC_HEADERS TrigL2MuonSA
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib CscClusterizationLib GaudiKernel GeoPrimitives Identifier MdtCalibSvcLib MuonCablingData MuonCnvToolInterfacesLib MuonIdHelpersLib MuonPrepRawData MuonRDO MuonRecToolInterfaces MuonTGC_CablingLib RPC_CondCablingLib RegionSelectorLib StoreGateLib TrigInterfacesLib TrigMuonToolInterfaces TrigSteeringEvent TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib xAODEventInfo xAODTrigMuon xAODTrigger
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaInterprocess CxxUtils EventInfo GeoModelUtilities MuonCalibEvent MuonReadoutGeometry PathResolver )
 
 atlas_add_component( TrigL2MuonSA
                      src/components/*.cxx
                      LINK_LIBRARIES TrigL2MuonSALib )
 
 # Install files from the package:
-atlas_install_headers( TrigL2MuonSA )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrelSP_new.lut share/pt_barrel.mc10.lut share/pt_endcap.lut share/pt_endcap.mc10.lut share/dZ_barrel.lut share/pt_endcap_small_large.lut share/pt_endcap_run2.lut share/pt_comb_sigma.lut share/pt_comb_mean.lut)
 
 atlas_add_test( MdtDataPreparator_test
                 SCRIPT python -m TrigL2MuonSA.MdtDataPreparator_test
                 PROPERTIES TIMEOUT 600
                 LOG_SELECT_PATTERN "dead tube" )
-
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
-                POST_EXEC_SCRIPT nopost.sh )

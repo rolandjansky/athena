@@ -33,34 +33,32 @@ namespace Monitored {
       }
     }
 
-    virtual HistogramFillerRebinableAxis* clone() const override {
-      return new HistogramFillerRebinableAxis( *this );
-    }
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
+      if (AXIS >= vars.size() ) { return 0; }
+      if (vars.var[AXIS]->size()==0) { return 0; }
 
-    virtual unsigned fill() const override {
-      if (AXIS >= this->m_monVariables.size()) { return 0; }
-      if (this->m_monVariables[AXIS].get().size()==0) { return 0; }
-
-      { // scope for mutex
-        const auto valuesVector = this->m_monVariables[AXIS].get().getVectorRepresentation();
-        std::scoped_lock lock(*this->m_mutex);
-
-        TH1* hist = this->template histogram<TH1>();
-        TAxis* axis = detail::getAxis<TH1,AXIS>(hist);
-        if (m_rebinMode == RebinMode::AddBins) {
-          const auto max = std::max_element(begin(valuesVector), end(valuesVector));
-          if (Monitored::detail::shouldRebinHistogram(axis, *max)) {
-            Monitored::detail::rebinHistogram<AXIS>(hist, *max);
-          }
-        } else {
-          hist->SetCanExtend(detail::axis_bit[AXIS]);
-          const auto [min,max] = std::minmax_element(begin(valuesVector), end(valuesVector));
-          // ExtendAxis is an extremely expensive operation; only call if necessary
-          if (*max >= axis->GetXmax()) hist->ExtendAxis(*max, axis);
-          if (*min < axis->GetXmin()) hist->ExtendAxis(*min, axis);
-        }
+      double min = std::numeric_limits<double>::max();
+      double max = std::numeric_limits<double>::min();
+      const IMonitoredVariable& var = *vars.var[AXIS];
+      for (size_t i = 0; i < var.size(); i++) {
+        const double v = var.get(i);
+        if (v < min) min = v;
+        if (v > max) max = v;
       }
-      return BASE::fill();
+
+      TH1* hist = this->template histogram<TH1>();
+      TAxis* axis = detail::getAxis<AXIS>(hist);
+      if (m_rebinMode == RebinMode::AddBins) {
+        if (Monitored::detail::shouldRebinHistogram(axis, max)) {
+          Monitored::detail::rebinHistogram<AXIS>(hist, max);
+        }
+      } else {
+        hist->SetCanExtend(detail::axis_bit[AXIS]);
+        // ExtendAxis is an extremely expensive operation; only call if necessary
+        if (max >= axis->GetXmax()) hist->ExtendAxis(max, axis);
+        if (min < axis->GetXmin()) hist->ExtendAxis(min, axis);
+      }
+      return BASE::fill( vars );
     }
 
   private:

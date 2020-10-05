@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrkVertexFitters_SequentialVertexFitter_H
@@ -55,6 +55,9 @@ namespace Trk
  class SequentialVertexFitter : public extends<AthAlgTool, IVertexFitter>
  {
   public:
+    // The following 'using' can be removed when IVertexFitter::fit has been fully migrated to the one with the EventContext
+    using Trk::IVertexFitter::fit;
+  
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
@@ -69,35 +72,6 @@ namespace Trk
      */
     
     virtual ~SequentialVertexFitter();
-    
-    
-    /**
-     * Vertex fit from the vector of the reconstructed tracks
-     * and a starting point
-     */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*> & vectorTrk,
-			       const Amg::Vector3D& startingPoint) const override;
-    
-    /**
-     * Vertex fit from the vector of reconstructed tracks
-     * with a preliminary knowledge (vertex constraint)
-     */ 
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*>& vectorTrk,
-			       const xAOD::Vertex& constraint) const override;
-
-    /**
-     * Vertex fit from the vector of the reconstructed TrackParticleBase
-     * and a starting point
-     */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-			       const Amg::Vector3D& startingPoint) const override;
-    
-    /**
-     * Vertex fit from the vector of reconstructed TrackParticleBase
-     * with a preliminary knowledge (vertex constraint)
-     */ 
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-			       const xAOD::Vertex& constraint) const override;
     
     /** 
      *Interface for xAOD::TrackParticle and xAOD::NeutralParticle with starting point 
@@ -161,12 +135,15 @@ namespace Trk
      * So far these methods work with default (0,0,0)
      * starting point and "huge" diagonal error matrix
      */
-    
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList) const override;
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*>& perigeeList) const override
+
+   virtual xAOD::Vertex* fit(
+     const std::vector<const Trk::TrackParameters*>& perigeeList,
+     const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList)
+     const override;
+   virtual xAOD::Vertex* fit(
+     const std::vector<const Trk::TrackParameters*>& perigeeList) const override
    {return fit(perigeeList, std::vector<const Trk::NeutralParameters*>());};
     
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*>& vectorTrk) const override;
     
  private:
     
@@ -174,8 +151,11 @@ namespace Trk
     * Internal method related to the linearization of tracks (initial linearization)
     */
 
-   std::vector<Trk::VxTrackAtVertex> linearizeTracks(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList, const xAOD::Vertex & vrt)const;
- 
+   std::vector<Trk::VxTrackAtVertex> linearizeTracks(
+     const std::vector<const Trk::TrackParameters*>& perigeeList,
+     const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
+     const xAOD::Vertex& vrt) const;
+
    /**
     * Relinearization on iterations
     */

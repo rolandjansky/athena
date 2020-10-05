@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTSensitiveDetector_h
@@ -8,6 +8,7 @@
 // Base class
 #include "G4VSensitiveDetector.hh"
 
+#include "CxxUtils/checker_macros.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "StoreGate/WriteHandle.h"
 #include <gtest/gtest_prod.h>
@@ -15,7 +16,6 @@
 class TRTParameters;
 class TRTProcessingOfBarrelHits;
 class TRTProcessingOfEndCapHits;
-class TRTOutputFile;
 
 class G4HCofThisEvent;
 class G4Step;
@@ -84,7 +84,7 @@ class TRTSensitiveDetector : public G4VSensitiveDetector
   // The hits collection
   SG::WriteHandle<TRTUncompressedHitCollection> m_HitColl; //pUncompressedHitCollection;
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
 
   TRTProcessingOfBarrelHits* m_pProcessingOfBarrelHits;
   TRTProcessingOfEndCapHits* m_pProcessingOfEndCapHits;

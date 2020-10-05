@@ -51,7 +51,7 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     InDetFlags.writeRDOs=True
     InDetFlags.doSLHCVeryForward=True
 
-# InDetFlags.doStandardPlots=True 
+# InDetFlags.doPhysValMon=True 
 
 # if rec.OutputFileNameForRecoStep() == 'ESDtoAOD': 
 #     InDetFlags.doNewTracking=False

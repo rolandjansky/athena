@@ -75,17 +75,13 @@ else:
    min_cppyy_vmem_growth = None
 
 from PyUtils.Helpers import ROOT6Setup
-ROOT6Setup()
+ROOT6Setup(batch=opts.run_batch)
 
 if min_cppyy_vmem_growth:
    grow_vmem( vmem_before_cppyy + min_cppyy_vmem_growth )
    del vmem_before_cppyy
 del min_cppyy_vmem_growth, grow_vmem, vmem_mb
 
-if not (not opts.run_batch and theApp.EventLoop == "PyAthenaEventLoopMgr"):
-   # make SIG_INT fatal
-   svcMgr.CoreDumpSvc.FatalHandler = -1
-   pass
 
 ## now import the top-level module which eases interactive work and/or
 ## python-based components: a pure python module

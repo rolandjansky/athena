@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
 def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
@@ -47,6 +47,8 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     result.addPublicTool(momentum_estimator)
     kwargs.setdefault("SegmentMomentum", momentum_estimator )
     
+    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+
     acc = MuonTrackToSegmentToolCfg(flags)
     track_to_segment_tool =  acc.getPrimary()
     kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
@@ -146,8 +148,6 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) # FIXME? Remove duplicate from cxx?
         
     acc  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = acc.getPrimary()
-    kwargs.setdefault( "MagFieldSvc", magfieldsvc )
     result.merge(acc)
     
     acc = MuonTrackToSegmentToolCfg(flags)
@@ -155,6 +155,8 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
     result.merge(acc)
     
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+
     # FIXME - remove ErrorOptimisationTool from cxx?
     # declareProperty("ErrorOptimisationTool","" );
 
@@ -207,8 +209,9 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     
     result = ComponentAccumulator()
 
-    # Won't explicitly configure MuonIdHelperTool, MuonEDMHelperSvc, MuonEDMPrinterTool
-    
+    # Won't explicitly configure MuonEDMHelperSvc
+    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+
     acc = MuonExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator")
     slextrap = acc.getPrimary()
     result.merge(acc)
@@ -288,14 +291,44 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
 
     # Not bothering to handle IDHelper or EDMHelper or HitSummaryTool. Default is okay.
     
-    from RegionSelector.RegSelConfig import regSelCfg
-    acc = regSelCfg(flags)
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg, regSelTool_RPC_Cfg, regSelTool_TGC_Cfg
+    acc = regSelTool_MDT_Cfg(flags)
+    kwargs.setdefault("MDTRegionSelector", acc.popPrivateTools())
     result.merge(acc)
-    # FIXME - the following doesn't currently work (the region selector doesn't set a primary service)
-    # this should be revisited once the rewrite of the region selector is done (can use the default until then)
-    #kwargs.setdefault("RegionSelector", acc.getService())
-    
-    
+
+    acc = regSelTool_TGC_Cfg(flags)
+    kwargs.setdefault("TGCRegionSelector", acc.popPrivateTools())
+    result.merge(acc)
+
+    acc = regSelTool_RPC_Cfg(flags)
+    kwargs.setdefault("RPCRegionSelector", acc.popPrivateTools())
+    result.merge(acc)
+
+    if flags.Detector.GeometryCSC:
+        from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+        acc = regSelTool_CSC_Cfg(flags)
+        kwargs.setdefault("CSCRegionSelector", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        kwargs.setdefault("CSCRegionSelector", "")
+
+    if flags.Detector.GeometrysTGC:
+        from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
+        acc = regSelTool_STGC_Cfg(flags)
+        kwargs.setdefault("STGCRegionSelector", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        kwargs.setdefault("STGCRegionSelector", "")
+
+    if flags.Detector.GeometryMM:
+        from RegionSelector.RegSelToolConfig import regSelTool_MM_Cfg
+        acc = regSelTool_MM_Cfg(flags)
+        kwargs.setdefault("MMRegionSelector", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        kwargs.setdefault("MMRegionSelector", "")
+
+
     acc = MuonTrackSummaryToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool", acc.getPrimary())
     result.merge(acc)
@@ -317,7 +350,8 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     result.merge(acc)
     kwargs.setdefault("CscRotCreator", csc_cluster_creator)
         
-    # from AthenaCommon.Constants import VERBOSE
+    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+
     mu_pat_cand_tool = Muon__MuPatCandidateTool(name, **kwargs)
     result.setPrivateTools(mu_pat_cand_tool)
     return result
@@ -519,12 +553,15 @@ if __name__=="__main__":
     itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     
-    cfg.printConfig(withDetails = True, summariseProps = True)
+    cfg.printConfig(withDetails = True)
               
     f=open("MuonTrackBuilding.pkl","wb")
     cfg.store(f)
     f.close()
     
     if args.run:
-        cfg.run(20)
+        sc = cfg.run(20)
+        if not sc.isSuccess():
+            import sys
+            sys.exit("Execution failed")
         

@@ -348,7 +348,6 @@ PartPropSvc          INFO No table format type specified for "PDGTABLE.MeV". Ass
 found 298 particles
 AthRNGSvc            INFO Creating engine ToolSvc.tool1/FastCaloSimRnd
 ClassIDSvc           INFO  getRegistryEntries: read 933 CLIDRegistry entries for module ALL
-ToolSvc.AtlasRu...   INFO initialize() init key: fieldCondObj
 AtlasFieldSvc        INFO initialize() ...
 AtlasFieldSvc        INFO maps will be chosen reading COOL folder /GLOBAL/BField/Maps
 AtlasFieldSvc        INFO magnet currents will be read from COOL folder /EXT/DCS/MAGNETS/SENSORDATA
@@ -677,7 +676,6 @@ ToolSvc.CaloVol...   INFO finalize() successful
 AtlasTrackingGe...   INFO finalize() successful
 ToolSvc.NIMatEf...   INFO finalize() successful
 ToolSvc.AtlasNa...   INFO finalize() successful
-ToolSvc.AtlasRu...   INFO ToolSvc.AtlasRungeKuttaPropagator finalize() successful
 ToolSvc.TimedEx...   INFO finalize() successful
 ToolSvc.Trackin...   INFO finalize() successful
 ToolSvc.AtlasMu...   INFO finalize() successful

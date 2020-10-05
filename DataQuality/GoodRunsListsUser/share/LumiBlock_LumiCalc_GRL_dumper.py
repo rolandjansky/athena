@@ -1,7 +1,6 @@
 # add LumiBlockMetaDataTool to ToolSvc and configure
 from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
 ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-LumiBlockMetaDataTool.calcLumi = True # False by default
 
 # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
 from AthenaServices.AthenaServicesConf import MetaDataSvc
@@ -31,13 +30,3 @@ job.ModSequence1 += DummyDumperAlg('DummyDumperAlg1')
 # job.ModSequence1.DummyDumperAlg1.RootFileName = 'selection1.root'
 THistSvc.Output =  {"new DATAFILE='selection1.root' TYP='ROOT' OPT='NEW'"};
 job.ModSequence1.DummyDumperAlg1.GRLNameVec = [ 'LumiBlocks_GoodDQ0', 'IncompleteLumiBlocks_GoodDQ0' ]
-
-# add LumiCalcSvc to ServiceMgr and configure
-from LumiBlockComps.LumiBlockCompsConf import LumiCalcSvc
-LumiCalcSvc = LumiCalcSvc()
-LumiCalcSvc.Triggers = ["EF_mu20"]
-LumiCalcSvc.UseMC = True
-LumiCalcSvc.LBCollNames = ["LumiBlocks_GoodDQ0", "IncompleteLumiBlocks_GoodDQ0", "LumiBlocks", "IncompleteLumiBlocks"]
-LumiCalcSvc.Verbose = False
-svcMgr += LumiCalcSvc
-

@@ -12,10 +12,6 @@
 
 #include <math.h>
 
-#include "GaudiKernel/StatusCode.h"
-
-#include "EventInfo/EventInfo.h"
-
 //#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigL2BMuMuFex.h"
@@ -27,14 +23,12 @@
 
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 #include "TrigInDetEvent/TrigL2Vertex.h"
-
-#include "TrigParticle/TrigL2Bphys.h"
-
+#include "TrigInDetEvent/TrigVertex.h"                    // for TrigVertex
+#include "xAODTrigBphys/TrigBphysAuxContainer.h"          // for TrigBphysAu...
+#include "xAODTrigBphys/TrigBphysContainer.h"             // for TrigBphysCo...
 #include "Constants.h"
-#include "BtrigUtils.h"
 
 // additions of xAOD objects
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuon.h"
@@ -138,20 +132,13 @@ m_massMuon(105.6583715)
     //  declareMonitoredStdContainer("InvMass_stand"          , m_mon_InvMass_stand           , AutoClear);
     //  declareMonitoredStdContainer("InvMass_stand_wideRange", m_mon_InvMass_stand_wideRange , AutoClear);
     
-    // Initialize the collections
-    //  m_trigBphysColl = NULL;
-    m_VertexColl    = NULL;
 }
 
 /*------------------------------*/
 TrigL2BMuMuFex::~TrigL2BMuMuFex()
 /*------------------------------*/
 {
-    // TODO: Delete the collections ?
-    //delete m_trigBphysColl;
-    //delete m_VertexColl;
 }
-
 /*-------------------------------------------*/
 HLT::ErrorCode TrigL2BMuMuFex::hltInitialize()
 /*-------------------------------------------*/
@@ -865,7 +852,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         } else {
             ATH_MSG_DEBUG("Comb muon container: " << muonContainerComb1.size() );
         }
-        for (auto el: muonContainerComb1) {
+        for (const auto& el: muonContainerComb1) {
             ATH_MSG_DEBUG("Comb muon container: " << el.dataID() << " " << el.index() );
         }
         if (HLT::OK != getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(inputTE[1],muonContainerComb2,m_combinedMuonKey)) {
@@ -873,7 +860,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         } else {
             ATH_MSG_DEBUG("Comb muon container: " << muonContainerComb2.size() );
         }
-        for (auto el: muonContainerComb2) {
+        for (const auto& el: muonContainerComb2) {
             ATH_MSG_DEBUG("Comb muon container: " << el.dataID() << " " << el.index() );
         }
         ElementLink<xAOD::IParticleContainer> ptl1EL = remap_container(muonXEL[0],muonContainerComb1);
@@ -1002,11 +989,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             ATH_MSG_DEBUG("REGTEST: Chi2 vtx fit = " << p_mumuV->chi2() );
             ATH_MSG_DEBUG("SigmaX =  SigmaY =  SigmaZ = " << sqrt(p_mumuV->cov()[0]) << " " << sqrt(p_mumuV->cov()[2]) << " " << sqrt(p_mumuV->cov()[5]) );
             
-            m_VertexColl = new TrigVertexCollection();
-            m_VertexColl->push_back(p_mumuV);
-            
             // JK 28/4/08 changes for ElementLinks
-            ElementLink<TrigVertexCollection> BMuMuVertexEL(*m_VertexColl,0);
             // trigPartBmumu->pVertex(p_mumuV);
             // 14-05-08 trigPartBmumu->pVertex(BMuMuVertexEL);
             
@@ -1057,7 +1040,6 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     pass = true;
     if ( vtxpass ) {
         m_countPassedVtxFit++;
-        delete m_VertexColl;
     }
     if ( mumuIDpass ) m_countPassedmumuPairs++;
     m_countPassedRoIs++;
@@ -1065,7 +1047,6 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         m_countPassedEvents++;
         m_lastEventPassed = IdEvent;
     }
-    m_VertexColl = 0;
     
     if ( timerSvc() ) {
         m_BmmHypTot->stop();
@@ -1145,7 +1126,7 @@ ElementLink<xAOD::TrackParticleContainer> TrigL2BMuMuFex::remap_container(const 
     if (!oldElink.isValid()) return oldElink;
     const auto tp  = *oldElink;
 
-    for (auto elink : newContainer) {
+    for (const auto& elink : newContainer) {
         if (!elink.isValid()) continue;
         const auto el  = *elink;
 
@@ -1182,7 +1163,7 @@ ElementLink<xAOD::IParticleContainer> TrigL2BMuMuFex::remap_container(const Elem
     if (!oldElink.isValid()) return iptlELold;
     const auto tp  = *oldElink;
     
-    for (auto elink : newContainer) {
+    for (const auto& elink : newContainer) {
         if (!elink.isValid()) continue;
         const auto el  = *elink;
         

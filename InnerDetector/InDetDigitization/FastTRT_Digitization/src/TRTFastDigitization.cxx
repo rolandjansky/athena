@@ -1,18 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastTRT_Digitization/TRTFastDigitization.h"
-#include "FastTRT_Digitization/ITRTFastDigitizationTool.h"
+#include "PileUpTools/IPileUpTool.h"
 
 //----------------------------------------------------------------------
 // Constructor with parameters:
 //----------------------------------------------------------------------
 TRTFastDigitization::TRTFastDigitization(const std::string &name, ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator),
-    m_digTool("TRTFastDigitizationTool", this )
+    AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("DigitizationTool", m_digTool, "AthAlgTool which performs the TRT digitization");
 }
 
 //----------------------------------------------------------------------
@@ -20,10 +18,8 @@ TRTFastDigitization::TRTFastDigitization(const std::string &name, ISvcLocator *p
 //----------------------------------------------------------------------
 StatusCode TRTFastDigitization::initialize() {
 // intitialize store gate active store
-  if (m_digTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve TRT Digitization Tool!" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK (m_digTool.retrieve());
+
   ATH_MSG_DEBUG ( "Retrieved TRT Digitization Tool." );
 
   return StatusCode::SUCCESS;
@@ -37,20 +33,9 @@ StatusCode TRTFastDigitization::execute() {
 
   ATH_MSG_VERBOSE ( "execute()" );
 
-  StatusCode sc =  m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
+  ATH_CHECK (m_digTool->processAllSubEvents(Gaudi::Hive::currentContext()));
 
   ATH_MSG_DEBUG ( "m_digTool->processAllSubEvents()" );
-
-
-  return sc;
-}
-
-//----------------------------------------------------------------------//
-// Finalize method:                                                     //
-//----------------------------------------------------------------------//
-StatusCode TRTFastDigitization::finalize() {
-
-  ATH_MSG_VERBOSE ( "finalize()" );
 
   return StatusCode::SUCCESS;
 }

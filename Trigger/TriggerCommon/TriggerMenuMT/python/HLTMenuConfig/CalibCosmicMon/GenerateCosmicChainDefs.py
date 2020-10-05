@@ -13,11 +13,8 @@ log.info("Importing %s",__name__)
 
 def generateChainConfigs( chainDict ):
 
-    import pprint
-    pprint.pprint( chainDict )
-
     listOfChainDicts = splitChainDict(chainDict)
-    log.debug("Will generate Config for streamer: ",chainDict['chainName'])
+    log.debug("Will generate Config for streamer: %s", chainDict['chainName'])
 
     listOfChainDefs = []
         

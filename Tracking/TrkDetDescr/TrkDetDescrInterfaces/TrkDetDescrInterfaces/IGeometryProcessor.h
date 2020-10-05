@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,16 +40,16 @@ namespace Trk {
       static const InterfaceID& interfaceID() { return IID_IGeometryProcessor; }
 
       /** Processor Action to work on TrackingGeometry& tgeo */
-      virtual StatusCode process(const TrackingGeometry& tvol) = 0;
+      virtual StatusCode process(const TrackingGeometry& tvol) const = 0;
 
       /** Processor Action to work on TrackingVolumes - the level is for the hierachy tree*/
-      virtual StatusCode process(const TrackingVolume& tvol, size_t level=0) = 0;
+      virtual StatusCode process(const TrackingVolume& tvol, size_t level=0) const = 0;
      
       /** Processor Action to work on Layers */
-      virtual StatusCode process(const Layer& lay, size_t level=0) = 0;
+      virtual StatusCode process(const Layer& lay, size_t level=0) const = 0;
 
       /** Processor Action to work on Surfaces */
-      virtual StatusCode process(const Surface& surf, size_t level=0) = 0;
+      virtual StatusCode process(const Surface& surf, size_t level=0) const = 0;
 
   };
 

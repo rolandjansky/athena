@@ -22,6 +22,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include "CxxUtils/checker_macros.h"
 
 class MsgStream;
 
@@ -59,6 +60,9 @@ namespace Trk {
     /** Give the GeometryBuilder friend rights */  
     friend class GeometryBuilder;
     friend class IGeometryBuilder;
+    
+    friend class GeometryBuilderCond;
+    friend class IGeometryBuilderCond;
   
     public :
       /** Constructor */
@@ -115,7 +119,7 @@ namespace Trk {
     private:
       /** Geometry Builder busineess:
           the geometry builder has to sign*/
-      void sign(GeometrySignature geosit, GeometryType geotype = Static) const;
+      void sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype = Static) const;
     
       /** Geometry Builder busineess:
           set all contained surfaces TG owned - this should save memory and avoid surface copying 
@@ -124,7 +128,7 @@ namespace Trk {
       
       /**  Geometry Builder busineess:
            synchronize all layers to enclosed volume dimensions */
-      void synchronizeLayers(MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
+      void synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
            
     
       /** private method the Navigation Level */
@@ -211,5 +215,8 @@ namespace Trk {
 } // end of namespace
 
 CLASS_DEF(Trk::TrackingGeometry, 167645219, 1)
+#include "AthenaKernel/CondCont.h" 
+CONDCONT_DEF( Trk::TrackingGeometry , 119021535 );
+
 
 #endif //TRKGEOMETRY_TRACKINGGEOMETRY_H

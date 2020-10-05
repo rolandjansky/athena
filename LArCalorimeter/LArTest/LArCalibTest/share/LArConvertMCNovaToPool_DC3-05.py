@@ -97,12 +97,6 @@ EventSelector.FirstEvent=1
 
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
-theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# AthenaSealSvc.CheckDictionary = True 
-include ("DetDescrDictionary/DetDescrDictionaryDict_joboptions.py")
-include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
-
 include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 
 theApp.EvtMax=1 

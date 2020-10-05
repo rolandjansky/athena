@@ -35,27 +35,29 @@ StatusCode MassRangeFilter::filterInitialize() {
 
 StatusCode MassRangeFilter::filterEvent() {
   double invMassMax = 0.;
-  bool samePDGID = (abs(m_PartId) == abs(m_PartId2));
+  bool samePDGID = (std::abs(m_PartId) == std::abs(m_PartId2));
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
     int n = 0;
-    for (HepMC::GenEvent::particle_const_iterator pitr1 = genEvt->particles_begin(); pitr1 != genEvt->particles_end(); ++pitr1) {
+    auto genEvt_particles_begin=HepMC::begin(*genEvt);
+    auto genEvt_particles_end=HepMC::end(*genEvt);
+    for ( auto pitr1 = genEvt_particles_begin; pitr1 != genEvt_particles_end; ++pitr1) {
       n++;
       if ((*pitr1)->status() != m_PartStatus ) continue; //status of the particle
       if (std::abs((*pitr1)->pdg_id()) != std::abs(m_PartId) ) continue; //PDG ID selection
       if ((*pitr1)->momentum().perp() < m_Ptmin ) continue; // pT cut
-      if (fabs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange) continue; //eta cut
-      HepMC::GenEvent::particle_const_iterator pitr2 = genEvt->particles_begin();
+      if (std::abs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange) continue; //eta cut
+      auto pitr2 = genEvt_particles_begin;
       if (samePDGID) {
         pitr2 = pitr1;
         pitr2++;
       }
-      for (; pitr2 != genEvt->particles_end(); ++pitr2) {
+      for (; pitr2 != genEvt_particles_end; ++pitr2) {
         if (pitr1 == pitr2) continue; //if the pointers are the same
         if ((*pitr2)->status() != m_PartStatus) continue;  //status of the particle
         if (std::abs((*pitr2)->pdg_id()) != std::abs(m_PartId2)) continue; //PDG ID selection
         if ((*pitr2)->momentum().perp() < m_Ptmin2) continue; // pT cut
-        if (fabs((*pitr2)->momentum().pseudoRapidity()) > m_EtaRange2) continue;//eta cut
+        if (std::abs((*pitr2)->momentum().pseudoRapidity()) > m_EtaRange2) continue;//eta cut
 
         HepMC::FourVector vec((*pitr1)->momentum().px() + (*pitr2)->momentum().px(),
                               (*pitr1)->momentum().py() + (*pitr2)->momentum().py(),

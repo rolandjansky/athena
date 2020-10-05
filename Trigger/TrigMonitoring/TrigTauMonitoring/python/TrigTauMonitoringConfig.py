@@ -61,7 +61,8 @@ def TrigTauMonitoringTool():
                         'tau25_looseRNN_tracktwoMVA_L1TAU12IM',
                         'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
                         'tau25_tightRNN_tracktwoMVA_L1TAU12IM',
-                        'tau35_mediumRNN_tracktwoMVA_L1TAU12IM'
+                        'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
+                        'tau160_mediumRNN_tracktwoMVA_L1TAU100'
         ]
 
         BDTRNN_chains = [
@@ -118,7 +119,6 @@ def TrigTauMonitoringTool():
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += Level1Emulator
 
-        from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
         LuminosityCondAlgOnlineDefault (suffix = 'Online')
 
@@ -181,10 +181,8 @@ def TrigTauMonitoringTool():
                                 AbsPhiMax                       = -1.,
                                 AbsPhiMin                       = -1.,
                                 BDTMedium                       = True,
-                                isData                          = (globalflags.DataSource == 'data'));
-        #from AthenaCommon.AppMgr import ToolSvc
-        #ToolSvc += HLTTauMon;
+                                isData                          = (globalflags.DataSource == 'data'))
+
         print (ToolSvc)
-        list = [ HLTTauMon ];
+        list = [ HLTTauMon ]
         return list
-from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

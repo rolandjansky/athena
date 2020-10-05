@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSTAVERING_H
@@ -10,8 +10,9 @@
 class GeoPixelStaveRing :  public GeoVPixelFactory {
 
 public:  
-  GeoPixelStaveRing();
-  virtual GeoVPhysVol* Build();
+  GeoPixelStaveRing(InDetDD::PixelDetectorManager* ddmgr,
+                    PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   GeoVPhysVol* SetParametersAndBuild(std::string,std::string);
   double GetPositionAlongZAxis() const { return m_zPosition; }

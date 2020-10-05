@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELLADDER_H
@@ -12,10 +12,12 @@ class GeoPixelStaveSupport;
 
 class GeoPixelLadder : public GeoVPixelFactory {
  public:
-  GeoPixelLadder(GeoPixelSiCrystal& theSensor,
+  GeoPixelLadder(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelSiCrystal& theSensor,
 		 GeoPixelStaveSupport * staveSupport);
 	virtual ~GeoPixelLadder();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double thickness() const {return m_thickness;}
   double thicknessP() const {return m_thicknessP;}
   double thicknessN() const {return m_thicknessN;}

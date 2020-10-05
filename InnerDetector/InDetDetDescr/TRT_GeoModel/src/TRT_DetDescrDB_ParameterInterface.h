@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_GEOMODEL_TRT_DETDESCRDB_PARAMETERINTERFACE_H
@@ -10,6 +10,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 class IRDBRecord;
 class TopLevelPlacements;
@@ -22,7 +23,7 @@ public:
 
    
   // Only allowed constructor
-  TRT_DetDescrDB_ParameterInterface(const InDetDD::AthenaComps * athenaComps);
+  TRT_DetDescrDB_ParameterInterface(InDetDD::AthenaComps * athenaComps);
 
   ~TRT_DetDescrDB_ParameterInterface();
   // delete copy c'tor
@@ -48,7 +49,7 @@ public:
   
 private:
 
-  const InDetDD::AthenaComps * m_athenaComps;
+  InDetDD::AthenaComps * m_athenaComps;
 
   const InDetDD::DistortedMaterialManager * m_distortedMatManager;
   TopLevelPlacements * m_placements;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_STRAWALIGNDBSVC_H
@@ -11,6 +11,7 @@
 
 #include <vector>
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -18,6 +19,8 @@
 #include "TRT_ConditionsData/StrawDxContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This class uses const_cast, regFcn (callback) and DataHandle. Legacy code
 
 class  IAthenaOutputStreamTool ;
 namespace InDetDD {

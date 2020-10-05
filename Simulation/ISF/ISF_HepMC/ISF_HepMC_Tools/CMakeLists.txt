@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_HepMC_Tools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          DetectorDescription/AtlasDetDescr
-                          Generators/TruthUtils
-                          Generators/AtlasHepMC
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( GTest )
@@ -51,5 +38,5 @@ atlas_add_test( GenParticleLifetimeFilter_test
                 LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AtlasHepMCLib AthenaBaseComps TruthUtils ISF_HepMC_Interfaces )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

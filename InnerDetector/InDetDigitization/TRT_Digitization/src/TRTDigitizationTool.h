@@ -27,10 +27,11 @@
 #include "TRTDigit.h"
 
 // For magneticfield
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include <vector>
@@ -106,12 +107,11 @@ private:
                             Identifier& layerID,
                             bool& statusok ) const;
 
-  StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
-  StatusCode ConditionsDependingInitialization();
+  StatusCode ConditionsDependingInitialization (const EventContext& ctx);
 
   StatusCode lateInitialize(const EventContext& ctx);
   StatusCode processStraws(const EventContext& ctx,
-                           const TimedHitCollection<TRTUncompressedHit>& thpctrt,
+                           TimedHitCollection<TRTUncompressedHit>& thpctrt,
                            std::set<int>& sim_hitids,
                            std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
@@ -133,10 +133,9 @@ private:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service"};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};
-  ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc{this, "MagFieldSvc", "AtlasFieldSvc", "MagFieldSvc used by TRTProcessingOfStraw"};
   // Read handle for conditions object to get the field cache
-  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
-                                                                        "Name of the Magnetic Field conditions object key"};
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                             "Name of the Magnetic Field conditions object key"};
   Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
   SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
   std::string m_dataObjectName{""};
@@ -170,10 +169,9 @@ private:
   // const  ComTime* m_ComTime{};
   double m_cosmicEventPhase{0.0};     // local replacement for the comTime service
   const HepPDT::ParticleDataTable* m_particleTable{};
-  int m_dig_vers_from_condDB{-1};
-  std::string m_digverscontainerkey{"/TRT/Cond/DigVers"};
+  SG::ReadCondHandleKey<AthenaAttributeList> m_digverscontainerkey
+  { this, "DigVersContainerKey", "/TRT/Cond/DigVers", "" };
   bool m_first_event{true};
-  bool m_condDBdigverfoldersexists{false};
 
   bool m_HardScatterSplittingSkipper{false};
 

@@ -9,13 +9,12 @@ atlas_add_poolcnv_library( TrkEventAthenaPoolPoolCnv
    FILES TrkSpacePoint/SpacePointCollection.h
          TrkSpacePoint/SpacePointContainer.h TrkTrack/TrackCollection.h
          VxMultiVertex/MVFVxContainer.h VxVertex/VxContainer.h
-         TrkV0Vertex/V0Container.h TrkSegment/SegmentCollection.h
-   TYPES_WITH_NAMESPACE Trk::SegmentCollection Trk::TrackParticleBaseCollection
+         TrkV0Vertex/V0Container.h TrkSegment/SegmentCollection.h TrkEventUtils/ClusterSplitProbabilityContainer.h
+   TYPES_WITH_NAMESPACE Trk::SegmentCollection Trk::TrackParticleBaseCollection Trk::ClusterSplitProbabilityContainer
    LINK_LIBRARIES TrkSpacePoint TrkEventTopLevelCnv TrkEventTPCnv )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/*.py )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )

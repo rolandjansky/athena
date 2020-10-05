@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
  * @file ISCT_FlaggedConditionTool.h
- * interface file for service allowing one to flag modules as 'bad' with a reason
+ * interface file for tool allowing one to flag modules as 'bad' with a reason
  * @author gwilliam@mail.cern.ch
  */
 
@@ -16,9 +16,10 @@
 #include "Identifier/IdentifierHash.h"
  
 // Local 
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "SCT_ConditionsData/SCT_FlaggedCondEnum.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
-#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 // Forward declarations
 class Identifier;
@@ -51,8 +52,8 @@ class ISCT_FlaggedConditionTool: virtual public ISCT_ConditionsTool {
   virtual int numBadIds(const EventContext& ctx) const =0;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  virtual const SCT_FlaggedCondData* getBadIds() const =0;
-  virtual const SCT_FlaggedCondData* getBadIds(const EventContext& ctx) const =0;
+  virtual const IDCInDetBSErrContainer* getBadIds() const =0;
+  virtual const IDCInDetBSErrContainer* getBadIds(const EventContext& ctx) const =0;
 
  private:
 };

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-## *****************************************************************************
-VERSION = '$Id: handi.py 598803 2014-05-24 10:52:51Z ponyisi $'
-## *****************************************************************************
+from __future__ import print_function
 
 import DataQualityUtils.handimod as mod
 
@@ -34,7 +32,7 @@ def handi( name, resultsFile, htmlDir, browserMenu=False, allDirsScriptLoc="http
 def usage():
   cmdi = sys.argv[0].rfind("/")
   cmd = sys.argv[0][cmdi+1:]
-  print "Usage: ", cmd, "[-m|--browser-menu] [-s|--script-loc=<URL>] <name_of_system> <results_file_name> <html_output_directory>"
+  print("Usage: ", cmd, "[-m|--browser-menu] [-s|--script-loc=<URL>] <name_of_system> <results_file_name> <html_output_directory>")
 
 
 ########################################

@@ -2,7 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Property.h"
+#include <algorithm>
+#include "Gaudi/Property.h"
 #include "TrigJetHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -33,6 +34,7 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
   // The container should have only one such Decision (for L1) as deding
   // on jets is a one step process.
 
+  ATH_MSG_DEBUG("Retrieving L1 decision \"" << decisionInput().key() << "\"");
   auto h_prevDecisions = SG::makeHandle(decisionInput(), context );
 
   if( not h_prevDecisions.isValid() || h_prevDecisions->size() ==0) {//implicit
@@ -107,9 +109,30 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
     TrigCompositeUtils::decisionIDs(previousDecision).begin(),
       TrigCompositeUtils::decisionIDs(previousDecision).end()
       };
+
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << "IDs of active legs:" << endmsg;
+    for(auto decisionID: previousDecisionIDs) {
+      msg() << "    " << decisionID << endmsg;
+    }
+  }
+  // Some of these may be leg IDs, convert those to the chain ID
+  TrigCompositeUtils::DecisionIDContainer leglessPreviousDecisionIDs;
+  std::transform(previousDecisionIDs.begin(), previousDecisionIDs.end(),
+		 std::inserter(leglessPreviousDecisionIDs,leglessPreviousDecisionIDs.begin()),
+		 [] (TrigCompositeUtils::DecisionID id) -> TrigCompositeUtils::DecisionID
+		 {return TrigCompositeUtils::getIDFromLeg(HLT::Identifier(id)).numeric();}
+		 );
+  if (msgLvl(MSG::DEBUG)) {
+    msg() << "IDs of active chains:" << endmsg;
+    for(auto decisionID: leglessPreviousDecisionIDs) {
+      msg() << "    " << decisionID << endmsg;
+    }
+  }
   
   for (const auto& tool: m_hypoTools) {
-    CHECK(tool->decide(jets, previousDecisionIDs, jetHypoInputs));
+    ATH_MSG_DEBUG("Now computing decision for " << tool->name());
+    CHECK(tool->decide(jets, leglessPreviousDecisionIDs, jetHypoInputs));
   }
   
   return StatusCode::SUCCESS;

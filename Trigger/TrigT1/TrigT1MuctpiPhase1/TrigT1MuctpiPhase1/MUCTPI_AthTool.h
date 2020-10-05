@@ -17,6 +17,7 @@ class description
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 
 #include "TrigT1Result/MuCTPI_RDO.h"
+#include "xAODTrigger/MuonRoIContainer.h"
 
 #include "TrigT1MuctpiPhase1/Configuration.h"
 
@@ -84,8 +85,9 @@ namespace LVL1MUCTPIPHASE1 {
 
     SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1KeyRPC{this, "MuctpiPhase1LocationRPC", "L1MuctpiStoreRPC", "Location of muctpiPhase1 for Rpc"};
     SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1KeyTGC{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
-    SG::ReadHandleKey<MuCTPI_RDO> m_MuCTPI_RDOReadKey{this, "MUCTPI_RDOLocation", "MUCTPI_RDO", "Location of MuCTPI_RDO"};
-    SG::WriteHandleKey<MuCTPI_RDO> m_MuCTPI_RDOWriteKey{this, "MUCTPI_RDOLocation", "MUCTPI_RDO", "Location of MuCTPI_RDO"};
+    SG::ReadHandleKey<MuCTPI_RDO> m_MuCTPI_RDOReadKey{this, "MUCTPI_RDOReadKey", "MUCTPI_RDO", "Location of MuCTPI_RDO"};
+    SG::WriteHandleKey<MuCTPI_RDO> m_MuCTPI_RDOWriteKey{this, "MUCTPI_RDOWriteKey", "MUCTPI_RDO", "Location of MuCTPI_RDO"};
+    SG::WriteHandleKey<xAOD::MuonRoIContainer> m_MuCTPI_xAODWriteKey{this, "MUCTPI_xAODLocation", "LVL1MuonRoIs", "Location of xAOD::MuonRoIContainer"};
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey;
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_m2;
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_m1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
@@ -47,12 +47,12 @@ namespace InDetDD {
     }
 
   TRT_EndcapElement::TRT_EndcapElement(const TRT_EndcapElement &right, const GeoAlignmentStore* geoAlignStore) :
-    TRT_BaseElement(right,geoAlignStore)
+    TRT_BaseElement(right,geoAlignStore),
+    m_code (right.m_code),
+    m_descriptor (right.m_descriptor),
+    m_nextInZ (right.m_nextInZ),
+    m_previousInZ (right.m_previousInZ)
   {   
-    m_code          = right.m_code;
-    m_descriptor    = right.m_descriptor;
-    m_nextInZ       = right.m_nextInZ;
-    m_previousInZ   = right.m_previousInZ;
   }   
 
     TRT_EndcapElement::~TRT_EndcapElement()

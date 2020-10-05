@@ -16,7 +16,7 @@
 //
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "LArDigitization/LArHitEMap.h"
@@ -108,6 +108,7 @@ class LArTTL1Maker : public AthAlgorithm,
 
   IChronoStatSvc*              m_chronSvc;
   ServiceHandle<IAthRNGSvc> m_RandomSvc{this, "RndmSvc", "AthRNGSvc", ""};
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArTTL1Maker", ""};
 
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;

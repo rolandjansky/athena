@@ -1,3 +1,9 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
+from __future__ import print_function
+
 from AthenaCommon.Logging import logging
 tilemon_log = logging.getLogger('TileMonState.py')
 
@@ -202,11 +208,10 @@ else:
 if 'TriggerType' in dir():
     ByteStreamEmonInputSvc.TriggerType = TriggerType
 
-
-if 'Dispersion' in dir():
-    ByteStreamEmonInputSvc.Dispersion = Dispersion
+if 'GroupName' in dir():
+    ByteStreamEmonInputSvc.GroupName = GroupName
 else:
-    ByteStreamEmonInputSvc.Dispersion = True
+    ByteStreamEmonInputSvc.GroupName = "TilePhysMon"
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?
@@ -242,7 +247,7 @@ except Exception:
 if 'PublishInclude' in dir():
     ByteStreamEmonInputSvc.Include = PublishInclude
 
-print ByteStreamEmonInputSvc
+print(ByteStreamEmonInputSvc)
 
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
@@ -288,9 +293,9 @@ class ShowLVL1(PyAthena.Alg):
         ev = self.sg.retrieve('EventInfo')
 
         # Print some LVL1 information
-        print "Run:",ev.event_ID().run_number(),"Event:",ev.event_ID().event_number()
+        print("Run:",ev.event_ID().run_number(),"Event:",ev.event_ID().event_number())
         for x in  ev.trigger_info().level1TriggerInfo():
-            print "0x%08x" % x
+            print("0x%08x" % x)
 
         return PyAthena.StatusCode.Success        
 

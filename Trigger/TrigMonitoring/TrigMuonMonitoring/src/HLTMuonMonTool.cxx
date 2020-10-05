@@ -14,7 +14,6 @@
  *             Arantxa Ruiz (aranzazu.ruiz.martinez@cern.ch)
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 
@@ -70,6 +69,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //construction of common parameters
   //declareProperty("foobar",     m_foobar=false);
   //  declareProperty("MuonSelectorTool",m_muonSelectorTool);  // YY added -> removed
+  declareProperty("TriggerStreamOfFile", m_triggerStreamOfFile="");
   declareProperty("monitoring_muonNonIso", m_chainsGeneric);
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
@@ -127,6 +127,8 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   m_iMSH = 0;
   m_ztp_newrun = 0;
   
+  //construction of truth-based efficiency parameters
+  declareProperty("truthmon_isData",m_isData);
 }
 
 /*---------------------------------------------------------*/
@@ -623,7 +625,21 @@ StatusCode HLTMuonMonTool::init()
     ATH_MSG_VERBOSE("initMuZTPDQA failed");
   }
 
-  StatusCode sc = scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  // Declare the status code to return
+  StatusCode sc;
+
+  //Truth hists
+  if (m_isData == 1) {
+    sc = scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  }
+  else {
+    StatusCode scMuonTruthHists = initMuonTruthHists();
+    if( scMuonTruthHists.isFailure() ){
+      ATH_MSG_VERBOSE("initMuonTruthHists failed");
+    }
+    sc = scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP & scMuonTruthHists;
+  }
+
   return sc;
   
   // if(sc==1){
@@ -740,7 +756,23 @@ StatusCode HLTMuonMonTool::book()
     ATH_MSG_VERBOSE("bookMuZTPDQA failed");
   }
 
-  StatusCode sc = scCommon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  // Declare the status code to return here
+  StatusCode sc;
+
+  //Truth
+  if (m_isData == 1) {
+    sc = scCommon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  }
+  else {
+    m_histdirtruthmuon="HLT/MuonMon/TruthMuon";
+    addMonGroup( new MonGroup(this, m_histdirtruthmuon, run, ATTRIB_UNMANAGED) );
+    StatusCode scMuonTruthHists=bookMuonTruthHists();
+    if( scMuonTruthHists.isFailure() ){
+      ATH_MSG_VERBOSE("bookMuonTruthHists failed");
+    }
+    sc = scCommon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP & scMuonTruthHists;
+  }
+
   return sc;
   // if(sc==1){
   //   return StatusCode::SUCCESS;
@@ -903,8 +935,28 @@ StatusCode HLTMuonMonTool::fill()
     scMuZTP=StatusCode::RECOVERABLE;
   }
 
-  StatusCode sc = scCommon & scRecMuon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  // Declare the status code to return here
+  StatusCode sc, scMuonTruthHists;
 
+  // Truth histograms
+  if (m_isData == 1) {
+    sc = scCommon & scRecMuon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+    scMuonTruthHists = StatusCode::FAILURE; // initializing to FAILURE for the purpose of ATH_MSG_DEBUG below
+  }
+  else {
+    try {
+      scMuonTruthHists=fillMuonTruthHists();
+      if( scMuonTruthHists.isFailure() ){
+        ATH_MSG_VERBOSE("fillMuonTruthHists failed");
+      }
+    }
+    catch(...) {
+      ATH_MSG_ERROR("Exception thrown by fillMuonTruthHists");
+      scMuonTruthHists=StatusCode::RECOVERABLE;
+    }
+
+    sc = scCommon & scRecMuon & scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP & scMuonTruthHists;
+  }
   ATH_MSG_DEBUG( " scCommon " << scCommon  
 		<< " scRecMuon " << scRecMuon 
 		<< " scChain " << scChain
@@ -915,6 +967,7 @@ StatusCode HLTMuonMonTool::fill()
                 << " scMuonEF " << scMuonEF
                 << " scMuGirl " << scMuGirl
                 << " scMuZTP " << scMuZTP
+                << " scMuonTruthHists " << scMuonTruthHists
                 << " sc " << sc);
   return sc;
   
@@ -1039,9 +1092,28 @@ StatusCode HLTMuonMonTool::proc()
     scMuZTP=StatusCode::RECOVERABLE;
   }
 
-  //
+  // Declare the return status code here 
+  StatusCode sc;
 
-  StatusCode sc = scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  // Truth histograms
+  if (m_isData == 1) {
+    sc = scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
+  }
+  else {
+    StatusCode scMuonTruthHists;
+    try {
+      scMuonTruthHists=procMuonTruthHists();
+      if( scMuonTruthHists.isFailure() ){
+        ATH_MSG_VERBOSE("procMuonTruthHists failed");
+      }
+    }
+    catch(...) {
+      ATH_MSG_ERROR("Exception thrown by procMuonTruthHists");
+      scMuonTruthHists=StatusCode::RECOVERABLE;
+    }
+    sc = scChain & scL2MuonSA & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP & scMuonTruthHists;
+  }
+
   return sc;
   // if(sc==1){
   //   return StatusCode::SUCCESS;

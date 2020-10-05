@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "OraclePixGeoManager.h"
@@ -41,7 +41,7 @@ using InDetDD::PixelDetectorManager;
 
 using namespace std;
 
-OraclePixGeoManager::OraclePixGeoManager(const PixelGeoModelAthenaComps * athenaComps)
+OraclePixGeoManager::OraclePixGeoManager(PixelGeoModelAthenaComps * athenaComps)
   : PixelGeometryManager(athenaComps), 
     m_eta(0),
     m_phi(0),
@@ -79,7 +79,7 @@ OraclePixGeoManager::init()
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endmsg;
 
   IRDBAccessSvc *rdbSvc = athenaComps()->rdbAccessSvc();
-  IGeoDbTagSvc *geoDbTag = athenaComps()->geoDbTagSvc();
+  const IGeoDbTagSvc *geoDbTag = athenaComps()->geoDbTagSvc();
 
   // Get version tag and node for Pixel.
   DecodeVersionKey versionKey(geoDbTag,"Pixel");
@@ -222,7 +222,7 @@ InDetMaterialManager* OraclePixGeoManager::getMaterialManager()
   return m_pMatMgr;
 }
 
-PixelLegacyManager * OraclePixGeoManager::legacyManager() const
+PixelLegacyManager * OraclePixGeoManager::legacyManager()
 {
   return m_legacyManager;
 }
@@ -244,6 +244,13 @@ OraclePixGeoManager::~OraclePixGeoManager()
 
 
 InDetDD::SiCommonItems * 
+OraclePixGeoManager::commonItems()
+{
+  return m_commonItems;
+}
+
+
+const InDetDD::SiCommonItems * 
 OraclePixGeoManager::commonItems() const
 {
   return m_commonItems;

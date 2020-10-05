@@ -30,7 +30,7 @@ namespace ZDC
 
     //interface from AsgTool
     virtual StatusCode initializeTool() override;
-    StatusCode initialize() {return initializeTool();}
+    virtual StatusCode initialize() override {return initializeTool();}
     virtual StatusCode recoZdcModule(const xAOD::ZdcModule& module) override;
     virtual StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer) override;
     virtual StatusCode reprocessZdc() override;
@@ -55,8 +55,6 @@ namespace ZDC
     std::string m_zdcRecConfigPath;
 
     mutable bool m_eventReady;
-    float m_highLowTransition[2][4];
-    float m_moduleWeights[2][4];
     std::string m_zdcModuleContainerName;
     const xAOD::ZdcModuleContainer* m_zdcModules;
 

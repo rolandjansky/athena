@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,14 +19,10 @@
 
 /*******************************************************************************/
 // Constructor/Destructor
-sTgcIdHelper::sTgcIdHelper() : MuonIdHelper("sTgcIdHelper") {
-    m_GASGAP_INDEX = 6;
-    m_CHANNELTYPE_INDEX = 7;
-}
-/*******************************************************************************/
-// Destructor
-sTgcIdHelper::~sTgcIdHelper() {
-  // m_Log deleted in base class.
+sTgcIdHelper::sTgcIdHelper() : MuonIdHelper("sTgcIdHelper"),
+                               m_GASGAP_INDEX (6),
+                               m_CHANNELTYPE_INDEX (7)
+{
 }
 /*******************************************************************************/
 // Initialize dictionary
@@ -672,8 +668,7 @@ bool sTgcIdHelper::valid(const Identifier& id) const {
 	       << endmsg;
       return false;
     }
-    
-  //  int station  = stationName(id);
+
   int gasG = gasGap(id);
   if (gasG  < gasGapMin(id) || gasG  > gasGapMax(id)) {
     (*m_Log) << MSG::WARNING

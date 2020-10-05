@@ -13,6 +13,9 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexFwd.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 /**
  * @file InDetDetailedTrackSelectorTool.h
@@ -30,13 +33,9 @@
  */
 
 
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Trk
 {
-  class IMagneticFieldTool;
   class ITrackSummaryTool;
   class IExtrapolator;
   class Vertex;
@@ -153,10 +152,11 @@ namespace InDet
       ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //!< Track summary tool
       ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< Extrapolator tool
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-      ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
       ToolHandle<ITrtDriftCircleCutTool> m_trtDCTool; //!< Tool to get eta dependent cut on number of TRT hits
 
       ToolHandle< InDet::IInDetTestBLayerTool > m_inDetTestBLayerTool; //Tool to test if the track crosses a dead module on the b-layer
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
       bool m_trackSumToolAvailable;
             

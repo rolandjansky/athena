@@ -60,9 +60,56 @@ StatusCode VHtoVVFilter::filterEvent() {
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto pitr: genEvt->particles()) {
+      // Loop over particles from the primary interaction that match the PDG Parent
+      if ( std::abs(pitr->pdg_id()) != m_PDGParent || pitr->status() != 3) continue;
+        bool isGrandParentHiggs = false;
+        bool isGrandParentV = false;
+        for ( auto thisMother: pitr->production_vertex()->particles_in()) { //loop over chain of grandparents
+          ATH_MSG_DEBUG(" Parent " << pitr->pdg_id() << " barcode = "   << HepMC::barcode(pitr) << " status = "  << pitr->status());
+          ATH_MSG_DEBUG(" a Parent mother "  << thisMother->pdg_id()<< " barc = " << HepMC::barcode(thisMother));
+          if ( thisMother->pdg_id() == m_PDGGrandParent ) isGrandParentHiggs = true; else isGrandParentV = true;
+        }
+        ATH_MSG_DEBUG(" Grand Parent is Higgs? " << isGrandParentHiggs);
+        ATH_MSG_DEBUG(" Grand Parent is V? " << isGrandParentV);
+
+        if (!isGrandParentHiggs && !isGrandParentV) continue;
+
+        if (isGrandParentHiggs) {
+          ++nHiggsParent;
+          for (auto thisChild:pitr->end_vertex()->particles_out()) {
+            ATH_MSG_DEBUG(" child " << thisChild->pdg_id());
+            if (!okPDGHVChild1) {
+              for (size_t i = 0; i < m_PDGHVChild1.size(); ++i)
+                if (std::abs(thisChild->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
+              if (okPDGHVChild1) break;
+            }
+            if (!okPDGHVChild2) {
+              for (size_t i = 0; i < m_PDGHVChild2.size(); ++i)
+                if (std::abs(thisChild->pdg_id()) == m_PDGHVChild2[i]) okPDGHVChild2 = true;
+              if (okPDGHVChild2) break;
+            }
+          }
+        } //end of higgs grandparent loop
+
+        if (isGrandParentV) {
+          ++nVParent;
+          for (auto thisChild: pitr->end_vertex()->particles_out()) {
+            ATH_MSG_DEBUG(" child " << thisChild->pdg_id());
+            if (!okPDGAssocVChild) {
+              for (unsigned int i=0;i<m_PDGAssocVChild.size();++i)
+                if (std::abs(thisChild->pdg_id()) == m_PDGAssocVChild[i]) okPDGAssocVChild = true;
+              if (okPDGAssocVChild) break;
+            }
+
+          }
+      }     
+   }
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
       // Loop over particles from the primary interaction that match the PDG Parent
-      if ( abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
+      if ( std::abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
         HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
         HepMC::GenVertex::particle_iterator thisMother = firstMother;
@@ -87,12 +134,12 @@ StatusCode VHtoVVFilter::filterEvent() {
             ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
             if (!okPDGHVChild1) {
               for (size_t i = 0; i < m_PDGHVChild1.size(); ++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
+                if (std::abs((*thisChild)->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
               if (okPDGHVChild1) break;
             }
             if (!okPDGHVChild2) {
               for (size_t i = 0; i < m_PDGHVChild2.size(); ++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGHVChild2[i]) okPDGHVChild2 = true;
+                if (std::abs((*thisChild)->pdg_id()) == m_PDGHVChild2[i]) okPDGHVChild2 = true;
               if (okPDGHVChild2) break;
             }
           }
@@ -107,7 +154,7 @@ StatusCode VHtoVVFilter::filterEvent() {
             ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
             if (!okPDGAssocVChild) {
               for (unsigned int i=0;i<m_PDGAssocVChild.size();++i)
-                if (abs((*thisChild)->pdg_id()) == m_PDGAssocVChild[i]) okPDGAssocVChild = true;
+                if (std::abs((*thisChild)->pdg_id()) == m_PDGAssocVChild[i]) okPDGAssocVChild = true;
               if (okPDGAssocVChild) break;
             }
 
@@ -117,6 +164,7 @@ StatusCode VHtoVVFilter::filterEvent() {
 
       } //end good parent loop
     }
+#endif    
   }
 
   ATH_MSG_DEBUG("Result " << nHiggsParent << " " << okPDGHVChild1 << " " << okPDGHVChild2);

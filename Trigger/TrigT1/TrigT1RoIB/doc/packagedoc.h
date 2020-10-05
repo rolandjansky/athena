@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
@@ -23,9 +23,6 @@ algorithms to access the ROIB::RoIBResult and ROIB::RecRoIBResult objects.
   - ROIB::RoIBuilder: simulation of the RoIBuilder process between LVL1 and LVL2
   - TrigT1RoIBConfig::RoIBuilder: algorithm configuration for running in a reconstruction job (rerunning LVL1)
   - TrigT1RoIBConfig::RoIBuilderInDigi: algorithm configuration for running in a digitization job
-  - CBNTAA_ReadRoIBResult: CBNT for ROIB::RoIBResult class
-  - ROIB::RoIBTester: test algorithm for dumping ROIB::RoIBResult class
-  - ROIB::RecRoIBTester: test algorithm for dumping ROIB::RecRoIBResult class
 
 @section TrigT1RoIB_TrigT1RoIBJobOptions Job Options
   The algorithms of the TrigT1RoIB package can be configured using configurables.
@@ -39,9 +36,6 @@ algorithms to access the ROIB::RoIBResult and ROIB::RecRoIBResult objects.
 
   The list of properties for each algorithm can be found here:
   - @link ROIB::RoIBuilder::RoIBuilder @endlink
-  - @link CBNTAA_ReadRoIBResult::CBNTAA_ReadRoIBResult @endlink
-  - @link ROIB::RoIBTester::RoIBTester @endlink
-  - @link ROIB::RecRoIBTester::RecRoIBTester @endlink
 
 @section TrigT1RoIB_TrigT1RoIB Extra Pages
 

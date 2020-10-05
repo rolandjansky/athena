@@ -13,7 +13,7 @@
 // root includes
 #include "TTree.h"
 // Local includes
-#include "TrigT1NSW/NSWL1Simulation.h"
+#include "NSWL1Simulation.h"
 #include "MuonRDO/NSW_TrigRawDataContainer.h"
 #include <vector>
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryDC3.h"
@@ -25,13 +25,15 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #define NUMBEROFPANEL 2
 #define TRTELEMENTSINEL 9  // VK - now number of record is determined automatically
 
 #include <sstream>
 #include <iostream>
 
-TRT_ServMatFactoryDC3::TRT_ServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps, 
+TRT_ServMatFactoryDC3::TRT_ServMatFactoryDC3(InDetDD::AthenaComps * athenaComps, 
 					     InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
@@ -227,7 +229,8 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
   return IDShape;
 }
 
-const GeoMaterial* TRT_ServMatFactoryDC3::createMaterial(const std::string & name,
+const GeoMaterial* TRT_ServMatFactoryDC3::createMaterial
+                                                  (const std::string & name,
 						   int volType, 
 						   double fractionRL,
 						   double rmin1, 

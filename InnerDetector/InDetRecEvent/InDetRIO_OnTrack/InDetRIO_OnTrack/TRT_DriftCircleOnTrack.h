@@ -76,9 +76,13 @@ namespace InDet{
                               const Amg::Vector3D& predictedTrackDirection, 
                               const Trk::DriftCircleStatus status);
 
+
+      /**
+       * Constructor used by the TP converters
+       */
       TRT_DriftCircleOnTrack( const ElementLinkToIDCTRT_DriftCircleContainer& RIO,
                               const Trk::LocalParameters& driftRadius,
-                              const Amg::MatrixX& errDriftRadius, 
+                              const Amg::MatrixX& errDriftRadius,
                               IdentifierHash idDE,
                               const Identifier& id,
                               double predictedLocZ,
@@ -86,40 +90,44 @@ namespace InDet{
                               const Trk::DriftCircleStatus status,
                               bool highLevel,
                               double timeOverThreshold);
-	
+
       /**Destructor */
       virtual ~TRT_DriftCircleOnTrack();
 		
       /**allows copying without losing the type information. Used in Trk::Track*/
-      TRT_DriftCircleOnTrack* clone() const ;
+      virtual TRT_DriftCircleOnTrack* clone() const override;
 	
      /** return the global position of this RIO_OnTrack
       @todo convention about z coordinate 
       - fullfills Trk::MeasurementBase interface
       */
-      const Amg::Vector3D& globalPosition() const final;
+      virtual const Amg::Vector3D& globalPosition() const override;
      
      /** returns the surface for the local to global transformation
       - fullfills Trk::MeasurementBase interface 
       */
-      const Trk::Surface& associatedSurface() const;
-     
-     
+      virtual const Trk::Surface& associatedSurface() const override;
+
+      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
+      {
+        return (type==Trk::RIO_OnTrackType::TRT_DriftCircle);
+      }
+
      /** returns the PrepRawData - is a TRT_DriftCircle in this scope
       - fullfills Trk::RIO_OnTrack interface
       */
-      const TRT_DriftCircle* prepRawData() const;
+      virtual const TRT_DriftCircle* prepRawData() const override;
       const ElementLinkToIDCTRT_DriftCircleContainer& prepRawDataLink() const;
     
      /** returns the DE hashID
       - fullfills Trk::RIO_OnTrack interface
       */
-      IdentifierHash idDE() const;
+      virtual IdentifierHash idDE() const override;
   
      /** returns the detector element, assoicated with the PRD of this class
       - fullfills Trk::RIO_OnTrack interface
       */
-      const InDetDD::TRT_BaseElement* detectorElement() const;
+      virtual const InDetDD::TRT_BaseElement* detectorElement() const override;
 
      /** returns the side on which the drift radius is. 
       (for more information see the definition of
@@ -143,24 +151,26 @@ namespace InDet{
       double timeOverThreshold() const;
 
       /**returns some information about this RIO_OnTrack.*/
-      virtual MsgStream&    dump( MsgStream& out ) const;	
+      virtual MsgStream&    dump( MsgStream& out ) const override;	
       /**returns some information about this RIO_OnTrack.*/
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
 
       float localAngle() const;
       float positionAlongWire() const;
 
+
     private:
     /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
-      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd);
+      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
  
-    /** @brief Uses the passed loc3Dframe to calculate and set the global coord of this hit. 
-       The detector element surface is used*/
-      void setGlobalPosition(Amg::Vector3D& loc3Dframe) const;   
+      /** @calculate and set the global coord of this hit. 
+       The detector element surface is used. Can be used from the convertor
+       after setValues if the element is constructed without a detEl*/
+      void setGlobalPositionHelper();   
  
       /** global position to be cached */
-      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
+      Amg::Vector3D m_globalPosition;
       
       /**local angle to be written out */     
       float m_localAngle;
@@ -188,17 +198,22 @@ namespace InDet{
 
   };
 
-  inline TRT_DriftCircleOnTrack* TRT_DriftCircleOnTrack::clone() const 
+  inline TRT_DriftCircleOnTrack*
+  TRT_DriftCircleOnTrack::clone() const
   { 
     return new TRT_DriftCircleOnTrack(*this); 
   }
-  
-  inline const TRT_DriftCircle* TRT_DriftCircleOnTrack::prepRawData() const
+
+  inline const TRT_DriftCircle*
+  TRT_DriftCircleOnTrack::prepRawData() const
   { 
-    // somehow one has to ask first if it is valid ... otherwise it always returns 0 ...
-    if (m_rio.isValid()) return m_rio.cachedElement();
-    else return 0;
-  }
+    // ask first if it is valid ... 
+    // otherwise it always returns nullptr ...
+    if (m_rio.isValid()) {
+      return m_rio.cachedElement();
+    }
+    return nullptr;
+    }
 
   inline
   const ElementLinkToIDCTRT_DriftCircleContainer&

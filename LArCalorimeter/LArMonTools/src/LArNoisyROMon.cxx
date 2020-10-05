@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROMon.h"
 #include "LArOnlineIDStrHelper.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
-#include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -39,7 +38,6 @@ LArNoisyROMon::LArNoisyROMon(const std::string& type,
   declareProperty("L1NoiseBurstTriggers",m_L1_NoiseBurst_Triggers);
   declareProperty("m_lumi_blocks", m_lumi_blocks = 3000 );
   declareProperty("doHisto",       m_doHisto=true);
-  declareProperty("inputKey",       m_inputKey="LArNoisyROSummary");
   
   m_NoiseTime.time = 0;
   m_NoiseTime.time_ns = 0;
@@ -69,6 +67,9 @@ LArNoisyROMon::~LArNoisyROMon()
 
 StatusCode LArNoisyROMon::initialize()
 {
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
   if ( !(detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID" ).isSuccess()) )
   {
     ATH_MSG_FATAL( "unable to retrieve LArOnlineID from detStore" );
@@ -165,18 +166,16 @@ StatusCode LArNoisyROMon::fillHistograms()
   m_eventCounter++;
   
   // retrieve 
-  const LArNoisyROSummary* noisyRO;
-  sc = evtStore()->retrieve(noisyRO,m_inputKey);
-  if (sc.isFailure()) 
+  SG::ReadHandle<LArNoisyROSummary> noisyRO{m_inputKey};
+  if (!noisyRO.isValid()) 
   {
     ATH_MSG_WARNING( "Can't retrieve LArNoisyROSummary " );
     return StatusCode::SUCCESS;
   }
   
   
-  const xAOD::EventInfo* eventInfo;
-  sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) 
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_eventInfoKey};
+  if (!eventInfo.isValid()) 
   {
     ATH_MSG_WARNING( "Can't retrieve EventInfo " );
     return StatusCode::SUCCESS;

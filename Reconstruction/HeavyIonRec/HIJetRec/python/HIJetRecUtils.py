@@ -84,14 +84,14 @@ def AddPtAssociationTools(R, doTracks=True) :
         tname='hitrackassoc_04'
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTrack"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTrack"))
         tlist += [ jtm.tools[tname] ]
     if jetFlags.useTruth():
         cname='AntiKt%dTruthJets' % int(10*R)
         tname='truthassoc_0%d' % int(10*R)
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTruth"))
         tlist += [ jtm.tools[tname] ]
     return tlist
 
@@ -126,6 +126,11 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
 
+    if 'map_tool' in kwargs.keys() : map_tool=kwargs['map_tool']
+    else :
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        map_tool=HIEventShapeMapTool()
+
     subtr=HIJetConstituentSubtractionTool("HICS_"+suffix)
     subtr.EventShapeKey=shapeKey
     subtr.Modulator=mod_tool
@@ -133,6 +138,8 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     subtr.SetMomentOnly=momentOnly
     subtr.ApplyOriginCorrection=HIJetFlags.ApplyOriginCorrection()
     subtr.Subtractor=GetSubtractorTool(**kwargs)
+    subtr.EventShapeMapTool=map_tool
+
     jtm.add(subtr)
     return subtr
 
@@ -145,25 +152,41 @@ def ApplySubtractionToClusters(**kwargs) :
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
     else : cluster_key=HIJetFlags.HIClusterKey()
 
+    if 'output_cluster_key' in kwargs.keys() : output_cluster_key=kwargs['output_cluster_key']
+    else : cluster_key=cluster_key+".deepCopy"
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
 
+    if 'map_tool' in kwargs.keys() : map_tool=kwargs['map_tool']
+    else :
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        map_tool=HIEventShapeMapTool()
+
     if 'update_only' in kwargs.keys() : update_only = kwargs['update_only']
     else : update_only = False
+
+    if 'apply_origin_correction' in kwargs.keys() : apply_origin_correction=kwargs['apply_origin_correction']
+    else : apply_origin_correction=HIJetFlags.ApplyOriginCorrection()
+
+    do_cluster_moments=False
+    if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
 
     HIClusterSubtraction=CompFactory.HIClusterSubtraction
     toolName='HIClusterSubtraction'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
+
     theAlg=HIClusterSubtraction(toolName)
     theAlg.ClusterKey=cluster_key
+    theAlg.OutClusterKey=output_cluster_key
     theAlg.EventShapeKey=event_shape_key
     theAlg.Subtractor=GetSubtractorTool(**kwargs)
     theAlg.Modulator=mod_tool
     theAlg.UpdateOnly=update_only
+    theAlg.SetMoments=do_cluster_moments
+    theAlg.ApplyOriginCorrection=apply_origin_correction
+    theAlg.EventShapeMapTool=map_tool
 
-    do_cluster_moments=False
-    if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
     if do_cluster_moments :
         CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
         from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
@@ -207,6 +230,25 @@ def ApplySubtractionToClusters(**kwargs) :
     jtm.jetrecs += [theAlg]
     jtm.HIJetRecs+=[theAlg]
 
+def GetConstituentsModifierTool(**kwargs) :
+    #For the cluster key, same exact logic as used for ApplySubtractionToClusters
+    if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
+    else : cluster_key=HIJetFlags.HIClusterKey()
+
+    if 'apply_origin_correction' in kwargs.keys() : apply_origin_correction=kwargs['apply_origin_correction']
+    else : apply_origin_correction=HIJetFlags.ApplyOriginCorrection()
+
+    HIJetConstituentModifierTool=CompFactory.HIJetConstituentModifierTool
+    toolName='HIJetConstituentModifierTool'
+    if 'name' in kwargs.keys() : toolName = kwargs['name']
+
+    cmod=HIJetConstituentModifierTool(toolName)
+    cmod.ClusterKey=cluster_key
+    cmod.Subtractor=GetSubtractorTool(**kwargs)
+    cmod.ApplyOriginCorrection=apply_origin_correction
+
+    jtm.add(cmod)
+    return cmod
 
 def AddIteration(seed_container,shape_name, **kwargs) :
 
@@ -225,6 +267,11 @@ def AddIteration(seed_container,shape_name, **kwargs) :
             #mod_shape_name=BuildHarmonicName(out_shape_name,**kwargs)
             mod_tool=MakeModulatorTool(mod_shape_key,**kwargs)
 
+    if 'map_tool' in kwargs.keys() : map_tool=kwargs['map_tool']
+    else :
+        from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+        map_tool=HIEventShapeMapTool()
+
     assoc_name=jtm.HIJetDRAssociation.AssociationName
     HIEventShapeJetIteration=CompFactory.HIEventShapeJetIteration
     iter_tool=HIEventShapeJetIteration('HIJetIteration_%s' % out_shape_name )
@@ -239,6 +286,7 @@ def AddIteration(seed_container,shape_name, **kwargs) :
     iter_tool.Modulator=mod_tool
     iter_tool.ShallowCopy=False
     iter_tool.ModulationEventShapeKey=mod_shape_key
+    iter_tool.EventShapeMapTool=map_tool
 
     if 'track_jet_seeds' in kwargs.keys() :
         iter_tool.TrackJetSeedContainerKey=kwargs['track_jet_seeds']
@@ -273,14 +321,16 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
         topsequence += JetAlgorithm("jetalgconstit"+suffix,
                                     Tools=[jtm.jetrunconstitHI])
 
-    #### test : add the PseudoJetAlgorithm
-    from JetRec.JetRecConf import PseudoJetAlgorithm
+    # Add the PseudoJetAlgorithm
+    # To avoid massive refactoring and to preserve familiarity,
+    # jet guys kept calling things "getters", but these are already
+    # PseudoJetAlgorithms as they eliminated the wrappers
     for getter in jtm.allGetters:
-        print ('Adding PseudoJetAlgorithm for PseudoJetGetter %s' % getter.name)
+        print ('Adding PseudoJetAlgorithm %s' % getter.name)
         print ('Input Container %s' % getter.InputContainer)
         print ('Output Container %s' % getter.OutputContainer)
         print ('Label %s' % getter.Label)
-        topsequence += PseudoJetAlgorithm("pjalg_"+suffix+getter.Label,PJGetter=getter)
+        topsequence += getter
 
     runner=JetToolRunner("jetrun"+suffix,
                          Tools=rtools,
@@ -383,6 +433,7 @@ def GetHIModifierList(coll_name='AntiKt4HIJets',prepend_tools=[],append_tools=[]
     if coll_name not in jtm.HICalibMap.keys() :
         print ('Calibration for R=%d not available using default R=0.4 calibration')
         coll_name='AntiKt4HIJets'
+
     mod_list=prepend_tools
     mod_list+=[jtm.HICalibMap[coll_name]]
     mod_list+=jtm.modifiersMap['HI']

@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_DriftCircleOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRIO_OnTrack TrkRIO_OnTrack TrkToolInterfaces InDetReadoutGeometry TRT_ReadoutGeometry TrkEventPrimitives TrkRIO_OnTrack LumiBlockData)
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRIO_OnTrack TrkRIO_OnTrack TrkToolInterfaces InDetReadoutGeometry TRT_ReadoutGeometry TrkEventPrimitives TrkRIO_OnTrack LumiBlockData TRT_DriftFunctionToolLib )
 
 # Install files from the package:
 atlas_install_headers( TRT_DriftCircleOnTrackTool )

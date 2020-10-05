@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,6 +62,11 @@ namespace Trk
        */
       std::unique_ptr<Trk::Track> slimCopy(const Trk::Track& track) const override final;
       
+       /**
+        * Slim/skim a non const Track. (m_setPersistificationHints is not used)
+        * @param track A reference to the track to be skimmed. It will be modified.
+        */     
+      void slimTrack(Trk::Track& track) const override final;
     private:
       /** any CaloDeposit with its adjacent MEOT's will be kept on the slimmed track (combined muon property) */
       bool m_keepCaloDeposit;

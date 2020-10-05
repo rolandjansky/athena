@@ -48,8 +48,39 @@ def _configureReadAthenaPoolDouble():
     if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
         svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
 
+    # BS specifics
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if overlayFlags.isDataOverlay():
+        # Load ByteStreamEventStorageInputSvc
+        if not hasattr (svcMgr, 'ByteStreamInputSvc'):
+            svcMgr += CfgMgr.ByteStreamEventStorageInputSvc ("ByteStreamInputSvc",
+                                                             EventInfoKey=overlayFlags.bkgPrefix() + "EventInfo")
+
+        # Load ROBDataProviderSvc
+        if not hasattr (svcMgr, 'ROBDataProviderSvc'):
+            svcMgr += CfgMgr.ROBDataProviderSvc ("ROBDataProviderSvc")
+
+        # Load ByteStreamCnvSvc
+        if not hasattr (svcMgr, 'ByteStreamCnvSvc'):
+            svcMgr += CfgMgr.ByteStreamCnvSvc ("ByteStreamCnvSvc")
+
+        svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
+
+        # Add in ByteStreamAddressProviderSvc
+        if not hasattr (svcMgr, 'ByteStreamAddressProviderSvc'):
+            svcMgr += CfgMgr.ByteStreamAddressProviderSvc ("ByteStreamAddressProviderSvc")
+        svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
+
+        # Enable ByteStream to read MetaData
+        svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
+        if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
+            svcMgr.ToolSvc += CfgMgr.ByteStreamMetadataTool()
+
     # Add in EventSelector
-    svcMgr += CfgMgr.EventSelectorAthenaPool("SecondaryEventSelector", IsSecondary=True)
+    if overlayFlags.isDataOverlay():
+        svcMgr += CfgMgr.EventSelectorByteStream("SecondaryEventSelector", IsSecondary=True, ByteStreamInputSvc="ByteStreamInputSvc")
+    else:
+        svcMgr += CfgMgr.EventSelectorAthenaPool("SecondaryEventSelector", IsSecondary=True)
     svcMgr += CfgMgr.DoubleEventSelectorAthenaPool("DoubleEventSelector")    
     theApp.EvtSel = "DoubleEventSelectorAthenaPool/DoubleEventSelector"
 
@@ -58,11 +89,12 @@ def _configureReadAthenaPoolDouble():
         svcMgr += CfgMgr.AthenaPoolAddressProviderSvc ("AthenaPoolAddressProviderSvcPrimary")
     svcMgr.ProxyProviderSvc.ProviderNames += [ "AthenaPoolAddressProviderSvc/AthenaPoolAddressProviderSvcPrimary" ]
     svcMgr.AthenaPoolAddressProviderSvcPrimary.DataHeaderKey = "EventSelector"
-    svcMgr.AthenaPoolAddressProviderSvcPrimary.AttributeListKey = "Input"
-    if not hasattr (svcMgr, 'AthenaPoolAddressProviderSvcSecondary'):
-        svcMgr += CfgMgr.AthenaPoolAddressProviderSvc ("AthenaPoolAddressProviderSvcSecondary")
-    svcMgr.ProxyProviderSvc.ProviderNames += [ "AthenaPoolAddressProviderSvc/AthenaPoolAddressProviderSvcSecondary" ]
-    svcMgr.AthenaPoolAddressProviderSvcSecondary.DataHeaderKey = "SecondaryEventSelector"
+    if not overlayFlags.isDataOverlay():
+        svcMgr.AthenaPoolAddressProviderSvcPrimary.AttributeListKey = "Input"
+        if not hasattr (svcMgr, 'AthenaPoolAddressProviderSvcSecondary'):
+            svcMgr += CfgMgr.AthenaPoolAddressProviderSvc ("AthenaPoolAddressProviderSvcSecondary")
+        svcMgr.ProxyProviderSvc.ProviderNames += [ "AthenaPoolAddressProviderSvc/AthenaPoolAddressProviderSvcSecondary" ]
+        svcMgr.AthenaPoolAddressProviderSvcSecondary.DataHeaderKey = "SecondaryEventSelector"
 
     # Set up DataVector/DataProxyStorage backwards compatibility.
     #from DataModelAthenaPool import DataModelCompatSvc

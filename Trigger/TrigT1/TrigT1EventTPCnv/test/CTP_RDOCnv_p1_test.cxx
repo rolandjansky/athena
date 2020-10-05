@@ -122,7 +122,7 @@ void test1()
   std::vector<unsigned int> data (2 + 3*(6+8+8+8));
   for (size_t i=0; i < data.size(); i++)
     data[i] = i;
-  CTP_RDO trans1 (0, data);
+  CTP_RDO trans1 (0, std::move(data));
   testit (trans1);
 }
 

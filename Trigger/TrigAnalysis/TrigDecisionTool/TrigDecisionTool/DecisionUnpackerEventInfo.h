@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_DECISIONUNPACKEREVENTINFO_H
@@ -33,6 +33,10 @@ namespace Trig{
   public:
     DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey);
     virtual ~DecisionUnpackerEventInfo();
+
+    DecisionUnpackerEventInfo (const DecisionUnpackerEventInfo&) = delete;
+    DecisionUnpackerEventInfo& operator= (const DecisionUnpackerEventInfo&) = delete;
+
     virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,
 				      std::unordered_map<std::string, const HLT::Chain*>&,

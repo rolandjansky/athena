@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARTSHAPERP
@@ -20,7 +20,7 @@
 class  LArTshaperP{
 public:
 
-    LArTshaperP() : m_Tshaper(-999999999) {} 
+    LArTshaperP() : m_Tshaper(-9999999) {} 
     LArTshaperP(float f) : m_Tshaper(f) {} 
     bool isEmpty() const { return m_Tshaper < -9999 ; } ;
     float         m_Tshaper;

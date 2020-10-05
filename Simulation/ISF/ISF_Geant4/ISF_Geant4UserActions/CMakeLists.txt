@@ -5,22 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_Geant4UserActions )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          PRIVATE
-                          Control/StoreGate
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          TileCalorimeter/TileG4/TileG4Interfaces
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          Generators/GeneratorObjects
-                          LArCalorimeter/LArG4/LArG4Code
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
-                          DetectorDescription/Identifier )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

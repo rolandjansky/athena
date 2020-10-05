@@ -92,14 +92,20 @@ template<class CONTAINER>
 std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
 Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                                            const ElementLink<TrigRoiDescriptorCollection>& matchROI) const {
-  return associateToEventView(inViewContainer, matchROI.index(), matchROI.key());
+  // If we can resolve the link, then we can also check the fullscan flag.
+  bool isFullscan = false;
+  if (matchROI.isValid()) {
+    isFullscan = (*matchROI)->isFullscan();
+  }
+  return associateToEventView(inViewContainer, matchROI.index(), matchROI.key(), isFullscan);
 }
 
 template<class CONTAINER>
 std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
 Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                                            const uint32_t matchIndex,
-                                           const uint32_t matchKey) const {
+                                           const uint32_t matchKey,
+                                           const bool isFullscan) const {
   if (!inViewContainer.isValid()) {
     std::stringstream ss;
     ss << "Supplied ReadHandle '" << inViewContainer.key() << "' of type '" << ClassID_traits<CONTAINER>::typeName() << "' is not valid.";
@@ -112,9 +118,15 @@ Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewCont
   static const SG::AuxElement::ConstAccessor< ElementLink<TrigRoiDescriptorCollection> > accessor("viewIndex");
   for (typename CONTAINER::const_iterator it = container->begin(); it != end; ++it) {
     if (!accessor.isAvailable(**it)) { // iterator dereferences to an OBJECT*, OBJECT* dereferences to an OBJECT
-      ATH_MSG_ERROR("Unable to read the viewIndex decoration from the supplied container. Was it created inside an EventView?");
-      throw std::runtime_error("Trig::DecisionAccess::associateToEventView Unable to read the viewIndex decoration from the "
-        "supplied container. Was it created inside an EventView?");
+      if (isFullscan) {
+        ATH_MSG_DEBUG("Supplied container has no viewIndex decoration. But isFullscan flag is TRUE. "
+          << "Returning iterators over whole container.");
+        return std::make_pair(container->begin(), container->end());
+      } else {
+        ATH_MSG_ERROR("Unable to read the viewIndex decoration from the supplied container. Was it created inside an EventView?");
+        throw std::runtime_error("Trig::DecisionAccess::associateToEventView Unable to read the viewIndex decoration from the "
+          "supplied container. Was it created inside an EventView?");
+      }
     }
     const ElementLink<TrigRoiDescriptorCollection> objectROI = accessor( **it );
     bool match = true;

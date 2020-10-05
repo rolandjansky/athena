@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 /**
  * @file MuonD3PDMaker/src/MuonTruthHitsFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>, from code by Niels van Eldik.
@@ -8,17 +9,13 @@
  * @brief Fill truth hit information for muons.
  */
 
-
 #include "MuonTruthHitsFillerTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AtlasHepMC/GenParticle.h"
 
-
 namespace D3PD {
-
-
 /**
  * @brief Standard Gaudi tool constructor.
  * @param type The name of the tool type.
@@ -28,8 +25,7 @@ namespace D3PD {
 MuonTruthHitsFillerTool::MuonTruthHitsFillerTool (const std::string& type,
                                                   const std::string& name,
                                                   const IInterface* parent)
-  : Base (type, name, parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  : Base (type, name, parent)
 {
   declareProperty("PRD_TruthNames",          m_PRD_TruthNames);
   m_PRD_TruthNames.push_back("CSC_TruthMap");
@@ -48,7 +44,7 @@ MuonTruthHitsFillerTool::MuonTruthHitsFillerTool (const std::string& type,
  */
 StatusCode MuonTruthHitsFillerTool::initialize()
 {
-  CHECK( m_idHelper.retrieve() );
+  CHECK( m_idHelperSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -137,29 +133,29 @@ StatusCode MuonTruthHitsFillerTool::fillHitCounts (int barcode)
       if( mc.second->barcode() != barcode ) continue;
       found = true;
       const Identifier& id = mc.first;
-      ATH_MSG_VERBOSE("found matching hit " << m_idHelper->toString(id) );
-      bool measPhi   = m_idHelper->measuresPhi(id);
+      ATH_MSG_VERBOSE("found matching hit " << m_idHelperSvc->toString(id) );
+      bool measPhi   = m_idHelperSvc->measuresPhi(id);
 
-      if( m_idHelper->issTgc(id) ) {
-        int index = m_idHelper->phiIndex(id);
+      if( m_idHelperSvc->issTgc(id) ) {
+        int index = m_idHelperSvc->phiIndex(id);
         if( measPhi ) ++*(m_nphiHitsPerChamberLayer[index]);
         else          ++*(m_ntrigEtaHitsPerChamberLayer[index]);
       }
-      else if( m_idHelper->isMM(id) ) {
-        int index = m_idHelper->isSmallChamber(id) ? MSI::ChIndexMax : MSI::ChIndexMax + 1;
+      else if( m_idHelperSvc->isMM(id) ) {
+        int index = m_idHelperSvc->isSmallChamber(id) ? MSI::ChIndexMax : MSI::ChIndexMax + 1;
         ++*(m_nprecHitsPerChamberLayer[index]);
       }
-      else if( m_idHelper->isTrigger(id) ) {
-        MSI::PhiIndex index = m_idHelper->phiIndex(id);
+      else if( m_idHelperSvc->isTrigger(id) ) {
+        MSI::PhiIndex index = m_idHelperSvc->phiIndex(id);
         if( measPhi ) ++*(m_nphiHitsPerChamberLayer[index]);
         else          ++*(m_ntrigEtaHitsPerChamberLayer[index]);
       }
       else {
         if( measPhi ) {
-          Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(id);
+          Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
           ++*(m_nphiHitsPerChamberLayer[index]);
         }else{
-          Muon::MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(id);
+          Muon::MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(id);
           ++*(m_nprecHitsPerChamberLayer[chIndex]);
         }	    
       }

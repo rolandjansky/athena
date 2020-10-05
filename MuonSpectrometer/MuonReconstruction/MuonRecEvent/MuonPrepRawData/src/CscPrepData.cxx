@@ -53,53 +53,6 @@ namespace Muon
     m_timeStatus(CscTimeStatusUndefined)
   { }
 
-  //copy constructor:
-  CscPrepData::CscPrepData(const CscPrepData& RIO):
-    MuonCluster(RIO),
-    m_detEl( RIO.m_detEl ),
-    m_charge( RIO.m_charge ),
-    m_time ( RIO.m_time ),
-    m_status( RIO.m_status ),
-    m_timeStatus( RIO.m_timeStatus )
-  { }
-
-  CscPrepData::CscPrepData(CscPrepData&& RIO):
-    MuonCluster(std::move(RIO)),
-    m_detEl( RIO.m_detEl ),
-    m_charge( RIO.m_charge ),
-    m_time ( RIO.m_time ),
-    m_status( RIO.m_status ),
-    m_timeStatus( RIO.m_timeStatus )
-  { }
-
-  //assignment operator
-  CscPrepData& CscPrepData::operator=(const CscPrepData& RIO)
-  {
-    if (&RIO !=this)
-      {
-        MuonCluster::operator=(RIO);
-        m_detEl =  RIO.m_detEl ;
-        m_charge = RIO.m_charge;
-        m_time = RIO.m_time;
-        m_status = RIO.m_status;
-        m_timeStatus = RIO.m_timeStatus;
-      }
-    return *this;
-  }
-
-  CscPrepData& CscPrepData::operator=(CscPrepData&& RIO)
-  {
-    if (&RIO !=this)
-      {
-        MuonCluster::operator=(std::move(RIO));
-        m_detEl =  RIO.m_detEl ;
-        m_charge = RIO.m_charge;
-        m_time = RIO.m_time;
-        m_status = RIO.m_status;
-        m_timeStatus = RIO.m_timeStatus;
-      }
-    return *this;
-  }
 
   MsgStream& CscPrepData::dump( MsgStream&    stream) const
   {

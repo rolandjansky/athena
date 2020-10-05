@@ -9,6 +9,9 @@ from __future__ import with_statement, print_function
 import sys
 import os
 
+from future import standard_library
+standard_library.install_aliases()
+
 __doc__ = """\
 API for the sg-dump script (which dumps an ASCII representation of events in
 POOL or RAW files
@@ -22,7 +25,7 @@ __all__ = [
 
 def _make_jobo(job):
     import tempfile
-    jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py')
+    jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py', mode='w+')
     import textwrap
     job = textwrap.dedent (job)
     jobo.writelines([l+os.linesep for l in job.splitlines()])
@@ -261,8 +264,8 @@ def _run_jobo(job, msg, options):
     if options.do_clean_up:
         atexit.register (_cleanup, keep_files)
     
-    import commands
-    sc,out = commands.getstatusoutput ('which athena.py')
+    import subprocess
+    sc,out = subprocess.getstatusoutput ('which athena.py')
     if sc != 0:
         msg.error("could not locate 'athena.py':\n%s", out)
         return sc, out
@@ -270,13 +273,13 @@ def _run_jobo(job, msg, options):
     jobo = _make_jobo(job)
 
     if options.use_recex_links:
-        sc,out = commands.getstatusoutput ('RecExCommon_links.sh')
+        sc,out = subprocess.getstatusoutput ('RecExCommon_links.sh')
         if sc != 0:
             msg.error("could not run 'RecExCommon_links.sh':\n%s"%out)
             return sc, out
         msg.info ('installed RecExCommon links')
     
-    sc,out = commands.getstatusoutput ('which sh')
+    sc,out = subprocess.getstatusoutput ('which sh')
     if sc != 0:
         msg.error("could not locate 'sh':\n%s",out)
         return sc, out
@@ -285,7 +288,8 @@ def _run_jobo(job, msg, options):
     from time import time
     logfile = tempfile.NamedTemporaryFile(prefix='sg_dumper_job_',
                                           suffix='.logfile.txt',
-                                          dir=os.getcwd())
+                                          dir=os.getcwd(),
+                                          mode = 'w+')
 
     # do not require $HOME to be available for ROOT
     # see bug #82096
@@ -308,7 +312,7 @@ def _run_jobo(job, msg, options):
     import time, re
     pat = re.compile (r'^Py:pyalg .*')
     evt_pat = re.compile (
-        r'^Py:pyalg .*? ==> processing event [[](?P<evtnbr>\d*?)[]].*'
+        r'^Py:pyalg .*? ==> processing event \[(?P<evtnbr>\d*?)\].*'
         )
     def _monitor(pos):
         logfile.flush()
@@ -342,7 +346,7 @@ def _run_jobo(job, msg, options):
     if sc != 0:
         logfile.seek(0)
         msg.error ('='*80)
-        from cStringIO import StringIO
+        from io import StringIO
         err = StringIO()
         for l in logfile:
             print (l, end='')
@@ -352,7 +356,7 @@ def _run_jobo(job, msg, options):
         return sc, err.getvalue()
 
     logfile.seek (0)
-    from cStringIO import StringIO
+    from io import StringIO
     out = StringIO()
     for l in logfile:
         if pat.match(l):
@@ -395,7 +399,7 @@ def run_sg_dump(files, output,
         msg = L.logging.getLogger('sg-dumper')
         msg.setLevel(L.logging.INFO)
 
-    if isinstance(files, basestring):
+    if isinstance(files, str):
         files = files.split()
         
     if not isinstance(files, (list,tuple)):
@@ -403,7 +407,7 @@ def run_sg_dump(files, output,
         msg.error(err)
         raise TypeError(err)
 
-    if not isinstance(output, basestring):
+    if not isinstance(output, str):
         err = "'output' needs to be a filename"
         msg.error(err)
         raise TypeError(err)
@@ -450,7 +454,7 @@ def run_sg_dump(files, output,
     msg.info('file_type:       %s', file_type)
     msg.info('exclude:         %s', exclude)
     
-    if dump_jobo and isinstance(dump_jobo, basestring):
+    if dump_jobo and isinstance(dump_jobo, str):
         try:
             with open(dump_jobo, 'w') as f:
                 f.write(jobo)

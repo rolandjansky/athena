@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  CaloTowerStoreTestAlg.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -25,19 +23,8 @@
  */
 CaloTowerStoreTestAlg::CaloTowerStoreTestAlg (const std::string& name,
                                               ISvcLocator* pSvcLocator)
-  : AthAlgorithm (name, pSvcLocator),
-    m_caloDDM (nullptr)
+  : AthAlgorithm (name, pSvcLocator)
 {
-}
-
-
-/** 
- * @brief Standard Gaudi initialize method.
- */
-StatusCode CaloTowerStoreTestAlg::initialize()
-{
-  ATH_CHECK( detStore()->retrieve (m_caloDDM, "CaloMgr") );
-  return StatusCode::SUCCESS;
 }
 
 
@@ -92,9 +79,16 @@ CaloTowerStoreTestAlg::test_subseg_iter (const CaloTowerStore& store1,
                                          const std::vector<CaloCell_ID::SUBCALO>& calos,
                                          const CaloTowerSeg::SubSeg& subseg)
 {
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  const CaloDetDescrManager* caloDDM = nullptr;
+  StatusCode sc = detStore()->retrieve( caloDDM, "CaloMgr" );
+  if ( !sc.isSuccess() ) std::abort();
+
   CaloTowerSeg seg = subseg.segmentation();
   CaloTowerStore store2;
-  assert (store2.buildLookUp (*m_caloDDM, seg, calos));
+  if (!store2.buildLookUp (*caloDDM, seg, calos)) {
+    std::abort();
+  }
 
   assert (subseg.size() == store2.size());
 
@@ -111,13 +105,21 @@ CaloTowerStoreTestAlg::test_subseg_iter (const CaloTowerStore& store1,
 void CaloTowerStoreTestAlg::test1()
 {
   std::cout << "test1\n";
+
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  const CaloDetDescrManager* caloDDM = nullptr;
+  StatusCode sc = detStore()->retrieve( caloDDM, "CaloMgr" );
+  if ( !sc.isSuccess() ) std::abort();
+
   CaloTowerSeg seg (50, 64, -2.5, 2.5);
   std::vector<CaloCell_ID::SUBCALO> calos;
   calos.push_back (CaloCell_ID::LAREM);
   calos.push_back (CaloCell_ID::LARHEC);
   calos.push_back (CaloCell_ID::TILE);
   CaloTowerStore store;
-  assert (store.buildLookUp (*m_caloDDM, seg, calos));
+  if (!store.buildLookUp (*caloDDM, seg, calos)) {
+    std::abort();
+  }
 
   CaloTowerSeg::SubSeg subseg1 = seg.subseg (0.7, 0.3, -0.2, 0.4);
   test_subseg_iter (store, calos, subseg1);

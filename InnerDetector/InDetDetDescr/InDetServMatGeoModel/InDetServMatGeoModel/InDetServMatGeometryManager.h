@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetServMatGeometryManager_H
 #define InDetServMatGeometryManager_H
 
+#include "CxxUtils/checker_macros.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
@@ -14,7 +15,7 @@ class InDetMaterialManager;
 class InDetServMatGeometryManager
 {
 public:
-  InDetServMatGeometryManager(const InDetDD::AthenaComps * athenaComps);
+  InDetServMatGeometryManager(InDetDD::AthenaComps * athenaComps);
  
   ~InDetServMatGeometryManager();
   
@@ -28,7 +29,7 @@ public:
   const IGeometryDBSvc * db() const {return m_athenaComps->geomDB();}
 
   // Access to material manager 
-  InDetMaterialManager * matMgr() const {return m_matMgr;}
+  InDetMaterialManager * matMgr() {return m_matMgr;}
   
   
   // Access to message stream
@@ -142,11 +143,11 @@ public:
   double sctInnerSupport() const;
 
   // Pixel support tubes dimensions: specify name from simple services table
-  double SupportTubeRMin(std::string name) const;
-  double SupportTubeRMax(std::string name) const;
-  double SupportTubeZMin(std::string name) const;
-  double SupportTubeZMax(std::string name) const;
-  int    SupportTubeExists(std::string name) const;
+  double SupportTubeRMin(const std::string& name) const;
+  double SupportTubeRMax(const std::string& name) const;
+  double SupportTubeZMin(const std::string& name) const;
+  double SupportTubeZMax(const std::string& name) const;
+  int    SupportTubeExists(const std::string& name) const;
 
 private:
   // Record sets
@@ -181,13 +182,13 @@ private:
   IRDBRecordset_ptr m_scalingTable;
 
   // Access to athena components
-  const InDetDD::AthenaComps * m_athenaComps;
+  InDetDD::AthenaComps * m_athenaComps;
 
   // Material Manager
   InDetMaterialManager * m_matMgr;
 
   // index of named support tube in  m_InDetSimpleServices table, -1 if not found. Could be cached for speed.
-  int SupportTubeIndex(std::string name) const;
+  int SupportTubeIndex(const std::string& name) const;
 
 };
 

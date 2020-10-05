@@ -1,16 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 import re
 
-_pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
+_pattern = r"(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
 _cpattern = re.compile( _pattern )
 _possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
                   'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
  
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 #from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
 # Just because the TriggerFlags Online and doValidation doen't work
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
@@ -24,7 +23,7 @@ def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
   if EgammaSliceFlags.ringerVersion():
     basepath = EgammaSliceFlags.ringerVersion()
   logger.info('TrigMultiVarHypo version: %s', basepath)
-  if not sel in _possibleSel.keys():
+  if sel not in _possibleSel.keys():
     raise RuntimeError( "Bad selection name: %s" % sel )
   if 'e' in cand:
     constant = basepath+'/'+ 'TrigL2CaloRingerElectron{SEL}Constants.root'.format(SEL=_possibleSel[sel])
@@ -92,39 +91,34 @@ def _MultTool(name):
 
 
 def TrigL2CaloRingerHypoToolFromDict( d ):
-    """ Use menu decoded chain dictionary to configure the tool """
-    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
+  """ Use menu decoded chain dictionary to configure the tool """
+  cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
     
-    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
-    LuminosityCondAlgOnlineDefault()
+  from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+  LuminosityCondAlgOnlineDefault()
     
-    def __mult(cpart):
-        return int( cpart['multiplicity'] )
+  def __mult(cpart):
+    return int( cpart['multiplicity'] )
 
-    def __th(cpart):
-        return cpart['threshold']
+  def __th(cpart):
+    return cpart['threshold']
     
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+  def __sel(cpart):
+    return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
     
-    def __cand(cpart):
-        return cpart['trigType']
+  def __cand(cpart):
+    return cpart['trigType']
 
-    name = d['chainName']
+  name = d['chainName']
 
-    
-    # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
-    if len(cparts) > 1 or __mult(cparts[0]) > 1:
-        tool = _MultTool(name)
-        for cpart in cparts:
-            for cutNumber in range( __mult( cpart ) ):
-                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th(cpart), __sel(cpart) ) ]
-
-        return tool
-    else:        
-        return _IncTool( name, __cand(cparts[0]), __th(cparts[0]), __sel(cparts[0]) )
-
-
-
-
+  # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
+  if len(cparts) > 1 or __mult(cparts[0]) > 1:
+    tool = _MultTool(name)
+    for cpart in cparts:
+      for cutNumber in range( __mult( cpart ) ):
+        tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th(cpart), __sel(cpart) ) ]
+    # return the tool with all subtools
+    return tool
+  else:        
+    return _IncTool( name, __cand(cparts[0]), __th(cparts[0]), __sel(cparts[0]) )
 

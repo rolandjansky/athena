@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFPHITSMONITORTOOL_H
@@ -9,6 +9,8 @@
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "xAODForward/AFPSiHitContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -113,6 +115,10 @@ protected:
   /// for each layer. On Y axis mean value of o given histogram is
   /// inserted.
   void makeLayerSummaryHist (const std::string inputHistName, const std::string outputHistName, const std::string outputHistTitle);
+
+private:
+  SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey
+  { this ,"AFPHitContianerKey", "AFPSiHitContainer" };
 };
 
 #endif

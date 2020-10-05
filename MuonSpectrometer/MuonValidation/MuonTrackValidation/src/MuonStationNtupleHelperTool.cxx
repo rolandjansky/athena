@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonStationNtupleHelperTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "MuonStationNtupleHelperTool.h"
+
 #include "TrkEventUtils/IdentifierExtractor.h"
-#include "TTree.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
-//#include "MuonIdHelpers/RpcIdHelper.h" 
+
+#include "TTree.h"
 
 //================ Constructor =================================================
 
@@ -19,7 +16,6 @@ Muon::MuonStationNtupleHelperTool::MuonStationNtupleHelperTool(const std::string
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_muonIdHelperTool("Muon::MuonIdHelperTool"),
   m_mdtSectorIx(0),
   m_mdtStationIx(0),
   m_rpcSectorIx(0),
@@ -29,35 +25,13 @@ Muon::MuonStationNtupleHelperTool::MuonStationNtupleHelperTool(const std::string
   m_tgcMeasuresPhi(0)
 {
   declareInterface<Trk::IValidationNtupleHelperTool>(this);
-
-  //  template for property decalration
-  //declareProperty("PropertyName", m_propertyName);
 }
-
-//================ Destructor =================================================
-
-Muon::MuonStationNtupleHelperTool::~MuonStationNtupleHelperTool()
-{}
-
 
 //================ Initialisation =================================================
 
 StatusCode Muon::MuonStationNtupleHelperTool::initialize()
 {
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) return sc;
-
-  /*
-  if (detStore()->retrieve(m_rpcId).isFailure()) {
-    ATH_MSG_WARNING ("Could not get RPC ID helper !");
-    return StatusCode::FAILURE;
-  }*/
-
-  if (m_muonIdHelperTool.retrieve().isFailure()) {
-    ATH_MSG_WARNING ("Could not get muon custom ID helper !");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   m_mdtSectorIx      = new std::vector<int>();
   m_mdtStationIx     = new std::vector<int>();
@@ -82,9 +56,7 @@ StatusCode Muon::MuonStationNtupleHelperTool::finalize()
   delete m_rpcMeasuresPhi; m_rpcMeasuresPhi=0;
   delete m_tgcStationIx; m_tgcStationIx=0;
   delete m_tgcMeasuresPhi; m_tgcMeasuresPhi=0;
-  
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////
@@ -130,17 +102,17 @@ StatusCode Muon::MuonStationNtupleHelperTool::fillMeasurementData (
     Identifier id = Trk::IdentifierExtractor::extract(hit);
 
     if (detectorType==Trk::TrackState::MDT) {
-      m_mdtSectorIx->push_back(m_muonIdHelperTool->sector(id));
-      m_mdtStationIx->push_back(m_muonIdHelperTool->stationIndex(id));
+      m_mdtSectorIx->push_back(m_idHelperSvc->sector(id));
+      m_mdtStationIx->push_back(m_idHelperSvc->stationIndex(id));
     }
     if (detectorType==Trk::TrackState::RPC) {
-      m_rpcSectorIx->push_back(m_muonIdHelperTool->sector(id));
-      m_rpcStationIx->push_back(m_muonIdHelperTool->stationIndex(id));
-      m_rpcMeasuresPhi->push_back(m_muonIdHelperTool->measuresPhi(id));
+      m_rpcSectorIx->push_back(m_idHelperSvc->sector(id));
+      m_rpcStationIx->push_back(m_idHelperSvc->stationIndex(id));
+      m_rpcMeasuresPhi->push_back(m_idHelperSvc->measuresPhi(id));
     }
     if (detectorType==Trk::TrackState::TGC) {
-      m_tgcStationIx->push_back(m_muonIdHelperTool->stationIndex(id));
-      m_tgcMeasuresPhi->push_back(m_muonIdHelperTool->measuresPhi(id));
+      m_tgcStationIx->push_back(m_idHelperSvc->stationIndex(id));
+      m_tgcMeasuresPhi->push_back(m_idHelperSvc->measuresPhi(id));
     }
 
     return StatusCode::SUCCESS;

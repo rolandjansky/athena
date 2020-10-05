@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCHAMP_H
@@ -15,16 +15,18 @@
 #include "TH1.h"
 #include "TMinuit.h"
 
+#include "CxxUtils/checker_macros.h"
+
 //-----------------------------------------------------------------------------------------------//
 //                                                                                               //
-//     TRTChamp / TrtToolBetaLiklihood                                                                     //
+//     TRTChamp / TrtToolBetaLiklihood                                                           //
 //     Authors: C. Gay, B. Mills, S. Schramm 2009-2011 Univ. British Columbia / ATLAS Canada     //
 //     Contact developers at mills.wj@gmail.com                                                  //
 //     Use default calibrations at your own risk!                                                //
 //                                                                                               //
 //-----------------------------------------------------------------------------------------------//
 
-class TrtToolBetaLiklihood {
+class ATLAS_NOT_THREAD_SAFE TrtToolBetaLiklihood { // This class uses global variables and function for TMinuit. However, they are not protected by mutex. This class is not thread safe.
   
 public:
   TrtToolBetaLiklihood();
@@ -99,7 +101,8 @@ private:
   void TRT_SelectFEhits();                                                                                        //chooses decent looking hits to pass on to fitting
   void TRT_BitPattern(int hitP, int *lowPat, int *highPat, HIT &hit);                                             //parses TRT hits into useful info.  
   void TRT_PropLenCorr(HIT hit, int *corrLBits, float *corrLBitWeight, int *corrFBits, float *corrFBitWeight);    //fixes reflection in electronics.  
-  void TRT_FEbeta_min(float &beta, float &betaSigmaLo, float &betaSigmaUp);                                       //handles MINUIT for the TRT FE beta fit. 
+  void TRT_FEbeta_min ATLAS_NOT_THREAD_SAFE
+    (float &beta, float &betaSigmaLo, float &betaSigmaUp);                                       //handles MINUIT for the TRT FE beta fit. 
   void TRT_SelectFEpriors(TrtToolBetaLiklihood::HIT hit, int *corrLBits, float *corrLBitWeight);
   //void TRT_solveCubic(float DCrad, float &estDrift);
 };

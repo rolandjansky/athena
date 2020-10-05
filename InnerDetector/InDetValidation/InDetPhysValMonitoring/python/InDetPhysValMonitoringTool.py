@@ -1,14 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 from __future__ import print_function
 
-from ConfigUtils import serviceFactory,toolFactory
+from InDetPhysValMonitoring.ConfigUtils import serviceFactory,toolFactory
 from InDetRecExample.TrackingCommon import setDefaults
 
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf
 
 def removePhysValExample() :
    print ('DEBUG no AntiKt4EMTopoJets in input file.')
-   from InDetPhysValDecoration import findMonMan
+   from InDetPhysValMonitoring.InDetPhysValDecoration import findMonMan
    mon_index = findMonMan()
    if mon_index is not None :
      import re
@@ -53,6 +53,10 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                             FillTrackInJetPlots = True)
          from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
          addTruthJetsIfNotExising(jets_name)
+         if InDetPhysValFlags.doValidateTracksInBJets():
+            kwargs=setDefaults(kwargs,
+                              FillTrackInBJetPlots = True)
+
       else :
          kwargs=setDefaults(kwargs,
                             JetContainerName    ='' ,
@@ -89,7 +93,8 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          TruthSelectionTool         = '',
                          # the jet container is actually meant to be a truth jet container
                          JetContainerName           ='',
-                         FillTrackInJetPlots        = False)
+                         FillTrackInJetPlots        = False,
+                         FillTrackInBJetPlots       = False)
 
    # Control the number of output histograms
    if InDetPhysValFlags.doPhysValOutput() :

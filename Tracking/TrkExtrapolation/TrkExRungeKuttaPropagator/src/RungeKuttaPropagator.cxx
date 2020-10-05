@@ -19,6 +19,11 @@
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 
+
+/// enables -ftree-vectorize in gcc 
+#include "CxxUtils/vectorize.h"
+ATH_ENABLE_VECTORIZATION;
+
 /////////////////////////////////////////////////////////////////////////////////
 // Constructor
 /////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +57,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
       
   // Read handle for AtlasFieldCacheCondObj
   ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-  ATH_MSG_INFO("initialize() init key: " << m_fieldCondObjInputKey.key());
+  ATH_MSG_DEBUG("initialize() init key: " << m_fieldCondObjInputKey.key());
 
   return StatusCode::SUCCESS;
 }
@@ -63,7 +68,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
 
 StatusCode  Trk::RungeKuttaPropagator::finalize()
 {
-  ATH_MSG_INFO(name() <<" finalize() successful");
+  ATH_MSG_VERBOSE(name() <<" finalize() successful");
   return StatusCode::SUCCESS;
 }
 

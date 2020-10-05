@@ -62,7 +62,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
 
   for (auto iterTTR : *coll) {
 
-    const HepPDT::ParticleData* particle = particleData(abs(iterTTR.GetPDGCode()));
+    const HepPDT::ParticleData* particle = particleData(std::abs(iterTTR.GetPDGCode()));
     double mass = particle->mass().value();
     double en = std::sqrt(mass*mass+iterTTR.GetMomentum().mag2());
 
@@ -82,10 +82,10 @@ StatusCode TrackRecordGenerator::callGenerator() {
         particle4Position.setY( particle4Position.y() + CLHEP::RandFlat::shoot(&randomEngine(), -m_smearTR, m_smearTR) );
       } else {
         particle4Position.setZ( particle4Position.z() + CLHEP::RandFlat::shoot(&randomEngine(), -m_smearTR, m_smearTR) );
-        double R = sqrt( pow( particle4Position.x(),2 ) + pow(particle4Position.y(),2 ) );
-        double dPhi = atan2( m_smearTR, R );
+        double R = std::sqrt( std::pow( particle4Position.x(),2 ) + std::pow(particle4Position.y(),2 ) );
+        double dPhi = std::atan2( m_smearTR, R );
         dPhi = CLHEP::RandFlat::shoot( &randomEngine(), -dPhi, dPhi );
-        double theta = atan2( particle4Position.x() , particle4Position.y() );
+        double theta = std::atan2( particle4Position.x() , particle4Position.y() );
         particle4Position.setX( R*sin( theta + dPhi ) );
         particle4Position.setY( R*cos( theta + dPhi ) );
       }
@@ -112,7 +112,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
       }
 
       // Now scale it based on dTheta
-      double tempP = pow(particle4Momentum.x(),2)+pow(particle4Momentum.y(),2)+pow(particle4Momentum.z(),2);
+      double tempP = std::pow(particle4Momentum.x(),2)+std::pow(particle4Momentum.y(),2)+std::pow(particle4Momentum.z(),2);
       if ( tempP==0 ) {
         ATH_MSG_DEBUG("Our initial momentum had zero magnitude!!");
         perpendicularMomentum.setX(0);
@@ -122,7 +122,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
         perpendicularMomentum.setX(0);
         perpendicularMomentum.setY(0);
       } else {
-        double scale = ( tempP ) * sin(dTheta) / ( pow(perpendicularMomentum.x(),2)+pow(perpendicularMomentum.y(),2) );
+        double scale = ( tempP ) * std::sin(dTheta) / ( std::pow(perpendicularMomentum.x(),2)+std::pow(perpendicularMomentum.y(),2) );
         perpendicularMomentum.setX( perpendicularMomentum.x() * scale );
         perpendicularMomentum.setY( perpendicularMomentum.y() * scale );
 
@@ -160,8 +160,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
     m_fourMom.push_back( particle4Momentum );
 
     m_pdgCode.push_back(iterTTR.GetPDGCode());
-    HepMC::Polarization thePolarization;
-    thePolarization.set_normal3d(HepGeom::Normal3D<double>(0,0,0));
+    HepMC::Polarization thePolarization(0.0,0.0);
     m_polarization.push_back(thePolarization);
 
     if (m_stopParticles){

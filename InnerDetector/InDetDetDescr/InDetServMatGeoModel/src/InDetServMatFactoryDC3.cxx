@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactoryDC3.h"
@@ -35,10 +35,12 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
-InDetServMatFactoryDC3::InDetServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps)
+InDetServMatFactoryDC3::InDetServMatFactoryDC3(InDetDD::AthenaComps * athenaComps)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_manager(0)
 {}

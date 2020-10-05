@@ -43,11 +43,6 @@ StreamTag::StreamTag(const TrigConf::HLTStreamTag* configStream,
 }
 
 
-StreamTag::~StreamTag()
-{
-}
-
-
 bool StreamTag::reset()
 {
   m_prescaled = false;

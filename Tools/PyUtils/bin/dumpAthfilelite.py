@@ -5,12 +5,10 @@
 ## Simple wrapper to invoke AthFileLite metadata grabber and
 #  produce AthFile-like text output
 #
-# $Id: dumpAthfilelite.py 618684 2014-09-26 11:46:14Z graemes $
 
 from __future__ import print_function
 
 import argparse
-import os
 import pprint
 import sys
 

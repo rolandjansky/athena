@@ -1,43 +1,7 @@
-################################################################################
-# Package: AthenaPoolTest
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolTest )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          AtlasTest/DatabaseTest/AthenaPoolTestData
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/EventInfo
-                          Event/EventInfoMgt
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetRecEvent/InDetCompetingRIOsOnTrack
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          LArCalorimeter/LArRecEvent
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkVertexOnTrack )
-
-# External dependencies:
-find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_component( AthenaPoolTest
@@ -58,8 +22,7 @@ atlas_add_component( AthenaPoolTest
                      src/FakeTrackBuilder.cxx
                      src/RDOReaderDoubleSelector.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack )
+                     LINK_LIBRARIES AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack EventInfoMgtLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
@@ -73,7 +36,7 @@ function (athenapooltest_run_test testName jo pattern)
                   @ONLY )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/athenapooltest_${testName}.sh
-                  ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolTest/AthenaPoolTest-01-00-06"
+                  ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolTest/AthenaPoolTest-01-00-09"
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_with_select.sh ${testName} ${pattern}"
                   PROPERTIES TIMEOUT 900
                    )
@@ -86,7 +49,7 @@ endfunction (athenapooltest_run_test)
 
 # Write/read out some simple objects:
 athenapooltest_run_test( AthenaPoolTestWrite AthenaPoolTestWrite
-                         "^..AthenaPoolTestD" )
+                         "^AthenaPoolTestD" )
 athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
                          "AthenaPoolTestD"
                          DEPENDS AthenaPoolTestWrite )

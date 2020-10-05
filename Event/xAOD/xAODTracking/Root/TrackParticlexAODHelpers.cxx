@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODTracking/TrackParticlexAODHelpers.h"
@@ -14,7 +14,9 @@ namespace xAOD {
     if (!tp) {
       throw std::runtime_error("Invalid TrackParticle pointer.");
     }
-    if( tp->definingParametersCovMatrixFilled() != xAOD::FullCovMatrixAvailable ) {
+    SG::AuxElement::ConstAccessor< std::vector<float> > accDiag( "definingParametersCovMatrixDiag" );
+    SG::AuxElement::ConstAccessor< std::vector<float> > accOffDiag( "definingParametersCovMatrixOffDiag" );
+    if( !(accDiag.isAvailable( *tp ) && accOffDiag.isAvailable( *tp )) ) {
       throw std::runtime_error("TrackParticle without covariance matrix for the defining parameters.");
     }
   }

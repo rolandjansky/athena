@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -14,6 +14,7 @@ Simulation__VertexBeamCondPositioner=CompFactory.Simulation.VertexBeamCondPositi
 Simulation__VertexPositionFromFile=CompFactory.Simulation.VertexPositionFromFile
 Simulation__CrabKissingVertexPositioner=CompFactory.Simulation.CrabKissingVertexPositioner
 Simulation__LongBeamspotVertexPositioner=CompFactory.Simulation.LongBeamspotVertexPositioner
+Simulation__GenEventBeamEffectBooster=CompFactory.Simulation.GenEventBeamEffectBooster
 # For the Algorithm
 Simulation__BeamEffectsAlg=CompFactory.Simulation.BeamEffectsAlg
 
@@ -22,93 +23,90 @@ Simulation__BeamEffectsAlg=CompFactory.Simulation.BeamEffectsAlg
 # todo names required to copy function name? what are names used for?
 # todo add default construction options to make these potentiall useful
 # todo verify and add suggestions made in todo
-#--------------------------------------------------------------------------------------------------
+
+
 ## GenEventManipulators
 def makeValidityChecker(name="GenEventValidityChecker", **kwargs):
     """Return a validity checker tool"""
     return Simulation__GenEventValidityChecker(name, **kwargs)
 
+
 def makeGenEventRotator(name="GenEventRotator", **kwargs):
-    """Return a vertex positioner tool"""
+    """Return a event rotator tool"""
     return Simulation__GenEventRotator(name, **kwargs)
+
 
 def makeGenEventBeamEffectBooster(name="GenEventBeamEffectBooster", **kwargs):
     """Return a lorentz booster tool"""
     # todo needs random seed, more?
-    return Simulation__GenEventVertexPositioner(name, **kwargs)
+    return Simulation__GenEventBeamEffectBooster(name, **kwargs)
+
 
 def makeGenEventVertexPositioner(ConfigFlags,name="GenEventVertexPositioner", **kwargs):
     """Return a vertex positioner tool"""
     # todo needs input file(s?)
 
-    result=ComponentAccumulator()
+    acc = ComponentAccumulator()
 
     readVtxPosFromFile = ConfigFlags.Sim.Vertex.Source == "VertexOverrideFile.txt" or ConfigFlags.Sim.Vertex.Source == "VertexOverrideEventFile.txt"
     if readVtxPosFromFile:
-        kwargs.setdefault("VertexShifters"          , [ Simulation__VertexPositionFromFile("VertexPositionFromFile") ])
+        kwargs.setdefault("VertexShifters", [makeVertexPositionFromFile()])
     elif ConfigFlags.Sim.Vertex.Source == "CondDB" :
-        acc, tool = makeVertexBeamCondPositioner(ConfigFlags) 
-        result.merge(acc)
-        kwargs.setdefault("VertexShifters"          , [ Simulation__VertexBeamCondPositioner('VertexBeamCondPositioner') ])
+        tool = acc.popToolsAndMerge(makeVertexBeamCondPositioner(ConfigFlags))
+        kwargs.setdefault("VertexShifters", [tool])
     elif ConfigFlags.Sim.Vertex.Source == "LongBeamspotVertexPositioner":
-        kwargs.setdefault("VertexShifters"          , [ Simulation__LongBeamspotVertexPositioner('LongBeamspotVertexPositioner') ])
+        kwargs.setdefault("VertexShifters", [makeLongBeamspotVertexPositioner()])
 
-    
-    return result, Simulation__GenEventVertexPositioner(name, **kwargs)
+    acc.setPrivateTools(Simulation__GenEventVertexPositioner(name, **kwargs))
+    return acc
 
-#--------------------------------------------------------------------------------------------------
+
 ## LorentzVectorGenerators
 def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **kwargs):
     """Return a conditional (? todo) vertex positioner tool"""
-    # todo needs RandomSvc
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    BeamSpotCondAlg=CompFactory.BeamSpotCondAlg
-    from RngComps.RandomServices import AthEngines
+    from RngComps.RandomServices import RNG
 
-    result = ComponentAccumulator()
+    acc = ComponentAccumulator()
     
-    Engine = ConfigFlags.Random.Engine
-    kwargs.setdefault('RandomSvc', AthEngines[Engine])
-    
-    
-    #from AthenaCommon.Constants import VERBOSE
-    #kwargs.setdefault('OutputLevel', VERBOSE) #if we wish to add verbose output to the tool
-    
-    result.merge(addFoldersSplitOnline(ConfigFlags,"INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList'))
-    result.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg"))
-    return result, Simulation__VertexBeamCondPositioner(name, **kwargs)
+    acc.merge(RNG(engine=ConfigFlags.Random.Engine, name="AthRNGSvc"))
+    kwargs.setdefault('RandomSvc', acc.getService("AthRNGSvc"))
+
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
+
+    acc.setPrivateTools(Simulation__VertexBeamCondPositioner(name, **kwargs))
+    return acc
+
 
 def makeVertexPositionFromFile(name="VertexPositionFromFile", **kwargs):
     """Return a vertex positioner tool"""
     # todo input file? look at cxx for details
     return Simulation__VertexPositionFromFile(name, **kwargs)
 
+
 def makeCrabKissingVertexPositioner(name="CrabKissingVertexPositioner", **kwargs):
     """Return a Crab-Kissing vertex positioner tool"""
     # todo needs BunchLength, RandomSvc, BunchShape
     return Simulation__CrabKissingVertexPositioner(name, **kwargs)
+
 
 def makeLongBeamspotVertexPositioner(name="LongBeamspotVertexPositioner", **kwargs):
     """Return a long beamspot vertex positioner tool"""
     # todo needs LParameter and RandomSvc
     return Simulation__LongBeamspotVertexPositioner(name, **kwargs)
 
-#----------------------------------------------------------------------------------------------------
-def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
-    """Return an accumulator and algorithm for beam effects
-    
-    Arguments:
-    ConfigFlags ---
-    """
+
+def BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs):
+    """Return an accumulator and algorithm for beam effects, wihout output"""
     acc = ComponentAccumulator()
     alg = Simulation__BeamEffectsAlg(name="BeamEffectsAlg", **kwargs)
 
     # Set default properties
-    alg.ISFRun = False 
+    alg.ISFRun = ConfigFlags.Sim.ISFRun
     alg.InputMcEventCollection = "GEN_EVENT"
     alg.OutputMcEventCollection = "BeamTruthEvent"
 
-    accVertexPositioner, toolVertexPositioner = makeGenEventVertexPositioner(ConfigFlags)
+    toolVertexPositioner = acc.popToolsAndMerge(makeGenEventVertexPositioner(ConfigFlags))
 
      # Set (todo) the appropriate manipulator tools
     manipulators = []
@@ -120,18 +118,27 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     # manipulators.append(makeLongBeamspotVertexPositioner()) # todo Callback registration failed
     alg.GenEventManipulators += manipulators
 
-    #merge the accumulators
-    acc.merge(accVertexPositioner)
+    acc.addEventAlgo(alg, sequenceName="AthAlgSeq", primary=True)
+    return acc
 
-    return acc, alg
+
+def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
+    """Return an accumulator and algorithm for beam effects, with output"""
+    acc = BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs)
+    # Set to write HITS pool file
+    alg = acc.getPrimary()
+    ItemList = ["McEventCollection#" + alg.OutputMcEventCollection]
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge(OutputStreamCfg(ConfigFlags, "HITS", ItemList=ItemList, disableEventTag=True))
+    return acc
+
 
 if __name__ == "__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaCommon.Configurable import Configurable
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -163,28 +170,18 @@ if __name__ == "__main__":
     #included to stop segmentation error - TODO see why it's failing
     ConfigFlags.Input.isMC = True
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14" #conditions tag for conddb (which one to use - old one for simulation)
-    ConfigFlags.Input.RunNumber = 284500 # run test job with and without run number and 222510
+    ConfigFlags.Input.RunNumber = [284500] # run test job with and without run number and 222510
 
     # Finalize 
     ConfigFlags.lock()
 
     ## Initialize a new component accumulator
-    cfg = MainServicesSerialCfg() #use this syntax for storegate
+    cfg = MainServicesCfg(ConfigFlags) #use this syntax for storegate
     # Add configuration to read EVNT pool file
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Make use of our defiend function
-    acc, alg = BeamEffectsAlgCfg(ConfigFlags)
-    cfg.merge(acc)
-
-    # Add the algorithm into our accumulator
-    cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
-
-    # Add configuration to write HITS pool file
-    cfg.merge( OutputStreamCfg(ConfigFlags,
-     "HITS", 
-     ItemList=["McEventCollection#" + alg.OutputMcEventCollection])) #which collection in storegate gets written to output file
-
+    cfg.popToolsAndMerge(BeamEffectsAlgCfg(ConfigFlags))
 
     cfg.getService("StoreGateSvc").Dump=True
     cfg.printConfig(withDetails=True)

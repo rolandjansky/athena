@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( InDetByteStreamErrorsAthenaPool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Database/AthenaPOOL/AthenaPoolUtilities
-   DetectorDescription/Identifier
-   PRIVATE
-   GaudiKernel
-   AtlasTest/TestTools
-   Control/AthAllocators
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   InnerDetector/InDetConditions/InDetByteStreamErrors )
-
 # Component(s) in the package:
 atlas_add_poolcnv_library( InDetByteStreamErrorsAthenaPoolPoolCnv src/*.cxx
    FILES InDetByteStreamErrors/InDetBSErrContainer.h
@@ -36,22 +24,22 @@ atlas_add_dictionary( InDetByteStreamErrorsAthenaPoolCnvDict
 atlas_add_test( InDetBSErrContainerCnv_p1_test
    SOURCES test/InDetBSErrContainerCnv_p1_test.cxx
    src/InDetBSErrContainerCnv_p1.cxx
-   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators InDetByteStreamErrors )
 
 atlas_add_test( IDCInDetBSErrContainerCnv_p1_test
    SOURCES test/IDCInDetBSErrContainerCnv_p1_test.cxx
    src/IDCInDetBSErrContainerCnv_p1.cxx
-   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators InDetByteStreamErrors )
 
-atlas_add_test( TRT_BSErrContainerCnv_p1_test
-   SOURCES test/TRT_BSErrContainerCnv_p1_test.cxx
-   src/TRT_BSErrContainerCnv_p1.cxx
-   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
+#atlas_add_test( TRT_BSErrContainerCnv_p1_test
+#   SOURCES test/TRT_BSErrContainerCnv_p1_test.cxx
+#   src/TRT_BSErrContainerCnv_p1.cxx
+#   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators InDetByteStreamErrors )
 
 atlas_add_test( TRT_BSIdErrContainerCnv_p1_test
    SOURCES test/TRT_BSIdErrContainerCnv_p1_test.cxx
    src/TRT_BSIdErrContainerCnv_p1.cxx
-   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators InDetByteStreamErrors )
 
 # Install files from the package:
 atlas_install_headers( InDetByteStreamErrorsAthenaPool )

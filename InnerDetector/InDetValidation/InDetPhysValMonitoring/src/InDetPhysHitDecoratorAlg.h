@@ -11,6 +11,7 @@
  * @date 27 March 2014
  **/
 // STL includes
+#include <mutex>
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -88,6 +89,7 @@ private:
 
   const double m_ptThreshold;
   bool m_doUpgrade;
+  mutable std::atomic<bool> m_alreadyWarned{false};
   // the following help identify a surface in the detector
   const AtlasDetectorID* m_idHelper;
   const PixelID* m_pixelID;

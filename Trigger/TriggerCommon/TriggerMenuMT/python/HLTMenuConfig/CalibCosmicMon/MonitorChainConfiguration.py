@@ -6,7 +6,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.MonitorChain
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND
 from TrigGenericAlgs.TrigGenericAlgsConfig import TimeBurnerCfg, TimeBurnerHypoToolGen
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
@@ -33,6 +33,8 @@ class MonitorChainConfiguration(ChainConfigurationBase):
 
         if self.chainPartName == 'costmonitor':
             pass  # costmonitor is a streamer so has no steps
+        elif self.chainPartName == 'cscmon':
+            pass
         elif self.chainPartName == 'timeburner':
             chainSteps.append(self.getTimeBurnerStep())
         else:
@@ -46,6 +48,7 @@ class MonitorChainConfiguration(ChainConfigurationBase):
     def getTimeBurnerStep(self):
         # Input maker - required by the framework, but inputs don't matter for TimeBurner
         inputMaker = InputMakerForRoI("IM_TimeBurner")
+        inputMaker.RoITool = ViewCreatorInitialROITool()
         inputMaker.RoIs="TimeBurnerInputRoIs"
         inputMakerSeq = seqAND("TimeBurnerSequence", [inputMaker])
 

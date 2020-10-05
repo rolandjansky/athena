@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena
@@ -34,19 +34,19 @@ void PixelClusterContainerCnv_p2::transToPers(const InDet::PixelClusterContainer
     //   2) all PRD
     //
     // The persistent collections, then only maintain indexes into the
-    // container's vector of all channels. 
+    // container's vector of all channels.
     //
     // So here we loop over all collection and add their channels
     // to the container's vector, saving the indexes in the
-    // collection. 
+    // collection.
 
     typedef InDet::PixelClusterContainer TRANS;
-        
+
     // this is the id of the latest collection read in
     // This starts from the base of the TRT identifiers
     unsigned int idLast(0);
 
-    // 
+    //
     PixelClusterCnv_p2  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
@@ -55,7 +55,7 @@ void PixelClusterContainerCnv_p2::transToPers(const InDet::PixelClusterContainer
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
     //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
         const InDet::PixelClusterCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
@@ -63,13 +63,13 @@ void PixelClusterContainerCnv_p2::transToPers(const InDet::PixelClusterContainer
         InDet::InDetPRD_Collection_p2& pcollection = persCont->m_collections[collIndex];
 	unsigned int deltaId = (collection.identifyHash()-idLast);
 	//        unsigned int deltaId = (collection.identify().get_compact()-idLast)/IDJUMP;
-        // if(deltaId*IDJUMP != collection.identify().get_compact()-idLast ) 
+        // if(deltaId*IDJUMP != collection.identify().get_compact()-idLast )
         //   log << MSG::FATAL << "THere is a mistake in Identifiers of the collection" << endmsg;
         // if(deltaId > 0xFFFF) {
         //   log << MSG::FATAL << "Fixme!!! This is too big, something needs to be done " << endmsg;
         // }
         // pcollection.m_idDelta = (unsigned short) deltaId;
-        // idLast = collection.identify().get_compact(); // then update the last identifier 
+        // idLast = collection.identify().get_compact(); // then update the last identifier
         pcollection.m_hashId = deltaId;
 	idLast=collection.identifyHash();
         pcollection.m_size = collection.size();
@@ -85,7 +85,7 @@ void PixelClusterContainerCnv_p2::transToPers(const InDet::PixelClusterContainer
   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::PixelClusterContainer" << endmsg;
 }
 
-void  PixelClusterContainerCnv_p2::persToTrans(const InDet::PixelClusterContainer_p2* persCont, InDet::PixelClusterContainer* transCont, MsgStream &log) 
+void  PixelClusterContainerCnv_p2::persToTrans(const InDet::PixelClusterContainer_p2* persCont, InDet::PixelClusterContainer* transCont, MsgStream &log)
 {
 
     // The transient model has a container holding collections and the
@@ -97,7 +97,7 @@ void  PixelClusterContainerCnv_p2::persToTrans(const InDet::PixelClusterContaine
     //   2) all channels
     //
     // The persistent collections, then only maintain indexes into the
-    // container's vector of all channels. 
+    // container's vector of all channels.
     //
     // So here we loop over all collection and extract their channels
     // from the vector.
@@ -124,7 +124,7 @@ void  PixelClusterContainerCnv_p2::persToTrans(const InDet::PixelClusterContaine
 
         // Create trans collection - in NOT owner of PixelDriftCircle (SG::VIEW_ELEMENTS)
 	// IDet collection don't have the Ownership policy c'tor
-        const InDet::InDetPRD_Collection_p2& pcoll = persCont->m_collections[icoll];       
+        const InDet::InDetPRD_Collection_p2& pcoll = persCont->m_collections[icoll];
         idLast += pcoll.m_hashId;
         // Identifier collID= Identifier(idLast);
         IdentifierHash collIDHash=IdentifierHash((unsigned int) idLast);
@@ -142,7 +142,7 @@ void  PixelClusterContainerCnv_p2::persToTrans(const InDet::PixelClusterContaine
             const InDet::PixelCluster_p2* pchan = &(persCont->m_rawdata[ichan + collBegin]);
             InDet::PixelCluster* chan = new InDet::PixelCluster();
             chanCnv.persToTrans(pchan, chan, log);
-            chan->m_detEl = de;
+            chan->setDetectorElement(de);
 	    // DC Bugfix: Set the hash index!
             chan->setHashAndIndex(collIDHash, ichan);
             (*coll)[ichan] = chan;
@@ -200,7 +200,7 @@ StatusCode PixelClusterContainerCnv_p2::initialize(MsgStream &log) {
    if (sc.isFailure()) {
       log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
       return StatusCode::FAILURE;
-   } 
+   }
    //   else {
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
    //   }
@@ -210,7 +210,7 @@ StatusCode PixelClusterContainerCnv_p2::initialize(MsgStream &log) {
    if (sc.isFailure()) {
       log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
-   } 
+   }
    //   else {
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endmsg;
    //   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "src/TRTSensitiveDetector.h"
@@ -32,6 +32,8 @@
 #include "G4AtlasTools/DerivedG4SensitiveDetectorTestSetting.h"
 #include "MCTruth/TrackHelper.h"
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // googletest
+
 //set environment
 class GaudiEnvironment : public ::testing::Environment {
   protected:
@@ -56,9 +58,9 @@ TEST_F( TRTSensitiveDetectortest, Initialize)
   G4String name1, name2, name3;
   G4int Z1, Z2, Z3;
   G4double a1, a2, a3, density1, density2, density3;
-  G4Material* Xe = new G4Material(name1="XeCO2O2", Z1=54,a1=131*g/mole, density1=2.942*g/cm3);
-  G4Material* Kr = new G4Material(name2="KrCO2O2", Z2=36, a2=83*g/mole, density2=2.413*g/cm3);
-  G4Material* Ar = new G4Material(name3="ArCO2O2", Z3=18, a3=40*g/mole, density3=1.395*g/cm3);
+  G4Material* Xe = new G4Material(name1="trt::XeCO2O2", Z1=54,a1=131*g/mole, density1=2.942*g/cm3);
+  G4Material* Kr = new G4Material(name2="trt::KrCO2O2", Z2=36, a2=83*g/mole, density2=2.413*g/cm3);
+  G4Material* Ar = new G4Material(name3="trt::ArCO2O2", Z3=18, a3=40*g/mole, density3=1.395*g/cm3);
   (void)Xe;//just for silence those unused variables
   (void)Kr;
   (void)Ar;

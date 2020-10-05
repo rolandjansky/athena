@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/chamberPositionerHandler.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
 #include "AGDDKernel/AGDDDetector.h"
+#include "GeoModelKernel/Units.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <iostream>
-
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Geometry/Transform3D.h"
-
 
 chamberPositionerHandler::chamberPositionerHandler(std::string s):XMLHandler(s)
 {
@@ -20,14 +19,13 @@ chamberPositionerHandler::chamberPositionerHandler(std::string s):XMLHandler(s)
 void chamberPositionerHandler::ElementHandle()
 {
 	std::string volume=getAttributeAsString("volume");
-	
-	//AGDDVolume* theVol=AGDDVolumeStore::GetVolumeStore()->GetVolume(volume);
-	
+
 	AGDDDetector* mCham=(AGDDDetectorStore::GetDetectorStore())->GetDetector(volume);
 	std::string subType;
 	if (!mCham) 
 	{
-		std::cout<<"chamberPositionerHandler: something wrong! returning..."<<std::endl;
+		MsgStream log(Athena::getMessageSvc(),"chamberPositionerHandler");
+		log<<MSG::WARNING<<"ElementHandle() - Could not retrieve volume "<<volume<<" from DetectorStore!"<<endmsg;
 		return;
 	}
 	else
@@ -47,38 +45,27 @@ void chamberPositionerHandler::ElementHandle()
 	int etaIndex=getAttributeAsInt("etaIndex",0);
 	
 	double dPhi=360./iWedge;
-	
-
-	const double degrad=M_PI/180.;
-
 	if (iSectors.size()!= (unsigned int) iWedge) throw;
-	
-	// std::cout<<" =============>> this is chamberPositionerHandler::ElementHandle() "<<volume<<" "<<subType<<std::endl;
-	
+
  	for (int i=0;i<iWedge;i++)
  	{
  		if (iSectors[i]=='0') continue;
 		if (zLayout!="Z_NEGATIVE")
 		{
 			double Wedge=dPhi*i+phi0;
-			CLHEP::Hep3Vector cvec;
-			CLHEP::HepRotation crot;
+			GeoTrf::Transform3D crot = GeoTrf::Transform3D::Identity();
 			if (type=="ENDCAP") 
 			{
 				//	fix to ensure right order of planes			
-				crot.rotateZ(180.*degrad);
-				//
-				crot.rotateY(90*degrad);
-				crot.rotateZ(Wedge*degrad);
+				crot = crot*GeoTrf::RotateZ3D(Wedge*GeoModelKernelUnits::degree)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::degree)*GeoTrf::RotateZ3D(180.*GeoModelKernelUnits::degree);
 			}
-			else 
-				crot.rotateZ(Wedge*degrad);
- 			double x=radius*cos(Wedge*degrad);
- 			double y=radius*sin(Wedge*degrad);
+			else crot = crot*GeoTrf::RotateZ3D(Wedge*GeoModelKernelUnits::degree);
+ 			double x=radius*std::cos(Wedge*GeoModelKernelUnits::degree);
+ 			double y=radius*std::sin(Wedge*GeoModelKernelUnits::degree);
  			double zpos=zPos;
- 			cvec=CLHEP::Hep3Vector(x,y,zpos);
+ 			GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,zpos);
  			AGDDDetectorPositioner *p __attribute__((__unused__));
- 			p=new AGDDDetectorPositioner(volume,crot,cvec);
+ 			p=new AGDDDetectorPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
 			p->SensitiveDetector(true);
 			p->ID.phiIndex=i;
 			p->ID.sideIndex=1;
@@ -96,25 +83,19 @@ void chamberPositionerHandler::ElementHandle()
 		if (zLayout!="Z_POSITIVE")
         {
 			double Wedge=dPhi*i+phi0;
-            CLHEP::Hep3Vector cvec;
-            CLHEP::HepRotation crot;
+            GeoTrf::Transform3D crot = GeoTrf::Transform3D::Identity();
             if (type=="ENDCAP")
             {
 				//	fix to ensure right order of planes			
-				crot.rotateZ(180.*degrad);
-				//
-                crot.rotateY(90*degrad);
-                crot.rotateZ(-Wedge*degrad);
-				crot.rotateX(180.*degrad);
+				crot = crot*GeoTrf::RotateX3D(180.*GeoModelKernelUnits::degree)*GeoTrf::RotateZ3D(-Wedge*GeoModelKernelUnits::degree)*GeoTrf::RotateY3D(90*GeoModelKernelUnits::degree)*GeoTrf::RotateZ3D(180.*GeoModelKernelUnits::degree);
             }
-            else
-                crot.rotateZ(Wedge*degrad);
-            double x=radius*cos(Wedge*degrad);
-            double y=radius*sin(Wedge*degrad);
+            else crot = crot*GeoTrf::RotateZ3D(Wedge*GeoModelKernelUnits::degree);
+            double x=radius*std::cos(Wedge*GeoModelKernelUnits::degree);
+            double y=radius*std::sin(Wedge*GeoModelKernelUnits::degree);
             double zpos=zPos;
-            cvec=CLHEP::Hep3Vector(x,y,-zpos);
+            GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,-zpos);
             AGDDDetectorPositioner *p __attribute__((__unused__));
-            p=new AGDDDetectorPositioner(volume,crot,cvec);
+            p=new AGDDDetectorPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
 			p->SensitiveDetector(true);
 			p->ID.phiIndex=i;
 			p->ID.sideIndex=-1;

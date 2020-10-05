@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( DeadMaterial )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Utilities/GeoMaterial2G4 )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

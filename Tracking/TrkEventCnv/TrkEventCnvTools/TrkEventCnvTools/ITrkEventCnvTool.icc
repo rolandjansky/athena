@@ -10,14 +10,21 @@
 
 #include <typeinfo>
 
+
 template <class CONT, class ROT>
-void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot) const {
+void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(const ROT* rot,
+                                                          ELKey_t& key,
+                                                          ELIndex_t& index) const
+{
   // verify pointer is ok
   // assume EL is correct
   // get data handles to convertors
 
+  key = rot->m_rio.dataID();
+  index = rot->m_rio.index();
+
   bool isPersistifiable = (rot->m_rio.key() != 0
-                           and IdentContIndex(rot->m_rio.index()).isValid());
+                           and IdentContIndex(index).isValid());
 
   if (isPersistifiable) {
     return; // Already set - bail out.
@@ -30,7 +37,7 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot) const {
     return;
   }
 
-  const DataHandle<CONT> dh, dhEnd;
+  SG::ConstIterator<CONT> dh, dhEnd;
   StatusCode sc = m_storeGate->retrieve(dh, dhEnd);
   if (sc.isFailure()) {
     MsgStream log(&(*m_msgSvc), name());
@@ -41,20 +48,21 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot) const {
   // loop over dhs
   for ( ; dh!=dhEnd; dh++) {
     const Trk::PrepRawData* prd     = rot->prepRawData();
-    unsigned int            index   = prd->getHashAndIndex().objIndex(); // prd index within collection
+    unsigned int            oindex  = prd->getHashAndIndex().objIndex(); // prd index within collection
     IdentifierHash          idHash  = prd->getHashAndIndex().collHash(); // idHash of collection
 
-    CONT* cont = dh; // container
-    typename CONT::const_iterator coll = cont->indexFind(idHash); //matching collection
+    const CONT& cont = *dh; // container
+    auto coll = cont.indexFindPtr(idHash); //matching collection
 
     // does coll exist?
     // check prd exists in collection
     // check pointer value the same.
-    if ( (coll!=cont->end())&& ((*coll)->size()>index) && (prd==(**coll)[index]) ) {
+    if ( (coll!=nullptr)&& (coll->size()>oindex) && (prd==(*coll)[oindex]) ) {
       // okay, so we found the correct PRD in the container.
-      // Now set EL correctly. dh.key() is the name of the container. index is the index withtin the collection. IdHash????
-      rot->m_rio.resetWithKeyAndIndex(dh.key(), prd->getHashAndIndex().hashAndIndex() );
-            
+      // Return EL components.
+      // dh.key() is the name of the container. oindex is the index within the collection. IdHash????
+      key = dh.key();
+      index = prd->getHashAndIndex().hashAndIndex();
       return; //exit loop and function. We're done.
     }
   }
@@ -64,6 +72,15 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot) const {
       << "Dumping ROT: "<<*rot<<endmsg;
 
   return;
+}
+
+template <class CONT, class ROT>
+void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot) const
+{
+  ELKey_t key;
+  ELIndex_t index;
+  prepareRIO_OnTrackElementLink<CONT> (rot, key, index);
+  rot->m_rio.resetWithKeyAndIndex (key, index);
 }
 
 inline void Trk::ITrkEventCnvTool::setRoT_Values(std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *>& pair, Trk::RIO_OnTrack *RoT) const {
@@ -84,12 +101,11 @@ bool Trk::ITrkEventCnvTool::getHashAndIndex(const ROT* rot,
 
   const IdentContIndex& idContIndex{prd->getHashAndIndex()};
   const IdentifierHash& idHash{idContIndex.collHash()}; // idHash of collection
-  typename CONT::const_iterator contItr{cont->indexFind(idHash)}; //matching collection
-  if (contItr==cont->end()) return false;
-  if ((*contItr)==nullptr) return false;
+  auto contItr = cont->indexFindPtr(idHash); //matching collection
+  if (contItr==nullptr) return false;
 
   unsigned int index{idContIndex.objIndex()}; // prd index within collection
-  if (((*contItr)->size()>index) and (prd==(**contItr)[index])) {
+  if ((contItr->size()>index) and (prd==(*contItr)[index])) {
     hashAndIndex = idContIndex.hashAndIndex();
     return true;
   }

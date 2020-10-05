@@ -5,7 +5,7 @@ from future.utils import iteritems
 
 from builtins import int
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #######################################################################################################
 # Defines
@@ -206,7 +206,7 @@ class MixingPartitioner(object):
 	def preStageInputFiles(self,CastorOrDCache = 'Castor'):
 		from PyJobTransformsCore.FilePreStager import theFileStagerRobot		
 		if CastorOrDCache == 'Castor':
-			from PyJobTransformsCore import CastorPreStager
+                        print("WARNING: Castor is not supported anymore")
 		else:
 			from StreamMix import DCachePreStager
 		fileList = self.ListOfFilesToStage()

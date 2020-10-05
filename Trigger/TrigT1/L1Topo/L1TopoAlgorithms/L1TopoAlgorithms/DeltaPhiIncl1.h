@@ -37,6 +37,7 @@ namespace TCS {
       parType_t      p_DeltaPhiMax[2] = {0, 0};
       parType_t      p_MinET1[2] = { 0,0 };
       parType_t      p_MinET2[2] = { 0,0 };
+
    };
    
 }

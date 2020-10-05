@@ -1,29 +1,9 @@
-# $Id: CMakeLists.txt 780090 2016-10-24 15:27:10Z krasznaa $
 ################################################################################
 # Package: ISF_Algorithms
 ################################################################################
 
 # Declare the package name:
 atlas_subdir( ISF_Algorithms )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   GaudiKernel
-   Control/AthenaBaseComps
-   Control/StoreGate
-   DetectorDescription/AtlasDetDescr
-   InnerDetector/InDetSimEvent
-   LArCalorimeter/LArSimEvent
-   TileCalorimeter/TileSimEvent
-   MuonSpectrometer/MuonSimEvent
-   Generators/AtlasHepMC
-   Generators/GeneratorObjects
-   Simulation/Interfaces/HepMC_Interfaces
-   Simulation/ISF/ISF_Core/ISF_Event
-   Simulation/ISF/ISF_Core/ISF_Interfaces
-   Tools/PmbCxxUtils
-   AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -80,4 +60,3 @@ set_target_properties( ISF_Algorithms_SimKernelMT_test PROPERTIES ENABLE_EXPORTS
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )

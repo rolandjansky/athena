@@ -2,6 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_STANDALONE 
+
 /**
  * Tau Electron Overlap Removal Decorator Tool
  *
@@ -47,7 +49,7 @@ StatusCode TauEleOLRDecorator::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
+StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau) const
 {
   // get electron container                                                                                                                               
   SG::ReadHandle<xAOD::ElectronContainer> electronInHandle( m_electronInputContainer );
@@ -97,15 +99,12 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauEleOLRDecorator::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-float TauEleOLRDecorator::getCutVal(float fEta, float fPt)
+float TauEleOLRDecorator::getCutVal(float fEta, float fPt) const
 {
   if(fPt>1900) fPt=1900;
   if(std::abs(fEta)>2.465) fEta=2.465;
   int iBin= m_hCutValues->FindBin(fPt, std::abs(fEta));
   return m_hCutValues->GetBinContent(iBin);
 }
+
+#endif

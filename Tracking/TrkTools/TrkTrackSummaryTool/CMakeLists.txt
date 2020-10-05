@@ -31,7 +31,8 @@ atlas_add_component( TrkTrackSummaryTool
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps AthContainers GaudiKernel TrkParameters TrkTrackSummary TrkToolInterfaces AtlasDetDescr 
-		     Identifier TrkDetElementBase TrkGeometry TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkRIO_OnTrack TrkTrack CxxUtils)
+		     Identifier TrkDetElementBase TrkGeometry TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkRIO_OnTrack TrkTrack CxxUtils
+                     TRT_ElectronPidToolsLib )
 
 # Install files from the package:
 atlas_install_headers( TrkTrackSummaryTool )

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file ParticleEventTPCnv/test/INav4MomToTrackParticleAssocsCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -63,6 +61,9 @@ void test1()
   ElementLink<INavigable4MomentumCollection> dum1 ("in", 3);
   ElementLink<Rec::TrackParticleContainer> dum2   ("tp", 2);
   DataLink<INav4MomToTrackParticleAssocs> storelink ("xstore");
+
+  INavigable4MomentumCollection::dvlinfo();
+
   Athena_test::Leakcheck check;
 
   INav4MomToTrackParticleAssocs trans1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelCable.h"
@@ -10,8 +10,10 @@
 
 #include <sstream>
 
-GeoPixelCable::GeoPixelCable() 
-  :   m_currentElement(-1)
+GeoPixelCable::GeoPixelCable(InDetDD::PixelDetectorManager* ddmgr,
+                             PixelGeometryManager* mgr)
+  :   GeoVPixelFactory(ddmgr, mgr),
+      m_currentElement(-1)
 {
   fillElements(m_gmt_mgr->GetLD(), m_gmt_mgr->Phi());
   if (m_elements.empty()) { // If no information for layer use layer 0 numbers.

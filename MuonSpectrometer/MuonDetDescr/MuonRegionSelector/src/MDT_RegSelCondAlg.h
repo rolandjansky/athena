@@ -20,7 +20,12 @@ public:
 
   MDT_RegSelCondAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
-  std::unique_ptr<RegSelSiLUT> createTable( const MuonMDT_CablingMap* cabling ) const override;   
+  std::unique_ptr<RegSelSiLUT> createTable( const EventContext& ctx, EventIDRange& id_range ) const override;   
+
+  virtual StatusCode initialize() override;
+
+  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_cablingKey
+    { this, "Cabling", "MuonMDT_CablingMap", "Key of output MDT cabling map" };
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDRING_H
@@ -10,6 +10,7 @@
 class SCT_FwdModule;
 class SCT_FwdCoolingBlock;
 
+#include <memory>
 #include <vector>
 
 class GeoNameTag;
@@ -35,10 +36,6 @@ public:
   //explicitly disallow copy, assignment to appease coverity
   SCT_FwdRing(const SCT_FwdRing &) = delete;
   SCT_FwdRing & operator=(const SCT_FwdRing &) = delete;
-
-  // Ring type
-  //int ringType() const {return m_ringType;}  
-  //int ringType() const {return m_module->ringType();}
 
   //
   // Retrieve parameters
@@ -110,10 +107,10 @@ private:
 
   // Child detector elements
   SCT_FwdModule* m_module;
-  SCT_FwdCoolingBlock * m_coolingBlockHiMain;
-  SCT_FwdCoolingBlock * m_coolingBlockHiSec;
-  SCT_FwdCoolingBlock * m_coolingBlockLoMain;
-  SCT_FwdCoolingBlock * m_coolingBlockLoSec;
+  std::unique_ptr<SCT_FwdCoolingBlock> m_coolingBlockHiMain;
+  std::unique_ptr<SCT_FwdCoolingBlock> m_coolingBlockHiSec;
+  std::unique_ptr<SCT_FwdCoolingBlock> m_coolingBlockLoMain;
+  std::unique_ptr<SCT_FwdCoolingBlock> m_coolingBlockLoSec;
 
   GeoPhysVol * m_moduleServicesHi;
   GeoPhysVol * m_moduleServicesLo;

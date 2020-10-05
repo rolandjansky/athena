@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_Event )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          AtlasTest/TestTools
-                          Control/AthenaBaseComps
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/GeoPrimitives
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          GaudiKernel
-                          Simulation/Barcode/BarcodeEvent )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
@@ -26,10 +15,10 @@ atlas_add_library( ISF_Event
                    PUBLIC_HEADERS ISF_Event
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} TestTools AthenaBaseComps AtlasDetDescr BarcodeEventLib GeoPrimitives GeneratorObjects GaudiKernel )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCsearchLib ${EIGEN_LIBRARIES} TestTools AthenaBaseComps AtlasDetDescr BarcodeEventLib GeoPrimitives GeneratorObjects GaudiKernel )
 
 atlas_add_test( ISFParticle_test
                 SOURCES
                 test/ISFParticle_test.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} TestTools AthenaBaseComps AtlasDetDescr GeoPrimitives GeneratorObjects GaudiKernel ISF_Event )
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCsearchLib ${EIGEN_LIBRARIES} TestTools AthenaBaseComps AtlasDetDescr GeoPrimitives GeneratorObjects GaudiKernel ISF_Event )

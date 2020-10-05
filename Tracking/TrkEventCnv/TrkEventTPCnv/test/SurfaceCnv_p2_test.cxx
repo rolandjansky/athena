@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrkEventTPCnv/test/SurfaceCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -20,6 +18,7 @@
 #include "Gaudi/PluginService.h"
 #include "TestTools/leakcheck.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -36,6 +35,10 @@ public:
   virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack */*RoT*/ ) const override
   { std::abort(); }
   virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* /*Rot*/) const override
+  { std::abort(); }
+  virtual void prepareRIO_OnTrackLink( const Trk::RIO_OnTrack* /*Rot*/,
+                                       ELKey_t& /*key*/,
+                                       ELIndex_t& /*index*/ ) const override
   { std::abort(); }
   virtual bool canHandleInDet() const override
   { std::abort(); }
@@ -203,7 +206,7 @@ void populate_surfaces()
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -235,7 +238,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   // This isn't really needed, except that without it, CommonMessaging
   // will leak memory, causing a Leakcheck failure.

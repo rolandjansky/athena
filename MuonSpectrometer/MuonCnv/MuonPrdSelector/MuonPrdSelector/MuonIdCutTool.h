@@ -1,26 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTTOOL_H
 #define TESTTOOL_H
 
 #include "MuonPrdSelector/IMuonIdCutTool.h"
-
-
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "Identifier/Identifier.h"
-#include <vector>
-#include <set>
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class MsgStream;
+#include <string>
+#include <vector>
+#include <set>
+
 class MuonStationIntersectSvc;
-
 
   /** 
       Implementation of an IMuonIdCutTool. 
@@ -35,13 +33,10 @@ class MuonIdCutTool :  virtual public IMuonIdCutTool, public AthAlgTool   {
     MuonIdCutTool(const std::string&, const std::string&, const IInterface*);
     
     /** destructor */
-    virtual ~MuonIdCutTool();
+    virtual ~MuonIdCutTool()=default;
     
     /** initialize method, method taken from bass-class AlgTool */
     StatusCode initialize();
-
-    /** finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
     
     virtual bool isCut(Identifier ID) const;
     virtual bool isCut(MuonCalib::MuonFixedId id) const;
@@ -85,12 +80,9 @@ class MuonIdCutTool :  virtual public IMuonIdCutTool, public AthAlgTool   {
  
     int FindSector(unsigned int staName, unsigned int staPhi) const;
 
+    ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool{this,"IdToFixedIdTool","MuonCalib::IdToFixedIdTool","tool to assist with Identifiers"};
 
-
-    ToolHandle<MuonCalib::IIdToFixedIdTool>        m_idToFixedIdTool;     //<! tool to assist with Identifiers
-
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     std::vector<int> m_EELeta;
     std::vector<int> m_EELsector;

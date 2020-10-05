@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( MCTruth )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          PRIVATE
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/G4Sim/SimHelpers )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

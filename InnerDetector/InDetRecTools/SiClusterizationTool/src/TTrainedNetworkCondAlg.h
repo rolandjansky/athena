@@ -18,6 +18,8 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include <string>
 
+#include "TFile.h"
+
 class IPoolSvc;
 class TTrainedNetwork;
 

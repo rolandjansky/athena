@@ -15,7 +15,7 @@
  ****************************************************************************/
 
 //main header
-#include "InDetGlobalMonitoringRun3Test/InDetGlobalTrackMonAlg.h"
+#include "InDetGlobalTrackMonAlg.h"
 
 //Standard c++
 #include <vector>
@@ -162,7 +162,7 @@ StatusCode InDetGlobalTrackMonAlg::fillHistograms( const EventContext& ctx ) con
       continue;
     
     // Create a new summary or get copy of the cached one
-    std::unique_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary( * track ) );
+    std::unique_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->summary( * track ) );
     
     if ( !summary )
       {

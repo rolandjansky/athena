@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactory.h"
@@ -37,9 +37,11 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
-InDetServMatFactory::InDetServMatFactory(const InDetDD::AthenaComps * athenaComps)
+InDetServMatFactory::InDetServMatFactory(InDetDD::AthenaComps * athenaComps)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_manager(0)
 {  

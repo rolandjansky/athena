@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotFinder.h"
@@ -109,7 +109,7 @@ BeamSpot::Event InDet::InDetBeamSpotFinder::readEvent(const xAOD::EventInfo & ev
   event.eventTime    = eventInfo.timeStamp();
   event.eventTime_NS = eventInfo.timeStampNSOffset();
   event.eventNumber  = eventInfo.eventNumber();
-  const DataHandle<EventInfo> BSeventInfo; 
+  const EventInfo* BSeventInfo; 
   //This is required for pseudo lumiblocks 
   if( evtStore()->retrieve(BSeventInfo) != StatusCode::SUCCESS){
     ATH_MSG_ERROR("Cannot get event info.");

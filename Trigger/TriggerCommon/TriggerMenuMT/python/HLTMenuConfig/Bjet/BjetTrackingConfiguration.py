@@ -3,22 +3,36 @@
 from AthenaCommon.CFElements import seqAND
 #from AthenaCommon.Constants import DEBUG
 
-def getSecondStageBjetTracking( inputRoI ):
+def getSecondStageBjetTracking( inputRoI, dataObjects ):
     algSequence = []
 
+
     # Second stage of Fast tracking (for precision tracking preparation)
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'bjet' )
+
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs = makeInDetAlgs( whichSignature='Jet',separateTrackParticleCreator="_Bjet", rois=inputRoI )
+
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois=inputRoI)
+
+    viewVerify.DataObjects += dataObjects
+
+    # Make sure the required objects are still available at whole-event level
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    from AthenaCommon.GlobalFlags import globalflags
+    if not globalflags.InputFormat.is_bytestream():
+      viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+      topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
     algSequence.append( seqAND("SecondStageFastTrackingSequence",viewAlgs) )
 
     # Precision Tracking
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
+    algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", rois=inputRoI, inputFTFtracks="TrigFastTrackFinder_Tracks_Bjet" )
-    algSequence += PTAlgs
-
-    return [ algSequence, PTTracks, PTTrackParticles ]
+    return [ algSequence, PTTrackParticles ]
 
 
 

@@ -30,23 +30,11 @@ def _loadBasicAthenaRoot():
      if not hasattr (svcMgr, 'ProxyProviderSvc'):
          svcMgr += CfgMgr.ProxyProviderSvc()
             
-     #
-     # Make sure AthenaSealSvc is loaded for dict check
-     svcMgr += CfgMgr.AthenaSealSvc()
-            
-     #
      # Make sure AthenaPoolServices is loaded for custom streamer
      try:
           svcMgr += CfgMgr.AthenaRootStreamerSvc()
      except TypeError:
           msg.info("could not load AthenaRootStreamerSvc")
-          pass
-     
-     # Load streamer allowing conversion of old CLHEP classes
-     try:
-          import AtlasSealCLHEP.OldCLHEPStreamers
-     except ImportError:
-          msg.info("could not load AtlasSealCLHEP")
           pass
      
      if not hasattr (svcMgr, 'InputMetaDataStore'):

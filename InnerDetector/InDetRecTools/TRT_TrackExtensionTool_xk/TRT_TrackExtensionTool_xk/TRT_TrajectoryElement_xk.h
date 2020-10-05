@@ -15,7 +15,6 @@
 #ifndef TRT_TrajectoryElement_xk_H
 #define TRT_TrajectoryElement_xk_H
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -37,9 +36,9 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
       TRT_TrajectoryElement_xk();
       TRT_TrajectoryElement_xk(const TRT_TrajectoryElement_xk&);
       ~TRT_TrajectoryElement_xk();
@@ -56,9 +55,9 @@ namespace InDet{
       const double&  radiusMax()                    const {return m_radiusMax ;}
       const double&  dpositive()                    const {return m_dpositive ;}
       const double&  dnegative()                    const {return m_dnegative ;}
-      const InDetDD::TRT_BaseElement* detElement()  const {return m_detelement;}  
+      const InDetDD::TRT_BaseElement* detElement()  const {return m_detelement;}
       const TRT_ExtensionDriftCircleLink_xk&   link  (int i) const {return m_link[i]    ;}
- 
+
       ///////////////////////////////////////////////////////////////////
       // Main methods
       ///////////////////////////////////////////////////////////////////
@@ -71,7 +70,7 @@ namespace InDet{
          double                             );
 
       void set
-      (const Trk::MagneticFieldProperties&,const MagField::IMagFieldSvc*, const AtlasFieldCacheCondObj* );
+      (const Trk::MagneticFieldProperties&, const AtlasFieldCacheCondObj* );
 
       bool initiateForPrecisionSeed     (bool,const InDetDD::TRT_BaseElement*&,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
@@ -92,7 +91,7 @@ namespace InDet{
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
 					 std::pair<Amg::Vector3D,double>&,
 					 const double*,double);
-      
+
       bool boundaryTest(double,std::pair<Amg::Vector3D,double>&);
 
       bool buildForPrecisionSeed(double,double,bool&,bool&);
@@ -120,14 +119,14 @@ namespace InDet{
 	(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
 
     protected:
-      
+
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
       bool                                               m_barrel     ;
       bool                                               m_isCluster  ;
-      int                                                m_status     ;  
+      int                                                m_status     ;
       int                                                m_bestlink   ;
       int                                                m_nlinks     ;
       double                                             m_z          ;
@@ -144,10 +143,9 @@ namespace InDet{
       const TRT_ID                   *                   m_trtid      ;
       const Trk::IPatternParametersPropagator*           m_proptool   ;
       const Trk::IPatternParametersUpdator*              m_updatortool;
-      const Trk::IRIO_OnTrackCreator       *             m_riomakerD  ; 
-      const Trk::IRIO_OnTrackCreator       *             m_riomakerN  ; 
+      const Trk::IRIO_OnTrackCreator       *             m_riomakerD  ;
+      const Trk::IRIO_OnTrackCreator       *             m_riomakerN  ;
       Trk::MagneticFieldProperties                       m_fieldprop  ;
-      const MagField::IMagFieldSvc*                      m_fieldService;
       MagField::AtlasFieldCache                          m_fieldCache;
 
       ///////////////////////////////////////////////////////////////////
@@ -163,7 +161,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
     };
-  
+
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
@@ -172,8 +170,8 @@ namespace InDet{
     {
       m_isCluster   = false;
       m_status      =-1    ;
-      m_riomakerD   = 0    ; 
-      m_riomakerN   = 0    ; 
+      m_riomakerD   = 0    ;
+      m_riomakerN   = 0    ;
       m_proptool    = 0    ;
       m_updatortool = 0    ;
       m_trtid       = 0    ;
@@ -190,7 +188,6 @@ namespace InDet{
       m_dpositive   = 0.   ;
       m_dnegative   = 0.   ;
       m_detelement  = 0    ;
-      m_fieldService= 0    ;    
     }
 
   inline TRT_TrajectoryElement_xk::TRT_TrajectoryElement_xk
@@ -198,9 +195,9 @@ namespace InDet{
     {
       (*this) = E;
     }
-  
-  inline TRT_TrajectoryElement_xk& TRT_TrajectoryElement_xk::operator = 
-    (const TRT_TrajectoryElement_xk& E) 
+
+  inline TRT_TrajectoryElement_xk& TRT_TrajectoryElement_xk::operator =
+    (const TRT_TrajectoryElement_xk& E)
     {
       m_status      = E.m_status     ;
       m_isCluster   = E.m_isCluster  ;
@@ -237,5 +234,3 @@ namespace InDet{
 } // end of name space
 
 #endif // TRT_TrajectoryElement_xk
-
-

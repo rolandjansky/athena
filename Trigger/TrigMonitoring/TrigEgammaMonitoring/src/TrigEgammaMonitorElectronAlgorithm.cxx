@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorElectronAlgorithm.h"
-
 
 using namespace Trig;
 
@@ -24,7 +23,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::initialize()
   ATH_CHECK(m_offElectronKey.initialize());
  
 
-  for(const auto trigName:m_trigInputList)
+  for(const auto& trigName:m_trigInputList)
   {
     if(getTrigInfoMap().count(trigName) != 0){
       ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -53,15 +52,13 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 
     ATH_MSG_DEBUG("Chains for Analysis " << m_trigList);
 
-    for(const auto trigger : m_trigList){
+    for(const auto& trigger : m_trigList){
         
         const TrigInfo info = getTrigInfo(trigger);
         
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
  
-
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjs;
-        
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType, pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
@@ -69,16 +66,16 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
         }
 
 
-
-
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
+
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
     } // End loop over trigger list
-    
-    
+ 
+
     return StatusCode::SUCCESS;
 }
 
@@ -148,7 +145,8 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
       xAOD::Electron *el = new xAOD::Electron(*eg);
       el->auxdecor<bool>(decor)=static_cast<bool>(true);
 
-      match()->match(el, trigItem, dec);
+      match()->match(el, trigItem, dec, TrigDefs::includeFailedDecisions);
+      //match()->match(el, trigItem, dec);
       std::pair< const xAOD::Electron*, const TrigCompositeUtils::Decision * > pair(el,dec);
       pairObjs.push_back(pair);
 

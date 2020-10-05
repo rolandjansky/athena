@@ -7,10 +7,11 @@
 
 #include "AsgTools/AsgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TFile.h"
+#include "TF1.h"
 #include "TH2D.h"
 #include "TSystem.h" // Replace with PathResolver
 #include "TMVA/Reader.h"
@@ -97,11 +98,15 @@ namespace CP {
       virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const override;
       bool passedLowPtEfficiencyMVACut(const xAOD::Muon&) const;
 
-      /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
+      /// Returns true if a CB muon passes a pt- and eta-dependent cut on the relative CB q/p error
       virtual bool passedErrorCutCB(const xAOD::Muon&) const override;
 
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
       virtual bool isBadMuon(const xAOD::Muon&) const override;
+
+      /// Returns true if the muon passes a cut which mimics the effect of the combined error cut
+      /// This is necessary only when the resolution is very optimistic in the MC such that a large smearing is applied
+      bool passedBMVmimicCut(const xAOD::Muon&) const;
 
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
       virtual xAOD::Muon::Quality getQuality( const xAOD::Muon& mu ) const override;
@@ -120,12 +125,11 @@ namespace CP {
    private:
 
      MuonSelectionTool & operator=(const MuonSelectionTool &right);
-     MuonSelectionTool( const MuonSelectionTool& toCopy );
+
      const std::string m_name;
       /// Maximum pseudorapidity for the selected muons
      double m_maxEta;
      int  m_quality;
-     bool m_isSimulation;
      
      /// Store selection information.
      asg::AcceptInfo m_acceptInfo;
@@ -140,6 +144,7 @@ namespace CP {
      bool m_useAllAuthors;
      bool m_use2stationMuonsHighPt;
      bool m_useMVALowPt;
+     bool m_doBadMuonVetoMimic;
      
      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
 
@@ -148,14 +153,18 @@ namespace CP {
      std::string m_MVAreaderFile_EVEN_MuGirl;
      std::string m_MVAreaderFile_ODD_MuGirl;
 
+     std::string m_BMVcutFile;
+
      /// Checks for each histogram  
-     StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
+     StatusCode getHist( TFile* file, const char* histName, std::unique_ptr<TH2D>& hist );
      // 
-     std::string m_tightWP_rootFile;
-     TH2D* m_tightWP_lowPt_rhoCuts;
-     TH2D* m_tightWP_lowPt_qOverPCuts;
-     TH2D* m_tightWP_mediumPt_rhoCuts;
-     TH2D* m_tightWP_highPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_lowPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_lowPt_qOverPCuts;
+     std::unique_ptr<TH2D> m_tightWP_mediumPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_highPt_rhoCuts;
+     //
+     std::unique_ptr<TF1> m_BMVcutFunction_barrel;
+     std::unique_ptr<TF1> m_BMVcutFunction_endcap;
 
      // subfolder to load from the calibration db
      std::string m_calibration_version;
@@ -174,10 +183,10 @@ namespace CP {
      bool isBMG(const float eta, const float phi) const;
 
      //TMVA readers for low-pT working point
-     TMVA::Reader* m_readerE_MUID;
-     TMVA::Reader* m_readerO_MUID;
-     TMVA::Reader* m_readerE_MUGIRL;
-     TMVA::Reader* m_readerO_MUGIRL;
+     std::unique_ptr<TMVA::Reader> m_readerE_MUID;
+     std::unique_ptr<TMVA::Reader> m_readerO_MUID;
+     std::unique_ptr<TMVA::Reader> m_readerE_MUGIRL;
+     std::unique_ptr<TMVA::Reader> m_readerO_MUGIRL;
 
      //TMVA initialize function
      void PrepareReader(TMVA::Reader* reader);

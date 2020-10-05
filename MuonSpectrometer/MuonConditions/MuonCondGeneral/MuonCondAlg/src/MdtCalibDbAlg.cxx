@@ -10,7 +10,6 @@
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "MdtCalibData/CalibFunc.h"
 #include "MuonCalibStl/ToString.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
@@ -22,48 +21,34 @@
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibIdentifier/MdtCalibCreationFlags.h"
-#include <fstream>
-#include <string>
-#include <vector>
-
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
-
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/RtFromPoints.h"
 #include "MdtCalibData/RtResolutionFromPoints.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "AthenaKernel/RNGWrapper.h"
-
-#include "TSpline.h"
-#include "TFile.h"
-
-//like MdtCalibrationDbSvc
-//for corData in loadRt
-
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/BFieldCorFunc.h"
 #include "MdtCalibData/WireSagCorFunc.h"
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
 #include "MdtCalibData/CalibFunc.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 //TODO: use smart pointers
 //TODO: avoid dynamic char array
 //TODO: check if temporary things can be removed
 
-#include "GaudiKernel/PhysicalConstants.h"
+#include "TSpline.h"
+#include "TFile.h"
+#include <fstream>
 
 MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_condSvc{"CondSvc", name},
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
-  m_regionSvc("MdtCalibrationRegionSvc", name),
   m_rtFolder("/MDT/RTBLOB"),
   m_tubeFolder("/MDT/T0BLOB"),
   m_TimeSlewingCorrection(false),
@@ -141,7 +126,6 @@ StatusCode MdtCalibDbAlg::initialize(){
   }
 
   ATH_CHECK( m_idHelperSvc.retrieve() );
-  ATH_CHECK( detStore()->retrieve( m_detMgr ) );
   ATH_CHECK( m_regionSvc.retrieve() );
   ATH_CHECK( m_idToFixedIdTool.retrieve() );
 
@@ -184,6 +168,7 @@ StatusCode MdtCalibDbAlg::initialize(){
   ATH_CHECK(m_writeKeyRt.initialize());
   ATH_CHECK(m_writeKeyTube.initialize());
   ATH_CHECK(m_writeKeyCor.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
 
   if(m_condSvc->regHandle(this, m_writeKeyRt).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyRt.fullKey() << " with CondSvc");
@@ -203,14 +188,17 @@ StatusCode MdtCalibDbAlg::initialize(){
 
 StatusCode MdtCalibDbAlg::execute(){
   
-  ATH_MSG_DEBUG( "execute " << name() );  
+  ATH_MSG_DEBUG( "execute " << name() );
 
-  if ( loadRt().isFailure() ) {
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+
+  if ( loadRt(muDetMgr).isFailure() ) {
     ATH_MSG_FATAL("loadRt().isFailure()");
     return StatusCode::FAILURE;
   }
 
-  if ( loadTube().isFailure() ) {
+  if ( loadTube(muDetMgr).isFailure() ) {
     ATH_MSG_FATAL("loadTube().isFailure()");
     return StatusCode::FAILURE;
   }
@@ -359,7 +347,7 @@ StatusCode MdtCalibDbAlg::defaultRt(std::unique_ptr<MdtRtRelationCollection>& wr
 }
 
 
-StatusCode MdtCalibDbAlg::loadRt(){
+StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
   ATH_MSG_DEBUG( "loadRt " << name() );
 
   SG::WriteCondHandle<MdtRtRelationCollection> writeHandleRt{m_writeKeyRt};
@@ -475,7 +463,7 @@ StatusCode MdtCalibDbAlg::loadRt(){
     float multilayer_tmax_diff(-9e9);
 
     double innerTubeRadius = -9999.;
-    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(athenaId,1,1,1) );
+    const MuonGM::MdtReadoutElement *detEl = muDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(athenaId,1,1,1) );
     if( !detEl ){
       ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_idHelperSvc->mdtIdHelper().print_to_string(athenaId) );
     } else {
@@ -664,7 +652,7 @@ StatusCode MdtCalibDbAlg::loadRt(){
 
 
 // build the transient structure and load some defaults for T0s
-StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube) {
+StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube, const MuonGM::MuonDetectorManager* muDetMgr) {
 
   if ( writeCdoTube == nullptr ) {
     ATH_MSG_ERROR("writeCdoTube == nullptr");
@@ -686,7 +674,7 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
   for(; it!=it_end;++it ) {
     MuonCalib::MdtTubeCalibContainer *tubes=0;
     //create an MdtTubeContainer
-    tubes = buildMdtTubeCalibContainer(*it);
+    tubes = buildMdtTubeCalibContainer(*it, muDetMgr);
 
     // is tubes ever 0?  how could that happen?
     if(tubes) {
@@ -741,7 +729,7 @@ StatusCode MdtCalibDbAlg::defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollec
 }  //end MdtCalibDbAlg::defaultT0s
 
 
-StatusCode MdtCalibDbAlg::loadTube(){
+StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
   ATH_MSG_DEBUG( "loadTube " << name() );
 
   SG::WriteCondHandle<MdtTubeCalibContainerCollection> writeHandleTube{m_writeKeyTube};
@@ -755,7 +743,7 @@ StatusCode MdtCalibDbAlg::loadTube(){
   //m_tubeData is writeCdoTube here
   //atrc is readCdoTube here
 
-  if ( defaultT0s(writeCdoTube).isFailure() ) {
+  if ( defaultT0s(writeCdoTube, muDetMgr).isFailure() ) {
     ATH_MSG_FATAL("defaultT0s().isFailure()");
     return StatusCode::FAILURE;
   }
@@ -895,8 +883,16 @@ StatusCode MdtCalibDbAlg::loadTube(){
     int size      = nml*nlayers*ntubesLay;
 
     if(size!=ntubes) {
-      ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size does not match the one found in DB ");
-      return StatusCode::FAILURE;
+      // currently there is no calibration DB for Run3 or Run4, i.e. nothing for the new
+      // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
+      if (m_idHelperSvc->issMdt(chId) && name.find("BI")!=std::string::npos) {
+        ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
+        return StatusCode::SUCCESS;
+      }
+      else {
+        ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId<< " size ("<<size<<") does not match the one found in DB ("<<ntubes<<")");
+        return StatusCode::FAILURE;
+      }
     }
 
     //Extract T0, ADCcal, valid flag for each tube from payload.
@@ -972,13 +968,13 @@ StatusCode MdtCalibDbAlg::loadTube(){
 
 
 // Build a MuonCalib::MdtTubeCalibContainer for a given Identifier
-MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(const Identifier &id) {    
+MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(const Identifier &id, const MuonGM::MuonDetectorManager* muDetMgr) {    
   MuonCalib::MdtTubeCalibContainer *tubes = 0;
 
-  const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(id,1,1,1) );
+  const MuonGM::MdtReadoutElement *detEl = muDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(id,1,1,1) );
   const MuonGM::MdtReadoutElement *detEl2 = 0;
   if (m_idHelperSvc->mdtIdHelper().numberOfMultilayers(id) == 2){
-    detEl2 = m_detMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(id,2,1,1) );
+    detEl2 = muDetMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(id,2,1,1) );
   } else {
     ATH_MSG_VERBOSE( "A single multilayer for this station " << m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id))<<","<< m_idHelperSvc->mdtIdHelper().stationPhi(id) <<","<< m_idHelperSvc->mdtIdHelper().stationEta(id) );
   }

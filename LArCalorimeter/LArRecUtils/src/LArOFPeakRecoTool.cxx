@@ -7,6 +7,7 @@
 #include "CLHEP/Matrix/Vector.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 #include <algorithm>
 #include <cmath>
 
@@ -23,10 +24,9 @@ LArOFPeakRecoTool::LArOFPeakRecoTool(const std::string& type, const std::string&
   //m_nSamples(0xFFFFFFFF) //shall compare false to any possible number of samples
 {
   declareProperty("Iterate",m_iterate=false) ;
-  declareProperty("KeyOFC",m_keyOFC="LArOFC") ;
-  declareProperty("KeyShape",m_keyShape="LArShape") ;
   declareProperty("UseShape",m_useShape=false,"Use the LArShape to compute quality factor");
   declareProperty("UseShapeDer",m_useShapeDer=true,"Use the shape derivative in the quality factor computation");
+  declareProperty("isSuperCell",m_isSC=false,"switch to use SuperCells");
 // DelayShift = different with delay run in 25/24 ns units
 //   23 is the ad-hoc value for run 5640-5641
   declareProperty("DelayShift",m_delayShift=23);
@@ -43,20 +43,30 @@ LArOFPeakRecoTool::~LArOFPeakRecoTool() {
 StatusCode LArOFPeakRecoTool::initialize() {
   ATH_MSG_DEBUG("initializing LArOFPeakRecoTool...");
   
-// call back for OFC 
-  
-  ATH_CHECK(  detStore()->regHandle(m_dd_ofc,m_keyOFC) );
-  ATH_MSG_INFO( " register callback for OFC "  );
+  ATH_CHECK(  m_keyOFC.initialize() );
 
   if (m_useShape) {
-    ATH_CHECK(  detStore()->regHandle(m_dd_shape,m_keyShape) );
+    ATH_CHECK(  m_keyShape.initialize() );
   }
   else {
     ATH_MSG_WARNING( "jobOption 'UseShape' set to false. Will work without shape"  );
   }
 
-  ATH_CHECK( detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
-
+  if(!m_isSC) {
+     const LArOnlineID* laron;
+     StatusCode sc = detStore()->retrieve(laron,"LArOnlineID");
+     if (sc.isFailure()) {
+         ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
+         return StatusCode::FAILURE;
+      } else m_lar_on_id = (LArOnlineID_Base*) laron;
+  } else {
+       const LArOnline_SuperCellID* laron;
+       StatusCode sc = detStore()->retrieve(laron,"LArOnline_SuperCellID");
+       if (sc.isFailure()) {
+           ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
+           return StatusCode::FAILURE;
+       } else m_lar_on_id = (LArOnlineID_Base*) laron;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -131,9 +141,16 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
       else                                 usedGain = CaloGain::LARHIGHGAIN;
   }
 
+  const ILArOFC* dd_ofc=nullptr;
+  StatusCode sc=detStore()->retrieve(dd_ofc);
+  if (sc.isFailure()){
+     ATH_MSG_ERROR("Failed to retrieve LArOFC object " );
+     return result;
+  }
+
   // Quantities depending on this cell
-  const unsigned nOFCPhase=m_dd_ofc->nTimeBins(chID,usedGain);
-  float timeOffset = m_dd_ofc->timeOffset(chID,usedGain);
+  const unsigned nOFCPhase=dd_ofc->nTimeBins(chID,usedGain);
+  float timeOffset = dd_ofc->timeOffset(chID,usedGain);
 
   // convert delay to internal OFC delay (from 0 to Nphases*timeBinWidth)
   delay = delay-timeOffset;
@@ -145,7 +162,7 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     timeBinWidth=25.; //ns
     timeMax=(nOFCPhase-1)*timeBinWidth;
   } else { //Have more than one OFC bin
-    timeBinWidth=m_dd_ofc->timeBinWidth(chID,usedGain);
+    timeBinWidth=dd_ofc->timeBinWidth(chID,usedGain);
     timeMax =  (nOFCPhase-1)*timeBinWidth;
     if (timeBinWidth==0.) {
       ATH_MSG_ERROR( "timeBinWidth is zero for channel " << m_lar_on_id->channel_name(chID)  );
@@ -161,8 +178,8 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
   //std::cout << "Timebinwidth=" << timeBinWidth << " nOFCPhase=" << nOFCPhase << std::endl; 
   //std::cout << "Delay= " << delay << " Index=" << delayIdx << std::endl;
   //Get first set of OFC's
-  ILArOFC::OFCRef_t this_OFC_a = m_dd_ofc->OFC_a(chID,(int)usedGain,delayIdx);
-  ILArOFC::OFCRef_t this_OFC_b = m_dd_ofc->OFC_b(chID,(int)usedGain,delayIdx);
+  ILArOFC::OFCRef_t this_OFC_a = dd_ofc->OFC_a(chID,(int)usedGain,delayIdx);
+  ILArOFC::OFCRef_t this_OFC_b = dd_ofc->OFC_b(chID,(int)usedGain,delayIdx);
   const unsigned ofcSize=this_OFC_a.size(); //Assumed to be the same of all delay-indices
   //std::cout << " got OFC " << this_OFC_a.size() << " " << this_OFC_b.size() << std::endl;
 
@@ -332,8 +349,8 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     if (delayIdx>=nOFCPhase) delayIdx = nOFCPhase-1;
     //std::cout << " new kMax, delay,delayIdx " << kMax << " " << delay << " " << delayIdx << std::endl;
     //Get next set of OFC's
-    this_OFC_a = m_dd_ofc->OFC_a(chID,(int)usedGain,delayIdx);
-    this_OFC_b = m_dd_ofc->OFC_b(chID,(int)usedGain,delayIdx);
+    this_OFC_a = dd_ofc->OFC_a(chID,(int)usedGain,delayIdx);
+    this_OFC_b = dd_ofc->OFC_b(chID,(int)usedGain,delayIdx);
   }
   while(1);  // end for iteration loop 
 
@@ -343,10 +360,16 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
   //std::cout << "Done! A= " << result.m_amplitude << " ; tau= " << result.m_tau << " kIter=" << kIter << " nIter=" << nIter << std::endl;
   // get shape
   if (m_useShape){
+    const ILArShape* dd_shape=nullptr;
+    StatusCode sc=detStore()->retrieve(dd_shape);
+    if (sc.isFailure()){
+       ATH_MSG_ERROR("Failed to retrieve LArShape object with " );
+       return result;
+    } 
     q = 0.; 
-    ILArShape::ShapeRef_t thisShape    = m_dd_shape->Shape(chID,(int)usedGain,delayIdx) ;
+    ILArShape::ShapeRef_t thisShape    = dd_shape->Shape(chID,(int)usedGain,delayIdx) ;
     ILArShape::ShapeRef_t thisShapeDer;
-    if (m_useShapeDer) thisShapeDer = m_dd_shape->ShapeDer(chID,(int)usedGain,delayIdx) ;
+    if (m_useShapeDer) thisShapeDer = dd_shape->ShapeDer(chID,(int)usedGain,delayIdx) ;
     if( thisShape.size() >= ofcSize ) {
       for ( unsigned k=0 ; k<ofcSize ; k++ ) {
 	const float& this_sample = samples[kMax-2+k];

@@ -5,7 +5,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
-
+from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 
 #----------------------------------------------------------------
 # Base class to configure chain
@@ -43,18 +43,48 @@ class ChainConfigurationBase(object):
         mySequence = RecoFragmentsPool.retrieve(mySequenceCfg, None) # the None will be used for flags in future
         return mySequence
 
-    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboTools=[]):
+    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[]):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+        if self.mult >1 :
+            stepName = 'Step%d'%stepID + '_N' + stepPartName
         log.debug("Configuring step " + stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
-        return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboToolConfs=comboTools)
-    
+        return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboHypoCfg=comboHypoCfg, comboToolConfs=comboTools)
+
+    def getEmptyStep(self, stepID, stepPartName):
+        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+        log.debug("Configuring empty step " + stepName)        
+        return ChainStep(stepName, Sequences=[], multiplicity=[] ,chainDicts=[self.dict])
+ 
     def buildChain(self, chainSteps):
+    
+        alignmentGroups = []
+        if isinstance(self.chainPart, dict):
+            alignmentGroups = [self.chainPart['alignmentGroup']]
+        elif isinstance(self.chainPart, list):
+            
+            alignmentGroups = [cp['alignmentGroup'] for cp in self.chainPart]
+            testAlignGrps = list(set(alignmentGroups))
+            if not(len(testAlignGrps) == 1 and testAlignGrps[0] == 'JetMET'):
+                log.error("ChainConfigurationBase.buildChain(): number of chainParts does not correspond chainSteps")    
+                log.error('ChainConfigurationBase.buildChain() chainPart: %s',self.chainPart)
+                log.error("ChainConfigurationBase.buildChain() alignmentGroups: %s", alignmentGroups)
+                log.error("ChainConfigurationBase.buildChain() chainName: %s", self.chainName)
+                log.error("ChainConfigurationBase.buildChain() chainSteps: %s", chainSteps)               
+            else:
+                alignmentGroups = testAlignGrps            
+   
+        else:
+            log.error("ChainConfigurationBase.buildChain(): chainPart is not a list or dict, not sure what to do here! %s	", self.chainPart)
+              
         myChain = Chain(name = self.chainName,
                         ChainSteps = chainSteps,
-                        L1Thresholds = [self.L1Threshold] )
+                        L1Thresholds = [self.L1Threshold],
+                        nSteps = [len(chainSteps)], # not true for combined chains
+                        alignmentGroups = alignmentGroups
+                         )
 
         return myChain
 

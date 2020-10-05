@@ -6,17 +6,14 @@
 // A. Gaponenko, 2006
 
 #include "MuonTruthAlgs/MuonDetailedTrackTruthMaker.h"
+
 #include <iterator>
+#include <vector>
 
 //================================================================
 MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_truthTool("Trk::DetailedTrackTruthBuilder")
-{  
-  declareProperty("TruthTool",               m_truthTool);
-  declareProperty("HasCSC",m_hasCSC=true);
-  declareProperty("HasSTgc",m_hasSTgc=true);
-  declareProperty("HasMM",m_hasMM=true);
+  AthAlgorithm(name,pSvcLocator)
+{
 }
 
 // Initialize method
@@ -34,8 +31,8 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
   }
   
   if (m_hasSTgc && m_hasMM) {
-    if (m_hasCSC) m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","CSC_TruthMap"};
-    else m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
+    if (m_hasCSC) m_PRD_TruthNames={"STGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","CSC_TruthMap"};
+    else m_PRD_TruthNames={"STGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
   }
 
   m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());
@@ -49,13 +46,6 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
   ATH_CHECK(m_detailedTrackTruthNames.initialize());
   
   //----------------
-  return StatusCode::SUCCESS;
-}
-
-// -----------------------------------------------------------------------------------------------------
-StatusCode MuonDetailedTrackTruthMaker::finalize() 
-{
-  ATH_MSG_DEBUG( "MuonDetailedTrackTruthMaker::finalize()");
   return StatusCode::SUCCESS;
 }
 

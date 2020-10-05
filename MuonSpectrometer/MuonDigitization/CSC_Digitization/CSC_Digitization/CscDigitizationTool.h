@@ -1,29 +1,30 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_CSCDIGITIZATIONTOOL_H
 #define MUONDIGITIZATION_CSCDIGITIZATIONTOOL_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaKernel/IAthRNGSvc.h"
-#include "CLHEP/Random/RandomEngine.h"
-//#include "AthenaBaseComps/AthAlgTool.h"
-#include "CSC_Digitization/CSC_Digitizer.h"
-#include "MuonDigitContainer/CscDigitContainer.h"
-#include "MuonSimEvent/CSCSimHit.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-
-#include "HitManagement/TimedHitCollection.h"
-#include "CscCalibTools/ICscCalibTool.h"
-
-#include "MuonSimEvent/CSCSimHitCollection.h"
-#include "MuonSimData/CscSimDataCollection.h"
+#include <memory>
 
 #include "PileUpTools/PileUpToolBase.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CSC_Digitization/CSC_Digitizer.h"
+#include "MuonDigitContainer/CscDigitContainer.h"
+#include "MuonSimEvent/CSCSimHit.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "HitManagement/TimedHitCollection.h"
+#include "CscCalibTools/ICscCalibTool.h"
+#include "MuonSimEvent/CSCSimHitCollection.h"
+#include "MuonSimData/CscSimDataCollection.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+
+#include "CSC_Digitizer.h"
 
 // Author: Ketevi A. Assamagan
 // BNL, October 27, 2003
@@ -46,7 +47,7 @@ public:
 
   CscDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
 
-  ~CscDigitizationTool();
+  ~CscDigitizationTool() = default;
 
   virtual StatusCode initialize() override final;
 
@@ -90,14 +91,10 @@ private:
   std::string m_inputObjectName{""};
   SG::WriteHandleKey<CscSimDataCollection> m_cscSimDataCollectionWriteHandleKey{this,"CSCSimDataCollectionOutputName","CSC_SDO","WriteHandleKey for Output CscSimDataCollection"};
   SG::WriteHandleKey<CscDigitContainer> m_cscDigitContainerKey{this,"OutputObjectName","CSC_DIGITS","CSC digit container object"};
-  //SG::WriteHandle<CscDigitContainer> m_container;
-  //SG::WriteHandle<CscSimDataCollection> m_CSCSimDataCollectionWriteHandle;
 
-  const MuonGM::MuonDetectorManager * m_geoMgr{nullptr};
-  CSC_Digitizer             * m_cscDigitizer{nullptr};
+  std::unique_ptr<CSC_Digitizer> m_cscDigitizer{nullptr};
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   Gaudi::Property<double> m_pedestal{this, "pedestal",0.0, ""};
   Gaudi::Property<bool> m_maskBadChannel{this, "maskBadChannels", true, ""};
@@ -120,7 +117,6 @@ private:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
 
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
-
 };
 
 #endif // MUONDIGITIZATION_CSCDIGITIZATIONTOOL_H

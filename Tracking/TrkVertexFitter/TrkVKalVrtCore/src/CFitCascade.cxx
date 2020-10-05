@@ -2,13 +2,13 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <iostream>
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
-#include "TrkVKalVrtCore/ForCFT.h"
 #include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/ForCFT.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
+#include <iostream>
 
 
 namespace Trk {
@@ -21,12 +21,12 @@ extern int cfInv5(double *cov, double *wgt );
 extern double cfSmallEigenvalue( double*, long int );
 extern int  vtcfit( VKVertex * vk);
 extern void  combinedTrack(long int ICH, double *pv0, double *covi, double BMAG, double *paro, double *covo);
-extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase * =0 );
-extern int afterFitWithIniPar(VKVertex *vk, double *, double *, double *, double *, const VKalVrtControlBase * =0 );
+extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase * =nullptr );
+extern int afterFitWithIniPar(VKVertex *vk, double *, double *, double *, double *, const VKalVrtControlBase * =nullptr );
 extern void applyConstraints(VKVertex * vk);
 extern void FullMTXfill(VKVertex * , double * );
 extern  int FullMCNSTfill(VKVertex * , double * , double * );
-extern  int vkMSolve(double *, double*, long int, double* =0);
+extern  int vkMSolve(double *, double*, long int, double* =nullptr);
 
 extern void copyFullMtx(double *Input, long int IPar, long int IDIM,
                  double *Target, long int TStart, long int TDIM);
@@ -34,7 +34,7 @@ extern void addCrossVertexDeriv(CascadeEvent &, double * , long int , const std:
 extern void setFittedParameters(double * , std::vector<int> &, CascadeEvent &);
 extern int getCascadeNPar(CascadeEvent &, int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
+extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =nullptr);
 extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 
 extern void setFittedMatrices(double * , long int , std::vector<int> &, std::vector< std::vector<double> > &, CascadeEvent& );
@@ -70,10 +70,10 @@ int setVTrackMass(VKVertex * vk)
        totP.E  += pp[3];     
    }
    VKTrack * target_trk = getCombinedVTrack(vk);
-   if( target_trk == 0 ) {
+   if( target_trk == nullptr ) {
        std::cout<<" ERROR in CASCADE STRUCTURE"<<'\n';
        return -1;
-   }else{
+   }
        double Pt=sqrt(totP.Px*totP.Px + totP.Py*totP.Py);
        double Mass;
        if(Pt > fabs(totP.Pz)){
@@ -82,7 +82,7 @@ int setVTrackMass(VKVertex * vk)
          Mass = sqrt( (totP.E-totP.Pz)*(totP.E+totP.Pz) - Pt*Pt);
        }
        target_trk->setMass(Mass);
-   }
+   
    return 0;
 }
 
@@ -162,7 +162,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
    if(vk->nextCascadeVrt){
       FullMTXfill(vk, vk->ader);
       VKTrack * target_trk = getCombinedVTrack(vk);  // get address of combined track
-      if( target_trk == 0 ) return -12;
+      if( target_trk == nullptr ) return -12;
 
       long int Charge=getVertexCharge(vk);
       target_trk->Charge=Charge;
@@ -791,8 +791,6 @@ void getFittedCascade( CascadeEvent & cascadeEvent_,
    }
    for(it=0; it<PDIM; it++) delete[]DPhys[it];
    delete[]DPhys;
-//
-   return;
 }
 
 

@@ -54,7 +54,7 @@ class CaloClusterLocalCalibCone : public AthAlgTool, virtual public CaloClusterC
 
   CaloClusterLocalCalibCone();
 
-  StatusCode initDataFromFile(std::string hadWeightFileName);
+  StatusCode initDataFromFile(const std::string& hadWeightFileName);
 
   /**
    * @brief name of the schema to use for making the cones ("Angle" or "DeltaR")

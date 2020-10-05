@@ -3,7 +3,7 @@
 */
 
 #include "TMath.h"
-#include "TrigInDetMonitoringTools/TrigInDetTrackMonitoringTool.h"
+#include "TrigInDetTrackMonitoringTool.h"
 #include<iostream>
 
 //#include "TrigInterfaces/Algo.h"

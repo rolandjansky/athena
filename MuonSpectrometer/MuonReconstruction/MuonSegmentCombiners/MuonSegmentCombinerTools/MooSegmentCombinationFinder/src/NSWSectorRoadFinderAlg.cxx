@@ -1,16 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "NSWSectorRoadFinderAlg.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
-
 #include "MuonPattern/MuonPatternCombination.h"
 
 NSWSectorRoadFinderAlg::NSWSectorRoadFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_idHelper("Muon::MuonIdHelperTool"),
   m_keysTgc("STGC_Measurements"),
   m_keyMM("MM_Measurements"),
   m_patternLocation("NSWPatternCombinations")
@@ -20,17 +19,12 @@ NSWSectorRoadFinderAlg::NSWSectorRoadFinderAlg(const std::string& name, ISvcLoca
   declareProperty("PatternOutputLocation",m_patternLocation);
 }
 
-NSWSectorRoadFinderAlg::~NSWSectorRoadFinderAlg()
-{
-
-}
-
 StatusCode NSWSectorRoadFinderAlg::initialize()
 {
-  ATH_CHECK( m_idHelper.retrieve() );
-  ATH_CHECK( m_keysTgc.initialize() );
-  ATH_CHECK( m_keyMM.initialize() );
-  ATH_CHECK( m_patternLocation.initialize() );
+  ATH_CHECK(m_keysTgc.initialize());
+  ATH_CHECK(m_keyMM.initialize());
+  ATH_CHECK(m_patternLocation.initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS; 
 }
 
@@ -70,12 +64,3 @@ StatusCode NSWSectorRoadFinderAlg::execute()
 
   return StatusCode::SUCCESS;
 } // execute
-
-
-StatusCode NSWSectorRoadFinderAlg::finalize()
-{
-
-  return AthAlgorithm::finalize();
-}
-
-

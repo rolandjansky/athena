@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETREADOUTGEOMETRY_STRIPBOXDESIGN_H
@@ -12,15 +12,17 @@
 // Base class
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
-#include <vector>
-#include <stdexcept> // For throw stuff
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "InDetReadoutGeometry/SiCellId.h"
+#include "TrkSurfaces/RectangleBounds.h"
+
+#include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
+
+#include <stdexcept> // For throw stuff
+#include <vector>
 
 namespace Trk {
-class RectangleBounds;
-class SurfaceBounds;
+  class SurfaceBounds;
 }
 
 namespace InDetDD {
@@ -40,7 +42,7 @@ public:
                    const double pitch,
                    const double length);
 
-    ~StripBoxDesign();
+    ~StripBoxDesign() = default;
 
     // Copy constructor and assignment:
     StripBoxDesign(const StripBoxDesign &design);
@@ -154,7 +156,7 @@ private:
     int m_nStrips;
     double m_pitch;
     double m_length;
-    Trk::RectangleBounds *m_bounds;
+    Trk::RectangleBounds m_bounds;
 };
 
 ///////////////////////////////////////////////////////////////////

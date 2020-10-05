@@ -331,8 +331,8 @@ namespace Trk {
 
   inline double         PatternTrackParameters::charge        () const
     {
-      if(m_parameters[4] > 0.) { return 1.; } else { return -1.;
-}
+      if(m_parameters[4] > 0.) { return 1.; } return -1.;
+
     }	
 
   inline double         PatternTrackParameters::sinPhi        () const

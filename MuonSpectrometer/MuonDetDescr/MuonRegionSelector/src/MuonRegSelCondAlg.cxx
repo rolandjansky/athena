@@ -14,15 +14,12 @@
 
 #include "GaudiKernel/EventIDRange.h"
 #include "StoreGate/WriteCondHandle.h"
+#include "MuonRegSelCondAlg.h"
+
 
 #include <iostream>
 #include <fstream>
 #include <string>
-
-
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-
-#include "MDT_RegSelCondAlg.h"
 
 
 
@@ -42,7 +39,6 @@ MuonRegSelCondAlg::MuonRegSelCondAlg(const std::string& name, ISvcLocator* pSvcL
 StatusCode MuonRegSelCondAlg::initialize()
 {
   ATH_MSG_DEBUG("MuonRegSelCondAlg::initialize() ");
-  ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_tableKey.initialize());
   ATH_MSG_INFO("MuonRegSelCondAlg::initialize() " << m_tableKey );
   return StatusCode::SUCCESS;
@@ -50,26 +46,30 @@ StatusCode MuonRegSelCondAlg::initialize()
 
 
 
-StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx)  const
+StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx )  const
 {
   ATH_MSG_DEBUG("MuonRegSelCondAlg::execute() -- enter -- ");
   
   /// do stuff here ...  
   ATH_MSG_DEBUG( "Creating region selector table " << m_tableKey );
- 
 
-  SG::ReadCondHandle<MuonMDT_CablingMap> cabling( m_cablingKey, ctx );
+
+  SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
+  if (lutCondData.isValid()) {
+    /// inpractice, this should never be called, although in serial athena,                                                                          
+    /// because the implementation of the conditions behaviour is flawed in                                                                          
+    /// the framework, this routine will be called every event (!) regardless                                                                        
+    /// of whether it should be called or not so we need this check to                                                                               
+    /// prevent unecessary code execution on out our side                                                                                            
+    ATH_MSG_DEBUG("CondHandle " << lutCondData.fullKey() << " is already valid." );
+    return StatusCode::SUCCESS;
+  }
+
+  /// create the new lookup table
 
   EventIDRange id_range;
-  
-  if( !cabling.range( id_range ) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << cabling.key());
-    return StatusCode::FAILURE;
-  }   
 
-  /// create the new lookuo table
-
-  std::unique_ptr<IRegSelLUT> rd = createTable( *cabling );
+  std::unique_ptr<IRegSelLUT> rd = createTable( ctx, id_range );
 
   if ( !rd ) return StatusCode::FAILURE;
 
@@ -83,8 +83,11 @@ StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx)  const
 
   IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );
   
-  try { 
-    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
+  try {
+    /// leave this commented here since this is where it should really be,
+    /// but we had to move it up in the code to handle the flawed conditions 
+    /// handling in the serial athena use case 
+    ///    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- ////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetTrackSumMomentsTool.cxx
@@ -11,29 +11,20 @@
 
 #include "JetMomentTools/JetTrackSumMomentsTool.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
+
 using xAOD::JetFourMom_t;
 //using AODTracking::FourMom_t;
 //using xAOD::TrackParticle::FourMom_t;
 
 JetTrackSumMomentsTool::JetTrackSumMomentsTool(const std::string& name)
-    : JetModifierBase(name)
-      // , m_vertexContainer("")
-    , m_assocTracksName("")
-    , m_htsel("",this)
-    , m_vertexContainer_key("")
-    , m_tva_key("")
-{
-  declareProperty("VertexContainer",m_vertexContainer_key);
-  declareProperty("AssociatedTracks",m_assocTracksName);
-  declareProperty("TrackVertexAssociation",m_tva_key);
-  declareProperty("TrackSelector", m_htsel);
-  declareProperty("RequireTrackPV", m_requireTrackPV = true);
+  : asg::AsgTool(name) {
 }
 
 //**********************************************************************
 
 StatusCode JetTrackSumMomentsTool::initialize() {
-  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_MSG_INFO("Initializing JetTrackSumMomentsTool " << name());
   if ( m_htsel.empty() ) {
     ATH_MSG_INFO("  No track selector.");
@@ -44,20 +35,29 @@ StatusCode JetTrackSumMomentsTool::initialize() {
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_tva_key.initialize());
 
+  if(m_jetContainerName.empty()) {
+    ATH_MSG_ERROR("JetTrackSumMomentsTool needs to have its input jet container configured!");
+    return StatusCode::FAILURE;
+  }
+  m_trackSumPtKey = m_jetContainerName + "." + m_trackSumPtKey.key();
+  m_trackSumMassKey = m_jetContainerName + "." + m_trackSumMassKey.key();
+
+  ATH_CHECK(m_trackSumPtKey.initialize());
+  ATH_CHECK(m_trackSumMassKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
-int JetTrackSumMomentsTool::modifyJet(xAOD::Jet& jet) const {
-
+StatusCode JetTrackSumMomentsTool::decorate(const xAOD::JetContainer& jets) const {
   // Get input vertex collection
 
   auto handle_v = SG::makeHandle(m_vertexContainer_key);
   if (!handle_v.isValid()){
     ATH_MSG_ERROR("Could not retrieve the VertexContainer: "
                   << m_vertexContainer_key.key());
-    return 1;
+    return StatusCode::FAILURE;
   }
 
   auto vertexContainer = handle_v.cptr();
@@ -67,34 +67,39 @@ int JetTrackSumMomentsTool::modifyJet(xAOD::Jet& jet) const {
   if (!handle_tva.isValid()){
     ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: "
                   << m_tva_key.key());
-    return 2;
+    return StatusCode::FAILURE;
   }
 
   auto tva = handle_tva.cptr();
 
+  SG::WriteDecorHandle<xAOD::JetContainer, float> trackSumPtHandle(m_trackSumPtKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> trackSumMassHandle(m_trackSumMassKey);
+  
   // Get the tracks associated to the jet
   // Note that there may be no tracks - this is both normal and an error case
   std::vector<const xAOD::TrackParticle*> tracks;
-  if ( ! jet.getAssociatedObjects(m_assocTracksName, tracks) ) {
-    ATH_MSG_DEBUG("Associated tracks not found.");
-  }
+  for(const xAOD::Jet* jet : jets) {
+    if ( ! jet->getAssociatedObjects(m_assocTracksName, tracks) ) {
+      ATH_MSG_DEBUG("Associated tracks not found.");
+    }
   
-  if (vertexContainer->size() == 0 ) { 
-    ATH_MSG_WARNING("There are no vertices in the container. Exiting"); 
-    return 4;
+    if (vertexContainer->size() == 0 ) { 
+      ATH_MSG_WARNING("There are no vertices in the container. Exiting"); 
+      return StatusCode::FAILURE;
+    }
+
+    const xAOD::Vertex* HSvertex = findHSVertex(vertexContainer);
+
+    const std::pair<float,float> tracksums = getJetTrackSums(HSvertex, tracks, tva);
+
+    trackSumPtHandle(*jet) = tracksums.first;
+    trackSumMassHandle(*jet) = tracksums.second;
+
+    ATH_MSG_VERBOSE("JetTrackSumMomentsTool " << name()
+                    << ": TrackSumPt=" << tracksums.first
+                    << ", TrackSumMass=" << tracksums.second  );
   }
-
-  const xAOD::Vertex* HSvertex = findHSVertex(vertexContainer);
-
-  const std::pair<float,float> tracksums = getJetTrackSums(HSvertex, tracks, tva);
-
-  jet.setAttribute("TrackSumPt",tracksums.first);
-  jet.setAttribute("TrackSumMass",tracksums.second);
-
-  ATH_MSG_VERBOSE("JetTrackSumMomentsTool " << name()
-		  << ": TrackSumPt=" << tracksums.first
-		  << ", TrackSumMass=" << tracksums.second  );
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

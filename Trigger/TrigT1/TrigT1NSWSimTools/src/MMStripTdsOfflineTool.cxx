@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -87,7 +87,7 @@ namespace NSWL1 {
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-      std::string algo_name = pnamed->name();
+      const std::string& algo_name = pnamed->name();
 
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
@@ -610,7 +610,8 @@ namespace NSWL1 {
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
-      ATH_MSG_ERROR("Pick a plane in [0,"<<setup.length()<<"] not "<<plane); exit(1);
+      ATH_MSG_ERROR("Pick a plane in [0,"<<setup.length()<<"] not "<<plane);
+      throw std::runtime_error("MMStripTdsOfflineTool::Get_Strip_ID: invalid plane index");
     }
     std::string xuv=setup.substr(plane,1);
     if(xuv=="u"){//||xuv=="v"){
@@ -622,7 +623,8 @@ namespace NSWL1 {
       y_hit = -X*sin(degree)+Y*cos(degree);
     }
     else if(xuv!="x"){
-      ATH_MSG_ERROR("Invalid plane option " << xuv); exit(2);
+      ATH_MSG_ERROR("Invalid plane option " << xuv);
+      throw std::runtime_error("MMStripTdsOfflineTool::Get_Strip_ID: invalid plane option");
     }
     double strip_hit = ceil(y_hit*1./strip_width);
     return strip_hit;

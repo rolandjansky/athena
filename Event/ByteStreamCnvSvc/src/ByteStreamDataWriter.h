@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_BYTESTREAMDATAWRITER_H
@@ -19,7 +19,9 @@
 #include "EventStorage/ESCompression.h"
 #include "EventStorage/EventStorageRecords.h"
 #include "EventStorage/FileNameCallback.h"
+#include "boost/shared_ptr.hpp"
 
+struct DataWriterParameters;
 
 /** @class ByteStreamDataWriter
  *  @brief This class defines abstract interface for data writing.
@@ -106,6 +108,17 @@ public:
                EventStorage::CompressionType compression = EventStorage::NONE,
                unsigned int compLevel = 1);
 
+    /**
+     *  Factory method returning data writer instance for specified version.
+     *  Throws exception in case of problems, never returns zero pointer.
+     *
+     *  @param parameters: set of parameters needed to initiate DataWriter
+     *
+     *  @throw std::exception (or sub-class) is thrown in case of problems.
+     */
+    static std::unique_ptr<ByteStreamDataWriter>
+        makeWriter(const DataWriterParameters& parameters);
+
 
     ByteStreamDataWriter() {}
     virtual ~ByteStreamDataWriter() {}
@@ -131,5 +144,68 @@ public:
 
 };
 
+
+/** Class containing parameters needed to initiayte DataWriter
+ *
+ *  This class is meant to given to the factory method creating data writer
+ *  instances. The parameters need to be set to valid values.
+ */
+struct DataWriterParameters {
+  /** Writer version to instantiate, 0 for most current version
+   *
+   *  Other supported values: 5 for run1-compatible output. Exception is thrown
+   *  is version is not supported.
+   **/
+  int version{0};
+
+  /// Directory where to write data
+  std::string writingPath{""};
+
+  /// File name not including the ending "._NNNN.data"
+  std::string fileNameCore{""};
+
+  /// Other parameters from IS including the run number
+  EventStorage::run_parameters_record rPar{
+    0, 0, 0, 0, 0, 0, 0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL, 0, 0 };
+
+  /// Optional vector of strings containing metadata
+  std::vector<std::string> fmdStrings;
+
+  /// Max size of a file in number of data blocks (or events)
+  unsigned int maxFileNE{0};
+
+  /// Max size of a file in MB. The file is closed before this limit is overrun
+  unsigned int maxFileMB{0};
+
+  /// Initial file sequence index
+  unsigned int startIndex{1};
+
+  /// Compression type
+  EventStorage::CompressionType compression{EventStorage::NONE};
+
+  /// Compression level
+  unsigned int compLevel{1};
+
+  /// callback method for generating file names
+  boost::shared_ptr<EventStorage::FileNameCallback> theFNCB;
+
+  /// project name for use with simple file name
+  std::string project{""};
+
+  /// stream type for use with simple file name
+  std::string streamType{""};
+
+  /// stream name for use with simple file name
+  std::string streamName{""};
+
+  /// not sure for use with simple file name
+  std::string stream{""};
+  
+  /// luminosity block number for use with simple file name
+  unsigned int lumiBlockNumber{0};
+
+  /// application name for use with simple file name
+  std::string applicationName{""};
+};
 
 #endif // BYTESTREAMCNVSVC_BYTESTREAMDATAWRITER_H

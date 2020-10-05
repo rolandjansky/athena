@@ -17,6 +17,7 @@
 
 #include <string>
 #include <set>
+#include <iostream>
 
 // Forward declarations
 class MsgStream;
@@ -75,6 +76,8 @@ private:
   std::set<std::pair<CLID, std::string> > m_itemList;  // ItemList
   std::set<EventType> m_eventTypes;    // EventTypes
 };
+
+std::ostream& operator<<(std::ostream& os, const EventStreamInfo& esi);
 
 inline EventStreamInfo::EventStreamInfo() : m_numberOfEvents(0),
   m_runNumbers(),

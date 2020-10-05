@@ -13,6 +13,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoolKernel/IObject.h"
 
+#include <memory>
+
 CreateLumiBlockCollectionFromFile::CreateLumiBlockCollectionFromFile(const std::string& name, ISvcLocator* pSvcLocator)
 // ********************************************************************************************************************
   : AthAlgorithm(name, pSvcLocator)
@@ -29,7 +31,7 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize()
   ATH_MSG_INFO( "initialize() and create listeners" );
 
   ATH_CHECK(m_eventInfoKey.initialize());
-  ATH_CHECK(m_rchk.initialize());
+  ATH_CHECK(m_rchk.initialize(!m_streamName.empty()));
 
   ATH_CHECK( m_metaStore.retrieve() );
 
@@ -112,17 +114,17 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 {
   // Create the LumiBlockCollection
 
-  xAOD::LumiBlockRangeContainer* piovComplete = new xAOD::LumiBlockRangeContainer();
-  xAOD::LumiBlockRangeAuxContainer* piovCompleteAux = new xAOD::LumiBlockRangeAuxContainer();
-  piovComplete->setStore( piovCompleteAux );
+  std::unique_ptr<xAOD::LumiBlockRangeContainer> piovComplete = std::make_unique<xAOD::LumiBlockRangeContainer>();
+  std::unique_ptr<xAOD::LumiBlockRangeAuxContainer> piovCompleteAux = std::make_unique<xAOD::LumiBlockRangeAuxContainer>();
+  piovComplete->setStore( piovCompleteAux.get() );
 
-  xAOD::LumiBlockRangeContainer* piovUnfinished = new xAOD::LumiBlockRangeContainer();
-  xAOD::LumiBlockRangeAuxContainer* piovUnfinishedAux = new xAOD::LumiBlockRangeAuxContainer();
-  piovUnfinished->setStore( piovUnfinishedAux );
+  std::unique_ptr<xAOD::LumiBlockRangeContainer> piovUnfinished = std::make_unique<xAOD::LumiBlockRangeContainer>();
+  std::unique_ptr<xAOD::LumiBlockRangeAuxContainer> piovUnfinishedAux = std::make_unique<xAOD::LumiBlockRangeAuxContainer>();
+  piovUnfinished->setStore( piovUnfinishedAux.get() );
 
-  xAOD::LumiBlockRangeContainer* piovSuspect = new xAOD::LumiBlockRangeContainer();
-  xAOD::LumiBlockRangeAuxContainer* piovSuspectAux = new xAOD::LumiBlockRangeAuxContainer();
-  piovSuspect->setStore( piovSuspectAux );
+  std::unique_ptr<xAOD::LumiBlockRangeContainer> piovSuspect = std::make_unique<xAOD::LumiBlockRangeContainer>();
+  std::unique_ptr<xAOD::LumiBlockRangeAuxContainer> piovSuspectAux = std::make_unique<xAOD::LumiBlockRangeAuxContainer>();
+  piovSuspect->setStore( piovSuspectAux.get() );
 
   for(RLBMap::iterator mitr=m_LumiBlockInfo.begin(); mitr!=m_LumiBlockInfo.end(); mitr++) {
     xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
@@ -192,18 +194,18 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
   // Store the LumiBlockCollection in the metadata store
   // =======================================================
   if(piovComplete->size()>0) {
-    ATH_CHECK( m_metaStore->record( piovComplete, m_LBColl_name ) );
-    ATH_CHECK( m_metaStore->record( piovCompleteAux, m_LBColl_name + "Aux." ) );
+    ATH_CHECK( m_metaStore->record( std::move(piovComplete), m_LBColl_name ) );
+    ATH_CHECK( m_metaStore->record( std::move(piovCompleteAux), m_LBColl_name + "Aux." ) );
   }
   
   if(piovUnfinished->size()>0) {
-    ATH_CHECK( m_metaStore->record( piovUnfinished, m_unfinishedLBColl_name ) );
-    ATH_CHECK( m_metaStore->record( piovUnfinishedAux, m_unfinishedLBColl_name + "Aux." ) );
+    ATH_CHECK( m_metaStore->record( std::move(piovUnfinished), m_unfinishedLBColl_name ) );
+    ATH_CHECK( m_metaStore->record( std::move(piovUnfinishedAux), m_unfinishedLBColl_name + "Aux." ) );
   }
 
   if(piovSuspect->size()>0) {
-    ATH_CHECK( m_metaStore->record( piovSuspect, m_suspectLBColl_name ) );
-    ATH_CHECK( m_metaStore->record( piovSuspectAux, m_suspectLBColl_name + "Aux." ) );
+    ATH_CHECK( m_metaStore->record( std::move(piovSuspect), m_suspectLBColl_name ) );
+    ATH_CHECK( m_metaStore->record( std::move(piovSuspectAux), m_suspectLBColl_name + "Aux." ) );
   }
   
   // Then clear m_LumiBlockInfo.  This is in case we decide to store the 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TRT_RodEncoder class 
@@ -65,7 +65,7 @@ TRT_RodEncoder::fillROD( std::vector<uint32_t>&  v32rod )
 
       v32rod[BufferOffset] = StrawWord;
 
-      rdo_it++;
+      ++rdo_it;
    }
 
    return StatusCode::SUCCESS;  
@@ -107,7 +107,7 @@ TRT_RodEncoder::fillROD3( std::vector<uint32_t>&  v32rod )
 
       tmp_data[BufferOffset] = StrawWord;
 
-      rdo_it++;
+      ++rdo_it;
    }
 
    for ( int i=0; i<TRT_MaxBufferSize; i++ )

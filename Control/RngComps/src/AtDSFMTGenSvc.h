@@ -21,7 +21,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class IAlgorithm; 
 class ISvcLocator;
@@ -102,7 +102,7 @@ private:
 					   "optional integer that allows to change the sequence of randoms for a "\
 					   "given run/event no and SequenceName combination. Notice that "\
 					   "Seed1/Seed2 are dummy when EventReseeding is used",
-					   "Set<std::string>"};
+					   "OrderedSet<std::string>"};
 
 
     Gaudi::Property<bool> m_read_from_file{this,"ReadFromFile",false,"set/restore the status of the engine from file"};  ///< read engine status from file

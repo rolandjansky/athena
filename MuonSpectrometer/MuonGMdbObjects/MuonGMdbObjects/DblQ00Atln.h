@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,17 +14,18 @@
 #define DBLQ00_ATLN_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+
 #include <memory>
 
-namespace MuonGM
-{
-    
-class DblQ00Atln {
+class AmdcDb;
 
+namespace MuonGM {
+class DblQ00Atln {
 public:
     DblQ00Atln(){};
     ~DblQ00Atln();
     DblQ00Atln(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Atln(AmdcDb* atln);
 
     // data members for DblQ00/ATLN fields
     struct ATLN {

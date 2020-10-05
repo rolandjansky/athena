@@ -18,16 +18,12 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "xAODMissingET/MissingET.h" 
-#include "xAODMissingET/MissingETContainer.h" 
 #include "xAODMissingET/MissingETComposition.h"
 
 #include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
 
 #include "xAODEgamma/Electron.h"
-#include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -77,23 +73,63 @@ static const std::map<std::string, std::pair<std::string, std::string> > key2Sub
 
 METMonTool::METMonTool(const std::string& type, const std::string& name, const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent)
-{
-  // declare properties, this will disappear once moved data handles
-  // fill vector with Missing Et Sources
-
-  declareProperty("metKeys", m_metKeys={"MET_Base", "MET_Topo", "MET_Track"});
-  declareProperty("metFinKey", m_metFinKey);
-  declareProperty("metCalKey", m_metCalKey);
-  declareProperty("metRegKey", m_metRegKey);
-  declareProperty("jetColKey", m_jetColKey);
-  declareProperty("eleColKey", m_eleColKey);
-  declareProperty("muoColKey", m_muoColKey);
-}
+{}
 
 
 StatusCode METMonTool::initialize()
 {
-  
+  // If m_metFinKey is not empty then append it to m_metKeys
+  if (m_metFinKey != "")
+    {
+      std::vector<std::string>::iterator it = m_metKeys.begin();
+      // Remove m_metFinKey from m_metKeys if it already exists
+      for (; it != m_metKeys.end();)
+        {
+	  if ((*it) == m_metFinKey) it = m_metKeys.erase(it);
+	  else it++;
+        }
+      m_metKeys.value().push_back(m_metFinKey);
+    }
+
+  m_ContainerWarnings_metKeys.resize(m_metKeys.size(), 0);
+
+  // ...and debug
+
+  ATH_MSG_DEBUG("Using the following keys:");
+  ATH_MSG_DEBUG("metCalKey = " << m_metCalKey);
+  ATH_MSG_DEBUG("metRegKey = " << m_metRegKey);
+  ATH_MSG_DEBUG("metKeys   = ");
+  std::vector<std::string>::iterator it = m_metKeys.begin();
+  for (; it != m_metKeys.end(); it++)
+    {
+      ATH_MSG_DEBUG((*it));
+    }
+  ATH_MSG_DEBUG("");
+
+  // what are the actual storegate keys?
+  std::unordered_set<std::string> realSGKeys;
+  for (const auto& k : m_metKeys) {
+    const auto itr = key2SubSkeyMap.find(k);
+    if (itr != key2SubSkeyMap.end()) {
+      realSGKeys.insert(itr->second.first);
+    }
+  }
+  for (const auto& k : std::vector<std::string>{ m_metCalKey, m_metRegKey }) {
+    const auto itr = key2SubSkeyMap.find(k);
+    if (itr != key2SubSkeyMap.end()) {
+      realSGKeys.insert(itr->second.first);
+    }
+  }
+  for (const auto& k : realSGKeys) {
+    m_metKeysFull.push_back(k);
+  }
+
+  ATH_CHECK(m_metKeysFull.initialize());
+  ATH_CHECK(m_metForCut.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_jetColKey.initialize(!m_jetColKey.empty()));
+  ATH_CHECK(m_eleColKey.initialize(!m_eleColKey.empty()));
+  ATH_CHECK(m_muoColKey.initialize(!m_muoColKey.empty()));
   //resize vector with number of WARNINGs already displayed for retrieval of a certain container
   m_ContainerWarnings_metKeys.resize(m_metKeys.size(), 0);
 
@@ -124,34 +160,6 @@ METMonTool::~METMonTool()
 StatusCode METMonTool::bookHistograms()
 {
   ATH_MSG_DEBUG("in bookHistograms()");
-
-  // If m_metFinKey is not empty then append it to m_metKeys
-  if (m_metFinKey != "")
-    {
-      std::vector<std::string>::iterator it = m_metKeys.begin();
-      // Remove m_metFinKey from m_metKeys if it already exists
-      for (; it != m_metKeys.end();)
-        {
-	  if ((*it) == m_metFinKey) it = m_metKeys.erase(it);
-	  else it++;
-        }
-      m_metKeys.push_back(m_metFinKey);
-    }
-
-  m_ContainerWarnings_metKeys.resize(m_metKeys.size(), 0);
-
-  // ...and debug
-
-  ATH_MSG_DEBUG("Using the following keys:");
-  ATH_MSG_DEBUG("metCalKey = " << m_metCalKey);
-  ATH_MSG_DEBUG("metRegKey = " << m_metRegKey);
-  ATH_MSG_DEBUG("metKeys   = ");
-  std::vector<std::string>::iterator it = m_metKeys.begin();
-  for (; it != m_metKeys.end(); it++)
-    {
-      ATH_MSG_DEBUG((*it));
-    }
-  ATH_MSG_DEBUG("");
 
 
   // Check consistency between m_etrangeCalFactors and m_calIndices
@@ -204,9 +212,9 @@ StatusCode METMonTool::bookHistograms()
       if (m_metFinKey != "" && i == nSources - 1)
         {
 	  bookSourcesHistograms(m_metKeys[i], met_summary, true).ignore();
-	  if (m_jetColKey != "") bookProfileHistograms(m_metKeys[i], "Jet", met_jets, &m_iJet).ignore();
-	  if (m_eleColKey != "") bookProfileHistograms(m_metKeys[i], "Ele", met_electrons, &m_iEle).ignore();
-	  if (m_muoColKey != "") bookProfileHistograms(m_metKeys[i], "Muo", met_muons, &m_iMuo).ignore();
+	  if (!m_jetColKey.empty()) bookProfileHistograms(m_metKeys[i], "Jet", met_jets, &m_iJet).ignore();
+	  if (!m_eleColKey.empty()) bookProfileHistograms(m_metKeys[i], "Ele", met_electrons, &m_iEle).ignore();
+	  if (!m_muoColKey.empty()) bookProfileHistograms(m_metKeys[i], "Muo", met_muons, &m_iMuo).ignore();
         }
       else bookSourcesHistograms(m_metKeys[i], met_sources, false).ignore();
     }
@@ -777,10 +785,8 @@ StatusCode METMonTool::fillHistograms()
 {
   ATH_MSG_DEBUG("in fillHistograms()");
 
-  const xAOD::EventInfo* thisEventInfo = 0;
-  StatusCode sc(evtStore()->retrieve(thisEventInfo));
-
-  if (sc != StatusCode::SUCCESS)
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo{m_eventInfoKey};
+  if (!thisEventInfo.isValid())
     ATH_MSG_DEBUG("No EventInfo object found! Can't access LAr event info status!");
   else
     {
@@ -807,12 +813,13 @@ StatusCode METMonTool::fillSourcesHistograms()
   ATH_MSG_DEBUG("in fillSourcesHistograms()");
 
   const xAOD::JetContainer* xJetCollection = 0;
-  if (m_jetColKey != "")
+  if (!m_jetColKey.empty())
     {
-      ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets")); 
+      SG::ReadHandle<xAOD::JetContainer> xhJetCollection{m_jetColKey};
+      xJetCollection = xhJetCollection.get();
       if (!xJetCollection)
         {
-	  ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
+	  ATH_MSG_WARNING("Unable to retrieve JetContainer: " << m_jetColKey.key());
         }
       else
         {
@@ -856,12 +863,13 @@ StatusCode METMonTool::fillSourcesHistograms()
   const xAOD::ElectronContainer* xElectrons = 0; 
   const xAOD::Electron* xhEle = 0;
 
-  if (m_eleColKey != "")
+  if (!m_eleColKey.empty())
     {
-      ATH_CHECK(evtStore()->retrieve(xElectrons, "Electrons")); 
+      SG::ReadHandle<xAOD::ElectronContainer> rhElectrons{m_eleColKey};
+      xElectrons = rhElectrons.get();
       if (!xElectrons)
         {
-	  ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << "Electrons");
+	  ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << m_eleColKey.key());
         }
       else
         {
@@ -879,12 +887,13 @@ StatusCode METMonTool::fillSourcesHistograms()
   const xAOD::MuonContainer* xMuons = 0; 
   const xAOD::Muon* xhMuon = 0;
 
-  if (m_muoColKey != "")
+  if (!m_muoColKey.empty())
     {
-      ATH_CHECK(evtStore()->retrieve(xMuons, "Muons")); 
+      SG::ReadHandle<xAOD::MuonContainer> rhMuons{m_muoColKey};
+      xMuons = rhMuons.get();
       if (!xMuons)
         {
-	  ATH_MSG_WARNING("Unable to retrieve muon collection: " << "Muons");
+	  ATH_MSG_WARNING("Unable to retrieve muon collection: " << m_muoColKey.key());
 	  m_ContainerWarnings_Muon++;
         }
       else
@@ -907,9 +916,8 @@ StatusCode METMonTool::fillSourcesHistograms()
   bool doSummary = (m_metKeys.size() > 1);
 
   if (m_met_cut_80) {
-    if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
-      const xAOD::MissingETContainer* xMissEt_forCut = 0;
-      ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4LCTopo"));
+    SG::ReadHandle<xAOD::MissingETContainer> xMissEt_forCut{m_metForCut};
+    if (xMissEt_forCut.isValid()) {
       float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
       if (et_RefFinal < m_met_cut) return StatusCode::SUCCESS;
     }
@@ -942,11 +950,10 @@ StatusCode METMonTool::fillSourcesHistograms()
 
       const xAOD::MissingETContainer* xMissEt = 0;
 
-      bool sc_exists = evtStore()->contains<xAOD::MissingETContainer>(xaod_key);
+      SG::ReadHandle<xAOD::MissingETContainer> xhMissEt{xaod_key};
 
-      if (sc_exists)
-        {
-	  ATH_CHECK(evtStore()->retrieve(xMissEt, xaod_key));
+      if (xhMissEt.isValid()) {
+        xMissEt = xhMissEt.get();
 
 
 	  if (!xMissEt)
@@ -1033,23 +1040,19 @@ StatusCode METMonTool::fillCalosHistograms()
   bool doSummary = (m_calIndices > 1);
 
   const xAOD::MissingETContainer* xmetCal = 0;
-  bool sc_exists = evtStore()->contains<xAOD::MissingETContainer>("MET_Calo");
-  if ( not sc_exists ) {
-    ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_Calo");
+  SG::ReadHandle<xAOD::MissingETContainer> xhmetCal{m_metCalKey};
+  if (! xhmetCal.isValid()) {
+    ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << m_metCalKey);
     return StatusCode::SUCCESS;
   }
 
-  ATH_CHECK(evtStore()->retrieve(xmetCal, "MET_Calo")); 
+  xmetCal = xhmetCal.get(); 
 
-
-  ATH_MSG_DEBUG("Filling histograms per calorimeter subsystem with key " << m_metCalKey);
 
   if (m_met_cut_80) {
-    if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
-      const xAOD::MissingETContainer* xMissEt_forCut = 0;
-      ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4LCTopo"));
+    SG::ReadHandle<xAOD::MissingETContainer> xMissEt_forCut{m_metForCut};
+    if (xMissEt_forCut.isValid()) {
       float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
-      
       if (et_RefFinal < m_met_cut) return StatusCode::SUCCESS;
     }
   }
@@ -1057,9 +1060,10 @@ StatusCode METMonTool::fillCalosHistograms()
   
   if (m_doJetcleaning && !m_badJets) {
     const xAOD::JetContainer* xJetCollection = 0;
-    ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
+    SG::ReadHandle<xAOD::JetContainer> xhJetCollection{m_jetColKey};
+    xJetCollection = xhJetCollection.get();
     if ( xJetCollection == 0 ) {
-      ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
+      ATH_MSG_WARNING("Unable to retrieve JetContainer: " << m_jetColKey.key());
       //return StatusCode::FAILURE;
     } else {
 
@@ -1109,59 +1113,40 @@ StatusCode METMonTool::fillRegionsHistograms()
 
   bool doSummary = (m_regIndices > 1);
 
-  const xAOD::MissingETContainer* xmetReg = 0;
-
-  bool sc_exists = evtStore()->contains<xAOD::MissingETContainer>("MET_TruthRegions");
-
-  if (sc_exists)
-    {
-
-      ATH_CHECK(evtStore()->retrieve(xmetReg, "MET_TruthRegions"));
-
-      if (!xmetReg)
-        {
-	  ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_TruthRegions");
-        }
-      else
-        {
+  SG::ReadHandle<xAOD::MissingETContainer> xmetReg{m_metRegKey};
+  if (xmetReg.isValid()) {
 	  //s// ATH_MSG_DEBUG("Filling histograms per calorimeter region with key " << m_metRegKey);
 	  //s// metReg = missET->getRegions();
-	  for (unsigned int i = 0; i < m_regIndices; i++)
-            {
-	      std::string xaod_truth_region = "";
-	      if (i == 0) xaod_truth_region = "Int_Central";
-	      else if (i == 1) xaod_truth_region = "Int_EndCap";
-	      else if (i == 2) xaod_truth_region = "Int_Forward";
-	      else xaod_truth_region = "Int_Central";
+	  for (unsigned int i = 0; i < m_regIndices; i++) {
+	    std::string xaod_truth_region = "";
+      if (i == 0) xaod_truth_region = "Int_Central";
+      else if (i == 1) xaod_truth_region = "Int_EndCap";
+      else if (i == 2) xaod_truth_region = "Int_Forward";
+      else xaod_truth_region = "Int_Central";
 
-	      float ex = (*xmetReg)[xaod_truth_region]->mpx() / CLHEP::GeV;
-	      float ey = (*xmetReg)[xaod_truth_region]->mpy() / CLHEP::GeV;
-	      float et = sqrt(ex*ex + ey*ey);
-	      float phi = atan2(ey, ex);
-	      float sumet = (*xmetReg)[xaod_truth_region]->sumet() / CLHEP::GeV;
+      float ex = (*xmetReg)[xaod_truth_region]->mpx() / CLHEP::GeV;
+      float ey = (*xmetReg)[xaod_truth_region]->mpy() / CLHEP::GeV;
+      float et = sqrt(ex*ex + ey*ey);
+      float phi = atan2(ey, ex);
+      float sumet = (*xmetReg)[xaod_truth_region]->sumet() / CLHEP::GeV;
 
-	      if (et > 0.)
-		{
-		  m_etReg[i]->Fill(et);
-		  m_exReg[i]->Fill(ex);
-		  m_eyReg[i]->Fill(ey);
-		  m_phiReg[i]->Fill(phi);
-		  m_sumetReg[i]->Fill(sumet);
-		  // Mean summaries
-		  if (doSummary)
-		    {
-		      m_exRegMean->Fill(i + 0.5, ex);
-		      m_eyRegMean->Fill(i + 0.5, ey);
-		      m_phiRegMean->Fill(i + 0.5, phi);
-		    }
-		}
-            }
+      if (et > 0.) {
+        m_etReg[i]->Fill(et);
+        m_exReg[i]->Fill(ex);
+        m_eyReg[i]->Fill(ey);
+        m_phiReg[i]->Fill(phi);
+        m_sumetReg[i]->Fill(sumet);
+        // Mean summaries
+        if (doSummary) {
+          m_exRegMean->Fill(i + 0.5, ex);
+          m_eyRegMean->Fill(i + 0.5, ey);
+          m_phiRegMean->Fill(i + 0.5, phi);
         }
+      }
     }
-  else
-    {
-      ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_TruthRegions");
-    }
+  } else {
+      ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << m_metRegKey);
+  }
 
   return StatusCode::SUCCESS;
 }

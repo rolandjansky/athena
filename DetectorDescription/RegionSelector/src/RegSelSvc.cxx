@@ -2354,10 +2354,10 @@ bool RegSelSvc::GetEnabledROBsFromOKS()
   } 
   
   // get the data flow config property  
-  const std::vector<const Property*>* dataFlowProps = p_jobOptionSvc->getProperties("DataFlowConfig");
+  const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps = p_jobOptionSvc->getProperties("DataFlowConfig");
   
   // go through looking for the enabled robs
-  std::vector<const Property*>::const_iterator propp(dataFlowProps->begin());
+  std::vector<const Gaudi::Details::PropertyBase*>::const_iterator propp(dataFlowProps->begin());
   for ( ; propp!=dataFlowProps->end() ; propp++) {
     // the enabled ROB list is found
     if ( (*propp)->name() == "DF_Enabled_ROB_IDs" ) {

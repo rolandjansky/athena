@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
   MuonClusterIsolation.cxx
 */
-#include "TMath.h"
 #include <cmath>
 #include <algorithm>
 #include <sstream>
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "TrigInterfaces/FexAlgo.h"
@@ -308,7 +306,7 @@ HLT::ErrorCode MuonClusterIsolation::hltExecute(std::vector<std::vector<HLT::Tri
        
 	for(; track !=lasttrack; track++ ) {
   
-	  float pT = fabs(TMath::Sin((*track)->theta())/(*track)->qOverP());
+	  float pT = fabs(std::sin((*track)->theta())/(*track)->qOverP());
 
 	  if ( pT <= m_PtMinID) continue;
 	  double eta  = (*track)->eta();

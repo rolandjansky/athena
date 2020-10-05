@@ -1,23 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonStationNtupleHelperTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMUONSTATIONNTUPLEHELPERTOOL_H
 #define MUONMUONSTATIONNTUPLEHELPERTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkValInterfaces/IValidationNtupleHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h" // this tool is not correctly interfaced
-#include "GaudiKernel/ToolHandle.h"
-
-// class MdtIdHelper;
-// class TgcIdHelper;
-// class CscIdHelper;
-// class MdtIdHelper;
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon 
 {
@@ -39,7 +30,7 @@ namespace Muon
       MuonStationNtupleHelperTool(const std::string&,const std::string&,const IInterface*);
 
        /** default destructor */
-      virtual ~MuonStationNtupleHelperTool ();
+      virtual ~MuonStationNtupleHelperTool()=default;
       
        /** standard Athena-Algorithm method */
       virtual StatusCode initialize();
@@ -71,7 +62,7 @@ namespace Muon
 
     private:
 
-      ToolHandle<MuonIdHelperTool> m_muonIdHelperTool;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  
       mutable std::vector<int>* m_mdtSectorIx;  //!< sector number 1-16, odd=large, even=small
       mutable std::vector<int>* m_mdtStationIx;  //!< describe 

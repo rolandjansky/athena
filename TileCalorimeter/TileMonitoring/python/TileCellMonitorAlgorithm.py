@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileCellMonitorAlgorithm.py
@@ -42,6 +42,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
     kwargs.setdefault('NegativeEnergyThreshold', -2000.0 * MeV)
     kwargs.setdefault('EnergyBalanceThreshold', 3)
     kwargs.setdefault('TimeBalanceThreshold', 25 * ns)
+    kwargs.setdefault('fillChannelTimeHistograms', True)
     kwargs.setdefault('fillTimeAndEnergyDiffHistograms', False)
 
     if flags.Beam.Type in ('cosmics', 'singlebeam'):
@@ -203,6 +204,15 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              subDirectory = False, perPartition = True, perSample = False, perGain = False,
                              opt = 'kAddBinsDynamically')
 
+    if kwargs['fillChannelTimeHistograms']:
+        # Configure histograms with Tile channel time per partition and sample
+        titleChanTimeSamp = 'Channel Time, E_{ch} > %s MeV;time [ns]' % (kwargs['EnergyThresholdForTime'] / MeV)
+        addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileChannelTime',
+                                 xvalue = 'time', title = titleChanTimeSamp, path = 'Tile/Cell',
+                                 xbins = 121, xmin = -60.5, xmax = 60.5, type='TH1D',
+                                 run = run, triggers = l1Triggers, subDirectory = True,
+                                 perPartition = True, perSample = True, perGain = False)
+
     # 20) Configure histograms with energy difference between Tile cells' PMTs per partition and sample
     addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellEneDiff', xvalue = 'energyDiff',
                              title = 'Energy difference [MeV] between PMTs;Energy difference [MeV]',
@@ -218,6 +228,13 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              xvalue = 'timeDiff', title = titleTimeDiffSamp, path = 'Tile/Cell',
                              xbins = 50, xmin = -10., xmax = 10., type='TH1D', run = run, triggers = l1Triggers,
                              subDirectory = True, perPartition = True, perSample = True, perGain = False)
+
+    # Configure histograms with number of Tile cells vs lumiBlock per partition
+    titleCellsNumber = 'Tile Cells number per luminosity block;LumiBlock;Number of reconstructed cells'
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellsNumberLB',
+                             xvalue = 'lumiBlock', value = 'nCells', title = titleCellsNumber, path = 'Tile/Cell',
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = l1Triggers,
+                             subDirectory = True, perPartition = True, perSample = False, perGain = False, allPartitions = True)
 
     # 22) Configure histograms with number of Tile cells over threshold vs BCID per partition
     titleCellsOvThrBCID = 'Tile Cell Occupancy over Threshold %s MeV' % (kwargs['EnergyThresholdForTime'] / MeV)
@@ -299,9 +316,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     l1Triggers = ['bit0_RNDM', 'bit1_ZeroBias', 'bit2_L1Cal', 'bit3_Muon',

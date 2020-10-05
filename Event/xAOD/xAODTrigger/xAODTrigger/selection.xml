@@ -1,7 +1,7 @@
-<!-- $Id: selection.xml 743093 2016-04-26 21:46:56Z watsona $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-   <!-- The byte stream auxiliary container, v1: -->
+   <!-- xAOD::ByteStreamAuxContainer type(s). -->
    <class name="xAOD::ByteStreamAuxContainer_v1" >
      <field name="m_auxids" transient="true" />
      <field name="m_staticVecs" transient="true" />
@@ -20,119 +20,194 @@
      ]]>
    </read>
 
-   <!-- Types used by ByteStreamAuxContainer_v1 internally: -->
-   <class name="std::map<std::string,std::vector<int> >" />
-   <class name="std::map<std::string,std::vector<float> >" />
-   <class name="std::map<std::string,std::vector<std::vector<int> > >" />
-   <class name="std::map<std::string,std::vector<std::vector<float> > >" />
-
-   <!-- Types used by Signature and Sequence info in TriggerMenuAuxContainer_v1 -->
-   <class name="std::vector<std::vector<std::vector<std::string> > >" />
-   <class name="std::vector<std::vector<std::vector<uint32_t> > >" />
-   <class name="std::vector<std::vector<std::vector<std::vector<std::string> > > >" />
-
-   <!-- RoI dictionaries: -->
+   <!-- xAOD::MuonRoI interface type(s). -->
    <class name="xAOD::MuonRoI_v1" />
    <class name="xAOD::MuonRoIContainer_v1"
           id="807F1B34-CFD5-4410-AB98-83231B551D6F" />
+   <typedef name="xAOD::MuonRoI" />
+   <typedef name="xAOD::MuonRoIContainer" />
+
+   <!-- xAOD::MuonRoI auxiliary type(s). -->
    <class name="xAOD::MuonRoIAuxContainer_v1"
           id="242CC7E8-D74C-4208-A3F6-2982628F1F8E" />
+   <typedef name="xAOD::MuonRoIAuxContainer" />
 
+   <!-- xAOD::JetRoI interface type(s). -->
    <class name="xAOD::JetRoI_v1" />
    <class name="xAOD::JetRoIContainer_v1"
           id="ED39F230-5E9A-11E3-9563-02163E00A725" />
-   <class name="xAOD::JetRoIAuxContainer_v1"
-          id="64C2E2A4-5E9A-11E3-BEF2-02163E00A725" />
-
    <class name="xAOD::JetRoI_v2" />
    <class name="xAOD::JetRoIContainer_v2"
           id="8F9A76C9-2083-4774-A0EE-FB585930B664" />
+   <typedef name="xAOD::JetRoI" />
+   <typedef name="xAOD::JetRoIContainer" />
+
+   <!-- xAOD::JetRoI auxiliary type(s). -->
+   <class name="xAOD::JetRoIAuxContainer_v1"
+          id="64C2E2A4-5E9A-11E3-BEF2-02163E00A725" />
    <class name="xAOD::JetRoIAuxContainer_v2"
           id="8448ECAF-10E0-4E8B-9E67-3A00FEA36317" />
+   <typedef name="xAOD::JetRoIAuxContainer" />
 
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::JetRoIContainer_v1>" version="[1-]"
+         targetClass="DataLink<xAOD::JetRoIContainer_v2>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::JetRoIContainer_v1>" version="[1-]"
+         targetClass="ElementLink<xAOD::JetRoIContainer_v2>"
+         source="" target="" />
+
+   <!-- xAOD::EmTauRoI interface type(s). -->
    <class name="xAOD::EmTauRoI_v1" />
    <class name="xAOD::EmTauRoIContainer_v1"
           id="101CD1EE-5EA2-11E3-895D-02163E00A743" />
-   <class name="xAOD::EmTauRoIAuxContainer_v1"
-          id="1825AE7E-5EA2-11E3-A41F-02163E00A743" />
-
    <class name="xAOD::EmTauRoI_v2" />
    <class name="xAOD::EmTauRoIContainer_v2"
           id="6AB862C4-31E6-4F66-AAE8-56BA01E350F2" />
+   <typedef name="xAOD::EmTauRoI" />
+   <typedef name="xAOD::EmTauRoIContainer" />
+
+   <!-- xAOD::EmTauRoI auxiliary type(s). -->
+   <class name="xAOD::EmTauRoIAuxContainer_v1"
+          id="1825AE7E-5EA2-11E3-A41F-02163E00A743" />
    <class name="xAOD::EmTauRoIAuxContainer_v2"
           id="74EA3AFB-B7BE-4E4B-AD5D-4297CA6EDBCD" />
+   <typedef name="xAOD::EmTauRoIAuxContainer" />
 
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::EmTauRoIContainer_v1>" version="[1-]"
+         targetClass="DataLink<xAOD::EmTauRoIContainer_v2>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::EmTauRoIContainer_v1>" version="[1-]"
+         targetClass="ElementLink<xAOD::EmTauRoIContainer_v2>"
+         source="" target="" />
+
+   <!-- xAOD::JetEtRoI interface type(s). -->
    <class name="xAOD::JetEtRoI_v1"
           id="6018AD28-5EAF-11E3-9B5D-02163E00A743" />
+   <typedef name="xAOD::JetEtRoI" />
+
+   <!-- xAOD::JetEtRoI auxiliary type(s). -->
    <class name="xAOD::JetEtRoIAuxInfo_v1"
           id="6A7C6F7A-5EAF-11E3-BFBC-02163E00A743" />
+   <typedef name="xAOD::JetEtRoIAuxInfo" />
 
+   <!-- xAOD::EnergySumRoI interface type(s). -->
    <class name="xAOD::EnergySumRoI_v1"
           id="727CB19A-5EB8-11E3-81B0-02163E00A743" />
-   <class name="xAOD::EnergySumRoIAuxInfo_v1"
-          id="7BD71A00-5EB8-11E3-95AF-02163E00A743" />
-
    <class name="xAOD::EnergySumRoI_v2"
           id="3F26401F-25D9-4CCA-B883-57EBCEE8D299" />
+   <typedef name="xAOD::EnergySumRoI" />
+
+   <!-- xAOD::EnergySumRoI auxiliary type(s). -->
+   <class name="xAOD::EnergySumRoIAuxInfo_v1"
+          id="7BD71A00-5EB8-11E3-95AF-02163E00A743" />
    <class name="xAOD::EnergySumRoIAuxInfo_v2"
           id="7A0DB6D7-05F6-4D3A-9E8B-0230350E3E25" />
+   <typedef name="xAOD::EnergySumRoIAuxInfo" />
 
-   <!-- TriggerMenu dictionaries: -->
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::EnergySumRoI_v1>" version="[1-]"
+         targetClass="DataLink<xAOD::EnergySumRoI_v2>"
+         source="" target="" />
+
+  <!-- Phase I L1Calo RoI dictionaries: -->
+  <!-- RoI interface types -->
+   <class name="xAOD::eFexEMRoI_v1" />
+   <class name="xAOD::eFexEMRoIContainer_v1"
+          id="89FFBED7-9DDF-4FC4-B099-2B4F827BD098" />
+   <typedef name="xAOD::eFexEMRoI" />
+   <typedef name="xAOD::eFexEMRoIContainer" />
+
+  <!-- RoI auxilliary types --> 
+   <class name="xAOD::eFexEMRoIAuxContainer_v1"
+          id="6A1D7149-7476-4F23-8896-D88CB3BF6846" />
+   <typedef name="xAOD::eFexEMRoIAuxContainer" />
+
+   <!-- xAOD::TriggerMenu interface type(s). -->
    <class name="xAOD::TriggerMenu_v1" />
    <class name="xAOD::TriggerMenuContainer_v1"
           id="AA55120B-11CF-44A3-B1E4-A5AB062207B7" />
+   <typedef name="xAOD::TriggerMenu" />
+   <typedef name="xAOD::TriggerMenuContainer" />
+
+   <!-- xAOD::TriggerMenu auxiliary type(s). -->
    <class name="xAOD::TriggerMenuAuxContainer_v1"
           id="B8614CC5-8696-4170-8CCC-496DA7671246" />
+   <typedef name="xAOD::TriggerMenuAuxContainer" />
 
-   <class name="xAOD::TrigConfKeys_v1"
-          id="A88FD5D2-8BCB-4ADC-978C-0914D86B96B7" />
+   <!-- xAOD::TriggerMenuJson interface type(s). -->
+   <class name="xAOD::TriggerMenuJson_v1" />
+   <class name="xAOD::TriggerMenuJsonContainer_v1"
+          id="EB93A327-042C-706C-9690-A3F419DCCFEB" />
+   <typedef name="xAOD::TriggerMenuJson" />
+   <typedef name="xAOD::TriggerMenuJsonContainer" />
 
-   <!-- Extra types used by TriggerMenu: -->
-   <class name="std::vector<std::vector<uint16_t> >" />
-   <class name="std::vector<std::vector<std::vector<uint16_t> > >" />
+   <!-- xAOD::TriggerMenuJson auxiliary type(s). -->
+   <class name="xAOD::TriggerMenuJsonAuxContainer_v1"
+          id="27A79C63-7809-7F7F-DB5A-998EF07CD154" />
+   <typedef name="xAOD::TriggerMenuJsonAuxContainer" />
 
-   <!-- TrigDecision_v1 dictionaries: -->
+   <!-- xAOD::TrigDecision interface type(s). -->
    <class name="xAOD::TrigDecision_v1"
           id="092BCB2D-9630-4689-BE86-7B93466420DA" />
+   <typedef name="xAOD::TrigDecision" />
+
+   <!-- xAOD::TrigDecision auxiliary type(s). -->
    <class name="xAOD::TrigDecisionAuxInfo_v1"
           id="F9618829-3B9C-41CB-8A87-D26B5D31CA79" />
+   <typedef name="xAOD::TrigDecisionAuxInfo" />
 
-   <!-- TrigNavigation_v1 dictionaries: -->
+   <!-- xAOD::TrigNavigation interface type(s). -->
    <class name="xAOD::TrigNavigation_v1"
           id="C9131CE0-C4D5-47A2-B088-D49ECE2C3C69" />
+   <typedef name="xAOD::TrigNavigation" />
+
+   <!-- xAOD::TrigNavigation auxiliary type(s). -->
    <class name="xAOD::TrigNavigationAuxInfo_v1"
           id="924049A6-25B4-4406-A70A-CCAC2E4233E1" />
+   <typedef name="xAOD::TrigNavigationAuxInfo" />
 
-   <!-- TrigComposite_v1 dictionaries: -->
+   <!-- xAOD::TrigComposite interface type(s). -->
    <class name="xAOD::TrigComposite_v1" />
    <class name="xAOD::TrigCompositeContainer_v1"
           id="3CB1DCCD-2B78-4E15-AC09-D75B228A29AA" />
+   <typedef name="xAOD::TrigComposite" />
+   <typedef name="xAOD::TrigCompositeContainer" />
+
+   <!-- xAOD::TrigComposite auxiliary type(s). -->
    <class name="xAOD::TrigCompositeAuxContainer_v1"
           id="171EB8B8-A777-47D9-94A9-33B2482E2AAF" />
-
-   <!-- TrigComposite_v2 dictionaries: -->
    <class name="xAOD::TrigCompositeAuxContainer_v2"
           id="3174A8A0-7EA2-436D-93FC-0D058BE99B09" />
+   <typedef name="xAOD::TrigCompositeAuxContainer" />
 
-   <!-- RoiDescriptorStore_v1 dictionaries: -->
+   <!-- xAOD::RoiDescriptorStore interface type(s). -->
    <class name="xAOD::RoiDescriptorStore_v1"
           id="882822c8-906a-11e5-87f4-02163e010d8c" />
+   <typedef name="xAOD::RoiDescriptorStore" />
+
+   <!-- xAOD::RoiDescriptorStore auxiliary type(s). -->
    <class name="xAOD::RoiDescriptorStoreAuxInfo_v1"
           id="8aa7eae2-906a-11e5-a100-02163e010d8c" />
+   <typedef name="xAOD::RoiDescriptorStoreAuxInfo" />
 
-   <!-- Extra types used by TrigComposite: -->
-   <class name="std::vector<std::vector<std::string> >" />
-
-   <!-- Bunch configuration dictionaries: -->
+   <!-- xAOD::BunchConf interface type(s). -->
    <class name="xAOD::BunchConf_v1" />
    <class name="xAOD::BunchConfContainer_v1"
           id="07B1BB98-24EE-4EA3-B0D5-ECB2B0A3CB65" />
+   <typedef name="xAOD::BunchConf" />
+   <typedef name="xAOD::BunchConfContainer" />
+
+   <!-- xAOD::BunchConf auxiliary type(s). -->
    <class name="xAOD::BunchConfAuxContainer_v1"
           id="29CFA84E-5C7C-4AAD-8FB5-F5EB9AF93423" />
-   <class name="xAOD::BunchConfKey_v1"
-          id="B7FA1A14-95A4-4852-813E-CB2271906060" />
+   <typedef name="xAOD::BunchConfAuxContainer" />
 
-   <!-- TrigPassBits dictionaries: -->
+   <!-- xAOD::TrigPassBits interface type(s). -->
    <class name="xAOD::TrigPassBits_v1" >
      <field name="m_container" transient="true" />
    </class>
@@ -145,7 +220,18 @@
    </read>
    <class name="xAOD::TrigPassBitsContainer_v1"
           id="7B5DF7FF-2043-414E-BEDC-2BB0AB518AF7" />
+   <typedef name="xAOD::TrigPassBits" />
+   <typedef name="xAOD::TrigPassBitsContainer" />
+
+   <!-- xAOD::TrigPassBits auxiliary type(s). -->
    <class name="xAOD::TrigPassBitsAuxContainer_v1"
           id="AD293D04-8D40-4704-B945-04283172D035" />
+   <typedef name="xAOD::TrigPassBitsAuxContainer" />
+
+   <!-- Key type(s). -->
+   <class name="xAOD::TrigConfKeys_v1"
+          id="A88FD5D2-8BCB-4ADC-978C-0914D86B96B7" />
+   <class name="xAOD::BunchConfKey_v1"
+          id="B7FA1A14-95A4-4852-813E-CB2271906060" />
 
 </lcgdict>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //   TEMPORARY until track EDM is finalised!!!!
@@ -31,9 +31,9 @@ namespace Trk {
 
     //MsgStream log(msgSvc(), name());
     std::vector<const TrackParameters*>::const_iterator   i_pbase;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     Amg::Vector3D perGlobalPos,perGlobalVrt;
-    const Trk::Perigee* mPer=0;
+    const Trk::Perigee* mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,fz,BMAG_FIXED;
@@ -46,7 +46,7 @@ namespace Trk {
      state.m_refFrameX=state.m_refFrameY=state.m_refFrameZ=0.;
      state.m_fitField.setAtlasMagRefFrame( 0., 0., 0.);
 
-     if( m_InDetExtrapolator == 0 ){
+     if( m_InDetExtrapolator == nullptr ){
        //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        return StatusCode::FAILURE;        
@@ -93,9 +93,9 @@ namespace Trk {
        const TrackParameters* trkparO = (*i_pbase);
        if( trkparO ){
          const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapWithMatUpdate( TrkID, trkparO, &refGVertex, state );
-         if(trkparN == 0) return StatusCode::FAILURE;
+         if(trkparN == nullptr) return StatusCode::FAILURE;
          mPer = dynamic_cast<const Trk::Perigee*>(trkparN); 
-         if( mPer == 0) {   delete trkparN;  return StatusCode::FAILURE; }
+         if( mPer == nullptr) {   delete trkparN;  return StatusCode::FAILURE; }
          VectPerig    =  mPer->parameters(); 
          perGlobalPos =  mPer->position();    //Global position of perigee point
          //perGlobalVrt =  mPer->vertex();      //Global position of reference point
@@ -113,7 +113,7 @@ namespace Trk {
        VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
                      state.m_ich[ntrk],&state.m_apar[ntrk][0],&state.m_awgt[ntrk][0]);
-       if( trkparO==0 ) {                                              //neutral track
+       if( trkparO==nullptr ) {                                              //neutral track
          state.m_ich[ntrk]=0; 
          if(state.m_apar[ntrk][4]<0){ state.m_apar[ntrk][4]  = -state.m_apar[ntrk][4];      // Charge=0 is always equal to Charge=+1
                                 state.m_awgt[ntrk][10] = -state.m_awgt[ntrk][10];
@@ -143,7 +143,7 @@ namespace Trk {
     std::vector<const NeutralParameters*>::const_iterator   i_pbase;
     AmgVector(5) VectPerig;
     Amg::Vector3D perGlobalPos,perGlobalVrt;
-    const NeutralPerigee* mPerN=0;
+    const NeutralPerigee* mPerN=nullptr;
     double CovVertTrk[15];
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,fz,BMAG_FIXED;
@@ -156,7 +156,7 @@ namespace Trk {
     state.m_refFrameX=state.m_refFrameY=state.m_refFrameZ=0.;
     state.m_fitField.setAtlasMagRefFrame( 0., 0., 0.);
 
-    if( m_InDetExtrapolator == 0 ){
+    if( m_InDetExtrapolator == nullptr ){
        if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        return StatusCode::FAILURE;        
     }
@@ -175,12 +175,12 @@ namespace Trk {
        TrkMatControl tmpMat;                                    // Here we create structure to control material effects
        tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z()); // on track extrapolation
        tmpMat.extrapolationType=0;   //First measured point strategy
-       tmpMat.TrkPnt=NULL;           //No reference point for neutral track for the moment  !!!
+       tmpMat.TrkPnt=nullptr;           //No reference point for neutral track for the moment  !!!
        tmpMat.prtMass = 139.5702;
        if(counter<(int)state.m_MassInputParticles.size())tmpMat.prtMass = state.m_MassInputParticles[counter];
        tmpMat.TrkID=counter; state.m_trkControl.push_back(tmpMat);
        counter++;
-       if(perGlobalPos.perp()<rxyMin){rxyMin=perGlobalPos.perp(); state.m_globalFirstHit=NULL;}
+       if(perGlobalPos.perp()<rxyMin){rxyMin=perGlobalPos.perp(); state.m_globalFirstHit=nullptr;}
     }
     if(counter == 0) return StatusCode::FAILURE;
     tmp_refFrameX /= counter;                          // Reference frame for the fit
@@ -197,10 +197,10 @@ namespace Trk {
 //
     for (i_pbase = InpTrk.begin(); i_pbase != InpTrk.end(); ++i_pbase) {
          const Trk::NeutralParameters* neuparO = (*i_pbase);
-         if(neuparO == 0) return StatusCode::FAILURE;
+         if(neuparO == nullptr) return StatusCode::FAILURE;
          const Trk::NeutralParameters* neuparN = m_fitPropagator->myExtrapNeutral( neuparO, &refGVertex );
          mPerN = dynamic_cast<const Trk::NeutralPerigee*>(neuparN); 
-         if( mPerN == 0) {   delete neuparN;  return StatusCode::FAILURE; }
+         if( mPerN == nullptr) {   delete neuparN;  return StatusCode::FAILURE; }
          VectPerig    =  mPerN->parameters(); 
          perGlobalPos =  mPerN->position();    //Global position of perigee point
          //perGlobalVrt =  mPerN->vertex();      //Global position of reference point

@@ -47,28 +47,28 @@ private:
   bool m_excludeCFromTop;
 
 
-  bool passBSelection(const HepMC::GenParticle* part) const;
-  bool passCSelection(const HepMC::GenParticle* part) const;
+  bool passBSelection(HepMC::ConstGenParticlePtr part) const;
+  bool passCSelection(HepMC::ConstGenParticlePtr part) const;
 
   int hadronType(int pdgid) const;
-  bool isBHadron(const HepMC::GenParticle* part) const;
-  bool isCHadron(const HepMC::GenParticle* part) const;
+  bool isBHadron(HepMC::ConstGenParticlePtr part) const;
+  bool isCHadron(HepMC::ConstGenParticlePtr part) const;
 
-  bool isInitialHadron(const HepMC::GenParticle* part) const;
-  bool isFinalHadron(const HepMC::GenParticle* part) const;
+  bool isInitialHadron(HepMC::ConstGenParticlePtr part) const;
+  bool isFinalHadron(HepMC::ConstGenParticlePtr part) const;
 
-  bool isQuarkFromHadron(const HepMC::GenParticle* part) const;
-  bool isCHadronFromB(const HepMC::GenParticle* part) const;
+  bool isQuarkFromHadron(HepMC::ConstGenParticlePtr part) const;
+  bool isCHadronFromB(HepMC::ConstGenParticlePtr part) const;
 
   /// init_part needed to detect looping graphs (sherpa) and to switch on using barcode to resolve it without affecting pythia8
   /// up to know only seen at parton level
-  bool isLooping(const HepMC::GenParticle* part, std::set<const HepMC::GenParticle*> init_part = std::set<const HepMC::GenParticle*>()) const;
+  bool isLooping(HepMC::ConstGenParticlePtr part, std::set<HepMC::ConstGenParticlePtr> init_part = std::set<HepMC::ConstGenParticlePtr>()) const;
 
-  const HepMC::GenParticle*  findInitial(const HepMC::GenParticle* part, bool looping) const;
+  HepMC::ConstGenParticlePtr  findInitial(HepMC::ConstGenParticlePtr part, bool looping) const;
 
-  bool isFromTop(const HepMC::GenParticle* part, bool looping) const;
-  bool isDirectlyFromTop(const HepMC::GenParticle* part, bool looping) const;
-  bool isDirectlyFromWTop(const HepMC::GenParticle* part, bool looping) const;
+  bool isFromTop(HepMC::ConstGenParticlePtr part, bool looping) const;
+  bool isDirectlyFromTop(HepMC::ConstGenParticlePtr part, bool looping) const;
+  bool isDirectlyFromWTop(HepMC::ConstGenParticlePtr part, bool looping) const;
 
 
 

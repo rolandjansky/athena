@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_G4Utilities/TRTParameters.hh"
@@ -8,10 +8,14 @@
 #include <fstream>
 
 
-TRTParameters* TRTParameters::s_pParameters = NULL;
+const TRTParameters* TRTParameters::GetPointer()
+{
+  static TRTParameters parameters ATLAS_THREAD_SAFE;
+  return &parameters;
+}
 
 
-  // Called by GetPointer
+// Called by GetPointer
 
 TRTParameters::TRTParameters() : m_msg("TRTParameters")
 {
@@ -34,8 +38,6 @@ TRTParameters::~TRTParameters()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters" << endmsg;
 
-  s_pParameters = NULL;
-
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters done" << endmsg;
 }
 
@@ -55,7 +57,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
     std::cerr << "***** TRTParameters::ReadInputFile *****" << std::endl;
     std::cerr << "  Cannot open input file '" << fileName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 
   int inputState = 0;
@@ -88,7 +90,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
 	std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
         std::cerr << "  Cannot find symbol '='." << std::endl;
         std::cerr << "  Exit!" << std::endl << std::endl;
-        exit(0);
+        std::abort();
       }
     }
     else if (inputState == 3)
@@ -108,7 +110,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
           std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
           std::cerr << "  Unexpected symbol '>'." << std::endl;
           std::cerr << "  Exit!" << std::endl << std::endl;
-          exit(0);
+          std::abort();
         }
       }
       else if (inputString == "<")
@@ -119,7 +121,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
         std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
         std::cerr << "  Unexpected symbol '<'." << std::endl;
         std::cerr << "  Exit!" << std::endl << std::endl;
-        exit(0);
+        std::abort();
       }
       else
       {
@@ -138,7 +140,7 @@ void TRTParameters::ReadInputFile(std::string fileName)
     std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
     std::cerr << "  Cannot find symbol '>' at the end of file." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 
   inputFile.close();
@@ -151,8 +153,6 @@ void TRTParameters::ReadInputFile(std::string fileName)
 
 void TRTParameters::PrintListOfParameters() const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters" << endmsg;
-
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -164,8 +164,6 @@ void TRTParameters::PrintListOfParameters() const
     i != m_multimapOfParameters.end(); ++i)
     output << "  " << (*i).first << "=" << (*i).second << std::endl;
   output << std::endl;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters done" << endmsg;
 }
 
 
@@ -187,7 +185,7 @@ int TRTParameters::GetInteger(std::string parameterName) const
     std::cerr << "***** TRTParameters::GetInteger *****" << std::endl;
     std::cerr << "  Cannot find parameter '" << parameterName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -196,7 +194,7 @@ int TRTParameters::GetInteger(std::string parameterName) const
     std::cerr << "  Parameter '" << parameterName << "' has " << numberOfItems
            << " copies." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
@@ -219,7 +217,7 @@ double TRTParameters::GetDouble(std::string parameterName) const
     std::cerr << "***** TRTParameters::GetDouble *****" << std::endl;
     std::cerr << "  Cannot find parameter '" << parameterName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -228,7 +226,7 @@ double TRTParameters::GetDouble(std::string parameterName) const
     std::cerr << "  Parameter '" << parameterName << "' has " << numberOfItems
            << " copies." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
@@ -236,7 +234,7 @@ double TRTParameters::GetDouble(std::string parameterName) const
   // Called on demand
 
 void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
-  int* array) const
+                                    int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -252,7 +250,7 @@ void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
     std::cerr << "***** TRTParameters::GetIntegerArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -262,7 +260,7 @@ void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
            << "." << std::endl;
     std::cerr << "  Demanded size is " << arraySize << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
@@ -270,7 +268,7 @@ void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
   // Called on demand
 
 void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
-  double* array) const
+                                   double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -286,7 +284,7 @@ void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
     std::cerr << "***** TRTParameters::GetDoubleArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -296,7 +294,7 @@ void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
            << "." << std::endl;
     std::cerr << "  Demanded size is " << arraySize << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
@@ -304,7 +302,7 @@ void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
   // Called on demand
 
 void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
-  int numberOfDemandedElements, int* array) const
+                                          int numberOfDemandedElements, int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -320,7 +318,7 @@ void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
     std::cerr << "***** TRTParameters::GetPartOfIntegerArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -331,7 +329,7 @@ void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
     std::cerr << "  Number of demanded elements " << numberOfDemandedElements
            << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
@@ -339,7 +337,7 @@ void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
   // Called on demand
 
 void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
-  int numberOfDemandedElements, double* array) const
+                                         int numberOfDemandedElements, double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -355,7 +353,7 @@ void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
     std::cerr << "***** TRTParameters::GetPartOfDoubleArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -366,7 +364,7 @@ void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
     std::cerr << "  Number of demanded elements " << numberOfDemandedElements
            << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
@@ -374,7 +372,7 @@ void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
   // Called on demand
 
 int TRTParameters::GetElementOfIntegerArray(std::string arrayName,
-  int elementIndex) const
+                                            int elementIndex) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -390,7 +388,7 @@ int TRTParameters::GetElementOfIntegerArray(std::string arrayName,
     std::cerr << "***** TRTParameters::GetElementOfIntegerArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -400,6 +398,6 @@ int TRTParameters::GetElementOfIntegerArray(std::string arrayName,
            << arrayName << "'." << std::endl;
     std::cerr << "  Array size " << numberOfItems << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }

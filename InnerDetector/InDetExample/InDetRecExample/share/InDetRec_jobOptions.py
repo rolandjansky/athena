@@ -196,8 +196,9 @@ else:
       TrackCollectionTruthKeysDBM = []
 
     # NewTracking collection keys
+    CombinedInDetClusterSplitProbContainer = ''
     InputCombinedInDetTracks = []
- 
+
     # ------------------------------------------------------------
     #
     # ----------- Subdetector pattern from New Tracking
@@ -206,7 +207,9 @@ else:
     #
     # --- Pixel track segment finding
     #
+    ClusterSplitProbContainer=''
     if InDetFlags.doTrackSegmentsPixel():
+
       # --- load cuts for pixel segment finding
       if ('InDetNewTrackingCutsPixel' not in dir()):
         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsPixel not set before - import them now")
@@ -219,7 +222,9 @@ else:
                                                                  InDetKeys.SiSpSeededPixelTracks(),
                                                                  InDetNewTrackingCutsPixel,
                                                                  TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys)
+                                                                 TrackCollectionTruthKeys,
+                                                                 ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsPixel.extension()
 
       if InDetFlags.doTruth():
         PixelTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PixelTracks(),
@@ -242,9 +247,10 @@ else:
                                                                  InDetKeys.SiSpSeededSCTTracks(),
                                                                  InDetNewTrackingCutsSCT,
                                                                  TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys)
+                                                                 TrackCollectionTruthKeys,
+                                                                 ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSCT.extension()
 
-   
     # ------------------------------------------------------------
     #
     # ----------- Cosmics Si pattern before we do the TRT phase
@@ -270,7 +276,9 @@ else:
                                                                    InDetSpSeededTracksKey,
                                                                    InDetNewTrackingCuts,
                                                                    TrackCollectionKeys,
-                                                                   TrackCollectionTruthKeys)
+                                                                   TrackCollectionTruthKeys,
+                                                                   ClusterSplitProbContainer)
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
         # set output track collection
         InDetCosmicSiTrackCollection = InDetNewTrackingSiPattern.SiTrackCollection()
 
@@ -321,15 +329,13 @@ else:
           printfunc (InDetTRTonly_PRD_AssociationPhase)
 
         from AthenaCommon import CfgGetter
+        # @TODO create track summary for the following tracks .i.e. add "SummaryTool = TrackingCommon.getInDetTrackSummaryTool()", ?
         from TRT_SegmentsToTrack.TRT_SegmentsToTrackConf import InDet__TRT_SegmentsToTrack
         InDetTrkSegmenttoTrkPhase = InDet__TRT_SegmentsToTrack(name                      = "InDetTRT_SegmentsToTrack_BarrelPhase",
                                                         InputSegmentsCollection   = InDetKeys.TRT_Segments_Phase(),
                                                         OutputTrackCollection     = InDetKeys.TRT_Tracks_Phase(),
                                                         TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         MinNHit                   = InDetNewTrackingCuts.minTRTonly(),
-                                                        CombineTracks             = False,
-                                                        OutputCombiCollection     = "",
-                                                        InputSCTCollection        = "",
                                                         OutlierRemoval            = True,
                                                         MaterialEffects           = False)
         topSequence += InDetTrkSegmenttoTrkPhase
@@ -346,39 +352,6 @@ else:
         include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
         InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(True, True)
 
-    # ------------------------------------------------------------
-    #
-    # ----------- now we do legacy pattern if requested
-    #
-    # ------------------------------------------------------------
-    
-    
-    #
-    # --- TRT track segment finding
-    #
-    if InDetFlags.doTrackSegmentsTRT():
-      # --- load cuts for TRT segment finding
-      if ('InDetNewTrackingCutsTRT' not in dir()):
-        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now")
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsTRT = ConfiguredNewTrackingCuts("TRT")
-      InDetNewTrackingCutsTRT.printInfo()
-      # --- segment finingd
-      include ("InDetRecExample/ConfiguredTRTSegmentFinding.py")
-      InDetRecTRTSegementFinding = ConfiguredTRTSegmentFinding ("_TRT", [],
-                                                                InDetNewTrackingCutsTRT,
-                                                                InDetKeys.TRT_SegmentsTRT()
-                                                                )
-      # --- making tacks out of segments
-
-
-      include ("InDetRecExample/ConfiguredTRTStandalone.py")
-      InDetRecTRTStandalone = ConfiguredTRTStandalone ("_TRT", [],
-                                                       InDetNewTrackingCutsTRT,
-                                                       InDetKeys.TRT_SegmentsTRT(),
-                                #                       InDetKeys.TRT_SegmentsTRT_EC(),
-                                                       TrackCollectionKeys,
-                                                       TrackCollectionTruthKeys)
 
     # ------------------------------------------------------------
     #
@@ -396,7 +369,10 @@ else:
                                                                    InDetSpSeededTracksKey,
                                                                    InDetNewTrackingCuts,
                                                                    TrackCollectionKeys,
-                                                                   TrackCollectionTruthKeys)
+                                                                   TrackCollectionTruthKeys,
+                                                                   ClusterSplitProbContainer)
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+
       #
       # --- do the TRT pattern
       #
@@ -411,8 +387,10 @@ else:
                                                                          TrackCollectionTruthKeys,
                                                                          False)
         # --- add into list for combination
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
         InputCombinedInDetTracks += [ InDetNewTrackingTRTExtension.ForwardTrackCollection() ]
       else :
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
         InputCombinedInDetTracks += [ InDetNewTrackingSiPattern.SiTrackCollection() ]
         
     # ------------------------------------------------------------
@@ -438,16 +416,22 @@ else:
       InDetRecBackTracking = ConfiguredBackTracking (InputCombinedInDetTracks,
                                                      InDetNewTrackingCuts,
                                                      TrackCollectionKeys,
-                                                     TrackCollectionTruthKeys)
+                                                     TrackCollectionTruthKeys,
+                                                     ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetTRT_SeededAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+
       # --- add into list for combination
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
       InputCombinedInDetTracks += [ InDetRecBackTracking.BackTrackingTracks() ]
 
+      
     # ------------------------------------------------------------
     #
     # --- Large-d0 option (FIXME: Here or should be placed 
     #     after standard reconstruction...?
     #
     # ------------------------------------------------------------
+    ClusterSplitProbContainerLargeD0=''
     if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
@@ -475,7 +459,9 @@ else:
                                                             InDetKeys.SiSpSeededLargeD0Tracks(),
                                                             InDetNewTrackingCutsLargeD0,
                                                             TrackCollectionKeys,
-                                                            TrackCollectionTruthKeys)
+                                                            TrackCollectionTruthKeys,
+                                                            ClusterSplitProbContainer)
+      ClusterSplitProbContainerLargeD0 = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLargeD0.extension()
       #
       # --- do the TRT pattern
       #
@@ -491,10 +477,14 @@ else:
       #     processing case, those tracks are not part of the re-tracking procedure)
       if InDetFlags.useExistingTracksAsInput():
           _dummy = InputCombinedInDetTracks.pop()
-      # --- add into list for combination
-      InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
-    
+      # --- add into list for combination
+      # Add tracks to standard track collection or a separate container?
+      if not InDetFlags.storeSeparateLargeD0Container():
+        ClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
+        InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
+
 
     # ------------------------------------------------------------
     #
@@ -520,7 +510,9 @@ else:
                                                            InDetKeys.SiSpSeededLowPtTracks(),
                                                            InDetNewTrackingCutsLowPt,
                                                            TrackCollectionKeys,
-                                                           TrackCollectionTruthKeys)
+                                                           TrackCollectionTruthKeys,
+                                                           ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLowPt.extension()
       #
       # --- do the TRT pattern
       #
@@ -532,6 +524,7 @@ else:
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
       # --- add into list for combination
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
       InputCombinedInDetTracks += [ InDetLowPtTRTExtension.ForwardTrackCollection() ]
 
     # ------------------------------------------------------------
@@ -558,8 +551,11 @@ else:
                                                                InDetKeys.SiSpSeededVeryLowPtTracks(),
                                                                InDetNewTrackingCutsVeryLowPt,
                                                                TrackCollectionKeys,
-                                                               TrackCollectionTruthKeys)
+                                                               TrackCollectionTruthKeys,
+                                                               ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsVeryLowPt.extension()
       # --- add into list for combination
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
       InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
  
     # ------------------------------------------------------------
@@ -579,14 +575,57 @@ else:
                                                        TrackCollectionKeys,
                                                        TrackCollectionTruthKeys)
       # --- add into list for combination
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
       InputCombinedInDetTracks += [ InDetRecTRTStandalone.TRTStandaloneTracks() ]  
 
 
     # ------------------------------------------------------------
     #
+    # ----------- now we do legacy pattern if requested
+    #
+    # ------------------------------------------------------------
+
+    #
+    # --- TRT track segment finding
+    #
+    if InDetFlags.doTrackSegmentsTRT():
+      # --- load cuts for TRT segment finding
+      if ('InDetNewTrackingCutsTRT' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now")
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsTRT = ConfiguredNewTrackingCuts("TRT")
+      InDetNewTrackingCutsTRT.printInfo()
+      # --- segment finingd
+      include ("InDetRecExample/ConfiguredTRTSegmentFinding.py")
+      InDetRecTRTSegementFinding = ConfiguredTRTSegmentFinding ("_TRT", [],
+                                                                InDetNewTrackingCutsTRT,
+                                                                InDetKeys.TRT_SegmentsTRT()
+                                                                )
+      # --- making tracks out of segments
+
+
+      include ("InDetRecExample/ConfiguredTRTStandalone.py")
+      InDetRecTRTStandalone = ConfiguredTRTStandalone ("_TRT", [],
+                                                       InDetNewTrackingCutsTRT,
+                                                       InDetKeys.TRT_SegmentsTRT(),
+                                #                       InDetKeys.TRT_SegmentsTRT_EC(),
+                                                       TrackCollectionKeys,
+                                                       TrackCollectionTruthKeys,
+                                                       PRDtoTrackMap='InDetTRTonly_PRDtoTrackMap' if InDetFlags.doTRTStandalone() else '' )
+
+    # ------------------------------------------------------------
+    #
     # --- Forward Tracklets (after standard reconstruction)
     #
-    # ------------------------------------------------------------         
+    # ------------------------------------------------------------
+
+    if InDetFlags.doForwardTracks():
+      # Add tracks that are not saved to the InputCombinedInDetTracks
+      InputForwardInDetTracks = []
+      InputForwardInDetTracks += InputCombinedInDetTracks
+      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        ClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
+        InputForwardInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
     if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
       if InDetFlags.doSLHCVeryForward(): 
@@ -599,13 +638,16 @@ else:
          # --- now run Si pattern for Low Pt 
          # 
          include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py") 
-         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks, 
+         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
  		                                                      InDetKeys.ResolvedForwardTracks(), 
  		                                                      InDetKeys.SiSpSeededForwardTracks(), 
  		                                                      InDetNewTrackingCutsForwardTracks, 
- 		                                                      TrackCollectionKeys, 
- 		                                                      TrackCollectionTruthKeys)   
+ 		                                                      TrackCollectionKeys,
+ 		                                                      TrackCollectionTruthKeys,
+ 		                                                      ClusterSplitProbContainer)
+         ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
          # for ITK, forward tracks get added to the combined collection
+         CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
          InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ] 
 
 
@@ -619,13 +661,16 @@ else:
         # --- now run Si pattern for Low Pt
         #
         include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
                                                                    InDetKeys.ResolvedForwardTracks(),
                                                                    InDetKeys.SiSpSeededForwardTracks(),
                                                                    InDetNewTrackingCutsForwardTracks,
                                                                    TrackCollectionKeys,
-                                                                   TrackCollectionTruthKeys)  
+                                                                   TrackCollectionTruthKeys,
+                                                                   ClusterSplitProbContainer)
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
         # for ITK, forward tracks get added to the combined collection
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
         InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
 
@@ -644,14 +689,17 @@ else:
       # --- now run Si pattern for Low Pt
       #
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+      InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
                                                                    InDetKeys.ResolvedForwardTracks(),
                                                                    InDetKeys.SiSpSeededForwardTracks(),
                                                                    InDetNewTrackingCutsForwardTracks,
                                                                    TrackCollectionKeys,
-                                                                   TrackCollectionTruthKeys)  
-      # --- do not add into list for combination YET
-      # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
+                                                                   TrackCollectionTruthKeys,
+                                                                   ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
+      # --- do not add into list for combination
+      # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+      # InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
     if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
       #
@@ -670,8 +718,11 @@ else:
                                                            InDetKeys.SiSpSeededSLHCConversionFindingTracks(),
                                                            InDetNewTrackingCutsSLHCConversionFinding,
                                                            TrackCollectionKeys,
-                                                           TrackCollectionTruthKeys)
+                                                           TrackCollectionTruthKeys,
+                                                           ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSLHCConversionFinding.extension()
 
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
       InputCombinedInDetTracks += [ InDetKeys.ResolvedSLHCConversionFindingTracks() ]
 
     
@@ -684,8 +735,11 @@ else:
     if InDetFlags.doTrackSegmentsDisappearing():
       InputPixelInDetTracks = []
       InputPixelInDetTracks += InputCombinedInDetTracks
+      # Add tracks that are not saved to the InputCombinedInDetTracks
       if InDetFlags.doForwardTracks(): 
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
+      if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        InputPixelInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
       # --- load cuts for pixel segment finding
       if ('InDetNewTrackingCutsDisappearing' not in dir()):
         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now")
@@ -695,10 +749,13 @@ else:
       # --- configure pixel segment finding
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
       InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedDisappearingTracks(),
-                                                                 InDetKeys.SiSpSeededPixelTracks(),
-                                                                 InDetNewTrackingCutsDisappearing,
-                                                                 TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys)
+                                                                   InDetKeys.SiSpSeededPixelTracks(),
+                                                                   InDetNewTrackingCutsDisappearing,
+                                                                   TrackCollectionKeys,
+                                                                   TrackCollectionTruthKeys,
+                                                                   ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsDisappearing.extension()
+      DisappearingClusterSplitProbContainer = ClusterSplitProbContainer
 
       if InDetFlags.doTRTExtension() :
         include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
@@ -735,7 +792,9 @@ else:
                                                              InDetKeys.SiSpSeededBeamGasTracks(),
                                                              InDetNewTrackingCutsBeamGas,
                                                              TrackCollectionKeys,
-                                                             TrackCollectionTruthKeys)
+                                                             TrackCollectionTruthKeys,
+                                                             ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsBeamGas.extension()
       #
       # --- do the TRT pattern
       #
@@ -749,10 +808,11 @@ else:
 
       # --- add into list for combination for single-beam mode (not if running after collisions)
       if jobproperties.Beam.beamType() == "singlebeam":
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
         InputCombinedInDetTracks += [ InDetBeamGasTRTExtension.ForwardTrackCollection() ]
 
-    # ------------------------------------------------------------                                                                                                                                                                          
-    # 
+    # ------------------------------------------------------------
+    #
     # --- DBM
     #
     # ------------------------------------------------------------
@@ -778,13 +838,15 @@ else:
 
 #      InDetSiTrackerSpacePointFinder = InDetSiTrackerSpacePointFinderDBM
 
-      # --- Si Pattern                                                                                                                                                                                                                           
+      # --- Si Pattern
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
       DBMTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.DBMTracks(),
                                                                  InDetKeys.SiSpSeededDBMTracks(),
                                                                  InDetNewTrackingCutsDBM,
                                                                  TrackCollectionKeysDBM,
-                                                                 TrackCollectionTruthKeysDBM)
+                                                                 TrackCollectionTruthKeysDBM,
+                                                                 ClusterSplitProbContainer)
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsDBM.extension()
     #  InputCombinedInDetTracks += [ DBMTrackingSiPattern.SiTrackCollection() ]
 
 
@@ -796,14 +858,15 @@ else:
 
     # --- Ambi solve the extended (Si + TRT) and TRT standalone tracks if both run
     if InDetFlags.doCosmics() and InDetFlags.doNewTracking() and len(InputCombinedInDetTracks) > 1:
+      # @TODO should the cluster splitting probability be handled here ?
       InputCosmicsCombinedAmbiSolver = list(InputCombinedInDetTracks)
-      
+
       from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
       InDetAmbiguityScore_combinedCosmics = Trk__TrkAmbiguityScore(name                    = 'InDetCombinedCosmicsAmbiguityScore',
                                                                    TrackInput              = InputCosmicsCombinedAmbiSolver,
                                                                    TrackOutput             = 'ScoredMapCosmics',
                                                                    AmbiguityScoreProcessor = '' )
-                                                                  
+
       topSequence += InDetAmbiguityScore_combinedCosmics
 
       from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
@@ -815,8 +878,9 @@ else:
       if (InDetFlags.doPrintConfigurables()):
         printfunc (InDetAmbiguitySolver_combinedCosmics)
 
+      CombinedInDetClusterSplitProbContainer = ''  # @TODO really no split prob container ? 
       InputCombinedInDetTracks = [ InDetKeys.CombinedCosmicTracks() ]
-	  
+
     # ------------------------------------------------------------
     #
     # ----------- now we do the Pseudo Tracking 
@@ -928,19 +992,20 @@ else:
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
-        # --- add the truth to the truth tracks ;-)
-        include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-        InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
+        if  InDetFlags.doSplitReco() or InDetFlags.doIdealPseudoTracking() :
+          # --- add the truth to the truth tracks ;-)
+          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+          InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
                                                      InDetKeys.PseudoDetailedTracksTruth(),
                                                      InDetKeys.PseudoTracksTruth(),
                                                      PixelClusterTruth,
                                                      SCT_ClusterTruth,
                                                      TRT_DriftCircleTruth)
 
-        from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
-        InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
+          from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
+          InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
                                                Extrapolator = TrackingCommon.getInDetExtrapolator())
-        ToolSvc += InDetTruthToTrack
+          ToolSvc += InDetTruthToTrack
     
         # Register the track collections for further processing - only if new tracking has not been running
         if not InDetFlags.doNewTracking():
@@ -953,8 +1018,10 @@ else:
             InDetKeys.TracksTruth              = InDetKeys.PseudoTracksTruth()
             InDetKeys.UnslimmedTracksTruth     = InDetKeys.PseudoTracksTruth()
             # add as the combined ID collection
+            # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
             InputCombinedInDetTracks = [ InDetKeys.PseudoTracks() ]
         if InDetFlags.doSplitReco() :
+            # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
             InputCombinedInDetTracks += [ InDetKeys.PseudoTracks() ]
 
 
@@ -980,7 +1047,8 @@ else:
                                                        InDetKeys.DBMTracksTruth())
       
       if InDetFlags.useExistingTracksAsInput():
-          InputCombinedInDetTracks +=  [ InDetKeys.ProcessedESDTracks() ] 
+          # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
+          InputCombinedInDetTracks +=  [ InDetKeys.ProcessedESDTracks() ]
 
       if InDetFlags.doDBMstandalone():
         TrackCollectionKeys      += [ InDetKeys.DBMTracks() ]
@@ -988,6 +1056,9 @@ else:
       else:
         from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
         from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
+        merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = 'CombinedInDetSplitProb',
+                                                                                      ClusterSplitProbabilityName= CombinedInDetClusterSplitProbContainer)
+        assert( TrackingCommon.combinedClusterSplitProbName() == CombinedInDetClusterSplitProbContainer)
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
@@ -995,7 +1066,7 @@ else:
                                                               AssociationMapName      = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                               UpdateSharedHitsOnly    = False,
                                                               UpdateAdditionalInfo    = True,
-                                                              SummaryTool             = TrackingCommon.getInDetTrackSummaryToolSharedHits())
+                                                              SummaryTool             = merger_track_summary_tool)
         topSequence += TrkTrackCollectionMerger
 
         if (InDetFlags.doPrintConfigurables()):
@@ -1035,14 +1106,17 @@ else:
          DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
        else :
          DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
+       merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = 'DisappearingSplitProb',
+                                                                                     ClusterSplitProbabilityName= DisappearingClusterSplitProbContainer)
        from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
+       assert( TrackingCommon.pixelClusterSplitProbName() == DisappearingClusterSplitProbContainer)
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
                                                                  AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                                  UpdateSharedHitsOnly    = False,
                                                                  UpdateAdditionalInfo    = True,
-                                                                 SummaryTool             = TrackingCommon.getInDetTrackSummaryToolSharedHits())
+                                                                 SummaryTool             = merger_track_summary_tool)
        #TrkTrackCollectionMerger_pix.OutputLevel = VERBOSE
        topSequence += TrkTrackCollectionMerger_pix
 
@@ -1289,7 +1363,7 @@ else:
         InDetValidationPU = ConfiguredInDetValidation("PU",True,InDetFlags.doTruth(),cuts,[InDetKeys.PseudoTracks()],[InDetKeys.PseudoTracksTruth()],McEventCollectionKey="TruthEvent_PU")
 
     # ntuple creation for validation purposes    
-    if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()) or InDetFlags.doPhysValMon():
+    if (InDetFlags.doNtupleCreation() or InDetFlags.doPhysValMon()):
       include("InDetRecExample/InDetRecNtupleCreation.py")
 
     # D3PD Creation

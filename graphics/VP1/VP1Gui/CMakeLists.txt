@@ -1,19 +1,7 @@
-################################################################################
-# Package: VP1Gui
-################################################################################
-# Author: Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
-# Author: Riccardo Maria BIANCHI <rbianchi@cern.ch>
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1Gui )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC Event/xAOD/xAODBase
-   PUBLIC graphics/VP1/VP1Base
-   PUBLIC graphics/VP1/VP1UtilsBase 
-   )
 
 # External dependencies:
 find_package( Qt5 COMPONENTS Core OpenGL Gui Network PrintSupport Widgets )
@@ -32,12 +20,7 @@ atlas_add_library( VP1Gui VP1Gui/*.h src/*.h src/*.cxx src/*.qrc
    PUBLIC_HEADERS VP1Gui
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${SOQT_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES VP1Base Qt5::Core Qt5::OpenGL Qt5::Gui VP1UtilsBase
-   Qt5::PrintSupport
-   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${SOQT_LIBRARIES} PathResolver xAODBase
-   xAODRootAccess xAODEventInfo xAODRootAccessInterfaces Qt5::Network )
-   
-# Install files from the package:
-##atlas_install_scripts( share/* ) # installs into bin/
-atlas_install_runtime( share/* ) # install into share/ //TODO: check if we still need this!
-   
+   LINK_LIBRARIES VP1Base Qt5::Core Qt5::OpenGL Qt5::Gui
+   Qt5::PrintSupport xAODBase
+   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${SOQT_LIBRARIES} xAODCore
+   xAODRootAccess xAODEventInfo xAODRootAccessInterfaces Qt5::Network VP1UtilsBase )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./MultijetFlowNetworkBuilder.h"
@@ -72,7 +72,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   //obtain a list of job groups without duplicits:
 
   std::set<int> u_jgroups;
-  for(const auto jgis: *matches){u_jgroups.insert(jgis.begin(), jgis.end());}
+  for(const auto& jgis: *matches){u_jgroups.insert(jgis.begin(), jgis.end());}
 
   // a jet may appear inmore than one matched job group. Ensure it recieves
   // one node number.

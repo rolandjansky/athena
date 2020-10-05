@@ -41,7 +41,6 @@
 #include <string>
 #include <cmath>
 
-using std::endl;
 
 EvtTauolaEngine::EvtTauolaEngine(bool useEvtGenRandom) {
 
@@ -50,7 +49,7 @@ EvtTauolaEngine::EvtTauolaEngine(bool useEvtGenRandom) {
   // Number of possible decay modes in Tauola
   _nTauolaModes = 22;
 
-  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Setting up TAUOLA."<<endl;
+  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Setting up TAUOLA."<<std::endl;
 
   // These three lines are not really necessary since they are the default.
   // But they are here so that we know what the initial conditions are.
@@ -61,7 +60,7 @@ EvtTauolaEngine::EvtTauolaEngine(bool useEvtGenRandom) {
   // Initial the Tauola external generator
   if (useEvtGenRandom == true) {
       
-    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Using EvtGen random number engine also for Tauola++"<<endl;
+    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Using EvtGen random number engine also for Tauola++"<<std::endl;
       
     Tauolapp::Tauola::setRandomGenerator(EvtRandom::Flat);
       
@@ -117,7 +116,7 @@ void EvtTauolaEngine::setUpPossibleTauModes() {
     EvtId particleId = EvtPDL::getEntry(iPDL);
     int PDGId = EvtPDL::getStdHep(particleId);
 
-    if (abs(PDGId) == _tauPDG && gotAnyTauolaModes == false) {
+    if (std::abs(PDGId) == _tauPDG && gotAnyTauolaModes == false) {
 
       int aliasInt = particleId.getAlias();
 
@@ -172,7 +171,7 @@ void EvtTauolaEngine::setUpPossibleTauModes() {
       if (gotAnyTauolaModes == true && nNonTauolaModes > 0) {
 	
 	EvtGenReport(EVTGEN_ERROR, "EvtGen") << "Please remove all non-TAUOLA decay modes for particle "
-				<<EvtPDL::name(particleId)<<endl;
+				<<EvtPDL::name(particleId)<<std::endl;
 	::abort();
 	
       }
@@ -182,19 +181,19 @@ void EvtTauolaEngine::setUpPossibleTauModes() {
       if (totalTauModeBF > 0.0) {
 
 	EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Setting TAUOLA BF modes using the definitions for the particle "
-			     <<EvtPDL::name(particleId)<<endl;
+			     <<EvtPDL::name(particleId)<<std::endl;
 
 	for (iTauMode = 0; iTauMode < _nTauolaModes; iTauMode++) {
 	  
 	  tauolaModeBFs[iTauMode] /= totalTauModeBF;
 	  double modeBF = tauolaModeBFs[iTauMode];
-	  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Setting TAUOLA BF for mode "<<iTauMode+1<<" = "<<modeBF<<endl;
+	  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Setting TAUOLA BF for mode "<<iTauMode+1<<" = "<<modeBF<<std::endl;
 	  Tauolapp::Tauola::setTauBr(iTauMode+1, modeBF);
 	  
 	}
 
 	EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Any other TAUOLA BF modes for other tau particle decay mode definitions will be ignored!"
-			     <<endl;
+			     <<std::endl;
 
       }
   
@@ -230,7 +229,7 @@ bool EvtTauolaEngine::doDecay(EvtParticle* tauParticle) {
 
   // Check that we have a tau particle.
   EvtId partId = tauParticle->getId();
-  if (abs(EvtPDL::getStdHep(partId)) != _tauPDG) {return false;}
+  if (std::abs(EvtPDL::getStdHep(partId)) != _tauPDG) {return false;}
 
   int nTauDaug = tauParticle->getNDaug();
 
@@ -310,7 +309,7 @@ void EvtTauolaEngine::decayTauEvent(EvtParticle* tauParticle) {
 	EvtId theId = theDaughter->getId();
 	int PDGInt = EvtPDL::getStdHep(theId);
     
-	if (abs(PDGInt) == _tauPDG) {
+	if (std::abs(PDGInt) == _tauPDG) {
 	  // Delete any siblings for the tau particle
 	  if (theDaughter->getNDaug() > 0) {theDaughter->deleteDaughters(false);}
 	  tauMap[hepMCDaughter] = theDaughter;
@@ -353,7 +352,7 @@ void EvtTauolaEngine::decayTauEvent(EvtParticle* tauParticle) {
     // Check to see if we have a tau particle
     HepMC::GenParticle* aParticle = (*eventIter);
     
-    if (aParticle != 0 && abs(aParticle->pdg_id()) == _tauPDG) {
+    if (aParticle != 0 && std::abs(aParticle->pdg_id()) == _tauPDG) {
       
       // Find out what EvtParticle corresponds to the HepMC particle.
       // We need this to create and attach EvtParticle daughters.

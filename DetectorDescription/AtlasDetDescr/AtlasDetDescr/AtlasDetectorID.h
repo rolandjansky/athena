@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATLASDETDESCR_ATLASDETECTORID_H
@@ -765,6 +765,7 @@ inline bool
 AtlasDetectorID::is_mdt(Identifier id) const
 {
     bool result = false;
+    if (!is_muon(id)) return false;
     unsigned int stationNameIndex = m_muon_station_name_impl.unpack(id);
     unsigned int techBit = m_muon_tech_bits[stationNameIndex];
     // MDT and RPC can only be destinguished by the additional bit in the ID
@@ -780,6 +781,7 @@ inline bool
 AtlasDetectorID::is_rpc(Identifier id) const
 {
     bool result = false;
+    if (!is_muon(id)) return false;
     unsigned int stationNameIndex = m_muon_station_name_impl.unpack(id);
     unsigned int techBit = m_muon_tech_bits[stationNameIndex];
     // MDT and RPC can only be destinguished by the additional bit in the ID
@@ -795,6 +797,7 @@ inline bool
 AtlasDetectorID::is_csc(Identifier id) const
 {
     bool result = false;
+    if (!is_muon(id)) return false;
     unsigned int stationNameIndex = m_muon_station_name_impl.unpack(id);
     unsigned int techBit = m_muon_tech_bits[stationNameIndex];
     result = (is_muon(id) && (techBit == AtlasDetDescr::fAtlasCSC));
@@ -805,6 +808,7 @@ inline bool
 AtlasDetectorID::is_tgc(Identifier id) const
 {
     bool result = false;
+    if (!is_muon(id)) return false;
     unsigned int stationNameIndex = m_muon_station_name_impl.unpack(id);
     unsigned int techBit = m_muon_tech_bits[stationNameIndex];
     result = (is_muon(id) && (techBit == AtlasDetDescr::fAtlasTGC));
@@ -815,6 +819,7 @@ inline bool
 AtlasDetectorID::is_mm(Identifier id) const
 {
     bool result = false;
+    if (!is_muon(id)) return false;
     unsigned int stationNameIndex = m_muon_station_name_impl.unpack(id);
     unsigned int techBit = m_muon_tech_bits[stationNameIndex];
     result = (is_muon(id) && (techBit == AtlasDetDescr::fAtlasMM));
@@ -825,6 +830,7 @@ inline bool
 AtlasDetectorID::is_stgc(Identifier id) const
 {
     bool result = false;
+    if (!is_muon(id)) return false;
     unsigned int stationNameIndex = m_muon_station_name_impl.unpack(id);
     unsigned int techBit = m_muon_tech_bits[stationNameIndex];
     result = (is_muon(id) && (techBit == AtlasDetDescr::fAtlasSTGC));

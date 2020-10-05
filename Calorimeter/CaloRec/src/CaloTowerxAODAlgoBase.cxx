@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTowerxAODAlgoBase.h"
@@ -193,7 +193,7 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
     ATH_CHECK(detStore()->retrieve(caloCellId));
     for (size_t i=0;i<m_cellToTower.size(); ++i) {
       const auto& towerinfo=m_cellToTower[i];
-      if (towerinfo.size()) 
+      if (!towerinfo.empty()) 
 	ATH_MSG_DEBUG("Cell with index " << i << " contributes to " << towerinfo.size() << " Towers.");
       else {
 	const Identifier id=caloCellId->cell_id(i);

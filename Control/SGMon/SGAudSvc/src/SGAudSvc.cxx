@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // SGAudSvc.cxx 
@@ -18,7 +18,7 @@
 #include <utility>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IAlgContextSvc.h"
@@ -28,7 +28,7 @@
 #include "StoreGate/DataHandle.h"
 
 // SGAudSvc includes
-#include "SGAudSvc/SGAudSvc.h"
+#include "SGAudSvc.h"
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
@@ -143,12 +143,12 @@ SGAudSvc::finalize() {
   
   f << "Algs: " << m_vAlg.size() << std::endl;
   std::vector<std::string>::iterator i;
-  for (i=m_vAlg.begin();i<m_vAlg.end();i++) {
+  for (i=m_vAlg.begin();i<m_vAlg.end();++i) {
           f << (*i) << std::endl;
   }
   
   f << "Obj: "<< m_vObj.size()<<std::endl;
-  for (i=m_vObj.begin();i<m_vObj.end();i++) {
+  for (i=m_vObj.begin();i<m_vObj.end();++i) {
           f << (*i) << std::endl; 
   }
 
@@ -405,7 +405,7 @@ SGAudSvc::SGGetCurrentAlg(){
   if (name!=m_currAlg){
     std::vector<std::string>::iterator i;
     int index=0;
-    for (i=m_vAlg.begin();i<m_vAlg.end();i++){
+    for (i=m_vAlg.begin();i<m_vAlg.end();++i){
       if (*i==name) {
 	m_nCurrAlg=index;
 	m_currAlg=name;
@@ -427,7 +427,7 @@ void
 SGAudSvc::getNobj(std::string name){
   std::vector<std::string>::iterator i;
   int index=0;
-  for (i=m_vObj.begin();i<m_vObj.end();i++){
+  for (i=m_vObj.begin();i<m_vObj.end();++i){
     if (*i==name) {
       m_nCurrObj=index;
       m_currObj=name;

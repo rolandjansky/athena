@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileMuIdMonitorAlgorithm.py
@@ -13,6 +13,12 @@ def TileMuIdMonitoringConfig(flags, **kwargs):
     # framework uses a component accumulator.
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
+
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    result.merge(TileGMCfg(flags))
+
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    result.merge(LArGMCfg(flags))
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -222,9 +228,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     l1Triggers = ['bit0_RNDM', 'bit1_ZeroBias', 'bit2_L1Cal', 'bit3_Muon',

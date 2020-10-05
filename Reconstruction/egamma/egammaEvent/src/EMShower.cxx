@@ -67,7 +67,7 @@ EMShower::~EMShower()
 { }
 
 /// interface methods
-std::string EMShower::s_className = ClassName<EMShower>::name();
+const std::string EMShower::s_className = ClassName<EMShower>::name();
 const std::string& EMShower::className() const
 {
   return s_className;

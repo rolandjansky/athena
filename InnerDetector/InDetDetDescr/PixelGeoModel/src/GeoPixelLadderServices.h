@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELLADDERSERVICES_H
@@ -14,9 +14,10 @@ class GeoPhysVol;
 
 class GeoPixelLadderServices : public GeoVPixelFactory {
  public:
-  GeoPixelLadderServices(int ladderType);
+  GeoPixelLadderServices(InDetDD::PixelDetectorManager* ddmgr,
+                         PixelGeometryManager* mgr ,int ladderType);
   virtual ~GeoPixelLadderServices();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   const GeoTrf::Vector3D & envelopeCornerA1() {return  m_envelopeCornerA1;}
   const GeoTrf::Vector3D & envelopeCornerA2() {return  m_envelopeCornerA2;}
   const GeoTrf::Vector3D & envelopeCornerC1() {return  m_envelopeCornerC1;}

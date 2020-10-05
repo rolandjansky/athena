@@ -41,7 +41,7 @@ while len(sys.argv)>0:
             fileList.append(arg)
         else:
             log.error("File \"%s\" does not exist, ignoring input!", arg)
-        
+
 
 import cppyy
 from TileCalibBlobPython import TileCalibTools
@@ -136,12 +136,12 @@ for fileName in fileList:
             flt.setData(pmtIdx,gainIdx,5,pedErr)
             flt.setData(pmtIdx,gainIdx,6,rms)
             flt.setData(pmtIdx,gainIdx,7,rmsErr)
-            pedCount += 1 
+            pedCount += 1
 
     log.info("---> %s%s, registered %3i Res and %3i Ped lines", result_file.groups()[0],
              result_file.groups()[1],
              resCount, pedCount)
-             
+
 #=== register all drawers in the database
 blobWriter.setComment(author,comment)
 blobWriter.register(regFrom,-1)

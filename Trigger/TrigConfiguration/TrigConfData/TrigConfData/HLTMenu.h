@@ -9,6 +9,8 @@
 #include "TrigConfData/DataStructure.h"
 #include "TrigConfData/HLTChain.h"
 
+#include <map>
+
 namespace TrigConf {
 
    /** 
@@ -32,6 +34,11 @@ namespace TrigConf {
       /** Destructor */
       ~HLTMenu();
 
+      // class name
+      virtual std::string className() const override {
+         return "HLTMenu";
+      }
+
       /** Accessor to the number of HLT chains */
       std::size_t size() const;
 
@@ -54,11 +61,18 @@ namespace TrigConf {
        */
       const_iterator end() const;
 
+      /** Accessor to the connected output streams */
+      std::vector<DataStructure> streams() const;
+
+      /** Accessor to the sequencers */
+      std::map<std::string, std::vector<std::string>> sequencers() const;
+
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 
    private:
       void update() override;
+      void load();
 
       /** the supermasterkey */
       unsigned int m_smk {0};

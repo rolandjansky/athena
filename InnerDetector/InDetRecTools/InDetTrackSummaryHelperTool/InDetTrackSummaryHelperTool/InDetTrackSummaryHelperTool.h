@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSUMMARYHELPERTOOL_H
@@ -17,6 +17,9 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkTrackSummary/TrackSummary.h" // defines the Trk::numberOfDetectorTypes enum
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+
+#include "InDetPrepRawData/PixelCluster.h"
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -117,6 +120,15 @@ namespace InDet {
 
 
   private:
+    const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &getClusterSplittingProbability(const InDet::PixelCluster*pix) const {
+       if (!pix || m_clusterSplitProbContainer.key().empty())  return Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
+
+       SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer(m_clusterSplitProbContainer);
+       if (!splitProbContainer.isValid()) {
+          ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
+       }
+       return splitProbContainer->splitProbability(pix);
+    }
     /**ID pixel helper*/
     const PixelID* m_pixelId{nullptr};
 
@@ -126,13 +138,36 @@ namespace InDet {
     /**ID TRT helper*/
     const TRT_ID* m_trtId{nullptr};
 
-    /**Association tool - used to work out which (if any) PRDs are shared between 
-       tracks*/
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssoTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
-    PublicToolHandle<Trk::IPixelToTPIDTool> m_pixeldedxtool{this, "PixelToTPIDTool", ""};
-    PublicToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool{this, "HoleSearch", "InDet::InDetTrackHoleSearchTool"};
-    PublicToolHandle<InDet::IInDetTestBLayerTool> m_testBLayerTool{this, "TestBLayerTool", ""};
-    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{this, "TRTStrawSummarySvc", "TRT_StrawStatusSummaryTool", "The ConditionsSummaryTool"};
+    /**Association tool - used to work out which (if any)
+     * PRDs are shared between tracks*/
+    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{
+      this,
+      "AssoTool",
+      "InDet::InDetPRD_AssociationToolGangedPixels"
+    };
+    PublicToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool{
+      this,
+      "HoleSearch",
+      "InDet::InDetTrackHoleSearchTool"
+    };
+    ToolHandle<Trk::IPixelToTPIDTool> m_pixeldedxtool{ this,
+                                                       "PixelToTPIDTool",
+                                                       "" };
+    ToolHandle<InDet::IInDetTestBLayerTool> m_testBLayerTool{ this,
+                                                              "TestBLayerTool",
+                                                              "" };
+    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{
+      this,
+      "TRTStrawSummarySvc",
+      "TRT_StrawStatusSummaryTool",
+      "The ConditionsSummaryTool"
+    };
+
+    SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>   m_clusterSplitProbContainer
+       {this, "ClusterSplitProbabilityName", "",""};
+
+    Gaudi::Property<std::vector<std::string> >                 m_renounce
+       {this, "RenounceInputHandles", {},""};
 
     BooleanProperty m_usePixel{this, "usePixel", true};
     BooleanProperty m_useSCT{this, "useSCT", true};

@@ -1,22 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_PRDtoTrackMapTool_H
 #define TRK_PRDtoTrackMapTool_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+
 #include <set>
 #include <map>
-
-class AtlasDetectorID;
-class Identifier;
-
-namespace Muon{
-  class MuonIdHelperTool;
-}
 
 namespace Trk {
 
@@ -29,9 +26,8 @@ namespace Trk {
 
   public:
     PRDtoTrackMapTool(const std::string&,const std::string&,const IInterface*);
-    virtual ~PRDtoTrackMapTool() override;
+    virtual ~PRDtoTrackMapTool()=default;
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize  () override;
 
     virtual
     std::unique_ptr<Trk::PRDtoTrackMap> createPRDtoTrackMap() const override;
@@ -64,7 +60,7 @@ namespace Trk {
     };
 
   private:
-    ToolHandle<Muon::MuonIdHelperTool>    m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   protected:
     void ensureType(Trk::PRDtoTrackMap &virt_prd_to_track_map) const ;
 

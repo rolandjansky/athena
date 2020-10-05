@@ -6,8 +6,6 @@ from __future__ import print_function
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
-include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetPT")
@@ -17,85 +15,41 @@ log = logging.getLogger("InDetPT")
 from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
 
 
-
-
-# Start using already decided naming conventions
-# NB: this is only needed at the moment since the signature menu code is 
-#     inconcistent in what flags they pass the ID Trigger configuration 
-#     for the FTF And precision tracking. Once that is tidied up, this
-#     should be removed
- 
-def remapSuffix( signature ):
-   suffix_map = { 
-      'electron':  'Electron', 
-      'muon':      'Muon',
-      'muonFS':    'MuonFS',
-      'muonLate':  'MuonLate',
-      'muonIso':   'MuonIso',
-      'bjet':      'Bjet',
-      'tau':       'Tau',
-      'tauId':     'Tau',
-      'tauEF':     'Tau',
-      'tauTrk':    'Tau',
-      'tauTrkTwo': 'Tau'
-   } 
-
-
-   
-   if signature in suffix_map :
-      return suffix_map[ signature ]
-
-   return signature
-   
-
-def makeInDetPrecisionTracking( whichSignature, 
+def makeInDetPrecisionTracking( config = None,
                                 verifier = False, 
-                                inputFTFtracks='TrigFastTrackFinder_Tracks', 
-                                outputTrackPrefixName = "HLT_ID", 
-                                rois = 'EMViewRoIs', 
-                                doTRTextension = True ) :
-
+                                rois = 'EMViewRoIs',              #FIXME: eventually should go into slice settings
+                                                         ) :
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
+  #Expects configuration  
+  if config is None:
+    raise ValueError('PrecisionTracking No configuration provided!')
 
   #-----------------------------------------------------------------------------
   #                        Naming conventions
 
   algNamePrefix = "InDetTrigMT" 
-  #If signature specified add suffix to the algorithms
-  signature =  "_" + whichSignature if whichSignature else ''
+  #Add suffix to the algorithms
+  signature =  "_{}".format( config.name )
   
   #Name settings for output Tracks/TrackParticles
   #This first part is for ambiguity solver tracks
-  nameAmbiTrackCollection = "%s%sTrkTrack%s"         %(outputTrackPrefixName, 'AmbSol', signature)
+  nameAmbiTrackCollection = config.PT.trkTracksAS() 
   
   #Tracks from TRT extension
-  nameExtTrackCollection = "%s%sTrkTrack%s"         %(outputTrackPrefixName, 'TRText', signature)
+  nameExtTrackCollection = config.PT.trkTracksTE() 
 
-  #Note IDTrig suffix as a key to specify that this collection comes from precision tracking rather than fast tracking (FTF)
-  outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
-  outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
-
-
-#  # disable the TRT extension at the moment for bjets and muons
-  if "electron" in whichSignature :
-      doTRTextension = True
-  elif "tau" in whichSignature :
-      doTRTextension = True
-  else : 
-      doTRTextension = False
-
+  outPTTracks             = config.PT.trkTracksPT()
+  outPTTrackParticles     = config.PT.tracksPT( doRecord = config.isRecordable )
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
-  #e.g InDetTrigPT_Tracks_electron
-  if doTRTextension is True :
+  #Therefore, we have to adapt output names of the algorithm which produces last collection
+  #However, this condition should be handled internally in configuration of the algs once TRT is configured with builders as well
+  if config.PT.setting.doTRT:
      nameExtTrackCollection = outPTTracks
   else:
      nameAmbiTrackCollection = outPTTracks
-
-     
-
 
   #-----------------------------------------------------------------------------
   #                        Verifying input data for the algorithms
@@ -103,95 +57,55 @@ def makeInDetPrecisionTracking( whichSignature,
   #If run in views need to check data dependancies!
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
-         verifier.DataObjects += [  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
-                                  ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks ) ] 
-      
+    verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
+                             ( 'TrackCollection' , 'StoreGateSvc+' + config.FT.trkTracksFTF() )]
   
   from AthenaCommon.AppMgr import ToolSvc
+
+  #TODO: this part will not be needed once builders and getters are implemented also for TRT
   #-----------------------------------------------------------------------------
   #                        Choose track summary tool
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
   from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTrackSummaryHelperToolSharedHits,InDetTrigTRT_ElectronPidTool
 
-  InDetTrigTrackSummaryToolSharedHitsWithTRTPid  = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT%s"%(algNamePrefix, signature),
-                          InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
-                          doSharedHits           = InDetTrigFlags.doSharedHits(),
-                          doHolesInDet           = True,
-                          TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
+  trigTrackSummaryTool  = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT%s"%(algNamePrefix, signature),
+                                                InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
+                                                doSharedHits           = True,
+                                                doHolesInDet           = True )
 
+  
+  #Obsolete, will be eventually replaced
+  #Note: keep Parameter_config!
+  if config.PT.setting.doTRT:
+      if "electron" in config.name  or "tau" in config.name:
+         trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
-  if whichSignature == "electron" or "tau" in whichSignature :
       Parameter_config = True 
-      SummaryTool_config = InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+      SummaryTool_config = trigTrackSummaryTool
+      ToolSvc += SummaryTool_config
   else:
       SummaryTool_config = InDetTrigTrackSummaryTool
       Parameter_config = False
 
 
-  ToolSvc += SummaryTool_config
-
-
   #-----------------------------------------------------------------------------
   #                        Ambiguity solving stage
+  from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name
+  ambSolvingStageAlgs = [
+                           ambiguityScoreAlg_builder( name   = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
+                                                      config = config ),
 
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
-  from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-  InDetTrigAmbiScoringTool =  InDet__InDetAmbiScoringTool( name                        = '%sScoringTool%s'%(algNamePrefix, signature) ,
-                                                           Extrapolator                = InDetTrigExtrapolator,
-                                                           doEmCaloSeed                = False,
-                                                           SummaryTool                 = SummaryTool_config)
+                           ambiguitySolverAlg_builder( name   = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
+                                                       config = config )
+                        ]
 
-  ToolSvc += InDetTrigAmbiScoringTool
+  #Loading the alg to the sequence
+  ptAlgs.extend( ambSolvingStageAlgs )
 
-
-  #TODO: Need option to change scoring tool based on the slice (beamgas)
-  
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
-
-  from InDetRecExample import TrackingCommon as TrackingCommon
-  from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
-  InDetTrigAmbiguityScoreProcessor = ScoreProcessorTool(     name               = '%sAmbiguityScoreProcessor%s'%(algNamePrefix, signature),
-                                                             ScoringTool        = InDetTrigAmbiScoringTool,
-                                                             AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
-                                                             SelectionTool      = InDetTrigAmbiTrackSelectionTool)
-
-
-  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
-  InDetTrigAmbiguityScore = Trk__TrkAmbiguityScore(name                    = '%sAmbiguityScore%s'%(algNamePrefix, signature),
-                                                   TrackInput              = [ inputFTFtracks ],
-                                                   TrackOutput             = 'ScoredMap'+signature,
-                                                   AmbiguityScoreProcessor = InDetTrigAmbiguityScoreProcessor 
-  ) 
-         
-  
-  
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
-  from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
-  InDetTrigMTAmbiguityProcessor = ProcessorTool(name             = '%sAmbiguityProcessor%s' %(algNamePrefix,signature),
-                                                Fitter           = InDetTrigTrackFitter,
-                                                ScoringTool      = InDetTrigAmbiScoringTool,
-                                                AssociationTool  = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
-                                                TrackSummaryTool = SummaryTool_config,
-                                                SelectionTool    = InDetTrigAmbiTrackSelectionTool)
-  
-  ToolSvc += InDetTrigMTAmbiguityProcessor
-  
-  
-  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
-  InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = '%sAmbiguitySolver%s' %(algNamePrefix,signature),
-                                                       TrackInput         = 'ScoredMap'+signature,
-                                                       TrackOutput        = nameAmbiTrackCollection, 
-                                                       AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
-  
-
-  ptAlgs.extend( [ InDetTrigAmbiguityScore, InDetTrigMTAmbiguitySolver] )
-  if doTRTextension:
-
-            proxySignature = whichSignature
-            if "tau" in whichSignature :
-               proxySignature = "tau"
-     
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
+  #TODO:implement builders and getters for TRT (WIP)
+  if config.PT.setting.doTRT:
 
             #-----------------------------------------------------------------------------
             #                        TRT data preparation
@@ -230,11 +144,12 @@ def makeInDetPrecisionTracking( whichSignature,
 
             from InDetTrigRecExample.InDetTrigCommonTools import  InDetTrigTRT_DriftCircleTool
  
-            from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+            #from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
             from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
             InDetTrigTRTRIOMaker = InDet__TRT_RIO_Maker( name = "%sTRTDriftCircleMaker%s"%(algNamePrefix, signature),
                                                      TRTRIOLocation = TrigTRTKeys.DriftCircles,
                                                      TRTRDOLocation = TRT_RDO_Key,
+                                                     #FIXME:
                                                      #EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',signature)],
                                                      #PhiHalfWidth = InDetTrigSliceSettings[('phiHalfWidth',signature)],
                                                      #doFullScan =   InDetTrigSliceSettings[('doFullScan',signature)],
@@ -312,7 +227,7 @@ def makeInDetPrecisionTracking( whichSignature,
             #TODO: do I need a new fitter for this? Or can I use the same one?
             #TODO In Run2 option for cosmic
             #InDetTrigExtensionFitter = InDetTrigTrackFitter
-            #from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
             InDetTrigExtScoringTool = InDet__InDetAmbiScoringTool(name               = '%sExtScoringTool%s'%(algNamePrefix, signature),
                                                                   Extrapolator       = InDetTrigExtrapolator,
                                                                   SummaryTool        = SummaryTool_config,
@@ -331,11 +246,12 @@ def makeInDetPrecisionTracking( whichSignature,
                                                                   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                                                   )
 
-            InDetTrigExtScoringTool.minPt = InDetTrigSliceSettings[('pTmin', proxySignature)]
+            InDetTrigExtScoringTool.minPt = config.PT.setting.pTmin 
 
             ToolSvc += InDetTrigExtScoringTool
 
 
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
             from InDetExtensionProcessor.InDetExtensionProcessorConf import InDet__InDetExtensionProcessor   
             InDetTrigExtensionProcessor = InDet__InDetExtensionProcessor (name               = "%sExtensionProcessor%s"%(algNamePrefix, signature),
                                                                           TrackName          = nameAmbiTrackCollection,
@@ -360,6 +276,8 @@ def makeInDetPrecisionTracking( whichSignature,
   #                      Track particle conversion algorithm
   #
   #
+  #TODO: convert into builders/getters
+  #Monitoring has been removed in the recent MR, put back in
   """ Use the finalised track collection and convert it to container of xAOD Track Particles  """
   
   
@@ -371,7 +289,7 @@ def makeInDetPrecisionTracking( whichSignature,
                                                                      TrackSummaryTool = SummaryTool_config)
   
   ToolSvc += InDetTrigMTxAODParticleCreatorTool
-  log.info(InDetTrigMTxAODParticleCreatorTool)
+  log.debug(InDetTrigMTxAODParticleCreatorTool)
   
   
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
@@ -381,7 +299,7 @@ def makeInDetPrecisionTracking( whichSignature,
   
 
   ToolSvc += InDetTrigMTxAODTrackCollectionCnvTool
-  log.info(InDetTrigMTxAODTrackCollectionCnvTool)
+  log.debug(InDetTrigMTxAODTrackCollectionCnvTool)
   
   #This one shouldn't be necessary
   #TODO: obsolete turn off
@@ -393,25 +311,23 @@ def makeInDetPrecisionTracking( whichSignature,
   ToolSvc += InDetTrigMTRecTrackParticleContainerCnvTool
   #print (InDetTrigMTRecTrackParticleContainerCnvTool)
   
-  from TrigEDMConfig.TriggerEDMRun3 import recordable
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
   InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "%sxAODParticleCreatorAlg%s" %( algNamePrefix, signature),
                                                                       # Properties below are used for:  TrackCollection -> xAOD::TrackParticle
                                                                         ConvertTracks = True,  #Turn on  retrieve of TrackCollection, false by default
                                                                         TrackContainerName                        = outPTTracks,
-                                                                        xAODTrackParticlesFromTracksContainerName = recordable( outPTTrackParticles ), 
+                                                                        xAODTrackParticlesFromTracksContainerName = outPTTrackParticles,
                                                                         TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
                                                                        ## Properties below are used for: Rec:TrackParticle, aod -> xAOD::TrackParticle (Turn off)
                                                                         ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm
                                                                         xAODContainerName = '',  
                                                                         RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
-                                                                        #PrintIDSummaryInfo = True, #Just to test and have some output
                                                                         TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
                                                                         )
   
   
   #allViewAlgorithms += InDetTrigMTxAODTrackParticleCnvAlg
-  log.info(InDetTrigMTxAODTrackParticleCnvAlg)
+  log.debug(InDetTrigMTxAODTrackParticleCnvAlg)
   ptAlgs.append( InDetTrigMTxAODTrackParticleCnvAlg)
   
   #ToolSvc.InDetTrigHoleSearchTool.SctSummaryTool.InDetTrigInDetSCT_FlaggedConditionTool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGCOMPS_FOLDER_H
@@ -46,8 +46,8 @@ namespace SG {
   public:
     /// \name structors
     //@{
-    Folder(const std::string& name, 
-	   const std::string& type,
+    Folder(const std::string& type,
+	   const std::string& name,
 	   const IInterface* parent);
     virtual ~Folder() override;
     //@}
@@ -92,7 +92,7 @@ namespace SG {
     ServiceHandle<IClassIDSvc> m_pCLIDSvc;
     /// property: the list of items (data objects identified by a class name/key pair)
     StringArrayProperty m_itemList;
-    void decodeItemList(Property&) { 
+    void decodeItemList(Gaudi::Details::PropertyBase&) { 
       const bool DONTCHECKVALIDCLID(false);
       updateItemList(DONTCHECKVALIDCLID); 
     }

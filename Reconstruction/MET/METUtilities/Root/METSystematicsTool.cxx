@@ -11,6 +11,7 @@
 
 #include <iostream>
 // #include <boost/filesystem.hpp>
+#include "AsgDataHandles/ReadHandle.h"
 #include "PathResolver/PathResolver.h"
 
 // xAOD includes

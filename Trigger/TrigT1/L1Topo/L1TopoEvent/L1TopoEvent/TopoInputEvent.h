@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  TopoInputEvent.h
-//  L1TopoEvent
-//  Created by Joerg Stelzer on 11/21/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __L1TopoEvent__TopoInputEvent__
-#define __L1TopoEvent__TopoInputEvent__
+#ifndef L1TopoEvent_TopoInputEvent
+#define L1TopoEvent_TopoInputEvent
 
 #include <iostream>
 #include <vector>
@@ -109,14 +104,18 @@ namespace TCS {
       LateMuonTOBArray  m_lateMuons;
       MuonNextBCTOBArray  m_muonsNextBC;
       MetTOBArray       m_met; // will have size 1
-      uint32_t          m_runNo, m_evtNo, m_lumiB, m_BCID;
 
-      bool              m_dumpEnabled { false };
-      bool              m_overflowFromEmtauInput { false };
-      bool              m_overflowFromJetInput { false };
-      bool              m_overflowFromEnergyInput { false };
-      bool              m_overflowFromMuonInput { false };
-      std::string       m_inputDumpFile { "" };
+      uint32_t m_runNo {0};
+      uint32_t m_evtNo {0};
+      uint32_t m_lumiB {0};
+      uint32_t m_BCID {0};
+
+      bool m_dumpEnabled { false };
+      bool m_overflowFromEmtauInput { false };
+      bool m_overflowFromJetInput { false };
+      bool m_overflowFromEnergyInput { false };
+      bool m_overflowFromMuonInput { false };
+      std::string m_inputDumpFile { "" };
 
    };
    

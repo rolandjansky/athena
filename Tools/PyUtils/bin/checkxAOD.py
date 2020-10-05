@@ -2,7 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: checkxAOD.py 776263 2016-10-03 14:46:39Z wlampl $
 #
 # This is a modified version of PyUtils/bin/checkFile.py. It has been taught
 # how to sum up the sizes of all the branches belonging to a single xAOD
@@ -11,7 +10,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 776263 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
     "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>, " \
     "RD Schaffer R.D.Schaffer@cern.ch"
@@ -20,6 +18,7 @@ import sys
 import os
 import re
 import six
+import operator
 
 from optparse import OptionParser
 
@@ -38,7 +37,6 @@ if __name__ == "__main__":
     ( options, args ) = parser.parse_args()
 
     # Set up categorization matching strings:
-    # Set up categorization matching strings:
     categoryStrings = {
         "MetaData" : ["^DataHeader", "(.*)_mems$", "(.*)_timings$", "^Token$", "^RawInfoSummaryForTag$", "^index_ref$"],
         "Trig"     : ["^HLT", "^LVL1", "^xTrig", "^Trig", "^CTP_Decision", "^TrigInDetTrackTruthMap", "^TrigNavigation", ".*TriggerTowers", "TileTTL1MBTS", "^TileL2Cnt", "RoIBResult","^_TRIGGER","^L1TopoRawData"],
@@ -50,10 +48,11 @@ if __name__ == "__main__":
         "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks", "^NCB_MuonSegments"],
         "BTag"     : ["^BTag"],
         "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
-        "Jet"      : ["^CamKt", "^AntiKt", "^Jet","^LCOriginTopoClusters","^EMOriginTopoClusters"],
+        "Jet"      : ["^CamKt", "^AntiKt", "^Jet(?!.*ParticleFlowObjects$)","^LCOriginTopoClusters","^EMOriginTopoClusters"],
         "CaloTopo" : ["CaloCalTopoCluster"],
         "Calo"     : ["^LAr", "^AllCalo", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
-        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"]
+        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"],
+        "AFP"      : ["^AFP"]
         }
     
     fileNames = []
@@ -62,11 +61,11 @@ if __name__ == "__main__":
         fileNames = [ arg for arg in args if arg[ 0 ] != "-" ]
         pass
 
-    if options.fileName == None and len( fileNames ) == 0:
+    if options.fileName is None and len( fileNames ) == 0:
         str( parser.print_help() or "" )
         sys.exit( 1 )
 
-    if options.fileName != None:
+    if options.fileName is not None:
         fileName = os.path.expandvars( os.path.expanduser( options.fileName ) )
         fileNames.append( fileName )
         pass
@@ -96,13 +95,13 @@ if __name__ == "__main__":
             # The name of this branch:
             brName = d.name
             # Check if this is a static auxiliary store:
-            m = re.match( "(.*)Aux\..*", d.name )
+            m = re.match( r"(.*)Aux\..*", d.name )
             if m:
                 # Yes, it is. And the name of the main object/container is:
                 brName = m.group( 1 )
                 pass
             # Check if this is a dynamic auxiliary variable:
-            m = re.match( "(.*)AuxDyn\..*", d.name )
+            m = re.match( r"(.*)AuxDyn\..*", d.name )
             if m:
                 # Oh yes, it is. Let's construct the name of the main
                 # object/container:
@@ -129,7 +128,6 @@ if __name__ == "__main__":
             orderedData += [ summedData[ br ] ]
             pass
         sorter = PF.PoolRecord.Sorter.DiskSize
-        import operator
         orderedData.sort( key = operator.attrgetter( sorter ) )
 
         # Access the CollectionTree directly:
@@ -262,7 +260,6 @@ if __name__ == "__main__":
             categorizedData += [ categData[ br ] ]
             pass
         sorter = PF.PoolRecord.Sorter.DiskSize
-        import operator
         categorizedData.sort( key = operator.attrgetter( sorter ) )
 
         print( "=" * 80 )

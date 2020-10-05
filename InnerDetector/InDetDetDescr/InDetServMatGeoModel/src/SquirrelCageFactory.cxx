@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SquirrelCageFactory.h"
@@ -25,10 +25,12 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
 
-SquirrelCageFactory::SquirrelCageFactory(const InDetDD::AthenaComps * athenaComps, 
+SquirrelCageFactory::SquirrelCageFactory(InDetDD::AthenaComps * athenaComps, 
 					 InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  

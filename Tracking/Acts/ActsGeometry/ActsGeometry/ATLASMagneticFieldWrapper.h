@@ -5,7 +5,8 @@
 #ifndef ACTSGEOMETRY_ATLASMAGNETICFIELDWRAPPER_H
 #define ACTSGEOMETRY_ATLASMAGNETICFIELDWRAPPER_H
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
@@ -17,85 +18,31 @@ class ATLASMagneticFieldWrapper
 public:
 
   struct Cache {
-    // empty, no cache for now
 
-    Cache(std::reference_wrapper<const Acts::MagneticFieldContext> /*mctx*/) {
-      // does nothing, but is required
+    Cache(std::reference_wrapper<const Acts::MagneticFieldContext> mctx) {
+      std::any_cast<const AtlasFieldCacheCondObj*>(mctx)->getInitializedCache(fieldCache);
     }
+
+    MagField::AtlasFieldCache fieldCache;
   };
 
-  // FieldCell is not needed anymore, keep it for backwards compatibility right now.
-  struct FieldCell {
-  public:
-    FieldCell(MagField::IMagFieldSvc* fieldService)
-      : m_fieldService(fieldService)
-    {
-    }
-
-    Acts::Vector3D
-    getField(const Acts::Vector3D& pos) const
-    {
-      Acts::Vector3D bfield;
-      m_fieldService->getField(&pos, &bfield);
-
-      bfield *= m_bFieldUnit; // kT -> T;
-
-      return bfield;
-    }
-
-    Acts::Vector3D
-    getFieldGradient(const Acts::Vector3D& position, Acts::ActsMatrixD<3, 3>& gradient) const
-    {
-      Acts::Vector3D bfield;
-      m_fieldService->getField(&position, &bfield, &gradient);
-
-      bfield *= m_bFieldUnit; // kT -> T;
-      gradient *= m_bFieldUnit;
-
-      return bfield;
-    }
-
-    inline
-    bool isInside(const Acts::Vector3D&) const {
-      return true;
-    }
-
-  private:
-    MagField::IMagFieldSvc *m_fieldService;
-    const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
-  };
-
-  ATLASMagneticFieldWrapper(MagField::IMagFieldSvc *fieldService)
-    : m_fieldCell(fieldService),
-      m_fieldService(fieldService)
-  {
-  }
+  ATLASMagneticFieldWrapper() = default;
 
   Acts::Vector3D
-  getField(const Acts::Vector3D& pos) const
+  getField(const Acts::Vector3D& position, Cache& cache) const
   {
-    Acts::Vector3D bfield;
-    m_fieldService->getField(&pos, &bfield);
+    double posXYZ[3];
+    posXYZ[0] = position.x();
+    posXYZ[1] = position.y();
+    posXYZ[2] = position.z();
+    double BField[3];
+
+    cache.fieldCache.getField(posXYZ, BField);
+
+    // Magnetic field
+    Acts::Vector3D bfield{BField[0],BField[1],BField[2]};
 
     bfield *= m_bFieldUnit; // kT -> T;
-
-    return bfield;
-  }
-
-  Acts::Vector3D
-  getField(const Acts::Vector3D& pos, Cache& /*cache*/) const
-  {
-    return getField(pos);
-  }
-
-  Acts::Vector3D
-  getFieldGradient(const Acts::Vector3D& position, Acts::ActsMatrixD<3, 3>& gradient) const
-  {
-    Acts::Vector3D bfield;
-    m_fieldService->getField(&position, &bfield, &gradient);
-
-    bfield *= m_bFieldUnit; // kT -> T;
-    gradient *= m_bFieldUnit;
 
     return bfield;
   }
@@ -103,23 +50,31 @@ public:
   Acts::Vector3D
   getFieldGradient(const Acts::Vector3D& position,
                    Acts::ActsMatrixD<3, 3>& gradient,
-                   Cache& /*cache*/) const
+                   Cache& cache) const
   {
-    return getFieldGradient(position, gradient);
-  }
+    double posXYZ[3];
+    posXYZ[0] = position.x();
+    posXYZ[1] = position.y();
+    posXYZ[2] = position.z();
+    double BField[3];
+    double grad[9];
 
-  // only kept for backwards compatibility
-  FieldCell
-  getFieldCell(const Acts::Vector3D& /*position*/) const
-  {
-    return m_fieldCell;
+    cache.fieldCache.getField(posXYZ, BField, grad);
+
+    // Magnetic field
+    Acts::Vector3D bfield{BField[0], BField[1],BField[2]};
+    Acts::ActsMatrixD<3, 3> tempGrad;
+    tempGrad << grad[0], grad[1], grad[2], grad[3], grad[4], grad[5], grad[6], grad[7], grad[8]; 
+    gradient = tempGrad;
+
+
+    bfield *= m_bFieldUnit; // kT -> T;
+    gradient *= m_bFieldUnit;
+
+    return bfield;
   }
 
 private:
-  // only kept for backwards compatibility
-  FieldCell m_fieldCell;
-
-  MagField::IMagFieldSvc *m_fieldService;
   const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
 };
 

@@ -33,7 +33,7 @@ class TileCalibLogger:
         self._log.getEffectiveLevel()
     def log(self):
         return self._log
-    
+
 
 #=== setup format
 setupFormat()

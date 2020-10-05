@@ -11,14 +11,13 @@
 from AthenaCommon import Logging
 jrtlog = Logging.logging.getLogger('ParticleJetToolsConfig')
 
-from ParticleJetTools import ParticleJetToolsConf
-from MCTruthClassifier import MCTruthClassifierConf
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Putting MCTruthClassifier here as we needn't stick jet configs in really foreign packages
 def getMCTruthClassifier():
     # Assume mc15 value
     firstSimCreatedBarcode = 200000
-    truthclassif = MCTruthClassifierConf.MCTruthClassifier(
+    truthclassif = CompFactory.MCTruthClassifier(
         "JetMCTruthClassifier",
         barcodeG4Shift=firstSimCreatedBarcode,
         xAODTruthLinkVector=""
@@ -32,9 +31,9 @@ def getMCTruthClassifier():
 
 # Generates truth particle containers for truth labeling
 truthpartoptions = {
-    "Partons":{"ToolType":ParticleJetToolsConf.CopyTruthPartons,"ptmin":5000},
-    "BosonTop":{"ToolType":ParticleJetToolsConf.CopyBosonTopLabelTruthParticles,"ptmin":100000},
-    "FlavourLabel":{"ToolType":ParticleJetToolsConf.CopyFlavorLabelTruthParticles,"ptmin":5000},
+    "Partons":{"ToolType":CompFactory.CopyTruthPartons,"ptmin":5000},
+    "BosonTop":{"ToolType":CompFactory.CopyBosonTopLabelTruthParticles,"ptmin":100000},
+    "FlavourLabel":{"ToolType":CompFactory.CopyFlavorLabelTruthParticles,"ptmin":5000},
 }
 def getCopyTruthLabelParticles(truthtype):
     truthcategory = ""
@@ -60,7 +59,7 @@ def getCopyTruthJetParticles(modspec):
     # if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
     #    barCodeFromMetadata=0
 
-    truthpartcopy = ParticleJetToolsConf.CopyTruthJetParticles(
+    truthpartcopy = CompFactory.CopyTruthJetParticles(
         "truthpartcopy"+modspec,
         OutputName="JetInputTruthParticles"+modspec,
         MCTruthClassifier=truthclassif,
@@ -73,7 +72,7 @@ def getCopyTruthJetParticles(modspec):
     return truthpartcopy
 
 def getJetQuarkLabel():
-    jetquarklabel = ParticleJetToolsConf.Analysis__JetQuarkLabel(
+    jetquarklabel = CompFactory.Analysis.JetQuarkLabel(
         "jetquarklabel",
         McEventCollection = "TruthEvents"
         )
@@ -81,7 +80,7 @@ def getJetQuarkLabel():
 
 def getJetConeLabeling():
     jetquarklabel = getJetQuarkLabel()
-    truthpartonlabel = ParticleJetToolsConf.Analysis__JetConeLabeling(
+    truthpartonlabel = CompFactory.Analysis.JetConeLabeling(
         "truthpartondr",
         JetTruthMatchTool = jetquarklabel
         )
@@ -90,7 +89,7 @@ def getJetConeLabeling():
   # Cone matching for B, C and tau truth for all but track jets.
 def getJetDeltaRLabelTool(modspec):
     jetptmin = float(modspec)
-    jetdrlabeler = ParticleJetToolsConf.ParticleJetDeltaRLabelTool(
+    jetdrlabeler = CompFactory.ParticleJetDeltaRLabelTool(
         "jetdrlabeler_jetpt{0}GeV".format(int(jetptmin/1000)),
         LabelName = "HadronConeExclTruthLabelID",
         DoubleLabelName = "HadronConeExclExtendedTruthLabelID",

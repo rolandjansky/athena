@@ -1,20 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// MuonPattern.h
-//   Header file for class MuonPattern
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// nveldik@nikhef.nl
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUON_MUONPATTERN_H
 #define MUON_MUONPATTERN_H
 
-//#include "TrkEventPrimitives/GlobalMomentum.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "EventPrimitives/EventPrimitives.h"   
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -23,8 +13,6 @@ namespace Trk {
 }
 
 namespace Muon {
-  
-  
   /** 
       @brief Basic class for patterns in the muon spectrometer consistig out of a list of Trk::PrepRawData objects.
              The class also provides the possibility to store a first estimate of the particle parameters 
@@ -68,13 +56,8 @@ namespace Muon {
 
     
   };
-
   inline const Amg::Vector3D& MuonPattern::globalPosition() const { return m_globalPosition; }
-
   inline const Amg::Vector3D& MuonPattern::globalDirection() const { return m_globalDirection; }
-
-
 }
-
 
 #endif

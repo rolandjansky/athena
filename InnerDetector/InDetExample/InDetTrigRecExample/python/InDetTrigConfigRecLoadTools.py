@@ -112,11 +112,6 @@ if InDetTrigFlags.loadRotCreator():
                                                                       NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack')
 
     ToolSvc += TrigNnClusterizationFactory
-    
-    from IOVDbSvc.CondDB import conddb
-    if InDetTrigFlags.doTIDE_RescalePixelCovariances() :
-      if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
-        conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
 
   else:
     TrigNnClusterizationFactory = None
@@ -230,11 +225,11 @@ if InDetTrigFlags.loadRotCreator():
 #
 if InDetTrigFlags.loadUpdator():
    
-  if InDetTrigFlags.kalmanUpdator() is "fast" :
+  if InDetTrigFlags.kalmanUpdator() == "fast" :
     # fast Kalman updator tool
     from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
     InDetTrigUpdator = Trk__KalmanUpdator_xk(name = 'InDetTrigUpdator')
-  elif InDetTrigFlags.kalmanUpdator() is "weight" :
+  elif InDetTrigFlags.kalmanUpdator() == "weight" :
     from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanWeightUpdator as ConfiguredWeightUpdator
     InDetTrigUpdator = ConfiguredWeightUpdator(name='InDetTrigUpdator')
   else :
@@ -246,7 +241,7 @@ if InDetTrigFlags.loadUpdator():
     print (     InDetTrigUpdator)
 
   # ---------- control loading of the gsf updator
-  if InDetTrigFlags.trackFitterType() is 'GaussianSumFilter' :
+  if InDetTrigFlags.trackFitterType() == 'GaussianSumFilter' :
     # Load the Gsf Measurement Updator
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
@@ -276,7 +271,7 @@ if InDetTrigFlags.loadExtrapolator():
   InDetTrigRKPropagator = Trk__RungeKuttaPropagator(name = 'InDetTrigRKPropagator')
   ToolSvc += InDetTrigRKPropagator
   
-  if InDetTrigFlags.propagatorType() is "STEP":
+  if InDetTrigFlags.propagatorType() == "STEP":
     InDetTrigPropagator = InDetTrigStepPropagator
   else:
     InDetTrigPropagator = InDetTrigRKPropagator
@@ -346,7 +341,7 @@ if InDetTrigFlags.loadExtrapolator():
 # ----------- control loading of fitters
 #
 if InDetTrigFlags.loadFitter():
-  if InDetTrigFlags.trackFitterType() is 'KalmanFitter' or InDetTrigFlags.trackFitterType() is 'KalmanDNAFitter':
+  if InDetTrigFlags.trackFitterType() == 'KalmanFitter' or InDetTrigFlags.trackFitterType() == 'KalmanDNAFitter':
 
     from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf \
          import InDet__CompetingPixelClustersOnTrackTool as IDCPCOTT
@@ -383,7 +378,7 @@ if InDetTrigFlags.loadFitter():
     if (InDetTrigFlags.doPrintConfigurables()):
       print (InDetTrigKalmanInternalDAF)
 
-    if InDetTrigFlags.trackFitterType() is 'KalmanDNAFitter':
+    if InDetTrigFlags.trackFitterType() == 'KalmanDNAFitter':
       from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
       InDetTrigDNAdjustor = Trk__InDetDynamicNoiseAdjustment(name       = 'InDetTrigDNAdjustor')
       ToolSvc += InDetTrigDNAdjustor
@@ -452,7 +447,7 @@ if InDetTrigFlags.loadFitter():
                                                       InternalDAFHandle              = InDetTrigKalmanInternalDAF)
 
     
-  elif InDetTrigFlags.trackFitterType() is 'DistributedKalmanFilter' :
+  elif InDetTrigFlags.trackFitterType() == 'DistributedKalmanFilter' :
    
     from TrkDistributedKalmanFilter.TrkDistributedKalmanFilterConf import Trk__DistributedKalmanFilter
     InDetTrigTrackFitter = Trk__DistributedKalmanFilter(name             = 'InDetTrigTrackFitter',
@@ -461,7 +456,7 @@ if InDetTrigFlags.loadFitter():
                                                         #sortingReferencePoint = ???
                                                         )
    
-  elif InDetTrigFlags.trackFitterType() is 'GlobalChi2Fitter' :
+  elif InDetTrigFlags.trackFitterType() == 'GlobalChi2Fitter' :
 
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     InDetTrigTrackFitter = Trk__GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
@@ -566,7 +561,7 @@ if InDetTrigFlags.loadFitter():
     if InDetTrigFlags.doRobustReco():
       InDetTrigTrackFitterTRT.MaxOutliers=99
             
-  elif InDetTrigFlags.trackFitterType() is 'GaussianSumFilter' :
+  elif InDetTrigFlags.trackFitterType() == 'GaussianSumFilter' :
     #
     # component Reduction
     #
@@ -615,7 +610,7 @@ if InDetTrigFlags.loadFitter():
   if (InDetTrigFlags.doPrintConfigurables()):
     print (     InDetTrigTrackFitter)
     
-  if InDetTrigFlags.trackFitterType() is not 'GlobalChi2Fitter' :
+  if InDetTrigFlags.trackFitterType() != 'GlobalChi2Fitter' :
     InDetTrigTrackFitterTRT=InDetTrigTrackFitter
     InDetTrigTrackFitterLowPt=InDetTrigTrackFitter
     ToolSvc += InDetTrigTrackFitterLowPt
@@ -664,6 +659,16 @@ if InDetTrigFlags.loadSummaryTool():
   if (InDetTrigFlags.doPrintConfigurables()):
     print ( InDetTrigTestPixelLayerTool)
 
+  from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+  InDetTrigBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetTrigBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on(),
+    SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
+    PixelLayerTool=InDetTrigTestPixelLayerTool
+  )
+  ToolSvc += InDetTrigBoundaryCheckTool
+
 
    #
    # Loading Configurable HoleSearchTool
@@ -672,11 +677,7 @@ if InDetTrigFlags.loadSummaryTool():
 
   InDetTrigHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetTrigHoleSearchTool",
                                                             Extrapolator = InDetTrigExtrapolator,
-                                                            usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                            useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                            PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                            SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
-                                                            PixelLayerTool=InDetTrigTestPixelLayerTool,
+                                                            BoundaryCheckTool=InDetTrigBoundaryCheckTool
                                                             )
                                                             #Commissioning = InDetTrigFlags.doCommissioning()) #renamed
   InDetTrigHoleSearchTool.CountDeadModulesAfterLastHit = True  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,10 @@
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 using namespace InDetDD;
 
-DBM_Module::DBM_Module() {
+DBM_Module::DBM_Module(InDetDD::PixelDetectorManager* ddmgr,
+                       PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
 
   double thickness = 0.5;
 
@@ -40,7 +43,7 @@ DBM_Module::DBM_Module() {
   std::shared_ptr<const PixelDiodeMatrix> fullMatrix = makeMatrix(phiPitch, etaPitch, etaPitchLong, etaPitchLongEnd,
 					     circuitsPhi, circuitsEta, diodeRowPerCirc, diodeColPerCirc);
  
-  PixelModuleDesign *p_dbmdesign = new PixelModuleDesign(thickness,
+  std::unique_ptr<PixelModuleDesign> p_dbmdesign = std::make_unique<PixelModuleDesign>(thickness,
 							     circuitsPhi,
 							     circuitsEta,
 							     cellColPerCirc,
@@ -51,9 +54,9 @@ DBM_Module::DBM_Module() {
 							     InDetDD::electrons,
 							     readoutSide);
 
-  m_design = p_dbmdesign;
+  m_design = p_dbmdesign.get();
 
-  m_DDmgr->addDesign(m_design);
+  m_DDmgr->addDesign(std::move(p_dbmdesign));
 
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_G4GEOMETRYNOTIFIERSVC_H
@@ -27,12 +27,12 @@ public:
   const std::string GetCurrentDetectorName() const override final {return m_currentDetectorName;}
 
 private:
-  std::string m_currentDetectorName;
+  std::string m_currentDetectorName{""};
 
-  bool m_activateLVNotifier=false;
-  bool m_activatePVNotifier=true;
-  G4VNotifier* lvNotifier;
-  G4VNotifier* pvNotifier;
+  Gaudi::Property<bool> m_activateLVNotifier{this, "ActivateLVNotifier", true, "Toggle on/off the G4 LV notifier"};
+  Gaudi::Property<bool> m_activatePVNotifier{this, "ActivatePVNotifier", false, "Toggle on/off the G4 PV notifier"};
+  G4VNotifier* lvNotifier{};
+  G4VNotifier* pvNotifier{};
 };
 
 #endif //G4ATLASSERVICES_G4GEOMETRYNOTIFIERSVC_H

@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <algorithm>
-#include <iostream>
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include <algorithm>
+#include <cmath>
+#include <iostream>
 
 namespace Trk {
 
@@ -259,7 +259,6 @@ void abcCoef(double g1, double g2, double g3,
    a=g1;
    c=2.*(g3-g1) - 4.*(g2-g1);
    b=(g3-g1) - c;
-   return;
 }
 
 void efdCoef(double Ga0, double Gamb, double Gab, double Gw0, double Gwb, 
@@ -272,8 +271,7 @@ void efdCoef(double Ga0, double Gamb, double Gab, double Gw0, double Gwb,
    e = (Gab + Gamb - 2.*Ga0)/bet/bet/2.;
    f = (Gwb + Gamb - 2.*e*bet*bet - Gw0 - Ga0)/bet/(w-alf);
    d = (Gab - Ga0 - e*bet*bet - f*alf*bet)/bet;
-   return;
- }
+}
 
 
 void ParaMin( double b, double c, double d, double e, double f,
@@ -282,8 +280,7 @@ void ParaMin( double b, double c, double d, double e, double f,
     ymin =  (f*b-2.*c*d)/(4.*c*e - f*f);
     if( fabs(f) > fabs(c) ) {  xmin = - (2.*e*ymin + d)/f;}
     else                    {  xmin = - (f*ymin+b)/(2.*c);}
-    return;
-}
+    }
 
 void cfTrkCovarCorr(double *cov){
 //   std::cout<<cov[1]*cov[1]/cov[0]/cov[2]<<'\n';

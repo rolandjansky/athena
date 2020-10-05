@@ -1,10 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// IMuonCombinedTrigCaloTagExtensionTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef IRECMUONCOMBINEDTRIGCALOTAGEXTENSIONTOOL_H
 #define IRECMUONCOMBINEDTRIGCALOTAGEXTENSIONTOOL_H
 
@@ -32,7 +29,7 @@ namespace MuonCombined {
     /**IMuonCombinedTrigCaloTagExtensionTool interface: build combined muons from ID and MS candidates */    
     virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
                          const CaloCellContainer* caloCellCont = nullptr,
-                         const xAOD::CaloClusterContainer* caloClusterCont = nullptr ) = 0;
+                         const xAOD::CaloClusterContainer* caloClusterCont = nullptr ) const = 0;
   };
 
   inline const InterfaceID& IMuonCombinedTrigCaloTagExtensionTool::interfaceID()

@@ -13,6 +13,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
@@ -32,8 +33,8 @@ public:
     MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator);
     ~MuonGMCheck()=default;
     
-    StatusCode	initialize();
-    StatusCode 	execute();
+    StatusCode initialize();
+    StatusCode execute();
     void clearCache() const;
 
 private:
@@ -65,21 +66,18 @@ private:
 
     int m_check_first_last;
     int m_check_parent;
-    int m_check_regsel;
     int m_check_blines;
     int m_check_surfaces;
     int m_check_surfaces_details;
     int m_check_rpc_distToReadout;
-    int		m_print_level;
-    int		m_tgcgood;
-    int		m_rpcgood;
-    int		m_mdtgood;
+    int m_print_level;
+    int m_tgcgood;
+    int m_rpcgood;
+    int m_mdtgood;
 
-    
+    MuonGM::MuonDetectorManager* p_MuonMgr;
 
-    MuonGM::MuonDetectorManager*	p_MuonMgr;
-
-    ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool;
+    ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool{this,"idTool","MuonCalib::IdToFixedIdTool"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     int m_mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
@@ -135,11 +133,6 @@ private:
     void checkreadoutrpcgeo();
     void checkParentStation();
     void checkreadouttgcgeo();
-    void checkRegionSelectorMap();
-//     void showPointComparison(HepGeom::Point3D<double> gmP, HepGeom::Point3D<double> ddP, const MuonGM::MuonReadoutElement* rpc, Identifier id);
-//     void showMdtPointComparison(HepGeom::Point3D<double> gmP, HepGeom::Point3D<double> ddP, const MuonGM::MuonReadoutElement* rpc);
-//     void showTgcPointComparison(HepGeom::Point3D<double> gmP, HepGeom::Point3D<double> ddP, const MuonGM::MuonReadoutElement* rpc);
-
     void testMdtDetectorElementHash();
     void testRpcDetectorElementHash();
     void testTgcDetectorElementHash();

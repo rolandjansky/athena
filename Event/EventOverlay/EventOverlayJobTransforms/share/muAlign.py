@@ -2,7 +2,7 @@
 haas_mualign2=True
 if haas_mualign2:
     #use muon alignments
-    print "Haas: Reading muon alignment constants from DB"
+    printfunc ("Haas: Reading muon alignment constants from DB")
 
     from AthenaCommon.AlgSequence import AthSequencer
 
@@ -19,7 +19,7 @@ if haas_mualign2:
     MuonDetectorTool.OutputLevel=DEBUG
     
     MuonDetectorTool.EnableFineClashFixing = 1 #this should be on for g4?
-    print MuonDetectorTool
+    printfunc (MuonDetectorTool)
 
     #register callbacks for alignments, to get IOVs?
     #GeoModelSvc.AlignCallbacks = True

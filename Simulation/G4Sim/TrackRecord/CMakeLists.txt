@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrackRecord )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Simulation/HitManagement
-                          PRIVATE
-                          Database/AtlasSealCLHEP )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

@@ -6,6 +6,7 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include <atomic>
 
 // constructor
 CscCondDbData::CscCondDbData() :
@@ -44,8 +45,6 @@ CscCondDbData::loadParameters(const CscIdHelper* idHelper){
     //prepare layer hash array
     int hash = 0;
 
-    MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
-
     for(int stationName  = 0; stationName < 2; stationName++){
       for(int stationEta =0; stationEta <2; stationEta++){
         for(int stationPhi = 0; stationPhi <8; stationPhi++){
@@ -62,6 +61,7 @@ CscCondDbData::loadParameters(const CscIdHelper* idHelper){
                   );
               unsigned int onlineId;
               if(!offlineToOnlineId(idHelper, id, onlineId).isSuccess()) {
+                MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
                 log << MSG::WARNING << "Failed at geting online id!" << endmsg;
               }
               else {
@@ -73,7 +73,6 @@ CscCondDbData::loadParameters(const CscIdHelper* idHelper){
         }
       }
     }
-    log << MSG::INFO << "Maximum Layer hash is " << hash-1 << endmsg; // -1 because hash overshoots in loop
 }
 
 
@@ -375,7 +374,6 @@ CscCondDbData::isGoodStation(const Identifier & Id) const{
 StatusCode 
 CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int & index, const std::string & cat, std::string & idString) const {
     // copy-paste from CscCoolStrSvc
-    MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
 
     //There is no string id for the CSC category.
     if(cat == "CSC") {
@@ -388,6 +386,7 @@ CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int &
         if(index == 1)
             idString = "1";
         else {
+            MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
             log << MSG::INFO << "Requested index " << index << " can't be converted to a string Id for the category " << cat << endmsg;
             return StatusCode::RECOVERABLE;
         }
@@ -400,6 +399,7 @@ CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int &
         Identifier chamberId;
         idHelper->get_id(IdentifierHash(index), chamberId, &m_moduleContext);
         if(!offlineElementToOnlineId(idHelper, chamberId, onlineId).isSuccess()) {
+            MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
             log << MSG::INFO << "Failed converting chamber identifier to online id during stringId gen." << endmsg;
             return StatusCode::RECOVERABLE;
         }
@@ -407,6 +407,7 @@ CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int &
     else if(cat == "LAYER"){
         unsigned int onlineId;
         if(!layerHashToOnlineId(index, onlineId)){
+            MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
             log << MSG::INFO << "Failed at getting online id from layer hash during stringId gen." << endmsg;
         }
     }
@@ -414,6 +415,7 @@ CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int &
         Identifier channelId;
         idHelper->get_id(IdentifierHash(index), channelId, &m_channelContext);
         if(!offlineToOnlineId(idHelper, channelId, onlineId).isSuccess()) {
+            MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
             log << MSG::INFO << "Failed converting chamber identifier to online id during stringId gen." << endmsg;
             return StatusCode::RECOVERABLE;
         }
@@ -532,10 +534,10 @@ CscCondDbData::onlineToOfflineIds(const CscIdHelper* idHelper, const unsigned in
     // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
     bool isValid = true;
     channelId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
-    static bool conversionFailPrinted = false;
-    MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
+    static std::atomic<bool> conversionFailPrinted = false;
     if (!isValid) {
       if (!conversionFailPrinted) {
+        MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
         log << MSG::WARNING << "Failed to retrieve offline Identifier from online Identifier " << onlineId
                               << " (station " << stationName << ", eta=" << eta << ", phi=" << phi << "). "
                               << "This is likely due to the fact that the CSCCool database contains "

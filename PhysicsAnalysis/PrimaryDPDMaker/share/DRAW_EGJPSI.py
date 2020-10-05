@@ -42,7 +42,7 @@ DRAW_EGJPSI_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "D
                                                                         expression = draw_egcalib)
 
 ToolSvc += DRAW_EGJPSI_SkimmingTool
-print DRAW_EGJPSI_SkimmingTool
+print(DRAW_EGJPSI_SkimmingTool)
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

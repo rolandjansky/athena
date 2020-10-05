@@ -183,7 +183,7 @@ StatusCode EvtDecay::callEvtGen( HepMC::GenEvent* hepMCevt ) {
 
 			EvtParticle* part=EvtParticleFactory::particleFactory(eid,p_init);
 
-			if(fabs(id)==5122 && m_PolarizedLambdab) setLambdabSpinDensityMatrix(part,m_LambdabPol);
+			if(std::abs(id)==5122 && m_PolarizedLambdab) setLambdabSpinDensityMatrix(part,m_LambdabPol);
 
 			m_myGen->generateDecay(part);
 			if ( log.level() <= MSG::DEBUG ) part->printTree();
@@ -260,16 +260,16 @@ bool EvtDecay::isGoodB(const int pID, const int stat ) const {
 
 	case 0:
 		if( (stat == 1) &&
-		   ((abs(pID) == 511) || 
-		    (abs(pID) == 521) ||
-		    (abs(pID) == 531) ||
-		    (abs(pID) == 541) || 
-		    (abs(pID) == 5122) ||
-		    (abs(pID) == 5132) ||
-		    (abs(pID) == 5232) ||
-		    (abs(pID) == 5112) ||
-		    (abs(pID) == 5212) ||
-		    (abs(pID) == 5222) ))
+		   ((std::abs(pID) == 511) || 
+		    (std::abs(pID) == 521) ||
+		    (std::abs(pID) == 531) ||
+		    (std::abs(pID) == 541) || 
+		    (std::abs(pID) == 5122) ||
+		    (std::abs(pID) == 5132) ||
+		    (std::abs(pID) == 5232) ||
+		    (std::abs(pID) == 5112) ||
+		    (std::abs(pID) == 5212) ||
+		    (std::abs(pID) == 5222) ))
 			{ return true; }
 		else	{ return false; }
 		break;
@@ -418,7 +418,6 @@ double EvtCLHepRandom::random() {
 
 void EvtDecay::MeVToGeV (HepMC::GenEvent* evt) {
 	for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-//		std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
 	        HepMC::FourVector newMomentum(0.,0.,0.,0.);
 		newMomentum.setPx( (*p)->momentum().px() / 1000. );
 		newMomentum.setPy( (*p)->momentum().py() / 1000. );

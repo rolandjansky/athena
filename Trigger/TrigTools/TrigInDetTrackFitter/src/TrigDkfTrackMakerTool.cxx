@@ -23,7 +23,7 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
 #include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
-#include "TrigInDetTrackFitter/TrigDkfTrackMakerTool.h"
+#include "TrigDkfTrackMakerTool.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"

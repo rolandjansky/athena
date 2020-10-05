@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -132,21 +132,17 @@ void TRTSensitiveDetector::InitializeHitProcessing()
 
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
-  m_pMaterialXe = nist->FindOrBuildMaterial("XeCO2O2");
+  m_pMaterialXe = nist->FindOrBuildMaterial("trt::XeCO2O2");
   if (!m_pMaterialXe && verboseLevel>4)
     {
       G4cout << GetName() << " Could not find Xe material (Only OK if no TRT straws are filled with Xenon)" << G4endl;
     }
-  m_pMaterialKr = nist->FindOrBuildMaterial("KrCO2O2");
-  if (!m_pMaterialKr)
+  m_pMaterialKr = nist->FindOrBuildMaterial("trt::KrCO2O2");
+  if (!m_pMaterialKr && verboseLevel>4)
     {
-      m_pMaterialKr = nist->FindOrBuildMaterial("trt::KrCO2O2");
-      if (!m_pMaterialKr && verboseLevel>4)
-        {
-          G4cout << GetName() << " Could not find Kr material (Only OK if no TRT straws are filled with Krypton)" << G4endl;
-        }
+      G4cout << GetName() << " Could not find Kr material (Only OK if no TRT straws are filled with Krypton)" << G4endl;
     }
-  m_pMaterialAr = nist->FindOrBuildMaterial("ArCO2O2");
+  m_pMaterialAr = nist->FindOrBuildMaterial("trt::ArCO2O2");
   if (!m_pMaterialAr && verboseLevel>4)
     {
       G4cout << GetName() << " Could not find Ar material (Only OK if no TRT straws are filled with Argon)" << G4endl;

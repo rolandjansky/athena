@@ -18,14 +18,11 @@ T* get_object(TFile& file, const std::string& name){
 }
 
 eg_resolution::eg_resolution(const std::string& configuration)
-  : asg::AsgMessaging("eg_resolution"),
-    m_file0(),
-    m_file1(),
-    m_file2(),
-    m_file3()
+  : m_file0()
+  , m_file1()
+  , m_file2()
+  , m_file3()
 {
-  ATH_MSG_INFO("Initialize eg_resolution");
-  
   if (configuration == "run1") {
     m_file0 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run1.root").c_str() );
     m_file1 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run1.root").c_str() );
@@ -40,10 +37,8 @@ eg_resolution::eg_resolution(const std::string& configuration)
   }
 
   if (!m_file0 or !m_file1 or !m_file2 or !m_file3) {
-    ATH_MSG_ERROR("cannot find input file for resolutions");
     throw std::runtime_error("cannot find input file for resolutions");
   }
-
   m_hSampling[0][0] = get_object<TH1>(*m_file0, "hsamplingG");
   m_hSampling[0][1] = get_object<TH1>(*m_file0, "hsampling80");
   m_hSampling[0][2] = get_object<TH1>(*m_file0, "hsampling90");
@@ -87,34 +82,29 @@ eg_resolution::eg_resolution(const std::string& configuration)
   m_etaBins = aa->GetXbins();
 }
 
-//=========================================================================
-eg_resolution::~eg_resolution(){
-}
+eg_resolution::~eg_resolution(){}
 
-//============================================================================
-// inputs are particle_type (0=elec, 1=reco unconv photon, 2=reco conv photon, 3=true unconv photon)
-//            energy in MeV
-//            eta
-//            resolution_type (0=gaussian core fit, 1=sigmaeff 80%, 2=sigma eff 90%)
-//
-// returned value is sigmaE/E
-//
+/*
+ * inputs are
+ * particle_type (0=elec, 1=reco unconv photon, 2=reco conv photon, 3=true unconv photon)
+ * energy in MeV
+ * eta
+ * resolution_type (0=gaussian core fit, 1=sigmaeff 80%, 2=sigma eff 90%)
+ * returned value is sigmaE/E
+*/
 double eg_resolution::getResolution(int particle_type, double energy, double eta, int resolution_type) const
 {
 
    if (particle_type<0 || particle_type>3) {
-     ATH_MSG_ERROR("particle type must be 0, 1, 2 or 3");
      throw std::runtime_error("particle type must be 1, 2 or 3");
    }
 
    if (resolution_type<0 || resolution_type>2) {
-     ATH_MSG_ERROR("resolution type must be 0, 1, 2");
      throw std::runtime_error("resolution type must be 0, 1, 2");
    }
 
-   const float aeta = fabs(eta);  // TODO: move to std
+   const float aeta = fabs(eta);
    int ibinEta = m_etaBins->GetSize() - 2;
-   // TODO: use TAxis bin search
    for (int i = 1; i < m_etaBins->GetSize(); ++i) {
      if (aeta < m_etaBins->GetAt(i)) {
          ibinEta = i - 1;
@@ -123,7 +113,6 @@ double eg_resolution::getResolution(int particle_type, double energy, double eta
    }
 
    if (ibinEta<0 || ibinEta>= m_etaBins->GetSize()) {
-     ATH_MSG_ERROR("eta outside range");
      throw std::runtime_error("eta outside range");
    }
 
@@ -131,30 +120,30 @@ double eg_resolution::getResolution(int particle_type, double energy, double eta
    const double rsampling = m_hSampling[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
    const double rnoise    = m_hNoise[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
    const double rconst    = m_hConst[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
-
    const double sigma2 = rsampling*rsampling/energyGeV + rnoise*rnoise/energyGeV/energyGeV + rconst*rconst;
    return sqrt(sigma2);
 }
 
 
-// TODO: not tested
 double eg_resolution::getResolution(const xAOD::Egamma& particle, int resolution_type) const
 {
   int particle_type = -1;
-  if (dynamic_cast<const xAOD::Electron*>(&particle)) { particle_type = 0; }
-  else if (const xAOD::Photon* ph = dynamic_cast<const xAOD::Photon*>(&particle)) {
+  if (particle.type() == xAOD::Type::Electron) {
+    particle_type = 0;
+  } else if (particle.type() == xAOD::Type::Photon) {
+    const xAOD::Photon* ph = static_cast<const xAOD::Photon*> (&particle);
     const xAOD::Vertex* phVertex = ph->vertex();
     if (phVertex) {
       const Amg::Vector3D& pos = phVertex->position();
       const double Rconv = static_cast<float>(hypot(pos.x(), pos.y()));
       if (Rconv > 0 and Rconv < 800) { particle_type = 2; }
       else { particle_type = 1; }
+    } else {
+      particle_type = 1;
     }
-    else { particle_type = 1; }
   }
   assert (particle_type != 1);
 
-  // TODO: check definitions
   const double eta = particle.caloCluster()->eta();
   const double energy = particle.e();
   return getResolution(particle_type, energy, eta, resolution_type);

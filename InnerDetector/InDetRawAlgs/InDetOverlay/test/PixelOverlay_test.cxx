@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,6 +17,9 @@
 
 // Tested AthAlgorithm
 #include "../InDetOverlay/PixelOverlay.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Use of global g_svcLoc is not thread safe.
 
 namespace OverlayTesting {
 

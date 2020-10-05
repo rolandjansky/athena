@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVKalVrtFitter/src/TrkVKalVrtFitterTestAlg.cxx
@@ -43,17 +43,6 @@ std::vector<const T*> asVec (const std::vector<std::unique_ptr<T> >& v)
 }
 
 
-std::vector<const Trk::TrackParameters*>
-asVec (const std::vector<std::unique_ptr<Trk::Perigee> >& v)
-{
-  std::vector<const Trk::TrackParameters*> ret;
-  for (const std::unique_ptr<Trk::Perigee>& p : v) {
-    ret.push_back (p.get());
-  }
-  return ret;
-}
-
-
 std::vector<const Trk::NeutralParameters*>
 asVec (const std::vector<std::unique_ptr<Trk::NeutralPerigee> >& v)
 {
@@ -73,29 +62,9 @@ std::unique_ptr<AmgSymMatrix(5)> cov5()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Perigee> > PerigeeUVec_t;
-PerigeeUVec_t makePerigees1()
-{
-  Amg::Vector3D pos0 { 0, 0, 0 };
+using PerigeeUVec_t = std::vector<std::unique_ptr<Trk::Perigee> >;
 
-  Amg::Vector3D pos1a { 2*mm, 1*mm, -10*mm };
-  Amg::Vector3D mom1a { 400*MeV, 600*MeV, 200*MeV };
-  Amg::Vector3D pos1b { 1*mm, 2*mm, -3*mm };
-  Amg::Vector3D mom1b { 600*MeV, 400*MeV, -200*MeV };
-  Amg::Vector3D pos1c { 1.2*mm, 1.3*mm, -7*mm };
-  Amg::Vector3D mom1c { 300*MeV, 1000*MeV, 100*MeV };
-
-  PerigeeUVec_t ret;
-
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1a, mom1a,  1, pos1a, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1b, mom1b, -1, pos1b, cov5().release()));
-  ret.emplace_back (std::make_unique<Trk::Perigee>(pos1c, mom1c, -1, pos1c, cov5().release()));
-
-  return ret;
-}
-
-
-typedef std::vector<std::unique_ptr<Trk::NeutralPerigee> > NeutralUVec_t;
+using NeutralUVec_t = std::vector<std::unique_ptr<Trk::NeutralPerigee> >;
 NeutralUVec_t makeNeutrals1()
 {
   Amg::Vector3D pos0 { 0, 0, 0 };
@@ -117,46 +86,6 @@ NeutralUVec_t makeNeutrals1()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Track> > TrackUVec_t;
-TrackUVec_t makeTracks (PerigeeUVec_t&& perigees)
-{
-  TrackUVec_t tracks;
-
-  for (std::unique_ptr<Trk::Perigee>& p : perigees) {
-    Trk::TrackInfo info (Trk::TrackInfo::Unknown, Trk::undefined);
-    auto fqual = std::make_unique<Trk::FitQuality> (0, 0);
-    auto tsos = std::make_unique<DataVector<const Trk::TrackStateOnSurface> >();
-    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
-    typePattern.set(Trk::TrackStateOnSurface::Perigee);
-    tsos->push_back (std::make_unique<Trk::TrackStateOnSurface>
-                     (nullptr, p.release(), nullptr, nullptr, typePattern));
-    tracks.push_back (std::make_unique<Trk::Track> (info,
-                                                    tsos.release(),
-                                                    fqual.release()));
-  }
-
-  return tracks;
-}
-
-
-typedef std::vector<std::unique_ptr<Trk::TrackParticleBase> > TrackParticleUVec_t;
-TrackParticleUVec_t makeTrackParticles (PerigeeUVec_t&& perigees)
-{
-  TrackParticleUVec_t tracks;
-
-  std::vector<const Trk::TrackParameters*> pvec;
-  for (std::unique_ptr<Trk::Perigee>& p : perigees) {
-    tracks.push_back (std::make_unique<Trk::TrackParticleBase> (nullptr,
-                                                                Trk::NoVtx,
-                                                                nullptr,
-                                                                nullptr,
-                                                                pvec,
-                                                                p.release(),
-                                                                nullptr));
-  }
-
-  return tracks;
-}
 
 
 // Copied from TrackParticleCreatorTool.
@@ -198,7 +127,7 @@ void setDefiningParameters( xAOD::NeutralParticle& tp,
 }
 
 
-typedef std::vector<std::unique_ptr<xAOD::TrackParticle> > xAODTPUVec_t;
+using xAODTPUVec_t = std::vector<std::unique_ptr<xAOD::TrackParticle> >;
 xAODTPUVec_t makexAODTP (PerigeeUVec_t&& perigees)
 {
   xAODTPUVec_t tracks;
@@ -214,7 +143,7 @@ xAODTPUVec_t makexAODTP (PerigeeUVec_t&& perigees)
 }
 
 
-typedef std::vector<std::unique_ptr<xAOD::NeutralParticle> > xAODNPUVec_t;
+using xAODNPUVec_t = std::vector<std::unique_ptr<xAOD::NeutralParticle> >;
 xAODNPUVec_t makexAODNP (NeutralUVec_t&& perigees)
 {
   xAODNPUVec_t tracks;
@@ -373,32 +302,6 @@ void compareVertex (const xAOD::Vertex& a, const xAOD::Vertex& b,
 }
 
 
-void setInitialPerigee (xAOD::Vertex& v, unsigned i, const Trk::Perigee* p)
-{
-  std::vector< Trk::VxTrackAtVertex >& vec = v.vxTrackAtVertex();
-  if (vec.size() <= i) vec.resize(i+1);
-  vec[i].setInitialPerigee (p);
-}
-
-
-void setInitialPerigees (xAOD::Vertex& v, const TrackUVec_t& tracks)
-{
-  int i = 0;
-  for (const std::unique_ptr<Trk::Track>& t : tracks) {
-    setInitialPerigee (v, i, t->perigeeParameters());
-    ++i;
-  }
-}
-
-
-void clearInitialPerigees (xAOD::Vertex& v)
-{
-  for (Trk::VxTrackAtVertex& v : v.vxTrackAtVertex()) {
-    v.setInitialPerigee (static_cast<const Trk::Perigee*>(nullptr));
-  }
-}
-
-
 void setRefittedPerigee (xAOD::Vertex& v, unsigned i,
                          float charge,
                          const Amg::Vector3D& mom,
@@ -456,62 +359,15 @@ StatusCode TrkVKalVrtFitterTestAlg::execute()
   ATH_CHECK( test1() );
   ATH_CHECK( test2() );
   ATH_CHECK( test3() );
-  ATH_CHECK( test4() );
-  ATH_CHECK( test5() );
-  ATH_CHECK( test6() );
-  ATH_CHECK( test7() );
 
   return StatusCode::SUCCESS;
 }
 
-
-// Charged, no constraint.
-StatusCode TrkVKalVrtFitterTestAlg::test1()
-{
-  xAOD::Vertex exp_v0;
-  exp_v0.makePrivateStore();
-  exp_v0.setPosition ({6.26464, 8.33872, -6.13508});
-  exp_v0.setFitQuality (2.49807, 3);
-  exp_v0.setCovariance (std::vector<float>
-                        {262.704, 109.533, 319.264, 8.76006,
-                            10.623, 27.1666, 4.54687e+06, -4.86204e+06,
-                            -25664, 5.34018e+11, 4.36494e+06, -5.55339e+06,
-                            -49173.1, 6.38191e+11, 7.78282e+11, -1.67825e+06,
-                            404664, -20234.7, -4.03553e+09, 1.84579e+10,
-                           3.5034e+10 });
-  setRefittedPerigee (exp_v0, 0, 1,
-                      {522.2275466, 861.1888402, 347.9248012},
-                      {0,0,0,0,0,0,0,0,0,0,0,0,11.0147,10.623,-3.11672,0,0,0,1.16889,-29.48,0,0,0,0,2.78172 }
-                      );
-  setFitQuality (exp_v0, 0, 0.901, 2);
-  setRefittedPerigee (exp_v0, 1, -1,
-                      {143.9270112, 222.9618557, -81.9205869},
-                      {0,0,0,0,0,0,0,0,0,0,0,0,-0.0125001,-0.120671,-1.87819,0,0,0,-3.36547,-15.5024,0,0,0,0,0.515836}
-                      );
-  setFitQuality (exp_v0, 1, 1.316, 2);
-  setRefittedPerigee (exp_v0, 2, -1,
-                      {900.8362793, 1146.6309013, 98.2189807},
-                      {0,0,0,0,0,0,0,0,0,0,0,0,-0.0787164,1.17646,-2.07388,0,0,0,-0.00993761,-16.7134,0,0,0,0,0.467914 }
-                      );
-  setFitQuality (exp_v0, 2, 0.280, 2);
-
-  TrackUVec_t tracks = makeTracks (makePerigees1());
-  std::unique_ptr<xAOD::Vertex> v1 (m_fitter->fit (asVec (tracks)));
-  setInitialPerigees (exp_v0, tracks);
-  compareVertex (*v1, exp_v0);
-
-  PerigeeUVec_t perigees = makePerigees1();
-  std::unique_ptr<xAOD::Vertex> v2 (m_fitter->fit (asVec (perigees)));
-  clearInitialPerigees (exp_v0);
-  compareVertex (*v2, exp_v0);
-
-  return StatusCode::SUCCESS;
-}
 
 
 // Neutral, no constraint.
 // (Mixed charged+neutral seems not to work.)
-StatusCode TrkVKalVrtFitterTestAlg::test2()
+StatusCode TrkVKalVrtFitterTestAlg::test1()
 {
   xAOD::Vertex exp_v0;
   exp_v0.makePrivateStore();
@@ -537,153 +393,9 @@ StatusCode TrkVKalVrtFitterTestAlg::test2()
 }
 
 
-// Charged + Vector3D constraint.
-StatusCode TrkVKalVrtFitterTestAlg::test3()
-{
-  xAOD::Vertex exp_v0;
-  exp_v0.makePrivateStore();
-  exp_v0.setPosition ({7.5124, 10.1994, -5.99713});
-  exp_v0.setFitQuality (4.8317, 3);
-  exp_v0.setCovariance (std::vector<float>
-                        {380.17, 311.894, 529.978, 15.9504,
-                           16.9483, 41.8169, 581141, -3.99163e+06,
-                           -37238.4, 2.60134e+11, -283465, -4.19693e+06,
-                           -66119.4, 2.76198e+11, 3.04655e+11, -920165,
-                           -303316, -21070.4, 1.71043e+10, 2.88178e+10,
-                           1.12847e+10 });
-  setRefittedPerigee (exp_v0, 0, 1,
-                      {548.9102131, 899.8714631, 324.7020908},
-                      {0,0,0,0,0,0,0,0,0,0,0,0,14.7328,16.9483,0.274511,0,0,0,1.23785,0.575003,0,0,0,0,3.69 }
-                      );
-  setFitQuality (exp_v0, 0, 0.494, 2);
-  setRefittedPerigee (exp_v0, 1, -1,
-                      {125.5232398, 221.2477240, -66.6369037},
-                      {0,0,0,0,0,0,0,0,0,0,0,0,-0.0159583,-0.232985,-0.567994,0,0,0,-4.21552,-6.33697,0,0,0,0,0.696709 }
-                      );
-  setFitQuality (exp_v0, 1, 2.348, 2);
-  setRefittedPerigee (exp_v0, 2, -1,
-                      {1037.2030195, 1119.4557473, 87.3646101},
-                      {0,0,0,0,0,0,0,0,0,0,0,0,-0.0609366,0.630887,-0.631633,0,0,0,-0.00328596,-6.78382,0,0,0,0,0.119277 }
-                      );
-  setFitQuality (exp_v0, 2, 1.989, 2);
-
-  Amg::Vector3D pnt1 (5, 6, -3);
-
-  TrackUVec_t tracks = makeTracks (makePerigees1());
-  std::unique_ptr<xAOD::Vertex> v1 (m_fitter->fit (asVec (tracks), pnt1));
-  setInitialPerigees (exp_v0, tracks);
-  compareVertex (*v1, exp_v0);
-
-  PerigeeUVec_t perigees = makePerigees1();
-  std::unique_ptr<xAOD::Vertex> v2 (m_fitter->fit (asVec (perigees), pnt1));
-  clearInitialPerigees (exp_v0);
-  compareVertex (*v2, exp_v0);
-
-  TrackParticleUVec_t tps = makeTrackParticles (makePerigees1());
-  std::unique_ptr<xAOD::Vertex> v3 (m_fitter->fit (asVec (tps), pnt1));
-  setInitialPerigees (exp_v0, tracks);
-  compareVertex (*v3, exp_v0);
-
-  xAODTPUVec_t xtps = makexAODTP (makePerigees1());
-  std::unique_ptr<xAOD::Vertex> v4 (m_fitter->fit (asVec (xtps), pnt1));
-  clearInitialPerigees (exp_v0);
-  compareVertex (*v4, exp_v0);
-
-  return StatusCode::SUCCESS;
-}
-
-
-// Charged + Vertex constraint.
-StatusCode TrkVKalVrtFitterTestAlg::test4()
-{
-  xAOD::Vertex exp_v0;
-  exp_v0.makePrivateStore();
-  exp_v0.setPosition ({4.82028, 5.64322, -3.73571});
-  exp_v0.setFitQuality (2.23257, 6);
-  exp_v0.setCovariance (std::vector<float>
-                        {0.974039, -0.000335058, 0.966778, 0.0171092,
-                           0.0232899, 0.93323, 55462, -77731.7,
-                           -2529, 7.09388e+11, 21198.3, -53089.5,
-                           -2223.48, 6.72696e+11, 6.81295e+11, -13583.1,
-                           -30590.4, -1489.44, 6.78573e+11, 7.29188e+11,
-                           8.20342e+11 });
-  setRefittedPerigee (exp_v0, 0, 1,
-                      {472.1697451, 831.0346807, 1213.5203040},
-                      { 0,0,0,0,0,0,0,0,0,0,0,0,0.121019,0.0232899,-0.032165,0,0,0,0.0669279,-0.20598,0,0,0,0,0.0740364 }
-                      );
-  setFitQuality (exp_v0, 0, 0.670, 2);
-  setRefittedPerigee (exp_v0, 1, -1,
-                      {181.5551033, 217.7145470, -25.3337120},
-                      {0,0,0,0,0,0,0,0,0,0,0,0,0.00153206,0.00529246,-0.504851,0,0,0,-0.159701,-1.56372,0,0,0,0,0.000450471 }
-                      );
-  setFitQuality (exp_v0, 1, 0.529, 2);
-  setRefittedPerigee (exp_v0, 2, -1,
-                      {1038.1310395, 915.0136654, 855.0258272},
-                      { 0,0,0,0,0,0,0,0,0,0,0,0,-0.00191224,0.305406,-0.441142,0,0,0,-0.00123025,-1.30219,0,0,0,0,0.231023 }
-                      );
-  setFitQuality (exp_v0, 2, 1.033, 2);
-
-  Amg::Vector3D pnt1 (5, 6, -3);
-  xAOD::Vertex pnt2;
-  pnt2.makePrivateStore();
-  pnt2.setPosition (pnt1);
-  AmgSymMatrix(3) pnt2covar;
-  pnt2covar.setIdentity();
-  pnt2.setCovariancePosition (pnt2covar);
-
-  TrackUVec_t tracks = makeTracks (makePerigees1());
-  std::unique_ptr<xAOD::Vertex> v1 (m_fitter->fit (asVec (tracks), pnt2));
-  setInitialPerigees (exp_v0, tracks);
-  compareVertex (*v1, exp_v0);
-
-  PerigeeUVec_t perigees = makePerigees1();
-  std::unique_ptr<xAOD::Vertex> v2 (m_fitter->fit (asVec (perigees), pnt2));
-  clearInitialPerigees (exp_v0);
-  compareVertex (*v2, exp_v0);
-
-  TrackParticleUVec_t tps = makeTrackParticles (makePerigees1());
-  std::unique_ptr<xAOD::Vertex> v3 (m_fitter->fit (asVec (tps), pnt2));
-  setInitialPerigees (exp_v0, tracks);
-  compareVertex (*v3, exp_v0);
-
-  xAOD::Vertex exp_v1;
-  exp_v1.makePrivateStore();
-  exp_v1.setPosition ({5.02733, 6.05034, -3.22391});
-  exp_v1.setFitQuality (3.97641, 6);
-  exp_v1.setCovariance (std::vector<float>
-                        {0.970399, -0.0123305, 0.95308, 0.0285057,
-                            0.0315752, 0.927947, 43433.8, -79307.4,
-                            3035.77, 6.89402e+11, 3995.88, -44842.3,
-                            2401.72, 5.73433e+11, 5.30051e+11, -31341.3,
-                            -26748.5, 2973.36, 6.36222e+11, 6.39475e+11,
-                           8.18027e+11 });
-  setRefittedPerigee (exp_v1, 0, 1,
-                      {466.4538135, 839.2306066, 1373.3962009},
-                      { 0,0,0,0,0,0,0,0,0,0,0,0,0.176116,0.0315752,-0.0273707,0,0,0,0.081322,-0.18161,0,0,0,0,0.0414329 }
-                      );
-  setFitQuality (exp_v1, 0, 1.077, 2);
-  setRefittedPerigee (exp_v1, 1, -1,
-                      {164.5489622, 203.3559625, -18.5822695},
-                      { 0,0,0,0,0,0,0,0,0,0,0,0,0.00311096,0.0103903,-0.479395,0,0,0,-0.149918,-1.57624,0,0,0,0,-0.0105432 }
-                      );
-  setFitQuality (exp_v1, 1, 0.442, 2);
-  setRefittedPerigee (exp_v1, 2, -1,
-                      {1106.6555926, 841.2649783, 854.9908136},
-                      { 0,0,0,0,0,0,0,0,0,0,0,0,-0.00951066,0.297224,-0.413147,0,0,0,-0.00230216,-1.31539,0,0,0,0,0.197911 }
-                      );
-  setFitQuality (exp_v1, 2, 2.457, 2);
-
-  xAODTPUVec_t xtps = makexAODTP (makePerigees1());
-  std::unique_ptr<xAOD::Vertex> v4 (m_fitter->fit (asVec (xtps), pnt2));
-  clearInitialPerigees (exp_v1);
-  compareVertex (*v4, exp_v1);
-
-  return StatusCode::SUCCESS;
-}
-
 
 // Neutral + Vector3D constraint
-StatusCode TrkVKalVrtFitterTestAlg::test5()
+StatusCode TrkVKalVrtFitterTestAlg::test2()
 {
   xAOD::Vertex exp_v0;
   exp_v0.makePrivateStore();
@@ -736,7 +448,7 @@ StatusCode TrkVKalVrtFitterTestAlg::test5()
 
 
 // Neutral + Vertex constraint
-StatusCode TrkVKalVrtFitterTestAlg::test6()
+StatusCode TrkVKalVrtFitterTestAlg::test3()
 {
   xAOD::Vertex exp_v0;
   exp_v0.makePrivateStore();
@@ -813,7 +525,7 @@ std::unique_ptr<AmgSymMatrix(5)> cov5a()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Perigee> > PerigeeUVec_t;
+using PerigeeUVec_t = std::vector<std::unique_ptr<Trk::Perigee> >;
 PerigeeUVec_t makePerigees2()
 {
   Amg::Vector3D pos1a { 10*mm,   0*mm, -5*mm };
@@ -862,7 +574,7 @@ namespace Trk {
 
 
 // Simple cascade fitter test.
-StatusCode TrkVKalVrtFitterTestAlg::test7()
+StatusCode TrkVKalVrtFitterTestAlg::test4()
 {
   Trk::IVertexCascadeFitter* fitter =
     dynamic_cast<Trk::IVertexCascadeFitter*> (m_fitter.get());
@@ -936,45 +648,74 @@ StatusCode TrkVKalVrtFitterTestAlg::test7()
 
   xAOD::Vertex exp_v0;
   exp_v0.makePrivateStore();
-  exp_v0.setPosition ({7.89827, 0.0514449, -4.04121});
-  exp_v0.setFitQuality (5.34877, 8);
-  exp_v0.setCovariance (std::vector<float>
-                        {0.218298, -0.00769266, 0.0194589, -0.0118989, 0.0107223, 0.208922 });
-  setRefittedPerigee (exp_v0, 0, 1,
-                      exp_mom (exp_moms0, 0),
-                      {0.209404, -4.58753, -0.00519457, 0.00377293, 0.00105397, -4.58753, 154483, 32.603, -0.117209, -35.6007, -0.00519457, 32.603, 0.0113951, -0.000116443, -0.00751125, 0.00377293, -0.117209, -0.000116443, 0.009643, 2.37152e-05, 0.00105397, -35.6007, -0.00751125, 2.37152e-05, 0.0082042 }
-                      );
-  setFitQuality (exp_v0, 0, 0.926, 2);
-  setRefittedPerigee (exp_v0, 1, -1,
-                      exp_mom (exp_moms0, 1),
-                      {0.185428, 0.807536, -0.00324979, -0.000237823, 1.99968e-05, 0.807536, 154490, 6.26553, -0.238515, 0.168369, -0.00324979, 6.26553, 0.00856011, -0.00036866, -2.23097e-05, -0.000237823, -0.238515, -0.00036866, 0.00933191, 7.51824e-06, 1.99968e-05, 0.168369, -2.23097e-05, 7.51824e-06, 3.74483e-07}
-                      );
-  setFitQuality (exp_v0, 1, 4.142, 2);
-  setRefittedPerigee (exp_v0, 2, -1,
-                      exp_mom (exp_moms0, 2),
-                      {0.191446, -9.49834, -0.00495436, -0.00130953, -4.72358e-05, -9.49834, 154476, 5.42258, -0.231539, 0.236084, -0.00495436, 5.42258, 0.00860893, -0.000425575, 3.61158e-05, -0.00130953, -0.231539, -0.000425575, 0.00920703, -5.93187e-06, -4.72358e-05, 0.236084, 3.61158e-05, -5.93187e-06, 4.8944e-07}
-                      );
-  setFitQuality (exp_v0, 2, 0.281, 2);
+  exp_v0.setPosition({ 7.89827, 0.0514449, -4.04121 });
+  exp_v0.setFitQuality(5.34877, 8);
+  exp_v0.setCovariance(std::vector<float>{
+    0.218298, -0.00769266, 0.0194589, -0.0118989, 0.0107223, 0.208922 });
+  setRefittedPerigee(
+    exp_v0,
+    0,
+    1,
+    exp_mom(exp_moms0, 0),
+    { 0.209404,    -4.58753,  -0.00519457,  0.00377293,   0.00105397,
+      -4.58753,    154483,    32.603,       -0.117209,    -35.6007,
+      -0.00519457, 32.603,    0.0113951,    -0.000116443, -0.00751125,
+      0.00377293,  -0.117209, -0.000116443, 0.009643,     2.37152e-05,
+      0.00105397,  -35.6007,  -0.00751125,  2.37152e-05,  0.0082042 });
+  setFitQuality(exp_v0, 0, 0.926, 2);
+  setRefittedPerigee(
+    exp_v0,
+    1,
+    -1,
+    exp_mom(exp_moms0, 1),
+    { 0.185428,     0.807536,  -0.00324979,  -0.000237823, 1.99968e-05,
+      0.807536,     154490,    6.26553,      -0.238515,    0.168369,
+      -0.00324979,  6.26553,   0.00856011,   -0.00036866,  -2.23097e-05,
+      -0.000237823, -0.238515, -0.00036866,  0.00933191,   7.51824e-06,
+      1.99968e-05,  0.168369,  -2.23097e-05, 7.51824e-06,  3.74483e-07 });
+  setFitQuality(exp_v0, 1, 4.142, 2);
+  setRefittedPerigee(
+    exp_v0,
+    2,
+    -1,
+    exp_mom(exp_moms0, 2),
+    { 0.191446,     -9.49834,  -0.00495436,  -0.00130953,  -4.72358e-05,
+      -9.49834,     154476,    5.42258,      -0.231539,    0.236084,
+      -0.00495436,  5.42258,   0.00860893,   -0.000425575, 3.61158e-05,
+      -0.00130953,  -0.231539, -0.000425575, 0.00920703,   -5.93187e-06,
+      -4.72358e-05, 0.236084,  3.61158e-05,  -5.93187e-06, 4.8944e-07 });
+  setFitQuality(exp_v0, 2, 0.281, 2);
 
-  compareVertex (*info1->vertices()[0], exp_v0, 0.1);
-
+  compareVertex(*info1->vertices()[0], exp_v0, 0.1);
 
   xAOD::Vertex exp_v1;
   exp_v1.makePrivateStore();
-  exp_v1.setPosition ({5.31046, 0.22012, -3.80093});
-  exp_v1.setFitQuality (3.34131, 8);
-  exp_v1.setCovariance (std::vector<float>
-                        {0.0239352, 0.000977903, 0.00708136, 4.16975e-05, 0.00295894, 0.2431});
-  setRefittedPerigee (exp_v1, 0, 1,
-                      exp_mom (exp_moms0, 3),
-                      {0.166917, -16.9685, -0.000309914, -0.000819924, 1.31935e-05, -16.9685, 6.35682e+08, -139.016, 9.70413, -495.474, -0.000309914, -139.016, 0.0100214, -7.71225e-06, 0.000103046, -0.000819924, 9.70413, -7.71225e-06, 0.00998731, -5.42066e-06, 1.31935e-05, -495.474, 0.000103046, -5.42066e-06, 0.000386195}
-                      );
-  setFitQuality (exp_v1, 0, 1.986, 2);
-  setRefittedPerigee (exp_v1, 1, -1,
-                      exp_mom (exp_moms0, 4),
-                      {0.20904, -15.3143, 0.00086181, -0.000463146, -2.83922e-05, -15.3143, 6.35682e+08, 306.365, -3.09595, -2470.81, 0.00086181, 306.365, 0.0101467, -2.3178e-06, -0.00116433, -0.000463146, -3.09595, -2.3178e-06, 0.00999678, 8.90989e-07, -2.83922e-05, -2470.81, -0.00116433, 8.90989e-07, 0.00960596}
-                      );
-  setFitQuality (exp_v1, 1, 1.356, 2);
+  exp_v1.setPosition({ 5.31046, 0.22012, -3.80093 });
+  exp_v1.setFitQuality(3.34131, 8);
+  exp_v1.setCovariance(std::vector<float>{
+    0.0239352, 0.000977903, 0.00708136, 4.16975e-05, 0.00295894, 0.2431 });
+  setRefittedPerigee(
+    exp_v1,
+    0,
+    1,
+    exp_mom(exp_moms0, 3),
+    { 0.166917,     -16.9685,    -0.000309914, -0.000819924, 1.31935e-05,
+      -16.9685,     6.35682e+08, -139.016,     9.70413,      -495.474,
+      -0.000309914, -139.016,    0.0100214,    -7.71225e-06, 0.000103046,
+      -0.000819924, 9.70413,     -7.71225e-06, 0.00998731,   -5.42066e-06,
+      1.31935e-05,  -495.474,    0.000103046,  -5.42066e-06, 0.000386195 });
+  setFitQuality(exp_v1, 0, 1.986, 2);
+  setRefittedPerigee(
+    exp_v1,
+    1,
+    -1,
+    exp_mom(exp_moms0, 4),
+    { 0.20904,      -15.3143,    0.00086181,  -0.000463146, -2.83922e-05,
+      -15.3143,     6.35682e+08, 306.365,     -3.09595,     -2470.81,
+      0.00086181,   306.365,     0.0101467,   -2.3178e-06,  -0.00116433,
+      -0.000463146, -3.09595,    -2.3178e-06, 0.00999678,   8.90989e-07,
+      -2.83922e-05, -2470.81,    -0.00116433, 8.90989e-07,  0.00960596 });
+  setFitQuality(exp_v1, 1, 1.356, 2);
 
   compareVertex (*info1->vertices()[1], exp_v1, 0.1);
 

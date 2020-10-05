@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/CondCont.h
@@ -442,29 +442,37 @@ public:
     {
       return t >= r.m_start && t< r.m_stop;
     }
-    // Check whether R1 overlaps R2, given that r1.m_start < r2.m_start.
-    // We first tried checking that r1.m_stop > r2.m_start.
-    // However, it turns out that IOVDbSvc can in fact return IOV ranges
-    // that do overlap like this, at least for timestamp folders.
-    // That's because the range returned by IOVDbSvc is bounded by
-    // the range of the cache which is set from the particular query.
-    // The only sort of overlap that should really cause a problem, though,
-    // is if one range is entirely contained within another.
-    // I don't think IOVDbSvc should do _that_, so we check for that here.
-    bool overlap (const RangeKey& r1, const RangeKey& r2) const
-    { return r1.m_stop > r2.m_stop; }
-    int extendRange (RangeKey& r, const RangeKey& newRange) const
-    {
-      if (r.m_start != newRange.m_start) {
-        return -1;
-      }
-      if (newRange.m_stop > r.m_stop) {
-        r.m_stop = newRange.m_stop;
-        r.m_range = newRange.m_range;
-        return 1;
-      }
-      return 0;
-    }
+
+
+    /**
+     * @brief Test if two ranges overlap, and adjust if needed.
+     * @param ctx Event context passed to emplace().
+     * @param oldRange An existing range in the container.
+     * @param newRange New range being added.
+     *
+     * Returns one of:
+     *   0 -- no overlap between the ranges; NEWRANGE is unmodified.
+     *   1 -- ranges overlap.  NEWRANGE has been adjusted to avoid the overlap.
+     *        If the start of NEWRANGE is changed, it must
+     *        only be moved forward (increased), never backwards.
+     *  -1 -- duplicate: NEWRANGE is entirely inside OLDRANGE.
+     *        Delete the new range.         
+     */
+    int overlap (const EventContext& ctx,
+                 const RangeKey& oldRange, RangeKey& newRange) const;
+
+
+    /**
+     * @brief Possibly extend an existing range at the end.
+     * @param range THe existing range.
+     * @param newRange Range being added.
+     *
+     * Returns one of:
+     *   0 -- no change was made to RANGE.
+     *   1 -- RANGE was extended. 
+     *  -1 -- newRange is a duplicate.
+     */
+    int extendRange (RangeKey& range, const RangeKey& newRange) const;
   };
 
 
@@ -648,6 +656,9 @@ private:
 };
 
 
+CLASS_DEF( CondContBase , 34480459 , 1 )
+
+
 ///////////////////////////////////////////////////////////////////////////
 
 
@@ -788,10 +799,7 @@ namespace SG {
 template <typename T>
 struct Bases<CondCont<T> >
 {
-  typedef CondContBase Base1;               
-  typedef NoBase Base2;          
-  typedef NoBase Base3;      
-  typedef NoBase Base4;      
+  using bases = BaseList<CondContBase>;
 };
 } // namespace SG
 
@@ -811,8 +819,8 @@ class CondContBaseInfo<D>         \
 public:                           \
   typedef CondCont<B> Base;       \
 };                                 \
-SG_BASE(CondCont<D>, CondCont<B>); \
-SG_BASE(D, B)
+SG_BASES(CondCont<D>, CondCont<B>);\
+SG_BASES(D, B)
   
 
 
@@ -916,6 +924,17 @@ public:
   bool find (const EventIDBase& t,
              T const*& obj,
              EventIDRange const** r = nullptr) const;
+
+
+  /** 
+   * @brief Look up a conditions object for a given time.
+   * @param t IOV time to find.
+   *
+   * Returns the found object, or nullptr.
+   *
+   * This variant may be more convenient to call from python.
+   */
+  const T* find (const EventIDBase& t) const;
 
 
 protected:
@@ -1225,6 +1244,17 @@ public:
   bool find (const EventIDBase& t,
              T const*& obj,
              EventIDRange const** r = nullptr) const;
+
+
+  /**
+   * @brief Look up a conditions object for a given time.
+   * @param t IOV time to find.
+   *
+   * Returns the found object, or nullptr.
+   *
+   * This variant may be more convenient to call from python.
+   */
+  const T* find (const EventIDBase& t) const;
 
 
 protected:

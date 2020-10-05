@@ -17,7 +17,7 @@
 //#include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/ListItem.h"
 //#include "GaudiKernel/StatusCode.h"
-//#include "GaudiKernel/Property.h"
+//#include "Gaudi/Property.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -691,10 +691,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   p_tau->setROIWord(roiDescriptor->roiWord());
   p_tau->setJet(theJetCollection, p_seed);
 
-  // This sets one track and link. Need to have at least 1 track linked to retrieve track container
-  // can't we instead implement in the EDM a function to retrieve the track container of a tau?
-  setEmptyTauTrack(p_tau, pTrackContainer);
-
   if(p_seed->e()<=0) {
     ATH_MSG_DEBUG( "Roi: changing eta due to energy " << p_seed->e() );
     p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
@@ -724,7 +720,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
       processStatus = (*firstTool)->executeVertexFinder(*p_tau, RoIVxContainer ,RoITrackContainer);
     }
     else if ( (*firstTool)->type() == "TauTrackFinder") {
-      processStatus = (*firstTool)->executeTrackFinder(*p_tau, RoITrackContainer);
+      processStatus = (*firstTool)->executeTrackFinder(*p_tau, *pTrackContainer, RoITrackContainer);
     }
     else if ( (*firstTool)->type() == "TauVertexVariables" ) {
       processStatus = (*firstTool)->executeVertexVariables(*p_tau, *dummyVxCont);
@@ -840,37 +836,44 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
     // RNN monitoring
     if(m_rnn_evaluator) {
 
-      TauJetRNN* rnn = nullptr;
+      const TauJetRNN* rnn = nullptr;
       if(m_numTrack==0) rnn = m_rnn_evaluator->get_rnn_0p();
       else if(m_numTrack==1) rnn = m_rnn_evaluator->get_rnn_1p();
       else rnn = m_rnn_evaluator->get_rnn_3p();
       
-      const std::map<std::string, std::map<std::string, double> >* rnn_scalar = rnn->getScalarInputs();
-      const std::map<std::string, std::map<std::string, std::vector<double>> >* rnn_vector = rnn->getVectorInputs();
+      std::map<std::string, std::map<std::string, double> > rnn_scalar;
+      std::map<std::string, std::map<std::string, std::vector<double>> > rnn_vector;
+
+      std::vector<const xAOD::TauTrack *> tracks;
+      std::vector<const xAOD::CaloCluster *> clusters;
+      // TODO: these lines are commented out since the check returns "StatusCode", while "HLT::ErrorCode" is expected. This means no cluster or track variables are monitored
+      //ATH_CHECK(m_rnn_evaluator->get_tracks(*p_tau, tracks));
+      //ATH_CHECK(m_rnn_evaluator->get_clusters(*p_tau, clusters));
+      rnn->calculateInputVariables(*p_tau, tracks, clusters, rnn_scalar, rnn_vector);
       
-      m_RNN_scalar_ptRatioEflowApprox = rnn_scalar->at("scalar").at("ptRatioEflowApprox");
-      m_RNN_scalar_mEflowApprox = rnn_scalar->at("scalar").at("mEflowApprox");
+      m_RNN_scalar_ptRatioEflowApprox = rnn_scalar.at("scalar").at("ptRatioEflowApprox");
+      m_RNN_scalar_mEflowApprox = rnn_scalar.at("scalar").at("mEflowApprox");
       // this is obviously a scalar, but is stored in tracks and clusters
-      if(rnn_vector->at("tracks").at("pt_log").size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector->at("tracks").at("pt_jetseed_log")[0];
-      else if(rnn_vector->at("clusters").at("et_log").size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector->at("clusters").at("pt_jetseed_log")[0];
+      if(rnn_vector.at("tracks").at("pt_log").size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector.at("tracks").at("pt_jetseed_log")[0];
+      else if(rnn_vector.at("clusters").at("et_log").size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector.at("clusters").at("pt_jetseed_log")[0];
       
-      m_RNN_Nclusters = rnn_vector->at("clusters").at("et_log").size();
-      m_RNN_cluster_et_log = rnn_vector->at("clusters").at("et_log");
-      m_RNN_cluster_dEta = rnn_vector->at("clusters").at("dEta");
-      m_RNN_cluster_dPhi = rnn_vector->at("clusters").at("dPhi");	    
-      m_RNN_cluster_CENTER_LAMBDA = rnn_vector->at("clusters").at("CENTER_LAMBDA");
-      m_RNN_cluster_SECOND_LAMBDA = rnn_vector->at("clusters").at("SECOND_LAMBDA"); 
-      m_RNN_cluster_SECOND_R = rnn_vector->at("clusters").at("SECOND_R");
+      m_RNN_Nclusters = rnn_vector.at("clusters").at("et_log").size();
+      m_RNN_cluster_et_log = rnn_vector.at("clusters").at("et_log");
+      m_RNN_cluster_dEta = rnn_vector.at("clusters").at("dEta");
+      m_RNN_cluster_dPhi = rnn_vector.at("clusters").at("dPhi");	    
+      m_RNN_cluster_CENTER_LAMBDA = rnn_vector.at("clusters").at("CENTER_LAMBDA");
+      m_RNN_cluster_SECOND_LAMBDA = rnn_vector.at("clusters").at("SECOND_LAMBDA"); 
+      m_RNN_cluster_SECOND_R = rnn_vector.at("clusters").at("SECOND_R");
       
-      m_RNN_Ntracks = rnn_vector->at("tracks").at("pt_log").size();
-      m_RNN_track_pt_log = rnn_vector->at("tracks").at("pt_log");
-      m_RNN_track_dEta = rnn_vector->at("tracks").at("dEta");
-      m_RNN_track_dPhi = rnn_vector->at("tracks").at("dPhi");
-      m_RNN_track_d0_abs_log = rnn_vector->at("tracks").at("d0_abs_log");
-      m_RNN_track_z0sinThetaTJVA_abs_log = rnn_vector->at("tracks").at("z0sinThetaTJVA_abs_log");
-      m_RNN_track_nInnermostPixelHits = rnn_vector->at("tracks").at("nIBLHitsAndExp");
-      m_RNN_track_nPixelHits = rnn_vector->at("tracks").at("nPixelHitsPlusDeadSensors");
-      m_RNN_track_nSCTHits = rnn_vector->at("tracks").at("nSCTHitsPlusDeadSensors");
+      m_RNN_Ntracks = rnn_vector.at("tracks").at("pt_log").size();
+      m_RNN_track_pt_log = rnn_vector.at("tracks").at("pt_log");
+      m_RNN_track_dEta = rnn_vector.at("tracks").at("dEta");
+      m_RNN_track_dPhi = rnn_vector.at("tracks").at("dPhi");
+      m_RNN_track_d0_abs_log = rnn_vector.at("tracks").at("d0_abs_log");
+      m_RNN_track_z0sinThetaTJVA_abs_log = rnn_vector.at("tracks").at("z0sinThetaTJVA_abs_log");
+      m_RNN_track_nInnermostPixelHits = rnn_vector.at("tracks").at("nIBLHitsAndExp");
+      m_RNN_track_nPixelHits = rnn_vector.at("tracks").at("nPixelHitsPlusDeadSensors");
+      m_RNN_track_nSCTHits = rnn_vector.at("tracks").at("nSCTHitsPlusDeadSensors");
       
       if( !p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore) || !p_tau->isAvailable<float>("RNNJetScore") )
 	ATH_MSG_WARNING( "RNNJetScore not available. Should not happen when TauJetRNNEvaluator is run!" );
@@ -1017,17 +1020,3 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   // set status of TE to always true for FE algorithms
   return HLT::OK;
 }
-
-void TrigTauRecMerged::setEmptyTauTrack(xAOD::TauJet* &pTau,
-					xAOD::TauTrackContainer* &tauTrackContainer)
-{
-  // Make a new tau track, add to container
-  xAOD::TauTrack* pTrack = new xAOD::TauTrack();
-  tauTrackContainer->push_back(pTrack);
-
-  // Create an element link for that track
-  ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-  linkToTauTrack.toContainedElement(*tauTrackContainer, pTrack);
-  pTau->addTauTrackLink(linkToTauTrack);
-}
-

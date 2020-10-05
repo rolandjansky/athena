@@ -1,26 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MuFastPatternFinder.h"
+#include "MuFastPatternFinder.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
-
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "Identifier/Identifier.h"
-
 #include "xAODTrigMuon/TrigMuonDefs.h"
-
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_MuFastPatternFinder("IID_MuFastPatternFinder", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MuFastPatternFinder::interfaceID() { return IID_MuFastPatternFinder; }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -28,17 +15,7 @@ const InterfaceID& TrigL2MuonSA::MuFastPatternFinder::interfaceID() { return IID
 TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type, 
 						     const std::string& name,
 						     const IInterface*  parent): 
-   AthAlgTool(type,name,parent),
-   m_mdtCalibrationTool("MdtCalibrationTool",this)
-{
-   declareInterface<TrigL2MuonSA::MuFastPatternFinder>(this);
-   declareProperty("CalibrationTool",m_mdtCalibrationTool);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::MuFastPatternFinder::~MuFastPatternFinder() 
+   AthAlgTool(type,name,parent)
 {
 }
 
@@ -47,16 +24,9 @@ TrigL2MuonSA::MuFastPatternFinder::~MuFastPatternFinder()
 
 StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
 {
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-   
-   ATH_CHECK( m_muonIdHelperTool.retrieve() );                                 
-
-   return StatusCode::SUCCESS; 
+   ATH_CHECK( m_nswPatternFinder.retrieve() );
+   ATH_CHECK( m_idHelperSvc.retrieve() );
+   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -75,7 +45,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 		 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
 		 << Layer << "/" << Tube);
 
-   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_muonIdHelperTool->mdtIdHelper().channelID(StationName,StationEta,
+   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_idHelperSvc->mdtIdHelper().channelID(StationName,StationEta,
        StationPhi,Multilayer,Layer,Tube);
 
    int tdcCounts    = (int)mdtHit.DriftTime;
@@ -83,7 +53,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 
    double R    = mdtHit.R;
    //   double InCo = mdtHit.cInCo;
-   double InCo = cos(std::abs(track_phi - phi0))!=0 ? 1./(cos(std::abs(track_phi - phi0))): 0; 
+   double InCo = cos(std::abs(track_phi - phi0))!=0 ? 1./(cos(std::abs(track_phi - phi0))): 0;
    double X    = (isEndcap)? R*cos(track_phi): R*InCo*cos(track_phi);
    double Y    = (isEndcap)? R*sin(track_phi): R*InCo*sin(track_phi);
    double Z    = mdtHit.Z;
@@ -132,6 +102,29 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
+
+
+StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::MuonRoad&            muonRoad,
+							   TrigL2MuonSA::MdtHits&                   mdtHits,
+							   TrigL2MuonSA::StgcHits&                  stgcHits,
+							   TrigL2MuonSA::MmHits&                    mmHits,
+							   std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+{
+  ATH_CHECK( findPatterns(muonRoad, mdtHits, v_trackPatterns) );
+  ATH_CHECK( m_nswPatternFinder->findPatterns(muonRoad, stgcHits, mmHits, v_trackPatterns.back()) );
+
+  for(unsigned int i_hit=0; i_hit<v_trackPatterns.at(0).stgcSegment.size(); i_hit++) {
+    ATH_MSG_DEBUG("PatternFinder: output sTGC hits global eta/phi/r/z/layer/channelType/isOutlier " << v_trackPatterns.at(0).stgcSegment[i_hit].eta << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].phi << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].r << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].z << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].layerNumber << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].channelType << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].isOutlier);
+  }
+
+  for(unsigned int i_hit=0; i_hit<v_trackPatterns.at(0).mmSegment.size(); i_hit++) {
+    ATH_MSG_DEBUG("PatternFinder: output MM hits global eta/phi/r/z/layer/isOutlier " << v_trackPatterns.at(0).mmSegment[i_hit].eta << "/" << v_trackPatterns.at(0).mmSegment[i_hit].phi << "/" << v_trackPatterns.at(0).mmSegment[i_hit].r << "/" << v_trackPatterns.at(0).mmSegment[i_hit].z << "/" << v_trackPatterns.at(0).mmSegment[i_hit].layerNumber << "/" << v_trackPatterns.at(0).mmSegment[i_hit].isOutlier);
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
 
 StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::MuonRoad&            muonRoad,
 							   TrigL2MuonSA::MdtHits&                   mdtHits,
@@ -284,7 +277,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	      i_hit_max = i_hit;
 	    }
 	  }
-	  ATH_MSG_DEBUG("ResMax=" << ResMax << ": i_hit_max=" << i_hit_max); 
+	  ATH_MSG_DEBUG("ResMax=" << ResMax << ": i_hit_max=" << i_hit_max);
 	  if( i_hit_max == 999999 ) break;
 	  v_mdtLayerHits[chamber][0].ResSum = v_mdtLayerHits[chamber][0].ResSum - ResMax;
 	  v_mdtLayerHits[chamber][0].ntot--;
@@ -310,7 +303,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
    
    v_trackPatterns.push_back(trackPattern);
    
-   return StatusCode::SUCCESS; 
+   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -325,17 +318,3 @@ double TrigL2MuonSA::MuFastPatternFinder::calc_residual(double aw,double bw,doub
    double dz  = x - (y-bw)*ia;
    return dz/sqrt(1.+iaq);
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::MuFastPatternFinder::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing MuFastPatternFinder - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

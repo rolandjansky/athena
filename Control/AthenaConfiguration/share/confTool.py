@@ -3,6 +3,7 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
 from __future__ import print_function
 
 import argparse
@@ -14,8 +15,10 @@ import pprint
 import re
 import sys
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def main():
+
+def parse_args():
     parser = argparse.ArgumentParser(
         description="Utility to transform/display athena configurations"
     )
@@ -63,28 +66,31 @@ def main():
     )
 
     args = parser.parse_args()
+    main(args)
 
+
+def main(args):
     if args.printComps:
         for fileName in args.file:
-            conf = __loadSingleFile(fileName, args)
-            __printComps(conf)
+            conf = _loadSingleFile(fileName, args)
+            _printComps(conf)
 
     if args.printConf:
         for fileName in args.file:
-            conf = __loadSingleFile(fileName, args)
-            __print(conf)
+            conf = _loadSingleFile(fileName, args)
+            _print(conf)
 
     if args.toJSON:
         if len(args.file) != 1:
             sys.exit("ERROR, can convert single file at a time, got: %s" % args.file)
-        conf = __loadSingleFile(args.file[0], args)
+        conf = _loadSingleFile(args.file[0], args)
         with open(args.toJSON, "w") as oFile:
             json.dump(conf, oFile, indent=2, ensure_ascii=True)
 
     if args.toPickle:
         if len(args.file) != 1:
             sys.exit("ERROR, can convert single file at a time, got: %s" % args.file)
-        conf = __loadSingleFile(args.file[0], args)
+        conf = _loadSingleFile(args.file[0], args)
         with open(args.toPickle, "wb") as oFile:
             for item in conf:
                 pickle.dump(item, oFile)
@@ -92,31 +98,39 @@ def main():
     if args.diff:
         if len(args.file) != 2:
             sys.exit("ERROR, can diff exactly two files at a time, got: %s" % args.file)
-        configRef = __loadSingleFile(args.file[0], args)
-        configChk = __loadSingleFile(args.file[1], args)
-        for ref, chk in zip(configRef, configChk):
-            if isinstance(ref, dict) and isinstance(chk, dict):
-                __compareConfig(ref, chk, args)
-            else:
-                print("Given list of size %d. Not looking for differences." % len(ref))
+        configRef = _loadSingleFile(args.file[0], args)
+        configChk = _loadSingleFile(args.file[1], args)
+        flattenedRef = {}
+        flattenedChk = {}
+        for ref in configRef:
+            if isinstance(ref, dict):
+                flattenedRef.update(ref)
+        for chk in configChk:
+            if isinstance(chk, dict):
+                flattenedChk.update(chk)
+        _compareConfig(flattenedRef, flattenedChk, args)
 
-
-def __loadSingleFile(fname, args):
+def _loadSingleFile(fname, args):
     conf = []
     if fname.endswith(".pkl"):
         with open(fname, "rb") as input_file:
-            conf_dict = collections.defaultdict()
-            while True:
-                try:
-                    cfg = pickle.load(input_file)
-                    if type(cfg) == collections.defaultdict:
-                        conf_dict.update(cfg)
-                    else:
-                        conf.append(cfg)
-                except EOFError:
-                    break
-            conf.append(conf_dict)
+            # determine if there is a old or new configuration pickled
+            cfg = pickle.load(input_file)
+            if isinstance(cfg, ComponentAccumulator):  # new configuration
+                props = cfg.gatherProps()
+                jos_props = props[2]  # to make json compatible with old configuration
+                to_json = {}
+                for comp, name, value in jos_props:
+                    to_json.setdefault(comp, {})[name] = value
+                    to_json[comp][name] = value
+                conf = [to_json, props[0], props[1]]
+
+            elif isinstance(cfg, (collections.defaultdict, dict)):  # old configuration
+                cfg.update(pickle.load(input_file))
+                conf.append(pickle.load(input_file))
+                conf.append(cfg)
         print("... Read", len(conf), "items from python pickle file: ", fname)
+
     elif fname.endswith(".json"):
 
         def __keepPlainStrings(element):
@@ -133,6 +147,7 @@ def __loadSingleFile(fname, args):
 
         with open(fname, "r") as input_file:
             conf = json.load(input_file, object_hook=__keepPlainStrings)
+
             print("... Read", len(conf), "items from JSON file: ", fname)
 
     else:
@@ -157,19 +172,19 @@ def __loadSingleFile(fname, args):
     return conf
 
 
-def __print(conf):
+def _print(conf):
     for item in conf:
         pprint.pprint(dict(item))
 
 
-def __printComps(conf):
+def _printComps(conf):
     for item in conf:
         if isinstance(item, dict):
             for compName in item.keys():
                 print(compName)
 
 
-def __compareConfig(configRef, configChk, args):
+def _compareConfig(configRef, configChk, args):
     # Find superset of all components:
     allComps = list(set(configRef.keys()) | set(configChk.keys()))
     allComps.sort()
@@ -206,7 +221,7 @@ def __compareConfig(configRef, configChk, args):
         else:
             print("\033[91m Component", component, "differ \033[0m")
             if not args.allComponentPrint:
-                __compareComponent(refValue, chkValue, "\t", args, component)
+                _compareComponent(refValue, chkValue, "\t", args, component)
             else:
                 print(
                     "\t\033[92mRef\033[0m\t",
@@ -218,7 +233,7 @@ def __compareConfig(configRef, configChk, args):
                 )
 
 
-def __compareComponent(compRef, compChk, prefix, args, component):
+def _compareComponent(compRef, compChk, prefix, args, component):
 
     if isinstance(compRef, dict):
 
@@ -254,29 +269,39 @@ def __compareComponent(compRef, compChk, prefix, args, component):
             else:
                 diffmarker = " \033[91m<< !!!\033[0m"
 
-            if not (component == 'IOVDbSvc' and prop == 'Folders'):
+            if not (component == "IOVDbSvc" and prop == "Folders"):
                 print(
                     "%s%s : \033[92m %s \033[0m vs \033[94m %s \033[0m %s"
                     % (prefix, prop, str(refVal), str(chkVal), diffmarker)
                 )
 
             try:
-                refVal = ast.literal_eval(str(refVal)) if refVal else ''
-                chkVal = ast.literal_eval(str(chkVal)) if chkVal else ''
+                refVal = ast.literal_eval(str(refVal)) if refVal else ""
+                chkVal = ast.literal_eval(str(chkVal)) if chkVal else ""
             except SyntaxError:
                 pass
             except ValueError:
-                pass # literal_eval exception when parsing particular strings
+                pass  # literal_eval exception when parsing particular strings
 
             if refVal and (isinstance(refVal, list) or isinstance(refVal, dict)):
-                if component == 'IOVDbSvc' and prop == 'Folders':
-                    __compareIOVDbFolders(refVal, chkVal, "\t", args)
+                if component == "IOVDbSvc" and prop == "Folders":
+                    _compareIOVDbFolders(refVal, chkVal, "\t", args)
                 else:
-                    __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args, component)
+                    _compareComponent(
+                        refVal, chkVal, "\t" + prefix + ">> ", args, component
+                    )
 
-    elif isinstance(compRef, list) and len(compRef) > 1:
+    elif isinstance(compRef, (list, tuple)) and len(compRef) > 1:
+
+        if isinstance(compRef[0], list):  # to achieve hashability
+            compRef = [tuple(el) for el in compRef]
+
+        if len(compChk) > 0 and isinstance(compChk[0], list):
+            compChk = [tuple(el) for el in compChk]
+
         diffRef = list(set(compRef) - set(compChk))
         diffChk = list(set(compChk) - set(compRef))
+
         if diffRef:
             print(
                 "%s exists only in Ref : \033[92m %s \033[0m \033[91m<< !!!\033[0m"
@@ -290,10 +315,7 @@ def __compareComponent(compRef, compChk, prefix, args, component):
 
         if len(compRef) == len(compChk):
             if sorted(compRef) == sorted(compChk):
-                print(
-                    "%s : \033[91m ^^ Different order ^^ !!!\033[0m"
-                    % (prefix)
-                )
+                print("%s : \033[91m ^^ Different order ^^ !!!\033[0m" % (prefix))
             else:
                 for i, (refVal, chkVal) in enumerate(zip(compRef, compChk)):
                     if refVal != chkVal:
@@ -301,50 +323,52 @@ def __compareComponent(compRef, compChk, prefix, args, component):
                             "%s : \033[92m %s \033[0m vs \033[94m %s \033[0m \033[91m<< at index %s !!!\033[0m"
                             % (prefix, str(refVal), str(chkVal), str(i))
                         )
-                        __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args, '')
+                        _compareComponent(
+                            refVal, chkVal, "\t" + prefix + ">> ", args, ""
+                        )
 
 
-def __parseIOVDbFolder(definition):
+def _parseIOVDbFolder(definition):
     result = {}
     # db
-    db_match = re.search(r'<db>(.*)</db>', definition)
+    db_match = re.search(r"<db>(.*)</db>", definition)
     if db_match:
-        result['db'] = db_match.group(1)
-        definition = definition.replace(db_match.group(0), '')
+        result["db"] = db_match.group(1)
+        definition = definition.replace(db_match.group(0), "")
     # key
-    key_match = re.search(r'<key>(.*)</key>', definition)
+    key_match = re.search(r"<key>(.*)</key>", definition)
     if key_match:
-        result['key'] = key_match.group(1)
-        definition = definition.replace(key_match.group(0), '')
+        result["key"] = key_match.group(1)
+        definition = definition.replace(key_match.group(0), "")
     # tag
-    tag_match = re.search(r'<tag>(.*)</tag>', definition)
+    tag_match = re.search(r"<tag>(.*)</tag>", definition)
     if tag_match:
-        result['tag'] = tag_match.group(1)
-        definition = definition.replace(tag_match.group(0), '')
+        result["tag"] = tag_match.group(1)
+        definition = definition.replace(tag_match.group(0), "")
     # cache -- ignore for now
-    cache_match = re.search(r'<cache>(.*)</cache>', definition)
+    cache_match = re.search(r"<cache>(.*)</cache>", definition)
     if cache_match:
-        definition = definition.replace(cache_match.group(0), '')
+        definition = definition.replace(cache_match.group(0), "")
     # noover
-    noover_match = re.search(r'<noover/>', definition)
+    noover_match = re.search(r"<noover/>", definition)
     if noover_match:
-        result['noover'] = True
-        definition = definition.replace(noover_match.group(0), '')
+        result["noover"] = True
+        definition = definition.replace(noover_match.group(0), "")
     # name
-    result['name'] = definition.strip()
+    result["name"] = definition.strip()
 
     return json.dumps(result)
 
 
-def __compareIOVDbFolders(compRef, compChk, prefix, args):
+def _compareIOVDbFolders(compRef, compChk, prefix, args):
     refParsed = []
     chkParsed = []
     for item in compRef:
-        refParsed.append(__parseIOVDbFolder(item))
+        refParsed.append(_parseIOVDbFolder(item))
     for item in compChk:
-        chkParsed.append(__parseIOVDbFolder(item))
-    __compareComponent(refParsed, chkParsed, prefix, args, '')
+        chkParsed.append(_parseIOVDbFolder(item))
+    _compareComponent(refParsed, chkParsed, prefix, args, "")
 
 
 if __name__ == "__main__":
-    main()
+    parse_args()

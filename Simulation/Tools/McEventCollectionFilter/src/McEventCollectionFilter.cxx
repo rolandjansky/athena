@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -9,6 +9,9 @@
 //
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Flow.h"
+#include "AtlasHepMC/Polarization.h"
 //
 #include "InDetSimEvent/SiHit.h"
 #include "MuonSimEvent/TGCSimHit.h"
@@ -53,6 +56,7 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   , m_UseCSCHits(true) // On unless RUN3 symmetric layout
   , m_UseSTGCHits(false) // Off unless RUN3 layout
   , m_UseMMHits(false) // Off unless RUN3 layout
+  , m_UseBCMHits(true) //On unless RUN4 layout
   , m_RefBarcode(0)
 {
   declareProperty("TruthInput"        , m_inputTruthCollection);
@@ -83,6 +87,7 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   declareProperty("UseCSCHits"        , m_UseCSCHits);
   declareProperty("UseSTGCHits"       , m_UseSTGCHits);
   declareProperty("UseMMHits"         , m_UseMMHits);
+  declareProperty("UseBCMHits"        , m_UseBCMHits);
 
 }
 
@@ -114,7 +119,7 @@ StatusCode McEventCollectionFilter::execute(){
   //.......Reduce McEventCollection
   ATH_CHECK( ReduceMCEventCollection() );
 
-  //.......to relink all Si hits to the new particle
+  //.......to relink all Pixel/SCT hits to the new particle
   ATH_CHECK( SiliconHitsTruthRelink() );
 
   //.......to relink all TRT hits to the new particle
@@ -144,6 +149,11 @@ StatusCode McEventCollectionFilter::execute(){
   //.......to relink all MM hits to the new particle
   if(m_UseMMHits) {
     ATH_CHECK( MM_HitsTruthRelink() );
+  }
+  
+  //.......to relink all BCM hits to the new particle
+  if(m_UseBCMHits) {
+    ATH_CHECK( BCMHitsTruthRelink() );
   }
 
   ATH_MSG_DEBUG( "succeded McEventCollectionFilter ..... " );
@@ -176,12 +186,12 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
   if (!m_outputTruthCollection.isValid()) m_outputTruthCollection = std::make_unique<McEventCollection>();
 
   //.......Create new particle (geantino) to link  hits from pileup
-  HepMC::GenParticle* genPart=new HepMC::GenParticle();
+  HepMC::GenParticlePtr genPart=HepMC::newGenParticlePtr();
   genPart->set_pdg_id(m_PileupPartPDGID); //Geantino
   genPart->set_status(1); //!< set decay status
-  genPart->suggest_barcode( std::numeric_limits<int32_t>::max() );
+  HepMC::suggest_barcode(genPart, std::numeric_limits<int32_t>::max() );
 
-  HepMC::GenVertex* genVertex=new HepMC::GenVertex();
+  HepMC::GenVertexPtr genVertex = HepMC::newGenVertexPtr();
   genVertex->add_particle_out(genPart);
 
   const HepMC::GenEvent* genEvt = *(m_inputTruthCollection->begin());
@@ -191,13 +201,18 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
 
   //to set geantino vertex as a truth primary vertex
-  HepMC::GenVertex* hScatVx = genEvt->barcode_to_vertex(-3);
+  HepMC::GenVertexPtr hScatVx = HepMC::barcode_to_vertex(genEvt,-3);
   if(hScatVx!=nullptr) {
-    HepMC::FourVector pmvxpos=hScatVx->position();
+    const HepMC::FourVector& pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
+#ifdef HEPMC3 
+    auto itrp = hScatVx->particles_in().begin();
+    if (hScatVx->particles_in().size()==2){
+#else
     HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
     if (hScatVx->particles_in_size()==2){
+#endif
       HepMC::FourVector mom1=(*itrp)->momentum();
       HepMC::FourVector mom2=(*(++itrp))->momentum();
       HepMC::FourVector vxmom;
@@ -210,34 +225,34 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
     }
   }
 
+#ifdef HEPMC3 
+  if(!evt->vertices().empty()) for (auto vtx: evt->vertices()) evt->remove_vertex(vtx);
+#else
   if(!evt->vertices_empty()){
-    std::vector<HepMC::GenVertex *> vtxvec;
     HepMC::GenEvent::vertex_iterator itvtx = evt->vertices_begin();
     for (;itvtx != evt ->vertices_end(); ++itvtx ) {
-      evt->remove_vertex(*itvtx);
-      vtxvec.push_back((*itvtx));
-      //fix me: delete vertex pointer causes crash
-      //delete (*itvtx);
+      HepMC::GenVertexPtr vtx = *itvtx++;
+      evt->remove_vertex(vtx);
+      delete vtx;
     }
-    for(unsigned int i=0;i<vtxvec.size();i++)  delete vtxvec[i];
   }
+#endif
 
   //--------------------------------------
   if(m_IsKeepTRTElect){
     for(int i=0;i<(int) m_elecBarcode.size();i++){
-      HepMC::GenParticle* thePart=genEvt->barcode_to_particle(m_elecBarcode[i]);
+      HepMC::GenParticlePtr thePart=HepMC::barcode_to_particle(genEvt,m_elecBarcode[i]);
       if (!thePart){
         ATH_MSG_DEBUG( "Could not find particle for barcode " << m_elecBarcode[i] );
         continue;
       }
-      const HepMC::GenVertex* vx = thePart->production_vertex();
-      HepMC::GenParticle* thePart_new=new HepMC::GenParticle( thePart->momentum(),thePart->pdg_id(),
-                                                              thePart->status(),thePart->flow(),
-                                                              thePart->polarization() );
-      thePart_new->suggest_barcode(m_elecBarcode[i]);
+      HepMC::ConstGenVertexPtr vx = thePart->production_vertex();
+      HepMC::GenParticlePtr thePart_new = HepMC::newGenParticlePtr( thePart->momentum(),thePart->pdg_id(),
+                                                                    thePart->status());
+      HepMC::suggest_barcode(thePart_new, m_elecBarcode[i]);
 
-      HepMC::FourVector pos= vx->position();
-      HepMC::GenVertex* vx_new=new HepMC::GenVertex(pos);
+      const HepMC::FourVector& pos= vx->position();
+      HepMC::GenVertexPtr vx_new = HepMC::newGenVertexPtr(pos);
       vx_new->add_particle_out(thePart_new);
       evt->add_vertex(vx_new);
     }
@@ -245,7 +260,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
   //.....add new vertex with geantino
   evt->add_vertex(genVertex);
-  m_RefBarcode=genPart->barcode();
+  m_RefBarcode=HepMC::barcode(genPart);
 
   m_outputTruthCollection->push_back(evt);
 
@@ -255,7 +270,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 //--------------------------------------------------------
 StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
   //--------------------------------------------------------
-  //.......to relink all Si hits to the new particle
+  //.......to relink all Pixel/SCT hits to the new particle
   //--------------------------------------------------------
   //
   if(!m_inputPixelHits.isValid())
@@ -279,6 +294,16 @@ StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
   if (!m_outputSCTHits.isValid()) m_outputSCTHits = std::make_unique<SiHitCollection>();
 
   ATH_CHECK(this->SiHitsTruthRelink(m_inputSCTHits,m_outputSCTHits));
+
+  return StatusCode::SUCCESS;
+}
+
+//--------------------------------------------------------
+StatusCode McEventCollectionFilter::BCMHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink BCM hits to the new particle
+  //--------------------------------------------------------
+  //
 
   if(!m_inputBCMHits.isValid())
     {

@@ -25,7 +25,6 @@
 class CaloTower;
 class CaloTowerStore;
 class CaloTowerContainer;
-class CaloDetDescrManager;
 class StoreGateSvc;
 class MsgStream;
 
@@ -104,7 +103,6 @@ private:
   // Specific Initialization //
   /////////////////////////////
 
-  const CaloDetDescrManager* m_caloDDM;
   CaloTowerStore m_cellStore;
 
   virtual StatusCode checkSetup(MsgStream& log);

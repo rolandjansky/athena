@@ -1,7 +1,7 @@
 /*
   General-purpose view creation algorithm <bwynne@cern.ch>
   
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventViewCreatorAlgorithm.h"
@@ -55,11 +55,13 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   const DecisionContainer* cachedViews = nullptr;
   if (!m_cachedViewsKey.empty()) {
     SG::ReadHandle<DecisionContainer> cachedRH = SG::makeHandle(m_cachedViewsKey, context);
-    ATH_CHECK(cachedRH.isValid());
-    cachedViews = cachedRH.ptr();
+    // Even if the handle is configured, this precursor EventViewCreatorAlg may not have executed in a given event
+    if (cachedRH.isValid()) {
+      cachedViews = cachedRH.ptr();
+    }
   }
 
-  // Keep track of the ROIs we spwan a View for, do not spawn duplicates.
+  // Keep track of the ROIs we spawn a View for, do not spawn duplicates.
   // For many cases, this will be covered by the Merging operation preceding this.
   ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
 
@@ -83,7 +85,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     ATH_CHECK(roiEL.isValid());
 
     // We do one of three things here, either... 
-    // a) We realise that an identically configured past EVCA has already run a View on an equivilant ROI. If so we can re-use this.
+    // a) We realise that an identically configured past EVCA has already run a View on an equivalent ROI. If so we can re-use this.
     // b) We encounter a new ROI and hence need to spawn a new view.
     // c) We encounter a ROI that we have already seen in looping over this outputHandle, we can re-use a view.
       
@@ -96,7 +98,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 
     if (useCached) {
 
-      // Re-use an aready processed view from a previously executed EVCA instance
+      // Re-use an already processed view from a previously executed EVCA instance
       const Decision* cached = cachedViews->at(cachedIndex);
       ElementLink<ViewContainer> cachedViewEL = cached->objectLink<ViewContainer>(viewString());
       ElementLink<TrigRoiDescriptorCollection> cachedROIEL = cached->objectLink<TrigRoiDescriptorCollection>(roiString());
@@ -159,9 +161,6 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     getScheduler(),                                 // Scheduler to launch with
     m_reverseViews ) );                             // Debug option
   
-  if (msgLvl(MSG::DEBUG)) {
-    debugPrintOut(context, outputHandle);
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -181,7 +180,7 @@ StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils
   // We must call this BEFORE having added the new link, check
   if (outputDecision->hasObjectLink(viewString())) {
     ATH_MSG_ERROR("Called linkViewToParent on a Decision object which already has been given a '" 
-      << viewString << "' link. Call this fn BEFORE linking the new View.");
+      << viewString() << "' link. Call this fn BEFORE linking the new View.");
     return StatusCode::FAILURE;
   }
   std::vector<LinkInfo<ViewContainer>> parentViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::lastFeatureOfType);
@@ -222,9 +221,13 @@ StatusCode EventViewCreatorAlgorithm::placeRoIInView( const ElementLink<TrigRoiD
 StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObject, SG::View* view, const EventContext& context ) const {
   // fill the Muon output collection
   ATH_MSG_DEBUG( "Adding Muon To View : " << m_inViewMuons.key()<<" and "<<m_inViewMuonCandidates.key() );
-  auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::MuonContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
-  oneObjectCollection->push_back( theObject );
+  auto oneObjectCollection = std::make_unique< xAOD::MuonContainer >();
+  auto oneObjectAuxCollection = std::make_unique< xAOD::MuonAuxContainer >();
+  oneObjectCollection->setStore( oneObjectAuxCollection.get() );
+
+  xAOD::Muon* copiedMuon = new xAOD::Muon();
+  oneObjectCollection->push_back( copiedMuon );
+  *copiedMuon = *theObject;
 
   auto muonCandidate = std::make_unique< ConstDataVector< MuonCandidateCollection > >();
   muonCandidate->clear( SG::VIEW_ELEMENTS );
@@ -235,7 +238,7 @@ StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObje
   //store both in the view
   auto handleMuon = SG::makeHandle( m_inViewMuons,context );
   ATH_CHECK( handleMuon.setProxyDict( view ) );
-  ATH_CHECK( handleMuon.record( std::move( oneObjectCollection ) ) );
+  ATH_CHECK( handleMuon.record( std::move( oneObjectCollection ), std::move( oneObjectAuxCollection )) );
 
   auto handleCandidate = SG::makeHandle( m_inViewMuonCandidates,context );
   ATH_CHECK( handleCandidate.setProxyDict( view ) );
@@ -246,15 +249,21 @@ StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObje
 
 // TODO - Template this?
 StatusCode EventViewCreatorAlgorithm::placeJetInView( const xAOD::Jet* theObject, SG::View* view, const EventContext& context ) const {
+
   // fill the Jet output collection
   ATH_MSG_DEBUG( "Adding Jet To View : " << m_inViewJets.key() );
-  auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::JetContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
-  oneObjectCollection->push_back( theObject );
 
-  //store in the view
-  auto handle = SG::makeHandle( m_inViewJets,context );
-  ATH_CHECK( handle.setProxyDict( view ) );
-  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) );
+  auto oneObjectCollection = std::make_unique< xAOD::JetContainer >();
+  auto oneObjectAuxCollection = std::make_unique< xAOD::JetAuxContainer >();
+  oneObjectCollection->setStore( oneObjectAuxCollection.get() );
+
+  xAOD::Jet* copiedJet = new xAOD::Jet();
+  oneObjectCollection->push_back( copiedJet );
+  *copiedJet = *theObject;
+
+  auto handle = SG::makeHandle( m_inViewJets,context );  
+  ATH_CHECK( handle.setProxyDict( view ) ); 
+  ATH_CHECK( handle.record( std::move(oneObjectCollection),std::move(oneObjectAuxCollection) ) );
+
   return StatusCode::SUCCESS;
 }

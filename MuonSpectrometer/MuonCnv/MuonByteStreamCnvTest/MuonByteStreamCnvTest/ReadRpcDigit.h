@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAMCNVTEST_READRPCDIGIT
@@ -8,9 +8,10 @@
 #include <string.h>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class RpcIdHelper;
 
@@ -19,17 +20,15 @@ class ReadRpcDigit : public AthAlgorithm
  public:
   // Agorithm constructor
   ReadRpcDigit (const std::string &name, ISvcLocator *pSvcLocator);
-  ~ReadRpcDigit();
+  ~ReadRpcDigit()=default;
 
   // Gaudi hooks
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
  private:
   ServiceHandle<ActiveStoreSvc> m_activeStore;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   StatusCode accessNtuple();
   bool m_rpcNtuple;
   std::string m_NtupleLocID;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -17,7 +17,7 @@
 #include <cassert>
 
 
-typedef std::vector<int*> vec_t;
+using vec_t = std::vector<int *>;
 
 
 void test1()
@@ -26,7 +26,7 @@ void test1()
 
   std::vector<int> vv { 0, 1, 2, 3, 4 };
   vec_t vec { &vv[0], &vv[1], &vv[2], &vv[3], &vv[4] };
-  typedef CaloConstIteratorAdaptor<vec_t::const_iterator> it_t;
+  using it_t = CaloConstIteratorAdaptor<vec_t::const_iterator>;
 
   assert (!std::is_const<std::remove_pointer<vec_t::const_iterator::value_type>::type>::value);
   assert (std::is_const<std::remove_pointer<it_t::value_type>::type>::value);

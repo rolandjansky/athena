@@ -12,7 +12,7 @@ from ByteStreamCnvSvc import ReadByteStream
 import struct
 
 
-svcMgr.ByteStreamInputSvc.FullFileName = [InputFile]
+svcMgr.EventSelector.Input = [InputFile]
 
 
 from AthenaCommon.GlobalFlags import globalflags

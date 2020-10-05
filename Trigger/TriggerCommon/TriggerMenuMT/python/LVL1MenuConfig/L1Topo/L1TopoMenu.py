@@ -85,7 +85,7 @@ class L1TopoMenu(object):
 
     def check(self):
 
-        allOk = self.check_consecutiveAlgId()
+        allOk = True #self.check_consecutiveAlgId()
         
         allOk &= self.check_OutputOverlap()
 

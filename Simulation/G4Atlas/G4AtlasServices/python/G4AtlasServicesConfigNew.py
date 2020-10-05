@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc=CompFactory.getComps("DetectorGeometrySvc","G4AtlasSvc","G4GeometryNotifierSvc","PhysicsListSvc",)
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg
 
 #the geometry tools
@@ -17,7 +17,6 @@ from AthenaCommon import Logging
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
 
-    isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
@@ -28,10 +27,22 @@ def getATLAS_RegionCreatorList(ConfigFlags):
             regionCreatorList += [PixelPhysicsRegionToolCfg(ConfigFlags)]
         if ConfigFlags.Detector.SimulateSCT:
             regionCreatorList += [SCTPhysicsRegionToolCfg(ConfigFlags)]
-        if ConfigFlags.Detector.SimulateTRT and not isUpgrade:
+        if ConfigFlags.Detector.SimulateTRT:
             regionCreatorList += [TRTPhysicsRegionToolCfg(ConfigFlags)]
             if isRUN2:
                 regionCreatorList += [TRT_ArPhysicsRegionToolCfg(ConfigFlags)] #'TRT_KrPhysicsRegionTool'
+        # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
+        if ConfigFlags.Detector.SimulateBpipe:
+            if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
+                regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
+            #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
+            if False:
+                regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.SimulateITk:
+        if ConfigFlags.Detector.SimulateITkPixel:
+            regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)] #TODO: add dedicated config
+        if ConfigFlags.Detector.SimulateITkStrip:
+            regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)] #TODO: And here...
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
         if ConfigFlags.Detector.SimulateBpipe:
             if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
@@ -46,7 +57,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
                 Logging.log.info('You requested both calibration hits and frozen showers / parameterization in the LAr.')
                 Logging.log.info('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
-                Logging.log.info('  Please try again with a different value of either ConfigFlags.Sim.LArParameterization (' + str(ConfigFlags.Sim.LArParameterization()) + ') or ConfigFlags.Sim.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
+                Logging.log.info('  Please try again with a different value of either ConfigFlags.Sim.LArParameterization (' + str(ConfigFlags.Sim.LArParameterization) + ') or ConfigFlags.Sim.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
                 raise RuntimeError('Configuration not allowed')
             regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags),
                                   EMECPhysicsRegionToolCfg(ConfigFlags),
@@ -182,26 +193,26 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
           toolFwdRegionFieldManager = result.popToolsAndMerge(accFwdRegionFieldManager)
 
           fieldMgrList+=[toolQ1FwdRegionFieldManager,
-                                                       toolQ2FwdFieldManager,
-                                                       toolQ3FwdFieldManager,
-                                                       toolD1FwdFieldManager,
-                                                       toolD2FwdFieldManager,
-                                                       toolQ4FwdFieldManager,
-                                                       toolQ5FwdFieldManager,
-                                                       toolQ6FwdFieldManager,
-                                                       toolQ7FwdFieldManager,
-                                                       toolQ1HKickFwdFieldManager,
-                                                       toolQ1VKickFwdFieldManager,
-                                                       toolQ2HKickFwdFieldManager,
-                                                       toolQ2VKickFwdFieldManager,
-                                                       toolQ3HKickFwdFieldManager,
-                                                       toolQ3VKickFwdFieldManager,
-                                                       toolQ4VKickAFwdFieldManager,
-                                                       toolQ4HKickFwdFieldManager,
-                                                       toolQ4VKickBFwdFieldManager,
-                                                       toolQ5HKickFwdFieldManager,
-                                                       toolQ6VKickFwdFieldManager,
-                                                       toolFwdRegionFieldManager]
+                         toolQ2FwdFieldManager,
+                         toolQ3FwdFieldManager,
+                         toolD1FwdFieldManager,
+                         toolD2FwdFieldManager,
+                         toolQ4FwdFieldManager,
+                         toolQ5FwdFieldManager,
+                         toolQ6FwdFieldManager,
+                         toolQ7FwdFieldManager,
+                         toolQ1HKickFwdFieldManager,
+                         toolQ1VKickFwdFieldManager,
+                         toolQ2HKickFwdFieldManager,
+                         toolQ2VKickFwdFieldManager,
+                         toolQ3HKickFwdFieldManager,
+                         toolQ3VKickFwdFieldManager,
+                         toolQ4VKickAFwdFieldManager,
+                         toolQ4HKickFwdFieldManager,
+                         toolQ4VKickBFwdFieldManager,
+                         toolQ5HKickFwdFieldManager,
+                         toolQ6VKickFwdFieldManager,
+                         toolFwdRegionFieldManager]
 
     result.setPrivateTools(fieldMgrList)
     return result
@@ -241,9 +252,8 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         if False:
             kwargs.setdefault("World", 'Cavern')
         else:
-            accGeo, toolGeo = ATLASEnvelopeCfg(ConfigFlags)
+            toolGeo = result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))
             kwargs.setdefault("World", toolGeo)
-            result.merge(accGeo)
         kwargs.setdefault("RegionCreators", getATLAS_RegionCreatorList(ConfigFlags))
         #if hasattr(simFlags, 'MagneticField') and simFlags.MagneticField.statusOn:
         if True:
@@ -289,13 +299,10 @@ def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
     if 'PhysicsList' in kwargs:
         if kwargs['PhysicsList'].endswith('_EMV') or kwargs['PhysicsList'].endswith('_EMX'):
             raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
+
     kwargs.setdefault("GeneralCut", 1.)
-    if ConfigFlags.Sim.NeutronTimeCut > 0.:
-        kwargs.setdefault("NeutronTimeCut", ConfigFlags.Sim.NeutronTimeCut)
-
-    if ConfigFlags.Sim.NeutronEnergyCut > 0.:
-        kwargs.setdefault("NeutronEnergyCut", ConfigFlags.Sim.NeutronEnergyCut)
-
+    kwargs.setdefault("NeutronTimeCut", ConfigFlags.Sim.NeutronTimeCut)
+    kwargs.setdefault("NeutronEnergyCut", ConfigFlags.Sim.NeutronEnergyCut)
     kwargs.setdefault("ApplyEMCuts", ConfigFlags.Sim.ApplyEMCuts)
     ## from AthenaCommon.SystemOfUnits import eV, TeV
     ## kwargs.setdefault("EMMaxEnergy"     , 7*TeV)

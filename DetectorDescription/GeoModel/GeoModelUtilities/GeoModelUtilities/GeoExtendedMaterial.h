@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeoExtendedMaterial_h
@@ -37,7 +37,8 @@ class GeoExtendedMaterial : public GeoMaterial
   const double& getPressure() const;
   
   void SetMaterialPropertiesTable(GeoMaterialPropertiesTable* MPT);
-  GeoMaterialPropertiesTable* GetMaterialPropertiesTable() const;
+  GeoMaterialPropertiesTable* GetMaterialPropertiesTable();
+  const GeoMaterialPropertiesTable* GetMaterialPropertiesTable() const;
 
  private:
   GeoExtendedMaterial(const GeoExtendedMaterial &right);
@@ -72,7 +73,12 @@ inline void GeoExtendedMaterial::SetMaterialPropertiesTable(GeoMaterialPropertie
   m_properties->ref();
 }
 
-inline GeoMaterialPropertiesTable* GeoExtendedMaterial::GetMaterialPropertiesTable() const
+inline GeoMaterialPropertiesTable* GeoExtendedMaterial::GetMaterialPropertiesTable()
+{
+  return m_properties;
+}
+
+inline const GeoMaterialPropertiesTable* GeoExtendedMaterial::GetMaterialPropertiesTable() const
 {
   return m_properties;
 }

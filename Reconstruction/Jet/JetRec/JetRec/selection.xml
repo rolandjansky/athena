@@ -1,5 +1,6 @@
 <lcgdict>
 <class name="FastJetInterfaceTool"/>
+<class name="JetBottomUpSoftDrop"/>
 <class name="JetByVertexFinder"/>
 <class name="JetConstitRemover"/>
 <class name="JetConstituentsRetriever"/>
@@ -13,11 +14,12 @@
 <class name="JetPseudojetRetriever"/>
 <class name="JetReclusterer"/>
 <class name="JetRecTool"/>
+<class name="JetRecursiveSoftDrop"/>
+<class name="JetSoftDrop"/>
 <class name="JetSorter"/>
 <class name="JetSplitter"/>
 <class name="JetToolRunner"/>
 <class name="JetTrimmer"/>
-<class name="JetSoftDrop"/>
 <class name="JetModifiedMassDrop"/>
 <enum name="JetModifiedMassDrop::SymmetryMeasure"/>
 <enum name="JetModifiedMassDrop::RecursionChoice"/>

@@ -9,6 +9,7 @@ atlas_subdir( InDetAmbiTrackSelectionTool )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
+   Control/AthenaKernel
    GaudiKernel
    Tracking/TrkEvent/TrkRIO_OnTrack
    Tracking/TrkEvent/TrkTrack
@@ -16,6 +17,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkValidation/TrkValInterfaces
    PRIVATE
    Control/AthContainers
+   Control/CxxUtils
    Control/StoreGate
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/PixelGeoModel
@@ -38,8 +40,8 @@ find_package( ROOT COMPONENTS Core MathCore )
 atlas_add_component( InDetAmbiTrackSelectionTool
    InDetAmbiTrackSelectionTool/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkRIO_OnTrack
-   TrkTrack TrkToolInterfaces TrkValInterfaces AthContainers StoreGateLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkRIO_OnTrack
+   TrkTrack TrkToolInterfaces TrkValInterfaces AthContainers CxxUtils StoreGateLib
    InDetIdentifier InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase
    TrkSurfaces TrkCaloClusterROI TrkMeasurementBase TrkPrepRawData
    TrkPseudoMeasurementOnTrack TrkTrackSummary TrkParameters PixelGeoModelLib TrkFitterInterfaces)

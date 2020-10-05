@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELENDCAP_H
@@ -10,10 +10,12 @@ class GeoPixelServices;
 
 class GeoPixelEndCap : public GeoVPixelFactory {
  public:
-  GeoPixelEndCap(const GeoPixelServices * pixServices);
-  virtual GeoVPhysVol* Build();
+  GeoPixelEndCap(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelServices * pixServices);
+  virtual GeoVPhysVol* Build() override;
  private:
-  const GeoPixelServices * m_pixServices;
+  GeoPixelServices * m_pixServices;
 };
 
 #endif

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -232,14 +232,18 @@ class SolenoidOff(_modifier):
     Turn solenoid field OFF
     """
     def postSetup(self):
-        svcMgr.AtlasFieldSvc.UseSoleCurrent = 0
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq.AtlasFieldMapCondAlg.MapSoleCurrent = 0
 
 class ToroidsOff(_modifier):
     """
     Turn toroid fields OFF
     """
     def postSetup(self):
-        svcMgr.AtlasFieldSvc.UseToroCurrent = 0
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq.AtlasFieldMapCondAlg.MapToroCurrent = 0
 
 class BFieldFromDCS(_modifier):
     """
@@ -249,7 +253,9 @@ class BFieldFromDCS(_modifier):
         from IOVDbSvc.CondDB import conddb
         conddb._SetAcc("DCS_OFL","COOLOFL_DCS")
         conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA")
-        svcMgr.AtlasFieldSvc.UseDCS = True
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq.AtlasFieldCacheCondAlg.UseDCS = True
 
 class BFieldAutoConfig(_modifier):
     """
@@ -583,27 +589,6 @@ class forceMuonDataPrep(_modifier):
     def preSetup(self):
         pass  # the actual modifier is implemented in share/Trigger_topOptions_standalone.py
 
-class FakeLVL1(_modifier):
-    """
-    setup fake LVL1 RoIs
-    """
-    def postSetup(self):
-        from TrigFake.TrigFakeConf import FakeLvl1RoIatFixedEtaPhi
-        fake = FakeLvl1RoIatFixedEtaPhi()
-        fake.FakeMuonRoiPhi=TriggerFlags.CosmicSlice.FakeLVL1ROIPhi()
-        fake.FakeMuonRoiEta=TriggerFlags.CosmicSlice.FakeLVL1ROIEta()
-        #fake.FakeMuonRoiEta=0.5
-        fake.FakeMuonRoiLabel=TriggerFlags.CosmicSlice.FakeLVL1Threshold()
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.LvlConverterTool =  fake
-            if (TriggerFlags.CosmicSlice.forceLVL2Accept()):
-                svcMgr.HltEventLoopMgr.ForceLvl2Accept =  True
-            if (TriggerFlags.CosmicSlice.filterEmptyROB()):
-                svcMgr.ROBDataProviderSvc.filterEmptyROB=True
-
-
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
@@ -767,7 +752,7 @@ class rerunDMLVL1(_modifier):
 
 class rewriteLVL1(_modifier):
     """
-    Rewrite LVL1 (use together with rerunLVL1)
+    Write LVL1 results to ByteStream output, usually used together with rerunLVL1
     """
     # Example:
     # athenaHLT -c "setMenu='PhysicsP1_pp_run3_v1';rerunLVL1=True;rewriteLVL1=True;" --filesInput=input.data TriggerJobOpts/runHLT_standalone.py
@@ -777,11 +762,33 @@ class rewriteLVL1(_modifier):
         L1ByteStreamEncodersRecExSetup()
 
     def postSetup(self):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from TriggerJobOpts.TriggerFlags import TriggerFlags
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if not TriggerFlags.writeBS:
+            log.warning('rewriteLVL1 is True but TriggerFlags.writeBS is False')
+        if not ConfigFlags.Output.doWriteBS:
+            log.warning('rewriteLVL1 is True but ConfigFlags.Output.doWriteBS is False')
+        if not ConfigFlags.Trigger.writeBS:
+            log.warning('rewriteLVL1 is True but ConfigFlags.Trigger.writeBS is False')
 
-        TriggerFlags.writeBS = True
-        svcMgr.HltEventLoopMgr.RewriteLVL1 = True
+        if ConfigFlags.Trigger.Online.isPartition:
+            # online
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr.HltEventLoopMgr.RewriteLVL1 = True
+        else:
+            # offline
+            from AthenaCommon.AlgSequence import AthSequencer
+            from AthenaCommon.CFElements import findAlgorithm
+            seq = AthSequencer('AthOutSeq')
+            streamBS = findAlgorithm(seq, 'BSOutputStreamAlg')
+            if ConfigFlags.Trigger.enableL1Phase1:
+                out_type = 'xAOD::TrigCompositeContainer'
+                out_name = 'L1TriggerResult'
+            else:
+                out_type = 'ROIB::RoIBResult'
+                out_name = 'RoIBResult'
+            streamBS.ExtraInputs += [ (out_type, 'StoreGateSvc+'+out_name) ]
+            streamBS.ItemList += [ out_type+'#'+out_name ]
 
 
 class writeBS(_modifier):
@@ -1105,6 +1112,22 @@ class perfmon(_modifier):
         jobproperties.PerfMonFlags.doMonitoring = True
         jobproperties.PerfMonFlags.doPersistencyMonitoring = False
 
+class enableSchedulerMon(_modifier):
+    """
+    Enable SchedulerMonSvc
+    """
+    def preSetup(self):
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        from TrigSteerMonitor.TrigSteerMonitorConfig import SchedulerMonSvcCfg
+        CAtoGlobalWrapper(SchedulerMonSvcCfg, flags)
+    
+    def postSetup(self):
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        if flags.Trigger.Online.isPartition:
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr.HltEventLoopMgr.MonitorScheduler = True
+
 class memMon(_modifier):
     """
     Enable TrigMemMonitor printout
@@ -1244,37 +1267,6 @@ class autoConditionsTag(_modifier):
         from RecExConfig.AutoConfiguration import ConfigureConditionsTag
         ConfigureConditionsTag()
 
-
-class enableCostD3PD(_modifier):
-    """
-    Enables creation of Cost D3PD during trigger execution
-    Should be used in conjunction with enableCostMonitoring
-    D3PDMaker packages must be in the release or compiled manually
-    """
-    def postSetup(self):
-        import imp
-        try:
-            imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include, IncludeError
-            include("TrigCostD3PDMaker/TrigCostD3PDMaker_prodJobOFragment.py")
-        except IncludeError:
-            log.error('TrigCostD3PDMaker packages not available, will not produce CostMonitoring D3PD.')
-
-class enableRateD3PD(_modifier):
-    """
-    Enables creation of Rate D3PD during trigger execution
-    Should be used in conjunction with enableCostMonitoring
-    D3PDMaker packages must be in the release or compiled manually
-    """
-    def postSetup(self):
-        import imp
-        try:
-            imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include, IncludeError
-            include("TrigCostD3PDMaker/TrigRateD3PDMaker_prodJobOFragment.py")
-        except IncludeError:
-            log.warning('TrigCostD3PDMaker packages not available, will not produce RateMonitoring D3PD.')
-
 class enableCostDebug(_modifier):
     """
     Enables cost debugging options
@@ -1331,14 +1323,6 @@ class doEnhancedBiasWeights(_modifier):
             costConfig.postSetupEBWeighting()
         except AttributeError:
             log.warning('TrigCostMonitor has no EnhancedBias postSetup option...')
-        # Try to put this in D3PD (will only work offline), still goes in the BS anyway
-        import imp
-        try:
-            imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include, ImportError
-            include("TrigCostD3PDMaker/TrigEBWeightD3PDMaker_prodJobOFragment.py")
-        except ImportError:
-            log.warning('TrigCostD3PDMaker packages not available, will not produce Enhanced Bias weighting D3PD.')
 
 class BeamspotFromSqlite(_modifier):
     """

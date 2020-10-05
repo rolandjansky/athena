@@ -11,6 +11,8 @@
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
+class TH2;
+
 namespace TCS {
    
    class DeltaEtaPhiIncl1 : public DecisionAlg {

@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TConverterRegistry.h,v 1.4 2008-11-04 12:42:10 ssnyder Exp $
 /**
  * @file TConverterRegistry.h
  * @author scott snyder <snyder@bnl.gov>
@@ -30,6 +28,7 @@
 
 #include <string>
 #include <map>
+#include <mutex>
 #include "Rtypes.h"
 class TVirtualConverter;
 class TMemberStreamer;
@@ -115,6 +114,10 @@ private:
 
   /// Map of registered converters.
   MapType fMap;
+
+  /// Protect access to the map.
+  mutable std::mutex fMutex;
+  using lock_t = std::lock_guard<std::mutex>;
 
   /// Streamer converters.
 #ifndef __CLING__

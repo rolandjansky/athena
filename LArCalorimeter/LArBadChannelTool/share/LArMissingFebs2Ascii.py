@@ -30,7 +30,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
-	
+
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 

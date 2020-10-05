@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,14 +26,14 @@ namespace {
 /**
  * @brief StoreGate keys to try for each EBC_EVCOLL enum.
  */
-constexpr static int NKEYS = 4;
+constexpr static int NKEYS = 5;
 const
 std::string s_keys[EBC_NCOLLKINDS][NKEYS] =
   {
-   {"TruthEvent","G4Truth","GEN_AOD","GEN_EVENT"},
-   {"TruthEvent_PU","G4Truth_PU","GEN_AOD_PU","GEN_EVENT_PU"},
-   {"TruthEvent_HighPtPU","G4Truth_HighPtPU","GEN_AOD_HighPtPU","GEN_EVENT_HighPtPU"},
-   {"TruthEvent_Cavern","G4Truth_Cavern","GEN_AOD_Cavern","GEN_EVENT_Cavern"},
+    {"TruthEvent","G4Truth","GEN_AOD","GEN_EVENT","Bkg_TruthEvent"},
+    {"TruthEvent_PU","G4Truth_PU","GEN_AOD_PU","GEN_EVENT_PU","Bkg_TruthEvent_PU"},
+    {"TruthEvent_HighPtPU","G4Truth_HighPtPU","GEN_AOD_HighPtPU","GEN_EVENT_HighPtPU","Bkg_TruthEvent_HighPtPU"},
+    {"TruthEvent_Cavern","G4Truth_Cavern","GEN_AOD_Cavern","GEN_EVENT_Cavern","Bkg_TruthEvent_Cavern"},
   };
 
 
@@ -145,7 +145,7 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
                                       PositionFlag positionFlag /*= IS_INDEX*/,
                                       IProxyDict* sg /*= SG::CurrentEventStore::store()*/)
   : m_ptrs (part),
-    m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex, evColl, positionFlag)
+    m_extBarcode((0 != part) ? HepMC::barcode(part) : 0, eventIndex, evColl, positionFlag)
 {
   assert(part);
 
@@ -168,9 +168,9 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
 const HepMC::GenParticle* HepMcParticleLink::cptr() const
 {
   const IProxyDict* sg = nullptr;
-  const HepMC::GenParticle* p = m_ptrs.get (sg);
+  auto p = m_ptrs.get (sg);
   if (!p) {
-    if (0 == barcode() || 0x7fffffff == barcode()) {
+    if (0 == barcode()) {
 #if 0
       MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
       log << MSG::DEBUG
@@ -178,6 +178,9 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
              << " Probably this is a noise hit" << endmsg;
 #endif
       return nullptr;
+    }
+    if (!sg) {
+      sg = SG::CurrentEventStore::store();
     }
     if (const McEventCollection* pEvtColl = retrieveMcEventCollection(sg)) {
       const HepMC::GenEvent *pEvt = nullptr;
@@ -203,16 +206,30 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
       }
 
       if (0 != pEvt) {
-        p = pEvt->barcode_to_particle(barcode());
-        m_ptrs.set (sg, p);
+        auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        if (pp) {
+#ifdef HEPMC3
+          m_ptrs.set (sg, pp.get());
+          p=pp.get();
+#else
+          m_ptrs.set (sg, pp);
+          p=pp;
+#endif
+        }
         if (position != ExtendedBarCode::UNDEFINED) {
           m_extBarcode.makeIndex (pEvt->event_number(), position);
         }
       } else {
         MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
-        log << MSG::WARNING
-            << "cptr: Mc Truth not stored for event " << eventIndex()
+        if (position != ExtendedBarCode::UNDEFINED) {
+          log << MSG::WARNING
+            << "cptr: Mc Truth not stored for event at " << position
             << endmsg;
+        } else {
+          log << MSG::WARNING
+            << "cptr: Mc Truth not stored for event with event number " << index
+            << endmsg;
+        }
       }
     } else {
       MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
@@ -232,16 +249,49 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
   index_type index, position;
   m_extBarcode.eventIndex (index, position);
   if (index == ExtendedBarCode::UNDEFINED) {
-    // Don't trip the assertion for a null link.
-    if (barcode() == 0 || barcode() == 0x7fffffff) return 0;
-    cptr();
-    m_extBarcode.eventIndex (index, position);
-    assert (index != ExtendedBarCode::UNDEFINED);
+    const HepMC::GenEvent* pEvt{};
+    const IProxyDict* sg{};
+    auto p __attribute__ ((unused)) = m_ptrs.get (sg);
+    if (const McEventCollection* coll = retrieveMcEventCollection (getEventCollection(),sg)) {
+      if (position < coll->size()) {
+        pEvt = coll->at (position);
+      }
+      if (pEvt) {
+        const int event_number = pEvt->event_number();
+        auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        if (pp) {
+#ifdef HEPMC3
+          m_ptrs.set (sg, pp.get());
+#else
+          m_ptrs.set (sg, pp);
+#endif
+        }
+        if(event_number>-1) {
+          index = static_cast<index_type>(event_number);
+          m_extBarcode.makeIndex (index, position);
+          return index;
+        }
+      }
+    }
   }
+  // Don't trip the assertion for a null link.
+  if (barcode() == 0 ) {  // || barcode() == 0x7fffffff)
+    if (index != ExtendedBarCode::UNDEFINED) {
+      return index;
+    }
+    return 0;
+  }
+  cptr();
+  m_extBarcode.eventIndex (index, position);
+  assert (index != ExtendedBarCode::UNDEFINED);
   return index;
 }
 
 
+/**
+ * @brief Return the position in the McEventCollection of the
+ *        (first) GenEvent with a given event number
+ */
 HepMcParticleLink::index_type
 HepMcParticleLink::getEventPositionInCollection (const IProxyDict* sg) const
 {
@@ -254,20 +304,56 @@ HepMcParticleLink::getEventPositionInCollection (const IProxyDict* sg) const
     return 0;
   }
 
-  const int intIndex = static_cast<int>(index);
-  const McEventCollection* coll = retrieveMcEventCollection (sg);
-  size_t sz = coll->size();
-  for (size_t i = 0; i < sz; i++) {
-    if ((*coll)[i]->event_number() == intIndex) {
-      return i;
-    }
-  }
-
-  return ExtendedBarCode::UNDEFINED;
+  EBC_EVCOLL evColl = getEventCollection();
+  std::vector<index_type> positions = getEventPositionInCollection(index, evColl, sg);
+  return positions[0];
 }
 
 
-/** 
+/**
+ * @brief Return the position in the McEventCollection of the
+ *        (first) GenEvent with a given event number
+ */
+std::vector<HepMcParticleLink::index_type>
+HepMcParticleLink::getEventPositionInCollection (index_type index, EBC_EVCOLL evColl, const IProxyDict* sg)
+{
+  std::vector<index_type> positions; positions.reserve(1);
+  const int intIndex = static_cast<int>(index);
+  if (const McEventCollection* coll = retrieveMcEventCollection (evColl,sg)) {
+    size_t sz = coll->size();
+    for (size_t i = 0; i < sz; i++) {
+      if ((*coll)[i]->event_number() == intIndex) {
+        positions.push_back(i);
+      }
+    }
+  }
+  if (positions.empty() ) {
+    positions.push_back(ExtendedBarCode::UNDEFINED);
+  }
+  return positions;
+}
+
+
+/**
+ * @brief Return the event number of the GenEvent at the specified
+ *        position in the McEventCollection.
+ */
+int HepMcParticleLink::getEventNumberAtPosition (index_type position, EBC_EVCOLL evColl, const IProxyDict* sg)
+{
+  if (const McEventCollection* coll = retrieveMcEventCollection (evColl,sg)) {
+    if (position < coll->size()) {
+      return coll->at (position)->event_number();
+    }
+  }
+#if 0
+  MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
+  log << MSG::WARNING << "getEventNumberAtPosition: position = " << position << ", McEventCollection size = "<< coll->size() << endmsg;
+#endif
+  return -999;
+}
+
+
+/**
  * @brief Return the corresponding enum from a McEventCollection name.
  */
 EBC_EVCOLL HepMcParticleLink::find_enumFromKey (const std::string& evCollName)
@@ -297,14 +383,15 @@ void HepMcParticleLink::setExtendedBarCode (const ExtendedBarCode& extBarcode)
 
 /**
  * @brief Look up the event collection we're targeting.
+ * @param evColl McEventCollection type
  * @param sg Target event store.
  * May return nullptr if the collection is not found.
  */
 const McEventCollection*
-HepMcParticleLink::retrieveMcEventCollection (const IProxyDict* sg) const
+HepMcParticleLink::retrieveMcEventCollection (EBC_EVCOLL evColl, const IProxyDict* sg)
 {
   const McEventCollection* pEvtColl = nullptr;
-  SG::DataProxy* proxy = find_proxy (sg);
+  SG::DataProxy* proxy = find_proxy (evColl, sg);
   if (proxy) {
     pEvtColl = SG::DataProxy_cast<McEventCollection> (proxy);
     if (!pEvtColl) {
@@ -315,16 +402,27 @@ HepMcParticleLink::retrieveMcEventCollection (const IProxyDict* sg) const
   return pEvtColl;
 }
 
+/**
+ * @brief Look up the event collection we're targeting.
+ * @param sg Target event store.
+ * May return nullptr if the collection is not found.
+ */
+const McEventCollection*
+HepMcParticleLink::retrieveMcEventCollection (const IProxyDict* sg) const
+{
+  EBC_EVCOLL evColl = getEventCollection();
+  return retrieveMcEventCollection(evColl, sg);
+}
+
 
 /**
  * @brief Find the proxy for the target event collection.
  * @param sg Target event store.
  * May return nullptr if the collection is not found.
  */
-SG::DataProxy* HepMcParticleLink::find_proxy (const IProxyDict* sg) const
+SG::DataProxy* HepMcParticleLink::find_proxy (EBC_EVCOLL evColl, const IProxyDict* sg)
 {
   const CLID clid = ClassID_traits<McEventCollection>::ID();
-  EBC_EVCOLL evColl = getEventCollection();
   assert (evColl < EBC_NCOLLKINDS);
   unsigned int hint_orig = s_hints[evColl];
   if (hint_orig >= NKEYS) hint_orig = 0;

@@ -46,8 +46,8 @@ namespace Trk
       TrkDetElementBase(const GeoVFullPhysVol* fullPhysVol); 
       
       /** virtual Destructor */
-      virtual ~TrkDetElementBase();
-    
+      virtual ~TrkDetElementBase() = default;
+
       /** Identifier */
       virtual Identifier identify() const = 0;
     

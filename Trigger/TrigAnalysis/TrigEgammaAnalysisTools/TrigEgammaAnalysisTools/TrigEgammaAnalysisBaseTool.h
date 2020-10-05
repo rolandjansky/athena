@@ -93,11 +93,11 @@ ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)
 private:
   
   /*! Property update handlers */
-  void updateDetail(Property& p);
-  void updateAltBinning(Property& p);
-  void updateTP(Property& p);
-  void updateEmulation(Property& p);
-  void updateOutputLevel(Property& p);
+  void updateDetail(Gaudi::Details::PropertyBase& p);
+  void updateAltBinning(Gaudi::Details::PropertyBase& p);
+  void updateTP(Gaudi::Details::PropertyBase& p);
+  void updateEmulation(Gaudi::Details::PropertyBase& p);
+  void updateOutputLevel(Gaudi::Details::PropertyBase& p);
 
   std::string m_msg;
   /*! creates map of trigger name and TrigInfo struct */

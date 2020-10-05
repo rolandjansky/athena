@@ -28,7 +28,6 @@
 
 REGISTER_ALG_TCS(InvariantMassInclusive2)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::InvariantMassInclusive2:     "
@@ -112,23 +111,19 @@ TCS::InvariantMassInclusive2::initialize() {
    TRG_MSG_INFO("MaxEta2     : "<<p_MaxEta2     );
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
+
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int mass_min = sqrt(p_InvMassMin[i]);
-       int mass_max = sqrt(p_InvMassMax[i]);
+       std::string hname_accept = "hInvariantMassDeltaPhiInclusive2_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hInvariantMassDeltaPhiInclusive2_reject_bit"+std::to_string((int)i);
        // mass
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       registerHist(m_histAcceptM[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*mass_max));
-       registerHist(m_histRejectM[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*mass_max));
+       bookHist(m_histAcceptM, hname_accept, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
+       bookHist(m_histRejectM, hname_reject, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
        // eta2 vs. eta1
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
-       registerHist(m_histAcceptEta1Eta2[i] = new TH2F(hname_accept, hname_accept, 100, -50.0, +50.0, 100, -50.0, +50.0));
-       registerHist(m_histRejectEta1Eta2[i] = new TH2F(hname_reject, hname_reject, 100, -50.0, +50.0, 100, -50.0, +50.0));
+       bookHist(m_histAcceptEta1Eta2, hname_accept, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
+       bookHist(m_histRejectEta1Eta2, hname_reject, "ETA vs ETA", 100, p_MinEta1, p_MaxEta1, 100, p_MinEta2, p_MaxEta2);
    }
+
    return StatusCode::SUCCESS;
 }
 
@@ -172,11 +167,11 @@ TCS::InvariantMassInclusive2::processBitCorrect( const std::vector<TCS::TOBArray
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       m_histAcceptM[i]->Fill(sqrt((float)invmass2));
-                       m_histAcceptEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histAcceptM[i],sqrt((float)invmass2));
+                       fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
                    } else if(fillReject) {
-                       m_histRejectM[i]->Fill(sqrt((float)invmass2));
-                       m_histRejectEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histRejectM[i],sqrt((float)invmass2));
+                       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
@@ -227,11 +222,11 @@ TCS::InvariantMassInclusive2::process( const std::vector<TCS::TOBArray const *> 
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       m_histAcceptM[i]->Fill(sqrt((float)invmass2));
-                       m_histAcceptEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histAcceptM[i],sqrt((float)invmass2));
+                       fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
                    } else if(fillReject) {
-                       m_histRejectM[i]->Fill(sqrt((float)invmass2));
-                       m_histRejectEta1Eta2[i]->Fill(eta1, eta2);
+                       fillHist1D(m_histRejectM[i],sqrt((float)invmass2));
+                       fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
                    }
                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept ?"pass":"fail") << " invmass2 = " << invmass2);
                }

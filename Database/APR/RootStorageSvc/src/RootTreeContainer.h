@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -22,6 +22,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <functional>
 
 // Forward declarations
 class TObject;
@@ -76,6 +77,13 @@ namespace pool  {
       bool              is_basic_type = false;
       bool              written = false;
       
+      // Dummy object instance; used when there was no request to write
+      // this branch but we need to write it anyway (for example,
+      // a dynamic variable that wasn't written on this event).
+      using dummy_ptr_t = std::unique_ptr<void, std::function<void(void*)> >;
+      dummy_ptr_t dummyptr;
+      void* dummy = 0;
+      
       BranchDesc()
             : clazz(nullptr), 
               branch(nullptr),
@@ -99,6 +107,20 @@ namespace pool  {
       {}
       // difference for branch.setAddress() for objects and basic types, used by Aux dynamic 
       void*     objectAddr() { return is_basic_type? object : &object; }
+
+      void*     dummyAddr()
+      {
+        if (clazz) {
+          if (!dummy) {
+            using std::placeholders::_1;
+            std::function<void(void*)> del = std::bind (&TClass::Destructor, clazz, _1, false);
+            dummyptr = dummy_ptr_t (clazz->New(), std::move(del));
+            dummy = dummyptr.get();
+          }
+          return &dummy;
+        }
+        return nullptr;
+      }
     };
 
     /// Definition of the branch container

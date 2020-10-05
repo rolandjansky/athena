@@ -7,13 +7,14 @@ import sys
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from OverlayConfiguration.OverlayTestHelpers import \
     CommonTestArgumentParser, defaultTestFlags, postprocessAndLockFlags, printAndRun
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
+from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 # Configure
 Configurable.configurableRun3Behavior = True
@@ -27,10 +28,13 @@ defaultTestFlags(ConfigFlags, args)
 postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
-acc = MainServicesThreadedCfg(ConfigFlags)
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 
-# Add truth overlay (needed downstream)
+# Add event info overlay (needed downstream)
+acc.merge(EventInfoOverlayCfg(ConfigFlags))
+
+# Add truth overlay
 acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 acc.merge(CopyJetTruthInfoCfg(ConfigFlags))
 acc.merge(CopyTimingsCfg(ConfigFlags))

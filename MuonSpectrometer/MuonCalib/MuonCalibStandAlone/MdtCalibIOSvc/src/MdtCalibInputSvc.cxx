@@ -1,42 +1,32 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 
-//c - c++
+#include "MdtCalibData/IRtRelation.h"
+#include "MdtCalibData/IRtResolution.h"
+#include "MdtCalibData/BFieldCorFunc.h"
+#include "MdtCalibData/RtFromPoints.h"
+#include "MuonCalibMath/SamplePoint.h"
+#include "MdtCalibData/RtResolutionFromPoints.h"
+#include "MuonCalibStandAloneBase/MdtStationT0Container.h"
+#include "MuonCalibStandAloneBase/NtupleStationId.h"
+#include "MuonCalibIdentifier/MuonFixedId.h"
+
 #include "fstream"
 #include <sys/types.h>
 #include <dirent.h>
 #include "iostream"
 #include "list"
 
-//MdtCalibData
-#include "MdtCalibData/IRtRelation.h"
-#include "MdtCalibData/IRtResolution.h"
-#include "MdtCalibData/BFieldCorFunc.h"
-#include "MdtCalibData/RtFromPoints.h"
-
-//MuonCalibMath
-#include "MuonCalibMath/SamplePoint.h"
-#include "MdtCalibData/RtResolutionFromPoints.h"
-
-//this
-#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
-
-//MuonCalibStandAloneBase
-#include "MuonCalibStandAloneBase/MdtStationT0Container.h"
-#include "MuonCalibStandAloneBase/NtupleStationId.h"
-
-#include "MuonCalibIdentifier/MuonFixedId.h"
-
-MdtCalibInputSvc::MdtCalibInputSvc(const std::string &name, ISvcLocator *svc_locator) : AthService(name, svc_locator), 
-											m_calib_input_tool("MuonCalib::CalibrationDummyIOTool"),
-											m_reg_sel_svc("RegionSelectionSvc", name) {
-  declareProperty("CalibrationInputTool", m_calib_input_tool);
+MdtCalibInputSvc::MdtCalibInputSvc(const std::string &name, ISvcLocator *svc_locator) :
+  AthService(name, svc_locator), 
+  m_reg_sel_svc("RegionSelectionSvc", name) {
   declareProperty("RegionSelectionSvc", m_reg_sel_svc);
-  p_sel_region_res=NULL;
-  p_sel_region_rt=NULL;
-  p_sel_region_b=NULL;
+  p_sel_region_res=nullptr;
+  p_sel_region_rt=nullptr;
+  p_sel_region_b=nullptr;
 }
 
 MdtCalibInputSvc::~MdtCalibInputSvc() {
@@ -56,10 +46,6 @@ StatusCode MdtCalibInputSvc::initialize() {
   ATH_CHECK( m_reg_sel_svc.retrieve() );
   ATH_CHECK( m_calib_input_tool.retrieve() );
   ATH_CHECK( read_calib_input() );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MdtCalibInputSvc::finalize(void) {
   return StatusCode::SUCCESS;
 }
 
@@ -84,7 +70,7 @@ const MuonCalib::MdtStationT0Container *MdtCalibInputSvc::GetT0(const MuonCalib:
 	ATH_MSG_WARNING("T0 not loaded for station " << id.regionId() );
 	m_t0_warned.insert(chamber_id);
       }
-      return NULL;
+      return nullptr;
     }
   }
   return it->second;
@@ -100,7 +86,7 @@ const MuonCalib::IRtRelation* MdtCalibInputSvc::GetRtRelation(const MuonCalib::N
 	ATH_MSG_WARNING("Rt relation not loaded for station" << chamber_id.regionId() );
 	m_rt_warned.insert(chamber_id);
       }
-      return NULL;
+      return nullptr;
     }
   }
   return it->second;
@@ -108,7 +94,7 @@ const MuonCalib::IRtRelation* MdtCalibInputSvc::GetRtRelation(const MuonCalib::N
 
 const MuonCalib::BFieldCorFunc* MdtCalibInputSvc::GetBCorr(const MuonCalib::NtupleStationId &id) const {
   const MuonCalib::BFieldCorFunc *fun;
-  if((fun=findbfieldfun(id))!=NULL) return fun;
+  if((fun=findbfieldfun(id))!=nullptr) return fun;
   MuonCalib::NtupleStationId chamber_id(id);
   chamber_id.SetMultilayer(0);
   return findbfieldfun(chamber_id);
@@ -124,7 +110,7 @@ const MuonCalib::IRtResolution* MdtCalibInputSvc::GetResolution(const MuonCalib:
 	ATH_MSG_FATAL( "Rt relation not loaded for station" );
 	m_rt_warned.insert(chamber_id);
       }
-      return NULL;
+      return nullptr;
     }
   }
   return it->second;
@@ -191,15 +177,14 @@ inline void MdtCalibInputSvc::create_mean_rts() {
   }
   p_sel_region_rt   = *(matching_relations.begin());
   m_mean_station_id = *(matching_ids.begin());
-//	p_sel_region_b = GetBCorr(*(matching_ids.begin()));
-  p_sel_region_b = NULL;
+  p_sel_region_b = nullptr;
   p_sel_region_res = GetResolution(*(matching_ids.begin()));
 }  //end MdtCalibInputSvc::create_mean_rts
 	
 inline const MuonCalib::BFieldCorFunc* MdtCalibInputSvc::findbfieldfun(const MuonCalib::NtupleStationId &id) const {
   std::map<MuonCalib::NtupleStationId, MuonCalib::BFieldCorFunc *>::const_iterator it(m_B_corr.find(id));
   if(it==m_B_corr.end()) {
-    if(!create_b_field_correction(id)) return NULL;
+    if(!create_b_field_correction(id)) return nullptr;
     return findbfieldfun(id);
   }
   return it->second;

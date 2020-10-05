@@ -12,7 +12,7 @@
 #include <cmath>
 
 // This algorithm includes
-#include "TrigT1CaloSim/CPMTowerMaker.h"
+#include "CPMTowerMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloEvent/CPMTower_ClassDEF.h"

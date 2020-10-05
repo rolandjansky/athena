@@ -140,16 +140,24 @@ bool InDet::PRD_TruthTrajectorySelectorID::pass( const Trk::PRD_TruthTrajectory 
   for ( int i = 0; i  < 3 &&  prdIter != prdIterE; ++ prdIter ){
     if( m_atlasId->is_pixel((*prdIter)->identify()) ){
       const InDet::PixelCluster* pixclus=dynamic_cast<const InDet::PixelCluster*>(*prdIter);
-      if (pixclus) pos.push_back (pixclus->globalPosition());
+      if (pixclus) {
+        if(!pos.empty() && (pos.back()-pixclus->globalPosition()).squaredNorm() < 9)
+          continue;
+        pos.push_back (pixclus->globalPosition());
+      }
     }
     else if( m_atlasId->is_sct((*prdIter)->identify()) ){
-            const InDet::SCT_Cluster* sctclus=dynamic_cast<const InDet::SCT_Cluster*>(*prdIter);
-            if (sctclus) pos.push_back (sctclus->globalPosition());
+      const InDet::SCT_Cluster* sctclus=dynamic_cast<const InDet::SCT_Cluster*>(*prdIter);
+      if (sctclus) { 
+        if(!pos.empty() && (pos.back()-sctclus->globalPosition()).squaredNorm() < 9)
+          continue;
+        pos.push_back (sctclus->globalPosition());
+      }
     }
     else if( m_atlasId->is_trt((*prdIter)->identify()) ){
-            continue;
+      continue;
     }
-  i++;
+    i++;
   }
 
   // only take trajectory if enough hits

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlasTools/FastSimulationBase.h"
@@ -10,12 +10,7 @@
 
 FastSimulationBase::FastSimulationBase(const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type,name,parent)
-#ifndef G4MULTITHREADED
-  , m_FastSimModel(nullptr)
-#endif
 {
-  declareProperty("RegionNames" , m_regionNames );
-  declareProperty("NoRegions", m_noRegions=false );
 }
 
 // Athena method, used to get out the G4 geometry and set up the Fast Simulation Models
@@ -39,7 +34,7 @@ StatusCode FastSimulationBase::initializeFastSim(){
   // Go through the regions and hook the fast simulation up
   G4RegionStore* regionStore = G4RegionStore::GetInstance();
   bool missedOne = false;
-  for (const auto& myreg : m_regionNames){
+  for (const auto& myreg : m_regionNames.value()){
     int found=0; // Regions with more than one name...
     for (auto* areg : *regionStore){
       if (myreg.data()==areg->GetName()){

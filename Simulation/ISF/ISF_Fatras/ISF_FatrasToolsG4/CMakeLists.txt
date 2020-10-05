@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FatrasToolsG4 )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_Fatras/ISF_FatrasInterfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          PRIVATE
-                          Generators/AtlasHepMC
-                          Control/StoreGate
-                          Simulation/Barcode/BarcodeEvent
-                          Simulation/G4Atlas/G4AtlasAlg
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_Geant4/ISF_Geant4Tools
-                          Tracking/TrkDetDescr/TrkGeometry )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

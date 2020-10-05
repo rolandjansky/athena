@@ -11,8 +11,10 @@ MuonTrackMonitorAlgorithm::MuonTrackMonitorAlgorithm (const std::string& name, I
 
 StatusCode MuonTrackMonitorAlgorithm::initialize()
 {
+	ATH_CHECK(AthMonitorAlgorithm::initialize());
 	ATH_CHECK(m_MuonContainerKey.initialize());
-	return AthMonitorAlgorithm::initialize();
+	ATH_CHECK(m_MuonIsoDecorKey.initialize());
+	return StatusCode::SUCCESS;
 }
 
 StatusCode MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const 
@@ -103,7 +105,7 @@ StatusCode MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifie
 }
 	
 //========================================================================================================
-StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::MuonContainer* Muons, int lumiBlockID) const 
+StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const 
 {
 	using namespace Monitored;
 	/// Declaring all variables that are initialized via Python will be plotted
@@ -125,7 +127,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::Mu
 	auto	MSLumiBlockNumberOfSegments = Monitored::Scalar<float>("MSLumiBlockNumberOfSegments", 0);
 
 	/// Loop over all muons
-	for(const auto& muon : *Muons) {
+	for(const auto& muon : Muons) {
 		xAOD::Muon::Quality muonQuality	= muon->quality();
 		xAOD::Muon::MuonType muonType =	muon->muonType();
 		xAOD::Muon::Author muonAuthor =	muon->author();
@@ -171,7 +173,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::Mu
 
 
 //========================================================================================================
-StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonContainer* Muons, int lumiBlockID) const {
+StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const {
 	using namespace Monitored;
 
 	/// Declaring all variables that are initialized via Python will be plotted
@@ -188,7 +190,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 	std::vector<const xAOD::Muon*>	vecCombinedMuonsHighPT;
 	std::vector<const xAOD::Muon*>	vecCombinedMuons;
 
-	for(const auto& muon : *Muons) {
+	for(const auto& muon : Muons) {
 		xAOD::Muon::MuonType muonType = muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
 			CBMuonLumiBlock = lumiBlockID;
@@ -222,7 +224,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 
 		bool isTriggered = false;
 		for(const auto& chain : m_hltchainList){
-			if(getTrigDecisionTool()->isPassed( chain ) ){
+			if(!getTrigDecisionTool().empty() && getTrigDecisionTool()->isPassed( chain ) ){
 				isTriggered = true;
 			}
 		}
@@ -239,7 +241,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 
 
 //========================================================================================================
-StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonContainer* Muons, int lumiBlockID) const {
+StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const {
 	using namespace Monitored;
 
 	/// Declaring all variables that are initialized via Python will be plotted
@@ -257,7 +259,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonCo
 	std::vector<const xAOD::Muon*>	vecMuons_ZBoson_Candidates;
 	
 	/// Select Muons Relevant for Z
-	for(const auto& muon : *Muons) {
+	for(const auto& muon : Muons) {
 		xAOD::Muon::MuonType muonType = muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
 			const xAOD::TrackParticle *cbtp = nullptr;
@@ -318,7 +320,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonCo
 
 
 //========================================================================================================
-StatusCode	MuonTrackMonitorAlgorithm::analyseJPsiCandidates(const xAOD::MuonContainer* Muons, int lumiBlockID) const {
+StatusCode	MuonTrackMonitorAlgorithm::analyseJPsiCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const {
 	using namespace Monitored;
 
 	/// Declaring all variables that are initialized via Python will be plotted
@@ -336,7 +338,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseJPsiCandidates(const xAOD::MuonCont
 	std::vector<const xAOD::Muon*>	vecMuons_JPsi_Candidates;
 	
 	/// JPsi Muon Selection
-	for(const auto& muon : *Muons) {
+	for(const auto& muon : Muons) {
 		xAOD::Muon::MuonType	muonType	=	muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
 			const xAOD::TrackParticle *cbtp = nullptr;
@@ -401,20 +403,18 @@ StatusCode MuonTrackMonitorAlgorithm::fillHistograms(const EventContext& ctx) co
 	using namespace Monitored;
 
 	//Declare the quantities which should be monitored
-	auto run = Monitored::Scalar<int>("run", 0);
-	run = GetEventInfo(ctx)->runNumber();
-	
-	const xAOD::EventInfo* eventInfo = nullptr;
-	ATH_CHECK(evtStore()->retrieve(eventInfo));
-	int lumiBlockID = (int)eventInfo->lumiBlock();
+	uint32_t lumiBlockID = GetEventInfo(ctx)->lumiBlock();
 
-	const xAOD::MuonContainer* Muons = nullptr;
-	ATH_CHECK(evtStore()->retrieve(Muons, "Muons"));
+	SG::ReadHandle<xAOD::MuonContainer> Muons{m_MuonContainerKey, ctx};
+	if (ATH_UNLIKELY(! Muons.isValid())) {
+		ATH_MSG_ERROR("Unable to retrieve muon container " << m_MuonContainerKey);
+		return StatusCode::FAILURE;
+	}
 
-	ATH_CHECK( analyseLowLevelMuonFeatures(Muons, lumiBlockID) );
-	ATH_CHECK( analyseCombinedTracks(Muons, lumiBlockID) );
-	ATH_CHECK( analyseZBosonCandidates(Muons, lumiBlockID) );
-	ATH_CHECK( analyseJPsiCandidates(Muons, lumiBlockID) );
+	ATH_CHECK( analyseLowLevelMuonFeatures(*Muons, lumiBlockID) );
+	ATH_CHECK( analyseCombinedTracks(*Muons, lumiBlockID) );
+	ATH_CHECK( analyseZBosonCandidates(*Muons, lumiBlockID) );
+	ATH_CHECK( analyseJPsiCandidates(*Muons, lumiBlockID) );
 
 	return StatusCode::SUCCESS;
 }

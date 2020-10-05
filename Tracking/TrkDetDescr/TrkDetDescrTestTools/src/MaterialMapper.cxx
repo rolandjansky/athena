@@ -636,8 +636,8 @@ void Trk::MaterialMapper::bookValidationTree()
     m_validationTree->Branch("Path",                   &m_mappedPath,            "path/F");
     m_validationTree->Branch("PathInX0",               &m_mappedPathInX0,        "pathInX0/F");
     m_validationTree->Branch("PathInL0",               &m_mappedPathInL0,        "pathInL0/F");
-    m_validationTree->Branch("PathRho",                &m_mappedPathRho,         "pathRho/F¯");
-    m_validationTree->Branch("PathZARho",              &m_mappedPathZARho,       "pathZARho/F¯");
+    m_validationTree->Branch("PathRho",                &m_mappedPathRho,         "pathRho/F");
+    m_validationTree->Branch("PathZARho",              &m_mappedPathZARho,       "pathZARho/F");
     m_validationTree->Branch("UnmappedPathInX0",       &m_unmappedPathInX0,      "unmappedPathInX0/F");
     m_validationTree->Branch("MaterialSteps",          &m_materialSteps,         "steps/I");
     m_validationTree->Branch("Mapped",                 m_mapped,                 "mapped[steps]/I");

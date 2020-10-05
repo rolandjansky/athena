@@ -10,16 +10,28 @@ TrigConf::Chain::Chain()
 TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
+}
+
+TrigConf::Chain::Chain(const std::string & name, const boost::property_tree::ptree & data) 
+   : DataStructure(name, data)
+{
+   load();
 }
 
 void
 TrigConf::Chain::update()
 {
+   load();
+}
+
+void
+TrigConf::Chain::load()
+{
    if(! isInitialized() || empty() ) {
       return;
    }
-   m_name = getAttribute("name");
+   m_name = getAttribute("name", true, m_name);
 }
 
 TrigConf::Chain::~Chain()
@@ -66,18 +78,21 @@ TrigConf::Chain::l1thresholds() const
 }
 
 
-std::vector<TrigConf::DataStructure>
+std::vector<std::string>
 TrigConf::Chain::streams() const
 {
-   std::vector<DataStructure> strlist;
-   const auto & streams = data().get_child("streams");
-   strlist.reserve(streams.size());
 
-   for( auto & strData : streams )
-      strlist.emplace_back( strData.second );
-   
+   std::vector<std::string> strlist;
+   const auto & streams = getList("streams");
+   if( !streams.empty() ) {
+      strlist.reserve(streams.size());
+      for( auto & stream : streams ) {
+         strlist.emplace_back( stream.getValue<std::string>() );
+      }
+   }
    return strlist;
 }
+
 
 std::vector<std::string>
 TrigConf::Chain::groups() const
@@ -97,5 +112,20 @@ TrigConf::Chain::groups() const
    } 
 
    return grouplist;
+}
+
+std::vector<std::string>
+TrigConf::Chain::sequencers() const
+{
+
+   std::vector<std::string> seqlist;
+   const auto & seqs = getList("sequencers");
+   if( !seqs.empty() ) {
+      seqlist.reserve(seqs.size());
+      for( auto & seq : seqs ) {
+         seqlist.emplace_back( seq.getValue<std::string>() );
+      }
+   }
+   return seqlist;
 }
 

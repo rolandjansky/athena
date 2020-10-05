@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedSegment.h"
@@ -7,6 +7,8 @@
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibExtraUtils/MuonFixedIdPrinter.h"
 #include "MuonCalibExtraUtils/MuonFixedIdManipulator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <sstream>
 
@@ -14,9 +16,7 @@ namespace MuonCalib {
 
   MuonCalibExtendedSegment::MuonCalibExtendedSegment( const MuonCalibSegment& segment ) : MuonCalibSegment(segment) {
 
-
      MuonFixedIdManipulator idManip;
-     // MuonFixedIdPrinter     printer;
 
     m_summary.nhits  = 0;
     m_summary.nscatters = 0; 
@@ -37,8 +37,9 @@ namespace MuonCalib {
       const MdtCalibHitBase& hit = **mdtIt;
       MuonFixedId id = hit.identify();
       if( !id.isValid() ) {
-	std::cout << " MuonCalibExtendedSegment(), invalid MDT id! " << std::endl;
-	continue;
+        MsgStream log(Athena::getMessageSvc(),"MuonCalibExtendedSegment");
+        log<<MSG::WARNING<<"invalid MDT id!"<<endmsg;
+        continue;
       }
 
       m_idSet.insert(id);
@@ -88,8 +89,9 @@ namespace MuonCalib {
       const RpcCalibHitBase& hit = **rpcIt;
       MuonFixedId id = hit.identify();
       if( !id.isValid() ) {
-	std::cout << " MuonCalibExtendedSegment(), invalid RPC id! " << std::endl;
-	continue;
+        MsgStream log(Athena::getMessageSvc(),"MuonCalibExtendedSegment");
+        log<<MSG::WARNING<<"invalid RPC id!"<<endmsg;
+        continue;
       }
 
       m_idSet.insert(id);
@@ -134,8 +136,9 @@ namespace MuonCalib {
       const TgcCalibHitBase& hit = **tgcIt;
       MuonFixedId id = hit.identify();
       if( !id.isValid() ) {
-	std::cout << " MuonCalibExtendedSegment(), invalid TGC id! " << std::endl;
-	continue;
+        MsgStream log(Athena::getMessageSvc(),"MuonCalibExtendedSegment");
+        log<<MSG::WARNING<<"invalid TGC id!"<<endmsg;
+        continue;
       }
 
       m_idSet.insert(id);
@@ -179,8 +182,9 @@ namespace MuonCalib {
       const CscCalibHitBase& hit = **cscIt;
       MuonFixedId id = hit.identify();
       if( !id.isValid() ) {
-	std::cout << " MuonCalibExtendedSegment(), invalid CSC id! " << std::endl;
-	continue;
+        MsgStream log(Athena::getMessageSvc(),"MuonCalibExtendedSegment");
+        log<<MSG::WARNING<<"invalid CSC id!"<<endmsg;
+        continue;
       }
 
       m_idSet.insert(id);

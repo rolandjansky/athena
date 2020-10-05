@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H6WarmTCSD.h"
 #include "CaloG4Sim/SimulationEnergies.h"
 
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 
 #include "G4VTouchable.hh"
 #include "G4TouchableHistory.hh"
@@ -84,11 +84,11 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
   edep  = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   if(edep == 0.) {
     if(m_isCalib){
-      EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-      if ( event_info ) {
+      AtlasG4EventUserInfo * atlasG4EvtUserInfo = dynamic_cast<AtlasG4EventUserInfo*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+      if ( atlasG4EvtUserInfo ) {
         // Update the step info
-        event_info->SetLastProcessedBarcode( aStep->GetTrack()->GetTrackID() );
-        event_info->SetLastProcessedStep( aStep->GetTrack()->GetCurrentStepNumber() );
+        atlasG4EvtUserInfo->SetLastProcessedBarcode( aStep->GetTrack()->GetTrackID() );
+        atlasG4EvtUserInfo->SetLastProcessedStep( aStep->GetTrack()->GetCurrentStepNumber() );
       }
     }
     return true;
@@ -181,9 +181,9 @@ void LArG4H6WarmTCSD::EndOfAthenaEvent()
   //G4int HCID;
   G4String cnam;
   hitIt i;
-  for (i = m_hits.begin(); i != m_hits.end(); i++ ) {
+  for (const auto& p : m_hits) {
     //      m_Collection->insert( i->second );
-    m_Collection->push_back(i->second);
+    m_Collection->push_back(p.second);
   }
   m_hits.clear();
 }

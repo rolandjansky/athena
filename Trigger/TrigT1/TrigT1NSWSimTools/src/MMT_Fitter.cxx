@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "TrigT1NSWSimTools/MMT_Fitter.h"
 
+#include <stdexcept>
 
 using std::set;
 using std::vector;
@@ -14,7 +14,9 @@ using std::pair;
 using std::string;
 
 
-MMT_Fitter::MMT_Fitter(MMT_Parameters *par, int nlg, double lgmin, double lgmax): /*m_par(par),*/ m_number_LG_regions(nlg), m_LG_min(lgmin), m_LG_max(lgmax), m_msg("MMT_Fitter")
+MMT_Fitter::MMT_Fitter(MMT_Parameters *par, int nlg, double lgmin, double lgmax):
+  AthMessaging(Athena::getMessageSvc(), "MMT_Fitter"),
+  m_number_LG_regions(nlg), m_LG_min(lgmin), m_LG_max(lgmax)
 {
   ATH_MSG_DEBUG("MMT_F::building fitter");
   m_par=par;
@@ -45,9 +47,10 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
   if(ROI.theta==-999){
     for(unsigned int i=0;i<track.size();i++)  track[i].print();
     ATH_MSG_WARNING("SOMETHING IS OFF!  fit_event\n");
-    exit(-999);
+    throw std::runtime_error("MMT_Fitter::fit_event: invalid ROI.theta");
   }
-
+  static_assert(std::is_trivially_copyable<float32fixed<2>>::value);
+  static_assert(std::is_trivially_destructible<float32fixed<2>>::value);
   float32fixed<2> M_x_local = Get_Local_Slope(track,ROI.theta.getFixed(),ROI.phi.getFixed()),Delta_Theta_division = Get_Delta_Theta_division(M_x_local,M_x_global,1.), Delta_Theta = Get_Delta_Theta(M_x_local,M_x_global), dtheta_idl=Get_Delta_Theta_division(ideal_local_slope(track),M_x_global);
 
   mxl = M_x_local.getFixed();
@@ -273,11 +276,11 @@ float32fixed<2> MMT_Fitter::DT_Factors_val(int i, int j) const{
   }
   if(j<0||j>1){
     ATH_MSG_WARNING("DT_Factors only has two entries on the second index (for LG and mult_factor); you inputed an index of " << j );
-    exit(1);
+    throw std::runtime_error("MMT_Fitter::DT_Factors_val: invalid index");
   }
   if(i<0||i>=m_number_LG_regions){
     ATH_MSG_WARNING("There are " << m_number_LG_regions << " in DT_Factors(_val); you inputed an index of " << i );
-    exit(1);
+    throw std::runtime_error("MMT_Fitter::DT_Factors_val: invalid index");
   }
   double a=1.;//not sure what this is for, so hard to choose fixed_point algebra
   if(j==0) return mult_factor_lgr(i,a,m_number_LG_regions,m_LG_min,m_LG_max);
@@ -305,7 +308,7 @@ vector<Hit> MMT_Fitter::q_hits(const string& type,const vector<Hit>& track) cons
   string setup(m_par->setup);
   if(setup.length()!=track.size()){
     ATH_MSG_WARNING("Setup has length: "<<setup.length()<<", but there are "<<track.size()<<" hits in the track");
-    exit(2);
+    throw std::runtime_error("MMT_Fitter::q_hits: inconsistent setup");
   }
   vector<int> qpl(m_par->q_planes(type));
   vector<Hit> q_hits;
@@ -407,7 +410,7 @@ float32fixed<4> MMT_Fitter::Slope_Components_ROI_val(int jy, int ix, int thetaph
   }
   if(thetaphi<0||thetaphi>1){
     ATH_MSG_WARNING("Slope_Components_ROI only has two entries on the third index (for theta and phi); you inputed an index of " << thetaphi);
-    exit(2);
+    throw std::runtime_error("MMT_Fitter::Slope_Components_ROI_val: invalid number of entries");
   }
   if(thetaphi==0) return Slope_Components_ROI_theta(jy,ix);
   return Slope_Components_ROI_phi(jy,ix);

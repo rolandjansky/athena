@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELPIGTAIL_H
@@ -10,8 +10,9 @@ class GeoLogVol;
 
 class GeoPixelPigtail : public GeoVPixelFactory {
  public:
-  GeoPixelPigtail();
-  virtual GeoVPhysVol* Build();
+  GeoPixelPigtail(InDetDD::PixelDetectorManager* ddmgr,
+                  PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
  private:
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_SENSITIVEDETECTORMASTERTOOL_H
@@ -43,7 +43,7 @@ class SensitiveDetectorMasterTool : public extends<AthAlgTool, ISensitiveDetecto
 
  private:
   /// Private array of tool handles pointing to all SD tools.
-  ToolHandleArray<ISensitiveDetector> m_senDetTools;
+  ToolHandleArray<ISensitiveDetector> m_senDetTools{this, "SensitiveDetectors", {}, "Tool handle array of all sensitive detector tools"};
 };
 
 #endif

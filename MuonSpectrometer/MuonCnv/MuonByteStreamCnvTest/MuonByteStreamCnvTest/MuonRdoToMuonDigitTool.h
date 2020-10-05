@@ -1,25 +1,33 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOMUONDIGITTOOL_H
 #define MUONRDOTOMUONDIGITTOOL_H 
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-//#include "CscCalibTools/CscCalibTool.h"
-#include "CscCalibTools/ICscCalibTool.h"
-
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "CscCalibTools/ICscCalibTool.h"
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonDigitContainer/CscDigitContainer.h"
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class ITGCcablingSvc;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
+#include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
+#include "MuonTGC_CnvTools/ITGC_RDO_Decoder.h"
+#include "MuonSTGC_CnvTools/ISTGC_RDO_Decoder.h"
+#include "MuonMM_CnvTools/IMM_RDO_Decoder.h"
+#include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include <unordered_map>
 
 class MdtDigitContainer;
 class CscDigitContainer;
@@ -46,15 +54,6 @@ class MM_RawDataCollection;
 class MM_RawDataContainer;
 class MM_RawData;
 
-namespace Muon {
-  class IMDT_RDO_Decoder;
-  class ICSC_RDO_Decoder;
-  class IRPC_RDO_Decoder;
-  class ITGC_RDO_Decoder;
-  class ISTGC_RDO_Decoder;
-  class IMM_RDO_Decoder;
-  class MuonIdHelperTool;
-}
 // Author: Ketevi A. Assamagan
 // BNL, January 24, 2004
 
@@ -70,52 +69,56 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
  public:
 
   MuonRdoToMuonDigitTool(const std::string& type, const std::string& name, const IInterface* pIID);
-  ~MuonRdoToMuonDigitTool();
+  ~MuonRdoToMuonDigitTool()=default;
     
   virtual StatusCode initialize() override;
-  virtual StatusCode digitize(const EventContext& ctx)   override;
+  virtual StatusCode digitize(const EventContext& ctx) override;
 
  private:
 
   // private method for the decoding RDO --> digits
-  StatusCode decodeMdtRDO(const EventContext& ctx, MdtDigitContainer*); 
-  StatusCode decodeMdt(MdtDigitContainer*, const MdtCsm *, MdtDigitCollection*&, Identifier& );
+  using MdtDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<MdtDigitCollection> >;
+  StatusCode decodeMdtRDO(const EventContext& ctx, MdtDigitContainer*) const;
+  StatusCode decodeMdt(const MdtCsm& rdoColl, MdtDigitMap_t& mdtDigitVec ) const;
 
-  StatusCode decodeCscRDO(const EventContext& ctx, CscDigitContainer*);
-  //  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*, Identifier&, CscRDO_Decoder& decoder );
-  StatusCode decodeCsc(CscDigitContainer*, const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
+  using CscDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<CscDigitCollection> >;
+  StatusCode decodeCscRDO(const EventContext& ctx, CscDigitContainer*) const;
+  StatusCode decodeCsc(const CscRawDataCollection& rdoColl, CscDigitMap_t& cscDigitMap ) const;
 
-  StatusCode decodeRpcRDO(const EventContext& ctx, RpcDigitContainer*);
-  StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*& );
+  using RpcDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<RpcDigitCollection> >;
+  StatusCode decodeRpcRDO(const EventContext& ctx, RpcDigitContainer*) const;
+  StatusCode decodeRpc(const RpcPad& rpcColl, RpcDigitMap_t& rpcDigitMap, const RpcCablingCondData* rpcCab) const;
  
-  StatusCode decodeTgcRDO(const EventContext& ctx, TgcDigitContainer*);
-  StatusCode decodeTgc(TgcDigitContainer*, const TgcRdo *, Identifier&);
+  using TgcDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<TgcDigitCollection> >;
+  StatusCode decodeTgcRDO(const EventContext& ctx, TgcDigitContainer*) const;
+  StatusCode decodeTgc(const TgcRdo& rdoColl, TgcDigitMap_t& tgcDigitMap) const;
 
-  StatusCode decodeSTGC_RDO(const EventContext& ctx, sTgcDigitContainer*);
-  StatusCode decodeSTGC(sTgcDigitContainer*, const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
+  using sTgcDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<sTgcDigitCollection> >;
+  StatusCode decodeSTGC_RDO(const EventContext& ctx, sTgcDigitContainer*) const;
+  StatusCode decodeSTGC(const Muon::STGC_RawDataCollection& rdoColl, sTgcDigitMap_t& stgcDigitMap) const;
 
-  StatusCode decodeMM_RDO(const EventContext& ctx, MmDigitContainer*);
-  StatusCode decodeMM(MmDigitContainer*, const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
+  using MmDigitMap_t = std::unordered_map<IdentifierHash, std::unique_ptr<MmDigitCollection> >;
+  StatusCode decodeMM_RDO(const EventContext& ctx, MmDigitContainer*) const;
+  StatusCode decodeMM(const Muon::MM_RawDataCollection& rdoColl, MmDigitMap_t& mmDigitMap) const;
 
   StatusCode getTgcCabling();
 
  private:
 
   // store gate transactions
-  ServiceHandle<ActiveStoreSvc> m_acSvc;
-  ToolHandle<ICscCalibTool>     m_cscCalibTool;
-  ToolHandle<Muon::IMDT_RDO_Decoder>  m_mdtRdoDecoderTool;
-  ToolHandle<Muon::ICSC_RDO_Decoder>  m_cscRdoDecoderTool;
-  ToolHandle<Muon::IRPC_RDO_Decoder>  m_rpcRdoDecoderTool;
-  ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool;
-  ToolHandle<Muon::ISTGC_RDO_Decoder>  m_stgcRdoDecoderTool;
-  ToolHandle<Muon::IMM_RDO_Decoder>  m_mmRdoDecoderTool;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<ActiveStoreSvc> m_acSvc{this,"ActiveStoreSvc","ActiveStoreSvc"};
+  ToolHandle<ICscCalibTool> m_cscCalibTool{this,"cscCalibTool","CscCalibTool"};
+  ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtRdoDecoderTool{this,"mdtRdoDecoderTool","Muon::MdtRDO_Decoder"};
+  ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this,"cscRdoDecoderTool","Muon::CscRDO_Decoder"};
+  ToolHandle<Muon::IRPC_RDO_Decoder> m_rpcRdoDecoderTool{this,"rpcRdoDecoderTool","Muon::RpcRDO_Decoder"};
+  ToolHandle<Muon::ITGC_RDO_Decoder> m_tgcRdoDecoderTool{this,"tgcRdoDecoderTool","Muon::TgcRDO_Decoder"};
+  ToolHandle<Muon::ISTGC_RDO_Decoder> m_stgcRdoDecoderTool{this,"stgcRdoDecoderTool","Muon::STGC_RDO_Decoder"};
+  ToolHandle<Muon::IMM_RDO_Decoder> m_mmRdoDecoderTool{this,"mmRdoDecoderTool","Muon::MM_RDO_Decoder"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
   // cabling service
-  //  const MDTcablingSvc  * m_mdtCabling;
-  const ITGCcablingSvc * m_tgcCabling;
+  const ITGCcablingSvc* m_tgcCabling;
 
   // algorithm properties
   bool m_decodeMdtRDO;

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file InDetEventTPCnv/test/TRT_DriftCircleCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +12,7 @@
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p2.h"
 #include "TestTools/leakcheck.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -55,7 +54,7 @@ void testit (const InDet::TRT_DriftCircle& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -80,7 +79,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;

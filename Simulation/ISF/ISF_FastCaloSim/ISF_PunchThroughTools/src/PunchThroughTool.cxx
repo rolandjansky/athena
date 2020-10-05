@@ -263,8 +263,8 @@ StatusCode ISF::PunchThroughTool::initialize()
 
   // get the calo-MS border coordinates. Look at calo and MS geometry definitions, if same R and Z -> boundary surface
 
-  RZPairVector* rzMS = &(m_envDefSvc->getMuonRZValues());
-  RZPairVector* rzCalo = &(m_envDefSvc->getCaloRZValues());
+  const RZPairVector* rzMS = &(m_envDefSvc->getMuonRZBoundary());
+  const RZPairVector* rzCalo = &(m_envDefSvc->getCaloRZBoundary());
 
   bool found1, found2;
   found1=false; found2=false;

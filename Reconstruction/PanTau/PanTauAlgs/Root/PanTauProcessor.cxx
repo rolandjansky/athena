@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,11 +35,11 @@ PanTau::PanTauProcessor::PanTauProcessor(const std::string& name)
         
     //Initialise members for tools
     m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore"),
-    m_Tool_TauConstituentGetter(this,"PanTau::Tool_TauConstituentGetter/Tool_TauConstituentGetter"),
-    m_Tool_TauConstituentSelector(this,"PanTau::Tool_TauConstituentSelector/Tool_TauConstituentSelector"),
-    m_Tool_FeatureExtractor(this,"PanTau::Tool_FeatureExtractor/Tool_FeatureExtractor"),
-    m_Tool_DecayModeDeterminator(this,"PanTau::Tool_DecayModeDeterminator/Tool_DecayModeDeterminator"),
-    m_Tool_DetailsArranger(this,"PanTau::Tool_DetailsArranger/Tool_DetailsArranger")
+    m_Tool_TauConstituentGetter("PanTau::Tool_TauConstituentGetter/Tool_TauConstituentGetter", this),
+    m_Tool_TauConstituentSelector("PanTau::Tool_TauConstituentSelector/Tool_TauConstituentSelector", this),
+    m_Tool_FeatureExtractor("PanTau::Tool_FeatureExtractor/Tool_FeatureExtractor", this),
+    m_Tool_DecayModeDeterminator("PanTau::Tool_DecayModeDeterminator/Tool_DecayModeDeterminator", this),
+    m_Tool_DetailsArranger("PanTau::Tool_DetailsArranger/Tool_DetailsArranger", this)
 {
     
     //Connect python variables to member functions...
@@ -246,8 +246,9 @@ StatusCode      PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD:
 
 
 void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
-    
-    tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased,      -1111., -1111., -1111., -1111.);
+    //default four momentum set to previous calibration state: TauEtaCalib
+    TLorentzVector defaultP4 = tauJet->p4(xAOD::TauJetParameters::TauEtaCalib);
+    tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased, defaultP4.Pt(), defaultP4.Eta(), defaultP4.Phi(), defaultP4.M());
     
     //charged
     std::vector< ElementLink< xAOD::PFOContainer > > chrgPFOLinks = tauJet->protoChargedPFOLinks();
@@ -263,20 +264,3 @@ void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
     
     return;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

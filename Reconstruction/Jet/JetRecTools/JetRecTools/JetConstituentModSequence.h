@@ -26,6 +26,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecuteTool {
   // Changed from IJetExecute
@@ -52,6 +53,8 @@ protected:
   
   
   ToolHandleArray<IJetConstituentModifier> m_modifiers;
+
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
   bool m_saveAsShallow = true;
 

@@ -105,7 +105,7 @@ for Part in lArCellBinningScheme.PartitionLayers:
             if Part=="FCAL":
                   lArCellBinningScheme.etaRange[Part+Lay+"C"] = lArCellBinningScheme.etaRange[Part+Lay+"A"]
             else: #all other partitions
-                  lArCellBinningScheme.etaRange[Part+Lay+"C"] =map(lambda x: x*-1,lArCellBinningScheme.etaRange[Part+Lay+"A"])[::-1]
+                  lArCellBinningScheme.etaRange[Part+Lay+"C"] =list(map(lambda x: x*-1,lArCellBinningScheme.etaRange[Part+Lay+"A"]))[::-1]
                   pass
 
 #energy and time

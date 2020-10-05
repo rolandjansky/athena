@@ -38,35 +38,38 @@ public:
   /**Default Constructor - needed for inherited classes */
   NavBinnedArray1DT()
     : BinnedArrayT<T>()
-    , m_array(0)
+    , m_array{}
     , m_arrayObjects(nullptr)
     , m_binUtility()
     , m_transf(nullptr)
   {}
 
-  /**Constructor with std::vector and a  BinUtility - reference counted, will delete objects at the end,
-  if this deletion should be turned off, the boolean deletion should be switched to false
-  the global position is given by pointer and then deleted! */
+  /**Constructor with std::vector and a  BinUtility - reference counted, will
+  delete objects at the end, if this deletion should be turned off, the boolean
+  deletion should be switched to false the global position is given by pointer
+  and then deleted! */
   NavBinnedArray1DT(const std::vector<SharedObject<T>>& tclassvector,
-                   BinUtility* bingen,
-                   Amg::Transform3D* transform)
+                    BinUtility* bingen,
+                    Amg::Transform3D* transform)
     : BinnedArrayT<T>()
-    , m_array(0)
+    , m_array{}
     , m_arrayObjects(nullptr)
     , m_binUtility(SharedObject<BinUtility>(bingen))
     , m_transf(transform)
   {
     // prepare the binned Array // simplify as the array is ordered when defined
     if (bingen) {
-      m_array = new std::vector<SharedObject<T>>(tclassvector);
+      m_array = std::vector<SharedObject<T>>(tclassvector);
     }
   }
 
   /**Copy Constructor with shift */
-  NavBinnedArray1DT(const NavBinnedArray1DT& barr, std::vector<SharedObject<T>>* vec, Amg::Transform3D& shift)
+  NavBinnedArray1DT(const NavBinnedArray1DT& barr,
+                    std::vector<SharedObject<T>>&& vec,
+                    Amg::Transform3D& shift)
     : BinnedArrayT<T>()
-    , m_array(vec)
-    , m_arrayObjects(nullptr)
+    , m_array(std::move(vec))
+    , m_arrayObjects{}
     , m_binUtility(barr.m_binUtility)
     , m_transf(new Amg::Transform3D(shift * (*barr.m_transf)))
   {}
@@ -74,38 +77,38 @@ public:
   /**Copy Constructor - copies only pointers !*/
   NavBinnedArray1DT(const NavBinnedArray1DT& barr)
     : BinnedArrayT<T>()
-    , m_array(nullptr)
+    , m_array{}
     , m_arrayObjects(nullptr)
     , m_binUtility(barr.m_binUtility)
     , m_transf(nullptr)
   {
     if (m_binUtility.get()) {
-      m_array = new std::vector<SharedObject<T>>(m_binUtility.get()->bins(0));
+      m_array = std::vector<SharedObject<T>>(m_binUtility.get()->bins(0));
       for (size_t ient = 0; ient < m_binUtility.get()->bins(0); ++ient) {
-        (*m_array)[ient] = (*barr.m_array)[ient];
+        m_array[ient] = (barr.m_array)[ient];
       }
     }
-    m_transf = (barr.m_transf) ? new Amg::Transform3D(*(barr.m_transf)) : nullptr;
+    m_transf =
+      (barr.m_transf) ? new Amg::Transform3D(*(barr.m_transf)) : nullptr;
   }
 
   /**Assignment operator*/
   NavBinnedArray1DT& operator=(const NavBinnedArray1DT& barr)
   {
     if (this != &barr) {
-
-      delete m_array;
       m_arrayObjects.release();
       delete m_transf;
       // now refill
       m_binUtility = barr.m_binUtility;
       // --------------------------------------------------------------------------
       if (m_binUtility.get()) {
-        m_array = new std::vector<SharedObject<T>>(m_binUtility.get()->bins(0));
+        m_array = std::vector<SharedObject<T>>(m_binUtility.get()->bins(0));
         for (size_t ient = 0; ient < m_binUtility.get()->bins(0); ++ient) {
-          (*m_array)[ient] = (*barr.m_array)[ient];
+          m_array[ient] = (barr.m_array)[ient];
         }
       }
-      m_transf = (barr.m_transf) ? new Amg::Transform3D(*barr.m_transf) : nullptr;
+      m_transf =
+        (barr.m_transf) ? new Amg::Transform3D(*barr.m_transf) : nullptr;
     }
     return *this;
   }
@@ -116,7 +119,6 @@ public:
   /**Virtual Destructor*/
   ~NavBinnedArray1DT()
   {
-    delete m_array;
     delete m_transf;
   }
 
@@ -125,8 +127,9 @@ public:
   */
   T* object(const Amg::Vector2D& lp) const
   {
-    if (m_binUtility.get()->inside(lp))
-      return ((*m_array)[m_binUtility.get()->bin(lp)]).get();
+    if (m_binUtility.get()->inside(lp)){
+      return (m_array[m_binUtility.get()->bin(lp)]).get();
+    }
     return nullptr;
   }
 
@@ -137,17 +140,21 @@ public:
   {
     // transform into navig.coordinates
     const Amg::Vector3D navGP((m_transf->inverse()) * gp);
-    if (m_binUtility.get()->inside(navGP))
-      return ((*m_array)[m_binUtility.get()->bin(navGP)]).get();
+    if (m_binUtility.get()->inside(navGP)){
+      return (m_array[m_binUtility.get()->bin(navGP)]).get();
+    }
     return nullptr;
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
-  T* entryObject(const Amg::Vector3D&) const { return ((*m_array)[0]).get(); }
+  /** Returns the pointer to the templated class object from the BinnedArray -
+   * entry point*/
+  T* entryObject(const Amg::Vector3D&) const { return (m_array[0]).get(); }
 
   /** Returns the pointer to the templated class object from the BinnedArray
    */
-  T* nextObject(const Amg::Vector3D& gp, const Amg::Vector3D& mom, bool associatedResult = true) const
+  T* nextObject(const Amg::Vector3D& gp,
+                const Amg::Vector3D& mom,
+                bool associatedResult = true) const
   {
     // transform into navig.coordinates
     const Amg::Vector3D navGP((m_transf->inverse()) * gp);
@@ -156,23 +163,28 @@ public:
     size_t firstBin = m_binUtility.get()->next(navGP, navMom, 0);
     // use the information of the associated result
     if (associatedResult) {
-      if (firstBin <= m_binUtility.get()->max(0))
-        return ((*m_array)[firstBin]).get();
-      else
+      if (firstBin <= m_binUtility.get()->max(0)){
+        return (m_array[firstBin]).get();
+      }
+      else{
         return nullptr;
+      }
     }
     // the associated result was 0 -> set to boundary
-    firstBin = (firstBin < m_binUtility.get()->bins(0)) ? firstBin : m_binUtility.get()->max(0);
-    return ((*m_array)[m_binUtility.get()->bin(navGP)]).get();
+    firstBin = (firstBin < m_binUtility.get()->bins(0))
+                 ? firstBin
+                 : m_binUtility.get()->max(0);
+    return (m_array[m_binUtility.get()->bin(navGP)]).get();
   }
 
   /** Return all objects of the Array */
   const std::vector<T*>& arrayObjects() const
   {
     if (!m_arrayObjects) {
-      std::unique_ptr<std::vector<T*>> arrayObjects = std::make_unique<std::vector<T*>>();
-      for (unsigned int ill = 0; ill < m_array->size(); ++ill) {
-        arrayObjects->push_back(((*m_array)[ill]).get());
+      std::unique_ptr<std::vector<T*>> arrayObjects =
+        std::make_unique<std::vector<T*>>();
+      for (unsigned int ill = 0; ill < m_array.size(); ++ill) {
+        arrayObjects->push_back((m_array[ill]).get());
       }
       m_arrayObjects.set(std::move(arrayObjects));
     }
@@ -197,12 +209,17 @@ public:
   }
 
 private:
-  std::vector<SharedObject<T>>* m_array;                     //!< vector of pointers to the class T
-  CxxUtils::CachedUniquePtr<std::vector<T*>> m_arrayObjects; //!< forced 1D vector of pointers to class T
-  SharedObject<BinUtility> m_binUtility;                           //!< binUtility for retrieving and filling the Array
-  Amg::Transform3D* m_transf;                                      // !< transform into local navigation coordinates
+  //!< vector of pointers to the class T
+  std::vector<SharedObject<T>> m_array;
+  //!< forced 1D vector of pointers to class T
+  CxxUtils::CachedUniquePtr<std::vector<T*>> m_arrayObjects;
+  //!< binUtility for retrieving and filling the Array
+  SharedObject<BinUtility> m_binUtility;
+  // !< transform into local navigation coordinates
+
+  Amg::Transform3D* m_transf;
 };
-template <class T>
+template<class T>
 using NavBinnedArray1D = NavBinnedArray1DT<const T>;
 
 } // end of namespace Trk

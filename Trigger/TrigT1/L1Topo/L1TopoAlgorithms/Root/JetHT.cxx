@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * JetHT.cpp
@@ -24,10 +24,8 @@
 
 REGISTER_ALG_TCS(JetHT)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::JetHT::JetHT(const std::string & name) : DecisionAlg(name)
@@ -70,24 +68,14 @@ TCS::JetHT::initialize() {
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
-   // create strings for histogram names
-   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
-   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
-   
-   for (unsigned int i=0;i<numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << p_HT[i] << "HT"; 
-     MyRejectHist[i] << "Reject" << p_HT[i] << "HT";
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hJetHT_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hJetHT_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "HT", 100, 0, p_HT[i]);
+       bookHist(m_histReject, hname_reject, "HT", 100, 0, p_HT[i]);
    }
-
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-
-     const std::string& MyTitle1 = MyAcceptHist[i].str();
-     const std::string& MyTitle2 = MyRejectHist[i].str();
-     
-     registerHist(m_histAcceptHT[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,p_HT[i]*2));
-     registerHist(m_histRejectHT[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,p_HT[i]*2));
-   }
-
 
    return StatusCode::SUCCESS;
 }
@@ -120,8 +108,8 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
            ++tob)
          {
 
-      if( parType_t(fabs((*tob)->eta())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs((*tob)->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t(std::abs((*tob)->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(std::abs((*tob)->eta())) < p_EtaMin ) continue; // Eta cut
       if( parType_t((*tob)->Et()) <= p_MinET ) continue; // E_T cut
 
       TRG_MSG_DEBUG("Jet : ET = " << (*tob)->Et());
@@ -141,9 +129,9 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
          output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
       }
       if(fillAccept and not alreadyFilled) {
-          m_histAcceptHT[i]->Fill(sumET);
+          fillHist1D(m_histAccept[i],sumET);
       } else if(fillReject) {
-          m_histRejectHT[i]->Fill(sumET);
+          fillHist1D(m_histReject[i],sumET);
       }
 
       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " HT = " << sumET);

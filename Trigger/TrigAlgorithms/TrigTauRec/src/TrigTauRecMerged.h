@@ -65,9 +65,6 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
  private:
 
-  void setEmptyTauTrack( xAOD::TauJet* &tauJet,
-			 xAOD::TauTrackContainer* &tauTrackCont);
-
   enum TAUEFCALOMON{
     NoROIDescr=0,
     NoCellCont=1,

@@ -372,7 +372,6 @@ else:
 #watch LAr HV:
 if ( vp1LarHvData ):
     from time import time
-    svcMgr.AthenaSealSvc.CheckDictionary = TRUE
     svcMgr.EventSelector.InitialTimeStamp  = int (time())
     svcMgr.EventSelector.TimeStampInterval = 1
     from IOVDbSvc.CondDB import conddb

@@ -25,6 +25,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IAddressCreator.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "SGTools/DataProxy.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 #include "PoolSvc/IPoolSvc.h"
@@ -75,7 +76,8 @@ class IOVDbSvc : public virtual IIOVCondDbSvc,
                  public virtual IIOVDbSvc,
                  public virtual IAddressProvider,
                  public virtual IIncidentListener,
-                 public virtual AthService
+                 public virtual AthService,
+                 public virtual IIoComponent
 {
   // Forward declarations
   template <class TYPE> class SvcFactory;
@@ -88,10 +90,12 @@ public:
   
   /// Service init
   virtual StatusCode initialize() override;
+  StatusCode io_reinit() override final;
 
   /// Service finalize
   virtual StatusCode finalize() override;
-  
+  StatusCode io_finalize() override final;
+
   /// Query the interfaces.
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface )  override;
   static const InterfaceID& interfaceID();
@@ -186,11 +190,11 @@ private:
   // production database instance, used to cross-check global tag
   Gaudi::Property<std::string>    m_par_dbinst{this,"DBInstance","","Database instance (like OFLP200)"};
   //  a list of folders to preload
-  Gaudi::Property<std::vector<std::string> >  m_par_folders{this,"Folders",{},"List of database folders to preload","Set<std::string>"};
+  Gaudi::Property<std::vector<std::string> >  m_par_folders{this,"Folders",{},"List of database folders to preload","OrderedSet<std::string>"};
   //  a list of overriding tags definitions
-  Gaudi::Property<std::vector<std::string> >  m_par_overrideTags{this,"overrideTags",{},"List of foolder-tag overrides","Set<std::string>"};
+  Gaudi::Property<std::vector<std::string> >  m_par_overrideTags{this,"overrideTags",{},"List of foolder-tag overrides","OrderedSet<std::string>"};
   //  a list of folders to write to file meta data
-  Gaudi::Property<std::vector<std::string> >  m_par_foldersToWrite{this,"FoldersToMetaData",{},"list of folders to write to file meta data","Set<std::string>"};    
+  Gaudi::Property<std::vector<std::string> >  m_par_foldersToWrite{this,"FoldersToMetaData",{},"list of folders to write to file meta data","OrderedSet<std::string>"};    
   //  a flag to trigger the connections management
   BooleanProperty                m_par_manageConnections{this,"ManageConnections",true,"flag to trigger the connections management"};
   //  a flag to manage pool connections
@@ -240,7 +244,8 @@ private:
   bool                           m_poolPayloadRequested{false};
 
   // Pool service context
-  unsigned int                   m_poolSvcContext{0};
+  int                   poolSvcContext();
+  int                   m_poolSvcContext {-1};
 
   // Flag to keep track of which state we are in to know
   // how to obtain the IOV time, i.e. during:

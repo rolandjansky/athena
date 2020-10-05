@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CreateData.cxx 
@@ -13,10 +13,8 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
-
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "Gaudi/Property.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
@@ -133,10 +131,10 @@ StatusCode CreateData::makeData( const std::string& test )
   }
 
   for ( unsigned int i = 0; i != m_nbrParticles.value(); ++i ) {
-    AthExParticle * p = new AthExParticle( (i+1) * 10. * CLHEP::GeV,
-					   (i+1) * 10. * CLHEP::GeV,
-					   (i+1) * 10. * CLHEP::GeV,
-					   (i+2) * 10. * CLHEP::GeV );
+    AthExParticle * p = new AthExParticle( (i+1) * 10. * Gaudi::Units::GeV,
+					   (i+1) * 10. * Gaudi::Units::GeV,
+					   (i+1) * 10. * Gaudi::Units::GeV,
+					   (i+2) * 10. * Gaudi::Units::GeV );
     particles->push_back(p);
   }
 
@@ -174,7 +172,7 @@ StatusCode CreateData::makeData( const std::string& test )
 
   dcy->setDecay( p1, p2, l1, l2 );
 
-  const double igev = 1. / CLHEP::GeV;
+  const double igev = 1. / Gaudi::Units::GeV;
   ATH_MSG_INFO
     ("Created a Decay from :" << endmsg
      << " p1: px= " << dcy->p1()->px() * igev << endmsg

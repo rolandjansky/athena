@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCONDITIONS_CALOLOCALHADCOEFF_H
@@ -72,19 +72,24 @@ class CaloLocalHadCoeff {
          * @param xbins  Bins borders, vector of size m_nbins+1
          */
         LocalHadDimension(const char *title, unsigned int typ, std::vector<float > &xbins) :
-          m_title(title), m_type(typ), m_dx(0.0)
+          m_title(title), m_type(typ),
+          m_nbins (xbins.size() - 1),
+          m_xmin (xbins.front()),
+          m_xmax (xbins.back()),
+          m_dx(0.0),
+          m_xbins (xbins)
           {
-            m_xbins = xbins;
-            m_xmin = xbins.front();
-            m_xmax = xbins.back();
-            m_nbins = xbins.size() -1;
           }
         /**
          * @brief Copy constructor
          */
-        LocalHadDimension(const LocalHadDimension &other);
-        LocalHadDimension& operator= (const LocalHadDimension &other);
-
+        LocalHadDimension(const LocalHadDimension &other) = default;
+        LocalHadDimension& operator= (const LocalHadDimension &other) = default;
+        /**
+         * @brief Move constructor
+         */
+        LocalHadDimension( LocalHadDimension &&) noexcept = default;
+        LocalHadDimension& operator= ( LocalHadDimension &&)  noexcept = default;
         // access methods
 
         /// return dimension type
@@ -157,8 +162,10 @@ class CaloLocalHadCoeff {
         /**
          * @brief Copy constructor
          */
-        LocalHadArea(const LocalHadArea &other);
-        LocalHadArea& operator= (const LocalHadArea &other);
+        LocalHadArea(const LocalHadArea &other) = default;
+        LocalHadArea& operator= (const LocalHadArea &other) = default;
+        LocalHadArea( LocalHadArea &&other) noexcept = default;
+        LocalHadArea& operator= ( LocalHadArea &&other) noexcept = default;
 
         /// return area type
         inline unsigned int getType() const { return m_type; }
@@ -220,8 +227,11 @@ class CaloLocalHadCoeff {
     /**
      * @brief Copy constructor.
      */
-    CaloLocalHadCoeff(const CaloLocalHadCoeff &other);
-    CaloLocalHadCoeff& operator= (const CaloLocalHadCoeff &other);
+    CaloLocalHadCoeff(const CaloLocalHadCoeff &other) = default;
+    CaloLocalHadCoeff& operator= (const CaloLocalHadCoeff &other) = default;
+    //Move operators
+    CaloLocalHadCoeff(CaloLocalHadCoeff &&) noexcept = default;
+    CaloLocalHadCoeff& operator= (CaloLocalHadCoeff &&) noexcept = default;
 
     //
     // general access methods

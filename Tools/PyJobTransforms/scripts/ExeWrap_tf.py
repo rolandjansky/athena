@@ -6,32 +6,23 @@
 #  Mainly used to test core infrastructure
 # $Id: ExeWrap_tf.py 634752 2014-12-09 15:01:52Z graemes $
 
-import argparse
-import os
-import os.path
 import sys
 import time
-import traceback
-
-import logging
 
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
-msg.info('logging set in %s' % sys.argv[0])
+msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.transform import transform
-from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfExe import scriptExecutor
-import PyJobTransforms.trfArgs as trfArgs
 import PyJobTransforms.trfArgClasses as trfArgClasses
-import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():
     
-    msg.info('This is %s' % sys.argv[0])
+    msg.info('This is %s', sys.argv[0])
         
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
@@ -44,7 +35,7 @@ def main():
     trf.execute()
     trf.generateReport()
 
-    msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
+    msg.info("%s stopped at %s, trf exit code %d", (sys.argv[0], time.asctime(), trf.exitCode))
     sys.exit(trf.exitCode)
 
 def getTransform():

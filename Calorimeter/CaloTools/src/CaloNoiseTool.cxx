@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloNoiseTool.h"
@@ -158,7 +158,7 @@ CaloNoiseTool::initialize()
 
   //set calohash minimum
   if(m_UseLAr) m_CaloHashMin = 0;
-  if(m_UseTile && m_UseLAr==false) m_CaloHashMin = m_LArHashMax;
+  if(m_UseTile && !m_UseLAr) m_CaloHashMin = m_LArHashMax;
 
   ATH_MSG_DEBUG( " UseLAr: " <<m_UseLAr<< " UseTile: " <<m_UseTile
                  << " => CaloHashMin= " <<m_CaloHashMin
@@ -515,7 +515,7 @@ CaloNoiseTool::initIndex()
 
 
     if(iCalo!=CaloCell_ID::TILE) {
-      if(this->checkIfConnected(id)==false) {
+      if(!this->checkIfConnected(id)) {
         std::cout << "DRDEBUG ... NOT connected " << std::endl ;
         continue; 
       }
@@ -657,7 +657,7 @@ CaloNoiseTool::initAdc2MeV()
         {
 	  const std::vector<float> *
 	    polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(id,igain));
-	  if(polynom_adc2mev->size()==0)
+	  if(polynom_adc2mev->empty())
 	    adc2mevVector.push_back(0.);
 	  else 
 	    adc2mevVector.push_back((*polynom_adc2mev)[1]);
@@ -864,7 +864,7 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
       {
         if(m_noiseOK && sigma<0)       
   	  this->updateDiagnostic(9,"sigma<0",igain);         
-        if(m_noiseOK==false) 
+        if(!m_noiseOK) 
         {
 	  m_idHash[m_nCellsWithProblem[igain]][igain]=idCaloHash;
 	  ++m_nCellsWithProblem[igain];
@@ -872,7 +872,7 @@ E=SUMi { OFCi * (short[ ( (PulseShapei*Ehit+Noisei)*gain + CNoisei )
         }      
       }
       //::::::::::::::::::::::::::::::::::::::
-      if(m_noiseOK==false || sigma<0) sigma=float(BADVALUE_TO_RETURN);
+      if(!m_noiseOK || sigma<0) sigma=float(BADVALUE_TO_RETURN);
     }
     sigmaVector[igain]=sigma;
 
@@ -1044,7 +1044,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
 				    const Identifier & id, 
 				    int igain,
 				    const float &Nminbias,
-				    std::string function_name)
+				    const std::string& function_name)
 {
   bool PRINT=false;
   if(m_DumpDatabase[igain]) PRINT=true;
@@ -1156,7 +1156,7 @@ CaloNoiseTool::retrieveCellDatabase(const IdentifierHash & idCaloHash,
 
 StatusCode
 CaloNoiseTool::checkCellDatabase(const Identifier & id, int igain,
-				 std::string function_name)
+				 const std::string& function_name)
 {
   StatusCode StatusDatabase=StatusCode::SUCCESS;
 
@@ -1421,7 +1421,7 @@ CaloNoiseTool::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
 //////////////////////////////////////////////////
 
 void
-CaloNoiseTool::updateDiagnostic(int ireason,std::string nameReason,int igain)
+CaloNoiseTool::updateDiagnostic(int ireason,const std::string& nameReason,int igain)
 {
   int nTmp=m_nCellsWithProblem[igain];
   if (nTmp >= 5000) return;

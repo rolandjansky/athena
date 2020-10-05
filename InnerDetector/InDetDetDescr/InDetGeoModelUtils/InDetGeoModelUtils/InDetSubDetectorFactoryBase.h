@@ -1,12 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_SubDetectorFactoryBase_H
 #define InDetGeoModelUtils_SubDetectorFactoryBase_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
+
+#include <memory>
 
 class StoreGateSvc;
 class IGeoDbTagSvc;
@@ -23,26 +26,26 @@ class SubDetectorFactoryBase
 { 
 
 public:
-  SubDetectorFactoryBase(const InDetDD::AthenaComps * athenaComps)
+  SubDetectorFactoryBase(InDetDD::AthenaComps * athenaComps)
     : m_athenaComps(athenaComps),
       m_materialManager(0)
   {}
 
-  SubDetectorFactoryBase(const InDetDD::AthenaComps * athenaComps,
+  SubDetectorFactoryBase(InDetDD::AthenaComps * athenaComps,
 			 InDetMaterialManager * matManager)
     : m_athenaComps(athenaComps),
       m_materialManager(matManager)
   {}
 
-  StoreGateSvc * detStore() const {return m_athenaComps->detStore();}
+  StoreGateSvc * detStore() {return m_athenaComps->detStore();}
 
-  IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
+  const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
 
   IRDBAccessSvc * rdbAccessSvc() const {return m_athenaComps->rdbAccessSvc();}
   
-  IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
+  const IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
 
-  InDetMaterialManager * materialManager() const {return m_materialManager;}
+  InDetMaterialManager * materialManager() {return m_materialManager;}
 
  //Declaring the Message method for further use
   MsgStream& msg (MSG::Level lvl) const { return m_athenaComps->msg(lvl); }
@@ -50,13 +53,15 @@ public:
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
 
-  const InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
+  InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
   
 private:
-  const InDetDD::AthenaComps *  m_athenaComps;
+  InDetDD::AthenaComps *  m_athenaComps;
   
 protected:
   InDetMaterialManager * m_materialManager;
+  // Use this std::unique_ptr when this class owns InDetMaterialManager
+  std::unique_ptr<InDetMaterialManager> m_materialManagerUnique;
 };
 
 } // end namespace

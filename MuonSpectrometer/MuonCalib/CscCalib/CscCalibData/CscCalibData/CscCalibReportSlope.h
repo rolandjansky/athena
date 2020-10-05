@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBDATA_CSCCALIBREPORTSLOPE_H
@@ -17,15 +17,12 @@ and graphs. The monitoring system can pick out what graphs it wants.
 #include "CscCalibData/CscCalibReportBase.h"
 #include "AthContainers/DataVector.h"
 
-//#include "TGraphErrors.h"
-//#include "TProfile.h"
-
 #include <map>
 #include <set>
 
-
 class TProfile;
 class TGraphErrors;
+class TH1I;
 
 class CscCalibReportSlope : public CscCalibReportBase
 {

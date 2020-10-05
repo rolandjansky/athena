@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_JobOptionsSvc
@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthService.h"
@@ -30,7 +31,7 @@ namespace TrigConf {
    *  - `DB`:   Read properties from DB, connection string in `PATH`, see \ref parseDBString
    *
    */
-  class JobOptionsSvc : public extends<AthService, TrigConf::IJobOptionsSvc, ::IJobOptionsSvc> {
+  class JobOptionsSvc : public extends<AthService, TrigConf::IJobOptionsSvc, ::IJobOptionsSvc, Gaudi::Interfaces::IOptionsSvc> {
     using AthService::getProperties;
 
   public:
@@ -38,6 +39,51 @@ namespace TrigConf {
 
     virtual StatusCode initialize() override;
     virtual StatusCode start() override;
+
+    /// @name IOptionsSvc interface
+    ///@{
+    virtual void set( const std::string& key, const std::string& value ) override
+    {
+      return m_optsvc->set(key,value);
+    }
+
+    virtual std::string get( const std::string& key, const std::string& default_ = {} ) const override
+    {
+      return m_optsvc->get(key,default_);
+    }
+
+    virtual std::string pop( const std::string& key, const std::string& default_ = {} ) override
+    {
+      return m_optsvc->pop(key,default_);
+    }
+    
+    virtual bool has( const std::string& key ) const override
+    {
+      return m_optsvc->has(key);
+    }
+    
+    virtual bool isSet( const std::string& key ) const override
+    {
+      return m_optsvc->isSet(key);
+    }
+
+    virtual std::vector<std::tuple<std::string, std::string>> items() const override
+    {
+      return m_optsvc->items();
+    }
+
+    virtual void bind( const std::string& prefix, Gaudi::Details::PropertyBase* property ) override
+    {
+      return m_optsvc->bind(prefix,property);
+    }
+
+    using OnlyDefaults = Gaudi::Interfaces::IOptionsSvc::OnlyDefaults;
+    virtual void broadcast( const std::regex& filter, const std::string& value,
+                            OnlyDefaults defaults = OnlyDefaults{true} ) override
+    {
+      return m_optsvc->broadcast(filter, value, defaults);
+    }
+    ///@}
 
     /// @name IJobOptionsSvc interface
     /// Most interfaces are just forwards to the "real" JobOptionsSvc.
@@ -65,16 +111,17 @@ namespace TrigConf {
       return m_josvc->getProperties(client);
     }
 
-    virtual const Property* getClientProperty(const std::string& client,
+    virtual const Gaudi::Details::PropertyBase* getClientProperty(const std::string& client,
                                               const std::string& name) const override
     {
       return m_josvc->getClientProperty(client, name);
     }
 
     virtual std::vector<std::string> getClients() const override { return m_josvc->getClients(); }
-    virtual StatusCode readOptions(const std::string& file, const std::string& path = "") override;
-
-    StatusCode readOptionsDB(const std::string& db_server, int smk);
+    virtual StatusCode readOptions(const std::string&, const std::string&) override
+    {
+      throw std::runtime_error("TrigConf::JobOptionsSvc::readOptions() is deprecated");
+    }
     ///@}
 
     /// @name TrigConf::IJobOptionsSvc interface
@@ -87,6 +134,8 @@ namespace TrigConf {
 
   private:
     StatusCode dumpOptions(const std::string& file);
+    StatusCode readOptionsJson(const std::string& file);
+    StatusCode readOptionsDB(const std::string& db_server, int smk);
     void parseDBString(const std::string& s);
 
     int m_smk{-1};        ///< SuperMasterKey
@@ -100,8 +149,9 @@ namespace TrigConf {
     Gaudi::Property<std::string> m_searchPath{this, "SEARCHPATH", {}, "NOT SUPPORTED"};
     Gaudi::Property<std::string> m_dump{this, "DUMPFILE", {}, "Dump job properties into JSON file"};
 
-    /// handle to the "real" IJobOptionsSvc
+    /// handle to the "real" IOptionsSvc
     ServiceHandle<::IJobOptionsSvc> m_josvc;
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_optsvc;
   };
 
 } // namespace TrigConf

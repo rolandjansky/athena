@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <vector>
@@ -25,25 +25,72 @@
 
 using namespace std;
 
+int printHelp(const char * exeName) {
+   cout << "Please specify menu and data file and optionally the message levels for the framework and the algorithms:" << endl << endl;
+   cout << exeName << " <menu.xml> <data.txt> [INFO|DEBUG|WARNING] [INFO|DEBUG|WARNING] [filename.root] [optional arguments]" << endl << endl;
+   cout << "optional arguments:" << endl
+        << "   -o|--outfile <filename.root>" << endl
+        << "   -n|--nevt <#events>" << endl
+        << "      --msgLvl INFO|DEBUG|WARNING" << endl
+        << "      --algMsgLvl INFO|DEBUG|WARNING" << endl << endl;
+   return 1;
+}
+
 int run(int argc, const char* argv[]) {
 
    if(argc<3) {
-      cout << "Please specify menu and data file:\n" << argv[0] << " <menu.xml> <data.txt> [INFO|DEBUG|WARNING] [INFO|DEBUG|WARNING]" << endl;
-      return 1;
+      return printHelp(argv[0]);
    }
 
    TrigConf::MSGTC::Level msgLvl = TrigConf::MSGTC::WARNING;
    TrigConf::MSGTC::Level algMsgLvl = TrigConf::MSGTC::WARNING;
+   string filename = "L1TopoSimulation.root";
+   int nevt=-1;
 
-   if(argc>=4) {
-      string msgInput(argv[3]);
-      msgLvl = (msgInput=="DEBUG")?TrigConf::MSGTC::DEBUG:(msgInput=="INFO")?TrigConf::MSGTC::INFO:TrigConf::MSGTC::WARNING;
-      algMsgLvl = msgLvl;
-   }
-
-   if(argc>=5) {
-      string msgInput(argv[4]);
-      algMsgLvl = (msgInput=="DEBUG")?TrigConf::MSGTC::DEBUG:(msgInput=="INFO")?TrigConf::MSGTC::INFO:TrigConf::MSGTC::WARNING;
+   int cmsg=0;
+   for(int c=0; c<argc; ++c) {
+      auto arg = std::string(argv[c]);
+      if(arg=="-h" or arg=="--help") {
+         return printHelp(argv[0]);
+      }
+      if( (arg=="-n" or arg=="--nevt") and c<=argc) {
+         nevt = std::stoi(std::string(argv[++c]));
+      }
+      if( arg=="--msgLvl" and c<=argc ) {
+         string msgInput(argv[++c]);
+         msgLvl = (msgInput=="DEBUG")?TrigConf::MSGTC::DEBUG:(msgInput=="INFO")?TrigConf::MSGTC::INFO:TrigConf::MSGTC::WARNING;
+      }
+      if( (arg=="-o" or arg=="--outfile") and c<=argc ) {
+         filename = std::string(argv[++c]);
+      }
+      if( arg=="--algMsgLvl" and c<=argc ) {
+         string msgInput(argv[++c]);
+         algMsgLvl = (msgInput=="DEBUG")?TrigConf::MSGTC::DEBUG:(msgInput=="INFO")?TrigConf::MSGTC::INFO:TrigConf::MSGTC::WARNING;
+      }
+      if( arg=="DEBUG" ) {
+         if(cmsg==0) {
+            msgLvl = TrigConf::MSGTC::DEBUG; cmsg = 1;
+         } else {
+            algMsgLvl = TrigConf::MSGTC::DEBUG; cmsg = 1;
+         }
+      }
+      if( arg=="INFO" ) {
+         if(cmsg==0) {
+            msgLvl = TrigConf::MSGTC::INFO; cmsg = 1;
+         } else {
+            algMsgLvl = TrigConf::MSGTC::INFO; cmsg = 1;
+         }
+      }
+      if( arg=="WARNING" ) {
+         if(cmsg==0) {
+            msgLvl = TrigConf::MSGTC::WARNING; cmsg = 1;
+         } else {
+            algMsgLvl = TrigConf::MSGTC::WARNING; cmsg = 1;
+         }
+      }
+      if( arg.size()>5 and arg.find(".root", arg.size()-5)!=std::string::npos ) {
+         filename = arg;
+      }
    }
 
    TrigConf::MsgStreamTC msg("TopoStandalone");
@@ -57,9 +104,6 @@ int run(int argc, const char* argv[]) {
 
    //XMLParser.menu().print();
 
-   string filename = "L1TopoSimulation.root";
-   if(argc>=4)
-      filename = argv[3];
 
    //TFile *f = new TFile(argc>=4 ? argv[3] : "L1TopoSimulation.root","RECREATE");
    TH1* h[3];
@@ -68,7 +112,7 @@ int run(int argc, const char* argv[]) {
    h[2] = new TH1F("Decision/DecisionModule3", "L1 Topo Decision (Module 3)", 64, 0, 64);
 
    const std::vector<TXC::TriggerLine> & topoTriggers = XMLParser.menu().getL1TopoConfigOutputList().getTriggerLines();
-   for(const TXC::TriggerLine tl : topoTriggers) {
+   for(const TXC::TriggerLine& tl : topoTriggers) {
       h[tl.module()]->GetXaxis()->SetBinLabel(1+ tl.counter() % 64, tl.name().c_str());
    }
    for(uint i=0; i<3; ++i)
@@ -88,9 +132,6 @@ int run(int argc, const char* argv[]) {
    topoHistSvc->setBaseDir("L1TopoSimulation.root:");
    for(int i = 0; i < 3; i++ )
       topoHistSvc->registerHist(h[i]);
-
-
-
 
    steering.setHistSvc(topoHistSvc);
 
@@ -117,7 +158,7 @@ int run(int argc, const char* argv[]) {
    //steering.simulationResult().globalDecision().msg().setLevel( TrigConf::MSGTC::INFO );
 
    // loop over the events
-   while(reader.getNextEvent()) {
+   while(nevt-- and reader.getNextEvent()) {
 
       msg << TrigConf::MSGTC::INFO << "=======================================================" << TrigConf::endmsgtc;
 

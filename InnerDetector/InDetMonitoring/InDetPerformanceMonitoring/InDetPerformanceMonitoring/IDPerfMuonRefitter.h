@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPerfMuonRefitterTER_H
@@ -12,8 +12,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODMuon/MuonContainer.h"
 
 class IDPerfMuonRefitter : public AthAlgorithm
 {
@@ -43,11 +44,12 @@ class IDPerfMuonRefitter : public AthAlgorithm
   std::string m_outputTracksName;
 
 
-  mutable int m_N_Muons;
-  mutable int m_N_MuonsRefit;
-  mutable int m_N_MuonRefitFailures;
+  int m_N_Muons;
+  int m_N_MuonsRefit;
+  int m_N_MuonRefitFailures;
 
-  PerfMonServices::CONTAINERS m_container;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey
+  { this, "MuonContainerKey", "Muons", "" };
 
 };
 //==============================================================================

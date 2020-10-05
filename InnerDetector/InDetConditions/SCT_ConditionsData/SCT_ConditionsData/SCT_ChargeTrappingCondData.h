@@ -1,19 +1,26 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * SCT_ChargeTrappingCondData
- * @file header file for data object for SCT_ChargeTrappingTool
- * @author Susumu Oda - 14/05/2018
+ * @file header file for data object for SCT_ChargeTrappingTool, SCT_RadDamageSummaryTool, SCT_SurfaceChargesGenerator
+ * @author Susumu Oda
+ * @date 14/05/2018
  **/
 
 #ifndef SCT_CHARGETRAPPINGCONDDATA_H
 #define SCT_CHARGETRAPPINGCONDDATA_H
 
+/**
+ * @class SCT_ChargeTrappingCondData
+ * @brief Data object for SCT_ChargeTrappingTool, SCT_RadDamageSummaryTool, SCT_SurfaceChargesGenerator
+ **/
 class SCT_ChargeTrappingCondData
 {
- public:
+public:
   SCT_ChargeTrappingCondData();
   virtual ~SCT_ChargeTrappingCondData() = default;
 
@@ -39,7 +46,7 @@ class SCT_ChargeTrappingCondData
   void setTrappingPositionZ(const double trappingPosition);
   void setHoleDriftMobility(const double holeDriftMobility);
 
- private:
+private:
   double m_electricField;
   double m_meanFreePathElectrons;
   double m_meanFreePathHoles;
@@ -52,7 +59,7 @@ class SCT_ChargeTrappingCondData
   double m_holeDriftMobility;
 };
 
-// Class definition
+// Class definition for StoreGate
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_ChargeTrappingCondData , 70980446 , 1 )
 

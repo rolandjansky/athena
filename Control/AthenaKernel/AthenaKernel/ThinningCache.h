@@ -15,7 +15,9 @@
 
 
 #include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/ThinningInfo.h"
 #include "AthenaKernel/sgkey_t.h"
+#include "CxxUtils/ConcurrentBitset.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -29,6 +31,7 @@ namespace SG {
 
 
 class ThinningDecisionBase;
+class auxid_set_t;
 
 
 /**
@@ -112,18 +115,45 @@ public:
 
 
   /**
+   * @brief Set vetoed variable information one object.
+   * @param key SG string key of the object being added.
+   * @param vetoed Set of vetoed variables for this object.
+   */
+  void setVetoed (const std::string& key,
+                  const CxxUtils::ConcurrentBitset& vetoed);
+
+  /**
+   * @brief Set lossy float compression information for the object.
+   * @param key SG string key of the object being added.
+   * @param compression Map of compression levels to variables
+   *                    for this object.
+   */
+  void setCompression(const std::string& key,
+                      const ThinningInfo::compression_map_t& compression);
+
+  /**
+   * @brief Return thinning information for @c key.
+   * @param key SG key for which to return selected variables.
+   *
+   * Return thinning information @c key, or nullptr.
+   */
+  const ThinningInfo* thinningInfo (const std::string& key) const;
+
+
+  /**
    * @brief Clear the cache.
    */
   void clear();
 
 
+
 private:
   /// Mapping by string SG key.
-  typedef std::unordered_map<std::string, const ThinningDecisionBase*> map_t;
+  typedef std::unordered_map<std::string, ThinningInfo> map_t;
   map_t m_map;
 
   /// Mapping by hashed SG key.
-  typedef std::unordered_map<sgkey_t, const ThinningDecisionBase*> sgmap_t;
+  typedef std::unordered_map<sgkey_t, ThinningInfo> sgmap_t;
   sgmap_t m_sgmap;
 
   /// List of decision objects we've copied in order to handle merges.
@@ -135,13 +165,13 @@ private:
 
   /**
    * @brief Merge a new thinning request into an existing one via AND.
-   * @param oldThinningIt Iterator in @c m_map of the existing thinning decision.
+   * @param info @c ThinningInfo with existing decision.
    * @param sgkeys SG hashed keys of the object being added.
    * @param thinning New thinning decision.
    *
    * The new thinning decision will be combined with the old one via AND.
    */
-  void merge (map_t::iterator oldThinningIt,
+  void merge (ThinningInfo& info,
               const std::vector<sgkey_t>& sgkeys,
               const ThinningDecisionBase& thinning);
 };

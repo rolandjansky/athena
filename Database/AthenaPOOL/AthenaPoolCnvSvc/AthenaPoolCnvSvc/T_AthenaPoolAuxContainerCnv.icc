@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.icc
@@ -43,8 +43,8 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistentWithKey( AUXST
   {
     key2.erase (key2.size()-4, 4);
   }
-  const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key2);
-  return SG::copyThinned (*trans, dec).release();
+  const SG::ThinningInfo* info = SG::getThinningInfo (key2);
+  return SG::copyThinned (*trans, info).release();
 }
 
 

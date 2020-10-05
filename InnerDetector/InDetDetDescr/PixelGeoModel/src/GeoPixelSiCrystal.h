@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSICRYSTAL_H
@@ -19,8 +19,10 @@ namespace InDetDD {
 
 class GeoPixelSiCrystal : public GeoVPixelFactory {
  public:
-  GeoPixelSiCrystal(bool isBLayer, bool isModule3D=false);
-  virtual GeoVPhysVol* Build();
+  GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
+                    PixelGeometryManager* mgr,
+                    bool isBLayer, bool isModule3D=false);
+  virtual GeoVPhysVol* Build() override;
   inline Identifier getID();
 
   bool GetModule3DFlag() { return m_isModule3D; };

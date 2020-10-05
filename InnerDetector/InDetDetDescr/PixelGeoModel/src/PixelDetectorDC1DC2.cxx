@@ -72,7 +72,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
   //
   // Build the layers inside
   //
-  GeoPixelLayer layer;
+  GeoPixelLayer layer (m_DDmgr, m_gmt_mgr);
   std::string lname[3];
   lname[0] = "InnerLayer";
   lname[1] = "CenterLayer";
@@ -100,7 +100,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     //
     // Add the services inside the barrel volume
     //
-    GeoPixelServices brlsvc = GeoPixelServices("/Pixel/PixelBarrel");
+    GeoPixelServices brlsvc = GeoPixelServices(m_DDmgr, m_gmt_mgr, "/Pixel/PixelBarrel");
     for(int ii =0; ii< brlsvc.NCylinders(); ii++) {
       brlsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Barrel Service");
@@ -221,7 +221,10 @@ GeoVPhysVol* GeoPixelChip::Build() {
 //---------------------------------------------------//
 
 
-GeoPixelDisk::GeoPixelDisk() {
+GeoPixelDisk::GeoPixelDisk(InDetDD::PixelDetectorManager* ddmgr,
+               PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
 
   // Define the log volume in the constructor, so I do it only once.
   //
@@ -244,12 +247,12 @@ GeoPixelDisk::~GeoPixelDisk() {
 GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
   // Define the Sensor to be used here, so it will be the same for all the disk
-  GeoPixelSiCrystal theSensor(false);
+  GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, false);
   GeoFullPhysVol* diskPhys = new GeoFullPhysVol(m_theDisk);
   //
   // Place the disk sectors (on both sides):
   //
-  GeoPixelSubDisk psd(theSensor);
+  GeoPixelSubDisk psd(m_DDmgr, m_gmt_mgr, theSensor);
   double zpos = -m_gmt_mgr->PixelECSiDz1()/2.;
   double angle = 360.*Gaudi::Units::deg/ (float) m_gmt_mgr->PixelECNSectors1();
   GeoTrf::Translation3D pos(0.,0.,zpos);
@@ -299,7 +302,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
   // Place the supports for the disks:
   //
-  GeoPixelDiskSupports pds;
+  GeoPixelDiskSupports pds (m_DDmgr, m_gmt_mgr);
   for(int ii =0; ii< pds.NCylinders(); ii++) {
     pds.SetCylinder(ii);
     GeoTrf::Translate3D pos(0.,0.,pds.ZPos() );
@@ -368,7 +371,10 @@ int GeoPixelDisk::getPhiId() {
 //---------------------------------------------------//
 
 
-GeoPixelDiskSupports::GeoPixelDiskSupports() {
+GeoPixelDiskSupports::GeoPixelDiskSupports(InDetDD::PixelDetectorManager* ddmgr,
+                                           PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
   //
   // Initialize the vectors
   //
@@ -414,7 +420,10 @@ GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-GeoPixelECCable::GeoPixelECCable() {
+GeoPixelECCable::GeoPixelECCable(InDetDD::PixelDetectorManager* ddmgr,
+                                 PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
   //
   // Define the log volume in the constructor, so I do it only once.
   //
@@ -466,8 +475,8 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   //
   // Place the disks and cables on both sides
   //
-  GeoPixelDisk pd;
-  GeoPixelECCable pecc;
+  GeoPixelDisk pd (m_DDmgr, m_gmt_mgr);
+  GeoPixelECCable pecc (m_DDmgr, m_gmt_mgr);
   for(int ii = 0; ii < m_gmt_mgr->PixelEndcapNDisk(); ii++) {
     m_gmt_mgr->SetCurrentLD(ii);
     if(m_gmt_mgr->isLDPresent()) {
@@ -518,7 +527,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
     //
     // Add the Endcap services inide the EC volume
     //
-    GeoPixelServices ecsvc = GeoPixelServices("/Pixel/PixelEndcap");
+    GeoPixelServices ecsvc = GeoPixelServices(m_DDmgr, m_gmt_mgr, "/Pixel/PixelEndcap");
     for(int ii =0; ii< ecsvc.NCylinders(); ii++) {
       ecsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Endcap Service");
@@ -556,7 +565,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   //
   m_DDmgr->numerology().addBarrel(0);
   m_gmt_mgr->SetBarrel();
-  GeoPixelBarrel brl;
+  GeoPixelBarrel brl (m_DDmgr, m_gmt_mgr);
   GeoNameTag* tag = new GeoNameTag("Barrel");
   GeoVPhysVol* barrelPhys =  brl.Build() ;
   envelopePhys->add(tag);
@@ -566,7 +575,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     //
     // Add the Barrel services outside the barrel volume
     //
-    GeoPixelServices brlsvc = GeoPixelServices("/Pixel");
+    GeoPixelServices brlsvc = GeoPixelServices(m_DDmgr, m_gmt_mgr, "/Pixel");
     for(int ii =0; ii< brlsvc.NCylinders(); ii++) {
       brlsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Barrel Service");
@@ -585,7 +594,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   m_DDmgr->numerology().addEndcap(-2);
   m_gmt_mgr->SetEndcap();
   m_gmt_mgr->SetPos();
-  GeoPixelEndCap pec;
+  GeoPixelEndCap pec (m_DDmgr, m_gmt_mgr);
   double zpos = (m_gmt_mgr->PixelEndcapZMax()+m_gmt_mgr->PixelEndcapZMin())/2.;
   GeoTrf::Translate3D pos(0.,0.,zpos);
   GeoTransform* xform = new GeoTransform(pos);
@@ -606,7 +615,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     //
     // Add the Endcap services outside the EC volume
     //
-    GeoPixelServices ecsvc = GeoPixelServices("/Pixel");
+    GeoPixelServices ecsvc = GeoPixelServices(m_DDmgr, m_gmt_mgr, "/Pixel");
     for(int ii =0; ii< ecsvc.NCylinders(); ii++) {
       ecsvc.SetCylinder(ii);
       GeoNameTag* tag = new GeoNameTag("Outside Endcap Service");
@@ -671,8 +680,11 @@ GeoVPhysVol* GeoPixelHybrid::Build() {
 //---------------------------------------------------//
 
 
-GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor) :
-  m_theSensor(theSensor)
+GeoPixelLadder::GeoPixelLadder(InDetDD::PixelDetectorManager* ddmgr,
+                               PixelGeometryManager* mgr,
+                               GeoPixelSiCrystal& theSensor)
+  : GeoVPixelFactory (ddmgr, mgr),
+     m_theSensor(theSensor)
 {
   using std::max;
 
@@ -709,7 +721,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
   //
   // Place the Modules
   //
-  GeoPixelModule pm(m_theSensor);
+  GeoPixelModule pm(m_DDmgr, m_gmt_mgr, m_theSensor);
   int HalfNModule = m_gmt_mgr->PixelNModule()/2;
   for(int ii = 0; ii < m_gmt_mgr->PixelNModule(); ii++) {
     //
@@ -826,7 +838,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // Build the sensor first to use the same for all the module in the layer
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
-  GeoPixelSiCrystal theSensor(isBLayer);
+  GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
   //
   // This is the maximum possible w/o going out of the mother volume!
   //
@@ -848,8 +860,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // Place the ladders:
   //
-  GeoPixelLadder pl(theSensor);
-  GeoPixelTubeCables ptc;
+  GeoPixelLadder pl(m_DDmgr, m_gmt_mgr, theSensor);
+  GeoPixelTubeCables ptc (m_DDmgr, m_gmt_mgr);
   int nsectors = m_gmt_mgr->NPixelSectors();
   double angle=360./nsectors*Gaudi::Units::deg;
   double layerradius = m_gmt_mgr->PixelLayerRadius();
@@ -907,7 +919,10 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 //---------------------------------------------------//
 
 
-GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
+GeoPixelModule::GeoPixelModule(InDetDD::PixelDetectorManager* ddmgr,
+                               PixelGeometryManager* mgr,
+                               GeoPixelSiCrystal& theSensor) :
+  GeoVPixelFactory (ddmgr, mgr),
   m_theSensor(theSensor)
 {
   //
@@ -944,7 +959,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   // Place the Hybrid
   //
-  GeoPixelHybrid ph;
+  GeoPixelHybrid ph (m_DDmgr, m_gmt_mgr);
   double xpos = -0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelHybridThickness());
   GeoTrf::Translate3D hybpos(xpos,0.,0.);
   GeoTransform* xform = new GeoTransform(hybpos);
@@ -955,7 +970,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   //
   // Place the Chip
   //
-  GeoPixelChip pc;
+  GeoPixelChip pc (m_DDmgr, m_gmt_mgr);
   xpos = 0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelChipThickness())+m_gmt_mgr->PixelChipGap();
   GeoTrf::Translate3D chippos(xpos,0.,0.);
   xform = new GeoTransform(chippos);
@@ -1039,7 +1054,11 @@ Identifier GeoPixelModule::getID() {
 //
 
 
-GeoPixelServices::GeoPixelServices(std::string root) {
+GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
+                                   PixelGeometryManager* mgr,
+                                   const std::string& root)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
   //
   // Initialize the service geometry properly accordning to the
   // mother volume where it goes.
@@ -1168,7 +1187,11 @@ GeoVPhysVol* GeoPixelServices::Build( ) {
 
 using namespace InDetDD;
 
-GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
+GeoPixelSiCrystal::GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
+                                     PixelGeometryManager* mgr,
+                                     bool isBLayer)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
   // 
   //Builds the design for this crystal
   m_isBLayer = isBLayer;
@@ -1208,7 +1231,7 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
   std::shared_ptr<const PixelDiodeMatrix> fullMatrix = PixelDiodeMatrix::construct(PixelDiodeMatrix::phiDir,
 						       nullptr, singleRow, DiodeRowPerCirc, nullptr);
 
-  PixelModuleDesign *p_barrelDesign2 = new PixelModuleDesign(thickness,
+  std::unique_ptr<PixelModuleDesign> p_barrelDesign2 = std::make_unique<PixelModuleDesign>(thickness,
 							     CircPerCol,
 							     CircPerRow,
 							     CellColPerCirc,
@@ -1257,9 +1280,9 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
   }
   
 
-  m_design = p_barrelDesign2;
+  m_design = p_barrelDesign2.get();
 
-  m_DDmgr->addDesign(m_design);
+  m_DDmgr->addDesign(std::move(p_barrelDesign2));
 
 }
 GeoVPhysVol* GeoPixelSiCrystal::Build() {
@@ -1331,8 +1354,11 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
 //---------------------------------------------------//
 
 
-GeoPixelSubDisk::GeoPixelSubDisk(GeoPixelSiCrystal & theSensor) :
-m_theSensor(theSensor)
+GeoPixelSubDisk::GeoPixelSubDisk(InDetDD::PixelDetectorManager* ddmgr,
+                                 PixelGeometryManager* mgr,
+                                 GeoPixelSiCrystal & theSensor)
+  : GeoVPixelFactory (ddmgr, mgr),
+    m_theSensor(theSensor)
 {
   //
   // Define the log volume in the constructor, so I do it only once.
@@ -1371,7 +1397,7 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
   //
   // Place the Hybrid
   //
-  GeoPixelHybrid ph;
+  GeoPixelHybrid ph (m_DDmgr, m_gmt_mgr);
   tag = new GeoNameTag("Hybrid");
   double zpos = 0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelHybridThickness())+m_epsilon/2.;
   pos = GeoTrf::Translation3D(xpos,0.,zpos);
@@ -1382,7 +1408,7 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
 //
 // Place the Chip
 //
-  GeoPixelChip pc;
+  GeoPixelChip pc (m_DDmgr, m_gmt_mgr);
   tag = new GeoNameTag("Chip");
   zpos = -0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelChipThickness())-m_gmt_mgr->PixelChipGap();
   pos = GeoTrf::Translation3D(xpos,0.,zpos);
@@ -1419,7 +1445,10 @@ double GeoPixelSubDisk::Thickness() {
 //---------------------------------------------------//
 
 
-GeoPixelTubeCables::GeoPixelTubeCables() {
+GeoPixelTubeCables::GeoPixelTubeCables(InDetDD::PixelDetectorManager* ddmgr,
+                                       PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
   //
   // Define the log volume in the constructor, so I do it only once.
   //
@@ -1453,7 +1482,7 @@ GeoVPhysVol* GeoPixelTubeCables::Build( ) {
   // Place the Ladder Structure. Don't understand why this is going in the
   // tube & cables section...
   //
-  GeoPixelLadderStruct pls;
+  GeoPixelLadderStruct pls (m_DDmgr, m_gmt_mgr);
   GeoNameTag* tag = new GeoNameTag("LadderStructure");
   GeoVPhysVol* ladderstructPhys =  pls.Build() ;
   double xpos = 0.5*(-this->Thickness()+m_gmt_mgr->PixelLadderThickness());
@@ -1469,7 +1498,7 @@ GeoVPhysVol* GeoPixelTubeCables::Build( ) {
   // central module is done half on the right and half on the left.
   // thus I have 7 cables running on each side.
   //
-  GeoPixelCable pc;
+  GeoPixelCable pc (m_DDmgr, m_gmt_mgr);
   double xcabshift = 0.;
   for(int ii = 0; ii <= m_gmt_mgr->PixelNModule()/2; ii++) {
     pc.SetModuleNumber(ii);
@@ -1533,22 +1562,17 @@ double GeoPixelTubeCables::Thickness() {
 
 using InDetDD::PixelDetectorManager;
 
-PixelDetectorManager * GeoVPixelFactory::m_DDmgr = 0;
-
-GeoVPixelFactory::GeoVPixelFactory() :   
+GeoVPixelFactory::GeoVPixelFactory(InDetDD::PixelDetectorManager* ddmgr,
+                                   PixelGeometryManager* mgr) :
+  m_gmt_mgr (mgr),
+  m_mat_mgr (m_gmt_mgr->getMaterialManager()),
+  m_DDmgr (ddmgr),
   m_epsilon(0.0001)
- {
-  m_gmt_mgr = PixelGeometryManager::GetPointer();
-  m_mat_mgr = m_gmt_mgr->getMaterialManager();
+{
 }
 
 GeoVPixelFactory::~GeoVPixelFactory()
 {}
-
-
-void GeoVPixelFactory::SetDDMgr(PixelDetectorManager* mgr) {
-  m_DDmgr = mgr;
-}
 
 
 //---------------------------------------------------//
@@ -1574,8 +1598,6 @@ OraclePixGeoManager::OraclePixGeoManager()
     m_initialLayout(false), 
     m_dc1Geometry(false),
     m_alignable(true),
-    m_magFieldFromNova(true),
-    m_useMagFieldSvc(false),
     m_commonItems(0),
     m_pDDmgr(0),
     m_pMatMgr(0)
@@ -2230,41 +2252,14 @@ double OraclePixGeoManager::Temperature(bool isBLayer){
   return (*m_plor)[1]->getDouble("TEMPC")*Gaudi::Units::kelvin+Gaudi::Units::STP_Temperature;
 }
 
-const GeoTrf::Vector3D & 
-OraclePixGeoManager::magneticField(bool isBLayer) const
-{
-  if (m_magFieldFromNova) {
-    if(isBLayer) { 
-      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[0]->getDouble("BFIELD") * Gaudi::Units::tesla);
-    } else {
-      m_magField = GeoTrf::Vector3D(0, 0, (*m_plrn)[1]->getDouble("BFIELD") * Gaudi::Units::tesla);
-    }
-  }
-  return m_magField;
-}
-
-void 
-OraclePixGeoManager::setMagneticField(const GeoTrf::Vector3D & field)
-{
-  m_magField = field;
-  m_magFieldFromNova = false;
-  m_useMagFieldSvc = false;
-}
-
-bool
-OraclePixGeoManager::useMagneticFieldSvc() const
-{
-  return m_useMagFieldSvc;
-}
-
-void 
-OraclePixGeoManager::setUseMagneticFieldSvc(bool flag)
-{
-  m_useMagFieldSvc = flag;
-}
-
-
 InDetDD::SiCommonItems * 
+OraclePixGeoManager::commonItems()
+{
+  return m_commonItems;
+}
+
+
+const InDetDD::SiCommonItems * 
 OraclePixGeoManager::commonItems() const
 {
   return m_commonItems;
@@ -2290,8 +2285,6 @@ OraclePixGeoManager::getIdHelper()
 //                                                   //
 //---------------------------------------------------//
 
-PixelGeometryManager* PixelGeometryManager::s_geometry_manager = 0;
-
 using namespace std;
 
 PixelGeometryManager::PixelGeometryManager()
@@ -2299,18 +2292,4 @@ PixelGeometryManager::PixelGeometryManager()
 }
 PixelGeometryManager::~PixelGeometryManager()
 {
-}
-
-void PixelGeometryManager::init() {
-  s_geometry_manager = new OraclePixGeoManager();
-}
-
-
-PixelGeometryManager *PixelGeometryManager::GetPointer() {
-
-  
-  if (!s_geometry_manager) {
-    init();
-  }
-  return s_geometry_manager;
 }

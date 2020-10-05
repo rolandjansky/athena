@@ -69,7 +69,7 @@ const Int_t  kMapOffset         = 2;   // first 2 map entries are taken by null 
 
 // Work around ROOT-8367
 
-class TBufferFileWorkaround
+class ATLAS_NOT_THREAD_SAFE TBufferFileWorkaround
   : public TBufferFile
 {
 public:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header for this module
@@ -80,52 +80,48 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   }
 
   // Find overlap objects
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
-  std::vector<HepMC::GenParticle*> MCTruthElectronList;
-  std::vector<CLHEP::HepLorentzVector*> MCTruthTauList;
+  std::vector<HepMC::ConstGenParticlePtr> MCTruthPhotonList;
+  std::vector<HepMC::ConstGenParticlePtr> MCTruthElectronList;
+  std::vector<CLHEP::HepLorentzVector> MCTruthTauList;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
+    for (auto pitr: *genEvt) {
       if (m_photonjetoverlap==true) {
 	// photon - copied from VBFForwardJetsFilter.cxx
-	if ( (*pitr)->pdg_id() == 22 && (*pitr)->status() == 1 &&
-	     (*pitr)->momentum().perp() >= m_olapPt && 
-	     fabs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
-	  MCTruthPhotonList.push_back((*pitr));
+	if ( pitr->pdg_id() == 22 && pitr->status() == 1 &&
+	     pitr->momentum().perp() >= m_olapPt && 
+	     std::abs(pitr->momentum().pseudoRapidity()) <= m_yMax) {
+	  MCTruthPhotonList.push_back(pitr);
 	}
       }
       if (m_electronjetoverlap==true) {
 	// electron
-	if (abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
-	    (*pitr)->momentum().perp() >= m_olapPt &&
-	    fabs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
-	  MCTruthElectronList.push_back((*pitr));
+	if (std::abs(pitr->pdg_id()) == 11 && pitr->status() == 1 &&
+	    pitr->momentum().perp() >= m_olapPt &&
+	    std::abs(pitr->momentum().pseudoRapidity()) <= m_yMax) {
+	  MCTruthElectronList.push_back(pitr);
 	}
       }
       if (m_taujetoverlap==true) {
 	// tau - copied from VBFForwardJetsFilter.cxx
-	if ( abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3 ) {
-	  HepMC::GenParticle *tau = (*pitr);
-	  HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
-	  HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
+	if ( std::abs(pitr->pdg_id()) == 15 && pitr->status() != 3 ) {
+	   auto tau = pitr;
 	  int leptonic = 0;
-	  for ( ; begin != end; begin++ ) {
-	    if ( (*begin)->production_vertex() != tau->end_vertex() ) continue;
-	    if ( abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
-	    if ( abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
-	    if ( abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
+	  for ( auto beg:  *(tau->end_vertex()) ) {
+	    if (  beg->production_vertex() != tau->end_vertex() ) continue;
+	    if ( std::abs( beg->pdg_id() ) == 12 ) leptonic = 1;
+	    if ( std::abs( beg->pdg_id() ) == 14 ) leptonic = 2;
+	    if ( std::abs( beg->pdg_id() ) == 15 ) leptonic = 11;
 	  }
 	  
 	  if (leptonic == 0) {
 	    CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
-	    CLHEP::HepLorentzVector *tauvis = new CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
+	    CLHEP::HepLorentzVector tauvis = CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
 									  tau->momentum().py()-nutau.py(),
 									  tau->momentum().pz()-nutau.pz(),
 									  tau->momentum().e()-nutau.e());
-	    if (tauvis->vect().perp() >= m_olapPt && fabs(tauvis->vect().pseudoRapidity()) <= m_yMax) {
+	    if (tauvis.vect().perp() >= m_olapPt && std::abs(tauvis.vect().pseudoRapidity()) <= m_yMax) {
 	      MCTruthTauList.push_back(tauvis);
-	    } else {
-	      delete tauvis;
 	    }
 	  }
 	}
@@ -136,7 +132,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   // Filter based on rapidity acceptance and sort
   xAOD::JetContainer filteredJets(SG::VIEW_ELEMENTS);
   for (xAOD::JetContainer::const_iterator jitr = truthJetCollection->begin(); jitr != truthJetCollection->end(); ++jitr) {
-    if (fabs( (*jitr)->rapidity() ) < m_yMax && (*jitr)->pt() >= m_olapPt) {
+    if (std::abs( (*jitr)->rapidity() ) < m_yMax && (*jitr)->pt() >= m_olapPt) {
       bool JetOverlapsWithPhoton   = false;
       bool JetOverlapsWithElectron = false;
       bool JetOverlapsWithTau      = false;
@@ -193,7 +189,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
 }
 
 
-bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepMC::GenParticle*> list) {
+bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepMC::ConstGenParticlePtr> list) {
   for (size_t i = 0; i < list.size(); ++i) {
     double pt = list[i]->momentum().perp();
     if (pt > m_olapPt) {
@@ -202,7 +198,7 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepM
       double deta = eta-list[i]->momentum().pseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
-      double dr = sqrt(deta*deta+dphi*dphi);
+      double dr = std::sqrt(deta*deta+dphi*dphi);
       if (dr < 0.3) return true;
     }
   }
@@ -211,16 +207,16 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepM
 
 
 
-bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<CLHEP::HepLorentzVector*> list) {
+bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<CLHEP::HepLorentzVector> list) {
   for (size_t i = 0; i < list.size(); ++i) {
-    double pt = list[i]->vect().perp();
+    double pt = list[i].vect().perp();
     if (pt > m_olapPt) {
       /// @todo Provide a helper function for this (and similar)
-      double dphi = phi-list[i]->phi();
-      double deta = eta-list[i]->vect().pseudoRapidity();
+      double dphi = phi-list[i].phi();
+      double deta = eta-list[i].vect().pseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
-      double dr = sqrt(deta*deta+dphi*dphi);
+      double dr = std::sqrt(deta*deta+dphi*dphi);
       if (dr < 0.3) return true;
     }
   }
@@ -255,7 +251,7 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
 	weight = -1.0;
       }
     } else {
-      weight = weight * pow(m_mjjlow/mjj, m_alpha) / m_prob2low;
+      weight = weight * std::pow(m_mjjlow/mjj, m_alpha) / m_prob2low;
       ATH_MSG_DEBUG("WEIGHTING:: " << mjj << "\t" << weight);
     }
   }
@@ -263,10 +259,10 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
 }
 
 
-CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
 
-  if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
+  if ( ( std::abs( part->pdg_id() ) == 12 ) || ( std::abs( part->pdg_id() ) == 14 ) || ( std::abs( part->pdg_id() ) == 16 ) ) {
     nu.setPx(part->momentum().px());
     nu.setPy(part->momentum().py());
     nu.setPz(part->momentum().pz());
@@ -274,10 +270,8 @@ CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenPa
     return nu;
   }
 
-  if ( part->end_vertex() == 0 ) return nu;
+  if ( !part->end_vertex() ) return nu;
 
-  HepMC::GenVertex::particles_out_const_iterator begin = part->end_vertex()->particles_out_const_begin();
-  HepMC::GenVertex::particles_out_const_iterator end = part->end_vertex()->particles_out_const_end();
-  for ( ; begin != end; begin++ ) nu += sumDaughterNeutrinos( *begin );
+  for (auto beg: *(part->end_vertex()) ) nu += sumDaughterNeutrinos( beg );
   return nu;
 }

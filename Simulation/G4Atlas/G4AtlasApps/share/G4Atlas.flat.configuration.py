@@ -162,7 +162,7 @@ if not simFlags.ISFRun:
         else:
             as_alg = False
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
-        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg)
+        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg, noTag=True)
 
         ## Write geometry tag info - move to main method
         #import EventInfoMgt.EventInfoMgtInit
@@ -259,7 +259,7 @@ if not simFlags.ISFRun:
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
         if hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn:
-            stream2 = AthenaPoolOutputStream("StreamEVGEN", simFlags.WriteTR.get_Value())
+            stream2 = AthenaPoolOutputStream("StreamEVGEN", simFlags.WriteTR.get_Value(), noTag=True)
             stream2.ItemList += ["IOVMetaDataContainer#*",
                                  "EventInfo#*"]
             if simFlags.CavernBG.statusOn and 'Write' in simFlags.CavernBG.get_Value():
@@ -268,7 +268,7 @@ if not simFlags.ISFRun:
                 stream2.ItemList += ["TrackRecordCollection#CosmicRecord"]
             stream2.AcceptAlgs = ["G4AtlasAlg"]
         if hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-            stream2 = AthenaPoolOutputStream("StreamEVGEN", simFlags.StoppedParticleFile.get_Value())
+            stream2 = AthenaPoolOutputStream("StreamEVGEN", simFlags.StoppedParticleFile.get_Value(), noTag=True)
             stream2.ItemList += ["IOVMetaDataContainer#*",
                                  "EventInfo#*"]
             stream2.ItemList += ["TrackRecordCollection#StoppingPositions"]

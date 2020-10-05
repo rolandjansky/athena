@@ -1,0 +1,8 @@
+<lcgdict>
+
+        <class name="xAODMakerTest::A_v1" />
+        <class name="xAODMakerTest::AVec_v1" />
+        <class name="xAODMakerTest::AAuxContainer_v1" />
+        <class name="SG::AuxElement::ConstAccessor<ElementLink<xAODMakerTest::AVec_v1> >" />
+
+</lcgdict>

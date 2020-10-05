@@ -20,7 +20,12 @@
 #include "JetRec/PseudoJetContainer.h"
 #include <algorithm>
 
-#include "StoreGate/ReadHandle.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
+
+#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+  #include "AthenaMonitoringKernel/Monitored.h"
+#endif
 
 typedef ToolHandleArray<IJetModifier> ModifierArray;
 typedef ToolHandleArray<IJetConsumer> ConsumerArray;
@@ -44,22 +49,15 @@ JetRecTool::JetRecTool(std::string myname)
 #endif
   m_finder("",this),
   m_groomer("",this),
-  m_modifiers(this),
-  m_consumers(this),
   m_trigger(false),
   m_initCount(0),
   m_find(false), m_groom(false), m_copy(false),
   m_inputtype(xAOD::JetInput::Uncategorized),
   m_ppjr(nullptr) {
-  declareProperty("OutputContainer", m_outcoll);
-  declareProperty("InputContainer", m_incoll);
   declareProperty("InputTool", m_intool);
-  declareProperty("InputPseudoJets", m_psjsin);
   declareProperty("JetPseudojetRetriever", m_hpjr);
   declareProperty("JetFinder", m_finder);
   declareProperty("JetGroomer", m_groomer);
-  declareProperty("JetModifiers", m_modifiers);
-  declareProperty("JetConsumers", m_consumers);
   declareProperty("Trigger", m_trigger);
   declareProperty("Timer", m_timer =0);
 }
@@ -221,96 +219,12 @@ StatusCode JetRecTool::initialize() {
   m_conclock.Reset();
   m_nevt = 0;
 
+#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+#endif
+
   ATH_MSG_INFO("Timing detail: " << m_timer);
   return rstat;
-}
-
-//**********************************************************************
-
-StatusCode JetRecTool::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-  string tname = "";
-  unsigned int wname = 50;
-  ATH_MSG_INFO("Event count: " << m_nevt);
-  std::ofstream outfile;
-  bool saveToFile =   m_timer > 10 ;
-  if( saveToFile ) outfile.open(name()+".txt",std::ofstream::out | std::ofstream::trunc);
-
-  if ( m_timer > 0 ) {
-    ATH_MSG_INFO("  " << setw(wname) << "Time [sec/event]"
-                 << setw(10) << "CPU" << setw(10) << "Wall");
-    double tctime = m_totclock.CpuTime();
-    double twtime = m_totclock.RealTime();
-    double ictime = m_inpclock.CpuTime();
-    double iwtime = m_inpclock.RealTime();
-    double actime = m_actclock.CpuTime();
-    double awtime = m_actclock.RealTime();
-    double mctime = m_modclock.CpuTime();
-    double mwtime = m_modclock.RealTime();
-    double cctime = m_conclock.CpuTime();
-    double cwtime = m_conclock.RealTime();
-    double avg_tctime = 0.0;
-    double avg_twtime = 0.0;
-    double avg_ictime = 0.0;
-    double avg_iwtime = 0.0;
-    double avg_actime = 0.0;
-    double avg_awtime = 0.0;
-    double avg_mctime = 0.0;
-    double avg_mwtime = 0.0;
-    double avg_cctime = 0.0;
-    double avg_cwtime = 0.0;
-    if ( m_nevt > 0 ) {
-      avg_tctime = tctime/double(m_nevt);
-      avg_twtime = twtime/double(m_nevt);
-      avg_ictime = ictime/double(m_nevt);
-      avg_iwtime = iwtime/double(m_nevt);
-      avg_actime = actime/double(m_nevt);
-      avg_awtime = awtime/double(m_nevt);
-      avg_mctime = mctime/double(m_nevt);
-      avg_mwtime = mwtime/double(m_nevt);
-      avg_cctime = cctime/double(m_nevt);
-      avg_cwtime = cwtime/double(m_nevt);
-    }
-    ATH_MSG_INFO("  " << setw(wname) << "Input"
-                 << fixed << setprecision(3) << setw(10) << avg_ictime
-                 << fixed << setprecision(3) << setw(10) << avg_iwtime);
-    ATH_MSG_INFO("  " << setw(wname) << "Action"
-                 << fixed << setprecision(3) << setw(10) << avg_actime
-                 << fixed << setprecision(3) << setw(10) << avg_awtime);
-    ATH_MSG_INFO("  " << setw(wname) << "Modifiers"
-                 << fixed << setprecision(3) << setw(10) << avg_mctime
-                 << fixed << setprecision(3) << setw(10) << avg_mwtime);
-    ATH_MSG_INFO("  " << setw(wname) << "Consumers"
-                 << fixed << setprecision(3) << setw(10) << avg_cctime
-                 << fixed << setprecision(3) << setw(10) << avg_cwtime);
-    ATH_MSG_INFO("  " << setw(wname) << "Total"
-                 << fixed << setprecision(3) << setw(10) << avg_tctime
-                 << fixed << setprecision(3) << setw(10) << avg_twtime);
-
-    if( saveToFile ) outfile << "input," << avg_ictime << ","<< avg_iwtime << std::endl;
-    if( saveToFile ) outfile << "finding," << avg_actime << ","<< avg_awtime << std::endl;
-  }
-
-  if ( m_timer > 1 && m_nevt > 0 ) {
-    unsigned int ntool = m_modifiers.size();
-    ATH_MSG_INFO("  CPU/wall time [s] for " << ntool << " modifiers:");
-    assert( m_modclocks.size() == m_modifiers.size() );
-    for ( unsigned int itool=0; itool<ntool; ++itool ) {
-      string tname;
-      TStopwatch& clock = m_modclocks[itool];
-      tname = m_modifiers[itool]->name();
-      if ( tname.substr(0,8) == "ToolSvc." ) tname = tname.substr(8);
-      double tctime = clock.CpuTime()/double(m_nevt);
-      double twtime = clock.RealTime()/double(m_nevt);
-      ATH_MSG_INFO("  " << setw(50) << tname
-                   << fixed << setprecision(3) << setw(10) << tctime
-                   << fixed << setprecision(3) << setw(10) << twtime);
-      if( saveToFile ) outfile << tname<< "," << tctime << ","<< twtime << std::endl;
-
-    }
-  }
-  if( saveToFile ) outfile.close();
-  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
@@ -402,6 +316,18 @@ const JetContainer* JetRecTool::build() const {
     }
     m_conclock.Stop();
   }
+
+
+#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+  // monitor jet multiplicity and basic jet kinematics
+  auto njets = Monitored::Scalar<int>("nJets");
+  auto pt    = Monitored::Collection("pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });
+  auto et    = Monitored::Collection("et",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
+  auto eta   = Monitored::Collection("eta", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
+  auto phi   = Monitored::Collection("phi", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
+  auto mon   = Monitored::Group(m_monTool,njets,pt,et,eta,phi);
+  njets      = jetsHandle->size();
+#endif
 
   m_totclock.Stop();
 

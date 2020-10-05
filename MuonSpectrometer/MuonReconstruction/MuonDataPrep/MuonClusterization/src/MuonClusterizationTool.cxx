@@ -1,40 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterizationTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
 namespace Muon {
 
-  MuonClusterizationTool::MuonClusterizationTool(const std::string& t,const std::string& n, const IInterface*  p )
-    :  AthAlgTool(t,n,p)
-    , m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-    , m_tgcClustering(0)
-    , m_rpcClustering(0)
+  MuonClusterizationTool::MuonClusterizationTool(const std::string& t,const std::string& n, const IInterface* p) :
+      AthAlgTool(t,n,p),
+      m_tgcClustering(nullptr),
+      m_rpcClustering(nullptr)
   {
     declareInterface<IMuonClusterizationTool>(this);
     declareProperty("CombineGasGaps", m_combineGasGaps = true);
   } 
 
-  MuonClusterizationTool::~MuonClusterizationTool()
-  {
-  }
-
   StatusCode MuonClusterizationTool::initialize()
   {
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-
-    if (m_idHelper.retrieve().isFailure()){
-      msg(MSG::ERROR) <<"Could not get " << m_idHelper <<endmsg; 
-      return StatusCode::FAILURE;
-    }
-  
-    m_tgcClustering = new HitClusteringObj(m_idHelper->tgcIdHelper());
-    m_rpcClustering = new HitClusteringObj(m_idHelper->rpcIdHelper());
-    //m_rpcClustering->debug = true;
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    m_tgcClustering = new HitClusteringObj(m_idHelperSvc->tgcIdHelper());
+    m_rpcClustering = new HitClusteringObj(m_idHelperSvc->rpcIdHelper());
     m_rpcClustering->combinedGasGaps = m_combineGasGaps;
     m_tgcClustering->combinedGasGaps = m_combineGasGaps;
     return StatusCode::SUCCESS; 
@@ -42,16 +30,14 @@ namespace Muon {
 
   StatusCode MuonClusterizationTool::finalize()
   {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     delete m_tgcClustering;
     delete m_rpcClustering;
-
     return StatusCode::SUCCESS;
   }
 
   TgcPrepDataContainer* MuonClusterizationTool::cluster( const TgcPrepDataContainer& prdContainer ) const {
   
-    TgcPrepDataContainer* clusteredContainer = new TgcPrepDataContainer(m_idHelper->tgcIdHelper().module_hash_max());
+    TgcPrepDataContainer* clusteredContainer = new TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max());
     // loop over Tgc collections in container
     TgcPrepDataContainer::const_iterator cit = prdContainer.begin();
     TgcPrepDataContainer::const_iterator cit_end = prdContainer.end();
@@ -68,7 +54,7 @@ namespace Muon {
     if( col.empty() ) return 0;
     TgcPrepDataCollection* collection = new TgcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
-    ATH_MSG_INFO("Performing clustering in " << m_idHelper->toString(col.identify()) );
+    ATH_MSG_INFO("Performing clustering in " << m_idHelperSvc->toString(col.identify()) );
     std::vector<const MuonCluster*> prds;
     prds.insert(prds.end(),col.begin(),col.end());
     m_tgcClustering->cluster( prds );
@@ -111,7 +97,7 @@ namespace Muon {
 
   RpcPrepDataContainer* MuonClusterizationTool::cluster( const RpcPrepDataContainer& prdContainer ) const {
   
-    RpcPrepDataContainer* clusteredContainer = new RpcPrepDataContainer(m_idHelper->rpcIdHelper().module_hash_max());
+    RpcPrepDataContainer* clusteredContainer = new RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max());
     // loop over Rpc collections in container
     RpcPrepDataContainer::const_iterator cit = prdContainer.begin();
     RpcPrepDataContainer::const_iterator cit_end = prdContainer.end();
@@ -128,7 +114,7 @@ namespace Muon {
     if( col.empty() ) return 0;
     RpcPrepDataCollection* collection = new RpcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
-    ATH_MSG_INFO("Performing clustering in " << m_idHelper->toString(col.identify()) );
+    ATH_MSG_INFO("Performing clustering in " << m_idHelperSvc->toString(col.identify()) );
     std::vector<const MuonCluster*> prds;
     prds.insert(prds.end(),col.begin(),col.end());
     m_rpcClustering->cluster( prds );

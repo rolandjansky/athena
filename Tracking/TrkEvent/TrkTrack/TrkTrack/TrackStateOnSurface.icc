@@ -1,0 +1,81 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+inline Trk::TrackStateOnSurface*
+Trk::TrackStateOnSurface::clone() const
+{
+  return new TrackStateOnSurface(*this);
+}
+
+inline const Trk::FitQualityOnSurface*
+Trk::TrackStateOnSurface::fitQualityOnSurface() const
+{
+  return m_fitQualityOnSurface;
+}
+
+inline const Trk::TrackParameters*
+Trk::TrackStateOnSurface::trackParameters() const
+{
+  return m_trackParameters;
+}
+
+inline const Trk::MeasurementBase*
+Trk::TrackStateOnSurface::measurementOnTrack() const
+{
+  return m_measurementOnTrack;
+}
+
+inline const Trk::MaterialEffectsBase*
+Trk::TrackStateOnSurface::materialEffectsOnTrack() const
+{
+  return m_materialEffectsOnTrack;
+}
+
+inline const Trk::AlignmentEffectsOnTrack*
+Trk::TrackStateOnSurface::alignmentEffectsOnTrack() const
+{
+  return m_alignmentEffectsOnTrack;
+}
+
+inline bool
+Trk::TrackStateOnSurface::type(const TrackStateOnSurfaceType& type) const
+{
+  if (type == NumberOfTrackStateOnSurfaceTypes || type == Unknown) {
+    return false;
+  }
+  return m_typeFlags.test(type);
+}
+
+inline Trk::TrackStateOnSurface::Variety
+Trk::TrackStateOnSurface::variety() const
+{
+  return Trk::TrackStateOnSurface::SingleComponent;
+}
+
+
+inline void
+Trk::TrackStateOnSurface::setFlags()
+{
+  if (m_measurementOnTrack) {
+    m_typeFlags.set(Measurement, true);
+  }
+  if (m_materialEffectsOnTrack) {
+    m_typeFlags.set(InertMaterial, true);
+  }
+  if (m_alignmentEffectsOnTrack) {
+    m_typeFlags.set(Alignment, true);
+  }
+  if (m_trackParameters) {
+    m_typeFlags.set(Parameter, true);
+  }
+  if (m_fitQualityOnSurface) {
+    m_typeFlags.set(FitQuality, true);
+  }
+}
+
+inline const std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>&
+Trk::TrackStateOnSurface::types() const
+{
+  return m_typeFlags;
+}

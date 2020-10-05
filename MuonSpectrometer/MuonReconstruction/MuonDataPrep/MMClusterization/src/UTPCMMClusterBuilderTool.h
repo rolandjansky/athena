@@ -44,12 +44,13 @@ namespace Muon
 
     virtual
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec) const override;
+	 		   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)const override ;
 
   private:
 
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    bool m_writeStripProperties;
 
     // params for the hough trafo
     double m_alphaMin,m_alphaMax,m_alphaResolution,m_selectionCut;

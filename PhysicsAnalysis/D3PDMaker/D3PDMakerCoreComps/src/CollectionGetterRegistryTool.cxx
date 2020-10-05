@@ -101,7 +101,7 @@ CollectionGetterRegistryTool::get (const std::string& label,
   }
 
   // Get the properties for the source tool.
-  const std::vector<const Property*>* props =
+  const std::vector<const Gaudi::Details::PropertyBase*>* props =
     m_jos->getProperties (i->second->name());
 
   // Copy them to the destination tool (except for Label).

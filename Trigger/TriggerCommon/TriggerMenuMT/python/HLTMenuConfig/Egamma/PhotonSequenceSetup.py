@@ -3,7 +3,8 @@
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 import AthenaCommon.CfgMgr as CfgMgr
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
@@ -17,12 +18,13 @@ def fastPhotonMenuSequence():
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+ CaloMenuDefs.L2CaloClusters)]
+    ViewVerify.DataObjects = [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
+                              ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
 
-    from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
-    thePhotonFex= L2PhotonFex_1()
+    from TrigEgammaHypo.TrigEgammaFastPhotonFexMTConfig import EgammaFastPhotonFex_1
+    thePhotonFex= EgammaFastPhotonFex_1()
     thePhotonFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
-    thePhotonFex.PhotonsName=recordable("HLT_L2Photons")
+    thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")
     #thePhotonFex.RoIs="EMIDRoIs"
 
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")
@@ -42,8 +44,8 @@ def fastPhotonMenuSequence():
     l2PhotonViewsMaker.ViewNodeName = "photonInViewAlgs"
 
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
-    thePhotonHypo = TrigL2PhotonHypoAlgMT()
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlgMT
+    thePhotonHypo = TrigEgammaFastPhotonHypoAlgMT()
     thePhotonHypo.Photons = thePhotonFex.PhotonsName
     thePhotonHypo.RunInView=True
 
@@ -51,13 +53,13 @@ def fastPhotonMenuSequence():
     #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", Decisions = theElectronHypo.Output )
 
     photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
-    from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
 
 
     return MenuSequence( Maker=l2PhotonViewsMaker,
                          Sequence=photonAthSequence,
                          Hypo=thePhotonHypo,
-                         HypoToolGen=TrigL2PhotonHypoToolFromDict)
+                         HypoToolGen=TrigEgammaFastPhotonHypoToolFromDict)
 
 
 def precisionPhotonSequence(ConfigFlags):

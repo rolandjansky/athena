@@ -40,41 +40,16 @@ def MdtMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    #MdtRawDataMonAlg.DoMdtEsd = True
     mdtMonAlg = helper.addAlgorithm(CompFactory.MdtRawDataMonAlg,'MdtMonAlg')
     mdtMonAlg.DoMdtEsd = True
-
-    # You can actually make multiple instances of the same algorithm and give 
-    # them different configurations
-    ######anotherExampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
-
-    # # If for some really obscure reason you need to instantiate an algorithm
-    # # yourself, the AddAlgorithm method will still configure the base 
-    # # properties and add the algorithm to the monitoring sequence.
-    # helper.AddAlgorithm(myExistingAlg)
-
-
-    ### STEP 3 ###
-    # Edit properties of a algorithm
-    #####exampleMonAlg.TriggerChain = ''
-
-    ### STEP 4 ###
-    # Add some tools. N.B. Do not use your own trigger decion tool. Use the
-    # standard one that is included with AthMonitorAlgorithm.
-
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # exampleMonAlg.CaloNoiseTool = caloNoiseTool
-
-    # # Then, add a tool that doesn't have its own configuration function. In
-    # # this example, no accumulator is returned, so no merge is necessary.
-    # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
-    # exampleMonAlg.MyDomainTool = MyDomainTool()
-
+    mdtMonAlg.DoChamberHist=True
+    mdtMonAlg.maskNoisyTubes = True
+    mdtMonAlg.ADCCut = 80.
+    mdtMonAlg.do_mdtChamberHits=True
+    mdtMonAlg.do_mdttdccut_sector=True
+    mdtMonAlg.do_mdtchamberstatphislice=True
+    if not inputFlags.DQ.triggerDataAvailable:
+        mdtMonAlg.L1RoiKey=''
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
     mdtGroup = helper.addGroup(mdtMonAlg,'MdtMonitor','Muon/MuonRawDataMonitoring/MDT/')
@@ -388,38 +363,81 @@ def MdtMonitoringConfig(inputFlags):
                                                    path='Overview/TDC',  xbins=100, xmin=0, xmax=2000)
                     
 
-            if(ilayer=="Extra"):
-                titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+"OuterPlusExtra"
-                var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+"PlusExtra;"+titleOccvsLbPerRegionPerLayer
-            elif(ilayer=="Outer"):
-                titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer+"PlusExtra"
-                var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
+            if(ilayer=="Extra" or ilayer=="Outer"):
+                labelsY=getMDTLabelx("labelY_OccupancyVsLB_"+iregion+"_OuterExtra")
+                if(ilayer=="Extra" ):
+                    titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+"OuterPlusExtra"
+                    var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+"PlusExtra;"+titleOccvsLbPerRegionPerLayer
+                elif(ilayer=="Outer"):
+                    titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer+"PlusExtra"
+                    var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
+                if(iregion=="BA"):
+                     maxy=118 # outer sideA
+                if(iregion=="BC"):
+                    maxy=116 #  outer sideC
+                if(iregion=="EA"):
+                     maxy=103 # outer sideA
+                if(iregion=="EC"):
+                     maxy=127 # outer sideA
             else :
+                labelsY=getMDTLabelx("labelY_OccupancyVsLB_"+iregion+"_"+ilayer)
+                if(ilayer=="Inner"):
+                    if(iregion=="BA" or iregion=="BC"):
+                        maxy=122
+                    if(iregion=="EA" or iregion=="EC"):
+                        maxy=50
+                elif (ilayer=="Middle"):
+                    if(iregion=="BA" or iregion=="BC"):
+                        maxy=95
+                    if(iregion=="EA" or iregion=="EC"):
+                        maxy=80
                 titleOccvsLbPerRegionPerLayer = "OccupancyVsLB_"+iregion+ilayer
                 var="lb_mon,y_mon_bin_"+iregion+"_"+ilayer+";"+titleOccvsLbPerRegionPerLayer
 
             mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerLayer+";LB;[Eta - Phi]", type='TH2F',
-                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=122, ymin=0, ymax=122) #fix y range and I should put labels on the y-axis only, not clear how
+                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=122, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
 
         for icrate in crates:
+            maxy=122
+            labelsY=getMDTLabelx("labelY_OccupancyVsLB_"+iregion+icrate)
+            if(iregion=="BA" or iregion=="BC"):
+                if(icrate=="01"):
+                    maxy=73
+                elif(icrate=="02"):
+                    maxy=72
+                elif(icrate=="03"):
+                    maxy= 80
+                elif(icrate=="04"):
+                    maxy= 79
+            elif(iregion=="EA" or iregion=="EC"):
+                if(icrate=="01"):
+                    maxy=73
+                elif(icrate=="02"):
+                    maxy=71
+                elif(icrate=="03"):
+                    maxy= 73
+                elif(icrate=="04"):
+                    maxy= 72
+
             titleOccvsLbPerRegionPerCrate = "OccupancyVsLB_"+iregion+icrate 
             var="lb_mon,y_mon_bin_bycrate_"+iregion+"_"+icrate+";"+titleOccvsLbPerRegionPerCrate
             mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerCrate+";LB;[Eta - Phi]", type='TH2F',
-                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=122, ymin=0, ymax=122) #fix y range and I should put labels on the y-axis only, not clear how
+                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=122, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically') 
 
             titleOccvsLbPerRegionPerCrate_ontrack = "OccupancyVsLB_ontrack_"+iregion+icrate
             var="lb_mon,y_mon_bin_bycrate_ontrack_"+iregion+"_"+icrate+";"+titleOccvsLbPerRegionPerCrate_ontrack
             mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerCrate_ontrack+";LB;[Eta - Phi]", type='TH2F',
-                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=122, ymin=0, ymax=122) #fix y range and I should put labels on the y-axis only, not clear how        
+                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=122, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically') 
     #mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(1,"BA");
     #mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(17,"BC");
     #mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(33,"EA");
     #mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(49,"EC");
 
+
+    labelsY=getMDTLabelx("labelY_OccupancyVsLB")
     mdtGroup.defineHistogram('lb_mon,sector;OccupancyPerSectorVsLB', type='TH2F',
-                            title='OccupancyPerSectorVsLB;LB;[Phi]',
-                            path='Overview',  xbins=834,xmin=1.,xmax=2502., ybins=64, ymin=0., ymax=64.
-                            )
+                             title='OccupancyPerSectorVsLB;LB;[Phi]',
+                             path='Overview',  xbins=834,xmin=1.,xmax=2502., ybins=64, ymin=0., ymax=64., ylabels=labelsY, opt='kAddBinsDynamically')
     
 
     #histograms per chambers
@@ -797,9 +815,9 @@ if __name__=='__main__':
     ConfigFlags.dump()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
 
     cfg.merge(PoolReadCfg(ConfigFlags))
     

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBSErrContainerCnv_p1.h"
 
-void InDetBSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream& /*log*/)
+void InDetBSErrContainerCnv_p1::transToPers
+(const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream& /*log*/)
 {
   InDetBSErrContainer::const_iterator it = transCont->begin();
   InDetBSErrContainer::const_iterator itEnd = transCont->end();
@@ -13,7 +14,7 @@ void InDetBSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const InDetBS
   for (; it != itEnd; ++it) {
     // FIXME: Should change type of m_bsErrs, but don't want to cause possible
     // back-compatibility problems.
-    std::pair<IdentifierHash, int>* ptr = const_cast<std::pair<IdentifierHash, int>*> (*it);
+    std::pair<IdentifierHash, int>* ptr ATLAS_THREAD_SAFE = const_cast<std::pair<IdentifierHash, int>*> (*it);
     (persCont->m_bsErrs).push_back(ptr);
   }
   return;

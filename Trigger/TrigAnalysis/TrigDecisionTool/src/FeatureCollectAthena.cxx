@@ -113,7 +113,7 @@ namespace Trig{
 
       typename ROICONTAINER::const_iterator emtauit;
       //ROI* found(0);
-      for(auto it : rois){
+      for(const auto& it : rois){
 	for(emtauit=cont->begin();emtauit!=cont->end();++emtauit){
 	  if((*emtauit)->roiWord() == it.cptr()->roiWord()){
 	    data.push_back( Trig::Feature<ROI>(*emtauit, it.te(), "") );

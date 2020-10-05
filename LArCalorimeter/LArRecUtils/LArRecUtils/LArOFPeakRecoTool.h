@@ -8,15 +8,15 @@
 #define LARCALIBUTILS_LAROFPEAKRECOTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawEvent/LArOFIterResults.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-class LArOnlineID;
+class LArOnlineID_Base;
 
 /**
   @brief Given a set of multiple samples, this class finds a peak using OFC.
@@ -77,17 +77,15 @@ class LArOFPeakRecoTool: public AthAlgTool
 
  private:
   bool m_iterate;
-  const DataHandle<ILArOFC>    m_dd_ofc;
-  const DataHandle<ILArShape>    m_dd_shape;
-  std::string m_keyOFC ;
-  std::string m_keyShape ;
+  SG::ReadCondHandleKey<ILArOFC>    m_keyOFC {this, "OFCKey", "LArOFC", "SG key for OFC object"};
+  SG::ReadCondHandleKey<ILArShape>  m_keyShape {this, "ShapeKey", "LArShape", "SG key for Shape object"};
   bool m_useShape;
   bool m_useShapeDer;
   int m_delayShift;
   float m_samplingPeriod;
   bool m_forceHighGain;
-
-  const LArOnlineID*        m_lar_on_id; 
+  bool m_isSC;
+  const LArOnlineID_Base*        m_lar_on_id; 
 
 };
 

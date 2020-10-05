@@ -5,7 +5,7 @@
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
 #include "EventContainers/IdentifiableContainerMT.h" 
-#include "EventContainers/SelectAllObjectMT.h"
+#include "EventContainers/SelectAllObject.h"
 #include "EventContainers/IdentifiableContTemp.h"
 #include "ID_ContainerTest.h" 
 #include "GaudiKernel/System.h" 
@@ -13,6 +13,9 @@
 
 // define a bunch of fake data classes 
 using namespace std;
+
+static EventContainers::Mode s_mode;
+
 namespace IDC_TEST
 {
 
@@ -80,8 +83,8 @@ namespace IDC_TEST
         typedef IdentifiableContainerMT<MyCollection>  MyType; 
 
         // constructor 
-        MyCollectionContainer( int m ) :
-                IdentifiableContainerMT<MyCollection>(m)   {    
+        MyCollectionContainer( int m, EventContainers::Mode mode ) :
+                IdentifiableContainerMT<MyCollection>(m, mode)   {    
              
         }
 
@@ -135,7 +138,7 @@ int ID_ContainerTest::initialize()
 { 
     // we own the Container 
 
-    m_container = new MyCollectionContainer(m_ncollections);
+    m_container = new MyCollectionContainer(m_ncollections, s_mode);
 
     std::cout <<" Collection, Skip = " << m_ncollections<<" "<<m_nskip<<std::endl;
     std::cout <<" Test level =  " << m_test<<std::endl;
@@ -154,7 +157,7 @@ return 0;}
 
 int ID_ContainerTest::execute(){
 
-    typedef SelectAllObjectMT<MyCollectionContainer,MyDigit> SELECTOR ;
+    typedef SelectAllObject<MyCollectionContainer,MyDigit> SELECTOR ;
     typedef SELECTOR::const_iterator digit_const_iterator; 
 //    typedef MyCollectionContainer::const_iterator collection_iterator;
     
@@ -501,7 +504,7 @@ int ID_ContainerTest::execute(){
  
 
 {
-   auto container2 = new MyCollectionContainer(m_ncollections);
+   auto container2 = new MyCollectionContainer(m_ncollections, s_mode);
    int itemsadded=0;
    for (int coll =0; coll <hfmax; coll=coll+(1+skip) ){
         MyID id(coll); 
@@ -535,7 +538,7 @@ int ID_ContainerTest::execute(){
     }
     delete container2; container2 = nullptr;
 //Test Empty
-    MyCollectionContainer* dempty = new MyCollectionContainer(100); 
+    MyCollectionContainer* dempty = new MyCollectionContainer(100, s_mode); 
     if(dempty->begin() != dempty->end()){
        std::cout << __FILE__ << " empty container not working see LINE " << __LINE__ << std::endl; std::abort();
     }
@@ -604,14 +607,50 @@ int ID_ContainerTest::execute(){
     }
     {
     MyCollectionContainer::IDC_WriteHandle lock;
-    lock = containerOnline->getWriteHandle(IdentifierHash(50));
-    lock = containerOnline->getWriteHandle(IdentifierHash(50));//Try to break the locks
-    lock = containerOnline->getWriteHandle(IdentifierHash(60));
-    lock = containerOnline->getWriteHandle(IdentifierHash(70));
+    MyCollectionContainer::IDC_WriteHandle lock2 = containerOnline->getWriteHandle(IdentifierHash(50));
+    MyCollectionContainer::IDC_WriteHandle::Swap(lock, lock2);
+    //lock = containerOnline->getWriteHandle(IdentifierHash(50));//Try to break the locks
+    //lock = containerOnline->getWriteHandle(IdentifierHash(60));
+    //lock = containerOnline->getWriteHandle(IdentifierHash(70));
     }
 
     delete containerOnline;
     delete cache;
+
+
+    auto containerordertest = new MyCollectionContainer(500, s_mode);
+    containerordertest->addCollection(new MyCollection, 4).ignore();
+    containerordertest->addCollection(new MyCollection, 3).ignore();
+    containerordertest->addCollection(new MyCollection, 2).ignore();
+    containerordertest->addCollection(new MyCollection, 1).ignore();
+    containerordertest->addCollection(new MyCollection, 5).ignore();
+    containerordertest->addCollection(new MyCollection, 4).ignore(); //Deliberate duplicate
+    containerordertest->addCollection(new MyCollection, 7).ignore();
+
+    auto hashes  = containerordertest->GetAllCurrentHashes();
+    size_t last =0;
+    for(auto i : hashes){
+        if(last >= i) {
+            std::cout << "Ordering error" <<std::endl;
+            std::abort();
+        }
+        last =i;
+    }
+    last =0;
+    for(auto [hash,ptr] : containerordertest->GetAllHashPtrPair() ){
+        if(last >= hash) {
+            std::cout << "Ordering error" <<std::endl;
+            std::abort();
+        }
+        last =hash;
+    }
+    if(containerordertest->numberOfCollections() != 6){
+        std::cout << "Duplicate got added " << std::endl;
+        std::cout << "numberOfCollections = " << containerordertest->numberOfCollections()  << " not 6" << std::endl;
+        std::abort();
+    }
+
+    delete containerordertest;
     std::cout << "MyDigits left undeleted " << MyDigit::s_total << std::endl;    
 }
     return 0;
@@ -623,9 +662,14 @@ int main (int /*argc*/, char** /*argv[]*/)
 {  
 
     ID_ContainerTest test;
-    test.initialize();
-    for (unsigned int i = 0; i < 5; i++) test.execute();
-    test.finalize();
+    for(auto x : { EventContainers::Mode::OfflineLowMemory, EventContainers::Mode::OfflineFast, 
+        EventContainers::Mode::OfflineMap }){
+       s_mode = x;
+       std::cout <<" container mode " << static_cast<int>(s_mode) << std::endl;
+       test.initialize();
+       for (unsigned int i = 0; i < 5; i++) test.execute();
+       test.finalize();
+    }
     EventContainers::IdentifiableContTemp<MyCollection> emptyContContainer(10); //Put here to test compilation of IdentifiableContTemp
     emptyContContainer.cleanup();
     return 0;

@@ -82,8 +82,7 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                  KeepParameters          = True,
                                                                  KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
-                                                                 PerigeeExpression       = _perigee_expression,
-                                                                 UpdateTrack             = False)
+                                                                 PerigeeExpression       = _perigee_expression)
 
     ToolSvc += InDetxAODParticleCreatorTool
     if InDetFlags.doPrintConfigurables():
@@ -120,7 +119,6 @@ def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, t
         xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in)
         xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
         xAODTrackParticleCnvAlg.TrackTruthContainerName = passCollectionName(track_particle_truth_in,(is_mc and InDetFlags.doTruth()))
-        xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
         from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
         xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
         topSequence += xAODTrackParticleCnvAlg
@@ -140,7 +138,6 @@ def convertTrackParticles(aod_track_particles_in, track_particle_truth_in,track_
         xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in)
         xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
         xAODTrackParticleCnvAlg.TrackTruthContainerName = ""
-        xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
         from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
         xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
         topSequence += xAODTrackParticleCnvAlg 
@@ -213,6 +210,11 @@ if InDetFlags.doPseudoTracking():
                               InDetKeys.xAODPseudoTrackParticleContainer(),
                               topSequence)
 
+
+if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+    if doCreation :
+        createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
+        
  
 if InDetFlags.doTrackSegmentsPixel() and InDetFlags.doParticleCreation():
     if doCreation :

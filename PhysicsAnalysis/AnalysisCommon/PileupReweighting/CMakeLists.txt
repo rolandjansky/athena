@@ -1,30 +1,9 @@
-# $Id: CMakeLists.txt 777177 2016-10-07 16:09:43Z krasznaa $
 ################################################################################
 # Package: PileupReweighting
 ################################################################################
 
 # Declare the package name:
 atlas_subdir( PileupReweighting )
-
-# Extra dependencies based on the environment:
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep PhysicsAnalysis/AnalysisCommon/ReweightUtils )
-else()
-   set( extra_Dep GaudiKernel Control/AthenaBaseComps )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   Trigger/TrigEvent/TrigDecisionInterface
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PRIVATE
-   Event/xAOD/xAODEventInfo
-   Tools/PathResolver
-   ${extra_dep} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS MathCore RIO Core Tree Hist )
@@ -67,8 +46,6 @@ macro( _add_exec name )
       LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 endmacro( _add_exec )
 
-_add_exec( testPRW )
-_add_exec( testPRWTool )
 _add_exec( checkPRWConfigFile )
 
 # Test(s) in the package:
@@ -77,7 +54,22 @@ atlas_add_test( ut_PRWExample_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
+atlas_add_test( testPRW
+   SOURCES test/testPRW.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+
+atlas_add_test( testPRWTool
+   SOURCES test/testPRWTool.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+
+atlas_add_test( ut_PRWDataWeightExample_test
+   SOURCES test/ut_PRWDataWeightExample_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+   
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_data( share/*.root )
+atlas_install_runtime( scripts/*.py )

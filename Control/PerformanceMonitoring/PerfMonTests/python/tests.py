@@ -1,14 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## A little py-module holding methods to ease the scheduling of PerfMonTests
 ## @author: Sebastien Binet
-## $Id: tests.py,v 1.5 2007-11-12 01:04:14 binet Exp $
 
 from __future__ import print_function
 
 import os
-import sys
 from AthenaCommon import ChapPy
 
 from future import standard_library
@@ -22,7 +20,6 @@ from TestTools.iobench import workDir
 ###-----------------------------------------------------
 ## Little helper to validate output of jobs
 from TestTools.iobench import ScOutput
-from TestTools.iobench import BenchSequence
 
 def testPerfMon( jobOptName      = "PerfMonTests/test_perfMonSvc_noopalg.py",
                  perfMonFileName = "perfmon.noopalg.root",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -24,6 +24,8 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "EventPrimitives/EventPrimitives.h"
+
+#include <memory>
 
 using CLHEP::micrometer;
 
@@ -58,12 +60,7 @@ StatusCode  ClusterMakerTool::initialize(){
    if (not m_pixelCabling.empty()) {
      ATH_CHECK(m_pixelCabling.retrieve());
    }
-   if (not m_moduleDataKey.empty()) {
-     ATH_CHECK(m_moduleDataKey.initialize());
-   }
-   if (not m_chargeDataKey.empty()) {
-     ATH_CHECK(m_chargeDataKey.initialize());
-   }
+   ATH_CHECK(m_chargeDataKey.initialize(SG::AllowEmpty));
 
    if (not m_pixelLorentzAngleTool.empty()) {
      ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
@@ -134,13 +131,11 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   	return nullptr;
   }
   
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
-
   if ( errorStrategy==2 && m_forceErrorStrategy1A ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
-  if (moduleData->getUseCalibConditions()) {
+  if (!m_chargeDataKey.empty()) {
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
     int nRDO=rdoList.size();
     chargeList.reserve(nRDO);
     for (int i=0; i<nRDO; i++) {
@@ -168,7 +163,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
-  Amg::MatrixX* errorMatrix = new Amg::MatrixX(2,2);
+  std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
   errorMatrix->setIdentity();
 
   // switches are more readable **OPT**
@@ -231,7 +226,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
  PixelCluster* newCluster = 
    new PixelCluster(clusterID, locpos, 
                     rdoList, lvl1a, totList,chargeList, 
-                    width, element, errorMatrix, omegax, omegay,
+                    width, element, errorMatrix.release(), omegax, omegay,
                     split,
                     splitProb1,
                     splitProb2);
@@ -281,9 +276,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
   if ( errorStrategy==2 && m_forceErrorStrategy1B ) errorStrategy=1;
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
-
   // Fill vector of charges and compute charge balance
   const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
   if (not design){
@@ -298,51 +290,60 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   float qColMin = 0;  float qColMax = 0;
   std::vector<float> chargeList;
   int nRDO=rdoList.size();
-  if (moduleData->getUseCalibConditions()) { chargeList.reserve(nRDO); }
-  for (int i=0; i<nRDO; i++) {
-     Identifier pixid=rdoList[i];
-     int ToT=totList[i];
-     
-     float charge = ToT;
-     if (moduleData->getUseCalibConditions()) {
+  if (!m_chargeDataKey.empty()) { 
+    chargeList.reserve(nRDO); 
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    for (int i=0; i<nRDO; i++) {
+      Identifier pixid=rdoList[i];
+      int ToT=totList[i];
 
-       Identifier moduleID = pixelID.wafer_id(pixid);
-       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-       int circ = m_pixelCabling->getFE(&pixid,moduleID);
-       int type = m_pixelCabling->getPixelType(pixid);
-       charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
-       if (moduleHash<12 || moduleHash>2035) {
-         charge = ToT/8.0*(8000.0-1200.0)+1200.0;
-       }
-
-       chargeList.push_back(charge);
-     }
-     //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
-     int row = pixelID.phi_index(pixid);
-     int col = pixelID.eta_index(pixid);
-     if (row == rowMin) qRowMin += charge;
-	   if (row < rowMin){ 
-       rowMin = row; 
-       qRowMin = charge;
-	   }
-	
-     if (row == rowMax) qRowMax += charge;
-	   if (row > rowMax){
-       rowMax = row;
-	     qRowMax = charge;
-	   }
-     if (col == colMin) qColMin += charge;
-	   if (col < colMin){
-       colMin = col;
-       qColMin = charge;
-	   }
-
-     if (col == colMax) qColMax += charge;
-	   if (col > colMax){
-       colMax = col;
-	     qColMax = charge;
-	   }
+      float charge = ToT;
+      Identifier moduleID = pixelID.wafer_id(pixid);
+      IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
+      int circ = m_pixelCabling->getFE(&pixid,moduleID);
+      int type = m_pixelCabling->getPixelType(pixid);
+      charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
+      if (moduleHash<12 || moduleHash>2035) {
+        charge = ToT/8.0*(8000.0-1200.0)+1200.0;
+      }
+      chargeList.push_back(charge);
+    }
   }
+
+  for (int i=0; i<nRDO; i++) {
+    Identifier pixid=rdoList[i];
+    int ToT=totList[i];
+
+    float charge = ToT;
+    if (!m_chargeDataKey.empty()) { charge=chargeList[i]; }
+
+    //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
+    int row = pixelID.phi_index(pixid);
+    int col = pixelID.eta_index(pixid);
+    if (row == rowMin) qRowMin += charge;
+    if (row < rowMin){ 
+      rowMin = row; 
+      qRowMin = charge;
+    }
+
+    if (row == rowMax) qRowMax += charge;
+    if (row > rowMax){
+      rowMax = row;
+      qRowMax = charge;
+    }
+    if (col == colMin) qColMin += charge;
+    if (col < colMin){
+      colMin = col;
+      qColMin = charge;
+    }
+
+    if (col == colMax) qColMax += charge;
+    if (col > colMax){
+      colMax = col;
+      qColMax = charge;
+    }
+  }
+
   Identifier newClusterID = pixelID.pixel_id(pixelID.wafer_id(clusterID),rowMin,colMin);
   // Compute omega for charge interpolation correction (if required)
   // Two pixels may have charge=0 (very rarely, hopefully)
@@ -365,7 +366,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
-  Amg::MatrixX* errorMatrix = new Amg::MatrixX(2,2);
+  std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
   errorMatrix->setIdentity();
 	
   // switches are more readable **OPT**
@@ -378,7 +379,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   const PixelID* pid = dynamic_cast<const PixelID*>(aid);
   if (not pid){
   	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
-  	delete errorMatrix;errorMatrix=nullptr;
   	return nullptr;
   }
   int layer = pid->layer_disk(clusterID);
@@ -438,7 +438,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                     chargeList,
                     width,
                     element,
-                    errorMatrix,
+                    errorMatrix.release(),
                     omegax,
                     omegay,
                     split,
@@ -462,6 +462,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // - the error strategy, currently
   //    0: Cluster Width/sqrt(12.)
   //    1: Set to a different values for one and two-strip clusters (def.)
+  // The scale factors were derived by the study reported on 25th September 2006.
+  // https://indico.cern.ch/event/430391/contributions/1066157/attachments/929942/1317007/SCTSoft_25Sept06_clusters.pdf
 
 SCT_Cluster* ClusterMakerTool::sctCluster(
                          const Identifier& clusterID,
@@ -481,7 +483,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
 	// unnecessary copy EJWM
 
-	Amg::MatrixX* errorMatrix = new Amg::MatrixX(2,2);
+        std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
 	errorMatrix->setIdentity();
 
 	// switches are more readable **OPT**
@@ -537,9 +539,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	  errorMatrix->fillSymmetric(1,1,sn2*v0+cs2*v1);
 	}
 
-	//        delete localPos;
-	//	localPos=0;
-	SCT_Cluster* newCluster = new SCT_Cluster(clusterID, locpos, rdoList , width, element, errorMatrix);
+	SCT_Cluster* newCluster = new SCT_Cluster(clusterID, locpos, rdoList , width, element, errorMatrix.release());
 	return newCluster;
 
 }

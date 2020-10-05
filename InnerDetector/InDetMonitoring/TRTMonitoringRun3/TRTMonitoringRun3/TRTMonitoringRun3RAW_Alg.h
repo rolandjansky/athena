@@ -30,6 +30,8 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
+#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+
 // STDLIB
 #include <string>
 #include <vector>
@@ -43,7 +45,6 @@ class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
 class ITRT_StrawStatusSummaryTool;
-class ITRT_ByteStream_ConditionsSvc;
 
 class TRTMonitoringRun3RAW_Alg : public AthMonitorAlgorithm {
 public:
@@ -78,7 +79,7 @@ private:
     bool m_doHitsMon;
     float m_DistToStraw;
     
-    bool m_ArgonXenonSplitter;
+    BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
     int m_totalEvents;
     float m_longToTCut;
@@ -111,9 +112,7 @@ private:
     float radToDegrees(float radValue) const;
 
     // Services
-    ServiceHandle<IToolSvc> p_toolSvc;
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
-    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};
@@ -121,6 +120,8 @@ private:
     SG::ReadHandleKey<xAOD::EventInfo>     m_xAODEventInfoKey{this,      "xAODEventInfo",          "EventInfo",     "Name of EventInfo object"};
     SG::ReadHandleKey<TrackCollection>     m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
     SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTracksObjectName", "Tracks", "Name of tracks container"};
+
+    SG::ReadHandleKey<TRT_BSErrContainer> m_bsErrContKey{this,"ByteStreamErrors","TRT_ByteStreamErrs","SG key of TRT ByteStream Error container"};
 
     // Tools
     ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder{this, "trt_hole_search", "TRTTrackHoleSearchTool", "Track hole search tool name"};

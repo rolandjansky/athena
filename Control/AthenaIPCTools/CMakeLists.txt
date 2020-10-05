@@ -1,15 +1,7 @@
-################################################################################
-# Package: AthenaIPCTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaIPCTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-			  Control/AthenaBaseComps
-			  Control/AthenaKernel
-			  GaudiKernel )	
 
 # External dependencies:
 find_package( Boost )

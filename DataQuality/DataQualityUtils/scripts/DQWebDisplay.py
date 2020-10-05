@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-## *****************************************************************************
-VERSION = '$Id: DQWebDisplay.py 690278 2015-08-19 22:18:53Z ponyisi $'
-## *****************************************************************************
+from __future__ import print_function
 
 import os
 
@@ -25,29 +23,29 @@ import ROOT
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
-from ROOT import gSystem
+from ROOT import gSystem  # noqa: F401
 os.chdir(CWD)
 
 from DataQualityUtils.DQWebDisplayMod import DQWebDisplay
 
 def importConfiguration(modname):
     from DataQualityConfigurations import getmodule
-    print 'getting configuration', modname
+    print('getting configuration', modname)
     return getmodule(modname)
 
 def usage():
   cmdi = sys.argv[0].rfind("/")
   cmd = sys.argv[0][cmdi+1:]
-  print ""
-  print "Usage: ", cmd, "<data_file> <config> <processing_version> [run_accumulating [conditions_string]]"
-  print ""
-  print "This is a production utility; use TEST config for development and testing."
-  print ""
-  print "Processing version is an integer, starting from 1 (not 0)"
-  print ""
+  print("")
+  print("Usage: ", cmd, "<data_file> <config> <processing_version> [run_accumulating [conditions_string]]")
+  print("")
+  print("This is a production utility; use TEST config for development and testing.")
+  print("")
+  print("Processing version is an integer, starting from 1 (not 0)")
+  print("")
 
 if __name__ == "__main__":
-  print len(sys.argv)
+  print(len(sys.argv))
   if len(sys.argv) < 5 or len(sys.argv) > 7:
     usage()
     sys.exit(64)
@@ -59,7 +57,7 @@ if __name__ == "__main__":
       runAccumulating = True
   
   if len(sys.argv) == 7:
-      print 'Setting condition', sys.argv[5]
+      print('Setting condition', sys.argv[5])
       ROOT.gSystem.Load('libDataQualityInterfaces')
       ROOT.dqi.ConditionsSingleton.getInstance().setCondition(sys.argv[5])
 
@@ -84,16 +82,15 @@ if __name__ == "__main__":
   
   try:
     cmod = importConfiguration(configModule)
-  except Exception, e:
-    print "Could not import configuration module \'" + configModule + "\'"
+  except Exception as e:
+    print("Could not import configuration module \'" + configModule + "\'")
     sys.exit(1)
 
   try:
     config = cmod.dqconfig
-  except Exception, e:
-    print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
+  except Exception as e:
+    print("Configuration object 'dqconfig' not defined in module \'" + configModule + "\'")
     sys.exit(1)
 
   
   DQWebDisplay( inputFile, runAccumulating, config )
-

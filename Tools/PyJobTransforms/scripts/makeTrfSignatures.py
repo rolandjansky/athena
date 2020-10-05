@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # $Id: makeTrfSignatures.py 630078 2014-11-21 11:20:16Z graemes $
 #
@@ -43,7 +43,7 @@ def main():
         logging.info('Processing argument signatures for {0}'.format(trf))
         # Use __import__ to allow us to import from the trf list
         try:
-            trfModule = __import__('{0}'.format(trf), globals(), locals(), ['getTransform'], -1)
+            trfModule = __import__('{0}'.format(trf), globals(), locals(), ['getTransform'], 0)
         except ImportError:
             logging.warning('Failed to import transform {0} - ignored'.format(trf))
             continue
@@ -53,7 +53,7 @@ def main():
         transform = trfModule.getTransform()
         args = transform.parser.allArgs
 
-        logging.debug('Trf %s: %s' % (trf, args))
+        logging.debug('Trf %s: %s', trf, args)
         processedTrfs.append(trf)
         myTrfSigs[trf] = args
         myTrfSigDesc[trf] = transform.parser.getProdsysDesc
@@ -62,10 +62,10 @@ def main():
         sigFile = open(cliargs['output'], 'wb')
         json.dump(myTrfSigDesc, sigFile, indent=4)
     except (OSError, IOError) as e:
-        logging.error('Failed to dump pickled signatures to %s: %s' % (cliargs['output'], e))
+        logging.error('Failed to dump pickled signatures to %s: %s', cliargs['output'], e)
         sys.exit(1)
         
-    logging.info('Successfully generated signature file "%s" for transforms %s' % (cliargs['output'], processedTrfs))
+    logging.info('Successfully generated signature file "%s" for transforms %s', cliargs['output'], processedTrfs)
     sys.exit(0)
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@
 
 
 // This algorithm includes
-#include "TrigT1CaloSim/JetElementMaker.h"
+#include "JetElementMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloEvent/JetElement_ClassDEF.h"

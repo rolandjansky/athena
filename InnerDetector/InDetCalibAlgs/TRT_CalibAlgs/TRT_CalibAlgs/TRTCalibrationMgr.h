@@ -21,6 +21,7 @@
 #include "CommissionEvent/ComTime.h"
 #include "TRT_ConditionsData/RtRelationMultChanContainer.h"
 #include "TRT_ConditionsData/StrawT0MultChanContainer.h"
+#include "CxxUtils/checker_macros.h"
 
 
 namespace TRT{
@@ -58,7 +59,8 @@ made and Dt0 is set to the mean of that. The new t0 is then the old t0
 
 */
 
-class TRTCalibrationMgr: public AthAlgorithm
+// TRTCalibrator is not thread-safe.
+class ATLAS_NOT_THREAD_SAFE TRTCalibrationMgr: public AthAlgorithm
 {
 
 public:
@@ -72,7 +74,7 @@ public:
   virtual StatusCode initialize(void) override;
   virtual StatusCode execute(void) override;
   virtual StatusCode finalize(void) override;
-  StatusCode streamOutCalibObjects() const;
+  StatusCode streamOutCalibObjects();
 
 private:
 

@@ -34,7 +34,10 @@ public:
   // Creates the raw geometry tree: required,
   virtual void create (GeoPhysVol* world);
 
-  // Get the manager.
+  // this function is inherited from GeoVDetectorFactory where it is declared const.
+  // However, the MuonDetectorManager cannot be const since it holds the pointers to the readout elements,
+  // and those can change with alignment. Thus, this const method will create a thread-safety warning since 
+  // the returned object is *not* const
   virtual MuonDetectorManager* getDetectorManager() const;
 
   inline void setDBAtlasVersion(std::string v);
@@ -42,6 +45,7 @@ public:
   inline void setDBkey(std::string v);
   inline void setDBnode(std::string v);
 
+  inline void setAmdcDb(bool value);
   inline void setLayout(std::string );
   inline void setCutoutsFlag(int );
   inline void setCutoutsBogFlag(int );
@@ -75,6 +79,7 @@ private:
   std::string m_DBkey;
   std::string m_DBnode;
 
+  bool m_isAmdcDb;
   std::string m_layout;
   int m_includeCutouts;
   int m_includeCutoutsBog;
@@ -117,6 +122,7 @@ void MuonDetectorFactory001::setDBMuonVersion(std::string v) {m_DBMuonVersion = 
 void MuonDetectorFactory001::setDBkey(std::string v) {m_DBkey = v;}
 void MuonDetectorFactory001::setDBnode(std::string v) {m_DBnode = v;}
 
+void MuonDetectorFactory001::setAmdcDb(bool value) {m_isAmdcDb = value;}
 void MuonDetectorFactory001::setLayout(std::string str) {m_layout = str;}
 void MuonDetectorFactory001::setCutoutsFlag(int flag) {m_includeCutouts = flag;}
 void MuonDetectorFactory001::setCutoutsBogFlag(int flag) {m_includeCutoutsBog = flag;}

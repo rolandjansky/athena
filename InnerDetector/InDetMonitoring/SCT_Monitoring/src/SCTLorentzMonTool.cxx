@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTLorentzMonTool.cxx
@@ -29,7 +29,6 @@
 #include <cmath>
 #include <type_traits>
 
-using namespace std;
 using namespace SCT_Monitoring;
 
 // ====================================================================================================
@@ -39,7 +38,7 @@ using namespace SCT_Monitoring;
  *  of the filepath for histograms etc
  */
 // ====================================================================================================
-SCTLorentzMonTool::SCTLorentzMonTool(const string& type, const string& name, const IInterface* parent):
+SCTLorentzMonTool::SCTLorentzMonTool(const std::string& type, const std::string& name, const IInterface* parent):
   ManagedMonitorToolBase(type, name, parent) {
 }
 
@@ -50,6 +49,12 @@ StatusCode SCTLorentzMonTool::initialize() {
 
   ATH_CHECK(m_tracksName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
+  if (m_rejectSharedHits) {
+    ATH_CHECK(m_assoTool.retrieve());
+  } else {
+    m_assoTool.disable();
+  }
 
   return ManagedMonitorToolBase::initialize();
 }
@@ -127,6 +132,12 @@ SCTLorentzMonTool::fillHistograms() {
     return StatusCode::SUCCESS;
   }
 
+  // Prepare AssociationTool
+  Trk::IPRD_AssociationTool::Maps maps;
+  for (const Trk::Track* track : *tracks) {
+    ATH_CHECK(m_assoTool->addPRDs(maps, *track));
+  }
+
   for (const Trk::Track* track: *tracks) {
     if (track==nullptr) {
       ATH_MSG_ERROR("no pointer to track!!!");
@@ -150,6 +161,11 @@ SCTLorentzMonTool::fillHistograms() {
       if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
         const InDet::SiClusterOnTrack* clus{dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack())};
         if (clus) { // Is it a SiCluster? If yes...
+          // Reject shared hits if you want
+          if (m_rejectSharedHits and m_assoTool->isShared(maps, *(clus->prepRawData()))) {
+            continue;
+          }
+
           const InDet::SiCluster* RawDataClus{dynamic_cast<const InDet::SiCluster*>(clus->prepRawData())};
           if (RawDataClus==nullptr) {
             continue; // Continue if dynamic_cast returns null
@@ -174,7 +190,7 @@ SCTLorentzMonTool::fillHistograms() {
               }
             }
             // find cluster size
-            const vector<Identifier>& rdoList{RawDataClus->rdoList()};
+            const std::vector<Identifier>& rdoList{RawDataClus->rdoList()};
             int nStrip{static_cast<int>(rdoList.size())};
             const Trk::TrackParameters* trkp{dynamic_cast<const Trk::TrackParameters*>(tsos->trackParameters())};
             if (trkp==nullptr) {
@@ -206,8 +222,8 @@ SCTLorentzMonTool::fillHistograms() {
                   ) {
                 passesCuts = true;
               } else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) and // use negative track only
-                         (fabs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
-                         (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
+                         (std::abs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
+                         (std::abs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
                          (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
                          (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                          ) {
@@ -255,28 +271,28 @@ SCTLorentzMonTool::checkHists(bool /*fromFinalize*/) {
 // ====================================================================================================
 StatusCode
 SCTLorentzMonTool::bookLorentzHistos() {
-  const string stem{m_path + "/SCT/GENERAL/lorentz/"};
+  const std::string stem{m_path + "/SCT/GENERAL/lorentz/"};
   MonGroup Lorentz{this, m_path + "SCT/GENERAL/lorentz", run, ATTRIB_UNMANAGED};
 
-  static const string hNum[N_BARRELS] = {
+  static const std::string hNum[N_BARRELS] = {
     "0", "1", "2", "3"
   };
-  static const string hNumS[N_SIDES] = {
+  static const std::string hNumS[N_SIDES] = {
     "0", "1"
   };
   static const int nProfileBins{360};
  
   int success{1};
-  static const string histNames1[nSurfaces]{"_100",   "_111"}; 
-  static const string histNames2[nSurfaces]{"_100_",  "_111_"}; 
-  static const string histTitles[nSurfaces]{"100 - ", "111 - "};
+  static const std::string histNames1[nSurfaces]{"_100",   "_111"}; 
+  static const std::string histNames2[nSurfaces]{"_100_",  "_111_"}; 
+  static const std::string histTitles[nSurfaces]{"100 - ", "111 - "};
   for (int l{0}; l < N_BARRELS; ++l) {
     // granularity set to one profile/layer for now
     for (int side{0}; side < nSides; ++side) {
       for (unsigned int iSurface{0}; iSurface<nSurfaces; iSurface++) {
-        string histName;
+        std::string histName;
         histName = "h_phiVsNstrips" + histNames2[iSurface] + hNum[l] + "Side" + hNumS[side];
-        string histTitle;
+        std::string histTitle;
         histTitle = histTitles[iSurface] + "Inc. Angle vs nStrips for Layer Side" + hNum[l] + hNumS[side];
         int iflag{0};
         m_phiVsNstrips[l][side][iSurface] = pFactory(histName, histTitle, nProfileBins, -90., 90., Lorentz, iflag);
@@ -293,7 +309,7 @@ SCTLorentzMonTool::bookLorentzHistos() {
 }
 
 TProfile*
-SCTLorentzMonTool::pFactory(const string& name, const string& title, int nbinsx, float xlow, float xhigh,
+SCTLorentzMonTool::pFactory(const std::string& name, const std::string& title, int nbinsx, float xlow, float xhigh,
                             MonGroup& registry, int& iflag) const {
   TProfile* tmp{new TProfile{name.c_str(), title.c_str(), nbinsx, xlow, xhigh}};
   bool success{registry.regHist(tmp).isSuccess()};
@@ -327,7 +343,7 @@ SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], // 3 is for x
     return iflag;
   }
 
-  float cosAlpha{sqrt(1.0f - sinAlpha * sinAlpha)};
+  float cosAlpha{std::sqrt(1.0f - sinAlpha * sinAlpha)};
   double phix{ cosAlpha * element->phiAxis().x() + sinAlpha * element->phiAxis().y()};
   double phiy{-sinAlpha * element->phiAxis().x() + cosAlpha * element->phiAxis().y()};
 

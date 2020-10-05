@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4HiveEx )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel
-                          Generators/GeneratorObjects )
-
 # External dependencies:
 find_package( Geant4 )
 find_package( CLHEP )

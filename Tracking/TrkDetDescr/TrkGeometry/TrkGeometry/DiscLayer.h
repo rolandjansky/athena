@@ -17,16 +17,16 @@ class MsgStream;
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkGeometry/ApproachDescriptor.h"
 // STL sorting
 #include <algorithm>
-
+#include <memory>
 namespace Trk {
 
   class DiscBounds;
   class VolumeBounds;
   class LayerMaterialProperties;
   class OverlapDescriptor;
-  class IApproachDescriptor;
   
   /**
    @class DiscLayer
@@ -44,8 +44,8 @@ namespace Trk {
       
       public:
         /**Default Constructor*/
-        DiscLayer(){}
-        
+        DiscLayer() = default;
+
         /**Constructor with DiscSurface components and MaterialProperties */
         DiscLayer(Amg::Transform3D* transform,
                   DiscBounds* dbounds,
@@ -91,8 +91,8 @@ namespace Trk {
         DiscLayer& operator=(const DiscLayer&);
               
         /**Destructor*/
-        virtual ~DiscLayer() override;
-                
+        virtual ~DiscLayer() = default;
+
         /** Transforms the layer into a Surface representation for extrapolation */
         virtual const DiscSurface& surfaceRepresentation() const override;
 
@@ -112,30 +112,31 @@ namespace Trk {
         virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
                                                  Trk::PropDirection dir) const override;
 
-       /** move the Layer */
+       /** move the Layer non-const*/
        virtual void moveLayer( Amg::Transform3D& shift ) override;
      
-       /** move the Layer */
+       /** move the Layer const , performas const_cast */
        virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
          const_cast<DiscLayer*> (this)->moveLayer(shift);
        }
  
      private:   
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
-              /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
+       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;
+       /** Resize the layer to the tracking volume - only works for
+        * CylinderVolumeBouns . performs const cast */
        virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
                                                       double envelope) const override
        {
          const_cast<DiscLayer*> (this)->resizeLayer(vBounds,envelope);
        }
 
-       /** Resize the layer to the tracking volume - not implemented */
+       /** Resize the layer to the tracking volume - not implemented.*/
        virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
                                              const Amg::Vector3D& cCenter,
                                              double envelop) override;
 
-       /** Resize the layer to the tracking volume - not implemented */ 
+       /** Resize the layer to the tracking volume - not implemented . Performs const cast*/ 
        virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
                                                                     const Amg::Vector3D& cCenter, 
                                                                     double envelop) const override{
@@ -151,22 +152,20 @@ namespace Trk {
                                       const Amg::Vector3D& dir,
                                       const BoundaryCheck& bcheck) const;    
      protected:
-       IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
-    
+       //!< surface for approaching
+       std::unique_ptr<IApproachDescriptor> m_approachDescriptor;
   };
 
   /** @class DiscLayerSorterZ 
 	simple helper function to allow sorting of DiscLayers in z
   */
   class DiscLayerSorterZ {
-	public:       
-	 /** Default Constructor */
-	 DiscLayerSorterZ()
-	    {}
-	       
-	    bool operator() (const DiscLayer* one, const DiscLayer* two) const 
-	    {return ( one->center().z() <  two->center().z() ); }          
-    };
+	public:
+          bool operator()(const DiscLayer* one, const DiscLayer* two) const
+          {
+            return (one->center().z() < two->center().z());
+          }
+  };
 
 } // end of namespace
 

@@ -21,7 +21,6 @@
 #include "StoreGate/StoreGate.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
-#include "AthenaKernel/MetaCont.h"
 #include "CxxUtils/checker_macros.h"
 
 IOVDbMetaDataTool::IOVDbMetaDataTool(const std::string& type, 
@@ -127,8 +126,7 @@ StatusCode IOVDbMetaDataTool::endInputFile(const SG::SourceID&)
 
 StatusCode IOVDbMetaDataTool::metaDataStop()
 {
-  StatusCode sc = dumpMetaConts();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------------------------
@@ -231,10 +229,12 @@ StatusCode
 IOVDbMetaDataTool::registerFolder(const std::string& folderName, 
                                   const std::string& folderDescription) const
 {
+    // lock the tool before getMetaDataContainer() call
+    std::scoped_lock  guard( m_mutex );
+
     ATH_MSG_DEBUG("begin registerFolder ");
 
-    IOVMetaDataContainer* cont = getMetaDataContainer(folderName, folderDescription);
-    if (!cont) {
+    if( ! getMetaDataContainer(folderName, folderDescription) ) {
         ATH_MSG_ERROR("Unable to register folder " << folderName);
         return(StatusCode::FAILURE);
     } 
@@ -250,6 +250,9 @@ IOVDbMetaDataTool::registerFolder(const std::string& folderName,
 StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
 					  , CondAttrListCollection* payload) const
 {
+  // lock the tool while it is modifying the folder
+  std::scoped_lock  guard( m_mutex );
+
   ATH_MSG_DEBUG("begin addPayload ");
   
   // Check if the  folder has already been found
@@ -302,6 +305,7 @@ StatusCode
 IOVDbMetaDataTool::modifyPayload ATLAS_NOT_THREAD_SAFE  (const std::string& folderName, 
                                                          CondAttrListCollection*& coll) const
 {
+    // protected by lock in processInputFileMetaData()
 
     /// Modify a Payload for a particular folder - replaces one of the
     /// internal attributes
@@ -384,10 +388,20 @@ IOVDbMetaDataTool::modifyPayload ATLAS_NOT_THREAD_SAFE  (const std::string& fold
 
 //--------------------------------------------------------------------------
 
+IOVMetaDataContainer*
+IOVDbMetaDataTool::findMetaDataContainer(const std::string& folderName) const
+{
+  // lock the tool before this call
+  // Return the folder if it is in the meta data store
+  return m_metaDataStore->tryRetrieve<IOVMetaDataContainer>(folderName);
+}
+
+
 IOVMetaDataContainer* 
 IOVDbMetaDataTool::getMetaDataContainer(const std::string& folderName
                                         , const std::string& folderDescription) const
 {
+  // protected by locks in addPayload() and registerFolder()
   ATH_MSG_DEBUG("begin getMetaDataContainer ");
 
   IOVMetaDataContainer* cont{nullptr};
@@ -419,6 +433,9 @@ IOVDbMetaDataTool::getMetaDataContainer(const std::string& folderName
 
 StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
 {
+  // lock the tool while it is processing input metadata 
+  std::scoped_lock  guard( m_mutex );
+
   ATH_MSG_DEBUG("processInputFileMetaData: file name " << fileName);
 
   // Retrieve all meta data containers from InputMetaDataStore
@@ -427,11 +444,11 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 
   StatusCode sc = m_inputStore->retrieve(cont, contEnd);
   if (!sc.isSuccess()) {
-    ATH_MSG_DEBUG("Could not retrieve IOVMetaDataContainer objects from InputMetaDataStore - cannot process input file meta data");
+    ATH_MSG_DEBUG("processInputFileMetaData: Could not retrieve IOVMetaDataContainer objects from InputMetaDataStore - cannot process input file meta data");
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG("Retrieved from IOVMetaDataContainer(s) from InputMetaDataStore");
+  ATH_MSG_DEBUG("processInputFileMetaData: Retrieved from IOVMetaDataContainer(s) from InputMetaDataStore");
 
   // For each container, merge its contents into the MetaDataStore 
   unsigned int ncolls    = 0;
@@ -439,11 +456,6 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
   for (; cont != contEnd; ++cont) {
     IOVMetaDataContainer* contMaster = getMetaDataContainer(cont->folderName()
 							    , cont->folderDescription());
-
-    // At the same time we want to create a new instance of IOVMetaDataContainer for new SID
-    // and store it into MetaCont<IOVMetaDataContainer>
-    IOVMetaDataContainer* newCont4Sid = new IOVMetaDataContainer(cont->folderName()
-								 , cont->folderDescription()); 
 
     // We assume that the folder is the same for all versions, and
     // now we loop over versions for the payloads
@@ -457,7 +469,7 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
     for (SG::ObjectWithVersion<IOVMetaDataContainer>& obj : allVersions) {
       const IOVPayloadContainer*  payload = obj.dataObject->payloadContainer();
 
-      ATH_MSG_DEBUG("New container: payload size " << payload->size() << " version key " << obj.versionedKey);
+      ATH_MSG_DEBUG("processInputFileMetaData: New container: payload size " << payload->size() << " version key " << obj.versionedKey);
 
       // detailed printout before merge
       if (msgLvl(MSG::VERBOSE)) {
@@ -481,7 +493,7 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
         
     // Detailed printout
     if (msgLvl(MSG::DEBUG)) {
-      ATH_MSG_DEBUG("Current payload before merge " << contMaster->folderName());
+      ATH_MSG_DEBUG("processInputFileMetaData: Current payload before merge " << contMaster->folderName());
       IOVPayloadContainer::const_iterator itColl1    = contMaster->payloadContainer()->begin();
       IOVPayloadContainer::const_iterator itCollEnd1 = contMaster->payloadContainer()->end();
       std::ostringstream stream;
@@ -513,26 +525,12 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
           StatusCode sc ATLAS_THREAD_SAFE =
             modifyPayload (contMaster->folderName(), coll);
           if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Could not modify the payload for folder " << contMaster->folderName());
+            ATH_MSG_ERROR("processInputFileMetaData: Could not modify the payload for folder " << contMaster->folderName());
             return StatusCode::FAILURE;
           }
         }
 
-	// Do the same with newCont4Sid
-        {
-          // Should be ok.
-          StatusCode sc ATLAS_THREAD_SAFE =
-            modifyPayload (newCont4Sid->folderName(), coll);
-          if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Could not modify the payload for folder " << newCont4Sid->folderName());
-            return StatusCode::FAILURE;
-          }
-        }
-
-	// Before starting merging, make a copy for newCont4Sid
-	CondAttrListCollection* collCopy = new CondAttrListCollection(*coll);
-
-	ATH_MSG_VERBOSE(" merge minRange: " << coll->minRange());
+	ATH_MSG_VERBOSE("processInputFileMetaData: merge minRange: " << coll->minRange());
 	if (!contMaster->merge(coll)) {
 	  // Did not merge it in - was a duplicate, so we need to delete it 
 	  delete coll;
@@ -544,18 +542,8 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 	  ATH_MSG_VERBOSE(" => merged ");
 	}
 
-	ATH_MSG_VERBOSE(" merge for MetaCont minRange: " << collCopy->minRange());
-	if (!newCont4Sid->merge(collCopy)) {
-	  // Did not merge it in - was a duplicate, so we need to delete it 
-	  delete collCopy;
-	  ATH_MSG_VERBOSE(" => not merged ");
-	}
-	else {
-	  ATH_MSG_VERBOSE(" => merged ");
-	}
-
       }
-      ATH_MSG_DEBUG("Merged together containers for folder " << cont->folderName() << " ncoll/ndup " 
+      ATH_MSG_DEBUG("processInputFileMetaData: Merged together containers for folder " << cont->folderName() << " ncoll/ndup " 
 		    << ncolls << " " << ndupColls);
 
       // Check for consistency after merge
@@ -585,16 +573,10 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 	}
       }
 
-      // Insert the merged container into MetaCont
-      if(fillMetaCont(fileName,newCont4Sid).isFailure()) {
-	ATH_MSG_ERROR("Failed to insert the merged IOVMetaDataContainer into MetaCont");
-	return StatusCode::FAILURE;
-      }
-
       // detailed printout after merge
       if (msgLvl(MSG::VERBOSE)) {
 	const IOVPayloadContainer*  payloadMaster = contMaster->payloadContainer();
-	ATH_MSG_VERBOSE("After merge, payload minRange ");
+	ATH_MSG_VERBOSE("processInputFileMetaData: After merge, payload minRange ");
 	if (payloadMaster) {
 	  // Loop over AttrColls and print out minRange
 	  IOVPayloadContainer::const_iterator itColl    = payloadMaster->begin();
@@ -610,13 +592,13 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
       
       // Detailed printout
       if (msgLvl(MSG::DEBUG)) {
-	ATH_MSG_DEBUG("Input payload " << cont->folderName());
+	ATH_MSG_DEBUG("processInputFileMetaData: Input payload " << cont->folderName());
 	std::ostringstream streamInp;
 	itColl    = payload->begin();
 	itCollEnd = payload->end();
 	for (; itColl != itCollEnd; ++itColl) (*itColl)->dump(streamInp);
 	ATH_MSG_DEBUG(streamInp.str());
-	ATH_MSG_DEBUG("Output payload " << contMaster->folderName());
+	ATH_MSG_DEBUG("processInputFileMetaData: Output payload " << contMaster->folderName());
 	std::ostringstream streamOut;
 	itColl    = contMaster->payloadContainer()->begin();
 	itCollEnd = contMaster->payloadContainer()->end();
@@ -626,7 +608,7 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
     }
   }
 
-  ATH_MSG_DEBUG("Total number of attribute collections  merged together " << ncolls
+  ATH_MSG_DEBUG("processInputFileMetaData: Total number of attribute collections  merged together " << ncolls
 		<< " Number of duplicate collections " << ndupColls);
   return StatusCode::SUCCESS;
 }
@@ -662,31 +644,41 @@ IOVDbMetaDataTool::overrideIOV (CondAttrListCollection*& coll) const
             ATH_MSG_ERROR("overrideIOV: old run number does not match. Old run number " << m_oldRunNumber << " IOVRange: " << testIOV);
             return StatusCode::SUCCESS;
         }
-        // Now over ride IOVs
-        if (iovSizeIsZero) { 
+
+        ATH_MSG_DEBUG("overrideIOV: overrideMinMaxRunNumber: " << (int)m_overrideMinMaxRunNumber
+                      << " overrideRunNumber " << (int)m_overrideRunNumber
+                      << " iovSizeIsZero: " << (int)iovSizeIsZero
+                      << " newRange " << newRange);
+        
+        // Now over ride IOVs - two cases: 1) single IOV for full collection, 2) IOVs for individual channels.
+        // Must treat the reset of collection IOV differently
+        if (iovSizeIsZero) {
             // Only add in overall range if channels do not have
             // IOVs - otherwise this is automatically calculated
+            coll->resetMinRange(); // must first reset to 'full range' and then reduce the IOVRange accordingly
             coll->addNewStart(newRange.start());
             coll->addNewStop (newRange.stop());
         }
         else {
-          // Add in channels
-          unsigned int nchans = coll->size();
-          for (unsigned int ichan = 0; ichan < nchans; ++ichan) {
-            // FIXME: O(N^2)!
-            CondAttrListCollection::ChanNum chan = coll->chanNum(ichan);
-            coll->add(chan, newRange);
-            ATH_MSG_DEBUG("overrideIOV: overriding the IOV of collection " << chan);
-          }
+            // Add in channels
+            unsigned int nchans = coll->size();
+            ATH_MSG_DEBUG("overrideIOV: nchans " << nchans);
+            for (unsigned int ichan = 0; ichan < nchans; ++ichan) {
+                // FIXME: O(N^2)!
+                CondAttrListCollection::ChanNum chan = coll->chanNum(ichan);
+                coll->add(chan, newRange);
+                ATH_MSG_DEBUG("overrideIOV: overriding the IOV of collection chan " << chan);
+            }
+            // must reset the collection range AFTER the channels, because the collection range will be
+            // 'narrowed' to that of the channels
+            coll->resetMinRange();
         }
-        // must reset the collection range AFTER the channels, because the collection range will be
-        // 'narrowed' to that of the channels
-        coll->resetMinRange();
         if (msgLvl(MSG::DEBUG)) {
-	  std::ostringstream stream;
-	  coll->dump(stream);
-	  ATH_MSG_DEBUG(stream.str());
-	}
+            ATH_MSG_DEBUG("overrideIOV: after  overriding the IOV of collection");
+            std::ostringstream stream;
+            coll->dump(stream);
+            ATH_MSG_DEBUG(stream.str());
+        }
     }
     else ATH_MSG_DEBUG("overrideIOV: IOV is not run/event ");
 

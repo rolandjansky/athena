@@ -12,6 +12,7 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "CxxUtils/checker_macros.h"
 #include "InDetPhysValMonitoring/SingleHistogramDefinition.h" // to make available to children
 
 #include <string>
@@ -98,7 +99,7 @@ protected:
   }
 
   /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 private:
   IHistogramDefinitionSvc* m_histoDefSvc;
 };

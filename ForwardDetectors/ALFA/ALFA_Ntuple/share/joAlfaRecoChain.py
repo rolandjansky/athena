@@ -119,8 +119,8 @@ conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_FWD;dbname
 #-------------------------------------------------------------------------------------------------#
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-#ServiceMgr.ByteStreamInputSvc.FullFileName = ["/afs/cern.ch/work/g/ggach/public/xAOD/myTest/RAW/data15_13TeV/data15_13TeV.00266904.calibration_ALFACalib.daq.RAW._lb0000._SFO-6._0002.data"]
-ServiceMgr.ByteStreamInputSvc.FullFileName = ["/afs/cern.ch/work/g/ggach/public/xAOD/myTest/RAW/data15_13TeV/data15_13TeV.00267358.physics_Main.merge.RAW._lb0005._SFO-2._0001.1"]
+#ServiceMgr.EventSelector.Input = ["/afs/cern.ch/work/g/ggach/public/xAOD/myTest/RAW/data15_13TeV/data15_13TeV.00266904.calibration_ALFACalib.daq.RAW._lb0000._SFO-6._0002.data"]
+ServiceMgr.EventSelector.Input = ["/afs/cern.ch/work/g/ggach/public/xAOD/myTest/RAW/data15_13TeV/data15_13TeV.00267358.physics_Main.merge.RAW._lb0005._SFO-2._0001.1"]
 from ALFA_RawDataByteStreamCnv.ALFA_RawDataByteStreamCnvConf import ALFA_RawDataProvider
 
 

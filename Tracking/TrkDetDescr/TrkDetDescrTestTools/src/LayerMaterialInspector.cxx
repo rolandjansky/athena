@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,12 +33,12 @@ Trk::LayerMaterialInspector::LayerMaterialInspector(const std::string& t, const 
 Trk::LayerMaterialInspector::~LayerMaterialInspector()
 {}
 
-StatusCode Trk::LayerMaterialInspector::processNode(const Trk::TrackingVolume& , size_t)
+StatusCode Trk::LayerMaterialInspector::processNode(const Trk::TrackingVolume& , size_t) const
 {
   return StatusCode::SUCCESS;
 }  
 
-StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Layer& lay, size_t)
+StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Layer& lay, size_t) const
 {
     
     const Trk::TrackingVolume* tvol = lay.enclosingTrackingVolume();
@@ -152,7 +152,7 @@ StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Layer& lay, size_
     return StatusCode::SUCCESS;    
 }
 
-StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Surface& , size_t)
+StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Surface& , size_t) const
 {
   return StatusCode::SUCCESS;
 }  

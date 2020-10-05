@@ -38,11 +38,13 @@ TrigConf::L1Board::update()
 
    std::string boardType(getAttribute("type"));
    if( boardType == "MUCTPI" ) {
-      m_type = BoardType::MUCTPI;      
+      m_boardType = BoardType::MUCTPI;
    } else if( boardType == "CTPIN" ) {
-      m_type = BoardType::CTPIN;
+      m_boardType = BoardType::CTPIN;
    } else if( boardType == "TOPO" ) {
-      m_type = BoardType::TOPO;
+      m_boardType = BoardType::TOPO;
+   } else if( boardType == "MERGER" ) {
+      m_boardType = BoardType::MERGER;
    } else {
       throw std::runtime_error("Unknown board type " + boardType);
    }
@@ -60,6 +62,27 @@ TrigConf::L1Board::size() const
    return m_connectorNames.size();
 }
 
+TrigConf::L1Board::BoardType
+TrigConf::L1Board::boardType() const
+{
+   return m_boardType;
+}
+
+std::string
+TrigConf::L1Board::type() const
+{
+   switch( boardType() ) {
+   case BoardType::CTPIN:
+      return "CTPIN";
+   case BoardType::MUCTPI:
+      return "MUCTPI";
+   case BoardType::TOPO:
+      return "TOPO";
+   case BoardType::MERGER:
+      return "MERGER";
+   }
+   return "";
+}
 
 bool
 TrigConf::L1Board::legacy() const 

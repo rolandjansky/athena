@@ -70,14 +70,6 @@ from AthenaPoolTest.AthenaPoolTestConf import TrkTrackFakeWriter
 topSequence += TrkTrackFakeWriter( "TrkTrackFakeWriter" )
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-
-# Check the dictionary in memory for completeness
-#include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-svcMgr.AthenaSealSvc.CheckDictionary = True
-
-#--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include <cmath>
 #include <iostream>
 #include <vector>
 

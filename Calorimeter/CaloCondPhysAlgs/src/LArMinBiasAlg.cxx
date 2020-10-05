@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArMinBiasAlg.h"
@@ -20,7 +20,6 @@
   //Constructor
   LArMinBiasAlg:: LArMinBiasAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_larmcsym("LArMCSymTool"),
     m_datasetID_lowPt(119995),
     m_datasetID_highPt(119996),
     m_weight_lowPt(39.8606),
@@ -76,7 +75,7 @@
 //  retrieve CaloDetDescrMgr 
     ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
-    ATH_CHECK(m_larmcsym.retrieve());
+    ATH_CHECK(m_mcSymKey.initialize());
 
     ATH_CHECK(m_cablingKey.initialize());
 
@@ -112,9 +111,12 @@
     
     ATH_MSG_DEBUG(" LArMinBiasAlg execute()");
 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
     if (m_first) {
 
-      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+      SG::ReadCondHandle<LArMCSym>  mcsym      (m_mcSymKey, ctx);
+      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);
       const LArOnOffIdMapping* cabling{*cablingHdl};
       if(!cabling) {
          ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
@@ -140,14 +142,14 @@
         IdentifierHash idHash=i;
         Identifier id=m_calo_id->cell_id(idHash);
         if (m_calo_id->is_tile(id)) continue;
-        // convert cell id to symetric identifier
-        HWIdentifier hwid2=m_larmcsym->symOnline(id);
+        // convert cell id to symmetric identifier
+        HWIdentifier hwid2 = mcsym->ZPhiSymOfl(id);
         Identifier id2 = cabling->cnvToIdentifier(hwid2);
         int i2 = (int) (m_calo_id->calo_cell_hash(id2));
         if(i2>=m_ncell) {
            ATH_MSG_WARNING("problem: i2: "<<i2<<" for id: "<<m_calo_id->print_to_string(id)<<" symmetrized: "<<m_calo_id->print_to_string(id2));
         }
-        // we have already processed this hash => just need to associate cell i to the same symetric cell
+        // we have already processed this hash => just need to associate cell i to the same symmetric cell
         if (doneCell[i2]>=0) {
            m_symCellIndex[i]=doneCell[i2];
         }
@@ -212,10 +214,10 @@
    for (int i=0;i<m_ncell;i++) m_eCell[i]=0.;
 
     std::vector <std::string> HitContainer;
-    HitContainer.push_back("LArHitEMB");
-    HitContainer.push_back("LArHitEMEC");
-    HitContainer.push_back("LArHitHEC");
-    HitContainer.push_back("LArHitFCAL");
+    HitContainer.emplace_back("LArHitEMB");
+    HitContainer.emplace_back("LArHitEMEC");
+    HitContainer.emplace_back("LArHitHEC");
+    HitContainer.emplace_back("LArHitFCAL");
     for (unsigned int iHitContainer=0;iHitContainer<HitContainer.size();iHitContainer++)
     {
       const LArHitContainer* hit_container ;

@@ -16,20 +16,17 @@ namespace Monitored {
     CumulativeHistogramFiller1D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller1D(definition, provider) {}
 
-    virtual CumulativeHistogramFiller1D* clone() const override {
-      return new CumulativeHistogramFiller1D( *this );
-    }
 
     
-    virtual unsigned fill() const override {
-      if (m_monVariables.size() != 1) {
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
+      if ( vars.size() != 1) {
         return 0;
       }
 
-      size_t varVecSize = m_monVariables.at(0).get().size();
+      const size_t varVecSize = vars.var[0]->size();
 
       // handling of the cutmask
-      auto cutMaskValuePair = getCutMaskFunc();
+      auto cutMaskValuePair = getCutMaskFunc( vars.cut );
       if (cutMaskValuePair.first == 0) { return 0; }
       if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != varVecSize)) {
         MsgStream log(Athena::getMessageSvc(), "CumulativeHistogramFiller1D");
@@ -37,21 +34,15 @@ namespace Monitored {
             << cutMaskValuePair.first << " " << varVecSize << endmsg;
       }
       auto cutMaskValue = cutMaskValuePair.second;
-
-      unsigned i(0);
+      unsigned i{0};
       auto histogram = this->histogram<TH1>();
-      auto valuesVector{m_monVariables[0].get().getVectorRepresentation()};
-      std::scoped_lock lock(*m_mutex);
-      size_t idx = 0;
-      for (auto value : valuesVector) {
-        if (!cutMaskValue(idx++)) { continue; }
-        unsigned bin = histogram->FindBin(value);
+      for (; i < varVecSize; i++) {
+        if (!cutMaskValue(i)) { continue; }
+        const unsigned bin = histogram->FindBin(vars.var[0]->get(i));
 
         for (unsigned j = bin; j > 0; --j) {
           histogram->AddBinContent(j);
         }
-
-        ++i;
       }
 
       return i;  

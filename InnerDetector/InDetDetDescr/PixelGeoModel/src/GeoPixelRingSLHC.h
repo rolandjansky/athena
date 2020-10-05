@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELRINGSLHC_H
@@ -11,8 +11,9 @@ class GeoLogVol;
 
 class GeoPixelRingSLHC : public GeoVPixelFactory {
  public:
-  GeoPixelRingSLHC(GeoPixelSiCrystal& sensor);
-  virtual GeoVPhysVol* Build();
+  GeoPixelRingSLHC(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr, GeoPixelSiCrystal& sensor);
+  virtual GeoVPhysVol* Build() override;
 
  private:  
   GeoPixelSiCrystal& m_sensor;

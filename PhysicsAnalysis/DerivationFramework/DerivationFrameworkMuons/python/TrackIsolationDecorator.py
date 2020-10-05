@@ -42,10 +42,8 @@ print (CaloIsoTool)
 ToolSvc += CaloIsoTool
 
 
-import ROOT, cppyy
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
+# Import the xAOD isolation parameters.
+from xAODPrimitives.xAODIso import xAODIso as isoPar
 
 deco_ptcones = [isoPar.ptcone40, isoPar.ptcone30]
 deco_topoetcones = [isoPar.topoetcone40, isoPar.topoetcone20]

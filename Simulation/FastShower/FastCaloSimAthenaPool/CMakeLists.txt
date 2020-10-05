@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( FastCaloSimAthenaPool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          PRIVATE
-                          Database/AthenaPOOL/AthenaPoolCnvSvc )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

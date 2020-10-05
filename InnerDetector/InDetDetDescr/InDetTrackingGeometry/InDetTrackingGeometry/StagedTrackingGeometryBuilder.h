@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,13 +13,17 @@
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrUtils/BinningType.h"
 #include "TrkGeometry/TrackingVolumeManipulator.h"
-// Gaudi
+// Athena
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/CachedUniquePtr.h"
+// Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 // STL
 #include <vector>
 #include <string>
+
+#include "CxxUtils/checker_macros.h"
 
 #ifndef TRKDETDESCR_TAKESMALLERBIGGER
 #define TRKDETDESCR_TAKESMALLERBIGGER
@@ -37,7 +41,6 @@ namespace Trk {
  class IMagneticFieldTool;
  class Layer;
  class Material;
- class MagneticFieldProperties;
 }
  
 class IEnvelopeDefSvc; 
@@ -140,7 +143,7 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      const Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const; 
+      const Trk::TrackingGeometry* trackingGeometry ATLAS_NOT_THREAD_SAFE (const Trk::TrackingVolume* tvol = 0) const; 
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
@@ -162,7 +165,8 @@ namespace InDet {
                                    
                                    
       /** Private helper method to flush the cache into the id volumes - return volume is the one to be provided */
-      const Trk::TrackingVolume* createFlushVolume(std::vector<InDet::LayerSetup>& layerSetupCache,
+      const Trk::TrackingVolume* createFlushVolume ATLAS_NOT_THREAD_SAFE
+                                                  (std::vector<InDet::LayerSetup>& layerSetupCache,
                                                    double innerRadius, double& outerRadius, double extendZ) const;                                                         
         
       /** Private helper method, creates a TrackingVolume - and checks if configured - for Ring Layout 
@@ -178,7 +182,8 @@ namespace InDet {
       /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers
           - in case of a ring layout the subvolumes are created and the rMax is adapted                                             
          */
-      const Trk::TrackingVolume* packVolumeTriple(const LayerSetup& layerSetup,
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
+                                                 (const LayerSetup& layerSetup,
                                                   double rMin, double& rMax,
                                                   double zMin, double zPosCentral) const;      
       
@@ -213,9 +218,8 @@ namespace InDet {
       bool                                           m_buildBoundaryLayers;      //!< create boundary layers 
       bool                                           m_replaceJointBoundaries;   //!< run with replacement of all joint boundaries 
       
-      // magnetic & material field configuration
-      mutable Trk::Material*                         m_materialProperties;       //!< overal material properties of the ID
-      mutable Trk::MagneticFieldProperties*          m_magneticFieldProperties;  //!< overal mag field properties of the ID
+      // material configuration
+      CxxUtils::CachedUniquePtrT<Trk::Material>      m_materialProperties;       //!< overal material properties of the ID
                     
       // robust layer indexing                                                   
       bool                                           m_indexStaticLayers;        //!< forces robust indexing for layers

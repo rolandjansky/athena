@@ -5,24 +5,22 @@
 #ifndef TAUREC_TAURUNNERALG_H
 #define TAUREC_TAURUNNERALG_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODTau/TauJetContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
-
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
-
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-
 #include "xAODParticleEvent/ParticleContainer.h"
 #include "xAODParticleEvent/ParticleAuxContainer.h"
+
+#include "GaudiKernel/ToolHandle.h"
 
 /**
  * @brief       Main class for tau candidate processing.

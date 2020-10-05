@@ -5,11 +5,6 @@
 # Declare the package name:
 atlas_subdir( SimHelpers )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/StoreGate
-                          GaudiKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

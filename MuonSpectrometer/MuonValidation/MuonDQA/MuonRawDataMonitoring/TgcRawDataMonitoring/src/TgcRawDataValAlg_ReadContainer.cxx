@@ -75,7 +75,6 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
   ///////////////////////////////////////////////////////////////////////////
   // Loop over TgcPrepDataContainer
   if(pcn!=TOTA){
-
     // MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
@@ -130,6 +129,11 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
       for(Muon::TgcPrepDataCollection::const_iterator collectionIt=(*containerIt)->begin();
           collectionIt!= collection_end;
           ++collectionIt){
+	if(pcn<0){
+	  if (((*collectionIt)->getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) pcn=PREV;
+	  if (((*collectionIt)->getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) pcn=CURR;
+	  if (((*collectionIt)->getBcBitMap()&Muon::TgcPrepData::BCBIT_NEXT)==Muon::TgcPrepData::BCBIT_NEXT) pcn=NEXT;
+	}
         // Increment Prd Counter
         if(pcn==CURR)m_nPrd++;
         

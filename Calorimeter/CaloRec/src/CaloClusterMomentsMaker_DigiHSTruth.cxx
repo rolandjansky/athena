@@ -3,7 +3,6 @@
 */
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloClusterMomentsMaker.cxx,v 1.23 2009-04-22 19:50:46 ssnyder Exp $
 //
 // Description: see CaloClusterMomentsMaker.h
 // 
@@ -27,17 +26,17 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
 //#include "CxxUtils/unordered_set.h"
+#include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Vector3D.h"
 #include "CxxUtils/prefetch.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include <Eigen/Dense>
-#include <iterator>
-#include <sstream>
-#include <cstdint>
-#include <limits>
-#include <math.h>
 #include "TLorentzVector.h"
+#include <Eigen/Dense>
+#include <cmath>
+#include <cstdint>
+#include <iterator>
+#include <limits>
+#include <sstream>
 //#include "fastjet/PseudoJet.hh"
 //#include <fastjet/PseudoJet.hh>
 
@@ -118,7 +117,7 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
 						 const std::string& name,
 						 const IInterface* parent)
   : base_class(type, name, parent),
-    m_calo_id(0),
+    m_calo_id(nullptr),
     m_maxAxisAngle(20*Gaudi::Units::deg), 
     m_minRLateral(4*Gaudi::Units::cm), 
     m_minLLongitudinal(10*Gaudi::Units::cm),
@@ -158,12 +157,8 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
   declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
   declareProperty("WeightingOfNegClusters", m_absOpt);
 
-  /// Not used anymore (with xAOD), but required to when configured from 
-  /// COOL via CaloRunClusterCorrections.
+  /// Not used anymore (with xAOD), but required when configured from COOL.
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
-  /// Not used by this tool, but required to use this
-  /// with CaloRunClusterCorrections.
-  declareProperty("order", m_order = 0);
 }
 
 //###############################################################################
@@ -293,7 +288,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 
   // Maps cell IdentifierHash to cluster index in cluster collection.
   // Only used when cluster isolation moment is calculated.
-  typedef std::uint16_t clusterIdx_t;
+  using clusterIdx_t = std::uint16_t;
   typedef std::pair<clusterIdx_t, clusterIdx_t> clusterPair_t;
   std::vector<clusterPair_t> clusterIdx;
   const clusterIdx_t noCluster = std::numeric_limits<clusterIdx_t>::max();
@@ -399,7 +394,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
     for(i=0;i<(unsigned int)CaloCell_ID::Unknown;i++) 
       maxSampE[i] = 0;
     
-    if ( m_momentsNames.size() > 0 ) {
+    if ( !m_momentsNames.empty() ) {
       std::fill (myMoments.begin(), myMoments.end(), 0);
       std::fill (myNorms.begin(),   myNorms.end(),   0);
       if ( m_calculateIsolation ) {

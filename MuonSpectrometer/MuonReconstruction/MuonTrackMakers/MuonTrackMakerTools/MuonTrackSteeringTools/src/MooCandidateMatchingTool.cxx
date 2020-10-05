@@ -107,7 +107,7 @@ namespace Muon {
     ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
     ATH_CHECK( m_segmentMatchingTool.retrieve() );
     ATH_CHECK( m_segmentMatchingToolTight.retrieve() );
     ATH_CHECK( m_candidateTool.retrieve() );
@@ -250,26 +250,22 @@ namespace Muon {
 
     ATH_MSG_DEBUG("Match track/segment: useTightCuts " << useTightCuts);
     // convert segment and track
-    MuPatTrack* candidate = m_candidateTool->createCandidate(&track);
+    std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
+    std::unique_ptr<MuPatTrack> candidate = m_candidateTool->createCandidate(inTrack);
     if( !candidate ) { 
       ATH_MSG_VERBOSE("Failed to create track candidate");
      return false;
     }
 
-    MuPatSegment* segInfo = m_candidateTool->createSegInfo(segment);
+    std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment));
     if( !segInfo ) {
       ATH_MSG_VERBOSE("Failed to create segment candidate");
-      candidate->releaseTrack();
-      delete candidate;
       return false;
     }
 
     // call match
     bool ok = match(*candidate,*segInfo,useTightCuts);
     ATH_MSG_DEBUG("Match track/segment: result " << ok);
-    candidate->releaseTrack();
-    delete candidate;
-    delete segInfo;
     
     // return result
     return ok;
@@ -723,6 +719,18 @@ namespace Muon {
     Identifier closestId;
     double closestIdDist = 1E9;
     bool trackHasPhi = true;
+
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
     
     // loop over TSOS
     const DataVector<const Trk::TrackStateOnSurface>* tsoses = entry1.track().trackStateOnSurfaces();
@@ -816,7 +824,7 @@ namespace Muon {
       msg(MSG::DEBUG) << endmsg;
     }
     
-    bool straightLineMatch = !m_magFieldSvc->toroidOn();
+    bool straightLineMatch = !fieldCache.toroidOn();
     if ( hasStereoAngle && !trackHasPhi && (straightLineMatch || entry1.hasMomentum() ) ) {
       // can not do any extrapolation (not reliable)
       info.reason = TrackSegmentMatchResult::StereoAngleWithoutPhi;

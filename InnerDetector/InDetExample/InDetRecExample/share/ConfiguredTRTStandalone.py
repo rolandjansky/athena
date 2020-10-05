@@ -11,7 +11,7 @@ class ConfiguredTRTStandalone:
 
   def __init__(self, extension = "",InputCollections = None, NewTrackingCuts = None,
                BarrelSegments = None,
-               TrackCollectionKeys=[], TrackCollectionTruthKeys=[] ):
+               TrackCollectionKeys=[], TrackCollectionTruthKeys=[], PRDtoTrackMap='' ):
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     from InDetRecExample.InDetKeys          import InDetKeys
@@ -33,7 +33,7 @@ class ConfiguredTRTStandalone:
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
-    prd_to_track_map = ''
+    prd_to_track_map = PRDtoTrackMap
     if usePrdAssociationTool and extension != "_TRT" :
       prefix='InDetTRTonly_'
       InDetTRTonly_PRD_Association = TrackingCommon.getInDetTrackPRD_Association(namePrefix = prefix,
@@ -134,10 +134,10 @@ class ConfiguredTRTStandalone:
                                                         InputSegmentsCollection   = BarrelSegments,
                                                         OutputTrackCollection     = self.__TRTStandaloneTracks,
                                                         TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
+                                                        SummaryTool               = TrackingCommon.getInDetTrackSummaryToolTRTTracks(),
+                                                        AssociationTool           = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels() if prd_to_track_map !='' else None,
+                                                        InputAssociationMapName   = prd_to_track_map,
                                                         MinNHit                   = NewTrackingCuts.minTRTonly(),
-                                                        CombineTracks             = False,
-                                                        OutputCombiCollection     = "",
-                                                        InputSCTCollection        = "",
                                                         OutlierRemoval            = True,
                                                         MaterialEffects           = False)
       #InDetTrkSegmenttoTrk.OutputLevel = VERBOSE

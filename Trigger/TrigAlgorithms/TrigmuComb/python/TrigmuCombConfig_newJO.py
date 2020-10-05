@@ -35,10 +35,9 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
         idScanEndcap2Res = [0.030, 0.0000002]
         idScanEndcap3Res = [0.036, 0.0000004]
         idScanEndcap4Res = [0.046, 0.0000002]
-
-    from TrigmuComb.TrigmuCombMTConfig import muCombMT
     from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
-    muCombAlg = muCombMT(name                  = "Muon"+postFix,
+    muCombMT = CompFactory.muCombMT
+    muCombAlg = muCombMT(name                  = "MuComb"+postFix,
                          MuCombStrategy        = 0,
                          UseBackExtrapolatorG4 = useBackExtrp,
                          MinPtTRK              = 0.,
@@ -51,20 +50,25 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
                          IDSCANEndcap3Res      = idScanEndcap3Res,
                          IDSCANEndcap4Res      = idScanEndcap4Res,
                          IDalgo                = "InDetTrigTrackingxAODCnv_Muon_FTF",
-                         MonTool = TrigMuCombMonitoring() )
+                         MonTool = TrigMuCombMonitoring())
 
     return acc, muCombAlg
 
     
-def l2MuCombRecoCfg(flags):
+def l2MuCombRecoCfg(flags, name="L2MuCombReco"):
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
-    reco = InViewReco("L2MuCombReco")
+    reco = InViewReco(name)
 
     acc, alg = muCombCfg(flags)
     alg.L2StandAloneMuonContainerName=muFastInfo
     alg.L2CombinedMuonContainerName = muCombInfo
-    reco.addRecoAlg(alg)
+    alg.TrackParticlesContainerName="TrigFastTrackFinder_Tracks__Muon"
+
+    muCombAcc = ComponentAccumulator()
+    muCombAcc.addEventAlgo(alg)
+
+    reco.mergeReco(muCombAcc)
     reco.merge(acc)
 
     return reco

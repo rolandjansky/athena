@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 #*****************************************************************
@@ -8,6 +8,7 @@
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
 
+from __future__ import print_function
 
 from os import system, popen
 from AthenaCommon.Logging import logging
@@ -30,10 +31,10 @@ if TestOnline:
     storeHisto = True;
 
 if not 'TileFELIX' in dir():
-     if 'PublishName' in dir():
-         TileFELIX = True
-     else:
-         TileFELIX = False
+    if 'PublishName' in dir():
+        TileFELIX = True
+    else:
+        TileFELIX = False
 
 
 if not 'UseDemoCabling' in dir():
@@ -192,7 +193,7 @@ if not athenaCommonFlags.isOnline() or TestOnline:
             FileNameVec = [ InputDirectory+'/'+FileName ]
             FormattedRunNumber = RunNumber
     else:
-       FormattedRunNumber = RunNumber
+        FormattedRunNumber = RunNumber
 
     svcMgr.EventSelector.SkipEvents = EvtMin
     theApp.EvtMax = EvtMax
@@ -204,7 +205,7 @@ if not athenaCommonFlags.isOnline() or TestOnline:
     log.info( "Skip Events is " + str(EvtMin) )
     log.info( "Max events is " + str(EvtMax) )
 
-    svcMgr.ByteStreamInputSvc.FullFileName = FileNameVec
+    svcMgr.EventSelector.Input = FileNameVec
     svcMgr.EventSelector.MaxBadEvents = MaxBadEvents
    
     athenaCommonFlags.FilesInput = FileNameVec
@@ -295,12 +296,10 @@ if doTileCells:
     doCaloNeighborsCorr = False
     if TileBiGainRun:
         include( "TileRec/TileCellMaker_jobOptions_doublegain.py" )
-        ToolSvc.TileCellBuilderLG.SkipGain = 1
-        ToolSvc.TileCellBuilderHG.SkipGain = 0
     else:
         include('TileRec/TileCellMaker_jobOptions.py')
-        ToolSvc.TileCellBuilder.UseDemoCabling = UseDemoCabling
-        ToolSvc.TileCellBuilder.maskBadChannels = False
+        topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].UseDemoCabling = UseDemoCabling
+        topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].maskBadChannels = False
 
 from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
 TileDQstatusAlgDefault()
@@ -425,7 +424,7 @@ if doMonitoring:
         
         topSequence.TileTBMonManager.AthenaMonTools += [ TileDigiNoiseMon ];
 
-    print topSequence.TileTBMonManager
+    print(topSequence.TileTBMonManager)
 
 
 import os

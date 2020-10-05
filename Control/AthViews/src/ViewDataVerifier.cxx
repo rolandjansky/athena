@@ -19,7 +19,7 @@ namespace AthViews {
 
 ViewDataVerifier::ViewDataVerifier( const std::string& name,
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {
 }
 
@@ -53,10 +53,10 @@ StatusCode ViewDataVerifier::initialize()
   return sc;
 }
 
-StatusCode ViewDataVerifier::execute()
+StatusCode ViewDataVerifier::execute(const EventContext& ctx) const
 {  
   // Retrieve the current view from the EventContext
-  auto viewProxy = Atlas::getExtendedEventContext(getContext()).proxy();
+  auto viewProxy = Atlas::getExtendedEventContext(ctx).proxy();
 
   ATH_MSG_DEBUG( "Executing " << name() << " running with store " << viewProxy->name() );
 
@@ -73,14 +73,14 @@ StatusCode ViewDataVerifier::execute()
     if ( dp ) { 
       ATH_MSG_DEBUG( "Found " << obj.key() << " in " << viewProxy->name() );
     } else {
-      ATH_MSG_ERROR( "Did not find " << obj.key() << " in " << viewProxy->name() );
+      ATH_MSG_DEBUG( "Did not find " << obj.key() << " in " << viewProxy->name() );
       const SG::View* view = dynamic_cast<const SG::View*>( viewProxy );
       if ( view != 0 ) {
-        ATH_MSG_ERROR( "Available content is: " << view->dump() );
+        ATH_MSG_DEBUG( "Available content is: " << view->dump() );
       } else {
-        ATH_MSG_ERROR( "Not a View" );
+        ATH_MSG_DEBUG( "Not a View" );
       }
-      return StatusCode::FAILURE;
+      //return StatusCode::FAILURE;
     }
   }
 

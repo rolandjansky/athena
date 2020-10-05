@@ -43,7 +43,7 @@ atlas_add_component( ISF_FatrasRecoTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AtlasHepMCLib AthenaBaseComps GeoPrimitives Identifier ISF_FatrasEvent TrkEventPrimitives TrkParameters TrkSpacePoint TrkTrackSummary TrkToolInterfaces AtlasDetDescr EventPrimitives GaudiKernel InDetIdentifier InDetPrepRawData SiSpacePoint ISF_FatrasDetDescrModel TrkDetElementBase TrkCompetingRIOsOnTrack TrkEventUtils TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTruthData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AtlasHepMCLib AthenaBaseComps GeoPrimitives Identifier ISF_FatrasEvent TrkEventPrimitives TrkParameters TrkSpacePoint TrkTrackSummary TrkToolInterfaces AtlasDetDescr EventPrimitives GaudiKernel InDetIdentifier InDetPrepRawData SiSpacePoint ISF_FatrasDetDescrModel TrkDetElementBase TrkCompetingRIOsOnTrack TrkEventUtils TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTruthData TrkTruthTrackInterfaces )
 
 # Install files from the package:
 atlas_install_headers( ISF_FatrasRecoTools )

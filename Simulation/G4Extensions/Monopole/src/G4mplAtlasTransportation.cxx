@@ -185,7 +185,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   //
   const G4DynamicParticle*    pParticle  = track.GetDynamicParticle() ;
   const G4ParticleDefinition* pParticleDef   = pParticle->GetDefinition() ;
-  G4ThreeVector startMomentumDir       = pParticle->GetMomentumDirection() ;
+  const G4ThreeVector& startMomentumDir       = pParticle->GetMomentumDirection() ;
   G4ThreeVector startPosition          = track.GetPosition() ;
 
   // G4double   theTime        = track.GetGlobalTime() ;

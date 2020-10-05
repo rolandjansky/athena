@@ -4,8 +4,6 @@ from __future__ import print_function
 from future.utils import iteritems
 import six
 
-from past.builtins import basestring
-
 from builtins import zip
 from builtins import next
 from builtins import object
@@ -30,7 +28,6 @@ import signal
 import subprocess
 import sys
 import time
-import six
 
 import logging
 from fnmatch import fnmatch
@@ -188,6 +185,7 @@ class transformExecutor(object):
         self._eventCount = None
         self._athenaMP = None
         self._athenaMT = None
+        self._athenaConcurrentEvents = None
         self._dbMonitor = None
         
         # Holder for execution information about any merges done by this executor in MP mode
@@ -454,26 +452,26 @@ class transformExecutor(object):
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
-        msg.info('Preexecute for %s' % self._name)
+        msg.info('Preexecute for %s', self._name)
         
     def execute(self):
         self._exeStart = os.times()
         msg.debug('exeStart time is {0}'.format(self._exeStart))
-        msg.info('Starting execution of %s' % self._name)
+        msg.info('Starting execution of %s', self._name)
         self._hasExecuted = True
         self._rc = 0
         self._errMsg = ''
-        msg.info('%s executor returns %d' % (self._name, self._rc))
+        msg.info('%s executor returns %d', self._name, self._rc)
         self._exeStop = os.times()
         msg.debug('preExeStop time is {0}'.format(self._exeStop))
         
     def postExecute(self):
-        msg.info('Postexecute for %s' % self._name)
+        msg.info('Postexecute for %s', self._name)
         
     def validate(self):
         self.setValStart()
         self._hasValidated = True        
-        msg.info('Executor %s has no validation function - assuming all ok' % self._name)
+        msg.info('Executor %s has no validation function - assuming all ok', self._name)
         self._isValidated = True
         self._errMsg = ''
         self._valStop = os.times()
@@ -495,7 +493,7 @@ class logscanExecutor(transformExecutor):
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
-        msg.info('Preexecute for %s' % self._name)
+        msg.info('Preexecute for %s', self._name)
         if 'logfile' in self.conf.argdict:
             self._logFileName = self.conf.argdict['logfile'].value
         
@@ -564,14 +562,14 @@ class echoExecutor(transformExecutor):
     def execute(self):
         self._exeStart = os.times()
         msg.debug('exeStart time is {0}'.format(self._exeStart))
-        msg.info('Starting execution of %s' % self._name)        
+        msg.info('Starting execution of %s', self._name)        
         msg.info('Transform argument dictionary now follows:')
         for k, v in iteritems(self.conf.argdict):
             print("%s = %s" % (k, v))
         self._hasExecuted = True
         self._rc = 0
         self._errMsg = ''
-        msg.info('%s executor returns %d' % (self._name, self._rc))
+        msg.info('%s executor returns %d', self._name, self._rc)
         self._exeStop = os.times()
         msg.debug('exeStop time is {0}'.format(self._exeStop))
 
@@ -586,7 +584,7 @@ class dummyExecutor(transformExecutor):
     def execute(self):
         self._exeStart = os.times()
         msg.debug('exeStart time is {0}'.format(self._exeStart))
-        msg.info('Starting execution of %s' % self._name)
+        msg.info('Starting execution of %s', self._name)
         for type in self._outData:
             for k, v in iteritems(self.conf.argdict):
                 if type in k:
@@ -595,7 +593,7 @@ class dummyExecutor(transformExecutor):
         self._hasExecuted = True
         self._rc = 0
         self._errMsg = ''
-        msg.info('%s executor returns %d' % (self._name, self._rc))
+        msg.info('%s executor returns %d', self._name, self._rc)
         self._exeStop = os.times()
         msg.debug('exeStop time is {0}'.format(self._exeStop))
 
@@ -740,7 +738,7 @@ class scriptExecutor(transformExecutor):
                 self._echologger.info(line.rstrip())
     
             self._rc = p.returncode
-            msg.info('%s executor returns %d' % (self._name, self._rc))
+            msg.info('%s executor returns %d', self._name, self._rc)
             self._exeStop = os.times()
             msg.debug('exeStop time is {0}'.format(self._exeStop))
         except OSError as e:
@@ -755,7 +753,7 @@ class scriptExecutor(transformExecutor):
                     while (not mem_proc.poll()) and countWait < 10:
                         time.sleep(0.1)
                         countWait += 1
-                except OSError as UnboundLocalError:
+                except OSError:
                     pass
         
         
@@ -822,6 +820,7 @@ class athenaExecutor(scriptExecutor):
     #  @param skeletonFile athena skeleton job options file (optionally this can be a list of skeletons
     #  that will be given to athena.py in order); can be set to @c None to disable writing job options 
     #  files at all
+    #  @param skeletonCA ComponentAccumulator-compliant skeleton file (used with the --CA option)
     #  @param inputDataTypeCountCheck List of input datatypes to apply preExecute event count checks to;
     #  default is @c None, which means check all inputs
     #  @param exe Athena execution script
@@ -847,9 +846,9 @@ class athenaExecutor(scriptExecutor):
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
     #  snippets into the runArgs file.
-    def __init__(self, name = 'athena', trf = None, conf = None, skeletonFile = 'PyJobTransforms/skeleton.dummy.py', inData = set(), 
-                 outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
-                 perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
+    def __init__(self, name = 'athena', trf = None, conf = None, skeletonFile = 'PyJobTransforms/skeleton.dummy.py', skeletonCA=None, 
+                 inData = set(), outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], 
+                 substep = None, inputEventTest = True, perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
                  manualDataDictionary = None, memMonitor = True, disableMP = False):
         
@@ -863,13 +862,14 @@ class athenaExecutor(scriptExecutor):
         self._errorMaskFiles = errorMaskFiles
         self._inputDataTypeCountCheck = inputDataTypeCountCheck
         self._disableMP = disableMP
+        self._skeletonCA=skeletonCA
 
         if perfMonFile:
             self._perfMonFile = None
             msg.debug("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
-        if isinstance(skeletonFile, basestring):
+        if isinstance(skeletonFile, six.string_types):
             self._skeleton = [skeletonFile]
         else:
             self._skeleton = skeletonFile
@@ -881,7 +881,7 @@ class athenaExecutor(scriptExecutor):
         self._extraMetadata.update({'substep': substep})
 
         # Setup JO templates
-        if self._skeleton is not None:
+        if self._skeleton or self._skeletonCA:
             self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $')
         else:
             self._jobOptionsTemplate = None
@@ -916,6 +916,9 @@ class athenaExecutor(scriptExecutor):
         if self._inputDataTypeCountCheck is None:
             self._inputDataTypeCountCheck = input
         for dataType in self._inputDataTypeCountCheck:
+            if self.conf.dataDictionary[dataType].nentries == 'UNDEFINED':
+                continue
+
             thisInputEvents = self.conf.dataDictionary[dataType].nentries
             if thisInputEvents > inputEvents:
                 inputEvents = thisInputEvents
@@ -948,7 +951,7 @@ class athenaExecutor(scriptExecutor):
                     expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
             else:
                 expectedEvents = inputEvents-mySkipEvents
-        except TypeError as e:
+        except TypeError:
             # catching type error from UNDEFINED inputEvents count
             msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
             expectedEvents = 0
@@ -962,12 +965,12 @@ class athenaExecutor(scriptExecutor):
 
         # 2. One of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
         if (('multithreaded' in self.conf._argdict or 'multiprocess' in self.conf._argdict) and
-            (not 'ATHENA_CORE_NUMBER' in os.environ)):
+            ('ATHENA_CORE_NUMBER' not in os.environ)):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
                                                             'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
 
-        # Try to detect AthenaMT mode and number of threads
-        self._athenaMT = detectAthenaMTThreads(self.conf.argdict)
+        # Try to detect AthenaMT mode, number of threads and number of concurrent events
+        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict)
 
         # Try to detect AthenaMP mode and number of workers
         self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
@@ -1039,7 +1042,7 @@ class athenaExecutor(scriptExecutor):
 
 
         ## Write the skeleton file and prep athena
-        if self._skeleton is not None:
+        if self._skeleton or self._skeletonCA:
             inputFiles = dict()
             for dataType in input:
                 inputFiles[dataType] = self.conf.dataDictionary[dataType]
@@ -1236,6 +1239,22 @@ class athenaExecutor(scriptExecutor):
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
 
+    ## @brief Check if running with CA
+    def _isCAEnabled(self):
+        # CA not present, not running with CA
+        if 'CA' not in self.conf.argdict:
+            return False
+
+        # CA present but None, all substeps running with CA
+        if self.conf.argdict['CA'] is None:
+            return True
+
+        # CA enabled for a substep, running with CA
+        if self.conf.argdict['CA'].returnMyValue(name=self.name, substep=self.substep) is True:
+            return True
+
+        return False
+
     ## @brief Prepare the correct command line to be used to invoke athena
     def _prepAthenaCommandLine(self):
         ## Start building up the command line
@@ -1337,10 +1356,14 @@ class athenaExecutor(scriptExecutor):
                 any('--nprocs' in opt for opt in self.conf.argdict['athenaopts'].value[currentSubstep])):
                 self._cmd.append('--nprocs=%s' % str(self._athenaMP))
 
+        #Switch to ComponentAccumulator based config if requested
+        if self._isCAEnabled():
+            self._cmd.append("--CA")
+
         # Add topoptions
-        if self._skeleton is not None:
+        if self._skeleton or self._skeletonCA:
             self._cmd += self._topOptionsFiles
-            msg.info('Updated script arguments with topoptions: %s' % self._cmd)
+            msg.info('Updated script arguments with topoptions: %s', self._cmd)
 
 
     ## @brief Write a wrapper script which runs asetup and then Athena.
@@ -1516,7 +1539,7 @@ class athenaExecutor(scriptExecutor):
             os.remove(targetTGZName)
 
         import tarfile
-        fNameRE = re.compile("JiveXML\_\d+\_\d+.xml")
+        fNameRE = re.compile(r"JiveXML\_\d+\_\d+.xml")
 
         # force gz compression
         tar = tarfile.open(targetTGZName, "w:gz")
@@ -1524,11 +1547,11 @@ class athenaExecutor(scriptExecutor):
             matches = fNameRE.findall(fName)
             if len(matches) > 0:
                 if fNameRE.findall(fName)[0] == fName:
-                    msg.info('adding %s to %s' % (fName, targetTGZName))
+                    msg.info('adding %s to %s', fName, targetTGZName)
                     tar.add(fName)
 
         tar.close()
-        msg.info('JiveXML compression: %s has been written and closed.' % (targetTGZName))
+        msg.info('JiveXML compression: %s has been written and closed.', targetTGZName)
 
 
 ## @brief Athena executor where failure is not consisered fatal

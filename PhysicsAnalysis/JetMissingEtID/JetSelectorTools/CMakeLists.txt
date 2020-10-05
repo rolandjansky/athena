@@ -36,7 +36,7 @@ atlas_add_library( JetSelectorToolsLib
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetSelectorTools
-      src/components/*.cxx
+      src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel JetSelectorToolsLib )
 endif()
 

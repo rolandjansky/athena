@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLUTILITIES_ATHENAATTRIBUTESPECIFICATION_H
@@ -25,13 +25,13 @@ class AthenaAttributeSpecification
 {
 public:
   // 
-  AthenaAttributeSpecification(std::string n, 
-                               std::string t,
-                               std::string g = "UNKNOWN",
-                               std::string u = "UNKNOWN") :
+  AthenaAttributeSpecification(const std::string& n, 
+                               const std::string& t,
+                               const std::string& g = "UNKNOWN",
+                               const std::string& u = "UNKNOWN") :
     m_name(n),m_type(t, u, g)
     {}
-  AthenaAttributeSpecification(std::string n, 
+  AthenaAttributeSpecification(const std::string& n, 
                                const AthenaAttributeType& t) :
     m_name(n),m_type(t)
     {}

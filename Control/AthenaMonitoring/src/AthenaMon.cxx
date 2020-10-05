@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,7 +17,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "AthenaMonitoring/AthenaMon.h"
+#include "AthenaMon.h"
 
 class ISvcLocator;
 // class AlgFactory;
@@ -56,7 +56,7 @@ StatusCode AthenaMon::initialize()
     return StatusCode::FAILURE;
   }
 
-  for (; it < m_monToolNames.end(); it++) {
+  for (; it < m_monToolNames.end(); ++it) {
  
     std::string toolname(*it);
     IMonitorToolBase* p_tool;
@@ -107,7 +107,7 @@ StatusCode AthenaMon::execute()
   //Invoke all declared alg monitoring tools to fill their histograms
   std::vector<IMonitorToolBase*>::iterator it = m_monTools.begin();
   
-  for (; it < m_monTools.end(); it++)  {
+  for (; it < m_monTools.end(); ++it)  {
     if((*it)->preSelector())
       if((*it)->fillHists().isFailure())  {
 	log << MSG::WARNING << "Error Filling Histograms" << endmsg;
@@ -118,7 +118,7 @@ StatusCode AthenaMon::execute()
     //Invoke periodically all declared alg monitoring tools to check their histograms
     it = m_monTools.begin();
     
-    for (; it < m_monTools.end(); it++)  {
+    for (; it < m_monTools.end(); ++it)  {
       log << MSG::INFO << "calling checkHists of tool " << endmsg;
       StatusCode sc = (*it)->checkHists(false);
       if(sc.isFailure())  {
@@ -142,7 +142,7 @@ StatusCode AthenaMon::finalize()
   //Invoke all declared alg monitoring tools to finalize their histograms
   std::vector<IMonitorToolBase*>::iterator it = m_monTools.begin();
   
-  for (; it < m_monTools.end(); it++)  {
+  for (; it < m_monTools.end(); ++it)  {
     log << MSG::INFO << "finalizing tool " << endmsg;
     StatusCode sc = (*it)->finalHists();
     if(sc.isFailure())  {
@@ -153,7 +153,7 @@ StatusCode AthenaMon::finalize()
   //Invoke all declared alg monitoring tools to check their histograms
   it = m_monTools.begin();
   
-  for (; it < m_monTools.end(); it++)  {
+  for (; it < m_monTools.end(); ++it)  {
     log << MSG::INFO << "calling checkHists of tool " << endmsg;
     StatusCode sc = (*it)->checkHists(true);
     if(sc.isFailure())  {
@@ -176,7 +176,7 @@ StatusCode AthenaMon::start()
     return StatusCode::SUCCESS;
   
   std::vector<IMonitorToolBase*>::iterator it = m_monTools.begin();
-  for (; it < m_monTools.end(); it++)
+  for (; it < m_monTools.end(); ++it)
     if((*it)->bookHists().isFailure())
       log << MSG::WARNING << "Error Filling Histograms" << endmsg;
   
@@ -190,7 +190,7 @@ StatusCode AthenaMon::stop()
   log << MSG::INFO << "stop()" << endmsg;
   
   std::vector<IMonitorToolBase*>::iterator it = m_monTools.begin();
-  for (; it < m_monTools.end(); it++)
+  for (; it < m_monTools.end(); ++it)
     if((*it)->runStat().isFailure())
       log << MSG::WARNING << "Error calling runStat" << endmsg;
   

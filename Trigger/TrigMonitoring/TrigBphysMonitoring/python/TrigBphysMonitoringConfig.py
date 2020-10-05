@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTMonitoring.HLTMonTriggerList import HLTMonTriggerList
 hltmonList = HLTMonTriggerList()
@@ -19,7 +19,7 @@ containers = [
               ]
 if TriggerFlags.EDMDecodingVersion == 3 :
   # will add the MT version of TrigBphys containers once they are available in EDM
-  containers = [ "TrigBphysDimu", "TrigBphysEFDimu" ]
+  containers = [ "HLT_DimuEF" ]
   
 DetailedChains = {
                   "BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?',
@@ -33,6 +33,29 @@ DetailedL1TopoChains = {
                       "L1BPH-M-DR"        : "HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6",
                       #"L1BPH-M"           : "HLT_2mu6_bDimu_L1BPH-8M15-2MU6"
                        }
+DetailedIndividualChains = { 
+                  # filled not from primary_bphys but from monitored_bphys
+                  "HLT_2mu4_bJpsimumu" : "HLT_2mu4_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bUpsimumu" : "HLT_2mu4_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bDimu"     : "HLT_2mu4_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bJpsimumu" : "HLT_mu6_mu4_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bUpsimumu" : "HLT_mu6_mu4_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bDimu"     : "HLT_mu6_mu4_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_2mu6_bJpsimumu" : "HLT_2mu6_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu6_bUpsimumu" : "HLT_2mu6_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_2mu6_bDimu"     : "HLT_2mu6_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bJpsimumu" : "HLT_mu11_mu6_bJpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bUpsimumu" : "HLT_mu11_mu6_bUpsimumu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bDimu"     : "HLT_mu11_mu6_bDimu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bPhi"     : "HLT_mu11_mu6_bPhi(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bTau"     : "HLT_mu11_mu6_bTau(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bBmumu"     : "HLT_mu11_mu6_bBmumu(_L1(?!BPH).*)?$",
+                  "HLT_mu11_mu6_bDimu2700"     : "HLT_mu11_mu6_bDimu2700(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bBmumux_BsmumuPhi"     : "HLT_2mu4_bBmumux_BsmumuPhi(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bBmumux_BsmumuPhi"     : "HLT_mu6_mu4_bBmumux_BsmumuPhi(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_2mu4_bBmumux_BpmumuKp"     : "HLT_2mu4_bBmumux_BpmumuKp(_delayed)?(_L1(?!BPH).*)?$",
+                  "HLT_mu6_mu4_bBmumux_BpmumuKp"     : "HLT_mu6_mu4_bBmumux_BpmumuKp(_delayed)?(_L1(?!BPH).*)?$",
+                 }
 EfficiencyChains = {
                     "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)(_L1[0-9]?MU[0-9]+)?",
                     "BMuMuX" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bBmumuxv[23](_L1[0-9]?MU[0-9]+)?",
@@ -90,7 +113,6 @@ if hltmonList.cosmic_mode :
         #monGroups.append("HLT_bphys_misc")
     #pass
 
-from AthenaCommon.AppMgr import ToolSvc
 def TrigBphysMonitoringTool():
     from TrigBphysMonitoring.TrigBphysMonitoringConf import HLTXAODBphysMonTool
     from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
@@ -107,6 +129,7 @@ def TrigBphysMonitoringTool():
                                   ContainerList   =containers,
                                   DetailedChains_patterns = DetailedChains,
                                   DetailedL1TopoChains_patterns = DetailedL1TopoChains,
+                                  DetailedIndividualChains_patterns = DetailedIndividualChains,
                                   EfficiencyChains_patterns = EfficiencyChains,
                                   EffTrigDenom_noVtxOS_pattern = EffTrigDenom_noVtxOS,
                                   
@@ -136,8 +159,8 @@ def TrigBphysMonitoringTool():
                                   DeltaR_max          =  3.,
                                   PtSum_min           =  0.,
                                   PtSum_max           =  100.,
-                                  OniaMass_min        =  2000,
-                                  OniaMass_max        =  12000,
+                                  OniaMass_min        =  0,
+                                  OniaMass_max        =  14000,
                                   TauMass_min         =  0,
                                   TauMass_max         =  3000,
                                   OniaPt_min          =  8,
@@ -158,8 +181,6 @@ def TrigBphysMonitoringTool():
                                   pTErr_max           =  10.
                                   )
     
-    from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += HLTBphysMon
     items = [ HLTBphysMon ]
     return items
 

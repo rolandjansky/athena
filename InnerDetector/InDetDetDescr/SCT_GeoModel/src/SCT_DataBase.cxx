@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_DataBase.h"
@@ -15,11 +15,11 @@
 
 #include <iostream>
 
-SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
+SCT_DataBase::SCT_DataBase(SCT_GeoModelAthenaComps * athenaComps)
 {
   m_athenaComps = athenaComps;
 
-  IGeoDbTagSvc * geoDbTag = m_athenaComps->geoDbTagSvc();
+  const IGeoDbTagSvc * geoDbTag = m_athenaComps->geoDbTagSvc();
 
   // Get version tag and node for SCT
   DecodeVersionKey versionKey(geoDbTag,"SCT");
@@ -188,7 +188,7 @@ SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
 
 }
 
-const SCT_GeoModelAthenaComps* SCT_DataBase::athenaComps() const { return m_athenaComps; }
+SCT_GeoModelAthenaComps* SCT_DataBase::athenaComps() { return m_athenaComps; }
 
 IRDBRecordset_ptr SCT_DataBase::weightTable() const {return m_weightTable;}
 

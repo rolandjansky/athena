@@ -30,7 +30,7 @@ namespace Trk
   declareInterface<ITrackToVertexIPEstimator>(this);    
  }
 
- TrackToVertexIPEstimator::~TrackToVertexIPEstimator(){}
+ TrackToVertexIPEstimator::~TrackToVertexIPEstimator()= default;
 
  StatusCode TrackToVertexIPEstimator::initialize()
  {
@@ -41,27 +41,27 @@ namespace Trk
   {
    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
    return StatusCode::FAILURE;
-  } else {
+  } 
    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
-  }
+  
 
 //updator 
   if ( m_Updator.retrieve().isFailure() ) 
   {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endmsg;
     return StatusCode::FAILURE;
-  } else {
+  } 
     msg(MSG::INFO) << "Retrieved tool " << m_Updator << endmsg;
-  }
+  
   
 //linearized track factory
   if ( m_linFactory.retrieve().isFailure() ) 
   {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endmsg;
     return StatusCode::FAILURE;
-  } else {
+  } 
     msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
-  }
+  
   
    return StatusCode::SUCCESS;  
  }//end of initialize method
@@ -77,10 +77,10 @@ namespace Trk
   if(track && vtx)
   {
    return estimate(&(track->perigeeParameters()),&(track->perigeeParameters()),vtx,doRemoval); 
-  }else{
+  }
    msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
-   return 0;
-  }//end of track particle validity check
+   return nullptr;
+  //end of track particle validity check
  }//end of method using track particles
  
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::estimate(const xAOD::TrackParticle * track, const xAOD::TrackParticle * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const
@@ -88,10 +88,10 @@ namespace Trk
   if(track && vtx)
   {
     return estimate(&(track->perigeeParameters()),&(newtrack->perigeeParameters()),vtx,doRemoval); 
-  }else{
+  }
    msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
-   return 0;
-  }//end of track particle validity check
+   return nullptr;
+  //end of track particle validity check
  }//end of method using track particles
  
 
@@ -101,29 +101,29 @@ namespace Trk
  {
    if(track && vtx){
      return estimate(track,track,vtx,doRemoval); 
-   }else{
+   }
      msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
-     return 0;
-   }//end of track particle validity check
+     return nullptr;
+   //end of track particle validity check
  
  }//end of parameterBase estimate method     
    
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::estimate(const TrackParameters * track, const TrackParameters * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const
  {
  
-   if (vtx==0) 
+   if (vtx==nullptr) 
    {
      ATH_MSG_WARNING("Vertex is zero pointer. Will not estimate IP of track.");
-     return 0;
+     return nullptr;
    }
 
    const xAOD::Vertex *newVertex = vtx;
    if (doRemoval)
    {
      newVertex = getUnbiasedVertex(track,vtx);
-     if (newVertex == 0) {
+     if (newVertex == nullptr) {
        ATH_MSG_WARNING("Unbiasing of vertex failed. Will not estimate IP of track.");
-       return 0;
+       return nullptr;
      }
    }
 
@@ -132,7 +132,7 @@ namespace Trk
    if (doRemoval)
    {
      delete newVertex;
-     newVertex=0;
+     newVertex=nullptr;
    }
    
    return IPandSigma;
@@ -231,10 +231,10 @@ namespace Trk
    
    delete extrapolatedParameters;
    return newIPandSigma;
-  } else {
+  } 
     ATH_MSG_DEBUG ("Cannot extrapolate the trajectory state. Returning null. ");
-    return 0;
-  }//end of successfull extrapolation check
+    return nullptr;
+  //end of successfull extrapolation check
  }//end of actual calculation method
 
 
@@ -361,21 +361,21 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const xAOD::Tra
   if(track)
   {
    return getUnbiasedVertex(&(track->perigeeParameters()),vtx);
-  }else{
+  }
    msg(MSG::INFO) << "Empty xAOD::TrackParticle pointer passed. Returning zero " << endmsg;
-   return 0;
-  }//end of track particle validity check   
+   return nullptr;
+  //end of track particle validity check   
  }
 
 const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const 
  {
    if (!track) {
      msg(MSG::INFO) << "Empty Trk::TrackParameter pointer passed. Returning zero " << endmsg;
-     return 0;
+     return nullptr;
    }
    if (!vtx) {
      msg(MSG::INFO) << "Empty xAOD::Vertex pointer passed. Returning zero " << endmsg;
-     return 0;
+     return nullptr;
    }
 
    if (vtx->nTrackParticles() == 0)
@@ -398,7 +398,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
      const Perigee& testTP = vtx->trackParticle(itrk)->perigeeParameters();
      if ((testTP.position() == pos) and (testTP.momentum() == mom)) {
        //track found, now unbias the vertex using linearized track
-       const LinearizedTrack *linTrack = 0;
+       const LinearizedTrack *linTrack = nullptr;
        double trackWeight(0.0);
        //first check if a VxTrackAtVertex is already available with linearized track
        if (vtx->vxTrackAtVertexAvailable()) {
@@ -419,7 +419,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
 	   }
 	   continue;
 	 }
-	 else tmpLinTrack = true;
+	 tmpLinTrack = true;
        }
        //now update vertex position removing the linearized track, and do not add the track back to the output vertex
        const IVertexUpdator::positionUpdateOutcome & reducedVertex = m_Updator->positionUpdate(*vtx, linTrack, trackWeight,IVertexUpdator::removeTrack);
@@ -462,7 +462,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
    if(track && vtx ){
      return estimate( &(track->perigeeParameters()), vtx);
    }
-   return 0;
+   return nullptr;
 
  }
 
@@ -473,7 +473,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
    if(track && vtx ){
      return calculate( track , *vtx);
    }
-   return 0;
+   return nullptr;
 
  }
 

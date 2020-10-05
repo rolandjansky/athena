@@ -135,13 +135,19 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 	if(gposout[0]==0) { eta = 0; phi = 0;} 
 	else { eta = gposout.eta();  phi = gposout.phi(); } 
 
-	const Identifier tcdidout = tcd->channelIdOut();
-	int etaout = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidout)));
-	if(ef==0) etaout = 0;
+        int etaout = 0;
+        int etain = 0;
+        if (ef != 0) {
+          const Identifier tcdidout = tcd->channelIdOut();
+          if (tcdidout.is_valid()) {
+            etaout = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidout)));
+          }
 
-	const Identifier tcdidin  = tcd->channelIdIn();
-	int etain  = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidin)));
-	if(ef==0) etain  = 0;
+          const Identifier tcdidin  = tcd->channelIdIn();
+          if (tcdidin.is_valid()) {
+            etain  = std::abs(int(m_idHelperSvc->tgcIdHelper().stationEta(tcdidin)));
+          }
+        }
 
 	// Fill vectors for different Coincidence Types
 	if( tcd->type() == Muon::TgcCoinData::TYPE_TRACKLET ){
@@ -323,7 +329,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::vector<float>* mu_pt, std::ve
       float deta = std::abs(mu_eta->at(itr) - eta);
       float dphi = std::abs(mu_phi->at(itr) - phi);
       if(dphi > M_PI) dphi = 2*M_PI - dphi;
-      if(sqrt(deta*deta + dphi*dphi) < 0.1){
+      if(std::sqrt(deta*deta + dphi*dphi) < 0.1){
 	if(pt > mu_pt->at(itr)){
 	  std::vector<float>::iterator ipt;
 	  ipt = mu_pt->begin();

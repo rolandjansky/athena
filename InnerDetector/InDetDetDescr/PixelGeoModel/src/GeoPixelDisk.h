@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELDISK_H
@@ -10,8 +10,8 @@ class GeoLogVol;
 
 class GeoPixelDisk : public GeoVPixelFactory {
  public:
-  GeoPixelDisk();
-  virtual GeoVPhysVol* Build();
+  GeoPixelDisk(InDetDD::PixelDetectorManager* ddmgr, PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double RMax();
   double RMin();

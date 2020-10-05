@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @author: Hasan Ozturk <haozturk@cern.ch>
 
@@ -8,7 +8,6 @@ __author__  = "Hasan Ozturk <haozturk@cern.ch"
 __doc__     = "A python module which parses the PerfMonMTSvc results and makes plots"
 
 
-import sys
 import json
 
 import matplotlib
@@ -17,354 +16,342 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import operator
+import argparse
 
-if ( len(sys.argv) != 2 ):
-  print("Please give result file as an argument!")
-  sys.exit()
+colors = { "dCPU" : "tab:blue", "dWall" : "tab:orange",
+           "dVmem" : "tab:blue", "dPss" : "tab:green",
+           "dRss" : "tab:orange", "dSwap" : "tab:red",
+           "cpuTime" : "tab:blue", "malloc" : "tab:orange",
+           "vmem" : "tab:blue", "pss" : "tab:green",
+           "rss" : "tab:orange", "swap" : "tab:red" }
 
-# Get the result Json file
-result_file = sys.argv[1] 
+def plotBarChart(params):
 
+  ax = params["ax"]
 
+  offset = 1 - len(params["vals"])
+  for metric in params["vals"]:
+    vals = params["vals"][metric]
+    ax.barh(params["index"] + (offset*0.5)*params["width"], vals, params["width"],
+            color = colors[metric], alpha=0.8, label = metric)
+    offset += 2
 
-def snapshot_plotter(snapshot_data, plotname):
-  
+  ax.set_xlabel(params["xlabel"], fontsize=params['xlabelFontSize'])
+  ax.set_ylabel(params["ylabel"], fontsize=params['ylabelFontSize'])
+  ax.set_title(params["title"], fontsize=params['titleFontSize'], fontweight='bold')
+  ax.set_yticks(params["index"])
+  ax.set_yticklabels(params["yTickLabels"])
+  handles, labels = ax.get_legend_handles_labels()
+  ax.legend(reversed(handles), reversed(labels), prop={'size': params['legendFontSize']})
+  ax.tick_params(axis='both', which='major', labelsize=30)
+  ax.grid(linestyle=':',linewidth=0.1)
 
-  snapshot_steps = [ 'Finalize', 'Execute','Initialize']
-  #snapshot_steps = []
-  snapshot_cpu_times = []
-  snapshot_wall_times = []
+def plotLineChart(params):
 
-  # Get rid of code duplication
-  cpu_time = snapshot_data['Finalize']['cpu_time']
-  wall_time = snapshot_data['Finalize']['wall_time']
-  snapshot_cpu_times.append(cpu_time)
-  snapshot_wall_times.append(wall_time)
+  ax = params['ax']
 
-  cpu_time = snapshot_data['Event Loop']['cpu_time']
-  wall_time = snapshot_data['Event Loop']['wall_time']
-  snapshot_cpu_times.append(cpu_time)
-  snapshot_wall_times.append(wall_time)
+  for label, metric in params['yVals'].items():
+    ax.plot(params['xVals'], metric, color = colors[label], label = label)
 
-  cpu_time = snapshot_data['Initialize']['cpu_time']
-  wall_time = snapshot_data['Initialize']['wall_time']
-  snapshot_cpu_times.append(cpu_time)
-  snapshot_wall_times.append(wall_time)
+  ax.set_xlabel(params['xlabel'])
+  ax.set_ylabel(params['ylabel'])
 
-  ind = np.arange(len(snapshot_steps))
-  width = 0.35
-     
-  fig, ax = plt.subplots()
-
-  rects1 = ax.barh(ind - width/2, snapshot_cpu_times, width, label = 'CPU Time') 
-  rects2 = ax.barh(ind + width/2, snapshot_wall_times, width, label = 'Wall Time') 
-  ax.set_xlabel('Time(ms)')
-  ax.set_ylabel('Steps')
-  ax.set_title('CPU & Wall Time Summary')
-  ax.set_yticks(ind)
-  ax.set_yticklabels(snapshot_steps)
+  ax.set_xticklabels(params['xVals'], rotation='vertical')
+  ax.tick_params(axis='both', which='major', labelsize=10)
+  ax.set_title(params['title'])
   ax.legend()
+  ax.grid(linestyle=':',linewidth=0.1)
 
-  fig.set_tight_layout( True )
-  fig.savefig(plotname) 
+def sortComponents(compNames, measDict, compCountPerPlot):
 
-def time_plotter(complevel_data, plotname):
-  # Plot Component Level Monitoring
+  metricToCompMeasDict = {} # This is a lookup map, we use it to map components to measurements after sorting
+  measList = []
+  for metric, meas in measDict.items():
+
+    metricToCompMeasDict[metric] = dict(zip(compNames, meas))
+    measList.append(meas)
+
+  # Sort by the sum of each metric: Ex: Sort by (vmem + malloc) for memMon
+  sortByList = [sum(x) for x in zip(*measList)]
+  sortedCompMeasTuple = sorted(dict(zip(compNames, sortByList)).items(), key = operator.itemgetter(1))
+  sortedCompNames = [ compMeas[0] for compMeas in sortedCompMeasTuple]
+
+  sortedMeasurements = {}
+  # Populate sortedMeasurements according to the sortedCompNames
+  for comp in sortedCompNames[-compCountPerPlot:]:
+    for metric, compMeas in metricToCompMeasDict.items():
+
+      if metric not in sortedMeasurements:
+        sortedMeasurements[metric] = []
+
+      sortedMeasurements[metric].append(compMeas[comp])
+
+
+
+  return sortedCompNames[-compCountPerPlot:], sortedMeasurements
+
+def plotSnapshotLevel(snapshotData, plotname):
+
+  # Collect data
+  stepNames, dCPUVals, dWallVals, dVmemVals, dRssVals, dPssVals, dSwapVals = [],[],[],[],[],[],[]
+  for step in ['Finalize', 'Execute', 'Initialize', 'Configure']:
+    meas = snapshotData[step]
+    
+    # Show in seconds
+    dCPU = meas["dCPU"] * 0.001
+    dWall = meas["dWall"] * 0.001
+
+    # Show in megabytes
+    dVmem = meas["dVmem"] * 0.001
+    dRss = meas["dRss"] * 0.001
+    dPss = meas["dPss"] * 0.001
+    dSwap = meas["dSwap"] * 0.001
  
-  #fig = plt.figure(figsize=(31,150))
-  fig = plt.figure(figsize=(50,150))
-  stepNum = len(complevel_data)
- 
-  measurement_threshold = 5 # 5 ms
+    stepNames.append(step)
+    dCPUVals.append(dCPU)
+    dWallVals.append(dWall)
 
-  for i, step in enumerate(complevel_data):
+    dVmemVals.append(dVmem)
+    dRssVals.append(dRss)
+    dPssVals.append(dPss)
+    dSwapVals.append(dSwap)
 
-    components = []
-    cpu_times = []
-    wall_times = []
-    
-    for component in complevel_data[step]:
-      cpu_time = complevel_data[step][component]['cpu_time']
-      wall_time = complevel_data[step][component]['wall_time']
-      
-      # Only take components whose measurements are higher a certain threshold
-      if cpu_time + wall_time > measurement_threshold:
-        components.append(component)   
-        cpu_times.append(cpu_time) # Clear!
-        wall_times.append(wall_time)
+  timeMonVals = {
+    "dCPU": dCPUVals,
+    "dWall": dWallVals
+  }
 
-    # Sort the components 
-
-    # Prepare the necessary data structures for sorting ( could be more efficient!  )
-    cpu_wall_tuple_list = zip(cpu_times, wall_times)
-    comp_dict = dict( zip(components, cpu_wall_tuple_list) )
-    sortby_list = [ cpu + wall for cpu, wall in zip(cpu_times, wall_times)]
-    sort_dict = dict(zip(components, sortby_list))
-    
-    # Sort the components according to wall_time + cpu time
-    sorted_comp_tuple_list = sorted(sort_dict.items() , key = operator.itemgetter(1))
-
-    sorted_components = []
-    sorted_cpu_times = []
-    sorted_wall_times = []
- 
-    # Fill the necessary lists for plotting
-    for idx in sorted_comp_tuple_list:
-      curr_comp = idx[0]
-      curr_cpu = comp_dict[curr_comp][0]
-      curr_wall = comp_dict[curr_comp][1]
-
-      sorted_components.append(curr_comp)
-      sorted_cpu_times.append(curr_cpu)
-      sorted_wall_times.append(curr_wall)
-    
-    # if there is no nonzero measurement in the step, then skip it
-    if len(sorted_components) == 0:
-      continue
-
-    # Horizontal Bar Chart
-    ax = fig.add_subplot(stepNum,1,i+1)
-
-    index = np.arange(len(sorted_components))
-    bar_width = 0.35
-    opacity = 0.8
-
-    rects1 = plt.barh(index + (1.5)*bar_width, sorted_cpu_times,bar_width,
-    alpha=opacity,
-    label='CPU Time')
-
-    rects2 = plt.barh(index + bar_width/2, sorted_wall_times, bar_width,
-    alpha=opacity,
-    label='Wall Time')
-
-    plt.ylabel('Components',fontsize = 50)
-    plt.xlabel('Time(ms)', fontsize = 35)
-    plt.title(step, fontsize = 60, fontweight = "bold")
-    plt.yticks(index + bar_width, sorted_components)
-    plt.legend(prop={'size': 30})
-    
-    ax.tick_params(axis='both', which='minor', labelsize=40)
+  memMonVals = {
+    "dVmem": dVmemVals,
+    "dRss": dRssVals,
+    "dPss": dPssVals,
+    "dSwap": dSwapVals,
+  }
 
 
-    fig.set_tight_layout( True )
-    
-   
-  fig.savefig(plotname)
+  timeMonFig, timeMonAx = plt.subplots(figsize=(20,15))
+  memMonFig, memMonAx = plt.subplots(figsize=(20,15))
 
-def mem_plotter(complevel_data, plotname):
- 
-  fig = plt.figure(figsize=(50,150))
-  stepNum = len(complevel_data)
- 
-  measurement_threshold = 5 # 5 kB
+  timeMonParams = {
+    "ax": timeMonAx,
+    "index": np.arange(len(stepNames)),
+    "width": 0.5/len(timeMonVals),
+    "vals": timeMonVals,
+    "yTickLabels": stepNames,
+    "xlabel": "Time [sec]",
+    "ylabel": "Steps",
+    "title": "Snapshot Level Monitoring: Time Metrics",
+    "titleFontSize": 40,
+    "xlabelFontSize": 40,
+    "ylabelFontSize": 40,
+    "legendFontSize": 30
 
-  for i, step in enumerate(complevel_data):
+  }
 
-    components = []
-    vmem_measurements = []
-    rss_measurements = []
-    pss_measurements = []
-    swap_measurements = []
-
-    
-    for component in complevel_data[step]:
-
-      vmem = complevel_data[step][component]['vmem']
-      rss = complevel_data[step][component]['rss']
-      pss = complevel_data[step][component]['pss']
-      swap = complevel_data[step][component]['swap']
-      
-      # Only take components whose measurements are higher a certain threshold
-      if vmem + rss + pss + swap > measurement_threshold:
-        components.append(component)  
-        vmem_measurements.append(vmem) 
-        rss_measurements.append(rss) 
-        pss_measurements.append(pss) 
-        swap_measurements.append(swap) 
-
-    # Sort the components 
-
-    # Prepare the necessary data structures for sorting ( could be more efficient!  )
-    mem_stats_tuple_list = zip(vmem_measurements, rss_measurements,pss_measurements,swap_measurements)
-    comp_dict = dict( zip(components, mem_stats_tuple_list) )
-    sortby_list = [ vmem + rss + pss + swap for vmem, rss, pss, swap in zip(vmem_measurements, rss_measurements,pss_measurements,swap_measurements)]
-    sort_dict = dict(zip(components, sortby_list))
-    
-    # Sort the components according to vmem + rss + pss + swap
-    sorted_comp_tuple_list = sorted(sort_dict.items() , key = operator.itemgetter(1))
-
-    sorted_components = []
-    sorted_vmem_measurements = []
-    sorted_rss_measurements = []
-    sorted_pss_measurements = []
-    sorted_swap_measurements = []
- 
-    # Fill the necessary lists for plotting
-    for idx in sorted_comp_tuple_list:
-      curr_comp = idx[0]
-      curr_vmem = comp_dict[curr_comp][0]
-      curr_rss = comp_dict[curr_comp][1]
-      curr_pss = comp_dict[curr_comp][2]
-      curr_swap = comp_dict[curr_comp][3]
-
-      sorted_components.append(curr_comp)
-
-      sorted_vmem_measurements.append(curr_vmem)
-      sorted_rss_measurements.append(curr_rss)
-      sorted_pss_measurements.append(curr_pss)
-      sorted_swap_measurements.append(curr_swap)
-    
-    # if there is no nonzero measurement in the step, then skip it
-    if len(sorted_components) == 0:
-      continue
-
-    # Horizontal Bar Chart
-    ax = fig.add_subplot(stepNum,1,i+1)
-
-    index = np.arange(len(sorted_components))
-    bar_width = 0.20
-    opacity = 0.8
-
-    rects1 = plt.barh(index + (2.5)*bar_width, sorted_vmem_measurements,bar_width,
-    alpha=opacity,
-    label='Virtual Memory')
-
-    rects2 = plt.barh(index + (1.5)*bar_width, sorted_rss_measurements, bar_width,
-    alpha=opacity,
-    label='Resident Set Size')
-
-    rects3 = plt.barh(index + (0.5)*bar_width, sorted_pss_measurements,bar_width,
-    alpha=opacity,
-    label='Proportional Set Size')
-
-    rects4 = plt.barh(index - (0.5)*bar_width, sorted_swap_measurements, bar_width,
-    alpha=opacity,
-    label='Swap')
-
-    plt.ylabel('Components',fontsize = 50)
-    plt.xlabel('Memory Size(kB)', fontsize = 45)
-    plt.title(step, fontsize = 70, fontweight = "bold")
-    plt.yticks(index + bar_width, sorted_components)
-    plt.legend(prop={'size': 60})
-    
-    ax.tick_params(axis='both', which='minor', labelsize=40)
-
-
-    fig.set_tight_layout( True )
-    
-   
-  fig.savefig(plotname)
-
-
-def eventLevelTimeMon_plotter(eventlevel_data, plotname):
-
-  sorted_data = sorted(eventlevel_data.items(), key=lambda i: int(i[0]))
-
-  
-  checkPoint_list = []
-  cpu_list = []
-  wall_list = []
-
-  for entry in sorted_data:
-
-    checkPoint = entry[0]
-    measurement = entry[1]
-
-    cpu_time = measurement["cpu_time"]
-    wall_time = measurement["wall_time"]
-
-    checkPoint_list.append(checkPoint)
-    cpu_list.append(cpu_time)
-    wall_list.append(wall_time)
-
-  fig = plt.figure()
- 
-  plt.plot(checkPoint_list, cpu_list, label = "CPU Time")
-  plt.plot(checkPoint_list, wall_list, label = "Wall Time")
-  plt.xlabel('Events')
-  plt.ylabel('Time[ms]')
-
-  index = np.arange(len(checkPoint_list))
-
-  plt.xticks(index, checkPoint_list, rotation='vertical')
-  plt.tick_params(axis='x', labelsize=3)
-
-  plt.title('Event Level Time Measurements')
-  plt.legend()
-
-  fig.set_tight_layout( True )
-    
-   
-  fig.savefig(plotname)
-
-
-def eventLevelMemMon_plotter(eventlevel_data, plotname):
-
-  # Sort by event check points
-  sorted_data = sorted(eventlevel_data.items(), key=lambda i: int(i[0]))
-  
-  checkPoint_list = []
-  vmem_list = []
-  rss_list = []
-  pss_list = []
-  swap_list = []
-
-  for entry in sorted_data:
-
-    checkPoint = entry[0]
-    measurement = entry[1]
-
-    vmem = measurement["vmem"]
-    rss = measurement["rss"]
-    pss = measurement["pss"]
-    swap = measurement["swap"]
-
-    checkPoint_list.append(checkPoint)
-    vmem_list.append(vmem)
-    rss_list.append(rss)
-    pss_list.append(pss)
-    swap_list.append(swap)
-
-  fig = plt.figure()
- 
-  plt.plot(checkPoint_list, vmem_list, label = "Vmem")
-  plt.plot(checkPoint_list, rss_list, label= "Rss")
-  plt.plot(checkPoint_list, pss_list,  label = "Pss")
-  plt.plot(checkPoint_list, swap_list,  label = "Swap")
-  plt.xlabel('Events')
-  plt.ylabel('Memory[kB]')
-
-  index = np.arange(len(checkPoint_list))
-
-  plt.xticks(index, checkPoint_list, rotation='vertical')
-  plt.tick_params(axis='x', labelsize=3)
-
-  plt.title('Event Level Memory Measurements')
-  plt.legend()
-
-  fig.set_tight_layout( True )
-   
-  fig.savefig(plotname)
-
-
+  memMonParams = {
+    "ax": memMonAx,
+    "index": np.arange(len(stepNames)),
+    "width": 0.5/len(memMonVals), # Think about this
+    "vals": memMonVals,
+    "yTickLabels": stepNames,
+    "xlabel": "Memory [MB]",
+    "ylabel": "Steps",
+    "title": "Snapshot Level Monitoring: Memory Metrics",
+    "titleFontSize": 40,
+    "xlabelFontSize": 40,
+    "ylabelFontSize": 40,
+    "legendFontSize": 30
+  }
   
 
-with open( result_file ) as json_file:
-  data = json.load(json_file)
+  plotBarChart(timeMonParams)
+  plotBarChart(memMonParams)
 
-  snapshot_data = data['Snapshot_level']
-  snapshot_plotter(snapshot_data, 'snapshot_level.pdf')
+
+  timeMonFig.set_tight_layout( True )
+  timeMonFig.savefig("Snaphot_Level_Time")
+
+  memMonFig.set_tight_layout(True)
+  memMonFig.savefig("Snapshot_Level_Memory")
+
+
+def plotComponentLevel(componentLevelData, compCountPerPlot):
   
-  timeMon_serial_data = data['TimeMon_Serial']
-  time_plotter(timeMon_serial_data, 'TimeMon_Serial.pdf')
+  timeMonFig = plt.figure(figsize=(35,105))
+  memMonFig = plt.figure(figsize=(35,105))
 
-  memMon_serial_data = data['MemMon_Serial']
-  mem_plotter(memMon_serial_data, 'MemMon_Serial.pdf')
+  for idx, step in enumerate(componentLevelData):
 
-  if 'TimeMon_Parallel' in data:
-    timeMon_parallel_data = data['TimeMon_Parallel']
-    eventLevelTimeMon_plotter(timeMon_parallel_data, 'TimeMon_Parallel.pdf')
+    compNames, vmemVals, cpuTimeVals, mallocVals, countVals = [],[],[],[],[]
+    for comp, meas in componentLevelData[step].items():
 
-  if 'MemMon_Parallel' in data:
-    memMon_parallel_data = data['MemMon_Parallel']
-    eventLevelMemMon_plotter(memMon_parallel_data, 'MemMon_Parallel.pdf')
+      count = meas["count"]
+      cpuTime = meas["cpuTime"] * 0.001 # seconds
+      malloc = meas["malloc"] * 0.001 # MB
+      vmem = meas["vmem"] * 0.001 # MB
+
+      # Discard negative measurements
+      if vmem < 0 or malloc < 0:
+        continue
+
+      compNames.append(comp + " [" + str(count) + "]")
+      vmemVals.append(vmem)
+      cpuTimeVals.append(cpuTime)
+      mallocVals.append(malloc)
+      countVals.append(count)
+
+    timeMonVals = {
+      "cpuTime": cpuTimeVals
+    }
+
+    memMonVals = {
+      "vmem": vmemVals,
+      "malloc": mallocVals,
+    }
+
+    # Sort the components
+    sortedTimeMonCompNames, sortedTimeMonVals = sortComponents(compNames, timeMonVals, compCountPerPlot)
+    sortedCompNamesMem, sortedMemMonVals = sortComponents(compNames, memMonVals, compCountPerPlot)
+
+    timeMonAx = timeMonFig.add_subplot(len(componentLevelData),1,idx+1)
+    memMonAx = memMonFig.add_subplot(len(componentLevelData),1,idx+1)
+
+    timeMonParams = {
+      "ax": timeMonAx,
+      "index": np.arange(len(sortedTimeMonCompNames)),
+      "width": 0.5/len(sortedTimeMonVals), # Think about this
+      "vals": sortedTimeMonVals,
+      "yTickLabels": sortedTimeMonCompNames,
+      "xlabel": "Time [sec]",
+      "ylabel": "Components",
+      "title": step,
+      "titleFontSize": 70,
+      "xlabelFontSize": 50,
+      "ylabelFontSize": 50,
+      "legendFontSize": 30
+    }
+
+    memMonParams = {
+      "ax": memMonAx,
+      "index": np.arange(len(sortedCompNamesMem)),
+      "width": 0.5/len(sortedMemMonVals), # Think about this
+      "vals": sortedMemMonVals,
+      "yTickLabels": sortedCompNamesMem,
+      "xlabel": "Memory [MB]",
+      "ylabel": "Components",
+      "title": step,
+      "titleFontSize": 70,
+      "xlabelFontSize": 50,
+      "ylabelFontSize": 50,
+      "legendFontSize": 30
+    }
+
+    plotBarChart(timeMonParams)
+    plotBarChart(memMonParams)
+
+  timeMonFig.set_tight_layout( True )
+  timeMonFig.savefig("Component_Level_Time")
+
+  memMonFig.set_tight_layout( True )
+  memMonFig.savefig("Component_Level_Memory")
+
+
+def plotEventLevel(eventLevelData):
+
+  sortedEventLevelData = sorted(eventLevelData.items(), key=lambda i: int(i[0]))
+
+  eventVals, cpuTimeVals, vmemVals, rssVals, pssVals, swapVals = [], [], [], [], [], []
+
+  timeMonFig, timeMonAx = plt.subplots()
+  memMonFig, memMonAx = plt.subplots()
+
+  for entry in sortedEventLevelData:
+
+    event = entry[0]
+    meas = entry[1]
+
+    # Time metrics in seconds, Memory metrics in megabytes
+    eventVals.append(event)
+    cpuTimeVals.append(meas['cpuTime'] * 0.001)
+    vmemVals.append(meas['vmem'] * 0.001)
+    rssVals.append(meas['rss'] * 0.001)
+    pssVals.append(meas['pss'] * 0.001)
+    swapVals.append(meas['swap'] * 0.001)
+
+
+  timeMonVals = {
+    "cpuTime": cpuTimeVals
+  }
+
+  memMonVals = {
+    "vmem": vmemVals,
+    "rss": rssVals,
+    "pss": pssVals,
+    "swap": swapVals
+  }
+
+  timeMonParams = {
+    "ax": timeMonAx,
+    "yVals": timeMonVals, 
+    "xVals": eventVals, # Maybe x ticks?
+    "xlabel": "Events",
+    "ylabel": "Time [sec]",
+    "title": "Event Level Time Measurements"
+  }
+
+  memMonParams = {
+    "ax": memMonAx,
+    "yVals": memMonVals,
+    "xVals": eventVals, # Maybe x ticks?
+    "xlabel": "Events",
+    "ylabel": "Memory [MB]",
+    "title": "Event Level Memory Measurements"
+  }
+
+
+  plotLineChart(timeMonParams)
+  plotLineChart(memMonParams)
+
+  timeMonFig.set_tight_layout(True)
+  timeMonFig.savefig("Event_Level_Time")
+
+  memMonFig.set_tight_layout(True)
+  memMonFig.savefig("Event_Level_Memory")
+  
+def main():
+    ''' Main function for producing plots from PerfMonMT JSON file.'''
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-i", "--inFile", dest = "inFile",
+                        default = 'PerfMonMTSvc_result.json',
+                        help = 'The input JSON file')
+    parser.add_argument("-n", "--numberOfCompsPerPlot",
+                        dest = "numberOfCompsPerPlot", default = 20,
+                        help = "The number of components to be plotted")
+
+    args = parser.parse_args()
+
+    inFile = args.inFile
+    numberOfCompsPerPlot = args.numberOfCompsPerPlot
+
+    with open( inFile ) as jsonFile:
+
+      data = json.load(jsonFile)
+
+      if "snapshotLevel" in data["summary"]:
+        snapshotData = data["summary"]["snapshotLevel"]
+        plotSnapshotLevel(snapshotData, 'snapshotLevel.pdf')
+
+      if "componentLevel" in data:
+        componentLevelData = data["componentLevel"]
+        plotComponentLevel(componentLevelData, int(numberOfCompsPerPlot))
+
+      if "eventLevel" in data:
+        eventLevelData = data["eventLevel"]
+        plotEventLevel(eventLevelData)
+
+
+if __name__ == "__main__":
+    main()
+

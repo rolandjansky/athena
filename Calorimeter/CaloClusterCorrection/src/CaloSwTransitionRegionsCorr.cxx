@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,35 +23,11 @@ PURPOSE:  Effective corrections for transition regions like eta=0
 #include "StoreGate/StoreGate.h" 
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
-//#include <math.h>
-
-// -------------------------------------------------------------
-// Constructor
-// -------------------------------------------------------------
-/**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-using xAOD::CaloCluster;
-CaloSwTransitionRegionsCorr::CaloSwTransitionRegionsCorr (const std::string& type,
-                            const std::string& name,
-                            const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
-{
-  declareConstant ("correction"   , m_correction);
-  declareConstant ("etamin_TR00"  , m_etamin_TR00);
-  declareConstant ("etamax_TR00"  , m_etamax_TR00);
-  declareConstant ("etamax_TR08"  , m_etamax_TR08);
-  declareConstant ("etamin_TR08"  , m_etamin_TR08);
-  declareConstant ("use_raw_eta"  ,  m_use_raw_eta);
-}
 
 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -70,8 +46,8 @@ CaloSwTransitionRegionsCorr::CaloSwTransitionRegionsCorr (const std::string& typ
  *                the calorimeter region and sampling encoded.
  */
 
-void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
-                                      CaloCluster* cluster,
+void CaloSwTransitionRegionsCorr::makeTheCorrection (const Context& myctx,
+                                      xAOD::CaloCluster* cluster,
                                       const CaloDetDescrElement*/*elt*/,
                                       float eta,
                                       float adj_eta,
@@ -79,12 +55,18 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
                                       float /*adj_phi*/,
                                       CaloSampling::CaloSample /*samp*/) const
 {
+  const CxxUtils::Array<2> correction = m_correction (myctx);
+  const float etamin_TR00 = m_etamin_TR00 (myctx);
+  const float etamax_TR00 = m_etamax_TR00 (myctx);
+  const float etamin_TR08 = m_etamin_TR08 (myctx);
+  const float etamax_TR08 = m_etamax_TR08 (myctx);
+
   // ??? In principle, we should use adj_eta for the interpolation
   //     and range checks.  However, the v2 corrections were derived
   //     using regular eta instead.
 
   float the_aeta;
-  if (m_use_raw_eta)
+  if (m_use_raw_eta (myctx))
     the_aeta = std::abs (adj_eta);
   else
     the_aeta = std::abs (eta);
@@ -93,8 +75,8 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
 // Load calibration coefficients
 // -------------------------------------------------------------
 
-  CaloRec::Array<1> tr00      = m_correction[0];
-  CaloRec::Array<1> tr08      = m_correction[1];
+  CaloRec::Array<1> tr00      = correction[0];
+  CaloRec::Array<1> tr08      = correction[1];
   
   static const CaloSampling::CaloSample samps[2][4] = {
      { CaloSampling::PreSamplerB,
@@ -117,7 +99,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
 // Compute correction for eta = 0 
 // -------------------------------------------------------------
 
-  if (the_aeta < m_etamax_TR00 && the_aeta > m_etamin_TR00 ) {
+  if (the_aeta < etamax_TR00 && the_aeta > etamin_TR00 ) {
     ATH_MSG_DEBUG( " -------------------------- "
            << "Applying correction for eta = 0 (loose) " << endmsg);
     ATH_MSG_DEBUG( tr00[0] << " " <<  tr00[1] << " "
@@ -133,7 +115,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
               exp( tr00[3]*( the_aeta + tr00[4]))-tr00[5]));
 */
   }
-  else if ( the_aeta < m_etamin_TR00 ) {
+  else if ( the_aeta < etamin_TR00 ) {
     corr = tr00[6];
     ATH_MSG_DEBUG( " -------------------------- "
            << "Applying correction for eta = 0 (tight) " << endmsg);
@@ -143,7 +125,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
 // Compute correction for eta = 0.8 
 // -------------------------------------------------------------
 
-  if ( the_aeta < m_etamax_TR08 &&  the_aeta > m_etamin_TR08 ) {
+  if ( the_aeta < etamax_TR08 &&  the_aeta > etamin_TR08 ) {
     ATH_MSG_DEBUG( " -------------------------- "
            << "Applying correction for eta =0.8 " << endmsg);
     ATH_MSG_DEBUG( tr08[0] << " " <<  tr08[1] << " "

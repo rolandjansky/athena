@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaMVACalibAnalysis/egammaMVATool.h"
@@ -54,7 +54,7 @@ StatusCode egammaMVATool::initialize() {
     ATH_MSG_DEBUG("configuration does not contain list of variables, try to guess:"); // TODO: because it is not implemented
     std::set<std::string> el_variables = guess_variables(filename);
     el_variables.insert({"el_cl_E", "el_cl_eta", "el_rawcl_Es0", "el_rawcl_Es1", "el_rawcl_Es2", "el_rawcl_Es3"}); // used for binning
-    for (const auto var : el_variables) { ATH_MSG_DEBUG("  " << var); }
+    for (const auto& var : el_variables) { ATH_MSG_DEBUG("  " << var); }
     ATH_MSG_INFO(el_variables.size() << " variables for electrons");
 
     m_MVATreeElectron = std::make_unique<egammaMVATreeElectron>("MVATreeElectron", el_variables, m_use_layer_corrected);
@@ -86,7 +86,7 @@ StatusCode egammaMVATool::initialize() {
     ph_variables.insert(ph_conv_variables.begin(), ph_conv_variables.end());
     ph_variables.insert({"ph_cl_E", "ph_cl_eta", "ph_rawcl_Es0", "ph_rawcl_Es1", "ph_rawcl_Es2", "ph_rawcl_Es3"}); // used for binning
     ATH_MSG_INFO(ph_variables.size() << " variables for photons");
-    for (const auto var : ph_variables) { ATH_MSG_INFO("  " << var); }
+    for (const auto& var : ph_variables) { ATH_MSG_INFO("  " << var); }
 
     m_MVATreePhoton = std::make_unique<egammaMVATreePhoton>("MVATreePhoton", ph_variables, m_use_layer_corrected, true);
     m_MVATreePhoton->msg().setLevel(this->msg().level());
@@ -120,7 +120,7 @@ std::set<std::string> egammaMVATool::guess_variables(const std::string& filename
   while (TNamed* obj = dynamic_cast<TNamed*>(iter())) {
     const std::string expression = obj->GetTitle();
     ATH_MSG_DEBUG("searching variables in " << expression);
-    for (const auto var : all_possible_variables) {
+    for (const auto& var : all_possible_variables) {
       const auto pos = expression.find(var);
       if (pos != std::string::npos) {
         if (pos + var.size() < expression.size()) {
@@ -210,7 +210,7 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster,
     ATH_MSG_DEBUG("Processing for electron");
     return getEnergy(cluster, static_cast<const xAOD::Electron*>(eg));
   }
-  else if (eg->type() == xAOD::Type::Photon ){
+  if (eg->type() == xAOD::Type::Photon ){
     ATH_MSG_DEBUG("Processing for photon");
     // this is because topo seeded electron (author == 128) have cluster in
     // another collection, which is not decorated with etaCalo, m_cl_phiCalo
@@ -220,9 +220,9 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster,
 
     return getEnergy(cluster, static_cast<const xAOD::Photon*>(eg));
   }
-  else{
+  
     ATH_MSG_INFO("Unknown Type");
-  }
+  
   return 0;
 }
 
@@ -239,14 +239,14 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster,
     m_MVATreeElectron->update(nullptr, cluster);
     return m_mvaElectron->getMVAEnergy();
   }
-  else if(egType == "Photon"){
+  if(egType == "Photon"){
     ATH_MSG_DEBUG("Processing for type photon");
     m_MVATreePhoton->update(nullptr, cluster);
     return m_mvaPhoton->getMVAEnergy();
   }
-  else {
+  
     ATH_MSG_WARNING("Unknown particle type");
-  }
+  
   return 0;
 }
 

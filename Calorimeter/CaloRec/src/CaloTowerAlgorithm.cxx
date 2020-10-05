@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -67,7 +67,7 @@ StatusCode CaloTowerAlgorithm::initialize()
   ////////////////////
 
   // check tool names
-  if (m_ptools.size() == 0) {
+  if (m_ptools.empty()) {
     ATH_MSG_ERROR(" no tools given for this algorithm.");
     return StatusCode::FAILURE;
   }
@@ -145,13 +145,13 @@ StatusCode CaloTowerAlgorithm::execute (const EventContext& ctx) const
   
   while (!processStatus.isFailure() && firstITool != lastITool) {
 
-    if (theTicker != 0) {
+    if (theTicker != nullptr) {
       theTicker->chronoStart((*firstITool)->name());
     }
 
     processStatus = (*firstITool)->execute(theTowers.ptr());
 
-    if (theTicker != 0) {
+    if (theTicker != nullptr) {
       theTicker->chronoStop((*firstITool)->name());
     }
     if (!processStatus.isFailure()) {

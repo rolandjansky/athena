@@ -309,7 +309,8 @@ StatusCode ISF::SimHitTreeCreator::fillSimHitsTree()
 //** Add information from HepMcParticleLink to TTree - common for all SimHit types */
 void ISF::SimHitTreeCreator::addHepMcParticleLinkInfoToTree(HepMcParticleLink &HMPL) {
   if (HMPL.isValid()) {
-    m_momentum = (HMPL.cptr())->momentum().rho();
+    auto t_mom=(HMPL.cptr())->momentum();
+    m_momentum = std::sqrt( t_mom.x()*t_mom.x()+t_mom.y()*t_mom.y()+t_mom.z()*t_mom.z());
     m_eta= (HMPL.cptr())->momentum().eta();
     m_theta= (HMPL.cptr())->momentum().theta();
     m_phi  = (HMPL.cptr())->momentum().phi();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 void doWriteNtuple(int nParticles, bool useTrackEstimate )
@@ -21,7 +21,7 @@ void doWriteNtuple(int nParticles, bool useTrackEstimate )
   
   // split by ','
   std::vector<std::string> fileList;
-  for (size_t i=0,n; i <= argStr.length(); i=n+1)
+  for (size_t i=0, n=0; i <= argStr.length(); i=n+1)
     {
       n = argStr.find_first_of(',',i);
       if (n == string::npos)

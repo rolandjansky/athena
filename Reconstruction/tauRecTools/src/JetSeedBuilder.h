@@ -9,28 +9,25 @@
 
 
 /**
- * @brief Class to build tauRec seeds from topojets.
- * 
- *  Sets the jet ElementLink and basic kinematic variables in TauJet by searching a matching jet to the tau direction.
- *  Also the mass of the tau is set to 0.
- *  With tauRec4 the JetSeedBuilder method is the only one to search for a tau candidates. 
- *  The author of the tau candidate is set 1 (former calo-only seeded) and 3 (former calo+track-seeded) to keep backwards compatibility.
- *  
+ * @brief Class to build tau jet seed.
  * @author N.Meyer <nicom@cern.ch>
  * @author Felix Friedrich
 */
 
 class JetSeedBuilder : public TauRecToolBase {
-public:
-    JetSeedBuilder(const std::string& name);
+
+  public:
+    
     ASG_TOOL_CLASS2( JetSeedBuilder, TauRecToolBase, ITauToolBase )
 
+    /** @brief Constructor */ 
+    JetSeedBuilder(const std::string& name);
+    
+    /** @brief Destructor */
     virtual ~JetSeedBuilder();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
-    virtual StatusCode finalize() override;
-
+    /** @brief Executation of this tool */ 
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 };
 
 #endif	/* JETSEEDBUILDER_H */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Misc includes
@@ -425,10 +425,10 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case SiliconAssociatedForwardMuon :
          {
             static const Accessor< ElementLink< TrackParticleContainer > > acc( "combinedTrackParticleLink" );
-            if( ! acc.isAvailable( *this ) ) return 0;
+            if( ! acc.isAvailable( *this ) ) return nullptr;
           
             const ElementLink< TrackParticleContainer >& link = acc( *this );
-            if( ! link.isValid() ) return 0;
+            if( ! link.isValid() ) return nullptr;
             
             return *link;
          }
@@ -436,10 +436,10 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       case CaloTagged :
         {
            static const Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
-           if( ! acc.isAvailable( *this ) ) return 0;
+           if( ! acc.isAvailable( *this ) ) return nullptr;
            
            const ElementLink< TrackParticleContainer >& link = acc( *this );
-           if( ! link.isValid() ) return 0;
+           if( ! link.isValid() ) return nullptr;
            
            return *link;
         }
@@ -466,12 +466,12 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
             if ( link.isValid() ) return *link;
           }
 
-          return 0;
+          return nullptr;
         }
       default:
         {
           // No valid link.
-          return 0;
+          return nullptr;
         }
       }
   }
@@ -512,13 +512,13 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       
       // If it's invalid, return a null pointer:
       if( ! el.isValid() ) {
-        return 0;
+        return nullptr;
       }
       
       // If it's valid, let's de-reference it:
       return *el;
     } catch ( SG::ExcBadAuxVar& ) {
-      return 0;
+      return nullptr;
     }
   }
 
@@ -555,18 +555,18 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
     
     static const Accessor< ElementLink< TrackParticleContainer > > acc( "inDetTrackParticleLink" );
     if( ! acc.isAvailable( *this ) ) {
-       return 0;
+       return nullptr;
     }
     const ElementLink< TrackParticleContainer >& link = acc( *this );
     if( ! link.isValid() ) {
-       return 0;
+       return nullptr;
     }
     
     // Get the ElementLink pointing to the calo cluster: 
     const ElementLink< CaloClusterContainer >& el = clusterLink(); 
     // If it's invalid, return a null pointer: 
     if( ! el.isValid() ) { 
-      return 0; 
+      return nullptr; 
     } 
     // If it's valid, let's de-reference it: 
     return *el; 
@@ -604,7 +604,7 @@ bool Muon_v1::isolationCaloCorrection(  float& value, const Iso::IsolationFlavou
       muonSegmentLink( i );
       // If it's invalid, return a null pointer:
     if( ! el.isValid() ) {
-      return 0;
+      return nullptr;
     }
       // If it's valid, let's de-reference it:
     return *el;

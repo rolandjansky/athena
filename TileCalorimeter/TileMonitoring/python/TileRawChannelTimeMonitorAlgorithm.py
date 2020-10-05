@@ -102,6 +102,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
                                         tileRawChanTimeMonAlg, 'TileDigitizerTimeLB', topPath = 'Tile/RawChannelTime')
     for postfix, tool in digiTimeVsLBArray.Tools.items():
         ros, module, digitizer = [int(x) for x in postfix.split('_')[1:]]
+        digitizer += 1
 
         moduleName = Tile.getDrawerString(ros + 1, module)
         title = 'Run ' + run + ' ' + moduleName + ' Digitizer ' + str(digitizer)
@@ -148,14 +149,14 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    cfg = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg = MainServicesCfg(ConfigFlags)
 
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt',
                      'TileDigitsContainer/TileDigitsCnt',
                      'TileBeamElemContainer/TileBeamElemCnt']
-    cfg.merge( ByteStreamReadCfg(ConfigFlags, typeNames = tileTypeNames) )
+    cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
 
     from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
     cfg.merge( TileRawChannelMakerCfg(ConfigFlags) )

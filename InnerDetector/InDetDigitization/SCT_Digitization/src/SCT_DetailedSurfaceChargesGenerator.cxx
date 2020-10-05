@@ -22,6 +22,9 @@
 #include "TProfile.h" // for TProfile
 #include "TProfile2D.h" // for TProfile2D
 
+// C++ Standard Library
+#include <cmath>
+
 using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
 using InDetDD::SiLocalPosition;
@@ -345,7 +348,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
     float tdrift{DriftTime(zReadout, element)}; //!< tdrift: perpandicular drift time
     if (tdrift>-2.0000002 and tdrift<-1.9999998) {
       ATH_MSG_DEBUG("Checking for rounding errors in compression");
-      if ((fabs(z1)-0.5*sensorThickness)<0.000010) {
+      if ((std::abs(z1)-0.5*sensorThickness)<0.000010) {
         ATH_MSG_DEBUG("Rounding error found attempting to correct it. z1 = " << std::fixed << std::setprecision(8) << z1);
         if (z1<0.0) {
           z1= 0.0000005-0.5*sensorThickness; //set new coordinate to be 0.5nm inside wafer volume.
@@ -720,7 +723,7 @@ double SCT_DetailedSurfaceChargesGenerator::induced(int istrip, double x, double
 
   if (y < 0. or y > m_bulk_depth) return 0.;
   const double xc{m_strip_pitch * (istrip + 0.5)};
-  const double dx{fabs(x-xc)};
+  const double dx{std::abs(x-xc)};
   const int ix{static_cast<int>(dx / deltax)};
   if (ix > 79) return 0.;
   const int iy{static_cast<int>(y  / deltay)};

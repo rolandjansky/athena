@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            return; 
        }
        // create entry/exit point
-       Amg::Vector3D gpos1 = pars.position();
+       const Amg::Vector3D& gpos1 = pars.position();
        Amg::Vector3D gpos2 = gpos1 + pars.momentum().unit();
        // get the rotation
        const Amg::Transform3D& sTransform = hitSurface.transform();      
@@ -210,7 +210,7 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            int layer     = m_trtIdHelper->straw_layer(hitId);
            int istraw    = m_trtIdHelper->straw(hitId);
                       
-           TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
+           const TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
            int hitID = hitid_helper->buildHitId( barrel_endcap, ispos, ringwheel, phisector,layer,istraw);
            
            TRTUncompressedHit

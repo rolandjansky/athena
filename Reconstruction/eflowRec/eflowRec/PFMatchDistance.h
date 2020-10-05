@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -29,7 +29,7 @@ public:
   EtaPhiSqDistanceCalculator() { }
   virtual ~EtaPhiSqDistanceCalculator() { }
 
-  virtual double distanceBetween(EtaPhi* position1, EtaPhi* position2);
+  virtual double distanceBetween(const EtaPhi& position1, const EtaPhi& position2) const;
 };
 
 /**
@@ -40,7 +40,7 @@ public:
   EtaPhiSqSignificanceCalculator() { }
   virtual ~EtaPhiSqSignificanceCalculator() { }
 
-  virtual double distanceBetween(EtaPhi* position1, EtaPhiWithVariance* position2);
+  virtual double distanceBetween(const EtaPhi& position1, const EtaPhiWithVariance& position2) const;
 };
 
 

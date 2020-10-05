@@ -28,11 +28,6 @@ namespace ROIB {
     : m_roIWord( 0 ) {}
 
   /**
-   * As for many other classes, the destructor doesn't do anything. Why did we implement it then?
-   */
-  MuCTPIRoI::~MuCTPIRoI() {}
-
-  /**
    * This method can be used to access the "original" RoI word.
    *
    * @return The 32-bit RoI word

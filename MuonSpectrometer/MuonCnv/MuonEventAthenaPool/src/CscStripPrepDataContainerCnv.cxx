@@ -1,26 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscStripPrepDataContainerCnv.h"
 
-// Gaudi
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-
-// Athena
 #include "StoreGate/StoreGateSvc.h"
-
-// Id includes
-// #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
 CscStripPrepDataContainerCnv::CscStripPrepDataContainerCnv(ISvcLocator* svcloc) :
 CscStripPrepDataContainerCnvBase(svcloc),
     // Must create DataVector that does NOT own elements
-    //m_prdCollVec(CscStripPrepDataCollVec(SG::VIEW_ELEMENTS)),
     m_storeGate(0)
-    //m_cscId(0) 
 {
 }
 
@@ -31,8 +23,6 @@ StatusCode CscStripPrepDataContainerCnv::initialize() {
    // Call base clase initialize
     if( !CscStripPrepDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
-
-//    msgSvc()->setOutputLevel( "CscStripPrepDataContainerCnv", MSG::DEBUG );
 
    // Get the messaging service, print where you are
     MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv");
@@ -54,9 +44,6 @@ StatusCode CscStripPrepDataContainerCnv::initialize() {
     } else {
         log << MSG::DEBUG << "Found DetectorStore." << endmsg;
     }
-
-
-    //m_converter_p0.initialize(log);
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
 
@@ -85,8 +72,6 @@ Muon::CscStripPrepDataContainer* CscStripPrepDataContainerCnv::createTransient()
     else if( compareClassGuid(p0_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): Old input file"<<std::endl;
         throw std::runtime_error("Not currently supporting reading non TP-split PRDs");
-        //std::unique_ptr< CscStripPrepDataContainer_p0 >   col_vect( poolReadObject< CscStripPrepDataContainer_p0 >() );
-        //p_collection = m_converter_p0.createTransient( col_vect.get(), log );
     }
     else {
         throw std::runtime_error("Unsupported persistent version of CscStripPrepDataContainer");

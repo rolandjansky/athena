@@ -52,13 +52,14 @@ atlas_install_headers( TrkExTools )
 atlas_install_python_modules( python/*.py )
 
 atlas_add_test( ObjContainer_test
-	SOURCES test/ObjContainer_test.cxx)
+  SOURCES test/ObjContainer_test.cxx
+  LINK_LIBRARIES CxxUtils )
 	
 atlas_add_test( TrkExToolsStringUtility_test	
   SOURCES 
   test/TrkExToolsStringUtility_test.cxx src/TrkExToolsStringUtility.cxx
-  INCLUDE_DIRS  ${Boost_INCLUDE_DIRS}     ${CURL_INCLUDE_DIRS}   
-  LINK_LIBRARIES ${Boost_LIBRARIES} 
+  INCLUDE_DIRS  ${Boost_INCLUDE_DIRS}  
+  LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils
   POST_EXEC_SCRIPT "nopost.sh"
 )
 

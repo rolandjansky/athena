@@ -1,3 +1,0 @@
-flake8_print_statement.py:6:1: ATL233: Python 3.x incompatible use of non function-like print statement
-flake8_print_statement.py:8:1: ATL232: Python 3.x incompatible use of print statement
-flake8_print_statement.py:11:1: ATL232: Python 3.x incompatible use of print statement

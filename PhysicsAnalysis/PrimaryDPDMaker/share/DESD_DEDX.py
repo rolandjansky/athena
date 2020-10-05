@@ -35,7 +35,7 @@ DESD_DEDX_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DES
                                                                         expression = selection)
 
 ToolSvc += DESD_DEDX_SkimmingTool
-print DESD_DEDX_SkimmingTool
+print(DESD_DEDX_SkimmingTool)
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

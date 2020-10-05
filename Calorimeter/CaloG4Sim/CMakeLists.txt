@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( CaloG4Sim )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          PRIVATE
-                          Control/CxxUtils
-                          Simulation/G4Sim/MCTruth )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

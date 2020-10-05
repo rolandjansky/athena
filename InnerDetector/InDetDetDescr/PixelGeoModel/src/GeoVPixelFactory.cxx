@@ -1,31 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoVPixelFactory.h"
 
 using InDetDD::PixelDetectorManager;
 
-PixelDetectorManager * GeoVPixelFactory::m_DDmgr = 0;
-PixelGeometryManager * GeoVPixelFactory::s_geometryManager = 0;
-
-GeoVPixelFactory::GeoVPixelFactory() :   
+GeoVPixelFactory::GeoVPixelFactory(InDetDD::PixelDetectorManager* ddmgr,
+                                   PixelGeometryManager* mgr) :
+  m_gmt_mgr (mgr),
+  m_mat_mgr (m_gmt_mgr->getMaterialManager()),
+  m_DDmgr (ddmgr),
   m_epsilon(0.0001)
 {
-   m_gmt_mgr = s_geometryManager;
-   m_mat_mgr = m_gmt_mgr->getMaterialManager();
 }
 
 GeoVPixelFactory::~GeoVPixelFactory()
 {}
-
-
-void GeoVPixelFactory::SetDDMgr(PixelDetectorManager* mgr) 
-{
-  m_DDmgr = mgr;
-}
-
-void GeoVPixelFactory::setGeometryManager(PixelGeometryManager* mgr) 
-{
-  s_geometryManager = mgr;
-}

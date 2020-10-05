@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -36,7 +36,6 @@ class EventAnalysis
 
   // Overridden functions.
   virtual void Init();
-  virtual bool Reco();
   static constexpr float invalidAnswer{-999.9f};
 
   // Static Util. function declarations. Defined below class. Can use if no inheritance struct.

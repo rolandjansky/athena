@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/test/WriteHandle_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -720,7 +718,7 @@ int main()
   errorcheck::ReportMessage::hideFunctionNames();
   ISvcLocator* svcloc;
   //need MessageSvc
-  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("StoreGate/VarHandleBase_test.txt", svcloc)) {
     return 1;
   }
 

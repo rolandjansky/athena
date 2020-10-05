@@ -22,15 +22,6 @@ if ('enableCostMonitoring' in dir()):
 else: 
     enableCostMonitoring = False
 
-#RTT runs with costMonitoring on - test whether it is available in a given release
-#test whether a package is useable in this release
-import imp
-try:
-    imp.find_module('TrigCostD3PDMaker')
-except:
-    printfunc ('CostMonitoring packages not available, setting  enableCostMonitoring=False')
-    enableCostMonitoring=False
-
 # flags for RecExCommon
 #thanks to Olya for the "magic" AOD combination - see: https://its.cern.ch/jira/browse/ATR-11211
 doTrigger=True
@@ -200,12 +191,14 @@ if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
+from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+LumiBlockMuWriterDefault()
+
 # post set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
     import TriggerJobOpts.Modifiers
     getattr(TriggerJobOpts.Modifiers,'enableCostMonitoring')().postSetup()
     getattr(TriggerJobOpts.Modifiers,'enableCostForCAF')().postSetup()
-    getattr(TriggerJobOpts.Modifiers,'enableCostD3PD')().postSetup()
     # Check if we are debugging the cost mon output - false by default
     if 'enableCostDebug' in dir() and bool(enableCostDebug) == True:
         getattr(TriggerJobOpts.Modifiers,'enableCostDebug')().postSetup()

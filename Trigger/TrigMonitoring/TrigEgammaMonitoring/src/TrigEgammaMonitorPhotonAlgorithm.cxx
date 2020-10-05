@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorPhotonAlgorithm.h"
@@ -22,6 +22,19 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::initialize()
   
   ATH_CHECK(TrigEgammaMonitorAnalysisAlgorithm::initialize());
   ATH_CHECK(m_offPhotonKey.initialize());
+
+
+  for(const auto& trigName:m_trigInputList)
+  {
+    if(getTrigInfoMap().count(trigName) != 0){
+      ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+    }else {
+      m_trigList.push_back(trigName);
+      setTrigInfo(trigName);
+    }
+  }
+
+
  
   return StatusCode::SUCCESS;
 }
@@ -29,30 +42,35 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::initialize()
 
 StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) const  
 {
-
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorPhotonAlgorithm");
+
 
     if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }
     
-
+    
     ATH_MSG_DEBUG("Chains for Analysis " << m_trigList);
 
-    for(const auto trigger : m_trigList){
+    for(const auto& trigger : m_trigList){
         
         const TrigInfo info = getTrigInfo(trigger);
         
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
           
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs;
-        
+    
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
         }
+
+
+        fillDistributions( pairObjs, info );
+        fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
@@ -100,7 +118,8 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
       }
       xAOD::Photon *ph = new xAOD::Photon(*eg);
       ph->auxdecor<bool>(decor)=static_cast<bool>(true);
-      match()->match(ph, trigItem, dec);
+      match()->match(ph, trigItem, dec, TrigDefs::includeFailedDecisions);
+      //match()->match(ph, trigItem, dec);
       std::pair< const xAOD::Photon*, const TrigCompositeUtils::Decision * > pair(ph,dec);
       pairObjs.push_back(pair);
 

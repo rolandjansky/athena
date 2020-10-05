@@ -23,10 +23,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 // PyROOT includes
 #include <TPython.h>
-#include <TPyException.h>
-#ifndef ROOT_TPyException
-# define ROOT_TPyException 1 /* there was a typo in TPyException-v20882 */
-#endif
 
 // fixes 'dereferencing type-punned pointer will break strict-aliasing rules'
 #ifdef Py_True
@@ -140,7 +136,7 @@ recurse_pyinspect(PyObject *pyobj,
                   bool persistentOnly)
 {
   // handle non-pyroot objects
-  if (!TPython::ObjectProxy_Check(pyobj)) {
+  if (!TPython::CPPInstance_Check(pyobj)) {
     PyObject *val = PyTuple_New(2);
     PyObject *v0 = pyobj_name; Py_INCREF(v0);
     PyObject *v1 = pyobj;      Py_XINCREF(pyobj);
@@ -164,7 +160,7 @@ recurse_pyinspect(PyObject *pyobj,
     Py_DECREF(val);
     return;
   }
-  void *obj = TPython::ObjectProxy_AsVoidPtr(pyobj);
+  void *obj = TPython::CPPInstance_AsVoidPtr(pyobj);
 
   if (!strcmp(tcls->GetName(), "string")) {
     std::string *str = (std::string*)obj;
@@ -242,8 +238,13 @@ recurse_pyinspect(PyObject *pyobj,
     // something completely different, so that didn't work.
     // Rewriting in terms of iteration avoids this.
     // .. except that it mysteriously fails (sometimes) for TileCellVec.
+    // .. and if we try to use the iterator interface for vector<char>,
+    //    then with python 3, pyroot will try to convert its contents
+    //    to a unicode string object, which will likely fail.
     Py_ssize_t nelems = PySequence_Size(pyobj);
-    if (strcmp(tcls->GetName(), "TileCellVec") == 0) {
+    if (strcmp(tcls->GetName(), "TileCellVec") == 0 ||
+        strcmp(tcls->GetName(), "vector<char>") == 0)
+    {
       for (Py_ssize_t i = 0; i < nelems; ++i) {
         PyObject *pyidx = PyLong_FromLong(i);
         PyObject *itr = PySequence_GetItem(pyobj, i);
@@ -317,7 +318,7 @@ recurse_pyinspect(PyObject *pyobj,
       py_mbr = PyROOT_PyUnicode_FromString(mbr->GetName());
     } else {
       py_mbr_name = PyROOT_PyUnicode_FromString(mbr->GetName());
-      py_mbr = TPython::ObjectProxy_FromVoidPtr((void*)ptr,
+      py_mbr = TPython::CPPInstance_FromVoidPtr((void*)ptr,
                                                 mbr->GetTypeName());
     }
 
@@ -326,7 +327,7 @@ recurse_pyinspect(PyObject *pyobj,
                 << mbr->GetTypeName() << "] !\n";
       Py_XDECREF(py_mbr);
       Py_XDECREF(py_mbr_name);
-      throw PyROOT::TPyException();
+      throw RootUtils::PyException();
     }
 
     PyObject *this_name = ::new_pylist(pyobj_name, py_mbr_name);
@@ -354,7 +355,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
                                 bool persistentOnly /*= false*/)
 {
   // handle non-pyroot objects
-  if (!TPython::ObjectProxy_Check(pyobj)) {
+  if (!TPython::CPPInstance_Check(pyobj)) {
     Py_XINCREF(pyobj);
     return pyobj;
   }
@@ -364,7 +365,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
     Py_INCREF(Py_None);
     return Py_None;
   }
-  void *obj = TPython::ObjectProxy_AsVoidPtr(pyobj);
+  void *obj = TPython::CPPInstance_AsVoidPtr(pyobj);
 
   if (!strcmp(tcls->GetName(), "string")) {
     std::string *str = (std::string*)obj;
@@ -464,7 +465,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
 #endif
       py_mbr = PyROOT_PyUnicode_FromString(mbr->GetTypeName());
     } else {
-      PyObject *pyroot_obj = TPython::ObjectProxy_FromVoidPtr
+      PyObject *pyroot_obj = TPython::CPPInstance_FromVoidPtr
         ((void*)ptr,
          mbr->GetTypeName());
       if (pyroot_obj) {
@@ -476,7 +477,7 @@ PyROOTInspector::pyroot_inspect(PyObject* pyobj,
       std::cerr << "could not create py-object of type ["
                 << mbr->GetTypeName() << "] !\n";
       Py_DECREF(py_members);
-      throw PyROOT::TPyException();
+      throw RootUtils::PyException();
     }
 
     PyObject *py_item = PyTuple_New(2);

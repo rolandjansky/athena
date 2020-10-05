@@ -5,34 +5,6 @@
 # Declare the package name:
 atlas_subdir( sTGC_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Control/PileUpTools
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonSimEvent
-                          Simulation/HitManagement
-                          PRIVATE
-                          Control/StoreGate
-                          Event/EventInfo
-                          Event/EventInfoMgt
-                          Generators/GeneratorObjects
-                          Generators/AtlasHepMC
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonSimData
-                          MuonSpectrometer/MuonCalib/NSWCalib/NSWCalibTools
-                          Tools/PathResolver
-                          Tracking/TrkDetDescr/TrkDetDescrUtils
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives )
-
 # External dependencies:
 find_package( AIDA )
 find_package( CLHEP )
@@ -46,11 +18,10 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 atlas_add_component( sTGC_Digitization
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel AthContainers PileUpToolsLib Identifier xAODEventInfo GaudiKernel MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives NSWCalibToolsLib )
+                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel AthContainers PileUpToolsLib Identifier xAODEventInfo GaudiKernel MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives NSWCalibToolsLib MuonDigToolInterfacesLib )
 
 # Install files from the package:
-atlas_install_headers( sTGC_Digitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )

@@ -4,7 +4,7 @@ from builtins import zip
 
 from builtins import object
 from builtins import range
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfAMI
 #  @brief Utilities for configuration of transforms via AMI tags
@@ -260,8 +260,8 @@ def getPANDAClient():
         
     try:
         cur = cx_Oracle.connect('atlas_grisli_r/panda_c10@adcr_panda').cursor()
-    except: 
-        msg.debug('An exception occurred while connecting to PANDA database: %s' % traceback.format_exc())
+    except Exception: 
+        msg.debug('An exception occurred while connecting to PANDA database: %s', traceback.format_exc())
         raise TransformAMIException(AMIerrorCode, 'Failed to get PANDA client connection (N.B. this does not work from outside CERN).')
         
     return cur
@@ -277,14 +277,14 @@ def ReadablePANDA(s):
 #  @returns list of PyJoCbTransforms.trfAMI.TRFConfig instances
 def getTrfConfigFromPANDA(tag):
     
-    msg.debug('Using PANDA to get info about tag %s' % tag)
+    msg.debug('Using PANDA to get info about tag %s', tag)
             
     try:
         pandaclient=getPANDAClient()
         pandaclient.execute("select trf,trfv,lparams,vparams,formats,cache from t_trf_config where tag='%s' and cid=%d" %(tag[:1],int(tag[1:]) ) )
         result=pandaclient.fetchone()
-    except:
-        msg.info('An exception occurred: %s' % traceback.format_exc())
+    except Exception:
+        msg.info('An exception occurred: %s', traceback.format_exc())
         raise TransformAMIException(AMIerrorCode, 'Getting tag info from PANDA failed.')
 
     if result is None:
@@ -293,17 +293,17 @@ def getTrfConfigFromPANDA(tag):
     msg.debug('Raw data returned from panda DB is:' + os.linesep + str(result))
     
     trfn=result[0].split(',')
-    msg.debug('List of transforms: %s' % trfn)
+    msg.debug('List of transforms: %s', trfn)
     trfv=result[1].split(',')
-    msg.debug('List of releases: %s' % trfv)
+    msg.debug('List of releases: %s', trfv)
     lparams=result[2].split(';')
-    msg.debug('List of arguments: %s' % lparams)
+    msg.debug('List of arguments: %s', lparams)
     vparams=result[3].split(';')
-    msg.debug('List of argument values: %s' % vparams)
+    msg.debug('List of argument values: %s', vparams)
     formats=result[4].split('.')
-    msg.debug('List of formats: %s' % formats)
+    msg.debug('List of formats: %s', formats)
     cache=result[5].split(',')
-    msg.debug('List of caches: %s' % formats)
+    msg.debug('List of caches: %s', formats)
 
 
     if not ( len(trfn) == len(trfv) == len(lparams) == len(vparams) ):
@@ -349,18 +349,18 @@ def getTrfConfigFromPANDA(tag):
         msg.debug("Checking for pseudo-argument internal to ProdSys...")
         if 'extraParameter' in physics:
             val=physics.pop('extraParameter')
-            msg.debug("Removed extraParamater=%s from arguments." % val)
+            msg.debug("Removed extraParamater=%s from arguments.", val)
 
         msg.debug("Checking for input/output file arguments...")
         for arg in list(physics):
             if arg.lstrip('-').startswith('input') and arg.endswith('File'):
                 value=physics.pop(arg)
-                msg.debug("Found input file argument %s=%s." % (arg,value) ) 
+                msg.debug("Found input file argument %s=%s.", arg, value ) 
                 fmt=arg.lstrip('-').replace('input','').replace('File','')
                 trf.inFiles[arg]=getInputFileName(arg)
             elif arg.lstrip('-').startswith('output') and arg.endswith('File'):
                 value=physics.pop(arg)
-                msg.debug("Found output file argument %s=%s." % (arg,value) )
+                msg.debug("Found output file argument %s=%s.", arg, value )
                 fmt=arg.lstrip('-').replace('output','').replace('File','')
                 trf.outFiles[arg]=getOutputFileName(fmt)
 
@@ -368,7 +368,7 @@ def getTrfConfigFromPANDA(tag):
         for arg,value in listitems(physics):
             if value=="NONE" or value=="none" or value==["NONE"]:
                 val=physics.pop(arg)
-                msg.debug("Removed %s=%s from arguments." % (arg, val) )
+                msg.debug("Removed %s=%s from arguments.", arg, val )
 
         trf.physics=physics
 
@@ -413,7 +413,7 @@ def remove_enclosing_quotes(s):
     try:
         if s[0] == s[-1] and s[0] in ('"', "'"):
             s = s[1:-1]
-    except:
+    except Exception:
         pass
     return s
 
@@ -421,7 +421,7 @@ def remove_enclosing_quotes(s):
 #  @param tag Tag for which information is requested
 #  @returns list of PyJoCbTransforms.trfAMI.TRFConfig instances
 def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
-    msg.debug('Using AMI to get info about tag %s' % tag)
+    msg.debug('Using AMI to get info about tag %s', tag)
 
     try:
 #        import pyAMI.atlas.api
@@ -460,14 +460,14 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                     execStrList = [execStr for execStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
                     physics[convertToStr(k)] = [remove_enclosing_quotes(execStr).replace('\\"', '"') for execStr in execStrList]
                 elif '" "' in v:
-                    msg.info('found a quoted space (" ") in parameter value for %s, converting to list' % k)
+                    msg.info('found a quoted space (" ") in parameter value for %s, converting to list', k)
                     subStrList = [subStr for subStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
                     physics[convertToStr(k)] = [remove_enclosing_quotes(subStr).replace('\\"', '"') for subStr in subStrList]
                 else:
                     physics[convertToStr(k)] = convertToStr(remove_enclosing_quotes(v))
 
             msg.debug('Result from AMI after string cleaning:')
-            msg.debug('%s' % dumps(physics, indent = 4))
+            msg.debug('%s', dumps(physics, indent = 4))
 
             if suppressNonJobOptions:
                 for k in list(physics):
@@ -483,18 +483,18 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
             msg.debug("Checking for pseudo-argument internal to ProdSys...")
             if 'extraParameter' in physics:
                 val = physics.pop('extraParameter')
-                msg.debug("Removed extraParamater=%s from arguments." % val)
+                msg.debug("Removed extraParamater=%s from arguments.", val)
 
             msg.debug("Checking for input/output file arguments...")
             for arg in list(physics):
                 if arg.lstrip('-').startswith('input') and arg.endswith('File'):
                     value = physics.pop(arg)
-                    msg.debug("Found input file argument %s=%s." % (arg, value))
+                    msg.debug("Found input file argument %s=%s.", arg, value)
                     fmt = arg.lstrip('-').replace('input', '').replace('File', '')
                     trf.inFiles[arg] = getInputFileName(arg)
                 elif arg.lstrip('-').startswith('output') and arg.endswith('File'):
                     value = physics.pop(arg)
-                    msg.debug("Found output file argument %s=%s." % (arg, value))
+                    msg.debug("Found output file argument %s=%s.", arg, value)
                     fmt = arg.lstrip('-').replace('output', '').replace('File', '')
                     trf.outFiles[arg] = getOutputFileName(fmt)
 
@@ -502,7 +502,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
             for arg, value in listitems(physics):
                 if value == "NONE" or value == "none" or value == ["NONE"]:
                     val = physics.pop(arg)
-                    msg.debug("Removed %s=%s from arguments." % (arg, val))
+                    msg.debug("Removed %s=%s from arguments.", arg, val)
 
             trf.physics = physics
 
@@ -547,7 +547,7 @@ def deserialiseFromAMIString(amistring):
         msg.debug("Failed to decode {0} as JSON: {1}".format(amistring, e_json))
         try:
             result = ast.literal_eval(amistring)
-        except SyntaxError as e_ast:
+        except SyntaxError:
             errMsg = "Failed to deserialise AMI string '{0}' using JSON or eval".format(amistring)
             msg.error(errMsg)
             raise TransformAMIException(AMIerrorCode, errMsg)

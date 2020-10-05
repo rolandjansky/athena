@@ -1,0 +1,80 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/*
+ * Implementation of interfaces without Gaudi Context
+ * in terms of the Gaudi Context aware ones
+ */
+namespace Trk {
+
+inline const TrackingGeometry*
+INavigator::trackingGeometry() const
+{
+  return trackingGeometry(Gaudi::Hive::currentContext());
+}
+
+inline const TrackingVolume*
+INavigator::volume(const Amg::Vector3D& gp) const
+{
+
+  return volume(Gaudi::Hive::currentContext(), gp);
+}
+
+inline const TrackingVolume*
+INavigator::highestVolume() const
+{
+  return highestVolume(Gaudi::Hive::currentContext());
+}
+
+inline const BoundarySurface<TrackingVolume>*
+INavigator::nextBoundarySurface(const IPropagator& prop,
+                                const TrackParameters& parms,
+                                PropDirection dir) const
+{
+  return nextBoundarySurface(Gaudi::Hive::currentContext(), prop, parms, dir);
+}
+
+inline const BoundarySurface<TrackingVolume>*
+INavigator::nextBoundarySurface(const IPropagator& prop,
+                                const TrackParameters& parms,
+                                PropDirection dir,
+                                const TrackingVolume& vol) const
+{
+
+  return nextBoundarySurface(
+    Gaudi::Hive::currentContext(), prop, parms, dir, vol);
+}
+
+inline NavigationCell
+INavigator::nextTrackingVolume(const IPropagator& prop,
+                               const TrackParameters& parms,
+                               PropDirection dir,
+                               const TrackingVolume& vol) const
+{
+
+  return nextTrackingVolume(
+    Gaudi::Hive::currentContext(), prop, parms, dir, vol);
+}
+
+inline NavigationCell
+INavigator::nextDenseTrackingVolume(const IPropagator& prop,
+                                    const TrackParameters& parms,
+                                    const Surface* destination,
+                                    PropDirection dir,
+                                    ParticleHypothesis particle,
+                                    const TrackingVolume& vol,
+                                    double& path) const
+{
+
+  return nextDenseTrackingVolume(Gaudi::Hive::currentContext(),
+                                 prop,
+                                 parms,
+                                 destination,
+                                 dir,
+                                 particle,
+                                 vol,
+                                 path);
+}
+
+}

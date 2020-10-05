@@ -76,8 +76,7 @@ StatusCode TileDigitsDumper::execute (const EventContext& ctx) const
        << ") BSflags: 0x" << std::hex << cont->get_bsflags() << std::dec
        << std::endl;
 
-  for (IdentifierHash hash : cont->GetAllCurrentHashes()) {
-    const TileDigitsCollection* coll = cont->indexFindPtr (hash);
+  for (const TileDigitsCollection* coll : *cont) {
     fout << static_cast<std::string> (*coll);
     coll->printExtra (fout);
     fout << "\n";

@@ -106,7 +106,7 @@ for ros in range(1,5):
                         mgrOnl.addAdcProblem(ros, mod, chn, 1, prb)
 
             #--- add IgnoreInHlt if either of the ADCs has isBad
-            #--- add OnlineGeneralMaskAdc if the ADCs has isBad            
+            #--- add OnlineGeneralMaskAdc if the ADCs has isBad
             if statlo.isBad() and stathi.isBad():
                 mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.IgnoredInHlt)
                 mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)
@@ -160,7 +160,7 @@ for ros in range(1,5):
                             if pb:
                                 msg += "  =>"
                             else:
-                                msg = "%s %2i %1i " % (modName, chn, adc) 
+                                msg = "%s %2i %1i " % (modName, chn, adc)
                             prbs = pbm[adc+pb*2]
                             if len(prbs):
                                 for prbCode in sorted(prbs.keys()):
@@ -187,4 +187,3 @@ else:
 #=== close databases
 db1.closeDatabase()
 db.closeDatabase()
-

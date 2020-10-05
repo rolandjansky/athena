@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_DECISIONUNPACKERATHENA_H
@@ -14,12 +14,15 @@
 #include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
-#include "TrigDecisionEvent/TrigDecision.h"
 
 
 class StoreGateSvc;
+
+namespace TrigDec {
+  class TrigDecision;
+}
 
 namespace HLT {
   class TrigNavStructure;
@@ -39,6 +42,10 @@ namespace Trig{
   public:
     DecisionUnpackerAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey );
     virtual ~DecisionUnpackerAthena();
+
+    DecisionUnpackerAthena (const DecisionUnpackerAthena&) = delete;
+    DecisionUnpackerAthena& operator= (const DecisionUnpackerAthena&) = delete;
+
     virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,
 				      std::unordered_map<std::string, const HLT::Chain*>&,

@@ -12,6 +12,9 @@
 // @TODO: probably replace this by an enum some day
 #define ISF_UNDEF_CHARGE -99999.
 
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/IteratorRange.h"
+#include "AtlasHepMC/Relatives.h"
 /** constructor */
 ISF::HepMCHelper::HepMCHelper() {
 }
@@ -29,17 +32,59 @@ HepMC::IteratorRange ISF::HepMCHelper::convertIteratorRange( int intItRange ) {
   else                    return ( HepMC::parents   );
 }
 
-const HepMC::GenParticle * ISF::HepMCHelper::findRealtiveWithPDG( const HepMC::GenParticle &genParticle,
+#ifdef HEPMC3
+HepMC::ConstGenParticlePtr ISF::HepMCHelper::findRealtiveWithPDG( HepMC::ConstGenParticlePtr genParticle,
+        const HepMC::IteratorRange &relation,
+        const std::set<int> &relativesPDG     ) {
+    // get range of relative particles
+    std::vector<HepMC::ConstGenParticlePtr> relativesRng;
+    switch(relation) {
+    case  HepMC::parents:                   {
+        if (genParticle->production_vertex()) relativesRng= genParticle->production_vertex()->particles_in();
+        break;
+    }
+    case  HepMC::family:                    {
+        if (genParticle->production_vertex()) relativesRng= genParticle->production_vertex()->particles_in();
+        std::vector<HepMC::ConstGenParticlePtr> temp;
+        if (genParticle->end_vertex()) temp=genParticle->end_vertex()->particles_out();
+        relativesRng.insert(relativesRng.end(),temp.begin(),temp.end());
+        break;
+    }
+    case  HepMC::ancestors:                 {
+        relativesRng= HepMC::ancestor_particles(genParticle);
+        break;
+    }
+    case  HepMC::relatives:               {
+        relativesRng= HepMC::ancestor_particles(genParticle);
+        std::vector<HepMC::ConstGenParticlePtr> temp=HepMC::descendant_particles(genParticle);
+        relativesRng.insert(relativesRng.end(),temp.begin(),temp.end());
+        break;
+    }
+    default:                            {
+        if (genParticle->production_vertex()) relativesRng= genParticle->production_vertex()->particles_in();
+        break;
+    }
+    }
+    // loop over relatives
+    for (auto curRelative:  relativesRng)  {
+        if (relativesPDG.count( curRelative->pdg_id() ) != 0) return curRelative;
+    }
+
+    return nullptr;
+}
+#else
+HepMC::ConstGenParticlePtr ISF::HepMCHelper::findRealtiveWithPDG( HepMC::ConstGenParticlePtr genParticle,
                                                                   const HepMC::IteratorRange &relation,
                                                                   const std::set<int> &relativesPDG     ) {
 
+  if (!genParticle) return 0;
   // get range of relative particles
-  HepMC::ConstGenParticleProductionRange relativesRng = genParticle.particles_in( relation );
+  HepMC::ConstGenParticleProductionRange relativesRng = genParticle->particles_in( relation );
 
   // loop over relatives
   HepMC::GenVertex::particle_iterator       partIt  = relativesRng.begin();
   const HepMC::GenVertex::particle_iterator partEnd = relativesRng.end();
-  const HepMC::GenParticle *curRelative = 0;
+  HepMC::ConstGenParticlePtr curRelative{};
   bool  found = false;
   for ( ; (!found) && (partIt!=partEnd) ; ++partIt) {
     curRelative = (*partIt) ;
@@ -49,4 +94,5 @@ const HepMC::GenParticle * ISF::HepMCHelper::findRealtiveWithPDG( const HepMC::G
 
   return (found ? curRelative : 0);
 }
+#endif
 

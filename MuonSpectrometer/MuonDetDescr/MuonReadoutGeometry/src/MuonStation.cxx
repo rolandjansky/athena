@@ -76,7 +76,7 @@ void MuonStation::setNominalAmdbLRSToGlobal(HepGeom::Transform3D xf)
 void MuonStation::setBlineFixedPointInAmdbLRS(double s0, double z0, double t0)
 {
   #ifndef NDEBUG
-  if ((std::fabs(s0)+std::fabs(z0)+std::fabs(t0))>0.01) {
+  if ((std::abs(s0)+std::abs(z0)+std::abs(t0))>0.01) {
     MsgStream log(Athena::getMessageSvc(),"MuonStation");
     if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Station "<<getStationType()
 	      <<" at zi/fi "<<getEtaIndex()<<"/"<<getPhiIndex()
@@ -125,7 +125,7 @@ void  MuonStation::updateBlineFixedPointInAmdbLRS()
 	  // Correct for tube staggering on barrel side C
 	  double shiftInZ = -0.5 * mdtRE->tubePitch();
 
-	  // in addition, correct for 35µm glue width incorrectly applied
+	  // in addition, correct for 35microm glue width incorrectly applied
 	  double multilayerRealSize = 0;
 	  for (int ilayer=1; ilayer<=2; ++ilayer) {
 	    double val;
@@ -225,7 +225,7 @@ MuonStation::setDelta_fromAline(double tras, double traz, double trat,
   m_rott = rott;
   
   HepGeom::Transform3D delta_amdb = HepGeom::Transform3D::Identity;
-  if (std::fabs(tras)+std::fabs(traz)+std::fabs(trat)+(std::fabs(rots)+std::fabs(rotz)+std::fabs(rott))*1000. > 0.01)
+  if (std::abs(tras)+std::abs(traz)+std::abs(trat)+(std::abs(rots)+std::abs(rotz)+std::abs(rott))*1000. > 0.01)
   {
       // compute the delta transform in the local AMDB frame 
       delta_amdb = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
@@ -337,7 +337,7 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
 	       <<getStationName()<<" at zi/fi = "<<getEtaIndex()<<"/"<<getPhiIndex()<<endmsg;
       return;
   }
-  if (std::fabs(tras)+std::fabs(traz)+std::fabs(trat)+(std::fabs(rots)+std::fabs(rotz)+std::fabs(rott))*1000. < 0.01)
+  if (std::abs(tras)+std::abs(traz)+std::abs(trat)+(std::abs(rots)+std::abs(rotz)+std::abs(rott))*1000. < 0.01)
   {
     if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG <<"setDelta_fromAline_forComp: A-line ignored --- too small (translations < 10microns & rotations <10microrad)"<<endmsg;
     return;
@@ -353,7 +353,7 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
   //HepGeom::Point3D<double> thisREcenter = getMuonReadoutElement(jobindex)->center();
   HepGeom::Point3D<double> thisREnominalCenter=(HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMuonReadoutElement(jobindex)->defTransform())))*HepGeom::Point3D<double>(0.,0.,0.); 
   double  Rcomp =  thisREnominalCenter.perp()-(getMuonReadoutElement(jobindex)->getRsize())/2.;
-  double  DZcomp = std::fabs(thisREnominalCenter.z())-std::fabs(((*m_amdbl_to_global)*HepGeom::Point3D<double>(0.,0.,0)).z())-std::fabs((getMuonReadoutElement(jobindex)->getZsize())/2.);
+  double  DZcomp = std::abs(thisREnominalCenter.z())-std::abs(((*m_amdbl_to_global)*HepGeom::Point3D<double>(0.,0.,0)).z())-std::abs((getMuonReadoutElement(jobindex)->getZsize())/2.);
 
   HepGeom::Transform3D  childToLocAmdbComponent;
   HepGeom::Transform3D  childToLocAmdbStation = HepGeom::Transform3D(*m_native_to_amdbl)*parentToChildT;
@@ -526,6 +526,14 @@ void MuonStation::fillBLineCache()
 }
 
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 double MuonStation::RsizeMdtStation() const
 {
   if (getStationName().substr(0,1)=="T" || getStationName().substr(0,1)=="C") return 0.; // TGC and CSC stations
@@ -559,8 +567,8 @@ double MuonStation::RsizeMdtStation() const
 	    }
 	  else 
 	    {
-	      if (barrel()) Rsize += std::fabs(Rpos.x()-RposFirst.x());
-	      else  Rsize += std::fabs(Rpos.y()-RposFirst.y());
+	      if (barrel()) Rsize += std::abs(Rpos.x()-RposFirst.x());
+	      else  Rsize += std::abs(Rpos.y()-RposFirst.y());
 	    }
 	}
     }
@@ -601,8 +609,8 @@ double MuonStation::ZsizeMdtStation() const
 	    }
 	  else 
 	    {
-	      if (barrel()) Zsize += std::fabs(Zpos.z()-ZposFirst.z());
-	      else  Zsize += std::fabs(Zpos.x()-ZposFirst.x());
+	      if (barrel()) Zsize += std::abs(Zpos.z()-ZposFirst.z());
+	      else  Zsize += std::abs(Zpos.x()-ZposFirst.x());
 	    }
 	}
     }

@@ -10,7 +10,7 @@ def _local_apply_core(func, args, q):
         os._exit(1)
 
 def apply(func, args):
-    from Queue import Empty
+    from six.moves.queue import Empty
     from multiprocessing import Process
     from multiprocessing.managers import SyncManager
     import tempfile
@@ -34,7 +34,7 @@ def apply(func, args):
     try:
         rv = q.get(False)
     except Empty:
-        raise RuntimeError('daughter died while trying to execute %s%s' % (func.func_name, args))
+        raise RuntimeError('daughter died while trying to execute %s%s' % (func.__name__, args))
     if isinstance(rv, BaseException):
         if isinstance(rv, SystemExit):
             print('SystemExit raised by daughter; ignoring')

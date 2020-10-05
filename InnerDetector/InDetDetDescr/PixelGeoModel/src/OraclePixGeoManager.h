@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OraclePixelGeoManager_H
@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 class IRDBRecord;
 class IRDBAccessSvc;
@@ -173,7 +174,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
  public:
 
-  OraclePixGeoManager(const PixelGeoModelAthenaComps * athenaComps);
+  OraclePixGeoManager(PixelGeoModelAthenaComps * athenaComps);
   ~OraclePixGeoManager();
   
   void init();
@@ -183,102 +184,102 @@ class OraclePixGeoManager : public PixelGeometryManager {
   // -------------------------------------
 
   // Get the material manager:
-  InDetMaterialManager* getMaterialManager();
+  virtual InDetMaterialManager* getMaterialManager() override;
 
   // PixelDetectorManager
-  InDetDD::PixelDetectorManager *GetPixelDDManager();
+  virtual InDetDD::PixelDetectorManager *GetPixelDDManager() override;
 
   // DistortedMaterialManager
-  const InDetDD::DistortedMaterialManager * distortedMatManager() const;
+  virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const override;
   
   // Access to legacy tables
-  PixelLegacyManager * legacyManager() const;
+  virtual PixelLegacyManager * legacyManager() override;
 
 
   // 
   // VERSION INFORMATION
   // -------------------
-  virtual std::string versionTag() const {return m_versionTag;}
-  virtual std::string versionName() const;
-  virtual std::string versionDescription() const;
-  virtual std::string versionLayout() const;
+  virtual std::string versionTag() const override {return m_versionTag;}
+  virtual std::string versionName() const override;
+  virtual std::string versionDescription() const override;
+  virtual std::string versionLayout() const override;
 
   //
   // BUILDING DEFINITIONS
   // --------------------
 
   // Do I want the services?
-  void SetServices(bool isservice) {m_services = isservice;}
-  bool DoServices();
+  virtual void SetServices(bool isservice) override {m_services = isservice;}
+  virtual bool DoServices() override;
 
   // Do I want the services on ladder ? (Omega + Al tube + cables T0 + pigtails + connectors)
-  void SetServicesOnLadder(bool isservice) {m_servicesOnLadder = isservice;}
-  bool DoServicesOnLadder();
+  virtual void SetServicesOnLadder(bool isservice) override {m_servicesOnLadder = isservice;}
+  virtual bool DoServicesOnLadder() override;
 
   // Initial layout (2nd layer missing)
-  void SetInitialLayout(bool flag) {m_initialLayout = flag;}
-  bool InitialLayout() const;
+  virtual void SetInitialLayout(bool flag) override {m_initialLayout = flag;}
+  virtual bool InitialLayout() const override;
 
   // DC1 Geometry. 300 um long pixels and 200 um thick sensor in B layer. 
-  void SetDC1Geometry(bool flag);
-  bool DC1Geometry() const;
+  virtual void SetDC1Geometry(bool flag) override;
+  virtual bool DC1Geometry() const override;
 
   // Control whether callbacks get registered
-  void SetAlignable(bool flag) {m_alignable = flag;}
-  bool Alignable() const;
+  virtual void SetAlignable(bool flag) override {m_alignable = flag;}
+  virtual bool Alignable() const override;
 
   // SLHC
-  void SetSLHC(bool flag) {m_slhc = flag;}
-  bool slhc() const {return m_slhc;}
+  virtual void SetSLHC(bool flag) override {m_slhc = flag;}
+  virtual bool slhc() const override {return m_slhc;}
 
   // IBL
-  void SetIBL(bool flag) {m_ibl = flag;}
-  bool ibl() const {return m_ibl;}
+  virtual void SetIBL(bool flag) override {m_ibl = flag;}
+  virtual bool ibl() const override {return m_ibl;}
 
   // DBM
-  void SetDBMFlag(bool flag) {m_dbm = flag;}
-  bool dbm() const {return m_dbm;}
+  virtual void SetDBMFlag(bool flag) override {m_dbm = flag;}
+  virtual bool dbm() const override {return m_dbm;}
 
-  void SetIBLPlanarModuleNumber(int nbPlanarModule) { m_PlanarModuleNumber=nbPlanarModule; };
-  void SetIBL3DModuleNumber(int nb3DModule) { m_3DModuleNumber=nb3DModule; };
+  virtual void SetIBLPlanarModuleNumber(int nbPlanarModule) override { m_PlanarModuleNumber=nbPlanarModule; };
+  virtual void SetIBL3DModuleNumber(int nb3DModule) override { m_3DModuleNumber=nb3DModule; };
 
   //
   // BUILDER HELPERS
   // ----------------
 
-  void SetEta(int eta) {m_eta = eta;}
-  void SetPhi(int phi) {m_phi = phi;}
-  int Eta() {return m_eta;}
-  int Phi() {return m_phi;}
+  virtual void SetEta(int eta) override {m_eta = eta;}
+  virtual void SetPhi(int phi) override {m_phi = phi;}
+  virtual int Eta() override {return m_eta;}
+  virtual int Phi() override {return m_phi;}
 
   // What am I building?
-  bool isBarrel();
-  bool isEndcap();
-  void SetBarrel();
-  void SetEndcap();
+  virtual bool isBarrel() override;
+  virtual bool isEndcap() override;
+  virtual void SetBarrel() override;
+  virtual void SetEndcap() override;
 
   // building DBM
-  bool isDBM();
-  void SetPartsDBM();
+  virtual bool isDBM() override;
+  virtual void SetPartsDBM() override;
 
   // The layer/disk barrel/endcap can be changed by these function.
-  void SetCurrentLD(int i);
-  int GetLD() {return m_currentLD;}
-  std::string getLD_Label();
+  virtual void SetCurrentLD(int i) override;
+  virtual int GetLD() override {return m_currentLD;}
+  virtual std::string getLD_Label() override;
 
   // Which layers/disks are present?
-  bool isLDPresent();
+  virtual bool isLDPresent() override;
 
   // The side
-  void SetPos() {m_side = 1;}
-  void SetNeg() {m_side = -1;}
-  int GetSide() {return m_side;}
-  bool isAside() {return m_side>0;}
-  bool isCside() {return m_side<0;}
-  void setDiskFront() { m_diskFrontBack &= 0x3; m_diskFrontBack |= 0x4; }
-  void setDiskBack()  { m_diskFrontBack &= 0x3; m_diskFrontBack |= 0x8; }
-  bool isDiskFront() const { return m_diskFrontBack & 0x4; }
-  bool isDiskBack() const  { return m_diskFrontBack & 0x8; }
+  virtual void SetPos() override {m_side = 1;}
+  virtual void SetNeg() override {m_side = -1;}
+  virtual int GetSide() override {return m_side;}
+  virtual bool isAside() override {return m_side>0;}
+  virtual bool isCside() override {return m_side<0;}
+  virtual void setDiskFront() override { m_diskFrontBack &= 0x3; m_diskFrontBack |= 0x4; }
+  virtual void setDiskBack() override { m_diskFrontBack &= 0x3; m_diskFrontBack |= 0x8; }
+  virtual bool isDiskFront() const override { return m_diskFrontBack & 0x4; }
+  virtual bool isDiskBack() const override  { return m_diskFrontBack & 0x8; }
 
   bool isInnermostPixelLayer() {return (isBarrel() && m_currentLD == 0);}
 
@@ -288,119 +289,119 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
 
   // Version Number, for the Barrel/EndCap
-  int PixelBarrelMajorVersion();
-  int PixelBarrelMinorVersion();
-  int PixelEndcapMajorVersion();
-  int PixelEndcapMinorVersion();  
+  virtual int PixelBarrelMajorVersion() override;
+  virtual int PixelBarrelMinorVersion() override;
+  virtual int PixelEndcapMajorVersion() override;
+  virtual int PixelEndcapMinorVersion() override;
 
   
-  int dbVersion() {return m_dbVersion;}
+  virtual int dbVersion() override {return m_dbVersion;}
   bool useLegacy() {return !slhc() && (m_dbVersion < 4);}
 
   // Si Board
-  double PixelBoardWidth(bool isModule3D=false);
-  double PixelBoardLength(bool isModule3D=false);
-  double PixelBoardThickness(bool isModule3D=false);
-  double PixelBoardActiveLength(bool isModule3D=false);
+  virtual double PixelBoardWidth(bool isModule3D=false) override;
+  virtual double PixelBoardLength(bool isModule3D=false) override;
+  virtual double PixelBoardThickness(bool isModule3D=false) override;
+  virtual double PixelBoardActiveLength(bool isModule3D=false) override;
 
   // Hybrid
-  double PixelHybridWidth(bool isModule3D=false);
-  double PixelHybridLength(bool isModule3D=false);
-  double PixelHybridThickness(bool isModule3D=false);
+  virtual double PixelHybridWidth(bool isModule3D=false) override;
+  virtual double PixelHybridLength(bool isModule3D=false) override;
+  virtual double PixelHybridThickness(bool isModule3D=false) override;
 
   //  Fe Chips (PixelModule)
-  double PixelChipWidth(bool isModule3D=false);
-  double PixelChipLength(bool isModule3D=false);
-  double PixelChipGap(bool isModule3D=false);
-  double PixelChipOffset(bool isModule3D=false);
-  double PixelChipThickness(bool isModule3D=false);
+  virtual double PixelChipWidth(bool isModule3D=false) override;
+  virtual double PixelChipLength(bool isModule3D=false) override;
+  virtual double PixelChipGap(bool isModule3D=false) override;
+  virtual double PixelChipOffset(bool isModule3D=false) override;
+  virtual double PixelChipThickness(bool isModule3D=false) override;
 
   // Module services
-  int PixelModuleServiceNumber();
-  double PixelModuleServiceLength(int svc);
-  double PixelModuleServiceWidth(int svc);
-  double PixelModuleServiceThick(int svc);
-  double PixelModuleServiceOffsetX(int svc);
-  double PixelModuleServiceOffsetY(int svc);
-  double PixelModuleServiceOffsetZ(int svc);
-  int PixelModuleServiceModuleType(int svc);
-  int PixelModuleServiceFullSize(int svc);
-  std::string PixelModuleServiceName(int svc);
-  std::string PixelModuleServiceMaterial(int svc);
+  virtual int PixelModuleServiceNumber() override;
+  virtual double PixelModuleServiceLength(int svc) override;
+  virtual double PixelModuleServiceWidth(int svc) override;
+  virtual double PixelModuleServiceThick(int svc) override;
+  virtual double PixelModuleServiceOffsetX(int svc) override;
+  virtual double PixelModuleServiceOffsetY(int svc) override;
+  virtual double PixelModuleServiceOffsetZ(int svc) override;
+  virtual int PixelModuleServiceModuleType(int svc) override;
+  virtual int PixelModuleServiceFullSize(int svc) override;
+  virtual std::string PixelModuleServiceName(int svc) override;
+  virtual std::string PixelModuleServiceMaterial(int svc) override;
 
   // Disk Carbon Structure
   // Being replaced by PixelDiskSupportRMin etc methods
-  double PixelECCarbonRMin(std::string);
-  double PixelECCarbonRMax(std::string);
-  double PixelECCarbonThickness(std::string);
-  int PixelECCarbonMaterialTypeNum(std::string);
+  virtual double PixelECCarbonRMin(std::string) override;
+  virtual double PixelECCarbonRMax(std::string) override;
+  virtual double PixelECCarbonThickness(std::string) override;
+  virtual int PixelECCarbonMaterialTypeNum(std::string) override;
 
   // Services
-  std::string PixelServiceName(const std::string &, int);
-  bool PixelServiceZsymm(const std::string &, int);
-  double PixelServiceRMin(const std::string &, int);
-  double PixelServiceRMax(const std::string &, int);
-  double PixelServiceRMin2(const std::string &, int);
-  double PixelServiceRMax2(const std::string &, int);
-  double PixelServiceZMin(const std::string &, int);
-  double PixelServiceZMax(const std::string &, int);
-  double PixelServicePhiLoc(const std::string &a, int _n);
-  double PixelServiceWidth(const std::string &a, int _n);
-  int PixelServiceRepeat(const std::string &a, int _n);
-  std::string PixelServiceShape(const std::string &a, int _n);
-  std::string PixelServiceMaterial(const std::string &, int);
-  int PixelServiceLD(const std::string &, int);
-  int PixelServiceElements(const std::string &);
-  int PixelServiceFrameNum(const std::string &, int);
-  int PixelServiceEnvelopeNum(const std::string & type, int index);
-  int PixelServiceParentEnvelopeNum(const std::string & type, int index);
-  int PixelServiceShift(const std::string & type, int index);
+  virtual std::string PixelServiceName(const std::string &, int) override;
+  virtual bool PixelServiceZsymm(const std::string &, int) override;
+  virtual double PixelServiceRMin(const std::string &, int) override;
+  virtual double PixelServiceRMax(const std::string &, int) override;
+  virtual double PixelServiceRMin2(const std::string &, int) override;
+  virtual double PixelServiceRMax2(const std::string &, int) override;
+  virtual double PixelServiceZMin(const std::string &, int) override;
+  virtual double PixelServiceZMax(const std::string &, int) override;
+  virtual double PixelServicePhiLoc(const std::string &a, int _n) override;
+  virtual double PixelServiceWidth(const std::string &a, int _n) override;
+  virtual int PixelServiceRepeat(const std::string &a, int _n) override;
+  virtual std::string PixelServiceShape(const std::string &a, int _n) override;
+  virtual std::string PixelServiceMaterial(const std::string &, int) override;
+  virtual int PixelServiceLD(const std::string &, int) override;
+  virtual int PixelServiceElements(const std::string &) override;
+  virtual int PixelServiceFrameNum(const std::string &, int) override;
+  virtual int PixelServiceEnvelopeNum(const std::string & type, int index) override;
+  virtual int PixelServiceParentEnvelopeNum(const std::string & type, int index) override;
+  virtual int PixelServiceShift(const std::string & type, int index) override;
 
 
-  IRDBRecordset_ptr  getPixelServiceRecordset(const std::string & type);
+  virtual IRDBRecordset_ptr  getPixelServiceRecordset(const std::string & type) override;
   std::string getPixelServiceRecordString(const std::string & name, const std::string & type, int index);
   int getPixelServiceRecordInt(const std::string & name, const std::string & type, int index);
   double getPixelServiceRecordDouble(const std::string & name, const std::string & type, int index);
   bool getPixelServiceRecordTestField(const std::string & name, const std::string & type, int index);
 
   //  Pixel container
-  double PixelRMin();
-  double PixelRMax();
-  double PixelHalfLength();
+  virtual double PixelRMin() override;
+  virtual double PixelRMax() override;
+  virtual double PixelHalfLength() override;
 
   // Pixel Envelope
-  bool PixelSimpleEnvelope();
-  unsigned int PixelEnvelopeNumPlanes(); 
-  double PixelEnvelopeZ(int i);
-  double PixelEnvelopeRMin(int i); 
-  double PixelEnvelopeRMax(int i);
+  virtual bool PixelSimpleEnvelope() override;
+  virtual unsigned int PixelEnvelopeNumPlanes() override; 
+  virtual double PixelEnvelopeZ(int i) override;
+  virtual double PixelEnvelopeRMin(int i) override;
+  virtual double PixelEnvelopeRMax(int i) override;
 
   // Pixel Barrel  (from PixelBarrelGeneral)
-  int PixelBarrelNLayer();
-  double PixelBarrelRMin();
-  double PixelBarrelRMax();
-  double PixelBarrelHalfLength();
+  virtual int PixelBarrelNLayer() override;
+  virtual double PixelBarrelRMin() override;
+  virtual double PixelBarrelRMax() override;
+  virtual double PixelBarrelHalfLength() override;
 
 
-  bool oldFrame();
-  bool detailedFrame();
-  int PixelFrameSections();
-  double PixelFrameRMinSide(int sectionIndex);
-  double PixelFrameRMaxSide(int sectionIndex);
-  double PixelFrameSideWidth(int sectionIndex);
-  double PixelFrameZMin(int sectionIndex);
-  double PixelFrameZMax(int sectionIndex);
-  double PixelFramePhiStart(int sectionIndex);
-  int    PixelFrameNumSides(int sectionIndex);
-  bool   PixelFrameMirrorSides(int sectionIndex);
-  std::string  PixelFrameSideMaterial(int sectionIndex);
-  std::string  PixelFrameCornerMaterial(int sectionIndex);
+  virtual bool oldFrame() override;
+  virtual bool detailedFrame() override;
+  virtual int PixelFrameSections() override;
+  virtual double PixelFrameRMinSide(int sectionIndex) override;
+  virtual double PixelFrameRMaxSide(int sectionIndex) override;
+  virtual double PixelFrameSideWidth(int sectionIndex) override;
+  virtual double PixelFrameZMin(int sectionIndex) override;
+  virtual double PixelFrameZMax(int sectionIndex) override;
+  virtual double PixelFramePhiStart(int sectionIndex) override;
+  virtual int    PixelFrameNumSides(int sectionIndex) override;
+  virtual bool   PixelFrameMirrorSides(int sectionIndex) override;
+  virtual std::string  PixelFrameSideMaterial(int sectionIndex) override;
+  virtual std::string  PixelFrameCornerMaterial(int sectionIndex) override;
   
-  int PixelFrameNumSideElements(int sectionIndex);
-  double PixelFrameElementZMin1(int sectionIndex, int element);
-  double PixelFrameElementZMin2(int sectionIndex, int element);
-  double PixelFrameElementZMax1(int sectionIndex, int element);
-  double PixelFrameElementZMax2(int sectionIndex, int element);
+  virtual int PixelFrameNumSideElements(int sectionIndex) override;
+  virtual double PixelFrameElementZMin1(int sectionIndex, int element) override;
+  virtual double PixelFrameElementZMin2(int sectionIndex, int element) override;
+  virtual double PixelFrameElementZMax1(int sectionIndex, int element) override;
+  virtual double PixelFrameElementZMax2(int sectionIndex, int element) override;
 
   // helper functions
   int PixelFrameSectionFromIndex(int sectionIndex);
@@ -408,335 +409,335 @@ class OraclePixGeoManager : public PixelGeometryManager {
   int getFrameElementIndex(int sectionIndex, int element);
 
   // Pixel Layers/Ladder Geometry
-  int PixelStaveIndex(int layer);
-  int PixelStaveLayout();
-  int PixelStaveAxe();
-  double PixelLayerRadius();
-  double PixelLayerGlobalShift();
-  double PixelLadderLength();
-  double PixelLadderWidthClearance();
-  double PixelLadderThicknessClearance();
-  double PixelLadderThickness();
-  double PixelLadderTilt();
-  double PixelLadderServicesX();
-  double PixelLadderServicesY();
-  double PixelLadderCableOffsetX();
-  double PixelLadderCableOffsetY();
+  virtual int PixelStaveIndex(int layer) override;
+  virtual int PixelStaveLayout() override;
+  virtual int PixelStaveAxe() override;
+  virtual double PixelLayerRadius() override;
+  virtual double PixelLayerGlobalShift() override;
+  virtual double PixelLadderLength() override;
+  virtual double PixelLadderWidthClearance() override;
+  virtual double PixelLadderThicknessClearance() override;
+  virtual double PixelLadderThickness() override;
+  virtual double PixelLadderTilt() override;
+  virtual double PixelLadderServicesX() override;
+  virtual double PixelLadderServicesY() override;
+  virtual double PixelLadderCableOffsetX() override;
+  virtual double PixelLadderCableOffsetY() override;
 
   // Stave support (IBL)
-  GeoTrf::Vector3D IBLStaveRotationAxis(); 
-  double IBLStaveRadius();
-  double IBLStaveFacePlateThickness(); 
-  double IBLStaveMechanicalStaveWidth();
-  double IBLStaveMechanicalStaveEndBlockLength();
-  double IBLStaveMechanicalStaveEndBlockFixPoint();
-  double IBLStaveMechanicalStaveEndBlockOmegaOverlap();
-  double IBLStaveLength();
-  double IBLStaveMechanicalStaveOffset(bool isModule3D=false);
-  double IBLStaveMechanicalStaveModuleOffset();
-  double IBLStaveTubeOuterDiameter();
-  double IBLStaveTubeInnerDiameter();
-  double IBLStaveTubeMiddlePos();
-  double IBLStaveFlexLayerThickness();
-  double IBLStaveFlexBaseThickness();
-  double IBLStaveFlexWidth();
-  double IBLStaveFlexOffset();
-  double IBLStaveOmegaThickness();
-  double IBLStaveOmegaEndCenterX();
-  double IBLStaveOmegaEndCenterY();
-  double IBLStaveOmegaEndRadius();
-  double IBLStaveOmegaEndAngle();
-  double IBLStaveOmegaMidCenterX();
-  double IBLStaveOmegaMidRadius();
-  double IBLStaveOmegaMidAngle();
-  int IBLStaveModuleNumber();
-  int IBLStaveModuleNumber_AllPlanar();
-  double IBLStaveModuleGap();
-  int IBLStaveModuleType();
-  double IBLStaveFacePlateGreaseThickness();
-  double IBLStaveFacePlateGlueThickness();
-  double IBLStaveTubeGlueThickness();
-  double IBLStaveOmegaGlueThickness();
-  double IBLSupportRingWidth();
-  double IBLSupportRingInnerRadius();
-  double IBLSupportRingOuterRadius();
-  double IBLSupportMechanicalStaveRingFixPoint();
-  double IBLSupportMidRingWidth();
-  double IBLSupportMidRingInnerRadius();
-  double IBLSupportMidRingOuterRadius();
-  double IBLFlexMiddleGap();
-  bool IBLFlexAndWingDefined();
-  double IBLFlexDoglegLength();
-  double IBLStaveFlexWingWidth();
-  double IBLStaveFlexWingThick();
-  double IBLFlexDoglegRatio();
-  double IBLFlexDoglegHeight(int iHeight);
-  double IBLFlexDoglegDY();
-  double IBLFlexPP0Z(int iPos);
-  double IBLFlexPP0Rmin(int iPos);
-  double IBLFlexPP0Rmax(int iPos);
-  std::string IBLFlexMaterial(int iPos, const std::string& flexType);
-  double IBLServiceGetMinRadialPosition(const std::string& srvName, const std::string& srvType, 
-					double srvZmin, double srvZmax);
-  double IBLServiceGetMaxRadialPosition(const std::string& srvName, const std::string& srvType, 
-					double srvZmin, double srvZmax);
+  virtual GeoTrf::Vector3D IBLStaveRotationAxis() override;
+  virtual double IBLStaveRadius() override;
+  virtual double IBLStaveFacePlateThickness() override; 
+  virtual double IBLStaveMechanicalStaveWidth() override;
+  virtual double IBLStaveMechanicalStaveEndBlockLength() override;
+  virtual double IBLStaveMechanicalStaveEndBlockFixPoint() override;
+  virtual double IBLStaveMechanicalStaveEndBlockOmegaOverlap() override;
+  virtual double IBLStaveLength() override;
+  virtual double IBLStaveMechanicalStaveOffset(bool isModule3D=false) override;
+  virtual double IBLStaveMechanicalStaveModuleOffset() override;
+  virtual double IBLStaveTubeOuterDiameter() override;
+  virtual double IBLStaveTubeInnerDiameter() override;
+  virtual double IBLStaveTubeMiddlePos() override;
+  virtual double IBLStaveFlexLayerThickness() override;
+  virtual double IBLStaveFlexBaseThickness() override;
+  virtual double IBLStaveFlexWidth() override;
+  virtual double IBLStaveFlexOffset() override;
+  virtual double IBLStaveOmegaThickness() override;
+  virtual double IBLStaveOmegaEndCenterX() override;
+  virtual double IBLStaveOmegaEndCenterY() override;
+  virtual double IBLStaveOmegaEndRadius() override;
+  virtual double IBLStaveOmegaEndAngle() override;
+  virtual double IBLStaveOmegaMidCenterX() override;
+  virtual double IBLStaveOmegaMidRadius() override;
+  virtual double IBLStaveOmegaMidAngle() override;
+  virtual int IBLStaveModuleNumber() override;
+  virtual int IBLStaveModuleNumber_AllPlanar() override;
+  virtual double IBLStaveModuleGap() override;
+  virtual int IBLStaveModuleType() override;
+  virtual double IBLStaveFacePlateGreaseThickness() override;
+  virtual double IBLStaveFacePlateGlueThickness() override;
+  virtual double IBLStaveTubeGlueThickness() override;
+  virtual double IBLStaveOmegaGlueThickness() override;
+  virtual double IBLSupportRingWidth() override;
+  virtual double IBLSupportRingInnerRadius() override;
+  virtual double IBLSupportRingOuterRadius() override;
+  virtual double IBLSupportMechanicalStaveRingFixPoint() override;
+  virtual double IBLSupportMidRingWidth() override;
+  virtual double IBLSupportMidRingInnerRadius() override;
+  virtual double IBLSupportMidRingOuterRadius() override;
+  virtual double IBLFlexMiddleGap() override;
+  virtual bool IBLFlexAndWingDefined() override;
+  virtual double IBLFlexDoglegLength() override;
+  virtual double IBLStaveFlexWingWidth() override;
+  virtual double IBLStaveFlexWingThick() override;
+  virtual double IBLFlexDoglegRatio() override;
+  virtual double IBLFlexDoglegHeight(int iHeight) override;
+  virtual double IBLFlexDoglegDY() override;
+  virtual double IBLFlexPP0Z(int iPos) override;
+  virtual double IBLFlexPP0Rmin(int iPos) override;
+  virtual double IBLFlexPP0Rmax(int iPos) override;
+  virtual std::string IBLFlexMaterial(int iPos, const std::string& flexType) override;
+  virtual double IBLServiceGetMinRadialPosition(const std::string& srvName, const std::string& srvType, 
+                                                double srvZmin, double srvZmax) override;
+  virtual double IBLServiceGetMaxRadialPosition(const std::string& srvName, const std::string& srvType, 
+                                                double srvZmin, double srvZmax) override;
 
   // Simple ladder services (SLHC)
-  double PixelLadderSupportThickness(); 
-  double PixelLadderSupportWidth(); 
-  double PixelLadderSupportLength(); 
+  virtual double PixelLadderSupportThickness() override; 
+  virtual double PixelLadderSupportWidth() override; 
+  virtual double PixelLadderSupportLength() override; 
 
   // Bent modules
-  double PixelLadderBentStaveAngle();
-  int PixelBentStaveNModule();
-  double PixelLadderModuleDeltaZ();
+  virtual double PixelLadderBentStaveAngle() override;
+  virtual int PixelBentStaveNModule() override;
+  virtual double PixelLadderModuleDeltaZ() override;
 
   // Layer support (SLHC)
   // if rmin is not found or <=0 the calculate as Rmin = layer radius + roffset 
-  bool PixelLayerSupportCylPresent(); 
-  double PixelLayerSupportRMin();
-  double PixelLayerSupportROffset();
-  double PixelLayerSupportThick();
+  virtual bool PixelLayerSupportCylPresent() override; 
+  virtual double PixelLayerSupportRMin() override;
+  virtual double PixelLayerSupportROffset() override;
+  virtual double PixelLayerSupportThick() override;
 
-  int PixelBiStaveType(int layer, int phi);
-  int NPixelSectors();
-  double PhiOfModuleZero();
+  virtual int PixelBiStaveType(int layer, int phi) override;
+  virtual int NPixelSectors() override;
+  virtual double PhiOfModuleZero() override;
   
-  int PixelNModule();
-  double PixelModuleDrDistance();
-  double PixelModuleAngle();
-  double PixelModuleZPosition(int);
-  double PixelModuleShiftFlag(int);
-  double PixelModuleAngleSign(int);
+  virtual int PixelNModule() override;
+  virtual double PixelModuleDrDistance() override;
+  virtual double PixelModuleAngle() override;
+  virtual double PixelModuleZPosition(int) override;
+  virtual double PixelModuleShiftFlag(int) override;
+  virtual double PixelModuleAngleSign(int) override;
 
-  double PixelModuleStaggerDistance();
-  int PixelModuleStaggerSign(int etaModule);
-  int PixelModuleEtaFromIndex(int index);
-  int PixelModuleIndexFromEta(int etaModule);
-  bool allowSkipEtaZero();
-  bool centerModule(int etaModule);
+  virtual double PixelModuleStaggerDistance() override;
+  virtual int PixelModuleStaggerSign(int etaModule) override;
+  virtual int PixelModuleEtaFromIndex(int index) override;
+  virtual int PixelModuleIndexFromEta(int etaModule) override;
+  virtual bool allowSkipEtaZero() override;
+  virtual bool centerModule(int etaModule) override;
 
   double PixelModuleZPositionTabulated(int etaModule, int type);
 
 
   // Barrel LAYER CABLES 
-  int PixelCableElements();
-  int PixelCableLayerNum(int index);
-  int PixelCableBiStaveNum(int index);
-  double PixelCableZStart(int index);
-  double PixelCableZEnd(int index);
-  double PixelCableWidth(int index);
-  double PixelCableThickness(int index);
-  double PixelCableStackOffset(int index);
-  double PixelCableWeight(int index);
-  std::string PixelCableLabel(int index);
+  virtual int PixelCableElements() override;
+  virtual int PixelCableLayerNum(int index) override;
+  virtual int PixelCableBiStaveNum(int index) override;
+  virtual double PixelCableZStart(int index) override;
+  virtual double PixelCableZEnd(int index) override;
+  virtual double PixelCableWidth(int index) override;
+  virtual double PixelCableThickness(int index) override;
+  virtual double PixelCableStackOffset(int index) override;
+  virtual double PixelCableWeight(int index) override;
+  virtual std::string PixelCableLabel(int index) override;
 
 
   // Pixel Endcap 
-  int PixelEndcapNDisk();
+  virtual int PixelEndcapNDisk() override;
 
   // Pixel Endcap Container 
-  double PixelEndcapRMin();
-  double PixelEndcapRMax();
-  double PixelEndcapZMin();
-  double PixelEndcapZMax();
-  int PixelEndcapNSupportFrames();
+  virtual double PixelEndcapRMin() override;
+  virtual double PixelEndcapRMax() override;
+  virtual double PixelEndcapZMin() override;
+  virtual double PixelEndcapZMax() override;
+  virtual int PixelEndcapNSupportFrames() override;
 
   // Pixel Disks 
-  double PixelDiskZPosition();
-  double PixelECSiDz1();
-  double PixelECSiDz2();
+  virtual double PixelDiskZPosition() override;
+  virtual double PixelECSiDz1() override;
+  virtual double PixelECSiDz2() override;
   //double PixelDiskRMin();
-  int PixelECNSectors1();
-  int PixelECNSectors2();
+  virtual int PixelECNSectors1() override;
+  virtual int PixelECNSectors2() override;
 
   // Endcap CABLES 
-  double PixelECCablesRMin();
-  double PixelECCablesRMax();
-  double PixelECCablesThickness();
-  double PixelECCablesDistance();
+  virtual double PixelECCablesRMin() override;
+  virtual double PixelECCablesRMax() override;
+  virtual double PixelECCablesThickness() override;
+  virtual double PixelECCablesDistance() override;
 
   
   // TMT
-  int PixelTMTNumParts();
-  double PixelTMTWidthX1(int iPart);
-  double PixelTMTWidthX2(int iPart);
-  double PixelTMTWidthY(int iPart);
-  double PixelTMTBaseX1(int iPart);
-  double PixelTMTBaseX2(int iPart);
-  double PixelTMTPosY(int iPart);
-  double PixelTMTPosZ1(int iPart);
-  double PixelTMTPosZ2(int iPart);
-  bool PixelTMTPerModule(int iPart);
+  virtual int PixelTMTNumParts() override;
+  virtual double PixelTMTWidthX1(int iPart) override;
+  virtual double PixelTMTWidthX2(int iPart) override;
+  virtual double PixelTMTWidthY(int iPart) override;
+  virtual double PixelTMTBaseX1(int iPart) override;
+  virtual double PixelTMTBaseX2(int iPart) override;
+  virtual double PixelTMTPosY(int iPart) override;
+  virtual double PixelTMTPosZ1(int iPart) override;
+  virtual double PixelTMTPosZ2(int iPart) override;
+  virtual bool PixelTMTPerModule(int iPart) override;
 
   // Omega parameters
-  double PixelOmegaUpperBendX();
-  double PixelOmegaUpperBendY();
-  double PixelOmegaUpperBendRadius();
-  double PixelOmegaLowerBendX();
-  double PixelOmegaLowerBendY();
-  double PixelOmegaLowerBendRadius();
-  double PixelOmegaWallThickness();
-  double PixelOmegaLength();
-  double PixelOmegaStartY();
-  double PixelOmegaEndY();
+  virtual double PixelOmegaUpperBendX() override;
+  virtual double PixelOmegaUpperBendY() override;
+  virtual double PixelOmegaUpperBendRadius() override;
+  virtual double PixelOmegaLowerBendX() override;
+  virtual double PixelOmegaLowerBendY() override;
+  virtual double PixelOmegaLowerBendRadius() override;
+  virtual double PixelOmegaWallThickness() override;
+  virtual double PixelOmegaLength() override;
+  virtual double PixelOmegaStartY() override;
+  virtual double PixelOmegaEndY() override;
   
   // Al Tube
-  double PixelAlTubeUpperBendX();
-  double PixelAlTubeUpperBendY();
-  double PixelAlTubeUpperBendRadius();
-  double PixelAlTubeLowerBendX();
-  double PixelAlTubeLowerBendY();
-  double PixelAlTubeLowerBendRadius();
-  double PixelAlTubeWallThickness();
-  double PixelAlTubeLength();
+  virtual double PixelAlTubeUpperBendX() override;
+  virtual double PixelAlTubeUpperBendY() override;
+  virtual double PixelAlTubeUpperBendRadius() override;
+  virtual double PixelAlTubeLowerBendX() override;
+  virtual double PixelAlTubeLowerBendY() override;
+  virtual double PixelAlTubeLowerBendRadius() override;
+  virtual double PixelAlTubeWallThickness() override;
+  virtual double PixelAlTubeLength() override;
   
   // Glue
-  int PixelNumOmegaGlueElements();
-  double PixelOmegaGlueStartX(int index);
-  double PixelOmegaGlueThickness(int index);
-  double PixelOmegaGlueStartY(int index);
-  double PixelOmegaGlueEndY(int index);
-  double PixelOmegaGlueLength(int index);
-  double PixelOmegaGluePosZ(int index);
-  int PixelOmegaGlueTypeNum(int index);
+  virtual int PixelNumOmegaGlueElements() override;
+  virtual double PixelOmegaGlueStartX(int index) override;
+  virtual double PixelOmegaGlueThickness(int index) override;
+  virtual double PixelOmegaGlueStartY(int index) override;
+  virtual double PixelOmegaGlueEndY(int index) override;
+  virtual double PixelOmegaGlueLength(int index) override;
+  virtual double PixelOmegaGluePosZ(int index) override;
+  virtual int PixelOmegaGlueTypeNum(int index) override;
   
   // Fluid
-  double PixelFluidZ1(int index);
-  double PixelFluidZ2(int index);
-  double PixelFluidThick1(int index);
-  double PixelFluidThick2(int index);
-  double PixelFluidWidth(int index);
-  double PixelFluidX(int index);
-  double PixelFluidY(int index);
-  int PixelFluidType(int index);
-  int PixelFluidNumTypes();
-  int PixelFluidIndex(int type);
-  std::string PixelFluidMat(int index); 
-  int PixelFluidOrient(int layer, int phi); 
+  virtual double PixelFluidZ1(int index) override;
+  virtual double PixelFluidZ2(int index) override;
+  virtual double PixelFluidThick1(int index) override;
+  virtual double PixelFluidThick2(int index) override;
+  virtual double PixelFluidWidth(int index) override;
+  virtual double PixelFluidX(int index) override;
+  virtual double PixelFluidY(int index) override;
+  virtual int PixelFluidType(int index) override;
+  virtual int PixelFluidNumTypes() override;
+  virtual int PixelFluidIndex(int type) override;
+  virtual std::string PixelFluidMat(int index) override;
+  virtual int PixelFluidOrient(int layer, int phi) override;
   
   // Pigtail
-  double PixelPigtailThickness();
-  double PixelPigtailStartY();
-  double PixelPigtailEndY();
-  double PixelPigtailWidthZ();
-  double PixelPigtailFlatWidthZ();
-  double PixelPigtailPosX();
-  double PixelPigtailPosZ();
-  double PixelPigtailBendX();
-  double PixelPigtailBendY();
-  double PixelPigtailBendRMin();
-  double PixelPigtailBendRMax();
-  double PixelPigtailBendPhiMin();
-  double PixelPigtailBendPhiMax();
-  double PixelPigtailEnvelopeLength();
+  virtual double PixelPigtailThickness() override;
+  virtual double PixelPigtailStartY() override;
+  virtual double PixelPigtailEndY() override;
+  virtual double PixelPigtailWidthZ() override;
+  virtual double PixelPigtailFlatWidthZ() override;
+  virtual double PixelPigtailPosX() override;
+  virtual double PixelPigtailPosZ() override;
+  virtual double PixelPigtailBendX() override;
+  virtual double PixelPigtailBendY() override;
+  virtual double PixelPigtailBendRMin() override;
+  virtual double PixelPigtailBendRMax() override;
+  virtual double PixelPigtailBendPhiMin() override;
+  virtual double PixelPigtailBendPhiMax() override;
+  virtual double PixelPigtailEnvelopeLength() override;
 
   // Connector
-  int PixelNumConnectorElements();
-  double PixelConnectorWidthX(int index);
-  double PixelConnectorWidthY(int index);
-  double PixelConnectorWidthZ(int index);
-  double PixelConnectorPosX(int index);
-  double PixelConnectorPosY(int index);
-  double PixelConnectorPosZ(int index);
+  virtual int PixelNumConnectorElements() override;
+  virtual double PixelConnectorWidthX(int index) override;
+  virtual double PixelConnectorWidthY(int index) override;
+  virtual double PixelConnectorWidthZ(int index) override;
+  virtual double PixelConnectorPosX(int index) override;
+  virtual double PixelConnectorPosY(int index) override;
+  virtual double PixelConnectorPosZ(int index) override;
 
   //
   //DBM
   //
 
 
-  // titlting angle of the telscope
-  double DBMAngle();
+  // tilting angle of the telescope
+  double DBMAngle() override;
 
   // Telescope dimension
-  double DBMTelescopeX();
-  double DBMTelescopeY();
-  double DBMTelescopeZ();
+  virtual double DBMTelescopeX() override;
+  virtual double DBMTelescopeY() override;
+  virtual double DBMTelescopeZ() override;
 
   // 3-layers unit
-  double DBMModuleCageY();
-  double DBMModuleCageZ();
+  virtual double DBMModuleCageY() override;
+  virtual double DBMModuleCageZ() override;
 
   // layer spacing
-  double DBMSpacingZ();
-  double DBMSpacingRadial();
+  virtual double DBMSpacingZ() override;
+  virtual double DBMSpacingRadial() override;
 
   // bracket unit
-  double DBMBracketX(); // width of the bracket unit
-  double DBMBracketY(); // total height of the bracket unit
-  double DBMBracketZ(); // total thickness of the bracket unit,
+  virtual double DBMBracketX() override; // width of the bracket unit
+  virtual double DBMBracketY() override; // total height of the bracket unit
+  virtual double DBMBracketZ() override; // total thickness of the bracket unit,
   // back trapezoid block with window
-  double DBMTrapezBackTheta();
-  double DBMTrapezBackX();
-  double DBMTrapezBackY();
-  double DBMTrapezBackShortZ();
+  virtual double DBMTrapezBackTheta() override;
+  virtual double DBMTrapezBackX() override;
+  virtual double DBMTrapezBackY() override;
+  virtual double DBMTrapezBackShortZ() override;
   // bracket window
-  double DBMBrcktWindowX(); 
-  double DBMBrcktWindowY();
+  virtual double DBMBrcktWindowX() override; 
+  virtual double DBMBrcktWindowY() override;
   // bracket front volume
-  double DBMBrcktTopBlockZ();
-  double DBMBrcktSideBlockX();
-  double DBMBrcktSideBlockY();
+  virtual double DBMBrcktTopBlockZ() override;
+  virtual double DBMBrcktSideBlockX() override;
+  virtual double DBMBrcktSideBlockY() override;
   // back locking box
-  double DBMBrcktLockZ();
-  double DBMBrcktLockY();
+  virtual double DBMBrcktLockZ() override;
+  virtual double DBMBrcktLockY() override;
   // window offset, from bottom of back trapezoid to bottom of window; in the front side
-  double DBMBrcktWindowOffset();
+  virtual double DBMBrcktWindowOffset() override;
   //center of trapezoid block in z-direction
-  double DBMBrcktWindowCenterZ();
+  virtual double DBMBrcktWindowCenterZ() override;
   // cooling fin beside the bracket unit
-  double DBMBrcktFinLongZ();
-  double DBMBrcktFinHeight();
-  double DBMBrcktFinThick();
-  double DBMBrcktFinPos();
+  virtual double DBMBrcktFinLongZ() override;
+  virtual double DBMBrcktFinHeight() override;
+  virtual double DBMBrcktFinThick() override;
+  virtual double DBMBrcktFinPos() override;
 
   // gap between V-slide and first main plate
-  double DBMSpace();
+  virtual double DBMSpace() override;
 
   // DBM module
-  double DBMDiamondX(); // only diamond dimension
-  double DBMDiamondY(); 
-  double DBMDiamondZ(); 
-  double DBMFEI4X();    // FE-I4 dimension
-  double DBMFEI4Y();
-  double DBMFEI4Z();
-  double DBMCeramicX(); // ceramic 
-  double DBMCeramicY();
-  double DBMCeramicZ();
-  double DBMAirGap();   // air gap between diamond and FE-I4 chip
-  double DBMKaptonZ();  //Kapton
+  virtual double DBMDiamondX() override; // only diamond dimension
+  virtual double DBMDiamondY() override; 
+  virtual double DBMDiamondZ() override; 
+  virtual double DBMFEI4X() override;    // FE-I4 dimension
+  virtual double DBMFEI4Y() override;
+  virtual double DBMFEI4Z() override;
+  virtual double DBMCeramicX() override; // ceramic 
+  virtual double DBMCeramicY() override;
+  virtual double DBMCeramicZ() override;
+  virtual double DBMAirGap() override;   // air gap between diamond and FE-I4 chip
+  virtual double DBMKaptonZ() override;  //Kapton
 
   // main plate, on which is mounted the sensor module
-  double DBMMainPlateX(); //dimension in x-direction or width
-  double DBMMainPlateY(); //y-direction or height
-  double DBMMainPlateZ(); //z-direction or thickness
-  double DBMMPlateWindowWidth(); // window width in the main plate
-  double DBMMPlateWindowHeight(); // window height
-  double DBMMPlateWindowPos(); // window position from bottom of the main plate
+  virtual double DBMMainPlateX() override; //dimension in x-direction or width
+  virtual double DBMMainPlateY() override; //y-direction or height
+  virtual double DBMMainPlateZ() override; //z-direction or thickness
+  virtual double DBMMPlateWindowWidth() override; // window width in the main plate
+  virtual double DBMMPlateWindowHeight() override; // window height
+  virtual double DBMMPlateWindowPos() override; // window position from bottom of the main plate
   // cooling side Plate
-  double DBMCoolingSidePlateX();  
-  double DBMCoolingSidePlateY();  
-  double DBMCoolingSidePlateZ();  
+  virtual double DBMCoolingSidePlateX() override;
+  virtual double DBMCoolingSidePlateY() override;
+  virtual double DBMCoolingSidePlateZ() override;
   // position of side plate, parallel to side plate axis,
   // measured from the back of the V-slide to the front of the side plate
-  double DBMCoolingSidePlatePos();
+  virtual double DBMCoolingSidePlatePos() override;
 
   // flex support
-  double DBMFlexSupportX();
-  double DBMFlexSupportY();
-  double DBMFlexSupportZ();
-  double DBMFlexSupportOffset();
+  virtual double DBMFlexSupportX() override;
+  virtual double DBMFlexSupportY() override;
+  virtual double DBMFlexSupportZ() override;
+  virtual double DBMFlexSupportOffset() override;
 
   // rods
-  double DBMRodRadius();
-  double DBMMPlateRod2RodY(); // vertical distance bewteen center of rods
-  double DBMMPlateRod2RodX(); // horizontal distance bewteen center of rods
+  virtual double DBMRodRadius() override;
+  virtual double DBMMPlateRod2RodY() override; // vertical distance bewteen center of rods
+  virtual double DBMMPlateRod2RodX() override; // horizontal distance bewteen center of rods
 
   
   // radius and thickness of PP0 board
-  double DBMPP0RIn();
-  double DBMPP0ROut();
-  double DBMPP0Thick();
+  virtual double DBMPP0RIn() override;
+  virtual double DBMPP0ROut() override;
+  virtual double DBMPP0Thick() override;
 
 
   //
@@ -747,85 +748,86 @@ class OraclePixGeoManager : public PixelGeometryManager {
   int designType(bool isModule3D=false);
   int designType3D();
 
-  int DesignReadoutSide(bool isModule3D=false);
+  virtual int DesignReadoutSide(bool isModule3D=false) override;
 
-  double DesignRPActiveArea(bool isModule3D=false);
-  double DesignZActiveArea(bool isModule3D=false);
+  virtual double DesignRPActiveArea(bool isModule3D=false) override;
+  virtual double DesignZActiveArea(bool isModule3D=false) override;
 
-  int DesignCircuitsPhi(bool isModule3D=false);
-  int DesignCircuitsEta(bool isModule3D=false);
+  virtual int DesignCircuitsPhi(bool isModule3D=false) override;
+  virtual int DesignCircuitsEta(bool isModule3D=false) override;
 
-  int DesignNumChipsPhi(bool isModule3D=false);
-  int DesignNumChipsEta(bool isModule3D=false);
+  virtual int DesignNumChipsPhi(bool isModule3D=false) override;
+  virtual int DesignNumChipsEta(bool isModule3D=false) override;
 
-  int DesignDiodesPhiTotal(bool isModule3D=false);
-  int DesignDiodesEtaTotal(bool isModule3D=false);
+  virtual int DesignDiodesPhiTotal(bool isModule3D=false) override;
+  virtual int DesignDiodesEtaTotal(bool isModule3D=false) override;
 
-  int DesignCellColumnsPerCircuit(bool isModule3D=false);
-  int DesignCellRowsPerCircuit(bool isModule3D=false);
-  int DesignDiodeColumnsPerCircuit(bool isModule3D=false);
-  int DesignDiodeRowsPerCircuit(bool isModule3D=false);
+  virtual int DesignCellColumnsPerCircuit(bool isModule3D=false) override;
+  virtual int DesignCellRowsPerCircuit(bool isModule3D=false) override;
+  virtual int DesignDiodeColumnsPerCircuit(bool isModule3D=false) override;
+  virtual int DesignDiodeRowsPerCircuit(bool isModule3D=false) override;
 
-  int DesignNumRowsPerChip(bool isModule3D=false);
-  int DesignNumColsPerChip(bool isModule3D=false);
+  virtual int DesignNumRowsPerChip(bool isModule3D=false) override;
+  virtual int DesignNumColsPerChip(bool isModule3D=false) override;
 
-  double DesignPitchRP(bool isModule3D=false);
-  double DesignGapRP(bool isModule3D=false);
-  double DesignPitchZ(bool isModule3D=false);
-  double DesignPitchZLong(bool isModule3D=false);
-  double DesignPitchZLongEnd(bool isModule3D=false);
-  double DesignGapZ(bool isModule3D=false);
+  virtual double DesignPitchRP(bool isModule3D=false) override;
+  virtual double DesignGapRP(bool isModule3D=false) override;
+  virtual double DesignPitchZ(bool isModule3D=false) override;
+  virtual double DesignPitchZLong(bool isModule3D=false) override;
+  virtual double DesignPitchZLongEnd(bool isModule3D=false) override;
+  virtual double DesignGapZ(bool isModule3D=false) override;
 
-  int DesignNumEmptyRowsInGap(bool isModule3D=false);
+  virtual int DesignNumEmptyRowsInGap(bool isModule3D=false) override;
 
   // Ganged Pixels
-  int NumberOfEmptyRows(bool isModule3D=false);
-  int EmptyRows(int index);
-  int EmptyRowConnections(int index);
+  virtual int NumberOfEmptyRows(bool isModule3D=false) override;
+  virtual int EmptyRows(int index) override;
+  virtual int EmptyRowConnections(int index) override;
   int GangedType();
   int GangedTableIndex(int index, int type);
 
   // CommonItems for Det Elements
-  InDetDD::SiCommonItems * commonItems() const;
-  void setCommonItems(InDetDD::SiCommonItems * commonItems); 
+  virtual InDetDD::SiCommonItems * commonItems() override;
+  virtual const InDetDD::SiCommonItems * commonItems() const override;
+  virtual void setCommonItems(InDetDD::SiCommonItems * commonItems) override; 
 
   // ID helper
-  const PixelID * getIdHelper();
+  virtual const PixelID * getIdHelper() override;
 
   // Top Level placements
-  const GeoTrf::Transform3D & partTransform(const std::string & partName) const; 
-  bool partPresent(const std::string & partName) const;
+  virtual const GeoTrf::Transform3D & partTransform(const std::string & partName) const override;
+  virtual bool partPresent(const std::string & partName) const override;
   
-  std::string getMaterialName(const std::string & volumeName, int layerdisk = 0, int typenum = 0);
+  virtual std::string getMaterialName(const std::string & volumeName, int layerdisk = 0, int typenum = 0) override;
   
   // Geometry DB Interface
   const IGeometryDBSvc * db() const {return athenaComps()->geomDB();}
 
-  int    PixelDiskNRings();
-  int    PixelDiskRingNModules();
-  double PixelDiskRMin(bool includeSupports=false);
-  double PixelDiskRMax(bool includeSupports=false);
-  double PixelDiskThickness(double safety=0.01);
-  double PixelRingRcenter();
-  double PixelRingRMin(double safety=0.01);
-  double PixelRingRMax(double safety=0.01);
-  double PixelRingThickness(double safety=0.01);
-  double PixelRingZpos();
-  double PixelRingZoffset();
-  double PixelRingStagger();
-  int    PixelRingSide();
-  int    PixelDiskNumSupports();
-  double PixelDiskSupportRMin(int isup);
-  double PixelDiskSupportRMax(int isup);
-  double PixelDiskSupportThickness(int isup);
-  int    PixelDiskSupportMaterialTypeNum(int isup);
-  double PixelModuleThicknessN();
-  double PixelModuleThicknessP();
-  double PixelModuleThickness();
-  double PixelModuleWidth();
-  double PixelModuleLength();
-  int moduleType();
-  int moduleType3D();
+  virtual int    PixelDiskNRings() override;
+  virtual int    PixelDiskRingNModules() override;
+  virtual double PixelDiskRMin(bool includeSupports=false) override;
+  virtual double PixelDiskRMax(bool includeSupports=false) override;
+  virtual double PixelDiskThickness(double safety=0.01) override;
+  virtual double PixelRingRcenter() override;
+  virtual double PixelRingRMin(double safety=0.01) override;
+  virtual double PixelRingRMax(double safety=0.01) override;
+  virtual double PixelRingThickness(double safety=0.01) override;
+  virtual double PixelRingZpos() override;
+  virtual double PixelRingZoffset() override;
+  virtual double PixelRingStagger() override;
+  virtual int    PixelRingSide() override;
+  virtual int    PixelDiskNumSupports() override;
+  virtual double PixelDiskSupportRMin(int isup) override;
+  virtual double PixelDiskSupportRMax(int isup) override;
+  virtual double PixelDiskSupportThickness(int isup) override;
+  virtual int    PixelDiskSupportMaterialTypeNum(int isup) override;
+  virtual double PixelModuleThicknessN() override;
+  virtual double PixelModuleThicknessP() override;
+  virtual double PixelModuleThickness() override;
+  virtual double PixelModuleWidth() override;
+  virtual double PixelModuleLength() override;
+  virtual int moduleType() override;
+  virtual int moduleType3D() override;
   int getDiskRingIndex(int disk, int eta);
   int getDiskRingType(int disk, int eta);
 

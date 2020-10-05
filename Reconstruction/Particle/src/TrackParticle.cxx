@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -21,98 +21,87 @@ TrackParticle.cxx  -  Description
 
 namespace Rec
 {
+
   // Constructor 0
-    TrackParticle::TrackParticle() 
-        :
-        Trk::TrackParticleBase(),
-        P4PxPyPzE(),
-        NavigableTerminalNode(),
-        m_cachedPerigee(0)
+    TrackParticle::TrackParticle()
+      : Trk::TrackParticleBase()
+      , P4PxPyPzE()
+      , NavigableTerminalNode()
+  {}
+
+    TrackParticle::TrackParticle(
+      const Trk::Track* trk,
+      const Trk::TrackParticleOrigin trkPrtOrigin,
+      const Trk::VxCandidate* vxCandidate,
+      const Trk::TrackSummary* trkSummary,
+      std::vector<const Trk::TrackParameters*>& parameters,
+      const Trk::TrackParameters* definingParameter,
+      const Trk::FitQuality* fitQuality)
+      : Trk::TrackParticleBase(trk,
+                               trkPrtOrigin,
+                               vxCandidate,
+                               trkSummary,
+                               parameters,
+                               definingParameter,
+                               fitQuality)
+      , P4PxPyPzE(definingParameter->momentum()[Trk::px],
+                  definingParameter->momentum()[Trk::py],
+                  definingParameter->momentum()[Trk::pz],
+                  sqrt(pow(Trk::ParticleMasses().mass[Trk::pion], 2) +
+                       pow(definingParameter->momentum()[Trk::px], 2) +
+                       pow(definingParameter->momentum()[Trk::py], 2) +
+                       pow(definingParameter->momentum()[Trk::pz], 2)))
+      , NavigableTerminalNode()
     {}
 
-    TrackParticle::TrackParticle(   const Trk::Track*                                       trk, 
-                                    const Trk::TrackParticleOrigin                          trkPrtOrigin, 
-                                    const Trk::VxCandidate*                                 vxCandidate, 
-                                    const Trk::TrackSummary*                                trkSummary, 
-                                    std::vector<const Trk::TrackParameters*>&                parameters,
-                                    const Trk::TrackParameters*                              definingParameter,
-                                    const Trk::FitQuality*                                  fitQuality)
-        :  
-        Trk::TrackParticleBase( trk, 
-                                trkPrtOrigin, 
-                                vxCandidate, 
-                                trkSummary, 
-                                parameters, 
-                                definingParameter, 
-                                fitQuality
-                                ),
-        P4PxPyPzE(  definingParameter->momentum()[Trk::px], 
-                    definingParameter->momentum()[Trk::py],
-                    definingParameter->momentum()[Trk::pz],
-                    sqrt(   pow (Trk::ParticleMasses().mass[Trk::pion],2) +
-                            pow( definingParameter->momentum()[Trk::px],2) + 
-                            pow( definingParameter->momentum()[Trk::py],2) + 
-                            pow( definingParameter->momentum()[Trk::pz],2) ) 
-                ),
-        NavigableTerminalNode(),
-        m_cachedPerigee(0)
-    {
-    }
+    TrackParticle::TrackParticle(
+      const ElementLink<TrackCollection>& trackLink,
+      const Trk::TrackParticleOrigin trkPrtOrigin,
+      const ElementLink<VxContainer>& vxCandidate,
+      std::unique_ptr<Trk::TrackSummary> trkSummary,
+      // passes ownership of elements.
+      std::vector<const Trk::TrackParameters*>&& parameters,
+      std::unique_ptr<Trk::FitQuality> fitQuality,
+      const Trk::TrackInfo& info,
+      const P4PxPyPzE& mom)
+      : Trk::TrackParticleBase(trackLink,
+                               trkPrtOrigin,
+                               vxCandidate,
+                               std::move(trkSummary),
+                               std::move(parameters),
+                               std::move(fitQuality),
+                               std::move(info))
+      , P4PxPyPzE(mom)
+      , NavigableTerminalNode()
+    {}
 
-    TrackParticle::TrackParticle (const ElementLink<TrackCollection>& trackLink,
-                                  const Trk::TrackParticleOrigin trkPrtOrigin, 
-                                  const ElementLink<VxContainer>& vxCandidate,
-                                  std::unique_ptr<Trk::TrackSummary> trkSummary,
-                                  // passes ownership of elements.
-                                  std::vector<const Trk::TrackParameters*>&&  parameters,
-                                  std::unique_ptr<Trk::FitQuality> fitQuality,
-                                  const Trk::TrackInfo& info,
-                                  const P4PxPyPzE& mom)
-         :  
-        Trk::TrackParticleBase( trackLink, 
-                                trkPrtOrigin, 
-                                vxCandidate, 
-                                std::move(trkSummary), 
-                                std::move(parameters), 
-                                std::move(fitQuality),
-                                std::move(info) ),
-        P4PxPyPzE(  mom ),
-        NavigableTerminalNode(),
-        m_cachedPerigee(0)
-    {
-    }
+    /**
+      Copy Constructor
+    */
+    TrackParticle::TrackParticle(const TrackParticle& rhs)
+      : IAthenaBarCode(rhs)
+      , INavigable(rhs)
+      , I4Momentum(rhs)
+      , INavigable4Momentum(rhs)
+      , P4PxPyPzEBase(rhs)
+      , Trk::TrackParticleBase(rhs)
+      , P4PxPyPzE(rhs)
+      , NavigableTerminalNode(rhs)
+      , m_abc(rhs.m_abc)
+    {}
 
-  /**
-    Copy Constructor
-  */
-    TrackParticle::TrackParticle(const TrackParticle& rhs) \
-        :
-	IAthenaBarCode(rhs),
-        INavigable(rhs),
-        I4Momentum(rhs),
-        INavigable4Momentum(rhs),
-        P4PxPyPzEBase(rhs), 
-        Trk::TrackParticleBase(rhs),
-        P4PxPyPzE(rhs), 
-        NavigableTerminalNode(rhs), 
-        m_cachedPerigee(0),
-	m_abc(rhs.m_abc)
+    /**
+      Assignment operator
+    */
+    TrackParticle&
+    TrackParticle::operator=(const TrackParticle& rhs)
     {
-    }
-
-  /**
-    Assignment operator
-  */
-    TrackParticle& TrackParticle::operator= (const TrackParticle& rhs)
-    {
-        if (this!=&rhs)
-        {
-            P4PxPyPzE::operator= (rhs);
-            Trk::TrackParticleBase::operator=(rhs);
-            m_cachedPerigee=0;
-	    m_abc = rhs.m_abc;
-        }
-        return *this;
+      if (this != &rhs) {
+        P4PxPyPzE::operator=(rhs);
+        Trk::TrackParticleBase::operator=(rhs);
+        m_abc = rhs.m_abc;
+      }
+      return *this;
     }
 
     TrackParticle& TrackParticle::operator= (TrackParticle&& rhs)
@@ -122,7 +111,6 @@ namespace Rec
           P4PxPyPzE::operator= (rhs);
           m_abc = rhs.m_abc;
           Trk::TrackParticleBase::operator=(std::move(rhs));
-          m_cachedPerigee=0;
         }
         return *this;
     }
@@ -151,7 +139,10 @@ namespace Rec
 
   void TrackParticle::removeErrorMatrix()
   {
-    for (std::vector<const Trk::TrackParameters*>::iterator iter=this->m_trackParameters.begin(); iter != this->m_trackParameters.end(); ++iter) {
+    for (std::vector<const Trk::TrackParameters*>::iterator iter =
+           this->m_trackParameters.begin();
+         iter != this->m_trackParameters.end();
+         ++iter) {
       /* If this is a measured perigee, then we clone it without error matrix
         and replace the Perigee with its clone */
       const Trk::Perigee* measPg=dynamic_cast<const Trk::Perigee*>(*iter);
@@ -159,7 +150,6 @@ namespace Rec
        *iter=measPg->clone();
        delete measPg;
       }
-
     }
   }
 
@@ -183,7 +173,9 @@ namespace Rec
   /** set 4Momentum (will throw exception if cannot be implemented) */
   void TrackParticle::set4Mom (const I4Momentum * const )
   {
-    std::cout << " FATAL ERROR : TrackParticle::set4Mom called. Changing the 4 momentum of the TrackParticle is not allowed! Aborting!" << std::endl ;
+    std::cout << " FATAL ERROR : TrackParticle::set4Mom called. Changing the 4 "
+                 "momentum of the TrackParticle is not allowed! Aborting!"
+              << std::endl;
     std::abort();
     return;
   }
@@ -191,7 +183,9 @@ namespace Rec
   /** set 4Momentum (will throw exception if cannot be implemented) */
   void TrackParticle::set4Mom (const I4Momentum & )
   {
-    std::cout << " FATAL ERROR : TrackParticle::set4Mom called. Changing the 4 momentum of the TrackParticle is not allowed! Aborting!" << std::endl ;
+    std::cout << " FATAL ERROR : TrackParticle::set4Mom called. Changing the 4 "
+                 "momentum of the TrackParticle is not allowed! Aborting!"
+              << std::endl;
     std::abort();
     return;
   }
@@ -199,7 +193,9 @@ namespace Rec
   /** set 4Momentum (will throw exception if cannot be implemented) */
   void TrackParticle::set4Mom (const CLHEP::HepLorentzVector & )
   {
-    std::cout << " FATAL ERROR : TrackParticle::set4Mom called. Changing the 4 momentum of the TrackParticle is not allowed! Aborting!" << std::endl ;
+    std::cout << " FATAL ERROR : TrackParticle::set4Mom called. Changing the 4 "
+                 "momentum of the TrackParticle is not allowed! Aborting!"
+              << std::endl;
     std::abort();
     return;
   }

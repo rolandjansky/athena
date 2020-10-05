@@ -1,3 +1,9 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
+from __future__ import print_function
+
 if not 'InputDirectory' in dir():
     InputDirectory = "."    
      
@@ -31,8 +37,8 @@ if not 'FileNameVec' in dir():
         FileNameVec = [ FileName ]
 
 
-print "Input files:"
-print FileNameVec
+print("Input files:")
+print(FileNameVec)
 
 if not 'doOnline' in dir():
     doOnline = False 
@@ -106,10 +112,10 @@ if not 'TileUseCOOL' in dir():
    
 if TileUseCOOL and not 'tileCOOLtag' in dir():
     if doOnline:
-        tileCOOLtag = "CONDBR2-HLTP-2017-03"
+        tileCOOLtag = "CONDBR2-HLTP-2018-01"
     else:
         if RunNumber > 232498:
-            tileCOOLtag = "CONDBR2-BLKPA-2017-10"
+            tileCOOLtag = "CONDBR2-BLKPA-2018-14"
         else:
             tileCOOLtag = "COMCOND-BLKPA-RUN1-06"
 
@@ -140,7 +146,6 @@ if not 'doTileMuonFit' in dir():
 if not 'doMBTS' in dir():
     # MBTS monitoring
     doMBTS = True
-
 
 if not 'doTileTMDBRawChannel' in dir():
     doTileTMDBRawChannel = True
@@ -203,7 +208,7 @@ if not 'doTileNoiseMon' in dir():
 
 if not 'doTileTMDBDigitsMon' in dir():
     doTileTMDBDigitsMon = True
-    
+
 if not 'doTileTMDBRawChannelMon' in dir():
     doTileTMDBRawChannelMon = True
 
@@ -218,7 +223,7 @@ if doAtlantis:
     doTileMuonFit = False
 
 if doOnline and not 'TileCablingType' in dir():
-    TileCablingType = 4
+    TileCablingType = 5
 
 if not 'TileNoiseFilter' in dir():
     TileNoiseFilter = 1

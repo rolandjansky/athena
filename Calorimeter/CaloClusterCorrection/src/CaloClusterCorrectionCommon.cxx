@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloClusterCorrectionCommon.cxx,v 1.12 2008-08-30 05:43:22 ssnyder Exp $
 /**
  * @file  CaloClusterCorrectionCommon.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -167,7 +165,7 @@ DDHelper::find_dd_elt (int region,
                        float eta,
                        float phi) const
 {
-  const CaloDetDescrElement* elt = 0;
+  const CaloDetDescrElement* elt = nullptr;
   float eta_offs = 0;
   float phi_offs = 0;
   int n = 0;
@@ -240,7 +238,7 @@ DDHelper::find_dd_elt1 (int region,
                         float eta,
                         float phi) const
 {
-  const CaloDetDescrElement* elt = 0;
+  const CaloDetDescrElement* elt = nullptr;
 
   // Decode the region.
   switch (region) {
@@ -265,9 +263,9 @@ DDHelper::find_dd_elt1 (int region,
       const CaloDetDescrElement* elt_e = m_dd_man->get_element
         (CaloCell_ID::LAREM, 2, false, eta, phi);
 
-      if (elt_b == 0)
+      if (elt_b == nullptr)
         elt = elt_e;
-      else if (elt_e == 0)
+      else if (elt_e == nullptr)
         elt = elt_b;
       else if (cluster->eSample (CaloSampling::EMB2) >
                cluster->eSample (CaloSampling::EME2))
@@ -310,22 +308,22 @@ DDHelper::dd_inner_strip_fixup (int region,
     const CaloDetDescriptor* descr =
       m_dd_man->get_descriptor (CaloCell_ID::LAREM,
                                 1, true, eta, phi);
-    if (!descr) return 0;
+    if (!descr) return nullptr;
     int ieta = descr->eta_channel (eta);
     if (ieta == 0) {
       // If we get here, then we're looking at one of the problematic cells.
       int iphi = descr->phi_channel (phi);
-      if (iphi < 0) return 0;
+      if (iphi < 0) return nullptr;
       unsigned int index = iphi;
       if (eta < 0)
         index += descr->n_phi();
       if (m_dummy_elts.size() <= index)
-        return 0;
+        return nullptr;
       return m_dummy_elts[index].get();
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -337,10 +335,10 @@ DDHelper::dd_try_gap (int region,
 {
   const CaloDetDescrElement* elt1 = find_dd_elt1 (region, cluster,
                                                   eta + 1e-4, phi);
-  if (!elt1) return 0;
+  if (!elt1) return nullptr;
   const CaloDetDescrElement* elt2 = find_dd_elt1 (region, cluster,
                                                   eta - 1e-4, phi);
-  if (!elt2) return 0;
+  if (!elt2) return nullptr;
   if (eta > 0)
     return elt2;
   return elt1;
@@ -401,44 +399,27 @@ void DDHelper::make_dummy_elts()
 } // namespace CaloClusterCorr
 
 
-/**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloClusterCorrectionCommon::CaloClusterCorrectionCommon
-   (const std::string& type,
-    const std::string& name,
-    const IInterface* parent)
-     : CaloClusterCorrection (type, name, parent)
+CaloClusterCorrectionCommon::CaloClusterCorrectionCommon (const std::string& type,
+                                                          const std::string& name,
+                                                          const IInterface* parent)
+  : CaloClusterCorrection (type, name, parent)
 {
-  // Fetch our calibration constants.
-  declareConstant ("region",         m_region);
 }
 
 
 /**
  * @brief Destructor.
+ *
+ * Needs to be out-of-line due to m_ddhelper.
  */
-CaloClusterCorrectionCommon::~CaloClusterCorrectionCommon ()
+CaloClusterCorrectionCommon::~CaloClusterCorrectionCommon()
 {
-}
-
-
-/**
- * @brief Initialize.
- *        Fetch the DD manager.
- */
-StatusCode CaloClusterCorrectionCommon::initialize()
-{
-  return CaloClusterCorrection::initialize();
 }
 
 
 /**
  * @brief Perform the correction.  Called by the tool.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  *
@@ -448,9 +429,11 @@ StatusCode CaloClusterCorrectionCommon::initialize()
  *  - Computes quantities to pass to @c makeTheCorrection.
  *  - Calls @c makeTheCorrection.
  */
-void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
+void CaloClusterCorrectionCommon::makeCorrection (const Context& myctx,
                                                   CaloCluster* cluster) const
 {
+  int region = m_region (myctx);
+
   // This causes a lot of overhead (mostly from the MsgStream ctor).
   // Comment out when not needed.
   //MsgStream log( msgSvc(), name() );
@@ -458,7 +441,7 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
   //log << MSG::DEBUG << "e, eta, phi, etasize, phisize" << " " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() 
   //  << " " <<  cluster->etasize(CaloSampling::EMB2) << " " << cluster->phisize(CaloSampling::EMB2) << endmsg;
   //log << MSG::DEBUG << "B / E  " << cluster->inBarrel() << " " << cluster->inEndcap() << endmsg;
-  //log << MSG::DEBUG << "region " << m_region << endmsg;
+  //log << MSG::DEBUG << "region " << region << endmsg;
 
   float eta;
   float phi;
@@ -466,20 +449,20 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
 
   // Find the proper @f$\eta@f$ and @f$\phi@f$ measures of the cluster.
   // Also set up the sampling code @c samp.
-  switch (m_region) {
+  switch (region) {
   case EMB1:
   case EMB2:
   case EME1:
   case EME2:
     // Return immediately if we can tell we're in the wrong region.
-    if (barrel_p (m_region)) {
+    if (barrel_p (region)) {
       if (!cluster->inBarrel()) return;
     }
     else {
       if (!cluster->inEndcap()) return;
     }
 
-    switch (m_region) {
+    switch (region) {
     case EMB1:
       samp = CaloSampling::EMB1;
       break;
@@ -522,7 +505,7 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
 
   // Look up the DD element.
   // Give up if we can't find one.
-  const CaloDetDescrElement* elt = ddhelper().find_dd_elt (m_region,
+  const CaloDetDescrElement* elt = ddhelper().find_dd_elt (region,
                                                            cluster,
                                                            eta, phi);
   if (!elt)
@@ -534,7 +517,7 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
   float adj_phi = CaloPhiRange::fix (phi - elt->phi() + elt->phi_raw());
 
   // Call the actual correction.
-  makeTheCorrection (ctx, cluster, elt, eta, adj_eta, phi, adj_phi, samp);
+  makeTheCorrection (myctx, cluster, elt, eta, adj_eta, phi, adj_phi, samp);
 }
 
 

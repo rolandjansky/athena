@@ -5,7 +5,7 @@
 #
 
 # Set up the project.
-cmake_minimum_required( VERSION 3.6 )
+cmake_minimum_required( VERSION 3.10 )
 # Note that there is a second `project` call further below to set
 # the version and languages.
 project( WorkDir )
@@ -21,14 +21,9 @@ find_package( AtlasCMake QUIET )
 set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysis
    AthSimulation AthDerivation AthDataQuality AthGeneration )
 set( _defaultParentProject Athena )
-set( _defaultUseFortran TRUE )
 foreach( _pp ${_parentProjectNames} )
    if( NOT "$ENV{${_pp}_DIR}" STREQUAL "" )
       set( _defaultParentProject ${_pp} )
-      # Only turn off Fortran support for the AnalysisBase project for now:
-      if( "${_pp}" STREQUAL "AnalysisBase" )
-         set( _defaultUseFortran FALSE )
-      endif()
       break()
    endif()
 endforeach()
@@ -36,18 +31,35 @@ endforeach()
 # Set the parent project name based on the previous findings:
 set( ATLAS_PROJECT ${_defaultParentProject}
    CACHE STRING "The name of the parent project to build against" )
-# Set whether to use Fortran, based on the previous simple logic:
-option( ATLAS_USE_FORTRAN
-   "Whether the WorkDir project should provide support for Fortran"
-   ${_defaultUseFortran} )
 
 # Clean up:
 unset( _parentProjectNames )
 unset( _defaultParentProject )
-unset( _defaultUseFortran )
 
 # Find the project that we depend on:
 find_package( ${ATLAS_PROJECT} REQUIRED )
+
+# Set up the project with its version and baseline languages.
+project( WorkDir VERSION ${${ATLAS_PROJECT}_VERSION} LANGUAGES C CXX )
+
+# Set up any additional languages that may be available.
+include( CheckLanguage )
+check_language( Fortran )
+if( CMAKE_Fortran_COMPILER )
+   enable_language( Fortran )
+endif()
+check_language( CUDA )
+if( CMAKE_CUDA_COMPILER )
+   enable_language( CUDA )
+endif()
+find_package( AtlasHIP QUIET )
+if( AtlasHIP_FOUND )
+   include( AtlasCheckLanguage )
+   atlas_check_language( HIP )
+   if( CMAKE_HIP_COMPILER )
+      enable_language( HIP )
+   endif()
+endif()
 
 # Set up where to find the AthenaPoolUtilitiesTest CMake code.
 if( IS_DIRECTORY
@@ -55,6 +67,14 @@ if( IS_DIRECTORY
    set( AthenaPoolUtilitiesTest_DIR
       "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
       CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
+endif()
+
+# Set up where to find the xAODUtilities CMake code.
+if( IS_DIRECTORY
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake" )
+   set( xAODUtilities_DIR
+      "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+      CACHE PATH "Directory holding the xAODUtilities module" )
 endif()
 
 # Set up CTest:
@@ -66,14 +86,8 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL
    "Create compile_commands.json" FORCE )
 
 # Set up a work directory project with the same version as our parent:
-project( WorkDir VERSION ${${ATLAS_PROJECT}_VERSION} LANGUAGES C CXX )
 atlas_project( USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
-
-# If Fortran is needed, enable it now.
-if( ATLAS_USE_FORTRAN )
-   enable_language( Fortran )
-endif()
 
 # Set up the runtime environment setup script(s):
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )

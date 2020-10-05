@@ -7,6 +7,7 @@
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+#include "AsgExampleTools/DataHandleTestTool.h"
 #include "AsgExampleTools/UnitTestTool3.h"
 #include "AsgExampleTools/UnitTestTool2.h"
 #include "AsgExampleTools/UnitTestTool1A.h"

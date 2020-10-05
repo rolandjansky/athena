@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
 #*****************************************************************
 #
 # """topOptions file for Tile Reconstruciton and Monitoring in Athena""" 
@@ -5,6 +9,8 @@
 #=================================================================
 
 # MonitorOutput="EXPERT"
+
+from __future__ import print_function
 
 from os import system, popen
 
@@ -89,10 +95,10 @@ rec.doLArg = False
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if athenaCommonFlags.isOnline() or doOnline or doStateless:
     athenaCommonFlags.isOnline = True
-    print 'athenaCommonFlags.isOnline = True : Online Mode'
+    print('athenaCommonFlags.isOnline = True : Online Mode')
     if doStateless:
         athenaCommonFlags.isOnlineStateless = True
-        print 'athenaCommonFlags.isOnlineStateless = True : Stateless Online Mode'
+        print('athenaCommonFlags.isOnlineStateless = True : Stateless Online Mode')
 
 
 #-----------------
@@ -132,11 +138,11 @@ if not athenaCommonFlags.isOnline():
     svcMgr.EventSelector.SkipEvents = EvtMin
     theApp.EvtMax = EvtMax
 
-    print 'InputDirectory is ' + str(InputDirectory)
-    print 'RunNumber is ' + str(FormattedRunNumber)
-    print 'FullFileName is ' + str(FileNameVec)
-    print 'Skip Events is ' + str(EvtMin)
-    print 'Max events is ' + str(EvtMax)
+    print('InputDirectory is ' + str(InputDirectory))
+    print('RunNumber is ' + str(FormattedRunNumber))
+    print('FullFileName is ' + str(FileNameVec))
+    print('Skip Events is ' + str(EvtMin))
+    print('Max events is ' + str(EvtMax))
 
     athenaCommonFlags.FilesInput = FileNameVec
     svcMgr.EventSelector.Input = FileNameVec
@@ -151,7 +157,7 @@ if not athenaCommonFlags.isOnline():
 # init DetDescr
 from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+    DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info('DetDescrVersion = %s' % (jobproperties.Global.DetDescrVersion()))
 
@@ -270,22 +276,22 @@ if doTileTMDBRawChannel:
     # Set up TileCondToolPulseShape to be used in
     # TileCondToolOfc
     from TileConditions.TileCondToolConf import getTileCondToolMuRcvPulseShape
-    ToolSvc += getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
+    muRcvPulseShape = getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
     
     # Set up TileCondToolOfc to be used in TileRawChannelBuilderMF
-    ToolSvc += CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
+    muRcvOfc = CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
                                       , OptFilterDeltaCorrelation = True
-                                      , TileCondToolPulseShape = ToolSvc.TileCondToolMuRcvPulseShape)
+                                      , TileCondToolPulseShape = muRcvPulseShape)
 
 
     # Set up TileRawChannelBuilderOpt2 to be used
-    ToolSvc += CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
-                                                      , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
-                                                      , PedestalMode = 1
-                                                      , Minus1Iteration = TRUE
-                                                      , calibrateEnergy = False
-                                                      , correctTime = False
-                                                      , TileCondToolOfc = ToolSvc.TileCondToolMuRcvOfc)
+    muRcvRawChannelBuilder = CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
+                                                                    , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
+                                                                    , PedestalMode = 1
+                                                                    , Minus1Iteration = TRUE
+                                                                    , calibrateEnergy = False
+                                                                    , correctTime = False
+                                                                    , TileCondToolOfc = muRcvOfc)
 
 
     # Set up TileRawChannelBuilderMF to be used
@@ -300,7 +306,7 @@ if doTileTMDBRawChannel:
 
     topSequence += CfgMgr.TileRawChannelMaker(name = 'TileMuRcvRChMaker'
                                               , TileDigitsContainer = 'MuRcvDigitsCnt'
-                                              , TileRawChannelBuilder = [ ToolSvc.TileMuRcvRawChannelBuilderOpt2 ])
+                                              , TileRawChannelBuilder = [ muRcvRawChannelBuilder ])
 
 #----------------
 # TileMonitoring
@@ -376,7 +382,7 @@ if doAtlantis:
         ToolSvc += theStreamToFileTool
         theEventData2XML.StreamTools += [ theStreamToFileTool ]
 
-    print theEventData2XML
+    print(theEventData2XML)
 
 #-----------------------
 # Perfomance monitor

@@ -91,11 +91,17 @@ if __name__ == "__main__":
     ConfigFlags.dump()
 
     # Construct our accumulator to run
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
+
+    if 'EventInfo' not in ConfigFlags.Input.Collections:
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+        acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                     inputKey='McEventInfo',
+                                     outputKey='EventInfo'))
 
     acc.merge( TileMuonReceiverDecisionOutputCfg(ConfigFlags, TileMuonReceiverContainer = 'TileMuRcvCntNew') )
 

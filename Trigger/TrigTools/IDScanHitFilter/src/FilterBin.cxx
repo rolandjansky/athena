@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    FilterBin.cxx         
@@ -12,6 +12,3 @@
 
 
 #include "FilterBin.h"
-
-long FilterBin::m_maxLayers      = 19;
-long FilterBin::m_maxBarrelLayer = 6;

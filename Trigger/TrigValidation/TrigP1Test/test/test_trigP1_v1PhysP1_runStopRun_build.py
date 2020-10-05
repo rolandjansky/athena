@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: start/stop/start transition test with PhysicsP1_pp_run3_v1 menu
 # art-type: build

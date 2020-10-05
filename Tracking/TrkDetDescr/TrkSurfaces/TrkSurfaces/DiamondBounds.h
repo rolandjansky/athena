@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,16 +55,16 @@ public:
   DiamondBounds(double minhalex, double medhalex, double maxhalex, double haley1, double haley2);
 
   /**Copy constructor*/
-  DiamondBounds(const DiamondBounds& diabo);
+  DiamondBounds(const DiamondBounds& diabo) = default;
 
   /**Destructor*/
-  virtual ~DiamondBounds();
+  virtual ~DiamondBounds() = default;
 
   /**Virtual constructor*/
   DiamondBounds* clone() const override;
 
   /**Assignment operator*/
-  DiamondBounds& operator=(const DiamondBounds& sbo);
+  DiamondBounds& operator=(const DiamondBounds& sbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& diabo) const override;

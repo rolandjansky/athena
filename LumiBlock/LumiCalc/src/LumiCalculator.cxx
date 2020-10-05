@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LumiCalc/LumiCalculator.h"
@@ -23,7 +23,33 @@
 #include <regex.h>
 
 LumiCalculator::LumiCalculator()
- : m_logger( "LumiCalculator" )
+ : m_LumiTree (nullptr)
+ , m_recordTTree (false)
+ , m_State (true)
+
+ , m_trigger ("COOLONL_TRIGGER/")
+ , m_lumioff ("COOLOFL_TRIGGER/")
+ , m_lumionl ("COOLONL_TRIGGER/")
+ , m_lumitag ("OflLumi-8TeV-002")// for offline:  OflLumi_CosmicFake, OflLumi_TopMix
+ , m_lumimethod ("")// offline channels: ATLAS_PREFERRED, OflLumi_Fake0, OflLumi_Fake:, TopMixLumi 
+ , m_laroff ("COOLOFL_LAR/")
+ , m_bsonl ("COOLONL_INDET/")
+ , m_bstag ("IndetBeamposOnl-HLT-UPD1-001-00")
+
+ , m_parlvl1menufolder ("/TRIGGER/LVL1/Menu")
+ , m_parhltmenufolder ("/TRIGGER/HLT/Menu")// ChainCounter is here for COOLONL_TRIGGER/COMP20
+ , m_parhltprescalesfolder ("/TRIGGER/HLT/Prescales")// ChainCounter is here for COOLONL_TRIGGER/COMP20
+ , m_parlumilvl1folder ("/TRIGGER/LUMI/LVL1COUNTERS")
+ , m_parlumihltfolder ("/TRIGGER/LUMI/HLTCOUNTERS")
+ , m_parlvl1prescalesfolder ("/TRIGGER/LVL1/Prescales")
+ , m_parlvl1lblbfolder ("/TRIGGER/LUMI/LBLB")// for time information
+ , m_parlareventvetofolder ("/LAR/BadChannelsOfl/EventVeto") // For LAr event veto
+ , m_paronlbeamspotfolder ("/Indet/Onl/Beampos") // For invalid online beamspot
+
+ , m_logger( "LumiCalculator" )
+ , m_lbcollname ("LumiBlocks")
+ , m_uselivetrigger (false)
+ , m_verbose (false)
  , m_lbstarttime(0.)
  , m_lbendtime(0.)
 
@@ -112,45 +138,14 @@ LumiCalculator::LumiCalculator()
  , m_maxrun(0)
 {
 
-  m_trigger="COOLONL_TRIGGER/";
-  m_lumioff="COOLOFL_TRIGGER/";
-  m_lumionl="COOLONL_TRIGGER/";
-  m_laroff="COOLOFL_LAR/"; 
-  m_bsonl="COOLONL_INDET/";
-
-  // These now need to be set after we know the run number (Run1 or Run2)
-  m_data_db="";
-  m_parofflumiestfolder = "";
-  m_paronllumiestfolder = "";
-  m_parlumiestfolder = "";
-  m_parlvl1menufolder = "/TRIGGER/LVL1/Menu";
-  m_parhltmenufolder = "/TRIGGER/HLT/Menu";// ChainCounter is here for COOLONL_TRIGGER/COMP20
-  m_parhltprescalesfolder = "/TRIGGER/HLT/Prescales";// ChainCounter is here for COOLONL_TRIGGER/COMP20
-  m_parlumilvl1folder = "/TRIGGER/LUMI/LVL1COUNTERS";
-  m_parlumihltfolder = "/TRIGGER/LUMI/HLTCOUNTERS";
-  m_parlvl1prescalesfolder = "/TRIGGER/LVL1/Prescales";
-  m_parlvl1lblbfolder = "/TRIGGER/LUMI/LBLB";// for time information
-  m_parlareventvetofolder = "/LAR/BadChannelsOfl/EventVeto"; // For LAr event veto
-  m_paronlbeamspotfolder = "/Indet/Onl/Beampos"; // For invalid online beamspot
-
-  m_uselivetrigger = false;
-  m_verbose = false;
-  m_lbcollname = "LumiBlocks";
-
-  m_bstag="IndetBeamposOnl-HLT-UPD1-001-00";
-
   // by default we use the "offline data" database name
   m_lumi_database = m_lumioff + m_data_db;
   m_trig_database = m_trigger + m_data_db;
   m_lar_database = m_laroff + m_data_db;
   m_bs_database = m_bsonl + m_data_db;
 
-  m_lumitag = "OflLumi-8TeV-002";// for offline:  OflLumi_CosmicFake, OflLumi_TopMix
   m_lumichannel = 0;
-  m_lumimethod = "";// offline channels: ATLAS_PREFERRED, OflLumi_Fake0, OflLumi_Fake:, TopMixLumi 
-  m_State = true;
-  m_LumiTree = 0;
-  
+
 }
 
 
@@ -713,7 +708,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 	std::list< std::pair<IOVRange, cool::Int32> >::iterator it;
 
 	m_logger << Root::kINFO << std::setw(10) << std::left << m_L1triggerchains[0];
-	for(it = L1preObj.data.begin(); it != L1preObj.data.end(); it++) {
+	for(it = L1preObj.data.begin(); it != L1preObj.data.end(); ++it) {
 	  m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
 
 	  if (it->second < 0)
@@ -729,7 +724,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 
 	  // Dump prescales
 	  m_logger << Root::kINFO << std::setw(10) << std::left << m_L1triggerchains[iid];
-	  for(it = L1preOther.data.begin(); it != L1preOther.data.end(); it++) {
+	  for(it = L1preOther.data.begin(); it != L1preOther.data.end(); ++it) {
 	    m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
 
 	    if (it->second < 0)
@@ -742,7 +737,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 	  // Iterate through both lists and keep lowest non-negative prescale
 	  std::list< std::pair<IOVRange, cool::Int32> >::iterator it1;
 	  std::list< std::pair<IOVRange, cool::Int32> >::iterator it2;
-	  for(it1 = L1preObj.data.begin(), it2 = L1preOther.data.begin(); it1 != L1preObj.data.end(); it1++, it2++) {
+	  for(it1 = L1preObj.data.begin(), it2 = L1preOther.data.begin(); it1 != L1preObj.data.end(); ++it1, ++it2) {
 
 	    // -1 is disabled, otherwise this is the event count to prescale
 	    if ((it2->second > 0) && (it1->second > it2->second)) {
@@ -758,7 +753,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 	// OK done, lets check the result
 	// Dump prescales
 	m_logger << Root::kINFO << std::setw(10) << std::left << "L1 Pre:";
-	for(it = L1preObj.data.begin(); it != L1preObj.data.end(); it++) {
+	for(it = L1preObj.data.begin(); it != L1preObj.data.end(); ++it) {
 	  m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
 
 	  if (it->second < 0)
@@ -968,7 +963,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       if (m_runnbr == 281385) {
 	if (m_clumiblocknbr <= 196) {
 	  m_livefrac *= 4./6.;
-	} else if (m_clumiblocknbr <= 196) {
+	} else if (m_clumiblocknbr <= 374) {
 	  m_livefrac *= 5./6.;
 	}
       }
@@ -1000,7 +995,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
 	std::list<std::pair<IOVRange, cool::UInt32> > larlist;
 	larlist = LArObj.getOverlap(range);
 
-	for (std::list<std::pair<IOVRange, cool::UInt32> >::iterator it = larlist.begin(); it != larlist.end(); it++) {
+	for (std::list<std::pair<IOVRange, cool::UInt32> >::iterator it = larlist.begin(); it != larlist.end(); ++it) {
 	  if (it->second == 0) continue;
 	  float dtime = (it->first.stop().re_time() - it->first.start().re_time())/1.E9;
 	  m_lartime += dtime;
@@ -1224,7 +1219,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       m_logger << Root::kINFO << std::setw(10) << std::left << "L1 Prescales: ";
 
       std::list< std::pair<IOVRange, cool::Int32> >::iterator it;
-      for(it = L1preObj.data.begin(); it != L1preObj.data.end(); it++) {
+      for(it = L1preObj.data.begin(); it != L1preObj.data.end(); ++it) {
 	m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" ;
 	if (isrun2) {
 	  if (it->second < 0)
@@ -1248,7 +1243,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       }
 
       std::list< std::pair<IOVRange, cool::Float> >::iterator it;
-      for(it = L2preObj.data.begin(); it != L2preObj.data.end(); it++) {
+      for(it = L2preObj.data.begin(); it != L2preObj.data.end(); ++it) {
 	m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" << it->second <<  ", "; 
       }
       m_logger << Root::kINFO << Root::GEndl;
@@ -1259,7 +1254,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       m_logger << Root::kINFO << std::setw(10) << std::left << "L3 Prescales: ";
 
       std::list< std::pair<IOVRange, cool::Float> >::iterator it;
-      for(it = L3preObj.data.begin(); it != L3preObj.data.end(); it++) {
+      for(it = L3preObj.data.begin(); it != L3preObj.data.end(); ++it) {
 	m_logger << Root::kINFO << std::setw(1) << std::left << "[" << it->first.start().event() << "," << it->first.stop().event()-1 << "]:" << it->second <<  ", "; 
       }
       m_logger << Root::kINFO << Root::GEndl;

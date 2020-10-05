@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/tools/ElementProxy.h
  * @author scott snyder <snyder@bnl.gov>
@@ -63,6 +60,10 @@ public:
    */
   ElementProxy (typename DVL::BaseContainer::iterator i,
                 DVL* container);
+
+
+  /// Default copy.
+  ElementProxy (const ElementProxy&) = default;
 
 
   /**

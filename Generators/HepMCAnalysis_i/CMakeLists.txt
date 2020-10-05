@@ -23,6 +23,14 @@ find_package( HEPUtils )
 find_package( HepMCAnalysis )
 find_package( ROOT COMPONENTS Core MathCore Hist RIO )
 find_package( FastJet )
+find_package( HepMC )
+if (HEPMC3_USE)
+set( HEPMC_HepMCAnalysis_INTERFACE_DIR  ${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/HepMCCompatibility/include )
+else()
+set( HEPMC_HepMCAnalysis_INTERFACE_DIR  )
+endif()
+
+
 
 # Component(s) in the package:
 atlas_add_component( HepMCAnalysis_i
@@ -30,6 +38,8 @@ atlas_add_component( HepMCAnalysis_i
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMCANALYSIS_INCLUDE_DIRS}
    ${HEPUTILS_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
    ${FASTJET_INCLUDE_DIRS}
+   ${HEPMC_INCLUDE_DIRS}
+   ${HEPMC_HepMCAnalysis_INTERFACE_DIR}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMCANALYSIS_LIBRARIES}
    ${HEPUTILS_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
    ${FASTJET_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib EventInfo

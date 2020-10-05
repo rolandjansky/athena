@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ServiceVolumeMaker_H 
@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 class IGeometryDBSvc;
 
@@ -98,7 +99,7 @@ namespace InDetDD {
   class ServiceVolumeMakerMgr {
   public:
     ServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
-			  const InDetDD::AthenaComps * athenaComps);
+			  InDetDD::AthenaComps * athenaComps);
     
     double rmin(int index) const;
     double rmax(int index) const;
@@ -129,7 +130,7 @@ namespace InDetDD {
     IRDBRecordset_ptr m_table;
     IRDBRecordset_ptr m_layer;
     ServiceVolumeSchema m_schema;
-    const InDetDD::AthenaComps * m_athenaComps;
+    InDetDD::AthenaComps * m_athenaComps;
   };
 
   class ServiceVolumeMaker {
@@ -137,7 +138,7 @@ namespace InDetDD {
     ServiceVolumeMaker(const std::string & label,
 		       IRDBRecordset_ptr table, 
 		       const ServiceVolumeSchema & schema,
-		       const InDetDD::AthenaComps *);
+		       InDetDD::AthenaComps *);
 		ServiceVolumeMaker(const ServiceVolumeMaker &) = delete;
 		ServiceVolumeMaker & operator =(const ServiceVolumeMaker &) = delete;
     ~ServiceVolumeMaker();

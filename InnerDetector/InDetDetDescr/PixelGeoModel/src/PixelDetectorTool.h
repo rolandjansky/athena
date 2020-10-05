@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELGEOMODEL_PIXELDETECTORTOOL_H
@@ -16,13 +16,15 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class PixelGeoModelAthenaComps;
 
 namespace InDetDD {
   class PixelDetectorManager;
 }
 
-class PixelDetectorTool : public GeoModelTool {
+class PixelDetectorTool final : public GeoModelTool {
 
  public:
   // Standard Constructor
@@ -35,8 +37,8 @@ class PixelDetectorTool : public GeoModelTool {
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 
-  // Register callback function on ConDB object
-  virtual StatusCode registerCallback() override final;
+  // Register callback function on CondDB object
+  virtual StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () override final;
 
   // Callback function itself
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;

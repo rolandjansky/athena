@@ -13,7 +13,7 @@
 #include <map>
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Other stuff
 #include "TrigT1Interfaces/SlinkWord.h"
@@ -22,7 +22,7 @@
 #include "Identifier/Identifier.h"
 
 // EIFI-SL connection
-#include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
+#include "TrigT1TGC/TGCInnerTrackletSlotHolder.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
@@ -32,16 +32,20 @@
 
 #include "MuonDigitContainer/TgcDigit.h"
 
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCArguments.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 
 // Tile-Muon
 #include "TileEvent/TileMuContainer.h"
 #include "TileEvent/TileMuonReceiverObj.h"
 
+//NSW Trigger Output
+#include "MuonRDO/NSW_TrigRawDataContainer.h"
+
 class TgcRdo;
 class TgcRawData;
 class ITGCcablingSvc;
+
 
 namespace LVL1TGCTrigger {
   
@@ -93,6 +97,10 @@ namespace LVL1TGCTrigger {
     
     // Fill TMDB event data
     StatusCode fillTMDB();
+
+    // Fill NSW event data
+    StatusCode fillNSW();
+
     
     // record bare-RDO for LowPT coincidences (on m_OutputTgcRDO=True):
     void recordRdoSLB(TGCSector *);
@@ -132,7 +140,7 @@ namespace LVL1TGCTrigger {
     StringProperty m_keyMuCTPIInput_TGC{this,"MuCTPIInput_TGC","L1MuctpiStoreTGC"};
 
     // Version of Coincidence Window
-    StringProperty m_VerCW{this,"VersionCW","00_07_0022"};
+    StringProperty m_VerCW{this,"VersionCW","00_07_0022"};// TILE_EIFI_BW
     
     StringProperty    m_MaskFileName12{this,"MaskFileName12",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     ShortProperty     m_CurrentBunchTag{this,"CurrentBunchTag",TgcDigit::BC_CURRENT};  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
@@ -146,11 +154,12 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
     BooleanProperty   m_FULLCW{this,"FULLCW",false};   // flag for using differne CW for each octant
     BooleanProperty   m_TILEMU{this,"TILEMU",false};   // flag for using TileMu
+    BooleanProperty   m_USENSW{this,"USENSW",false};     // flag for using NSW
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
     
-    
+    bool              m_firstTime{true};
     uint16_t          m_bctagInProcess;
-    
+
     TGCDatabaseManager *m_db;
     TGCTimingManager *m_TimingManager;
     TGCElectronicsSystem *m_system;
@@ -171,6 +180,7 @@ namespace LVL1TGCTrigger {
 
     SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};
+    SG::ReadHandleKey<Muon::NSW_TrigRawDataContainer> m_keyNSWTrigOut{this,"NSWTrigger_Input","NSWTRGRDO","Location of NSW_TrigRawDataContainer"};
     SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey{this,"ReadCondKey","TGCTriggerData"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationTGC", "L1MuctpiStoreTGC", "Location of muctpi for Tgc"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};

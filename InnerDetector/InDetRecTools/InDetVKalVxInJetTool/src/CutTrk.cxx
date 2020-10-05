@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+// Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
@@ -14,22 +15,19 @@ namespace InDet{
 
 
 
-  StatusCode InDetVKalVxInJetTool::CutTrk(double PInvVert,double ThetaVert, 
+  StatusCode InDetVKalVxInJetTool::cutTrk(double PInvVert,double ThetaVert, 
          double A0Vert, double ZVert, double Chi2, 
          long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits)
   const
   {
-     double Pt = sin(ThetaVert)/fabs(PInvVert);
+     double Pt = sin(ThetaVert)/std::abs(PInvVert);
 //- Track quality
      if(Pt               < m_cutPt) 			return StatusCode::FAILURE;
-//std::cout<<" ZVert="<<ZVert<<", "<<sin(ThetaVert)<<'\n';
-//std::cout<<" Chi2="<<Chi2<<'\n';
-//std::cout<<" A0Vert="<<A0Vert<<'\n';
      if(!m_multiWithPrimary){           //Must not be used for primary vertex search
-       if(fabs(ZVert)      > m_cutZVrt)	                return StatusCode::FAILURE;
+       if(std::abs(ZVert)      > m_cutZVrt)	                return StatusCode::FAILURE;
      }
      if(Chi2 	         > m_cutChi2) 			return StatusCode::FAILURE;
-     if(fabs(A0Vert)     > m_cutA0) 			return StatusCode::FAILURE;
+     if(std::abs(A0Vert)     > m_cutA0) 			return StatusCode::FAILURE;
 
 
      if(PixelHits	    < m_cutPixelHits) 		return StatusCode::FAILURE;
@@ -41,84 +39,10 @@ namespace InDet{
      return StatusCode::SUCCESS;
   }
  
-
-
-
-
-   int  InDetVKalVxInJetTool::SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpTrk,
-                                                  const xAOD::Vertex                          & PrimVrt,
-	                                          const TLorentzVector                        & JetDir,
-                                                  std::vector<const Rec::TrackParticle*>   & SelectedTracks)
-   const
-   {    
-
-    std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee* mPer;
-    const Trk::FitQuality*     TrkQual;
-    std::vector<double> Impact,ImpactError;
-    int NPrimTrk=0;
-    for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
-//
-//-- Perigee in TrackParticle
-//
-          mPer=GetPerigee( (*i_ntrk) ) ;
-          if( mPer == NULL )  continue;
-          VectPerig = mPer->parameters(); 
-          TrkQual   = (*i_ntrk)->fitQuality();
-          if(TrkQual && TrkQual->numberDoF()== 0) continue; //Protection
-          double trkChi2=1.; if(TrkQual) trkChi2=TrkQual->chiSquared() / TrkQual->numberDoF();
-          double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
-          double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
-
-	  if ( CovTrkMtx11 > m_a0TrkErrorCut*m_a0TrkErrorCut )  continue;
-	  if ( CovTrkMtx22 > m_zTrkErrorCut*m_zTrkErrorCut )    continue;
-	  if( ConeDist(VectPerig,JetDir) > m_coneForTag )       continue;
-          if( (*i_ntrk)->pt() > JetDir.Pt() )                   continue;
-
-          double trkP=1./fabs(VectPerig[4]);         
-          double CovTrkMtx55 = (*(mPer->covariance()))(4,4);
-          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
-	                    if(m_fillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
-                            if(trkPErr>0.5) continue;   }
-
-          long int PixelHits     = 3;
-          long int SctHits       = 9; 
-          long int SharedHits    = 0; //Always 0 now
-          long int BLayHits      = 1;
-//----------------------------------- Summary tools
-          const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
-          PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
-          SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-          BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
-	  if(PixelHits < 0 ) PixelHits=0; 
-	  if(SctHits   < 0 ) SctHits=0; 
-	  if(BLayHits  < 0 ) BLayHits=0; 
-//std::cout<<"NwTrkSummary="<<PixelHits<<", "<<SctHits<<", "<<BLayHits<<", fitter="<<'\n';
-          double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
-          double ImpactA0=VectPerig[0];                         // Temporary
-          double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
-	  ImpactA0=Impact[0];  
-	  ImpactZ=Impact[1];   
-//----
-          StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
-                       ImpactA0 , ImpactZ, trkChi2,
-		       PixelHits, SctHits, SharedHits, BLayHits);
-
-					  
-          if( sc.isFailure() )                 continue;
-	  if(ImpactSignif < 3.)NPrimTrk += 1;
-	  SelectedTracks.push_back(*i_ntrk);
-      }
-      AnalysisUtils::Sort::pT (&SelectedTracks); // no equivalent for TrkTrack yet...
-      return NPrimTrk;
-   }
-
-
 //==============================================================================================================
 //          xAOD based stuff
 //
-   int  InDetVKalVxInJetTool::SelGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpTrk,
+   int  InDetVKalVxInJetTool::selGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                                   const xAOD::Vertex                           & PrimVrt,
 	                                          const TLorentzVector                         & JetDir,
                                                         std::vector<const xAOD::TrackParticle*>& SelectedTracks)
@@ -128,7 +52,7 @@ namespace InDet{
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
     std::vector<double> Impact,ImpactError;
     std::multimap<double,const xAOD::TrackParticle*> orderedTrk;
-    int NPrimTrk=0;
+    int nPrimTrk=0;
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
 //-- Perigee in TrackParticle
@@ -148,11 +72,11 @@ namespace InDet{
 
 	  if ( CovTrkMtx11 > m_a0TrkErrorCut*m_a0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_zTrkErrorCut*m_zTrkErrorCut )    continue;
-	  if ( ConeDist(VectPerig,JetDir) > m_coneForTag )      continue;
+	  if ( coneDist(VectPerig,JetDir) > m_coneForTag )      continue;
           if( (*i_ntrk)->pt() > JetDir.Pt() )                   continue;
 
-          double trkP=1./fabs(VectPerig[4]);         
-          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
+          double trkP=1./std::abs(VectPerig[4]);         
+          if(trkP>10000.){  double trkPErr=std::sqrt(CovTrkMtx55)*trkP;
 	                    if(m_fillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
                             if(trkPErr>0.5) continue;   }
 
@@ -184,10 +108,10 @@ namespace InDet{
 //std::cout<<"NwInnerM="<<(long int)InmHits<<", "<<(long int)InmSharedH<<", "<<(long int)InmSplitH<<", "<<(long int)InmOutlier<<'\n';
 
           Amg::Vector3D perigeePos=mPer.position();
-          double ImpactA0=sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
+          double ImpactA0=std::sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
                                +(perigeePos.y()-PrimVrt.y())*(perigeePos.y()-PrimVrt.y()) );
           double ImpactZ=perigeePos.z()-PrimVrt.z();
-          double ImpactSignif=sqrt(ImpactA0*ImpactA0/CovTrkMtx11+ImpactZ*ImpactZ/CovTrkMtx22);
+          double ImpactSignif=std::sqrt(ImpactA0*ImpactA0/CovTrkMtx11+ImpactZ*ImpactZ/CovTrkMtx22);
 
           //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
           //double ImpactA0=Impact[0];  
@@ -195,34 +119,33 @@ namespace InDet{
           if(m_fillHist){  m_hb_trkD0->Fill( ImpactA0, m_w_1); }
 //---- Improved cleaning
 /////          if(PixelHits<=2 && ( outPixHits || splPixHits )) continue;  //VK Bad idea at high Pt!
-          if(fabs((*i_ntrk)->eta())>2.  ) {
+          if(std::abs((*i_ntrk)->eta())>2.  ) {
             if( PixelHits<=3 && ( splSCTHits || outSCTHits || outPixHits || splPixHits ))continue;
             if(m_existIBL){if(PixelHits)PixelHits -=1; if(SctHits)SctHits  -=1;}             // 4-layer pixel detector
             else          {if(PixelHits)PixelHits -=1;}                                      // 3-layer pixel detector
           }
-          if(fabs((*i_ntrk)->eta())>1.65)   if(SctHits)SctHits   -=1;
+          if(std::abs((*i_ntrk)->eta())>1.65)   if(SctHits)SctHits   -=1;
 //----Anti-pileup cut (in Sel2TrVrt now)
-//          double SignifR = Impact[0]/ sqrt(ImpactError[0]);
-//          if(fabs(SignifR) < m_AntiPileupSigRCut) {   // cut against tracks from pileup vertices
-//            double SignifZ = Impact[1]/ sqrt(ImpactError[2]);
+//          double SignifR = Impact[0]/ std::sqrt(ImpactError[0]);
+//          if(std::abs(SignifR) < m_AntiPileupSigRCut) {   // cut against tracks from pileup vertices
+//            double SignifZ = Impact[1]/ std::sqrt(ImpactError[2]);
 //            if(SignifZ > 1.+m_AntiPileupSigZCut ) continue;
 //            if(SignifZ < 1.-m_AntiPileupSigZCut ) continue;
 //          }
 //----
-          StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
+          StatusCode sc = cutTrk( VectPerig[4] , VectPerig[3],
                           ImpactA0 , ImpactZ, trkChi2,
                           PixelHits, SctHits, SharedHits, BLayHits);
           if( sc.isFailure() )                 continue;
-	  double rankBTrk=RankBTrk(0.,0.,ImpactSignif);
-	  if(rankBTrk<0.7)NPrimTrk += 1;
-	  orderedTrk.emplace(rankBTrk,*i_ntrk);
+	  double rnkBTrk=rankBTrk(0.,0.,ImpactSignif);
+	  if(rnkBTrk<0.7)nPrimTrk += 1;
+	  orderedTrk.emplace(rnkBTrk,*i_ntrk);
       }
 //---- Order tracks according to ranks
       std::map<double,const xAOD::TrackParticle*>::reverse_iterator rt=orderedTrk.rbegin();
       SelectedTracks.resize(orderedTrk.size());
       for ( int cntt=0; rt!=orderedTrk.rend(); ++rt,++cntt) {SelectedTracks[cntt]=(*rt).second;}
-      m_NRefPVTrk=std::max(NPrimTrk,1);   // VK set reference multiplicity here
-      return NPrimTrk;
+      return nPrimTrk;
    }
 
 }//end namespace

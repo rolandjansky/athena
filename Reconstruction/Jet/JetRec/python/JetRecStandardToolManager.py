@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardToolManager.py
 #
@@ -105,8 +105,12 @@ trackgetters = [jtm.trackget]
 emgetters = [jtm.emget]
 lcgetters = [jtm.lcget]
 if jetFlags.useTracks():
-  emgetters = [jtm.emoriginget]
-  lcgetters = [jtm.lcoriginget]
+  if jetFlags.useVertices():
+    emgetters = [jtm.emoriginget]
+    lcgetters = [jtm.lcoriginget]
+  else:
+    emgetters = [jtm.emget]
+    lcgetters = [jtm.lcget]
   emgetters += [jtm.gtrackget]
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
@@ -200,13 +204,15 @@ ungroomed_modifiers += [jtm.ecpsfrac]
 if jetFlags.useCaloQualityTool():
   ungroomed_modifiers += [jtm.caloqual_cluster]
 if jetFlags.useTracks():
-  ungroomed_modifiers += [jtm.trkmoms]
-  ungroomed_modifiers += [jtm.trksummoms]
-  ungroomed_modifiers += [jtm.jvf]
-  ungroomed_modifiers += [jtm.jvt]
+  if jetFlags.useVertices():
+    ungroomed_modifiers += [jtm.trkmoms]
+    ungroomed_modifiers += [jtm.trksummoms]
+    ungroomed_modifiers += [jtm.jvf]
+    ungroomed_modifiers += [jtm.jvt]
+    ungroomed_modifiers += [jtm.jetorigin_setpv]
   ungroomed_modifiers += [jtm.charge]
   ungroomed_modifiers += ["trackassoc"]
-  ungroomed_modifiers += [jtm.jetorigin_setpv]
+  
 if jetFlags.useTruth():
   if jetFlags.detailLevel()>=JetContentDetail.Full:
     # only at this detail level are the truth jets build. We can then schedule the TruthAssociation calculation :
@@ -248,6 +254,9 @@ pflow_ungroomed_modifiers += filterout(["ecpsfrac"], ungroomed_modifiers)
 pflow_groomed_modifiers = []
 pflow_groomed_modifiers += [jtm.constitfourmom_pflow]
 pflow_groomed_modifiers += groomed_modifiers
+
+# For truth jets, don't add track moments
+truth_groomed_modifiers = filterout(["trksummoms"], groomed_modifiers)
 
 # Here add tools to be run for topo jets and NOT for pflow.
 
@@ -324,6 +333,7 @@ jtm.modifiersMap["pflow_reduced"]         =        list(pflow_reduced_modifiers)
 
 if jetFlags.useTruth():
   jtm.modifiersMap["truth_ungroomed"]     =      list(truth_ungroomed_modifiers)
+  jtm.modifiersMap["truth_groomed"]       =      list(truth_groomed_modifiers)
 jtm.modifiersMap["track_ungroomed"]       =      list(track_ungroomed_modifiers)
 
 # Also index modifier type names by input type name.

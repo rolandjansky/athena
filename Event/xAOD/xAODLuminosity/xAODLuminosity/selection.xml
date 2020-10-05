@@ -1,31 +1,28 @@
-<!-- $Id: selection.xml 652111 2015-03-06 10:13:22Z krasznaa $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- The LumiBlockRange_v1 classes: -->
-  <class name="xAOD::LumiBlockRange_v1" />
-  <class name="xAOD::LumiBlockRangeContainer_v1"
-         id="9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0" />
-  <class name="xAOD::LumiBlockRangeAuxContainer_v1"
-         id="514696E1-A262-470A-BEB1-FF980CD8827A" />
+   <!-- xAOD::LumiBlockRange interface type(s). -->
+   <class name="xAOD::LumiBlockRange_v1" />
+   <class name="xAOD::LumiBlockRangeContainer_v1"
+          id="9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0" />
+   <typedef name="xAOD::LumiBlockRange" />
+   <typedef name="xAOD::LumiBlockRangeContainer" />
 
-  <!-- The BCMRawData_v1 classes: -->
-  <class name="xAOD::BCMRawData_v1" />
-  <class name="xAOD::BCMRawDataContainer_v1"
-         id="F0D41C60-4A5F-4678-A468-28E45DB9E408" />
-  <class name="xAOD::BCMRawDataAuxContainer_v1"
-         id="E13E64B0-E832-4FA5-8D23-97DD36BFEE4B" />
+   <!-- xAOD::LumiBlockRange auxiliary type(s). -->
+   <class name="xAOD::LumiBlockRangeAuxContainer_v1"
+          id="514696E1-A262-470A-BEB1-FF980CD8827A" />
+   <typedef name="xAOD::LumiBlockRangeAuxContainer" />
 
-  <class name="ElementLink<xAOD::BCMRawDataContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::BCMRawDataContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::BCMRawDataContainer_v1> > >" />
+   <!-- xAOD::BCMRawData interface type(s). -->
+   <class name="xAOD::BCMRawData_v1" />
+   <class name="xAOD::BCMRawDataContainer_v1"
+          id="F0D41C60-4A5F-4678-A468-28E45DB9E408" />
+   <typedef name="xAOD::BCMRawData" />
+   <typedef name="xAOD::BCMRawDataContainer" />
 
-  <class name="DataLink<xAOD::BCMRawDataContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::BCMRawDataContainer_v1> >" />
+   <!-- xAOD::BCMRawData auxiliary type(s). -->
+   <class name="xAOD::BCMRawDataAuxContainer_v1"
+          id="E13E64B0-E832-4FA5-8D23-97DD36BFEE4B" />
+   <typedef name="xAOD::BCMRawDataAuxContainer" />
 
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
 </lcgdict>

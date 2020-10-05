@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 // InDetTrkInJetType.h - Description
@@ -10,9 +10,13 @@
     0 -  Heavy Flavour         (Signal)
     1 -  Fragmentation tracks  (Fragment)
     2 -  Garbage    (Interactions+V0s+Pileup)
+   The corresponding weights are returned as vector<float> with track type ordering.
+   Multiclass TMVA is used for classification, then wgt[0]+wgt[1]+wgt[2]=1 always.
     
-   The tool works for JetPt<2.5TeV.
-   Tool is trained using ttbar+Z'(1.5,3,5TeV)+JZ4,5,6 samples
+   The tool works (calibrated) for 35GeV<JetPt<3.5TeV.
+   Jets above 3.5TeV and below 35GeV are considered as having 3.5TeV and 35GeV correspondingly.
+   The tool is trained using ttbar+Z'(2.5,5TeV)+JZ4,6,8 + Gbb7000 samples
+   The tool uses trkPt vs JetAxis (no any dR cone cut!) therefore the tool can be used for any jet with "reasonable" dR size.
 
     Author: Vadim Kostyukhin
     e-mail: vadim.kostyukhin@cern.ch
@@ -29,10 +33,8 @@
 
 class TLorentzVector;
 class IChronoStatSvc;
-namespace Rec{ class TrackParticle; }
 namespace MVAUtils { class BDT; }
 namespace Trk {  class TrkVKalVrtFitter; }
-namespace TMVA { class Reader; }
 
 namespace InDet {
 
@@ -44,7 +46,6 @@ namespace InDet {
 //Interface itself
 
       virtual std::vector<float> trkTypeWgts( const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const =0;
-      virtual std::vector<float> trkTypeWgts( const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const =0;
 
   };
 
@@ -65,7 +66,6 @@ namespace InDet {
       virtual StatusCode finalize() override;
 
       virtual std::vector<float> trkTypeWgts(const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const override;
-      virtual std::vector<float> trkTypeWgts(const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const override;
 
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
@@ -73,9 +73,8 @@ namespace InDet {
 
    private:
 
-    TMVA::Reader* m_tmvaReader{};
-    MVAUtils::BDT* m_localBDT{};
-    IChronoStatSvc * m_timingProfile{}; 
+    std::unique_ptr<MVAUtils::BDT> m_trkClassBDT;
+    IChronoStatSvc* m_timingProfile{}; 
    
     int m_trkSctHitsCut{};
     int m_trkPixelHitsCut{};
@@ -88,21 +87,11 @@ namespace InDet {
     float m_Z0_limLow{};
     float m_Z0_limUpp{};
     std::string m_calibFileName;
-    ToolHandle < Trk::IVertexFitter >  m_fitterSvc;
+    ToolHandle < Trk::IVertexFitter >  m_fitterSvc
+       {this, "VertexFitterTool", "Trk::TrkVKalVrtFitter/VertexFitterTool",""};
     Trk::TrkVKalVrtFitter*   m_fitSvc{};
 
     int m_initialised{};
-
-    float m_Sig3D{};
-    float m_prbP{};
-    float m_d0{};
-    float m_pTvsJet{};
-    float m_SigZ{};
-    float m_SigR{};
-    float m_ptjet{};
-    float m_etatrk{};
-    float m_ibl{};
-    float m_bl{};
  };
 
 

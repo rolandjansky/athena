@@ -5,7 +5,7 @@
 // L1JetElementTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1JetElementTools.h"
+#include "L1JetElementTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 #include "TrigT1CaloUtils/JetElementKey.h"

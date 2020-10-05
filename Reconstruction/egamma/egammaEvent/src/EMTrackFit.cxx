@@ -19,15 +19,15 @@ MODIFIED:
 
 // INCLUDE HEADER FILES:
 
-#include <math.h>
 #include "egammaEvent/EMTrackFit.h"
-#include "GaudiKernel/GaudiException.h"
-#include "AthenaKernel/ClassName.h"
-#include "TrkTrack/Track.h" 
-#include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
-#include "TrkSurfaces/Surface.h"
-#include "TrkSurfaces/PerigeeSurface.h"
 #include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/ClassName.h"
+#include "GaudiKernel/GaudiException.h"
+#include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
+#include "TrkSurfaces/PerigeeSurface.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkTrack/Track.h" 
+#include <cmath>
 
 
 
@@ -48,7 +48,7 @@ EMTrackFit::~EMTrackFit()
 }
 
 // interfaces
-std::string EMTrackFit::s_className = ClassName<EMTrackFit>::name();
+const std::string EMTrackFit::s_className = ClassName<EMTrackFit>::name();
 const std::string& EMTrackFit::className() const
 {
   return s_className;
@@ -183,7 +183,7 @@ void EMTrackFit::fillBrems(Trk::Track *track){
     bremRadius(0);
     bremDeltaZ(0);
     return;
-  } else {
+  } 
     // The energy loss weighted average position  of the brem.
     std::vector<const Trk::EstimatedBremOnTrack*>::iterator brems = estimatedBremOnTrack.begin();
     std::vector<const Trk::TrackStateOnSurface*>::iterator tsos = trkStateOnSurfaceWithBrem.begin();
@@ -210,7 +210,7 @@ void EMTrackFit::fillBrems(Trk::Track *track){
     bremDeltaZ(Z);
     //Clearly this is poorly defined for multiple brems a better way of doing this need to be found
 		bremDeltaZerr(sigmaRetainedEnFraction);
-  }
+  
   }
 
 // ======================================================================
@@ -278,9 +278,9 @@ bool EMTrackFit::fillPerigeeParamters(const Trk::Perigee *trackParameters){
    }
    
    return true;
-  } else {
+  } 
     return false;
-  }
+  
   return true;
 }
 
@@ -359,7 +359,7 @@ const Trk::Perigee* EMTrackFit::getMeasuredPerigee () const
 // =====================================================================
 bool EMTrackFit::hasParameter(egammaParameters::ParamDef key) const {
   if ( hasIntParameter(key) )                                   return true;
-  else if ( key == egammaParameters::refittedTrack_d0 )         return true;
+  if ( key == egammaParameters::refittedTrack_d0 )         return true;
   else if ( key == egammaParameters::refittedTrack_phi0 )       return true;
   else if ( key == egammaParameters::refittedTrack_qOverP )     return true;
   else if ( key == egammaParameters::refittedTrack_z0 )         return true;
@@ -396,7 +396,7 @@ bool EMTrackFit::hasParameter(egammaParameters::ParamDef key) const {
 // =====================================================================
 bool EMTrackFit::hasIntParameter(egammaParameters::ParamDef key) const {
   if (key == egammaParameters::hasBrem)                       return true;
-  else if (key == egammaParameters::bremTrackAuthor )         return true;
+  if (key == egammaParameters::bremTrackAuthor )         return true;
   else if (key == egammaParameters::bremFitStatus )         return true;
   else if (key == egammaParameters::linkIndex )               return true;
   

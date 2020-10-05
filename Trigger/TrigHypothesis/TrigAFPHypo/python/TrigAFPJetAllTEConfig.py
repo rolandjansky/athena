@@ -1,15 +1,12 @@
-#from TrigAFPHypo.TrigAFPHypoConf import TrigAFPJetAllTE
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import TrigAFPHypoConf
 from TrigAFPHypo.TrigAFPJetAllTEMonitoring import (
     TrigAFPJetAllTEValidationMonitoring,
     TrigAFPJetAllTEOnlineMonitoring)
 
-from AthenaCommon.SystemOfUnits import GeV
-
 class TrigAFPJetAllTE(TrigAFPHypoConf.TrigAFPJetAllTE):
     __slots__ = []
-    def __init__(self,
-            name = "TrigAFPJetAllTE"):
+    def __init__(self, name = "TrigAFPJetAllTE"):
 
         super( TrigAFPJetAllTE, self ).__init__( name )
 

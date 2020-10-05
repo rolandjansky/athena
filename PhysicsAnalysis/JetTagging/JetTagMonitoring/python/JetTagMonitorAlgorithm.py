@@ -16,8 +16,12 @@ def JetTagMonitorConfig(inputFlags):
     ### STEP 1 ###
     # Define one top-level monitoring algorithm. The new configuration 
     # framework uses a component accumulator.
-    #from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    #result = ComponentAccumulator()
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    result = ComponentAccumulator()
+
+    # do not run monitoring in RAWtoESD
+    if inputFlags.DQ.Environment == 'tier0Raw':
+        return result
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -307,7 +311,8 @@ def JetTagMonitorConfig(inputFlags):
     # and the sequence containing the created algorithms. If we haven't called
     # any configuration other than the AthMonitorCfgHelper here, then we can 
     # just return directly (and not create "result" above)
-    return helper.result()
+    result.merge(helper.result())
+    return result
     
     # # Otherwise, merge with result object and return
     # acc, seq = helper.result()
@@ -345,9 +350,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     jetTagMonitorAcc = JetTagMonitorConfig(ConfigFlags)

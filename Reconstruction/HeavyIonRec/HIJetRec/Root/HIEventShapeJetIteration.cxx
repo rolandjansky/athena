@@ -2,13 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIEventShapeJetIteration.h"
+#include "HIEventShapeJetIteration.h"
 #include "xAODHIEvent/HIEventShape.h"
 #include "xAODHIEvent/HIEventShapeAuxContainer.h"
 #include "HIEventUtils/HIEventShapeMap.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "HIEventUtils/HIEventShapeSummaryUtils.h"
 #include "xAODCore/ShallowCopy.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -53,18 +54,18 @@ int HIEventShapeJetIteration::execute() const
   xAOD::HIEventShapeContainer* output_shape=nullptr;
   getShapes(input_shape,output_shape,true).ignore();
 
-  const HIEventShapeIndex* es_index = HIEventShapeMap::getIndex(m_inputEventShapeKey.key());
+  const HIEventShapeIndex* es_index = m_eventShapeMapTool->getIndexFromShape(input_shape);
   //New implementation after moving away from mutable
+  ATH_MSG_INFO("HIEventShapeJetIteration: found index for  " << m_inputEventShapeKey.key());
   if(es_index==nullptr)
   {
-    ATH_MSG_INFO("No HIEventShapeIndex w/ name " << m_inputEventShapeKey.key() << " adding it to the map");
-    HIEventShapeIndex* h = new HIEventShapeIndex();
-    h->setBinning(input_shape);
-    es_index = HIEventShapeMap::insert( m_inputEventShapeKey.key(), *h );
+    ATH_MSG_FATAL("No HIEventShapeIndex w/ name " << m_inputEventShapeKey.key() << ". Shape not TOWER nor COMPACT");
   }
 
-  const HIEventShapeIndex* other_index = HIEventShapeMap::getIndex(m_outputEventShapeKey.key());
-  if(!other_index) HIEventShapeMap::insert( m_inputEventShapeKey.key(), *es_index );
+  const HIEventShapeIndex* other_index = m_eventShapeMapTool->getIndexFromShape(output_shape);
+  if(!other_index) {
+   ATH_MSG_FATAL("No HIEventShapeIndex w/ name " << m_outputEventShapeKey.key() << ". Shape not TOWER nor COMPACT");
+  }
   //End of new implementation
 
   const xAOD::JetContainer* theCaloJets=0;
@@ -186,12 +187,10 @@ void HIEventShapeJetIteration::updateShape(xAOD::HIEventShapeContainer* output_s
   {
     ATH_MSG_INFO("Problem, null pointer");
 
-    es_index=HIEventShapeMap::getIndex(m_inputEventShapeKey.key());
+    es_index=m_eventShapeMapTool->getIndexFromShape(output_shape);
     if(es_index==nullptr)
     {
-      HIEventShapeIndex* h=new HIEventShapeIndex();
-      h->setBinning(output_shape);
-      es_index=HIEventShapeMap::insert(m_inputEventShapeKey.key(),*h);
+      ATH_MSG_FATAL("Can't find correspondent index for map " << m_inputEventShapeKey.key() << " in the HIEventShapeMapTool");
     }
   }
 

@@ -8,7 +8,6 @@
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 import addP1Signatures
 
 def setupMenu():
@@ -39,15 +38,6 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
-        ChainProp(name='HLT_noalg_cosmiccalo_L1EM3_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:MinBias']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_31ETA49_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J12_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1EM7_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
-        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_BGRP10', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
 
         ChainProp(name='HLT_noalg_idcosmic_L1TRT_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic','express'],groups=['RATE:SeededStreamers','BW:Other']),
         ChainProp(name='HLT_noalg_idcosmic_L1TRT_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'],groups=['RATE:SeededStreamers','BW:Other']),
@@ -65,27 +55,4 @@ def setupMenu():
     # Add all standard monitoring chains from addP1Signatures function
     addP1Signatures()
 
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-class Prescales(object):
-    #   Item name             | Prescale
-    #----------------------------------------------------------
-    L1Prescales = {}
-
-    #   Signature name   | [ HLTprescale, HLTpass-through, rerun]
-    #   - Prescale values should be a positive integer (default=1)
-    #   - If the current pass_through value is non-zero,
-    #     the value given here will be used as pass_through rate
-    #     Assuming that pass through chains are configured so
-    #     in the slice files and won't change. Also prescale
-    #     and pass_through will not be used together.
-    #   - If only the first value is specified,
-    #     the default value of pass-through (=0) will be used
-    #----------------------------------------------------------
-    HLTPrescales = {
-        }
-
-    L1Prescales_cosmics  = {}
-    HLTPrescales_cosmics = {}
-    chain_list=[]
 

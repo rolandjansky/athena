@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Json2Cool.h"
@@ -139,7 +139,7 @@ Json2Cool::Json2Cool(std::istream & stream, BasicFolder & b):m_basicFolder(b){
     for (unsigned int i(0);i!=s;++i){
       auto & f=a[i];
       const auto & v = it.value();
-      it++;
+      ++it;
       try{
         auto & att=const_cast<coral::Attribute&>(a.attributeList()[i]);
         if (v.is_null()){

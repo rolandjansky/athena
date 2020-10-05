@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/CheckFlow_New.h
@@ -254,7 +254,6 @@ StatusCode CheckFlow_New::execute() {
 
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
-//  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
     msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"<< endmsg;
     return StatusCode::FAILURE;
   }
@@ -280,7 +279,7 @@ StatusCode CheckFlow_New::execute() {
 
   // Iterate over all MC particles
   GenAll ifs;
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
@@ -296,13 +295,13 @@ StatusCode CheckFlow_New::execute() {
 	   << " PID = " << pid << " Status = " << p_stat
 	   << " Eta = " << rapid << "  Phi = " << phi<< endmsg;
 
-    if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
+    if( (std::abs(rapid) >= m_rapcut_min) && (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt) >= m_ptcut_min) && (std::abs(pt) <= m_ptcut_max) ) {
 
       for(int ihar=0;ihar<6;ihar++){
         float temp=(ihar+1)*(phi-Psi_n[ihar]);
 
-        int ieta= (int)(fabs(rapid)*n_etabin/eta_bin_max);
+        int ieta= (int)(std::abs(rapid)*n_etabin/eta_bin_max);
         if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep [ihar][ieta]->Fill(pt/1000,cos(temp));
 
 
@@ -315,21 +314,21 @@ StatusCode CheckFlow_New::execute() {
         }
 
         if( rapid >3.2 && rapid< 4.9){
-          cos_n_pos[ihar]+=cos(  (ihar+1)*phi);
-          sin_n_pos[ihar]+=sin(  (ihar+1)*phi);
+          cos_n_pos[ihar]+=std::cos(  (ihar+1)*phi);
+          sin_n_pos[ihar]+=std::sin(  (ihar+1)*phi);
           ngenerated_pos++;
 
-          cos_n_pt_pos[ihar]+=pt*cos(  (ihar+1)*phi);
-          sin_n_pt_pos[ihar]+=pt*sin(  (ihar+1)*phi);
+          cos_n_pt_pos[ihar]+=pt*std::cos(  (ihar+1)*phi);
+          sin_n_pt_pos[ihar]+=pt*std::sin(  (ihar+1)*phi);
           ngenerated_pt_pos +=pt;
         }
         if( rapid <-3.2 && rapid >-4.9){
-          cos_n_neg[ihar]+=cos(  (ihar+1)*phi);
-          sin_n_neg[ihar]+=sin(  (ihar+1)*phi);
+          cos_n_neg[ihar]+=std::cos(  (ihar+1)*phi);
+          sin_n_neg[ihar]+=std::sin(  (ihar+1)*phi);
           ngenerated_neg++;
 
-          cos_n_pt_neg[ihar]+=pt*cos(  (ihar+1)*phi);
-          sin_n_pt_neg[ihar]+=pt*sin(  (ihar+1)*phi);
+          cos_n_pt_neg[ihar]+=pt*std::cos(  (ihar+1)*phi);
+          sin_n_pt_neg[ihar]+=pt*std::sin(  (ihar+1)*phi);
           ngenerated_pt_neg +=pt;
         }
 
@@ -345,19 +344,19 @@ StatusCode CheckFlow_New::execute() {
     cos_n[ihar] = ( cos_n_pos[ihar]+ cos_n_neg[ihar] )  /  (ngenerated_pos+ngenerated_neg);
     sin_n[ihar] = ( sin_n_pos[ihar]+ sin_n_neg[ihar] )  /  (ngenerated_pos+ngenerated_neg);
 
-    float psi_reco=atan2(sin_n[ihar],cos_n[ihar])/(ihar+1);
+    float psi_reco=std::atan2(sin_n[ihar],cos_n[ihar])/(ihar+1);
     m_hist_Psi_n_ebe[ihar]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
-    m_hist_vn_ebe   [ihar]->Fill(sqrt(cos_n[ihar]*cos_n[ihar] +sin_n[ihar]*sin_n[ihar] ));
+    m_hist_vn_ebe   [ihar]->Fill(std::sqrt(cos_n[ihar]*cos_n[ihar] +sin_n[ihar]*sin_n[ihar] ));
 
-    Psi_n_reco_pos[ihar]=atan2(sin_n_pos[ihar],cos_n_pos[ihar])/ (ihar+1);
-    Psi_n_reco_neg[ihar]=atan2(sin_n_neg[ihar],cos_n_neg[ihar])/ (ihar+1);
+    Psi_n_reco_pos[ihar]=std::atan2(sin_n_pos[ihar],cos_n_pos[ihar])/ (ihar+1);
+    Psi_n_reco_neg[ihar]=std::atan2(sin_n_neg[ihar],cos_n_neg[ihar])/ (ihar+1);
     Psi_n_reco    [ihar]=psi_reco;
 
 
     cos_n_pt[ihar] = ( cos_n_pt_pos[ihar]+ cos_n_pt_neg[ihar] )  /  (ngenerated_pt_pos+ngenerated_pt_neg);
     sin_n_pt[ihar] = ( sin_n_pt_pos[ihar]+ sin_n_pt_neg[ihar] )  /  (ngenerated_pt_pos+ngenerated_pt_neg);
 
-    psi_reco=atan2(sin_n_pt[ihar],cos_n_pt[ihar])/(ihar+1);
+    psi_reco=std::atan2(sin_n_pt[ihar],cos_n_pt[ihar])/(ihar+1);
     m_hist_Psi_n_ebe_pt[ihar]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
   }
 
@@ -370,10 +369,10 @@ StatusCode CheckFlow_New::execute() {
     float psi1,psi2;
     for(int ihar2=0;ihar2<6;ihar2++){
       psi1=(ihar+1)*Psi_n[ihar];psi2=(ihar2+1)*Psi_n[ihar2];
-      m_hist_psi_corr_true[ihar*6+ihar2]->Fill(  atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
+      m_hist_psi_corr_true[ihar*6+ihar2]->Fill(  std::atan2(  std::sin(psi1-psi2),std::cos(psi1-psi2) )  );
 
       psi1=(ihar+1)*Psi_n_reco[ihar];psi2=(ihar2+1)*Psi_n_reco[ihar2];
-      m_hist_psi_corr_reco[ihar*6+ihar2]->Fill( atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
+      m_hist_psi_corr_reco[ihar*6+ihar2]->Fill( std::atan2(  std::sin(psi1-psi2),std::cos(psi1-psi2) )  );
     }
   }
 
@@ -389,16 +388,16 @@ StatusCode CheckFlow_New::execute() {
     double pt     = pitr->momentum().perp();
     double rapid  = pitr->momentum().pseudoRapidity();
     double phi    = pitr->momentum().phi();
-    if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
-	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
+    if( (std::abs(rapid) >= m_rapcut_min) && (std::abs(rapid) <= m_rapcut_max) &&
+	(std::abs(pt) >= m_ptcut_min) && (std::abs(pt) <= m_ptcut_max) ) {
 
       for(int ihar=0;ihar<6;ihar++){
         float       temp=(ihar+1)*(phi-Psi_n_reco_pos[ihar]);
         if(rapid>0) temp=(ihar+1)*(phi-Psi_n_reco_neg[ihar]);
 
 
-        int ieta= (int)(fabs(rapid)*n_etabin/eta_bin_max);
-        if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep_reco [ihar][ieta]->Fill(pt/1000,cos(temp));
+        int ieta= (int)(std::abs(rapid)*n_etabin/eta_bin_max);
+        if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep_reco [ihar][ieta]->Fill(pt/1000,std::cos(temp));
 
         float temp_pt=pt/1000;
         for(int ipt=0;ipt<n_ptbin;ipt++){
@@ -421,19 +420,6 @@ StatusCode CheckFlow_New::execute() {
 StatusCode CheckFlow_New::finalize() {
   msg(MSG::INFO) << ">>> CheckFlow_New from finalize" << endmsg;
 
-/*
-  for(int ihar=0;ihar<6;ihar++){
-    double reso=m_profile_resolution->GetBinContent(ihar+1);
-    if (reso >=0) reso= sqrt( reso);
-    else          reso=-sqrt(-reso);
-    for(int ieta=0;ieta<n_etabin;ieta++){
-      m_profile_pt_dep_reco [ihar][ieta]->Scale(1.0/reso);
-    }
-    for(int ipt=0;ipt<n_ptbin;ipt++){
-     m_profile_eta_dep_reco[ihar][ipt]->Scale(1.0/reso);
-    }
-  }
-*/
   return StatusCode::SUCCESS;
 }
 

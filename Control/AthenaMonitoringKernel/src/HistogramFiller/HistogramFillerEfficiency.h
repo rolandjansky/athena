@@ -5,10 +5,10 @@
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFillerEfficiency_h
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFillerEfficiency_h
 
-#include "CxxUtils/checker_macros.h"
 #include "TEfficiency.h"
 
 #include "AthenaMonitoringKernel/HistogramFiller.h"
+#include "HistogramFillerUtils.h"
 
 namespace Monitored {
   /**
@@ -19,91 +19,58 @@ namespace Monitored {
     HistogramFillerEfficiency(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFillerEfficiency* clone() const override {
-      return new HistogramFillerEfficiency( *this );
-    }
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
 
-    virtual unsigned fill() const override {
-      size_t varVecSize = m_monVariables.at(0).get().size();
+      if ( ATH_UNLIKELY( vars.var[0] == nullptr or vars.var[1] == nullptr ) ) return 0;
 
-      auto cutMaskValuePair = getCutMaskFunc();
+
+
+      auto cutMaskValuePair = getCutMaskFunc(vars.cut);
       if (cutMaskValuePair.first == 0) { return 0; }
-      if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != varVecSize)) {
+      if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != vars.var[0]->size())) {
         MsgStream log(Athena::getMessageSvc(), "HistogramFillerEfficiency");
         log << MSG::ERROR << "CutMask does not match the size of plotted variable: " 
-            << cutMaskValuePair.first << " " << varVecSize << endmsg;
+            << cutMaskValuePair.first << " " << vars.var[0]->size() << endmsg;
       }
       auto cutMaskAccessor = cutMaskValuePair.second;
 
-      auto efficiency = this->histogram<TEfficiency>();
-      std::scoped_lock lock(*m_mutex);
+      TEfficiency* efficiency = this->histogram<TEfficiency>();
+      const TH1* efftot = efficiency->GetTotalHistogram();
 
-      int nMonVar = m_monVariables.size();
+      const unsigned nMonVar = vars.size();
+      const size_t var0Size = vars.var[0]->size();
       if ( nMonVar==2 ) { // Single observable (1D TEfficiency)
-        const auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
-        const auto valuesVector1 = retrieveVariable(efficiency, 1);
-        for (unsigned i = 0; i < std::size(valuesVector0); ++i) {
+        for (unsigned i = 0; i < var0Size; ++i) {
           if (cutMaskAccessor(i)) {
-            efficiency->Fill(valuesVector0[i], valuesVector1[i]);
+            efficiency->Fill(vars.var[0]->get(i),
+                             detail::getFillValue<Axis::X>(efftot, vars.var[1], i));
           }
         }
-        return std::size(valuesVector0);
+        return var0Size;
       } else if ( nMonVar==3 ) { // Two observables (2D TEfficiency)
-        const auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
-        const auto valuesVector1 = retrieveVariable(efficiency, 1);
-        const auto valuesVector2 = retrieveVariable(efficiency, 2);
-        for (unsigned i = 0; i < std::size(valuesVector0); ++i) {
+        for (unsigned i = 0; i < var0Size; ++i) {
           if (cutMaskAccessor(i)) {
-            efficiency->Fill(valuesVector0[i], valuesVector1[i], valuesVector2[i]);
+            efficiency->Fill(vars.var[0]->get(i),
+                             detail::getFillValue<Axis::X>(efftot, vars.var[1], i),
+                             detail::getFillValue<Axis::Y>(efftot, vars.var[2], i));
           }
         }
-        return std::size(valuesVector0);
+        return var0Size;
       } else if ( nMonVar==4 ) { // Three observables (3D Efficiency)
-        const auto valuesVector0 = m_monVariables[0].get().getVectorRepresentation();
-        const auto valuesVector1 = retrieveVariable(efficiency, 1);
-        const auto valuesVector2 = retrieveVariable(efficiency, 2);
-        const auto valuesVector3 = retrieveVariable(efficiency, 3);
-        for (unsigned i = 0; i < std::size(valuesVector0); ++i) {
+        for (unsigned i = 0; i < var0Size; ++i) {
           if (cutMaskAccessor(i)) {
-            efficiency->Fill(valuesVector0[i], valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+            efficiency->Fill(vars.var[0]->get(i),
+                             detail::getFillValue<Axis::X>(efftot, vars.var[1], i),
+                             detail::getFillValue<Axis::Y>(efftot, vars.var[2], i),
+                             detail::getFillValue<Axis::Z>(efftot, vars.var[3], i));
           }
         }
-        return std::size(valuesVector0);
+        return var0Size;
       } else {
         return 0;
       }
+      return var0Size;
     }
-
-    const std::vector<double> retrieveVariable(TEfficiency* efficiency, int iVariable) const {
-      auto valueVariable = m_monVariables[iVariable];
-      std::vector<double> valuesVector;
-      if ( valueVariable.get().hasStringRepresentation() ) {
-        TH1* tot ATLAS_THREAD_SAFE  = const_cast<TH1*>(efficiency->GetTotalHistogram());
-        const TAxis* axis = getAxis(tot, iVariable);
-        for ( const std::string& value : valueVariable.get().getStringVectorRepresentation() ) {
-          const int binNumber = axis->FindFixBin( value.c_str() );
-          const double binCenter ATLAS_THREAD_SAFE = axis->GetBinCenter(binNumber);
-          valuesVector.push_back(binCenter);
-        }
-      } else {
-        valuesVector = valueVariable.get().getVectorRepresentation();
-      }
-      return valuesVector;
-    }
-
-    const TAxis* getAxis(TH1* hist, int iAxis) const {
-      if ( iAxis==1 ) {
-        return hist->GetXaxis();
-      } else if ( iAxis==2 ) {
-        return hist->GetYaxis();
-      } else if ( iAxis==3 ) {
-        return hist->GetZaxis();
-      } else {
-        HistogramException("Invalid request for axis when defining TEfficiency.");
-        return nullptr;
-      }
-    }
-
   };
 }
 

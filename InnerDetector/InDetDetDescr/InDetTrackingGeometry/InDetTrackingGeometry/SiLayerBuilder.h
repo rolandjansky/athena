@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,6 +11,7 @@
 
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk
@@ -62,7 +63,8 @@ namespace InDet {
 
      @author Andreas.Salzburger@cern.ch
     */
-  class SiLayerBuilder : public AthAlgTool, virtual public Trk::ILayerBuilder {
+  class ATLAS_NOT_THREAD_SAFE SiLayerBuilder : // static member variables are used.
+    public AthAlgTool, virtual public Trk::ILayerBuilder {
     
     public:
     

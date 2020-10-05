@@ -1,33 +1,30 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package trf
 #
 #  @brief Main package containing the @em JobTransform class.
 #  @details Main module of @em PyJobTransformsCore package containing the base class @em JobTransform.
-#  @author $LastChangedBy: graemes $
-#  @version $Rev: 576050 $
-#  @date $Date: 2013-12-18 09:14:07 +0100 (Wed, 18 Dec 2013) $
 
 from __future__ import with_statement, print_function
-import os, sys, time, getopt, stat, re, math, subprocess, signal, threading
-import traceback
+from past.builtins import execfile
+import os, sys, time, stat, re, math, subprocess, signal, inspect
 import stat as statconsts
 from copy import copy
 try:
     import cPickle as pickle
-except:
+except Exception:
     import pickle
 import fileutil
 from PyJobTransformsCore import trfenv, trferr, trfconsts, AtlasErrorCodes
-from PyJobTransformsCore.trferr import *
-from PyJobTransformsCore.trfutil import *
-from PyJobTransformsCore.JobReport import *
-from PyJobTransformsCore.TransformLogger import *
+from PyJobTransformsCore.trferr import AthenaLogChecker, InputFileError, JobOptionsNotFoundError, TransformArgumentError, TransformDefinitionError, TransformEnvironmentError, TransformErrorDiagnoser, TransformValidationError
+from PyJobTransformsCore.trfutil import Author, CommentLine, PostJobOptionsFile, PreJobOptionsFile, SQLiteSupport, TRF_SETTING, VersionString, find_joboptions, get_atlas_release, get_files, setDefaultSignalHandlers, setTrfSignalHandler, strip_suffix
+from PyJobTransformsCore.JobReport import JobReport, JobInfo, _extraMetadataDict
+from PyJobTransformsCore.TransformLogger import TransformLogger
 from PyJobTransformsCore.TransformConfig import TransformConfig
-from PyJobTransformsCore.runargs import * 
+from PyJobTransformsCore.runargs import RunArguments, RunOptions, VALIDATION_DICT
 from PyJobTransformsCore.VTimer import vTimer
-from PyJobTransformsCore.basic_trfarg import Argument,OutputFileArg
-from PyJobTransformsCore.full_trfarg import *
+from PyJobTransformsCore.basic_trfarg import Argument
+from PyJobTransformsCore.full_trfarg import OptionArg, JobConfigArg
 from AthenaCommon import ExitCodes  
 
 ## @class JobTransform
@@ -132,7 +129,7 @@ class JobTransform(TransformLogger):
                         if _v:
                             version = _v
                             break
-            except:
+            except Exception:
                 pass
         ## Specify if this is the last trf in a chained series of trfs.
         #  This allows certain processes to be omitted/added depending on it's position in the trf chain. 
@@ -352,11 +349,11 @@ class JobTransform(TransformLogger):
                 self._logFile.write(line)
         try:
             self._logFile.close()
-        except:
+        except Exception:
             pass
         try:
             rc = self._runJobProcess.returncode
-        except:
+        except Exception:
             rc = None
         if rc < 0 or rc is None:
             os.system( 'dmesg > dmesg_trf.txt' )
@@ -562,13 +559,13 @@ class JobTransform(TransformLogger):
         try:
             if minEvents < 0 or maxEvents < 0 or maxEvents < minEvents:
                 raise Exception
-        except:
-            self.logger().info( "%s should be greater or equal to %s" % ( maxEvents, minEvents ) )
+        except Exception:
+            self.logger().info( "%s should be greater or equal to %s", maxEvents, minEvents )
             return
         self._minEvents = minEvents
-        self.logger().info("Setting minimum number of output events to %d" % minEvents)
+        self.logger().info("Setting minimum number of output events to %d", minEvents)
         self._maxEvents = maxEvents
-        self.logger().info("Setting maximum number of output events to %d" % maxEvents)
+        self.logger().info("Setting maximum number of output events to %d", maxEvents)
 
     ## @brief Ensure that the exit code is not affected by the presence of unknown errors.
     #  @details Aligns the transform exit code with that of @c athena.py (@em only if the latter was successful) 
@@ -634,7 +631,7 @@ class JobTransform(TransformLogger):
         try:
             execfile( fname )
         except IOError:
-            self.logger().warning( "Error reading file %s containing extra metadata." % fname )
+            self.logger().warning( "Error reading file %s containing extra metadata.", fname )
         else:
             _extraMetadataDict.update( locals()['extraMetadataDict'] )
 
@@ -704,7 +701,7 @@ class JobTransform(TransformLogger):
     def enableMaskAllErrors( self, val ):
         try:
             val = val.upper()
-        except:
+        except Exception:
             pass
         else:
             if val == 'ALL':
@@ -755,7 +752,7 @@ class JobTransform(TransformLogger):
         for n in self._sharedRunOpts:
             try:
                 setattr(self._runOpts,n,getattr(parentOpts,n))
-            except:
+            except Exception:
                 pass
 
     ## Add or replace options at the command line for @c athena.py
@@ -773,7 +770,7 @@ class JobTransform(TransformLogger):
             except ValueError:
                 pass
             else:
-                self.logger().warning( '%s cannot be used with the default --tcmalloc option. --tcmalloc option removed.' % option )
+                self.logger().warning( '%s cannot be used with the default --tcmalloc option. --tcmalloc option removed.', option )
         # remove old option if needed
         firstWord = option.split()[0]
         for opt in self._athenaOptions:
@@ -819,13 +816,12 @@ class JobTransform(TransformLogger):
         if isinstance(authorList,Author):
             authorsAdd = [ authorList ]
         else:
-            authType = type(authorList)
-            if authType == type(''):
+            if isinstance(authorList, str):
                 authorsAdd = [ Author(a) for a in authorList.split(',') ]
-            elif authType == type(list()):
+            elif isinstance(authorList, list):
                 pass
             else:
-                raise TransformDefinitionError('Author type %s not supported' % authType)
+                raise TransformDefinitionError('Author type %s not supported' % type(authorList))
         self._authors += authorsAdd
         # update authors template
         authStrings = [ str(a) for a in authorsAdd ]
@@ -1067,7 +1063,7 @@ class JobTransform(TransformLogger):
     #  @return None
     def ls(self):
         for arg in self._positionalArgs:
-            self.logger().info( '%s=%s # %s' % ( arg.name(), arg.value(), arg.getHelp() ) )
+            self.logger().info( '%s=%s # %s', arg.name(), arg.value(), arg.getHelp() )
 
     ## Getter function for the job transform name.
     #  @see _name attribute.
@@ -1139,7 +1135,7 @@ class JobTransform(TransformLogger):
     def getArgumentOfType(self,typename):
         for arg in self._positionalArgs:
             if arg.argumentType() == typename: return arg
-        self.logger().warning( "Argument of %s type not found. Returning None." % typename )
+        self.logger().warning( "Argument of %s type not found. Returning None.", typename )
         return None
 
     ## Getter function for the list of arguments in positional order.
@@ -1170,7 +1166,7 @@ class JobTransform(TransformLogger):
     #  @return None
     def writeRunArgs(self):
         filename = self.runArgsFilename()
-        self.logger().info( 'Writing runArgs to file \"%s\"' % filename )
+        self.logger().info( 'Writing runArgs to file \"%s\"', filename )
         with open( filename, 'w' ) as f:
             f.write( self.getRunArgsTemplate() % self.argumentValueDict() )
         filename = os.path.splitext(filename)[0] + '.gpickle'
@@ -1182,7 +1178,7 @@ class JobTransform(TransformLogger):
         raise TransformDefinitionError( "Auto-generation of skeleton jobOptions file not yet supported." +
                                         " It must be specified in the constructor of %s" % self.__class__.__name__  )
         filename = self.skeletonFilename()
-        self.logger().info( 'Writing skeleton to file \"%s\"' % filename )
+        self.logger().info( 'Writing skeleton to file \"%s\"', filename )
         with open( filename, 'w' ) as f:
             f.write( self.getSkeletonTemplate() % self.argumentValueDict() )
 
@@ -1318,7 +1314,6 @@ class JobTransform(TransformLogger):
         args = self._runOpts.extractOptions(argList)
         # process arguments
         posArgs = self._positionalArgs
-        reqArgs = self._requiredArgs
         nArgs = len(args)
         # fill the dictionary with all given arguments
         lastNamed=''
@@ -1329,15 +1324,15 @@ class JobTransform(TransformLogger):
             if equal == -1:
                 #positional argument. Not allowed after named argument
                 if lastNamed:
-                    raise TransformArgumentError(\
+                    raise TransformArgumentError(
                         'No positional arguments allowed after named arguments.' +
-                        ' Positional argument %d (%s) after named argument %s=%r' % \
+                        ' Positional argument %d (%s) after named argument %s=%r' %
                         (i+1,val,lastNamed,self.getArgument(lastNamed).value()) )
                 try:
                     name = posArgs[pos].name()
                 except IndexError:
-                    raise TransformArgumentError ('too many arguments: %d (max=%d)' % \
-                          (nArgs, len(posArgs)))
+                    raise TransformArgumentError ('too many arguments: %d (max=%d)' %
+                                                  (nArgs, len(posArgs)))
                 pos += 1
             else:
                 #named argument or option
@@ -1382,7 +1377,7 @@ class JobTransform(TransformLogger):
                 if oldEvents > 0:
                     newEvents = int( math.ceil(oldEvents/eff) )
                     maxEvts.setValue(newEvents)
-                    self.logger().info("Processing %d events instead of %d to account for filtering efficiency %f" % (newEvents, oldEvents, eff ) )
+                    self.logger().info("Processing %d events instead of %d to account for filtering efficiency %f", newEvents, oldEvents, eff )
 
     ## Dump to file the complete shell command to facilitate the re-execution of the transform.
     #  @remarks The arguments of the transform are written to a separate file as well.
@@ -1421,7 +1416,7 @@ class JobTransform(TransformLogger):
         # try environment variable DBRELEASE
         self._dbrelease = os.environ.get('DBRELEASE')
         if self._dbrelease:
-            self.logger().info( "Got Database Release number %s from environment variable DBRELEASE" % self._dbrelease )
+            self.logger().info( "Got Database Release number %s from environment variable DBRELEASE", self._dbrelease )
         else:
             self.logger().info( "Database Release no longer needed for r19 and beyond" )
             return
@@ -1452,8 +1447,8 @@ class JobTransform(TransformLogger):
         machineInfo = JobInfo('Machine')
         # Platform information
         import platform
-        joinList = lambda x : '-'.join(x)
-        asIs = lambda x: x
+        joinList = lambda x : '-'.join(x)  # noqa: E731
+        asIs = lambda x: x                 # noqa: E731
         platformEnv = { 'architecture'   : joinList ,
                         'dist'           : joinList ,
                         'machine'        : asIs ,
@@ -1471,8 +1466,8 @@ class JobTransform(TransformLogger):
         cpucache=''
         modelstring='UNKNOWN'
         fname='/proc/cpuinfo'
-        modelRE=re.compile('^model name\s+:\s+(\w.+)')
-        cacheRE=re.compile('^cache size\s+:\s+(\d+ KB)')
+        modelRE=re.compile(r'^model name\s+:\s+(\w.+)')
+        cacheRE=re.compile(r'^cache size\s+:\s+(\d+ KB)')
         try:
             with open( fname ) as f:
                 for line in f:
@@ -1507,7 +1502,7 @@ class JobTransform(TransformLogger):
                        'X?PRINT.*', 'INPUTRC', 'LESS.*', 'AFSHOME', 'USERPATH', 'IFS', 'LAMHELPFILE',
                        'CLUSTER_DIR', 'ENVIRONMENT', 'GS_LIB', 'ROOTPATH', 'XAUTHORITY'
                        '.*_DCOP', 'DCOP_.*', 'DOTFONTPATH', 'INITIALISED',
-                        'SAVEHIST', 'HISTSIZE', 
+                       'SAVEHIST', 'HISTSIZE',
                        'cmt', 'jcmt', 'CVS.*', 'CMTCVSOFFSET', os.sep )
         excludeEnvRE = re.compile( '^%s$' % '|'.join(excludeEnv) )
         for n,v in os.environ.items():
@@ -1579,7 +1574,7 @@ class JobTransform(TransformLogger):
         # gather metadata from logfile
         logfile = self._logFilename
         if os.path.exists(logfile):
-            self.logger().info( "Scanning logfile %s for metadata..." % logfile )
+            self.logger().info( "Scanning logfile %s for metadata...", logfile )
             # pattern in logfile:
             #    MetaData: <name> [unit]=<value>
             metaPat = re.compile( r"^MetaData:\s+(.*?)\s*=\s*(.*)$" )
@@ -1590,7 +1585,7 @@ class JobTransform(TransformLogger):
                     if match:
                         name=match.group(1).split()[0]  # take first word (second word is optional unit)
                         value=match.group(2)
-                        self.logger().info( "Found MetaData: %s=%s" % (name,value) )
+                        self.logger().info( "Found MetaData: %s=%s", name,value )
                         addMeta[name] = value
                         continue
                     # gather extra metadata from extraMetadata
@@ -1659,7 +1654,7 @@ class JobTransform(TransformLogger):
         # gather metadata from logfile
         logfile = self._logFilename
         if os.path.exists(logfile):
-            self.logger().info( "Scanning logfile %s for metadata..." % (logfile) )
+            self.logger().info( "Scanning logfile %s for metadata...", logfile )
             # pattern in logfile:
             #    MetaData: <name> [unit]=<value>
             metaPat = re.compile( r"^MetaData:\s+(.*?)\s*=\s*(.*)$" )
@@ -1670,7 +1665,7 @@ class JobTransform(TransformLogger):
                     if match:
                         name=match.group(1).split()[0]  # take first word (second word is optional unit)
                         value=match.group(2)
-                        self.logger().info( "Found MetaData: %s=%s" % (name,value) )
+                        self.logger().info( "Found MetaData: %s=%s", name, value )
                         addMeta[name] = value
                         continue
                     # gather extra metadata from extraMetadata
@@ -1709,7 +1704,6 @@ class JobTransform(TransformLogger):
     #  @return None
     def preStageInputFiles(self):
         from PyJobTransformsCore.FilePreStager import theFileStagerRobot
-        from PyJobTransformsCore import CastorPreStager
         self._addLogger( theFileStagerRobot )
         fileList = []
         for f in self._inputFiles:
@@ -1758,9 +1752,9 @@ class JobTransform(TransformLogger):
             if len(self._inputFiles) > 1:
                 self.logger.info('Checking maxEvents against {0} only ({1} are assumed to have the same event count)'.format(self._inputFiles[0].name(), [f.name() for f in self._inputFiles[1:]]))
             inputFile = self._inputFiles[0]
-            if VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testCountEvents' ] == False:
+            if VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testCountEvents' ] is False:
                 raise Exception
-        except:
+        except Exception:
             self.logger().info( "Skipping input file max event check." )
             return
         # Do nothing if all events are to be used (-1) rather than set it to the actual number.
@@ -1779,12 +1773,12 @@ class JobTransform(TransformLogger):
                 self.logger().warning("Found 0 events in %s, but total filesize %s. Ignoring event count.",
                                       inputFile.name(), totalSize )
             else:
-                raise InputFileError(inputFile.originalValue(),' empty file(s). Argument %s' % \
+                raise InputFileError(inputFile.originalValue(),' empty file(s). Argument %s' %
                                      (inputFile.name(),) ,
                                      error='TRF_INFILE_EMPTY')
         elif events < maxEvents:
             if self._maxEventsStrategy =='ABORT':
-                raise InputFileError(inputFile.originalValue(),': too few events (%d < %d) in input file' % \
+                raise InputFileError(inputFile.originalValue(),': too few events (%d < %d) in input file' %
                                      (events,maxEvents),
                                      error='TRF_INFILE_TOOFEW')
             elif self._maxEventsStrategy =='INPUTEVENTS':
@@ -1798,10 +1792,10 @@ class JobTransform(TransformLogger):
                 self.logger().warning("Unknown maxEventsStratety (%s). Ignoring that %s=%d is larger than number of events (%d) in input file(s) %s",
                                       self._maxEventsStrategy,maxEventsArg.name(),maxEvents,events,inputFile.originalValue())
             # Do check on minimum number of input events 
-            if VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testEventMinMax' ] == False:
+            if VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testEventMinMax' ] is False:
                 self.logger().info( "Input file event min/max test omitted." ) 
             elif self._minEvents and events < self._minEvents:
-                raise InputFileError(inputFile.originalValue(),': too few events (%d < %d) in input file' % \
+                raise InputFileError(inputFile.originalValue(),': too few events (%d < %d) in input file' %
                                      (events,self._minEvents),
                                      error='TRF_INFILE_TOOFEW')
         else:
@@ -1830,7 +1824,7 @@ class JobTransform(TransformLogger):
                 # SQLiteSupport is enabled.
                 if self._useSQLite is None:
                     self._useSQLite = self._mcInput
-                    self.logger().info( "%s use of SQLite." % { True : 'Enabling', False : 'Disabling', None : 'Disabling' }[ self._useSQLite ] )
+                    self.logger().info( "%s use of SQLite.", { True : 'Enabling', False : 'Disabling', None : 'Disabling' }[ self._useSQLite ] )
                 if not self._useSQLite:
                     continue
             cmd.preRunAction()
@@ -1849,12 +1843,12 @@ class JobTransform(TransformLogger):
             for l in lines:
                 # print (l.strip())
                 if l.startswith('/atlas/Role=production'): isProd=True
-        except OSError as e:
+        except OSError:
             print ("trf.py - Not a prodSys environment.")
                      
         
-        if isProd==False and os.getenv('TZAMIPW') is None: print ('Performance data will not get stored in the AMI db.'          )
-        elif self._exportToAmi==True and self.name()!='Digi_trf':  # digi is off as it has no AMItag and is fast
+        if isProd is False and os.getenv('TZAMIPW') is None: print ('Performance data will not get stored in the AMI db.'          )
+        elif self._exportToAmi is True and self.name()!='Digi_trf':  # digi is off as it has no AMItag and is fast
         
             #print ('-------', self.name(), '-------')
             
@@ -1862,8 +1856,7 @@ class JobTransform(TransformLogger):
             isStream=''
             isAMItag=''
             isRun=-1
-            isFormat=''
-            
+
             import PyUtils.AthFile as athFile 
             # this loop just tries to find runnumber, stream, amitag. should not look at NTUP files as these have not metadata embeded
             for arg in self._positionalArgs: 
@@ -1900,39 +1893,29 @@ class JobTransform(TransformLogger):
                             isRun    = inputFileSummary['run_number'][0]
                         print ('isRun    ', isRun)
                         
-                        # if 'stream_names' in inputFileSummary:
-                        #     isFormat = inputFileSummary['stream_names'][0].replace('Stream','')
-                        # print ('isFormat ',isFormat)
-                    
-                        # if arg.name().startswith('outputRDOFile'):
-                        #     print ('This is RDO. Changing format to proper one.')
-                        #     isFormat='RDO'
-                        
-                        if isMC==True:
+                        if isMC is True:
                             print ('this is MC. Changin stream->procstep and runnumber -> pandaid')
                             isStream=self.name()
-                            fromFN = inFile.split('.');
                             if inFile[1].isdigit():
                                 isRun = inFile[1]
                             else:
                                 isRun = 0
-                    except Exception as e:
+                    except Exception:
                         print ("Problem in decoding variables.")
                         print (sys.exc_info()[0])
                         print (sys.exc_info()[1])
-                    except:
+                    except Exception:
                         print ("Unexpected error:", sys.exc_info()[0])
                     print ('=====================')
                    
             if isAMItag!='':
-            			    
-                print ('trf.py STARTING UPLOAD the final values -> stream:',isStream,'\trunnumber:',isRun,'\tamitag:',isAMItag)#, '\tformat:',isFormat
+                print ('trf.py STARTING UPLOAD the final values -> stream:',isStream,'\trunnumber:',isRun,'\tamitag:',isAMItag)
                 
                 import PyJobTransforms.performanceDataUploader as pu
                 
                 uploader = pu.PerformanceUploader(isProd)
                 uploader.establishConnection()
-			    # this loop finds sizes and formats and uploads to AMI for all the files.
+                # this loop finds sizes and formats and uploads to AMI for all the files.
                 for cmd in self._postRunActions:
                     try:
                         # print ('trf.py _postRunAction ',cmd)
@@ -1946,13 +1929,13 @@ class JobTransform(TransformLogger):
                                     print ('trf.py object size data upload DONE')
                                 except Exception as exc:
                                     print (exc)
-                                except:
+                                except Exception:
                                     print ("Unexpected error:", sys.exc_info()[0])
                     except Exception as e:
                         print ('trf.py WARNING: Could not send size data to AMI ' , e)
                         print (sys.exc_info()[0])
                         print (sys.exc_info()[1])
-                    except:
+                    except Exception:
                         print ("Unexpected error:", sys.exc_info()[0])
                 
                 if self._name=='AtlasG4_trf' or self._name=='Evgen_trf' or self._name=='Digi_trf': 
@@ -1968,7 +1951,7 @@ class JobTransform(TransformLogger):
                             uploader.uploadPerfMonSD(isAMItag, self._name, isStream, int(isRun), perffile)
                         except Exception as exc: 
                             print (exc)
-                        except:
+                        except Exception:
                             print ("Unexpected error:", sys.exc_info()[0])
                         
                         print ('trf.py upload of job performance data done!')
@@ -1976,7 +1959,7 @@ class JobTransform(TransformLogger):
                         print ('trf.py WARNING: Could not send job info to AMI ' , e)
                         print (sys.exc_info()[0])
                         print (sys.exc_info()[1])
-                    except:
+                    except Exception:
                         print ("Unexpected error:", sys.exc_info()[0])
                 else:
                     print ('there is no perfmon file: ', perffile)
@@ -2001,11 +1984,11 @@ class JobTransform(TransformLogger):
             timelimited(120, self.doUpload)
         except Exception as exc: 
             print (exc)
-        except:
+        except Exception:
             print ("Unexpected error:", sys.exc_info()[0])
             
         
-        if not ( VALIDATION_DICT['ALL'] == False or VALIDATION_DICT[ 'testMatchEvents' ] == False ):
+        if not ( VALIDATION_DICT['ALL'] is False or VALIDATION_DICT[ 'testMatchEvents' ] is False ):
             self.matchEvents()
         else:
             self.logger().info( "Skipping event number matching." )
@@ -2031,13 +2014,13 @@ class JobTransform(TransformLogger):
         self.gatherEnvironmentInfo()
         # Do check on minimum and maximum number of requested output events (only if not running in test mode)
         maxEvents = None
-        if VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testEventMinMax' ] == False: 
+        if VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testEventMinMax' ] is False:
             self.logger().info( "Event min/max test omitted." )
         else:
             maxEventsArg = self.getArgumentOfType("MaxEvents")
             try:
                 maxEvents = maxEventsArg.value()
-            except:
+            except Exception:
                 pass
         if maxEvents and maxEvents != -1:
             # undo any efficiency correction
@@ -2074,7 +2057,7 @@ class JobTransform(TransformLogger):
             fullJo = find_joboptions( jo )
             if not fullJo:
                 raise JobOptionsNotFoundError(jo,'Top jobOptions file not found')
-            self.logger().info( 'Found top jobOptions %s in %s' % (jo, strip_suffix(fullJo,jo)) )
+            self.logger().info( 'Found top jobOptions %s in %s', jo, strip_suffix(fullJo,jo) )
             with open( fullJo ) as joFile:
                 for line in joFile:
                     self._logFile.write(line)
@@ -2097,7 +2080,7 @@ class JobTransform(TransformLogger):
             with open( athenaScript, 'w' ) as athenaFile:
                 # If we have an asetup to add, add it here....
                 if 'asetup' in self._namedArgs:
-                    self.logger().info('Found asetup arg: %s' % self._namedArgs['asetup'].value())
+                    self.logger().info('Found asetup arg: %s', self._namedArgs['asetup'].value())
                     athenaFile.write('#! /bin/sh' + os.linesep)
                     athenaFile.write('%s/scripts/asetup.sh %s' % (os.environ['AtlasSetup'], self._namedArgs['asetup'].value()) + os.linesep)
                     runViaScript = True
@@ -2107,14 +2090,13 @@ class JobTransform(TransformLogger):
                       statconsts.S_IRUSR | statconsts.S_IRGRP | statconsts.S_IROTH |
                       statconsts.S_IWUSR )
         except Exception as e:
-            self.logger().warning( 'Encountered an error while trying to create %s. %s' % ( athenaScript, e ) )
-        logStartAthena = self._logFile.tell()
+            self.logger().warning( 'Encountered an error while trying to create %s. %s', athenaScript, e )
         # the actual execution
         if runViaScript:
-            self.logger().info( 'Executing %s: %s' % ( self.name(), athenaScript ) )
+            self.logger().info( 'Executing %s: %s', self.name(), athenaScript )
             self._runJobProcess = subprocess.Popen( args = athenaScript, bufsize = 1, shell = False,stdout = subprocess.PIPE, stderr = subprocess.STDOUT )
         else:
-            self.logger().info( 'Executing %s: %s' % ( self.name(), ' '.join( athenaScriptArgs ) ) )
+            self.logger().info( 'Executing %s: %s', self.name(), ' '.join( athenaScriptArgs ) )
             self._runJobProcess = subprocess.Popen( args = athenaScriptArgs, bufsize = 1, shell = False,stdout = subprocess.PIPE, stderr = subprocess.STDOUT )
         # Poll stdout of the process and write to log file
         while self._runJobProcess.poll() is None:
@@ -2123,18 +2105,18 @@ class JobTransform(TransformLogger):
                 self._logFile.write(line)
         # adding the exit status from athena
         rc = self._runJobProcess.returncode
-        self.logger().info( '%s has completed running of Athena with exit code %s.' % ( self.name(), rc ) )
+        self.logger().info( '%s has completed running of Athena with exit code %s.', self.name(), rc )
         if rc < 0:
             # dump dmesg to file when the athena job receives a signal.
             os.system( 'dmesg > dmesg_athena.txt' )
             if rc == -signal.SIGKILL:
-                self.logger().error( 'Athena received signal %s = SIGKILL. Athena was killed, job will terminate. ' % rc )
+                self.logger().error( 'Athena received signal %s = SIGKILL. Athena was killed, job will terminate. ', rc )
             elif rc == -signal.SIGTERM:
-                self.logger().error( 'Athena received signal %s = SIGTERM. Athena was terminated, job will terminate. ' % rc )
+                self.logger().error( 'Athena received signal %s = SIGTERM. Athena was terminated, job will terminate. ', rc )
             else:
                 # After dicsussion with athena core people, we decided it's best to encode the 
                 # signal exit code in a 'shell like' way, adding 128 to it
-                self.logger().error( 'Athena received signal %s. Exit code reset to Athena exit code %d.' % (-rc, 128 + abs(rc) ) )  
+                self.logger().error( 'Athena received signal %s. Exit code reset to Athena exit code %d.', -rc, 128 + abs(rc) )
                 rc = 128 + abs(rc)
         # Add the athena exit codes and acroynm directly into the main job report before 
         # it is lost due to some exception occuring between now and the end of this function. 
@@ -2163,7 +2145,7 @@ class JobTransform(TransformLogger):
         if status == 0:
             self.doPostRunActions()
             # do check on number of events in output files
-            if VALIDATION_DICT[ 'ALL' ] == False or VALIDATION_DICT[ 'testEventMinMax' ] == False:
+            if VALIDATION_DICT[ 'ALL' ] is False or VALIDATION_DICT[ 'testEventMinMax' ] is False:
                 self.logger().info( "Output file event min/max test omitted." )
             else:
                 for f in self._outputFiles:
@@ -2182,7 +2164,7 @@ class JobTransform(TransformLogger):
     #  @warning Derived transforms must not override this function.
     #  @return JobReport.JobReport instance
     def execute(self):
-        self.logger().info( 'Using %s' % ( trfenv.trfPath) )
+        self.logger().info( 'Using %s', trfenv.trfPath )
         try:
             #clean up old stuff
             fileutil.remove(self._logFilename)
@@ -2199,7 +2181,7 @@ class JobTransform(TransformLogger):
             self._jobReport.addReport( self.runJob(), 'MERGE' )
         # Catch all exceptions
         except Exception as e:
-            self.logger().error( "During execution of %s, exception caught: %s" % ( self.name(), e ) )
+            self.logger().error( "During execution of %s, exception caught: %s", self.name(), e )
             self._jobReport.addError( self._handleException(e) )
         # run the error diagnoser on all errors
         errorDocter = TransformErrorDiagnoser()
@@ -2211,7 +2193,7 @@ class JobTransform(TransformLogger):
         self._jobReport.setIgnoreErrors( self._ignoreErrors )
         errorcode = self._jobReport.errorCode()
         exitcode  = self._jobReport.exitCode()
-        self.logger().info( "JobTransform completed for %s with error code %s (exit code %d)" % (self.name(),errorcode,exitcode) )
+        self.logger().info( "JobTransform completed for %s with error code %s (exit code %d)", self.name(),errorcode,exitcode )
         dirInfo = self._getRunDirInfo()
         # in case of ERROR, add workdir contents
         printListing = errorcode and 'KEY_INTERRUPT' not in self._jobReport.errorAcronym()

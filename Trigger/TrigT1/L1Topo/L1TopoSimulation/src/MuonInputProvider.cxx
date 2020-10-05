@@ -13,7 +13,6 @@
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include "TrigT1Interfaces/MuCTPIL1TopoCandidate.h"
@@ -34,29 +33,17 @@ using namespace LVL1;
 MuonInputProvider::MuonInputProvider( const std::string& type, const std::string& name, 
                                       const IInterface* parent) :
    base_class(type, name, parent),
-   m_roibLocation(ROIB::DEFAULT_RoIBRDOLocation),
    m_histSvc("THistSvc", name),
    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
    m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),
    m_recTGCRoiSvc( LVL1::ID_RecTgcRoiSvc, name ),
-   m_MuctpiSimTool("LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool"),
-   m_muonROILocation( LVL1MUCTPI::DEFAULT_MuonRoIBLocation ),
-   m_MuonEncoding(0),
-   m_MuCTPItoL1TopoLocation (LVL1MUCTPI::DEFAULT_MuonL1TopoLocation),
-   m_MuCTPItoL1TopoLocationPlusOne("")
+   m_MuctpiSimTool("LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool")
 {
    declareInterface<LVL1::IInputTOBConverter>( this );
-   declareProperty( "ROIBResultLocation", m_roibLocation, "Storegate key for the reading the ROIBResult" );
    declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
    declareProperty( "RecRpcRoiSvc", m_recRPCRoiSvc, "RPC Rec Roi Service");
    declareProperty( "RecTgcRoiSvc", m_recTGCRoiSvc, "TGC Rec Roi Service");
-   declareProperty( "MuonROILocation", m_muonROILocation, "Storegate key for the Muon ROIs" );
-
-   declareProperty( "MuonEncoding", m_MuonEncoding, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity");
-   declareProperty( "locationMuCTPItoL1Topo", m_MuCTPItoL1TopoLocation, "Storegate key for MuCTPItoL1Topo ");
    declareProperty( "MuctpiSimTool", m_MuctpiSimTool,"Tool for MUCTPIsimulation");
-
-   declareProperty("BCPlusOneLocation", m_MuCTPItoL1TopoLocationPlusOne);
 }
 
 MuonInputProvider::~MuonInputProvider()

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelByteStreamErrorsTool_h
 #define PixelByteStreamErrorsTool_h
 
-#ifndef SIMULATIONBASE
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
 
@@ -19,6 +18,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 //Athena includes
+#include "CxxUtils/checker_macros.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/PixelID.h"
@@ -29,7 +29,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamErrorsTool {
+class ATLAS_NOT_THREAD_SAFE PixelByteStreamErrorsTool: // This class currently has many mutable memebers without mutex guard or atomicity.
+public AthAlgTool, public IPixelByteStreamErrorsTool {
   public:
     static InterfaceID& interfaceID();
 
@@ -126,5 +127,4 @@ inline InterfaceID& PixelByteStreamErrorsTool::interfaceID() {
   return IID_PixelByteStreamErrorsTool;
 }
 
-#endif
 #endif

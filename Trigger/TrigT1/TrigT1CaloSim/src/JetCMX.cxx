@@ -20,17 +20,9 @@
 // Utilities
 
 // This algorithm includes
-#include "TrigT1CaloSim/JetCMX.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "JetCMX.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigConfL1Data/L1DataDef.h"
-
-#include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "TrigT1CaloEvent/CMXJetHits_ClassDEF.h"
-#include "TrigT1CaloEvent/CMXJetTob_ClassDEF.h"
-#include "TrigT1CaloEvent/JetTopoTOB.h"
-#include "TrigT1CaloEvent/JetCMXTopoData_ClassDEF.h"
-#include "TrigT1CaloEvent/JetCMXData.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
@@ -48,25 +40,8 @@ using namespace TrigConf;
 // Constructors and destructors
 //--------------------------------
 
-JetCMX::JetCMX
-  ( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthAlgorithm( name, pSvcLocator ),
-      m_CMXJetHitLocation(TrigT1CaloDefs::CMXJetHitsLocation),
-      m_CMXJetTobLocation(TrigT1CaloDefs::CMXJetTobLocation),
-      m_TopoOutputLocation(TrigT1CaloDefs::JetTopoTobLocation),
-      m_CTPOutputLocation(TrigT1CaloDefs::JetCTPLocation),
-      m_JetCMXDataLocation(TrigT1CaloDefs::JetCMXDataLocation),
-      m_jetCTP(nullptr),
-      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
-{
-    declareProperty( "CMXJetHitLocation",       m_CMXJetHitLocation );
-    declareProperty( "CMXJetTobLocation",       m_CMXJetTobLocation );
-    declareProperty( "JetCMXDataLocation",      m_JetCMXDataLocation );
-    declareProperty( "CTPOutputLocation",       m_CTPOutputLocation );
-    declareProperty( "TopoOutputLocation",      m_TopoOutputLocation );
-    declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-}
-
+JetCMX::JetCMX(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 //---------------------------------
 // initialise()
@@ -75,16 +50,19 @@ JetCMX::JetCMX
 StatusCode JetCMX::initialize()
 {
   ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_JetCMXDataLocation.initialize() );
+  ATH_CHECK( m_CMXJetHitsLocation.initialize() );
+  ATH_CHECK( m_CMXJetTobLocation.initialize() );
+  ATH_CHECK( m_TopoOutputLocation.initialize() );
+  ATH_CHECK( m_CTPOutputLocation.initialize() );
   return StatusCode::SUCCESS ;
 }
 
 //----------------------------------------------
 // execute() method called once per event
 //----------------------------------------------
-//
 
-
-StatusCode JetCMX::execute( )
+StatusCode JetCMX::execute(const EventContext& ctx) const
 {
     
   /*
@@ -98,14 +76,15 @@ StatusCode JetCMX::execute( )
   //make a message logging stream
 
   ATH_MSG_DEBUG ( "starting JetCMX" );
-  
 
   /** Create containers for BS simulation */
-  DataVector<CMXJetTob>*  CMXTobs = new DataVector<CMXJetTob>;
-  DataVector<CMXJetHits>* CMXHits = new DataVector<CMXJetHits>;
+  SG::WriteHandle<CMXJetHitsCollection> CMXHits = SG::makeHandle(m_CMXJetHitsLocation, ctx);
+  ATH_CHECK(CMXHits.record(std::make_unique<CMXJetHitsCollection>()));
+  SG::WriteHandle<CMXJetTobCollection> CMXTobs = SG::makeHandle(m_CMXJetTobLocation, ctx);
+  ATH_CHECK(CMXTobs.record(std::make_unique<CMXJetTobCollection>()));
+  SG::WriteHandle<JetCMXTopoDataCollection> topoData = SG::makeHandle(m_TopoOutputLocation, ctx);
+  ATH_CHECK(topoData.record(std::make_unique<JetCMXTopoDataCollection>()));
 
-  /** Initialise pointer */
-  m_jetCTP = 0;
 
   /** Create and initialise arrays for storing hit results */
   std::vector< std::vector<int> > crateHits;
@@ -122,10 +101,8 @@ StatusCode JetCMX::execute( )
   
   
   // Create objects to store TOBs for L1Topo
-  DataVector<JetCMXTopoData>* topoData = new DataVector<JetCMXTopoData>;
   for (int crate = 0; crate < 2; ++crate) {
-    JetCMXTopoData* link = new JetCMXTopoData(crate);
-    topoData->push_back(link);
+    topoData->push_back(std::make_unique<JetCMXTopoData>(crate));
   }
   
 
@@ -141,19 +118,15 @@ StatusCode JetCMX::execute( )
 
 
   /** Retrieve the JetCMXData (backplane data packages) */
-  const t_jemDataContainer* bpData;
-  if (evtStore()->contains<t_jemDataContainer>(m_JetCMXDataLocation)) {
-    StatusCode sc = evtStore()->retrieve(bpData, m_JetCMXDataLocation);  
-    if ( sc==StatusCode::SUCCESS ) {
-	
+  SG::ReadHandle<JetCMXDataCollection> bpDataVec = SG::makeHandle(m_JetCMXDataLocation, ctx);
+  if (bpDataVec.isValid()) {
       // Analyse module results
-      t_jemDataContainer::const_iterator it = bpData->begin();
-      for ( ; it != bpData->end(); ++it) {
-        int crate = (*it)->crate();
-        std::vector<unsigned int> tobWords = (*it)->TopoTOBs();
+      for (const LVL1::JetCMXData* bpData : *bpDataVec) {
+        int crate = bpData->crate();
+        std::vector<unsigned int> tobWords = bpData->TopoTOBs();
     
         // Store data for L1Topo
-        bool overflow = (*it)->overflow();
+        bool overflow = bpData->overflow();
         if (overflow) {
           (*topoData)[crate]->setOverflow(true);
           jetOverflow = true;
@@ -224,7 +197,8 @@ StatusCode JetCMX::execute( )
         cableWord1 = 0x3fffffff;
       }
 
-      m_jetCTP = new JetCTP( cableWord0, cableWord1 );
+      SG::WriteHandle<JetCTP> jetCTP = SG::makeHandle(m_CTPOutputLocation, ctx);
+      ATH_CHECK(jetCTP.record(std::make_unique<JetCTP>(cableWord0, cableWord1)));
       
       // Form and store JetCMXHits
       std::vector<int> error0;  // Dummies - there will be no actual errors simulated
@@ -245,26 +219,22 @@ StatusCode JetCMX::execute( )
 	  cratehits0[0] |= ( crateHits[crate][i]<<(3*i) );
 	  cratehits1[0] |= ( crateHits[crate][i+5]<<(3*i) );
 	}
-	CMXJetHits* crateCMXHits0 = new CMXJetHits(crate, LVL1::CMXJetHits::LOCAL_MAIN,
-					           cratehits0, cratehits1, error0, error1, peak);
-	CMXHits->push_back(crateCMXHits0);
+        CMXHits->push_back(std::make_unique<CMXJetHits>(crate, LVL1::CMXJetHits::LOCAL_MAIN,
+                                                        cratehits0, cratehits1, error0, error1, peak));
 	if (crate != system_crate) {
-	  CMXJetHits* remoteCMXHits0 = new CMXJetHits(system_crate, LVL1::CMXJetHits::REMOTE_MAIN,
-					              cratehits0, cratehits1, error0, error1, peak);
-	  CMXHits->push_back(remoteCMXHits0);
+          CMXHits->push_back(std::make_unique<CMXJetHits>(system_crate, LVL1::CMXJetHits::REMOTE_MAIN,
+                                                          cratehits0, cratehits1, error0, error1, peak));
 	}
 	  
 	cratehits0.assign(1,0);
 	cratehits1.assign(1,0);
 	for (int i = 0; i < 8; ++i) cratehits0[0] |= ( crateHits[crate][i+10]<<(2*i) );
 	for (int i = 0; i < 7; ++i) cratehits1[0] |= ( crateHits[crate][i+18]<<(2*i) );
-	CMXJetHits* crateCMXHits1 = new CMXJetHits(crate, LVL1::CMXJetHits::LOCAL_FORWARD,
-	             			           cratehits0, cratehits1, error0, error1, peak);
-	CMXHits->push_back(crateCMXHits1);
+        CMXHits->push_back(std::make_unique<CMXJetHits>(crate, LVL1::CMXJetHits::LOCAL_FORWARD,
+                                                        cratehits0, cratehits1, error0, error1, peak));
         if (crate != system_crate) {
-	  CMXJetHits* remoteCMXHits1 = new CMXJetHits(system_crate, LVL1::CMXJetHits::REMOTE_FORWARD,
-				                      cratehits0, cratehits1, error0, error1, peak);
-	  CMXHits->push_back(remoteCMXHits1);
+          CMXHits->push_back(std::make_unique<CMXJetHits>(system_crate, LVL1::CMXJetHits::REMOTE_FORWARD,
+                                                          cratehits0, cratehits1, error0, error1, peak));
 	}
       } // loop over crates
       
@@ -275,41 +245,22 @@ StatusCode JetCMX::execute( )
 	cratehits0[0] |= ( Hits[i]<<(3*i) );
 	cratehits1[0] |= ( Hits[i+5]<<(3*i) );
       }
-      CMXJetHits* totalCMXHits0 = new CMXJetHits(system_crate, LVL1::CMXJetHits::TOTAL_MAIN,
-					         cratehits0, cratehits1, error0, error1, peak);
-      CMXHits->push_back(totalCMXHits0);
+      CMXHits->push_back(std::make_unique<CMXJetHits>(system_crate, LVL1::CMXJetHits::TOTAL_MAIN,
+                                                      cratehits0, cratehits1, error0, error1, peak));
 
       cratehits0.assign(1,0);
       cratehits1.assign(1,0);
       for (int i = 0; i < 8; ++i) cratehits0[0] |= ( Hits[i+10]<<(2*i) );
       for (int i = 0; i < 7; ++i) cratehits1[0] |= ( Hits[i+18]<<(2*i) );
-      CMXJetHits* totalCMXHits1 = new CMXJetHits(system_crate, LVL1::CMXJetHits::TOTAL_FORWARD,
-					         cratehits0, cratehits1, error0, error1, peak);
-      CMXHits->push_back(totalCMXHits1);
+      CMXHits->push_back(std::make_unique<CMXJetHits>(system_crate, LVL1::CMXJetHits::TOTAL_FORWARD,
+                                                      cratehits0, cratehits1, error0, error1, peak));
       
-    } // Successfully read input data
- 
   } // Input collection exists in StoreGate
-
-  
-  // Store output for BS simulation
-  StatusCode sc = evtStore()->overwrite(CMXTobs, m_CMXJetTobLocation, true);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing CMXTobs to StoreGate" );
-
-  sc = evtStore()->overwrite(CMXHits, m_CMXJetHitLocation, true);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing CMXHits to StoreGate" );
-
-  // Store Topo results
-  sc = evtStore()->overwrite(topoData, m_TopoOutputLocation, true);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing CPCMXTopoData object to StoreGate" );
- 
-  // Store CTP results
-  if (m_jetCTP == 0) {
-    m_jetCTP = new JetCTP(0,0);
+  else {
     ATH_MSG_WARNING("No JetCTP found. Creating empty object" );
+    SG::WriteHandle<JetCTP> jetCTP = SG::makeHandle(m_CTPOutputLocation, ctx);
+    ATH_CHECK(jetCTP.record(std::make_unique<JetCTP>(0, 0)));
   }
-  sc = evtStore()->overwrite(m_jetCTP, m_CTPOutputLocation, true);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing JetCTP object to StoreGate" );
 
   return StatusCode::SUCCESS ;
 }
@@ -317,7 +268,7 @@ StatusCode JetCMX::execute( )
 
 
 /** print trigger configuration, for debugging purposes */
-void LVL1::JetCMX::printTriggerMenu(){
+void LVL1::JetCMX::printTriggerMenu() const {
   /** This is all going to need updating for the new menu structure.
       Comment out in the meanwhile 
   

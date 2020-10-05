@@ -1,29 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/////////////////////////////////////////////////////////////////////
-//  Header file for class  TriggerChamberClusterOnTrackCreator
-//
-// (c) ATLAS muon software
-/////////////////////////////////////////////////////////////////////
 
 #ifndef MUON_TRIGGERCHAMBERCLUSTERONTRACKCREATOR_H
 #define MUON_TRIGGERCHAMBERCLUSTERONTRACKCREATOR_H
 
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+
 #include <list>
 #include <vector>
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include <string>
 
-class Identifier;
-
-namespace MuonGM
-{
-    class MuonDetectorManager;
-}
 namespace Track
 {
     class LocalParameters;
@@ -31,24 +24,19 @@ namespace Track
 }
 namespace Muon
 {
-    class IMuonClusterOnTrackCreator;
     class MuonClusterOnTrack;
 
 /**
    @brief Tool to cluster several trigger measurements in different gas-gaps of the same detector module
 */
-class TriggerChamberClusterOnTrackCreator: public AthAlgTool,
-					   virtual public IMuonCompetingClustersOnTrackCreator
+class TriggerChamberClusterOnTrackCreator: public AthAlgTool, virtual public IMuonCompetingClustersOnTrackCreator
 {
 public:
 
-    TriggerChamberClusterOnTrackCreator		(const std::string& type, 
-						 const std::string& name,
-						 const IInterface* parent);
-    virtual ~TriggerChamberClusterOnTrackCreator	 (void); 	// destructor
+    TriggerChamberClusterOnTrackCreator(const std::string& type, const std::string& name, const IInterface* parent);
+    virtual ~TriggerChamberClusterOnTrackCreator()=default;
 
-    StatusCode					initialize();
-    StatusCode 					finalize  ();
+    StatusCode initialize();
 
     /** method for the creation of a single 
 	Trk::CompetingRIOsOnTrack:
@@ -79,10 +67,9 @@ public:
 
 
 private:
-    // helpers, managers, tools
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>	m_clusterCreator;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator{this,"ClusterCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
 
     // configuration
     bool						m_chooseBroadestCluster;

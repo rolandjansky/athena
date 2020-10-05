@@ -115,7 +115,7 @@ class ConfigDBLoader(ConfigLoader):
             if count==0:
                 raise RuntimeError("No credentials found for connection %s from service %s for db %s" % (con,svc,dbalias))
             if count>1:
-                raise RuntimeError("More than 1 connection found in %s for service %s" % (authfile, svc))
+                raise RuntimeError("More than 1 connection found in %s for service %s" % (authFile, svc))
         return credentials
     @staticmethod
     def getConnection(credentials):
@@ -126,7 +126,9 @@ class ConfigDBLoader(ConfigLoader):
                     [tns,schema] = connSvc.split("/")[-2:]
                     connection = connect(userpw["user"], userpw["password"], tns, threaded=False)
                 elif connSvc.startswith("frontier:"):
-                    raise NotImplementedError("Python-loading of trigger configuration from Frontier has not yet been implemented (%s)" % type(self))
+                    raise NotImplementedError("Python-loading of trigger configuration from Frontier has not yet been implemented")
+                elif connSvc.startswith("sqlite_file:"):
+                    raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
                 return connection, schema
             except Exception as e:
                 raise RuntimeError(e)
@@ -139,14 +141,13 @@ class ConfigDBLoader(ConfigLoader):
         failures = []
         config = None
         for q in self.query:
-            print q.format(**qdict)
             try:
                 cursor.execute( q.format(**qdict) )
             except DatabaseError as e:
                 failures += [ (q.format(**qdict), str(e)) ]
             else:
                 configblob = cursor.fetchall()[0][0]
-                config = json.loads(str(configblob), object_pairs_hook = odict)
+                config = json.loads(configblob.read().decode("utf-8"), object_pairs_hook = odict)
                 break
         if not config:
             for q,f in failures:

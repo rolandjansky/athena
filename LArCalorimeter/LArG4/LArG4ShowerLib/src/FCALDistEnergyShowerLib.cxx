@@ -6,8 +6,8 @@
 // this header file
 #include "LArG4ShowerLib/FCALDistEnergyShowerLib.h"
 
-#include <HepMC/GenParticle.h>
-#include <HepMC/GenVertex.h>
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include <sstream>
 #include <fstream>
@@ -439,7 +439,7 @@ namespace ShowerLib {
 	  return rezR/actualNumFS; //average Z size
   }
 
-  bool FCALDistEnergyShowerLib::storeShower(const HepMC::GenParticle* genParticle, const Shower* shower)
+  bool FCALDistEnergyShowerLib::storeShower(HepMC::ConstGenParticlePtr genParticle, const Shower* shower)
   {
 	  if (m_filled) {
 		  std::cout << "ERROR: filled" << std::endl;

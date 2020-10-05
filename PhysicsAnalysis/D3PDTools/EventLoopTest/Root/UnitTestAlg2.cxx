@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -25,6 +25,7 @@
 #include <TFile.h>
 #include <TH1.h>
 #include <TTree.h>
+#include <TObjString.h>
 
 #include <AsgTools/MsgStream.h>
 #include <AsgTools/MsgStreamMacros.h>
@@ -46,7 +47,7 @@ namespace EL
 
 
   UnitTestAlg2 ::
-  UnitTestAlg2 (const std::string& name, 
+  UnitTestAlg2 (const std::string& name,
                 ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator),
       makeOutput (true),

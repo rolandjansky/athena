@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCondTest )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
-			  MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          PRIVATE
-                          DetectorDescription/Identifier )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

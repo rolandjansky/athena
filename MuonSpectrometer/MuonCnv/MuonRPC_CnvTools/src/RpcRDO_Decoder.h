@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAMRPCRDODECODER_H
@@ -7,48 +7,40 @@
 
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "AthenaKernel/MsgStreamMember.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <inttypes.h>
 #include <vector>
+#include <string>
+
+class IRPCcablingSvc;
 
 // Decoder class for conversion from RPC RDOs to RPC digits
-// Stefano Rosati
-// CERN Jan 2004
+namespace Muon {
 
-namespace Muon
-{
-    
-
-class RpcRDO_Decoder : virtual public IRPC_RDO_Decoder, public AthAlgTool
-{
+class RpcRDO_Decoder : virtual public IRPC_RDO_Decoder, public AthAlgTool {
 
  public:
 
   RpcRDO_Decoder(const std::string& type, const std::string& name,
                               const IInterface* parent);
-  ~RpcRDO_Decoder() { }
+  ~RpcRDO_Decoder()=default;
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize() { return StatusCode::SUCCESS; }
 
-  virtual std::vector<RpcDigit*>* getDigit(const RpcFiredChannel * fChan, 
-				   uint16_t& sectorID, uint16_t& padId, 
-				   uint16_t& cmaId) const;
+  virtual std::vector<RpcDigit*>* getDigit(const RpcFiredChannel* fChan,
+				   uint16_t& sectorID, uint16_t& padId,
+				   uint16_t& cmaId, const RpcCablingCondData* rpcCab) const;
 
-  virtual std::vector<Identifier>* getOfflineData(const RpcFiredChannel * fChan, 
-					  uint16_t& sectorID, uint16_t& padId, 
-					  uint16_t& cmaId, double& time) const;
+  virtual std::vector<Identifier>* getOfflineData(const RpcFiredChannel* fChan,
+					  uint16_t& sectorID, uint16_t& padId,
+					  uint16_t& cmaId, double& time, const RpcCablingCondData* rpcCab) const;
 
 	
  private:
-
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   const IRPCcablingSvc* m_cablingSvc;
 

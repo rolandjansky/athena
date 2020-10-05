@@ -1,7 +1,7 @@
 
 // RPC Digitization.
 
-ApplicationMgr.DLLs += { "RPC_Digitization"};
+ApplicationMgr.Dlls += { "RPC_Digitization"};
 ApplicationMgr.TopAlg += {"RPC_Digitizer"};
 
 RPC_Digitizer.Parameters="G4RPC_Digitizer.txt";

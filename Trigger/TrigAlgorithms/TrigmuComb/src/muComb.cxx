@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -14,8 +14,8 @@
 #include <sstream>
 #include <math.h>
 
-#include "TrigmuComb/muComb.h"
-#include "TrigmuComb/muCombUtil.h"
+#include "muComb.h"
+#include "muCombUtil.h"
 #include "PathResolver/PathResolver.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -26,7 +26,6 @@
 #include "xAODTrigMuon/L2CombinedMuonAuxContainer.h"
 //#include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "TrigSiSpacePointTool/ISpacePointProvider.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/Timeout.h"
@@ -35,7 +34,9 @@
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
@@ -43,7 +44,6 @@ muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
    HLT::FexAlgo(name, pSvcLocator),
    m_pStoreGate(NULL),
    m_backExtrapolatorG4("Trk::Extrapolator/AtlasExtrapolator"),
-   m_MagFieldSvc(0),
    m_pTimerService(0)
 {
 
@@ -188,12 +188,14 @@ HLT::ErrorCode muComb::hltInitialize()
    }
 
    if (m_useAthenaFieldService) {
-      if (!m_MagFieldSvc) service("AtlasFieldSvc", m_MagFieldSvc, /*createIf=*/ false).ignore();
-      if (m_MagFieldSvc) {
-	ATH_MSG_INFO("Retrieved AtlasFieldSvc ");
-      } else {
-	ATH_MSG_ERROR("Could not retrieve AtlasFieldSvc");
+      // Read handle for AtlasFieldCacheCondObj
+      StatusCode sc = m_fieldCacheCondObjInputKey.initialize();
+
+      if (sc.isFailure()) {
+	 ATH_MSG_ERROR("Error initalizing AtlasFieldCacheCondObj");
          return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      } else {
+	 ATH_MSG_INFO("AtlasFieldCacheCondObj initialized ");
       }
    }
 
@@ -211,7 +213,7 @@ HLT::ErrorCode muComb::hltFinalize()
 int muComb::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, double id_eta, double id_phi, int algo,
                       double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr)
 {
-   double pt     = feature->pt() * CLHEP::GeV;
+   double pt     = feature->pt() * Gaudi::Units::GeV;
    double phi    = feature->phiMS();
    double eta    = feature->etaMS();
    return muComb::drptMatch(pt, eta, phi, id_pt, id_eta, id_phi, algo, combPtInv, combPtRes, deta, dphi, dr);
@@ -236,7 +238,7 @@ int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id
    //muFast parameters (in MeV!)
    //double phi    = feature->phiMS();
    //double eta    = feature->etaMS();
-   //double pt = feature->pt() * CLHEP::GeV;
+   //double pt = feature->pt() * Gaudi::Units::GeV;
 
    combPtRes = 0.0;
    if (algo == 1) combPtInv = ((1. / pt) + (1. / id_pt)) * 0.5;
@@ -265,7 +267,7 @@ int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id
 		 << " / " << (passDR ? "true" : "false"));
 
    if (algo == 1 && winPt > 0) {
-      double tmp_dpt = fabs(fabs(pt) - fabs(id_pt)) / CLHEP::GeV; //don't use charge info
+      double tmp_dpt = fabs(fabs(pt) - fabs(id_pt)) / Gaudi::Units::GeV; //don't use charge info
       if (tmp_dpt > winPt) passPt = false;
       ATH_MSG_DEBUG(m_test_string
 		    << " REGTEST MU-ID match / dpt (GeV) / threshold (GeV) / result:"
@@ -294,7 +296,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    double theta  = 2.*atan(exp(-feature->etaMS()));
    double p      = 0.0;
    if (sin(theta) != 0) {
-      p = (feature->pt() * CLHEP::GeV) / sin(theta);
+      p = (feature->pt() * Gaudi::Units::GeV) / sin(theta);
    } else {
       return 1; //No match if muon angle is zero
    }
@@ -306,9 +308,9 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    } else {
       return 1; //No match if muon Pt is zero
    }
-   double pt = feature->pt() * CLHEP::GeV;
+   double pt = feature->pt() * Gaudi::Units::GeV;
    //double ptinv  = 1/pt;
-   double eptinv = feature->deltaPt() * CLHEP::GeV / pt / pt;
+   double eptinv = feature->deltaPt() * Gaudi::Units::GeV / pt / pt;
 
    bool   isBarrel = ((feature->sAddress() != -1) ? true : false);
    double etaShift = (isBarrel ? 0 : charge * 0.01);
@@ -454,16 +456,16 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
 
    ATH_MSG_DEBUG(m_test_string
 		 << " REGTEST Resolution / OLDIdRes / IdRes / muFastRes / combRes:"
-		 << " / " << std::setw(11) << id_eptinv_OLD / CLHEP::GeV
-		 << " / " << std::setw(11) << id_eptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << extr_eptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << combPtRes / CLHEP::GeV);
+		 << " / " << std::setw(11) << id_eptinv_OLD / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << id_eptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << extr_eptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << combPtRes / Gaudi::Units::GeV);
 
    ATH_MSG_DEBUG(m_test_string
 		 << " REGTEST Momentum / IdPt / muFastPt  / CombPt :"
-		 << " / " << std::setw(11) << 1. / id_ptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << 1. / extr_ptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV);
+		 << " / " << std::setw(11) << 1. / id_ptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << 1. / extr_ptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << 1. / combPtInv / Gaudi::Units::GeV);
 
    ATH_MSG_DEBUG(m_test_string
 		 << " REGTEST Chi2 / ndof // Chi2OLD / ndofOLD :"
@@ -513,7 +515,7 @@ int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
    ndof = 0;
    //muFast parameters
 
-   double    pt = feature->pt() * CLHEP::GeV;
+   double    pt = feature->pt() * Gaudi::Units::GeV;
    if (pt == 0.)  {
       return 1; //No match if muFast Pt is zero
    }
@@ -523,7 +525,7 @@ int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
 
    double charge = pt / fabs(pt);
    double ptinv  = 1. / pt;
-   double eptinv = feature->deltaPt() * CLHEP::GeV / pt / pt;
+   double eptinv = feature->deltaPt() * Gaudi::Units::GeV / pt / pt;
 
    //ID parameters
    double id_eptinv    = muCombUtil::getIDSCANRes(m_IDSCANRes_barrel, m_IDSCANRes_endcap1, m_IDSCANRes_endcap2,
@@ -570,15 +572,15 @@ int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
 
    ATH_MSG_DEBUG(m_test_string
 		 << " REGTEST Resolution / IdRes / muFastRes / combRes:"
-		 << " / " << std::setw(11) << id_eptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << extr_eptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << combPtRes / CLHEP::GeV);
+		 << " / " << std::setw(11) << id_eptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << extr_eptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << combPtRes / Gaudi::Units::GeV);
 
    ATH_MSG_DEBUG(m_test_string
 		 << " REGTEST Momentum / IdPt / muFastPt  / CombPt :"
-		 << " / " << std::setw(11) << 1. / id_ptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << 1. / ptinv / CLHEP::GeV
-		 << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV);
+		 << " / " << std::setw(11) << 1. / id_ptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << 1. / ptinv / Gaudi::Units::GeV
+		 << " / " << std::setw(11) << 1. / combPtInv / Gaudi::Units::GeV);
 
    ATH_MSG_DEBUG(m_test_string
 		 << " REGTEST Chi2 / ndof :"
@@ -639,6 +641,8 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
                                   HLT::TriggerElement* outputTE)
 {
 
+   EventContext ctx = Gaudi::Hive::currentContext();
+
    // init monitoring variables
    m_ptMS        = -9999.;
    m_etaMS       = -9999.;
@@ -665,10 +669,17 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    bool toroidOn   = !m_assumeToroidOff;
    bool solenoidOn = !m_assumeSolenoidOff;
    if (m_useAthenaFieldService) {
-      if (m_MagFieldSvc) {
-         toroidOn  = m_MagFieldSvc->toroidOn() && !m_assumeToroidOff;
-         solenoidOn = m_MagFieldSvc->solenoidOn() && !m_assumeSolenoidOff;
-      }
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        if (fieldCondObj == nullptr) {
+            ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
+        }
+        MagField::AtlasFieldCache fieldCache;
+        fieldCondObj->getInitializedCache (fieldCache);
+
+        toroidOn   = fieldCache.toroidOn() && !m_assumeToroidOff;
+        solenoidOn = fieldCache.solenoidOn() && !m_assumeSolenoidOff;
    }
    ATH_MSG_DEBUG("=========== Magnetic Field Status ========== ");
    ATH_MSG_DEBUG(" B Fields read from AthenaFieldService:   " << (m_useAthenaFieldService ? "TRUE" : "FALSE"));
@@ -719,7 +730,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
          useL1 = true;
       } else {
 	ATH_MSG_ERROR(" L2StandAloneMuonContainer not found --> ABORT");
-         return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+        return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
       }
    }
    xAOD::L2StandAloneMuonContainer* muonColl = const_cast<xAOD::L2StandAloneMuonContainer*>(const_muonColl);
@@ -868,7 +879,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       if (sin(theta_id) != 0) e_qoverpt_id /= fabs(sin(theta_id)); //approximate
 
       ATH_MSG_DEBUG("Found track: "
-		    << "  with pt (GeV) = " << pt_id / CLHEP::GeV
+		    << "  with pt (GeV) = " << pt_id / Gaudi::Units::GeV
 		    << ", q    = " << q_id
 		    << ", eta  = " << eta_id
 		    << ", phi  = " << phi_id
@@ -881,7 +892,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
 		    << ", eipt = " << e_qoverpt_id);
 
       if (usealgo != 3) {
-         if ((fabs(pt_id) / CLHEP::GeV) < m_PtMinTrk)       continue;
+         if ((fabs(pt_id) / Gaudi::Units::GeV) < m_PtMinTrk)       continue;
       }
       if (fabs(eta_id)  > m_EtaMaxTrk)      continue;
 
@@ -979,11 +990,11 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    m_phiFL       = -9999.;
    if (usealgo == 0 && fabs(pt) >= 6.) {
       m_efficiency = 1;
-      m_ptID       = pt_id / CLHEP::GeV; //in GeV/c
+      m_ptID       = pt_id / Gaudi::Units::GeV; //in GeV/c
       m_etaID      = eta_id;
       m_phiID      = phi_id;
       m_zetaID     = zPos_id;
-      m_ptMC       = 1. / (ptinv_comb * CLHEP::GeV); //in GeV/c
+      m_ptMC       = 1. / (ptinv_comb * Gaudi::Units::GeV); //in GeV/c
       m_dZeta      = zeta_ms - zPos_id;
       m_dPhi       = best_dphi;
       m_dEta       = best_deta;
@@ -999,7 +1010,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    if (useL1) prt_pt = ptL1;
    ATH_MSG_DEBUG(m_test_string << " REGTEST Combination chosen: "
 		 << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
-		 << " / " << usealgo << " / " << pt_id*q_id / CLHEP::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / CLHEP::GeV << " / " << chi2_comb << " / " << ndof_comb);
+		 << " / " << usealgo << " / " << pt_id*q_id / Gaudi::Units::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / Gaudi::Units::GeV << " / " << chi2_comb << " / " << ndof_comb);
 
    muonCB->setPt(fabs(1. / ptinv_comb));
    muonCB->setEta(eta_id);
@@ -1011,7 +1022,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
    muonCB->setCharge(mcq);
 
    float mcresu = fabs(ptres_comb / (ptinv_comb * ptinv_comb));
-   ATH_MSG_DEBUG(" SigmaPt (GeV) is: " << mcresu / CLHEP::GeV);
+   ATH_MSG_DEBUG(" SigmaPt (GeV) is: " << mcresu / Gaudi::Units::GeV);
    muonCB->setSigmaPt(mcresu);
 
    muonCB->setErrorFlag(m_ErrorFlagMC);

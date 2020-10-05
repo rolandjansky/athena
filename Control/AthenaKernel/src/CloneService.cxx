@@ -73,8 +73,8 @@ namespace CloneService {
 
     }
     //now copy parent's properties into child
-    std::vector<Property*>::const_iterator iProp(parent->getProperties().begin());
-    std::vector<Property*>::const_iterator eProp(parent->getProperties().end());
+    std::vector<Gaudi::Details::PropertyBase*>::const_iterator iProp(parent->getProperties().begin());
+    std::vector<Gaudi::Details::PropertyBase*>::const_iterator eProp(parent->getProperties().end());
     while (iProp != eProp &&
 	   (child->setProperty(**iProp)).isSuccess()) ++iProp;
     if (iProp != eProp) {

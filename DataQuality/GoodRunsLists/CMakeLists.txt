@@ -1,35 +1,7 @@
-# $Id: CMakeLists.txt 777875 2016-10-11 17:17:13Z krasznaa $
-################################################################################
-# Package: GoodRunsLists
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GoodRunsLists )
-
-# Declare the package's dependencies:
-if( XAOD_STANDALONE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Event/xAOD/xAODEventInfo
-      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-      PRIVATE
-      Tools/PathResolver )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Event/xAOD/xAODEventInfo
-      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-      GaudiKernel
-      PRIVATE
-      Control/StoreGate
-      Event/EventInfo
-      Tools/PathResolver
-      AtlasTest/TestTools )
-endif()
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree TreePlayer XMLIO XMLParser )
@@ -43,19 +15,32 @@ atlas_add_root_dictionary( GoodRunsListsLib
    GoodRunsLists/DQHelperFunctions.h Root/LinkDef.h
    EXTERNAL_PACKAGES LibXml2 ROOT )
 
+if( NOT XAOD_STANDALONE )
+   if( XAOD_ANALYSIS )
+     set( extra_libs )
+   else()
+     set( extra_libs DerivationFrameworkInterfaces )
+   endif()
+endif()
+
 atlas_add_library( GoodRunsListsLib
    GoodRunsLists/*.h Root/*.cxx ${GoodRunsListsLibDictSource}
    PUBLIC_HEADERS GoodRunsLists
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo AsgAnalysisInterfaces
+   AnaAlgorithmLib ${extra_libs}
    PRIVATE_LINK_LIBRARIES ${LIBXML2_LIBRARIES} PathResolver )
 
 if( NOT XAOD_STANDALONE )
+   if( XAOD_ANALYSIS )
+     set( extra_libs )
+   else()
+     set( extra_libs DetectorStatusLib )
+   endif()
    atlas_add_component( GoodRunsLists
       src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel
-      StoreGateLib EventInfo PathResolver GoodRunsListsLib )
+      LINK_LIBRARIES AthenaBaseComps AthenaKernel EventInfo GaudiKernel GoodRunsListsLib PathResolver StoreGateLib xAODEventInfo )
 endif()
 
 atlas_add_dictionary( GoodRunsListsDict

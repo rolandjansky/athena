@@ -27,6 +27,10 @@ def CaloMonitoringCfg(flags):
         from CaloMonitoring.LArCellMonAlg import LArCellMonConfig
         acc.merge( LArCellMonConfig(flags) )
 
+        # FIXME could not be included yet, some trigger configurations are missing
+        #from CaloMonitoring.CaloBaselineMonAlg import CaloBaselineMonConfig
+        #acc.merge( CaloBaselineMonConfig(flags,False) )
+
     return acc
 
 
@@ -51,9 +55,9 @@ if __name__=='__main__':
    ConfigFlags.lock()
 
    # Initialize configuration object, add accumulator, merge, and run.
-   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-   acc = MainServicesSerialCfg()
+   acc = MainServicesCfg(ConfigFlags)
    acc.merge(PoolReadCfg(ConfigFlags))
 
    acc.merge( CaloMonitoringCfg(ConfigFlags) )

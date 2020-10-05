@@ -15,7 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CaloClusterMatching/TopoClusterMap.h"
 
 
@@ -60,7 +60,7 @@ namespace ClusterMatching {
     TopoClusterMap tcmap;
     ATH_CHECK( m_clusterMatch->fillClusterMap(ctx,tcmap) );
 
-    bool (*gtrthan)(const tcmatch_pair& a, const tcmatch_pair& b)=0;
+    bool (*gtrthan)(const tcmatch_pair& a, const tcmatch_pair& b)=nullptr;
     switch(m_clusterSortMethod) {
     case ClusterE: gtrthan = ClusterMatching::gtrClusterE;
       break;

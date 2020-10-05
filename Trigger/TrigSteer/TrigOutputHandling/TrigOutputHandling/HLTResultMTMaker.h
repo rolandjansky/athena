@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGOUTPUTHANDLING_HLTRESULTMTMAKER_H
@@ -14,8 +14,8 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/WriteHandle.h"
 
-// Forward declarations
-class IJobOptionsSvc;
+// Gaudi includes
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 /** @class HLTResultMTMaker
  *  @brief Tool to create the HLTResultMT at the end of each event
@@ -48,10 +48,15 @@ private:
     this, "HLTResultWHKey", "HLTResultMT",
     "Key of the output HLTResultMT object"
   };
+  /// Tool creating stream tags (defines if event is accepted)
+  ToolHandle<HLTResultMTMakerTool> m_streamTagMaker {
+    this, "StreamTagMaker", "",
+    "Tool creating stream tags (defines if event is accepted)"
+  };
   /// Tools filling the HLTResultMT object
   ToolHandleArray<HLTResultMTMakerTool> m_makerTools {
     this, "MakerTools", {},
-    "Set of tools that fill content of the HLTResultMT"
+    "Set of additional tools that fill content of the HLTResultMT"
   };
   /// Monitoring tool
   ToolHandle<GenericMonitoringTool> m_monTool {
@@ -71,7 +76,7 @@ private:
 
   // ------------------------- Other private members ---------------------------
   /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
-  ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc;
   /// List of enabled ROBs retrieved during initialisation
   std::set<uint32_t> m_enabledROBs;
   /// List of enabled SubDets retrieved during initialisation

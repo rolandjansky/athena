@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaCommon.Logging import logging
+
 
 def ISFCollectionMergerCfg(flags,name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "InputBCMHits",              [ ] )
@@ -22,8 +24,16 @@ def ISFCollectionMergerCfg(flags,name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "InputRPCHits",              [ ] )
     kwargs.setdefault( "InputTGCHits",              [ ] )
     hardscatterSG=""
-    if flags.Digitization.Pileup is True:
-        hardscatterSG = "OriginalEvent_SG+"
+    try:
+        if flags.Sim.DoFullChain and (flags.Digitization.Pileup is True):
+            hardscatterSG = "OriginalEvent_SG+"
+    except RuntimeError as err:
+        msg = logging.getLogger(name)
+        msg.info("Caught {!r}. "
+                 "Digitization flags are unavailable in AthSimulation."
+                 .format(err))
+        # FIXME: Digitization is not the AthSimulation project;
+        # support for FastChain may need to be added in the future.
     kwargs.setdefault( "OutputBCMHits",             hardscatterSG+"BCMHits"             )
     kwargs.setdefault( "OutputBLMHits",             hardscatterSG+"BLMHits"             )
     kwargs.setdefault( "OutputPixelHits",           hardscatterSG+"PixelHits"           )

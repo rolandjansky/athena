@@ -24,7 +24,7 @@ atlas_add_component( TrkAlignGenAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests xAODEventInfo TrkAlignEvent TrkTrack )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests xAODEventInfo TrkAlignEvent TrkTrack TrkAlignInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkAlignGenAlgs )

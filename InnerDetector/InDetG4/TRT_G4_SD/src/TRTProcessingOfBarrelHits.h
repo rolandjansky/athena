@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTProcessingOfBarrelHits_hh
 #define TRT_G4_SD_TRTProcessingOfBarrelHits_hh
+
+#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 class TRTSensitiveDetector;
@@ -49,7 +51,7 @@ private:
   int* m_strawIDToLayerIDB;
   int* m_strawIDToLayerIDC;
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTSensitiveDetector* m_pSensitiveDetector;
 
   int m_verboseLevel;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,9 +11,9 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // STD
+#include <cmath>
 #include <iomanip>
 #include <iostream>
-#include <math.h>
 
 // default constructor
 Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds()
@@ -38,27 +38,6 @@ Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds(double halex, double minhale
   initCache();
 }
 
-// copy constructor
-Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds(const RotatedTrapezoidBounds& trabo)
-  : Trk::SurfaceBounds()
-  , m_boundValues(trabo.m_boundValues)
-  , m_kappa(trabo.m_kappa)
-  , m_delta(trabo.m_delta)
-{}
-
-// destructor
-Trk::RotatedTrapezoidBounds::~RotatedTrapezoidBounds() = default;
-
-Trk::RotatedTrapezoidBounds&
-Trk::RotatedTrapezoidBounds::operator=(const RotatedTrapezoidBounds& trabo)
-{
-  if (this != &trabo) {
-    m_boundValues = trabo.m_boundValues;
-    m_kappa = trabo.m_kappa;
-    m_delta = trabo.m_delta;
-  }
-  return *this;
-}
 
 bool
 Trk::RotatedTrapezoidBounds::operator==(const Trk::SurfaceBounds& sbo) const
@@ -146,10 +125,10 @@ Trk::RotatedTrapezoidBounds::minDistance(const Amg::Vector2D& pos) const
       in = false;
     Ao = A;
   }
-  if (in)
+  if (in){
     return -sqrt(dm);
-  else
-    return sqrt(dm);
+  }
+  return sqrt(dm);
 }
 
 // ostream operator overload

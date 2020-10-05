@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************//
@@ -10,6 +10,9 @@
 
 #ifndef MuonCalibRawTriggerHitCollection_h
 #define MuonCalibRawTriggerHitCollection_h
+
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <vector>
 #include <iostream>
@@ -55,10 +58,12 @@ namespace MuonCalib{
   inline int MuonCalibRawTriggerHitCollection::numberOfMuonCalibRawRpcTriggerHits() const { return m_rawRpcTriggerHitVec.size() ; }
 
   inline void MuonCalibRawTriggerHitCollection::addMuonCalibRawTriggerHit( MuonCalibRawRpcTriggerHit* rawTriggerHit ) { 
-    if(rawTriggerHit){
+    if(rawTriggerHit) {
       m_rawRpcTriggerHitVec.push_back(rawTriggerHit) ; 
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibRawTriggerHitCollection");
+      log<<MSG::WARNING<<"Refuse to put an empty MuonCalibRawRpcTriggerHit in MuonCalibRawTriggerHitCollection"<<endmsg;
     }
-    else std::cout << "!!!!Refuse to put an empty MuonCalibRawRpcTriggerHit in MuonCalibRawTriggerHitCollection" << std::endl;
   }  
 }
 

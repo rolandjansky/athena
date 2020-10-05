@@ -1,26 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTNOISE_H
 #define TRT_DIGITIZATION_TRTNOISE_H
 
-#include <vector>
-#include <set>
-
 #include "TRTDigit.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
-class TRTDigCondBase;
-class TRTElectronicsProcessing;
-class TRTElectronicsNoise;
-#include "AthenaKernel/MsgStreamMember.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "CLHEP/Random/RandomEngine.h"
+
+#include <set>
+#include <vector>
+
 class Identifier;
+class TRTDigCondBase;
+class TRTElectronicsNoise;
+class TRTElectronicsProcessing;
 class TRT_ID;
 
 namespace InDetDD {
@@ -204,7 +207,7 @@ private:
                                              float & new_min_lt2na,
                                              float & new_max_lt2na,
                                              const unsigned int& number_new_bins );
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   Identifier getStrawIdentifier (int hitID);
 

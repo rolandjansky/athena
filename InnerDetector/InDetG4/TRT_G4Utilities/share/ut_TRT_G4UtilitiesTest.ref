@@ -1,9 +1,6 @@
 Running 7 test cases...
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
 Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-*** No errors detected
+
+[1;32;49m*** No errors detected
+[0;39;49m

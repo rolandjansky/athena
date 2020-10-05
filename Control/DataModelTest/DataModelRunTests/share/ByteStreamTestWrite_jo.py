@@ -48,7 +48,8 @@ from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteHVec, \
      DMTest__xAODTestWriteCView, \
      DMTest__HLTResultWriter
-topSequence += DMTest__DummyDecisionWriter ("DummyDecisionWriter")
+topSequence += DMTest__DummyDecisionWriter ("DummyDecisionWriter",
+                                            DecisionKey = 'xTrigDecision')
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec",
                                           CVecKey = 'HLT_DMTest__CVec_cvec')
 topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView",

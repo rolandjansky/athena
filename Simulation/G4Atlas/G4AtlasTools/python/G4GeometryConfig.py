@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm, cm, m
@@ -91,11 +91,18 @@ def getIDETEnvelope(name="IDET", **kwargs):
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
 
 def getCALOEnvelope(name="CALO", **kwargs):
+    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
+    calolim = 6735.
+    try:
+        if LArDetectorToolNV.ActivateFeedThrougs:
+            calolim = 6747.
+    except AttributeError:
+        pass
     kwargs.setdefault("DetectorName", "CALO")
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6735.,6735.,6781.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-6781.,-calolim,-calolim,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,calolim,calolim,6781.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.LAr_on():
@@ -125,11 +132,18 @@ def getForwardRegionEnvelope(name='ForwardRegion', **kwargs):
     return CfgMgr.GeoDetectorTool(name, **kwargs) ##FIXME Should this really be a GeoDetectorTool???
 
 def getMUONEnvelope(name="MUONQ02", **kwargs): #FIXME rename to MUON when safe
+    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
+    calolim = 6736.
+    try:
+        if LArDetectorToolNV.ActivateFeedThrougs:
+            calolim = 6748.
+    except AttributeError:
+        pass
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6736.,-6736.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6736.,6736.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-calolim,-calolim,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,calolim,calolim,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.Muon_on():
@@ -278,5 +292,7 @@ def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", *
     return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
 
 def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
-    ## kwargs.setdefault("SomeProperty", aValue)
+    from G4AtlasApps.SimFlags import simFlags
+    if hasattr(simFlags, 'Eta') or hasattr(simFlags, 'LArTB_H1TableYPos'): #FIXME Ugly hack
+        kwargs.setdefault("TestBeam", True)
     return CfgMgr.MaterialDescriptionTool(name, **kwargs)

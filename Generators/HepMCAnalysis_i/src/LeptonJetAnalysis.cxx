@@ -6,16 +6,6 @@
 
 #include <iostream>
 
-#include "AtlasHepMC/GenEvent.h"
-#include "AtlasHepMC/IO_GenEvent.h"
-#include "AtlasHepMC/GenParticle.h"
-#include "AtlasHepMC/GenVertex.h"
-#include "AtlasHepMC/IO_AsciiParticles.h"
-#include "AtlasHepMC/SimpleVector.h"
-#include "AtlasHepMC/WeightContainer.h"
-#include "CLHEP/Vector/LorentzVector.h"
-
-
 #include "TH1.h"
 #include "TMath.h"
 #include "TLorentzVector.h"
@@ -25,12 +15,22 @@
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/SISConePlugin.hh"
 
-#include "TruthUtils/HepMCHelpers.h" //MCUtils.h
+/** Here we state explicitely what is used */
+#include "MCUtils/PIDUtils.h"
+#include "MCUtils/HepMCEventUtils.h"
+#include "MCUtils/HepMCParticleUtils.h"
+#include "MCUtils/HepMCVectors.h"
+#include "MCUtils/HepMCParticleClassifiers.h"
 #include "HEPUtils/FastJet.h"
 
 #include "../HepMCAnalysis_i/LeptonJetAnalysis.h"
 
-using namespace std;
+namespace MC {
+using namespace MCUtils::PID;
+using MCUtils::ptGtr;
+using MCUtils::get_weight;
+using MCUtils::isLastReplica;
+}
 
 // ----------------------------------------------------------------------
 LeptonJetAnalysis::LeptonJetAnalysis()
@@ -298,26 +298,26 @@ int LeptonJetAnalysis::Init(double maxEta, double minPt)
 
   for(UInt_t i = 0; i < nleptons; ++i){
     m_histName.Form("lepton%d_pT", i+1);
-    m_leptonPt[i] = initHist(string( m_histName ), string( m_histName ), string( "p_{T} [GeV]") , 100, 0., 300.);
+    m_leptonPt[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "p_{T} [GeV]") , 100, 0., 300.);
     m_leptonPt[i] -> Sumw2();
     m_histName.Form("lepton%d_eta", i+1);
-    m_leptonEta[i] = initHist(string( m_histName ), string( m_histName ), string( "#eta") ,   50, -4, 4);
+    m_leptonEta[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#eta") ,   50, -4, 4);
     m_leptonEta[i] -> Sumw2();
   }
 
   for(UInt_t i = 0; i < nleptons-1; ++i){
     for (UInt_t j=i+1;  j < nleptons;++j){
       m_histName.Form("lepton%d%d_deltaR", i+1,j+1);
-      m_leptondR[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta R" ), 64, 0, 3.2);
+      m_leptondR[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta R" ), 64, 0, 3.2);
       m_leptondR[i][j] -> Sumw2();
       m_histName.Form("lepton%d%d_deltaPhi", i+1,j+1);
-      m_leptondPhi[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta #phi" ), 40, -3.14, 3.14);
+      m_leptondPhi[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta #phi" ), 40, -3.14, 3.14);
       m_leptondPhi[i][j] -> Sumw2();
       m_histName.Form("lepton%d%d_Mass", i+1,j+1);
-      m_leptonMass[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "mass [GeV]" ), 40, 40.0, 120.0);
+      m_leptonMass[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass [GeV]" ), 40, 40.0, 120.0);
       m_leptonMass[i][j] -> Sumw2();
       m_histName.Form("lepton%d%d_lowMass", i+1,j+1);
-      m_leptonLowMass[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "mass [GeV]" ), 20, 0.0, 40.0);
+      m_leptonLowMass[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass [GeV]" ), 20, 0.0, 40.0);
       m_leptonLowMass[i][j] -> Sumw2();
     }
   }
@@ -351,16 +351,16 @@ int LeptonJetAnalysis::Init(double maxEta, double minPt)
 
   for(UInt_t i = 0; i < njets; ++i){
     m_histName.Form("jet%d_pT", i+1);
-    m_jetPt[i] = initHist(string( m_histName ), string( m_histName ), string( "p_{T} [GeV]") , 100, 0., 300.);
+    m_jetPt[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "p_{T} [GeV]") , 100, 0., 300.);
     m_jetPt[i] -> Sumw2();
     m_histName.Form("jet%d_pT_highrange", i+1);
-    m_jetPtHighRange[i] = initHist(string( m_histName ), string( m_histName ), string( "p_{T} [GeV]") , 300, 0., 1000.);
+    m_jetPtHighRange[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "p_{T} [GeV]") , 300, 0., 1000.);
     m_jetPtHighRange[i] -> Sumw2();
     m_histName.Form("jet%d_eta", i+1);
-    m_jetEta[i] = initHist(string( m_histName ), string( m_histName ), string( "#eta") ,   50, -4, 4);
+    m_jetEta[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#eta") ,   50, -4, 4);
     m_jetEta[i] -> Sumw2();
     m_histName.Form("jet%d_MassPt", i+1);
-    m_jetMassPt[i] = initHist(string( m_histName ), string( m_histName ), string( "mass^{2}/p_{T}^{2}") , 100, 0.0, 0.1);
+    m_jetMassPt[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass^{2}/p_{T}^{2}") , 100, 0.0, 0.1);
     m_jetMassPt[i] -> Sumw2();
 
   }
@@ -368,13 +368,13 @@ int LeptonJetAnalysis::Init(double maxEta, double minPt)
   for(UInt_t i = 0; i < njets-1; ++i){
     for (UInt_t j=i+1;  j < njets;++j){
       m_histName.Form("jet%d%d_deltaR", i+1,j+1);
-      m_jetdR[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta R" ), 64, 0, 3.2);
+      m_jetdR[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta R" ), 64, 0, 3.2);
       m_jetdR[i][j] -> Sumw2();
       m_histName.Form("jet%d%d_deltaPhi", i+1,j+1);
-      m_jetdPhi[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta #phi" ), 40, -3.14, 3.14);
+      m_jetdPhi[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta #phi" ), 40, -3.14, 3.14);
       m_jetdPhi[i][j] -> Sumw2();
       m_histName.Form("jet%d%d_Mass", i+1,j+1);
-      m_jetMass[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "mass [GeV]" ), 50, 0.0, 50.0);
+      m_jetMass[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass [GeV]" ), 50, 0.0, 50.0);
       m_jetMass[i][j] -> Sumw2();
     }
   }
@@ -388,29 +388,29 @@ int LeptonJetAnalysis::Init(double maxEta, double minPt)
 
   for(UInt_t i = 0; i < njets; ++i){
     m_histName.Form("jet%d_pT_nocuts", i+1);
-    m_jetPt_nocuts[i] = initHist(string( m_histName ), string( m_histName ), string( "p_{T} [GeV]") , 100, 0., 300.);
+    m_jetPt_nocuts[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "p_{T} [GeV]") , 100, 0., 300.);
     m_jetPt_nocuts[i] -> Sumw2();
     m_histName.Form("jet%d_pT_highrange_nocuts", i+1);
-    m_jetPtHighRange_nocuts[i] = initHist(string( m_histName ), string( m_histName ), string( "p_{T} [GeV]") , 300, 0., 1000.);
+    m_jetPtHighRange_nocuts[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "p_{T} [GeV]") , 300, 0., 1000.);
     m_jetPtHighRange_nocuts[i] -> Sumw2();
     m_histName.Form("jet%d_eta_nocuts", i+1);
-    m_jetEta_nocuts[i] = initHist(string( m_histName ), string( m_histName ), string( "#eta") ,   50, -4, 4);
+    m_jetEta_nocuts[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#eta") ,   50, -4, 4);
     m_jetEta_nocuts[i] -> Sumw2();
     m_histName.Form("jet%d_MassPt_nocuts", i+1);
-    m_jetMassPt_nocuts[i] = initHist(string( m_histName ), string( m_histName ), string( "mass^{2}/p_{T}^{2}") , 100, 0.0, 0.1);
+    m_jetMassPt_nocuts[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass^{2}/p_{T}^{2}") , 100, 0.0, 0.1);
     m_jetMassPt_nocuts[i] -> Sumw2();
   }
 
   for(UInt_t i = 0; i < njets-1; ++i){
     for (UInt_t j=i+1;  j < njets;++j){
       m_histName.Form("jet%d%d_deltaR_nocuts", i+1,j+1);
-      m_jetdR_nocuts[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta R" ), 64, 0, 3.2);
+      m_jetdR_nocuts[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta R" ), 64, 0, 3.2);
       m_jetdR_nocuts[i][j] -> Sumw2();
       m_histName.Form("jet%d%d_deltaPhi_nocuts", i+1,j+1);
-      m_jetdPhi_nocuts[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta #phi" ), 40, -3.14, 3.14);
+      m_jetdPhi_nocuts[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta #phi" ), 40, -3.14, 3.14);
       m_jetdPhi_nocuts[i][j] -> Sumw2();
       m_histName.Form("jet%d%d_Mass_nocuts", i+1,j+1);
-      m_jetMass_nocuts[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "mass [GeV]" ), 50, 0.0, 50.0);
+      m_jetMass_nocuts[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass [GeV]" ), 50, 0.0, 50.0);
       m_jetMass_nocuts[i][j] -> Sumw2();
     }
   }
@@ -424,29 +424,29 @@ int LeptonJetAnalysis::Init(double maxEta, double minPt)
 
   for(UInt_t i = 0; i < njets; ++i){
     m_histName.Form("jet%d_pT_forward", i+1);
-    m_jetPt_forward[i] = initHist(string( m_histName ), string( m_histName ), string( "p_{T} [GeV]") , 100, 0., 300.);
+    m_jetPt_forward[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "p_{T} [GeV]") , 100, 0., 300.);
     m_jetPt_forward[i] -> Sumw2();
     m_histName.Form("jet%d_pT_highrange_forward", i+1);
-    m_jetPtHighRange_forward[i] = initHist(string( m_histName ), string( m_histName ), string( "p_{T} [GeV]") , 300, 0., 1000.);
+    m_jetPtHighRange_forward[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "p_{T} [GeV]") , 300, 0., 1000.);
     m_jetPtHighRange_forward[i] -> Sumw2();
     m_histName.Form("jet%d_eta_forward", i+1);
-    m_jetEta_forward[i] = initHist(string( m_histName ), string( m_histName ), string( "#eta") ,   50, -4, 4);
+    m_jetEta_forward[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#eta") ,   50, -4, 4);
     m_jetEta_forward[i] -> Sumw2();
     m_histName.Form("jet%d_MassPt_forward", i+1);
-    m_jetMassPt_forward[i] = initHist(string( m_histName ), string( m_histName ), string( "mass^{2}/p_{T}^{2}") , 100, 0.0, 0.1);
+    m_jetMassPt_forward[i] = initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass^{2}/p_{T}^{2}") , 100, 0.0, 0.1);
     m_jetMassPt_forward[i] -> Sumw2();
   }
 
   for(UInt_t i = 0; i < njets-1; ++i){
     for (UInt_t j=i+1;  j < njets;++j){
       m_histName.Form("jet%d%d_deltaR_forward", i+1,j+1);
-      m_jetdR_forward[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta R" ), 64, 0, 3.2);
+      m_jetdR_forward[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta R" ), 64, 0, 3.2);
       m_jetdR_forward[i][j] -> Sumw2();
       m_histName.Form("jet%d%d_deltaPhi_forward", i+1,j+1);
-      m_jetdPhi_forward[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "#Delta #phi" ), 40, -3.14, 3.14);
+      m_jetdPhi_forward[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "#Delta #phi" ), 40, -3.14, 3.14);
       m_jetdPhi_forward[i][j] -> Sumw2();
       m_histName.Form("jet%d%d_Mass_forward", i+1,j+1);
-      m_jetMass_forward[i][j] =   initHist(string( m_histName ), string( m_histName ), string( "mass [GeV]" ), 50, 0.0, 50.0);
+      m_jetMass_forward[i][j] =   initHist(std::string( m_histName ), std::string( m_histName ), std::string( "mass [GeV]" ), 50, 0.0, 50.0);
       m_jetMass_forward[i][j] -> Sumw2();
     }
   }
@@ -520,7 +520,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
 {
   double weight;
 
-  HepMC::GenParticle *lepton = 0;
+  HepMC::GenParticle* lepton = nullptr;
 
   std::vector<fastjet::PseudoJet> selected_jets;
   std::vector<fastjet::PseudoJet> forward_jets;
@@ -538,7 +538,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
   Int_t NumLeptons = 0, NumElectrons = 0, NumMuons = 0, NumTaus = 0, NumZ = 0, NumW = 0, NumGamma = 0;
 
   if (event -> event_number() % 1000 == 0) {
-    cout << "Processing event " << event -> event_number() << endl;
+    std::cout << "Processing event " << event -> event_number() << std::endl;
   }
   weight = MC::get_weight(event, 0 );
   m_event_weight -> Fill(weight);
@@ -547,7 +547,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
   for (HepMC::GenEvent::particle_const_iterator p = event -> particles_begin(); p != event -> particles_end(); ++p){
 
 
-    if ( abs((*p) -> pdg_id()) == 23 && (MC::isLastReplica(*p))){
+    if ( std::abs((*p) -> pdg_id()) == 23 && (MC::isLastReplica(*p))){
       NumZ++;
       m_ZNum->Fill(weight);
       m_Z1pt->Fill((*p) -> momentum().perp(), weight);
@@ -555,7 +555,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
 
     }
 
-    if ( abs((*p) -> pdg_id()) == 24 && (MC::isLastReplica(*p))){
+    if ( std::abs((*p) -> pdg_id()) == 24 && (MC::isLastReplica(*p))){
       NumW++;
       m_WNum->Fill(weight);
       m_W1pt->Fill((*p) -> momentum().perp(), weight);
@@ -563,7 +563,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
 
     }
 
-    if ( abs((*p) -> pdg_id()) == 22 && (MC::isLastReplica(*p))){
+    if ( std::abs((*p) -> pdg_id()) == 22 && (MC::isLastReplica(*p))){
       NumGamma++;
       m_gammaNum->Fill(weight);
       m_gamma1pt->Fill((*p) -> momentum().perp(), weight);
@@ -573,32 +573,32 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
 
 
 
-    if ((MC::PID::isLepton((*p) -> pdg_id())) && (MC::isLastReplica(*p))) // last replica of charged lepton selected
+    if ((MC::isLepton((*p) -> pdg_id())) && (MC::isLastReplica(*p))) // last replica of charged lepton selected
       {
   	lepton = (*p);
   	if (!MC::ptGtr(lepton, ptmin_l)) continue;
-  	if (!MC::isStable(lepton)) continue;
-  	if (!MC::isCharged(lepton)) continue;
+  	if (!(lepton->status()==1)) continue;
+  	if (!MC::isCharged(lepton->pdg_id())) continue;
 
 	int charge = ((*p) -> pdg_id() > 0) ? 1 : (((*p) -> pdg_id() < 0) ? -1 : 0);
 
   	m_leptonInclPt -> Fill(lepton -> momentum().perp(), weight);
 
   	//fill plots for electrons
-  	if (abs(lepton -> pdg_id()) == 11) {
+  	if (std::abs(lepton -> pdg_id()) == 11) {
   	  m_electronPt -> Fill(lepton -> momentum().perp(), weight);
 	  m_electronCharge -> Fill(charge, weight);
   	  NumElectrons++;
   	}
   	//fill plots for muons
-  	if (abs(lepton -> pdg_id()) == 13) {
+  	if (std::abs(lepton -> pdg_id()) == 13) {
   	  m_muonPt -> Fill(lepton -> momentum().perp(), weight);
 	  m_muonCharge -> Fill(charge, weight);
   	  NumMuons++;
   	}
   	//fill plots for taus
-	//pdgid 17??? seems wrong  	if ((abs(lepton -> pdg_id()) == 15) || (abs(lepton -> pdg_id()) == 17)) {
-  	if (abs(lepton -> pdg_id()) == 15) {
+	//pdgid 17??? seems wrong  	if ((std::abs(lepton -> pdg_id()) == 15) || (std::abs(lepton -> pdg_id()) == 17)) {
+  	if (std::abs(lepton -> pdg_id()) == 15) {
   	  m_tauPt -> Fill(lepton -> momentum().perp(), weight);
 	  m_tauCharge -> Fill(charge, weight);
   	  NumTaus++;
@@ -610,7 +610,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
         const HEPUtils::P4 leptonMomentum(p4.px(), p4.py(), p4.pz(), p4.e());
 
        unsorted_leptons.push_back(HEPUtils::mk_pseudojet(leptonMomentum));
-  	if( abs(lepton -> momentum().eta()) < etamax_l){
+  	if( std::abs(lepton -> momentum().eta()) < etamax_l){
 //  	  unsorted_tight_leptons.push_back(MC::mk_pseudojet(lepton));
           unsorted_tight_leptons.push_back(HEPUtils::mk_pseudojet(leptonMomentum));
   	}
@@ -638,7 +638,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
     }
      for (UInt_t j = i + 1;  j < leptons.size() ;++j){
        if ((i < nleptons-1)&&(j < nleptons)){
-	 m_leptondR[i][j]->Fill(sqrt(leptons[i].squared_distance(leptons[j])), weight);
+	 m_leptondR[i][j]->Fill(std::sqrt(leptons[i].squared_distance(leptons[j])), weight);
 	 m_leptondPhi[i][j]->Fill(leptons[i].delta_phi_to(leptons[j]), weight);
 	 m_leptonMass[i][j]->Fill((leptons[i] + leptons[j]).m(), weight);
 	 m_leptonLowMass[i][j]->Fill((leptons[i] + leptons[j]).m(), weight);
@@ -649,13 +649,13 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
   //loop over jets and fill vectors
 
   for (size_t i = 0; i < m_inclusive_jets.size(); ++i) {
-    if ((abs(m_inclusive_jets[i].eta()) < etamax_jet) && (m_inclusive_jets[i].perp() > ptmin_jet)){
+    if ((std::abs(m_inclusive_jets[i].eta()) < etamax_jet) && (m_inclusive_jets[i].perp() > ptmin_jet)){
       selected_jets.push_back(m_inclusive_jets[i]);
     }
-    if (abs(m_inclusive_jets[i].eta()) < etamax_jet){
+    if (std::abs(m_inclusive_jets[i].eta()) < etamax_jet){
       no_cuts_jets.push_back(m_inclusive_jets[i]);
     }
-    if ( (abs(m_inclusive_jets[i].eta()) >= etamin_jetf) && (m_inclusive_jets[i].perp() > ptmin_jet)){
+    if ( (std::abs(m_inclusive_jets[i].eta()) >= etamin_jetf) && (m_inclusive_jets[i].perp() > ptmin_jet)){
       forward_jets.push_back(m_inclusive_jets[i]);
     }
   }
@@ -671,7 +671,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
     }
      for (UInt_t j = i + 1;  j < selected_jets.size() ;++j){
        if ((i < njets-1)&&(j < njets)){
-	 m_jetdR[i][j]->Fill(sqrt(selected_jets[i].squared_distance(selected_jets[j])), weight);
+	 m_jetdR[i][j]->Fill(std::sqrt(selected_jets[i].squared_distance(selected_jets[j])), weight);
 	 m_jetMass[i][j] -> Fill(selected_jets[i].m() + selected_jets[j].m(), weight);
 	 m_jetdPhi[i][j]->Fill(selected_jets[i].delta_phi_to(selected_jets[j]), weight);
        }
@@ -689,7 +689,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
     }
      for (UInt_t j = i + 1;  j < no_cuts_jets.size() ;++j){
        if ((i < njets-1)&&(j < njets)){
-	 m_jetdR_nocuts[i][j]->Fill(sqrt(no_cuts_jets[i].squared_distance(no_cuts_jets[j])), weight);
+	 m_jetdR_nocuts[i][j]->Fill(std::sqrt(no_cuts_jets[i].squared_distance(no_cuts_jets[j])), weight);
 	 m_jetMass_nocuts[i][j] -> Fill(no_cuts_jets[i].m() + no_cuts_jets[j].m(), weight);
 	 m_jetdPhi_nocuts[i][j]->Fill(no_cuts_jets[i].delta_phi_to(no_cuts_jets[j]), weight);
        }
@@ -707,7 +707,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
     }
      for (UInt_t j = i + 1;  j < forward_jets.size() ;++j){
        if ((i < njets-1)&&(j < njets)){
-	 m_jetdR_forward[i][j]->Fill(sqrt(forward_jets[i].squared_distance(forward_jets[j])), weight);
+	 m_jetdR_forward[i][j]->Fill(std::sqrt(forward_jets[i].squared_distance(forward_jets[j])), weight);
   	m_jetMass_forward[i][j] -> Fill(forward_jets[i].m() + forward_jets[j].m(), weight);
   	m_jetdPhi_forward[i][j]->Fill(forward_jets[i].delta_phi_to(forward_jets[j]), weight);
        }
@@ -729,7 +729,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
       m_jet1Pt_tight -> Fill(selected_jets[0].perp(), weight);
       m_jet1PtHighRange_tight -> Fill(selected_jets[0].perp(), weight);
       m_jet1Eta_tight -> Fill(selected_jets[0].eta(), weight);
-      m_dR_jet1_to_lepton_tight -> Fill(sqrt(selected_jets[0].squared_distance(tight_leptons[0])), weight);
+      m_dR_jet1_to_lepton_tight -> Fill(std::sqrt(selected_jets[0].squared_distance(tight_leptons[0])), weight);
       m_dPhi_jet1_to_lepton_tight -> Fill(selected_jets[0].delta_phi_to(tight_leptons[0]), weight);
 
       dR1 = selected_jets[0].squared_distance (tight_leptons[0]);
@@ -740,15 +740,15 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
   	m_jet2Pt_tight -> Fill(selected_jets[1].perp(), weight);
 	m_jet2PtHighRange_tight -> Fill(selected_jets[1].perp(), weight);
   	m_jet2Eta_tight -> Fill(selected_jets[1].eta(), weight);
-  	m_dR_jet2_to_lepton_tight -> Fill(sqrt(selected_jets[1].squared_distance(tight_leptons[0])), weight);
+  	m_dR_jet2_to_lepton_tight -> Fill(std::sqrt(selected_jets[1].squared_distance(tight_leptons[0])), weight);
   	m_dPhi_jet2_to_lepton_tight -> Fill(selected_jets[1].delta_phi_to(tight_leptons[0]), weight);
 
   	dR2 = selected_jets[1].squared_distance(tight_leptons[0]);
   	dPhi2 = selected_jets[1].delta_phi_to(tight_leptons[0]);
       }
 
-      dRmin = ( abs(dR2) > abs(dR1)) ? dR1 :dR2;
-      dPhimin = (abs(dPhi2) > abs(dPhi1)) ? dPhi1 :dPhi2;
+      dRmin = ( std::abs(dR2) > std::abs(dR1)) ? dR1 :dR2;
+      dPhimin = (std::abs(dPhi2) > std::abs(dPhi1)) ? dPhi1 :dPhi2;
       m_dR_lepton_to_closest_jet_tight -> Fill(dRmin, weight);
       m_dPhi_lepton_to_closest_jet_tight -> Fill(dPhimin, weight);
     }

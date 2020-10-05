@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 // -*- c++ -*-
@@ -11,14 +11,17 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+// #include "CxxUtils/checker_macros.h" // ATLAS_THREAD_SAFE
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #endif
 
-#include <map>
+#include <atomic>
 #include <limits>
+#include <map>
+// #include <mutex>
 
 namespace InDet {
 
@@ -36,7 +39,7 @@ namespace InDet {
 
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS2( InDetSecVtxTrackSelectionTool,
-		     CP::ISelectionTool,
+		     IAsgSelectionTool,
 		     InDet::IInDetTrackSelectionTool )
     
   public:
@@ -86,16 +89,17 @@ namespace InDet {
 
   private:
     bool m_isInitialized = false; // flag whether or not the tool has been initialized, to check erroneous use cases.
-    mutable bool m_warnInit = false; // flag to keep track of whether we have warned about a lack of initialization
+    mutable std::atomic<bool> m_warnInit = false; // flag to keep track of whether we have warned about a lack of initialization
 
     std::unordered_map< std::string, std::shared_ptr<SecVtxTrackAccessor> > m_trackAccessors; //!< list of the accessors that need to be run for each track
 
     // first element is cut family, second is the set of cuts
     std::map< std::string, std::vector< std::unique_ptr<SecVtxTrackCut> > > m_trackCuts; //!< First element is the name of the cut family, second element is the set of cuts
 
-    mutable ULong64_t m_numTracksProcessed = 0; //!< a counter of the number of tracks proccessed
-    mutable ULong64_t m_numTracksPassed = 0; //!< a counter of the number of tracks that passed all cuts
-    mutable std::vector<ULong64_t> m_numTracksPassedCuts; //!< tracks the number of tracks that passed each cut family
+    mutable std::atomic<ULong64_t> m_numTracksProcessed = 0; //!< a counter of the number of tracks proccessed
+    mutable std::atomic<ULong64_t> m_numTracksPassed = 0; //!< a counter of the number of tracks that passed all cuts
+    //    mutable std::vector<ULong64_t> m_numTracksPassedCuts ATLAS_THREAD_SAFE; //!< tracks the number of tracks that passed each cut family Guarded by m_mutex
+    //    mutable std::mutex m_mutex;
 
     constexpr static Double_t LOCAL_MAX_DOUBLE = 1.0e16;
     constexpr static Int_t LOCAL_MAX_INT = std::numeric_limits<Int_t>::max();

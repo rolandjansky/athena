@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELDISKSUPPORTS_H
@@ -11,8 +11,9 @@ class GeoLogVol;
 class GeoPixelDiskSupports : public GeoVPixelFactory {
 
  public:
-  GeoPixelDiskSupports();
-  virtual GeoVPhysVol* Build();
+  GeoPixelDiskSupports(InDetDD::PixelDetectorManager* ddmgr,
+                       PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   int NCylinders(){return m_rmin.size();}
   void SetCylinder(int n) {m_nframe = n;}

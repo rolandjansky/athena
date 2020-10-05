@@ -45,9 +45,6 @@ DetFlags.em_setOn()
 #
 # Read POOL file
 #
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.CheckDictionary = True 
-
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 theApp.Dlls += ["EventSelectorAthenaPool"] 
 theApp.Dlls += ["LArAthenaPoolPoolCnv"]
@@ -60,8 +57,6 @@ CondProxyProvider.InputCollections = PoolFileList
 
 EventPersistencySvc = Service( "EventPersistencySvc" )
 EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
-
-include("AthenaServices/AthenaSealSvc_joboptions.py")
 
 #
 # build master waveforms from single-DAC calibration waves
@@ -117,9 +112,6 @@ if ( WriteRootFile ) :
 	NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFileName+"' OPT='NEW'" ]
 	
 if ( WritePoolFile ) :
-        include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-        AthenaSealSvc.CheckDictionary = True 
-
         include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
         theApp.Dlls   += [ "LArAthenaPoolPoolCnv" ]
         theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]

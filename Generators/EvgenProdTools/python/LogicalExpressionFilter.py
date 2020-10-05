@@ -20,7 +20,7 @@ import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
 
 import tokenize, random
-from cStringIO import StringIO
+from io import StringIO
 
 class LogicalExpressionFilter( PyAthena.Alg ):
     _isLocked=False

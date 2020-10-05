@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_CBTREE_H
@@ -35,6 +35,9 @@ public:
 
   CBTree();
   ~CBTree();
+
+  CBTree (const CBTree&) = delete;
+  CBTree& operator= (const CBTree&) = delete;
 
   CBNode* addNode(const std::string& name, CBNode* parent);
   CBNode* addNode(const SG::DataProxy* proxy, const std::string& name);

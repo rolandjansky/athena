@@ -19,26 +19,18 @@ namespace Monitored {
     HistogramFiller2DProfile(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFiller2DProfile* clone() const override {
-      return new HistogramFiller2DProfile( *this );
-    }
 
-
-    virtual unsigned fill() const override {
-      if (m_monVariables.size() != 3) {
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
+	if ( vars.size() != 3) {
         return 0;
       }
 
       // handling of the cutmask
-      auto cutMaskValuePair = getCutMaskFunc();
+      auto cutMaskValuePair = getCutMaskFunc(vars.cut);
       if (cutMaskValuePair.first == 0) { return 0; }
       auto cutMaskAccessor = cutMaskValuePair.second;
 
       auto histogram = this->histogram<TProfile2D>();
-      const auto valuesVector1{m_monVariables[0].get().getVectorRepresentation()};
-      const auto valuesVector2{m_monVariables[1].get().getVectorRepresentation()};
-      const auto valuesVector3{m_monVariables[2].get().getVectorRepresentation()};
-      std::scoped_lock lock(*m_mutex);
       /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
       unsigned i(0);
       if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {
@@ -46,26 +38,22 @@ namespace Monitored {
       }*/
 
       //For now lets just consider the case in which all variables are of the same length
-      if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector1.size() ) {
+      if ( vars.weight && vars.weight->size() == vars.var[0]->size() ) {
         // Weighted fill
-        const auto weightVector{m_monWeight->getVectorRepresentation()};
-        double value1,value2,value3,weight;
-        size_t idx = 0;
-        for (const auto& zipped : boost::combine(valuesVector1,valuesVector2,valuesVector3,weightVector)) {
-          if (cutMaskAccessor(idx++)) { 
-            boost::tie(value1,value2,value3,weight) = zipped;
-            histogram->Fill(value1,value2,value3,weight);
+        for (unsigned i = 0; i < vars.var[0]->size(); ++i) {
+          if (cutMaskAccessor(i)) {
+            histogram->Fill(vars.var[0]->get(i), vars.var[1]->get(i), vars.var[2]->get(i), vars.weight->get(i));
           }
         }
       } else {
         // Unweighted fill
-        for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
+        for (unsigned i = 0; i < vars.var[0]->size(); ++i) {
           if (cutMaskAccessor(i)) {
-            histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+            histogram->Fill(vars.var[0]->get(i), vars.var[1]->get(i), vars.var[2]->get(i));
           }
         }
       }
-      return std::size(valuesVector1);
+      return vars.var[0]->size();
     }
   };
 }

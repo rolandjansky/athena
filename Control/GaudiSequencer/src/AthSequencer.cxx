@@ -364,7 +364,7 @@ AthSequencer::decodeMemberNames( )
 }
 
 void
-AthSequencer::membershipHandler( Property& /* theProp */ )
+AthSequencer::membershipHandler( Gaudi::Details::PropertyBase& /* theProp */ )
 {
   if ( isInitialized() ) decodeMemberNames().ignore();
 }
@@ -508,20 +508,23 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
     
   }
   // Print membership list
-  if ( result.isSuccess() && !theAlgs->empty() ) {
-    msg(MSG::DEBUG) << "Member list: ";
-    bool first = true;
-    for (Gaudi::Algorithm* alg : *theAlgs) {
-      if (first)
-        first = false;
-      else
-        msg() << ", ";
-      if ( alg->name() == System::typeinfoName(typeid(*alg)))
-        msg() << alg->name();
-      else
-        msg() << System::typeinfoName(typeid(*alg)) << "/" << alg->name();
+  if (msgLvl(MSG::DEBUG)) {
+    if ( result.isSuccess() && !theAlgs->empty() ) {
+
+      msg(MSG::DEBUG) << "Member list: ";
+      bool first = true;
+      for (Gaudi::Algorithm* alg : *theAlgs) {
+        if (first)
+          first = false;
+        else
+          msg() << ", ";
+        if ( alg->name() == System::typeinfoName(typeid(*alg)))
+          msg() << alg->name();
+        else
+          msg() << System::typeinfoName(typeid(*alg)) << "/" << alg->name();
+      }
+      msg(MSG::DEBUG) << endmsg;
     }
-    msg(MSG::DEBUG) << endmsg;
   }
   theAlgMgr->release();
   return result;

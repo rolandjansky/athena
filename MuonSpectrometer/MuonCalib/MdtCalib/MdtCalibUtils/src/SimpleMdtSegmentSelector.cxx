@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/SimpleMdtSegmentSelector.h"
-
 #include "MuonCalibEventBase/MuonCalibSegment.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 
@@ -15,20 +16,20 @@ namespace MuonCalib {
     : m_chi2_max(chi2_max),m_hits_min(hits_min)
   {
     m_printLevel = 0;
-  
-    std::cout << "SimpleMdtSegmentSelector::SimpleMdtSegmentSelector" << std::endl;
-    std::cout << "New SimpleMdtSegmentSelector : " << std::endl;
-    std::cout << "       chi2 cut    " << m_chi2_max << std::endl;
-    std::cout << "       hits cut    " << m_hits_min << std::endl;
+
+    MsgStream log(Athena::getMessageSvc(),"SimpleMdtSegmentSelector");
+    log<<MSG::INFO<<"SimpleMdtSegmentSelector::SimpleMdtSegmentSelector" << endmsg;
+    log<<MSG::INFO<<"New SimpleMdtSegmentSelector : " << endmsg;
+    log<<MSG::INFO<<"       chi2 cut    " << m_chi2_max << endmsg;
+    log<<MSG::INFO<<"       hits cut    " << m_hits_min << endmsg;
   }
 
 
-  bool SimpleMdtSegmentSelector::select(const MuonCalibSegment& seg) const
-  {
-    if( m_printLevel >= 1){
-      std::cout << "SimpleMdtSegmentSelector::select" << std::endl;
-      std::cout << "Segment: chi2 " <<  seg.chi2() << " mdtHits " << seg.mdtHitsOnTrack() 
-		<< " tan " << seg.direction().y()/seg.direction().z() << std::endl;
+  bool SimpleMdtSegmentSelector::select(const MuonCalibSegment& seg) const {
+    MsgStream log(Athena::getMessageSvc(),"SimpleMdtSegmentSelector");
+    if (log.level()<=MSG::VERBOSE){
+      log<<MSG::VERBOSE<<"SimpleMdtSegmentSelector::select" << endmsg;
+      log<<MSG::VERBOSE<<"Segment: chi2 " <<  seg.chi2() << " mdtHits " << seg.mdtHitsOnTrack() << " tan " << seg.direction().y()/seg.direction().z() << endmsg;
     }
 
     // test if segments satisfies the selectors selection criteria
@@ -36,22 +37,17 @@ namespace MuonCalib {
     // test chi2
     if( seg.chi2() > m_chi2_max ) return false;
 
-    if( m_printLevel >= 2)
-      std::cout << "segment passed chi2 cut " << seg.chi2() << std::endl;
+    if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"segment passed chi2 cut " << seg.chi2() << endmsg;
  
     // test total numbers of hits on segment
     if( seg.mdtHitsOnTrack() < m_hits_min ) return false;
 
-    if( m_printLevel >= 2)
-      std::cout << "segment passed mdtHits cut " 
-		<< seg.mdtHitsOnTrack() << std::endl;
+    if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"segment passed mdtHits cut " << seg.mdtHitsOnTrack() << endmsg;
 
     double tanphi = seg.direction().y()/seg.direction().z();
     //if( std::abs(tanphi) > 1. ) return false;
   
-    if( m_printLevel >= 2)
-      std::cout << "segment passed angular cut " 
-		<< tanphi << std::endl;
+    if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"segment passed angular cut " << tanphi << endmsg;
 
     return true;
   }

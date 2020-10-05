@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalHitsMonTool.cxx
@@ -277,8 +277,10 @@ StatusCode InDetGlobalHitsMonTool::fillHistograms()
       // Get track
       const Trk::Track *track=(*itrack);
       if (track == 0){
-	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) 
-	  << "no pointer to track!!!" << endmsg;  break;
+	if ( msgLvl(MSG::WARNING) ) {
+          msg(MSG::WARNING) << "no pointer to track!!!" << endmsg;
+        }
+        break;
       }
       
       const Trk::Perigee *measPerigee = dynamic_cast<const Trk::Perigee *>(track->perigeeParameters());

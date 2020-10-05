@@ -17,8 +17,7 @@ def SCT_TestCablingAlgCfg(configFlags):
     cfg.merge(geoCfg)
 
     from AthenaCommon.Constants import INFO
-    from AthenaCommon.CfgGetter import getPrivateTool
-    SCT_CablingTool = getPrivateTool("SCT_CablingTool")
+    SCT_CablingTool = CompFactory.SCT_CablingTool()
     SCT_CablingTool.DataSource = "COOLVECTOR"
     SCT_CablingTool.OutputLevel = INFO
 
@@ -40,7 +39,7 @@ if __name__=="__main__":
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.RunNumber = 300000
+    ConfigFlags.Input.RunNumber = [300000]
     ConfigFlags.addFlag("Input.InitialTimeStamp", 1500000000)
     # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConditionsRun1RunNumbers
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-RUN12-SDR-25"
@@ -48,8 +47,8 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    cfg=MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg=MainServicesCfg(ConfigFlags)
 
     from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
     cfg.merge(McEventSelectorCfg(ConfigFlags))

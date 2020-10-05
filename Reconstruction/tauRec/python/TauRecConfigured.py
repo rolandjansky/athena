@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -26,7 +26,7 @@ class TauRecConfigured ( Configured ) :
     into a tauRec/TauProcessorAlg algorithm
     """
 
-    def __init__(self, name = "TauRecConfigured", msglevel=3, ignoreExistingDataObject=True) :
+    def __init__(self, name = "TauRecConfigured", doPi0Clus = True, msglevel=3, ignoreExistingDataObject=True) :
         self.name = name
         self.msglevel = msglevel
         from tauRec.tauRecConf import TauProcessorAlg 
@@ -42,10 +42,9 @@ class TauRecConfigured ( Configured ) :
                                                         Key_tauTrackOutputContainer="TauTracks",
                                                         Key_tauShotClusOutputContainer="TauShotClusters",
                                                         Key_tauShotPFOOutputContainer="TauShotParticleFlowObjects",
-                                                        Key_tauPi0CellOutputContainer="TauCommonPi0Cells",
-                                                        #MaxEta = 2.5,                                                                         
+                                                        Key_tauPi0CellOutputContainer = "TauCommonPi0Cells" if doPi0Clus else "",
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
-                                                        MinPt = 10.*GeV,
+                                                        MinPt = tauFlags.tauRecSeedMinPt(),
                                                         CellMakerTool = TauCellContainerFinalizer)
 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)

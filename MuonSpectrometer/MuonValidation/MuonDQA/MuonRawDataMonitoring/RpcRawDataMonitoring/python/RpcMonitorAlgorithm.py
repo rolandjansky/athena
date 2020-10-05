@@ -19,6 +19,8 @@ def RpcMonitoringConfig(inputFlags):
     rpcMonitorAlg.MinRoIDR  = 0.3
     rpcMonitorAlg.MinPt     = 2000
     rpcMonitorAlg.MuQuality = 1
+    if not inputFlags.DQ.triggerDataAvailable:
+        rpcMonitorAlg.L1RoiContainerKey = ''
     
     myGroup = helper.addGroup(rpcMonitorAlg, 'RPCMonitorAlgorithm', 'Muon/MuonRawDataMonitoring/RPC/')
 
@@ -109,9 +111,9 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     acc = RpcMonitoringConfig(ConfigFlags)

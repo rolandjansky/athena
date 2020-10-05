@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkSegment
                           PRIVATE
                           Calorimeter/CaloEvent
@@ -25,7 +24,10 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileIdentifier
                           Tracking/TrkEvent/TrkSpacePoint
                           Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary )
+                          Tracking/TrkEvent/TrkTrackSummary
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( CLHEP )
@@ -35,7 +37,7 @@ atlas_add_component( EventTagRawAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel MagFieldInterfaces TrkSegment CaloEvent CommissionEvent StoreGateLib SGtests xAODCaloEvent InDetBCM_RawData InDetPrepRawData LArRecEvent TagEvent TileEvent TileIdentifier TrkSpacePoint TrkTrack TrkTrackSummary )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkSegment CaloEvent CommissionEvent StoreGateLib SGtests xAODCaloEvent InDetBCM_RawData InDetPrepRawData LArRecEvent TagEvent TileEvent TileIdentifier TrkSpacePoint TrkTrack TrkTrackSummary MagFieldElements MagFieldConditions )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 
 """
 #
@@ -15,6 +14,8 @@ ___version___ = "$Id: $"
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.Logging import logging
+log = logging.getLogger('InDetTrigCommonTools')
 
 # --- set Data/MC flag
 isMC = False
@@ -82,14 +83,22 @@ from TRT_DriftCircleTool.TRT_DriftCircleToolConf import InDet__TRT_DriftCircleTo
 import AthenaCommon.SystemOfUnits as Units
 MinTrailingEdge = 11.0*Units.ns
 MaxDriftTime = 60.0*Units.ns
-LowGate = 18.0*Units.ns
-HighGate = 38.0*Units.ns
+LowGate         = 14.0625*Units.ns # 4.5*3.125 ns
+HighGate        = 42.1875*Units.ns # LowGate + 9*3.125 ns
+LowGateArgon         = LowGate
+HighGateArgon        = HighGate
+
 from AthenaCommon.GlobalFlags import globalflags
-if  globalflags.DataSource != 'data':
-    MinTrailingEdge = 16.0*Units.ns
-    MaxDriftTime    = 65.0*Units.ns
-    LowGate         = 23.0*Units.ns
-    HighGate        = 43.0*Units.ns
+from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+
+if globalflags.DataSource == 'data':
+    MinTrailingEdge = 11.0*Units.ns
+    MaxDriftTime    = 60.0*Units.ns
+    LowGate         = 17.1875*Units.ns
+    HighGate        = 45.3125*Units.ns
+    LowGateArgon    = 18.75*Units.ns
+    HighGateArgon   = 43.75*Units.ns
+
 
   
 InDetTrigTRT_DriftCircleTool = InDet__TRT_DriftCircleTool( name = "InDetTrigTRT_DriftCircleTool",
@@ -97,39 +106,25 @@ InDetTrigTRT_DriftCircleTool = InDet__TRT_DriftCircleTool( name = "InDetTrigTRT_
                                                            ConditionsSummaryTool           = InDetTrigTRTStrawStatusSummaryTool,
                                                            UseConditionsStatus  = True,
                                                            UseConditionsHTStatus  = True,
-                                                           SimpleOutOfTimePileupSupression = True,
+                                                           SimpleOutOfTimePileupSupression = False,
                                                            RejectIfFirstBit                = False, # fixes 50 nsec issue 
                                                            MinTrailingEdge                 = MinTrailingEdge,
                                                            MaxDriftTime                    = MaxDriftTime,
-                                                           ValidityGateSuppression         = False,
+                                                           ValidityGateSuppression         = InDetTrigFlags.InDet25nsec(),
                                                            LowGate = LowGate,
                                                            HighGate = HighGate,
-                                                           MaskFirstHTBit                  = False,
-                                                           MaskMiddleHTBit                 = False,
-                                                           MaskLastHTBit                   = False,
                                                            SimpleOutOfTimePileupSupressionArgon = False,# no OOT rejection for argon
                                                            RejectIfFirstBitArgon                = False, # no OOT rejection for argon
-                                                           MinTrailingEdgeArgon                 = 0, # no OOT rejection for argon
-                                                           MaxDriftTimeArgon                    = 99*Units.ns,# no OOT rejection for argon
-                                                           ValidityGateSuppressionArgon         = False,# no OOT rejection for argon
-                                                           LowGateArgon                         = 0,# no OOT rejection for argon
-                                                           HighGateArgon                        = 75*Units.ns,# no OOT rejection for argon
-                                                           MaskFirstHTBitArgon                  = False,
-                                                           MaskMiddleHTBitArgon                 = False,
-                                                           MaskLastHTBitArgon                   = False,
+                                                           MinTrailingEdgeArgon                 = MinTrailingEdge,
+                                                           MaxDriftTimeArgon                    = MaxDriftTime,
+                                                           ValidityGateSuppressionArgon         = InDetTrigFlags.InDet25nsec(),
+                                                           LowGateArgon                         = LowGateArgon,
+                                                           HighGateArgon                        = HighGateArgon,
                                                            useDriftTimeHTCorrection        = True,
-                                                           
                                                            useDriftTimeToTCorrection       = True, # reenable ToT
                                                            )
 
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-if InDetTrigFlags.InDet25nsec():
-    InDetTrigTRT_DriftCircleTool.ValidityGateSuppression=True  
-    InDetTrigTRT_DriftCircleTool.SimpleOutOfTimePileupSupression=False  
-#if jobproperties.Beam.beamType()=="cosmics": 
-#    InDetTRT_DriftCircleTool.SimpleOutOfTimePileupSupression=False 
-
 
 ToolSvc += InDetTrigTRT_DriftCircleTool
-print (InDetTrigTRT_DriftCircleTool)
+log.debug(InDetTrigTRT_DriftCircleTool)
 

@@ -1,22 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonCoinHierarchy/TgcCoinHierarchyValidation.h"
 
 #include "TrigMuonCoinHierarchy/ITgcCoinHierarchySvc.h"
 #include "TrigMuonCoinHierarchy/TgcCoinHierarchyClassifyTool.h"
-
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "muonEvent/MuonContainer.h"
 #include "TrkTrack/TrackCollection.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
-#include "GaudiKernel/ITHistSvc.h"
 
 #include <iomanip>
 #include <string>
@@ -46,15 +41,6 @@ namespace Trigger {
     declareProperty("doCoin",m_doCoin=true);
     declareProperty("doHit" ,m_doHit=true);
     declareProperty("logName",m_logName);
-/*
-    TgcCoinHierarchy *tmpTool = new TgcCoinHierarchy();
-    if     (m_timingName.compare("PRIOR")==0)m_bc = 0;
-    else if(m_timingName.compare("CURR" )==0)m_bc = 1;
-    else if(m_timingName.compare("NEXT" )==0)m_bc = 2;
-    else                                     m_bc = UINT_MAX;
-    std::cout << __FILE__ << " set timing:" << m_timingName << ":" << m_bc << std::endl;
-    delete tmpTool;
-*/
   }
 
   StatusCode TgcCoinHierarchyValidation::initialize() {   
@@ -80,7 +66,7 @@ namespace Trigger {
     }
 
     // Prepare hit analysis //
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
 
     // Prepare log maker //
     if(!m_logName.empty()){
@@ -331,27 +317,27 @@ namespace Trigger {
   }
 
   int TgcCoinHierarchyValidation::getSTATION(const Identifier id){
-    return  m_muonIdHelperTool->tgcIdHelper().stationName(id);
+    return  m_idHelperSvc->tgcIdHelper().stationName(id);
   }
 
   int TgcCoinHierarchyValidation::getStEta(const Identifier id){
-    return m_muonIdHelperTool->tgcIdHelper().stationEta(id);
+    return m_idHelperSvc->tgcIdHelper().stationEta(id);
   }
 
   int TgcCoinHierarchyValidation::getStPhi(const Identifier id){
-    return m_muonIdHelperTool->tgcIdHelper().stationPhi(id);
+    return m_idHelperSvc->tgcIdHelper().stationPhi(id);
   }
 
   int TgcCoinHierarchyValidation::getGasgap(const Identifier id){
-    return m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+    return m_idHelperSvc->tgcIdHelper().gasGap(id);
   }
 
   int TgcCoinHierarchyValidation::getChannel(const Identifier id){
-    return m_muonIdHelperTool->tgcIdHelper().channel(id);
+    return m_idHelperSvc->tgcIdHelper().channel(id);
   }
 
   int TgcCoinHierarchyValidation::getIsStrip(const Identifier id){
-    return m_muonIdHelperTool->tgcIdHelper().isStrip(id);
+    return m_idHelperSvc->tgcIdHelper().isStrip(id);
   }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPERFMON_MUONSELECTOR_H
@@ -9,9 +9,11 @@
 // Include files...
 //==============================================================================
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
+#include "CxxUtils/checker_macros.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
+#include <atomic>
 
 //class TrackIsolationTool;
 
@@ -26,11 +28,11 @@ class MuonSelector : public EventAnalysis
   MuonSelector();
   ~MuonSelector();
 
-  bool passSelection( const xAOD::Muon* pxMuon );
+  bool passSelection( const xAOD::Muon* pxMuon,
+                      const xAOD::VertexContainer& vxContainer);
 
   // Override functions from EventAnalysis
   virtual void Init();
-  virtual bool Reco();
   void doIsoSelection(bool doIso) {m_doIsoSelection=doIso;}
 
  protected:
@@ -39,12 +41,12 @@ class MuonSelector : public EventAnalysis
  private:
   typedef EventAnalysis PARENT;
 
-  static unsigned int s_uNumInstances;
+  static std::atomic<unsigned int> s_uNumInstances;
 
   bool passQualCuts();
   bool passPtCuts();
   bool passIsolCuts();
-  bool passIPCuts();
+  bool passIPCuts(const xAOD::VertexContainer& vxContainer);
 
   // message stream
   MsgStream * m_msgStream;

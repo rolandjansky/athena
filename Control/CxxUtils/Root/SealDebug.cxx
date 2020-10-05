@@ -150,7 +150,18 @@ int stacktracePopenFD (const char* cmd, pid_t& child_pid)
   int parent_end = fds[0];
   int child_end = fds[1];
 
+#ifdef __linux__
+  // Use vfork rather than fork to avoid running pthread_atfork handlers.
+  // Openblas, for example, registers one unconditionally, but that can
+  // segfault if called with the program in a bad state.
+  // What we're doing here doesn't really comply with the restrictions
+  // in the vfork man page, which says that in the child after the vfork
+  // you can do only exec or _exit.  This does in fact seem to work
+  // on linux, but put this within an ifdef.
+  child_pid = vfork();
+#else
   child_pid = fork();
+#endif
   if (child_pid == 0) {
     int child_std_end = 1;
     close (parent_end);

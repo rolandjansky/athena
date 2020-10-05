@@ -49,9 +49,9 @@ def trigCaloDataAccessSvcCfg( flags ):
     acc.merge( createLArRoI_Map( flags ) )
 
     # Needed by bad channel maskers, refrerenced from LArCellCont.
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, ['/LAR/BadChannels/BadChannels'], 'LAR'))
-    acc.merge(addFolders(flags, ['/LAR/BadChannels/MissingFEBs'], 'LAR'))
+    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
+    acc.merge(LArBadChannelCfg(flags))
+    acc.merge(LArBadFebCfg(flags))
 
     from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
     acc.merge( TileEMScaleCondAlgCfg(flags) )
@@ -94,8 +94,8 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     acc = ComponentAccumulator()
     
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge( TrigBSReadCfg( ConfigFlags ) )
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge( ByteStreamReadCfg( ConfigFlags ) )
 
     acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
     

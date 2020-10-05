@@ -1,0 +1,25 @@
+// emacs: this is -*- c++ -*-
+
+#include "TIDAdata_cuts.dat"
+
+refChain = "Truth";
+//refChain = "Offline";
+//refChain = "Electrons";
+//refChain = "Muons";
+//refChain = "Taus";
+
+
+MinVertices = 0;
+
+
+#include "TIDAdata-chains-run3.dat"
+
+
+InitialiseFirstEvent = 1;
+
+outputFile = "data-output.root";
+DataFiles = { "TrkNtuple-0000.root"};
+//DataSets = {"./"}
+
+
+#include "TIDAbeam.dat"

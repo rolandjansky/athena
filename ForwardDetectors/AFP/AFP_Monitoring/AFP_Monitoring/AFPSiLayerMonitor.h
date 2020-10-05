@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_MONITORING_AFPSILAYERMONITOR_H
@@ -103,7 +103,7 @@ public:
   /// * \f$ n_{\textrm{obs}} \f$ - is observed/measured number of hits i.e. NOT corrected for pile-up
   /// * \f$ a \f$ - is a correction factor #m_hitsScaleFactor
   /// * \f$ \mu \f$ - is an average number of interactions in a bunch crossing (pile-up)
-  double correctHitsForPileUp (double hits) const;
+  virtual double correctHitsForPileUp (double hits) const override;
 
   /// @copybrief IAFPSiLayerMonitor::hitsInEvent()
   ///

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_DetectorFactoryBase_H
 #define InDetGeoModelUtils_DetectorFactoryBase_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h" 
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 
@@ -19,17 +20,18 @@ class DetectorFactoryBase : public GeoVDetectorFactory
 { 
 
 public:
-  DetectorFactoryBase(const InDetDD::AthenaComps * athenaComps)
+  DetectorFactoryBase(InDetDD::AthenaComps * athenaComps)
     : m_athenaComps(athenaComps)
   {}
 
-  StoreGateSvc * detStore() const {return m_athenaComps->detStore();}
+  StoreGateSvc * detStore () {return m_athenaComps->detStore();}
+  const StoreGateSvc * detStore () const {return m_athenaComps->detStore();}
 
-  IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
+  const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
 
-  IRDBAccessSvc * rdbAccessSvc() const {return m_athenaComps->rdbAccessSvc();}
+  IRDBAccessSvc * rdbAccessSvc() {return m_athenaComps->rdbAccessSvc();}
   
-  IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
+  const IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
 
  //Declaring the Message method for further use
   MsgStream& msg (MSG::Level lvl) const { return m_athenaComps->msg(lvl); }
@@ -37,11 +39,11 @@ public:
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
 
-  const InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
+  InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
 
 private:
   
-  const InDetDD::AthenaComps *  m_athenaComps;
+  InDetDD::AthenaComps *  m_athenaComps;
 
 };
 

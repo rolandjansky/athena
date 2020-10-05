@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBTOOLS__ITRTCALIBRATOR_H
@@ -16,6 +16,7 @@ PURPOSE:
 
 ********************************************************************/
 
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IAlgTool.h"
 
 namespace Trk{
@@ -25,21 +26,13 @@ namespace TRT{
 class TrackInfo;
 }
 
-static const InterfaceID IID_ITRTCalibrator("ITRTCalibrator", 1, 0);
-
-class ITRTCalibrator : virtual public IAlgTool {
+class ATLAS_NOT_THREAD_SAFE ITRTCalibrator : virtual public IAlgTool {
 public:
-
+  DeclareInterfaceID( ITRTCalibrator, 1, 0 );
   virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output) = 0;
-  virtual bool calibrate() = 0;
-
-  static const InterfaceID& interfaceID();
+  // uses thread-unsafe methods from Calibrator.
+  virtual bool calibrate ATLAS_NOT_THREAD_SAFE () = 0;
 };
-
-inline const InterfaceID& ITRTCalibrator::interfaceID()
-{ 
-        return IID_ITRTCalibrator; 
-}
 
 #endif // TRT_CALIBTOOLS__ITRTCALIBRATOR_H
 

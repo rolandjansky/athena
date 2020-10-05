@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,13 +13,17 @@
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrUtils/BinningType.h"
 #include "TrkGeometry/TrackingVolumeManipulator.h"
-// Gaudi
+// Athena
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/CachedUniquePtr.h"
+// Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 // STL
 #include <vector>
 #include <string>
+
+#include "CxxUtils/checker_macros.h"
 
 #ifndef TRKDETDESCR_TAKESMALLERBIGGER
 #define TRKDETDESCR_TAKESMALLERBIGGER
@@ -37,7 +41,6 @@ namespace Trk {
  class IMagneticFieldTool;
  class Layer;
  class Material;
- class MagneticFieldProperties;
 }
  
 class IEnvelopeDefSvc; 
@@ -75,7 +78,7 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      const Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const; 
+      const Trk::TrackingGeometry* trackingGeometry ATLAS_NOT_THREAD_SAFE (const Trk::TrackingVolume* tvol = 0) const; 
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
@@ -83,7 +86,8 @@ namespace InDet {
     private:
         
       /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers */
-      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::Layer*>& negLayers,
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
+                                                 (const std::vector<const Trk::Layer*>& negLayers,
                                                   const std::vector<const Trk::Layer*>& centralLayers,
                                                   const std::vector<const Trk::Layer*>& posLayers,
                                                   double rMin, double rMax,
@@ -117,9 +121,8 @@ namespace InDet {
       bool                                           m_buildBoundaryLayers;      //!< create boundary layers 
       bool                                           m_replaceJointBoundaries;   //!< run with replacement of all joint boundaries 
       
-      // magnetic & material field configuration
-      mutable Trk::Material*                         m_materialProperties;       //!< overal material properties of the ID
-      mutable Trk::MagneticFieldProperties*          m_magneticFieldProperties;  //!< overal mag field properties of the ID
+      // material configuration
+      CxxUtils::CachedUniquePtrT<Trk::Material>      m_materialProperties;       //!< overal material properties of the ID
       // outer envelope        
       double                                         m_outwardsFraction;         //!< defines how much you orient yourself in an outwards way (see above)                                    
       // robust layer indexing                                                   

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
 #include "G4AtlasTools/RegionCreator.h"
 
-#include "GaudiKernel/SystemOfUnits.h"
 // Geant4 includes used in functions
 
 #include "G4LogicalVolume.hh"
@@ -14,33 +13,28 @@
 #include "G4ProductionCuts.hh"
 
 RegionCreator::RegionCreator(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type,name,parent),m_regionName(name),m_gammaCut(1.*Gaudi::Units::mm),m_electronCut(1.*Gaudi::Units::mm),m_positronCut(1.*Gaudi::Units::mm),
-    m_protonCut(1.*Gaudi::Units::mm)
+  : base_class(type,name,parent)
 {
-  // re-initialize m_regionName in order to take the real tool name rather than the path to it
-  size_t ipos=m_regionName.find_last_of(".");
-  size_t length=m_regionName.size();
-  if (ipos<length) m_regionName=m_regionName.substr(ipos+1,length-ipos-1);
-  ATH_MSG_INFO( "m_regionName default value reset to "<<m_regionName);
-
-  declareProperty( "VolumeList" , m_logicalVolumes , "List of volumes to be included in this region" );
-  declareProperty( "ElectronCut" , m_electronCut, "Cut to be applied for electrons");
-  declareProperty( "PositronCut" , m_positronCut, "Cut to be applied for positrons");
-  declareProperty( "GammaCut" , m_gammaCut, "Cut to be applied for gammas");
-  declareProperty( "ProtonCut" , m_protonCut, "Cut to be applied for gammas");
-
-  declareProperty( "RegionName" , m_regionName , "Region name (same as the Tool name if not set");
-
-
 }
 
 // Athena method, called at initialization time
 StatusCode RegionCreator::initialize()
 {
   ATH_MSG_INFO(" initializing RegionCreator "<<name() );
+  if (m_regionName.empty()) {
+    m_regionName = this->name();
+    // re-initialize m_regionName in order to take the real tool name rather than the path to it
+    size_t ipos=m_regionName.value().find_last_of('.');
+    size_t length=m_regionName.value().size();
+    if (ipos<length) {
+      ATH_MSG_VERBOSE( "m_regionName: " << m_regionName.value() << " needs to be reset.");
+      m_regionName=m_regionName.value().substr(ipos+1,length-ipos-1);
+    }
+    ATH_MSG_INFO( "m_regionName default value reset to "<<m_regionName.value());
+  }
 
   //create a new G4Region
-  G4Region* theRegion=new G4Region(m_regionName);
+  G4Region* theRegion=new G4Region(m_regionName.value());
 
   // loop over volumes and fish for those in the list
   int nVolumes = 0;
@@ -57,7 +51,7 @@ StatusCode RegionCreator::initialize()
           }
       }
 
-  ATH_MSG_INFO(" a total of "<<nVolumes<<" volumes was assigned to region "<<m_regionName );
+  ATH_MSG_INFO(" a total of "<<nVolumes<<" volumes was assigned to region "<<m_regionName.value() );
 
   // create a G4ProductionCuts object and set appropriate values
   G4ProductionCuts* cuts=new G4ProductionCuts();
@@ -78,7 +72,7 @@ void RegionCreator::Dump()
 {
   ATH_MSG_INFO("+----------------------------------------------------+");
   ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("    Dump of region  "<<m_regionName);
+  ATH_MSG_INFO("    Dump of region  "<<m_regionName.value());
   ATH_MSG_INFO("    Volumes being assigned to this region:");
   for (const auto& vol: m_logicalVolumes)
     {

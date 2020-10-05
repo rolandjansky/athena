@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetDescrDB_ParameterInterface.h"
@@ -14,7 +14,7 @@
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 
 //_________________________________________________________________________________________
-TRT_DetDescrDB_ParameterInterface::TRT_DetDescrDB_ParameterInterface(const InDetDD::AthenaComps * athenaComps) :
+TRT_DetDescrDB_ParameterInterface::TRT_DetDescrDB_ParameterInterface(InDetDD::AthenaComps * athenaComps) :
   TRTParameterInterface(),  m_athenaComps(athenaComps), m_distortedMatManager(0), m_placements(0)
 { SetValues(); }
 
@@ -503,7 +503,7 @@ const GeoTrf::Transform3D &
 TRT_DetDescrDB_ParameterInterface::partTransform(const std::string & partName) const
 {
   if (m_placements) return m_placements->transform(partName);
-  static GeoTrf::Transform3D unitTransform = GeoTrf::Transform3D::Identity();
+  static const GeoTrf::Transform3D unitTransform = GeoTrf::Transform3D::Identity();
   return unitTransform;
 }
 

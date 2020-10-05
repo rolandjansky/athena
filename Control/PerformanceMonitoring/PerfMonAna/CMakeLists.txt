@@ -1,13 +1,7 @@
-################################################################################
-# Package: PerfMonAna
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PerfMonAna )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/PerformanceMonitoring/PerfMonEvent )
 
 # External dependencies:
 find_package( pandas )
@@ -24,4 +18,3 @@ atlas_add_alias( pmontree "pmontree.py" )
 atlas_add_alias( perfrtt "perfrtt.py" )
 atlas_add_alias( perfmon "perfmon.py" )
 atlas_add_alias( perf-dpmon "perf-dpmon.py" )
-atlas_add_alias( perfmonmt-plotter "perfmonmt-plotter.py" )

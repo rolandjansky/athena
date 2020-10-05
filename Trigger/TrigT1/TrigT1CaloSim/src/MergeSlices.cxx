@@ -13,7 +13,7 @@
 #include "TrigT1CaloEvent/JEMHits.h"
 #include "TrigT1CaloEvent/JetElement.h"
 #include "TrigT1CaloUtils/JetElementKey.h"
-#include "TrigT1CaloSim/MergeSlices.h"
+#include "MergeSlices.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"

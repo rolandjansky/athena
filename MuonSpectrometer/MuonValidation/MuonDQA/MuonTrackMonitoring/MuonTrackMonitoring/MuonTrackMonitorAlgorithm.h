@@ -28,6 +28,7 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
   private:
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey { this, "MuonContainerKey", "Muons", "Key for Muon Containers" };
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonIsoDecorKey { this, "MuonIsoDecorKey", "Muons.ptcone30" };
 
     // Toolds
     /// Fills data-quality information (e.g. pt, eta, phi..) to histograms for given selection of muons
@@ -37,16 +38,16 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
     StatusCode	FillMuonInformation(std::string sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const;
 
     /// Function to create performance plots for muon standalone tracks with some detailed informatiom
-    StatusCode analyseLowLevelMuonFeatures(const xAOD::MuonContainer* Muons, int lumiBlockID) const;
+    StatusCode analyseLowLevelMuonFeatures(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
 
     /// Function to create performance plots for all combined muons
-    StatusCode analyseCombinedTracks(const xAOD::MuonContainer* Muons, int lumiBlockID) const;
+    StatusCode analyseCombinedTracks(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
 
     /// Function to create performance plots for all combined muons that lead to a Z Boson Candidate event
-    StatusCode analyseZBosonCandidates(const xAOD::MuonContainer* Muons, int lumiBlockID) const;
+    StatusCode analyseZBosonCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
 
     /// Function to create performance plots for all combined muons that lead to a JPsi Meson Candidate event
-    StatusCode analyseJPsiCandidates(const xAOD::MuonContainer* Muons, int lumiBlockID) const;
+    StatusCode analyseJPsiCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
 
     Gaudi::Property< std::vector<std::string> > m_hltchainList{ this, "HLTTriggerList", {"HLT_2mu14", "HLT_mu26_ivarmedium"}, "High-level triggers used" };
 

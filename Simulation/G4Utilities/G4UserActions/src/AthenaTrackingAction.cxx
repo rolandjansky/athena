@@ -9,7 +9,7 @@
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
@@ -41,20 +41,25 @@ namespace G4UA
     // Use the TrackHelper code to identify the kind of particle.
     TrackHelper trackHelper(track);
 
-    // Condition for storing the GenParticle in the EventInformation for later.
+    // Condition for storing the GenParticle in the AtlasG4EventUserInfo for later.
     if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary())
     {
       // Why a const_cast???
       // This is an ugly way to communicate the GenParticle...
-      HepMC::GenParticle* part =
-        const_cast<HepMC::GenParticle*>( trackHelper.GetTrackInformation()->
+#ifdef HEPMC3
+      HepMC::GenParticlePtr part =
+        std::const_pointer_cast<HepMC3::GenParticle>( trackHelper.GetTrackInformation()->
                                          GetHepMCParticle() );
-
-      // Assign the GenParticle to the EventInformation.
-      EventInformation* eventInfo = static_cast<EventInformation*>
+#else
+      HepMC::GenParticlePtr part =
+        const_cast<HepMC::GenParticlePtr>( trackHelper.GetTrackInformation()->
+                                         GetHepMCParticle() );
+#endif
+      // Assign the GenParticle to the AtlasG4EventUserInfo.
+      AtlasG4EventUserInfo* atlasG4EvtUserInfo = static_cast<AtlasG4EventUserInfo*>
         (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-      if (trackHelper.IsPrimary()) eventInfo->SetCurrentPrimary(part);
-      eventInfo->SetCurrentlyTraced(part);
+      if (trackHelper.IsPrimary()) atlasG4EvtUserInfo->SetCurrentPrimary(part);
+      atlasG4EvtUserInfo->SetCurrentlyTraced(part);
     }
 
     // Condition for creating a trajectory object to store truth.

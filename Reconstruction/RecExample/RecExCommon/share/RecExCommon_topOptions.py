@@ -4,7 +4,6 @@ include.block ("RecExCommon/RecExCommon_topOptions.py")
 ## Common job preparation ##
 ############################
 
-svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 
 from AthenaCommon.Logging import logging
@@ -466,9 +465,9 @@ if globalflags.InputFormat.is_bytestream():
 
             # Specify input file
             if len(athenaCommonFlags.FilesInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
             elif len(athenaCommonFlags.BSRDOInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
         # --> AK
     else:
         logRecExCommon_topOptions.info("Read ByteStream file(s)")
@@ -476,9 +475,9 @@ if globalflags.InputFormat.is_bytestream():
 
         # Specify input file
         if len(athenaCommonFlags.FilesInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
         elif len(athenaCommonFlags.BSRDOInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
     if globalflags.DataSource()=='geant4':
         logRecExCommon_topOptions.info("DataSource is 'geant4'")
@@ -597,9 +596,11 @@ if globalflags.InputFormat.is_bytestream():
 ### write mu values into xAOD::EventInfo
 if rec.doESD() and rec.readRDO():
     if globalflags.DataSource()=='geant4':
-        include_muwriter = hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" )
+        include_muwriter = (globalflags.InputFormat.is_bytestream() or
+                            hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
+                            objKeyStore.isInInput( "xAOD::EventInfo"))
     else:
-        include_muwriter = jobproperties.Beam.beamType()=="collisions" and not athenaCommonFlags.isOnline()
+        include_muwriter = not athenaCommonFlags.isOnline()
 
     if include_muwriter:
         try:
@@ -675,20 +676,6 @@ if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
 if recAlgs.doMonteCarloReact():
     protectedInclude ("MonteCarloReactTools/MonteCarloReact_for_RecExCommon.py")
 
-# run monitoring
-# ----------------------------------------------------------------------------
-# Monitoring Algorithms and Tools
-# ----------------------------------------------------------------------------
-
-pdr.flag_domain('monitoring')
-if rec.doMonitoring():
-    protectedInclude ("AthenaMonitoring/DataQualitySteering_jobOptions.py")
-
-
-
-# run"Fast Phsyics Monitoring"
-if rec.doFastPhysMonitoring():
-    protectedInclude("FastPhysMonExample/FastPhysicsMonitoring_jobOptions.py")
 
 # ----------------------------------------------------------------------------
 
@@ -794,14 +781,6 @@ pdr.flag_domain('output')
 if rec.doCBNT():
     protectedInclude( "RecExCommon/CBNT_config.py" )
 
-# trigger extension to the TrkValNtuple (it needs to be included after TrkValNtuple) from Jiri Masik and Clemencia Mora
-# test if ID is on also (might not be sufficient)
-if recAlgs.doTrigger() and DetFlags.detdescr.ID_on() :
-    if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-        if InDetFlags.doTrkNtuple() and InDetTrigFlags.doTrkNtuple():
-            protectedInclude("InDetTrigRecExample/InDetTrigRecNtupleCreation.py")
 
 #-----------------------------------------------------------------------------
 # Virtual Point1 Display
@@ -842,17 +821,6 @@ if rec.doPersint()  :
 # gathering info from all the reco algorithms
 #
 
-
-
-
-# check dictionary all the time
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-if not rec.doCheckDictionary():
-    ServiceMgr.AthenaSealSvc.OutputLevel=WARNING
-
-
-
-#
 #
 #now write out Transient Event Store content in POOL
 #
@@ -998,6 +966,7 @@ if rec.doFileMetaData():
 
 
     pass
+
 
 ##--------------------------------------------------------
 ###=== Only run reco on events that pass selected triggers
@@ -1325,10 +1294,6 @@ if rec.doWriteAOD():
     from ParticleBuilderOptions.AODFlags import AODFlags
     # Particle Builders
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaServices.Configurables import ThinningSvc
-    if not hasattr(svcMgr, 'ThinningSvc'):
-       svcMgr += ThinningSvc(OutputLevel=INFO)
-    svcMgr.ThinningSvc.Streams += ['StreamAOD']
 
 
     # cannot redo the slimming if readAOD and writeAOD
@@ -1363,13 +1328,6 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
             
-       # Doens't exist in xAOD world:
-       # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
-       #     from PrimaryDPDMaker.PrimaryDPDMakerConf import SlimTrackInfo
-       #     topSequence += SlimTrackInfo( "SlimTrackParticles",
-       #                                   thinSvc             = 'ThinningSvc/ThinningSvc',
-       #                                   TrackPartContName   = 'TrackParticleCandidate',
-       #                                   SlimPerigee=AODFlags.TrackParticleLastHitAndPerigeeSlimmer() )
 
     pdr.flag_domain('output')
     # Create output StreamAOD
@@ -1416,9 +1374,6 @@ if rec.doWriteAOD():
 
     if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-        if not hasattr(svcMgr, 'ThinningSvc'):
-            svcMgr += createThinningSvc( svcName="ThinningSvc", outStreams=[StreamAOD] )
 
     # this is AOD->AOD copy
     if rec.readAOD():
@@ -1451,21 +1406,6 @@ if rec.doAOD() or rec.doWriteAOD():
     if rec.doHeavyIon():
         protectedInclude ("HIRecExample/heavyion_postOptionsAOD.py")
 
-
-if rec.doWriteAOD() or rec.doWriteESD(): #For xAOD writing:
-    try:
-        if rec.doFileMetaData(): #needed to have xAOD readable outside athena
-            theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-            if rec.doWriteAOD():
-                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            if rec.doWriteESD():
-                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            pass
-        pass
-    except Exception:
-     treatException("Problem with extra attributes for xAOD output")
 
 try:
   # event dumper at the very end
@@ -1642,6 +1582,21 @@ if rec.readAOD():
     ServiceMgr += AthenaEventLoopMgr()
     ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
     logRecExCommon_topOptions.info("AOD reading case: Set EventPrintoutInterval=100")
+
+# run monitoring
+# ----------------------------------------------------------------------------
+# Monitoring Algorithms and Tools
+# ----------------------------------------------------------------------------
+
+pdr.flag_domain('monitoring')
+if rec.doMonitoring():
+    protectedInclude ("AthenaMonitoring/DataQualitySteering_jobOptions.py")
+
+
+
+# run"Fast Phsyics Monitoring"
+if rec.doFastPhysMonitoring():
+    protectedInclude("FastPhysMonExample/FastPhysicsMonitoring_jobOptions.py")
 
 
 ###################

@@ -87,13 +87,12 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
   // Loop over all events in this event: event 0 = hard interaction; events 1,2,3... = pile-up
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();
-         pitr != genEvt->particles_end(); ++pitr) {
-      if ((*pitr)->status() != 1) continue;
-      const int abspid = abs((*pitr)->pdg_id());
-      const double abseta = fabs((*pitr)->momentum().pseudoRapidity());
-      if (abspid == 11 && (*pitr)->momentum().perp() > m_PtminElectron && abseta <= m_MaxEtaElectron) nelec++;
-      if (abspid == 13 && (*pitr)->momentum().perp() > m_PtminMuon     && abseta <= m_MaxEtaMuon) nmuon++;
+    for (auto part: *genEvt){
+      if (part->status() != 1) continue;
+      const int abspid = std::abs(part->pdg_id());
+      const double abseta = std::abs(part->momentum().pseudoRapidity());
+      if (abspid == 11 && part->momentum().perp() > m_PtminElectron && abseta <= m_MaxEtaElectron) nelec++;
+      if (abspid == 13 && part->momentum().perp() > m_PtminMuon     && abseta <= m_MaxEtaMuon) nmuon++;
 
       nleptons = nelec + nmuon;
       // Check that the number of leptons does not exceed the maximum given in PtmissAndOrLeptonFilter.h for ntuple
@@ -104,9 +103,9 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
       // neutrinos, neutralinos and stable Higgs,
 
       if (abspid == 12 || abspid == 14 || abspid == 16 || abspid == 25 || abspid == 1000022) {
-        ATH_MSG_DEBUG(" found an invisible particle: " << (*pitr)->pdg_id());
-        px = (*pitr)->momentum().x();
-        py = (*pitr)->momentum().y();
+        ATH_MSG_DEBUG(" found an invisible particle: " << part->pdg_id());
+        px = part->momentum().x();
+        py = part->momentum().y();
         sumPxInvis += px;
         sumPyInvis += py;
         ninvis++;
@@ -115,14 +114,14 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
       }
 
       // Treat particles with significant pt lost outside the acceptance region separately
-      if (abseta > m_MinEtaLost && (*pitr)->momentum().perp() >= m_PtminLostTrack) {
+      if (abseta > m_MinEtaLost && part->momentum().perp() >= m_PtminLostTrack) {
         nlost++;
         // Check that the number of lost particles does not exceed the maximum given in PtmissAndOrLeptonFilter.h for ntuple
         if (nlost > 19) ATH_MSG_ERROR(" # lost particles found = " << nlost << " Exceeds maximum allowed.");
 
         // Now sum over px and py for all lost particles
-        px = (*pitr)->momentum().x();
-        py = (*pitr)->momentum().y();
+        px = part->momentum().x();
+        py = part->momentum().y();
         sumPxLost += px;
         sumPyLost += py;
       }
@@ -135,7 +134,7 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
 
   pxsum = sumPxInvis + sumPxLost;
   pysum = sumPyInvis + sumPyLost;
-  ptmiss = sqrt(pxsum*pxsum + pysum*pysum);
+  ptmiss = std::sqrt(pxsum*pxsum + pysum*pysum);
 
   // Finally, make filter decision for this event
   if (m_PtmissANDLepton) setFilterPassed(nleptons > 0 && ptmiss > m_PtminMissing);

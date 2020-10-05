@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HIEVENTUTILS_HIPILEUPTOOL_H__
-#define HIEVENTUTILS_HIPILEUPTOOL_H__
+#ifndef HIEVENTUTILS_HIPILEUPTOOL_H
+#define HIEVENTUTILS_HIPILEUPTOOL_H
 
 // David Adams.
 // January 2014
@@ -32,9 +32,9 @@ namespace HI
     HIPileupTool( const std::string& myname="HIPileupTool" );
     ~HIPileupTool();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual void print() const;
+    virtual void print() const override;
     void write(TFile* fOut) const;
 
     double get_efficiency(const xAOD::HIEventShapeContainer&, double ) const;

@@ -22,12 +22,20 @@ TRT_BSErrContainerCnv::createPersistent(TRT_BSErrContainer* transCont) {
 
 TRT_BSErrContainer* 
 TRT_BSErrContainerCnv::createTransient() {
-  MsgStream log(msgSvc(), "TRT_BSErrContainerCnv" );
+  MsgStream log(msgSvc(), "TRT_BSErrContainerCnv" ); 
   static const pool::Guid   p1_guid("D461AC01-02CA-4A9E-886B-24EC14309121");
-  if( compareClassGuid(p1_guid) ) {
+  static const pool::Guid   p2_guid("A815E78C-BB68-4CA5-9B95-739E9B47043A");
+  
+  if( compareClassGuid(p2_guid) ) {
     // using unique_ptr ensures deletion of the persistent object
-    std::unique_ptr< TRT_BSErrContainer_p1 > col_vect( poolReadObject< TRT_BSErrContainer_p1 >() );
+    std::unique_ptr< TRT_BSErrContainer_p2 > col_vect( poolReadObject< TRT_BSErrContainer_p2 >() );
     return m_TPConverter.createTransient( col_vect.get(), log );
   }
+
+  if( compareClassGuid(p1_guid) ) {
+    log << MSG::ERROR << "TRT_BSErrContainer_p1 not supported any more. Recording empty container." << endmsg;
+    return new TRT_BSErrContainer();
+  }
+  
   throw std::runtime_error("Unsupported persistent version of Data Collection");
 }

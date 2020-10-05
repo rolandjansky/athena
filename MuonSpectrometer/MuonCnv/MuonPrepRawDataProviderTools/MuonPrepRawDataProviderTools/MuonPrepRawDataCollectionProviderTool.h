@@ -22,8 +22,6 @@ static const InterfaceID IID_MuonPrepRawDataCollectionProviderTool("Muon::MuonPr
 
 namespace Muon {
 
-  class MuonLayerHashProviderTool;
-
   class MuonPrepRawDataCollectionProviderTool :  public AthAlgTool {
   public:
 
@@ -69,12 +67,12 @@ namespace Muon {
       for( MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
         
         // skip if not found
-        typename ContainerType::const_iterator colIt = container->indexFind(*it);
-        if( colIt == container->end() ) {
+        auto col = container->indexFindPtr(*it);
+        if( col == nullptr ) {
           continue;
         }
-        ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
-        output.push_back(*colIt);
+        ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(col->identify()) << " size " << col->size());
+        output.push_back(col);
       }
       return true;
     }
@@ -82,7 +80,7 @@ namespace Muon {
   private:
     
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ToolHandle<MuonLayerHashProviderTool> m_layerHashProvider; 
+    ToolHandle<MuonLayerHashProviderTool> m_layerHashProvider{this,"MuonLayerHashProviderTool","Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool"}; 
     
     /** storegate keys of PRDs*/
     std::vector< std::string > m_locations;

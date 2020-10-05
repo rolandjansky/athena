@@ -79,7 +79,7 @@ namespace { // utility functions used here
   passJetCuts(const xAOD::Jet& jet) {
     const float absEtaMax = 2.5;
     const float jetPtMin = 100.0;  // in GeV
-    const float jetPtMax = 1000.0; // in GeV
+    const float jetPtMax = 5000.0; // in GeV
     const float jetPt = jet.pt() / Gaudi::Units::GeV; // GeV
     const float jetEta = jet.eta();
 
@@ -134,6 +134,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("useVertexTruthMatchTool", m_useVertexTruthMatchTool);
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
   declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
+  declareProperty("FillTrackInBJetPlots", m_doBjetPlots);
   declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
   declareProperty("DirName", m_dirName = "SquirrelPlots/");
   declareProperty("SubFolder", m_folder);
@@ -160,15 +161,15 @@ InDetPhysValMonitoringTool::initialize() {
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
-  m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder);
+  m_monPlots = std::make_unique<InDetRttPlots> (nullptr, m_dirName + m_folder, m_detailLevel); // m_detailLevel := DEBUG, enable expert histograms
 
   ATH_CHECK( m_trkParticleName.initialize() );
-  ATH_CHECK( m_truthParticleName.initialize(m_pileupSwitch == "All" and not m_truthParticleName.key().empty() ) );
+  ATH_CHECK( m_truthParticleName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthParticleName.key().empty() ) );
   ATH_CHECK( m_vertexContainerName.initialize() );
   ATH_CHECK( m_truthVertexContainerName.initialize( not m_truthVertexContainerName.key().empty() ) );
   ATH_CHECK( m_eventInfoContainerName.initialize() );
 
-  ATH_CHECK( m_truthEventName.initialize( m_pileupSwitch == "HardScatter" and not m_truthEventName.key().empty()) );
+  ATH_CHECK( m_truthEventName.initialize( (m_pileupSwitch == "HardScatter" or m_pileupSwitch == "All") and not m_truthEventName.key().empty() ) );
   ATH_CHECK( m_truthPileUpEventName.initialize( (m_pileupSwitch == "PileUp" or m_pileupSwitch == "All") and not m_truthPileUpEventName.key().empty() ) );
   ATH_CHECK( m_jetContainerName.initialize( not m_jetContainerName.key().empty()) );  
 
@@ -176,6 +177,7 @@ InDetPhysValMonitoringTool::initialize() {
   std::vector<std::string> required_int_track_decorations {};
   std::vector<std::string> required_float_truth_decorations {"d0"};
   std::vector<std::string> required_int_truth_decorations {};
+  std::vector<std::string> required_int_jet_decorations {"HadronConeExclTruthLabelID"};
 
   std::string empty_prefix;
   IDPVM::addReadDecoratorHandleKeys(*this, m_trkParticleName, empty_prefix, required_float_track_decorations, m_floatTrkDecor);
@@ -183,6 +185,9 @@ InDetPhysValMonitoringTool::initialize() {
   if (!m_truthParticleName.key().empty()) {
     IDPVM::addReadDecoratorHandleKeys(*this, m_truthParticleName, empty_prefix, required_float_truth_decorations, m_floatTruthDecor);
     IDPVM::addReadDecoratorHandleKeys(*this, m_truthParticleName, empty_prefix, required_int_truth_decorations,   m_intTruthDecor);
+  }
+  if (m_doTrackInJetPlots && m_doBjetPlots){
+    IDPVM::addReadDecoratorHandleKeys(*this, m_jetContainerName, empty_prefix, required_int_jet_decorations, m_intJetDecor);
   }
   return StatusCode::SUCCESS;
 }
@@ -202,9 +207,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
   SG::ReadHandle<xAOD::EventInfo> pie = SG::ReadHandle<xAOD::EventInfo>(m_eventInfoContainerName);
  
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
-  std::vector<const xAOD::TruthVertex*> truthVertices = getTruthVertices();
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks 
-  
+
   if (not tracks.isValid()) {
     return StatusCode::FAILURE;
   }
@@ -212,13 +216,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_WARNING("Shouldn't happen - EventInfo is buggy, setting mu to 0");
   }
 
-  //NORA WHY IS THIS DONE HERE?
   ATH_MSG_DEBUG("Getting number of pu interactings per event");
-  unsigned int puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->averageInteractionsPerCrossing() : 0;
 
   ATH_MSG_DEBUG("Filling vertex plots");
   SG::ReadHandle<xAOD::VertexContainer>  vertices(m_vertexContainerName);
   const xAOD::Vertex* primaryvertex = nullptr;
+  const float puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->actualInteractionsPerCrossing() : 0;
+  const float nVertices = not vertices->empty() ? vertices->size() : 0;
 
   if (vertices.isValid() and not vertices->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event " << vertices->size());
@@ -229,12 +233,17 @@ InDetPhysValMonitoringTool::fillHistograms() {
     //Filling plots for all reconstructed vertices and the hard-scatter
     ATH_MSG_DEBUG("Filling vertices info monitoring plots");
 
-    //Decorate vertices
+    // Fill vectors of truth HS and PU vertices
+    std::pair<std::vector<const xAOD::TruthVertex*>, std::vector<const xAOD::TruthVertex*>> truthVertices = getTruthVertices();
+    std::vector<const xAOD::TruthVertex*> truthHSVertices = truthVertices.first;
+    std::vector<const xAOD::TruthVertex*> truthPUVertices = truthVertices.second;
+
+    // Decorate vertices
     if (m_useVertexTruthMatchTool && m_vtxValidTool) {
        ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
        ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
     }
-    m_monPlots->fill(*vertices, truthVertices);
+    m_monPlots->fill(*vertices, truthHSVertices, truthPUVertices);
 
     ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
     //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
@@ -275,6 +284,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   //
   std::vector<const xAOD::TrackParticle*> selectedTracks {};
   selectedTracks.reserve(tracks->size());
+  unsigned int nTrackBAT = 0, nTrackSTD = 0, nTrackANT = 0;
   for (const auto& thisTrack: *tracks) {
     //FIXME: Why is this w.r.t the primary vertex?
     const asg::AcceptData& accept = m_trackSelectionTool->accept(*thisTrack, primaryvertex);
@@ -285,8 +295,16 @@ InDetPhysValMonitoringTool::fillHistograms() {
     //Number of selected reco tracks
     nSelectedRecoTracks++;
     //Fill plots for selected reco tracks, hits / perigee / ???
+    std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = thisTrack->patternRecoInfo();
+    bool isBAT = patternInfo.test(xAOD::TrackPatternRecoInfo::TRTSeededTrackFinder);
+    bool isANT = patternInfo.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_LargeD0);
+    bool isSTD = not isBAT and not isANT;
+    if(isBAT) nTrackBAT++;
+    if(isSTD) nTrackSTD++;
+    if(isANT) nTrackANT++;
+
     m_monPlots->fill(*thisTrack);                                      
-   
+    m_monPlots->fill(*thisTrack, puEvents, nVertices);  //fill mu dependent plots
     const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
     float prob = getMatchingProbability(*thisTrack); 
 
@@ -312,9 +330,10 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
     if(isFake) nFakeTracks++;
     if(!isAssociatedTruth) nMissingAssociatedTruth++;
-    m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth);
+    m_monPlots->fillFakeRate(*thisTrack, isFake, isAssociatedTruth, puEvents, nVertices);
 
   }
+  m_monPlots->fill(nTrackANT, nTrackSTD, nTrackBAT, puEvents, nVertices);
   //FIXME: I don't get why... this is here
   if (m_truthSelectionTool.get()) {
     ATH_MSG_DEBUG( CutFlow(tmp_truth_cutflow).report(m_truthSelectionTool->names()) );
@@ -339,18 +358,20 @@ InDetPhysValMonitoringTool::fillHistograms() {
       //
       //Loop over reco tracks to find the match
       //
-      for (const auto& thisTrack: selectedTracks) { // Inner loop over selected track particles
+      const xAOD::TrackParticle* matchedTrack = nullptr;
+      for (const auto& thisTrack: selectedTracks) { // Inner loop over selected track particleis
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
         if (associatedTruth && associatedTruth == thisTruth) {
           float prob = getMatchingProbability(*thisTrack);
           if (not std::isnan(prob) && prob > m_lowProb) {
             isEfficient = true;
+            matchedTrack = thisTrack;
             break;
           }
         }
       }
       ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
-      m_monPlots->fillEfficiency(*thisTruth, isEfficient, puEvents);
+      m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents, nVertices);
     }
   }
 
@@ -380,6 +401,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
   SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerName);
   SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > ghosttruth("GhostTruth");
+  SG::AuxElement::ConstAccessor<int> btagLabel("HadronConeExclTruthLabelID");
   
   if (not jets.isValid() or truthParticlesVec.empty()) {
     ATH_MSG_WARNING(
@@ -389,6 +411,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
     for (const auto& thisJet: *jets) {         // The big jets loop
       if (not passJetCuts(*thisJet)) {
         continue;
+      }
+      bool isBjet = false; 
+      if (!btagLabel.isAvailable(*thisJet)){
+           ATH_MSG_WARNING("Failed to extract b-tag truth label from jet");
+      }
+      else{
+        isBjet = (btagLabel(*thisJet) == 5); 
       }
       if(!ghosttruth.isAvailable(*thisJet)) {
            ATH_MSG_WARNING("Failed to extract ghost truth particles from jet");
@@ -418,7 +447,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
                 }
               }
             }
-            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient);
+            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient,isBjet);
           }
         }
       }
@@ -432,7 +461,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         }
         float prob = getMatchingProbability(*thisTrack);
         if(std::isnan(prob)) prob = 0.0;
-        m_monPlots->fill(*thisTrack, *thisJet);
+        m_monPlots->fill(*thisTrack, *thisJet,isBjet);
       
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
                                                                                          
@@ -440,7 +469,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
           if(m_truthSelectionTool->accept(associatedTruth) and prob < m_lowProb ) {
             isFakeJet = true;
           } 
-          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFakeJet);
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFakeJet,isBjet);
        }
       }
     }
@@ -452,7 +481,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
 StatusCode
 InDetPhysValMonitoringTool::bookHistograms() {
   ATH_MSG_INFO("Booking hists " << name() << "with detailed level: " << m_detailLevel);
-  m_monPlots->setDetailLevel(m_detailLevel); // DEBUG, enable expert histograms
   m_monPlots->initialize();
   std::vector<HistData> hists = m_monPlots->retrieveBookedHistograms();
   for (auto hist : hists) {
@@ -494,7 +522,7 @@ InDetPhysValMonitoringTool::procHistograms() {
 }
 
 const std::vector<const xAOD::TruthParticle*>
-InDetPhysValMonitoringTool::getTruthParticles() {
+InDetPhysValMonitoringTool::getTruthParticles() const {
   // truthParticles.clear();
   std::vector<const xAOD::TruthParticle*> tempVec {};
   if (m_pileupSwitch == "All") {
@@ -553,11 +581,13 @@ InDetPhysValMonitoringTool::getTruthParticles() {
   return tempVec;
 }
 
-const std::vector<const xAOD::TruthVertex*>
-InDetPhysValMonitoringTool::getTruthVertices() {
+std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>>
+InDetPhysValMonitoringTool::getTruthVertices() const {
 
-  std::vector<const xAOD::TruthVertex*> truthVertices = {};
-  truthVertices.reserve(100);
+  std::vector<const xAOD::TruthVertex*> truthHSVertices = {};
+  truthHSVertices.reserve(5);
+  std::vector<const xAOD::TruthVertex*> truthPUVertices = {};
+  truthPUVertices.reserve(100);
   const xAOD::TruthVertex* truthVtx = nullptr;
 
   bool doHS = false;
@@ -577,14 +607,14 @@ InDetPhysValMonitoringTool::getTruthVertices() {
   }
 
   if (doHS) {
-    if (!m_truthEventName.key().empty()) {
+    if (not m_truthEventName.key().empty()) {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer(m_truthEventName);
       if (truthEventContainer.isValid()) {
         for (const auto& evt : *truthEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
-            truthVertices.push_back(truthVtx);
+            truthHSVertices.push_back(truthVtx);
           }
         }
       }
@@ -595,14 +625,14 @@ InDetPhysValMonitoringTool::getTruthVertices() {
   }
 
   if (doPU) {
-    if (!m_truthPileUpEventName.key().empty()) {
+    if (not m_truthPileUpEventName.key().empty()) {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpEventName);
       if (truthPileupEventContainer.isValid()) {
         for (const auto& evt : *truthPileupEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
-            truthVertices.push_back(truthVtx);
+            truthPUVertices.push_back(truthVtx);
           }
         }
       }
@@ -612,7 +642,7 @@ InDetPhysValMonitoringTool::getTruthVertices() {
     }
   }
 
-  return truthVertices;
+  return std::make_pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>>((const std::vector<const xAOD::TruthVertex*>)truthHSVertices, (const std::vector<const xAOD::TruthVertex*>)truthPUVertices);
 
 }
 

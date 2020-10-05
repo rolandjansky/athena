@@ -44,7 +44,7 @@ ROOT6Setup()
 ROOT.gInterpreter.ProcessLine(".autodict")
 
 # Make sure the proper dictionaries are loaded.
-cppyy.loadDictionary('libAtlasSTLAddReflexDict')
+cppyy.load_library('liblibAtlasSTLAddReflexDict')
 
 # Make sure abstract base classes have streaminfos built.
 # Otherwise, we can get crashes from TTree::Scan.
@@ -1026,15 +1026,12 @@ if ROOT.gApplication.GetName() != "TRint":
 #reg.AddConverter ("TrigInDetTrackTruthMap_old_cnv")
 
 
-# Enable TTree speedups.
-PyROOTFixes.enable_tree_speedups()
-
 # Enable container conversions.
 import ROOT
 ROOT.TConvertingStreamerInfo.Initialize()
 #ROOT.DataModelAthenaPool.CLHEPConverters.initialize()
 ROOT.RootConversions.VectorConverters.initialize()
-cppyy.loadDictionary('libDataModelAthenaPool')
+cppyy.load_library('liblibDataModelAthenaPool')
 ROOT.DataModelAthenaPool.CLHEPConverters
 ROOT.DataModelAthenaPool.installPackedContainerConverters()
 if hasattr(ROOT, 'CaloEnergyCnv_p2_register_streamer'):

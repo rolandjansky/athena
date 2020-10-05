@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -131,7 +131,7 @@ StatusCode HepMCWeightSvc::loadWeights() {
 
 }
 
-StatusCode HepMCWeightSvc::setWeightNames(const std::map<std::string, std::size_t>& weightNames) {
+StatusCode HepMCWeightSvc::setWeightNames (const std::map<std::string, std::size_t>& weightNames) {
 
    //ignore any attempt to set 'nothing' for the weight names
    if(weightNames.size()==0 || (weightNames.size()==1 && weightNames.begin()->first=="0") ) return StatusCode::SUCCESS;
@@ -148,9 +148,9 @@ StatusCode HepMCWeightSvc::setWeightNames(const std::map<std::string, std::size_
       CHECK( m_metaDataTool->registerFolder("/Generation/Parameters","Metadata created during Event Generation") );
 
       //create a new attributelist collection for it ...
-      CondAttrListCollection* cont = new CondAttrListCollection(true /* use regular timestamps, not run-lumiblock timestamps */);
+      ATLAS_THREAD_SAFE CondAttrListCollection* cont = new CondAttrListCollection(true /* use regular timestamps, not run-lumiblock timestamps */) ;
       //create a single attribute list
-      CondAttrListCollection::AttributeList  myAttributes;
+      ATLAS_THREAD_SAFE CondAttrListCollection::AttributeList  myAttributes;
 
       //store as strings ... when read back in we use a gaudi parser to parse the list
       myAttributes.extend("HepMCWeightNames","string");
@@ -173,9 +173,9 @@ StatusCode HepMCWeightSvc::setWeightNames(const std::map<std::string, std::size_
       //nsTime += evt->event_ID()->time_stamp_ns_offset();
       //evtTime.setTimestamp(nsTime);
       //cont->addNewStart(evtTime);
-      cont->add(evt->event_ID()->run_number(),myAttributes);
-
-
+      bool add_status ATLAS_THREAD_SAFE = cont->add(evt->event_ID()->run_number(),myAttributes);
+      if (!add_status)
+	ATH_MSG_INFO("Failed to add AttributeList for weight " << stringToStore);
 
       ATH_MSG_INFO("Storing /Generation/Parameters :: WeightNames = " << stringToStore);
 

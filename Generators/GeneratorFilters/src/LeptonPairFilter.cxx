@@ -112,6 +112,44 @@ StatusCode LeptonPairFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for(auto pitr: genEvt->particles()) {
+      if( pitr->status()!=1 ) continue;
+	// check stable particles only
+	// We do not place requirements on their origins (updated: optionally rejecting hadron decays)
+	// save pdg ids of found leptons
+	// do not consider taus
+	  if( std::abs(pitr->pdg_id()) !=  11  && std::abs(pitr->pdg_id()) !=  13) continue;
+	  //only consider leptons which satisfy  pt and eta requirements
+	  if( (pitr->momentum().perp() < m_Ptmin) || std::abs(pitr->momentum().pseudoRapidity()) > m_EtaRange) continue;
+			  if(m_onlyMassiveParents)
+			  {
+				  auto p = pitr;
+				  bool massiveParent = false;
+				  while(p)
+				  {
+					  auto vxp = p->production_vertex();
+					  if(!vxp) break;
+					  if(vxp->particles_in().size()!=1) break;
+					  p = vxp->particles_in().at(0);
+					  const int pdg = std::abs(p->pdg_id());
+					  if(!((pdg>=11 && pdg<=16) || pdg==22))
+					  {
+						  massiveParent = (p->generated_mass()>20000);
+						  break;
+					  }
+				  }
+				  if(!massiveParent) continue;
+			  }
+	      		vLeptonPDGIDs.push_back(pitr->pdg_id());
+			vLeptonPt.push_back(pitr->momentum().perp());
+			vLeptonEta.push_back(pitr->momentum().pseudoRapidity());
+			
+			std::vector<int> parentPDG_tmp;
+			for(auto thisParent: pitr->production_vertex()->particles_in()) parentPDG_tmp.push_back(thisParent->pdg_id());
+			vLeptonParentPDGIDs.push_back(parentPDG_tmp);
+       }
+#else
     for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();
 	pitr!=genEvt->particles_end(); ++pitr )
       if( (*pitr)->status()==1 )
@@ -125,7 +163,7 @@ StatusCode LeptonPairFilter::filterEvent() {
 	      ((*pitr)->pdg_id() ==  13)  || 
 	      ((*pitr)->pdg_id() == -13) ){
 	      	//only consider leptons which satisfy  pt and eta requirements
-	        if( ((*pitr)->momentum().perp() >= m_Ptmin) && fabs((*pitr)->momentum().pseudoRapidity()) <=m_EtaRange){
+	        if( ((*pitr)->momentum().perp() >= m_Ptmin) && std::abs((*pitr)->momentum().pseudoRapidity()) <=m_EtaRange){
 			  if(m_onlyMassiveParents)
 			  {
 				  auto p = *pitr;
@@ -160,6 +198,7 @@ StatusCode LeptonPairFilter::filterEvent() {
 		}
 	  }//end if pdg_id
        }//end if status==1
+#endif
   }//end loop over collections
 
   int nLeptons = vLeptonPDGIDs.size();
@@ -188,10 +227,10 @@ StatusCode LeptonPairFilter::filterEvent() {
 	id1 = vLeptonPDGIDs[i];
 	id2 = vLeptonPDGIDs[j];
 	//classify the pair and count it
-	if(abs(id1)==abs(id2) && id1*id2 < 0) nSFOS+=1;
-	else if(abs(id1)==abs(id2) && id1*id2 > 0) nSFSS+=1;
-	else if(abs(id1)!=abs(id2) && id1*id2 < 0) nOFOS+=1;
-	else if(abs(id1)!=abs(id2) && id1*id2 > 0) nOFSS+=1;
+	if(std::abs(id1)==std::abs(id2) && id1*id2 < 0) nSFOS+=1;
+	else if(std::abs(id1)==std::abs(id2) && id1*id2 > 0) nSFSS+=1;
+	else if(std::abs(id1)!=std::abs(id2) && id1*id2 < 0) nOFOS+=1;
+	else if(std::abs(id1)!=std::abs(id2) && id1*id2 > 0) nOFSS+=1;
 	else ATH_MSG_ERROR( "Couldn't classify lepton pair"  );
     }
   }

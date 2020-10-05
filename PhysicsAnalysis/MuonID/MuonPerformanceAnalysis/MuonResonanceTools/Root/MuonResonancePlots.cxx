@@ -344,7 +344,7 @@ float MuonResonancePlots::deltaPt(TLorentzVector v1, TLorentzVector v2){
 }
 
 
-// function to return Chi² / DoF
+// function to return Chi^2 / DoF
 float MuonResonancePlots::getChiSquared(const xAOD::Muon& mu, int type){
 
   const xAOD::TrackParticle *cb_ = mu.trackParticle(xAOD::Muon::CombinedTrackParticle);

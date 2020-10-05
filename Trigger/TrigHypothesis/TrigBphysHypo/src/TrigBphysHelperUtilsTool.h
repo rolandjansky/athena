@@ -17,8 +17,6 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTrigBphys/TrigBphys.h"
@@ -79,8 +77,6 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
-    void addUnique(std::vector<const Trk::Track*>& tracks, const Trk::Track* trkIn) const;   /// Copy of the default method in main code
-    
     void addUnique(const xAOD::Muon* muon, std::vector<const xAOD::Muon*> & output,
                    double dEtaCut = 0.005, double dPhiCut=0.005, double dPtCut =-1,
                    xAOD::Muon::TrackParticleType ptype= xAOD::Muon::InnerDetectorTrackParticle) const; ///
@@ -133,7 +129,7 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-
+  static double invariantMassInternal(const xAOD::TrackParticle* const* tracks , const double*  masses , size_t N);
   /// Default constructor: 
   TrigBphysHelperUtilsTool();
 
@@ -155,22 +151,7 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
 
 template<size_t N>
 double TrigBphysHelperUtilsTool::invariantMass(const std::array<const xAOD::TrackParticle*, N> &tracks, const std::array<double, N> &masses){
-    double px(0.),py(0.),pz(0.),E(0.);
-    for(size_t i=0; i<N; i++){
-       const auto &pv1 = tracks[i]->p4();
-       double mi1 = masses[i];
-       px += pv1.Px();
-       py += pv1.Py();
-       pz += pv1.Pz();
-       E  += sqrt(mi1*mi1 +
-               pv1.Px()*pv1.Px() +
-               pv1.Py()*pv1.Py() +
-               pv1.Pz()*pv1.Pz()
-          );
-    }
-    double m2 = E*E - px*px - py*py -pz*pz;
-    if (m2 < 0) return 0.;
-    else        return std::sqrt(m2);
+   return invariantMassInternal(tracks.data(), masses.data(), N);
 }
 
 

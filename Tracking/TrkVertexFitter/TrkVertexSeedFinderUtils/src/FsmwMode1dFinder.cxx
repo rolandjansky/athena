@@ -9,9 +9,9 @@
 //#define FSMWMODE1DFINDER_DEBUG
 
 #include "TrkVertexSeedFinderUtils/FsmwMode1dFinder.h"
+#include <algorithm>
 #include <cmath>
 #include <vector>
-#include <algorithm>
 
 namespace Trk
 {
@@ -26,7 +26,7 @@ namespace Trk
     declareInterface<IMode1dFinder>(this);
   }
 
-  FsmwMode1dFinder::~FsmwMode1dFinder() {}
+  FsmwMode1dFinder::~FsmwMode1dFinder() = default;
 
   StatusCode FsmwMode1dFinder::initialize() 
   { 
@@ -48,7 +48,7 @@ namespace Trk
   
   double FsmwMode1dFinder::getMode(std::vector<DoubleAndWeight> DoubleAndWeights) const {
     
-    if(DoubleAndWeights.size() == 0) return 0.;
+    if(DoubleAndWeights.empty()) return 0.;
     if(DoubleAndWeights.size() == 1) return DoubleAndWeights.begin()->first;
     
 #ifdef FSMWMODE1DFINDER_DEBUG

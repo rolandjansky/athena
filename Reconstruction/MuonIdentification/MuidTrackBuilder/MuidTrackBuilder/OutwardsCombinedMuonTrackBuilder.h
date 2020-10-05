@@ -15,48 +15,37 @@
 #ifndef MUIDTRACKBUILDER_OUTWARDSCOMBINEDMUONTRACKBUILDER_H
 #define MUIDTRACKBUILDER_OUTWARDSCOMBINEDMUONTRACKBUILDER_H
 
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
+#include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/TrackInfo.h"
 
-
-namespace Muon {
-class IMuonTrackCleaner;
-class IMuonHoleRecoveryTool;
-class IMuonErrorOptimisationTool;
-}  // namespace Muon
-
+#include <memory>
 
 namespace Trk {
-class ITrackSummaryTool;
-class RecVertex;
-class Surface;
-class TrackStateOnSurface;
-class PseudoMeasurementOnTrack;
-class TrackingVolume;
-class Volume;
-class VertexOnTrack;
-}  // namespace Trk
-
+    class RecVertex;
+    class PseudoMeasurementOnTrack;
+    class VertexOnTrack;
+}
 
 namespace Rec {
-
 
 class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
   public:
     OutwardsCombinedMuonTrackBuilder(const std::string& type, const std::string& name, const IInterface* parent);
-    ~OutwardsCombinedMuonTrackBuilder();
+    ~OutwardsCombinedMuonTrackBuilder()=default;
 
     StatusCode initialize();
-    StatusCode finalize();
 
     /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
     Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
@@ -79,46 +68,38 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
         refit a track removing any indet measurements with optional addition of pseudoMeasurements
         according to original extrapolation */
     Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const;
-
-    /** ITrackFitter interface:
-        refit a track */
-    Trk::Track* fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+    
+    using ICombinedMuonTrackBuilder::fit;
+    /** refit a track */
+    Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    /** ITrackFitter interface:
-        refit a track adding a PrepRawDataSet */
-    Trk::Track* fit(const Trk::Track& /*track*/, const Trk::PrepRawDataSet& /*rawDataSet*/,
-                    const Trk::RunOutlierRemoval /*runOutlier*/,
-                    const Trk::ParticleHypothesis /*particleHypothesis*/) const
-    {
-        return 0;
-    };
 
-    /**ITrackFitter interface:
+    /** 
     fit a set of PrepRawData objects */
     Trk::Track* fit(const Trk::PrepRawDataSet&, const Trk::TrackParameters& /*perigeeStartValue*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const
     {
-        return 0;
+        return nullptr;
     };
 
-    /** ITrackFitter interface:
+    /** 
         refit a track adding a MeasurementSet */
     Trk::Track* fit(const Trk::Track& /*track*/, const Trk::MeasurementSet& /*measurementSet*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const
     {
-        return 0;
+        return nullptr;
     };
 
-    /** ITrackFitter interface:
+    /** 
         fit a set of MeasurementBase objects with starting value for perigeeParameters */
     Trk::Track* fit(const Trk::MeasurementSet& /*measurementSet*/, const Trk::TrackParameters& /*perigeeStartValue*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const;
 
-    /** ITrackFitter interface:
+    /** 
         combined muon fit */
     Trk::Track* fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                     const Trk::RunOutlierRemoval  runOutlier         = false,
@@ -167,10 +148,10 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
         "MuonErrorOptimizer tool",
     };
 
-    ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc;
+    ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc/TrackingVolumesSvc"};
 
-    const Trk::Volume* m_calorimeterVolume;
-    const Trk::Volume* m_indetVolume;
+    std::unique_ptr<const Trk::Volume> m_calorimeterVolume;
+    std::unique_ptr<const Trk::Volume> m_indetVolume;
 
     // other configuration and tolerances
     bool   m_allowCleanerVeto;

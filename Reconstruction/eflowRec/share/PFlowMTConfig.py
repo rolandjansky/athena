@@ -13,7 +13,7 @@ TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExte
 
 #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
 from RecExConfig.RecFlags import rec
-if True == rec.readESD:
+if rec.readESD==True:
    TrackCaloExtensionTool.PFParticleCache = ""
 
 PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
@@ -97,13 +97,6 @@ if jobproperties.eflowRecFlags.recoverIsolatedTracks == True:
    
 if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
    PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = False
-
-MatchingTool_Recover = PFTrackClusterMatchingTool()
-MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
-MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
-MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
-MatchingTool_Recover.MatchCut = 0.2*0.2 # float
-PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
 
 if jobproperties.eflowRecFlags.eflowAlgType != "EOverP":
    PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
@@ -250,9 +243,30 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
     PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
 
 topSequence += PFONeutralCreatorAlgorithm
+from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
+jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
+
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
-
+   
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
+
+#Add new FlowElement creators
+if jobproperties.eflowRecFlags.useFlowElements: 
+  from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
+  PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
+  topSequence += PFChargedFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import PFNeutralFlowElementCreatorAlgorithm
+  PFNeutralFlowElementCreatorAlgorithm = PFNeutralFlowElementCreatorAlgorithm("PFNeutralFlowElementCreatorAlgorithm")
+  topSequence += PFNeutralFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
+  PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
+  topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
+  PFEGamFlowElementAssoc=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
+  topSequence +=PFEGamFlowElementAssoc

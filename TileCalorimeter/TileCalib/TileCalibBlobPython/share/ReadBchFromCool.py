@@ -35,7 +35,7 @@ def usage():
     print ("-s, --schema=   specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db")
     print ("-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'")
     print ("-w, --warning   suppress warning messages about missing drawers in DB")
-    
+
 letters = "hr:l:s:t:f:D:dBHPwm:b:e:a:g:c:N:X:C"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","default","blob","hex","pmt","warning","module=","begin=","end=","chmin=","chmax=","gain=","adc=","chan=","comment"]
 
@@ -46,7 +46,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = 2147483647
 lumi = 0
 schema = 'COOLOFL_TILE/CONDBR2'
@@ -90,7 +90,7 @@ for o, a in opts:
     elif o in ("-D","--dbname"):
         dbname = a
     elif o in ("-r","--run"):
-        run = int(a) 
+        run = int(a)
     elif o in ("-l","--lumi"):
         lumi = int(a)
     elif o in ("-b","--begin"):
@@ -263,23 +263,23 @@ if iov:
         COOL_chan = 1000
 
     try:
-      dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
-      if (dbobjs is None):
-          raise Exception("No DB objects retrieved when building IOV list!")
-      while dbobjs.goToNext():
-        obj = dbobjs.currentRef()
-        objsince = obj.since()
-        sinceRun = objsince >> 32
-        sinceLum = objsince & 0xFFFFFFFF
-        since    = (sinceRun, sinceLum)
-        objuntil = obj.until()
-        untilRun = objuntil >> 32
-        untilLum = objuntil & 0xFFFFFFFF
-        until    = (untilRun, untilLum)
-        iovList.append((since, until))
+        dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
+        if (dbobjs is None):
+            raise Exception("No DB objects retrieved when building IOV list!")
+        while dbobjs.goToNext():
+            obj = dbobjs.currentRef()
+            objsince = obj.since()
+            sinceRun = objsince >> 32
+            sinceLum = objsince & 0xFFFFFFFF
+            since    = (sinceRun, sinceLum)
+            objuntil = obj.until()
+            untilRun = objuntil >> 32
+            untilLum = objuntil & 0xFFFFFFFF
+            until    = (untilRun, untilLum)
+            iovList.append((since, until))
     except Exception:
-      log.warning( "Warning: can not read IOVs from input DB file" )
-      sys.exit(2)
+        log.warning( "Warning: can not read IOVs from input DB file" )
+        sys.exit(2)
 
     be=iovList[0][0][0]
     en=iovList[-1][0][0]
@@ -421,4 +421,3 @@ for iovs in iovList:
 
 #=== close DB
 db.closeDatabase()
-

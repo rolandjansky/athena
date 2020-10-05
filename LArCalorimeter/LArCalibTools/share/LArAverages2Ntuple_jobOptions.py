@@ -29,9 +29,9 @@ ByteStreamAddressProviderSvc.TypeNames += ["LArCalibDigitContainer/MEDIUM"]
 ByteStreamAddressProviderSvc.TypeNames += ["LArCalibDigitContainer/HIGH"]
 
 # Three input files (for H8): accordion HG, accordion MG, PS (HG only)
-#ByteStreamInputSvc.FullFileName += ["/castor/cern.ch/atlas/testbeam/lar/2004/daq_ROS-41_LargCalib_0005134_file01.data"]
-ByteStreamInputSvc.FullFileName += ["/castor/cern.ch/atlas/testbeam/lar/2004/daq_ROS-41_LargCalib_0005135_file01.data"]
-#ByteStreamInputSvc.FullFileName += ["/castor/cern.ch/atlas/testbeam/lar/2004/daq_ROS-41_LargCalib_0005136_file01.data"]
+#EventSelector.Input += ["/castor/cern.ch/atlas/testbeam/lar/2004/daq_ROS-41_LargCalib_0005134_file01.data"]
+EventSelector.Input += ["/castor/cern.ch/atlas/testbeam/lar/2004/daq_ROS-41_LargCalib_0005135_file01.data"]
+#EventSelector.Input += ["/castor/cern.ch/atlas/testbeam/lar/2004/daq_ROS-41_LargCalib_0005136_file01.data"]
 
 
 include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H8_joboptions.py" )

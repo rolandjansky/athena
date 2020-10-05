@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
@@ -10,10 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "eformat/SourceIdentifier.h"
-
-#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
@@ -45,13 +42,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 				IDCInDetBSErrContainer& decodingErrors,
 				std::vector<IdentifierHash>* vecHash = NULL) const override;
 
-    StatusCode StoreBSError() const override;
-
-    inline void setDet( const eformat::SubDetector det );
-    bool m_is_ibl_present;
-    bool m_is_ibl_module;
-    bool m_is_dbm_module;
-
     uint32_t getDataType(unsigned int rawDataWord, bool link_start) const;   // determine module word type
 
     ////// decode IBL module header word
@@ -66,7 +56,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     uint32_t decodeL1IDskip(const uint32_t word) const;   // decode L1ID skips from header word
     uint32_t decodeModule(const uint32_t word) const;   // decode module link number from header word
     uint32_t decodeHeaderErrors(const uint32_t word) const;   // decode header errors from header word
-    //   uint32_t decodeHeaderBitflips(const uint32_t word);   // search for bitflips in wordparts supposed to be empty
 
 
     ////// decode Pixel and IBL module hit word
@@ -77,22 +66,17 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     ////// decode IBL-only module (not-condensed) hit word
     uint32_t decodeLinkNumHit_IBL(const uint32_t word) const; // decode Link Number in the IBL not-condensed Hit word // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
-    //   uint32_t decodeHitBitflips_IBL(const uint32_t word); // search for bitflips in wordparts supposed to be empty
 
 
     ////// decode Pixel-only module hit word
     uint32_t decodeFE(const uint32_t word) const;   // decode FE number from hit word
-    //   uint32_t decodeFE2(const uint32_t word);   // decode FE number from flag type 1 word
-    //   uint32_t decodeHitBitflips(const uint32_t word);   // search for bitflips in wordparts supposed to be empty
 
 
     ////// decode IBL module trailer word
     uint32_t decodeSkippedTrigTrailer_IBL(const uint32_t word) const; // decode the skipped trigger counter in the IBL trailer
     uint32_t decodeTrailerErrors_IBL (const uint32_t word) const; // decode IBL trailer errors, all together
     uint32_t decodeLinkNumTrailer_IBL(const uint32_t word) const; // decode the link number in the IBL trailer // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
-    //   uint32_t decodeTimeOutErrorBit_IBL(const uint32_t word); // decode the Time out error bit in the IBL trailer
     uint32_t decodeCondensedModeBit_IBL(const uint32_t word) const; // decode the Condensed mode bit in the IBL trailer
-    //   uint32_t decodeTrailerBitflips_IBL(const uint32_t word); // decode IBL bitflips in the trailer word // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
 
 
     ////// decode Pixel module trailer word
@@ -104,9 +88,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     ////// decode Pixel module FE flags
     uint32_t decodeFEFlags2(const uint32_t word) const;   // decode FE flags from flag type 2 word
     uint32_t decodeMCCFlags(const uint32_t word) const;   // decode MCC flags from flag type 2 word
-    //   uint32_t decodeFEFlags1(const uint32_t word);   // decode FE flags from flag type 1 word
-    //   uint32_t decodeFEFlags1Bitflips(const uint32_t word);   // search for bitflips in wordparts supposed to be empty
-    //   uint32_t decodeFEFlags2Bitflips(const uint32_t word);   // search for bitflips in wordparts supposed to be empty
 
 
     ////// decode IBL module FE flags
@@ -122,10 +103,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     uint32_t extractFefromLinkNum (const uint32_t linkNum) const;
     uint32_t extractSLinkfromLinkNum (const uint32_t linkNum) const;
 
-    void addRODError(uint32_t rodid, uint32_t robStatus) const;
-
-
-
     bool CheckLinkStart(const bool Link_start, const int rodId, const unsigned int mLink, const unsigned int mBCID, const unsigned int mLVL1ID, const int LVL1A);
 
     uint32_t treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) const;
@@ -134,18 +111,29 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
   private:
     mutable std::atomic_uint m_masked_errors{};
     mutable std::atomic_uint m_numGenWarnings{};
-    unsigned m_maxNumGenWarnings{200};     // Maximum number of general warnings to print
-    mutable std::atomic_uint m_numBCIDWarnings{};
-    unsigned m_maxNumBCIDWarnings{50};    // Maximum number of BCID and LVL1ID warnings to print
+    mutable std::atomic_uint m_numDuplicatedPixels{0};
 
+    const unsigned m_maxNumGenWarnings{200};     // Maximum number of general warnings to print
+    mutable std::atomic_uint m_numBCIDWarnings{};
+    const unsigned m_maxNumBCIDWarnings{50};    // Maximum number of BCID and LVL1ID warnings to print
+    BooleanProperty m_checkDuplicatedPixel{this, "CheckDuplicatedPixel", true, "Check duplicated pixels in fillCollection method"};
+
+    mutable std::atomic_uint m_numInvalidIdentifiers{0};
+    mutable std::atomic_uint m_numPreambleErrors{0};
+    mutable std::atomic_uint m_numTimeOutErrors{0};
+    mutable std::atomic_uint m_numLVL1IDErrors{0};
+    mutable std::atomic_uint m_numBCIDErrors{0};
+    mutable std::atomic_uint m_numFlaggedErrors{0};
+    mutable std::atomic_uint m_numTrailerErrors{0};
+    mutable std::atomic_uint m_numDisabledFEErrors{0};
+    mutable std::atomic_uint m_numDecodingErrors{0};
+    mutable std::atomic_uint m_numRODErrors{0};
+    mutable std::atomic_uint m_numLinkMaskedByPPC{0};
+    mutable std::atomic_uint m_numLimitError{0};
 
     ServiceHandle<IPixelCablingSvc>  m_pixelCabling;
 
     const PixelID*              m_pixel_id=nullptr;
-    eformat::SubDetector        m_det{eformat::SubDetector()};
-
-    ToolHandle<IPixelByteStreamErrorsTool> m_errors
-    {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
 
     SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
@@ -153,14 +141,37 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     SG::ReadCondHandleKey<PixelHitDiscCnfgData> m_condHitDiscCnfgKey
     {this, "PixelHitDiscCnfgData", "PixelHitDiscCnfgData", "Pixel FEI4 HitDiscConfig key"};
 
-    //!< adds given ErrorCode to all hasIDs for given ROB
-    void addRODError(uint32_t robid, IDCInDetBSErrContainer::ErrorCode, IDCInDetBSErrContainer& errorsCollection) const;
+    //! checks if data words do not look like header & trailer markers, return true if so, this is sign of data corruption
+    bool checkDataWordsCorruption( uint32_t word ) const;
 
+    //!< flags concerning the detector configuration; set at config time
+    bool m_is_ibl_present;
+    bool m_is_ibl_module;
+    bool m_is_dbm_module;
+
+    //!< if there are errors in the header, save info in error word and (for now) report to BS error tool
+    void checkHeaderErrors( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+
+    //!< if there are errors in the trailer, save info in error word and (for now) report to BS error tool
+    void checkTrailerErrors( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+    void checkTrailerErrorsIBL( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+
+    //!< if the flag is set to true appropriate bits are set in event info
+    StatusCode updateEventInfoIfEventCorrupted( bool isCorrupted ) const;
+
+    //!< checks if all FEs have sent the same number of headers, if not, generate warning message
+    void checkUnequalNumberOfHeaders( const unsigned int nFragmentsPerFE[8], uint32_t robId ) const;
+    
+    //!< if the check duplicated RDO flag is true, check that this RDO is unique (returns true if unique)
+    inline bool thisRdoIsUnique(const Identifier & pixelRdo, std::unordered_set<Identifier> & pixelRdosSeenSoFar) const;
 };
 
-inline void PixelRodDecoder::setDet( const eformat::SubDetector det )
-{
-  m_det = det;
+bool 
+PixelRodDecoder::thisRdoIsUnique(const Identifier & pixelRdo, std::unordered_set<Identifier> & pixelRdosSeenSoFar) const{
+  //The 'second' element of the pair returned by a set insert indicates whether the insert was successful.
+  //If the element is NOT already in the set (has not been seen already), then this element is true.
+  return (m_checkDuplicatedPixel and pixelRdosSeenSoFar.insert(pixelRdo).second);
 }
+
 
 #endif

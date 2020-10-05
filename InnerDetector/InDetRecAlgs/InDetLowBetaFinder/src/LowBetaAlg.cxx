@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -43,7 +43,6 @@ namespace InDet
     m_trackParticleCollection("InDetTrackParticles"),
     m_InDetLowBetaOutputName("InDetLowBetaCandidates"),
     m_trtconddbTool("TRT_CalDbTool",this),
-    m_fieldServiceHandle("AtlasFieldSvc",name),
     m_TrtTool(0),
     m_TRTdEdxTool(),
     m_TrtToolsSuccess{},
@@ -58,7 +57,6 @@ namespace InDet
     declareProperty("CSMP_TimingOffset",      m_TimingOffset);
     declareProperty("InDetLowBetaOutputName", m_InDetLowBetaOutputName);
     declareProperty("MC_flag", m_mcswitch);
-    declareProperty("AtlasFieldSvc", m_fieldServiceHandle, "Magnet Field used by this algorithm");
     declareProperty("TRTCalDbTool", m_trtconddbTool);
     declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
     
@@ -66,7 +64,6 @@ namespace InDet
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   StatusCode LowBetaAlg::initialize(){
 
-    ATH_CHECK( m_fieldServiceHandle.retrieve() );
     ATH_CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
     m_TrtToolInitSuccess = !(initializeTrtToolBetaLiklihood().isFailure());
 
@@ -75,6 +72,9 @@ namespace InDet
     ATH_CHECK( m_trackParticleCollection.initialize() );
     ATH_CHECK( m_UnslimmedTracksContainerName.initialize() );
     ATH_CHECK( m_InDetLowBetaOutputName.initialize() );
+    // Read handle for AtlasFieldCacheCondObj
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+    
     return StatusCode::SUCCESS;
   }
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -87,7 +87,17 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    if (m_fieldServiceHandle->solenoidOn()){//B field
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return StatusCode::FAILURE;
+    }
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (fieldCache.solenoidOn()){//B field
 
       if (!m_trackParticleCollection.key().empty()){
 
@@ -629,7 +639,7 @@ namespace InDet
 	if (tegap>0.&& hont>1.0) tegap = tegap/(hont-1.0); // average TE gap for a track
 	
 
-	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track), !m_mcswitch, true, true);
+	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track));
 	else 	dEdx =  -999.0;
       }
       else{

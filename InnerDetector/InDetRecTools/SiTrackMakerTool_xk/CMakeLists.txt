@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( SiTrackMakerTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkGeometry TrkCaloClusterROI AthenaPoolUtilities InDetPrepRawData SiSPSeededTrackFinderData TrkRIO_OnTrack MagFieldElements MagFieldConditions)
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkGeometry TrkCaloClusterROI AthenaPoolUtilities InDetPrepRawData SiSPSeededTrackFinderData TrkRIO_OnTrack MagFieldElements MagFieldConditions BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_headers( SiTrackMakerTool_xk )

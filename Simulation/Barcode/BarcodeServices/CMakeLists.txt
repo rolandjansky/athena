@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( BarcodeServices )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Simulation/Barcode/BarcodeEvent
-                          Simulation/Barcode/BarcodeInterfaces )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 

@@ -107,25 +107,25 @@ namespace CP
 
 
 
-  const Root::TAccept& AsgPtEtaSelectionTool ::
-  getTAccept () const
+  const asg::AcceptInfo& AsgPtEtaSelectionTool ::
+  getAcceptInfo () const
   {
     return m_accept;
   }
 
 
 
-  const Root::TAccept& AsgPtEtaSelectionTool ::
+  asg::AcceptData AsgPtEtaSelectionTool ::
   accept (const xAOD::IParticle *particle) const
   {
-    m_accept.clear();
+    asg::AcceptData accept (&m_accept);
 
     // Perform the tranverse momentum cuts.
     if (m_minPtCutIndex >= 0) {
-       m_accept.setCutResult (m_minPtCutIndex, particle->pt() >= m_minPt);
+       accept.setCutResult (m_minPtCutIndex, particle->pt() >= m_minPt);
     }
     if (m_maxPtCutIndex >= 0) {
-       m_accept.setCutResult (m_maxPtCutIndex, particle->pt() < m_maxPt);
+       accept.setCutResult (m_maxPtCutIndex, particle->pt() < m_maxPt);
     }
 
     // Perform the eta cut(s).
@@ -142,18 +142,18 @@ namespace CP
           if (m_shouldPrintCastWarning)
             ANA_MSG_ERROR ("failed to cast input particle to electron");
           m_shouldPrintCastWarning = false;
-          return m_accept;
+          return accept;
         }
-        m_accept.setCutResult (m_egammaCastCutIndex, true);
+        accept.setCutResult (m_egammaCastCutIndex, true);
         const xAOD::CaloCluster *const caloCluster {egamma->caloCluster()};
         if (!caloCluster)
         {
           if (m_shouldPrintClusterWarning)
             ANA_MSG_ERROR ("no calo-cluster associated with e-gamma object");
           m_shouldPrintClusterWarning = false;
-          return m_accept;
+          return accept;
         }
-        m_accept.setCutResult (m_egammaClusterCutIndex, true);
+        accept.setCutResult (m_egammaClusterCutIndex, true);
         absEta = std::abs (caloCluster->etaBE(2));
       } else
       {
@@ -161,14 +161,14 @@ namespace CP
       }
 
       if (m_maxEtaCutIndex >= 0) {
-        m_accept.setCutResult (m_maxEtaCutIndex, absEta <= m_maxEta);
+        accept.setCutResult (m_maxEtaCutIndex, absEta <= m_maxEta);
       }
       if (m_etaGapCutIndex >= 0) {
-        m_accept.setCutResult (m_etaGapCutIndex, (absEta < m_etaGapLow ||
+        accept.setCutResult (m_etaGapCutIndex, (absEta < m_etaGapLow ||
                                                   absEta > m_etaGapHigh));
       }
     }
 
-    return m_accept;
+    return accept;
   }
 }

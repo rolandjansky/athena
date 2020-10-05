@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
@@ -141,7 +141,7 @@ class CaloCellGetter (Configured)  :
                         if 'doTileOpt2' not in dir():
                             from RecExConfig.AutoConfiguration import GetRunNumber
                             rn = GetRunNumber()
-                            if rn > 0 and rn < 171194:  
+                            if not athenaCommonFlags.isOnline() and rn > 0 and rn < 171194:
                                 doTileOpt2 = True
                             elif jobproperties.Beam.beamType()=='collisions':
                                 doTileOpt2 = False # use OF without iterations for collisions

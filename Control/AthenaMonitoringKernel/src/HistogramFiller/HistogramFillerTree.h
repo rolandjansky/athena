@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFillerTree_h
@@ -26,13 +26,9 @@ namespace Monitored {
         parseDefinition();
     }
 
-    virtual HistogramFillerTree* clone() const override {
-      return new HistogramFillerTree( *this );
-    }
-
-    virtual unsigned fill() const override {
-      // handling of the cutmask
-      auto cutMaskValuePair = getCutMaskFunc();
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
+      // handling of the cutmask      
+      auto cutMaskValuePair = getCutMaskFunc(vars.cut);
       if (cutMaskValuePair.first == 0) { return 0; }
       if (ATH_UNLIKELY(cutMaskValuePair.first > 1)) {
         MsgStream log(Athena::getMessageSvc(), "HistogramFillerTree");
@@ -42,15 +38,14 @@ namespace Monitored {
         if (! cutMaskValuePair.second(0)) { return 0; }
       }
 
-      if (ATH_UNLIKELY(m_monVariables.size() != m_branchDefs.size())) {
+      if (ATH_UNLIKELY(vars.size() != m_branchDefs.size())) {
         MsgStream log(Athena::getMessageSvc(), "HistogramFillerTree");
         log << MSG::ERROR << "Mismatch of passed variables and expected variables for " << m_histDef->alias 
-                          << "(" << m_monVariables.size() << ", " << m_branchDefs.size() << ")" << endmsg;
+                          << "(" << vars.size() << ", " << m_branchDefs.size() << ")" << endmsg;
         return 0;
       }
 
       auto cutMaskAccessor = cutMaskValuePair.second;
-      std::scoped_lock<std::mutex> lock(*(this->m_mutex));
 
       auto tree = this->histogram<TTree>();
       if (tree->GetListOfBranches()->GetEntries() == 0) {
@@ -64,7 +59,7 @@ namespace Monitored {
           ++idx; continue;
         }
         TBranch* branch = static_cast<TBranch*>(branchList->At(idxgood));
-        m_fillerFunctions[idx](branch, m_monVariables[idx].get());
+        m_fillerFunctions[idx](branch, *vars.var[idx]);
         ++idx; ++idxgood;
       }
       for (Int_t i = 0; i < branchList->GetEntries(); ++i) {
@@ -72,7 +67,7 @@ namespace Monitored {
 
       }
       tree->SetEntries(tree->GetEntries() + 1);
-      return 1;
+      return 1;     
     }
 
   private:
@@ -170,7 +165,7 @@ namespace Monitored {
                           << branch->GetName() << endmsg;
       return; 
     }
-    T tofill = var.getVectorRepresentation()[0];
+    T tofill = var.get(0);
     T* ptr = &tofill;
     branch->SetAddress(ptr);
     branch->Fill();
@@ -185,7 +180,7 @@ namespace Monitored {
                           << branch->GetName() << endmsg;
       return; 
     }
-    std::string tofill{var.getStringVectorRepresentation()[0]};
+    std::string tofill{var.getString(0)};
     branch->SetObject(&tofill);
     //*static_cast<std::string*>(branch->GetObject()) = tofill;
     branch->Fill();
@@ -193,8 +188,11 @@ namespace Monitored {
 
   template <typename T>
   void vectorFillerFunc(TBranch* branch, const IMonitoredVariable& var) {
-    const auto sourcevec{var.getVectorRepresentation()};
-    std::vector<T> tofill(sourcevec.begin(), sourcevec.end());
+    std::vector<T> tofill;
+    tofill.reserve(var.size());
+    for (size_t i = 0; i < var.size(); i++) {
+      tofill.push_back(var.get(i));
+    }
     std::vector<T>* tofillptr = &tofill;
     branch->SetAddress(&tofillptr);
     branch->Fill();
@@ -203,7 +201,11 @@ namespace Monitored {
   // specialization for string
   template <>
   void vectorFillerFunc<std::string>(TBranch* branch, const IMonitoredVariable& var) {
-    std::vector<std::string> tofill{var.getStringVectorRepresentation()};
+    std::vector<std::string> tofill;
+    tofill.reserve(var.size());
+    for (size_t i = 0; i < var.size(); i++) {
+      tofill.push_back(var.getString(i));
+    }
     auto* tofillptr = &tofill;
     branch->SetAddress(&tofillptr);
     branch->Fill();

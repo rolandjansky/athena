@@ -51,6 +51,7 @@
 
 
 //CondDB
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 #include <limits>
@@ -60,6 +61,8 @@
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+
+#include "CxxUtils/checker_macros.h"
 
 //#include "driftCircle.h" // local copy for debugging and development
 
@@ -97,6 +100,8 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_MSG_DEBUG ( "Retrieved TRT_DetectorManager with version "  << m_manager->getVersion().majorNum() );
 
   ATH_CHECK(detStore()->retrieve(m_trt_id, "TRT_ID"));
+
+  ATH_CHECK( m_digverscontainerkey.initialize (SG::AllowEmpty) );
 
   // Fill setting defaults and process joboption overrides:
   m_settings->initialize(m_manager);
@@ -153,10 +158,12 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
   //Retrieve TRT_CalDbTool
-  ATH_CHECK(m_calDbTool.retrieve());
-
-  // Get the magnetic field service
-  ATH_CHECK(m_magneticfieldsvc.retrieve());
+  if (m_settings->getT0FromData()) {
+    ATH_CHECK(m_calDbTool.retrieve());
+  }
+  else {
+    m_calDbTool.disable();
+  }
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
 
@@ -173,20 +180,8 @@ StatusCode TRTDigitizationTool::initialize()
     break;
   }
 
-  //CondDB access
-  m_condDBdigverfoldersexists = detStore()->StoreGateSvc::contains<AthenaAttributeList>(m_digverscontainerkey) ;
-  // Register callback function for cache updates:
-  if (m_condDBdigverfoldersexists) {
-    const DataHandle<AthenaAttributeList> aptr; //CondAttrListCollection
-    if (StatusCode::SUCCESS == detStore()->regFcn(&TRTDigitizationTool::update,this, aptr, m_digverscontainerkey )) {
-      ATH_MSG_DEBUG ("Registered callback for TRT_Digitization.");
-    } else {
-      ATH_MSG_ERROR ("Callback registration failed for TRT_Digitization! ");
-    }
-  }
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return StatusCode::SUCCESS;
@@ -258,9 +253,9 @@ StatusCode TRTDigitizationTool::lateInitialize(const EventContext& ctx) {
   CLHEP::HepRandomEngine *noiseElecResetRndmEngine = getRandomEngine("TRT_ElectronicsNoiseReset", m_randomSeedOffset, ctx);
   m_first_event=false;
 
-  if (m_condDBdigverfoldersexists) {
+  if (!m_digverscontainerkey.empty()) {
 
-    if ( ConditionsDependingInitialization().isFailure() ) {
+    if ( ConditionsDependingInitialization(ctx).isFailure() ) {
       ATH_MSG_ERROR ( "Folder holder TRT digitization version exists in condDB, but tag is faulty" );
       return StatusCode::FAILURE;
     } else {
@@ -321,14 +316,15 @@ StatusCode TRTDigitizationTool::lateInitialize(const EventContext& ctx) {
 
   ITRT_SimDriftTimeTool *pTRTsimdrifttimetool = &(*m_TRTsimdrifttimetool);
 
-  MagField::IMagFieldSvc *pMagfieldsvc = &(*m_magneticfieldsvc);
-  const ITRT_CalDbTool* calDbTool=m_calDbTool.get();
+  const ITRT_CalDbTool* calDbTool = nullptr;
+  if (m_settings->getT0FromData()) {
+    calDbTool = m_calDbTool.get();
+  }
   m_pProcessingOfStraw =
     new TRTProcessingOfStraw( m_settings,
                               m_manager,
                               TRTpaiToolXe,
                               pTRTsimdrifttimetool,
-                              pMagfieldsvc,
                               m_pElectronicsProcessing,
                               m_pNoise,
                               m_pDigConditions,
@@ -345,7 +341,7 @@ StatusCode TRTDigitizationTool::lateInitialize(const EventContext& ctx) {
 
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::processStraws(const EventContext& ctx,
-                                              const TimedHitCollection<TRTUncompressedHit>& thpctrt,
+                                              TimedHitCollection<TRTUncompressedHit>& thpctrt,
                                               std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                                               CLHEP::HepRandomEngine *rndmEngine,
                                               CLHEP::HepRandomEngine *strawRndmEngine,
@@ -361,11 +357,11 @@ StatusCode TRTDigitizationTool::processStraws(const EventContext& ctx,
   if (m_settings->useMagneticFieldMap()) {
       
     // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
     if (fieldCondObj == nullptr) {
-        ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
         return StatusCode::FAILURE;
     }
     fieldCondObj->getInitializedCache (fieldCache);
@@ -878,48 +874,26 @@ StatusCode TRTDigitizationTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/* ----------------------------------------------------------------------------------- */
-// Callback function to update constants from database:
-/* ----------------------------------------------------------------------------------- */
-
-StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
-
-  ATH_MSG_INFO ("Updating condition settings TRT_Digitization! ");
-
-  const AthenaAttributeList* atrlist(nullptr);
-
-  if (StatusCode::SUCCESS == detStore()->retrieve(atrlist, m_digverscontainerkey ) && atrlist != 0) {
-    std::list<std::string>::const_iterator itr;
-    if (msgLvl(MSG::INFO)) {
-      for( itr=keys.begin(); itr !=keys.end(); ++itr) {
-        msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg;
-      }
-    }
-    m_dig_vers_from_condDB =(*atrlist)["TRT_Dig_Vers"].data<int>();
-  } else {
-    ATH_MSG_ERROR ( "Problem reading condDB object." );
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
 //_____________________________________________________________________________
 
-StatusCode TRTDigitizationTool::ConditionsDependingInitialization() {
+StatusCode TRTDigitizationTool::ConditionsDependingInitialization(const EventContext& ctx)
+{
+  SG::ReadCondHandle<AthenaAttributeList> digvers (m_digverscontainerkey, ctx);
+  int dig_vers_from_condDB = (**digvers)["TRT_Dig_Vers"].data<int>();
 
-  if (m_dig_vers_from_condDB!=0) {
+  if (dig_vers_from_condDB!=0) {
 
-    if (StatusCode::SUCCESS == m_settings->DigSettingsFromCondDB(m_dig_vers_from_condDB)) {
+    if (StatusCode::SUCCESS == m_settings->DigSettingsFromCondDB(dig_vers_from_condDB)) {
       ATH_MSG_INFO ( "Retrieved TRT_Settings from CondDB with TRT digitization version: digversion = " <<
-                     m_dig_vers_from_condDB );
+                     dig_vers_from_condDB );
     } else {
-      ATH_MSG_WARNING ( "Unknown TRT digitization version: digversion = " << m_dig_vers_from_condDB <<
+      ATH_MSG_WARNING ( "Unknown TRT digitization version: digversion = " << dig_vers_from_condDB <<
                         " read from CondDB. Overriding to use default from Det Desc tag: " <<
                         m_settings->digVers() );
     }
 
   } else {
-    ATH_MSG_WARNING ( "TRT digitization version: digversion = " << m_dig_vers_from_condDB <<
+    ATH_MSG_WARNING ( "TRT digitization version: digversion = " << dig_vers_from_condDB <<
                       " read from CondDB. Overriding to use default from Det Desc tag: " <<
                       m_settings->digVers() );
   }

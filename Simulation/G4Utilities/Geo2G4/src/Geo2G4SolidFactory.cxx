@@ -7,7 +7,6 @@
 #include "LArWheelSliceSolid.h"
 #include "LArWheelSolidDDProxy.h"
 
-#include "GeoSpecialShapes/LArCustomShape.h"
 
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoBox.h"
@@ -27,6 +26,7 @@
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeIntersection.h"
+#include "GeoModelKernel/GeoUnidentifiedShape.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -54,6 +54,7 @@
 #include <iostream>
 #include <map>
 #include <cmath>
+#include <utility>
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -152,7 +153,7 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
   double* rInner(nullptr);
   double* rOuter(nullptr);
 
-  std::string n = name;
+  std::string n = std::move(name);
 
   //
   // The Box
@@ -376,7 +377,8 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       G4TwoVector off(0,0);
       std::vector<G4TwoVector> polygon;
 
-      for(int i=0; i<nVertices; i++)
+      polygon.reserve(nVertices);
+for(int i=0; i<nVertices; i++)
         polygon.push_back(G4TwoVector(theBrep->getXVertex(nVertices-1-i),theBrep->getYVertex(nVertices-1-i)));
 
       theSolid = new G4ExtrudedSolid(n,polygon,dz,off,1,off,1);
@@ -520,29 +522,33 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
   //
   // Custom Shapes (presently LAr shapes only)
   //
-  else if(geoShape->typeID() == LArCustomShape::getClassTypeID())
+  else if(geoShape->typeID() == GeoUnidentifiedShape::getClassTypeID())
     {
-      const LArCustomShape* customShape = dynamic_cast<const LArCustomShape*> (geoShape);
+      const GeoUnidentifiedShape* customShape = dynamic_cast<const GeoUnidentifiedShape*> (geoShape);
       if (nullptr==customShape) throw std::runtime_error("TypeID did not match cast for custom shape");
-      std::string customName = customShape->name();
-      customSolidMap::const_iterator it = customSolids.find(customName);
-      if(it!=customSolids.end())
-        theSolid = it->second;
-      else
-        {
-          theSolid = nullptr;
-          if(customName.find("Slice") != std::string::npos){
-            theSolid = createLArWheelSliceSolid(customShape);
-          } else {
-            theSolid = createLArWheelSolid(customName, s_lwsTypes.at(customName) ); // map.at throws std::out_of_range exception on unknown shape name
-          }
-          if ( nullptr == theSolid ) {
-            std::string error = std::string("Can't create LArWheelSolid for name ") + customName + " in Geo2G4SolidFactory::Build";
-            throw std::runtime_error(error);
-          }
+      if (customShape->name()=="LArCustomShape") {
 
-          if(theSolid != nullptr) customSolids[customName] = theSolid;
-        }
+	std::string customName = customShape->asciiData();
+   
+	customSolidMap::const_iterator it = customSolids.find(customName);
+	if(it!=customSolids.end())
+	  theSolid = it->second;
+	else
+	  {
+	    theSolid = nullptr;
+	    if(customName.find("Slice") != std::string::npos){
+	      theSolid = createLArWheelSliceSolid(customShape);
+	    } else {
+	      theSolid = createLArWheelSolid(customName, s_lwsTypes.at(customName) ); // map.at throws std::out_of_range exception on unknown shape name
+	    }
+	    if ( nullptr == theSolid ) {
+	      std::string error = std::string("Can't create LArWheelSolid for name ") + customName + " in Geo2G4SolidFactory::Build";
+	      throw std::runtime_error(error);
+	    }
+	    
+	    if(theSolid != nullptr) customSolids[customName] = theSolid;
+	  }
+      }
     }
   //
   // Catch All
@@ -574,9 +580,9 @@ G4VSolid* Geo2G4SolidFactory::createLArWheelSolid(const std::string& name, const
         return theLWS;
 }
 
-G4VSolid* Geo2G4SolidFactory::createLArWheelSliceSolid(const LArCustomShape* customShape) const
+G4VSolid* Geo2G4SolidFactory::createLArWheelSliceSolid(const GeoUnidentifiedShape* customShape) const
 {
-    LArWheelSliceSolid *theLWS = new LArWheelSliceSolid(customShape->name(), customShape->calculator());
+  LArWheelSliceSolid *theLWS = new LArWheelSliceSolid(customShape->asciiData());
 
     LArWheelSolidDDProxy *theLWS_p = new LArWheelSolidDDProxy(theLWS);
     // ownership is passed to detStore

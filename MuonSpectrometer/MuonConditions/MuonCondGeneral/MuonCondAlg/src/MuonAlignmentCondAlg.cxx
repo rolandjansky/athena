@@ -2,30 +2,25 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
+#include "MuonCondAlg/MuonAlignmentCondAlg.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "MuonCondSvc/MdtStringUtils.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
-
 #include "PathResolver/PathResolver.h"
+
 #include <fstream>
 #include <string>
 #include <map>
 
-#include "MuonCondAlg/MuonAlignmentCondAlg.h"
-
-#include "MuonCondSvc/MdtStringUtils.h"
-
-MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name, 
-				       ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator),
+MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+    AthAlgorithm(name, pSvcLocator),
     m_condSvc{"CondSvc", name}
 {
   m_geometryVersion = "";
@@ -87,65 +82,18 @@ StatusCode MuonAlignmentCondAlg::initialize(){
     return StatusCode::FAILURE;
   }
   
-  //=================
-  // Initialize geometry and Id Helpers. Initialization of the pointer to the MuonDetectorManager from the detector store.
-  // !!!!!!!!!!! It was called in the loadParameters before. !!!!!!!!!!
-  //=================
-
-  if (InitializeGeometryAndIdHelpers().isFailure()) {
-    ATH_MSG_FATAL("Error in InitializeGeometryAndIdHelpers");
-    return StatusCode::FAILURE;
-  }
- 
-
- return StatusCode::SUCCESS;
+  ATH_CHECK(detStore()->retrieve(m_muonDetMgrDS));
+  m_geometryVersion = m_muonDetMgrDS->geometryVersion();
+  ATH_MSG_INFO("geometry version from the MuonDetectorManager = " << m_geometryVersion);
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MuonAlignmentCondAlg::execute(){
-  
-  StatusCode sc = StatusCode::SUCCESS;
-
   ATH_MSG_DEBUG( "execute " << name() ); 
-
-  sc = loadParameters();
-
-  return sc;
-}
-
-
-StatusCode MuonAlignmentCondAlg::finalize(){
-  
-  ATH_MSG_DEBUG( "finalize " << name() );
+  ATH_CHECK(loadParameters());
   return StatusCode::SUCCESS;
 }
-
-StatusCode MuonAlignmentCondAlg::InitializeGeometryAndIdHelpers(){
-
-  //=================
-  // Initialize pointer to the MuonDetectorManager from the detector store
-  //=================
-  
-  if (StatusCode::SUCCESS != detStore()->retrieve(m_muonDetMgrDS)) {
-    ATH_MSG_FATAL("Couldn't load MuonDetectorManager");
-    return StatusCode::FAILURE;
-  }
-
-  //=================
-  // Initialize geometry
-  //=================
-
-  m_geometryVersion = m_muonDetMgrDS->geometryVersion();
-  ATH_MSG_INFO("geometry version from the MuonDetectorManager = " << m_geometryVersion);
-  
-  //=================
-  // Initialize Helpers
-  //=================
-  
-  ATH_CHECK(m_idHelperSvc.retrieve());
-
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode MuonAlignmentCondAlg::loadParameters() {
 
@@ -229,17 +177,14 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
     }
   }
 
-  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
-  // =======================
-  // FIRST Update the MuonDetectorManager and THEN record the ALine.
-  // =======================
-
-  // FIXME: const_cast
-  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAlignment(*writeALineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
-  else ATH_MSG_DEBUG("updateAlignment DONE" );
-  // if (m_muonDetMgrDS->updateAlignment(writeALineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
-  // else ATH_MSG_DEBUG("updateAlignment DONE" );
-  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
+  // currently, the RPC/TGCRecRoiSvc are services and thus do not participate the scheduling of Read/Write(Cond)Handle(Key)
+  // thus, RPC/TGCRecRoiSvc are not able to use the MuonDetectorCondAlg. To have aligned Roi, here the nominal MuonDetectorManager 
+  // (in the detector store) is updated which is *not* thread-safe. These lines have to be removed as soon as the trigger
+  // group has decided on how to migrate the RPC/TGCRecRoiSvc to MT. Now, only running for serial trigger jobs.
+  if (m_doRecRoiSvcUpdate && Gaudi::Concurrency::ConcurrencyFlags::numThreads()==1) {
+    if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAlignment(*writeALineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
+    else ATH_MSG_DEBUG("updateAlignment DONE" );
+  }
 
   if (writeALineHandle.record(rangeALineW, std::move(writeALineCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record ALineMapContainer " << writeALineHandle.key() 
@@ -248,18 +193,6 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
     return StatusCode::FAILURE;
   }		  
   ATH_MSG_INFO("recorded new " << writeALineHandle.key() << " with range " << rangeALineW << " into Conditions Store");
-
-  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
-  // =======================
-  // FIRST Update the MuonDetectorManager and THEN record the BLine.
-  // =======================
-
-  // FIXME: const_cast
-  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateDeformations(*writeBLineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
-  else ATH_MSG_DEBUG("updateDeformations DONE" );
-  // if (m_muonDetMgrDS->updateDeformations(writeBLineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
-  // else ATH_MSG_DEBUG("updateDeformations DONE" );
-  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
 
   if (writeBLineHandle.record(rangeBLineW, std::move(writeBLineCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record BLineMapContainer " << writeBLineHandle.key() 
@@ -884,18 +817,6 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
    // dump I-lines to log file TBA
   if (m_dumpILines && (int)writeCdo->size()>0) dumpILines(folderName, writeCdo.get());
 
-  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
-  // =======================
-  // FIRST update MuonDetectorManager and THEN record the output cond object.
-  // =======================
-
-  // FIXME: const_cast
-  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateCSCInternalAlignmentMap(*writeCdo).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
-  else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
-  // if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
-  // else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
-  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
-
   if (writeHandle.record(rangeCscILinesW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record CscInternalAlignmentMapContainer " << writeHandle.key() 
 		  << " with EventRange " << rangeCscILinesW
@@ -1018,18 +939,6 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
 
   // !!!!!!!!!!!!!! In the MuonAlignmentDbTool this was in loadAlignABLines. I moved it here
   if ( m_asBuiltFile!="" ) setAsBuiltFromAscii(writeCdo.get());
-
-  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
-  // =======================
-  // FIRST update MuonDetectorManager and THEN record the output cond object.
-  // =======================
-
-  // FIXME: const_cast
-  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAsBuiltParams(*writeCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
-  else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
-  // if (m_muonDetMgrDS->updateAsBuiltParams(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
-  // else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
-  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
 
   if (writeHandle.record(rangeMdtAsBuiltW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record MdtAsBuiltMapContainer " << writeHandle.key() 

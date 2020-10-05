@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -7,27 +7,21 @@
 // package:     Reconstruction/tauRec
 // authors:     Benedict Winter, Will Davey
 // date:        2012-10-09
-//
 //-----------------------------------------------------------------------------
-
-#include <vector>
 
 #include "tauRecTools/TauPi0ScoreCalculator.h"
 #include "tauRecTools/HelperFunctions.h"
 #include "xAODPFlow/PFO.h"
 
-using std::vector;
-using std::string;
-
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
 
-TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
+TauPi0ScoreCalculator::TauPi0ScoreCalculator(const std::string& name) :
   TauRecToolBase(name),
   m_mvaBDT(nullptr)
 {
-    declareProperty("BDTWeightFile",           m_weightfile);
+    declareProperty("BDTWeightFile", m_weightfile);
 }
 
 //-------------------------------------------------------------------------
@@ -37,7 +31,6 @@ TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
 TauPi0ScoreCalculator::~TauPi0ScoreCalculator() 
 {
 }
-
 
 StatusCode TauPi0ScoreCalculator::initialize() 
 {
@@ -49,13 +42,7 @@ StatusCode TauPi0ScoreCalculator::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0ScoreCalculator::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) 
+StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -79,8 +66,7 @@ StatusCode TauPi0ScoreCalculator::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOCo
     return StatusCode::SUCCESS;
 }
 
-
-float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
+float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO) const
 {
     std::map<TString, float> availableVariables; // map of the variable name to its value
     

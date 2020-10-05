@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -62,7 +62,7 @@ class AccessType:
 
 
     def matches(self,filename):
-        return re.search( self.matchPat, filename ) != None
+        return re.search( self.matchPat, filename ) is not None
 
 
     def cleanUp(self,filename):
@@ -104,7 +104,7 @@ class Tee:
 
     def flush(self):
         self.screen.flush()
-        file.flush(self)
+        self.f.flush()
 
     
 
@@ -155,8 +155,8 @@ def remove(filename):
     if at == IO_LOCAL:
         if exists(filename): retry_file_access( os.remove, filename )
     else:
-        print ("WARNING: file %s file %s can not be removed" % \
-              (at.name, filename))
+        print ("WARNING: file %s file %s can not be removed" %
+               (at.name, filename))
     
 
 def exists_suffix(filename,suffixRE):

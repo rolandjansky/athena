@@ -4,7 +4,6 @@
 
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloClusterMomentsMaker.cxx,v 1.23 2009-04-22 19:50:46 ssnyder Exp $
 //
 // Description: see CaloClusterMomentsMaker.h
 // 
@@ -28,16 +27,16 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
 //#include "CxxUtils/unordered_set.h"
-#include "CxxUtils/prefetch.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Vector3D.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CxxUtils/prefetch.h"
 #include <Eigen/Dense>
-#include <iterator>
-#include <sstream>
+#include <cmath>
 #include <cstdint>
+#include <iterator>
 #include <limits>
-#include <math.h>
+#include <sstream>
 
 
 using HepGeom::Vector3D;
@@ -120,7 +119,7 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
 						 const std::string& name,
 						 const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_calo_id(0),
+    m_calo_id(nullptr),
     m_maxAxisAngle(20*deg), 
     m_minRLateral(4*cm), 
     m_minLLongitudinal(10*cm),
@@ -160,12 +159,8 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
   declareProperty("TwoGaussianNoise",m_twoGaussianNoise);
   declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
 
-  /// Not used anymore (with xAOD), but required to when configured from 
-  /// COOL via CaloRunClusterCorrections.
+  /// Not used anymore (with xAOD), but required when configured from  COOL.
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
-  /// Not used by this tool, but required to use this
-  /// with CaloRunClusterCorrections.
-  declareProperty("order", m_order = 0);
   // Use weighting of neg. clusters option?
   declareProperty("WeightingOfNegClusters", m_absOpt);
 
@@ -287,7 +282,7 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 
   // Maps cell IdentifierHash to cluster index in cluster collection.
   // Only used when cluster isolation moment is calculated.
-  typedef std::uint16_t clusterIdx_t;
+  using clusterIdx_t = std::uint16_t;
   typedef std::pair<clusterIdx_t, clusterIdx_t> clusterPair_t;
   std::vector<clusterPair_t> clusterIdx;
   const clusterIdx_t noCluster = std::numeric_limits<clusterIdx_t>::max();
@@ -379,7 +374,7 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
     for(i=0;i<(unsigned int)CaloCell_ID::Unknown;i++) 
       maxSampE[i] = 0;
     
-    if ( m_momentsNames.size() > 0 ) {
+    if ( !m_momentsNames.empty() ) {
       std::fill (myMoments.begin(), myMoments.end(), 0);
       std::fill (myNorms.begin(),   myNorms.end(),   0);
       if ( m_calculateIsolation ) {
@@ -590,7 +585,9 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	    const Eigen::Vector3d& S=eigensolver.eigenvalues(); 
 	    const Eigen::Matrix3d& U=eigensolver.eigenvectors();
 
-	    if ( !( S[0] == 0.0 || S[1] == 0.0 || S[2] == 0.0 ) ) { 
+            const double epsilon = 1.E-6;
+
+	    if ( !( std::abs(S[0]) < epsilon || std::abs(S[1]) < epsilon || std::abs(S[2]) < epsilon ) ) { 
 	    
 	      Vector3D<double> prAxis(showerAxis);
 	      int iEigen = -1;

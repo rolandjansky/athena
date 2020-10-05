@@ -5,16 +5,18 @@
 #ifndef TestMuonIdHelpers_H
 #define TestMuonIdHelpers_H
 
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonDigitContainer/MdtDigitContainer.h"
+#include "MuonDigitContainer/RpcDigitContainer.h"
+#include "MuonDigitContainer/CscDigitContainer.h"
+#include "MuonDigitContainer/TgcDigitContainer.h"
 
-class StoreGateSvc;
-class ActiveStoreSvc;
-
-/////////////////////////////////////////////////////////////////////////////
+#include <string>
+#include <vector>
 
 class TestMuonIdHelpers : public AthAlgorithm {
 
@@ -44,8 +46,12 @@ private:
   BooleanProperty m_testRPC;
   BooleanProperty m_testTGC;
 
-  ServiceHandle<ActiveStoreSvc> m_activeStore;
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  SG::ReadHandleKey<MdtDigitContainer> m_mdtDigitContKey{this,"MdtDigits","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
+  SG::ReadHandleKey<RpcDigitContainer> m_rpcDigitContKey{this,"RpcDigits","RPC_DIGITS","ReadHandleKey for Input RpcDigitContainer"};
+  SG::ReadHandleKey<CscDigitContainer> m_cscDigitContKey{this,"CscDigits","CSC_DIGITS","ReadHandleKey for Input CscDigitContainer"};
+  SG::ReadHandleKey<TgcDigitContainer> m_tgcDigitContKey{this,"TgcDigits","TGC_DIGITS","ReadHandleKey for Input TgcDigitContainer"};
 
   mutable std::atomic<long long> m_deltaUser{0};
   mutable std::atomic<long long> m_deltaKernel{0};

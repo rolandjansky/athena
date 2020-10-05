@@ -12,33 +12,44 @@ using namespace std;
 std::unique_ptr<TrigConf::L1ThrExtraInfoBase>
 TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const boost::property_tree::ptree & data) {
    std::unique_ptr<TrigConf::L1ThrExtraInfoBase> extraInfo(nullptr);
-   if( thrTypeName == "EM"  ) {
-      extraInfo = std::make_unique<L1ThrExtraInfo_EMTAULegacy>(thrTypeName, data);
-   } else if( thrTypeName == "JET" ) {
-      extraInfo = std::make_unique<L1ThrExtraInfo_JETLegacy>(thrTypeName, data);
-   } else if( thrTypeName == "MU" ) {
-      extraInfo = std::make_unique<L1ThrExtraInfo_MU>(thrTypeName, data);
-   } else if( thrTypeName == "TAU" ) {
-      extraInfo = std::make_unique<L1ThrExtraInfo_EMTAULegacy>(thrTypeName, data);      
-   } else if( thrTypeName == "eEM" or thrTypeName == "eTAU" ) {
-      extraInfo = std::make_unique<L1ThrExtraInfo_eEMTAU>(thrTypeName, data);
-   } else if( thrTypeName == "jJ" ) {
-      extraInfo = std::make_unique<L1ThrExtraInfo_jJ>(thrTypeName, data);      
-   } else {
-      L1ThrExtraInfoBase x(thrTypeName, data);
-      if( x.hasExtraInfo() ) {
-         extraInfo = std::make_unique<L1ThrExtraInfoBase>(std::move(x));
-      }
-   }
-   return extraInfo;
+
+   if( thrTypeName == "EM" )
+      return std::make_unique<L1ThrExtraInfo_EMTAULegacy>(thrTypeName, data);
+
+   if( thrTypeName == "TAU" )
+      return std::make_unique<L1ThrExtraInfo_EMTAULegacy>(thrTypeName, data);      
+
+   if( thrTypeName == "JET" )
+      return std::make_unique<L1ThrExtraInfo_JETLegacy>(thrTypeName, data);
+
+   if( thrTypeName == "XS" )
+      return std::make_unique<L1ThrExtraInfo_XSLegacy>(thrTypeName, data);      
+
+   if( thrTypeName == "MU" )
+      return std::make_unique<L1ThrExtraInfo_MU>(thrTypeName, data);
+
+   if( thrTypeName == "eEM" or thrTypeName == "eTAU" )
+      return std::make_unique<L1ThrExtraInfo_eEMTAU>(thrTypeName, data);
+
+   if( thrTypeName == "jJ" )
+      return std::make_unique<L1ThrExtraInfo_jJ>(thrTypeName, data);      
+
+   // if no special extra information is supplied for the threshold type return base class
+   return std::make_unique<L1ThrExtraInfoBase>(thrTypeName, data);
 }
 
 std::weak_ptr<TrigConf::L1ThrExtraInfoBase>
 TrigConf::L1ThrExtraInfo::addExtraInfo(const std::string & thrTypeName, const boost::property_tree::ptree & data) {
-   if( auto extraInfo = L1ThrExtraInfo::createExtraInfo( thrTypeName, data) ) {
-      auto success = m_thrExtraInfo.emplace(thrTypeName, std::shared_ptr<TrigConf::L1ThrExtraInfoBase>(std::move(extraInfo)));
-      return std::weak_ptr<TrigConf::L1ThrExtraInfoBase>( success.first->second );
-   };
+   try {
+      if( auto extraInfo = L1ThrExtraInfo::createExtraInfo( thrTypeName, data) ) {
+         auto success = m_thrExtraInfo.emplace(thrTypeName, std::shared_ptr<TrigConf::L1ThrExtraInfoBase>(std::move(extraInfo)));
+         return std::weak_ptr<TrigConf::L1ThrExtraInfoBase>( success.first->second );
+      }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "L1ThrExtraInfo::addExtraInfo: exception occured when building extra info for " << thrTypeName << std::endl;
+      throw;
+   }
    return std::weak_ptr<TrigConf::L1ThrExtraInfoBase>( m_emptyInfo );
 }
 
@@ -56,6 +67,11 @@ TrigConf::L1ThrExtraInfo::EM() const {
 const TrigConf::L1ThrExtraInfo_EMTAULegacy &
 TrigConf::L1ThrExtraInfo::TAU() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_EMTAULegacy&>( * m_thrExtraInfo.at("TAU") );
+}
+
+const TrigConf::L1ThrExtraInfo_XSLegacy &
+TrigConf::L1ThrExtraInfo::XS() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_XSLegacy&>( * m_thrExtraInfo.at("XS") );
 }
 
 const TrigConf::L1ThrExtraInfo_JETLegacy &
@@ -105,87 +121,9 @@ TrigConf::L1ThrExtraInfo::thrExtraInfo(const std::string & thrTypeName) const
    }
 }
 
-
-
-
-
-TrigConf::L1ThrExtraInfoBase::L1ThrExtraInfoBase(const std::string & thrTypeName, const boost::property_tree::ptree & data) 
-   : DataStructure(data)
-{
-   m_name = thrTypeName;
-    update();
-}
-
-TrigConf::L1ThrExtraInfoBase::~L1ThrExtraInfoBase()
-{}
-
-std::string
-TrigConf::L1ThrExtraInfoBase::className() const {
-   return "L1ThrExtraInfoBase";
-}
-
-void
-TrigConf::L1ThrExtraInfoBase::update()
-{
-   if(! isInitialized() || empty() ) {
-      return;
-   }
-   if( m_name == "internal" ) { // internal trigger have no extra info
-      return;
-   }
-   for( auto & content : data() ) {
-      if( content.first == "type" ||
-          content.first == "thresholds" ) {
-         continue;
-      }
-      // if there is anything else in the tree we consider it extra info fro this threshold type
-      m_extraInfo.emplace( std::piecewise_construct,
-                           std::forward_as_tuple(content.first),
-                           std::forward_as_tuple(content.second));
-   }
-}
-
-const std::string &
-TrigConf::L1ThrExtraInfoBase::thresholdTypeName() const
-{
-   return m_name;
-}
-
-bool
-TrigConf::L1ThrExtraInfoBase::hasExtraInfo() const
-{
-   return m_extraInfo.size()>0;
-}
-
-
-
 /**
  * EM legacy extra info
  */
-TrigConf::L1ThrExtraInfo_EMTAULegacy::L1ThrExtraInfo_EMTAULegacy(const std::string & thrTypeName, const ptree & data) :
-   L1ThrExtraInfoBase(thrTypeName, data)
-{
-   update();
-}
-
-TrigConf::L1ThrExtraInfo_EMTAULegacy::~L1ThrExtraInfo_EMTAULegacy()
-{}
-
-std::string
-TrigConf::L1ThrExtraInfo_EMTAULegacy::className() const {
-   return "L1ThrExtraInfo_EMTAULegacy";
-}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_EMTAULegacy::emScale() const {
-   return m_emScale;
-}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_EMTAULegacy::ptMinToTopo() const {
-   return m_ptMinToTopo;
-}
-
 const TrigConf::IsolationLegacy &
 TrigConf::L1ThrExtraInfo_EMTAULegacy::isolation(const std::string & thrType, size_t bit) const
 {
@@ -199,13 +137,11 @@ TrigConf::L1ThrExtraInfo_EMTAULegacy::isolation(const std::string & thrType, siz
 }
 
 void
-TrigConf::L1ThrExtraInfo_EMTAULegacy::update()
+TrigConf::L1ThrExtraInfo_EMTAULegacy::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "emscale" ) {
-         m_emScale = x.second.getValue<unsigned int>();
-      } else if( x.first == "ptMinToTopo" ) {
-         m_ptMinToTopo = x.second.getValue<unsigned int>();
+      if( x.first == "ptMinToTopo" ) {
+         m_ptMinToTopoMeV = std::lround( 1000 * x.second.getValue<float>() );
       } else if( x.first == "isolation" ) {
          for( auto & y : x.second.data() ) {
             auto & isoV = m_isolation[y.first] = std::vector<IsolationLegacy>();
@@ -220,44 +156,33 @@ TrigConf::L1ThrExtraInfo_EMTAULegacy::update()
 }
 
 
+void
+TrigConf::L1ThrExtraInfo_XSLegacy::load()
+{
+   if( hasExtraInfo("significance") ) {
+      auto & sig = m_extraInfo["significance"];
+      m_xeMin = sig.getAttribute<unsigned int>("xeMin");
+      m_xeMax = sig.getAttribute<unsigned int>("xeMax");
+      m_teSqrtMin = sig.getAttribute<unsigned int>("teSqrtMin");
+      m_teSqrtMax = sig.getAttribute<unsigned int>("teSqrtMax");
+      m_xsSigmaScale = sig.getAttribute<unsigned int>("xsSigmaScale");
+      m_xsSigmaOffset = sig.getAttribute<unsigned int>("xsSigmaOffset");
+   }
+}
+
+
 
 /**
  * JET legacy extra info
  */
-TrigConf::L1ThrExtraInfo_JETLegacy::L1ThrExtraInfo_JETLegacy(const std::string & thrTypeName, const ptree & data) :
-   L1ThrExtraInfoBase(thrTypeName, data)
-{
-   update();
-}
-
-TrigConf::L1ThrExtraInfo_JETLegacy::~L1ThrExtraInfo_JETLegacy()
-{}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_JETLegacy::jetScale() const {
-   return m_jetScale;
-}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_JETLegacy::ptMinToTopoLargeWindow() const {
-   return m_ptMinToTopoLargeWindow;
-}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_JETLegacy::ptMinToTopoSmallWindow() const {
-   return m_ptMinToTopoSmallWindow;
-}
-
 void
-TrigConf::L1ThrExtraInfo_JETLegacy::update()
+TrigConf::L1ThrExtraInfo_JETLegacy::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "jetscale" ) {
-         m_jetScale = x.second.getValue<unsigned int>();
-      } else if( x.first == "ptMinToTopoLargeWindow" ) {
-         m_ptMinToTopoLargeWindow = x.second.getValue<unsigned int>();
+      if( x.first == "ptMinToTopoLargeWindow" ) {
+         m_ptMinToTopoLargeWindowMeV = std::lround( 1000 * x.second.getValue<float>() );
       } else if( x.first == "ptMinToTopoSmallWindow" ) {
-         m_ptMinToTopoSmallWindow = x.second.getValue<unsigned int>();
+         m_ptMinToTopoSmallWindowMeV = std::lround( 1000 * x.second.getValue<float>() );
       }
    }
 }
@@ -272,20 +197,6 @@ TrigConf::L1ThrExtraInfo_JETLegacy::update()
 /*******
  * eEM
  *******/
-TrigConf::L1ThrExtraInfo_eEMTAU::L1ThrExtraInfo_eEMTAU(const std::string & thrTypeName, const ptree & data) :
-   L1ThrExtraInfoBase(thrTypeName, data)
-{
-   update();
-}
-
-TrigConf::L1ThrExtraInfo_eEMTAU::~L1ThrExtraInfo_eEMTAU()
-{}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_eEMTAU::ptMinToTopo() const {
-   return m_ptMinToTopo;
-}
-
 const TrigConf::Isolation &
 TrigConf::L1ThrExtraInfo_eEMTAU::isolation(TrigConf::Isolation::WP wp, int eta) const
 {
@@ -300,19 +211,19 @@ TrigConf::L1ThrExtraInfo_eEMTAU::isolation(TrigConf::Isolation::WP wp) const
 
 
 void
-TrigConf::L1ThrExtraInfo_eEMTAU::update()
+TrigConf::L1ThrExtraInfo_eEMTAU::load()
 {
    for( auto & x : m_extraInfo ) {
       if( x.first == "ptMinToTopo" ) {
-         m_ptMinToTopo = x.second.getValue<unsigned int>();
+         m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
             auto wp = (y.first == "Loose") ? Isolation::WP::LOOSE : ( (y.first == "Medium") ? Isolation::WP::MEDIUM : Isolation::WP::TIGHT );
             auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
-               auto etamin = c.second.get_child("etamin").get_value<unsigned int>();
-               auto etamax = c.second.get_child("etamax").get_value<unsigned int>();
-               auto priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
+               int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
+               int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
+               unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
                iso.addRangeValue(Isolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
             }
          }
@@ -324,51 +235,19 @@ TrigConf::L1ThrExtraInfo_eEMTAU::update()
 /*******
  * jJ
  *******/
-TrigConf::L1ThrExtraInfo_jJ::L1ThrExtraInfo_jJ(const std::string & thrTypeName, const ptree & data) :
-   L1ThrExtraInfoBase(thrTypeName, data)
-{
-   update();
-}
-
-TrigConf::L1ThrExtraInfo_jJ::~L1ThrExtraInfo_jJ()
-{}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_jJ::ptMinToTopoSmall(int eta) const {
-   for(auto & ptmin : m_ptMinToTopoSmall) {
-      if( (ptmin.first.first<=eta) && (eta<=ptmin.first.second) ) {
-         return ptmin.second;
-      }
-   }
-   throw std::runtime_error("No ptMinToTopoSmall for jJ at eta=" + std::to_string(eta));
-}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_jJ::ptMinToTopoLarge(int eta) const {
-   for(auto & ptmin : m_ptMinToTopoLarge) {
-      if( (ptmin.first.first<=eta) && (eta<=ptmin.first.second) ) {
-         return ptmin.second;
-      }
-   }
-   throw std::runtime_error("No ptMinToTopoLarge for jJ at eta=" + std::to_string(eta));
-}
-
 void
-TrigConf::L1ThrExtraInfo_jJ::update()
+TrigConf::L1ThrExtraInfo_jJ::load()
 {
    for( auto & x : m_extraInfo ) {
       if( x.first == "ptMinToTopo" ) {
          for( auto & k : x.second.data() ) {
-            unsigned int etamin = k.second.get_child("etamin").get_value<unsigned int>();
-            unsigned int etamax = k.second.get_child("etamax").get_value<unsigned int>();
-            unsigned int small = k.second.get_child("small").get_value<unsigned int>();
-            unsigned int large = k.second.get_child("large").get_value<unsigned int>();
-            m_ptMinToTopoSmall.emplace( std::piecewise_construct,
-                                        std::forward_as_tuple(etamin,etamax),
-                                        std::forward_as_tuple(small));
-            m_ptMinToTopoLarge.emplace( std::piecewise_construct,
-                                        std::forward_as_tuple(etamin,etamax),
-                                        std::forward_as_tuple(large));
+            auto etamin = k.second.get_child("etamin").get_value<unsigned int>();
+            auto etamax = k.second.get_child("etamax").get_value<unsigned int>();
+            auto small = k.second.get_child("small").get_value<float>();
+            auto large = k.second.get_child("large").get_value<float>();
+            auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);            
+            m_ptMinToTopoSmallMeV.addRangeValue( lround(1000*small), etamin, etamax, priority, /*symmetric=*/ false);
+            m_ptMinToTopoLargeMeV.addRangeValue( lround(1000*large), etamin, etamax, priority, /*symmetric=*/ false);
          }
       }
    }
@@ -378,22 +257,8 @@ TrigConf::L1ThrExtraInfo_jJ::update()
 /*******
  * jTAU
  *******/
-TrigConf::L1ThrExtraInfo_jTAU::L1ThrExtraInfo_jTAU(const std::string & thrTypeName, const ptree & data) :
-   L1ThrExtraInfoBase(thrTypeName, data)
-{
-   update();
-}
-
-TrigConf::L1ThrExtraInfo_jTAU::~L1ThrExtraInfo_jTAU()
-{}
-
-unsigned int
-TrigConf::L1ThrExtraInfo_jTAU::ptMinToTopo() const {
-   return m_ptMinToTopo;
-}
-
 void
-TrigConf::L1ThrExtraInfo_jTAU::update()
+TrigConf::L1ThrExtraInfo_jTAU::load()
 {
    for( auto & x : m_extraInfo ) {
       if( x.first == "ptMinToTopo" ) {
@@ -405,32 +270,14 @@ TrigConf::L1ThrExtraInfo_jTAU::update()
 /*******
  * gXE
  *******/
-TrigConf::L1ThrExtraInfo_gXE::L1ThrExtraInfo_gXE(const std::string & thrTypeName, const ptree & data) :
-   L1ThrExtraInfoBase(thrTypeName, data)
-{
-   update();
-}
-
-TrigConf::L1ThrExtraInfo_gXE::~L1ThrExtraInfo_gXE()
-{}
-
 void
-TrigConf::L1ThrExtraInfo_gXE::update()
+TrigConf::L1ThrExtraInfo_gXE::load()
 {
 }
 
 /*******
  * MU
  *******/
-TrigConf::L1ThrExtraInfo_MU::L1ThrExtraInfo_MU(const std::string & thrTypeName, const ptree & data) :
-   L1ThrExtraInfoBase(thrTypeName, data)
-{
-   update();
-}
-
-TrigConf::L1ThrExtraInfo_MU::~L1ThrExtraInfo_MU()
-{}
-
 unsigned int
 TrigConf::L1ThrExtraInfo_MU::rpcIdxForPt(unsigned int pt) const
 {
@@ -501,7 +348,7 @@ TrigConf::L1ThrExtraInfo_MU::exlusionList(const std::string & listName) const
 }
 
 void
-TrigConf::L1ThrExtraInfo_MU::update()
+TrigConf::L1ThrExtraInfo_MU::load()
 {
    for( auto & x : m_extraInfo["roads"].getObject("rpc").data() ) {
       m_rpcPtMap.emplace( boost::lexical_cast<unsigned int, std::string>(x.first),

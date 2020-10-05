@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/XMLHandler.h"
 #include "AGDDControl/XMLHandlerStore.h"
 
+#include <memory>
 #include <vector>
 
 using namespace xercesc;
@@ -44,7 +45,9 @@ std::string XMLHandler::getAttribute(const std::string name, bool& isPresent) co
 	isPresent=false;
 	if (s_currentElement->hasAttributes()) {
 		DOMNamedNodeMap *pAttributes = s_currentElement->getAttributes();
-		DOMAttr *pAttributeNode = (DOMAttr*) pAttributes->getNamedItem(XMLString::transcode(name.c_str()));
+		auto deleter = [&](XMLCh buf[]) { XMLString::release(&buf); };
+		std::unique_ptr<XMLCh[], decltype(deleter)> ptr(XMLString::transcode(name.c_str()), deleter);
+		DOMAttr *pAttributeNode = (DOMAttr*) pAttributes->getNamedItem(ptr.get());
 		if (pAttributeNode) {
 
   		  char* val=XMLString::transcode(pAttributeNode->getValue());

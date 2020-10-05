@@ -42,13 +42,12 @@ public:
   ~TauTrackClassifier();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(xAOD::TauJet& pTau) override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer ) const override;
 
 private:
   ToolHandleArray<TrackMVABDT> m_vClassifier;
   std::vector<std::string> m_vClassifierNames;//optional
-
+  
 }; // class TauTrackClassifier
   
 //______________________________________________________________________________
@@ -69,13 +68,12 @@ class TrackMVABDT
   // for possible MVA inputs. Only Variables defined in the root weights file
   // are passed to the MVA object
   StatusCode initialize() override;
-  StatusCode finalize() override;
   
   // executes MVA object to get the BDT score, makes the decision and resets
   // classification flags
-  StatusCode classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau);
-  // set BDT input variables in the corresponding map entries
-  StatusCode setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau);
+  StatusCode classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau) const;
+  // calculate all input variables
+  StatusCode calculateVariables(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, std::vector<float>& values) const;
 
   // load the root weights file and configure the MVA object with the correct
   // variable addresses
@@ -90,11 +88,8 @@ private:
   int m_iExpectedFlag;
   
   std::unique_ptr<MVAUtils::BDT> m_rReader; //!
-  
-  //  std::map<int, std::string> m_mParsedVarsBDT; //!
-  std::map<TString, float*> m_mAvailableVars; //!
-  inline float& setVar(const TString& var) { return *(m_mAvailableVars[var]); } //!< not-stateless, many such examples need to be fixed for r22
-  std::vector<float*> m_vars; //!< points to floats in m_mAvailableVars that are used in BDT
+
+  std::vector<TString> m_inputVariableNames; //!
 
 }; // class TrackMVABDT
 

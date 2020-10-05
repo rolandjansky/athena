@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTAURECMERGEDMT_H
@@ -13,25 +13,18 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-#include <vector>
 #include "tauRecTools/ITauToolBase.h"
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-namespace HLT {
-  class TriggerElement;
-}
-
-class ILumiBlockMuTool;
-
-class TrigTauRecMergedMT: public AthAlgorithm {
+class TrigTauRecMergedMT: public AthReentrantAlgorithm {
 
  public:
 
@@ -40,15 +33,15 @@ class TrigTauRecMergedMT: public AthAlgorithm {
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+
+ private:
 
   template<class T, class U, class V> StatusCode deepCopy(T*& containerOut, U*& containerStoreOut, const V* dummyContainerType,
                                  const T*& oldContainer);
-
- private:
- 
-  void setEmptyTauTrack( xAOD::TauJet* tauJet,
-			 xAOD::TauTrackContainer* tauTrackContainer );
+  template<class W, class V, class T> StatusCode deepCopy(W& writeHandle,
+                                                          const V* dummyContainerType,
+                                                          const T*& oldContainer) const;
 
   enum TAUEFCALOMON{
     NoROIDescr=0,
@@ -68,24 +61,11 @@ class TrigTauRecMergedMT: public AthAlgorithm {
     NoVtxCont=1
   };
 
-
   /** internal tool store */
-  ToolHandleArray<ITauToolBase>  m_tools;
-
-  /** internal tool store */
-  ToolHandleArray<ITauToolBase>  m_endtools;
-
-  /** Luminosity Tool */
-  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
-
-  /** Beam spot Object */
-  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-
-  /** vector of Timers */
-  std::vector<TrigTimer* > m_mytimers;
+  const ToolHandleArray<ITauToolBase> m_tools{this, "Tools", {}, "List of ITauToolBase tools"};
 
   // Monitoring tool
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  const ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
   //Gaudi::Property< std::string > m_outputName {this,"OutputCollection","TrigTauRecMerged","Name of output collection"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey { this,"RoIInputKey","InputRoI","Input RoI name"};
@@ -95,8 +75,8 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
   SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "Key_trigTauJetInputContainer", "HLT_taujet", "input taujet container" };
   SG::ReadHandleKey< xAOD::TauTrackContainer> m_trigTauTrackInKey      { this, "Key_trigTauTrackInputContainer", "HLT_tautrack_input", "input tautrack container" };
-  
-  SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"TrigTauJetOutputKey","HLT_seed_tau_jet","Key for output jets which are seed for tau jets"};
+
+  SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"Key_trigJetSeedOutputKey","HLT_jet_seed","Key for output jets which are seed for tau jets"};
   SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};
   SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"Key_trigTauTrackOutputContainer","HLT_tautrack","Output tautrack container"};
 
@@ -108,22 +88,19 @@ class TrigTauRecMergedMT: public AthAlgorithm {
 };
 
   // Function to perform deep copy on container
-  template<class T, class U, class V> StatusCode TrigTauRecMergedMT::deepCopy(T*& container, U*& containerStore, const V* /*dummyContainerElementType*/,
-                                       const T*& oldContainer){
-   // The new container should be null, check here
-   if(container==0 && containerStore==0){
-     container = new T();
-     containerStore = new U();
-     container->setStore(containerStore);
-   }else{
-     ATH_MSG_FATAL("Proviced non-null containters, not initializing please provide null containers: ");
-     return StatusCode::FAILURE;
+  template<class W, class V, class T>
+    StatusCode TrigTauRecMergedMT::deepCopy(W& writeHandle,
+                                          const V* ,
+                                          const T*& oldContainer) const {
+   if(!writeHandle.isValid()){
+      ATH_MSG_FATAL("Provided with an invalid write handle ");
+      return StatusCode::FAILURE;
    }
    if(oldContainer != nullptr){
      for( const V* v : *oldContainer ){
        V* newV = new V();
        // Put objects into new container
-       container->push_back(newV);
+       writeHandle->push_back(newV);
        // Copy across aux store
        *newV = *v;
      }

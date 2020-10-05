@@ -1,4 +1,4 @@
-# This file contains the relative length of 
+# This file contains the relative length of
 # fibers to each pmt within a drawer in ns
 #
 Tfib    0x100   0    0

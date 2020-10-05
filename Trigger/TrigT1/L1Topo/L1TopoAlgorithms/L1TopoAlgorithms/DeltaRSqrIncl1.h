@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //  DeltaRSqrIncl1.h
 //  TopoCore
@@ -10,6 +10,8 @@
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
+
+class TH2;
 
 namespace TCS {
    
@@ -39,7 +41,7 @@ namespace TCS {
       parType_t      p_MinET1 = { 0 };
       parType_t      p_MinET2 = { 0 };
       parType_t      p_OneBarrel = { 0 };
-
+     
    };
    
 }

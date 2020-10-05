@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 
@@ -20,7 +19,6 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -44,11 +42,11 @@ namespace NSWL1 {
         std::shared_ptr<PadOfflineData> t_pad;
         int             t_cache_index;
 
-        PadHits(Identifier id, std::shared_ptr<PadOfflineData> p, int c) { t_id = id; t_pad=p; t_cache_index=c; }
+        PadHits(Identifier id, std::shared_ptr<PadOfflineData> p, int c) { t_id = id; t_pad=std::move(p); t_cache_index=c; }
     };
 
 
-    bool order_padHits_with_increasing_time(PadHits i, PadHits j) { return i.t_pad->time() < j.t_pad->time(); }
+    bool order_padHits_with_increasing_time(const PadHits& i, const PadHits& j) { return i.t_pad->time() < j.t_pad->time(); }
     
     using PAD_MAP=std::map < Identifier,std::vector<PadHits> >;
     using PAD_MAP_IT=std::map < Identifier,std::vector<PadHits> >::iterator;
@@ -119,7 +117,7 @@ namespace NSWL1 {
 
         const IInterface* parent = this->parent();
         const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-        std::string algo_name = pnamed->name();
+        const std::string& algo_name = pnamed->name();
 
         if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
          TTree *tree=nullptr;

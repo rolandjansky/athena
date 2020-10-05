@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( TruthJiveXML )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          graphics/JiveXML
-                          PRIVATE
-                          Control/StoreGate
-                          Event/EventPrimitives
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          Simulation/G4Sim/TrackRecord )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )

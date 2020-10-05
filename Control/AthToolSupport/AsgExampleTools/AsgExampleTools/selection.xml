@@ -2,6 +2,7 @@
 <lcgdict>
 
    <!-- Unit test types: -->
+   <class name="asg::DataHandleTestTool" />
    <class name="asg::UnitTestTool3" />
    <class name="asg::UnitTestTool2" />
    <class name="asg::UnitTestTool1A" />

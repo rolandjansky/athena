@@ -2,32 +2,32 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      QuickCloseComponentsMultiStateMerger.h  -  description
-      -------------------------------------------------
-begin                : Wednesday 3rd September 2008
-author               : amorley
-email                : Anthony.Morley@cern.ch
-decription           : Class for merging components of a multi-state based on
-                       combination of those which are "close" together as
-                       defined by some metric ... but faster
-*********************************************************************************/
+/**
+ * @file   QuickCloseComponentsMultiStateMerger.h
+ * @date   Wednesday 3rd September 2008
+ * @author Anthony Morley, Christos Anastopoulos
+ *
+ * Functions for merging components of a multi-state based on
+ * combination of those which are "close" together as
+ * defined by some metric.
+ */
 
 #ifndef TrkQuickCloseComponentsMultiStateMerger_H
 #define TrkQuickCloseComponentsMultiStateMerger_H
 
-#include "GaudiKernel/ToolHandle.h"
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 
 namespace Trk {
 class IMultiComponentStateCombiner;
 class TrackStateOnSurface;
-namespace QuickCloseComponentsMultiStateMerger
-{
-  /** Method for merging components - ownership of objects is passed */
+
+namespace QuickCloseComponentsMultiStateMerger {
+
+/// Method for merging components - ownership of objects is passed
 MultiComponentState
 merge(Trk::MultiComponentState&&, const unsigned int maximumNumberOfComponents);
 
+/// Method for merging and assembling a state
 MultiComponentState
 mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                    Trk::MultiComponentState&,

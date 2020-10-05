@@ -1,108 +1,79 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////////
-// AlgTool used for trigger chamber MuonClusterOnTrack object creation
-//
-// (c) ATLAS muon software
-///////////////////////////////////////////////////////////////////////
-
 #include "TriggerChamberClusterOnTrackCreator.h"
+
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+
 #include <functional>
 
 namespace Muon
 {
 
-TriggerChamberClusterOnTrackCreator::TriggerChamberClusterOnTrackCreator (
-	const std::string&	type,
-	const std::string&	name, 
-	const IInterface*	parent)
-  :	AthAlgTool			(type, name, parent),
-	m_clusterCreator		("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-	m_chooseBroadestCluster		(true)
+TriggerChamberClusterOnTrackCreator::TriggerChamberClusterOnTrackCreator(const std::string&	type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent),
+	m_chooseBroadestCluster(true)
 {
     declareInterface<Muon::IMuonCompetingClustersOnTrackCreator>(this);
-    declareProperty("ClusterCreator",  		m_clusterCreator);
     declareProperty("ChooseBroadestCluster", 	m_chooseBroadestCluster);
-
 }
-
-TriggerChamberClusterOnTrackCreator::~TriggerChamberClusterOnTrackCreator()
-{}
 
 StatusCode
 TriggerChamberClusterOnTrackCreator::initialize()
 {
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
-    ATH_CHECK( m_clusterCreator.retrieve() );
-    return StatusCode::SUCCESS;
-}
-
-StatusCode
-TriggerChamberClusterOnTrackCreator::finalize()
-{
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_clusterCreator.retrieve());
     return StatusCode::SUCCESS;
 }
   
 const CompetingMuonClustersOnTrack*
-TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Trk::PrepRawData*>& prds,
-							const double) const
-{
+TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Trk::PrepRawData*>& prds, const double) const {
     ATH_MSG_VERBOSE("enter createBroadCluster: number of prds " << prds.size() );
 
     // make some PRD consistency checks
-    if (! prds.size())
-    {
-	ATH_MSG_WARNING("fails: empty PRD list ");
-	return 0;
+    if (!prds.size()) {
+        ATH_MSG_WARNING("fails: empty PRD list ");
+        return nullptr;
     }
-
+    if (!(*prds.begin())) {
+        ATH_MSG_WARNING("fails: first element of RPD list is nullptr");
+        return nullptr;
+    }
     const Trk::TrkDetElementBase* detectorElement = (**prds.begin()).detectorElement();
-    Identifier channelId	= (**prds.begin()).identify();
-	auto helper = std::reference_wrapper<const MuonIdHelper>(m_muonIdHelperTool->rpcIdHelper());
-    bool isRpc = helper.get().is_rpc(channelId);
-    if (! isRpc)
-    {
-	if (m_muonIdHelperTool->tgcIdHelper().is_tgc(channelId))
-	{
-		helper = std::reference_wrapper<const MuonIdHelper>(m_muonIdHelperTool->tgcIdHelper());
-	}
-	else
-	{
-	    ATH_MSG_WARNING("fails: PRD must be from rpc or tgc ");
-	    return 0;
-	}
+    Identifier channelId = (**prds.begin()).identify();
+    bool isRpc = m_idHelperSvc->isRpc(channelId);
+    if (!isRpc) {
+	    if (!m_idHelperSvc->isTgc(channelId)) {
+	        ATH_MSG_WARNING("fails: PRD must be from rpc or tgc ");
+	        return nullptr;
+	    }
     }
 
-    bool measuresPhi = isRpc && m_muonIdHelperTool->rpcIdHelper().measuresPhi(channelId);
-    if (! isRpc) measuresPhi = m_muonIdHelperTool->tgcIdHelper().isStrip(channelId);
-    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin();
-	 p != prds.end();
-	 ++p)
-    {
-	channelId = (**p).identify();
-	if ((isRpc      && m_muonIdHelperTool->rpcIdHelper().measuresPhi(channelId)	!= measuresPhi)
-	    || (! isRpc	&& m_muonIdHelperTool->tgcIdHelper().isStrip(channelId)		!= measuresPhi))
-	{
-	    ATH_MSG_WARNING("fails: PRDs must measure same coordinate ");
-	    return 0;
-	}
-	if ((**p).detectorElement() != detectorElement)
-	{
-		ATH_MSG_WARNING("fails: PRDs must be from same detectorElement ");
-		return 0;
-	}
+    bool measuresPhi = isRpc && m_idHelperSvc->rpcIdHelper().measuresPhi(channelId);
+    if (!isRpc) measuresPhi = m_idHelperSvc->tgcIdHelper().isStrip(channelId);
+    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin(); p != prds.end(); ++p) {
+        if (!(*p)) {
+            ATH_MSG_WARNING("fails: current PrepRawData is nullptr, continuing");
+            continue;
+        }
+        channelId = (**p).identify();
+        if ((isRpc && m_idHelperSvc->rpcIdHelper().measuresPhi(channelId) != measuresPhi) || (!isRpc && m_idHelperSvc->tgcIdHelper().isStrip(channelId) != measuresPhi)) {
+            ATH_MSG_WARNING("fails: PRDs must measure same coordinate ");
+            return nullptr;
+        }
+        if ((**p).detectorElement() != detectorElement) {
+            ATH_MSG_WARNING("fails: PRDs must be from same detectorElement ");
+            return nullptr;
+        }
     }
 
     // create a rot for each prd (which gets weight zero)
@@ -181,56 +152,63 @@ TriggerChamberClusterOnTrackCreator::applyClusterConsistency(
     }
 }
 
-std::vector<const Muon::MuonClusterOnTrack*>*
-TriggerChamberClusterOnTrackCreator::createPrdRots(
-    const std::list<const Trk::PrepRawData*>& prds) const
-{
+std::vector<const Muon::MuonClusterOnTrack*>* TriggerChamberClusterOnTrackCreator::createPrdRots(const std::list<const Trk::PrepRawData*>& prds) const {
     // create clusterRot for each PRD
-    std::vector<const Muon::MuonClusterOnTrack*>* rots =
-	new std::vector<const Muon::MuonClusterOnTrack*>;
-    for (std::list<const Trk::PrepRawData*>::const_iterator  p = prds.begin();
-	 p != prds.end();
-	 ++p)
-    {
-	Identifier id = (**p).identify();
-	const Trk::TrkDetElementBase* detectorElement	= (**p).detectorElement();
-	const Amg::Vector3D globalPosition	= detectorElement->center(id);
-	const Muon::MuonClusterOnTrack* cluster		=
-	    m_clusterCreator->createRIO_OnTrack(**p,globalPosition); 
-	rots->push_back(cluster);
+    std::vector<const Muon::MuonClusterOnTrack*>* rots = new std::vector<const Muon::MuonClusterOnTrack*>;
+    if (!prds.size()) {
+        ATH_MSG_WARNING("empty PRD list ");
+        return rots;
     }
-
+    if (!(*prds.begin())) {
+        ATH_MSG_WARNING("first element of RPD list is nullptr");
+        return rots;
+    }
+    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin(); p != prds.end(); ++p) {
+        if (!(*p)) {
+            ATH_MSG_WARNING("current PrepRawData is nullptr, continuing");
+            continue;
+        }
+        Identifier id = (**p).identify();
+        const Trk::TrkDetElementBase* detectorElement = (**p).detectorElement();
+        const Amg::Vector3D globalPosition = detectorElement->center(id);
+        const Muon::MuonClusterOnTrack* cluster = m_clusterCreator->createRIO_OnTrack(**p,globalPosition);
+        rots->push_back(cluster);
+    }
     return rots;
 }
 
 void
-TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
-    std::list<int>&					limitingChannels,
-    std::list<const Muon::MuonClusterOnTrack*>&		limitingRots,
-    const std::list<const Trk::PrepRawData*>&		prds,
-    const std::vector<const Muon::MuonClusterOnTrack*>& rots) const
-{
+TriggerChamberClusterOnTrackCreator::makeClustersBySurface(std::list<int>& limitingChannels, std::list<const Muon::MuonClusterOnTrack*>& limitingRots, const std::list<const Trk::PrepRawData*>& prds, const std::vector<const Muon::MuonClusterOnTrack*>& rots) const {
+    if (!prds.size()) {
+        ATH_MSG_WARNING("makeClustersBySurface- empty PRD list ");
+        return;
+    }
+    if (!(*prds.begin())) {
+        ATH_MSG_WARNING("makeClustersBySurface - first element of RPD list is nullptr");
+        return;
+    }
     std::vector<const Trk::PrepRawData*> usedPrd;
     std::vector<const Muon::MuonClusterOnTrack*>::const_iterator r = rots.begin();
-    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin();
-	 p != prds.end();
-	 ++p, ++r)
-    {
+    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin(); p != prds.end(); ++p, ++r) {
+        if (!(*p)) {
+            ATH_MSG_WARNING("makeClustersBySurface - current PrepRawData is nullptr, continuing");
+            continue;
+        }
 	if (std::find(usedPrd.begin(),usedPrd.end(),*p) != usedPrd.end()) continue;
 	usedPrd.push_back(*p);
 	int channel	= 0;
 	int gasGap	= 0;
 	Identifier channelId = (**p).identify();
-	bool isRpc = m_muonIdHelperTool->rpcIdHelper().is_rpc(channelId);
+	bool isRpc = m_idHelperSvc->isRpc(channelId);
 	if (isRpc)
 	{
-	    gasGap	= m_muonIdHelperTool->rpcIdHelper().gasGap(channelId);
-	    channel	= m_muonIdHelperTool->rpcIdHelper().strip(channelId);
+	    gasGap	= m_idHelperSvc->rpcIdHelper().gasGap(channelId);
+	    channel	= m_idHelperSvc->rpcIdHelper().strip(channelId);
 	}
 	else
 	{
-	    gasGap	= m_muonIdHelperTool->tgcIdHelper().gasGap(channelId);
-	    channel	= m_muonIdHelperTool->tgcIdHelper().channel(channelId);
+	    gasGap	= m_idHelperSvc->tgcIdHelper().gasGap(channelId);
+	    channel	= m_idHelperSvc->tgcIdHelper().channel(channelId);
 	}
 	int channelMax	= channel;
 	int channelMin	= channel;
@@ -239,21 +217,22 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 	
 	std::list<const Trk::PrepRawData*>::const_iterator q = p;
 	std::vector<const Muon::MuonClusterOnTrack*>::const_iterator s = r;
-	for (++q, ++s;
-	     q != prds.end();
-	     ++q, ++s)
-	{
+	for (++q, ++s; q != prds.end(); ++q, ++s) {
+        if (!(*q)) {
+            ATH_MSG_WARNING("makeClustersBySurface - current PrepRawData is nullptr, continuing");
+            continue;
+        }
 	    channelId = (**q).identify();
-	    if ((     isRpc && m_muonIdHelperTool->rpcIdHelper().gasGap(channelId)	!= gasGap)
-		|| (! isRpc && m_muonIdHelperTool->tgcIdHelper().gasGap(channelId)	!= gasGap)) continue;
+	    if ((     isRpc && m_idHelperSvc->rpcIdHelper().gasGap(channelId)	!= gasGap)
+		|| (! isRpc && m_idHelperSvc->tgcIdHelper().gasGap(channelId)	!= gasGap)) continue;
 	    usedPrd.push_back(*q);
 	    if (isRpc)
 	    {
-		channel	= m_muonIdHelperTool->rpcIdHelper().strip(channelId);
+		channel	= m_idHelperSvc->rpcIdHelper().strip(channelId);
 	    }
 	    else
 	    {
-		channel	= m_muonIdHelperTool->tgcIdHelper().channel(channelId);
+		channel	= m_idHelperSvc->tgcIdHelper().channel(channelId);
 	    }
 	    if (channel > channelMax)
 	    {
@@ -285,35 +264,35 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 	     ++q, --size)
 	{
 	    Identifier channelId = (**q).identify();
-		bool isRpc = m_muonIdHelperTool->rpcIdHelper().is_rpc(channelId);
+		bool isRpc = m_idHelperSvc->isRpc(channelId);
 	    if (isRpc)
 	    {
-		int stationIndex	= m_muonIdHelperTool->rpcIdHelper().stationName(channelId);
+		int stationIndex	= m_idHelperSvc->rpcIdHelper().stationName(channelId);
 		ATH_MSG_VERBOSE(" rpc "  
 		       << std::setiosflags(std::ios::fixed)
 		       << " localPosition "
 		       << std::setw(8) << std::setprecision(1) << (**q).localPosition()[Trk::locX]
 		       << std::setw(8) << std::setprecision(1) << (**q).localPosition()[Trk::locY]
 		       << "   doublet z/phi"
-		       << std::setw(2) << m_muonIdHelperTool->rpcIdHelper().doubletZ(channelId)
-		       << std::setw(2) << m_muonIdHelperTool->rpcIdHelper().doubletPhi(channelId)
-		       << "   gasGap"  << std::setw(2) << m_muonIdHelperTool->rpcIdHelper().gasGap(channelId)
-		       << "   strip"   << std::setw(3) << m_muonIdHelperTool->rpcIdHelper().strip(channelId)
-		       << "   station " << m_muonIdHelperTool->rpcIdHelper().stationNameString(stationIndex)
-		       << "  " << m_muonIdHelperTool->rpcIdHelper().show_to_string(channelId) );
+		       << std::setw(2) << m_idHelperSvc->rpcIdHelper().doubletZ(channelId)
+		       << std::setw(2) << m_idHelperSvc->rpcIdHelper().doubletPhi(channelId)
+		       << "   gasGap"  << std::setw(2) << m_idHelperSvc->rpcIdHelper().gasGap(channelId)
+		       << "   strip"   << std::setw(3) << m_idHelperSvc->rpcIdHelper().strip(channelId)
+		       << "   station " << m_idHelperSvc->rpcIdHelper().stationNameString(stationIndex)
+		       << "  " << m_idHelperSvc->rpcIdHelper().show_to_string(channelId) );
 	    }
 	    else
 	    {
-		int stationIndex	= m_muonIdHelperTool->tgcIdHelper().stationName(channelId);
+		int stationIndex	= m_idHelperSvc->tgcIdHelper().stationName(channelId);
 		ATH_MSG_VERBOSE(" tgc "
 		       << std::setiosflags(std::ios::fixed)
 		       << " localPosition "
 		       << std::setw(8) << std::setprecision(1) << (**q).localPosition()[Trk::locX]
 		       << std::setw(8) << std::setprecision(1) << (**q).localPosition()[Trk::locY]
-		       << "   gasGap"  << std::setw(2) << m_muonIdHelperTool->tgcIdHelper().gasGap(channelId)
-		       << "   channel" << std::setw(3) << m_muonIdHelperTool->tgcIdHelper().channel(channelId)
-		       << "   station " << m_muonIdHelperTool->tgcIdHelper().stationNameString(stationIndex)
-		       << "  " << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelId) );
+		       << "   gasGap"  << std::setw(2) << m_idHelperSvc->tgcIdHelper().gasGap(channelId)
+		       << "   channel" << std::setw(3) << m_idHelperSvc->tgcIdHelper().channel(channelId)
+		       << "   station " << m_idHelperSvc->tgcIdHelper().stationNameString(stationIndex)
+		       << "  " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId) );
 	    }
 	    if (size == 0)
 	    {
@@ -344,7 +323,7 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
     Amg::MatrixX covariance	= (**r).localCovariance();
     parameters				= new Trk::LocalParameters((**r).localParameters());
     Identifier channelId = (**r).identify();
-    bool isRpc = m_muonIdHelperTool->rpcIdHelper().is_rpc(channelId);
+    bool isRpc = m_idHelperSvc->isRpc(channelId);
     
     int pair = 1;
     for (++r;
@@ -414,21 +393,19 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
     // debug
     if ( msgLvl(MSG::DEBUG) )
     {
-	msg(MSG::DEBUG) << shape << "  width " << width
-	       << "   localParameters " << (*parameters)[Trk::locX];
-	if (covariance.cols() > 1) msg(MSG::DEBUG) << " " << (*parameters)[Trk::locY];
-	msg(MSG::DEBUG) << "   covariance " << sqrt(covariance(Trk::locX,Trk::locX));
-	if (covariance.cols() > 1) msg(MSG::DEBUG) << " " << sqrt(covariance(Trk::locY,Trk::locY));
-	msg(MSG::DEBUG) << "   channel range (cluster) ";
+	ATH_MSG_DEBUG(shape << "  width " << width << "   localParameters " << (*parameters)[Trk::locX]);
+	if (covariance.cols() > 1) ATH_MSG_DEBUG(" " << (*parameters)[Trk::locY]);
+	ATH_MSG_DEBUG("   covariance " << std::sqrt(covariance(Trk::locX,Trk::locX)));
+	if (covariance.cols() > 1) ATH_MSG_DEBUG(" " << std::sqrt(covariance(Trk::locY,Trk::locY)));
+	ATH_MSG_DEBUG("   channel range (cluster) ");
 	pair = 2;
 	for (std::list<int>::iterator i = limitingChannels.begin();
 	     i != limitingChannels.end();
 	     ++i, ++pair)
 	{
-	    msg(MSG::DEBUG) << *i << " ";
-	    if (pair%2) msg(MSG::DEBUG) << "(" << pair/2 << ")    ";
+	    ATH_MSG_DEBUG( *i << " ");
+	    if (pair%2) ATH_MSG_DEBUG("(" << pair/2 << ")    ");
 	}
-	msg(MSG::DEBUG) << endmsg;
     }
 }
 

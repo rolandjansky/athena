@@ -1,15 +1,7 @@
-################################################################################
-# Package: xAODTrigMinBiasAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODTrigMinBiasAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/xAOD/xAODTrigMinBias )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODTrigMinBiasAthenaPoolPoolCnv

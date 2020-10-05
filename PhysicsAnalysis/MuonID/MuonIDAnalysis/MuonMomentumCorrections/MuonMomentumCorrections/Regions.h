@@ -12,6 +12,10 @@
 
 ANA_MSG_HEADER(msgMMC)
 
+#include <AsgMessaging/MessageCheck.h>
+
+ANA_MSG_HEADER (msgMuonMomentumCorrections)
+
 class Regions{
     bool m_loadNames;
     /* number of regions */

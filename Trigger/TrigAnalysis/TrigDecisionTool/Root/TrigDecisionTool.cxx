@@ -34,9 +34,9 @@ static std::vector<std::string> s_instances;
 
 
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
-  asg::AsgMetadataTool(name),
+  asg::AsgMetadataTool(name)
 #ifndef XAOD_STANDALONE
-  AthMessaging( Athena::getMessageSvc(), name)
+  ,AthMessaging( Athena::getMessageSvc(), name)
 #endif
 #ifndef XAOD_ANALYSIS
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
@@ -59,7 +59,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 #ifndef XAOD_STANDALONE
    //just for Athena/AthAnalysisBase
    auto props = getProperties();
-   for( Property* prop : props ) {
+   for( Gaudi::Details::PropertyBase* prop : props ) {
      if( prop->name() != "OutputLevel" ) {
        continue;
      }
@@ -72,7 +72,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 }
 
 #ifndef XAOD_STANDALONE
-void Trig::TrigDecisionTool::outputlevelupdateHandler(Property& /*p*/) {
+void Trig::TrigDecisionTool::outputlevelupdateHandler(Gaudi::Details::PropertyBase& /*p*/) {
    //call the original update handler
    Logger::msg().setLevel(AthMessaging::msg().level());
 }
@@ -95,8 +95,12 @@ Trig::TrigDecisionTool::initialize() {
      return StatusCode::FAILURE;
    }
 
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
    ATH_CHECK(m_oldDecisionKey.initialize( m_useRun1DecisionFormat ) );
    ATH_CHECK(m_oldEventInfoKey.initialize( m_useOldEventInfoDecisionFormat ) );
+#endif
+
    ATH_CHECK(m_HLTSummaryKeyIn.initialize(m_navigationFormat == "TrigComposite"));
    ATH_CHECK(m_navigationKey.initialize(m_navigationFormat == "TriggerElement"));
    ATH_CHECK(m_decisionKey.initialize());
@@ -170,13 +174,28 @@ Trig::TrigDecisionTool::initialize() {
    return StatusCode::SUCCESS;
 }
 
+std::vector<uint32_t>* Trig::TrigDecisionTool::getKeys() {
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+  return m_configKeysCache.get();
+#else // Analysis or Standalone
+  return &m_configKeysCache;
+#endif 
+}
+
+
+
 StatusCode Trig::TrigDecisionTool::beginEvent() {
 
   CacheGlobalMemory* cgmPtr = cgm();
   cgmPtr->setDecisionKeyPtr( &m_decisionKey );
-  cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
   cgmPtr->setNavigationKeyPtr( &m_navigationKey );
+
+  size_t slot = 0;
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+  cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
   cgmPtr->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
+  slot = Gaudi::Hive::currentContext().slot();
+#endif
 
   //invalidate handle so that we read a new decision object
   if(cgm()->unpacker()){
@@ -200,21 +219,19 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
     
     if(!keysMatch){
 
-      ATH_MSG_INFO("Tool: updating config in slot " 
-        << Gaudi::Hive::currentContext().slot()
+      ATH_MSG_INFO("Tool: updating config in slot " << slot
         << " with SMK: " << m_configTool->masterKey() 
         << " and L1PSK: " << m_configTool->lvl1PrescaleKey() 
         << " and HLTPSK: " << m_configTool->hltPrescaleKey());
       
-      std::vector<uint32_t>* keys = m_configKeysCache.get();
+      std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
       keys->at(0) = m_configTool->masterKey();
       keys->at(1) = m_configTool->lvl1PrescaleKey();
       keys->at(2) = m_configTool->hltPrescaleKey();
       configurationUpdate( m_configTool->chainList(), m_configTool->ctpConfig() );
     } else{
-      ATH_MSG_VERBOSE("Tool: Cached Trigger configuration keys match for this event in slot " 
-        << Gaudi::Hive::currentContext().slot());
+      ATH_MSG_VERBOSE("Tool: Cached Trigger configuration keys match for this event in slot " << slot);
     }
 #ifndef XAOD_ANALYSIS
   }
@@ -231,21 +248,20 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 
     if(!keysMatch){
 
-      ATH_MSG_INFO("Svc: updating config in slot " 
-        << Gaudi::Hive::currentContext().slot()
+      ATH_MSG_INFO("Svc: updating config in slot " << slot
         << " with SMK: " << m_configSvc->masterKey() 
         << " and L1PSK: " << m_configSvc->lvl1PrescaleKey() 
         << " and HLTPSK: " << m_configSvc->hltPrescaleKey());
 
-      std::vector<uint32_t>* keys = m_configKeysCache.get();
+      std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
       keys->at(0) = m_configSvc->masterKey();
       keys->at(1) = m_configSvc->lvl1PrescaleKey();
       keys->at(2) = m_configSvc->hltPrescaleKey();
       configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
     }else{
-      ATH_MSG_VERBOSE("Svc: Cached Trigger configuration keys match for this event in slot " 
-        << Gaudi::Hive::currentContext().slot());    }
+      ATH_MSG_VERBOSE("Svc: Cached Trigger configuration keys match for this event in slot " << slot);
+    }
   }
 #endif
 
@@ -263,7 +279,7 @@ StatusCode Trig::TrigDecisionTool::beginInputFile() {
 }
 
 bool Trig::TrigDecisionTool::configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk){
-  std::vector<uint32_t>* keys = m_configKeysCache.get(); // Slot-specific object.
+  std::vector<uint32_t>* keys = getKeys(); // Slot-specific object in full athena.
   if (keys->size() != 3) {
     return false;
   }

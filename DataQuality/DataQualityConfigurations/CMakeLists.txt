@@ -1,13 +1,7 @@
-################################################################################
-# Package: DataQualityConfigurations
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityConfigurations )
-
-# Requires DQI for binary build - this turns out not to do much, but keep for indication
-# Actual heavy lifting done by DEPENDS in add_custom_command
-atlas_depends_on_subdirs(PRIVATE DataQuality/DataQualityInterfaces)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
@@ -54,7 +48,7 @@ foreach( hanfile collisions_run collisions_minutes10
       ${CMAKE_CURRENT_SOURCE_DIR}/config ${configOutputFile}
       # Build binary config
       COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
-      han-config-gen ${configOutputFile}
+      han-config-gen ${configOutputFile} -b true
       # Deploy binary config
       COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${hanfile}.hcfg

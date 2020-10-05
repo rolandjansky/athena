@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DIGITZATION_SCT_DIGITZATIONTOOL_H
@@ -37,6 +37,7 @@
 
 // STL headers
 #include <limits>
+#include <memory>
 #include <string>
 
 // Forward declarations
@@ -104,9 +105,9 @@ private:
   StatusCode createAndStoreRDO(SiChargedDiodeCollection* chDiodeCollection, SG::WriteHandle<SCT_RDO_Container>* rdoContainer) const;
   /**
      @brief Create RDOs from the SiChargedDiodeCollection for the current wafer
-     @param chDiodeCollection       list of the SiChargedDiodes on the current wafer
+     @param collection       list of the SiChargedDiodes on the current wafer
   */
-  SCT_RDO_Collection* createRDO(SiChargedDiodeCollection* collection) const;
+  std::unique_ptr<SCT_RDO_Collection> createRDO(SiChargedDiodeCollection* collection) const;
 
   StatusCode getNextEvent(const EventContext& ctx);
   void       digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const; //!< digitize all hits
@@ -115,7 +116,7 @@ private:
   /**
      @brief Called when m_WriteSCT1_RawData is altered. Does nothing, but required by Gaudi.
   */
-  void SetupRdoOutputType(Property&);
+  void SetupRdoOutputType(Gaudi::Details::PropertyBase&);
 
   FloatProperty m_tfix{this, "FixedTime", -999., "Fixed time for Cosmics run selection"};
   BooleanProperty m_enableHits{this, "EnableHits", true, "Enable hits"};
@@ -144,10 +145,10 @@ private:
   ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in Pixel & SCT digitization"}; //!
 
   const SCT_ID* m_detID{nullptr}; //!< Handle to the ID helper
-  TimedHitCollection<SiHit>* m_thpcsi{nullptr};
+  std::unique_ptr<TimedHitCollection<SiHit>> m_thpcsi{nullptr};
   std::list<ISiChargedDiodesProcessorTool*> m_diodeCollectionTools;
   std::vector<bool> m_processedElements; //!< vector of processed elements - set by digitizeHits() */
-  std::vector<SiHitCollection*> m_hitCollPtrs;
+  std::vector<std::unique_ptr<SiHitCollection>> m_hitCollPtrs;
   bool m_HardScatterSplittingSkipper{false};
 };
 

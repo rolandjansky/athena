@@ -196,8 +196,8 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
   double gasLength   = ggLength - 2.*r->bakeliteframesize;
   double gasWidth    = ggWidth- 2.*r->bakeliteframesize;
 
-  double y_translation;
-  double z_translation;
+  double y_translation = 0;
+  double z_translation = 0;
   if (m->nGasGaps()==3) { // for BIS RPCs
     if (name == "RPC26" ) { //big RPC7
       gasLength   = ggLength - 93.25; // ggLength - deadframesizeEta

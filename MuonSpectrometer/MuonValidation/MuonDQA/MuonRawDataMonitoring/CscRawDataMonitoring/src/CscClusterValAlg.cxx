@@ -841,13 +841,12 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer* cols, const
           m_h2csc_clus_hitmap->Fill(stripid, secLayer);
 
           if(!pcol) {
-            CscStripPrepDataContainer::const_iterator icol = strips->indexFind(clus.identifyHash());
-            if ( icol == strips->end() ) {
+            const CscStripPrepDataCollection* icol = strips->indexFindPtr(clus.identifyHash());
+            if ( icol == nullptr ) {
               found_id = false;
               break;  // could not identify the strips
             } else {
-              pcol = *icol;
-              if(!pcol) found_id = false;
+              pcol = icol;
             }
           } // end if !pcol  
 
@@ -858,7 +857,7 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer* cols, const
               found_strip = ( *istrip )->identify() == id ; 
               if(found_strip) {
                 stripVec.push_back(*istrip);
-                std::vector<float> samp_charges = ( *istrip )->sampleCharges();
+                const std::vector<float> &samp_charges = ( *istrip )->sampleCharges();
                 for(unsigned int i = 0; i < samp_charges.size(); i++ ) {
                   if(samp_charges[i] > maxsampChVal) maxsampChVal = samp_charges[i];
                 }

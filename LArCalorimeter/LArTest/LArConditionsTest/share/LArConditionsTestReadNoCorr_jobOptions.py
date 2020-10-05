@@ -104,15 +104,6 @@ IOVDbSvc.Folders += [ "/LArCalorimeter/LArTests/LArRampsFeedThroughGrouping" ]
 IOVDbSvc.dbConnection  = "impl=cool;techno=oracle;devdb10:LARCORR:ATLAS_COOLTEST:cool4devdb"
 
 #--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# Check the dictionary in memory for completeness
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.CheckDictionary = TRUE
-AthenaSealSvc.OutputLevel     = 3
-
-#--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------
 # Make sure AthenaPoolServices is loaded for custom streamer

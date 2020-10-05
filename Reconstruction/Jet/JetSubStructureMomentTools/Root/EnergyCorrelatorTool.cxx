@@ -3,54 +3,66 @@
 */
 
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
-#include "JetSubStructureUtils/EnergyCorrelator.h" 
+#include "JetSubStructureUtils/EnergyCorrelator.h"
 
 EnergyCorrelatorTool::EnergyCorrelatorTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  declareProperty("Beta", m_Beta = 1.0);
-  declareProperty("BetaList", m_rawBetaVals = {});
-  declareProperty("DoC3", m_doC3 = false);
-  declareProperty("DoC4", m_doC4 = false);
+  declareProperty("Beta",       m_Beta = 1.0);
+  declareProperty("BetaList",   m_rawBetaVals = {});
+  declareProperty("DoC3",       m_doC3 = false);
+  declareProperty("DoC4",       m_doC4 = false);
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorTool::initialize() {
 
-  // Add beta = 1.0 by default
-  m_betaVals.push_back(1.0);
+  /// Call base class initialize to fix up m_prefix
+  ATH_CHECK( JetSubStructureMomentToolsBase::initialize() );
 
-  // Add beta = m_Beta by default to keep backwards compatibility
-  if( std::abs(m_Beta-1.0) > 1.0e-5 ) m_betaVals.push_back(m_Beta);
+  /// Add beta = 1.0 by default
+  m_moments.emplace( 1.0, moments_t(1.0, m_prefix) );
 
-  // Clean up input list of beta values
-  for(float beta : m_rawBetaVals) {
+  /// Add beta = m_Beta by default to keep backwards compatibility
+  if( std::abs(m_Beta-1.0) > 1.0e-5 ) {
 
-    // Round to the nearest 0.1
+    /// Give warning about deprecation
+    ATH_MSG_WARNING( "The Beta property is deprecated, please use the BetaList property to provide a list of values");
+
+    /// Use m_Beta to not break analysis code
+    m_moments.emplace( m_Beta, moments_t(m_Beta, m_prefix) );
+
+  }
+
+  /// Clean up input list of beta values
+  for( float beta : m_rawBetaVals ) {
+
+    /// Round to the nearest 0.1
     float betaFix = round( beta * 10.0 ) / 10.0;
-    if(std::abs(beta-betaFix) > 1.0e-5) ATH_MSG_DEBUG("beta = " << beta << " has been rounded to " << betaFix);
+    if( std::abs(beta-betaFix) > 1.0e-5 ) ATH_MSG_DEBUG( "beta = " << beta << " has been rounded to " << betaFix );
 
-    // Skip negative values of beta
-    if(betaFix < 0.0) {
-      ATH_MSG_WARNING("beta must be positive. Skipping beta = " << beta);
+    /// Skip negative values of beta
+    if( betaFix < 0.0 ) {
+      ATH_MSG_WARNING( "beta must be positive. Skipping beta = " << beta );
       continue;
     }
 
-    // Only store value if it is not already in the list
-    if( std::find(m_betaVals.begin(), m_betaVals.end(), betaFix) == m_betaVals.end() ) m_betaVals.push_back(betaFix);
+    /// Store value. std::map::emplace prevents duplicate entries
+    m_moments.emplace( betaFix, moments_t(betaFix, m_prefix) );
+
   }
 
-  for(float beta : m_betaVals) {
-    ATH_MSG_DEBUG("Including beta = " << beta);
+  /// Print out list of beta values to debug stream
+  for( auto const& moment : m_moments ) {
+    ATH_MSG_DEBUG( "Including beta = " << moment.first );
   }
 
-  // If DoC4 is set to true, set DoC3 to true by default since it won't
-  // add any additional computational overhead
-  if(m_doC4) m_doC3 = true;
-
-  ATH_CHECK(JetSubStructureMomentToolsBase::initialize());
+  /// If DoC4 is set to true, set DoC3 to true by default since it won't
+  /// add any additional computational overhead
+  if( m_doC4 ) m_doC3 = true;
 
   return StatusCode::SUCCESS;
+
 }
 
 int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
@@ -58,81 +70,82 @@ int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
   fastjet::PseudoJet jet;
   fastjet::PseudoJet jet_ungroomed;
 
-  bool decorate = SetupDecoration(jet,injet);
-  bool decorate_ungroomed = false;
-  if(m_doDichroic) {
-    // Get parent jet here and replace injet
+  /// Bool to decide whether calculation should be performed
+  bool calculate = SetupDecoration(jet,injet);
+
+  /// Bool to decide if ungroomed jet moments should be calculated
+  bool calculate_ungroomed = false;
+
+  if( m_doDichroic ) {
+
+    /// Get parent jet
     ElementLink<xAOD::JetContainer> parentLink = injet.auxdata<ElementLink<xAOD::JetContainer> >("Parent");
 
-    // Return error is parent element link is broken
-    if(!parentLink.isValid()) {
-      ATH_MSG_ERROR("Parent element link is not valid. Aborting");
+    /// Return error is parent element link is broken
+    if( !parentLink.isValid() ) {
+      ATH_MSG_ERROR( "Parent element link is not valid. Aborting" );
       return 1;
     }
 
     const xAOD::Jet* parentJet = *(parentLink);
-    decorate_ungroomed = SetupDecoration(jet_ungroomed,*parentJet);
+    calculate_ungroomed = SetupDecoration(jet_ungroomed,*parentJet);
+
   }
 
-  for(float beta : m_betaVals) {
+  for( auto const& moment : m_moments ) {
 
-    if(beta < 0.0) {
-      ATH_MSG_WARNING("Negative beta values are not supported. Skipping " << beta);
-      continue;
-    }
+    float beta = moment.first;
 
-    std::string suffix = GetBetaSuffix(beta);
+    float ECF1_value = -999;
+    float ECF2_value = -999;
+    float ECF3_value = -999;
+    float ECF4_value = -999;
+    float ECF5_value = -999;
 
-    float result_ECF1 = -999;
-    float result_ECF2 = -999;
-    float result_ECF3 = -999;
-    float result_ECF4 = -999;
-    float result_ECF5 = -999;
+    float ECF1_ungroomed_value = -999;
+    float ECF2_ungroomed_value = -999;
+    float ECF3_ungroomed_value = -999;
 
-    float result_ECF1_ungroomed = -999;
-    float result_ECF2_ungroomed = -999;
-    float result_ECF3_ungroomed = -999;
-
-    if(decorate) {
+    if( calculate ) {
 
       JetSubStructureUtils::EnergyCorrelator ECF1(1, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
       JetSubStructureUtils::EnergyCorrelator ECF2(2, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
       JetSubStructureUtils::EnergyCorrelator ECF3(3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
 
-      result_ECF1 = ECF1.result(jet);
-      result_ECF2 = ECF2.result(jet);
-      result_ECF3 = ECF3.result(jet);
+      ECF1_value = ECF1.result(jet);
+      ECF2_value = ECF2.result(jet);
+      ECF3_value = ECF3.result(jet);
 
-      if(m_doC3) {
+      if( m_doC3 ) {
         JetSubStructureUtils::EnergyCorrelator ECF4(4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-        result_ECF4 = ECF4.result(jet);
+        ECF4_value = ECF4.result(jet);
       }
 
-      if(m_doC4) {
+      if( m_doC4 ) {
         JetSubStructureUtils::EnergyCorrelator ECF5(5, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-        result_ECF5 = ECF5.result(jet);
+        ECF5_value = ECF5.result(jet);
       }
 
-      if(decorate_ungroomed) {
-        result_ECF1_ungroomed = ECF1.result(jet_ungroomed);
-        result_ECF2_ungroomed = ECF2.result(jet_ungroomed);
-        result_ECF3_ungroomed = ECF3.result(jet_ungroomed);
+      if( calculate_ungroomed ) {
+        ECF1_ungroomed_value = ECF1.result(jet_ungroomed);
+        ECF2_ungroomed_value = ECF2.result(jet_ungroomed);
+        ECF3_ungroomed_value = ECF3.result(jet_ungroomed);
       }
 
     }
 
-    injet.setAttribute(m_prefix+"ECF1"+suffix, result_ECF1);
-    injet.setAttribute(m_prefix+"ECF2"+suffix, result_ECF2);
-    injet.setAttribute(m_prefix+"ECF3"+suffix, result_ECF3);
-    injet.setAttribute(m_prefix+"ECF4"+suffix, result_ECF4);
-    injet.setAttribute(m_prefix+"ECF5"+suffix, result_ECF5);
+    (*moment.second.dec_ECF1)(injet) = ECF1_value;
+    (*moment.second.dec_ECF2)(injet) = ECF2_value;
+    (*moment.second.dec_ECF3)(injet) = ECF3_value;
+    (*moment.second.dec_ECF4)(injet) = ECF4_value;
+    (*moment.second.dec_ECF5)(injet) = ECF5_value;
 
-    injet.setAttribute(m_prefix+"ECF1_ungroomed"+suffix, result_ECF1_ungroomed);
-    injet.setAttribute(m_prefix+"ECF2_ungroomed"+suffix, result_ECF2_ungroomed);
-    injet.setAttribute(m_prefix+"ECF3_ungroomed"+suffix, result_ECF3_ungroomed);
+    (*moment.second.dec_ECF1_ungroomed)(injet) = ECF1_ungroomed_value;
+    (*moment.second.dec_ECF2_ungroomed)(injet) = ECF2_ungroomed_value;
+    (*moment.second.dec_ECF3_ungroomed)(injet) = ECF3_ungroomed_value;
 
   }
 
   return 0;
-}
 
+}

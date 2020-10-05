@@ -11,6 +11,8 @@
 **********************************/
 
 #include <cmath>
+#include "TH1F.h"
+#include "TH2F.h"
 
 #include "L1TopoAlgorithms/DeltaRSqrIncl1.h"
 #include "L1TopoCommon/Exception.h"
@@ -19,10 +21,9 @@
 
 REGISTER_ALG_TCS(DeltaRSqrIncl1)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::DeltaRSqrIncl1:     "
+#define LOG std::cout << "TCS::DeltaRSqrIncl1:     "
 
 TCS::DeltaRSqrIncl1::DeltaRSqrIncl1(const std::string & name) : DecisionAlg(name)
 {
@@ -74,7 +75,16 @@ TCS::DeltaRSqrIncl1::initialize() {
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
- 
+    
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hDeltaRSqrIncl1_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hDeltaRSqrIncl1_reject_bit"+std::to_string((int)i);
+       // dR
+       bookHist(m_histAccept, hname_accept, "DR", 100, sqrt(p_DeltaRMin[i]), sqrt(p_DeltaRMax[i]));
+       bookHist(m_histReject, hname_reject, "DR", 100, sqrt(p_DeltaRMin[i]), sqrt(p_DeltaRMax[i]));
+   }
+   
    return StatusCode::SUCCESS;
 }
 
@@ -83,7 +93,7 @@ TCS::DeltaRSqrIncl1::initialize() {
 TCS::StatusCode
 TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
 
    if(input.size() == 1) {
@@ -91,25 +101,33 @@ TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *>
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1) 
           {
-              if( parType_t((*tob1)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+              if( parType_t((*tob1)->Et()) <= std::min(p_MinET1,p_MinET2)) continue; // ET cut
               TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
               for( ;
                    tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading2;
                    ++tob2) {
-                  if( parType_t((*tob2)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
-                  if( (parType_t((*tob1)->Et()) <= max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= max(p_MinET1,p_MinET2))) continue;
+                  if( parType_t((*tob2)->Et()) <= std::min(p_MinET1,p_MinET2)) continue; // ET cut
+                  if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1,p_MinET2))) continue;
                   // OneBarrel
                   if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
                   // DeltaR2 cuts
                   unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                      bool accept = false;
-                      accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
-                      if( accept ) {
-                          decison.setBit(i, true);  
-                          output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                      }
-                      TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
+		    bool accept = false;
+		    accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
+		    const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+		    const bool fillReject = fillHistos() and not fillAccept;
+		    const bool alreadyFilled = decision.bit(i);
+		    if( accept ) {
+		      decision.setBit(i, true);  
+		      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+		    }
+		    if(fillAccept and not alreadyFilled) {
+		      fillHist1D(m_histAccept[i],sqrt((float)deltaR2));
+		    } else if(fillReject) {
+		      fillHist1D(m_histReject[i],sqrt((float)deltaR2));
+		    }
+		    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                   }
               }
           }
@@ -122,32 +140,40 @@ TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *>
 TCS::StatusCode
 TCS::DeltaRSqrIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 1) {
         for( TOBArray::const_iterator tob1 = input[0]->begin(); 
              tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
              ++tob1) 
             {
-                if( parType_t((*tob1)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+                if( parType_t((*tob1)->Et()) <= std::min(p_MinET1,p_MinET2)) continue; // ET cut
                 TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
                 for( ;
                      tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading2;
                      ++tob2) {
-                    if( parType_t((*tob2)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
-                    if( (parType_t((*tob1)->Et()) <= max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= max(p_MinET1,p_MinET2))) continue;
+                    if( parType_t((*tob2)->Et()) <= std::min(p_MinET1,p_MinET2)) continue; // ET cut
+                    if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1,p_MinET2))) continue;
                     // OneBarrel
                     if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
                     // DeltaR2 cuts
                     unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                    bool accept = false;
-                    accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
-                    if( accept ) {
-                        decison.setBit(i, true);  
+		      bool accept = false;
+		      accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
+		      const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+		      const bool fillReject = fillHistos() and not fillAccept;
+		      const bool alreadyFilled = decision.bit(i);
+		      if( accept ) {
+                        decision.setBit(i, true);  
                         output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                    }
-                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
+		      }
+		      if(fillAccept and not alreadyFilled) {
+			fillHist1D(m_histAccept[i],sqrt((float)deltaR2));
+		      } else if(fillReject) {
+			fillHist1D(m_histReject[i],sqrt((float)deltaR2));
+		      }
+		      TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                     }
                 }
             }

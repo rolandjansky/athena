@@ -10,7 +10,7 @@ from PATCore.HelperUtils import *
 # Define GeV
 GeV = 1000.0
 
-def PhotonIsEMLooseSelectorConfigDC14(theTool) :
+def PhotonIsEMLooseSelectorConfig(theTool) :
     '''
     These are the photon isEM definitions *DC14* Loose 
     '''

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,8 +11,8 @@
 #ifndef __TRIG_PARTICLE_TABLE__
 #define __TRIG_PARTICLE_TABLE__
 
-#include <vector>
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <array>
+#include "GaudiKernel/SystemOfUnits.h"
 
 namespace TrigVtx
 {
@@ -28,16 +28,15 @@ namespace TrigVtx
   
   struct TrigParticleMasses 
   {
-    std::vector<double> mass;   
-    TrigParticleMasses()
-    {
-      mass.push_back(0.5109989*CLHEP::MeV); // electron mass
-      mass.push_back(105.65837*CLHEP::MeV); // muon mass
-      mass.push_back(139.57019*CLHEP::MeV); // charged pion mass
-      mass.push_back(493.67700*CLHEP::MeV); // charged kaon mass
-      mass.push_back(938.27203*CLHEP::MeV); // proton mass
-      mass.push_back(0.*CLHEP::MeV); // photon mass
-    }    
+    constexpr TrigParticleMasses() = default;
+    std::array<double,6> mass{
+      0.5109989*Gaudi::Units::MeV, // electron mass
+      105.65837*Gaudi::Units::MeV, // muon mass
+      139.57019*Gaudi::Units::MeV, // charged pion mass
+      493.67700*Gaudi::Units::MeV, // charged kaon mass
+      938.27203*Gaudi::Units::MeV, // proton mass
+      0                            // photon mass
+    };
   };
 }
 

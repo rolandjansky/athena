@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -122,8 +122,17 @@ namespace RungeKuttaUtils
   /////////////////////////////////////////////////////////////////////////////////
 
   bool transformLocalToGlobal(bool, const Trk::TrackParameters&, double*);
-
   bool transformLocalToGlobal(bool, const Trk::NeutralParameters&, double*);
+
+  /////////////////////////////////////////////////////////////////////////////////
+  // Transformations from local to local system coordinates
+  /////////////////////////////////////////////////////////////////////////////////
+
+  bool
+  transformLocalToGlobal(bool,
+                         const Trk::Surface*,
+                         const double* ATH_RESTRICT,
+                         double* ATH_RESTRICT);
 
   /////////////////////////////////////////////////////////////////////////////////
   // Transformations from local to global system coordinates
@@ -131,17 +140,7 @@ namespace RungeKuttaUtils
   /////////////////////////////////////////////////////////////////////////////////
 
   bool transformLocalToGlobal(bool, const Trk::PatternTrackParameters&, double*);
-
-  /////////////////////////////////////////////////////////////////////////////////
-  // Transformations from local to global system coordinates
-  // for different surfaces
-  /////////////////////////////////////////////////////////////////////////////////
-
-  void transformDiscToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-  void transformPlaneToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-  void transformCylinderToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-  void transformLineToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
-
+  
   /////////////////////////////////////////////////////////////////////////////////
   // Transformations from global to local system coordinates
   /////////////////////////////////////////////////////////////////////////////////
@@ -152,39 +151,11 @@ namespace RungeKuttaUtils
                               double* ATH_RESTRICT,
                               double* ATH_RESTRICT,
                               double* ATH_RESTRICT);
-  void transformGlobalToCone(const Trk::Surface*,
-                             bool,
-                             const double* ATH_RESTRICT,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT);
-  void transformGlobalToDisc(const Trk::Surface*,
-                             bool,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT);
-  void transformGlobalToPlane(const Trk::Surface*,
-                              bool,
-                              double* ATH_RESTRICT,
-                              double* ATH_RESTRICT,
-                              double* ATH_RESTRICT);
-  void transformGlobalToCylinder(const Trk::Surface*,
-                                 bool,
-                                 double* ATH_RESTRICT,
-                                 double* ATH_RESTRICT,
-                                 double* ATH_RESTRICT);
-  void transformGlobalToLine(const Trk::Surface*,
-                             bool,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT,
-                             double* ATH_RESTRICT);
-
-  /////////////////////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   // Covariance matrix production for Trk::TrackParameters
   /////////////////////////////////////////////////////////////////////////////////
 
-  AmgSymMatrix(5)* newCovarianceMatrix(const double*, const AmgSymMatrix(5) &);
+  AmgSymMatrix(5)* newCovarianceMatrix(const double* ATH_RESTRICT, const AmgSymMatrix(5) &);
 
   /////////////////////////////////////////////////////////////////////////////////
   // Transformations from curvilinear to global system coordinates
@@ -205,17 +176,13 @@ namespace RungeKuttaUtils
   /////////////////////////////////////////////////////////////////////////////////
 
   void jacobianTransformCurvilinearToLocal(const Trk::TrackParameters&, double*);
-
   void jacobianTransformCurvilinearToLocal(const Trk::PatternTrackParameters&, double*);
-
   void jacobianTransformCurvilinearToLocal(double* ATH_RESTRICT, const Trk::Surface*, double* ATH_RESTRICT);
-
   void jacobianTransformCurvilinearToDisc(double* ATH_RESTRICT, double* ATH_RESTRICT);
   void jacobianTransformCurvilinearToPlane(double* ATH_RESTRICT, double* ATH_RESTRICT);
   void jacobianTransformCurvilinearToCylinder(double* ATH_RESTRICT, double* ATH_RESTRICT);
   void jacobianTransformCurvilinearToStraightLine(const double* ATH_RESTRICT, double* ATH_RESTRICT);
 
-  bool transformLocalToGlobal(bool, const Trk::Surface*, const double* ATH_RESTRICT, double* ATH_RESTRICT);
 }
 }
 

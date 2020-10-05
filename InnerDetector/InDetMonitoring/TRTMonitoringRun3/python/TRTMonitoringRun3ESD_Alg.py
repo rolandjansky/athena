@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TRTMonitoringRun3ESD_Alg.py
@@ -27,10 +27,16 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     algTRTMonitoringRun3ESD = helper.addAlgorithm(CompFactory.TRTMonitoringRun3ESD_Alg,
                                                'AlgTRTMonitoringRun3')
 
+    # trigger flag
+    if not inputFlags.DQ.triggerDataAvailable:
+        algTRTMonitoringRun3ESD.TrigDecisionObjectName = ''
+
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     result.merge(AtlasGeometryCfg(inputFlags))
 
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+    result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className="TRTCond::RtRelationMultChanContainer"))
+    result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className="TRTCond::RtRelationMultChanContainer"))
     result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
     result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
 
@@ -204,10 +210,10 @@ if __name__ == '__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AthenaCommon.AppMgr import ServiceMgr
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Configuration of the ATLAS Geo Model

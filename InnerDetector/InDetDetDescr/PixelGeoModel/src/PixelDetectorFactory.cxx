@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDetectorFactory.h"
@@ -32,7 +32,7 @@
 using InDetDD::PixelDetectorManager; 
 using InDetDD::SiCommonItems; 
 
-PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athenaComps,
+PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComps,
 					   const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(0),
@@ -40,11 +40,9 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
-  GeoVPixelFactory::SetDDMgr(m_detectorManager);
 
   // Create the geometry manager.
   m_geometryManager =  new OraclePixGeoManager(athenaComps);
-  GeoVPixelFactory::setGeometryManager(m_geometryManager);
 
   // Pass the switches
   m_geometryManager->SetServices(switches.services());
@@ -61,11 +59,11 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
    
   // Create SiCommonItems ans store it in geometry manager. 
   // These are items that are shared by all elements
-  SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
-  m_geometryManager->setCommonItems(commonItems);
+  std::unique_ptr<SiCommonItems> commonItems{std::make_unique<SiCommonItems>(athenaComps->getIdHelper())};
+  m_geometryManager->setCommonItems(commonItems.get());
 
   // Add SiCommonItems to PixelDetectorManager to hold and delete it.
-  m_detectorManager->setCommonItems(commonItems);
+  m_detectorManager->setCommonItems(std::move(commonItems));
  
   // Determine if initial layer and tag from the id dict are consistent
   bool initialLayoutIdDict = (m_detectorManager->tag() == "initial_layout");
@@ -134,7 +132,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
 
   //
   // Create the Pixel Envelope...
-  GeoPixelEnvelope pe;
+  GeoPixelEnvelope pe (m_detectorManager, m_geometryManager);
   GeoVPhysVol* pephys = pe.Build() ;
   GeoAlignableTransform * transform = new GeoAlignableTransform(topTransform);
   

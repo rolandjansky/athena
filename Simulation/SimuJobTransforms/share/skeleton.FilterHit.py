@@ -114,9 +114,9 @@ else:
     raise RuntimeError("No outputHitsFile provided.")
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput() )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput(), noTag=True )
 except:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root" )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", noTag=True )
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #Stream1.ExcludeList = ['6421#*']
 
@@ -253,6 +253,14 @@ if hasattr(runArgs,'TruthReductionScheme'):
             McEventCollectionFilter.UseTRTHits = False
         except:
             filterHitLog.error('Trying to run on upgrade samples (no TRT) with an old tag of McEventCollectionFilter - job will fail.')
+    
+    ## For upgrade geometries the BCM has been removed, so should be switched off
+    if not DetFlags.detdescr.BCM_on():
+        try:
+            McEventCollectionFilter.UseBCMHits = False
+        except:
+            filterHitLog.error('Trying to run on upgrade samples (no BCM) with an old version of McEventCollectionFilter - job will fail.')
+
     if not DetFlags.detdescr.CSC_on():
         try:
             McEventCollectionFilter.UseCSCHits = False

@@ -99,7 +99,7 @@ class McEventCollectionCnv_p5 : public T_AthenaPoolTPCnvBase<
   ///////////////////////////////////////////////////////////////////
  protected:
 
-  typedef std::unordered_map<HepMC::GenParticle*,int> ParticlesMap_t;
+  typedef std::unordered_map<HepMC::GenParticlePtr,int> ParticlesMap_t;
 
   /** @brief Create a transient @c GenVertex from a persistent one (version 1)
    *  It returns the new @c GenVertex.
@@ -110,7 +110,7 @@ class McEventCollectionCnv_p5 : public T_AthenaPoolTPCnvBase<
    *  of barcodes to particle so that we can reconnect all the (non-orphan)
    *  particles to their decay vertex (if any).
    */
-  HepMC::GenVertex*
+  HepMC::GenVertexPtr
   createGenVertex( const McEventCollection_p5& persEvts,
                    const GenVertex_p5& vtx,
                    ParticlesMap_t& bcToPart,
@@ -121,7 +121,7 @@ class McEventCollectionCnv_p5 : public T_AthenaPoolTPCnvBase<
    *  argument is to hold the association of barcodes to particle so that
    *  we can reconnect all the particles to their decay vertex (if any).
    */
-  HepMC::GenParticle*
+  HepMC::GenParticlePtr
   createGenParticle( const GenParticle_p5& p,
                      ParticlesMap_t& partToEndVtx,
                      HepMC::DataPool* datapools ) const;
@@ -130,16 +130,26 @@ class McEventCollectionCnv_p5 : public T_AthenaPoolTPCnvBase<
    *  vertex is added to the persistent is added to the persistent
    *  @c GenEvent.
    */
+#ifdef HEPMC3
+  void writeGenVertex( HepMC::ConstGenVertexPtr vtx,
+                       McEventCollection_p5& persEvt ) const;
+#else
   void writeGenVertex( const HepMC::GenVertex& vtx,
                        McEventCollection_p5& persEvt ) const;
 
+#endif
   /** @brief Method to write a persistent @c GenParticle object
    *  It returns the index of the persistent @c GenParticle into the
    *  collection of persistent of @c GenParticles from the
    *  persistent @c GenEvent
    */
+#ifdef HEPMC3
+  int writeGenParticle( HepMC::ConstGenParticlePtr p,
+                        McEventCollection_p5& persEvt ) const;
+#else
   int writeGenParticle( const HepMC::GenParticle& p,
                         McEventCollection_p5& persEvt ) const;
+#endif
 
   ///////////////////////////////////////////////////////////////////
   // Protected data:

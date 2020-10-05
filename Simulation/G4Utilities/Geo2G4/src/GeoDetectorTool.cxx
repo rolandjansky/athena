@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -32,19 +32,19 @@ StatusCode GeoDetectorTool::initialize()
     {
       m_detectorName = this->name();
       // re-initialize m_detectorName in order to take the real detector name rather than the path to it
-      size_t ipos=m_detectorName.find_last_of(".");
-      size_t length=m_detectorName.size();
+      size_t ipos=m_detectorName.value().find_last_of('.');
+      size_t length=m_detectorName.value().size();
       if (ipos<length)
         {
-          ATH_MSG_VERBOSE( "m_detectorName: " << m_detectorName << " needs to be reset.");
-          m_detectorName=m_detectorName.substr(ipos+1,length-ipos-1);
-          ATH_MSG_VERBOSE( "m_detectorName default value reset to " << m_detectorName);
+          ATH_MSG_VERBOSE( "m_detectorName: " << m_detectorName.value() << " needs to be reset.");
+          m_detectorName = m_detectorName.value().substr(ipos+1,length-ipos-1);
+          ATH_MSG_VERBOSE( "m_detectorName default value reset to " << m_detectorName.value());
         }
     }
-  ATH_MSG_DEBUG( name() << "GeoDetectorTool::initialize() : Detector name = " << m_detectorName );
+  ATH_MSG_DEBUG( name() << "GeoDetectorTool::initialize() : Detector name = " << m_detectorName.value() );
   if(m_geoDetectorName.empty())
     {
-      m_geoDetectorName = m_detectorName;
+      m_geoDetectorName = m_detectorName.value();
     }
   ATH_MSG_DEBUG( name() << "GeoDetectorTool::initialize() : Geo Detector name = " << m_geoDetectorName );
 

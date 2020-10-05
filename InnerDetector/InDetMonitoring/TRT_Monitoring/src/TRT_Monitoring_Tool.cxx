@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRT_Monitoring/TRT_Monitoring_Tool.h"
+#include "TRT_Monitoring_Tool.h"
 
 #include "AthContainers/DataVector.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
@@ -18,7 +18,6 @@
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_ConditionsServices/ITRT_DAQ_ConditionsSvc.h"
-#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "xAODTrigger/TrigDecision.h"
@@ -64,7 +63,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	p_toolSvc("IToolSvc", name),
 	m_sumTool("TRT_StrawStatusSummaryTool", this),
 	m_DAQSvc("TRT_DAQ_ConditionsSvc", name), // NOTE: not used anywhere?
-	m_BSSvc("TRT_ByteStream_ConditionsSvc", name),
 	m_condSvc_BS("TRT_ByteStream_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
 	m_TRTCalDbTool("TRT_CalDbTool", this),
@@ -136,7 +134,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("ToolSvc",                  p_toolSvc);
 	declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
 	declareProperty("InDetTRT_DAQ_ConditionsSvc", m_DAQSvc);
-	declareProperty("TRT_ByteStream_ConditionsSvc", m_BSSvc);
 	declareProperty("TRT_StrawNeighbourSvc",   m_TRTStrawNeighbourSvc);
 	declareProperty("DriftFunctionTool",        m_drifttool);
 	declareProperty("DoTRT_DCS",                m_doDCS);
@@ -419,13 +416,6 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 			ATH_CHECK( m_DAQSvc.retrieve() );
 		}
 
-		// Retrieve the TRT_ByteStreamService.
-		if (m_BSSvc.name().empty()) {
-			ATH_MSG_WARNING("TRT_ByteStreamSvc not given.");
-		} else {
-			ATH_CHECK( m_BSSvc.retrieve() );
-		}
-
 		// Test out the TRT_ConditionsSummaryTool.
 		//Identifier ident = m_trtid->straw_id(1,1,1,1,1);
 		Identifier ident;
@@ -589,7 +579,8 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 	ATH_CHECK( m_xAODEventInfoKey.initialize() );
 	ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
 	ATH_CHECK( m_comTimeObjectKey.initialize() );
-	ATH_CHECK( m_trigDecisionKey.initialize() );
+	ATH_CHECK( m_bsErrContKey.initialize(SG::AllowEmpty) );
+	ATH_CHECK( m_trigDecisionKey.initialize(!m_trigDecisionKey.empty()) );
 
 	ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
 
@@ -1131,7 +1122,13 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 	SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo(m_xAODEventInfoKey);
 	SG::ReadHandle<InDetTimeCollection> trtBCIDCollection(m_TRT_BCIDCollectionKey);
 	SG::ReadHandle<ComTime>             comTimeObject(m_comTimeObjectKey);
-	SG::ReadHandle<xAOD::TrigDecision>  trigDecision(m_trigDecisionKey);
+	const xAOD::TrigDecision*           trigDecision(nullptr);
+	if (!m_trigDecisionKey.empty()) {
+		SG::ReadHandle<xAOD::TrigDecision> htrigDecision{m_trigDecisionKey};
+		if (htrigDecision.isValid()) {
+			trigDecision = htrigDecision.get();
+		}
+	}
 
 	if (!xAODEventInfo.isValid()) {
 		ATH_MSG_ERROR("Could not find event info object " << m_xAODEventInfoKey.key() <<
@@ -1170,7 +1167,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			              " in store");
 			return StatusCode::FAILURE;
 		}
-		if (!trigDecision.isValid()) {
+		if (!m_trigDecisionKey.empty() && !trigDecision) {
 			ATH_MSG_INFO("Could not find trigger decision object " << m_trigDecisionKey.key() <<
 			              " in store");
 		}
@@ -1180,7 +1177,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			             " in store");
 		}
 		if (m_passEventBurst) {
-			ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision.ptr(), comTimeObject.ptr()) );
+			ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.ptr()) );
 		}
 	}
 
@@ -2455,7 +2452,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 	}
 
 	for (; p_trk != trackCollection.end(); ++p_trk) {
-		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		std::unique_ptr<const Trk::TrackSummary> summary = m_TrackSummaryTool->summary(*(*p_trk));
 		int nTRTHits = summary->get(Trk::numberOfTRTHits);
 
 		if (nTRTHits < m_minTRThits) continue;
@@ -3583,7 +3580,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 			continue;
 		}
 
-		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
+		std::unique_ptr<const Trk::TrackSummary> summary = m_TrackSummaryTool->summary(*(*track));
 		int n_trt_hits = summary->get(Trk::numberOfTRTHits);
 		int n_sct_hits = summary->get(Trk::numberOfSCTHits);
 		int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
@@ -3813,7 +3810,6 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 }
 
 
-int maxtimestamp = 0.;
 //----------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trackCollection,
                                                      const xAOD::EventInfo& eventInfo) {
@@ -3828,15 +3824,15 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 	lumiBlockNumber = eventInfo.lumiBlock();
 	timeStamp = eventInfo.timeStamp();
 
-	if (timeStamp > maxtimestamp) {
-		maxtimestamp = timeStamp;
+	if (timeStamp > m_maxtimestamp) {
+		m_maxtimestamp = timeStamp;
 	}
 
 	int runNumber;
 	runNumber = eventInfo.runNumber();
 	// get Online Luminosity
 	double intLum = (this->lbDuration() * this->lbAverageLuminosity());
-	double timeStampAverage = (maxtimestamp - 0.5 * this->lbDuration());
+	double timeStampAverage = (m_maxtimestamp - 0.5 * this->lbDuration());
 	m_IntLum->SetBinContent(1, intLum);
 	m_LBvsLum->SetBinContent(lumiBlockNumber, intLum);
 	m_LBvsTime->SetBinContent(lumiBlockNumber, timeStampAverage);
@@ -3861,7 +3857,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
-		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		std::unique_ptr<const Trk::TrackSummary> summary = m_TrackSummaryTool->summary(*(*p_trk));
 		int trt_hits = summary->get(Trk::numberOfTRTHits);
 		int sct_hits = summary->get(Trk::numberOfSCTHits);
 		int pixel_hits = summary->get(Trk::numberOfPixelHits);
@@ -4013,6 +4009,18 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 //-------------------------------------------------------------------------------------------------//
 	StatusCode sc = StatusCode::SUCCESS;
 
+	const TRT_BSErrContainer emptyErrCont;//Empty dummy instance for MC
+	const TRT_BSErrContainer* bsErrCont=&emptyErrCont;
+	
+	if (!m_bsErrContKey.empty()) { 
+	  //Regular real-data case, get the byte-stream errors from SG
+	  SG::ReadHandle<TRT_BSErrContainer> bsErrContHdl{m_bsErrContKey};
+	  bsErrCont=bsErrContHdl.cptr();
+	}
+	else {
+	  ATH_MSG_DEBUG("MC case, using dummy TRT_BSErrContainer");
+	}
+
 	const unsigned int lumiBlock = eventInfo.lumiBlock();
 	ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
 	m_good_bcid = eventInfo.bcid();
@@ -4020,19 +4028,20 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 	if ((int)lumiBlock != m_lastLumiBlock) {
 		m_lastLumiBlock = lumiBlock;
 	}
+	////
+	//Get BSConversion errors
+	const std::set<std::pair<uint32_t, uint32_t> > &L1IDErrorSet      = bsErrCont->getL1ErrorSet();
+	const std::set<std::pair<uint32_t, uint32_t> > &BCIDErrorSet      = bsErrCont->getBCIDErrorSet();
+	const std::set<uint32_t>                       &MissingErrorSet   = bsErrCont->getMissingErrorSet();
+	const std::set<uint32_t>                       &SidErrorSet       = bsErrCont->getSidErrorSet();
+	const std::set<std::pair<uint32_t, uint32_t> > &RobStatusErrorSet = bsErrCont->getRobErrorSet();
 
-	//Get BSConversion Errors from BSConditionsServices:
-	std::set<std::pair<uint32_t, uint32_t> > *L1IDErrorSet      = m_BSSvc->getIdErrorSet(TRTByteStreamErrors::L1IDError);
-	std::set<std::pair<uint32_t, uint32_t> > *BCIDErrorSet      = m_BSSvc->getIdErrorSet(TRTByteStreamErrors::BCIDError);
-	std::set<uint32_t>                       *MissingErrorSet   = m_BSSvc->getErrorSet(TRTByteStreamErrors::MISSINGError);
-	std::set<uint32_t>                       *SidErrorSet       = m_BSSvc->getErrorSet(TRTByteStreamErrors::SIDError);
-	std::set<std::pair<uint32_t, uint32_t> > *RobStatusErrorSet = m_BSSvc->getRodRobErrorSet(TRTByteStreamErrors::RobStatusError);
 	const unsigned int rod_id_base[2][2] = { { 0x310000, 0x320000 }, { 0x330000, 0x340000 } };
 	const unsigned int nChipsTotal[2][2] = { {     3328,     3328 }, {     7680,     7680 } };
 	const unsigned int nRobsTotal[2][2]  = { {       32,       32 }, {       64,       64 } };
 	float nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
 	float nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
-	const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { BCIDErrorSet, L1IDErrorSet };
+	const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { &BCIDErrorSet, &L1IDErrorSet };
 
 	for (int iset = 0; iset < 2; ++iset) {
 		for (auto setIt = errorset1[iset]->begin(); setIt != errorset1[iset]->end(); ++setIt) {
@@ -4046,7 +4055,7 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 		}
 	}
 
-	const std::set<uint32_t> *errorset2[2] = { MissingErrorSet, SidErrorSet };
+	const std::set<uint32_t> *errorset2[2] = { &MissingErrorSet, &SidErrorSet };
 
 	for (int iset = 0; iset < 2; ++iset) {
 		for (auto setIt = errorset2[iset]->begin(); setIt != errorset2[iset]->end(); ++setIt) {
@@ -4067,7 +4076,7 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 		}
 	}
 
-	for (auto setIt = RobStatusErrorSet->begin(); setIt != RobStatusErrorSet->end(); ++setIt) {
+	for (auto setIt = RobStatusErrorSet.begin(); setIt != RobStatusErrorSet.end(); ++setIt) {
 		for (int ibe = 0; ibe < 2; ++ibe) {
 			for (int iside = 0; iside < 2; ++iside) {
 				if (setIt->first % rod_id_base[ibe][iside] < 0xffff) {

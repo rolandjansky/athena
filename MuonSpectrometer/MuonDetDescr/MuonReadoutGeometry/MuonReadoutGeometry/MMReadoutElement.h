@@ -118,6 +118,7 @@ namespace MuonGM {
     inline bool has_ALines() const;
     inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double); //input: translations, rotations
+    void setDelta(MuonDetectorManager* mgr);
     void setBLinePar(BLinePar* bLine);
     inline void clearBLinePar();
     inline const BLinePar* getBLinePar() const { return m_BLinePar;}
@@ -137,6 +138,7 @@ namespace MuonGM {
     double m_halfX;   // 0.5*radial_size
     double m_minHalfY; // 0.5*bottom length (active area)
     double m_maxHalfY; // 0.5*top length (active area)
+    double m_offset;
 
     double m_rots;
     double m_rotz;
@@ -145,7 +147,7 @@ namespace MuonGM {
     bool m_hasALines;
     bool m_hasBLines;
 
-    HepGeom::Transform3D* m_delta;
+    Amg::Transform3D m_delta;
 
     BLinePar* m_BLinePar;
     

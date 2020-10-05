@@ -96,19 +96,14 @@ StatusCode MultiParticleFilter::filterEvent() {
                 
         // Loop over all particles in the event
         const HepMC::GenEvent* genEvt = (*itr);
-        for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr){
-              
+        for(auto pitr: *genEvt){              
             bool passedPDG = false;
-            bool passedStatus = false;
-            
-            for(unsigned int i=0; i<m_particlePDG.size(); i++) 
-                if(abs((*pitr)->pdg_id()) == m_particlePDG[i]) passedPDG = true;
-              
-            for(unsigned int i=0; i<m_particleStatus.size(); i++)
-                if(abs((*pitr)->status()) == m_particleStatus[i]) passedStatus = true;
+            bool passedStatus = false;            
+            if (find(m_particlePDG.begin(),m_particlePDG.end(),std::abs(pitr->pdg_id()))!=m_particlePDG.end()) passedPDG = true;
+            if (find(m_particleStatus.begin(),m_particleStatus.end(),pitr->status())!=m_particleStatus.end()) passedStatus = true;
               
             if(passedPDG && passedStatus)
-	      if ((*pitr)->momentum().perp() >= m_ptMinParticle && (*pitr)->momentum().perp() <= m_ptMaxParticle && fabs((*pitr)->momentum().eta()) <= m_etaRangeParticle)
+	      if (pitr->momentum().perp() >= m_ptMinParticle && pitr->momentum().perp() <= m_ptMaxParticle && std::abs(pitr->momentum().eta()) <= m_etaRangeParticle)
 		Np++; // Found a particle passing all the cuts.
 
             // Test if we fulfilled all the requirements and return in that case.

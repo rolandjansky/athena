@@ -7,11 +7,9 @@
  *    authors: Marilyn Marx (marx@cern.ch), Mark Owen (markowen@cern.ch)
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/TagInfo.h"
 #include "EventInfo/EventID.h"
 
 // To be modified when L2MuonSA / muComb move to xAOD storage
@@ -256,25 +254,13 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA_wrapper()
   }
   ATH_MSG_DEBUG( "Found DetectorStore ") ;
 
-  const TagInfo* tagInfo = 0;
-  sc = p_detStore->retrieve( tagInfo );
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("Could not get TagInfo");
-    return StatusCode::RECOVERABLE;
+  if (m_triggerStreamOfFile == "express") {
+    ATH_MSG_DEBUG("ZTP: express stream");
+    // check if the event was indeed taken by a single muon menu item
+    if( m_passedES[ESSTD] )  sc = fillMuZTPDQA();
   } else {
-    string tag;
-    tagInfo->findTag("triggerStreamOfFile",tag);
-    ATH_MSG_DEBUG("triggerStreamOfFile tag: " << tag);
-
-    // if expresss, check ES bit
-    if (tag == "express") { // passing standard chains: mu18it and mu24i
-      ATH_MSG_DEBUG("ZTP: express stream");
-      // check if the event was indeed taken by a single muon menu item
-      if( m_passedES[ESSTD] )  sc = fillMuZTPDQA();
-    } else {
-      // if non_express stream, run on all events
-      sc = fillMuZTPDQA();
-    }
+    // if non_express stream, run on all events
+    sc = fillMuZTPDQA();
   }
   
   return sc;

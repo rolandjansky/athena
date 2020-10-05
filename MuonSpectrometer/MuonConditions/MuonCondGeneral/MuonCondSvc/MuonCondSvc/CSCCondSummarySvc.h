@@ -1,53 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSCCONDSUMMARYSVC_H
 #define MUONCONDSVC_CSCCONDSUMMARYSVC_H
-//STL includes
+
 #include <string>
 #include <set>
-
 #include <vector>
 
-//Gaudi Includes
-#include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-
-//local includes
-#include "MuonCondSvc/MuonHierarchy.h"
 #include "MuonCondInterface/ICSCConditionsSvc.h"
-//Gaudi includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonCondSvc/MuonHierarchy.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-
-//Athena includes
-#include "Identifier/Identifier.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-//forward declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
-class IdentifierHash;
-class StatusCode;
 
-class Identifier;
-class ICSCConditionsSvc;
-
-
-class CSCCondSummarySvc: virtual public ICSCConditionsSvc, public AthService{
+class CSCCondSummarySvc: virtual public ICSCConditionsSvc, public AthService {
   friend class SvcFactory<CSCCondSummarySvc>;
 public:
 
   CSCCondSummarySvc( const std::string & name, ISvcLocator* svc);
-  virtual ~CSCCondSummarySvc(){}
+  virtual ~CSCCondSummarySvc()=default;
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   static const InterfaceID & interfaceID();
 
@@ -73,12 +54,10 @@ public:
   //StringArrayProperty m_reportingServices; //!< list of services to be used
  ServiceHandleArray<ICSCConditionsSvc> m_reportingServices; //!< list of services to be used
  
- ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-   "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+ ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
  std::vector<Identifier> m_emptyId;
  std::vector<std::string> m_empty;
- const CscIdHelper * m_cscHelper;
  
  ServiceHandle<StoreGateSvc> m_detStore;
  bool m_noReports; 

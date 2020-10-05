@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  ///////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkEventPrimitives/JacobianCartesianToPolar.h"
-#include <math.h>
+#include <cmath>
 
 Trk::JacobianCartesianToPolar::JacobianCartesianToPolar(const double lx, const double ly):
     AmgMatrix(5,5)()

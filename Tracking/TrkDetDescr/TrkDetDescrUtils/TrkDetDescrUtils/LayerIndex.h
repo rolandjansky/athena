@@ -29,8 +29,8 @@ namespace Trk {
 
    LayerIndex for the identification of layers in a
    simplified detector geometry of Cylinders and Discs.
-
-    @author Andreas.Salzburger@cern.ch
+   
+   @author Andreas.Salzburger@cern.ch
   */
 
 class LayerIndex
@@ -38,9 +38,7 @@ class LayerIndex
 
 public:
   /** Default Constructor */
-  LayerIndex()
-    : m_value(0)
-  {}
+  LayerIndex() = default;
 
   /** Constructor with value*/
   LayerIndex(int value)
@@ -48,26 +46,25 @@ public:
   {}
 
   /** Copy Constructor */
-  LayerIndex(const LayerIndex& layIx)
-    : m_value(layIx.m_value)
-  {}
+  LayerIndex(const LayerIndex& layIx) = default;
+
+  /** Move Constructor */
+  LayerIndex(LayerIndex&& layIx) = default;
 
   /** Assignment Operator */
-  LayerIndex& operator=(const LayerIndex& layIx)
-  {
-    if (this != &layIx)
-      m_value = layIx.m_value;
-    return (*this);
-  }
+  LayerIndex& operator=(const LayerIndex& layIx) = default;
+
+  /** Move Assignment Operator */
+  LayerIndex& operator=(LayerIndex&& layIx) = default;
 
   /** Destructor */
-  virtual ~LayerIndex() {}
+  ~LayerIndex() = default;
 
   /** layerIndex expressed in an integer */
   int value() const;
 
 protected:
-  int m_value;
+  int m_value=0;
 };
 
 inline int
@@ -86,12 +83,12 @@ operator>(const LayerIndex& one, const LayerIndex& two);
 bool
 operator>=(const LayerIndex& one, const LayerIndex& two);
 
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/
+/**Overload of << operator for both, MsgStream and std::ostream for debug
+ * output*/
 MsgStream&
 operator<<(MsgStream& sl, const LayerIndex& layx);
 std::ostream&
 operator<<(std::ostream& sl, const LayerIndex& layx);
-
 }
 
 #endif

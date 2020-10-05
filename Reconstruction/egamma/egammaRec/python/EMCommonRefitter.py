@@ -5,51 +5,62 @@ from InDetRecExample import TrackingCommon as TrackingCommon
 
 print("EMCommonRefitter.py")
 
+
 def getGSFTrackFitter():
-    egRotCreator = TrackingCommon.getInDetRotCreator(name='egRotCreator')
-    TrackingCommon.createAndAddCondAlg(TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
-                                       'RIO_OnTrackErrorScalingCondAlg')
+    egRotCreator = TrackingCommon.getInDetRotCreator(
+        name='egRotCreator',
+        private=True)
+
+    TrackingCommon.createAndAddCondAlg(
+        TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
+        'RIO_OnTrackErrorScalingCondAlg')
 
     # get Rk propagator
-    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
+    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import (
+        Trk__RungeKuttaPropagator as Propagator)
+
     egTrkPropagator = Propagator(name='egTrkPropagator')
     egTrkPropagator.AccuracyParameter = 0.0001
 
     # Setup the Navigator (default)
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import (
+        AtlasTrackingGeometrySvc)
+
     from TrkExTools.TrkExToolsConf import Trk__Navigator
-    egTrkNavigator = Trk__Navigator(name='egTrkNavigator',
-                                    TrackingGeometrySvc=AtlasTrackingGeometrySvc)
+    egTrkNavigator = Trk__Navigator(
+        name='egTrkNavigator',
+        TrackingGeometrySvc=AtlasTrackingGeometrySvc)
 
     # Set up the GSF
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator',
-                                                            MaximumNumberOfComponents=12)
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
+        Trk__GsfMaterialMixtureConvolution)
 
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-    GsfExtrapolator = Trk__GsfExtrapolator(name='GsfExtrapolator',
-                                           Propagators=[egTrkPropagator],
-                                           SearchLevelClosestParameters=10,
-                                           StickyConfiguration=True,
-                                           Navigator=egTrkNavigator,
-                                           GsfMaterialConvolution=GsfMaterialUpdator,
-                                           SurfaceBasedMaterialEffects=False)
+    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(
+        name='GsfMaterialUpdator',
+        MaximumNumberOfComponents=12)
 
-    from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator
-    egTrkUpdator = ConfiguredKalmanUpdator('egTrkUpdator')
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
+        Trk__GsfExtrapolator)
 
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-    GsfMeasurementUpdator = Trk__GsfMeasurementUpdator(name='GsfMeasurementUpdator',
-                                                       Updator=egTrkUpdator)
+    GsfExtrapolator = Trk__GsfExtrapolator(
+        name='GsfExtrapolator',
+        Propagators=[egTrkPropagator],
+        SearchLevelClosestParameters=10,
+        StickyConfiguration=True,
+        Navigator=egTrkNavigator,
+        GsfMaterialConvolution=GsfMaterialUpdator,
+        SurfaceBasedMaterialEffects=False)
 
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-    GSFTrackFitter = Trk__GaussianSumFitter(name='GSFTrackFitter',
-                                            ToolForExtrapolation=GsfExtrapolator,
-                                            MeasurementUpdatorType=GsfMeasurementUpdator,
-                                            ReintegrateOutliers=True,
-                                            MakePerigee=True,
-                                            RefitOnMeasurementBase=True,
-                                            DoHitSorting=True,
-                                            ToolForROTCreation=egRotCreator)
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
+        Trk__GaussianSumFitter)
+
+    GSFTrackFitter = Trk__GaussianSumFitter(
+        name='GSFTrackFitter',
+        ToolForExtrapolation=GsfExtrapolator,
+        ReintegrateOutliers=True,
+        MakePerigee=True,
+        RefitOnMeasurementBase=True,
+        DoHitSorting=True,
+        ToolForROTCreation=egRotCreator)
     # --- end of fitter loading
     return GSFTrackFitter

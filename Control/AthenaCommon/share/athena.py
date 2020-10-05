@@ -9,7 +9,8 @@
 # defaults
 export USETCMALLOC=0
 export USEIMF=0
-
+USECA=0
+otherargs=""
 # but use tcmalloc by default if TCMALLOCDIR is defined
 if [ -n "$TCMALLOCDIR" ]; then
     export USETCMALLOC=1
@@ -27,11 +28,19 @@ do
 	--imf)           USEIMF=1;;
 	--preloadlib*)     export ATHENA_ADD_PRELOAD=${a#*=};;
 	--drop-and-reload) export ATHENA_DROP_RELOAD=1;;
+	--CA)              USECA=1;;
+	*)               otherargs="$otherargs $a";;
     esac
 done
 
 # Do the actual preloading via LD_PRELOAD
 source `which athena_preload.sh `
+
+if [ $USECA -eq 1 ] 
+then
+    source `which ThinCAWrapper.sh` 
+    exit 0
+fi
 
 # Now resurrect ourselves as python script
 python_path=`which python`
@@ -138,7 +147,7 @@ try:
    import ctypes
    from ctypes.util import find_library as ctypes_find_library
    libc = ctypes.cdll.LoadLibrary( ctypes_find_library('c') )
-   libc.prctl( 15, 'athena.py', 0, 0, 0 )
+   libc.prctl( 15, b'athena.py', 0, 0, 0 )
 except Exception:
    pass            # don't worry about it failing ...
 

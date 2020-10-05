@@ -302,12 +302,9 @@ StatusCode LArTTL1Maker::initialize()
   ATH_CHECK(m_fSamplKey.initialize());
 
   //Initialize read-handle keys
-  if (!m_PileUp) {
-    for (auto& dhk : m_xxxHitContainerName) {
-      ATH_CHECK(dhk.initialize());
-    }
+  for (auto& dhk : m_xxxHitContainerName) {
+    ATH_CHECK(dhk.initialize( !m_PileUp ));
   }
-
   
   ATH_CHECK(m_EmTTL1ContainerName.initialize());
   ATH_CHECK(m_HadTTL1ContainerName.initialize());
@@ -345,6 +342,11 @@ StatusCode LArTTL1Maker::execute()
 // +======================================================================+
 
   ATH_MSG_DEBUG ( "Begining of execution"  );
+
+  // Prepare RNG Service
+  ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
+
 
   //
   // ....... fill the LArHitEMap
@@ -1243,8 +1245,7 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
   const float c76 = (c21*c11-c61*c71-c62*c72-c63*c73-c64*c74-c65*c75)/c66;
   const float c77 = sqrt(c11*c11-c71*c71-c72*c72-c73*c73-c74*c74-c75*c75-c76*c76);
 
-  ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this, m_randomStreamName);
   double rndm[s_NBSAMPLES];
   RandGaussZiggurat::shootArray(*rngWrapper,static_cast<int>(s_NBSAMPLES),rndm,0.,1.);
   outputV[0] = inputV[0] + c11*rndm[0];

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigEmulatorExAlg.cxx 770492 2016-08-28 16:52:40Z rwhite $
@@ -244,7 +244,7 @@ StatusCode TrigEmulatorExAlg::EmulationAnalysis () {
     ATH_MSG_INFO("Checking " << l1jets->size() << " jets ");
     for(const auto l1jet:*l1jets){
         auto names = l1jet->thrNames();
-        for(const auto thr:names){
+        for(const auto& thr:names){
             ATH_MSG_INFO("L1 jet et8x8 " << l1jet->et8x8() << " passing threshold " << thr);
         }
     }

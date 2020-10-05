@@ -32,11 +32,15 @@ from AthenaServices.AthenaServicesConf import Athena__ConditionsCleanerSvc
 from AthenaServices.AthenaServicesConf import Athena__DelayedConditionsCleanerSvc
 from AthenaCommon.AlgSequence import AthSequencer
 
-condInputLoader = CondInputLoader( "CondInputLoader")
-condSeq = AthSequencer("AthCondSeq")
 
 svcMgr += CondSvc()
-condSeq += condInputLoader
+
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "CondInputLoader"):
+    condInputLoader = CondInputLoader( "CondInputLoader")
+    condSeq += condInputLoader
+else:
+    condInputLoader = condSeq.CondInputLoader
 
 # Enable conditions garbage collection.
 cleaner = Athena__DelayedConditionsCleanerSvc()
@@ -227,7 +231,7 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:
-            key = (className, self.extractFolder(folder))
+            key = [className, self.extractFolder(folder)]
             if key not in condInputLoader.Load:
                 condInputLoader.Load += [ key ]
 
@@ -263,7 +267,11 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
             if (self.iovdbsvc.Folders[i].find(folder)>=0):
                 del self.iovdbsvc.Folders[i]
                 break
-            
+        for i in range(0, len(condInputLoader.Load)):
+            if (condInputLoader.Load[i][-1] == self.extractFolder(folder)):
+                del condInputLoader.Load[i]
+                break
+
     def folderRequested(self,folder):
         "Return true if the given folder has already been requested"
         for i in self.iovdbsvc.Folders:

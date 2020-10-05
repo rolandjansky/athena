@@ -38,6 +38,14 @@ namespace InDet {
     return m_nprint;
   }
 
+  std::array<std::array<int,SiCombinatorialTrackFinderData_xk::kNSeedTypes>,SiCombinatorialTrackFinderData_xk::kNStatAllTypes>& SiTrackMakerEventData_xk::summaryStatAll() {
+    return m_summaryStatAll;
+  }
+
+  std::array<std::array<std::array<int,SiCombinatorialTrackFinderData_xk::kNRapidityRanges>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>,SiCombinatorialTrackFinderData_xk::kNStatEtaTypes>& SiTrackMakerEventData_xk::summaryStatUsedInTrack()  {
+    return m_summaryStatUsedInTrack;
+  }
+
   std::multimap<const Trk::PrepRawData*, const Trk::Track*>& SiTrackMakerEventData_xk::clusterTrack() {
     return m_clusterTrack;
   }

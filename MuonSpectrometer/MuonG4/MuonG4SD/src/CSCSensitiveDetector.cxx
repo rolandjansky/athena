@@ -47,9 +47,9 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   /** attributes of the CSC identifier construction */
 
   std::string stationName="";
-  int stationEta=0;
-  int stationPhi=0;
-  int multiLayer=0;
+  int stationEta=1;
+  int stationPhi=1;
+  int multiLayer=1;
   int wireLayer=0;
 
   /** hit information to be recorded */

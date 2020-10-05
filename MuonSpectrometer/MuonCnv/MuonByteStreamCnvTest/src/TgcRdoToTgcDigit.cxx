@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRdoToTgcDigit.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 TgcRdoToTgcDigit::TgcRdoToTgcDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
@@ -13,7 +12,7 @@ TgcRdoToTgcDigit::TgcRdoToTgcDigit(const std::string& name,
 
 StatusCode TgcRdoToTgcDigit::initialize()
 {
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
   ATH_CHECK(m_tgcRdoKey.initialize());
   ATH_CHECK(m_tgcDigitKey.initialize());
@@ -37,7 +36,7 @@ StatusCode TgcRdoToTgcDigit::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " TGC RDOs." );
 
   SG::WriteHandle<TgcDigitContainer> wh_tgcDigit(m_tgcDigitKey, ctx);
-  ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_muonIdHelperTool->tgcIdHelper().module_hash_max())));
+  ATH_CHECK(wh_tgcDigit.record(std::make_unique<TgcDigitContainer> (m_idHelperSvc->tgcIdHelper().module_hash_max())));
   ATH_MSG_DEBUG( "Decoding TGC RDO into TGC Digit"  );
 
   Identifier oldElementId;
@@ -59,7 +58,7 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 {
   TgcDigitCollection* collection = nullptr;
 
-  const IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  const IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
 
   ATH_MSG_DEBUG( "Number of RawData in this rdo "
                  << rdoColl->size()  );
@@ -100,10 +99,8 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
       }
     }
     // Covert to original hit patterns
-    std::map<std::vector<uint16_t>, uint16_t>::iterator jtMap   = stripMap.begin();
-    std::map<std::vector<uint16_t>, uint16_t>::iterator jtMap_e = stripMap.end();
-    for(; jtMap!=jtMap_e; jtMap++) {
-      if(jtMap->second<=31) {
+    for (auto& jtPair : stripMap) {
+      if(jtPair.second<=31) {
         // x    : 5-bit variable
         // f(x) : OR function above, Digit->RDO conversion
         // g(x) : originalHitBits which satisfies f(g(f(x))) = f(x), RDO->Digit conversion
@@ -117,9 +114,9 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
           // 24  25  26  27  28  29  30  31
           16, 17,  0, 19, 24, 25, 28, 31
         };
-        jtMap->second = originalHitBits[jtMap->second];
+        jtPair.second = originalHitBits[jtPair.second];
       } else {
-        jtMap->second = 0;
+        jtPair.second = 0;
       }
     }
     // TGC2 Endcap Strip OR channel treatement preparation end
@@ -217,7 +214,7 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 
           // check new element or not
           IdentifierHash coll_hash;
-          if (m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, coll_hash, &tgcContext)) {
+          if (m_idHelperSvc->tgcIdHelper().get_hash(elementId, coll_hash, &tgcContext)) {
             ATH_MSG_WARNING( "Unable to get TGC digit collection hash "
                              << "context begin_index = " << tgcContext.begin_index()
                              << " context end_index  = " << tgcContext.end_index()
@@ -227,9 +224,9 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
 
           if (elementId != oldElementId) {
             // get collection
-            TgcDigitContainer::const_iterator it_coll = tgcContainer->indexFind(coll_hash);
-            if (tgcContainer->end() !=  it_coll) {
-              TgcDigitCollection* aCollection ATLAS_THREAD_SAFE = const_cast<TgcDigitCollection*>( *it_coll ); // FIXME
+            auto coll = tgcContainer->indexFindPtr(coll_hash);
+            if (nullptr !=  coll) {
+              TgcDigitCollection* aCollection ATLAS_THREAD_SAFE = const_cast<TgcDigitCollection*>( coll ); // FIXME
               collection = aCollection;
             }
             else
@@ -249,11 +246,10 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
           }
 
           // check duplicate digits
-          TgcDigitCollection::const_iterator it_tgcDigit;
           bool duplicate = false;
-          for (it_tgcDigit=collection->begin(); it_tgcDigit != collection->end(); it_tgcDigit++) {
-            if ((newDigit->identify() == (*it_tgcDigit)->identify()) &&
-                (newDigit->bcTag()    == (*it_tgcDigit)->bcTag())) {
+          for (const TgcDigit* digit : *collection) {
+            if ((newDigit->identify() == digit->identify()) &&
+                (newDigit->bcTag()    == digit->bcTag())) {
               duplicate = true;
               ATH_MSG_DEBUG( "Duplicate TGC Digit removed"   );
               break;

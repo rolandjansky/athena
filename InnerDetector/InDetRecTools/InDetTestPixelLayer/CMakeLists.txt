@@ -43,7 +43,7 @@ atlas_add_library( InDetTestPixelLayerLib
                    src/*.cxx
                    PUBLIC_HEADERS InDetTestPixelLayer
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces InDetConditionsSummaryService
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetReadoutGeometry PixelReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces )
 
 atlas_add_component( InDetTestPixelLayer

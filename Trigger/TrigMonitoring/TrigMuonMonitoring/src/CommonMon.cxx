@@ -8,15 +8,10 @@
  *             Kunihiro Nagano (nagano@mail.cern.ch)
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/EventIDBase.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
-#include "EventInfo/TagInfo.h"
 
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
@@ -42,6 +37,8 @@
 //#include "muonEvent/Muon.h"
 //#include "muonEvent/MuonContainer.h"
 #include "muonEvent/MuonParamDefs.h"
+
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/MuonRoI.h"
@@ -1347,31 +1344,17 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
     }
   }
 
-  //get Event Info
-  const DataHandle<EventInfo> evt;
-  StatusCode sc = evtStore()->retrieve(evt);
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
+  // Get EventID
+  const EventIDBase& evtid = Gaudi::Hive::currentContext().eventID();
+
+  if(! evtid.isValid() ){
+    ATH_MSG_FATAL(" Invalid EventID object");
     hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
     return StatusCode::FAILURE;
   }
 
-  if( !evt.isValid() ){
-    ATH_MSG_FATAL(" Could not find event");
-    hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
-    return StatusCode::FAILURE;
-  }
-
-  const EventID* evtid = evt->event_ID();
-
-  if(! evtid ){
-    ATH_MSG_FATAL(" no evtid object");
-    hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
-    return StatusCode::FAILURE;
-  }
-
-  m_lumiblock = evtid->lumi_block() ;
-  m_event     = evtid->event_number() ;
+  m_lumiblock = evtid.lumi_block() ;
+  m_event     = evtid.event_number() ;
 
   hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
 
@@ -1410,10 +1393,18 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   }
 
   std::vector<std::string> vs_ESnoniso;
-  vs_ESnoniso.push_back("HLT_mu8");   // for HI, but HI does not use iso
-  vs_ESnoniso.push_back("HLT_mu14");  // for EnhancedBias
-  vs_ESnoniso.push_back("HLT_mu26");
-  vs_ESnoniso.push_back("HLT_mu24");      
+  if (getTDT()->getNavigationFormat() == "TriggerElement") {
+    vs_ESnoniso.push_back("HLT_mu8");   // for HI, but HI does not use iso
+    vs_ESnoniso.push_back("HLT_mu14");  // for EnhancedBias
+    vs_ESnoniso.push_back("HLT_mu26");
+    vs_ESnoniso.push_back("HLT_mu24");  
+  }
+  else{
+    vs_ESnoniso.push_back("HLT_mu8_L1MU6");   
+    vs_ESnoniso.push_back("HLT_mu14_L1MU10");  
+    vs_ESnoniso.push_back("HLT_mu26_L1MU20");
+    vs_ESnoniso.push_back("HLT_mu24_L1MU20");  
+  }    
       
   std::vector<std::string> vs_EStag;
   //vs_EStag.push_back("HLT_mu24_muCombTag_NoEF_tight"); // pp v4
@@ -1461,6 +1452,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   for (int i = 0; i <= m_maxESbr; i++) {
     m_passedES[i] = false;
   }
+  m_passedESNONISO = false;
 
   if (m_requestESchains) {
     std::vector<std::string>::iterator itrES;
@@ -1528,8 +1520,7 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   fillTriggerOverlap();
 
   //new check L1 flag
-  sc = fillL1MuRoI();
-  if ( sc.isFailure() ) {
+  if ( fillL1MuRoI().isFailure() ) {
     ATH_MSG_ERROR(" Cannot retrieve MuonRoIInfo ");
     return StatusCode::FAILURE;
   }
@@ -2321,7 +2312,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
 
   StatusCode sc;
   StoreGateSvc* p_detStore;
-  std::string tag;
 
   //Set pointer on DetectorStore
   sc = service("DetectorStore", p_detStore);
@@ -2331,14 +2321,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
   }
   ATH_MSG_DEBUG( "Found DetectorStore ") ;
 
-  const TagInfo* tagInfo = 0;
-  sc = p_detStore->retrieve( tagInfo );
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("Could not get TagInfo");
-    return StatusCode::RECOVERABLE;
-  } else {
-    tagInfo->findTag("triggerStreamOfFile",tag);
-  }
 
   if(chainName.find("noL1")!= string::npos){
     if(m_RecMuonCB_pt.size()<=1) return StatusCode::SUCCESS;
@@ -2368,7 +2350,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
     std::string EF_pre_trigger= m_FS_pre_trigger;   
     std::string EF_pre_trigger_second= m_FS_pre_trigger_second;   
 
-    if( tag == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS; 
+    if( m_triggerStreamOfFile == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS;
     if(getTDT()->isPassed(EF_pre_trigger.c_str())!=1 && getTDT()->isPassed(EF_pre_trigger_second.c_str())!=1) return StatusCode::SUCCESS;
     std::string name = histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
     hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
@@ -2626,12 +2608,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
 	}
 
       }
-    }
-    const DataHandle<EventInfo> evt;
-    sc = evtStore()->retrieve(evt);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
-      return StatusCode::FAILURE;
     }
     float mean_mu = lbAverageInteractionsPerCrossing();
     // start to dump the probe muon information //
@@ -4316,9 +4292,9 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
   //
   // Process current event
   //
-	   
-  const EventInfo* event_handle(nullptr);
-  if(StatusCode::FAILURE==evtStore() -> retrieve(event_handle)){
+
+  const xAOD::EventInfo* eventInfo = nullptr;
+  if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
     if (errcnt < 1) {
       ATH_MSG_DEBUG("Failed to read EventInfo");
       errcnt++;
@@ -4326,22 +4302,8 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
     return retvect;
   }
 
-  //
-  // Print EventInfo and stream tags
-  //
-  const TriggerInfo *trig = event_handle->trigger_info();
-  if(!trig) {
-    if (errcnt < 1) {
-      ATH_MSG_DEBUG("Failed to get TriggerInfo");
-      errcnt++;
-    }
-    return retvect;
-  }
-  const std::vector<TriggerInfo::StreamTag> &streams = trig->streamTags();
-
   bool found_express_stream = false;
-  for(unsigned i = 0; i < streams.size(); ++i) {
-    const TriggerInfo::StreamTag &stag = streams.at(i);
+  for (const xAOD::EventInfo::StreamTag& stag : eventInfo->streamTags()) {
     if(stag.type() == "express" && stag.name() == "express") {
       found_express_stream = true;
       break;
@@ -4355,12 +4317,6 @@ std::vector<std::string> HLTMuonMonTool::getESbits()
     }
     return retvect;
   }
-
-  /*  ATH_MSG_INFO (">>>>>>>>>>>>>>>>"
-      << " run #" << event_handle->event_ID()->run_number()
-      << " lumi #" << event_handle->event_ID()->lumi_block()
-      << " event #" << event_handle->event_ID()->event_number() 
-      << " has express stream tag");  */
 
   //const std::string key = "HLT_EXPRESS_OPI_HLT";
   const std::string key = "HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT";
@@ -4527,16 +4483,7 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
     return StatusCode::FAILURE;
   }
 
-
-  const DataHandle<EventInfo> eventInfo;
-  sc = evtStore()->retrieve(eventInfo);
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
-    hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
-    return StatusCode::FAILURE;
-  }
-
-  EventID::number_type bcid = eventInfo->event_ID()->bunch_crossing_id();
+  EventIDBase::number_type bcid = Gaudi::Hive::currentContext().eventID().bunch_crossing_id();
 
   bool filled = m_bunchTool->isFilled(bcid);
   bool unpaired = m_bunchTool->isUnpaired(bcid);

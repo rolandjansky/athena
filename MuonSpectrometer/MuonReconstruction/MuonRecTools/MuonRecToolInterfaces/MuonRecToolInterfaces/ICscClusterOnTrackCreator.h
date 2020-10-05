@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_ICSCCLUSTERONTRACKCREATOR_H
 #define MUON_ICSCCLUSTERONTRACKCREATOR_H
 
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "GaudiKernel/ToolHandle.h"
 
 static const InterfaceID IID_ICscClusterOnTrackCreator
     ("Muon::ICscClusterOnTrackCreator",1,0);
@@ -13,7 +14,6 @@ static const InterfaceID IID_ICscClusterOnTrackCreator
 class ICscStripFitter;
 class ICscClusterFitter;
 class ICscClusterUtilTool;
-
 
 namespace Muon {
 

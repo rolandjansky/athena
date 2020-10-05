@@ -13,11 +13,9 @@ from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 # fragments generating configuration will be functions in New JO, 
 # so let's make them functions already now
 #----------------------------------------------------------------
-def bjetSequenceCfg_j( flags ):
-    return getBJetSequence('j')
+def bjetSequenceCfg( flags ):
+    return getBJetSequence()
 
-def bjetSequenceCfg_btag( flag ):
-    return getBJetSequence('btag')
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -56,7 +54,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "": ["getBjetSequence_j","getBjetSequence_btag"]
+            "": ["getBjetSequence"]
         }
         
         return stepDictionary
@@ -64,21 +62,17 @@ class BjetChainConfiguration(ChainConfigurationBase):
     # --------------------
     # Configuration of steps
     # --------------------
-    def getBjetSequence_j(self):
+    def getBjetSequence(self):
         stepName = "Step2_bjet"
         log.debug("Configuring step " + stepName)
         
-        return self.getStep(2, stepName, [bjetSequenceCfg_j])        
-
-    def getBjetSequence_btag(self):
-        stepName = "Step3_bjet"
-        log.debug("Configuring step " + stepName)
-
-        return self.getStep(3, stepName, [bjetSequenceCfg_btag])
+        return self.getStep(2, stepName, [bjetSequenceCfg])        
 
 
 
-            
 
-        
-                
+
+
+
+
+

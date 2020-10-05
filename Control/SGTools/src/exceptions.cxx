@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file SGTools/src/exceptions.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -93,6 +91,44 @@ ExcProxyCollision::ExcProxyCollision (CLID id,
                                                   key,
                                                   primary_id,
                                                   primary_key))
+{
+}
+
+
+//*************************************************************************
+
+
+/// Helper: Format exception string.
+std::string excSgkeyCollision_format (const std::string& new_key,
+                                      CLID new_clid,
+                                      const std::string& old_key,
+                                      CLID old_clid,
+                                      sgkey_t sgkey)
+{
+  std::ostringstream os;
+  os << "ExcSgkeyCollision: sgkey hash collision; new key: "
+     << new_key << "/" << new_clid << " and existing key: "
+     << old_key << "/" << old_clid << " both hash to " << sgkey;
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param new_key String SG key of the new item we're trying to add.
+ * @param new_clid CLID for the new item we're trying to add.
+ * @param old_key String SG key of the existing item.
+ * @param old_clid CLID for the existing item.
+ * @param sgkey Hashed key of both.
+ */
+ExcSgkeyCollision::ExcSgkeyCollision (const std::string& new_key,
+                                      CLID new_clid,
+                                      const std::string& old_key,
+                                      CLID old_clid,
+                                      sgkey_t sgkey)
+  : std::runtime_error (excSgkeyCollision_format (new_key, new_clid,
+                                                  old_key, old_clid,
+                                                  sgkey))
 {
 }
 

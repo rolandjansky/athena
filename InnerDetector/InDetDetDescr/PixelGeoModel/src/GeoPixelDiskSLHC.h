@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELDISKSLHC_H
@@ -9,8 +9,9 @@
 
 class GeoPixelDiskSLHC : public GeoVPixelFactory {
  public:
-  GeoPixelDiskSLHC();
-  virtual GeoVPhysVol* Build();
+  GeoPixelDiskSLHC(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif

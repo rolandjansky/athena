@@ -48,7 +48,7 @@ if len( llDPD.OutputDirectoryName() ) >= 1 and not llDPD.OutputDirectoryName().e
 
 if rec.OutputLevel() <= INFO:
     llDPD_msg.info('Values of all LongLivedDPD flags:')    
-    print llDPD
+    print(llDPD)
     pass
 
 ##=============================================================================

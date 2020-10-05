@@ -21,29 +21,6 @@ else()
         Control/AthenaBaseComps )
 endif()
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMissingET
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODTau
-   Event/xAOD/xAODTracking
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   Reconstruction/MET/METInterface
-   PRIVATE
-   Event/EventPrimitives
-   Event/FourMomUtils
-   Event/xAOD/xAODCore
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-   PhysicsAnalysis/MuonID/MuonSelectorTools
-   PhysicsAnalysis/TauID/TauAnalysisTools
-   Tools/PathResolver
-   ${extra_deps} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
 find_package( GTest )
@@ -55,15 +32,16 @@ atlas_add_library( METUtilitiesLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
    xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces
-   METInterface
+   EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib tauRecToolsLib
+   METInterface AsgDataHandlesLib
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( METUtilities
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel AthenaBaseComps METInterface xAODEgamma
-      xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib
-      EgammaAnalysisInterfacesLib TauAnalysisToolsLib METUtilitiesLib  )
+      xAODMuon xAODTau xAODMissingET xAODJet JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib MuonSelectorToolsLib tauRecToolsLib
+      TauAnalysisToolsLib METUtilitiesLib  )
 endif()
 
 atlas_add_dictionary( METUtilitiesDict
@@ -83,8 +61,11 @@ endif()
 # Executable(s) in the package:
 # only compiled in analysis releases
 if( XAOD_ANALYSIS )
-  foreach( utility example_METMaker_METSystematicsTool
-          example_METMaker_advanced example_rebuildTrackMET )
+  # FIX ME: temporarily disabled utilities relying on non-existant code
+
+  # foreach( utility example_METMaker_METSystematicsTool
+  #         example_METMaker_advanced example_rebuildTrackMET )
+  foreach( utility example_rebuildTrackMET )
     atlas_add_executable( ${utility}
           util/${utility}.cxx
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

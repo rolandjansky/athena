@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MuonGeoModel/RDBReaderAtlas.h"
+
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 #include "MuonGeoModel/StationSelector.h"
 #include "MuonGeoModel/MdtComponent.h"
@@ -14,7 +14,7 @@
 #include "RDBAccessSvc/IRDBQuery.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
+#include "AmdcDb/AmdcDb.h"
 #include "MuonGeoModel/TGC_Technology.h"
 
 namespace MuonGM {
@@ -26,96 +26,212 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
                                bool dumpCscInternalAlinesFromOracle,
                                const std::map<std::string,std::string>* asciiFileDBMap):
   DBReader(pDetStore),
+  m_controlCscIntAlines(0),
+  m_dhdbam(nullptr),
+  m_dbam(nullptr),
+  m_dhatyp(nullptr),
+  m_atyp(nullptr),
+  m_dhasmp(nullptr),
+  m_asmp(nullptr),
+  m_dhalmn(nullptr),
+  m_almn(nullptr),
+  m_dhaptp(nullptr),
+  m_aptp(nullptr),
+  m_dhwrpc(nullptr),
+  m_wrpc(nullptr),
+  m_dhwtgc(nullptr),
+  m_wtgc(nullptr),
+  m_dhacut(nullptr),
+  m_acut(nullptr),
+  m_dhalin(nullptr),
+  m_alin(nullptr),
+  m_dhwmdt(nullptr),
+  m_wmdt(nullptr),
+  m_dhwcsc(nullptr),
+  m_wcsc(nullptr),
+  m_dhwrpcall(nullptr),
+  m_wrpcall(nullptr),
+  m_dhwtgcall(nullptr),
+  m_wtgcall(nullptr),
+  m_dhwded(nullptr),
+  m_wded(nullptr),
+  m_dhwsup(nullptr),
+  m_wsup(nullptr),
+  m_dhwspa(nullptr),
+  m_wspa(nullptr),
+  m_dhwchv(nullptr),
+  m_wchv(nullptr),
+  m_dhwcro(nullptr),
+  m_wcro(nullptr),
+  m_dhwcmi(nullptr),
+  m_wcmi(nullptr),
+  m_dhwlbi(nullptr),
+  m_wlbi(nullptr),
+  m_dhaszt(nullptr),
+  m_aszt(nullptr),
+  m_dhiacsc(nullptr),
+  m_iacsc(nullptr),
+  m_dhxtomo(nullptr),
+  m_xtomo(nullptr),
   m_geoTag(geoTag),
   m_geoNode(geoNode),
   m_pRDBAccess(pRDBAccess),
   m_useICSCAlines(useCscInternalAlinesFromOracle)
 {
-
-  m_controlCscIntAlines = 0;
   m_msgSvc = Athena::getMessageSvc();
   MsgStream log(m_msgSvc, "MuGM:RDBReadAtlas");
   m_SCdbaccess = StatusCode::FAILURE;
 
-  log << MSG::INFO
+  AmdcDb* theAmdcDb = dynamic_cast<AmdcDb*>(m_pRDBAccess);
+  if(theAmdcDb) {
+    log<<MSG::INFO<<"You are now using tables provided by the AmdcDb!!"<<endmsg;
+  } else {
+    log << MSG::INFO
       << "Start retriving dbObjects with tag = <" << geoTag << "> node <" << geoNode << ">"
       << endmsg;
+  }
   // here putting RDB data in private "objects" form
   std::unique_ptr<IRDBQuery> dbdata;
-  dbdata = m_pRDBAccess->getQuery("ATYP",geoTag,geoNode);
-  m_dhatyp = new DblQ00Atyp(std::move(dbdata));
-
+  if(theAmdcDb) {
+    m_dhatyp = new DblQ00Atyp(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("ATYP",geoTag,geoNode);
+    m_dhatyp = new DblQ00Atyp(std::move(dbdata));
+  }
   m_atyp = m_dhatyp->data();
-  dbdata = m_pRDBAccess->getQuery("ASMP",geoTag,geoNode);
-  m_dhasmp = new DblQ00Asmp(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhasmp = new DblQ00Asmp(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("ASMP",geoTag,geoNode);
+    m_dhasmp = new DblQ00Asmp(std::move(dbdata));
+  }
   m_asmp = m_dhasmp->data();
-  dbdata = m_pRDBAccess->getQuery("ALMN",geoTag,geoNode);
-  m_dhalmn = new DblQ00Almn(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhalmn = new DblQ00Almn(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("ALMN",geoTag,geoNode);
+    m_dhalmn = new DblQ00Almn(std::move(dbdata));
+  }
   m_almn = m_dhalmn->data();
-  dbdata = m_pRDBAccess->getQuery("APTP",geoTag,geoNode);
-  m_dhaptp = new DblQ00Aptp(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhaptp = new DblQ00Aptp(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("APTP",geoTag,geoNode);
+    m_dhaptp = new DblQ00Aptp(std::move(dbdata));
+  }
   m_aptp = m_dhaptp->data();
-  dbdata = m_pRDBAccess->getQuery("ACUT",geoTag,geoNode);
-  m_dhacut = new DblQ00Acut(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhacut = new DblQ00Acut(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("ACUT",geoTag,geoNode);
+    m_dhacut = new DblQ00Acut(std::move(dbdata));
+  }
   m_acut = m_dhacut->data();
-  dbdata = m_pRDBAccess->getQuery("ALIN",geoTag,geoNode);
-  m_dhalin = new DblQ00Alin(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhalin = new DblQ00Alin(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("ALIN",geoTag,geoNode);
+    m_dhalin = new DblQ00Alin(std::move(dbdata));
+  }
   m_alin = m_dhalin->data();
-  dbdata = m_pRDBAccess->getQuery("DBAM",geoTag,geoNode);
-  m_dhdbam = new DblQ00Dbam(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhdbam = new DblQ00Dbam(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("DBAM",geoTag,geoNode);
+    m_dhdbam = new DblQ00Dbam(std::move(dbdata));
+  }
   m_dbam = m_dhdbam->data();
-  dbdata = m_pRDBAccess->getQuery("AWLN",geoTag,geoNode);
-  m_dhwrpc = new DblQ00Awln(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwrpc = new DblQ00Awln(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("AWLN",geoTag,geoNode);
+    m_dhwrpc = new DblQ00Awln(std::move(dbdata));
+  }
   m_wrpc= m_dhwrpc->data();
-  dbdata = m_pRDBAccess->getQuery("ATLN",geoTag,geoNode);
-  m_dhwtgc = new DblQ00Atln(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwtgc = new DblQ00Atln(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("ATLN",geoTag,geoNode);
+    m_dhwtgc = new DblQ00Atln(std::move(dbdata));
+  }
   m_wtgc= m_dhwtgc->data();
-  dbdata = m_pRDBAccess->getQuery("WMDT",geoTag,geoNode);
-  m_dhwmdt = new DblQ00Wmdt(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwmdt = new DblQ00Wmdt(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("WMDT",geoTag,geoNode);
+    m_dhwmdt = new DblQ00Wmdt(std::move(dbdata));
+  }
   m_wmdt= m_dhwmdt->data();
-  dbdata = m_pRDBAccess->getQuery("WCSC",geoTag,geoNode);
-  m_dhwcsc = new DblQ00Wcsc(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwcsc = new DblQ00Wcsc(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("WCSC",geoTag,geoNode);
+    m_dhwcsc = new DblQ00Wcsc(std::move(dbdata));
+  }
   m_wcsc= m_dhwcsc->data();
-  dbdata = m_pRDBAccess->getQuery("WRPC",geoTag,geoNode);
-  m_dhwrpcall = new DblQ00Wrpc(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwrpcall = new DblQ00Wrpc(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("WRPC",geoTag,geoNode);
+    m_dhwrpcall = new DblQ00Wrpc(std::move(dbdata));
+  }
   m_wrpcall= m_dhwrpcall->data();
-  dbdata = m_pRDBAccess->getQuery("WTGC",geoTag,geoNode);
-  m_dhwtgcall = new DblQ00Wtgc(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwtgcall = new DblQ00Wtgc(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("WTGC",geoTag,geoNode);
+    m_dhwtgcall = new DblQ00Wtgc(std::move(dbdata));
+  }
   m_wtgcall= m_dhwtgcall->data();
-  dbdata = m_pRDBAccess->getQuery("WSPA",geoTag,geoNode);
-  m_dhwspa = new DblQ00Wspa(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwspa = new DblQ00Wspa(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("WSPA",geoTag,geoNode);
+    m_dhwspa = new DblQ00Wspa(std::move(dbdata));
+  }
   m_wspa= m_dhwspa->data();
-  dbdata = m_pRDBAccess->getQuery("WDED",geoTag,geoNode);
-  m_dhwded = new DblQ00Wded(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwded = new DblQ00Wded(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("WDED",geoTag,geoNode);
+    m_dhwded = new DblQ00Wded(std::move(dbdata));
+  }
   m_wded= m_dhwded->data();
-  dbdata = m_pRDBAccess->getQuery("WSUP",geoTag,geoNode);
-  m_dhwsup = new DblQ00Wsup(std::move(dbdata));
 
+  if(theAmdcDb) {
+    m_dhwsup = new DblQ00Wsup(theAmdcDb);
+  } else {
+    dbdata = m_pRDBAccess->getQuery("WSUP",geoTag,geoNode);
+    m_dhwsup = new DblQ00Wsup(std::move(dbdata));
+  }
   m_wsup= m_dhwsup->data();
+
   // Mdt AsBuilt parameters
-  dbdata = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
-  log << MSG::INFO << "After getQuery XtomoData" << endmsg;
-  m_dhxtomo = new DblQ00Xtomo(std::move(dbdata));
-  log << MSG::INFO << "After new DblQ00Xtomo" << endmsg;
-  m_xtomo = m_dhxtomo->data();
-  log << MSG::INFO << "After m_dhxtomo.data()" << endmsg;
+  if(theAmdcDb) {
+    log << MSG::INFO << "skipping XtomoData" << endmsg;
+  } else {
+    dbdata = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
+    log << MSG::INFO << "After getQuery XtomoData" << endmsg;
+    m_dhxtomo = new DblQ00Xtomo(std::move(dbdata));
+    log << MSG::INFO << "After new DblQ00Xtomo" << endmsg;
+  }
+  if(m_dhxtomo) m_xtomo = m_dhxtomo->data();
 
   // ASZT
-  m_dhaszt = 0;
   if (asciiFileDBMap!=0 &&
       asciiFileDBMap->find("ASZT") != asciiFileDBMap->end()) {
 
@@ -138,28 +254,31 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
   if (m_dhaszt==0 || m_dhaszt->size()==0) {
     log << MSG::INFO << "No Ascii aszt input found: looking for A-lines in ORACLE" << endmsg;
 
-    dbdata = m_pRDBAccess->getQuery("ASZT",geoTag,geoNode);
-    if (!dbdata) {
-      m_dhaszt = new DblQ00Aszt();
-      log << MSG::INFO << "No ASZT table in Oracle" << endmsg;
+    if(theAmdcDb){
+      m_dhaszt = new DblQ00Aszt(theAmdcDb);
     } else {
-      log << MSG::INFO << "ASZT table found in Oracle" << endmsg;
-      m_dhaszt = new DblQ00Aszt(std::move(dbdata));
-      log << MSG::INFO << "ASZT size is " << m_dhaszt->size() << endmsg;
+      dbdata = m_pRDBAccess->getQuery("ASZT",geoTag,geoNode);
+      if (!dbdata) {
+        m_dhaszt = new DblQ00Aszt();
+        log << MSG::INFO << "No ASZT table in Oracle" << endmsg;
+      } else {
+        log << MSG::INFO << "ASZT table found in Oracle" << endmsg;
+        m_dhaszt = new DblQ00Aszt(std::move(dbdata));
+        log << MSG::INFO << "ASZT size is " << m_dhaszt->size() << endmsg;
+      }
     }
   } else {
     log << MSG::INFO << "ASZT table in Oracle, if any, will not be read" << endmsg;
   }
-  m_aszt= m_dhaszt->data();
+  if(m_dhaszt) m_aszt = m_dhaszt->data();
 
   //
-  if (dumpAlinesFromOracle) {
+  if (dumpAlinesFromOracle && m_dhaszt) {
     log << MSG::DEBUG << "writing ASZT values to file" << endmsg;
     m_dhaszt->WriteAsztToAsciiFile("aszt_fromAscii_or_Oracle.txt");
   }
 
   // Internal CSC Alignment parameters
-  m_dhiacsc = 0;
   if (asciiFileDBMap!=0 &&
       asciiFileDBMap->find("IACSC") != asciiFileDBMap->end()) {
 
@@ -181,52 +300,60 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     log << MSG::INFO << "No Ascii iacsc input found: looking for A-lines in ORACLE" << endmsg;
     dbdata = m_pRDBAccess->getQuery("ISZT",geoTag,geoNode);
 
-    if (!dbdata) {
-      m_dhiacsc = new DblQ00IAcsc();
-      log << MSG::INFO << "No ISZT table in Oracle" << endmsg;
+    if(theAmdcDb){
+      log << MSG::INFO << "skipping ISZT" << endmsg;
+      m_dhiacsc = nullptr;
     } else {
-      log << MSG::INFO << "ISZT table found in Oracle" << endmsg;
-      m_dhiacsc = new DblQ00IAcsc(std::move(dbdata));
+      if (!dbdata) {
+        m_dhiacsc = new DblQ00IAcsc();
+        log << MSG::INFO << "No ISZT table in Oracle" << endmsg;
+      } else {
+        log << MSG::INFO << "ISZT table found in Oracle" << endmsg;
+        m_dhiacsc = new DblQ00IAcsc(std::move(dbdata));
+      }
     }
-
   } else {
     log << MSG::INFO << "ISZT table in Oracle, if any, will not be read" << endmsg;
   }
-  m_iacsc= m_dhiacsc->data();
+  if(m_dhiacsc) m_iacsc = m_dhiacsc->data();
 
   //
-  if (dumpCscInternalAlinesFromOracle) {
+  if (dumpCscInternalAlinesFromOracle && m_dhiacsc) {
     log << MSG::DEBUG << "writing ISZT values to file" << endmsg;
     m_dhiacsc->WriteIAcscToAsciiFile("IAcsc_fromAscii_or_Oracle.txt");
   }
 
-  if (geoTag != "ATLAS-00") {
+  if(theAmdcDb) {
+    m_dhwchv = new DblQ00Wchv(theAmdcDb);
+  } else {
     dbdata = m_pRDBAccess->getQuery("WCHV",geoTag,geoNode);
     m_dhwchv = new DblQ00Wchv(std::move(dbdata));
+  }
+  m_wchv= m_dhwchv->data();
 
-    m_wchv= m_dhwchv->data();
+  if(theAmdcDb) {
+    m_dhwcro = new DblQ00Wcro(theAmdcDb);
+  } else {
     dbdata = m_pRDBAccess->getQuery("WCRO",geoTag,geoNode);
     m_dhwcro = new DblQ00Wcro(std::move(dbdata));
+  }
+  m_wcro= m_dhwcro->data();
 
-    m_wcro= m_dhwcro->data();
+  if(theAmdcDb) {
+    m_dhwcmi = new DblQ00Wcmi(theAmdcDb);
+  } else {
     dbdata = m_pRDBAccess->getQuery("WCMI",geoTag,geoNode);
     m_dhwcmi = new DblQ00Wcmi(std::move(dbdata));
+  }
+  m_wcmi= m_dhwcmi->data();
 
-    m_wcmi= m_dhwcmi->data();
+  if(theAmdcDb) {
+    m_dhwlbi = new DblQ00Wlbi(theAmdcDb);
+  } else {
     dbdata = m_pRDBAccess->getQuery("WLBI",geoTag,geoNode);
     m_dhwlbi = new DblQ00Wlbi(std::move(dbdata));
-
-    m_wlbi= m_dhwlbi->data();
-  } else {
-    m_dhwchv = NULL;
-    m_wchv = NULL;
-    m_dhwcro = NULL;
-    m_wcro = NULL;
-    m_dhwcmi = NULL;
-    m_wcmi = NULL;
-    m_dhwlbi = NULL;
-    m_wlbi = NULL;
   }
+  m_wlbi= m_dhwlbi->data();
 
   // everything fetched
   m_SCdbaccess = StatusCode::SUCCESS;
@@ -266,7 +393,7 @@ StatusCode RDBReaderAtlas::ProcessDB()
   }
 
   // Process Alignements
-  if (m_dhaszt->size() >0) {
+  if (m_dhaszt && m_dhaszt->size() >0) {
     MuonGM::ProcessAlignements(m_dhaszt, m_aszt);
   }
 
@@ -274,12 +401,12 @@ StatusCode RDBReaderAtlas::ProcessDB()
   RDBReaderAtlas::ProcessTGCreadout();
 
   // Process CSC Internal Alignements
-  if (m_dhiacsc->size() >0 && m_useICSCAlines) {
+  if (m_dhiacsc && m_dhiacsc->size() >0 && m_useICSCAlines) {
     ProcessCscInternalAlignments();
   }
 
   // Proccess Mdt AsBuilt parameters
-  if (m_dhxtomo->size() > 0) {
+  if (m_dhxtomo && m_dhxtomo->size() > 0) {
     ProcessMdtAsBuiltParams();
   }
 
@@ -486,23 +613,31 @@ void RDBReaderAtlas::ProcessTGCreadout () {
         m_mgr->storeTgcReadoutParams(std::move(rpar));
       }
     }
-  } else { //if (getGeometryVersion().substr(0,1) == "Q")
+  } else {
     //
     // in case of layout Q and following
     //
-    // if (m_geoTag == "ATLAS-01") ggln = m_pRDBAccess->getRecordset("GGLN","GGLN-02");
-    // else ggln = m_pRDBAccess->getRecordset("GGLN",m_geoTag,m_geoNode);
-    IRDBRecordset_ptr ggln = m_pRDBAccess->getRecordsetPtr("GGLN",m_geoTag,m_geoNode);
+    AmdcDb* theAmdcDb = dynamic_cast<AmdcDb*>(m_pRDBAccess);
+    IRDBRecordset_ptr ggln = theAmdcDb ? theAmdcDb->getRecordsetPtr("GGLN","Amdc")  : m_pRDBAccess->getRecordsetPtr("GGLN",m_geoTag,m_geoNode);
 
-    int version = (int) (*ggln)[0]->getInt("VERS");
-    float wirespacing = (*ggln)[0]->getFloat("WIRESP")*Gaudi::Units::mm;
-    log << MSG::INFO
-        << " ProcessTGCreadout - version " << version << " wirespacing " << wirespacing << endmsg;
+    int version(0);
+    float wirespacing(0);
+    unsigned int gglnSize(0);
+    if (ggln) gglnSize = ggln->size();
+    else {
+      log << MSG::WARNING << " ProcessTGCreadout - IRDBRecordset_ptr GGLN is nullptr" << endmsg;
+    }
+    if(gglnSize){
+      version = (int) (*ggln)[0]->getInt("VERS");
+      wirespacing = (*ggln)[0]->getFloat("WIRESP")*Gaudi::Units::mm;
+    }
+
+    log << MSG::INFO << " ProcessTGCreadout - version " << version << " wirespacing " << wirespacing << endmsg;
 
     MYSQL *mysql = MYSQL::GetPointer();
 
     // loop over the banks of station components: ALMN
-    for (unsigned int ich = 0; ich<ggln->size(); ++ich) {
+    for (unsigned int ich = 0; ich<gglnSize; ++ich) {
       int type = (int)(*ggln)[ich]->getInt("JSTA");
       std::string name = "TGCReadout"+MuonGM::buildString(type,2);
 

@@ -3,7 +3,7 @@
 */
 
 #include <stdint.h>
-#include "TrigT1TRT/TrigT1TRT.h"
+#include "TrigT1TRT.h"
 #include "TrigT1Interfaces/TrtCTP.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/ThresholdConfig.h"

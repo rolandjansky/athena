@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERS_DUMMYVERTEXSMOOTHER_H
@@ -8,7 +8,7 @@
 #include "TrkVertexFitterInterfaces/IVertexSmoother.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkParametersBase/ParametersBase.h"
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk
 {
   class IExtrapolator;
@@ -39,6 +39,7 @@ namespace Trk
    *
    */ 
 
+  //Not THREAD_SAFE due to const_cast 
   class DummyVertexSmoother : public AthAlgTool, virtual public IVertexSmoother
   {
   public:

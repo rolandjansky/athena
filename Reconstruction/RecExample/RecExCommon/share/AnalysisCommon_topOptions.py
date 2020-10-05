@@ -4,7 +4,6 @@ include.block ("RecExCommon/AnalysisCommon_topOptions.py")
 ## Common job preparation ##
 ############################
 
-svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 
 from AthenaCommon.Logging import logging
@@ -288,13 +287,6 @@ if not objKeyStore.isInInput( "xAOD::EventInfo"):
 # functionality : monitor memory and cpu time
 #
 
-# check dictionary all the time
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-if not rec.doCheckDictionary():
-    ServiceMgr.AthenaSealSvc.OutputLevel=WARNING
-    pass
-
-#
 #
 #now write out Transient Event Store content in POOL
 if rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteRDO() or rec.doWriteTAG():
@@ -329,8 +321,6 @@ if rec.doFileMetaData():
     if not hasattr(svcMgr,"CutFlowSvc"):
         from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
         CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=False )
-        #from EventBookkeeperTools.EventBookkeeperToolsConf import CutFlowSvc
-        #svcMgr+=CutFlowSvc()
         pass
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
@@ -342,24 +332,6 @@ if rec.doFileMetaData():
 
 
 #pdr.flag_domain('aod')
-
-if rec.doWriteAOD() or rec.doWriteESD(): #For xAOD writing:
-    try:
-        if rec.doFileMetaData(): #needed to have xAOD readable outside athena
-            theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-            if rec.doWriteAOD():
-                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            if rec.doWriteESD():
-                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            pass
-        pass
-    except Exception:
-        treatException("Problem with extra attributes for xAOD output")
-        pass
-    pass
-
 
 #########
 ## DPD ##
@@ -433,12 +405,8 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
     #    MSMgr.WriteSkimDecisionsOfAllStreams()
     #    pass
 
-    #Configure CutFlowSv and common metadata
+    #Configure CutFlowSvc and common metadata
     if rec.doFileMetaData():
-
-        # # Determine current skimming cycle and input stream name
-        # svcMgr.CutFlowSvc.InputStream=rec.mergingStreamName()
-        # #svcMgr.CutFlowSvc.OutputLevel=DEBUG
 
         #Exception for DPD pass-through mode
         if rec.doDPD.passThroughMode:
@@ -451,7 +419,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )
             MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#*" )
             MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#*" )
-            #MSMgr.AddMetaDataItemToAllStreams( "EventBookkeeperCollection#*" )
             MSMgr.AddMetaDataItemToAllStreams( "IOVMetaDataContainer#*" )
             pass
         pass

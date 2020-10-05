@@ -23,13 +23,17 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 
+atlas_add_library( InDetCompetingRIOsOnTrackToolLib
+                   InDetCompetingRIOsOnTrackTool/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS InDetCompetingRIOsOnTrackTool
+                   LINK_LIBRARIES GaudiKernel AthenaBaseComps TrkParameters EventPrimitives GeoPrimitives TrkToolInterfaces InDetCompetingRIOsOnTrack )
+
 # Component(s) in the package:
 atlas_add_component( InDetCompetingRIOsOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventPrimitives GaudiKernel InDetCompetingRIOsOnTrack TrkParameters TrkToolInterfaces InDetPrepRawData TrkSurfaces TrkEventPrimitives TrkExInterfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} InDetCompetingRIOsOnTrackToolLib InDetPrepRawData TrkSurfaces TrkEventPrimitives TrkExInterfaces )
 
-# Install files from the package:
-atlas_install_headers( InDetCompetingRIOsOnTrackTool )
 

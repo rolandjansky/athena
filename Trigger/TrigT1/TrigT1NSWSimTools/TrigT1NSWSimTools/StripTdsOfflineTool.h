@@ -1,27 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPTDSOFFLINETOOL_H
 #define STRIPTDSOFFLINETOOL_H
 
-//basic includes
+#include "TrigT1NSWSimTools/IStripTdsTool.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
-#include "GaudiKernel/Property.h"
-
-//local includes
-#include "TrigT1NSWSimTools/IStripTdsTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-
 
 //forward declarations
 class IIncidentSvc;
 class IAtRndmGenSvc;
-class sTgcIdHelper;
 class sTgcDigit;
 class TTree;
 
@@ -80,6 +75,7 @@ namespace NSWL1 {
  
 
   private:
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     // methods implementing the internal data processing
     cStatus fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers);   //!< loop over the digit container, apply the additional processing then fill the cache
     void clear_cache();                                     //!< clear the strip hit cache deleting the StripData pointers
@@ -95,7 +91,6 @@ namespace NSWL1 {
     ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
     CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-    const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
     // hidden variables
     std::vector<std::unique_ptr<StripData>>  m_strip_cache;                 //!< cache for the STRIP hit data in the event

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackToCalo/CaloCellCollector.h"
@@ -18,7 +18,7 @@
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 #include <tuple>
-typedef CaloCell_ID::CaloSample CaloSample;
+using CaloSample = CaloCell_ID::CaloSample;
 
 Rec::CaloCellCollector::CaloCellCollector ()
     :
@@ -210,7 +210,7 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
 
     if(etot==0){
       if(m_doDebug) std::cout<<"no energy depositions, so no cluster"<<std::endl;
-      return 0;
+      return nullptr;
     }
     float clusVecEta,clusVecPhi;
     clusVecEta=clusVec.eta();

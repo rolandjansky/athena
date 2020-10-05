@@ -1,22 +1,18 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #ifndef SimpleSTgcClusterBuilderTool_h
 #define SimpleSTgcClusterBuilderTool_h
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <vector>
+#include <string>
 #include <set>
-
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
-
 
 //
 // Simple clusterization tool for STgc
@@ -46,6 +42,7 @@ namespace Muon
 
     double m_chargeCut;
     unsigned int m_maxHoleSize;
+    double m_addError;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

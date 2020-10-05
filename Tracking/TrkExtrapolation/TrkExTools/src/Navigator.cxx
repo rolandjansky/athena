@@ -42,8 +42,6 @@ const Trk::MagneticFieldProperties s_zeroMagneticField(Trk::NoField);
 // constructor
 Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
-  m_validationMode(false),
-  m_trackingGeometry(nullptr),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_insideVolumeTolerance(1. * Gaudi::Units::mm),
@@ -51,6 +49,7 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_useStraightLineApproximation(false),
   m_searchWithDistance(true),
   m_fastField(false),
+  m_validationMode(false),
   m_forwardCalls{},
   m_forwardFirstBoundSwitch{},
   m_forwardSecondBoundSwitch{},
@@ -83,69 +82,73 @@ Trk::Navigator::~Navigator() {
 // initialize
 StatusCode
 Trk::Navigator::initialize() {
-  // Initialize StatusCode
-  //StatusCode s = StatusCode::SUCCESS;
+
+
+  //We can use conditions when the key is not empty
+  m_useConditions=!m_trackingGeometryReadKey.key().empty();
 
   // get the TrackingGeometrySvc
-  if (m_trackingGeometrySvc.retrieve().isSuccess()) {
-    ATH_MSG_INFO("Successfully retrieved " << m_trackingGeometrySvc);
-    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-  } else {
-    ATH_MSG_WARNING("Couldn't retrieve " << m_trackingGeometrySvc << ". ");
-    ATH_MSG_WARNING(" -> Trying to retrieve default '" << m_trackingGeometryName << "' from DetectorStore.");
+  if (!m_useConditions) {
+    if (m_trackingGeometrySvc.retrieve().isSuccess()) {
+      ATH_MSG_DEBUG("Successfully retrieved " << m_trackingGeometrySvc);
+      m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
+    } else {
+      ATH_MSG_WARNING("Couldn't retrieve " << m_trackingGeometrySvc << ". ");
+      ATH_MSG_WARNING(" -> Trying to retrieve default '"
+                      << m_trackingGeometryName << "' from DetectorStore.");
+    }
   }
 
+  ATH_CHECK(m_trackingGeometryReadKey.initialize(m_useConditions));
+
+  m_fieldProperties = m_fastField
+                        ? Trk::MagneticFieldProperties(Trk::FastField)
+                        : Trk::MagneticFieldProperties(Trk::FullField);
+
+  //This is no-op for the Navigator only relevant for
+  //derivated Validation for now
   validationInitialize();
-
-  m_fieldProperties = m_fastField ? Trk::MagneticFieldProperties(Trk::FastField) : 
-    Trk::MagneticFieldProperties(Trk::FullField);
-
-  ATH_MSG_DEBUG("initialize() successful");
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingVolume *
-Trk::Navigator::volume(const Amg::Vector3D &gp) const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
-  return(m_trackingGeometry->lowestTrackingVolume(gp));
+const Trk::TrackingVolume*
+Trk::Navigator::volume(const EventContext& ctx, const Amg::Vector3D& gp) const
+{
+  return (trackingGeometry(ctx)->lowestTrackingVolume(gp));
 }
 
-const Trk::TrackingVolume *
-Trk::Navigator::highestVolume() const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
-  return(m_trackingGeometry->highestTrackingVolume());
+const Trk::TrackingVolume*
+Trk::Navigator::highestVolume(const EventContext& ctx) const
+{
+  return (trackingGeometry(ctx)->highestTrackingVolume());
 }
 
-const Trk::BoundarySurface<Trk::TrackingVolume> *
-Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
-                                    const Trk::TrackParameters &parms,
-                                    Trk::PropDirection dir) const {
-  const Trk::TrackingVolume *trackingVolume = volume(parms.position());
+const Trk::BoundarySurface<Trk::TrackingVolume>*
+Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
+                                    const Trk::IPropagator& prop,
+                                    const Trk::TrackParameters& parms,
+                                    Trk::PropDirection dir) const
+{
+  const Trk::TrackingVolume* trackingVolume = volume(parms.position());
 
   if (trackingVolume) {
-    return(nextBoundarySurface(prop, parms, dir, *trackingVolume));
+    return (nextBoundarySurface(ctx,prop, parms, dir, *trackingVolume));
   }
   return nullptr;
 }
 
-const Trk::BoundarySurface<Trk::TrackingVolume> *
-Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
-                                    const Trk::TrackParameters &parms,
+const Trk::BoundarySurface<Trk::TrackingVolume>*
+Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
+                                    const Trk::IPropagator& prop,
+                                    const Trk::TrackParameters& parms,
                                     Trk::PropDirection dir,
-                                    const Trk::TrackingVolume &vol) const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
-
+                                    const Trk::TrackingVolume& vol) const
+{
   // get the surface accessor
-  Trk::ObjectAccessor surfAcc =
-    vol.boundarySurfaceAccessor(parms.position(), dir * parms.momentum().normalized());
+  Trk::ObjectAccessor surfAcc = vol.boundarySurfaceAccessor(
+    parms.position(), dir * parms.momentum().normalized());
   // initialize the currentBoundary surface
-  const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = nullptr;
+  const Trk::BoundarySurface<Trk::TrackingVolume>* currentBoundary = nullptr;
   bool outsideVolume = surfAcc.inverseRetrieval();
   // attempt counter
   int tryBoundary = 0;
@@ -153,36 +156,38 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   // set the prop direction according to inverseRetrieval result
   Trk::PropDirection searchDir = dir;
   if (outsideVolume) {
-    searchDir = (dir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
+    searchDir =
+      (dir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
   }
 
   // debug version
   ATH_MSG_VERBOSE("g  [N] Starting parameters are :" << parms);
 
   // loop over the the boundary surfaces according to the accessor type
-  for (const Trk::ObjectAccessor::value_type &surface_id : surfAcc) {
+  for (const Trk::ObjectAccessor::value_type& surface_id : surfAcc) {
     ++tryBoundary;
     // ----------------- output to screen if outputLevel() says so --------
-    ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
-                             << " of Volume: '" << vol.volumeName() << "'.");
+    ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface "
+                             << surface_id << " of Volume: '"
+                             << vol.volumeName() << "'.");
     // get the boundary Surface according to the surfaceAccessor
     currentBoundary = vol.boundarySurface(surface_id);
-    const Trk::Surface &currentSurface = currentBoundary->surfaceRepresentation();
+    const Trk::Surface& currentSurface =
+      currentBoundary->surfaceRepresentation();
 
-    const Trk::TrackParameters *trackPar = nullptr;
-    // do either RungeKutta (always after first unsuccessful try) or straight line
-    trackPar = (!m_useStraightLineApproximation || tryBoundary > 1) ?
-               prop.propagateParameters(parms,
-                                        currentSurface,
-                                        searchDir, true,
-                                        m_fieldProperties) :
-               prop.propagateParameters(parms,
-                                        currentSurface,
-                                        searchDir, true,
-                                        s_zeroMagneticField);
+    const Trk::TrackParameters* trackPar = nullptr;
+    // do either RungeKutta (always after first unsuccessful try) or straight
+    // line
+    trackPar =
+      (!m_useStraightLineApproximation || tryBoundary > 1)
+        ? prop.propagateParameters(
+            ctx, parms, currentSurface, searchDir, true, m_fieldProperties)
+        : prop.propagateParameters(
+            ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField);
 
     if (trackPar) {
-      ATH_MSG_VERBOSE("  [N] --> next BoundarySurface found with Parameters: " << *trackPar);
+      ATH_MSG_VERBOSE(
+        "  [N] --> next BoundarySurface found with Parameters: " << *trackPar);
       validationFill(trackPar);
       delete trackPar;
       return currentBoundary;
@@ -199,13 +204,12 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
 }
 
 Trk::NavigationCell
-Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
-                                   const Trk::TrackParameters &parms,
+Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
+                                   const Trk::IPropagator& prop,
+                                   const Trk::TrackParameters& parms,
                                    Trk::PropDirection dir,
-                                   const Trk::TrackingVolume &vol) const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
+                                   const Trk::TrackingVolume& vol) const
+{
 
   // ---------------------------------------------------
   if (dir == Trk::alongMomentum) {
@@ -219,106 +223,114 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
   // ---------------------------------------------------
   // get the object accessor from the Volume
-  Trk::ObjectAccessor surfAcc =
-    vol.boundarySurfaceAccessor(parms.position(), dir * parms.momentum().normalized());
+  Trk::ObjectAccessor surfAcc = vol.boundarySurfaceAccessor(
+    parms.position(), dir * parms.momentum().normalized());
   // the object accessor already solved the outside question
   bool outsideVolume = surfAcc.inverseRetrieval();
   // initialize the boundary pointer / tracking volume pointer
-  const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = nullptr;
-  const Trk::TrackingVolume *nextVolume = nullptr;
+  const Trk::BoundarySurface<Trk::TrackingVolume>* currentBoundary = nullptr;
+  const Trk::TrackingVolume* nextVolume = nullptr;
 
   // debug version
   ATH_MSG_VERBOSE("  [N] Starting parameters are : " << parms);
-  ATH_MSG_VERBOSE(
-    "  [N] This corresponds to [r,z] = [ " << parms.position().perp() << ", " << parms.position().z() << "]");
+  ATH_MSG_VERBOSE("  [N] This corresponds to [r,z] = [ "
+                  << parms.position().perp() << ", " << parms.position().z()
+                  << "]");
   ATH_MSG_VERBOSE("  [N] Boundary Surface accessor : " << surfAcc);
 
   // set the prop direction according to inverseRetrieval result
   Trk::PropDirection searchDir = dir;
   if (outsideVolume) {
     ATH_MSG_VERBOSE("  [N] Parameters have been flagged as being outside !");
-    searchDir = (dir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
+    searchDir =
+      (dir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
   }
 
   // loop over boundary surfaces
   int tryBoundary = 0;
 
-  /* local counted to increment in the loop*/ 
-  auto forwardFirstBoundSwitch=m_forwardFirstBoundSwitch.buffer();
-  auto forwardSecondBoundSwitch=m_forwardSecondBoundSwitch.buffer();
-  auto forwardThirdBoundSwitch=m_forwardThirdBoundSwitch.buffer();
-  auto backwardFirstBoundSwitch=m_backwardFirstBoundSwitch.buffer();
-  auto backwardSecondBoundSwitch=m_backwardSecondBoundSwitch.buffer();
-  auto backwardThirdBoundSwitch=m_backwardThirdBoundSwitch.buffer();
+  /* local counted to increment in the loop*/
+  auto forwardFirstBoundSwitch = m_forwardFirstBoundSwitch.buffer();
+  auto forwardSecondBoundSwitch = m_forwardSecondBoundSwitch.buffer();
+  auto forwardThirdBoundSwitch = m_forwardThirdBoundSwitch.buffer();
+  auto backwardFirstBoundSwitch = m_backwardFirstBoundSwitch.buffer();
+  auto backwardSecondBoundSwitch = m_backwardSecondBoundSwitch.buffer();
+  auto backwardThirdBoundSwitch = m_backwardThirdBoundSwitch.buffer();
 
-  for (const Trk::ObjectAccessor::value_type &surface_id : surfAcc) {
+  for (const Trk::ObjectAccessor::value_type& surface_id : surfAcc) {
     ++tryBoundary;
     // get the boundary surface associated to the surfaceAccessor
     currentBoundary = vol.boundarySurface(surface_id);
 
     // ----------------- output to screen if outputLevel() says so --------
     if (!currentBoundary) {
-      ATH_MSG_WARNING("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
-                               << " of Volume: '" << vol.volumeName() << "' NOT FOUND.");
+      ATH_MSG_WARNING("  [N] " << tryBoundary << ". try - BoundarySurface "
+                               << surface_id << " of Volume: '"
+                               << vol.volumeName() << "' NOT FOUND.");
       continue;
-    } else {
-      ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface " << surface_id
-                               << " of Volume: '" << vol.volumeName() << "'.");
     }
+      ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface "
+                               << surface_id << " of Volume: '"
+                               << vol.volumeName() << "'.");
 
-    const Trk::Surface &currentSurface = currentBoundary->surfaceRepresentation();
+
+    const Trk::Surface& currentSurface =
+      currentBoundary->surfaceRepresentation();
     // try the propagation
-    const Trk::TrackParameters *trackPar = nullptr;
-    // do either RungeKutta (always after first unsuccessful try) or straight line
+    const Trk::TrackParameters* trackPar = nullptr;
+    // do either RungeKutta (always after first unsuccessful try) or straight
+    // line
     if (!currentSurface.isOnSurface(parms.position(), true, 0., 0.)) {
-      trackPar = (!m_useStraightLineApproximation || tryBoundary > 1) ?
-                 prop.propagateParameters(parms,
-                                          currentSurface,
-                                          searchDir, true,
-                                          m_fieldProperties) :
-                 prop.propagateParameters(parms,
-                                          currentSurface,
-                                          searchDir, true,
-                                          s_zeroMagneticField);
+      trackPar =
+        (!m_useStraightLineApproximation || tryBoundary > 1)
+          ? prop.propagateParameters(
+              ctx, parms, currentSurface, searchDir, true, m_fieldProperties)
+          : prop.propagateParameters(
+              ctx, parms, currentSurface, searchDir, true, s_zeroMagneticField);
     } else {
       trackPar = parms.clone();
     }
     if (trackPar) {
       // the next volume pointer
-      nextVolume = currentBoundary->attachedVolume(trackPar->position(), trackPar->momentum().normalized(), dir);
+      nextVolume = currentBoundary->attachedVolume(
+        trackPar->position(), trackPar->momentum().normalized(), dir);
       // ----------------- output to screen if outputLevel() says so --------
       if (msgLvl(MSG::VERBOSE)) {
-        ATH_MSG_VERBOSE("  [N] --> next BoundarySurface found with Parameters: " << *trackPar);
-        ATH_MSG_VERBOSE(
-          "  [N] This corresponds to [r,z] = [ " << trackPar->position().perp() << ", " << trackPar->position().z() <<
-        "]");
+        ATH_MSG_VERBOSE("  [N] --> next BoundarySurface found with Parameters: "
+                        << *trackPar);
+        ATH_MSG_VERBOSE("  [N] This corresponds to [r,z] = [ "
+                        << trackPar->position().perp() << ", "
+                        << trackPar->position().z() << "]");
 
         // log of the boundary surface
         currentBoundary->debugInfo(msg(MSG::VERBOSE));
-        ATH_MSG_VERBOSE("  [N] --> Quering the BoundarySurface for the associated TrackingVolume: ");
-        ATH_MSG_VERBOSE('\t' << '\t' << (nextVolume ? nextVolume->volumeName() : "None"));
+        ATH_MSG_VERBOSE("[N] --> Quering the BoundarySurface for the "
+                        "associated TrackingVolume: ");
+        ATH_MSG_VERBOSE(
+          '\t' << '\t' << (nextVolume ? nextVolume->volumeName() : "None"));
       }
 
       validationFill(trackPar);
-      return Trk::NavigationCell(nextVolume, trackPar, Trk::BoundarySurfaceFace(surface_id));
+      return Trk::NavigationCell(
+        nextVolume, trackPar, Trk::BoundarySurfaceFace(surface_id));
     }
 
     // ---------------------------------------------------
     if (!first && searchDir == Trk::alongMomentum) {
       ++forwardFirstBoundSwitch;
       first = true;
-    }else if (!second && searchDir == Trk::alongMomentum) {
+    } else if (!second && searchDir == Trk::alongMomentum) {
       ++forwardSecondBoundSwitch;
       second = true;
-    }else if (searchDir == Trk::alongMomentum) {
+    } else if (searchDir == Trk::alongMomentum) {
       ++forwardThirdBoundSwitch;
-    }else if (!first && searchDir == Trk::oppositeMomentum) {
+    } else if (!first && searchDir == Trk::oppositeMomentum) {
       ++backwardFirstBoundSwitch;
       first = true;
-    }else if (!second && searchDir == Trk::oppositeMomentum) {
+    } else if (!second && searchDir == Trk::oppositeMomentum) {
       ++backwardSecondBoundSwitch;
       second = true;
-    }else if (searchDir == Trk::oppositeMomentum) {
+    } else if (searchDir == Trk::oppositeMomentum) {
       ++backwardThirdBoundSwitch;
     }
     // ---------------------------------------------------
@@ -329,6 +341,7 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
 Trk::NavigationCell
 Trk::Navigator::nextDenseTrackingVolume(
+  const EventContext& ctx,
   const Trk::IPropagator &prop,
   const Trk::TrackParameters &parms,
   const Trk::Surface *destinationSurface,
@@ -336,12 +349,9 @@ Trk::Navigator::nextDenseTrackingVolume(
   Trk::ParticleHypothesis particle,
   const Trk::TrackingVolume &vol,
   double &path) const {
-  ATH_MSG_DEBUG(
-    "  [N] nextDenseTrackingVolume() to volume '" << vol.volumeName() << "', starting from " << parms.position());
+  ATH_MSG_DEBUG("  [N] nextDenseTrackingVolume() to volume '"
+                << vol.volumeName() << "', starting from " << parms.position());
 
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
 
   Trk::NavigationCell solution(nullptr, nullptr);
   const Trk::TrackParameters *currPar = &parms;
@@ -354,7 +364,7 @@ Trk::Navigator::nextDenseTrackingVolume(
   if (atVolumeBoundary(currPar, &vol, dir, nextVolume, tol) && nextVolume != (&vol)) {
     if (!nextVolume) {
       const Amg::Vector3D& gp = currPar->position();
-      const Trk::TrackingVolume *currStatic = m_trackingGeometry->lowestStaticTrackingVolume(gp);
+      const Trk::TrackingVolume *currStatic = trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
       if (&vol != currStatic) {
         nextVolume = currStatic;
       }
@@ -379,8 +389,17 @@ Trk::Navigator::nextDenseTrackingVolume(
   // propagate
   std::vector<unsigned int> solutions;
   // const Trk::TrackParameters* nextPar = prop.propagate(parms,*surfaces,dir,vol,particle,solutions,path);
-  const Trk::TrackParameters *nextPar = prop.propagate(parms, *surfaces, dir, m_fieldProperties, particle, solutions,
-                                                       path, false, false, &vol);
+  const Trk::TrackParameters* nextPar = prop.propagate(ctx,
+                                                       parms,
+                                                       *surfaces,
+                                                       dir,
+                                                       m_fieldProperties,
+                                                       particle,
+                                                       solutions,
+                                                       path,
+                                                       false,
+                                                       false,
+                                                       &vol);
   // if (nextPar) throwIntoGarbageBin(nextPar);
   if (nextPar) {
     Amg::Vector3D gp = nextPar->position();
@@ -389,7 +408,7 @@ Trk::Navigator::nextDenseTrackingVolume(
     } else if (atVolumeBoundary(nextPar, &vol, dir, nextVolume, tol)) {
       if (!nextVolume) {
         // detached volume boundary or world boundary : resolve
-        const Trk::TrackingVolume *currStatic = m_trackingGeometry->lowestStaticTrackingVolume(gp);
+        const Trk::TrackingVolume *currStatic = trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
         if (&vol != currStatic) {
           nextVolume = currStatic;
         }
@@ -404,8 +423,12 @@ Trk::Navigator::nextDenseTrackingVolume(
 }
 
 bool
-Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters *parms, const Trk::TrackingVolume *vol,
-                                 Trk::PropDirection dir, const Trk::TrackingVolume * &nextVol, double tol) const {
+Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,
+                                 const Trk::TrackingVolume* vol,
+                                 Trk::PropDirection dir,
+                                 const Trk::TrackingVolume*& nextVol,
+                                 double tol) const
+{
   bool isAtBoundary = false;
 
   nextVol = nullptr;
@@ -426,8 +449,9 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters *parms, const Trk::T
                                                                         dir * parms->momentum().unit());
       if (distSol.currentDistance(false) < tol && distSol.numberOfSolutions() > 0) {
         isAtBoundary = true;
-        const Trk::TrackingVolume *attachedVol = (bounds[ib].get())->attachedVolume(
-          parms->position(), parms->momentum(), dir);
+        const Trk::TrackingVolume* attachedVol =
+          (bounds[ib].get())
+            ->attachedVolume(parms->position(), parms->momentum(), dir);
         if (!nextVol && attachedVol) {
           nextVol = attachedVol;
         }
@@ -448,18 +472,15 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters *parms, const Trk::T
   return isAtBoundary;
 }
 
-const Trk::TrackParameters *
-Trk::Navigator::closestParameters(const Trk::Track &trk,
-                                  const Trk::Surface &sf,
-                                  const Trk::IPropagator *propptr) const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
-  }
+const Trk::TrackParameters*
+Trk::Navigator::closestParameters(const Trk::Track& trk,
+                                  const Trk::Surface& sf,
+                                  const Trk::IPropagator* propptr) const
+{
 
   // -- corresponds to Extrapolator::m_searchLevel = 2/3 - search with Propagation
   if (propptr && !m_searchWithDistance) {
     const Trk::TrackParameters *closestTrackParameters = nullptr;
-    // const Trk::TrackingVolume*         highestVolume = (m_trackingGeometry->highestTrackingVolume());
 
     double distanceToSurface = 10e10;
 
@@ -576,7 +597,6 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
 // finalize
 StatusCode
 Trk::Navigator::finalize() {
-  m_trackingGeometry = nullptr;
 
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG("[N] " << name() << " Perfomance Statistics : --------------------------------");
@@ -593,25 +613,28 @@ Trk::Navigator::finalize() {
     ATH_MSG_DEBUG(" ---------------------------------------------------------------------");
   }
 
-  ATH_MSG_INFO("finalize() successful");
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingGeometry *
-Trk::Navigator::trackingGeometry() const {
-  if (!m_trackingGeometry) {
-    updateTrackingGeometry();
+const Trk::TrackingGeometry*
+Trk::Navigator::trackingGeometry(const EventContext& ctx) const
+{
+  if (!m_useConditions) {
+    const TrackingGeometry* trackingGeometry = nullptr;
+    if (detStore()
+          ->retrieve(trackingGeometry, m_trackingGeometryName)
+          .isFailure()) {
+      ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
+      throw Trk::NavigatorException();
+    }
+    return trackingGeometry;
+  } else {
+    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+    if (!handle.isValid()) {
+      ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
+      throw Trk::NavigatorException();
+    }
+    return handle.cptr();
   }
-  return m_trackingGeometry;
 }
 
-void
-Trk::Navigator::updateTrackingGeometry() const {
-  // -------------------- public TrackingGeometry (from DetectorStore) ----------------------------
-
-  if (detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName).isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore.");
-    ATH_MSG_FATAL("  - probably the chosen layout is not supported / no cool tag exists. ");
-    throw Trk::NavigatorException();
-  }
-}

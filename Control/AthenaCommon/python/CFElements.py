@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Configurable import Configurable
@@ -82,21 +82,22 @@ def getAllSequenceNames(seq, depth=0):
     return seqNameList
 
 def checkSequenceConsistency( seq ):
-    """ Enforce rules for sequence graph - identical items can only appear at same depth """
-    seqNameList = getAllSequenceNames(seq)
-    names = [sNL[0] for sNL in seqNameList]
+    """ Enforce rules for sequence graph - identical items can not be added to itself (even indirectly) """
 
-    for item, count in collections.Counter(names).items():
-        if count > 1:
-            depths = set()
-            for (name, depth) in seqNameList:
-                if name == item:
-                  depths.add(depth)
-            if len(depths) > 1:
-                if names[0] == name:
-                    raise RuntimeError("Sequence %s contains sub-sequence %s" %(name, name) )
-                else:
-                    raise RuntimeError("Sequence %s contains sub-sequence %s at different depths" %(names[0], item,) )
+    def __noSubSequenceOfName( s, n, seen = set() ):
+        seen = seen.copy()
+        seen.add (s)
+        for c in getSequenceChildren( s ):
+            if c in seen:
+                raise RuntimeError("Sequence {} contains itself".format(compName(c)) )
+            if isSequence( c ):
+                if compName(c) == n:
+                    raise RuntimeError("Sequence {} contains sub-sequence of the same name".format(n) )
+                __noSubSequenceOfName( c, compName(c), seen ) # check each sequence for repetition as well
+                __noSubSequenceOfName( c, n, seen )
+
+    __noSubSequenceOfName( seq, compName(seq) )
+
 
 
 def stepSeq(name, filterAlg, rest):
@@ -154,6 +155,9 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
     return None
 
 def findAllAlgorithms(sequence, nameToLookFor=None):
+    """
+    Returns flat listof of all algorithm instances in this, and in sub-sequences
+    """
     algorithms = []
     for child in getSequenceChildren(sequence):
         if isSequence(child):
@@ -165,7 +169,14 @@ def findAllAlgorithms(sequence, nameToLookFor=None):
 
 
 def findAllAlgorithmsByName(sequence, namesToLookFor=None):
-    """Finds all algorithms in sequence and groups them by name"""
+    """
+    Finds all algorithms in sequence and groups them by name
+    
+    Resulting dict has a following structure
+    {"Alg1Name":(Alg1Instance, parentSequence, indexInThisSequence),
+     "Alg2Name":(Alg2Instance, parentSequence, indexInThisSequence),
+     ....}
+    """
     algorithms = collections.defaultdict(list)
     for idx, child in enumerate(getSequenceChildren(sequence)):
         if (compName(child) == compName(sequence)):
@@ -190,10 +201,10 @@ def flatAlgorithmSequences( start ):
             if isSequence( c ):
                 __inner( c, collector )
 
-    from collections import defaultdict
+    from collections import defaultdict,OrderedDict
     c = defaultdict(list)
     __inner(start, c)
-    return c
+    return OrderedDict(c)
 
 def flatSequencers( start, algsCollection=None ):
     """ Returns dict of sequences keyed by name and containing list of it's members """
@@ -303,16 +314,20 @@ class TestLegacyCF( unittest.TestCase, TestCF ):
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm
         Configurable.configurableRun3Behavior=0
         top = parOR("top")
-        top += parOR("nest1")
-        nest2 = seqAND("nest2")
-        top += nest2
-        top += ConfigurablePyAlgorithm("SomeAlg0")
-        nest2 += parOR("deep_nest1")
-        nest2 += parOR("deep_nest2")
 
-        nest2 += ConfigurablePyAlgorithm("SomeAlg1")
-        nest2 += ConfigurablePyAlgorithm("SomeAlg2")
-        nest2 += ConfigurablePyAlgorithm("SomeAlg3")
+        # Skip initialization if it's already been done... otherwise, we'll
+        # get errors about duplicates.
+        if not top.getChildren():
+            top += parOR("nest1")
+            nest2 = seqAND("nest2")
+            top += nest2
+            top += ConfigurablePyAlgorithm("SomeAlg0")
+            nest2 += parOR("deep_nest1")
+            nest2 += parOR("deep_nest2")
+
+            nest2 += ConfigurablePyAlgorithm("SomeAlg1")
+            nest2 += ConfigurablePyAlgorithm("SomeAlg2")
+            nest2 += ConfigurablePyAlgorithm("SomeAlg3")
         self.top = top
 
 
@@ -338,3 +353,20 @@ class TestConf2CF( unittest.TestCase,  TestCF ):
         nest2.Members += [__mkAlg("SomeAlg2")]
         nest2.Members += [__mkAlg("SomeAlg3")]
         self.top = top
+
+class TestNest( unittest.TestCase ):
+    def test( self ):
+        Configurable.configurableRun3Behavior=1
+        top = parOR("top")
+        nest1 = parOR("nest1")
+        nest2 = seqAND("nest2")
+        top.Members += [nest1, nest2]
+
+        deep_nest1 = seqAND("deep_nest1")
+        nest1.Members += [deep_nest1]
+
+        nest2.Members += [nest1] # that one is ok
+        checkSequenceConsistency( top )
+        deep_nest1.Members += [nest1] # introducing an issue
+        self.assertRaises( RuntimeError, checkSequenceConsistency, top )
+

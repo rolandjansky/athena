@@ -117,8 +117,8 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
     
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(flags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(flags)
     if flags.InDetFlags.doSpacePointFormation:
         acc.merge(InDetSiElementPropertiesTableCondAlgCfg(flags))
         acc.merge(InDetSiTrackerSpacePointFinderCfg(flags))

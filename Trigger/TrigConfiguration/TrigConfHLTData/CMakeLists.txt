@@ -1,15 +1,7 @@
-# $Id: CMakeLists.txt 778093 2016-10-12 17:09:58Z krasznaa $
-################################################################################
-# Package: TrigConfHLTData
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfHLTData )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-   Trigger/TrigConfiguration/TrigConfL1Data
-   Trigger/TrigConfiguration/TrigConfHLTUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS system thread )
@@ -21,4 +13,4 @@ atlas_add_library( TrigConfHLTData
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data TrigConfHLTUtilsLib )
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

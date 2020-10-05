@@ -12,7 +12,7 @@
 #include <set>
 
 ///////////////////////////////////////////////////////////////////
-// Constructor
+/// Constructor
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
@@ -21,7 +21,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
 }
 
 ///////////////////////////////////////////////////////////////////
-// Initialisation
+/// Initialisation
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::SiSPSeededTrackFinder::initialize() 
@@ -35,16 +35,14 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   }
   ATH_CHECK(m_outputTracksKey.initialize());
 
-  // optional PRD to track association map
+  /// optional PRD to track association map
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
 
-  // Get tool for space points seed maker
-  //
+  /// Get tool for space points seed maker
   ATH_CHECK( m_seedsmaker.retrieve() );
   ATH_CHECK( m_zvertexmaker.retrieve( DisableTool{ not m_useZvertexTool } ));
 
-  // Get track-finding tool
-  //
+  /// Get track-finding tool
   ATH_CHECK( m_trackmaker.retrieve());
 
   ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty()} ));
@@ -58,16 +56,13 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
     if (not m_beamSpotKey.key().empty()) {
       ATH_CHECK(m_beamSpotKey.initialize());
-      // Get RungeKutta propagator tool
-      //
+      /// Get RungeKutta propagator tool
       ATH_CHECK( m_proptool.retrieve() );
 
-      // Setup for magnetic field
-      //
+      /// Setup for magnetic field
       magneticFieldInit();
       
-      // Setup for Z-histograms
-      //  
+      /// Setup for Z-histograms
       if (m_histsize < 100) m_histsize = 100;
       m_zstep = static_cast<double>(m_histsize)/(2.*m_zcut);
     } else {
@@ -79,8 +74,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     m_proptool.disable();
   }
 
-  // Get output print level
-  //
+  /// Get output print level
   if (msgLvl(MSG::DEBUG)) {
     dump(MSG::DEBUG, nullptr);
   }
@@ -92,11 +86,15 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Execute
+/// Execute
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::SiSPSeededTrackFinder::execute(const EventContext& ctx) const
 { 
+  /** Note that !m_useNewStrategy alone is NOT sufficient to trigger the oldStrategy call here! 
+  * For example, run-3 central offline Si tracking has m_useNewStrategy=false, 
+  * but m_useZBoundaryFinding true --> newStrategy
+  **/
   if (not m_useNewStrategy and not m_useZBoundaryFinding and not m_ITKGeometry) {
     return oldStrategy(ctx);
   }
@@ -104,7 +102,7 @@ StatusCode InDet::SiSPSeededTrackFinder::execute(const EventContext& ctx) const
 }
 
 ///////////////////////////////////////////////////////////////////
-// Execute with old strategy
+/// Execute with old strategy
 ///////////////////////////////////////////////////////////////////
 
 namespace InDet {
@@ -128,8 +126,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
 {
   SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
-  // For HI events we can use MBTS information from calorimeter
-  //
+  /// For HI events we can use MBTS information from calorimeter
   if (not isGoodEvent(ctx)) {
     return StatusCode::SUCCESS;
   }
@@ -142,8 +139,8 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
     m_seedsmaker->find3Sp(ctx, seedEventData, vertices);
   } else {
     m_seedsmaker->newEvent(ctx, seedEventData, -1);
-    std::list<Trk::Vertex> VZ;
-    m_seedsmaker->find3Sp(ctx, seedEventData, VZ);
+    std::list<Trk::Vertex> vertexList;
+    m_seedsmaker->find3Sp(ctx, seedEventData, vertexList);
   }
 
   const bool PIX = true;
@@ -154,14 +151,14 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
   bool ERR = false;
   Counter_t counter{};
   const InDet::SiSpacePointsSeed* seed = nullptr;
-  std::multimap<double, Trk::Track*> qualityTrack;
+  std::multimap<double, Trk::Track*> qualitySortedTrackCandidates;
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
   while ((seed = m_seedsmaker->next(ctx, seedEventData))) {
     ++counter[kNSeeds];
     std::list<Trk::Track*> trackList = m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints());
     for (Trk::Track* t: trackList) {
-      qualityTrack.insert(std::make_pair(-trackQuality(t), t));
+      qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
     }
     if (not ZVE and (counter[kNSeeds] >= m_maxNumberSeeds)) {
       ERR = true;
@@ -173,18 +170,18 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
 
   // Remove shared tracks with worse quality
   //
-  filterSharedTracks(qualityTrack);
+  filterSharedTracks(qualitySortedTrackCandidates);
 
   // Save good tracks in track collection
   //
-  for (std::pair<double, Trk::Track*> q: qualityTrack) {
+  for (const std::pair<const double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
     ++counter[kNTracks];
     if (m_trackSummaryTool.isEnabled()) {
-       m_trackSummaryTool->computeAndReplaceTrackSummary(*(q.second),
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*(qualityAndTrack.second),
                                                          trackEventData.combinatorialData().PRDtoTrackMap(),
                                                          false /* DO NOT suppress hole search*/);
     }
-    outputTracks->push_back(q.second);
+    outputTracks->push_back(qualityAndTrack.second);
   }
 
   m_counterTotal[kNSeeds] += counter[kNSeeds];
@@ -215,47 +212,69 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
 {
   SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
-  // For HI events we can use MBTS information from calorimeter
-  //
+  /// For HI events we can use MBTS information from calorimeter
   if (not isGoodEvent(ctx)) {
     return StatusCode::SUCCESS;
   }
 
-  // Get beam information and preparation for z -histogramming
-  //
+  /// Get beam information and preparation for z -histogramming
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
-  Trk::PerigeeSurface per(beamSpotHandle->beamPos());
+  Trk::PerigeeSurface beamPosPerigee(beamSpotHandle->beamPos());
 
   SiSpacePointsSeedMakerEventData seedEventData;
- 
+  
+  /** 
+   * We run two passes of seeding & track finding. 
+   * 
+   * First, we use strip seeds, perform finding with them and obtain an 
+   * estimate of the beam spot region from the found tracks. 
+   * 
+   * Then, we run PPP-seeded tracking within the resulting z interval. 
+   **/ 
+
+  /**
+   * Set up the first pass (strip seeds), and prepare to 
+   * obtain a vertex Z estimate from the candidates we find 
+   **/ 
+
+  /// set up the seed maker for first pass 
   m_seedsmaker->newEvent(ctx, seedEventData, 0);
-  std::list<Trk::Vertex> VZ;
-  m_seedsmaker->find3Sp(ctx, seedEventData, VZ);
+  std::list<Trk::Vertex> vertexList;
+  /// and run seeding - starting with an empty list of vertices for the first pass
+  m_seedsmaker->find3Sp(ctx, seedEventData, vertexList);
 
   const bool PIX = true ;
   const bool SCT = true ;
   InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
+  /// set up the track maker 
   m_trackmaker->newEvent(ctx, trackEventData, PIX, SCT);
 
-  std::vector<int> nhistogram(m_histsize, 0);
-  std::vector<double> zhistogram(m_histsize, 0.);
-  std::vector<double> phistogram(m_histsize, 0.);
+  /// initialize empty histograms for the vertex estimate
+  std::vector<int> numberHistogram(m_histsize, 0);
+  std::vector<double> zWeightedHistogram(m_histsize, 0.);
+  std::vector<double> ptWeightedHistogram(m_histsize, 0.);
 
   bool ERR = false;
   Counter_t counter{};
   const InDet::SiSpacePointsSeed* seed = nullptr;
-  std::multimap<double, Trk::Track*> qualityTrack;
-  // Loop through all seed and reconsrtucted tracks collection preparation
-  //
+
+  /// prepare a collection for the quality-sorted track canddiates
+  std::multimap<double, Trk::Track*> qualitySortedTrackCandidates;
+
+  /// Loop through all seeds from the first pass and attempt to form track candidates
   while ((seed = m_seedsmaker->next(ctx, seedEventData))) {
     ++counter[kNSeeds];
+    /// we only want to fill the Z histo with the first candidate for each seed. 
     bool firstTrack{true};
+    /// combinatorial track finding for one given seed 
     std::list<Trk::Track*> trackList = m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints());
-    for (Trk::Track* t: trackList) {
-      qualityTrack.insert(std::make_pair(-trackQuality(t), t));
 
+    /// record found candidates
+    for (Trk::Track* t: trackList) {
+      qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
+      /// For the first (highest quality) track from each seed, populate the vertex finding histograms 
       if (firstTrack and not m_ITKGeometry) {
-        fillZHistogram(t, per, nhistogram, zhistogram, phistogram);
+        fillZHistogram(t, beamPosPerigee, numberHistogram, zWeightedHistogram, ptWeightedHistogram);
       }
       firstTrack = false;
     }
@@ -266,22 +285,30 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
     }
   }
 
+  /** Now set up the second seeding pass, using pixel seeds
+  * The seed maker will internally reconfigure itself based on
+  * the "1" argument for the "iteration" argument in this call. 
+  **/ 
   m_seedsmaker->newEvent(ctx, seedEventData, 1);
 
-  double ZB[2];
+  /// perform vertex Z estimation and run second seeding pass
+  std::pair<double,double> zBoundaries;
   if (not m_ITKGeometry) {
-    findZvertex(VZ, ZB, nhistogram, zhistogram, phistogram);
-    m_seedsmaker->find3Sp(ctx, seedEventData, VZ, ZB);
+    /// Estimate a Z vertex interval and, if running the new strategy, also a list of the HS candidates 
+    findZvertex(vertexList, zBoundaries, numberHistogram, zWeightedHistogram, ptWeightedHistogram);
+    /// pass the Z boundary pair c-array-style to satisfy existing interfaces of the seeds maker family. 
+    /// Trigger second seed finding pass (PPP) 
+    m_seedsmaker->find3Sp(ctx, seedEventData, vertexList, &(zBoundaries.first));
   } else {
-    m_seedsmaker->find3Sp(ctx, seedEventData, VZ);
+    m_seedsmaker->find3Sp(ctx, seedEventData, vertexList);
   }
 
-  // Loop through all seed and reconsrtucted tracks collection preparation
-  //
+  /// Again, loop over the newly found seeds and attempt to form track candidates
   while ((seed = m_seedsmaker->next(ctx, seedEventData))) {
     ++counter[kNSeeds];
+    /// insert the new tracks into the quality-sorted list
     for (Trk::Track* t: m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints())) {
-      qualityTrack.insert(std::make_pair(-trackQuality(t), t));
+      qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
     }
     if (counter[kNSeeds] >= m_maxNumberSeeds) {
       ERR = true;
@@ -291,20 +318,20 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   }
   m_trackmaker->endEvent(trackEventData);
 
-  // Remove shared tracks with worse quality
-  //
-  filterSharedTracks(qualityTrack);
+  /// Remove shared tracks with worse quality
+  filterSharedTracks(qualitySortedTrackCandidates);
 
-  // Save good tracks in track collection
-  //
-  for (std::pair<double, Trk::Track*> q: qualityTrack) {
+  /// Save good tracks in track collection
+  for (const std::pair<const double, Trk::Track*> & qualityAndTrack: qualitySortedTrackCandidates) {
     ++counter[kNTracks];
     if (m_trackSummaryTool.isEnabled()) {
-       m_trackSummaryTool->computeAndReplaceTrackSummary(*q.second,
+      /// Note that for run-3 the tool here is configured to not perform a hole search,
+      /// regardless of the 'false' argument below
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*qualityAndTrack.second,
                                                          trackEventData.combinatorialData().PRDtoTrackMap(),
                                                          false /* DO NOT suppress hole search*/);
     }
-    outputTracks->push_back(q.second);
+    outputTracks->push_back(qualityAndTrack.second);
   }
 
   m_counterTotal[kNSeeds] += counter[kNSeeds] ;
@@ -484,23 +511,26 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
 double InDet::SiSPSeededTrackFinder::trackQuality(const Trk::Track* Tr) const
 {
  double quality = 0. ;
- double W       = 17.;
+ double baseScorePerHit       = 17.;
 
+  /// check all hits on the track
  for (const Trk::TrackStateOnSurface* m: *(Tr->trackStateOnSurfaces())) {
-
+   /// exclude anything which is not an actual hit 
    if (not m->type(Trk::TrackStateOnSurface::Measurement)) continue;
-
+  /// retrieve the fit quality for a given hit
    const Trk::FitQualityOnSurface* fq = m->fitQualityOnSurface();
    if (fq==nullptr) continue;
-
+  
    double x2 = fq->chiSquared();
-   double q;
-   if (fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
-   else                      q =      (W-x2    );
-   if (q < 0.) q = 0.;
-   quality += q;
+   double hitQualityScore;
+   /// score the hit based on the technology (pixels get higher score) and 
+   /// the local chi2 for the hit 
+   if (fq->numberDoF() == 2) hitQualityScore = (1.2*(baseScorePerHit-x2*.5));   // pix
+   else                      hitQualityScore =      (baseScorePerHit-x2    );   // sct
+   if (hitQualityScore < 0.) hitQualityScore = 0.;    // do not allow a bad hit to decrement the overall score 
+   quality += hitQualityScore;
  }
-
+  /// penalise brem tracks 
  if (Tr->info().trackProperties(Trk::TrackInfo::BremFit)) quality *= 0.7;
 
  return quality;
@@ -510,37 +540,47 @@ double InDet::SiSPSeededTrackFinder::trackQuality(const Trk::Track* Tr) const
 // Filer shared tracks
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSPSeededTrackFinder::filterSharedTracks(std::multimap<double, Trk::Track*>& QT) const
+void InDet::SiSPSeededTrackFinder::filterSharedTracks(std::multimap<double, Trk::Track*>& qualitySortedTracks) const
 {
   std::set<const Trk::PrepRawData*> clusters;
   
-  const Trk::PrepRawData* prd[100]; 
+  std::vector<const Trk::PrepRawData*> freeClusters;
+  freeClusters.reserve(15);    
   
-  std::multimap<double, Trk::Track*>::iterator q = QT.begin();
-  while (q!=QT.end()) {
+  std::multimap<double, Trk::Track*>::iterator it_qualityAndTrack = qualitySortedTracks.begin();
 
-    std::set<const Trk::PrepRawData*>::iterator fe = clusters.end();
+  /// loop over all track candidates, sorted by quality
+  while (it_qualityAndTrack!=qualitySortedTracks.end()) {
+    freeClusters.clear();
 
-    int nf = 0;
-    int nc = 0; 
+    std::set<const Trk::PrepRawData*>::iterator it_clustersEnd = clusters.end();
 
-    for (const Trk::MeasurementBase* m: *((*q).second->measurementsOnTrack())) {
+    int nClusters = 0; 
+    /// loop over measurements on the track candidate 
+    for (const Trk::MeasurementBase* m: *((*it_qualityAndTrack).second->measurementsOnTrack())) {
+      /// get the PRD from the measurement
       const Trk::PrepRawData* pr = (static_cast<const Trk::RIO_OnTrack*>(m))->prepRawData();
       if (pr) {
-	++nc;
-        if (clusters.find(pr)==fe) {
-          prd[nf++]=pr;
-          if (nf==100) break;
+        /// increase cluster count
+	      ++nClusters;
+        /// and check if the cluster was already used in a previous ( = higher quality) track 
+        if (clusters.find(pr)==it_clustersEnd) {
+          /// if not, record as a free (not prevously used) cluster 
+          freeClusters.push_back(pr); 
         }
       }
     }
-
-    if (nf >= m_nfreeCut or nf==nc) {
-      for (int n=0; n<nf; ++n) clusters.insert(prd[n]);
-      ++q;
+    /// check if the track has the minimum number of free clusters or if it has no shared clusters 
+    int nFreeClusters = static_cast<int>(freeClusters.size()); 
+    if (nFreeClusters >= m_nfreeCut || nFreeClusters==nClusters) {
+      /// if this is fulfilled, we keep the candidate 
+      /// add the free clusters to our cluster set 
+      clusters.insert(freeClusters.begin(), freeClusters.end());
+      ++it_qualityAndTrack;
     } else {
-      delete (*q).second;
-      QT.erase(q++);
+      /// if we do not keep the track, clean up candidate 
+      delete (*it_qualityAndTrack).second;
+      qualitySortedTracks.erase(it_qualityAndTrack++);
     }
   }
 }
@@ -550,37 +590,44 @@ void InDet::SiSPSeededTrackFinder::filterSharedTracks(std::multimap<double, Trk:
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,
-                                                  Trk::PerigeeSurface& per,
-                                                  std::vector<int>& nhistogram,
-                                                  std::vector<double>& zhistogram,
-                                                  std::vector<double>& phistogram) const
+                                                  const Trk::PerigeeSurface& beamPosPerigee,
+                                                  std::vector<int>& numberHistogram,
+                                                  std::vector<double>& zWeightedHistogram,
+                                                  std::vector<double>& ptWeightedHistogram) const
 {
   
   if (Tr->measurementsOnTrack()->size() < 10) return;
 	
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator m = Tr->trackStateOnSurfaces()->begin();
-  const Trk::TrackParameters* P = (*m)->trackParameters();
-  Amg::Vector3D              gf = P->position()          ;
-  Amg::Vector3D              gm = P->momentum()          ;
-      
-  if (gf.x()*gf.x()+gf.y()*gf.y() >= 3600.) return;
+  const Trk::TrackParameters* paramsAtFirstSurface = Tr->trackStateOnSurfaces()->front()->trackParameters();
+  Amg::Vector3D              position = paramsAtFirstSurface->position()          ;
+  Amg::Vector3D              momentum = paramsAtFirstSurface->momentum()          ;
+  
+  /// only take into accounts tracks with a hit inside r < 60mm 
+  constexpr double rSquare_max_forZHisto = 60.*60.; 
+  if (position.x()*position.x()+position.y()*position.y() >= rSquare_max_forZHisto) return;
 
-  double pT = sqrt(gm.x()*gm.x()+gm.y()*gm.y());
+  double pT = sqrt(momentum.x()*momentum.x()+momentum.y()*momentum.y());
   if (pT < m_pTcut) return;
 
   Trk::PatternTrackParameters TP;
-  if (not TP.production(P)) return;
+  if (not TP.production(paramsAtFirstSurface)) return;
 	  
   double step;
-  if (not m_proptool->propagate(TP, per, TP, Trk::anyDirection, m_fieldprop, step, Trk::pion)) return;
+  /// propagate from innermost hit to beam spot
+  if (not m_proptool->propagate(TP, beamPosPerigee, TP, Trk::anyDirection, m_fieldprop, step, Trk::pion)) return;
 	      
-  const double* par = TP.par();
-  if (fabs(par[0]) > m_imcut) return;
-  int z = static_cast<int>((par[1]+m_zcut)*m_zstep);
+  const double* parsAtBeamSpot = TP.par();
+  if (std::abs(parsAtBeamSpot[0]) > m_imcut) return;
+  /// determine bin number - m_zstep is the inverse bin width, where the histo axis extends from -m_zcut to +m_zcut
+  int z = static_cast<int>((parsAtBeamSpot[1]+m_zcut)*m_zstep);
+  /// fill histograms if we are not in the over/underflow
   if (z >=0 and z < m_histsize) {
-    ++nhistogram[z];
-    zhistogram[z] += par[1];
-    phistogram[z] += pT;
+    /// simple z histogram, counting tracks per z 
+    ++numberHistogram[z];
+    /// z weighted histogram binned in z - used for vertex z calculation
+    zWeightedHistogram[z] += parsAtBeamSpot[1];
+    /// pt weighted histogram binned in z - used for vertex sumpt calculation 
+    ptWeightedHistogram[z] += pT;
   }
   
 }
@@ -589,64 +636,72 @@ void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,
 // Find verteex  z coordinates
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiSPSeededTrackFinder::findZvertex(std::list<Trk::Vertex>& ZV,
-                                                double* ZB,
-                                                std::vector<int>& nhistogram,
-                                                std::vector<double>& zhistogram,
-                                                std::vector<double>& phistogram) const
+void  InDet::SiSPSeededTrackFinder::findZvertex(std::list<Trk::Vertex>& vertexZList,
+                                                std::pair<double, double> & zBoundaries,
+                                                const std::vector<int>& numberHistogram,
+                                                const std::vector<double>& zWeightedHistogram,
+                                                const std::vector<double>& ptWeightedHistogram) const
 {
-  ZB[0] = 1000.;
-  ZB[1] =-1000.;
+  zBoundaries = {1000., -1000};
 
-  std::multimap<int   ,double> vern;
-  std::multimap<double,double> verp;
+  std::multimap<int   ,double> vertexZ_sortedByNtracks;
+  std::multimap<double,double> vertexZ_sortedBySumPt;
 
-  int imax = m_histsize-1;
-  int nmin = 3;
+  int lastBin = m_histsize-1;
+  int minBinContentSum = 3;
 
-  for (int i=1; i<imax; ++i) { 
+  /// loop over the bins in z. Start with the second, end with the second to last, as we investigate triplets of bins
+  for (int binIndex=1; binIndex<lastBin; ++binIndex) { 
 
-    int n = nhistogram[i-1]+nhistogram[i]+nhistogram[i+1];
+    /// total entries in the three neighbouring bins 
+    int vertexNtracks = numberHistogram.at(binIndex-1)+numberHistogram.at(binIndex)+numberHistogram.at(binIndex+1);
 
-    if (n>=nmin and (nhistogram[i] >= nhistogram[i-1] and nhistogram[i] >= nhistogram[i+1])) {
-  
-      double z = (zhistogram[i-1]+zhistogram[i]+zhistogram[i+1])/static_cast<double>(n);
+    /// if we have at least 3 tracks in this z0 interval with the peak of the local triplet in the central bin,
+    /// add a vertex candidate
+    if (vertexNtracks>=minBinContentSum and (numberHistogram.at(binIndex) >= numberHistogram.at(binIndex-1) and numberHistogram.at(binIndex) >= numberHistogram.at(binIndex+1))) {
+      /// vertex z estimate as the mean z0 of the tracks in the three bins
+      double vertexZestimate = (zWeightedHistogram.at(binIndex-1)+zWeightedHistogram.at(binIndex)+zWeightedHistogram.at(binIndex+1))/static_cast<double>(vertexNtracks);
 
-      if (z < ZB[0]) ZB[0] = z;
-      if (z > ZB[1]) ZB[1] = z;
+      /// if this vertex is to the left of the lower edge or the right of the upper edge, broaden the z interval accordingly 
+      /// to include this vertex. 
+      if (vertexZestimate < zBoundaries.first) zBoundaries.first = vertexZestimate;
+      if (vertexZestimate > zBoundaries.second) zBoundaries.second = vertexZestimate;
  
       if (m_useNewStrategy) { 
-	double p = phistogram[i-1]+phistogram[i]+phistogram[i+1];
-	vern.insert(std::make_pair(-n, z));
-	verp.insert(std::make_pair(-p, z));
+        /// also get the sum(pt) of the vertex candidate
+        double vertexSumPt = ptWeightedHistogram.at(binIndex-1)+ptWeightedHistogram.at(binIndex)+ptWeightedHistogram.at(binIndex+1);
+        vertexZ_sortedByNtracks.insert(std::make_pair(-vertexNtracks, vertexZestimate));
+        vertexZ_sortedBySumPt.insert(std::make_pair(-vertexSumPt, vertexZestimate));
       }
     }
   }
 
   if (m_useNewStrategy) {
 
-    std::set<double> vertex;
+    std::set<double> leadingVertices;
     int n = 0;
-    std::multimap<double, double>::iterator pz = verp.begin();
-    for (std::pair<int, double> nz: vern) {
+    std::multimap<double, double>::iterator vertex_pt_and_z = vertexZ_sortedBySumPt.begin();
+    for (std::pair<int, double> nTrackAndZ: vertexZ_sortedByNtracks) {
+      /// stop when we have collected the requested number of leading vertices
       if (n++ >= m_nvertex) break; 
-      vertex.insert(nz.second);
-      vertex.insert((*pz++).second);
+      /// insert one vertex from the ntracks-sorted list and one from the pt-sorted list. 
+      /// If both are the same, only one insertion is performed
+      leadingVertices.insert(nTrackAndZ.second);
+      leadingVertices.insert((*vertex_pt_and_z++).second);
     }
 
-    for (double v: vertex) {
-      Amg::Vector3D Vp(0., 0., v);
-      Trk::Vertex Ver(Vp);
-      ZV.push_back(Ver);
+    for (double v: leadingVertices) {
+      vertexZList.emplace_back(Amg::Vector3D{0.,0.,v});
     }
   }
-
-  if (ZB[0] > ZB[1]) {
-    ZB[0] = -1000.;
-    ZB[1] = +1000.;
+  /// if we did not find any PV candidates, assume a very wide interval
+  if (zBoundaries.first > zBoundaries.second) {
+    zBoundaries.first = -1000.;
+    zBoundaries.second = +1000.;
   } else {
-    ZB[0] -= 20.;
-    ZB[1] += 20.;
+    /// otherwise, add a reasonable bit of space on each side of the first / last vertex candidate
+    zBoundaries.first -= 20.;
+    zBoundaries.second += 20.;
   }
 } 
 

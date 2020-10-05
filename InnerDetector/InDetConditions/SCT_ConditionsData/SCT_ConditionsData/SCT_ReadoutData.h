@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,11 +20,15 @@
 
 // C++ STL
 #include <bitset>
+#include <memory>
 #include <vector> 
 
 class Identifier;
 
-/** Enums for module and chip type*/
+/** 
+ * @enum ModuleType
+ * @brief Enums for module and chip type
+ **/
 namespace SCT_Parameters {
   enum ModuleType {BARREL, MODIFIED_0, MODIFIED_1, ENDCAP};
 }
@@ -31,21 +37,20 @@ namespace SCT_Parameters {
  * @class SCT_ReadoutTool
  * Class to represent the SCT module readout
  **/
-
 class SCT_ReadoutData {
 
- public:
+public:
 
   SCT_ReadoutData(IMessageSvc* msgSvc=nullptr);
-  virtual ~SCT_ReadoutData();
+  ~SCT_ReadoutData() = default;
 
-  // Default copy constructor
-  SCT_ReadoutData(const SCT_ReadoutData&) = default;
-  // Default assignment operator
-  SCT_ReadoutData& operator=(const SCT_ReadoutData&) = default;
-  // Default move constructor
+  /** No copy ctor due to m_msg*/
+  SCT_ReadoutData(const SCT_ReadoutData&) = delete;
+  /** No assignment operator due to m_msg */
+  SCT_ReadoutData& operator=(const SCT_ReadoutData&) = delete;
+  /** Default move constructor*/
   SCT_ReadoutData(SCT_ReadoutData&&) = default;
-  // Default move assignment operator
+  /** Default move assignment operator*/
   SCT_ReadoutData& operator=(SCT_ReadoutData&&) = default;
   
   /** Find the ID of the input chip for chip*/ 
@@ -109,7 +114,7 @@ class SCT_ReadoutData {
   void printStatus(const Identifier& moduleId) const;
 
   /** Set SCT_Chip vectors */
-  void setChips(std::vector<SCT_Chip*>& chips);
+  void setChips(std::vector<SCT_Chip>& chips);
 
   /** Set link status */
   void setLinkStatus(bool link0ok, bool link1ok);
@@ -117,18 +122,18 @@ class SCT_ReadoutData {
   /** Set all chips out of readout and clear both links to start */
   void clearChipReadout();
 
- private:
+private:
 
   /** Private data*/
-  std::vector<SCT_Chip*>              m_chips;               //!< Vector of actual SCT Chips for that module
-  std::vector<SCT_PortMap>            m_chipMap;             //!< Vector of port mapping from the chips in an SCT module 
-  bool                                m_linkActive[2];       //!< Links status for link 0 and 1
-  std::bitset<SCT_Parameters::NChips> m_chipInReadout;       //!< Bitset indicating whether a chip is readout or not
-  SCT_Parameters::ModuleType          m_type;                //!< The type of this module (Barrel, Modified Barrel (0 or 1), Endcap)
-  std::vector<int>                    m_chipsOnLink0;        //!< The chips read out on link 0
-  std::vector<int>                    m_chipsOnLink1;        //! <The chips read out on link 1
+  std::vector<SCT_Chip>*              m_chips{nullptr}; //!< Vector of actual SCT Chips for that module
+  std::vector<SCT_PortMap>            m_chipMap{}; //!< Vector of port mapping from the chips in an SCT module 
+  bool                                m_linkActive[2]{false, false}; //!< Links status for link 0 and 1
+  std::bitset<SCT_Parameters::NChips> m_chipInReadout{}; //!< Bitset indicating whether a chip is readout or not
+  SCT_Parameters::ModuleType          m_type{SCT_Parameters::BARREL}; //!< The type of this module (Barrel, Modified Barrel (0 or 1), Endcap)
+  std::vector<int>                    m_chipsOnLink0{}; //!< The chips read out on link 0
+  std::vector<int>                    m_chipsOnLink1{}; //! <The chips read out on link 1
 
-  Athena::MsgStreamMember* m_msg;
+  std::unique_ptr<Athena::MsgStreamMember> m_msg{};
 };
 
 #endif // SCT_ConditionData_SCT_ReadoutData_h

@@ -11,8 +11,10 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 
+#include "AtlasHepMC/GenParticle.h"
+
 // G4Atlas includes
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackInformation.h"
 
@@ -41,8 +43,12 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
   double charge  = particleDefinition.GetPDGCharge();
   int    pdgID   = particleDefinition.GetPDGEncoding();
 
+#ifdef HEPMC3
+  HepMC::GenParticlePtr genParticle = (truth) ? truth->getTruthParticle(): nullptr;
+#else  
   auto* genParticle = (truth) ? truth->getTruthParticle(): nullptr;
-  Barcode::ParticleBarcode barcode = (genParticle) ? genParticle->barcode() : Barcode::fUndefinedBarcode;
+#endif
+  Barcode::ParticleBarcode barcode = (genParticle) ? HepMC::barcode(genParticle) : Barcode::fUndefinedBarcode;
 
   ISF::ISFParticle *isp = new ISF::ISFParticle( position,
                                                 momentum,
@@ -73,7 +79,7 @@ TrackInformation*
 iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( G4Track& aTrack,
                                                     const ISF::ISFParticle& baseIsp,
                                                     TrackClassification classification,
-                                                    HepMC::GenParticle *nonRegeneratedTruthParticle)
+                                                    HepMC::GenParticlePtr nonRegeneratedTruthParticle)
 {
   if ( aTrack.GetUserInformation() ) {
     G4ExceptionDescription description;
@@ -106,10 +112,10 @@ iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( G4Track& aTrack,
   return trackInfo;
 }
 
-/** return pointer to current EventInformation */
-EventInformation*
-iGeant4::ISFG4Helper::getEventInformation()
+/** return pointer to current AtlasG4EventUserInfo */
+AtlasG4EventUserInfo*
+iGeant4::ISFG4Helper::getAtlasG4EventUserInfo()
 {
-  return ( static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation()) );
+  return ( static_cast<AtlasG4EventUserInfo*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation()) );
 }
 

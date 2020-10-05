@@ -34,7 +34,7 @@ def _fnmatch(fname, patterns):
     support for a list of patterns to match against
     """
     from fnmatch import fnmatch
-    if isinstance(patterns, basestring):
+    if isinstance(patterns, str):
         patterns = [patterns]
     for pattern in patterns:
         if fnmatch(fname, pattern):
@@ -78,7 +78,7 @@ def _interpret_grl(fname):
 
 def interpret_grl(fname="GRL.dat"):
     fnames = []
-    if isinstance(fname, basestring):
+    if isinstance(fname, str):
         fnames = [fname]
     elif isinstance(fname, (list,tuple)):
         fnames = fname[:]
@@ -100,12 +100,6 @@ def pass_grl(run, lb, good_lbs):
             return True
 
     return False
-
-def warm_up(fname):
-    assert os.path.exists(fname)
-    import commands
-    rc,_ = commands.getstatusoutput("/bin/dd if=%s of=/dev/null" % (fname,))
-    return rc
 
 def apply_filters(branches, patterns):
     """extract the branches which match the patterns.
@@ -415,7 +409,6 @@ def order(m, chain_name, fnames, workdir):
         timer = ROOT.TStopwatch()
         timer.Start()
         print ("::: optimizing   [%s]..." % (fn,))
-        #warm_up(fn)
 
         timer.Start()
         fin = ROOT.TFile.Open(fn, "read")
@@ -484,7 +477,7 @@ def _load_filter_fct(selection):
     if selection is None:
         return filter_fct
     
-    if not isinstance(selection, basestring):
+    if not isinstance(selection, str):
         print ("** invalid filter-fct type (%r)" % (type(selection),))
         return filter_fct
     
@@ -754,7 +747,6 @@ Accepted command line options:
 # @author http://code.activestate.com/recipes/573463
 #         slightly adapted to follow PEP8 conventions
 
-__version__ = "$Revision: 547442 $"
 __doc__ = """\
 functions to convert an XML file into a python dict, back and forth
 """
@@ -772,7 +764,7 @@ def import_etree():
     except ImportError:
         pass
     # do it by hook or by crook...
-    import sys, os, imp
+    import os, imp
     xml_site_package = os.path.join(os.path.dirname(os.__file__), 'xml')
     m = imp.find_module('etree', [xml_site_package])
 
@@ -863,9 +855,9 @@ try:
         for child in node:
             # recursively add the element's children
             newitem = _xml2dict_recurse (child, dictclass)
-            if nodedict.has_key(child.tag):
+            if child.tag in nodedict:
                 # found duplicate tag, force a list
-                if type(nodedict[child.tag]) is type([]):
+                if isinstance(nodedict[child.tag], list):
                     # append to existing list
                     nodedict[child.tag].append(newitem)
                 else:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTXAODBphysMonTool.cxx
@@ -12,17 +12,11 @@
  */
 
 // Gaudi and Athena
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 
 #include "TrkParametersBase/ParametersBase.h"
 #include "VxVertex/VxTrackAtVertex.h"
-
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Matrix/Vector.h"
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
 
 // ROOT
 #include "TROOT.h"
@@ -120,6 +114,7 @@ m_muonMass(105.66)
 
     declareProperty("DetailedChains"    ,m_dedicated_chains , "table<string,string> of menu-idep/aware labels/chainnames");
     declareProperty("DetailedL1TopoChains"    ,m_dedicatedL1Topo_chains , "table<string,string> of menu-idep/aware labels/chainnames for L1Topo");
+    declareProperty("DetailedIndividualChains"    ,m_dedicatedIndividual_chains , "table<string,string> of individual chains");
     declareProperty("EfficiencyChains"  ,m_efficiency_chains, "table<string,string> of menu-idep/aware labels/eff. names");
     
     // ID Tracking efficiency
@@ -141,6 +136,7 @@ m_muonMass(105.66)
     // patterns for the above, if generated on-the-fly from m_primary_chains list
     declareProperty("DetailedChains_patterns"    ,m_dedicated_chains_patterns , "table<string,string> of menu-idep/aware labels/patterns");
     declareProperty("DetailedL1TopoChains_patterns"    ,m_dedicatedL1Topo_chains_patterns , "table<string,string> of menu-idep/aware labels/patterns for L1Topo");
+    declareProperty("DetailedIndividualChains_patterns"    ,m_dedicatedIndividual_chains_patterns , "table<string,string> of individual chains");
     declareProperty("EfficiencyChains_patterns"  ,m_efficiency_chains_patterns, "table<string,string> of menu-idep/aware labels/eff. patterns");
     
     declareProperty("EffTrigDenom_noVtxOS_pattern" , m_trigchain_denomnoVtxOS_pattern , "Trigger pattern for noVtxOS denominator efficiencies");
@@ -231,6 +227,7 @@ StatusCode HLTXAODBphysMonTool::init()
 StatusCode HLTXAODBphysMonTool::generateChainDicts() {
     m_dedicated_chains.clear();
     m_dedicatedL1Topo_chains.clear();
+    m_dedicatedIndividual_chains.clear();
     m_efficiency_chains.clear();
     m_trigchain_denomnoVtxOS = "";
     
@@ -253,6 +250,18 @@ StatusCode HLTXAODBphysMonTool::generateChainDicts() {
             if( boost::regex_match(chainName,pattern) ) {
               m_dedicatedL1Topo_chains.insert( Pair_t(patternPair.first,chainName) );
               ATH_MSG_INFO ("Add " << patternPair.first << " : " << chainName << " to DetailedL1TopoChains dictionary");
+              break;
+            }
+        }
+    }
+    
+    ATH_MSG_DEBUG ("Forming DetailedIndividualChains... ");
+    for(const auto& patternPair : m_dedicatedIndividual_chains_patterns) {
+        boost::regex pattern(patternPair.second.c_str());
+        for(const auto& chainName : m_monitored_chains) {
+            if( boost::regex_match(chainName,pattern) ) {
+              m_dedicatedIndividual_chains.insert( Pair_t(patternPair.first,chainName) );
+              ATH_MSG_INFO ("Add " << patternPair.first << " : " << chainName << " to DetailedIndividualChains dictionary");
               break;
             }
         }
@@ -1540,6 +1549,11 @@ StatusCode HLTXAODBphysMonTool::bookTriggerGroups() {
         // groupName, prefix, pathInRoot, chainName
         bookTrigBphysHists(trigpair.first,  m_prefix, trigpair.first, trigpair.second, false); // book only limited number of histograms
     } // for
+    for (const auto& trigpair : m_dedicatedIndividual_chains) {
+        ATH_MSG_DEBUG("Building Dedicated Individual chain monitoring for: " << trigpair.first<< " " <<trigpair.second );
+        // groupName, prefix, pathInRoot, chainName
+        bookTrigBphysHists(trigpair.first,  m_prefix, trigpair.first, trigpair.second); 
+    } // for
     return StatusCode::SUCCESS;
 } // bookTriggerGroups
 
@@ -1555,6 +1569,13 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroups() {
     for (const auto& trigpair : m_dedicatedL1Topo_chains) {
         ATH_MSG_DEBUG("Filling Dedicated L1Topo chain monitoring for: " << trigpair.first<< " " <<trigpair.second );
         if (!fillTriggerGroup(trigpair.first,trigpair.second, false).isSuccess()) {
+            ATH_MSG_WARNING("Problems filling group/chain: " << trigpair.first<< " " <<trigpair.second);
+            continue;
+        }
+    } // for
+    for (const auto& trigpair : m_dedicatedIndividual_chains) {
+        ATH_MSG_DEBUG("Filling Dedicated Individual chain monitoring for: " << trigpair.first<< " " <<trigpair.second );
+        if (!fillTriggerGroup(trigpair.first,trigpair.second).isSuccess()) {
             ATH_MSG_WARNING("Problems filling group/chain: " << trigpair.first<< " " <<trigpair.second);
             continue;
         }

@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/get_unaligned.h
@@ -12,7 +12,7 @@
  *@code
  *   char* p = ...;
  *   int* ip = reinterpret_cast<int*>(p);
- *   int i = *ip;
+ *   int i = *ip++;
  @endif
  *
  * is undefined if @c p isn't aligned to an int boundary.  It further
@@ -50,9 +50,10 @@ namespace CxxUtils {
 
 /**
  * @brief Read a 2-byte little-endian value from a possibly unaligned pointer.
- * @param p Pointer from which to read.
+ * @param p Pointer from which to read.  Advanced to the next value.
  *
- * Reads a little-endian value, regardless of the host byte ordering.
+ * Reads a little-endian value, regardless of the host byte ordering,
+ * and advances the pointer.
  * Should not rely on undefined behavior, regardless of the alignment of @c p.
  *
  * If used in a loop, you'll get better code with a restricted pointer.
@@ -69,9 +70,10 @@ uint16_t get_unaligned16 (const uint8_t* ATH_RESTRICT &  p)
 
 /**
  * @brief Read a 4-byte little-endian value from a possibly unaligned pointer.
- * @param p Pointer from which to read.
+ * @param p Pointer from which to read.  Advanced to the next value.
  *
- * Reads a little-endian value, regardless of the host byte ordering.
+ * Reads a little-endian value, regardless of the host byte ordering,
+ * and advances the pointer.
  * Should not rely on undefined behavior, regardless of the alignment of @c p.
  *
  * If used in a loop, you'll get better code with a restricted pointer.
@@ -88,9 +90,10 @@ uint32_t get_unaligned32 (const uint8_t* ATH_RESTRICT &  p)
 
 /**
  * @brief Read a 8-byte little-endian value from a possibly unaligned pointer.
- * @param p Pointer from which to read.
+ * @param p Pointer from which to read.  Advanced to the next value.
  *
- * Reads a little-endian value, regardless of the host byte ordering.
+ * Reads a little-endian value, regardless of the host byte ordering,
+ * and advances the pointer.
  * Should not rely on undefined behavior, regardless of the alignment of @c p.
  *
  * If used in a loop, you'll get better code with a restricted pointer.
@@ -107,9 +110,10 @@ uint64_t get_unaligned64 (const uint8_t* ATH_RESTRICT &  p)
 
 /**
  * @brief Read little-endian float value from a possibly unaligned pointer.
- * @param p Pointer from which to read.
+ * @param p Pointer from which to read.  Advanced to the next value.
  *
- * Reads a little-endian value, regardless of the host byte ordering.
+ * Reads a little-endian value, regardless of the host byte ordering,
+ * and advances the pointer.
  * Should not rely on undefined behavior, regardless of the alignment of @c p.
  *
  * If used in a loop, you'll get better code with a restricted pointer.
@@ -128,9 +132,10 @@ float get_unaligned_float (const uint8_t* ATH_RESTRICT &  p)
 
 /**
  * @brief Read little-endian float value from a possibly unaligned pointer.
- * @param p Pointer from which to read.
+ * @param p Pointer from which to read.  Advanced to the next value.
  *
- * Reads a little-endian value, regardless of the host byte ordering.
+ * Reads a little-endian value, regardless of the host byte ordering,
+ * and advances the pointer.
  * Should not rely on undefined behavior, regardless of the alignment of @c p.
  *
  * If used in a loop, you'll get better code with a restricted pointer.

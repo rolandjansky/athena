@@ -1,35 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTPRDValAlg_H
 #define MDTPRDValAlg_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
 
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <sstream>   
 #include <string>
 #include <vector>
 #include <map>
 
-
 class MDTSimHit; 
 class MuonSimData;
-class Identifier;
 class TTree;
-class TFile;
 class ITHistSvc;
-class MsgStream;
 
 // pre-declarations
 namespace MuonGM {
@@ -90,14 +84,11 @@ class MDTPRDValAlg: public AthAlgorithm {
 
  public:
   MDTPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MDTPRDValAlg();
+  ~MDTPRDValAlg()=default;
 
   StatusCode initialize();
-  StatusCode finalize();
   StatusCode execute();
 
- 
-	
  private:
  
 
@@ -130,12 +121,8 @@ class MDTPRDValAlg: public AthAlgorithm {
   int m_StationPhi;
   int m_LastEvent;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  MsgStream*          m_log;
-  bool                m_debug;
-  bool                m_verbose;
   bool isVerbose() {return (msgLevel() <= MSG::VERBOSE);}
 
   void addMcEventCollection( TruthMap& truthMap ) const;

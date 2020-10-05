@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FOURMOMUTILS_THRUST_H
@@ -16,7 +16,7 @@ namespace FourMomUtils
 
   typedef INavigable4MomentumCollection::const_iterator I4MomIter_t;
 
-  CLHEP::Hep3Vector thrust( const I4MomIter_t iBeg, const I4MomIter_t iEnd,
+  CLHEP::Hep3Vector thrust( const I4MomIter_t& iBeg, const I4MomIter_t& iEnd,
                             double& thrust_major, double& thrust_minor,
                             bool useThreeD=false );
 

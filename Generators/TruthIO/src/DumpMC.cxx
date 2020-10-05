@@ -5,10 +5,9 @@
 #include "TruthIO/DumpMC.h"
 #include "GaudiKernel/PhysicalConstants.h"
 using namespace Gaudi::Units;
-using namespace std;
 
 
-DumpMC::DumpMC(const string& name, ISvcLocator* pSvcLocator)
+DumpMC::DumpMC(const std::string& name, ISvcLocator* pSvcLocator)
   : GenBase(name, pSvcLocator)
 {
   declareProperty("McEventOutputKey", m_keyout="GEN_EVENT");
@@ -37,16 +36,27 @@ StatusCode DumpMC::execute() {
     }
     // Loop over all events in McEventCollection
     for (McEventCollection::iterator evt = mcCollptra->begin(); evt != mcCollptra->end(); ++evt) {
+#ifdef HEPMC3
+    std::vector<HepMC::GenVertexPtr> lambda_vertices_to_remove;
+    for (auto part: **evt){
+    const int abspid = std::abs(part->pdg_id());
+     if (abspid != 310 && abspid != 3122 && abspid != 3222 && abspid != 3112 && abspid != 3322 && abspid != 3312 && abspid != 3334 ) continue;
+     if (!part->end_vertex()) continue;
+     lambda_vertices_to_remove.push_back(part->end_vertex());
+     part->set_status(1);
+    }
+    for (auto v: lambda_vertices_to_remove)  (*evt)->remove_vertex(v);
+#else
       // Loop over the vertices of the event
-      set<int> Lambdas;
-      set<int> vtx_to_delete;
+      std::set<int> Lambdas;
+      std::set<int> vtx_to_delete;
       for (HepMC::GenEvent::vertex_const_iterator vtx = (*evt)->vertices_begin(); vtx != (*evt)->vertices_end(); ++vtx) {
         // Loop over the particles that produced the vertex
         if ( vtx_to_delete.find((*vtx)->barcode()) == vtx_to_delete.end() &&
              (*vtx)->particles_in_const_begin() != (*vtx)->particles_in_const_end() ) {
           HepMC::GenVertex::particles_in_const_iterator part = (*vtx)->particles_in_const_begin();
           bool lambda_not_found = true;
-          const int abspid = abs((*part)->pdg_id());
+          const int abspid = std::abs((*part)->pdg_id());
           do {
             if (abspid == 310 || abspid == 3122 || abspid == 3222 || abspid == 3112 ||
                 abspid == 3322 || abspid == 3312 || abspid == 3334 ) {
@@ -66,16 +76,17 @@ StatusCode DumpMC::execute() {
       }
 
       // Set Lambda's status to stable
-      for (set<int>::iterator l = Lambdas.begin(); l != Lambdas.end(); ++l) {
+      for (std::set<int>::iterator l = Lambdas.begin(); l != Lambdas.end(); ++l) {
         HepMC::GenParticle* lam = (*evt)->barcode_to_particle(*l);
         lam->set_status(1);
       }
       // Delete all Lambda vertices from the event
-      for (set<int>::iterator v = vtx_to_delete.begin(); v != vtx_to_delete.end(); ++v) {
+      for (std::set<int>::iterator v = vtx_to_delete.begin(); v != vtx_to_delete.end(); ++v) {
         HepMC::GenVertex* vdel = (*evt)->barcode_to_vertex(*v);
         (*evt)->remove_vertex(vdel);
         delete vdel;
       }
+#endif
     }
 
     if (evtStore()->record(mcCollptra, m_keyout).isFailure()){
@@ -86,11 +97,44 @@ StatusCode DumpMC::execute() {
 
   // Loop over all events in McEventCollection
   for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
-    //int g_id = (*itr)->signal_process_id();
-    //GeneratorName_print(g_id);
-    const HepMC::PdfInfo *pdfinfo = (*itr)->pdf_info();
+    auto pdfinfo = (*itr)->pdf_info();
+    auto ion = (*itr)->heavy_ion();
+#ifdef HEPMC3
     if (pdfinfo) {
-      cout << "PdfInfo: "
+      std::cout << "PdfInfo: "
+                << pdfinfo->parton_id[0] << ", "
+                << pdfinfo->parton_id[1] << ", "
+                << pdfinfo->x[0] << ", "
+                << pdfinfo->x[1] << ", "
+                << pdfinfo->scale << ", "
+                << pdfinfo->xf[0] << ", "
+                << pdfinfo->xf[1] << ", "
+                << pdfinfo->pdf_id[0] << ", "
+                << pdfinfo->pdf_id[1]
+                <<      std::endl;
+    }
+
+    if (ion) {
+      std::cout << std::endl;
+      std::cout << "Heavy Ion: "
+                << ion->Ncoll_hard <<", "
+                << ion->Npart_proj <<" , "
+                << ion->Npart_targ<< ", "
+                << ion->Ncoll<< ", "
+                << ion->spectator_neutrons << ", "
+                << ion->spectator_protons << ", " 
+                << ion->N_Nwounded_collisions << ", "
+                << ion->Nwounded_N_collisions << ", "
+                << ion->Nwounded_Nwounded_collisions << ", "
+                << ion->impact_parameter << ", "
+                << ion->event_plane_angle << ", "
+                << ion->eccentricity << ", "
+                << ion->sigma_inel_NN 
+                << std::endl;
+                                               }
+#else
+    if (pdfinfo) {
+      std::cout << "PdfInfo: "
                 << pdfinfo->id1() << ", "
                 << pdfinfo->id2() << ", "
                 << pdfinfo->x1() << ", "
@@ -100,10 +144,9 @@ StatusCode DumpMC::execute() {
                 << pdfinfo->pdf2() << ", "
                 << pdfinfo->pdf_id1() << ", "
                 << pdfinfo->pdf_id2()
-                <<      endl;
+                <<      std::endl;
     }
 
-   const HepMC::HeavyIon *ion = (*itr)->heavy_ion();
     if (ion) {
       std::cout << std::endl;
       std::cout << "Heavy Ion: "
@@ -122,21 +165,20 @@ StatusCode DumpMC::execute() {
                 << ion->sigma_inel_NN() 
                 << std::endl;
                                                }
-
+#endif
     if (m_VerboseOutput) {
       if (!m_EtaPhi) {
-        (*itr)->print(); // standard HepMc dump
+        HepMC::Print::line(std::cout,**itr); // standard HepMc dump
       } else { // sort particles by rapidity and then dump
         // Loop over all particles in the event and build up the grid
         const HepMC::GenEvent* genEvt = (*itr);
-        for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
-          // if( (*pitr)->status() == 1 ){// stables only
-          double rapid =(*pitr)->momentum().pseudoRapidity();
-          double phi =  (*pitr)->momentum().phi(); //phi is in range -pi to pi
-          double et=(*pitr)->momentum().perp();
-          int p_stat=(*pitr)->status();
-          int p_id = (*pitr)->pdg_id();
-          cout << " eta = " << rapid<< "  Phi = " << phi << "   Et = " <<et/GeV << "  Status= " << p_stat << " PDG ID= "<< p_id << endl;
+        for (auto part: *genEvt) {
+          double rapid =part->momentum().pseudoRapidity();
+          double phi =  part->momentum().phi(); //phi is in range -pi to pi
+          double et=part->momentum().perp();
+          int p_stat=part->status();
+          int p_id = part->pdg_id();
+          std::cout << " eta = " << rapid<< "  Phi = " << phi << "   Et = " <<et/GeV << "  Status= " << p_stat << " PDG ID= "<< p_id << std::endl;
         }
       }
     }

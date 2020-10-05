@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERIALIZECONVERSIONSVC_H
@@ -7,24 +7,20 @@
 
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ConversionSvc.h"
+#include "TrigSerializeCnvSvc/TrigStreamAddress.h"
+
 template <class TYPE> class SvcFactory;
-
-
-static const InterfaceID IID_TrigSerializeCnvSvc("TrigSerializeCnvSvc", 0, 1);
 
 
 class TrigSerializeCnvSvc : public ConversionSvc {
 public:
-  static long int storageType();
-  virtual long int repSvcType() const;
+  static long int storageType() { return TrigStreamAddress::storageType(); }
+  virtual long int repSvcType() const override { return storageType(); }
 
-  static const  InterfaceID& interfaceID() { return IID_TrigSerializeCnvSvc; }
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   TrigSerializeCnvSvc(const std::string &name, ISvcLocator* svc) :
-    ConversionSvc(name,svc,storageType()) { }
-
-  virtual ~TrigSerializeCnvSvc() {};
+    ConversionSvc(name,svc,storageType()) {}
 };
 
 

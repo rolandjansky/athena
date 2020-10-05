@@ -463,7 +463,7 @@ IOVSvc::setRangeInDB(const CLID& clid, const std::string& key,
 
 StatusCode 
 IOVSvc::regFcn(SG::DataProxy* dp, 
-               const CallBackID c, 
+               const CallBackID& c, 
                const IOVSvcCallBackFcn& fcn,
                bool trigger) {
 
@@ -481,8 +481,8 @@ IOVSvc::regFcn(SG::DataProxy* dp,
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode 
-IOVSvc::regFcn(const CallBackID c1,
-               const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+IOVSvc::regFcn(const CallBackID& c1,
+               const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
                bool trigger) {
 
 
@@ -509,7 +509,7 @@ IOVSvc::regFcn(const CallBackID c1,
 
 StatusCode 
 IOVSvc::regFcn(const std::string& toolName,
-               const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+               const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
                bool trigger) {
 
   IAlgTool *ia;
@@ -846,6 +846,16 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     delete dobj;
     dobj = 0;
   }
+
+  // Some data objects may be reference counted by the address.
+  // CondCont will take ownership of the object, but doesn't
+  // do refcounting.  We'll have gotten a reference via the Storable_cast
+  // above, so it should be ok ... unless CondCont deletes
+  // the new object immediately instead of inserting.
+  // In that case, when we delete the address, it will
+  // follow an invalid pointer.  So be sure to delete
+  // the address before the object is added to CondCont.
+  ioa.release();
 
   // DataObject *d2 = static_cast<DataObject*>(v);
   

@@ -32,6 +32,9 @@ extern "C" {
 // ROOT include(s):
 #include "Math/Vector4D.h"
 
+//Already include the DataVector specialization for this type
+#include "xAODCaloEvent/CaloClusterContainerFwd.h"
+
 // Declare a dummy CaloClusterCellLink definition for standalone compilation:
 #if defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 class CaloClusterCellLink {};
@@ -670,7 +673,7 @@ namespace xAOD {
      /**@brief size method (forwarded from CaloClusterCellLink obj)
       *@return The number of cells 
       */
-      size_t size() const { return getCellLinks()->size(); }
+      size_t size() const;
 
       /// Iterator of the underlying CaloClusterCellLink (explicitly const version)
       typedef CaloClusterCellLink::const_iterator const_cell_iterator;
@@ -794,5 +797,9 @@ namespace xAOD {
   }
 
 } // namespace xAOD
+
+// Finish declaration of IParticle as a base class of CaloCluster_v1:
+DATAVECTOR_BASE_FIN( xAOD::CaloCluster_v1, xAOD::IParticle );
+
 
 #endif // XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H

@@ -242,7 +242,7 @@ else:
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
 
     # ntuple creation for validation purposes    
-    if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()):
+    if (InDetFlags.doNtupleCreation() or InDetFlags.doPhysValMon()):
       include("InDetRecExample/InDetRecNtupleCreation.py")
 
     # D3PD Creation

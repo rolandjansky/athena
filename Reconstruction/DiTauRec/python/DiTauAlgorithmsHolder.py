@@ -88,11 +88,11 @@ def getElMuFinder():
     return ElMuFinder
 
 
-def setupTJVFTool():
-    from AthenaCommon.AppMgr import ToolSvc
+def getTVATool():
+    _name = sPrefix + 'TVATool'
 
-    from JetRec.JetRecConf import JetAlgorithm
-    jetTrackAlg = JetAlgorithm("JetTrackAlg_forDiTaus")
+    if _name in cached_instances:
+        return cached_instances[_name]
 
     from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
     TVATool = TrackVertexAssociationTool("TVATool_forDiTaus",
@@ -102,22 +102,23 @@ def setupTJVFTool():
                                          MaxTransverseDistance=2.5,  # in mm
                                          MaxLongitudinalDistance=2  # in mm
                                          )
-
+    from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += TVATool
+
+    from JetRec.JetRecConf import JetAlgorithm
+    jetTrackAlg = JetAlgorithm(name=_name)
     jetTrackAlg.Tools = [TVATool]
 
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence += jetTrackAlg
+    cached_instances[_name] = jetTrackAlg
+    return jetTrackAlg
 
 
+# requires getTVATool
 def getVertexFinder():
     _name = sPrefix + 'VertexFinder'
 
     if _name in cached_instances:
         return cached_instances[_name]
-
-    setupTJVFTool()
 
     from DiTauRec.DiTauRecConf import VertexFinder
     VertexFinder = VertexFinder(name=_name,

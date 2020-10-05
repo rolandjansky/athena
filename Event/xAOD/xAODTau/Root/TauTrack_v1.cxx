@@ -103,6 +103,7 @@ namespace xAOD {
   // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, rConvII, setRConvII)
   // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, dRJetSeedAxis, setDRJetSeedAxis)
 
+  // superseded by z0sinthetaTJVA()
   float TauTrack_v1::z0sinThetaTJVA(const xAOD::IParticle& part ) const{
     const xAOD::TrackParticle* xTrackParticle = this->track();
     const xAOD::TauJet* tau = dynamic_cast<const xAOD::TauJet*> (&part);
@@ -119,14 +120,32 @@ namespace xAOD {
     }
   }
 
-  float TauTrack_v1::rConv(const xAOD::IParticle& ) const{
-    const xAOD::TrackParticle* xTrackParticle = this->track();
-    return std::sqrt(std::fabs(xTrackParticle->d0())*xTrackParticle->pt()/(.3 /*0.15*2.*/));
+  static const SG::AuxElement::Accessor< float > d0TJVAAcc( "d0TJVA" );
+  float TauTrack_v1::d0TJVA() const {
+    return d0TJVAAcc(*this);
   }
 
-  float TauTrack_v1::rConvII(const xAOD::IParticle& ) const{
-    const xAOD::TrackParticle* xTrackParticle = this->track();
-    return std::sqrt( std::fabs( xTrackParticle->d0() * xTrackParticle->pt() ) / (0.3)  )*(xTrackParticle->d0()/fabs(xTrackParticle->d0()))*xTrackParticle->charge();
+  static const SG::AuxElement::Accessor< float > d0SigTJVAAcc( "d0SigTJVA" );  
+  float TauTrack_v1::d0SigTJVA() const {
+    return d0SigTJVAAcc(*this);
+  }
+
+  static const SG::AuxElement::Accessor< float > z0sinthetaTJVAAcc( "z0sinthetaTJVA" );
+  float TauTrack_v1::z0sinthetaTJVA() const {
+    return z0sinthetaTJVAAcc(*this);
+  }
+
+  static const SG::AuxElement::Accessor< float > z0sinthetaSigTJVAAcc( "z0sinthetaSigTJVA" );
+  float TauTrack_v1::z0sinthetaSigTJVA() const {
+    return z0sinthetaSigTJVAAcc(*this);
+  }
+
+  float TauTrack_v1::rConv() const{
+    return std::sqrt(std::fabs(this->d0TJVA())*this->pt()/(0.3 /*0.15*2.*/));
+  }
+
+  float TauTrack_v1::rConvII() const{
+    return std::sqrt( std::fabs( this->d0TJVA() * this->pt() ) / (0.3)  )*(this->d0TJVA()/fabs(this->d0TJVA()))*this->track()->charge();
   }
 
   float TauTrack_v1::dRJetSeedAxis(const xAOD::IParticle& part) const{

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -19,7 +19,7 @@ template <class ATA_SURFACE>
 class SurfaceGetCovariance : public ATA_SURFACE
 {
 public:
-  AmgSymMatrix(ATA_SURFACE::dim)* getCovariance() { return this->m_covariance; }
+  AmgSymMatrix(ATA_SURFACE::dim)* getCovariance() { return this->m_covariance.get(); }
 };
 
 }

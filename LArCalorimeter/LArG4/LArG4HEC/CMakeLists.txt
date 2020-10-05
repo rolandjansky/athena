@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4HEC )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
-                          Control/AthenaBaseComps
-                          PRIVATE
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          GaudiKernel
-                          Calorimeter/CaloG4Sim
-                          LArCalorimeter/LArG4/LArG4Code
-                          LArCalorimeter/LArGeoModel/LArHV )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

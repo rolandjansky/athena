@@ -90,13 +90,6 @@ EventSelector = Service( "EventSelector" )
 theApp.EvtMax = 1
 
 #--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# Check the dictionary in memory for completeness
-AthenaSealSvc = Service( "AthenaSealSvc" )
-# AthenaSealSvc.CheckDictionary = True
-AthenaSealSvc.OutputLevel     = 3
-
-#--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------
 # Make sure AthenaPoolServices is loaded for custom streamer

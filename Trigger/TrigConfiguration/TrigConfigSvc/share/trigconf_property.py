@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """Usage: trigconf_property.py [Options] COMPONENT PROPERTY SMK [SMK2 ...]')
 
 Read trigger configuration properties from DB. SQL wildcards ('%') can be used to
@@ -12,13 +12,12 @@ Example: trigconf_property.py Trig% OutputLevel 1178
 __author__ = "Frank Winklmeier"
 
 import sys
-import os
 from TrigConfigSvc.TrigConfigSvcUtils import getPropertyFromDB
 
 def myhelp(option, opt_str, value, parser):
    """Custom help callback since optparse does not preserve newlines"""
 
-   print __doc__   
+   print(__doc__)
    parser.print_help()
    sys.exit(1)
 
@@ -53,8 +52,8 @@ def main():
       return 2
 
    # Filter L2/EF
-   if opts.l2==True and not opts.ef: res = filter(lambda x: x[4]=='L2',res)
-   if opts.ef==True and not opts.l2: res = filter(lambda x: x[4]=='EF',res)
+   if opts.l2 is True and not opts.ef: res = filter(lambda x: x[4]=='L2',res)
+   if opts.ef is True and not opts.l2: res = filter(lambda x: x[4]=='EF',res)
                               
    for p in res:
       if opts.short:

@@ -19,10 +19,13 @@ const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName{"/SCT/DAQ/Co
 const std::string SCT_ConfigurationCondAlg::s_coolModuleFolderName{"/SCT/DAQ/Configuration/Module"};
 const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName{"/SCT/DAQ/Configuration/MUR"};
 
-//Run2: folders change name in CONDBR2 database
+// Run2: folders change names
 const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName2{"/SCT/DAQ/Config/Chip"};
 const std::string SCT_ConfigurationCondAlg::s_coolModuleFolderName2{"/SCT/DAQ/Config/Module"};
 const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Config/MUR"};
+
+// New slimmed channel folder
+const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName2Slim{"/SCT/DAQ/Config/ChipSlim"};
 
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
@@ -40,7 +43,9 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
   // Check conditions folder names
-  if ((m_readKeyChannel.key()!=s_coolChannelFolderName) and (m_readKeyChannel.key()!=s_coolChannelFolderName2)) {
+  if ((m_readKeyChannel.key()!=s_coolChannelFolderName) and
+      (m_readKeyChannel.key()!=s_coolChannelFolderName2) and
+      (m_readKeyChannel.key()!=s_coolChannelFolderName2Slim)) {
     ATH_MSG_FATAL(m_readKeyChannel.key() << " is incorrect.");
     return StatusCode::FAILURE;
   }
@@ -124,6 +129,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   unsigned int nDisabledStripsExclusive{0};
   const std::string channelFolderName{m_readKeyChannel.key()};
   const bool run1{channelFolderName==s_coolChannelFolderName};
+  const bool slim{channelFolderName==s_coolChannelFolderName2Slim};
 
   // indices change according to whether CoraCool or CoolVectorPayload
   enum RUN1_MODULE_INDICES{PK, FOREIGN_KEY, CRATE_1, ROD_1, CHANNEL_1,OUTPUTCURRENT_1,
@@ -138,12 +144,14 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   enum RUN2_CHIP_INDICES{CHIP_2, ACTIVE_2, ADDRESS_2, CONFIG_2, MASK0_2,MASK1_2,MASK2_2,
                          MASK3_2, VTHR_2, VCAL_2, DELAY_2, PREAMP_2, SHAPER_2, RC_FUNCTION_2, RC_ARGS_2,
                          C_FACTOR_2, TARGET_2, TRIM_2};
-  const unsigned int chipIndex{  run1 ? static_cast<unsigned int>(CHIP_1)   : static_cast<unsigned int>(CHIP_2)};
-  const unsigned int configIndex{run1 ? static_cast<unsigned int>(CONFIG_1) : static_cast<unsigned int>(CONFIG_2)};
-  const unsigned int mask0Index{ run1 ? static_cast<unsigned int>(MASK0_1)  : static_cast<unsigned int>(MASK0_2)};
-  const unsigned int mask1Index{ run1 ? static_cast<unsigned int>(MASK1_1)  : static_cast<unsigned int>(MASK1_2)};
-  const unsigned int mask2Index{ run1 ? static_cast<unsigned int>(MASK2_1)  : static_cast<unsigned int>(MASK2_2)};
-  const unsigned int mask3Index{ run1 ? static_cast<unsigned int>(MASK3_1)  : static_cast<unsigned int>(MASK3_2)};
+  enum RUN2_CHIPSLIM_INDICES{CHIP_2_SLIM, CONFIG_2_SLIM, MASK0_2_SLIM, MASK1_2_SLIM, MASK2_2_SLIM,
+                             MASK3_2_SLIM};
+  const unsigned int chipIndex{  run1 ? static_cast<unsigned int>(CHIP_1)   : slim ? static_cast<unsigned int>(CHIP_2_SLIM)   : static_cast<unsigned int>(CHIP_2)};
+  const unsigned int configIndex{run1 ? static_cast<unsigned int>(CONFIG_1) : slim ? static_cast<unsigned int>(CONFIG_2_SLIM) : static_cast<unsigned int>(CONFIG_2)};
+  const unsigned int mask0Index{ run1 ? static_cast<unsigned int>(MASK0_1)  : slim ? static_cast<unsigned int>(MASK0_2_SLIM)  : static_cast<unsigned int>(MASK0_2)};
+  const unsigned int mask1Index{ run1 ? static_cast<unsigned int>(MASK1_1)  : slim ? static_cast<unsigned int>(MASK1_2_SLIM)  : static_cast<unsigned int>(MASK1_2)};
+  const unsigned int mask2Index{ run1 ? static_cast<unsigned int>(MASK2_1)  : slim ? static_cast<unsigned int>(MASK2_2_SLIM)  : static_cast<unsigned int>(MASK2_2)};
+  const unsigned int mask3Index{ run1 ? static_cast<unsigned int>(MASK3_1)  : slim ? static_cast<unsigned int>(MASK3_2_SLIM)  : static_cast<unsigned int>(MASK3_2)};
 
   // Clear previous information at callback
   writeCdo->clearBadStripIds();
@@ -196,7 +204,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     bool link0ok{linkResults.first};
     bool link1ok{linkResults.second};
     // Loop over chips within module
-    std::vector<SCT_Chip*> chipsInMod;
+    std::vector<SCT_Chip> chipsInMod;
     chipsInMod.reserve(nChips);
     bool isBadSide0{true};
     bool isBadSide1{true};
@@ -211,7 +219,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
       const int mask1{   run1 ? (channelItr->second[mask1Index].data<int>())    : static_cast<int>(channelItr->second[mask1Index].data<unsigned int>())};
       const int mask2{   run1 ? (channelItr->second[mask2Index].data<int>())    : static_cast<int>(channelItr->second[mask2Index].data<unsigned int>())};
       const int mask3{   run1 ? (channelItr->second[mask3Index].data<int>())    : static_cast<int>(channelItr->second[mask3Index].data<unsigned int>())};
-      chipsInMod.push_back(new SCT_Chip(id, config, mask0, mask1, mask2, mask3));
+      chipsInMod.emplace_back(id, config, mask0, mask1, mask2, mask3);
       if (id>=0 and id< 6 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide0 = false;
       if (id>=6 and id<12 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide1 = false;
     }
@@ -226,37 +234,33 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     unsigned int chipStatusWord{0};
     for (const auto& thisChip:chipsInMod) {
       // Bad strips (only need to do this if at least one bad channel)
-      if (thisChip->numberOfMaskedChannels()!=0) {
+      if (thisChip.numberOfMaskedChannels()!=0) {
         // Add bad stips to vector
         badStripsVec.clear();
-        thisChip->appendBadStripsToVector(badStripsVec);
+        thisChip.appendBadStripsToVector(badStripsVec);
         // Loop over bad strips and insert strip ID into set
         for (const auto& thisBadStrip:badStripsVec) {
-          const Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip, elements, ctx)};
+          const Identifier stripId{getStripId(truncatedSerialNumber, thisChip.id(), thisBadStrip, elements, ctx)};
           // If in rough order, may be better to call with itr of previous insertion as a suggestion    
           if (stripId.is_valid()) writeCdo->setBadStripId(stripId, // strip Identifier
-                                                          thisChip->id()<6 ? hash : oppWaferHash, // wafer IdentifierHash
+                                                          thisChip.id()<6 ? hash : oppWaferHash, // wafer IdentifierHash
                                                           m_pHelper->strip(stripId)); // strip number from 0 to 768
         }
       }
       // Bad chips (= all strips bad) bitpacked
       // Should only do this for modules with at least one chip bad?
-      if (thisChip->numberOfMaskedChannels()==stripsPerChip) {
-        chipStatusWord |= (1<<thisChip->id());
+      if (thisChip.numberOfMaskedChannels()==stripsPerChip) {
+        chipStatusWord |= (1<<thisChip.id());
         nDisabledChips++; // A bad chip
         if (not isBadModule) nDisabledChipsExclusive++; // A bad chip in a good module
       } else { // Good chip
-        if (not isBadModule) nDisabledStripsExclusive += thisChip->numberOfMaskedChannels(); // Bad strips in a good chip of a good module
+        if (not isBadModule) nDisabledStripsExclusive += thisChip.numberOfMaskedChannels(); // Bad strips in a good chip of a good module
       }
     }
 
     // Store chip status if not all good (==0)
     if (chipStatusWord!=0) {
       writeCdo->setBadChips(moduleId, chipStatusWord);
-    }
-    // Clear up memory associated with chips    
-    for (const auto& thisChip: chipsInMod) {
-      delete thisChip;
     }
   }
 
@@ -426,8 +430,8 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   if (not waferId.is_valid()) return invalidIdentifier;
 
   const InDetDD::SiDetectorElement* pElement{elements->getDetectorElement(waferHash)};
-  if (!pElement) {
-    ATH_MSG_FATAL("Element pointer is NULL in 'getStripId' method");
+  if (pElement==nullptr) {
+    ATH_MSG_FATAL("Element pointer is nullptr in 'getStripId' method");
     return invalidIdentifier;
   }
   strip = (pElement->swapPhiReadoutDirection()) ? (lastStrip-strip) : strip;

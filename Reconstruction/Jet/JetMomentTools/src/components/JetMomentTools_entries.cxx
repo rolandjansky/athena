@@ -9,13 +9,14 @@
 #include "JetMomentTools/JetTrackSumMomentsTool.h"
 #include "JetMomentTools/JetClusterMomentsTool.h"
 #include "JetMomentTools/JetVoronoiMomentsTool.h"
-#include "JetMomentTools/JetMuonSegmentMomentsTool.h"
 #include "JetMomentTools/JetPtAssociationTool.h"
 #include "JetMomentTools/JetIsolationTool.h"
 #include "JetMomentTools/JetLArHVTool.h"
 #include "JetMomentTools/JetOriginCorrectionTool.h"
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "JetMomentTools/JetConstitFourMomTool.h"
+#include "JetMomentTools/JetQGTaggerVariableTool.h"
+#include "JetMomentTools/JetEMScaleMomTool.h"
 
 #ifndef XAOD_ANALYSIS
 #include "JetMomentTools/JetBadChanCorrTool.h"
@@ -32,13 +33,14 @@ DECLARE_COMPONENT( JetTrackMomentsTool )
 DECLARE_COMPONENT( JetTrackSumMomentsTool )
 DECLARE_COMPONENT( JetClusterMomentsTool )
 DECLARE_COMPONENT( JetVoronoiMomentsTool )
-DECLARE_COMPONENT( JetMuonSegmentMomentsTool )
 DECLARE_COMPONENT( JetPtAssociationTool )
 DECLARE_COMPONENT( JetIsolationTool )
 DECLARE_COMPONENT( JetLArHVTool )
 DECLARE_COMPONENT( JetOriginCorrectionTool )
 DECLARE_COMPONENT( JetECPSFractionTool )
 DECLARE_COMPONENT( JetConstitFourMomTool )
+DECLARE_COMPONENT( JetQGTaggerVariableTool )
+DECLARE_COMPONENT( JetEMScaleMomTool )
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( JetBadChanCorrTool )

@@ -11,7 +11,7 @@
 
 
 // This algorithm includes
-#include "TrigT1CaloSim/Run2JetElementMaker.h"
+#include "Run2JetElementMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 

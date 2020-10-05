@@ -10,7 +10,7 @@
 #define PIXELRAWDATABYTESTREAMCNV_PIXELRAWDATAPROVIDER_H
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -29,7 +29,7 @@
 // Forward declarations
 class PixelID;
 
-class PixelRawDataProvider : public AthAlgorithm {
+class PixelRawDataProvider : public AthReentrantAlgorithm {
 
  public:
 
@@ -39,7 +39,7 @@ class PixelRawDataProvider : public AthAlgorithm {
   //! Initialize
   StatusCode initialize() override;
   //! Execute
-  StatusCode execute() override;
+  StatusCode execute(const EventContext& ctx) const override;
   //! Don't need to override Finalize
 
   
@@ -56,7 +56,7 @@ private:
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey     { this, "RoIs", "", "If RoI driven unpacking to be used, this is the key"};
   SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey              { this, "RDOKey", "PixelRDOs"};
   SG::UpdateHandleKey<PixelRDO_Cache> m_rdoCacheKey;
-  SG::WriteHandleKey<IDCInDetBSErrContainer> m_bsErrorsKey              { this, "BSErrorsKey", "PixBSErr"};  
+  SG::WriteHandleKey<IDCInDetBSErrContainer> m_bsErrorsKey              { this, "BSErrorsKey", "PixelByteStreamErrs"};  
   SG::UpdateHandleKey<IDCInDetBSErrContainer_Cache> m_bsErrorsCacheKey;
   SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey          { this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 

@@ -76,10 +76,26 @@ namespace CxxUtils {
  *  bool operator() (const KEY& k1,   const RANGE& r2) const;
  *  bool operator() (const RANGE& r1, const RANGE& r2) const;
  *  bool inRange (const KEY& k, const RANGE& r) const;
- *  // Test if two ranges overlap.  You may assume that operator() (r1, r2)
- *  // has returned true.
- *  bool overlap (const RANGE& r1, const RANGE& r2) const;
+ *
+ *  // Test if two ranges overlap, and adjust if needed.
+ *  // OLDRANGE is an existing range in the container, and NEWRANGE
+ *  // is a new one being added.  Return one of:
+ *  //   0 -- no overlap between the ranges; NEWRANGE is unmodified.
+ *  //   1 -- ranges overlap.  NEWRANGE has been adjusted to avoid the overlap.
+ *  //        If the start of NEWRANGE is changed, it must
+ *  //        only be moved forward (increased), never backwards.
+ *  //  -1 -- duplicate: NEWRANGE is entirely inside OLDRANGE.
+ *  //        Delete the new range.         
+ *  bool overlap (const Context_t& ctx,
+ *                const RANGE& oldRange, RANGE& newRange) const;
+ *
+ *  // Possibly extend an existing range at the end.
+ *  // RANGE is the existing range, and NEWRANGE is the range
+ *  // being added.  Returns one of:
  *  // Required only for extendLastRange --- which see.
+ *  //   0 -- no change was made to RANGE.
+ *  //   1 -- RANGE was extended. 
+ *  //  -1 -- newRange is a duplicate.
  *  int extendRange (Range& range, const Range& newRange) const;
  @endcode
  *
@@ -362,22 +378,7 @@ public:
    * This will make a new version of implementation data.
    *
    * The semantics of what it means to extend a range are given by the
-   * @c extendRange method of the @c COMPARE object:
-   *
-   *@code
-   *  int extendRange (Range& range, const Range& newRange) const;
-   @endif
-   *
-   * This is called with the existing range and the end range, and returns
-   * a flag.  -1 indicates an error, 0 indicates that no change
-   * was made to the range, and 1 indicates that the range was extended.
-   * It should generally be safe to extend a range by making the end later.
-   * Suggested semantics are:
-   *  - Return -1 if the start keys don't match.
-   *  - If the end value of @c newRange is later then then end value of @c range,
-   *    then update the end value of @c range to match @c newRange and
-   *    return 1.
-   *  - Otherwise do nothing and return 0.
+   * @c extendRange method of the @c COMPARE object (see above).
    *
    * Returns -1 if there was an error; 1 if the last range was extended;
    * and 0 if nothing was changed.
@@ -533,14 +534,14 @@ private:
   /**
    * @brief Extend the range of the last entry of the map.
    * @param Lock object.
-   * @param newRange New range to use for the last entry.
+   * @param extendedRange New range to use for the last entry.
    * @param ctx Execution context.
    *
    * Implementation of @c extendLastRange; see there for details.
    * Must be called with the lock held.
    */
   int extendImpl (lock_t& lock,
-                  const RANGE& newRange,
+                  const RANGE& extendedRange,
                     const typename Updater_t::Context_t& ctx);
 
 

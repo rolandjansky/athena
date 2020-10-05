@@ -1,203 +1,201 @@
-Thu Sep  6 18:32:16 CEST 2018
+Fri May 22 20:19:01 CEST 2020
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [atlas-work3e/3410b0a5584] -- built on [2018-09-06T1513]
+Py:Athena            INFO using release [WorkDir-22.0.14] [x86_64-centos7-gcc8-opt] [atlas-work3/d0082ec79c63] -- built on [2020-05-22T1752]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "StoreGateTests/test_recordStlClids_jobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5528 configurables from 11 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5535 configurables from 45 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on lxplus051.cern.ch on Thu Sep  6 18:32:35 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on lxplus7106.cern.ch on Fri May 22 20:19:13 2020
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21224dc0 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca0fc70 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21e3bf00 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cfaee00 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21224c80 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca0f5e0 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23154c00 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d1e9200 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x217a6300 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2258ff00 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x18a938c0 --- key: TestDoubles
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x234ee690 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d2e85a0 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x217a6300 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2359e030 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xa6532c0 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23545880 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cfaee00 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2122c9c0 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21e3bf00 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21224c80 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca0fc70 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2124a100 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2359e350 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cf4ff90 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2122c9c0 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d1e9200 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21e3bf00 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x217a6300 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21225d60 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xa653a40 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x235f41c0 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2354c440 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca0f5e0 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21e3bf00 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cfaee00 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x217a6300 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2124a100 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x234ee690 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xa653270 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2122cc80 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21224b40 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xa6532c0 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x217a6300 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d1e9200 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2124a100 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x235f41c0 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21224c80 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d2e85a0 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23588b80 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2359e080 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cf4ff90 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2124a100 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cfaee00 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x235f41c0 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2122cc80 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21225d60 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca0fc70 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x1b583e00 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21224730 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca0f5e0 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x235f41c0 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d1e9200 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2122cc80 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23588b80 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x234ee690 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xa653a40 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2258ff00 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2359e300 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xa6532c0 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2122cc80 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cfaee00 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23588b80 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x1b583e00 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21224c80 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data:  0xa653270 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23154c00 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2359e030 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cf4ff90 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23588b80 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d1e9200 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x1b583e00 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2258ff00 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x21225d60 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d2e85a0 --- key: 
 Found 1 proxy for ClassID 22592129 (std::vector<int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23545880 --- key: TestInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8e940 --- key: TestInts
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2359e350 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca0f5e0 --- key: EventContext
 Found 1 proxy for ClassID 177480351 (std::vector<unsigned int>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x1b583e00 --- key: TestUInts
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1cfaee00 --- key: TestUInts
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x2258ff00 --- key: TestFloats
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1ca8f580 --- key: TestFloats
 Found 1 proxy for ClassID 219400222 (std::vector<double>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x23154c00 --- key: TestDoubles
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x1d00b8c0 --- key: TestDoubles
 Found 1 proxy for ClassID 222376821 (DataHeader): 
- flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: stream_stl
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: stream_stl
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 ApplicationMgr       INFO Application Manager Stopped successfully

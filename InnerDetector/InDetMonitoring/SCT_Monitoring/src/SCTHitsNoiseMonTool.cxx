@@ -39,7 +39,6 @@
 #include <fstream> // for writing an xml summary (debugging)
 #include <iostream>
 
-using namespace std;
 using namespace SCT_Monitoring;
 /**
  *  Utility functions to use in this file only
@@ -52,14 +51,14 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
   };
 
   // string names for the detector parts
-  static const string names[N_REGIONS] = {
+  static const std::string names[N_REGIONS] = {
     "Endcap C", "Barrel", "Endcap A"
   };
   // abbreviations for detector parts
-  static const string abbreviations[N_REGIONS] = {
+  static const std::string abbreviations[N_REGIONS] = {
     "ECm", "", "ECp"
   };
-  static const string streamDelimiter{"_"};
+  static const std::string streamDelimiter{"_"};
 
   // is the timebin in the desired pattern?
   bool
@@ -97,8 +96,8 @@ namespace { // use anonymous namespace to restrict scope to this file, equivalen
  *  numbers to be used, and the timebin.
  */
 // ====================================================================================================
-SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const string& type,
-                                         const string& name,
+SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string& type,
+                                         const std::string& name,
                                          const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent) {
 }
@@ -361,10 +360,10 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
     }
   }
 
-  vector<int> barrel_local_nhitslayer(N_BARRELSx2, 0);
-  vector<int> ECp_local_nhitslayer(N_DISKSx2, 0);
-  vector<int> ECm_local_nhitslayer(N_DISKSx2, 0);
-  vector<int>* hitsInLayer[N_REGIONS] = {
+  std::vector<int> barrel_local_nhitslayer(N_BARRELSx2, 0);
+  std::vector<int> ECp_local_nhitslayer(N_DISKSx2, 0);
+  std::vector<int> ECm_local_nhitslayer(N_DISKSx2, 0);
+  std::vector<int>* hitsInLayer[N_REGIONS] = {
     &ECm_local_nhitslayer, &barrel_local_nhitslayer, &ECp_local_nhitslayer
   };
   const bool doThisSubsystem[N_REGIONS] = {
@@ -395,12 +394,12 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
     // Now we want the space point container for this module
     // We have to compare module IDs- the SP collection is defined for the 'normal' (i.e. no stereo) module side
     // Define a set of spIDs
-    unordered_set<Identifier> mySetOfSPIds;
+    std::unordered_set<Identifier> mySetOfSPIds;
     for (int side{0}; side<N_SIDES; side++) {
-      SpacePointContainer::const_iterator spContainerIterator{spacePointContainer->indexFind(side==0 ? theModuleHash0 : theModuleHash1)};
-      if (spContainerIterator==spacePointContainer->end()) continue;
-      for (const Trk::SpacePoint* sp: **spContainerIterator) {
-        const vector<Identifier>& rdoList{(side==thisSide ? sp->clusterList().first->rdoList() : sp->clusterList().second->rdoList())};
+      auto spContainer{spacePointContainer->indexFindPtr(side==0 ? theModuleHash0 : theModuleHash1)};
+      if (spContainer==nullptr) continue;
+      for (const Trk::SpacePoint* sp: *spContainer) {
+        const std::vector<Identifier>& rdoList{(side==thisSide ? sp->clusterList().first->rdoList() : sp->clusterList().second->rdoList())};
         mySetOfSPIds.insert(rdoList.begin(), rdoList.end());
       }
     }
@@ -575,8 +574,8 @@ SCTHitsNoiseMonTool::book1DHitHists() {
       Identifier planeId{*planeIterator};
       const int bec{m_pSCTHelper->barrel_ec(planeId)};
       const unsigned int systemIndex{bec2Index(bec)};
-      const string formattedPosition{positionString(*planeIterator)};
-      string histotitle{string("SCT ") + names[systemIndex] + " Hitmap: plane " + formattedPosition};
+      const std::string formattedPosition{positionString(*planeIterator)};
+      std::string histotitle{std::string("SCT ") + names[systemIndex] + " Hitmap: plane " + formattedPosition};
       h1Factory(formattedPosition, histotitle, HitHists[systemIndex], m_phitmapHistoVector,
                 FIRST_STRIP - 0.5, LAST_STRIP + 0.5, N_BINS);
       if (bec == BARREL) ATH_MSG_DEBUG("Have registered the barrel hists");
@@ -594,13 +593,13 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
     ATH_MSG_FATAL("Invalid subsystem index, should be 0-2, was " << systemIndex);
     return StatusCode::FAILURE;
   }
-  static const string paths[N_REGIONS] = {
+  static const std::string paths[N_REGIONS] = {
     "SCT/SCTEC/hits", "SCT/SCTB/hits", "SCT/SCTEA/hits"
   };
   static const unsigned int limits[N_REGIONS] = {
     N_DISKSx2, N_BARRELSx2, N_DISKSx2
   };
-  static const string titles[N_REGIONS]{"Endcap C", "barrel", "Endcap A"};
+  static const std::string titles[N_REGIONS]{"Endcap C", "barrel", "Endcap A"};
   //
   if (newRunFlag()) {
     m_phitsHistoVector[systemIndex].clear();
@@ -609,11 +608,11 @@ SCTHitsNoiseMonTool::bookGeneralHits(const unsigned int systemIndex) {
     MonGroup hitHists{this, paths[systemIndex], run, ATTRIB_UNMANAGED};
     for (unsigned int i{0}; i < limits[systemIndex]; ++i) {
       LayerSideFormatter layerSide{i, systemIndex};
-      string streamhitmap{"hitsmap" + abbreviations[systemIndex] + "_" + layerSide.name()};
-      string streamhitmaprecent{"hitsmaprecent" + abbreviations[systemIndex] + "_" + layerSide.name()};
-      string streamhits{"hits" + abbreviations[systemIndex] + "_" + layerSide.name()};
-      string histotitle{"SCT Hitmap for " + names[systemIndex] + ": " + layerSide.title()};
-      string histotitlerecent{"SCT Hitmap from recent events for " + names[systemIndex] + ": " +
+      std::string streamhitmap{"hitsmap" + abbreviations[systemIndex] + "_" + layerSide.name()};
+      std::string streamhitmaprecent{"hitsmaprecent" + abbreviations[systemIndex] + "_" + layerSide.name()};
+      std::string streamhits{"hits" + abbreviations[systemIndex] + "_" + layerSide.name()};
+      std::string histotitle{"SCT Hitmap for " + names[systemIndex] + ": " + layerSide.title()};
+      std::string histotitlerecent{"SCT Hitmap from recent events for " + names[systemIndex] + ": " +
           layerSide.title()};
       h2Factory(streamhitmap, histotitle, bec, hitHists, m_phitsHistoVector[systemIndex]);
       if (m_environment == AthenaMonManager::online) {
@@ -634,14 +633,14 @@ SCTHitsNoiseMonTool::bookClusterSize() {
   MonGroup clusizebGroup{this, "SCT/SCTB/hits", run, ATTRIB_UNMANAGED};
   MonGroup clusizeeaGroup{this, "SCT/SCTEA/hits", run, ATTRIB_UNMANAGED};
   MonGroup clusizeecGroup{this, "SCT/SCTEC/hits", run, ATTRIB_UNMANAGED};
-  string disksidenameB[N_BARRELSx2] = {
+  std::string disksidenameB[N_BARRELSx2] = {
     "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1"
   };
-  string disksidenameECp[N_DISKSx2] = {
+  std::string disksidenameECp[N_DISKSx2] = {
     "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1", "5_0", "5_1", "6_0", "6_1", "7_0", "7_1",
     "8_0", "8_1"
   };
-  string disksidenameECm[N_DISKSx2] = {
+  std::string disksidenameECm[N_DISKSx2] = {
     "0_0", "0_1", "1_0", "1_1", "2_0", "2_1", "3_0", "3_1", "4_0", "4_1", "5_0", "5_1", "6_0", "6_1", "7_0", "7_1",
     "8_0", "8_1"
   };
@@ -664,7 +663,7 @@ SCTHitsNoiseMonTool::bookClusterSize() {
 
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemIndex) { 
-  static const string paths[N_REGIONS] = {
+  static const std::string paths[N_REGIONS] = {
     "SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"
   };
   static const unsigned int limits[N_REGIONS] = {
@@ -684,13 +683,13 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
     // book 2D "noise" maps, containing hits that aren't associated to tracks
     for (unsigned int i{0}; i < limits[systemIndex]; ++i) {
       LayerSideFormatter layerSide{i, systemIndex};
-      const string streamhitmaptrigger{"noiseoccupancymaptrigger" + abbreviations[systemIndex] + "_" +
+      const std::string streamhitmaptrigger{"noiseoccupancymaptrigger" + abbreviations[systemIndex] + "_" +
           layerSide.name()};
-      const string streamhitmaprecent{"noiseoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name()};
-      string histotitle{"SCT Noise Occupancy map for " + names[systemIndex] + ": " + layerSide.title()};
-      string histotitletrigger{"SCT Noise Occupancy map for " + m_NOTriggerItem + " Trigger and " +
+      const std::string streamhitmaprecent{"noiseoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name()};
+      std::string histotitle{"SCT Noise Occupancy map for " + names[systemIndex] + ": " + layerSide.title()};
+      std::string histotitletrigger{"SCT Noise Occupancy map for " + m_NOTriggerItem + " Trigger and " +
           names[systemIndex] + ": " + layerSide.title()};
-      string histotitlerecent{"SCT Noise Occupancy map in recent events for " + names[systemIndex] + ": " +
+      std::string histotitlerecent{"SCT Noise Occupancy map in recent events for " + names[systemIndex] + ": " +
           layerSide.title()};
       prof2Factory(streamhitmaptrigger, histotitletrigger, bec, noiseOccMaps, m_pnoiseoccupancymapHistoVectorTrigger[systemIndex]);
       if (m_environment == AthenaMonManager::online) {
@@ -698,11 +697,11 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
       }
     }
 
-    string histNames[N_REGIONS]{"ECm", "BAR", "ECp"};
-    string histTitles[N_REGIONS]{"ECm", "Barrel", "ECp"};
+    std::string histNames[N_REGIONS]{"ECm", "BAR", "ECp"};
+    std::string histTitles[N_REGIONS]{"ECm", "Barrel", "ECp"};
 
-    string histNamesNO[N_REGIONS]{"ECC", "BAR", "ECA"};
-    string histTitlesNO[N_REGIONS]{"EndCap C", "Barrel", "EndCap A"};
+    std::string histNamesNO[N_REGIONS]{"ECC", "BAR", "ECA"};
+    std::string histTitlesNO[N_REGIONS]{"EndCap C", "Barrel", "EndCap A"};
     m_NO_vsLB[systemIndex] = TProfile_LW::create((histNamesNO[systemIndex]+"NO_vsLB").c_str(),
                                                  ("NO vs LB for the "+histTitlesNO[systemIndex]+" (SP noise)").c_str(),
                                                  NBINS_LBs, 0.5, NBINS_LBs + 0.5);
@@ -726,12 +725,12 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
 
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex) {
-  static const string paths[N_REGIONS]{"SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"};
+  static const std::string paths[N_REGIONS]{"SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"};
   static const unsigned int limits[N_REGIONS]{N_DISKSx2, N_BARRELSx2, N_DISKSx2};
-  static const string profileNames[N_REGIONS]{"ECm", "BAR", "ECp"};
-  static const string profileTitles[N_REGIONS]{"ECm", "Barrel", "ECp"};
-  static const string profileNames2[N_REGIONS]{"ECC", "BAR", "ECA"};
-  static const string profileTitles2[N_REGIONS]{"EndCap C", "Barrel", "EndCap A"};
+  static const std::string profileNames[N_REGIONS]{"ECm", "BAR", "ECp"};
+  static const std::string profileTitles[N_REGIONS]{"ECm", "Barrel", "ECp"};
+  static const std::string profileNames2[N_REGIONS]{"ECC", "BAR", "ECA"};
+  static const std::string profileTitles2[N_REGIONS]{"EndCap C", "Barrel", "EndCap A"};
 
   const Bec bec{index2Bec(systemIndex)};
 
@@ -748,11 +747,11 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
     // book 2D "noise" maps, containing hits that aren't associated to tracks
     for (unsigned int i{0}; i < limits[systemIndex]; ++i) {
       LayerSideFormatter layerSide{i, systemIndex};
-      const string streamhitmapR{"hitoccupancymap" + abbreviations[systemIndex] + "_" + layerSide.name()};
-      const string streamhitmaprecentR{"hitoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name()};
-      string histotitleR{"SCT Hit Occupancy map for " + names[systemIndex] + ": " + layerSide.title()};
-      string histotitletriggerR{"SCT Hit Occupancy map for " + m_NOTriggerItem + " Trigger and " + names[systemIndex] + ": " + layerSide.title()};
-      string histotitlerecentR{"SCT Hit Occupancy map in recent events for " + names[systemIndex] + ": " + layerSide.title()};
+      const std::string streamhitmapR{"hitoccupancymap" + abbreviations[systemIndex] + "_" + layerSide.name()};
+      const std::string streamhitmaprecentR{"hitoccupancymaprecent" + abbreviations[systemIndex] + "_" + layerSide.name()};
+      std::string histotitleR{"SCT Hit Occupancy map for " + names[systemIndex] + ": " + layerSide.title()};
+      std::string histotitletriggerR{"SCT Hit Occupancy map for " + m_NOTriggerItem + " Trigger and " + names[systemIndex] + ": " + layerSide.title()};
+      std::string histotitlerecentR{"SCT Hit Occupancy map in recent events for " + names[systemIndex] + ": " + layerSide.title()};
       prof2Factory(streamhitmapR, histotitleR, bec, hitOccMaps, m_phitoccupancymapHistoVector[systemIndex]);
       if (m_environment == AthenaMonManager::online) {
         prof2Factory(streamhitmaprecentR, histotitlerecentR, bec, hitOccMaps, m_phitoccupancymapHistoVectorRecent[systemIndex]);
@@ -824,8 +823,7 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::checkNoiseMaps() {
-  IdentifierHash next;
-  vector<float> vectorOfOccupancies;
+  std::vector<float> vectorOfOccupancies;
 
   if (m_doSpacePointBasedNoise) {
     // CAM Added code for track and SP algorithms
@@ -836,7 +834,7 @@ SCTHitsNoiseMonTool::checkNoiseMaps() {
       }
 
       if (m_occSumUnbiasedRecent.size() and m_numberOfEventsRecent) {
-        for (pair<const Identifier, float>& val: m_occSumUnbiasedRecent) {
+        for (std::pair<const Identifier, float>& val: m_occSumUnbiasedRecent) {
           Identifier wafer_id{val.first};
           int element{N_SIDES * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id)};
           float occ{(m_numberOfEventsRecent > 0) ? val.second / (m_numberOfEventsRecent) :  val.second};
@@ -853,7 +851,7 @@ SCTHitsNoiseMonTool::checkNoiseMaps() {
       }
 
       if (m_hitoccSumUnbiasedRecent.size() and m_numberOfEventsRecent) {
-        for (pair<const Identifier, float>& val: m_hitoccSumUnbiasedRecent) {
+        for (std::pair<const Identifier, float>& val: m_hitoccSumUnbiasedRecent) {
           Identifier wafer_id{val.first};
           int element{N_SIDES * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id)};
           float hitocc{(m_numberOfEventsRecent > 0) ? val.second / (m_numberOfEventsRecent) :  val.second};
@@ -931,10 +929,10 @@ SCTHitsNoiseMonTool::resetNoiseMapHists() {
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::resetNoiseMapsRecent() {
-  for (pair<const Identifier, float>& val: m_occSumUnbiasedRecent) {
+  for (std::pair<const Identifier, float>& val: m_occSumUnbiasedRecent) {
     val.second = 0.0;
   }
-  for (pair<const Identifier, float>& val: m_hitoccSumUnbiasedRecent) {
+  for (std::pair<const Identifier, float>& val: m_hitoccSumUnbiasedRecent) {
     val.second = 0.0;
   }
   return StatusCode::SUCCESS;
@@ -970,7 +968,7 @@ SCTHitsNoiseMonTool::resetHitMapHists() {
 //
 // ====================================================================================================
 StatusCode
-SCTHitsNoiseMonTool::resetVecProf2(vector<TProfile2D*>& hists) const {
+SCTHitsNoiseMonTool::resetVecProf2(std::vector<TProfile2D*>& hists) const {
   for (unsigned int i{0}; i < hists.size(); ++i) {
     if (hists[i]==nullptr) {
       continue;
@@ -987,7 +985,7 @@ SCTHitsNoiseMonTool::resetVecProf2(vector<TProfile2D*>& hists) const {
 //
 // ====================================================================================================
 StatusCode
-SCTHitsNoiseMonTool::resetVecH2(vector<TH2F_LW*>& hists) const {
+SCTHitsNoiseMonTool::resetVecH2(std::vector<TH2F_LW*>& hists) const {
   for (unsigned int i{0}; i < hists.size(); ++i) {
     if (hists[i]==nullptr) {
       continue;
@@ -1044,9 +1042,9 @@ SCTHitsNoiseMonTool::bookNoiseDistributions() {
   return StatusCode::SUCCESS;
 }
 
-string
+std::string
 SCTHitsNoiseMonTool::positionString(const Identifier& plane) const {
-  ostringstream position_txt;
+  std::ostringstream position_txt;
 
   position_txt << m_pSCTHelper->barrel_ec(plane) << "_" << m_pSCTHelper->layer_disk(plane) << "_" <<
     m_pSCTHelper->phi_module(plane) << "_" << m_pSCTHelper->eta_module(plane) << "_" << m_pSCTHelper->side(plane);
@@ -1056,7 +1054,7 @@ SCTHitsNoiseMonTool::positionString(const Identifier& plane) const {
 StatusCode
 SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
   // Clear the RDOsOnTracks vector
-  m_RDOsOnTracks.fill(unordered_set<Identifier>());
+  m_RDOsOnTracks.fill(std::unordered_set<Identifier>());
   SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_dataObjectName};
   if (not rdoContainer.isValid()) {
     ATH_MSG_FATAL("Could not find the data object " << m_dataObjectName.key() << " !");
@@ -1095,7 +1093,7 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
           }
           // if Cluster is in SCT ...
           if (RawDataClus->detectorElement()->isSCT()) {
-            const vector<Identifier>& rdoList{RawDataClus->rdoList()};
+            const std::vector<Identifier>& rdoList{RawDataClus->rdoList()};
             m_RDOsOnTracks[RawDataClus->detectorElement()->identifyHash()].insert(rdoList.begin(), rdoList.end());
           }
         }
@@ -1107,7 +1105,7 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
 
 StatusCode
 SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIndex) {
-  static const string paths[N_REGIONS] = {
+  static const std::string paths[N_REGIONS] = {
     "SCT/SCTEC/hits/", "SCT/SCTB/hits/", "SCT/SCTEA/hits/"
   };
   static const unsigned int limits[N_REGIONS] = {
@@ -1127,12 +1125,12 @@ SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIndex) {
     // book Hitmaps and hits per layer histograms
     for (unsigned int i{0}; i < limits[systemIndex]; ++i) {
       LayerSideFormatter layerSide{i, systemIndex};
-      const string streamhitmap{"mapsOfHitsOnTracks" + abbreviations[systemIndex] + streamDelimiter +
+      const std::string streamhitmap{"mapsOfHitsOnTracks" + abbreviations[systemIndex] + streamDelimiter +
           "trackhitsmap_" + layerSide.name()};
-      const string streamhitmaprecent{"mapsOfHitsOnTracksRecent" + abbreviations[systemIndex] + streamDelimiter +
+      const std::string streamhitmaprecent{"mapsOfHitsOnTracksRecent" + abbreviations[systemIndex] + streamDelimiter +
           "trackhitsmap_" + layerSide.name()};
-      string histotitle{"SCT hits on tracks for " + names[systemIndex] + " " + layerSide.title()};
-      string histotitlerecent{"SCT hits on tracks from recent events for " + names[systemIndex] + " " +
+      std::string histotitle{"SCT hits on tracks for " + names[systemIndex] + " " + layerSide.title()};
+      std::string histotitlerecent{"SCT hits on tracks from recent events for " + names[systemIndex] + " " +
           layerSide.title()};
       h2Factory(streamhitmap, histotitle, bec, tracksMon, m_ptrackhitsHistoVector[systemIndex]);
       if (m_environment == AthenaMonManager::online) {
@@ -1153,8 +1151,8 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos() {
 }
 
 TH2F_LW*
-SCTHitsNoiseMonTool::h2Factory(const string& name, const string& title, const Bec bec,
-                               MonGroup& registry, vector<TH2F_LW*>& storageVector) const {
+SCTHitsNoiseMonTool::h2Factory(const std::string& name, const std::string& title, const Bec bec,
+                               MonGroup& registry, std::vector<TH2F_LW*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, nEta{N_ETA_BINS}, 
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, nPhi{N_PHI_BINS};
 
@@ -1178,7 +1176,7 @@ SCTHitsNoiseMonTool::h2Factory(const string& name, const string& title, const Be
 }
 
 TProfile2D*
-SCTHitsNoiseMonTool::prof2DFactory(const string& name, const string& title, MonGroup& registry, int nbinx,
+SCTHitsNoiseMonTool::prof2DFactory(const std::string& name, const std::string& title, MonGroup& registry, int nbinx,
                                    float xlo, float xhi, int nbiny, float ylo, float yhi) const {
   TProfile2D* tmp{new TProfile2D{name.c_str(), title.c_str(), nbinx, xlo - 0.5, xhi + 0.5, nbiny, ylo - 0.5, yhi + 0.5}};
 
@@ -1192,7 +1190,7 @@ SCTHitsNoiseMonTool::prof2DFactory(const string& name, const string& title, MonG
 }
 
 TProfile_LW*
-SCTHitsNoiseMonTool::profFactory(const string& name, const string& title, MonGroup& registry) const {
+SCTHitsNoiseMonTool::profFactory(const std::string& name, const std::string& title, MonGroup& registry) const {
   TProfile_LW* tmp{TProfile_LW::create(name.c_str(), title.c_str(), 3, 0, 3)};
 
   tmp->SetYTitle("Fraction of 01X");
@@ -1207,8 +1205,8 @@ SCTHitsNoiseMonTool::profFactory(const string& name, const string& title, MonGro
 }
 
 TProfile2D*
-SCTHitsNoiseMonTool::prof2Factory(const string& name, const string& title, const Bec bec,
-                                  MonGroup& registry, vector<TProfile2D*>& storageVector) const {
+SCTHitsNoiseMonTool::prof2Factory(const std::string& name, const std::string& title, const Bec bec,
+                                  MonGroup& registry, std::vector<TProfile2D*>& storageVector) const {
   int firstEta{FIRST_ETA_BIN}, lastEta{LAST_ETA_BIN}, nEta{N_ETA_BINS}, 
       firstPhi{FIRST_PHI_BIN}, lastPhi{LAST_PHI_BIN}, nPhi{N_PHI_BINS};
 
@@ -1232,7 +1230,7 @@ SCTHitsNoiseMonTool::prof2Factory(const string& name, const string& title, const
 }
 
 TH1F_LW*
-SCTHitsNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry, const float lo,
+SCTHitsNoiseMonTool::h1Factory(const std::string& name, const std::string& title, MonGroup& registry, const float lo,
                                const float hi, const unsigned int nbins) const {
   TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), static_cast<int>(nbins), lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
@@ -1244,8 +1242,8 @@ SCTHitsNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup
 }
 
 TH1F_LW*
-SCTHitsNoiseMonTool::h1Factory(const string& name, const string& title, MonGroup& registry,
-                               vector<TH1F_LW*>& storageVector, const float lo, const float hi, const unsigned int nbins) const {
+SCTHitsNoiseMonTool::h1Factory(const std::string& name, const std::string& title, MonGroup& registry,
+                               std::vector<TH1F_LW*>& storageVector, const float lo, const float hi, const unsigned int nbins) const {
   TH1F_LW* tmp{TH1F_LW::create(name.c_str(), title.c_str(), static_cast<int>(nbins), lo, hi)};
   bool success{registry.regHist(tmp).isSuccess()};
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: common.py,v 1.39 2009-05-20 20:48:52 ssnyder Exp $
@@ -60,8 +60,7 @@ class MetatoolHelper:
         self.__dict__["clsname"] = confclass.__name__
         self.__dict__["name"] = name
         self.__dict__["prefix"] = ""
-        self.__dict__["detStoreKey"] = None
-        self.__dict__["useCallback"] = None
+        self.__dict__["DBHandleKey"] = None
         self.__dict__["props"] = {}
         self.__dict__["_propdum"] = MetatoolPropDummy (self)
         return
@@ -85,12 +84,12 @@ class MetatoolHelper:
 
 
     def corrspec (self):
-        if self.detStoreKey == None:
+        if self.DBHandleKey == None:
             location = '+' + self.clsname
-        elif not self.useCallback:
-            location = '@' + self.detStoreKey
+        elif self.DBHandleKey.find ('/') >= 0:
+            location = '@' + self.DBHandleKey
         else:
-            location = self.detStoreKey
+            location = self.DBHandleKey
         spec = [self.name,
                 location,
                 self.prefix]
@@ -239,7 +238,7 @@ class CaloClusterCorrSetup:
                           corrlist = None,
                           cells_name = None,
                           source = None,
-                          use_metatool = True,
+                          use_metatool = False,
                           **kw):
 
         # Make a logger.
@@ -263,6 +262,9 @@ class CaloClusterCorrSetup:
             datasource = globalflags.DataSource()
             (version, tryhier) = self.geom_match (datasource, geom)
 
+        #if version[0] == '@' and not use_metatool:
+        #    raise CaloCorrectionConfigError ('COOL tag requested but not metatool.')
+            
         # Get the correction generation.
         generation = self.get_generation()
 
@@ -764,7 +766,7 @@ def makecorr (versions,
     # the metatool, and the SG key doesn't get specified.
     # Otherwise, the tag name is the same as the SG key.
     if version.startswith ('@'):
-        assert use_metatool
+        #assert use_metatool
         sgkey = None
         if version == '@GLOBAL':
             fulltag = version
@@ -849,13 +851,13 @@ def makecorr (versions,
                 wherefrom = sel[0]
                 break
 
-        elif s == CALOCORR_POOL:
-            sel = [x for x in avail if _is_pool_source (x)]
-            if len (sel) > 0 and _config_from_pool (corr, sel[0], sgkey):
-                if not use_metatool:
-                    _mung_prefix (corr, key, valid_keys)
-                wherefrom = sel[0]
-                break
+        # elif s == CALOCORR_POOL:
+        #     sel = [x for x in avail if _is_pool_source (x)]
+        #     if len (sel) > 0 and _config_from_pool (corr, sel[0], sgkey):
+        #         if not use_metatool:
+        #             _mung_prefix (corr, key, valid_keys)
+        #         wherefrom = sel[0]
+        #         break
 
         elif s == CALOCORR_COOL:
             sel = [x for x in avail if _is_cool_source (x)]
@@ -989,10 +991,7 @@ def _config_from_pool (corr, poolfile, sgkey):
         return False
     
     # Tell the tool to look in pool for this key.
-    corr.detStoreKey = sgkey
-
-    # Don't try to register the callbacks.
-    corr.useCallback = False
+    corr.DBHandleKey = sgkey
 
     # If this is the first time we've seen this file,
     # add it to CondProxyProvider.
@@ -1030,8 +1029,7 @@ def config_from_cool (corr, folder, tag):
     if not subdetname:
         subdetname = sndict.get (None)
 
-    corr.detStoreKey = folder
-    corr.useCallback = True
+    corr.DBHandleKey = folder
 
     # We can't use more than one tag from a folder.
     oldtag = _folders_used.get (folder)
@@ -1042,10 +1040,10 @@ def config_from_cool (corr, folder, tag):
     if oldtag == None:
         if tag != '@GLOBAL':
             folder = folder + ' <tag>%s</tag>' % tag
-        if 'Ofl' in folder:    
-           conddb.addFolder (subdetname+"_OFL", folder)
-        else:   
-           conddb.addFolder (subdetname, folder)
+        sdsuffix = '_OFL' if 'Ofl' in folder else ''
+        conddb.addFolder (subdetname + sdsuffix,
+                          folder,
+                          className = 'CaloRec::ToolConstants')
         log = logging.getLogger ('CaloClusterCorrection')
         log.debug ("Adding cool folder `%s' for subdetector name %s" %
                    (folder, subdetname))
@@ -1122,7 +1120,7 @@ from AthenaCommon.Configurable import Configurable
 def _calocorr_setup (self):
     save_properties = {}
     try:
-        for (k, v) in self._properties.items():
+        for (k, v) in list(self._properties.items()):
             if self in v.history and len (v.history[self]) >= 1:
                 pass
             else:

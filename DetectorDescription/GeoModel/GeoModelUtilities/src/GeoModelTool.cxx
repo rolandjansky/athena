@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BUILDVP1LIGHT
@@ -25,7 +25,10 @@ GeoModelTool::~GeoModelTool()  {
 /**
  ** The Detector Node corresponding to this tool
  **/
-GeoVDetectorManager* GeoModelTool::manager() const {
+GeoVDetectorManager* GeoModelTool::manager() {
+  return m_detector;
+}
+const GeoVDetectorManager* GeoModelTool::manager() const {
   return m_detector;
 }
 

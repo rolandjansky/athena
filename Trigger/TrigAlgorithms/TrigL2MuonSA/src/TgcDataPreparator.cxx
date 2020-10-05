@@ -1,34 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/TgcDataPreparator.h"
+#include <cmath>
 
-#include "CLHEP/Units/PhysicalConstants.h"
-
-#include "Identifier/IdentifierHash.h"
-
-#include "TrigL2MuonSA/TgcData.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
-
-#include "StoreGate/ActiveStoreSvc.h"
-
+#include "TgcDataPreparator.h"
+#include "TgcData.h"
+#include "RecMuonRoIUtils.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-using namespace MuonGM;
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_TgcDataPreparator("IID_TgcDataPreparator", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::TgcDataPreparator::interfaceID() { return IID_TgcDataPreparator; }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -37,24 +20,10 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-   m_activeStore( "ActiveStoreSvc", name ), 
-   m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
-   m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
-   m_regionSelector( "RegSelSvc", name ), 
-   m_robDataProvider( "ROBDataProviderSvc", name ),
-   m_options(), m_recMuonRoIUtils()
+   m_regionSelector("RegSelTool/RegSelTool_TGC",this),
+   m_robDataProvider( "ROBDataProviderSvc", name )
 {
-   declareInterface<TrigL2MuonSA::TgcDataPreparator>(this);
-   declareProperty("TgcRawDataProvider", m_rawDataProviderTool);
-   declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
-}
-
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::TgcDataPreparator::~TgcDataPreparator() 
-{
+  declareProperty("RegSel_TGC", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -64,32 +33,18 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 {
    // Get a message stream instance
   ATH_MSG_DEBUG("Initializing TgcDataPreparator - package version " << PACKAGE_VERSION );
-   
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-     return sc;
-   }
 
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-   ATH_CHECK( m_activeStore.retrieve() ); 
-   ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
+   ATH_CHECK(m_idHelperSvc.retrieve());
 
    // Retreive TGC raw data provider tool
    ATH_MSG_DEBUG(m_decodeBS);
    ATH_MSG_DEBUG(m_doDecoding);
    // disable TGC Raw data provider if we either don't decode BS or don't decode TGCs
-   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding}).isFailure()) {
-     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
-     return StatusCode::FAILURE;
-   } else
-     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
+   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding}) );
+   ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
 
    // Disable PRD converter if we don't do the data decoding
    ATH_CHECK( m_tgcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
@@ -101,17 +56,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 
    ATH_CHECK(m_tgcContainerKey.initialize());
       
-   // 
    return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::TgcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
-{
-  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
-  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -122,16 +67,16 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 {
    float roi_eta = p_roi->eta();
    float roi_phi = p_roi->phi();
-   if (roi_phi < 0) roi_phi += 2.0 * CLHEP::pi;
+   if (roi_phi < 0) roi_phi += 2.0 * M_PI;
    
    double etaMin = p_roi->eta() - 0.2;
    double etaMax = p_roi->eta() + 0.2;
    double phiMin = p_roi->phi() - 0.1;
    double phiMax = p_roi->phi() + 0.1;
-   if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
-   if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
-   if( phiMin > 2*CLHEP::pi ) phiMin -= 2*CLHEP::pi;
-   if( phiMax > 2*CLHEP::pi ) phiMax -= 2*CLHEP::pi;
+   if( phiMin < 0 ) phiMin += 2*M_PI;
+   if( phiMax < 0 ) phiMax += 2*M_PI;
+   if( phiMin > 2*M_PI ) phiMin -= 2*M_PI;
+   if( phiMax > 2*M_PI ) phiMax -= 2*M_PI;
 
    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
    const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
@@ -141,20 +86,23 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    int gasGap;
    int channel;
    
-   bool isLowPt = m_recMuonRoIUtils.isLowPt(p_roi);
+   const bool isLowPt = m_recMuonRoIUtils.isLowPt(p_roi);
 
    // Select the eta cut based on ROI Pt.
-   double mid_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtMiddleForLowPt()
+   const double mid_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtMiddleForLowPt()
      : m_options.roadParameters().deltaEtaAtMiddleForHighPt();
-   double inn_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtInnerForLowPt()
+   const double inn_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtInnerForLowPt()
      : m_options.roadParameters().deltaEtaAtInnerForHighPt();
-   double mid_phi_test = m_options.roadParameters().deltaPhiAtMiddle();
-   double inn_phi_test = m_options.roadParameters().deltaPhiAtInner();
+   const double mid_phi_test = m_options.roadParameters().deltaPhiAtMiddle();
+   const double inn_phi_test = m_options.roadParameters().deltaPhiAtInner();
    
    if(m_doDecoding) {
      std::vector<IdentifierHash> tgcHashList;
-     if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, tgcHashList);
-     else m_regionSelector->DetHashIDList(TGC, tgcHashList);
+     if (iroi) m_regionSelector->HashIDList(*iroi, tgcHashList);
+     else {
+       TrigRoiDescriptor fullscan_roi( true );
+       m_regionSelector->HashIDList(fullscan_roi, tgcHashList);
+     }
      if(roi) delete roi;
 
      // Decode BS
@@ -173,40 +121,30 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      }
    }//doDecoding
    
-   if ( m_activeStore ) {
-     auto tgcContainerHandle = SG::makeHandle(m_tgcContainerKey);
-     tgcPrepContainer = tgcContainerHandle.cptr();
-     if (!tgcContainerHandle.isValid()) { 
-       ATH_MSG_ERROR("Could not retrieve PrepDataContainer key:" << m_tgcContainerKey.key());
-       return StatusCode::FAILURE;
-     } else {
-       ATH_MSG_DEBUG("Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections());
-     }
-   } else {
-     ATH_MSG_ERROR("Null pointer to ActiveStore");
+   auto tgcContainerHandle = SG::makeHandle(m_tgcContainerKey);
+   tgcPrepContainer = tgcContainerHandle.cptr();
+   if (!tgcContainerHandle.isValid()) { 
+     ATH_MSG_ERROR("Could not retrieve PrepDataContainer key:" << m_tgcContainerKey.key());
      return StatusCode::FAILURE;
-   }  
+   } else {
+     ATH_MSG_DEBUG("Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections());
+   }
  
    //Find closest wires in Middle
-   Muon::TgcPrepDataContainer::const_iterator wi = tgcPrepContainer->begin();
-   Muon::TgcPrepDataContainer::const_iterator wi_end = tgcPrepContainer->end();
    float min_dphi_wire=1000.;
    float second_dphi_wire=1000.;
    std::vector<float> ov_dphi;
    ov_dphi.clear();
-   for( ; wi!=wi_end; ++wi ) { // loop over collections
-     const Muon::TgcPrepDataCollection* colwi = *wi;
-     if( !colwi ) continue;
-     Muon::TgcPrepDataCollection::const_iterator cwi = colwi->begin();
-     Muon::TgcPrepDataCollection::const_iterator cwi_end = colwi->end();
-     for( ;cwi!=cwi_end;++cwi ){ // loop over data in the collection
-       if( !*cwi ) continue;
-       const Muon::TgcPrepData& prepDataWi = **cwi;
-       if (!m_muonIdHelperTool->tgcIdHelper().isStrip(prepDataWi.identify())) {//wire
-         int stationNumWi = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepDataWi.identify())-1;
+   for( const Muon::TgcPrepDataCollection* wi : *tgcPrepContainer ) { // loop over collections
+     if( !wi ) continue;
+     for( const Muon::TgcPrepData* cwi : *wi ){ // loop over data in the collection
+       if( !cwi ) continue;
+       const Muon::TgcPrepData& prepDataWi = *cwi;
+       if (!m_idHelperSvc->tgcIdHelper().isStrip(prepDataWi.identify())) {//wire
+         int stationNumWi = m_idHelperSvc->tgcIdHelper().stationRegion(prepDataWi.identify())-1;
          if (stationNumWi==-1) stationNumWi=3;
          if (stationNumWi<3 && fabs(prepDataWi.globalPosition().eta() - roi_eta) < mid_eta_test ) {
-           float dphi = acos(cos(prepDataWi.globalPosition().phi()-roi_phi));
+           const float dphi = acos(cos(prepDataWi.globalPosition().phi()-roi_phi));
            bool overlap=false;
            for (unsigned int ov=0;ov<ov_dphi.size();ov++)
              if (fabs(dphi-ov_dphi[ov])<1e-5) overlap=true;
@@ -225,23 +163,18 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    }
 
    //Check if there are enough number of hits
-   Muon::TgcPrepDataContainer::const_iterator hit = tgcPrepContainer->begin();
-   Muon::TgcPrepDataContainer::const_iterator hit_end = tgcPrepContainer->end();
    int num_min_hits=0;
    int num_second_hits=0;
-   for( ; hit!=hit_end; ++hit ) { // loop over collections
-     const Muon::TgcPrepDataCollection* colhit = *hit;
-     if( !colhit ) continue;
-     Muon::TgcPrepDataCollection::const_iterator chit = colhit->begin();
-     Muon::TgcPrepDataCollection::const_iterator chit_end = colhit->end();
-     for( ;chit!=chit_end;++chit ){ // loop over data in the collection
-       if( !*chit ) continue;
-       const Muon::TgcPrepData& prepDataHit = **chit;
-       if (!m_muonIdHelperTool->tgcIdHelper().isStrip(prepDataHit.identify())) {//strip
-         int stationNumHit = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepDataHit.identify())-1;
+   for( const Muon::TgcPrepDataCollection* hit : *tgcPrepContainer ) { // loop over collections
+     if( !hit ) continue;
+     for( const Muon::TgcPrepData* chit : *hit ){ // loop over data in the collection
+       if( !chit ) continue;
+       const Muon::TgcPrepData& prepDataHit = *chit;
+       if (!m_idHelperSvc->tgcIdHelper().isStrip(prepDataHit.identify())) {//strip
+         int stationNumHit = m_idHelperSvc->tgcIdHelper().stationRegion(prepDataHit.identify())-1;
          if (stationNumHit==-1) stationNumHit=3;
          if (stationNumHit<3 && fabs(prepDataHit.globalPosition().eta() - roi_eta) < mid_eta_test ) {
-           float dphi = acos(cos(prepDataHit.globalPosition().phi()-roi_phi));
+           const float dphi = acos(cos(prepDataHit.globalPosition().phi()-roi_phi));
            if (fabs(dphi-min_dphi_wire)<1e-5) num_min_hits++;
            if (fabs(dphi-second_dphi_wire)<1e-5) num_second_hits++;
          }
@@ -256,32 +189,26 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      else useDefault=true;
    }
 
-   Muon::TgcPrepDataContainer::const_iterator it = tgcPrepContainer->begin();
-   Muon::TgcPrepDataContainer::const_iterator it_end = tgcPrepContainer->end();
-   for( ; it!=it_end; ++it ) { // loop over collections
-     const Muon::TgcPrepDataCollection* col = *it;
+   for( const Muon::TgcPrepDataCollection* col : *tgcPrepContainer ) { // loop over collections
      if( !col ) continue;
-     Muon::TgcPrepDataCollection::const_iterator cit = col->begin();
-     Muon::TgcPrepDataCollection::const_iterator cit_end = col->end();
-     for( ;cit!=cit_end;++cit ){ // loop over data in the collection
-       if( !*cit ) continue;
-       
-       const Muon::TgcPrepData& prepData = **cit;
+     for( const Muon::TgcPrepData* cit : *col ){ // loop over data in the collection
+       if( !cit ) continue;
+       const Muon::TgcPrepData& prepData = *cit;
        
        bool isInRoad = false;
-       int stationNum = m_muonIdHelperTool->tgcIdHelper().stationRegion(prepData.identify())-1;
+       int stationNum = m_idHelperSvc->tgcIdHelper().stationRegion(prepData.identify())-1;
        if (stationNum==-1) stationNum=3;
-       if (m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify())) {
+       if (m_idHelperSvc->tgcIdHelper().isStrip(prepData.identify())) {
 	 double dphi = fabs(prepData.globalPosition().phi() - roi_phi);
-	 if( dphi > CLHEP::pi*2 ) dphi = dphi - CLHEP::pi*2;
-	 if( dphi > CLHEP::pi ) dphi = CLHEP::pi*2 - dphi;
+	 if( dphi > M_PI*2 ) dphi = dphi - M_PI*2;
+	 if( dphi > M_PI ) dphi = M_PI*2 - dphi;
 	 // For strips, apply phi cut
 	 if     ( stationNum < 3  && dphi < mid_phi_test ) { isInRoad = true; }
 	 else if( stationNum == 3 && dphi < inn_phi_test ) { isInRoad = true; }
        }
        else {
 	 // For wires, apply eta cut.
-         float dphi = acos(cos(prepData.globalPosition().phi()-roi_phi));
+         const float dphi = acos(cos(prepData.globalPosition().phi()-roi_phi));
 	 if     ( stationNum < 3  && fabs(prepData.globalPosition().eta() - roi_eta) < mid_eta_test ) {
            if (useDefault) isInRoad = true;//default
            else if (fabs(dphi-dphi_wire)<1e-5) isInRoad = true;//for close-by muon 
@@ -291,8 +218,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        if( ! isInRoad ) continue;
        
        m_tgcReadout = prepData.detectorElement();
-       gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(prepData.identify());
-       channel = m_muonIdHelperTool->tgcIdHelper().channel(prepData.identify());
+       gasGap = m_idHelperSvc->tgcIdHelper().gasGap(prepData.identify());
+       channel = m_idHelperSvc->tgcIdHelper().channel(prepData.identify());
        
        TrigL2MuonSA::TgcHitData lutDigit;
        
@@ -301,8 +228,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        lutDigit.r = prepData.globalPosition().perp();
        lutDigit.z = prepData.globalPosition().z();
        lutDigit.sta = stationNum;
-       lutDigit.isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify());
-       if(m_muonIdHelperTool->tgcIdHelper().isStrip(prepData.identify())){
+       lutDigit.isStrip = m_idHelperSvc->tgcIdHelper().isStrip(prepData.identify());
+       if(m_idHelperSvc->tgcIdHelper().isStrip(prepData.identify())){
 	 lutDigit.width = m_tgcReadout->stripWidth(gasGap, channel);
        }
        else{
@@ -319,17 +246,3 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    
    return StatusCode::SUCCESS; 
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::TgcDataPreparator::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing TgcDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

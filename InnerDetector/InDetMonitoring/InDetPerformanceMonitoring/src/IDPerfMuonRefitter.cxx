@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,8 @@
 #include "TrkTrack/TrackCollection.h"
 
 // ATLAS headers
+#include "CxxUtils/checker_macros.h"
+#include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/IInterface.h"
 
 
@@ -34,8 +36,7 @@ IDPerfMuonRefitter::IDPerfMuonRefitter(const std::string& name,
   m_TrackRefitter2(""),
   m_N_Muons(0),
   m_N_MuonsRefit(0),
-  m_N_MuonRefitFailures(0),
-  m_container(PerfMonServices::MUON_COLLECTION)
+  m_N_MuonRefitFailures(0)
 {
   // Properties that are set from the python scripts.
   declareProperty("OutputTracksName", m_outputTracksName = "IDMuonTracks");
@@ -51,15 +52,6 @@ IDPerfMuonRefitter::~IDPerfMuonRefitter()
 
 StatusCode IDPerfMuonRefitter::initialize()
 {
-  // Setup the services
-  ISvcLocator* pxServiceLocator = serviceLocator();
-  if ( pxServiceLocator ) {
-    StatusCode xSC = PerfMonServices::InitialiseServices( pxServiceLocator );
-    if ( !xSC.isSuccess() )
-    {
-      ATH_MSG_FATAL("Problem Initializing PerfMonServices");
-    }
-  }
   // Retrieve fitter
   if (m_TrackRefitter1.retrieve().isFailure()) {
     ATH_MSG_FATAL("Unable to retrieve " << m_TrackRefitter1 );
@@ -74,6 +66,8 @@ StatusCode IDPerfMuonRefitter::initialize()
   } else {
     ATH_MSG_INFO("Retrieved tool" << m_TrackRefitter2 );
   }
+
+  ATH_CHECK( m_muonContainerKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -82,11 +76,7 @@ StatusCode IDPerfMuonRefitter::initialize()
 
 StatusCode IDPerfMuonRefitter::execute()
 {
-  const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
-  if (!pxMuonContainer){
-    ATH_MSG_FATAL("Unable to retrieve the muon collection"  );
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<xAOD::MuonContainer> pxMuonContainer (m_muonContainerKey);
   TrackCollection* muonTrks  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit1  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit2  = new TrackCollection(SG::OWN_ELEMENTS);

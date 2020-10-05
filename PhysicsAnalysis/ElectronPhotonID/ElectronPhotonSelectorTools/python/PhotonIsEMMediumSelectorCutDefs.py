@@ -8,7 +8,7 @@
 from PATCore.HelperUtils import *
 
 
-def PhotonIsEMMediumSelectorConfigDC14(theTool) :
+def PhotonIsEMMediumSelectorConfig(theTool) :
     '''
     These are the photon isEM definitions from *DC14*
     '''

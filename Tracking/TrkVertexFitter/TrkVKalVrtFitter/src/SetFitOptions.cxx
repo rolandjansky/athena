@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -40,7 +40,7 @@ namespace Trk{
     // Add global mass constraint if present
     if(state.m_massForConstraint >= 0.) state.m_vkalFitControl.setMassCnstData(NTRK,state.m_massForConstraint);
     // Add partial mass constraints if present
-    if(state.m_partMassCnst.size() > 0) {
+    if(!state.m_partMassCnst.empty()) {
       for(int ic=0; ic<(int)state.m_partMassCnst.size(); ic++){
         state.m_vkalFitControl.setMassCnstData(NTRK, state.m_partMassCnstTrk[ic],state.m_partMassCnst[ic]);
       }
@@ -59,8 +59,7 @@ namespace Trk{
 
     if(m_IterationPrecision>0.) state.m_vkalFitControl.setIterationPrec(m_IterationPrecision);
     if(m_IterationNumber)  state.m_vkalFitControl.setIterationNum(m_IterationNumber);
-    return;
-  }
+ }
 
 /* 
   void TrkVKalVrtFitter::initCnstList()
@@ -80,7 +79,8 @@ namespace Trk{
 //
   void TrkVKalVrtFitter::setCnstType(int TYPE, IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     if(TYPE>0)msg(MSG::DEBUG)<< "ConstraintType is changed at execution stage. New type="<<TYPE<< endmsg;
     if(TYPE<0)TYPE=0;
     if(TYPE>14)TYPE=0;
@@ -106,13 +106,15 @@ namespace Trk{
   void TrkVKalVrtFitter::setApproximateVertex(double X,double Y,double Z,
                                               IVKalState& istate) const 
   {
-     State& state = dynamic_cast<State&> (istate);
+     assert(dynamic_cast<State*> (&istate)!=nullptr);
+     State& state = static_cast<State&> (istate);
      state.m_ApproximateVertex.assign ({X, Y, Z});
   }
   
   void TrkVKalVrtFitter::setRobustness(int IROB, IVKalState& istate) const
   { if(IROB>0)msg(MSG::DEBUG)<< "Robustness is changed at execution stage "<<m_Robustness<<"=>"<<IROB<< endmsg;
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_Robustness = IROB;
     if(state.m_Robustness<0)state.m_Robustness=0;
     if(state.m_Robustness>7)state.m_Robustness=0;
@@ -120,7 +122,8 @@ namespace Trk{
 
   void TrkVKalVrtFitter::setRobustScale(double Scale, IVKalState& istate) const
   { if(Scale!=m_RobustScale)msg(MSG::DEBUG)<< "Robust Scale is changed at execution stage "<<m_RobustScale<<"=>"<<Scale<< endmsg;
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_RobustScale = Scale;
     if(state.m_RobustScale<0.01) state.m_RobustScale=1.;
     if(state.m_RobustScale>100.) state.m_RobustScale=1.;
@@ -129,7 +132,8 @@ namespace Trk{
   void TrkVKalVrtFitter::setMassForConstraint(double MASS,
                                               IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_massForConstraint = MASS;
   }
 
@@ -137,7 +141,8 @@ namespace Trk{
                                               const std::vector<int>& TrkIndex,
                                               IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_partMassCnst.push_back(MASS);
     state.m_partMassCnstTrk.push_back(TrkIndex);
   }
@@ -145,7 +150,8 @@ namespace Trk{
   void TrkVKalVrtFitter::setVertexForConstraint(const xAOD::Vertex & Vrt,
                                                 IVKalState& istate) const
   {
-     State& state = dynamic_cast<State&> (istate);
+     assert(dynamic_cast<State*> (&istate)!=nullptr);
+     State& state = static_cast<State&> (istate);
      state.m_VertexForConstraint.assign ({Vrt.position().x(),
                                           Vrt.position().y(),
                                           Vrt.position().z()});
@@ -162,7 +168,8 @@ namespace Trk{
   void TrkVKalVrtFitter::setVertexForConstraint(double X,double Y,double Z,
                                                 IVKalState& istate) const
   {
-     State& state = dynamic_cast<State&> (istate);
+     assert(dynamic_cast<State*> (&istate)!=nullptr);
+     State& state = static_cast<State&> (istate);
      state.m_VertexForConstraint.assign ({X, Y, Z});
   }
 
@@ -170,14 +177,16 @@ namespace Trk{
                                                 double XZ,double YZ,double ZZ,
                                                 IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_CovVrtForConstraint.assign ({XX, XY, YY, XZ, YZ, ZZ});
   }			  
 
   void TrkVKalVrtFitter::setMassInputParticles( const std::vector<double>& mass,
                                                 IVKalState& istate) const
   {
-    State& state = dynamic_cast<State&> (istate);
+    assert(dynamic_cast<State*> (&istate)!=nullptr);
+    State& state = static_cast<State&> (istate);
     state.m_MassInputParticles = mass;
     for (double& m : state.m_MassInputParticles) {
       m = std::abs(m);

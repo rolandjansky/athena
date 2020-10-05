@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolObjectIter.cxx
@@ -36,7 +36,7 @@ CoraCoolObjectIter::CoraCoolObjectIter(CoraCoolFolder* coracoolfolder,
   m_data.resize(m_buflen);
   // assemble an AttributeListSpecification to share with the data objects
   const cool::RecordSpecification recspec=m_folder->payloadSpecification();
-  const coral::AttributeList speclist=cool::Record(recspec).attributeList();
+  const coral::AttributeList speclist ATLAS_THREAD_SAFE = cool::Record(recspec).attributeList(); // Not shared, ok
   m_spec=new coral::AttributeListSpecification();
   for (coral::AttributeList::const_iterator itr=speclist.begin();
        itr!=speclist.end();++itr) {
@@ -67,10 +67,9 @@ void  CoraCoolObjectIter::readDataToBuffer(){
     m_inbuf=0;
     // coloumn name of the FK in the CORAL table
     const std::string& coralkey=m_folder->coralFKey();
-    coral::AttributeList fkeys;
     // buffer to build the query
     QueryBuilder qbuf(QB_SIZE);
-    coral::AttributeList fktype;
+    coral::AttributeList fktype ATLAS_THREAD_SAFE; // Not shared, ok
     std::string fktypestr;
     // keep map of FKvalue to list of associated COOL channels
     typedef std::vector<unsigned int> KeyVec;
@@ -113,7 +112,7 @@ void  CoraCoolObjectIter::readDataToBuffer(){
     }
     // setup the query 
     std::string bwhere;
-    coral::AttributeList bfkeys;
+    coral::AttributeList bfkeys ATLAS_THREAD_SAFE; // Not shared, ok
     qbuf.getQuery(bwhere,coralkey,bfkeys,fktype[0].specification());
     // execute the query
     try {

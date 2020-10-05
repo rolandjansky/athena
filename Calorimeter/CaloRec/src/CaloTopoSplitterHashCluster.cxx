@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -60,7 +60,7 @@ void CaloTopoSplitterHashCluster::add (const HashCell& hashCell)
   m_hasValidEnergy = false;
   if (m_centroid) {
     delete m_centroid;
-    m_centroid = 0;
+    m_centroid = nullptr;
   }
 }
 
@@ -86,7 +86,7 @@ void CaloTopoSplitterHashCluster::remove (const HashCell& hashCell)
   m_hasValidEnergy = false;
   if (m_centroid) {
     delete m_centroid;
-    m_centroid = 0;
+    m_centroid = nullptr;
   }
 }
 
@@ -102,7 +102,7 @@ void CaloTopoSplitterHashCluster::add
   m_hasValidEnergy = false;
   if (m_centroid) {
     delete m_centroid;
-    m_centroid = 0;
+    m_centroid = nullptr;
   }
 }
 

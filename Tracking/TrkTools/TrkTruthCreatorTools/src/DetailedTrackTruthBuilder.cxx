@@ -90,9 +90,9 @@ StatusCode DetailedTrackTruthBuilder::initialize() {
   if ( m_truthTrajBuilder.retrieve().isFailure() ) {
     ATH_MSG_FATAL("Failed to retrieve TruthTrajectory building tool " << m_truthTrajBuilder);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_INFO("Retrieved TruthTrajectory building tool " << m_truthTrajBuilder);
-  }
+  
   
   if(!detStore()->retrieve(m_idHelper, "AtlasID").isSuccess()) {
     ATH_MSG_FATAL("Unable to initialize ID helper.");
@@ -274,7 +274,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 
 	    ++trackStat[subdet];
 	    
-	    typedef PRD_MultiTruthCollection::const_iterator iprdt;
+	    using iprdt = PRD_MultiTruthCollection::const_iterator;
 	    std::pair<iprdt, iprdt> range = orderedPRD_Truth[subdet]->equal_range(id);
 	    
 	    int n=0;
@@ -373,7 +373,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 	sprouts.erase(p_old);
 	break; // the do-while(getMother()) loop
       }
-      else { // No, this is a new particle.  Try to extend the current truth trajectory.
+      // No, this is a new particle.  Try to extend the current truth trajectory.
 	
 	// Add the particle to the current truth trajectory.
 	// New: with the current stricter cuts on mother-daughter 
@@ -386,7 +386,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 	  current_sprout.stat += p_newstat->second;
 	}
 
-      }
+      
     } while( (current = m_truthTrajBuilder->getMother(current)) );
     
     // Add the grown sprout to the list
@@ -475,7 +475,7 @@ SubDetHitStatistics DetailedTrackTruthBuilder::countPRDsOnTruth(const TruthTraje
        continue;
     }
     if( (*p)->pdg_id()==999 ) { continue; } 
-    typedef PRD_InverseTruth::const_iterator iter;
+    using iter = PRD_InverseTruth::const_iterator;
     std::pair<iter,iter> range = inverseTruth.equal_range(*p);
     for(iter i = range.first; i != range.second; ++i) {
       SubDetHitStatistics::SubDetType subdet = findSubDetType(i->second);

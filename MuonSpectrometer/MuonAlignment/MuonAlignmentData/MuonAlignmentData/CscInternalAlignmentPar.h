@@ -17,7 +17,7 @@ class CscInternalAlignmentPar : public MuonAlignmentPar {
   // destructor
   virtual ~CscInternalAlignmentPar() override = default;
 
-  void setAmdbId(std::string type, int jff, int jzz, int job, int wireLayer);
+  void setAmdbId(const std::string& type, int jff, int jzz, int job, int wireLayer);
   void getAmdbId(std::string& type, int& jff, int& jzz, int& job, int& wireLayer) const;
 
   void setParameters(float s, float z, float t, 

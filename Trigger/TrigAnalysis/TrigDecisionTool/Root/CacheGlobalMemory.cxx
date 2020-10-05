@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -23,6 +23,8 @@
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigNavStructure/TriggerElement.h"
+
+#include "AsgDataHandles/ReadHandle.h"
 
 #include "TrigSteeringEvent/Lvl1Item.h"
 
@@ -55,8 +57,10 @@ Trig::CacheGlobalMemory::CacheGlobalMemory() :
   m_confChains(nullptr),
   m_expressStreamContainer(nullptr),
   m_decisionKeyPtr(nullptr),
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
   m_oldDecisionKeyPtr(nullptr),
   m_oldEventInfoKeyPtr(nullptr),
+#endif
   m_navigationKeyPtr(nullptr),
   m_bgCode(0)
 {}
@@ -333,6 +337,14 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker);
 
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
+  bool contains_xAOD_decision = false;
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+  bool is_l1result_configured = false;
+  bool contains_decision = false;
+  bool contains_old_event_info = false;
+#endif
+  
   if(!m_unpacker){
     ATH_MSG_INFO("decision not set on first (?) assert. deciding how to unpack");
    
@@ -341,17 +353,13 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     //so we could in the future use the ones set by the python configuration
     //we're hardcoding in order not to require python configuration changes
 
-    const EventContext context = Gaudi::Hive::currentContext();
-    bool contains_xAOD_decision = false;
+    const EventContext& context = Gaudi::Hive::currentContext();
     if (!m_decisionKeyPtr->empty()) {
        SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_decisionKeyPtr, context);
       contains_xAOD_decision = decisionReadHandle.isValid();
     }
 
-#ifndef XAOD_ANALYSIS
-    bool is_l1result_configured = false;
-    bool contains_decision = false;
-    bool contains_old_event_info = false;
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
 
     if (!m_oldDecisionKeyPtr->empty()) {
       SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecisionKeyPtr, context);
@@ -390,13 +398,25 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   }//if(!m_unpacker)
 
   if(!m_unpacker){
+    std::stringstream extra;
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+    extra << ". Looked for old TrigDec::TrigDecision? "
+      << (m_oldDecisionKeyPtr->empty() ? "NO" : "YES")
+      << ", has TrigDec::TrigDecision? " 
+      << (contains_decision ? "YES" : "NO")
+      << ", TrigDec::TrigDecision has L1? " 
+      << (is_l1result_configured ? "YES" : "NO")
+      << ". Looked for old EventInfo? "
+      << (m_oldEventInfoKeyPtr->empty() ? "NO" : "YES")
+      << ", has old EventInto? "  
+      << (contains_old_event_info ? "YES" : "NO");
+#endif
     ATH_MSG_ERROR("No source of Trigger Decision in file. "
       << "(Looked for xAOD::TrigDecision? "
       << (m_decisionKeyPtr->empty() ? "NO" : "YES")
-      << " Looked for old TrigDec::TrigDecision? "
-      << (m_oldDecisionKeyPtr->empty() ? "NO" : "YES")
-      << ", looked for old EventInfo? "
-      << (m_oldEventInfoKeyPtr->empty() ? "NO" : "YES")
+      << ", has xAOD::TrigDecision? " 
+      << (contains_xAOD_decision ? "YES" : "NO")
+      << extra.str()
       << ". Check UseRun1DecisionFormat and UseOldEventInfoDecisionFormat flags if reading pre-xAOD or BS input).");
     throw std::runtime_error("Trig::CacheGlobalMemory::assert_decision(): No source of Trigger Decision in file.");
   }

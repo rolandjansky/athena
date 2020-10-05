@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.InDetJetFitterUtilsConfig import InDetJetFitterUtilsCfg
 from BTagging.JetFitterSequentialVertexFitterConfig import JetFitterSequentialVertexFitterCfg
 from BTagging.VxInternalEdmFactoryConfig import VxInternalEdmFactoryCfg
@@ -41,7 +40,7 @@ def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlag
         jetFitterExtrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'JFExtrapolator'+suffix))
         improvedJetFitterInitializationHelper = acc.popToolsAndMerge(ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper'+suffix))
         vertexEdmFactory = acc.popToolsAndMerge(VxInternalEdmFactoryCfg('VxInternalEdmFactory'+suffix))
-        defaults = { 'VxPrimaryContainer'                  : BTaggingFlags.PrimaryVertexCollectionName,
+        defaults = { 'VxPrimaryContainer'                  : flags.BTagging.PrimaryVertexCollectionName,
                      'MaxNumDeleteIterations'              : 30,
                      'VertexProbCut'                       : 0.001,
                      'MaxClusteringIterations'             : 30,

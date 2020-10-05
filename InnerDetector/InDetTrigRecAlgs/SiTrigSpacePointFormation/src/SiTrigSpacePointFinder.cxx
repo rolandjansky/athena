@@ -455,19 +455,14 @@ namespace InDet{
 	if(doTiming()) m_timerFindSi->resume();
 	// Iterate through the hash id list. Retrieve the cluster collections
 	// and form space points
-	for( std::vector<IdentifierHash>::iterator itIDs =  m_listOfSctIds.begin(); 
+	for( std::vector<IdentifierHash>::const_iterator itIDs =  m_listOfSctIds.begin(); 
 	     itIDs != m_listOfSctIds.end(); itIDs++){
      
 	  // Retrieve the clusterCollection:
 
-	  SCT_ClusterContainer::const_iterator 
-	    itSCT_Clusters(m_sctClusterContainer->indexFind((*itIDs)));
-
-	  if( itSCT_Clusters ==  m_sctClusterContainer->end()) continue;
-      
-	  const SCT_ClusterCollection * SCTClusterCollection = &(**itSCT_Clusters);
+	  const SCT_ClusterCollection * SCTClusterCollection = m_sctClusterContainer->indexFindPtr(*itIDs);
 	
-	  if( SCTClusterCollection->begin() == SCTClusterCollection->end())
+	  if(SCTClusterCollection==nullptr || SCTClusterCollection->begin() == SCTClusterCollection->end())
 	    continue;
       
 	  m_nReceivedClustersSCT += SCTClusterCollection->size(); 
@@ -638,19 +633,12 @@ namespace InDet{
 
 	if(doTiming()) m_timerFindPx->resume();
 
-	for(std::vector<IdentifierHash>::iterator itIDs =  m_listOfPixIds.begin(); 
+	for(std::vector<IdentifierHash>::const_iterator itIDs =  m_listOfPixIds.begin(); 
 	    itIDs != m_listOfPixIds.end(); itIDs++){
 
-	  // Retrieve the clusterCollection:
-	  PixelClusterContainer::const_iterator 
-	    itPixClusters(m_pixelClusterContainer->indexFind(*itIDs));
-		
-	  if( itPixClusters == m_pixelClusterContainer->end()) continue;
-	
-	  const PixelClusterCollection * pixelClusterCollection = 
-	    &(**itPixClusters);
+	  const PixelClusterCollection * pixelClusterCollection = m_pixelClusterContainer->indexFindPtr(*itIDs);
 
-	  if( pixelClusterCollection->begin() == pixelClusterCollection->end())
+	  if(pixelClusterCollection==nullptr || pixelClusterCollection->begin() == pixelClusterCollection->end())
 	    continue;
 
 	  m_nReceivedClustersPix += pixelClusterCollection->size(); 

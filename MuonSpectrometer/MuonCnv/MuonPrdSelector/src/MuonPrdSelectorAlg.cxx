@@ -1,32 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonPrdSelectorAlg.cxx
-//   Source file for class MuonPrdSelectorAlg
-///////////////////////////////////////////////////////////////////
 
 #include "MuonPrdSelector/MuonPrdSelectorAlg.h"
 
-// Gaudi includes
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
 #include <iomanip>
 
 // Constructor with parameters:
 MuonPrdSelectorAlg::MuonPrdSelectorAlg(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name,pSvcLocator),
-
-    m_muonIdCutTool("MuonIdCutTool/MuonIdCutTool"),
     m_mdtPRDs_in(0), m_rpcPRDs_in(0), m_tgcPRDs_in(0), m_cscPRDs_in(0),
     m_mdtPRDs_out(0), m_rpcPRDs_out(0), m_tgcPRDs_out(0), m_cscPRDs_out(0)
-
-
-
 {
   declareProperty("MDT_PRDinputContainer"      , m_inputContainer_mdt  = "MDT_DriftCircles_unfiltered"  );
   declareProperty("MDT_PRDoutputContainer"     , m_outputContainer_mdt = "MDT_DriftCircles"             );
@@ -39,15 +23,6 @@ MuonPrdSelectorAlg::MuonPrdSelectorAlg(const std::string &name, ISvcLocator *pSv
 
   declareProperty("CSC_PRDinputContainer"      , m_inputContainer_csc  = "CSC_Measurements_unfiltered"      );
   declareProperty("CSC_PRDoutputContainer"     , m_outputContainer_csc = "CSC_Measurements"                 );
-  
-
-
-
-
-
-
-
-
 }
 
 
@@ -56,14 +31,13 @@ StatusCode MuonPrdSelectorAlg::initialize()
 {
   ATH_MSG_DEBUG( "initialize() called"  );
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   // retrieve test tool
   ATH_CHECK(  m_muonIdCutTool.retrieve() );
-
   
   try {     
-    m_mdtPRDs_out = new Muon::MdtPrepDataContainer(m_muonIdHelperTool->mdtIdHelper().module_hash_max());
+    m_mdtPRDs_out = new Muon::MdtPrepDataContainer(m_idHelperSvc->mdtIdHelper().module_hash_max());
   } catch(const std::bad_alloc&) {
     ATH_MSG_FATAL( "Could not create a new MDT PrepRawData container!" );
     return StatusCode::FAILURE;
@@ -73,7 +47,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
  
     
     try {
-      m_rpcPRDs_out = new Muon::RpcPrepDataContainer(m_muonIdHelperTool->rpcIdHelper().module_hash_max());
+      m_rpcPRDs_out = new Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max());
     } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new RPC PrepRawData container!" );
       return StatusCode::FAILURE;
@@ -81,7 +55,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
     m_rpcPRDs_out->addRef();
 
     try {
-      m_tgcPRDs_out = new Muon::TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max());
+      m_tgcPRDs_out = new Muon::TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max());
     } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new TGC PrepRawData container!" );
       return StatusCode::FAILURE;
@@ -90,7 +64,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
   
     
     try {
-      m_cscPRDs_out = new Muon::CscStripPrepDataContainer(m_muonIdHelperTool->cscIdHelper().module_hash_max());
+      m_cscPRDs_out = new Muon::CscStripPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
     } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new CSC PrepRawData container!" );
       return StatusCode::FAILURE;
@@ -109,13 +83,6 @@ StatusCode MuonPrdSelectorAlg::execute()
   ATH_CHECK( performSelection() );
   return StatusCode::SUCCESS;
 }
-
-StatusCode MuonPrdSelectorAlg::finalize()
-{
-  ATH_MSG_DEBUG( "finalize() called"  );
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode MuonPrdSelectorAlg::retrieveContainers() {
   ATH_MSG_DEBUG( "retrieveContainers() called"  );

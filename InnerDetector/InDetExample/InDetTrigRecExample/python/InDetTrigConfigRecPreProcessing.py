@@ -21,7 +21,8 @@ EF_PixRDOKey="PixelRDOs_EF"
 EF_SCTRDOKey="SCT_RDOs_EF"
 EF_TRTRDOKey="TRT_RDOs_TRIG"
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-if not TriggerFlags.doTransientByteStream():
+from AthenaCommon.GlobalFlags import globalflags
+if globalflags.InputFormat == 'pool' and not TriggerFlags.doTransientByteStream():
    EF_PixRDOKey="PixelRDOs"
 
 
@@ -45,7 +46,11 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
 
       from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
       InDetTrigPixelRodDecoder = PixelRodDecoder(name = "InDetTrigPixelRodDecoder")
-      #InDetTrigPixelRodDecoder.OutputLevel=2
+      #InDetTrigPixelRodDecoder.OutputLevel=1
+      # Disable duplcated pixel check for data15 because duplication mechanism was used.
+      from RecExConfig.RecFlags import rec
+      if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+         InDetTrigPixelRodDecoder.CheckDuplicatedPixel=False
       ToolSvc += InDetTrigPixelRodDecoder
 
       from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
@@ -74,12 +79,13 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       InDetTrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetTrigMergedPixelsTool",
                                                            globalPosAlg  = InDetTrigClusterMakerTool,
                                                            PixelConditionsSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                           #UseSpecialPixelMap = False  #simpler setup for EFID
-                                                           UseSpecialPixelMap = True,
-                                                           MinimalSplitSize = 0,
-                                                           MaximalSplitSize = 49,
-                                                           MinimalSplitProbability = 0,
-                                                           )
+                                                           #UsePixelModuleMap = False  #simpler setup for EFID
+                                                           UsePixelModuleMap = True)
+      # Enable duplcated RDO check for data15 because duplication mechanism was used.
+      from RecExConfig.RecFlags import rec
+      if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+         InDetTrigMergedPixelsTool.CheckDuplicatedRDO = True
+
       ToolSvc += InDetTrigMergedPixelsTool
 
       # PixelGangedAmbiguitiesFinder tool (public)
@@ -91,7 +97,8 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       self.clusteringTool          = InDetTrigMergedPixelsTool
       self.gangedAmbiguitiesFinder = InDetTrigPixelGangedAmbiguitiesFinder
       self.Pixel_RDOContainerName  = EF_PixRDOKey
-      self.skipBSDecoding = not TriggerFlags.doTransientByteStream() 
+      from AthenaCommon.GlobalFlags import globalflags
+      self.skipBSDecoding = globalflags.InputFormat == 'pool' and not TriggerFlags.doTransientByteStream()
       
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELBARREL_H
@@ -10,10 +10,12 @@ class GeoPixelServices;
 
 class GeoPixelBarrel : public GeoVPixelFactory {
  public:
-  GeoPixelBarrel(const GeoPixelServices * pixServices);
-  virtual GeoVPhysVol* Build();
+  GeoPixelBarrel(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelServices * pixServices);
+  virtual GeoVPhysVol* Build() override;
  private:
-  const GeoPixelServices * m_pixServices;
+  GeoPixelServices * m_pixServices;
 };
 
 #endif

@@ -1,3 +1,5 @@
+#ifndef XAOD_STANDALONE
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -211,3 +213,5 @@ StatusCode TauOverlappingElectronLLHDecorator::beginEvent()
 }
 
 //______________________________________________________________________________
+
+#endif

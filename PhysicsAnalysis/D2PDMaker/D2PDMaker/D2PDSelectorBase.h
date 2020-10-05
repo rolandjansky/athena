@@ -201,34 +201,34 @@ private:
   //------------------------------------------------------
 
   /// Call-back method to configure the cut properties (min/max): pt
-  void setupPt( Property& prop );
+  void setupPt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): p
-  void setupP( Property& prop );
+  void setupP( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): et
-  void setupEt( Property& prop );
+  void setupEt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): e
-  void setupE( Property& prop );
+  void setupE( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): eta
-  void setupEta( Property& prop );
+  void setupEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): |eta|
-  void setupAbsEta( Property& prop );
+  void setupAbsEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): eta veto ranges
-  void setupEtaVeto( Property& prop );
+  void setupEtaVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): phi
-  void setupPhi( Property& prop );
+  void setupPhi( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): phi veto ranges
-  void setupPhiVeto( Property& prop );
+  void setupPhiVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): mass
-  void setupMass( Property& prop );
+  void setupMass( Gaudi::Details::PropertyBase& prop );
 
 
 
@@ -430,70 +430,70 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupPt( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupPt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doPt = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupP( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupP( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doP = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupEt( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupEt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doEt = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupE( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupE( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doE = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupEta( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doEta = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupAbsEta( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupAbsEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doAbsEta = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupEtaVeto( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupEtaVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doEtaVeto = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupPhi( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupPhi( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doPhi = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupPhiVeto( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupPhiVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doPhiVeto = true;
   return;
 }
 
 template < class T, class CT >
-inline void D2PDSelectorBase< T, CT >::setupMass( Property& /*prop*/ )
+inline void D2PDSelectorBase< T, CT >::setupMass( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doMass = true;
   return;

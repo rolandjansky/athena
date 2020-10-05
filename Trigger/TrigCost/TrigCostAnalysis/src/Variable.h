@@ -79,6 +79,12 @@ class Variable {
     size_t getCalls() const;
 
     /**
+     * @brief Getter for accumulated value of a kPerEvent Variable
+     * @return Total accumulated payload
+     */
+    float getAccumulator() const;
+
+    /**
      * @brief Fill histogram (per-Call Variable), or add value to internal accumulator (per-Event Variable) to be filled at the end of the event.
      * @pram[in] value The payload.     
      * @param[in] weight Global event weight

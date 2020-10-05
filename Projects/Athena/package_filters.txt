@@ -29,24 +29,22 @@
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
++ PhysicsAnalysis/Algorithms/MuonAnalysisAlgorithms
++ PhysicsAnalysis/Algorithms/SelectionHelpers
++ PhysicsAnalysis/Algorithms/SystematicsHandles
 - PhysicsAnalysis/Algorithms/.*
-- PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 - PhysicsAnalysis/AnalysisCommon/PMGTools
 - PhysicsAnalysis/D3PDTools/EventLoop.*
 - PhysicsAnalysis/D3PDTools/MultiDraw
 - PhysicsAnalysis/D3PDTools/SampleHandler
 - PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
-- PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 - PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 - PhysicsAnalysis/JetPhys/SemileptonicCorr
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
-#- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
-- PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
-- Reconstruction/Jet/JetJvtEfficiency
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 
@@ -54,9 +52,6 @@
 # until we have Run 3 Tier-0 ops
 #- DataQuality/DataQualityConfigurations
 #- DataQuality/DCSCalculator2
-
-# obsolete packages to be removed in a second step
-- Tracking/TrkTools/TrkSegmentConverter
 
 # Huge D3PD librarys not really useful any more
 - PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
@@ -68,6 +63,3 @@
 # Old packages that don't work with AthenaMT
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
-
-# MdtCalibDbAsciiTool might be removed from athena, disable compilation
-- MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibDbAsciiTool

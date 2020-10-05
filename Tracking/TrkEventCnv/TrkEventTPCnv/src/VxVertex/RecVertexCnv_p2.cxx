@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VxVertex/RecVertex.h"
@@ -9,7 +9,7 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQualityCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 
-static FitQualityCnv_p1 fitQualityCnv;
+static const FitQualityCnv_p1 fitQualityCnv;
 
 void  RecVertexCnv_p2::persToTrans(const Trk::RecVertex_p2 * persObj, Trk::RecVertex * transObj, MsgStream &log) {
 

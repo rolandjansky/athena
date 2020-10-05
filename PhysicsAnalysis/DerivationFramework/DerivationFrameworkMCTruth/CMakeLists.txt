@@ -1,44 +1,19 @@
-################################################################################
-# Package: DerivationFrameworkMCTruth
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DerivationFrameworkMCTruth )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTruth
-                          GaudiKernel
-                          PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
-                          PRIVATE
-                          Control/AthenaKernel
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODJet
-                          Generators/GeneratorObjects
-                          Generators/AtlasHepMC
-                          PhysicsAnalysis/CommonTools/ExpressionEvaluation
-                          PhysicsAnalysis/MCTruthClassifier )
-
 # External dependencies:
 find_package( FastJet )
 find_package( HepPDT )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Hist )
+find_package( Boost )
 
 # Component(s) in the package:
-atlas_add_library( DerivationFrameworkMCTruthLib
-                   src/*.cxx
-                   PUBLIC_HEADERS DerivationFrameworkMCTruth
-                   INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} 
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} AtlasHepMCLib AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel SGtests ExpressionEvaluationLib MCTruthClassifierLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel xAODBase xAODJet GeneratorObjects )
-
 atlas_add_component( DerivationFrameworkMCTruth
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} AtlasHepMCLib AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkMCTruthLib )
+                     src/*.cxx src/components/*.cxx
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AtlasHepMCLib DerivationFrameworkInterfaces ExpressionEvaluationLib GaudiKernel GeneratorObjects MCTruthClassifierLib StoreGateLib TauAnalysisToolsLib TruthUtils xAODBase xAODEgamma xAODEventInfo xAODJet xAODMuon xAODTruth )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -1,30 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTRTHTHCounter.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+#include "CxxUtils/phihelper.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h" 
 
 #include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
-#include "TMath.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include<cmath>
 #include<fstream>
-
-const double PI = TMath::Pi();
-const double TWOPI = 2.0*PI;
-
-//Function to return deltaPhi between -PI and PI
-double hth_delta_phi(const float& phi1, const float& phi2){
-  float PHI=fabs(phi1-phi2);
-  return (PHI<=PI)? PHI : TWOPI-PHI;
-}
 
 //Function to calculate distance for road algorithm
 float dist2COR(float R, float phi1, float phi2){
@@ -138,7 +129,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
  
   //Sanity check of the ROI size
   double deltaEta=fabs(roi->etaPlus()-roi->etaMinus());
-  double deltaPhi=hth_delta_phi(roi->phiPlus(),roi->phiMinus());
+  double deltaPhi=CxxUtils::deltaPhi(roi->phiPlus(),roi->phiMinus());
   float phiTolerance = 0.001;
   float etaTolerance = 0.001;
 
@@ -200,12 +191,12 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 
 	//First, define coarse wedges in phi, and count the TRT hits in these wedges
         int countbin=0;	
-        if(hth_delta_phi(hphi, roi->phi()) < 0.1){
+        if(CxxUtils::deltaPhi(hphi, static_cast<float>(roi->phi())) < 0.1){
 	  float startValue = roi->phi() - m_phiHalfWidth + coarseWedgeHalfWidth;
 	  float endValue = roi->phi() + m_phiHalfWidth;
 	  float increment = 2*coarseWedgeHalfWidth;
           for(float roibincenter = startValue; roibincenter < endValue; roibincenter += increment){
-            if (hth_delta_phi(hphi,roibincenter)<=coarseWedgeHalfWidth) {
+            if (CxxUtils::deltaPhi(hphi,roibincenter)<=coarseWedgeHalfWidth) {
 	      if(hth) count_httrt_c.at(countbin) += 1.;
 	      count_tottrt_c.at(countbin) += 1.;
 	      break; //the hit has been assigned to one of the coarse wedges, so no need to continue the for loop							
@@ -245,12 +236,12 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
   //Now, define fine wedges in phi, centered around the best coarse wedge, and count the TRT hits in these fine wedges
   for(size_t v=0;v<hit.size();v++){
     int countbin=0;	
-    if(hth_delta_phi(hit[v].phi, center_pos_phi) < 0.01){
+    if(CxxUtils::deltaPhi(hit[v].phi, center_pos_phi) < 0.01){
       float startValue = center_pos_phi - 3*coarseWedgeHalfWidth + fineWedgeHalfWidth;
       float endValue = center_pos_phi + 3*coarseWedgeHalfWidth;
       float increment = 2*fineWedgeHalfWidth;
       for(float roibincenter = startValue; roibincenter < endValue; roibincenter += increment){	
-        if (hth_delta_phi(hit[v].phi,roibincenter)<=fineWedgeHalfWidth) {
+        if (CxxUtils::deltaPhi(hit[v].phi,roibincenter)<=fineWedgeHalfWidth) {
           if(hit[v].isHT) count_httrt.at(countbin) += 1.;
           count_tottrt.at(countbin) += 1.;
           break; //the hit has been assigned to one of the fine wedges, so no need to continue the for loop							

@@ -45,7 +45,11 @@ void Muon::TgcRDO_Decoder::applyPatch(bool patch)
 
 TgcDigit* Muon::TgcRDO_Decoder::getDigit(const TgcRawData * rawData, bool orFlag) const 
 {
-  if(!m_cabling && getCabling().isFailure()) return 0;
+  // ITGCcablingSvc should be configured at initialise
+  if(!m_cabling){
+    ATH_MSG_ERROR("ITGCcablingSvc is not available in TgcRDO_Decoder::getDigit()");
+    return 0;
+  }
 
   int offset=0, offsetORed=0;
 
@@ -95,7 +99,12 @@ Identifier Muon::TgcRDO_Decoder::getOfflineData(const TgcRawData * rawData, bool
 {
   Identifier chanId(0);
 
-  if(!m_cabling && getCabling().isFailure()) return chanId;
+  // ITGCcablingSvc should be configured at initialise                              
+  if(!m_cabling){
+    ATH_MSG_ERROR("ITGCcablingSvc is not available in TgcRDO_Decoder::getOfflineData()");
+    return chanId;
+  }
+
 
   bctag=TgcDigit::BC_UNDEFINED;
 
@@ -142,7 +151,7 @@ Identifier Muon::TgcRDO_Decoder::getOfflineData(const TgcRawData * rawData, bool
   return chanId;
 }
 
-StatusCode Muon::TgcRDO_Decoder::getCabling() const {
+StatusCode Muon::TgcRDO_Decoder::getCabling() {
   // get TGC cablingSvc
 
   const ITGCcablingServerSvc* TgcCabGet = 0;
@@ -155,7 +164,6 @@ StatusCode Muon::TgcRDO_Decoder::getCabling() const {
   sc = TgcCabGet->giveCabling(m_cabling);
   if(!sc.isSuccess()) {
     msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endmsg;
-    m_cabling = 0;
     return sc;
   } else {
     ATH_MSG_DEBUG("Found the ITGCcablingSvc.");

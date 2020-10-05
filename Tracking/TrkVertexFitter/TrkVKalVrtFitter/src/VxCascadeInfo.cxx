@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -10,7 +10,7 @@ namespace Trk {
 
 
 
-  VxCascadeInfo::~VxCascadeInfo(){}
+  VxCascadeInfo::~VxCascadeInfo()= default;
 
   VxCascadeInfo::VxCascadeInfo() :  VxSecVertexInfo(), m_nDoF(0), m_fullChi2(0) {}
 
@@ -32,13 +32,9 @@ namespace Trk {
      m_covarianceAtVertex.push_back( COV );
   }
 
-  VxCascadeInfo::VxCascadeInfo(const VxCascadeInfo & rhs):
-    VxSecVertexInfo(rhs),
-    m_particleMomAtVertex(rhs.m_particleMomAtVertex),
-    m_covarianceAtVertex(rhs.m_covarianceAtVertex),
-    m_nDoF(rhs.m_nDoF),
-    m_fullChi2(rhs.m_fullChi2)
-  {}
+  VxCascadeInfo::VxCascadeInfo(const VxCascadeInfo & rhs)
+    
+  = default;
 
 
 } // End Of Namespace

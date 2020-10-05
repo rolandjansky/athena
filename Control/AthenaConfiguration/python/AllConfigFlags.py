@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
-from AthenaConfiguration.AutoConfigFlags import GetFileMD, GetDetDescrInfo
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
 from PyUtils.moduleExists import moduleExists
 
 
@@ -18,10 +18,19 @@ def _createCfgFlags():
 
     acf=AthConfigFlags()
 
+    #Flags steering the job execution:
+    from AthenaCommon.Constants import INFO
+    acf.addFlag('Exec.OutputLevel',INFO) #Global Output Level
+    acf.addFlag('Exec.MaxEvents',-1) 
+    acf.addFlag("Exec.SkipEvents",0)
+    acf.addFlag("Exec.DebugStage","")
+
+    #Flags describing the input data 
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
+    acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers",[]))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
@@ -54,6 +63,8 @@ def _createCfgFlags():
         import os
         if "AthSimulation_DIR" in os.environ:
             return "AthSimulation"
+        if "AthGeneration_DIR" in os.environ:
+            return "AthGeneration"
         #TODO expand this method.
         return "Athena"
     acf.addFlag('Common.Project', _checkProject())
@@ -115,13 +126,10 @@ def _createCfgFlags():
     _addFlagsCategory(acf, "Overlay", __overlay, 'OverlayConfiguration' )
 
 #Geo Model Flags:
-    acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
-    acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("GeoAtlas",None) or "ATLAS-R2-2016-01-00-01") #
-    acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate and not prevFlags.Input.isMC))
-    acf.addFlag("GeoModel.StripGeoType", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('StripGeoType',"GMX")) # Based on CommonGeometryFlags.StripGeoType
-    acf.addFlag("GeoModel.Run", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('Run',"RUN2")) # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
-    acf.addFlag("GeoModel.Type", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('GeoType',"UNDEFINED")) # Geometry type in {ITKLoI, ITkLoI-VF, etc...}
-    acf.addFlag("GeoModel.IBLLayout", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('IBLlayout',"UNDEFINED")) # IBL layer layout  in {"planar", "3D", "noIBL", "UNDEFINED"}
+    def __geomodel():
+        from AthenaConfiguration.GeoModelConfigFlags import createGeoModelConfigFlags
+        return createGeoModelConfigFlags()
+    acf.addFlagsCategory( "GeoModel", __geomodel )
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")
@@ -177,6 +185,11 @@ def _createCfgFlags():
         return createEgammaConfigFlags()
     _addFlagsCategory(acf, "Egamma", __egamma, 'egammaConfig' )
 
+    def __met():
+        from METReconstruction.METConfigFlags import createMETConfigFlags
+        return createMETConfigFlags()
+    _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
+
     def __pflow():
         from eflowRec.PFConfigFlags import createPFConfigFlags
         return createPFConfigFlags()
@@ -188,11 +201,15 @@ def _createCfgFlags():
     _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
 
     def __dq():
-        from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
+        from AthenaMonitoring.DQConfigFlags import createDQConfigFlags
         dqf = createDQConfigFlags()
-        dqf.join( createComplexDQConfigFlags() )
         return dqf
     _addFlagsCategory(acf, "DQ", __dq, 'AthenaMonitoring' )
+
+    def __perfmon():
+        from PerfMonComps.PerfMonConfigFlags import createPerfMonConfigFlags
+        return createPerfMonConfigFlags()
+    _addFlagsCategory(acf, "PerfMon", __perfmon, 'PerfMonComps')
 
     return acf
 

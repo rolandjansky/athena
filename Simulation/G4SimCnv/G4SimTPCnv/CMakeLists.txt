@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4SimTPCnv )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolServices
-                          Simulation/G4Sim/TrackRecord
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthenaKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

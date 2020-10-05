@@ -3,9 +3,18 @@
 */
 
 #include "FlavorTagDiscriminants/DL2.h"
-#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
+
+namespace {
+    // This is a workaround because a lot of our builds still don't
+    // support C++17. It's meant to look just as ugly as it is.
+  template <typename T>
+  void set_merge_gcc6p2(std::set<T>& target, const std::set<T>& src) {
+    target.insert(src.begin(), src.end());
+  }
+}
 
 
 namespace FlavorTagDiscriminants {
@@ -53,13 +62,23 @@ namespace FlavorTagDiscriminants {
                                         flipConfig);
       // add the tracking data dependencies
       auto track_data_deps = get::trackFilter(track_cfg.selection).second;
-      track_data_deps.merge(get::flipFilter(flipConfig).second);
+
+      // FIXME: change this back to use std::map::merge when we
+      // support C++17 everywhere
+      set_merge_gcc6p2(track_data_deps, get::flipFilter(flipConfig).second);
 
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
-        auto [seqGetter, deps] = get::seqFromTracks(input_cfg);
-        track_getter.sequencesFromTracks.push_back(seqGetter);
-        track_data_deps.merge(deps);
+        // FIXME: change this back to
+        //
+        // auto [seqGetter, deps] = get::seqFromTracks(input_cfg);
+        //
+        // when we support C++17
+        auto seqGetter_deps = get::seqFromTracks(input_cfg);
+        track_getter.sequencesFromTracks.push_back(seqGetter_deps.first);
+        // FIXME: change this back to use std::map::merge when we
+        // support C++17 everywhere
+        set_merge_gcc6p2(track_data_deps,seqGetter_deps.second);
       }
       m_trackSequenceBuilders.push_back(track_getter);
       m_dataDependencyNames.trackInputs = track_data_deps;
@@ -236,7 +255,7 @@ namespace FlavorTagDiscriminants {
       TrackSortVar trackSortVar(SortOrder order) {
         typedef xAOD::TrackParticle Tp;
         typedef xAOD::Jet Jet;
-        BTagTrackAugmenter aug;
+        BTagTrackIpAccessor aug;
         switch(order) {
         case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
           return [aug](const Tp* tp, const Jet&) {
@@ -244,7 +263,7 @@ namespace FlavorTagDiscriminants {
                  };
         case SortOrder::D0_SIGNIFICANCE_DESCENDING:
           return [aug](const Tp* tp, const Jet& j) {
-                   return aug.get_signed_ip(*tp, j).ip3d_signed_d0_significance;
+                   return aug.getSignedIp(*tp, j).ip3d_signed_d0_significance;
                  };
         case SortOrder::PT_DESCENDING:
           return [](const Tp* tp, const Jet&) {return tp->pt();};
@@ -261,7 +280,7 @@ namespace FlavorTagDiscriminants {
 
         typedef xAOD::TrackParticle Tp;
         typedef SG::AuxElement AE;
-        BTagTrackAugmenter aug;
+        BTagTrackIpAccessor aug;
         auto data_deps = aug.getTrackIpDataDependencyNames();
 
         // make sure we record accessors as data dependencies
@@ -325,7 +344,7 @@ namespace FlavorTagDiscriminants {
           };
         case EDMType::CUSTOM_GETTER: return {
             customNamedSeqGetter(cfg.name),
-            BTagTrackAugmenter().getTrackIpDataDependencyNames()
+            BTagTrackIpAccessor().getTrackIpDataDependencyNames()
           };
         default: {
           throw std::logic_error("Unknown EDM type");
@@ -338,7 +357,7 @@ namespace FlavorTagDiscriminants {
       // start by defining the raw functions, there's a factory
       // function below to convert the configuration enums to a
       // std::function
-      Tracks negativeIpOnly(BTagTrackAugmenter& aug,
+      Tracks negativeIpOnly(BTagTrackIpAccessor& aug,
                             const Tracks& tracks,
                             const xAOD::Jet& j) {
         Tracks filtered;
@@ -346,7 +365,7 @@ namespace FlavorTagDiscriminants {
         // flipping
         for (auto ti = tracks.crbegin(); ti != tracks.crend(); ti++) {
           const xAOD::TrackParticle* tp = *ti;
-          double sip = aug.get_signed_ip(*tp, j).ip3d_signed_d0_significance;
+          double sip = aug.getSignedIp(*tp, j).ip3d_signed_d0_significance;
           if (sip < 0) filtered.push_back(tp);
         }
         return filtered;
@@ -357,7 +376,7 @@ namespace FlavorTagDiscriminants {
         FlipTagConfig cfg)
       {
         namespace ph = std::placeholders;  // for _1, _2, _3
-        BTagTrackAugmenter aug;
+        BTagTrackIpAccessor aug;
         switch(cfg) {
         case FlipTagConfig::NEGATIVE_IP_ONLY:
           // flips order and removes tracks with negative IP

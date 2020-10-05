@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_Monitoring/AFPHitsMonitorTool.h"
@@ -11,8 +11,8 @@
 #include <xAODForward/AFPStationID.h>
 #include <xAODForward/AFPSiHitContainer.h>
 
+#include "StoreGate/ReadHandleKey.h"
 #include <AthenaMonitoring/AthenaMonManager.h>
-#include <GaudiKernel/IJobOptionsSvc.h>
 #include <GaudiKernel/MsgStream.h>
 #include <GaudiKernel/StatusCode.h>
 
@@ -79,6 +79,8 @@ StatusCode AFPHitsMonitorTool::initialize()
 					    "Mean number of hits in a hotspot in an event per plane",
 					    &IAFPSiLayerMonitor::hitsInEventHotSpotScaled);
   hitsPerPlaneScaledHotSpotMean->profile()->SetYTitle("Mean number of hits in hotspot in an event");
+
+  ATH_CHECK( m_afpHitContainerKey.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -102,8 +104,7 @@ StatusCode AFPHitsMonitorTool::bookHistograms()
 
 StatusCode AFPHitsMonitorTool::fillHistograms()
 {
-  const xAOD::AFPSiHitContainer* afpHitContainer = nullptr;
-  CHECK( evtStore()->retrieve( afpHitContainer, "AFPSiHitContainer") );
+  SG::ReadHandle<xAOD::AFPSiHitContainer> afpHitContainer (m_afpHitContainerKey);
 
   for (const xAOD::AFPSiHit* hit : *afpHitContainer) {
     bool matchStation = false;

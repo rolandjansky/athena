@@ -1,45 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArSim/LArHitReader.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 
 #include "LArSimEvent/LArHit.h"
-#include "StoreGate/StoreGate.h"
-
-// Constructor
-LArHitReader::LArHitReader(const std::string& name, ISvcLocator* pSvcLocator ) :
- AthAlgorithm(name , pSvcLocator)
-{
-  
-}
-
+#include "StoreGate/ReadHandle.h"
 
 //Initialize method
 StatusCode LArHitReader::initialize(){
-  ATH_MSG_DEBUG("LArHitReader "<< this->name()<<" initialized");
+  ATH_CHECK( m_hitKey.initialize() );
   return StatusCode::SUCCESS ;   
 }
 
 
 //Execute method
-StatusCode LArHitReader::execute(){
-  const LArHitContainer* cont = nullptr;
-  ATH_CHECK( StoreGate::instance().retrieve(cont,"LArHitFake") );
+StatusCode LArHitReader::execute (const EventContext& ctx) const
+{
+  SG::ReadHandle<LArHitContainer> cont (m_hitKey, ctx);
 
   ATH_MSG_DEBUG(" LArHitContainer Dump ----------- " );
   ATH_MSG_DEBUG( (std::string)(*cont)   );
 
   return StatusCode::SUCCESS ;   
 }
-
-//Finalize method
-StatusCode LArHitReader::finalize(){
-  ATH_MSG_DEBUG("finalize() completed correctly");
-  return StatusCode::SUCCESS ;   
-}
-
 

@@ -28,9 +28,9 @@ CalibHitToCaloCellTool::CalibHitToCaloCellTool(const std::string& t, const std::
     m_caloGain((int)CaloGain::LARLOWGAIN),
     m_caloCell_Tot("TotalCalibCell"), m_caloCell_Vis("VisCalibCell"), 
     m_caloCell_Em(""), m_caloCell_NonEm(""),
-    m_caloCell_ID(0),
-    m_caloDM_ID(0),
-    m_caloDDMgr(0)
+    m_caloCell_ID(nullptr),
+    m_caloDM_ID(nullptr),
+    m_caloDDMgr(nullptr)
 {
   declareInterface<CalibHitToCaloCellTool>(this);
 
@@ -106,7 +106,7 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
   
   // retrieve calibration hit containers
   const unsigned int nCont = m_calibHitContainerNames.size();
-  std::vector<const CaloCalibrationHitContainer*> calibHitContainers(nCont,0);
+  std::vector<const CaloCalibrationHitContainer*> calibHitContainers(nCont,nullptr);
   for (unsigned int i=0; i<nCont; i++) {
     ATH_MSG_DEBUG("Retrieving " << m_calibHitContainerNames[i]);
     ATH_CHECK( evtStore()->retrieve(calibHitContainers[i], m_calibHitContainerNames[i].c_str()) );
@@ -262,7 +262,7 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) con
   ///..........................................................
 
   ATH_MSG_DEBUG("making truth cluster");
-  xAOD::CaloCluster* truthCluster[3] = {0,0,0};
+  xAOD::CaloCluster* truthCluster[3] = {nullptr,nullptr,nullptr};
   for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) {
     truthCluster[i] = CaloClusterStoreHelper::makeCluster(truthClusters[i],truthCells[i]);
     if (!truthCluster[i]) {

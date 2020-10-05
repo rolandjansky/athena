@@ -20,7 +20,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 
-void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
+void PixelGangedClusterAmbiguitiesCnv_p1::transToPers
 (const InDet::PixelGangedClusterAmbiguities* transObj, InDet::PixelGangedClusterAmbiguities_p1* persObj, MsgStream &log)
 {
 //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::PixelGangedClusterAmbiguities" << endmsg;
@@ -39,7 +39,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
     InDet::PixelGangedClusterAmbiguities::const_iterator itrE =  transObj->end();
     InDet::PixelGangedClusterAmbiguities::const_iterator previous_itr = transObj->begin();
     
-    const DataHandle<InDet::PixelClusterContainer> dh, dhEnd;
+    SG::ConstIterator<InDet::PixelClusterContainer> dh, dhEnd;
     StatusCode sc = m_storeGate->retrieve(dh, dhEnd);
     if (sc.isFailure()){
       log << MSG::WARNING <<"No containers found!"<< endmsg;
@@ -56,12 +56,12 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
     IdentifierHash          idHash  = pixelCluster->getHashAndIndex().collHash(); // idHash of collection
     
     // loop over dhs
-    for ( ; dh!=dhEnd; dh++ ) 		  {
-      InDet::PixelClusterContainer::const_iterator coll = dh->indexFind(idHash); //matching collection
+    for ( ; dh!=dhEnd; ++dh ) 		  {
+      auto coll = dh->indexFindPtr(idHash); //matching collection
       // does coll exist?
       // check prd exists in collection
       // check idhaspointer value the same.
-      if ( (coll!=dh->end())&& ((*coll)->size()>index) && (pixelCluster==(**coll)[index]) ){
+      if ( (coll!=nullptr)&& (coll->size()>index) && (pixelCluster==(*coll)[index]) ){
 	// okay, so we found the correct PRD in the container.
 	// Now set the name to the container correctly
 	persObj->m_pixelClusterContainerName = dh.key();
@@ -77,7 +77,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
     const InDet::SiCluster* keyPixelCluster(0);
     const InDet::SiCluster* gangedPixelCluster(0);
     unsigned int count(1);
-    for( ; itr != itrE ; itr++ ) {
+    for( ; itr != itrE ; ++itr ) {
     
       // for clarity assign the elements
       keyPixelCluster            = itr->first;
@@ -124,20 +124,15 @@ void  PixelGangedClusterAmbiguitiesCnv_p1::persToTrans(const InDet::PixelGangedC
         << persObj->m_pixelClusterContainerName << endmsg;
   }
     
-  std::vector< std::pair<uint32_t, std::vector<uint32_t> > >::const_iterator persItr  = persObj->m_ambiguityMap.begin();
-  std::vector< std::pair<uint32_t, std::vector<uint32_t> > >::const_iterator persItrE = persObj->m_ambiguityMap.end();
-  
   const InDet::PixelCluster* keyPixelCluster(0);
   const InDet::PixelCluster* gangedPixelCluster(0);
-  
-  for( ; persItr != persItrE ; persItr++ )
+
+  for (const std::pair<uint32_t, std::vector<uint32_t> >& mapElement : persObj->m_ambiguityMap)
   {
-    const std::pair<uint32_t, std::vector<uint32_t> >& mapElement = (*persItr);
-    for (std::vector<uint32_t>::const_iterator newItr = (mapElement.second).begin();
-                                              newItr != (mapElement.second).end(); ++newItr)
+    for (uint32_t elt : mapElement.second)
     {
       IdentContIndex keyIdentContIndex(mapElement.first);
-      IdentContIndex gangedIdentContIndex(*newItr);
+      IdentContIndex gangedIdentContIndex(elt);
       for (InDet::PixelClusterContainer::const_iterator contItr  = pCC->begin();
                                                         contItr != pCC->end(); ++contItr)
       {

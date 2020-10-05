@@ -9,6 +9,7 @@
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"

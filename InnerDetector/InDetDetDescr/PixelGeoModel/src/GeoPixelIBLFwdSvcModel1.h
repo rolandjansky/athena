@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELIBLFWDSVCMODEL1_H
@@ -20,13 +20,14 @@ class GeoPixelIBLFwdSvcModel1 :  public GeoVPixelFactory {
 
 public:  
 
-  GeoPixelIBLFwdSvcModel1(int);
-  virtual GeoVPhysVol* Build();
+  GeoPixelIBLFwdSvcModel1(InDetDD::PixelDetectorManager* ddmgr,
+                          PixelGeometryManager* mgr, int);
+  virtual GeoVPhysVol* Build() override;
 
-  GeoPhysVol* getSupportA() const { return m_supportPhysA; }
-  GeoPhysVol* getSupportC() const { return m_supportPhysC; }
-  GeoTransform* getSupportTrfA() const { return m_xformSupportA; }
-  GeoTransform* getSupportTrfC() const { return m_xformSupportC; }
+  GeoPhysVol* getSupportA() { return m_supportPhysA; }
+  GeoPhysVol* getSupportC() { return m_supportPhysC; }
+  GeoTransform* getSupportTrfA() { return m_xformSupportA; }
+  GeoTransform* getSupportTrfC() { return m_xformSupportC; }
 
  private:
 

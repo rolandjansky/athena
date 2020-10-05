@@ -326,6 +326,9 @@ protected:
          if (ref) {
             this->throwObjectAlreadyDeleted( ref.idx());
          }
+         if (m_freeIdx == std::numeric_limits<T_index>::max()) {
+            m_freeIdx=ref.idx();
+         }
          ref=ObjRef<T_index>();
       }
    }
@@ -454,8 +457,25 @@ private:
          }
          //         return ref;
       }
-      ref=ObjRef(static_cast<T_index>(m_objs.size()));
-      m_objs.push_back(std::make_pair(obj, initial_count));
+      if (m_freeIdx == std::numeric_limits<T_index>::max() && m_objs.size() >= m_objs.capacity()) {
+         for (typename std::vector< std::pair<T_Obj *, T_signed_count> >::const_reverse_iterator
+                 iter =m_objs.rbegin();
+              iter != m_objs.rend();
+              ++iter) {
+            if (iter->second==0) {
+               m_freeIdx=m_objs.rend()-iter-1;
+            }
+         }
+      }
+      if (m_freeIdx == std::numeric_limits<T_index>::max()) {
+         ref=ObjRef(static_cast<T_index>(m_objs.size()));
+         m_objs.push_back(std::make_pair(obj, initial_count));
+      }
+      else {
+         m_objs[m_freeIdx] = std::make_pair( obj,initial_count);
+         ref=ObjRef(m_freeIdx);
+         m_freeIdx = std::numeric_limits<T_index>::max();
+      }
       ensureValidity(ref);
       return ref;
    }
@@ -464,6 +484,7 @@ private:
    constexpr static T_signed_count s_releasedObj = -1;       ///< "share count" of released objects
 
    std::vector< std::pair<T_Obj *, T_signed_count> > m_objs; ///< The storage for the object pointers
+   T_index                                           m_freeIdx=std::numeric_limits<T_index>::max();
 };
 
 /** Pointer to objects managed by @ref ObjContainer

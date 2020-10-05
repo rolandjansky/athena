@@ -194,13 +194,13 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   // Attach that volume array to the calo inner cover
   ATH_MSG_VERBOSE("Glueing " << calo->volumeName() << " inner cover to " << idOutVolArray->arrayObjects().size() << " volumes");
   std::const_pointer_cast<BoundarySurface>(calo->boundarySurfaces().at(Acts::tubeInnerCover))
-    ->attachVolumeArray(idOutVolArray, Acts::outsideVolume);
+    ->attachVolumeArray(idOutVolArray, Acts::backward);
   // Loop through the array and attach their boundary surfaces to the calo
   for(const auto& idVol : idOutVolArray->arrayObjects()){
     ATH_MSG_VERBOSE("Glueing outer cover of " << idVol->volumeName()
     << " to inner cover of " << calo->volumeName());
     std::const_pointer_cast<BoundarySurface>(idVol->boundarySurfaces().at(Acts::tubeOuterCover))
-      ->attachVolume(calo.get(), Acts::outsideVolume);
+      ->attachVolume(calo.get(), Acts::forward);
   }
 
   // Glue positive XY face of ID to inner positive XY face of Calo.
@@ -209,13 +209,13 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   ATH_MSG_VERBOSE("Glueing " << calo->volumeName() << " positive inner cutout disc to "
       << idPosXYVolArray->arrayObjects().size() << " volumes");
   std::const_pointer_cast<BoundarySurface>(calo->boundarySurfaces().at(Acts::index5))
-    ->attachVolumeArray(idPosXYVolArray, Acts::outsideVolume);
+    ->attachVolumeArray(idPosXYVolArray, Acts::backward);
   // Other way round, attach ID volumes to calo
   for(const auto& idVol : idPosXYVolArray->arrayObjects()){
     ATH_MSG_VERBOSE("Glueing positive XY face of " << idVol->volumeName()
     << " to positive inner coutout disc of " << calo->volumeName());
     std::const_pointer_cast<BoundarySurface>(idVol->boundarySurfaces().at(Acts::positiveFaceXY))
-      ->attachVolume(calo.get(), Acts::outsideVolume);
+      ->attachVolume(calo.get(), Acts::forward);
   }
 
   // Glue negative XY face of ID to inner negative XY face of Calo.
@@ -224,13 +224,13 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   ATH_MSG_VERBOSE("Glueing " << calo->volumeName() << " negative inner cutout disc to "
       << idNegXYVolArray->arrayObjects().size() << " volumes");
   std::const_pointer_cast<BoundarySurface>(calo->boundarySurfaces().at(Acts::index4))
-    ->attachVolumeArray(idNegXYVolArray, Acts::outsideVolume);
+    ->attachVolumeArray(idNegXYVolArray, Acts::forward);
   // Other way round, attach ID volumes to calo
   for(const auto& idVol : idNegXYVolArray->arrayObjects()){
     ATH_MSG_VERBOSE("Glueing negative XY face of " << idVol->volumeName()
     << " to negative inner coutout disc of " << calo->volumeName());
     std::const_pointer_cast<BoundarySurface>(idVol->boundarySurfaces().at(Acts::negativeFaceXY))
-      ->attachVolume(calo.get(), Acts::outsideVolume);
+      ->attachVolume(calo.get(), Acts::backward);
   }
 
   // For navigational purposes we need to create three pseudo container cylinders.
@@ -240,11 +240,11 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   // Construct track vol array for use in positive and negative pseudocontainer.
   // This will only contain the calo
 
-	double caloRMin = caloVolBounds->get(CCVBBV::eMinR);
-	double caloRMed = caloVolBounds->get(CCVBBV::eMedR);
-	double caloRMax = caloVolBounds->get(CCVBBV::eMaxR);
-	double caloDZ1 = caloVolBounds->get(CCVBBV::eHalfLengthZ);
-	double caloDZ2 = caloVolBounds->get(CCVBBV::eHalfLengthZcutout);
+  double caloRMin = caloVolBounds->get(CCVBBV::eMinR);
+  double caloRMed = caloVolBounds->get(CCVBBV::eMedR);
+  double caloRMax = caloVolBounds->get(CCVBBV::eMaxR);
+  double caloDZ1 = caloVolBounds->get(CCVBBV::eHalfLengthZ);
+  double caloDZ2 = caloVolBounds->get(CCVBBV::eHalfLengthZcutout);
 
   Acts::Vector3D caloChokeRPos
     = {caloRMin + (caloRMax - caloRMin)/2., 0, 0};
@@ -383,10 +383,10 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
   rmin_at_center -= envR;
 
 
-  std::cout << "rmin_at_center: " << rmin_at_center
-            << " rmin at choke: " << rmin_at_choke;
-  std::cout << " rmax: " << rmax << " zmin: " << zmin << " zmax: " << zmax;
-  std::cout << " coutout_zmin_abs: " << cutout_zmin_abs << std::endl;
+  ATH_MSG_VERBOSE("rmin_at_center: " << rmin_at_center
+                  << " rmin at choke: " << rmin_at_choke
+                  << " rmax: " << rmax << " zmin: " << zmin << " zmax: " << zmax
+                  << " coutout_zmin_abs: " << cutout_zmin_abs);
 
   // Ok now let's analyse what we're wrapping the calo around: the ID
   // The ID will have to be built already.
@@ -396,24 +396,59 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
   auto idCylBds
     = dynamic_cast<const Acts::CylinderVolumeBounds*>(&insideVolume->volumeBounds());
 
-  double idRMax = idCylBds->get(CVBBV::eMinR);
-  double idRMin = idCylBds->get(CVBBV::eMaxR);
+  double idRMax = idCylBds->get(CVBBV::eMaxR);
+  double idRMin = idCylBds->get(CVBBV::eMinR);
   double idHlZ = idCylBds->get(CVBBV::eHalfLengthZ);
 
+  ATH_MSG_VERBOSE("ID volume bounds:\n" << *idCylBds);
+
+  ATH_MSG_VERBOSE("Inside volume transform: \n" << insideVolume->transform().matrix());
+
   if (!insideVolume->transform().isApprox(Acts::Transform3D::Identity())) {
-    ATH_MSG_ERROR("The ID appears to be shifted from the origin. I cannot handle this.");
-    ATH_MSG_ERROR("(I'm not building the Calo!)");
-    return nullptr;
+    ATH_MSG_VERBOSE("Inside volume transform is not unity.");
+    
+    // transformation matrix is NOT unity. Let's check:
+    // - Rotation is approximate unity
+    // - Translation is only along z axis
+    const auto& trf = insideVolume->transform();
+  
+    Acts::RotationMatrix3D rot = trf.rotation();
+    bool unityRot = rot.isApprox(Acts::RotationMatrix3D::Identity());
+
+    ATH_MSG_VERBOSE("\n" << rot);
+
+    // dot product with Z axis is about 1 => ok
+    const Acts::Vector3D trl = trf.translation();
+    bool transZOnly = std::abs(1 - std::abs(Acts::Vector3D::UnitZ().dot(trl.normalized()))) < 1e-6;
+
+    ATH_MSG_VERBOSE("TRL "<< trl.transpose());
+    ATH_MSG_VERBOSE("TRL "<< trl.normalized().dot(Acts::Vector3D::UnitZ()));
+
+    if(!unityRot || !transZOnly) {
+      ATH_MSG_ERROR("The ID appears to be shifted from the origin. I cannot handle this.");
+      ATH_MSG_ERROR("(I'm not building the Calo!)");
+      throw std::runtime_error("Error building calo");
+    }
+    else {
+      ATH_MSG_VERBOSE("Checked: non unitarity is ONLY due to shift along z axis: that's ok");
+      double prevIdHlZ = idHlZ;
+      idHlZ += std::abs(trl.z());
+      ATH_MSG_VERBOSE("Modifying effective half length of ID cylinder: " << prevIdHlZ << " => " << idHlZ);
+    }
   }
 
   // make sure we can fit the ID inside the calo cutout
   if (idRMax > rmin_at_center || idHlZ > dz2 || (idRMin > rmin_at_choke && idRMin != 0.)) {
     ATH_MSG_ERROR("Cannot fit ID inside the Calo");
+    ATH_MSG_ERROR("This can be because the ID overlaps into the calo volume");
+    ATH_MSG_ERROR("Or because the Calo choke radius is SMALLER than the ID inner radius");
+    ATH_MSG_ERROR("Currently, I can only make the choke radius smaller, I can not make it larger");
+    ATH_MSG_ERROR("nor can I manipulate the ID volume bounds at this point.");
     ATH_MSG_ERROR("ID rMax: " << idRMax << " Calo rMin@center: " << rmin_at_center);
     ATH_MSG_ERROR("ID hlZ: " << idHlZ << " Calo inner Z hl: " << dz2);
     ATH_MSG_ERROR("ID rMin: " << idRMin << " Calo rMin@choke: " << rmin_at_choke);
     ATH_MSG_ERROR("(I'm not building the Calo!)");
-    return nullptr;
+    throw std::runtime_error("Error building calo");
   }
 
   // Let's harmonize the sizes, so we have a exact wrap of the ID

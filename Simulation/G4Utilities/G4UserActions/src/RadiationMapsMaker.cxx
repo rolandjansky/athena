@@ -131,6 +131,10 @@ namespace G4UA{
       m_rz_neut_spec     [i] += maps.m_rz_neut_spec     [i];
       m_full_rz_neut_spec[i] += maps.m_full_rz_neut_spec[i];
     }
+    // x theta bins
+    for(unsigned int i=0;i<maps.m_theta_full_rz_neut_spec.size();i++) {
+      m_theta_full_rz_neut_spec[i] += maps.m_theta_full_rz_neut_spec[i];
+    }
     // all other particle's spectra have same size
     for(unsigned int i=0;i<maps.m_rz_gamm_spec.size();i++) {
       m_rz_gamm_spec     [i] += maps.m_rz_gamm_spec     [i];
@@ -145,6 +149,16 @@ namespace G4UA{
       m_full_rz_prot_spec[i] += maps.m_full_rz_prot_spec[i];
       m_rz_rest_spec     [i] += maps.m_rz_rest_spec     [i];
       m_full_rz_rest_spec[i] += maps.m_full_rz_rest_spec[i];
+    }
+    // x theta bins
+    for(unsigned int i=0;i<maps.m_theta_full_rz_gamm_spec.size();i++) {
+      m_theta_full_rz_gamm_spec[i]  += maps.m_theta_full_rz_gamm_spec[i];
+      m_theta_full_rz_elec_spec[i]  += maps.m_theta_full_rz_elec_spec[i];
+      m_theta_full_rz_muon_spec[i]  += maps.m_theta_full_rz_muon_spec[i];
+      m_theta_full_rz_pion_spec[i]  += maps.m_theta_full_rz_pion_spec[i];
+      m_theta_full_rz_prot_spec[i]  += maps.m_theta_full_rz_prot_spec[i];
+      m_theta_full_rz_rchgd_spec[i] += maps.m_theta_full_rz_rchgd_spec[i];
+      m_theta_full_rz_rneut_spec[i] += maps.m_theta_full_rz_rneut_spec[i];
     }
   }
 
@@ -193,6 +207,15 @@ namespace G4UA{
     m_maps.m_full_rz_prot_spec.resize(0);
     m_maps.m_rz_rest_spec     .resize(0);
     m_maps.m_full_rz_rest_spec.resize(0);
+
+    m_maps.m_theta_full_rz_neut_spec .resize(0);
+    m_maps.m_theta_full_rz_gamm_spec .resize(0);
+    m_maps.m_theta_full_rz_elec_spec .resize(0);
+    m_maps.m_theta_full_rz_muon_spec .resize(0);
+    m_maps.m_theta_full_rz_pion_spec .resize(0);
+    m_maps.m_theta_full_rz_prot_spec .resize(0);
+    m_maps.m_theta_full_rz_rchgd_spec.resize(0);
+    m_maps.m_theta_full_rz_rneut_spec.resize(0);
     
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -247,6 +270,15 @@ namespace G4UA{
     m_maps.m_full_rz_prot_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     m_maps.m_rz_rest_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     m_maps.m_full_rz_rest_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+
+    m_maps.m_theta_full_rz_neut_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
+    m_maps.m_theta_full_rz_gamm_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_elec_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_muon_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_pion_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_prot_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_rchgd_spec.resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_rneut_spec.resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
 
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -370,8 +402,8 @@ namespace G4UA{
       // get time of step as average between pre- and post-step point
       G4StepPoint* pre_step_point = aStep->GetPreStepPoint();
       G4StepPoint* post_step_point = aStep->GetPostStepPoint();
-      G4ThreeVector startPoint = pre_step_point->GetPosition();
-      G4ThreeVector endPoint   = post_step_point->GetPosition();
+      const G4ThreeVector& startPoint = pre_step_point->GetPosition();
+      const G4ThreeVector& endPoint   = post_step_point->GetPosition();
       G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
       // process upper hemisphere only in case PositiveYOnly is true
@@ -407,7 +439,7 @@ namespace G4UA{
       double y1 = aStep->GetPostStepPoint()->GetPosition().y()*0.1;
       double z0 = aStep->GetPreStepPoint()->GetPosition().z()*0.1;
       double z1 = aStep->GetPostStepPoint()->GetPosition().z()*0.1;
-      
+
       double l = sqrt(pow(x1-x0,2)+pow(y1-y0,2)+pow(z1-z0,2));
       // make 1 mm steps but at least 1 step
       double dl0 = 0.1;
@@ -419,6 +451,14 @@ namespace G4UA{
       
       double weight = 0; // weight for NIEL
       double eKin = aStep->GetTrack()->GetKineticEnergy();
+      double theta = aStep->GetTrack()->GetMomentumDirection().theta()*180./M_PI;
+      // if theta range in configuration is 0 - 90 assume that 180-theta should
+      // be used for theta > 90; otherwise leave theta unchanged
+      theta = (theta > 90&&m_config.thetaMin==0&&m_config.thetaMax==90?180-theta:theta);
+      double dphi = (aStep->GetTrack()->GetMomentumDirection().phi()-p.phi())*180./M_PI;
+      while ( dphi > 360 ) dphi -= 360.;
+      while ( dphi <   0 ) dphi += 360.;
+      
       double logEKin = (eKin > 0?log10(eKin):(m_config.logEMinn<m_config.logEMino?m_config.logEMinn:m_config.logEMino)-1);
 
       if ( pdgid == 1 || pdgid == 9 ) {
@@ -472,6 +512,8 @@ namespace G4UA{
 	int vBinFullSpeco = -1;
 	int vBinZoomTime  = -1;
 	int vBinFullTime  = -1;
+	int vBinThetaFullSpecn = -1;
+	int vBinThetaFullSpeco = -1;
 	
 	// zoom 2d
 	if ( m_config.zMinZoom < abszorz && 
@@ -517,12 +559,26 @@ namespace G4UA{
 		 (pdgid == 6 || pdgid == 7)) {
 	      int ile = (logEKin-m_config.logEMinn)/(m_config.logEMaxn-m_config.logEMinn)*m_config.nBinslogEn;
 	      vBinFullSpecn = m_config.nBinsr*m_config.nBinslogEn*iz+ir*m_config.nBinslogEn+ile;
+	      if ( m_config.thetaMin < theta && 
+		   m_config.thetaMax > theta ) {
+		int ith = (theta-m_config.thetaMin)/(m_config.thetaMax-m_config.thetaMin)*m_config.nBinstheta;
+		int idph = dphi/360.*m_config.nBinsdphi;
+		ith = ith*m_config.nBinsdphi+idph;
+		vBinThetaFullSpecn = m_config.nBinsr*m_config.nBinslogEn*m_config.nBinsdphi*m_config.nBinstheta*iz+ir*m_config.nBinslogEn*m_config.nBinsdphi*m_config.nBinstheta+ile*m_config.nBinsdphi*m_config.nBinstheta+ith;
+	      }
 	    }
 	    if ( m_config.logEMino < logEKin && 
 		 m_config.logEMaxo > logEKin &&
 		 pdgid != 6 && pdgid != 7) {
 	      int ile = (logEKin-m_config.logEMino)/(m_config.logEMaxo-m_config.logEMino)*m_config.nBinslogEo;
 	      vBinFullSpeco = m_config.nBinsr*m_config.nBinslogEo*iz+ir*m_config.nBinslogEo+ile;
+	      if ( m_config.thetaMin < theta && 
+		   m_config.thetaMax > theta ) {
+		int ith = (theta-m_config.thetaMin)/(m_config.thetaMax-m_config.thetaMin)*m_config.nBinstheta;
+		int idph = dphi/360.*m_config.nBinsdphi;
+		ith = ith*m_config.nBinsdphi+idph;
+		vBinThetaFullSpeco = m_config.nBinsr*m_config.nBinslogEo*m_config.nBinsdphi*m_config.nBinstheta*iz+ir*m_config.nBinslogEo*m_config.nBinsdphi*m_config.nBinstheta+ile*m_config.nBinsdphi*m_config.nBinstheta+ith;
+	      }
 	    }
 	  }
 	}
@@ -685,6 +741,9 @@ namespace G4UA{
 	    if ( vBinFullSpecn >=0 ) {
 	      m_maps.m_full_rz_neut_spec [vBinFullSpecn] += dl;
 	    }
+	    if ( vBinThetaFullSpecn >=0 ) {
+	      m_maps.m_theta_full_rz_neut_spec [vBinThetaFullSpecn] += dl;
+	    }
 	  }
 	}
 	
@@ -728,6 +787,31 @@ namespace G4UA{
 	    }
 	    else {
 	      m_maps.m_full_rz_rest_spec [vBinFullSpeco] += dl;
+	    }
+	  }
+	  if ( vBinThetaFullSpeco >=0 ) {
+	    if ( pdgid == 0 ) {
+	      m_maps.m_theta_full_rz_gamm_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 1 ) {
+	      m_maps.m_theta_full_rz_prot_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 2 ) {
+	      m_maps.m_theta_full_rz_pion_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 3 ) {
+	      m_maps.m_theta_full_rz_muon_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 4 || pdgid == 5 ) {
+	      m_maps.m_theta_full_rz_elec_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else {
+	      if ( absq > 0 ) {
+		m_maps.m_theta_full_rz_rchgd_spec [vBinThetaFullSpeco] += dl;
+	      }
+	      else {
+		m_maps.m_theta_full_rz_rneut_spec [vBinThetaFullSpeco] += dl;
+	      }
 	    }
 	  }
 	}

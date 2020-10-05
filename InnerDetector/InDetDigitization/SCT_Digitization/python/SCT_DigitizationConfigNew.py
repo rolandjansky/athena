@@ -14,7 +14,9 @@ from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
+import AthenaCommon.SystemOfUnits as Units
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the SCT Digitization code
@@ -54,6 +56,9 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
 
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured SCT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(SCT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "SCT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "SCT_SDO_Map")
@@ -61,23 +66,35 @@ def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
         kwargs.setdefault("OutputObjectName", "SCT_RDOs")
         kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    return SCT_DigitizationCommonCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def SCT_DigitizationHSToolCfg(flags, name="SCT_DigitizationHSTool", **kwargs):
     """Return ComponentAccumulator with hard scatter configured SCT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(SCT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
-    return SCT_DigitizationCommonCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def SCT_DigitizationPUToolCfg(flags, name="SCT_DigitizationPUTool",**kwargs):
     """Return ComponentAccumulator with pileup configured SCT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(SCT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_PU_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 2)
-    return SCT_DigitizationCommonCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
@@ -94,13 +111,18 @@ def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**k
 
 def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplitNoMergePU",**kwargs):
     """Return ComponentAccumulator with merged pileup configured SCT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(SCT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("InputObjectName", "PileupSCT_Hits")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_PU_SDO_Map")
     kwargs.setdefault("OnlyHitElements", True)
     kwargs.setdefault("FrontEnd", "PileupSCT_FrontEnd")
-    return SCT_DigitizationCommonCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def SCT_DigitizationToolGeantinoTruthCfg(flags, name="SCT_GeantinoTruthDigitizationTool", **kwargs):
@@ -133,9 +155,9 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     acc = ComponentAccumulator()
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
-    kwargs.setdefault("SurfaceDriftTime", 10)
+    kwargs.setdefault("SurfaceDriftTime", 10*Units.ns)
     kwargs.setdefault("NumberOfCharges", 1)
-    kwargs.setdefault("SmallStepLength", 5)
+    kwargs.setdefault("SmallStepLength", 5*Units.micrometer)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
     kwargs.setdefault("isOverlay", flags.Detector.Overlay)
@@ -190,7 +212,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     # Setup the ReadCalibChip folders and Svc
     acc = SCT_ReadCalibChipDataCfg(flags)
     kwargs.setdefault("SCT_ReadCalibChipDataTool", acc.popPrivateTools())
-    # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
+    # DataCompressionMode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("DataCompressionMode", 3)
     elif flags.Detector.Overlay and flags.Input.isMC:
@@ -226,14 +248,14 @@ def SCT_FrontEndPileupCfg(flags, name="PileupSCT_FrontEnd", **kwargs):
     kwargs.setdefault("NoiseOn", False)
     return SCT_FrontEndCfg(flags, name, **kwargs)
 
+
 def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
     """Return an SCT configured PileUpXingFolder tool"""
     kwargs.setdefault("FirstXing", SCT_FirstXing())
     kwargs.setdefault("LastXing", SCT_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0) # default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["SiHitCollection#SCT_Hits"] )
-    PileUpXingFolder = CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def SCT_OutputCfg(flags):

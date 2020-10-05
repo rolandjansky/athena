@@ -21,9 +21,7 @@ public:
     TauPi0Selector(const std::string& name);
     ASG_TOOL_CLASS2(TauPi0Selector, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0Selector();
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
-    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
+    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const override;
 
 private:
 
@@ -31,9 +29,9 @@ private:
     std::vector<float> m_clusterBDTCut_1prong;
     std::vector<float> m_clusterBDTCut_mprong;
     /** @brief function used to get eta bin of Pi0Cluster */
-    int getPi0Cluster_etaBin(double Pi0Cluster_eta);
+    int getPi0Cluster_etaBin(double Pi0Cluster_eta) const;
     /** @brief function used to calculate the visible tau 4 momentum */
-    TLorentzVector getP4(const xAOD::TauJet& tauJet);
+    TLorentzVector getP4(const xAOD::TauJet& tauJet) const;
 };
 
 #endif	/* TAUPI0SELECTOR_H */

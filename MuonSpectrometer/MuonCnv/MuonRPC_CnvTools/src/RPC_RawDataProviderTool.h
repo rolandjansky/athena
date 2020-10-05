@@ -5,6 +5,8 @@
 #ifndef MUONRPCRAWDATAPROVIDERTOOL_H
 #define MUONRPCRAWDATAPROVIDERTOOL_H
 
+#include "CxxUtils/checker_macros.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
@@ -19,8 +21,8 @@ namespace Muon
 {
     class IRpcROD_Decoder;
 
-
-class RPC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, 
+/// This class is only used in a single-thread mode
+class ATLAS_NOT_THREAD_SAFE RPC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, 
                                         public RPC_RawDataProviderToolCore
 {
     public:

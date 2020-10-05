@@ -9,7 +9,14 @@ from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-ConfigFlags.Input.Files = ["/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data20_test/data_test.00374861.calibration_CostMonitoring.daq.RAW/data_test.00374861.calibration_CostMonitoring.daq.RAW._lb0000._SFO-1._0001.data"]
+ConfigFlags.Input.Files = [\
+"/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data20_test/data_test.00379158.calibration_CostMonitoring.daq.RAW/data_test.00379158.calibration_CostMonitoring.daq.RAW._lb0000._SFO-1._0001.data",\
+"/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data20_test/data_test.00379158.calibration_CostMonitoring.daq.RAW/data_test.00379158.calibration_CostMonitoring.daq.RAW._lb0000._SFO-2._0001.data",\
+"/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data20_test/data_test.00379158.calibration_CostMonitoring.daq.RAW/data_test.00379158.calibration_CostMonitoring.daq.RAW._lb0000._SFO-3._0001.data",\
+"/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data20_test/data_test.00379158.calibration_CostMonitoring.daq.RAW/data_test.00379158.calibration_CostMonitoring.daq.RAW._lb0000._SFO-4._0001.data",\
+"/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data20_test/data_test.00379158.calibration_CostMonitoring.daq.RAW/data_test.00379158.calibration_CostMonitoring.daq.RAW._lb0000._SFO-5._0001.data",\
+"/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data20_test/data_test.00379158.calibration_CostMonitoring.daq.RAW/data_test.00379158.calibration_CostMonitoring.daq.RAW._lb0000._SFO-6._0001.data"\
+]
 
 # Use new-style config of ByteStream reading and import here into old-style JO
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
@@ -23,8 +30,8 @@ from AthenaCommon.CFElements import seqAND
 decoder = HLTResultMTByteStreamDecoderAlg()
 costDataDeserialiser = TriggerEDMDeserialiserAlg("CostDataTrigDeserialiser")
 
-from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
-costDataDeserialiser.ModuleID = EventBuildingInfo.DataScoutingIdentifiers["CostMonDS"]
+from TrigEDMConfig import DataScoutingInfo
+costDataDeserialiser.ModuleID = DataScoutingInfo.DataScoutingIdentifiers["CostMonDS"]
 
 decodingSeq = seqAND("Decoding")
 decodingSeq += decoder
@@ -40,23 +47,25 @@ hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
 hltConfigSvc.ConfigSource = "None"
 hltConfigSvc.XMLMenuFile = "None"
 hltConfigSvc.InputType = "file"
-hltConfigSvc.JsonFileName = "HLTMenu_PhysicsP1_pp_run3_v1_22.0.10.json"
+hltConfigSvc.JsonFileName = "HLTMenu_9.json"
 theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
 ServiceMgr += hltConfigSvc
 
 # Cost Monitoring
 from EnhancedBiasWeighter.EnhancedBiasWeighterConf import EnhancedBiasWeighter
 enhancedBiasWeighter = EnhancedBiasWeighter()
-enhancedBiasWeighter.RunNumber = 360026
+enhancedBiasWeighter.RunNumber = 379158
 enhancedBiasWeighter.UseBunchCrossingTool = False
 
 from AthenaCommon import CfgMgr
 trigCostAnalysis = CfgMgr.TrigCostAnalysis()
 trigCostAnalysis.OutputLevel = DEBUG
 trigCostAnalysis.RootStreamName = "COSTSTREAM"
-trigCostAnalysis.BaseEventWeight = 1.0
+trigCostAnalysis.BaseEventWeight = 10.0
 trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
 trigCostAnalysis.UseEBWeights = False
+trigCostAnalysis.MaxFullEventDumps = 100
+trigCostAnalysis.FullEventDumpProbability = 1 # X. Where probability is 1 in X
 topSequence += trigCostAnalysis
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

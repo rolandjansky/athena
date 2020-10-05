@@ -1,23 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//   T0CalibrationClassic.h
-//   Header file for class T0CalibrationClassic
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// 
-///////////////////////////////////////////////////////////////////
 
 #ifndef T0CALIBRATIONCLASSIC_H
 #define T0CALIBRATIONCLASSIC_H
-#include <iostream>
-#include <vector>
 
 #include "MdtCalibInterfaces/IMdtCalibration.h"
 #include "MdtCalibData/MdtTubeFullInfoContainer.h"
 #include "MdtCalibData/MdtTubeFitContainer.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
+#include <iostream>
+#include <vector>
 
 class TH1;
 class TH2;
@@ -77,15 +72,16 @@ namespace MuonCalib {
     int printLevel() const {return m_printLevel;};
   /** a method to dump all the settings */
     void print() const {
-      std::cout <<"T0ClassicSettings: "<<std::endl 
-		<<"booking of Adc histos: min max bins " <<minAdc()<<" "<<maxAdc()<<" "<<binAdc()<<std::endl
-		<<"booking of Time histos: min max bins " <<minTime()<<" "<<maxTime()<<" "<<binTime()<<std::endl
-		<<"fitting of Time histos: active minentries paramflag chi2cut nparams" 
-		<<fitTime()<<" "<<entries()<<" "<<initParamFlag()<<" "<<chi2max()<<" "<<numParams()<<std::endl;
-      std::cout<<"Parameters: ";
-      for(int i=0;i<numParams();i++)std::cout<<m_params[i]<<" ";
-      std::cout<<std::endl;
-    };   
+      MsgStream log(Athena::getMessageSvc(),"T0ClassicSettings");
+      log<<MSG::INFO<<"T0ClassicSettings: "<<endmsg;
+      log<<MSG::INFO<<"booking of Adc histos: min max bins " <<minAdc()<<" "<<maxAdc()<<" "<<binAdc()<<endmsg;
+      log<<MSG::INFO<<"booking of Time histos: min max bins " <<minTime()<<" "<<maxTime()<<" "<<binTime()<<endmsg;
+      log<<MSG::INFO<<"fitting of Time histos: active minentries paramflag chi2cut nparams"<<fitTime()<<" "<<entries()<<" "<<initParamFlag()<<" "<<chi2max()<<" "<<numParams()<<endmsg;
+      log<<MSG::INFO<<"Parameters: "<<endmsg;
+      for(int i=0;i<numParams();i++) {
+        log<<MSG::INFO<<m_params[i]<<endmsg;
+      }
+    };
   
   private:
   /** Private settings */

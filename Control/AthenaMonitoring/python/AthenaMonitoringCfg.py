@@ -22,6 +22,11 @@ def AthenaMonitoringCfg(flags):
         info('Set up TRT monitoring')
         from TRTMonitoringRun3.TRTMonitoringRun3Config import TRTMonitoringRun3Cfg
         result.merge(TRTMonitoringRun3Cfg(flags))
+    
+    if flags.DQ.Steering.doInDetMon:
+        info('Set up InDet Global monitoring')
+        from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConfig import InDetGlobalMonitoringRun3TestConfig
+        result.merge(InDetGlobalMonitoringRun3TestConfig(flags))
 
     if flags.DQ.Steering.doLArMon:
         info('Set up LAr monitoring')
@@ -78,4 +83,14 @@ def AthenaMonitoringCfg(flags):
         from tauMonitoring.TauMonitoringConfig import TauMonitoringConfig
         result.merge(TauMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doAFPMon:
+        info('Set up AFP monitoring')
+        from Run3AFPMonitoring.Run3AFPExampleMonitorAlgorithm import Run3AFPExampleMonitoringConfig
+        result.merge(Run3AFPExampleMonitoringConfig(flags))
+
+    if flags.DQ.Steering.doLVL1CaloMon:
+        info('Set up LVL1Calo monitoring')
+        from TrigT1CaloMonitoring.LVL1CaloMonitoringConfig import LVL1CaloMonitoringConfig
+        result.merge(LVL1CaloMonitoringConfig(flags))
+        
     return result

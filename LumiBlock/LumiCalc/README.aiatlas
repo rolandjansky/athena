@@ -1,28 +1,72 @@
-This file gives instructions for setting up the lumicalc web service.  There are three servers:
-aiatlas110.cern.ch -> https://atlas-lumicalc-devel.cern.ch
+This file gives instructions for setting up the lumicalc web service.  
+Instructions have been updated on July 29, 2020 for the new centos7 server
+For more details: https://its.cern.ch/jira/browse/CSOPS-1700
 
-First, make sure you have a working directory:
-asetup 19.2.0,here
-cmt co LumiBlock/LumiCalc
+There is one server now with prod and dev areas:
+aiatlas031.cern.ch 
+-> https://atlas-lumicalc.cern.ch in /var/www/lumicalc
+-> https://atlas-lumicalc-dev.cern.ch in /var/www/lumicalc_dev
 
-Make any changes, test, and compile before installing with git
-We will re-build this on the server.
-(cd LumiBlock/LumiCalc/cmt; gmake clean)
+So log into aiatlas031
 
-Edit the ChangeLog
-Change the html/version.html file
+Change to a directory where you have write permission:
+cd /var/www/lumicalc_dev
 
-Then commit:
-svn ci -m <comment>
-svn cp . $SVNROOT/LumiBlock/LumiCalc/tags/LumiCalc-<version>
+# Setup git environment
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+lsetup git
 
-Now, install using git.  From the release directory:
+# Sparse checkout (actually checks out my fork)
+git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git -p LumiCalc
 
-git init
-git add LumiBlock
-git add InstallArea
-git commit -m 'first commit'
-unset SSH_ASKPASS
-git config --global http.sslVerify false
-git push https://torrence@atlas-lumicalc-devel.cern.ch/git/lumicalc/ master
+# See what you really did with
+cd athena
+git remote -v
+cd ..
 
+# For the dev area, lets use a dev branch
+git checkout -b lumicalcDev
+git push --set-upstream origin lumicalcDev
+
+# So for me, origin is my fork, while upstream is the atlas master
+
+# Setup build environment
+mkdir build; cd build
+asetup master,latest,Athena  # Or a fixed release
+cmake ../athena/Projects/WorkDir
+make -j
+
+# And everything should now be ready to go
+# Be sure to test atlas-lumicalc-dev before updating the prod area from master
+
+# For updates, log into aiatlas031 and go to the correct area:
+cd /var/www/lumicalc_dev
+
+# Ensure we are on the correct branch (if needed)
+# <branch> = master (prod)
+# <branch> = lumicalcDev (dev)
+git checkout <branch>
+
+# Pull any changes
+git fetch origin
+git pull origin <branch>
+
+# Rebuild if any code changes
+
+# Once tested, push changes back to master (or make merge request)
+
+Go to the correct area:
+cd /
+# This can be used to check the environment
+https://atlas-lumicalc-dev.cern.ch/cgi-bin/TestEnviron.py
+
+# Config files can be found at
+sudo emacs /etc/httpd/conf.d/25-atlas-lumicalc-dev.cern.ch_vhost.conf
+
+# Restart apache if changes are made
+sudo systemctl restart httpd
+
+# To turn off puppet (for both userid and root):
+puppet agent --disable "Eric: testing config files"
+sudo /opt/puppetlabs/bin/puppet agent --disable "Eric: testing config files"

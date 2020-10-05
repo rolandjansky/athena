@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,6 +8,7 @@
 
 #include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 
@@ -20,15 +21,15 @@ class TRTParametersOfWheelsB
     TRTParametersOfWheelsB();
     ~TRTParametersOfWheelsB();
 
-    MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-    bool msgLevel (MSG::Level lvl) const   { return m_msg.get().level() <= lvl; }
+    MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+    bool msgLevel (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
  
   private:
     TRTParametersOfWheelsB (const TRTParametersOfWheelsB&); 
     TRTParametersOfWheelsB& operator= (const TRTParametersOfWheelsB&); 
 
     void DefineParameters();
-    void PrintParameters() const;
+    void PrintParameters(MsgStream& msg) const;
 
     int m_numberOfWheelsB;
     double m_distanceBetweenWheelsB;
@@ -72,9 +73,9 @@ class TRTParametersOfWheelsB
     double m_outerRadiusOfMiddleRadiatorB;
     double m_lengthOfMiddleRadiatorB;
 
-    TRTParameters* m_pParameters;
+    const TRTParameters* m_pParameters;
   
-    mutable Athena::MsgStreamMember m_msg;
+    Athena::MsgStreamMember m_msg;
 };
 
 #endif

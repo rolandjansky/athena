@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELHYBRID_H
@@ -10,8 +10,12 @@ class GeoLogVol;
 
 class GeoPixelHybrid : public GeoVPixelFactory {
  public:
-    GeoPixelHybrid(bool isModule3D): m_isModule3D(isModule3D) {};
-    virtual GeoVPhysVol* Build();
+    GeoPixelHybrid(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr,
+                   bool isModule3D)
+      : GeoVPixelFactory (ddmgr, mgr),
+        m_isModule3D(isModule3D) {};
+    virtual GeoVPhysVol* Build() override;
 
  private:
   bool m_isModule3D;

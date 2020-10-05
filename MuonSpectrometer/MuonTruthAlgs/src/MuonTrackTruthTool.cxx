@@ -1,63 +1,36 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
 #include "MuonTruthAlgs/MuonTrackTruthTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
-#include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "TrkTruthData/TruthTrajectory.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "MuonSimData/MuonSimData.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonSegment/MuonSegment.h"
-
-#include <iostream>
-#include <set>
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventUtils/RoT_Extractor.h"
 
+#include <iostream>
+
 namespace Muon {
 
-  MuonTrackTruthTool::MuonTrackTruthTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa), 
-      m_detMgr(0),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_truthTrajectoryBuilder("Muon::MuonDecayTruthTrajectoryBuilder/MuonDecayTruthTrajectoryBuilder")
-  {
+  MuonTrackTruthTool::MuonTrackTruthTool(const std::string& ty,const std::string& na,const IInterface* pa) :
+      AthAlgTool(ty,na,pa), 
+      m_detMgr(nullptr) {
     declareInterface<IMuonTrackTruthTool>(this);
-
-    declareProperty("DoSummary",                  m_doSummary = false );
-    declareProperty("ManipulateBarCode",          m_manipulateBarCode = false );
-    declareProperty("MinHits",                    m_minHits = 4 );
-    declareProperty("MatchAllParticles",          m_matchAllParticles = true );
-    declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
   }
-
-
-  MuonTrackTruthTool::~MuonTrackTruthTool(){}
-
 
   StatusCode MuonTrackTruthTool::initialize()
   {
     ATH_CHECK(detStore()->retrieve( m_detMgr ));
-    ATH_CHECK(m_idHelperTool.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthTrajectoryBuilder.retrieve());
 
@@ -67,16 +40,14 @@ namespace Muon {
       m_selectedPdgs.insert(-13);
     }else{
       // add pdgs
-      for( auto pdg : m_pdgsToBeConsidered.value() ) m_selectedPdgs.insert(pdg);
-      msg(MSG::DEBUG) << " PDG codes used for matching";
-      for( auto val : m_selectedPdgs ) msg(MSG::DEBUG) << " " << val;
-      msg(MSG::DEBUG) << endmsg;
+      for( auto pdg : m_pdgsToBeConsidered.value() ) {
+        m_selectedPdgs.insert(pdg);
+      }
+      ATH_MSG_DEBUG(" PDG codes used for matching");
+      for( auto val : m_selectedPdgs ) {
+        ATH_MSG_DEBUG(" " << val);
+      }
     }
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonTrackTruthTool::finalize()
-  {
     return StatusCode::SUCCESS;
   }
 
@@ -159,7 +130,7 @@ namespace Muon {
       return m_truthTree;
     }
 
-    const HepMC::GenEvent*    genEvent = 0;
+    const HepMC::GenEvent* genEvent = nullptr;
     if( !mcEventCollection->empty() ) {
       ATH_MSG_VERBOSE( "McEventCollection size " << mcEventCollection->size());
       if( mcEventCollection->size() == 1 ) genEvent = mcEventCollection ->front();
@@ -198,14 +169,13 @@ namespace Muon {
 	    barcode = truthTrajectory->front()->barcode();
 	    
 	    if( msgLvl(MSG::VERBOSE) ) {
-	      msg(MSG::VERBOSE) << MSG::VERBOSE << " found GenParticle: size " 
+	      ATH_MSG_VERBOSE(" found GenParticle: size " 
                                 << truthTrajectory->size() << " fs barcode " << barcode << " pdg " << truthTrajectory->front()->pdg_id()
-                                << " p " << truthTrajectory->front()->momentum().rho();
+                                << " p " << truthTrajectory->front()->momentum().rho());
 	      if( truthTrajectory->front()->production_vertex() ) {
-                msg(MSG::VERBOSE) << " vertex: r  " << truthTrajectory->front()->production_vertex()->position().perp() 
-                                  << " z " << truthTrajectory->front()->production_vertex()->position().z();
+                ATH_MSG_VERBOSE(" vertex: r  " << truthTrajectory->front()->production_vertex()->position().perp() 
+                                  << " z " << truthTrajectory->front()->production_vertex()->position().z());
               }
-	      msg(MSG::VERBOSE) << endmsg;
 	    }
 	    
 	    // now collect all barcodes beloning to this TruthTrajectory
@@ -215,12 +185,10 @@ namespace Muon {
 	      int code = (*pit)->barcode();
               
               if( msgLvl(MSG::VERBOSE) && code != barcode ) {
-                msg(MSG::VERBOSE) << "  secondary barcode: " << code << " pdg " << (*pit)->pdg_id() 
-                                  << " p " << (*pit)->momentum().rho();
-                if( (*pit)->production_vertex() ) msg(MSG::VERBOSE) << " vertex: r  " << (*pit)->production_vertex()->position().perp() 
-                                                                    << " z " << (*pit)->production_vertex()->position().z();
-                
-                msg(MSG::VERBOSE) << endmsg;
+                ATH_MSG_VERBOSE("  secondary barcode: " << code << " pdg " << (*pit)->pdg_id() 
+                                  << " p " << (*pit)->momentum().rho());
+                if( (*pit)->production_vertex() ) ATH_MSG_VERBOSE(" vertex: r  " << (*pit)->production_vertex()->position().perp() 
+                                                                    << " z " << (*pit)->production_vertex()->position().z());
 		// sanity check 
 		if( m_barcodeMap.count(code) ) ATH_MSG_VERBOSE("  pre-existing barcode " << code);
 	      }
@@ -271,8 +239,6 @@ namespace Muon {
 	ATH_MSG_VERBOSE(" Erasing entry: barcode " << it->second.truthTrack->GetBarCode() 
                         << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode()) << " hits " << nhits);
 	badBarcodes.push_back(it->first);
-	//m_truthTree.erase(it);
-	//it = m_truthTree.begin();
       }else{
 	++ngood;
 	ATH_MSG_VERBOSE(" Keeping entry: barcode " << it->second.truthTrack->GetBarCode() 
@@ -290,24 +256,23 @@ namespace Muon {
     
     
     if( m_doSummary || msgLvl(MSG::DEBUG) ){
-      msg(MSG::INFO) << " summarizing truth tree: number of particles " << m_truthTree.size()  << endmsg;
+      ATH_MSG_INFO(" summarizing truth tree: number of particles " << m_truthTree.size());
       TruthTreeIt it = m_truthTree.begin();
       TruthTreeIt it_end = m_truthTree.end();
       for( ;it!=it_end;++it ){
-	if( !it->second.truthTrack ) msg(MSG::INFO) << " no TrackRecord ";
+	if( !it->second.truthTrack ) ATH_MSG_INFO(" no TrackRecord ");
 	else{
-	  msg(MSG::INFO) << " PDG " << it->second.truthTrack->GetPDGCode() << " barcode " << it->second.truthTrack->GetBarCode() 
-                         << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode());
+	  ATH_MSG_INFO(" PDG " << it->second.truthTrack->GetPDGCode() << " barcode " << it->second.truthTrack->GetBarCode() 
+                         << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode()));
 	}
-	if( !it->second.mdtHits.empty() )  msg(MSG::INFO) << " mdt  " << it->second.mdtHits.size();
-	if( !it->second.rpcHits.empty() )  msg(MSG::INFO) << " rpc  " << it->second.rpcHits.size();
-	if( !it->second.tgcHits.empty() )  msg(MSG::INFO) << " tgc  " << it->second.tgcHits.size();
-	if( !it->second.cscHits.empty() )  msg(MSG::INFO) << " csc  " << it->second.cscHits.size();
-	if( !it->second.stgcHits.empty() ) msg(MSG::INFO) << " stgc " << it->second.stgcHits.size();
-	if( !it->second.mmHits.empty() )   msg(MSG::INFO) << " mm   " << it->second.mmHits.size();
+	if( !it->second.mdtHits.empty() )  ATH_MSG_INFO(" mdt  " << it->second.mdtHits.size());
+	if( !it->second.rpcHits.empty() )  ATH_MSG_INFO(" rpc  " << it->second.rpcHits.size());
+	if( !it->second.tgcHits.empty() )  ATH_MSG_INFO(" tgc  " << it->second.tgcHits.size());
+	if( !it->second.cscHits.empty() )  ATH_MSG_INFO(" csc  " << it->second.cscHits.size());
+	if( !it->second.stgcHits.empty() ) ATH_MSG_INFO(" stgc " << it->second.stgcHits.size());
+	if( !it->second.mmHits.empty() )   ATH_MSG_INFO(" mm   " << it->second.mmHits.size());
 	if( it->second.mdtHits.empty() && it->second.rpcHits.empty() && it->second.tgcHits.empty() && 
-	    it->second.cscHits.empty() && it->second.stgcHits.empty()  && it->second.mmHits.empty() ) msg(MSG::INFO) <<" no hits ";
-	msg(MSG::INFO) << endmsg;
+	    it->second.cscHits.empty() && it->second.stgcHits.empty()  && it->second.mmHits.empty() ) ATH_MSG_INFO(" no hits ");
       }
     }
 
@@ -331,7 +296,7 @@ namespace Muon {
         int barcodeIn = dit->first.barcode();
 	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
 	if( bit == m_barcodeMap.end() ){
-	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcodeIn);
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcodeIn);
 	  continue;
 	}
 	// replace barcode with barcode from map
@@ -339,56 +304,55 @@ namespace Muon {
 
 	TruthTreeIt eit = m_truthTree.find(barcode);
 	if( eit == m_truthTree.end() ){
-	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcode);
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcode);
 	  continue;
 	}
 
-	if( m_idHelperTool->isMdt(id) ){
+	if( m_idHelperSvc->isMdt(id) ){
 	  if( m_detMgr && !m_detMgr->getMdtReadoutElement(id) ) {
-	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperSvc->toString(id) 
                              << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.mdtHits.insert(*it);
-	}else if( m_idHelperTool->isRpc(id) ){
+	}else if( m_idHelperSvc->isRpc(id) ){
 	  if( m_detMgr && !m_detMgr->getRpcReadoutElement(id) ) {
-	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperSvc->toString(id) 
                              << "   barcode " << barcode);
 	    continue;
 	  }
 	  
-	  if( m_idHelperTool->stationIndex(id) == MuonStationIndex::BO && m_idHelperTool->rpcIdHelper().doubletR(id) == 2 ){
-	    ATH_MSG_VERBOSE(" Discarding non existing RPC hit " << m_idHelperTool->toString(id));
+	  if( m_idHelperSvc->stationIndex(id) == MuonStationIndex::BO && m_idHelperSvc->rpcIdHelper().doubletR(id) == 2 ){
+	    ATH_MSG_VERBOSE(" Discarding non existing RPC hit " << m_idHelperSvc->toString(id));
 	    continue;
 	  }
 	  
 	  eit->second.rpcHits.insert(*it);
-	}else if( m_idHelperTool->isTgc(id) ) {
+	}else if( m_idHelperSvc->isTgc(id) ) {
 	  if( m_detMgr && !m_detMgr->getTgcReadoutElement(id) ) {
-	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperSvc->toString(id) 
                              << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.tgcHits.insert(*it);
-	}else if( m_idHelperTool->issTgc(id) ) {
+	}else if( m_idHelperSvc->issTgc(id) ) {
 	  if( m_detMgr && !m_detMgr->getsTgcReadoutElement(id) ) {
-	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperSvc->toString(id) 
                              << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.stgcHits.insert(*it);
-	}else if( m_idHelperTool->isMM(id) ) {
+	}else if( m_idHelperSvc->isMM(id) ) {
 	  if( m_detMgr && !m_detMgr->getMMReadoutElement(id) ) {
-	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperSvc->toString(id) 
                              << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.mmHits.insert(*it);
 	}
         if( msgLvl(MSG::VERBOSE) ){
-          msg(MSG::VERBOSE) << MSG::VERBOSE <<  " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
-	  if( barcode != barcodeIn ) msg(MSG::VERBOSE) << " hit barcode " << barcodeIn;
-	  msg(MSG::VERBOSE) << endmsg;
+          ATH_MSG_VERBOSE(" adding hit " << m_idHelperSvc->toString(id) << "   barcode " << barcode);
+	  if( barcode != barcodeIn ) ATH_MSG_VERBOSE(" hit barcode " << barcodeIn);
 	}
       }
     }    
@@ -411,7 +375,7 @@ namespace Muon {
 	int barcodeIn = manipulateBarCode(dit->first.barcode());
 	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
 	if( bit == m_barcodeMap.end() ){
-	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcodeIn);
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcodeIn);
 	  continue;
 	}
 	// replace barcode with barcode from map
@@ -419,14 +383,13 @@ namespace Muon {
 
 	TruthTreeIt eit = m_truthTree.find(barcode);
 	if( eit == m_truthTree.end() ){
-	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcode);
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperSvc->toString(id) << "   barcode " << barcode);
 	  continue;
 	}
 
         if( msgLvl(MSG::VERBOSE) ){
-          msg(MSG::VERBOSE) << " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
-          if( barcode != barcodeIn ) msg(MSG::VERBOSE) << " hit barcode " << barcodeIn;
-          msg(MSG::VERBOSE) << endmsg;
+          ATH_MSG_VERBOSE(" adding hit " << m_idHelperSvc->toString(id) << "   barcode " << barcode);
+          if( barcode != barcodeIn ) ATH_MSG_VERBOSE(" hit barcode " << barcodeIn);
         }
         eit->second.cscHits.insert(*it);
       }
@@ -462,7 +425,7 @@ namespace Muon {
 	  continue;
 	}
 	Identifier id = rot->identify();
-	if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
+	if( !id.is_valid() || !m_idHelperSvc->mdtIdHelper().is_muon(id) ) continue;
 	if( ids.count(id) ) continue;
 	measurements.push_back(meas);
 	ids.insert(id);
@@ -527,20 +490,20 @@ namespace Muon {
         continue;
       }
       Identifier id = rot->identify();
-      if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->mdtIdHelper().is_muon(id) ) continue;
 
             
-      if( m_idHelperTool->isMdt(id) ){
+      if( m_idHelperSvc->isMdt(id) ){
         addMdtTruth( trackTruth.mdts, id, *meas, truthEntry.mdtHits );
-      }else if( m_idHelperTool->isCsc(id) ){
+      }else if( m_idHelperSvc->isCsc(id) ){
         addClusterTruth( trackTruth.cscs, id, *meas, truthEntry.cscHits );
-      }else if( m_idHelperTool->isRpc(id) ){
+      }else if( m_idHelperSvc->isRpc(id) ){
         addClusterTruth( trackTruth.rpcs, id, *meas, truthEntry.rpcHits );
-      }else if( m_idHelperTool->isTgc(id) ){
+      }else if( m_idHelperSvc->isTgc(id) ){
         addClusterTruth( trackTruth.tgcs, id, *meas, truthEntry.tgcHits );
-      }else if( m_idHelperTool->issTgc(id) ){
+      }else if( m_idHelperSvc->issTgc(id) ){
         addClusterTruth( trackTruth.stgcs, id, *meas, truthEntry.stgcHits );
-      }else if( m_idHelperTool->isMM(id) ){
+      }else if( m_idHelperSvc->isMM(id) ){
         addClusterTruth( trackTruth.mms, id, *meas, truthEntry.mmHits );
       }
     }
@@ -565,13 +528,13 @@ namespace Muon {
       
       Identifier id = it->first;
       // for trigger chambers use layer id
-      if( m_idHelperTool->isTrigger(id) || m_idHelperTool->isCsc(id) ) id = m_idHelperTool->layerId(id);
+      if( m_idHelperSvc->isTrigger(id) || m_idHelperSvc->isCsc(id) ) id = m_idHelperSvc->layerId(id);
 
       int isOnTrack = ids.count(id);
       if( isOnTrack ) continue;
 
       // if restricted truth mode, skip if chamber has not hits
-      Identifier chid = m_idHelperTool->chamberId(id);
+      Identifier chid = m_idHelperSvc->chamberId(id);
       bool chamberHasHits = chids.count(chid);
       if( restrictedTruth && !chamberHasHits ) continue;
 
@@ -595,13 +558,13 @@ namespace Muon {
     CscSimDataCollection::const_iterator it_end = simCol.end();
     for( ;it!=it_end;++it ){
       
-      Identifier id = m_idHelperTool->layerId(it->first);
+      Identifier id = m_idHelperSvc->layerId(it->first);
 
       int isOnTrack = ids.count(id);
       if( isOnTrack ) continue;
 
       // if restricted truth mode, skip if chamber has not hits
-      Identifier chid = m_idHelperTool->chamberId(id);
+      Identifier chid = m_idHelperSvc->chamberId(id);
       bool chamberHasHits = chids.count(chid);
       if( restrictedTruth && !chamberHasHits ) continue;
       
@@ -621,11 +584,11 @@ namespace Muon {
 
     const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(&meas);
     if( !mdt ){
-      ATH_MSG_WARNING(" dynamic_cast to MdtDriftCircleOnTrack failed for measurement with id " << m_idHelperTool->toString(id));
+      ATH_MSG_WARNING(" dynamic_cast to MdtDriftCircleOnTrack failed for measurement with id " << m_idHelperSvc->toString(id));
       return;
     }
     
-    Identifier chid = m_idHelperTool->chamberId(id);
+    Identifier chid = m_idHelperSvc->chamberId(id);
 
     // find SimData corresponding to identifier
     MuonSimDataCollection::const_iterator it = simCol.find(id);
@@ -656,8 +619,8 @@ namespace Muon {
                                             const MuonSimDataCollection& simCol ) const {
     
     Trk::RoT_Extractor rotExtractor;
-    Identifier layid = m_idHelperTool->layerId(id);
-    Identifier chid = m_idHelperTool->chamberId(id);
+    Identifier layid = m_idHelperSvc->layerId(id);
+    Identifier chid = m_idHelperSvc->chamberId(id);
 
     MuonSimDataCollection::const_iterator it = simCol.end();
 
@@ -714,8 +677,8 @@ namespace Muon {
   void MuonTrackTruthTool::addClusterTruth( MuonTechnologyTruth& truth, const Identifier& id, const Trk::MeasurementBase& /*meas*/, 
                                             const CscSimDataCollection& simCol ) const {
 
-    Identifier layid = m_idHelperTool->layerId(id);
-    Identifier chid = m_idHelperTool->chamberId(id);
+    Identifier layid = m_idHelperSvc->layerId(id);
+    Identifier chid = m_idHelperSvc->chamberId(id);
     // find SimData corresponding to identifier
     CscSimDataCollection::const_iterator it = simCol.find(id);
     if( it == simCol.end() ) {
@@ -792,7 +755,7 @@ namespace Muon {
         } else {
           if( (*pit)->pdg_id() == pdgFinal ) {
             auto pit_p = *pit;
-            if ( (theFirst != pit_p) && ((*pit)->momentum().t()!=ePrev) ) ++scat; // if the particle has not changed pdgid after the first step count as scatter. also avoid counting pure interface changes as scatter
+            if ( (theFirst != pit_p.cptr()) && ((*pit)->momentum().t()!=ePrev) ) ++scat; // if the particle has not changed pdgid after the first step count as scatter. also avoid counting pure interface changes as scatter
           } else { // the first time this particle appears
             --pit;
             theFirst = *pit;

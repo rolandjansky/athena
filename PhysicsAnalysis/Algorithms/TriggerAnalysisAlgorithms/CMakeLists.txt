@@ -4,22 +4,11 @@
 
 atlas_subdir( TriggerAnalysisAlgorithms )
 
-atlas_depends_on_subdirs(
-   PUBLIC
-   Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/Algorithms/SelectionHelpers
-   PhysicsAnalysis/Algorithms/SystematicsHandles
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   Trigger/TrigEvent/TrigDecisionInterface
-   PRIVATE
-   PhysicsAnalysis/D3PDTools/RootCoreUtils )
-
 atlas_add_library( TriggerAnalysisAlgorithmsLib
    TriggerAnalysisAlgorithms/*.h TriggerAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS TriggerAnalysisAlgorithms
    LINK_LIBRARIES xAODEventInfo SelectionHelpersLib SystematicsHandlesLib
-      AnaAlgorithmLib AsgAnalysisInterfaces
+      AnaAlgorithmLib AsgAnalysisInterfaces TrigDecisionInterface
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 atlas_add_dictionary( TriggerAnalysisAlgorithmsDict

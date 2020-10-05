@@ -100,9 +100,9 @@ class AntiKtRValues(JobProperty):
 class DoCellBasedSubtraction(JobProperty):
     """ option to use cell based subtraction
     """
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class HarmonicsForSubtraction(JobProperty):
     """ List of flow harmonics applied to jet subtraction

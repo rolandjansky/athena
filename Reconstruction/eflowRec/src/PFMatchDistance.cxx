@@ -22,14 +22,14 @@ namespace PFMatch {
 //  return etaphi1->dRSq(*etaphi2);
 //}
 
-double EtaPhiSqDistanceCalculator::distanceBetween(EtaPhi* position1, EtaPhi* position2) {
-  return position1->dRSq(*position2);
+double EtaPhiSqDistanceCalculator::distanceBetween(const EtaPhi& position1, const EtaPhi& position2) const {
+  return position1.dRSq(position2);
 }
 
-double EtaPhiSqSignificanceCalculator::distanceBetween(EtaPhi* position1, EtaPhiWithVariance* position2){
-   double dEta = position1->getEta() - position2->getEta();
-   double dPhi = position1->getPhi().getAbsDifference(position2->getPhi());
-   return dEta*dEta/position2->m_etaVariance + dPhi*dPhi/position2->m_phiVariance;
+double EtaPhiSqSignificanceCalculator::distanceBetween(const EtaPhi& position1, const EtaPhiWithVariance& position2) const{
+   double dEta = position1.getEta() - position2.getEta();
+   double dPhi = position1.getPhi().getAbsDifference(position2.getPhi());
+   return dEta*dEta/position2.m_etaVariance + dPhi*dPhi/position2.m_phiVariance;
 }
 //
 //double EtaPhiSqSignificanceCalculator::distanceBetween(IPosition* position1,

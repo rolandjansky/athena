@@ -36,6 +36,7 @@ namespace Trk {
     class Track;
     class InDetTrackSummary;
     class MuonTrackSummary;
+    class TrackSummaryTool;
 
 /** enumerates the different types of information stored in Summary. Use in get(const SummaryType type), for for example, summary.get(numOfPixelHits)
 When adding a new transient information type, please make sure to increase numberOfTrackSummaryTypes.*/
@@ -197,6 +198,7 @@ class TrackSummary
 public:
     friend class InDet::InDetTrackSummaryHelperTool;
     friend class Muon::MuonTrackSummaryHelperTool;
+    friend class Trk::TrackSummaryTool;
 
     /** Value set in the cxx file to -1. If any of the values returned by get(const SummaryType& type)==SummaryTypeNotSet then this means that 
     the information has not been filled. i.e. ID information cannot be filled if the TrackSummaryTool does not have access to the InDetTrackSummaryHelperTool*/
@@ -254,13 +256,20 @@ public:
     @return true if sub-detector 'type' is hit*/
     bool isHit(const DetectorType& type) const ;
 
-    /** returns a pointer to the InDetTrackSummary if available */
+    /** returns a const pointer to the InDetTrackSummary if available */
     const InDetTrackSummary* indetTrackSummary() const;
+
+    /** returns a pointer to a modifiable (non-const)  InDetTrackSummary if available */
+    InDetTrackSummary* indetTrackSummary() ;
 
     /** returns a pointer to the MuonTrackSummary if available */
     const MuonTrackSummary* muonTrackSummary() const;
 
-        /**return number of parameters currently created*/
+    /** returns  pointer to a modifiable (non-const) MuonTrackSummary if available */
+    MuonTrackSummary* muonTrackSummary();
+
+
+    /**return number of parameters currently created*/
     static unsigned int numberOfInstantiations() ;
 
     /** adds the values of the passed TrackSummary to this TrackSummary. Mainly intended for
@@ -303,73 +312,19 @@ private: // data members
     static std::atomic<unsigned int> s_numberOfInstantiations;
  
     /** pointer to the InDetTrackSummary */
-    const InDetTrackSummary* m_indetTrackSummary;
+    InDetTrackSummary* m_indetTrackSummary;
 
     /** pointer to the MuonTrackSummary */
-    const MuonTrackSummary* m_muonTrackSummary;
+    MuonTrackSummary* m_muonTrackSummary;
 };
-
-inline int Trk::TrackSummary::get(const Trk::SummaryType& type) const 
-{
-    return m_information.at(type);
-}
-
-// Troels.Petersen@cern.ch:
-inline float Trk::TrackSummary::getPID(const Trk::eProbabilityType& PIDtype) const 
-{
-  return (PIDtype < m_eProbability.size() ? m_eProbability[PIDtype] : 0.);
-}
-        
-inline bool Trk::TrackSummary::update(Trk::SummaryType type, int new_value)
-{
-  if (m_information.at(type) != SummaryTypeNotSet) {
-    return false;
-  }
-    m_information[type]=new_value;
-    return true;
-}
-
-inline float Trk::TrackSummary::getPixeldEdx() const
-{
-    return m_dedx;
-}
-
-inline int Trk::TrackSummary::numberOfUsedHitsdEdx() const
-{
-    return m_nhitsdedx;
-}
-
-inline int Trk::TrackSummary::numberOfOverflowHitsdEdx() const
-{
-    return m_nhitsoverflowdedx;
-}
-
-inline bool Trk::TrackSummary::isHit(const Trk::DetectorType& type) const 
-{
-    // no range checking because people should be using enums
-    return (m_idHitPattern&(1<<static_cast<unsigned int>(type)));
-}
-
-inline const Trk::InDetTrackSummary* Trk::TrackSummary::indetTrackSummary() const {
-    return m_indetTrackSummary;
-}
-
-inline const Trk::MuonTrackSummary* Trk::TrackSummary::muonTrackSummary() const {
-    return m_muonTrackSummary;
-}
 
 /**output. This dumps the values of each of the possible summary enums*/
 MsgStream& operator<<(MsgStream& out, const TrackSummary& trackSum);
 
 /**output. This dumps the values of each of the possible summary enums*/
 std::ostream& operator<<(std::ostream& out, const TrackSummary& trackSum);
-
 }
-
-inline unsigned long Trk::TrackSummary::getHitPattern() const
-{
-  return m_idHitPattern;
-}
+#include "TrkTrackSummary/TrackSummary.icc"
 
 #endif
 

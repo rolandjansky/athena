@@ -46,7 +46,7 @@ float InDet::BaseTRTPIDCalculator::Limit(float prob){
   if( prob > UpperLimit ){
     return UpperLimit;
   }
-  else if( prob < LowerLimit ){
+  if( prob < LowerLimit ){
     return LowerLimit;
   }
   

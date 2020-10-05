@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file CondProxyProvider.cxx
@@ -31,9 +31,8 @@
 CondProxyProvider::CondProxyProvider(const std::string& name, ISvcLocator* pSvcLocator) :
 	::AthService(name, pSvcLocator),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", name),
-	m_poolCollectionConverter(0),
-	m_headerIterator(0) {
-   declareProperty("InputCollections", m_inputCollectionsProp);
+	m_poolCollectionConverter(0)
+	{
 }
 //________________________________________________________________________________
 CondProxyProvider::~CondProxyProvider() {
@@ -71,7 +70,6 @@ StatusCode CondProxyProvider::initialize() {
 }
 //________________________________________________________________________________
 StatusCode CondProxyProvider::finalize() {
-   m_headerIterator = 0;
    if (m_poolCollectionConverter != 0) {
       m_poolCollectionConverter->disconnectDb().ignore();
       delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
@@ -104,9 +102,9 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
    }
    
    // Create DataHeader iterators
-   m_headerIterator = &m_poolCollectionConverter->executeQuery();
+   pool::ICollectionCursor* headerIterator = &m_poolCollectionConverter->executeQuery();
    for (int verNumber = 0; verNumber < 100; verNumber++) {
-      if (!m_headerIterator->next()) {
+      if (!headerIterator->next()) {
          m_poolCollectionConverter->disconnectDb().ignore();
          delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
          m_inputCollectionsIterator++;
@@ -117,8 +115,8 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
                return(StatusCode::FAILURE);
             }
             // Get DataHeader iterator
-            m_headerIterator = &m_poolCollectionConverter->executeQuery();
-            if (!m_headerIterator->next()) {
+            headerIterator = &m_poolCollectionConverter->executeQuery();
+            if (!headerIterator->next()) {
                return(StatusCode::FAILURE);
             }
          } else {
@@ -127,7 +125,7 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
       }
       SG::VersionedKey myVersKey(name(), verNumber);
       Token* token = new Token;
-      token->fromString(m_headerIterator->eventRef().toString());
+      token->fromString(headerIterator->eventRef().toString());
       TokenAddress* tokenAddr = new TokenAddress(POOL_StorageType, ClassID_traits<DataHeader>::ID(), "", myVersKey, IPoolSvc::kInputStream, token);
       if (!detectorStoreSvc->recordAddress(tokenAddr).isSuccess()) {
          ATH_MSG_ERROR("Cannot record DataHeader.");

@@ -15,6 +15,12 @@ theAlg.ReadExistingKey=shape_key
 theAlg.OutputContainerKey=shape_key
 theAlg.HIEventShapeFillerTool=HIEventShapeFillerTool()
 theAlg.OrderOfFlowHarmonics=jobproperties.HIGlobalFlags.NumFlowHarmonics()
+
+#Import the map tool
+from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+theMapTool=HIEventShapeMapTool()
+theAlg.HIEventShapeFillerTool.EventShapeMapTool=theMapTool
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += theAlg

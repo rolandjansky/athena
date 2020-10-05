@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -9,33 +9,37 @@
 //
 // Masahiro Morii, Harvard University
 //
+// Athena MT RD Schaffer , C Anastopoulos
+//
 #ifndef BFIELDVECTORZR_H
 #define BFIELDVECTORZR_H
-
+#include <array>
+#include <cstdlib>
 class BFieldVectorZR
 {
 public:
-  // constructor
-  BFieldVectorZR() { ; }
-  BFieldVectorZR(float Bz, float Br)
-  {
-    m_B[0] = Bz;
-    m_B[1] = Br;
-  }
+  // default
+  BFieldVectorZR() = default;
+  BFieldVectorZR(const BFieldVectorZR&) = default;
+  BFieldVectorZR(BFieldVectorZR&&) = default;
+  BFieldVectorZR& operator=(const BFieldVectorZR&) = default;
+  BFieldVectorZR& operator=(BFieldVectorZR&&) = default;
+  ~BFieldVectorZR() = default;
+
+  //constructor
+  BFieldVectorZR(double Bz, double Br)
+    : m_B{ Bz, Br }
+  {}
   // setter
-  void set(float Bz, float Br)
-  {
-    m_B[0] = Bz;
-    m_B[1] = Br;
-  }
+  void set(double Bz, double Br) { m_B = { Bz, Br }; }
   // accessors
-  float z() const { return m_B[0]; }
-  float r() const { return m_B[1]; }
+  double z() const { return m_B[0]; }
+  double r() const { return m_B[1]; }
   // array-like accessor
-  float operator[](int i) const { return m_B[i]; }
+  double operator[](size_t i) const { return m_B[i]; }
 
 private:
-  float m_B[2];
+  std::array<double, 2> m_B;
 };
 
 #endif

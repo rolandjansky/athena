@@ -1,32 +1,36 @@
 
-#include "TrigL2MuonSA/MuFastSteering.h"
-#include "TrigL2MuonSA/MuFastDataPreparator.h"
-#include "TrigL2MuonSA/TgcDataPreparator.h"
+#include "../MuFastSteering.h"
+#include "../MuFastDataPreparator.h"
+#include "../TgcDataPreparator.h"
 #include "TrigL2MuonSA/RpcDataPreparator.h"
-#include "TrigL2MuonSA/MdtDataPreparator.h"
-#include "TrigL2MuonSA/CscDataPreparator.h"
-#include "TrigL2MuonSA/TgcRoadDefiner.h"
-#include "TrigL2MuonSA/TgcFit.h"
-#include "TrigL2MuonSA/RpcRoadDefiner.h"
-#include "TrigL2MuonSA/RpcPatFinder.h"
-#include "TrigL2MuonSA/MdtRegionDefiner.h"
-#include "TrigL2MuonSA/MuFastPatternFinder.h"
-#include "TrigL2MuonSA/MuFastTrackFitter.h"
-#include "TrigL2MuonSA/MuFastStationFitter.h"
-#include "TrigL2MuonSA/MuFastTrackExtrapolator.h"
-#include "TrigL2MuonSA/AlphaBetaEstimate.h"
-#include "TrigL2MuonSA/SagittaRadiusEstimate.h"
-#include "TrigL2MuonSA/PtFromAlphaBeta.h"
-#include "TrigL2MuonSA/PtFromRadius.h"
-#include "TrigL2MuonSA/PtBarrelLUT.h"
-#include "TrigL2MuonSA/PtEndcapLUT.h"
-#include "TrigL2MuonSA/AlignmentBarrelLUT.h"
-#include "TrigL2MuonSA/PtBarrelLUTSvc.h"
-#include "TrigL2MuonSA/PtEndcapLUTSvc.h"
-#include "TrigL2MuonSA/AlignmentBarrelLUTSvc.h"
-#include "TrigL2MuonSA/MuCalStreamerTool.h"
-#include "TrigL2MuonSA/CscSegmentMaker.h"
-#include "TrigL2MuonSA/CscRegUtils.h"
+#include "../MdtDataPreparator.h"
+#include "../CscDataPreparator.h"
+#include "../TgcRoadDefiner.h"
+#include "../TgcFit.h"
+#include "../RpcRoadDefiner.h"
+#include "../RpcPatFinder.h"
+#include "../MdtRegionDefiner.h"
+#include "../MuFastPatternFinder.h"
+#include "../MuFastTrackFitter.h"
+#include "../MuFastStationFitter.h"
+#include "../MuFastTrackExtrapolator.h"
+#include "../AlphaBetaEstimate.h"
+#include "../SagittaRadiusEstimate.h"
+#include "../PtFromAlphaBeta.h"
+#include "../PtFromRadius.h"
+#include "../PtBarrelLUT.h"
+#include "../PtEndcapLUT.h"
+#include "../AlignmentBarrelLUT.h"
+#include "../PtBarrelLUTSvc.h"
+#include "../PtEndcapLUTSvc.h"
+#include "../AlignmentBarrelLUTSvc.h"
+#include "../MuCalStreamerTool.h"
+#include "../CscSegmentMaker.h"
+#include "../CscRegUtils.h"
+#include "../StgcDataPreparator.h"
+#include "../MmDataPreparator.h"
+#include "../NswPatternFinder.h"
+#include "../NswStationFitter.h"
 
 using namespace TrigL2MuonSA;
 
@@ -55,6 +59,10 @@ DECLARE_COMPONENT( PtEndcapLUT )
 DECLARE_COMPONENT( AlignmentBarrelLUT )
 DECLARE_COMPONENT( CscSegmentMaker )
 DECLARE_COMPONENT( CscRegDict )
+DECLARE_COMPONENT( StgcDataPreparator )
+DECLARE_COMPONENT( MmDataPreparator )
+DECLARE_COMPONENT( NswPatternFinder )
+DECLARE_COMPONENT( NswStationFitter )
 
 DECLARE_COMPONENT( PtBarrelLUTSvc )
 DECLARE_COMPONENT( PtEndcapLUTSvc )

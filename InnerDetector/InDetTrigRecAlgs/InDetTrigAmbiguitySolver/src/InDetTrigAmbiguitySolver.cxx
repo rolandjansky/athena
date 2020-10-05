@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/Timeout.h"
@@ -166,7 +166,11 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
     if (m_assoTool.isEnabled()) {
        std::unique_ptr<Trk::PRDtoTrackMap> tmp( m_assoTool->reduceToStorableMap(std::move(prd_to_track_map)));
        if (m_prdToTrackMapExchange.isEnabled()) {
-          m_prdToTrackMapExchange->setPRDtoTrackMap(tmp.release());
+         HLT::ErrorCode code ATLAS_THREAD_SAFE =
+           savePRDtoTrackMap (std::move (tmp));
+         if (code != HLT::OK) {
+           return code;
+         }
        }
        else {
           if ( HLT::OK !=  attachFeature(outputTE, tmp.release(), m_outputPRDMapLabel) ) {
@@ -240,3 +244,19 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltFinalize() {
   return HLT::OK;
 }
 //--------------------------------------------------------------------
+
+// Broken out as a separate function to avoid thread-safety checker warnings.
+HLT::ErrorCode InDetTrigAmbiguitySolver::savePRDtoTrackMap ATLAS_NOT_THREAD_SAFE // IPRDtoTrackMapExchangeTool.h declares setPRDtoTrackMap method is ATLAS_NOT_THREAD_SAFE.
+  (std::unique_ptr<Trk::PRDtoTrackMap> map)
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  if (ctx.slot() > 0) {
+    msg() << MSG::ERROR << "InDetTrigAmbiguitySolver was configured to use PRDtoTrackMapTool.  This Run2 configuration is not compatible with MT running."
+          << endmsg;
+    return HLT::BAD_ALGO_CONFIG;
+  }
+
+  m_prdToTrackMapExchange->setPRDtoTrackMap (map.release());
+  return HLT::OK;
+}
+

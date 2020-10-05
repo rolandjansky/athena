@@ -9,6 +9,3 @@ Trk::TrkDetElementBase::TrkDetElementBase(
   ):
   GeoVDetectorElement(fullPhysVol)
 {}
-
-Trk::TrkDetElementBase::~TrkDetElementBase()
-{}

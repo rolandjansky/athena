@@ -37,19 +37,17 @@ StatusCode ForwardProtonFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
-    HepMC::GenEvent::particle_const_iterator pitr;
-    for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
-
+    for (auto part: *genEvt) {
       // We're only interested in stable (status == 1) particles
-      if ( (*pitr)->status() != 1) continue;
+      if ( part->status() != 1) continue;
 
       // We are specifically looking for protons
-      const long pid = (*pitr)->pdg_id();
+      const long pid = part->pdg_id();
       if (pid != 2212 ) continue;
 
-      const double E = (*pitr)->momentum().e();
-      const double pz = (*pitr)->momentum().pz();
-      const double pt = (*pitr)->momentum().perp();
+      const double E = part->momentum().e();
+      const double pz = part->momentum().pz();
+      const double pt = part->momentum().perp();
       const double xi = (m_E0-E)/m_E0;
       if (m_xiMin <= xi && xi <= m_xiMax && m_ptMin <= pt && pt <= m_ptMax) {
         accepted_C = (pz > 0);

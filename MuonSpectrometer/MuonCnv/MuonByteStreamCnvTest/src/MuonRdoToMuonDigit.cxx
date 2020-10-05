@@ -1,20 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/MuonRdoToMuonDigit.h"
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
-MuonRdoToMuonDigit::MuonRdoToMuonDigit(const std::string& name, 
-				 ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_digTool("MuonRdoToMuonDigitTool", this )
-{
-   declareProperty("MuonRdoToMuonDigitTool", m_digTool);
-}
-
-MuonRdoToMuonDigit::~MuonRdoToMuonDigit()  {
-
+MuonRdoToMuonDigit::MuonRdoToMuonDigit(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 StatusCode MuonRdoToMuonDigit::initialize()
@@ -28,12 +19,4 @@ StatusCode MuonRdoToMuonDigit::execute()
   ATH_MSG_DEBUG( "in execute()"  );
   return m_digTool->digitize(Gaudi::Hive::currentContext());
 }
-
-
-StatusCode MuonRdoToMuonDigit::finalize()
-{
-  ATH_MSG_DEBUG( "finalize."  );
-  return StatusCode::SUCCESS;
-}
-
 

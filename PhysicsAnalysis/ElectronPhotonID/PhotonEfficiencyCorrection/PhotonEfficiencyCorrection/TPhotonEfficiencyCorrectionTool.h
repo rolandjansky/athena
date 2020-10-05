@@ -37,7 +37,6 @@ namespace Root {
         TPhotonEfficiencyCorrectionTool(const char* name="TPhotonEfficiencyCorrectionTool");
         ~TPhotonEfficiencyCorrectionTool();
         int initialize();
-        int finalize(); 
         // Additional public methods
         const Result calculate( const PATCore::ParticleDataType::DataType dataType,
                 const unsigned int runnumber,

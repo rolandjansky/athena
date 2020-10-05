@@ -22,7 +22,7 @@ log.setLevel(logging.DEBUG)
 #________________________________________________________________________
 def fillIntegrator(fileInt, tag, since,
                    until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
-    
+
     #=== construct folder path
     folder = TileCalibTools.getTilePrefix(True,True)+"INTEGRATOR"
 
@@ -36,11 +36,11 @@ def fillIntegrator(fileInt, tag, since,
     # RMS of pedestal distribution, sigma of the RMS
 
     dv = []
-    dv.append((  2.814, 0.023, -1, -1, 80, -1, -1, -1)) 
-    dv.append(( 26.010, 0.230, -1, -1, 80, -1, -1, -1)) 
-    dv.append(( 28.810, 0.240, -1, -1, 80, -1, -1, -1)) 
-    dv.append(( 54.810, 0.480, -1, -1, 70, -1, -1, -1)) 
-    dv.append(( 75.790, 0.677, -1, -1, 70, -1, -1, -1)) 
+    dv.append((  2.814, 0.023, -1, -1, 80, -1, -1, -1))
+    dv.append(( 26.010, 0.230, -1, -1, 80, -1, -1, -1))
+    dv.append(( 28.810, 0.240, -1, -1, 80, -1, -1, -1))
+    dv.append(( 54.810, 0.480, -1, -1, 70, -1, -1, -1))
+    dv.append(( 75.790, 0.677, -1, -1, 70, -1, -1, -1))
     dv.append((101.800, 0.900, -1, -1, 70, -1, -1, -1))
 
     #=== number of integrator gains and value per gain
@@ -54,9 +54,9 @@ def fillIntegrator(fileInt, tag, since,
         for v in dv[i]:
             defaultGain.push_back(v)
         defVec.push_back(defaultGain)
-    
+
     #=====================================================
-    #=== fill 
+    #=== fill
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db,folder,'Flt')
     writer.setComment(os.getlogin(),"Jalal's values with non-zero defaults, 2008-12-05")

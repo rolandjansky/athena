@@ -5,35 +5,6 @@
 # Declare the package name:
 atlas_subdir( TRT_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-			  Control/StoreGate
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/PileUpTools
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetConditions/TRT_ConditionsData
-                          InnerDetector/InDetConditions/TRT_ConditionsServices
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetRawEvent/InDetSimData
-                          InnerDetector/InDetSimEvent
-                          InnerDetector/InDetSimUtils/TRT_PAI_Process
-                          MagneticField/MagFieldInterfaces
-                          Simulation/HitManagement
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
@@ -45,7 +16,7 @@ atlas_add_component( TRT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel PileUpToolsLib AthenaPoolUtilities GeoModelUtilities GeoPrimitives Identifier EventInfo GeneratorObjects TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRawData InDetSimData InDetSimEvent MagFieldInterfaces HitManagement MagFieldElements MagFieldConditions)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel CxxUtils PileUpToolsLib AthenaPoolUtilities GeoModelUtilities GeoPrimitives Identifier EventInfo GeneratorObjects TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRawData InDetSimData InDetSimEvent HitManagement MagFieldElements MagFieldConditions TRT_PAI_ProcessLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

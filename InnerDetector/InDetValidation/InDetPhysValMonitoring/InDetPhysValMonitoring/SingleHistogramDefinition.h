@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -55,15 +55,23 @@ public:
     std::string zTitle;
     std::string allTitles;
     std::string folder;
+    /// Is the histogram definition empty?
     bool empty() const;
+    /// String representation of the histogram definition
     std::string str() const;
+    /// Does the histogram definition have a valid type (TH1, TH2 etc)?
     bool validType() const;
+    /// Is the histogram definition valid
     bool isValid() const;
+    /// add the folder path to produce the full histogram name e.g. myFolder/myHisto
     std::string stringIndex() const;
+    /// concatenate a sanitised folderName with the histogram name
     static std::string stringIndex(const std::string & thisname, const std::string & thisfolder);
+    /// produce single-line representation of the titles (titles separated by the ';' delimiter)
     std::string titleDigest() const;
 
     bool m_empty;
 };
+
 
 #endif

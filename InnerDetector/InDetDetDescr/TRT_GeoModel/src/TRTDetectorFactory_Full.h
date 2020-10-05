@@ -20,6 +20,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" //for Argon
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 
@@ -35,7 +36,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   //--------------------------Public Interface:--------------------------------//
   //                                                                           //
   // Constructor:                                                              //
-  TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,            //
+  TRTDetectorFactory_Full(InDetDD::AthenaComps * athenaComps,                  //
 			  const ITRT_StrawStatusSummaryTool * sumTool,         //
 			  bool useOldActiveGasMixture,                         //
 			  bool DC2CompatibleBarrelCoordinates,                 //
@@ -87,7 +88,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   //GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false ) const;
   GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false, ActiveGasMixture gasMixture = GM_XENON) const;
   //GeoFullPhysVol  *makeStrawPlane( size_t w ) const;
-  GeoFullPhysVol  *makeStrawPlane( size_t w , ActiveGasMixture gasMixture = GM_XENON) const;
+  GeoFullPhysVol  *makeStrawPlane( size_t w , ActiveGasMixture gasMixture = GM_XENON);
 
   // private member data:
   InDetDD::TRT_DetectorManager * m_detectorManager;
@@ -104,6 +105,8 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   bool m_doKrypton;
   bool m_useDynamicAlignFolders;
 
+  GeoFullPhysVol* m_type1Planes[3] = {nullptr, nullptr, nullptr};
+  GeoFullPhysVol* m_type2Planes[3] = {nullptr, nullptr, nullptr};
 };
 
 #endif // TRTDetectorFactory_Full_h

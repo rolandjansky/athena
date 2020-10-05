@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_INDETSERVMATFACTORY_H
@@ -18,7 +18,7 @@ class InDetServMatFactory : public InDetDD::DetectorFactoryBase  {
  public:
   
   // Constructor:
-  InDetServMatFactory(const InDetDD::AthenaComps * athenaComps);
+  InDetServMatFactory(InDetDD::AthenaComps * athenaComps);
 
   // Destructor:
   ~InDetServMatFactory();

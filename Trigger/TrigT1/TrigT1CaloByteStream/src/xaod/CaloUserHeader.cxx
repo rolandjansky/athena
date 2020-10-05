@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUserHeader.h"
@@ -8,7 +8,7 @@
 using namespace LVL1BS;
 
 namespace {
-  WordDecoder caloUserWordDecoder({
+  const WordDecoder caloUserWordDecoder({
     BitField("Length", 0, 4),
     BitField("L1A Slice: PP FADC", 4, 5),
     BitField("LUT", 9, 3),

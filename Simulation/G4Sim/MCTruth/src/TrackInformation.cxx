@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MCTruth/TrackInformation.h"
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 TrackInformation::TrackInformation():m_regenerationNr(0),m_theParticle(0),m_theBaseISFParticle(0),m_returnedToISF(false)
 {
 }
 
-TrackInformation::TrackInformation(const HepMC::GenParticle *p,const ISF::ISFParticle* baseIsp):
+TrackInformation::TrackInformation(HepMC::ConstGenParticlePtr p,const ISF::ISFParticle* baseIsp):
     m_regenerationNr(0),
     m_theParticle(p),
     m_theBaseISFParticle(baseIsp),
@@ -17,11 +19,10 @@ TrackInformation::TrackInformation(const HepMC::GenParticle *p,const ISF::ISFPar
 {
 }
 
-const HepMC::GenParticle* TrackInformation::GetHepMCParticle() const
+HepMC::ConstGenParticlePtr TrackInformation::GetHepMCParticle() const
 {
   return m_theParticle;
 }
-
 const ISF::ISFParticle* TrackInformation::GetBaseISFParticle() const
 {
   return m_theBaseISFParticle;
@@ -29,10 +30,10 @@ const ISF::ISFParticle* TrackInformation::GetBaseISFParticle() const
 
 int TrackInformation::GetParticleBarcode() const
 {
-  return ( m_theParticle ? m_theParticle->barcode() : 0 );
+  return ( m_theParticle ? HepMC::barcode(m_theParticle) : 0 );
 }
 
-void TrackInformation::SetParticle(const HepMC::GenParticle* p)
+void TrackInformation::SetParticle(HepMC::ConstGenParticlePtr p)
 {
   m_theParticle=p;
 }

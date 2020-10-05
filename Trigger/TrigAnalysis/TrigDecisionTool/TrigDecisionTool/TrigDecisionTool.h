@@ -22,11 +22,12 @@
 
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "AsgTools/PropertyWrapper.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h" 
 #ifndef XAOD_STANDALONE
 #include "AthenaBaseComps/AthMessaging.h"
-
+#include "EventInfo/EventInfo.h"
 
 #ifndef XAOD_ANALYSIS
 #include "TrigNavigation/Navigation.h"
@@ -46,7 +47,6 @@
 
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
-#include "EventInfo/EventInfo.h"
 
 // base classes
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
@@ -87,7 +87,7 @@ namespace Trig {
     StatusCode finalize();
 
     #ifndef XAOD_STANDALONE
-    void outputlevelupdateHandler(Property& p);  //propagates outputlevel changes to the Logger
+    void outputlevelupdateHandler(Gaudi::Details::PropertyBase& p);  //propagates outputlevel changes to the Logger
     
     #endif
 
@@ -119,7 +119,8 @@ namespace Trig {
   private:
       
     bool configKeysMatch(uint32_t smk, uint32_t lvl1psk, uint32_t hltpsk);
-    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
+
+    std::vector<uint32_t>* getKeys();
 
     ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", "TrigConf::xAODConfigTool"};    //!< trigger configuration service handle
 
@@ -127,25 +128,33 @@ namespace Trig {
     #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", ""};    //!< trigger configuration service handle
     ToolHandle<HLT::Navigation> m_fullNavigation;
+
+    Gaudi::Property<bool> m_useOldEventInfoDecisionFormat {this, "UseOldEventInfoDecisionFormat", false,
+      "For use when reading old BS with trigger decision information available in the EventInfo"};
+
+    SG::ReadHandleKey<EventInfo> m_oldEventInfoKey {this, "OldEventInfoKey", "EventInfo",
+      "Storegate key of old pre-xAOD EventInfo object"};
+
+    SG::ReadHandleKey<TrigDec::TrigDecision> m_oldDecisionKey {this, "OldTrigDecisionKey", "TrigDecision",
+      "Storegate key of old pre-xAOD Decision object"};
+
+    Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseAODDecision", false,
+      "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
+
+    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
+
+    #else // Analysis or standalone 
+
+    std::vector<uint32_t>  m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change 
+
     #endif
+
     HLT::TrigNavStructure* m_navigation;
     
     Gaudi::Property<bool> m_acceptMultipleInstance{this, "AcceptMultipleInstance", false};
 
     SG::ReadHandleKey<xAOD::TrigNavigation> m_navigationKey {this, "NavigationKey", "TrigNavigation",
       "Storegate key of Run1, Run2 Trig Navigation"};
-
-    SG::ReadHandleKey<TrigDec::TrigDecision> m_oldDecisionKey {this, "OldTrigDecisionKey", "TrigDecision",
-      "Storegate key of old pre-xAOD Decision object"};
-
-    SG::ReadHandleKey<EventInfo> m_oldEventInfoKey {this, "OldEventInfoKey", "EventInfo",
-      "Storegate key of old pre-xAOD EventInfo object"};
-
-    Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseAODDecision", false,
-      "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
-
-    Gaudi::Property<bool> m_useOldEventInfoDecisionFormat {this, "UseOldEventInfoDecisionFormat", false,
-      "For use when reading old BS with trigger decision information available in the EventInfo"};
 
     /// @name Run 3 properties
     /// @{

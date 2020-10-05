@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetIsolationTool.h 
@@ -71,12 +71,17 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "AsgTools/AsgTool.h"
-#include "AsgTools/ToolHandle.h"
-#include "JetRec/JetModifierBase.h"
 #include "JetUtils/TiledEtaPhiMap.h"
-#include "JetInterface/IPseudoJetGetter.h"
+#include "JetInterface/IJetDecorator.h"
 #include "fastjet/PseudoJet.hh"
+#include "JetRec/PseudoJetContainer.h"
 #include "JetEDM/IConstituentUserInfo.h"
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "StoreGate/ReadDecorHandle.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
+#include "StoreGate/WriteDecorHandle.h"
+#include "xAODJet/JetContainer.h"
 
 namespace jet {
 
@@ -121,7 +126,8 @@ protected:
 
 //**********************************************************************
 
-class JetIsolationTool : public JetModifierBase { 
+class JetIsolationTool : public asg::AsgTool,
+                         virtual public IJetDecorator { 
   ASG_TOOL_CLASS0(JetIsolationTool)
 
 public: 
@@ -132,20 +138,25 @@ public:
   JetIsolationTool(const std::string &myname);
 
   /// Dtor.
-  ~JetIsolationTool(); 
+  virtual ~JetIsolationTool(); 
 
   // Athena algtool Hooks
-  StatusCode  initialize();
-  StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  finalize() override;
 
   // Jet Modifier methods.
-  StatusCode modify(xAOD::JetContainer& jets) const;
-  int modifyJet(xAOD::Jet& ) const{return 0;};
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
 private: 
+  Gaudi::Property<std::vector<std::string>> m_isolationCodes{this, "IsolationCalculations", {}, "Isolation calculation data vector"};
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
 
-  std::vector<std::string> m_isolationCodes;
-  ToolHandle<IPseudoJetGetter> m_hpjg;
+  SG::ReadHandleKey<PseudoJetContainer> m_pjsin{this, "PseudoJetsIn", "", "PseudoJetContainer to read"};
+  SG::ReadDecorHandleKey<xAOD::JetContainer> m_inputTypeKey{this, "InputTypeName", "InputType", "Key for the InputType field of a jet"};
+  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_perpKeys{this, "PerpName", {}, "SG key for output perpendicular momentum component decoration (not to be configured manually!)"};
+  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_sumPtKeys{this, "SumPtName", {}, "SG key for output SumPt decoration (not to be configured manually!)"};
+  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_parKeys{this, "ParName", {}, "SG key for output parallel momentum component decoration (not to be configured manually!)"};
+  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_pKeys{this, "PName", {}, "SG key for output momentum decoration (not to be configured manually!)"};
 
   /// the list of isolation calculation objects (they are actually used
   /// only as template objects from which the actual calculators are build

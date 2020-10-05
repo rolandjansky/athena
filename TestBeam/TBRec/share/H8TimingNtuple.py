@@ -32,7 +32,7 @@ ToolSvc.TBByteStreamCnvTool.Dump = False
 
 #---- LAr BS Reading & Reconstruction
 include("LArTBRec/LArTBRec_H8_Simple_jobOptions.py")
-theApp.DLLs+=["LArTools"]
+theApp.Dlls+=["LArTools"]
 include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H8_joboptions.py" )
 LArRawChannelSimpleBuilder.RecoMode    = "CUBIC" 
 

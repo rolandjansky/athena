@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "CondSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "AthenaKernel/StoreID.h"
 #include "AthenaKernel/BaseInfo.h"
+#include "boost/algorithm/string.hpp"
 
 
 //---------------------------------------------------------------------------
@@ -347,7 +348,7 @@ CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
 
   // FIXME: this is ugly, but we need to strip out the name of the store.
   std::string sk = id.key();
-  if (sk.find(StoreID::storeName(StoreID::CONDITION_STORE)) == 0) {
+  if (boost::starts_with (sk, StoreID::storeName(StoreID::CONDITION_STORE))) {
     sk.erase(0,15);
   }
 

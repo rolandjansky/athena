@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FatrasDetDescrInterfaces )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          Event/EventPrimitives
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

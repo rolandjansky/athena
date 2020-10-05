@@ -40,7 +40,8 @@ CscDigitToCscRDO.OutputLevel = DEBUG
 include("MuonRdoToPrepData/CscRdoToCscPrepData_jobOptions.py")
 from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
 CscRdoToCscPrepData.OutputLevel = INFO #DEBUG
-
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+CscRdoToCscPrepData.RegSel_CSC = makeRegSelTool_CSC()
 
 # get a handle on the ServiceManager which holds all the services
 from AthenaCommon.AppMgr import ServiceMgr

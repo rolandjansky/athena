@@ -17,7 +17,7 @@ from AthenaCommon import CfgMgr
 # In the midst of this migration, we can only cope with one pseudojet type
 # otherwise we end up trying to update an object in SG, which is not allowed
 # Needs JE's PseudojetContainer developments
-emget = CfgMgr.PseudoJetGetter(
+emget = CfgMgr.PseudoJetAlgorithm(
   "emget",
   InputContainer = "CaloCalTopoClusters",
   Label = "EMTopo",
@@ -26,9 +26,8 @@ emget = CfgMgr.PseudoJetGetter(
   GhostScale = 0.0,
 #  OutputLevel=VERBOSE,
 )
-ToolSvc += emget
 
-topSequence += CfgMgr.PseudoJetAlgorithm("pjalg_EMTopo",PJGetter=emget)
+topSequence += emget
 
 # Set up the jet finder
 JetFinder_AntiKt4 = CfgMgr.JetFinder("MTAntiKt4EMTopoJetsFinder",
@@ -41,23 +40,16 @@ JetFinder_AntiKt4 = CfgMgr.JetFinder("MTAntiKt4EMTopoJetsFinder",
 
 #Then we setup a jet builder to calculate the areas needed for the rho subtraction
 # Actually, we don't really need the areas but we may as well use this one
-from AthenaCommon.AppMgr import ToolSvc
 JetBuilder_AntiKt4 = CfgMgr.JetFromPseudojet("jblda", Attributes = ["ActiveArea", "ActiveArea4vec"],
                                              OutputLevel=VERBOSE)
-ToolSvc += JetBuilder_AntiKt4
 JetFinder_AntiKt4.JetBuilder = JetBuilder_AntiKt4
-ToolSvc += JetFinder_AntiKt4
 
 #Now we setup a JetRecTool which will use the above JetFinder
 JetRecTool = CfgMgr.JetRecTool("MTAntiKt4EMTopoJets",
                                OutputLevel=VERBOSE)
 JetRecTool.JetFinder = JetFinder_AntiKt4
-ToolSvc += JetRecTool
 JetRecTool.InputPseudoJets = [emget.OutputContainer]
 JetRecTool.OutputContainer = "MTAntiKt4EMTopoJets"
-
-#jpjretriever = CfgMgr.JetPseudojetRetriever("jpjretriever")
-#ToolSvc += jpjretriever
 
 topSequence += CfgMgr.JetAlgorithm("MTJetAlg",Tools = [JetRecTool])
 

@@ -27,10 +27,11 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuonChamberHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
 #include "MuonChamberHoleRecoveryTool.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -136,41 +137,37 @@ namespace Muon {
     //Fill already on track chamber std::set
     void fillOnTrackChambers ( const Trk::Track& theTrack, MuonData& data ) const; 
     //Select hashes of chambers not yet on track
-    const Trk::Track* addMissingChambers( const Trk::Track& track, MuonData& data, bool addMdt ) const;
+    std::unique_ptr<Trk::Track> addMissingChambers( const Trk::Track* track, MuonData& data, bool addMdt ) const;
 
     void addHashes( DETID type, const IRoiDescriptor& roi,
 		    std::set<IdentifierHash>& hashes, const std::set<IdentifierHash>& exclusion ) const;
 
-    const Trk::Track* findHoles( const Trk::Track& track, MuonData& data ) const;
+    std::unique_ptr<Trk::Track> findHoles( const Trk::Track* track, MuonData& data ) const;
     
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
 	"MuonDetectorManager", 
-	"Key of input MuonDetectorManager condition data"};    
+	"Key of input MuonDetectorManager condition data"};
+
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",  "Handle to the service providing the IMuonEDMHelperSvc interface" };
+    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc{this, "MuonStationIntersectSvc", "MuonStationIntersectSvc"};            
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
-    ToolHandle<IMuonSeededSegmentFinder>        m_seededSegmentFinder
-      {this, "SeededSegmentFinder", "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};            //!< seeded segment finder
-    ToolHandle<IMuonTrackSegmentMatchingTool>        m_trackSegmentMatchingTool
-      {this, "TrackSegmentMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};            //<! tool to print EDM objects
-    ToolHandle<MuonChamberHoleRecoveryTool>        m_chamberHoleRecoveryTool
-      {this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};            //<! hit-based hole search
-    ToolHandle<Trk::IExtrapolator>        m_extrapolator
-      {this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};            
-    ToolHandle<Trk::ITrackFitter>        m_fitter
-      {this, "Fitter", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};            
-    ServiceHandle<MuonStationIntersectSvc>        m_intersectSvc
-      {this, "MuonStationIntersectSvc", "MuonStationIntersectSvc"};            
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ToolHandle<IMuonHitSummaryTool>        m_hitSummaryTool
-      {this, "HitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};            //!< hit summary tool
-    ServiceHandle<IRegSelSvc>         m_regionSelector
-      {this, "RegionSelector", "RegSelSvc"};            //!< The region selector      
-    ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
-    ToolHandle<MuonEDMPrinterTool>        m_printer
-        {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects    
-    ToolHandle<Trk::IExtendedTrackSummaryTool>        m_trackSummaryTool    
-        {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
+    ToolHandle<IMuonSeededSegmentFinder> m_seededSegmentFinder{this, "SeededSegmentFinder", "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};
+    ToolHandle<IMuonTrackSegmentMatchingTool> m_trackSegmentMatchingTool{this, "TrackSegmentMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
+    ToolHandle<MuonChamberHoleRecoveryTool> m_chamberHoleRecoveryTool{this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool","hit-based hole search"};
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};            
+    ToolHandle<Rec::ICombinedMuonTrackBuilder> m_builder{this, "Builder", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};
+    ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBSLFitter"};
+    ToolHandle<IMuonHitSummaryTool> m_hitSummaryTool{this, "HitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};
+    ToolHandle<IRegSelTool> m_regsel_mdt{this, "MDTRegionSelector", "RegSelTool/RegSelTool_MDT"}; 
+    ToolHandle<IRegSelTool> m_regsel_csc{this, "CSCRegionSelector", "RegSelTool/RegSelTool_CSC"}; 
+    ToolHandle<IRegSelTool> m_regsel_rpc{this, "RPCRegionSelector", "RegSelTool/RegSelTool_RPC"}; 
+    ToolHandle<IRegSelTool> m_regsel_tgc{this, "TGCRegionSelector", "RegSelTool/RegSelTool_TGC"}; 
+    ToolHandle<IRegSelTool> m_regsel_stgc{this, "STGCRegionSelector", "RegSelTool/RegSelTool_STGC"};  
+    ToolHandle<IRegSelTool> m_regsel_mm{this, "MMRegionSelector", "RegSelTool/RegSelTool_MM"};
+    ToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
+
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
     Gaudi::Property<double>                                 m_deta        {this, "DeltaEtaRegion", 0.05}; 

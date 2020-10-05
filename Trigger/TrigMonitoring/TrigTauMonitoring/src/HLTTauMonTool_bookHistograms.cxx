@@ -121,8 +121,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     //Basic kinematic variables
     addHistogram(new TH1F("hEFEt","EF Et;E_{T}[GeV];Nevents",50,0.0,100.0));
     addHistogram(new TH1F("hEFEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
-    addHistogram(new TH1F("hEFNUM","Online mu; Online #mu ; Nevents",50,0,50));
-    addHistogram(new TH2F("hEFNUMvsmu","Online vs offline mu; Online #mu ; Offline #mu",  70,0,70,70,0,70));
+    addHistogram(new TH1F("hEFNUM","Online mu; Online #mu ; Nevents",100,0,100));
+    addHistogram(new TH2F("hEFNUMvsmu","Online vs offline mu; Online #mu ; Offline #mu",  100,0,100,100,0,100));
     addHistogram(new TH1F("hEFPhi","EF TrigCaloCluster Phi; #phi ; Nevents",16,-3.2,3.2));
     addHistogram(new TH1F("hEFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
     addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",26,-2.6,2.6,16,-3.2,3.2));
@@ -611,16 +611,10 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     {
         const int nbin_pt = 11;
         double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.};
-        
-        for(unsigned int i=0;i<m_trigItemsZtt.size();++i)
+        for ( const auto& item: m_trigItemsZtt )         
           {
-            std::string trigItemShort;
-            if(m_trigItemsZtt[i].find("tau25")!=string::npos){
-              size_t posit=m_trigItemsZtt[i].rfind("_");
-              if(posit<31)trigItemShort=m_trigItemsZtt[i].substr(0,posit);
-            }
-            addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort,run) );
-            setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort);
+            addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+item,run) );
+            setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+item);
             //addHistogram(new TH1F("hRealZttPtDenom","Offline Real Tau;Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
             //addHistogram(new TH1F("hRealZttL1PtNum","L1 vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));
             //addHistogram(new TH1F("hRealZttHLTPtNum","HLT vs Offline Real Tau; Offline Tau p_{T} [GeV];",nbin_pt-1,bins_pt));

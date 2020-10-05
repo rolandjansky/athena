@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactoryDC3.h"
@@ -28,12 +28,14 @@
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #define TRTELEMENTSINEL 9
 #define SCTELEMENTSINEL 8
 
 #include <sstream>
 
-SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps, 
+SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(InDetDD::AthenaComps * athenaComps, 
 					     InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
@@ -242,7 +244,8 @@ const GeoShape* SCT_ServMatFactoryDC3::createShape(int volType,
   return IDShape;
 }
 
-const GeoMaterial* SCT_ServMatFactoryDC3::createMaterial(const std::string & name,
+const GeoMaterial* SCT_ServMatFactoryDC3::createMaterial
+                                                  (const std::string & name,
 						   int volType, 
 						   double fractionRL,
 						   double rmin1, 

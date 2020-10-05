@@ -114,8 +114,6 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   TH2* m_mdthitsperchamber_InnerMiddleOuterLumi[2];
   TH2* m_mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
 
-  std::string m_title;
-
   MDTNoisyTubes* m_masked_tubes;
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -160,7 +158,6 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   StatusCode GetTimingInfo();//here
   void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
 
-  ToolHandleArray<IDQFilterTool> m_DQFilterTools;
   bool m_atlas_ready;
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
@@ -182,9 +179,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   // to book or not bookMDTTDCplots -->   /Chambers/tmp/ directory
   bool m_doChamberHists;
-  bool m_isOnline;
   bool m_maskNoisyTubes;
-  bool m_chamber_2D; //DEV to be put back //Set this to true/false in the Job Options in order to see/not see chamber by chamber 2d adc vs tdc plots.  
 
   SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
@@ -194,7 +189,6 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   //Define configurable adccut and TGC/RPC keys
   float m_ADCCut;
-  float m_ADCCut_Bkgrd;
 
   //Chamber by Chamber Plots
   std::vector< MDTChamber* >* m_hist_hash_list;
@@ -207,30 +201,22 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   bool m_do_mdtchamberstatphislice;
   bool m_do_mdtChamberHits;
   bool m_do_mdttdccut_sector;
-  bool m_do_mdttdc;
-  bool m_do_mdttdccut_ML1;
-  bool m_do_mdttdccut_ML2;
-  bool m_do_mdtadc_onSegm_ML1;
-  bool m_do_mdtadc_onSegm_ML2;
-  bool m_do_mdttdccut_RPCtrig_ML1;
-  bool m_do_mdttdccut_TGCtrig_ML1;
-  bool m_do_mdttdccut_RPCtrig_ML2;
-  bool m_do_mdttdccut_TGCtrig_ML2;
-  bool m_do_mdtadc;
-  bool m_do_mdttdcadc;
-  bool m_do_mdtmultil;
-  bool m_do_mdtlayer;
-  bool m_do_mdttube;
-  bool m_do_mdttube_masked;
-  bool m_do_mdttube_fornoise;
-  bool m_do_mdttube_bkgrd;
-  bool m_do_mdtmezz;
-  bool m_do_mdt_effEntries;
-  bool m_do_mdt_effCounts;
-  bool m_do_mdt_effPerTube;
-  bool m_do_mdt_DRvsDT;
-  bool m_do_mdt_DRvsDRerr;
-  bool m_do_mdt_DRvsSegD;
+  //  bool m_do_mdttdc;
+  //  bool m_do_mdttdccut_ML1;
+  //  bool m_do_mdttdccut_ML2;
+  //  bool m_do_mdtadc_onSegm_ML1;
+  //  bool m_do_mdtadc_onSegm_ML2;
+  //  bool m_do_mdtadc;
+  //  bool m_do_mdttdcadc;
+  //  bool m_do_mdtlayer;
+  //  bool m_do_mdttube;
+  //  bool m_do_mdtmezz;
+  //  bool m_do_mdt_effEntries;
+  //  bool m_do_mdt_effCounts;
+  //  bool m_do_mdt_effPerTube;
+  //  bool m_do_mdt_DRvsDT;
+  //  bool m_do_mdt_DRvsDRerr;
+  //  bool m_do_mdt_DRvsSegD;
   //
 
   // NEW

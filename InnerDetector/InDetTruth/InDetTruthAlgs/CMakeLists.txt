@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTruthAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetSimData InDetPrepRawData TrkTruthData TrkToolInterfaces TrkTrack EventContainers )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetSimData InDetPrepRawData TrkTruthData TrkToolInterfaces TrkTrack EventContainers InDetTruthInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetTruthAlgs )

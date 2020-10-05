@@ -20,11 +20,11 @@ include( "MuonByteStream/ReadCscRDO_jobOptions.py" )
 #ServiceMgr.ByteStreamInputSvc.DumpEvent = True
 
 # Simulated data
-#ServiceMgr.ByteStreamInputSvc.FullFileName=["daq.csc13.0000000.Single.Stream.LB0000.Athena._0001.data"]
+#ServiceMgr.eventSelector.Input=["daq.csc13.0000000.Single.Stream.LB0000.Athena._0001.data"]
 
 # Real data - from cosmic test for example
 # Old cosmic data before the ROB id = ROD id fix
-#ServiceMgr.ByteStreamInputSvc.FullFileName=[ 
+#ServiceMgr.EventSelector.Input=[ 
 #"rfio:/castor/cern.ch/atlas/muon/CSC/daq_CSC-EB-RCD__0001090_file01.data",
 #"rfio:/castor/cern.ch/atlas/muon/CSC/daq_CSC-EB-RCD__0001105_file01.data",
 #"rfio:/castor/cern.ch/atlas/muon/CSC/daq_CSC-EB-RCD__0001109_file01.data",
@@ -45,7 +45,7 @@ include( "MuonByteStream/ReadCscRDO_jobOptions.py" )
 
 # Real data - from cosmic test for example
 # New cosmic data after the ROB id = ROD id fix
-ServiceMgr.ByteStreamInputSvc.FullFileName=[ 
+ServiceMgr.EventSelector.Input=[
 "/afs/cern.ch/user/k/ketevi/w0/data/daq_CSC-EB-RCD__0001190_file01.data"
 ]
 
@@ -92,6 +92,8 @@ include("MuonRdoToPrepData/CscRdoToCscPrepData_jobOptions.py")
 
 from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
 CscRdoToCscPrepData.OutputLevel = DEBUG
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+CscRdoToCscPrepData.RegSel_CSC = makeRegSelTool_CSC()
 
 # Byte stream conversion service
 theApp.ExtSvc += [ "ByteStreamCnvSvc" ]

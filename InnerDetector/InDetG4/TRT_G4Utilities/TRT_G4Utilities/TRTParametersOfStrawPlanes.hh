@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,6 +8,7 @@
 
 #include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 
@@ -20,14 +21,14 @@ class TRTParametersOfStrawPlanes
     TRTParametersOfStrawPlanes();
     ~TRTParametersOfStrawPlanes();
 
-    MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-    bool msgLevel (MSG::Level lvl) const   { return m_msg.get().level() <= lvl; }
+    MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+    bool msgLevel (MSG::Level lvl)   { return m_msg.get().level() <= lvl; }
 
   private:
     TRTParametersOfStrawPlanes (const TRTParametersOfStrawPlanes&); 
     TRTParametersOfStrawPlanes& operator= (const TRTParametersOfStrawPlanes&); 
     void DefineParameters();
-    void PrintParameters() const;
+    void PrintParameters(MsgStream& msg) const;
 
     double m_innerRadiusOfStrawPlanesAB;
     double m_innerRadiusOfStrawPlaneC;
@@ -71,9 +72,9 @@ class TRTParametersOfStrawPlanes
     double m_lengthOfWiresAB;
     double m_lengthOfWireC;
 
-    TRTParameters* m_pParameters;
+    const TRTParameters* m_pParameters;
 
-    mutable Athena::MsgStreamMember m_msg;
+    Athena::MsgStreamMember m_msg;
 
 };
 

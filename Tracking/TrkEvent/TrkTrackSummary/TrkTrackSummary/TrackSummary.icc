@@ -1,0 +1,82 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+inline int
+Trk::TrackSummary::get(const Trk::SummaryType& type) const
+{
+  return m_information.at(type);
+}
+
+// Troels.Petersen@cern.ch:
+inline float
+Trk::TrackSummary::getPID(const Trk::eProbabilityType& PIDtype) const
+{
+  return (PIDtype < m_eProbability.size() ? m_eProbability[PIDtype] : 0.);
+}
+
+inline bool
+Trk::TrackSummary::update(Trk::SummaryType type, int new_value)
+{
+  if (m_information.at(type) != SummaryTypeNotSet) {
+    return false;
+  }
+  m_information[type] = new_value;
+  return true;
+}
+
+inline float
+Trk::TrackSummary::getPixeldEdx() const
+{
+  return m_dedx;
+}
+
+inline int
+Trk::TrackSummary::numberOfUsedHitsdEdx() const
+{
+  return m_nhitsdedx;
+}
+
+inline int
+Trk::TrackSummary::numberOfOverflowHitsdEdx() const
+{
+  return m_nhitsoverflowdedx;
+}
+
+inline bool
+Trk::TrackSummary::isHit(const Trk::DetectorType& type) const
+{
+  // no range checking because people should be using enums
+  return (m_idHitPattern & (1 << static_cast<unsigned int>(type)));
+}
+
+inline const Trk::InDetTrackSummary*
+Trk::TrackSummary::indetTrackSummary() const
+{
+  return m_indetTrackSummary;
+}
+
+inline Trk::InDetTrackSummary*
+Trk::TrackSummary::indetTrackSummary() 
+{
+  return m_indetTrackSummary;
+}
+
+
+inline const Trk::MuonTrackSummary*
+Trk::TrackSummary::muonTrackSummary() const
+{
+  return m_muonTrackSummary;
+}
+
+inline Trk::MuonTrackSummary*
+Trk::TrackSummary::muonTrackSummary()
+{
+  return m_muonTrackSummary;
+}
+
+inline unsigned long
+Trk::TrackSummary::getHitPattern() const
+{
+  return m_idHitPattern;
+}
+

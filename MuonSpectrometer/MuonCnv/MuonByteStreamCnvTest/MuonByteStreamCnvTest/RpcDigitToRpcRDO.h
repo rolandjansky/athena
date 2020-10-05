@@ -48,7 +48,12 @@ private:
 
   StatusCode fill_RPCdata(RPCsimuData& data, const EventContext& ctx, const RpcCablingCondData*) const;
 
+  // NOTE: although this function has no clients in release 22, currently the Run2 trigger simulation is still run in
+  //       release 21 on RDOs produced in release 22. Since release 21 accesses the TagInfo, it needs to be written to the
+  //       RDOs produced in release 22. The fillTagInfo() function thus needs to stay in release 22 until the workflow changes
   StatusCode fillTagInfo() const;
+
+  const MuonGM::MuonDetectorManager* m_MuonMgr; // no ReadCondHandleKey used here for now, since no alignment applied in digitisation
 
   IntegerProperty m_fast_debug{this, "FastDebug", 0, "bits for debugging 'fast' algos"};
   IntegerProperty m_monitoring{this, "Monitoring", 0, "bits for monitoring sequence"};
@@ -82,8 +87,7 @@ private:
 
   SG::WriteHandleKey<RpcPadContainer> m_padContainerKey{this,"OutputObjectName","RPCPAD","WriteHandleKey for Output RpcPadContainer"};
   SG::ReadHandleKey<RpcDigitContainer> m_digitContainerKey{this,"InputObjectName","RPC_DIGITS","ReadHandleKey for Input RpcDigitContainer"};
-  const MuonGM::MuonDetectorManager* m_MuonMgr{};
-  std::string  m_cablingType{"MuonRPC_Cabling"};
+  
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 

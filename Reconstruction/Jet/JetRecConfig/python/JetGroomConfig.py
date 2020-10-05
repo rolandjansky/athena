@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -17,8 +17,10 @@ import six
 
 ########################################################################
 # Get a jet groomer class given a tool name and the grooming definition object
+# The pjsin argument is for forwards compatibility when we switch to
+# using JetRecAlg
 #
-def getJetGroomer(groomdef):
+def getJetGroomer(groomdef,pjsin):
     tooltype = groomdef.groomspec["ToolType"]
     toolprops = {key:val for key,val in six.iteritems (groomdef.groomspec) if key not in ["groomalg","ToolType"]}
     return tooltype(groomdef.basename,**toolprops)
@@ -28,14 +30,13 @@ def getJetGroomer(groomdef):
 # Function for configuring the jet algorithm and groomers, given the
 # set of dependencies
 #
-def getJetGroomAlg(jetname,groomdef,modlist):
+def getJetGroomAlg(jetname,groomdef,pjsin,modlist,monTool=None):
     jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
 
     from . import JetRecConfig
     builder = JetRecConfig.getJetBuilder()
 
-    groomer = getJetGroomer(groomdef)
-    print ("HERE {}".format( type(groomer)))
+    groomer = getJetGroomer(groomdef,pjsin)
     groomer.JetBuilder = builder
 
     from . import JetModConfig
@@ -51,6 +52,8 @@ def getJetGroomAlg(jetname,groomdef,modlist):
                                      OutputContainer=jetname,
                                      JetPseudojetRetriever=CompFactory.JetPseudojetRetriever("jpjretriever"),
                                      JetModifiers=mods)
+
+    if monTool: rectool.MonTool = monTool
 
     jetalg = CompFactory.JetAlgorithm("jetalg_"+jetname)
     jetalg.Tools = [rectool]
@@ -101,8 +104,8 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     # Get a ComponentAccumulator setting up the fundamental Athena job
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    cfg=MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg=MainServicesCfg(ConfigFlags)
 
     # Add the components for reading in pool files
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg

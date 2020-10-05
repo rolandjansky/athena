@@ -23,12 +23,11 @@ inline void SWAP(double &a, double &b)
 TGCRecRoiSvc::TGCRecRoiSvc (const std::string& name, ISvcLocator* svc)
   : LVL1::RecMuonRoiSvc( name, svc ), 
     m_phi(0),
-    m_eta(0), 
-    m_cabling(0), 
-    m_muonMgr(0), 
+    m_eta(0),
+    m_cabling(0),
+    m_muonMgr(0),
     m_isAtlas(true)
-{  
-
+{
   declareProperty("PatchForM5", m_patchForM5 = false);
   declareProperty("PatchForP4", m_patchForP4 = false);
   declareProperty("PatchForP5", m_patchForP5 = false);
@@ -39,14 +38,11 @@ StatusCode TGCRecRoiSvc::initialize (void)
 {
   ATH_MSG_DEBUG( "initialize" );
 
-  ATH_CHECK( AthService::initialize() );
-  ATH_CHECK( setProperties() );
-
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", name() );
   ATH_CHECK( detStore.retrieve() );
   ATH_CHECK( detStore->retrieve(m_muonMgr) );
   
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   
   // try to initialize the TGCcabling
   StatusCode sc = getCabling();
@@ -66,14 +62,6 @@ StatusCode TGCRecRoiSvc::initialize (void)
 
   return StatusCode::SUCCESS;
 }  
-
-
-StatusCode TGCRecRoiSvc::finalize() 
-{
-  ATH_MSG_INFO( "finalize" );
-  return StatusCode::SUCCESS;
-}
-
 
 void TGCRecRoiSvc::reconstruct (const unsigned int & roIWord) const 
 {
@@ -481,14 +469,14 @@ void TGCRecRoiSvc::getWireInfo(Amg::Vector3D & w_pos,
 						     w_asdout->getChannel());
   if (status==false) return;
   const MuonGM::TgcReadoutElement* tgcwire
-    = m_muonMgr->getTgcReadoutElement(m_muonIdHelperTool->tgcIdHelper().parentID(wireId));
+    = m_muonMgr->getTgcReadoutElement(m_idHelperSvc->tgcIdHelper().parentID(wireId));
   w_pos = tgcwire -> channelPos(wireId);
 
   // If edge correction is needed,
   // the half length in the r direction is added (subtracted) for the upper (lower) edge.
   if(edge==UpperREdge || edge==LowerREdge) {
-    int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(wireId);
-    int channel = m_muonIdHelperTool->tgcIdHelper().channel(wireId);
+    int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(wireId);
+    int channel = m_idHelperSvc->tgcIdHelper().channel(wireId);
     double halfLength = tgcwire->gangLength(gasGap, channel)/2.;
     double r = w_pos.perp();
     double phi = w_pos.phi();
@@ -521,14 +509,14 @@ void TGCRecRoiSvc::getStripInfo(Amg::Vector3D & s_pos,
 						     s_asdout->getChannel());
   if (status==false) return;
   const MuonGM::TgcReadoutElement* tgcstrip
-    = m_muonMgr->getTgcReadoutElement(m_muonIdHelperTool->tgcIdHelper().parentID(stripId));
+    = m_muonMgr->getTgcReadoutElement(m_idHelperSvc->tgcIdHelper().parentID(stripId));
   s_pos = tgcstrip -> channelPos(stripId); 
 
   // If edge correction is needed,
   // the half width in the phi direction is added (subtracted) for the upper (lower) edge.
   if(edge==UpperPhiEdge || edge==LowerPhiEdge) {
-    int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(stripId);
-    int channel = m_muonIdHelperTool->tgcIdHelper().channel(stripId);
+    int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(stripId);
+    int channel = m_idHelperSvc->tgcIdHelper().channel(stripId);
     double shortWidth = tgcstrip->stripShortWidth(gasGap, channel);
     double longWidth = tgcstrip->stripLongWidth(gasGap, channel);
     double halfWidth = (shortWidth + longWidth)/4.;

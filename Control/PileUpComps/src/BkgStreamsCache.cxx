@@ -7,8 +7,7 @@
 #include <stdexcept>  /*runtime_error*/
 #include <string>
 
-#include <boost/bind.hpp>
-
+#include "boost/bind/bind.hpp"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
@@ -80,7 +79,7 @@ BkgStreamsCache::~BkgStreamsCache()
 }
 
 void
-BkgStreamsCache::PileUpEventTypeHandler(Property&)
+BkgStreamsCache::PileUpEventTypeHandler(Gaudi::Details::PropertyBase&)
 {
    m_pileUpEventType = xAOD::EventInfo::PileUpInt2Type( m_pileUpEventTypeProp.value() );
 }
@@ -285,6 +284,7 @@ StatusCode BkgStreamsCache::initialize()
   if (m_collDistrName.value() == "Fixed")
     {
       m_f_collDistr = boost::bind(&BkgStreamsCache::collXing, this);
+      using namespace boost::placeholders;
       if(m_ignoreBM.value())
         {
           m_f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
@@ -301,6 +301,7 @@ StatusCode BkgStreamsCache::initialize()
       m_collXingPoisson = new CLHEP::RandPoisson(*(collEng), m_collXing);
       // m_f_collDistr will call m_collXingPoisson->fire(m_collXing)  USED TO BE boost::bind(&CLHEP::RandPoisson::fire, m_collXingPoisson);
       m_f_collDistr = boost::bind(&BkgStreamsCache::collXingPoisson, this);
+      using namespace boost::placeholders;
       if(m_ignoreBM.value())
         {
           m_f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);

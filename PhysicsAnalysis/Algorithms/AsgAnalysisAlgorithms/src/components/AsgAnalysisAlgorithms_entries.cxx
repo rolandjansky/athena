@@ -10,6 +10,7 @@
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
+#include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
 #include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgOriginalObjectLinkAlg.h>
@@ -31,6 +32,7 @@
 
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgFlagSelectionTool)
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgPtEtaSelectionTool)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgCutBookkeeperAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgCutBookkeeperAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgEventScaleFactorAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgLeptonTrackSelectionAlg)

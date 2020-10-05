@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGPRECISIONELECTRONPRECISIONHYPOTOOLINC_H
 #define TRIGEGAMMAHYPO_TRIGPRECISIONELECTRONPRECISIONHYPOTOOLINC_H 1
@@ -16,6 +16,9 @@
 #include "ITrigEgammaPrecisionElectronHypoTool.h"
 #include "PATCore/AcceptData.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LumiBlockData/LuminosityCondData.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 /**
  * @class Implementation of the precision selection for electrons
@@ -31,8 +34,8 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   virtual ~TrigEgammaPrecisionElectronHypoToolInc();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& )  const override;
-  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i, const EventContext& ) const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx)  const override;
+  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i, const EventContext& ctx) const override;
 
  private:
   HLT::Identifier m_decisionId;
@@ -44,7 +47,15 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool;  
+
+  /*Likelihood tool*/
+  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool;
+
+  /* TRack isolation cut */
+  float m_RelPtConeCut;
+  
+  /*Luminosity info*/
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "AveIntPerXKey", "EventInfo.AveIntPerXDecor", "Decoration for Average Interaction Per Crossing" };
   int findCutIndex( float eta ) const;
 
 }; 

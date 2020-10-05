@@ -1,10 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxConf import TrigT2HistoPrmVtxCombo
-
-
-from AthenaCommon.SystemOfUnits import mm, GeV
-
 
 class TrigT2HistoPrmVtxComboBase (TrigT2HistoPrmVtxCombo):
     __slots__ = []

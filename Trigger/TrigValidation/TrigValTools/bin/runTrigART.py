@@ -16,8 +16,7 @@ from TrigValTools.TrigARTUtils import package_prefix, find_scripts, remember_cwd
 def minimal_pattern(package):
     dict = {'TriggerTest':      '(test_trig_data_v1Dev_build|test_trig_data_newJO_build)',
             'TrigP1Test':       'test_trigP1_v1Dev_build',
-            'TrigAnalysisTest': 'test_trigAna_RDOtoRDOTrig_mt1_build',
-            'TrigUpgradeTest':  None}
+            'TrigAnalysisTest': 'test_trigAna_RDOtoRDOTrig_v1Dev_build'}
     if package == 'ALL':
         return '({})'.format('|'.join([v for v in dict.values() if v]))
     elif package in dict and dict[package] is not None:
@@ -28,7 +27,7 @@ def minimal_pattern(package):
 
 
 def get_parser():
-    packages = ['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest', 'ALL']
+    packages = ['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'ALL']
     parser = argparse.ArgumentParser(usage='%(prog)s [options] [PackageName]')
     parser.add_argument('package',
                         metavar='PackageName',
@@ -121,7 +120,7 @@ def analyse_results(all_test_results):
     max_len_col1 = len(max(table.keys(), key=len))
     max_len_col2 = len(max(table.values(), key=len))
     logging.info('-'*(max_len_col1+max_len_col2+7))
-    for k, v in table.iteritems():
+    for k, v in table.items():
         logging.info('| {col1:<{width1}} | {col2:<{width2}} |'.format(
             col1=k, width1=max_len_col1,
             col2=v, width2=max_len_col2))
@@ -199,7 +198,7 @@ def main():
             'export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"',
             'source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet',
             'lsetup -q art']
-        art_cmd = 'art.py run --max-jobs={:d} {:s} . results'.format(args.maxJobs, '' if args.verbose else '-q')
+        art_cmd = 'art.py run --run-all-tests --max-jobs={:d} {:s} . results'.format(args.maxJobs, '-v' if args.verbose else '-q')
         commands.append(art_cmd)
         cmd = ' && '.join(commands)
         logging.info("Executing ART command: %s", art_cmd)

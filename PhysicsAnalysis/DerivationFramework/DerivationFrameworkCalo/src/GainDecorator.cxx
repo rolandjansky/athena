@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ DerivationFramework::GainDecorator::GainDecorator(const std::string& t,
   declareProperty("layers", m_layers = {0,1,2,3});
 
   // Define the names for the decorations
-  for (const auto kv : m_gainNames)
+  for (const auto& kv : m_gainNames)
     for (const auto layer : m_layers)
     {
       std::string name = m_decorationPattern;
@@ -125,7 +125,7 @@ void DerivationFramework::GainDecorator::decorateObject(const xAOD::Egamma*& ega
     // Set the initial values to 0 (needed?)
     std::map< std::pair<int, int>, float > E;
     std::map< std::pair<int, int>, uint8_t > nCells;
-    for (const auto kv : m_names_E)
+    for (const auto& kv : m_names_E)
     {
       E[kv.first] = 0.;
       nCells[kv.first] = 0;
@@ -147,8 +147,8 @@ void DerivationFramework::GainDecorator::decorateObject(const xAOD::Egamma*& ega
     }
     
     // Decorate    
-    for (const auto kv : m_names_E) egamma->auxdecor<float>(kv.second) = E[ kv.first ];
-    for (const auto kv : m_names_nCells) egamma->auxdecor<uint8_t>(kv.second) = nCells[ kv.first ];
+    for (const auto& kv : m_names_E) egamma->auxdecor<float>(kv.second) = E[ kv.first ];
+    for (const auto& kv : m_names_nCells) egamma->auxdecor<uint8_t>(kv.second) = nCells[ kv.first ];
 
 }
 

@@ -187,6 +187,8 @@ void TileRawChannelMaker::fitOverflowedChannels() {
           // 30000 - Indicates overflow + underflow, 9400 - indicates bad fit or >2 saturations.
           float pedestal = (rwCh->pedestal() < 29500.) ? (29400.)
                                                        : (39400.);
+          ATH_MSG_DEBUG("Overflow " <<  (std::string)(*rwCh) <<
+                        "  change ped from " <<  rwCh->pedestal() << " to " << pedestal);
           rwCh->setPedestal(pedestal); 
       } else {
           //If the fit is OK replace
@@ -200,6 +202,8 @@ void TileRawChannelMaker::fitOverflowedChannels() {
           // 30000 - Indicates overflow + underflow, 5000 - indicates fitted.
           float pedestal = (rwCh->pedestal() < 29500.) ? fittedRwCh->pedestal() + 25000.
 	                                               : fittedRwCh->pedestal() + 35000.;
+          ATH_MSG_DEBUG("Overflow " <<  (std::string)(*rwCh) <<
+                        "  change ped from " <<  rwCh->pedestal() << " to " << pedestal);
           rwCh->setPedestal(pedestal); 
       }
 		

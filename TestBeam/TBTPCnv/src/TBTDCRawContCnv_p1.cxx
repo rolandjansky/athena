@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBTDCRawContCnv_p1.h"
@@ -53,7 +53,7 @@ TBTDCRawContCnv_p1::transToPers(const TBTDCRawCont* trans,
   TBTDCRawCont::const_iterator TDCRawIt_e = trans->end();
 
   // copy all the scints from the trans to the pers
-  for (; TDCRawIt!=TDCRawIt_e; TDCRawIt++) {
+  for (; TDCRawIt!=TDCRawIt_e; ++TDCRawIt) {
     const TBTDCRaw * TDCRaw = * TDCRawIt;
 
 		pers -> m_tdc.push_back(            TDCRaw->getTDC() );

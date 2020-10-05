@@ -1,6 +1,6 @@
 // for text editors: this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAG_AUGMENTER_TOOL_H
@@ -22,7 +22,6 @@ namespace FlavorTagDiscriminants {
     ~BTagAugmenterTool();
 
     StatusCode initialize() override;
-    StatusCode finalize() override;
 
     virtual void decorate(const xAOD::Jet& jet) const override;
   private:

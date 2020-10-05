@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -41,7 +41,7 @@ CaloSamplingHelper::CaloSample
 CaloSamplingHelper::getSampling( const CaloCell& cell ) {
 
   const CaloDetDescrElement * theCaloDDE= cell.caloDDE() ;
-  if (theCaloDDE!=0) {
+  if (theCaloDDE!=nullptr) {
     return (CaloSamplingHelper::CaloSample) theCaloDDE->getSampling();
       }
   else{

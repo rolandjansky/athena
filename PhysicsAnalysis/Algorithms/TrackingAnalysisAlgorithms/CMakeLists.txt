@@ -3,13 +3,6 @@
 # The name of the package:
 atlas_subdir( TrackingAnalysisAlgorithms )
 
-# The package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PRIVATE
-   Event/xAOD/xAODTracking )
-
 # Components in the package:
 atlas_add_library( TrackingAnalysisAlgorithmsLib
    TrackingAnalysisAlgorithms/*.h Root/*.cxx

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -16,18 +16,18 @@
 //
 //-----------------------------------------------------------------------
 #include "CaloLocalHadCalib/CaloHadDMCoeffCheck.h"
-#include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
-#include "CaloLocalHadCalib/CaloLocalHadCoeffHelper.h"
-#include "CaloLocalHadCalib/CaloHadDMCoeffFit.h"
-#include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include <math.h>
+#include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
+#include "CaloLocalHadCalib/CaloHadDMCoeffFit.h"
+#include "CaloLocalHadCalib/CaloLocalHadCoeffHelper.h"
+#include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
+#include <algorithm>
+#include <cmath>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
-#include <algorithm>
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -64,8 +64,8 @@ CaloHadDMCoeffCheck::CaloHadDMCoeffCheck() :
     m_dlogener(0),
     m_nrecobin(3), m_npdg(2), m_doTailRejection(true)
 {
-  m_data = 0;
-  m_HadDMCoeff = 0;
+  m_data = nullptr;
+  m_HadDMCoeff = nullptr;
   m_HadDMHelper = new CaloLocalHadCoeffHelper();
 
 }
@@ -73,15 +73,6 @@ CaloHadDMCoeffCheck::CaloHadDMCoeffCheck() :
 
 CaloHadDMCoeffCheck::~CaloHadDMCoeffCheck()
 {
-//   for(unsigned int i_area=0; i_area<m_ereco.size(); i_area++){
-//     for(unsigned int i_eta=0; i_eta<m_ereco[i_area].size(); i_eta++){
-//       for(unsigned int i_ener=0; i_ener<m_ereco[i_area][i_eta].size(); i_ener++){
-//         if(m_ereco[i_area][i_eta][i_ener]) delete m_ereco[i_area][i_eta][i_ener];
-//         if(m_etrue[i_area][i_eta][i_ener]) delete m_etrue[i_area][i_eta][i_ener];
-//       } // i_ener
-//     } // i_eta
-//   } // i_area
-
   delete m_HadDMHelper;
 }
 
@@ -147,8 +138,8 @@ int CaloHadDMCoeffCheck::process(CaloHadDMCoeffData *myData, CaloLocalHadCoeff *
     ereco[i_area].resize(m_netabin);
     etrue[i_area].resize(m_netabin);
     for(int i_eta=0; i_eta<m_netabin; i_eta++){
-      ereco[i_area][i_eta].resize(m_nlogenerbin, 0);
-      etrue[i_area][i_eta].resize(m_nlogenerbin, 0);
+      ereco[i_area][i_eta].resize(m_nlogenerbin, nullptr);
+      etrue[i_area][i_eta].resize(m_nlogenerbin, nullptr);
       for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
         ereco[i_area][i_eta][i_ener] = new CaloHadDMCoeffFit::PrepData();
         etrue[i_area][i_eta][i_ener] = new CaloHadDMCoeffFit::PrepData();
@@ -228,8 +219,8 @@ int CaloHadDMCoeffCheck::process(CaloHadDMCoeffData *myData, CaloLocalHadCoeff *
     m_h2_etrue_vs_ereco[i_area].resize(m_netabin);
     m_hp_etrue_vs_ereco[i_area].resize(m_netabin);
     for(int i_eta=0; i_eta<m_netabin; i_eta++){
-      m_h2_etrue_vs_ereco[i_area][i_eta].resize(m_nlogenerbin, 0);
-      m_hp_etrue_vs_ereco[i_area][i_eta].resize(m_nlogenerbin, 0);
+      m_h2_etrue_vs_ereco[i_area][i_eta].resize(m_nlogenerbin, nullptr);
+      m_hp_etrue_vs_ereco[i_area][i_eta].resize(m_nlogenerbin, nullptr);
       for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
         float elimreco = ereco[i_area][i_eta][i_ener]->m_aver + 5.*sqrt(ereco[i_area][i_eta][i_ener]->m_rms);
         float elimtrue = etrue[i_area][i_eta][i_ener]->m_aver + 5.*sqrt(etrue[i_area][i_eta][i_ener]->m_rms);
@@ -271,7 +262,7 @@ int CaloHadDMCoeffCheck::process(CaloHadDMCoeffData *myData, CaloLocalHadCoeff *
       for(int i_reco=0; i_reco<m_nrecobin; i_reco++){
         m_engRecSpect[i_pdg][i_area][i_reco].resize(m_nlogenerbin);
         for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
-          m_engRecSpect[i_pdg][i_area][i_reco][i_ener].resize(m_netabin, 0);
+          m_engRecSpect[i_pdg][i_area][i_reco][i_ener].resize(m_netabin, nullptr);
           for(int i_eta=0; i_eta<m_netabin; i_eta++){
             sprintf(hname,"m_engRecSpect_pdg%d_dm%d_reco%d_ener%d_eta%d",i_pdg,i_area, i_reco, i_ener, i_eta);
             TH1F *h1 = new TH1F(hname, hname, 110, -0.2, 2.0);
@@ -553,7 +544,7 @@ void CaloHadDMCoeffCheck::make_report(std::string &sreport)
             << " i_eta:" << i_eta
             << std::endl;
             TH1F *h1 = m_engRecSpect[i_pdg][i_area_sel][i_reco][i_ener_sel][i_eta];
-            if(h1 == 0) {
+            if(h1 == nullptr) {
               std::cout << " panic, h1==0" << std::endl;
               continue;
             }
@@ -617,7 +608,7 @@ void CaloHadDMCoeffCheck::getDmReco(std::vector<std::vector<double > > &engDmRec
       (*m_data->m_cls_ener_unw)[i_cls] = clusEnerOrig;
 
       const CaloLocalHadCoeff::LocalHadCoeff *pars = m_HadDMCoeff->getCoeff(i_dma, vars);
-      if(pars==0) continue;
+      if(pars==nullptr) continue;
       double eprep = (*m_data->m_cls_eprep)[i_cls][i_dma];
       double engDmRec = 0.0;
       if(area->getType() == CaloLocalHadDefs::AREA_DMFIT && area->getNpars() == 3) {

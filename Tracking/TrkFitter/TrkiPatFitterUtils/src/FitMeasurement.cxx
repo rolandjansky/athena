@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,10 +8,6 @@
    i.e. position, surface, weights, intersection, derivatives, residual etc
  ***************************************************************************/
 
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-// #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -34,6 +30,10 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+
 namespace Trk{
   
 // MeasurementBase
@@ -41,12 +41,12 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
 				HitOnTrack*		hitOnTrack,
 				const MeasurementBase*	measurementBase)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
@@ -55,18 +55,18 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
       m_hitIndex		(hitIndex),
       m_hitOnTrack		(hitOnTrack),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
       m_measurementBase		(measurementBase),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection  	(0),
-      m_normal			(0),
+      m_minimizationDirection  	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(measurementBase->localCovariance().cols()),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(measurementBase->associatedSurface().center()),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -77,7 +77,7 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
       m_scatteringAngle		(0.),
       m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
-      m_sensorDirection		(0),
+      m_sensorDirection		(nullptr),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
       m_sigmaPlus		(0.),
@@ -88,12 +88,6 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
       m_weight			(1.),
       m_weight2			(1.)
 {
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-
     double sigma	= 0.;
     if (m_numberDoF > 0) sigma	= Amg::error(measurementBase->localCovariance(),locX);
     double sigma2	= 0.;
@@ -206,32 +200,32 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
 				double				qOverP,
 				bool				calo)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
       m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
-      m_hitOnTrack		(0),
+      m_hitOnTrack		(nullptr),
       m_lastParameter		(0),
       m_materialEffects		(materialEffects),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
+      m_minimizationDirection	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(0),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(particleMass*particleMass),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(position),
       m_qOverP			(qOverP),
       m_radiationThickness	(materialEffects->thicknessInX0()), 
@@ -242,7 +236,7 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
       m_scatteringAngle		(0.),
       m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
-      m_sensorDirection		(0),
+      m_sensorDirection		(nullptr),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
       m_sigmaPlus		(0.),
@@ -258,14 +252,9 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
 
     if(calo) m_type = calorimeterScatterer;
 
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-
     // set any energy loss
-    const EnergyLoss* energyLoss	= 0;
-    const ScatteringAngles* scattering	= 0;
+    const EnergyLoss* energyLoss	= nullptr;
+    const ScatteringAngles* scattering	= nullptr;
     const MaterialEffectsOnTrack* meot	= dynamic_cast<const MaterialEffectsOnTrack*>(materialEffects);
     if (meot)
     {
@@ -323,32 +312,32 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
 				double				qOverP,
 				const Surface*			surface)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(-deltaE),
       m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
-      m_hitOnTrack		(0),
+      m_hitOnTrack		(nullptr),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(true),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
+      m_minimizationDirection	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(0),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(particleMass*particleMass),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(position),
       m_qOverP			(qOverP),
       m_radiationThickness	(radiationThickness), 
@@ -359,7 +348,7 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
       m_scatteringAngle		(0.),
       m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
-      m_sensorDirection		(0),
+      m_sensorDirection		(nullptr),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
       m_sigmaPlus		(0.),
@@ -392,12 +381,7 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
     if (! surface) delete m_surface;
     m_surface = &m_materialEffects->associatedSurface();
 
-    // initialize intersections
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-    m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(position,direction,0.);
+    m_intersection[FittedTrajectory] = std::make_unique<TrackSurfaceIntersection>(position,direction,0.);
 }
 
 // constructor for adding (mis-)alignment effects
@@ -409,28 +393,28 @@ FitMeasurement::FitMeasurement (const AlignmentEffectsOnTrack*	alignmentEffects,
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
       m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
-      m_hitOnTrack		(0),
+      m_hitOnTrack		(nullptr),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
+      m_minimizationDirection	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(2),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(position),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -441,7 +425,7 @@ FitMeasurement::FitMeasurement (const AlignmentEffectsOnTrack*	alignmentEffects,
       m_scatteringAngle		(0.),
       m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
-      m_sensorDirection		(0),
+      m_sensorDirection		(nullptr),
       m_sigma			(0.),
       m_sigmaMinus		(alignmentEffects->sigmaDeltaAngle()),
       m_sigmaPlus		(alignmentEffects->sigmaDeltaTranslation()),
@@ -456,46 +440,41 @@ FitMeasurement::FitMeasurement (const AlignmentEffectsOnTrack*	alignmentEffects,
     if (m_sigmaMinus) m_weight	= 1./m_sigmaMinus;
     if (m_sigmaPlus)  m_weight2	= 1./m_sigmaPlus;
 				      
-    // initialize intersections
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-    	m_intersection[typ] = 0;
-    }
-    m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(position,
-    								    direction,
-    								    0.);
+    m_intersection[FittedTrajectory] = std::make_unique<TrackSurfaceIntersection>(position,
+										  direction,
+										  0.);
 }
     
 // constructor creating placeholder Surface for delimiting material aggregation
 FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
 				double				shift)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
       m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
-      m_hitOnTrack		(0),
+      m_hitOnTrack		(nullptr),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
+      m_minimizationDirection	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(0),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(intersection.position()),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -506,13 +485,13 @@ FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
       m_scatteringAngle		(0.),
       m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
-      m_sensorDirection		(0),
+      m_sensorDirection		(nullptr),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
       m_sigmaPlus		(0.),
       m_signedDriftDistance	(0.),
       m_status			(0),
-      m_surface			(0),
+      m_surface			(nullptr),
       m_type			(materialDelimiter),
       m_weight			(0.),
       m_weight2			(0.)
@@ -523,45 +502,40 @@ FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
     CurvilinearUVT uvt(intersection.direction());
     m_surface = new PlaneSurface(m_position,uvt); 
 
-    // initialize intersections
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-    m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(m_position,
-								    intersection.direction(),
-								    0.);
+    m_intersection[FittedTrajectory] = std::make_unique<TrackSurfaceIntersection>(m_position,
+										  intersection.direction(),
+										  0.);
 }
     
 // other TrackStateOnSurface types
 FitMeasurement::FitMeasurement (const TrackStateOnSurface&	TSOS)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
       m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
-      m_hitOnTrack		(0),
+      m_hitOnTrack		(nullptr),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
+      m_minimizationDirection	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(0),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(TSOS.trackParameters()->position()),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -572,7 +546,7 @@ FitMeasurement::FitMeasurement (const TrackStateOnSurface&	TSOS)
       m_scatteringAngle		(0.),
       m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
-      m_sensorDirection		(0),
+      m_sensorDirection		(nullptr),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
       m_sigmaPlus		(0.),
@@ -593,11 +567,6 @@ FitMeasurement::FitMeasurement (const TrackStateOnSurface&	TSOS)
 // 	m_type = MSperigee;
 //     }
     
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 }
     
 // SiliconTracker constructor (from iPatRec)
@@ -611,12 +580,12 @@ FitMeasurement::FitMeasurement (int			hitIndex,
 				const Surface*		surface,
 				MeasurementType		type)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
@@ -625,16 +594,16 @@ FitMeasurement::FitMeasurement (int			hitIndex,
       m_hitIndex		(hitIndex),
       m_hitOnTrack		(hitOnTrack),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
       m_numberDoF		(1),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(position),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -655,11 +624,6 @@ FitMeasurement::FitMeasurement (int			hitIndex,
       m_weight			(1.),
       m_weight2			(1.)
 {
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 
     // pixel has 2-D measurement
     if (type == pixelCluster)
@@ -730,12 +694,12 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
 				double			,
 				const Surface*		surface)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
@@ -744,18 +708,18 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
       m_hitIndex		(hitIndex),
       m_hitOnTrack		(hitOnTrack),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection  	(0),
-      m_normal			(0),
+      m_minimizationDirection  	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(1),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(position),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -776,12 +740,6 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
       m_weight			(1.),
       m_weight2			(1.)
 {
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-
     m_sensorDirection		= new Amg::Vector3D(m_surface->transform().rotation().col(2));
 
     // add protection against junk input
@@ -799,32 +757,32 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
 // perigee (TrackParameters) constructor
 FitMeasurement::FitMeasurement (const TrackParameters&	perigee)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(0.),
       m_energyLoss		(0.),
       m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
-      m_hitOnTrack		(0),
+      m_hitOnTrack		(nullptr),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
+      m_minimizationDirection	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(0),
       m_numericalDerivative	(false),
       m_outlier			(true),	// use base class for additional trackParameters at detector boundary
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(perigee.associatedSurface().center()),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -835,7 +793,7 @@ FitMeasurement::FitMeasurement (const TrackParameters&	perigee)
       m_scatteringAngle		(0.),
       m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
-      m_sensorDirection		(0),
+      m_sensorDirection		(nullptr),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
       m_sigmaPlus		(0.),
@@ -935,10 +893,6 @@ FitMeasurement::FitMeasurement (const TrackParameters&	perigee)
 	// std::cout << " weight :" << std::endl;
     }
 
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 }
 
 // transverseVertex constructor
@@ -946,32 +900,32 @@ FitMeasurement::FitMeasurement (double			d0,
 				const Amg::Vector3D&	position,
 				double			sigma)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
+      m_alignmentEffects	(nullptr),
       m_alignmentParameter	(0),
       m_alignmentParameter2	(0),
       m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
+      m_derivative		(nullptr),
+      m_derivative2		(nullptr),
       m_derivativeRow		(-1),
       m_d0         		(d0),	// FIXME:: kept for cache tag as d0 is never used anywhere
       m_energyLoss		(0.),
       m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
-      m_hitOnTrack		(0),
+      m_hitOnTrack		(nullptr),
       m_lastParameter		(0),
-      m_materialEffects		(0),
+      m_materialEffects		(nullptr),
       m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
+      m_measurementBase		(nullptr),
       m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
+      m_minimizationDirection	(nullptr),
+      m_normal			(nullptr),
       m_numberDoF		(1),
       m_numericalDerivative	(false),
       m_outlier			(false),
       m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
+      m_perigee			(nullptr),
+      m_perigeeWeight		(nullptr),
       m_position		(position),
       m_qOverP			(0.),
       m_radiationThickness	(0.),
@@ -993,16 +947,11 @@ FitMeasurement::FitMeasurement (double			d0,
       m_weight			(1./sigma),
       m_weight2			(1.)
 {
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 }
 
 // destructor
 FitMeasurement::~FitMeasurement (void)
 {
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ) delete m_intersection[typ];
     delete m_minimizationDirection;
     delete m_normal;
     delete m_perigee;
@@ -1017,23 +966,9 @@ void
 FitMeasurement::intersection (ExtrapolationType type,
 			      const TrackSurfaceIntersection* value)
 {
-    // by convention: FittedTrajectory clears out the previous intersections
-//     if (type == FittedTrajectory)
-//     {
-// 	for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-// 	{
-// 	    if (! m_intersection[typ]) continue;
-// 	    delete m_intersection[typ];
-// 	    m_intersection[typ] = 0;
-// 	}
-//     }
-//     else
-    {
-	delete m_intersection[type];
-    }
-    
-    m_intersection[type] = value;
+  m_intersection[type].reset(value);
 }
+
 
 void
 FitMeasurement::printHeading (MsgStream& log) const

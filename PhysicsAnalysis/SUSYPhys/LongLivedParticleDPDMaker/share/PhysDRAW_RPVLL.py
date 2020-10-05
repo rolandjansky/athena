@@ -20,10 +20,10 @@
 
 from LongLivedParticleDPDMaker.LongLivedDPDFlags import WriteRPVLLStream
 from LongLivedParticleDPDMaker.PrimaryDPDFlags_RPVLLStream import primRPVLLDESDM
-print dir(primRPVLLDESDM)
-print primRPVLLDESDM.__module__
-print primRPVLLDESDM.__name__
-print primRPVLLDESDM
+print(dir(primRPVLLDESDM))
+print(primRPVLLDESDM.__module__)
+print(primRPVLLDESDM.__name__)
+print(primRPVLLDESDM)
  
 RPVLL_augmentationKernels = []
 

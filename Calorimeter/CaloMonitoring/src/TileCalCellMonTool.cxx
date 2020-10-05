@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     TileCalCellMonTool.cxx
-#include "CaloMonitoring/TileCalCellMonTool.h"
+#include "TileCalCellMonTool.h"
 
 
 #include "CaloIdentifier/TileID.h"
@@ -33,9 +33,6 @@ TileCalCellMonTool::TileCalCellMonTool(const std::string& type, const std::strin
 {
   declareInterface<IMonitorToolBase>(this);
 
-  // CaloCellContainer name 
-  declareProperty("CaloCellContainer", m_cellContainerName="AllCalo","SG key of the input cell container");
-
   // tools 
   declareProperty("useElectronicNoiseOnly",m_useElectronicNoiseOnly=false,"Consider only electronic noise and ignore pile-up contributiuon)");
   declareProperty("useTwoGaus", m_useTwoGaus=true,"Use double-gaussian noise description for Tile-cells");
@@ -55,7 +52,7 @@ TileCalCellMonTool::~TileCalCellMonTool() {
 ////////////////////////////////////////////
 StatusCode TileCalCellMonTool::initialize() {
 
-  ATH_MSG_INFO("TileCalCellMonTool::initialize() start");
+  ATH_MSG_DEBUG("TileCalCellMonTool::initialize() start");
 
   ATH_CHECK( detStore()->retrieve(m_tile_id) );
 
@@ -71,11 +68,13 @@ StatusCode TileCalCellMonTool::initialize() {
 
   initParam();
 
- 
+  //Initialize read handle key
+  ATH_CHECK( m_cellContainerName.initialize() );
+
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
   ATH_CHECK( CaloMonToolBase::initialize() );
 
-  ATH_MSG_INFO("TileCalCellMonTool::initialize() is done!");
+  ATH_MSG_DEBUG("TileCalCellMonTool::initialize() is done!");
   return StatusCode::SUCCESS;
 }
 
@@ -299,12 +298,9 @@ StatusCode TileCalCellMonTool::fillHistograms(){
   // CaloCell info
   //============================
 
-  const CaloCellContainer* cellCont = nullptr;
-  sc=evtStore()->retrieve(cellCont, m_cellContainerName);
-  if( sc.isFailure()  ||  !cellCont ) {
-    ATH_MSG_WARNING("No CaloCell container found in TDS"); 
-    return sc;
-  }  
+  SG::ReadHandle<CaloCellContainer> cellContHandle{m_cellContainerName};
+  if (! cellContHandle.isValid()) { ATH_MSG_WARNING("No CaloCell container found in TDS"); return StatusCode::FAILURE; }
+  const CaloCellContainer* cellCont = cellContHandle.get();
 
 
   CaloCellContainer::const_iterator it = cellCont->beginConstCalo(CaloCell_ID::TILE);

@@ -6,9 +6,8 @@
 #ifndef TrackClusterAssValidation_H
 #define TrackClusterAssValidation_H
 
-
-
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -236,8 +235,8 @@ namespace InDet {
       };
 
       mutable std::mutex                           m_statMutex;
-      mutable std::vector<TrackCollectionStat_t>   m_trackCollectionStat;
-      mutable EventStat_t                          m_eventStat;
+      mutable std::vector<TrackCollectionStat_t>   m_trackCollectionStat ATLAS_THREAD_SAFE; // Guarded by m_statMutex
+      mutable EventStat_t                          m_eventStat ATLAS_THREAD_SAFE; // Guarded by m_statMutex
 
       unsigned int                       m_clcut                  ;
       unsigned int                       m_clcutTRT               ;

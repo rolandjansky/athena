@@ -62,6 +62,8 @@ namespace MuonGM {
 	If the strip number is outside the range of valid strips, the function will return false */
     virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
+    bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
+
     /** pad number corresponding to local position */
     int padNumber( const Amg::Vector2D& pos, const Identifier& id) const;
 
@@ -148,6 +150,7 @@ namespace MuonGM {
     inline bool has_ALines() const;
     inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double);
+    void setDelta(MuonDetectorManager* mgr);
     void setBLinePar(BLinePar* bLine);
     inline void clearBLinePar();
 
@@ -163,6 +166,7 @@ namespace MuonGM {
     int m_nlayers;
     
     int m_ml;
+    double m_offset;
 
     int m_sTGC_type;
 
@@ -173,7 +177,7 @@ namespace MuonGM {
     bool m_hasALines;
     bool m_hasBLines;
 
-    HepGeom::Transform3D* m_delta;
+    Amg::Transform3D m_delta;
 
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;
@@ -220,17 +224,12 @@ namespace MuonGM {
   }
 
   inline int sTgcReadoutElement::layerHash( const Identifier& id ) const {
-    //return layerHash(manager()->stgcIdHelper()->gasGap(id));
     return surfaceHash(id);                                      // don't have a choice here : rewrite MuonClusterReadoutElement first  
   }
 
-  //inline int sTgcReadoutElement::layerHash( int gasGap ) const {
-  //  return gasGap-1;
-  //}
-
   inline int sTgcReadoutElement::boundaryHash( const Identifier& id ) const {
     int iphi = manager()->stgcIdHelper()->channelType(id)!=1 ? 1:0 ;      // wires and pads have locX oriented along phi
-    if (abs(getStationEta())<3) iphi += 2*(manager()->stgcIdHelper()->gasGap(id)-1);
+    if (std::abs(getStationEta())<3) iphi += 2*(manager()->stgcIdHelper()->gasGap(id)-1);
     return iphi; 
   }
 
@@ -290,6 +289,13 @@ namespace MuonGM {
     if( !design ) return 0;
     return design->channelPosition(manager()->stgcIdHelper()->channel(id),pos);
 
+  }
+
+  inline bool sTgcReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {
+    Amg::Vector2D lpos(0., 0.);
+    if (!stripPosition(id, lpos)) return false;
+    surface(id).localToGlobal(lpos, Amg::Vector3D(0., 0., 0.), gpos);
+    return true;
   }
 
   inline bool sTgcReadoutElement::padPosition( const Identifier& id, Amg::Vector2D& pos ) const {

@@ -55,34 +55,34 @@ class G4FieldManagerToolBase : public extends<AthAlgTool, IFieldManagerTool>
 #if G4VERSION_NUMBER < 1040
     /// Common method to construct a stepper of requested type.
     G4MagIntegratorStepper*
-    getStepper(std::string stepperType, G4MagneticField* field) const;
+    getStepper(const std::string& stepperType, G4MagneticField* field) const;
 #endif
 
     /// Common method to apply configuredfield parameters
     StatusCode setFieldParameters(G4FieldManager* fieldMgr) const;
 
     /// Handle to the G4 field service
-    ServiceHandle<IG4FieldSvc> m_fieldSvc;
+    ServiceHandle<IG4FieldSvc> m_fieldSvc{this, "FieldSvc", "G4FieldSvc", "Service providing a G4MagneticField"};
 
     /// @todo TODO why is this duplicated in the g4 field svc?
-    bool m_fieldOn;
+    Gaudi::Property<bool> m_fieldOn{this, "FieldOn", true, "Toggles field on/off"};
 
     /// The type of stepper to use
-    std::string m_integratorStepper;
+    Gaudi::Property<std::string> m_integratorStepper{this, "IntegratorStepper", "AtlasRK4", "Integrator stepper name"};
 
     /// The type of equation of motion to use
-    ToolHandle<IEquationOfMotionTool> m_equationOfMotion;
+    ToolHandle<IEquationOfMotionTool> m_equationOfMotion{this, "EquationOfMotion", "", ""};
     //std::string m_equationOfMotion;
 
     /// @name Field parameters
     /// @{
-    double m_minEps;
-    double m_maxEps;
-    double m_deltaChord;
-    double m_deltaOneStep;
-    double m_deltaIntersection;
-    double m_maxStep;
-    double m_minStep;
+    Gaudi::Property<double> m_minEps{this, "MinimumEpsilonStep", -1.0, "Minimum epsilon (see G4 documentation)"};
+    Gaudi::Property<double> m_maxEps{this, "MaximumEpsilonStep", -1.0, "Maximum epsilon (see G4 documentation)"};
+    Gaudi::Property<double> m_deltaChord{this, "DeltaChord", -1.0, "Missing distance for the chord finder"};
+    Gaudi::Property<double> m_deltaOneStep{this, "DeltaOneStep", -1.0, "Delta(one-step)"};
+    Gaudi::Property<double> m_deltaIntersection{this, "DeltaIntersection", -1.0, "Accuracy for boundary intersection"};
+    Gaudi::Property<double> m_maxStep{this, "MaximumStep", -1.0, "Maximum step length in field (see G4 documentation)"};
+    Gaudi::Property<double> m_minStep{this, "MinimumStep",1e-2, "Minimum step length in field (see G4 documentation)"};
     /// @}
 
 };

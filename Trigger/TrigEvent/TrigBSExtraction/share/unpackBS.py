@@ -13,16 +13,11 @@ MessageSvc.OutputLevel=INFO
 EvtMax=-1
 
 ##############################
-
-AthenaSealSvc = Service( "AthenaSealSvc" )
-# Set up service
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
 # Services
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageInputSvc
 svcMgr += ByteStreamEventStorageInputSvc("ByteStreamInputSvc")
 
-svcMgr.ByteStreamInputSvc.FullFileName = BSFileList
+svcMgr.EventSelector.Input = BSFileList
 
 from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
 svcMgr += ROBDataProviderSvc()

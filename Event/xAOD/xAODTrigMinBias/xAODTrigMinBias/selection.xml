@@ -1,27 +1,76 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
-  <class name="xAOD::TrigSpacePointCounts_v1" />
-  <class name="xAOD::TrigSpacePointCountsContainer_v1" id="519EBE61-C135-46C7-AD7D-C661DC6FC4B5" />
-  <class name="xAOD::TrigSpacePointCountsAuxContainer_v1" id="C682FD32-73CC-4773-ACBF-30B2657C5991" />
-  <class name="xAOD::TrigT2MbtsBits_v1" />
-  <class name="xAOD::TrigT2MbtsBitsContainer_v1" id="FF96BF06-1206-11E4-9605-02163E00A892" />
-  <class name="xAOD::TrigT2MbtsBitsAuxContainer_v1" id="0055818E-1207-11E4-9C7B-02163E00A892" />
-  <class name="xAOD::TrigHisto2D_v1" />
-  <class name="xAOD::TrigHisto2DContainer_v1" id="0116E8A6-1207-11E4-8724-02163E00A892" />
-  <class name="xAOD::TrigHisto2DAuxContainer_v1" id="05B28A1E-1207-11E4-84E2-02163E00A892" />
-  <class name="xAOD::TrigTrackCounts_v1" />
-  <class name="xAOD::TrigTrackCountsContainer_v1" id="0650DED0-1207-11E4-9CD1-02163E00A892" />
-  <class name="xAOD::TrigTrackCountsAuxContainer_v1" id="0701BEB0-1207-11E4-9D08-02163E00A892" />
-  <class name="xAOD::TrigVertexCounts_v1" />
-  <class name="xAOD::TrigVertexCountsContainer_v1" id="07EE6B72-1207-11E4-8B69-02163E00A892" />
-  <class name="xAOD::TrigVertexCountsAuxContainer_v1" id="70E7BDFE-1207-11E4-ACEF-02163E00A892" />
-  <class name="xAOD::TrigT2ZdcSignals_v1" />
-  <class name="xAOD::TrigT2ZdcSignalsContainer_v1" id="8313279A-5E27-11E4-A635-02163E00A82C" />
-  <class name="xAOD::TrigT2ZdcSignalsAuxContainer_v1" id="83B9F174-5E27-11E4-98C2-02163E00A82" />
 
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
+   <!-- xAOD::TrigSpacePointCounts interface type(s). -->
+   <class name="xAOD::TrigSpacePointCounts_v1" />
+   <class name="xAOD::TrigSpacePointCountsContainer_v1"
+          id="519EBE61-C135-46C7-AD7D-C661DC6FC4B5" />
+   <typedef name="xAOD::TrigSpacePointCounts" />
+   <typedef name="xAOD::TrigSpacePointCountsContainer" />
+
+   <!-- xAOD::TrigSpacePointCounts auxiliary type(s). -->
+   <class name="xAOD::TrigSpacePointCountsAuxContainer_v1"
+          id="C682FD32-73CC-4773-ACBF-30B2657C5991" />
+   <typedef name="xAOD::TrigSpacePointCountsAuxContainer" />
+
+   <!-- xAOD::TrigT2MbtsBits interface type(s). -->
+   <class name="xAOD::TrigT2MbtsBits_v1" />
+   <class name="xAOD::TrigT2MbtsBitsContainer_v1"
+          id="FF96BF06-1206-11E4-9605-02163E00A892" />
+   <typedef name="xAOD::TrigT2MbtsBits" />
+   <typedef name="xAOD::TrigT2MbtsBitsContainer" />
+
+   <!-- xAOD::TrigT1MbtsBits auxiliary type(s). -->
+   <class name="xAOD::TrigT2MbtsBitsAuxContainer_v1"
+          id="0055818E-1207-11E4-9C7B-02163E00A892" />
+   <typedef name="xAOD::TrigT2MbtsBitsAuxContainer" />
+
+   <!-- xAOD::TrigHisto2D interface type(s). -->
+   <class name="xAOD::TrigHisto2D_v1" />
+   <class name="xAOD::TrigHisto2DContainer_v1"
+          id="0116E8A6-1207-11E4-8724-02163E00A892" />
+   <typedef name="xAOD::TrigHisto2D" />
+   <typedef name="xAOD::TrigHisto2DContainer" />
+
+   <!-- xAOD::TrigHisto2D auxiliary type(s). -->
+   <class name="xAOD::TrigHisto2DAuxContainer_v1"
+          id="05B28A1E-1207-11E4-84E2-02163E00A892" />
+   <typedef name="xAOD::TrigHisto2DAuxContainer" />
+
+   <!-- xAOD::TrigTrackCounts interface type(s). -->
+   <class name="xAOD::TrigTrackCounts_v1" />
+   <class name="xAOD::TrigTrackCountsContainer_v1"
+          id="0650DED0-1207-11E4-9CD1-02163E00A892" />
+   <typedef name="xAOD::TrigTrackCounts" />
+   <typedef name="xAOD::TrigTrackCountsContainer" />
+
+   <!-- xAOD::TrigTrackCounts auxiliary type(s). -->
+   <class name="xAOD::TrigTrackCountsAuxContainer_v1"
+          id="0701BEB0-1207-11E4-9D08-02163E00A892" />
+   <typedef name="xAOD::TrigTrackCountsAuxContainer" />
+
+   <!-- xAOD::TrigVertexCounts interface type(s). -->
+   <class name="xAOD::TrigVertexCounts_v1" />
+   <class name="xAOD::TrigVertexCountsContainer_v1"
+          id="07EE6B72-1207-11E4-8B69-02163E00A892" />
+   <typedef name="xAOD::TrigVertexCounts" />
+   <typedef name="xAOD::TrigVertexCountsContainer" />
+
+   <!-- xAOD::TrigVertexCounts auxiliary type(s). -->
+   <class name="xAOD::TrigVertexCountsAuxContainer_v1"
+          id="70E7BDFE-1207-11E4-ACEF-02163E00A892" />
+   <typedef name="xAOD::TrigVertexCountsAuxContainer" />
+
+   <!-- xAOD::TrigT2ZdcSignals interface type(s). -->
+   <class name="xAOD::TrigT2ZdcSignals_v1" />
+   <class name="xAOD::TrigT2ZdcSignalsContainer_v1"
+          id="8313279A-5E27-11E4-A635-02163E00A82C" />
+   <typedef name="xAOD::TrigT2ZdcSignals" />
+   <typedef name="xAOD::TrigT2ZdcSignalsContainer" />
+
+   <!-- xAOD::TrigT2ZdcSignals auxiliary type(s). -->
+   <class name="xAOD::TrigT2ZdcSignalsAuxContainer_v1"
+          id="83B9F174-5E27-11E4-98C2-02163E00A82" />
+   <typedef name="xAOD::TrigT2ZdcSignalsAuxContainer" />
+
 </lcgdict>

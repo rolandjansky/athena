@@ -57,9 +57,13 @@ else:
 
 if not (rec.triggerStream()=='CosmicCalo'):
   tmp_useBeamBackgroundRemoval = FALSE
+  tmp_useLArCollisionFilter = FALSE 
   printfunc ("not CosmicCalo stream")
+else:
+  tmp_useLArCollisionFilter = TRUE
 
 printfunc ("tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval)
+printfunc ("tmp_useLArCollisionFilter=", tmp_useLArCollisionFilter)
 
 EMCaloClusterMonNoTA = CaloClusterVecMon(
    name           = "EMCaloClusterMonNoTA",
@@ -73,16 +77,18 @@ EMCaloClusterMonNoTA = CaloClusterVecMon(
    useReadyFilterTool = tmp_useReadyFilterTool,
    ReadyFilterTool = GetAtlasReadyFilterTool(),
 
+   useLArCollisionFilterTool=tmp_useLArCollisionFilter,
+
    useLArNoisyAlg = tmp_useLArNoisyAlg,
 
    useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
 
    # cluster energy threshold in GeV
    lowEthresh = 0.0,  
-   lowmedEthresh = 5.0,
+   lowmedEthresh = 4.0,
    medEthresh = 10.0,
    medhiEthresh = 15.0,
-   hiEthresh = 20.0,
+   hiEthresh = 25.0,
 )
 
 #ToolSvc += EMCaloClusterMonNoTA 

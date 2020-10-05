@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
@@ -201,6 +201,9 @@ class ByteStreamUnpackGetterRun2(Configured):
         # BS unpacking
         from TrigBSExtraction.TrigBSExtractionConf import TrigBSExtraction
         extr = TrigBSExtraction()
+
+        # Add fictional output to ensure data dependency in AthenaMT
+        extr.ExtraOutputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
         
         if hasHLT:
             from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
@@ -222,14 +225,13 @@ class ByteStreamUnpackGetterRun2(Configured):
             # Configure DataScouting
             #
             from PyUtils.MetaReaderPeeker import metadata
-
-            stream_local = metadata['stream']
-
-            if stream_local.startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
-                if 'calibration' in stream_local and 'DataScouting_' in stream_local:
-                    ds_tag = stream_local[12:27]
-                    ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
-                    extr.DSResultKeys += [ ds_tag ]
+            if 'stream' in metadata:
+                stream_local = metadata['stream']
+                if stream_local.startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
+                    if 'calibration' in stream_local and 'DataScouting_' in stream_local:
+                        ds_tag = stream_local[12:27]
+                        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
+                        extr.DSResultKeys += [ ds_tag ]
 
         else:
             #if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
@@ -310,14 +312,16 @@ class TrigDecisionGetterRun2(Configured):
             from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
             trigDecWriter = WriteTrigDecision()  # noqa: F841
 
-#            from TrigDecisionMaker.TrigDecisionMakerConfig import WritexAODTrigDecision
-#            trigDecWriter = WritexAODTrigDecision()
+#           WritexAODTrigDecision() is called within WriteTrigDecision()
 
             # inform TD maker that some parts may be missing
             if TriggerFlags.dataTakingConditions()=='Lvl1Only':
                 topSequence.TrigDecMaker.doL2=False
                 topSequence.TrigDecMaker.doEF=False
                 topSequence.TrigDecMaker.doHLT=False
+                topSequence.TrigNavigationCnvAlg.doL2 = False
+                topSequence.TrigNavigationCnvAlg.doEF = False
+                topSequence.TrigNavigationCnvAlg.doHLT = False
             elif TriggerFlags.dataTakingConditions()=='HltOnly':
                 from AthenaCommon.AlgSequence import AlgSequence
                 topSequence.TrigDecMaker.doL1=False
@@ -325,9 +329,13 @@ class TrigDecisionGetterRun2(Configured):
             # split HLT:
             if not TriggerFlags.doMergedHLTResult():
                 topSequence.TrigDecMaker.doHLT = False
+                topSequence.TrigNavigationCnvAlg.doL2 = False
+                topSequence.TrigNavigationCnvAlg.doHLT = False
             else:
                 topSequence.TrigDecMaker.doL2 = False
                 topSequence.TrigDecMaker.doEF = False
+                topSequence.TrigNavigationCnvAlg.doL2 = False
+                topSequence.TrigNavigationCnvAlg.doEF = False
                 pass
                 
         else:
@@ -441,7 +449,10 @@ class HLTTriggerResultGetter(Configured):
         if rec.doAOD() or rec.doWriteAOD():
             # schedule the RoiDescriptorStore conversion
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
-            topSequence += RoiWriter()
+            roiWriter = RoiWriter()
+            # Add fictional input to ensure data dependency in AthenaMT
+            roiWriter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
+            topSequence += roiWriter
             # write out the RoiDescriptorStores
             from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
@@ -489,43 +500,30 @@ class HLTTriggerResultGetter(Configured):
             log.info("AOD list is subset of ESD list - good.")
 
 
-        def _addSlimming(stream, thinningSvc, edm):
-            from AthenaCommon.AlgSequence import AlgSequence 
-            topSequence = AlgSequence()
-            from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimming
-            from TrigNavTools.TrigNavToolsConfig import navigationSlimming
+        def _addSlimming(stream, edm):
+            from TrigNavTools.TrigNavToolsConfig import navigationThinningSvc
 
             edmlist = list(y.split('-')[0] for x in edm.values() for y in x) #flatten names
           
-            # from HLT result drop unrecorded features
-            # slimmerHLT = HLT__StreamTrigNavSlimming('HLTNavSlimmer_%s'%stream)
-            slimmerHLT = HLT__TrigNavigationSlimming('TrigNavigationSlimmer_%s'%stream)
-            tHLT = navigationSlimming({'name':'HLTNav_%s'%stream, 'mode':'cleanup', 
-                                                          'ThinningSvc':thinningSvc, 'result':'HLTResult_HLT',
-                                                          'features':edmlist})
-            tHLT.ActInPlace=True
-            slimmerHLT.ThinningTool = tHLT
-            slimmerHLT.ExtraInputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
-            topSequence += slimmerHLT
-            log.info("Configured slimming of HLT")
-            print(slimmerHLT.ThinningTool)  # noqa: ATL901
+            svc = navigationThinningSvc ({'name':'HLTNav_%s'%stream, 'mode':'cleanup', 
+                                          'result':'HLTResult_HLT',
+                                          'features':edmlist})
+
+            from OutputStreamAthenaPool.CreateOutputStreams import registerTrigNavThinningSvc
+            registerTrigNavThinningSvc (stream, svc)
+
+            log.info("Configured slimming of HLT for %s", stream)
+            print(svc)  # noqa: ATL901
             del edmlist
 
 
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaServices.Configurables import ThinningSvc
-        
         if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
-            if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs
-                svcMgr += ThinningSvc(name='ThinningSvc', Streams=['StreamAOD'])             
-            _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerESDList ) #Use ESD item list also for AOD!
+            _addSlimming('StreamAOD', _TriggerESDList ) #Use ESD item list also for AOD!
             log.info("configured navigation slimming for AOD output")
             
         if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteESD():
-            if not  hasattr(svcMgr, 'ESDThinningSvc'):
-                svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
-            _addSlimming('StreamESD', svcMgr.ESDThinningSvc, _TriggerESDList )                
-            log.info("configured navigation slimming for ESD output")              
+            _addSlimming('StreamESD', _TriggerESDList )                
+            log.info("configured navigation slimming for ESD output")
 
 
 

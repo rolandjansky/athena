@@ -3,12 +3,10 @@
 */
 
 #include "TrkAssociationTools/PRDtoTrackMapTool.h"
+
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <cassert>
 #include <vector>
@@ -17,22 +15,12 @@
 Trk::PRDtoTrackMapTool::PRDtoTrackMapTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p)
-  : base_class(t,n,p),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  : base_class(t,n,p)
 {
 }
 
-Trk::PRDtoTrackMapTool::~PRDtoTrackMapTool()
-{
-}
-
-StatusCode Trk::PRDtoTrackMapTool::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Trk::PRDtoTrackMapTool::finalize()
-{
+StatusCode Trk::PRDtoTrackMapTool::initialize() {
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -90,8 +78,6 @@ Trk::PRDtoTrackMapTool::TrackSet
   ensureType(virt_prd_to_track_map);
   PRDtoTrackMap &prd_to_track_map = static_cast<PRDtoTrackMap&>(virt_prd_to_track_map);
 
-  //using namespace __gnu_cxx;
-
   TrackSet connectedTracks;
 
   std::vector< const Trk::PrepRawData* > prds = getPrdsOnTrack(prd_to_track_map, track);
@@ -122,7 +108,7 @@ std::vector< const Trk::PrepRawData* >
 Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map,
                                       const Trk::Track& track) const
 {
-  typedef std::vector<const Trk::PrepRawData*> PRDs_t;
+  using PRDs_t = std::vector<const Trk::PrepRawData *>;
 
   ensureType(virt_prd_to_track_map);
   PRDtoTrackMap &prd_to_track_map = static_cast<PRDtoTrackMap&>(virt_prd_to_track_map);
@@ -153,11 +139,11 @@ Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map
   {
     const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*>(meas);
     if (rot){
-      if(m_idHelperTool->isMuon(rot->identify())){
+      if(m_idHelperSvc->isMuon(rot->identify())){
         //only use precision hits for muon track overlap
-        if(   !m_idHelperTool->isMdt(rot->identify())
-           && !(m_idHelperTool->isCsc(rot->identify())
-           && !m_idHelperTool->measuresPhi(rot->identify()))) continue;
+        if(   !m_idHelperSvc->isMdt(rot->identify())
+           && !(m_idHelperSvc->isCsc(rot->identify())
+           && !m_idHelperSvc->measuresPhi(rot->identify()))) continue;
       }
       vec.push_back(rot->prepRawData());
     }
@@ -167,11 +153,11 @@ Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map
         const unsigned int numROTs = competingROT->numberOfContainedROTs();
         for( unsigned int i=0;i<numROTs;++i ){
           const Trk::RIO_OnTrack* rot = &competingROT->rioOnTrack(i);
-          if( !rot || !rot->prepRawData() || !m_idHelperTool->isMuon(rot->identify()) ) continue;
+          if( !rot || !rot->prepRawData() || !m_idHelperSvc->isMuon(rot->identify()) ) continue;
           //only use precision hits for muon track overlap
-          if(   !m_idHelperTool->isMdt(rot->identify())
-             && !(    m_idHelperTool->isCsc(rot->identify())
-                  && !m_idHelperTool->measuresPhi(rot->identify())) ) continue;
+          if(   !m_idHelperSvc->isMdt(rot->identify())
+             && !(    m_idHelperSvc->isCsc(rot->identify())
+                  && !m_idHelperSvc->measuresPhi(rot->identify())) ) continue;
           vec.push_back(rot->prepRawData());
         }
       }

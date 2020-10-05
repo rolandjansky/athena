@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETEVENT_TRIGVERTEX_H
@@ -132,7 +132,8 @@ class TrigVertex{
   int    ndof()          const                     { return m_nDOF; } //!< Number of degree-of-freedom of the vertex fit
   const double* cov()    const                     { return &m_cov[0];} //!< covariance of the vertex position, packed as follows  
 
-  TrackInVertexList* tracks() const  { return m_tracks; }//!< std::list of track pointers associated with the vertex 
+  TrackInVertexList* tracks() { return m_tracks; }//!< std::list of track pointers associated with the vertex 
+  const TrackInVertexList* tracks() const  { return m_tracks; }//!< std::list of track pointers associated with the vertex 
   double x() const { return m_x; } //!< x-position
   double y() const { return m_y; } //!< y-position
   double z() const { return m_z; } //!< z-position

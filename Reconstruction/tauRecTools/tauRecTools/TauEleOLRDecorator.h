@@ -30,11 +30,10 @@ class TauEleOLRDecorator: virtual public TauRecToolBase
   virtual ~TauEleOLRDecorator();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(xAOD::TauJet&) override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode execute(xAOD::TauJet&) const override;
 
  private:
-  float getCutVal(float fEta, float fPt);
+  float getCutVal(float fEta, float fPt) const;
 
   std::string m_sEleOLRFilePath;  
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronInputContainer{this,"Key_electronInputContainer", "Electrons", "input electron container key"};

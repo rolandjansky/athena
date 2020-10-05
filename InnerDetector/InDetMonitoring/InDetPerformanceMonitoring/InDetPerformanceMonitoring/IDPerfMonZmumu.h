@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPERFMON_ZMUMU_H
@@ -15,7 +15,11 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "CxxUtils/checker_macros.h"
 
 class TTree; 
 class IegammaTrkRefitterTool;
@@ -41,7 +45,7 @@ class IDPerfMonZmumu : public AthAlgorithm
   void RegisterHistograms();
   void FillRecParameters(const Trk::Track* track, double charge);
   StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
-  const xAOD::TruthParticle* getTruthParticle( const xAOD::IParticle& p );
+  const xAOD::TruthParticle* getTruthParticle ( const xAOD::IParticle& p );
 
   // The Z0 tagger.
   ZmumuEvent     m_xZmm;
@@ -60,6 +64,11 @@ class IDPerfMonZmumu : public AthAlgorithm
 
   /** @brief tool to extrapolate tracks to BL*/
   ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey
+  { this, "VertexContainerKey", "PrimaryVertices", "" };
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey
+  { this, "MuonContainerKey", "Muons", "" };
 
   //Validation Ntuple Stuff
   //!< boolean to switch to validation mode
@@ -94,9 +103,9 @@ class IDPerfMonZmumu : public AthAlgorithm
   TTree*                          m_combStacoTree;
   TTree*                          m_combMuidTree;
 
-  mutable unsigned int            m_runNumber{};
-  mutable unsigned int            m_evtNumber{};
-  mutable unsigned int            m_lumi_block{};
+  unsigned int            m_runNumber{};
+  unsigned int            m_evtNumber{};
+  unsigned int            m_lumi_block{};
 
   double m_positive_px{};
   double m_positive_py{};

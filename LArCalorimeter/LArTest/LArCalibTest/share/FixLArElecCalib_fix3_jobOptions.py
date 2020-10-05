@@ -88,17 +88,7 @@ EventSelector.RunNumber=1
 EventSelector.EventsPerRun=2
 EventSelector.FirstEvent=1
 
-# theApp.Dlls += [ "PoolSvc", "AthenaPoolCnvSvc", "AthenaPoolCnvSvcPoolCnv", "EventAthenaPoolPoolCnv", "EventSelectorAthenaPool" ]
-
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
-
-theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
-theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# AthenaSealSvc.CheckDictAtInit = True
-
-include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
-# include ("LArTools/LArToolsDict_joboptions.py")
 
 theApp.EvtMax=1 
 

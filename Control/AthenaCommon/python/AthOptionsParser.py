@@ -214,7 +214,7 @@ def parse(chk_tcmalloc=True):
     try:
         optlist, args = getopt.getopt(_opts, _useropts, _userlongopts)
     except getopt.error:
-        print (sys.exc_value)
+        print (sys.exc_info()[1])
         _help_and_exit()
 
     if warn_tcmalloc and chk_tcmalloc:
@@ -256,8 +256,14 @@ def parse(chk_tcmalloc=True):
             opts.command = arg.strip()
 
         elif opt in ("-h", "--help"):
-            print (_error_msg)
-            sys.exit()
+            if len(scripts) > 0:
+                # If we have user scripts, we should also check if they have
+                # helptext to print
+                opts.msg_lvl = "WARNING"
+                opts.user_opts += ["-h"]
+            else:
+                print (_error_msg)
+                sys.exit()
 
         elif opt in ("-l", "--loglevel"):
             opts.msg_lvl = arg.upper()
@@ -444,10 +450,6 @@ def parse(chk_tcmalloc=True):
     # Unconditionally set this environment (see JIRA ATEAM-241)
     # This behavior can be controlled by a flag, if needed
     os.environ['LIBC_FATAL_STDERR_']='1'
-
-    # for the benefit of PyROOT
-    if not opts.display and '-b' not in sys.argv:
-        sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
 
     # user decision about TDAQ ERS signal handlers
     if opts.enable_ers_hdlr:

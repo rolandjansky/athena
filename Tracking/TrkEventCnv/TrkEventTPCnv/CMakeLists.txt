@@ -93,6 +93,7 @@ atlas_add_tpcnv_library( TrkEventTPCnv
    TrkEventTPCnv/TrkParticleBase/*.h src/TrkParticleBase/*.cxx
    TrkEventTPCnv/TrkCompetingRIOsOnTrack/*.h src/TrkCompetingRIOsOnTrack/*.cxx
    TrkEventTPCnv/TrkDetElementSurface/*.h src/TrkDetElementSurface/*.cxx
+   TrkEventTPCnv/TrkClusterSplitProbabilityContainer/*.h src/TrkClusterSplitProbabilityContainer/*.cxx
    PUBLIC_HEADERS TrkEventTPCnv
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib
@@ -101,8 +102,8 @@ atlas_add_tpcnv_library( TrkEventTPCnv
    TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack
    TrkMeasurementBase TrkNeutralParameters TrkParameters TrkParametersBase
    TrkParticleBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack
-   TrkSegment TrkTrack TrkTrackSummary TrkV0Vertex TrkVertexOnTrack TrkEventCnvToolsLib
-   VxMultiVertex VxVertex
+   TrkSegment TrkTrack TrkTrackSummary TrkV0Vertex TrkVertexOnTrack TrkEventCnvToolsLib TrkEventUtils
+   VxMultiVertex VxVertex 
    PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils TrkDetDescrUtils
    DEFINITIONS ${_definitions} )
 

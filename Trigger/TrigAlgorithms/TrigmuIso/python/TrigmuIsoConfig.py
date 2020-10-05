@@ -1,16 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
-from TrigmuIso.TrigmuIsoConf import *
-from TrigmuIso.TrigmuIsoMonitoring import *
-from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+from TrigmuIso.TrigmuIsoConf import muIso
+from TrigmuIso.TrigmuIsoMonitoring import TrigmuIsoValidationMonitoring, TrigmuIsoOnlineMonitoring, TrigmuIsoCosmicMonitoring
 from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.Constants import VERBOSE,DEBUG,INFO,WARNING,ERROR
 
 # CaloNoiseToolDefault
 #from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
@@ -48,7 +42,7 @@ class TrigmuIsoMTConfig (muIso):
        #    self.BackExtrapolatorLUT = MuonBackExtrapolatorForData()
 
        # muIso Parameters
-       self.MaxDzetaIDMuon = 15.0;
+       self.MaxDzetaIDMuon = 15.0
 
        #MC/Data specific configurations
        if globalflags.DataSource != 'data':
@@ -101,7 +95,7 @@ class muIsoConfig (muIso):
        #    self.BackExtrapolatorLUT = MuonBackExtrapolatorForData()
 
        # muIso Parameters
-       self.MaxDzetaIDMuon = 15.0;
+       self.MaxDzetaIDMuon = 15.0
 
        #MC/Data specific configurations
        if globalflags.DataSource != 'data':
@@ -110,13 +104,11 @@ class muIsoConfig (muIso):
        # ID track collection
        self.IDalgo='InDetTrigTrackingxAODCnv_Muon_FTF'
 
-       self.OutputLevel = INFO
-
        validation = TrigmuIsoValidationMonitoring()
        online     = TrigmuIsoOnlineMonitoring()
        cosmic     = TrigmuIsoCosmicMonitoring()
 
-       self.AthenaMonTools = [ validation, online, cosmic, time]
+       self.AthenaMonTools = [ validation, online, cosmic ]
 
        #def setDefaults(cls,handle):
           #if hasattr(handle,'BackExtrapolatorLUT'):

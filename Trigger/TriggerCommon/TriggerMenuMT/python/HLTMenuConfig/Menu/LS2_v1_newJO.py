@@ -36,11 +36,16 @@ def setupMenu(flags):
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
+    CombinedGroup = ['RATE:Combined', 'BW:Combined']
 
     flags.Trigger.menu.muon = [        
         ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup)
+        ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup),
+
+        ChainProp(name='HLT_mu20_msonly_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu10_msonly_L1MU10', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup)
     ]
 
     flags.Trigger.menu.electron = [
@@ -57,12 +62,13 @@ def setupMenu(flags):
     flags.Trigger.menu.jet = [
        ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
        ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
-       ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup),
+       ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
     ]
 
-    # flags.Trigger.menu.combined = [
-    #     get_flag_item('HLT_e8_mu8_L1EM6_MU6', [], ['RATE:SingleMuon', 'BW:Muon'])
-    # ]
+    flags.Trigger.menu.combined = [
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=CombinedGroup),
+        ChainProp(name='HLT_e7_etcut_mu12_L1EM7_MU10', groups=CombinedGroup)
+    ]
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
@@ -93,6 +99,9 @@ if __name__ == "__main__":
     menu = generateMenu( ConfigFlags )
 
     acc.merge(menu)
+
+    acc.printConfig()
+
     # print all hypo algs and their hypo tools for debugging
     from AthenaCommon.CFElements import flatAlgorithmSequences    
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )

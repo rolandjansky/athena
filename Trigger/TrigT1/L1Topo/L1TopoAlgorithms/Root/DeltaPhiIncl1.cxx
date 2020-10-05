@@ -12,6 +12,7 @@
 **********************************/
 
 #include <cmath>
+#include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaPhiIncl1.h"
 #include "L1TopoCommon/Exception.h"
@@ -20,7 +21,6 @@
 
 REGISTER_ALG_TCS(DeltaPhiIncl1)
 
-using namespace std;
 
 TCS::DeltaPhiIncl1::DeltaPhiIncl1(const std::string & name) : DecisionAlg(name)
 {
@@ -70,6 +70,16 @@ TCS::DeltaPhiIncl1::initialize() {
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
    TRG_MSG_INFO("number output : " << numberOutputBits());
    
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hDeltaPhiIncl1_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hDeltaPhiIncl1_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "DPHI", 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+       bookHist(m_histReject, hname_reject, "DPHI", 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+   }
+
+   
    return StatusCode::SUCCESS;
 }
 
@@ -78,7 +88,7 @@ TCS::DeltaPhiIncl1::initialize() {
 TCS::StatusCode
 TCS::DeltaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 1) {
         TRG_MSG_DEBUG("input size     : " << input[0]->size());
@@ -99,17 +109,25 @@ TCS::DeltaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                           << ", DeltaPhi = " << deltaPhi << " -> ";
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
                         bool accept = false;
-                        if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                        if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                        if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                        if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                        if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                        if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                         accept = deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
+ 			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
-                            decison.setBit(i, true);  
+                            decision.setBit(i, true);  
                             output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
-                        msgss << (accept?"pass":"fail") << "|";
+ 			if(fillAccept and not alreadyFilled) {
+			  fillHist1D(m_histAccept[i],deltaPhi);
+			} else if(fillReject) {
+			  fillHist1D(m_histReject[i],deltaPhi);
+			}
+                        TRG_MSG_DEBUG("DeltaPhiIncl1 = " << deltaPhi << " -> " 
+                                      << (accept?"pass":"fail"));
                     }
-                    TRG_MSG_DEBUG(msgss.str());
                 }
             }
     } else {
@@ -121,7 +139,7 @@ TCS::DeltaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 TCS::StatusCode
 TCS::DeltaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 1) {
         TRG_MSG_DEBUG("input size     : " << input[0]->size());
@@ -145,17 +163,25 @@ TCS::DeltaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                           << ", DeltaPhi = " << deltaPhi << " -> ";
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
                         bool accept = false;
-                        if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                        if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                        if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                        if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                        if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                        if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                         accept = deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
-                        if( accept ) {
-                            decison.setBit(i, true);  
+ 			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
+			if( accept ) {
+                            decision.setBit(i, true);  
                             output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
-                        msgss << (accept?"pass":"fail") << "|";
+ 			if(fillAccept and not alreadyFilled) {
+			  fillHist1D(m_histAccept[i],deltaPhi);
+			} else if(fillReject) {
+			  fillHist1D(m_histReject[i],deltaPhi);
+			}
+                        TRG_MSG_DEBUG("DeltaPhiIncl1 = " << deltaPhi << " -> " 
+                                      << (accept?"pass":"fail"));
                     }
-                    TRG_MSG_DEBUG(msgss.str());
                 }
             }
     } else {

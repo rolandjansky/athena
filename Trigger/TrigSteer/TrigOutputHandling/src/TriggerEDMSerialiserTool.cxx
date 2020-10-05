@@ -5,7 +5,7 @@
 #include <cstring>
 #include <boost/core/demangle.hpp>
 #include <boost/algorithm/string.hpp>
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/StorableConversions.h"
@@ -46,15 +46,20 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
 
   // Retrieve the total result size limit from DataFlowConfig which is a special object
   // used online to hold DF properties passed from TDAQ to HLT as run parameters
-  SmartIF<IJobOptionsSvc> jobOptionsSvc = service<IJobOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
+  auto jobOptionsSvc = service<Gaudi::Interfaces::IOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
   if (!jobOptionsSvc.isValid()) {
     ATH_MSG_WARNING("Could not retrieve JobOptionsSvc, will not update the EventSizeHardLimitMB property");
   }
   else {
-    const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_MaxEventSizeMB");
-    if (prop && m_eventSizeHardLimitMB.assign(*prop)) {
-      ATH_MSG_DEBUG("Updated EventSizeHardLimitMB to " << m_eventSizeHardLimitMB.value()
-                    << " from DataFlowConfig.DF_MaxEventSizeMB");
+    if (jobOptionsSvc->has("DataFlowConfig.DF_MaxEventSizeMB")) {
+      if (m_eventSizeHardLimitMB.fromString(jobOptionsSvc->get("DataFlowConfig.DF_MaxEventSizeMB")).isSuccess()) {
+        ATH_MSG_DEBUG("Updated EventSizeHardLimitMB to " << m_eventSizeHardLimitMB.value()
+                      << " from DataFlowConfig.DF_MaxEventSizeMB");
+      }
+      else {
+        ATH_MSG_ERROR("Could not convert DataFlowConfig.DF_MaxEventSizeMB to integer. Leaving EventSizeHardLimitMB="
+                      << m_eventSizeHardLimitMB.value());
+      }
     }
     else {
       ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_MaxEventSizeMB from JobOptionsSvc. This is fine if running "
@@ -98,7 +103,7 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
     ATH_MSG_ERROR( "Can not find CLID for " << transientType << " that is needed for serialisation " << key );
     return StatusCode::FAILURE;
   }
-
+  ATH_MSG_VERBOSE("Decoded transient type: " << transientType << " with the CLID " << clid );
   if ( transientType == configuredType ) {
     std::string realTypeName;
     if( m_clidSvc->getTypeInfoNameOfID( clid, realTypeName ).isFailure() ) {
@@ -106,12 +111,12 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
       return StatusCode::FAILURE;
     }
     persistentType = transientType + version( realTypeName );
+    ATH_MSG_VERBOSE(transientType << " = "<< configuredType << " thus obtained real type name from clid svc " << realTypeName << " forming persistent type name "<< persistentType );
   } else {
     persistentType = configuredType;
   }
 
   ATH_MSG_DEBUG( "Persistent type: " << persistentType );
-  ATH_CHECK( persistentType.find("_") != std::string::npos );
 
   RootType classDesc = RootType::ByNameNoQuiet( persistentType );
   if ( ! classDesc.IsComplete() ) {
@@ -205,21 +210,25 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
 
   for (SG::auxid_t auxVarID : selected ) {
 
-    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
     const std::string decorationName = SG::AuxTypeRegistry::instance().getName(auxVarID);
     const std::type_info* tinfo = auxStoreIO->getIOType (auxVarID);
-
+    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
+    const std::string fullTypeName = System::typeinfoName( *tinfo );
 
     ATH_CHECK( tinfo != nullptr );
     TClass* cls = TClass::GetClass (*tinfo);
     ATH_CHECK( cls != nullptr );
     ATH_MSG_DEBUG( "" );
-    ATH_MSG_DEBUG( "Streaming " << decorationName << " of type " << typeName  << " aux ID " << auxVarID << " class " << cls->GetName() );
+    ATH_MSG_DEBUG( "Streaming '" << decorationName << "' of type '" << typeName 
+      << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
     CLID clid;
-    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  {
-      ATH_MSG_ERROR( "Can not obtain CLID of: " << typeName );
-      return StatusCode::FAILURE;
+    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() ) { // First try
+      if ( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid).isFailure() ) { // Second try
+        ATH_MSG_ERROR("Unable to obtain CLID for either typeName:" << typeName << " or fullTypeName:" << fullTypeName);
+        ATH_MSG_ERROR("Please check if this is something which should obtain a CLID via TriggerEDMCLIDs.h");
+        return StatusCode::FAILURE;
+      }
     }
     ATH_MSG_DEBUG( "CLID " << clid );
 
@@ -523,5 +532,7 @@ std::string TriggerEDMSerialiserTool::version( const std::string& name ) const {
     size_t start = name.find("_");
     return name.substr( start, name.find(">") - start );
   }
-  return name.substr( name.find("_") );
+  if ( name.find("_") != std::string::npos )
+    return name.substr( name.find("_") );
+  return "";
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -32,10 +32,10 @@ Updated:  June, 2004    (sss)
 #include "GaudiKernel/StatusCode.h"
  
 
-#include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/MsgStream.h"
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 using xAOD::CaloCluster;
 using CLHEP::pi;
@@ -48,23 +48,6 @@ const double dphi = twopi / 64. ;
 
 }
 
-CaloSwGap_g3::CaloSwGap_g3(const std::string& type,
-                           const std::string& name,
-                           const IInterface* parent)
-  : CaloClusterCorrection(type, name, parent)
-{
-  declareConstant ("etamin_crack", m_etamin_crack);
-  declareConstant ("etamax_crack", m_etamax_crack);
-  declareConstant ("scint_weight", m_scint_weight);
-  declareConstant ("correction",   m_correction);
-
-  declareProperty ("cells_name",   m_cells_name = "AllCalo");
-}
-
-CaloSwGap_g3::~CaloSwGap_g3()
-{ }
-
-
 /**
  * @brief Standard Gaudi initialize method.
  */
@@ -76,21 +59,25 @@ StatusCode CaloSwGap_g3::initialize()
 }
 
 
-void CaloSwGap_g3::makeCorrection(const EventContext& ctx,
-                                  CaloCluster* cluster) const
+void CaloSwGap_g3::makeCorrection (const Context& myctx,
+                                   CaloCluster* cluster) const
 {
-  assert (m_scint_weight.size() == m_correction.size());
-  if (m_correction.size() == 0) return;
-
   float eta = cluster->eta();
   float phi = cluster->phi();
 
   float aeta = fabs(eta);
 
-  if (aeta < m_etamin_crack || aeta > m_etamax_crack) 
+  const float etamin_crack = m_etamin_crack (myctx);
+  const float etamax_crack = m_etamax_crack (myctx);
+  if (aeta < etamin_crack || aeta > etamax_crack) 
     return; // no correction required
 
-  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, ctx);
+  const CxxUtils::Array<1> scint_weight = m_scint_weight (myctx);
+  const CxxUtils::Array<1> correction = m_correction (myctx);
+  assert (scint_weight.size() == correction.size());
+  if (correction.size() == 0) return;
+
+  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, myctx.ctx());
 
   double eh_scint = 0;
   if(cc.isValid())
@@ -121,18 +108,18 @@ void CaloSwGap_g3::makeCorrection(const EventContext& ctx,
   }
 
   // make the correction
-  double granularity = (m_etamax_crack - m_etamin_crack)/m_correction.size();  
-  int ind = static_cast<int> ((aeta - m_etamin_crack)/granularity);
+  double granularity = (etamax_crack - etamin_crack)/correction.size();  
+  int ind = static_cast<int> ((aeta - etamin_crack)/granularity);
 
 // Scintillator energy calibration
-  eh_scint = eh_scint * m_scint_weight[ind];
+  eh_scint = eh_scint * scint_weight[ind];
  
 //Correct for normalization factor total cluster energy and samplings energies 
-  double energy = (cluster->e())*m_correction[ind];
+  double energy = (cluster->e())*correction[ind];
   setenergy(cluster,energy);
 
 // Add the scintillator energy to the cluster and correct the total energy
-  energy += eh_scint * m_correction[ind]; 
+  energy += eh_scint * correction[ind]; 
   cluster->setE(energy);  
 }
 

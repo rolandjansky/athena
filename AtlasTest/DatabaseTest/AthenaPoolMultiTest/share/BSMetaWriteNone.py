@@ -32,7 +32,6 @@ topSequence += PassNoneFilter
 if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    from ByteStreamCnvSvc import ReadByteStream
    # Define the input
-   svcMgr.ByteStreamInputSvc.FullFileName = [ "metatest.data" ]
    theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
    from ByteStreamCnvSvc import WriteByteStream
@@ -53,6 +52,7 @@ from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
 svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
 
 #svcMgr.EventSelector.InputCollections = [ "test_defl.data" ]
+svcMgr.EventSelector.Input= [ "metatest.data" ]
 
 #--------------------------------------------------------------
 # Private Application Configuration options

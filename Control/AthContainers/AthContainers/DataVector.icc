@@ -1,10 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataVector.icc 794113 2017-01-26 22:01:47Z ssnyder $
 /**
  * @file  AthContainers/DataVector.icc
  * @author scott snyder, Paolo Calafiura, etc
@@ -406,7 +404,7 @@ DataVector<T, BASE>::DataVector
  * Any auxiliary data will be moved along with the container contents.
  */
 template <class T, class BASE>
-DataVector<T, BASE>::DataVector (DataVector&& rhs)
+DataVector<T, BASE>::DataVector (DataVector&& rhs) noexcept
 {
   SG::AuxVectorBase::operator= (std::move (rhs));
   this->m_ownPolicy = rhs.m_ownPolicy;
@@ -624,7 +622,7 @@ void DataVector<T, BASE>::assign(std::initializer_list<value_type> l)
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::size_type
-DataVector<T, BASE>::size() const
+DataVector<T, BASE>::size() const noexcept
 {
   return this->m_pCont.size();
 }
@@ -836,7 +834,7 @@ DataVector<T, BASE>::back ()
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_iterator
-DataVector<T, BASE>::begin() const
+DataVector<T, BASE>::begin() const noexcept
 {
   return const_iterator (this->m_pCont.begin());
 }
@@ -853,7 +851,7 @@ DataVector<T, BASE>::begin() const
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_iterator
-DataVector<T, BASE>::end() const
+DataVector<T, BASE>::end() const noexcept
 {
   return const_iterator (this->m_pCont.end());
 }
@@ -871,7 +869,7 @@ DataVector<T, BASE>::end() const
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::iterator
-DataVector<T, BASE>::begin()
+DataVector<T, BASE>::begin() noexcept
 {
   return iterator (this->m_pCont.begin(), this);
 }
@@ -889,7 +887,7 @@ DataVector<T, BASE>::begin()
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::iterator
-DataVector<T, BASE>::end()
+DataVector<T, BASE>::end() noexcept
 {
   return iterator (this->m_pCont.end(), this);
 }
@@ -906,7 +904,7 @@ DataVector<T, BASE>::end()
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_reverse_iterator
-DataVector<T, BASE>::rbegin() const
+DataVector<T, BASE>::rbegin() const noexcept
 {
   return const_reverse_iterator (end());
 }
@@ -923,7 +921,7 @@ DataVector<T, BASE>::rbegin() const
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_reverse_iterator
-DataVector<T, BASE>::rend() const
+DataVector<T, BASE>::rend() const noexcept
 {
   return const_reverse_iterator (begin());
 }
@@ -941,7 +939,7 @@ DataVector<T, BASE>::rend() const
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::reverse_iterator
-DataVector<T, BASE>::rbegin()
+DataVector<T, BASE>::rbegin() noexcept
 {
   return reverse_iterator (iterator (this->m_pCont.end(), this));
 }
@@ -959,7 +957,7 @@ DataVector<T, BASE>::rbegin()
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::reverse_iterator
-DataVector<T, BASE>::rend()
+DataVector<T, BASE>::rend() noexcept
 {
   return reverse_iterator (iterator (this->m_pCont.begin(), this));
 }
@@ -976,7 +974,7 @@ DataVector<T, BASE>::rend()
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_iterator
-DataVector<T, BASE>::cbegin() const
+DataVector<T, BASE>::cbegin() const noexcept
 {
   return const_iterator (this->m_pCont.begin());
 }
@@ -993,7 +991,7 @@ DataVector<T, BASE>::cbegin() const
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_iterator
-DataVector<T, BASE>::cend() const
+DataVector<T, BASE>::cend() const noexcept
 {
   return const_iterator (this->m_pCont.end());
 }
@@ -1010,7 +1008,7 @@ DataVector<T, BASE>::cend() const
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_reverse_iterator
-DataVector<T, BASE>::crbegin() const
+DataVector<T, BASE>::crbegin() const noexcept
 {
   return const_reverse_iterator (cend());
 }
@@ -1027,7 +1025,7 @@ DataVector<T, BASE>::crbegin() const
 template <class T, class BASE>
 inline
 typename DataVector<T, BASE>::const_reverse_iterator
-DataVector<T, BASE>::crend() const
+DataVector<T, BASE>::crend() const noexcept
 {
   return const_reverse_iterator (cbegin());
 }
@@ -1045,10 +1043,13 @@ DataVector<T, BASE>::crend() const
  *
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
+ *
+ * Returns the pushed pointer.
  */
 template <class T, class BASE>
 inline
-void DataVector<T, BASE>::push_back(value_type pElem)
+typename DataVector<T, BASE>::value_type
+DataVector<T, BASE>::push_back(value_type pElem)
 {
   // Ensure we're not being called via a base class.
   testInsert ("push_back");
@@ -1056,6 +1057,7 @@ void DataVector<T, BASE>::push_back(value_type pElem)
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (pElem)
     this->moveAux (this->size()-1, pElem, false, true);
+  return pElem;
 }
 
 
@@ -1067,10 +1069,13 @@ void DataVector<T, BASE>::push_back(value_type pElem)
  *
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
+ *
+ * Returns the pushed pointer.
  */
 template <class T, class BASE>
 inline
-void DataVector<T, BASE>::push_back(std::unique_ptr<base_value_type> pElem)
+typename DataVector<T, BASE>::value_type
+DataVector<T, BASE>::push_back(std::unique_ptr<base_value_type> pElem)
 {
   // Container must own its elements.
   if (this->m_ownPolicy != SG::OWN_ELEMENTS)
@@ -1083,6 +1088,7 @@ void DataVector<T, BASE>::push_back(std::unique_ptr<base_value_type> pElem)
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (ptr)
     this->moveAux (this->size()-1, ptr, false, true);
+  return ptr;
 }
 
 
@@ -1096,14 +1102,16 @@ void DataVector<T, BASE>::push_back(std::unique_ptr<base_value_type> pElem)
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
  *
- * For @c DataVector, this is just the same as @c push_back.
+ * For @c DataVector, this is like the same as @c push_back, and
+ * it returns the pushed element.
  * It's included just for interface compatibility with `std::vector`.
  */
 template <class T, class BASE>
 inline
-void DataVector<T, BASE>::emplace_back(value_type pElem)
+typename DataVector<T, BASE>::value_type
+DataVector<T, BASE>::emplace_back(value_type pElem)
 {
-  this->push_back (pElem);
+  return this->push_back (pElem);
 }
 
 
@@ -1418,7 +1426,7 @@ void DataVector<T, BASE>::swap(DataVector& rhs)
 /**
  * @brief Swap the referents of two @c DataVector iterators.
  * @param a The first iterator for the swap.
- * @param b The second iterator for the swap/
+ * @param b The second iterator for the swap.
  */
 template <class T, class BASE>
 void DataVector<T, BASE>::iter_swap (iterator a, iterator b)
@@ -1655,7 +1663,8 @@ void DataVector<T, BASE>::clear (SG::OwnershipPolicy ownPolicy,
 template <class T, class BASE>
 const DataModel_detail::DVLInfoBase& DataVector<T, BASE>::dvlinfo()
 {
-  return s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T, BASE> > info;
+  return info;
 }
 
 
@@ -1667,7 +1676,7 @@ const DataModel_detail::DVLInfoBase& DataVector<T, BASE>::dvlinfo()
 template <class T, class BASE>
 const DataModel_detail::DVLInfoBase& DataVector<T, BASE>::dvlinfo_v() const
 {
-  return s_info;
+  return DataVector<T, BASE>::dvlinfo();
 }
 
 
@@ -1955,11 +1964,6 @@ void DataVector<T, BASE>::setMostDerived()
 }
 
 
-/// The DV/DL info struct for this class.
-template <class T, class BASE>
-const DataModel_detail::DVLInfo<DataVector<T> > DataVector<T, BASE>::s_info;
-
-
 //****************************************************************************
 // Specialized (base) DataVector implementation.
 //
@@ -2047,7 +2051,7 @@ DATAVECTOR::DataVector(const DataVector& rhs)
  */
 template <class T>
 inline
-DATAVECTOR::DataVector(DataVector&& rhs)
+DATAVECTOR::DataVector(DataVector&& rhs) noexcept
   : AuxVectorBase (std::move (rhs)),
     m_ownPolicy(rhs.m_ownPolicy),
     m_pCont(std::move (rhs.m_pCont))
@@ -2257,7 +2261,7 @@ DATAVECTOR::~DataVector()
  */
 template <class T>
 inline
-typename DATAVECTOR::size_type DATAVECTOR::size() const
+typename DATAVECTOR::size_type DATAVECTOR::size() const noexcept
 {
   return m_pCont.size();
 }
@@ -2282,7 +2286,7 @@ typename DATAVECTOR::size_type DATAVECTOR::size_v() const
  */
 template <class T>
 inline
-typename DATAVECTOR::size_type DATAVECTOR::max_size() const
+typename DATAVECTOR::size_type DATAVECTOR::max_size() const noexcept
 {
   return m_pCont.max_size();
 }
@@ -2317,7 +2321,7 @@ void DATAVECTOR::resize(size_type sz)
  */
 template <class T>
 inline
-typename DATAVECTOR::size_type DATAVECTOR::capacity() const
+typename DATAVECTOR::size_type DATAVECTOR::capacity() const noexcept
 {
   return m_pCont.capacity();
 }
@@ -2343,7 +2347,7 @@ typename DATAVECTOR::size_type DATAVECTOR::capacity_v() const
  */
 template <class T>
 inline
-bool DATAVECTOR::empty() const
+bool DATAVECTOR::empty() const noexcept
 {
   return m_pCont.empty();
 }
@@ -2540,7 +2544,7 @@ typename DATAVECTOR::ElementProxy DATAVECTOR::back ()
  */
 template <class T>
 inline
-typename DATAVECTOR::const_iterator DATAVECTOR::begin() const
+typename DATAVECTOR::const_iterator DATAVECTOR::begin() const noexcept
 {
   return m_pCont.begin();
 }
@@ -2556,7 +2560,7 @@ typename DATAVECTOR::const_iterator DATAVECTOR::begin() const
  */
 template <class T>
 inline
-typename DATAVECTOR::const_iterator DATAVECTOR::end() const
+typename DATAVECTOR::const_iterator DATAVECTOR::end() const noexcept
 {
   return m_pCont.end();
 }
@@ -2573,7 +2577,7 @@ typename DATAVECTOR::const_iterator DATAVECTOR::end() const
  */
 template <class T>
 inline
-typename DATAVECTOR::iterator DATAVECTOR::begin()
+typename DATAVECTOR::iterator DATAVECTOR::begin() noexcept
 {
   return iterator (m_pCont.begin(), this);
 }
@@ -2590,7 +2594,7 @@ typename DATAVECTOR::iterator DATAVECTOR::begin()
  */
 template <class T>
 inline
-typename DATAVECTOR::iterator DATAVECTOR::end()
+typename DATAVECTOR::iterator DATAVECTOR::end() noexcept
 {
   return iterator (m_pCont.end(), this);
 }
@@ -2606,7 +2610,7 @@ typename DATAVECTOR::iterator DATAVECTOR::end()
  */
 template <class T>
 inline
-typename DATAVECTOR::const_reverse_iterator DATAVECTOR::rbegin() const
+typename DATAVECTOR::const_reverse_iterator DATAVECTOR::rbegin() const noexcept
 {
   return const_reverse_iterator (m_pCont.end());
 }
@@ -2622,7 +2626,7 @@ typename DATAVECTOR::const_reverse_iterator DATAVECTOR::rbegin() const
  */
 template <class T>
 inline
-typename DATAVECTOR::const_reverse_iterator DATAVECTOR::rend() const
+typename DATAVECTOR::const_reverse_iterator DATAVECTOR::rend() const noexcept
 {
   return const_reverse_iterator (const_iterator (m_pCont.begin()));
 }
@@ -2639,7 +2643,7 @@ typename DATAVECTOR::const_reverse_iterator DATAVECTOR::rend() const
  */
 template <class T>
 inline
-typename DATAVECTOR::reverse_iterator DATAVECTOR::rbegin()
+typename DATAVECTOR::reverse_iterator DATAVECTOR::rbegin() noexcept
 {
   return reverse_iterator(iterator (m_pCont.end(), this));
 }
@@ -2656,7 +2660,7 @@ typename DATAVECTOR::reverse_iterator DATAVECTOR::rbegin()
  */
 template <class T>
 inline
-typename DATAVECTOR::reverse_iterator DATAVECTOR::rend()
+typename DATAVECTOR::reverse_iterator DATAVECTOR::rend() noexcept
 {
   return reverse_iterator(iterator (m_pCont.begin(), this));
 }
@@ -2672,7 +2676,7 @@ typename DATAVECTOR::reverse_iterator DATAVECTOR::rend()
  */
 template <class T>
 inline
-typename DATAVECTOR::const_iterator DATAVECTOR::cbegin() const
+typename DATAVECTOR::const_iterator DATAVECTOR::cbegin() const noexcept
 {
   return m_pCont.begin();
 }
@@ -2688,7 +2692,7 @@ typename DATAVECTOR::const_iterator DATAVECTOR::cbegin() const
  */
 template <class T>
 inline
-typename DATAVECTOR::const_iterator DATAVECTOR::cend() const
+typename DATAVECTOR::const_iterator DATAVECTOR::cend() const noexcept
 {
   return m_pCont.end();
 }
@@ -2704,7 +2708,7 @@ typename DATAVECTOR::const_iterator DATAVECTOR::cend() const
  */
 template <class T>
 inline
-typename DATAVECTOR::const_reverse_iterator DATAVECTOR::crbegin() const
+typename DATAVECTOR::const_reverse_iterator DATAVECTOR::crbegin() const noexcept
 {
   return const_reverse_iterator (m_pCont.end());
 }
@@ -2720,7 +2724,7 @@ typename DATAVECTOR::const_reverse_iterator DATAVECTOR::crbegin() const
  */
 template <class T>
 inline
-typename DATAVECTOR::const_reverse_iterator DATAVECTOR::crend() const
+typename DATAVECTOR::const_reverse_iterator DATAVECTOR::crend() const noexcept
 {
   return const_reverse_iterator (const_iterator (m_pCont.begin()));
 }
@@ -2738,10 +2742,13 @@ typename DATAVECTOR::const_reverse_iterator DATAVECTOR::crend() const
  *
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
+ *
+ * Returns the pushed pointer.
  */
 template <class T>
 inline
-void DATAVECTOR::push_back(value_type pElem)
+typename DATAVECTOR::value_type
+DATAVECTOR::push_back(value_type pElem)
 {
   // Ensure we're not being called via a base class.
   testInsert ("push_back");
@@ -2749,6 +2756,7 @@ void DATAVECTOR::push_back(value_type pElem)
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (pElem)
     this->moveAux (this->size()-1, pElem, false, true);
+  return pElem;
 }
 
 
@@ -2760,10 +2768,13 @@ void DATAVECTOR::push_back(value_type pElem)
  *
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
+ *
+ * Returns the pushed pointer.
  */
 template <class T>
 inline
-void DATAVECTOR::push_back(std::unique_ptr<base_value_type> pElem)
+typename DATAVECTOR::value_type
+DATAVECTOR::push_back(std::unique_ptr<base_value_type> pElem)
 {
   // Container must own its elements.
   if (this->m_ownPolicy != SG::OWN_ELEMENTS)
@@ -2776,6 +2787,7 @@ void DATAVECTOR::push_back(std::unique_ptr<base_value_type> pElem)
   SG::AuxVectorBase::resize<DataVector> (this->size());
   if (ptr)
     this->moveAux (this->size()-1, ptr, false, true);
+  return ptr;
 }
 
 
@@ -2789,14 +2801,16 @@ void DATAVECTOR::push_back(std::unique_ptr<base_value_type> pElem)
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
  *
- * For @c DataVector, this is just the same as @c push_back.
+ * For @c DataVector, this is like the same as @c push_back, and
+ * it returns the pushed element.
  * It's included just for interface compatibility with `std::vector`.
  */
 template <class T>
 inline
-void DATAVECTOR::emplace_back(value_type pElem)
+typename DATAVECTOR::value_type
+DATAVECTOR::emplace_back(value_type pElem)
 {
-  this->push_back (pElem);
+  return this->push_back (pElem);
 }
 
 
@@ -3365,7 +3379,8 @@ void DATAVECTOR::clear (SG::OwnershipPolicy ownPolicy,
 template <class T>
 const DataModel_detail::DVLInfoBase& DATAVECTOR::dvlinfo()
 {
-  return s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T, DataModel_detail::NoBase> > info;
+  return info;
 }
 
 
@@ -3377,7 +3392,7 @@ const DataModel_detail::DVLInfoBase& DATAVECTOR::dvlinfo()
 template <class T>
 const DataModel_detail::DVLInfoBase& DATAVECTOR::dvlinfo_v() const
 {
-  return s_info;
+  return DATAVECTOR::dvlinfo();
 }
 
 
@@ -3701,11 +3716,6 @@ void DATAVECTOR::setMostDerived()
 {
   m_isMostDerived = true;
 }
-
-
-/// The DV/DL info struct for this class.
-template <class T>
-const DataModel_detail::DVLInfo<DataVector<T> > DATAVECTOR::s_info;
 
 
 #undef DATAVECTOR

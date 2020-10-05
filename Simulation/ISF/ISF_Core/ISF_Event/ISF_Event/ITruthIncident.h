@@ -17,7 +17,7 @@
 
 // forward declarations
 #include "AtlasHepMC/GenParticle_fwd.h"
-#include "AtlasHepMC/SimpleVector_fwd.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 namespace ISF {
 
@@ -74,7 +74,7 @@ namespace ISF {
     virtual int                       parentPdgCode() const = 0;
     /** Return the parent particle as a HepMC particle type
         (only called for particles that will enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       parentParticle() const = 0;
+    virtual HepMC::GenParticlePtr     parentParticle() const = 0;
     /** Return the barcode of the parent particle */
     virtual Barcode::ParticleBarcode  parentBarcode() const = 0;
     /** Return the bunch-crossing identifier of the parent particle */
@@ -83,7 +83,7 @@ namespace ISF {
     virtual bool                      parentSurvivesIncident() const = 0;
     /** Return the parent particle after the TruthIncident vertex (and assign
         a new barcode to it) */
-    virtual HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC) = 0;
+    virtual HepMC::GenParticlePtr     parentParticleAfterIncident(Barcode::ParticleBarcode newBC) = 0;
 
     /** Return total number of child particles */
     inline unsigned short             numberOfChildren() const;
@@ -107,14 +107,14 @@ namespace ISF {
     /** Return the i-th child as a HepMC particle type and assign the given
         Barcode to the simulator particle (only called for particles that will
         enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       childParticle(unsigned short index,
+    virtual HepMC::GenParticlePtr     childParticle(unsigned short index,
                                                     Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode) const = 0;
     /** Update the properties of a child particle from a pre-defined
         interaction based on the properties of the ith child of the
         current TruthIncident (only used in quasi-stable particle
         simulation). */
-    virtual HepMC::GenParticle*       updateChildParticle(unsigned short index,
-                                                          HepMC::GenParticle *existingChild) const = 0;
+    virtual HepMC::GenParticlePtr     updateChildParticle(unsigned short index,
+                                                          HepMC::GenParticlePtr existingChild) const = 0;
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) = 0;
 

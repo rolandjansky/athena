@@ -11,8 +11,10 @@
 #include "ParticleJetTools/CopyTruthJetParticles.h"
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
 #include "ParticleJetTools/JetParticleAssociationAlg.h"
+#include "ParticleJetTools/ParticleJetGhostLabelTool.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 using namespace Analysis;
 
@@ -29,7 +31,9 @@ DECLARE_COMPONENT( CopyBosonTopLabelTruthParticles )
 DECLARE_COMPONENT( CopyTruthPartons )
 DECLARE_COMPONENT( CopyTruthJetParticles )
 DECLARE_COMPONENT( ParticleJetDeltaRLabelTool )
+DECLARE_COMPONENT( ParticleJetGhostLabelTool )
 DECLARE_COMPONENT( JetParticleShrinkingConeAssociation )
 DECLARE_COMPONENT( JetParticleCenterOfMassAssociation )
+DECLARE_COMPONENT( JetTruthLabelingTool )
 DECLARE_COMPONENT( JetParticleAssociationAlg )
 

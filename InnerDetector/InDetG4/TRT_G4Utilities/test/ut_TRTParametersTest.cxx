@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define BOOST_TEST_DYN_LINK
@@ -8,6 +8,7 @@
 #include <boost/test/unit_test.hpp>
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4Utilities/TRTOutputFile.hh"
+
 
 namespace utf = boost::unit_test;
 
@@ -20,7 +21,6 @@ struct setupParameters{
  
   ~setupParameters(){
     BOOST_TEST_MESSAGE("ending test");
-    delete p;
   }
 };
 
@@ -33,7 +33,6 @@ struct setupOutputFile{
  
   ~setupOutputFile(){
     BOOST_TEST_MESSAGE("ending test");
-    delete p;
   }
 };
 
@@ -92,6 +91,7 @@ BOOST_AUTO_TEST_CASE(GetPartOfExistingDoubleArray, * utf::tolerance(0.01) ){
 BOOST_AUTO_TEST_SUITE_END()
 
 
+// cppcheck-suppress unknownMacro
 BOOST_FIXTURE_TEST_SUITE(Test_TRTOutputFile , setupOutputFile)
 BOOST_AUTO_TEST_CASE(OutputToFile  ){
   auto & f(p->GetReference());

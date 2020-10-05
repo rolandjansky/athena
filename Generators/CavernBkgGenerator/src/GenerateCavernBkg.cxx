@@ -8,11 +8,10 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include <cassert>
-using namespace std;
 
 
 // Random number generator stream name and static pointer to the RNG engine
-namespace { const string CAVBKG_RANDOM_STREAM = "CAVERN_BKG"; }
+namespace { const std::string CAVBKG_RANDOM_STREAM = "CAVERN_BKG"; }
 CLHEP::HepRandomEngine* GenerateCavernBkg::CAVBKG_RANDOM_ENGINE = 0;
 extern "C" float cav_rndm_( int* /*idummy*/ ) {
   return CLHEP::RandFlat::shoot(GenerateCavernBkg::CAVBKG_RANDOM_ENGINE);
@@ -23,7 +22,7 @@ extern "C" {
 }
 
 
-GenerateCavernBkg::GenerateCavernBkg(const string& name, ISvcLocator* pSvcLocator)
+GenerateCavernBkg::GenerateCavernBkg(const std::string& name, ISvcLocator* pSvcLocator)
   : GenModule(name, pSvcLocator)
 {
   declareProperty("InputFile",  m_infile="fvpn21n.dat");
@@ -61,27 +60,27 @@ GenerateCavernBkg::fillEvt(HepMC::GenEvent* evt) {
   ATH_MSG_INFO("GenerateCavernBkg FILLING.");
 
   // Set event properties
-  evt->set_signal_process_id(-1);
+  HepMC::set_signal_process_id(evt,-1);
   evt->set_event_number(m_bkgout.ievent());
-  evt->set_random_states(m_seeds);
+  HepMC::set_random_states(evt,m_seeds);
 
   for (int i = 1; i <= m_bkgout.npv(); ++i) {
     const CLHEP::HepLorentzVector position(m_bkgout.vx(i)*10., // CLHEP::cm to CLHEP::mm
                                            m_bkgout.vy(i)*10., // CLHEP::cm to CLHEP::mm
                                            m_bkgout.vz(i)*10., // CLHEP::cm to CLHEP::mm
                                            m_bkgout.ptof(i)*299.792458); // CLHEP::ns to CLHEP::mm
-    HepMC::GenVertex* v = new HepMC::GenVertex(position, m_bkgout.irp(i));
+    HepMC::GenVertexPtr v = HepMC::newGenVertexPtr(HepMC::FourVector(position.x(),position.y(),position.z(),position.t()), m_bkgout.irp(i));
 
     // Get the mass from the particle property service
-    const HepPDT::ParticleData* particle = particleData(abs(m_bkgout.ityp(i)));
+    const HepPDT::ParticleData* particle = particleData(std::abs(m_bkgout.ityp(i)));
     const double mass = particle->mass().value();
 
     const double px = m_bkgout.px(i)*1000.; // CLHEP::GeV to CLHEP::MeV
     const double py = m_bkgout.py(i)*1000.; // CLHEP::GeV to CLHEP::MeV
     const double pz = m_bkgout.pz(i)*1000.; // CLHEP::GeV to CLHEP::MeV
-    const double ener = sqrt(px*px + py*py + pz*pz + mass*mass);
+    const double ener = std::sqrt(px*px + py*py + pz*pz + mass*mass);
     const CLHEP::HepLorentzVector momentum(px, py, pz, ener);
-    HepMC::GenParticle* p = new HepMC::GenParticle(momentum, m_bkgout.ityp(i), 1);
+    HepMC::GenParticlePtr p = HepMC::newGenParticlePtr(HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()), m_bkgout.ityp(i), 1);
 
     v->add_particle_out(p);
     evt->add_vertex(v);

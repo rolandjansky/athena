@@ -32,7 +32,7 @@ atlas_depends_on_subdirs(
 # Build a shared library:
 atlas_add_library( FlavorTagDiscriminants
   Root/BTagJetAugmenter.cxx
-  Root/BTagTrackAugmenter.cxx
+  Root/BTagTrackIpAccessor.cxx
   Root/BTagAugmenterTool.cxx
   Root/BTagMuonAugmenter.cxx
   Root/BTagMuonAugmenterTool.cxx
@@ -42,13 +42,17 @@ atlas_add_library( FlavorTagDiscriminants
   Root/DL2Tool.cxx
   Root/customGetter.cxx
   Root/FlipTagEnums.cxx
+  Root/VRJetOverlapDecorator.cxx
+  Root/VRJetOverlapDecoratorTool.cxx
   Root/HbbTag.cxx
+  Root/HbbTagTool.cxx
   Root/HbbTagConfig.cxx
   Root/HbbGraphConfig.cxx
   Root/VRJetOverlapDecorator.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES AsgTools xAODBase xAODJet xAODMuon xAODEventInfo PathResolver
+  JetInterface
   ${LWTNN_LIBRARIES})
 
 if (NOT XAOD_STANDALONE)

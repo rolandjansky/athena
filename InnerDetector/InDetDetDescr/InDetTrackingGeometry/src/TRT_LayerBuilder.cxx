@@ -426,10 +426,10 @@ const std::vector< const Trk::CylinderLayer* >* InDet::TRT_LayerBuilder::cylindr
               // build a BinUtility for the ApproachDescritptor
               Trk::BinUtility* aDescriptorBinUtility = new Trk::BinUtility(nBarrelPhiSectors,layerPhiMinCorrected,layerPhiMaxCorrected,Trk::closed,Trk::binPhi);
                            (*aDescriptorBinUtility) += Trk::BinUtility(2,-layerHalflength,layerHalflength,Trk::open, Trk::binZ);
-              Trk::BinnedArray2D<Trk::ApproachSurfaces>* aDescriptorBinnedArray = new Trk::BinnedArray2D<Trk::ApproachSurfaces> (layerApproachSurfaces, aDescriptorBinUtility);             
+              auto aDescriptorBinnedArray = std::make_unique<Trk::BinnedArray2D<Trk::ApproachSurfaces>> (layerApproachSurfaces, aDescriptorBinUtility);             
               // build an approach surface
               Trk::CylinderSurface* approachSurface  = new Trk::CylinderSurface(barrelLayerBounds->clone()); 
-              Trk::ApproachDescriptor* aDescritpor   = new Trk::ApproachDescriptor(aDescriptorBinnedArray, approachSurface);
+              Trk::ApproachDescriptor* aDescritpor   = new Trk::ApproachDescriptor(std::move(aDescriptorBinnedArray), approachSurface);
               
               // do not give every layer material properties
               if (assignMaterial) {
@@ -669,7 +669,7 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
            ATH_MSG_VERBOSE("TRT Disc being build at z Position " << discZ << " ( from " << zMin << " / " << zMax << " )");
 
            // create the approach offset
-           Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
+           auto aSurfaces = std::make_unique<Trk::ApproachSurfaces>();
            // get the position of the approach surfaces
            const Amg::Vector3D aspPosition(0.,0.,zMin-m_layerStrawRadius);
            const Amg::Vector3D asnPosition(0.,0.,zMax+m_layerStrawRadius);
@@ -686,7 +686,7 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
                aSurfaces->push_back( new Trk::DiscSurface(asnTransform, fullDiscBounds->clone()) );
            }               
            // approach descriptor
-           Trk::ApproachDescriptor* aDescriptor = new Trk::ApproachDescriptor(aSurfaces,false);
+           Trk::ApproachDescriptor* aDescriptor = new Trk::ApproachDescriptor(std::move(aSurfaces),false);
            
            // do not give every layer material properties
            if (assignMaterial)

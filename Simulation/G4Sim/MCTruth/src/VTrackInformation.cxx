@@ -1,25 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MCTruth/VTrackInformation.h"
 
-VTrackInformation::VTrackInformation(TrackClassification tc):m_classify(tc),m_thePrimaryParticle(0)
+VTrackInformation::VTrackInformation(TrackClassification tc):m_classify(tc)
 {
 }
 
-const HepMC::GenParticle* VTrackInformation::GetPrimaryHepMCParticle() const
+HepMC::ConstGenParticlePtr VTrackInformation::GetPrimaryHepMCParticle() const
 {
   return m_thePrimaryParticle;
 }
 
-void VTrackInformation::SetPrimaryHepMCParticle(const HepMC::GenParticle* p)
+void VTrackInformation::SetPrimaryHepMCParticle(HepMC::ConstGenParticlePtr p)
 {
   m_thePrimaryParticle=p;
 }
 
 
-const HepMC::GenParticle* VTrackInformation::GetHepMCParticle() const
+HepMC::ConstGenParticlePtr VTrackInformation::GetHepMCParticle() const
 {
   return 0;
 }
@@ -34,7 +34,7 @@ bool VTrackInformation::GetReturnedToISF() const
   return false;
 }
 
-void VTrackInformation::SetParticle(const HepMC::GenParticle* /*p*/)
+void VTrackInformation::SetParticle(HepMC::ConstGenParticlePtr /*p*/)
 {
   // you should not call this, perhaps throw an exception?
   std::cerr<<"ERROR  VTrackInformation::SetParticle() not supported  "<<std::endl;

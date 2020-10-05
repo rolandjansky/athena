@@ -1,0 +1,105 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+inline const ITrackLink*
+VxTrackAtVertex::trackOrParticleLink(void) const
+{
+  return m_trackOrParticleLink;
+}
+
+inline ITrackLink*
+VxTrackAtVertex::trackOrParticleLink(void)
+{
+  return m_trackOrParticleLink;
+}
+
+inline const AtaPlane*
+VxTrackAtVertex::ImpactPoint3dAtaPlane(void) const
+{
+  return m_ImpactPoint3dAtaPlane;
+}
+
+inline const NeutralAtaPlane*
+VxTrackAtVertex::ImpactPoint3dNeutralAtaPlane(void) const
+{
+  return m_ImpactPoint3dNeutralAtaPlane;
+}
+
+inline void
+VxTrackAtVertex::setWeight(const double weight)
+{
+  m_trkWeight = weight;
+}
+
+inline double
+VxTrackAtVertex::weight(void) const
+{
+  return m_trkWeight;
+}
+
+inline void
+VxTrackAtVertex::setVtxCompatibility(const double vtxCompatibility)
+{
+  m_VertexCompatibility = vtxCompatibility;
+}
+
+inline double
+VxTrackAtVertex::vtxCompatibility(void) const
+{
+  return m_VertexCompatibility;
+}
+
+inline LinearizedTrack*
+VxTrackAtVertex::linState(void)
+{
+  return m_linState;
+}
+
+inline const LinearizedTrack*
+VxTrackAtVertex::linState(void) const
+{
+  return m_linState;
+}
+
+inline FitQuality
+VxTrackAtVertex::trackQuality(void) const
+{
+  return m_fitQuality;
+}
+
+inline const TrackParameters*
+VxTrackAtVertex::perigeeAtVertex(void) const
+{
+  return m_perigeeAtVertex;
+}
+
+inline const NeutralParameters*
+VxTrackAtVertex::neutralPerigeeAtVertex(void) const
+{
+  return m_neutralPerigeeAtVertex;
+}
+
+inline void
+VxTrackAtVertex::setTrackQuality(const FitQuality& trkQuality)
+{
+  m_fitQuality = trkQuality;
+}
+
+inline void
+VxTrackAtVertex::setInitialPerigee(const TrackParameters* perigee)
+{
+  if (m_trackOrParticleLink == nullptr)
+    m_initialPerigee = perigee;
+}
+
+inline void
+VxTrackAtVertex::setInitialPerigee(const NeutralParameters* perigee)
+{
+  if (m_trackOrParticleLink == nullptr)
+    m_initialNeutralPerigee = perigee;
+}
+
+}
+

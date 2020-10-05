@@ -26,7 +26,11 @@ add_definitions(-DPY8INCLUDE_DIR=\"${PYTHIA8_INCLUDE_DIR}\")
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
-
+if (HEPMC3_USE)
+set( HEPMC_PYTHIA8_INTERFACE_DIR ${HEPMC3_INCLUDE_DIR}/../share/HepMC3/interfaces/pythia8/include/Pythia8)
+else()
+set( HEPMC_PYTHIA8_INTERFACE_DIR ${PYTHIA8_INCLUDE_DIRS})
+endif()
 # Component(s) in the package:
 atlas_add_library( Pythia8_iLib
                    src/Pythia8_i.cxx
@@ -55,16 +59,17 @@ atlas_add_library( Pythia8_iLib
                    src/UserResonances/ResonanceExcitedCI.cxx
                    src/UserResonances/ResonanceLQ.cxx
                    PUBLIC_HEADERS Pythia8_i
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS} ${HEPMC_PYTHIA8_INTERFACE_DIR}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} AthenaKernel GeneratorModulesLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel GeneratorObjects PathResolver )
 
 atlas_add_component( Pythia8_i
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS} ${HEPMC_PYTHIA8_INTERFACE_DIR}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} AthenaKernel GeneratorModulesLib GaudiKernel GeneratorObjects PathResolver Pythia8_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py
+                          share/example/*.py )
 

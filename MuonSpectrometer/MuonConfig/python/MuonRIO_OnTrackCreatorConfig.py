@@ -3,12 +3,29 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonConfig.MuonCalibConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
-from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO should maybe shift this elsewhere?
+
 Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon.MdtDriftCircleOnTrackCreator
 Muon__CscClusterOnTrackCreator=CompFactory.Muon.CscClusterOnTrackCreator
 Muon__MuonClusterOnTrackCreator=CompFactory.Muon.MuonClusterOnTrackCreator
 Trk__RIO_OnTrackCreator=CompFactory.Trk.RIO_OnTrackCreator
 Muon__TriggerChamberClusterOnTrackCreator=CompFactory.Muon.TriggerChamberClusterOnTrackCreator
+
+### Simple function holding connecting names to the different calibration window options
+# The window values themselves are defined in C++ in MdtCalibSvc/MdtCalibrationSvcSettings.h
+# Author: Mike Flowerdew <michael.flowerdew@cern.ch>
+
+__mdtCalibWindows = ['User',
+                     'Default', ## 1000,2000
+                     'Collision_G4', ## 20,30
+                     'Collision_data', ## 10,30
+                     'Collision_t0fit', ## 50,100
+                     ]
+
+def MdtCalibWindowNumber(name):
+    """Returns index number corresponding to the calibration window name.
+    This will throw a ValueError if name is not in the list.
+    """
+    return __mdtCalibWindows.index(name)
 
 def TriggerChamberClusterOnTrackCreatorCfg(flags, name="TriggerChamberClusterOnTrackCreator", **kwargs):
     result=ComponentAccumulator()
@@ -79,7 +96,7 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
         kwargs.setdefault("DoTofCorrection", True)
         kwargs.setdefault("DoFixedError", False)
         kwargs.setdefault("DoErrorScaling", False)
-        kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
+        kwargs.setdefault("TimeWindowSetting", MdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
         kwargs.setdefault("UseParametrisedError", False)
 
         if not flags.Input.isMC : 
@@ -87,6 +104,9 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
             kwargs.setdefault("UseLooseErrors", flags.Muon.useLooseErrorTuning)  # LooseErrors on data                          
     
     kwargs.setdefault("IsMC", flags.Input.isMC)
+
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("doMDT", False)
                  
     result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, **kwargs),primary=True)
     return result
@@ -97,8 +117,6 @@ def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwarg
         # scale TGC eta hit errors as long as TGC eta are not well aligned
         kwargs.setdefault("DoFixedErrorTgcEta", True)
         kwargs.setdefault("FixedErrorTgcEta", 15.)
-
-    # TODO Fixme - the cxx class retrieves public MuonIdHelperTool ... should be private / service.
     
     muon_cluster_rot_creator = Muon__MuonClusterOnTrackCreator(name, **kwargs)
     result.addPublicTool(muon_cluster_rot_creator, primary=True)

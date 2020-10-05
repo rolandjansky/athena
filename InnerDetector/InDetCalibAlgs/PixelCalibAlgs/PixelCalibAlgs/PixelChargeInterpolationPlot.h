@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationPlot_h
 #define PixelChargeInterpolationPlot_h
+
+#include "CxxUtils/checker_macros.h"
 
 class string;
 template < class T, class Allocator > class vector;
@@ -14,8 +16,6 @@ class TGaxis;
 namespace PixelCalib{
 
 class PixelChargeInterpolationParameters;
-
-class PixelChargeInterpolationPlot;
 
 class PixelChargeInterpolationPlot{
 

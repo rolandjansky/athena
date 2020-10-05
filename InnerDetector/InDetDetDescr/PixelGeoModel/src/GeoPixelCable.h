@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELCABLE_H
@@ -10,8 +10,9 @@
 
 class GeoPixelCable : public GeoVPixelFactory {
  public:
-  GeoPixelCable();
-  virtual GeoVPhysVol* Build();
+  GeoPixelCable(InDetDD::PixelDetectorManager* ddmgr,
+                PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
   int numElements() const {return m_elements.size();}
   void setElement(int i) {m_currentElement = i;}
   double getStackOffset();

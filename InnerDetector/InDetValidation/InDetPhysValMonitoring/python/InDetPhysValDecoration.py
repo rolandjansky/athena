@@ -149,7 +149,7 @@ def getInDetRttTruthSelectionTool(**kwargs) :
                             requireStatus1 = True,
                             requireCharged = True,
                             maxBarcode = ( 200*1000 if kwargs.pop("OnlyDressPrimaryTracks",True) else 2**31-1 ),
-                            maxProdVertRadius = 110.,
+                            maxProdVertRadius = 300.,
                             maxEta = 2.5,
                             minPt = 400. )
 
@@ -183,8 +183,12 @@ def getTrackDecorators(**kwargs) :
     of the algorithms will be extended by the collection name.
     '''
     # only valid kwarg : TrackParticleContainerName
-    return [ getInDetPhysHitDecoratorAlg(**kwargs),
-             getParameterErrDecoratorAlg(**kwargs) ]
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if not IsInInputFile('Trk::TrackCollection','CombinedInDetTracks') :
+        return [ getParameterErrDecoratorAlg(**kwargs) ]
+    else : 
+        return [ getInDetPhysHitDecoratorAlg(**kwargs),
+                 getParameterErrDecoratorAlg(**kwargs) ]
 
 def getDBMTrackDecorators(**kwargs) :
     from InDetRecExample.InDetKeys import InDetKeys

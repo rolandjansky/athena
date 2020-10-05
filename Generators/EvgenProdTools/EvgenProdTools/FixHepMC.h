@@ -36,9 +36,9 @@ private:
 
   /// @name Classifiers for identifying particles to be removed
   //@{
-  bool isPID0(const HepMC::GenParticle* p);
-  bool isNonTransportableInDecayChain(const HepMC::GenParticle* p);
-  bool isLoop(const HepMC::GenParticle* p);
+  bool isPID0(HepMC::ConstGenParticlePtr p);
+  bool isNonTransportableInDecayChain(HepMC::ConstGenParticlePtr p);
+  bool isLoop(HepMC::ConstGenParticlePtr p);
   //@}
 
   /// @name Config properties

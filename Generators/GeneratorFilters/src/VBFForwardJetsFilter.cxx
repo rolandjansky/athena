@@ -92,59 +92,97 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   ATH_MSG_DEBUG("xAOD::JetContainer size = " << truthjetTES->size());
 
   // Get MCTruth Photon/Electon/Tau(HadronicDecay)
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
-  std::vector<HepMC::GenParticle*> MCTruthElectronList;
-  std::vector<CLHEP::HepLorentzVector*>   MCTruthTauList;
+  std::vector<HepMC::GenParticlePtr> MCTruthPhotonList;
+  std::vector<HepMC::GenParticlePtr> MCTruthElectronList;
+  std::vector<CLHEP::HepLorentzVector>   MCTruthTauList;
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto pitr: ((HepMC::GenEvent*)genEvt)->particles()) {
+      // photon
+      if ( pitr->pdg_id() == 22 && pitr->status() == 1 &&
+           pitr->momentum().perp() >= m_LGMinPt && std::abs(pitr->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+        MCTruthPhotonList.push_back(pitr);
+        ATH_MSG_INFO("photon pt(Gaudi::Units::GeV) = " << pitr->momentum().perp()/Gaudi::Units::GeV << " eta = " << pitr->momentum().pseudoRapidity());
+      }
+      // electon
+      if ( std::abs(pitr->pdg_id()) == 11 && pitr->status() == 1 &&
+           pitr->momentum().perp() >= m_LGMinPt && std::abs(pitr->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+        MCTruthElectronList.push_back(pitr);
+        ATH_MSG_INFO("electron pt(Gaudi::Units::GeV) = " << pitr->momentum().perp()/Gaudi::Units::GeV << " eta = " << pitr->momentum().pseudoRapidity());
+      }
+      // tau
+      if ( std::abs(pitr->pdg_id()) == 15 && pitr->status() != 3 ) {
+        auto tau = pitr;
+        int leptonic = 0;
+        for (auto beg: tau->end_vertex()->particles_out() ) {
+          if ( beg->production_vertex() != tau->end_vertex() ) continue;
+          if ( std::abs( beg->pdg_id() ) == 12 ) leptonic = 1;
+          if ( std::abs( beg->pdg_id() ) == 14 ) leptonic = 2;
+          if ( std::abs( beg->pdg_id() ) == 15 ) leptonic = 11;
+        }
+
+        if (leptonic == 0) {
+          CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
+          CLHEP::HepLorentzVector tauvis = CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
+                                                          tau->momentum().py()-nutau.py(),
+                                                          tau->momentum().pz()-nutau.pz(),
+                                                          tau->momentum().e()-nutau.e());
+          if (tauvis.vect().perp() >= m_LGMinPt && std::abs(tauvis.vect().pseudoRapidity()) <= m_LGMaxEta) {
+            MCTruthTauList.push_back(tauvis);
+            ATH_MSG_INFO("had-tau pt(CLHEP::GeV) = " << tauvis.vect().perp()/CLHEP::GeV << " eta = " << tauvis.vect().pseudoRapidity());
+          } 
+        }
+      }
+    }
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       // photon
       if ( (*pitr)->pdg_id() == 22 && (*pitr)->status() == 1 &&
-           (*pitr)->momentum().perp() >= m_LGMinPt && fabs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+           (*pitr)->momentum().perp() >= m_LGMinPt && std::abs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
         MCTruthPhotonList.push_back((*pitr));
         ATH_MSG_INFO("photon pt(Gaudi::Units::GeV) = " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << " eta = " << (*pitr)->momentum().pseudoRapidity());
       }
       // electon
-      if ( abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
-           (*pitr)->momentum().perp() >= m_LGMinPt && fabs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+      if ( std::abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
+           (*pitr)->momentum().perp() >= m_LGMinPt && std::abs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
         MCTruthElectronList.push_back((*pitr));
         ATH_MSG_INFO("electron pt(Gaudi::Units::GeV) = " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << " eta = " << (*pitr)->momentum().pseudoRapidity());
       }
       // tau
-      if ( abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3 ) {
+      if ( std::abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3 ) {
         HepMC::GenParticle *tau = (*pitr);
         HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
         HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
         int leptonic = 0;
         for ( ; begin != end; begin++ ) {
           if ( (*begin)->production_vertex() != tau->end_vertex() ) continue;
-          if ( abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
-          if ( abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
-          if ( abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
+          if ( std::abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
+          if ( std::abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
+          if ( std::abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
         }
 
         if (leptonic == 0) {
           CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
-          CLHEP::HepLorentzVector *tauvis = new CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
+          CLHEP::HepLorentzVector tauvis = CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
                                                           tau->momentum().py()-nutau.py(),
                                                           tau->momentum().pz()-nutau.pz(),
                                                           tau->momentum().e()-nutau.e());
-          if (tauvis->vect().perp() >= m_LGMinPt && fabs(tauvis->vect().pseudoRapidity()) <= m_LGMaxEta) {
+          if (tauvis.vect().perp() >= m_LGMinPt && std::abs(tauvis.vect().pseudoRapidity()) <= m_LGMaxEta) {
             MCTruthTauList.push_back(tauvis);
-            ATH_MSG_INFO("had-tau pt(CLHEP::GeV) = " << tauvis->vect().perp()/CLHEP::GeV << " eta = " << tauvis->vect().pseudoRapidity());
-          } else {
-            delete tauvis;
-          }
+            ATH_MSG_INFO("had-tau pt(CLHEP::GeV) = " << tauvis.vect().perp()/CLHEP::GeV << " eta = " << tauvis.vect().pseudoRapidity());
+          } 
         }
       }
     }
+#endif
   }
 
   // Select TruthJets
   std::vector<const xAOD::Jet*> jetList;
   for (xAOD::JetContainer::const_iterator it_truth = truthjetTES->begin(); it_truth != truthjetTES->end(); ++it_truth) {
-    if ( (*it_truth)->pt() > m_JetMinPt && fabs( (*it_truth)->eta() ) < m_JetMaxEta ) {
+    if ( (*it_truth)->pt() > m_JetMinPt && std::abs( (*it_truth)->eta() ) < m_JetMaxEta ) {
       jetList.push_back(*it_truth);
       ATH_MSG_INFO("jet pt(Gaudi::Units::GeV) = " << (*it_truth)->pt()/Gaudi::Units::GeV << " eta = " << (*it_truth)->eta());
     }
@@ -165,7 +203,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
     flag1stJet = 0;
     if (jetList.size() >= 1) {
       const xAOD::Jet *j1 = jetList[0];
-      if (j1->pt() > m_Jet1MinPt && fabs(j1->eta()) < m_Jet1MaxEta) {
+      if (j1->pt() > m_Jet1MinPt && std::abs(j1->eta()) < m_Jet1MaxEta) {
         flag1stJet = 1;
       }
     }
@@ -177,7 +215,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
     flag2ndJet = 0;
     if (jetList.size() >= 2) {
       const xAOD::Jet *j2 = jetList[1];
-      if (j2->pt() > m_Jet2MinPt && fabs(j2->eta()) < m_Jet2MaxEta) {
+      if (j2->pt() > m_Jet2MinPt && std::abs(j2->eta()) < m_Jet2MaxEta) {
         flag2ndJet = 1;
       }
     }
@@ -203,7 +241,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
       int okMassJJ = m_MassJJ >= 0. ? 0 : 1;
       for (unsigned i=0;i<jetList.size()-1;++i) {
         for (unsigned j=i+1;j<jetList.size();++j) {
-          double dEta = fabs(jetList[i]->eta()-jetList[j]->eta());
+          double dEta = std::abs(jetList[i]->eta()-jetList[j]->eta());
           double Mjj = (jetList[i]->p4()+jetList[j]->p4()).M();
           ATH_MSG_INFO("DeltaEtaJJ = " << dEta << " MassJJ(CLHEP::GeV) = " << Mjj/CLHEP::GeV << " (" << i << ", " << j << ")");
           if (okDeltaEtaJJ == 0 && dEta > m_DeltaEtaJJ) okDeltaEtaJJ = 1;
@@ -226,21 +264,15 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   ATH_MSG_INFO("Sign   OK? : " << flagSign);
   ATH_MSG_INFO("JJ     OK? : " << flagJJ);
 
-  if (MCTruthTauList.size()) {
-    for (std::vector<CLHEP::HepLorentzVector*>::reverse_iterator i = MCTruthTauList.rbegin(); i != MCTruthTauList.rend(); ++i) {
-      delete *i;
-    }
-  }
-
   setFilterPassed(flagNJets != 0 && flag1stJet != 0 && flag2ndJet != 0 && flagSign != 0 && flagJJ != 0);
   return StatusCode::SUCCESS;
 }
 
 
-CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
 
-  if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
+  if ( ( std::abs( part->pdg_id() ) == 12 ) || ( std::abs( part->pdg_id() ) == 14 ) || ( std::abs( part->pdg_id() ) == 16 ) ) {
     nu.setPx(part->momentum().px());
     nu.setPy(part->momentum().py());
     nu.setPz(part->momentum().pz());
@@ -248,16 +280,14 @@ CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenPa
     return nu;
   }
 
-  if ( part->end_vertex() == 0 ) return nu;
+  if ( !part->end_vertex() ) return nu;
 
-  HepMC::GenVertex::particles_out_const_iterator begin = part->end_vertex()->particles_out_const_begin();
-  HepMC::GenVertex::particles_out_const_iterator end = part->end_vertex()->particles_out_const_end();
-  for ( ; begin != end; begin++ ) nu += sumDaughterNeutrinos( *begin );
+  for (auto daughterparticle: *(part->end_vertex())) nu += sumDaughterNeutrinos( daughterparticle );
   return nu;
 }
 
 
-double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepMC::GenParticle*> &list) {
+double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepMC::GenParticlePtr> &list) {
   double minDR = 999.;
   for (unsigned i=0;i<list.size();++i) {
     if (list[i]->momentum().perp() != 0.) {
@@ -265,8 +295,8 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepM
       double deta = jet->eta()-list[i]->momentum().pseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
-      double dr = sqrt(deta*deta+dphi*dphi);
-      double ratio_pt= fabs((jet->pt()-list[i]->momentum().perp())/list[i]->momentum().perp());
+      double dr = std::sqrt(deta*deta+dphi*dphi);
+      double ratio_pt= std::abs((jet->pt()-list[i]->momentum().perp())/list[i]->momentum().perp());
       if (ratio_pt < m_RatioPtJLG && dr < minDR) minDR = dr;
     }
   }
@@ -274,16 +304,16 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepM
 }
 
 
-double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHEP::HepLorentzVector*> &list) {
+double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHEP::HepLorentzVector> &list) {
   double minDR = 999.;
   for (unsigned i=0;i<list.size();++i) {
-    if (list[i]->vect().perp() != 0.) {
-      double dphi = jet->phi()-list[i]->phi();
-      double deta = jet->eta()-list[i]->vect().pseudoRapidity();
+    if (list[i].vect().perp() != 0.) {
+      double dphi = jet->phi()-list[i].phi();
+      double deta = jet->eta()-list[i].vect().pseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
-      double dr = sqrt(deta*deta+dphi*dphi);
-      double ratio_pt= fabs((jet->pt()-list[i]->vect().perp())/list[i]->vect().perp());
+      double dr = std::sqrt(deta*deta+dphi*dphi);
+      double ratio_pt= std::abs((jet->pt()-list[i].vect().perp())/list[i].vect().perp());
       if (ratio_pt < m_RatioPtJLG && dr < minDR) minDR = dr;
     }
   }
@@ -292,9 +322,9 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHE
 
 
 void VBFForwardJetsFilter::removePseudoJets( std::vector<const xAOD::Jet*> &jetList,
-                                             std::vector<HepMC::GenParticle*> &MCTruthPhotonList,
-                                             std::vector<HepMC::GenParticle*> &MCTruthElectronList,
-                                             std::vector<CLHEP::HepLorentzVector*>   &MCTruthTauList) {
+                                             std::vector<HepMC::GenParticlePtr> &MCTruthPhotonList,
+                                             std::vector<HepMC::GenParticlePtr> &MCTruthElectronList,
+                                             std::vector<CLHEP::HepLorentzVector>   &MCTruthTauList) {
   std::vector<const xAOD::Jet*> orgJetList = jetList;
   jetList.clear();
   for (unsigned i=0;i<orgJetList.size();++i) {

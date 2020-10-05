@@ -34,19 +34,13 @@
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 
+// Tool interfaces
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
-namespace InDet {
-  class IInDetTrackSelectionTool;
-}
- 
-namespace xAOD {
-  class ITrackIsolationTool;
-  class ICaloTopoClusterIsolationTool;
-}
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
 
-namespace CP {
-  class ITrackVertexAssociationTool;
-}
 
 namespace met{
 
@@ -104,32 +98,26 @@ namespace met{
     bool isElTrack(const xAOD::TrackParticle &trk, const std::vector<const xAOD::Electron*>& electrons, size_t &el_index ) const;
     bool isMuTrack(const xAOD::TrackParticle &trk, const std::vector<const xAOD::Muon*>& muons) const;
 
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
-    ToolHandle<CP::ITrackVertexAssociationTool> m_trkToVertexTool;
-    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
-    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool{this,"TrackSelectorTool","",""};
+    ToolHandle<CP::ITrackVertexAssociationTool> m_trkToVertexTool{this,"TrackVxAssocTool","",""};
+    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool{this,"TrackIsolationTool","",""};
+    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool{this,"CaloIsolationTool","",""};
 
     void selectElectrons(const xAOD::ElectronContainer &elCont, std::vector<const xAOD::Electron*>& electrons) const;
     void selectMuons(const xAOD::MuonContainer &muCont, std::vector<const xAOD::Muon*>& muons) const;
 
     bool m_trk_doPVsel;
-    // double m_trk_d0Max;
-    // double m_trk_z0Max;
-    std::string m_pv_input;
-    std::string m_el_input;
-    std::string m_mu_input;
 
-    SG::ReadHandleKey<xAOD::ElectronContainer>      m_el_inputkey;
-    SG::ReadHandleKey<xAOD::MuonContainer>          m_mu_inputkey;
-    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey;
-    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_cl_inputkey;
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_el_inputkey{this,"InputElectronKey","Electrons",""};
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_mu_inputkey{this,"InputMuonKey","Muons",""};
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey{this,"InputPVKey","PrimaryVertices",""};
+    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_cl_inputkey{this,"InputClusterKey","CaloCalTopoClusters",""};
 
     bool m_doVxSep;
     bool m_doLepRecovery;
     bool m_useIsolationTools;
 
     bool m_trk_doEoverPsel;
-    std::string m_cl_input;
 
     double m_cenTrackPtThr;
     double m_forTrackPtThr;

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __LArG4TBECBeamChCalculator_H__
-#define __LArG4TBECBeamChCalculator_H__
+#ifndef LARG4H6SD_LARG4TBECBEAMCHCALCULATOR_H
+#define LARG4H6SD_LARG4TBECBEAMCHCALCULATOR_H
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"

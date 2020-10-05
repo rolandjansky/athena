@@ -23,6 +23,5 @@ atlas_add_component( LUCID_Monitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib LUCID_RawEvent GaudiKernel )
 
 # Install files from the package:
-atlas_install_headers( LUCID_Monitoring )
 atlas_install_joboptions( share/*.py )
 

@@ -102,6 +102,7 @@ class MonitoredRange{
     TrigCostAnalysis* m_parent; //!< Cached ptr to the parent Athena algorithm
     TH1* m_cachedLifetimeHistPtr; //!< Cached histogram ptr used to store normalisation quantities.
     std::set< std::unique_ptr<MonitorBase> > m_monitors; //!< Storage of Range's Monitors. Keyed by Monitor's name.
+    std::set< uint32_t > m_seenLB; //!< Luminosity blocks for which we have seen at least one event
 
 };
 

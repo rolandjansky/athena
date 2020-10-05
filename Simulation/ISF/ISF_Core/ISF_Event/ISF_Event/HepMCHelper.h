@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 // HepMC includes
 #include "AtlasHepMC/GenRanges.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/IteratorRange.h"
 
 // forward declarations
 #include "AtlasHepMC/GenParticle_fwd.h"
@@ -51,7 +52,7 @@ namespace ISF {
           at least one particle with one of the given PDG codes appears.
           returns pointer to first found particle that matches any of the
           given PDG codes in relativesPDG */
-      static inline const HepMC::GenParticle * findRealtiveWithPDG( const HepMC::GenParticle &genParticle,
+      static inline HepMC::ConstGenParticlePtr findRealtiveWithPDG( HepMC::ConstGenParticlePtr genParticle,
                                                                     const HepMC::IteratorRange &relation,
                                                                     const std::set<int> &relativesPDG     );
   };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,6 +24,8 @@
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
+
+#include "CxxUtils/checker_macros.h"
 
 using InDetDD::PixelDetectorManager; 
 using InDetDD::SiDetectorManager; 
@@ -341,9 +343,9 @@ StatusCode PixelDetectorTool::clear()
 }
   
 StatusCode   
-PixelDetectorTool::registerCallback()
+PixelDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
-
+   // Thread unsafe DataHandle template and StoreGateSvc::regFcn method are used.
   StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
 
@@ -446,6 +448,7 @@ PixelDetectorTool::registerCallback()
   }
   return sc;
 
+  return StatusCode::SUCCESS;
 }
   
 StatusCode 

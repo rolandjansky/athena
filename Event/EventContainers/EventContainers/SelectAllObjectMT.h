@@ -15,11 +15,12 @@ public:
 //	typedef OBJECT OBJECT;
     typedef SelectAllObjectMT<DCC,OBJECT>  MyType;
     typedef typename DC::const_iterator Object_const_iterator;
-    typedef typename DCC::Hash_Container::const_iterator Hash_iterator;
+    typedef typename DCC::const_iterator Cont_iterator;
+//    typedef typename DCC::Hash_Container::const_iterator Hash_iterator;
 
     class const_iterator
     {
-        Hash_iterator m_hash_itr;
+        Cont_iterator m_cont_itr;
         const SelectAllObjectMT<DCC,OBJECT>* m_Parent;
         Object_const_iterator m_digit_it;
         const DC* m_dc;  // cache DC
@@ -29,12 +30,9 @@ public:
 
 SKIPNEXT:
 
-            ++m_hash_itr;
-            if(m_hash_itr != m_Parent->m_hashes.cend()) {
-                m_dc = m_Parent->m_dcc->indexFindPtr(*m_hash_itr);
-#ifdef IdentifiableCacheBaseRemove
-                if(m_dc == nullptr) goto SKIPNEXT;//In case we implement remove
-#endif
+            ++m_cont_itr;
+            if(m_cont_itr != m_Parent->m_dcc->end()) {
+                m_dc = *m_cont_itr;
                 m_digit_it = m_dc->begin();
                 if(m_digit_it == m_dc->end()) goto SKIPNEXT;
             } else {
@@ -47,16 +45,16 @@ SKIPNEXT:
 
         const_iterator()
             :
-            m_hash_itr(),
+            m_cont_itr(),
             m_Parent(nullptr),
             m_digit_it(),
             m_dc(nullptr)
         {}
 
-        const_iterator(const Hash_iterator &itr, const SelectAllObjectMT<DCC,OBJECT>* parent,
+        const_iterator(const Cont_iterator &itr, const SelectAllObjectMT<DCC,OBJECT>* parent,
                        Object_const_iterator digitit, const DC* dc )
             :
-            m_hash_itr(itr),
+            m_cont_itr(itr),
             m_Parent(parent),
             m_digit_it(digitit),
             m_dc(dc)
@@ -94,7 +92,7 @@ SKIPNEXT:
 
         bool operator != ( const const_iterator it ) const
         {
-            if( it.m_hash_itr != m_hash_itr || it.m_digit_it != m_digit_it )
+            if( it.m_cont_itr != m_cont_itr || it.m_digit_it != m_digit_it )
                 return true;
 
             return false;
@@ -102,25 +100,25 @@ SKIPNEXT:
 
         bool operator == ( const const_iterator it ) const
         {
-            return( it.m_hash_itr == m_hash_itr && it.m_digit_it == m_digit_it );
+            return( it.m_cont_itr == m_cont_itr && it.m_digit_it == m_digit_it );
         }
 
 
 
     };
 
-    SelectAllObjectMT(const DCC* dcc) : m_dcc(dcc), m_hashes(dcc->GetAllCurrentHashes())
+    SelectAllObjectMT(const DCC* dcc) : m_dcc(dcc)
     { }
 
     SelectAllObjectMT( ) = delete;
 
     const_iterator begin() {
-        Hash_iterator b = m_hashes.cbegin();
+        auto b = m_dcc->begin();
 NEXT:
         const DC* dc = nullptr;
         Object_const_iterator digit_it;
-        if(b!= m_hashes.cend()) {
-            dc = m_dcc->indexFindPtr(*b);
+        if(b!= m_dcc->end()) {
+            dc = *b;
             digit_it = dc->begin();
             if(digit_it == dc->end()){ 
                ++b;
@@ -131,7 +129,7 @@ NEXT:
     }
 
     const_iterator end() {
-        Hash_iterator b = m_hashes.cend();
+        auto b = m_dcc->end();
         const DC* dc = nullptr;
         Object_const_iterator digit_it;
         return const_iterator(b, this, digit_it, dc);
@@ -149,7 +147,6 @@ NEXT:
 private:
     // pointer to the container it is processing.
     const DCC* m_dcc;
-    const typename DCC::Hash_Container m_hashes;
 };
 
 

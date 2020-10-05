@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MultiInputExample/MyMultiInputAlg.h"
+#include "MyMultiInputAlg.h"
 #include "GaudiKernel/MsgStream.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 

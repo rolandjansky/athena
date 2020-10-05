@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetLowBetaFinder/LowBetaAlg.h"
@@ -23,6 +23,8 @@
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
+// ATLAS_NOT_THREAD_SAFE macro
+#include "CxxUtils/checker_macros.h"
 
 // Prints the input of TRT_FEbeta() to file (hard-set)
 // This is a temporary debug method, and may be removed later
@@ -564,16 +566,18 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 
 // Prints the input of TRT_FEbeta() to file (hard-set)
 // This is a temporary debug method, and may be removed later
-int printTrtToolBetaLiklihoodDebugFile(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, std::vector<int> TRT_layer,
-                           std::vector<float> TRT_t0, std::vector<float> TRT_R, std::vector<float> TRT_R_track,
-                           std::vector<float> TrackX, std::vector<float> TrackY, std::vector<float> TrackZ, float RecPt, float RecEta)
+int printTrtToolBetaLiklihoodDebugFile
+(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, std::vector<int> TRT_layer,
+ std::vector<float> TRT_t0, std::vector<float> TRT_R, std::vector<float> TRT_R_track,
+ std::vector<float> TrackX, std::vector<float> TrackY, std::vector<float> TrackZ, float RecPt, float RecEta)
 {
-	static int trackNum = 0;
+        static std::atomic<int> trackNum = 0;
 	const char* FILENAME_C = "/afs/cern.ch/user/s/sschramm/testarea/16.0.2/InnerDetector/InDetRecAlgs/InDetLowBetaFinder/debugFile.log";
 	FILE* outFile;
 	unsigned int i;
-	
-	if (trackNum == 0)
+
+        int tn = trackNum++;
+	if (tn == 0)
 	  outFile = fopen(FILENAME_C,"w");
 	else
 	  outFile = fopen(FILENAME_C,"a");
@@ -581,7 +585,7 @@ int printTrtToolBetaLiklihoodDebugFile(std::vector<int> TRT_bitpattern, std::vec
 	if (outFile == NULL)
 	  return -1;
 	
-	fprintf(outFile,"#\n#Track Number %d\n#RecPt = %f, RecEta = %f\n#\n",trackNum++,RecPt,RecEta);
+	fprintf(outFile,"#\n#Track Number %d\n#RecPt = %f, RecEta = %f\n#\n",tn,RecPt,RecEta);
 	
 	fprintf(outFile,"%%Start TRT_bitpattern:\n");
 	for (i = 0; i < TRT_bitpattern.size(); i++)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSTAVERINGSERVICES_H
@@ -18,8 +18,10 @@ class GeoPixelStaveRingServices :  public GeoVPixelFactory {
 
 public:  
 
-  GeoPixelStaveRingServices(GeoPixelLadder& ladder, GeoPixelStaveSupport& staveSupport);
-  virtual GeoVPhysVol* Build();
+  GeoPixelStaveRingServices(InDetDD::PixelDetectorManager* ddmgr,
+                            PixelGeometryManager* mgr,
+                            GeoPixelLadder& ladder, GeoPixelStaveSupport& staveSupport);
+  virtual GeoVPhysVol* Build() override;
 
   GeoPhysVol* getSupportA(){ return m_supportPhysA; }
   GeoPhysVol* getSupportC(){ return m_supportPhysC; }

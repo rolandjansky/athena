@@ -1,6 +1,4 @@
-#
-#  extraMetadata.py
-#  
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 #  Created by Alvin on 01/09/2009.
 #  

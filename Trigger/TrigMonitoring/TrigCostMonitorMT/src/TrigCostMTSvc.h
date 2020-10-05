@@ -19,8 +19,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
-#include "TrigCostDataStore.h"
 #include "AlgorithmPayload.h"
+#include "TrigCostDataStore.h"
 
 /**
  * @class TrigCostMTSvc
@@ -124,10 +124,14 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   size_t  m_eventSlots; //!< Number of concurrent processing slots. Cached from Gaudi
   std::unique_ptr< std::atomic<bool>[] > m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
   std::unique_ptr< std::shared_mutex[] > m_slotMutex; //!< Used to control and protect whole-table operations.
+  std::mutex m_globalMutex; //!< Used to protect all-slot modifications.
   TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.
 
   tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare> m_threadToAlgMap; //!< Keeps track of what is running right now in each thread.
+
+  std::unordered_map<uint32_t, uint32_t> m_threadToCounterMap; //!< Map thread's hash ID to a counting numeral
+  size_t m_threadCounter; //!< Count how many unique thread ID we have seen 
 
   Gaudi::Property<bool>        m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
   Gaudi::Property<bool>        m_enableMultiSlot{this, "EnableMultiSlot", true, "Monitored events in the MasterSlot collect data from events running in other slots."};
@@ -135,6 +139,8 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   Gaudi::Property<size_t>      m_masterSlot{this, "MasterSlot", 0, "The slot responsible for saving MultiSlot data"};
   Gaudi::Property<std::string> m_l1DecoderName{this, "L1DecoderName", "L1Decoder", "The name of the Gaudi Configurable of type L1Decoder"};
   Gaudi::Property<std::string> m_decisionSummaryMakerAlgName{this, "DecisionSummaryMakerAlgName", "DecisionSummaryMakerAlg", "The name of the Gaudi Configurable of type DecisionSummaryMakerAlg"};
+
+
 
 };
 

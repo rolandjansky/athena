@@ -6,7 +6,7 @@
 #define DetectorElement_H
 
 #include "CxxUtils/checker_macros.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
@@ -17,7 +17,7 @@
 
 namespace MuonGM {
 
-  class ATLAS_NOT_THREAD_SAFE DetectorElement {
+  class DetectorElement {
   public:
     std::string name;
     std::string logVolName;
@@ -37,7 +37,7 @@ namespace MuonGM {
       log << MSG::INFO << "generic detector element" << endmsg;
     }
 
-    virtual ~DetectorElement() {}
+    virtual ~DetectorElement()=default;
 
     // Static
 
@@ -45,11 +45,11 @@ namespace MuonGM {
     //! Set Material Manager for all childs of this class
     //! MUST BE CALLED BEFORE ANY THREADS TRY TO CALL @ref getMaterialManager
     //!
-    static void setMaterialManager(const AbsMaterialManager & matMan) {
+    static void setMaterialManager(const StoredMaterialManager & matMan) {
       s_matManager = &matMan;
     }
 
-    static const AbsMaterialManager * getMaterialManager() {
+    const StoredMaterialManager * getMaterialManager() const {
       return s_matManager;
     }
 
@@ -58,7 +58,7 @@ namespace MuonGM {
     //! Actually, it haves thread-safe access only when @ref getMaterialManager
     //! is called before any @ref getMaterialManager.
     //!
-    static const AbsMaterialManager *s_matManager ATLAS_THREAD_SAFE;
+    static const StoredMaterialManager *s_matManager ATLAS_THREAD_SAFE;
 
   }; // class DetectorElement
 

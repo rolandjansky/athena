@@ -12,8 +12,13 @@ TrigConf::DataStructure::DataStructure()
 
 
 TrigConf::DataStructure::DataStructure(const ptree & data) :
+   DataStructure("",data)
+{}
+
+TrigConf::DataStructure::DataStructure(const std::string & name, const ptree & data) :
    m_initialized(true),
-   m_dataPtr(&data)
+   m_dataPtr(&data),
+   m_name(name)
 {}
 
 
@@ -46,12 +51,17 @@ TrigConf::DataStructure::setData(ptree&& data)
    update();
 }
 
+void TrigConf::DataStructure::setName(const std::string& n) {
+  m_name = n;
+}
+
 
 void
 TrigConf::DataStructure::clear()
 {
    m_initialized = false;
-   update();
+   m_dataSPtr = nullptr;
+   m_dataPtr = nullptr;
 }
 
 

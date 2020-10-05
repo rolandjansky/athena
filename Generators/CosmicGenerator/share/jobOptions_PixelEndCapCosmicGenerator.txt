@@ -12,7 +12,7 @@
 //--------------------------------------------------------------
 //load relevant libraries
 
-ApplicationMgr.DLLs  += { "CosmicGenerator","TruthExamples" };      
+ApplicationMgr.Dlls  += { "CosmicGenerator","TruthExamples" };      
 ApplicationMgr.TopAlg = { "CosmicGenerator","DumpMC" };
 
 // The following is needed to load the Athena Random

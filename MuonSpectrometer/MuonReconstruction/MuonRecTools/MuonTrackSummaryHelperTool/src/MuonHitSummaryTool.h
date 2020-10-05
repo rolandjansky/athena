@@ -1,97 +1,99 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONHITSUMMARYTOOL_H
 #define MUON_MUONHITSUMMARYTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include <string>
 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
-
-class Identifier;
-
-namespace Trk {
-  class ITrackSummaryHelperTool;  
-}
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 namespace Muon {
-  
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
+/**
+   @brief Helper tool to extract simple counts from a Trk::Track, Trk::TrackSummary or Trk::MuonTrackSummary
 
-  /**
-     @brief Helper tool to extract simple counts from a Trk::Track, Trk::TrackSummary or Trk::MuonTrackSummary
-
-  */
-  class MuonHitSummaryTool : public AthAlgTool, virtual public IMuonHitSummaryTool {
+*/
+class MuonHitSummaryTool : public AthAlgTool, virtual public IMuonHitSummaryTool {
   public:
-    /** @brief constructor */
-    MuonHitSummaryTool(const std::string&,const std::string&,const IInterface*);
+    MuonHitSummaryTool(const std::string&, const std::string&, const IInterface*);
 
-    /** @brief destructor */
-    virtual ~MuonHitSummaryTool ();
-    
-    /** @brief AlgTool initilize */
+    virtual ~MuonHitSummaryTool() = default;
+
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
-    
-    /** @brief Calculate compact summary
-	@param track input track
-	@return CompactSummary
-    */
-    virtual CompactSummary summary( const Trk::Track& track ) const;
 
     /** @brief Calculate compact summary
-	@param summary TrackSummary of input track
-	@return CompactSummary
+        @param track input track
+        @return CompactSummary
     */
-    virtual CompactSummary summary( const Trk::TrackSummary& summary ) const;
+    virtual CompactSummary summary(const Trk::Track& track) const;
+
+    /** @brief Calculate compact summary
+        @param summary TrackSummary of input track
+        @return CompactSummary
+    */
+    virtual CompactSummary summary(const Trk::TrackSummary& summary) const;
 
     /** @brief Calculate compact summary. Can fail if summary does not have a MuonTrackSummary.
-	@param summary MuonTrackSummary of input track
-	@return CompactSummary
+        @param summary MuonTrackSummary of input track
+        @return CompactSummary
     */
-    virtual CompactSummary summary( const Trk::MuonTrackSummary& summary ) const;
+    virtual CompactSummary summary(const Trk::MuonTrackSummary& summary) const;
 
     /** @brief Calculate compact summary
-	@param segment input MuonSegment 
-	@return CompactSummary
+        @param segment input MuonSegment
+        @return CompactSummary
     */
-    virtual CompactSummary summary( const Muon::MuonSegment& segment ) const;
+    virtual CompactSummary summary(const Muon::MuonSegment& segment) const;
 
     /** @brief Calculate compact summary
-	@param segments input vector of MuonSegments
-	@return CompactSummary
+        @param segments input vector of MuonSegments
+        @return CompactSummary
     */
-    virtual CompactSummary summary( const std::vector<const Muon::MuonSegment*>& segments ) const;
+    virtual CompactSummary summary(const std::vector<const Muon::MuonSegment*>& segments) const;
 
 
     /** @brief Calculate compact summary
-	@param measurements input vector of MeasurementBase
-	@return CompactSummary
+        @param measurements input vector of MeasurementBase
+        @return CompactSummary
     */
-    virtual CompactSummary summary( const std::vector<const Trk::MeasurementBase*>& measurements ) const;
+    virtual CompactSummary summary(const std::vector<const Trk::MeasurementBase*>& measurements) const;
 
   private:
     /** helper function to calculate MuonTrackSummary from track */
-    void getMuonTrackSummary( Trk::MuonTrackSummary& muonSummary, const Trk::Track& track ) const;
-    void calculateSummaryCounts( CompactSummary& sum) const;    
-    ToolHandle<MuonIdHelperTool>   m_idHelper;
-    ServiceHandle<IMuonEDMHelperSvc>  m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<MuonEDMPrinterTool> m_printer;
-    ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelperTool;
-  };
+    void getMuonTrackSummary(Trk::MuonTrackSummary& muonSummary, const Trk::Track& track) const;
+    void calculateSummaryCounts(CompactSummary& sum) const;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{
+        this,
+        "edmHelper",
+        "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+        "Handle to the service providing the IMuonEDMHelperSvc interface",
+    };
 
-}
+    ToolHandle<MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };
+    ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelperTool{
+        this,
+        "MuonTrackSummaryHelperTool",
+        "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool",
+    };
+};
 
-#endif // MUON_IDHELPERTOOL_H
+}  // namespace Muon
+
+#endif  // MUON_IDHELPERTOOL_H

@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonGeomTest )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkUtilityPackages/TrkValidationUtils )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

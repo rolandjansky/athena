@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigVxSecondary/TrigVxSecondaryCombo.h"
@@ -12,7 +12,6 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
 #include <sstream>
 #include <TLorentzVector.h>
 #include "xAODBase/IParticle.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -106,13 +106,8 @@ namespace Trk {
       EnergyLossUpdator(const std::string&,const std::string&,const IInterface*);
 
       /**Virtual destructor*/
-      virtual ~EnergyLossUpdator();
+      virtual ~EnergyLossUpdator() = default;
        
-      /** AlgTool initailize method.*/
-      virtual StatusCode initialize() override;
-      /** AlgTool finalize method */
-      virtual StatusCode finalize() override;
-        
       /** dEdX calculation when providing MaterialProperties,
         a momentum, a pathlength, and a ParicleHypothesis:
         
@@ -165,8 +160,8 @@ namespace Trk {
       double dEdXBetheBloch(const MaterialProperties& mat,
                             double& transKaz,
                             double& transTmax,
-                            double gamma,
                             double beta,
+                            double gamma,
                             ParticleHypothesis particle=pion) const;
       
       Trk::EnergyLoss* ionizationEnergyLoss(const MaterialProperties& mat,

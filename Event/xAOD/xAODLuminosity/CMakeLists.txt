@@ -1,18 +1,10 @@
-# $Id: CMakeLists.txt 751142 2016-05-31 14:22:21Z krasznaa $
-################################################################################
-# Package: xAODLuminosity
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODLuminosity )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Event/xAOD/xAODCore
-   PRIVATE
-   Control/AthLinks )
+# Pull in the helper CMake code.
+find_package( xAODUtilities )
 
 # Component(s) in the package:
 atlas_add_library( xAODLuminosity
@@ -20,10 +12,16 @@ atlas_add_library( xAODLuminosity
    PUBLIC_HEADERS xAODLuminosity
    LINK_LIBRARIES AthContainers xAODCore )
 
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODLuminosity/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::LumiBlockRangeContainer_v1"
+              "xAOD::BCMRawDataContainer_v1" )
+
 atlas_add_dictionary( xAODLuminosityDict
    xAODLuminosity/xAODLuminosityDict.h
-   xAODLuminosity/selection.xml
-   LINK_LIBRARIES AthLinks xAODLuminosity
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODLuminosity
    EXTRA_FILES Root/dict/*.cxx )
 
 # Generate CLIDs from the library:

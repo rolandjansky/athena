@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger BS->RDO_TRIG athena test without any HLT chains
 # art-type: build
@@ -36,8 +37,11 @@ test.check_steps.remove(test.get_step("ZeroCounts"))
 
 # Overwrite default MessageCount settings
 msgcount = test.get_step("MessageCount")
-msgcount.info_threshold = 600
-msgcount.other_threshold = 50
+msgcount.thresholds = {
+  'WARNING': 40,
+  'INFO': 600,
+  'other': 40
+}
 msgcount.required = True # make the test exit code depend on this step
 
 import sys

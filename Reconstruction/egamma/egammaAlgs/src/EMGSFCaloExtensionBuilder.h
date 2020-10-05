@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EGAMMAALGS_EMGSFCALOEXTENSIONBUILDER_H
@@ -9,15 +9,16 @@
   Algorithm which creates calo extension for all GSF
   Track Particles
   */
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
-class EMGSFCaloExtensionBuilder : public AthAlgorithm 
+class EMGSFCaloExtensionBuilder : public AthReentrantAlgorithm
 {
 public:
   /** @brief Default constructor*/
@@ -25,26 +26,43 @@ public:
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   /** @brief the Calo Extension tool*/
-  ToolHandle<Trk::IParticleCaloExtensionTool> m_lastParticleCaloExtensionTool {this,
-    "LastCaloExtensionTool", "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"};
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_lastParticleCaloExtensionTool{
+    this,
+    "LastCaloExtensionTool",
+    "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"
+  };
 
-  ToolHandle<Trk::IParticleCaloExtensionTool> m_perigeeParticleCaloExtensionTool {this,
-    "PerigeeCaloExtensionTool", "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"};
+  ToolHandle<Trk::IParticleCaloExtensionTool>
+    m_perigeeParticleCaloExtensionTool{
+      this,
+      "PerigeeCaloExtensionTool",
+      "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
+    };
 
-  //Cache collections for GSF Track Particle extrapolation Perigee
-  SG::WriteHandleKey<CaloExtensionCollection>  m_GSFPerigeeCacheKey{this,
-    "GSFPerigeeCache", "GSFPerigeeCaloExtension", "Name of GSF Perigee extrapolation cache"};
-  SG::WriteHandleKey<CaloExtensionCollection>  m_GSFLastCacheKey{this,
-    "GSFLastCache", "GSFLastCaloExtension", "Name of GSF Last measurement extrapolation cache"};
+  // Cache collections for GSF Track Particle extrapolation Perigee
+  SG::WriteHandleKey<CaloExtensionCollection> m_GSFPerigeeCacheKey{
+    this,
+    "GSFPerigeeCache",
+    "GSFPerigeeCaloExtension",
+    "Name of GSF Perigee extrapolation cache"
+  };
+  SG::WriteHandleKey<CaloExtensionCollection> m_GSFLastCacheKey{
+    this,
+    "GSFLastCache",
+    "GSFLastCaloExtension",
+    "Name of GSF Last measurement extrapolation cache"
+  };
 
- //input GSF Track collection
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_GSFTrkPartContainerKey {this,
-    "GFFTrkPartContainerName", "GSFTrackParticles", 
-    "GSF TrackParticles"};
-
+  // input GSF Track collection
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_GSFTrkPartContainerKey{
+    this,
+    "GFFTrkPartContainerName",
+    "GSFTrackParticles",
+    "GSF TrackParticles"
+  };
 };
 #endif //

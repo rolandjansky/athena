@@ -181,7 +181,7 @@ CaloLayerCalculator::Helper::Helper (CaloLayerCalculator& calc,
                                      cell_container)
   : m_calc (calc),
     m_eta (eta),
-    m_phi (s_range.fix (phi)),
+    m_phi (CaloPhiRange::fix (phi)),
     m_deta (deta),
     m_dphi (dphi),
     m_sampling (sampling),
@@ -217,8 +217,8 @@ CaloLayerCalculator::Helper::cell (const CaloCell* cell, double weight)
     // Ideally, phi is computed as a deltaphi + phi to be safe with range
     // the offset is taken to be the seed from the previous sampling
     // I take the same offset for the raw and real computations
-    double dphic = s_range.diff (phic, m_phi);
-    double dphir = s_range.diff (phir, m_phi);
+    double dphic = CaloPhiRange::diff (phic, m_phi);
+    double dphir = CaloPhiRange::diff (phir, m_phi);
 
     // The conditions are applied in the calorimeter frame, the biggest difference w.r.t. before... 
     if (etar >= m_eta-m_deta/2. && etar <= m_eta+m_deta/2.) {
@@ -278,7 +278,7 @@ CaloLayerCalculator::Helper::~Helper()
     //  Expanding the square in s1^2 and substituting for <phic>^2 above gives
     //    <phic^2>-<phic>^2 = s2 - s1^2
     double s1 = m_s01/m_s00;
-    m_calc.m_phim = s_range.fix (s1 + m_phi);
+    m_calc.m_phim = CaloPhiRange::fix (s1 + m_phi);
     m_calc.m_phis = m_s02/m_s00 - s1*s1;
 
     
@@ -287,14 +287,14 @@ CaloLayerCalculator::Helper::~Helper()
 
     // In the calorimeter frame
     m_calc.m_etamr = m_s10r/m_s00;
-    m_calc.m_phimr = s_range.fix(m_s01r/m_s00 + m_phi);
+    m_calc.m_phimr = CaloPhiRange::fix(m_s01r/m_s00 + m_phi);
 
     // Reset position variables if the calculated eta,phi is outside
     // of the window defined by deta,dphi. This usually happens
     // if the negative energy within the window nearly cancels
     // the positive energy.
     if (std::abs (m_calc.m_etamr - m_eta) > m_deta ||
-        s_range.fix (m_calc.m_phimr - m_phi) > m_dphi)
+        CaloPhiRange::fix (m_calc.m_phimr - m_phi) > m_dphi)
     {
       m_calc.resetOnNegativeEnergy(m_eta,m_phi);
     }

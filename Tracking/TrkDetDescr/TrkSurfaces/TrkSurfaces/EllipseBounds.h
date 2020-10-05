@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -63,16 +63,16 @@ public:
   EllipseBounds(double minrad1, double minrad2, double maxrad1, double maxrad2, double avephi, double hphisec);
 
   /**Copy constructor*/
-  EllipseBounds(const EllipseBounds& discbo);
+  EllipseBounds(const EllipseBounds& discbo) = default;
 
   /**Destructor*/
-  virtual ~EllipseBounds();
+  virtual ~EllipseBounds() = default;
 
   /**Assignment operator*/
-  EllipseBounds& operator=(const EllipseBounds& discbo);
+  EllipseBounds& operator=(const EllipseBounds& discbo) = default;
 
   /**Move assignment operator*/
-  EllipseBounds& operator=(EllipseBounds&& discbo);
+  EllipseBounds& operator=(EllipseBounds&& discbo) = default;
 
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;

@@ -80,10 +80,18 @@ public :
   inline void setCrossTalk2 (float val) { m_crossTalk2 = val; };
   inline void setDriftGapWidth (float val) {m_driftGapWidth = val;};
   inline void setAvalancheGain(float val) {m_avalancheGain = val;}
+  inline void setInteractionDensityMean(float val) {m_interactionDensityMean = val;}
+  inline void setInteractionDensitySigma(float val) {m_interactionDensitySigma = val;}
+  inline void setLorentzAngleFunction(TF1* f) {m_lorentzAngleFunction = f;}
 
   float getQThreshold    () const { return m_qThreshold;      };
   float getDriftGapWidth () const { return m_driftGapWidth;   };
   float getDriftVelocity () const { return m_driftVelocity;   };
+  float getInteractionDensityMean () const { return m_interactionDensityMean;}
+  float getInteractionDensitySigma () const { return m_interactionDensitySigma;}
+  float getLongitudinalDiffusionSigma () const { return m_longitudinalDiffusionSigma;}
+  float getTransversDiffusionSigma () const { return m_transverseDiffusionSigma;}
+  TF1* getLorentzAngleFunction () const { return m_lorentzAngleFunction;}
 
   std::vector <float> getTStripElectronicsAbThr() const { return m_tStripElectronicsAbThr;};
   std::vector <float> getQStripElectronics() const { return m_qStripElectronics;};
@@ -104,7 +112,7 @@ private:
   float m_qThreshold;
 
 
-  /** // 0.350/10 diffusSigma=transverse diffusion (350 μm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
+  /** // 0.350/10 diffusSigma=transverse diffusion (350 microm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
   float m_transverseDiffusionSigma;
   float m_longitudinalDiffusionSigma;
   float m_pitch;

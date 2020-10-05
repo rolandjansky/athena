@@ -2,12 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DSConfigSvc.cxx 742408 2016-04-23 18:55:57Z stelzer $
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/IIOVDbSvc.h"
 
 #include "CoolKernel/Record.h"
 
@@ -84,8 +83,7 @@ TrigConf::DSConfigSvc::DSConfigSvc( const std::string& name,
    m_hltPsKey( 0 ),
    m_lvl1BgKey( 0 ),
    m_configSrc( "" ),
-   m_detstore( "StoreGateSvc/DetectorStore", name ),
-   m_folders( "" )
+   m_detstore( "StoreGateSvc/DetectorStore", name )
 {
    m_configSourceString="dblookup";
    m_dbServer="TRIGGERDB";
@@ -105,14 +103,14 @@ TrigConf::DSConfigSvc::initialize() {
    // get detector store
    CHECK( m_detstore.retrieve() );
 
-   ServiceHandle< IJobOptionsSvc > jobOptionsSvc( "JobOptionsSvc", name() );
-   if( jobOptionsSvc.retrieve().isFailure() ) {
-      ATH_MSG_WARNING( "Cannot retrieve JobOptionsSvc" );
+   ServiceHandle< IIOVDbSvc > iovDbSvc( "IOVDbSvc", name() );
+   if( iovDbSvc.retrieve().isFailure() ) {
+      ATH_MSG_WARNING( "Cannot retrieve IOVDbSvc" );
    } else {
-      const Property* p =
-         Gaudi::Utils::getProperty( jobOptionsSvc->getProperties( "IOVDbSvc" ), "Folders" );   
-      if( p ) m_folders = p->toString();
-      ATH_MSG_DEBUG( "The string 'folders' is: " << m_folders );
+      IIOVDbSvc::KeyInfo info;
+      for ( const std::string& key : iovDbSvc->getKeyList() ) {
+         if ( iovDbSvc->getKeyInfo(key, info) ) m_folders.insert(info.folderName);
+      }
    }
 
    const bool multichannel  = true;
@@ -891,11 +889,5 @@ TrigConf::DSConfigSvc::assignPrescalesToChains(uint /*lumiblock*/) {
 
 bool 
 TrigConf::DSConfigSvc::hasFolder( const std::string& folder_name ){
-
-   if( m_folders.find( folder_name ) != string::npos ) {
-      return true;
-   } else {
-      return false;
-   }
+   return m_folders.find( folder_name ) != m_folders.end();
 }
-

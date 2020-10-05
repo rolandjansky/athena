@@ -30,7 +30,6 @@
 #include <map>
 #include <utility>
 
-using namespace std;
 using namespace SCT_Monitoring;
 
 namespace {
@@ -101,7 +100,7 @@ namespace {
  *  the first and second plane numbers to be used, and the timebin.
  */
 // ====================================================================================================
-SCTErrMonTool::SCTErrMonTool(const string& type, const string& name, const IInterface* parent)
+SCTErrMonTool::SCTErrMonTool(const std::string& type, const std::string& name, const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent) {
 }
 
@@ -212,7 +211,7 @@ SCTErrMonTool::bookHistograms() {
 //          SCTErrMonTool :: bookHistogramsRecurrent, Keisuke Koda 12.09.2016
 //====================================================================================================
 StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
-  static const string profNames[numberOfProblemForCoverage] = {
+  static const std::string profNames[numberOfProblemForCoverage] = {
     "", // All
     "SCT_CoverageOfEnabledLinksVsLbs", // All - Disabled
     "SCT_CoverageWithNoBadLinkLevelErrorVsLbs", // All - BadLinkLevelError
@@ -221,7 +220,7 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
     "SCT_CoverageWithNoPSTripVsLbs", // All - PSTrip(DCS)
     "SCT_CoverageOfLinksWithNoBadProblemVsLbs" // All - Summary
   };
-  static const string profTitles[numberOfProblemForCoverage] = {
+  static const std::string profTitles[numberOfProblemForCoverage] = {
     "", // All
     "Ave. Coverage of Enabled Links per LB", // All - Disabled
     "Ave. Coverage of Links with No Bad LinkLevelError per LB", // All - BadLinkLevelError
@@ -445,7 +444,7 @@ SCTErrMonTool::procHistograms() {
 //          SCTErrMonTool :: fillByteStreamErrorsHelper, Martin Flechl 10/09/2009
 // ====================================================================================================
 int
-SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
+SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
                                           bool lumi2DHist, int err_type) {
 
   //--- Check categories of the BS error
@@ -527,7 +526,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 //          SCTErrMonTool :: numByteStreamErrors, Daniel Damiani 04/07/2011
 // ====================================================================================================
 void
-SCTErrMonTool::numByteStreamErrors(const set<IdentifierHash>& errors, int& ntot) const {
+SCTErrMonTool::numByteStreamErrors(const std::set<IdentifierHash>& errors, int& ntot) const {
 
   for (const auto& fit: errors) {
     if (fit.is_valid()) {
@@ -692,7 +691,7 @@ SCTErrMonTool::fillByteStreamErrors() {
 StatusCode
 SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
                                    TProfile2D_LW*& tprof, TH2F_LW*& th, const int layer, const bool barrel) const {
-  ostringstream streamhitmap;
+  std::ostringstream streamhitmap;
 
   streamhitmap << layer / 2 << "_" << layer % 2;
 
@@ -730,7 +729,7 @@ SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TS
 StatusCode
 SCTErrMonTool::bookErrHistosHelper(MonGroup& mg, TString name, TString title, TProfile2D_LW*& tprof, const int layer,
                                    const bool barrel) const {
-  ostringstream streamhitmap;
+  std::ostringstream streamhitmap;
 
   streamhitmap << layer / 2 << "_" << layer % 2;
 
@@ -761,8 +760,8 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
   if (reg==-1) return StatusCode::FAILURE;
 
   const int nLayers{n_layers[reg]*2};
-  string regName{("SCT" + subDetNameShort[reg]).Data()};
-  string layerTitle{layerName[reg].Data()};
+  std::string regName{("SCT" + subDetNameShort[reg]).Data()};
+  std::string layerTitle{layerName[reg].Data()};
   layerTitle.at(0)=toupper(layerTitle.at(0));
 
   if (m_doPerLumiErrors) {
@@ -790,8 +789,8 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
         m_rateErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::ErrorTypeDescription[bin].c_str());
       }
       for (int bin{0}; bin < nLayers; bin++) {
-        m_numErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (to_string(bin/2) +"_"+ to_string(bin%2)).c_str());
-        m_rateErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (to_string(bin/2) +"_"+ to_string(bin%2)).c_str());
+        m_numErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (std::to_string(bin/2) +"_"+ std::to_string(bin%2)).c_str());
+        m_rateErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (std::to_string(bin/2) +"_"+ std::to_string(bin%2)).c_str());
       }
     }
   }
@@ -802,9 +801,9 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
     for (int layer{0}; layer < nLayers; ++layer) {
       for (int errType{0}; errType < CategoryErrors::N_ERRCATEGORY; ++errType) {
         MonGroup err2{this, "SCT/"+regName+"/errors/"+errorsString(errType).Data(), ManagedMonitorToolBase::lumiBlock, ATTRIB_UNMANAGED};
-        string name1{("SCT_NumberOf" + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data()};
-        string title{("Num of " + errorsString(errType) + " per "+layerTitle).Data()};
-        string name2{("SCT_T" + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data()};
+        std::string name1{("SCT_NumberOf" + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data()};
+        std::string title{("Num of " + errorsString(errType) + " per "+layerTitle).Data()};
+        std::string name2{("SCT_T" + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data()};
         somethingFailed |= bookErrHistosHelper(err2, name1, title, name2, m_allErrsCate[errType][reg][layer],
                                                m_pallErrsCate[errType][reg][layer], layer, reg==BARREL_INDEX).isFailure();
      }
@@ -854,13 +853,13 @@ SCTErrMonTool::bookErrHistosGen() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::bookConfMapsGen() {
-  static const string SummaryBinNames[ConfbinsSummary] = {
+  static const std::string SummaryBinNames[ConfbinsSummary] = {
     "Mod Out", "Flagged Links", "Masked Links", "Errors", "Inefficient", "Noisy"
   };
-  static const string DetailedBinNames[ConfbinsDetailed] = {
+  static const std::string DetailedBinNames[ConfbinsDetailed] = {
     "Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"
   };
-  static const string OnlineBinNames[ConfbinsOnline] = {
+  static const std::string OnlineBinNames[ConfbinsOnline] = {
     "Mod Out", "Flagged Links", "Masked Links", "Errors"
   };
   static const TString regLabel[N_REGIONS_INC_GENERAL] = {
@@ -878,7 +877,7 @@ SCTErrMonTool::bookConfMapsGen() {
       MonGroup{this, "SCT/GENERAL/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED}
     };
 
-    string streamName{streamNameFunction()->getStreamName(this, ConfHist[GENERAL_INDEX], "", false)};
+    std::string streamName{streamNameFunction()->getStreamName(this, ConfHist[GENERAL_INDEX], "", false)};
     m_path = streamName.substr(0, streamName.rfind("SCT/GENERAL/Conf"));
     ATH_MSG_INFO("Global Path :" << m_path);
 
@@ -1028,14 +1027,14 @@ SCTErrMonTool::fillCondDBMaps() {
 
   std::vector<TH2F> p2DmapHistoVectorAll[SCT_Monitoring::N_REGIONS]{};
   for (int reg{0}; reg < N_REGIONS; ++reg) {
-    string regName{("SCT" + subDetNameShort[reg]).Data()};
+    std::string regName{("SCT" + subDetNameShort[reg]).Data()};
     const int nLayers{n_layers[reg]*2};
     for (int layer{0}; layer < nLayers; ++layer) {
-      string mapName{string{"modulemap"} + subDetNameShort[reg].Data() + to_string(layer/2) + "_" + to_string(layer%2)};
+      std::string mapName{std::string{"modulemap"} + subDetNameShort[reg].Data() + std::to_string(layer/2) + "_" + std::to_string(layer%2)};
       TH2F hitsHisto_tmp2{TH2F(mapName.c_str(),
-                               (string{"Module Out of Configuration : "}+subDetName[reg].Data()+", "+
-                                layerName[reg].Data()+" "+to_string(layer/2)+
-                                " side "+to_string(layer%2)).c_str(),
+                               (std::string{"Module Out of Configuration : "}+subDetName[reg].Data()+", "+
+                                layerName[reg].Data()+" "+std::to_string(layer/2)+
+                                " side "+std::to_string(layer%2)).c_str(),
                                n_etabins[reg], f_etabin[reg] - 0.5, l_etabin[reg] + 0.5,
                                n_phibins[reg], f_phibin[reg] - 0.5, l_phibin[reg] + 0.5)};
       hitsHisto_tmp2.GetXaxis()->SetTitle("Index in the direction of #eta");
@@ -1161,10 +1160,10 @@ StatusCode
 SCTErrMonTool::fillConfigurationDetails() {
   ATH_MSG_DEBUG("Inside fillConfigurationDetails()");
   unsigned int nBadMods{static_cast<unsigned int>(m_ConfigurationTool->badModules()->size())}; // bad modules
-  const map<IdentifierHash, pair<bool, bool>>* badLinks{m_ConfigurationTool->badLinks()}; // bad links
+  const std::map<IdentifierHash, std::pair<bool, bool>>* badLinks{m_ConfigurationTool->badLinks()}; // bad links
   unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
-  for (const pair<IdentifierHash, pair<bool, bool>>& link: *badLinks) {
-    pair<bool, bool> status{link.second};
+  for (const std::pair<const IdentifierHash, std::pair<bool, bool>>& link: *badLinks) {
+    std::pair<bool, bool> status{link.second};
     if ((status.first == false) and (status.second == true)) {
       ++nBadLink0;
     }
@@ -1176,20 +1175,20 @@ SCTErrMonTool::fillConfigurationDetails() {
     }
   }
 
-  const map<Identifier, unsigned int>* badChips{m_ConfigurationTool->badChips()}; // bad chips
+  const std::map<Identifier, unsigned int>* badChips{m_ConfigurationTool->badChips()}; // bad chips
   unsigned int nBadChips{0};
-  for (const pair<Identifier, unsigned int>& chip : *badChips) {
+  for (const std::pair<const Identifier, unsigned int>& chip : *badChips) {
     unsigned int status{chip.second};
     for (unsigned int i{0}; i < CHIPS_PER_MODULE; i++) {
       nBadChips += ((status & (1 << i)) == 0 ? 0 : 1);
     }
   }
 
-  set<Identifier> badStripsAll; // bad strips
+  std::set<Identifier> badStripsAll; // bad strips
   m_ConfigurationTool->badStrips(badStripsAll);
   unsigned int nBadStrips{static_cast<unsigned int>(badStripsAll.size())};
 
-  set<Identifier> badStripsExclusive; // bad strips w/o bad modules and chips
+  std::set<Identifier> badStripsExclusive; // bad strips w/o bad modules and chips
   m_ConfigurationTool->badStrips(badStripsExclusive, true, true);
   int nBadStripsExclusive{static_cast<int>(badStripsExclusive.size())};
   int nBadStripsExclusiveBEC[N_REGIONS] = {
@@ -1261,21 +1260,21 @@ SCTErrMonTool::resetConfigurationDetails() {
 // ====================================================================================================
 bool
 SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* histo[2]) const {
-  static const string trm[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
+  static const std::string trm[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
     {"SCT/SCTEC/Noise/noiseoccupancymapECm_","SCT/SCTB/Noise/noiseoccupancymap_", "SCT/SCTEA/Noise/noiseoccupancymapECp_"},
     {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"}
   };
-  static const string trm_trig[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
+  static const std::string trm_trig[2][N_REGIONS] = { // 2 is the number of types (noise, eff)
     {"SCT/SCTEC/Noise/noiseoccupancymaptriggerECm_", "SCT/SCTB/Noise/noiseoccupancymaptrigger_", "SCT/SCTEA/Noise/noiseoccupancymaptriggerECp_"},
     {"SCT/SCTEC/eff/ineffm_", "SCT/SCTB/eff/ineff_", "SCT/SCTEA/eff/ineffp_"}
   };
-  string shname1{m_path + trm[type][reg] + to_string(layer)};
-  string shname2{m_path + trm[type][reg] + to_string(layer)};
+  std::string shname1{m_path + trm[type][reg] + std::to_string(layer)};
+  std::string shname2{m_path + trm[type][reg] + std::to_string(layer)};
 
   if (testOffline or ((m_environment != AthenaMonManager::online) and
                       (AthenaMonManager::dataType() != AthenaMonManager::cosmics))) {
-    shname1 = m_path + trm_trig[type][reg] + to_string(layer);
-    shname2 = m_path + trm_trig[type][reg] + to_string(layer);
+    shname1 = m_path + trm_trig[type][reg] + std::to_string(layer);
+    shname2 = m_path + trm_trig[type][reg] + std::to_string(layer);
   }
   if ((type==0) or (type==1)) {
     shname1 += "_0";
@@ -1317,11 +1316,11 @@ SCTErrMonTool::getHisto(const int layer, const int reg, const int type, TH2* his
 // ====================================================================================================
 bool
 SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int type, TH2* histo[2]) const {
-  static const string trm[1][N_REGIONS] = {
+  static const std::string trm[1][N_REGIONS] = {
     {"SCT/SCTEC/Noise/noiseoccupancymaprecentECm_", "SCT/SCTB/Noise/noiseoccupancymaprecent_", "SCT/SCTEA/Noise/noiseoccupancymaprecentECp_"}
   };
-  string shname1{m_path + trm[type][reg] + to_string(layer) + "_0"};
-  string shname2{m_path + trm[type][reg] + to_string(layer) + "_1"};
+  std::string shname1{m_path + trm[type][reg] + std::to_string(layer) + "_0"};
+  std::string shname2{m_path + trm[type][reg] + std::to_string(layer) + "_1"};
 
   bool failedBooking{false};
   histo[0] = nullptr;
@@ -1402,16 +1401,16 @@ void SCTErrMonTool::fillWafer(moduleGeo_t module, TH2F* histo) const {
 //====================================================================================================
 //                          SCTErrMonTool :: SyncSCT, Keisuke Kouda 12.09.2016
 //====================================================================================================
-bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
-                                 set<IdentifierHash>& sctHashBadRODError,
-                                 set<IdentifierHash>& sctHashBadError) const {
+bool SCTErrMonTool::syncErrorSCT(std::set<IdentifierHash>& sctHashBadLinkError,
+                                 std::set<IdentifierHash>& sctHashBadRODError,
+                                 std::set<IdentifierHash>& sctHashBadError) const {
   sctHashBadLinkError.clear();
   sctHashBadRODError.clear();
   sctHashBadError.clear();
  
   //BadLinkLevelError
   for (SCT_ByteStreamErrors::ErrorType linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
-    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
     }
@@ -1419,7 +1418,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
 
   //BadRODLevelError
   for (SCT_ByteStreamErrors::ErrorType RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
-    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
     for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadRODError.insert(waferHash);
     }
@@ -1427,7 +1426,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
 
   //BadError = BadLinkLevelError + BadRODLevelError
   for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
-    const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
+    const std::set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
     for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadError.insert(waferHash);
     }
@@ -1436,10 +1435,10 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
 }
 
 //Disabled
-bool SCTErrMonTool::syncDisabledSCT(set<IdentifierHash>& sctHashDisabled) const {
+bool SCTErrMonTool::syncDisabledSCT(std::set<IdentifierHash>& sctHashDisabled) const {
   bool altered{false};
   sctHashDisabled.clear();
-  const set<Identifier>* badModules{m_ConfigurationTool->badModules()};
+  const std::set<Identifier>* badModules{m_ConfigurationTool->badModules()};
 
   for (const Identifier& badModule: *badModules) {
     altered = true;
@@ -1453,7 +1452,7 @@ bool SCTErrMonTool::syncDisabledSCT(set<IdentifierHash>& sctHashDisabled) const 
 }
 
 //Total (SCT_ConditionsSummaryTool) //All
-bool SCTErrMonTool::summarySCT(set<IdentifierHash>& sctHashAll, set<IdentifierHash>& sctHashSummary) const  {
+bool SCTErrMonTool::summarySCT(std::set<IdentifierHash>& sctHashAll, std::set<IdentifierHash>& sctHashSummary) const  {
   bool altered{false};
   sctHashAll.clear();//All
   sctHashSummary.clear();
@@ -1470,7 +1469,7 @@ bool SCTErrMonTool::summarySCT(set<IdentifierHash>& sctHashAll, set<IdentifierHa
 }
 
 //Power supply trip (SCT_DCSConditionsTool)
-bool SCTErrMonTool::psTripDCSSCT(set<IdentifierHash>& sctHashPSTripDCS, float& PSTripModules) const {
+bool SCTErrMonTool::psTripDCSSCT(std::set<IdentifierHash>& sctHashPSTripDCS, float& PSTripModules) const {
   bool altered{false};
   sctHashPSTripDCS.clear();
 

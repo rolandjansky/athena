@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,10 +13,9 @@
 #include "InDetConversionFinder/ConversionFinder.h"
 
 #include "TrkTrack/TrackCollection.h"
-#include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "GaudiKernel/MsgStream.h"
-
+#include "GaudiKernel/EventContext.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -31,14 +30,12 @@ namespace InDet
   : AthAlgorithm(name, pSvcLocator),
   m_tracksName("InDetTrackParticles"),
   m_InDetConversionOutputName("InDetConversion"),
-  m_VertexFinderTool("InDet::InDetConversionFinderTools"),
   m_EMExtrapolationTool("EMExtrapolationTools"),
   m_doExtrapolation(false)
   {
     /* Retrieve StoreGate container and tool names from job options */
     declareProperty("TracksName",m_tracksName);
     declareProperty("InDetConversionOutputName", m_InDetConversionOutputName);
-    declareProperty("VertexFinderTool",m_VertexFinderTool);
     declareProperty("ExtrapolationTool", m_EMExtrapolationTool, "Handle of the extrapolation tool");
     declareProperty("doExtrapolation", m_doExtrapolation );
 	}
@@ -102,7 +99,10 @@ namespace InDet
   class cleanup_pair : public std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   {
   public:
-    cleanup_pair(const std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> &a_pair) : std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>(a_pair) {}
+    cleanup_pair(const std::pair<xAOD::VertexContainer*,
+                                 xAOD::VertexAuxContainer*>& a_pair)
+      : std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>(a_pair)
+    {}
     ~cleanup_pair() {
       delete this->first;
       delete this->second;
@@ -123,9 +123,10 @@ namespace InDet
   StatusCode ConversionFinder::execute()
   {
 
+    const EventContext& ctx =Algorithm::getContext();
     m_events_processed++;
 
-    SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName);
+    SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName,ctx);
     if ( !trackParticleCollection.isValid())
     {
       ATH_MSG_WARNING( "Could not find xAOD::TrackParticleContainer " << m_tracksName << " in StoreGate.");
@@ -154,14 +155,14 @@ namespace InDet
 
         Amg::Vector3D momentum(0., 0., 0.);
         for (unsigned int i = 0; i < vertex->nTrackParticles(); ++i){
-          momentum += m_EMExtrapolationTool->getMomentumAtVertex(*vertex, i);
+          momentum += m_EMExtrapolationTool->getMomentumAtVertex(ctx,*vertex, i);
         }
 
         vertex->auxdata<float>("px") = momentum.x();
         vertex->auxdata<float>("py") = momentum.y();
         vertex->auxdata<float>("pz") = momentum.z();
 
-        if (!m_EMExtrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo))
+        if (!m_EMExtrapolationTool->getEtaPhiAtCalo(ctx,vertex, &etaAtCalo, &phiAtCalo))
         {
           ATH_MSG_DEBUG("getEtaPhiAtCalo failed!");
         }
@@ -174,7 +175,7 @@ namespace InDet
 
     analyzeResults(conversions.first);
 
-    SG::WriteHandle<xAOD::VertexContainer> output(m_InDetConversionOutputName );
+    SG::WriteHandle<xAOD::VertexContainer> output(m_InDetConversionOutputName,ctx);
     if (output.record( std::unique_ptr<xAOD::VertexContainer>(conversions.releaseFirst()) ,
                        std::unique_ptr<xAOD::VertexAuxContainer>(conversions.releaseSecond())).isFailure()) {
       ATH_MSG_ERROR("Failed to record conversion vertices " << m_InDetConversionOutputName.key());

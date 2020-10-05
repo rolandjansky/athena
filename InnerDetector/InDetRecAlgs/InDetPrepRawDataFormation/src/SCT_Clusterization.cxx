@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   @file SCT_Clusterization.cxx
@@ -15,20 +15,23 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDORawData.h"
+#include "SCT_ConditionsData/SCT_FlaggedCondEnum.h"
 #include "StoreGate/WriteHandle.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+#include <limits>
+#include <unordered_map>
+
 namespace InDet {
   using namespace InDet;
-  static const std::string moduleFailureReason{"SCT_Clusterization: Exceeds max fired strips"};
 
   // Constructor with parameters:
   SCT_Clusterization::SCT_Clusterization(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthReentrantAlgorithm(name, pSvcLocator),
-    m_regionSelector{"RegSelSvc", name}
+    AthReentrantAlgorithm(name, pSvcLocator)
   {
     // Get parameter values from jobOptions file
     declareProperty("ClusterContainerCacheKey", m_clusterContainerCacheKey="");
+    declareProperty("FlaggedCondCacheKey", m_flaggedCondCacheKey="");
   }
 
   // Initialize method:
@@ -36,7 +39,7 @@ namespace InDet {
     ATH_MSG_INFO("SCT_Clusterization::initialize()!");
 
     // Get the conditions summary service (continue anyway, just check the pointer 
-    // later and declare everything to be 'good' if it is NULL)
+    // later and declare everything to be 'good' if it is nullptr)
     if (m_checkBadModules.value()) {
       ATH_MSG_INFO("Clusterization has been asked to look at bad module info");
       ATH_CHECK(m_pSummaryTool.retrieve());
@@ -51,6 +54,7 @@ namespace InDet {
     ATH_CHECK(m_clusterContainerLinkKey.initialize());
     ATH_CHECK(m_clusterContainerCacheKey.initialize(not m_clusterContainerCacheKey.key().empty()));
     ATH_CHECK(m_flaggedCondDataKey.initialize());
+    ATH_CHECK(m_flaggedCondCacheKey.initialize(not m_flaggedCondCacheKey.key().empty()));
 
     // Get the clustering tool
     ATH_CHECK(m_clusteringTool.retrieve());
@@ -61,6 +65,8 @@ namespace InDet {
     if (m_roiSeeded.value()) {
       ATH_CHECK(m_roiCollectionKey.initialize());
       ATH_CHECK(m_regionSelector.retrieve());
+    } else {
+      m_regionSelector.disable();
     }
 
     return StatusCode::SUCCESS;
@@ -82,8 +88,17 @@ namespace InDet {
     ATH_CHECK(clusterContainer.isValid());
     ATH_MSG_DEBUG("SCT clusters '" << clusterContainer.name() << "' symlinked in StoreGate");
 
-    SG::WriteHandle<SCT_FlaggedCondData> flaggedCondData{m_flaggedCondDataKey, ctx};
-    ATH_CHECK(flaggedCondData.record(std::make_unique<SCT_FlaggedCondData>()));
+    SG::WriteHandle<IDCInDetBSErrContainer> flaggedCondData{m_flaggedCondDataKey, ctx};
+    if (m_flaggedCondCacheKey.key().empty()) {
+      ATH_CHECK(flaggedCondData.record( std::make_unique<IDCInDetBSErrContainer>(m_idHelper->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min())));
+      ATH_MSG_DEBUG("Created IDCInDetBSErrContainer w/o using external cache");
+    } else {
+      SG::UpdateHandle<IDCInDetBSErrContainer_Cache> flaggedCondCacheHandle(m_flaggedCondCacheKey, ctx);
+      ATH_CHECK(flaggedCondCacheHandle.isValid() );
+      ATH_CHECK(flaggedCondData.record( std::make_unique<IDCInDetBSErrContainer>(flaggedCondCacheHandle.ptr())) );
+      ATH_MSG_DEBUG("Created SCT IDCInDetBSErrContainer using external cache");
+    }
+    std::unordered_map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> flaggedCondMap; // temporary store of flagged condition error
 
     // First, we have to retrieve and access the container, not because we want to 
     // use it, but in order to generate the proxies for the collections, if they 
@@ -119,7 +134,7 @@ namespace InDet {
           const InDetRawDataCollection<SCT_RDORawData>* rd{*rdoCollections};
           ATH_MSG_DEBUG("RDO collection size=" << rd->size() << ", Hash=" << rd->identifyHash());
           SCT_ClusterContainer::IDC_WriteHandle lock{clusterContainer->getWriteHandle(rdoCollections.hashId())};
-          if (lock.alreadyPresent()) {
+          if (lock.OnlineAndPresentInAnotherView()) {
             ATH_MSG_DEBUG("Item already in cache , Hash=" << rd->identifyHash());
             continue;
           }
@@ -132,7 +147,11 @@ namespace InDet {
               unsigned int nFiredStrips{0};
               for (const SCT_RDORawData* rdo: *rd) nFiredStrips += rdo->getGroupSize();
               if (nFiredStrips > m_maxFiredStrips.value()) {
-                flaggedCondData->insert(std::make_pair(rd->identifyHash(), moduleFailureReason));
+                if (flaggedCondMap.count(rd->identifyHash())==0) {
+                  flaggedCondMap[rd->identifyHash()]  = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                } else {
+                  flaggedCondMap[rd->identifyHash()] |= (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                }
                 continue;
               }
             }
@@ -161,7 +180,7 @@ namespace InDet {
         std::vector<IdentifierHash> listOfSCTIds;
         for (; roi!=roiE; ++roi) {
 	  listOfSCTIds.clear(); //Prevents needless memory reallocations
-          m_regionSelector->DetHashIDList(SCT, **roi, listOfSCTIds);
+          m_regionSelector->HashIDList(**roi, listOfSCTIds);
           ATH_MSG_VERBOSE(**roi);     
           ATH_MSG_VERBOSE( "REGTEST: SCT : Roi contains " << listOfSCTIds.size() << " det. Elements" );
           for (size_t i{0}; i < listOfSCTIds.size(); i++) {
@@ -178,8 +197,12 @@ namespace InDet {
 		unsigned int nFiredStrips{0};
 		for (const SCT_RDORawData* rdo: *RDO_Collection) nFiredStrips += rdo->getGroupSize();
 		if (nFiredStrips > m_maxFiredStrips.value()) {
-		  flaggedCondData->insert(std::make_pair(id, moduleFailureReason));
-                continue;
+                  if (flaggedCondMap.count(id)==0) {
+                    flaggedCondMap[id]  = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                  } else {
+                    flaggedCondMap[id] |= (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                  }
+                  continue;
 		}
 	      }
 	    }
@@ -187,7 +210,7 @@ namespace InDet {
 
 
             SCT_ClusterContainer::IDC_WriteHandle lock{clusterContainer->getWriteHandle(listOfSCTIds[i])};
-            if (lock.alreadyPresent()) {
+            if (lock.OnlineAndPresentInAnotherView()) {
 	      ATH_MSG_DEBUG("Item already in cache , Hash=" << listOfSCTIds[i]);
               continue;
             }
@@ -207,6 +230,12 @@ namespace InDet {
     }
     // Set container to const
     ATH_CHECK(clusterContainer.setConst());
+
+    // Fill flaggedCondData
+    for (auto [hash, error] : flaggedCondMap) {
+      flaggedCondData->setOrDrop(hash, error);
+    }
+
     return StatusCode::SUCCESS;
   }
 

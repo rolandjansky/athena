@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,10 @@
 #include <iomanip> 
 using std::max;
 
-GeoPixelIBLFwdServices::GeoPixelIBLFwdServices(int section): 
+GeoPixelIBLFwdServices::GeoPixelIBLFwdServices(InDetDD::PixelDetectorManager* ddmgr,
+                                               PixelGeometryManager* mgr,
+                                               int section)
+  : GeoVPixelFactory(ddmgr, mgr),
   m_bFwdComplexGeometry_CAD(false),
   m_bFwdComplexGeometry_Mod1(false),
   m_section(section),
@@ -67,7 +70,7 @@ GeoVPhysVol* GeoPixelIBLFwdServices::Build()
   if(m_bFwdComplexGeometry_CAD) {
 
     m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design"<<endmsg;
-    GeoPixelIBLFwdSvcCADModel fwdSvc = GeoPixelIBLFwdSvcCADModel(m_section);
+    GeoPixelIBLFwdSvcCADModel fwdSvc = GeoPixelIBLFwdSvcCADModel(m_DDmgr, m_gmt_mgr ,m_section);
     
     fwdSvc.Build();
     m_supportPhysA = fwdSvc.getSupportA();
@@ -86,7 +89,7 @@ GeoVPhysVol* GeoPixelIBLFwdServices::Build()
   if(m_bFwdComplexGeometry_Mod1) {
 
     m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - S. Menke  design"<<endmsg;
-    GeoPixelIBLFwdSvcModel1 fwdSvc = GeoPixelIBLFwdSvcModel1(m_section);
+    GeoPixelIBLFwdSvcModel1 fwdSvc = GeoPixelIBLFwdSvcModel1(m_DDmgr, m_gmt_mgr, m_section);
     
     fwdSvc.Build();
     m_supportPhysA = fwdSvc.getSupportA();

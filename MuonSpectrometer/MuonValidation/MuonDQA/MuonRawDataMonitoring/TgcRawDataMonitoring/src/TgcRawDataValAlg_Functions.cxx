@@ -50,7 +50,6 @@ TgcRawDataValAlg::tgcchamberId(){
 
   IdContext tgcModuleContext = m_idHelperSvc->tgcIdHelper().module_context();
   Identifier Id;
-  IdentifierHash Idhash;
 
   for(std::vector<Identifier>::const_iterator i = m_idHelperSvc->tgcIdHelper().module_begin(); 
       i != idlast; i++){

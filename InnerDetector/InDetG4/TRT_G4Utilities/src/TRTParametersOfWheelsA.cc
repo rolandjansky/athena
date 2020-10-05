@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,7 +21,7 @@ TRTParametersOfWheelsA::TRTParametersOfWheelsA() : m_msg("TRTParametersOfWheelsA
   DefineParameters();
 
   if (m_pParameters->GetInteger("PrintParametersOfWheelsA"))
-    PrintParameters();
+    PrintParameters(m_msg.get());
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsA done" << endmsg;
 }
@@ -134,11 +134,10 @@ void TRTParametersOfWheelsA::DefineParameters()
 
   // Called by TRTParametersOfWheelsA
 
-void TRTParametersOfWheelsA::PrintParameters() const
+void TRTParametersOfWheelsA::PrintParameters(MsgStream& msg) const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsA::PrintParameters" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfWheelsA::PrintParameters" << endmsg;
 
-  TRTUtilities* pUtilities = TRTUtilities::GetPointer();
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -156,15 +155,18 @@ void TRTParametersOfWheelsA::PrintParameters() const
            << " mm" << std::endl;
 
   output << std::endl << "Parameters of wheel A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfWheelA, m_outerRadiusOfWheelA,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfWheelA, m_outerRadiusOfWheelA,
     m_lengthOfWheelA);
 
   output << std::endl << "Parameters of inner support A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfInnerSupportA,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfInnerSupportA,
     m_outerRadiusOfInnerSupportA, m_lengthOfInnerSupportA);
 
   output << std::endl << "Parameters of outer support A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfOuterSupportA,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfOuterSupportA,
     m_outerRadiusOfOuterSupportA, m_lengthOfOuterSupportA);
 
   output << std::endl << "Parameters of main radiators A:" << std::endl;
@@ -175,7 +177,8 @@ void TRTParametersOfWheelsA::PrintParameters() const
            << m_positionsOfMainRadiatorsA[i] << " mm" << std::endl;
 
   output << std::endl << "Parameters of main radiator A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfMainRadiatorA,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfMainRadiatorA,
     m_outerRadiusOfMainRadiatorA, m_lengthOfMainRadiatorA);
 
   output << std::endl << "Parameters of thin radiators A:" << std::endl;
@@ -186,7 +189,8 @@ void TRTParametersOfWheelsA::PrintParameters() const
            << m_positionsOfThinRadiatorsA[i] << " mm" << std::endl;
 
   output << std::endl << "Parameters of thin radiator A:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfThinRadiatorA,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfThinRadiatorA,
     m_outerRadiusOfThinRadiatorA, m_lengthOfThinRadiatorA);
 
   output << std::endl << "Parameters of straw planes A:" << std::endl;
@@ -203,5 +207,5 @@ void TRTParametersOfWheelsA::PrintParameters() const
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsA::PrintParameters done" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfWheelsA::PrintParameters done" << endmsg;
 }

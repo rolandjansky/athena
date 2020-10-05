@@ -5,45 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FastCaloSimParametrization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArElecCalib
-                          Simulation/Barcode/BarcodeEvent
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloTrackingGeometry
-                          Simulation/G4Sim/TrackRecord
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoModel/GeoAdaptors
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          Event/EventInfo
-                          Event/NavFourMom
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          LArCalorimeter/LArSimEvent
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
-                          TileCalorimeter/TileConditions
-                          TileCalorimeter/TileDetDescr
-                          TileCalorimeter/TileSimEvent
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkMaterialOnTrack )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
@@ -66,7 +27,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
 atlas_add_library( ISF_FastCaloSimParametrizationLib
-                   Root/*.cxx src/CaloGeometryFromCaloDDM.cxx src/CaloGeometryLookup.cxx src/CaloGeometry.cxx
+                   Root/*.cxx src/lib/CaloGeometryFromCaloDDM.cxx src/lib/CaloGeometryLookup.cxx src/lib/CaloGeometry.cxx
                    ${ISF_FastCaloSimParametrizationLibDictSource}
                    PUBLIC_HEADERS ISF_FastCaloSimParametrization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 

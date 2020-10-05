@@ -55,5 +55,3 @@ atlas_add_dictionary( TileTripReaderDict
 
  # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_xmls( data/*.root )
-

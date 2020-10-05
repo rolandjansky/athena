@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import  SystemOfUnits
-from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, ToolSpec
+from JetMonitoring.JetMonitoringConfig import HistoSpec, EventHistoSpec, VarSpec, ConfigDict, ToolSpec
 
 # ***********************************************    
 # ***********************************************
@@ -15,13 +15,33 @@ from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, To
 knownVar = dict(    
     mass = VarSpec('m:GeV', 'float'),
     JVF = VarSpec('JVF', 'vecfloat'),
+    EPS = VarSpec('EnergyPerSampling', 'vecfloat'),
 
     # this variable has an index specified. It will thus has only 1 value per jet : the JVF at pos 0
     JVF0 = VarSpec('JVF', 'vecfloat', 0),
+
 )
 
 
+knownEventVar = dict(    
+    # These always are of type 'float'
+    avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Attribute='averageInteractionsPerCrossing'),
+    actMu = ToolSpec('EventHistoVarTool', 'actMu', Attribute='actualInteractionsPerCrossing'),
+    njets = ToolSpec('NumJetVarTool', 'njets', ),
+    njetsPt20 = ToolSpec('NumJetVarTool', 'njetsPt20', PtCut=20.),
+    njetsPt50 = ToolSpec('NumJetVarTool', 'njetsPt50', PtCut=50.),
+    njetsEt20 = ToolSpec('NumJetVarTool', 'njetsEt20', EtCut=20.),
+    njetsEt50 = ToolSpec('NumJetVarTool', 'njetsEt50', EtCut=50.),
+    njetsEt20Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt20Eta0_32', EtCut=20., EtaMin=0., EtaMax=3.2),
+    njetsEt50Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt50Eta0_32', EtCut=50., EtaMin=0., EtaMax=3.2),
+    njetsEt70Eta0_24 = ToolSpec('NumJetVarTool', 'njetsEt70Eta0_24', EtCut=70., EtaMin=0., EtaMax=2.4),
+    njetsEt60Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt60Eta0_32', EtCut=60., EtaMin=0., EtaMax=3.2),
+    njetsEt100Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt100Eta0_32', EtCut=100., EtaMin=0., EtaMax=3.2),
+    njetsEt260Eta32_49 = ToolSpec('NumJetVarTool', 'njetsEt260Eta32_49', EtCut=260., EtaMin=3.2, EtaMax=4.9),
+    njetsEt200Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt200Eta0_32', EtCut=200., EtaMin=0., EtaMax=3.2),
+    njetsEt330Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt330Eta0_32', EtCut=330., EtaMin=0., EtaMax=3.2),
 
+)
 
 # ***************************************
 # The list of standard jet histograms.
@@ -33,41 +53,38 @@ knownVar = dict(
 # See various commented examples below for optional arguments.
 
 _knownHistos = [
-
     # Simple form : histogram of variable 'eta' (the name of spec is the same as the name of variable)
     #        As in TH1 ctor, ';' in the title is interpreted as in "Main Title;Title xAxis;Title yAxis"
     HistoSpec( 'eta',  (50,-5,5) , title='#eta;#eta;Entries'),
     HistoSpec( 'phi',  (50,-3.3,3.3) , title='#phi;#phi;Entries'),
-
     # Same but we indicate that the variable is to be plotted in GeV by appending ':GeV'
-    HistoSpec( 'pt:GeV',  (100,0,200) , title='p_{T};p_{T} [GeV];'),    
+    HistoSpec( 'pt:GeV',  (100,0,750) , title='p_{T};p_{T} [GeV];'),    
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
-    HistoSpec( 'e:GeV',  (100,0,500) , title='E;E [GeV];'),    
+    HistoSpec( 'e:GeV',  (100,0,750) , title='E;E [GeV];'),    
     HistoSpec( 'et:GeV', (100,0,750), title='E_{T};E_{T} [GeV],'),
 
     # We want an other pT histo, with different bins.
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
     HistoSpec( 'highpt',  (100,0.,4000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),    
 
-    
+    #EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
     # When the jet variable is not a simple float, use the xvar argument to refer to a detailed variable spec in 'knownVar'
-    HistoSpec( 'JVF',  (100,0,1.2) , title='Jet Vtx Frac;JVF;', xvar='JVF'),    
+    HistoSpec( 'JVF',  (100,0,1.2) , title='Jet Vtx Frac;JVF;Entries', xvar='JVF'),    
     # if the var name contains '[N]' the system will assume the variable is a vector<float> and setup tools accordingly (so we don't need to specify 'xvar')
-    HistoSpec( 'JVF[0]',  (100,0,1.2) , title='JVF for vtx 0;JVF[0];', ), 
-    HistoSpec( 'JVF[1]',  (100,0,1.2) , title='JVF for vtx 1;JVF[1];', ),
-
+    HistoSpec( 'JVF[0]',  (100,0,1.2) , title='JVF for vtx 0;JVF[0];Entries', ), 
+    HistoSpec( 'JVF[1]',  (100,0,1.2) , title='JVF for vtx 1;JVF[1];Entries', ),
 
 
     # full list
     HistoSpec('ptN', (250, 0.0, 5000.0), title='Jet Pt;Pt [GeV];', xvar='pt:GeV'),
 
-    HistoSpec('EMFrac', (50, -0.1, 1.4), title='EM Fraction;EM fraction;', ),
-    HistoSpec('LArQuality', (50, -0.4, 1.2), title='LAr quality;Energy;', ),
-    HistoSpec('HECQuality', (50, -0.1, 1.4), title='HEC Quality;HEC Quality;', ),
-    HistoSpec('HECFrac', (50, -0.1, 1.4), title='HEC Fraction;HEC fraction;', ),
-    HistoSpec('AverageLArQF', (100, 0, 65535), title='Average LAr QF;AverageLArQF;', ),
-    HistoSpec('FracSamplingMaxIndex', (24, 0, 24), title='FracSamplingMaxIndex; FracSamplingMaxIndex;', xvar=VarSpec('FracSamplingMaxIndex','int')),
-    HistoSpec('FracSamplingMax', (50, -0.1, 1.2), title='FracSamplingMax; FracSamplingMax;', ),
+    HistoSpec('EMFrac', (50, -0.1, 1.4), title='EM Fraction;EM Fraction;Entries', ),
+    HistoSpec('LArQuality', (50, -0.4, 1.2), title='LAr quality;Energy;Entries', ),
+    HistoSpec('HECQuality', (50, -0.1, 1.4), title='HEC Quality;HEC Quality;Entries', ),
+    HistoSpec('HECFrac', (50, -0.1, 1.4), title='HEC Fraction;HEC Fraction;Entries', ),
+    HistoSpec('AverageLArQF', (100, 0, 65535), title='Average LAr QF;AverageLArQF;Entries', ),
+    HistoSpec('FracSamplingMaxIndex', (24, 0, 24), title='FracSamplingMaxIndex; FracSamplingMaxIndex;Entries', xvar=VarSpec('FracSamplingMaxIndex','int')),
+    HistoSpec('FracSamplingMax', (50, -0.1, 1.2), title='FracSamplingMax; FracSamplingMax;Entries', ),
     HistoSpec('Timing', (40, -20, 20), title='Jet Time info;Time;', ),
 
     
@@ -76,11 +93,11 @@ _knownHistos = [
     HistoSpec('OotFracClusters5', (50, -0.1, 1.2), title='OotFracClusters5; OotFracClusters5;', ),
     HistoSpec('OotFracClusters10', (50, -0.1, 1.2), title='OotFracClusters10; OotFracClusters10;', ),
     
-    HistoSpec('Jvt', (70, -0.2, 1.2), title='Jet JVT;JVT;',  ),
-    HistoSpec('JVFCorr', (120, -1.2, 1.2), title='Jet JVT JVFCorr;;', ),
-    HistoSpec('JvtRpt', (75, 0, 1.5), title='Jet JVT Rpt;;', ),
-    
-    
+    HistoSpec('Jvt', (70, -0.2, 1.2), title='Jet JVT;JVT;Entries',  ),
+    HistoSpec('JVFCorr', (120, -1.2, 1.2), title='Jet JVT; JVFCorr;Entries', ),
+    HistoSpec('JvtRpt', (75, 0, 1.5), title='Jet JVT Rpt; JVTRpt;Entries', ),
+    HistoSpec('EM3Frac', (50,-0.1,1.0), title="EM3 fraction;EM3 fraction;Entries"),
+    HistoSpec('Tile0Frac', (50,-0.1,1.0), title="Tile0 fraction;Tile0 fraction;Entries"),
 
 
     HistoSpec('GhostMuonSegmentCount', (60, 0, 60), title='Number of associated muon segments;Number;', xvar=VarSpec('GhostMuonSegmentCount','int')),
@@ -92,9 +109,11 @@ _knownHistos = [
     HistoSpec('Width15', (50, 0, 1.5), title='Jet Width;Width;', xvar='Width'),
     HistoSpec('Mu12', (100, 0, 1.0), title='Mu12;Mu12;', ),
 
-    HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);', ),
-    HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);', ),
-    HistoSpec('SumPtTrkPt500:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPt(p_{T}>0.5 GeV);', ),
+    HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);NumTrkPt500;Entries', ),
+    HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);NumTrkPt1000;Entries', ),
+    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPtTrk(p_{T}>0.5 GeV);SumPtTrkPt500 [GeV];Entries', ),
+    HistoSpec('SumPtChargedPFOPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV:SumPtChargedPFO(p_{T}>0.5 GeV);SumPtChargedPFOPt500 [GeV];Entries', ),
+    HistoSpec('fCharged', (100, 0, 2), title='Normalised sum Pt of all charged PFO above 0.5 GeV:fCharged(p_{T}>0.5 GeV);fCharged;Entries', ),
 
     HistoSpec('FoxWolfram4', (100, -1, 1), title='FoxWolfram0;FoxWolfram4;', ),
     HistoSpec('FoxWolfram0', (100, -1, 1), title='FoxWolfram0;FoxWolfram0;', ),
@@ -167,8 +186,9 @@ _knownHistos = [
 
     HistoSpec('Charge', (100, -2, 2), title='Charge;Charge;', ),
 
-    HistoSpec('ActiveArea', (80, 0, 0.8), title='Active Area;Area;', ),
-    HistoSpec('ActiveArea15', (80, 0, 1.5), title='Active Area;Area;', xvar='ActiveArea'),
+    HistoSpec('DetectorEta', (100,-5,5), title="DetectorEta;Detector #eta;Entries" ), 
+    HistoSpec('ActiveArea', (80,0,0.8), title="ActiveArea;Active Area;Entries" ), 
+    HistoSpec('ActiveArea15', (80, 0, 1.5), title='Active Area;Active Area;Entries', xvar='ActiveArea'),
 
     HistoSpec('PullPhi', (100, -6.3, 6.3), title='PullPhi;PullPhi;', ),
     HistoSpec('PullMag', (100, 0, 100), title='PullMag;PullMag;', ),
@@ -180,11 +200,26 @@ _knownHistos = [
     HistoSpec('ShowerDeconstructionW', (100, -100, 100), title='ShowerDeconstructionW;ShowerDeconstructionW;', ),
     HistoSpec('ShowerDeconstructionTop', (100, -100, 100), title='ShowerDeconstructionTop;ShowerDeconstructionTop;', ),
 
+
+    HistoSpec( 'JetConstitScaleMomentum_eta',  (50,-5,5) , title='ConstitScale #eta;ConstitScale #eta;Entries'),
+    HistoSpec( 'JetConstitScaleMomentum_phi',  (50,-3.3,3.3) , title='ConstitScale #phi;ConstitScale #phi;Entries'),
+    HistoSpec( 'JetConstitScaleMomentum_pt:GeV',  (100,0,200) , title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetConstitScaleMomentum_m:GeV',  (100,0,300) , title='ConstitScale mass;ConstitScale mass [GeV];Entries'),
     
+    HistoSpec( 'JetEMScaleMomentum_eta',  (50,-5,5) , title='EMScale #eta;EMScale #eta;Entries'),
+    HistoSpec( 'JetEMScaleMomentum_phi',  (50,-3.3,3.3) , title='EMScale #phi;EMScale #phi;Entries'),
+    HistoSpec( 'JetEMScaleMomentum_pt:GeV',  (100,0,200) , title='EMScale p_{T};EMScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEMScaleMomentum_m:GeV',  (100,0,300) , title='EMScale mass;EMScale mass [GeV];Entries'),
 
+    HistoSpec( 'JetPileupScaleMomentum_eta',  (50,-5,5) , title='PileupScale #eta;PileupScale #eta;Entries'),
+    HistoSpec( 'JetPileupScaleMomentum_phi',  (50,-3.3,3.3) , title='PileupScale #phi;PileupScale #phi;Entries'),
+    HistoSpec( 'JetPileupScaleMomentum_pt:GeV',  (100,0,200) , title='PileupScale p_{T};PileupScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetPileupScaleMomentum_m:GeV',  (100,0,300) , title='PileupScale mass;PileupScale mass [GeV];Entries'),
 
-    
-
+    HistoSpec( 'JetEtaJESScaleMomentum_eta',  (50,-5,5) , title='EtaJESScale #eta;EtaJESScale #eta;Entries'),
+    HistoSpec( 'JetEtaJESScaleMomentum_phi',  (50,-3.3,3.3) , title='EtaJESScale #phi;EtaJESScale #phi;Entries'),
+    HistoSpec( 'JetEtaJESScaleMomentum_pt:GeV',  (100,0,200) , title='EtaJESScale p_{T};EtaJESScale p_{T} [GeV];Entries'),    
+    HistoSpec( 'JetEtaJESScaleMomentum_m:GeV',  (100,0,300) , title='EtaJESScale mass;EtaJESScale mass [GeV];Entries'),
     # ---------------------
     # 2D histogram (x and y vars are separated by ';' )
     HistoSpec( 'pt:GeV;m:GeV',  (100,0,1000, 100,0,300) , title='mass vs p_{T};p_{T};mass [GeV];'),
@@ -274,3 +309,4 @@ for h in _knownHistos:
 knownSelector = dict(
     LooseBad = ToolSpec('JetCleaningTool' ,  "LooseBadJets" , CutLevel = "LooseBad")
 )
+

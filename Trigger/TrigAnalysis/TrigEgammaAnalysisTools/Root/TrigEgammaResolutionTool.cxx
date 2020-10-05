@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -49,7 +49,7 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
     if(boost::contains(info.trigName,"iloose") || boost::contains(info.trigName,"ivarloose")) filliso=true;
     if(boost::contains(info.trigName,"icaloloose") || boost::contains(info.trigName,"icalovloose") || boost::contains(info.trigName,"icalotight")) filliso=true;
     ATH_MSG_DEBUG("Executing resolution for " << dir);
-    for(const auto pairObj : pairObjs){
+    for(const auto& pairObj : pairObjs){
         const xAOD::Egamma* eg =pairObj.first;
         const HLT::TriggerElement *feat = pairObj.second; 
 

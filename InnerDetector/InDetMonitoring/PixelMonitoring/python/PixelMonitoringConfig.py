@@ -70,9 +70,8 @@ def PixelMonitoringConfig(flags):
         
         PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
 
-        from PixelMonitoring.PixelMonitoringConf import PixelAthErrorMonAlg
         from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
-        pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(PixelAthErrorMonAlg, 'PixelAthErrorMonAlg')
+        pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(CompFactory.PixelAthErrorMonAlg, 'PixelAthErrorMonAlg')
         for k, v in kwargsErrMonAlg.items():
             setattr(pixelAthMonAlgErrorMonAlg, k, v)
         PixelAthErrorMonAlgCfg(helper, pixelAthMonAlgErrorMonAlg, **kwargsErrMonAlg)

@@ -41,7 +41,6 @@
 //Geometry
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -113,11 +112,10 @@ StatusCode MdtDigitizationTool::initialize() {
   if (detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )) {
     ATH_CHECK(detStore()->retrieve(m_MuonGeoMgr));
     ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
-    //initialize the MdtIdHelper
-    m_idHelper  = m_MuonGeoMgr->mdtIdHelper();
-    if(!m_idHelper) return StatusCode::FAILURE;
-    ATH_MSG_DEBUG ( "Retrieved MdtIdHelper " << m_idHelper );
   }
+
+  //initialize MuonIdHelperSvc
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   if (m_onlyUseContainerName) {
     ATH_CHECK(m_mergeSvc.retrieve());
@@ -142,7 +140,7 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Output Digits: '" << m_outputObjectKey.key() << "'" );
 
   //simulation identifier helper
-  m_muonHelper = MdtHitIdHelper::GetHelper();
+  m_muonHelper = MdtHitIdHelper::GetHelper(m_idHelperSvc->mdtIdHelper().tubeMax());
 
   //get the r->t conversion tool
   ATH_CHECK(m_digiTool.retrieve());
@@ -152,6 +150,9 @@ StatusCode MdtDigitizationTool::initialize() {
 
   if ( m_t0_from_DB ) {
     ATH_CHECK(m_calibrationDbTool.retrieve());
+  }
+  else {
+    m_calibrationDbTool.disable();
   }
 
   //Gather masked stations
@@ -172,12 +173,6 @@ StatusCode MdtDigitizationTool::initialize() {
   }
   else {
     ATH_MSG_DEBUG("Using JobOptions for masking dead/missing chambers");
-  }
-
-  m_BMGpresent = m_idHelper->stationNameIndex("BMG") != -1;
-  if (m_BMGpresent) {
-    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-    m_BMGid = m_idHelper->stationNameIndex("BMG");
   }
 
   return StatusCode::SUCCESS;
@@ -308,7 +303,7 @@ StatusCode MdtDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey, ctx);
-  ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
+  ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelperSvc->mdtIdHelper().module_hash_max())));
   ATH_MSG_DEBUG("Recorded MdtDigitContainer called " << digitContainer.name() << " in store " << digitContainer.store());
 
   // create and record the SDO container in StoreGate
@@ -340,7 +335,7 @@ StatusCode MdtDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey, ctx);
-  ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
+  ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelperSvc->mdtIdHelper().module_hash_max())));
   ATH_MSG_DEBUG("Recorded MdtDigitContainer called " << digitContainer.name() << " in store " << digitContainer.store());
 
   // create and record the SDO container in StoreGate
@@ -381,7 +376,7 @@ StatusCode MdtDigitizationTool::doDigitization(const EventContext& ctx, MdtDigit
     for(int k=0;k<size_id;k++) {
       Identifier Id = readCdo->getDeadStationsId()[k];
       m_IdentifiersToMask.push_back( readCdo->getDeadStationsId()[k] );
-      ATH_MSG_VERBOSE ( "Dead/missing chambers id from CondDB: " << m_idHelper->show_to_string(Id) );
+      ATH_MSG_VERBOSE ( "Dead/missing chambers id from CondDB: " << m_idHelperSvc->mdtIdHelper().show_to_string(Id) );
     }  
   }
        
@@ -437,13 +432,13 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
 
   std::string stationName = m_muonHelper->GetStationName(id);
   int stationEta = m_muonHelper->GetZSector(id);
-  int stationPhi  = m_muonHelper->GetPhiSector(id);
+  int stationPhi = m_muonHelper->GetPhiSector(id);
   int multilayer = m_muonHelper->GetMultiLayer(id);
   int layer = m_muonHelper->GetLayer(id);
-  int tube = m_muonHelper->GetTube(id);
+  int tube  = m_muonHelper->GetTube(id);
 
   //construct Atlas identifier from components
-  Identifier DigitId = m_idHelper-> channelID(stationName, stationEta,stationPhi, multilayer, layer, tube);
+  Identifier DigitId = m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta,stationPhi, multilayer, layer, tube);
 
   // get distance to readout
   double distRO(0.);
@@ -607,7 +602,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
       driftTime += globalHitTime;
       ATH_MSG_VERBOSE("Time off Flight + bunch offset:  " << globalHitTime << " new driftTime " << driftTime );    
     }
-    ATH_MSG_DEBUG( m_idHelper->show_to_string(DigitId) << "  Drift time computation " << driftTime  << " radius " << driftRadius << " adc " << adc );
+    ATH_MSG_DEBUG( m_idHelperSvc->mdtIdHelper().show_to_string(DigitId) << "  Drift time computation " << driftTime  << " radius " << driftRadius << " adc " << adc );
     
     // add hit to hit collection
     m_hits.insert( mdt_hit_info(DigitId,driftTime,adc,driftRadius,&phit));
@@ -639,8 +634,8 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
 	if     (tube % 4 == 1 || tube % 4 == 2) twin_tube = tube + 2;
 	else if(tube % 4 == 0 || tube % 4 == 3) twin_tube = tube - 2;
 	//construct Atlas identifier from components for the twin
-	twin_DigitId = m_idHelper-> channelID(stationName, stationEta,
-					      stationPhi, multilayer, layer, twin_tube);
+	twin_DigitId = m_idHelperSvc->mdtIdHelper(). channelID(stationName, stationEta,
+							       stationPhi, multilayer, layer, twin_tube);
 	// get twin tube length for propagation delay
 	twin_tubeLength = element->getTubeLength(layer,twin_tube); 
 
@@ -677,7 +672,7 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
     // - TWIN TUBES   (A. Koutsman)
   }
   else {
-    ATH_MSG_DEBUG( m_idHelper->show_to_string(DigitId) << "  Tube not efficient " << " radius " << driftRadius ); 
+    ATH_MSG_DEBUG( m_idHelperSvc->mdtIdHelper().show_to_string(DigitId) << "  Tube not efficient " << " radius " << driftRadius );
   }
   
   return true;
@@ -690,20 +685,20 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
   const int id = hit.MDTid();
   std::string stationName = m_muonHelper->GetStationName(id);
   int stationEta = m_muonHelper->GetZSector(id);
-  int stationPhi  = m_muonHelper->GetPhiSector(id);
+  int stationPhi = m_muonHelper->GetPhiSector(id);
   int multilayer = m_muonHelper->GetMultiLayer(id);
   int layer = m_muonHelper->GetLayer(id);
-  int tube = m_muonHelper->GetTube(id);
+  int tube  = m_muonHelper->GetTube(id);
   
-  Identifier DigitId = m_idHelper->channelID(stationName, stationEta,stationPhi, multilayer, layer, tube);
-  ATH_MSG_DEBUG("Working on hit: " << m_idHelper->show_to_string(DigitId) << "  "<< m_idHelper->stationNameString(m_idHelper->stationName(DigitId))<< " "<< stationEta << " "<< stationPhi);
+  Identifier DigitId = m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta,stationPhi, multilayer, layer, tube);
+  ATH_MSG_DEBUG("Working on hit: " << m_idHelperSvc->mdtIdHelper().show_to_string(DigitId) << "  "<< m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(DigitId))<< " "<< stationEta << " "<< stationPhi);
   
   //+MASKING OF DEAD/MISSING CHAMBERS
   if ( m_UseDeadChamberSvc ) {
     for (unsigned int i=0;i<m_IdentifiersToMask.size();i++) {
       Identifier Id = m_IdentifiersToMask[i];
       
-      if ((stationName == m_idHelper->stationNameString(m_idHelper->stationName(Id))) && (stationEta ==  m_idHelper->stationEta(Id)) && (stationPhi ==  m_idHelper->stationPhi(Id)) ) {
+      if ((stationName == m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(Id))) && (stationEta ==  m_idHelperSvc->mdtIdHelper().stationEta(Id)) && (stationPhi ==  m_idHelperSvc->mdtIdHelper().stationPhi(Id)) ) {
 	ATH_MSG_DEBUG("Hit is located in chamber that is dead/missing: Masking the hit!");
 	return false;
       }
@@ -764,7 +759,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
   }
   
   if (m_useTof) {
-    double minTof = minimumTof(DigitId);
+    double minTof = minimumTof(DigitId, m_MuonGeoMgr);
     if(( hit.globalTime() < 0 || hit.globalTime() > 10*minTof) && m_DiscardEarlyHits) {
       ok = false;
       ATH_MSG_DEBUG( "MDTSimHit has invalid global time: " << hit.globalTime() << "   minimum Tof " << minTof );
@@ -805,7 +800,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
   for (; it != m_hits.end(); ++it) {
 
     Identifier idDigit   = it->id;
-    Identifier elementId = m_idHelper->elementID(idDigit);
+    Identifier elementId = m_idHelperSvc->mdtIdHelper().elementID(idDigit);
     const MuonGM::MdtReadoutElement* geo = m_MuonGeoMgr->getMdtReadoutElement(idDigit);
  
     //Check if we are in a new chamber, if so get the DigitCollection
@@ -821,8 +816,8 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       }
       //-ForCosmics
     }
-    if(digitCollection==NULL) {
-      ATH_MSG_ERROR( "Trying to use NULL pointer digitCollection" );
+    if(!digitCollection) {
+      ATH_MSG_ERROR( "Trying to use nullptr digitCollection" );
       return false;
     }
       
@@ -859,7 +854,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
     
     // check if the hits lies within the TDC time window
     // subtrack the minimum Tof (= globalPosition().mag()/c) from the tof of the hit 
-    double relativeTime = driftTime - minimumTof(idDigit);
+    double relativeTime = driftTime - minimumTof(idDigit, m_MuonGeoMgr);
     bool insideMatch = insideMatchingWindow( relativeTime );
     bool insideMask = insideMaskWindow( relativeTime );
     if( insideMask && insideMatch ) {
@@ -872,9 +867,9 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       if ( m_t0_from_DB ) {
 	MuonCalib::MdtFullCalibData data = m_calibrationDbTool->getCalibration( geo->collectionHash(), geo->detectorElementHash() );
 	if ( data.tubeCalib ) {
-	  int ml    = m_idHelper->multilayer(idDigit)-1;
-	  int layer = m_idHelper->tubeLayer(idDigit)-1;
-	  int tube  = m_idHelper->tube(idDigit)-1;
+	  int ml    = m_idHelperSvc->mdtIdHelper().multilayer(idDigit)-1;
+	  int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(idDigit)-1;
+	  int tube  = m_idHelperSvc->mdtIdHelper().tube(idDigit)-1;
 	  if ( ml>=0 && layer>=0 && tube>=0 ) {
 	    // extract calibration constants for single tube
 	    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib* singleTubeData = data.tubeCalib->getCalib( ml, layer, tube );
@@ -884,10 +879,10 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
 	  }
 	}
       }
-      bool isHPTDC = ( m_idHelper->stationName(idDigit) == m_BMGid && m_BMGpresent) ? true : false;
+      bool isHPTDC = m_idHelperSvc->hasHPTDC(idDigit);
       int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal, isHPTDC, rndmEngine);
       int adc = digitizeTime(it->adc, isHPTDC, rndmEngine);
-      ATH_MSG_DEBUG( " >> Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime
+      ATH_MSG_DEBUG( " >> Digit Id = " << m_idHelperSvc->mdtIdHelper().show_to_string(idDigit) << " driftTime " << driftTime
 		     << " driftRadius " << driftRadius << " TDC " << tdc << " ADC " << adc << " mask bit " << insideMask );
 
       MdtDigit*  newDigit = new MdtDigit(idDigit, tdc, adc, insideMask);
@@ -918,7 +913,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
 	
     } else {
-      ATH_MSG_DEBUG( "  >> OUTSIDE TIME WINDOWS << "<< " Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime << " --> hit ignored");
+      ATH_MSG_DEBUG( "  >> OUTSIDE TIME WINDOWS << "<< " Digit Id = " << m_idHelperSvc->mdtIdHelper().show_to_string(idDigit) << " driftTime " << driftTime << " --> hit ignored");
     }
   }//for (; it != hits.end(); ++it)
   
@@ -929,9 +924,9 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
 MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId, MdtDigitContainer* digitContainer){
   MdtDigitCollection*      digitCollection;
   
-  IdContext mdtContext = m_idHelper->module_context();
+  IdContext mdtContext = m_idHelperSvc->mdtIdHelper().module_context();
   IdentifierHash coll_hash;
-  if (m_idHelper->get_hash(elementId, coll_hash, &mdtContext)) {
+  if (m_idHelperSvc->mdtIdHelper().get_hash(elementId, coll_hash, &mdtContext)) {
     ATH_MSG_ERROR ( "Unable to get MDT hash id from MDT Digit collection " 
 		    << "context begin_index = " << mdtContext.begin_index()
 		    << " context end_index  = " << mdtContext.end_index()
@@ -941,8 +936,8 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
   
   StatusCode status;
   // Get the messaging service, print where you are
-  MdtDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
-  if (digitContainer->end() ==  it_coll) {
+  const MdtDigitCollection *coll = digitContainer->indexFindPtr(coll_hash);
+  if (nullptr ==  coll) {
     digitCollection = new MdtDigitCollection(elementId, coll_hash);
     status = digitContainer->addCollection(digitCollection, coll_hash);
     if (status.isFailure())
@@ -951,7 +946,7 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
       ATH_MSG_DEBUG ( "New MdtDigitCollection with key=" << coll_hash << " recorded in StoreGate." );
   } 
   else { 
-    digitCollection = const_cast<MdtDigitCollection*>( *it_coll );
+    digitCollection = const_cast<MdtDigitCollection*>( coll );
   }
   return digitCollection;
 }
@@ -969,12 +964,12 @@ int MdtDigitizationTool::digitizeTime(double time, bool isHPTDC, CLHEP::HepRando
 }
 
 
-double MdtDigitizationTool::minimumTof(Identifier DigitId) const { 
+double MdtDigitizationTool::minimumTof(Identifier DigitId, const MuonGM::MuonDetectorManager* detMgr) const { 
   if(!m_useTof) return 0.;
   
   // get distance to vertex for tof correction before applying the time window
   double distanceToVertex(0.);
-  const MuonGM::MdtReadoutElement* element = m_MuonGeoMgr->getMdtReadoutElement(DigitId);
+  const MuonGM::MdtReadoutElement* element = detMgr->getMdtReadoutElement(DigitId);
   
   if (0 == element) {
     ATH_MSG_ERROR( "MuonGeoManager does not return valid element for given id!" );

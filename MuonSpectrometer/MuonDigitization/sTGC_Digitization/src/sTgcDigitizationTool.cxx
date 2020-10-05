@@ -35,14 +35,10 @@
 #include "PileUpTools/PileUpMergeSvc.h"
 
 //Truth
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "AtlasHepMC/GenParticle.h"
 
-//Random Numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include <sstream>
 #include <iostream>
@@ -91,56 +87,31 @@ inline bool sort_digitsEarlyToLate(sTgcSimDigitData a, sTgcSimDigitData b){
 }
 
 /*******************************************************************************/
-sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : PileUpToolBase(type, name, parent),
-    m_mergeSvc(0), 
-    m_rndmEngine(0),
-    m_rndmSvc("AtRndmGenSvc", name),
-    m_rndmEngineName("MuonDigitization"),
-    m_hitIdHelper(0), 
-    m_mdManager(0),
-    m_digitizer(0),
-    m_thpcsTGC(0),
-    m_smearingTool("Muon::NSWCalibSmearingTool/STgcCalibSmearingTool",this),
-    m_inputHitCollectionName("sTGCSensitiveDetector"),
-    m_doToFCorrection(0),
-    m_doChannelTypes(3),
+sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    PileUpToolBase(type, name, parent),
+    m_mergeSvc(nullptr),
+    m_hitIdHelper(nullptr),
+    m_mdManager(nullptr),
+    m_digitizer(nullptr),
+    m_thpcsTGC(nullptr),
+    m_STGCHitCollList(),
     m_readoutThreshold(0),
     m_neighborOnThreshold(0),
     m_saturation(0),
-    m_deadtimeON(1),
-    m_produceDeadDigits(0),
-    m_deadtimeStrip(50.),
-    m_deadtimePad(5.),
+    m_deadtimeON(true),
+    m_produceDeadDigits(false),
     m_deadtimeWire(5.),
     m_readtimeStrip(6.25),
     m_readtimePad(6.25),
     m_readtimeWire(6.25),
     m_timeWindowOffsetPad(0),
     m_timeWindowOffsetStrip(0),
-    m_timeWindowPad(30.),
-    m_timeWindowStrip(30.),
     m_bunchCrossingTime(0),
     m_timeJitterElectronicsStrip(0),
     m_timeJitterElectronicsPad(0),
     m_hitTimeMergeThreshold(0),
-    m_energyDepositThreshold(300.0*CLHEP::eV)
-{
-  declareInterface<IMuonDigitizationTool>(this);
-  declareProperty("RndmSvc",                 m_rndmSvc,  "Random Number Service used in Muon digitization");
-  declareProperty("RndmEngine",              m_rndmEngineName,  "Random engine name");
-  declareProperty("InputObjectName",         m_inputHitCollectionName    = "sTGCSensitiveDetector", "name of the input object");
-  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
-  declareProperty("doToFCorrection",         m_doToFCorrection); 
-  declareProperty("doChannelTypes",          m_doChannelTypes); 
-  declareProperty("DeadtimeElectronicsStrip",m_deadtimeStrip); 
-  declareProperty("DeadtimeElectronicsPad",  m_deadtimePad); 
-  declareProperty("timeWindowPad",           m_timeWindowPad); 
-  declareProperty("timeWindowStrip",         m_timeWindowStrip); 
-  declareProperty("energyDepositThreshold",  m_energyDepositThreshold, "Minimum energy deposit considered for digitization");
-  declareProperty("doSmearing",  m_doSmearing=false);
-  declareProperty("SmearingTool",m_smearingTool);
-}
+    m_hitSourceVec() {}
+
 /*******************************************************************************/
 // member function implementation
 //--------------------------------------------
@@ -188,28 +159,16 @@ StatusCode sTgcDigitizationTool::initialize() {
     
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if(m_rndmEngine==0) {
-    ATH_MSG_FATAL("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  }
-    
-  ATH_CHECK(m_digitizer->initialize(m_rndmEngine, m_doChannelTypes));
 
   readDeadtimeConfig();
 
   // initialize digit parameters
-  //m_noiseFactor = 0.09;
   m_readoutThreshold = 0.05; 
   m_neighborOnThreshold = 0.01;
   m_saturation = 1.75; // = 3500. / 2000.;
   m_hitTimeMergeThreshold = 30; //30ns = resolution of peak finding descriminator
-  //m_deadtimeStrip = 50.; // 50ns deadtime of electronics after peak found (for strip readout) 
-  //m_deadtimePad = 5.; // 50ns deadtime of electronics after peak found (for strip readout) 
   m_timeWindowOffsetPad    = 0.;
   m_timeWindowOffsetStrip   = 25.;
-  //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
-  //m_timeWindowStrip         = 30.; // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
   m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
   m_timeJitterElectronicsPad = 2.; //ns
   m_timeJitterElectronicsStrip= 2.; //ns
@@ -328,7 +287,6 @@ StatusCode sTgcDigitizationTool::mergeEvent(const EventContext& ctx) {
   status = doDigitization(ctx);
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
-    //return StatusCode::FAILURE;
   }
 
   // reset the pointer (delete null pointer should be safe)
@@ -387,6 +345,10 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   
   ATH_MSG_DEBUG ("sTgcDigitizationTool::doDigitization()" );
 
+  CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
+
+  ATH_CHECK(m_digitizer->initialize(rndmEngine, m_doChannelTypes));
+
   // create and record the Digit container in StoreGate
   SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())));
@@ -439,7 +401,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       else {
           msg(MSG::DEBUG) << "This hit came from the in time bunch." << endmsg;
       }
-      sTgcSimIdToOfflineId simToOffline(m_idHelperSvc->stgcIdHelper());
+      sTgcSimIdToOfflineId simToOffline(&m_idHelperSvc->stgcIdHelper());
       const int idHit = hit.sTGCId();
       ATH_MSG_VERBOSE("Hit ID " << idHit );
       Identifier layid = simToOffline.convert(idHit);
@@ -557,8 +519,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         float newTime = (*it_digiHits)->time();
         int newChannelType = m_idHelperSvc->stgcIdHelper().channelType((*it_digiHits)->identify());
 
-        float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsStrip);
-        float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsPad);
+        float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(rndmEngine, 0, m_timeJitterElectronicsStrip);
+        float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(rndmEngine, 0, m_timeJitterElectronicsPad);
         if(newChannelType==1)
           newTime += timeJitterElectronicsStrip;
         else
@@ -988,6 +950,13 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   if ( acceptDigit ) { 
 
+	  if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
+	    //Only strips since strips are readout in PDO counts and not charge
+      chargeAfterSmearing = 1000*chargeAfterSmearing; // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
+	    chargeAfterSmearing = chargeAfterSmearing*1.0304 + 59.997; // conversion from potential to PDO for VMM1 configuration, mV*1.0304 + 59.997; from Shandong cosmics tests
+      // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
+	  }
+
 	  std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
 									      it_digit->bcTag(), 
 									      it_digit->time(), 
@@ -1114,13 +1083,9 @@ uint16_t sTgcDigitizationTool::bcTagging(const float digitTime, const int channe
     ATH_MSG_VERBOSE("Determining BC tag for pad channel");
   }
   else if(channelType == 1) { //strips 
-    //offset = m_timeWindowOffsetStrip;
-    //window = m_timeWindowStrip;
     ATH_MSG_VERBOSE("Determining BC tag for strip channel");
   }
   else if (channelType == 2) { // wire groups
-    //offset = m_timeWindowOffsetPad;
-    //window = m_timeWindowPad;
     ATH_MSG_VERBOSE("Determining BC tag for wiregroup channel");
   }
 
@@ -1137,3 +1102,13 @@ int sTgcDigitizationTool::humanBC(uint16_t bctag) {
     if(bctag << 15 == 1) return ~bctag;
     else return bctag;
 }
+
+CLHEP::HepRandomEngine* sTgcDigitizationTool::getRandomEngine(const std::string& streamName, const EventContext& ctx) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  std::string rngName = name()+streamName;
+  rngWrapper->setSeed( rngName, ctx );
+  return rngWrapper->getEngine(ctx);
+}
+
+

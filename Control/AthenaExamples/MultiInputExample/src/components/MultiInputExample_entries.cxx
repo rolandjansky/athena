@@ -1,4 +1,4 @@
-#include "MultiInputExample/MyMultiInputAlg.h"
+#include "../MyMultiInputAlg.h"
 
 DECLARE_COMPONENT( MyMultiInputAlg )
 

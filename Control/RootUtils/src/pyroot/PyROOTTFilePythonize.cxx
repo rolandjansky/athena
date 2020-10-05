@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file RootUtils/src/pyroot/PyROOTTFilePythonize.cxx
  * @author Sebastien Binet
@@ -23,26 +21,18 @@ namespace RootUtils {
 
 PyBytes::PyBytes(size_t buf_sz) : 
   sz(buf_sz>0?buf_sz:0), 
-  buf(0)
+  buf(sz)
 {
-  if (this->sz>0) {
-    buf = (char*)malloc(sizeof(char)*this->sz);
-  }
 }
 
 PyBytes::~PyBytes() 
 {
-  free(buf); buf = 0;
 }
 
 PyBytes::PyBytes(const PyBytes& rhs) : 
   sz(rhs.sz), 
-  buf(0)
+  buf(rhs.buf)
 {
-  if (this->sz>0) {
-    buf = (char*)malloc(sizeof(char)*this->sz);     
-    buf = (char*)memcpy(buf, rhs.buf, this->sz);
-  }
 }
 
 PyBytes&
@@ -50,11 +40,7 @@ PyBytes::operator=(const PyBytes& rhs)
 {
   if (this != &rhs) {
     this->sz = rhs.sz;
-    free(this->buf); this->buf = 0;
-    if (this->sz>0) {      
-      this->buf = (char*)malloc(sizeof(char)*this->sz);     
-      this->buf = (char*)memcpy(this->buf, rhs.buf, rhs.sz);
-    }
+    this->buf = rhs.buf;
   }
   return *this;
 }
@@ -85,7 +71,7 @@ _pythonize_read_root_file(TFile* f, Int_t len)
 
   len = (len>remain) ? remain : len;
   PyBytes buf(len);
-  if (f->ReadBuffer((char*)buf.buf, buf.sz)) {
+  if (f->ReadBuffer((char*)buf.buf.data(), buf.sz)) {
     //err
     return PyBytes(0);
   }

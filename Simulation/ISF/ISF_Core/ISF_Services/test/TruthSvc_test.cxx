@@ -86,7 +86,7 @@ namespace ISFTesting {
     virtual int                       parentPdgCode() const {return 1;};
     /** Return the parent particle as a HepMC particle type
         (only called for particles that will enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       parentParticle() const {return nullptr;};
+    virtual HepMC::GenParticlePtr        parentParticle() const {return nullptr;};
     /** Return the barcode of the parent particle */
     virtual Barcode::ParticleBarcode  parentBarcode() const {return 1;};
     /** Return the extra barcode of the parent particle */
@@ -95,7 +95,7 @@ namespace ISFTesting {
     virtual bool                      parentSurvivesIncident() const {return false;};
     /** Return the parent particle after the TruthIncident vertex (and assign
         a new barcode to it) */
-    virtual HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode) {return nullptr;};
+    virtual HepMC::GenParticlePtr        parentParticleAfterIncident(Barcode::ParticleBarcode) {return nullptr;};
 
     /** Return p^2 of the i-th child particle */
     virtual double                    childP2(unsigned short) const {return 1.0;};
@@ -108,14 +108,14 @@ namespace ISFTesting {
     /** Return the i-th child as a HepMC particle type and assign the given
         Barcode to the simulator particle (only called for particles that will
         enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       childParticle(unsigned short,
+    virtual HepMC::GenParticlePtr        childParticle(unsigned short,
                                                     Barcode::ParticleBarcode) const {return nullptr;};
     /** Update the properties of a child particle from a pre-defined
         interaction based on the properties of the ith child of the
         current TruthIncident (only used in quasi-stable particle
         simulation). */
-    virtual HepMC::GenParticle*       updateChildParticle(unsigned short,
-                                                          HepMC::GenParticle*) const {return nullptr;};
+    virtual HepMC::GenParticlePtr        updateChildParticle(unsigned short,
+                                                          HepMC::GenParticlePtr ) const {return nullptr;};
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode) {};
   private:
@@ -132,9 +132,9 @@ namespace ISFTesting {
     MOCK_METHOD0(geoID, AtlasDetDescr::AtlasRegion());
     //MOCK_CONST_METHOD0(position, HepMC::FourVector&());
     MOCK_CONST_METHOD0(physicsProcessCode, Barcode::PhysicsProcessCode());
-    MOCK_CONST_METHOD0(parentParticle, HepMC::GenParticle*());
+    MOCK_CONST_METHOD0(parentParticle, HepMC::GenParticlePtr ());
     MOCK_CONST_METHOD0(parentBarcode, Barcode::ParticleBarcode());
-    MOCK_METHOD1(parentParticleAfterIncident, HepMC::GenParticle*(Barcode::ParticleBarcode));
+    MOCK_METHOD1(parentParticleAfterIncident, HepMC::GenParticlePtr (Barcode::ParticleBarcode));
     MOCK_METHOD1(setPassWholeVertices, void(bool));
     MOCK_CONST_METHOD0(numberOfChildren, unsigned short());
   };
@@ -217,7 +217,7 @@ namespace ISFTesting {
     //     of the tested TruthSvc service
     //
     template<typename... Args>
-    HepMC::GenVertex* createGenVertexFromTruthIncident(Args&&... args) const {
+    HepMC::GenVertexPtr  createGenVertexFromTruthIncident(Args&&... args) const {
       return m_svc->createGenVertexFromTruthIncident(std::forward<Args>(args)...);
     }
 
@@ -272,23 +272,25 @@ namespace ISFTesting {
     const int event_number1(17);
     const int pdgid1(-13);
     const int pdgid2(13);
-    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>(process_id1, event_number1);
+    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>();
+    anEvent->set_event_number(event_number1);
+    HepMC::set_signal_process_id(anEvent.get(),process_id1);
     const CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     const HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+    HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
     myVertex->add_particle_in(inParticle1);
     const HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+    HepMC::GenParticlePtr  inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
     myVertex->add_particle_in(inParticle2);
     const HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+    HepMC::GenParticlePtr  inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
     myVertex->add_particle_out(inParticle3);
     const HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+    HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
     myVertex->add_particle_out(inParticle4);
     anEvent->add_vertex( myVertex );
-    anEvent->set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(anEvent.get(), myVertex );
     anEvent->set_beam_particles(inParticle1,inParticle2);
 
     MockTruthIncident ti(AtlasDetDescr::fAtlasID, 2);
@@ -298,18 +300,24 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(21));
     EXPECT_CALL(ti, parentBarcode())
       .Times(1)
-      .WillOnce(::testing::Return(inParticle3->barcode()));
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)));
     EXPECT_CALL(ti, parentParticle())
       .Times(1)
       .WillOnce(::testing::Return(inParticle3));
-    HepMC::GenVertex *generated = createGenVertexFromTruthIncident(ti);
+    HepMC::GenVertexPtr  generated = createGenVertexFromTruthIncident(ti);
 
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -200001, generated->barcode() );
+    ASSERT_EQ( -200001, HepMC::barcode(generated) );
+#ifdef HEPMC3
+    ASSERT_EQ( 1, generated->particles_in().size());
+    ASSERT_EQ( 0, generated->particles_out().size());
+    ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
+#else
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
+#endif
   }
 
 
@@ -320,23 +328,25 @@ namespace ISFTesting {
     const int event_number1(17);
     const int pdgid1(-13);
     const int pdgid2(13);
-    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>(process_id1, event_number1);
+    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>();
+    anEvent->set_event_number(event_number1);
+    HepMC::set_signal_process_id(anEvent.get(),process_id1);
     const CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     const HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+    HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
     myVertex->add_particle_in(inParticle1);
     const HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+    HepMC::GenParticlePtr  inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
     myVertex->add_particle_in(inParticle2);
     const HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+    HepMC::GenParticlePtr  inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
     myVertex->add_particle_out(inParticle3);
     const HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+    HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
     myVertex->add_particle_out(inParticle4);
     anEvent->add_vertex( myVertex );
-    anEvent->set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(anEvent.get(), myVertex );
     anEvent->set_beam_particles(inParticle1,inParticle2);
 
     MockTruthIncident ti(AtlasDetDescr::fAtlasID, 2);
@@ -347,8 +357,8 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(21));
     EXPECT_CALL(ti, parentBarcode())
       .Times(2)
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()));
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)));
     EXPECT_CALL(ti, parentParticle())
       .Times(2)
       .WillOnce(::testing::Return(inParticle3))
@@ -358,13 +368,19 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(nullptr));
 
     recordIncidentToMCTruth(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
+    HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
+#ifdef HEPMC3
+    ASSERT_EQ( 1, generated->particles_in().size());
+    ASSERT_EQ( 0, generated->particles_out().size());
+    ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
+#else
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
+#endif
   }
 
 
@@ -375,23 +391,25 @@ namespace ISFTesting {
     const int event_number1(17);
     const int pdgid1(-13);
     const int pdgid2(13);
-    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>(process_id1, event_number1);
+    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>();
+    anEvent->set_event_number(event_number1);
+    HepMC::set_signal_process_id(anEvent.get(),process_id1);
     const CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     const HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+    HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
     myVertex->add_particle_in(inParticle1);
     const HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+    HepMC::GenParticlePtr  inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
     myVertex->add_particle_in(inParticle2);
     const HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+    HepMC::GenParticlePtr  inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
     myVertex->add_particle_out(inParticle3);
     const HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+    HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
     myVertex->add_particle_out(inParticle4);
     anEvent->add_vertex( myVertex );
-    anEvent->set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(anEvent.get(), myVertex );
     anEvent->set_beam_particles(inParticle1,inParticle2);
 
     MockTruthIncident ti(AtlasDetDescr::fAtlasID, 2);
@@ -400,12 +418,12 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(21));
     EXPECT_CALL(ti, parentBarcode())
       .Times(2)
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()));
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
-    HepMC::GenVertex* expectedVtx(nullptr);
+    HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
+    HepMC::GenVertexPtr  expectedVtx(nullptr);
     ASSERT_EQ( expectedVtx, generated);
   }
 
@@ -419,23 +437,25 @@ namespace ISFTesting {
     const int event_number1(17);
     const int pdgid1(-13);
     const int pdgid2(13);
-    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>(process_id1, event_number1);
+    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>();
+    anEvent->set_event_number(event_number1);
+    HepMC::set_signal_process_id(anEvent.get(),process_id1);
     const CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     const HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+    HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
     myVertex->add_particle_in(inParticle1);
     const HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+    HepMC::GenParticlePtr  inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
     myVertex->add_particle_in(inParticle2);
     const HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+    HepMC::GenParticlePtr  inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
     myVertex->add_particle_out(inParticle3);
     const HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+    HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
     myVertex->add_particle_out(inParticle4);
     anEvent->add_vertex( myVertex );
-    anEvent->set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(anEvent.get(), myVertex );
     anEvent->set_beam_particles(inParticle1,inParticle2);
 
     MockTruthIncident ti(AtlasDetDescr::fAtlasID, 2);
@@ -446,21 +466,27 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(21));
     EXPECT_CALL(ti, parentBarcode())
       .Times(3)
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()));
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)));
     EXPECT_CALL(ti, parentParticle())
       .Times(1)
       .WillOnce(::testing::Return(inParticle3));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
+    HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
+#ifdef HEPMC3
+    ASSERT_EQ( 1, generated->particles_in().size());
+    ASSERT_EQ( 0, generated->particles_out().size());
+    ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
+#else
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
+#endif
   }
 
 
@@ -482,23 +508,25 @@ namespace ISFTesting {
     const int event_number1(17);
     const int pdgid1(-13);
     const int pdgid2(13);
-    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>(process_id1, event_number1);
+    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>();
+    anEvent->set_event_number(event_number1);
+    HepMC::set_signal_process_id(anEvent.get(),process_id1);
     const CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     const HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+    HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
     myVertex->add_particle_in(inParticle1);
     const HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+    HepMC::GenParticlePtr  inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
     myVertex->add_particle_in(inParticle2);
     const HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+    HepMC::GenParticlePtr  inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
     myVertex->add_particle_out(inParticle3);
     const HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+    HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
     myVertex->add_particle_out(inParticle4);
     anEvent->add_vertex( myVertex );
-    anEvent->set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(anEvent.get(), myVertex );
     anEvent->set_beam_particles(inParticle1,inParticle2);
 
 
@@ -510,9 +538,9 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(21));
     EXPECT_CALL(ti, parentBarcode())
       .Times(3)
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()));
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)));
     EXPECT_CALL(ti, parentParticle())
       .Times(1)
       .WillOnce(::testing::Return(inParticle3));
@@ -524,13 +552,19 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(false));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
+    HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
+#ifdef HEPMC3
+    ASSERT_EQ( 1, generated->particles_in().size());
+    ASSERT_EQ( 0, generated->particles_out().size());
+    ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
+#else
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( 0, generated->particles_out_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
+#endif
   }
 
 
@@ -549,26 +583,28 @@ namespace ISFTesting {
     const int event_number1(17);
     const int pdgid1(-13);
     const int pdgid2(13);
-    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>(process_id1, event_number1);
+    std::unique_ptr<HepMC::GenEvent> anEvent = std::make_unique<HepMC::GenEvent>();
+    anEvent->set_event_number(event_number1);
+    HepMC::set_signal_process_id(anEvent.get(),process_id1);
     const CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( HepMC::FourVector(myPos.x(),myPos.y(),myPos.z(),myPos.t()), -1 );
     const HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, pdgid1, 2);
+    HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, pdgid1, 2);
     myVertex->add_particle_in(inParticle1);
     const HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, pdgid2, 2);
+    HepMC::GenParticlePtr  inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, pdgid2, 2);
     myVertex->add_particle_in(inParticle2);
     const HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
+    HepMC::GenParticlePtr  inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
     myVertex->add_particle_out(inParticle3);
     const HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, pdgid2, 1);
+    HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, pdgid2, 1);
     myVertex->add_particle_out(inParticle4);
     anEvent->add_vertex( myVertex );
-    anEvent->set_signal_process_vertex( myVertex );
+    HepMC::set_signal_process_vertex(anEvent.get(), myVertex );
     anEvent->set_beam_particles(inParticle1,inParticle2);
-    HepMC::GenParticle* inParticle5 = new HepMC::GenParticle(fourMomentum3, pdgid1, 1);
-    inParticle5->suggest_barcode(1010003);
+    HepMC::GenParticlePtr  inParticle5 = HepMC::newGenParticlePtr(fourMomentum3, pdgid1, 1);
+    HepMC::suggest_barcode(inParticle5,1010003);
     inParticle5->set_status(1);
 
     MockTruthIncident ti(AtlasDetDescr::fAtlasID, 2);
@@ -579,9 +615,9 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(21));
     EXPECT_CALL(ti, parentBarcode())
       .Times(3)
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()))
-      .WillOnce(::testing::Return(inParticle3->barcode()));
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)))
+      .WillOnce(::testing::Return(HepMC::barcode(inParticle3)));
     EXPECT_CALL(ti, parentParticle())
       .Times(2)
       .WillOnce(::testing::Return(inParticle3))
@@ -597,14 +633,21 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(true));
 
     registerTruthIncident(ti);
-    HepMC::GenVertex* generated = anEvent->barcode_to_vertex(-200001); //Find a nicer way to get this.
+    HepMC::GenVertexPtr  generated = HepMC::barcode_to_vertex(anEvent.get(),-200001); //Find a nicer way to get this.
     ASSERT_EQ( vtxPosition, generated->position() );
     ASSERT_EQ( 1021, generated->id() );
-    ASSERT_EQ( -200001, generated->barcode() ); // by construction at the moment
+    ASSERT_EQ( -200001, HepMC::barcode(generated) ); // by construction at the moment
+#ifdef HEPMC3
+    ASSERT_EQ( 1, generated->particles_in().size());
+    ASSERT_EQ( inParticle3, *(generated->particles_in().cbegin()));
+    ASSERT_EQ( 1, generated->particles_out().size());
+    ASSERT_EQ( inParticle5, *(generated->particles_out().cbegin()));
+#else
     ASSERT_EQ( 1, generated->particles_in_size());
     ASSERT_EQ( inParticle3, *(generated->particles_in_const_begin()));
     ASSERT_EQ( 1, generated->particles_out_size());
     ASSERT_EQ( inParticle5, *(generated->particles_out_const_begin()));
+#endif
   }
 
   //TODO Add tests for the following cases:

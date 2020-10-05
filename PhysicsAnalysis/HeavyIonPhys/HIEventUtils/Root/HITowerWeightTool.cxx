@@ -85,8 +85,17 @@ StatusCode HITowerWeightTool::configureEvent()
     auto itr=m_runMap.find(run_number);
     if(itr==m_runMap.end())
     {
-      m_runIndex=0;
-      ATH_MSG_WARNING("No calibration avaliable for " << run_number << ". Doing no eta-phi correction.");
+			//trying generic run number <=> no run dependence
+		        run_number = 226000;
+		        auto itrg=m_runMap.find(run_number);
+		        if(itrg==m_runMap.end()){
+		            m_runIndex=0;
+		            ATH_MSG_WARNING("No generic calibration or calibration for " << run_number << " is avaliable. Doing no eta-phi correction.");
+		        }
+		        else {
+		            m_runIndex=itrg->second;
+		            ATH_MSG_DEBUG("Using generic calibration for eta-phi correction.");
+		        }
     }
     else m_runIndex=itr->second;
     m_runNumber=run_number;
@@ -161,7 +170,9 @@ StatusCode HITowerWeightTool::initialize()
     ATH_MSG_FATAL("Cannot find TH3F h1_run_index in config file " << full_path );
     return StatusCode::FAILURE;
   }
-  for(int xbin=1; xbin<h1_run_index->GetNbinsX(); xbin++) m_runMap.emplace_hint(m_runMap.end(),std::make_pair(h1_run_index->GetBinContent(xbin),xbin));
+  for(int xbin=1; xbin<=h1_run_index->GetNbinsX(); xbin++) {
+		m_runMap.emplace_hint(m_runMap.end(),std::make_pair(h1_run_index->GetBinContent(xbin),xbin));
+	}
   f->Close();
   m_init=true;
   return StatusCode::SUCCESS;

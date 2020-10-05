@@ -8,12 +8,13 @@
  */
 
 #include "MCTruthClassifier/MCTruthClassifier.h"
+#include "AsgDataHandles/ReadHandle.h"
 using namespace MCTruthPartClassifier;
 using std::abs;
 
 #ifndef XAOD_ANALYSIS
 std::pair<ParticleType, ParticleOrigin>
-MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle* thePart, Info* info /*= nullptr*/) const
+MCTruthClassifier::particleTruthClassifier(HepMC::ConstGenParticlePtr thePart, Info* info /*= nullptr*/) const
 {
   //---------------------------------------------------------------------------------------
   ParticleType partType = Unknown;
@@ -31,7 +32,7 @@ MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle* thePart, In
   }
 
   for (const auto& entry : *truthParticleLinkVecReadHandle) {
-    if (entry->first.isValid() && entry->second.isValid() && entry->first.cptr()->barcode() == thePart->barcode()) {
+    if (entry->first.isValid() && entry->second.isValid() && HepMC::barcode(entry->first.cptr()) == HepMC::barcode(thePart)) {
       const xAOD::TruthParticle* truthParticle = *entry->second;
       if (!compareTruthParticles(thePart, truthParticle)) {
         // if the barcode/pdg id / status of the pair does not match
@@ -46,13 +47,13 @@ MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle* thePart, In
 }
 //------------------------------------------------------------------------
 bool
-MCTruthClassifier::compareTruthParticles(const HepMC::GenParticle* genPart, const xAOD::TruthParticle* truthPart) const
+MCTruthClassifier::compareTruthParticles(HepMC::ConstGenParticlePtr genPart, const xAOD::TruthParticle* truthPart) const
 {
   //------------------------------------------------------------------------
   if (!genPart || !truthPart)
     return false;
 
-  if (genPart->barcode() != truthPart->barcode() || genPart->pdg_id() != truthPart->pdgId() ||
+  if (HepMC::barcode(genPart) != truthPart->barcode() || genPart->pdg_id() != truthPart->pdgId() ||
       genPart->status() != truthPart->status()) {
     ATH_MSG_DEBUG("HepMC::GenParticle and xAOD::TruthParticle do not match");
     return false;

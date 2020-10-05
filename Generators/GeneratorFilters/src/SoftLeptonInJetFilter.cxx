@@ -31,6 +31,26 @@ StatusCode SoftLeptonInJetFilter::filterEvent() {
   int NPartons = 0;
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto pitr: *genEvt) {
+      if ( m_NPartons == 0 ) continue;
+        if (isParton(pitr)) {
+          eta_b[NPartons] = pitr->momentum().pseudoRapidity();
+          phi_b[NPartons] = pitr->momentum().phi();
+          NPartons++;
+        }
+        if (isElectron(pitr)) {
+          for (auto thisParent: pitr->production_vertex()->particles_in()) {
+            int parentID = std::abs(thisParent->pdg_id());
+            if ( MC::PID::isBottomMeson(parentID) || MC::PID::isBottomBaryon(parentID) || MC::PID::isCharmMeson(parentID) || MC::PID::isCharmBaryon(parentID) ) {
+              eta_e[NLeptons] = pitr->momentum().pseudoRapidity();
+              phi_e[NLeptons] = pitr->momentum().phi();
+              NLeptons++;
+            }
+          }
+        }
+    }
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if ( m_NPartons !=0 ) {
         if (isParton(*pitr)) {
@@ -53,6 +73,7 @@ StatusCode SoftLeptonInJetFilter::filterEvent() {
         }
       }
     }
+#endif    
   }
 
   if (NPartons == m_NPartons && NLeptons >= m_NLeptons) {
@@ -63,9 +84,9 @@ StatusCode SoftLeptonInJetFilter::filterEvent() {
 
       for (int ie=0; ie < NLeptons; ie++ ) {
         double deltaEta = eta_b[ib]-eta_e[ie];
-        double deltaPhi = fabs(phi_b[ib]-phi_e[ie]);
-        if (deltaPhi  > M_PI ) deltaPhi = fabs(deltaPhi-2*M_PI);
-        dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+        double deltaPhi = std::abs(phi_b[ib]-phi_e[ie]);
+        if (deltaPhi  > M_PI ) deltaPhi = std::abs(deltaPhi-2*M_PI);
+        dR = std::sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 
         if (dR < m_jet_cone) {
           e_found[ib]++;
@@ -96,14 +117,14 @@ StatusCode SoftLeptonInJetFilter::filterEvent() {
   return StatusCode::SUCCESS;
 }
 
-bool SoftLeptonInJetFilter::isElectron(const HepMC::GenParticle* p) const {
-  return (abs(p->pdg_id())==11 && p->status()==1 &&
+bool SoftLeptonInJetFilter::isElectron(HepMC::ConstGenParticlePtr p) const {
+  return (std::abs(p->pdg_id())==11 && p->status()==1 &&
           p->momentum().perp() >= m_Ptmin &&
-          fabs(p->momentum().pseudoRapidity()) <= m_EtaRange );
+          std::abs(p->momentum().pseudoRapidity()) <= m_EtaRange );
 }
 
-bool SoftLeptonInJetFilter::isParton(const HepMC::GenParticle* p) const {
-  return (abs(p->pdg_id()) == m_part_ID && p->status()==3 &&
+bool SoftLeptonInJetFilter::isParton(HepMC::ConstGenParticlePtr p) const {
+  return (std::abs(p->pdg_id()) == m_part_ID && p->status()==3 &&
           p->momentum().perp() >= m_part_Ptmin  &&
-          fabs(p->momentum().pseudoRapidity()) <= m_part_EtaRange);
+          std::abs(p->momentum().pseudoRapidity()) <= m_part_EtaRange);
 }

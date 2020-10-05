@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaDataMarkUpTool.h 676522 2015-06-18 22:17:03Z cranshaw $
@@ -54,28 +54,30 @@ namespace xAODMaker {
 
       /// Required of all IAthenaOutputTools:
       /// Called by AthenaOutputStream::initialize() (via ToolSvc retrieve()).
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       /// Called at the end of AthenaOutputStream::initialize().
-      StatusCode postInitialize();
+      virtual StatusCode postInitialize() override;
       /// Called at the beginning of AthenaOutputStream::execute().
-      StatusCode preExecute();
+      virtual StatusCode preExecute() override;
+      /// Called before actually streaming objects.
+      virtual StatusCode preStream() override;
       /// Called at the end of AthenaOutputStream::execute().
-      StatusCode postExecute();
+      virtual StatusCode postExecute() override;
       /// Called at the beginning of AthenaOutputStream::finalize().
-      StatusCode preFinalize();
+      virtual StatusCode preFinalize() override;
       /// Called at the end of AthenaOutputStream::finalize() (via release()).
-      StatusCode finalize();
-      virtual StatusCode start();
+      virtual StatusCode finalize() override;
+      virtual StatusCode start() override;
 
    protected:
       /// @name Functions called by the AsgMetadataTool base class
       /// @{
 
       /// Function collecting the metadata from a new input file
-      virtual StatusCode beginInputFile();
+      virtual StatusCode beginInputFile() override;
 
       /// Function writing the collected metadata to the output
-      virtual StatusCode metaDataStop();
+      virtual StatusCode metaDataStop() override;
 
       /// @}
 

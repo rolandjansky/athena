@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -26,7 +26,7 @@ StatusCode HltL1MatchingTool::initialize() {
 
 
 StatusCode HltL1MatchingTool::execute(const std::vector<DecoratedHltTau>& hlt_taus, const xAOD::EmTauRoIContainer * l1_taus) {
-  for (const auto tau: hlt_taus) {
+  for (const auto& tau: hlt_taus) {
     ATH_CHECK(match(tau.getHltTau(), l1_taus));
   }
 

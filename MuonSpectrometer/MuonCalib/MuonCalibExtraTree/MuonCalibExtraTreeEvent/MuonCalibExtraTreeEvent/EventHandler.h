@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EventHandler_h
 #define EventHandler_h
 
-#include <vector>
-#include <string>
-#include <map>
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedRawHits.h"
- 
+#include "CxxUtils/checker_macros.h"
+
+#include <map>
+#include <string>
+#include <vector>
+
 namespace MuonCalib{
 
   class MuonCalibExtendedTrack;
@@ -19,7 +21,7 @@ namespace MuonCalib{
   /**
      @author Niels.van.eldik@cern.ch
   */
-  class EventHandler {
+  class ATLAS_NOT_THREAD_SAFE EventHandler {
 
   public:
     struct AuthorIndices {

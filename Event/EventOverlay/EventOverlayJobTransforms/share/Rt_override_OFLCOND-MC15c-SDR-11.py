@@ -7,7 +7,7 @@ from RecExConfig.RecAlgsFlags import recAlgs
 #conddb.blockFolder("/MDT/RT")
 #conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-04",force=True,forceMC=True)
 conddb.blockFolder("/MDT/RTBLOB")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True)
+conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True,className="CondAttrListCollection")
 
 #from Guillaume
 conddb.blockFolder("/LAR/LArCellPositionShift");
@@ -17,13 +17,14 @@ conddb.addOverride("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/4samples1phase","LARElecC
 svcMgr.PoolSvc.ReadCatalog+=["xmlcatalog_file:"+"/cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml"]
 
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
-conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True,className="AthenaAttributeList")
 
 conddb.blockFolder("/TRT/Cond/DigVers")
-conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
+conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True,
+                        className = 'AthenaAttributeList')
 
 ###################################################
-print "RT OVERRIDE, for CONDBR2-BLKPA-2015-12"
+printfunc ("RT OVERRIDE, for CONDBR2-BLKPA-2015-12")
 #See https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_CB_Report.php?CBAction=GlobalTagReport&cbgt=CONDBR2-BLKPA-2015-15#INDET
 
 ###These are not really needed anymore during overlay. Setup in muAlign_reco.py for reco.
@@ -43,7 +44,7 @@ print "RT OVERRIDE, for CONDBR2-BLKPA-2015-12"
 #conddb.addFolderWithTag("MDT_OFL","/MDT/T0BLOB","MDTT0-RUN2-UPD4-15",force=True,forceData=True)
 
 if not "EOJT_alignMC" in globals():
-    print "EOJT_alignMC not found in globals(), so aligning ID to data conditions"
+    printfunc ("EOJT_alignMC not found in globals(), so aligning ID to data conditions")
     #conddb.blockFolder("/TRT/Align")
     #conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign-RUN2-BLK-UPD4-10",force=True,forceData=True)
     #conddb.blockFolder("/LAR/Align")
@@ -51,7 +52,7 @@ if not "EOJT_alignMC" in globals():
     #conddb.blockFolder("/Indet/Align")
     #conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-RUN2-BLK-UPD4-13",force=True,forceData=True)
 else:
-    print "EOJT_alignMC found in globals(), so aligning ID to MC conditions"
+    printfunc ("EOJT_alignMC found in globals(), so aligning ID to MC conditions")
     conddb.blockFolder("/TRT/Align")
     conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign_Nominal2",force=True,forceMC=True)
     conddb.blockFolder("/LAR/Align")
@@ -65,7 +66,7 @@ else:
 
 #to run overlay chain with trigger                      
 if (hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE") or (hasattr(recAlgs,'doTrigger') and recAlgs.doTrigger() and DetFlags.LVL1_on()):
-    print "running with trigger  " 
+    printfunc ("running with trigger  " )
     conddb.blockFolder("/PIXEL/HLT/DCS/HV")
     conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-RUN2-UPD1-00",force=True,forceData=True)
     conddb.blockFolder("/PIXEL/HLT/DCS/TEMPERATURE")
@@ -73,16 +74,16 @@ if (hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE") or (has
     conddb.addOverride("/GLOBAL/Onl/TrigBTagCalib/RUN12","TrigBTagCalibRUN12Onl-08-10")
     conddb.addOverride("/GLOBAL/Onl/BTagCalib/RUN12","BTagCalibRUN12Onl-08-15")
 else:
-    print "running with no trigger  "
+    printfunc ("running with no trigger  ")
 
 if DetFlags.writeRDOPool.pixel_on():
     conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
 
 conddb.blockFolder("/PIXEL/PixdEdx")
-conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN124-000-00",force=True,forceMC=True)
+conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN124-000-00",force=True,forceMC=True,className="AthenaAttributeList")
 mcIDoverlay=False
 if mcIDoverlay:
-    print "ACH777: Using MC overlay Lorentz DB settings"
+    printfunc ("ACH777: Using MC overlay Lorentz DB settings")
     conddb.blockFolder("/PIXEL/DCS/HV")
     conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/HV","PixDCSHV-SIM-RUN1-000-00",force=True,forceMC=True)
     conddb.blockFolder("/PIXEL/DCS/TEMPERATURE")
@@ -93,7 +94,7 @@ if mcIDoverlay:
     conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/MODTEMP","SctDcsModtemp-Apr10-01",force=True,forceMC=True)
 mcIDoverlay2=False
 if mcIDoverlay2:
-    print "ACH777: Using more MC overlay ID DB settings"
+    printfunc ("ACH777: Using more MC overlay ID DB settings")
     conddb.blockFolder("/Indet/PixelDist")
     conddb.addFolderWithTag("INDET_OFL","/Indet/PixelDist","InDetPixelDist-nominal",force=True,forceMC=True)
     conddb.blockFolder("/PIXEL/PixelClustering/PixelClusNNCalib")
@@ -125,7 +126,7 @@ conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEA","MuonAlignTGCEndC
 conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEC","MuonAlignTGCEndCapCAlign-0001-DEFAULT",force=True,forceMC=True,className='CondAttrListCollection')
 
 conddb.blockFolder("/SCT/DAQ/Config/Chip")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",force=True)
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",force=True,className="CondAttrListVec")
 conddb.blockFolder("/SCT/DAQ/Config/Module")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True)
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True,className="CondAttrListVec")
 

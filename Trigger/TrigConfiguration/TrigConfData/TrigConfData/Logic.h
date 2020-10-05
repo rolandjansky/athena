@@ -5,8 +5,6 @@
 #ifndef TRIGCONFDATA_LOGIC_H
 #define TRIGCONFDATA_LOGIC_H
 
-#include "CxxUtils/checker_macros.h"
-
 #include <string>
 #include <vector>
 #include <map>

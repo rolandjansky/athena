@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************/
@@ -14,6 +14,8 @@
 #include "Particle/TrackParticle.h"
 #include "muonEvent/MuonContainer.h"
 #include "AthenaKernel/errorcheck.h"
+
+#include <cmath>
 
 using namespace Analysis;
 
@@ -57,7 +59,7 @@ namespace D3PD {
     for (const Analysis::Muon* cmuon : *muonsForCombination) {
       /// the Inner Detector track
       if ( cmuon->hasInDetTrackParticle() &&
-           fabs(TP.pt() - cmuon->inDetTrackParticle()->pt()) < 0.01) { 
+           std::abs(TP.pt() - cmuon->inDetTrackParticle()->pt()) < 0.01) { 
         muon = cmuon;
       }
 	  

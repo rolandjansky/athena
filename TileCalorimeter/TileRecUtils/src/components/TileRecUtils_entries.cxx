@@ -16,6 +16,7 @@
 #include "TileRecUtils/TileCellNoiseFilter.h"
 #include "TileRecUtils/TileRawChannelNoiseFilter.h"
 #include "TileRecUtils/TileRawChannelOF1Corrector.h"
+#include "TileRecUtils/TileTimeBCOffsetFilter.h"
 #include "../TileTowerBuilderTool.h"
 #include "../TileDigitsDumper.h"
 #include "../TileRawChannelDumper.h"
@@ -44,6 +45,7 @@ DECLARE_COMPONENT( TileTowerBuilderTool )
 DECLARE_COMPONENT( TileCellNoiseFilter )
 DECLARE_COMPONENT( TileRawChannelNoiseFilter )
 DECLARE_COMPONENT( TileRawChannelOF1Corrector )
+DECLARE_COMPONENT( TileTimeBCOffsetFilter )
 DECLARE_COMPONENT( TileRawChannelMaker )
 DECLARE_COMPONENT( TileRawChannelVerify )
 DECLARE_COMPONENT( TileRawCorrelatedNoise )

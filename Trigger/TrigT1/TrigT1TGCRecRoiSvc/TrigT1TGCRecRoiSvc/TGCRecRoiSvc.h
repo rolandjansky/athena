@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1_TGCRECROISVC_H
 #define TRIGT1_TGCRECROISVC_H
 
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TGCcablingInterface/TGCIdBase.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class Identifier;
 class ITGCcablingSvc;
 
 namespace MuonGM
@@ -42,10 +43,9 @@ public:
   // standard constructor
   TGCRecRoiSvc (const std::string& name, ISvcLocator* svc);
   
-  virtual ~TGCRecRoiSvc (void) {}
+  virtual ~TGCRecRoiSvc()=default;
 
-  StatusCode initialize (void);
-  StatusCode finalize   (void);
+  StatusCode initialize();
   
   void reconstruct (const unsigned int & roIWord) const;  //!< calculate eta and phi of RoI center @link LVL1TGC::TGCRecRoiSvc::reconstruct @endlink
 
@@ -123,10 +123,9 @@ private:
   BooleanProperty m_patchForP5; 
   BooleanProperty m_patchForRoIWord;
 
-  mutable const ITGCcablingSvc * m_cabling;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  const MuonGM::MuonDetectorManager * m_muonMgr;
+  mutable const ITGCcablingSvc* m_cabling;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  const MuonGM::MuonDetectorManager* m_muonMgr;
 
   mutable bool m_isAtlas;
 };

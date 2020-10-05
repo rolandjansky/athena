@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBTOOLS__TRTCALIBRATOR_H
@@ -72,10 +72,10 @@ public:
       "-1" & "1": calibration of the barrel C- & A-side
       "X_Y": calibration of layer Y in barrel X-side
   */
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output);
+  virtual bool fill(const Trk::Track* aTrack, TRT::TrackInfo* output) override;
 
   bool IncludedLevels(std::string, int*);
 
@@ -87,7 +87,7 @@ public:
   /**
      returns true if the ...
   */
-  bool IsSubLev(std::string, int, std::string);  
+  bool IsSubLev(const std::string&, int, const std::string&);  
 
   /**
      returns true if the ...
@@ -97,7 +97,7 @@ public:
   /**
      fills a set of integers with the indexes af the sub-modules that are conatined in a selection 
   */
-  int GetSubLevels(std::string, int, std::set<int>*);  
+  int GetSubLevels(const std::string&, int, std::set<int>*);  
 
   /**
      makes the key strings for a sub-module
@@ -107,7 +107,7 @@ public:
   /**
      Method for doing the actual calibration
   */
-  virtual bool calibrate();
+  virtual bool calibrate ATLAS_NOT_THREAD_SAFE () override;
 
 private:
   const AtlasDetectorID* m_DetID;

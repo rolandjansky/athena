@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_H
@@ -9,6 +9,7 @@
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
+#include "FlavorTagDiscriminants/ftagfloat_t.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -21,6 +22,7 @@
 #include <vector>
 #include <functional>
 #include <exception>
+#include <type_traits>
 
 // forward declarations
 namespace lwt {
@@ -35,6 +37,26 @@ namespace FlavorTagDiscriminants {
     ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
   enum class TrackSelection {ALL, IP3D_2018};
   enum class OutputType {FLOAT, DOUBLE};
+
+  // classes to deal with typedefs
+  //
+  template <typename T>
+  struct EDMTypeEnum;
+  template <> struct EDMTypeEnum<float> {
+    const static EDMType type = EDMType::FLOAT;
+  };
+  template <> struct EDMTypeEnum<double> {
+    const static EDMType type = EDMType::DOUBLE;
+  };
+  template<typename T>
+  struct OutputTypeEnum;
+  template<> struct OutputTypeEnum<float> {
+    const static OutputType type = OutputType::FLOAT;
+  };
+  template<> struct OutputTypeEnum<double> {
+    const static OutputType type = OutputType::DOUBLE;
+  };
+
 
   // Structures to define DL2 input.
   //
@@ -101,7 +123,17 @@ namespace FlavorTagDiscriminants {
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, m_default_flag(*btag) ? NAN : m_getter(*btag)};
+        T ret_value = m_getter(*btag);
+        bool is_default = m_default_flag(*btag);
+        if constexpr (std::is_floating_point<T>::value) {
+          if (std::isnan(ret_value) && !is_default) {
+            throw std::runtime_error(
+              "Found NAN value for '" + m_name
+              + "'. This is only allowed when using a default"
+              " value for this input");
+          }
+        }
+        return {m_name, is_default ? NAN : ret_value};
       }
     };
 
@@ -121,7 +153,14 @@ namespace FlavorTagDiscriminants {
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, m_getter(*btag)};
+        T ret_value = m_getter(*btag);
+        if constexpr (std::is_floating_point<T>::value) {
+          if (std::isnan(ret_value)) {
+            throw std::runtime_error(
+              "Found NAN value for '" + m_name + "'.");
+          }
+        }
+        return {m_name, ret_value};
       }
     };
 

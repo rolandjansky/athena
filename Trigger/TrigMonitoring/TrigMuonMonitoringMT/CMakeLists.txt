@@ -1,28 +1,10 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 atlas_subdir( TrigMuonMonitoringMT )
 
-atlas_depends_on_subdirs(  PUBLIC
-			   Control/AthenaBaseComps
-			   Control/AthenaMonitoring
-			   GaudiKernel
-			   Trigger/TrigAnalysis/TrigDecisionTool
-			   PRIVATE
-			   Event/xAOD/xAODMuon
-			   Event/xAOD/xAODTrigMuon
-			   Event/FourMomUtils
-			   Trigger/TrigSteer/DecisionHandling
-			   Tracking/TrkExtrapolation/TrkExInterfaces
-			   Tracking/TrkEvent/TrkParameter
-			   Tracking/TrkVertexFitter/TrkVKalVrtFitter
-			   )
-
-
 atlas_add_component( TrigMuonMonitoringMT
-		     src/*.cxx
-		     src/components/*.cxx
-		     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-		     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringLib GaudiKernel xAODMuon xAODTrigMuon TrigDecisionToolLib FourMomUtils DecisionHandlingLib TrkParameters TrkVKalVrtFitterLib
-		     )
+                     src/*.cxx
+                     src/components/*.cxx
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringLib FourMomUtils GaudiKernel StoreGateLib TrigDecisionToolLib TrkExInterfaces TrkParameters xAODMuon xAODTracking xAODTrigMuon xAODTrigger )
 
-
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

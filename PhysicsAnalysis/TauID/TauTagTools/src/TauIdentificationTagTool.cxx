@@ -10,7 +10,7 @@ Created : January 2006
 Purpose : create a TauIdentificationTag - word to encode tauJet specific informations
 *****************************************************************************/
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TauTagTools/TauIdentificationTagTool.h"

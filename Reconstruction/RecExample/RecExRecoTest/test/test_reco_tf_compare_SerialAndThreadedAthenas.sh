@@ -1,8 +1,11 @@
 #!/bin/bash
 
+preExecStringOne="RAWtoESD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False);from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)"
+preExecStringTwo="ESDtoAOD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)"
+
 echo "Creating new serial directory"
 mkdir serial; cd serial
-Reco_tf.py --AMI=$1 --preExec='RAWtoESD:from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)' | tee athenaSerial.log
+Reco_tf.py --steering "no" --AMI=$1 --preExec "${preExecStringOne}" "${preExecStringTwo}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaSerial.log
 rc=${PIPESTATUS[0]}
 echo "art-result: $rc Serial"
 
@@ -12,7 +15,7 @@ cd ../
 echo "Creating new threadOne directory"
 mkdir threadOne; cd threadOne
 
-Reco_tf.py --athenaopts="--threads=1" --AMI=$1 --preExec='RAWtoESD:from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)' | tee athenaOneThread.log
+Reco_tf.py --steering "no" --athenaopts="--threads=1" --AMI=$1 --preExec "${preExecStringOne}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaOneThread.log
 rc1=${PIPESTATUS[0]}
 echo "art-result: $rc1 OneThread"
 
@@ -26,14 +29,15 @@ if [[ $rc -eq 0 ]] && [[ $rc1 -eq  0 ]]
 then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../serial/ | tee diffSerialOneThread.log
- echo "art-result: $? Diff-Serial-OneThread"
+ rcDiff1=${PIPESTATUS[0]}
+ echo "art-result: $rcDiff1 Diff-Serial-OneThread"
 fi
 
 cd ../
 echo "Creating new threadTwo directory"
 mkdir threadTwo; cd threadTwo
 
-Reco_tf.py --athenaopts="--threads=1" --AMI=$1 --preExec='RAWtoESD:from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)' | tee athenaTwoThreads.log
+Reco_tf.py --steering "no" --athenaopts="--threads=2" --AMI=$1 --preExec "${preExecStringOne}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaTwoThreads.log
 rc2=${PIPESTATUS[0]}
 echo "art-result: $rc2 TwoThreads"
 
@@ -43,14 +47,15 @@ if [[ $rc1 -eq 0 ]] && [[ $rc2 -eq  0 ]]
 then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadOne | tee diffTwoThreadsOneThread.log
- echo "art-result: $? Diff-OneThread-TwoThreads"
+ rcDiff2=${PIPESTATUS[0]}
+ echo "art-result: $rcDiff2 Diff-OneThread-TwoThreads"
 fi
 
 cd ../
 echo "Creating new threadFive directory"
 mkdir threadFive; cd threadFive
 
-Reco_tf.py --athenaopts="--threads=1" --AMI=$1 --preExec='RAWtoESD:from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)' | tee athenaFiveThreads.log
+Reco_tf.py --steering "no" --athenaopts="--threads=5" --AMI=$1 --preExec "${preExecString}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaFiveThreads.log
 rc5=${PIPESTATUS[0]}
 echo "art-result: $rc5 FiveThreads"
 
@@ -60,5 +65,6 @@ if [[ $rc2 -eq 0 ]] && [[ $rc5 -eq  0 ]]
 then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../threadTwo | tee diffFiveThreadsTwoThreads.log
- echo "art-result: $? Diff-TwoThreads-FiveThreads"
+ rcDiff5=${PIPESTATUS[0]}
+ echo "art-result: $rcDiff5 Diff-TwoThreads-FiveThreads"
 fi

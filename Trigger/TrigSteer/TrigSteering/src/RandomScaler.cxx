@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -8,13 +8,12 @@
  * @Class  : RandomScaler
  *
  * @brief Random prescaler
- * $Id: RandomScaler.cxx,v 1.5 2008-05-06 09:19:19 tbold Exp $
  **********************************************************************************/
 
 #include "TrigSteering/RandomScaler.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 
@@ -128,16 +127,16 @@ void HLT::RandomScaler::handle(const Incident& inc)
 void HLT::RandomScaler::setSeedFromDataflow()
 {
   // Check if application-specific random seed is provided via DataFlowConfig
-  ServiceHandle<IJobOptionsSvc> jobOptSvc("JobOptionsSvc", name());
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> jobOptSvc("JobOptionsSvc", name());
   if ( jobOptSvc.retrieve().isSuccess() ) {
-    const Property* p = Gaudi::Utils::getProperty( jobOptSvc->getProperties("DataFlowConfig"), "DF_RandomSeed");
-    if ( p!=0 ) {   // Partition running
-      IntegerProperty seed;
-      if ( seed.assign(*p) ) {
-        m_seed = seed;
+    if ( jobOptSvc->has("DataFlowConfig.DF_RandomSeed") ) {   // Partition running
+      try {
+        m_seed = std::stoi(jobOptSvc->get("DataFlowConfig.DF_RandomSeed"));
         msg() << MSG::INFO << "Using application-specific random seed = " << m_seed << endmsg;
       }
-      else msg() << MSG::WARNING << "Could not set Property 'seed' from DataFlowConfig.DF_RandomSeed" << endmsg;
+      catch (...) {
+        msg() << MSG::WARNING << "Could not set 'seed' from DataFlowConfig.DF_RandomSeed" << endmsg;
+      }
     }
   }
   else msg() << MSG::WARNING << "Could not retrieve JobOptionsSvc to read random seed. Using default value." << endmsg;

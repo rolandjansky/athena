@@ -13,11 +13,6 @@ def InDetServiceMaterialCfg (flags):
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     InDetServMatTool=CompFactory.InDetServMatTool
     servMatTool = InDetServMatTool()
-    if flags.GeoModel.Run=="RUN4":
-        InDetServMatBuilderToolSLHC=CompFactory.InDetServMatBuilderToolSLHC
-        InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
-        acc.addPublicTool( InDetServMatBuilderToolSLHC )
-        servMatTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
     geoModelSvc.DetectorTools += [ servMatTool ]
     acc.addService(geoModelSvc)
     return acc
@@ -41,7 +36,7 @@ if __name__ == "__main__":
   from AthenaCommon.Constants import DEBUG
   from AthenaCommon.Configurable import Configurable
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   # Set up logging and new style config
   log.setLevel(DEBUG)
@@ -61,7 +56,7 @@ if __name__ == "__main__":
   #
   ConfigFlags.lock()
   # Construct ComponentAccumulator
-  acc = MainServicesSerialCfg()
+  acc = MainServicesCfg(ConfigFlags)
   acc.merge(PoolReadCfg(ConfigFlags))
   acc.merge(InDetGeometryCfg(ConfigFlags)) # FIXME This sets up the whole ID geometry would be nicer just to set up min required
   #acc.getService("StoreGateSvc").Dump=True

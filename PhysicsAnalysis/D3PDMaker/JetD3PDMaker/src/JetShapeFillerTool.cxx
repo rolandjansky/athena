@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -115,7 +115,7 @@ StatusCode JetShapeFillerTool::fill(const Jet& p)
   for ( ; iterJet != lJet; ++iterJet) {
     if (! *iterJet) continue;
     double dr = (*iterJet)->hlv().deltaR(p.hlv());
-    if (dr>m_deltaR*UINT_MAX) continue;
+    if (dr>m_deltaR*static_cast<float>(UINT_MAX)) continue;
     unsigned int idr = unsigned(dr/m_deltaR);
     if (idr < m_shape->size()) m_shape->at(idr) += (*iterJet)->pt();
   }

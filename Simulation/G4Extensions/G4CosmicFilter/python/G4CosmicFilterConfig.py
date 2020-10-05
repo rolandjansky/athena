@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
-from G4AtlasApps import PyG4Atlas, AtlasG4Eng
 from G4AtlasApps.SimFlags import simFlags
 
 def configCosmicFilterVolumeNames():

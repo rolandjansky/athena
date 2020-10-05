@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,6 +8,7 @@
 
 #include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 
@@ -20,14 +21,14 @@ public:
   TRTParametersOfModulesA();
   ~TRTParametersOfModulesA();
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl) const  { return m_msg.get().level() <= lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+  bool msgLevel (MSG::Level lvl)  { return m_msg.get().level() <= lvl; }
   
 private:
   TRTParametersOfModulesA (const TRTParametersOfModulesA&); 
   TRTParametersOfModulesA& operator= (const TRTParametersOfModulesA&); 
   void DefineParameters();
-  void PrintParameters(double*, double*) const;
+  void PrintParameters(MsgStream& msg, double*, double*) const;
   
   double m_baseOfShellTrd1A;
   double m_heightOfShellTrd1A;
@@ -71,10 +72,9 @@ private:
 
   int m_numberOfShortStrawsA;
   
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   
-  mutable Athena::MsgStreamMember m_msg;
-
+  Athena::MsgStreamMember m_msg;
 };
 
 #endif

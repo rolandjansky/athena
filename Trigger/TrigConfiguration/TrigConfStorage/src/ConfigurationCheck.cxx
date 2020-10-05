@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -478,7 +478,7 @@ public:
         if( matches_any(exc_regex, ch->chain_name()) ) continue; // excempt
       
         bool bwgroup=false;
-        for( const string it : ch->groups()) {
+        for( const string& it : ch->groups()) {
            if ( it.find("BW:") == 0 ) { bwgroup=true; break; }
         }
         if(!bwgroup)
@@ -661,7 +661,7 @@ public:
 	 
             // check for excempt chains
             bool chain_is_excempt = false;
-            for(const boost::regex e : exc_regex ) {
+            for(const boost::regex& e : exc_regex ) {
                if(regex_match(ch->chain_name(), e)) {
                   chain_is_excempt = true;
                   break;
@@ -686,7 +686,7 @@ public:
 
             // check for exceptions
             bool item_is_excempt = false;
-            for(const boost::regex e : exc_regex ) {
+            for(const boost::regex& e : exc_regex ) {
                if(regex_match(item->name(), e)) {
                   item_is_excempt = true;
                   break;
@@ -1159,7 +1159,7 @@ public:
 
          if( ch->level()=="EF" ) continue; // chains we do not care about in this check
          if( ch->lower_chain_name() == "") continue; // unseeded
-         if( ch->lower_chain_name().find(",") != string::npos) continue; // multi seeded 
+         if( ch->lower_chain_name().find(',') != string::npos) continue; // multi seeded 
 
          if( matches_any(exc_regex, ch->chain_name()) ) continue; // listed in exception
 

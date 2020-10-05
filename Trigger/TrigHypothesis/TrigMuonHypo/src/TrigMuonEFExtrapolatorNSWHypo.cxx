@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonHypo/TrigMuonEFExtrapolatorNSWHypo.h"
@@ -11,14 +11,11 @@
 #include "MuonSegment/MuonSegment.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-class ISvcLocator;
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 TrigMuonEFExtrapolatorNSWHypo::TrigMuonEFExtrapolatorNSWHypo(const std::string & name, ISvcLocator* pSvcLocator) :
-   HLT::HypoAlgo(name, pSvcLocator),
-   m_idhelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+   HLT::HypoAlgo(name, pSvcLocator)
 {
    declareProperty("AcceptAll", m_acceptAll=true);
 
@@ -31,10 +28,7 @@ TrigMuonEFExtrapolatorNSWHypo::TrigMuonEFExtrapolatorNSWHypo(const std::string &
    declareMonitoredStdContainer("dLEta",   m_fex_dLeta);
    declareMonitoredStdContainer("dLPhi",   m_fex_dLphi);
 
-   m_storeGate=0;
-}
-
-TrigMuonEFExtrapolatorNSWHypo::~TrigMuonEFExtrapolatorNSWHypo(){
+   m_storeGate=nullptr;
 }
 
 // --------------------------------------------------------------------------------
@@ -54,11 +48,11 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltInitialize()
       return HLT::ERROR;
    }
 
-   sc = m_idhelperTool.retrieve();
+   sc = m_idHelperSvc.retrieve();
    if ( sc.isSuccess() ) {
-      msg() << MSG::INFO << "Retrieved " << m_idhelperTool << endmsg;
+      msg() << MSG::INFO << "Retrieved " << m_idHelperSvc << endmsg;
    } else {
-      msg() << MSG::ERROR << "Could not get " << m_idhelperTool << endmsg; 
+      msg() << MSG::ERROR << "Could not get " << m_idHelperSvc << endmsg; 
       return HLT::ERROR;
    }
 
@@ -192,7 +186,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
 
 	 // get chamber identifier, chamber index and station index
 	 Identifier chid = m_edmHelperSvc->chamberId( *segment );
-	 Muon::MuonStationIndex::ChIndex chIndex = m_idhelperTool->chamberIndex(chid);
+	 Muon::MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chid);
 	 if (debug) msg() << MSG::DEBUG << "  chamber index=" << chIndex << endmsg;
 
 	 // only in EI and CSC

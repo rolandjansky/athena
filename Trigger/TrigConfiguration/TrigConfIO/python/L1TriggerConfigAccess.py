@@ -35,7 +35,7 @@ class L1MenuAccess(TriggerConfigAccess):
             return self._config["items"]
 
     def thresholdTypes(self):
-        thrTypes = self._config["thresholds"].keys()
+        thrTypes = list(self._config["thresholds"].keys())
         if "legacyCalo" in thrTypes:
             thrTypes.remove("legacyCalo")
             thrTypes += self._config["thresholds"]["legacyCalo"].keys()
@@ -71,7 +71,7 @@ class L1MenuAccess(TriggerConfigAccess):
             thrDef = self["thresholds"]["legacyCalo"][thresholdType]
         else:
             raise KeyError("Threshold type %s not known in thresholds section of the menu" % thresholdType)
-        return {k:thrDef[k] for k in thrDef if not k in ("thresholds", "type")}
+        return {k:thrDef[k] for k in thrDef if k not in ("thresholds", "type")}
 
     def topoAlgorithmTypes(self):
         return self["topoAlgorithms"].keys()
@@ -106,7 +106,7 @@ class L1MenuAccess(TriggerConfigAccess):
     def connectors(self):
         return self["connectors"]
 
-    def connector(self, connnectorName):
+    def connector(self, connectorName):
         return self["connectors"][connectorName]
 
     def ctp(self):
@@ -143,7 +143,7 @@ class L1PrescalesSetAccess(TriggerConfigAccess):
         """
         turns cut value (which is what the hardware is configured with), into a float prescale value
         """
-        return 0xFFFFFF / ( 0x1000000 - cut );
+        return 0xFFFFFF / ( 0x1000000 - cut )
 
     def __init__(self, filename = None, dbalias = None, l1pskey = None ):
         """
@@ -164,7 +164,7 @@ class L1PrescalesSetAccess(TriggerConfigAccess):
     def cut(self, itemName):
         return self["cutValues"][itemName]["cut"]
     def prescale(self, itemName):
-        return L1PrescalesSetAccess.calcPrescaleFromCut( self.cut(itemName) );
+        return L1PrescalesSetAccess.calcPrescaleFromCut( self.cut(itemName) )
 
     def enabled(self, itemName):
         return self["cutValues"][itemName]["enabled"]

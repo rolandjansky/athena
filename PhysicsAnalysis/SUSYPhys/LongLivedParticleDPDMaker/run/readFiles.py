@@ -14,7 +14,7 @@ mypath = sys.argv[2]
 # get list of log files w/in directory passed as argument
 onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
-print 'About to loop through files!'
+print('About to loop through files!')
 for f in onlyfiles:
   badName = False
   #sometimes ls files from mounted eos gives funny results. This should fix that!
@@ -25,7 +25,7 @@ for f in onlyfiles:
     openFile = open(mypath+'.'.join(f.split('.')[3:16]))
   else:
     openFile = open(mypath+f)
-  print f
+  print(f)
   for line in openFile:
     # changed from 'RAWtoESD' to 'RAWtoALL' in R21
     if re.match('RAWtoALL.*RPVLL.*Events',line) or re.match('RAWtoALL.*BSESOutputSvcStreamDRAW_RPVLL.*events',line):

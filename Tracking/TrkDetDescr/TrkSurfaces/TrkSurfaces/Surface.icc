@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-namespace Trk{
+namespace Trk {
 
 inline bool
 Surface::operator!=(const Surface& sf) const
@@ -32,7 +32,8 @@ inline const Amg::Vector3D&
 Surface::center() const
 {
   if (m_transform && !m_center) {
-    return *(m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation())));
+    return *(m_center.set(
+      std::make_unique<Amg::Vector3D>(m_transform->translation())));
   }
   if (m_center)
     return (*m_center);
@@ -47,7 +48,8 @@ inline const Amg::Vector3D&
 Surface::normal() const
 {
   if (m_transform && !m_normal) {
-    return *(m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2))));
+    return *(m_normal.set(
+      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2))));
   }
   if (m_normal)
     return (*m_normal);
@@ -58,7 +60,8 @@ Surface::normal() const
   return s_zAxis;
 }
 
-// standard is to set non-defined parameters to 0, but can be changed for surface type
+// standard is to set non-defined parameters to 0, but can be changed for
+// surface type
 inline Amg::Vector2D
 Surface::localParametersToPosition(const LocalParameters& locpars) const
 {
@@ -77,7 +80,8 @@ Surface::pathCorrection(const Amg::Vector3D&, const Amg::Vector3D& mom) const
 {
   Amg::Vector3D dir(mom.unit());
   double cosAlpha = dir.dot(normal());
-  return (cosAlpha != 0 ? fabs(1. / cosAlpha) : 1.); // ST undefined for cosAlpha=0
+  return (cosAlpha != 0 ? fabs(1. / cosAlpha)
+                        : 1.); // ST undefined for cosAlpha=0
 }
 
 //* the templated parameters on Surface method */
@@ -92,40 +96,80 @@ Surface::onSurface(const T& pars, const Trk::BoundaryCheck& bcheck) const
   return isOnSurface(pars.position(), bcheck);
 }
 
-// common to all surface, uses memory optized method
-inline const Amg::Vector3D*
+/// Local to Global implementations
+
+// From Local position
+inline Amg::Vector3D*
 Surface::localToGlobal(const Amg::Vector2D& locpos) const
 {
   Amg::Vector3D* gPosition = new Amg::Vector3D;
   localToGlobal(locpos, Amg::Vector3D(1., 1., 1.), *gPosition);
   return gPosition;
 }
-// common to all surfaces uses memory optimized method
-inline const Amg::Vector3D*
-Surface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D& glomom) const
+inline Amg::Vector3D
+Surface::localToGlobalPos(const Amg::Vector2D& locpos) const
 {
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
+  Amg::Vector3D gPosition;
+  localToGlobal(locpos, Amg::Vector3D(1., 1., 1.), gPosition);
+  return gPosition;
+}
+
+// From local position and momentum
+inline Amg::Vector3D*
+Surface::localToGlobal(const Amg::Vector2D& locpos,
+                       const Amg::Vector3D& glomom) const
+{
+  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
   localToGlobal(locpos, glomom, *gPosition);
   return gPosition;
 }
-// common to all surface, uses memory optized method
-inline const Amg::Vector3D*
-Surface::localToGlobal(const LocalParameters& locpars) const
+inline Amg::Vector3D
+Surface::localToGlobalPos(const Amg::Vector2D& locpos,
+                          const Amg::Vector3D& glomom) const
 {
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
-  localToGlobal(localParametersToPosition(locpars), Amg::Vector3D(1., 1., 1.), *gPosition);
+  Amg::Vector3D gPosition(0., 0., 0.);
+  localToGlobal(locpos, glomom, gPosition);
   return gPosition;
 }
-// common to all surfaces uses memory optimized method
-inline const Amg::Vector3D*
-Surface::localToGlobal(const LocalParameters& locpars, const Amg::Vector3D& glomom) const
+
+// From Local parameters
+inline Amg::Vector3D*
+Surface::localToGlobal(const LocalParameters& locpars) const
+{
+  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
+  localToGlobal(
+    localParametersToPosition(locpars), Amg::Vector3D(1., 1., 1.), *gPosition);
+  return gPosition;
+}
+inline Amg::Vector3D
+Surface::localToGlobalPos(const LocalParameters& locpars) const
+{
+  Amg::Vector3D gPosition(0., 0., 0.);
+  localToGlobal(
+    localParametersToPosition(locpars), Amg::Vector3D(1., 1., 1.), gPosition);
+  return gPosition;
+}
+
+// From Local parameters and momementum
+inline Amg::Vector3D*
+Surface::localToGlobal(const LocalParameters& locpars,
+                       const Amg::Vector3D& glomom) const
 {
   Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
   localToGlobal(localParametersToPosition(locpars), glomom, *gPosition);
   return gPosition;
 }
+inline Amg::Vector3D
+Surface::localToGlobalPos(const LocalParameters& locpars,
+                          const Amg::Vector3D& glomom) const
+{
+  Amg::Vector3D gPosition(0., 0., 0.);
+  localToGlobal(localParametersToPosition(locpars), glomom, gPosition);
+  return gPosition;
+}
+
 // common to all surfaces, uses memory optized method
-inline const Amg::Vector2D*
+inline Amg::Vector2D*
 Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
 {
   Amg::Vector2D* lPosition = new Amg::Vector2D(0., 0.);
@@ -135,8 +179,9 @@ Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
   return nullptr;
 }
 // common to all surfaces, uses memory optized method
-inline const Amg::Vector2D*
-Surface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const
+inline Amg::Vector2D*
+Surface::globalToLocal(const Amg::Vector3D& glopos,
+                       const Amg::Vector3D& glomom) const
 {
   Amg::Vector2D* lPosition = new Amg::Vector2D(0., 0.);
   if (globalToLocal(glopos, glomom, *lPosition))
@@ -204,15 +249,16 @@ Surface::isFree() const
   return (m_owner == Trk::noOwn);
 }
 
-inline void
-Surface::setOwner ATLAS_NOT_CONST_THREAD_SAFE (SurfaceOwner x) const
+inline void Surface::setOwner
+ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const
 {
   const_cast<SurfaceOwner&>(m_owner) = x;
 }
 
-inline void 
-Surface::setOwner(SurfaceOwner x) { 
-  m_owner = x; 
+inline void
+Surface::setOwner(SurfaceOwner x)
+{
+  m_owner = x;
 }
 
 inline SurfaceOwner
@@ -233,14 +279,14 @@ Surface::setMaterialLayer(const Layer* mlay)
   m_materialLayer = mlay;
 }
 
-inline void
-Surface::setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer& mlay) const
+inline void Surface::setMaterialLayer
+ATLAS_NOT_CONST_THREAD_SAFE(const Layer& mlay) const
 {
   const_cast<Surface*>(this)->m_materialLayer = (&mlay);
 }
 
-inline void
-Surface::setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer* mlay) const
+inline void Surface::setMaterialLayer
+ATLAS_NOT_CONST_THREAD_SAFE(const Layer* mlay) const
 {
   const_cast<Surface*>(this)->m_materialLayer = mlay;
 }
@@ -251,12 +297,11 @@ Surface::associateLayer(const Layer& lay)
   m_associatedLayer = (&lay);
 }
 
-inline void
-Surface::associateLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer& lay) const
+inline void Surface::associateLayer
+ATLAS_NOT_CONST_THREAD_SAFE(const Layer& lay) const
 {
   const_cast<Surface*>(this)->m_associatedLayer = (&lay);
 }
 
 } // end of namespace Trk
-
 

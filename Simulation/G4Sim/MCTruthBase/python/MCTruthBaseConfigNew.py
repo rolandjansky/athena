@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MCTruthBase.MCTruthBaseConf import G4UA__MCTruthSteppingActionTool
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def getEnvelopeMap(ConfigFlags):
     #from G4AtlasApps.SimFlags import simFlags
@@ -52,5 +52,5 @@ def MCTruthSteppingActionToolCfg(ConfigFlags, name='G4UA::MCTruthSteppingActionT
     result = ComponentAccumulator()
     kwargs.setdefault("VolumeCollectionMap", getEnvelopeMap(ConfigFlags))
 
-    result.setPrivateTools( G4UA__MCTruthSteppingActionTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.G4UA.MCTruthSteppingActionTool(name, **kwargs) )
     return result

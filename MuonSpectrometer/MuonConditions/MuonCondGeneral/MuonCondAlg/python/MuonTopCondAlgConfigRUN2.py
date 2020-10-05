@@ -70,6 +70,7 @@ class RpcCondDbAlg(CfgMgr.RpcCondDbAlg):
 
 class CscCondDbAlg(CfgMgr.CscCondDbAlg):
     def __init__(self,name="CscCondDbAlg",**kwargs):
+        kwargs['ReadKey_HV'] = '' # Never used at present
         if athenaCommonFlags.isOnline:
             kwargs['isOnline'  ] = True  # COOL folders not available online
             kwargs['isData'    ] = True
@@ -79,6 +80,8 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
             kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
             kwargs['ReadKey_RM'] = '/CSC/RMS'
             kwargs['ReadKey_ST'] = '/CSC/STAT'
+            kwargs['ReadKey_TB'] = ''
+            kwargs['ReadKey_TP'] = ''
         else:    
             kwargs['isOnline'] = False # COOL folders not available online
             if globalflags.DataSource != 'data':

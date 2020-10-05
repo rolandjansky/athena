@@ -30,7 +30,6 @@
 
 REGISTER_ALG_TCS(InvariantMassInclusive1)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::InvariantMassInclusive1:     "
@@ -105,19 +104,15 @@ TCS::InvariantMassInclusive1::initialize() {
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int mass_min = sqrt(p_InvMassMin[i]);
-       int mass_max = sqrt(p_InvMassMax[i]);
-       // mass histograms
-       snprintf(hname_accept, buf_len, "Accept_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, mass_min, mass_max);
-       registerHist(m_histAcceptINV1[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*mass_max));
-       registerHist(m_histRejectINV1[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*mass_max));
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hInvariantMassInclusive1_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hInvariantMassInclusive1_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
+       bookHist(m_histReject, hname_reject, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
    }
-
- 
+   
    return StatusCode::SUCCESS;
 }
 
@@ -150,9 +145,9 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                unsigned int invmass2 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
-                   if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                   if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                   if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                   if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                   if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                    accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; //
                    const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
                    const bool fillReject = fillHistos() and not fillAccept;
@@ -162,11 +157,11 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
+                       fillHist1D(m_histAccept[i],sqrt((float)invmass2));
                    } else if(fillReject) {
-                       m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
+                       fillHist1D(m_histReject[i],sqrt((float)invmass2));
                    }
-                   TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }
          }
@@ -209,9 +204,9 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
 
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
-                  if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                  if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
-                  if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
+                  if( parType_t((*tob1)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                  if( parType_t((*tob2)->Et()) <= std::min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+                  if( (parType_t((*tob1)->Et()) <= std::max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= std::max(p_MinET1[i],p_MinET2[i]))) continue;
                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; // 
                   const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
                   const bool fillReject = fillHistos() and not fillAccept;
@@ -221,11 +216,11 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                       output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                   }
                   if(fillAccept and not alreadyFilled) {
-                      m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
+                      fillHist1D(m_histAccept[i],sqrt((float)invmass2));
                   } else if(fillReject) {
-                      m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
+                      fillHist1D(m_histReject[i],sqrt((float)invmass2));
                   }
-                  TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
+                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }
          }

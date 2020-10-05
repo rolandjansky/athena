@@ -1,25 +1,8 @@
 //dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-template<class MC_t, class SYM_t>
-LArSymConditionsAlg<MC_t,SYM_t>::LArSymConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey("RampMC"),
-  m_mcSymKey("LArMCSym"),
-  m_writeKey("RampSym","RampSym"),
-  m_condSvc("CondSvc",name)
-{
-  declareProperty("ReadKey",m_readKey);
-  declareProperty("MCSymKey",m_mcSymKey);
-  declareProperty("WriteKey",m_writeKey);
-}
-
-template<class MC_t, class SYM_t>
-LArSymConditionsAlg<MC_t,SYM_t>::~LArSymConditionsAlg() {}
-
 
 template<class MC_t, class SYM_t>
 StatusCode LArSymConditionsAlg<MC_t,SYM_t>::initialize() {
@@ -51,39 +34,33 @@ StatusCode LArSymConditionsAlg<MC_t,SYM_t>::execute() {
 
   SG::ReadCondHandle<MC_t> readHandle{m_readKey};
   const MC_t* mcClass{*readHandle};
-
   if (mcClass==nullptr) {
     ATH_MSG_ERROR("Failed to retrieve input object with key " << m_readKey.key());
     return StatusCode::FAILURE;
   }
+  writeHandle.addDependency(readHandle);
+  
 
   SG::ReadCondHandle<LArMCSym> mcSymHdl{m_mcSymKey};
   const LArMCSym* mcSym={*mcSymHdl};
-
   if (mcSym==nullptr) {
     ATH_MSG_ERROR("Failed to retrieve LArMCSym object with key " << m_mcSymKey.key());
     return StatusCode::FAILURE;
   }
-
+  writeHandle.addDependency(mcSymHdl);
 
 
   std::unique_ptr<SYM_t> sym=std::make_unique<SYM_t>(mcSym,mcClass);
   
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
-
-  if(writeHandle.record(rangeW,sym.release()).isFailure()) {
+  if(writeHandle.record(std::move(sym)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArSymCond object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << 
+	        writeHandle.getRange() << " into Conditions Store");
 
  
   return StatusCode::SUCCESS;

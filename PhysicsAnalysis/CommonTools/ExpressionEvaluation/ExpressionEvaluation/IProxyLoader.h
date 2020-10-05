@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@
 namespace ExpressionParsing {
   class IProxyLoader {
     public:
-      enum VariableType { VT_UNK, VT_INT, VT_DOUBLE, VT_VECINT, VT_VECDOUBLE };
+      enum VariableType { VT_UNK, VT_INT, VT_DOUBLE, VT_VECINT, VT_VECDOUBLE, VT_VECEMPTY };
 
       virtual ~IProxyLoader() { }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELFLUID_H
@@ -12,8 +12,9 @@ class GeoLogVol;
 
 class GeoPixelFluid : public GeoVPixelFactory {
 public:
-  GeoPixelFluid(int type);
-  virtual GeoVPhysVol* Build();
+  GeoPixelFluid(InDetDD::PixelDetectorManager* ddmgr,
+                PixelGeometryManager* mgr, int type);
+  virtual GeoVPhysVol* Build() override;
   double posX() {return m_posX;}
   double posY() {return m_posY;}
   double posZ() {return m_posZ;}

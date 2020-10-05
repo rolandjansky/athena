@@ -1,0 +1,6 @@
+ApplicationMgr.OutputLevel = 5;
+ApplicationMgr.Dlls += { "InDetPhysValMonitoring" };
+ApplicationMgr.CreateSvc += { "HistogramDefinitionSvc/HistogramDefinitionSvc" };
+HistogramDefinitionSvc.DefinitionFormat = "text/xml";
+HistogramDefinitionSvc.DefinitionSource = "entityMaster.xml";
+MessageSvc.OutputLevel = 5;

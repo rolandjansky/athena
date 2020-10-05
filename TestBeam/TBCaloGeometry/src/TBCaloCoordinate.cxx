@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -11,16 +11,12 @@
 #include "TBCaloGeometry/TBCaloCoordinate.h"
 
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
-#include "StoreGate/StoreGate.h"
 #include <vector>
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TBCaloConditions/ITBCaloPosTool.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -31,6 +27,7 @@
 
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <iostream>
 #include <iomanip>
 
@@ -220,14 +217,9 @@ void
 TBCaloCoordinate::read_table_position()
 {   
   if ( m_firstevt == 0 ) {
-    const EventInfo* eventInfo;
-    StatusCode sc = StoreGate::pointer()->retrieve(eventInfo);
-    if ( !sc.isFailure()) {
-      const EventID* myEventID=eventInfo->event_ID();
-      m_runNumber=myEventID->run_number();
-
-      m_firstevt = 1;
-    }
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    m_runNumber = ctx.eventID().run_number();
+    m_firstevt = 1;
   }
 
   if ( m_DBRead >= 0 ) {

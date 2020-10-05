@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ iFatras::LayerMaterialProvider::~LayerMaterialProvider()
 
 
 // Processor Action to work on TrackingGeometry 
-StatusCode iFatras::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo) {
+StatusCode iFatras::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo) const{
   
   ATH_MSG_VERBOSE("Start processing the TrackingGeometry recursively");
   // retrieve the highest tracking volume
@@ -79,7 +79,7 @@ StatusCode iFatras::LayerMaterialProvider::process(const Trk::TrackingGeometry& 
 }
 
 // Processor Action to work on TrackingVolumes
-StatusCode iFatras::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, size_t level) {
+StatusCode iFatras::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, size_t level) const{
   
   // load the material map if not done yet
   if (!m_layerMaterialMap){ 
@@ -149,7 +149,7 @@ StatusCode iFatras::LayerMaterialProvider::process(const Trk::TrackingVolume& tv
 }
 
 // Processor Action to work on Layers 
-StatusCode iFatras::LayerMaterialProvider::process(const Trk::Layer& lay, size_t level) {
+StatusCode iFatras::LayerMaterialProvider::process(const Trk::Layer& lay, size_t level) const {
 
     // load the material map if not done yet
     if (!m_layerMaterialMap){ 
@@ -187,12 +187,12 @@ StatusCode iFatras::LayerMaterialProvider::process(const Trk::Layer& lay, size_t
 }
 
 // Processor Action to work on Surfaces 
-StatusCode iFatras::LayerMaterialProvider::process(const Trk::Surface&, size_t) {
+StatusCode iFatras::LayerMaterialProvider::process(const Trk::Surface&, size_t) const {
     return StatusCode::SUCCESS;
 }
 
 // load the material map from StoreGate
-StatusCode iFatras::LayerMaterialProvider::loadMaterialMap() {
+StatusCode iFatras::LayerMaterialProvider::loadMaterialMap() const {
     
     // -------------------------------------------------------------------------------
     if (detStore()->retrieve(m_layerMaterialMap, m_layerMaterialMapName).isFailure()){

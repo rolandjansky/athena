@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
-//#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
 #include "TRTRawDataProviderTool.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -28,12 +26,10 @@ TRTRawDataProviderTool::TRTRawDataProviderTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool( type, name, parent ),
      m_decoder   ("TRT_RodDecoder",this),
-     m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
      m_storeInDetTimeColls(true),
      m_doEventCheck(true)
 {
   declareProperty ("Decoder", m_decoder);
-  declareProperty ("BSCondSvc", m_bsErrSvc);
   declareProperty ("StoreInDetTimeCollections", m_storeInDetTimeColls);
   declareProperty ("checkLVL1ID", m_doEventCheck);
 
@@ -67,16 +63,6 @@ StatusCode TRTRawDataProviderTool::initialize()
       ATH_MSG_INFO( "Retrieved tool " << m_decoder );
 
 
-  /*
-   * Retrieve BS Error Service
-   */
-   if ( m_bsErrSvc.retrieve().isFailure() )
-   {
-     ATH_MSG_FATAL( "Failed to retrieve service " << m_bsErrSvc );
-     return StatusCode::FAILURE;
-   } else
-     ATH_MSG_INFO( "Retrieved service " << m_bsErrSvc );
-
 
   //initialize write handles
   ATH_CHECK(m_lvl1idkey.initialize());
@@ -98,7 +84,8 @@ StatusCode TRTRawDataProviderTool::finalize()
 // convert method
 
 StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>& vecRobs,
-					    TRT_RDO_Container*               rdoIdc )
+					   TRT_RDO_Container* rdoIdc, 
+					   TRT_BSErrContainer* bserr)
 {
 
   static std::atomic_int DecodeErrCount = 0;
@@ -112,9 +99,7 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-  //  std::lock_guard<std::mutex> lock{m_mutex};
-  // Do not lock mutex because this convert method is non-const.
-  // But we should make this method const.
+  std::lock_guard<std::mutex> lock{m_mutex};
   CacheEntry* ent{m_cache.get(ctx)};
   if (ent->m_evt!=ctx.evt()) { // New event in this slot
     ent->m_LastLvl1ID = 0xffffffff;
@@ -169,7 +154,7 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
 #endif
       }
 
-      StatusCode sc = m_decoder->fillCollection( &**rob_it, rdoIdc);
+      StatusCode sc = m_decoder->fillCollection( &**rob_it, rdoIdc, bserr);
       if ( sc == StatusCode::FAILURE )
       {
 	if ( DecodeErrCount < 100 )
@@ -213,13 +198,6 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
 	return sc;   
       }
     }
-
-     sc = m_bsErrSvc->recordData();
-     if (sc.isFailure() ) 
-     {
-	ATH_MSG_ERROR( "failed to record BS errors" );
-	return sc;   
-     }
   }
  
   return StatusCode::SUCCESS; 

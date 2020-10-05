@@ -5,16 +5,16 @@
 # @author: Frank Winklmeier
 
 # import the automatically generated Configurable
-from ValkyrieConf import ValgrindSvc as _ValgrindSvc
+from Valkyrie.ValkyrieConf import ValgrindSvc as _ValgrindSvc
 
 class ValgrindSvc( _ValgrindSvc):
-   
+
     __slots__ = ( )      # enforce no new properties
 
     def __init__(self, name = "ValgrindSvc", **kwargs ):
        # have to call base init
        kwargs['name'] = name
-       super( ValgrindSvc, self ).__init__( **kwargs )       
+       super( ValgrindSvc, self ).__init__( **kwargs )
 #       return
 
 #    def setDefaults( cls, handle ):
@@ -35,4 +35,4 @@ class ValgrindSvc( _ValgrindSvc):
 
     pass  # class ValgrindSvc
 
- 
+

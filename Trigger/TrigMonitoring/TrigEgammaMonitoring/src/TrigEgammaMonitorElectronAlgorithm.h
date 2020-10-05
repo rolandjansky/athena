@@ -36,7 +36,6 @@ class TrigEgammaMonitorElectronAlgorithm: public TrigEgammaMonitorAnalysisAlgori
     
     /*! List of triggers to study */
     std::vector<std::string> m_trigList;
-    
     /*! List of triggers from menu */
     Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};
     /*! Directory name for each algorithm */
@@ -53,8 +52,6 @@ class TrigEgammaMonitorElectronAlgorithm: public TrigEgammaMonitorAnalysisAlgori
     Gaudi::Property<bool> m_forceVetoVeryLoose{ this, "ForceVetoVeryLoose", false};
     /*! Remove crack region for Probe default True */
     Gaudi::Property<bool> m_rmCrack{ this, "RemoveCrack", true};
- 
-    // Containers 
     /*! Event Wise offline ElectronContainer Access and end iterator */
     SG::ReadHandleKey<xAOD::ElectronContainer> m_offElectronKey{ this, "ElectronKey", "Electrons", ""};
     

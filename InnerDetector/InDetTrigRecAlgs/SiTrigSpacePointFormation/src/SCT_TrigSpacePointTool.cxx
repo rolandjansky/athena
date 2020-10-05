@@ -233,13 +233,9 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
   // Get the cluster collections for these two detectors.
   // Require that (xPhi2 - xPhi1) lie in the range specified.
   // Used for opposite and eta modules
-  
-  SCT_ClusterContainer::const_iterator
-    it(m_Sct_clcontainer->indexFind(id2));
-  if (it==m_Sct_clcontainer->end()) return;
 
-  const SCT_ClusterCollection * clusters2 = *it;
- 
+  const SCT_ClusterCollection * clusters2 = m_Sct_clcontainer->indexFindPtr(id2);
+  if (clusters2==nullptr) return;
   Amg::Vector3D beampos;
   if (!m_overrideBS){
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle(m_beamSpotKey);
@@ -286,11 +282,8 @@ void SCT_TrigSpacePointTool::
     beampos = ovtx;
   }
 
-  SCT_ClusterContainer::const_iterator
-    it(m_Sct_clcontainer->indexFind(id2));
-  if (it==m_Sct_clcontainer->end()) return;
-
-  const SCT_ClusterCollection * clusters2 (&(**it));
+  const SCT_ClusterCollection * clusters2 = m_Sct_clcontainer->indexFindPtr(id2);
+  if (clusters2==nullptr) return;
 
   m_SiSpacePointMakerTool->
     fillSCT_SpacePointPhiOverlapCollection(clusters1, clusters2, min1, max1, 

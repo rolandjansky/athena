@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
-#include "FastSiDigitization/ISiSmearedDigitizationTool.h"
 #include <string>
 
 #include "HitManagement/TimedHitCollection.h"
@@ -69,8 +68,7 @@ namespace Trk {
 
 }
 
-class SiSmearedDigitizationTool : virtual public PileUpToolBase,
-  virtual public ISiSmearedDigitizationTool
+class SiSmearedDigitizationTool : virtual public PileUpToolBase
 {
 
 public:
@@ -129,8 +127,8 @@ public:
   CLHEP::HepRandomEngine*           m_randomEngine;
   std::string                m_randomEngineName;         //!< Name of the random number stream
 
-  mutable float m_pitch_X;
-  mutable float m_pitch_Y;
+  float m_pitch_X;
+  float m_pitch_Y;
 
   bool m_merge;
   double m_nSigma;
@@ -217,7 +215,7 @@ public:
   double           m_Err_y_SCT;
 
   ServiceHandle<Trk::ITrackingGeometrySvc>     m_trackingGeometrySvc;        //!< Service handle for retrieving the TrackingGeometry
-  mutable const Trk::TrackingGeometry*              m_trackingGeometry;           //!< The TrackingGeometry to be retrieved
+  const Trk::TrackingGeometry*              m_trackingGeometry;           //!< The TrackingGeometry to be retrieved
   std::string                                  m_trackingGeometryName;       //!< The Name of the TrackingGeometry
 
   bool m_useCustomGeometry;

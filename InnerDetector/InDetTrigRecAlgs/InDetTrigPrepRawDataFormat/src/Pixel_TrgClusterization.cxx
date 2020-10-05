@@ -83,7 +83,7 @@ namespace InDet{
     declareMonitoredVariable("numPixClusters", m_numPixClusters    );
     declareMonitoredVariable("numPixIds", m_numPixIds    );
     declareMonitoredStdContainer("PixHashId", m_ClusHashId);
-    declareMonitoredStdContainer("PixBSErr", m_PixBSErr);
+    declareMonitoredStdContainer("PixelByteStreamErrs", m_PixBSErr);
   
     m_clusterCollection = NULL;
     
@@ -446,12 +446,7 @@ namespace InDet{
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
  
-	PixelRDO_Container::const_iterator 
-	  RDO_collection_iter = p_pixelRDOContainer->indexFind(m_listOfPixIds[i]); 
-      
-	if (RDO_collection_iter == p_pixelRDOContainer->end()) continue;
-      
-	const InDetRawDataCollection<PixelRDORawData>* RDO_Collection (*RDO_collection_iter);
+	const InDetRawDataCollection<PixelRDORawData>* RDO_Collection (p_pixelRDOContainer->indexFindPtr(m_listOfPixIds[i]));
       
 	if (!RDO_Collection) continue;
       

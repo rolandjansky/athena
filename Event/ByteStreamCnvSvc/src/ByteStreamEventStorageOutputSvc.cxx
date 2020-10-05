@@ -1,383 +1,456 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
+/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
 #include "ByteStreamEventStorageOutputSvc.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIoComponentMgr.h"
+#include <stdexcept>
+#include <stdlib.h>
+#include <sstream>
+
+#include <boost/shared_ptr.hpp>
+#include <boost/format.hpp>
+
+#include "ByteStreamDataWriter.h"
+
+#include "AthenaKernel/StoreID.h"
+
+#include "ByteStreamCnvSvcLegacy/offline_eformat/old/util.h"
+#include "ByteStreamData/RawEvent.h"
 
 #include "EventStorage/EventStorageRecords.h"
 #include "EventStorage/RawFileName.h"
 #include "EventStorage/SimpleFileName.h"
 
-#include "ByteStreamData/RawEvent.h"
-#include "ByteStreamData/ByteStreamMetadataContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TagInfo.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IIoComponentMgr.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
 
-#include "ByteStreamCnvSvcLegacy/offline_eformat/old/util.h"
 
-#include "ByteStreamDataWriter.h"
-
-#include <boost/shared_ptr.hpp>
-#include <stdlib.h>
-
-// Constructor.
-ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(const std::string& name, ISvcLocator* svcloc) :
-		ByteStreamOutputSvc(name,svcloc),
-	m_totalEventCounter(0)
-{
-   declareProperty("OutputDirectory", m_inputDir);
-   // a set of fields for making up filename
-   declareProperty("ProjectTag",      m_projectTag);
-   declareProperty("AppName",         m_appName);
-   declareProperty("FileTag",         m_fileTag);
-   declareProperty("StreamType",      m_streamType = "Single");
-   declareProperty("StreamName",      m_streamName = "Stream");
-   declareProperty("LumiBlockNumber", m_lumiBlockNumber = 0);
-   declareProperty("RunNumber",       m_run = 0);
-
-   // This is used by ByteStreamCnvSvc when multiple streams are written out.
-   declareProperty("BSOutputStreamName", m_bsOutputStreamName = name);
-   // or just give a simple filename
-   // this will be the filename if it is non-empty
-   declareProperty("SimpleFileName",  m_simpleFileName);
-
-   // flag for dumping all fragments to logfile
-   declareProperty("DumpFlag", m_dump = false);
-
-   // flag for writing eventless files
-   declareProperty("WriteEventlessFiles", m_writeEventless = true);
-
-   // flag for compressing events
-   declareProperty("CompressEvents", m_compressEvents = false);
-
-   declareProperty("MaxFileMB", m_maxFileMB = 10000);
-   declareProperty("MaxFileNE", m_maxFileNE = 100000);
-
-   declareProperty("EformatVersion", m_eformatVersion = "current",
-                   "Version of the event format data, use \"v40\" or \"run1\" "
-                   "for run1, \"current\" for most current version (default).");
-   declareProperty("EventStorageVersion", m_eventStorageVersion = "current",
-                   "Version of the ByteStream file data, use \"v5\" or \"run1\" "
-                   "for run1, \"current\" for most current version (default).");
+ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(
+    const std::string& name, ISvcLocator* pSvcLocator)
+  : ByteStreamOutputSvc(name, pSvcLocator) {
 }
-//__________________________________________________________________________
-ByteStreamEventStorageOutputSvc::~ByteStreamEventStorageOutputSvc() {
+
+
+StatusCode
+ByteStreamEventStorageOutputSvc::initialize() {
+  ATH_MSG_INFO("Initializing " << name() << " - package version "
+               << PACKAGE_VERSION);
+
+  ATH_CHECK(ByteStreamOutputSvc::initialize());
+
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_byteStreamMetadataKey.initialize());
+
+  // register this service for 'I/O' events
+  ATH_CHECK(m_ioMgr.retrieve());
+  ATH_CHECK(m_ioMgr->io_register(this));
+
+  // Register output file's name with the I/O manager
+  if (!m_simpleFileName.empty()) {
+    ATH_CHECK(m_ioMgr->io_register(this, IIoComponentMgr::IoMode::WRITE,
+                                   m_simpleFileName));
+    ATH_MSG_VERBOSE("io_register[" << this->name() << "]("
+                    << m_simpleFileName << ") [ok]");
+  }
+
+  // validate m_eformatVersion
+  const std::vector< std::string > choices_ef{"current", "v40", "run1"};
+  if (std::find(choices_ef.begin(), choices_ef.end(), m_eformatVersion)
+      == choices_ef.end()) {
+    ATH_MSG_FATAL("Unexpected value for EformatVersion property: "
+                  << m_eformatVersion);
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("eformat version to use: \"" << m_eformatVersion << "\"");
+
+  // validate m_eventStorageVersion
+  const std::vector< std::string > choices_es{"current", "v5", "run1"};
+  if (std::find(choices_es.begin(), choices_es.end(), m_eventStorageVersion)
+      == choices_es.end()) {
+    ATH_MSG_FATAL("Unexpected value for EventStorageVersion property: "
+                  << m_eventStorageVersion);
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("event storage (BS) version to use: \""
+               << m_eventStorageVersion << "\"");
+
+  m_isRun1 = (m_eformatVersion == "v40" or m_eformatVersion == "run1");
+
+  ATH_CHECK(reinit());
+
+  return StatusCode::SUCCESS;
 }
-//__________________________________________________________________________
-StatusCode ByteStreamEventStorageOutputSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!ByteStreamOutputSvc::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize ByteStreamOutputSvc base class.");
-      return(StatusCode::FAILURE);
-   }
 
-   // register this service for 'I/O' events
-   ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
-   if (!iomgr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Could not retrieve IoComponentMgr !");
-      return(StatusCode::FAILURE);
-   }
-   if (!iomgr->io_register(this).isSuccess()) {
-      ATH_MSG_FATAL("Could not register myself with the IoComponentMgr !");
-      return(StatusCode::FAILURE);
-   }
 
-   // Register output file's name with the I/O manager
-   if (!m_simpleFileName.value().empty()) {
-      if (!iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_simpleFileName.value()).isSuccess()) {
-         ATH_MSG_FATAL("could not register [" << m_simpleFileName.value() << "] for output !");
-         return(StatusCode::FAILURE);
-      } else {
-         ATH_MSG_VERBOSE("io_register[" << this->name() << "](" << m_simpleFileName.value() << ") [ok]");
+StatusCode
+ByteStreamEventStorageOutputSvc::reinit() {
+  ATH_MSG_INFO("Reinitialization...");
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+ByteStreamEventStorageOutputSvc::stop() {
+  // Check whether anything has been written and whether the user wants metadata
+  // only files
+  if (m_dataWriter == 0 and m_writeEventless) {
+    const ByteStreamMetadata* metaData = getByteStreamMetadata();
+
+    // Try to write metadata to eventless file
+    bool dWok = initDataWriterContents(nullptr, metaData);
+    if (!dWok) ATH_MSG_WARNING("Could not write Metadata for eventless file");
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+ByteStreamEventStorageOutputSvc::finalize() {
+  // clean up
+  ATH_MSG_DEBUG("deleting DataWriter");
+  m_dataWriter.reset();
+  ATH_MSG_INFO("number of events written: " << m_totalEventCounter);
+  return StatusCode::SUCCESS;
+}
+
+
+bool
+ByteStreamEventStorageOutputSvc::initDataWriter(const EventContext* ctx) {
+  // Called on first event. Reads run parameters first event and/or first event
+  const xAOD::EventInfo* eventInfo = ctx == nullptr
+      ? SG::get(m_eventInfoKey)
+      : SG::get(m_eventInfoKey, *ctx);
+  if (eventInfo == nullptr) ATH_MSG_WARNING("failed to retrieve EventInfo");
+
+  const ByteStreamMetadata* metaData = getByteStreamMetadata(ctx);
+  if (metaData == nullptr)
+    ATH_MSG_WARNING("failed to retrieve ByteStreamMetaData");
+
+  // Now open a file for writing from retrieved parameters
+  return initDataWriterContents(eventInfo, metaData);
+}
+
+
+bool
+ByteStreamEventStorageOutputSvc::initDataWriterContents(
+    const xAOD::EventInfo* evtInfo,
+    const ByteStreamMetadata* metaData) {
+  // check that we have sufficient information to do what we need
+  if (evtInfo or metaData)
+    ATH_MSG_DEBUG("Looking up data writer parameters");
+  else
+    throw std::runtime_error("Cannot write data without run parameters");
+
+  // The heirarchy of run/lumiblock number, GNARR
+  //
+  //   1) User override
+  //   2) Event data
+  //   3) File metadata
+  //   4) default = unknown = 0
+  //
+  // Go from 4 to 1 and overwrite
+  DataWriterParameters params; 
+  if (metaData != nullptr) updateDataWriterParameters(params, *metaData);
+  if (evtInfo != nullptr) updateDataWriterParameters(params, *evtInfo);
+  updateDataWriterParameters(params);
+
+  m_dataWriter = ByteStreamDataWriter::makeWriter(params);
+
+  bool result = m_dataWriter->good();
+  if (result)
+    ATH_MSG_DEBUG("initialized output stream to file with name "
+                  << params.fileNameCore);
+  else
+    ATH_MSG_ERROR("Unable to initialize file");
+
+  return result;
+}
+
+
+bool
+ByteStreamEventStorageOutputSvc::putEvent(RawEvent* re) {
+  // Read the next event.
+  return putEvent(re, Gaudi::Hive::currentContext());
+}
+
+
+bool
+ByteStreamEventStorageOutputSvc::putEvent(
+    RawEvent* re, const EventContext& ctx) {
+  // Read the next event.
+  using OFFLINE_FRAGMENTS_NAMESPACE::DataType;
+  using OFFLINE_FRAGMENTS_NAMESPACE::PointerType;
+
+  EventCache* cache = m_eventCache.get(ctx);
+  cache->releaseEvent();
+
+  // we need the size and the start of the event to give to the data writer
+  cache->size = re->fragment_size_word();
+  ATH_MSG_DEBUG("event size = " << cache->size << ", start = " << re->start());
+
+  if (m_isRun1) {
+    // convert to current eformat
+    // allocate some extra space just in case
+    ATH_MSG_DEBUG("converting Run 1 format ");
+
+    cache->size += 128;
+    cache->buffer = std::make_unique< DataType[] >(cache->size);
+    ATH_MSG_DEBUG("created buffer 0x"
+                  << std::hex << cache->buffer.get() << std::dec);
+
+    // This builds no-checksum headers, should use the same
+    // checksum type as original event
+    cache->size = offline_eformat::old::convert_to_40(
+        re->start(), cache->buffer.get(), cache->size);
+    ATH_MSG_DEBUG("filled buffer");
+
+    if (cache->size == 0) {
+      // not enough space in buffer
+      ATH_MSG_ERROR("Failed to convert event, buffer is too small");
+      return false;
+    }
+
+    ATH_MSG_DEBUG("event size after conversion =  " << cache->size
+                  << "  version = " << cache->buffer.get()[3]);
+
+  } else {
+    cache->buffer = std::make_unique< DataType[] >(cache->size);
+    std::copy(re->start(), re->start() + cache->size, cache->buffer.get());
+  }
+
+  {
+    // multiple data writers concurrently sounds like a bad idea
+    std::lock_guard< std::mutex > lock(m_dataWriterMutex);
+
+    // make sure the data writer is ready
+    ATH_MSG_DEBUG("looking up data writer");
+    if (!m_dataWriter) {
+      if (!initDataWriter(&ctx)) {
+        ATH_MSG_ERROR("Failed to initialize DataWriter");
+        return false;
       }
-   }
+    }
 
-   // validate m_eformatVersion and m_eventStorageVersion
-   const char* choices_ef[] = {"current", "v40", "run1"};
-   if (std::find(std::begin(choices_ef), std::end(choices_ef), m_eformatVersion.value()) == std::end(choices_ef)) {
-       ATH_MSG_FATAL("Unexpected value for EformatVersion property: " << m_eformatVersion);
-       return(StatusCode::FAILURE);
-   }
-   const char* choices_es[] = {"current", "v5", "run1"};
-   if (std::find(std::begin(choices_es), std::end(choices_es), m_eventStorageVersion.value()) == std::end(choices_es)) {
-       ATH_MSG_FATAL("Unexpected value for EventStorageVersion property: " << m_eventStorageVersion);
-       return(StatusCode::FAILURE);
-   }
-   ATH_MSG_INFO("eformat version to use: \"" << m_eformatVersion.value() << "\"");
-   ATH_MSG_INFO("event storage (BS) version to use: \"" << m_eventStorageVersion.value() << "\"");
+    // write event to disk
+    EventStorage::DWError write_result = m_dataWriter->putData(
+        sizeof(DataType) * cache->size,
+        reinterpret_cast< void* >(cache->buffer.get()));
 
-   return(this->reinit());
-
-}
-//__________________________________________________________________________
-StatusCode ByteStreamEventStorageOutputSvc::reinit() {
-   ATH_MSG_INFO("Reinitialization...");
-   return(StatusCode::SUCCESS);
-}
-//__________________________________________________________________________
-StatusCode ByteStreamEventStorageOutputSvc::stop() {
-   // Check whether anything has been written && whether the user wants metadata only files
-   bool dWok = false; 
-   if (m_dataWriter == 0 && m_writeEventless) {
-      const ByteStreamMetadataContainer* metaDataCont = 0;
-      const ByteStreamMetadata* metaData = 0;
-      ServiceHandle<StoreGateSvc> mds("MetaDataStore", name());
-      StatusCode status = mds.retrieve();
-      if (!status.isFailure()) {
-         StatusCode stat = mds->retrieve(metaDataCont);
-         if (stat.isSuccess()) metaData = *(metaDataCont->begin());
-      }
-      // Try to write metadata to file
-      dWok = initDataWriterContents(0, metaData);
-      if (!dWok) ATH_MSG_WARNING("Could not write Metadata for eventless file");
-   }
-   return(StatusCode::SUCCESS);
-}
-//__________________________________________________________________________
-StatusCode ByteStreamEventStorageOutputSvc::finalize() {
-   // clean up
-   ATH_MSG_DEBUG("deleting DataWriter");
-   m_dataWriter.reset();
-   ATH_MSG_INFO("number of events written: " << m_totalEventCounter);
-   return(StatusCode::SUCCESS);
-}
-//__________________________________________________________________________
-// Open the first input file and read the first event.
-bool ByteStreamEventStorageOutputSvc::initDataWriter() {
-   // Retrieve EventInfo to get run number, detector mask and event type
-   const EventInfo* evtInfo = 0;
-   ServiceHandle<StoreGateSvc> sg("StoreGateSvc", name());
-   if (sg.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Cannot get StoreGateSvc");
-      return(false);
-   }
-   if (sg->retrieve(evtInfo).isFailure() || evtInfo == 0) {
-      ATH_MSG_ERROR("Cannot retrieve EventInfo");
-      return(false);
-   }
-   // Now try to write metadata to file
-   return initDataWriterContents(evtInfo, 0);
-}
-//__________________________________________________________________________
-// Open the first input file and read the first event.
-bool ByteStreamEventStorageOutputSvc::initDataWriterContents(const EventInfo* evtInfo, 
-                                                             const ByteStreamMetadata* metaData)
-{
-   // Initialize parameters
-   EventStorage::run_parameters_record runPara = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-   EventStorage::freeMetaDataStrings freeMetaDataStrings;
-   runPara.detector_mask_LS=0xFFFFFFFFFFFFFFFFULL;
-   runPara.detector_mask_MS=0xFFFFFFFFFFFFFFFFULL;
-   int run = 0;
-   int lumiNum = 0;
-   // The heirarchy of run/lumiblock number, GNARR
-   // 1) User override
-   // 2) Event data
-   // 3) File metadata
-   // 4) default = unknown = 0
-   if (m_run != 0) {
-      run = m_run;
-   } else if (evtInfo != 0) {
-      run = evtInfo->event_ID()->run_number();
-   } else if (metaData != 0) {
-      run = metaData->getRunNumber();
-   } 
-   runPara.run_number = run;
-
-   if (m_lumiBlockNumber != 0) {
-      lumiNum = m_lumiBlockNumber;
-   } else if (evtInfo != 0) {
-      lumiNum = evtInfo->event_ID()->lumi_block();
-   } else if (metaData != 0) {
-      lumiNum = metaData->getLumiBlock();
-   }
-
-   if (evtInfo != 0) {   
-      uint64_t result = evtInfo->event_ID()->detector_mask1();
-      result = result << 32;
-      result |= evtInfo->event_ID()->detector_mask0();
-      runPara.detector_mask_LS = result;
-      result = evtInfo->event_ID()->detector_mask3();
-      result = result << 32;
-      result |= evtInfo->event_ID()->detector_mask2();
-      runPara.detector_mask_MS = result;
-      
-      freeMetaDataStrings.push_back(evtInfo->event_type()->EventType::typeToString());
-   } else {
-      runPara.detector_mask_LS=0xFFFFFFFFFFFFFFFFULL;
-      runPara.detector_mask_MS=0xFFFFFFFFFFFFFFFFULL;
-   }
-   if (metaData != 0) {
-      runPara.max_events   = metaData->getMaxEvents();
-      runPara.rec_enable   = metaData->getRecEnable();
-      runPara.trigger_type = metaData->getTriggerType();
-      runPara.beam_type    = metaData->getBeamType();
-      runPara.beam_energy  = metaData->getBeamEnergy();
-      for (EventStorage::freeMetaDataStrings::const_iterator iter = metaData->getFreeMetaDataStrings().begin(),
-		      iterEnd = metaData->getFreeMetaDataStrings().end(); iter != iterEnd; iter++) {
-         if((*iter).find("Compression=") == std::string::npos) {
-            freeMetaDataStrings.push_back(*iter);
-         }
-      }
-   } else {
-      ATH_MSG_DEBUG("Cannot retrieve MetaData");
-      metaData = 0;
-      runPara.max_events = 0;
-      runPara.rec_enable = 0;
-      runPara.trigger_type = 0;
-      runPara.beam_type = 0;
-      runPara.beam_energy = 0;
-   }
-   const TagInfo* tagInfo = 0;
-   ServiceHandle<StoreGateSvc> ds("DetectorStore", name());
-   if (ds.retrieve().isSuccess()) {
-      if (ds->retrieve(tagInfo).isFailure() || tagInfo == 0) {
-         ATH_MSG_DEBUG("Cannot retrieve TagInfo");
-      } else {
-         std::string tagName, tagValue;
-         if (metaData == 0) { // FIXME: Set TriggerType, BeamType?
-            tagName = "beam_energy";
-            tagInfo->findTag(tagName, tagValue);
-            runPara.beam_type = atof(tagValue.c_str());
-         }
-         tagName = "GeoAtlas";
-         tagInfo->findTag(tagName, tagValue);
-         freeMetaDataStrings.push_back(tagName + ": " + tagValue);
-         tagName = "IOVDbGlobalTag";
-         tagInfo->findTag(tagName, tagValue);
-         freeMetaDataStrings.push_back(tagName + ": " + tagValue);
-      }
-   }
-
-   std::string fileNameCore;
-   EventStorage::CompressionType compression = m_compressEvents ? EventStorage::ZLIB : EventStorage::NONE;
-   int eventStorageVersion = 0;
-   if (m_eventStorageVersion.value() == "v5" || m_eventStorageVersion.value() == "run1") {
-       eventStorageVersion = 5;
-   }
-   if (!m_simpleFileName.value().empty()) {
-      fileNameCore = m_simpleFileName.value();
-      boost::shared_ptr<EventStorage::SimpleFileName> sfn(new EventStorage::SimpleFileName(m_simpleFileName.value()));
-      m_dataWriter = ByteStreamDataWriter::makeWriter(eventStorageVersion,
-                         m_inputDir.value(), sfn, runPara, m_projectTag.value(),
-                         m_streamType.value(), m_streamName.value(),
-                         m_streamType.value() + "_" + m_streamName.value(),
-                         lumiNum, m_appName.value(), freeMetaDataStrings,
-                         m_maxFileNE.value(), m_maxFileMB.value(), compression);
-   } else {
-      // construct file name
-      daq::RawFileName fileNameObj(m_projectTag.value(), run, m_streamType.value(), m_streamName.value(), lumiNum, m_appName.value());
-      fileNameCore = fileNameObj.fileNameCore();
-      m_dataWriter = ByteStreamDataWriter::makeWriter(eventStorageVersion,
-                         m_inputDir.value(), fileNameCore, runPara, freeMetaDataStrings,
-                         m_maxFileNE.value(), m_maxFileMB.value(), compression);
-   }
-   if (!m_dataWriter->good()) {
-      ATH_MSG_ERROR("Unable to initialize file");
-      return(false);
-   } else {
-      ATH_MSG_DEBUG("initialized file for with name " << fileNameCore);
-   }
-   return(true);
-}
-
-//__________________________________________________________________________
-// Read the next event.
-bool ByteStreamEventStorageOutputSvc::putEvent(RawEvent* re) {
-   if (!m_dataWriter) {
-      if (!initDataWriter()) {
-         ATH_MSG_ERROR("Failed to initialize DataWriter");
-         return(false);
-      }
-   }
-   uint32_t size = re->fragment_size_word();
-   // write
-   OFFLINE_FRAGMENTS_NAMESPACE::PointerType st;
-   re->start(st);
-   ATH_MSG_DEBUG("event size =  " << size << "  start = " << st);
-
-   // convert to different version
-   bool deleteBuffer = false;
-   if (m_eformatVersion.value() == "v40" or m_eformatVersion.value() == "run1") {
-       // allocate some extra space just in case
-       uint32_t bufSize = size + 128;
-       auto buf = new OFFLINE_FRAGMENTS_NAMESPACE::DataType[bufSize];
-
-       // This builds no-checksum headers, should use the same
-       // checksum type as original event
-       size = offline_eformat::old::convert_to_40(st, buf, bufSize);
-       if (size == 0) {
-           // not enough space in buffer
-           ATH_MSG_ERROR("Failed to convert event, buffer is too small");
-           delete [] buf;
-           return false;
-       }
-
-       st = buf;
-       deleteBuffer = true;
-       ATH_MSG_DEBUG("event size after conversion =  " << size << "  version = " << st[3]);
-   }
-
-   if (m_dataWriter->putData(sizeof(OFFLINE_FRAGMENTS_NAMESPACE::DataType) * size,
-	   reinterpret_cast<void*>(const_cast<OFFLINE_FRAGMENTS_NAMESPACE::DataType*>(st))) != EventStorage::DWOK) {
+    // Report success or failure
+    if (write_result != EventStorage::DWOK) {
       ATH_MSG_ERROR("Failed to write event to DataWriter");
-      if (deleteBuffer) delete [] st;
-      return(false);
-   }
-   ++m_totalEventCounter;
-   if (deleteBuffer) delete [] st;
-   return(true);
+      return false;
+    }
+    ++m_totalEventCounter;
+  }
+
+  return true;
 }
-//__________________________________________________________________________
-StatusCode ByteStreamEventStorageOutputSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-   if (ByteStreamOutputSvc::interfaceID().versionMatch(riid)) {
-      *ppvInterface = dynamic_cast<ByteStreamOutputSvc*>(this);
-   } else {
-      // Interface is not directly available: try out a base class
-      return(::AthService::queryInterface(riid, ppvInterface));
-   }
-   addRef();
-   return(StatusCode::SUCCESS);
+
+
+StatusCode
+ByteStreamEventStorageOutputSvc::io_reinit() {
+  ATH_MSG_INFO("I/O reinitialization...");
+
+  if (!m_ioMgr->io_hasitem(this)) {
+    ATH_MSG_FATAL("IoComponentMgr does not know about myself !");
+    return StatusCode::FAILURE;
+  }
+
+  if (!m_simpleFileName.empty()) {
+    std::string outputFile = m_simpleFileName;
+    ATH_MSG_INFO("I/O reinitialization, file = "  << outputFile);
+    std::string &fname = outputFile;
+    if (!m_ioMgr->io_contains(this, fname)) {
+      ATH_MSG_ERROR("IoComponentMgr does not know about [" << fname << "] !");
+      return(StatusCode::FAILURE);
+    }
+    if (!m_ioMgr->io_retrieve(this, fname).isSuccess()) {
+      ATH_MSG_FATAL("Could not retrieve new value for [" << fname << "] !");
+      return(StatusCode::FAILURE);
+    }
+    // all good... copy over.
+    // modify directory
+    m_inputDir.setValue(outputFile.substr(0, outputFile.find_last_of("/")));
+    // FIXME: modify file name, not done for now because of
+    // IoUtils.update_io_registry vs. merge conflict.
+    //m_simpleFileName.setValue(
+    //    outputFile.substr(outputFile.find_last_of("/") + 1));
+  }
+  ATH_MSG_DEBUG("Deleting DataWriter");
+  m_dataWriter.reset();
+
+  ATH_CHECK(reinit());
+
+  return StatusCode::SUCCESS;
 }
-//__________________________________________________________________________
-StatusCode ByteStreamEventStorageOutputSvc::io_reinit() {
-   ATH_MSG_INFO("I/O reinitialization...");
-   ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
-   if (!iomgr.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Could not retrieve IoComponentMgr !");
-      return(StatusCode::FAILURE);
-   }
-   if (!iomgr->io_hasitem(this)) {
-      ATH_MSG_FATAL("IoComponentMgr does not know about myself !");
-      return(StatusCode::FAILURE);
-   }
-   if (!m_simpleFileName.value().empty()) {
-      std::string outputFile = m_simpleFileName.value();
-      ATH_MSG_INFO("I/O reinitialization, file = "  << outputFile);
-      std::string &fname = outputFile;
-      if (!iomgr->io_contains(this, fname)) {
-         ATH_MSG_ERROR("IoComponentMgr does not know about [" << fname << "] !");
-         return(StatusCode::FAILURE);
-      }
-      if (!iomgr->io_retrieve(this, fname).isSuccess()) {
-         ATH_MSG_FATAL("Could not retrieve new value for [" << fname << "] !");
-         return(StatusCode::FAILURE);
-      }
-      // all good... copy over.
-      // modify directory
-      m_inputDir.setValue(outputFile.substr(0, outputFile.find_last_of("/")));
-      // FIXME: modify file name, not done for now because of IoUtils.update_io_registry vs. merge conflict.
-      //m_simpleFileName.setValue(outputFile.substr(outputFile.find_last_of("/") + 1));
-   }
-   ATH_MSG_DEBUG("Deleting DataWriter");
-   m_dataWriter.reset();
-   return(this->reinit());
+
+
+const ByteStreamMetadata *
+ByteStreamEventStorageOutputSvc::getByteStreamMetadata(
+    const EventContext* ctx) {
+  const ByteStreamMetadataContainer* metaDataCont = ctx == nullptr
+      ? SG::get(m_byteStreamMetadataKey)
+      : SG::get(m_byteStreamMetadataKey, *ctx);
+
+  if (metaDataCont == nullptr) return nullptr;
+
+  if (metaDataCont->size() > 1)
+    ATH_MSG_WARNING("Multiple run parameters in MetaDataStore. "
+                    "Bytestream format only supports one. Arbitrarily "
+                    "choosing first.");
+
+  return metaDataCont->front();
+}
+
+
+void
+ByteStreamEventStorageOutputSvc::updateDataWriterParameters(
+    DataWriterParameters& params) const {
+
+  if (m_eventStorageVersion == "v5" or m_eventStorageVersion == "run1")
+    params.version = 5;
+  else params.version = 0;
+
+  params.writingPath = m_inputDir;
+
+  if (m_run != 0) params.rPar.run_number = m_run;
+  ATH_MSG_DEBUG("Run number: " << params.rPar.run_number);
+
+  if (m_lumiBlockNumber != 0) params.lumiBlockNumber = m_lumiBlockNumber;
+  ATH_MSG_DEBUG("LB number: " << params.lumiBlockNumber);
+
+  if (!m_streamType.empty()) params.streamType = m_streamType;
+  if (!m_streamName.empty()) params.streamName = m_streamName;
+
+  if (params.streamType.empty()) params.streamType = "Single";
+  if (params.streamName.empty()) params.streamName = "Stream";
+
+  params.stream = params.streamType + "_" + params.streamName;
+
+  if (!m_projectTag.empty()) params.project = m_projectTag;
+
+  params.applicationName = m_appName;
+
+  if (!m_simpleFileName.empty()) {
+    // set up for simple file name
+    boost::shared_ptr<EventStorage::SimpleFileName> simple_file_name(
+        new EventStorage::SimpleFileName(m_simpleFileName));
+    params.theFNCB = simple_file_name;
+  } else {
+    // set up for production file name
+    daq::RawFileName fileNameObj(
+        params.project,
+        params.rPar.run_number,
+        params.streamType,
+        params.streamName,
+        params.lumiBlockNumber,
+        params.applicationName);
+    params.fileNameCore = fileNameObj.fileNameCore();
+  }
+
+  params.compression = m_compressEvents
+      ? EventStorage::ZLIB
+      : EventStorage::NONE;
+
+  params.maxFileMB = m_maxFileMB;
+  params.maxFileNE = params.rPar.max_events = m_maxFileNE;
+}
+
+
+void
+ByteStreamEventStorageOutputSvc::updateDataWriterParameters(
+    DataWriterParameters& params, const xAOD::EventInfo& eventInfo) const {
+  ATH_MSG_DEBUG("Parsing run parameters from EventInfo" << eventInfo);
+  
+  params.rPar.run_number = eventInfo.runNumber();
+  params.lumiBlockNumber = eventInfo.lumiBlock();
+
+  for (const xAOD::EventInfo::StreamTag& tag : eventInfo.streamTags())
+    if(!tag.type().empty()) {
+      params.streamType = tag.type();
+      break;
+    }
+
+  for (const xAOD::EventInfo::StreamTag& tag : eventInfo.streamTags())
+    if (!tag.name().empty()) {
+      params.streamName = tag.name();
+      break;
+    }
+
+  for (const auto& tag : eventInfo.detDescrTags())
+    params.fmdStrings.push_back(tag.first + ' ' + tag.second);
+
+  params.rPar.trigger_type = eventInfo.level1TriggerType();
+  params.rPar.detector_mask_LS = eventInfo.detectorMask();
+  params.rPar.detector_mask_MS = eventInfo.detectorMaskExt();
+
+  std::string event_type = "Event type: sim/data - ";
+  if (eventInfo.eventType(xAOD::EventInfo::EventType::IS_SIMULATION))
+    event_type += "is sim";
+  else event_type += "is data";
+
+  event_type += " , testbeam/atlas - ";
+  if (eventInfo.eventType(xAOD::EventInfo::EventType::IS_TESTBEAM))
+    event_type += "is testbeam";
+  else event_type += "is atlas";
+
+  event_type += " , calibration/physics - ";
+  if (eventInfo.eventType(xAOD::EventInfo::EventType::IS_CALIBRATION))
+    event_type += "is calibration";
+  else event_type += "is physics";
+
+  params.fmdStrings.push_back(event_type);
+}
+
+
+void
+ByteStreamEventStorageOutputSvc::updateDataWriterParameters(
+    DataWriterParameters& params, const ByteStreamMetadata& metaData) const {
+  ATH_MSG_DEBUG("Parsing run parameters from metadata:\n" << metaData); 
+
+  params.rPar.run_number = metaData.getRunNumber();
+  params.lumiBlockNumber = metaData.getLumiBlock();
+
+  const std::string stream = metaData.getStream();
+  const std::string::size_type split = stream.find('_');
+
+  if (split != std::string::npos and params.streamType.empty())
+    params.streamType = stream.substr(0,split);
+
+  if (split != std::string::npos and params.streamName.empty())
+    params.streamName = stream.substr(split+1);
+
+  params.project = metaData.getProject();
+  params.maxFileNE = params.rPar.max_events = metaData.getMaxEvents();
+
+  params.rPar.rec_enable = metaData.getRecEnable();
+  params.rPar.trigger_type = metaData.getTriggerType();
+  params.rPar.beam_type = metaData.getBeamType();
+  if (metaData.getBeamEnergy() != 0)
+    params.rPar.beam_energy = metaData.getBeamEnergy();
+
+  params.rPar.detector_mask_LS = metaData.getDetectorMask(); 
+  params.rPar.detector_mask_MS = metaData.getDetectorMask2();
+
+  for (const std::string& fmd : metaData.getFreeMetaDataStrings())
+    params.fmdStrings.push_back(fmd);
+  // if(fmd.find("Compression=") == std::string::npos)
+}
+
+
+StatusCode
+ByteStreamEventStorageOutputSvc::queryInterface(
+    const InterfaceID& riid, void** ppvInterface) {
+  if (ByteStreamOutputSvc::interfaceID().versionMatch(riid)) {
+    *ppvInterface = dynamic_cast<ByteStreamOutputSvc*>(this);
+  } else {
+    // Interface is not directly available: try out a base class
+    ATH_CHECK(::AthService::queryInterface(riid, ppvInterface));
+  }
+  addRef();
+  return StatusCode::SUCCESS;
 }

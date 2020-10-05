@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -15,26 +15,23 @@
 #define MUONTGC_CABLING_MUONTGC_CABLINGSVC_H
 
 #include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "MuonCondInterface/ITGCCablingDbTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "GaudiKernel/Service.h"
+#include "MuonTGC_Cabling/TGCCabling.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <string>
 #include <vector>
-
-#include "GaudiKernel/Service.h"
-
-#include "MuonTGC_Cabling/TGCCabling.h"
-
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonCondInterface/ITGCCablingDbTool.h"
-
-class TgcIdHelper;
 
 class MuonTGC_CablingSvc : public ITGCcablingSvc
 {
  public:
   MuonTGC_CablingSvc(const std::string& name, ISvcLocator* svc);
-  virtual ~MuonTGC_CablingSvc(void);
+  virtual ~MuonTGC_CablingSvc()=default;
   
   static const InterfaceID& interfaceID(void) 
     {
@@ -350,10 +347,9 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
   ///////////////////////  
 
  private:
-  const TgcIdHelper * m_idHelper;
-  mutable MuonTGC_Cabling::TGCCabling * m_cabling;
-  
-  ToolHandle<ITGCCablingDbTool> m_condDataTool;
+  mutable MuonTGC_Cabling::TGCCabling* m_cabling;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  ToolHandle<ITGCCablingDbTool> m_condDataTool{this,"TGCCablingDbTool","TGCCablingDbTool"};
 };
 
 

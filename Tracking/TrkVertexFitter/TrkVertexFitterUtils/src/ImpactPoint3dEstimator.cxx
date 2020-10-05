@@ -11,7 +11,7 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 // #define IMPACTPOINT3DESTIMATOR_DEBUG
 
@@ -27,30 +27,20 @@ namespace Trk
   ImpactPoint3dEstimator::ImpactPoint3dEstimator(const std::string& t, const std::string& n, const IInterface*  p) : 
     base_class(t,n,p),
     m_extrapolator("Trk::Extrapolator"),
-    m_magFieldSvc("AtlasFieldSvc", n),
     m_maxiterations(20),
     m_precision(1e-10)//DeltaPhi
   {   
     declareProperty("Extrapolator",m_extrapolator);
-    declareProperty("MagFieldSvc",     m_magFieldSvc);
     declareProperty("MaxIterations",m_maxiterations);
     declareProperty("Precision",m_precision);
   }
   
-  ImpactPoint3dEstimator::~ImpactPoint3dEstimator() {
-  }
+  ImpactPoint3dEstimator::~ImpactPoint3dEstimator() = default;
   
   StatusCode ImpactPoint3dEstimator::initialize() 
   { 
-    if ( m_extrapolator.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator  );
-      return StatusCode::FAILURE;
-    }
-
-    if (m_magFieldSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Could not find magnetic field service."  );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     ATH_MSG_DEBUG( "Initialize successful"  );
     return StatusCode::SUCCESS;
@@ -123,8 +113,14 @@ namespace Trk
                                        const Amg::Vector3D* theVertex,
                                        double& distance) const
   {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
     double magnFieldVect[3];
-    m_magFieldSvc->getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
+    fieldCache.getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
     if(magnFieldVect[2] == 0 ){
       ATH_MSG_DEBUG("Magnetic field in the Z direction is 0 --  propagate like a straight line");
       return Estimate3dIPNoCurvature(trackPerigee, theVertex, distance);
@@ -132,7 +128,7 @@ namespace Trk
 
 
     const Trk::Perigee* thePerigee=dynamic_cast<const Trk::Perigee*>(trackPerigee);
-    if (thePerigee==0)
+    if (thePerigee==nullptr)
     {
       ATH_MSG_DEBUG( " ImpactPoint3dEstimator didn't get a Perigee* as ParametersBase*: cast not possible. Need to EXTRAPOLATE...");
       
@@ -146,7 +142,7 @@ namespace Trk
       Trk::PerigeeSurface perigeeSurface(*theVertex);
       thePerigee=dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*trackPerigee,
                                                                                        perigeeSurface));
-      if (thePerigee == NULL) return 0;
+      if (thePerigee == nullptr) return nullptr;
     }
 
     ATH_MSG_VERBOSE( " Now running ImpactPoint3dEstimator::Estimate3dIP" );
@@ -167,7 +163,7 @@ namespace Trk
 
     if (thePerigee!=trackPerigee) {
       delete thePerigee;
-      thePerigee=0;
+      thePerigee=nullptr;
     }
 
     double xc=theVertex->x();
@@ -239,7 +235,7 @@ namespace Trk
         isok=true;
       }
 
-    } while (isok==false);
+    } while (!isok);
 
     //now you have to construct the plane with PlaneSurface
     //first vector at 3d impact point
@@ -324,11 +320,11 @@ namespace Trk
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
       ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p  );
-      return 0;
+      return nullptr;
     }
     if(!theSurfaceAtIP){ 
       ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
-      return 0;
+      return nullptr;
     }
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
     ATH_MSG_VERBOSE( "Original perigee was: " << *(vtxTrack.initialPerigee())  );
@@ -353,7 +349,7 @@ namespace Trk
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
       ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p  );
-      return 0;
+      return nullptr;
     }
     if(!theSurfaceAtIP) ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance and returned 0 " );
 

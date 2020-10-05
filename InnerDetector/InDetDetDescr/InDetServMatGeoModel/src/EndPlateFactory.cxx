@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/EndPlateFactory.h"
@@ -23,12 +23,14 @@
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
 
 
-EndPlateFactory::EndPlateFactory(const InDetDD::AthenaComps * athenaComps, InDetMaterialManager * matManager)
+EndPlateFactory::EndPlateFactory(InDetDD::AthenaComps * athenaComps, InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
 }

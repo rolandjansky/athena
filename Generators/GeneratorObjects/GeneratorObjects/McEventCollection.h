@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOROBJECTSMCEVENTCOLLECTION_H
@@ -62,10 +62,9 @@ inline McEventCollection& McEventCollection::operator=(const McEventCollection& 
 {
   // Force a deep copy on the DataVector
   //
-  for (EventConstIterator iter = in.begin();
-       iter != in.end(); iter++)
+  for (const HepMC::GenEvent* ev : in)
   {
-    DataVector<HepMC::GenEvent>::push_back(new HepMC::GenEvent(**iter));
+    DataVector<HepMC::GenEvent>::push_back(new HepMC::GenEvent(*ev));
   }
 
   return *this;

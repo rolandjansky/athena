@@ -19,7 +19,7 @@ def usage():
     print ("-r, --run=     specify run  number, by default uses latest iov")
     print ("-l, --lumi=    specify lumi block number, default is 0")
     print ("-s, --schema=  specify schema to use, like 'COOLOFL_TILE/OFLP200' or 'sqlite://;schema=tileSqlite.db;dbname=OFLP200'")
-    
+
 letters = "hr:l:s:t:f:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder="]
 
@@ -30,7 +30,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = 2147483647
 lumi = 0
 schema = 'COOLOFL_TILE/OFLP200'
@@ -39,13 +39,13 @@ tag = "SDR-BS8T-10"
 
 for o, a in opts:
     if o in ("-f","--folder"):
-        folderPath = "/TILE/%s/STATUS/ADC" % a 
+        folderPath = "/TILE/%s/STATUS/ADC" % a
     elif  o in ("-t","--tag"):
         tag = a
     elif o in ("-s","--schema"):
         schema = a
     elif o in ("-r","--run"):
-        run = int(a) 
+        run = int(a)
     elif o in ("-l","--lumi"):
         lumi = int(a)
     elif o in ("-h","--help"):
@@ -100,4 +100,3 @@ for ros in range(1, util.max_ros()):
 
 #=== close DB
 db.closeDatabase()
-

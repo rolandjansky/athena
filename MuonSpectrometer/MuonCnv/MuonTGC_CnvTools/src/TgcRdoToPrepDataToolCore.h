@@ -1,35 +1,28 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TgcRdoToPrepDataToolCore.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLCORE_H
 #define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOLCORE_H
 
-#include <string>
-
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonRDO/TgcRdo.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-
 #include "MuonRDO/TgcRdoContainer.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class AtlasDetectorID;
-class Identifier;
-
-class ITGCcablingSvc;
+#include <string>
+#include <vector>
 
 namespace MuonGM 
 {
-  class MuonDetectorManager;
   class TgcReadoutElement; 
 }
 
@@ -53,7 +46,7 @@ namespace Muon
       TgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~TgcRdoToPrepDataToolCore();
+      virtual ~TgcRdoToPrepDataToolCore()=default;
       
       /** Query the IMuonRdoToPrepDataTool interface */
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
@@ -311,12 +304,9 @@ namespace Muon
       /** Get SL local position */
       const Amg::Vector2D* getSLLocalPosition(const MuonGM::TgcReadoutElement* readout, const Identifier, const double eta, const double phi) const; 
 
-      /** muon detector manager */
-      const MuonGM::MuonDetectorManager * m_muonMgr;
+      SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
-      /** Tool for TGC identifier helper */
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       
       /* TGC Cabling service */
       const ITGCcablingSvc* m_tgcCabling;

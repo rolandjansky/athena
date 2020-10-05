@@ -30,7 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkRefitAlg
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkEventPrimitives TrkEventUtils TrkTrack TrkFitterUtils InDetReadoutGeometry TrkSurfaces TrkMeasurementBase TrkParameters TrkTrackSummary TrkVertexOnTrack VxVertex TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkEventPrimitives TrkEventUtils TrkTrack TrkFitterUtils InDetReadoutGeometry TrkSurfaces TrkMeasurementBase TrkParameters TrkTrackSummary TrkVertexOnTrack VxVertex TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_headers( TrkRefitAlg )

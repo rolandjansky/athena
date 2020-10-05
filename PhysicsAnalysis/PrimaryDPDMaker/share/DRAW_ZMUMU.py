@@ -43,7 +43,7 @@ goodMuonTool.MuQuality = 3
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 goodMuonTool.TurnOffMomCorr = True
 ToolSvc += goodMuonTool
-print goodMuonTool
+print(goodMuonTool)
 from PrimaryDPDMaker.PrimaryDPDMakerConf import DerivationFramework__DRAW_ZMUMUSkimmingTool
 goodMuonSkimmingTool = DerivationFramework__DRAW_ZMUMUSkimmingTool(name = "DRAW_ZMUMU_GoodMuon_SkimmingTool",
                                                                MuonContainerKey = "Muons",
@@ -54,8 +54,8 @@ ToolSvc += goodMuonSkimmingTool
 
 periods = TriggerPeriod.future | TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017
 allUnprescaledTriggers = TriggerAPI.getLowestUnprescaledAnyPeriod(periods, TriggerType.mu)
-print "DRAW_ZMUMU: will skim on an OR of the following muon triggers (list provided at run-time by the TriggerAPI):"
-print allUnprescaledTriggers
+print("DRAW_ZMUMU: will skim on an OR of the following muon triggers (list provided at run-time by the TriggerAPI):")
+print(allUnprescaledTriggers)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 triggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "DRAWZMUMUTriggerSkimmingTool", 
                                                                TriggerListOR = allUnprescaledTriggers)
@@ -68,7 +68,7 @@ DRAW_ZMUMU_SkimmingTool = DerivationFramework__FilterCombinationAND( name = "DRA
                                                                                  goodMuonSkimmingTool, 
                                                                                  triggerSkimmingTool] )
 ToolSvc += DRAW_ZMUMU_SkimmingTool
-print DRAW_ZMUMU_SkimmingTool
+print(DRAW_ZMUMU_SkimmingTool)
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel

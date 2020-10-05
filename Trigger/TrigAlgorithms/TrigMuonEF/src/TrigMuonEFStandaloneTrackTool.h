@@ -1,24 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEF_TRIGMUONEFSTANDALONETRACKTOOL_H
 #define TRIGMUONEF_TRIGMUONEFSTANDALONETRACKTOOL_H
 
-#include <vector>
 
 #include "SegmentCache.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkTrack/TrackCollection.h"
-
 #include "TrigMuonToolInterfaces/ITrigMuonStandaloneTrackTool.h"
 #include "TrigMuonToolInterfaces/TrigMuonEFMonVars.h"
 #include "MuonRecToolInterfaces/IMuonTrackFinder.h"
 #include "MuonRecToolInterfaces/IMuonCombiTrackMaker.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
@@ -34,12 +34,13 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <fstream>
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
+#include <vector>
 
 #define DEBUG_ROI_VS_FULL false
 
@@ -265,9 +266,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   // Cache the ActiveStoreSvc ptr
   ActiveStoreSvc* p_ActiveStore;
 
-  // Muon Id Helpers
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   //Cache Rob Lists
   std::vector<uint32_t> m_MdtRobList;
@@ -377,8 +376,10 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
   SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
   SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKeyNextBC;
-  SG::ReadHandleKey <Muon::CscPrepDataContainer> m_cscKey;
   SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+
+  //write handle for CSC cluster container
+  SG::WriteHandleKey <Muon::CscPrepDataContainer> m_cscClustersKey{this, "CscClusterContainer", "CSC_Clusters", "Output CSC Cluster container"};
 
   bool m_ignoreCSC;
   ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;

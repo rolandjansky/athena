@@ -28,6 +28,7 @@
 
 //Asg includes
 #include "AsgTools/AsgMessaging.h"
+#include "PATCore/AcceptData.h"
 #include "PATInterfaces/SystematicsUtil.h"
 
 #include <ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h>
@@ -156,7 +157,7 @@ int main( int argc, char* argv[] ) {
             xAOD::Electron* el = *el_it;
             if (el->pt() < 25000) continue;//skip electrons outside of recommendations
 
-            bool LHacc = m_LHToolTight->accept(el);
+            bool LHacc {m_LHToolTight->accept(el)};
             std::cout << "acc:  "<< LHacc << std::endl;
             if(!m_LHToolTight->accept(el)) continue; 
             if (fabs(el->caloCluster()->etaBE(2)) > 2.4) continue;//skip electrons outside of recommendations

@@ -15,7 +15,7 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 PixelRawDataProvider::PixelRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator) {
+  AthReentrantAlgorithm(name, pSvcLocator) {
   declareProperty("RDOCacheKey", m_rdoCacheKey);
   declareProperty("BSErrorsCacheKey", m_bsErrorsCacheKey);
 }
@@ -53,7 +53,6 @@ StatusCode PixelRawDataProvider::initialize() {
   ATH_CHECK( m_bsErrorsKey.initialize() );
   ATH_CHECK( m_bsErrorsCacheKey.initialize( SG::AllowEmpty ) );
 
-
   if (m_roiSeeded) {
     ATH_CHECK( m_roiCollectionKey.initialize() );
     ATH_CHECK(m_regionSelector.retrieve());
@@ -69,7 +68,7 @@ StatusCode PixelRawDataProvider::initialize() {
 
 typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<PixelRDORawData>> DummyPixelRDO;
 
-StatusCode PixelRawDataProvider::execute() {
+StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
 
 #ifdef PIXEL_DEBUG
     ATH_MSG_DEBUG("Create Pixel RDO Container");
@@ -80,10 +79,10 @@ StatusCode PixelRawDataProvider::execute() {
 
   // write into StoreGate
 
-  SG::WriteHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey);
+  SG::WriteHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey, ctx);
   if( m_rdoCacheKey.empty() ) rdoContainer = std::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max());
   else{
-    SG::UpdateHandle<PixelRDO_Cache> updateh(m_rdoCacheKey);
+    SG::UpdateHandle<PixelRDO_Cache> updateh(m_rdoCacheKey, ctx);
     if( ! updateh.isValid() ) {
       ATH_MSG_FATAL("Failure to retrieve cache " << m_rdoCacheKey.key());
       return StatusCode::FAILURE;
@@ -101,11 +100,11 @@ StatusCode PixelRawDataProvider::execute() {
 
   if (!m_roiSeeded) {
     ATH_MSG_DEBUG("No RoI seed, fetching all ROBs");
-    listOfRobs = SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey)->get_allRobs();  // need ROB id (not ROD)
+    listOfRobs = SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey, ctx)->get_allRobs();  // need ROB id (not ROD)
   }
   else {//Enter RoI-seeded mode
      ATH_MSG_DEBUG("RoI seed, fetching regions infromation");
-     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
      ATH_CHECK(roiCollection.isValid());
 
      TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
@@ -137,22 +136,19 @@ StatusCode PixelRawDataProvider::execute() {
 
   std::unique_ptr<IDCInDetBSErrContainer> decodingErrors;
   if ( not m_bsErrorsCacheKey.empty() ) {
-    SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey );
+    SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey, ctx);
     decodingErrors = std::make_unique<IDCInDetBSErrContainer>( bsErrorsCacheHandle.ptr() );
   } else {
-    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_pixel_id->wafer_hash_max(), std::numeric_limits<int>::min() );
+    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_rawDataTool->SizeOfIDCInDetBSErrContainer(), std::numeric_limits<int>::min() );
   }
-
 
   // ask PixelRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(listOfRobf,  containerInterface, *decodingErrors).isFailure())
     ATH_MSG_ERROR("BS conversion into RDOs failed");
 
-
-
   if(tempcont) ATH_CHECK(tempcont->MergeToRealContainer(rdoContainer.ptr()));
 
-  SG::WriteHandle<IDCInDetBSErrContainer> bsErrorsHandle(m_bsErrorsKey);
+  SG::WriteHandle<IDCInDetBSErrContainer> bsErrorsHandle(m_bsErrorsKey, ctx);
   ATH_CHECK( bsErrorsHandle.record( std::move( decodingErrors ) ) );
 
 #ifdef PIXEL_DEBUG

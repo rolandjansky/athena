@@ -71,18 +71,23 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             jetConstit.inputname = clustersKey
     return jetConstit
 
+    
+def interpretRecoAlg(recoAlg):
+    import re
+    jetalg, jetradius, jetextra = re.split(r'(\d+)',recoAlg)    
+    return jetalg, int(jetradius), jetextra
+
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
 # Could/should adjust higher for large-R
 def defineJets(jetRecoDict,clustersKey=None,pfoPrefix=None):
     minpt = {
-        "a4":  5000,
-        "a10": 50000,
-        "a10r": 50000,
-        "a10t": 50000,
+        4:  7000,
+        10: 50000,
     }
-    radius = float(jetRecoDict["recoAlg"].lstrip("a").rstrip("tr"))/10
+    jetalg, jetradius, jetextra = interpretRecoAlg(jetRecoDict["recoAlg"])
+    actualradius = float(jetradius)/10
     jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
-    jetDef = JetDefinition( "AntiKt", radius, jetConstit, ptmin=minpt[jetRecoDict["recoAlg"]])
+    jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius])
     return jetDef
 
 def defineReclusteredJets(jetRecoDict):
@@ -91,11 +96,12 @@ def defineReclusteredJets(jetRecoDict):
     return rcJetDef
 
 def defineGroomedJets(jetRecoDict,ungroomedDef,ungroomedJetsName):
-    from JetRecConfig.JetGrooming import JetTrimming
-    # Only actually one type now, but leave open possibility of others
+    from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
+    groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     groomDef = {
-        "t":JetTrimming(ungroomedDef,ungroomedJetsName,smallR=0.2,ptfrac=0.05)
-        }[jetRecoDict["recoAlg"][-1]]
+        "sd":JetSoftDrop(ungroomedDef,ungroomedJetsName,zcut=0.1,beta=1.0),
+        "t" :JetTrimming(ungroomedDef,ungroomedJetsName,smallR=0.2,ptfrac=0.05),
+    }[groomAlg]
     return groomDef
 
 ##########################################################################################
@@ -118,6 +124,7 @@ def defineTrackMods(trkopt):
 # Translate calib specification into something understood by
 # the calibration config helper
 def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
+
     # Minimum modifier set for calibration w/o track GSC
     # Should eventually build in more mods, depend on track info etc
     jetalg = jetRecoDict["recoAlg"]
@@ -130,12 +137,12 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
         if jetRecoDict["trkopt"]=="notrk" and "subres" in jetRecoDict["jetCalib"]:
             raise ValueError("Pileup residual calibration requested but no track source provided!")
 
-        if jetRecoDict["dataType"]=="tc":
+        if jetRecoDict["dataType"].endswith("tc"):
             calibContext,calibSeq = {
                 ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
-                ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC_Insitu"), # Calo GSC only
-                ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC_Insitu"), # Calo+Trk GSC
-                ("a4","subresjesgscIS"): ("TrigRun2GSC","JetArea_Residual_EtaJES_GSC_Insitu"), # pu residual + calo+trk GSC
+                ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC"), # Calo GSC only
+                ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC"), # Calo+Trk GSC
+                ("a4","subresjesgscIS"): ("TrigRun2GSC","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
                 ("a10","subjes"):  ("TrigUngroomed","JetArea_EtaJES"),
                 ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
                 }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
@@ -144,15 +151,20 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "EM3"
             if "gsc" in jetRecoDict["jetCalib"]:
                 gscDepth = "trackWIDTH"
-                pvname = "HLT_EFHistoPrmVtx"
+                pvname = "HLT_IDVertex_FS"
 
-        elif jetRecoDict["dataType"]=="pf":
+        elif jetRecoDict["dataType"].endswith("pf"):
             gscDepth = "auto"
-            calibContext = "TrigLS2"
-            calibSeq = "JetArea_Residual_EtaJES_GSC"
-            if jetRecoDict["jetCalib"].endswith("IS"):
-                calibSeq += "_Insitu"
-            pvname = "HLT_EFHistoPrmVtx"
+            if 'sd' in jetRecoDict["recoAlg"]:
+                calibContext = "TrigSoftDrop"
+                calibSeq = "EtaJES_JMS"
+            else:
+                calibContext = "TrigLS2"
+                calibSeq = "JetArea_Residual_EtaJES_GSC"
+            pvname = "HLT_IDVertex_FS"
+
+        if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):
+            calibSeq += "_Insitu"
 
         calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, pvname, gscDepth] )
         from .TriggerJetMods import ConstitFourMom_copy
@@ -166,5 +178,5 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
                          getModSpec("Calib",calibSpec),
                          getModSpec("Sort")]
 
-    filtercut = {"a4":5000, "a10":50000, "a10r": 50000, "a10t":100000}[jetalg]
+    filtercut = {"a4":7000, "a10":50000, "a10r": 50000, "a10t":50000, "a10sd":50000}[jetalg]
     return calibMods + [getModSpec("Filter",filtercut)]

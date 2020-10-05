@@ -23,6 +23,11 @@ def getOverallL1item(chainName):
     There are though more complicated names like ...._L1...._L1..._L1... in such cases the L1 seed item is the last one
     """
     assert '_L1' in chainName, 'ERROR IN CHAIN {}, missing L1 seed at the end i.e. _L1...' .format(chainName)
+
+    from TriggerMenuMT.LVL1MenuConfig.LVL1Menu.L1Seeds import getSpecificL1Seeds
+    from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
+
     # this assumes that the last string of a chain name is the overall L1 item
     cNameParts = chainName.split("_L1")
     l1seed = 'L1_' + cNameParts[-1]
@@ -32,6 +37,29 @@ def getOverallL1item(chainName):
         return ''
     if l1seed == 'L1_test': #Multiseeded chains are build like this
         return 'L1_EM24VHI,L1_MU20'
+    if l1seed == 'L1_Bkg' or l1seed == 'L1_Standby' or l1seed == 'L1_Calo' or l1seed == 'L1_Calo_EMPTY':
+        # For these item seed specifications we need to derive the precise list of item names from the L1Menu.
+        # During the transition period to the new menu format it is important to pick the correct kind based
+        # on the temporary TriggerFlag readLVL1FromJSON.
+        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        if TriggerFlags.readLVL1FromJSON():
+            lvl1name = getL1MenuFileName()
+            lvl1access = L1MenuAccess(lvl1name)
+            itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
+        else:
+            from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLReader import L1MenuXMLReader
+            fileName = TriggerFlags.inputLVL1configFile()
+            l1menu = L1MenuXMLReader(fileName)
+            l1items = l1menu.getL1Items()
+            itemsDict = {}
+            for item in l1items:
+                itemsDict[item['name']] = {
+                    'name' : item['name'],
+                    'ctpid' : item['ctpid'],
+                    'triggerType' : item['trigger_type'],
+                }
+        l1seedlist = getSpecificL1Seeds(l1seed, itemsDict)
+        return l1seedlist
 
     return l1seed
 
@@ -193,7 +221,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
     # ---- obtain dictionary parts for signature defining patterns ----
     from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
         AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
-
+    
+    from .MenuAlignmentTools import getAlignmentGroupFromPattern
+    
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
                      'trigType': sigToken, 'extra': ''}
@@ -228,7 +258,10 @@ def analyseChainName(chainName, L1thresholds, L1item):
             log.debug("multichainindex: %s", multichainindex)
 
             sName = getSignatureNameFromToken(cpart)
+            
             groupdict['signature'] = sName
+            groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
+            
             log.debug('groupdictionary groupdict: %s', groupdict)
             mdicts.append(groupdict)
 
@@ -240,10 +273,10 @@ def analyseChainName(chainName, L1thresholds, L1item):
             for chainCategory in [(['mb'], 'MinBias', 'mb'),
                                   (['hi'], 'HeavyIon', 'mb'),
                                   (AllowedCosmicChainIdentifiers, 'Cosmic', 'cosmic'),
-                                  (AllowedCalibChainIdentifiers, 'Calibration', 'calib'),
+                                  (AllowedCalibChainIdentifiers, 'Calib', 'calib'),
                                   (AllowedMonitorChainIdentifiers, 'Monitor', 'calib'),
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
-                                  (['eb'], 'EnhancedBias', 'eb') ]:
+                                  (['eb'], 'EnhancedBias', 'eb')]:
                 if cpart in chainCategory[0]:
                     log.debug('Doing chain type {}'.format(chainCategory[1]))
                     multichainindex.append(hltChainNameShort.index(cpart))
@@ -310,6 +343,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
+        chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], mdicts[chainindex]['extra'])
 
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
@@ -323,18 +357,20 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         log.debug('Chainparts: %s', chainparts)
         if (chainProperties['signature'] != 'Cosmic') \
-                & (chainProperties['signature'] != 'Calibration')\
+                & (chainProperties['signature'] != 'Calib')\
                 & (chainProperties['signature'] != 'Streaming') \
                 & (chainProperties['signature'] != 'Beamspot') \
                 & (chainProperties['signature'] != 'Monitor') :
             parts.pop(0)
 
 
-        #---- Check if topo is a bphsyics topo -> change signature ----
+        #---- Check if topo is a bphysics topo -> change signature ----
         from .SignatureDicts import AllowedTopos_Bphysics
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', mdicts[chainindex]['extra'])
+
 
 
         # ---- import the relevant dictionaries for each part of the chain ----
@@ -404,8 +440,8 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- remove properties that aren't allowed in the chain properties for a given siganture ----
         forbiddenProperties = set(chainProperties.keys()) - set(allowedSignaturePropertiesAndValues.keys())
-        log.debug('chainPropertie:s %s', set(chainProperties.keys()))
-        log.debug('allowedSignaturePropertiesAndValues: %s', set(allowedSignaturePropertiesAndValues.keys()))
+        log.debug('chainProperties: %s', sorted(set(chainProperties.keys())))
+        log.debug('allowedSignaturePropertiesAndValues: %s', sorted(set(allowedSignaturePropertiesAndValues.keys())))
         for fb in forbiddenProperties:
             forbiddenValue = chainProperties.pop(fb)
             assert forbiddenValue == '', "Property {} not allowed for signature '{}', but specified '{}'".format (fb, chainProperties['signature'], forbiddenValue)
@@ -420,7 +456,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
     for cPart in allChainProperties:
         if cPart['signature'] == 'Jet' and cPart['bTag'] != '':
             cPart['signature'] = 'Bjet'
+            cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
         genchainDict['signatures'] += [cPart['signature']]
+        genchainDict['alignmentGroups'] += [cPart['alignmentGroup']]
 
     #genchainDict['signature'] = allChainProperties[0]['signature']
 
@@ -452,7 +490,8 @@ def dictFromChainName(chainInfo):
         mergingOrder    = []
         topoStartFrom   = ''
 
-    elif 'ChainProp' in str(type(chainInfo)):
+    elif 'ChainProp' in str(type(chainInfo)):	
+        #this is how we define chains in the menu - the normal behaviour of this function
         chainName       = chainInfo.name
         l1Thresholds    = chainInfo.l1SeedThresholds
         stream          = chainInfo.stream

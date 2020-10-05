@@ -32,36 +32,36 @@ def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList
         MultivariateTagManagerAuxBranches += ['rnnip_p' + x for x in rnnip_outputs]
 
     if 'DL1' in TaggerList:
-        dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1'))
+        dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1', scheme))
         mvtagtoollist.append(dl1)
 
     if 'DL1mu' in TaggerList:
-        dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1mu'))
+        dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1mu', scheme))
         mvtagtoollist.append(dl1)
 
     if 'DL1rnn' in TaggerList:
-        dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1rnn'))
+        dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1rnn', scheme))
         mvtagtoollist.append(dl1)
 
     if 'MV2c10' in TaggerList:
-        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c10'))
+        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c10', scheme))
         mvtagtoollist.append(mv2)
 
     if 'MV2c10mu' in TaggerList:
-        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c10mu'))
+        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c10mu', scheme))
         mvtagtoollist.append(mv2)
 
     if 'MV2c10rnn' in TaggerList:
-        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c10rnn'))
+        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c10rnn', scheme))
         mvtagtoollist.append(mv2)
 
     if 'MV2c100' in TaggerList:
-        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c100'))
+        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2c100', scheme))
         mvtagtoollist.append(mv2)
 
 
     if 'MV2cl100' in TaggerList:
-        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2cl100'))
+        mv2 = acc.popToolsAndMerge(MV2TagCfg(flags, 'MV2cl100', scheme))
         mvtagtoollist.append(mv2)
 
     #Check if input has been scheduled

@@ -6,11 +6,10 @@
 #include <cmath>
 #include <sstream>
 
-using namespace std;
 
 
 inline bool isIn(const std::vector<unsigned int>& pdgs, int pdg) {
-  return std::find(pdgs.begin(), pdgs.end(), static_cast<unsigned int>(abs(pdg))) != pdgs.end();
+  return std::find(pdgs.begin(), pdgs.end(), static_cast<unsigned int>(std::abs(pdg))) != pdgs.end();
 }
 
 
@@ -116,21 +115,32 @@ StatusCode DecayModeFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* theGenEvent = *(events()->begin());
-    HepMC::GenEvent::vertex_const_iterator vtx_iter = theGenEvent->vertices_begin();
+#ifdef HEPMC3
+    auto  vtx_begin = theGenEvent->vertices().begin();
+    auto  vtx_end = theGenEvent->vertices().end();
+#else
+    HepMC::GenEvent::vertex_const_iterator vtx_begin = theGenEvent->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vtx_end = theGenEvent->vertices_end();
-    for (; vtx_iter!=vtx_end; ++vtx_iter) {
+#endif
+    for (auto vtx_iter=vtx_begin; vtx_iter!=vtx_end; ++vtx_iter) {
       // Look for initial vertex
+#ifdef HEPMC3
+      if ((*vtx_iter)->particles_in().size() != 2) continue;
+      if ((*vtx_iter)->particles_out().size() < 2) continue;
+      auto outParticle = (*vtx_iter)->particles_out().begin();
+#else
       if ((*vtx_iter)->particles_in_size() != 2) continue;
       if ((*vtx_iter)->particles_out_size() < 2) continue;
-      HepMC::GenVertex::particles_out_const_iterator outParticle = (*vtx_iter)->particles_out_const_begin();
-      HepMC::GenParticle* parent1 = *outParticle;
-      HepMC::GenParticle* parent2 = *(++outParticle);
+      auto outParticle = (*vtx_iter)->particles_out_const_begin();
+#endif
+      auto parent1 = *outParticle;
+      auto parent2 = *(++outParticle);
       ATH_MSG_DEBUG("Two in, two out: "  << parent1->pdg_id() << " " << parent2->pdg_id());
 
       bool parent1ok(false), parent2ok(false);
       for (size_t i = 0; i < m_producedParticles_PDG.size(); ++i) {
-        if (abs(parent1->pdg_id()) == (int) m_producedParticles_PDG[i]) parent1ok = true;
-        if (abs(parent2->pdg_id()) == (int) m_producedParticles_PDG[i]) parent2ok = true;
+        if (std::abs(parent1->pdg_id()) == (int) m_producedParticles_PDG[i]) parent1ok = true;
+        if (std::abs(parent2->pdg_id()) == (int) m_producedParticles_PDG[i]) parent2ok = true;
       }
 
       if (!(parent1ok && parent2ok)) continue;
@@ -184,24 +194,24 @@ StatusCode DecayModeFilter::filterEvent() {
 }
 
 
-string DecayModeFilter::printChain(HepMC::GenParticle* parent) const {
+std::string DecayModeFilter::printChain(HepMC::ConstGenParticlePtr parent) const {
+  if (!parent) return std::string("");
   std::stringstream ss;
-  ss << " " << abs(parent->pdg_id()) << " ->  ";
-  HepMC::GenParticle* foundChild(NULL);
+  ss << " " << std::abs(parent->pdg_id()) << " ->  ";
+  HepMC::ConstGenParticlePtr foundChild=nullptr;
   int SMchild_PDG(0);
-  HepMC::GenVertex::particle_iterator child = parent->end_vertex()->particles_begin(HepMC::children);
-  HepMC::GenVertex::particle_iterator end_child = parent->end_vertex()->particles_end(HepMC::children);
-  for (; child != end_child; ++child) {
-    if (abs((*child)->pdg_id()) < 1000) SMchild_PDG = abs((*child)->pdg_id());
-    else foundChild = *child;
+  if (!parent->end_vertex()) return ss.str();
+  for ( auto  child: *(parent->end_vertex())) {
+    if (std::abs(child->pdg_id()) < 1000) SMchild_PDG = std::abs(child->pdg_id());
+    else foundChild = child;
   }
-  ss << (foundChild ? abs(foundChild->pdg_id()) : -9999) << " (" << SMchild_PDG << ") ";
+  ss << (foundChild ? std::abs(foundChild->pdg_id()) : -9999) << " (" << SMchild_PDG << ") ";
   if (foundChild && abs(foundChild->pdg_id()) != 1000022) ss << printChain(foundChild);
   return ss.str();
 }
 
  
-void DecayModeFilter::analyzeChain(HepMC::GenParticle* parent, bool& isDirect, bool& isBosonic, bool& isLeptonic, bool& isDirect3body) {
+void DecayModeFilter::analyzeChain(HepMC::ConstGenParticlePtr parent, bool& isDirect, bool& isBosonic, bool& isLeptonic, bool& isDirect3body) {
   int length(0), Nchi2(0), NW(0), NZ(0), NH(0), Nse(0), Nsmu(0), Nstau(0), nChargedLeptons(0), nSMParticles(0);
   countChain(parent, length, Nchi2, NW, NZ, NH, Nse, Nsmu, Nstau, nChargedLeptons, nSMParticles);
 
@@ -238,26 +248,28 @@ void DecayModeFilter::analyzeChain(HepMC::GenParticle* parent, bool& isDirect, b
 }
 
 
-void DecayModeFilter::countChain(HepMC::GenParticle* parent, int& length,
+void DecayModeFilter::countChain(HepMC::ConstGenParticlePtr parent, int& length,
                                  int& Nchi2, int& NW,int& NZ,int& NH, int& Nse, int& Nsmu, int& Nstau, int& nChargedLeptons, int& nSMParticles) const {
-  HepMC::GenParticle* foundChild(NULL);
+  HepMC::ConstGenParticlePtr foundChild=nullptr;
   int SMchild_PDG(0);
-  HepMC::GenVertex::particle_iterator child = parent->end_vertex()->particles_begin(HepMC::children);
-  HepMC::GenVertex::particle_iterator end_child = parent->end_vertex()->particles_end(HepMC::children);
-  for (; child != end_child; ++child) {
-    if (abs((*child)->pdg_id()) < 1000){
-      SMchild_PDG = abs((*child)->pdg_id());
+  if (!parent) return;
+  if (parent->end_vertex())
+  {
+  for (auto child: *(parent->end_vertex())) {
+    if (std::abs(child->pdg_id()) < 1000){
+      SMchild_PDG = std::abs(child->pdg_id());
       nSMParticles++;
     }
-    if (abs((*child)->pdg_id()) > 1000000) foundChild = *child;
+    if (std::abs(child->pdg_id()) > 1000000) foundChild = child;
+  }
   }
   if (!foundChild) {
     length = 0;
     return;
   }
-  countPIDs(abs(foundChild->pdg_id()),SMchild_PDG, Nchi2, NW,NZ,NH, Nse,Nsmu,Nstau,nChargedLeptons);
+  countPIDs(std::abs(foundChild->pdg_id()),SMchild_PDG, Nchi2, NW,NZ,NH, Nse,Nsmu,Nstau,nChargedLeptons);
   if (!isIn(m_producedParticles_PDG,abs(foundChild->pdg_id()))) length += 1; //allow serveral strong-sparticle steps
-  if (!isIn( m_LSPs_PDG, abs(foundChild->pdg_id()))) {
+  if (!isIn( m_LSPs_PDG, std::abs(foundChild->pdg_id()))) {
     countChain(foundChild,length, Nchi2, NW,NZ,NH, Nse,Nsmu,Nstau,nChargedLeptons,nSMParticles);
   }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HEPMCTRUTHREADER_H
@@ -33,8 +33,8 @@ private:
   std::string m_hepMCContainerName;
 
   void printEvent(const HepMC::GenEvent*);
-  void printVertex(const HepMC::GenVertex*);
-  void printParticle(const HepMC::GenParticle*);
+  void printVertex(HepMC::ConstGenVertexPtr);
+  void printParticle(HepMC::ConstGenParticlePtr);
 
 }; // class HepMCTruthReader
 

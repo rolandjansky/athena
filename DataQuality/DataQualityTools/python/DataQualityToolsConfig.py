@@ -15,7 +15,8 @@ def DataQualityToolsConfig(flags):
 
     # the following should not run in RAW to ESD, if we're in two-step
     if flags.DQ.Environment != 'tier0Raw':
-        result.merge(DQTLumiMonAlgConfig(flags))
+        if flags.DQ.DataType != 'cosmics':
+            result.merge(DQTLumiMonAlgConfig(flags))
 
     # only when input is RAW
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):

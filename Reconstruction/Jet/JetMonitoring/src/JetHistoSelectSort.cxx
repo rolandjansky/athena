@@ -1,23 +1,23 @@
 #include <list>
 #include "AthContainers/ConstDataVector.h"
 #include "JetMonitoring/JetHistoSelectSort.h"
-
+#include "JetMonitoring/JetMonitoringAlg.h" 
 
 
 JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::string & name ,const IInterface* parent):
   AthAlgTool( type, name, parent )
   , m_jetFillerTools(this)
   , m_selectTool(this)
+  , m_eventSelTool(this)
   , m_sortVar(this)
-  
 
 {
   declareInterface<IJetHistoFiller>(this);
 
   declareProperty("FillerTools",m_jetFillerTools);
   declareProperty("Selector",m_selectTool);
+  declareProperty("EventSelector",m_eventSelTool);
   declareProperty("SortVariable",m_sortVar);
-  
 }
 
 
@@ -35,6 +35,14 @@ StatusCode JetHistoSelectSort::initialize() {
   if(m_selectTool.isEnabled()){
     ATH_CHECK(m_selectTool.retrieve());
     ATH_MSG_INFO( " Selecting with "<< m_selectTool->name() );
+  }
+  if(m_inverseJetSel){
+    ATH_MSG_DEBUG( "   inverse Jet Selection will be applied" );
+  }
+
+  if(m_eventSelTool.isEnabled()){
+    ATH_CHECK(m_eventSelTool.retrieve());
+    ATH_MSG_INFO( " Selecting with "<< m_eventSelTool->name() );
   }
   
   if( m_sortVar.isEnabled() ){
@@ -66,10 +74,20 @@ StatusCode JetHistoSelectSort::processJetContainer(const JetMonitoringAlg& paren
 
   // select if needed
   if(m_selectTool.isEnabled()){
-    auto sel = [this] (const xAOD::Jet * j) {return ! m_selectTool->keep(*j) ; } ;
-    tmpList.remove_if( sel );
+    if (m_inverseJetSel) {
+      auto sel = [this] (const xAOD::Jet * j) {return  m_selectTool->keep(*j) ; } ;
+      tmpList.remove_if( sel );
+    }
+    else {
+      auto sel = [this] (const xAOD::Jet * j) {return ! m_selectTool->keep(*j) ; } ;
+      tmpList.remove_if( sel );
+    }
   }
 
+  if(m_eventSelTool.isEnabled()){
+    auto eventInfo = parentAlg.GetEventInfo(ctx);
+    if ( ! m_eventSelTool->keep(*eventInfo, jets) ) tmpList.clear();
+  }
 
 
   ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);

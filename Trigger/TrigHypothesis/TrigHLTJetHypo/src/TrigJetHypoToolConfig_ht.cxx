@@ -8,7 +8,7 @@
 
 #include "./conditionsFactoryMT.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/AllJetsGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
@@ -68,7 +68,7 @@ TrigJetHypoToolConfig_ht::requiresNJets() const {
  
 std::unique_ptr<IJetGrouper>
 TrigJetHypoToolConfig_ht::getJetGrouper() const {
-  return std::make_unique<SingleJetGrouper>();
+  return std::make_unique<AllJetsGrouper>();
 }
 
 std::unique_ptr<IGroupsMatcherMT>

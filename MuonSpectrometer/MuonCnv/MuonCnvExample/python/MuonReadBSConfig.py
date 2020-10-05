@@ -27,7 +27,10 @@ def MdtROD_Decoder(name="MdtROD_Decoder",**kwargs):
 def MdtRawDataProviderTool(name="MdtRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "MdtROD_Decoder")
     if DetFlags.overlay.MDT_on() and overlayFlags.isDataOverlay():
-      kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("RdoLocation",overlayFlags.bkgPrefix()+"MDTCSM")
+        else:
+            kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
     return CfgMgr.Muon__MDT_RawDataProviderToolMT(name,**kwargs)
 
 
@@ -44,7 +47,10 @@ def RpcROD_Decoder(name="RpcROD_Decoder",**kwargs):
 def RpcRawDataProviderTool(name = "RpcRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "RpcROD_Decoder")
     if DetFlags.overlay.RPC_on() and overlayFlags.isDataOverlay():
-      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("RdoLocation", overlayFlags.bkgPrefix()+"RPCPAD")
+        else:
+            kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
     return CfgMgr.Muon__RPC_RawDataProviderToolMT(name,**kwargs)
 
 
@@ -61,7 +67,10 @@ def TgcROD_Decoder(name = "TgcROD_Decoder",**kwargs):
 def TgcRawDataProviderTool(name = "TgcRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "TgcROD_Decoder")
     if DetFlags.overlay.TGC_on() and overlayFlags.isDataOverlay():
-      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("RdoLocation", overlayFlags.bkgPrefix()+"TGCRDO")
+        else:
+            kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
     return CfgMgr.Muon__TGC_RawDataProviderToolMT(name,**kwargs)
 
 
@@ -77,7 +86,10 @@ def CscROD_Decoder(name = "CscROD_Decoder",**kwargs):
 def CscRawDataProviderTool(name = "CscRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "CscROD_Decoder")
     if DetFlags.overlay.CSC_on() and overlayFlags.isDataOverlay():
-      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault("RdoLocation", overlayFlags.bkgPrefix()+"CSCRDO")
+        else:
+            kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
     return CfgMgr.Muon__CSC_RawDataProviderToolMT(name,**kwargs)
     
 

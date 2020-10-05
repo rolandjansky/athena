@@ -20,9 +20,9 @@ CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
 
 StatusCode CTPUnpackingTool::initialize()
 {
-  ATH_CHECK( m_lvl1ConfigSvc.retrieve() );
-  ATH_CHECK( m_hltConfigSvc.retrieve() );
+  ATH_CHECK( m_L1MenuKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
+
 
   ATH_CHECK( CTPUnpackingToolBase::initialize() );
 
@@ -37,16 +37,29 @@ StatusCode CTPUnpackingTool::start() {
   ATH_MSG_INFO( "Updating CTP bits decoding configuration");
   // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
   std::map<std::string, size_t> toCTPID;
-  for ( const TrigConf::TriggerItem* item:   m_lvl1ConfigSvc->ctpConfig()->menu().itemVector() ) {
-    toCTPID[item->name()] = item->ctpId();
+
+  ATH_MSG_INFO( "start(): use new L1 trigger menu" );
+  auto l1menu = SG::makeHandle( m_L1MenuKey );
+  if( l1menu.isValid() ) {
+    for ( const TrigConf::L1Item & item:   *l1menu ) {
+      toCTPID[item.name()] = item.ctpId();
+    }
+  } else {
+    ATH_MSG_ERROR( "TrigConf::L1Menu does not exist" );
   }
   m_ctpToChain.clear();
-  auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id ) -> StatusCode {
+  auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id, bool warningOnly = false ) -> StatusCode {
     if ( toCTPID.find( itemName ) != toCTPID.end() ) {
       m_ctpToChain[ toCTPID[itemName] ].push_back( id );
       return StatusCode::SUCCESS;
     }
-    ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
+    if( warningOnly ) {
+       // this code should be removed after the L1 menu is migrated to the new json version
+       ATH_MSG_WARNING(itemName << " used to seed the chain " << id <<" not in the configuration ");
+       return StatusCode::SUCCESS;
+    } else {
+       ATH_MSG_ERROR(itemName << " used to seed the chain " << id <<" not in the configuration ");
+    }
     return StatusCode::FAILURE;
   };
 
@@ -61,7 +74,7 @@ StatusCode CTPUnpackingTool::start() {
       std::vector<std::string> items;
       boost::split(items, chain.l1item(), [](char c){return c == ',';});
       for ( const std::string& i: items ) {
-	ATH_CHECK( addIfItemExists( i, chainID ) );
+         ATH_CHECK( addIfItemExists( i, chainID, true ) );
       }
     } else { // regular chain
       ATH_CHECK( addIfItemExists( chain.l1item(), chainID ) );
@@ -80,20 +93,21 @@ StatusCode CTPUnpackingTool::start() {
 
 
 StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {
-  auto nTAVItems = Monitored::Scalar( "TAVItems", 0 );
+  auto nItems = Monitored::Scalar( "Items", 0 );
   auto nChains   = Monitored::Scalar( "Chains", 0 );
-  auto monitorit = Monitored::Group( m_monTool, nTAVItems, nChains );
-  auto tav = roib.cTPResult().TAV();
-  const size_t tavSize = tav.size();
+  auto monitorit = Monitored::Group( m_monTool, nItems, nChains );
 
-  for ( size_t wordCounter = 0; wordCounter < tavSize; ++wordCounter ) {
+  auto ctpbits = m_useTBPBit ? roib.cTPResult().TBP() : roib.cTPResult().TAV();
+  const size_t bitsSize = ctpbits.size();
+
+  for ( size_t wordCounter = 0; wordCounter < bitsSize; ++wordCounter ) {
     for ( size_t bitCounter = 0;  bitCounter < 32; ++bitCounter ) {
       const size_t ctpIndex = 32*wordCounter + bitCounter;
-      const bool decision = ( tav[wordCounter].roIWord() & ((uint32_t)1 << bitCounter) ) > 0;
+      const bool decision = ( ctpbits[wordCounter].roIWord() & ((uint32_t)1 << bitCounter) ) > 0;
 
       if ( decision == true or m_forceEnable ) {
 	if ( decision ) {
-	  nTAVItems = nTAVItems + 1;
+	  nItems = nItems + 1;
 	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains "
 			 << (m_forceEnable ? " due to the forceEnable flag" : " due to the seed"));
 	}
@@ -114,7 +128,7 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
   for ( auto chain: enabledChains ) {
     ATH_MSG_DEBUG( "Enabling chain: " << chain );
   }
-  if ( nTAVItems == 0 ) {
+  if ( nItems == 0 ) {
     ATH_MSG_ERROR( "All CTP bits were disabled, this event shoudl not have shown here" );
     return StatusCode::FAILURE;
   }

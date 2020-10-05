@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////
 //  L1TriggerTowerTool.cxx 
 ///////////////////////////////////////////////////////////////////////
-#include "TrigT1CaloTools/L1TriggerTowerTool.h"
+#include "L1TriggerTowerTool.h"
 
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -42,7 +42,7 @@
 #include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1DynamicPedestalProvider.h"
 
 #include "StoreGate/ReadHandle.h"

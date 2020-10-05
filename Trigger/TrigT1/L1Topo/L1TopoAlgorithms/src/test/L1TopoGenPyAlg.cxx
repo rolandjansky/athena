@@ -23,7 +23,7 @@ void generateCode(ofstream & f, const ConfigurableAlg* ca) {
       f << "'" << p.name() << "'";
    }
    f << "]" << endl;
-   f << "    def __init__(self, name, inputs, outputs, algoId):" << endl;
+   f << "    def __init__(self, name, inputs, outputs, algoId = -1):" << endl;
    f << "        super(" << cn << ", self).__init__(classtype='" << cn << "', name=name, inputs=inputs, outputs=outputs, algoId=algoId)" << endl;
    f << endl << endl;
 

@@ -18,7 +18,7 @@ def BunchCrossingCondAlgCfg(configFlags):
         result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList"))
     else: #data case
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
-        result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList'))
+        result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList',tag='HEAD'))
 
 
     alg = BunchCrossingCondAlg(Run1=run1,
@@ -39,7 +39,7 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
     ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
     ConfigFlags.Input.isMC=False
@@ -49,7 +49,7 @@ if __name__=="__main__":
 
     
 
-    result=MainServicesSerialCfg()
+    result=MainServicesCfg(ConfigFlags)
 
 
     McEventSelector=CompFactory.McEventSelector

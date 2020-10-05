@@ -72,9 +72,6 @@ else:
 
 theApp.Dlls += ["LArCalibUtils"]
 
-#AthenaSealSvc.DictNames += [ "LArRawChannelCnvDict"  ]
-
-
 #--------------------------------------------------------------
 # initialize Athena, then go to first event 
 #--------------------------------------------------------------

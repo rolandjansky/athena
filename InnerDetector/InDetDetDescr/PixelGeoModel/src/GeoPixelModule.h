@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELMODULE_H
@@ -12,9 +12,11 @@ class GeoPixelSiCrystal;
 class GeoPixelModule : public GeoVPixelFactory {
 
  public:
-  GeoPixelModule(GeoPixelSiCrystal &theSensor);
+  GeoPixelModule(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelSiCrystal &theSensor);
   virtual ~GeoPixelModule();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double ThicknessN();
   double ThicknessN_noSvc();

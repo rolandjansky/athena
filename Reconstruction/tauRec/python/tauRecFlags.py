@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -52,6 +52,12 @@ class tauRecToolsCVMFSPath(JobProperty):
     allowedTypes=['string']
     StoredValue="tauRecTools/00-02-00/"
 
+class doTJVA(JobProperty):
+    """ switch of TJVA """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 #deprecated
 class TauDiscriminantCVMFSPath(JobProperty):
     """ path to cvmfs file location
@@ -88,7 +94,21 @@ class tauRecRNNTrackClassificationConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue=["TauTrackRNN_offline_BLSTM_v1.json"]
+    StoredValue=["TauTrackRNN_LSTM_L40_Sum_v0.json"]
+
+class tauRecDecayModeNNClassifierConfig(JobProperty):
+    """Config file for TauDecayModeNNClassifier
+    """
+    statusOn=True
+    allowedTypes=['string']
+    StoredValue='NNDecayModeWeights-20200625.json'
+
+class tauRecSeedMinPt(JobProperty):
+    """ minimum jet seed pt
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=10.*Units.GeV
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of jet seed
@@ -141,11 +161,10 @@ class doPanTau(JobProperty):
     StoredValue=True
 
 class doPi0(JobProperty):
-    """ switch on Pi0 Finder
-    """
+    """ switch of Pi0 Finder """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class pi0EtCuts(JobProperty):
     """ Set |eta| dependent Et requirement for pi0 tag
@@ -190,10 +209,10 @@ class useOldVertexFitterAPI(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class useShowerSubClusters(JobProperty):
+class useSubtractedCluster(JobProperty):
     """ switch on use of shower subtracted clusters
     """
-    statusOn=False
+    statusOn=True
     allowedTypes=['bool']
     StoredValue=False
 
@@ -205,7 +224,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useShowerSubClusters]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useSubtractedCluster]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

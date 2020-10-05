@@ -96,6 +96,7 @@ namespace Analysis {
     const xAOD::TrackParticleContainer* tracks = trackContainerHandle.get();
     ATH_MSG_DEBUG( "Retrieved " << tracks->size() << " input tracks..." );
 
+
     // ========================================================================================================================== 
     //    ** Make Decorators (these are outputs)
     // ========================================================================================================================== 
@@ -122,6 +123,10 @@ namespace Analysis {
 	decor_z0(*track) = ip->IPz0SinTheta;
         decor_d0_sigma(*track) = ip->sigmad0;
         decor_z0_sigma(*track) = ip->sigmaz0SinTheta;
+        ATH_MSG_DEBUG( " d0= " << ip->IPd0 <<
+		       " z0SinTheta= " << ip->IPz0SinTheta <<
+		       " sigmad0= " << ip->sigmad0 <<
+		       " sigmaz0SinTheta= " << ip->sigmaz0SinTheta );
       } else {
         ATH_MSG_WARNING( "failed to estimate track impact parameter, using dummy values" );
         decor_d0(*track) = NAN;
@@ -140,6 +145,12 @@ namespace Analysis {
 
 	const Amg::Vector3D position = track_pos - vertex_pos;
 	const Amg::Vector3D momentum = extrap_pars->momentum();
+
+	//Test output for cross checking output with stored values
+	ATH_MSG_DEBUG( "vertex_pos (x,y,z)= (" << vertex_pos.x() << ", " << vertex_pos.y() << ", " << vertex_pos.z() << ")");
+	ATH_MSG_DEBUG( "track_pos (x,y,z)= (" << track_pos.x() << ", " << track_pos.y() << ", " << track_pos.z() << ")");
+	ATH_MSG_DEBUG( "track_displacement (x,y,z)= (" << position.x() << ", " << position.y() << ", " << position.z() << ")");
+	ATH_MSG_DEBUG( "track_momentum (x,y,z)= (" << momentum.x() << ", " << momentum.y() << ", " << momentum.z() << ")");
 
 	std::vector< float > out_vec_pos( position.data(), position.data() + position.size() );
 	std::vector< float > out_vec_mom( momentum.data(), momentum.data() + momentum.size() );
@@ -177,4 +188,5 @@ namespace Analysis {
   }
 
 }
+
 

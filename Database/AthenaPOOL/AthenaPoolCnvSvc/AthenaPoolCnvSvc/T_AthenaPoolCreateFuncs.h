@@ -29,8 +29,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include <memory>
 #include <type_traits>
-class IdentifiableContainerBase;
 
+namespace EventContainers{
+  class IdentifiableContainerBase;
+}
 
 namespace AthenaPoolCnvSvc {
 
@@ -124,7 +126,7 @@ createTransient (TPCNV& cnv,
                  MsgStream& log)
 {
   typedef typename TPCNV::Trans_t Trans_t;
-  if constexpr(std::is_base_of< IdentifiableContainerBase, Trans_t>::value &&
+  if constexpr(std::is_base_of< EventContainers::IdentifiableContainerBase, Trans_t>::value &&
                !std::is_default_constructible<Trans_t>::value)
   {
     log << "IdentifiableContainerBase is not compatible with createTransient" << endmsg;

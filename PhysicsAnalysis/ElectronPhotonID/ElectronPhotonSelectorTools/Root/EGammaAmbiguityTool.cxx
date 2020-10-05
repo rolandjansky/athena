@@ -30,7 +30,7 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 
 #define CHECK_HITS( EXP )				\
-  if (!EXP)						\
+  if (!(EXP))						\
     {							\
       ATH_MSG_WARNING("Failed \"" << #EXP << "\"" );	\
       return false;					\
@@ -48,8 +48,10 @@ EGammaAmbiguityTool::EGammaAmbiguityTool(const std::string& myname) :
   declareProperty("maxEoverPCut", m_maxEoverPCut = 10,"Maximum EoverP , more that this is ambiguous");
   declareProperty("minPCut",      m_minPtCut = 2000 ,  "Minimum Pt, less than that is ambiguous");
   declareProperty("maxDeltaR_innermost",      m_maxDeltaR_innermost = 40 ,  "Maximum value for Rconv - RfirstHit for Si+Si conversions where both tracks have innermost hits");
+  declareProperty("noVertexNoInnermostAsAmb", m_noVertexNoInnermostAsAmb = true, 
+		  "If true classify as ambiguous when there is no vertex and no innermost Hits. "
+		  "If false classify no vertex as for sure not photon");
   declareProperty("AcceptAmbiguous", m_acceptAmbiguous = true,"When used as a selector accept the ambiguous as default");
-
 }
 
 
@@ -171,18 +173,37 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   }
 
   //Electron ==> Surely not Photon
+  // - No vertex Matched (and trk has "innermost pixel hits" when m_noVertexNoInnermostAsAmb is true, 
+  //   othewise ambiguous)
   // - Track with at least the minimum Si and Pixel hits (previous selection for photons/ambiguous)
   // - And has E/P < 10 and Pt > 2.0 GeV (previous for ambiguous)
-  // - No vertex Matched
   // - Or if a vertex exists and:
   //   * is not Si+Si 
   //   * is Si+Si but only 1 trk has "innermost pixel hits"
   //   * is Si+Si and both tracks have "innermost pixel hits" but  
   //     Rconv - RfirstHit > maxDeltaR_innermost 
   // In this case we do not want this to be in Photons
-  
-  if ( !vx|| 
-       (trkHasInnermostHit && (!vxDoubleSi || nTrkVxWithInnermostHit == 1 || !passDeltaR_innermost(*vx))) ){
+
+  if (!vx) {
+      if (trkHasInnermostHit || !m_noVertexNoInnermostAsAmb) {
+	  ATH_MSG_DEBUG("Returning Electron");
+	  type=xAOD::AmbiguityTool::electron;
+	  return xAOD::EgammaParameters::AuthorElectron;
+      }
+      else {
+	  // the true photons falling here are classified as unconverted photons
+	  // but it may happen that they are late single-track conversions
+	  // very few true electrons are falling here, since there is no innermost hits
+	  ATH_MSG_DEBUG("Returning Ambiguous due to no conv vertex and track with no innermost hits");
+	  type=xAOD::AmbiguityTool::ambiguousNoInnermost; // TODO: create new type.
+	  // NOTE: now there is no distinction between TrackEOverPBetterTanVertexEoverP, ...
+      	  return xAOD::EgammaParameters::AuthorAmbiguous;
+      }
+  }
+
+  // here we have a conv vertex
+
+  if (trkHasInnermostHit && (!vxDoubleSi || nTrkVxWithInnermostHit == 1 || !passDeltaR_innermost(*vx))) {
     ATH_MSG_DEBUG("Returning Electron");
     type=xAOD::AmbiguityTool::electron;
     return xAOD::EgammaParameters::AuthorElectron;

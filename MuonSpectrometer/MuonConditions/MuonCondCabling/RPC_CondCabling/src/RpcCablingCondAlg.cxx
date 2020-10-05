@@ -8,7 +8,7 @@ RpcCablingCondAlg::RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcL
   AthAlgorithm(name, pSvcLocator),
   m_ConfMapPString(nullptr),
   m_MaxType(0),
-  m_SectorMap{0},
+  m_SectorMap(),
   m_Version(""),
   m_condSvc("CondSvc",name)
 {
@@ -521,6 +521,9 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     Identifier id;
     pRDOindex->pad_identifier( id );
 
+    //build the offline_id vector
+    writeCdo->m_offline_id[sub_id_index][sec_id][pad_id] = id;
+
     // build the map
     std::pair < RpcCablingCondData::OfflineOnlineMap::iterator, bool> ins = writeCdo->m_RDOmap.insert( RpcCablingCondData::OfflineOnlineMap::value_type(id,pRDOindex));
     ATH_MSG_DEBUG("OfflineOnlineMap new entry: value  "<< m_idHelperSvc ->rpcIdHelper().show_to_string(id) << 
@@ -529,6 +532,13 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
       ATH_MSG_ERROR("RpcCablingCondData::OfflineOnlineMap is false for value "<< m_idHelperSvc->rpcIdHelper().show_to_string(id) << " and hash of the RDOindex (key) = " << pRDOindex->hash());
       return StatusCode::FAILURE;
     }
+
+    //build the ROB->RDO map
+    std::pair<std::set<IdentifierHash>::iterator, bool> insert_ROB_RDO_returnVal = writeCdo->m_ROB_RDO_map[ROB_ID].insert(IdentifierHash(pRDOindex->hash()));
+    if (insert_ROB_RDO_returnVal.second)
+      ATH_MSG_DEBUG("A new RDO HashId = " << pRDOindex->hash() << " registered for ROB Id = " << ROB_ID);
+    else
+      ATH_MSG_VERBOSE("The RDO HashId = " << pRDOindex->hash() << " was already registered for ROB Id = " << ROB_ID);
 
     //build the PRD->RDO and PRD->ROB maps
     ATH_MSG_VERBOSE("Looking for PRDs corresponding to this RDO");
@@ -607,7 +617,6 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     // -----  Initialization of Pad configuration ------ //
     if (m_ApplyFeetPadThresholds) {
       // if using COOL check the existence of a PAD not existing in run-1 cabling
-      Identifier offline_id;
       // if (!giveOffflineID(0,21,7,offline_id)&&m_RPCTriggerRoadsfromCool) {
       //   ATH_MSG_INFO("RUN-1 like cabling, not applying FeetPadThresholds");
       // }else{

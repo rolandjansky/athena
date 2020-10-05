@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatBuilderToolSLHC.h"
@@ -18,6 +18,8 @@
 #include "InDetServMatGeoModel/ServicesTracker.h"
 #include "InDetServMatGeoModel/ServicesTrackerBuilder.h"
 #include "InDetServMatGeoModel/ServiceVolume.h"
+
+#include "CxxUtils/checker_macros.h"
 
 //================ Constructor =================================================
 InDetServMatBuilderToolSLHC::InDetServMatBuilderToolSLHC(const std::string& t,
@@ -86,6 +88,8 @@ StatusCode InDetServMatBuilderToolSLHC::initialize()
   m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
 
+  build();
+
   msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -97,9 +101,8 @@ StatusCode InDetServMatBuilderToolSLHC::finalize()
   return sc;
 }
 	
-const std::vector<const InDetDD::ServiceVolume *> & InDetServMatBuilderToolSLHC::getServices()
+const std::vector<const InDetDD::ServiceVolume *> & InDetServMatBuilderToolSLHC::getServices() const
 {
-  if (!m_init) build();
   return m_services;
 }
 
@@ -158,7 +161,7 @@ void InDetServMatBuilderToolSLHC::build()
   fixMissingMaterials();
 
   typedef  std::vector<ServiceVolume*>::const_iterator iter;
-  for (iter i=tracker->serviceVolumes().begin(); i!=tracker->serviceVolumes().end(); i++) {
+  for (iter i=tracker->serviceVolumes().begin(); i!=tracker->serviceVolumes().end(); ++i) {
     /*
     msg(MSG::INFO) << "Calling ServiceVolume->dump() for the " << n++ << "th time" << endmsg;
     (**i).dump();  // for DEBUG only
@@ -216,7 +219,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
   param->setZmax(vol.zMax());
   param->setZsymm(true);
   for (std::vector<ServiceMaterial>::const_iterator ism=vol.materials().begin(); ism!=vol.materials().end(); ++ism) {
-    for ( ServiceMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ient++) {
+    for ( ServiceMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ++ient) {
       /*
       msg(MSG::INFO) << "Inside components loop, comp = " << ient->name 
 		     << " number " << ient->number 

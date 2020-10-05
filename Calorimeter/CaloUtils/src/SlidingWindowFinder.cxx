@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -174,7 +174,7 @@ void SlidingWindowFinder::init_et()
       // If this tower is missing, keep going until we find one
       // (or we reach the end).  Be sure to keep the jphi counter
       // up-to-date.
-      while (tower == 0 && et < et_end) {
+      while (tower == nullptr && et < et_end) {
         *et++ = 0;
         if (--jphi == 0) jphi = mphi;
         tower = reinterpret_cast<const CaloTowerEEtaGetter*> (*tower_it);
@@ -436,7 +436,7 @@ bool SlidingWindowFinder::nextcluster()
         if (j>matrixm_nphi) j=j-matrixm_nphi ;
 		 
         const CaloTower* tower = m_towerColl->getTower(i,j);
-        if (0 != tower) 
+        if (nullptr != tower) 
         {
           CaloTower::cell_iterator it1 = tower->cell_begin();
           CaloTower::cell_iterator it2 = tower->cell_end();

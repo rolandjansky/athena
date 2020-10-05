@@ -36,11 +36,15 @@
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
-#include "TrigInDetTrackFitter/TrigInDetTrackFitter.h"
+#include "TrigInDetTrackFitter.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PixelID.h" 
+#include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
@@ -50,20 +54,18 @@
 
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t, 
 					   const std::string& n,
 					   const IInterface*  p ): AthAlgTool(t,n,p),
-								   m_MagFieldSvc("AtlasFieldSvc",this->name()),
 								   m_trackMaker("TrigDkfTrackMakerTool")
 {
   declareInterface< ITrigInDetTrackFitter >( this );
   
-  declareProperty( "AthenaFieldService", m_MagFieldSvc, "AlasFieldService");
   declareProperty( "doMultScattering", m_doMultScatt = true);
   declareProperty( "doBremmCorrection", m_doBremm=false);  
   declareProperty( "Chi2Cut", m_DChi2 = 1000.0);
-  declareProperty( "OfflineClusters", m_offlineClusters = true);
   declareProperty( "correctClusterPos", m_correctClusterPos = false);
   declareProperty( "ROTcreator", m_ROTcreator, "ROTcreatorTool" );
   m_nTracksTotal = 0;
@@ -74,12 +76,17 @@ TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t,
 
 StatusCode TrigInDetTrackFitter::initialize()
 {
-	ATH_CHECK(m_MagFieldSvc.retrieve());
   ATH_CHECK(m_trackMaker.retrieve());
   if (m_correctClusterPos) {
     ATH_CHECK(m_ROTcreator.retrieve());
   }
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
+  ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID")); 
+  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));  
+
   return StatusCode::SUCCESS;
+
 }
 
 StatusCode TrigInDetTrackFitter::finalize()
@@ -95,10 +102,10 @@ StatusCode TrigInDetTrackFitter::finalize()
   return StatusCode::SUCCESS;
 }
 
-void TrigInDetTrackFitter::getMagneticField(double r[3],double* B) const {
+void TrigInDetTrackFitter::getMagneticField(double r[3],double* B, MagField::AtlasFieldCache& fieldCache) const {
   B[0]=0.0;B[1]=0.0;B[2]=0.0;
 	double field[3];
-	m_MagFieldSvc->getField(r,field);//field is returned in kT
+	fieldCache.getField(r,field);//field is returned in kT
 	for(int i=0;i<3;i++) B[i]=field[i]/Gaudi::Units::kilogauss;//convert to kG
 }
 
@@ -126,7 +133,8 @@ void TrigInDetTrackFitter::correctScale(Trk::TrkTrackState* pTS) const {
 
 Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS, 
                                                       Trk::TrkPlanarSurface* pSB,
-                                                      Trk::TrkPlanarSurface* pSE) const
+                                                      Trk::TrkPlanarSurface* pSE,
+                                                      MagField::AtlasFieldCache& fieldCache) const
 {
   const double C=0.02999975/1000.0;//using GeV internally 
   const double minStep=30.0;
@@ -154,7 +162,6 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     int nStep,nStepMax;
     double sl,ds,path=0.0;
 
-    //m_numericalJacobian(pTS,pSB,pSE,J);
     double sint,cost,sinf,cosf;
     sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
     sinf=sin(pTS->getTrackState(2));cost=cos(pTS->getTrackState(3));
@@ -193,7 +200,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
   
-    getMagneticField(gP,gB);
+    getMagneticField(gP,gB, fieldCache);
 
     for(i=0;i<3;i++) gBi[i]=gB[i];
     
@@ -248,7 +255,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     V[1]=gV[1]+Av*DVy;
     V[2]=gV[2]+Av*DVz;
     
-    getMagneticField(P,gB);
+    getMagneticField(P,gB,fieldCache);
   
     for(i=0;i<3;i++) gBf[i]=gB[i];
     for(i=0;i<3;i++)
@@ -551,18 +558,24 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
   return pTE;
 }
 
-void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollection& fittedTracks, const Trk::ParticleHypothesis& matEffects) const
+void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollection& fittedTracks, const EventContext& ctx, const Trk::ParticleHypothesis& matEffects) const
 {
+  MagField::AtlasFieldCache fieldCache;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+  fieldCondObj->getInitializedCache (fieldCache);
   fittedTracks.reserve(inputTracks.size());
   for(auto trIt = inputTracks.begin(); trIt != inputTracks.end(); ++trIt) {
-		Trk::Track* fittedTrack = fitTrack(**trIt, matEffects);
+		Trk::Track* fittedTrack = fitTrack(**trIt, fieldCache, matEffects);
 		if (fittedTrack!=nullptr) {
 			fittedTracks.push_back(fittedTrack);
 		}
 	}
 }
 
-Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Trk::ParticleHypothesis& matEffects) const {
+Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, MagField::AtlasFieldCache& fieldCache, const Trk::ParticleHypothesis& matEffects) const {
 
 	const Trk::TrackParameters* trackPars = recoTrack.perigeeParameters();
 	if(trackPars==nullptr) {
@@ -628,7 +641,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 	Trk::TrkPlanarSurface* pSE=nullptr;
 	for(auto pnIt = vpTrkNodes.begin(); pnIt!=vpTrkNodes.end(); ++pnIt) {
 		pSE=(*pnIt)->getSurface();
-		Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
+		Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE,fieldCache);
 
 		pSB=pSE;
 		if(pNS!=nullptr) {
@@ -822,4 +835,193 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
   delete pTP;
   pTSS = new Trk::TrackStateOnSurface(pRIO, 0, pFQ, 0, typePattern);
   return pTSS;
+}
+
+StatusCode TrigInDetTrackFitter::getUnbiasedResiduals(const Trk::Track& pT, 
+    std::vector<TrigL2HitResidual>& vResid, const EventContext& ctx) const {
+
+	const Trk::TrackParameters* trackPars = pT.perigeeParameters();
+  if(trackPars==nullptr) {
+    ATH_MSG_WARNING("Fit Failed -- TrkTrack has no parameters");
+    return StatusCode::FAILURE;
+  }
+
+  MagField::AtlasFieldCache fieldCache;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+  fieldCondObj->getInitializedCache (fieldCache);
+  std::vector<Trk::TrkBaseNode*> vpTrkNodes;
+  std::vector<Trk::TrkTrackState*> vpTrackStates;
+  vResid.clear();
+  double trk_theta = trackPars->parameters()[Trk::theta];
+  double trk_qOverP = trackPars->parameters()[Trk::qOverP];
+  double Pt = sin(trk_theta)/trk_qOverP;
+  if(fabs(Pt)<100.0)
+  {
+    ATH_MSG_DEBUG("TrigL2ResidualCalculator failed -- Estimated Pt is too low "<<Pt);
+    return StatusCode::FAILURE;
+  }
+
+  // 1. Create filtering nodes
+
+  bool trackResult = m_trackMaker->createDkfTrack(pT,vpTrkNodes, m_DChi2);
+  if(!trackResult)
+  {
+    ATH_MSG_DEBUG("TrigDkfTrackMaker failed");
+    return StatusCode::FAILURE;
+  }
+
+  int nNodeIndex=-1;
+  bool OK=true;
+  std::vector<Trk::TrkBaseNode*>::iterator pnIt,pnEnd(vpTrkNodes.end());
+
+  for(std::vector<Trk::TrkBaseNode*>::iterator pNodeIt=vpTrkNodes.begin();pNodeIt!=vpTrkNodes.end();
+      ++pNodeIt)
+  {
+    nNodeIndex++;
+    Trk::TrkBaseNode* pMaskedNode=(*pNodeIt);
+    Trk::TrkTrackState* pMaskedState=NULL;
+
+    // 2. Create initial track state:
+
+    double Rk[5];
+    Rk[0] = trackPars->parameters()[Trk::d0]; 
+    Rk[1] = trackPars->parameters()[Trk::z0]; 
+    Rk[2] = trackPars->parameters()[Trk::phi0]; 
+    if(Rk[2]>M_PI) Rk[2]-=2*M_PI; 
+    if(Rk[2]<-M_PI) Rk[2]+=2*M_PI;
+    trk_theta = trackPars->parameters()[Trk::theta];
+    Rk[3] = trk_theta;
+    Rk[4] = 1000.0*trackPars->parameters()[Trk::qOverP];//MeV->GeV
+    //No need to correct scale back - not returning track
+
+    // 3. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
+
+    Trk::TrkTrackState* pTS = new Trk::TrkTrackState(Rk);
+    double Gk[5][5] = {{100.0,     0, 0,    0,    0},
+                       {0,     100.0, 0,    0,    0},
+                       {0,         0, 0.01, 0,    0},
+                       {0,         0, 0,    0.01, 0},
+                       {0,         0, 0,    0,   0.1}};
+    pTS->setTrackCovariance(Gk);
+    if(m_doMultScatt)  
+      pTS->setScatteringMode(1);
+    if(m_doBremm)
+      pTS->setScatteringMode(2);
+    vpTrackStates.push_back(pTS);
+
+    ATH_MSG_DEBUG("Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
+        <<" theta="<<Rk[3]<<" Q="<<Rk[4]<<" pT="<<sin(Rk[3])/Rk[4]);
+
+    OK=true;
+    Trk::TrkPlanarSurface *pSB=NULL,*pSE;
+
+    for(pnIt=vpTrkNodes.begin();pnIt!=pnEnd;++pnIt)
+    {
+      pSE=(*pnIt)->getSurface();
+      Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE,fieldCache);
+
+      pSB=pSE;
+      if(pNS!=NULL)
+      {
+        vpTrackStates.push_back(pNS);
+
+        (*pnIt)->validateMeasurement(pNS);
+        ATH_MSG_DEBUG("dChi2="<<(*pnIt)->getChi2());
+        if((*pnIt)!=pMaskedNode)
+        {
+          (*pnIt)->updateTrackState(pNS);
+        }
+        else
+        {
+          pMaskedState=pNS;
+        }
+        pTS=pNS;
+        Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
+        if(fabs(Pt)<0.2)
+        {
+          ATH_MSG_DEBUG("Estimated Pt is too low "<<Pt<<" - skipping fit");
+          OK=false;break;
+        }
+      }
+      else
+      {
+        OK=false;break;
+      }
+    }
+    if(OK)
+    {
+      std::vector<Trk::TrkTrackState*>::reverse_iterator ptsrIt(vpTrackStates.rbegin()),
+        ptsrEnd(vpTrackStates.rend());
+
+      for(;ptsrIt!=ptsrEnd;++ptsrIt)
+      {
+        (*ptsrIt)->runSmoother();
+      }
+
+      pMaskedNode->validateMeasurement(pMaskedState);
+
+      double r[2],V[2][2];
+
+      int nSize=pMaskedNode->getResiduals(r);
+      nSize=pMaskedNode->getInverseResidualVariance(V);
+      const Trk::PrepRawData* pPRD = pMaskedNode->getPrepRawData();
+
+      Identifier id = pPRD->identify();
+
+      Region region = Region::Undefined;
+      if(m_idHelper->is_pixel(id))
+      {
+        region=(m_pixelId->is_barrel(id)) ? Region::PixBarrel: Region::PixEndcap;
+        if (m_pixelId->is_blayer(id)) {
+          region = Region::IBL;
+        }
+      }
+      if(m_idHelper->is_sct(id))
+      {
+        region=(m_sctId->is_barrel(id)) ? Region::SctBarrel : Region::SctEndcap;
+      }
+      if(nSize==1) {
+        if(V[0][0]>0.0) {
+          vResid.push_back(TrigL2HitResidual(id,region,r[0],r[0]*sqrt(V[0][0])));
+        }
+        else {
+          OK=false;
+          break;
+        }
+      }
+      else {
+        if((V[0][0]>0.0) && (V[1][1]>0.0)) {
+          vResid.push_back(TrigL2HitResidual(id,region,r[0],r[0]*sqrt(V[0][0]),
+                r[1],r[1]*sqrt(V[1][1])));
+        }
+        else {
+          OK=false;
+          break;
+        }
+      }
+    }
+    else
+    {
+      ATH_MSG_DEBUG("Forward Kalman filter: extrapolation failure ");
+      vResid.clear();
+    }
+    for(std::vector<Trk::TrkTrackState*>::iterator ptsIt=vpTrackStates.begin();
+        ptsIt!=vpTrackStates.end();++ptsIt) delete (*ptsIt);
+    vpTrackStates.clear();
+    if(!OK) break;
+  }
+  pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
+  for(;pnIt!=pnEnd;++pnIt) 
+  {
+    delete((*pnIt)->getSurface());
+    delete (*pnIt);
+  }
+  vpTrkNodes.clear();
+
+  if(OK) return StatusCode::SUCCESS;
+  else return StatusCode::FAILURE;
+
 }

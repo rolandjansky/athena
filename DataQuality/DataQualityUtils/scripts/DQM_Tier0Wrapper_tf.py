@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################
 ##
@@ -45,6 +45,8 @@
 ##                      configuration file paths relative to basename
 ##     12) 'productionMode': string ('True'/'False', default: 'True')
 ##         ('True': run as if on Tier-0. 'False': Assume testing.)
+##     13) 'servers': string with comma-separated server names to override normal config
+##         (e.g. 'aiatlas009.cern.ch,aiatlas039.cern.ch,aiatlas016.cern.ch')
 ##
 ## (C) N. Boelaert, L. Goossens, A. Nairz, P. Onyisi, S. Schaetzel, M. Wilson 
 ##     (April 2008 - July 2010)
@@ -55,7 +57,14 @@
 ##    J. Guenther (February 2017)
 #########################################################################
 
-import sys, string, commands, os.path, os, json, time, pprint, xmlrpclib, traceback
+from __future__ import print_function
+import sys, os.path, os, json, time, pprint, traceback
+from six.moves import xmlrpc_client as xmlrpclib
+import six
+if six.PY2:
+  from commands import getstatusoutput
+else:
+  from subprocess import getstatusoutput
 #sami
 import hashlib
 
@@ -75,7 +84,7 @@ def getSubFileMap(fname, nevts=0) :
     return map
 
 def publish_success_to_mq(run, ptag, stream, incr, ami, procpass, hcfg, isprod):
-  import stomp, json, os, ssl
+  import stomp, json, ssl
   from DataQualityUtils import stompconfig
   dest='/topic/atlas.dqm.progress'
   conn=stomp.Connection([('atlas-mb.cern.ch', 61013)], **stompconfig.config())
@@ -115,25 +124,25 @@ def genmd5sum(filename):
         md5summer.update(fs)
     finally:
         infil.close()
-  print "md5 sum of the \"%s\" is %s"%(filename,md5summer.hexdigest())
+  print("md5 sum of the \"%s\" is %s"%(filename,md5summer.hexdigest()))
   return
       
 def dq_combined_trf(jsonfile, outmap):
 
-  print "\n##################################################################"
-  print   "## STEP 1: creating file with list of root files ..."
-  print   "##################################################################\n"
+  print("\n##################################################################")
+  print("## STEP 1: creating file with list of root files ...")
+  print("##################################################################\n")
   
   nfiles=0
 
   try:
     # extract parameters from json file
-    print "Using json file ", jsonfile, " for input parameters"
+    print("Using json file ", jsonfile, " for input parameters")
     f = open(jsonfile, 'r')
     parmap = json.load(f)
     f.close()
 
-    print "\nFull Tier-0 run options:\n"
+    print("\nFull Tier-0 run options:\n")
     pprint.pprint(parmap)
 
     inputfilelist = parmap.get('inputHistFiles', [])
@@ -157,7 +166,7 @@ def dq_combined_trf(jsonfile, outmap):
   nevts = 0
 
   try:
-    if isinstance(inputfilelist[0], unicode) :  
+    if isinstance(inputfilelist[0], six.text_type) :  
       histtmpdsname = (inputfilelist[0]).split('#')[0]
       for val in inputfilelist :
         histtmpflist.append(val.split('#')[1])
@@ -169,7 +178,7 @@ def dq_combined_trf(jsonfile, outmap):
         nevt = fdict.get('events', 0)
         if nevt is None:
           nevt=0
-          print "WARNING Can't get number of events from input json file"
+          print("WARNING Can't get number of events from input json file")
         nevts+=nevt
   
     f = open('hist_merge.list', 'w')
@@ -180,9 +189,9 @@ def dq_combined_trf(jsonfile, outmap):
     f.close()
 
     cmd = "cat hist_merge.list"
-    (s,o) = commands.getstatusoutput(cmd)
-    print "\nContents of file hist_merge.list:\n"
-    print o
+    (s,o) = getstatusoutput(cmd)
+    print("\nContents of file hist_merge.list:\n")
+    print(o)
   except:
     outmap['exitCode'] = 103
     outmap['exitAcronym'] = 'TRF_INPUTINFO'
@@ -191,9 +200,9 @@ def dq_combined_trf(jsonfile, outmap):
     return
 
   try:
-    print "\n##################################################################"
-    print   "## STEP 2: determining job parameters..."
-    print   "##################################################################\n"
+    print("\n##################################################################")
+    print("## STEP 2: determining job parameters...")
+    print("##################################################################\n")
 
     # output file
     histdsname = (parmap['outputHistFile']).split('#')[0]
@@ -249,7 +258,7 @@ def dq_combined_trf(jsonfile, outmap):
     dqproject = parmap.get('projectTag', dqproject)
     
     # run number
-    if parmap.has_key('runNumber') : 
+    if 'runNumber' in parmap : 
       runnr = parmap['runNumber']
     else :
       try :
@@ -258,7 +267,7 @@ def dq_combined_trf(jsonfile, outmap):
         runnr = 1234567890
 
     # stream name  
-    if parmap.has_key('streamName') : 
+    if 'streamName' in parmap : 
       stream = parmap['streamName']
     else :
       try :
@@ -268,7 +277,7 @@ def dq_combined_trf(jsonfile, outmap):
     
     # processing pass number  
     MAX_XMLRPC_TRIES = 5 
-    if parmap.has_key('procNumber') : 
+    if 'procNumber' in parmap : 
       procnumber = parmap['procNumber']
     else :
       n_xmlrpc_tries = 1
@@ -279,19 +288,23 @@ def dq_combined_trf(jsonfile, outmap):
           procnumber = xmlrpcserver.get_next_proc_pass(runnr, stream, 'tier0')
           break 
         except :
-          print 'Web service connection failed, attempt', n_xmlrpc_tries, 'of', MAX_XMLRPC_TRIES
+          print('Web service connection failed, attempt', n_xmlrpc_tries, 'of', MAX_XMLRPC_TRIES)
           n_xmlrpc_tries += 1
           if n_xmlrpc_tries <= MAX_XMLRPC_TRIES:
             time.sleep(20*2**n_xmlrpc_tries)
 
-    print "Job parameters:\n"
-    print "  Run number:      ", runnr
-    print "  Stream name:     ", stream
-    print "  Processing pass: ", procnumber
-    print "  Incremental mode:", incr
-    print "  Post-processing: ", postproc
-    print "  COOL uploads:    ", allowCOOLUpload
-    print "  Production mode: ", productionMode
+    # data servers
+    if 'servers' in parmap and isinstance(parmap['servers'], str):
+      os.environ['DQC_SERVERS'] = parmap['servers']
+
+    print("Job parameters:\n")
+    print("  Run number:      ", runnr)
+    print("  Stream name:     ", stream)
+    print("  Processing pass: ", procnumber)
+    print("  Incremental mode:", incr)
+    print("  Post-processing: ", postproc)
+    print("  COOL uploads:    ", allowCOOLUpload)
+    print("  Production mode: ", productionMode)
 
   except:
     outmap['exitCode'] = 104
@@ -301,17 +314,17 @@ def dq_combined_trf(jsonfile, outmap):
     return
 
   try:
-    print "\n##################################################################"
-    print   "## STEP 3: running histogram merging procedure ..."
-    print   "##################################################################\n"
+    print("\n##################################################################")
+    print("## STEP 3: running histogram merging procedure ...")
+    print("##################################################################\n")
 
     # environment setting
     os.environ['DQPRODUCTION'] = '1' if productionMode == 'True' else '0'
-    print "Setting env variable DQPRODUCTION to %s\n" % os.environ['DQPRODUCTION']
+    print("Setting env variable DQPRODUCTION to %s\n" % os.environ['DQPRODUCTION'])
     os.environ['DQ_STREAM'] = stream
-    print "Setting env variable DQ_STREAM to %s\n" % os.environ['DQ_STREAM']
+    print("Setting env variable DQ_STREAM to %s\n" % os.environ['DQ_STREAM'])
     os.environ['COOLUPLOADS'] = '1' if allowCOOLUpload == 'True' and productionMode == 'True' else '0'
-    print "Setting env variable COOLUPLOADS to %s\n" % os.environ['COOLUPLOADS']
+    print("Setting env variable COOLUPLOADS to %s\n" % os.environ['COOLUPLOADS'])
 
     if postproc == 'True' :
       if incr == 'True':
@@ -321,27 +334,27 @@ def dq_combined_trf(jsonfile, outmap):
     else :  
       cmd = "python -u `which DQHistogramMerge.py` hist_merge.list %s 0 0 %d %d"    % (histfile,histMergeCompressionLevel,histMergeDebugLevel)
     
-    print "Histogram merging command:\n"
-    print cmd
-    print "\n##################################################################\n"
+    print("Histogram merging command:\n")
+    print(cmd)
+    print("\n##################################################################\n")
     
-    print "## ... logfile from DQHistogramMerge.py: "
-    print "--------------------------------------------------------------------------------"
+    print("## ... logfile from DQHistogramMerge.py: ")
+    print("--------------------------------------------------------------------------------")
     tstart = time.time()
     # execute command
     retcode1 = os.system(cmd)
-    print "--------------------------------------------------------------------------------"
+    print("--------------------------------------------------------------------------------")
     t1 = time.time()
     dt1 = int(t1 - tstart)
     
-    print "\n## DQHistogramMerge.py finished with retcode = %s" % retcode1
-    print   "## ... elapsed time: ", dt1, " sec"
+    print("\n## DQHistogramMerge.py finished with retcode = %s" % retcode1)
+    print("## ... elapsed time: ", dt1, " sec")
 
     if retcode1 != 0 :
       outmap['exitCode'] = retcode1
       outmap['exitAcronym'] = 'TRF_DQMHISTMERGE_EXE'
       outmap['exitMsg'] = 'ERROR: DQHistogramMerge.py execution problem! (STEP 3).'
-      print "ERROR: DQHistogramMerge.py execution problem!"
+      print("ERROR: DQHistogramMerge.py execution problem!")
       retcode = retcode1
       txt = 'DQHistogramMerge.py execution problem'
       try:
@@ -354,38 +367,38 @@ def dq_combined_trf(jsonfile, outmap):
         genmd5sum(histfile)
         DQResFile="DQResourceUtilization.txt"
         if os.path.exists(DQResFile):
-          print "dumping resource utilization log"
+          print("dumping resource utilization log")
           with open(DQResFile) as resfile:
             for resline in resfile:
-              print resline,
+              print(resline, end=' ')
       except:
         outmap['exitMsg'] = 'ERROR: DQHistogramMerge.py execution problem + problem dumping DQResourceUtilization! (STEP 3).'
         traceback.print_exc()
-        print "ERROR: DQHistogramMerge.py execution problem + problem dumping DQResourceUtilization!"
+        print("ERROR: DQHistogramMerge.py execution problem + problem dumping DQResourceUtilization!")
       return
 
     if postproc == 'True' and incr == 'False':
-      print "\n##################################################################"
-      print "## STEP 3b: copying postprocessing output to AFS ..."
-      print "##################################################################\n"
+      print("\n##################################################################")
+      print("## STEP 3b: copying postprocessing output to AFS ...")
+      print("##################################################################\n")
 
       cmd = "python -u `which DQFileMove.py` %s %s_%s_%s" % (dqproject, runnr, stream, procnumber)
 
-      print "File move command:\n"
-      print cmd
-      print "\n##################################################################\n"
+      print("File move command:\n")
+      print(cmd)
+      print("\n##################################################################\n")
 
-      print "## ... logfile from DQFileMove.py: "
-      print "--------------------------------------------------------------------------------"
+      print("## ... logfile from DQFileMove.py: ")
+      print("--------------------------------------------------------------------------------")
       # execute command
       retcode1b = os.system(cmd)
-      print "--------------------------------------------------------------------------------"
+      print("--------------------------------------------------------------------------------")
       t1b = time.time()
       dt1b = int(t1b - t1)
       t1 = t1b
 
-      print "\n## DQFileMove.py finished with retcode = %s" % retcode1b
-      print   "## ... elapsed time: ", dt1b, " sec"
+      print("\n## DQFileMove.py finished with retcode = %s" % retcode1b)
+      print("## ... elapsed time: ", dt1b, " sec")
   except:
       outmap['exitCode'] = 105
       outmap['exitAcronym'] = 'TRF_DQMHISTMERGE_EXE'
@@ -397,29 +410,29 @@ def dq_combined_trf(jsonfile, outmap):
     retcode2 = 0
     dt2 = 0
     if doWebDisplay == 'True':
-      print "\n##################################################################"
-      print   "## STEP 4: running web-display creation procedure ..."
-      print   "##################################################################\n"
+      print("\n##################################################################")
+      print("## STEP 4: running web-display creation procedure ...")
+      print("##################################################################\n")
 
       cmd = "python -u `which DQWebDisplay.py` %s %s %s %s stream=%s" % (histfile, dqproject, procnumber, incr, stream)
 
-      print "Web display creation command:\n"
-      print cmd
-      print "\n##################################################################\n"
+      print("Web display creation command:\n")
+      print(cmd)
+      print("\n##################################################################\n")
 
-      print "## ... logfile from DQWebDisplay.py: "
-      print "--------------------------------------------------------------------------------"
+      print("## ... logfile from DQWebDisplay.py: ")
+      print("--------------------------------------------------------------------------------")
       # execute command
       retcode2 = os.system(cmd)
-      print 'DO NOT REPORT "Error in TH1: cannot merge histograms" ERRORS! THESE ARE IRRELEVANT!'
-      print "--------------------------------------------------------------------------------"
+      print('DO NOT REPORT "Error in TH1: cannot merge histograms" ERRORS! THESE ARE IRRELEVANT!')
+      print("--------------------------------------------------------------------------------")
       t2 = time.time()
       dt2 = int(t2 - t1)
 
-      print "\n## DQWebDisplay.py finished with retcode = %s" % retcode2
-      print   "## ... elapsed time: ", dt2, " sec"
+      print("\n## DQWebDisplay.py finished with retcode = %s" % retcode2)
+      print("## ... elapsed time: ", dt2, " sec")
       if not (retcode2 >> 8) in (0, 5) :
-        print "ERROR: DQWebDisplay.py execution problem!"
+        print("ERROR: DQWebDisplay.py execution problem!")
         outmap['exitCode'] = retcode2
         outmap['exitAcronym'] = 'TRF_DQMDISPLAY_EXE'
         outmap['exitMsg'] = 'ERROR: DQWebDisplay.py execution problem! (STEP 4).'
@@ -433,7 +446,7 @@ def dq_combined_trf(jsonfile, outmap):
         return
       if productionMode == 'True': 
           try:
-              print 'Publishing to message service'
+              print('Publishing to message service')
               publish_success_to_mq(runnr, dqproject, stream, incr=(incr=='True'), ami=amitag, procpass=procnumber, hcfg=filepaths, isprod=(productionMode=='True'))
           except:
               outmap['exitCode'] = 106
@@ -442,21 +455,21 @@ def dq_combined_trf(jsonfile, outmap):
               traceback.print_exc()
               return
     else:
-      print "\n##################################################################"
-      print   "## WEB DISPLAY CREATION SKIPPED BY USER REQUEST"
-      print   "##################################################################\n"
-      print 'Web display off, not publishing to message service'
+      print("\n##################################################################")
+      print("## WEB DISPLAY CREATION SKIPPED BY USER REQUEST")
+      print("##################################################################\n")
+      print('Web display off, not publishing to message service')
   except: 
     outmap['exitCode'] = 106
     outmap['exitAcronym'] = 'TRF_DQMDISPLAY_EXE'
     outmap['exitMsg'] = 'ERROR: Failure in web-display creation procedure (STEP 4).'
-    print 'ERROR: Failure in web-display creation procedure (STEP 4).'
+    print('ERROR: Failure in web-display creation procedure (STEP 4).')
     traceback.print_exc()
     return
   
-  print "\n##################################################################"
-  print   "## STEP 5: finishing the job ..."
-  print   "##################################################################\n"
+  print("\n##################################################################")
+  print("## STEP 5: finishing the job ...")
+  print("##################################################################\n")
         
   # get info for report json file
   try:
@@ -464,20 +477,20 @@ def dq_combined_trf(jsonfile, outmap):
     # assemble job report map
     outmap['files']['output'][0]['dataset'] = histdsname
     outmap['files']['output'][0]['subFiles'] = outfiles
-    outmap['resource']['transform']['processedEvents'] = long(nevts)
+    outmap['resource']['transform']['processedEvents'] = int(nevts)
     return
   except: 
     outmap['exitCode'] = 107
     outmap['exitAcronym'] = 'TRF_JOBREPORT'
     outmap['exitMsg'] = 'ERROR: in job report creation (STEP 5)'
-    print "ERROR: in job report creation (STEP 5) !"
+    print("ERROR: in job report creation (STEP 5) !")
     traceback.print_exc()
     return
 
 def dq_trf_wrapper(jsonfile):
-  print "\n##################################################################"
-  print   "##              ATLAS Tier-0 Offline DQM Processing             ##"
-  print   "##################################################################\n"
+  print("\n##################################################################")
+  print("##              ATLAS Tier-0 Offline DQM Processing             ##")
+  print("##################################################################\n")
 
   outmap = { 'exitAcronym' : 'OK',
                'exitCode' : 0,
@@ -486,7 +499,7 @@ def dq_trf_wrapper(jsonfile):
                                          'subFiles' : [ {},
                                                       ]}
                                     ] },
-                'resource' : { 'transform' : { 'processedEvents' : 0L } }
+                'resource' : { 'transform' : { 'processedEvents' : 0 } }
                  }
 
   # dq_combined_trf will update outmap
@@ -500,14 +513,14 @@ def dq_trf_wrapper(jsonfile):
   f.close()
 
   # summarize status
-  print "\n## ... job finished with retcode : %s" % outmap['exitCode']
-  print   "## ... error acronym: ", outmap['exitAcronym']
-  print   "## ... job status message: ", outmap['exitMsg']
-  print   "## ... elapsed time: ", outmap['resource']['transform']['wallTime'], "sec"
-  print   "##"
-  print   "##################################################################"
-  print   "## End of job."
-  print   "##################################################################\n"
+  print("\n## ... job finished with retcode : %s" % outmap['exitCode'])
+  print("## ... error acronym: ", outmap['exitAcronym'])
+  print("## ... job status message: ", outmap['exitMsg'])
+  print("## ... elapsed time: ", outmap['resource']['transform']['wallTime'], "sec")
+  print("##")
+  print("##################################################################")
+  print("## End of job.")
+  print("##################################################################\n")
 
 
 ########################################
@@ -517,33 +530,32 @@ def dq_trf_wrapper(jsonfile):
 if __name__ == "__main__":
 
   if (len(sys.argv) != 2) and (not sys.argv[1].startswith('--argJSON=')) :
-    print "Input format wrong --- use "
-    print "   --argJSON=<json-dictionary containing input info> "
-    print "   with key/value pairs: "
-    print "     1) 'inputHistFiles': python list "
-    print "          ['datasetname#filename1', 'datasetname#filename2',...] (input dataset + file names) "
-    print "        or list of file dictionaries "
-    print "          [{'lfn':'fname1', 'checksum':'cks1', 'dsn':'dsn1', 'size':sz1, 'guid':'guid1', 'events':nevts1, ...}, " 
-    print "           {'lfn':'fname2', 'checksum':'cks2', 'dsn':'dsn2', 'size':sz2, 'guid':'guid2', 'events':nevts2, ...}, ...] "
-    print "     2) 'outputHistFile': string 'datasetname#filename' "
-    print "        (HIST output dataset name + file) "
-    print "     optional parameters: "
-    print "     3) 'incrementalMode': string ('True'/'False') "
-    print "        ('True': do incremental update of DQM webpages on top of existing statistics; "
-    print "         'False': create final DQM webpages, replace temporary ones) "
-    print "     4) 'postProcessing': string ('True'/'False', default: 'True') "
-    print "        ('False': run histogram merging and DQ assessment only; "
-    print "         'True': run additional post-processing step (fitting, etc.)) "
-    print "     5) 'procNumber': int (number of processing pass, e.g. 1,2, ...) "
-    print "     6) 'runNumber': int "  
-    print "     7) 'streamName': string (e.g., physics_IDCosmic, physics_Express, ...) "  
-    print "     8) 'projectTag': string (e.g., data10_7TeV, TrigDisplay)"
-    print "     9) 'allowCOOLUpload': string ('True'/'False', default: 'True')"
-    print "        ('True': allow upload of defects to database; "
-    print "         'False': do not upload defects to database)"
+    print("Input format wrong --- use ")
+    print("   --argJSON=<json-dictionary containing input info> ")
+    print("   with key/value pairs: ")
+    print("     1) 'inputHistFiles': python list ")
+    print("          ['datasetname#filename1', 'datasetname#filename2',...] (input dataset + file names) ")
+    print("        or list of file dictionaries ")
+    print("          [{'lfn':'fname1', 'checksum':'cks1', 'dsn':'dsn1', 'size':sz1, 'guid':'guid1', 'events':nevts1, ...}, ") 
+    print("           {'lfn':'fname2', 'checksum':'cks2', 'dsn':'dsn2', 'size':sz2, 'guid':'guid2', 'events':nevts2, ...}, ...] ")
+    print("     2) 'outputHistFile': string 'datasetname#filename' ")
+    print("        (HIST output dataset name + file) ")
+    print("     optional parameters: ")
+    print("     3) 'incrementalMode': string ('True'/'False') ")
+    print("        ('True': do incremental update of DQM webpages on top of existing statistics; ")
+    print("         'False': create final DQM webpages, replace temporary ones) ")
+    print("     4) 'postProcessing': string ('True'/'False', default: 'True') ")
+    print("        ('False': run histogram merging and DQ assessment only; ")
+    print("         'True': run additional post-processing step (fitting, etc.)) ")
+    print("     5) 'procNumber': int (number of processing pass, e.g. 1,2, ...) ")
+    print("     6) 'runNumber': int ")  
+    print("     7) 'streamName': string (e.g., physics_IDCosmic, physics_Express, ...) ")  
+    print("     8) 'projectTag': string (e.g., data10_7TeV, TrigDisplay)")
+    print("     9) 'allowCOOLUpload': string ('True'/'False', default: 'True')")
+    print("        ('True': allow upload of defects to database; ")
+    print("         'False': do not upload defects to database)")
     sys.exit(-1)
   
   else :
     jsonfile = sys.argv[1][len('--argJSON='):]
     dq_trf_wrapper(jsonfile)
-  

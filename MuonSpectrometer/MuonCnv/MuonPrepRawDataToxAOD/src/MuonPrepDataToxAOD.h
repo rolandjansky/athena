@@ -1,34 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonPrepDataToxAOD.h
-//   Header file for class MuonPrepDataToxAOD
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONPREPDATATOXAOD_H
 #define MUONPREPDATATOXAOD_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include <string>
-
 #include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
-
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "AtlasHepMC/GenParticle.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include <string>
 
 template <class PRDCOL, class SDOCOL>
 class MuonPrepDataToxAOD : public AthAlgorithm  {
@@ -37,8 +28,7 @@ public:
 
   // Constructor with parameters:
   MuonPrepDataToxAOD(const std::string &name,ISvcLocator *pSvcLocator, std::string inputName, std::string sdoName ) :
-    AthAlgorithm(name,pSvcLocator),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    AthAlgorithm(name,pSvcLocator)
   {  
     m_inputContainerName = inputName;
     m_sdoContainerName = sdoName;
@@ -46,15 +36,13 @@ public:
   }
 
   StatusCode initialize() { 
-    ATH_CHECK(m_idHelper.retrieve()); 
+    ATH_CHECK(m_idHelperSvc.retrieve()); 
     ATH_CHECK(m_inputContainerName.initialize());
     ATH_CHECK(m_sdoContainerName.initialize());
     m_trackMeasVal=m_trackMeasVal.key()+"_TrackMeasVal";
     ATH_CHECK(m_trackMeasVal.initialize());
     return StatusCode::SUCCESS; 
   }
-
-  StatusCode finalize()  { return StatusCode::SUCCESS; }
 
   // overload this function to add detector specific information 
   virtual void addPRD_TechnologyInformation( xAOD::TrackMeasurementValidation&, const typename PRDCOL::IDENTIFIABLE::base_value_type& ) const {
@@ -94,7 +82,7 @@ public:
         xprd->setLocalPositionError(errx,errxy,erry);
         Amg::Vector3D gpos = prd->globalPosition();
         xprd->setGlobalPosition(gpos.x(),gpos.y(),gpos.z());
-        ATH_MSG_DEBUG( " PRD:  " << m_idHelper->toString(prd->identify()) << " global position: r " << gpos.perp() << " z " << gpos.z() );
+        ATH_MSG_DEBUG( " PRD:  " << m_idHelperSvc->toString(prd->identify()) << " global position: r " << gpos.perp() << " z " << gpos.z() );
       
         const typename SDOCOL::mapped_type* sdo = 0;
         if( sdoCollection ){
@@ -158,7 +146,7 @@ protected:
   SG::ReadHandleKey<PRDCOL> m_inputContainerName{this,"InputContainerName","InputContainer","Input PRD Container"};
   SG::ReadHandleKey<SDOCOL> m_sdoContainerName{this,"SdoContainerName","SDOContainer","Input SDO Container"};
   SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_trackMeasVal;
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 

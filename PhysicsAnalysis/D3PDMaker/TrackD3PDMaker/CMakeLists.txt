@@ -41,10 +41,8 @@ find_package( HepPDT )
 atlas_add_component( TrackD3PDMaker
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib TrkParameters AthenaKernel CxxUtils SGtests Identifier EventPrimitives xAODBase xAODPrimitives xAODTracking GaudiKernel  InDetIdentifier InDetReadoutGeometry  InDetTestBLayerLib ParticleEvent D3PDMakerUtils Particle ITrackToVertex RecoToolInterfaces TrkEventPrimitives TrkParticleBase VxVertex )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib TrkParameters AthenaKernel CxxUtils SGtests Identifier EventPrimitives xAODBase xAODPrimitives xAODTracking GaudiKernel  InDetIdentifier InDetReadoutGeometry  InDetTestBLayerLib ParticleEvent D3PDMakerUtils Particle ITrackToVertex RecoToolInterfaces TrkEventPrimitives TrkParticleBase VxVertex InDetBeamSpotServiceLib )
 
 # Install files from the package:
 atlas_install_headers( TrackD3PDMaker )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-

@@ -134,7 +134,7 @@ void ISF::ConeSimSelector::update(const ISFParticle& particle)
       if (truth)
         {
           // get GenParticle from truth binding
-          const HepMC::GenParticle* genParticle = truth->getTruthParticle();
+          HepMC::ConstGenParticlePtr genParticle = truth->getTruthParticle();
           if (!genParticle)
             {
               // cone conditions not fulfilled
@@ -142,13 +142,13 @@ void ISF::ConeSimSelector::update(const ISFParticle& particle)
             }
 
           // test whether any of the pdg codes is found in the genParticle history
-          const HepMC::GenParticle *relative = HepMCHelper::findRealtiveWithPDG( *genParticle, m_relation, m_relatives);
+          HepMC::ConstGenParticlePtr relative = HepMCHelper::findRealtiveWithPDG( genParticle, m_relation, m_relatives);
 
           if (relative)
             {
               ATH_MSG_VERBOSE("Current particle has valid relative particle:"
                               << " (pdg=" << relative->pdg_id() << ","
-                              << " barcode=" << relative->barcode() << ")."
+                              << " barcode=" << HepMC::barcode(relative) << ")."
                               << " Will now check whether cone cuts apply" );
             }
           else

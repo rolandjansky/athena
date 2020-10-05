@@ -1,38 +1,31 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDD/NSWAGDDTool.h"
+
 #include "MuonAGDDToolHelper.h"
 #include "AGDDControl/AGDDController.h"
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
-
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
+
 #include <fstream>
 
 using namespace MuonGM;
 
-NSWAGDDTool::NSWAGDDTool(const std::string& type, const std::string& name, 
-				 const IInterface* parent):AGDDToolBase(type,name,parent)
-{
-	declareProperty( "ReadAGDD",   		m_readAGDD    = true,           "read description from DB");
-	declareProperty( "DumpAGDD",		m_dumpAGDD    = false,          "write out parsed XML");
-	declareProperty( "OutputFileACTVERS",	m_outFileActV = 0,		"active version number");
-	declareProperty( "OutputFileACTVNAME",	m_outFileActN = "",		"active version string");
-	declareProperty( "OutputFileALGVERS",	m_outFileAlgV = 0,		"alignment version number");
-	declareProperty( "OutputFileALGVNAME",	m_outFileAlgN = "",		"alignment version string");
-	declareProperty( "OutputFilePASVERS",	m_outFilePasV = 0,		"passive structure version number");
-	declareProperty( "OutputFilePASVNAME",	m_outFilePasN = "",		"passive structure version string");
-	declareProperty( "OutputFileFORMAT",	m_outFileForm = "AGDDXML",	"format of output file");
-	declareProperty( "OutputFileType",	m_outFileType = "NSWD", 	"name for database table");
+NSWAGDDTool::NSWAGDDTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AGDDToolBase(type,name,parent),
+    m_outFileInName(""),
+    m_outPREsqlName("") {
 }
 
 StatusCode NSWAGDDTool::initialize()
 {
-	ATH_MSG_INFO("this is NSWAGDDTool::initialize()!!!!");
+	ATH_CHECK(AGDDToolBase::initialize());
+	ATH_MSG_INFO("NSWAGDDTool::initialize");
 
 	if( m_xmlFiles.size() == 1 && m_writeDBfile )
 	{
@@ -44,7 +37,9 @@ StatusCode NSWAGDDTool::initialize()
 	m_outFileName = "Out.AmdcOracle.AM." + m_outFileType + "temp.data";
 	m_outPREsqlName = "Out.AmdcOracle.AM." + m_outFileType + ".PREsql";
 
-        ATH_CHECK(AGDDToolBase::initialize());
+	if (m_DBFileName.empty()) {
+		m_DBFileName = "Generated_" + m_outFileType + "_pool.txt";
+	}
 	
 	static int iEntries=0;
 	
@@ -52,6 +47,7 @@ StatusCode NSWAGDDTool::initialize()
 	{
 		iEntries=1;
 		MuonAGDDToolHelper theHelper;
+		theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
 		theHelper.SetNSWComponents();
 	}
 
@@ -61,10 +57,10 @@ StatusCode NSWAGDDTool::initialize()
 
 StatusCode NSWAGDDTool::construct() 
 {
-	ATH_MSG_INFO("this is NSWAGDDTool::construct()!!!!");
-	ATH_MSG_INFO(" Name = "<<name());
+	ATH_MSG_INFO(name()<<"::construct()");
 	
 	MuonAGDDToolHelper theHelper;
+	theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
 	if (!m_readAGDD)
 	{
 		ATH_MSG_INFO(" trying to parse files ");
@@ -73,7 +69,7 @@ StatusCode NSWAGDDTool::construct()
 	else
 	{
 		ATH_MSG_INFO(" trying to parse data base content ");
-		std::string AGDDfile = theHelper.GetAGDD(m_dumpAGDD, m_outFileType);
+		std::string AGDDfile = theHelper.GetAGDD(m_dumpAGDD, m_outFileType, m_DBFileName);
 		m_controller->ParseString(AGDDfile);
 	}
 	
@@ -84,7 +80,6 @@ StatusCode NSWAGDDTool::construct()
 	}
 	
 	m_controller->UseGeoModelDetector("Muon");
-	
 	m_controller->BuildAll();
 	
 	// part needed to build the NSW RO geometry
@@ -100,7 +95,6 @@ StatusCode NSWAGDDTool::construct()
 	if(m_writeDBfile)
 	{
 		// build model before writing blob - if Athena crashes the XML is not good and should not become a blob
-		//((AGDD2GeoModelBuilder*)m_controller->GetBuilder())->BuildAllVolumes();
 		ATH_MSG_INFO("\t-- attempting to write output to "<< m_outFileName );
 		if( !m_outFileName.empty() )
 		{
@@ -135,7 +129,7 @@ StatusCode NSWAGDDTool::construct()
 bool NSWAGDDTool::WritePREsqlFile() const
 {
 
-	std::ifstream outfile(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
+	std::ifstream outfile(m_outFileName.value().c_str(), std::ifstream::in | std::ifstream::binary);
 
 	std::vector<std::string> newoutfilelines;
 	std::string outfileline;
@@ -150,14 +144,14 @@ bool NSWAGDDTool::WritePREsqlFile() const
 		}
 	outfile.close();
 
-	std::ofstream newoutfile(m_outFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::ofstream newoutfile(m_outFileName.value().c_str(), std::ofstream::out | std::ofstream::trunc);
 	for(auto it = newoutfilelines.begin(); it != newoutfilelines.end(); ++it)
 	{
 		if(it != newoutfilelines.begin()) newoutfile << "\n";
 		newoutfile << *it;
 	}
 	newoutfile.close();
-	outfile.open(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
+	outfile.open(m_outFileName.value().c_str(), std::ifstream::in | std::ifstream::binary);
 
 	int fileSize = 0;
 	if(outfile.is_open())

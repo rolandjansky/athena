@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCRDOTORPCPREPDATA_H
@@ -13,7 +13,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 /** Algorithm to decode RDO into RpcPrepData, using the Muon::RpcRdoToRpcPrepDataTool 
  @author Ketevi A. Assamagan
@@ -28,20 +28,16 @@ public:
 
     StatusCode initialize();
     StatusCode execute();
-    StatusCode finalize();
 
 private:
 
-    // EJWM - where is this implemented? Removing to avoid missing symbol
-    //void printRpcPrepRawData(); //!< Prints information about the resultant PRDs.
-
-    ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_tool; //!< Tool used to do actual decoding.
+    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tool{this,"DecodingTool","Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool"};
+    ToolHandle<IRegSelTool> m_regsel_rpc{this,"RegSel_RPC","RegSelTool/RegSelTool_RPC"};
 
     bool                                    m_print_inputRdo; //!<< If true, will dump information about the inputRDOs.
     bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
     bool m_seededDecoding;
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-    ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
     SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_rpcCollection;
 
 };

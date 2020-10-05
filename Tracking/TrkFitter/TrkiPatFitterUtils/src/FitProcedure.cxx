@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -71,12 +71,12 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 	m_extremeOneOverP		(1./(10.*Gaudi::Units::TeV)),
 	m_fitMatrices  			(new FitMatrices(constrainedAlignmentEffects)),
 	m_fitProbability		(0.),
-	m_fitQuality			(0),
+	m_fitQuality			(nullptr),
 	m_indetVolume			(indetVolume),
 	m_iteration			(0),
 	m_largeRadius			(1000.*Gaudi::Units::mm),
 	m_lineFit			(lineFit),
-	m_log				(0),
+	m_log				(nullptr),
  	m_maxIter			(maxIterations),
  	m_minIter			(0),
 	m_minPt				(0.05*Gaudi::Units::GeV),
@@ -126,13 +126,13 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
     unsigned size = measurements.size() + 1;
     if (leadingTSOS) size += leadingTSOS->size();
     trackStateOnSurfaces->reserve(size);
-    const AlignmentEffectsOnTrack*	alignmentEffects	= 0;
+    const AlignmentEffectsOnTrack*	alignmentEffects	= nullptr;
     const FitMeasurement*		fitMeasurement		= measurements.front();
-    const FitQualityOnSurface*		fitQoS			= 0;
-    const MaterialEffectsBase*		materialEffects		= 0;
-    const MeasurementBase*		measurementBase		= 0;
-    const Surface*			surface			= 0;
-    const TrackParameters*		trackParameters		= 0;
+    const FitQualityOnSurface*		fitQoS			= nullptr;
+    const MaterialEffectsBase*		materialEffects		= nullptr;
+    const MeasurementBase*		measurementBase		= nullptr;
+    const Surface*			surface			= nullptr;
+    const TrackParameters*		trackParameters		= nullptr;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultPattern;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern = defaultPattern;
 
@@ -198,7 +198,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 			       << " fail track with incomplete return TSOS: no trackParameters"
 			       << endmsg;
 			delete trackStateOnSurfaces;
-			return 0;
+			return nullptr;
 		    }
 		    typePattern.set(TrackStateOnSurface::Parameter);
 		    trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
@@ -212,11 +212,11 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 	    }
 	    fitMeasurement	= m;
 	    surface 		= m->surface();
-	    measurementBase	= 0;
-	    fitQoS		= 0;
-	    materialEffects	= 0;
+	    measurementBase	= nullptr;
+	    fitQoS		= nullptr;
+	    materialEffects	= nullptr;
 	    typePattern		= defaultPattern;
-	    alignmentEffects	= 0;
+	    alignmentEffects	= nullptr;
 	}
 	else
 	{
@@ -242,7 +242,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 			   << " fail track with incomplete return TSOS: no trackParameters"
 			   << endmsg;
 		    delete trackStateOnSurfaces;
-		    return 0;
+		    return nullptr;
 		}
 		typePattern.set(TrackStateOnSurface::Parameter);
 		trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
@@ -253,10 +253,10 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 									alignmentEffects));
 		++tsos;
 		fitMeasurement		= m;
-		fitQoS			= 0;
-		materialEffects		= 0;
+		fitQoS			= nullptr;
+		materialEffects		= nullptr;
 		typePattern		= defaultPattern;
-		alignmentEffects	= 0;
+		alignmentEffects	= nullptr;
 	    }
 	    
 	    measurementBase	= m->measurementBase()->clone();
@@ -376,7 +376,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 	       << " fail track with incomplete return TSOS: no trackParameters"
 	       << endmsg;
 	delete trackStateOnSurfaces;
-	return 0;
+	return nullptr;
     }
     typePattern.set(TrackStateOnSurface::Parameter);
     trackStateOnSurfaces->push_back(new TrackStateOnSurface(measurementBase,
@@ -467,7 +467,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
     
     // keep best (original if not reasonable quality) results
     double bestChiSq			= m_chiSqCut;
-    FitParameters* bestParameters	= 0;
+    FitParameters* bestParameters	= nullptr;
 
     // iteration loop to fit track parameters
     while (! fitCode && ! m_convergence)
@@ -504,7 +504,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		delete bestParameters;
 		fitCode			= m_fitMatrices->setDimensions(measurements,parameters);
 		bestChiSq		= m_chiSqCut;
-		bestParameters		= 0;
+		bestParameters		= nullptr;
 		forceIteration		= true;
 		m_chiSq			= 0.;
 		m_chiSqWorst		= 0.;
@@ -775,7 +775,7 @@ FitProcedure::fullCovariance () const
 {
     // note const_cast - ughhh
     // return const_cast<Amg::MatrixX*>(m_fitMatrices->fullCovariance());
-    return 0;  // NOT mig5
+    return nullptr;  // NOT mig5
 }
        
 void

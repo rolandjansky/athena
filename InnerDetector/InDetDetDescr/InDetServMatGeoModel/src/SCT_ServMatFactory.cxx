@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactory.h"
@@ -27,18 +27,18 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <sstream>
 #include <iostream>
 
-SCT_ServMatFactory::SCT_ServMatFactory(const InDetDD::AthenaComps * athenaComps)
+SCT_ServMatFactory::SCT_ServMatFactory(InDetDD::AthenaComps * athenaComps)
   : InDetDD::SubDetectorFactoryBase(athenaComps)
 {
 }
 
 SCT_ServMatFactory::~SCT_ServMatFactory()
 {
-  // It owns the material manager
-  delete m_materialManager;
 }
 
 
@@ -67,7 +67,8 @@ void SCT_ServMatFactory::create(GeoPhysVol *mother)
 
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table.
-  m_materialManager = new InDetMaterialManager("SCT_MaterialManager", getAthenaComps());
+  m_materialManagerUnique = std::make_unique<InDetMaterialManager>("SCT_MaterialManager", getAthenaComps());
+  m_materialManager = m_materialManagerUnique.get();
   m_materialManager->addWeightTable(weightTable, "sct");
   m_materialManager->addScalingTable(scalingTable);
 

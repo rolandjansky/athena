@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,8 +16,9 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -27,9 +28,7 @@ namespace Trk {
   class Segment;
 }
 
-
 namespace D3PD {
-
 
 class MuonSegmentLocationFillerTool
   : public BlockFillerTool<Trk::Segment>
@@ -90,7 +89,7 @@ private:
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
-  ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
   ToolHandle<Trk::IPropagator>  m_slPropagator;
   ToolHandle<Trk::IResidualPullCalculator>  m_pullCalculator;

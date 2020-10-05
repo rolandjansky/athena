@@ -16,7 +16,7 @@ pointInTime = (999999999,0)
 #=== get a logger
 from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("ps_readDb")
-    
+
 #=== open the database
 db = TileCalibTools.openDb('ORACLE', 'CONDBR2', 'READONLY', 'COOLOFL_TILE')
 
@@ -101,5 +101,10 @@ psHG.Draw("AP")
 can.cd(4)
 dsHG.Draw("AP")
 
-from builtins import input
+try:
+    from builtins import input
+except ImportError:
+    # old python 2 without builtins
+    input=raw_input
+
 c = input('please enter a character: ')

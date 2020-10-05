@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadTgcDigit.h"
@@ -28,7 +28,7 @@ StatusCode ReadTgcDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if (!m_tgcNtuple) return StatusCode::SUCCESS;
 
@@ -100,20 +100,20 @@ StatusCode ReadTgcDigit::execute()
           ATH_MSG_DEBUG( "Digit number " << m_nDig  );
 
 	  // ID information
-	  m_stationName[m_nDig] = m_muonIdHelperTool->tgcIdHelper().stationName(id);
-	  m_stationEta [m_nDig] = m_muonIdHelperTool->tgcIdHelper().stationEta(id);
-	  m_stationPhi [m_nDig] = m_muonIdHelperTool->tgcIdHelper().stationPhi(id);
-	  m_gasGap     [m_nDig] = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
-	  m_isStrip    [m_nDig] = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
-	  m_channel    [m_nDig] = m_muonIdHelperTool->tgcIdHelper().channel(id); 
+	  m_stationName[m_nDig] = m_idHelperSvc->tgcIdHelper().stationName(id);
+	  m_stationEta [m_nDig] = m_idHelperSvc->tgcIdHelper().stationEta(id);
+	  m_stationPhi [m_nDig] = m_idHelperSvc->tgcIdHelper().stationPhi(id);
+	  m_gasGap     [m_nDig] = m_idHelperSvc->tgcIdHelper().gasGap(id);
+	  m_isStrip    [m_nDig] = m_idHelperSvc->tgcIdHelper().isStrip(id);
+	  m_channel    [m_nDig] = m_idHelperSvc->tgcIdHelper().channel(id); 
 	  m_bcTag      [m_nDig] = bctag;
 
 	  ATH_MSG_DEBUG( MSG::hex
-                         << " N_" << m_muonIdHelperTool->tgcIdHelper().stationName(id)
-                         << " E_" << m_muonIdHelperTool->tgcIdHelper().stationEta(id)
-                         << " P_" << m_muonIdHelperTool->tgcIdHelper().stationPhi(id)
-                         << " G_" << m_muonIdHelperTool->tgcIdHelper().gasGap(id)
-                         << " C_" << m_muonIdHelperTool->tgcIdHelper().channel(id) );
+                         << " N_" << m_idHelperSvc->tgcIdHelper().stationName(id)
+                         << " E_" << m_idHelperSvc->tgcIdHelper().stationEta(id)
+                         << " P_" << m_idHelperSvc->tgcIdHelper().stationPhi(id)
+                         << " G_" << m_idHelperSvc->tgcIdHelper().gasGap(id)
+                         << " C_" << m_idHelperSvc->tgcIdHelper().channel(id) );
 
 	  ++m_nDig;
 	}
@@ -123,15 +123,6 @@ StatusCode ReadTgcDigit::execute()
   ATH_MSG_DEBUG( "execute() completed" );
   return StatusCode::SUCCESS;
 }
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode ReadTgcDigit::finalize()
-{
-  ATH_MSG_DEBUG( "in finalize()"  );
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode ReadTgcDigit::accessNtuple()
 {

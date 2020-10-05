@@ -24,7 +24,7 @@ void PileUpClassification::findEventIterators(PileuType_t putype, McEventCollect
       // Special case : there's no SEPARATOR between SIGNAL and INTIME :
       fEvt++; lEvt = fEvt; lEvt++;
       for(; lEvt < maxIterator; lEvt++){
-        if( (*lEvt)->signal_process_id() == 0 ) break;
+        if(HepMC::signal_process_id(*lEvt) == 0 ) break;
       }
     break;
     }
@@ -48,11 +48,11 @@ void PileUpClassification::findEventIterators(PileuType_t putype, McEventCollect
   // if needed, search the correct interval
   while(intervallN>0){
     for(; fEvt < maxIterator; fEvt++){
-      if( (*fEvt)->signal_process_id() == 0 ) { fEvt++; break; }
+      if( HepMC::signal_process_id(*fEvt) == 0 ) { fEvt++; break; }
     }
     lEvt = fEvt;
     for(; lEvt < maxIterator; lEvt++){
-      if( (*lEvt)->signal_process_id() == 0 ) break;
+      if( HepMC::signal_process_id(*lEvt) == 0 ) break;
     }
     intervallN--;
   }
@@ -83,7 +83,7 @@ PileUpClassification::PileuType_t PileUpClassification::pileUpType(const McEvent
   while( itEvt != lEvt){
     if( size_t(itEvt - fEvt) == evtIndex ){ return type ;}
     ++itEvt;
-    if( (*itEvt)->signal_process_id() == 0 ) {  // a SEPARATOR
+    if(HepMC::signal_process_id(*itEvt) == 0 ) {  // a SEPARATOR
       ++itEvt; type = (PileuType_t) (type+1); 
     }
   }
@@ -100,7 +100,7 @@ void  PileUpClassification::fillPileUpType(const McEventCollection* evts, std::v
   PileuType_t type = INTIME;
   int c=1;
   for(; fEvt != lEvt; ++fEvt){
-    if( (*fEvt)->signal_process_id() == 0 ) type= (PileuType_t)(type+1);
+    if(HepMC::signal_process_id(*fEvt) == 0 ) type= (PileuType_t)(type+1);
     evtToPUType[c] = type;
     c++;
   }

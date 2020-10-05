@@ -96,7 +96,7 @@ class EtaPtFilterTool : public TruthParticleFilterBaseTool
 
   /** Check if a given particle is within the acceptance (pt+eta)
    */
-  bool isAccepted( const HepMC::GenParticle* mcPart ) const;
+  bool isAccepted( HepMC::ConstGenParticlePtr mcPart ) const;
 
   /** Check if a given vertex has at least one in-going
    *  or out-going particle within the acceptance (pt+eta)
@@ -137,11 +137,11 @@ class EtaPtFilterTool : public TruthParticleFilterBaseTool
 
   /** Callback function to setup the "InnerEtaRegionCuts" property
    */
-  void setupInnerEtaRegionCuts( Property& innerEtaRegionCuts );
+  void setupInnerEtaRegionCuts( Gaudi::Details::PropertyBase& innerEtaRegionCuts );
 
   /** Callback function to setup the "OuterEtaRegionCuts" property
    */
-  void setupOuterEtaRegionCuts( Property& outerEtaRegionCuts );
+  void setupOuterEtaRegionCuts( Gaudi::Details::PropertyBase& outerEtaRegionCuts );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_INDETSERVMATFACTORYFS_H
@@ -7,9 +7,11 @@
 
 
 #include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "InDetServMatGeoModel/InDetServMatManager.h"
+
+#include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
 class IRDBAccessSvc;
@@ -31,7 +33,7 @@ class InDetServMatFactoryFS : public GeoVDetectorFactory  {
   // manager
   virtual const InDetDD::InDetServMatManager* getDetectorManager () const;
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
  private:  
   
@@ -43,9 +45,7 @@ class InDetServMatFactoryFS : public GeoVDetectorFactory  {
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
   InDetDD::InDetServMatManager   *m_manager;
-  mutable Athena::MsgStreamMember m_msg;
+  Athena::MsgStreamMember m_msg;
 };
 
 #endif
-
-

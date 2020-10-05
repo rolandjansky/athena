@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelDCSCondStatusAlg.h
@@ -17,13 +17,12 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelDCSStatusData.h"
 
 #include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class PixelDCSCondStatusAlg : public AthReentrantAlgorithm {  
   public:
@@ -38,11 +37,8 @@ class PixelDCSCondStatusAlg : public AthReentrantAlgorithm {
 
     ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
-    {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
-
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus
-    {this, "ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS", "Key of input DCS status conditions folder"};
+    {this, "ReadKeyStatus", "", "Key of input DCS status conditions folder"};
 
     SG::WriteCondHandleKey<PixelDCSStatusData> m_writeKeyStatus
     {this, "WriteKeyStatus", "PixelDCSStatusCondData", "Key of output DCS status data"};

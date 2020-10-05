@@ -6,7 +6,7 @@
 class MockITHistSvc : public ITHistSvc {
   private:
     const std::string m_name = "MockITHistSvc";
-  public:   
+  public:
     virtual const std::string& name() const override { return m_name; };
     Gaudi::StateMachine::State FSMState() const override { return Gaudi::StateMachine::OFFLINE; }
     Gaudi::StateMachine::State targetFSMState() const override { return Gaudi::StateMachine::OFFLINE; }
@@ -26,7 +26,9 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode stop() override { return StatusCode::SUCCESS; }
     StatusCode terminate() override { return StatusCode::SUCCESS; }
     StatusCode deReg(TObject*) override { return StatusCode::SUCCESS; }
-    StatusCode deReg(const std::string&) override { return StatusCode::SUCCESS; }
+
+    StatusCode deReg(const std::string& path) override { mock_registered.erase( path );  return StatusCode::SUCCESS; }
+
     StatusCode getEfficiency(const std::string&, TEfficiency*&) const override { return StatusCode::SUCCESS; }
     StatusCode getGraph(const std::string&, TGraph*&) const override { return StatusCode::SUCCESS; }
     StatusCode getHist(const std::string&, TH1*&, size_t) const override { return StatusCode::SUCCESS; }
@@ -59,7 +61,9 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode regGraph(const std::string&, TGraph*) override { return StatusCode::SUCCESS; }
     StatusCode regGraph(const std::string&, std::unique_ptr<TGraph>) override { return StatusCode::SUCCESS; }
     StatusCode regHist(const std::string&) override { return StatusCode::SUCCESS; }
-    StatusCode regHist(const std::string&, TH1*) override { return StatusCode::SUCCESS; }
+
+    StatusCode regHist(const std::string& path, TH1* h) override {  if ( not mock_always_empty )  mock_registered[path] = h; return StatusCode::SUCCESS; }
+
     StatusCode regHist(const std::string&, std::unique_ptr<TH1>) override { return StatusCode::SUCCESS; }
     StatusCode regHist(const std::string&, std::unique_ptr<TH1>, TH1*) override { return StatusCode::SUCCESS; }
     StatusCode regShared(const std::string&, std::unique_ptr<TEfficiency>, LockedHandle<TEfficiency>&) override { return StatusCode::SUCCESS; }
@@ -70,7 +74,9 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode regTree(const std::string&) override { return StatusCode::SUCCESS; }
     StatusCode regTree(const std::string&, TTree*) override { return StatusCode::SUCCESS; }
     StatusCode regTree(const std::string&, std::unique_ptr<TTree>) override { return StatusCode::SUCCESS; }
-    bool exists(const std::string&) const override { return false; }
+
+    bool exists(const std::string& path) const override { return mock_registered.find( path ) != mock_registered.end(); }
+
     bool existsHist(const std::string&) const override { return false; }
     bool existsTree(const std::string&) const override { return false; }
     bool existsGraph(const std::string&) const override { return false; }
@@ -82,6 +88,8 @@ class MockITHistSvc : public ITHistSvc {
     std::vector<std::string> getHists() const override { return {}; }
     std::vector<std::string> getTrees() const override { return {}; }
     void setServiceManager(ISvcManager*) override {}
+    bool mock_always_empty = true;
+    std::map<std::string, TObject*> mock_registered;
 };
 
 #endif /* AthenaMonitoringKernel_test_mocks_MockITHistSvc_h */

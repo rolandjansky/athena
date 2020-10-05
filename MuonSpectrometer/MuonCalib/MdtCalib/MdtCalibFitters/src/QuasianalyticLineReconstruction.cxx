@@ -80,7 +80,7 @@ void QuasianalyticLineReconstruction::init(const double & r_road_width) {
 //:: SET THE MAXIMUM RADIUS ::
 //::::::::::::::::::::::::::::
 
-	m_r_max = 15.0;
+	m_r_max = 14.6;
 
 //::::::::::::::::::::::::
 //:: SET THE ROAD WIDTH ::
@@ -547,6 +547,11 @@ void QuasianalyticLineReconstruction::setTimeOut(const double & time_out) {
 
 }
 
+void QuasianalyticLineReconstruction::setMaxRadius(const double& maxR) {
+	if (maxR<7 || maxR>15) throw std::runtime_error(Form("File: %s, Line: %d\nQuasianalyticLineReconstruction::setMaxRadius() - given radius %.3f not supported, neither MDT nor sMDT", __FILE__, __LINE__, maxR));
+	m_r_max = maxR;
+}
+
 //*****************************************************************************
 
 //:::::::::::::::::::::::
@@ -683,11 +688,11 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 		}
 
    // copy the hit information into local vectors //
-		selected_hits.push_back(hit);//[counter2] = hit;
-		selected_hits_index.push_back(k);//[counter2] = k;
-		w.push_back(Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z()));//[counter2] = Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z());
-		r.push_back(std::abs(hit->driftRadius()));//[counter2] = fabs(hit->driftRadius());
-		sigma2.push_back(hit->sigma2DriftRadius());//[counter2] = hit->sigma2DriftRadius();
+		selected_hits.push_back(hit);
+		selected_hits_index.push_back(k);
+		w.push_back(Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z()));
+		r.push_back(std::abs(hit->driftRadius()));
+		sigma2.push_back(hit->sigma2DriftRadius());
    // if the spatial resolution has not been set, set it to 0.1 CLHEP::mm //
 		if (sigma2[counter2] == 0) {
 			sigma2[counter2] = std::pow(0.1*CLHEP::mm, 2);
@@ -865,10 +870,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					m_track_hits[k]->localPosition().z()),
 					xhat, null, null);
 				double d(std::abs(m_track.signDistFrom(wire)));
-				m_chi2 = m_chi2+
-					std::pow(d-m_track_hits[k]->driftRadius(),
-						2)/
-					m_track_hits[k]->sigma2DriftRadius();
+				double r(std::abs(m_track_hits[k]->driftRadius()));
+				m_chi2 = m_chi2+std::pow(d-r,2)/m_track_hits[k]->sigma2DriftRadius();
 			}
 			r_segment.set(
 			m_chi2/static_cast<double>(m_nb_track_hits-2),

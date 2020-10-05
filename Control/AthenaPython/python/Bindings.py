@@ -6,7 +6,6 @@
 from __future__ import print_function
 
 ### data
-__version__ = "$Revision: 1.30 $"
 __author__  = """
 Sebastien Binet (binet@cern.ch)
 """
@@ -20,43 +19,14 @@ def _load_dict(lib):
     """Helper function to remember which libraries have been already loaded
     """
     import cppyy
-    return cppyy.loadDictionary(lib)
+    if not lib.startswith(lib):
+        lib="lib"+lib
+    return cppyy.load_library(lib)
 
 @memoize
 def _import_ROOT():
-    # FIXME: work-around ROOT's silly behaviour wrt graphics libraries
-    # see: https://savannah.cern.ch/bugs/?35461
-    import os
-    orig_display=os.environ.get('DISPLAY',None)
     import ROOT
-    if orig_display:
-        os.environ['DISPLAY'] = orig_display
-    del orig_display
-
-    # install additional pythonizations
-    ROOT._Template = ROOT.Template
-    class Template(ROOT._Template):
-        def __call__(self, *args):
-            try:
-                result = ROOT._Template.__call__(self, *args)
-            except Exception:
-                # try again...
-                result = ROOT._Template.__call__(self, *args)
-
-            if self.__name__ in ('std::map', 'map'):
-                try:
-                    fct = globals().get('_std_map_pythonize')
-                    if fct:
-                        new_cls = fct(result,
-                                      key_type=args[0],
-                                      value_type=args[1])
-                        result = new_cls
-                except Exception:
-                    pass
-            return result
-    ROOT.Template = Template
-    for cls in ROOT.std.stlclasses:
-        setattr(ROOT.std, cls, ROOT.Template('std::%s'%cls))
+    ROOT.gROOT.SetBatch(True)
     return ROOT
     
 ### data ----------------------------------------------------------------------
@@ -123,7 +93,8 @@ class _PyAthenaBindingsCatalog(object):
             try:
                 import cppyy
                 #klass = getattr(ROOT, name)
-                klass = cppyy.makeClass(name)
+                #klass = cppyy.makeClass(name)
+                klass=getattr(cppyy.gbl,name)
             except AttributeError:
                 raise AttributeError("no reflex-dict for type [%s]"%name)
         return klass
@@ -251,8 +222,8 @@ def py_alg(algName, iface='IAlgorithm'):
     
     # handle pycomponents...
     from .Configurables import PyComponents
-    import cppyy
-    alg = cppyy.libPyROOT.MakeNullPointer(iface)
+    import ROOT
+    alg = ROOT.MakeNullPointer(iface)
     if not algmgr.getAlgorithm(algName, alg).isSuccess():
         return
 
@@ -277,14 +248,6 @@ def _py_init_StoreGateSvc():
     except Exception: pass # fwd compatibility
     from StoreGateBindings.Bindings import StoreGateSvc
 
-    ## merge aliases...
-    global _clid_typename_aliases
-    from AthenaServices.Dso import _load_typeregistry_dso
-    try:
-        _clid_typename_aliases.update(_load_typeregistry_dso())
-    except OSError:
-        # no typeregistry file...
-        pass
     return StoreGateSvc
 
 @memoize
@@ -299,8 +262,6 @@ def _py_init_IIncidentSvc():
     import cppyy
     # IIncidentSvc bindings from dictionary
     _load_dict( "libGaudiKernelDict" )
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
 
     # retrieve the IIncidentSvc class
     global IIncidentSvc
@@ -333,15 +294,6 @@ def _py_init_ClassIDSvc():
     import cppyy
     # IClassIDSvc bindings from dictionary
     _load_dict( "libAthenaPythonDict" )
-
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
-
-    # load the AthenaInternal::getClid helper method
-    cppyy.makeNamespace('AthenaInternal')
-    # Really make sure that dictionaries are loaded.
-    # Needed this with 20.7.X-VAL.
-    cppyy.gbl.AthenaInternal.ROOT6_AthenaPython_WorkAround_Dummy
 
     # retrieve the IClassIDSvc class
     global IClassIDSvc
@@ -390,8 +342,6 @@ def _py_init_THistSvc():
     # ITHistSvc bindings from dictionary
     _load_dict( "libGaudiKernelDict" )
 
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
 
     # retrieve the ITHistSvc class
     global ITHistSvc
@@ -620,13 +570,6 @@ del %s""" % (n,n,n,n,n)
     del popitem
     ## ------------------------------
 
-    ## try to install ttree access enhancement
-    try:
-        from RootUtils.PyROOTFixes import enable_tree_speedups
-        enable_tree_speedups()
-    except ImportError:
-        pass
-
     ## FIXME: would be nice... but somehow interferes with _py_cache property
 ##     ## allow the use of the pythonized properties interface
 ##     def __getattr__( self, attr ):
@@ -649,8 +592,6 @@ def _py_init_EventStreamInfo():
     import cppyy
     # EventStreamInfo bindings from dictionary
     _load_dict( "libEventInfoDict" )
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
 
     # retrieve the EventStreamInfo class
     ESI = cppyy.gbl.EventStreamInfo
@@ -683,8 +624,6 @@ def _py_init_EventType():
     import cppyy
     # EventStreamInfo bindings from dictionary
     _load_dict( "libEventInfoDict" )
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
 
     # retrieve the EventType class
     cls = cppyy.gbl.EventType

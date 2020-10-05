@@ -27,15 +27,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkMeasurementBase
                           Tracking/TrkEvent/TrkRIO_OnTrack )
 
-# External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-
 # Component(s) in the package:
 atlas_add_component( SiCombinatorialTrackFinderTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSPSeededTrackFinderData InDetRecToolInterfaces TrkGeometry TrkEventPrimitives TrkPatternParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetRIO_OnTrack TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSPSeededTrackFinderData InDetRecToolInterfaces TrkGeometry TrkEventPrimitives TrkPatternParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetRIO_OnTrack TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( SiCombinatorialTrackFinderTool_xk )

@@ -71,6 +71,8 @@ else:
   InDetSCTLorentzMonTool = SCTLorentzMonTool ( name             = "InDetSCTLorentzMonTool",
                                                OutputLevel      = 4,
                                                tracksName       = tracksName )
+  InDetSCTLorentzMonTool.AssociationTool = InDetPrdAssociationTool
+  InDetSCTLorentzMonTool.RejectSharedHits = False
 
   if jobproperties.Beam.beamType()=='collisions':
     from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool

@@ -156,20 +156,20 @@ bool BeamHaloGeneratorSettings::checkParticle(BeamHaloParticle *beamHaloParticle
 
   // First implement the cuts which are not related to the particle
   // trajectory.
-  if(!checkSetting(W_LIMIT, fabs(beamHaloParticle->weight()))) return false;
-  if(!checkSetting(PX_LIMIT, fabs(beamHaloParticle->fourVector().px()))) return false;
-  if(!checkSetting(PY_LIMIT, fabs(beamHaloParticle->fourVector().py()))) return false;
-  if(!checkSetting(PZ_LIMIT, fabs(beamHaloParticle->fourVector().pz()))) return false;
-  if(!checkSetting(E_LIMIT, fabs(beamHaloParticle->fourVector().e()))) return false;
+  if(!checkSetting(W_LIMIT, std::abs(beamHaloParticle->weight()))) return false;
+  if(!checkSetting(PX_LIMIT, std::abs(beamHaloParticle->fourVector().px()))) return false;
+  if(!checkSetting(PY_LIMIT, std::abs(beamHaloParticle->fourVector().py()))) return false;
+  if(!checkSetting(PZ_LIMIT, std::abs(beamHaloParticle->fourVector().pz()))) return false;
+  if(!checkSetting(E_LIMIT, std::abs(beamHaloParticle->fourVector().e()))) return false;
   if(!checkSetting(PT_LIMIT, beamHaloParticle->fourVector().perp())) return false;
-  if(!checkSetting(ETA_LIMIT, fabs(beamHaloParticle->fourVector().pseudoRapidity()))) return false;
-  if(!checkSetting(PHI_LIMIT, fabs(beamHaloParticle->fourVector().phi()))) return false;
+  if(!checkSetting(ETA_LIMIT, std::abs(beamHaloParticle->fourVector().pseudoRapidity()))) return false;
+  if(!checkSetting(PHI_LIMIT, std::abs(beamHaloParticle->fourVector().phi()))) return false;
 
 
   // Require the selection at the scoring plane.
   if(m_shapeRequirement == NONE) {
-    if(!checkSetting(X_LIMIT, fabs(beamHaloParticle->positionAtScoringPlane().x()))) return false;
-    if(!checkSetting(Y_LIMIT, fabs(beamHaloParticle->positionAtScoringPlane().y()))) return false;
+    if(!checkSetting(X_LIMIT, std::abs(beamHaloParticle->positionAtScoringPlane().x()))) return false;
+    if(!checkSetting(Y_LIMIT, std::abs(beamHaloParticle->positionAtScoringPlane().y()))) return false;
     if(!checkSetting(R_LIMIT, beamHaloParticle->positionAtScoringPlane().perp())) return false;
   }
   else if(m_shapeRequirement == CYLINDER) {

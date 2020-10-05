@@ -137,7 +137,6 @@ else :
 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
 
 ServiceMgr += PixelConditionsSummarySvc()
-ServiceMgr.PixelConditionsSummarySvc.UseSpecialPixelMap = False
 ServiceMgr.PixelConditionsSummarySvc.UseDCS = False
 ServiceMgr.PixelConditionsSummarySvc.UseByteStream = True
 
@@ -151,7 +150,7 @@ if globalflags.InputFormat() == 'pool':
 elif globalflags.InputFormat() == 'bytestream':
   include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
   include("InDetRecExample/InDetReadBS_jobOptions.py")
-  ServiceMgr.ByteStreamInputSvc.FullFileName = collection
+  ServiceMgr.EventSelector.Input = collection
 
 
 topSequence += NoiseMapBuilder

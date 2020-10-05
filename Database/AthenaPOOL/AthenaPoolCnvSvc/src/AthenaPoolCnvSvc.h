@@ -159,7 +159,7 @@ public:
    /// Standard Service Constructor
    AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator);
    /// Destructor
-   virtual ~AthenaPoolCnvSvc();
+   virtual ~AthenaPoolCnvSvc() = default;
 
 private: // member functions
    /// Extract POOL ItechnologySpecificAttributes for Domain, Database and Container from property.
@@ -183,10 +183,12 @@ private: // data
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc{this,"ChronoStatSvc","ChronoStatSvc"};
    ServiceHandle<IClassIDSvc>    m_clidSvc{this,"ClassIDSvc","ClassIDSvc"};
    ServiceHandle<IAthenaSerializeSvc> m_serializeSvc{this,"AthenaRootSerializeSvc","AthenaRootSerializeSvc"};
-   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool{this,"InputStreamingTool"};
+   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool{this,"InputStreamingTool",{}};
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
    //The following doesn't work because of Gaudi issue #122
    //ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool{this,"OutputStreamingTool", {} };
+   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
+   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
    std::size_t     m_streamServer=0;
    int m_metadataClient=0;
 
@@ -203,11 +205,13 @@ private: // properties
    StringProperty  m_branchNameHintProp{this,"SubLevelBranchName", "<type>/<key>"};
 
    /// Output PoolAttributes, vector with names and values of technology specific attributes for POOL
-   StringArrayProperty m_poolAttr{this,"PoolAttributes",{},"Pool Attributes","Set<std::string>"};
+   StringArrayProperty m_poolAttr{this,"PoolAttributes",{},"Pool Attributes","OrderedSet<std::string>"};
    std::vector<std::vector<std::string> > m_domainAttr;
    std::vector<std::vector<std::string> > m_databaseAttr;
    std::vector<std::vector<std::string> > m_containerAttr;
    std::vector<unsigned int> m_contextAttr;
+   std::map<std::string, int> m_fileCommitCounter;
+   std::map<std::string, int> m_fileFlushSetting;
    /// Input PoolAttributes, vector with names and values of technology specific attributes for POOL
    StringArrayProperty m_inputPoolAttr{this,"InputPoolAttributes",{}};
    std::vector<std::vector<std::string> > m_inputAttr;

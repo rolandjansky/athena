@@ -28,10 +28,24 @@ def createTriggerFlags():
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
 
-    # L1 decoding options
-    flags.addFlag('Trigger.decodeLegacyL1', True)
-    flags.addFlag('Trigger.decodePhaseIL1', False)
-    
+    # Enable Run-3 LVL1 simulation and/or decoding
+    flags.addFlag('Trigger.enableL1Phase1', False)
+
+    # Enable usage of new L1 menu 
+    flags.addFlag('Trigger.readLVL1FromJSON', True)
+
+    # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
+    flags.addFlag('Trigger.enableL1CaloLegacy', True)
+
+    # Enable Inner Detector
+    flags.addFlag('Trigger.doID', True)
+
+    # Enable muon system
+    flags.addFlag('Trigger.doMuon', True)
+
+    # Enable calorimeters
+    flags.addFlag('Trigger.doCalo', True)
+
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
     def EDMDecodingVersion(flags):
         log.debug("Attempting to determine EDMDecodingVersion.")
@@ -90,7 +104,7 @@ def createTriggerFlags():
                 version = 2
             elif "HLTNav_Summary" in flags.Input.Collections:
                 version = 3
-            elif flags.Input.Format == "RDO":
+            elif flags.Input.Format == "POOL":
                 # If running Trigger on RDO input (without previous trigger result), choose Run-3
                 version = 3
         log.info("Determined EDMDecodingVersion to be {}.".format({1:"Run 1", 2:"Run 2", 3:"AthenaMT"}[version]))
@@ -105,9 +119,9 @@ def createTriggerFlags():
 
     # Enables collection and export of detailed monitoring data of the HLT execution
     flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
-    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor')
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
-    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', True) # Defaulting to "True" is temporary
+    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
 
 
     # enable Bcm inputs simulation
@@ -124,6 +138,9 @@ def createTriggerFlags():
     # partition name used to determine online vs offline BS result writing
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
+
+    # shortcut to check if job is running in a partition (i.e. partition name is not empty)
+    flags.addFlag('Trigger.Online.isPartition', lambda prevFlags: len(prevFlags.Trigger.Online.partitionName)>0)
     
     # write BS output file
     flags.addFlag('Trigger.writeBS', False)
@@ -136,6 +153,9 @@ def createTriggerFlags():
 
     # list of objects to be written to ESD
     flags.addFlag('Trigger.ESDEDMSet', 'ESD')
+
+    # to allow stroing extra EDM items via preExec
+    flags.addFlag('Trigger.ExtraEDMList', [])
 
     # tag to be used for condutions used by HLT code
     flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
@@ -182,10 +202,22 @@ def createTriggerFlags():
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateL1Menu', False)
     
-    # L1 XML file name 
-    flags.addFlag('Trigger.LVL1ConfigFile',
-                  lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+    def _deriveL1ConfigName(prevFlags):
+        import re
+        log = logging.getLogger('TrigConfigSvcCfg')
+        pattern = re.compile(r'_v\d+|DC14')
+        menuName=prevFlags.Trigger.triggerMenuSetup
+        patternPos = pattern.search(menuName)
+        if patternPos:
+            menuName=menuName[:patternPos.end()]
+        else:
+            log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+        
+        return "LVL1config_"+menuName+"_" + prevFlags.Trigger.menuVersion + ".xml"
 
+    # L1 XML file name 
+    flags.addFlag('Trigger.LVL1ConfigFile', _deriveL1ConfigName)
+   
     # L1 Json file name 
     flags.addFlag('Trigger.L1MenuFile',
                   lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
@@ -244,8 +276,10 @@ def createTriggerFlags():
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         return createMuonConfigFlags()
-    flags.addFlagsCategory('Trigger.Offline', __muon)
+    flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
+    from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
+    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
 
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags
     flags.join( createMenuFlags() )

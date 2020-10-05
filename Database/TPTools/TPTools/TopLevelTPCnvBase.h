@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TPTOPLEVELTPCNVBASE_H
@@ -100,7 +100,10 @@ public:
   virtual bool	hasTLPersObject() const = 0;
 
   /// @return pointer to the persistent object owned by this converter as @c void*
-  virtual void*	getTLPersObjectAsVoid() const = 0;
+  virtual void*	getTLPersObjectAsVoid() = 0;
+
+  /// @return pointer to the persistent object owned by this converter as @c void*
+  virtual const void*	getTLPersObjectAsVoid() const = 0;
 
   /// Create persistent object - the converter keeps it
   virtual void	createTLPersObject() = 0;

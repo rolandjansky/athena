@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 #include "FlavorTagDiscriminants/BTagMuonAugmenter.h"
-#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -32,7 +32,7 @@ namespace FlavorTagDiscriminants {
   {
     // you probably have to initialize something here
     using namespace FlavorTagDiscriminants;
-    m_btag_track_aug = BTagTrackAugmenter();
+    m_btag_track_aug = BTagTrackIpAccessor();
     m_muonAssociationName = muonAssociationName;
     m_muonMinDR = muonMinDR;
     m_muonMinpT = muonMinpT;
@@ -130,7 +130,7 @@ namespace FlavorTagDiscriminants {
         muon_pTrel = myjet.Vect().Perp(mymu.Vect()); // VD: everything MUST be in MeV
 
         //Muon ID track IP information
-        muon_ip = m_btag_track_aug.get_signed_ip(*IDMuTrack, jet);
+        muon_ip = m_btag_track_aug.getSignedIp(*IDMuTrack, jet);
         muon_ip3d_d0 = muon_ip.ip3d_signed_d0;
         muon_ip3d_z0 = muon_ip.ip3d_signed_z0;
         muon_ip3d_d0_significance = muon_ip.ip3d_signed_d0_significance;

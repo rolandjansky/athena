@@ -12,17 +12,17 @@
 
 class sTgcPrepDataContainerCnv;
 
-namespace Muon 
+namespace Muon
 {
 
   class sTgcRdoToPrepDataTool;
-    
+
   /** @brief Class to represent sTgc measurements. */
   class sTgcPrepData :   public MuonCluster
   {
 
     friend class Muon::sTgcRdoToPrepDataTool;
-    
+
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
@@ -32,9 +32,9 @@ namespace Muon
 
     sTgcPrepData();
     sTgcPrepData(const sTgcPrepData &);
-    sTgcPrepData(sTgcPrepData &&);
+    sTgcPrepData(sTgcPrepData &&) noexcept = default;
     sTgcPrepData &operator=(const sTgcPrepData &);
-    sTgcPrepData &operator=(sTgcPrepData &&);
+    sTgcPrepData &operator=(sTgcPrepData &&) noexcept = default;
 
 
     /** @brief Constructor.
@@ -42,7 +42,7 @@ namespace Muon
 	@param locpos The local coords of the measurement (this object will now own the LocalPostion)
 	@param rdoList Vector of all the Identifiers of the strips used in this cluster
 	@param locErrMat The error of the measurement (this object will now own the ErrorMatrix)
-	@param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken 
+	@param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken
 	(the pointer is assumed to belong to GeoModel and will not be deleted)
 	@param bcBitMap bitmap storing in which bunches the channel fired
     */
@@ -56,7 +56,7 @@ namespace Muon
 		  const short int time,
 		  const uint16_t bcBitMap,
 		  const std::vector<uint16_t>& stripNumbers,
-		  const std::vector<short int>& stripTimes, 
+		  const std::vector<short int>& stripTimes,
 		  const std::vector<int>& stripCharges );
 
 
@@ -76,17 +76,23 @@ namespace Muon
     virtual ~sTgcPrepData();
 
     /** @brief Returns the global position*/
-    const Amg::Vector3D& globalPosition() const;
+    virtual const Amg::Vector3D& globalPosition() const override;
 
     /** @brief Returns the detector element corresponding to this PRD.
 	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
-    const MuonGM::sTgcReadoutElement* detectorElement() const;
+    virtual const MuonGM::sTgcReadoutElement* detectorElement() const override final;
+
+    /** Interface method checking the type*/
+    virtual bool type(Trk::PrepRawDataType::Type type) const override final
+    {
+      return type == Trk::PrepRawDataType::sTgcPrepData;
+    }
 
     /** @brief Dumps information about the PRD*/
-    MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override;
 
     /** @brief Dumps information about the PRD*/
-    std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override;
 
     /** @brief Returns the bcBitMap of this PRD
 	bit2 for Previous BC, bit1 for Current BC, bit0 for Next BC */
@@ -100,7 +106,7 @@ namespace Muon
 
     /** @brief returns the list of times */
     const std::vector<short int>& stripTimes() const;
-    
+
      /** @brief returns the list of charges */
     const std::vector<int>& stripCharges() const;
 
@@ -122,7 +128,7 @@ namespace Muon
      Patrick Scholer 3.12.2019
 		 */
     std::vector<short int> m_stripTimes;
-    std::vector<int> m_stripCharges;    
+    std::vector<int> m_stripCharges;
 
   };
 
@@ -158,7 +164,7 @@ namespace Muon
   {
     return m_stripNumbers;
   }
-  
+
   inline const std::vector<short int>& sTgcPrepData::stripTimes() const
   {
     return m_stripTimes;

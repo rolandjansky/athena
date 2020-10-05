@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -33,36 +33,21 @@ Updated:  June, 2004    (sss)
 // include header files 
 #include "CaloSwEtamod_g3.h"
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
-using xAOD::CaloCluster;
-CaloSwEtamod_g3::CaloSwEtamod_g3(const std::string& type,
-                                 const std::string& name,
-                                 const IInterface* parent)
-  : CaloClusterCorrection(type,name,parent), m_neta(5)
-{ 
-  declareConstant ("eta_size",m_neta);
-  declareConstant ("correction", m_correction);
-}
 
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloSwEtamod_g3::~CaloSwEtamod_g3()
-{ }
+using xAOD::CaloCluster;
+
 
 // make correction to one cluster 
-void CaloSwEtamod_g3::makeCorrection(const EventContext& /*ctx*/,
-                                     CaloCluster* cluster) const
+void CaloSwEtamod_g3::makeCorrection (const Context& myctx,
+                                      CaloCluster* cluster) const
 {
   float aeta = fabs (cluster->etaBE(2));
   if (aeta > 2.5) return;
 
-  int ieta = m_neta/2;
+  int ieta = m_neta(myctx)/2;
   if (ieta > 3) return;       // something went wrong
 
-  CaloRec::Array<1> coef = m_correction[aeta < 1.5 ? 0 : 1][ieta-1];
+  CaloRec::Array<1> coef = m_correction(myctx)[aeta < 1.5 ? 0 : 1][ieta-1];
 
   float u = fmod (aeta, 0.025); 
   float qetamod = coef[0] + coef[1]*u + coef[2]*u*u;

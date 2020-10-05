@@ -21,8 +21,7 @@
 //                                                          //
 // LArMaterialManager class switched to the new interface   //
 // of StoredMaterialManager.                                //
-// As of now it does need to be subclassed from             //
-// AbsMaterialManager and the only thing it has to do is    //
+// Te only thing it has to do now is                        //
 // to build LAr specific materials and store them into      //
 // central Stored Material manager                          //
 //                                                          //

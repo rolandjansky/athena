@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,24 +44,24 @@ class PixelClusterOnTrackErrorData {
 
 
     // get parametrizations
-    const std::vector<float> getClusterSizeBinsX(){return m_csx;}
-    const std::vector<float> getClusterSizeBinsY(){return m_csy;}
-    const std::vector<float> getEtaBins(){return m_etaref;}
-    const std::vector<float> getIncidenceAngleBins(){return m_phibins;}
+    const std::vector<float> getClusterSizeBinsX() const {return m_csx;}
+    const std::vector<float> getClusterSizeBinsY() const {return m_csy;}
+    const std::vector<float> getEtaBins() const {return m_etaref;}
+    const std::vector<float> getIncidenceAngleBins() const {return m_phibins;}
     // IBL
-    const std::vector<float> getEtaIBLBins(){return m_ibletaref;}
-    const std::vector<float> getIncidenceAngleIBLBins(){return m_iblphibins;}
+    const std::vector<float> getEtaIBLBins() const {return m_ibletaref;}
+    const std::vector<float> getIncidenceAngleIBLBins() const {return m_iblphibins;}
 
 
     // old parametrization (analytical formula)
-    double getPixelBarrelPhiError(double ang, int phiClusterSize); 
+    double getPixelBarrelPhiError(double ang, int phiClusterSize) const; 
 
     // new parametrization (read from DB)
-    float getPixelBarrelEtaError(int ibin);
-    float getPixelBarrelPhiError(int ibin);
+    float getPixelBarrelEtaError(int ibin) const;
+    float getPixelBarrelPhiError(int ibin) const;
     // IBL
-    float getPixelIBLEtaError(int ibin);
-    float getPixelIBLPhiError(int ibin);
+    float getPixelIBLEtaError(int ibin) const;
+    float getPixelIBLPhiError(int ibin) const;
 
     void setParameters(const int ncsx, const int ncsy, const int neta, const int nalpha, 
                        int offset, std::vector<float> constants);
@@ -76,13 +76,13 @@ class PixelClusterOnTrackErrorData {
       m_ibletaerror[ibin] = error; }
 
 
-    int getBarrelBinPhi(double angle, int phiClusterSize);
+    int getBarrelBinPhi(double angle, int phiClusterSize) const;
 
     int getBarrelBinEta(double eta, int etaClusterSize, 
-		      int phiClusterSize);
+		      int phiClusterSize) const;
     // IBL
-    int getIBLBinPhi(double angle, int phiClusterSize);
-    int getIBLBinEta(double eta, int etaClusterSize);
+    int getIBLBinPhi(double angle, int phiClusterSize) const;
+    int getIBLBinEta(double eta, int etaClusterSize) const;
 
     // save constants on text file
     void Print(std::string file) const;

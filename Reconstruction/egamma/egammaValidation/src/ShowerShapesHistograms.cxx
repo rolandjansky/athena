@@ -17,9 +17,9 @@ StatusCode ShowerShapesHistograms::initializePlots() {
   histoMap["rphi"]    = (new TH1D(Form("%s_%s",m_name.c_str(),"rphi"   ), ";R_{#phi}; R_{#phi} Events"                  , 355,  0.  ,  1.1005));
   histoMap["weta2"]   = (new TH1D(Form("%s_%s",m_name.c_str(),"weta2"  ), ";W_{#etas2}; W_{#etas2} Events"              , 100,  0.  ,  0.03  ));
   histoMap["eratio"]  = (new TH1D(Form("%s_%s",m_name.c_str(),"eratio" ), ";E_{ratio}; E_{ratio} Events"                , 100,  0.  ,  1.    ));
-  histoMap["deltae"]  = (new TH1D(Form("%s_%s",m_name.c_str(),"deltae" ), ";#DeltaE [GeV]; #DeltaE Events"              , 250,  0.  ,  0.5   ));
+  histoMap["deltae"]  = (new TH1D(Form("%s_%s",m_name.c_str(),"deltae" ), ";#DeltaE [GeV]; #DeltaE Events"              , 100,  0.  ,  0.1   ));
   histoMap["f1"]      = (new TH1D(Form("%s_%s",m_name.c_str(),"f1"     ), ";f_{1}; f_{1} Events"                        , 100,  0.  ,  1.0   ));
-  histoMap["fside"]   = (new TH1D(Form("%s_%s",m_name.c_str(),"fside"  ), ";f_{side}; f_{side} Events"                  , 350,  0.  ,  3.5   ));
+  histoMap["fside"]   = (new TH1D(Form("%s_%s",m_name.c_str(),"fside"  ), ";f_{side}; f_{side} Events"                  , 100,  0.  ,  2.0   ));
   histoMap["wtots1"]  = (new TH1D(Form("%s_%s",m_name.c_str(),"wtots1" ), ";w_{s, tot}; w_{s, tot} Events"              , 100,  0.  , 10.    ));
   histoMap["ws3"]     = (new TH1D(Form("%s_%s",m_name.c_str(),"ws3"    ), ";w_{s, 3}; w_{s, 3} Events"                  , 100,  0.  ,  1.    ));
   histoMap["lateral"] = (new TH1D(Form("%s_%s",m_name.c_str(),"lateral"), ";Lateral of seed; Events", 50, 0, 1));

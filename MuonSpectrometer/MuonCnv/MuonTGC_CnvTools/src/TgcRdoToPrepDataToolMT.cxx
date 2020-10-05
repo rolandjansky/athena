@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TGC_CnvTool.cxx, (c) ATLAS Detector software
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "TgcRdoToPrepDataToolMT.h"
 
 #include "MuonDigitContainer/TgcDigit.h"
 #include "MuonTrigCoinData/TgcCoinData.h"
-
 
 Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
@@ -18,21 +13,12 @@ Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const
 {
 }  
 
-Muon::TgcRdoToPrepDataToolMT::~TgcRdoToPrepDataToolMT()
-{
-}
-
 StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( TgcRdoToPrepDataToolCore::initialize() );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::TgcRdoToPrepDataToolMT::finalize()
-{
-  return TgcRdoToPrepDataToolCore::finalize();
 }
 
 StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
@@ -61,7 +47,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
     
     // record the container in storeGate
-    handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+    handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()));
     // cache the pointer, storegate retains ownership
     m_tgcPrepDataContainer[ibc] = handle.ptr();
     if(!handle.isValid()) {
@@ -82,13 +68,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
   bool nothingToDoForAllBC = true;
   for(int ibc=0; ibc<NBC; ibc++) {
     if(!nothingToDo[ibc]) nothingToDoForAllBC = false;
-  } 
-  
-  /*if(nothingToDoForAllBC) {
-    ATH_MSG_DEBUG("Whole events at all " << NBC << " BCs have already been decoded; nothing to do");
-    return StatusCode::SUCCESS;
-    }*/
-
+  }
   
   /// clean up containers for Coincidence
   for(int ibc=0; ibc<NBC; ibc++) {
@@ -96,7 +76,7 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
     SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
     
     // record the container in storeGate
-    handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+    handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()));
     
     // cache the pointer, storegate retains ownership
     m_tgcCoinDataContainer[ibc] = handle.ptr();
@@ -181,7 +161,19 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
         TgcRdo::const_iterator itD   = (*iRdo)->begin(); 
         TgcRdo::const_iterator itD_e = (*iRdo)->end();
         for(; itD!=itD_e; itD++) { 
-          selectDecoder(itD, (*iRdo));
+	  //Since OnlineIds are not unique, need some additional filtering on offline hashId 
+	  //to avoid decoding RDO outside of an RoI
+	  Identifier offlineId;
+	  IdentifierHash tgcHashId;
+	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
+
+	  if(m_tgcCabling->getElementIDfromReadoutID(offlineId, (*itD)->subDetectorId(), (*itD)->rodId(), (*itD)->sswId(), (*itD)->slbId(), (*itD)->bitpos())){
+	    if(m_idHelperSvc->tgcIdHelper().get_hash(offlineId, tgcHashId, &tgcContext)){
+	      if(std::find(requestedIdHashVect.begin(), requestedIdHashVect.end(), tgcHashId) != requestedIdHashVect.end()){
+		selectDecoder(itD, (*iRdo));
+	      }
+	    }
+	  }
         }
         m_decodedRdoCollVec.push_back(*iRdo);
       }

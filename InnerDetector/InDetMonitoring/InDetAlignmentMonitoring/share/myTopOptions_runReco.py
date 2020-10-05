@@ -238,9 +238,6 @@ if  addLumiBlockTools :
     # add LumiBlockMetaDataTool to ToolSvc and configure
     from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
     ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-    LumiBlockMetaDataTool.calcLumi = False # False by default
-    LumiBlockMetaDataTool.storeXMLFiles = True
-    LumiBlockMetaDataTool.applyDQCuts = True
     LumiBlockMetaDataTool.OutputLevel = INFO
 
     # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc

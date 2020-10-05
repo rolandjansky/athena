@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ====================================================================
@@ -16,7 +16,6 @@
 #ifndef TGC_ASDOUT_H
 #define TGC_ASDOUT_H
 
-//#include "TrigT1TGC/TGCIndex.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
 
 namespace LVL1TGCTrigger {
@@ -30,24 +29,18 @@ namespace LVL1TGCTrigger {
 class TGCASDOut {
 protected:
   TGCReadoutIndex m_tgcReadoutIndex;
-  TGCSignalType m_signalType;
-  int m_hitID;       // index in a chamber
-  int m_channel;     // index in a ASD board 
-  double m_hitToF;
+  TGCSignalType m_signalType{WIRE};
+  int m_hitID{0};       // index in a chamber
+  int m_channel{0};     // index in a ASD board
+  double m_hitToF{0};
 
 public:
-  TGCASDOut();
+  TGCASDOut() = default;
   TGCASDOut(TGCIndex tgcindex, int ilyr, 
 	    TGCSignalType sigtype=WIREGROUP, int id=-1, double tof=0.);
   TGCASDOut(TGCReadoutIndex tgcrindex, 
 	    TGCSignalType sigtype=WIREGROUP, int id=-1, double tof=0.);
 
-  virtual ~TGCASDOut() { }
- 
-  TGCASDOut(const TGCASDOut& right);
- 
-  TGCASDOut& operator=(const TGCASDOut& right);
- 
   int operator==(const TGCASDOut& right) const
   {
     return (this==&right);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -14,7 +14,6 @@
 #include "TTree.h"
 #include "TLorentzVector.h"
 
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "InDetPerformanceMonitoring/ZmumuEvent.h"
 
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
@@ -28,6 +27,7 @@
 
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
@@ -90,15 +90,10 @@ IDPerfMonZmumu::~IDPerfMonZmumu()
 StatusCode IDPerfMonZmumu::initialize()
 {
   ATH_CHECK( m_evt.initialize() );
-  // Setup the services
-  ISvcLocator* pxServiceLocator = serviceLocator();
-  if ( pxServiceLocator ) {
-    StatusCode xSC = PerfMonServices::InitialiseServices( pxServiceLocator );
-    if ( !xSC.isSuccess() ){
-      ATH_MSG_FATAL("Problem Initializing PerfMonServices");
-	  
-	  }
-  }
+
+  ATH_CHECK( m_vertexContainerKey.initialize() );
+  ATH_CHECK( m_muonContainerKey.initialize() );
+
   // Retrieve fitter
   ATH_CHECK(m_TrackRefitter1.retrieve());
   ATH_CHECK(m_TrackRefitter2.retrieve());
@@ -316,9 +311,12 @@ StatusCode IDPerfMonZmumu::execute()
     ATH_MSG_ERROR("Could not retrieve event info."); // Keeping ERROR only to preserve old functionality
   }
 
-  //Fill Staco muon parameters only
-  m_xZmm.setContainer(PerfMonServices::MUON_COLLECTION);
-  if(!m_xZmm.Reco()){
+  SG::ReadHandle<xAOD::VertexContainer> vertexContainer (m_vertexContainerKey);
+  SG::ReadHandle<xAOD::MuonContainer> muonContainer (m_muonContainerKey);
+
+  if(!m_xZmm.Reco(*muonContainer,
+                  *vertexContainer))
+  {
     //failed reconstruction
     return StatusCode::SUCCESS;
   }
@@ -643,7 +641,7 @@ const xAOD::TruthParticle* IDPerfMonZmumu::getTruthParticle( const xAOD::IPartic
   /// A convenience type declaration
   typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
   /// A static accessor for the information
-  static SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
+  static const SG::AuxElement::ConstAccessor< Link_t > acc( "truthParticleLink" );
   // Check if such a link exists on the object:
   if( ! acc.isAvailable( p ) ) {
     return 0;

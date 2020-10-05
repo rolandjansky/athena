@@ -7,6 +7,7 @@ import eformat
 from eformat import helper
 import logging
 import sys
+import re
 
 class Config:
   """Configuration options for this module"""
@@ -75,6 +76,7 @@ def main():
   parser.add_argument('--firstLB', type=int, default=1, help='first lumiblock number [%(default)s]')
   parser.add_argument('--incLB', type=int, default=1, help='increment steps for lumiblock number [%(default)s]')
   parser.add_argument('-t', '--timestamp', type=int, help='set timestamp in seconds [%(default)s]')
+  parser.add_argument('--removeRobs', metavar='PATTERN', type=str, help='regex for removing specific ROB IDs')
 
   args = parser.parse_args()
 
@@ -100,7 +102,10 @@ def main():
     if args.events>0 and i>args.events:
       break
     ro_event = modify(event)
-    rw_event = eformat.write.FullEventFragment(ro_event)
+    if args.removeRobs:
+      rw_event = eformat.write.FullEventFragment(ro_event, re.compile(args.removeRobs))
+    else:
+      rw_event = eformat.write.FullEventFragment(ro_event)
     ostr.write(rw_event)
 
   return

@@ -194,10 +194,9 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepJetTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         EGAM2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM2JetTPThinningTool",
-                                                                                ThinningService         = EGAM2ThinningHelper.ThinningSvc(),
+                                                                                StreamName              = streamName,
                                                                                 JetKey                  = "AntiKt4EMTopoJets",
-                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                ApplyAnd                = True)
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM2JetTPThinningTool
         print EGAM2JetTPThinningTool
         thinningTools.append(EGAM2JetTPThinningTool)
@@ -206,7 +205,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepMuonTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
         EGAM2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM2MuonTPThinningTool",
-                                                                                  ThinningService         = EGAM2ThinningHelper.ThinningSvc(),
+                                                                                StreamName              = streamName,
                                                                                   MuonKey                 = "Muons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM2MuonTPThinningTool
@@ -217,14 +216,13 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepElectronTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
         EGAM2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM2ElectronTPThinningTool",
-                                                                                        ThinningService         = EGAM2ThinningHelper.ThinningSvc(),
+                                                                                        StreamName              = streamName,
                                                                                         SGKey                   = "Electrons",
                                                                                         GSFTrackParticlesKey    = "GSFTrackParticles",        
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                         SelectionString         = "Electrons.pt > 0*GeV",
                                                                                         BestMatchOnly = True,
-                                                                                        ConeSize = 0.3,
-                                                                                        ApplyAnd = False)
+                                                                                        ConeSize = 0.3)
         ToolSvc += EGAM2ElectronTPThinningTool
         print EGAM2ElectronTPThinningTool
         thinningTools.append(EGAM2ElectronTPThinningTool)
@@ -233,14 +231,13 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepPhotonTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
         EGAM2PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM2PhotonTPThinningTool",
-                                                                                      ThinningService         = EGAM2ThinningHelper.ThinningSvc(),
+                                                                                      StreamName              = streamName,
                                                                                       SGKey                   = "Photons",
                                                                                       GSFTrackParticlesKey    = "GSFTrackParticles",        
                                                                                       InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                       SelectionString         = "Photons.pt > 0*GeV",
                                                                                       BestMatchOnly = True,
-                                                                                      ConeSize = 0.3,
-                                                                                      ApplyAnd = False)
+                                                                                      ConeSize = 0.3)
 
         ToolSvc += EGAM2PhotonTPThinningTool
         print EGAM2PhotonTPThinningTool
@@ -250,7 +247,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepTauTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
         EGAM2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "EGAM2TauTPThinningTool",
-                                                                                ThinningService         = EGAM2ThinningHelper.ThinningSvc(),
+                                                                                StreamName              = streamName,
                                                                                 TauKey                  = "TauJets",
                                                                                 ConeSize                = 0.6,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -262,7 +259,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
         EGAM2TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM2TPThinningTool",
-                                                                          ThinningService         = EGAM2ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0*mm",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM2TPThinningTool

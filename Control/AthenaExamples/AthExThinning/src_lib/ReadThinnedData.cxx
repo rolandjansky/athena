@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReadThinnedData.cxx 
@@ -14,13 +14,11 @@
 
 // FrameWork includes
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
-
-// CLHEP includes
-#include "CLHEP/Units/SystemOfUnits.h"
 
 // AthExThinning includes
 #include "AthExThinning/AthExParticles.h"
@@ -150,7 +148,7 @@ StatusCode ReadThinnedData::checkTest( const std::string& testName )
     return StatusCode::RECOVERABLE;
   }
 
-  const double igev = 1. / CLHEP::GeV;
+  const double igev = 1. / Gaudi::Units::GeV;
   ATH_MSG_DEBUG 
     ("IN  particles: " <<  particles->size() << endmsg
      << "IN iparticles: " << iparticles->size() << endmsg

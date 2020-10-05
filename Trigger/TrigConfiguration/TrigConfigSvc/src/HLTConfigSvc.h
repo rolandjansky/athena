@@ -92,15 +92,6 @@ namespace TrigConf {
       // Properties:
       bool            m_setMergedHLT { true }; 
       bool            m_doMon { false };
-      std::string     m_partition { "" };
-      Histo1DProperty m_histProp_timePrescaleUpdate;
-
-      // Histograms:
-      TH1F* m_hist_timePrescaleUpdate { nullptr };
-      TH2I* m_hist_prescaleLB { nullptr };
-
-      StringProperty  m_PartitionName { "" }; // non-empty job-property overwrite value from DataFlowConfig
-
    };
 }
 

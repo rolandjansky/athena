@@ -179,7 +179,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   ATH_MSG_VERBOSE ("Prepare the old start parameters...");
   // copy input TrkParameter into prediction without Errors
   const TrackParameters* updatedPar = estParamNear0.clone();
-  Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = 0;
+  Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = nullptr;
   
   // loop over all PreRawData objects in Set
   int itcounter=1;
@@ -253,8 +253,8 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   }
   if (allowRecalibrate) m_utility->identifyMeasurements(trajectory);
   Trk::Trajectory::iterator it = m_utility->firstFittableState(trajectory);
-  const TrackParameters* updatedPar = 0;        // delete & remake during filter
-  Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = 0;
+  const TrackParameters* updatedPar = nullptr;        // delete & remake during filter
+  Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = nullptr;
   ATH_MSG_DEBUG ("-F- entering FwFilter with matEff="<<controlledMatEffects.particleType()<<
                  ", "<<(allowRecalibrate?"recalibrate:yes":"recalibrate:no")<<
                  " and start state "<<filterStartState);
@@ -375,7 +375,7 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
     m_alignableSurfaceProvider->retrieveAlignableSurface(nominalDestSurface):
     nominalDestSurface                                                      ;
   
-  const Trk::TrackParameters* predPar = 0;
+  const Trk::TrackParameters* predPar = nullptr;
   if (filterCounter == 1) {
 
     ////////////////////////////////////////////////////////////////////////////
@@ -468,7 +468,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
  Trk::ProtoTrackStateOnSurface*& bremEffectsState,
  const bool                      allowRecalibrate) const
 {
-  bremEffectsState = 0; // means no brem
+  bremEffectsState = nullptr; // means no brem
   const MeasurementBase* fittableMeasurement = predictedState->measurement();
   int I = predictedState->positionOnTrajectory();
 
@@ -497,7 +497,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
   if(!predPar) {
     ATH_MSG_DEBUG ((I<10?"T0":"T") << I << " --- missed surface with "
                    << "extrapolation, flag state as outlier --- " );
-    if (0 != dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(fittableMeasurement) ) {
+    if (nullptr != dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(fittableMeasurement) ) {
       ATH_MSG_INFO ("lost PseudoMeasurement during fwd extrapolation - "
                     << "PM-surface or sorting problem.");
       if (msgLvl(MSG::DEBUG)) {
@@ -535,7 +535,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
   // search for brem and adjust the error according to target measurement (brem fit)
   if (filterCounter>2) {
     const Trk::DNA_MaterialEffects* updMomNoise = 
-      !controlledMatEffects.doDNA() ? 0 :
+      !controlledMatEffects.doDNA() ? nullptr :
       m_dynamicNoiseAdjustor->DNA_Adjust(predPar, // change according to where meas is
                                          updatedPar, // re-start from old pars
                                          fittableMeasurement, // the meas't
@@ -610,7 +610,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
   // if extrapolation had failed, skip this method altogether.
   if (predPar==nullptr)   return FitterStatusCode::Success;
   const MeasurementBase* fittableMeasurement = predictedState->measurement();
-  FitQualityOnSurface* fitQuality=0;
+  FitQualityOnSurface* fitQuality=nullptr;
   delete updatedPar;
 
   ////////////////////////////////////////////////////////////////////
@@ -683,7 +683,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
           ); 
       fittableMeasurement = predictedState->measurement();
       ATH_MSG_DEBUG ("Broadened TRT hit instead of outlier");
-      delete updatedPar; delete fitQuality; fitQuality=0;
+      delete updatedPar; delete fitQuality; fitQuality=nullptr;
       ////////////////////////////////////////////////////////////////////
       // make the update
       updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
@@ -758,7 +758,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
     return FitterStatusCode::BadInput;
   }
   const Trk::Surface& startSurface = ffs->measurement()->associatedSurface();
-  const Trk::TrackParameters* inputParAtStartSurface = 0;
+  const Trk::TrackParameters* inputParAtStartSurface = nullptr;
   
   // chk if TPar are already in correct local frame: first pointer check (quick) then geometric
   if ( &startSurface ==  &inputPar.associatedSurface() ||
@@ -812,7 +812,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
 
 
 // private -- helper to make pretty debug output
-void Trk::ForwardKalmanFitter::printGlobalParams(int istate, std::string ptype,
+void Trk::ForwardKalmanFitter::printGlobalParams(int istate, const std::string& ptype,
                                                  const Trk::TrackParameters* param,
                                                  const Trk::DNA_MaterialEffects* mefot)
   const

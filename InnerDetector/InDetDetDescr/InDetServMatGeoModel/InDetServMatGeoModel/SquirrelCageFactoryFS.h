@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_SQUIRRELCAGEFACTORYFS_H
 #define INDETSERVMATGEOMODEL_SQUIRRELCAGEFACTORYFS_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
@@ -26,7 +27,7 @@ class SquirrelCageFactoryFS {
   // Creation of geometry:
   void create(GeoPhysVol *motherP, GeoPhysVol *motherM);
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
  private:  
   
@@ -37,7 +38,7 @@ class SquirrelCageFactoryFS {
   // private data
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
-  mutable Athena::MsgStreamMember m_msg;
+  Athena::MsgStreamMember m_msg;
 };
 
 #endif 

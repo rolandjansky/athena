@@ -1,48 +1,17 @@
-################################################################################
-# Package: TrigBjetMonitoring
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigBjetMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigMonitoring/TrigHLTMonitoring
-                          Trigger/TrigTools/TrigTrackJetFinderTool
-                          PRIVATE
-                          Control/AthenaMonitoring
-                          DetectorDescription/GeoPrimitives
-                          Event/EventPrimitives
-                          Event/FourMomUtils
-                          Event/xAOD/xAODBTagging
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTracking
-                          InnerDetector/InDetConditions/InDetBeamSpotService
-                          Reconstruction/Jet/JetEvent
-                          Reconstruction/Jet/JetUtils
-                          Reconstruction/MuonIdentification/muonEvent
-                          Reconstruction/Particle
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/DecisionHandling )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Core Hist MathCore )
 
 # Component(s) in the package:
 atlas_add_component( TrigBjetMonitoring
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel TrigDecisionToolLib TrigHLTMonitoringLib AthenaMonitoringLib
-                     GeoPrimitives EventPrimitives FourMomUtils xAODBTagging xAODEventInfo xAODTracking JetEvent JetUtils 
-                     muonEvent Particle TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent DecisionHandlingLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib AthenaMonitoringLib EventPrimitives FourMomUtils GaudiKernel GeoPrimitives JetEvent JetUtils Particle StoreGateLib TrigDecisionToolLib TrigHLTMonitoringLib TrigParticle TrigInDetToolInterfacesLib muonEvent xAODBTagging xAODEventInfo xAODMuon xAODTracking )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_headers( TrigBjetMonitoring )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-

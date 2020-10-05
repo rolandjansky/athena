@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     LArCellMonTool.cxx
 
 //                W.Lampl  - Spring 2017: Major re-design
 // ********************************************************************
-#include "CaloMonitoring/LArCellMonTool.h"
+#include "LArCellMonTool.h"
 
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
@@ -50,9 +50,6 @@ LArCellMonTool::LArCellMonTool(const std::string& type, const std::string& name,
   declareInterface<IMonitorToolBase>(this);
 
   declareProperty("DoSaveTempHists",m_doSaveTempHists=false,"Store temporary, intermediate histograms in a /Temp/ directory (for debugging");
-
-  // CaloCellContainer name 
-  declareProperty("CaloCellContainer", m_cellContainerName="AllCalo","SG key of the input cell container");
 
   // tools 
   declareProperty("useElectronicNoiseOnly",m_useElectronicNoiseOnly=false,"Consider only electronic noise and ignore pile-up contributiuon)");
@@ -150,7 +147,7 @@ LArCellMonTool::~LArCellMonTool() {
 ////////////////////////////////////////////
 StatusCode LArCellMonTool::initialize() {
 
-  ATH_MSG_INFO("LArCellMonTool::initialize() start");
+  ATH_MSG_DEBUG("LArCellMonTool::initialize() start");
 
   //Identfier-helpers 
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
@@ -207,11 +204,14 @@ StatusCode LArCellMonTool::initialize() {
   //Fill the LArCellBinning for each layer
   setLArCellBinning();
 
+  //Initialize read handle key
+  ATH_CHECK( m_cellContainerName.initialize() );
+
   //Call base-call initialize methods
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
   ATH_CHECK( CaloMonToolBase::initialize() );
 
-  ATH_MSG_INFO("LArCellMonTool::initialize() is done!");
+  ATH_MSG_DEBUG("LArCellMonTool::initialize() is done!");
   return StatusCode::SUCCESS;
 }
 
@@ -660,8 +660,9 @@ StatusCode LArCellMonTool::fillHistograms(){
      return StatusCode::FAILURE;
   }
 
-  const CaloCellContainer* cellCont = nullptr;
-  ATH_CHECK(evtStore()->retrieve(cellCont, m_cellContainerName));
+  SG::ReadHandle<CaloCellContainer> cellContHandle{m_cellContainerName};
+  if (! cellContHandle.isValid()) { return StatusCode::FAILURE; }
+  const CaloCellContainer* cellCont = cellContHandle.get();
 	    
   if (!m_oncePerJobHistosDone) {
     ATH_CHECK(createPerJobHistograms(cellCont));

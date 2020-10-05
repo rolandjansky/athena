@@ -8,7 +8,14 @@ log = logging.getLogger("TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool")
 from AthenaCommon.SystemOfUnits import GeV
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigElectronSelectors
 
-def _IncTool(name, threshold, sel):
+# isolation cuts
+IsolationCut = {
+        None: None,
+        'ivarloose': 0.1,
+        'ivarmedium': 0.065,
+        'ivartight': 0.05
+        }
+def _IncTool(name, threshold, sel, iso):
 
     log.debug('TrigEgammaPrecisionElectronHypoTool _IncTool("'+name+'", threshold = '+str(threshold) + ', sel = '+str(sel))
 
@@ -24,7 +31,9 @@ def _IncTool(name, threshold, sel):
                            defineHistogram('Et_em', type='TH1F', path='EXPERT', title="PrecisionElectron Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]", xbins=50, xmin=-2000, xmax=100000),
                            defineHistogram('Eta', type='TH1F', path='EXPERT', title="PrecisionElectron Hypo entries per Eta;Eta", xbins=100, xmin=-2.5, xmax=2.5),
                            defineHistogram('Phi', type='TH1F', path='EXPERT', title="PrecisionElectron Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2),
-                           defineHistogram('EtaBin', type='TH1I', path='EXPERT', title="PrecisionElectron Hypo entries per Eta bin;Eta bin no.", xbins=11, xmin=-0.5, xmax=10.5)]
+                           defineHistogram('EtaBin', type='TH1I', path='EXPERT', title="PrecisionElectron Hypo entries per Eta bin;Eta bin no.", xbins=11, xmin=-0.5, xmax=10.5),
+                           defineHistogram('LikelihoodRatio', type='TH1F', path='EXPERT', title="PrecisionElectron Hypo LH", xbins=100, xmin=-5, xmax=5),
+                           defineHistogram('mu', type='TH1F', path='EXPERT', title="Average interaction per crossing", xbins=100, xmin=0, xmax=100)]
 
     cuts=['Input','#Delta #eta EF-L1', '#Delta #phi EF-L1','eta','E_{T}^{EM}']
 
@@ -57,14 +66,15 @@ def _IncTool(name, threshold, sel):
         # No other cuts applied
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
+
+
+    if  iso  and iso != '':
+        if iso not in IsolationCut:
+            log.error('Isolation cut %s not defined!', iso)
+        log.debug('Configuring Isolation cut %s with value %d',iso,IsolationCut[iso])
+        tool.RelPtConeCut = IsolationCut[iso]
     
     return tool
-
-
-def _MultTool(name):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoToolMult
-    return TrigEgammaPrecisionElectronHypoToolMult( name )
-
 
 
 def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
@@ -79,20 +89,14 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
     
     def __sel(cpart):
         return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+
+    def __iso(cpart):
+        return cpart['isoInfo']
+
     
     name = d['chainName']
-
-    
-    # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
-    if len(cparts) > 1 or __mult(cparts[0]) > 1:
-        tool = _MultTool(name)
-        for cpart in cparts:
-            for cutNumber in range( __mult( cpart ) ):
-                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __th( cpart ), __sel( cpart) ) ]
-
-        return tool
-    else:        
-        return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ) )
+        
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0])  )
                    
     
 

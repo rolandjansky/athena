@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# flake8: noqa (obsolete Run-2 job options)
 ##############################################################
 # TriggerJobOpts/runHLT_standalone.py
 #
@@ -559,3 +561,8 @@ if not TriggerFlags.Online.doValidation():  # Suppress this printout in ATN test
     jobproperties.print_JobProperties('tree&value')
     print(AlgSequence)
     print(ServiceMgr)
+
+#-------------------------------------------------------------
+# Enable xAOD::EventInfo decorations for pileup values
+#-------------------------------------------------------------
+include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")

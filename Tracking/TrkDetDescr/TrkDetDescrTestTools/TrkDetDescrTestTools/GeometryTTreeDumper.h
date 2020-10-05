@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,15 +45,15 @@ namespace Trk {
       private:
 
         /** Current implementation: write root visualization to file stream */
-        StatusCode processNode(const TrackingVolume& tvol, size_t level=0);
+        StatusCode processNode(const TrackingVolume& tvol, size_t level=0) const;
 
         /** Current implementation: write root visualization to file stream */
-        StatusCode processNode(const Layer& lay, size_t level=0);
+        StatusCode processNode(const Layer& lay, size_t level=0) const;
 
         /** Current implementation: write root visualization to file stream */
-        StatusCode processNode(const Surface&, size_t level=0);
+        StatusCode processNode(const Surface&, size_t level=0) const;
 
-        TTree*              m_currentTree; //!< the tree for the currently processed tracking Volume
+        mutable TTree*      m_currentTree; //!< the tree for the currently processed tracking Volume
         std::string         m_treeFolder;  //!< where the tree is written to  
 
     };
