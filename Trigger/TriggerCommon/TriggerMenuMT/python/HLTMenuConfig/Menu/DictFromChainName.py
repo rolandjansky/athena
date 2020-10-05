@@ -149,7 +149,7 @@ def getChainMultFromDict(chainDict):
     allMultis = []
     for cpart in chainDict['chainParts']:
         if cpart['multiplicity'] != '':
-            allMultis.append(cpart['multiplicity'])
+            allMultis.append( int(cpart['multiplicity']))
     return allMultis
 
 

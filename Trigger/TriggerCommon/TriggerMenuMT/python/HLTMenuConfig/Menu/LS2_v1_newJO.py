@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 import six
@@ -34,6 +34,7 @@ def setupMenu(flags):
     #---------------------------------------------------------------------
     SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
+    MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     CombinedGroup = ['RATE:Combined', 'BW:Combined']
@@ -50,6 +51,9 @@ def setupMenu(flags):
 
     flags.Trigger.menu.electron = [
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_2e3_etcut_L12EM3', groups=MultiElectronGroup),
+# this chain does not work yet        
+        ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup)
     ]
