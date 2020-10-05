@@ -48,8 +48,6 @@ find_package( ${ATLAS_PROJECT} REQUIRED )
 # Set up CTest:
 atlas_ctest_setup()
 
-		
-
 # Set up a work directory project:
 set( _useFortran )
 if( ATLAS_USE_FORTRAN )
