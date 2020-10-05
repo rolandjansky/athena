@@ -55,8 +55,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereo
 
   int nLinksFound     = 0;
   /// predicted local position
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
   /// covariance for prediction 
   double PV0 = Tp.cov()[0];   /// X,X
   double PV1 = Tp.cov()[1];   /// X,Y
@@ -163,8 +163,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
 
   int nLinksFound     = 0;
   /// predicted local position
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
   /// covariance of prediction
   double PV0 = Tp.cov()[0];
   double PV1 = Tp.cov()[1];
@@ -256,8 +256,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 
   int nLinksFound     = 0;
   /// predicted local position
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
   /// and cov of prediction
   double PV0 = Tp.cov()[0];
   double PV1 = Tp.cov()[1];
@@ -348,8 +348,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
   if (m_detstatus<=0) return 0;
 
   int nLinksFound     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
   double PV0 = Tp.cov()[0];
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
@@ -420,8 +420,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
   if (m_detstatus<=0) return 0;
 
   int nLinksFound     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
   double PV0 = Tp.cov()[0];
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
@@ -481,8 +481,8 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
   if (m_detstatus<=0) return 0;
 
   int nLinksFound     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
   double PV0 = Tp.cov()[0];
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];

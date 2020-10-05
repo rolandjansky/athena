@@ -76,7 +76,7 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
   // Primary trajectory direction calculation
   //
-  double A[4]; A[3]=Tp.par()[4];
+  double A[4]; A[3]=Tp.parameters()[4];
 
   for(++i; i!=ie; ++i) {
     if( (*i).second-(*i0).second > 1.) {
@@ -158,7 +158,7 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 
   // Primary trajectory direction calculation
   //
-  double A[4]; A[3]=Tp.par()[4];
+  double A[4]; A[3]=Tp.parameters()[4];
 
   for(++i; i!=ie; ++i) {
     if( (*i).second-(*i0).second > 1.) {
@@ -561,11 +561,12 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
   }
   // Track segment production
   //
-  double P[5]={m_parameters.par()[0],
-	       m_parameters.par()[1],
-	       m_parameters.par()[2],
-	       m_parameters.par()[3],
-	       m_parameters.par()[4]};
+  const AmgVector(5) & p = m_parameters.parameters();
+  double P[5]={p[0],
+	       p[1],
+	       p[2],
+	       p[3],
+	       p[4]};
 
   if(!m_ndf) {m_ndf = rio->size()-5; m_xi2 = 0.;}
 
@@ -724,8 +725,8 @@ bool InDet::TRT_Trajectory_xk::fitter()
   double        rad =  0. ;
 
   if(!trackParametersEstimationForLastPoint() || std::abs(m_parameters.pT()) < m_minTRTSegmentpT) return false;
-  double sin2 = 1./sin(m_parameters.par()[3]); sin2*= sin2        ;
-  double P42  =        m_parameters.par()[4] ; P42  = P42*P42*134.;
+  double sin2 = 1./sin(m_parameters.parameters()[3]); sin2*= sin2        ;
+  double P42  =        m_parameters.parameters()[4] ; P42  = P42*P42*134.;
 
   if(!m_elements[m_lastTrajectory].addCluster(m_parameters,m_parameters,m_xi2)) return false;
 
@@ -867,8 +868,8 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   if(!m_parameters.production((*(tsos->rbegin()))->trackParameters())) return 0;
 
-  double sin2 = 1./sin(m_parameters.par()[3]); sin2*= sin2        ;
-  double P42  =        m_parameters.par()[4] ; P42  = P42*P42*134.;
+  double sin2 = 1./sin(m_parameters.parameters()[3]); sin2*= sin2        ;
+  double P42  =        m_parameters.parameters()[4] ; P42  = P42*P42*134.;
 
   Trk::NoiseOnSurface  noise;
 
@@ -983,10 +984,10 @@ void InDet::TRT_Trajectory_xk::updateTrackParameters(Trk::PatternTrackParameters
 {
   if(m_parameters.cov()[14] >= T.cov()[14]) return;
 
-  double Pi    = m_parameters.par()[ 4];
+  double Pi    = m_parameters.parameters()[ 4];
   double CovPi = m_parameters.cov()[14];
 
-  const double* p = T.par();
+  const AmgVector(5)& p = T.parameters();
   const double* v = T.cov();
 
   double V[15] = {v[ 0],

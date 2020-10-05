@@ -603,12 +603,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 bool Trk::RungeKuttaUtils::transformLocalToGlobal
 (bool useJac,const Trk::PatternTrackParameters& Tp,double* P)
 {
-  // TODO: Remove copies when Trk::PatternTrackParameters migrates uses AMG types.
-  const double * p = Tp.par();
-  AmgVector(5) tmp;
-  tmp << p[0], p[1], p[2], p[3], p[4];
-
-  return transformLocalToGlobal(useJac,Tp.associatedSurface(),tmp,P);
+  return transformLocalToGlobal(useJac,Tp.associatedSurface(),Tp.parameters(),P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1218,10 +1213,11 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
       (const Trk::PatternTrackParameters& Tp,double* Jac)
 {
   double P[23];
-  P[0] = Tp.par()[0];
-  P[1] = Tp.par()[1];
-  P[2] = Tp.par()[2];
-  P[3] = Tp.par()[3];
+  const AmgVector(5) & p = Tp.parameters();
+  P[0] = p[0];
+  P[1] = p[1];
+  P[2] = p[2];
+  P[3] = p[3];
   jacobianTransformCurvilinearToLocal(P,Tp.associatedSurface(),Jac);
 }
 

@@ -85,8 +85,9 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
 
 int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParameters& Tp,double& a) const
 {
-  double x = Tp.par()[0];
-  double y = Tp.par()[1]-m_dR;
+  const AmgVector(5) & p = Tp.parameters();
+  double x = p[0];
+  double y = p[1]-m_dR;
 
   int    n  = 0;
   a         = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; 

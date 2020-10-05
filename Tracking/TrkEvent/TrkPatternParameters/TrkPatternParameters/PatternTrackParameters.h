@@ -48,7 +48,6 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const double*    par               ()     const {return   m_parameters.data();}
       const double*    cov               ()     const {return  &m_covariance[0];}
       const Surface*   associatedSurface ()     const {return   m_surface      ;}
       const bool&      iscovariance      ()     const {return   m_iscovariance ;}

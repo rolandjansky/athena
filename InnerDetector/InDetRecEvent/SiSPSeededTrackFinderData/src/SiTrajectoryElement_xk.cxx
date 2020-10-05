@@ -81,7 +81,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   /// update starting cov for DBM case
   if(m_detelement->isDBM()) {
 
-    double tn = tan(startingPatternPars.par()[3]);
+    double tn = tan(startingPatternPars.parameters()[3]);
     cv[ 5]    = .0001           ;
     cv[14]    = (tn*tn*1.e-6)   ;
   } 
@@ -869,7 +869,7 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   int Model = m_noisemodel; 
   if(Model < 1 || Model > 2) return; 
 
-  double q = fabs(Tp.par()[4]);   /// qoverp 
+  double q = fabs(Tp.parameters()[4]);   /// qoverp 
 
   /// projection of direction normal to surface 
   double s = fabs(m_localDir[0]*m_localTransform[6]+
@@ -1175,8 +1175,8 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
                                 double* globalPars) {
   /// obtain trigonometric functions required for transform                                   
   double sinPhi,cosPhi,cosTheta,sintheta;   
-  sincos(localParameters.par()[2],&sinPhi,&cosPhi);  
-  sincos(localParameters.par()[3],&sintheta,&cosTheta);
+  sincos(localParameters.parameters()[2],&sinPhi,&cosPhi);  
+  sincos(localParameters.parameters()[3],&sintheta,&cosTheta);
   /// get the surface corresponding to the local parameters
   const Trk::Surface* pSurface=localParameters.associatedSurface();
   if (!pSurface){
@@ -1190,15 +1190,15 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
   double Ay[3] = {T(0,1),T(1,1),T(2,1)};
 
   /// position 
-  globalPars[ 0] = localParameters.par()[0]*Ax[0]+localParameters.par()[1]*Ay[0]+T(0,3);                    // X
-  globalPars[ 1] = localParameters.par()[0]*Ax[1]+localParameters.par()[1]*Ay[1]+T(1,3);                    // Y
-  globalPars[ 2] = localParameters.par()[0]*Ax[2]+localParameters.par()[1]*Ay[2]+T(2,3);                    // Z
+  globalPars[ 0] = localParameters.parameters()[0]*Ax[0]+localParameters.parameters()[1]*Ay[0]+T(0,3);                    // X
+  globalPars[ 1] = localParameters.parameters()[0]*Ax[1]+localParameters.parameters()[1]*Ay[1]+T(1,3);                    // Y
+  globalPars[ 2] = localParameters.parameters()[0]*Ax[2]+localParameters.parameters()[1]*Ay[2]+T(2,3);                    // Z
   /// direction vectors
   globalPars[ 3] = cosPhi*sintheta;                                                         // Ax
   globalPars[ 4] = sinPhi*sintheta;                                                         // Ay
   globalPars[ 5] = cosTheta;          
   /// qoeverp                                                   // Az
-  globalPars[ 6] = localParameters.par()[4];                                                   // CM
+  globalPars[ 6] = localParameters.parameters()[4];                                                   // CM
   /// for very high momenta, truncate to avoid zero
   if(std::abs(globalPars[6])<1.e-20) {
     if (globalPars[6] < 0){ 
