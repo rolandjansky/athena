@@ -198,6 +198,7 @@ namespace CP {
             /// Points to the current systematic configuration
             SysData *m_currentSysData{nullptr};
 
+            static constexpr float m_MeVtoGeV = 1.e-3;
 
     }; // Class FFJetSmearingTool
 

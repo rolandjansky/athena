@@ -518,8 +518,8 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet jet_reco, double jet_mass_val
     }
 
 
-    float jet_mass = jet_mass_value/1000.;//jet_reco->m()/1000.; The TA mass can not be extracted this way
-    float jet_pT = jet_reco.pt()/1000.;
+    float jet_mass = jet_mass_value*m_MeVtoGeV;//jet_reco->m()*m_MeVtoGeV; The TA mass can not be extracted this way
+    float jet_pT = jet_reco.pt()*m_MeVtoGeV;
 
 
     if(m_Syst_Affects_JMSorJMR[m_currentSysData->SysBaseName] == "JMS"){
@@ -644,22 +644,22 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
 
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
 
-        if(m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.)) == 0){//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
+        if(m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV)) == 0){//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
         avg_response_CALO=1;
         }
         else{
-            avg_response_CALO = m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.));
+            avg_response_CALO = m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV));
         }
     }
 
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
 
-        if(m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.))==0){
+        if(m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV))==0){
 
             avg_response_TA=1;
         }
         else{           
-            avg_response_TA = m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.));
+            avg_response_TA = m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV));
         }
     }
 
@@ -753,9 +753,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
         p4_aux = xAOD::JetFourMom_t(jet_reco_TA.pt(),jet_reco_TA.eta(),jet_reco_TA.phi(),smeared_TA_mass);
         jet_reco_TA = p4_aux;
 
-        caloRes=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()/1000.,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),std::abs(jet_reco_CALO.eta()));
+        caloRes=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()*m_MeVtoGeV,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),std::abs(jet_reco_CALO.eta()));
 
-        TARes=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight,jet_reco_TA.e()/1000.,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),std::abs(jet_reco_TA.eta()));
+        TARes=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight,jet_reco_TA.e()*m_MeVtoGeV,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),std::abs(jet_reco_TA.eta()));
 
         //The histograms with the weights that we are reading was deffined with the code "e_LOGmOe_eta" what means that each axis correspond to:
         //-X: Jet Energy
