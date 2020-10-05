@@ -138,7 +138,7 @@ namespace InDet {
     /* Method 1: using older TTrainedNetworks */
     std::vector<Amg::Vector2D> estimatePositionsTTN(
                                                  const TTrainedNetworkCollection &nn_collection,
-                                                 std::vector<double> inputData,
+                                                 const std::vector<double>& inputData,
                                                  const NNinput& input,
                                                  const InDet::PixelCluster& pCluster,
                                                  int sizeX,

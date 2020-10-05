@@ -439,7 +439,8 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
         ToolSvc += SiLorentzAngleTool(name="PixelLorentzAngleTool", 
                                       DetectorName="Pixel", 
-                                      UseMagFieldCache = True,
+                                      DetEleCollKey="PixelDetectorElementCollection",
+                                      UseMagFieldCache=True,
                                       SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
 ############################################################################################

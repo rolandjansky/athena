@@ -12,6 +12,8 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
+#include <cmath>
+
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 
@@ -45,7 +47,7 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
   if(twoA == 0.) return;
   float sq = minusB*minusB+2.*C*twoA;  
   if (sq > 0){ 
-    sq=sqrt(sq);
+    sq=std::sqrt(sq);
   }
   else {
     sq=0.;
@@ -58,7 +60,7 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
   /// if both solution occur for the same direction, 
   /// we pick the crossing that occurs first 
   if((s1*s2) > 0.) {
-    s = (fabs(s1) < fabs(s2) ? s1 : s2); 
+    s = (std::abs(s1) < std::abs(s2) ? s1 : s2); 
   }
   /// otherwise, pick the one in the positive direction
   else{     
@@ -67,19 +69,20 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
   /// Z-coordinate of the layer crossing 
   float zc   = startingPoint[2]+searchDirection[2]*s;
   /// radial component of the search direction 
-  float At   = sqrt(1.-searchDirection[2]*searchDirection[2]);
+  float At   = std::sqrt(1.-searchDirection[2]*searchDirection[2]);
   
   /// Check if we miss the layer completely: 
   /// If the distance of our crossing point to the layer centre along z exceeds the half width 
   /// in z of the layer by more than a tolerance obtained as 
   /// the z movement expected when traversing along the layer radial half-width (dr_half / tan(theta_searchDirection)) 
   /// plus the road width divided by sin(theta)
-  if(At != 0. && fabs(zc-m_z) > (m_dz+(m_dr*fabs(searchDirection[2])+startingPoint[4])/At)) return;
+  if(At != 0. && std::abs(zc-m_z) > (m_dz+(m_dr*std::abs(searchDirection[2])+startingPoint[4])/At)) return;
   /// Phi coordinate of the crossing
-  float phiCrossing   = atan2(startingPoint[1]+searchDirection[1]*s,startingPoint[0]+searchDirection[0]*s);
+  float phiCrossing   = std::atan2(startingPoint[1]+searchDirection[1]*s,startingPoint[0]+searchDirection[0]*s);
   /// road width divided by the radius of the layer
   float reducedRoadWidth   = startingPoint[4]/m_r;
   getDetElements(startingPoint,searchDirection,phiCrossing,reducedRoadWidth,lDE,used);
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -104,17 +107,18 @@ void InDet::SiDetElementsLayer_xk::getEndcapDetElements
   /// obtain x,y,r coordinates of the layer crossing in z
   float xc  = startingPoint[0]+searchDirection[0]*s;
   float yc  = startingPoint[1]+searchDirection[1]*s;
-  float rc  = sqrt(xc*xc+yc*yc);
+  float rc  = std::sqrt(xc*xc+yc*yc);
   /// search direction z (== cos(theta_search)) * radius of starting point
   float A23 = searchDirection[2]*startingPoint[3];
   /// Kick out cases where we do not expect to cross the layer at all. 
   /// Do this by checking if the distance of the radial location of the z-crossing 
   /// from the layer centre in r exceeds the r-half-width by more than 
   /// the r-movement expected when traversing the half-width in z + the search road width
-  if(A23 != 0. && fabs(rc-m_r) > m_dr+fabs(2.*(startingPoint[0]*searchDirection[0]+startingPoint[1]*searchDirection[1])*m_dz/A23)+startingPoint[4]) return;
-  float phiCrossing  = atan2(yc,xc);
+  if(A23 != 0. && std::abs(rc-m_r) > m_dr+std::abs(2.*(startingPoint[0]*searchDirection[0]+startingPoint[1]*searchDirection[1])*m_dz/A23)+startingPoint[4]) return;
+  float phiCrossing  = std::atan2(yc,xc);
   float reducedRoadWidth  = startingPoint[4]/rc;
   getDetElements(startingPoint,searchDirection,phiCrossing,reducedRoadWidth,lDE,used);
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -164,8 +168,8 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     /// if detector element i on this layer is not already used for this road
     if(!used[i].used()) {
       /// 
-      float dPhi =fabs(m_elements[i].phi()-phiCrossing); 
-      if(dPhi>pi) dPhi=fabs(dPhi-pi2);    /// project delta phi into -pi..pi
+      float dPhi =std::abs(m_elements[i].phi()-phiCrossing); 
+      if(dPhi>pi) dPhi=std::abs(dPhi-pi2);    /// project delta phi into -pi..pi
 
       /// dPhi must be compatible with the phi half-width within a tolerance
       /// specified by the road width divided by the radius 
@@ -201,12 +205,11 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     if(i==i1) return;
     assert( static_cast<unsigned int>(i)<m_elements.size() );
     if(!used[i].used()) {
-
-      float dPhi =fabs(m_elements[i].phi()-phiCrossing); 
-      if(dPhi>pi) dPhi=fabs(dPhi-pi2);
+      float dPhi =std::abs(m_elements[i].phi()-phiCrossing); 
+      if(dPhi>pi) dPhi=std::abs(dPhi-pi2);
       if((dPhi-reducedRoadWidth)>m_dfe) return;
       m_elements[i].intersect(&(startingPoint[0]),&(searchDirection[0]),&(intersectionOutcome[0]));
-      
+
       if((intersectionOutcome[0]-startingPoint[4])<=0 && (intersectionOutcome[1]-startingPoint[4])<=0.) {
          lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1]))); 
          used[i].setUsed();

@@ -27,6 +27,8 @@ class EFMuonMonMT : public TrigMuonMonitorAlgorithm{
  private:
   SG::ReadHandleKey<xAOD::MuonContainer> m_EFSAMuonContainerKey {this, "EFSAMuonContainerName", "HLT_Muons_RoI", "EFSAMuon container"};
   SG::ReadHandleKey<xAOD::MuonContainer> m_EFCBMuonContainerKey {this, "EFCBMuonContainerName", "HLT_MuonsCB_RoI", "EFCBMuon container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_MStrackContainerKey {this, "ExtrapolatedMStrackConntainner", "HLT_MSExtrapolatedMuons_RoITrackParticles", "EFCBMuon container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_CBtrackContainerKey {this, "CBtrackContainerName", "HLT_CBCombinedMuon_RoITrackParticles", "EFCBMuon container"};
   SG::ReadDecorHandleKey<xAOD::MuonContainer> m_muonIso30Key {this, "MuonIso03Name", "HLT_MuonsIso.ptcone03", "Isolation in ptcone03" };
 
 
