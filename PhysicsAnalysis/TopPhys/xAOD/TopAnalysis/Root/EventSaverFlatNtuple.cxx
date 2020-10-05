@@ -3009,13 +3009,13 @@ namespace top {
 
 	    unsigned int nghostTracks = ghostTracks.size();
   
-	    m_failJvt_jet_ghostTrack_pt.clear();
-	    m_failJvt_jet_ghostTrack_eta.clear();
-	    m_failJvt_jet_ghostTrack_phi.clear();
-	    m_failJvt_jet_ghostTrack_e.clear();
-	    m_failJvt_jet_ghostTrack_d0.clear();
-	    m_failJvt_jet_ghostTrack_z0.clear();
-	    m_failJvt_jet_ghostTrack_qOverP.clear();
+	    m_failJvt_jet_ghostTrack_pt[i].clear();
+	    m_failJvt_jet_ghostTrack_eta[i].clear();
+	    m_failJvt_jet_ghostTrack_phi[i].clear();
+	    m_failJvt_jet_ghostTrack_e[i].clear();
+	    m_failJvt_jet_ghostTrack_d0[i].clear();
+	    m_failJvt_jet_ghostTrack_z0[i].clear();
+	    m_failJvt_jet_ghostTrack_qOverP[i].clear();
             
             m_failJvt_jet_ghostTrack_pt[i].reserve(nghostTracks);
 	    m_failJvt_jet_ghostTrack_eta[i].reserve(nghostTracks);
@@ -3132,13 +3132,13 @@ namespace top {
 
 	    unsigned int nghostTracks = ghostTracks.size();
             
-            m_failFJvt_jet_ghostTrack_pt.clear();
-	    m_failFJvt_jet_ghostTrack_eta.clear();
-	    m_failFJvt_jet_ghostTrack_phi.clear();
-	    m_failFJvt_jet_ghostTrack_e.clear();
-	    m_failFJvt_jet_ghostTrack_d0.clear();
-	    m_failFJvt_jet_ghostTrack_z0.clear();
-	    m_failFJvt_jet_ghostTrack_qOverP.clear();
+            m_failFJvt_jet_ghostTrack_pt[i].clear();
+	    m_failFJvt_jet_ghostTrack_eta[i].clear();
+	    m_failFJvt_jet_ghostTrack_phi[i].clear();
+	    m_failFJvt_jet_ghostTrack_e[i].clear();
+	    m_failFJvt_jet_ghostTrack_d0[i].clear();
+	    m_failFJvt_jet_ghostTrack_z0[i].clear();
+	    m_failFJvt_jet_ghostTrack_qOverP[i].clear();
   
 	    m_failFJvt_jet_ghostTrack_pt[i].reserve(nghostTracks);
 	    m_failFJvt_jet_ghostTrack_eta[i].reserve(nghostTracks);
