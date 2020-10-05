@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/sTGC.h"
 #include "MuonAGDDDescription/sTGC_Technology.h"
+#include "MuonAGDDDescription/sTGCDetectorDescription.h"
+#include "MuonAGDDDescription/sTGCDetectorHelper.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "MuonGeoModel/Station.h"
 #include "MuonGeoModel/MYSQL.h"
@@ -58,13 +60,15 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 //  std::cout<<"this is sTGC::build "<<std::endl;
   AGDDDetectorStore* ds = AGDDDetectorStore::GetDetectorStore();	
 //  std::cout<<"fetching technology "<<std::endl;
+  sTGCDetectorHelper stgcHelper;
+  sTGCDetectorDescription* stgc_descr = stgcHelper.Get_sTGCDetectorSubType(m_component->subType);
   sTGC_Technology* t = (sTGC_Technology*) ds->GetTechnology(name);
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
   double pcbTck=t->pcbThickness;
-  double f4=t->f4Thickness;
-  double f5=t->f5Thickness;
-  double f6=t->f6Thickness;
+  double f4=stgc_descr->ylFrame();
+  double f5=stgc_descr->ysFrame();
+  double f6=stgc_descr->xFrame();
   //Evaluate honeycomb thickness
   double chamberTck = gasTck+pcbTck; //Note: pcbTck is the xml value and is the combined thickness of 2 pcbs.
   double honeycombTck = (thickness - 4*chamberTck)/5;

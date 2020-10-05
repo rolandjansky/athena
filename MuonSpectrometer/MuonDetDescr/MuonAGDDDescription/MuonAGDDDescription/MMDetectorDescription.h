@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMDetectorDescription_H
@@ -38,9 +38,7 @@ struct MMReadoutParameters {
     double dlStereoTop;
     double dlStereoBottom;
     int tStrips; //total strips per module (disconnected strips are included)
-    double offset; //Small MM chambers: offset from the center RASNIK mask is needed to define the strips positions. (slide 5: https://indico.cern.ch/event/903900/contributions/3850544/attachments/2031637/3400335/MMStrips_Software_4May2020.pdf)
-                   //The strips positions of MM modules with even total active strips should be shifted by 0.5*pitch. 
-                   //in order the transformation from local to global coords be applied correctly
+    double driftGap; 
 };
 
 class MMDetectorDescription: public AGDDDetector {
