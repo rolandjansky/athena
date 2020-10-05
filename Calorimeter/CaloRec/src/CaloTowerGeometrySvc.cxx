@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-namespace { constexpr auto _pi = 3.14159265358979323846; }
+namespace { constexpr auto pi = 3.14159265358979323846; }
 
 CaloTowerGeometrySvc::index_t CaloTowerGeometrySvc::m_invalidIndex = index_t(-1); 
 double                        CaloTowerGeometrySvc::m_invalidValue = -999.;
@@ -23,8 +23,8 @@ CaloTowerGeometrySvc::CaloTowerGeometrySvc(const std::string& name,ISvcLocator* 
   , m_towerEtaMax(5.0)                          //----------------------------------------//
   , m_adjustEta(true)
   , m_towerPhiBins(64)                          
-  , m_towerPhiMin(-_pi)                         //----------------------------------------//
-  , m_towerPhiMax(_pi)                          // FCal vertical and horizontal cell      //
+  , m_towerPhiMin(-pi)                         //----------------------------------------//
+  , m_towerPhiMax(pi)                          // FCal vertical and horizontal cell      //
   , m_fcal1Xslice(8.)                           // slicing creates "mini-cells" which are //
   , m_fcal1Yslice(8.)                           // then projected onto towers. The mini-  //
   , m_fcal2Xslice(8.)                           // cell signal is 1/(Nx x Ny) x Ecell,    //

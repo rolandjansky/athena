@@ -11,12 +11,12 @@
 #include <cmath>
 
 std::string CaloRec::Helpers::fmtMsg(const char* fmt,...) {
-      char _buffer[1024];
+      char buffer[1024];
       va_list args;
       va_start(args,fmt);
-      vsprintf(_buffer,fmt,args);
+      vsprintf(buffer,fmt,args);
       va_end(args);
-      return std::string(_buffer);
+      return std::string(buffer);
 }
 
 
