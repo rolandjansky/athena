@@ -77,10 +77,6 @@ def MainServicesCfg(cfgFlags):
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService(StoreGateSvc("ConditionStore"))
-
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    cfg.merge(GeoModelCfg(cfgFlags))
-    cfg.addService(CompFactory.DetDescrCnvSvc(), create=True)
     cfg.addService(CompFactory.CoreDumpSvc(), create=True)
 
     cfg.setAppProperty('InitializationLoopCheck',False)
