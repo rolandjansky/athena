@@ -2,17 +2,17 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGEGAMMAHYPO_TRIGEGAMMADIPHOTONDPHIHYPOTOOL_H
-#define TRIGEGAMMAHYPO_TRIGEGAMMADIPHOTONDPHIHYPOTOOL_H
+#ifndef TRIGEGAMMAHYPO_TRIGEGAMMADPHIHYPOTOOL_H
+#define TRIGEGAMMAHYPO_TRIGEGAMMADPHIHYPOTOOL_H
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaDiphotonDPhiHypoTool.h
+ **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaDPhiHypoTool.h
  **
  **   Description: - Hypothesis Tool: search for photon pairs with 
  **                deltaPhi more than a threshold value; intended for H->gg
  **
- **   Author: D. BakshiGupta  <debottam.bakshigupta@cern.ch>
+ **   Author: Debottam BakshiGupta  <debottam.bakshigupta@cern.ch>
  **
  **************************************************************************/ 
 
@@ -35,23 +35,23 @@
 
 
 /**
- * \class TrigEgammaDiphotonDPhiHypoTool
- * \brief TrigEgammaDiphotonDPhiHypoTool is a ComboHypoTool that calculates the deltaPhi distance 
+ * \class TrigEgammaDPhiHypoTool
+ * \brief TrigEgammaDPhiHypoTool is a ComboHypoTool that calculates the deltaPhi distance 
  * Apply the threshold cut and accepts the event if condition is 
  * satisfied
  *
  */
 
 
-class TrigEgammaDiphotonDPhiHypoTool:  public ComboHypoToolBase {
+class TrigEgammaDPhiHypoTool:  public ComboHypoToolBase {
 
  public:
   
-  TrigEgammaDiphotonDPhiHypoTool(const std::string& type,
+  TrigEgammaDPhiHypoTool(const std::string& type,
                     const std::string& name,
                     const IInterface* parent);
   
-  virtual ~TrigEgammaDiphotonDPhiHypoTool() {};
+  virtual ~TrigEgammaDPhiHypoTool() {};
   virtual StatusCode initialize() override;
 
 
@@ -68,8 +68,7 @@ class TrigEgammaDiphotonDPhiHypoTool:  public ComboHypoToolBase {
   // monitoring
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };
 
-
-}; // TRIGEGAMMAHYPO_TRIGEGAMMADIPHOTONDPHIHYPOTOOL_H
+}; // TRIGEGAMMAHYPO_TRIGEGAMMADPHIHYPOTOOL_H
 #endif
 
 

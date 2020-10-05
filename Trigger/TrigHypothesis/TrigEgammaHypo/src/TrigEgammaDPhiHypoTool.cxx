@@ -4,7 +4,7 @@
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaDiphotonDPhiHypoTool.h
+ **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaDPhiHypoTool.h
  **
  **   Description: - Hypothesis Tool: search for photon pairs with
  **                deltaPhi more than a threshold value; intended for H->gg
@@ -14,17 +14,17 @@
  **************************************************************************/
 
 
-#include "TrigEgammaDiphotonDPhiHypoTool.h"
+#include "TrigEgammaDPhiHypoTool.h"
 
 #include <cmath>
 
 using namespace TrigCompositeUtils;
 
-TrigEgammaDiphotonDPhiHypoTool::TrigEgammaDiphotonDPhiHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
+TrigEgammaDPhiHypoTool::TrigEgammaDPhiHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
     : ComboHypoToolBase(type, name, parent) {}
 
 
-StatusCode TrigEgammaDiphotonDPhiHypoTool::initialize()
+StatusCode TrigEgammaDPhiHypoTool::initialize()
 {
   ATH_MSG_DEBUG("AcceptAll            = " << m_acceptAll );
   ATH_MSG_DEBUG("ThresholdDPhiCut         = " << m_thresholdDPhiCut );
@@ -39,8 +39,10 @@ StatusCode TrigEgammaDiphotonDPhiHypoTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool TrigEgammaDiphotonDPhiHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+bool TrigEgammaDPhiHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
 
+  auto dphiOfAccepted = Monitored::Scalar( "DphiOfAccepted"   , -99 );
+  auto monitorIt    = Monitored::Group( m_monTool, dphiOfAccepted);
 //retrieve the electrons 
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_photons;
   for (auto el: combination){
@@ -52,18 +54,18 @@ bool TrigEgammaDiphotonDPhiHypoTool::executeAlg(std::vector<LegDecision> &combin
   auto photonLink2=selected_photons[1];
   TLorentzVector hlv1 = (*photonLink1)->p4();
   TLorentzVector hlv2 = (*photonLink2)->p4();
-  double dPhi = hlv1.DeltaPhi(hlv2);
-  ATH_MSG_DEBUG("Found two Photons with deltaPhi " <<dPhi);
+  dphiOfAccepted = hlv1.DeltaPhi(hlv2);
+  ATH_MSG_DEBUG("Found two Photons with deltaPhi " <<dphiOfAccepted);
 
   // apply the cut
   bool pass=true;
-  if (dPhi<m_thresholdDPhiCut){ 
-      ATH_MSG_DEBUG("Combination failed deltaPhi cut: " << dPhi << " not in " << m_thresholdDPhiCut);
+  if (dphiOfAccepted<m_thresholdDPhiCut){ 
+      ATH_MSG_DEBUG("Combination failed deltaPhi cut: " << dphiOfAccepted << " is below " << m_thresholdDPhiCut);
       pass=false;
   }
 
   if (pass)
-     ATH_MSG_DEBUG( " deltaPhi " << dPhi << " is above the threshold "<<m_thresholdDPhiCut<<" This seleciton passed! ");
+     ATH_MSG_DEBUG( " deltaPhi " << dphiOfAccepted << " is above the threshold "<<m_thresholdDPhiCut<<" This seleciton passed! ");
   
 return pass;
 

@@ -2,8 +2,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Constants import DEBUG
-
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef")
@@ -15,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import fastPhotonMenuSequence, precisionPhotonMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
-
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
 # so let's make them functions already now
@@ -33,11 +31,14 @@ def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
 
 def diphotonDPhiHypoToolFromDict(chainDict):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDiphotonDPhiHypoTool
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDPhiHypoTool
     name = chainDict['chainName']
-    tool= TrigEgammaDiphotonDPhiHypoTool(name)
+    monTool = GenericMonitoringTool("MonTool_"+name)
+    monTool.Histograms = [defineHistogram('DphiOfAccepted', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2)]
+    tool= TrigEgammaDPhiHypoTool(name)
     tool.ThresholdDPhiCut = 1.5
-    tool.OutputLevel = DEBUG
+    monTool.HistPath = 'EgammaDphiHypo/'+tool.getName()
+    tool.MonTool = monTool
     return tool
 
 #----------------------------------------------------------------
