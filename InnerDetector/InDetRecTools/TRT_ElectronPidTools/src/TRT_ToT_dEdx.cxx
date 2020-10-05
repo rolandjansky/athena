@@ -841,9 +841,9 @@ TRT_ToT_dEdx::correctToT_corrRZ(const EventContext& ctx,
   double valToT = 0;
   if(m_divideByL){
     if (abs(hitPart)==1) // Barrel
-      valToT = fitFuncBarrel_corrRZL(gasType, hitRtrack, hitZ, Layer, StrawLayer);
+      valToT = fitFuncBarrel_corrRZL(ctx,gasType, hitRtrack, hitZ, Layer, StrawLayer);
     else // End-cap
-      valToT = fitFuncEndcap_corrRZL(gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
+      valToT = fitFuncEndcap_corrRZL(ctx,gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
   }else{
     if (abs(hitPart)==1) // Barrel
       valToT = fitFuncBarrel_corrRZ(gasType, hitRtrack, hitZ, Layer, StrawLayer);
@@ -985,13 +985,19 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
   return a+b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
 }
 
-double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const
+double
+TRT_ToT_dEdx::fitFuncEndcap_corrRZL(const EventContext& ctx,
+                                    EGasType gasType,
+                                    double driftRadius,
+                                    double radialPosition,
+                                    int Layer,
+                                    int sign) const
 {
   /*
    * T(r,R) = T0(r)+ a(r)*R
    */
 
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr) {
     ATH_MSG_ERROR(" fitFuncEndcap_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
@@ -1030,12 +1036,18 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
   return T0+T1+slope*radialPosition;
 }
 
-double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,double zPosition, int Layer, int Strawlayer) const
+double
+TRT_ToT_dEdx::fitFuncBarrel_corrRZL(const EventContext& ctx,
+                                    EGasType gasType,
+                                    double driftRadius,
+                                    double zPosition,
+                                    int Layer,
+                                    int Strawlayer) const
 {
   /*
    * T(r,z) = T0(r)+ b(r)*z*z
    */
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr) {
     ATH_MSG_ERROR(" fitFuncBarrel_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
