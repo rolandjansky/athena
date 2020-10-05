@@ -35,10 +35,8 @@ StatusCode TauIDVarCalculator::initialize()
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
 {
   static const SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
-  float ipSigLeadTrk=0.;
-  if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
-    return StatusCode::FAILURE;
-  acc_absipSigLeadTrk(tau) = std::abs(ipSigLeadTrk);
+
+  acc_absipSigLeadTrk(tau) = (tau.nTracks()>0) ? std::abs(tau.track(0)->d0SigTJVA()) : 0.;
   
   if(inTrigger()) return StatusCode::SUCCESS;
   

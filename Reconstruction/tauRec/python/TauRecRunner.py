@@ -42,10 +42,9 @@ class TauRecRunner ( TauRecRunConfigured ) :
   
     _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey }
     
-    def __init__(self, name = "TauRecRunner",doPi0Clus=False, doTJVA=False):
+    def __init__(self, name = "TauRecRunner",doPi0Clus=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
-        self.do_TJVA = doTJVA # not used in the TauRecRunner?
         TauRecRunConfigured.__init__(self, name)
 
 

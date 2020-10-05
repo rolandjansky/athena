@@ -187,10 +187,9 @@ bool innerTrkAvgDist(const xAOD::TauJet &tau, double &out) {
 }
 
 bool absipSigLeadTrk(const xAOD::TauJet &tau, double &out) {
-    float ipSigLeadTrk;
-    const auto success = tau.detail(TauDetail::ipSigLeadTrk, ipSigLeadTrk);
-    out = std::min(TMath::Abs(ipSigLeadTrk), 30.0f);
-    return success;
+    float ipSigLeadTrk = (tau.nTracks()>0) ? tau.track(0)->d0SigTJVA() : 0.;
+    out = std::min(std::abs(ipSigLeadTrk), 30.0f);
+    return true;
 }
 
 bool SumPtTrkFrac(const xAOD::TauJet &tau, double &out) {
@@ -360,13 +359,13 @@ bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/,
 
 bool d0_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
                 double &out) {
-    out = std::log10(TMath::Abs(track.track()->d0()) + 1e-6);
+    out = std::log10(TMath::Abs(track.d0TJVA()) + 1e-6);
     return true;
 }
 
-bool z0sinThetaTJVA_abs_log(const xAOD::TauJet& tau, const xAOD::TauTrack &track,
+bool z0sinThetaTJVA_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
                             double &out) {
-    out = std::log10(TMath::Abs(track.z0sinThetaTJVA(tau)) + 1e-6);
+    out = std::log10(TMath::Abs(track.z0sinthetaTJVA()) + 1e-6);
     return true;
 }
 
@@ -496,7 +495,7 @@ bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster
     return success;
 }
 
-bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
+bool SECOND_LAMBDAOverClustersMeanSecondLambda(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out) {
   float ClustersMeanSecondLambda = tau.auxdata<float>("ClustersMeanSecondLambda");
 
   double secondLambda(0);
@@ -507,7 +506,7 @@ bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const
   return success;
 }
 
-bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
+bool CENTER_LAMBDAOverClustersMeanCenterLambda(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out) {
   float ClustersMeanCenterLambda = tau.auxdata<float>("ClustersMeanCenterLambda");
 
   double centerLambda(0);
@@ -524,7 +523,7 @@ bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const
 }
 
 
-bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
+bool FirstEngDensOverClustersMeanFirstEngDens(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out) {
   // the ClustersMeanFirstEngDens is the log10 of the energy weighted average of the First_ENG_DENS 
   // divided by ETot to make it dimension-less, 
   // so we need to evaluate the differance of log10(clusterFirstEngDens/clusterTotalEnergy) and the ClustersMeanFirstEngDens
