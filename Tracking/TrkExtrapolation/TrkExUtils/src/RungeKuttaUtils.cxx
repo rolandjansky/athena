@@ -395,7 +395,7 @@ transformGlobalToCone(const Amg::Transform3D&  T,
 void
 transformPlaneToGlobal(bool useJac,
                        const Amg::Transform3D& T,
-                       const double* ATH_RESTRICT p,
+                       const AmgVector(5)& ATH_RESTRICT p,
                        double* ATH_RESTRICT P)
 {
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -422,7 +422,7 @@ transformPlaneToGlobal(bool useJac,
 void
 transformDiscToGlobal(bool useJac,
                       const Amg::Transform3D& T,
-                      const double* ATH_RESTRICT p,
+                      const AmgVector(5)& ATH_RESTRICT p,
                       double* ATH_RESTRICT P)
 {
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -452,7 +452,7 @@ void
 transformCylinderToGlobal(bool useJac,
                           const Amg::Transform3D& T,
                           double R,
-                          const double* ATH_RESTRICT p,
+                          const AmgVector(5)& ATH_RESTRICT p,
                           double* ATH_RESTRICT P)
 {
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -481,7 +481,7 @@ transformCylinderToGlobal(bool useJac,
 void
 transformLineToGlobal(bool useJac,
                       const Amg::Transform3D& T,
-                      const double* ATH_RESTRICT p,
+                      const AmgVector(5)& ATH_RESTRICT p,
                       double* ATH_RESTRICT P)
 {
   const double A[3] = {T(0,2),T(1,2),T(2,2)};
@@ -525,10 +525,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 {
   const Trk::TrackParameters* pTp  = &Tp; if(!pTp) return false;
 
-  const AmgVector(5) Vp = Tp.parameters();
-  double p[5] = {Vp[0],Vp[1],Vp[2],Vp[3],Vp[4]};
-
-  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),p,P);
+  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),Tp.parameters(),P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -541,10 +538,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 {
   const Trk::NeutralParameters* pTp = &Tp; if(!pTp) return false;
 
-  const AmgVector(5) Vp = Tp.parameters();
-  double p[5] = {Vp[0],Vp[1],Vp[2],Vp[3],Vp[4]};
-
-  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),p,P);
+  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),Tp.parameters(),P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -555,7 +549,12 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 bool Trk::RungeKuttaUtils::transformLocalToGlobal
 (bool useJac,const Trk::PatternTrackParameters& Tp,double* P)
 {
-  return transformLocalToGlobal(useJac,Tp.associatedSurface(),Tp.par(),P);
+  // TODO: Remove copies when Trk::PatternTrackParameters migrates uses AMG types.
+  const double * p = Tp.par();
+  AmgVector(5) tmp;
+  tmp << p[0], p[1], p[2], p[3], p[4];
+
+  return transformLocalToGlobal(useJac,Tp.associatedSurface(),tmp,P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -996,7 +995,7 @@ AmgSymMatrix(5) * Trk::RungeKuttaUtils::newCovarianceMatrix(
 bool
 Trk::RungeKuttaUtils::transformLocalToGlobal(bool useJac,
                                              const Trk::Surface* Su,
-                                             const double* ATH_RESTRICT p,
+                                             const AmgVector(5)& ATH_RESTRICT p,
                                              double* ATH_RESTRICT P)
 {
   if(!Su) return false;
