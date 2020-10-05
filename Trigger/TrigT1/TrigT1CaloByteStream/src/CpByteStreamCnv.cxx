@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,7 @@
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "TrigT1CaloEvent/CPBSCollection.h"
 
@@ -33,8 +34,7 @@ CpByteStreamCnv::CpByteStreamCnv( ISvcLocator* svcloc )
     : Converter( storageType(), classID(), svcloc ),
       m_name("CpByteStreamCnv"),
       m_tool("LVL1BS::CpByteStreamTool/CpByteStreamTool"),
-      m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
-      m_log(msgSvc(), m_name), m_debug(false)
+      m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name)
 {
 }
 
@@ -59,31 +59,9 @@ long CpByteStreamCnv::storageType()
 
 StatusCode CpByteStreamCnv::initialize()
 {
-  m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-  m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endmsg;
-
-  StatusCode sc = Converter::initialize();
-  if ( sc.isFailure() )
-    return sc;
-
-  //Get ByteStreamCnvSvc
-  sc = m_ByteStreamEventAccess.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve service "
-          << m_ByteStreamEventAccess << endmsg;
-    return sc;
-  } else {
-    m_log << MSG::DEBUG << "Retrieved service "
-          << m_ByteStreamEventAccess << endmsg;
-  }
-
-  // Retrieve Tool
-  sc = m_tool.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
-    return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
+  ATH_CHECK( Converter::initialize() );
+  ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
+  ATH_CHECK( m_tool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -93,13 +71,11 @@ StatusCode CpByteStreamCnv::initialize()
 StatusCode CpByteStreamCnv::createRep( DataObject* pObj,
                                         IOpaqueAddress*& pAddr )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endmsg;
-
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   LVL1::CPBSCollection* cp = 0;
   if( !SG::fromStorable( pObj, cp ) ) {
-    m_log << MSG::ERROR << " Cannot cast to CPBSCollection" << endmsg;
+    REPORT_ERROR (StatusCode::FAILURE) << " Cannot cast to CPBSCollection";
     return StatusCode::FAILURE;
   }
 

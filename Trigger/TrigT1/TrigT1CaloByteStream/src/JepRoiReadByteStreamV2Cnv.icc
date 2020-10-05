@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,6 +20,7 @@
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "JepRoiByteStreamV2Tool.h"
 
@@ -32,7 +33,7 @@ JepRoiReadByteStreamV2Cnv<Container>::JepRoiReadByteStreamV2Cnv(
       m_name("JepRoiReadByteStreamV2Cnv"),
       m_tool("LVL1BS::JepRoiByteStreamV2Tool/JepRoiByteStreamV2Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
-      m_log(msgSvc(), m_name), m_debug(false)
+      m_debug(false)
 {
 }
 
@@ -62,31 +63,10 @@ template <typename Container>
 StatusCode JepRoiReadByteStreamV2Cnv<Container>::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-  m_log << MSG::DEBUG << "Initializing " << m_name << "<"
-                      << typeid(Container).name() << "> - package version "
-                      << PACKAGE_VERSION << endmsg;
 
-  StatusCode sc = Converter::initialize();
-  if ( sc.isFailure() )
-    return sc;
-
-  // Retrieve Tool
-  sc = m_tool.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
-    return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
-
-  // Get ROBDataProvider
-  sc = m_robDataProvider.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve service "
-          << m_robDataProvider << endmsg;
-    return sc ;
-  } else {
-    m_log << MSG::DEBUG << "Retrieved service "
-          << m_robDataProvider << endmsg;
-  }
+  ATH_CHECK( Converter::initialize() );
+  ATH_CHECK( m_tool.retrieve() );
+  ATH_CHECK( m_robDataProvider.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -97,18 +77,18 @@ template <typename Container>
 StatusCode JepRoiReadByteStreamV2Cnv<Container>::createObj( IOpaqueAddress* pAddr,
                                                             DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
-
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Cannot cast to ByteStreamAddress " << endmsg;
+    REPORT_ERROR (StatusCode::FAILURE) << " Cannot cast to ByteStreamAddress ";
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endmsg;
+  if (m_debug) {
+    REPORT_MESSAGE (MSG::DEBUG) << " Creating Objects " << nm;
+  }
 
   // get SourceIDs
   const std::vector<uint32_t>& vID(m_tool->sourceIDs(nm));
@@ -118,26 +98,20 @@ StatusCode JepRoiReadByteStreamV2Cnv<Container>::createObj( IOpaqueAddress* pAdd
   m_robDataProvider->getROBData( vID, robFrags );
 
   // size check
-  Container* const collection = new Container;
+  auto collection = std::make_unique<Container>();
   if (m_debug) {
-    m_log << MSG::DEBUG << " Number of ROB fragments is " << robFrags.size()
-          << endmsg;
+    REPORT_MESSAGE (MSG::DEBUG) << " Number of ROB fragments is " << robFrags.size();
   }
   if (robFrags.size() == 0) {
-    pObj = SG::asStorable(collection) ;
+    pObj = SG::asStorable(std::move(collection)) ;
     return StatusCode::SUCCESS;
   }
 
-  StatusCode sc = m_tool->convert(robFrags, collection);
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
-    delete collection;
-    return sc;
-  }
+  ATH_CHECK( m_tool->convert(robFrags, collection.get()) );
 
-  pObj = SG::asStorable(collection);
+  pObj = SG::asStorable(std::move(collection));
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 } // end namespace

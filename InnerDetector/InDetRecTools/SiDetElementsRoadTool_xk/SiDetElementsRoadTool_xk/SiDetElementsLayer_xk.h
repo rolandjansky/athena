@@ -39,8 +39,10 @@ namespace InDet{
       SiDetElementsLayer_xk(double,double,double,double,double);
 
       SiDetElementsLayer_xk(const SiDetElementsLayer_xk&) = default;
+      SiDetElementsLayer_xk(SiDetElementsLayer_xk&&) = default;
       ~SiDetElementsLayer_xk() = default;
       SiDetElementsLayer_xk& operator  = (const SiDetElementsLayer_xk&) = default;
+      SiDetElementsLayer_xk& operator  = (SiDetElementsLayer_xk&&) = default;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods

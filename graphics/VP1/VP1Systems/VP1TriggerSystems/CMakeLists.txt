@@ -1,24 +1,7 @@
-################################################################################
-# Package: VP1TriggerSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1TriggerSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/StoreGate
-                          PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigAnalysis/TrigObjectMatching
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          graphics/VP1/VP1Base
-                          PRIVATE
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack )
 
 # External dependencies:
 find_package( Coin3D )

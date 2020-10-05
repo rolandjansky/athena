@@ -9,27 +9,19 @@ name, the dependencies are printed as a plain list or DOT graph. The recursion
 depth is configurable.
 """
 
-import sys
 import os
 import re
 from collections import deque
 import PyUtils.acmdlib as acmdlib
 import argparse
 
-# Hack until we switched to LCG>=97a:
+# Hack until atlasexternals!747 is deployed:
 try:
    import pygraphviz
 except ImportError:
-   if sys.version_info[0]==2:
-      sys.path.append('/cvmfs/sft.cern.ch/lcg/releases/LCG_97a/pygraphviz/1.5/'+os.getenv('BINARY_TAG')+'/lib/python2.7/site-packages/')
-   else:
-      sys.path.append('/cvmfs/sft.cern.ch/lcg/releases/LCG_97apython3/pygraphviz/1.5/'+os.getenv('BINARY_TAG')+'/lib/python3.7/site-packages')
+   import sys
+   sys.path.append('/cvmfs/sft.cern.ch/lcg/releases/LCG_98python3/pygraphviz/1.5/'+os.getenv('BINARY_TAG')+'/lib/python3.7/site-packages')
    import pygraphviz
-
-
-# Targets ending in those strings are ignored:
-custom_targets = ['Pkg', 'PkgPrivate', 'ClidGen', 'ComponentsList', 'Configurables',
-                  'JobOptInstall', 'PythonBytecodeInstall', 'PythonInstall']
 
 
 def read_package_list(package_file):
@@ -51,17 +43,6 @@ def externals_name(lib):
       return 'Gaudi::%s' % lib
    else:
       return os.path.basename(lib)
-
-
-def ignore_target(t):
-   """Check if target should be ignored"""
-   if t.startswith('__MUST_NOT_LINK_AGAINST') or t.startswith('-'):
-      return True
-
-   for s in custom_targets:
-      if t.endswith(s): return True
-
-   return False
 
 
 def lrstrip(s, prefix, postfix):
@@ -92,8 +73,6 @@ def traverse(graph, root, reverse=False, maxdepth=None, nodegetter=lambda n:n):
 
       if node not in visited_nodes:
          visited_nodes.add(node)
-         if ignore_target(node.attr['label']):
-            continue
 
          # Add edges to neighbors into queue:
          if maxdepth is None or level < maxdepth:
@@ -130,17 +109,20 @@ class AthGraph:
       # Read dot file:
       self.graph = pygraphviz.AGraph(dotfile)
 
+      # Build dictionary for node types:
+      legend = self.graph.get_subgraph('clusterLegend')
+      self.types = { n.attr['label'] : n.attr['shape'] for n in legend.iternodes() }
+
       # Build dictionary for node names:
       self.node = { n.attr['label'] : n.get_name() for n in self.graph.iternodes() }
 
       # Extract package dependencies:
       for e in self.graph.iteredges():
          p = e[0].attr['label']
-
-         # Decorate target with package name
+         # Decorate target with package name:
          if p.startswith('Package_'):
             pkg = lrstrip(p, 'Package_', '_tests')
-            e[1].attr['package'] = package_paths.get(pkg,pkg)
+            e[0].attr['package'] = e[1].attr['package'] = package_paths.get(pkg,pkg)
 
       # Assign "package" names to externals if possible:
       external_nodes = filter(lambda n : 'package' not in n.attr.keys(),
@@ -149,17 +131,18 @@ class AthGraph:
          name = externals_name(n.attr['label'])
          n.attr['package'] = name.split('::')[0]
          n.attr['label'] = name
-         n.attr['external'] = True
+         n.attr['external'] = 'yes'
 
    def get_node(self, label):
       """Return graph node for label/target"""
       return self.graph.get_node(self.node[label])
 
-   def get_labels(self, regex):
-      """Return labels matching regex"""
-      r = re.compile(regex)
-      return [l for l in self.node if r.match(l)]
-
+   def ignore_target(self, node):
+      """Check if target should be ignored"""
+      label = node.attr['label']
+      return True if (label.startswith('__') or   # internal targets
+                      label.startswith('-') or    # compiler flags (e.g. -pthread)
+                      node.attr['shape']==self.types['Custom Target']) else False
 
 #
 # Main function and command line arguments
@@ -188,6 +171,9 @@ class AthGraph:
 
 @acmdlib.argument('--regex', action='store_true',
                   help='treat NAME as regular expression')
+
+@acmdlib.argument('--all', action='store_true',
+                  help='do not apply any target filter (e.g. custom targets)')
 
 @acmdlib.argument('-d', '--dot', action='store_true',
                   help='print DOT graph')
@@ -224,25 +210,44 @@ def main(args):
 
    # Helper for graph traversal below:
    def getnode(node):
-      if args.externals or 'external' not in node.attr.keys():
+      if not args.all and d.ignore_target(node): return None
+      if args.externals or not node.attr['external']:
          a = 'label' if args.target else 'package'
          return node.attr[a]
 
    graph = pygraphviz.AGraph(name='AthGraph', directed=True)
    for p in args.names:
-      # In package mode construct relevant target:
-      target = p if args.target else 'Package_'+p.split('/')[-1]
-      targets = d.get_labels(target) if args.regex else [target]
+      target = p.split('/')[-1]  # in case of full package path
 
+      # With regex, find all matching targets:
+      if args.regex:
+         r = re.compile(target)
+         targets = [getnode(n) for n in d.graph.iternodes() if r.match(n.attr['label'])]
+         targets = list(filter(lambda t : t is not None, targets))
+      else:
+         targets = [target]
+
+      # Find the nodes from which graph traversal starts:
       sources = []
       for l in targets:
-         # To find clients of a package means finding clients of the targets
-         # within that package. First find all targets within the package:
-         if args.clients and not args.target:
-            sources.extend([b for a,b in traverse(d.graph, d.get_node(l), maxdepth=1)])
-         else:
-            sources.extend([d.get_node(l)])
+         if not args.target:
+            l = 'Package_'+l
+         try:
+            if d.get_node(l).attr['external'] and not args.externals:
+               print(f"{l} is an external target. Run with -e/--externals.")
+               return 1
 
+            # To find clients of a package means finding clients of the targets
+            # within that package. First find all targets within the package:
+            if args.clients and not args.target:
+               sources.extend([b for a,b in traverse(d.graph, d.get_node(l), maxdepth=1)])
+            else:
+               sources.extend([d.get_node(l)])
+         except KeyError:
+            print(f"Target with name {l} does not exist.")
+            return 1
+
+      # Extract the dependency subgraph:
       g = subgraph(d.graph, sources, reverse=args.clients,
                    maxdepth=args.recursive, nodegetter=getnode)
 

@@ -40,21 +40,25 @@ namespace InDet{
           bool m_used;
        };
 
-       class ElementWay : public std::pair<const InDet::SiDetElementLink_xk*, std::pair<float,float> > {
+       class ElementWay {
        public:
           ElementWay(const InDet::SiDetElementLink_xk*link, float way, float distance)
-             : std::pair<const InDet::SiDetElementLink_xk*, std::pair<float,float> >(link,std::make_pair(way,distance)) {}
+             : m_link(link), m_way(way), m_distance(distance) {}
 
-          const InDet::SiDetElementLink_xk* link() const { return this->first; }
-          float way()                              const { return this->second.first; }
-          float distance()                              const { return this->second.second; }
+          const InDet::SiDetElementLink_xk* link() const { return m_link; }
+          float way()                              const { return m_way; }
+          float distance()                         const { return m_distance; }
+       private: 
+        const InDet::SiDetElementLink_xk* m_link;
+        float m_way;
+        float m_distance; 
        };
 
       SiDetElementLink_xk();
       SiDetElementLink_xk(const InDetDD::SiDetectorElement*,const double*);
-      SiDetElementLink_xk(const SiDetElementLink_xk&);
-      ~SiDetElementLink_xk();
-      SiDetElementLink_xk& operator  = (const SiDetElementLink_xk&);
+      SiDetElementLink_xk(const SiDetElementLink_xk&) = default;
+      ~SiDetElementLink_xk() = default;
+      SiDetElementLink_xk& operator  = (const SiDetElementLink_xk&) = default;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -93,27 +97,6 @@ namespace InDet{
       m_phi        = 0.   ;
     }
 
-  inline SiDetElementLink_xk::SiDetElementLink_xk(const SiDetElementLink_xk& L): m_detelement(L.m_detelement)
-    {
-      *this = L;
-    }
-  
-  inline SiDetElementLink_xk& SiDetElementLink_xk::operator = 
-    (const SiDetElementLink_xk& L) 
-    {
-      if(&L!=this) {
-
-	m_detelement =  L.m_detelement;
-	m_phi        =  L.m_phi       ;
-	for(int i=0; i!=6; ++i)  m_geo   [i] = L.m_geo   [i];
-	for(int i=0; i!=2; ++i)  m_center[i] = L.m_center[i];
-	for(int i=0; i!=4; ++i) {
-	  for(int j=0; j!=3; ++j) {m_bound[i][j]=L.m_bound[i][j];}
-	}
-      }
-      return(*this);
-    }
- 
 
   inline InDet::SiDetElementLink_xk::SiDetElementLink_xk
     (const InDetDD::SiDetectorElement* el,const double* P)
@@ -121,7 +104,6 @@ namespace InDet{
       m_detelement = el; set(P);
     } 
 
-  inline SiDetElementLink_xk::~SiDetElementLink_xk() {}
 
 } // end of name space
 

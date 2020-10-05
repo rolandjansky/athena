@@ -41,6 +41,16 @@ InDet::SiDetElementsRoadMaker_xk::SiDetElementsRoadMaker_xk
 
 StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 {
+  //Class optimization checks
+  static_assert(std::is_trivially_copyable<SiDetElementLink_xk::UsedFlag>::value);
+  static_assert(std::is_trivially_destructible<SiDetElementLink_xk::UsedFlag>::value);
+  static_assert(std::is_trivially_copyable<SiDetElementLink_xk::ElementWay>::value);
+  static_assert(std::is_trivially_destructible<SiDetElementLink_xk::ElementWay>::value);
+  static_assert(std::is_trivially_copyable<SiDetElementLink_xk>::value);
+  static_assert(std::is_trivially_destructible<SiDetElementLink_xk>::value);
+  static_assert(std::is_nothrow_move_constructible<SiDetElementsLayer_xk>::value);
+
+
   if (!m_usePIX && !m_useSCT) {
     ATH_MSG_FATAL("Please don't call this tool if usePixel and useSCT are false");
     return StatusCode::FAILURE;

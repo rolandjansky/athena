@@ -1,15 +1,7 @@
-################################################################################
-# Package: VP1LightPlugin
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1LightPlugin )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          graphics/VP1/VP1Systems/VP1GeometrySystems
-                          graphics/VP1/VP1Systems/VP1GuideLineSystems
-                          graphics/VP1/VP1Systems/VP1AODSystems )
 
 # Install files from the package:
 atlas_install_headers( VP1LightPlugin )
@@ -26,7 +18,6 @@ set( CMAKE_AUTOMOC TRUE )
 
 # get the package name into the variable 'pkgName', to be used below
 atlas_get_package_name( pkgName )
-
 
 # Build the library.
 atlas_add_library( ${pkgName} ${pkgName}/*.h src/*.cxx src/*.qrc 
