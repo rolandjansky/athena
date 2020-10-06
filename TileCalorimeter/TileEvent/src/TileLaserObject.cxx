@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*author Renato Febbraro*/
@@ -317,7 +317,7 @@ void TileLaserObject::setDiode(const unsigned int diode,
     } // IF
   }else{
     //   log<<MSG::ERROR<<"Exit code in method TileLaserObject::setDiode"<<endmsg;
-    exit(0);
+    std::abort();
   }
 }
 
@@ -337,7 +337,7 @@ void TileLaserObject::setPmt(const unsigned int pmt,
     } // IF
   }else{
     //    log<<MSG::ERROR<<"Exit code in method TileLaserObject::setPmt"<<endmsg;
-    exit(0);
+    std::abort();
   }
 }
 

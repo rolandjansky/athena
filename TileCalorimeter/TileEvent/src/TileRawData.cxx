@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -29,7 +29,9 @@
 #include <iomanip>
 
 // get cabling
-TileCablingService * s_cabling = TileCablingService::getInstance();
+namespace {
+const TileCablingService * const s_cabling = TileCablingService::getInstance();
+}
 
 TileRawData::TileRawData( const Identifier& id )
   : m_adc_hwid (s_cabling->s2h_adc_id(id))
