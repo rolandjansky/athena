@@ -42,6 +42,8 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   if(m_iDetailLevel >= 200){
     m_resolutionPlotSecd = std::make_unique<InDetPerfPlot_Resolution>(this, "Tracks/Matched/Resolutions/Secondary");
     m_hitsMatchedTracksPlots = std::make_unique<InDetPerfPlot_Hits>(this, "Tracks/Matched/HitsOnTracks");
+    m_hitsFakeTracksPlots = std::make_unique<InDetPerfPlot_Hits>(this, "Tracks/Fakes/HitsOnTracks");
+    m_hitsUnlinkedTracksPlots = std::make_unique<InDetPerfPlot_Hits>(this, "Tracks/Unlinked/HitsOnTracks");
     m_vertexTruthMatchingPlots = std::make_unique<InDetPerfPlot_VertexTruthMatching>(this, "Vertices/AllPrimaryVertices", m_iDetailLevel);
 
     //Split by track author
@@ -74,8 +76,18 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   //A lot of Jets... do we need these at all???
   if(m_doTrackInJetPlots){
     m_trkInJetPlots = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Tracks");
+    if (m_iDetailLevel >= 200){
+      m_trkInJetPlots_matched = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Matched",false);
+      m_trkInJetPlots_fake = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Fakes",false);
+      m_trkInJetPlots_unlinked = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Unlinked",false);
+    }
     if(m_doTrackInBJetPlots){
       m_trkInJetPlots_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Tracks");
+      if (m_iDetailLevel >= 200){
+        m_trkInJetPlots_matched_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Matched",false);
+        m_trkInJetPlots_fake_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Fakes",false);
+        m_trkInJetPlots_unlinked_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Unlinked",false);
+      }
     }
   }
 }
@@ -230,7 +242,10 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
 
   m_missingTruthFakePlots.fill(track, !isAssociatedTruth);
   m_anTrackingPlots.fillUnlinked(track, !isAssociatedTruth, mu, nVtx);
-
+  if(m_iDetailLevel >= 200){
+    if (!isAssociatedTruth) m_hitsUnlinkedTracksPlots->fill(track);
+    else m_hitsFakeTracksPlots->fill(track);
+  }
   if(isAssociatedTruth) {
     m_fakePlots.fill(track, isFake);
       m_anTrackingPlots.fillFakeRate(track, isFake, mu, nVtx);
@@ -298,9 +313,33 @@ InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks:
 
 //Track in Jet Plots
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet){
+InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet, bool isFake, bool isUnlinked){
   m_trkInJetPlots->fill(track, jet);
-  if(isBjet) m_trkInJetPlots_bjets->fill(track, jet);
+  if (m_iDetailLevel >= 200){
+    if (isFake){
+      m_trkInJetPlots_fake->fill(track,jet); 
+    }
+    else if (isUnlinked){
+      m_trkInJetPlots_unlinked->fill(track,jet); 
+    }
+    else {
+      m_trkInJetPlots_matched->fill(track,jet); 
+    }
+  }
+  if(isBjet){
+     m_trkInJetPlots_bjets->fill(track, jet);
+    if (m_iDetailLevel >= 200){
+      if (isFake){
+        m_trkInJetPlots_fake_bjets->fill(track,jet); 
+      }
+      else if (isUnlinked){
+        m_trkInJetPlots_unlinked_bjets->fill(track,jet); 
+      }
+      else {
+        m_trkInJetPlots_matched_bjets->fill(track,jet); 
+      }
+    }
+  }
 }
 
 void
