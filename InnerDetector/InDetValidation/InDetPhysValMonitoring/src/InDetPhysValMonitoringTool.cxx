@@ -452,7 +452,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
         }
       }
       for (auto thisTrack: *tracks) {    // The beginning of the track loop
-        bool isFakeJet = false;
         if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
           continue;
         }
@@ -463,15 +462,11 @@ InDetPhysValMonitoringTool::fillHistograms() {
         if(std::isnan(prob)) prob = 0.0;
       
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
-        bool unlinked = (associatedTruth==nullptr);
-        bool isFake = (associatedTruth && prob < m_lowProb);  
-        m_monPlots->fill(*thisTrack, *thisJet,isBjet,isFake,unlinked);
-                                                                                         
+        const bool unlinked = (associatedTruth==nullptr);
+        const bool isFake = (associatedTruth && prob < m_lowProb);  
+        m_monPlots->fill(*thisTrack, *thisJet,isBjet,isFake,unlinked);                                   
         if (associatedTruth){
-          if(prob < m_lowProb ) {
-            isFakeJet = true;
-          } 
-          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFakeJet,isBjet);
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake,isBjet);
        }
       }
     }
