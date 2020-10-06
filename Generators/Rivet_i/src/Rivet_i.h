@@ -6,22 +6,20 @@
 #define RIVET_I_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 #include "Rivet/AnalysisHandler.hh"
-#include "AtlasHepMC/GenEvent.h"
 
 #include <vector>
 #include <string>
 
 class ISvcLocator;
-class IHepMCWeightSvc;
 //class ITHistSvc;
 
 
 /// Interface to the Rivet analysis package
 /// @author James Monk <jmonk@cern.ch>
 /// @author Andy Buckley <andy.buckley@cern.ch>
+/// @author Christian Gutschow <chris.g@cern.ch>
 class Rivet_i : public AthAlgorithm {
 public:
 
@@ -55,9 +53,6 @@ private:
 
   /// A pointer to the THistSvc
   //ServiceHandle<ITHistSvc> m_histSvc;
-
-  /// A pointer to the HepMCWeightSvc
-  ServiceHandle<IHepMCWeightSvc> m_hepMCWeightSvc;
 
   /// The stream name for storing the output plots under (default "/Rivet")
   std::string m_stream;
@@ -111,10 +106,10 @@ private:
   bool m_skipweights;
 
   /// String of weight names (or regex) to select multiweights
-  //std::string m_matchWeights;
+  std::string m_matchWeights;
 
   /// String of weight names (or regex) to veto multiweights
-  //std::string m_unmatchWeights;
+  std::string m_unmatchWeights;
 
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
