@@ -62,7 +62,8 @@ OccupancyMapMaker::OccupancyMapMaker(const std::string& name, ISvcLocator* pSvcL
   m_nBCReadout(2),
   m_evt_lbMin(0),
   m_evt_lbMax(-1),
-  m_calculateNoiseMaps(false)
+  m_calculateNoiseMaps(false),
+  m_mapFile("PixelMapping_Run2.dat")
 {
   declareProperty("PixelRDOKey", m_pixelRDOKey, "StoreGate key of pixel RDOs");
   declareProperty("Disk1ACut", m_disk1ACut, "Occupancy cut for Disk1A pixels");
@@ -83,6 +84,7 @@ OccupancyMapMaker::OccupancyMapMaker(const std::string& name, ISvcLocator* pSvcL
   declareProperty("GangedPixelMultiplier", m_gangedPixelMultiplier, "Multiplier for ganged pixels");
   declareProperty("OccupancyPerBC", m_occupancyPerBC, "Calculate occupancy per BC or per event");
   declareProperty("CalculateNoiseMaps", m_calculateNoiseMaps, "If false only build hit maps");
+  declareProperty("InputPixelMap", m_mapFile);
   declareProperty("THistSvc", m_tHistSvc, "THistSvc");
 }
 
@@ -163,7 +165,6 @@ std::vector<std::string> OccupancyMapMaker::splitter(const std::string &str,
 
 StatusCode OccupancyMapMaker::registerHistograms(){
 
-  const std::string mapFile = "PixelMapping_Run2.dat";
   char* getenvPath = std::getenv("DATAPATH");
   const unsigned int maxPathStringLength{3000};
   if((not getenvPath) or (strlen(getenvPath) > maxPathStringLength) ){
@@ -177,9 +178,9 @@ StatusCode OccupancyMapMaker::registerHistograms(){
   std::vector<std::string> paths = splitter(tmppath, ':'); 
   bool found(false);  
   for(const auto& x : paths){
-    std::ifstream infile( (x+"/"+mapFile).c_str() );
+    std::ifstream infile( (x+"/"+m_mapFile).c_str() );
     if( infile.is_open() ){
-      ATH_MSG_INFO("Mapping file '" << mapFile << "' found in " << x);
+      ATH_MSG_INFO("Mapping file '" << m_mapFile << "' found in " << x);
 
       int tmp_barrel_ec; int tmp_layer; int tmp_modPhi; int tmp_module_eta; std::string tmp_module_name;
       std::vector<int> tmp_position;
@@ -199,7 +200,7 @@ StatusCode OccupancyMapMaker::registerHistograms(){
   }
   
   if( !found ){
-    ATH_MSG_FATAL("Mapping file '" << mapFile << "' not found in DATAPATH !!!");
+    ATH_MSG_FATAL("Mapping file '" << m_mapFile << "' not found in DATAPATH !!!");
     return StatusCode::FAILURE;
   }
 
@@ -309,7 +310,7 @@ StatusCode OccupancyMapMaker::execute(){
   } ATH_MSG_DEBUG("Event info retrieved");
 
   // check LB is in allowed range
-  int LB =  static_cast<int>(eventInfo->event_ID()->lumi_block());
+  unsigned int LB =  eventInfo->event_ID()->lumi_block();
   if( (LB < m_evt_lbMin) || (m_evt_lbMax >= m_evt_lbMin && LB > m_evt_lbMax) ){
     ATH_MSG_VERBOSE("Event in lumiblock " << eventInfo->event_ID()->lumi_block() <<
 		    " not in selected range [" << m_evt_lbMin << "," << m_evt_lbMax << "] => skipped");    
@@ -521,12 +522,6 @@ StatusCode OccupancyMapMaker::finalize() {
   int totalDisabledModules=0;
   int modulesWithHits=0;
   int modulesWithDisabledPixels=0;
-
- 
-  //  std::sort(m_moduleHashList.begin(), m_moduleHashList.end());
-  //  if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
-  //for(unsigned int moduleHash = 0; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++)
-  //for(std::vector<int>::iterator it = m_moduleHashList.begin(); it != m_moduleHashList.end(); ++it)
 
   for (PixelID::const_id_iterator wafer_it=m_pixelID->wafer_begin(); wafer_it!=m_pixelID->wafer_end(); ++wafer_it) {
     Identifier ident = *wafer_it;

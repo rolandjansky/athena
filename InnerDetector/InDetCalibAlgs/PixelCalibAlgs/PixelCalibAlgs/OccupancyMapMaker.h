@@ -96,10 +96,12 @@ class OccupancyMapMaker: public AthAlgorithm{
 
     unsigned int m_nBCReadout;
 
-    int m_evt_lbMin; // lower limit for LB to be taken into account
-    int m_evt_lbMax; // upper limit for LB to be taken into account
+    unsigned int m_evt_lbMin; // lower limit for LB to be taken into account
+    unsigned int m_evt_lbMax; // upper limit for LB to be taken into account
 
     bool m_calculateNoiseMaps;
+
+    std::string m_mapFile;
 };
 
 #endif  // PIXELCONDITIONSALGS_OCCUPANCYMAPMAKERH_
