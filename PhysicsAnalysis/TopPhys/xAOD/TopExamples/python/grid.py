@@ -217,26 +217,16 @@ def submit(config, allSamples):
 
   #Check for cuts file
   for configFile in config.settingsFile.split(','):
-    settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
-
-    if not checkForFile(settingsFilePath):
-        print logger.FAIL    + " Error - %s does not exist in this directory "%(settingsFilePath) + logger.ENDC
-        print logger.WARNING + "       - Attempt to find this file in a sensible location... " + logger.ENDC
+    if not checkForFile(configFile):
+        print logger.WARNING     + " WARNING - Did not find config file %s in this dir "%(configFile) + logger.ENDC
+        print logger.WARNING     + "       - Attempt to find this file in a sensible location using PathResolver... " + logger.ENDC
+        settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
         if settingsFilePath == "":
-            print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
-            print '%s does not exist in this directory and cannot be found' % settingsFilePath
-            print 'Please make it before submitting'
-            sys.exit(1)      
+            print logger.FAIL    + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
+            print '%s does not exist in this directory and cannot be found using PathResolver, exiting!' % configFile
+            sys.exit(1)
         else:
-            print logger.WARNING + "       - Found an appropriate file " + logger.ENDC
-            print logger.WARNING + "       - Will copy " + logger.ENDC + settingsFilePath + logger.WARNING + " from " + logger.ENDC + settingsFilePath 
-            print logger.WARNING + "       - Confirm this is okay before continuing " + logger.ENDC
-            user_check = raw_input(logger.OKBLUE + "Type yes/y/Y in order to proceed ...: " + logger.ENDC)
-            if(user_check != "yes" and user_check != "y" and user_check != "Y"):
-                print logger.FAIL + " Exiting submission " + logger.ENDC
-                sys.exit(2)
-            print logger.OKGREEN + "       - Confirmed " + logger.ENDC
-            os.system("cp %s %s"%(settingsFilePath,"./"))
+            print logger.WARNING + "       - Found an appropriate file %s "%(settingsFilePath) + logger.ENDC
 
   outputFiles = []
   for configFile in config.settingsFile.split(','):
@@ -248,7 +238,6 @@ def submit(config, allSamples):
         #ignore text after comments
         if l.find('#') > -1:
             l = l.split('#')[0]
-
         if l.find('OutputFilename') > -1:
             outputFilename = l.replace('OutputFilename', '').strip()
     if outputFilename == 'EMPTY':
