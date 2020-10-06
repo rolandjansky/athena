@@ -6,30 +6,6 @@
 # Declare the package name:
 atlas_subdir( TileByteStream )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Event/ByteStreamCnvSvcBase
-   Event/ByteStreamData
-   GaudiKernel
-   TileCalorimeter/TileEvent
-   TileCalorimeter/TileIdentifier
-   TileCalorimeter/TileL2Algs
-   PRIVATE
-   Tools/PathResolver
-   AtlasTest/TestTools
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloIdentifier
-   Control/StoreGate
-   DetectorDescription/IdDictParser
-   Event/ByteStreamCnvSvc
-   TileCalorimeter/TileCalib/TileCalibBlobObjs
-   TileCalorimeter/TileConditions
-   TileCalorimeter/TileDetDescr
-   TileCalorimeter/TileRecUtils )
-
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat eformat_write )
 
@@ -41,7 +17,7 @@ atlas_add_library( TileByteStreamLib
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel
    ByteStreamData GaudiKernel TileEvent TileIdentifier ByteStreamCnvSvcBaseLib
    CaloDetDescrLib StoreGateLib ByteStreamCnvSvcLib TileConditionsLib
-   TileL2AlgsLib TileRecUtilsLib
+   TileL2AlgsLib TileRecUtilsLib CxxUtils
    PRIVATE_LINK_LIBRARIES CaloIdentifier TileCalibBlobObjs
    TileDetDescr )
 
