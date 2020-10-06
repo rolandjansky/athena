@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
      addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
@@ -7,10 +7,8 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
      addTypesOnlyToSkip
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-
 # combined tools
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
-addTool("MuonCombinedRecExample.MuonCombinedTools.InDetCandidateTool","InDetCandidateTool")
 
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonInsideOutRecoTool","MuonInsideOutRecoTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonCandidateTrackBuilderTool","MuonCandidateTrackBuilderTool")
@@ -36,16 +34,30 @@ addTool("Rec::MuonScatteringAngleSignificanceTool","MuonScatteringAngleSignifica
 addTool( "Muon::MuonSystemExtensionTool", "MuonSystemExtensionTool", ParticleCaloExtensionTool = "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","MuonMaterialProviderTool")
 
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg","MuGirlAlg")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg_LRT","MuonCaloTagAlg_LRT")
+
+
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInsideOutRecoAlg","MuonInsideOutRecoAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg_LRT","MuGirlAlg_LRT")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlStauAlg","MuGirlStauAlg")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg_LRT","MuonCombinedInDetCandidateAlg_LRT")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg","MuonCombinedAlg")
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetExtensionAlg","MuonCombinedInDetExtensionAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg_LRT", "MuonCombinedAlg_LRT")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg_LRT","MuonSegmentTagAlg_LRT")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg_LRT","MuonCreatorAlg_LRT" )
+
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreatorAlg")
 
 # tracking tools
@@ -58,12 +70,17 @@ addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagAmbiguitySolverTool"
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuonSegmentTagTool","MuonSegmentTagTool")
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedTrackSelectorTool")
+
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool_LRT", "MuonCombinedInDetDetailedTrackSelectorTool_LRT")
+
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedForwardTrackSelectorTool", nHitSct=0)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonInDetForwardCandidateTool","MuonInDetForwardCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedParticleCreator","MuonCombinedParticleCreator")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCaloParticleCreator","MuonCaloParticleCreator")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorTool",BuildStauContainer=True)
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool_LRT","MuonCreatorTool_LRT")
+
 addTool("MuonCombinedRecExample.MuonCombinedTools.ExtrapolateMuonToIPTool","ExtrapolateMuonToIPTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool","MuonCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTrackSummaryTool","MuonCombinedTrackSummaryTool")
@@ -106,5 +123,3 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonTrackQuery","MuonTrackQ
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidSegmentRegionRecoveryTool","MuidSegmentRegionRecoveryTool")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder","CombinedMuonTrackBuilder")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilderFit","CombinedMuonTrackBuilderFit")
-
-

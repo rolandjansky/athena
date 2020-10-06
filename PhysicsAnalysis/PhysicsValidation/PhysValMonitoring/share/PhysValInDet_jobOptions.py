@@ -7,6 +7,7 @@ from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
 import InDetPhysValMonitoring.InDetPhysValMonitoringTool as InDetPhysValMonitoringTool
 
 mons=[ (True                                             , InDetPhysValMonitoringTool.getInDetPhysValMonitoringTool),
+       (InDetPhysValFlags.doValidateLargeD0Tracks()      , InDetPhysValMonitoringTool.getInDetLargeD0PhysValMonitoringTool),
        (InDetPhysValFlags.doValidateLooseTracks()        , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolLoose),
        (InDetPhysValFlags.doValidateTightPrimaryTracks() , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolTightPrimary),
        (InDetPhysValFlags.doValidateDBMTracks()          , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolDBM),
@@ -16,7 +17,6 @@ mons=[ (True                                             , InDetPhysValMonitorin
 for enabled, creator in mons :
     if enabled :
         monMan.AthenaMonTools += [ creator() ]
-
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringTool import getInDetPhysValMonitoringTool
 from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
