@@ -330,12 +330,6 @@ class SiTrigSpacePointFinder_EF( InDet__SiTrigSpacePointFinder ):
       self.ProcessSCTs = True
       self.ProcessOverlaps = InDetTrigFlags.doOverlapSP()
 
-#      from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
-#      from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
-
-#      self.RegSelTool_Pixel = makeRegSelTool_Pixel()
-#      self.RegSelTool_SCT   = makeRegSelTool_SCT()
-
       if type=='cosmicsN':
          from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import \
              InDetTrigSiSpacePointMakerToolCosmics, SCT_TrigSpacePointToolCosmics

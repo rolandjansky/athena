@@ -180,6 +180,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
            InDetTrigTRT_SeededSpacePointFinder.PRDtoTrackMap = 'InDetTrigPRDtoTrackMap_Photon_EF'
 
       elif InDetTrigFlags.loadSimpleTRTSeededSPFinder():
+         # Old RegSelSvc configuration - leave commented until the dust has settled
          # from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
          # InDetTrigRegSelSvc = RegSelSvcDefault()
          # InDetTrigRegSelSvc.enablePixel = DetFlags.pixel_on()

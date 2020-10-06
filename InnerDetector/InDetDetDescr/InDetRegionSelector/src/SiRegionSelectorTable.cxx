@@ -75,8 +75,6 @@ SiRegionSelectorTable::initialize(){
     msg(MSG::WARNING) << "Tool disabled." << endmsg;
   } 
  
-  //  ATH_CHECK(m_condCablingKey.initialize());
-
   ATH_MSG_WARNING("So far, this prevents the conditions migration!! The createTable() should NOT be used in the initilization step...");
 
   return StatusCode::SUCCESS;

@@ -101,14 +101,6 @@ PEBInfoWriterToolBase::PEBInfo RoIPEBInfoWriterTool::createPEBInfo(const PEBInfo
 
   TrigRoiDescriptor roiForPEB(eta, etaMin, etaMax, phi, phiMin, phiMax);
 
-#if 0
-  std::vector<IRegSelTool*> tools = { 
-    m_regionSelectot_pix, 
-    m_regionSelectot_sct, 
-    m_regionSelectot_trt 
-  }; 
-#endif
-
   for ( auto tool : m_tools ) { 
     std::vector<uint32_t> detROBs;
     tool->ROBIDList( roiForPEB, detROBs);

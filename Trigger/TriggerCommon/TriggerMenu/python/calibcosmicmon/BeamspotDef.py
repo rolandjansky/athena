@@ -113,11 +113,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
      dummyAllTEAlgo = GenericDummyUnseededAllTEAlgo("L2DummyAlgo")
      
-#     from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
-#     from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
-#     dummyAllTEAlgo.RegSelTool_Pixel = makeRegSelTool_Pixel()
-#     dummyAttTEAlgo.RegSelTool_SCT  = makeRegSelTool_SCT()
-
      self.L2sequenceList += [ [[""], [dummyAllTEAlgo]+trk_alg, 'L2_BeamSpottracks']]
 
      self.L2sequenceList +=[[['L2_BeamSpottracks'], [theFex], 'L2_fex']]

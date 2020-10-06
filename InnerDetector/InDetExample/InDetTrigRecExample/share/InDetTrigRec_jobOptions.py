@@ -59,7 +59,9 @@ if InDetTrigFlags.useConditionsClasses():
 else:
   include ("InDetRecExample/InDetRecConditionsAccess.py")
 
-#manipulate RegSelSvc settings to be aware of the inactive detelems
+# remove all the old RegSelSvc setting - leave commented 
+# while we determinte whether the RegSel migration has been successful
+# manipulate RegSelSvc settings to be aware of the inactive detelems
 # from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 # RegSelSvc = RegSelSvcDefault()
 

@@ -665,9 +665,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                  DoPhiFiltering = True,
                                                                  UseBeamTilt = False,
                                                                  UseNewLayerScheme = True,
-                                                                 RegSel_Pixel = pixRegSelTool,
-                                                                 RegSel_SCT = sctRegSelTool,
-                                                                 layerNumberTool = acc.getPublicTool("TrigL2LayerNumberTool_FTF") ) )
+                                                                 RegSelTool_Pixel = pixRegSelTool,
+                                                                 RegSelTool_SCT   = sctRegSelTool,
+                                                                 layerNumberTool  = acc.getPublicTool("TrigL2LayerNumberTool_FTF") ) )
 
 
   # TODO remove once offline configured counterparts are available?
