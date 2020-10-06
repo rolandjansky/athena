@@ -1479,14 +1479,17 @@ def hasSplitProb(key) :
     return False
 
 def combinedClusterSplitProbName() :
-    # precisely mimics the configuration in InDetRec_jobOptions
-    # chaings in InDetRec_jobOptions to the ClusterSplitProbContainer also have to be implemented here
-    # @TODO find a better way to provide the final name of ClusterSplitProbContainer used for the combined InDetTrackParticles
-    ClusterSplitProbContainer=''
-    from AthenaCommon.BeamFlags import jobproperties
-    from InDetRecExample.InDetJobProperties import InDetFlags
+  # precisely mimics the configuration in InDetRec_jobOptions
+  # chaings in InDetRec_jobOptions to the ClusterSplitProbContainer also have to be implemented here
+  # @TODO find a better way to provide the final name of ClusterSplitProbContainer used for the combined InDetTrackParticles
+  from AthenaCommon.BeamFlags import jobproperties
+  from InDetRecExample.InDetJobProperties import InDetFlags
+  CombinedInDetClusterSplitProbContainer = ''
+  ClusterSplitProbContainer=''
+  if InDetFlags.Enabled():
+    from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+    # --- ensure that Calo clustering is running if we run in calo seeded mode 
     if ('InDetNewTrackingCuts' not in dir()):
-      from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
       if InDetFlags.doDBMstandalone():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
       elif InDetFlags.doVtxLumi():
@@ -1509,22 +1512,27 @@ def combinedClusterSplitProbName() :
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("R3LargeD0")
       else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
-
     if InDetFlags.doTrackSegmentsPixel():
       if ('InDetNewTrackingCutsPixel' not in dir()):
         InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsPixel.extension()
+      # @TODO CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doTrackSegmentsSCT():
       if ('InDetNewTrackingCutsSCT' not in dir()):
         InDetNewTrackingCutsSCT = ConfiguredNewTrackingCuts("SCT")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSCT.extension()
+      # @TODO CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doTRTPhaseCalculation() and not jobproperties.Beam.beamType()=="collisions" and InDetFlags.doNewTracking():
-      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
-    if InDetFlags.doNewTracking() and ( not InDetFlags.doTRTPhaseCalculation() or jobproperties.Beam.beamType()=="collisions"):
-      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doNewTracking() and (not InDetFlags.doTRTPhaseCalculation() or jobproperties.Beam.beamType()=="collisions"):
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doBackTracking():
       ClusterSplitProbContainer = 'InDetTRT_SeededAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
-    if (InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0() ) and  InDetFlags.doDVRetracking():
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    ClusterSplitProbContainerLargeD0=''
+    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
       if ('InDetNewTrackingCutsLargeD0' not in dir()):
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
@@ -1532,40 +1540,52 @@ def combinedClusterSplitProbName() :
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
         else:
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
-      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLargeD0.extension()
+      ClusterSplitProbContainerLargeD0 = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLargeD0.extension()
+      if not InDetFlags.storeSeparateLargeD0Container():
+        ClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
     if InDetFlags.doLowPt():
       if ('InDetNewTrackingCutsLowPt' not in dir()):
         InDetNewTrackingCutsLowPt = ConfiguredNewTrackingCuts("LowPt")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLowPt.extension()
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doVeryLowPt():
       if ('InDetNewTrackingCutsVeryLowPt' not in dir()):
         InDetNewTrackingCutsVeryLowPt = ConfiguredNewTrackingCuts("VeryLowPt")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsVeryLowPt.extension()
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doTRTStandalone():
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
       if InDetFlags.doSLHCVeryForward():
        if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
          InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks")
          ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
+         CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
       else:
        if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
         ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
     if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
       if ('InDetNewTrackingCutsSLHCConversionFinding' not in dir()):
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
-      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
-    if InDetFlags.doBeamGas() and jobproperties.Beam.beamType() == "singlebeam":
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSLHCConversionFinding.extension()
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doBeamGas():
       if ('InDetNewTrackingCutsBeamGas' not in dir()):
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsBeamGas = ConfiguredNewTrackingCuts("BeamGas")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsBeamGas.extension()
-    if InDetFlags.doCosmics() and InDetFlags.doNewTracking() :
-      ClusterSplitProbContainer = '' # @TODO correct  ?
-
-    return ClusterSplitProbContainer if hasSplitProb(ClusterSplitProbContainer) else ''
+      if jobproperties.Beam.beamType() == "singlebeam":
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doCosmics() and InDetFlags.doNewTracking() : # @TODO should also consider: and len(InputCombinedInDetTracks) > 1:
+      CombinedInDetClusterSplitProbContainer = ''  # @TODO really no split prob container ?
+    if InDetFlags.doNewTrackingPattern() or InDetFlags.doBeamHalo():
+      if InDetFlags.useExistingTracksAsInput():
+          pass # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
+      if InDetFlags.doDBMstandalone():
+          CombinedInDetClusterSplitProbContainer=''
+  return CombinedInDetClusterSplitProbContainer if hasSplitProb(CombinedInDetClusterSplitProbContainer) else ''
 
 def pixelClusterSplitProbName() :
     ClusterSplitProbContainer=combinedClusterSplitProbName()
