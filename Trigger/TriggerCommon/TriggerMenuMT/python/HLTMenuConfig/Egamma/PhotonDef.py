@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 from TriggerMenuMT.HLTMenuConfig.Egamma.PhotonSequenceSetup import fastPhotonMenuSequence, precisionPhotonMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 
-
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO, 
 # so let's make them functions already now
@@ -29,6 +29,17 @@ def precisionPhotonCaloSequenceCfg( flags ):
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
+
+def diphotonDPhiHypoToolFromDict(chainDict):
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDPhiHypoTool
+    name = chainDict['chainName']
+    monTool = GenericMonitoringTool("MonTool_"+name)
+    monTool.Histograms = [defineHistogram('DphiOfAccepted', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2)]
+    tool= TrigEgammaDPhiHypoTool(name)
+    tool.ThresholdDPhiCut = 1.5
+    monTool.HistPath = 'EgammaDphiHypo/'+tool.getName()
+    tool.MonTool = monTool
+    return tool
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -103,5 +114,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
             
     def getPrecisionPhoton(self):
-        stepName = "PhotonPrecision"
-        return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
+        if "dPhi15" in self.chainName:
+            stepName = "precision_topophoton"
+            return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiHypoToolFromDict])
+        else:
+            stepName = "precision_photon"
+            return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])

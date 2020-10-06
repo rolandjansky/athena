@@ -4,7 +4,7 @@
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaDielectronMassHypoTool.h
+ **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaMassHypoTool.h
  **
  **   Description: - Hypothesis Tool: search for electron pairs with
  **                invariant mass in some interval; intended for Z->ee
@@ -19,17 +19,17 @@
  **************************************************************************/
 
 
-#include "TrigEgammaDielectronMassHypoTool.h"
+#include "TrigEgammaMassHypoTool.h"
 
 #include <cmath>
 
 using namespace TrigCompositeUtils;
 
-TrigEgammaDielectronMassHypoTool::TrigEgammaDielectronMassHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
+TrigEgammaMassHypoTool::TrigEgammaMassHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
     : ComboHypoToolBase(type, name, parent) {}
 
 
-StatusCode TrigEgammaDielectronMassHypoTool::initialize()
+StatusCode TrigEgammaMassHypoTool::initialize()
 {
   ATH_MSG_DEBUG("AcceptAll            = " << m_acceptAll );
   ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassElectronClusterCut );
@@ -45,31 +45,33 @@ StatusCode TrigEgammaDielectronMassHypoTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-bool TrigEgammaDielectronMassHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+bool TrigEgammaMassHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
+  auto massOfAccepted = Monitored::Scalar( "MassOfAccepted"   , -1.0 );
+  auto monitorIt    = Monitored::Group( m_monTool, massOfAccepted);
 
-//retrieve the electrons 
-  std::vector<ElementLink<xAOD::ElectronContainer>> selected_electrons;
+//retrieve the elements
+  std::vector<ElementLink<xAOD::IParticleContainer>> selected_electrons;
   for (auto el: combination){
     auto EL= el.second;    
-    auto electronLink = TrigCompositeUtils::findLink<xAOD::ElectronContainer>( *EL, featureString() ).link;
+    auto electronLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
     selected_electrons.push_back(electronLink);
   }
   auto electronLink1=selected_electrons[0];
   auto electronLink2=selected_electrons[1];
   TLorentzVector hlv1 = (*electronLink1)->p4();
   TLorentzVector hlv2 = (*electronLink2)->p4();
-  double mass = (hlv1+hlv2).M();
-  ATH_MSG_DEBUG("Found two Electrons with mass " <<mass);
+  massOfAccepted = (hlv1+hlv2).M();
+  ATH_MSG_DEBUG("Found two Electrons with mass " <<massOfAccepted);
 
   // apply the cut
   bool pass=true;
-  if (mass<m_lowerMassElectronClusterCut || mass>m_upperMassElectronClusterCut){ 
-      ATH_MSG_DEBUG("Combination failed mass cut: " << mass << " not in [" << m_lowerMassElectronClusterCut << "," <<  m_upperMassElectronClusterCut << "]");
+  if (massOfAccepted < m_lowerMassElectronClusterCut || massOfAccepted > m_upperMassElectronClusterCut){ 
+      ATH_MSG_DEBUG("Combination failed mass cut: " << massOfAccepted << " not in [" << m_lowerMassElectronClusterCut << "," <<  m_upperMassElectronClusterCut << "]");
       pass=false;
   }
 
   if (pass)
-     ATH_MSG_DEBUG( " Invariant mass " << mass << " is  within [" <<m_lowerMassElectronClusterCut<< "," << m_upperMassElectronClusterCut << "] This seleciton passed! ");
+     ATH_MSG_DEBUG( " Invariant mass " << massOfAccepted << " is  within [" <<m_lowerMassElectronClusterCut<< "," << m_upperMassElectronClusterCut << "] This selection passed! ");
   
   return pass;
 

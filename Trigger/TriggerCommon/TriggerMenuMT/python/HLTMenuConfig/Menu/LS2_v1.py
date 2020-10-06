@@ -172,6 +172,10 @@ def setupMenu():
     
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
+
+        #ATR-21882
+        ChainProp(name='HLT_2g15_tight_dPhi15_L1DPHI-M70-2EM12I', l1SeedThresholds=['EM12'], groups=MultiPhotonGroup),
+
         ChainProp(name='HLT_g300_etcut_L1EM22VHI', groups=SinglePhotonGroup),
     ]
 

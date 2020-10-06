@@ -2,12 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGEGAMMAHYPO_TRIGEGAMMADIELECTRONMASSHYPOTOOL_H
-#define TRIGEGAMMAHYPO_TRIGEGAMMADIELECTRONMASSHYPOTOOL_H
+#ifndef TRIGEGAMMAHYPO_TRIGEGAMMAMASSHYPOTOOL_H
+#define TRIGEGAMMAHYPO_TRIGEGAMMAMASSHYPOTOOL_H
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaDielectronMassHypoTool.h
+ **   File: Trigger/TrigHypothesis/TrigEgammaHypo/src/TrigEgammaMassHypoTool.h
  **
  **   Description: - Hypothesis Tool: search for electron pairs with 
  **                invariant mass in some interval; intended for Z->ee
@@ -29,6 +29,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODBase/IParticleContainer.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -38,23 +39,23 @@
 
 
 /**
- * \class TrigEgammaDielectronMassHypoTool
- * \brief TrigEgammaDielectronMassHypoTool is a ComboHypoTool that calculates the inv mass
+ * \class TrigEgammaMassHypoTool
+ * \brief TrigEgammaMassHypoTool is a ComboHypoTool that calculates the inv mass
  * Apply inv mass cuts (upper and lower cut) to the two electrons and accepts the event if condition is 
  * satisfied
  *
  */
 
 
-class TrigEgammaDielectronMassHypoTool:  public ComboHypoToolBase {
+class TrigEgammaMassHypoTool:  public ComboHypoToolBase {
 
  public:
   
-  TrigEgammaDielectronMassHypoTool(const std::string& type,
+  TrigEgammaMassHypoTool(const std::string& type,
                     const std::string& name,
                     const IInterface* parent);
   
-  virtual ~TrigEgammaDielectronMassHypoTool() {};
+  virtual ~TrigEgammaMassHypoTool() {};
   virtual StatusCode initialize() override;
 
 
@@ -73,7 +74,7 @@ class TrigEgammaDielectronMassHypoTool:  public ComboHypoToolBase {
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };
 
 
-}; // TRIGEGAMMAHYPO_TRIGEGAMMADIELECTRONMASSHYPOTOOL_H
+}; // TRIGEGAMMAHYPO_TRIGEGAMMAMASSHYPOTOOL_H
 #endif
 
 
