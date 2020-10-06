@@ -90,12 +90,13 @@ RootExCellWriter<T>::write(
           Acts::ExtrapolationMode::CollectPassive);
 
       /// check the layer, surface, volume ID
-      geo_id_value volumeID = pars.referenceSurface().geoID().value(
-          Acts::GeometryID::volume_mask);
-      geo_id_value layerID = pars.referenceSurface().geoID().value(
-          Acts::GeometryID::layer_mask);
-      geo_id_value surfaceID = pars.referenceSurface().geoID().value(
-          Acts::GeometryID::sensitive_mask);
+      geo_id_value volumeID = pars.referenceSurface().geometryId().value(
+          Acts::GeometryIdentifier::volume_mask);
+      geo_id_value layerID = pars.referenceSurface().geometryId().value(
+          Acts::GeometryIdentifier::layer_mask);
+      geo_id_value surfaceID = pars.referenceSurface().geometryId().value(
+          Acts::GeometryIdentifier::sensitive_mask);
+
       ///
       if ((m_cfg.writeSensitive && sensitive)
           || (m_cfg.writeBoundary && boundary)

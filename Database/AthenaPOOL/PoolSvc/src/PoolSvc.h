@@ -223,6 +223,9 @@ private: // properties
    BooleanProperty m_sortReplicas{this,"SortReplicas",true};
 
 private: // internal helper functions
+   // delete all APR::Persistency Services, Catalog, Mutexes and Indexes
+   void clearState();
+
    pool::IFileCatalog* createCatalog();
 
    // setup APR persistency

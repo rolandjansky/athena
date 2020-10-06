@@ -1,13 +1,21 @@
-// $Id: LinkDef.h 726905 2016-02-29 20:49:20Z sfarrell $
 // Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
+#ifndef PATINTERFACES_LINKDEF_H
+#define PATINTERFACES_LINKDEF_H
 
-#include <vector>
-
+// Local include(s).
+#include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicsUtil.h"
 #include "PATInterfaces/StreamTestWrapper.h"
+
+// System include(s).
+#include <set>
+#include <vector>
 
 #ifdef __CINT__
 
@@ -17,6 +25,7 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ namespace CP;
+#pragma link C++ class CP::CorrectionCode+;
 #pragma link C++ class CP::SystematicVariation+;
 #pragma link C++ class std::set<CP::SystematicVariation>+;
 #pragma link C++ class CP::SystematicSet+;
@@ -29,4 +38,5 @@
 #pragma link C++ namespace SysStreamTest;
 #pragma link C++ class SysStreamTest::StreamTestWrapper+;
 
-#endif
+#endif // __CINT__
+#endif // not PATINTERFACES_LINKDEF_H

@@ -39,6 +39,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 #include <unordered_set>
 
@@ -48,6 +49,7 @@
 #include "AtlasHepMC/GenVertex_fwd.h"
 #include "AtlasHepMC/GenParticle_fwd.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 namespace xAODMaker {
 
@@ -59,7 +61,10 @@ namespace xAODMaker {
   /// @author James Catmore <James.Catmore@cern.ch>
   /// @author Jovan Mitreski <Jovan.Mitreski@cern.ch>
   /// @author Andy Buckley <Andy.Buckley@cern.ch>
-  class xAODTruthCnvAlg : public AthReentrantAlgorithm {
+  class xAODTruthCnvAlg
+    : public AthReentrantAlgorithm
+    , virtual public IIncidentListener
+{
   public:
 
     /// Regular algorithm constructor
@@ -70,8 +75,20 @@ namespace xAODMaker {
     /// Function executing the algorithm
     virtual StatusCode execute (const EventContext& ctx) const override;
 
+    /// Incident handler
+    virtual void handle(const Incident& incident) override;
 
   private:
+    // Truth metadata fields retrieved from TagInfo
+    struct MetadataFields {
+      std::string  lhefGenerator;
+      std::string  generators;
+      std::string  evgenProcess;
+      std::string  evgenTune;
+      std::string  hardPDF;
+      std::string  softPDF;
+    };
+
     /// Factor out the pieces dealing with writing to meta data.
     /// This will be non-const, so need to protect with a mutex.
     class MetaDataWriter
@@ -80,8 +97,8 @@ namespace xAODMaker {
       StatusCode initialize (ServiceHandle<StoreGateSvc>& metaStore,
                              const std::string& metaName);
       StatusCode maybeWrite (uint32_t mcChannelNumber,
-                             const HepMC::GenEvent& genEvt);
-
+                             const HepMC::GenEvent& genEvt,
+			     const MetadataFields& metaFields);
 
     private:
       /// Mutex to control access to meta data writing.
@@ -136,13 +153,18 @@ namespace xAODMaker {
 
     /// Connection to the metadata store
     ServiceHandle< StoreGateSvc > m_metaStore;
-    ServiceHandle<StoreGateSvc> m_inputMetaStore;
     /// SG key and name for meta data
     std::string m_metaName;
 
     /// option to disable writing of metadata (e.g. if running a filter on xAOD in generators)
     Gaudi::Property<bool> m_writeMetaData{this, "WriteTruthMetaData", true};
 
+    /// Event Info
+    SG::ReadHandleKey<xAOD::EventInfo> m_evtInfo {this, "EventInfo", "EventInfo", "" };
+
+    /// Tag Info
+    bool           m_firstBeginRun;
+    MetadataFields m_metaFields;
   }; // class xAODTruthCnvAlg
 
 

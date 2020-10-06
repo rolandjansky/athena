@@ -90,12 +90,12 @@ ActsDetectorElement::ActsDetectorElement(
 }
 
 ActsDetectorElement::ActsDetectorElement(
-    std::shared_ptr<const Transform3D> trf,
+    const Acts::Transform3D& trf,
     const InDetDD::TRT_BaseElement* detElem,
     const Identifier& id)
 {
   m_detElement = detElem;
-  m_defTransform = trf;
+  m_defTransform = std::make_shared<const Acts::Transform3D>(trf);
   m_explicitIdentifier = id;
 
   // we know this is a straw

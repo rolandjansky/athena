@@ -341,6 +341,7 @@ if DQMonFlags.doMonitoring():
       ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
       ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
       ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
+      ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
       ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
       ConfigFlags.DQ.isReallyOldStyle=False
 
@@ -357,7 +358,7 @@ if DQMonFlags.doMonitoring():
       Steering.doPixelMon=DQMonFlags.doPixelMon()
       Steering.doSCTMon=DQMonFlags.doSCTMon()
       Steering.doTRTMon=DQMonFlags.doTRTMon()
-      Steering.doInDetGlobalMon=DQMonFlags.doInDetGlobalMon()
+      Steering.doInDetMon=DQMonFlags.doInDetGlobalMon()
       Steering.doLArMon=DQMonFlags.doLArMon()
       Steering.doTileMon=DQMonFlags.doTileMon()
       Steering.doCaloGlobalMon=DQMonFlags.doCaloMon()

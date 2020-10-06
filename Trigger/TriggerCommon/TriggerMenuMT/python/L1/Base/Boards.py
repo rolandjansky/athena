@@ -12,20 +12,14 @@ class BoardType(Enum):
     NONE = 1
     MUCTPI = 2
     TOPO = 3
-    MERGER = 4
-    CTPIN = 5
+    CTPIN = 4
+    MERGER = 5
     def __repr__(self):
         return self.name
     def __str__(self):
         return self.name
-
-
-class MenuBoardsCollection(object):
-    def __init__(self):
-        self.boards = {}
-
-    def addBoard(self, boardDef):
-        name = boardDef["name"]
+    @staticmethod
+    def fromBoardName(name):
         if 'muctpi' in name.lower():
             btype = BoardType.MUCTPI
         elif 'alfactpin' in name.lower():
@@ -37,25 +31,28 @@ class MenuBoardsCollection(object):
         elif 'ctpin' in name.lower():            
             btype = BoardType.CTPIN
         else:
-            btype = BoardType.NONE
+            raise RuntimeError("No BoardType defined for board %s" % name)
+        return btype
 
+
+class MenuBoardsCollection(object):
+    def __init__(self):
+        self.boards = {}
+
+    def addBoard(self, boardDef):
+        name = boardDef["name"]
+        btype = BoardType.fromBoardName(name)
         isLegacy = 'legacy' in boardDef
-
         self.boards[name] = Board(name, btype, isLegacy)
-
         if "connectors" in boardDef:
             self.boards[name].addOutputConnectorNames([c["name"] for c in boardDef["connectors"]])
-
         return self.boards[name]
 
     def json(self):
-        boardOrder = ["MuCTPi", "Topo1", "Topo2", "Topo3", "Ctpin", "Ctpin7", "Ctpin8", "Ctpin9", 
-                      "LegacyTopo0", "LegacyTopo1", "LegacyTopoMerger", "AlfaCtpin"]
         from collections import OrderedDict as odict
         confObj = odict()
-        for boardName in boardOrder:
-            if boardName in self.boards:
-                confObj[boardName] = self.boards[boardName].json()
+        for boardName in sorted(self.boards):
+            confObj[boardName] = self.boards[boardName].json()
         return confObj
 
 

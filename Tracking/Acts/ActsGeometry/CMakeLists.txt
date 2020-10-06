@@ -30,7 +30,7 @@ find_package( Eigen )
 find_package( Boost )
 find_package( nlohmann_json )
 
-find_package( Acts COMPONENTS Core JsonPlugin)
+find_package( Acts COMPONENTS Core PluginJson)
 
 # Component(s) in the package:
 
@@ -48,7 +48,7 @@ atlas_add_library( ActsGeometryLib
                    ActsInteropLib
                    ActsGeometryInterfacesLib
                    ActsCore
-                   ActsJsonPlugin
+                   ActsPluginJson
                    TrkGeometry
                    PixelReadoutGeometry
                    SCT_ReadoutGeometry
@@ -84,7 +84,7 @@ atlas_add_component( ActsGeometry
                      ActsGeometryLib
                      ActsGeometryInterfacesLib
                      ActsCore
-                     ActsJsonPlugin)
+                     ActsPluginJson)
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

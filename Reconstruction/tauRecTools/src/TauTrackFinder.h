@@ -16,11 +16,11 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-#include "VxVertex/RecVertex.h"
-
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -95,23 +95,22 @@ private:
     ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, "ParticleCaloExtensionTool", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool for the extrapolation of charged tracks"};
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau {this, "TrackSelectorToolTau", "", "Tool for track selection"};
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool {this, "TrackToVertexTool", "Reco::TrackToVertex"};
-    //output particle calo extension collection
-    SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
-      "tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
+    ToolHandle<Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimator {this, "TrackToVertexIPEstimator", ""};
     
     Gaudi::Property<double>  m_maxJetDr_tau {this, "MaxJetDrTau", 0.2};
-    Gaudi::Property<double> m_maxJetDr_wide {this, "MaxJetDrWide", 0.4};
-   
+    Gaudi::Property<double> m_maxJetDr_wide {this, "MaxJetDrWide", 0.4};   
     Gaudi::Property<bool> m_applyZ0cut {this, "removeTracksOutsideZ0wrtLeadTrk", false};
-    Gaudi::Property<float> m_z0maxDelta {this, "maxDeltaZ0wrtLeadTrk", 1000};
-    
+    Gaudi::Property<float> m_z0maxDelta {this, "maxDeltaZ0wrtLeadTrk", 1000};    
     Gaudi::Property<bool> m_storeInOtherTrks {this, "StoreRemovedCoreWideTracksInOtherTracks", true};
     Gaudi::Property<bool> m_removeDuplicateCoreTracks {this, "removeDuplicateCoreTracks", true};
     Gaudi::Property<bool> m_bypassSelector {this, "BypassSelector", false};
     Gaudi::Property<bool> m_bypassExtrapolator {this, "BypassExtrapolator", false};
 
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
+    SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,"tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
     
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
     std::set<CaloSampling::CaloSample> m_EMSamplings;
     std::set<CaloSampling::CaloSample> m_HadSamplings;
 };

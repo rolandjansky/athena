@@ -46,7 +46,7 @@ class useEEtaFirstInt(JobProperty):
     """ Whether to bin E/P in E,Eta and layer of First Interaction
     or just E,Eta
     """
-    
+
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = True
@@ -121,6 +121,13 @@ class usePFEGammaPFOAssoc(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class usePFTauFlowElementAssoc(JobProperty):
+    """ Flag to toggle use of linking between tau objects and flow elements
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class provideShowerSubtractedClusters(JobProperty):
     """ Flag to toggle provision of ElementLink to charged shower subtracted calorimeter clusters. Such links are added to
     neutral PFO and we write out the relevant CaloClusterContainer to AOD such that the links remain valid """
@@ -140,14 +147,13 @@ class eflowRecFlags(JobPropertyContainer):
      """ The eflowRec flag property container
      """
      pass
- 
-# add the flags container to the top container 
+
+# add the flags container to the top container
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,provideShowerSubtractedClusters, useFlowElements]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,usePFTauFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)
 
 del eflowJobProperties
-

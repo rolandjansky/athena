@@ -197,7 +197,7 @@ StatusCode MdtRawDataMonAlg::initialize()
   else m_masked_tubes = new MDTNoisyTubes(false);
   mdtchamberId();
 
-  ATH_CHECK(m_l1RoiKey.initialize());
+  ATH_CHECK(m_l1RoiKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_muonKey.initialize());
   ATH_CHECK(m_segm_type.initialize());
   ATH_CHECK(m_key_mdt.initialize());
@@ -302,7 +302,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   // Retrieve the LVL1 Muon RoIs:
   bool trig_BARREL = false;
   bool trig_ENDCAP = false;
-  try{
+  if (!m_l1RoiKey.empty()) {
     SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiKey, ctx);
     if(!muonRoIs.isValid()){
       ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_l1RoiKey);
@@ -315,8 +315,6 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
       trig_ENDCAP = std::any_of(muonRoIs->begin(), muonRoIs->end(), 
                                 [](const auto& i){return i->getSource() == xAOD::MuonRoI::RoISource::Endcap;});
     }
-  }     catch (SG::ExcNoAuxStore & excpt){
-    ATH_MSG_INFO("SG::ExcNoAuxStore caught, "<<m_l1RoiKey.key()<<" not available.");
   }
 
   //declare MDT stuff 

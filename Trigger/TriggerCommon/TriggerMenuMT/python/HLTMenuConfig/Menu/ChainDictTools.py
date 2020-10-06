@@ -103,7 +103,7 @@ def splitChainInDict(chainName):
       from TrigCompositeUtils.TrigCompositeUtils import legName
       chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
       if len(chainDict['chainParts']) ==1:
-        return [chainDict]
+        return [deepcopy(chainDict)]
                   
       listOfChainDicts = []     
       for count, chainDictPart in enumerate(chainDict['chainParts']):

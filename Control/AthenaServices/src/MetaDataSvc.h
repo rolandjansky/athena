@@ -16,12 +16,14 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IMetaDataTool.h"
 #include "AthenaKernel/IMetaDataSvc.h"
 
 #include <map>
+#include <typeinfo>
 
 // Forward declarations
 class IAddressCreator;
@@ -125,6 +127,9 @@ public: // Non-static members
 
    void lockTools() const;
    void unlockTools() const;
+   
+   void recordHook(const std::type_info&) override;
+   void removeHook(const std::type_info&) override;
 
 private:
    /// Add proxy to input metadata store - can be called directly or via BeginInputFile incident
@@ -139,6 +144,7 @@ private: // data
    ServiceHandle<IFileMgr> m_fileMgr;
    ServiceHandle<IIncidentSvc> m_incSvc;
    ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
+   ServiceHandle< IClassIDSvc > m_classIDSvc{"ClassIDSvc", name()};
  
    long m_storageType;
    bool m_clearedInputDataStore;
@@ -148,6 +154,8 @@ private: // data
    std::map<std::string, CLID> m_persToClid;
    std::map<CLID, std::string> m_toolForClid;
    std::map<std::string, std::string> m_streamForKey;
+
+   std::map<CLID, unsigned int> m_handledClasses;
 
 private: // properties
    /// MetaDataContainer, POOL container name for MetaData.

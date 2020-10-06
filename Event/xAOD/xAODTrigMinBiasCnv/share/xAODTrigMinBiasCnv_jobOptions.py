@@ -33,10 +33,6 @@ xAODTrigT2MbtsBitsCreator()
 from xAODTrigMinBiasCnv.xAODTrigSpacePointCountsCreator import  xAODTrigSpacePointCountsCreator
 xAODTrigSpacePointCountsCreator()
 
-# Make sure that the event format object is added to the output:
-theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-xaodStream.AddMetaDataItem( "xAOD::EventFormat_v1#EventFormat" )
-
 # Check what happened to the stream:
 xaodStream.Print()
 

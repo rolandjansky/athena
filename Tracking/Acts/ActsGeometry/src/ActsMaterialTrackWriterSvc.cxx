@@ -8,7 +8,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
-#include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Material/MaterialSlab.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 
 using namespace Acts::VectorHelpers;
@@ -220,7 +220,7 @@ ActsMaterialTrackWriterSvc::doWrite(const Acts::RecordedMaterialTrack& mTrack)
       m_step_ez.push_back(posPos.z());
 
     // the material information
-    const auto& mprops = mint.materialProperties;
+    const auto& mprops = mint.materialSlab;
     m_step_length.push_back(mprops.thickness());
     m_step_X0.push_back(mprops.material().X0());
     m_step_L0.push_back(mprops.material().L0());

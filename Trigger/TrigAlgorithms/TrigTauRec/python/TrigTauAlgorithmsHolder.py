@@ -364,7 +364,6 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
                                               )
@@ -708,7 +707,8 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                     BypassSelector = noSelector,
-                                    BypassExtrapolator = True
+                                    BypassExtrapolator = True,
+                                    TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator()
                                     )
     # Selector not needed for fast-tracks
     # Extrapolator never needed

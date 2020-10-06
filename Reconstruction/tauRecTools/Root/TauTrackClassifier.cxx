@@ -81,7 +81,6 @@ StatusCode TauTrackClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAOD::
   }
   xTau.setDetail(xAOD::TauJetParameters::nModifiedIsolationTracks, (int) xTau.nTracks(xAOD::TauJetParameters::modifiedIsolationTrack));
 
-
   return StatusCode::SUCCESS;
 }
 
@@ -198,14 +197,14 @@ StatusCode TrackMVABDT::calculateVariables(const xAOD::TauTrack& xTrack, const x
   valueMap["TracksAuxDyn.jetSeedPt"] = xTau.ptJetSeed();
   valueMap["TracksAuxDyn.tauPt"] = xTau.ptIntermediateAxis();
   valueMap["TracksAuxDyn.tauEta"] = xTau.etaIntermediateAxis();
-  valueMap["TracksAuxDyn.z0sinThetaTJVA"] = xTrack.z0sinThetaTJVA(xTau);
-  valueMap["TracksAuxDyn.rConv"] = xTrack.rConv(xTau);
-  valueMap["TracksAuxDyn.rConvII"] = xTrack.rConvII(xTau);
-  valueMap["TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII"] = xTrack.rConv(xTau)/xTrack.rConvII(xTau);
+  valueMap["TracksAuxDyn.z0sinThetaTJVA"] = xTrack.z0sinthetaTJVA();
+  valueMap["TracksAuxDyn.rConv"] = xTrack.rConv();
+  valueMap["TracksAuxDyn.rConvII"] = xTrack.rConvII();
+  valueMap["TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII"] = xTrack.rConv()/xTrack.rConvII();
   valueMap["TracksAuxDyn.DRJetSeedAxis"] = xTrack.dRJetSeedAxis(xTau);
   valueMap["TracksAuxDyn.dRJetSeedAxis"] = xTrack.dRJetSeedAxis(xTau);
   valueMap["TracksAuxDyn.trackEta"] = xTrackParticle->eta();
-  valueMap["TracksAux.d0"] = xTrackParticle->d0();
+  valueMap["TracksAux.d0"] = xTrack.d0TJVA();
   valueMap["TracksAux.qOverP"] = xTrackParticle->qOverP();
   valueMap["TracksAux.theta"] = xTrackParticle->theta();
   valueMap["TracksAux.eProbabilityHT"] = fTracksEProbabilityHT;
@@ -224,13 +223,13 @@ StatusCode TrackMVABDT::calculateVariables(const xAOD::TauTrack& xTrack, const x
   valueMap["TauTracksAuxDyn.jetSeedPt"] = xTau.ptJetSeed();
   valueMap["TauTracksAuxDyn.tauPt"] = xTau.ptIntermediateAxis();
   valueMap["TauTracksAuxDyn.tauEta"] = xTau.etaIntermediateAxis();
-  valueMap["TauTracksAuxDyn.z0sinThetaTJVA"] = xTrack.z0sinThetaTJVA(xTau);
-  valueMap["TauTracksAuxDyn.rConv"] = xTrack.rConv(xTau);
-  valueMap["TauTracksAuxDyn.rConvII"] = xTrack.rConvII(xTau);
-  valueMap["TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII"] = xTrack.rConv(xTau)/xTrack.rConvII(xTau);
+  valueMap["TauTracksAuxDyn.z0sinThetaTJVA"] = xTrack.z0sinthetaTJVA();
+  valueMap["TauTracksAuxDyn.rConv"] = xTrack.rConv();
+  valueMap["TauTracksAuxDyn.rConvII"] = xTrack.rConvII();
+  valueMap["TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII"] = xTrack.rConv()/xTrack.rConvII();
   valueMap["TauTracksAuxDyn.dRJetSeedAxis"] = xTrack.dRJetSeedAxis(xTau);
   valueMap["TauTracksAuxDyn.trackEta"] = xTrackParticle->eta();
-  valueMap["TauTracksAuxDyn.d0"] = xTrackParticle->d0();
+  valueMap["TauTracksAuxDyn.d0"] = xTrack.d0TJVA();
   valueMap["TauTracksAuxDyn.qOverP"] = xTrackParticle->qOverP();
   valueMap["TauTracksAuxDyn.theta"] = xTrackParticle->theta();
   valueMap["TauTracksAuxDyn.eProbabilityHT"] = fTracksEProbabilityHT;

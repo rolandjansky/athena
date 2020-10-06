@@ -138,11 +138,12 @@ template <class T>  std::vector<T> findChildren(T p)
       {
       std::vector<T> ret;
       if (!p) return ret;
-#ifdef HEPMC3
-      ret=HepMC::children_particles(p);
-#else
       auto v=p->end_vertex();
-      if (p) for (auto pp=v->particles_out_const_begin();pp!=v->particles_out_const_end();++pp) ret.push_back(*pp);
+      if (!v) return ret;
+#ifdef HEPMC3
+      for (auto pp: v->particles_out()) ret.push_back(pp);
+#else
+      for (auto pp=v->particles_out_const_begin();pp!=v->particles_out_const_end();++pp) ret.push_back(*pp);
 #endif
       if (ret.size()==1) if (ret.at(0)->pdg_id()==p->pdg_id()) ret=findChildren(ret.at(0));
       return ret;

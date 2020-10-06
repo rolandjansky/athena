@@ -117,6 +117,7 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
     std::unique_ptr<xAOD::Vertex> bsVertex = std::make_unique<xAOD::Vertex>();
     bsVertex->makePrivateStore();
     AmgSymMatrix(3) cov;
+    cov.setZero();
     if (beamspot.isValid()) {
         bsVertex->setX(beamspot->beamPos()[0]);
         bsVertex->setY(beamspot->beamPos()[1]);

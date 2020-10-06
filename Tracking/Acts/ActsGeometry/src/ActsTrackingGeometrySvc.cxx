@@ -23,6 +23,9 @@
 #include "Acts/Geometry/TrackingGeometryBuilder.hpp"
 #include "Acts/Geometry/CylinderVolumeBuilder.hpp"
 #include "Acts/Geometry/CylinderVolumeBounds.hpp"
+#include <Acts/Plugins/Json/JsonGeometryConverter.hpp>
+#include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
+#include "Acts/Utilities/Logger.hpp"
 #include "Acts/ActsVersion.hpp"
 
 // PACKAGE
@@ -87,6 +90,22 @@ ActsTrackingGeometrySvc::initialize()
 
   Acts::TrackingGeometryBuilder::Config tgbConfig;
   tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
+
+  if(m_useMaterialMap){
+    std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
+    std::string matFile = m_materialMapInputFile;
+    if (matFile.find(".json") != std::string::npos) {
+      // Set up the converter first
+      Acts::JsonGeometryConverter::Config jsonGeoConvConfig;
+      jsonGeoConvConfig.name = "JsonGeometryConverter";
+      jsonGeoConvConfig.logger = makeActsAthenaLogger(this, "JsonGeometryConverter");
+      // Set up the json-based decorator
+      matDeco = std::make_shared<const Acts::JsonMaterialDecorator>(
+          jsonGeoConvConfig, m_materialMapInputFile, true, true);
+    }
+    tgbConfig.materialDecorator = matDeco;
+  }  
+
   try {
     // PIXEL
     if(buildSubdet.count("Pixel") > 0) {
@@ -416,9 +435,10 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   trtPosEC.zMin = trtBrl.zMax;
   sctPosEC.zMin = trtBrl.zMax;
 
-  // extend TRT endcaps in R so they touch SCT endcaps
-  trtNegEC.rMin = sctNegEC.rMax;
-  trtPosEC.rMin = sctPosEC.rMax;
+  // extend SCT in R so they touch TRT barel
+  sctBrl.rMax = trtBrl.rMin;
+  sctNegEC.rMax = trtNegEC.rMin;
+  sctPosEC.rMax = trtPosEC.rMin;
 
   // extend TRT endcaps in r to that of Barrel
   trtNegEC.rMax = trtBrl.rMax;

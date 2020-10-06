@@ -24,8 +24,8 @@ atlas_add_library( RootCollection
                    FileCatalog GaudiKernel POOLCore PersistencySvc PersistentDataModel RootUtils )
 
 atlas_add_library( RootCollectionComponents
-                   NO_PUBLIC_HEADERS
                    src/components/*.cpp
+                   NO_PUBLIC_HEADERS
                    LINK_LIBRARIES CollectionBase RootCollection )
 
 atlas_add_test( read_test

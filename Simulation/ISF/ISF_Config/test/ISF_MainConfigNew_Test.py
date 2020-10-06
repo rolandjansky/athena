@@ -15,6 +15,7 @@ def EvtIdModifierSvc_add_modifier(svc,
     else:
         modify_run_nbr = 1
 
+
     if evt_nbr is None:
         modify_evt_nbr = 0
         evt_nbr = 0
@@ -64,12 +65,12 @@ if __name__ == '__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     inputDir = defaultTestFiles.d
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1'] #defaultTestFiles.EVNT
-    ConfigFlags.Output.HITSFileName = "myHITSnew1106_2.pool.root"
+    ConfigFlags.Output.HITSFileName = "myHITSnew.pool.root"
     
     #Sim ConfigFlags
     #ConfigFlags.Sim.WorldRRange = 15000
     #ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-    ConfigFlags.Sim.CalibrationRun = "Off"
+    ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
     ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
@@ -130,6 +131,10 @@ if __name__ == '__main__':
     ConfigFlags.Detector.SimulateFwdRegion = False
     ConfigFlags.Detector.SimulateForward = False
 
+    #Frozen showers OFF = 0
+    ConfigFlags.Sim.LArParameterization = 2
+
+    ConfigFlags.Sim.TruthStrategy = "MC15aPlus"
     # Finalize
     ConfigFlags.lock()
 
@@ -143,7 +148,7 @@ if __name__ == '__main__':
     myRunNumber = 284500
     myFirstLB = 1
     myInitialTimeStamp = 1446539185
-    evtMax = 4
+    evtMax = 1
     from AthenaConfiguration.ComponentFactory import CompFactory
     evtIdModifierSvc = CompFactory.EvtIdModifierSvc(EvtStoreName="StoreGateSvc")
     iovDbMetaDataTool = CompFactory.IOVDbMetaDataTool()
@@ -171,6 +176,72 @@ if __name__ == '__main__':
     from TileGeoG4SD.TileGeoG4SDToolConfig import TileGeoG4SDCalcCfg
     cfg.merge(TileGeoG4SDCalcCfg(ConfigFlags))
 
+    
+
+    #Add to item list 
+    #TODO - make a separate function (combine with G4AtlasAlg one?)
+    ItemList = ["EventInfo#*",
+                "McEventCollection#TruthEvent",
+                "JetCollection#*"]
+
+    if ConfigFlags.Sim.IncludeParentsInG4Event:
+        ItemList += ["McEventCollection#GEN_EVENT"]
+
+    ItemList += ["xAOD::JetContainer#*",
+                 "xAOD::JetAuxContainer#*"]
+
+    if ConfigFlags.Detector.SimulateID:
+        ItemList += ["SiHitCollection#*",
+                     "TRTUncompressedHitCollection#*",
+                     "TrackRecordCollection#CaloEntryLayer"]
+
+    if ConfigFlags.Detector.SimulateITk:
+        ItemList += ["SiHitCollection#*",
+                     "TrackRecordCollection#CaloEntryLayer"]
+
+    if ConfigFlags.Detector.SimulateCalo:
+        ItemList += ["CaloCalibrationHitContainer#*",
+                     "LArHitContainer#*",
+                     "TileHitVector#*",
+                     "TrackRecordCollection#MuonEntryLayer"]
+
+    if ConfigFlags.Detector.SimulateMuon:
+        ItemList += ["RPCSimHitCollection#*",
+                     "TGCSimHitCollection#*",
+                     "MDTSimHitCollection#*",
+                     "TrackRecordCollection#MuonExitLayer"]
+        if ConfigFlags.Detector.GeometryCSC:
+            ItemList += ["CSCSimHitCollection#*"]
+        if ConfigFlags.Detector.GeometrysTGC:
+            ItemList += ["sTGCSimHitCollection#*"]
+        if ConfigFlags.Detector.GeometryMM:
+            ItemList += ["MMSimHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateLucid:
+        ItemList += ["LUCID_SimHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateFwdRegion:
+        ItemList += ["SimulationHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateZDC:
+        ItemList += ["ZDC_SimPixelHit_Collection#*",
+                     "ZDC_SimStripHit_Collection#*"]
+
+    if ConfigFlags.Detector.SimulateALFA:
+        ItemList += ["ALFA_HitCollection#*",
+                     "ALFA_ODHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateAFP:
+        ItemList += ["AFP_TDSimHitCollection#*",
+                     "AFP_SIDSimHitCollection#*"]
+
+    # TimingAlg
+    ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=ItemList, disableEventTag=True) )
+
+
     # FIXME hack to match to buggy behaviour in old style configuration
     OutputStreamHITS = cfg.getEventAlgo("OutputStreamHITS")
     OutputStreamHITS.ItemList.remove("xAOD::EventInfo#EventInfo")
@@ -193,7 +264,7 @@ if __name__ == '__main__':
     sc = cfg.run(maxEvents=evtMax)
 
     b = time.time()
-    log.info("Run G4AtlasAlg in " + str(b-a) + " seconds")
+    log.info("Run ISF_MainConfigNew_Test in " + str(b-a) + " seconds")
 
     # Success should be 0
     #os.sys.exit(not sc.isSuccess())

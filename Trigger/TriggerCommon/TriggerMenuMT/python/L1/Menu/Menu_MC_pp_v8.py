@@ -312,7 +312,7 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60',
         'L1_CEP-CJ50' ,
-        'L1_CEP-CJ50.ETA21',
+        #'L1_CEP-CJ50.ETA21',
 
         #ATR-21371
         'L1_ALFA_ANY',
@@ -422,7 +422,7 @@ def defineMenu():
 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
         'L1_TAU20IM_2TAU12IM_4J12.0ETA23' : 316,
-        'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
+        #'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_TAU20IM_2J20_XE45' : 74,
         'L1_TAU20IM_2TAU12IM_4J12.0ETA28' : 77,
         'L1_TAU20IM_2J20_XE50' : 79,
@@ -507,7 +507,7 @@ def defineMenu():
         'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
         'L1_CEP-CJ60' : 162,
         'L1_BCM_AC_UNPAIRED_ISO' : 163,
-        'L1_CEP-CJ50' : 72,
+        'L1_CEP-CJ50' : 73,
         'L1_BPH-8M15-2MU4-BO' : 165,
 
         'L1_MBTS_1_EMPTY' : 164,
@@ -731,16 +731,15 @@ def defineMenu():
         'L1_2eEM8VH_MU10' : 417,
         'L1_eEM15VHI_2eTAU12IM_4jJ12' : 462,
         'L1_eEM15VHI_2eTAU12IM_gXERHO35' : 477,
-        'L1_eEM18VHI_3jJ20' : 489,
-        'L1_eEM20VHI_eTAU20IM_2eTAU20_jJ25_3jJ20' :  490,
-        'L1_eEM20VH_3eEM10VH' : 491,
-        'L1_eEM22VHI' : 492,
-        'L1_eEM20VHI' : 493, 
-        'L1_eEM20VH' : 494, 
-        'L1_eEM7_MU20' : 495,
-
-        'L1_MU10_2jJ15_jJ20' : 496,
-        'L1_MU10_2jJ20' : 497,
+        #'L1_eEM18VHI_3jJ20' : 489,
+        #'L1_eEM20VHI_eTAU20IM_2eTAU20_jJ25_3jJ20' :  490,
+        #'L1_eEM20VH_3eEM10VH' : 491,
+        #'L1_eEM22VHI' : 492,
+        #'L1_eEM20VHI' : 493, 
+        #'L1_eEM20VH' : 494, 
+        #'L1_eEM7_MU20' : 495,
+        #'L1_MU10_2jJ15_jJ20' : 496,
+        #'L1_MU10_2jJ20' : 497,
         'L1_MU10_eTAU12IM_3jJ12' : 498,
         'L1_MU10_eTAU12IM_jJ25_2jJ12' : 499,
         'L1_MU10_eTAU12IM_gXERHO35' : 500,
@@ -751,7 +750,19 @@ def defineMenu():
         'L1_eTAU20IM_2eTAU12IM_4jJ12.0ETA23' : 505,
         'L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20' : 506,
         'L1_eTAU40_2eTAU12IM_gXERHO40' : 507,
-        'L1_eTAU60_2eTAU40' : 508,
+        #'L1_eTAU60_2eTAU40' : 508,
+
+        'L1_ALFA_A7L1L': 492,
+        'L1_ALFA_A7L1U': 491,
+        'L1_ALFA_A7R1L': 494,
+        'L1_ALFA_A7R1U': 493,
+        'L1_ALFA_ANY'  : 490,
+        'L1_ALFA_B7L1L': 72,
+        'L1_ALFA_B7L1U': 489,
+        'L1_ALFA_B7R1L': 496,
+        'L1_ALFA_B7R1U': 495,
+
+
 
         # RNDM
         'L1_RD0_UNPAIRED_NONISO' : 178,

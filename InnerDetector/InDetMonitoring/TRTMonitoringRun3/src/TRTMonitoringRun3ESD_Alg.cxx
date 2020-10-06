@@ -208,7 +208,7 @@ StatusCode TRTMonitoringRun3ESD_Alg::initialize() {
     ATH_CHECK( m_xAODEventInfoKey.initialize() );
     ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
     ATH_CHECK( m_comTimeObjectKey.initialize() );
-    ATH_CHECK( m_trigDecisionKey.initialize() );
+    ATH_CHECK( m_trigDecisionKey.initialize(SG::AllowEmpty) );
 
     return StatusCode::SUCCESS;
 }
@@ -1333,8 +1333,8 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
     SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo(m_xAODEventInfoKey, ctx);
     SG::ReadHandle<InDetTimeCollection> trtBCIDCollection(m_TRT_BCIDCollectionKey, ctx);
     SG::ReadHandle<ComTime>             comTimeObject(m_comTimeObjectKey, ctx);
-    SG::ReadHandle<xAOD::TrigDecision>  trigDecision(m_trigDecisionKey, ctx);
-    
+    const xAOD::TrigDecision* trigDecision = nullptr;
+
     if (!xAODEventInfo.isValid()) {
         ATH_MSG_ERROR("Could not find event info object " << m_xAODEventInfoKey.key() <<
                       " in store");
@@ -1347,16 +1347,19 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
                           " in store");
             return StatusCode::FAILURE;
         }
-        if (!trigDecision.isValid()) {
-            ATH_MSG_INFO("Could not find trigger decision object " << m_trigDecisionKey.key() <<
-                          " in store");
+        if (! m_trigDecisionKey.empty()) {
+            trigDecision = SG::get(m_trigDecisionKey, ctx);
+            if (!trigDecision) {
+                ATH_MSG_INFO("Could not find trigger decision object " << m_trigDecisionKey.key() <<
+                              " in store");
+            }
         }
         // NOTE: failing to retrieve ComTime from store for some reason
         if (!comTimeObject.isValid()) {
             ATH_MSG_INFO("Could not find com time object " << m_comTimeObjectKey.key() <<
                          " in store");
         }
-        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision.cptr(), comTimeObject.cptr()) );
+        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.cptr()) );
     }
 
     if (!m_doTracksMon) {

@@ -1,17 +1,7 @@
-###############################################################################
-# Package: RunVP1Light
-################################################################################
-# Author: Riccardo Maria BIANCHI <rbianchi@cern.ch>
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RunVP1Light )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC graphics/VP1/VP1Gui
-   PUBLIC graphics/VP1/VP1UtilsBase
-   )
 
 # External dependencies:
 find_package( Qt5 COMPONENTS Core OpenGL )
