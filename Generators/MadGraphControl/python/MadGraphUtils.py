@@ -285,6 +285,10 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
         mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
         generate_from_gridpack(runArgs=runArgs,extlhapath=extlhapath,gridpack_compile=gridpack_compile,requirePMGSettings=requirePMGSettings)
         return
+    else:
+        mglog.info('Did not identify an input gridpack.')
+        if grid_pack:
+            mglog.info('The grid_pack flag is set, so I am expecting to create a gridpack in this job')
 
     # Now get a variety of info out of the runArgs
     beamEnergy,random_seed = get_runArgs_info(runArgs)
