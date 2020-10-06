@@ -14,6 +14,7 @@
 #include "GaudiKernel/Guards.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IProperty.h"
+#include "GaudiKernel/IIoComponentMgr.h"
 #include "AthenaKernel/IOVRange.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 #include "AthenaKernel/IAddressProvider.h"
@@ -54,6 +55,25 @@ IOVDbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   return StatusCode::SUCCESS;
 }
 
+int IOVDbSvc::poolSvcContext()
+{
+   if( m_poolSvcContext < 0 ) {
+      // Get context for POOL conditions files, and created an initial connection
+      if (m_par_managePoolConnections) {
+         m_poolSvcContext=m_h_poolSvc->getInputContext("Conditions", m_par_maxNumPoolFiles);
+      } else {
+         m_poolSvcContext=m_h_poolSvc->getInputContext("Conditions");
+      }
+      if( m_h_poolSvc->connect(pool::ITransaction::READ, m_poolSvcContext).isSuccess() ) {
+         ATH_MSG_INFO( "Opened read transaction for POOL PersistencySvc");
+      } else {
+         // We only emit info for failure to connect (for the moment? RDS 01/2008)
+         ATH_MSG_INFO( "Cannot connect to POOL PersistencySvc" );
+      }
+   }
+   return m_poolSvcContext;
+}
+
 StatusCode IOVDbSvc::initialize() {
   if (StatusCode::SUCCESS!=AthService::initialize()) return StatusCode::FAILURE;
   // subscribe to events
@@ -66,20 +86,16 @@ StatusCode IOVDbSvc::initialize() {
   incSvc->addListener( this, "BeginEvent", pri );
   incSvc->addListener( this, "StoreCleared", pri );
 
-  // Get context for POOL conditions files, and created an initial connection
-  if (m_par_managePoolConnections) {
-    m_poolSvcContext=m_h_poolSvc->getInputContext("Conditions", m_par_maxNumPoolFiles);
-  } else {
-    m_poolSvcContext=m_h_poolSvc->getInputContext("Conditions");
+  // Register this service for 'I/O' events
+  ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
+  if (!iomgr.retrieve().isSuccess()) {
+     ATH_MSG_FATAL("Could not retrieve IoComponentMgr !");
+     return(StatusCode::FAILURE);
   }
-  
-  if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ,m_poolSvcContext)) {
-    ATH_MSG_INFO( "Opened read transaction for POOL PersistencySvc");
-  } else {
-    // We only emit info for failure to connect (for the moment? RDS 01/2008)
-    ATH_MSG_INFO( "Cannot connect to POOL PersistencySvc" );
+  if (!iomgr->io_register(this).isSuccess()) {
+     ATH_MSG_FATAL("Could not register myself with the IoComponentMgr !");
+     return(StatusCode::FAILURE);
   }
-
   // print warnings/info depending on state of job options
   if (!m_par_manageConnections)
     ATH_MSG_INFO( "COOL connection management disabled - connections kept open throughout job" );
@@ -137,6 +153,19 @@ StatusCode IOVDbSvc::initialize() {
   if (m_outputToFile.value()) ATH_MSG_INFO("Db dump to file activated");
   ATH_MSG_INFO( "Service IOVDbSvc initialised successfully" );
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode IOVDbSvc::io_reinit() {
+   ATH_MSG_DEBUG("I/O reinitialization...");
+   // PoolSvc clears all connections on IO_reinit - forget the stored contextId
+   m_poolSvcContext = -1;
+   return(StatusCode::SUCCESS);
+}
+
+StatusCode IOVDbSvc::io_finalize() {
+   ATH_MSG_DEBUG("I/O finalization...");
+   return(StatusCode::SUCCESS);
 }
 
 StatusCode IOVDbSvc::finalize() {
@@ -416,7 +445,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   {
     Gaudi::Guards::AuditorGuard auditor(std::string("FldrSetup:")+(tad->name().empty() ? "anonymous" : tad->name()),
                                         auditorSvc(), "preLoadProxy");
-    if (!folder->getAddress(vkey,&(*m_h_persSvc),m_poolSvcContext,address,
+    if (!folder->getAddress(vkey,&(*m_h_persSvc),poolSvcContext(),address,
                             range,m_poolPayloadRequested)) {
       ATH_MSG_ERROR( "getAddress failed for folder " << folder->folderName() );
       return StatusCode::FAILURE;
@@ -506,7 +535,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   {
     Gaudi::Guards::AuditorGuard auditor(std::string("FldrSetup:")+(key.empty() ? "anonymous" : key),
                                         auditorSvc(), "preLoadProxy");
-    if (!folder->getAddress(vkey,&(*m_h_persSvc),m_poolSvcContext,address,
+    if (!folder->getAddress(vkey,&(*m_h_persSvc),poolSvcContext(),address,
                             range,m_poolPayloadRequested)) {
       ATH_MSG_ERROR("getAddress failed for folder " <<folder->folderName() );
       return StatusCode::FAILURE;
@@ -633,17 +662,19 @@ void IOVDbSvc::handle( const Incident& inc) {
         // reset POOL connection to close all open conditions POOL files
         m_par_managePoolConnections.set(false);
         m_poolPayloadRequested=false;
-        if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
-          ATH_MSG_DEBUG( "Successfully closed input POOL connections");
-        } else {
-          ATH_MSG_WARNING( "Unable to close input POOL connections" );
-        }
-        // reopen transaction
-        if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ,
-                                                      m_poolSvcContext)) {
-          ATH_MSG_DEBUG("Reopend read transaction for POOL conditions input files" );
-        } else {
-          ATH_MSG_WARNING("Cannot reopen read transaction for POOL conditions input files");
+        if( m_poolSvcContext ) {
+           if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
+              ATH_MSG_DEBUG( "Successfully closed input POOL connections");
+           } else {
+              ATH_MSG_WARNING( "Unable to close input POOL connections" );
+           }
+           // reopen transaction
+           if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ,
+                                                         m_poolSvcContext)) {
+              ATH_MSG_DEBUG("Reopend read transaction for POOL conditions input files" );
+           } else {
+              ATH_MSG_WARNING("Cannot reopen read transaction for POOL conditions input files");
+           }
         }
       }
     }

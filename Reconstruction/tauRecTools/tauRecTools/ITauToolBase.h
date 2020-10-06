@@ -6,13 +6,13 @@
 #define ITOOLBASE_TAU_H
 
 #include "AsgTools/IAsgTool.h"
-
 #include "xAODTau/TauJet.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODParticleEvent/ParticleContainer.h"
+#include <boost/dynamic_bitset.hpp>
 
 #ifndef XAOD_ANALYSIS
 #include "CaloEvent/CaloCellContainer.h"
@@ -68,7 +68,7 @@ class ITauToolBase : virtual public asg::IAsgTool
   virtual StatusCode executeDev(xAOD::TauJet& pTau) = 0;
 #else
   // CaloCellContainer not available in AnalysisBase
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) const = 0;
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, boost::dynamic_bitset<>& map ) const = 0;
 #endif
   
   //-----------------------------------------------------------------

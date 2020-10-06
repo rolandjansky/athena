@@ -10,19 +10,18 @@ import sqlite3
 
 def parseCmdline():
     import argparse
-    parser = argparse.ArgumentParser(prog = "AtlTriggerDBCopy.py")
+    parser = argparse.ArgumentParser(prog = "AtlTriggerDBCopy.py", description="Example: %(prog)s -d TRIGGERDBMC -c triggerDBMC_Run2.db")
     parser.add_argument("-d", "--dbalias", dest="dbalias", help="TriggerDB connection alias for the source DB")
     parser.add_argument("-c", "--create", dest="createfile", help="create sqlite db file")
-    parser.add_argument("-u", "--update", dest="updatefile", help="update sqlite db file")
     parser.add_argument("-v", help="increase output verbosity", action="count", default=0)
     args = parser.parse_args()
     if not args.dbalias:
         print("No source Trigger DB specified")
         parser.print_help()
         return None
-    if not args.createfile and not args.updatefile:
-        print("No sqlite target file specified (use create or update)")
-        parser.print_help()
+    if not args.createfile:
+        print("No sqlite target file specified")
+        parser.print_help(parser)
         return None
     return args
 
@@ -63,8 +62,8 @@ class SQLiteInserter:
             print("Not connected to an output file, will print the insert commands instead")
         import os
         if filename and os.path.exists(filename):
-            print(f"File or path {filename} exists already, will not overwrite it and only print the insert commands instead")
-            self.filename = None
+            print(f"Target file {filename} exists already, will abort in order to prevent overwriting")
+            raise RuntimeError("Target file already exists")
         if self.filename is not None:
             self.connection = sqlite3.connect(self.filename)
             self.cursor = self.connection.cursor()
@@ -109,11 +108,10 @@ class OracleExporter:
         self.tables = None
         self.ignoreTablesR2 = [ 'TT_WRITELOCK', 'HLT_SMT_TO_HRE', 'HLT_PARAMETER', 'HLT_RELEASE', 'TRIGGER_LOG',
                                 'DBCOPY_SOURCE_DATABASE', 'HLT_RULE_SET', 'TEMP', 'HLT_RULE_PARAMETER', 'HLT_RULE_COMPONENT',
-                                'ACTIVE_MASTERS', 'HLT_SETUP', 'TT_USERS', 'HLT_RULE', "HLT_HRC_TO_HRP", "HLT_HRE_TO_HRS", 
+                                'HLT_SETUP', 'TT_USERS', 'HLT_RULE', "HLT_HRC_TO_HRP", "HLT_HRE_TO_HRS", 
                                 "HLT_HRS_TO_HRU", "HLT_HRU_TO_HRC", "HLT_PRESCALE_SET_ALIAS", "HLT_PRESCALE_SET_COLL",
-                                "PRESCALE_SET_ALIAS", "TRIGGER_ALIAS", "L1_PRESCALE_SET_ALIAS", "L1_PITS", "L1_CALO_SIN_COS",
-                                "L1_CI_TO_CSC", "L1_DEAD_TIME", "L1_JET_INPUT", "L1_MUON_THRESHOLD_SET", "HLT_TRIGGER_TYPE",
-                                "L1_CTP_FILES", "L1_CTP_SMX" ]
+                                "PRESCALE_SET_ALIAS", "TRIGGER_ALIAS", "L1_PRESCALE_SET_ALIAS", "L1_CALO_SIN_COS",
+                                "L1_CI_TO_CSC", "L1_JET_INPUT", "L1_MUON_THRESHOLD_SET", "L1_CTP_FILES", "L1_CTP_SMX" ]
 
     def getTables(self, isRun2MC = True):
         if self.tables:

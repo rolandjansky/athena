@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMETMonitoring/HLTMETMonTool.h"
@@ -87,6 +87,11 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("electron_key", m_electron_key="HLT_xAOD__ElectronContainer_egamma_Electrons");
   declareProperty("electron_base", m_electron_base_trigger="HLT_e5_lhloose");
   declareProperty("electron_pt_thresh", m_electron_pt_thresh=20.0);
+
+  // topocluster keys
+  declareProperty("cluster_key", m_cluster_key="HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker");
+  declareProperty("cluster_run3_key", m_cluster_run3_key="HLT_TopoCaloClustersLCFS");
+
 
   //
   declareProperty("comp_names", m_compNames);
@@ -247,8 +252,8 @@ StatusCode HLTMETMonTool::book() {
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
   
-  // jXENOISECUT L1 histograms
-  monFolderName = monGroupName + "/jXENOISECUT";
+  // jNOISECUT L1 histograms
+  monFolderName = monGroupName + "/jNOISECUT";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
@@ -425,6 +430,14 @@ StatusCode HLTMETMonTool::book() {
   addMonGroup(new MonGroup(this, monFolderName.c_str(), run));
   setCurrentMonGroup(monFolderName);
   addElMuHistograms();
+
+
+  // Book HLT Cluster histograms **********
+  monFolderName = monGroupName + "/Cluster";
+  addMonGroup(new MonGroup(this, monFolderName.c_str(), run));
+  setCurrentMonGroup(monFolderName);
+  addClusterHistograms();
+
 
   return StatusCode::SUCCESS;
 } 
@@ -710,6 +723,19 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_DEBUG("Got Reconstructed MET term with key " << m_off_met_key);
   }
   
+
+  // retrieve Cluster container
+  const xAOD::CaloClusterContainer *hlt_clusterEFcontainer = 0;
+  sc = evtStore()->retrieve(hlt_clusterEFcontainer, m_cluster_key);
+  if (sc.isFailure() || !hlt_clusterEFcontainer) {
+    sc = evtStore()->retrieve(hlt_clusterEFcontainer, m_cluster_run3_key);
+    if (sc.isFailure() || !hlt_clusterEFcontainer) {
+      ATH_MSG_WARNING("Could not retrieve cluster container with key " << m_cluster_key << " from TDS");
+    }
+  } else {
+    ATH_MSG_DEBUG("Accessing EF cluster container with " << hlt_clusterEFcontainer->size() << " elements");
+  }
+
 
   // Check if signal-like muon exists
   ATH_MSG_DEBUG("Going to iterate through muon container");
@@ -1133,7 +1159,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     fillL1BasicHistograms(l1_noisecut_mex,l1_noisecut_mex_log,l1_noisecut_mey,l1_noisecut_mey_log,l1_noisecut_met,l1_noisecut_met_log,l1_noisecut_sumet,l1_noisecut_sumet_log,l1_noisecut_phi,saturated_noisecut);
   }
 
-  // L1 jXENOISECUT
+  // L1 jNOISECUT
   monFolderName = monGroupName + "/jNOISECUT";
   setCurrentMonGroup(monFolderName.c_str());
 
@@ -1758,6 +1784,23 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_DEBUG("Electron multiciplicity: " << electronMult);
     if((h = hist("HLT_electronmult") )) h->Fill(electronMult);
   }
+
+  //////////////////////////
+  // Clusters
+  monFolderName = monGroupName + "/Cluster";
+  setCurrentMonGroup(monFolderName);
+
+  if (hlt_clusterEFcontainer) {
+    if ((h = hist("HLT_nClusters"))) h->Fill(hlt_clusterEFcontainer->size());
+    for (auto cluster : *hlt_clusterEFcontainer) {
+      if ((h = hist("HLT_cluster_E"))) h->Fill(cluster->calE()/CLHEP::GeV);
+      if ((h = hist("HLT_cluster_Eta"))) h->Fill(cluster->calEta());
+      if ((h = hist("HLT_cluster_Phi"))) h->Fill(cluster->calPhi());
+      if ((h = hist("HLT_cluster_M"))) h->Fill(cluster->calM()/CLHEP::GeV);
+    }
+  }
+
+
   
   return sc;
 }
@@ -2131,6 +2174,14 @@ void HLTMETMonTool::addElMuHistograms() {
 
 }
 
+//___________________________________________________________________________________________________________
+void HLTMETMonTool::addClusterHistograms() {
+  addHistogram(new TH1F("HLT_nClusters", "HLT Number of Clusters", 100, 0, 2000));
+  addHistogram(new TH1F("HLT_cluster_E", "HLT Cluster E (GeV)", 100, 0, 50));
+  addHistogram(new TH1F("HLT_cluster_Eta", "HLT Cluster Eta", 100, -5, 5));
+  addHistogram(new TH1F("HLT_cluster_Phi", "HLT Cluster Phi", 100, -3.5, 3.5));
+  addHistogram(new TH1F("HLT_cluster_M", "HLT Cluster M (GeV)", 100, 0, 50));
+}
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::trigger_decision() {

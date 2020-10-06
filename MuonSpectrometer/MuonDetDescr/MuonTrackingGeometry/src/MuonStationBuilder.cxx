@@ -272,7 +272,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    if (isLargeSector) sectorL.push_back(layer);
 	    else sectorS.push_back(layer);
 	    if(isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Large sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0() << " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
-	    if(!isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Large sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0()<< " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
+	    if(!isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Small sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0()<< " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
 	  } else {
             ATH_MSG_DEBUG( " NO layer build for: " << protoName);
 	  }

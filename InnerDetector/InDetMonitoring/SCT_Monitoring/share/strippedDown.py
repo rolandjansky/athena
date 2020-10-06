@@ -62,9 +62,6 @@ elif globalflags.InputFormat() == 'bytestream':
 #--------------------------------------------------------------
 # include SCT Clusterization
 #--------------------------------------------------------------
-from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-PixelConfigCondAlg.UseCalibConditions = False
-
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool")
 ToolSvc += InDetClusterMakerTool

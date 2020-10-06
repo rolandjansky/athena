@@ -92,14 +92,6 @@ public:
   unsigned int       getLumiBlock() const;
   const std::vector<std::string>& getFreeMetaDataStrings() const;
 
-
-  /**
-   * pretty print bytestream metadata content
-   */
-  friend std::ostream& operator<<(std::ostream& os,
-      const ByteStreamMetadata& bsmd);
-
-
 private:
   unsigned int m_runNumber;
   unsigned int m_numEvents;
@@ -116,6 +108,12 @@ private:
   unsigned int m_lumiBlock;
   std::vector<std::string> m_freeMetaDataStrings;
 };
+
+
+/**
+ * pretty print bytestream metadata content
+ */
+std::ostream& operator<<(std::ostream& os, const ByteStreamMetadata& bsmd);
 
 
 #include "AthenaKernel/CLASS_DEF.h"

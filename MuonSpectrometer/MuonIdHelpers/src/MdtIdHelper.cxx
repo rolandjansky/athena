@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,11 +9,6 @@
  * ==============================================================================
  */
 
-//<doc><file> $Id: MdtIdHelper.cxx,v 1.41 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
-
-/// Includes
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -21,21 +16,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-
-/// Constructor
-
-MdtIdHelper::MdtIdHelper() : MuonIdHelper("MdtIdHelper"), m_TUBELAYER_INDEX(0) {}
-
-/// Destructor
-
-MdtIdHelper::~MdtIdHelper()
-{
-  // m_Log deleted in base class.
+MdtIdHelper::MdtIdHelper() :
+  MuonIdHelper("MdtIdHelper"),
+  m_TUBELAYER_INDEX(0),
+  m_tubesMax(UINT_MAX) {
 }
 
-
 /// initialize dictionary
-
 int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
   int status = 0;
@@ -302,6 +289,30 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   (*m_Log) << MSG::INFO << "Initializing MDT hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
 
+  // retrieve the maximum number of tubes in any chamber
+  ExpandedIdentifier expId;
+  IdContext channel_context(expId, 0, m_CHANNEL_INDEX);
+  for (const auto &id : m_detectorElement_vec) {
+    if (!get_expanded_id(id, expId, &channel_context)) {
+      for (unsigned int i = 0; i < m_full_channel_range.size(); ++i) {
+        const Range& range = m_full_channel_range[i];
+        if (range.match(expId)) {
+          const Range::field& channel_field = range[m_CHANNEL_INDEX];
+          if (channel_field.has_maximum())  {
+            unsigned int max = channel_field.get_maximum();
+            if (m_tubesMax == UINT_MAX) m_tubesMax = max;
+            else if (max > m_tubesMax) m_tubesMax = max;
+          }
+        }
+      }
+    }
+  }
+  if (m_tubesMax == UINT_MAX) {
+    (*m_Log) << MSG::ERROR << "No maximum number of MDT tubes was retrieved" << endmsg;
+    status = 1;
+  } else {
+    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << " Maximum number of MDT tubes is " << m_tubesMax << endmsg;
+  }
   m_init = true;
   return (status);
 }

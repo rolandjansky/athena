@@ -2,21 +2,28 @@ Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking i
 Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
 Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
-Py:Athena            INFO using release [WorkDir-22.0.18] [x86_64-centos7-gcc8-opt] [atlas-work3/00ebad2a0aad] -- built on [2020-09-25T1826]
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
-                                          running on lxplus750.cern.ch on Fri Sep 25 20:46:13 2020
+                                          running on aibuild028.cern.ch on Tue Oct  6 19:13:20 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-ClassIDSvc           INFO  getRegistryEntries: read 18821 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 23732 CLIDRegistry entries for module ALL
+CondInputLoader      INFO Initializing CondInputLoader...
+IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
+IOVDbSvc             INFO Global tag: OFLCOND-MC16-SDR-17 set from joboptions
+IOVDbSvc             INFO Initialised with 2 connections and 1 folders
+IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-09-24T2101/Athena/22.0.18/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus750.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host aibuild028.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
@@ -25,20 +32,13 @@ PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
-IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
-IOVDbSvc             INFO Cache alignment will be done in 3 slices
-IOVDbSvc             INFO Global tag: OFLCOND-MC16-SDR-17 set from joboptions
-IOVDbSvc             INFO Initialised with 2 connections and 1 folders
-IOVDbSvc             INFO Service IOVDbSvc initialised successfully
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool/IOVDbMetaDataTool'])
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 CondProxyProvider    INFO Initializing CondProxyProvider - package version EventSelectorAthenaPool-00-00-00
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] BC292F26-AE73-9041-BF5C-BCE6C5C651EC
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000079.gen.COND/cond09_mc.000079.gen.COND._0002.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000079.gen.COND/cond09_mc.000079.gen.COND._0002.pool.root File version:53413
-ClassIDSvc           INFO  getRegistryEntries: read 1518 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1569 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
@@ -47,10 +47,8 @@ IOVDbSvc             INFO Added taginfo remove for /LAR/CellCorrOfl/deadOTX
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] BC292F26-AE73-9041-BF5C-BCE6C5C651EC
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-ClassIDSvc           INFO  getRegistryEntries: read 273 CLIDRegistry entries for module ALL
-EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
-EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
@@ -58,54 +56,6 @@ Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] BC292F2
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000079.gen.COND/cond09_mc.000079.gen.COND._0002.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000079.gen.COND/cond09_mc.000079.gen.COND._0002.pool.root File version:53413
 ClassIDSvc           INFO  getRegistryEntries: read 112 CLIDRegistry entries for module ALL
-GeoModelSvc          INFO Explicitly initializing DetDescrCnvSvc
-DetDescrCnvSvc       INFO  initializing 
-DetDescrCnvSvc       INFO Found DetectorStore service
-DetDescrCnvSvc       INFO  filling proxies for detector managers 
-DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArHEC_SuperCell_ID with CLID 254277678 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArFCAL_SuperCell_ID with CLID 12829437 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArMiniFCAL_ID with CLID 79264204 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArOnline_SuperCellID with CLID 115600394 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for Tile_SuperCell_ID with CLID 49557789 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
-GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
-GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
-GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
-GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
-ClassIDSvc           INFO  getRegistryEntries: read 270 CLIDRegistry entries for module ALL
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 4933 CLIDRegistry entries for module ALL
-CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
   +  ( 'CondAttrListCollection' , 'ConditionStore+/LAR/CellCorrOfl/deadOTX' )   ->
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
@@ -138,6 +88,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #284500 0 eve
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARCellCorrOflDeadOTX-000-00 for folder /LAR/CellCorrOfl/deadOTX
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
+IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 dumper1              INFO dumper.energyCalibrationTypes = [0, 0, 0, -1]
 dumper.energyCalibrations = [2, 0.9959, 0.07493, -0.1599, 2, 2, 0.9962, 0.04997, -0.1839, 2, 2, 0.9984, 0.0143, -0.9648, 2]
 dumper.etaCalibrationSizes = [14, 14, 13, 0]
@@ -2599,17 +2550,17 @@ IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 IncidentProcAlg2     INFO Finalize
 EventSelector        INFO finalize
-IOVDbFolder          INFO Folder /LAR/CellCorrOfl/deadOTX (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/705 ((     0.06 ))s
-IOVDbSvc             INFO  bytes in ((      0.06 ))s
+IOVDbFolder          INFO Folder /LAR/CellCorrOfl/deadOTX (AttrListColl) db-read 1/1 objs/chan/bytes 1/1/705 ((     0.07 ))s
+IOVDbSvc             INFO  bytes in ((      0.07 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.06 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.07 ))s
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #=  3
-cObj_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=    3.33(+-    4.71)/       0/      10 [ms] #=  3
-ChronoStatSvc        INFO Time User   : Tot= 0.69  [s]  #=  1
+cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=    3.33(+-    4.71)/       0/      10 [ms] #=  3
+cObj_ALL             INFO Time User   : Tot=   60 [ms] Ave/Min/Max=      20(+-    21.6)/       0/      50 [ms] #=  3
+ChronoStatSvc        INFO Time User   : Tot= 0.74  [s]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

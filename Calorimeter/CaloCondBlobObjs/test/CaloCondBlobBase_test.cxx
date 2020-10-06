@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define BOOST_TEST_DYN_LINK
@@ -21,6 +21,9 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 class CaloCondBlobStub: public CaloCondBlobBase{
 public:
   CaloCondBlobStub(const coral::Blob & aBlob):CaloCondBlobBase(aBlob){
+    //nop
+  }
+  CaloCondBlobStub(coral::Blob & aBlob):CaloCondBlobBase(aBlob){
     //nop
   }
   uint32_t

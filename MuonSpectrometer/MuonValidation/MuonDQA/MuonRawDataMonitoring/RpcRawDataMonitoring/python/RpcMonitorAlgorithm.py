@@ -19,6 +19,8 @@ def RpcMonitoringConfig(inputFlags):
     rpcMonitorAlg.MinRoIDR  = 0.3
     rpcMonitorAlg.MinPt     = 2000
     rpcMonitorAlg.MuQuality = 1
+    if not inputFlags.DQ.triggerDataAvailable:
+        rpcMonitorAlg.L1RoiContainerKey = ''
     
     myGroup = helper.addGroup(rpcMonitorAlg, 'RPCMonitorAlgorithm', 'Muon/MuonRawDataMonitoring/RPC/')
 

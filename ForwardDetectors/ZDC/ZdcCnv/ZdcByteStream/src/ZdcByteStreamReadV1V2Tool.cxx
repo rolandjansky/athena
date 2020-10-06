@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ===========================================================================
@@ -113,7 +113,6 @@ StatusCode ZdcByteStreamReadV1V2Tool::initialize() {
     msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endmsg;
   }
   m_zdcID = zdcID;
-  ZdcCablingService::getInstance()->setZdcID(m_zdcID);
 
 
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
@@ -1171,18 +1170,15 @@ ZdcDigitsCollection* ZdcByteStreamReadV1V2Tool::convertTT2ZD(xAOD::TriggerTowerC
   typedef std::map<uint32_t,ZdcDigits*> hashmapType;
   hashmapType digits_map;
   Identifier chan_id;
-  
-  xAOD::TriggerTowerContainer::iterator tt_itr = ttCollection->begin();
-  xAOD::TriggerTowerContainer::iterator tt_end = ttCollection->end();
-  
-  for (;tt_itr != tt_end;tt_itr++)
+
+  for (const xAOD::TriggerTower* tt : *ttCollection)
     {
       //std::cout << "dumping TT" << std::endl;
-      //std::cout << ZdcToString(*(*tt_itr) ) << std::endl;
+      //std::cout << ZdcToString(*tt ) << std::endl;
 
-      //uint32_t coolId = (*tt_itr).coolId();
-      //uint32_t coolId = (*tt_itr)->auxdata<uint32_t>("coolId");
-      uint32_t coolId = (*tt_itr)->coolId();
+      //uint32_t coolId = tt->coolId();
+      //uint32_t coolId = tt->auxdata<uint32_t>("coolId");
+      uint32_t coolId = tt->coolId();
       uint32_t pin = (coolId>>8) & 0xf;
       uint32_t asic = coolId & 0xf;
       uint32_t slinkChannel = asic*16 + pin;
@@ -1209,10 +1205,10 @@ ZdcDigitsCollection* ZdcByteStreamReadV1V2Tool::convertTT2ZD(xAOD::TriggerTowerC
       if (iter != digits_map.end())
 	{
 	  ATH_MSG_DEBUG("new auxdata for " << chan_id);
-	  if (gain==0&&delay==0) (*iter).second->set_digits_gain0_delay0( (*tt_itr)->adc() );
-	  if (gain==1&&delay==0) (*iter).second->set_digits_gain1_delay0( (*tt_itr)->adc() );
-	  if (gain==0&&delay==1) (*iter).second->set_digits_gain0_delay1( (*tt_itr)->adc() );
-	  if (gain==1&&delay==1) (*iter).second->set_digits_gain1_delay1( (*tt_itr)->adc() );
+	  if (gain==0&&delay==0) (*iter).second->set_digits_gain0_delay0( tt->adc() );
+	  if (gain==1&&delay==0) (*iter).second->set_digits_gain1_delay0( tt->adc() );
+	  if (gain==0&&delay==1) (*iter).second->set_digits_gain0_delay1( tt->adc() );
+	  if (gain==1&&delay==1) (*iter).second->set_digits_gain1_delay1( tt->adc() );
 	}
       
     }
@@ -1235,7 +1231,7 @@ ZdcDigitsCollection* ZdcByteStreamReadV1V2Tool::convertTT2ZD(xAOD::TriggerTowerC
 	((*iter).second)->print();
       */ 
       zdcCollection->push_back((*iter).second);
-      iter++;
+      ++iter;
     }
 
   return zdcCollection;

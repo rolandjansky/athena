@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCONDITIONS_CALOLOCALHADCOEFF_H
@@ -72,12 +72,13 @@ class CaloLocalHadCoeff {
          * @param xbins  Bins borders, vector of size m_nbins+1
          */
         LocalHadDimension(const char *title, unsigned int typ, std::vector<float > &xbins) :
-          m_title(title), m_type(typ), m_dx(0.0)
+          m_title(title), m_type(typ),
+          m_nbins (xbins.size() - 1),
+          m_xmin (xbins.front()),
+          m_xmax (xbins.back()),
+          m_dx(0.0),
+          m_xbins (xbins)
           {
-            m_xbins = xbins;
-            m_xmin = xbins.front();
-            m_xmax = xbins.back();
-            m_nbins = xbins.size() -1;
           }
         /**
          * @brief Copy constructor

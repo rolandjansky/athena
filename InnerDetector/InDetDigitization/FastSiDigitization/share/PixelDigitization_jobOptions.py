@@ -27,21 +27,33 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 if not hasattr(condSeq, 'PixelConfigCondAlg'):
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-  condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                UseDeadmapConditions=False,
-                                ReadDeadMapKey="/PIXEL/PixMapOverlay",
-                                UseCalibConditions=True)
+  condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg",ReadDeadMapKey="")
+
+
+useNewChargeFormat  = False
+useNewDeadmapFormat = False
+
+if useNewDeadmapFormat:
+  if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+    condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
 
 #####################
 # Calibration setup #
 #####################
 from IOVDbSvc.CondDB import conddb
-if not conddb.folderRequested("/PIXEL/PixCalib"):
-  conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
-
-if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-  condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+if not useNewChargeFormat:
+  if not conddb.folderRequested("/PIXEL/PixCalib"):
+    conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
+  if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+    condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+else:
+  if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
+    conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+  if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
+    condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
 
 from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
 ToolSvc += PixelRecoDbTool()

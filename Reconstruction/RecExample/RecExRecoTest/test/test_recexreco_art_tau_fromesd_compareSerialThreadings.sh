@@ -11,4 +11,4 @@
 
 export ATHENA_CORE_NUMBER=8
 
-test_compare_SerialAndThreadedAthenas.sh tauRec/tau_standalone_ESDtoAOD.py
+test_compare_SerialAndThreadedAthenas.sh tauRec/tau_standalone_LCTopo_ESDtoAOD.py

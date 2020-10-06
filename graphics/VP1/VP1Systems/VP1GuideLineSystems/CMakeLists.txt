@@ -1,20 +1,7 @@
-# $Id: CMakeLists.txt 728676 2016-03-09 15:11:49Z krasznaa $
-################################################################################
-# Package: VP1GuideLineSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1GuideLineSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   DetectorDescription/GeoPrimitives
-   graphics/VP1/VP1Base
-   graphics/VP1/VP1Utils
-   PRIVATE
-   GaudiKernel
-   graphics/VP1/VP1HEPVis )
 
 # External dependencies:
 find_package( Coin3D )

@@ -25,6 +25,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IAddressCreator.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "SGTools/DataProxy.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 #include "PoolSvc/IPoolSvc.h"
@@ -75,7 +76,8 @@ class IOVDbSvc : public virtual IIOVCondDbSvc,
                  public virtual IIOVDbSvc,
                  public virtual IAddressProvider,
                  public virtual IIncidentListener,
-                 public virtual AthService
+                 public virtual AthService,
+                 public virtual IIoComponent
 {
   // Forward declarations
   template <class TYPE> class SvcFactory;
@@ -88,10 +90,12 @@ public:
   
   /// Service init
   virtual StatusCode initialize() override;
+  StatusCode io_reinit() override final;
 
   /// Service finalize
   virtual StatusCode finalize() override;
-  
+  StatusCode io_finalize() override final;
+
   /// Query the interfaces.
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface )  override;
   static const InterfaceID& interfaceID();
@@ -240,7 +244,8 @@ private:
   bool                           m_poolPayloadRequested{false};
 
   // Pool service context
-  unsigned int                   m_poolSvcContext{0};
+  int                   poolSvcContext();
+  int                   m_poolSvcContext {-1};
 
   // Flag to keep track of which state we are in to know
   // how to obtain the IOV time, i.e. during:

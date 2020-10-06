@@ -49,7 +49,7 @@ class LWTNNCondAlg : public AthAlgorithm {
   ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool
     {this,"NetworkToHistoTool", "Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool", "Tool to create a neural network from a set of histograms." };
 */
-  StatusCode configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, std::string thisJson);
+  StatusCode configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, const std::string& thisJson);
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
     {this, "ReadKey", "/PIXEL/PixelClustering/PixelNNCalibJSON", "Cool folder name for the cluster NN input histogram file."};

@@ -51,7 +51,7 @@ if "__main__" == __name__:
   ConfigFlags.Detector.GeometryCalo  = True
   ConfigFlags.Detector.GeometryMuon  = False
   ConfigFlags.Detector.GeometryTRT   = True
-  ConfigFlags.TrackingGeometry.MaterialSource = "Input"
+  ConfigFlags.TrackingGeometry.MaterialSource = "None"
 
   ConfigFlags.Concurrency.NumThreads = 10
   ConfigFlags.Concurrency.NumConcurrentEvents = 10

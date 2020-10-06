@@ -223,7 +223,11 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     aux = None
                     if key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances:
                         aux = persistent_instances['TriggerMenuAux.']
+                    elif key == 'DataVector<xAOD::TriggerMenu_v1>_TriggerMenu' and 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.' in persistent_instances:
+                        aux = persistent_instances['xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.']
                     elif key == 'TriggerMenuAux.':
+                        continue
+                    elif key == 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.':
                         continue
 
                     meta_dict[filename][key] = _convert_value(content, aux)

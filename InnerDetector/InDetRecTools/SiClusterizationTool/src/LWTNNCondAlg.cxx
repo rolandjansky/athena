@@ -54,7 +54,7 @@ namespace InDet {
   }
 
   StatusCode LWTNNCondAlg::configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, 
-                                        std::string thisJson) {
+                                        const std::string& thisJson) {
 
     // Read DNN weights from input json config
     lwt::GraphConfig config;

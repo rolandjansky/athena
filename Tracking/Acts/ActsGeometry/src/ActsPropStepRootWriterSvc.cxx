@@ -120,7 +120,7 @@ ActsPropStepRootWriterSvc::writeThread()
 void
 ActsPropStepRootWriterSvc::doWrite(const StepVector& steps, size_t evtNum)
 {
-  using ag = Acts::GeometryID;
+  using ag = Acts::GeometryIdentifier;
 
   m_eventNum = evtNum;
   m_s_pX.clear();
@@ -134,14 +134,14 @@ ActsPropStepRootWriterSvc::doWrite(const StepVector& steps, size_t evtNum)
   m_s_sensitiveID.clear();
 
   for(const auto& step : steps) {
-      Acts::GeometryID::Value volumeID    = 0;
-      Acts::GeometryID::Value boundaryID  = 0;
-      Acts::GeometryID::Value layerID     = 0;
-      Acts::GeometryID::Value approachID  = 0;
-      Acts::GeometryID::Value sensitiveID = 0;
+      Acts::GeometryIdentifier::Value volumeID    = 0;
+      Acts::GeometryIdentifier::Value boundaryID  = 0;
+      Acts::GeometryIdentifier::Value layerID     = 0;
+      Acts::GeometryIdentifier::Value approachID  = 0;
+      Acts::GeometryIdentifier::Value sensitiveID = 0;
       // get the identification from the surface first
       if (step.surface) {
-        auto geoID  = step.surface->geoID();
+        auto geoID  = step.surface->geometryId();
         sensitiveID = geoID.sensitive();
         approachID  = geoID.approach();
         layerID     = geoID.layer();
@@ -150,7 +150,7 @@ ActsPropStepRootWriterSvc::doWrite(const StepVector& steps, size_t evtNum)
       }
       // a current volume overwrites the surface tagged one
       if (step.volume) {
-        volumeID = step.volume->geoID().volume();
+        volumeID = step.volume->geometryId().volume();
       }
       // now fill
       m_s_sensitiveID.push_back(sensitiveID);

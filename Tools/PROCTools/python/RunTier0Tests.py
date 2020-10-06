@@ -299,11 +299,12 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=Fal
              
 
 ############### Run Frozen Tier0 Policy Test 
-def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunPatchedOnly=False):
+def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,DiffExclusionListsDir,RunPatchedOnly=False):
     logging.info("---------------------------------------------------------------------------------------" )
     logging.info("Running "+q+" Frozen Tier0 Policy Test on "+inputFormat+" for "+str(maxEvents)+" events" )
 
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
+    diff_rules_file = DiffExclusionListsDir
 
     if RunPatchedOnly: #overwrite
         # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/version/.
@@ -311,16 +312,32 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
         subfolder = os.environ['AtlasVersion'][0:4]
         # Use EOS if mounted, otherwise CVMFS
         clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/{0}/{1}/{2}'.format(q,subfolder,ciRefFileMap['{0}-{1}'.format(q,subfolder)])
+        diff_rules_file = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
         if(glob.glob(clean_dir)):
             logging.info("EOS is mounted, going to read the reference files from there instead of CVMFS")
             clean_dir = 'root://eosatlas.cern.ch/'+clean_dir # In case outside CERN
         else:
             logging.info("EOS is not mounted, going to read the reference files from CVMFS")
             clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/{0}/{1}/{2}'.format(q,subfolder,ciRefFileMap['{0}-{1}'.format(q,subfolder)])
+            diff_rules_file = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/grid-input/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
+
+    diff_rules_file += "/"+q+"_"+inputFormat+"_diff-exclusion-list.txt"
 
     logging.info("Reading the reference file from location "+clean_dir)
 
-    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  index_ref  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RecoTimingObj_p1_RAWtoALL_mems  RecoTimingObj_p1_RAWtoALL_timings  RAWtoALL_mems  RAWtoALL_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
+    if os.path.exists(diff_rules_file):
+        logging.info("Reading the diff rules file from location "+diff_rules_file)
+        exclusion_list = []
+        with open(diff_rules_file) as f:
+            for line in f:
+                exclusion_list.append('"'+line.rstrip()+'"')
+    else:
+        logging.info("No diff rules file exists, using the default list")
+        exclusion_list = ['"index_ref"', '"(.*)_timings$"', '"(.*)_mems$"']
+
+    exclusion_list = ' '.join(exclusion_list)
+
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root -v --error-mode resilient --ignore-leaves "+exclusion_list+" --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     output,error = output.decode('utf-8'), error.decode('utf-8')
 
@@ -568,6 +585,14 @@ def main():
                       dest="ci_flag",
                       default=False,
                       help="no-setup will not setup athena - only for CI tests!")
+    parser.add_option("-z",
+                      "--diffExclusionListsDir",
+                      type="string",
+                      dest="diffExclusionListsDir",
+                      default=".",
+                      help="""specify the directory that contains the lists of variables that will be omitted while comparing the
+                      outputs. The default is ./ and the format of the files is ${q-test}_${format}_diff-exclusion-list.txt, e.g.
+                      q431_AOD_diff-exclusion-list.txt.""")
 
 
     (options,args)=parser.parse_args()
@@ -587,6 +612,7 @@ def main():
     r2aMode         = options.r2a_flag
     trigRun2Config  = options.trigRun2Config_flag    
     ciMode          = options.ci_flag
+    DiffExclusionListsDir    = options.diffExclusionListsDir
 
 #        tct_ESD = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
 
@@ -797,26 +823,26 @@ def main():
                 continue
 
             if RunSim:
-                if not RunFrozenTier0PolicyTest(q,"HITS",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                if not RunFrozenTier0PolicyTest(q,"HITS",10,CleanRunHeadDir,UniqName,DiffExclusionListsDir,RunPatchedOnly):
                     All_Tests_Passed = False
             elif RunOverlay:
-                if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName,DiffExclusionListsDir,RunPatchedOnly):
                     All_Tests_Passed = False
             elif RunPileUp:
-                if not RunFrozenTier0PolicyTest(q,"AOD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                if not RunFrozenTier0PolicyTest(q,"AOD",10,CleanRunHeadDir,UniqName,DiffExclusionListsDir,RunPatchedOnly):
                     All_Tests_Passed = False
             else:
-                if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,DiffExclusionListsDir,RunPatchedOnly):
                     All_Tests_Passed = False
 
-                if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,DiffExclusionListsDir,RunPatchedOnly):
                     All_Tests_Passed = False
 
             if RunPatchedOnly:
                 continue  # Performance checks against static references not possible
     
             if 'q221' in q or 'q440' in q: 
-                if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):
+                if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName,DiffExclusionListsDir):
                     All_Tests_Passed = False
             
             if not RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"msec/event"  ,4,0.4,CleanRunHeadDir,UniqName):

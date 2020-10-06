@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
+#include <TClass.h>
 
 //=============================================
 //======= TFCSParametrization =========
@@ -99,5 +100,37 @@ void TFCSParametrization::set_pdgid_Ekin_eta(const TFCSParametrizationBase& ref)
 {
   set_Ekin_eta(ref);
   set_pdgid(ref.pdgid());
+}
+
+bool TFCSParametrization::compare(const TFCSParametrizationBase& ref) const
+{
+  if(IsA()!=ref.IsA()) {
+    ATH_MSG_DEBUG("compare(): different class types "<<IsA()->GetName()<<" != "<<ref.IsA()->GetName());
+    return false;
+  }
+  std::string name(GetName());
+  if(name!=ref.GetName()) {
+    ATH_MSG_DEBUG("compare(): different names "<<GetName()<<" != "<<ref.GetName());
+    return false;
+  }
+  std::string title(GetTitle());
+  if(title!=ref.GetTitle()) {
+    ATH_MSG_DEBUG("compare(): different titles "<<GetTitle()<<" != "<<ref.GetTitle());
+    return false;
+  }
+  if(is_match_all_pdgid()!=ref.is_match_all_pdgid() || pdgid()!=ref.pdgid()) {
+    ATH_MSG_DEBUG("compare(): different pdgids");
+    return false;
+  }
+  if(Ekin_nominal()!=ref.Ekin_nominal() || Ekin_min()!=ref.Ekin_min() || Ekin_max()!=ref.Ekin_max()) {
+    ATH_MSG_DEBUG("compare(): different Ekin range");
+    return false;
+  }
+  if(eta_nominal()!=ref.eta_nominal() || eta_min()!=ref.eta_min() || eta_max()!=ref.eta_max()) {
+    ATH_MSG_DEBUG("compare(): different eta range");
+    return false;
+  }
+
+  return true;
 }
 

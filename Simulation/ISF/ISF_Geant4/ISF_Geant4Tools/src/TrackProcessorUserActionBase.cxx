@@ -166,9 +166,15 @@ void TrackProcessorUserActionBase::setupPrimary(G4Track& aTrack)
   }
 
   int regenerationNr = ppInfo->GetRegenerationNr();
+#ifdef HEPMC3
+  auto primaryTruthParticle = truthBinding->getGenerationZeroTruthParticle();
+  auto generationZeroTruthParticle = truthBinding->getGenerationZeroTruthParticle();
+  auto currentlyTracedHepPart = truthBinding->getTruthParticle();
+#else
   auto* primaryTruthParticle = truthBinding->getGenerationZeroTruthParticle();
   auto* generationZeroTruthParticle = truthBinding->getGenerationZeroTruthParticle();
   auto* currentlyTracedHepPart = truthBinding->getTruthParticle();
+#endif
   auto classification = classify(primaryTruthParticle,
                                  generationZeroTruthParticle,
                                  currentlyTracedHepPart,
@@ -191,11 +197,19 @@ void TrackProcessorUserActionBase::setupSecondary(const G4Track& aTrack)
   auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(aTrack);
 
   // why does TrackInformation return *const* GenParticle and ISFParticle objects!?
+#ifdef HEPMC3
+  HepMC::GenParticlePtr currentlyTracedTruthParticle =  std::const_pointer_cast<HepMC3::GenParticle>( trackInfo->GetHepMCParticle() );
+  HepMC::GenParticlePtr primaryTruthParticle =  std::const_pointer_cast<HepMC3::GenParticle>( trackInfo->GetPrimaryHepMCParticle() );
+  auto* baseISFParticle = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
+
+  setCurrentParticle(baseISFParticle, primaryTruthParticle, currentlyTracedTruthParticle);
+#else
   HepMC::GenParticlePtr currentlyTracedTruthParticle = const_cast<HepMC::GenParticlePtr>( trackInfo->GetHepMCParticle() );
   HepMC::GenParticlePtr primaryTruthParticle = const_cast<HepMC::GenParticlePtr>( trackInfo->GetPrimaryHepMCParticle() );
   auto* baseISFParticle = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
 
   setCurrentParticle(baseISFParticle, primaryTruthParticle, currentlyTracedTruthParticle);
+#endif
   return;
 }
 

@@ -196,8 +196,9 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_coolHelper.retrieve());
   // HLT result builder
   ATH_CHECK(m_hltResultMaker.retrieve());
-  // Monitoring tool
+  // Monitoring tools
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+  ATH_CHECK(m_errorMonTool.retrieve());
 
   //----------------------------------------------------------------------------
   // Initialise data handle keys
@@ -1184,22 +1185,6 @@ void HltEventLoopMgr::runEventTimer()
 }
 
 // =============================================================================
-std::unordered_map<std::string_view,StatusCode> HltEventLoopMgr::algExecErrors(const EventContext& eventContext) const {
-  std::unordered_map<std::string_view,StatusCode> algErrors;
-  for (const auto& [key, state] : m_aess->algExecStates(eventContext)) {
-    if (!state.execStatus().isSuccess()) {
-      ATH_MSG_DEBUG("Algorithm " << key << " returned StatusCode " << state.execStatus().message()
-                    << " in event " << eventContext.eventID());
-      algErrors[key.str()] = state.execStatus();
-      auto monErrorAlgName = Monitored::Scalar<std::string>("ErrorAlgName", key.str());
-      auto monErrorCode = Monitored::Scalar<std::string>("ErrorCode", state.execStatus().message());
-      auto mon = Monitored::Group(m_monTool, monErrorAlgName, monErrorCode);
-    }
-  }
-  return algErrors;
-}
-
-// =============================================================================
 /**
  * @brief Retrieves finished events from the scheduler, processes their output and cleans up the slots
  * @return SUCCESS if at least one event was finished, SCHEDULER_EMPTY if there are no events being processed,
@@ -1258,7 +1243,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     // Check the event processing status
     if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
       markFailed();
-      auto algErrors = algExecErrors(*thisFinishedEvtContext);
+      auto algErrors = m_errorMonTool->algExecErrors(*thisFinishedEvtContext);
       HLT::OnlineErrorCode errCode = isTimedOut(algErrors) ?
                                      HLT::OnlineErrorCode::TIMEOUT : HLT::OnlineErrorCode::PROCESSING_FAILURE;
       HLT_DRAINSCHED_CHECK(sc, "Processing event with context " << *thisFinishedEvtContext

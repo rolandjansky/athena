@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,7 @@
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "TrigT1CaloEvent/RODHeader.h"
 
@@ -33,8 +34,7 @@ namespace LVL1BS {
 RodHeaderByteStreamCnv::RodHeaderByteStreamCnv( ISvcLocator* svcloc )
     : Converter( storageType(), classID(), svcloc ),
       m_name("RodHeaderByteStreamCnv"),
-      m_tool("LVL1BS::RodHeaderByteStreamTool/RodHeaderByteStreamTool"),
-      m_log(msgSvc(), m_name), m_debug(false)
+      m_tool("LVL1BS::RodHeaderByteStreamTool/RodHeaderByteStreamTool")
 {
 }
 
@@ -59,20 +59,8 @@ long RodHeaderByteStreamCnv::storageType()
 
 StatusCode RodHeaderByteStreamCnv::initialize()
 {
-  m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-  m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endmsg;
-
-  StatusCode sc = Converter::initialize();
-  if ( sc.isFailure() )
-    return sc;
-
-  // Retrieve Tool
-  sc = m_tool.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
-    return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
+  ATH_CHECK( Converter::initialize() );
+  ATH_CHECK( m_tool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -82,29 +70,21 @@ StatusCode RodHeaderByteStreamCnv::initialize()
 StatusCode RodHeaderByteStreamCnv::createObj( IOpaqueAddress* pAddr,
                                         DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
-
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
+    REPORT_ERROR (StatusCode::FAILURE) << " Can not cast to ByteStreamAddress ";
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
   // size check
-  DataVector<LVL1::RODHeader>* const rhCollection =
-                                           new DataVector<LVL1::RODHeader>;
-  StatusCode sc = m_tool->convert(nm, rhCollection);
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
-    delete rhCollection;
-    return sc;
-  }
+  auto rhCollection = std::make_unique<DataVector<LVL1::RODHeader> >();
+  ATH_CHECK( m_tool->convert(nm, rhCollection.get()) );
 
-  pObj = SG::asStorable(rhCollection);
+  pObj = SG::asStorable(std::move(rhCollection));
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 } // end namespace

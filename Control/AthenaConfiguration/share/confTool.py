@@ -100,12 +100,15 @@ def main(args):
             sys.exit("ERROR, can diff exactly two files at a time, got: %s" % args.file)
         configRef = _loadSingleFile(args.file[0], args)
         configChk = _loadSingleFile(args.file[1], args)
-        for ref, chk in zip(configRef, configChk):
-            if isinstance(ref, dict) and isinstance(chk, dict):
-                _compareConfig(ref, chk, args)
-            else:
-                print("Given list of size %d. Not looking for differences." % len(ref))
-
+        flattenedRef = {}
+        flattenedChk = {}
+        for ref in configRef:
+            if isinstance(ref, dict):
+                flattenedRef.update(ref)
+        for chk in configChk:
+            if isinstance(chk, dict):
+                flattenedChk.update(chk)
+        _compareConfig(flattenedRef, flattenedChk, args)
 
 def _loadSingleFile(fname, args):
     conf = []
@@ -122,7 +125,7 @@ def _loadSingleFile(fname, args):
                     to_json[comp][name] = value
                 conf = [to_json, props[0], props[1]]
 
-            elif isinstance(cfg, collections.defaultdict):  # old configuration
+            elif isinstance(cfg, (collections.defaultdict, dict)):  # old configuration
                 cfg.update(pickle.load(input_file))
                 conf.append(pickle.load(input_file))
                 conf.append(cfg)

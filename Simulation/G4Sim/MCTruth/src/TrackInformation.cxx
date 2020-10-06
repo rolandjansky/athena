@@ -4,6 +4,8 @@
 
 #include "MCTruth/TrackInformation.h"
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 TrackInformation::TrackInformation():m_regenerationNr(0),m_theParticle(0),m_theBaseISFParticle(0),m_returnedToISF(false)
 {
@@ -28,7 +30,7 @@ const ISF::ISFParticle* TrackInformation::GetBaseISFParticle() const
 
 int TrackInformation::GetParticleBarcode() const
 {
-  return ( m_theParticle ? m_theParticle->barcode() : 0 );
+  return ( m_theParticle ? HepMC::barcode(m_theParticle) : 0 );
 }
 
 void TrackInformation::SetParticle(HepMC::ConstGenParticlePtr p)

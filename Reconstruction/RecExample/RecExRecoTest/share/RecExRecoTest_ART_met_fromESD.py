@@ -27,7 +27,15 @@ jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
 rec.doFileMetaData.set_Value_and_Lock(False)
 
 athenaCommonFlags.EvtMax=10
+
 UserAlgs=["RecExRecoTest/RecExRecoTests_setupReadID.py"]
 UserAlgs+=["RecExRecoTest/RecExRecoTest_setupJetEtMissPFlow.py"]
 UserAlgs+=["METReconstruction/METReconstruction_jobOptions.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+import AthenaCommon.PropertiesManip as manip
+
+manip.appendItemsToList(StreamAOD,'ItemList','xAOD::PFOContainer_v1#CHSParticleFlowObjects')
+manip.appendItemsToList(StreamAOD,'ItemList','xAOD::PFOAuxContainer_v1#CHSParticleFlowObjectsAux.')
+
+

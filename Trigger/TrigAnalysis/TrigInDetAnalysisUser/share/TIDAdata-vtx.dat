@@ -1,0 +1,62 @@
+// emacs: this is -*- c++ -*-
+
+pT     = 1000;
+eta    = 2.5;
+// npix   = 1;
+// nsct   = 2;
+npix   = 2; /// double up, this is number of degrees of freedomw and really means 2 pixel "clusters"  
+nsct   = 4;
+
+nsiholes = 2;
+
+expectBL = 1;
+
+pT_rec  = 0;
+eta_rec = 5;
+Rmatch = 0.05;
+
+
+dumpflag = 0;
+
+a0v = 10.5;
+z0v = 10.5;
+
+refChain = "Offline";
+//refChain = "Electrons";
+//refChain = "Muons";
+//refChain = "Taus";
+
+/// NB: For the "Truth" chains, need to specify what 
+///     sort of particle (ie which pdgID) is needed
+/// Fixme: should add a flag to enable/disable this
+///        what if we want all final state particles
+///        independent of pdgID?
+
+//pdgId=11; // electron --entered in command line now
+
+// Nentries = 10000;
+
+MinVertices = 0;
+
+VertexSelection    = "0"; // possible flags: BestPT2, LeadPT, Ntracks
+// VertexSelectionRec = "0";
+
+// FilterRoi = { 2.4, 1, 2 };
+ntracks = 2;
+
+#include "TIDAdata-chains-run3.dat" 
+
+InitialiseFirstEvent = 1;
+
+outputFile = "data-vtx.root";
+
+// #include "dataset.dat"
+
+
+// GRL = "/afs/cern.ch/user/s/sutt/tida/data16_13TeV.periodAllYear_HEAD_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.xml";
+
+#include "grl.dat"
+
+
+DataFiles = { "TrkNtuple-0000.root"};
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SubBlockStatus.h"
@@ -9,7 +9,7 @@
 using namespace LVL1BS;
 
 namespace {
-  WordDecoder subBlockStatusDecoder(
+  const WordDecoder subBlockStatusDecoder(
       {
         BitField("Timeout", 7, 1),
         BitField("Link", 6, 1),

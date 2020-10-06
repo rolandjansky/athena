@@ -350,7 +350,7 @@ void AthenaOutputStream::handle(const Incident& inc)
    std::unique_lock<mutex_t>  lock(m_mutex);
 
    // Handle Event Ranges for Event Service
-   if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() )
+   if( m_outSeqSvc->inUse() )
    {
       if( inc.type() == "MetaDataStop" )  {
          // all substreams should be closed by this point

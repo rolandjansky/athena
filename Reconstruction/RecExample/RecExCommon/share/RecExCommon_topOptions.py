@@ -1407,21 +1407,6 @@ if rec.doAOD() or rec.doWriteAOD():
         protectedInclude ("HIRecExample/heavyion_postOptionsAOD.py")
 
 
-if rec.doWriteAOD() or rec.doWriteESD(): #For xAOD writing:
-    try:
-        if rec.doFileMetaData(): #needed to have xAOD readable outside athena
-            theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-            if rec.doWriteAOD():
-                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            if rec.doWriteESD():
-                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            pass
-        pass
-    except Exception:
-     treatException("Problem with extra attributes for xAOD output")
-
 try:
   # event dumper at the very end
   if rec.doPyDump():

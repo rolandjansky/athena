@@ -370,14 +370,6 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
                        AuxPrefix = auxprefix,
                        Vars = ['deltaEmax2',
                                ])
-    defineBlockAndAlg \
-      (PhotonD3PDObject,
-       1, 'UDShowerDepth',
-       D3PDMakerCoreComps.AuxDataFillerTool,
-       'egammaShowerDepthConfig',
-       AuxPrefix = auxprefix,
-       Vars = ['calibHitsShowerDepth #Shower depth as defined by the calib hits cluster correction',
-               ])
 
         
 

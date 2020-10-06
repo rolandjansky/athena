@@ -1,4 +1,5 @@
 #include <boost/tokenizer.hpp>
+#include <cmath>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -245,7 +246,7 @@ int main()
   for (unsigned int i = 0; i < times.size(); i++) {
     dev_time += (times[i] - mean_time)*(times[i] - mean_time);
   }
-  dev_time = sqrt(dev_time/times.size());
+  dev_time = std::sqrt(dev_time/times.size());
     
   std::cout << "Seed making time: " << mean_time  << " +/- " << dev_time << " microseconds" << std::endl;
   

@@ -510,15 +510,25 @@ void printFeatures(const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> >&
   using namespace TrigCompositeUtils;
   std::stringstream ss;
   ss << name << " features size:" << featureContainer.size() << std::endl;
-  size_t count = 0;
+  std::vector<std::string> strings;
   for (const TrigCompositeUtils::LinkInfo<CONTAINER>& featureLinkInfo : featureContainer) {
+    std::stringstream ss1;
     std::string stateStr;
     switch (featureLinkInfo.state) {
       case ActiveState::ACTIVE: stateStr = "ACTIVE"; break;
       case ActiveState::INACTIVE: stateStr = "INACTIVE"; break;
       case ActiveState::UNSET: default: stateStr = "UNSET"; break;
     }
-    ss << "  Feature " << count++ << " pt:" << (*featureLinkInfo.link)->pt() << ", state:" << stateStr << std::endl;
+    ss1 << "  Feature  pt:" << (*featureLinkInfo.link)->pt() << ", state:" << stateStr << std::endl;
+    strings.push_back (ss1.str());
+  }
+
+  // The ordering of elements in featureContainer is unpredictable
+  // due to the iteration over set<NavGraphNode*>.
+  // Sort the results so that the output is reproducible.
+  std::sort (strings.begin(), strings.end());
+  for (const std::string& s : strings) {
+    ss << s;
   }
   log << MSG::INFO << ss.str() << endmsg;
 }

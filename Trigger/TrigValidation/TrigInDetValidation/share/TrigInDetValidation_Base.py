@@ -35,6 +35,15 @@ exclude       = False
 postproc      = False
 lowpt_local   = []
 
+
+try: GridFiles
+except NameError: GridFiles=False
+
+if GridFiles==True :
+    use_gridfiles = True
+else:
+    use_gridfiles = False
+
 for opt,arg in opts:
     if opt in ("-l", "--local"):
         local=True
@@ -45,8 +54,8 @@ for opt,arg in opts:
     if opt=="-n":
         Events_local=arg
 
-if 'postexec' in dir() :
-    rdo2aod = TrigInDetReco( postexec_file=postexec )
+if 'postinclude_file' in dir() :
+    rdo2aod = TrigInDetReco( postinclude_file = postinclude_file )
 else :
     rdo2aod = TrigInDetReco()
 
@@ -65,6 +74,9 @@ else :
     lowpt_local = [ False ]
 
 
+if "Args" not in locals() : 
+    Args = " "
+
 # allow command line to override programed number of events to process
 
 if Events_local != 0 : 
@@ -77,12 +89,13 @@ rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.input   = Input    # defined in TrigValTools/share/TrigValInputs.json  
 
-if local:
+if use_gridfiles: 
+    if local:
 #   rdo2aod.input = 'Single_el_larged0'    # defined in TrigValTools/share/TrigValInputs.json  
-    rdo2aod.input = Input   # should match definition in TrigValTools/share/TrigValInputs.json  
-else:
-    rdo2aod.input = ''
-    rdo2aod.args += ' --inputRDOFile=$ArtInFile '
+       rdo2aod.input = Input   # should match definition in TrigValTools/share/TrigValInputs.json  
+    else:
+       rdo2aod.input = ''
+       rdo2aod.args += ' --inputRDOFile=$ArtInFile '
 
 
 
@@ -109,13 +122,13 @@ for ref in TrackReference :
     ext       = ''
 
     if   ( ref == 'Truth' ) :
-        args = 'TIDAdata-run3.dat  -b Test_bin.dat -o '+hist_file
+        args = 'TIDAdata-run3.dat  -b Test_bin.dat -o ' + hist_file + Args
     elif ( ref == 'Offline' ) :
         # if more than one reefrence ...
         if len(TrackReference)>1 : 
             hist_file = 'data-hists-offline.root'
             ext       = 'offline'
-        args = 'TIDAdata-run3-offline.dat  -b Test_bin.dat -o '+hist_file
+        args = 'TIDAdata-run3-offline.dat -r Offline  -b Test_bin.dat -o ' + hist_file
     else :
         # here actually we should allow functionality 
         # to use different pdgid truth or offline as

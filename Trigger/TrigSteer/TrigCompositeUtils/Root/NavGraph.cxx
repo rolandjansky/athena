@@ -66,7 +66,18 @@ namespace TrigCompositeUtils {
 
 
   void NavGraph::printAllPaths(MsgStream& log, MSG::Level msgLevel) const {
-    for (const NavGraphNode* finalNode : finalNodes()) {
+    // finalNodes() is a set<NavGraphNode*>, so iteration over it
+    // will not be in any well-defined order.  Sort the set of pointers
+    // by name so that the output is predictable.
+    std::vector<const NavGraphNode*> nodes (finalNodes().begin(),
+                                            finalNodes().end());
+    std::sort (nodes.begin(), nodes.end(),
+               [] (const NavGraphNode* a, const NavGraphNode* b)
+               {
+                 return a->node()->name() < b->node()->name();
+               });
+
+    for (const NavGraphNode* finalNode : nodes) {
       recursivePrintNavPath(*finalNode, 0, log, msgLevel);
     }
   }

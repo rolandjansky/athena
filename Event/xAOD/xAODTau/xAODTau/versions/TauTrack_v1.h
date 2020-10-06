@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTAU_VERSIONS_TAUTRACK_V1_H
@@ -67,9 +65,16 @@ namespace xAOD {
     // additional bdt input variables
     float z0sinThetaTJVA(const xAOD::IParticle&) const;
     //    void setZ0sinThetaTJVA(float z0sinThetaTJVA);
-    float rConv(const xAOD::IParticle&) const;
+
+    // track IP w.r.t. TJVA vertex
+    float d0TJVA() const;
+    float d0SigTJVA() const;
+    float z0sinthetaTJVA() const;
+    float z0sinthetaSigTJVA() const;
+
+    float rConv() const;
     //    void setRConv(float rConv);
-    float rConvII(const xAOD::IParticle&) const;
+    float rConvII() const;
     //    void setRConvII(float rConvII);
     float dRJetSeedAxis(const xAOD::IParticle&) const;
     //    void setDRJetSeedAxis(float dRJetSeedAxis);

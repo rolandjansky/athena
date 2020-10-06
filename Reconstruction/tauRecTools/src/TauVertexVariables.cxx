@@ -35,13 +35,8 @@ TauVertexVariables::~TauVertexVariables() {
 
 StatusCode TauVertexVariables::initialize() {
   
-  ATH_CHECK( m_trackToVertexIPEstimator.retrieve() );
   ATH_CHECK( m_fitTool.retrieve() );
   ATH_CHECK( m_SeedFinder.retrieve() );
-
-  if (inTrigger()) {
-    ATH_CHECK(m_beamSpotKey.initialize());
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -50,76 +45,6 @@ StatusCode TauVertexVariables::initialize() {
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) const {
-
-  // impact parameter variables for standard tracks
-  if (pTau.nTracks() > 0) {
-
-    std::unique_ptr<const Trk::ImpactParametersAndSigma> myIPandSigma;
-    const xAOD::Vertex* vxcand = nullptr;
-
-    xAOD::Vertex theBeamspot;
-    theBeamspot.makePrivateStore();
-
-    if (inTrigger()) { // online: use beamspot
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      if(beamSpotHandle.isValid()){
-        theBeamspot.setPosition(beamSpotHandle->beamPos());
-        const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
-        theBeamspot.setCovariancePosition(cov);
-        vxcand = &theBeamspot;
-
-	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand));
-      }
-      else {
-        ATH_MSG_DEBUG("No Beamspot object in tau candidate");
-      }
-    }
-    else if (pTau.vertexLink().isValid()) { // offline: obtain tau vertex by link
-      vxcand = pTau.vertex() ;
-      //check if vertex has a valid type (skip if vertex has type NoVtx)
-      if (vxcand->vertexType() != xAOD::VxType::NoVtx) {
-	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand));
-      }
-    }
-
-    if (myIPandSigma) {
-      // kept for now, but will be discontinued as we now store these for all tracks, not only the leading one
-      pTau.setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ));
-      pTau.setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ));
-    }
-    else {
-      ATH_MSG_DEBUG("trackToVertexIPestimator failed for a standard track!");
-      pTau.setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)(-999.));
-      pTau.setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)(-999.));
-    }
-
-    // in the trigger, z0sintheta IP and corresponding significance are meaningless if we use the beamspot
-    if(vxcand && (inTrigger() || (!inTrigger() && vxcand->vertexType() != xAOD::VxType::NoVtx))) {
-      static const SG::AuxElement::Decorator<float> dec_d0_TV("d0_TV");
-      static const SG::AuxElement::Decorator<float> dec_z0sintheta_TV("z0sintheta_TV");
-      static const SG::AuxElement::Decorator<float> dec_d0_sig_TV("d0_sig_TV");
-      static const SG::AuxElement::Decorator<float> dec_z0sintheta_sig_TV("z0sintheta_sig_TV");
-
-      for(auto track : pTau.allTracks()) {
-	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(track->track(), vxcand));
-	if(myIPandSigma) {
-	  dec_d0_TV(*track) = myIPandSigma->IPd0;
-	  dec_z0sintheta_TV(*track) = myIPandSigma->IPz0SinTheta;
-	  dec_d0_sig_TV(*track) = (myIPandSigma->sigmad0 != 0.) ? (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ) : -999.;
-	  dec_z0sintheta_sig_TV(*track) = (myIPandSigma->sigmaz0SinTheta != 0.) ? (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ) : -999.;
-	}
-	else {
-	  dec_d0_TV(*track) = -999.;
-	  dec_z0sintheta_TV(*track) = -999.;
-	  dec_d0_sig_TV(*track) = -999.;
-	  dec_z0sintheta_sig_TV(*track) = -999.;
-	}
-      }
-    }
-  }
-  else {
-    ATH_MSG_DEBUG("Tau has no tracks");
-  }
 
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(-1111.));
   
@@ -135,20 +60,15 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   // reconstruction from xAOD uses Trk::TrackParameters (Trk::Track not available)
   std::vector<const Trk::TrackParameters*> origTrackParameters;
 
-  for (unsigned i = 0; i < pTau.nTracks(); ++i) {
-    xaodTracks.push_back(pTau.track(i)->track());
+  for (const xAOD::TauTrack* track : pTau.tracks()) {
+    xaodTracks.push_back(track->track());
 
-    if (pTau.track(i)->track()) {
-      if(pTau.track(i)->track()->track()) {
-	origTracks.push_back(pTau.track(i)->track()->track());
-      }
-      else {
-	const Trk::Perigee& perigee = pTau.track(i)->track()->perigeeParameters();
-	origTrackParameters.push_back(static_cast<const Trk::TrackParameters*>(&perigee));
-      }
+    if(track->track()->track()) {
+      origTracks.push_back(track->track()->track());
     }
     else {
-      ATH_MSG_WARNING("No TrackParticle found.");
+      const Trk::Perigee& perigee = track->track()->perigeeParameters();
+      origTrackParameters.push_back(static_cast<const Trk::TrackParameters*>(&perigee));
     }
   }
 

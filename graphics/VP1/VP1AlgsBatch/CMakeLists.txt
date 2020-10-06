@@ -1,20 +1,7 @@
-################################################################################
-# Package: VP1AlgsBatch
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1AlgsBatch )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaBaseComps
-   GaudiKernel
-   PRIVATE
-   Database/APR/StorageSvc
-   Event/EventInfo
-   Tools/PathResolver
-   graphics/VP1/VP1UtilsBase )
 
 # Component(s) in the package:
 atlas_add_component( VP1AlgsBatch

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETEVENT_TRIGL2VERTEX_H
@@ -147,6 +147,8 @@ class TrigL2Vertex
  public:
   TrigL2Vertex();
   ~TrigL2Vertex();
+  TrigL2Vertex(const TrigL2Vertex&) = delete;
+  TrigL2Vertex& operator=(const TrigL2Vertex&) = delete;
   bool prepareForFit();//!< resets all internal structures + initialization of the covariance
   void reset();//!< resets all internal structures
   double chi2();//!< returns accumulated \f$\chi^2\f$ of the fit

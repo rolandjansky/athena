@@ -56,6 +56,9 @@ private:
   TH2* m_reco_pt_vs_eta;
   TH2* m_reco_phi_vs_eta;
 
+  TH2* m_reco_d0_z0;
+  TH2* m_reco_d0_z0sin;
+
   TH2* m_truth_pt_vs_eta;
   TH2* m_truth_phi_vs_eta;
 
