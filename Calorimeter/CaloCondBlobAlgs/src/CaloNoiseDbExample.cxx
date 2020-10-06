@@ -5,9 +5,6 @@
 #include "CaloCondBlobAlgs/CaloNoiseDbExample.h"
 //#include "CaloInterface/ICaloNoiseTool.h"
 
-//=== Athena includes
-#include "StoreGate/StoreGate.h"
-
 //=== Gaudi includes
 #include "GaudiKernel/MsgStream.h"
 
