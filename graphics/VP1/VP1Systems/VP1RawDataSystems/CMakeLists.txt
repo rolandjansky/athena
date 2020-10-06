@@ -1,27 +1,7 @@
-################################################################################
-# Package: VP1RawDataSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1RawDataSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          graphics/VP1/VP1Base
-                          PRIVATE
-                          Event/EventPrimitives
-                          ForwardDetectors/LUCID/LUCID_RawEvent
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
-			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetRawEvent/InDetBCM_RawData
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          graphics/VP1/VP1HEPVis
-                          graphics/VP1/VP1Utils )
 
 # External dependencies:
 find_package( Coin3D )
@@ -37,7 +17,6 @@ set( CMAKE_AUTOMOC TRUE )
 set( CMAKE_AUTORCC TRUE )
 # to let CMake find .h files automatically-generated from .ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 
 # Component(s) in the package:
 atlas_add_library( VP1RawDataSystems VP1RawDataSystems/*.h src/*.h src/*.cxx src/*.qrc  

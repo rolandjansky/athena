@@ -107,7 +107,7 @@ void MM_StripResponse::calculateSummaries(float chargeThreshold) {
       // Last active strip numbrer is maxStripID-1
       if (stripVal < m_minstripID || stripVal > m_maxstripID-1) continue;
       // remove PCB gap strips
-      if (stripVal == 1023 || stripVal == 1024 || stripVal == 2047 || stripVal == 2048 || stripVal == 3071 || stripVal == 3072 || stripVal == 4095 || stripVal == 4096) continue;
+      if (stripVal == 1024 || stripVal == 1025 || stripVal == 2048 || stripVal == 2049 || stripVal == 3072 || stripVal == 3073 || stripVal == 4096 || stripVal == 4097) continue;
 			float stripChargeVal = stripCharge.second;
 			if(stripChargeVal < chargeThreshold) continue;
 			

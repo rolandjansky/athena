@@ -42,7 +42,7 @@ StatusCode PixelChargeToTConversion::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelChargeToTConversion::execute ATLAS_NOT_THREAD_SAFE (){ // const_cast is used.
+StatusCode PixelChargeToTConversion::execute(){
   const EventContext &ctx = Gaudi::Hive::currentContext();
   SG::ReadHandle<InDet::PixelClusterContainer> pixel_container( m_pixelsClustersKey, ctx);
   if (!pixel_container.isValid())

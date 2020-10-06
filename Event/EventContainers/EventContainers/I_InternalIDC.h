@@ -14,7 +14,7 @@ class IDC_WriteHandleBase;
 /*
 The intention of the IdentifiableContainer is to provide a key-value map
 for collection pointers. To increase memory and cpu efficiency the online trigger 
-system different “views” can share collection that are created concurrently.
+system different ''views'' can share collection that are created concurrently.
 To efficiently support these different uses while not imposing overhead on the
 offline case and to maintain a consistent interface the internals of the class are
 virtualised.

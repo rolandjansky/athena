@@ -87,7 +87,10 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
    }
 
   ATH_CHECK( m_extrapolatorTool.retrieve());
-  
+
+  ATH_CHECK(m_clusterSplitProbContainerIn.initialize(!m_clusterSplitProbContainerIn.key().empty()));
+  ATH_CHECK(m_clusterSplitProbContainerOut.initialize(!m_clusterSplitProbContainerOut.key().empty()));
+
   // Configuration of the material effects
   Trk::ParticleSwitcher particleSwitch;
   m_particleHypothesis = particleSwitch.particle[m_matEffects];
@@ -173,6 +176,29 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScores &tr
      scoreTrackFitflagMap.emplace(scoreTrack.second, TrackPtr(scoreTrack.first) );
      stat.incrementCounterByRegion(CounterIndex::kNcandidates,scoreTrack.first);
   }
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerIn;
+  if (!m_clusterSplitProbContainerIn.key().empty()) {
+     splitProbContainerIn = SG::ReadHandle( m_clusterSplitProbContainerIn, ctx);
+     if (!splitProbContainerIn.isValid()) {
+        ATH_MSG_ERROR( "Failed to get input cluster split probability container "  << m_clusterSplitProbContainerIn.key());
+     }
+  }
+  std::unique_ptr<Trk::ClusterSplitProbabilityContainer> splitProbContainerCleanup(!m_clusterSplitProbContainerIn.key().empty()
+                                                                                      ? std::make_unique<ClusterSplitProbabilityContainer>(*splitProbContainerIn)
+                                                                                      : std::make_unique<ClusterSplitProbabilityContainer>());
+  SG::WriteHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerHandle;
+  Trk::ClusterSplitProbabilityContainer *splitProbContainer;
+  if (!m_clusterSplitProbContainerOut.key().empty()) {
+     splitProbContainerHandle=SG::WriteHandle<Trk::ClusterSplitProbabilityContainer>( m_clusterSplitProbContainerOut, ctx);
+     if (splitProbContainerHandle.record(std::move(splitProbContainerCleanup)).isFailure()) {
+        ATH_MSG_FATAL( "Failed to record output cluster split probability container "  << m_clusterSplitProbContainerOut.key());
+     }
+     splitProbContainer = splitProbContainerHandle.ptr();
+  }
+  else {
+     splitProbContainer = splitProbContainerCleanup.get();
+  }
   ATH_MSG_DEBUG ("Starting to solve tracks");
   // now loop as long as map is not empty
   while ( !scoreTrackFitflagMap.empty() ){
@@ -184,8 +210,8 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScores &tr
     // clean it out to make sure not to many shared hits
     ATH_MSG_DEBUG ("--- Trying next track "<<atrack.track()<<"\t with score "<<-ascore);
     std::unique_ptr<Trk::Track> cleanedTrack;
-    const auto & [tmpCleanedTrack, keepOriginal] = m_selectionTool->getCleanedOutTrack( atrack.track() , -ascore, prdToTrackMap);
-    cleanedTrack.reset(tmpCleanedTrack);
+    const auto &[cleanedTrack_tmp, keepOriginal] = m_selectionTool->getCleanedOutTrack( atrack.track() , -ascore, *splitProbContainer, prdToTrackMap);
+    cleanedTrack.reset(cleanedTrack_tmp);
     ATH_MSG_DEBUG ("--- cleaned next track "<< cleanedTrack.get());
     // cleaned track is input track and fitted
     if (keepOriginal && atrack.fitted()){

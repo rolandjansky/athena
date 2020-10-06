@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -34,7 +34,10 @@
 
 #include <sstream>
 
-GeoPixelLayer::GeoPixelLayer(){
+GeoPixelLayer::GeoPixelLayer(InDetDD::PixelDetectorManager* ddmgr,
+                             PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
   m_supportPhysA=0;
   m_supportPhysC=0;
   m_supportMidRing=0;
@@ -67,17 +70,17 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // Likewise the TMT and the "Ladder"
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
-  GeoPixelSiCrystal theSensor(isBLayer);
+  GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
   GeoPixelStaveSupport * staveSupport = 0;
   if (staveLayout ==0 || staveLayout==1) {
-    staveSupport = new GeoPixelTMT;
+    staveSupport = new GeoPixelTMT (m_DDmgr, m_gmt_mgr);
   }
   if (staveLayout == 3) {
-    staveSupport = new GeoPixelSimpleStaveSupport;
+    staveSupport = new GeoPixelSimpleStaveSupport (m_DDmgr, m_gmt_mgr);
   }
   else if (staveLayout >3 && staveLayout <7)
-    {
-    staveSupport = new GeoPixelDetailedStaveSupport;
+  {
+    staveSupport = new GeoPixelDetailedStaveSupport (m_DDmgr, m_gmt_mgr);
   }
 
   if (staveLayout >3 && staveLayout <7)
@@ -95,7 +98,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   m_gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<m_gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endmsg;
 
 
-  GeoPixelLadder pixelLadder(theSensor, staveSupport);
+  GeoPixelLadder pixelLadder(m_DDmgr, m_gmt_mgr, theSensor, staveSupport);
 
   //
   // layer radius, number of sectors and tilt used in various places
@@ -216,7 +219,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       //int biStave    = iPhi % 2;  // Should only be 0 or 1
       if (ladderType < 0) std::cout << "ERROR: Unexpected value of ladderType: " << ladderType << std::endl;
       if (!ladderServicesArray[biStave*(maxLadType+1) + ladderType]) {
-	GeoPixelLadderServices *ladderServices = new GeoPixelLadderServices(ladderType);
+	GeoPixelLadderServices *ladderServices = new GeoPixelLadderServices(m_DDmgr, m_gmt_mgr, ladderType);
 	// build the physical volume for each type
 	ladderServicesArray[biStave*(maxLadType+1) + ladderType] = ladderServices->Build();
 	if (!firstLadderServices) {
@@ -293,7 +296,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     //
     // The Pigtail
     //
-    GeoPixelPigtail pigtail;
+    GeoPixelPigtail pigtail (m_DDmgr, m_gmt_mgr);
     pigtailPhysVol = pigtail.Build();
     transPigtail = GeoTrf::Translate3D(m_gmt_mgr->PixelPigtailBendX() + m_gmt_mgr->PixelLadderCableOffsetX(), 
 				  m_gmt_mgr->PixelPigtailBendY() + m_gmt_mgr->PixelLadderCableOffsetY(), 
@@ -446,7 +449,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   if(layerPhys==0)
   {
       m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
-      exit(EXIT_FAILURE);
+      std::abort();
   } 
 
   // SLHC only
@@ -486,7 +489,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     {
       m_gmt_mgr->msg(MSG::INFO) << "IBL stave ring support"<< endmsg;
 
-      GeoPixelStaveRingServices staveRingService(pixelLadder, *staveSupport);
+      GeoPixelStaveRingServices staveRingService(m_DDmgr, m_gmt_mgr, pixelLadder, *staveSupport);
       staveRingService.Build();
 
       m_supportPhysA = staveRingService.getSupportA();

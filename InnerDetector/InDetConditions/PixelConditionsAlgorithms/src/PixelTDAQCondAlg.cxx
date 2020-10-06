@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelTDAQCondAlg.h"
@@ -16,10 +16,7 @@ StatusCode PixelTDAQCondAlg::initialize() {
   ATH_MSG_INFO("PixelTDAQCondAlg::initialize()");
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-
   ATH_CHECK(m_condSvc.retrieve());
-
-  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKey.initialize(!m_readKey.empty()));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
@@ -46,8 +43,7 @@ StatusCode PixelTDAQCondAlg::execute(const EventContext& ctx) const {
                           EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
 
   EventIDRange rangeW{start, stop};
-
-  if (SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getUseTDAQConditions()) {
+  if (!m_readKey.empty()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {

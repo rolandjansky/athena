@@ -1209,7 +1209,7 @@ DbStatus RootTreeContainer::transAct(Transaction::Action action)
       return Success;
    }
    // check if all TTree branches were filled and write the TTree
-   Branches::const_iterator k;
+   Branches::iterator k;
    for(k=m_branches.begin(); k !=m_branches.end(); ++k) {
       Long64_t branchEntries = k->branch->GetEntries();
       Long64_t treeEntries = m_tree->GetEntries();
@@ -1233,6 +1233,8 @@ DbStatus RootTreeContainer::transAct(Transaction::Action action)
              << DbPrint::endmsg;
          return Error;
       }
+      BranchDesc& dsc = (*k);
+      dsc.rows_written = 0;
    }
    return Success;
 }

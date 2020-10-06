@@ -111,7 +111,7 @@ def defineMenu():
         #'RXE35', 'RXE40', 'RXE45', 'RXE50', 'RXE55', 'RXE60', 'RXE70', 'RXE80', # FTHR
 
         # 8 x restricted eta range
-        #'TE5.24ETA49', 'TE10.24ETA49', 'TE15.24ETA49', 'TE20.24ETA49', 'TE25.24ETA49', 'TE30.24ETA49', 'TE40.24ETA49', 'TE70.24ETA49',
+        'TE5.0ETA24', 'TE10.0ETA24', 'TE15.0ETA24', 'TE20.0ETA24', 'TE25.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24', 'TE70.0ETA24',
 
 
 
@@ -185,8 +185,8 @@ def defineMenu():
 
         # AFP
         'AFP_NSC', 'AFP_NSA',
-        #'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
-        #'AFP_FSC_SIT', 'AFP_FSC_LOG', 'AFP_FSC_TOF',
+        'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
+        'AFP_FSC_SIT', 'AFP_FSC_LOG', 'AFP_FSC_TOF',
 
         
         #-------------------------------------------------------------------
@@ -457,6 +457,8 @@ def defineMenu():
 
         # MBTS
         "L1_MBTS_1_EMPTY",
+        "L1_MBTS_2_EMPTY",
+        "L1_MBTS_1_1_EMPTY",
         # beam splashes
         
         #Overlay
@@ -624,6 +626,9 @@ def defineMenu():
         ##     'L1_CALREQ0_P1', 'L1_CALREQ1_P1', 'L1_CALREQ2_P1',
 
         #ALFA
+        'L1_ALFA_ANY',
+        'L1_ALFA_B7L1U','L1_ALFA_B7L1L','L1_ALFA_A7L1U','L1_ALFA_A7L1L','L1_ALFA_A7R1U','L1_ALFA_A7R1L','L1_ALFA_B7R1U','L1_ALFA_B7R1L',
+        
 #        'L1_ALFA_SDIFF5','L1_ALFA_SDIFF6','L1_ALFA_SDIFF7','L1_ALFA_SDIFF8',
 #        'L1_MBTS_1_A_ALFA_C','L1_MBTS_1_C_ALFA_A','L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO',
 #        'L1_MBTS_2_A_ALFA_C','L1_MBTS_2_C_ALFA_A','L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO',
@@ -783,7 +788,7 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM' : 58,
         'L1_TAU60_2TAU40' : 458,
         'L1_2TAU5' : 59,
-        'L1_2TAU8' : 166,
+        #'L1_2TAU8' : 166,
         'L1_EM15VHI_2TAU12IM' : 60,
         'L1_EM15VHI_2TAU12IM_J25_3J12' : 61,
         'L1_EM15VHI_2TAU12IM_4J12' : 5,
@@ -988,9 +993,18 @@ def defineMenu():
         'L1_CEP-CJ60' : 162,
         #'L1_CEP-CJ50' : 164,
         'L1_MBTS_1_EMPTY' : 164,
+        'L1_MBTS_2_EMPTY' : 166,
+        'L1_MBTS_1_1_EMPTY' : 168,
         'L1_BPH-8M15-2MU4-BO' : 165,
         'L1_CALREQ2' : 511,
-
+        'L1_ALFA_B7L1U' : 489,
+        'L1_ALFA_ANY'   : 490,
+        'L1_ALFA_A7L1U' : 491,
+        'L1_ALFA_A7L1L' : 492,
+        'L1_ALFA_A7R1U' : 493,
+        'L1_ALFA_A7R1L' : 494,
+        'L1_ALFA_B7R1U' : 495,
+        'L1_ALFA_B7R1L' : 496,
 }
 
 

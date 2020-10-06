@@ -144,8 +144,6 @@ namespace InDet {
       TH1D* m_hb_sig3D2tr{};
       TH1D* m_hb_sig3DNtr{};
       TH1D* m_hb_trkPtMax{};
-      TH1F* m_hb_blshared{};
-      TH1F* m_hb_pxshared{};
       TH1F* m_hb_rawVrtN{};
       TH1F* m_hb_lifetime{};
       TH1F* m_hb_trkPErr{};
@@ -203,7 +201,8 @@ namespace InDet {
       double m_rLayer2{};
       double m_rLayer3{};
 
-      bool     m_useVertexCleaning{};
+      bool     m_useVertexCleaningPix{};
+      bool     m_useVertexCleaningFMP{};
       bool     m_multiVertex{};
       bool     m_multiWithPrimary{};
       bool     m_getNegativeTail{};
@@ -258,7 +257,7 @@ namespace InDet {
        float    wgtB[maxNTrk];
        float    wgtL[maxNTrk];
        float    wgtG[maxNTrk];
-       float   Sig3D[maxNTrk];
+       float   sig3D[maxNTrk];
        int    chg[maxNTrk];
        int  nVrtT[maxNTrk];
        float TotM;
@@ -267,6 +266,7 @@ namespace InDet {
        float VrtSig3D[maxNVrt];
        float VrtSig2D[maxNVrt];
        float VrtDR[maxNVrt];
+       float VrtErrR[maxNVrt];
        float mass[maxNVrt];
        float Chi2[maxNVrt];
        int   itrk[maxNVrt];
@@ -274,6 +274,7 @@ namespace InDet {
        int badVrt[maxNVrt];
        int    ibl[maxNVrt];
        int     bl[maxNVrt];
+       float fhitR[maxNVrt];
        int        NTHF;
        int   itHF[maxNVrt];
        //---
@@ -488,9 +489,9 @@ namespace InDet {
      StatusCode VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listPart,Amg::Vector3D& Vertex, Trk::IVKalState& istate) const;
 
      template <class Track>
-     bool  Check2TrVertexInPixel( const Track* p1, const Track* p2, Amg::Vector3D &, std::vector<double> &) const;
+     bool  check2TrVertexInPixel( const Track* p1, const Track* p2, Amg::Vector3D &, std::vector<double> &) const;
      template <class Track>
-     bool  Check1TrVertexInPixel( const Track* p1, Amg::Vector3D &, std::vector<double> & ) const;
+     bool  check1TrVertexInPixel( const Track* p1, Amg::Vector3D &, std::vector<double> & ) const;
 
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
@@ -548,7 +549,7 @@ namespace InDet {
   };
 
    template <class Track>
-   bool InDetVKalVxInJetTool::Check1TrVertexInPixel( const Track* p1, Amg::Vector3D &FitVertex, std::vector<double> &VrtCov)
+   bool InDetVKalVxInJetTool::check1TrVertexInPixel( const Track* p1, Amg::Vector3D &FitVertex, std::vector<double> &VrtCov)
    const
    {
 	int blTrk=0, blP=0, l1Trk=0, l1P=0, l2Trk=0, nLays=0; 

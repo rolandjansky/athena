@@ -29,7 +29,9 @@ public:
 
 private:
 
-
+    //Trigger aware monitoring
+    bool evtSelTriggersPassed() const;
+    
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     // Strip fitter.
     ToolHandle<ICscStripFitter> m_stripFitter{this, "CSCStripFitter", "CSCStripFitter", "Strip fitter Tool"};
@@ -41,10 +43,9 @@ private:
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscClusterKey{this,"CSCClusterKey","CSC_Clusters","CSC clusters"};
     SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPRDKey{this,"CSCPrepRawDataKey", "CSC_Measurements","CSC PRDs"};
 
-    unsigned int m_qmaxADCCut;
-
-    bool m_doEvtSel;
-    std::vector<std::string> m_sampSelTriggers;
-
+    Gaudi::Property<std::vector<std::string>> m_sampSelTriggers{this,"CSCEventSelTriggers",{}};
+    Gaudi::Property<bool> m_doEvtSel{this,"CSCDoEventSelection",false};
+    Gaudi::Property<double> m_qmaxADCCut{this,"CSCQmaxCutADC",100};
+    
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -23,8 +23,11 @@
 #include <cmath>
 #include <vector>
 
-GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
-  : m_ladderType(ladderType)
+GeoPixelLadderServices::GeoPixelLadderServices(InDetDD::PixelDetectorManager* m_DDmgr,
+                                               PixelGeometryManager* mgr,
+                                               int ladderType)
+  : GeoVPixelFactory(m_DDmgr, mgr),
+    m_ladderType(ladderType)
 {
   //std::cout << "Building GeoPixelLadderServices with ladder type : " << ladderType << std::endl; 
   //
@@ -116,7 +119,7 @@ GeoVPhysVol* GeoPixelLadderServices::Build() {
   //
   // Put the fluid/gaz mixture
   //
-  GeoPixelFluid fluid(m_ladderType);
+  GeoPixelFluid fluid(m_DDmgr, m_gmt_mgr, m_ladderType);
   double xpos = fluid.posX() + m_xOffset;
   double ypos = fluid.posY() + m_yOffset;
   double zpos = fluid.posZ();
@@ -135,7 +138,7 @@ GeoVPhysVol* GeoPixelLadderServices::Build() {
   //
   // Cables
   //
-  GeoPixelCable cable;
+  GeoPixelCable cable (m_DDmgr, m_gmt_mgr);
   for (int ii = 0; ii < cable.numElements(); ii++) {
     cable.setElement(ii);
     GeoVPhysVol* phys = cable.Build();

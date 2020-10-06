@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Unit test for the transient tree creating infrastructure
 #
@@ -64,7 +64,7 @@ def main():
     import xAODRootAccess.GenerateDVIterators
 
     # Loop over a few event:
-    for entry in xrange( 10 ):
+    for entry in range( 10 ):
         # Load the event:
         if mgr.eventTree().GetEntry( entry ) < 0:
             logger.error( "Couldn't load entry %i" % entry )

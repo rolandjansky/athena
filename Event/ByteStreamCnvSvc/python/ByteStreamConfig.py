@@ -23,6 +23,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import logging
 from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 
 
 def ByteStreamReadCfg(flags, type_names=None):
@@ -129,6 +130,7 @@ def ByteStreamWriteCfg(flags, type_names=None):
         OutputDirectory="./",
         AppName="Athena",
         RunNumber=all_runs.pop(),
+        OutputLevel=2,
     )
     result.addService(event_storage_output)
     # release variable depends the way the env is configured
@@ -137,6 +139,7 @@ def ByteStreamWriteCfg(flags, type_names=None):
     bytestream_conversion = comp_factory.ByteStreamCnvSvc(
         name="ByteStreamCnvSvc",
         ByteStreamOutputSvcList=[event_storage_output.getName()],
+        OutputLevel=2,
     )
     result.addService(bytestream_conversion)
 
@@ -145,8 +148,15 @@ def ByteStreamWriteCfg(flags, type_names=None):
         EvtConversionSvc=bytestream_conversion.name,
         OutputFile="ByteStreamEventStorageOutputSvc",
         ItemList=type_names if type_names else list(),
+        OutputLevel=2,
     )
     result.addEventAlgo(output_stream, primary=True)
+
+    result.merge(IOVDbSvcCfg(flags))
+
+    result.merge(
+        MetaDataSvcCfg(flags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"])
+    )
 
     return result
 
@@ -174,6 +184,9 @@ def main():
     acc.merge(write)
     acc.printConfig()
     log.info("Config OK")
+
+    with open('ByteStreamConfig.pkl', 'wb') as pkl:
+        acc.store(pkl)
 
     acc.run(10)
 

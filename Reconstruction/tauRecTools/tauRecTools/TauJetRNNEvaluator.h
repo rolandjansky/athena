@@ -5,14 +5,15 @@
 #ifndef TAUREC_TAUJETRNNEVALUATOR_H
 #define TAUREC_TAUJETRNNEVALUATOR_H
 
-#include <memory>
-
 #include "tauRecTools/TauRecToolBase.h"
+#include "tauRecTools/ITauVertexCorrection.h"
 
-// xAOD includes
 #include "xAODTau/TauJet.h"
 
-// Forward declarations
+#include "AsgTools/ToolHandle.h"
+
+#include <memory>
+
 class TauJetRNN;
 
 /**
@@ -69,7 +70,10 @@ private:
     std::unique_ptr<TauJetRNN> m_net_1p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
 
-    bool m_incShowerSubtr;
+    bool m_useSubtractedCluster;
+
+    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
+      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
 
 

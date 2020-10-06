@@ -495,6 +495,7 @@ class ItemDef:
         MenuItem('L1_TAU25IM_2TAU20IM_2J25_3J20').setLogic( d.HA25IM & d.HA20IM.x(2)     & d.J25.x(2)  & d.J20.x(3) & physcond).setTriggerType( TT.calo )
         MenuItem('L1_TAU20IM_2TAU12IM_4J12').setLogic( d.HA20IM & d.HA12IM.x(2)  & d.J12.x(4) & physcond).setTriggerType( TT.calo )
         MenuItem('L1_TAU20IM_2TAU12IM_4J12.0ETA23').setLogic( d.HA20IM & d.HA12IM.x(2)  & d.J120ETA23.x(4) & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_TAU20IM_2TAU12IM_4J12.0ETA28').setLogic( d.HA20IM & d.HA12IM.x(2)  & d.J120ETA28.x(4) & physcond).setTriggerType( TT.calo )
         MenuItem('L1_TAU60_2TAU40').setLogic( d.HA60 & d.HA40.x(2)  & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2TAU12I_TAU20_J25_2J15_3J12'  ).setLogic( d.HA12I.x(2)   & d.HA20  & d.J25 & d.J15.x(2) & d.J12.x(3) & physcond).setTriggerType( TT.calo )
 #######
@@ -1698,7 +1699,7 @@ class ItemDef:
             MenuItem('L1_EM15TAU12I-J25').setLogic( d.R2TOPO_1DISAMB_EM15his2_TAU12abi_J25ab & physcond)
 
             MenuItem('L1_DR-EM15TAU12I').setLogic( d.R2TOPO_DISAMB_0DR28_EM15his2_TAU12abi & physcond)
-            MenuItem('L1_DR-EM15TAU12I-J25').setLogic( d.TOPO_1DISAMB_J25ab_0DR28_EM15his2_TAU12abi & physcond)
+            MenuItem('L1_DR-EM15TAU12I-J25').setLogic( d.TOPO_2DISAMB_J25ab_0DR28_EM15his2_TAU12abi & physcond)
             MenuItem('L1_TAU20ITAU12I-J25').setLogic( d.R2TOPO_1DISAMB_TAU20abi_TAU12abi_J25ab & physcond)
             MenuItem('L1_DR25-TAU20ITAU12I').setLogic( d.TOPO_0DR25_TAU20abi_TAU12abi & physcond)
 
@@ -1742,6 +1743,7 @@ class ItemDef:
             MenuItem('L1_BPH-2M9-2MU6'     ).setLogic( d.R2TOPO_2INVM9_2MU6ab & d.MU6.x(2) & physcond)
 
             MenuItem('L1_BPH-8M15-2MU6_BPH-0DR22-2MU6'    ).setLogic( d.R2TOPO_8INVM15_2MU6ab & d.R2TOPO_0DR22_2MU6ab & d.MU6.x(2) & physcond)           # 96% for Upsi
+            MenuItem('L1_BPH-8M15-2MU4-BO'    ).setLogic( d.TOPO_8INVM15_2CMU4ab & physcond)           # 96% for Upsi
 
             # Barrel and BarrelOnly items w/o topo selection
             MenuItem('L1_2MU4-B'    ).setLogic( d.MU4.x(2) & d.R2TOPO_MULT_CMU4ab & physcond)              # 2MU4_Barrel

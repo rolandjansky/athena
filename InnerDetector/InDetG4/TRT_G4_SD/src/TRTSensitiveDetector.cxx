@@ -70,7 +70,7 @@ TRTSensitiveDetector::TRTSensitiveDetector(const std::string& name, const std::s
 // Called by TRTSensitiveDetector
 // Once per run
 
-void TRTSensitiveDetector::InitializeHitProcessing ATLAS_NOT_THREAD_SAFE () // Thread unsafe TRTParametersForBarrelHits, TRTParametersForEndCapHits  classes are used.
+void TRTSensitiveDetector::InitializeHitProcessing()
 {
   if(verboseLevel>4)
     {

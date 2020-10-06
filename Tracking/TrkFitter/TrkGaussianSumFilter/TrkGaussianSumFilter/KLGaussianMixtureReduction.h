@@ -7,10 +7,11 @@
  * @author Anthony Morley , Christos Anastopoulos
  * @date 26th November 2019
  *
- * The main purpose of the utilities here
- * are to facilitate the calculation of the
+ *
+ * @brief Uyilities to facilitate the calculation of the
  * divergence between components of the mixture
  * and the merging of similar componets.
+ *
  *
  * For a summary  of available methods look
  * https://arxiv.org/pdf/2001.00727.pdf
@@ -25,9 +26,9 @@
  * but we store the final distances to short in an array
  * of floats.
  *
+ *
  * For pairwise distance comparisons assuming 0 ... N-1 (N total elements )
  * The pairwise distance matrix  can be represented in a triangular array:
- *
  * [ (1,0) ] <br>
  * [ (2,0), (2,1) ] <br>
  * [ (3,0), (3,1), (3,2)] <br>
@@ -97,27 +98,21 @@ struct Component1D
 };
 
 /**
- * @brief Helper struct to map position in
- * triangular array to I, J indices
- */
-struct triangularToIJ
-{
-  int32_t I = -1;
-  int32_t J = -1;
-};
-
-/**
  * @brief Merge the componentsIn and return
  * which componets got merged
  *
- * The input component array is assumed to be
- * GSFUtils::alignment aligned.
+ * inputSize is expected to be >0, <128
+ * and reducedSize < inputsize. Invalid input
+ * will cause a runtime exception
  *
+ * Furthemore, the input component array is assumed to be
+ * GSFUtils::alignment aligned.
+ * Can be created via the AlignedDynArray.
  */
-std::vector<std::pair<int32_t, int32_t>>
+std::vector<std::pair<int16_t, int16_t>>
 findMerges(Component1D* componentsIn,
-           const int32_t inputSize,
-           const int32_t reducedSize);
+           const int16_t inputSize,
+           const int16_t reducedSize);
 
 /**
  * @brief For finding the index of the minumum pairwise distance

@@ -11,10 +11,11 @@ class GeoFullPhysVol;
 class GeoVPhysVol;
 class PixelLegacyManager;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelOldFrame : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelOldFrame : public GeoVPixelFactory {
  public:
-  GeoPixelOldFrame();
-  virtual GeoVPhysVol* Build();
+  GeoPixelOldFrame(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   void BuildInBarrel(GeoFullPhysVol * parent);
   void BuildOutBarrel(GeoFullPhysVol * parent);

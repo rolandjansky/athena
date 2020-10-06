@@ -1,23 +1,11 @@
-################################################################################
-# Package: VP1CaloReadoutSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1CaloReadoutSystems )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          graphics/VP1/VP1Base
-                          PRIVATE
-                          LArCalorimeter/LArGeoModel/LArHV
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
-			  DetectorDescription/GeoPrimitives
-                          graphics/VP1/VP1Utils )
-
 # External dependencies:
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets )
-
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -27,7 +15,6 @@ set( CMAKE_AUTOMOC TRUE )
 set( CMAKE_AUTORCC TRUE )
 # to let CMake find .h files automatically-generated from .ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 
 # Component(s) in the package:
 atlas_add_library( VP1CaloReadoutSystems VP1CaloReadoutSystems/*.h src/*.h src/*.cxx src/*.qrc  

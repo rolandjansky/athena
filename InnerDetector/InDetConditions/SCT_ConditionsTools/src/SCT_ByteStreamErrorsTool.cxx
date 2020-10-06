@@ -388,7 +388,7 @@ unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId
 }
 
 std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCacheUpdate(const Identifier& moduleId, const EventContext& ctx,
-                                                                                          std::map<Identifier, unsigned int>& whereExected) const {
+                                                                                          std::unordered_map<Identifier, unsigned int>& whereExected) const {
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool getErrorCodeWithCacheUpdate " << moduleId);
   auto it{whereExected.find(moduleId)};
   if (it != whereExected.end()) return std::make_pair(StatusCode::SUCCESS, it->second);

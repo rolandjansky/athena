@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOLINC_H
 #define TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOLINC_H 1
@@ -16,6 +16,7 @@
 #include "ITrigEgammaPrecisionPhotonHypoTool.h"
 #include "PATCore/AcceptData.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 /**
  * @class Implementation of the Egamma selection for Photons
@@ -44,8 +45,14 @@ class TrigEgammaPrecisionPhotonHypoToolInc : public extends<AthAlgTool, ITrigEga
   Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
 
+ /* Calo isolation cut */
+  float m_RelEtConeCut;
+
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   ToolHandle<IAsgPhotonIsEMSelector> m_egammaPhotonCutIDTool;
+/*Luminosity info*/
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "AveIntPerXKey", "EventInfo.AveIntPerXDecor", "Decoration for Average Interaction Per Crossing" };
+
   int findCutIndex( float eta ) const;
 }; 
 

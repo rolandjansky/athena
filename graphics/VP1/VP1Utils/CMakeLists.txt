@@ -1,44 +1,7 @@
-################################################################################
-# Package: VP1Utils
-################################################################################
-# Author: Thomas Kittelmann
-# Author: Riccardo Maria BIANCHI <rbianchi@cern.ch>
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1Utils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaKernel
-   Control/StoreGate
-   DetectorDescription/GeoPrimitives
-   Event/EventPrimitives
-   GaudiKernel
-   graphics/VP1/VP1Base
-   PRIVATE
-   Calorimeter/CaloIdentifier
-   Calorimeter/CaloTTDetDescr
-   Control/CxxUtils
-   DetectorDescription/AtlasDetDescr
-   DetectorDescription/GeoModel/GeoModelUtilities
-   DetectorDescription/GeoModel/GeoSpecialShapes
-   DetectorDescription/Identifier
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelReadoutGeometry
-   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-   InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-   LArCalorimeter/LArGeoModel/LArReadoutGeometry
-   MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-   MuonSpectrometer/MuonIdHelpers
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-   TileCalorimeter/TileDetDescr
-   Tracking/TrkDetDescr/TrkSurfaces
-   Tracking/TrkEvent/TrkRIO_OnTrack
-   graphics/VP1/VP1HEPVis )
 
 # External dependencies:
 find_package( CLHEP ) # TODO: to be removed when fully migrated to Eigen-based GeoTrf
@@ -97,6 +60,6 @@ atlas_add_library( VP1Utils ${SOURCES} ${HEADERS}
    GeoPrimitives Qt5::Core
    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${COIN3D_LIBRARIES}
    ${EIGEN_LIBRARIES} CxxUtils
-   GeoModelUtilities
+   GeoModelUtilities GeoSpecialShapes
    VP1HEPVis )
 endif()

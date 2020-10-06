@@ -102,7 +102,7 @@ void TRTParametersForEndCapHits::DefineParameters() const
 
 // Called by TRTParametersForEndCapHits
 
-void TRTParametersForEndCapHits::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTOutputFile class is used.
+void TRTParametersForEndCapHits::PrintParameters() const
 {
   if (m_verboseLevel>5) { G4cout << "######### Method TRTParametersForEndCapHits::PrintParameters" << G4endl; }
 

@@ -1,12 +1,13 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef _KitManager_H_
-#define _KitManager_H_
+#ifndef TRKRIO_ONTRACKCREATOR_KITMANAGER_H
+#define TRKRIO_ONTRACKCREATOR_KITMANAGER_H
 
 #include <ostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include "CxxUtils/checker_macros.h"
 
 class KitManagerBase
@@ -19,6 +20,7 @@ protected:
 
   bool registerKit(const std::string& name, const void *a_kit);
 
+  mutable std::mutex m_mutex;
   std::map<std::string, const void * > m_registry;
 public:
   void dumpKits(std::ostream &out) const;
@@ -45,11 +47,12 @@ public:
   }
 
   static
-  KitManager<T_KitInterface>& instance ATLAS_NOT_THREAD_SAFE () {
+  KitManager<T_KitInterface>& instance() {
     /* in C++11 this is to happen once the issue is that we return a ref
      * rather than const ref. To be thread safe we need to have static const */
-    static std::unique_ptr<KitManager<T_KitInterface>> s_instance = std::make_unique<KitManager<T_KitInterface>>();
-    return *s_instance;
+    // Map is protected with a lock.
+    static KitManager<T_KitInterface> s_instance ATLAS_THREAD_SAFE;
+    return s_instance;
   }
 };
 

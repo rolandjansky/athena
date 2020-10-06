@@ -47,14 +47,21 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
-        etcut_sequence = [self.getFastCalo(), self.getFastPhoton(), self.getPrecisionCaloPhoton()]
-        photon_sequence = [self.getFastCalo(), self.getFastPhoton(), self.getPrecisionCaloPhoton(), self.getPrecisionPhoton()]
         stepDictionary = {
-            "etcut": etcut_sequence,
-            "etcutetcut": etcut_sequence,
-            "loose": photon_sequence,
-            "medium": photon_sequence,
-            "tight": photon_sequence,
+            "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
+            "etcutetcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
+            "loose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "medium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "tight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "looseicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "mediumicaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "tighticaloloose":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "looseicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "mediumicalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "tighticalomedium":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "looseicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "mediumicalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
+            "tighticalotight":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'], 
         }
         
         ## This needs to be configured by the Egamma Developer!!
@@ -73,7 +80,8 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
         for step in steps:
             log.debug('Adding photon trigger step ' + str(step))
-            chainSteps+=[step]
+            chainstep = getattr(self, step)()
+            chainSteps+=[chainstep]
     
         myChain = self.buildChain(chainSteps)
         return myChain

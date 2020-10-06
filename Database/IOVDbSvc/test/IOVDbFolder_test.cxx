@@ -79,13 +79,13 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
   //tests construction
   BOOST_AUTO_TEST_CASE(IOVDbFolderConstruction){
     //note:default construction is not explicitly deleted; perhaps it should be.
-    BOOST_CHECK_NO_THROW(IOVDbFolder f(&(connectionFixture.connection), parserFixture.parser, parserFixture.log, clidSvc.get(),false));
+    BOOST_CHECK_NO_THROW(IOVDbFolder f(&(connectionFixture.connection), parserFixture.parser, parserFixture.log, clidSvc.get(), nullptr, false));
   }
   BOOST_FIXTURE_TEST_SUITE(IOVDbFolderMethods, TestFolderFixture)
     BOOST_AUTO_TEST_CASE(PublicMethods){
       //preload tests
       IOVDbConn connection("sqlite://;schema=IOVDbFolderTest.db;dbname=OFLP200", true, parserFixture.log);
-      IOVDbFolder iovDbFolder(&connection, parserFixture.parser, parserFixture.log, clidSvc.get(),false,true);
+      IOVDbFolder iovDbFolder(&connection, parserFixture.parser, parserFixture.log, clidSvc.get(), nullptr, false, true);
       BOOST_TEST_CHECKPOINT("After instantiation, but before any loading method call");
       BOOST_TEST(iovDbFolder.folderName() == "/key1");
       BOOST_TEST(iovDbFolder.key() == "/key1");

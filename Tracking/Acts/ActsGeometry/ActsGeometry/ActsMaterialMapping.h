@@ -16,7 +16,7 @@
 
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/GeometryIdentifier.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Material/SurfaceMaterialMapper.hpp"
 
@@ -34,10 +34,10 @@ namespace Acts {
   class IVolumeMaterial;
 
   using SurfaceMaterialMap
-      = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
+      = std::map<GeometryIdentifier, std::shared_ptr<const ISurfaceMaterial>>;
 
   using VolumeMaterialMap
-      = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
+      = std::map<GeometryIdentifier, std::shared_ptr<const IVolumeMaterial>>;
 
   using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
 }

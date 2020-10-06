@@ -18,19 +18,17 @@
 // fwd declaration
 namespace InDetDD {class PixelDetectorManager;}
 
-class ATLAS_NOT_THREAD_SAFE GeoVPixelFactory { // static member variables are used.
+class GeoVPixelFactory {
  public:
-  GeoVPixelFactory();
+  GeoVPixelFactory(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr);
   virtual ~GeoVPixelFactory();
-  virtual GeoVPhysVol* Build( )=0;
-  static void SetDDMgr(InDetDD::PixelDetectorManager* mgr);
-  static void setGeometryManager(PixelGeometryManager * geometryManger);
+  virtual GeoVPhysVol* Build()=0;
      
  protected:
   PixelGeometryManager* m_gmt_mgr;
   InDetMaterialManager* m_mat_mgr;
-  static InDetDD::PixelDetectorManager* m_DDmgr;
-  static PixelGeometryManager * s_geometryManager;
+  InDetDD::PixelDetectorManager* m_DDmgr;
   const double m_epsilon;
 
  private:

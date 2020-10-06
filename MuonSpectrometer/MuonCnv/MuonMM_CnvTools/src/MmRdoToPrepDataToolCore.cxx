@@ -24,9 +24,7 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_fullEventDone(false),
-  m_mmPrepDataContainer(nullptr),
-  m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this),
-  m_calibTool("Muon::NSWCalibTool/NSWCalibTool", this)
+  m_mmPrepDataContainer(nullptr)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
@@ -37,8 +35,6 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
 		  "Muon::MMPrepDataContainer to record");
   
   declareProperty("MergePrds", m_merge = true);
-  declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
-  declareProperty("NSWCalibTool", m_calibTool);
   declareProperty("singleStripChargeCut", m_singleStripChargeCut = 6241 * 0.4);   // 0.4 fC from BB5 cosmics
 }
 

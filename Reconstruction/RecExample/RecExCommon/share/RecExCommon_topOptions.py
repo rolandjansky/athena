@@ -676,20 +676,6 @@ if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
 if recAlgs.doMonteCarloReact():
     protectedInclude ("MonteCarloReactTools/MonteCarloReact_for_RecExCommon.py")
 
-# run monitoring
-# ----------------------------------------------------------------------------
-# Monitoring Algorithms and Tools
-# ----------------------------------------------------------------------------
-
-pdr.flag_domain('monitoring')
-if rec.doMonitoring():
-    protectedInclude ("AthenaMonitoring/DataQualitySteering_jobOptions.py")
-
-
-
-# run"Fast Phsyics Monitoring"
-if rec.doFastPhysMonitoring():
-    protectedInclude("FastPhysMonExample/FastPhysicsMonitoring_jobOptions.py")
 
 # ----------------------------------------------------------------------------
 
@@ -980,6 +966,7 @@ if rec.doFileMetaData():
 
 
     pass
+
 
 ##--------------------------------------------------------
 ###=== Only run reco on events that pass selected triggers
@@ -1420,21 +1407,6 @@ if rec.doAOD() or rec.doWriteAOD():
         protectedInclude ("HIRecExample/heavyion_postOptionsAOD.py")
 
 
-if rec.doWriteAOD() or rec.doWriteESD(): #For xAOD writing:
-    try:
-        if rec.doFileMetaData(): #needed to have xAOD readable outside athena
-            theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-            if rec.doWriteAOD():
-                StreamAOD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            if rec.doWriteESD():
-                StreamESD_Augmented.AddMetaDataItem("xAOD::EventFormat#EventFormat")
-                pass
-            pass
-        pass
-    except Exception:
-     treatException("Problem with extra attributes for xAOD output")
-
 try:
   # event dumper at the very end
   if rec.doPyDump():
@@ -1610,6 +1582,21 @@ if rec.readAOD():
     ServiceMgr += AthenaEventLoopMgr()
     ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
     logRecExCommon_topOptions.info("AOD reading case: Set EventPrintoutInterval=100")
+
+# run monitoring
+# ----------------------------------------------------------------------------
+# Monitoring Algorithms and Tools
+# ----------------------------------------------------------------------------
+
+pdr.flag_domain('monitoring')
+if rec.doMonitoring():
+    protectedInclude ("AthenaMonitoring/DataQualitySteering_jobOptions.py")
+
+
+
+# run"Fast Phsyics Monitoring"
+if rec.doFastPhysMonitoring():
+    protectedInclude("FastPhysMonExample/FastPhysicsMonitoring_jobOptions.py")
 
 
 ###################

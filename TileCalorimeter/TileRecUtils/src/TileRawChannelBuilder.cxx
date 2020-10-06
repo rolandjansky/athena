@@ -468,10 +468,11 @@ const char * TileRawChannelBuilder::BadPatternName(float ped) {
       "11 - jump down in last sample in low gain",
       "12 - jump up in one sample above const",
       "13 - jump down in one sample below const",
-      "14 - unknown error"
+      "14 - unrecoverable timing jump"
+      "15 - unknown error"
   };
   
-  return errname[std::min(24, std::max(0, int((ped + 500) * 1e-4)))];
+  return errname[std::min(25, std::max(0, int((ped + 500) * 1e-4)))];
 }
 
     
@@ -574,8 +575,10 @@ StatusCode TileRawChannelBuilder::commitContainer()
             ATH_MSG_VERBOSE( "Ch "<<m_tileHWID->to_string(adc_id)
                              <<" amp " << rch->amplitude() << " ped " << rch->pedestal() 
                              << " corr " << corr );
-            rch->setAmplitude (rch->amplitude() - corr);
-            rch->setPedestal (rch->pedestal() + corr);
+            if (corr<10000.) {
+              rch->setAmplitude (rch->amplitude() - corr); // just baseline shift
+            }
+            rch->setPedestal (rch->pedestal() + corr); // baseline shift or change in error status
           } else {
             ATH_MSG_WARNING(" Problem in applying noise corrections " 
                             << " can not find channel in DSP container with HWID "

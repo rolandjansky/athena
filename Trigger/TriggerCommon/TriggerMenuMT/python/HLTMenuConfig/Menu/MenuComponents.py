@@ -517,15 +517,16 @@ class CAMenuSequence(MenuSequence):
 
 class Chain(object):
     """Basic class to define the trigger menu """
-    __slots__='name','steps','vseeds','L1decisions'
-    def __init__(self, name, ChainSteps, L1Thresholds):
+    __slots__ ='name','steps','nSteps','alignmentGroups','vseeds','L1decisions'
+    def __init__(self, name, ChainSteps, L1Thresholds, nSteps = [], alignmentGroups = []):
         """
         Construct the Chain from the steps
         Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages
         """
         self.name = name
         self.steps=ChainSteps
-
+        self.nSteps = nSteps
+        self.alignmentGroups = alignmentGroups
         self.vseeds=L1Thresholds
 
         from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
@@ -776,10 +777,12 @@ class ChainStep(object):
         # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
-
+        
+        # This check is commented out (temporarily before can be removed completely) to support signatures wiht one sequence and multiplicty > 1, e.g. HLT_2e3
+        # In such case there is only one sequence, however the multiplicty is == 2 
         # sanity check on inputs
-        if len(Sequences) != len(multiplicity):
-            raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
+        #if len(Sequences) != len(multiplicity):
+        #    raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
 
         self.name = name
         self.sequences=Sequences

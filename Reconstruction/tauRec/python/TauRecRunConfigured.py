@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -57,13 +57,8 @@ class TauRecRunConfigured ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from tauRec.tauRecFlags import tauFlags
         for tool in tools :
-            # if tool.__slots__['calibFolder'].count('TauDiscriminant'):
-            #     tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
-            # else :
-            #     tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             if tool not in ToolSvc : ToolSvc += tool
-            pass
 
     def TauRunnerAlgHandle(self):
         return self._TauRunnerAlgHandle

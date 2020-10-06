@@ -32,7 +32,7 @@
 #include <math.h>
 
 
-SupportRailFactory::SupportRailFactory(const InDetDD::AthenaComps * athenaComps, 
+SupportRailFactory::SupportRailFactory(InDetDD::AthenaComps * athenaComps, 
 				       InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
@@ -45,7 +45,7 @@ SupportRailFactory::~SupportRailFactory()
 
 
 //## Other Operations (implementation)
-void SupportRailFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread usnafe rdbAccessSvc and materialManager methods are used.
+void SupportRailFactory::create(GeoPhysVol *mother)
 {
 
   DecodeVersionKey atlasVersionKey(geoDbTagSvc(),"ATLAS");

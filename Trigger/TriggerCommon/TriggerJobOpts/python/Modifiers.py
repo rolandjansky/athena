@@ -589,27 +589,6 @@ class forceMuonDataPrep(_modifier):
     def preSetup(self):
         pass  # the actual modifier is implemented in share/Trigger_topOptions_standalone.py
 
-class FakeLVL1(_modifier):
-    """
-    setup fake LVL1 RoIs
-    """
-    def postSetup(self):
-        from TrigFake.TrigFakeConf import FakeLvl1RoIatFixedEtaPhi
-        fake = FakeLvl1RoIatFixedEtaPhi()
-        fake.FakeMuonRoiPhi=TriggerFlags.CosmicSlice.FakeLVL1ROIPhi()
-        fake.FakeMuonRoiEta=TriggerFlags.CosmicSlice.FakeLVL1ROIEta()
-        #fake.FakeMuonRoiEta=0.5
-        fake.FakeMuonRoiLabel=TriggerFlags.CosmicSlice.FakeLVL1Threshold()
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.LvlConverterTool =  fake
-            if (TriggerFlags.CosmicSlice.forceLVL2Accept()):
-                svcMgr.HltEventLoopMgr.ForceLvl2Accept =  True
-            if (TriggerFlags.CosmicSlice.filterEmptyROB()):
-                svcMgr.ROBDataProviderSvc.filterEmptyROB=True
-
-
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
@@ -1288,37 +1267,6 @@ class autoConditionsTag(_modifier):
         from RecExConfig.AutoConfiguration import ConfigureConditionsTag
         ConfigureConditionsTag()
 
-
-class enableCostD3PD(_modifier):
-    """
-    Enables creation of Cost D3PD during trigger execution
-    Should be used in conjunction with enableCostMonitoring
-    D3PDMaker packages must be in the release or compiled manually
-    """
-    def postSetup(self):
-        import imp
-        try:
-            imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include, IncludeError
-            include("TrigCostD3PDMaker/TrigCostD3PDMaker_prodJobOFragment.py")
-        except IncludeError:
-            log.error('TrigCostD3PDMaker packages not available, will not produce CostMonitoring D3PD.')
-
-class enableRateD3PD(_modifier):
-    """
-    Enables creation of Rate D3PD during trigger execution
-    Should be used in conjunction with enableCostMonitoring
-    D3PDMaker packages must be in the release or compiled manually
-    """
-    def postSetup(self):
-        import imp
-        try:
-            imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include, IncludeError
-            include("TrigCostD3PDMaker/TrigRateD3PDMaker_prodJobOFragment.py")
-        except IncludeError:
-            log.warning('TrigCostD3PDMaker packages not available, will not produce RateMonitoring D3PD.')
-
 class enableCostDebug(_modifier):
     """
     Enables cost debugging options
@@ -1375,14 +1323,6 @@ class doEnhancedBiasWeights(_modifier):
             costConfig.postSetupEBWeighting()
         except AttributeError:
             log.warning('TrigCostMonitor has no EnhancedBias postSetup option...')
-        # Try to put this in D3PD (will only work offline), still goes in the BS anyway
-        import imp
-        try:
-            imp.find_module('TrigCostD3PDMaker')
-            from AthenaCommon.Include import include, ImportError
-            include("TrigCostD3PDMaker/TrigEBWeightD3PDMaker_prodJobOFragment.py")
-        except ImportError:
-            log.warning('TrigCostD3PDMaker packages not available, will not produce Enhanced Bias weighting D3PD.')
 
 class BeamspotFromSqlite(_modifier):
     """

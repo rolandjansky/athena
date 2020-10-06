@@ -175,11 +175,8 @@ StatusCode PoolSvc::io_reinit() {
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::setupPersistencySvc() {
+   clearState();
    ATH_MSG_INFO("Setting up APR FileCatalog and Streams");
-   if (m_catalog != nullptr) {
-      m_catalog->commit();
-      delete m_catalog; m_catalog = nullptr;
-   }
    m_catalog = createCatalog();
    if (m_catalog != nullptr) {
       m_catalog->start();
@@ -187,15 +184,6 @@ StatusCode PoolSvc::setupPersistencySvc() {
       ATH_MSG_FATAL("Failed to setup POOL File Catalog.");
       return(StatusCode::FAILURE);
    }
-   // Cleanup persistency service
-   for (const auto& persistencySvc : m_persistencySvcVec) {
-      delete persistencySvc;
-   }
-   m_persistencySvcVec.clear();
-   for (const auto& persistencyMutex : m_pers_mut) {
-      delete persistencyMutex;
-   }
-   m_pers_mut.clear();
    // Setup a persistency services
    m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).release()); // Read Service
    m_pers_mut.push_back(new CallMutex);
@@ -242,8 +230,9 @@ StatusCode PoolSvc::stop() {
    }
    return(retError ? StatusCode::FAILURE : StatusCode::SUCCESS);
 }
+
 //__________________________________________________________________________
-StatusCode PoolSvc::finalize() {
+void PoolSvc::clearState() {
    // Cleanup persistency service
    for (const auto& persistencySvc : m_persistencySvcVec) {
       delete persistencySvc;
@@ -252,11 +241,17 @@ StatusCode PoolSvc::finalize() {
    for (const auto& persistencyMutex : m_pers_mut) {
       delete persistencyMutex;
    }
+   m_mainOutputLabel.clear();
+   m_contextLabel.clear();
    m_pers_mut.clear();
    if (m_catalog != nullptr) {
       m_catalog->commit();
       delete m_catalog; m_catalog = nullptr;
    }
+}
+//__________________________________________________________________________
+StatusCode PoolSvc::finalize() {
+   clearState();
    return(::AthService::finalize());
 }
 //__________________________________________________________________________
@@ -268,18 +263,7 @@ StatusCode PoolSvc::io_finalize() {
          ATH_MSG_WARNING("Cannot disconnect output Stream " << i);
       }
    }
-   for (const auto& persistencySvc : m_persistencySvcVec) {
-      delete persistencySvc;
-   }
-   m_persistencySvcVec.clear();
-   for (const auto& persistencyMutex : m_pers_mut) {
-      delete persistencyMutex;
-   }
-   m_pers_mut.clear();
-   if (m_catalog != nullptr) {
-      m_catalog->commit();
-      delete m_catalog; m_catalog = nullptr;
-   }
+   clearState();
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -607,6 +591,7 @@ StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextI
       ATH_MSG_ERROR("connect failed persSvc = " << persSvc << " type = " << type);
       return(StatusCode::FAILURE);
    }
+
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

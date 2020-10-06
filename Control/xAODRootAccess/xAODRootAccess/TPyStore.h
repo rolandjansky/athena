@@ -30,8 +30,8 @@ namespace xAOD {
    class TPyStore : public TStore {
 
    public:
-      /// Default constructor
-      TPyStore();
+      /// Inherit the constructor(s) of @c xAOD::TStore
+      using TStore::TStore;
 
       /// Function checking if an object with a given key and type is available
       ::Bool_t contains( const std::string& key,

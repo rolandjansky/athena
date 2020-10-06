@@ -6,6 +6,9 @@
 #define TAUREC_TAUSUBSTRUCTUREBUILDER_H
 
 #include "tauRecTools/TauRecToolBase.h"
+#include "tauRecTools/ITauVertexCorrection.h"
+
+#include "AsgTools/ToolHandle.h"
 
 /**
  * @brief Calculate variables from the tau substructure.
@@ -26,16 +29,15 @@ class TauSubstructureVariables : public TauRecToolBase
 
         ~TauSubstructureVariables();
 
+        virtual StatusCode initialize() override;
         virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
     private:
-        // enable cell origin correction
-        // eta and phi of the cells are corrected wrt to the origin of the tau vertex
-	bool m_doVertexCorrection;
-
 	// use shower subtracted clusters with PFlow jet seeds
-	bool m_incShowerSubtr;
-
+	bool m_useSubtractedCluster;
+  
+    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
+      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
 
 #endif

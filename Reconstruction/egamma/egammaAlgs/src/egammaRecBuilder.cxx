@@ -21,32 +21,23 @@
 
 egammaRecBuilder::egammaRecBuilder(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
-// =================================================================
 StatusCode
 egammaRecBuilder::initialize()
 {
-  // initialize method
-
-  ATH_MSG_DEBUG("Initializing egammaRecBuilder");
-
   // First the data handle keys
   ATH_CHECK(m_inputTopoClusterContainerKey.initialize());
   ATH_CHECK(m_egammaRecContainerKey.initialize());
-
   //////////////////////////////////////////////////
   // retrieve track match builder
   CHECK(RetrieveEMTrackMatchBuilder());
   // retrieve conversion builder
   CHECK(RetrieveEMConversionBuilder());
-
-  ATH_MSG_DEBUG("Initialization completed successfully");
   return StatusCode::SUCCESS;
 }
 
-// ====================================================================
 StatusCode
 egammaRecBuilder::RetrieveEMTrackMatchBuilder()
 {
@@ -66,7 +57,6 @@ egammaRecBuilder::RetrieveEMTrackMatchBuilder()
     ATH_MSG_ERROR("Unable to retrieve " << m_trackMatchBuilder);
     return StatusCode::FAILURE;
   }
-    ATH_MSG_DEBUG("Retrieved Tool " << m_trackMatchBuilder);
 
   return StatusCode::SUCCESS;
 }
@@ -74,9 +64,7 @@ egammaRecBuilder::RetrieveEMTrackMatchBuilder()
 StatusCode
 egammaRecBuilder::RetrieveEMConversionBuilder()
 {
-  //
   // retrieve EMConversionBuilder tool
-  //
   if (!m_doConversions) {
     m_conversionBuilder.disable();
     return StatusCode::SUCCESS;
@@ -89,20 +77,11 @@ egammaRecBuilder::RetrieveEMConversionBuilder()
     ATH_MSG_ERROR("Unable to retrieve " << m_conversionBuilder);
     return StatusCode::FAILURE;
   }
-    ATH_MSG_DEBUG("Retrieved Tool " << m_conversionBuilder);
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-egammaRecBuilder::finalize()
-{
-  // finalize method
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-egammaRecBuilder::execute_r(const EventContext& ctx) const
+egammaRecBuilder::execute(const EventContext& ctx) const
 {
   // athena execute method
 

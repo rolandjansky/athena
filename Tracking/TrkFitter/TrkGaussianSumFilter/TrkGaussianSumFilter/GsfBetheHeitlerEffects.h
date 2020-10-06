@@ -26,36 +26,9 @@ class GsfBetheHeitlerEffects
   , virtual public IBetheHeitlerEffects
 {
 
-private:
-  /** Helper class for construction and evaluation of polynomial */
-  class Polynomial
-  {
-  public:
-    // Default constructor
-    Polynomial() = default;
-
-    /** Constructor from a vector of coefficients (in decreasing order of powers
-     * of x */
-    Polynomial(const std::vector<double>& coefficients)
-      : m_coefficients(coefficients){};
-
-    // Evaluation of the polynomial for given material thickness (t)
-    double operator()(const double& t) const
-    {
-      double sum(0.);
-      std::vector<double>::const_iterator coefficient = m_coefficients.begin();
-
-      for (; coefficient != m_coefficients.end(); ++coefficient) {
-        sum = t * sum + (*coefficient);
-      }
-
-      return sum;
-    }
-
-  private:
-    std::vector<double> m_coefficients;
-  };
-
+public:
+  static constexpr int maxNumberofComponents = 8;
+  static constexpr int maxOrderPolynomial = 10;
   struct ComponentValues
   {
     // Default ctors/dtor/assignment operators
@@ -76,7 +49,41 @@ private:
     double variance;
   };
 
-public:
+  using MixtureParameters = std::array<ComponentValues, maxNumberofComponents>;
+
+  /** Helper class for construction and evaluation of polynomial */
+  class Polynomial
+  {
+  public:
+    Polynomial() = default;
+    ~Polynomial() = default;
+    Polynomial(const Polynomial&) = default;
+    Polynomial& operator=(const Polynomial&) = default;
+    Polynomial(Polynomial&&) = default;
+    Polynomial& operator=(Polynomial&&) = default;
+    
+    /** Constructor from a vector of coefficients 
+     * (in decreasing order of powers of x) */
+    Polynomial(const std::vector<double>& coefficients)
+      : m_coefficients(coefficients){};
+
+    // Evaluation of the polynomial for given material thickness (t)
+    double operator()(const double& t) const
+    {
+      double sum(0.);
+      std::vector<double>::const_iterator coefficient = m_coefficients.begin();
+
+      for (; coefficient != m_coefficients.end(); ++coefficient) {
+        sum = t * sum + (*coefficient);
+      }
+
+      return sum;
+    }
+
+  private:
+    std::vector<double> m_coefficients;
+  };
+
   GsfBetheHeitlerEffects(const std::string&,
                          const std::string&,
                          const IInterface*);
@@ -86,9 +93,6 @@ public:
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
 
-  /** AlgTool finalise method */
-  virtual StatusCode finalize() override final;
-
   virtual void compute(Trk::GSFEnergyLossCache& cache,
                        const ComponentParameters& componentParameters,
                        const MaterialProperties& materialProperties,
@@ -97,46 +101,35 @@ public:
                        ParticleHypothesis particleHypothesis =
                          nonInteracting) const override final;
 
-  typedef std::vector<ComponentValues> MixtureParameters;
 private:
-
   // Read polynomial fit parameters from a specified file
   bool readParameters();
 
   // Read coeffients for a single polynomial fit
   Polynomial readPolynomial(std::ifstream&, const int);
 
-  // Get mixture parameters
-  void getMixtureParameters(const double, MixtureParameters&) const;
-
-  // Get mixture parameters
-  void getMixtureParametersHighX0(const double, MixtureParameters&) const;
-
-private:
-  std::string m_parameterisationFileName;
-
-  int m_numberOfComponents;
-  int m_transformationCode;
   std::vector<Polynomial> m_polynomialWeights;
   std::vector<Polynomial> m_polynomialMeans;
   std::vector<Polynomial> m_polynomialVariances;
-
-  int m_correctionFlag;
-
-  std::string m_parameterisationFileNameHighX0;
-
-  int m_numberOfComponentsHighX0;
-  int m_transformationCodeHighX0;
   std::vector<Polynomial> m_polynomialWeightsHighX0;
   std::vector<Polynomial> m_polynomialMeansHighX0;
   std::vector<Polynomial> m_polynomialVariancesHighX0;
+
+  int m_numberOfComponents;
+  int m_transformationCode;
+  int m_correctionFlag;
+  int m_numberOfComponentsHighX0;
+  int m_transformationCodeHighX0;
 
   double m_singleGaussianRange;
   double m_lowerRange;
   double m_xOverRange;
   double m_upperRange;
-  bool m_useHighX0;
   double m_componentMeanCut;
+
+  bool m_useHighX0;
+  std::string m_parameterisationFileName;
+  std::string m_parameterisationFileNameHighX0;
 };
 
 }

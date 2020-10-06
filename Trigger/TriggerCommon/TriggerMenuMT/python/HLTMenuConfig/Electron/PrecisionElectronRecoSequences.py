@@ -27,11 +27,15 @@ def precisionElectronRecoSequence(RoIs):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
     import AthenaCommon.CfgMgr as CfgMgr
 
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'electron' )
+
     ## Taking Fast Track information computed in 2nd step ##
-    TrackCollection="TrigFastTrackFinder_Tracks_Electron"
-    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier")
+    #TrackCollection = IDTrigConfig.FT().trkTracksFTF()
+    ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier")
     
-    ViewVerifyTrk.DataObjects = [( 'TrackCollection' , 'StoreGateSvc+' + TrackCollection ),
+    ViewVerifyTrk.DataObjects = [ #( 'TrackCollection' , 'StoreGateSvc+' + TrackCollection ),
                                  ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
@@ -43,11 +47,6 @@ def precisionElectronRecoSequence(RoIs):
     # These objects must be loaded from SGIL if not from CondInputLoader
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                    ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-    
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
@@ -62,7 +61,7 @@ def precisionElectronRecoSequence(RoIs):
 
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
 
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking("electron", ViewVerifyTrk, inputFTFtracks= TrackCollection, rois= RoIs)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois= RoIs )
     PTSeq = parOR("precisionTrackingInElectrons", PTAlgs)
     trackParticles = PTTrackParticles[-1]
     

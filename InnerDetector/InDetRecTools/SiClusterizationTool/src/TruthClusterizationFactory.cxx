@@ -84,7 +84,7 @@ namespace InDet {
           // get the SimData and count the individual contributions
           auto simData = (simDataIter->second);
           //auto simDataDeposits = simData.getdeposits();
-          for( auto deposit : simData.getdeposits() ){
+          for( const auto& deposit : simData.getdeposits() ){
             //If deposit exists
             if (deposit.first){
               //Now iterate over all barcodes

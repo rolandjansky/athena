@@ -39,7 +39,7 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
 {
 
   ASG_TOOL_CLASS3(AsgElectronIsEMSelector, IAsgElectronIsEMSelector,
-		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
+		  IAsgEGammaIsEMSelector, IAsgSelectionTool)
 
   public:
   /** Standard constructor */

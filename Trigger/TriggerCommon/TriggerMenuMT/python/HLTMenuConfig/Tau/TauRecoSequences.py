@@ -11,6 +11,28 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 import AthenaCommon.CfgMgr as CfgMgr
 
+
+#Retrieve short name for tau signature that can be used as suffix to be appended to the names of alg/tools
+#Based on these names specific ID config is retrieved
+#This utilizes name of the reco sequence from which checks specific string pattern
+def _getTauSignatureShort( name ):
+    #Do we want to set empty string as dummy? Some assert check instead?
+    signature = ""
+    if "FTFId" in name:
+      signature = 'tauId'
+    elif "FTFTrackInView" in name:
+      signature = 'tauTrk'
+    elif "FTFTrackTwo" in name:
+      signature = 'tauTrkTwo'
+    elif "FTFIso" in name:
+      signature = 'tauIso'
+    elif "EF" in name:
+      signature = 'tauEF'
+
+    #Append tauCore?
+    return signature
+
+
 def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo                               = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
@@ -142,7 +164,6 @@ def tauCaloSequence(ConfigFlags):
     tauCaloRecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloRecoVDV" )
     tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                   ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
@@ -169,7 +190,6 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVARecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloMVARecoVDV" )
     tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                      ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                     ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                      ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
@@ -182,17 +202,20 @@ def tauIdTrackSequence( RoIs , name):
 
     tauIdTrackSequence = seqAND(name)
 
-    signName = "Tau"
+    signatureName = _getTauSignatureShort( name )
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( signatureName )
 
-    if ("Iso" in name) or ("TrackTwo" in name) or ("EF" in name):
-      signName = 'TauIso'
+    #TODO: are both FTF necessary for taus??
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+    viewAlgs, viewVerify = makeInDetAlgs(config = IDTrigConfig, rois = RoIs)
+
+
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator=signName, rois = RoIs )
-
-
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator=signName, rois = RoIs, viewVerifier = "tauViewDataVerifier" )
+    #FIXME: are both FTF necessary for taus??
+    #viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs)
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs, viewVerifier = 'tauViewDataVerifierName')
 
     viewVerify.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
@@ -206,11 +229,6 @@ def tauIdTrackSequence( RoIs , name):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-
     if globalflags.InputFormat.is_bytestream():
       viewVerify.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
@@ -220,16 +238,13 @@ def tauIdTrackSequence( RoIs , name):
 
     for viewAlg in viewAlgs:
        tauIdTrackSequence += viewAlg
-       if "TrigFastTrackFinder" in  viewAlg.name():
-         TrackCollection = viewAlg.TracksName
-       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():          
-         TrackParticlesName = viewAlg.TrackParticlesName
+
 
     if "FTFTrackInView" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = TrackParticlesName, step = "Track")
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT.tracksFTF(), step = "Track")
       tauIdTrackSequence += tauPreselectionAlg
     elif "TrackTwo" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = TrackParticlesName, step = "TrackTwo")
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT.tracksFTF(), step = "TrackTwo")
       tauIdTrackSequence += tauPreselectionAlg      
 
     #Precision Tracking
@@ -238,22 +253,10 @@ def tauIdTrackSequence( RoIs , name):
     PTTrackParticles = [] #List of TrackParticleKeys
     
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-
-    precName = ""
-    if "FTFId" in name:
-      precName = 'tauId'
-    elif "FTFTrackInView" in name:
-      precName = 'tauTrk'
-    elif "FTFTrackTwo" in name:
-      precName = 'tauTrkTwo'
-    elif "FTFIso" in name:
-      precName = 'tau'
-    elif "EF" in name:
-      precName = 'tauEF'
-
-
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( precName,  verifier = False, rois = RoIs, inputFTFtracks= TrackCollection )
-    PTSeq = parOR("precisionTrackingIn"+precName, PTAlgs  )
+    #When run in a different view than FTF some data dependencies needs to be loaded through verifier
+    #Pass verifier as an argument and it will automatically append necessary DataObjects@NOTE: Don't provide any verifier if loaded in the same view as FTF
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = False, rois = RoIs )
+    PTSeq = parOR("precisionTrackingIn"+signatureName, PTAlgs  )
 
     #Get last tracks from the list as input for other alg       
     tauIdTrackSequence += PTSeq
@@ -279,8 +282,12 @@ def tauCoreTrackSequence( RoIs, name ):
 
     tauCoreTrackSequence = seqAND(name)
 
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'tauCore' )
+
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature='TauCore', separateTrackParticleCreator="TauCore", rois = RoIs )
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
 
     for viewAlg in viewAlgs:
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
@@ -290,11 +297,6 @@ def tauCoreTrackSequence( RoIs, name ):
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),#For some reason not picked up properly
                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 
-
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
 

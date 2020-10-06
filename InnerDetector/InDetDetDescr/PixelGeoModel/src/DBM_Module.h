@@ -24,11 +24,12 @@ namespace InDetDD {
   class PixelDiodeMatrix;
 }
 
-class ATLAS_NOT_THREAD_SAFE DBM_Module : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class DBM_Module : public GeoVPixelFactory {
   public:
 
-  DBM_Module();
-  GeoVPhysVol* Build();
+  DBM_Module(InDetDD::PixelDetectorManager* ddmgr,
+             PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   private:
 

@@ -33,6 +33,12 @@ TauPi0ClusterCreator::~TauPi0ClusterCreator()
 {
 }
 
+
+StatusCode TauPi0ClusterCreator::initialize() {
+  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
+  return StatusCode::SUCCESS;
+}
+
 //______________________________________________________________________________
 StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer,
 							  xAOD::PFOContainer& hadronicClusterPFOContainer,
@@ -61,14 +67,28 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         shotVector.push_back( thisShot );
     }
     std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap = getClusterToShotMap(shotVector, pPi0ClusterContainer, pTau);
+ 
+    if (! pTau.jetLink().isValid()) {
+      ATH_MSG_ERROR("Tau jet link is invalid.");
+      return StatusCode::FAILURE;
+    }
+    const xAOD::Jet *jetSeed = pTau.jet();
+    
+    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    
+    const xAOD::Vertex* tauVertex = nullptr;
+    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+    
+    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
 
-    for (auto cluster: pPi0ClusterContainer){
-
+    for (const xAOD::CaloCluster* cluster: pPi0ClusterContainer){
+        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+        
         // selection
-        if (cluster->pt() < m_clusterEtCut)   continue;
+        if (clusterP4.Pt() < m_clusterEtCut)   continue;
         // Cluster container has clusters for all taus.
         // Only run on clusters that belong to this tau
-        if (cluster->p4().DeltaR(pTau.p4()) > .4) continue;
+        if (clusterP4.DeltaR(tauAxis) > 0.4) continue;
 
         // Get shots in this cluster. Need to use (CaloCluster*) (*clusterItr) 
         // (not a copy!) since the pointer will otherwise be different than in clusterToShotMap
@@ -107,21 +127,19 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         double ENG_FRAC_CORE = 0.0;
         double SECOND_ENG_DENS = 0.0;
 
-        // TODO: Replace numbers by human readable enums
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 404, CENTER_MAG) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_MAG moment. Set it to 0.");
-
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 102, FIRST_ETA) )       ATH_MSG_WARNING("Couldn't retrieve FIRST_ETA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 201, SECOND_R) )        ATH_MSG_WARNING("Couldn't retrieve SECOND_R moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 202, SECOND_LAMBDA) )   ATH_MSG_WARNING("Couldn't retrieve SECOND_LAMBDA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 301, DELTA_PHI) )       ATH_MSG_WARNING("Couldn't retrieve DELTA_PHI moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 302, DELTA_THETA) )     ATH_MSG_WARNING("Couldn't retrieve DELTA_THETA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 501, CENTER_LAMBDA) )   ATH_MSG_WARNING("Couldn't retrieve CENTER_LAMBDA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 601, LATERAL) )         ATH_MSG_WARNING("Couldn't retrieve LATERAL moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 602, LONGITUDINAL) )    ATH_MSG_WARNING("Couldn't retrieve LONGITUDINAL moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 701, ENG_FRAC_EM) )     ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_EM moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 702, ENG_FRAC_MAX) )    ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_MAX moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 703, ENG_FRAC_CORE) )   ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_CORE moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 805, SECOND_ENG_DENS) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_ENG_DENS moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_MAG, CENTER_MAG) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_MAG moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::FIRST_ETA, FIRST_ETA) ) ATH_MSG_WARNING("Couldn't retrieve FIRST_ETA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, SECOND_R) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_R moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, SECOND_LAMBDA) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_LAMBDA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::DELTA_PHI, DELTA_PHI) ) ATH_MSG_WARNING("Couldn't retrieve DELTA_PHI moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::DELTA_THETA, DELTA_THETA) ) ATH_MSG_WARNING("Couldn't retrieve DELTA_THETA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, CENTER_LAMBDA) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_LAMBDA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::LATERAL, LATERAL) ) ATH_MSG_WARNING("Couldn't retrieve LATERAL moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::LONGITUDINAL, LONGITUDINAL) ) ATH_MSG_WARNING("Couldn't retrieve LONGITUDINAL moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_EM, ENG_FRAC_EM) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_EM moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_MAX, ENG_FRAC_MAX) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_MAX moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_CORE, ENG_FRAC_CORE) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_CORE moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_ENG_DENS, SECOND_ENG_DENS) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_ENG_DENS moment. Set it to 0.");
 
        	float E_EM1 = pPi0Cluster->eSample(CaloSampling::EMB1) + pPi0Cluster->eSample(CaloSampling::EME1);
 	      float E_EM2 = pPi0Cluster->eSample(CaloSampling::EMB2) + pPi0Cluster->eSample(CaloSampling::EME2);
@@ -239,13 +257,28 @@ std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap
                                                    clusterItrEnd(pPi0ClusterContainer.end());
         float weightInCluster=-1.;
         float weightInPreviousCluster=-1;
+    
+        const xAOD::Jet *jetSeed = pTau.jet();
+        if (!jetSeed) {
+          ATH_MSG_ERROR("Tau jet link is invalid.");
+          return clusterToShotMap;
+        }
+        const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    
+        const xAOD::Vertex* tauVertex = nullptr;
+        if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+      
+        TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+
         for (; clusterItr != clusterItrEnd; ++clusterItr){
             xAOD::CaloCluster* cluster = (xAOD::CaloCluster*) (*clusterItr);
+            TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+            
             weightInCluster=-1.;
-            if (cluster->p4().Et() < m_clusterEtCut) continue; // Not interested in clusters that fail the Et cut
+            if (clusterP4.Et() < m_clusterEtCut) continue; // Not interested in clusters that fail the Et cut
             // Cluster container has clusters for all taus.
             // Only run on clusters that belong to this tau
-            if (cluster->p4().DeltaR(pTau.p4()) > .4)  continue;
+            if (clusterP4.DeltaR(tauAxis) > 0.4)  continue;
             const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
             CaloClusterCellLink::const_iterator cellItr  = theCellLink->begin();
             CaloClusterCellLink::const_iterator cellItrE = theCellLink->end();
@@ -393,27 +426,36 @@ std::vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster( const xAOD::Cal
 //______________________________________________________________________________
 bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronPFOContainer) const
 {
-    const xAOD::Jet* tauJetSeed = pTau.jet();
-    if (!tauJetSeed) {
-        ATH_MSG_ERROR("Could not retrieve tau jet seed");
-        return false;
+    if (! pTau.jetLink().isValid()) {
+      ATH_MSG_ERROR("Tau jet link is invalid.");
+      return false;
     }
+    const xAOD::Jet *jetSeed = pTau.jet();
+    
+    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    
+    const xAOD::Vertex* tauVertex = nullptr;
+    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+    
+    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+    
     std::vector<const xAOD::CaloCluster*> clusterList;
-
-    StatusCode sc = tauRecTools::GetJetClusterList(tauJetSeed, clusterList, m_incShowerSubtr);
+    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster);
     if (!sc) return false;
 
-    for (auto cluster : clusterList){
+    for (const xAOD::CaloCluster* cluster : clusterList){
         // Procedure: 
         // - Calculate cluster energy in Hcal. This is to treat -ve energy cells correctly
         // - Then set 4momentum via setP4(E/cosh(eta), eta, phi, m). This forces the PFO to have the correct energy and mass
         // - Ignore clusters outside 0.2 cone and those with overall negative energy or negative energy in Hcal
 
         // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
-        if(cluster->e()<=0.) continue;
+        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+        
+        if(clusterP4.E()<=0.) continue;
 
         // Only need clusters in core cone. Others are not needed for subtraction
-        if(pTau.p4().DeltaR(cluster->p4()) > 0.2) continue;
+        if(tauAxis.DeltaR(clusterP4) > 0.2) continue;
 
         // Loop over cells to calculate cluster energy in Hcal
         double clusterE_Hcal=0.;

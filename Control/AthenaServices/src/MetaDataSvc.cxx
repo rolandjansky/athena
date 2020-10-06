@@ -17,6 +17,7 @@
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/FileIncident.h"
+#include "GaudiKernel/System.h"
 
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -292,6 +293,7 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
       return StatusCode::FAILURE;
    }
    const std::string guid = fileInc->fileGuid();
+   ATH_MSG_DEBUG("retireMetadataSource: " << fileInc->fileName());
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       if ( (*it)->endInputFile(guid).isFailure() ) {
          ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
@@ -396,11 +398,17 @@ void MetaDataSvc::handle(const Incident& inc) {
       }
    } 
 }
+
 //__________________________________________________________________________
-StatusCode MetaDataSvc::transitionMetaDataFile() {
-   if( !m_allowMetaDataStop ) {
-      return(StatusCode::FAILURE);
-   }
+// This method is currently called only from OutputStreamSequencerSvc for MP EventService
+StatusCode MetaDataSvc::transitionMetaDataFile()
+{
+   ATH_MSG_DEBUG("transitionMetaDataFile()");
+
+   // this is normally called through EndInputFile inc, simulate it for EvSvc 
+   FileIncident inc("transitionMetaDataFile", "EndInputFile", "dummyMetaInputFileName", "");
+   ATH_CHECK(retireMetadataSource(inc));
+
    // Make sure metadata is ready for writing
    ATH_CHECK(this->prepareOutput());
 
@@ -418,6 +426,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile() {
 
    return(StatusCode::SUCCESS);
 }
+
 //__________________________________________________________________________
 StatusCode MetaDataSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
@@ -581,6 +590,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
       }
       for (SG::TransientAddress* tad : tList) {
          CLID clid = tad->clID();
+          ATH_MSG_VERBOSE("initInputMetaDataStore: add proxy for clid = " << clid << ", key = " << tad->name());
          if (m_inputDataStore->contains(tad->clID(), tad->name())) {
             ATH_MSG_DEBUG("initInputMetaDataStore: MetaData Store already contains clid = " << clid << ", key = " << tad->name());
          } else {
@@ -612,11 +622,85 @@ const std::string MetaDataSvc::currentRangeID() const
 }
 
 
-CLID MetaDataSvc::remapMetaContCLID( const CLID& item_id ) const
+CLID MetaDataSvc::remapMetaContCLID( const CLID& itemID ) const
 {
-   // for now just a simple dumb if
-   if( item_id == 167728019 ) {
-      return 167729019;   //  MetaCont<EventStreamInfo> CLID
+   auto it =  m_handledClasses.find(itemID);
+   if (it == m_handledClasses.end()) {
+      ATH_MSG_DEBUG("Not translating metadata item ID #" << itemID);
+      return itemID;
    }
-   return item_id;
+
+   std::string itemName;
+   CLID contID = 0;
+   if (m_classIDSvc->getTypeNameOfID(itemID, itemName).isSuccess()) {
+     const std::string contName = "MetaCont<" + itemName + ">";
+     ATH_MSG_DEBUG("Transforming " << contName << " to " << itemName
+                   << " for output");
+     if (m_classIDSvc->getIDOfTypeName(contName, contID).isSuccess())
+       return contID;
+   }
+
+   return itemID;
+}
+
+void MetaDataSvc::recordHook(const std::type_info& typeInfo) {
+  const std::string& typeName = System::typeinfoName(typeInfo);
+  ATH_MSG_VERBOSE("Handling recod event of type " << typeName);
+
+  CLID itemID = 0;
+  if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
+
+    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
+    auto it =  m_handledClasses.find(itemID);
+
+    if (it == m_handledClasses.end())
+      m_handledClasses[itemID] = 1;
+    else
+      (it->second)++;
+
+  }
+
+}
+
+void MetaDataSvc::removeHook(const std::type_info& typeInfo) {
+  const std::string& typeName = System::typeinfoName(typeInfo);
+  ATH_MSG_VERBOSE("Handling removal of event of type " << typeName);
+
+  CLID itemID = 0;
+  // use Gaudi::System to get type name
+  if (m_classIDSvc->getIDOfTypeInfoName(typeName, itemID).isSuccess()) {
+
+    ATH_MSG_DEBUG("MetaDataSvc will handle ClassID " << itemID);
+    auto it =  m_handledClasses.find(itemID);
+
+    if (it == m_handledClasses.end())
+      return;
+
+    (it->second)--;
+
+    if (it->second == 0)
+      m_handledClasses.erase(it);
+
+  }
+
+}
+
+
+void MetaDataSvc::lockTools() const
+{
+   ATH_MSG_DEBUG("Locking metadata tools");
+   for(auto tool : m_metaDataTools ) {
+      ILockableTool *lockable = dynamic_cast<ILockableTool*>( tool.get() );
+      if( lockable ) lockable->lock_shared();
+   }
+}
+
+
+void MetaDataSvc::unlockTools() const
+{
+   ATH_MSG_DEBUG("Unlocking metadata tools");
+   for(auto tool : m_metaDataTools ) {
+      ILockableTool *lockable = dynamic_cast<ILockableTool*>( tool.get() );
+      if( lockable ) lockable->unlock_shared();
+   }
 }

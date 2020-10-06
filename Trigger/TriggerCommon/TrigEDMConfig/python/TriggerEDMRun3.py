@@ -302,8 +302,26 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jesAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_nojcalib',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_nojcalibAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+
     ('xAOD::JetContainer#HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalib',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalibAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10EMPFlowJets_nojcalib_ftf',                       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10EMPFlowJets_nojcalib_ftfAux.'+JetVars,        'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10EMPFlowSoftDropBeta100Zcut10Jets_nojcalib_ftf',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10EMPFlowSoftDropBeta100Zcut10Jets_nojcalib_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10EMPFlowCSSKJets_nojcalib_ftf',                       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10EMPFlowCSSKJets_nojcalib_ftfAux.'+JetVars,        'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subjesIS_ftf',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subjesIS_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
@@ -319,6 +337,11 @@ TriggerHLTListRun3 = [
 
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftfAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),
+
+    # TLA jets
+
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS JetDS ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS JetDS ESD', 'Jet'),
 
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
@@ -381,7 +404,7 @@ TriggerHLTListRun3 = [
     #('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_CaloOnlyMVAAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_MVA',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFIsoViews,TAUEFViews'),
-    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.jetLink',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_Precision',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFIdViews,TAUFTFTrackViews,TAUFTFTrackTwoViews'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_PrecisionAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
@@ -456,6 +479,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
 ]
 
+# HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
+HLTNavEDMTargets = 'BS CostMonDS ESD AODFULL AODSLIM'
 
 #-------------------------------------------------------------------------------
 # EDM details list to store the transient-persistent version
@@ -496,3 +521,60 @@ def tpMap():
             continue
         l[tr] = persistent(tr)
     return l
+
+
+def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
+    """
+    Extend TriggerHLTListRun3 with HLT Navigation objects
+    """
+    for decisionCollection in allDecisions:
+        dynamic = '.-' # Exclude dynamic
+        if decisionCollection in hypoDecisions:
+            # Include dynamic
+            dynamic = '.remap_linkColIndices.remap_linkColKeys'
+            if 'PEBInfoWriter' in decisionCollection:
+                dynamic += '.PEBROBList.PEBSubDetList'
+        typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(decisionCollection)
+        typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(decisionCollection, dynamic)
+        edmList.extend([
+            (typeName,    HLTNavEDMTargets, 'Steer'),
+            (typeNameAux, HLTNavEDMTargets, 'Steer')])
+
+def addExtraCollectionsToEDMList(edmList, extraList):
+    """
+    Extend edmList with extraList, keeping track whether a completely new
+    collection is being added, or a dynamic variable is added to an existing collection.
+    The format of extraList is the same as those of TriggerHLTListRun3.
+    """
+    existing_collections = [(c[0].split("#")[1]).split(".")[0] for c in edmList]
+    for item in extraList:
+        colname = (item[0].split("#")[1]).split(".")[0]
+        if colname not in existing_collections:
+            # a new collection is added
+            edmList.append(item)
+            __log.info("added new item to Trigger EDM: {}".format(item))
+        else:
+            if "Aux." in item[0]:
+                # probably an extra dynamic variable is added
+                # new variables to add:
+                dynVars = (item[0].split("#")[1]).split(".")[1:]
+                # find the index of the existing item
+                existing_item_nr = [i for i,s in enumerate(edmList) if colname == (s[0].split("#")[1]).split(".")[0]]
+                if len(existing_item_nr) != 1:
+                    __log.error("Found {} existing edm items corresponding to new item {}, but it must be exactly one!".format(len(existing_item_nr), item))
+                # merge lists of variables
+                existing_dynVars = (edmList[existing_item_nr[0]][0].split("#")[1]).split(".")[1:]
+                dynVars.extend(existing_dynVars)
+                # remove duplicates:
+                dynVars = list(dict.fromkeys(dynVars))
+                newVars = '.'.join(dynVars)
+                typename = item[0].split("#")[0]
+                __log.info("old item in Trigger EDM: {}".format(edmList[existing_item_nr[0]]))
+                targets = edmList[existing_item_nr[0]][1]
+                signature = edmList[existing_item_nr[0]][2]
+                edmList.pop(existing_item_nr[0])
+                edmList.insert(existing_item_nr[0] , (typename + "#" + colname + "." + newVars, targets, signature))
+                __log.info("updated item in Trigger EDM: {}".format(edmList[existing_item_nr[0]]))
+            else:
+                # asking to add some collection which is already in the list - do nothing
+                pass

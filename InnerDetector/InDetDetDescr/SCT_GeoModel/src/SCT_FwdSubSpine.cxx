@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -96,7 +96,6 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
 
   
   const GeoShape * subSpineMiddle = 0;
-  const GeoShape * subSpineShape = 0;
 
   // Inner sub spine
   double mountPosition = parameters->fwdModuleMountPoint(m_ringType); // mount point to physics center
@@ -123,14 +122,14 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
   const GeoShape & spinePos3 = (*spineShape3 << GeoTrf::TranslateY3D(m_spineSide * position2) << GeoTrf::TranslateZ3D(position) );
 
   const GeoShapeUnion & spineTmp  = (spinePos1).add(spinePos3);
+  GeoLogVol * spineLog = nullptr;
   if (m_ringType != 3) {
     const GeoShapeUnion & spineTmp2  = spineTmp.add(*subSpineMiddle);
-    subSpineShape = &spineTmp2;
+    spineLog = new GeoLogVol(getName(), &spineTmp2, m_material);
   } else { 
-    subSpineShape = &spineTmp;
+    spineLog = new GeoLogVol(getName(), &spineTmp, m_material);
   } 
 
-  GeoLogVol * spineLog = new GeoLogVol(getName(), subSpineShape, m_material);
   GeoPhysVol * spine = new GeoPhysVol(spineLog);
 
   return spine;

@@ -15,11 +15,12 @@ def DQTLumiMonAlgConfig(flags, isOld=False):
     helper = AthMonitorCfgHelper(flags, 'DQTLumiMonAlgCfg')
     # Three instances of the algorithm. One using any trigger, another using only muon
     # triggers, and the final using only electron triggers.
-    DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg)
-    DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg, 
-                                      'CATEGORY_monitoring_muonIso','EF_muX')
-    DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg,
-                                      'CATEGORY_primary_single_ele','EF_eX')
+    DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg, flags, isOld)
+    if (flags.useTrigger if isOld else flags.DQ.useTrigger):
+        DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg, flags, isOld,
+                                        'CATEGORY_monitoring_muonIso','EF_muX')
+        DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg, flags, isOld,
+                                        'CATEGORY_primary_single_ele','EF_eX')
     if isOld:
         return helper.result()
     else:
@@ -28,7 +29,7 @@ def DQTLumiMonAlgConfig(flags, isOld=False):
         result.merge(AtlasGeometryCfg(flags))
         return result
 
-def DQTLumiMonAlgConfigByTriggerChain(helper, algConfObj, triggerChain='', triggerPath=''):
+def DQTLumiMonAlgConfigByTriggerChain(helper, algConfObj, flags, isOld, triggerChain='', triggerPath=''):
     monAlg = helper.addAlgorithm(algConfObj, 'DQTLumiMonAlg'+triggerPath)
 
     if triggerChain:
@@ -49,6 +50,16 @@ def DQTLumiMonAlgConfigByTriggerChain(helper, algConfObj, triggerChain='', trigg
     monAlg.TightTrackWeight = 0.01
     monAlg.TightNTracks = 4
 
+    if isOld:
+        from RecExConfig.AutoConfiguration import GetLBNumber
+        lbnum = GetLBNumber()
+        lbdict = { 'xmin': lbnum-0.5 if lbnum>0 else 0.5,
+                   'xmax': lbnum+0.5 if lbnum>0 else 1.5 }
+    else:
+        lbdict = { 'xmin': min(flags.Input.LumiBlockNumber)-0.5 if flags.Input.LumiBlockNumber else 0.5,
+                   'xmax': max(flags.Input.LumiBlockNumber)+0.5 if flags.Input.LumiBlockNumber else 1.5 }
+    lbdict['xbins'] = int(lbdict['xmax']-lbdict['xmin'])
+
     # Raw plots of lumi variables
     group.defineHistogram('avgIntPerXing', type='TH1F', xbins=100, xmin=0, xmax=100,
                           title='Average number of interactions per bunch Xing')
@@ -56,40 +67,46 @@ def DQTLumiMonAlgConfigByTriggerChain(helper, algConfObj, triggerChain='', trigg
                           title='Actual number of interactions per bunch Xing')
 
     # Plots of luminosity variables as a function of lb number
-    group.defineHistogram('LB,avgLumi', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
-                          title='Average Lumi vs LB', opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,avgIntPerXing', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
+    group.defineHistogram('LB,avgLumi', type='TProfile',
+                          title='Average Lumi vs LB', opt='kAddBinsDynamically',
+                          merge='merge', **lbdict)
+    group.defineHistogram('LB,avgIntPerXing', type='TProfile',
                           title='Number of interactions per event;LB;<#mu>_{LB}',
-                          opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,lumiPerBCID', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
-                          title='Instantaneous Luminosity vs LB', opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,intPerXing', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
-                          title='Instaneous interactions vs LB', opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,duration', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
-                          title='Lumi Block time in sec vs LB', opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,avgLiveFrac', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
+                          opt='kAddBinsDynamically', merge='merge', **lbdict)
+    group.defineHistogram('LB,lumiPerBCID', type='TProfile',
+                          title='Instantaneous Luminosity vs LB', opt='kAddBinsDynamically',
+                          merge='merge', **lbdict)
+    group.defineHistogram('LB,intPerXing', type='TProfile',
+                          title='Instaneous interactions vs LB', opt='kAddBinsDynamically',
+                          merge='merge', **lbdict)
+    group.defineHistogram('LB,duration', type='TProfile',
+                          title='Lumi Block time in sec vs LB', opt='kAddBinsDynamically',
+                          merge='merge', **lbdict)
+    group.defineHistogram('LB,avgLiveFrac', type='TProfile',
                           title='Average live fraction lumi over all BCIDs vs LB',
-                          opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,liveFracPerBCID', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
-                          title='Current BCID lumi vs LB', opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,lumiWeight', type='TProfile', xbins=1000, xmin=0.5, xmax=1000.5,
-                          title='Current BCID lumi vs LB', opt='kAddBinsDynamically', merge='merge')
+                          opt='kAddBinsDynamically', merge='merge', **lbdict)
+    group.defineHistogram('LB,liveFracPerBCID', type='TProfile',
+                          title='Current BCID lumi vs LB', opt='kAddBinsDynamically',
+                          merge='merge', **lbdict)
+    group.defineHistogram('LB,lumiWeight', type='TProfile',
+                          title='Current BCID lumi vs LB', opt='kAddBinsDynamically',
+                          merge='merge', **lbdict)
 
     # Vertex counts vs. lb number (loose and tight)
-    group.defineHistogram('LB,nLooseVtx', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+    group.defineHistogram('LB,nLooseVtx', type='TProfile',
                           title=nLooseT+' per event;LB;<NlooseVtx/event>_{LB}',
-                          opt='kAddBinsDynamically', merge='merge')
-    group.defineHistogram('LB,nTightVtx', type='TProfile', xbins=200, xmin=0.5, xmax=200.5,
+                          opt='kAddBinsDynamically', merge='merge', **lbdict)
+    group.defineHistogram('LB,nTightVtx', type='TProfile',
                           title=nTightT+' per event;LB;<NtightVtx/event>_{LB}',
-                          opt='kAddBinsDynamically', merge='merge')
+                          opt='kAddBinsDynamically', merge='merge', **lbdict)
 
     # Vertex counts per avg mu vs. lb number. (Same as above, just weighted.)
     group.defineHistogram('LB,nLooseVtxPerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                          xbins=200, xmin=0.5, xmax=200.5,
-                          title=nLooseT+' per event per Mu;LB;<NlooseVtx/event/#mu>_{LB}', merge='merge')
+                          title=nLooseT+' per event per Mu;LB;<NlooseVtx/event/#mu>_{LB}',
+                          merge='merge', **lbdict)
     group.defineHistogram('LB,nTightVtxPerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                          xbins=200, xmin=0.5, xmax=200.5,
-                          title=nTightT+' per event per Mu;LB;<NtightVtx/event/#mu>_{LB}', merge='merge')
+                          title=nTightT+' per event per Mu;LB;<NtightVtx/event/#mu>_{LB}',
+                          merge='merge', **lbdict)
 
     # Vertex counts vs. avg mu.
     group.defineHistogram('avgIntPerXing,nLooseVtx', type='TProfile', xbins=250, xmin=0, xmax=100,
@@ -99,43 +116,43 @@ def DQTLumiMonAlgConfigByTriggerChain(helper, algConfObj, triggerChain='', trigg
 
     # Pixel clusters vs lb number. All, and then eparately for each endcap and barrel layer.
     pixelgroup.defineHistogram('LB,nClustersAll', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+', all;LB;<NclustersAll/event>_{LB}', merge='merge')
+                               title=nPixClusterT+', all;LB;<NclustersAll/event>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersECA', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+', endcap A;LB;<NlustersECA/event>_{LB}', merge='merge')
+                               title=nPixClusterT+', endcap A;LB;<NlustersECA/event>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersECC', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+', endcap C;LB;<NclustersECC/event>_{LB}', merge='merge')
+                               title=nPixClusterT+', endcap C;LB;<NclustersECC/event>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersB0', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+', barrel layer 0;LB;<NclustersB0/event>_{LB}', merge='merge')
+                               title=nPixClusterT+', barrel layer 0;LB;<NclustersB0/event>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersB1', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+', barrel layer 1;LB;<NclustersB1/event>_{LB}', merge='merge')
+                               title=nPixClusterT+', barrel layer 1;LB;<NclustersB1/event>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersB2', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+', barrel layer 2;LB;<NclustersB2/event>_{LB}', merge='merge')
+                               title=nPixClusterT+', barrel layer 2;LB;<NclustersB2/event>_{LB}',
+                               merge='merge', **lbdict)
 
     # Pixel clusters per avg mu vs. lb number. (Same as above, just weighted.)
     pixelgroup.defineHistogram('LB,nClustersAllPerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+' per Mu, all;LB;<NclustersAll/event/#mu>_{LB}', merge='merge')
+                               title=nPixClusterT+' per Mu, all;LB;<NclustersAll/event/#mu>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersECAPerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+' per Mu, endcap A;LB;<NlustersECA/event/#mu>_{LB}', merge='merge')
+                               title=nPixClusterT+' per Mu, endcap A;LB;<NlustersECA/event/#mu>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersECCPerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+' per Mu, endcap C;LB;<NclustersECC/event/#mu>_{LB}', merge='merge')
+                               title=nPixClusterT+' per Mu, endcap C;LB;<NclustersECC/event/#mu>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersB0PerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+' per Mu, barrel layer 0;LB;<NclustersB0/event/#mu>_{LB}', merge='merge')
+                               title=nPixClusterT+' per Mu, barrel layer 0;LB;<NclustersB0/event/#mu>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersB1PerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+' per Mu, barrel layer 1;LB;<NclustersB1/event/#mu>_{LB}', merge='merge')
+                               title=nPixClusterT+' per Mu, barrel layer 1;LB;<NclustersB1/event/#mu>_{LB}',
+                               merge='merge', **lbdict)
     pixelgroup.defineHistogram('LB,nClustersB2PerAvgMu', type='TProfile', opt='kAddBinsDynamically',
-                               xbins=200, xmin=0.5, xmax=200.5,
-                               title=nPixClusterT+' per Mu, barrel layer 2;LB;<NclustersB2/event/#mu>_{LB}', merge='merge')
+                               title=nPixClusterT+' per Mu, barrel layer 2;LB;<NclustersB2/event/#mu>_{LB}',
+                               merge='merge', **lbdict)
 
     # Pixel clusters vs. avg mu. All, then separately for each endcap and barrel layer.
     pixelgroup.defineHistogram('avgIntPerXing,nClustersAll', type='TProfile',

@@ -11,6 +11,7 @@ from MuonConfig.MuonByteStreamCnvTestConfig import CscDigitToCscRDOCfg
 from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -23,14 +24,13 @@ def CSC_LastXing():
     return 175
 
 
-def CSC_RangeToolCfg(flags, name="CSC_Range", **kwargs):
+def CSC_RangeCfg(flags, name="CSC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for CSC"""
     kwargs.setdefault("FirstXing", CSC_FirstXing())
     kwargs.setdefault("LastXing",  CSC_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["CSCSimHitCollection#CSC_Hits"])
-    PileUpXingFolder = CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def CSC_DigitizationToolCommonCfg(flags, name="CscDigitizationTool", **kwargs):
@@ -58,13 +58,18 @@ def CSC_DigitizationToolCommonCfg(flags, name="CscDigitizationTool", **kwargs):
 
 def CSC_DigitizationToolCfg(flags, name="CscDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitizationTool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(CSC_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("InputObjectName", "CSC_Hits")
     kwargs.setdefault("OutputObjectName", "CSC_DIGITS")
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("CSCSimDataCollectionOutputName", flags.Overlay.BkgPrefix + "CSC_SDO")
     else:
         kwargs.setdefault("CSCSimDataCollectionOutputName", "CSC_SDO")
-    return CSC_DigitizationToolCommonCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(CSC_DigitizationToolCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def CSC_OverlayDigitizationToolCfg(flags, name="CscOverlayDigitizationTool", **kwargs):

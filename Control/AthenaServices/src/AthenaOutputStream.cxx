@@ -24,6 +24,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
+#include "SGTools/transientKey.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
 #include "AthenaKernel/CLIDRegistry.h"
@@ -349,7 +350,7 @@ void AthenaOutputStream::handle(const Incident& inc)
    std::unique_lock<mutex_t>  lock(m_mutex);
 
    // Handle Event Ranges for Event Service
-   if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() )
+   if( m_outSeqSvc->inUse() )
    {
       if( inc.type() == "MetaDataStop" )  {
          // all substreams should be closed by this point
@@ -418,6 +419,9 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
    if( m_metaDataSvc->prepareOutput(outputFN).isFailure() ) {
       throw GaudiException("Failed on MetaDataSvc prepareOutput", name(), StatusCode::FAILURE);
    }
+   // lock all metadata to prevent updates during writing
+   MetaDataSvc::ToolLockGuard   tool_guard( *m_metaDataSvc );
+
    // Always force a final commit in stop - mainly applies to AthenaPool
    if (m_writeOnFinalize) {
       if (write().isFailure()) {  // true mean write AND commit
@@ -645,12 +649,18 @@ StatusCode AthenaOutputStream::collectAllObjects() {
       folderclids.push_back(i->id());
    }
 
-   // FIXME This is a bruteforece hack to remove items erroneously 
+   // FIXME This is a bruteforce hack to remove items erroneously 
    // added somewhere in the morass of the addItemObjects logic
    IDataSelector prunedList;
    for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
       if (std::find(folderclids.begin(),folderclids.end(),(*it)->clID())!=folderclids.end()) {
-         prunedList.push_back(*it);  // build new list that is correct
+         if (SG::isTransientKey ((*it)->name())) {
+           ATH_MSG_ERROR("Request to write transient object key " <<
+                         (*it)->name() << " ignored");
+         }
+         else {
+           prunedList.push_back(*it);  // build new list that is correct
+         }
       }
       else {
          ATH_MSG_DEBUG("Object " << (*it)->clID() <<","<< (*it)->name() << " found that was not in itemlist");

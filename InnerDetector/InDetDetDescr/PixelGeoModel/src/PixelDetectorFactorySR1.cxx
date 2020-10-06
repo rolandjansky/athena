@@ -31,18 +31,16 @@
 using InDetDD::PixelDetectorManager; 
 using InDetDD::SiCommonItems; 
 
-PixelDetectorFactorySR1::PixelDetectorFactorySR1(const PixelGeoModelAthenaComps * athenaComps,
+PixelDetectorFactorySR1::PixelDetectorFactorySR1(PixelGeoModelAthenaComps * athenaComps,
 						 const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(0)
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
-  GeoVPixelFactory::SetDDMgr(m_detectorManager);
 
   // Create the geometry manager.
   m_geometryManager =  new OraclePixGeoManager(athenaComps);
-  GeoVPixelFactory::setGeometryManager(m_geometryManager);
   
   // Pass the switches
   m_geometryManager->SetServices(switches.services());
@@ -104,7 +102,7 @@ PixelDetectorFactorySR1::~PixelDetectorFactorySR1()
 
 
 //## Other Operations (implementation)
-void PixelDetectorFactorySR1::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) // Thread unsafe GeoPixelServices, GeoPixelBarrel, GeoPixelEndCap classes are used.
+void PixelDetectorFactorySR1::create (GeoPhysVol *world)
 {
   m_geometryManager->SetCurrentLD(0);
   m_geometryManager->SetBarrel();
@@ -140,7 +138,7 @@ void PixelDetectorFactorySR1::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) /
 
   GeoPixelServices * pixServices = 0;
   if(m_geometryManager->DoServices() ) {
-    pixServices = new GeoPixelServices(0);
+    pixServices = new GeoPixelServices(m_detectorManager, m_geometryManager, 0);
   } 
   
   // Top level transform
@@ -151,7 +149,7 @@ void PixelDetectorFactorySR1::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) /
     // Add the Barrel:
     //
     m_geometryManager->SetBarrel();
-    GeoPixelBarrel brl(pixServices);
+    GeoPixelBarrel brl(m_detectorManager, m_geometryManager, pixServices);
     physVol = brl.Build();   
 
     GeoTrf::Transform3D barrelTransform = m_geometryManager->partTransform("Barrel");
@@ -171,7 +169,7 @@ void PixelDetectorFactorySR1::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) /
   if (endcapAPresent || endcapCPresent) {
     m_geometryManager->SetEndcap();
 
-    GeoPixelEndCap pec(pixServices);
+    GeoPixelEndCap pec(m_detectorManager, m_geometryManager, pixServices);
     double zpos = (m_geometryManager->PixelEndcapZMax()+m_geometryManager->PixelEndcapZMin())/2.;
     
 

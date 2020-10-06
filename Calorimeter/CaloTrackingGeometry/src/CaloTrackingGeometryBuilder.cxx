@@ -233,8 +233,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
     keyDim.push_back(RZPair(enclosedInnerSectorRadius, enclosedInnerSectorHalflength));
   }   
   // get the dimensions from the envelope service
-  RZPairVector& envelopeDefsIn = m_enclosingEnvelopeSvc->getCaloRZValues(0);
-  //RZPairVector& envelopeDefs = m_enclosingEnvelopeSvc->getCaloRZValues(0);
+  const RZPairVector& envelopeDefsIn = m_enclosingEnvelopeSvc->getCaloRZBoundary();
 
   // find the max,max pair
   unsigned int ii=0;
@@ -285,8 +284,8 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
       if ( msCutouts.empty() ) msCutouts.push_back( envelopeDefs[i] );
       else {
 	RZPairVector::iterator envIter = msCutouts.begin();
-        while (envIter!= msCutouts.end() && (*envIter).second < envelopeDefs[i].second ) envIter++;
-        while (envIter!= msCutouts.end() && (*envIter).second == envelopeDefs[i].second && (*envIter).first  > envelopeDefs[i].first ) envIter++;
+        while (envIter!= msCutouts.end() && (*envIter).second < envelopeDefs[i].second ) ++envIter;
+        while (envIter!= msCutouts.end() && (*envIter).second == envelopeDefs[i].second && (*envIter).first  > envelopeDefs[i].first ) ++envIter;
 	msCutouts.insert(envIter, envelopeDefs[i]);
       }
     }
@@ -316,7 +315,7 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
  
   // BEAM PIPE
   //std::cout <<"envelope svc : number of BeamPipe Volumes:"<< m_enclosingEnvelopeSvc->getBeamPipeNumVols()<< std::endl;  
-  RZPairVector& bpDefs = m_enclosingEnvelopeSvc->getBeamPipeRZValues(0);
+  const RZPairVector& bpDefs = m_enclosingEnvelopeSvc->getBeamPipeRZBoundary();
   
   ATH_MSG_VERBOSE( "BeamPipe envelope definition retrieved:" );   
   m_bpCutouts.clear();

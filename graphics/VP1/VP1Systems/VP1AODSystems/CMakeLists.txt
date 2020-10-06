@@ -1,30 +1,7 @@
-################################################################################
-# Package: VP1AODSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1AODSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODTracking
-   GaudiKernel
-   graphics/VP1/VP1Base
-   PRIVATE
-   Control/StoreGate
-   DetectorDescription/GeoPrimitives
-   Event/EventPrimitives
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMissingET
-   Tools/PathResolver
-   Tracking/TrkExtrapolation/TrkExInterfaces
-   graphics/VP1/VP1HEPVis
-   graphics/VP1/VP1Utils )
 
 # External dependencies:
 find_package( Coin3D )
@@ -57,7 +34,7 @@ else()
        LINK_LIBRARIES xAODMuon xAODEgamma xAODTracking VP1Base
        Qt5::Core Qt5::Gui
        PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
-       xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver xAODEventInfo
+       xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces xAODEventInfo
        VP1HEPVis VP1Utils xAODRootAccess Qt5::Gui )
 endif()
 

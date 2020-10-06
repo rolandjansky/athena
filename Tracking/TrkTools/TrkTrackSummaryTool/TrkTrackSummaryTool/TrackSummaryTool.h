@@ -50,7 +50,6 @@ class TrackSummaryTool : public extends<AthAlgTool, IExtendedTrackSummaryTool>
 public:
   TrackSummaryTool(const std::string&, const std::string&, const IInterface*);
   virtual ~TrackSummaryTool();
-
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
@@ -72,75 +71,74 @@ public:
     const Trk::PRDtoTrackMap* prd_to_track_map,
     bool suppress_hole_search = false) const override;
 
-  /** create a summary object from passed Track or clone the existing*/
+  /** Same behavious as
+   * IExtendedTrackSummaryTool:computeAndReplaceTrackSummary
+   * but without the need to pass
+   * Trk::PRDtoTrackMap
+   * Does hole search
+   */
+  virtual void updateTrack(Track& track) const override;
+  
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * Does not modify the const track.
+   */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
     const Track& track) const override;
 
-  /** create a summary object of passed track, without doing the tedious hole
-   * search, or clone the existing*/
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * but without doing the hole search.
+   * Does not modify the const track.
+   */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
     const Track& track) const override;
 
-  /** create a summary object from passed Track,*/
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * Does not modify the const track.
+   */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
     const Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const override;
-
-  /** create a summary object of passed track without doing the tedious hole
-   * search. */
+  
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * but without doing the hole search.
+   * Does not modify the const track.
+   */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
     const Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const override;
+
+  /** method which can be used to update the summary of a track
+   * it, without doing shared hit/ or hole search. 
+   * If a summary is present it is  modified in place.
+   * Otherwise a new one is created and filled.
+   */
+  virtual void updateTrackSummary(Track& track) const override;
+
+  /** method which can be used to update the summary of a track
+   * If a summary is present it is  modified in place.
+   * Otherwise a new one is created and filled.
+   */
+  virtual void updateTrackSummary(
+    Track& track,
+    const Trk::PRDtoTrackMap* prd_to_track_map,
+    bool suppress_hole_search = false) const override;
 
   /** method to update the shared hit content only, this is optimised for track
    * collection merging. */
   virtual void updateSharedHitCount(
     Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override
-  {
-    if (!track.trackSummary()) {
-      computeAndReplaceTrackSummary(
-        track, prd_to_track_map, false /*DO NOT suppress hole search*/);
-    } else {
-      updateSharedHitCount(track, prd_to_track_map, *track.trackSummary());
-    }
-  }
+    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
 
   /** method to update additional information (PID,shared hits, dEdX), this is
    * optimised for track collection merging.
    */
   virtual void updateAdditionalInfo(
     Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override
-  {
-    if (!track.trackSummary()) {
-      computeAndReplaceTrackSummary(
-        track, prd_to_track_map, false /*DO NOT suppress hole search*/);
-    } else {
-      updateAdditionalInfo(
-        track,
-        prd_to_track_map,
-        *track.trackSummary(),
-        true); // @TODO set to false; true for backward compatibility
-    }
-  }
-
-  /** use this method to update a track. this means a tracksummary is created
-  for this track but not returned. the summary can then be obtained from the
-  track. Because it is taken from the track the ownership stays with the track
-*/
-  virtual void updateTrack(Track& track) const override
-  {
-    updateTrack(track, nullptr);
-  }
-
-  /** method which can be used to update a refitted track and add a summary to
-   * it, without doing shard hit/ or hole search. Adds a summary to a track and
-   * then retrieve it from it without the need to clone. */
-  virtual void updateRefittedTrack(Track& track) const override
-  {
-    updateTrackNoHoleSearch(track, nullptr);
-  }
+    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
 
   /** Update the shared hit count of the given track summary.
    * @param summary the summary to be updated i.e. a copy of the track summary
@@ -159,15 +157,7 @@ public:
 
   /** method to update the shared hit content only, this is optimised for track
    * collection merging. */
-  virtual void updateSharedHitCount(Track& track) const override
-  {
-    if (!track.trackSummary()) {
-      computeAndReplaceTrackSummary(
-        track, nullptr, false /*DO NOT suppress hole search*/);
-    } else {
-      updateSharedHitCount(track, nullptr, *track.trackSummary());
-    }
-  }
+  virtual void updateSharedHitCount(Track& track) const override;
 
   /** Update the shared hit counts, expected hit, PID information and eventually
    * the detailed track summaries.
@@ -184,29 +174,31 @@ public:
    */
   virtual void updateAdditionalInfo(const Track& track,
                                     const Trk::PRDtoTrackMap* prd_to_track_map,
-                                    TrackSummary& summary) const override
-  {
-    updateAdditionalInfo(track, prd_to_track_map, summary, false);
-  }
+                                    TrackSummary& summary) const override;
 
   /** method to update additional information (PID,shared hits, dEdX), this is
    * optimised for track collection merging.
    */
-  virtual void updateAdditionalInfo(Track& track) const override
-  {
-    if (!track.trackSummary()) {
-      computeAndReplaceTrackSummary(
-        track, nullptr, false /*DO NOT suppress hole search*/);
-    } else {
-      updateAdditionalInfo(
-        track,
-        nullptr,
-        *track.trackSummary(),
-        true); // @TODO set to false; true for backward compatibility
-    }
-  }
+  virtual void updateAdditionalInfo(Track& track) const override;
 
 private:
+
+  /*
+   * Fill the summary info for a Track*/
+  void fillSummary(Trk::TrackSummary& ts,
+                   const Trk::Track& track,
+                   const Trk::PRDtoTrackMap *prd_to_track_map,
+                   bool doHolesInDet,
+                   bool doHolesMuon) const;
+
+  /*
+   * If a summary is there Update it with the required info.
+   * If not there create a new one with the required info.
+   */
+  void UpdateSummary(Track& track,
+                     const Trk::PRDtoTrackMap* prd_to_track_map,
+                     bool suppress_hole_search) const;
+  
   void updateAdditionalInfo(const Track& track,
                             const Trk::PRDtoTrackMap* prd_to_track_map,
                             TrackSummary& summary,
@@ -218,10 +210,6 @@ private:
   */
   void updateTrack(Track& track,
                    const Trk::PRDtoTrackMap* prd_to_track_map) const;
-
-  void updateTrackNoHoleSearch(
-    Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const;
 
   std::unique_ptr<Trk::TrackSummary> createSummary(
     const Track& track,
@@ -280,6 +268,10 @@ private:
                                                1,
                                                "" };
 
+  Gaudi::Property<bool> m_alwaysRecomputeHoles {
+    this, "AlwaysRecomputeHoles", false, ""
+  };
+
   /**atlas id helper*/
   const AtlasDetectorID* m_detID;
 
@@ -311,4 +303,6 @@ private:
 };
 
 }
+
+#include "TrkTrackSummaryTool/TrackSummaryTool.icc"
 #endif

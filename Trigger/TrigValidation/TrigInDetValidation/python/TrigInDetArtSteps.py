@@ -22,7 +22,7 @@ from AthenaCommon.Utils.unixtools import FindFile
 
 class TrigInDetReco(ExecStep):
 
-    def __init__(self, name='TrigInDetReco'):
+    def __init__(self, name='TrigInDetReco', postinclude_file='' ):
         ExecStep.__init__(self, name)
 ##        super(TrigInDetReco, self).__init__(name)
         self.type = 'Reco_tf'
@@ -34,6 +34,7 @@ class TrigInDetReco(ExecStep):
         self.timeout = 18*3600
         self.slices = []
         self.preexec_trig = ' '
+        self.postinclude_trig = postinclude_file
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
@@ -57,6 +58,7 @@ class TrigInDetReco(ExecStep):
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
+
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 
@@ -79,7 +81,7 @@ class TrigInDetReco(ExecStep):
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
-                chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20',"
+                chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20','HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20',"
                 flags  += 'doBjetSlice=True;'
             if ( i=='fsjet' or i=='fs' or i=='jet' ) :
                 chains += "'HLT_j45_ftf_L1J15',"
@@ -97,10 +99,13 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
         if (self.postexec_trig != ' '):
             self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
+        if (self.postinclude_trig != ''):
+            self.args += ' --postInclude "RDOtoRDOTrigger:{:s}" '.format(self.postinclude_trig)
         super(TrigInDetReco, self).configure(test)
 
 
@@ -140,6 +145,7 @@ class TrigInDetdictStep(Step):
         os.system( 'get_files -data TIDAdata_cuts.dat' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat' )
         os.system( 'get_files -data TIDAdata_cuts-offline.dat' )
+        os.system( 'get_files -jo   TIDAml_extensions.py' ) 
         super(TrigInDetdictStep, self).configure(test)
 
 
@@ -204,8 +210,8 @@ class TrigInDetCompStep(RefComparisonStep):
         if (self.test=='ttbar'):
             self.output_dir = self.output_dir+"-"+self.slice
 
-        if (self.type == 'offl'):
-            self.output_dir = self.output_dir+'-offl'    
+        if (self.type == 'offline'):
+            self.output_dir = self.output_dir+'-offline'    
             self.input_file = 'data-hists-offline.root'
 
         self.args += self.input_file + ' ' 

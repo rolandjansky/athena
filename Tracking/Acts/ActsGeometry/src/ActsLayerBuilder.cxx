@@ -181,8 +181,7 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       double layerHalfZ
         = std::abs(pl.max(Acts::binZ) + pl.envelope[Acts::binZ].second - layerZ);
 
-      auto transform
-        = std::make_shared<const Transform3D>(Translation3D(0., 0., -layerZ));
+      Transform3D transform(Translation3D(0., 0., -layerZ));
       // set up approach descriptor
 
       std::shared_ptr<Acts::CylinderSurface> innerBoundary
@@ -252,62 +251,55 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
 
       if (std::abs(layerZInner) > std::abs(layerZOuter)) std::swap(layerZInner, layerZOuter);
 
-      auto transformNominal
-        = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZ));
+        Transform3D transformNominal(Translation3D(0., 0., layerZ));
+        Transform3D transformInner(Translation3D(0., 0., layerZInner));
+        Transform3D transformOuter(Translation3D(0., 0., layerZOuter));
 
-      auto transformInner
-        = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZInner));
+        std::shared_ptr<Acts::DiscSurface> innerBoundary = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.min(Acts::binR), pl.max(Acts::binR));
 
-      auto transformOuter
-        = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZOuter));
+        std::shared_ptr<Acts::DiscSurface> nominalSurface = Acts::Surface::makeShared<Acts::DiscSurface>(transformNominal, pl.min(Acts::binR), pl.max(Acts::binR));
 
-      std::shared_ptr<Acts::DiscSurface> innerBoundary
-        = Acts::Surface::makeShared<Acts::DiscSurface>(transformInner, pl.min(Acts::binR), pl.max(Acts::binR));
+        std::shared_ptr<Acts::DiscSurface> outerBoundary = Acts::Surface::makeShared<Acts::DiscSurface>(transformOuter, pl.min(Acts::binR), pl.max(Acts::binR));
 
-      std::shared_ptr<Acts::DiscSurface> nominalSurface
-        = Acts::Surface::makeShared<Acts::DiscSurface>(transformNominal, pl.min(Acts::binR), pl.max(Acts::binR));
+        size_t matBinsPhi = m_cfg.endcapMaterialBins.first;
+        size_t matBinsR = m_cfg.endcapMaterialBins.second;
 
-      std::shared_ptr<Acts::DiscSurface> outerBoundary
-        = Acts::Surface::makeShared<Acts::DiscSurface>(transformOuter, pl.min(Acts::binR), pl.max(Acts::binR));
+        Acts::BinUtility materialBinUtil(
+            matBinsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
+        materialBinUtil += Acts::BinUtility(
+            matBinsR, pl.min(Acts::binR), pl.max(Acts::binR), Acts::open, Acts::binR, transformNominal);
 
-      size_t matBinsPhi = m_cfg.endcapMaterialBins.first;
-      size_t matBinsR = m_cfg.endcapMaterialBins.second;
+        materialProxy = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);
 
-      Acts::BinUtility materialBinUtil(
-          matBinsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
-      materialBinUtil += Acts::BinUtility(
-          matBinsR, pl.min(Acts::binR), pl.max(Acts::binR), Acts::open, Acts::binR, transformNominal);
+        ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
+                     "inner=0 / center=1 / outer=2 ) : "
+                     << "inner");
+        ACTS_VERBOSE("with binning: [" << matBinsPhi << ", " << matBinsR << "]");
 
-      materialProxy
-        = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);
+        ACTS_VERBOSE("Created ApproachSurfaces for disc layer at:");
+        ACTS_VERBOSE(" - inner:   Z=" << layerZInner);
+        ACTS_VERBOSE(" - central: Z=" << layerZ);
+        ACTS_VERBOSE(" - outer:   Z=" << layerZOuter);
 
-      ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
-          "inner=0 / center=1 / outer=2 ) : " << "inner");
-      ACTS_VERBOSE("with binning: [" << matBinsPhi << ", " << matBinsR << "]");
+        // set material on inner
+        // @TODO: make this configurable somehow
+        innerBoundary->assignSurfaceMaterial(materialProxy);
 
-      ACTS_VERBOSE("Created ApproachSurfaces for disc layer at:");
-      ACTS_VERBOSE(" - inner:   Z=" << layerZInner);
-      ACTS_VERBOSE(" - central: Z=" << layerZ);
-      ACTS_VERBOSE(" - outer:   Z=" << layerZOuter);
+        int nModPhi = std::numeric_limits<int>::max();
+        int nModR = 0;
 
-
-      // set material on inner
-      // @TODO: make this configurable somehow
-      innerBoundary->assignSurfaceMaterial(materialProxy);
-
-      int nModPhi = std::numeric_limits<int>::max();
-      int nModR = 0;
-
-      // want to figure out bins in phi
-      for (const auto& srf : layerSurfaces) {
-        auto elm = dynamic_cast<const ActsDetectorElement*>(srf->associatedDetectorElement());
-        if (elm){
-          auto id = elm->identityHelper();
-          int phi_mod_max = id.phi_module_max();
-          int eta_mod_max = id.eta_module_max();
-          nModPhi = std::min(nModPhi, phi_mod_max+1);
-          nModR = eta_mod_max+1;
-        }
+        // want to figure out bins in phi
+        for (const auto &srf : layerSurfaces)
+        {
+          auto elm = dynamic_cast<const ActsDetectorElement *>(srf->associatedDetectorElement());
+          if (elm)
+          {
+            auto id = elm->identityHelper();
+            int phi_mod_max = id.phi_module_max();
+            int eta_mod_max = id.eta_module_max();
+            nModPhi = std::min(nModPhi, phi_mod_max + 1);
+            nModR = eta_mod_max + 1;
+          }
       }
 
       ACTS_VERBOSE("Identifier reports: " << nModPhi << " is lowest for " << nModR << " r-rings");

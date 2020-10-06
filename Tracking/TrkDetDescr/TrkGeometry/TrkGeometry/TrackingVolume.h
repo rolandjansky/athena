@@ -410,10 +410,10 @@ namespace Trk {
       void moveTV ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const;
            
       /** Forbidden copy constructor */   
-      TrackingVolume(const TrackingVolume&): Volume(), Material() {} 
+      TrackingVolume(const TrackingVolume&) = delete;
 
       /** Forbid assignment. */
-      TrackingVolume &operator=(const TrackingVolume&) { return *this; }
+      TrackingVolume &operator=(const TrackingVolume&) = delete;
        
       const TrackingVolume*        m_motherVolume;  //!< mother volume of this volume
 

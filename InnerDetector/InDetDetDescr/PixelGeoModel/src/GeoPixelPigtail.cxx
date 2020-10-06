@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelPigtail.h"
@@ -9,8 +9,10 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
 
-GeoPixelPigtail::GeoPixelPigtail() {
-  
+GeoPixelPigtail::GeoPixelPigtail(InDetDD::PixelDetectorManager* ddmgr,
+                                 PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
 }
 
 GeoVPhysVol* GeoPixelPigtail::Build() {

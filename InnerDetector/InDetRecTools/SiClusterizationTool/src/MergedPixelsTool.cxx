@@ -25,6 +25,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include <unordered_set>
 
 using CLHEP::micrometer;
 
@@ -41,15 +42,12 @@ namespace InDet {
     }
   
   StatusCode  MergedPixelsTool::initialize(){
-    
     if (m_IBLParameterSvc.retrieve().isFailure()) { 
       ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc"); 
     } else { 
       m_IBLParameterSvc->setBoolParameters(m_IBLAbsent,"IBLAbsent");
     }  
-    
     ATH_CHECK(m_pixelDetEleCollKey.initialize());
-    
     return PixelClusteringToolBase::initialize();
   }
 
@@ -340,12 +338,15 @@ namespace InDet {
     // loop on the rdo collection and save the relevant quantities for each fired pixel
     // rowcolID contains: number of connected pixels, phi/eta pixel indices, tot, lvl1, rdo identifier
     std::vector<rowcolID> collectionID;
-
+    std::unordered_set<Identifier> setOfIdentifiers{};
     for(const auto & rdo : collection) {
-      
       const Identifier rdoID= rdo->identify();
-      if (m_usePixelMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
-          
+      if (m_useModuleMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
+      //check for duplication:
+      //add to set of existing identifiers. If it fails (.second = false) then skip it.
+      if (not setOfIdentifiers.insert(rdoID).second)   continue;
+      // note that we don't understand, for now, why these duplicated RDO's occur
+      //
       const int lvl1= rdo->getLVL1A();      
       if (m_checkDuplicatedRDO and checkDuplication(pixelID, rdoID, lvl1, collectionID)) continue;
       
@@ -353,7 +354,6 @@ namespace InDet {
       
       rowcolID   RCI(-1, pixelID.phi_index(rdoID), pixelID.eta_index(rdoID), tot, lvl1, rdoID); 
       collectionID.push_back(RCI);
-      
       // check if this is a ganged pixel    
       Identifier gangedID;
       const bool ganged = isGanged(rdoID, element, gangedID);  
@@ -376,8 +376,7 @@ namespace InDet {
 
     // Network production
     //
-    int collectionSize = collectionID.size();
-    
+    int collectionSize = collectionID.size();    
     // the maximum number of elements to save can be either 2 or 3
     // m_addCorners == true requires saving the bottom (or top), the side and the corner connection for each pixel,
     // otherwise you only save bottom (or top) and the side
@@ -389,16 +388,16 @@ namespace InDet {
       int NB  = 0;
       int row = collectionID.at(currentPixel).ROW;
       int col = collectionID.at(currentPixel).COL; 
-      
+      //
+      auto & currentConnection = connections.at(currentPixel);
       for(int otherPixel = currentPixel+1; otherPixel!=collectionSize; ++otherPixel) {
+        auto & otherConnection = connections.at(otherPixel);
         int deltaCol = std::abs(collectionID.at(otherPixel).COL - col);
         int deltaRow = std::abs(collectionID.at(otherPixel).ROW - row);
-
         // break if you are too far way in columns, as these ones will be taken in the next iterations
         if( deltaCol > 1) {
           break;
         }
-        
         // if you need the corners, you jump the next rows, as these ones will be taken in the next iterations
         if ( m_addCorners and deltaRow > 1 ) {
           continue;
@@ -415,8 +414,12 @@ namespace InDet {
         
         // this builds the single pixel connection and breaks if the max number of elements is reached:        
         if( (deltaCol+deltaRow) == 1 or (m_addCorners and deltaCol == 1 and deltaRow == 1) ) {
-          connections.at(currentPixel).CON.at(connections.at(currentPixel).NC++) = otherPixel;
-          connections.at(otherPixel).CON.at(connections.at(otherPixel).NC++) = currentPixel ;
+          try{
+            currentConnection.CON.at(currentConnection.NC++) = otherPixel;
+            otherConnection.CON.at(otherConnection.NC++) = currentPixel ;
+          } catch (const std::out_of_range & ){
+            throw std::runtime_error("attempt to access connection array beyond its size in MergedPixelsTool::clusterize");
+          }
           if(++NB==maxElements) {
             break;
           }
@@ -512,7 +515,7 @@ namespace InDet {
                                           const int& Ncluster,
                                           const std::vector<network>& connections,                                         
                                           std::vector<rowcolID>& collectionID) const {
-    for(int i=0; i!=connections.at(r).NC; ++i) {      
+    for(int i=0; i!=connections.at(r).NC; ++i) {  
       const int k = connections.at(r).CON.at(i);
       if(collectionID.at(k).NCL < 0) {
         collectionID.at(k).NCL = Ncluster;

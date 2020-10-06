@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include "GaudiKernel/PhysicalConstants.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "DiMuMon.h"
 
@@ -243,7 +244,7 @@ StatusCode DiMuMon::bookHistograms()
 }
 
 
-StatusCode DiMuMon::fillHistograms ATLAS_NOT_THREAD_SAFE () // const_cast is used.
+StatusCode DiMuMon::fillHistograms()
 {
 
   const double muonMass = 105.66*Gaudi::Units::MeV;
@@ -255,7 +256,7 @@ StatusCode DiMuMon::fillHistograms ATLAS_NOT_THREAD_SAFE () // const_cast is use
   } else ATH_MSG_DEBUG("Muon container successfully retrieved.");
 
   //make a new container
-  xAOD::MuonContainer* goodMuons = new xAOD::MuonContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<xAOD::MuonContainer> goodMuons( SG::VIEW_ELEMENTS );
 
   //pick out the good muon tracks and store in the new container
   for(const auto* muon : *muons ) {
@@ -287,15 +288,15 @@ StatusCode DiMuMon::fillHistograms ATLAS_NOT_THREAD_SAFE () // const_cast is use
     if (fabs(idTrkEta)>2.5) continue;
     m_stat->Fill("eta<2.5",1);
 
-    goodMuons->push_back(const_cast<xAOD::Muon*>(muon));
+    goodMuons.push_back(muon);
   }
 
   //pair up the tracks of the good muons and fill histograms
-  int nMuons = goodMuons->size();
+  int nMuons = goodMuons.size();
 
   if (nMuons>1){
-    xAOD::MuonContainer::const_iterator mu1 = goodMuons->begin();
-    xAOD::MuonContainer::const_iterator muEnd = goodMuons->end();
+    xAOD::MuonContainer::const_iterator mu1 = goodMuons.begin();
+    xAOD::MuonContainer::const_iterator muEnd = goodMuons.end();
     for (; mu1!=muEnd;mu1++){
       const xAOD::TrackParticle *id1 = (*mu1)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
       xAOD::MuonContainer::const_iterator mu2 = mu1+1;
@@ -451,7 +452,7 @@ StatusCode DiMuMon::fillHistograms ATLAS_NOT_THREAD_SAFE () // const_cast is use
 }
 
 
-StatusCode DiMuMon::procHistograms ATLAS_NOT_THREAD_SAFE () // Thread unsafe DiMuMon::iterativeGausFit is used.
+StatusCode DiMuMon::procHistograms()
 {
 
 
@@ -483,7 +484,7 @@ StatusCode DiMuMon::procHistograms ATLAS_NOT_THREAD_SAFE () // Thread unsafe DiM
 }
 
 
-void DiMuMon::iterativeGausFit ATLAS_NOT_THREAD_SAFE (TH2F* hin, std::vector<TH1F*> hout, int mode){ // Global gStyle is used.
+void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
   // a canvas may be needed when implmenting this into the post-processing file
   TString hname =  hin->GetName();
   TString psName = hname + m_triggerChainName + ".ps";
@@ -511,7 +512,7 @@ void DiMuMon::iterativeGausFit ATLAS_NOT_THREAD_SAFE (TH2F* hin, std::vector<TH1
 	sigma= fn->GetParameter(2);
 	fn->SetRange(mean-1.2*sigma,mean+1.2*sigma);
 	fn->SetParameters(float(htemp->GetEntries())/10.,mean,sigma);
-	gStyle->SetOptStat(1);
+	//gStyle->SetOptStat(1); // not thread-safe
 	if (m_doSaveFits) {
 	  htemp->Fit("fn","RML");
 	  ctemp->Print(psName);

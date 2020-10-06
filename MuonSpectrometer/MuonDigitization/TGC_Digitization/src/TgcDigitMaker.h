@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TgcDigitMaker.h
@@ -174,7 +174,7 @@ class TgcDigitMaker {
 
   TgcHitIdHelper* m_hitIdHelper;
   unsigned int m_runperiod;
-  const MuonGM::MuonDetectorManager* m_mdManager;
+  const MuonGM::MuonDetectorManager* m_mdManager; // cannot use ReadCondHandleKey since no athena component
   const TgcIdHelper* m_idHelper;
   float m_efficiencyOfWireGangs;
   float m_efficiencyOfStrips;

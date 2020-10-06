@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build detailed stave support : face plate + carbon foam + cable flex + cooling pipe + end blocks
@@ -23,7 +23,9 @@
 using std::max;
 using namespace std;
 
-GeoPixelStaveRing::GeoPixelStaveRing()
+GeoPixelStaveRing::GeoPixelStaveRing(InDetDD::PixelDetectorManager* ddmgr,
+                                     PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
 {
   m_ringName="staveRing";
   m_ringPosition="AC";
@@ -51,8 +53,8 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
   double safety = 0.001*Gaudi::Units::mm; 
   bool isBLayer = false;
   if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
-  GeoPixelSiCrystal theSensor(isBLayer);
-  GeoPixelModule pm(theSensor);
+  GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
+  GeoPixelModule pm(m_DDmgr, m_gmt_mgr, theSensor);
   // Ladder geometry
 
   double endBlockFixingPoint= m_gmt_mgr->IBLStaveMechanicalStaveEndBlockFixPoint();

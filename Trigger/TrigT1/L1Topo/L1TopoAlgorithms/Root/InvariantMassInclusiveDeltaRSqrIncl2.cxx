@@ -29,7 +29,6 @@
 
 REGISTER_ALG_TCS(InvariantMassInclusiveDeltaRSqrIncl2)
 
-using namespace std;
 
 
 TCS::InvariantMassInclusiveDeltaRSqrIncl2::InvariantMassInclusiveDeltaRSqrIncl2(const std::string & name) : DecisionAlg(name)
@@ -130,25 +129,14 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2::initialize() {
 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int n_bin = 100;
-       int MassDeltaR_min = 0;
-       int mass_min = sqrt(p_InvMassMin[i]);
-       int mass_max = sqrt(p_InvMassMax[i]);
-       // if minimum mass requirement less than twice of bin length,
-       // adjust to range by changing maximum mass with the 10 time of bin length.
-       // This is necessary when range is too wide and minimum cut unvisible.
-       // Later will be changed with more automated way.
-       if ( 2*(mass_max-mass_min)/n_bin > mass_min && mass_min != 0.0 )
-	 { mass_max=10*(mass_max-mass_min)/n_bin; }
-       int deltaR_max = sqrt(p_DeltaRMax[i]);
+       std::string hname_accept = "hInvariantMassDeltaRSqrIncl2_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hInvariantMassDeltaRSqrIncl2_reject_bit"+std::to_string((int)i);
        // mass
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusiveDeltaRSqrIncl2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusiveDeltaRSqrIncl2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       registerHist(m_histAcceptM[i] = new TH2F(hname_accept, hname_accept, n_bin, MassDeltaR_min, 2*mass_max, n_bin, MassDeltaR_min, 2*deltaR_max));
-       registerHist(m_histRejectM[i] = new TH2F(hname_reject, hname_reject, n_bin, MassDeltaR_min, 2*mass_max, n_bin, MassDeltaR_min, 2*deltaR_max));
+       bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaRMin[i], p_DeltaRMax[i]);
+       bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaRMin[i], p_DeltaRMax[i]);
+
    }
+
    return StatusCode::SUCCESS;
 }
 
@@ -195,9 +183,9 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2::processBitCorrect( const std::vector<
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-		     fillHist2D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
+		     fillHist2D(m_histAcceptM[i],sqrt((float)invmass2),sqrt((float)deltaR2));
                    } else if(fillReject) {
-		     fillHist2D(m_histRejectM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
+		     fillHist2D(m_histRejectM[i],sqrt((float)invmass2),sqrt((float)deltaR2));
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2 << " deltaR2 = " << deltaR2 );
                }
@@ -251,9 +239,9 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl2::process( const std::vector<TCS::TOBAr
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-		     fillHist2D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
+		     fillHist2D(m_histAcceptM[i],sqrt((float)invmass2),sqrt((float)deltaR2));
                    } else if(fillReject) {
-		     fillHist2D(m_histRejectM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
+		     fillHist2D(m_histRejectM[i],sqrt((float)invmass2),sqrt((float)deltaR2));
                    }
 		  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2 << " deltaR2 = " << deltaR2 );
                }

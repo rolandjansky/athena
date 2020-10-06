@@ -90,7 +90,7 @@ Trk::Navigator::initialize() {
   // get the TrackingGeometrySvc
   if (!m_useConditions) {
     if (m_trackingGeometrySvc.retrieve().isSuccess()) {
-      ATH_MSG_INFO("Successfully retrieved " << m_trackingGeometrySvc);
+      ATH_MSG_DEBUG("Successfully retrieved " << m_trackingGeometrySvc);
       m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
     } else {
       ATH_MSG_WARNING("Couldn't retrieve " << m_trackingGeometrySvc << ". ");
@@ -108,7 +108,6 @@ Trk::Navigator::initialize() {
   //This is no-op for the Navigator only relevant for
   //derivated Validation for now
   validationInitialize();
-  ATH_MSG_DEBUG("initialize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -614,7 +613,6 @@ Trk::Navigator::finalize() {
     ATH_MSG_DEBUG(" ---------------------------------------------------------------------");
   }
 
-  ATH_MSG_INFO("finalize() successful");
   return StatusCode::SUCCESS;
 }
 

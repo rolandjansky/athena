@@ -17,14 +17,7 @@ def TrackSummaryToolWorkaround(flags):
 
     # Taken from InnerDetector/InDetDigitization/PixelDigitization/python/PixelDigitizationConfigNew.py
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
-    result.merge(PixelConfigCondAlgCfg(flags,
-                                    UseCalibConditions=True,
-                                    UseDeadmapConditions=True,
-                                    UseDCSStateConditions=False,
-                                    UseDCSStatusConditions=False,
-                                    UseDCSHVConditions=True,
-                                    UseDCSTemperatureConditions=True,
-                                    UseTDAQConditions=False))
+    result.merge(PixelConfigCondAlgCfg(flags))
 
     from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
     InDetPixelConditionsSummaryTool = result.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
@@ -87,15 +80,15 @@ def TrackSummaryToolWorkaround(flags):
                                                           CountDeadModulesAfterLastHit = True,
                                                           BoundaryCheckTool=InDetBoundaryCheckTool)
     result.addPublicTool(InDetHoleSearchTool)
-    InDetPrdAssociationTool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
+    InDetPrdAssociationTool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool_setup",
                                                                           PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap",
                                                                           SetupCorrect                   = True,
                                                                           addTRToutliers                 = True)
     result.addPublicTool(InDetPrdAssociationTool)
     InDetTrackSummaryHelperTool = CompFactory.InDet.InDetTrackSummaryHelperTool(name            = "InDetSummaryHelper",
                                                                      AssoTool        = InDetPrdAssociationTool,
-                                                                     PixelToTPIDTool = None,
-                                                                     TestBLayerTool  = None,
+                                                                     PixelToTPIDTool = '',
+                                                                     TestBLayerTool  = '',
                                                                      RunningTIDE_Ambi = True,
                                                                      DoSharedHits    = False,
                                                                      HoleSearch      = InDetHoleSearchTool,
@@ -106,9 +99,9 @@ def TrackSummaryToolWorkaround(flags):
                                                   InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                                   doSharedHits           = False,
                                                   doHolesInDet           = True,
-                                                  TRT_ElectronPidTool    = None,
-                                                  TRT_ToT_dEdxTool       = None,
-                                                  PixelToTPIDTool        = None)
+                                                  TRT_ElectronPidTool    = '',
+                                                  TRT_ToT_dEdxTool       = '',
+                                                  PixelToTPIDTool        = '')
     result.setPrivateTools(InDetTrackSummaryTool)
     ############################## WORKAROUND (END) ############################
 

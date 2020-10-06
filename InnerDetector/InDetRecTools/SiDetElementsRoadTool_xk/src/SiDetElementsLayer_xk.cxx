@@ -12,6 +12,8 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
+#include <cmath>
+
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 
@@ -33,16 +35,16 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
   float a  = (A[0]*P[0]+A[1]*P[1])*2.; 
   float d  = (m_r-P[0]-P[1])*(m_r+P[0]+P[1])+2.*P[0]*P[1];
   float b  = 2.*(A[0]*A[0]+A[1]*A[1]); if(b == 0.) return;
-  float sq = a*a+2.*d*b;  sq>0. ? sq=sqrt(sq) : sq=0.;
+  float sq = a*a+2.*d*b;  sq>0. ? sq=std::sqrt(sq) : sq=0.;
   float s1 =-(a+sq)/b;
   float s2 =-(a-sq)/b; 
   float s;
-  if((s1*s2) > 0.) {fabs(s1) < fabs(s2) ? s = s1 : s = s2;}
+  if((s1*s2) > 0.) {std::fabs(s1) < std::fabs(s2) ? s = s1 : s = s2;}
   else             {     s1  > 0.       ? s = s1 : s = s2;}  
   float zc   = P[2]+A[2]*s;
   float At   = sqrt(1.-A[2]*A[2]);
-  if(At != 0. && fabs(zc-m_z) > (m_dz+(m_dr*fabs(A[2])+P[4])/At)) return;
-  float fc   = atan2(P[1]+A[1]*s,P[0]+A[0]*s);
+  if(At != 0. && std::fabs(zc-m_z) > (m_dz+(m_dr*std::fabs(A[2])+P[4])/At)) return;
+  float fc   = std::atan2(P[1]+A[1]*s,P[0]+A[0]*s);
   float dw   = P[4]/m_r;
   getDetElements(P,A,fc,dw,lDE,used);
 }
@@ -66,10 +68,10 @@ void InDet::SiDetElementsLayer_xk::getEndcapDetElements
   float s   =(m_z-P[2])/A[2];
   float xc  = P[0]+A[0]*s;
   float yc  = P[1]+A[1]*s;
-  float rc  = sqrt(xc*xc+yc*yc);
+  float rc  = std::sqrt(xc*xc+yc*yc);
   float A23 = A[2]*P[3];
-  if(A23 != 0. && fabs(rc-m_r) > m_dr+fabs(2.*(P[0]*A[0]+P[1]*A[1])*m_dz/A23)+P[4]) return;
-  float fc  = atan2(yc,xc);
+  if(A23 != 0. && std::fabs(rc-m_r) > m_dr+fabs(2.*(P[0]*A[0]+P[1]*A[1])*m_dz/A23)+P[4]) return;
+  float fc  = std::atan2(yc,xc);
   float dw  = P[4]/rc;
   getDetElements(P,A,fc,dw,lDE,used);
 }
@@ -107,7 +109,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     assert( static_cast<unsigned int>(i)<m_elements.size() );
     if(!used[i].used()) {
 
-      float dF =fabs(m_elements[i].phi()-Fc); if(dF>pi) dF=fabs(dF-pi2);
+      float dF =std::fabs(m_elements[i].phi()-Fc); if(dF>pi) dF=std::fabs(dF-pi2);
       if((dF-dW)>m_dfe) break;
       m_elements[i].intersect(P,A,O);
 
@@ -125,7 +127,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     assert( static_cast<unsigned int>(i)<m_elements.size() );
     if(!used[i].used()) {
 
-      float dF =fabs(m_elements[i].phi()-Fc); if(dF>pi) dF=fabs(dF-pi2);
+      float dF =std::fabs(m_elements[i].phi()-Fc); if(dF>pi) dF=std::fabs(dF-pi2);
       if((dF-dW)>m_dfe) return;
       m_elements[i].intersect(P,A,O);
       

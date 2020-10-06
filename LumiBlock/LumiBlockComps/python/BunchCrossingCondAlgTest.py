@@ -92,6 +92,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
 ConfigFlags.Input.isMC=False
 ConfigFlags.IOVDb.GlobalTag="CONDBR2-BLKPA-2017-05"
+ConfigFlags.GeoModel.AtlasVersion="ATLAS-R2-2016-01-00-01"
 ConfigFlags.lock()
 
 result=MainServicesCfg(ConfigFlags)

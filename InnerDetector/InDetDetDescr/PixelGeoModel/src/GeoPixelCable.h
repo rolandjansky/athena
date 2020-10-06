@@ -8,10 +8,11 @@
 #include "GeoVPixelFactory.h"
 #include <vector>
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelCable : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelCable : public GeoVPixelFactory {
  public:
-  GeoPixelCable();
-  virtual GeoVPhysVol* Build();
+  GeoPixelCable(InDetDD::PixelDetectorManager* ddmgr,
+                PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
   int numElements() const {return m_elements.size();}
   void setElement(int i) {m_currentElement = i;}
   double getStackOffset();

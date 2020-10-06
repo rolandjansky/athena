@@ -92,11 +92,6 @@ namespace TrigConf {
       // Properties:
       bool            m_setMergedHLT { true }; 
       bool            m_doMon { false };
-      Histo1DProperty m_histProp_timePrescaleUpdate;
-
-      // Histograms:
-      TH1F* m_hist_timePrescaleUpdate { nullptr };
-      TH2I* m_hist_prescaleLB { nullptr };
    };
 }
 

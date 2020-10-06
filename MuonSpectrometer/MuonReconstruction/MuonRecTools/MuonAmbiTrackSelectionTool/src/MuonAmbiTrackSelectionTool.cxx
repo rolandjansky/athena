@@ -43,6 +43,7 @@ Muon::MuonAmbiTrackSelectionTool::initialize()
 //============================================================================================
 std::tuple<Trk::Track *, bool>
 Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *track, const Trk::TrackScore score,
+                                                     [[maybe_unused]] Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                      Trk::PRDtoTrackMap &prd_to_track_map) const
 {
     (void)score;  //@TODO unused ?

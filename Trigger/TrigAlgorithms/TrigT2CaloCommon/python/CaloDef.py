@@ -142,8 +142,7 @@ def HLTRoITopoRecoSequence(RoIs):
     import AthenaCommon.CfgMgr as CfgMgr
     HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV")
     HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs' ),
-                                             ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                             ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
+                                             ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")

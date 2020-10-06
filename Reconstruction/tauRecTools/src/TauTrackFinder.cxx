@@ -30,12 +30,17 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_trackSelectorTool_tau.retrieve() );
     ATH_CHECK( m_trackToVertexTool.retrieve() );
     ATH_CHECK( m_caloExtensionTool.retrieve() );
-    
+    ATH_CHECK( m_trackToVertexIPEstimator.retrieve() );
+
     // initialize ReadHandleKey
     // allow empty for trigger
     ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
     // use CaloExtensionTool when key is empty 
     ATH_CHECK( m_ParticleCacheKey.initialize(SG::AllowEmpty) );
+
+    if (inTrigger()) {
+      ATH_CHECK(m_beamSpotKey.initialize());
+    }
 
     return StatusCode::SUCCESS;
 }
@@ -68,7 +73,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   }
 
   // get the primary vertex
-  const xAOD::Vertex* pVertex = pTau.vertexLink() ? pTau.vertex() : nullptr;
+  const xAOD::Vertex* pVertex = nullptr;
+  if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
 
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
@@ -196,6 +202,53 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
 
   ATH_MSG_DEBUG("numTrack: " << "/" << pTau.nTracks());
   ATH_MSG_DEBUG("charge: " << "/" << pTau.charge());
+
+  // impact parameter variables w.r.t. tau vertex 
+  const xAOD::Vertex* vxcand = nullptr;
+
+  xAOD::Vertex theBeamspot;
+  theBeamspot.makePrivateStore();
+
+  if (inTrigger()) { // online: use beamspot
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    if(beamSpotHandle.isValid()) {
+      theBeamspot.setPosition(beamSpotHandle->beamPos());
+      const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
+      theBeamspot.setCovariancePosition(cov);
+      vxcand = &theBeamspot;
+    }
+    else {
+      ATH_MSG_DEBUG("No Beamspot object in tau candidate");
+    }
+  }
+  else if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
+    vxcand = pTau.vertex();
+  }
+
+  static const SG::AuxElement::Decorator<float> dec_d0TJVA("d0TJVA");
+  static const SG::AuxElement::Decorator<float> dec_z0sinthetaTJVA("z0sinthetaTJVA");
+  static const SG::AuxElement::Decorator<float> dec_d0SigTJVA("d0SigTJVA");
+  static const SG::AuxElement::Decorator<float> dec_z0sinthetaSigTJVA("z0sinthetaSigTJVA");
+
+  for(auto track : pTau.allTracks()) {      
+    dec_d0TJVA(*track) = track->track()->d0();
+    dec_z0sinthetaTJVA(*track) = track->z0sinThetaTJVA(pTau);
+    dec_d0SigTJVA(*track) = -999.;
+    dec_z0sinthetaSigTJVA(*track) = -999.;
+
+    // in the trigger, z0sintheta and corresponding significance are meaningless if we use the beamspot
+    if(vxcand) {
+      std::unique_ptr<const Trk::ImpactParametersAndSigma> myIPandSigma 
+	= std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(track->track(), vxcand));
+      
+      if(myIPandSigma) {
+	dec_d0TJVA(*track) = myIPandSigma->IPd0;
+	dec_z0sinthetaTJVA(*track) = myIPandSigma->IPz0SinTheta;
+	dec_d0SigTJVA(*track) = (myIPandSigma->sigmad0 != 0.) ? (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ) : -999.;
+	dec_z0sinthetaSigTJVA(*track) = (myIPandSigma->sigmaz0SinTheta != 0.) ? (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ) : -999.;
+      }
+    }
+  }
 
   // extrapolate core tracks to calorimeter surface
   // store information only in ExtraDetailsContainer

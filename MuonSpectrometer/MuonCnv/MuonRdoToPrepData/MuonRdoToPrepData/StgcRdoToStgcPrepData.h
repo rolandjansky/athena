@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCRDOTOSTGCPREPDATA_H
 #define STGCRDOTOSTGCPREPDATA_H
 
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 
@@ -20,11 +20,9 @@ public:
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
 private:
-
-  ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_decoderTool; //!< Tool used to do actual decoding.
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_decoderTool{this,"DecodingTool","Muon::sTgcRdoToPrepDataTool/STGC_PrepDataProviderTool"};
   SG::WriteHandleKey<Muon::sTgcPrepDataContainer> m_prdContainer;
 };
 

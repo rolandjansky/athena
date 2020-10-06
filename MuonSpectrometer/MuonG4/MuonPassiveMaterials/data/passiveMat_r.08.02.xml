@@ -2619,16 +2619,12 @@
 </composition>
 </section>
 
+
 <section name       = "ATLAS Feet"
-         version    = "7.0"
-         date       = "20 November 2003"
-         author     = "Jochen Meyer, Daniel Pomarede, Laurent Chevalier"
+         version    = "0.0"
+         date       = "29-05-2019"
+         author     = "Niko Tsutskiridze"
          top_volume = "Feet">
-
-
-<!--  reviewed/corrected in October 2009 by Jochen Meyer 
-      comment: * blueprint references are available on the twiki Pages
-               * still some details are missing                       -->  
 
 <!--     name       =  Feet only                     section name       = "Feet"      -->
 <!--  **************************************************************
@@ -2638,1452 +2634,577 @@
       ***                                                       ****
       **************************************************************
       **************************************************************  -->
-<!--  Standard Feet                                         -->
 <!--  Basic parameters extracted from drawing ATLHBFB_0003  -->
 
-
-<!--  Main Plate  -->
-<!-- BEGIN confirmation with atlhbfb_0003-vAF (if no other comment) -->
-<var  name="FEET_MainPlXo_MainPlateXorigin"                  value="    0. " />
-<var  name="FEET_MnPlGXwi_MainPlate_GroundXwidth"            value=" 1800. " />  <!-- confirmed atcnh___0005-vAG -->
-<var  name="FEET_MnPlRCdx_MainPlateRoundCutDX"               value="  868. " />
-<var  name="FEET_MnPldxex_MainPlateDXextr"                   value="  733. " />
-<var  name="FEET_MnPlUpDx_MainPlateUpperDX"                  value=" 1234.5" />
-<var  name="FEET_MnPlUpXw_MainPlateUpperXwidth"              value=" 1315. " />
-<var  name="FEET_MnPlMiDx_MainPlateMiddleDX"                 value="  380. " />
-
-<var  name="FEET_MainPlYo_MainPlateYorigin"                  value="    0. " />
-<var  name="FEET_MainPlHe_MainPlateHeight"                   value=" 5300. " />
-<var  name="FEET_MainPlH1_MainPlateHeight_intermediate1"     value=" 1605. " />
-<var  name="FEET_MnPlRCYp_MainPlateRoundCut_Y"               value=" 2173. " />
-<var  name="FEET_MnPlSRCY_MainPlateSecondaryRoundCut_Y"      value=" 1958. " />  <!-- NO CONFIRMATION POSSIBLE -->
-<var  name="FEET_MnPlUpDy_MainPlateUpperDY"                  value="  790. " />
-<var  name="FEET_MnPlMiDy_MainPlateMiddleDY"                 value=" 1813. " />
-<var  name="FEET_MnPlPeHe_MainPlate_PedestalHeight"          value="   60. " />
-
-<var  name="FEET_MainPldZ_MainPlateDZ"                       value="   80. " />
-<var  name="FEET_MnPlZsep_MainPlateZsep"                     value="  980. " />
-
-<var  name="FEET_MnPlRCra_MainPlateRoundCut_R"               value="  615. " />
-<var  name="FEET_MnPlSRCr_MainPlateSecondaryRoundCut_R"      value="  400. " />  <!-- NO CONFIRMATION POSSIBLE -->
-
-<var  name="FEET_MnPlHDiX_MainPlateHoleDistanceX"            value=" 1275. " />
-
-
-<!--  Connecting Plates  -->
-
-<var  name="FEET_MinCPlxw_MiniConnPlate_Xwidth"        value="  310. " />
-<var  name="FEET_MinCPlyh_MiniConnPlate_Yheight"       value="   75. " />
-<var  name="FEET_MinCPltz_MiniConnPlate_ThetaZ"        value="   22.5" />
-<var  name="FEET_MinCPlzl_MiniConnPlate_Zlength"       value=" 1100. " />
-
-<var  name="FEET_SlaCPlxw_SlantedConnPlate_Xwidth"     value=" 2964. " />  <!-- GUESS since volume is a rough approx. -->
-<var  name="FEET_SlaCPlyh_SlantedConnPlate_Yheight"    value="   70. " />  <!-- confirmed atlhbfc_0003-vAG -->
-<var  name="FEET_SlaCPltz_SlantedConnPlate_ThetaZ"     value="  -67.5" />
-<var  name="FEET_SlaCPlzl_SlantedConnPlate_Zlength"    value=" 1100. " />  <!-- confirmed atlhbfc_0003-vAG -->
-
-<var  name="FEET_SlaCPlBr_BracketTriangle_Zwidth"      value="    5. " />   <!-- atlmh__0011-v0 -->
-<var  name="FEET_SlaCPlBr_BracketTube_Short"           value=" 1016. " />   <!-- atlmh__0011-v0 -->
-<var  name="FEET_SlaCPlBr_BracketTube_Long"            value=" 1140. " />   <!-- atlmh__0011-v0 -->
-<var  name="FEET_SlaCPlBr_Bracket_Pos"                 value="  600. " />   <!-- approximate position -->
-<var  name="FEET_SlaCPlBr_BracketTub_OuterRadius"      value="   37.5" />   <!-- atlmh__0011-v0 -->
-<var  name="FEET_SlaCPlBr_BracketTub_InnerRadius"      value="   32.5" />   <!-- atlmh__0011-v0 -->
-
-<var  name="FEET_GrndPlzl_GroundPlate_Zlength"         value=" 1150. " />  <!-- confirmed atcnh___0005-vAG -->
-
-<var  name="FEET_VCnPlxwi_VerticalConnPlate_Xwidth"    value="   80. " />
-<var  name="FEET_VCnPlyhe_VerticalConnPlate_Yheight"   value=" 1890. " />
-<var  name="FEET_VCnPldxe_VerticalConnPlate_DX"        value="  150. " />
-<var  name="FEET_VCnPldye_VerticalConnPlate_DY"        value=" 1140. " />
-
-<var  name="FEET_UCnPlxwi_UpperConnPlate_Xwidth"       value="   57. " />
-<var  name="FEET_UCnPlyhe_UpperConnPlate_Yheight"      value="  790. " />
-<var  name="FEET_UpCPzlen_UpperConnPlate_Zlength"      value="  980. " />
-<!-- END confirmation with atlhbfb_0003-vAF -->
-
-<!--  Rail Support  -->
-<!-- BEGIN confirmation with atlhbsf_0002-vAE (if no other comment) -->
-<var  name="FEET_Xwidth"                               value="  525. "/>
-
-<var  name="FEET_UpperHeY_RailSupportUpper_Yheight"    value="  120. " />
-<var  name="FEET_UpperLeZ_RailSupportUpper_Zlength"    value=" 1190. " />
-
-<var  name="FEET_LowerHeY_RailSupportLower_Yheight"    value="   95. " />
-<var  name="FEET_LowerLeZ_RailSupportLower_Zlength"    value=" 1100. " />
-
-<var  name="FEET_TotalHeY_RailSupportTotal_Yheight"    value="  890. " />
-<var  name="FEET_CentrLeZ_RailSupportCentral_Zlength"  value=" 1080. " />
-<var  name="FEET_CentrXth_RailSupportCentral_Xthick"   value="  100. " />
-<var  name="FEET_MidllYth_RailSupportMiddle_Ythick"    value="   80. " />
-<var  name="FEET_VertiZth_RailSupportVertical_Zthick"  value="   80. " />
-<var  name="FEET_MidllYpo_RailSupportMiddle_Ypos"      value="  400. " />
-
-<var  name="FEET_ExtreHeY_RailSupportExtr_Yheight"     value="   15. " />
-<var  name="FEET_ExtreLeZ_RailSupportExtr_Zlength"     value="  700. " />
-
-<var  name="FEET_HoleDist_RailSupport_DrillHoleDist"   value="  385. " />
-<!-- END confirmation with atlhbsf_0002-vAE -->
-
-<var  name="FEET_CentrHeY_RailSupportCentral_Yheight"  value="FEET_TotalHeY_RailSupportTotal_Yheight - FEET_UpperHeY_RailSupportUpper_Yheight - FEET_LowerHeY_RailSupportLower_Yheight " />
-
-<!-- Standard Feet Strut ATLTBWS_0011 -->
-<!-- BEGIN confirmation with atltbws_0011-v0 (if no other comment) -->
-<var  name="FEET_SFSthicz"        value="  40. " />
-<var  name="FEET_SFSthicy"        value="  50. " />
-<var  name="FEET_SFSwidth"        value=" 400. " />
-<var  name="FEET_SFSheigh"        value=" 600. " />
-<var  name="FEET_SFSangle"        value="  10. " />
-<var  name="FEET_SFSthicx"        value="  55. " />  <!-- unused variable -->
-<var  name="FEET_SFSlengx"        value="3440. " />
-<var  name="FEET_SFSRCutR"        value=" 210. " />
-<var  name="FEET_SFSRCpx"         value=" 897.5" />
-<var  name="FEET_SFSmystic"       value="  20. " />  <!-- NO CONFIRMATION POSSIBLE -->
-
-<!-- Extremity Feet Strut ATLTBWS_0012 -->
-<var  name="FEET_EFSlengx"        value="2780. " />  <!-- confirmed atcnh___0005-vAG -->
-
-<!-- Standard Feet Strut extremity plate -->
-<var  name="FEET_SFSEPdz"         value=" 500. " />
-<var  name="FEET_SFSEPdy"         value=" 690. " />
-<var  name="FEET_SFSEPdx"         value="  55. " />
-<!-- Standard and Extremity Feet Strut spacers -->
-<var  name="FEET_SFSSPdz"         value=" 980. " />
-<var  name="FEET_EFSSPdz"         value=" 980. " />  <!-- confirmed in discussion with Tatiana Klioutchnikova -->
-<var  name="FEET_SFSSPdy"         value=" 790. " />
-<var  name="FEET_EFSSPdy"         value=" 740. " />  <!-- to be confirmed -->
-<var  name="FEET_SFSSPdx"         value="  55. " />
-<!-- END confirmation with atltbws_0011-v0 -->
-<!-- comment on the following two values: since the feet position was adjusted FEET_SFSSPsep was increased without clash! 
-these parts had been maschined during installation so that the true value is not known and different for each foot -->
-<var  name="FEET_SFSSPsep"        value="  18.5 "/>  <!-- to be confirmed, drawing gives 15mm leading to clash with feet -->
-<var  name="FEET_EFSSPsep"        value="  28.5 "/>  <!-- to be confirmed -->
-
-<!--  Girder 1-2  -->
-<!-- BEGIN confirmation with atlhbg1_0001-vAF (if no other comment) -->
-<var  name="FEET_G12LPxwt_Girder12_LateralPlate_Xwidth_Total"             value=" 2355. " />
-<var  name="FEET_G12IPSxo_Girder12_InnerPlateSmalloffset_Xdist"           value="   35. " />
-<var  name="FEET_G12IPSLx_Girder12_InnerPlateSmall2Large_Xdist"           value="  995. " />
-<var  name="FEET_G12IPLLx_Girder12_InnerPlateLarge2Large_Xdist"           value="  335. " />
-<var  name="FEET_G12IPLSx_Girder12_InnerPlateLarge2Small_Xdist"           value="  960. " />
-
-<var  name="FEET_G12RPxwi_Girder12_ReinforcementPlate_Xwidth"             value=" 2015. " />
-<var  name="FEET_G12LPxw1_Girder12_LateralPlate_Xwidth_Inter1"            value=" 1558. " />
-
-<var  name="FEET_G12LPx12_Girder12_LateralPlate_Xwidth_Inter1Inter2"      value="  263.5" />
-<var  name="FEET_G12IPxwi_Girder12_InnerPlate_Xwidth"                     value="   30. " />
-<var  name="FEET_G12UMPwi_Girder12_UpperMiniPlate_Xwidth"                 value="  135. " />
-<var  name="FEET_G12SMPwi_Girder12_SideMiniPlate_Xwidth"                  value="  135. " />
-
-<var  name="FEET_G12yorig_Girder12_Yorigin"                               value="    0. " />
-<var  name="FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total"            value="  445. " />
-<var  name="FEET_G12LPyh1_Girder12_LateralPlate_Yheight_Inter1"           value="  375. " />
-<var  name="FEET_G12LPyh2_Girder12_LateralPlate_Yheight_Inter2"           value="  260. " />
-<var  name="FEET_G12LPyth_Girder12_LowerPlate_Ythick"                     value="   40. " />
-<var  name="FEET_G12UPyth_Girder12_UpperPlate_Ythick"                     value="   40. " />
-<var  name="FEET_G12RPydi_Girder12_ReinforcementPlate_Ydist"              value="  330. " />
-<var  name="FEET_G12UMPyh_Girder12_UpperMiniPlate_Yheight"                value="   40. " />
-
-<var  name="FEET_G12UPzle_Girder12_UpperPlate_Zlength"                    value="  640. " />
-<var  name="FEET_G12UMPzl_Girder12_UpperMiniPlate_Zlength"                value="  630. " />
-<var  name="FEET_G12BPzle_Girder12_BottomPlate_Zlength"                   value="  460. " />
-<var  name="FEET_G12LPzle_Girder12_LateralPlate_Zlength"                  value="   40. " />  <!-- unused variable -->
-<var  name="FEET_G12RPzle_Girder12_ReinforcementPlate_Zlength"            value="   40. " />
-<var  name="FEET_G12SMPzl_Girder12_SideMiniPlate_Zlength"                 value="   50. " />
-<!-- END confirmation with atlhbg1_0001-vAF -->
-
-
-<!--  Girder 2-3  -->
-<!-- BEGIN confirmation with atlhbg2_0001-vAF (if no other comment) -->
-<var  name="FEET_G23LPxwt_Girder23_LateralPlate_Xwidth_Total"             value=" 2135. " />
-<var  name="FEET_G23IPSxo_Girder23_InnerPlateSmalloffset_Xdist"           value="   35. " />
-<var  name="FEET_G23IPSLx_Girder23_InnerPlateSmall2Large_Xdist"           value=" 1025. " />
-<var  name="FEET_G23IPLLx_Girder23_InnerPlateLarge2Large_Xdist"           value="  305. " />
-<var  name="FEET_G23IPLSx_Girder23_InnerPlateLarge2Small_Xdist"           value="  740. " />
-
-<var  name="FEET_G23RPxwi_Girder23_ReinforcementPlate_Xwidth"             value=" 1795. " />
-<var  name="FEET_G23LPxw1_Girder23_LateralPlate_Xwidth_Inter1"            value=" 1338. " />
-
-<var  name="FEET_G23LPx12_Girder23_LateralPlate_Xwidth_Inter1Inter2"      value="  263.5" />
-<var  name="FEET_G23IPxwi_Girder23_InnerPlate_Xwidth"                     value="   30. " />
-<var  name="FEET_G23UMPwi_Girder23_UpperMiniPlate_Xwidth"                 value="  135. " />
-<var  name="FEET_G23SMPwi_Girder23_SideMiniPlate_Xwidth"                  value="  135. " />
-<!-- END confirmation with atlhbg2_0001-vAF -->
-
-<!--  Girder 3-4  -->
-<!-- BEGIN confirmation with atlhbg3_0001-vAF (if no other comment) -->
-<var  name="FEET_G34LPxwt_Girder34_LateralPlate_Xwidth_Total"             value=" 1680. " />
-<var  name="FEET_G34IPSxo_Girder34_InnerPlateSmalloffset_Xdist"           value="   35. " />
-<var  name="FEET_G34IPSLx_Girder34_InnerPlateSmall2Large_Xdist"           value="  895. " />
-<var  name="FEET_G34IPLLx_Girder34_InnerPlateLarge2Large_Xdist"           value="  335. " />
-<var  name="FEET_G34IPLSx_Girder34_InnerPlateLarge2Small_Xdist"           value="  385. " />
-
-<var  name="FEET_G34RPxwi_Girder34_ReinforcementPlate_Xwidth"             value=" 1340. " />
-<var  name="FEET_G34LPxw1_Girder34_LateralPlate_Xwidth_Inter1"            value="  883. " />
-
-<var  name="FEET_G34LPx12_Girder34_LateralPlate_Xwidth_Inter1Inter2"      value="  263.5" />
-<var  name="FEET_G34IPxwi_Girder34_InnerPlate_Xwidth"                     value="   30. " />
-<var  name="FEET_G34UMPwi_Girder34_UpperMiniPlate_Xwidth"                 value="  135. " />
-<var  name="FEET_G34SMPwi_Girder34_SideMiniPlate_Xwidth"                  value="  135. " />
-<!-- END confirmation with atlhbg3_0001-vAF -->
-
-<!--  Girder Extremity  -->
-<!-- BEGIN confirmation with atlhbg4_0002-vAE (if no other comment) -->
-<var  name="FEET_GExBPzw_GirderEx_BottomPlate_Zwidth"                     value="   40. " />
-<var  name="FEET_GExBPyw_GirderEx_BottomPlate_Ywidth"                     value="  765. " />
-<var  name="FEET_GExBPxws_GirderEx_BottomPlate_Xwidth_Short"              value="  507. " />
-<var  name="FEET_GExBPxwl_GirderEx_BottomPlate_Xwidth_Long"               value="  778. " />
-<var  name="FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ"                 value="   50. " />
-
-<var  name="FEET_GExFPzw_GirderEx_FrontPlate_Zwidth"                      value="   40. " />
-<var  name="FEET_GExFPyw_GirderEx_FrontPlate_Ywidth"                      value="  383.5" />
-<var  name="FEET_GExFPxw_GirderEx_FrontPlate_Xwidth"                      value="  389.5" />
-
-<var  name="FEET_GExSPzw_GirderEx_SidePlate_Zwidth"                       value="   40. " />
-<var  name="FEET_GExSPyws_GirderEx_SidePlate_Ywidth_Short"                value="  259.5" />
-<var  name="FEET_GExSPywl_GirderEx_SidePlate_Ywidth_Long"                 value="  857. " />
-<var  name="FEET_GExSPxw_GirderEx_SidePlate_Xwidth"                       value="  725. " />
-<var  name="FEET_GExSPangxz_GirderEx_SidePlate_AngleXZ"                   value="   80. " />
-<var  name="FEET_GExSPxs_GirderEx_SidePlate_XShift"                       value="  294.5" />
-
-<var  name="FEET_GExTPzws_GirderEx_TopPlate_Zwidth_Short"                 value="   75. " />  <!-- GUESS since maschined during installation -->
-<var  name="FEET_GExTPzwl_GirderEx_TopPlate_Zwidth_Long"                  value="   80. " />
-<var  name="FEET_GExTPyws_GirderEx_TopPlate_Ywidth_Short"                 value="  650. " />
-<var  name="FEET_GExTPywl_GirderEx_TopPlate_Ywidth_Long"                  value="  850. " />
-<var  name="FEET_GExTPxwt_GirderEx_TopPlate_Xwidth_Total"                 value="  740. " />
-<var  name="FEET_GExTPxwp_GirderEx_TopPlate_Xwidth_Part"                  value="   46. " />
-<var  name="FEET_GExTPangi_GirderEx_TopPlate_AngleInternal"               value="   50. " />
-<!-- END confirmation with atlhbg4_0002-vAE -->
-
-<var  name="FEET_GExCzw_GirderEx_Connector_Zwidth"                        value="   70. " />  <!-- confirmed atcnh___0005-vAG -->
-
-<!-- BEGIN confirmation with atlhbeb_0032-vAA (if no other comment) -->
-<var  name="FEET_GExTCxw_GirderEx_TopConnector_Xwidth"                    value="  960. " />
-<var  name="FEET_GExTCyw_GirderEx_TopConnector_Ywidth"                    value="  200. " />
-<var  name="FEET_GExSCxw_GirderEx_SideConnector_Xwidth"                   value="  200. " />
-<var  name="FEET_GExSCyw_GirderEx_SideConnector_Ywidth"                   value="  700. " />
-<var  name="FEET_GExBCxw_GirderEx_BottomConnector_Xwidth"                 value="  850. " />
-<var  name="FEET_GExBCyw_GirderEx_BottomConnector_Ywidth"                 value="  200. " />
-<var  name="FEET_GExCys_GirderEx_Connector_Yshift"                        value="   68. " />  <!-- GUESS since maschined during installation -->
-
-
-<!--  Extremity Feet specific parameters -->
-
-<var  name="FEET_ExMPheig_ExtremityMainPlate_Height"                  value=" 5420.  " />
-<var  name="FEET_ExMPRCra_ExtremityMainPlateRoundCut_R"                   value="  385.  " />
-<var  name="FEET_ExMPRCdx_ExtremityMainPlateRoundCut_DX"                  value=" 1058.  " />
-<var  name="FEET_ExMPRCyp_ExtremityMainPlateRoundCut_Y"                   value=" 2780.  " />
-<var  name="FEET_ExMCPyhe_ExtremityMiniConnPlate_Yheight"                 value="   75.  " />
-<var  name="FEET_ExMCPzle_ExtremityMiniConnPlate_Zlength"                 value=" 1480.  " />
-<var  name="FEET_ExGPzlen_ExtremityGroundPlate_Zlength"                   value=" 1460.  " />
-<var  name="FEET_ExSCPzle_ExtremitySlantedConnPlate_Zlength"              value=" 1450.  " />  <!-- confirmed atlhbec_0001-vAF -->
-<var  name="FEET_ExRSzoff_ExtremityRailSupport_Zoffset"                   value="   62.5 " />  <!-- confirmed with a comparison of drilled holes in atlhbeb_0032-vAA and atlhbse_0001-vAG-->
-
-<var  name="FEET_ExMPhei1_ExtremityMainPlate_Height_intermediate1"    value=" 1727.  " />
-<var  name="FEET_ExMPhei2_ExtremityMainPlate_Height_intermediate2"    value=" 1558.  " />
-
-<var  name="FEET_ExMPxwid_ExtremityMainPlate_Xwidth"                  value=" 1635.  " />
-<var  name="FEET_ExMPxwi1_ExtremityMainPlate_Xwidth_inter1"           value=" 1013.  " />
-<var  name="FEET_ExMPxwi2_ExtremityMainPlate_Xwidth_inter2"           value="  510.  " />
-    
-<var  name="FEET_ExMPyhi1_ExtremityMainPlate_Yheight_inter1"          value="   93.  " />
-<var  name="FEET_ExMPyhi2_ExtremityMainPlate_Yheight_inter2"          value=" 4480.  " />
-<var  name="FEET_ExMPyhi3_ExtremityMainPlate_Yheight_inter3"          value="  740.  " />
-<var  name="FEET_ExMPyhi4_ExtremityMainPlate_Yheight_inter4"          value="  100.  " />
-
-<var  name="FEET_ExMPxdi1_ExtremityMainPlate_Xdist_inter1"            value=" 1070.  " />
-<var  name="FEET_ExMPxdi2_ExtremityMainPlate_Xdist_inter2"            value="  688.  " />
-<var  name="FEET_ExMPydi2_ExtremityMainPlate_Ydist_inter1"            value=" 2834.  " />
-
-<var  name="FEET_ExVCPldx_ExtremityVerticalConnPlate_DX"              value="  100.  " />
-<var  name="FEET_ExVCPldy_ExtremityVerticalConnPlate_DY"              value=" 1075.  " />
-
-<var  name="FEET_ExMPzsep_ExtremityMainPlate_Zsep"                    value=" 1360.  " />
-
-<var  name="FEET_ExSPRCra_ExtremitySlantedConnPlateRoundCut_Radius"   value="  225.  " />  <!-- confirmed atlhbec_0001-vAF -->
-<var  name="FEET_ExSPRCof_ExtremitySlantedConnPlateRoundCut_Offset"   value=" -400.  " />  <!-- GUESS since volume is a rough approx. -->
-
-<var  name="FEET_ExVCPthi_ExtremityVerticalConnPlate_Thickness"       value="   80.  " />
-<var  name="FEET_ExVCPxex_ExtremityVerticalConnPlate_Xext"            value="  284.  " />
-<var  name="FEET_ExVCPhei_ExtremityVerticalConnPlate_Height"          value=" 2005.  " />
-
-<var  name="FEET_ExVCPycu_ExtremityVerticalConnPlate_CutY"            value="  337.  " />
-<var  name="FEET_ExVCPxcu_ExtremityVerticalConnPlate_CutX"            value="  450.  " />
-
-<var  name="FEET_ExUCPyhe_ExtremityUpperConnPlate_Yheight"            value="  740.  " />
-<var  name="FEET_ExUCPzle_ExtremityUpperConnPlate_Zlength"            value=" 1360.  " />
-<!-- END confirmation with atlhbeb_0032-vAA -->
-
-<!--  Extremity Feet Rail support -->
-<!-- BEGIN confirmation with atlhbse_0001-vAG (if no other comment) -->
-<var  name="FEET_ExRSUzle_ExtremityRailSupportUpper_Zlength"              value=" 1820.  " />
-<var  name="FEET_ExRSLdzl_ExtremityRailSupportLower_DZlength"             value="   20.  " />
-<var  name="FEET_ExRSTyhe_ExtremityRailSupportTotal_Yheight"              value="  790.  " />
-<var  name="FEET_ExRSLyhe_ExtremityRailSupportLower_Yheight"              value="   90.  " />
-<var  name="FEET_ExRSEyhe_ExtremityRailSupportExtr_Yheight"               value="   20.  " />
-
-<var  name="FEET_ExRSCyhe_ExtremityRailSupportCentral_Yheight"            value="  560.  " />
-<var  name="FEET_ExRSCzle_ExtremityRailSupportCentral_Zlength"            value=" 1820.  " />
-<var  name="FEET_ExRSMzle_ExtremityRailSupportMiddle_Zlength"             value=" 1205.  " />
-
-<var  name="FEET_ExRSCxwi_ExtremityRailSupportCentral_Xwidth"             value="   80.  " />
-<var  name="FEET_ExRSMxwi_ExtremityRailSupportMiddle_Xwidth"              value="  222.5 " />
-<var  name="FEET_ExRSVxwi_ExtremityRailSupportVertical_Xwidth"            value="  222.5 " />
-
-<var  name="FEET_ExRSVzi1_ExtremityRailSupportVertical_Zpos_inter1"       value="  420.  " />
-<var  name="FEET_ExRSEzle_ExtremityRailSupportExtr_Zlength"               value=" 1090.  " />
-<var  name="FEET_ExRSEzof_ExtremityRailSupportExtr_Zoffset"               value="  180.  " />
-
-<var  name="FEET_ExRSC1de_ExtremityRailSupportCut1_Depth"                 value="  217.  " />
-<var  name="FEET_ExRSC1wi_ExtremityRailSupportCut1_Width"                 value="  950.  " />
-
-<var  name="FEET_ExRSC1xe_ExtremityRailSupportCut1_dumXext"               value="  300.  " />  <!-- NO CONFIRMATION POSSIBLE -->
-<var  name="FEET_ExRSC2xe_ExtremityRailSupportCut2_dumXext"               value="  320.  " />  <!-- NO CONFIRMATION POSSIBLE -->
-
-<var  name="FEET_ExRSC2z1_ExtremityRailSupportCut1_Zoffset1"              value="  604.  " />
-<var  name="FEET_ExRSC2z2_ExtremityRailSupportCut1_Zoffset2"              value="  200.  " />
-
-<var  name="FEET_ExRSMCde_ExtremityRailSupportMiddleCut_Depth"            value="  149.  " />
-<var  name="FEET_ExRSMCwi_ExtremityRailSupportMiddleCut_Width"            value="  860.  " />
-<var  name="FEET_ExRSMCzo_ExtremityRailSupportMiddleCut_Zoffset"          value="  206.  " />
-
-<var  name="FEET_ExRSMCy1_ExtremityRailSupportMiddleCut_dumy1"            value="  300.  " />  <!-- NO CONFIRMATION POSSIBLE -->
-<var  name="FEET_ExRSMCy2_ExtremityRailSupportMiddleCut_dumy2"            value="  600.  " />  <!-- NO CONFIRMATION POSSIBLE -->
-<!-- END confirmation with atlhbse_0001-vAG -->
-
-<!--  Global Positions  -->
-<!-- BEGIN confirmation with atcnh___0005-vAG (if no other comment) -->
-<var  name="FEET_StdFooXp_StandardFoot_Xpos"   value="  2710.  " />
-<var  name="FEET_StdFooYp_StandardFoot_Ypos"   value="-11020.  " />
-
-<var  name="FEET_ZposFee1"                     value="     0.  " />
-<var  name="FEET_ZposFee2"                     value="  3425.  " />
-<var  name="FEET_ZposFee3"                     value="  6630.  " />
-<var  name="FEET_ZposFee4"                     value="  9380.  " />
-<var  name="FEET_ZposFee5"                     value=" 12080.  " />
-
-<var  name="FEET_GirdExtXpos_XposGirderEx"     value="  2735.5 " />
-<var  name="FEET_GirdExtZpos_ZposGirderEx"     value="  6625.  " />
-
-
-<var  name="FEET_GirdYHei_YHeightGirder"       value="  3935.  " />
-<var  name="FEET_GirdXpos_XposGirder"          value="  2735.5 " />
-<!-- END confirmation with atcnh___0005-vAG -->
-
-
-<!--  Additional parameters of arbitrary values  -->
-<var  name="FEET_MPlaHcec_FeetMainPlate_Hcec"  value="  50.  " />  <!-- NO CONFIRMATION POSSIBLE -->
-<var  name="FEET_dumz"                         value="2000.  " />  <!-- NO CONFIRMATION POSSIBLE -->
-<var  name="FEET_dumphi"                       value="  36.  " />  <!-- NO CONFIRMATION POSSIBLE -->
-
-
-
-
-<!--  Standard Feet Modelization of Main Plate -->
-
-<var  name="FEET_MainPlXa"          value=" FEET_MainPlXo_MainPlateXorigin     " />
-<var  name="FEET_MainPlYa"          value=" FEET_MainPlYo_MainPlateYorigin  +  FEET_MnPlPeHe_MainPlate_PedestalHeight       " />
-<var  name="FEET_MainPlXb"          value=" FEET_MnPlGXwi_MainPlate_GroundXwidth " />
-<var  name="FEET_MainPlYb"          value=" FEET_MainPlYo_MainPlateYorigin   +  FEET_MnPlPeHe_MainPlate_PedestalHeight     " />
-<var  name="FEET_MainPlXc"          value=" FEET_MnPlGXwi_MainPlate_GroundXwidth " />
-<var  name="FEET_MainPlYc"          value=" FEET_MainPlH1_MainPlateHeight_intermediate1  +  FEET_MnPlPeHe_MainPlate_PedestalHeight" />
-
-<!--  Circular extrusion  -->
-
-<var  name="FEET_MaPlRCXc_MainPlateRoundCut_XC"  value=" FEET_MnPlGXwi_MainPlate_GroundXwidth-FEET_MnPlRCdx_MainPlateRoundCutDX " />
-<var  name="FEET_MaPlRCYc_MainPlateRoundCut_YC"  value=" FEET_MnPlRCYp_MainPlateRoundCut_Y   +  FEET_MnPlPeHe_MainPlate_PedestalHeight   " />
-<var  name="FEET_MaiPlXc3"                       value=" FEET_MaPlRCXc_MainPlateRoundCut_XC - FEET_MnPlRCra_MainPlateRoundCut_R * GENV_Co45 " />
-<var  name="FEET_MaiPlYc3"                       value=" FEET_MaPlRCYc_MainPlateRoundCut_YC + FEET_MnPlRCra_MainPlateRoundCut_R * GENV_Si45 " />
-
-
-<!--  Additional circular extrusion  -->
-
-<var  name="FEET_MPlXextr_FeetMainPlate_Xextr"       value=" FEET_MnPlGXwi_MainPlate_GroundXwidth - FEET_MnPldxex_MainPlateDXextr " />
-<var  name="FEET_MPlYextr_FeetMainPlate_Yextr"       value=" FEET_MnPlSRCY_MainPlateSecondaryRoundCut_Y  +  FEET_MnPlPeHe_MainPlate_PedestalHeight" />
-<var  name="FEET_MPlRextr_FeetMainPlate_Rextr"       value=" FEET_MnPlSRCr_MainPlateSecondaryRoundCut_R " />
-<var  name="FEET_MaiPlXc2"         value=" FEET_MPlXextr_FeetMainPlate_Xextr + FEET_MPlRextr_FeetMainPlate_Rextr * GENV_Si225 " />
-<var  name="FEET_MaiPlYc2"         value=" FEET_MPlYextr_FeetMainPlate_Yextr - FEET_MPlRextr_FeetMainPlate_Rextr * GENV_Co225 " />
-
-<!--  Circular extrusions completion -->
-
-<var  name="FEET_MPlXcec1"  value=" FEET_MPlXextr_FeetMainPlate_Xextr                       " />
-<var  name="FEET_MPlYcec1"  value=" FEET_MPlYextr_FeetMainPlate_Yextr - FEET_MPlRextr_FeetMainPlate_Rextr " />
-<var  name="FEET_MPlXcec2"  value=" FEET_MaPlRCXc_MainPlateRoundCut_XC                       " />
-<var  name="FEET_MPlYcec2"  value=" FEET_MaPlRCYc_MainPlateRoundCut_YC - FEET_MnPlRCra_MainPlateRoundCut_R " />
-
-<var  name="FEET_a"         value=" GENV_Ta45 " />
-<var  name="FEET_b"         value=" FEET_MaiPlYc3 - FEET_MaiPlXc3 * GENV_Ta45  " />
-<var  name="FEET_aprime"    value="-GENV_Ta675 " />
-<var  name="FEET_bprime"    value=" FEET_MainPlYc  + FEET_MainPlXc  * GENV_Ta675 " />
-<var  name="FEET_aseconde"  value=" GENV_Ta225 " />
-<var  name="FEET_bseconde"  value=" FEET_MaiPlYc2 - FEET_MaiPlXc2 * FEET_aseconde  " />
-
-<var  name="FEET_MainPlXd"  value=" -(FEET_b-FEET_bprime)/(FEET_a-FEET_aprime) " />
-<var  name="FEET_MainPlYd"  value=" FEET_a*FEET_MainPlXd + FEET_b " />
-<var  name="FEET_MainPlXe"  value=" FEET_MainPlXc - FEET_MnPlUpDx_MainPlateUpperDX " />
-<var  name="FEET_MainPlYe"  value=" FEET_aprime*FEET_MainPlXe + FEET_bprime " />
-<var  name="FEET_MaiPlXc1"  value=" -(FEET_bseconde-FEET_bprime)/(FEET_aseconde-FEET_aprime) " />
-<var  name="FEET_MaiPlYc1"  value=" FEET_aseconde*FEET_MaiPlXc1 + FEET_bseconde " />
-<var  name="FEET_MainPlXf"  value=" FEET_MainPlXe " />
-<var  name="FEET_MainPlYf"  value=" FEET_MainPlHe_MainPlateHeight " />
-<var  name="FEET_MainPlXg"  value=" FEET_MainPlXe - FEET_MnPlUpXw_MainPlateUpperXwidth " />
-<var  name="FEET_MainPlYg"  value=" FEET_MainPlHe_MainPlateHeight " />
-<var  name="FEET_MainPlXh"  value=" FEET_MainPlXg " />
-<var  name="FEET_MainPlYh"  value=" FEET_MainPlHe_MainPlateHeight - FEET_MnPlUpDy_MainPlateUpperDY " />
-<var  name="FEET_MainPlXi"  value=" FEET_MainPlXo_MainPlateXorigin - FEET_MnPlMiDx_MainPlateMiddleDX " />
-<var  name="FEET_MainPlYi"  value=" FEET_MnPlMiDy_MainPlateMiddleDY + FEET_MnPlMiDx_MainPlateMiddleDX*GENV_Ta675 " />
-<var  name="FEET_MainPlXj"  value=" FEET_MainPlXo_MainPlateXorigin " />
-<var  name="FEET_MainPlYj"  value=" FEET_MnPlMiDy_MainPlateMiddleDY +  FEET_MnPlPeHe_MainPlate_PedestalHeight" />
-
-
-
-<gvxy  name="FeetMainPlate"       material="Iron"   dZ="FEET_MainPldZ_MainPlateDZ"  >
-  <gvxy_point  X_Y=" FEET_MainPlXa     ;  FEET_MainPlYa  " />
-  <gvxy_point  X_Y=" FEET_MainPlXb     ;  FEET_MainPlYb  " />
-  <gvxy_point  X_Y=" FEET_MainPlXc     ;  FEET_MainPlYc  " />
-  <gvxy_point  X_Y=" FEET_MaiPlXc1    ;  FEET_MaiPlYc1 " />
-  <gvxy_point  X_Y=" FEET_MaiPlXc2    ;  FEET_MaiPlYc2 " />
-  <gvxy_point  X_Y=" FEET_MaiPlXc3    ;  FEET_MaiPlYc3 " />
-  <gvxy_point  X_Y=" FEET_MainPlXd     ;  FEET_MainPlYd  " />
-  <gvxy_point  X_Y=" FEET_MainPlXe     ;  FEET_MainPlYe  " />
-  <gvxy_point  X_Y=" FEET_MainPlXf     ;  FEET_MainPlYf  " />
-  <gvxy_point  X_Y=" FEET_MainPlXg     ;  FEET_MainPlYg  " />
-  <gvxy_point  X_Y=" FEET_MainPlXh     ;  FEET_MainPlYh  " />
-  <gvxy_point  X_Y=" FEET_MainPlXi     ;  FEET_MainPlYi  " />
-  <gvxy_point  X_Y=" FEET_MainPlXj     ;  FEET_MainPlYj  " />
+<gvxysx name="Standard_Bottom_Plate" material="ShieldSteel" dZ="1198.">
+    <gvxy_point X_Y="-820.5; 15.8"/>
+    <gvxy_point X_Y="-820.5;-75."/>
+    <gvxy_point X_Y="-914.;-75."/>
+    <gvxy_point X_Y="-914.;75."/>
+</gvxysx>
+
+<gvxy name="Standard_MineSide_Plate" material="ShieldSteel" dZ="81.5">
+    <gvxy_point X_Y="-1274.71; -2610."/>
+    <gvxy_point X_Y="-1274.71; -1004.21"/>
+    <gvxy_point X_Y="-1224.78; -883.67"/>
+    <gvxy_point X_Y="-956.89; -994.63"/>
+    <gvxy_point X_Y="-930.12; -930."/>
+    <gvxy_point X_Y="-634.5; -1052.5"/>
+    <gvxy_point X_Y="-406.96; -1052.5"/>
+    <gvxy_point X_Y="27.91; -2.63"/>
+    <gvxy_point X_Y="-615.13; 640.42"/>
+    <gvxy_point X_Y="-40.29; 2028.2"/>
+    <gvxy_point X_Y="-40.29; 2630."/>
+    <gvxy_point X_Y="559.49; 2630"/>
+    <gvxy_point X_Y="559.49; 2610."/>
+    <gvxy_point X_Y="1274.71; 2610."/>
+    <gvxy_point X_Y="1274.71; 1820."/>
+    <gvxy_point X_Y="906.15; 223.58"/>
+    <gvxy_point X_Y="524.76; -697.17"/>
+    <gvxy_point X_Y="524.76; -2610."/>
 </gvxy>
 
-<tubs     name="MainPlateRoundCut"            material="Aluminium1"  Rio_Z=" 0 ; FEET_MnPlRCra_MainPlateRoundCut_R ; FEET_dumz"  nbPhi="FEET_dumphi" />
-<tubs     name="MainPlateSecondaryRoundCut"   material="Aluminium1"  Rio_Z=" 0 ; FEET_MPlRextr_FeetMainPlate_Rextr ; FEET_dumz"  nbPhi="FEET_dumphi" />
-<gvxy     name="MainPlateRoundCutCompletion"  material="Aluminium1"   dZ="FEET_dumz"  >
-  <gvxy_point  X_Y="   FEET_MPlXcec1    ;   FEET_MPlYcec1   " />
-  <gvxy_point  X_Y="   FEET_MPlXcec1    ;   FEET_MPlYcec1 + FEET_MPlaHcec_FeetMainPlate_Hcec   " />
-  <gvxy_point  X_Y="   FEET_MPlXcec2    ;   FEET_MPlYcec2 + FEET_MPlaHcec_FeetMainPlate_Hcec   " />
-  <gvxy_point  X_Y="   FEET_MPlXcec2    ;   FEET_MPlYcec2   " />
+<tubs name="Standard_MineSide_Plate_CutTube" material="ShieldSteel" Rio_Z="0.; 615.; 85." nbPhi="32"/>
+<subtraction name="Standard_MineSide_PlateSub" >
+    <posXYZ volume="Standard_MineSide_Plate" />
+    <posXYZ volume="Standard_MineSide_Plate_CutTube" X_Y_Z="-406.956; -437.5; 0." rot=" 0.; 0.;0."/>
+</subtraction>
+
+<box name="Standard_Midd_Plate" material="ShieldSteel" X_Y_Z="297.; 153.6; 1100."/>
+
+<box name="Standard_Back_Top_Plate" material="ShieldSteel" X_Y_Z="59.3; 790.; 1040."/>
+
+<box name="Standard_Back_Plate" material="ShieldSteel" X_Y_Z="76.56; 1969.5; 896.8"/>
+
+<gvxysx name="Standard_Inner_Back_Plate" material="ShieldSteel" dZ="44.">
+    <gvxy_point X_Y="-375.; -365."/>
+    <gvxy_point X_Y="-375.; 315."/>
+    <gvxy_point X_Y="-325.; 365."/>
+</gvxysx>
+
+<box name="Standard_Inner_Middle_plate" material="ShieldSteel" X_Y_Z="157.32; 680.; 630."/>
+
+<tubs name="Standard_Innert_Tub" material="ShieldSteel" Rio_Z="562.5; 605.5; 800." profile="213.; 134.8" nbPhi="32"/>
+
+<composition  name="Standard_Inner_Parts" >
+    <posXYZ  volume="Standard_Inner_Back_Plate"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 90.; 0." />
+    <posXYZ  volume="Standard_Inner_Middle_plate"    X_Y_Z=" -335.3 ; -30.35 ; 0." rot=" 0.; 0.; -50." />
+    <posXYZ  volume="Standard_Innert_Tub"    X_Y_Z=" -754.18 ; 568.54 ; 0." />
+</composition>
+
+<gvxysx name="Standard_Front_Cover" material="ShieldSteel" dZ="80.6">
+    <gvxy_point X_Y="-550.; -1505."/>
+    <gvxy_point X_Y="-550.; -465."/>
+    <gvxy_point X_Y="-535.; -450."/>
+    <gvxy_point X_Y="-535.; 1505."/>
+</gvxysx>
+
+<box name="Standard_Front_CoverCutBox" material="ShieldSteel" X_Y_Z="270.; 1450.; 20."/>
+
+<subtraction name="Standard_Front_CoverCut" >
+    <posXYZ volume="Standard_Front_Cover" />
+    <posXYZ volume="Standard_Front_CoverCutBox" X_Y_Z="535.; 790.; 40.3" rot=" 0.; 0.; 0."/>
+    <posXYZ volume="Standard_Front_CoverCutBox" X_Y_Z="-535.; 790.; 40.3" rot=" 0.; 0.; 0."/>
+</subtraction>
+
+<composition  name="Standard_Feet" >
+    <posXYZ  volume="Standard_Bottom_Plate"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_MineSide_PlateSub"    X_Y_Z=" 374.97 ; 2685.1 ; 489.25" />
+    <posXYZ  volume="Standard_MineSide_PlateSub"    X_Y_Z=" 374.97 ; 2685.1 ; -489.25" />
+    <posXYZ  volume="Standard_Midd_Plate"    X_Y_Z=" -691.06 ; 1818.81 ; 0." rot=" 0.; 0.; -22.5" />
+    <posXYZ  volume="Standard_Back_Top_Plate"    X_Y_Z=" 1679.34 ; 4900. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Back_Plate"    X_Y_Z=" 782.25 ; 2122.5 ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Inner_Parts"    X_Y_Z=" 721.955 ; 1680. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Front_CoverCut"    X_Y_Z=" -320.4 ; 3211.01 ; 0." rot=" 0.; 90.; -22.5" />
+</composition>
+    <!-- End Standard Feet -->
+
+
+    <!-- Extremity Feet -->
+<gvxysx name="Extremity_Bottom_Plate" material="ShieldSteel" dZ="1660.4">
+    <gvxy_point X_Y="-820.5; 10."/>
+    <gvxy_point X_Y="-820.5; -80."/>
+    <gvxy_point X_Y="-905.25; -80."/>
+    <gvxy_point X_Y="-905.25; 70."/>
+</gvxysx>
+
+<gvxy name="Extremity_MineSide_Plate" material="ShieldSteel" dZ="82.6">
+    <gvxy_point X_Y="-1335.33; -2760.58"/>
+    <gvxy_point X_Y="-1335.33; -1154.7"/>
+    <gvxy_point X_Y="-1285.36; -1034.06"/>
+    <gvxy_point X_Y="-1017.44; -1145.04"/>
+    <gvxy_point X_Y="-990.65; -1080.37"/>
+    <gvxy_point X_Y="-694.43; -1203.06"/>
+    <gvxy_point X_Y="-467.05; -1203.06"/>
+    <gvxy_point X_Y="147.95; -587.13"/>
+    <gvxy_point X_Y="147.7; -423.3"/>
+    <gvxy_point X_Y="91.24; 222.13"/>
+    <gvxy_point X_Y="-574.73; 733.15"/>
+    <gvxy_point X_Y="-140.51; 1781.5"/>
+    <gvxy_point X_Y="-158.99; 1789.16"/>
+    <gvxy_point X_Y="-100.4; 1930.6"/>
+    <gvxy_point X_Y="-100.4; 2599.44"/>
+    <gvxy_point X_Y="521.14; 2599.44"/>
+    <gvxy_point X_Y="521.14; 2506.22"/>
+    <gvxy_point X_Y="924.48; 2359.42"/>
+    <gvxy_point X_Y="1024.48; 2359.42"/>
+    <gvxy_point X_Y="1065.9; 2459.42"/>
+    <gvxy_point X_Y="1534.62; 2459.42"/>
+    <gvxy_point X_Y="1534.62; 1659.41"/>
+    <gvxy_point X_Y="1212.31; 1659.43"/>
+    <gvxy_point X_Y="846.05; 72.99"/>
+    <gvxy_point X_Y="464.66; -847.76"/>
+    <gvxy_point X_Y="464.66; -2760.58"/>
 </gvxy>
 
+<tubs name="Extremity_MineSide_Plate_CutTube" material="ShieldSteel" Rio_Z="0.; 615.; 85." nbPhi="32"/>
 
-<!--  Ensemble of Connecting plates -->
+<subtraction name="Extremity_MineSide_PlateSub" >
+    <posXYZ volume="Extremity_MineSide_Plate" />
+    <posXYZ volume="Extremity_MineSide_Plate_CutTube" X_Y_Z="-467.04; -588.06; 0." rot=" 0.; 0.;0."/>
+</subtraction>
 
-<var  name="FEET_Alpha1"                             value="FEET_MinCPltz_MiniConnPlate_ThetaZ + atan(FEET_MinCPlyh_MiniConnPlate_Yheight/FEET_MinCPlxw_MiniConnPlate_Xwidth)/GENV_PiS180" />
-<var  name="FEET_CoAl1"                              value="cos(FEET_Alpha1*GENV_PiS180)" />
-<var  name="FEET_SiAl1"                              value="sin(FEET_Alpha1*GENV_PiS180)" />
-<var  name="FEET_MiCPDiag_MiniConnPlate_DIAG"        value=" ( (FEET_MinCPlxw_MiniConnPlate_Xwidth/2.)**2. + (FEET_MinCPlyh_MiniConnPlate_Yheight/2.)**2. )**0.5 " />
-<var  name="FEET_MiCPxpos_MiniConnPlate_X"           value=" FEET_MaiPlXc1-FEET_MiCPDiag_MiniConnPlate_DIAG*FEET_CoAl1" />
-<var  name="FEET_MiCPypos_MiniConnPlate_Y"           value=" FEET_MaiPlYc1-FEET_MiCPDiag_MiniConnPlate_DIAG*FEET_SiAl1  " />
-<box  name="MiniConnPlate"        material="Iron"  X_Y_Z="FEET_MinCPlxw_MiniConnPlate_Xwidth; FEET_MinCPlyh_MiniConnPlate_Yheight; FEET_MinCPlzl_MiniConnPlate_Zlength " />
+<box name="Extremity_Midd_Plate" material="ShieldSteel" X_Y_Z="299.; 151.2; 1480."/>
 
-<var  name="FEET_Alpha2"                             value="-FEET_SlaCPltz_SlantedConnPlate_ThetaZ + atan(FEET_SlaCPlyh_SlantedConnPlate_Yheight/FEET_SlaCPlxw_SlantedConnPlate_Xwidth)/GENV_PiS180" />
-<var  name="FEET_CoAl2"                              value="cos(FEET_Alpha2*GENV_PiS180)" />
-<var  name="FEET_SiAl2"                              value="sin(FEET_Alpha2*GENV_PiS180)" />
-<var  name="FEET_SlCPDiag_SlantedConnPlate_DIAG"     value=" ( (FEET_SlaCPlxw_SlantedConnPlate_Xwidth/2.)**2. + (FEET_SlaCPlyh_SlantedConnPlate_Yheight/2.)**2. )**0.5 " />
-<var  name="FEET_SlCPBR_POS"                         value=" 600. " />
-<var  name="FEET_SlCPxpos_SlantedConnPlate_X"        value=" FEET_MaiPlXc1-FEET_SlCPDiag_SlantedConnPlate_DIAG*FEET_CoAl2 + FEET_MinCPlyh_MiniConnPlate_Yheight*GENV_Si225" />
-<var  name="FEET_SlCPypos_SlantedConnPlate_Y"        value=" FEET_MaiPlYc1+FEET_SlCPDiag_SlantedConnPlate_DIAG*FEET_SiAl2 - FEET_MinCPlyh_MiniConnPlate_Yheight*GENV_Co225  " />
-<box  name="SlantedConnPlate"     material="Iron" X_Y_Z="FEET_SlaCPlxw_SlantedConnPlate_Xwidth; FEET_SlaCPlyh_SlantedConnPlate_Yheight; FEET_SlaCPlzl_SlantedConnPlate_Zlength" />
+<box name="Extremity_Back_Top_Plate" material="ShieldSteel" X_Y_Z="69.95; 800.; 1624."/>
 
-<var  name="FEET_SlaCPlBr_BracketTriangle_ShortSide" value=" sqrt(FEET_SlaCPlBr_BracketTube_Long**2-FEET_SlaCPlBr_BracketTube_Short**2)  " />
-<var  name="FEET_SlaCPlBr_BracketTriangle_cosphi"    value=" FEET_SlaCPlBr_BracketTube_Short/FEET_SlaCPlBr_BracketTube_Long  " />
-<var  name="FEET_SlaCPlBr_BracketTriangle_sinphi"    value=" FEET_SlaCPlBr_BracketTriangle_ShortSide/FEET_SlaCPlBr_BracketTube_Long " />
+<box name="Extremity_AlMid_Plate" material="ShieldSteel" X_Y_Z="101.04; 400.; 1275."/>
 
-<gvxy  name="SlantedConnPlateBracketTriangle"     material="Aluminium" dZ="FEET_SlaCPlBr_BracketTriangle_Zwidth" > 
-  <gvxy_point X_Y="FEET_SlaCPlBr_BracketTriangle_ShortSide; 0." />
-  <gvxy_point X_Y="                                     0.; 0." />
-  <gvxy_point X_Y="                                     0.; FEET_SlaCPlBr_BracketTube_Short" />
+<gvxy name="Extremity_Back_Plate" material="ShieldSteel" dZ="1274.8">
+    <gvxy_point X_Y="-40.; -1003."/>
+    <gvxy_point X_Y="-40.; 585."/>
+    <gvxy_point X_Y="160.41; 1081.04"/>
+    <gvxy_point X_Y="234.5; 1051.11"/>
+    <gvxy_point X_Y="40.; 569.22"/>
+    <gvxy_point X_Y="40.; -1003."/>
 </gvxy>
 
-<tubs name="SlantedConnPlateBracketTubeShort"  material="Aluminium"  Rio_Z="FEET_SlaCPlBr_BracketTub_InnerRadius; FEET_SlaCPlBr_BracketTub_OuterRadius; FEET_SlaCPlBr_BracketTube_Short" nbPhi="15" />
-<tubs name="SlantedConnPlateBracketTubeLong"   material="Aluminium"  Rio_Z="FEET_SlaCPlBr_BracketTub_InnerRadius; FEET_SlaCPlBr_BracketTub_OuterRadius; FEET_SlaCPlBr_BracketTube_Long"  nbPhi="15" />
-
-<composition  name="SlantedConnPlateBracket" >
- <posXYZ  volume="SlantedConnPlateBracketTriangle"   X_Y_Z="GENV_Eps+2*FEET_SlaCPlBr_BracketTub_OuterRadius; 0.; 0."  rot="0.;0.;0." />
- <posXYZ  volume="SlantedConnPlateBracketTubeShort"  X_Y_Z="FEET_SlaCPlBr_BracketTub_OuterRadius; FEET_SlaCPlBr_BracketTube_Short/2.; 0. "    rot="90.;0.;0." />
- <posXYZ  volume="SlantedConnPlateBracketTubeLong"   X_Y_Z="GENV_Eps+2.*FEET_SlaCPlBr_BracketTub_OuterRadius+FEET_SlaCPlBr_BracketTriangle_ShortSide/2.+(FEET_SlaCPlBr_BracketTub_OuterRadius+GENV_Eps)*(FEET_SlaCPlBr_BracketTriangle_cosphi); FEET_SlaCPlBr_BracketTube_Short/2+(FEET_SlaCPlBr_BracketTub_OuterRadius+GENV_Eps)*FEET_SlaCPlBr_BracketTriangle_sinphi; 0. "    rot="90.; 0.; acos(FEET_SlaCPlBr_BracketTriangle_cosphi)/GENV_PiS180" />
-</composition>
-
-<var  name="FEET_GrnPxwid_GroundPlate_Xwidth"        value=" FEET_MnPlGXwi_MainPlate_GroundXwidth " />
-<var  name="FEET_GrnPyhei_GroundPlate_Yheight"       value=" FEET_MnPlPeHe_MainPlate_PedestalHeight  " />
-<var  name="FEET_GrnPxpos_GroundPlate_X"             value=" FEET_GrnPxwid_GroundPlate_Xwidth/2." />
-<var  name="FEET_GrnPypos_GroundPlate_Y"             value=" FEET_GrnPyhei_GroundPlate_Yheight/2." />
-<box  name="GroundPlate"          material="Iron"   X_Y_Z="FEET_GrnPxwid_GroundPlate_Xwidth; FEET_GrnPyhei_GroundPlate_Yheight; FEET_GrndPlzl_GroundPlate_Zlength" />
-
-<var  name="FEET_VeCPxpos_VerticalConnPlate_X"       value=" FEET_VCnPldxe_VerticalConnPlate_DX - FEET_VCnPlxwi_VerticalConnPlate_Xwidth/2." />
-<var  name="FEET_VeCPypos_VerticalConnPlate_Y"       value=" FEET_VCnPldye_VerticalConnPlate_DY + FEET_VCnPlyhe_VerticalConnPlate_Yheight/2." />
-<var  name="FEET_VeCPzlen_VerticalConnPlate_Zlength" value=" FEET_MnPlZsep_MainPlateZsep - FEET_MainPldZ_MainPlateDZ " />
-<box  name="VerticalConnPlate"    material="Iron"   X_Y_Z="FEET_VCnPlxwi_VerticalConnPlate_Xwidth; FEET_VCnPlyhe_VerticalConnPlate_Yheight; FEET_VeCPzlen_VerticalConnPlate_Zlength" />
-
-<var  name="FEET_UpCPxpos_UpperConnPlate_X"          value=" FEET_MainPlXh - FEET_UCnPlxwi_UpperConnPlate_Xwidth/2." />
-<var  name="FEET_UpCPypos_UpperConnPlate_Y"          value=" FEET_MainPlYh + FEET_UCnPlyhe_UpperConnPlate_Yheight/2." />
-<box  name="UpperConnPlate"       material="Iron"   X_Y_Z="FEET_UCnPlxwi_UpperConnPlate_Xwidth; FEET_UCnPlyhe_UpperConnPlate_Yheight; FEET_UpCPzlen_UpperConnPlate_Zlength" />
-
-
-
-<!--  Rail Support  -->
-
-<gvxysx   name="RailSupportFull"      material="Iron4"   dZ="FEET_Xwidth"  >
-  <gvxy_point  X_Y=" FEET_ExtreLeZ_RailSupportExtr_Zlength/2.    ; -FEET_ExtreHeY_RailSupportExtr_Yheight  "  />
-  <gvxy_point  X_Y=" FEET_ExtreLeZ_RailSupportExtr_Zlength/2.    ;              0.           "  />
-  <gvxy_point  X_Y=" FEET_LowerLeZ_RailSupportLower_Zlength/2.   ;              0.           "  />
-  <gvxy_point  X_Y=" FEET_LowerLeZ_RailSupportLower_Zlength/2.   ;  FEET_LowerHeY_RailSupportLower_Yheight "  />
-  <gvxy_point  X_Y=" FEET_CentrLeZ_RailSupportCentral_Zlength/2. ;  FEET_LowerHeY_RailSupportLower_Yheight "  />
-  <gvxy_point  X_Y=" FEET_CentrLeZ_RailSupportCentral_Zlength/2. ;  FEET_TotalHeY_RailSupportTotal_Yheight-FEET_UpperHeY_RailSupportUpper_Yheight "  />
-  <gvxy_point  X_Y=" FEET_UpperLeZ_RailSupportUpper_Zlength/2.   ;  FEET_TotalHeY_RailSupportTotal_Yheight-FEET_UpperHeY_RailSupportUpper_Yheight "  />
-  <gvxy_point  X_Y=" FEET_UpperLeZ_RailSupportUpper_Zlength/2.   ;  FEET_TotalHeY_RailSupportTotal_Yheight "  />
+<gvxysx name="Extremity_Back_PlateCutArb" material="ShieldSteel" dZ="300.">
+    <gvxy_point X_Y="-225.; -175."/>
+    <gvxy_point X_Y="-225.; -18."/>
+    <gvxy_point X_Y="-415.21; 175."/>
 </gvxysx>
-<box  name="RailSupportHoleA"  material="Iron1"  X_Y_Z=" 2.*FEET_Xwidth     ; FEET_CentrHeY_RailSupportCentral_Yheight    ; FEET_CentrLeZ_RailSupportCentral_Zlength-2.*FEET_VertiZth_RailSupportVertical_Zthick " />
-<box  name="RailSupportHoleB"  material="Iron1"  X_Y_Z=" FEET_CentrXth_RailSupportCentral_Xthick ; 2.*FEET_CentrHeY_RailSupportCentral_Yheight ; FEET_CentrLeZ_RailSupportCentral_Zlength " />
-<box  name="RailSupportHoleC"  material="Iron1"  X_Y_Z=" 3.*FEET_Xwidth     ; FEET_MidllYth_RailSupportMiddle_Ythick      ; FEET_CentrLeZ_RailSupportCentral_Zlength " />
-<subtraction  name="RailSupportHole" >
-  <posXYZ   volume="RailSupportHoleA"  />
-  <posXYZ   volume="RailSupportHoleB"  />
-  <posXYZ   volume="RailSupportHoleC"  />
-</subtraction>
-<subtraction  name="RailSupport" >
-  <posXYZ   volume="RailSupportFull"  rot=" 0. ; 90. ; 0. "  />
-  <posXYZ   volume="RailSupportHole"  X_Y_Z=" 0. ; FEET_LowerHeY_RailSupportLower_Yheight+FEET_CentrHeY_RailSupportCentral_Yheight/2. ; 0. " />
+
+<subtraction name="Extremity_Back_PlateCut" >
+    <posXYZ volume="Extremity_Back_Plate" />
+    <posXYZ volume="Extremity_Back_PlateCutArb" X_Y_Z="136.77; 915.87; 0." rot=" 0.; 90.; -22."/>
 </subtraction>
 
-<var  name="FEET_Midyposi_RailSupportMiddle_Y"     value=" FEET_MidllYpo_RailSupportMiddle_Ypos  + FEET_MidllYth_RailSupportMiddle_Ythick/2." />
+<box name="Extremity_Front_Cover" material="ShieldSteel" X_Y_Z="80.34; 3015.; 1450."/>
 
-<var  name="FEET_posx"    value=" FEET_MainPlXf - FEET_Xwidth/2. " />
-<var  name="FEET_posy"    value=" FEET_MainPlYf"  />
+<tubs name="Extremity_Front_Cover_CutTube" material="ShieldSteel" Rio_Z="0.; 225.; 100." nbPhi="32"/>
 
-<!-- Modelization of Standard Feet Strut -->
-<var  name="FEET_SFSxc"       value="  FEET_SFSwidth/2.  " />
-<var  name="FEET_SFSyc"       value="  FEET_SFSheigh/2.  " />
-<var  name="FEET_SFSxb"       value="  FEET_SFSxc " />
-<var  name="FEET_SFSyb"       value="  FEET_SFSyc - FEET_SFSthicy " />
-<var  name="FEET_SFSxa"       value="  FEET_SFSthicz/2.  " />
-<var  name="FEET_SFSya"       value="  FEET_SFSyb - tan(FEET_SFSangle*GENV_PiS180)*(FEET_SFSwidth-FEET_SFSthicz)/2.  " />
+<box name="Extremity_Front_CoverCutBox" material="ShieldSteel" X_Y_Z="20.; 1210.; 250."/>
 
-<gvxysxy   name="FEET_StandardStrutCore"      material="Aluminium"   dZ="FEET_SFSlengx"  >
-  <gvxy_point X_Y="FEET_SFSxa;FEET_SFSya"/>
-  <gvxy_point X_Y="FEET_SFSxb;FEET_SFSyb"/>
-  <gvxy_point X_Y="FEET_SFSxc;FEET_SFSyc"/>
-</gvxysxy>
-
-<gvxysxy   name="FEET_ExtremityStrutCore"      material="Aluminium"   dZ="FEET_EFSlengx"  >
-  <gvxy_point X_Y="FEET_SFSxa;FEET_SFSya"/>
-  <gvxy_point X_Y="FEET_SFSxb;FEET_SFSyb"/>
-  <gvxy_point X_Y="FEET_SFSxc;FEET_SFSyc"/>
-</gvxysxy>
-
-<var  name="FEET_SFSRCutZ" value="FEET_SFSthicz*2. " />
-
-<!-- Standard Feet -->
-<var  name="FEET_SFSEPpx"  value="FEET_SFSlengx/2.+ FEET_SFSEPdx/2." />
-<var  name="FEET_SFSSPx1"  value="FEET_SFSEPpx+ FEET_SFSEPdx/2.+FEET_SFSSPsep+FEET_SFSSPdx/2." />
-<var  name="FEET_SFSSPx2"  value="FEET_SFSSPx1+FEET_SFSSPdx" />
-<var  name="FEET_SFSSPx3"  value="FEET_SFSEPpx+ FEET_SFSEPdx/2.+FEET_SFSSPsep/2." />
-
-<!-- Extremity Feet -->
-<var  name="FEET_EFSEPpx"  value="FEET_EFSlengx/2.+ FEET_SFSEPdx/2." />
-<var  name="FEET_EFSSPx1"  value="FEET_EFSEPpx+ FEET_SFSEPdx/2.+FEET_EFSSPsep+FEET_SFSSPdx/2." />
-<var  name="FEET_EFSSPx2"  value="FEET_EFSSPx1+FEET_SFSSPdx" />
-<var  name="FEET_EFSSPx3"  value="FEET_EFSEPpx+ FEET_SFSEPdx/2.+FEET_EFSSPsep/2." />
-
-<tubs name="FEET_StandardStrutHole" material="Aluminium" Rio_Z=" 0.; FEET_SFSRCutR; FEET_SFSRCutZ"/>
-
-<box  name="FEET_StandardStrutExtremityPlate" material="Iron" X_Y_Z="FEET_SFSEPdx;FEET_SFSEPdy;FEET_SFSEPdz "  />
-<box  name="FEET_StandardStrutSpacer"         material="Iron" X_Y_Z="FEET_SFSSPdx;FEET_SFSSPdy;FEET_SFSSPdz "  />
-<box  name="FEET_StandardStrutShim"           material="Iron" X_Y_Z="FEET_SFSSPsep;FEET_SFSEPdy;FEET_SFSEPdz"  />
-<box  name="FEET_ExtremityStrutShim"          material="Iron" X_Y_Z="FEET_EFSSPsep;FEET_SFSEPdy;FEET_SFSEPdz"  />
-<box  name="FEET_ExtremityStrutSpacer"        material="Iron" X_Y_Z="FEET_SFSSPdx;FEET_EFSSPdy;FEET_EFSSPdz "  />
-
-<subtraction  name="FEET_StandardStrutCut" >
-  <posXYZ  volume="FEET_StandardStrutCore" />
-  <posXYZ  volume="FEET_StandardStrutHole" X_Y_Z=" 0. ; 0. ; FEET_SFSRCpx"  rot="   0. ; 90. ; 0."  />
-  <posXYZ  volume="FEET_StandardStrutHole" X_Y_Z=" 0. ; 0. ;-FEET_SFSRCpx"  rot="   0. ; 90. ; 0."  />
+<subtraction name="Extremity_Front_CoverCut" >
+    <posXYZ volume="Extremity_Front_Cover" />
+    <posXYZ volume="Extremity_Front_Cover_CutTube" X_Y_Z="0.; 332.5; 0." rot=" 0.; 90.; 0."/>
+    <posXYZ volume="Extremity_Front_CoverCutBox" X_Y_Z="40.17; 912.5; 725." rot=" 0.; 0.; 0."/>
+    <posXYZ volume="Extremity_Front_CoverCutBox" X_Y_Z="40.17; 912.5; -725." rot=" 0.; 0.; 0."/>
 </subtraction>
 
-<subtraction  name="FEET_ExtremityStrutCut" >
-  <posXYZ  volume="FEET_ExtremityStrutCore"/>
-  <posXYZ  volume="FEET_StandardStrutHole" X_Y_Z=" 0. ; 0. ; FEET_SFSRCpx"  rot="   0. ; 90. ; 0."  />
-  <posXYZ  volume="FEET_StandardStrutHole" X_Y_Z=" 0. ; 0. ;-FEET_SFSRCpx"  rot="   0. ; 90. ; 0."  />
+<composition  name="Extremiy_Feet" >
+    <posXYZ  volume="Extremity_Bottom_Plate"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_MineSide_PlateSub"    X_Y_Z=" 435.33 ; 2830.59 ; 678.9" />
+    <posXYZ  volume="Extremity_MineSide_PlateSub"    X_Y_Z=" 435.33 ; 2830.59 ; -678.9" />
+    <posXYZ  volume="Extremity_Midd_Plate"    X_Y_Z=" -691.23 ; 1812.79 ; 0." rot=" 0.; 0.; -22.5" />
+    <posXYZ  volume="Extremity_Back_Top_Plate"    X_Y_Z=" 2004.954 ; 4890. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_AlMid_Plate"    X_Y_Z=" 1243.8 ; 3636.8 ; 0." rot=" 0.; 0.; -22.5" />
+    <posXYZ  volume="Extremity_Back_PlateCut"    X_Y_Z=" 840.5 ; 2070. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Front_CoverCut"    X_Y_Z=" -321.16 ; 3203.82 ; 0." rot=" 0.; 0.; -22.5" />
+</composition>
+    <!-- End Extremity Feet -->
+
+
+    <!-- Standard Main Strut -->
+<gvxysx name="Sta_Main_Strut" material="Aluminium" dZ="3440.">
+    <gvxy_point X_Y="-200.; -300."/>
+    <gvxy_point X_Y="-200.; -250."/>
+    <gvxy_point X_Y="-20.; -218.3"/>
+    <gvxy_point X_Y="-20.; 218.3"/>
+    <gvxy_point X_Y="-200.; 250."/>
+    <gvxy_point X_Y="-200.; 300."/>
+</gvxysx>
+
+<tubs name="Standard_Main_StrutCutTube" material="Aluminium" Rio_Z="0.; 210.; 50." nbPhi="32"/>
+
+<subtraction  name="Standard_Main_StrutCut" >
+    <posXYZ  volume="Sta_Main_Strut"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Main_StrutCutTube"    X_Y_Z="897.5 ; 0. ; 0." />
+    <posXYZ  volume="Standard_Main_StrutCutTube"    X_Y_Z="-897.5 ; 0. ; 0." />
 </subtraction>
 
-<composition  name="FEET_StandardStrut" >
-  <posXYZ  volume="FEET_StandardStrutCut"  X_Y_Z="0.;-FEET_SFSmystic;0." rot="   0. ; 90. ; 0." />
-  <posXYZ  volume="FEET_StandardStrutExtremityPlate" X_Y_Z=" FEET_SFSEPpx;-FEET_SFSmystic;0." />
-  <posXYZ  volume="FEET_StandardStrutExtremityPlate" X_Y_Z="-FEET_SFSEPpx;-FEET_SFSmystic;0." />
-  <posXYZ  volume="FEET_StandardStrutShim"           X_Y_Z=" FEET_SFSSPx3;-FEET_SFSmystic;0." />
-  <posXYZ  volume="FEET_StandardStrutShim"           X_Y_Z="-FEET_SFSSPx3;-FEET_SFSmystic;0." />
-  <posXYZ  volume="FEET_StandardStrutSpacer"         X_Y_Z=" FEET_SFSSPx1;0.;0." />
-  <posXYZ  volume="FEET_StandardStrutSpacer"         X_Y_Z=" FEET_SFSSPx2;0.;0." />
-  <posXYZ  volume="FEET_StandardStrutSpacer"         X_Y_Z="-FEET_SFSSPx1;0.;0." />
-  <posXYZ  volume="FEET_StandardStrutSpacer"         X_Y_Z="-FEET_SFSSPx2;0.;0." />
+<box name="Standard_Main_Strut_Plate1" material="Aluminium" X_Y_Z="69.99; 690.; 500."/>
+
+<box name="Standard_Main_Strut_Plate2" material="Aluminium" X_Y_Z="109.99; 790.; 975."/>
+
+<composition  name="Standard_Main_Strut" >
+    <posXYZ  volume="Standard_Main_StrutCut"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Main_Strut_Plate1"    X_Y_Z=" 1755. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Main_Strut_Plate1"    X_Y_Z=" -1755. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Main_Strut_Plate2"    X_Y_Z=" 1844.99 ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Main_Strut_Plate2"    X_Y_Z=" -1844.99 ; 0. ; 0." rot=" 0.; 0.;0." />
 </composition>
+    <!--  End Standard Main Strut -->
 
-<composition  name="FEET_ExtremityStrut" >
-  <posXYZ  volume="FEET_ExtremityStrutCut" X_Y_Z=" 0.;FEET_SFSEPdy/2.-FEET_EFSSPdy/2.;0." rot="   0. ; 90. ; 0." />
-  <posXYZ  volume="FEET_StandardStrutExtremityPlate" X_Y_Z=" FEET_EFSEPpx;FEET_SFSEPdy/2.-FEET_EFSSPdy/2.;0." />
-  <posXYZ  volume="FEET_StandardStrutExtremityPlate" X_Y_Z="-FEET_EFSEPpx;FEET_SFSEPdy/2.-FEET_EFSSPdy/2.;0." />
-  <posXYZ  volume="FEET_ExtremityStrutShim"          X_Y_Z=" FEET_EFSSPx3;FEET_SFSEPdy/2.-FEET_EFSSPdy/2.;0." />
-  <posXYZ  volume="FEET_ExtremityStrutShim"          X_Y_Z="-FEET_EFSSPx3;FEET_SFSEPdy/2.-FEET_EFSSPdy/2.;0." />
-  <posXYZ  volume="FEET_ExtremityStrutSpacer"        X_Y_Z=" FEET_EFSSPx1;0.;0." />
-  <posXYZ  volume="FEET_ExtremityStrutSpacer"        X_Y_Z=" FEET_EFSSPx2;0.;0." />
-  <posXYZ  volume="FEET_ExtremityStrutSpacer"        X_Y_Z="-FEET_EFSSPx1;0.;0." />
-  <posXYZ  volume="FEET_ExtremityStrutSpacer"        X_Y_Z="-FEET_EFSSPx2;0.;0." />
+
+    <!-- Extremity Main Strut -->
+<gvxysx name="Extr_Main_Strut" material="Aluminium" dZ="2780.">
+    <gvxy_point X_Y="-200.; -300."/>
+    <gvxy_point X_Y="-200.; -250."/>
+    <gvxy_point X_Y="-20.; -218.3"/>
+    <gvxy_point X_Y="-20.; 218.3"/>
+    <gvxy_point X_Y="-200.; 250."/>
+    <gvxy_point X_Y="-200.; 300."/>
+</gvxysx>
+
+<tubs name="Extremity_Main_StrutCutTube" material="Aluminium" Rio_Z="0.; 210.; 50." nbPhi="32"/>
+
+<subtraction  name="Extremity_Main_StrutCut" >
+    <posXYZ  volume="Extr_Main_Strut"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Extremity_Main_StrutCutTube"    X_Y_Z="897.5 ; 0. ; 0." />
+    <posXYZ  volume="Extremity_Main_StrutCutTube"    X_Y_Z="-897.5 ; 0. ; 0." />
+</subtraction>
+
+<box name="Extremity_Main_Strut_Plate1" material="Aluminium" X_Y_Z="69.99; 690.; 500."/>
+
+<box name="Extremity_Main_Strut_Plate2" material="Aluminium" X_Y_Z="109.99; 740.; 1344."/>
+
+<composition  name="Extremity_Main_Strut" >
+    <posXYZ  volume="Extremity_Main_StrutCut"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Main_Strut_Plate1"    X_Y_Z=" 1425 ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Main_Strut_Plate1"    X_Y_Z=" -1425 ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Main_Strut_Plate2"    X_Y_Z=" 1515. ; 25. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Main_Strut_Plate2"    X_Y_Z=" -1515. ; 25. ; 0." rot=" 0.; 0.;0." />
 </composition>
+    <!--  End Extremity Main Strut -->
 
-<!--  Girder 1-2  -->
 
-<var  name="FEET_G12BoPxa_Girder12_BottomPlate_XA"          value="FEET_G12LPxw1_Girder12_LateralPlate_Xwidth_Inter1/2." />
-<var  name="FEET_G12BoPxb_Girder12_BottomPlate_XB"          value="FEET_G12BoPxa_Girder12_BottomPlate_XA + FEET_G12LPx12_Girder12_LateralPlate_Xwidth_Inter1Inter2" />
-<var  name="FEET_G12BoPxc_Girder12_BottomPlate_XC"          value="FEET_G12LPxwt_Girder12_LateralPlate_Xwidth_Total/2." />
-<var  name="FEET_G12BoPxd_Girder12_BottomPlate_XD"          value="FEET_G12BoPxc_Girder12_BottomPlate_XC" />
-<var  name="FEET_G12BoPxe_Girder12_BottomPlate_XE"          value="FEET_G12BoPxb_Girder12_BottomPlate_XB" />
-<var  name="FEET_G12BoPxf_Girder12_BottomPlate_XF"          value="FEET_G12BoPxa_Girder12_BottomPlate_XA" />
+    <!--  Girder 1 -->
+<box name="Standard_Girder1_Plate1" material="ShieldSteel" X_Y_Z="640.; 40.; 1527.3"/>
 
-<var  name="FEET_G12BoPya_Girder12_BottomPlate_YA"          value="FEET_G12yorig_Girder12_Yorigin + FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total - FEET_G12LPyh1_Girder12_LateralPlate_Yheight_Inter1- FEET_G12LPyth_Girder12_LowerPlate_Ythick" />
-<var  name="FEET_G12BoPyb_Girder12_BottomPlate_YB"          value="FEET_G12yorig_Girder12_Yorigin + FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total - FEET_G12LPyh2_Girder12_LateralPlate_Yheight_Inter2 - FEET_G12LPyth_Girder12_LowerPlate_Ythick" />
-<var  name="FEET_G12BoPyc_Girder12_BottomPlate_YC"          value="FEET_G12BoPyb_Girder12_BottomPlate_YB" />
-<var  name="FEET_G12BoPyd_Girder12_BottomPlate_YD"          value="FEET_G12BoPyc_Girder12_BottomPlate_YC + FEET_G12LPyth_Girder12_LowerPlate_Ythick" />
-<var  name="FEET_G12BoPye_Girder12_BottomPlate_YE"          value="FEET_G12BoPyb_Girder12_BottomPlate_YB + FEET_G12LPyth_Girder12_LowerPlate_Ythick" />
-<var  name="FEET_G12BoPyf_Girder12_BottomPlate_YF"          value="FEET_G12BoPya_Girder12_BottomPlate_YA + FEET_G12LPyth_Girder12_LowerPlate_Ythick" />
-
-<gvxysx   name="Girder12_BottomPlate"      material="Iron"   dZ="FEET_G12BPzle_Girder12_BottomPlate_Zlength"  >
-  <gvxy_point  X_Y="  FEET_G12BoPxa_Girder12_BottomPlate_XA   ;  FEET_G12BoPya_Girder12_BottomPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_G12BoPxb_Girder12_BottomPlate_XB   ;  FEET_G12BoPyb_Girder12_BottomPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_G12BoPxc_Girder12_BottomPlate_XC   ;  FEET_G12BoPyc_Girder12_BottomPlate_YC "   />
-  <gvxy_point  X_Y="  FEET_G12BoPxd_Girder12_BottomPlate_XD   ;  FEET_G12BoPyd_Girder12_BottomPlate_YD "   />
-  <gvxy_point  X_Y="  FEET_G12BoPxe_Girder12_BottomPlate_XE   ;  FEET_G12BoPye_Girder12_BottomPlate_YE "   />
-  <gvxy_point  X_Y="  FEET_G12BoPxf_Girder12_BottomPlate_XF   ;  FEET_G12BoPyf_Girder12_BottomPlate_YF "   />
+<gvxysx name="Standard_Girder1_Plate2" material="ShieldSteel" dZ="40.">
+    <gvxy_point X_Y="-670.; -465."/>
+    <gvxy_point X_Y="-670.; -345."/>
+    <gvxy_point X_Y="-763.65; -345."/>
+    <gvxy_point X_Y="-763.65; -20.05"/>
 </gvxysx>
 
-<var  name="FEET_G12IPzle_Girder12_InnerPlate_Zlength"            value="FEET_G12BPzle_Girder12_BottomPlate_Zlength" />
-<var  name="FEET_G12IPLyh_Girder12_InnerPlateLarge_Yheight"       value="FEET_G12LPyh1_Girder12_LateralPlate_Yheight_Inter1" />
-<var  name="FEET_G12IPLyp_Girder12_InnerPlateLarge_Ypos"          value="FEET_G12BoPyf_Girder12_BottomPlate_YF + FEET_G12IPLyh_Girder12_InnerPlateLarge_Yheight/2." />
-<var  name="FEET_G12IPSyh_Girder12_InnerPlateSmall_Yheight"       value="FEET_G12LPyh2_Girder12_LateralPlate_Yheight_Inter2" />
-<var  name="FEET_G12IPSyp_Girder12_InnerPlateSmall_Ypos"          value="FEET_G12BoPye_Girder12_BottomPlate_YE + FEET_G12IPSyh_Girder12_InnerPlateSmall_Yheight/2." />
-
-<var  name="FEET_G12IPSx1_Girder12_InnerPlateSmall1_Xpos"         value="-FEET_G12LPxwt_Girder12_LateralPlate_Xwidth_Total/2. + FEET_G12IPSxo_Girder12_InnerPlateSmalloffset_Xdist +  FEET_G12IPxwi_Girder12_InnerPlate_Xwidth/2." />
-<var  name="FEET_G12IPLx1_Girder12_InnerPlateLarge1_Xpos"         value="-FEET_G12LPxwt_Girder12_LateralPlate_Xwidth_Total/2. + FEET_G12IPSLx_Girder12_InnerPlateSmall2Large_Xdist + FEET_G12IPxwi_Girder12_InnerPlate_Xwidth/2." />
-<var  name="FEET_G12IPLx2_Girder12_InnerPlateLarge2_Xpos"         value=" FEET_G12IPLx1_Girder12_InnerPlateLarge1_Xpos + FEET_G12IPLLx_Girder12_InnerPlateLarge2Large_Xdist " />
-<var  name="FEET_G12IPSx2_Girder12_InnerPlateSmall2_Xpos"         value=" FEET_G12IPLx2_Girder12_InnerPlateLarge2_Xpos + FEET_G12IPLSx_Girder12_InnerPlateLarge2Small_Xdist " />
-
-<box  name="Girder12_InnerPlateLarge"            material="Iron"  X_Y_Z="FEET_G12IPxwi_Girder12_InnerPlate_Xwidth; FEET_G12IPLyh_Girder12_InnerPlateLarge_Yheight; FEET_G12IPzle_Girder12_InnerPlate_Zlength" />
-<box  name="Girder12_InnerPlateSmall"            material="Iron"  X_Y_Z="FEET_G12IPxwi_Girder12_InnerPlate_Xwidth; FEET_G12IPSyh_Girder12_InnerPlateSmall_Yheight; FEET_G12IPzle_Girder12_InnerPlate_Zlength" />
-
-<var  name="FEET_G12UPxwi_Girder12_UpperPlate_Xwidth"             value="FEET_G12LPxwt_Girder12_LateralPlate_Xwidth_Total" />
-<var  name="FEET_G12UPyhe_Girder12_UpperPlate_Yheight"            value="FEET_G12UPyth_Girder12_UpperPlate_Ythick" />
-<var  name="FEET_G12UPypo_Girder12_UpperPlate_Ypos"               value="FEET_G12yorig_Girder12_Yorigin + FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total + FEET_G12UPyth_Girder12_UpperPlate_Ythick/2. " />
-<box  name="Girder12_UpperPlate"                 material="Iron"  X_Y_Z="FEET_G12UPxwi_Girder12_UpperPlate_Xwidth; FEET_G12UPyhe_Girder12_UpperPlate_Yheight; FEET_G12UPzle_Girder12_UpperPlate_Zlength"  />
-
-<var  name="FEET_G12RePxa_Girder12_ReinforcementPlate_XA"         value="FEET_G12RPxwi_Girder12_ReinforcementPlate_Xwidth/2." />
-<var  name="FEET_G12RePxb_Girder12_ReinforcementPlate_XB"         value="FEET_G12RePxa_Girder12_ReinforcementPlate_XA" />
-<var  name="FEET_G12RePxc_Girder12_ReinforcementPlate_XC"         value="FEET_G12BoPxc_Girder12_BottomPlate_XC" />
-<var  name="FEET_G12RePxd_Girder12_ReinforcementPlate_XD"         value="FEET_G12RePxc_Girder12_ReinforcementPlate_XC" />
-<var  name="FEET_G12RePya_Girder12_ReinforcementPlate_YA"         value="FEET_G12yorig_Girder12_Yorigin" />
-<var  name="FEET_G12RePyb_Girder12_ReinforcementPlate_YB"         value="FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total - FEET_G12RPydi_Girder12_ReinforcementPlate_Ydist" />
-<var  name="FEET_G12RePyc_Girder12_ReinforcementPlate_YC"         value="FEET_G12RePyb_Girder12_ReinforcementPlate_YB" />
-<var  name="FEET_G12RePyd_Girder12_ReinforcementPlate_YD"         value="FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total " />
-
-<gvxysx     name="Girder12_ReinforcementPlate"   material="Iron"   dZ="FEET_G12RPzle_Girder12_ReinforcementPlate_Zlength"  >
-  <gvxy_point  X_Y="  FEET_G12RePxa_Girder12_ReinforcementPlate_XA   ;  FEET_G12RePya_Girder12_ReinforcementPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_G12RePxb_Girder12_ReinforcementPlate_XB   ;  FEET_G12RePyb_Girder12_ReinforcementPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_G12RePxc_Girder12_ReinforcementPlate_XC   ;  FEET_G12RePyc_Girder12_ReinforcementPlate_YC "   />
-  <gvxy_point  X_Y="  FEET_G12RePxd_Girder12_ReinforcementPlate_XD   ;  FEET_G12RePyd_Girder12_ReinforcementPlate_YD "   />
-</gvxysx>
-<var  name="FEET_G12RePzp_Girder12_ReinforcementPlate_Zpos"       value="FEET_G12BPzle_Girder12_BottomPlate_Zlength/2. +FEET_G12RPzle_Girder12_ReinforcementPlate_Zlength/2." />
-
-<var  name="FEET_G12UMPyp_Girder12_UpperMiniPlate_Ypos"           value="FEET_G12yorig_Girder12_Yorigin + FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total + FEET_G12UPyth_Girder12_UpperPlate_Ythick + FEET_G12UMPyh_Girder12_UpperMiniPlate_Yheight/2. " />
-<var  name="FEET_G12UMPxp_Girder12_UpperMiniPlate_Xpos"           value="FEET_G12LPxwt_Girder12_LateralPlate_Xwidth_Total/2. - FEET_G12UMPwi_Girder12_UpperMiniPlate_Xwidth/2." />
-<box  name="Girder12_UpperMiniPlate"             material="Iron"   X_Y_Z="FEET_G12UMPwi_Girder12_UpperMiniPlate_Xwidth; FEET_G12UMPyh_Girder12_UpperMiniPlate_Yheight; FEET_G12UMPzl_Girder12_UpperMiniPlate_Zlength"  />
-
-<var  name="FEET_G12SMPyh_Girder12_SideMiniPlate_Yheight"         value="FEET_G12RPydi_Girder12_ReinforcementPlate_Ydist" />
-<var  name="FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos"            value="FEET_G12RePyb_Girder12_ReinforcementPlate_YB+FEET_G12SMPyh_Girder12_SideMiniPlate_Yheight/2." />
-<var  name="FEET_G12SMPxp_Girder12_SideMiniPlate_Xpos"            value="FEET_G12LPxwt_Girder12_LateralPlate_Xwidth_Total/2. - FEET_G12SMPwi_Girder12_SideMiniPlate_Xwidth/2." />
-<var  name="FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"            value="FEET_G12UPzle_Girder12_UpperPlate_Zlength/2. - FEET_G12SMPzl_Girder12_SideMiniPlate_Zlength/2." />
-<box  name="Girder12_SideMiniPlate"              material="Iron"   X_Y_Z="FEET_G12SMPwi_Girder12_SideMiniPlate_Xwidth; FEET_G12SMPyh_Girder12_SideMiniPlate_Yheight; FEET_G12SMPzl_Girder12_SideMiniPlate_Zlength"  />
-
-
-
-<composition  name="Girder12" >
-  <posXYZ  volume="Girder12_BottomPlate"         X_Y_Z="0.;0.;0."  />
-  <posXYZ  volume="Girder12_InnerPlateLarge"     X_Y_Z=" FEET_G12IPLx1_Girder12_InnerPlateLarge1_Xpos; FEET_G12IPLyp_Girder12_InnerPlateLarge_Ypos  ;0."  />
-  <posXYZ  volume="Girder12_InnerPlateLarge"     X_Y_Z=" FEET_G12IPLx2_Girder12_InnerPlateLarge2_Xpos; FEET_G12IPLyp_Girder12_InnerPlateLarge_Ypos  ;0."  />
-  <posXYZ  volume="Girder12_InnerPlateSmall"     X_Y_Z=" FEET_G12IPSx1_Girder12_InnerPlateSmall1_Xpos; FEET_G12IPSyp_Girder12_InnerPlateSmall_Ypos  ;0."  />
-  <posXYZ  volume="Girder12_InnerPlateSmall"     X_Y_Z=" FEET_G12IPSx2_Girder12_InnerPlateSmall2_Xpos; FEET_G12IPSyp_Girder12_InnerPlateSmall_Ypos  ;0."  />
-  <posXYZ  volume="Girder12_UpperPlate"          X_Y_Z="0.; FEET_G12UPypo_Girder12_UpperPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder12_ReinforcementPlate"  X_Y_Z="0.; 0.  ; FEET_G12RePzp_Girder12_ReinforcementPlate_Zpos"  />
-  <posXYZ  volume="Girder12_ReinforcementPlate"  X_Y_Z="0.; 0.  ;-FEET_G12RePzp_Girder12_ReinforcementPlate_Zpos"  />
-  <posXYZ  volume="Girder12_UpperMiniPlate"      X_Y_Z="-FEET_G12UMPxp_Girder12_UpperMiniPlate_Xpos; FEET_G12UMPyp_Girder12_UpperMiniPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder12_UpperMiniPlate"      X_Y_Z=" FEET_G12UMPxp_Girder12_UpperMiniPlate_Xpos; FEET_G12UMPyp_Girder12_UpperMiniPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder12_SideMiniPlate"       X_Y_Z=" FEET_G12SMPxp_Girder12_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"    />
-  <posXYZ  volume="Girder12_SideMiniPlate"       X_Y_Z=" FEET_G12SMPxp_Girder12_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;-FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"   />
-  <posXYZ  volume="Girder12_SideMiniPlate"       X_Y_Z="-FEET_G12SMPxp_Girder12_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"   />
-  <posXYZ  volume="Girder12_SideMiniPlate"       X_Y_Z="-FEET_G12SMPxp_Girder12_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;-FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"  />
-</composition>
-
-
-<!--  Girder 2-3  -->
-
-<var  name="FEET_G23BoPxa_Girder23_BottomPlate_XA"          value="FEET_G23LPxw1_Girder23_LateralPlate_Xwidth_Inter1/2." />
-<var  name="FEET_G23BoPxb_Girder23_BottomPlate_XB"          value="FEET_G23BoPxa_Girder23_BottomPlate_XA + FEET_G23LPx12_Girder23_LateralPlate_Xwidth_Inter1Inter2" />
-<var  name="FEET_G23BoPxc_Girder23_BottomPlate_XC"          value="FEET_G23LPxwt_Girder23_LateralPlate_Xwidth_Total/2." />
-<var  name="FEET_G23BoPxd_Girder23_BottomPlate_XD"          value="FEET_G23BoPxc_Girder23_BottomPlate_XC" />
-<var  name="FEET_G23BoPxe_Girder23_BottomPlate_XE"          value="FEET_G23BoPxb_Girder23_BottomPlate_XB" />
-<var  name="FEET_G23BoPxf_Girder23_BottomPlate_XF"          value="FEET_G23BoPxa_Girder23_BottomPlate_XA" />
-
-<gvxysx     name="Girder23_BottomPlate"    material="Iron"   dZ="FEET_G12BPzle_Girder12_BottomPlate_Zlength"  >
-  <gvxy_point  X_Y="  FEET_G23BoPxa_Girder23_BottomPlate_XA   ;  FEET_G12BoPya_Girder12_BottomPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_G23BoPxb_Girder23_BottomPlate_XB   ;  FEET_G12BoPyb_Girder12_BottomPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_G23BoPxc_Girder23_BottomPlate_XC   ;  FEET_G12BoPyc_Girder12_BottomPlate_YC "   />
-  <gvxy_point  X_Y="  FEET_G23BoPxd_Girder23_BottomPlate_XD   ;  FEET_G12BoPyd_Girder12_BottomPlate_YD "   />
-  <gvxy_point  X_Y="  FEET_G23BoPxe_Girder23_BottomPlate_XE   ;  FEET_G12BoPye_Girder12_BottomPlate_YE "   />
-  <gvxy_point  X_Y="  FEET_G23BoPxf_Girder23_BottomPlate_XF   ;  FEET_G12BoPyf_Girder12_BottomPlate_YF "   />
-</gvxysx>
-
-<var  name="FEET_G23IPSx1_Girder23_InnerPlateSmall1_Xpos"   value="-FEET_G23LPxwt_Girder23_LateralPlate_Xwidth_Total/2. + FEET_G23IPSxo_Girder23_InnerPlateSmalloffset_Xdist +  FEET_G23IPxwi_Girder23_InnerPlate_Xwidth/2." />
-<var  name="FEET_G23IPLx1_Girder23_InnerPlateLarge1_Xpos"   value="-FEET_G23LPxwt_Girder23_LateralPlate_Xwidth_Total/2. + FEET_G23IPSLx_Girder23_InnerPlateSmall2Large_Xdist + FEET_G23IPxwi_Girder23_InnerPlate_Xwidth/2." />
-<var  name="FEET_G23IPLx2_Girder23_InnerPlateLarge2_Xpos"   value=" FEET_G23IPLx1_Girder23_InnerPlateLarge1_Xpos + FEET_G23IPLLx_Girder23_InnerPlateLarge2Large_Xdist " />
-<var  name="FEET_G23IPSx2_Girder23_InnerPlateSmall2_Xpos"   value=" FEET_G23IPLx2_Girder23_InnerPlateLarge2_Xpos + FEET_G23IPLSx_Girder23_InnerPlateLarge2Small_Xdist " />
-
-<box  name="Girder23_InnerPlateLarge"      material="Iron"   X_Y_Z="FEET_G23IPxwi_Girder23_InnerPlate_Xwidth; FEET_G12IPLyh_Girder12_InnerPlateLarge_Yheight; FEET_G12IPzle_Girder12_InnerPlate_Zlength"  />
-<box  name="Girder23_InnerPlateSmall"      material="Iron"   X_Y_Z="FEET_G23IPxwi_Girder23_InnerPlate_Xwidth; FEET_G12IPSyh_Girder12_InnerPlateSmall_Yheight; FEET_G12IPzle_Girder12_InnerPlate_Zlength"  />
-
-<var  name="FEET_G23UPxwi_Girder23_UpperPlate_Xwidth"       value="FEET_G23LPxwt_Girder23_LateralPlate_Xwidth_Total" />
-<var  name="FEET_G23UPyhe_Girder23_UpperPlate_Yheight"      value="FEET_G12UPyth_Girder12_UpperPlate_Ythick" />
-<box  name="Girder23_UpperPlate"           material="Iron"   X_Y_Z="FEET_G23UPxwi_Girder23_UpperPlate_Xwidth; FEET_G23UPyhe_Girder23_UpperPlate_Yheight; FEET_G12UPzle_Girder12_UpperPlate_Zlength"  />
-
-<var  name="FEET_G23RePxa_Girder23_ReinforcementPlate_XA"   value="FEET_G23RPxwi_Girder23_ReinforcementPlate_Xwidth/2." />
-<var  name="FEET_G23RePxb_Girder23_ReinforcementPlate_XB"   value="FEET_G23RePxa_Girder23_ReinforcementPlate_XA" />
-<var  name="FEET_G23RePxc_Girder23_ReinforcementPlate_XC"   value="FEET_G23BoPxc_Girder23_BottomPlate_XC" />
-<var  name="FEET_G23RePxd_Girder23_ReinforcementPlate_XD"   value="FEET_G23RePxc_Girder23_ReinforcementPlate_XC" />
-<var  name="FEET_G23RePya_Girder23_ReinforcementPlate_YA"   value="FEET_G12yorig_Girder12_Yorigin" />
-<var  name="FEET_G23RePyb_Girder23_ReinforcementPlate_YB"   value="FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total - FEET_G12RPydi_Girder12_ReinforcementPlate_Ydist" />
-<var  name="FEET_G23RePyc_Girder23_ReinforcementPlate_YC"   value="FEET_G23RePyb_Girder23_ReinforcementPlate_YB" />
-<var  name="FEET_G23RePyd_Girder23_ReinforcementPlate_YD"   value="FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total " />
-
-<gvxysx     name="Girder23_ReinforcementPlate"  material="Iron"   dZ="FEET_G12RPzle_Girder12_ReinforcementPlate_Zlength"  >
-  <gvxy_point  X_Y="  FEET_G23RePxa_Girder23_ReinforcementPlate_XA   ;  FEET_G23RePya_Girder23_ReinforcementPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_G23RePxb_Girder23_ReinforcementPlate_XB   ;  FEET_G23RePyb_Girder23_ReinforcementPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_G23RePxc_Girder23_ReinforcementPlate_XC   ;  FEET_G23RePyc_Girder23_ReinforcementPlate_YC "   />
-  <gvxy_point  X_Y="  FEET_G23RePxd_Girder23_ReinforcementPlate_XD   ;  FEET_G23RePyd_Girder23_ReinforcementPlate_YD "   />
-</gvxysx>
-
-<var  name="FEET_G23UMPxp_Girder23_UpperMiniPlate_Xpos"     value="FEET_G23LPxwt_Girder23_LateralPlate_Xwidth_Total/2. - FEET_G23UMPwi_Girder23_UpperMiniPlate_Xwidth/2." />
-<box  name="Girder23_UpperMiniPlate"       material="Iron" X_Y_Z="FEET_G23UMPwi_Girder23_UpperMiniPlate_Xwidth; FEET_G12UMPyh_Girder12_UpperMiniPlate_Yheight; FEET_G12UMPzl_Girder12_UpperMiniPlate_Zlength" />
-
-<var  name="FEET_G23SMPxp_Girder23_SideMiniPlate_Xpos"      value="FEET_G23LPxwt_Girder23_LateralPlate_Xwidth_Total/2. - FEET_G23SMPwi_Girder23_SideMiniPlate_Xwidth/2." />
-<box  name="Girder23_SideMiniPlate"        material="Iron" X_Y_Z="FEET_G23SMPwi_Girder23_SideMiniPlate_Xwidth; FEET_G12SMPyh_Girder12_SideMiniPlate_Yheight; FEET_G12SMPzl_Girder12_SideMiniPlate_Zlength"  />
-
-<composition  name="Girder23" >
-  <posXYZ  volume="Girder23_BottomPlate"         X_Y_Z="0.;0.;0."  />
-  <posXYZ  volume="Girder23_InnerPlateLarge"     X_Y_Z=" FEET_G23IPLx1_Girder23_InnerPlateLarge1_Xpos; FEET_G12IPLyp_Girder12_InnerPlateLarge_Ypos  ;0."  />
-  <posXYZ  volume="Girder23_InnerPlateLarge"     X_Y_Z=" FEET_G23IPLx2_Girder23_InnerPlateLarge2_Xpos; FEET_G12IPLyp_Girder12_InnerPlateLarge_Ypos  ;0."  />
-  <posXYZ  volume="Girder23_InnerPlateSmall"     X_Y_Z=" FEET_G23IPSx1_Girder23_InnerPlateSmall1_Xpos; FEET_G12IPSyp_Girder12_InnerPlateSmall_Ypos  ;0."  />
-  <posXYZ  volume="Girder23_InnerPlateSmall"     X_Y_Z=" FEET_G23IPSx2_Girder23_InnerPlateSmall2_Xpos; FEET_G12IPSyp_Girder12_InnerPlateSmall_Ypos  ;0."  />
-  <posXYZ  volume="Girder23_UpperPlate"          X_Y_Z="0.; FEET_G12UPypo_Girder12_UpperPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder23_ReinforcementPlate"  X_Y_Z="0.; 0.  ; FEET_G12RePzp_Girder12_ReinforcementPlate_Zpos"  />
-  <posXYZ  volume="Girder23_ReinforcementPlate"  X_Y_Z="0.; 0.  ;-FEET_G12RePzp_Girder12_ReinforcementPlate_Zpos"  />
-  <posXYZ  volume="Girder23_UpperMiniPlate"      X_Y_Z="-FEET_G23UMPxp_Girder23_UpperMiniPlate_Xpos; FEET_G12UMPyp_Girder12_UpperMiniPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder23_UpperMiniPlate"      X_Y_Z=" FEET_G23UMPxp_Girder23_UpperMiniPlate_Xpos; FEET_G12UMPyp_Girder12_UpperMiniPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder23_SideMiniPlate"       X_Y_Z=" FEET_G23SMPxp_Girder23_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"  />
-  <posXYZ  volume="Girder23_SideMiniPlate"       X_Y_Z=" FEET_G23SMPxp_Girder23_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;-FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos" />
-  <posXYZ  volume="Girder23_SideMiniPlate"       X_Y_Z="-FEET_G23SMPxp_Girder23_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"  />
-  <posXYZ  volume="Girder23_SideMiniPlate"       X_Y_Z="-FEET_G23SMPxp_Girder23_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;-FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos" />
-</composition>
-
-
-
-<!--  Girder 3-4  -->
-
-<var  name="FEET_G34BoPxa_Girder34_BottomPlate_XA"          value="FEET_G34LPxw1_Girder34_LateralPlate_Xwidth_Inter1/2." />
-<var  name="FEET_G34BoPxb_Girder34_BottomPlate_XB"          value="FEET_G34BoPxa_Girder34_BottomPlate_XA + FEET_G34LPx12_Girder34_LateralPlate_Xwidth_Inter1Inter2" />
-<var  name="FEET_G34BoPxc_Girder34_BottomPlate_XC"          value="FEET_G34LPxwt_Girder34_LateralPlate_Xwidth_Total/2." />
-<var  name="FEET_G34BoPxd_Girder34_BottomPlate_XD"          value="FEET_G34BoPxc_Girder34_BottomPlate_XC" />
-<var  name="FEET_G34BoPxe_Girder34_BottomPlate_XE"          value="FEET_G34BoPxb_Girder34_BottomPlate_XB" />
-<var  name="FEET_G34BoPxf_Girder34_BottomPlate_XF"          value="FEET_G34BoPxa_Girder34_BottomPlate_XA" />
-
-<gvxysx     name="Girder34_BottomPlate"         material="Iron"   dZ="FEET_G12BPzle_Girder12_BottomPlate_Zlength"  >
-  <gvxy_point  X_Y="  FEET_G34BoPxa_Girder34_BottomPlate_XA   ;  FEET_G12BoPya_Girder12_BottomPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_G34BoPxb_Girder34_BottomPlate_XB   ;  FEET_G12BoPyb_Girder12_BottomPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_G34BoPxc_Girder34_BottomPlate_XC   ;  FEET_G12BoPyc_Girder12_BottomPlate_YC "   />
-  <gvxy_point  X_Y="  FEET_G34BoPxd_Girder34_BottomPlate_XD   ;  FEET_G12BoPyd_Girder12_BottomPlate_YD "   />
-  <gvxy_point  X_Y="  FEET_G34BoPxe_Girder34_BottomPlate_XE   ;  FEET_G12BoPye_Girder12_BottomPlate_YE "   />
-  <gvxy_point  X_Y="  FEET_G34BoPxf_Girder34_BottomPlate_XF   ;  FEET_G12BoPyf_Girder12_BottomPlate_YF "   />
-</gvxysx>
-
-<var  name="FEET_G34IPSx1_Girder34_InnerPlateSmall1_Xpos"  value="-FEET_G34LPxwt_Girder34_LateralPlate_Xwidth_Total/2. + FEET_G34IPSxo_Girder34_InnerPlateSmalloffset_Xdist +  FEET_G34IPxwi_Girder34_InnerPlate_Xwidth/2." />
-<var  name="FEET_G34IPLx1_Girder34_InnerPlateLarge1_Xpos"  value="-FEET_G34LPxwt_Girder34_LateralPlate_Xwidth_Total/2. + FEET_G34IPSLx_Girder34_InnerPlateSmall2Large_Xdist + FEET_G34IPxwi_Girder34_InnerPlate_Xwidth/2." />
-<var  name="FEET_G34IPLx2_Girder34_InnerPlateLarge2_Xpos"  value=" FEET_G34IPLx1_Girder34_InnerPlateLarge1_Xpos + FEET_G34IPLLx_Girder34_InnerPlateLarge2Large_Xdist " />
-<var  name="FEET_G34IPSx2_Girder34_InnerPlateSmall2_Xpos"  value=" FEET_G34IPLx2_Girder34_InnerPlateLarge2_Xpos + FEET_G34IPLSx_Girder34_InnerPlateLarge2Small_Xdist " />
-
-<box  name="Girder34_InnerPlateLarge"     material="Iron"   X_Y_Z="FEET_G34IPxwi_Girder34_InnerPlate_Xwidth; FEET_G12IPLyh_Girder12_InnerPlateLarge_Yheight; FEET_G12IPzle_Girder12_InnerPlate_Zlength"  />
-<box  name="Girder34_InnerPlateSmall"     material="Iron"   X_Y_Z="FEET_G34IPxwi_Girder34_InnerPlate_Xwidth; FEET_G12IPSyh_Girder12_InnerPlateSmall_Yheight; FEET_G12IPzle_Girder12_InnerPlate_Zlength"  />
-
-<var  name="FEET_G34UPxwi_Girder34_UpperPlate_Xwidth"      value="FEET_G34LPxwt_Girder34_LateralPlate_Xwidth_Total" />
-<var  name="FEET_G34UPyhe_Girder34_UpperPlate_Yheight"     value="FEET_G12UPyth_Girder12_UpperPlate_Ythick" />
-<box  name="Girder34_UpperPlate"          material="Iron"   X_Y_Z="FEET_G34UPxwi_Girder34_UpperPlate_Xwidth; FEET_G34UPyhe_Girder34_UpperPlate_Yheight; FEET_G12UPzle_Girder12_UpperPlate_Zlength"  />
-
-<var  name="FEET_G34RePxa_Girder34_ReinforcementPlate_XA"  value="FEET_G34RPxwi_Girder34_ReinforcementPlate_Xwidth/2." />
-<var  name="FEET_G34RePxb_Girder34_ReinforcementPlate_XB"  value="FEET_G34RePxa_Girder34_ReinforcementPlate_XA" />
-<var  name="FEET_G34RePxc_Girder34_ReinforcementPlate_XC"  value="FEET_G34BoPxc_Girder34_BottomPlate_XC" />
-<var  name="FEET_G34RePxd_Girder34_ReinforcementPlate_XD"  value="FEET_G34RePxc_Girder34_ReinforcementPlate_XC" />
-<var  name="FEET_G34RePya_Girder34_ReinforcementPlate_YA"  value="FEET_G12yorig_Girder12_Yorigin" />
-<var  name="FEET_G34RePyb_Girder34_ReinforcementPlate_YB"  value="FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total - FEET_G12RPydi_Girder12_ReinforcementPlate_Ydist" />
-<var  name="FEET_G34RePyc_Girder34_ReinforcementPlate_YC"  value="FEET_G34RePyb_Girder34_ReinforcementPlate_YB" />
-<var  name="FEET_G34RePyd_Girder34_ReinforcementPlate_YD"  value="FEET_G12LPyht_Girder12_LateralPlate_Yheight_Total " />
-
-<gvxysx     name="Girder34_ReinforcementPlate"         material="Iron"   dZ="FEET_G12RPzle_Girder12_ReinforcementPlate_Zlength"  >
-  <gvxy_point  X_Y="  FEET_G34RePxa_Girder34_ReinforcementPlate_XA   ;  FEET_G34RePya_Girder34_ReinforcementPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_G34RePxb_Girder34_ReinforcementPlate_XB   ;  FEET_G34RePyb_Girder34_ReinforcementPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_G34RePxc_Girder34_ReinforcementPlate_XC   ;  FEET_G34RePyc_Girder34_ReinforcementPlate_YC "   />
-  <gvxy_point  X_Y="  FEET_G34RePxd_Girder34_ReinforcementPlate_XD   ;  FEET_G34RePyd_Girder34_ReinforcementPlate_YD "   />
-</gvxysx>
-
-<var  name="FEET_G34UMPxp_Girder34_UpperMiniPlate_Xpos"    value="FEET_G34LPxwt_Girder34_LateralPlate_Xwidth_Total/2. - FEET_G34UMPwi_Girder34_UpperMiniPlate_Xwidth/2." />
-<box  name="Girder34_UpperMiniPlate"      material="Iron" X_Y_Z="FEET_G34UMPwi_Girder34_UpperMiniPlate_Xwidth; FEET_G12UMPyh_Girder12_UpperMiniPlate_Yheight; FEET_G12UMPzl_Girder12_UpperMiniPlate_Zlength" />
-
-<var  name="FEET_G34SMPxp_Girder34_SideMiniPlate_Xpos"     value="FEET_G34LPxwt_Girder34_LateralPlate_Xwidth_Total/2. - FEET_G34SMPwi_Girder34_SideMiniPlate_Xwidth/2." />
-<box  name="Girder34_SideMiniPlate"       material="Iron" X_Y_Z="FEET_G34SMPwi_Girder34_SideMiniPlate_Xwidth; FEET_G12SMPyh_Girder12_SideMiniPlate_Yheight; FEET_G12SMPzl_Girder12_SideMiniPlate_Zlength"  />
-
-<composition  name="Girder34" >
-  <posXYZ  volume="Girder34_BottomPlate"         X_Y_Z="0.;0.;0."  />
-  <posXYZ  volume="Girder34_InnerPlateLarge"     X_Y_Z=" FEET_G34IPLx1_Girder34_InnerPlateLarge1_Xpos; FEET_G12IPLyp_Girder12_InnerPlateLarge_Ypos  ;0."  />
-  <posXYZ  volume="Girder34_InnerPlateLarge"     X_Y_Z=" FEET_G34IPLx2_Girder34_InnerPlateLarge2_Xpos; FEET_G12IPLyp_Girder12_InnerPlateLarge_Ypos  ;0."  />
-  <posXYZ  volume="Girder34_InnerPlateSmall"     X_Y_Z=" FEET_G34IPSx1_Girder34_InnerPlateSmall1_Xpos; FEET_G12IPSyp_Girder12_InnerPlateSmall_Ypos  ;0."  />
-  <posXYZ  volume="Girder34_InnerPlateSmall"     X_Y_Z=" FEET_G34IPSx2_Girder34_InnerPlateSmall2_Xpos; FEET_G12IPSyp_Girder12_InnerPlateSmall_Ypos  ;0."  />
-  <posXYZ  volume="Girder34_UpperPlate"          X_Y_Z="0.; FEET_G12UPypo_Girder12_UpperPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder34_ReinforcementPlate"  X_Y_Z="0.; 0.  ; FEET_G12RePzp_Girder12_ReinforcementPlate_Zpos"  />
-  <posXYZ  volume="Girder34_ReinforcementPlate"  X_Y_Z="0.; 0.  ;-FEET_G12RePzp_Girder12_ReinforcementPlate_Zpos"  />
-  <posXYZ  volume="Girder34_UpperMiniPlate"      X_Y_Z="-FEET_G34UMPxp_Girder34_UpperMiniPlate_Xpos; FEET_G12UMPyp_Girder12_UpperMiniPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder34_UpperMiniPlate"      X_Y_Z=" FEET_G34UMPxp_Girder34_UpperMiniPlate_Xpos; FEET_G12UMPyp_Girder12_UpperMiniPlate_Ypos  ;0."  />
-  <posXYZ  volume="Girder34_SideMiniPlate"       X_Y_Z=" FEET_G34SMPxp_Girder34_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"   />
-  <posXYZ  volume="Girder34_SideMiniPlate"       X_Y_Z=" FEET_G34SMPxp_Girder34_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;-FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"  />
-  <posXYZ  volume="Girder34_SideMiniPlate"       X_Y_Z=" -FEET_G34SMPxp_Girder34_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos"  />
-  <posXYZ  volume="Girder34_SideMiniPlate"       X_Y_Z=" -FEET_G34SMPxp_Girder34_SideMiniPlate_Xpos; FEET_G12SMPyp_Girder12_SideMiniPlate_Ypos  ;-FEET_G12SMPzp_Girder12_SideMiniPlate_Zpos" />
-</composition>
-
-<!--  Girder Extremity  -->
-
-<var  name="FEET_GExBPxa_GirderEx_BottomPlate_XA"    value=" FEET_GExBPxws_GirderEx_BottomPlate_Xwidth_Short/2." />
-<var  name="FEET_GExBPxb_GirderEx_BottomPlate_XB"    value=" FEET_GExBPxwl_GirderEx_BottomPlate_Xwidth_Long/2." />
-<var  name="FEET_GExBPya_GirderEx_BottomPlate_YA"    value=" FEET_GExBPyw_GirderEx_BottomPlate_Ywidth/2." />
-<var  name="FEET_GExBPyb_GirderEx_BottomPlate_YB"    value="-FEET_GExBPyw_GirderEx_BottomPlate_Ywidth/2." />
-
-<gvxysx  name="GirderExtremity_BottomPlate"         material="Iron"   dZ="FEET_GExBPzw_GirderEx_BottomPlate_Zwidth"  >
-  <gvxy_point  X_Y="  FEET_GExBPxa_GirderEx_BottomPlate_XA  ;  FEET_GExBPya_GirderEx_BottomPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_GExBPxb_GirderEx_BottomPlate_XB  ;  FEET_GExBPyb_GirderEx_BottomPlate_YB "   />
-</gvxysx>
-
-<var  name="FEET_GExSPxa_GirderEx_SidePlate_XA"    value=" FEET_GExSPxw_GirderEx_SidePlate_Xwidth/2." />
-<var  name="FEET_GExSPxb_GirderEx_SidePlate_XB"    value="-FEET_GExSPxa_GirderEx_SidePlate_XA" />
-<var  name="FEET_GExSPya_GirderEx_SidePlate_YA"    value=" FEET_GExSPyws_GirderEx_SidePlate_Ywidth_Short" />
-<var  name="FEET_GExSPyb_GirderEx_SidePlate_YB"    value=" FEET_GExSPyws_GirderEx_SidePlate_Ywidth_Short-FEET_GExSPywl_GirderEx_SidePlate_Ywidth_Long" />
-
-<gvxy     name="GirderExtremity_SidePlate_single"         material="Iron"   dZ="FEET_GExSPzw_GirderEx_SidePlate_Zwidth"  >
-  <gvxy_point  X_Y="  -FEET_GExSPxa_GirderEx_SidePlate_XA  ;  0. "   />
-  <gvxy_point  X_Y="  -FEET_GExSPxa_GirderEx_SidePlate_XA  ;  FEET_GExSPya_GirderEx_SidePlate_YA "   />
-  <gvxy_point  X_Y="  -FEET_GExSPxb_GirderEx_SidePlate_XB  ;  FEET_GExSPya_GirderEx_SidePlate_YA "   />
-  <gvxy_point  X_Y="  -FEET_GExSPxb_GirderEx_SidePlate_XB  ;  FEET_GExSPyb_GirderEx_SidePlate_YB "   />
+<gvxy name="Standard_Girder1_2_3_Plate3" material="ShieldSteel" dZ="76.35">
+    <gvxy_point X_Y="353.5; -410."/>
+    <gvxy_point X_Y="353.5; -120."/>
+    <gvxy_point X_Y="246.; -120."/>
+    <gvxy_point X_Y="246.; 120."/>
+    <gvxy_point X_Y="600.; 120."/>
+    <gvxy_point X_Y="600.; 410."/>
+    <gvxy_point X_Y="241.; 410."/>
+    <gvxy_point X_Y="241.; 305."/>
+    <gvxy_point X_Y="-389.; 305."/>
+    <gvxy_point X_Y="-389.; 410."/>
+    <gvxy_point X_Y="-600.; 410."/>
+    <gvxy_point X_Y="-600.; 120."/>
+    <gvxy_point X_Y="-389.; 120."/>
+    <gvxy_point X_Y="-389.; -120."/>
+    <gvxy_point X_Y="-496.5; -120."/>
+    <gvxy_point X_Y="-496.5; -320."/>
+    <gvxy_point X_Y="-296.5; -410."/>
 </gvxy>
 
-<box  name="GirderExtremity_FrontPlate"  material="Iron" X_Y_Z="FEET_GExFPxw_GirderEx_FrontPlate_Xwidth; FEET_GExFPyw_GirderEx_FrontPlate_Ywidth; FEET_GExFPzw_GirderEx_FrontPlate_Zwidth" />
+<box name="Standard_Girder1_2_3_Plate3CutBox" material="ShieldSteel" X_Y_Z="460.; 260.; 40."/>
 
-<var  name="FEET_GExTPywd_GirderEx_TopPlate_Ywidth_Difference" value=" FEET_GExTPywl_GirderEx_TopPlate_Ywidth_Long - FEET_GExTPyws_GirderEx_TopPlate_Ywidth_Short " />
-<var  name="FEET_GExTPywdh_GirderEx_TopPlate_Ywidth_DiffHalf"  value=" FEET_GExTPywd_GirderEx_TopPlate_Ywidth_Difference/2. " />
-<var  name="FEET_GExTPxws_GirderEx_TopPlate_Xwidth_Short"      value=" FEET_GExTPxwp_GirderEx_TopPlate_Xwidth_Part + FEET_GExTPywdh_GirderEx_TopPlate_Ywidth_DiffHalf/tan(FEET_GExTPangi_GirderEx_TopPlate_AngleInternal*GENV_PiS180) " />
-<var  name="FEET_GExTPxwl_GirderEx_TopPlate_Xwidth_Long"       value=" FEET_GExTPxwt_GirderEx_TopPlate_Xwidth_Total - FEET_GExTPxws_GirderEx_TopPlate_Xwidth_Short " />
+<subtraction  name="Standard_Girder1_2_3_Plate3Cut_Side1" >
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3CutBox"    X_Y_Z="-71.5 ; 95. ; -23.175" />
+</subtraction>
 
-<box  name="GirderExtremity_TopPlate_Big"  material="Iron" X_Y_Z="FEET_GExTPyws_GirderEx_TopPlate_Ywidth_Short; FEET_GExTPxwl_GirderEx_TopPlate_Xwidth_Long; FEET_GExTPzws_GirderEx_TopPlate_Zwidth_Short" />
+<subtraction  name="Standard_Girder1_2_3_Plate3Cut_Side2" >
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3CutBox"    X_Y_Z="-71.5 ; 95. ; 23.175" />
+</subtraction>
 
-<var  name="FEET_GExTPxa_GirderEx_TopPlate_XA"    value=" FEET_GExTPyws_GirderEx_TopPlate_Ywidth_Short/2." />
-<var  name="FEET_GExTPxb_GirderEx_TopPlate_XB"    value=" FEET_GExTPywl_GirderEx_TopPlate_Ywidth_Long/2." />
-<var  name="FEET_GExTPya_GirderEx_TopPlate_YA"    value=" FEET_GExTPxws_GirderEx_TopPlate_Xwidth_Short/2." />
-<var  name="FEET_GExTPyb_GirderEx_TopPlate_YB"    value=" FEET_GExTPxwp_GirderEx_TopPlate_Xwidth_Part-FEET_GExTPya_GirderEx_TopPlate_YA" />
-<var  name="FEET_GExTPyc_GirderEx_TopPlate_YC"    value="-FEET_GExTPya_GirderEx_TopPlate_YA" />
+<box name="Standard_Girder1-2-3_Plate4" material="ShieldSteel" X_Y_Z="460.; 375.; 30."/>
 
-<gvxysx  name="GirderExtremity_TopPlate_Small"         material="Iron"   dZ="FEET_GExTPzwl_GirderEx_TopPlate_Zwidth_Long"  >
-  <gvxy_point  X_Y="  FEET_GExTPxa_GirderEx_TopPlate_XA  ;   FEET_GExTPya_GirderEx_TopPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_GExTPxb_GirderEx_TopPlate_XB  ;   FEET_GExTPyb_GirderEx_TopPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_GExTPxb_GirderEx_TopPlate_XB  ;   FEET_GExTPyc_GirderEx_TopPlate_YC "   />
+<gvxysx name="Standard_Girder1_Plate5" material="ShieldSteel" dZ="460.">
+    <gvxy_point X_Y="-450.; -435.05"/>
+    <gvxy_point X_Y="-713.35; -320.05"/>
+    <gvxy_point X_Y="-763.65; -320.05"/>
+    <gvxy_point X_Y="-763.65; -280.05"/>
+    <gvxy_point X_Y="-705.; -280.05"/>
+    <gvxy_point X_Y="-441.65; -395.05"/>
 </gvxysx>
 
-<composition  name="GirderExtremity_TopPlate" >
-  <posXYZ  volume="GirderExtremity_TopPlate_Big"       X_Y_Z="0.;  FEET_GExTPzws_GirderEx_TopPlate_Zwidth_Short/2.; FEET_GExTPxws_GirderEx_TopPlate_Xwidth_Short+FEET_GExTPxwl_GirderEx_TopPlate_Xwidth_Long/2."  rot="90.; 0.; 0."/>
-  <posXYZ  volume="GirderExtremity_TopPlate_Small"     X_Y_Z="0.;  FEET_GExTPzwl_GirderEx_TopPlate_Zwidth_Long/2.; FEET_GExTPxws_GirderEx_TopPlate_Xwidth_Short/2."   rot="90.;  0.; 0."/>
+<composition  name="Standard_Girder1" >
+    <posXYZ  volume="Standard_Girder1_Plate1"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1_Plate2"    X_Y_Z=" 250.05 ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Girder1_Plate2"    X_Y_Z=" -250.05 ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3Cut_Side1"    X_Y_Z=" 71.5 ; -254.2 ; -801.9" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3Cut_Side2"    X_Y_Z=" 71.5 ; -254.2 ; 801.9" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1-2-3_Plate4"    X_Y_Z=" 0. ; -207.51 ; -405." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1-2-3_Plate4"    X_Y_Z=" 0. ; -207.51 ; -70." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1_Plate5"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 90.;0." />
 </composition>
+    <!--  End Girder 1 -->
 
-<var  name="FEET_GExSPxsp_GirderEx_SidePlate_XShift_Pre"   value="FEET_GExSPxs_GirderEx_SidePlate_XShift-FEET_GExSPxw_GirderEx_SidePlate_Xwidth/2.*cos(FEET_GExSPangxz_GirderEx_SidePlate_AngleXZ*GENV_PiS180)" />
-<var  name="FEET_GExSPxstc_GirderEx_SidePlate_XShift_ThicknessCorrection"   value="FEET_GExSPzw_GirderEx_SidePlate_Zwidth/2.*sin(FEET_GExSPangxz_GirderEx_SidePlate_AngleXZ*GENV_PiS180)" />
-<var  name="FEET_GExSPxst_GirderEx_SidePlate_XShift_Total" value="FEET_GExSPxsp_GirderEx_SidePlate_XShift_Pre+FEET_GExSPxstc_GirderEx_SidePlate_XShift_ThicknessCorrection"/>
 
-<var  name="FEET_GExSPzsp_GirderEx_SidePlate_ZShift_Pre"   value="FEET_GExSPxw_GirderEx_SidePlate_Xwidth/2.*sin(FEET_GExSPangxz_GirderEx_SidePlate_AngleXZ*GENV_PiS180)" />
-<var  name="FEET_GExSPzstc_GirderEx_SidePlate_ZShift_ThicknessCorrection" value="FEET_GExSPzw_GirderEx_SidePlate_Zwidth/2.*cos(FEET_GExSPangxz_GirderEx_SidePlate_AngleXZ*GENV_PiS180)"/>
-<var  name="FEET_GExSPzst_GirderEx_SidePlate_ZShift_Total" value="FEET_GExSPzsp_GirderEx_SidePlate_ZShift_Pre+FEET_GExSPzstc_GirderEx_SidePlate_ZShift_ThicknessCorrection" />
+    <!--  Girder 2 -->
+<box name="Standard_Girder2_Plate1" material="ShieldSteel" X_Y_Z="640.; 40.; 1982.3"/>
 
-<composition  name="GirderExtremity_SidePlate" >
-  <posXYZ  volume="GirderExtremity_SidePlate_single"          X_Y_Z="FEET_GExSPxst_GirderEx_SidePlate_XShift_Total;  0.; FEET_GExSPzst_GirderEx_SidePlate_ZShift_Total"  rot="0.;  FEET_GExSPangxz_GirderEx_SidePlate_AngleXZ; 0."/>
-  <posXYZ  volume="GirderExtremity_SidePlate_single"          X_Y_Z="-FEET_GExSPxst_GirderEx_SidePlate_XShift_Total;  0.; FEET_GExSPzst_GirderEx_SidePlate_ZShift_Total"  rot="0.;  -FEET_GExSPangxz_GirderEx_SidePlate_AngleXZ+180.; 0."/>
-</composition>
-
-<var  name="Feet_GExBPzsp_GirderEx_BottomPlate_ZShift_Pre"  value="FEET_GExBPyw_GirderEx_BottomPlate_Ywidth/2.*sin(FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ*GENV_PiS180)"/>
-<var  name="Feet_GExBPzstc_GirderEx_BottomPlate_ZShift_ThicknessCorrection" value="FEET_GExBPzw_GirderEx_BottomPlate_Zwidth/2.*cos(FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ*GENV_PiS180)"/>
-<var  name="Feet_GExBPzst_GirderEx_BottomPlate_ZShift_Total" value="Feet_GExBPzsp_GirderEx_BottomPlate_ZShift_Pre+Feet_GExBPzstc_GirderEx_BottomPlate_ZShift_ThicknessCorrection" />
-
-<var  name="Feet_GExBPyshv_GirderEx_BottomPlate_YShift_HelpValue" value="FEET_GExBPyw_GirderEx_BottomPlate_Ywidth+FEET_GExBPzw_GirderEx_BottomPlate_Zwidth/2./tan(FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ*GENV_PiS180)" />
-<var  name="Feet_GExBPysp_GirderEx_BottomPlate_YShift_Pre"  value="FEET_GExSPywl_GirderEx_SidePlate_Ywidth_Long-FEET_GExSPyws_GirderEx_SidePlate_Ywidth_Short-cos(FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ*GENV_PiS180)*Feet_GExBPyshv_GirderEx_BottomPlate_YShift_HelpValue/2.+FEET_GExSPzstc_GirderEx_SidePlate_ZShift_ThicknessCorrection/tan(FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ*GENV_PiS180)"/>
-<var  name="Feet_GExBPystc_GirderEx_BottomPlate_YShift_ThicknessCorrection" value="FEET_GExBPzw_GirderEx_BottomPlate_Zwidth/2./sin(FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ*GENV_PiS180)"/>
-<var  name="Feet_GExBPyst_GirderEx_BottomPlate_YShift_Total" value="Feet_GExBPysp_GirderEx_BottomPlate_YShift_Pre+Feet_GExBPystc_GirderEx_BottomPlate_YShift_ThicknessCorrection" />
-
-<composition  name="GirderExtremity_Pre" >
-  <posXYZ  volume="GirderExtremity_FrontPlate"         X_Y_Z="0.; FEET_GExSPyws_GirderEx_SidePlate_Ywidth_Short-FEET_GExFPyw_GirderEx_FrontPlate_Ywidth/2.;  FEET_GExTPxwt_GirderEx_TopPlate_Xwidth_Total-175.-FEET_GExFPzw_GirderEx_FrontPlate_Zwidth/2."  rot="0.;  0.; 0."/>
-  <posXYZ  volume="GirderExtremity_TopPlate"           X_Y_Z="0.;  FEET_GExSPyws_GirderEx_SidePlate_Ywidth_Short; 0."  rot="0.; 0.; 0."/>
-  <posXYZ  volume="GirderExtremity_SidePlate"          X_Y_Z="0.;  0.; 0."  rot="0.;  0.; 0."/>
-  <posXYZ  volume="GirderExtremity_BottomPlate"        X_Y_Z="0.; -Feet_GExBPyst_GirderEx_BottomPlate_YShift_Total; Feet_GExBPzst_GirderEx_BottomPlate_ZShift_Total"  rot="FEET_GExBPangyz_GirderEx_BottomPlate_AngleYZ;  0.; 0."/>
-</composition>
-
-<box  name="GirderExtremity_TopConnector"     material="Iron" X_Y_Z="   FEET_GExTCxw_GirderEx_TopConnector_Xwidth;    FEET_GExTCyw_GirderEx_TopConnector_Ywidth; FEET_GExCzw_GirderEx_Connector_Zwidth " />
-<box  name="GirderExtremity_SideConnector"    material="Iron" X_Y_Z="  FEET_GExSCxw_GirderEx_SideConnector_Xwidth;   FEET_GExSCyw_GirderEx_SideConnector_Ywidth; FEET_GExCzw_GirderEx_Connector_Zwidth " />
-<box  name="GirderExtremity_BottomConnector"  material="Iron" X_Y_Z="FEET_GExBCxw_GirderEx_BottomConnector_Xwidth; FEET_GExBCyw_GirderEx_BottomConnector_Ywidth; FEET_GExCzw_GirderEx_Connector_Zwidth " />
-
-<var  name="FEET_GExPreyp_GirderEx_Pre_Yposition"              value=" -FEET_GExTPzws_GirderEx_TopPlate_Zwidth_Short-FEET_GExSPyws_GirderEx_SidePlate_Ywidth_Short" />
-<var  name="FEET_GExTCyp_GirderEx_TopConnector_Yposition"      value=" -FEET_GExTCyw_GirderEx_TopConnector_Ywidth/2.+FEET_GExCys_GirderEx_Connector_Yshift" />
-<var  name="FEET_GExSCxp_GirderEx_SideConnector_Xposition"     value=" FEET_GExBCxw_GirderEx_BottomConnector_Xwidth/2. -FEET_GExSCxw_GirderEx_SideConnector_Xwidth/2. " />
-<var  name="FEET_GExSCyp_GirderEx_SideConnector_Yposition"     value=" FEET_GExTCyp_GirderEx_TopConnector_Yposition-FEET_GExSCyw_GirderEx_SideConnector_Ywidth/2.-FEET_GExTCyw_GirderEx_TopConnector_Ywidth/2." />
-<var  name="FEET_GExBCyp_GirderEx_BottomConnector_Yposition"   value=" FEET_GExSCyp_GirderEx_SideConnector_Yposition-FEET_GExSCyw_GirderEx_SideConnector_Ywidth/2.-FEET_GExBCyw_GirderEx_BottomConnector_Ywidth/2." />
-
-
-<composition  name="GirderExtremity" >
-  <posXYZ  volume="GirderExtremity_Pre"              X_Y_Z="                                             0.;            FEET_GExPreyp_GirderEx_Pre_Yposition; FEET_GExCzw_GirderEx_Connector_Zwidth"    />
-  <posXYZ  volume="GirderExtremity_TopConnector"     X_Y_Z="                                             0.;    FEET_GExTCyp_GirderEx_TopConnector_Yposition; FEET_GExCzw_GirderEx_Connector_Zwidth/2." />
-  <posXYZ  volume="GirderExtremity_SideConnector"    X_Y_Z="  FEET_GExSCxp_GirderEx_SideConnector_Xposition;   FEET_GExSCyp_GirderEx_SideConnector_Yposition; FEET_GExCzw_GirderEx_Connector_Zwidth/2." />
-  <posXYZ  volume="GirderExtremity_SideConnector"    X_Y_Z=" -FEET_GExSCxp_GirderEx_SideConnector_Xposition;   FEET_GExSCyp_GirderEx_SideConnector_Yposition; FEET_GExCzw_GirderEx_Connector_Zwidth/2." />
-  <posXYZ  volume="GirderExtremity_BottomConnector"  X_Y_Z="                                             0.; FEET_GExBCyp_GirderEx_BottomConnector_Yposition; FEET_GExCzw_GirderEx_Connector_Zwidth/2." />
-</composition>
-
-<!--                              -->
-<!--  Perform Cuts on Main Plate  -->
-<!--                              -->
-
-<subtraction  name="FeetMainPlate_inter1" >
-  <posXYZ  volume="FeetMainPlate"  />
-  <posXYZ  volume="MainPlateRoundCut"   X_Y_Z="FEET_MaPlRCXc_MainPlateRoundCut_XC;FEET_MaPlRCYc_MainPlateRoundCut_YC; 0."  />
-</subtraction>
-
-<subtraction  name="FeetMainPlate_inter2" >
-  <posXYZ  volume="FeetMainPlate_inter1"  />
-  <posXYZ  volume="MainPlateSecondaryRoundCut"   X_Y_Z="FEET_MPlXextr_FeetMainPlate_Xextr;FEET_MPlYextr_FeetMainPlate_Yextr; 0."  />
-</subtraction>
-
-<subtraction  name="FeetMainPlate_inter3" >
-  <posXYZ  volume="FeetMainPlate_inter2"         />
-  <posXYZ  volume="MainPlateRoundCutCompletion"  />
-</subtraction>
-
-<subtraction  name="FeetMain" >
-  <posXYZ  volume="FeetMainPlate_inter3"  />
-  <posXYZ  volume="MiniConnPlate"      X_Y_Z="FEET_MiCPxpos_MiniConnPlate_X;FEET_MiCPypos_MiniConnPlate_Y+GENV_Eps; 0." rot="0.;0.;FEET_MinCPltz_MiniConnPlate_ThetaZ" />
-</subtraction>
-
-<var name="FEET_RaSuXo_RailSupport_Xoffset"   value="-FEET_MnPlUpXw_MainPlateUpperXwidth - FEET_UCnPlxwi_UpperConnPlate_Xwidth + FEET_MnPlHDiX_MainPlateHoleDistanceX + (FEET_Xwidth - FEET_HoleDist_RailSupport_DrillHoleDist)/2." />
-
-<composition  name="StandardFoot" >
-  <posXYZ  volume="FeetMain"                X_Y_Z="0.;0.;-FEET_MnPlZsep_MainPlateZsep/2"  />
-  <posXYZ  volume="FeetMain"                X_Y_Z="0.;0.; FEET_MnPlZsep_MainPlateZsep/2"  />
-  <posXYZ  volume="MiniConnPlate"           X_Y_Z="FEET_MiCPxpos_MiniConnPlate_X;FEET_MiCPypos_MiniConnPlate_Y+GENV_Eps; 0."        rot="0.;0.;FEET_MinCPltz_MiniConnPlate_ThetaZ" />
-  <posXYZ  volume="SlantedConnPlate"        X_Y_Z="FEET_SlCPxpos_SlantedConnPlate_X;FEET_SlCPypos_SlantedConnPlate_Y+GENV_Eps; 0."  rot="0.;0.;FEET_SlaCPltz_SlantedConnPlate_ThetaZ" />
-  <posXYZ  volume="SlantedConnPlateBracket" X_Y_Z="FEET_SlCPxpos_SlantedConnPlate_X+(0.5*FEET_SlaCPlyh_SlantedConnPlate_Yheight+GENV_Eps)*GENV_Co225-(FEET_SlaCPlBr_Bracket_Pos-GENV_Eps)*GENV_Si225;FEET_SlCPypos_SlantedConnPlate_Y+GENV_Eps+(0.5*FEET_SlaCPlyh_SlantedConnPlate_Yheight+GENV_Eps)*GENV_Si225+(FEET_SlaCPlBr_Bracket_Pos-GENV_Eps)*GENV_Co225;0."  rot="0.;0.;FEET_SlaCPltz_SlantedConnPlate_ThetaZ" />
-  <posXYZ  volume="GroundPlate"             X_Y_Z="FEET_GrnPxpos_GroundPlate_X;FEET_GrnPypos_GroundPlate_Y; 0."        />
-  <posXYZ  volume="VerticalConnPlate"       X_Y_Z="FEET_VeCPxpos_VerticalConnPlate_X;FEET_VeCPypos_VerticalConnPlate_Y; 0." />
-  <posXYZ  volume="UpperConnPlate"          X_Y_Z="FEET_UpCPxpos_UpperConnPlate_X;FEET_UpCPypos_UpperConnPlate_Y; 0."  />
-  <posXYZ  volume="RailSupport"             X_Y_Z="FEET_posx + FEET_RaSuXo_RailSupport_Xoffset;FEET_posy; 0."        />
-</composition>
-
-<var  name="FEET_StdFStYp_StandardFootStrut_Ypos"   value="FEET_StdFooYp_StandardFoot_Ypos + FEET_MainPlHe_MainPlateHeight - FEET_MnPlUpDy_MainPlateUpperDY/2." />
-
-<composition  name="StandardFootAssembly" >
-  <posXYZ  volume="StandardFoot"    X_Y_Z="-FEET_StdFooXp_StandardFoot_Xpos;FEET_StdFooYp_StandardFoot_Ypos        ;0."  rot="0.;180.; 0." >
-    <sector  value="6"  />
-  </posXYZ>
-  <posXYZ  volume="StandardFoot"    X_Y_Z=" FEET_StdFooXp_StandardFoot_Xpos;FEET_StdFooYp_StandardFoot_Ypos        ;0."  rot="0.;  0.; 0." >
-    <sector  value="7"  />
-  </posXYZ>
-  <posXYZ  volume="FEET_StandardStrut" X_Y_Z="  0.      ;FEET_StdFStYp_StandardFootStrut_Ypos;0."  >
-    <sector  value="7"  />
-  </posXYZ>
-</composition>
-
-
-
-
-<!--  Extremity Feet -->
-
-<var  name="FEET_ExMPRCxc_ExtremityMainPlateRoundCut_XC"   value=" FEET_MnPlGXwi_MainPlate_GroundXwidth-FEET_ExMPRCdx_ExtremityMainPlateRoundCut_DX " />
-<var  name="FEET_ExMPRCyc_ExtremityMainPlateRoundCut_YC"   value=" FEET_ExMPRCyp_ExtremityMainPlateRoundCut_Y   +  FEET_MnPlPeHe_MainPlate_PedestalHeight   " />
-<tubs name="ExtremityMainPlateRoundCut"   material="Aluminium1"  Rio_Z=" 0 ; FEET_ExMPRCra_ExtremityMainPlateRoundCut_R ; FEET_dumz"  nbPhi="FEET_dumphi" />
-
-<var  name="FEET_ExMPlxc3_ExtremityMainPlate_XC3"      value=" FEET_ExMPRCxc_ExtremityMainPlateRoundCut_XC - FEET_ExMPRCra_ExtremityMainPlateRoundCut_R * GENV_Co525 " />
-<var  name="FEET_ExMPlyc3_ExtremityMainPlate_YC3"      value=" FEET_ExMPRCyc_ExtremityMainPlateRoundCut_YC + FEET_ExMPRCra_ExtremityMainPlateRoundCut_R * GENV_Si525 " />
-
-<var  name="FEET_ExMPlxc4_ExtremityMainPlate_XC4"      value=" FEET_ExMPRCxc_ExtremityMainPlateRoundCut_XC - FEET_ExMPRCra_ExtremityMainPlateRoundCut_R * GENV_Co5 " />
-<var  name="FEET_ExMPlyc4_ExtremityMainPlate_YC4"      value=" FEET_ExMPRCyc_ExtremityMainPlateRoundCut_YC + FEET_ExMPRCra_ExtremityMainPlateRoundCut_R * GENV_Si5 " />
-
-<var  name="FEET_ExMPlxc5_ExtremityMainPlate_XC5"      value=" FEET_MaPlRCXc_MainPlateRoundCut_XC - FEET_MnPlRCra_MainPlateRoundCut_R  * GENV_Co5 " />
-<var  name="FEET_ExMPlyc5_ExtremityMainPlate_YC5"      value=" FEET_MaPlRCYc_MainPlateRoundCut_YC + FEET_MnPlRCra_MainPlateRoundCut_R  * GENV_Si5 " />
-
-<var  name="FEET_a2"                                       value=" GENV_Ta375 " />
-<var  name="FEET_b2"                                       value=" FEET_ExMPlyc3_ExtremityMainPlate_YC3 - FEET_ExMPlxc3_ExtremityMainPlate_XC3 * GENV_Ta375  " />
-<var  name="FEET_a2prime"                                  value="-GENV_Ta675 " />
-<var  name="FEET_b2prime"                                  value=" FEET_MainPlYc + FEET_MainPlXc * GENV_Ta675 " />
-<var  name="FEET_ExMPlaxd_ExtremityMainPlate_XD"       value=" -(FEET_b2-FEET_b2prime)/(FEET_a2-FEET_a2prime) " />
-<var  name="FEET_ExMPlayd_ExtremityMainPlate_YD"       value=" FEET_a2*FEET_ExMPlaxd_ExtremityMainPlate_XD + FEET_b2 " />
-
-<var  name="FEET_ExMPc2c1_ExtremityMainPlate_LengthC2C1" value="FEET_ExMCPyhe_ExtremityMiniConnPlate_Yheight+(FEET_ExMPhei1_ExtremityMainPlate_Height_intermediate1-FEET_MainPlH1_MainPlateHeight_intermediate1)/GENV_Co225 " />
-<var  name="FEET_ExMPlxc1_ExtremityMainPlate_XC1"      value="FEET_MnPlGXwi_MainPlate_GroundXwidth - FEET_ExMPc2c1_ExtremityMainPlate_LengthC2C1*GENV_Si225 " />
-<var  name="FEET_ExMPlyc1_ExtremityMainPlate_YC1"      value="FEET_MainPlYc+ FEET_ExMPc2c1_ExtremityMainPlate_LengthC2C1*GENV_Co225" />
-
-<var  name="FEET_ExMPyc1a_ExtremityMainPlate_YC1a"     value="FEET_ExMPhei2_ExtremityMainPlate_Height_intermediate2 +  FEET_MnPlPeHe_MainPlate_PedestalHeight  " />
-<var  name="FEET_ExMPxc1a_ExtremityMainPlate_XC1a"     value="FEET_ExMPlxc1_ExtremityMainPlate_XC1 - (FEET_ExMPlyc1_ExtremityMainPlate_YC1-FEET_ExMPyc1a_ExtremityMainPlate_YC1a)/GENV_Ta225 " />
-
-<var  name="FEET_ExMPxc1b_ExtremityMainPlate_XC1b"     value="FEET_MaPlRCXc_MainPlateRoundCut_XC " />
-<var  name="FEET_ExMPyc1b_ExtremityMainPlate_YC1b"     value="FEET_ExMPyc1a_ExtremityMainPlate_YC1a  " />
-
-<var  name="FEET_Alpha3"                           value="FEET_MinCPltz_MiniConnPlate_ThetaZ + atan(FEET_ExMCPyhe_ExtremityMiniConnPlate_Yheight/FEET_MinCPlxw_MiniConnPlate_Xwidth)/GENV_PiS180" />
-<var  name="FEET_CoAl3"                            value="cos(FEET_Alpha3*GENV_PiS180)" />
-<var  name="FEET_SiAl3"                            value="sin(FEET_Alpha3*GENV_PiS180)" />
-<var  name="FEET_ExMCPDia_ExtremityMiniConnPlate_DIAG"     value=" ( (FEET_MinCPlxw_MiniConnPlate_Xwidth/2.)**2. + (FEET_ExMCPyhe_ExtremityMiniConnPlate_Yheight/2.)**2. )**0.5 " />
-<var  name="FEET_ExMCPxpo_ExtremityMiniConnPlate_X"        value="FEET_ExMPlxc1_ExtremityMainPlate_XC1-FEET_ExMCPDia_ExtremityMiniConnPlate_DIAG*FEET_CoAl3" />
-<var  name="FEET_ExMCPypo_ExtremityMiniConnPlate_Y"        value="FEET_ExMPlyc1_ExtremityMainPlate_YC1-FEET_ExMCPDia_ExtremityMiniConnPlate_DIAG*FEET_SiAl3  " />
-
-<box  name="ExtremityMiniConnPlate" material="Iron"  X_Y_Z="FEET_MinCPlxw_MiniConnPlate_Xwidth; FEET_ExMCPyhe_ExtremityMiniConnPlate_Yheight; FEET_ExMCPzle_ExtremityMiniConnPlate_Zlength " />
-
-<var  name="FEET_ExMPlaxf_ExtremityMainPlate_XF"       value=" FEET_MainPlXe" />
-<var  name="FEET_ExMPlayf_ExtremityMainPlate_YF"       value=" FEET_ExMPheig_ExtremityMainPlate_Height " />
-
-<var  name="FEET_ExMPlxf1_ExtremityMainPlate_XF1"      value=" FEET_MainPlXf - ( FEET_ExMPxwid_ExtremityMainPlate_Xwidth - FEET_ExMPxwi1_ExtremityMainPlate_Xwidth_inter1 )" />
-<var  name="FEET_ExMPlyf1_ExtremityMainPlate_YF1"      value=" FEET_ExMPheig_ExtremityMainPlate_Height " />
-
-<var  name="FEET_ExMPlxf2_ExtremityMainPlate_XF2"      value="FEET_ExMPlxf1_ExtremityMainPlate_XF1 " />
-<var  name="FEET_ExMPlyf2_ExtremityMainPlate_YF2"      value="FEET_ExMPlyf1_ExtremityMainPlate_YF1 - FEET_ExMPyhi1_ExtremityMainPlate_Yheight_inter1" />
-
-<var  name="FEET_ExMPlyf3_ExtremityMainPlate_YF3" value="FEET_ExMPyhi2_ExtremityMainPlate_Yheight_inter2+FEET_ExMPyhi3_ExtremityMainPlate_Yheight_inter3-FEET_ExMPyhi4_ExtremityMainPlate_Yheight_inter4+FEET_MnPlPeHe_MainPlate_PedestalHeight"/>
-
-<var  name="FEET_ExMPlxf3_ExtremityMainPlate_XF3" value="FEET_ExMPlxf2_ExtremityMainPlate_XF2 - (FEET_ExMPlyf2_ExtremityMainPlate_YF2-FEET_ExMPlyf3_ExtremityMainPlate_YF3)/GENV_Ta20 " />
-
-<var  name="FEET_ExMPlxf4_ExtremityMainPlate_XF4"      value="FEET_ExMPlxf2_ExtremityMainPlate_XF2 - (FEET_ExMPxwi1_ExtremityMainPlate_Xwidth_inter1-FEET_ExMPxwi2_ExtremityMainPlate_Xwidth_inter2)" />
-<var  name="FEET_ExMPlyf4_ExtremityMainPlate_YF4"      value="FEET_ExMPlyf3_ExtremityMainPlate_YF3 " />
-
-<var  name="FEET_ExMPlxf5_ExtremityMainPlate_XF5"      value="FEET_ExMPlxf4_ExtremityMainPlate_XF4 - FEET_ExMPyhi4_ExtremityMainPlate_Yheight_inter4*GENV_Ta225" />
-<var  name="FEET_ExMPlyf5_ExtremityMainPlate_YF5"      value="FEET_ExMPlyf4_ExtremityMainPlate_YF4 + FEET_ExMPyhi4_ExtremityMainPlate_Yheight_inter4" />
-
-<var  name="FEET_ExMPlxf6_ExtremityMainPlate_XF6"      value="FEET_ExMPlxf4_ExtremityMainPlate_XF4 - FEET_ExMPxwi2_ExtremityMainPlate_Xwidth_inter2" />
-<var  name="FEET_ExMPlyf6_ExtremityMainPlate_YF6"      value="FEET_ExMPlyf5_ExtremityMainPlate_YF5" />
-
-<var  name="FEET_ExMPlxf7_ExtremityMainPlate_XF7"      value="FEET_ExMPlxf6_ExtremityMainPlate_XF6" />
-<var  name="FEET_ExMPlyf7_ExtremityMainPlate_YF7"      value="FEET_ExMPlyf6_ExtremityMainPlate_YF6 - FEET_ExMPyhi3_ExtremityMainPlate_Yheight_inter3" />
-
-<var  name="FEET_ExMPlaxi_ExtremityMainPlate_XI"       value=" -FEET_ExMPxdi1_ExtremityMainPlate_Xdist_inter1 + FEET_ExMPxdi2_ExtremityMainPlate_Xdist_inter2 " />
-
-<var  name="FEET_ExMPlaxh_ExtremityMainPlate_XH"       value="FEET_ExMPlaxi_ExtremityMainPlate_XI -(FEET_ExMPyhi2_ExtremityMainPlate_Yheight_inter2-FEET_ExMPydi2_ExtremityMainPlate_Ydist_inter1)/GENV_Ta77  " />
-<var  name="FEET_ExMPlayh_ExtremityMainPlate_YH"       value=" FEET_ExMPlyf7_ExtremityMainPlate_YF7 " />
-
-
-<gvxy  name="ExtremityFeetMainPlate"      material="Iron"   dZ="FEET_MainPldZ_MainPlateDZ"  >
-  <gvxy_point  X_Y=" FEET_MainPlXa              ;  FEET_MainPlYa            " />
-  <gvxy_point  X_Y=" FEET_MainPlXb              ;  FEET_MainPlYb            " />
-  <gvxy_point  X_Y=" FEET_MainPlXc              ;  FEET_MainPlYc            " />
-  <gvxy_point  X_Y=" FEET_ExMPlxc1_ExtremityMainPlate_XC1    ;  FEET_ExMPlyc1_ExtremityMainPlate_YC1  " />
-  <gvxy_point  X_Y=" FEET_ExMPxc1a_ExtremityMainPlate_XC1a   ;  FEET_ExMPyc1a_ExtremityMainPlate_YC1a " />
-  <gvxy_point  X_Y=" FEET_ExMPxc1b_ExtremityMainPlate_XC1b   ;  FEET_ExMPyc1b_ExtremityMainPlate_YC1b " />
-  <gvxy_point  X_Y=" FEET_ExMPlxc5_ExtremityMainPlate_XC5    ;  FEET_ExMPlyc5_ExtremityMainPlate_YC5  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxc4_ExtremityMainPlate_XC4    ;  FEET_ExMPlyc4_ExtremityMainPlate_YC4  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxc3_ExtremityMainPlate_XC3    ;  FEET_ExMPlyc3_ExtremityMainPlate_YC3  " />
-  <gvxy_point  X_Y=" FEET_ExMPlaxd_ExtremityMainPlate_XD     ;  FEET_ExMPlayd_ExtremityMainPlate_YD   " />
-  <gvxy_point  X_Y=" FEET_MainPlXe              ;  FEET_MainPlYe            " />
-  <gvxy_point  X_Y=" FEET_ExMPlaxf_ExtremityMainPlate_XF     ;  FEET_ExMPlayf_ExtremityMainPlate_YF   " />
-  <gvxy_point  X_Y=" FEET_ExMPlxf1_ExtremityMainPlate_XF1    ;  FEET_ExMPlyf1_ExtremityMainPlate_YF1  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxf2_ExtremityMainPlate_XF2    ;  FEET_ExMPlyf2_ExtremityMainPlate_YF2  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxf3_ExtremityMainPlate_XF3    ;  FEET_ExMPlyf3_ExtremityMainPlate_YF3  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxf4_ExtremityMainPlate_XF4    ;  FEET_ExMPlyf4_ExtremityMainPlate_YF4  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxf5_ExtremityMainPlate_XF5    ;  FEET_ExMPlyf5_ExtremityMainPlate_YF5  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxf6_ExtremityMainPlate_XF6    ;  FEET_ExMPlyf6_ExtremityMainPlate_YF6  " />
-  <gvxy_point  X_Y=" FEET_ExMPlxf7_ExtremityMainPlate_XF7    ;  FEET_ExMPlyf7_ExtremityMainPlate_YF7  " />
-  <gvxy_point  X_Y=" FEET_ExMPlaxh_ExtremityMainPlate_XH     ;  FEET_ExMPlayh_ExtremityMainPlate_YH   " />
-  <gvxy_point  X_Y=" FEET_MainPlXi              ;  FEET_MainPlYi            " />
-  <gvxy_point  X_Y=" FEET_MainPlXj              ;  FEET_MainPlYj            " />
-</gvxy>
-
-
-
-<!--  Ensemble of Connecting plates -->
-
-<box  name="ExtremityGroundPlate"         material="Iron"   X_Y_Z="FEET_GrnPxwid_GroundPlate_Xwidth; FEET_GrnPyhei_GroundPlate_Yheight; FEET_ExGPzlen_ExtremityGroundPlate_Zlength" />
-
-<box  name="ExtremitySlantedConnPlate_box"     material="Iron" X_Y_Z="FEET_SlaCPlxw_SlantedConnPlate_Xwidth; FEET_SlaCPlyh_SlantedConnPlate_Yheight; FEET_ExSCPzle_ExtremitySlantedConnPlate_Zlength" />
-<tubs name="ExtremitySlantedConnPlateRoundCut" material="Iron" Rio_Z=" 0 ;  FEET_ExSPRCra_ExtremitySlantedConnPlateRoundCut_Radius; FEET_dumz"  nbPhi="FEET_dumphi" />
-
-<subtraction  name="ExtremitySlantedConnPlate" >
-  <posXYZ  volume="ExtremitySlantedConnPlate_box"  />
-  <posXYZ  volume="ExtremitySlantedConnPlateRoundCut"   X_Y_Z="FEET_ExSPRCof_ExtremitySlantedConnPlateRoundCut_Offset;0.;0."  rot="90.;0.;0." />
-</subtraction>
-
-
-<var  name="FEET_ExUCPxpo_ExtremityUpperConnPlate_X"          value="FEET_ExMPlxf7_ExtremityMainPlate_XF7 - FEET_UCnPlxwi_UpperConnPlate_Xwidth/2." />
-<var  name="FEET_ExUCPypo_ExtremityUpperConnPlate_Y"          value=" FEET_ExMPlayh_ExtremityMainPlate_YH + FEET_ExUCPyhe_ExtremityUpperConnPlate_Yheight/2." />
-<box  name="ExtremityUpperConnPlate"         material="Iron"  X_Y_Z="FEET_UCnPlxwi_UpperConnPlate_Xwidth; FEET_ExUCPyhe_ExtremityUpperConnPlate_Yheight; FEET_ExUCPzle_ExtremityUpperConnPlate_Zlength" />
-
-<var  name="FEET_ExVCPzle_ExtremityVerticalConnPlate_Zlength" value=" FEET_ExMPzsep_ExtremityMainPlate_Zsep - FEET_MainPldZ_MainPlateDZ " />
-
-<var  name="FEET_ExVCPlxa_ExtremityVerticalConnPlate_XA"  value=" 0." />
-<var  name="FEET_ExVCPlya_ExtremityVerticalConnPlate_YA"  value=" 0." />
-<var  name="FEET_ExVCPlxb_ExtremityVerticalConnPlate_XB"  value="FEET_ExVCPlxa_ExtremityVerticalConnPlate_XA - FEET_ExVCPthi_ExtremityVerticalConnPlate_Thickness" />
-<var  name="FEET_ExVCPlyb_ExtremityVerticalConnPlate_YB"  value="FEET_ExVCPlya_ExtremityVerticalConnPlate_YA" />
-
-<var  name="FEET_ExVCPlxc_ExtremityVerticalConnPlate_XC"  value="FEET_ExVCPlxb_ExtremityVerticalConnPlate_XB" />
-<var  name="FEET_ExVCPlyc_ExtremityVerticalConnPlate_YC"  value="FEET_ExVCPhei_ExtremityVerticalConnPlate_Height-(FEET_ExVCPxex_ExtremityVerticalConnPlate_Xext-FEET_ExVCPthi_ExtremityVerticalConnPlate_Thickness)*GENV_Ta675"/>
-
-<var  name="FEET_ExVCPlxd_ExtremityVerticalConnPlate_XD"  value="FEET_ExVCPlxc_ExtremityVerticalConnPlate_XC - FEET_ExVCPxex_ExtremityVerticalConnPlate_Xext + FEET_ExVCPthi_ExtremityVerticalConnPlate_Thickness*GENV_Co225" />
-<var  name="FEET_ExVCPlyd_ExtremityVerticalConnPlate_YD"  value="FEET_ExVCPhei_ExtremityVerticalConnPlate_Height - FEET_ExVCPthi_ExtremityVerticalConnPlate_Thickness*GENV_Si225" />
-
-<var  name="FEET_ExVCPlxe_ExtremityVerticalConnPlate_XE"  value="FEET_ExVCPlxd_ExtremityVerticalConnPlate_XD + FEET_ExVCPthi_ExtremityVerticalConnPlate_Thickness*GENV_Co225 " />
-<var  name="FEET_ExVCPlye_ExtremityVerticalConnPlate_YE"  value="FEET_ExVCPlyd_ExtremityVerticalConnPlate_YD + FEET_ExVCPthi_ExtremityVerticalConnPlate_Thickness*GENV_Si225 " />
-
-<var  name="FEET_ExVCPlxf_ExtremityVerticalConnPlate_XF"  value="FEET_ExVCPlxa_ExtremityVerticalConnPlate_XA " />
-<var  name="FEET_ExVCPlyf_ExtremityVerticalConnPlate_YF"  value="FEET_ExVCPlyc_ExtremityVerticalConnPlate_YC " />
-
-<gvxy     name="ExtremityVerticalConnPlateCore"         material="Iron"   dZ="FEET_ExVCPzle_ExtremityVerticalConnPlate_Zlength"  >
-  <gvxy_point  X_Y="  FEET_ExVCPlxa_ExtremityVerticalConnPlate_XA  ;  FEET_ExVCPlya_ExtremityVerticalConnPlate_YA "   />
-  <gvxy_point  X_Y="  FEET_ExVCPlxb_ExtremityVerticalConnPlate_XB  ;  FEET_ExVCPlyb_ExtremityVerticalConnPlate_YB "   />
-  <gvxy_point  X_Y="  FEET_ExVCPlxc_ExtremityVerticalConnPlate_XC  ;  FEET_ExVCPlyc_ExtremityVerticalConnPlate_YC "   />
-  <gvxy_point  X_Y="  FEET_ExVCPlxd_ExtremityVerticalConnPlate_XD  ;  FEET_ExVCPlyd_ExtremityVerticalConnPlate_YD "   />
-  <gvxy_point  X_Y="  FEET_ExVCPlxe_ExtremityVerticalConnPlate_XE  ;  FEET_ExVCPlye_ExtremityVerticalConnPlate_YE "   />
-  <gvxy_point  X_Y="  FEET_ExVCPlxf_ExtremityVerticalConnPlate_XF  ;  FEET_ExVCPlyf_ExtremityVerticalConnPlate_YF "   />
-</gvxy>
-
-<box  name="ExtremityVerticalConnPlateCut"   material="Iron"   X_Y_Z="FEET_ExVCPxcu_ExtremityVerticalConnPlate_CutX; FEET_ExVCPycu_ExtremityVerticalConnPlate_CutY; FEET_dumz" />
-
-
-<var  name="FEET_ExVCPlxp_ExtremityVerticalConnPlate_Xpos" value="(FEET_ExVCPlxd_ExtremityVerticalConnPlate_XD+FEET_ExVCPlxe_ExtremityVerticalConnPlate_XE)/2.+GENV_Co675*FEET_ExVCPycu_ExtremityVerticalConnPlate_CutY/2."/>
-<var  name="FEET_ExVCPlyp_ExtremityVerticalConnPlate_Ypos" value="(FEET_ExVCPlyd_ExtremityVerticalConnPlate_YD+FEET_ExVCPlye_ExtremityVerticalConnPlate_YE)/2.-GENV_Si675*FEET_ExVCPycu_ExtremityVerticalConnPlate_CutY/2."/>
-
-<subtraction  name="ExtremityVerticalConnPlate" >
-  <posXYZ  volume="ExtremityVerticalConnPlateCore"  />
-  <posXYZ  volume="ExtremityVerticalConnPlateCut"  X_Y_Z="FEET_ExVCPlxp_ExtremityVerticalConnPlate_Xpos; FEET_ExVCPlyp_ExtremityVerticalConnPlate_Ypos +GENV_Eps; 0. "   rot=" 0. ; 90. ; 22.5"  />
-</subtraction>
-
-<var  name="FEET_ExVCPlax_ExtremityVerticalConnPlate_X"       value=" FEET_ExVCPldx_ExtremityVerticalConnPlate_DX " />
-<var  name="FEET_ExVCPlay_ExtremityVerticalConnPlate_Y"       value=" FEET_ExVCPldy_ExtremityVerticalConnPlate_DY + FEET_MnPlPeHe_MainPlate_PedestalHeight" />
-
-<!--  Extremity Feet Rail support -->
-
-<var  name="FEET_ExRSLzle_ExtremityRailSupportLower_Zlength"      value="FEET_ExRSUzle_ExtremityRailSupportUpper_Zlength - FEET_ExRSLdzl_ExtremityRailSupportLower_DZlength" />
-<var  name="FEET_ExRSVyhe_ExtremityRailSupportVertical_Yheight"   value="FEET_ExRSCyhe_ExtremityRailSupportCentral_Yheight " />
-<var  name="FEET_ExRSMxpo_ExtremityRailSupportMiddle_Xpos"        value="FEET_ExRSMxwi_ExtremityRailSupportMiddle_Xwidth/2. + FEET_ExRSCxwi_ExtremityRailSupportCentral_Xwidth/2." />
-<var  name="FEET_ExRSVxpo_ExtremityRailSupportVertical_Xpos"      value="FEET_ExRSVxwi_ExtremityRailSupportVertical_Xwidth/2. + FEET_ExRSCxwi_ExtremityRailSupportCentral_Xwidth/2." />
-
-
-<box  name="ExtremityRailSupportUpper"    material="Iron"  X_Y_Z="FEET_Xwidth; FEET_UpperHeY_RailSupportUpper_Yheight; FEET_ExRSUzle_ExtremityRailSupportUpper_Zlength " />
-<box  name="ExtremityRailSupportLower"    material="Iron"  X_Y_Z="FEET_Xwidth; FEET_ExRSLyhe_ExtremityRailSupportLower_Yheight; FEET_ExRSLzle_ExtremityRailSupportLower_Zlength " />
-<box  name="ExtremityRailSupportCentral"  material="Iron"  X_Y_Z="FEET_ExRSCxwi_ExtremityRailSupportCentral_Xwidth; FEET_ExRSCyhe_ExtremityRailSupportCentral_Yheight; FEET_ExRSCzle_ExtremityRailSupportCentral_Zlength" />
-<box  name="ExtremityRailSupportMiddle"   material="Iron"  X_Y_Z="FEET_ExRSMxwi_ExtremityRailSupportMiddle_Xwidth; FEET_MidllYth_RailSupportMiddle_Ythick; FEET_ExRSMzle_ExtremityRailSupportMiddle_Zlength" />
-<box  name="ExtremityRailSupportVertical" material="Iron"  X_Y_Z="FEET_ExRSVxwi_ExtremityRailSupportVertical_Xwidth; FEET_ExRSVyhe_ExtremityRailSupportVertical_Yheight; FEET_VertiZth_RailSupportVertical_Zthick" />
-<box  name="ExtremityRailSupportExtr"     material="Iron"  X_Y_Z="FEET_Xwidth; FEET_ExRSEyhe_ExtremityRailSupportExtr_Yheight; FEET_ExRSEzle_ExtremityRailSupportExtr_Zlength  " />
-
-
-<var  name="FEET_ExRSEypo_ExtremityRailSupportExtr_Y"     value="FEET_ExRSEyhe_ExtremityRailSupportExtr_Yheight/2."/>
-<var  name="FEET_ExRSUypo_ExtremityRailSupportUpper_Y"    value="FEET_ExRSTyhe_ExtremityRailSupportTotal_Yheight-FEET_UpperHeY_RailSupportUpper_Yheight/2."/>
-<var  name="FEET_ExRSLypo_ExtremityRailSupportLower_Y"    value="FEET_ExRSEyhe_ExtremityRailSupportExtr_Yheight+FEET_ExRSLyhe_ExtremityRailSupportLower_Yheight/2."/>
-<var  name="FEET_ExRSCypo_ExtremityRailSupportCentral_Y"  value="FEET_ExRSEyhe_ExtremityRailSupportExtr_Yheight+FEET_ExRSLyhe_ExtremityRailSupportLower_Yheight+FEET_ExRSCyhe_ExtremityRailSupportCentral_Yheight/2."/>
-<var  name="FEET_ExRSVypo_ExtremityRailSupportVertical_Y" value="FEET_ExRSCypo_ExtremityRailSupportCentral_Y"/>
-
-<var  name="FEET_ExRSVzp1_ExtremityRailSupportVertical1_Zpos" value="-FEET_ExRSUzle_ExtremityRailSupportUpper_Zlength/2.+FEET_ExRSVzi1_ExtremityRailSupportVertical_Zpos_inter1-FEET_VertiZth_RailSupportVertical_Zthick/2."/>
-<var  name="FEET_ExRSVzp2_ExtremityRailSupportVertical2_Zpos" value=" FEET_ExRSVzp1_ExtremityRailSupportVertical1_Zpos + FEET_ExRSMzle_ExtremityRailSupportMiddle_Zlength + FEET_VertiZth_RailSupportVertical_Zthick" />
-<var  name="FEET_ExRSMzpo_ExtremityRailSupportMiddle_Zpos"    value="(FEET_ExRSVzp1_ExtremityRailSupportVertical1_Zpos+FEET_ExRSVzp2_ExtremityRailSupportVertical2_Zpos)/2." />
-<var  name="FEET_ExRSEzpo_ExtremityRailSupportExtr_Zpos"      value=" FEET_ExRSLzle_ExtremityRailSupportLower_Zlength/2.-FEET_ExRSEzof_ExtremityRailSupportExtr_Zoffset-FEET_ExRSEzle_ExtremityRailSupportExtr_Zlength/2."/>
-
-<var  name="FEET_ExRSC1ye_ExtremityRailSupportCut1_Yext"          value="FEET_ExRSC1wi_ExtremityRailSupportCut1_Width - FEET_ExRSC2z2_ExtremityRailSupportCut1_Zoffset2*2 " />
-<var  name="FEET_ExRSC2ye_ExtremityRailSupportCut2_Yext"          value="FEET_ExRSC1wi_ExtremityRailSupportCut1_Width  " />
-
-<box  name="ExtremityRailSupportCut1"     material="Iron"  X_Y_Z="FEET_ExRSC1xe_ExtremityRailSupportCut1_dumXext; FEET_ExRSC1ye_ExtremityRailSupportCut1_Yext; FEET_dumz "    />
-<box  name="ExtremityRailSupportCut2"     material="Iron"  X_Y_Z="FEET_ExRSC2xe_ExtremityRailSupportCut2_dumXext; FEET_ExRSC2ye_ExtremityRailSupportCut2_Yext; FEET_dumz "    />
-<tubs name="ExtremityRailSupportCut3"     material="Iron"  Rio_Z=" 0 ; FEET_ExRSC2z2_ExtremityRailSupportCut1_Zoffset2 ; FEET_dumz"  nbPhi="FEET_dumphi" />
-
-<var  name="FEET_ExRSC1xp_ExtremityRailSupportCut1_Xpos" value="FEET_dumz/2. +  ( FEET_Xwidth/2.- FEET_ExRSC1de_ExtremityRailSupportCut1_Depth) " />
-<var  name="FEET_ExRSC2xp_ExtremityRailSupportCut2_Xpos" value="FEET_dumz/2. +  ( FEET_Xwidth/2.- FEET_ExRSC1de_ExtremityRailSupportCut1_Depth+ FEET_ExRSC2z2_ExtremityRailSupportCut1_Zoffset2) " />
-
-<var  name="FEET_ExRSC1zp_ExtremityRailSupportCut1_Zpos" value="-FEET_ExRSLzle_ExtremityRailSupportLower_Zlength/2.+ FEET_ExRSC2z1_ExtremityRailSupportCut1_Zoffset1 + FEET_ExRSC1wi_ExtremityRailSupportCut1_Width/2." />
-
-<var  name="FEET_ExRSC3xp_ExtremityRailSupportCut3_Xpos" value="FEET_Xwidth/2. -(FEET_ExRSC1de_ExtremityRailSupportCut1_Depth-FEET_ExRSC2z2_ExtremityRailSupportCut1_Zoffset2)" />
-<var  name="FEET_ExRSC3zp_ExtremityRailSupportCut3_Zpos" value="-FEET_ExRSLzle_ExtremityRailSupportLower_Zlength/2.+ FEET_ExRSC2z1_ExtremityRailSupportCut1_Zoffset1 + FEET_ExRSC2z2_ExtremityRailSupportCut1_Zoffset2" />
-
-<var  name="FEET_ExRSC4z1" value="FEET_ExRSC1wi_ExtremityRailSupportCut1_Width-FEET_ExRSC2z2_ExtremityRailSupportCut1_Zoffset2"/>
-<var  name="FEET_ExRSC4zp_ExtremityRailSupportCut4_Zpos" value="-FEET_ExRSLzle_ExtremityRailSupportLower_Zlength/2.+FEET_ExRSC2z1_ExtremityRailSupportCut1_Zoffset1+FEET_ExRSC4z1"/>
-
-<var  name="FEET_ExRSMCxa_ExtremityRailSupportMiddleCut_XA"      value="FEET_ExRSMCwi_ExtremityRailSupportMiddleCut_Width/2." />
-<var  name="FEET_ExRSMCya_ExtremityRailSupportMiddleCut_YA"      value="FEET_ExRSMCy1_ExtremityRailSupportMiddleCut_dumy1" />
-
-<var  name="FEET_ExRSMCxb_ExtremityRailSupportMiddleCut_XB"      value="FEET_ExRSMCxa_ExtremityRailSupportMiddleCut_XA" />
-<var  name="FEET_ExRSMCyb_ExtremityRailSupportMiddleCut_YB"      value="FEET_ExRSMCya_ExtremityRailSupportMiddleCut_YA + FEET_ExRSMCy2_ExtremityRailSupportMiddleCut_dumy2" />
-
-<var  name="FEET_ExRSMCxc_ExtremityRailSupportMiddleCut_XC"      value="FEET_ExRSMCwi_ExtremityRailSupportMiddleCut_Width/2.- FEET_ExRSMCde_ExtremityRailSupportMiddleCut_Depth" />
-<var  name="FEET_ExRSMCyc_ExtremityRailSupportMiddleCut_YC"      value="FEET_ExRSMCyb_ExtremityRailSupportMiddleCut_YB + FEET_ExRSMCde_ExtremityRailSupportMiddleCut_Depth" />
-
-<gvxysx     name="ExtremityRailSupportMiddleCut"         material="Iron"   dZ="FEET_dumz"  >
-  <gvxy_point  X_Y="  FEET_ExRSMCxa_ExtremityRailSupportMiddleCut_XA  ;  FEET_ExRSMCya_ExtremityRailSupportMiddleCut_YA "   />
-  <gvxy_point  X_Y="  FEET_ExRSMCxb_ExtremityRailSupportMiddleCut_XB  ;  FEET_ExRSMCyb_ExtremityRailSupportMiddleCut_YB "   />
-  <gvxy_point  X_Y="  FEET_ExRSMCxc_ExtremityRailSupportMiddleCut_XC  ;  FEET_ExRSMCyc_ExtremityRailSupportMiddleCut_YC "   />
+<gvxysx name="Standard_Girder2_Plate2" material="ShieldSteel" dZ="40.">
+    <gvxy_point X_Y="-897.5; -465."/>
+    <gvxy_point X_Y="-897.5; -345."/>
+    <gvxy_point X_Y="-991.15; -345."/>
+    <gvxy_point X_Y="-991.15; -20.05"/>
 </gvxysx>
 
-<var  name="FEET_ExRSMCxp_ExtremityRailSupportMiddle_cut_Xpos" value="FEET_ExRSMCyc_ExtremityRailSupportMiddleCut_YC+FEET_Xwidth/2.-FEET_ExRSMCde_ExtremityRailSupportMiddleCut_Depth" />
+<gvxysx name="Standard_Girder2_Plate5" material="ShieldSteel" dZ="460.">
+    <gvxy_point X_Y="-677.5; -435.05"/>
+    <gvxy_point X_Y="-940.85; -320.05"/>
+    <gvxy_point X_Y="-991.15; -320.05"/>
+    <gvxy_point X_Y="-991.15; -280.05"/>
+    <gvxy_point X_Y="-932.5; -280.05"/>
+    <gvxy_point X_Y="-669.15; -395.05"/>
+</gvxysx>
 
-<var  name="FEET_ExRSMCz1" value="FEET_ExRSVzi1_ExtremityRailSupportVertical_Zpos_inter1+FEET_ExRSMCzo_ExtremityRailSupportMiddleCut_Zoffset"/>
-<var  name="FEET_ExRSMCzp_ExtremityRailSupportMiddle_cut_Zpos" value="FEET_ExRSMCxb_ExtremityRailSupportMiddleCut_XB-FEET_ExRSLzle_ExtremityRailSupportLower_Zlength/2.+FEET_ExRSMCz1"/>
+<composition  name="Standard_Girder2" >
+    <posXYZ  volume="Standard_Girder2_Plate1"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder2_Plate2"    X_Y_Z=" 250.05 ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Girder2_Plate2"    X_Y_Z=" -250.05 ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3Cut_Side1"    X_Y_Z=" 71.5 ; -254.2 ; -1029.4" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3Cut_Side2"    X_Y_Z=" 71.5 ; -254.2 ; 1029.4" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1-2-3_Plate4"    X_Y_Z=" 0. ; -207.51 ; -277.5" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1-2-3_Plate4"    X_Y_Z=" 0. ; -207.51 ; 27.5" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder2_Plate5"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 90.;0." />
+</composition>
+    <!--  End Girder 2 -->
 
-<composition  name="ExtremityRailSupport" >
-  <posXYZ  volume="ExtremityRailSupportUpper"       X_Y_Z=" 0.;FEET_ExRSUypo_ExtremityRailSupportUpper_Y;0."    />
-  <posXYZ  volume="ExtremityRailSupportCentral"     X_Y_Z=" 0.;FEET_ExRSCypo_ExtremityRailSupportCentral_Y;0."  />
-  <posXYZ  volume="ExtremityRailSupportVertical"    X_Y_Z=" FEET_ExRSVxpo_ExtremityRailSupportVertical_Xpos;FEET_ExRSVypo_ExtremityRailSupportVertical_Y; FEET_ExRSVzp1_ExtremityRailSupportVertical1_Zpos"  />
-  <posXYZ  volume="ExtremityRailSupportVertical"    X_Y_Z="-FEET_ExRSVxpo_ExtremityRailSupportVertical_Xpos;FEET_ExRSVypo_ExtremityRailSupportVertical_Y; FEET_ExRSVzp1_ExtremityRailSupportVertical1_Zpos"  />
-  <posXYZ  volume="ExtremityRailSupportVertical"    X_Y_Z=" FEET_ExRSVxpo_ExtremityRailSupportVertical_Xpos;FEET_ExRSVypo_ExtremityRailSupportVertical_Y; FEET_ExRSVzp2_ExtremityRailSupportVertical2_Zpos"  />
-  <posXYZ  volume="ExtremityRailSupportVertical"    X_Y_Z="-FEET_ExRSVxpo_ExtremityRailSupportVertical_Xpos;FEET_ExRSVypo_ExtremityRailSupportVertical_Y; FEET_ExRSVzp2_ExtremityRailSupportVertical2_Zpos"  />
+
+    <!--  Girder 3 -->
+<box name="Standard_Girder3_Plate1" material="ShieldSteel" X_Y_Z="640.; 40.; 2203.3"/>
+
+<gvxysx name="Standard_Girder3_Plate2" material="ShieldSteel" dZ="40.">
+    <gvxy_point X_Y="-1007.5; -465."/>
+    <gvxy_point X_Y="-1007.5; -345."/>
+    <gvxy_point X_Y="-1101.65; -345."/>
+    <gvxy_point X_Y="-1101.65; -20.05"/>
+</gvxysx>
+
+<gvxysx name="Standard_Girder3_Plate5" material="ShieldSteel" dZ="460.">
+    <gvxy_point X_Y="-788.; -435.05"/>
+    <gvxy_point X_Y="-1051.35; -320.05"/>
+    <gvxy_point X_Y="-1101.65; -320.05"/>
+    <gvxy_point X_Y="-1101.65; -280.05"/>
+    <gvxy_point X_Y="-1043.; -280.05"/>
+    <gvxy_point X_Y="-779.65; -395.05"/>
+</gvxysx>
+
+<composition  name="Standard_Girder3" >
+    <posXYZ  volume="Standard_Girder3_Plate1"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder3_Plate2"    X_Y_Z=" 250.05 ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Girder3_Plate2"    X_Y_Z=" -250.05 ; 0. ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3Cut_Side1"    X_Y_Z=" 71.5 ; -254.2 ; -1139.9" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1_2_3_Plate3Cut_Side2"    X_Y_Z=" 71.5 ; -254.2 ; 1139.9" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1-2-3_Plate4"    X_Y_Z=" 0. ; -207.51 ; -168." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1-2-3_Plate4"    X_Y_Z=" 0. ; -207.51 ; 167." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder3_Plate5"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 90.;0." />
 </composition>
 
-
-<subtraction  name="ExtremityRailSupportMiddle_cut_plus" >
-  <posXYZ  volume="ExtremityRailSupportMiddle"      X_Y_Z="FEET_ExRSMxpo_ExtremityRailSupportMiddle_Xpos;FEET_Midyposi_RailSupportMiddle_Y;FEET_ExRSMzpo_ExtremityRailSupportMiddle_Zpos"  rot="0.;0.;0." />
-  <posXYZ  volume="ExtremityRailSupportMiddleCut"  X_Y_Z="FEET_ExRSMCxp_ExtremityRailSupportMiddle_cut_Xpos;0.;FEET_ExRSMCzp_ExtremityRailSupportMiddle_cut_Zpos"  rot="0.;90.;90." />
-</subtraction>
-
-<subtraction  name="ExtremityRailSupportMiddle_cut_minus" >
-  <posXYZ  volume="ExtremityRailSupportMiddle"      X_Y_Z="-FEET_ExRSMxpo_ExtremityRailSupportMiddle_Xpos;FEET_Midyposi_RailSupportMiddle_Y;FEET_ExRSMzpo_ExtremityRailSupportMiddle_Zpos"  rot="0.;0.;0." />
-  <posXYZ  volume="ExtremityRailSupportMiddleCut"  X_Y_Z="-FEET_ExRSMCxp_ExtremityRailSupportMiddle_cut_Xpos;0.;FEET_ExRSMCzp_ExtremityRailSupportMiddle_cut_Zpos"  rot="0.;90.;270." />
-</subtraction>
-
-<subtraction  name="ExtremityRailSupportLower_cut1_plus" >
-  <posXYZ  volume="ExtremityRailSupportLower"       rot="0.;0.;0." />
-  <posXYZ  volume="ExtremityRailSupportCut1"        X_Y_Z="FEET_ExRSC1xp_ExtremityRailSupportCut1_Xpos;0.;FEET_ExRSC1zp_ExtremityRailSupportCut1_Zpos"  rot="90.;0.;90." />
-</subtraction>
-<subtraction  name="ExtremityRailSupportLower_cut2_plus" >
-  <posXYZ  volume="ExtremityRailSupportLower_cut1_plus"  />
-  <posXYZ  volume="ExtremityRailSupportCut2"        X_Y_Z="FEET_ExRSC2xp_ExtremityRailSupportCut2_Xpos;0.;FEET_ExRSC1zp_ExtremityRailSupportCut1_Zpos"  rot="90.;0.;90." />
-</subtraction>
-<subtraction  name="ExtremityRailSupportLower_cut3_plus" >
-  <posXYZ  volume="ExtremityRailSupportLower_cut2_plus"  />
-  <posXYZ  volume="ExtremityRailSupportCut3"        X_Y_Z="FEET_ExRSC3xp_ExtremityRailSupportCut3_Xpos;0.;FEET_ExRSC3zp_ExtremityRailSupportCut3_Zpos"  rot="90.;0.;0." />
-</subtraction>
-<subtraction  name="ExtremityRailSupportLower_cut4_plus" >
-  <posXYZ  volume="ExtremityRailSupportLower_cut3_plus"  />
-  <posXYZ  volume="ExtremityRailSupportCut3"        X_Y_Z="FEET_ExRSC3xp_ExtremityRailSupportCut3_Xpos;0.;FEET_ExRSC4zp_ExtremityRailSupportCut4_Zpos"  rot="90.;0.;0." />
-</subtraction>
-
-
-
-<subtraction  name="ExtremityRailSupportExtr_cut1_plus" >
-  <posXYZ  volume="ExtremityRailSupportExtr"             X_Y_Z="0.;FEET_ExRSEypo_ExtremityRailSupportExtr_Y;FEET_ExRSEzpo_ExtremityRailSupportExtr_Zpos"     rot="0.;0.;0." />
-  <posXYZ  volume="ExtremityRailSupportCut1"             X_Y_Z="FEET_ExRSC1xp_ExtremityRailSupportCut1_Xpos;0.;FEET_ExRSC1zp_ExtremityRailSupportCut1_Zpos"  rot="90.;0.;90." />
-</subtraction>
-<subtraction  name="ExtremityRailSupportExtr_cut2_plus" >
-  <posXYZ  volume="ExtremityRailSupportExtr_cut1_plus"   />
-  <posXYZ  volume="ExtremityRailSupportCut2"             X_Y_Z="FEET_ExRSC2xp_ExtremityRailSupportCut2_Xpos;0.;FEET_ExRSC1zp_ExtremityRailSupportCut1_Zpos"  rot="90.;0.;90." />
-</subtraction>
-<subtraction  name="ExtremityRailSupportExtr_cut3_plus" >
-  <posXYZ  volume="ExtremityRailSupportExtr_cut2_plus"   />
-  <posXYZ  volume="ExtremityRailSupportCut3"             X_Y_Z="FEET_ExRSC3xp_ExtremityRailSupportCut3_Xpos;0.;FEET_ExRSC3zp_ExtremityRailSupportCut3_Zpos"  rot="90.;0.;0." />
-</subtraction>
-<subtraction  name="ExtremityRailSupportExtr_cut4_plus" >
-  <posXYZ  volume="ExtremityRailSupportExtr_cut3_plus"   />
-  <posXYZ  volume="ExtremityRailSupportCut3"             X_Y_Z="FEET_ExRSC3xp_ExtremityRailSupportCut3_Xpos;0.;FEET_ExRSC4zp_ExtremityRailSupportCut4_Zpos"  rot="90.;0.;0." />
-</subtraction>
-
-<composition  name="ExtremityRailSupport_plus" >
-  <posXYZ  volume="ExtremityRailSupport"                  />
-  <posXYZ  volume="ExtremityRailSupportMiddle_cut_plus"   />
-  <posXYZ  volume="ExtremityRailSupportMiddle" X_Y_Z="-FEET_ExRSMxpo_ExtremityRailSupportMiddle_Xpos;FEET_Midyposi_RailSupportMiddle_Y;FEET_ExRSMzpo_ExtremityRailSupportMiddle_Zpos"/>
-  <posXYZ  volume="ExtremityRailSupportLower_cut4_plus"  X_Y_Z="0.;FEET_ExRSLypo_ExtremityRailSupportLower_Y;0." />
-  <posXYZ  volume="ExtremityRailSupportExtr_cut4_plus"   X_Y_Z="0.;0.;0." />
+<composition  name="Standard_Girder1-2-3" >
+    <posXYZ  volume="Standard_Girder1"    X_Y_Z=" 0. ; 0. ; 8005.02" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1"    X_Y_Z=" 0. ; 0. ; -8005.02" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder2"    X_Y_Z=" 0. ; 0. ; 5027.52" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder2"    X_Y_Z=" 0. ; 0. ; -5027.52" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder3"    X_Y_Z=" 0. ; 0. ; 1712.5" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder3"    X_Y_Z=" 0. ; 0. ; -1712.5" rot=" 0.; 0.;0." />
 </composition>
 
-<composition  name="ExtremityRailSupport_minus" >
-  <posXYZ  volume="ExtremityRailSupport"                  />
-  <posXYZ  volume="ExtremityRailSupportMiddle_cut_minus"  />
-  <posXYZ  volume="ExtremityRailSupportMiddle" X_Y_Z="FEET_ExRSMxpo_ExtremityRailSupportMiddle_Xpos;FEET_Midyposi_RailSupportMiddle_Y;FEET_ExRSMzpo_ExtremityRailSupportMiddle_Zpos"/>
-  <posXYZ  volume="ExtremityRailSupportLower_cut4_plus"  X_Y_Z="0.;FEET_ExRSLypo_ExtremityRailSupportLower_Y;0." rot="0.;0.;180." />
-  <posXYZ  volume="ExtremityRailSupportExtr_cut4_plus"   X_Y_Z="0.;FEET_ExRSEyhe_ExtremityRailSupportExtr_Yheight;0." rot="0.;0.;180." />
-</composition>
+    <!--  End Girder 3 -->
 
 
+    <!--  Extremity Girder -->
+<box name="Extremity_Girder_Plate1" material="ShieldSteel" X_Y_Z="859.; 1100.; 75."/>
+<box name="Extremity_Girder_Plate1CutBox" material="ShieldSteel" X_Y_Z="459.; 700.; 80."/>
 
-
-<var name="FEET_ExRSposx_ExtremityRailSupport_X" value="FEET_ExMPlaxf_ExtremityMainPlate_XF-FEET_Xwidth/2."/>
-<var name="FEET_ExRSposy_ExtremityRailSupport_Y" value="FEET_ExMPlayf_ExtremityMainPlate_YF-FEET_ExRSEyhe_ExtremityRailSupportExtr_Yheight"/>
-<var name="FEET_ExRSposz_ExtremityRailSupport_Z" value="-FEET_ExRSzoff_ExtremityRailSupport_Zoffset-(FEET_ExRSVzp1_ExtremityRailSupportVertical1_Zpos+FEET_ExRSVzp2_ExtremityRailSupportVertical2_Zpos)/2."/>
-
-
-
-<!--                              -->
-<!--  Perform Cuts on Main Plate  -->
-<!--                              -->
-
-<subtraction  name="ExtremityFeetMainPlate_inter1" >
-  <posXYZ  volume="ExtremityFeetMainPlate"  />
-  <posXYZ  volume="MainPlateRoundCut"               X_Y_Z="FEET_MaPlRCXc_MainPlateRoundCut_XC;FEET_MaPlRCYc_MainPlateRoundCut_YC; 0."  />
+<subtraction name="Extremity_Girder_Plate1Cut" >
+    <posXYZ volume="Extremity_Girder_Plate1" />
+    <posXYZ volume="Extremity_Girder_Plate1CutBox" />
 </subtraction>
 
-<subtraction  name="ExtremityFeetMainPlate_inter2" >
-  <posXYZ  volume="ExtremityFeetMainPlate_inter1"   />
-  <posXYZ  volume="ExtremityMainPlateRoundCut"      X_Y_Z=" FEET_ExMPRCxc_ExtremityMainPlateRoundCut_XC; FEET_ExMPRCyc_ExtremityMainPlateRoundCut_YC; 0."  />
+<gvxysx name="Extremity_Girder_Plate2" material="ShieldSteel" dZ="75.">
+    <gvxy_point X_Y="-325.; -370."/>
+    <gvxy_point X_Y="-325.; 230."/>
+    <gvxy_point X_Y="-425.; 324."/>
+    <gvxy_point X_Y="-425.; 370."/>
+</gvxysx>
+
+<gvxy name="Extremity_Girder_Plate3" material="ShieldSteel" dZ="40.">
+    <gvxy_point X_Y="-362.; 175.5"/>
+    <gvxy_point X_Y="-362.; 428.5"/>
+    <gvxy_point X_Y="362.; 428.5"/>
+    <gvxy_point X_Y="362.; -428.5"/>
+</gvxy>
+
+<box name="Extremity_Girder_Plate4" material="ShieldSteel" X_Y_Z="389.; 383.; 40."/>
+
+<gvxysx name="Extremity_Girder_Plate5" material="ShieldSteel" dZ="40.">
+    <gvxy_point X_Y="-394.5; -400."/>
+    <gvxy_point X_Y="-253.5; 400."/>
+</gvxysx>
+
+<composition  name="Extremity_Girder" >
+    <posXYZ  volume="Extremity_Girder_Plate1Cut"    X_Y_Z=" 0. ; 0. ; -0.05" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Girder_Plate2"    X_Y_Z=" 0. ; 442.5 ; 407.51" rot=" -90.; 0.; 0." />
+    <posXYZ  volume="Extremity_Girder_Plate3"    X_Y_Z=" 251.21 ; -23.55 ; 397.53" rot=" 0.; 80.;0." />
+    <posXYZ  volume="Extremity_Girder_Plate3"    X_Y_Z=" -251.21 ; -23.55 ; 397.53" rot=" 0.; 100.;0." />
+    <posXYZ  volume="Extremity_Girder_Plate4"    X_Y_Z=" 0. ; 213.45 ; 580." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Girder_Plate5"    X_Y_Z=" 0. ; -209.5 ; 362.7" rot=" 49.7; 0.;0." />
+</composition>
+    <!--  End Extremity Girder -->
+
+
+    <!--  Rail_Support -->
+<gvxysx name="Standard_Rail_Support" material="ShieldSteel" dZ="525.">
+    <gvxy_point X_Y="-350.; -452.1"/>
+    <gvxy_point X_Y="-350.; -437.1"/>
+    <gvxy_point X_Y="-550.; -437.1"/>
+    <gvxy_point X_Y="-550.; -342.1"/>
+    <gvxy_point X_Y="-540.; -342.1"/>
+    <gvxy_point X_Y="-540.; 318.5"/>
+    <gvxy_point X_Y="-597.5; 318.5"/>
+    <gvxy_point X_Y="-597.5; 452.1"/>
+</gvxysx>
+
+<box name="Standard_Rail_SupportCutBox1" material="ShieldSteel" X_Y_Z="920.; 290.6; 425."/>
+<box name="Standard_Rail_SupportCutBox2" material="ShieldSteel" X_Y_Z="920.; 290.; 425."/>
+
+<subtraction name="Standard_Rail_SupportCut" >
+    <posXYZ volume="Standard_Rail_Support" />
+    <posXYZ volume="Standard_Rail_SupportCutBox1"  X_Y_Z=" 0 ; 173.2 ; 262.5" rot=" 0.; 0.;0." />
+    <posXYZ volume="Standard_Rail_SupportCutBox1"  X_Y_Z=" 0 ; 173.2 ; -262.5" rot=" 0.; 0.;0." />
+    <posXYZ volume="Standard_Rail_SupportCutBox2"  X_Y_Z=" 0 ; -197.1 ; 262.5" rot=" 0.; 0.;0." />
+    <posXYZ volume="Standard_Rail_SupportCutBox2"  X_Y_Z=" 0 ; -197.1 ; -262.5" rot=" 0.; 0.;0." />
+</subtraction>
+    <!--  End Rail_Support -->
+
+
+    <!--  Extremity Rail_Support -->
+<gvxysx name="Extremity_Rail_Support_Plate1" material="ShieldSteel" dZ="1820.">
+    <gvxy_point X_Y="-40.; -678.8"/>
+    <gvxy_point X_Y="-40.; -127.7"/>
+    <gvxy_point X_Y="-262.5; -127.7"/>
+    <gvxy_point X_Y="-262.5; 0."/>
+</gvxysx>
+
+<box name="Extremity_Rail_Support_Plate1Cut" material="ShieldSteel" X_Y_Z="100.; 1102.2; 40."/>
+
+<subtraction name="Extremity_Rail_SupportCut" >
+    <posXYZ volume="Extremity_Rail_Support_Plate1" />
+    <posXYZ volume="Extremity_Rail_Support_Plate1Cut"  X_Y_Z=" 0 ; -678.8 ; -910." rot=" 0.; 0.;0." />
 </subtraction>
 
-<subtraction  name="ExtremityFeetMain" >
-  <posXYZ  volume="ExtremityFeetMainPlate_inter2"   />
-  <posXYZ  volume="ExtremityMiniConnPlate"          X_Y_Z="FEET_ExMCPxpo_ExtremityMiniConnPlate_X;FEET_ExMCPypo_ExtremityMiniConnPlate_Y+GENV_Eps; 0." rot="0.;0.;FEET_MinCPltz_MiniConnPlate_ThetaZ" />
+<gvxy name="Extremity_Rail_Support_Plate2" material="ShieldSteel" dZ="80.">
+    <gvxy_point X_Y="179.5; -113."/>
+    <gvxy_point X_Y="284.; -262.5"/>
+    <gvxy_point X_Y="490.; -262.5"/>
+    <gvxy_point X_Y="490.; 262.5"/>
+    <gvxy_point X_Y="-715.; 262.5"/>
+    <gvxy_point X_Y="-715.; -262.5"/>
+    <gvxy_point X_Y="-575.; -262.5"/>
+    <gvxy_point X_Y="-470.5; -113."/>
+</gvxy>
 
+<box name="Extremity_Rail_Support_Plate3-4" material="ShieldSteel" X_Y_Z="525.; 551.1; 80."/>
+
+<union name="Extremity_Rail_SupportUni1" >
+    <posXYZ volume="Extremity_Rail_SupportCut" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+    <posXYZ volume="Extremity_Rail_Support_Plate2" X_Y_Z=" 0.; -423.8; 0. " rot=" 90.; -90.; 0."/>
+    <posXYZ volume="Extremity_Rail_Support_Plate3-4" X_Y_Z=" 0.; -403.25; 530." rot=" 0.; 0.; 0."/>
+    <posXYZ volume="Extremity_Rail_Support_Plate3-4" X_Y_Z=" 0.; -403.25; -755." rot=" 0.; 0.; 0."/>
+</union>
+
+<gvxy name="Extremity_Rail_Support_Plate5" material="ShieldSteel" dZ="110.">
+    <gvxy_point X_Y="-645.; -45."/>
+    <gvxy_point X_Y="-645.; -262.5"/>
+    <gvxy_point X_Y="-890.; -262.5"/>
+    <gvxy_point X_Y="-890.; 262.5"/>
+    <gvxy_point X_Y="910.; 262.5"/>
+    <gvxy_point X_Y="910.; -262.5"/>
+    <gvxy_point X_Y="305.; -262.5"/>
+    <gvxy_point X_Y="305.; -45."/>
+</gvxy>
+
+<box name="Extremity_Rail_Support_Plate5CutBox" material="ShieldSteel" X_Y_Z="210.; 550.; 40."/>
+
+<subtraction name="Extremity_Rail_Support_Plate5Cut1" >
+    <posXYZ volume="Extremity_Rail_Support_Plate5" />
+    <posXYZ volume="Extremity_Rail_Support_Plate5CutBox"  X_Y_Z=" 485. ; 0. ; 55." rot=" 0.; 0.;0." />
+    <posXYZ volume="Extremity_Rail_Support_Plate5CutBox"  X_Y_Z=" -815. ; 0. ; 55." rot=" 0.; 0.;0." />
 </subtraction>
 
 
-
-
-<composition  name="ExtremityFoot" >
-  <posXYZ  volume="ExtremityFeetMain"           X_Y_Z="0.;0.; FEET_ExMPzsep_ExtremityMainPlate_Zsep/2"  />
-  <posXYZ  volume="ExtremityFeetMain"           X_Y_Z="0.;0.;-FEET_ExMPzsep_ExtremityMainPlate_Zsep/2"  />
-  <posXYZ  volume="ExtremityMiniConnPlate"      X_Y_Z="FEET_ExMCPxpo_ExtremityMiniConnPlate_X;FEET_ExMCPypo_ExtremityMiniConnPlate_Y+GENV_Eps; 0."  rot="0.;0.;FEET_MinCPltz_MiniConnPlate_ThetaZ" />
-  <posXYZ  volume="ExtremitySlantedConnPlate"   X_Y_Z="FEET_SlCPxpos_SlantedConnPlate_X;FEET_SlCPypos_SlantedConnPlate_Y+GENV_Eps; 0."              rot="0.;0.;FEET_SlaCPltz_SlantedConnPlate_ThetaZ" />
-  <posXYZ  volume="ExtremityGroundPlate"        X_Y_Z="FEET_GrnPxpos_GroundPlate_X;FEET_GrnPypos_GroundPlate_Y; 0."  />
-  <posXYZ  volume="ExtremityVerticalConnPlate"  X_Y_Z="FEET_ExVCPlax_ExtremityVerticalConnPlate_X;FEET_ExVCPlay_ExtremityVerticalConnPlate_Y; 0."  />
-  <posXYZ  volume="ExtremityUpperConnPlate"     X_Y_Z="FEET_ExUCPxpo_ExtremityUpperConnPlate_X;FEET_ExUCPypo_ExtremityUpperConnPlate_Y; 0."  />
+<composition name="Extremity_Rail_Support1" >
+    <posXYZ volume="Extremity_Rail_SupportUni1" />
+    <posXYZ volume="Extremity_Rail_Support_Plate5Cut1"  X_Y_Z=" 0 ; -733.85 ; 0." rot=" 0.; -90.; 90." />
 </composition>
 
-<var  name="FEET_ExRSpxap_ExtremityRailSupport_assembled_plus_X"     value=" FEET_ExRSposx_ExtremityRailSupport_X + FEET_StdFooXp_StandardFoot_Xpos + FEET_RaSuXo_RailSupport_Xoffset" />
-<var  name="FEET_ExRSpxam_ExtremityRailSupport_assembled_minus_X"    value="-FEET_ExRSposx_ExtremityRailSupport_X - FEET_StdFooXp_StandardFoot_Xpos - FEET_RaSuXo_RailSupport_Xoffset" />
-<var  name="FEET_ExRSpyas_ExtremityRailSupport_assembled_Y"          value=" FEET_ExRSposy_ExtremityRailSupport_Y + FEET_StdFooYp_StandardFoot_Ypos " />
+<subtraction name="Extremity_Rail_Support_Plate5Cut2" >
+    <posXYZ volume="Extremity_Rail_Support_Plate5" />
+    <posXYZ volume="Extremity_Rail_Support_Plate5CutBox"  X_Y_Z=" 485. ; 0. ; -55." rot=" 0.; 0.;0." />
+    <posXYZ volume="Extremity_Rail_Support_Plate5CutBox"  X_Y_Z=" -815. ; 0. ; -55." rot=" 0.; 0.;0." />
+</subtraction>
 
-<var  name="FEET_ExtFStYp_ExtremityFootStrut_Ypos"  value="FEET_StdFooYp_StandardFoot_Ypos + FEET_ExUCPypo_ExtremityUpperConnPlate_Y" />
+<union name="Extremity_Rail_SupportUni2" >
+    <posXYZ volume="Extremity_Rail_SupportCut" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+    <posXYZ volume="Extremity_Rail_Support_Plate2" X_Y_Z=" 0.; -423.8; 0." rot=" -90.; -90.; 0."/>
+    <posXYZ volume="Extremity_Rail_Support_Plate3-4" X_Y_Z=" 0.; -403.25; 530." rot=" 0.; 0.; 0."/>
+    <posXYZ volume="Extremity_Rail_Support_Plate3-4" X_Y_Z=" 0.; -403.25; -755." rot=" 0.; 0.; 0."/>
+</union>
 
-<composition  name="ExtremityFootAssemblyPlus" >
-  <posXYZ  volume="ExtremityFoot"               X_Y_Z="-FEET_StdFooXp_StandardFoot_Xpos;FEET_StdFooYp_StandardFoot_Ypos;0."  rot="0.;180.;0." >
-    <sector  value="6" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityRailSupport_minus"  X_Y_Z=" FEET_ExRSpxam_ExtremityRailSupport_assembled_minus_X;FEET_ExRSpyas_ExtremityRailSupport_assembled_Y; -FEET_ExRSposz_ExtremityRailSupport_Z"  rot="0.;180.;0." >
-    <sector  value="6" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityFoot"               X_Y_Z=" FEET_StdFooXp_StandardFoot_Xpos;FEET_StdFooYp_StandardFoot_Ypos;0." >
-    <sector  value="7" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityRailSupport_plus"   X_Y_Z=" FEET_ExRSpxap_ExtremityRailSupport_assembled_plus_X; FEET_ExRSpyas_ExtremityRailSupport_assembled_Y; -FEET_ExRSposz_ExtremityRailSupport_Z"  rot="0.;180.;0." >
-    <sector  value="7" />
-  </posXYZ>
-  <posXYZ  volume="FEET_ExtremityStrut"         X_Y_Z="0.;FEET_ExtFStYp_ExtremityFootStrut_Ypos;0." >
-    <sector  value="7" />
-  </posXYZ>
+<composition name="Extremity_Rail_Support2" >
+    <posXYZ volume="Extremity_Rail_SupportUni2" />
+    <posXYZ volume="Extremity_Rail_Support_Plate5Cut2"  X_Y_Z=" 0 ; -733.85 ; 0." rot=" 0.; -90.; -90." />
+</composition>
+    <!--  End Extremity Rail_Support -->
+
+
+    <!-- assembly of Standard feet, Standard rail support and Standard strut -->
+<composition  name="Standard_Feet_Comp" >
+    <posXYZ  volume="Standard_Feet"    X_Y_Z=" -3609.69 ; -4899.96 ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Feet"    X_Y_Z=" 3609.69 ; -4899.96 ; 0." rot=" 0.; 180.;0." />
+    <posXYZ  volume="Standard_Rail_SupportCut"    X_Y_Z=" -2982.592 ; 852.63 ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Rail_SupportCut"    X_Y_Z=" 2982.592 ; 852.63 ; 0." rot=" 0.; 90.;0." />
+    <posXYZ  volume="Standard_Main_Strut"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
 </composition>
 
-<composition  name="ExtremityFootAssemblyMinus" >
-  <posXYZ  volume="ExtremityFoot"               X_Y_Z="-FEET_StdFooXp_StandardFoot_Xpos;FEET_StdFooYp_StandardFoot_Ypos;0."  rot="0.;180.;0." >
-    <sector  value="7" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityRailSupport_minus"  X_Y_Z=" FEET_ExRSpxam_ExtremityRailSupport_assembled_minus_X;FEET_ExRSpyas_ExtremityRailSupport_assembled_Y; -FEET_ExRSposz_ExtremityRailSupport_Z"  rot="0.;180.;0." >
-    <sector  value="7" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityFoot"               X_Y_Z=" FEET_StdFooXp_StandardFoot_Xpos;FEET_StdFooYp_StandardFoot_Ypos;0." >
-    <sector  value="6" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityRailSupport_plus"   X_Y_Z=" FEET_ExRSpxap_ExtremityRailSupport_assembled_plus_X; FEET_ExRSpyas_ExtremityRailSupport_assembled_Y; -FEET_ExRSposz_ExtremityRailSupport_Z"  rot="0.;180.;0." >
-    <sector  value="6" />
-  </posXYZ>
-  <posXYZ  volume="FEET_ExtremityStrut"         X_Y_Z="0.;FEET_ExtFStYp_ExtremityFootStrut_Ypos;0." >
-    <sector  value="7" />
-  </posXYZ>
+<composition  name="Extremity_Feet_Comp" >
+    <posXYZ  volume="Extremiy_Feet"    X_Y_Z=" -3609.95 ; -4895. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremiy_Feet"    X_Y_Z=" 3609.95 ; -4895. ; 0." rot=" 0.; 180.;0." />
+    <posXYZ  volume="Extremity_Rail_Support1"    X_Y_Z=" -2982.641; 1304.32 ; 165.02" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Rail_Support2"    X_Y_Z=" 2982.641; 1304.32 ; 165.02" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Main_Strut"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Girder"    X_Y_Z=" 2735.53 ; -969.96 ; -758.8" rot=" 0.; 180.; 0." />
+    <posXYZ  volume="Extremity_Girder"    X_Y_Z=" -2735.53 ; -969.96 ; -757.8" rot=" 0.; 180.; 0." />
 </composition>
-
-
-<var  name="FEET_Gir12zpo"          value="(FEET_ZposFee1+FEET_ZposFee2)/2. " />
-<var  name="FEET_Gir12ypo"          value=" FEET_StdFooYp_StandardFoot_Ypos + FEET_GirdYHei_YHeightGirder" />
-<var  name="FEET_Gir23zpo"          value="(FEET_ZposFee2+FEET_ZposFee3)/2. " />
-<var  name="FEET_Gir34zpo"          value="(FEET_ZposFee3+FEET_ZposFee4)/2. " />
-<var  name="FEET_GirExzpo"          value="FEET_ZposFee5-FEET_ExMPzsep_ExtremityMainPlate_Zsep/2.-FEET_MainPldZ_MainPlateDZ/2." />
-<var  name="FEET_GirExxpo"          value="FEET_GirdExtXpos_XposGirderEx"/>
+    <!-- End assembly of Standard feet, Standard rail support and Standard strut -->
 
 
 <composition  name="Feet" >
-  <posXYZ  volume="StandardFootAssembly"    X_Y_Z=" 0.;0.; FEET_ZposFee1" >
-    <ring  value="0" />
-  </posXYZ>
-  <posXYZ  volume="StandardFootAssembly"    X_Y_Z=" 0.;0.; FEET_ZposFee2" >
-    <ring  value="1" />
-  </posXYZ>
-  <posXYZ  volume="StandardFootAssembly"    X_Y_Z=" 0.;0.;-FEET_ZposFee2" >
-    <ring  value="-1" />
-  </posXYZ>
-  <posXYZ  volume="StandardFootAssembly"    X_Y_Z=" 0.;0.; FEET_ZposFee3" >
-    <ring  value="2" />
-  </posXYZ>
-  <posXYZ  volume="StandardFootAssembly"    X_Y_Z=" 0.;0.;-FEET_ZposFee3" >
-    <ring  value="-2" />
-  </posXYZ>
-  <posXYZ  volume="StandardFootAssembly"    X_Y_Z=" 0.;0.; FEET_ZposFee4" >
-    <ring  value="3" />
-  </posXYZ>
-  <posXYZ  volume="StandardFootAssembly"    X_Y_Z=" 0.;0.;-FEET_ZposFee4" >
-    <ring  value="-3" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityFootAssemblyPlus"   X_Y_Z=" 0.;0.; FEET_ZposFee5"  rot="0.;  0.;0." >
-    <ring  value="4" />
-  </posXYZ>
-  <posXYZ  volume="ExtremityFootAssemblyMinus"  X_Y_Z=" 0.;0.;-FEET_ZposFee5"  rot="0.;180.;0." >
-    <ring  value="-4" />
-  </posXYZ>
-  <posXYZ  volume="Girder12"    X_Y_Z=" FEET_GirdXpos_XposGirder;FEET_Gir12ypo;FEET_Gir12zpo"   rot="0.;-90.;0." >
-    <sector  value="7" />
-    <ring    value="1" />
-  </posXYZ>
-  <posXYZ  volume="Girder12"    X_Y_Z="-FEET_GirdXpos_XposGirder;FEET_Gir12ypo;FEET_Gir12zpo"   rot="0.;-90.;0." >
-    <sector  value="6" />
-    <ring    value="1" />
-  </posXYZ>
-  <posXYZ  volume="Girder12"    X_Y_Z=" FEET_GirdXpos_XposGirder;FEET_Gir12ypo;-FEET_Gir12zpo"  rot="0.;-90.;0." >
-    <sector  value="7" />
-    <ring    value="-1" />
-  </posXYZ>
-  <posXYZ  volume="Girder12"    X_Y_Z="-FEET_GirdXpos_XposGirder;FEET_Gir12ypo;-FEET_Gir12zpo"  rot="0.;-90.;0." >
-    <sector  value="6" />
-    <ring    value="-1" />
-  </posXYZ>
-  <posXYZ  volume="Girder23"    X_Y_Z=" FEET_GirdXpos_XposGirder;FEET_Gir12ypo;FEET_Gir23zpo"   rot="0.;-90.;0." >
-    <sector  value="7" />
-    <ring    value="2" />
-  </posXYZ>
-  <posXYZ  volume="Girder23"    X_Y_Z="-FEET_GirdXpos_XposGirder;FEET_Gir12ypo;FEET_Gir23zpo"   rot="0.;-90.;0." >
-    <sector  value="6" />
-    <ring    value="2" />
-  </posXYZ>
-  <posXYZ  volume="Girder23"    X_Y_Z=" FEET_GirdXpos_XposGirder;FEET_Gir12ypo;-FEET_Gir23zpo"  rot="0.;-90.;0." >
-    <sector  value="7" />
-    <ring    value="-2" />
-  </posXYZ>
-  <posXYZ  volume="Girder23"    X_Y_Z="-FEET_GirdXpos_XposGirder;FEET_Gir12ypo;-FEET_Gir23zpo"  rot="0.;-90.;0." >
-    <sector  value="6" />
-    <ring    value="-2" />
-  </posXYZ>
-  <posXYZ  volume="Girder34"    X_Y_Z=" FEET_GirdXpos_XposGirder;FEET_Gir12ypo;FEET_Gir34zpo"   rot="0.;-90.;0." >
-    <sector  value="7" />
-    <ring    value="3" />
-  </posXYZ>
-  <posXYZ  volume="Girder34"    X_Y_Z="-FEET_GirdXpos_XposGirder;FEET_Gir12ypo;FEET_Gir34zpo"   rot="0.;-90.;0." >
-    <sector  value="6" />
-    <ring    value="3" />
-  </posXYZ>
-  <posXYZ  volume="Girder34"    X_Y_Z=" FEET_GirdXpos_XposGirder;FEET_Gir12ypo;-FEET_Gir34zpo"  rot="0.;-90.;0." >
-    <sector  value="7" />
-    <ring    value="-3" />
-  </posXYZ>
-  <posXYZ  volume="Girder34"    X_Y_Z="-FEET_GirdXpos_XposGirder;FEET_Gir12ypo;-FEET_Gir34zpo"  rot="0.;-90.;0." >
-    <sector  value="6" />
-    <ring    value="-3" />
-  </posXYZ>
-  <posXYZ  volume="GirderExtremity"    X_Y_Z="  FEET_GirdExtXpos_XposGirderEx; -FEET_GirdExtZpos_ZposGirderEx;  FEET_GirExzpo"  rot="0.;180.;0." >
-  </posXYZ>
-  <posXYZ  volume="GirderExtremity"    X_Y_Z=" -FEET_GirdExtXpos_XposGirderEx; -FEET_GirdExtZpos_ZposGirderEx;  FEET_GirExzpo"  rot="0.;180.;0." >
-  </posXYZ>
-  <posXYZ  volume="GirderExtremity"    X_Y_Z="  FEET_GirdExtXpos_XposGirderEx; -FEET_GirdExtZpos_ZposGirderEx; -FEET_GirExzpo"  rot="0.;0.;0." >
-  </posXYZ>
-  <posXYZ  volume="GirderExtremity"    X_Y_Z=" -FEET_GirdExtXpos_XposGirderEx; -FEET_GirdExtZpos_ZposGirderEx; -FEET_GirExzpo"  rot="0.;0.;0." >
-  </posXYZ>
+    <posXYZ  volume="Standard_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; 3425.034" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; 6630.036" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; 9380.034" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; -3425.034" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; -6630.036" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; -9380.034" rot=" 0.; 0.;0." />
+
+    <posXYZ  volume="Extremity_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; 12080.034" rot=" 0.; 0.;0." />
+    <posXYZ  volume="Extremity_Feet_Comp"    X_Y_Z=" 0. ; -6135.059 ; -12080.034" rot=" 0.; 180.;0." />
+
+    <posXYZ  volume="Standard_Girder1-2-3"    X_Y_Z=" -2735.5 ; -6613.91 ; 0." rot=" 0.; 0.;0." />
+    <posXYZ  volume="Standard_Girder1-2-3"    X_Y_Z=" 2735.5 ; -6613.91 ; 0." rot=" 0.; 180.;0." />
 </composition>
 
 </section>
+
 
 <section name       = "ATLAS Rail"
          version    = "7.0"
@@ -6089,33 +5210,420 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
     <posXYZ  volume="CuivreCable"    X_Y_Z="    0;-541 ;SerZ"  rot="  0.;90.;0." />
 </composition>
 
-<composition  name="services3" >	
-    <posRPhiZ  volume="services2"    R_Phi_Z=" SerStart; Zero ; Zero"   />
+<!-- flexible chain sector 9
+
+name       = "Flexible Chain Sector 9-35Volumes"
+version    = "0.0"
+date       = "01.03.2019"
+author     = "Niko Tsutskiridze - Georgian Team" -->
+
+
+<!-- Towing ARM -->
+<box  name="TowingArm_main"     material="ShieldSteel" X_Y_Z=" 263.; 795.; 2480." />
+<box  name="TowingArm_main_Subtr"     material="ShieldSteel" X_Y_Z="250.; 782.; 2500." />
+
+<subtraction  name="TowingArm_Sub" >
+  <posXYZ   volume="TowingArm_main" />
+  <posXYZ   volume="TowingArm_main_Subtr" />
+</subtraction>
+
+<box  name="TowingARM_Plate_main"     material="ShieldSteel" X_Y_Z="102.; 550.; 550." />
+<box  name="TowingARM_Plate_Subtr"     material="ShieldSteel" X_Y_Z="102.; 510.; 510. " />
+
+<subtraction  name="TowingArm_Plate" >
+  <posXYZ   volume="TowingARM_Plate_main" />
+  <posXYZ   volume="TowingARM_Plate_Subtr" X_Y_Z=" 10. ; 0. ; 0. " />
+</subtraction>
+
+<composition  name="TowingArm" >
+  <posXYZ  volume="TowingArm_Sub"   rot="0. ; 0. ; 0." />
+  <posXYZ  volume="TowingArm_Plate"  X_Y_Z="182.6; 0. ; 930. " rot="   0. ; 0. ; 0." />
+</composition>
+<!-- End Towing ARM -->
+
+<!-- Drag Chain -->
+<box  name="DragChain_Main"  material="ShieldSteel" X_Y_Z=" 5555.; 804.; 17.5" />
+<tubs name="DragChain_Tube" material="ShieldSteel" Rio_Z="912.5; 930.; 804." profile="0.; 90." nbPhi="36."/>
+<box  name="DragChain_SmMain" material="ShieldSteel" X_Y_Z=" 17.5; 804.; 275." />
+
+<union name="DragChain" >
+  <posXYZ  volume="DragChain_Main"/>
+  <posXYZ  volume="DragChain_Tube" X_Y_Z="2777.5; 0. ; 921.25 " rot="  270. ; 0. ; 0." />
+  <posXYZ  volume="DragChain_SmMain" X_Y_Z="3698.75; 0. ; 1056.75 "/>
+</union>
+<!-- End Towing ARM -->
+
+<!-- Pipes -->
+<box  name="Pipe_Main"  material="ShieldSteel" X_Y_Z=" 5425.; 439.; 2.05" />
+<tubs name="Pipe_Tube" material="ShieldSteel" Rio_Z="900.; 902.05; 439." profile="0.; 90." nbPhi="36."/>
+<box  name="Pipe_SmMain" material="ShieldSteel" X_Y_Z=" 2.05; 439.; 5114." />
+
+<union name="FCH_Pipes" >
+  <posXYZ  volume="Pipe_Main" X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Pipe_Tube" X_Y_Z="2712.5; 0. ; 901.025 " rot="  270. ; 0. ; 0." />
+  <posXYZ  volume="Pipe_SmMain" X_Y_Z="3613.525; 0. ; 3454.025 "/>
+</union>
+<!-- End Pipes -->
+
+<!-- Cables -->
+<box  name="Cable_Main"  material="Copper" X_Y_Z=" 5425.; 720.; 6.7" />
+<tubs name="Cable_Tube" material="Copper" Rio_Z="1013.3; 1020.; 720." profile="0.; 90." nbPhi="36."/>
+<box  name="Cable_SmMain" material="Copper" X_Y_Z=" 6.7; 720.; 2504." />
+
+<union name="FCH_Cable" >
+  <posXYZ  volume="Cable_Main" X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Cable_Tube" X_Y_Z="2712.5; 0. ; 1016.65 " rot="  270. ; 0. ; 0." />
+  <posXYZ  volume="Cable_SmMain" X_Y_Z="3729.15; 0. ; 2266.65 "/>
+</union>
+<!-- End Cables -->
+
+<!-- Support -->
+<box  name="Support_MaBox"  material="ShieldSteel" X_Y_Z=" 5230.; 1005.; 750." />
+<box  name="Support_MaCutBox1"  material="ShieldSteel" X_Y_Z=" 5240.; 1005.; 336.9" />
+<box  name="Support_MaCutBox2"  material="ShieldSteel" X_Y_Z=" 5130.; 895.; 760." />
+
+<subtraction  name="Support_Ma" >
+  <posXYZ   volume="Support_MaBox"  />
+  <posXYZ   volume="Support_MaCutBox1" X_Y_Z="0.; 12.6 ; -181.15 " rot=" 0. ; 0. ; 0."/>
+  <posXYZ   volume="Support_MaCutBox1" X_Y_Z="0.; 12.6 ; 181.15 " rot=" 0. ; 0. ; 0."/>
+  <posXYZ   volume="Support_MaCutBox2" X_Y_Z="0.; 0. ; 0. " rot=" 0. ; 0. ; 0."/>
+</subtraction>
+
+<gvxy name="Support_Leg1" material="ShieldSteel" dZ="700.">
+  <gvxy_point X_Y="-50.; -50."/>
+  <gvxy_point X_Y="-50.; -40."/>
+  <gvxy_point X_Y="-6.5; -40."/>
+  <gvxy_point X_Y="-6.5; 40."/>
+  <gvxy_point X_Y="-50.; 40."/>
+  <gvxy_point X_Y="-50.; 50."/>
+  <gvxy_point X_Y="50.; 50."/>
+  <gvxy_point X_Y="50.; 40."/>
+  <gvxy_point X_Y="6.5; 40."/>
+  <gvxy_point X_Y="6.5; -40."/>
+  <gvxy_point X_Y="50.; -40."/>
+  <gvxy_point X_Y="50.; -50."/>
+</gvxy>
+
+<gvxy name="Support_Leg2" material="ShieldSteel" dZ="522.7">
+  <gvxy_point X_Y="-50.; -50."/>
+  <gvxy_point X_Y="-50.; -31.4"/>
+  <gvxy_point X_Y="-9.3; -31.4"/>
+  <gvxy_point X_Y="-9.3; 40."/>
+  <gvxy_point X_Y="-50.; 31.4"/>
+  <gvxy_point X_Y="-50.; 50."/>
+  <gvxy_point X_Y="50.; 50."/>
+  <gvxy_point X_Y="50.; 31.4"/>
+  <gvxy_point X_Y="9.3; 31.4"/>
+  <gvxy_point X_Y="9.3; -31.4"/>
+  <gvxy_point X_Y="50.; -31.4"/>
+  <gvxy_point X_Y="50.; -50."/>
+</gvxy>
+
+<composition  name="FCH_SupportLeg" >
+  <posXYZ  volume="Support_Leg1"  X_Y_Z="0.; 0. ; 0. " rot="0. ; 90. ; 0." />
+  <posXYZ  volume="Support_Leg2"  X_Y_Z="-257.5; 311.36 ; 0. " rot="0. ; 90. ; 90." />
 </composition>
 
-<var  name="FlChx"    value="200"/>
-<var  name="FlChy"    value="1000"/>
-<var  name="FlChz"    value="3200"/>
-<box  name="Flexible" material="Aluminium1"     X_Y_Z="FlChx;FlChy;FlChz"  />
-<tubs name="Virage"   material="Aluminium1"     Rio_Z="800;1000;1000"  profile="0;90"    />
+<gvxy name="Support_SidePl1" material="ShieldSteel" dZ="3150.5">
+  <gvxy_point X_Y="150.; 62.5"/>
+  <gvxy_point X_Y="156.; 62.5"/>
+  <gvxy_point X_Y="156.; -62.5"/>
+  <gvxy_point X_Y="-156.; -62.5"/>
+  <gvxy_point X_Y="-156.; 62.5"/>
+  <gvxy_point X_Y="-150.; 62.5"/>
+  <gvxy_point X_Y="-150.; -56.7"/>
+  <gvxy_point X_Y="150.; -57.7"/>
+</gvxy>
 
-<composition name="FlexibleChain2"> 
-   <posXYZ volume="Flexible"  X_Y_Z="   FlChy-FlChx/2.; 0.; 0."  />
-   <posXYZ volume="Flexible"  X_Y_Z="  -FlChz/2.      ; 0.;FlChz/2.+FlChy-FlChx/2." rot=" 0.; 90.; 0." />
-   <posXYZ volume="Flexible"  X_Y_Z="-3*FlChz/2.      ; 0.;FlChz/2.+FlChy-FlChx/2." rot=" 0.; 90.; 0." />
-   <posXYZ volume="Virage"    X_Y_Z="               0.; 0.;FlChz/2."                rot="90.;  0.; 0." />
+<gvxy name="Support_SidePl2" material="ShieldSteel" dZ="2300.">
+  <gvxy_point X_Y="-150.; 812.5"/>
+  <gvxy_point X_Y="-156.; 812.5"/>
+  <gvxy_point X_Y="-156.; 937.5"/>
+  <gvxy_point X_Y="156.; 937.5"/>
+  <gvxy_point X_Y="156.; 812.5"/>
+  <gvxy_point X_Y="150.; 812.5"/>
+  <gvxy_point X_Y="150.; 931.7"/>
+  <gvxy_point X_Y="-150.; 931.7"/>
+</gvxy>
+
+<composition  name="Support_SidePl" >
+  <posXYZ  volume="Support_SidePl1"  X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SidePl2"  X_Y_Z="0.; 0. ; 425.25 " rot="0. ; 0. ; 0." />
 </composition>
 
-<composition  name="servicesAtZ0" >	
+<gvxy name="Support_SideFrPl1" material="ShieldSteel" dZ="14.">
+  <gvxy_point X_Y="-379.; -329.5"/>
+  <gvxy_point X_Y="-379.; -444.5"/>
+  <gvxy_point X_Y="-928.5; -594.5"/>
+  <gvxy_point X_Y="-1118.5; -594.5"/>
+  <gvxy_point X_Y="-1118.5; -220.5"/>
+  <gvxy_point X_Y="-300.; 594.5"/>
+  <gvxy_point X_Y="300.; 594.5"/>
+  <gvxy_point X_Y="1118.5; -220.5"/>
+  <gvxy_point X_Y="1118.5; -594.5"/>
+  <gvxy_point X_Y="928.5; -594.5"/>
+  <gvxy_point X_Y="379.; -444.5"/>
+  <gvxy_point X_Y="379.; -329.5"/>
+</gvxy>
+
+<box  name="Support_SideFrPl2_Box"  material="ShieldSteel" X_Y_Z=" 431.5; 1054.; 76." />
+<box  name="Support_SideFrPl2_Cut"  material="ShieldSteel" X_Y_Z=" 431.5; 1000.; 80." />
+
+<subtraction  name="Support_SideFrPl2" >
+  <posXYZ   volume="Support_SideFrPl2_Box"  />
+  <posXYZ   volume="Support_SideFrPl2_Cut" X_Y_Z="27.; 0. ; 0. " rot=" 0. ; 0. ; 0."/>
+</subtraction>
+
+<box  name="Support_SideFrPl3_Box"  material="ShieldSteel" X_Y_Z=" 1252.; 100.; 708." />
+<box  name="Support_SideFrPl3_Cut"  material="ShieldSteel" X_Y_Z=" 1252.; 110.; 650." />
+
+<subtraction  name="Support_SideFrPl3" >
+  <posXYZ   volume="Support_SideFrPl3_Box"  />
+  <posXYZ   volume="Support_SideFrPl3_Cut" X_Y_Z="29.; 0. ; 0. " rot=" 0. ; 0. ; 0."/>
+</subtraction>
+
+<composition  name="FCH_Support" >
+  <posXYZ  volume="Support_Ma"  X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_SupportLeg"  X_Y_Z="-2283.; -1075.31 ; 333.5 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_SupportLeg"  X_Y_Z="-2283.; -1075.31 ; -333.5 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SidePl"  X_Y_Z="3636.8; -439.8 ; 2825.25 " rot="0. ; 180. ; 0." />
+  <posXYZ  volume="Support_SidePl"  X_Y_Z="3636.8; -439.8 ; -2825.25 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SideFrPl1"  X_Y_Z="3241.3; -500. ; 0. " rot="0. ; 90. ; 90." />
+  <posXYZ  volume="Support_SideFrPl2"  X_Y_Z="3668.55; -2.6 ; 1156.51 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SideFrPl2"  X_Y_Z="3668.55; -2.6 ; -1156.51 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SideFrPl3"  X_Y_Z="3263.3; 576.92 ; 0. " rot="0. ; 0. ; 0." />
+</composition>
+<!-- End Support -->
+
+<composition  name="FlexibleChainSector9" >
+  <posXYZ  volume="TowingArm"   X_Y_Z="-4469.28; 0. ; 2659.1 " rot="   0. ; 0. ; 0." />
+  <posXYZ  volume="TowingArm"  X_Y_Z="-4469.28; 0. ; -2659.1 " rot="   180. ; 0. ; 0." />
+  <posXYZ  volume="DragChain"  X_Y_Z="-8197.5; 0. ; 222.75 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="DragChain"  X_Y_Z="-8197.5; 0. ; -222.75 " rot="180. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Pipes"  X_Y_Z="-8090.84; -158.75 ; 194.625 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Pipes"  X_Y_Z="-8090.84; -158.75 ; -194.625 " rot="180. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Cable"  X_Y_Z="-8091.32; -21. ; 79. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Cable"  X_Y_Z="-8091.32; -21. ; -79. " rot="180. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Support"  X_Y_Z="-8103.; 2.5 ; 0. " rot="0. ; 0. ; 0." />
+</composition>
+
+<!-- end of flexible chain sector 9 -->
+
+<!-- flexible chain sector 11 and 15
+
+name       = "41_Vol_-_FlexibleChainSector11-15"
+version    = "0.0"
+date       = "07-06-2019"
+author     = "Niko Tsutskiridze, Davit Shekiladze" -->
+
+<!-- Support -->
+<box   name="Support_BottomPlate"     material="ShieldSteel"  X_Y_Z=" 4300.; 9.5; 506." />
+<box   name="Support_SidesPlates"     material="ShieldSteel"  X_Y_Z=" 4312.; 828.5; 25." />
+<box   name="Support_SidesPlatesCutBox"     material="ShieldSteel"  X_Y_Z=" 1956.; 710.; 30." />
+
+<subtraction name="Support_SidesPlatesSubtr" >
+   <posXYZ  volume="Support_SidesPlates"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_SidesPlatesCutBox"  X_Y_Z=" -1078. ; -40.75 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_SidesPlatesCutBox"  X_Y_Z=" 1078. ; -40.75 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<box   name="Support_MidlPlates"     material="ShieldSteel"  X_Y_Z=" 4312.; 814.9; 20." />
+<box   name="Support_MidlPlatesCutBox"     material="ShieldSteel"  X_Y_Z=" 1954.; 615.; 25." />
+
+<subtraction name="Support_MidlPlatesSubtr" >
+   <posXYZ  volume="Support_MidlPlates"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_MidlPlatesCutBox"  X_Y_Z=" -1079. ; -0.05 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_MidlPlatesCutBox"  X_Y_Z=" 1079. ; -0.05 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<composition name="Support_SidesPlatesM" >
+   <posXYZ  volume="Support_SidesPlatesSubtr"   X_Y_Z=" 0. ; 405.547 ; 265.6  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_SidesPlatesSubtr"   X_Y_Z=" 0. ; 405.547 ; -265.6  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_MidlPlatesSubtr"   X_Y_Z=" 0. ; 412.35 ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+</composition>
+
+<gvxy  name="Support_WingPlate"  material="ShieldSteel"  dZ="2287." >
+  <gvxy_point  X_Y=" -114.148; 64.757 " />
+  <gvxy_point  X_Y=" -114.148; -69.961 " />
+  <gvxy_point  X_Y=" -119.041; -69.961 " />
+  <gvxy_point  X_Y=" -119.041; 69.961 " />
+  <gvxy_point  X_Y=" 119.041; 69.961 " />
+  <gvxy_point  X_Y=" 119.041; -69.961 " />
+  <gvxy_point  X_Y=" 114.148; -69.961 " />
+  <gvxy_point  X_Y=" 114.148; 64.757 " />
+</gvxy>
+
+<box   name="Support_WingBox1"     material="ShieldSteel"  X_Y_Z=" 297.155; 896.845; 100." />
+<box   name="Support_WingCutBox1"     material="ShieldSteel"  X_Y_Z=" 238.155; 846.845; 110." />
+
+<subtraction name="Support_WingBox1Subtr" >
+   <posXYZ  volume="Support_WingBox1"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox1"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+
+<box   name="Support_WingBox"     material="ShieldSteel"  X_Y_Z=" 302.155; 901.845; 100." />
+<box   name="Support_WingCutBox"     material="ShieldSteel"  X_Y_Z=" 238.155; 846.845; 110." />
+
+<subtraction name="Support_WingBoxSubtr" >
+   <posXYZ  volume="Support_WingBox"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<box   name="Support_WingBox2"     material="ShieldSteel"  X_Y_Z=" 291.; 866.094; 100." />
+<box   name="Support_WingCutBox2"     material="ShieldSteel"  X_Y_Z=" 246.155; 821.094; 110." />
+
+<subtraction name="Support_WingBox2Subtr" >
+   <posXYZ  volume="Support_WingBox2"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox2"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<box   name="Support_WingBox3"     material="ShieldSteel"  X_Y_Z=" 242.; 629.5; 1041." />
+<box   name="Support_WingCutBox3"     material="ShieldSteel"  X_Y_Z=" 217.; 600.; 1050." />
+
+<subtraction name="Support_WingBox3Subtr" >
+   <posXYZ  volume="Support_WingBox3"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox3"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<composition  name="Support_WingSidepartsLeft" >
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; 344.027 ; 0." rot=" 0.; 0.;0." />
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; -344.027 ; 0." rot=" 180.; 0.;0." />
+   <posXYZ  volume="Support_WingBox1Subtr"   X_Y_Z=" 0. ; 0.; 583.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; 1087.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; -133.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; -794.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox2Subtr"   X_Y_Z=" 18.6 ; 15.3; 1237.2 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox3Subtr"   X_Y_Z=" -11. ; 3.6; -1744. "  rot=" 0. ; 0. ; 0. "/>
+</composition>
+
+<composition  name="Support_WingSidepartsRight" >
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; 344.027 ; 0." rot=" 0.; 0.;0." />
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; -344.027 ; 0." rot=" 180.; 0.;0." />
+   <posXYZ  volume="Support_WingBox1Subtr"   X_Y_Z=" 0. ; 0.; -583.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; -1087.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; 133.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; 794.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox2Subtr"   X_Y_Z=" 18.6 ; 15.3; -1237.2 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox3Subtr"   X_Y_Z=" -11. ; 3.6; 1744. "  rot=" 0. ; 0. ; 0. "/>
+</composition>
+
+<box   name="Support_WingCentBottom"     material="ShieldSteel"  X_Y_Z=" 1396.; 795.; 18." />
+
+<tubs   name="Support_WingCentBottomCutTube"  material="ShieldSteel"  Rio_Z=" 0. ; 385. ; 20. "  nbPhi="32" />
+<subtraction name="Support_WingCentBottomCut" >
+   <posXYZ  volume="Support_WingCentBottom"   X_Y_Z=" 0. ; 10. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCentBottomCutTube"  X_Y_Z=" 690. ; 292.5 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCentBottomCutTube"  X_Y_Z=" -690. ; 292.5 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<gvxy  name="Support_WingMiddleTopPlate"  material="ShieldSteel"  dZ="14." >
+  <gvxy_point  X_Y=" -463.; 290.825 " />
+  <gvxy_point  X_Y=" -463.; -290.825 " />
+  <gvxy_point  X_Y=" -563.; -290.825 " />
+  <gvxy_point  X_Y=" -563.; 390.825 " />
+  <gvxy_point  X_Y=" 563.; 390.825 " />
+  <gvxy_point  X_Y=" 563.; -290.825 " />
+  <gvxy_point  X_Y=" 463.; -290.825 " />
+  <gvxy_point  X_Y=" 463.; 290.825 " />
+</gvxy>
+
+<gvxy  name="Support_WingMiddleBackPlate"  material="ShieldSteel"  dZ="100." >
+  <gvxy_point  X_Y=" -263.; 410.525 " />
+  <gvxy_point  X_Y=" -263.; -410.525 " />
+  <gvxy_point  X_Y=" -288.; -410.525 " />
+  <gvxy_point  X_Y=" -288.; 430.525 " />
+  <gvxy_point  X_Y=" 288.; 430.525 " />
+  <gvxy_point  X_Y=" 288.; -410.525 " />
+  <gvxy_point  X_Y=" 263.; -410.525 " />
+  <gvxy_point  X_Y=" 263.; 410.525 " />
+</gvxy>
+
+<composition  name="Support_WingMiddle" >
+    <posXYZ  volume="Support_WingCentBottomCut"  X_Y_Z=" 2690. ; -4.774 ; 0." rot=" 90.; -90.;0."    />
+    <posXYZ  volume="Support_WingMiddleTopPlate"  X_Y_Z=" 3065.32 ; 835.9 ; 0." rot=" 90.; -90.;0."    />
+    <posXYZ  volume="Support_WingMiddleBackPlate"  X_Y_Z=" 2324.5 ; 418.6 ; 0." rot=" 0.; 90.;0."    />
+</composition>
+
+<!-- End Support -->
+
+<!-- Drag Chain-->
+<box name="plate_of_drag_chain1" material="ShieldSteel" X_Y_Z="4639.; 640.; 16."/>
+<tubs name="plate_of_drag_chain2" material="ShieldSteel" Rio_Z="409.; 425.; 640." profile="90.; 90." nbPhi="32"/>
+<box name="plate_of_drag_chain3" material="ShieldSteel" X_Y_Z="16; 640.; 324.5"/>
+
+<composition  name="Drag_Chain_assembly" >
+  <posXYZ  volume="plate_of_drag_chain1"    X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="plate_of_drag_chain2"    X_Y_Z="  2319.55; 0.; -417." rot=" 90.; 90.; 0."/>
+  <posXYZ  volume="plate_of_drag_chain3"    X_Y_Z="  2736.5; 0.; -579.3" rot=" 0.; 0.; 0."/>
+</composition>
+
+<composition  name="Drag_Chain" >
+  <posXYZ  volume="Drag_Chain_assembly"    X_Y_Z=" 178.09; 387.39; -134." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="Drag_Chain_assembly"    X_Y_Z=" 178.09; 387.39; 134." rot=" 180.; 0.; 0."/>
+</composition>
+<!--End Drag Chain-->
+
+<!--  Cable-->
+<box name="plate_of_Cable1" material="Copper" X_Y_Z="4609.; 192.; 16."/>
+<tubs name="plate_of_Cable2" material="Copper" Rio_Z="409.; 425.; 192." profile="90.; 90." nbPhi="32"/>
+<box name="plate_of_Cable3" material="Copper" X_Y_Z="16.; 192.; 3282."/>
+
+<composition  name="Cable_assembly" >
+  <posXYZ  volume="plate_of_Cable1"    X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="plate_of_Cable2"    X_Y_Z="  2304.55; 0; -417." rot=" 90.; 90.; 0."/>
+  <posXYZ  volume="plate_of_Cable3"    X_Y_Z="  2721.5; 0.; -2058.05" rot=" 0.; 0.; 0."/>
+</composition>
+
+<composition  name="Cable" >
+  <posXYZ  volume="Cable_assembly"    X_Y_Z=" 163.09; 554.39;  -180." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="Cable_assembly"    X_Y_Z=" 163.09; 554.39;  180." rot=" 180.; 0.; 0."/>
+</composition>
+<!--End  Cable-->
+
+<!--  Pipes-->
+<box name="plate_of_Pipes1" material="ShieldSteel" X_Y_Z="4609.; 240.; 16."/>
+<tubs name="plate_of_Pipes2" material="ShieldSteel" Rio_Z="409.; 425.; 240." profile="90.; 90." nbPhi="32"/>
+<box name="plate_of_Pipes3" material="ShieldSteel" X_Y_Z="16.; 240.; 3282."/>
+
+<composition  name="Pipes_assembly" >
+  <posXYZ  volume="plate_of_Pipes1"    X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="plate_of_Pipes2"    X_Y_Z="  2304.55; 0.; -417." rot=" 90.; 90.; 0."/>
+  <posXYZ  volume="plate_of_Pipes3"    X_Y_Z="  2721.5; 0.; -2058.05" rot=" 0.; 0.; 0."/>
+</composition>
+
+<composition  name="Pipes" >
+  <posXYZ  volume="Pipes_assembly"    X_Y_Z=" 163.09; 287.39;  180." rot=" 180.; 0.; 0."/>
+  <posXYZ  volume="Pipes_assembly"    X_Y_Z=" 163.09; 287.39;  -180." rot=" 0.; 0.; 0."/>
+</composition>
+<!--End Pipes-->
+
+<composition  name="Flexible_Chain_Sector11-15" >
+     <posXYZ  volume="Support_BottomPlate"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Support_SidesPlatesM"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Support_WingSidepartsLeft"  X_Y_Z=" 2913.853 ; 402.7 ; -1985.5" rot=" 0.; 0.; 0."  />
+     <posXYZ  volume="Support_WingSidepartsRight"  X_Y_Z=" 2913.853 ; 402.7 ; 1985.5" rot=" 0.; 0.; 0."  />
+     <posXYZ  volume="Support_WingMiddle"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Drag_Chain"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Cable"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Pipes"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+</composition>
+
+<composition  name="FlexibleChainSector11-15" >
+     <posXYZ  volume="Flexible_Chain_Sector11-15"    X_Y_Z=" -5446.554 ; -5631.994 ; 0." rot=" 0.; 0.;45." />
+     <posXYZ  volume="Flexible_Chain_Sector11-15"    X_Y_Z=" 5446.554 ; -5631.994 ; 0." rot=" 0.; 180.; -45." />
+</composition>
+
+<!-- end of flexible chain sector 11 and 15 -->
+
+<composition  name="servicesAtZ0" >
    <posXYZ    volume="EMCaloPipeI"    X_Y_Z="  Zero;  7000 ; Zero"  rot=" 90.; 0.;0." />
    <posXYZ    volume="EMCaloPipeO"    X_Y_Z="  Zero; -5000 ;  100"  rot=" 90.; 0.;0." />
    <posXYZ    volume="services1"      X_Y_Z="  Zero;  Zero ; Zero"  rot="  0.; 0.;0." />
    <posRPhiZ  volume="services1"      R_Phi_Z="Zero;    45 ; Zero"  rot="  0.; 0.;0." />
    <posRPhiZ  volume="services1"      R_Phi_Z="Zero;   135 ; Zero"  rot="  0.; 0.;0." />
-   <posRPhiZ  volume="services3"      R_Phi_Z="Zero;   225 ; Zero"  rot="  0.; 0.;0." />
-   <posRPhiZ  volume="services3"      R_Phi_Z="Zero;   315 ; Zero"  rot="180.; 0.;0." />
-   <posXYZ volume="FlexibleChain2"  X_Y_Z=" -5440.;0.;-2750."  />
-   <posXYZ volume="FlexibleChain2"  X_Y_Z=" -5440.;0.;+2750."   rot="180.; 0.; 0."/>
+   <posXYZ volume="FlexibleChainSector9"  X_Y_Z="0;0;0"   rot="0;0;0"/>
+   <posXYZ volume="FlexibleChainSector11-15"  X_Y_Z="0;0;0"   rot="0;0;0"/>
 </composition>
 </section>
 
@@ -9808,9 +9316,9 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
 </section>
 
 <section name       = "HFtruck"
-         version    = "7.0"
-         date       = "22 November 2008"
-         author     = "Laurent"
+         version    = "0.0"
+         date       = "13-09-2017"
+         author     = "Besik Kekelia"
          top_volume = "HFTruckRail">
 
 <!--     name       =  HFTruck                       section name       = "Supports"  -->
@@ -9823,163 +9331,394 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
 -->
 
 <defaults   unit_length="mm"   />
-<!--  Spokes U profile -->
-<var  name="HFTCBLthi" value="5"/>
-<var  name="HFTCBext"  value="400"/>
-<var  name="HFTCBext2" value="200"/>
-<var  name="HFTCBhei"  value="100"/>
-<var  name="HFTCBSthi" value="6"/>
 
-<var  name="HFTCBLxa"  value="HFTCBext/2." />
-<var  name="HFTCBLya"  value="0."        />
-<var  name="HFTCBLxb"  value="HFTCBLxa"  />
-<var  name="HFTCBLyb"  value="HFTCBhei"  />
-<var  name="HFTCBLxc"  value="HFTCBLxb -HFTCBSthi" />
-<var  name="HFTCBLyc"  value="HFTCBLyb"  />
-<var  name="HFTCBLxd"  value="HFTCBLxc"  />
-<var  name="HFTCBLyd"  value="HFTCBLthi" />
+<!--  Description of HF Truck  -->
 
-<var name="HFT_leng"     value="5400" />
-<var name="HFT_width"    value="2210" />
-<var name="HFT_Decal"    value="HFT_width/2.+40"/>
-<var name="HFT_feet"     value="6662" />
-<var name="HFT_RFP"      value="1522" />
-<var name="HFT_RPR"      value="4630" />
-<var name="HFT_RP2"      value="2200" />
-<var name="HFT_RP3"      value="5000" />
-<var name="TubPos"       value="HFT_RFP+1300" />
-<var name="feePos"       value="2092" />
-<var name="ZtruckPos"    value="17850" />
-<var name="Zup"          value="9850" />
-<var name="Tshape"       value="540" />
-<var name="Sup2"         value="Tshape+1075" />
-<var name="HFT_Deca"     value="1700" />
-
-<box name="HFTsup1" material="Iron2"    X_Y_Z="Tshape;100;HFT_leng-10" />
-<box name="HFTsup2" material="Iron2"    X_Y_Z="Tshape;100;HFT_width" />
-<box name="HFTcot1" material="Iron1"    X_Y_Z="540;100;880"         />
-<box name="HFTame1" material="Iron1"    X_Y_Z="679;60;HFT_leng-10." />
-
-<tubs  name="HFTubes"   material="Iron1"  Rio_Z="244; 254;HFT_width"  nbPhi="20" />
-<tubs  name="HFTube2"   material="Iron1"  Rio_Z="104; 154;2105"       nbPhi="20" />
-
-<composition name="HFTruckSuppor1">
-   <posXYZ volume="HFTcot1"            X_Y_Z="Zero;Zero; HFT_leng/2.+50" rot="90.;Zero;Zero"/>
-   <posXYZ volume="HFTcot1"            X_Y_Z="Zero;Zero;-HFT_leng/2.-50" rot="90.;Zero;Zero"/>
-   <posXYZ volume="HFTame1"            X_Y_Z="Zero;Zero;Zero" rot="Zero;Zero;90."/>
-   <posXYZ volume="HFTsup1"            X_Y_Z="Zero; 390;Zero"  />
-   <posXYZ volume="HFTsup1"            X_Y_Z="Zero;-390;Zero"  />
-</composition>
-
-<box name="HFTfee1" material="Iron2"    X_Y_Z="639;60;HFT_feet-10." />
-<box name="HFTfee2" material="Iron1"    X_Y_Z="540;60;HFT_feet"    />
-<composition name="HFTruckFeet2">
-   <posXYZ volume="HFTfee1"            X_Y_Z="Zero;Zero;Zero" rot="Zero;Zero;90."/>
-   <posXYZ volume="HFTfee2"            X_Y_Z="Zero; 350;Zero"  />
-   <posXYZ volume="HFTfee2"            X_Y_Z="Zero;-350;Zero"  />
-</composition>
-
-<composition name="HFTruckFeet1">
-  <posXYZ  volume="HFTruckFeet2"      X_Y_Z="Zero;-HFT_leng/2.;Zero"  rot="90.;0.;0." />
-</composition>
-
-<gvxysx name="HFTProfiles2" material="Aluminium1" dZ="HFT_leng">
-  <gvxy_point X_Y="HFTCBLxa;HFTCBLya"/>
-  <gvxy_point X_Y="HFTCBLxb;HFTCBLyb"/>
-  <gvxy_point X_Y="HFTCBLxc;HFTCBLyc"/>
-  <gvxy_point X_Y="HFTCBLxd;HFTCBLyd"/>
-</gvxysx>
-
-<composition name="HFTProfiles1">
-   <posXYZ volume="HFTProfiles2"            X_Y_Z="Zero;Zero;Zero" rot="0.;0.;180."/>
-</composition>
-
-<composition name="HFTUPorfile">
-   <posXYZ volume="HFTProfiles1"            X_Y_Z="Zero;Zero;-7." rot="90.;0.; 20."/>
-   <posXYZ volume="HFTProfiles2"            X_Y_Z="Zero;Zero; 7." rot="90.;0.;-20."/>
-</composition>
-
-<var  name="HFTCBLxa2"  value="HFTCBext2/2." />
-<var  name="HFTCBLya2"  value="0."        />
-<var  name="HFTCBLxb2"  value="HFTCBLxa2"  />
-<var  name="HFTCBLyb2"  value="HFTCBhei"  />
-<var  name="HFTCBLxc2"  value="HFTCBLxb2 -HFTCBSthi" />
-<var  name="HFTCBLyc2"  value="HFTCBLyb2"  />
-<var  name="HFTCBLxd2"  value="HFTCBLxc2"  />
-<var  name="HFTCBLyd2"  value="HFTCBLthi" />
-
-<gvxysx name="HFTProfiles3" material="Aluminium1" dZ="HFT_leng-1400">
-  <gvxy_point X_Y="HFTCBLxa2;HFTCBLya2"/>
-  <gvxy_point X_Y="HFTCBLxb2;HFTCBLyb2"/>
-  <gvxy_point X_Y="HFTCBLxc2;HFTCBLyc2"/>
-  <gvxy_point X_Y="HFTCBLxd2;HFTCBLyd2"/>
-</gvxysx>
-
-<composition name="HFTProfiles4">
-   <posXYZ volume="HFTProfiles3"            X_Y_Z="Zero;Zero;Zero" rot="0.;0.;180."/>
-</composition>
-
-<!--  Spokes Rail same position that the feet rail -->
-<gvxy     name="HFTExtremityRail1"    material="Iron"   dZ="HFT_leng+200"  >
-  <gvxy_point X_Y="RAIL_CeRxb;RAIL_CeRyb"/>
-  <gvxy_point X_Y="RAIL_CeRxc;RAIL_CeRyc"/>
-  <gvxy_point X_Y="RAIL_CeRxd;RAIL_CeRyd"/>
-  <gvxy_point X_Y="RAIL_CeRxe;RAIL_CeRye"/>
-  <gvxy_point X_Y="RAIL_CeRxf;RAIL_CeRyf"/>
-  <gvxy_point X_Y="RAIL_CeRxg;RAIL_CeRyg"/>
-  <gvxy_point X_Y="RAIL_CeRxh;RAIL_CeRyh"/>
-  <gvxy_point X_Y="RAIL_CeRxi;RAIL_CeRyi"/>
-  <gvxy_point X_Y="RAIL_CeRxj;RAIL_CeRyj"/>
-  <gvxy_point X_Y="RAIL_CeRxk;RAIL_CeRyk"/>
-  <gvxy_point X_Y="RAIL_CeRxl;RAIL_CeRyl"/>
-  <gvxy_point X_Y="RAIL_CeRxm;RAIL_CeRym"/>
+<!--  Description of Column C1-L, C2-R  -->
+<gvxy name="Column" material="Iron" dZ="6662.">
+<gvxy_point X_Y="1485.; 1645."/>
+<gvxy_point X_Y="1525.; 1645."/>
+<gvxy_point X_Y="1525.; 1409.5"/>
+<gvxy_point X_Y="2225.; 1409.5"/>
+<gvxy_point X_Y="2225.; 1645."/>
+<gvxy_point X_Y="2265.; 1645."/>
+<gvxy_point X_Y="2265.; 1105."/>
+<gvxy_point X_Y="2225.; 1105."/>
+<gvxy_point X_Y="2225.; 1340.5"/>
+<gvxy_point X_Y="1525.; 1340.5"/>
+<gvxy_point X_Y="1525.; 1105."/>
+<gvxy_point X_Y="1485.; 1105."/>
 </gvxy>
 
-<composition name="HFTruckFeet">
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z=" HFT_Decal;RAIL_Ypos-HFT_RFP; feePos" />
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z=" HFT_Decal;RAIL_Ypos-HFT_RFP;-feePos" />
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z="-HFT_Decal;RAIL_Ypos-HFT_RFP; feePos" />
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z="-HFT_Decal;RAIL_Ypos-HFT_RFP;-feePos" />
+<tubs name="Column_Tube" material="Iron" Rio_Z="147.95; 254.; 2680.9" nbPhi="32"/>
 
-  <posXYZ  volume="HFTruckSuppor1"     X_Y_Z=" HFT_Decal;RAIL_Ypos-450.;Zero"    /> 
-  <posXYZ  volume="HFTruckSuppor1"     X_Y_Z="-HFT_Decal;RAIL_Ypos-450.;Zero"    />
+<composition  name="Column_C1-L_C2-R" >
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; 0. " rot=" 90.; 0.; 180." />
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; -2750. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; -2750. " rot=" 90.; 0.; 180." />
+  <posXYZ  volume="Column_Tube" X_Y_Z=" 1875.; 2068.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Column_Tube" X_Y_Z=" -1875.; 2068.; 0. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Column C1-L, C2-R  -->
 
-  <posXYZ  volume="HFTExtremityRail1"  X_Y_Z="-HFT_Decal;RAIL_Ypos     ;Zero"    />
-  <posXYZ  volume="HFTExtremityRail1"  X_Y_Z=" HFT_Decal;RAIL_Ypos     ;Zero"    /> 
 
-  <posXYZ  volume="HFTubes"            X_Y_Z=" Zero;RAIL_Ypos-HFT_RFP  ; feePos"           rot="0.; 90.;0." />
-  <posXYZ  volume="HFTubes"            X_Y_Z=" Zero;RAIL_Ypos-HFT_RFP  ;-feePos"           rot="0.; 90.;0." />
+<!--  Description of Beam  -->
+<gvxy name="Beam_1" material="Iron" dZ="5319.9">
+<gvxy_point X_Y="-1645.; 4211.05"/>
+<gvxy_point X_Y="-1645.; 4171.05"/>
+<gvxy_point X_Y="-1420.05; 4171.05"/>
+<gvxy_point X_Y="-1420.05; 3371.05"/>
+<gvxy_point X_Y="-1645.; 3371.05"/>
+<gvxy_point X_Y="-1645.; 3331.05"/>
+<gvxy_point X_Y="-1109.95; 3331.05"/>
+<gvxy_point X_Y="-1109.95; 3371.05"/>
+<gvxy_point X_Y="-1329.95; 3371.05"/>
+<gvxy_point X_Y="-1329.95; 4171.05"/>
+<gvxy_point X_Y="-1109.95; 4171.05"/>
+<gvxy_point X_Y="-1109.95; 4211.05"/>
+</gvxy>
 
+<box name="Beam_Box" material="Iron" X_Y_Z="880.; 40.; 540."/>
+
+<composition  name="Beam" >
+  <posXYZ  volume="Beam_1" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 90.; 0." />
+  <posXYZ  volume="Beam_1" X_Y_Z=" 0.; 0.; -2750. " rot=" 0.; 90.; 0." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" -2680.; 3771.05; 1375. " rot=" 0.; 0.; 90." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" 2680.; 3771.05; 1375. " rot=" 0.; 0.; 90." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" -2680.; 3771.05; -1375. " rot=" 0.; 0.; 90." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" 2680.; 3771.05; -1375. " rot=" 0.; 0.; 90." />
+</composition>
+<!-- end of  Description of Beam  -->
+
+<!--  Description of Rail  -->
+
+<gvxy name="Rail_1" material="Iron" dZ="5400.">
+<gvxy_point X_Y="-1740.; 4659.14"/>
+<gvxy_point X_Y="-1010.; 4659.14"/>
+<gvxy_point X_Y="-1010.; 4559.14"/>
+<gvxy_point X_Y="-1345.; 4559.14"/>
+<gvxy_point X_Y="-1345.; 4319.14"/>
+<gvxy_point X_Y="-1150.; 4319.14"/>
+<gvxy_point X_Y="-1150.; 4259.14"/>
+<gvxy_point X_Y="-1600.; 4259.14"/>
+<gvxy_point X_Y="-1600.; 4319.14"/>
+<gvxy_point X_Y="-1405.; 4319.14"/>
+<gvxy_point X_Y="-1405.; 4559.14"/>
+<gvxy_point X_Y="-1740.; 4559.14"/>
+</gvxy>
+
+<composition  name="Rail" >
+  <posXYZ  volume="Rail_1" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 90.; -0.708" />
+  <posXYZ  volume="Rail_1" X_Y_Z=" 0.; 0.; -2750. " rot=" 0.; 90.; -0.708" />
+</composition>
+<!-- end of  Description of Rail  -->
+
+
+<!--  Description of Shims  -->
+<gvxy name="Shims_1" material="Iron" dZ="238.">
+<gvxy_point X_Y="-2700.; 4291.76"/>
+<gvxy_point X_Y="2700.; 4225.029"/>
+<gvxy_point X_Y="2700.; 4211."/>
+<gvxy_point X_Y="-2700.; 4211."/>
+</gvxy>
+
+<composition  name="Shims" >
+  <posXYZ  volume="Shims_1" X_Y_Z=" 0.; 1.; 1375. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Shims_1" X_Y_Z=" 0.; 1.; -1375. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Shims  -->
+
+<!--  Description of Bracing  -->
+<gvxy name="Bracing_1" material="Aluminium" dZ="4038.">
+<gvxy_point X_Y="1745.; 99.5"/>
+<gvxy_point X_Y="1745.; 120."/>
+<gvxy_point X_Y="2005.; 120."/>
+<gvxy_point X_Y="2005.; 99.5"/>
+<gvxy_point X_Y="1883.; 99.5"/>
+<gvxy_point X_Y="1883.; -99.5"/>
+<gvxy_point X_Y="2005.; -99.5"/>
+<gvxy_point X_Y="2005.; -120."/>
+<gvxy_point X_Y="1745.; -120."/>
+<gvxy_point X_Y="1745.; -99.5"/>
+<gvxy_point X_Y="1847.; -99.5"/>
+<gvxy_point X_Y="1847.; 99.5"/>
+</gvxy>
+
+<gvxy name="subt_box" material="Aluminium" dZ="4038.">
+<gvxy_point X_Y="1735.46; 120.05"/>
+<gvxy_point X_Y="2016.3; 120.05"/>
+<gvxy_point X_Y="2016.3; -120.05"/>
+<gvxy_point X_Y="1735.46; -120.05"/>
+</gvxy>
+
+ <subtraction name="Sub_Bracing_1" >
+  <posXYZ volume="Bracing_1" X_Y_Z=" 0.; 0.; 0." rot=" -60.3; 0.; 0."/>
+  <posXYZ volume="subt_box" X_Y_Z=" 0.; 0; 0." rot=" 60.3; 0.; 0."/>
+ </subtraction>
+
+<gvxy name="Bracing_2" material="Aluminium" dZ="3588.">
+<gvxy_point X_Y="-120.; 120."/>
+<gvxy_point X_Y="-102.; 120."/>
+<gvxy_point X_Y="-102.; 6.25"/>
+<gvxy_point X_Y="102.; 6.25"/>
+<gvxy_point X_Y="102.; 120."/>
+<gvxy_point X_Y="120.; 120."/>
+<gvxy_point X_Y="120.; -120."/>
+<gvxy_point X_Y="102.; -120."/>
+<gvxy_point X_Y="102.; -6.25"/>
+<gvxy_point X_Y="-102.; -6.25"/>
+<gvxy_point X_Y="-102.; -120."/>
+<gvxy_point X_Y="-120.; -120."/>
+</gvxy>
+
+<box name="sub_Bracing_2" material="Aluminium" X_Y_Z="241.1; 240.1; 3600."/>
+
+ <subtraction name="Sub_Bracing_2" >
+  <posXYZ volume="Bracing_2" X_Y_Z=" 0.; 0.; 0." rot=" 0; 90.; 38.2"/>
+  <posXYZ volume="sub_Bracing_2" X_Y_Z=" 0.; 0; 0." rot=" 0.; 90.; -38.2"/>
+ </subtraction>
+
+<composition  name="Bracing" >
+  <posXYZ  volume="Bracing_1" X_Y_Z=" 0.; 0.; 0. " rot="60.3; 0.; 0." />
+  <posXYZ  volume="Sub_Bracing_1" X_Y_Z=" 0.; 0.; 0. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_1" X_Y_Z=" -3750.; 0.; 0. " rot="60.3; 0.; 0." />
+  <posXYZ  volume="Sub_Bracing_1" X_Y_Z=" -3750.; 0.; 0. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; -712.3; 1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; -712.3; 1375. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; 1990.7; 1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; 1990.7; 1375. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; -712.3; -1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; -712.3; -1375. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; 1990.7; -1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; 1990.7; -1375. " rot="0.; 0.; 0." />
 </composition>
 
-<composition name="HFTUPorfile1">
-   <posXYZ volume="HFTProfiles3"            X_Y_Z="Zero;Zero; 3." rot="90.;0.; 55."/>
-   <posXYZ volume="HFTProfiles4"            X_Y_Z="Zero;Zero;-3." rot="90.;0.;-55."/>
+<!-- end of  Description of Bracing  -->
+
+
+<!--  Description of Brackets  -->
+<gvxy name="Brackets_1" material="Iron" dZ="880.">
+<gvxy_point X_Y="-2145.; -2028.9"/>
+<gvxy_point X_Y="-1605.; -2028.9"/>
+<gvxy_point X_Y="-1605.; -2094.9"/>
+<gvxy_point X_Y="-1845.; -2094.9"/>
+<gvxy_point X_Y="-1845.; -3175."/>
+<gvxy_point X_Y="-1605.; -3175."/>
+<gvxy_point X_Y="-1605.; -3241."/>
+<gvxy_point X_Y="-2145.; -3241."/>
+<gvxy_point X_Y="-2145.; -3175."/>
+<gvxy_point X_Y="-1905.; -3175."/>
+<gvxy_point X_Y="-1905.; -2094.9"/>
+<gvxy_point X_Y="-2145.; -2094.9"/>
+</gvxy>
+
+<composition  name="Brackets" >
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 0.; 0.; 665. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 0.; 0.; -665. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 3750.; 0.; 665. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 3750.; 0.; -665. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Brackets  -->
+
+<!--  Description of Inox  -->
+<box name="Inox_1" material="Iron" X_Y_Z="267.; 5478.; 36.8"/>
+
+<composition  name="Inox" >
+  <posXYZ  volume="Inox_1" X_Y_Z=" -2398.5; 500.; 1086.55 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Inox_1" X_Y_Z=" -2398.5; 500.; -1086.55 " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Inox  -->
+
+<!--  Description of Infrastructure  -->
+<gvxy name="Infrastructure_Feet_1" material="Iron" dZ="974.">
+<gvxy_point X_Y="1935.; -467."/>
+<gvxy_point X_Y="1935.; -478."/>
+<gvxy_point X_Y="1878.25; -478."/>
+<gvxy_point X_Y="1878.25; -576."/>
+<gvxy_point X_Y="1935.; -576."/>
+<gvxy_point X_Y="1935.; -587."/>
+<gvxy_point X_Y="1815.; -587."/>
+<gvxy_point X_Y="1815.; -576."/>
+<gvxy_point X_Y="1871.75; -576."/>
+<gvxy_point X_Y="1871.75; -478."/>
+<gvxy_point X_Y="1815.; -478."/>
+<gvxy_point X_Y="1815.; -467."/>
+</gvxy>
+
+<box name="Infrastructure_box_1" material="Iron" X_Y_Z="4449.1; 11.3; 1949.1"/>
+
+<gvxy name="Infrastructure_Feet_2" material="Iron" dZ="974.">
+<gvxy_point X_Y="-1476.; 1355.95"/>
+<gvxy_point X_Y="-1476.; 1349.05"/>
+<gvxy_point X_Y="-1510.15; 1349.05"/>
+<gvxy_point X_Y="-1510.15; 1222.85"/>
+<gvxy_point X_Y="-1476.; 1222.85"/>
+<gvxy_point X_Y="-1476.; 1215.95"/>
+<gvxy_point X_Y="-1549.; 1215.95"/>
+<gvxy_point X_Y="-1549.; 1222.85"/>
+<gvxy_point X_Y="-1515.95; 1222.85"/>
+<gvxy_point X_Y="-1514.85; 1349.05"/>
+<gvxy_point X_Y="-1549.; 1349.05"/>
+<gvxy_point X_Y="-1549.; 1355.95"/>
+</gvxy>
+
+<box name="Infrastructure_box_2" material="Iron" X_Y_Z="5360.; 20.4; 510."/>
+
+<composition  name="Infrastructure" >
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" 0.; 2809.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" 0.; 2809.05; -1054. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" -3750.; 2809.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" -3750.; 2809.05; -1054. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_box_1" X_Y_Z=" 0.; 3301.75; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 0.; 0.; 610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 0.; 0.; -610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 3025.; 0.; 610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 3025.; 0.; -610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_box_2" X_Y_Z=" 0.; 1366.2; 379. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_box_2" X_Y_Z=" 0.; 1366.2; -379. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Infrastructure  -->
+
+<!--  Description of JF Table  -->
+
+<!--  Description of JF Table Beam  -->
+
+<box name="Table_Beam_2" material="Iron" X_Y_Z="3500.; 50.; 500."/>
+<tubs name="sub_tube" material="Iron" Rio_Z="0.; 155.; 2700." nbPhi="32"/>
+
+ <subtraction name="Sub_Beam_2" >
+  <posXYZ volume="Table_Beam_2" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" -825.; 0.; 0." rot=" 90.; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" 825.; 0.; 0." rot=" 90.; 0.; 0."/>
+ </subtraction>
+
+<gvxy name="Table_Beam_3" material="Iron" dZ="500.">
+<gvxy_point X_Y="-1750.; -225."/>
+<gvxy_point X_Y="-979.29; -225."/>
+<gvxy_point X_Y="-679.29; -525."/>
+<gvxy_point X_Y="679.29; -525."/>
+<gvxy_point X_Y="979.29; -225."/>
+<gvxy_point X_Y="1750.; -225."/>
+<gvxy_point X_Y="1750.; -317."/>
+<gvxy_point X_Y="958.; -317."/>
+<gvxy_point X_Y="700.; -575."/>
+<gvxy_point X_Y="-700.; -575."/>
+<gvxy_point X_Y="-958.; -317."/>
+<gvxy_point X_Y="-1750.; -317."/>
+</gvxy>
+
+ <subtraction name="Sub_Table_Beam_3" >
+  <posXYZ volume="Table_Beam_3" X_Y_Z=" 0.; 0.; 0." rot=" 0; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" -825.; 0.; 0." rot=" 90.; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" 825.; 0.; 0." rot=" 90.; 0.; 0."/>
+ </subtraction>
+
+<box name="Table_Beam_4" material="Iron" X_Y_Z="80.; 199.9; 500."/>
+<box name="Table_Beam_5" material="Iron" X_Y_Z="400.; 199.9; 50."/>
+<box name="Table_Beam_6" material="Iron" X_Y_Z="50.; 400.; 500."/>
+
+<gvxy name="Table_Beam_7" material="Iron" dZ="499.9">
+<gvxy_point X_Y="-640.05; 250."/>
+<gvxy_point X_Y="-540.05; 250."/>
+<gvxy_point X_Y="-540.05; 34."/>
+<gvxy_point X_Y="540.05; 34."/>
+<gvxy_point X_Y="540.05; 250."/>
+<gvxy_point X_Y="640.05; 250."/>
+<gvxy_point X_Y="640.05; -250."/>
+<gvxy_point X_Y="540.05; -250."/>
+<gvxy_point X_Y="540.05; -34."/>
+<gvxy_point X_Y="-540.05; -34."/>
+<gvxy_point X_Y="-540.05; -250."/>
+<gvxy_point X_Y="-640.05; -250."/>
+</gvxy>
+
+<composition  name="JF_Table_Beam_1" >
+  <posXYZ  volume="Sub_Beam_2" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Sub_Table_Beam_3" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_4" X_Y_Z=" 1080.; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_4" X_Y_Z=" -1080.; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" -1550.; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" -1550.; -125.; 225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" -1550.; -125.; -225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" 1549.95; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" 1549.95; -125.; 225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" 1549.95; -125.; -225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_6" X_Y_Z=" 1775.1; -75.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_7" X_Y_Z=" 0.; -275.; 0. " rot=" 90.; 0.; 0." />
 </composition>
 
+<!-- end of  Description of JF Table Beam  -->
 
-<composition  name="HFTruckRail2" >
-  <posXYZ  volume="HFTruckFeet"       X_Y_Z="           HFT_Deca ; Zero                ; Zero "   />
-  <posXYZ  volume="HFTUPorfile"       X_Y_Z="           HFT_Deca ; RAIL_Ypos-HFT_RPR   ; feePos" />
-  <posXYZ  volume="HFTUPorfile"       X_Y_Z="           HFT_Deca ; RAIL_Ypos-HFT_RPR   ;-feePos" />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z=" HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP2   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z="-HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP2   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z=" HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP3   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z="-HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP3   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTsup2"           X_Y_Z=" HFT_Deca           ; RAIL_Ypos+Tshape-50 ; feePos-HFT_Deca"  rot="0.; 90.;0." />
-  <posXYZ  volume="HFTsup2"           X_Y_Z=" HFT_Deca           ; RAIL_Ypos+Tshape-50 ;-feePos+HFT_Deca"  rot="0.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca-800       ; RAIL_Ypos+Sup2      ; feePos-HFT_Deca"  rot="90.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca+800       ; RAIL_Ypos+Sup2      ; feePos-HFT_Deca"  rot="90.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca-800       ; RAIL_Ypos+Sup2      ;-feePos+HFT_Deca"  rot="90.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca+800       ; RAIL_Ypos+Sup2      ;-feePos+HFT_Deca"  rot="90.; 90.;0." />
+<!--  Description of JF Table Cross Bar  -->
+
+<box name="HF_Cross_Bar_1" material="Iron" X_Y_Z="200.; 200.; 1049.9"/>
+<box name="HF_Cross_Bar_sub_box" material="Iron" X_Y_Z="170.; 170.; 1100."/>
+
+<subtraction name="Sub_HF_Cross_Bar" >
+  <posXYZ volume="HF_Cross_Bar_1" X_Y_Z=" 0.; 0.; 0." rot=" 0; 0.; 0."/>
+  <posXYZ volume="HF_Cross_Bar_sub_box" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+ </subtraction>
+<!-- end of  Description of JF Table Cross Bar  -->
+
+<!--  Description of Jacks  -->
+<tubs name="Jacks_1" material="ShieldBrass" Rio_Z="122.5; 149.; 1540." nbPhi="32"/>
+<tubs name="Jacks_2" material="ShieldBrass" Rio_Z="120.; 245.; 90." nbPhi="32"/>
+<tubs name="Jacks_3" material="ShieldBrass" Rio_Z="0.; 103.5; 1570." nbPhi="32"/>
+<tubs name="Jacks_4" material="ShieldBrass" Rio_Z="105.; 155.; 100." nbPhi="32"/>
+<tubs name="Jacks_5" material="ShieldBrass" Rio_Z="0.; 80.; 160." nbPhi="32"/>
+
+<composition  name="Jacks" >
+  <posXYZ  volume="Jacks_1" X_Y_Z=" 0.; -745.; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_2" X_Y_Z=" 0.; 70.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_3" X_Y_Z=" 0.; 900.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_4" X_Y_Z=" 0.; 1735.1; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_5" X_Y_Z=" 0.; 1787.; 0. " rot=" 90.; 0.; 0." />
+</composition>
+<!--  end of Description of Jacks  -->
+
+<!--  Description of Motorised NuT  -->
+
+<box name="Motorised_NuT" material="Aluminium" X_Y_Z="290.; 280.; 300."/>
+
+<!--  end of Description of Motorised NuT  -->
+
+<composition  name="JF_Table" >
+  <posXYZ  volume="JF_Table_Beam_1" X_Y_Z=" 0.; 0.; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="JF_Table_Beam_1" X_Y_Z=" 0.; 0.; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Sub_HF_Cross_Bar" X_Y_Z=" 1552.5; -120.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Sub_HF_Cross_Bar" X_Y_Z=" -1552.5; -120.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" 825.; 0.; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" -825.; 0.; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" 825.; 0.; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" -825.; 0.; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" 410.; 195.05; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" 410.; 195.05; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" -410.; 195.05; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" -410.; 195.05; -775. " rot=" 0.; 0.; 0." />
+</composition>
+
+<!--  end of Description of JF Table Beam  -->
+<composition  name="Truck_A_C" >
+<posXYZ volume="Column_C1-L_C2-R" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Beam" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Rail" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Shims" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Bracing" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Brackets" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Inox" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Infrastructure" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ  volume="JF_Table" X_Y_Z=" 0.; 5000.; 0. " rot=" 0.; 90.; 0." />
 </composition>
 
 <composition  name="HFTruckRail" >
-  <posXYZ  volume="HFTruckRail2"      X_Y_Z=" Zero; Zero; ZtruckPos"  rot="0.;270.;0." />
-  <posXYZ  volume="HFTruckRail2"      X_Y_Z=" Zero; Zero;-ZtruckPos"  rot="0.; 90.;0." />
+  <posXYZ volume="Truck_A_C"      X_Y_Z=" 0. ; -9000.; 19132." />
+  <posXYZ volume="Truck_A_C"      X_Y_Z=" 0. ; -9000.; -19132." />
 </composition>
 
+
 </section>
+
 
 <section name       = "RUN2_Services"
          version    = "1.0"

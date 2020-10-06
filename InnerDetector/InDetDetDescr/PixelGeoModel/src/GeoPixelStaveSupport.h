@@ -11,10 +11,11 @@
 #include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoTransform.h"
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelStaveSupport :  public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelStaveSupport :  public GeoVPixelFactory {
 
-public:  
-  virtual GeoVPhysVol* getPhysVol ATLAS_NOT_THREAD_SAFE () const = 0; // const method returns non-const pointer.
+public:
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* getPhysVol() = 0;
   virtual const GeoTrf::Transform3D & transform() const = 0;
   virtual double thicknessP() const = 0;
   virtual double thicknessN() const = 0;

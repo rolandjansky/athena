@@ -110,7 +110,7 @@ ActsExtrapolationTool::initialize()
 
 ActsPropagationOutput
 ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
-                                        const Acts::BoundParameters& startParameters,
+                                        const Acts::BoundTrackParameters& startParameters,
                                         Acts::NavigationDirection navDir /*= Acts::forward*/,
                                         double pathLimit /*= std::numeric_limits<double>::max()*/) const
 {
@@ -125,15 +125,13 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
 
   // Action list and abort list
   using ActionList =
-  Acts::ActionList<SteppingLogger, Acts::MaterialInteractor, DebugOutput>;
+  Acts::ActionList<SteppingLogger, Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
 
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
-  bool debug = msg().level() == MSG::VERBOSE;
-  options.debug = debug;
 
   options.loopProtection
     = (Acts::VectorHelpers::perp(startParameters.momentum())
@@ -147,7 +145,6 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   mInteractor.recordInteractions = m_interactionRecord;
 
   ActsPropagationOutput output;
-  DebugOutput::result_type debugOutput;
 
   auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
       auto result = propagator.propagate(startParameters, options);
@@ -157,12 +154,11 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
       auto& propRes = *result;
 
       auto steppingResults = propRes.template get<SteppingLogger::result_type>();
-      auto debugOutput = propRes.template get<DebugOutput::result_type>();
       auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
       output.first = std::move(steppingResults.steps);
       output.second = std::move(materialResult);
       // try to force return value optimization, not sure this is necessary
-      return std::make_pair(std::move(output), std::move(debugOutput));
+      return std::move(output);
     }, *m_varProp);
 
   if (!res.ok()) {
@@ -171,11 +167,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                   << ". Returning empty step vector.");
     return {};
   }
-  std::tie(output, debugOutput) = std::move(*res);
-
-  if(debug) {
-    ATH_MSG_VERBOSE(debugOutput.debugString);
-  }
+  output = std::move(*res);
 
   ATH_MSG_VERBOSE("Collected " << output.first.size() << " steps");
   if(output.first.size() == 0) {
@@ -189,9 +181,9 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
 
 
 
-std::unique_ptr<const Acts::CurvilinearParameters>
+std::unique_ptr<const Acts::CurvilinearTrackParameters>
 ActsExtrapolationTool::propagate(const EventContext& ctx,
-                                 const Acts::BoundParameters& startParameters,
+                                 const Acts::BoundTrackParameters& startParameters,
                                  Acts::NavigationDirection navDir /*= Acts::forward*/,
                                  double pathLimit /*= std::numeric_limits<double>::max()*/) const
 {
@@ -205,15 +197,12 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   auto anygctx = gctx.any();
 
   // Action list and abort list
-  using ActionList =
-  Acts::ActionList<Acts::MaterialInteractor, DebugOutput>;
+  using ActionList = Acts::ActionList<Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
-  bool debug = msg().level() == MSG::VERBOSE;
-  options.debug = debug;
 
   options.loopProtection
     = (Acts::VectorHelpers::perp(startParameters.momentum())
@@ -226,7 +215,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   mInteractor.energyLoss = m_interactionEloss;
   mInteractor.recordInteractions = m_interactionRecord;
 
-  auto parameters = boost::apply_visitor([&](const auto& propagator) -> std::unique_ptr<const Acts::CurvilinearParameters> {
+  auto parameters = boost::apply_visitor([&](const auto& propagator) -> std::unique_ptr<const Acts::CurvilinearTrackParameters> {
       auto result = propagator.propagate(startParameters, options);
       if (!result.ok()) {
         ATH_MSG_ERROR("Got error during propagation:" << result.error()
@@ -241,7 +230,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
 
 ActsPropagationOutput
 ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
-                                        const Acts::BoundParameters& startParameters,
+                                        const Acts::BoundTrackParameters& startParameters,
                                         const Acts::Surface& target,
                                         Acts::NavigationDirection navDir /*= Acts::forward*/,
                                         double pathLimit /*= std::numeric_limits<double>::max()*/) const
@@ -257,14 +246,12 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
 
   // Action list and abort list
   using ActionList =
-  Acts::ActionList<SteppingLogger, Acts::MaterialInteractor, DebugOutput>;
+  Acts::ActionList<SteppingLogger, Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
-  bool debug = msg().level() == MSG::VERBOSE;
-  options.debug = debug;
 
   options.loopProtection
     = (Acts::VectorHelpers::perp(startParameters.momentum())
@@ -278,7 +265,6 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   mInteractor.recordInteractions = m_interactionRecord;
 
   ActsPropagationOutput output;
-  DebugOutput::result_type debugOutput;
 
   auto res = boost::apply_visitor([&](const auto& propagator) -> ResultType {
       auto result = propagator.propagate(startParameters, target, options);
@@ -288,11 +274,10 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
       auto& propRes = *result;
 
       auto steppingResults = propRes.template get<SteppingLogger::result_type>();
-      auto debugOutput = propRes.template get<DebugOutput::result_type>();
       auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
       output.first = std::move(steppingResults.steps);
       output.second = std::move(materialResult);
-      return std::make_pair(std::move(output), std::move(debugOutput));
+      return std::move(output);
     }, *m_varProp);
 
   if (!res.ok()) {
@@ -300,11 +285,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                   << ". Returning empty step vector.");
     return {};
   }
-  std::tie(output, debugOutput) = std::move(*res);
-
-  if(debug) {
-    ATH_MSG_VERBOSE(debugOutput.debugString);
-  }
+  output = std::move(*res);
 
   ATH_MSG_VERBOSE("Collected " << output.first.size() << " steps");
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " end");
@@ -312,9 +293,9 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   return output;
 }
 
-std::unique_ptr<const Acts::BoundParameters>
+std::unique_ptr<const Acts::BoundTrackParameters>
 ActsExtrapolationTool::propagate(const EventContext& ctx,
-                                 const Acts::BoundParameters& startParameters,
+                                 const Acts::BoundTrackParameters& startParameters,
                                  const Acts::Surface& target,
                                  Acts::NavigationDirection navDir /*= Acts::forward*/,
                                  double pathLimit /*= std::numeric_limits<double>::max()*/) const
@@ -330,14 +311,12 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
 
   // Action list and abort list
   using ActionList =
-  Acts::ActionList<Acts::MaterialInteractor, DebugOutput>;
+  Acts::ActionList<Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
-  bool debug = msg().level() == MSG::VERBOSE;
-  options.debug = debug;
 
   options.loopProtection
     = (Acts::VectorHelpers::perp(startParameters.momentum())
@@ -350,7 +329,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   mInteractor.energyLoss = m_interactionEloss;
   mInteractor.recordInteractions = m_interactionRecord;
 
-  auto parameters = boost::apply_visitor([&](const auto& propagator) -> std::unique_ptr<const Acts::BoundParameters> {
+  auto parameters = boost::apply_visitor([&](const auto& propagator) -> std::unique_ptr<const Acts::BoundTrackParameters> {
       auto result = propagator.propagate(startParameters, target, options);
       if (!result.ok()) {
         ATH_MSG_ERROR("Got error during propagation: " << result.error()

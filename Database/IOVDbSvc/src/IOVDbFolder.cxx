@@ -42,10 +42,8 @@
 #include "AthenaPoolUtilities/CondAttrListVecAddress.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "EventInfo/TagInfo.h"
 
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
-#include "IOVDbDataModel/IOVMetaDataContainer.h"
 
 #include "IOVDbConn.h"
 
@@ -75,10 +73,12 @@ namespace{
 
 IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
                          const IOVDbParser& folderprop, MsgStream& msg,
-                         IClassIDSvc* clidsvc, const bool checklock, const bool outputToFile,
+                         IClassIDSvc* clidsvc, IIOVDbMetaDataTool* metadatatool,
+                         const bool checklock, const bool outputToFile,
                          const std::string & source):
   AthMessaging(Athena::getMessageSvc(), "IOVDbFolder"),
   p_clidSvc(clidsvc),
+  p_metaDataTool(metadatatool),
   m_conn(conn),
   m_checklock(checklock),
   m_foldertype(AttrList),
@@ -155,9 +155,9 @@ IOVDbFolder::~IOVDbFolder() {
   if (m_cachespec!=0) m_cachespec->release();
 }
 
-void IOVDbFolder::setMetaCon(const IOVMetaDataContainer* metacon) {
+void IOVDbFolder::useFileMetaData() {
   // enable folder from FLMD at given connection
-  m_metacon=metacon;
+  m_useFileMetaData = true;
   // if previously connected to a real DB connection, remove association
   if (m_conn!=0) {
     m_conn->decUsage();
@@ -176,8 +176,7 @@ IOVDbFolder::setTagOverride(const std::string& tag,const bool setFlag) {
   m_jotag=IOVDbNamespace::spaceStrip(tag);
 }
 
-void IOVDbFolder::setWriteMeta(IIOVDbMetaDataTool* metadatatool) {
-  p_metaDataTool=metadatatool;
+void IOVDbFolder::setWriteMeta() {
   m_writemeta=true;
 }
 
@@ -638,8 +637,9 @@ IOVDbFolder::getAddress(const cool::ValidityKey reftime,
   CondAttrListVec* attrListVec=0;
   cool::ValidityKey naystart=0;
   cool::ValidityKey naystop=cool::ValidityKeyMax;
-  if (m_metacon) {    
-    IOVDbNamespace::ReadFromFileMetaData readFromMetaData(m_metacon, reftime, m_timestamp);
+  if( m_useFileMetaData ) {    
+    IOVDbNamespace::SafeReadFromFileMetaData
+       readFromMetaData(m_foldername, p_metaDataTool, reftime, m_timestamp);
     if (not readFromMetaData.isValid()){
       ATH_MSG_ERROR( "read:Could not find IOVPayloadContainer for folder "<< m_foldername );
       return false;
@@ -887,39 +887,37 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, 
   // and sets up cache length, taking into account optional overrides
   // returns null pointer in case of problem
   p_detStore=detStore;
-  std::string folderdesc;
-  if (not m_metacon) {
+  if( not m_useFileMetaData ) {
     if(m_source=="CREST"){
       const std::string  tagName=sanitiseCrestTag(m_foldername);
-      folderdesc=folderDescriptionForTag(tagName);
+      m_folderDescription = folderDescriptionForTag(tagName);
     } else {
       //folder desc from db
-      std::tie(m_multiversion, folderdesc) = IOVDbNamespace::folderMetadata(m_conn, m_foldername);
+      std::tie(m_multiversion, m_folderDescription) = IOVDbNamespace::folderMetadata(m_conn, m_foldername);
     }
   } else {
-    // folder from meta-data
-    folderdesc=m_metacon->folderDescription();
+    // folder description from meta-data set already earlier
   }
-  ATH_MSG_DEBUG( "Folder description " << folderdesc);
+  ATH_MSG_DEBUG( "Folder description " << m_folderDescription);
   // register folder with meta-data tool if writing metadata
   if (m_writemeta) {
-    if (StatusCode::SUCCESS!=p_metaDataTool->registerFolder(m_foldername,folderdesc)) {
+    if (StatusCode::SUCCESS!=p_metaDataTool->registerFolder(m_foldername,m_folderDescription)) {
       ATH_MSG_ERROR( "Failed to register folder " << m_foldername<< " for meta-data write" );
       return nullptr;
     }
   }
   // parse the description string
-  IOVDbParser folderpar(folderdesc,msg());
+  IOVDbParser folderpar(m_folderDescription, msg());
   //use the overrides in the folderdescription, return nullptr immediately if something went wrong
   if (not overrideOptionsFromParsedDescription(folderpar)) return nullptr;
   // setup channel list and folder type
-  if (not m_metacon) {
+  if( not m_useFileMetaData ) {
     if(m_source=="CREST"){
         const auto & crestTag=sanitiseCrestTag(m_foldername);
         m_channums=channelListForTag(crestTag);
         const std::string & payloadSpec = payloadSpecificationForTag(crestTag);
         //determine foldertype from the description, the spec and the number of channels
-        m_foldertype = IOVDbNamespace::determineFolderType(folderdesc, payloadSpec, m_channums);
+        m_foldertype = IOVDbNamespace::determineFolderType(m_folderDescription, payloadSpec, m_channums);
     } else {
       // data being read from COOL
       auto fldPtr=m_conn->getFolderPtr<cool::IFolderPtr>(m_foldername);

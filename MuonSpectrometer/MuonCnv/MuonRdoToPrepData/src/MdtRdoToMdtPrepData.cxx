@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Davide Costanzo
@@ -14,27 +14,17 @@
 MdtRdoToMdtPrepData::MdtRdoToMdtPrepData(const std::string& name,
                                          ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_tool( "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool", this), 
 m_print_inputRdo(false),
 m_print_prepData(false),
 m_seededDecoding(false),
 m_roiCollectionKey("OutputRoIs"),
-m_regsel_mdt("RegSelTool/RegSelTool_MDT",this),
 m_mdtCollection("MDT_DriftCircles")
 {
-    declareProperty("DecodingTool",       m_tool,       "mdt rdo to prep data conversion tool" );
     declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
     declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
     declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
     declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
-    declareProperty("RegSel_MDT", m_regsel_mdt);
     declareProperty("OutputCollection",   m_mdtCollection);
-}
-
-StatusCode MdtRdoToMdtPrepData::finalize()
-{
-    ATH_MSG_DEBUG( "in finalize()"  );
-    return StatusCode::SUCCESS;
 }
 
 StatusCode MdtRdoToMdtPrepData::initialize()

@@ -5,114 +5,135 @@
 #ifndef TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
 #define TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
 
-//Root include(s)
+#include "tauRecTools/TauRecToolBase.h"
+
+#include "xAODTau/TauJet.h"
+
 #include "TH1F.h"
 #include "TF1.h"
 #include "TGraph.h"
 
-//tauRecTools include(s)
-#include "tauRecTools/TauRecToolBase.h"
+#include <array>
+#include <string>
 
-//xAOD include(s)
-#include "xAODTau/TauJet.h"
-
-class CombinedP4FromRecoTaus
-: public TauRecToolBase
-{
+class CombinedP4FromRecoTaus : public TauRecToolBase {
 public:
   ASG_TOOL_CLASS2( CombinedP4FromRecoTaus, TauRecToolBase, ITauToolBase )
 
-  //standard constructor
   CombinedP4FromRecoTaus(const std::string& name="CombinedP4FromRecoTaus");  
     
-  //function where variables are computed and decorated
   virtual StatusCode initialize() override;
-        
+      
   virtual StatusCode execute(xAOD::TauJet& xTau) const override;
 
+  /** Whether to use calo pt, invoked by TauSmearing tool */
   bool getUseCaloPtFlag(const xAOD::TauJet& tau) const;
+  
+  /** Get the resolution of Et at the calo TES, invoked by METSignificance */
+  double getCaloResolution(const xAOD::TauJet& tau) const;
 
 private:
   struct Variables
   {
+    double pt_constituent{0.0};
+    double pt_tauRecCalibrated{0.0};
+    double pt_weighted{0.0};
     double weight{-1111.0};
-    double combined_res{-1111.};
+    double sigma_combined{-1111.};
     double sigma_tauRec{-1111.0};
     double sigma_constituent{-1111.0};
     double corrcoeff{-1111.0};
-    double et_weighted{0.0};
-    double et_cb2PT_postcalib{0.0};
-    double et_postcalib{0.0};
   };
 
-  // Get correlation coefficient for the given decay mode
-  double getCorrelationCoefficient(const int& etaIndex, const xAOD::TauJetParameters::DecayMode& decayMode) const;
-    
-  double getWeightedEt(const double& et_tauRec, 
-		       const double& et_cb2PT,
-		       const int& etaIndex,
-		       const xAOD::TauJetParameters::DecayMode& mode,
-                       Variables& variables) const;
+  /** Get the weighted four momentum of calo TES and PanTau */
+  TLorentzVector getCombinedP4(const xAOD::TauJet& tau, Variables& variables) const;
 
-  double getResolutionTaurec(const double& et, const int& etaIndex, const xAOD::TauJetParameters::DecayMode& mode) const;
+  /** Whether the tau candidate is valid for the calculation */
+  bool isValid(const xAOD::TauJet& tau) const;
 
-  double getResolutionCellBased2PanTau(const double& et, const int& etaIndex, const xAOD::TauJetParameters::DecayMode& mode) const;
+  /** Get the index of eta in the calibration histogram */
+  int getEtaIndex(const float& eta) const;
 
-  double getMeanTauRec(const double& et, const int& etaIndex, const xAOD::TauJetParameters::DecayMode& mode) const;
-
-  double getMeanCellBased2PanTau(const double& et, const int& etaIndex, const xAOD::TauJetParameters::DecayMode& mode) const;
-
-  double getCombinedResolution(const double& et_tauRec,
-                               const double& et_cb2PT,
-                               const int& etaIndex,
-                               const xAOD::TauJetParameters::DecayMode& mode,
-                               Variables& variables) const;
-
-  double getTauRecEt(const double& et, const int& etaIndex, const xAOD::TauJetParameters::DecayMode& mode, double& et_postcalib) const;
-
-  double getCellbased2PantauEt(const double& et_cb2PT,
-                               const int& etaIndex,
-                               const xAOD::TauJetParameters::DecayMode& mode,
-                               double& et_cb2PT_postcalib) const;
-
-  //Calculates the optimal tau Et 
-  double getCombinedEt(const double& et_tauRec,
-		       const double& et_substructure,
-		       const float& eta,
-		       const xAOD::TauJetParameters::DecayMode& mode,
-                       Variables& variables) const;
-
-
-  //Calculates the optimal tau 4-vector
-  TLorentzVector getCombinedP4(const xAOD::TauJet& tau,
-                               Variables& variables) const;
-
-  // Get the enum-value for eta corresponding to the eta value
-  int getIndexEta(const float& eta) const;
-
-  float getNsigmaCompatibility(const float& et_TauRec) const;
-
-  //high pt flag
-  double getCaloResolution(const xAOD::TauJet& tau) const;
-
-  const std::vector<std::string> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
-  const std::vector<std::string> m_etaBinNames = {"0", "1", "2", "3", "4"};//("<0.3"), ("<0.8"), ("<1.3"), ("<1.6"), ("<2.5")
+  /** Get the decay mode of the tau candidate */
+  xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& tau) const;
   
-  /// row: size of m_etaBinNames, column: size of m_modeNames
-  std::vector<std::vector<std::unique_ptr<TGraph>>> m_meanTGraph_CellBased2PanTau; 
-  std::vector<std::vector<std::unique_ptr<TGraph>>> m_resTGraph_CellBased2PanTau;
+  /** Get the index of decay mode in the calibration histogram */
+  int getDecayModeIndex(const xAOD::TauJetParameters::DecayMode& decayMode) const;
+
+  /** Get correlation coefficient between the calo TES and PanTau */
+  double getCorrelation(const int& decayModeIndex, const int& etaIndex) const;
   
-  std::vector<std::vector<std::unique_ptr<TGraph>>> m_meanTGraph_tauRec;
-  std::vector<std::vector<std::unique_ptr<TGraph>>> m_resTGraph_tauRec;
+  /** Get the resolution of Et at the calo TES */
+  double getCaloResolution(const double& et, const int& decayModeIndex, const int& etaIndex) const;
+  
+  /** Get the resolution of Et at PanTau */
+  double getPanTauResolution(const double& et, const int& decayModeIndex, const int& etaIndex) const;
+  
+  /** Get the Et at the calo TES after calibration correction */ 
+  double getCaloCalEt(const double& et, const int& decayModeIndex, const int& etaIndex) const;
 
-  /// size of m_modeNames
-  std::vector<std::unique_ptr<TH1F>> m_correlationHists;
+  /** Get the Et at PanTau after calibration correction */ 
+  double getPanTauCalEt(const double& panTauEt, const int& decayModeIndex, 
+                          const int& etaIndex) const;
+ 
+  /** Get the weight of calo TES */
+  double getWeight(const double& caloSigma, const double& panTauSigma, const double& correlatioon) const;
 
+  /** Get the combined sigma of calo TES and PanTau */
+  double getCombinedSigma(const double& caloSigma, const double& panTauSigma, const double& correlation) const;
+
+  /** Get the combined Et of calo TES and PanTau */
+  double getCombinedEt(const double& caloEt, const double& et_substructure,
+		               const xAOD::TauJetParameters::DecayMode& decayMode, const float& eta, 
+                       Variables& variables) const;
+  
+  /** Get the allowed difference between calo TES and PanTau */ 
+  double getNsigmaCompatibility(const double& caloEt) const;
+
+  /// Switch of adding the intermediate results
   bool m_addCalibrationResultVariables;
-  bool m_addUseCaloPtFlag;
-  std::string m_sWeightFileName;
   
-  std::unique_ptr<TF1> m_Nsigma_compatibility; //!
+  /// Name of the calibration file 
+  std::string m_calFileName;
+  
+  /// Binning in the calibraction graph/hist
+  enum Binning {DecayModeBinning = 5, EtaBinning = 5};
+
+  /// Decay mode binning in the calibration graph/hist
+  const std::array<std::string, DecayModeBinning> m_decayModeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"}; //!
+  
+  /// Eta binning in the calibration graph
+  const std::array<std::string, EtaBinning> m_etaBinNames = {"0", "1", "2", "3", "4"}; //!
+  
+  /// Calibration graph: mean of bias/caloEt as a function of caloEt
+  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_caloRelBias; //!
+
+  /// Maximum Et of m_caloRelBias
+  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_caloRelBiasMaxEt; //!
+
+  /// Calibration graph: resolution at Calo TES as a function of caloEt
+  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_caloRes; //!
+
+  /// Maximum Et of m_caloRes
+  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_caloResMaxEt; //!
+
+  /// Calibration graph: mean of bias/panTauEt as a funtion of panTauEt
+  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_panTauRelBias; //!
+  
+  /// Maximum Et of m_panTauRelBias
+  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_panTauRelBiasMaxEt; //!
+
+  /// Calibration graph: resolution at PanTau as a function of panTauEt
+  std::array<std::array<std::unique_ptr<TGraph>, DecayModeBinning>, EtaBinning> m_panTauRes; //!
+  
+  /// Maximum Et of m_panTauRes
+  std::array<std::array<double, DecayModeBinning>, EtaBinning> m_panTauResMaxEt; //!
+  
+  /// Calibration histogram: correlation coefficient of calo TES and PanTau
+  std::array<std::unique_ptr<TH1F>, DecayModeBinning> m_correlationHists; //!
+
+  /// Calibration histogram: maximum tolerence in unit of combined sigma
+  std::unique_ptr<TF1> m_nSigmaCompatibility; //!
 };
 
 #endif // TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H

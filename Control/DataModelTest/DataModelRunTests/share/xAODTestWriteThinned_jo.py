@@ -58,8 +58,6 @@ topSequence += DMTest__xAODTestThinCVec ("xAODTestThinCVec2b", Stream = 'Thinned
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
-theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
-
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec#cvec"]
@@ -74,26 +72,27 @@ fullItemList+=["DMTest::CLinksContainer#clinksContainer2"]
 fullItemList+=["DMTest::CLinksAuxContainer#clinksContainer2Aux."]
 fullItemList+=["DMTest::CLinksAOD#clinksAOD"]
 
-from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
-fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
-                                    ['DataVector<DMTest::C_v1>',
-                                     'DMTest::CAuxContainer_v1',
-                                     'DMTest::C_v1',
-                                     'DMTest::CLinks_v1',
-                                     'DataVector<DMTest::CLinks_v1>',
-                                     'DMTest::CLinksAuxInfo_v1',
-                                     'DMTest::CLinksAuxContainer_v1',
-                                     ])
-ServiceMgr += fmtsvc
-
 # Stream's output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 Thinned1_Augmented = MSMgr.NewPoolStream ('Thinned1', 'xaodthinned1.root', asAlg=True, noTag=True)
-Thinned1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Thinned1 = Thinned1_Augmented.GetEventStream()
 Thinned1.WritingTool.SubLevelBranchName = '<key>'
 # List of DO's to write out
 Thinned1.ItemList   += fullItemList
+
+from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatStreamHelperTool
+for tool in Thinned1.HelperTools:
+    if isinstance(tool, xAODMaker__EventFormatStreamHelperTool):
+        tool.TypeNames += [
+            'DataVector<DMTest::C_v1>',
+            'DMTest::CAuxContainer_v1',
+            'DMTest::C_v1',
+            'DMTest::CLinks_v1',
+            'DataVector<DMTest::CLinks_v1>',
+            'DMTest::CLinksAuxInfo_v1',
+            'DMTest::CLinksAuxContainer_v1',
+        ]
+        break
 
 
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]

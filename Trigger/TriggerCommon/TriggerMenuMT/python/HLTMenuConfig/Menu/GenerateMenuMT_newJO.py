@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import seqAND
 
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
@@ -105,19 +104,9 @@ def generateMenu( flags ):
     log.info('Obtained Menu Chain objects')
 
     # pass all menuChain to CF builder
-    useReworked = True
-
-    if useReworked:
-        menuAcc.wasMerged()
-        menuAcc = generateDecisionTree(menuChains)
-    else:
-        menuAcc.wasMerged()
-        menuAcc = ComponentAccumulator()
-        mainSequenceName = 'HLTAllSteps'
-        menuAcc.addSequence( seqAND(mainSequenceName) )
-        chainsAcc = generateDecisionTreeOld(menuAcc.getSequence(mainSequenceName), menuChains, allChainDicts)
-        menuAcc.merge(chainsAcc)
-
+    menuAcc.wasMerged()
+    menuAcc = generateDecisionTree(menuChains)
+    
     menuAcc.printConfig()
 
     log.info('CF is built')

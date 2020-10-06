@@ -27,6 +27,10 @@ if __name__=='__main__':
                         help='Maximum number of events to process (alias for --evtMax)')
     parser.add_argument('--printDetailedConfig', action='store_true',
                         help='Print detailed Athena configuration')
+    parser.add_argument('--threads', type=int, default=0,
+                        help='Number of threads/concurrent events')
+    parser.add_argument('--perfmon', action='store_true',
+                        help='Run perfmon')
     args, _ = parser.parse_known_args()
 
     # Setup the Run III behavior
@@ -37,6 +41,10 @@ if __name__=='__main__':
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import *
     log.setLevel(INFO)
+
+    # set threads
+    ConfigFlags.Concurrency.NumThreads=args.threads
+    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
@@ -68,6 +76,10 @@ if __name__=='__main__':
                         ConfigFlags.DQ.Environment)
             log.warning('Will proceed but best guess is this is an error')
 
+    # perfmon
+    if args.perfmon:
+        ConfigFlags.PerfMon.doFullMonMT=True
+
     if args.preExec:
         # bring things into scope
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
@@ -97,6 +109,16 @@ if __name__=='__main__':
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
 
+    # add FPE auditor
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    cfg.addService(CompFactory.AuditorSvc(Auditors=[CompFactory.FPEAuditor().getFullJobOptName()]))
+
+    # add perfmon
+    if args.perfmon:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
+
+
     if isReadingRaw:
         # attempt to start setting up reco ...
         from CaloRec.CaloRecoConfig import CaloRecoCfg
@@ -111,7 +133,6 @@ if __name__=='__main__':
 
     # Force loading of conditions in MT mode
     if ConfigFlags.Concurrency.NumThreads > 0:
-        from AthenaConfiguration.ComponentFactory import CompFactory
         if len([_ for _ in cfg._conditionsAlgs if _.name=="PixelDetectorElementCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
             beginseq.Members.append(CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg"))

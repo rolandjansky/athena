@@ -6,33 +6,13 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-inline void GeoSiHit::init() {
-
-  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if(detStore->retrieve(s_sct,"SCT").isFailure()){
-   //if SCT retrieval fails, try ITkStrip		
-   if(detStore->retrieve(s_sct,"ITkStrip").isFailure()) s_sct=0;
-  }
-  if(detStore->retrieve(s_pix,"Pixel").isFailure()){
-   //if Pixel retrieval fails, try ITkPixel
-   if(detStore->retrieve(s_pix,"ITkPixel").isFailure()) s_pix = 0;
-  }	
-  if(detStore->retrieve(s_sID,"SCT_ID").isFailure())
-	s_sID = 0;
-  if(detStore->retrieve(s_pID,"PixelID").isFailure())
-	s_pID = 0;
-}
-
 
 inline GeoSiHit::GeoSiHit (const SiHit & h) {
   m_hit = &h;
-  if (!s_sct || ! s_pix) init();
 }
 
 inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
@@ -43,19 +23,19 @@ inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
   const InDetDD::SiDetectorElement *geoelement=NULL;
   if (m_hit->isPixel()) {
     
-    id = s_pID->wafer_id(Barrel,
+    id = pixID()->wafer_id(Barrel,
 			m_hit->getLayerDisk(), 
 			m_hit->getPhiModule(), 
 			m_hit->getEtaModule());
-    geoelement = s_pix->getDetectorElement(id);      
+    geoelement = pixMgr()->getDetectorElement(id);      
   }
   else {
-    id = s_sID->wafer_id(Barrel,
+    id = sctID()->wafer_id(Barrel,
 			m_hit->getLayerDisk(), 
 			m_hit->getPhiModule(), 
 			m_hit->getEtaModule(), 
 			m_hit->getSide() );
-    geoelement = s_sct->getDetectorElement(id);      
+    geoelement = sctMgr()->getDetectorElement(id);      
   }
   
   

@@ -19,7 +19,7 @@ TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type,
 
 StatusCode TRT_StrawStatusSummaryTool::initialize() 
 {
-  ATH_MSG_INFO("TRT_StrawStatusSummaryTool initialize method called");
+  ATH_MSG_DEBUG("TRT_StrawStatusSummaryTool initialize method called");
 
   // Get the TRT ID helper
   if (StatusCode::SUCCESS!=detStore()->retrieve(m_trtId,"TRT_ID")) {
@@ -42,7 +42,7 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
     }
   }
 
-  ATH_MSG_INFO("TRT_StrawStatusSummaryTool initialized successfully  ");
+  ATH_MSG_DEBUG("TRT_StrawStatusSummaryTool initialized successfully  ");
   return StatusCode::SUCCESS;
 }
 
@@ -51,7 +51,6 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
 
 StatusCode TRT_StrawStatusSummaryTool::finalize()
 {
-  ATH_MSG_INFO(" in finalize() ");
   return StatusCode::SUCCESS;
 }
 

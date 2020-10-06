@@ -41,7 +41,7 @@
 
 #include <iostream>
 
-InDetServMatFactory::InDetServMatFactory(const InDetDD::AthenaComps * athenaComps)
+InDetServMatFactory::InDetServMatFactory(InDetDD::AthenaComps * athenaComps)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_manager(0)
 {  
@@ -56,7 +56,7 @@ InDetServMatFactory::~InDetServMatFactory()
 
 
 //## Other Operations (implementation)
-void InDetServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world ) // Thread unsafe rdbAccessSvc method and InDetMaterialManager constructor are used.
+void InDetServMatFactory::create(GeoPhysVol *world )
 {
 
   // create a new det manager

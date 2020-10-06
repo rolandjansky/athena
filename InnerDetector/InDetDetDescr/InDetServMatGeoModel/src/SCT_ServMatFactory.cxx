@@ -32,7 +32,7 @@
 #include <sstream>
 #include <iostream>
 
-SCT_ServMatFactory::SCT_ServMatFactory(const InDetDD::AthenaComps * athenaComps)
+SCT_ServMatFactory::SCT_ServMatFactory(InDetDD::AthenaComps * athenaComps)
   : InDetDD::SubDetectorFactoryBase(athenaComps)
 {
 }
@@ -44,7 +44,7 @@ SCT_ServMatFactory::~SCT_ServMatFactory()
 
 
 //## Other Operations (implementation)
-void SCT_ServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc method and InDetMaterialManager constructor are used.
+void SCT_ServMatFactory::create(GeoPhysVol *mother)
 {
 
   msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;

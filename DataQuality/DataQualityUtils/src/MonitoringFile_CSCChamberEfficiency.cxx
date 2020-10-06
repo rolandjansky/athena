@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Methods to perform post-processing on run_nnnnnn/Muon/MuonSegmMonitoring/EndCapN/Detail/<Collection>/CSC* histograms
@@ -40,8 +40,6 @@ namespace dqutils {
     bool dbgLevel = false;
     if(dbgLevel) std::cout << "--> CSCChamberEfficiency: Calculate chamber efficiency by layer" << std::endl;
     std::string endc_label[2] = {"A","C"};
-    //std::string coll_dir_label[2] = {"ConvertedMBoySegments","MooreSegments"};
-    //std::string coll_hist_label[2] = {"MuBoy","Moore"};
     std::string coll_dir_label[1] = {"MuonSegments"};
     std::string coll_hist_label[1] = {"Muon"};
 

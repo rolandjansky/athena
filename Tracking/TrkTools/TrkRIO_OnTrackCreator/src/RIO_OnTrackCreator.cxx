@@ -34,12 +34,12 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
      m_muonDriftCircleCor("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackTool", this),
      m_muonClusterCor    ("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackTool", this),
      m_mmClusterCor      ("Muon::MMClusterOnTrackCreator/MMClusterOnTrackTool", this),
+     m_mode ("all"),
+     m_nwarning (new int(0)),
      m_doPixel(true),
      m_doSCT(true),
      m_doTRT(true)
  {
-   m_mode     = "all";
-   m_nwarning = new int(0);
    declareInterface<IRIO_OnTrackCreator>(this);
    declareProperty("ToolPixelCluster"   ,m_pixClusCor);
    declareProperty("ToolSCT_Cluster"    ,m_sctClusCor);

@@ -52,6 +52,30 @@ def getAtlasExtrapolator():
     return theAtlasExtrapolator
 
 ########################################################################
+def getTauVertexCorrection():
+    from tauRec.tauRecFlags import tauFlags
+    from tauRecTools.tauRecToolsConf import TauVertexCorrection
+
+    _name = sPrefix + 'TauVertexCorrection'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+  
+    # FIXME:doJetVertexCorrection need to be False even though origin correction
+    # is turned on in jet reconstruction. 
+    # If the seed jet is PFlow jets, then the tau axis will be corrected to point 
+    # at PV0, but the clusters will not be corrected.
+
+    doJetVertexCorrection = False
+
+    myTauVertexCorrection = TauVertexCorrection(name = _name,
+                                                SeedJet = tauFlags.tauRecSeedJetCollection(), 
+                                                VertexCorrection = doVertexCorrection,
+                                                JetVertexCorrection = doJetVertexCorrection)
+    
+    cached_instances[_name] = myTauVertexCorrection
+    return myTauVertexCorrection
+
 # JetSeedBuilder
 def getJetSeedBuilder():
     _name = sPrefix + 'JetSeedBuilder'
@@ -76,7 +100,8 @@ def getTauAxis():
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    VertexCorrection = doVertexCorrection
+                                    VertexCorrection = doVertexCorrection,
+                                    TauVertexCorrection = getTauVertexCorrection()
                                   )
     # No Axis correction at trigger level
                                     
@@ -123,7 +148,8 @@ def getMvaTESVariableDecorator():
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
-    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name,
+                                                      TauVertexCorrection = getTauVertexCorrection())
 
     MvaTESVariableDecorator.Key_vertexInputContainer = ""
 
@@ -338,7 +364,6 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
                                               )
@@ -357,7 +382,7 @@ def getTauSubstructure():
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          VertexCorrection = doVertexCorrection
+                                                          TauVertexCorrection = getTauVertexCorrection()
                                                         )
     
     cached_instances[_name] = TauSubstructureVariables
@@ -682,7 +707,8 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut,
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                     BypassSelector = noSelector,
-                                    BypassExtrapolator = True
+                                    BypassExtrapolator = True,
+                                    TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator()
                                     )
     # Selector not needed for fast-tracks
     # Extrapolator never needed
@@ -745,7 +771,8 @@ def getTauIDVarCalculator():
     
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauIDVarCalculator            
-    TauIDVarCalculator = TauIDVarCalculator(name=_name)
+    TauIDVarCalculator = TauIDVarCalculator(name=_name,
+                                            TauVertexCorrection=getTauVertexCorrection())
     
     ToolSvc += TauIDVarCalculator                                 
     cached_instances[_name] = TauIDVarCalculator
@@ -797,7 +824,8 @@ def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", 
                                       InputLayerTracks=InputLayerTracks,
                                       InputLayerClusters=InputLayerClusters,
                                       OutputLayer=OutputLayer,
-                                      OutputNode=OutputNode)
+                                      OutputNode=OutputNode,
+                                      TauVertexCorrection=getTauVertexCorrection())
 
     ToolSvc += TauJetRNNEvaluator
     cached_instances[_name] = TauJetRNNEvaluator

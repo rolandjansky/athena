@@ -27,4 +27,4 @@ if _doPi0Clus:
     include("tauRec/Pi0ClusterMaker_jobOptions.py")
 
 from tauRec.TauRecRunner import TauRecRunner
-TauRecRunner(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
+TauRecRunner(doPi0Clus=_doPi0Clus)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * JetMatch.cpp
@@ -19,10 +19,9 @@
 
 REGISTER_ALG_TCS(JetMatch)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::JetMatch::JetMatch(const std::string & name) : DecisionAlg(name)
@@ -80,15 +79,15 @@ TCS::JetMatch::process( const std::vector<TCS::TOBArray const *> & input,
    }
 
    // vector of passing tob
-   vector<TCS::GenericTOB*> TOBvector;
+   std::vector<TCS::GenericTOB*> TOBvector;
 
    // loop over all jets
    unsigned int objC(0);
    for( TCS::GenericTOB * tob : *input[0]) {
       ++objC;
 
-      if( parType_t(fabs(tob->eta())) > p_EtaMax ) continue; // Eta cut
-      if( parType_t(fabs(tob->eta())) < p_EtaMin ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) < p_EtaMin ) continue; // Eta cut
       if( tob->EtWide() <= p_MinET1 ) continue; // E_T cut
 
       if( tob->EtNarrow() <= p_MinET2 ) continue; // E_T cut

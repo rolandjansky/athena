@@ -8,12 +8,14 @@
 #include "GeoVPixelFactory.h"
 class GeoPixelServices;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelEndCap : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelEndCap : public GeoVPixelFactory {
  public:
-  GeoPixelEndCap(const GeoPixelServices * pixServices);
-  virtual GeoVPhysVol* Build();
+  GeoPixelEndCap(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelServices * pixServices);
+  virtual GeoVPhysVol* Build() override;
  private:
-  const GeoPixelServices * m_pixServices;
+  GeoPixelServices * m_pixServices;
 };
 
 #endif

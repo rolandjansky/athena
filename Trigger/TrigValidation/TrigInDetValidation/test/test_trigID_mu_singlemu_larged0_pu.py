@@ -81,7 +81,7 @@ if ((not exclude) or postproc ):
     rdict.args='TIDAdata-run3.dat -f data-hists.root -p 13 -b Test_bin.dat '
     test.check_steps.append(rdict)
     rdict2 = TrigInDetdictStep('TrigInDetDict2')
-    rdict2.args='TIDAdata-run3.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
+    rdict2.args='TIDAdata-run3-offline.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
     test.check_steps.append(rdict2)
 
  
@@ -99,19 +99,19 @@ comp4=TrigInDetCompStep('Comp_EFmuonLowpt','EF','muon',lowpt=True)
 test.check_steps.append(comp4)
 
 comp5=TrigInDetCompStep('Comp_L2muon_off','L2','muon')
-comp5.type = 'offl'
+comp5.type = 'offline'
 test.check_steps.append(comp5)
   
 comp6=TrigInDetCompStep('Comp_EFmuon_off','EF','muon')
-comp6.type = 'offl'
+comp6.type = 'offline'
 test.check_steps.append(comp6)
 
 comp7=TrigInDetCompStep('Comp_L2muonLowpt_off','L2','muon',lowpt=True)
-comp7.type = 'offl'
+comp7.type = 'offline'
 test.check_steps.append(comp7)
   
 comp8=TrigInDetCompStep('Comp_EFmuonLowpt_off','EF','muon',lowpt=True)
-comp8.type = 'offl'
+comp8.type = 'offline'
 test.check_steps.append(comp8)
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)

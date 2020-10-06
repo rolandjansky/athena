@@ -92,6 +92,8 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.RandomSeedOffset", 0)
     # Digitization extra input dependencies
     flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
+    # Override the HIT file Run Number with one from a data run
+    flags.addFlag("Digitization.DataRunNumber", -1)
     
     # for PileUp digitization
     # Beam Halo input collections

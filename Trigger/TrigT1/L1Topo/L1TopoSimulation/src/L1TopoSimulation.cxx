@@ -104,6 +104,11 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
 LVL1::L1TopoSimulation::~L1TopoSimulation()
 {}
 
+bool
+LVL1::L1TopoSimulation::isClonable() const
+{
+   return true;
+}
 
 StatusCode
 LVL1::L1TopoSimulation::initialize() {

@@ -38,7 +38,6 @@
 - PhysicsAnalysis/D3PDTools/MultiDraw
 - PhysicsAnalysis/D3PDTools/SampleHandler
 - PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
-- PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 - PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 - PhysicsAnalysis/JetPhys/SemileptonicCorr
 - PhysicsAnalysis/SUSYPhys/SUSYTools
@@ -64,4 +63,3 @@
 # Old packages that don't work with AthenaMT
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
-

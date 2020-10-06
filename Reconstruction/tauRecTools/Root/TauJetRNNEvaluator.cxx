@@ -3,12 +3,13 @@
 */
 
 #include "tauRecTools/TauJetRNNEvaluator.h"
+#include "tauRecTools/TauJetRNN.h"
+#include "tauRecTools/HelperFunctions.h"
+
+#include "PathResolver/PathResolver.h"
 
 #include <algorithm>
 
-#include "PathResolver/PathResolver.h"
-#include "tauRecTools/TauJetRNN.h"
-#include "tauRecTools/HelperFunctions.h"
 
 TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name): 
     TauRecToolBase(name),
@@ -31,13 +32,15 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name):
     declareProperty("OutputLayer", m_output_layer = "rnnid_output");
     declareProperty("OutputNode", m_output_node = "sig_prob");
     
-    declareProperty("IncShowerSubtr", m_incShowerSubtr = true, "use shower subtracted clusters in calo calculations");
+    declareProperty("UseSubtractedCluster", m_useSubtractedCluster = true, "use shower subtracted clusters in calo calculations");
 }
 
 TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
 
 StatusCode TauJetRNNEvaluator::initialize() {
     ATH_MSG_INFO("Initializing TauJetRNNEvaluator");
+  
+    ATH_CHECK(m_tauVertexCorrection.retrieve()); 
 
     std::string weightfile_0p("");
     std::string weightfile_1p("");
@@ -177,23 +180,34 @@ StatusCode TauJetRNNEvaluator::get_tracks(
 StatusCode TauJetRNNEvaluator::get_clusters(
     const xAOD::TauJet &tau, std::vector<const xAOD::CaloCluster *> &out) const {
 
-    const xAOD::Jet *jet_seed = tau.jet();
-    if (!jet_seed) {
+    if (! tau.jetLink().isValid()) {
         ATH_MSG_ERROR("Tau jet link is invalid.");
         return StatusCode::FAILURE;
     }
+    const xAOD::Jet *jetSeed = tau.jet();
+    
+    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    
+    const xAOD::Vertex* tauVertex = nullptr;
+    if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
+    
+    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
 
     std::vector<const xAOD::CaloCluster*> clusters;
-    ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusters, m_incShowerSubtr));
+    ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusters, m_useSubtractedCluster));
 
     // remove clusters that do not meet dR requirement
     auto cItr = clusters.begin();
     while( cItr != clusters.end() ){
-      const auto lc_p4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
-      if (lc_p4.DeltaR((*cItr)->p4()) > m_max_cluster_dr) {
+      const xAOD::CaloCluster* cluster = (*cItr);
+      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+
+      if (tauAxis.DeltaR(clusterP4) > m_max_cluster_dr) {
         clusters.erase(cItr);
       }
-      else ++cItr;
+      else {
+        ++cItr;
+      }
     }
 
     // Sort by descending et

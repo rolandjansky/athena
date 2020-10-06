@@ -42,10 +42,9 @@ class TauRecRunner ( TauRecRunConfigured ) :
   
     _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey }
     
-    def __init__(self, name = "TauRecRunner",doPi0Clus=False, doTJVA=False):
+    def __init__(self, name = "TauRecRunner",doPi0Clus=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
-        self.do_TJVA = doTJVA # not used in the TauRecRunner?
         TauRecRunConfigured.__init__(self, name)
 
 
@@ -122,6 +121,11 @@ class TauRecRunner ( TauRecRunConfigured ) :
                                                        weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
                                                        maxAbsTrackEta=3.0, outputVarName="BDTEleScore"))
             tools.append(taualgs.getTauWPDecoratorEleBDT())
+            tools.append(taualgs.getTauEleRNNEvaluator("TauEleRNN",
+                                                         NetworkFile1P="rnneveto_mc16d_config_1p.json",
+                                                         NetworkFile3P="rnneveto_mc16d_config_3p.json",
+                                                         OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
+            tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
             tools.append(taualgs.getTauEleOLRDecorator())              
             

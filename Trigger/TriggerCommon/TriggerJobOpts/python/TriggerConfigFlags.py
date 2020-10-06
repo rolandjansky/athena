@@ -154,6 +154,9 @@ def createTriggerFlags():
     # list of objects to be written to ESD
     flags.addFlag('Trigger.ESDEDMSet', 'ESD')
 
+    # to allow stroing extra EDM items via preExec
+    flags.addFlag('Trigger.ExtraEDMList', [])
+
     # tag to be used for condutions used by HLT code
     flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
 
@@ -275,6 +278,8 @@ def createTriggerFlags():
         return createMuonConfigFlags()
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
+    from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
+    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
 
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags
     flags.join( createMenuFlags() )

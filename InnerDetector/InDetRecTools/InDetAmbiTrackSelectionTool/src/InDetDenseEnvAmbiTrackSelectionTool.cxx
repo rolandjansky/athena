@@ -25,6 +25,7 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
 #include "TString.h"
 
@@ -117,9 +118,9 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
 }
 
 //============================================================================================
-std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack ATLAS_NOT_THREAD_SAFE // This method uses thread unsafe updatePixelClusterInformation method and is not thread safe.
-                                                                                           (const Trk::Track* ptrTrack, 
+std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *ptrTrack,
                                                                                             const Trk::TrackScore score,
+                                                                                            Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                                                             Trk::PRDtoTrackMap &prd_to_track_map) const
 {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
@@ -165,11 +166,11 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
   TSoS_Details    tsosDetails(tsos->size());
   
   // Fill structs will information
-  fillTrackDetails( ptrTrack, prd_to_track_map, trackHitDetails, tsosDetails );
+  fillTrackDetails( ptrTrack, splitProbContainer, prd_to_track_map, trackHitDetails, tsosDetails);
   
   //Decide which hits to keep
   ATH_MSG_DEBUG ("DecideWhichHitsToKeep");
-  bool TrkCouldBeAccepted = decideWhichHitsToKeep( ptrTrack,  score,  prd_to_track_map, trackHitDetails, tsosDetails, nCutTRT, ent );
+  bool TrkCouldBeAccepted = decideWhichHitsToKeep( ptrTrack,  score,  splitProbContainer, prd_to_track_map, trackHitDetails, tsosDetails, nCutTRT, ent );
   
   ATH_MSG_DEBUG ("DecidedWhichHitsToKeep " << TrkCouldBeAccepted );
     
@@ -235,7 +236,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
 
     //  Change pixel hits property for shared hits as this track will be accepted into the final track colection
     if (!trackHitDetails.isPatternTrack){
-      updatePixelClusterInformation( tsosDetails ); 
+      setPixelClusterSplitInformation( tsosDetails, splitProbContainer );
     }
 
     return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
@@ -310,7 +311,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
         
         bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
         
-        int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits, ent);
+        int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, splitProbContainer, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits, ent);
 
 
         // now decide what to do, can we keep the shared hit
@@ -365,7 +366,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
 
       //  Change pixel hits property for shared hits as this is track will be accepeted into the final track colection
       if (!trackHitDetails.isPatternTrack){
-        updatePixelClusterInformation( tsosDetails ); 
+        setPixelClusterSplitInformation( tsosDetails, splitProbContainer ); 
       }
       ATH_MSG_DEBUG ("reject track; maybe track was mark as rejected, but we recoverd it so no rejection");
       return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
@@ -397,6 +398,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
 
 int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const Trk::RIO_OnTrack* rot,
                                                                           const bool isSplitable,
+                                                                          Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                                           Trk::PRDtoTrackMap &prd_to_track_map,
                                                                           int& maxiShared, 
                                                                           int& maxothernpixel, 
@@ -449,7 +451,8 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
           isPixel = true;
           const InDet::PixelCluster* constPixelCluster = dynamic_cast<const InDet::PixelCluster*> ( prdToCheck  );    
           if (constPixelCluster){    
-            if ( constPixelCluster->isSplit() ) {
+             const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = splitProbContainer.splitProbability(constPixelCluster);
+             if ( splitProb.isSplit() )  {
               isSplitPixel = true;
             }
           }
@@ -497,9 +500,10 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
 
 
 void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Track* ptrTrack,
+                                                                  Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                                   const Trk::PRDtoTrackMap &prd_to_track_map,
                                                                   TrackHitDetails& trackHitDetails, 
-                                                                  TSoS_Details& tsosDetails ) const
+                                                                  TSoS_Details& tsosDetails) const
 { 
 
   ATH_MSG_DEBUG ("filltrackdetails just got called "); //WPM
@@ -596,12 +600,13 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
         tsosDetails.type[index]    = RejectedHit;
         continue; 
       } else {
-        if ( !clus->tooBigToBeSplit() )  {                
-          tsosDetails.splitProb1[index] = clus->splitProbability1();
-          tsosDetails.splitProb2[index] = clus->splitProbability2();      
+        const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = splitProbContainer.splitProbability(clus);
+        if ( !splitProb.isTooBigToBeSplit() )  {
+          tsosDetails.splitProb1[index] = splitProb.splitProbability1();
+          tsosDetails.splitProb2[index] = splitProb.splitProbability2();
         } else {
           tsosDetails.splitProb1[index] = 0.51;
-          tsosDetails.splitProb2[index] = 0.51;        
+          tsosDetails.splitProb2[index] = 0.51;
         }
       }
     }
@@ -717,6 +722,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 
 bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk::Track* ptrTrack,
                                                                        const Trk::TrackScore score,
+                                                                       Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                                        Trk::PRDtoTrackMap &prd_to_track_map,
                                                                        TrackHitDetails& trackHitDetails,
                                                                        TSoS_Details& tsosDetails,
@@ -1198,7 +1204,15 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         bool maxotherhasblayer = false;
         bool otherfailsMinUniqueHits = false;
         bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
-        int numberOfTracksWithThisPrd = checkOtherTracksValidity( tsosDetails.RIO[index], isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits, ent);
+        int numberOfTracksWithThisPrd = checkOtherTracksValidity( tsosDetails.RIO[index],
+                                                                  isSplitable,
+                                                                  splitProbContainer,
+                                                                  prd_to_track_map,
+                                                                  maxiShared,
+                                                                  maxothernpixel,
+                                                                  maxotherhasblayer,
+                                                                  otherfailsMinUniqueHits,
+                                                                  ent);
  
         if (numberOfTracksWithThisPrd > 0 && ( otherfailsMinUniqueHits || maxiShared >= ent->m_maxShared )){
           TrkCouldBeAccepted = false;
@@ -1254,9 +1268,9 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
 
 }
 
-
 //==========================================================================================
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation ATLAS_NOT_THREAD_SAFE (TSoS_Details& tsosDetails) const // This method uses const_cast and is not thread safe.
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::setPixelClusterSplitInformation(TSoS_Details& tsosDetails,
+                                                                                 Trk::ClusterSplitProbabilityContainer &splitProbContainer) const
 {
 
   for (unsigned int index(0);  index  < tsosDetails.nTSoS; ++index ){
@@ -1266,13 +1280,14 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation A
 
     // And the hit is a pixel hit
     if (tsosDetails.detType[index]%10 == 1){
-      const InDet::PixelCluster* constPixelCluster = dynamic_cast<const InDet::PixelCluster*> ( tsosDetails.RIO[index]->prepRawData()  );    
-      if (constPixelCluster){
-        InDet::PixelCluster* pixelCluster = const_cast<InDet::PixelCluster*> ( constPixelCluster );    
-        if ( !pixelCluster->isSplit() ) {
-          pixelCluster->packSplitInformation( true, pixelCluster->splitProbability1(), pixelCluster->splitProbability2() );
+      const InDet::PixelCluster* pixelCluster = dynamic_cast<const InDet::PixelCluster*> ( tsosDetails.RIO[index]->prepRawData()  );
+      if (pixelCluster){
+        Trk::ClusterSplitProbabilityContainer::ProbabilityInfo *splitProb = splitProbContainer.getSplitProbability(pixelCluster);
+        if (!splitProb) {
+           splitProb = &(splitProbContainer.setSplitInformation(pixelCluster,0.f,0.f));
         }
-      } else {      
+        splitProb->setSplit(true);
+      } else {
         ATH_MSG_WARNING("Cast of a pixel cluster failed????");
       }
     }

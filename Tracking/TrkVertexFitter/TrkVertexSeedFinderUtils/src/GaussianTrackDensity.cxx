@@ -4,12 +4,12 @@
 
 #include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
 
-#include "TrkTrack/Track.h"
-#include "TrkEventPrimitives/ParamDefs.h"
 #include "GaudiKernel/PhysicalConstants.h"
-#include <limits>
+#include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkTrack/Track.h"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace Trk
 {

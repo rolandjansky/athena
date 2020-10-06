@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_LINEARSEGMENTMAKERTOOL_H
@@ -10,11 +10,6 @@
 
 class RpcIdHelper;
 
-namespace MuonGM
-{
-    class MuonDetectorManager;
-}
-
 class RPC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, public AthAlgTool
 {
 public:
@@ -23,7 +18,6 @@ public:
                                const IInterface* pIID);
 
     StatusCode initialize();
-    StatusCode Finalize();
     virtual void
       find(const std::vector<const Trk::RIO_OnTrack*>&,
 	   Trk::SegmentCollection*) const
@@ -65,7 +59,6 @@ private:
                     double& z, int& nZ,
                     double& phi, int& nPhi);
 
-    const MuonGM::MuonDetectorManager* m_pMuonMgr;
     const RpcIdHelper*                 m_pIdHelper;
     DoubleProperty                     m_fExclChi2;
 };

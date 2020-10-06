@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -516,7 +516,7 @@ void TRT_FillCablingData_SR1::defineTables()
 
      std::vector<uint32_t>::iterator it = (m_phi_to_source[my_phi]).begin();
      while ( (it != (m_phi_to_source[my_phi]).end()) && (srcId != *it) )
-	it++;
+	++it;
 
      if ( it == m_phi_to_source[my_phi].end() )
      {
@@ -540,7 +540,7 @@ void TRT_FillCablingData_SR1::defineTables()
 #endif // NOTDEF
 
   GlobalCableMap::iterator pos;
-  for ( pos=m_CableMap.begin(); pos != m_CableMap.end(); pos++ )
+  for ( pos=m_CableMap.begin(); pos != m_CableMap.end(); ++pos )
   {
      std::vector< GlobalCableMap_t *> GCM;
 
@@ -550,7 +550,7 @@ void TRT_FillCablingData_SR1::defineTables()
 
      int ConnectorCount=-1;
      std::vector< GlobalCableMap_t *>::iterator it;
-     for ( it=GCM.begin(); it != GCM.end(); it++ )
+     for ( it=GCM.begin(); it != GCM.end(); ++it )
      {
 	ConnectorCount++;
 
@@ -766,7 +766,7 @@ void TRT_FillCablingData_SR1::defineCollID()
    ATH_MSG_INFO( "In defineCollID()" );
 
    GlobalCableMap::iterator pos;
-   for ( pos=m_CableMap.begin(); pos != m_CableMap.end(); pos++ )
+   for ( pos=m_CableMap.begin(); pos != m_CableMap.end(); ++pos )
    {   
       std::vector<IdentifierHash> * vectID = new std::vector<IdentifierHash>();
       fillCollID( pos->first, *vectID);
@@ -838,7 +838,7 @@ std::vector<IdentifierHash> & ids)
 		   (my_map->FEid == "3FL2") || (my_map->FEid == "3FS") )
 	   rings |= 4;
 
-	 it++;
+	 ++it;
 	
 	 if ( it != GCM.end() )
 	 {
@@ -949,7 +949,7 @@ std::vector<IdentifierHash> & ids)
 	   return;
 	 }
 
-	 it++;
+	 ++it;
 	
 	 if ( it != GCM.end() )
 	 {
@@ -1019,7 +1019,7 @@ std::vector<uint32_t> TRT_FillCablingData_SR1::getRobID(Identifier id)
      eformat::helper::SourceIdentifier sid( *it1 );
      v.push_back(sid.code());
 
-     it1++;
+     ++it1;
   }
 
   return v;

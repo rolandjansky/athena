@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/algorithm/string.hpp>
@@ -29,15 +29,13 @@ StatusCode TrigConf::JobOptionsSvc::initialize()
   SmartIF<IProperty> joprop = &*m_josvc;
   ATH_CHECK(joprop->setProperty("TYPE", "NONE"));
 
-  //  m_optsvc = serviceLocator()->getOptsSvc();
   ATH_CHECK(m_optsvc.retrieve());
   SmartIF<IService> josvc = &*m_josvc;
   m_optsvc->set( josvc->name() + ".TYPE" , "NONE" );
 
-  
   if (m_sourceType == "FILE") {
     ATH_MSG_INFO("Reading joboptions from " << m_sourcePath.value());
-    ATH_CHECK(readOptions(m_sourcePath));
+    ATH_CHECK(readOptionsJson(m_sourcePath));
   }
   else if (m_sourceType == "DB") {
     parseDBString(m_sourcePath);
@@ -87,7 +85,7 @@ StatusCode TrigConf::JobOptionsSvc::start()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigConf::JobOptionsSvc::readOptions(const std::string& file, const std::string& /*path*/)
+StatusCode TrigConf::JobOptionsSvc::readOptionsJson(const std::string& file)
 {
   std::ifstream f(file);
   if (!f) {
@@ -100,8 +98,7 @@ StatusCode TrigConf::JobOptionsSvc::readOptions(const std::string& file, const s
 
   for (const auto& [client, props] : json["properties"].items()) {
     for (const auto& [name, value] : props.items()) {
-      ATH_CHECK(addPropertyToCatalogue(client, Gaudi::Property<std::string>(name, value.get<std::string>())));
-      // set(client + "." + name, value.get<std::string>());
+      set(client + "." + name, value.get<std::string>());
     }
   }
 
@@ -121,8 +118,7 @@ StatusCode TrigConf::JobOptionsSvc::readOptionsDB(const std::string& db_server, 
       nClients++;
       for( const auto & property : client.second ) {
         nProps++;
-        ATH_CHECK(addPropertyToCatalogue(client.first, Gaudi::Property<std::string>(property.first, property.second.data())));
-        // set(client.first + "." + property.first, property.second.data());
+        set(client.first + "." + property.first, property.second.data());
       }
     }
     ATH_MSG_INFO("Loaded job options from " << nClients << " clients with " << nProps << " in total");
@@ -146,13 +142,11 @@ StatusCode TrigConf::JobOptionsSvc::dumpOptions(const std::string& file)
 
   // Properties
   auto& json = json_file["properties"] = {};
-  for (const std::string& client : getClients()) {
-    auto props = getProperties(client);
-    if (props == nullptr) continue;
-    json[client] = {};
-    for (const Gaudi::Details::PropertyBase* p : *props) {
-      if (p) json[client][p->name()] = p->toString();
-    }
+  for (const auto& [name, value] : items()) {
+    const size_t idot = name.rfind('.');
+    const std::string client = name.substr(0, idot);
+    const std::string propname = name.substr(idot+1);
+    json[client][propname] = value;
   }
 
   // Write JSON to file
