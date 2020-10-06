@@ -12,7 +12,7 @@ from DerivationFrameworkCore.WeightMetadata import *
 
 from AthenaCommon.GlobalFlags import globalflags
 isMC = False
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
   isMC = True
 
 exot17Seq = CfgMgr.AthSequencer("EXOT17Sequence")

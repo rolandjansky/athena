@@ -12,7 +12,7 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 import DerivationFrameworkJetEtMiss.ExtendedJetCommon
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
 
@@ -97,7 +97,7 @@ EXOT21MCGenThinningTool = DerivationFramework__GenericTruthThinning(name        
                                                                    PreserveDescendants     = True,
                                                                    #PreserveGeneratorDescendants     = True,
                                                                    PreserveAncestors      = True)
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
 	ToolSvc += EXOT21MCGenThinningTool
 	thinningTools.append(EXOT21MCGenThinningTool)
 
@@ -122,7 +122,7 @@ EXOT21SlimmingHelper.AllVariables = EXOT21AllVariablesContent
 EXOT21SlimmingHelper.StaticContent = EXOT21UnslimmedContent 
 EXOT21SlimmingHelper.ExtraVariables = EXOT21ExtraVariables
 EXOT21SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     EXOT21SlimmingHelper.ExtraVariables += EXOT21ExtraTruth
 EXOT21SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT21SlimmingHelper.IncludeMuonTriggerContent = True

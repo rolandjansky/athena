@@ -119,7 +119,7 @@ listPDF["CT10"] = 52
 #listPDF["abm12lhc_4_nnlo"] = 28
 
 # skip this in data
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource() == 'geant4':
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+if DerivationFrameworkHasTruth:
     addWeights(DerivationFrameworkJob, listPDF, "")
 
