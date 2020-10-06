@@ -47,7 +47,7 @@ This package provides data classes used to access data in the conditions
   - SCT_DCSStatCondData
 
 @subsection Class for SCT_FlaggedConditionTool
-  - SCT_FlaggedCondData
+  - SCT_FlaggedCondData: Obsolete. SCT_FlaggedConditionTool uses IDCInDetBSErrContainer now.
 
 @subsection Class for SCT_MajorityConditionsTool, SCT_MajorityCondAlg
   - SCT_MajorityCondData
