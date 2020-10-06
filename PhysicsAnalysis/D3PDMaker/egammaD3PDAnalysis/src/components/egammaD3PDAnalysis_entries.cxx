@@ -1,5 +1,4 @@
 #include "../egammaDeltaEmax2Alg.h"
-#include "../egammaShowerDepthAlg.h"
 #include "../PhotonTruthAlg.h"
 #include "../ElectronRedoOQAlg.h"
 #include "../PhotonRedoOQAlg.h"
@@ -16,7 +15,6 @@
 
 
 DECLARE_COMPONENT( D3PD::egammaDeltaEmax2Alg )
-DECLARE_COMPONENT( D3PD::egammaShowerDepthAlg )
 DECLARE_COMPONENT( D3PD::PhotonTruthAlg )
 DECLARE_COMPONENT( D3PD::ElectronRedoOQAlg )
 DECLARE_COMPONENT( D3PD::PhotonRedoOQAlg )
