@@ -410,12 +410,9 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet jet_reco, xAOD::Jet& jet_truth_matched){
 
     // Get the truth jets of the event
-    const xAOD::JetContainer* jets_truth = 0;
+    const xAOD::JetContainer* jets_truth = nullptr;
 
-    if (evtStore()->retrieve( jets_truth, m_truth_jetColl).isFailure()){
-        ATH_MSG_FATAL( "Unable to retrieve jetcoll Info" );
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(evtStore()->retrieve( jets_truth, m_truth_jetColl));//If fail, it shows an Error message and exits
 
     double dRmax_truthJet = 0.75;// matching condition
     double dRmin=9999; //we will take the closest jet reco-truth
@@ -428,7 +425,7 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet jet_reco, xAOD::Jet& 
 
         double dR=jet_reco.p4().DeltaR(jet_truth->p4());
 
-        if(dRmax_truthJet < 0 || dR < dRmax_truthJet){//dRmax_truthJet < 0 the closest truth jet is used as matched dRmax_truthJet < 0 
+        if(dR < dRmax_truthJet){//The closest truth jet is used as matched
             if( dR < dRmin ){
                 dRmin=dR;
                 xAOD::JetFourMom_t p4 = jet_truth->jetP4();
