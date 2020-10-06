@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSHitCellMapping.h"
@@ -29,6 +29,15 @@ FCSReturnCode TFCSHitCellMapping::simulate_hit(Hit& hit,TFCSSimulationState& sim
     ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitCellMapping::simulate_hit: cellele="<<cellele<<" E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi());
     return FCSFatal;
   }
+}
+
+bool TFCSHitCellMapping::operator==(const TFCSParametrizationBase& ref) const
+{
+  if(TFCSParametrizationBase::compare(ref)) return true;
+  if(!TFCSParametrization::compare(ref)) return false;
+  if(!TFCSLateralShapeParametrization::compare(ref)) return false;
+
+  return true;
 }
 
 void TFCSHitCellMapping::Print(Option_t *option) const
