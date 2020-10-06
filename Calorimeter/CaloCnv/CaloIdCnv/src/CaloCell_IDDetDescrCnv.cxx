@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloIdCnv/src/CaloCell_IDDetDescrCnv.cxx
  * @author RD Schaffer, F. Ledroit, scott snyder <snyder@bnl.gov>
@@ -12,7 +10,7 @@
 
 
 #include "CaloIdCnv/CaloCell_IDDetDescrCnv.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
