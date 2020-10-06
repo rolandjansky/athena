@@ -841,7 +841,7 @@ InDet::SiTrajectoryElement_xk::trackParameters(bool cov,int Q)
         if(addCluster(m_parametersSM,m_parametersSM)){     
           return m_parametersSM.convert(cov);
         }
-        else if(m_parametersUpdatedBackward.cov()[14] < m_parametersPredForward.cov()[14]){
+        else if(m_parametersUpdatedBackward.covariance()(4, 4) < m_parametersPredForward.covariance()(4, 4)){
           return m_parametersUpdatedBackward.convert(cov);
         }
         else{
@@ -939,7 +939,7 @@ InDet::SiTrajectoryElement_xk::trackParametersWithNewDirection(bool cov,int Q)
     if(Q==0) {
       if(m_cluster) {
 	if(addCluster(m_parametersSM,m_parametersSM))                return trackParameters(m_parametersSM,cov);
-	else if(m_parametersUpdatedBackward.cov()[14] < m_parametersPredForward.cov()[14]) return trackParameters(m_parametersUpdatedBackward,cov);
+	else if(m_parametersUpdatedBackward.covariance()(4, 4) < m_parametersPredForward.covariance()(4, 4)) return trackParameters(m_parametersUpdatedBackward,cov);
 	else                                                         return trackParameters(m_parametersPredForward,cov);
       }
       else                                                           return trackParameters(m_parametersSM,cov);
@@ -1334,8 +1334,8 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
     outputParameters.setParametersWithCovariance(m_surface, p, newCov);
 
     /// check for negative diagonals in the cov
-    const double* t = &outputParameters.cov()[0];
-    if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
+    const AmgSymMatrix(5) t = outputParameters.covariance();
+    if(t(0, 0)<=0. || t(1, 1)<=0. || t(2, 2)<=0. || t(3, 3)<=0. || t(4, 4)<=0.) return false;
   } else {
     /// write into output parameters. Assign our surface to them
     outputParameters.setParameters(m_surface,p);

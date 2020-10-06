@@ -982,19 +982,20 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
 void InDet::TRT_Trajectory_xk::updateTrackParameters(Trk::PatternTrackParameters& T)
 {
-  if(m_parameters.cov()[14] >= T.cov()[14]) return;
+
+  if(m_parameters.covariance()(4, 4) >= T.covariance()(4, 4)) return;
 
   double Pi    = m_parameters.parameters()[ 4];
-  double CovPi = m_parameters.cov()[14];
+  double CovPi = m_parameters.covariance()(4, 4);
 
   const AmgVector(5)& p = T.parameters();
-  const double* v = T.cov();
+  const AmgSymMatrix(5) v = T.covariance();
 
-  double V[15] = {v[ 0],
-		  v[ 1],v[ 2],
-		  v[ 3],v[ 4],v[ 5],
-		  v[ 6],v[ 7],v[ 8],v[ 9],
-		  v[10],v[11],v[12],v[13],v[14]};
+  double V[15] = {v(0, 0),
+		  v(0, 1),v(1, 1),
+		  v(0, 2),v(1, 2),v(2, 2),
+		  v(0, 3),v(1, 3),v(2, 3),v(3, 3),
+		  v(0, 4),v(1, 4),v(2, 4),v(3, 4),v(4, 4)};
   double P[ 5] = {p[ 0],p[ 1],p[ 2],p[ 3],p[ 4]};
 
 

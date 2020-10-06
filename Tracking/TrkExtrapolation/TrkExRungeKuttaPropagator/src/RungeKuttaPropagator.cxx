@@ -1502,8 +1502,8 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
   if(useJac) {
     AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(Ta.covariance(), Jac);
     Tb.setParametersWithCovariance(&Su, p, newCov);
-    const double* cv = Tb.cov();
-    if( cv[0]<=0. || cv[2]<=0. || cv[5]<=0. || cv[9]<=0. || cv[14]<=0.) return false;
+    const AmgSymMatrix(5) cv = Tb.covariance();
+    if( cv(0, 0)<=0. || cv(1, 1)<=0. || cv(2, 2)<=0. || cv(3, 3)<=0. || cv(4, 4)<=0.) return false;
   } else {
     Tb.setParameters(&Su,p);
   }
