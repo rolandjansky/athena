@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -1066,6 +1066,8 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
         top_dict = m_indet_dict;  // save as top_dict
 
         // Check if this is SLHC layout
+	//This should be re-named at some point (master?)
+	//Since SLHC is outdated terminology
         m_isSLHC = (m_indet_dict->m_version=="SLHC");
 
         // Get InDet subdets
@@ -1177,40 +1179,41 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
                 return (1);
             }
         }
-
-        label = field->find_label("HGTD");
-        if (label) {
+	if(m_isSLHC){
+	  label = field->find_label("HGTD");
+	  if (label) {
             if (label->m_valued) {
-                m_HGTD_ID = label->m_value;
+	      m_HGTD_ID = label->m_value;
             }
             else {
-                if(m_msgSvc) {
-                    MsgStream log(m_msgSvc, "AtlasDetectorID" );
-                    log << MSG::ERROR << "initLevelsFromDict - label HGTD does NOT have a value "
-                        << endreq;
-                }
-                else {
-                    std::cout << "AtlasDetectorID::initLevelsFromDict - label HGTD does NOT have a value "
-                              << std::endl;
-                }
-                return (1);
+	      if(m_msgSvc) {
+		MsgStream log(m_msgSvc, "AtlasDetectorID" );
+		log << MSG::ERROR << "initLevelsFromDict - label HGTD does NOT have a value "
+		    << endreq;
+	      }
+	      else {
+		std::cout << "AtlasDetectorID::initLevelsFromDict - label HGTD does NOT have a value "
+			  << std::endl;
+	      }
+	      return (1);
             }
-        }
-        else {
+	  }
+	  else {
             if(m_msgSvc) {
-                MsgStream log(m_msgSvc, "AtlasDetectorID" );
-                log << MSG::ERROR << "initLevelsFromDict - unable to find 'HGTD' label "
-                    << endreq;
+	      MsgStream log(m_msgSvc, "AtlasDetectorID" );
+	      log << MSG::ERROR << "initLevelsFromDict - unable to find 'HGTD' label "
+		  << endreq;
             }
             else {
-                std::cout << "AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label "
-                          << std::endl;
+	      std::cout << "AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label "
+			<< std::endl;
             }
             return (1);
-        }
-
+	  }
+	}
+	
     }
-
+    
 
 
     // Initialize ids for Forward dets
