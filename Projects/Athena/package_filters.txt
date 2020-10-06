@@ -10,6 +10,7 @@
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
 - HLT/HLToks
+- Trigger/TrigFTK/FTKStandaloneMonitoring
 
 # Offload service has build problems
 - Offloading/.*
