@@ -441,9 +441,17 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   from InDetRecExample.InDetKeys import InDetKeys
 
-  # Region selector tool for SCT
+  # Region selector tools for Pixel, SCT and TRT
+
+  from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
+  RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
+
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
-  RegSelTool_SCT = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
+  RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
+
+  from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
+  RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
+
 
   verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
                                                     DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
@@ -490,8 +498,10 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
     InDetPixelRawDataProvider.RoIs = roisKey
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
 
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
-    InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+#   from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+#   InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+
+    InDetPixelRawDataProvider.RegSelTool = RegSelTool_Pixel
 
     acc.addEventAlgo(InDetPixelRawDataProvider)
 
@@ -517,7 +527,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = roisKey
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
+
     InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT
+
     acc.addEventAlgo(InDetSCTRawDataProvider)
 
     # load the SCTEventFlagWriter
@@ -548,6 +560,11 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                  ProviderTool = InDetTRTRawDataProviderTool)
     InDetTRTRawDataProvider.isRoI_Seeded = True
     InDetTRTRawDataProvider.RoIs = roisKey
+
+#   from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+#   InDetTRTRawDataProvider.RegSelTool_TRT = makeRegSelTool_TRT()
+
+    InDetTRTRawDataProvider.RegSelTool = RegSelTool_TRT
 
     acc.addEventAlgo(InDetTRTRawDataProvider)
 
@@ -583,8 +600,10 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = roisKey
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
-  InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
+
+  #  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+  InDetPixelClusterization.RegSelTool = RegSelTool_Pixel
+
   acc.addEventAlgo(InDetPixelClusterization)
 
   from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
