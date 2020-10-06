@@ -235,6 +235,12 @@ TrigSignatureMoniMT                                 INFO -- #1995263521 Features
 TrigSignatureMoniMT                                 INFO HLT_e26_lhtight_ivarloose_L1EM22VHI #2918307206
 TrigSignatureMoniMT                                 INFO -- #2918307206 Events         6          6          5          5          5          3          -          -          -          -          -          -          -          -          -          3
 TrigSignatureMoniMT                                 INFO -- #2918307206 Features                             5          64         8          3          -          -          -          -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO HLT_e26_lhtight_ivarmedium_L1EM22VHI #2653558903
+TrigSignatureMoniMT                                 INFO -- #2653558903 Events         6          6          5          5          5          3          -          -          -          -          -          -          -          -          -          3
+TrigSignatureMoniMT                                 INFO -- #2653558903 Features                             5          64         8          3          -          -          -          -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO HLT_e26_lhtight_ivartight_L1EM22VHI #1679339192
+TrigSignatureMoniMT                                 INFO -- #1679339192 Events         6          6          5          5          5          3          -          -          -          -          -          -          -          -          -          3
+TrigSignatureMoniMT                                 INFO -- #1679339192 Features                             5          64         8          3          -          -          -          -          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_e26_lhtight_nod0_L1EM22VHI #939763520
 TrigSignatureMoniMT                                 INFO -- #939763520 Events          6          6          5          5          5          4          -          -          -          -          -          -          -          -          -          4
 TrigSignatureMoniMT                                 INFO -- #939763520 Features                              5          64         8          4          -          -          -          -          -          -          -          -          -
