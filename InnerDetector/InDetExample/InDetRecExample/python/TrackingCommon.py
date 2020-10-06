@@ -1460,27 +1460,43 @@ def getSolenoidalIntersector(name="SolenoidalIntersector", **kwargs) :
     from TrkExSolenoidalIntersector.TrkExSolenoidalIntersectorConf import Trk__SolenoidalIntersector
     return Trk__SolenoidalIntersector(the_name, **setDefaults(kwargs, SolenoidParameterizationKey = 'SolenoidParametrization'))
 
-def hasSplitProb(key) :
-    # @TODO find better solution,
-    import re
-    pat=re.compile('.*Dense.*')
-    from AthenaCommon.AppMgr import ToolSvc
-    for a_tool in ToolSvc.getChildren() :
-        if pat.match( a_tool.getFullName() ) != None :
-            print ('DEBUG split prob probabily set by %s' % a_tool.getFullName() )
-            return True
+def searchProb(prob_val) :
+    def iterateComp() :
+       from AthenaCommon.AppMgr import ToolSvc
+       from AthenaCommon.Configurable import ConfigurableAlgTool
 
+       for a_tool in ToolSvc.getChildren() :
+           yield a_tool
+       from AthenaCommon.AlgSequence import AlgSequence
+       topSequence = AlgSequence()
+       for an_alg in topSequence.getChildren() :
+           yield an_alg
+           for name,prop in an_alg.getProperties().items() :
+               if isinstance(prop,ConfigurableAlgTool) and not prop.isInToolSvc() :
+                   yield prop
+
+    for a_comp in iterateComp() :
+        for name,prop in a_comp.getProperties().items() :
+            if isinstance(prop ,str) and prop == prob_val :
+                return True
+    return False
+
+def hasSplitProb(key) :
+    # @TODO find better solution than searching through a huge number of properties
     from RecExConfig.AutoConfiguration import IsInInputFile
     if IsInInputFile('Trk::ClusterSplitProbabilityContainer',key) :
-        print ('DEBUG split prob  %s in inputfile ' % key )
         return True
 
-    print ('DEBUG split prob is not set.' )
+    if searchProb(key) :
+        return True
     return False
 
 def combinedClusterSplitProbName() :
   # precisely mimics the configuration in InDetRec_jobOptions
   # chaings in InDetRec_jobOptions to the ClusterSplitProbContainer also have to be implemented here
+  # To synchronise with InDetRec_jobOptions the logic can be extracted with
+  # grep "CombinedInDetClusterSplitProbContainer\|ClusterSplitProbContainer\|[[:space:]]\(el\|\)if\([[:space:]]\|(\)\|[[:space:]]else[[:space:]]*:\|ConfiguredNewTrackingCuts" 
+  #    InnerDetector/InDetExample/InDetRecExample/share/InDetRec_jobOptions.py
   # @TODO find a better way to provide the final name of ClusterSplitProbContainer used for the combined InDetTrackParticles
   from AthenaCommon.BeamFlags import jobproperties
   from InDetRecExample.InDetJobProperties import InDetFlags
@@ -1488,7 +1504,6 @@ def combinedClusterSplitProbName() :
   ClusterSplitProbContainer=''
   if InDetFlags.Enabled():
     from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-    # --- ensure that Calo clustering is running if we run in calo seeded mode 
     if ('InDetNewTrackingCuts' not in dir()):
       if InDetFlags.doDBMstandalone():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
