@@ -62,6 +62,12 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if self._detStore is None:
             self.msg.error("Failed to get DetectorStore")
             return StatusCode.Failure
+
+        self._condStore = StoreGate.pointer("ConditionStore")
+        if (self._condStore is None):
+            self.msg.error("Failed to get ConditionStore")
+            return StatusCode.Failure
+
         # Get LArOnlineID helper class
         self.onlineID=self._detStore.retrieve("LArOnlineID","LArOnlineID")
         if self.onlineID is None:
@@ -125,13 +131,16 @@ class LArCellConditionsAlg(PyAthena.Alg):
         self.msg.info('running execute...')
 
         #for some obscure reason, we need run dump before we can retrieve the flat objects using their abstract interface
-        garbagedump = open(os.devnull, 'w')
-        self._detStore.dump(garbagedump)
+        garbagedump = open("sgdump.txt", 'w')
+        self._condStore.dump(garbagedump)
         garbagedump.close()
+
+        eid=ROOT.Gaudi.Hive.currentContext().eventID()
 
         if self.includeConditions:
             try:
-                self.larPedestal=self._detStore.retrieve("ILArPedestal","Pedestal")
+                condCont=self._condStore.retrieve("CondCont<ILArPedestal>","LArPedestal")
+                self.larPedestal=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve Pedestal from DetStore")
                 import traceback
@@ -139,7 +148,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larPedestal=None
                 
             try:
-                self.larMphysOverMcal=self._detStore.retrieve("ILArMphysOverMcal","LArMphysOverMcal")
+                condCont=self._condStore.retrieve("CondCont<ILArMphysOverMcal>","LArMphysOverMcal")
+                self.larMphysOverMcal=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve MphysOverMcal from DetStore")
                 import traceback
@@ -147,7 +157,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larMphysOverMcal=None
 
             try:
-                self.larRamp=self._detStore.retrieve("ILArRamp","LArRamp")
+                condCont=self._condStore.retrieve("CondCont<ILArRamp>","LArRamp")
+                self.larRamp=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArRamp from DetStore")
                 import traceback
@@ -155,7 +166,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larRamp=None
                 
             try:
-                self.larDAC2uA=self._detStore.retrieve("ILArDAC2uA","LArDAC2uA")
+                condCont=self._condStore.retrieve("CondCont<ILArDAC2uA>","LArDAC2uA")
+                self.larDAC2uA=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArDAC2uA from DetStore")
                 import traceback
@@ -163,7 +175,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larDAC2uA=None
 
             try:
-                self.laruA2MeV=self._detStore.retrieve("ILAruA2MeV","LAruA2MeV")
+                condCont=self._condStore.retrieve("CondCont<ILAruA2MeV>","LAruA2MeV")
+                self.laruA2MeV=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LAruA2MeV from DetStore")
                 import traceback
@@ -171,7 +184,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.laruA2MeV=None
 
             try:
-                self.larhvScaleCorr=self._detStore.retrieve("ILArHVScaleCorr","LArHVScaleCorr")
+                condCont=self._condStore.retrieve("CondCont<ILArHVScaleCorr>","LArHVScaleCorr")
+                self.larhvScaleCorr=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArHVScaleCorr from DetStore")
                 import traceback
