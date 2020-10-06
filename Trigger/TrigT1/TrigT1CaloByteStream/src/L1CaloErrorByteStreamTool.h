@@ -44,7 +44,7 @@ class L1CaloErrorByteStreamTool : public AthAlgTool {
    /// Set ROD unpacking error
    void rodError(uint32_t robid, unsigned int err) const;
    /// Fill vector with accumulated errors and reset
-   StatusCode errors(std::vector<unsigned int>* errColl);
+   StatusCode errors(std::vector<unsigned int>* errColl) const;
 
  private:
 

@@ -7,9 +7,8 @@
 
 #include <string>
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Converter.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -32,35 +31,28 @@ class JepRoiByteStreamV1Tool;
  */
 
 template <typename Container>
-class JepRoiReadByteStreamV1Cnv: public Converter {
+class JepRoiReadByteStreamV1Cnv: public AthConstConverter {
 
 public:
   JepRoiReadByteStreamV1Cnv(ISvcLocator* svcloc);
 
-  ~JepRoiReadByteStreamV1Cnv();
+  virtual ~JepRoiReadByteStreamV1Cnv();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Create Container from ByteStream
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+  virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override;
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   static  long storageType();
   static const CLID& classID();
 
 private:
-
-  /// Converter name
-  std::string m_name;
-
   /// Tool that does the actual work
   ToolHandle<LVL1BS::JepRoiByteStreamV1Tool> m_tool;
 
   /// Service for reading bytestream
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-
-  /// Message log
-  bool m_debug;
 };
 
 } // end namespace

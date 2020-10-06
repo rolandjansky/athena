@@ -29,11 +29,9 @@ namespace LVL1BS {
 template <typename Container>
 JepRoiReadByteStreamV1Cnv<Container>::JepRoiReadByteStreamV1Cnv(
       ISvcLocator* svcloc )
-    : Converter( storageType(), classID(), svcloc ),
-      m_name("JepRoiReadByteStreamV1Cnv"),
+    : AthConstConverter( storageType(), classID(), svcloc, "JepRoiReadByteStreamV1Cnv" ),
       m_tool("LVL1BS::JepRoiByteStreamV1Tool/JepRoiByteStreamV1Tool"),
-      m_robDataProvider("ROBDataProviderSvc", m_name),
-      m_debug(false)
+      m_robDataProvider("ROBDataProviderSvc", name())
 {
 }
 
@@ -62,8 +60,6 @@ long JepRoiReadByteStreamV1Cnv<Container>::storageType()
 template <typename Container>
 StatusCode JepRoiReadByteStreamV1Cnv<Container>::initialize()
 {
-  m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-
   ATH_CHECK( Converter::initialize() );
   ATH_CHECK( m_tool.retrieve() );
   ATH_CHECK( m_robDataProvider.retrieve() );
@@ -74,21 +70,19 @@ StatusCode JepRoiReadByteStreamV1Cnv<Container>::initialize()
 // createObj should create the RDO from bytestream.
 
 template <typename Container>
-StatusCode JepRoiReadByteStreamV1Cnv<Container>::createObj( IOpaqueAddress* pAddr,
-                                                            DataObject*& pObj )
+StatusCode JepRoiReadByteStreamV1Cnv<Container>::createObjConst ( IOpaqueAddress* pAddr,
+                                                                  DataObject*& pObj ) const
 {
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    REPORT_ERROR (StatusCode::FAILURE) << " Cannot cast to ByteStreamAddress ";
+    ATH_MSG_ERROR( " Cannot cast to ByteStreamAddress " );
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) {
-    REPORT_MESSAGE (MSG::DEBUG) << " Creating Objects " << nm;
-  }
+  ATH_MSG_DEBUG( " Creating Objects " << nm );
 
   // get SourceIDs
   const std::vector<uint32_t>& vID(m_tool->sourceIDs(nm));
@@ -99,9 +93,8 @@ StatusCode JepRoiReadByteStreamV1Cnv<Container>::createObj( IOpaqueAddress* pAdd
 
   // size check
   auto collection = std::make_unique<Container>();
-  if (m_debug) {
-    REPORT_MESSAGE (MSG::DEBUG) << " Number of ROB fragments is " << robFrags.size();
-  }
+  ATH_MSG_DEBUG( " Number of ROB fragments is " << robFrags.size() );
+
   if (robFrags.size() == 0) {
     pObj = SG::asStorable(std::move(collection)) ;
     return StatusCode::SUCCESS;
