@@ -60,7 +60,6 @@ void InDet::SiDetElementLink_xk::intersect
 (const float* r ,const float* a,float* O) const
 {
   const float* g = &m_geo[0];
-  
   float     s[3] = {g[3]*g[4],g[2]*g[4],g[5]}                         ;
   float     S    = a[0]*s[0]+a[1]*s[1]+a[2]*s[2]                      ;
   if(S!=0.) S    = (g[0]-(r[0]*s[0]+r[1]*s[1]+r[2]*s[2]))/S           ;

@@ -41,14 +41,17 @@ namespace InDet{
        };
 
        class ElementWay {
-       const InDet::SiDetElementLink_xk* m_link;
-       float m_way;
        public:
-          ElementWay(const InDet::SiDetElementLink_xk*link, float way)
-             : m_link(link), m_way(way) {}
+          ElementWay(const InDet::SiDetElementLink_xk*link, float way, float distance)
+             : m_link(link), m_way(way), m_distance(distance) {}
 
           const InDet::SiDetElementLink_xk* link() const { return m_link; }
           float way()                              const { return m_way; }
+          float distance()                         const { return m_distance; }
+       private: 
+        const InDet::SiDetElementLink_xk* m_link;
+        float m_way;
+        float m_distance; 
        };
 
       SiDetElementLink_xk();
