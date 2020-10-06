@@ -29,7 +29,7 @@
 
 ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(
     const std::string& name, ISvcLocator* pSvcLocator)
-  : ByteStreamOutputSvc(name, pSvcLocator) {
+  : base_class(name, pSvcLocator) {
 }
 
 
@@ -445,11 +445,17 @@ ByteStreamEventStorageOutputSvc::updateDataWriterParameters(
 StatusCode
 ByteStreamEventStorageOutputSvc::queryInterface(
     const InterfaceID& riid, void** ppvInterface) {
+
+  if ( !ppvInterface ) return StatusCode::FAILURE;
+
+  // find indirect interfaces :
   if (ByteStreamOutputSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface = dynamic_cast<ByteStreamOutputSvc*>(this);
+  } else if (base_class::queryInterface(riid, ppvInterface).isSuccess()) {
+    return StatusCode::SUCCESS;
   } else {
     // Interface is not directly available: try out a base class
-    ATH_CHECK(::AthService::queryInterface(riid, ppvInterface));
+    return ::AthService::queryInterface(riid, ppvInterface);
   }
   addRef();
   return StatusCode::SUCCESS;
