@@ -373,7 +373,7 @@ Trk::GsfBetheHeitlerEffects::compute(
   if (pathlengthInX0 < m_lowerRange) {
     const double meanZ = std::exp(-1. * pathlengthInX0);
     const double sign = (direction == Trk::oppositeMomentum) ? 1. : -1.;
-    const double varZ = std::exp(-1. * pathlengthInX0 * log(3.) / log(2.)) -
+    const double varZ = std::exp(-1. * pathlengthInX0 * std::log(3.) / std::log(2.)) -
                         std::exp(-2. * pathlengthInX0);
     double deltaP(0.);
     double varQoverP(0.);
