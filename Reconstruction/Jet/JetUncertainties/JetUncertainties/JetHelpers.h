@@ -5,15 +5,6 @@
 #ifndef JETUNCERTAINTIES_JETHELPERS_H
 #define JETUNCERTAINTIES_JETHELPERS_H
 
-
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-
-#include "TString.h"
-#include "TObjString.h"
-#include "TObjArray.h"
 #include "TFile.h"
 
 
@@ -33,14 +24,7 @@ namespace JetHelpers
         
         double Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis=1, const int yAxis=2, const int otherDimBin=-1);
 
-	Int_t test();
-
-
 
 }
-
-
-
-
 
 #endif

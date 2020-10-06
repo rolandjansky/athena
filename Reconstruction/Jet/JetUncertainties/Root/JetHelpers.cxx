@@ -5,13 +5,8 @@
 
 #include "JetUncertainties/JetHelpers.h"
 
-#include "TSystem.h"
 #include "TH1.h"
-
 #include <TMath.h>
-
-
-
 
 //We move all the Histogram reading helpers from "JetUncertainties/UncertaintyHistogram.h" here because we want to use them in the FFJetSmearingTool too
 
