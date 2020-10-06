@@ -36,7 +36,6 @@
     <label name="Pixel" value="1" />
     <label name="SCT"   value="2" />
     <label name="TRT"   value="3" />
-    <label name="HGTD"  value="4" />
 
   </field>
 
