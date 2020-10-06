@@ -97,9 +97,9 @@ namespace InDet {
           else {
             if (m_nParticleGroup[network_i]>0) {
 	      if (m_nParticleGroup[network_i]>=match_result.size()) {
-		      std::stringstream msg; msg << "Regex and match group of particle multiplicity do not coincide (groups=" << match_result.size() << " n particle group=" << m_nParticleGroup[network_i]
-			                        << "; type=" << network_i << ")";
-		      throw std::logic_error(msg.str());
+		ATH_MSG_ERROR("Regex and match group of particle multiplicity do not coincide (groups=" << match_result.size()
+			      << " n particle group=" << m_nParticleGroup[network_i]
+			      << "; type=" << network_i << ")");
 	      }
               int n_particles=atoi( match_result[m_nParticleGroup[network_i]].str().c_str());
               if (n_particles<=0 || static_cast<unsigned int>(n_particles)>m_maxSubClusters) {
@@ -321,8 +321,7 @@ namespace InDet {
     if (m_useTTrainedNetworks) {
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
       if (!nn_collection.isValid()) {
-        std::stringstream msg; msg  << "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
       }
       return estimateNumberOfParticlesTTN(**nn_collection, inputData);
     }
@@ -364,8 +363,7 @@ namespace InDet {
     if (m_useTTrainedNetworks) {
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
       if (!nn_collection.isValid()) {
-        std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithTrack.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
       }
       return estimateNumberOfParticlesTTN(**nn_collection, inputData);
     }
@@ -394,8 +392,7 @@ namespace InDet {
   {
     SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
     if (!lwtnn_collection.isValid()) {
-      std::stringstream msg; msg << "Failed to get LWTNN network collection with key " << m_readKeyJSON.key();
-      throw std::runtime_error( msg.str() );      
+      ATH_MSG_ERROR( "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
     }
     ATH_MSG_DEBUG("Using lwtnn number network");
     // Evaluate the number network once per cluster
@@ -446,8 +443,7 @@ namespace InDet {
     if (m_useTTrainedNetworks) {
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
       if (!nn_collection.isValid()) {
-        std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
       }
       // *(ReadCondHandle<>) returns a pointer rather than a reference ...
       return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,sizeX,sizeY,numberSubClusters,errors);
@@ -495,8 +491,7 @@ namespace InDet {
     if (m_useTTrainedNetworks) {
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
       if (!nn_collection.isValid()) {
-        std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithTrack.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithTrack.key() );
       }
 
       return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,sizeX,sizeY,numberSubClusters,errors);
@@ -571,8 +566,7 @@ namespace InDet {
     
     SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
     if (!lwtnn_collection.isValid()) {
-      std::stringstream msg; msg << "Failed to get LWTNN network collection with key " << m_readKeyJSON.key();
-      throw std::runtime_error( msg.str() );      
+      ATH_MSG_ERROR(  "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
     }
 
     // Need to evaluate the correct network once per cluster we're interested in.
@@ -584,8 +578,7 @@ namespace InDet {
       // Check that the network is defined. 
       // If not, we are outside an IOV and should fail
       if (not lwtnn_collection->at(numberSubClusters)) {
-        std::stringstream msg; msg << "No lwtnn network configured for this run! If you are outside the valid range for lwtnn-based configuration, plesae run with useNNTTrainedNetworks instead." << m_readKeyJSON.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "No lwtnn network configured for this run! If you are outside the valid range for lwtnn-based configuration, plesae run with useNNTTrainedNetworks instead." << m_readKeyJSON.key() );
       }
 
       std::string outNodeName = "merge_"+std::to_string(cluster);
