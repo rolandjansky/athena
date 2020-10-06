@@ -622,7 +622,7 @@ namespace Muon {
       if(lay.first==Muon::MuonStationIndex::EIS || lay.first==Muon::MuonStationIndex::EIL) nEI++;
       if(lay.first==Muon::MuonStationIndex::EMS || lay.first==Muon::MuonStationIndex::EML) nEM++;
       for( const auto& id : lay.second ){
-	      if(m_idHelperSvc->isMdt(id)) mdtTruthHits.push_back(id.get_compact());
+	    if(m_idHelperSvc->isMdt(id)) mdtTruthHits.push_back(id.get_compact());
         else if(m_idHelperSvc->isCsc(id)) cscTruthHits.push_back(id.get_compact());
         else if(m_idHelperSvc->isTgc(id)){
         	  if((lay.first==Muon::MuonStationIndex::EIS || lay.first==Muon::MuonStationIndex::EIL) && nEI>1) continue; //otherwise we double-count
