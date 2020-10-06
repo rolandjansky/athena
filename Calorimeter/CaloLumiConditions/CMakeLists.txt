@@ -1,21 +1,7 @@
-################################################################################
-# Package: CaloLumiConditions
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloLumiConditions )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/CxxUtils
-			  Control/AthenaKernel
-                          DetectorDescription/Identifier
-                          PRIVATE
-                          DetectorDescription/IdDictParser
-                          AtlasTest/TestTools
-                          LumiBlock/LumiBlockData
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArIdentifier )
 
 # External dependencies:
 find_package( Boost COMPONENTS timer )
@@ -24,21 +10,18 @@ find_package( Boost COMPONENTS timer )
 atlas_add_library( CaloLumiConditions
                    src/*.cxx
                    PUBLIC_HEADERS CaloLumiConditions
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
                    LINK_LIBRARIES CxxUtils Identifier AthenaKernel LArElecCalib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TestTools LArIdentifier LumiBlockData )
+                   PRIVATE_LINK_LIBRARIES LArIdentifier LumiBlockData )
 
 atlas_add_test( CaloBCIDCoeffs_test
                 SOURCES
                 test/CaloBCIDCoeffs_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils Identifier TestTools CaloLumiConditions IdDictParser LArIdentifier LArElecCalib )
+                LINK_LIBRARIES ${Boost_LIBRARIES} CaloLumiConditions IdDictParser LArIdentifier TestTools )
 
 atlas_add_test( CaloBCIDLumi_test
                 SOURCES
                 test/CaloBCIDLumi_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils Identifier TestTools CaloLumiConditions IdDictParser LumiBlockData LArIdentifier LArElecCalib
+                LINK_LIBRARIES CaloLumiConditions IdDictParser LArIdentifier LumiBlockData TestTools
                 PROPERTIES TIMEOUT 300 )
-
-
