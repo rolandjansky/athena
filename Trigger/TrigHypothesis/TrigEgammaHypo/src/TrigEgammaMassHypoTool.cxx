@@ -49,7 +49,7 @@ bool TrigEgammaMassHypoTool::executeAlg(std::vector<LegDecision> &combination) c
   auto massOfAccepted = Monitored::Scalar( "MassOfAccepted"   , -1.0 );
   auto monitorIt    = Monitored::Group( m_monTool, massOfAccepted);
 
-//retrieve the electrons 
+//retrieve the elements
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_electrons;
   for (auto el: combination){
     auto EL= el.second;    
@@ -71,7 +71,7 @@ bool TrigEgammaMassHypoTool::executeAlg(std::vector<LegDecision> &combination) c
   }
 
   if (pass)
-     ATH_MSG_DEBUG( " Invariant mass " << massOfAccepted << " is  within [" <<m_lowerMassElectronClusterCut<< "," << m_upperMassElectronClusterCut << "] This seleciton passed! ");
+     ATH_MSG_DEBUG( " Invariant mass " << massOfAccepted << " is  within [" <<m_lowerMassElectronClusterCut<< "," << m_upperMassElectronClusterCut << "] This selection passed! ");
   
   return pass;
 

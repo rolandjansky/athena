@@ -43,7 +43,7 @@ bool TrigEgammaDPhiHypoTool::executeAlg(std::vector<LegDecision> &combination) c
 
   auto dphiOfAccepted = Monitored::Scalar( "DphiOfAccepted"   , -99 );
   auto monitorIt    = Monitored::Group( m_monTool, dphiOfAccepted);
-//retrieve the electrons 
+//retrieve the elements 
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_photons;
   for (auto el: combination){
     auto EL= el.second;    
@@ -65,7 +65,7 @@ bool TrigEgammaDPhiHypoTool::executeAlg(std::vector<LegDecision> &combination) c
   }
 
   if (pass)
-     ATH_MSG_DEBUG( " deltaPhi " << dphiOfAccepted << " is above the threshold "<<m_thresholdDPhiCut<<" This seleciton passed! ");
+     ATH_MSG_DEBUG( " deltaPhi " << dphiOfAccepted << " is above the threshold "<<m_thresholdDPhiCut<<" This selection passed! ");
   
 return pass;
 
