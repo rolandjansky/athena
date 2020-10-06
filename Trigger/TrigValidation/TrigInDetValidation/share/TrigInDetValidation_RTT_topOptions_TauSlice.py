@@ -1,5 +1,9 @@
 ###############################################################
 #
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+###############################################################
+#
 # Set Flags for Running the Trigger in TransientBS Mode
 #==============================================================
 
@@ -56,3 +60,8 @@ TriggerFlags.doHypo.set_Value_and_Lock(True)
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 
+if 'mlExtensions' in dir() and mlExtensions==True:
+  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_TauCore
+  FTF.doSeedRedundancyCheck = True
+  FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
+  FTF.TrigSeedML_LUT = 'trigseed_ML_medium.lut' #can be _loose, _medium, or _strict

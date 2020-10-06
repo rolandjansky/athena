@@ -1,3 +1,8 @@
+###############################################################
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+###############################################################
 
 #####################################################################################################
 #
@@ -112,6 +117,13 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 # minimum track pT for the bjet vertex tracking 
 if 'minVtxTrackpT' in dir() :  
   topSequence.TrigSteer_HLT.TrigFastTrackFinder_BjetVtx.pTmin = minVtxTrackpT 
+
+
+if 'mlExtensions' in dir() and mlExtensions==True:
+  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_Bjet_IDTrig
+  FTF.doSeedRedundancyCheck = True
+  FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
+  FTF.TrigSeedML_LUT = 'trigseed_ML_medium.lut' #can be _loose, _medium, or _strict
 
 # print "*********************************"
 # print "*********************************"
