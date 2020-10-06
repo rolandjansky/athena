@@ -14,7 +14,6 @@
 ################################################################################
 
 from RecExConfig.Configured import Configured
-from AthenaCommon.SystemOfUnits import *
 
 ################################################################################
 ## @class TauRecRunConfigured

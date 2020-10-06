@@ -3,20 +3,17 @@
 */
 
 #include "tauRec/TauProcessorAlg.h"
-
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
-
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauDefs.h"
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
-
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
 #include "NavFourMom/INavigable4MomentumCollection.h"
+#include <boost/dynamic_bitset.hpp>
 
 using Gaudi::Units::GeV;
 
@@ -99,7 +96,7 @@ StatusCode TauProcessorAlg::execute(const EventContext& ctx) const {
   xAOD::PFOContainer* tauShotPFOContainer = tauShotPFOHandle.ptr();
 
   CaloCellContainer* Pi0CellContainer = nullptr;
-  std::vector<CaloCell*> addedCellsMap;
+  boost::dynamic_bitset<> addedCellsMap;
 
   if(!m_tauPi0CellOutputContainer.empty()) {
     SG::WriteHandle<CaloCellContainer> tauPi0CellHandle( m_tauPi0CellOutputContainer, ctx );
@@ -109,7 +106,7 @@ StatusCode TauProcessorAlg::execute(const EventContext& ctx) const {
     // Initialize the cell map per event, used to avoid dumplicate cell in TauPi0CreateROI
     IdentifierHash hashMax = m_cellID->calo_cell_hash_max();
     ATH_MSG_DEBUG("CaloCell Hash Max: " << hashMax);
-    addedCellsMap.resize(hashMax,NULL);
+    addedCellsMap.resize(hashMax,false);
   }
 
   // retrieve the input jet seed container
