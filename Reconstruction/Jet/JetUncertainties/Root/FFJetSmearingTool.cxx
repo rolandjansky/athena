@@ -68,19 +68,11 @@ StatusCode FFJetSmearingTool::initialize()
     }
 
     // Make sure we have a valid mass definition
-    bool isValidMassDef=false;
-    if((JetTools::stringToEnum(m_MassDef_string, m_MassDef).isSuccess())){
-        isValidMassDef=true; 
-    }
-    if(!isValidMassDef){
-        ATH_MSG_ERROR("No Systematics associated to this mass definition: " << m_MassDef_string);
-        ATH_MSG_ERROR("Should be 'Calo', 'TA' or 'Comb'");
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(JetTools::stringToEnum(m_MassDef_string, m_MassDef)); //If it fails it means that there is No Systematic Uncertainties derived for to the given mass definition.
+                                                                     //The mass definition should be 'Calo', 'TA' or 'Comb'. Show an error and exits.
 
     //reading the config file as in JetUncertaintiesTool
     TEnv settings;
-
 
     const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
 
@@ -90,14 +82,14 @@ StatusCode FFJetSmearingTool::initialize()
         return StatusCode::FAILURE;
     }
     // We can read it - start printing
-    ATH_MSG_INFO(Form("================================================"));
+    ATH_MSG_INFO("================================================");
     ATH_MSG_INFO(Form("  Initializing the FFJetSmearingTool named %s",AsgTool::name().c_str()));
-    ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
-    ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
+    ATH_MSG_INFO("  Configuration file: " << m_configFile);
+    ATH_MSG_INFO("    Location: " << configFilePath.Data());
 
 
     m_release = settings.GetValue("UncertaintyRelease","UNKNOWN");
-    ATH_MSG_INFO(Form("  Uncertainty release: %s",m_release.c_str()));
+    ATH_MSG_INFO("  Uncertainty release: " << m_release.c_str());
 
     // Check the jet definition
     m_truth_jetColl = settings.GetValue("TruthJetColl","");
@@ -114,7 +106,7 @@ StatusCode FFJetSmearingTool::initialize()
         ATH_MSG_ERROR("Cannot find the TruthLabelAccessor to use in config");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO(" Truth Label Accessor: " << m_truthlabelaccessor);
+    ATH_MSG_INFO("  Truth Label Accessor: " << m_truthlabelaccessor);
     //eta range of the tool  
     m_EtaRange = settings.GetValue("EtaRange",0);
     if (m_EtaRange == 0)
@@ -147,8 +139,8 @@ StatusCode FFJetSmearingTool::initialize()
         ATH_MSG_ERROR("Cannot find uncertainty histogram file in the config file");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO(Form("  UncertaintyFile: \"%s\"",m_histFileName.c_str()));
-    ATH_MSG_INFO(Form("    Location: %s",m_HistogramsFilePath.c_str()));
+    ATH_MSG_INFO("  UncertaintyFile: " << m_histFileName);
+    ATH_MSG_INFO("    Location: " << m_HistogramsFilePath);
 
 
 
@@ -412,7 +404,7 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet jet_reco, xAOD::Jet& 
     // Get the truth jets of the event
     const xAOD::JetContainer* jets_truth = nullptr;
 
-    ATH_CHECK(evtStore()->retrieve( jets_truth, m_truth_jetColl));//If fail, it shows an Error message and exits
+    ATH_CHECK(evtStore()->retrieve( jets_truth, m_truth_jetColl));//If fail, it means that we are "Unable to retrieve jetColl Info". It shows an Error message and exits
 
     double dRmax_truthJet = 0.75;// matching condition
     double dRmin=9999; //we will take the closest jet reco-truth
