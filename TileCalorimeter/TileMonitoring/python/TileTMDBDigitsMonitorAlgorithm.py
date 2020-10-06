@@ -93,7 +93,6 @@ def TileTMDBDigitsMonitoringConfig(flags):
 
 
     run = str(flags.Input.RunNumber[0])
-    from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
     from TileMonitoring.TileMonitoringCfgHelper import addTileTMDB_1DHistogramsArray, addTileTMDB_2DHistogramsArray
 
 
@@ -149,7 +148,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO, VERBOSE
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     # Set the Athena configuration flags

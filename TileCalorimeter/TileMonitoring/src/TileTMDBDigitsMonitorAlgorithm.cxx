@@ -73,10 +73,10 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::fillHistograms( const EventContext& c
   std::vector<float> pedestals[Tile::MAX_ROS - 1];
   std::vector<float> amplitudes[Tile::MAX_ROS - 1];
   std::vector<float> hfns[Tile::MAX_ROS - 1];
-  int maxChannel = *std::max_element(std::begin(m_nChannels), std::end(m_nChannels));
-  std::vector<float> cellPedestals[Tile::MAX_ROS - 1][maxChannel];
-  std::vector<float> cellHFNs[Tile::MAX_ROS - 1][maxChannel];
-  std::vector<float> cellAmplitudes[Tile::MAX_ROS - 1][maxChannel];
+  static constexpr int TMDB_MAX_CHANNEL = 8;
+  std::vector<float> cellPedestals[Tile::MAX_ROS - 1][TMDB_MAX_CHANNEL];
+  std::vector<float> cellHFNs[Tile::MAX_ROS - 1][TMDB_MAX_CHANNEL];
+  std::vector<float> cellAmplitudes[Tile::MAX_ROS - 1][TMDB_MAX_CHANNEL];
 
   SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey, ctx);
   ATH_CHECK( digitsContainer.isValid() );
@@ -150,7 +150,7 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::fillHistograms( const EventContext& c
       auto monAmplitude = Monitored::Collection("amplitude", amplitudes[partition]);
       fill(m_tools[m_ampGroups[partition]], monModule, monChannel, monAmplitude);   
 
-      for (unsigned int channel = 0; channel <  m_nChannels[partition]; ++channel) {
+      for (int channel = 0; channel < int(m_nChannels[partition]); ++channel) {
         if (!cellPedestals[partition][channel].empty()) {
           auto monPedestal = Monitored::Collection("pedestal", cellPedestals[partition][channel]);
           fill(m_tools[m_cellPedGroups[partition][channel]], monPedestal);          
