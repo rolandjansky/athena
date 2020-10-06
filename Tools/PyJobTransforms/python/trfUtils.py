@@ -1256,7 +1256,7 @@ class analytic():
                 y = y[tail:]
                 y = y[:-tail]
 
-            if len(x) > minPoints and len(y) > minPoints:
+            if len(x)==len(y) and len(x) > minPoints:
                 msg.info('fitting {0} vs {1}'.format(y_name, x_name))
                 try:
                     fit = self.fit(x, y)
@@ -1276,7 +1276,7 @@ class analytic():
 
         return fitResult
 
-    # Extrcat wanted columns. e.g. x: Time , y: pss+swap
+    # Extract wanted columns. e.g. x: Time , y: pss+swap
     # @param x_name: column name to be extracted (string).
     # @param y_name: column name to be extracted (may contain '+'-sign) (string).
     # @return: x (list), y (list).
@@ -1319,7 +1319,7 @@ class analytic():
         return round(size, 2), power_labels[n]+'B/s'
 
 
-## @breif Low-level fitting class
+## @brief Low-level fitting class
 class Fit():
     _model = 'linear'  # fitting model
     _x = None  # x values
