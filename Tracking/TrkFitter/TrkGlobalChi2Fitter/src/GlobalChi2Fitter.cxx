@@ -187,8 +187,8 @@ namespace Trk {
     if (!m_boundaryCheckTool.name().empty()) {
       ATH_CHECK(m_boundaryCheckTool.retrieve());
     } else if (m_holeSearch.value()) {
-      ATH_MSG_WARNING("Hole search requested but no boundary check tool provided, disabling hole search.");
-      m_holeSearch.set(false);
+      ATH_MSG_ERROR("Hole search requested but no boundary check tool provided.");
+      return StatusCode::FAILURE;
     }
 
     if (m_calomat) {
@@ -237,8 +237,8 @@ namespace Trk {
      * the hole search in the case that track summaries are disabled.
      */
     if (m_holeSearch.value() && !m_createSummary.value()) {
-      ATH_MSG_WARNING("Hole search requested but track summaries disabled, disabling hole search.");
-      m_holeSearch.set(false);
+      ATH_MSG_ERROR("Hole search requested but track summaries are disabled.");
+      return StatusCode::FAILURE;
     }
 
     ATH_MSG_INFO("fixed momentum: " << m_p);
