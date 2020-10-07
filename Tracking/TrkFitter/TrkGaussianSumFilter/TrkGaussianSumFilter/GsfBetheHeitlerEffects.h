@@ -108,12 +108,12 @@ private:
   // Read coeffients for a single polynomial fit
   Polynomial readPolynomial(std::ifstream&, const int);
 
-  std::vector<Polynomial> m_polynomialWeights;
-  std::vector<Polynomial> m_polynomialMeans;
-  std::vector<Polynomial> m_polynomialVariances;
-  std::vector<Polynomial> m_polynomialWeightsHighX0;
-  std::vector<Polynomial> m_polynomialMeansHighX0;
-  std::vector<Polynomial> m_polynomialVariancesHighX0;
+  std::array<Polynomial,maxNumberofComponents> m_polynomialWeights;
+  std::array<Polynomial,maxNumberofComponents> m_polynomialMeans;
+  std::array<Polynomial,maxNumberofComponents> m_polynomialVariances;
+  std::array<Polynomial,maxNumberofComponents> m_polynomialWeightsHighX0;
+  std::array<Polynomial,maxNumberofComponents> m_polynomialMeansHighX0;
+  std::array<Polynomial,maxNumberofComponents> m_polynomialVariancesHighX0;
 
   int m_numberOfComponents;
   int m_transformationCode;
