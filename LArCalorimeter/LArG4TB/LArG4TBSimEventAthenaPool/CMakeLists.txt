@@ -1,16 +1,7 @@
-################################################################################
-# Package: LArG4TBSimEventAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArG4TBSimEventAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          PRIVATE
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          LArCalorimeter/LArG4TB/LArG4TBSimEvent )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( LArG4TBSimEventAthenaPoolPoolCnv
