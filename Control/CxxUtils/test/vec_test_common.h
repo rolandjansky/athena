@@ -4,9 +4,9 @@
 /**
  * @file CxxUtils/test/vec_test_common.h
  * @author scott snyder <snyder@bnl.gov>
+ * @author Christos Anastopoulos 
  * @date Feb, 2020
  * @brief Common part for vec vec_fb unit tests.
- *
  */
 
 #ifndef CXXUTILS_VEC_TEST_COMMON
@@ -378,6 +378,34 @@ test_permute(const VEC& v1)
     assert(v2[i] == v1[(N-1)-i]);
   }
 }
+template<class VEC>
+void
+test_blend(const VEC& v1)
+{
+  // Add 10 to V1 (so as to be different)
+  VEC v2 = v1 + 10;
+  VEC v3;
+  // take the bottom half of v1 and v2 and put them together
+  constexpr size_t N = CxxUtils::vec_size<VEC>();
+  if constexpr (N == 2) {
+    CxxUtils::vblend<0, 2>(v3, v1, v2);
+  } else if constexpr (N == 4) {
+    CxxUtils::vblend<0, 1, 4, 5>(v3, v1, v2);
+  } else if constexpr (N == 8) {
+    CxxUtils::vblend<0, 1, 2, 3, 8, 9, 10, 11>(v3, v1, v2);
+  } else {
+    // N==16
+    CxxUtils::vblend<0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23>(
+      v3, v1, v2);
+  }
+  for (size_t i = 0; i < N; i++) {
+    if (i < N / 2) {
+      assert(v3[i] == v1[i]);
+    } else {
+      assert(v3[i] == v2[i - N/2]);
+    }
+  }
+}
 
 template<template<class T, size_t N> class VEC>
 void
@@ -409,6 +437,7 @@ testFloat1()
     test_min(VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));      \
     test_max(VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));      \
     test_permute(VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));  \
+    test_blend(VEC<T, N> INITN(N, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5));    \
   } while (0)
 
   TEST_FLOAT(float, 4); // 128 bit wide 4 floats
@@ -456,6 +485,8 @@ testInt1()
     test_max(VEC<T, N> INITN(                                                  \
       N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \
     test_permute(VEC<T, N> INITN(                                              \
+      N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \
+    test_blend(VEC<T, N> INITN(                                                \
       N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \
     test_int(VEC<T, N> INITN(                                                  \
       N, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));              \
