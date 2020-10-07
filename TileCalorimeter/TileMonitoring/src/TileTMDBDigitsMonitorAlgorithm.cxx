@@ -27,7 +27,7 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::initialize() {
 
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
 
-  ATH_MSG_INFO("in initialize()");
+  ATH_MSG_DEBUG("in initialize()");
 
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
