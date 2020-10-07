@@ -13,8 +13,29 @@ jetlog = Logging.logging.getLogger('JetGroomConfig')
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+import JetRecConfig.JetModConfig as modH
+from JetRecConfig.JetRecConfig import instantiateAliases, buildJetModifierList
+
 import six
 
+
+def instantiateGroomingAliases( groomdef ):
+    """ Instantiate all the modifier aliases contained in this groomdef.
+    At the same time fills the internal _prereqDic and _prereqOrder containers.
+    
+    This functions 
+      * assumes jetdef is not 'locked' 
+      * implies calls to recursives function constH.aliasToInputDef and modH.aliasToModDef
+    """
+
+    instantiateAliases(groomdef.ungroomeddef)
+    
+    for mod in groomdef.modifiers:
+        modInstance = modH.aliasToModDef(mod, groomdef)
+        groomdef._prereqDic['mod:'+mod] = modInstance
+        groomdef._prereqOrder.append('mod:'+mod)
+
+    
 ########################################################################
 # Get a jet groomer class given a tool name and the grooming definition object
 # The pjsin argument is for forwards compatibility when we switch to
@@ -30,7 +51,7 @@ def getJetGroomer(groomdef,pjsin):
 # Function for configuring the jet algorithm and groomers, given the
 # set of dependencies
 #
-def getJetGroomAlg(jetname,groomdef,pjsin,modlist,monTool=None):
+def getJetGroomAlg(jetname,groomdef,pjsin,monTool=None):
     jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
 
     from . import JetRecConfig
@@ -39,16 +60,11 @@ def getJetGroomAlg(jetname,groomdef,pjsin,modlist,monTool=None):
     groomer = getJetGroomer(groomdef,pjsin)
     groomer.JetBuilder = builder
 
-    from . import JetModConfig
-    mods = []
-    # Dependency resolution should be done externally
-    for moddef,modspec in modlist:
-        mod = JetModConfig.getModifier(groomdef,moddef,modspec)
-        mods.append(mod)
+    mods = buildJetModifierList(groomdef)
 
     rectool = CompFactory.JetRecTool(jetname,
                                      JetGroomer=groomer,
-                                     InputContainer=groomdef.ungroomedname,
+                                     InputContainer=groomdef.ungroomeddef.fullname(),
                                      OutputContainer=jetname,
                                      JetPseudojetRetriever=CompFactory.JetPseudojetRetriever("jpjretriever"),
                                      JetModifiers=mods)

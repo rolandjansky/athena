@@ -144,6 +144,7 @@ class TrkMHTConfig(AlgConfig):
         jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
         # TODO - right now jet calibration is hardcoded to EM
         jetRecoDict["calib"] = "em"
+        
         jetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
             jetRecoSequence, ConfigFlags, **jetRecoDict
         )
@@ -168,7 +169,7 @@ class TrkMHTConfig(AlgConfig):
         self.fexAlg.TrackSelTool.maxZ0SinTheta = 1.5
         self.fexAlg.TrackSelTool.maxD0overSigmaD0 = 3
         self.fexAlg.TrackSelTool.minPt = 1 * Units.GeV
-
+        
 
 class PFSumConfig(AlgConfig):
     @classmethod
@@ -273,7 +274,6 @@ class MHTPufitConfig(AlgConfig):
     def __init__(self, **recoDict):
         super(MHTPufitConfig, self).__init__(**recoDict)
         from ..Jet.JetRecoSequences import jetRecoSequence
-        from ..Jet.JetRecoConfiguration import defineJets
         from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
             caloClusterRecoSequence,
         )
@@ -300,23 +300,22 @@ class MHTPufitConfig(AlgConfig):
                 clustersin=clusterName,
                 tracktype=jetRecoDict["trkopt"],
             )
-            jetDef = defineJets(jetRecoDict, pfoPrefix=pfoPrefix)
+            #jetDef = defineJets(jetRecoDict, pfoPrefix=pfoPrefix)
         elif jetRecoDict["dataType"] == "tc":
-            jetDef = defineJets(jetRecoDict, clustersKey=clusterName)
+            pass
+        #jetDef = defineJets(jetRecoDict, clustersKey=clusterName)
         else:
             raise ValueError(
                 "Unexpected jetDataType {}".format(jetRecoDict["dataType"])
             )
-        inputName = jetDef.inputdef.inputname
+        inputName = jetDef.inputdef.containername
         calibHasAreaSub = "sub" in jetRecoDict["jetCalib"]
         if calibHasAreaSub:
-            from JetRecConfig.JetRecConfig import getEventShapeAlg, getConstitPJGAlg
-
-            evtShapeAlg = getEventShapeAlg(
-                jetDef.inputdef,
-                getConstitPJGAlg(jetDef.inputdef).OutputContainer,
-                "HLT_",
-            )
+            from JetRecConfig.JetRecConfig import instantiateAliases
+            from JetRecConfig.JetInputConfig import buildEventShapeAlg
+            instantiateAliases(jetDef)
+            evtShapeAlg = buildEventShapeAlg( jetDef,  "HLT_" )
+            
             rhoKey = evtShapeAlg.EventDensityTool.OutputContainer
         else:
             rhoKey = ""
