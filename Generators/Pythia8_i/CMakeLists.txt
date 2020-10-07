@@ -1,19 +1,7 @@
-################################################################################
-# Package: Pythia8_i
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Pythia8_i )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Generators/GeneratorModules
-                          Generators/AtlasHepMC
-                          PRIVATE
-                          GaudiKernel
-                          Generators/GeneratorObjects
-                          Tools/PathResolver )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

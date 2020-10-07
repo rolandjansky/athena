@@ -1,24 +1,7 @@
-################################################################################
-# Package: Hydjet_i
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Hydjet_i )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Generators/GeneratorFortranCommon
-   Generators/GeneratorModules
-   Generators/AtlasHepMC
-   Control/CxxUtils
-   PRIVATE
-   Control/AthenaKernel
-   Control/StoreGate
-   GaudiKernel
-   Generators/GeneratorObjects
-   Generators/GeneratorUtils
-   Generators/TruthUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -39,10 +22,10 @@ atlas_add_library( Hydjet_iLib
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${PYQUEN_LIBRARIES} ${PYTHIA6_LIBRARIES}
-   ${HYDJET_LIBRARIES} ${HIJING_LIBRARIES} GeneratorFortranCommonLib
-   GeneratorModulesLib StoreGateLib
+   ${HYDJET_LIBRARIES} ${HIJING_LIBRARIES} CxxUtils GeneratorFortranCommonLib
+   GeneratorModulesLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib
-   AthenaKernel GaudiKernel GeneratorObjects TruthUtils )
+   AthenaKernel GaudiKernel GeneratorObjects GeneratorUtilsLib StoreGateLib TruthUtils )
 
 atlas_add_component( Hydjet_i
    src/components/*.cxx
