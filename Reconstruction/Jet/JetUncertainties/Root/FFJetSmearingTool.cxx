@@ -145,10 +145,7 @@ StatusCode FFJetSmearingTool::initialize()
 
 
     //Read all the histogram files where the jms jmr variations are saved
-    if(!(readFFJetSmearingToolSimplifiedData(settings).isSuccess())){
-        ATH_MSG_WARNING("Error reading " << m_HistogramsFilePath);
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(readFFJetSmearingToolSimplifiedData(settings));//If fail, it shows an Error message and exits
 
     // Add the affecting systematics to the global registry
     CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
@@ -307,10 +304,8 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMS";
 
-
             m_Syst_Hist_map[Syst_Name] = dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str()));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
-
 
         }
     }
@@ -331,10 +326,8 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMR";
 
-
             m_Syst_Hist_map[Syst_Name] = dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str()));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
-
 
         }
     }
@@ -436,7 +429,8 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet jet_reco, xAOD::Jet& 
 // The function "getJetTopology" gets the topology of the given jet. "QCD" jets have a extra source of uncertainties called "MODELLINGUNCERTAINTIESQCDJETS".
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getJetTopology( xAOD::Jet jet_reco, std::string& jetTopology){
+StatusCode FFJetSmearingTool::getJetTopology( xAOD::Jet& jet_reco, std::string& jetTopology) const
+{
 
     const SG::AuxElement::ConstAccessor<int> accTruthLabel(m_truthlabelaccessor);
     if (!accTruthLabel.isAvailable(jet_reco) )
@@ -488,7 +482,7 @@ LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(acc
 // The function "getJMSJMR" read the JMS and JMR uncertainties associated with the systematic 
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err){
+StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet& jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err){
 
     //JMS/JMR systematic variations
     JMS_err=0;
@@ -802,7 +796,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
 
 //Functions from JetUncertainties. We copy them in order to read the map exactly as it is done in JetUncertainties and get EXACTLY the same result
 
-double FFJetSmearingTool::Read3DHistogram(TH3* histo, double x, double y, double z)
+double FFJetSmearingTool::Read3DHistogram(const TH3* histo, double x, double y, double z) const
 {
 
   double aux_x = x;

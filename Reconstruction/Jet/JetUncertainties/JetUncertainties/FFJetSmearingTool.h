@@ -143,11 +143,11 @@ namespace CP {
 
             StatusCode readFFJetSmearingToolSimplifiedData(TEnv& settings);
 
-            StatusCode getJMSJMR( xAOD::Jet jet_reco, double jet_mass,  JetTools::FFJetAllowedMassDefEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
+            StatusCode getJMSJMR( xAOD::Jet& jet_reco, double jet_mass,  JetTools::FFJetAllowedMassDefEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
 
-            StatusCode getJetTopology( xAOD::Jet jet_reco, std::string& jetTopology);
+            StatusCode getJetTopology( xAOD::Jet& jet_reco, std::string& jetTopology) const;
 
-            double Read3DHistogram(TH3* histo, double x, double y, double z);
+            double Read3DHistogram(const TH3* histo, double x, double y, double z) const;
 
 
 
