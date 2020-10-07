@@ -492,7 +492,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printFeatures(features_final_em, "[Explicit Final Electron Features] HLT_mu_em_chain", log);  
 
   // Check filtering on the collection name. Note sub-string matching, omitting the "My".
-  std::vector< LinkInfo<xAOD::ElectronContainer> > features_final_em_correctContainer   = recursiveGetFeaturesOfType<xAOD::ElectronContainer>(graph_HLT_mu_em_chain, "ElectronContainer");
+  std::vector< LinkInfo<xAOD::ElectronContainer> > features_final_em_correctContainer   = recursiveGetFeaturesOfType<xAOD::ElectronContainer>(graph_HLT_mu_em_chain, ".*ElectronContainer.*");
   std::vector< LinkInfo<xAOD::ElectronContainer> > features_final_em_incorrectContainer = recursiveGetFeaturesOfType<xAOD::ElectronContainer>(graph_HLT_mu_em_chain, "WrongContainerName");
   VALUE ( features_final_em_correctContainer.size() ) EXPECTED ( features_final_em.size() );
   VALUE ( features_final_em_incorrectContainer.size() ) EXPECTED ( 0 );
