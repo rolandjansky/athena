@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBDB_MDTCALIBCOOLSTRTOOL_H
@@ -12,16 +12,14 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //c - c++
 #include "zlib.h"
 #include "vector"
 
 class MdtCalibrationRegionSvc;
-class Identifier; 
-class MdtIdHelper;
 class IIOVDbSvc;
-class MsgStream;
 class IAtRndmGenSvc;
 namespace MuonGM{
   class MuonDetectorManager;
@@ -73,9 +71,9 @@ private:
   /** loads the tube constants from the DB */
   virtual StatusCode loadTube(IOVSVC_CALLBACK_ARGS);
 
-  const MdtIdHelper *m_mdtIdHelper;
   const MuonGM::MuonDetectorManager *m_detMgr;
   ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
+  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   ServiceHandle<IIOVDbSvc>     m_IOVDbSvc;
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;
   mutable MdtTubeCalibContainerCollection *m_tubeData;
