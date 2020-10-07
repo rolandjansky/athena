@@ -21,7 +21,7 @@
 #include "SiDetElementsRoadUtils_xk.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrkPrepRawData/PrepRawData.h"
-
+#include "GaudiKernel/ContextSpecificPtr.h"
 #include <ostream>
 #include <iomanip>
 
@@ -357,16 +357,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   
   std::vector<InDet::SiDetElementLink_xk::ElementWay> lDE;
   /// book an impressively nested structure to keep track of which detector elements we use 
-  std::array<std::vector<std::vector<InDet::SiDetElementLink_xk::UsedFlag> >,3> used;
-
-  /// module_i: iterate over the detector side 
-  for ( unsigned int module_i=0; module_i<3; ++module_i) {
-     used[module_i].resize( layer[module_i].size() ); /// for each side, book the number of layers we expect to see
-     for (unsigned int layer_i=0; layer_i < layer[module_i].size(); ++layer_i) {
-        /// for each layer, book one slot for each detector element on the layer
-        used[module_i][layer_i].resize( layer[module_i][layer_i].nElements() );
-     }
-  }
+  ElementUsageTracker & used = *getElementUsageTracker(); 
 
   /// done with the first probed position. Now we can start to move along the trajectory
   ++currentPosition;
@@ -501,6 +492,39 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if (testDirection && d.way() < 0) continue; 
     Road.push_back(d.link()->detElement());
   }
+}
+
+/// obtain an event usage tracker object 
+InDet::SiDetElementsRoadMaker_xk::ElementUsageTracker* InDet::SiDetElementsRoadMaker_xk::getElementUsageTracker() const{
+
+    const SiDetElementsLayerVectors_xk &layer = *getLayers();
+
+    static Gaudi::Hive::ContextSpecificPtr<ElementUsageTracker> p_aux_usageTracker ATLAS_THREAD_SAFE;
+    ElementUsageTracker* theTracker{nullptr}; 
+    if (!p_aux_usageTracker){
+       p_aux_usageTracker = new ElementUsageTracker();
+       theTracker = p_aux_usageTracker.get();
+       /// book sufficient space
+       /// module_i: iterate over the detector side 
+       for ( unsigned int side_i=0; side_i<3; ++side_i) {
+          (*theTracker)[side_i].resize( layer[side_i].size() ); /// for each side, book the number of layers we expect to see
+          for (unsigned int layer_i=0; layer_i < layer[side_i].size(); ++layer_i) {
+              /// for each layer, book one slot for each detector element on the layer
+              (*theTracker)[side_i][layer_i].resize( layer[side_i][layer_i].nElements() );
+          }
+       }
+    }
+    else{
+       theTracker = p_aux_usageTracker.get();
+      /// reset this tracker 
+       for ( unsigned int side_i=0; side_i<3; ++side_i) {
+          for (unsigned int layer_i=0; layer_i < layer[side_i].size(); ++layer_i) {
+              /// for each layer, book one slot for each detector element on the layer
+              std::fill((*theTracker)[side_i][layer_i].begin(), (*theTracker)[side_i][layer_i].end(), InDet::SiDetElementLink_xk::UsedFlag{});
+          }
+       }
+    }
+    return p_aux_usageTracker.get();
 }
 
 ///////////////////////////////////////////////////////////////////

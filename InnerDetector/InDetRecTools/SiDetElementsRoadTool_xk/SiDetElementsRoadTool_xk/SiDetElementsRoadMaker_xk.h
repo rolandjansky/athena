@@ -37,6 +37,7 @@
 #include <list>
 #include <mutex>
 #include <vector>
+#include <array>
 
 class MsgStream;
 
@@ -160,6 +161,11 @@ namespace InDet{
        }
        return layerVec.cptr();
     }
+
+    typedef std::array<std::vector<std::vector<InDet::SiDetElementLink_xk::UsedFlag> >,3> ElementUsageTracker;
+    
+    ElementUsageTracker* getElementUsageTracker() const;
+
   };
 
   MsgStream&    operator << (MsgStream&   , const SiDetElementsRoadMaker_xk&);
