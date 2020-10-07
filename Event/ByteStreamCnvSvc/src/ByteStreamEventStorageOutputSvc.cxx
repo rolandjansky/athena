@@ -291,12 +291,12 @@ ByteStreamEventStorageOutputSvc::io_reinit() {
 
 const ByteStreamMetadata *
 ByteStreamEventStorageOutputSvc::getByteStreamMetadata(
-    const EventContext* ctx) {
-  const ByteStreamMetadataContainer* metaDataCont = ctx == nullptr
-      ? SG::get(m_byteStreamMetadataKey)
-      : SG::get(m_byteStreamMetadataKey, *ctx);
+    const EventContext* ctx)
+{
+  if (!ctx) ctx = &Gaudi::Hive::currentContext();
+  SG::ReadHandle<ByteStreamMetadataContainer> metaDataCont (m_byteStreamMetadataKey, *ctx);
 
-  if (metaDataCont == nullptr) return nullptr;
+  if (!metaDataCont.isValid()) return nullptr;
 
   if (metaDataCont->size() > 1)
     ATH_MSG_WARNING("Multiple run parameters in MetaDataStore. "
