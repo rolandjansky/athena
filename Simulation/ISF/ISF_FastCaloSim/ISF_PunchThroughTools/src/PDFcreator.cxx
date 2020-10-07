@@ -272,10 +272,24 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
 
     TAxis *xaxis = hist2d->GetXaxis();
     Int_t binx = xaxis->FindBin(outEnergy);
+
     TH1* hist = hist2d->ProjectionY("projectionHist",binx,binx);
+
+    //incase we select an empty x bin, chose next closest appropriate bin
+    while (hist->GetEntries() == 0.){
+      if(outEnergy > (xaxis->GetXmax() + xaxis->GetXmin())/2.){
+        binx--; //increment bin choice towards center of distribution
+      }
+      else{
+        binx++; //increment bin choice towards center of distribution
+      }
+      hist = hist2d->ProjectionY("projectionHist",binx,binx);
+    }
+
     //Draw randomly from the histogram distribution.
     //if obj is 1D histogram just draw randomly from it
     random = hist->GetRandom();
+
     if(randMax != 0.){
       while (random < randMin || random > randMax){
       random = hist->GetRandom();
