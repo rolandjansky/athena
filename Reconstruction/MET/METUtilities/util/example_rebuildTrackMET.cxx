@@ -60,8 +60,10 @@ int main() {
 using namespace asg::msgUserCode;
 
 int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl;
+  ANA_CHECK_SET_TYPE (int);
+
 #ifdef XAOD_STANDALONE
-  xAOD::Init() ;
+  ANA_CHECK (xAOD::Init()) ;
   //enable status code failures
   CP::CorrectionCode::enableFailure();
   CP::SystematicCode::enableFailure();
