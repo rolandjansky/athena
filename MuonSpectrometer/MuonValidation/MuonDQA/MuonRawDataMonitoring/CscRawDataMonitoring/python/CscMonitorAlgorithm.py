@@ -69,7 +69,7 @@ def CscMonitoringConfig(inputFlags):
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # exampleMonAlg.MyDomainTool = MyDomainTool()
-    from MuonConfig.MuonCalibConfig import CscCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
     calibtool = result.popToolsAndMerge( CscCalibToolCfg(inputFlags) )
     cscClusMonAlg.CscCalibTool = calibtool
 

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def MuonCscRDODecoderCfg(flags, **kwargs):
-    from MuonConfig.MuonCalibConfig import CscCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
     acc = CscCalibToolCfg(flags)
     kwargs.setdefault("cscCalibTool", acc.popPrivateTools())
 
