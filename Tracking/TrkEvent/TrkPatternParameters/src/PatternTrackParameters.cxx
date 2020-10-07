@@ -24,16 +24,8 @@
 const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert(bool covariance) const
 {
   AmgSymMatrix(5)* e = nullptr;
-  if(covariance && m_iscovariance) {
-
-    const double* c = &m_covariance[0];
-    e = new AmgSymMatrix(5);
-    (*e)<<
-      c[ 0],c[ 1],c[ 3],c[ 6],c[10],
-      c[ 1],c[ 2],c[ 4],c[ 7],c[11],
-      c[ 3],c[ 4],c[ 5],c[ 8],c[12],
-      c[ 6],c[ 7],c[ 8],c[ 9],c[13],
-      c[10],c[11],c[12],c[13],c[14];
+  if(covariance && m_covariance != nullptr) {
+    e = new AmgSymMatrix(5)(*m_covariance);
   }
   const AmgVector(5)& p = m_parameters;
   return m_surface ? (m_surface->createTrackParameters(p[0],p[1],p[2],p[3],p[4],e)): nullptr;
@@ -56,18 +48,18 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
   const AmgSymMatrix(5)* C = T->covariance();   
 
   if(C) {
+    if (m_covariance == nullptr) {
+      m_covariance = std::make_unique<AmgSymMatrix(5)>();
+    }
 
-    const AmgSymMatrix(5)& V = *C              ;
-    double*                c = &m_covariance[0];
-    c[ 0]=V(0,0);
-    c[ 1]=V(1,0); c[ 2]=V(1,1);
-    c[ 3]=V(2,0); c[ 4]=V(2,1); c[ 5]=V(2,2);
-    c[ 6]=V(3,0); c[ 7]=V(3,1); c[ 8]=V(3,2); c[ 9]=V(3,3);
-    c[10]=V(4,0); c[11]=V(4,1); c[12]=V(4,2); c[13]=V(4,3); c[14]=V(4,4);
-    m_iscovariance = true;
+    for (std::size_t i = 0; i < 5; i++) {
+      for (std::size_t j = 0; j <= i; j++) {
+        m_covariance->fillSymmetric(i, j, (*C)(i, j));
+      }
+    }
   }
   else {
-    m_iscovariance = false;
+    m_covariance.reset(nullptr);
   }
   return true;
 }
@@ -203,7 +195,6 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 {
   const Trk::Surface*  s = m_surface;
   const AmgVector(5)&  P = m_parameters;
-  const double* V        = &m_covariance[0];
   std::string name;
   std::string iscov;
 
@@ -234,17 +225,18 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
 
-  if (m_iscovariance) {
+  if (m_covariance != nullptr) {
+    const AmgSymMatrix(5) & V = *m_covariance;
     out << std::setprecision(4) <<
-      P[ 0]<<" |"<<V[ 0] << std::endl;
+      P[ 0]<<" |"<<V(0, 0) << std::endl;
     out << std::setprecision(4) <<
-      P[ 1]<<" |"<<V[ 1]<<" "<<V[ 2] << std::endl;
+      P[ 1]<<" |"<<V(0, 1)<<" "<<V(1, 1) << std::endl;
     out << std::setprecision(4) <<
-      P[ 2]<<" |"<<V[ 3]<<" "<<V[ 4]<<" "<<V[ 5] << std::endl;
+      P[ 2]<<" |"<<V(0, 2)<<" "<<V(1, 2)<<" "<<V(2, 2) << std::endl;
     out << std::setprecision(4) <<
-      P[ 3]<<" |"<<V[ 6]<<" "<<V[ 7]<<" "<<V[ 8]<<" "<<V[ 9] << std::endl;
+      P[ 3]<<" |"<<V(0, 3)<<" "<<V(1, 3)<<" "<<V(2, 3)<<" "<<V(3, 3) << std::endl;
     out << std::setprecision(4) <<
-      P[ 4]<<" |"<<V[10]<<" "<<V[11]<<" "<<V[12]<<" "<<V[13]<<" "<<V[14] << std::endl;
+      P[ 4]<<" |"<<V(0, 4)<<" "<<V(1, 4)<<" "<<V(2, 4)<<" "<<V(3, 4)<<" "<<V(4, 4) << std::endl;
   }
   else {
     out << std::setprecision(4) << P[ 0] << " |" << std::endl;
@@ -270,7 +262,6 @@ MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
 {
   const Trk::Surface*  s = m_surface; 
   const AmgVector(5)&  P = m_parameters;
-  const double* V        = &m_covariance[0];
   std::string name;
   std::string iscov;
 
@@ -298,17 +289,18 @@ MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
 
-  if (m_iscovariance) {
+  if (m_covariance != nullptr) {
+    const AmgSymMatrix(5) & V = *m_covariance;
     out << std::setprecision(4) <<
-      P[ 0]<<" |"<<V[ 0] << std::endl;
+      P[ 0]<<" |"<<V(0, 0) << std::endl;
     out << std::setprecision(4) <<
-      P[ 1]<<" |"<<V[ 1]<<" "<<V[ 2] << std::endl;
+      P[ 1]<<" |"<<V(0, 1)<<" "<<V(1, 1) << std::endl;
     out << std::setprecision(4) <<
-      P[ 2]<<" |"<<V[ 3]<<" "<<V[ 4]<<" "<<V[ 5] << std::endl;
+      P[ 2]<<" |"<<V(0, 2)<<" "<<V(1, 2)<<" "<<V(2, 2) << std::endl;
     out << std::setprecision(4) <<
-      P[ 3]<<" |"<<V[ 6]<<" "<<V[ 7]<<" "<<V[ 8]<<" "<<V[ 9] << std::endl;
+      P[ 3]<<" |"<<V(0, 3)<<" "<<V(1, 3)<<" "<<V(2, 3)<<" "<<V(3, 3) << std::endl;
     out << std::setprecision(4) <<
-      P[ 4]<<" |"<<V[10]<<" "<<V[11]<<" "<<V[12]<<" "<<V[13]<<" "<<V[14] << std::endl;
+      P[ 4]<<" |"<<V(0, 4)<<" "<<V(1, 4)<<" "<<V(2, 4)<<" "<<V(3, 4)<<" "<<V(4, 4) << std::endl;
   }
   else {
     out << std::setprecision(4) << P[ 0] << " |" << std::endl;
@@ -493,38 +485,35 @@ bool Trk::PatternTrackParameters::initiate
   int n = E.rows(); if(n<=0 || n>2) { return false;
 }
 
-  m_parameters[0] = P  (0); 
-  m_covariance[0] = E(0,0); 
+  if (Tp.m_covariance != nullptr) {
+    if (m_covariance == nullptr) {
+      m_covariance = std::make_unique<AmgSymMatrix(5)>(*Tp.m_covariance);
+    } else {
+      *m_covariance = *Tp.m_covariance;
+    }
+  } else {
+    if (m_covariance == nullptr) {
+      m_covariance = std::make_unique<AmgSymMatrix(5)>();
+    }
+  }
+
+  m_parameters[0] = P  (0);
+
+  m_covariance->fillSymmetric(0, 0, E(0,0));
   
   if(n==2) {
     m_parameters[ 1] = P(1);
-    m_covariance[ 1] = E(1,0);
-    m_covariance[ 2] = E(1,1);
+    m_covariance->fillSymmetric(0, 1, E(1,0));
+    m_covariance->fillSymmetric(1, 1, E(1,1));
   }
   else    {
     m_parameters[ 1] = Tp.m_parameters[ 1];
-    m_covariance[ 1] = Tp.m_covariance[ 1];
-    m_covariance[ 2] = Tp.m_covariance[ 2];
   }
   m_parameters[ 2] = Tp.m_parameters[ 2];
   m_parameters[ 3] = Tp.m_parameters[ 3];
   m_parameters[ 4] = Tp.m_parameters[ 4];
   
-  m_covariance[ 3] = Tp.m_covariance[ 3];
-  m_covariance[ 4] = Tp.m_covariance[ 4];
-  m_covariance[ 5] = Tp.m_covariance[ 5];
-  m_covariance[ 6] = Tp.m_covariance[ 6];
-  m_covariance[ 7] = Tp.m_covariance[ 7];
-  m_covariance[ 8] = Tp.m_covariance[ 8];
-  m_covariance[ 9] = Tp.m_covariance[ 9];
-  m_covariance[10] = Tp.m_covariance[10];
-  m_covariance[11] = Tp.m_covariance[11];
-  m_covariance[12] = Tp.m_covariance[12];
-  m_covariance[13] = Tp.m_covariance[13];
-  m_covariance[14] = Tp.m_covariance[14];
-  
   m_surface        = Tp.m_surface;  
-  m_iscovariance   = true        ;
   
   return true;
 }
@@ -549,27 +538,27 @@ void Trk::PatternTrackParameters::changeDirection()
   if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface) &&
      !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface)) {
     
-    if(!m_iscovariance) { return;
+    if(m_covariance == nullptr) { return;
 }
 
-    m_covariance[ 6] = -m_covariance[ 6];
-    m_covariance[ 7] = -m_covariance[ 7];
-    m_covariance[ 8] = -m_covariance[ 8];
-    m_covariance[10] = -m_covariance[10];
-    m_covariance[11] = -m_covariance[11];
-    m_covariance[12] = -m_covariance[12];
+    m_covariance->fillSymmetric(0, 3, -(*m_covariance)(0, 3));
+    m_covariance->fillSymmetric(1, 3, -(*m_covariance)(1, 3));
+    m_covariance->fillSymmetric(2, 3, -(*m_covariance)(2, 3));
+    m_covariance->fillSymmetric(0, 4, -(*m_covariance)(0, 4));
+    m_covariance->fillSymmetric(1, 4, -(*m_covariance)(1, 4));
+    m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
     return;
   }
 
   m_parameters[ 0] = -m_parameters[ 0];
 
-  if(!m_iscovariance) { return;
+  if(m_covariance == nullptr) { return;
 }
 
-  m_covariance[ 1] = -m_covariance[ 1];
-  m_covariance[ 3] = -m_covariance[ 3];
-  m_covariance[ 7] = -m_covariance[ 7];
-  m_covariance[ 8] = -m_covariance[ 8];
-  m_covariance[11] = -m_covariance[11];
-  m_covariance[12] = -m_covariance[12];
+  m_covariance->fillSymmetric(0, 1, -(*m_covariance)(0, 1));
+  m_covariance->fillSymmetric(0, 2, -(*m_covariance)(0, 2));
+  m_covariance->fillSymmetric(1, 3, -(*m_covariance)(1, 3));
+  m_covariance->fillSymmetric(2, 3, -(*m_covariance)(2, 3));
+  m_covariance->fillSymmetric(1, 4, -(*m_covariance)(1, 4));
+  m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
 }

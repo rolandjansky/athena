@@ -49,7 +49,7 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
 
       const Surface*   associatedSurface ()     const {return   m_surface      ;}
-      const bool&      iscovariance      ()     const {return   m_iscovariance ;}
+      bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       Amg::Vector2D    localPosition     ()     const;
       Amg::Vector3D    momentum          ()     const; 
       Amg::Vector3D    position          ()     const; 
@@ -117,8 +117,7 @@ namespace Trk {
 
       const  Surface* m_surface       ;
       AmgVector(5)    m_parameters    ;
-      double          m_covariance[15];
-      bool            m_iscovariance  ;
+      std::unique_ptr<AmgSymMatrix(5)> m_covariance;
 
       ///////////////////////////////////////////////////////////////////
       // Comments
@@ -128,13 +127,7 @@ namespace Trk {
       // m_parameters[ 2] - Azimuthal angle
       // m_parameters[ 3] - Polar     angle
       // m_parameters[ 4] - charge/Momentum
-      // m_covariance is  elements of the lower triangle of covariance matrix
-      //   0    
-      //   1  2
-      //   3  4  5
-      //   6  7  8  9
-      //  10 11 12 13 14
-      // m_iscovariance is true if m_covariance contains correct information
+      // m_covariance is the covariance matrix
       ///////////////////////////////////////////////////////////////////
 
 
@@ -165,13 +158,11 @@ namespace Trk {
   inline PatternTrackParameters::PatternTrackParameters()
     {
       m_surface      =     nullptr;
-      m_iscovariance =     false;
       m_parameters.setZero();
-      std::fill (std::begin(m_covariance), std::end(m_covariance), 0);
     }
 
   inline PatternTrackParameters::PatternTrackParameters(const PatternTrackParameters& P):
-    m_surface(P.m_surface),m_parameters{},m_covariance{},m_iscovariance(P.m_iscovariance)
+    m_surface(P.m_surface),m_parameters{}
     {
       *this = P;
     }
@@ -180,24 +171,16 @@ namespace Trk {
     (const PatternTrackParameters& P) 
     {
       if (&P != this){
-				m_surface        = P.m_surface       ;
-				m_parameters     = P.m_parameters    ;
-				m_covariance[ 0] = P.m_covariance[ 0];
-				m_covariance[ 1] = P.m_covariance[ 1];
-				m_covariance[ 2] = P.m_covariance[ 2];
-				m_covariance[ 3] = P.m_covariance[ 3];
-				m_covariance[ 4] = P.m_covariance[ 4];
-				m_covariance[ 5] = P.m_covariance[ 5];
-				m_covariance[ 6] = P.m_covariance[ 6];
-				m_covariance[ 7] = P.m_covariance[ 7];
-				m_covariance[ 8] = P.m_covariance[ 8];
-				m_covariance[ 9] = P.m_covariance[ 9];
-				m_covariance[10] = P.m_covariance[10];
-				m_covariance[11] = P.m_covariance[11];
-				m_covariance[12] = P.m_covariance[12];
-				m_covariance[13] = P.m_covariance[13];
-				m_covariance[14] = P.m_covariance[14];
-				m_iscovariance   = P.m_iscovariance  ;
+        m_surface        = P.m_surface       ;
+        m_parameters     = P.m_parameters    ;
+
+        if (P.m_covariance != nullptr) {
+          if (m_covariance == nullptr) {
+            m_covariance = std::make_unique<AmgSymMatrix(5)>(*P.m_covariance);
+          } else {
+            *m_covariance = *P.m_covariance;
+          }
+        }
       }
       return (*this);
     }
@@ -217,7 +200,7 @@ namespace Trk {
       m_parameters[ 2] = p[ 2];
       m_parameters[ 3] = p[ 3];
       m_parameters[ 4] = p[ 4];
-      m_iscovariance   = false;
+      m_covariance.reset(nullptr);
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -227,22 +210,25 @@ namespace Trk {
   inline void PatternTrackParameters::setCovariance
     (const double* c)
     {
-      m_covariance[ 0] = c[ 0];
-      m_covariance[ 1] = c[ 1];
-      m_covariance[ 2] = c[ 2];
-      m_covariance[ 3] = c[ 3];
-      m_covariance[ 4] = c[ 4];
-      m_covariance[ 5] = c[ 5];
-      m_covariance[ 6] = c[ 6];
-      m_covariance[ 7] = c[ 7];
-      m_covariance[ 8] = c[ 8];
-      m_covariance[ 9] = c[ 9];
-      m_covariance[10] = c[10];
-      m_covariance[11] = c[11];
-      m_covariance[12] = c[12];
-      m_covariance[13] = c[13];
-      m_covariance[14] = c[14];
-      m_iscovariance  = true;
+      if (m_covariance == nullptr) {
+        m_covariance = std::make_unique<AmgSymMatrix(5)>();
+      }
+
+      m_covariance->fillSymmetric(0, 0, c[ 0]);
+      m_covariance->fillSymmetric(0, 1, c[ 1]);
+      m_covariance->fillSymmetric(1, 1, c[ 2]);
+      m_covariance->fillSymmetric(0, 2, c[ 3]);
+      m_covariance->fillSymmetric(1, 2, c[ 4]);
+      m_covariance->fillSymmetric(2, 2, c[ 5]);
+      m_covariance->fillSymmetric(0, 3, c[ 6]);
+      m_covariance->fillSymmetric(1, 3, c[ 7]);
+      m_covariance->fillSymmetric(2, 3, c[ 8]);
+      m_covariance->fillSymmetric(3, 3, c[ 9]);
+      m_covariance->fillSymmetric(0, 4, c[10]);
+      m_covariance->fillSymmetric(1, 4, c[11]);
+      m_covariance->fillSymmetric(2, 4, c[12]);
+      m_covariance->fillSymmetric(3, 4, c[13]);
+      m_covariance->fillSymmetric(4, 4, c[14]);
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -252,7 +238,12 @@ namespace Trk {
   inline void PatternTrackParameters::setParametersWithCovariance
     (const Surface* s,const double* p,const double* c)
     {
-      setParameters(s,p);
+      m_surface        =     s;
+      m_parameters[ 0] = p[ 0];
+      m_parameters[ 1] = p[ 1];
+      m_parameters[ 2] = p[ 2];
+      m_parameters[ 3] = p[ 3];
+      m_parameters[ 4] = p[ 4];
       setCovariance(c  );
     }
 
@@ -275,13 +266,26 @@ namespace Trk {
 
   inline void PatternTrackParameters::diagonalization(double D)
     {
-      double* c = &m_covariance[0];
+      if (m_covariance == nullptr) {
+        return;
+      }
 
-      c[ 0]*=D ;
-      c[ 1] =0.;  c[ 2]*=D ;
-      c[ 3] =0.;  c[ 4] =0.; c[ 5]*=D ;
-      c[ 6] =0.;  c[ 7] =0.; c[ 8] =0.; c[ 9]*=D ;
-      c[10] =0.;  c[11] =0.; c[12] =0.; c[13] =0.; c[14]*=D;
+      m_covariance->fillSymmetric(0, 1, 0);
+      m_covariance->fillSymmetric(0, 2, 0);
+      m_covariance->fillSymmetric(1, 2, 0);
+      m_covariance->fillSymmetric(0, 3, 0);
+      m_covariance->fillSymmetric(1, 3, 0);
+      m_covariance->fillSymmetric(2, 3, 0);
+      m_covariance->fillSymmetric(0, 4, 0);
+      m_covariance->fillSymmetric(1, 4, 0);
+      m_covariance->fillSymmetric(2, 4, 0);
+      m_covariance->fillSymmetric(3, 4, 0);
+
+      (*m_covariance)(0, 0) *= D;
+      (*m_covariance)(1, 1) *= D;
+      (*m_covariance)(2, 2) *= D;
+      (*m_covariance)(3, 3) *= D;
+      (*m_covariance)(4, 4) *= D;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -291,9 +295,11 @@ namespace Trk {
   inline void PatternTrackParameters::addNoise
     (const NoiseOnSurface& N,PropDirection D) 
     {
-      m_covariance[ 5]+=N.covarianceAzim();
-      m_covariance[ 9]+=N.covariancePola();
-      m_covariance[14]+=N.covarianceIMom();
+      if (m_covariance != nullptr) {
+        (*m_covariance)(2, 2)+=N.covarianceAzim();
+        (*m_covariance)(3, 3)+=N.covariancePola();
+        (*m_covariance)(4, 4)+=N.covarianceIMom();
+      }
 
       if( D > 0 ) {
 	N.correctionIMom() > 1. ? 
@@ -312,9 +318,11 @@ namespace Trk {
   inline void PatternTrackParameters::removeNoise
     (const NoiseOnSurface& N,PropDirection D) 
     {
-      m_covariance[ 5]-=N.covarianceAzim();
-      m_covariance[ 9]-=N.covariancePola();
-      m_covariance[14]-=N.covarianceIMom();
+      if (m_covariance != nullptr) {
+        (*m_covariance)(2, 2)-=N.covarianceAzim();
+        (*m_covariance)(3, 3)-=N.covariancePola();
+        (*m_covariance)(4, 4)-=N.covarianceIMom();
+      }
 
       if( D > 0 ) {
 	N.correctionIMom() > 1. ? 
@@ -399,15 +407,7 @@ namespace Trk {
 
   inline AmgSymMatrix(5) PatternTrackParameters::covariance  () const
     {
-      AmgSymMatrix(5) C;
-      const double* c = &m_covariance[0];
-      C<<
-	c[ 0],c[ 1],c[ 3],c[ 6],c[10],
-	c[ 1],c[ 2],c[ 4],c[ 7],c[11],
-	c[ 3],c[ 4],c[ 5],c[ 8],c[12],
-	c[ 6],c[ 7],c[ 8],c[ 9],c[13],
-	c[10],c[11],c[12],c[13],c[14];
-      return C;
+      return *m_covariance;
     }
 
 } // end of name space
