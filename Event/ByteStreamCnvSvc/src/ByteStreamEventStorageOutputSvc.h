@@ -48,11 +48,11 @@ class ByteStreamMetadata;
  *  This class implements the interface ByteStreamOutputSvc for the conversion
  *  service to write the output to a file.
  **/
-class ByteStreamEventStorageOutputSvc:
-    public ByteStreamOutputSvc,
-    virtual public IIoComponent {
+class ByteStreamEventStorageOutputSvc :
+    public extends< ByteStreamOutputSvc, IIoComponent > {
  public:
-  //using extends::extends;
+  using extends::extends;
+
   /// Constructors:
   ByteStreamEventStorageOutputSvc(
       const std::string& name, ISvcLocator* pSvcLocator);
