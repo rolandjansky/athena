@@ -21,14 +21,17 @@ def LArCoverageConfig(inputFlags):
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCoverageCfgAlg')
+
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArCoverageConfigCore(helper, CompFactory.LArCoverageAlg,inputFlags)
 
-    cfg.merge(helper.result())
-    return cfg
+    rv = ComponentAccumulator()
+    rv.merge(helper.result())
+    return rv
 
 def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
@@ -107,7 +110,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     ### Configure histograms
 
-    coveragePath='CoverageNewAlg/'
+    coveragePath='Coverage/'
 
     # -- caloNoiseTool histograms --
 

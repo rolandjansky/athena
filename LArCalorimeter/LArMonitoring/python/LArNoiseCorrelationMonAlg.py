@@ -82,7 +82,6 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
     larNoiseCorrelMonAlg.IgnoreBadChannels=True
     larNoiseCorrelMonAlg.TriggerChain = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY" #turn off for calibration run 
     larNoiseCorrelMonAlg.IsCalibrationRun = False
-#        larNoiseCorrelMonAlg.LArDigitContainerKey=Gain #test with calibration  
 
     #deal with custom febs to monitor (if any)
     if len(customFEBStoMonitor)==0: 
@@ -119,12 +118,12 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
         pass
 
     #prepare the monitoring group
-    correlArray = helper.addArray([larNoiseCorrelMonAlg.FEBlist],larNoiseCorrelMonAlg,"NoiseCorrRAW",'/LAr/','run') 
+    correlArray = helper.addArray([larNoiseCorrelMonAlg.FEBlist],larNoiseCorrelMonAlg,"RAWNoiseCorr",'/LAr/','run') 
 #    correlArray = helper.addArray([lArDQGlobals.BarrelEndcap,lArDQGlobals.Sides,lArDQGlobals.Feedthrough_RangeMax,lArDQGlobals.Slot_RangeMax],larNoiseCorrelMonAlg,"NoiseCorrRAW",'/LAr/','run')
 
     hist_path='NoiseCorrelation/'
     
-    average_plot_name="NoiseCorr_average_RAW"
+    average_plot_name="RAW_NoiseCorr_average"
     average_var_and_name="chanMeanX,chanMean;"+average_plot_name
     correlArray.defineHistogram(average_var_and_name,
                                 title=average_plot_name,
@@ -156,7 +155,7 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
                                 pattern=febsToMonitorEndcapC)
 
 
-    partialSum_plot_name="NoiseCorr_partialSum_RAW"
+    partialSum_plot_name="RAW_NoiseCorr_partialSum"
     partialSum_var_and_name="chanPartSumX,chanPartSumY;"+partialSum_plot_name
 
     correlArray.defineHistogram(partialSum_var_and_name,

@@ -80,7 +80,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
     Group = helper.addGroup(
         larRODMonAlg,
         GroupName,
-        '/LAr/DSPMonitoringNewAlg'
+        '/LAr/DSPMonitoring'
     )
 
 
@@ -162,7 +162,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
           )
 
     #DQMD histos
-    dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
+    dqmd_hist_path='/LAr/DSPMonitoring/DQMD/'
     darray = helper.addArray([lArDQGlobals.Partitions],larRODMonAlg,"RODMon")
     darray.defineHistogram('Ediff,Erange;DE_ranges', title='EOnline - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',#'E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
                            type='TH2F', path=dqmd_hist_path,
@@ -179,7 +179,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
 
     #per partition, currently in one dir only
-    part_hist_path='/LAr/DSPMonitoringNewAlg/perPartition/'
+    part_hist_path='/LAr/DSPMonitoring/perPartition/'
     darray.defineHistogram('Ediff;DE', title='E_offline - E_online:E_offline - E_online',
                            type='TH1F', path=part_hist_path,
                            xbins=lArDQGlobals.DSPEnergy_Bins, xmin=lArDQGlobals.DSPEnergy_Min, xmax=lArDQGlobals.DSPEnergy_Max)
