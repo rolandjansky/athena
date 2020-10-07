@@ -24,7 +24,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 
 // Forward declarations
 class PixelID;
@@ -49,8 +49,8 @@ class PixelRawDataProvider : public AthReentrantAlgorithm {
 private:
   const PixelID* m_pixel_id { nullptr };
 
-  ServiceHandle<IRegSelSvc> m_regionSelector                            { this, "RegSelSvc",  "RegSelSvc", "Region selector" };
-  ServiceHandle<IROBDataProviderSvc>   m_robDataProvider                { this, "ROBDataProvider", "ROBDataProviderSvc" };
+  ToolHandle<IRegSelTool>               m_regionSelector                { this, "RegSelTool",  "RegSelTool/RegSelTool_Pixel" };
+  ServiceHandle<IROBDataProviderSvc>    m_robDataProvider               { this, "ROBDataProvider", "ROBDataProviderSvc" };
   ToolHandle<IPixelRawDataProviderTool> m_rawDataTool                   { this, "ProviderTool", "PixelRawDataProviderTool"};
   Gaudi::Property<bool> m_roiSeeded                                     { this, "isRoI_Seeded", false, "Use RoI" }; // TODO, doubled information, empty RoIs collection name would be sufficent
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey     { this, "RoIs", "", "If RoI driven unpacking to be used, this is the key"};

@@ -8,7 +8,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "TRT_Cabling/ITRT_CablingSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "IRegionSelector/IRegSelTool.h" 
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 
@@ -24,7 +24,6 @@ namespace InDet {
 						  const std::string& name,
 						  const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("TRTRawDataProviderTool/InDetTrigTRTRawDataProviderTool"),
     m_IdMapping       ("TRT_CablingSvc",name),
@@ -132,10 +131,8 @@ namespace InDet {
       // Get RoiDescriptor
       ATH_MSG_DEBUG( "REGTEST:" << *roi );
             
-      //double zmax = 168; 
-      m_regionSelector->DetROBIDListUint( TRT, 
-					  *roi, 
-					  robIDlist);
+      m_regionSelector->ROBIDList( *roi, robIDlist );
+					  
     } else {
       robIDlist = m_IdMapping->getAllRods();
     }

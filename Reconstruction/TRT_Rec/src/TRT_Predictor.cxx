@@ -40,7 +40,6 @@ TRT_Predictor::TRT_Predictor (const std::string&	type,
 			      const std::string&	name, 
 			      const IInterface*      	parent)
     :	AthAlgTool			(type, name, parent),
-	m_regionSelector		("RegSelSvc", name),
 	m_rungeKuttaIntersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
 	m_manager			(nullptr),
 	m_barrelAcceptance		(0.55),
@@ -684,7 +683,7 @@ TRT_Predictor::setRegion(const TrackParameters&	parameters)
     // get the detector element hashIDs from the RegionSelector.
     RoiDescriptor roi( etaMin, etaMax, phiMin, phiMax );
 
-    m_regionSelector->DetHashIDList(TRT, roi, *m_hashIds);
+    m_regionSelector->HashIDList( roi, *m_hashIds);
 }
 
 

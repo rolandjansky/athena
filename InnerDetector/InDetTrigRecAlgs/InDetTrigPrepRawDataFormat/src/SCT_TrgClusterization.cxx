@@ -31,7 +31,7 @@
 
 //Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -58,7 +58,6 @@ namespace InDet{
     m_flaggedCondDataName("SCT_FlaggedCondData_TRIG"),
     m_idHelper(0),
     m_clusterContainer(nullptr),
-    m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1),
@@ -77,7 +76,6 @@ namespace InDet{
     declareProperty("clusteringTool",      m_clusteringTool);
     declareProperty("ClustersName",        m_clustersName);
     declareProperty("FlaggedCondDataName", m_flaggedCondDataName);
-    declareProperty("RegionSelectorTool",  m_regionSelector );
     declareProperty("doFullScan",          m_doFullScan );
 
     declareProperty("EtaHalfWidth",        m_etaHalfWidth);
@@ -366,7 +364,7 @@ namespace InDet{
 
     if (!(roi->isFullscan())){
       if(doTiming()) m_timerRegSel->start();
-      m_regionSelector->DetHashIDList(SCT, *roi, m_listOfSctIds );
+      m_regionSelector->HashIDList( *roi, m_listOfSctIds );
       if(doTiming()) m_timerRegSel->stop();
       
       m_numSctIds = m_listOfSctIds.size();
@@ -620,11 +618,8 @@ namespace InDet{
     ATH_MSG_DEBUG( "REGTEST prepareROBs / event"
 		   << *roi);
 
-    //const TrigRoiDescriptor fs(true);
-
     std::vector<unsigned int> uIntListOfRobs;
-    m_regionSelector->DetROBIDListUint( SCT, *roi, uIntListOfRobs );
-    //m_regionSelector->DetROBIDListUint( SCT, fs, uIntListOfRobs );
+    m_regionSelector->ROBIDList( *roi, uIntListOfRobs );
 
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in SCT: " );

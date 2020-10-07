@@ -87,6 +87,10 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool.EtaWidth = 0.1
         tool.PhiWidth = 0.1
         tool.DetNames = ['All']
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel, makeRegSelTool_SCT, makeRegSelTool_TRT 
+        tool.RegSelTool_Pixel = makeRegSelTool_Pixel()
+        tool.RegSelTool_SCT   = makeRegSelTool_SCT()
+        tool.RegSelTool_TRT   = makeRegSelTool_TRT()
         tool.ExtraROBs = []
         tool.ExtraSubDets = []
         tool.addHLTResultToROBList() # add the main (full) HLT result to the list
@@ -110,6 +114,10 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool.EtaWidth = 0.3
         tool.PhiWidth = 0.3
         tool.DetNames = ['PIXEL', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD']
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel, makeRegSelTool_SCT, makeRegSelTool_TRT 
+        tool.RegSelTool_Pixel = makeRegSelTool_Pixel()
+        tool.RegSelTool_SCT   = makeRegSelTool_SCT()
+        tool.RegSelTool_TRT   = makeRegSelTool_TRT()
         tool.ExtraROBs = []
         tool.ExtraSubDets = []
 

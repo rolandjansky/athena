@@ -1079,7 +1079,7 @@ class L2EFChain_mu(L2EFChainDef):
 
     ########### EF algos  #################
 
-    from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
+    from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo 
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorMultiHypoConfig, TrigMuonEFExtrapolatorHypoConfig
 
@@ -1171,7 +1171,7 @@ class L2EFChain_mu(L2EFChainDef):
     if 'msonly' in self.chainPart['reccalibInfo']:
 
       self.EFsequenceList += [['',
-                               [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")],
+                               [GenericDummyUnseededAllTEAlgo("EFDummyAlgo")],
                               'EF_dummy']]
       self.EFsequenceList += [['EF_dummy',
                                [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
@@ -1181,7 +1181,7 @@ class L2EFChain_mu(L2EFChainDef):
                                'EF_SA_FS2']]
     else:
       self.EFsequenceList += [['',
-                               [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")],
+                               [GenericDummyUnseededAllTEAlgo("EFDummyAlgo")],
                                'EF_dummy']]
       self.EFsequenceList += [['EF_dummy',
                                [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
@@ -1323,7 +1323,7 @@ class L2EFChain_mu(L2EFChainDef):
     ########### Sequence List ##############
     if "0eta010" in self.chainPart['etaRange'] or "0eta500" in self.chainPart["etaRange"]:
       #seed = '0eta0'
-      from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
+      from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo 
       from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig, TrigMuonEFFSRoiMakerConfig
       if "0eta010" in self.chainPart['etaRange']:
         theEFRoIMaker = TrigMuonEFFSRoiMakerUnseededConfig("TrigMuonEFFSRoiMakerUnseeded_0eta010", RoISizeEta=0.1)
@@ -1338,7 +1338,7 @@ class L2EFChain_mu(L2EFChainDef):
       theEFRoIMakerCT = TrigMuonEFFSRoiMakerConfig("TrigMuonEFFSRoiMakerCT", RoISizeEta=0.1)
 
       self.EFsequenceList += [["",
-                              [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")],
+                              [GenericDummyUnseededAllTEAlgo("EFDummyAlgo")],
                                'EF_CT_seed']]
       self.EFsequenceList += [['EF_CT_seed',
                               [theEFRoIMaker],
@@ -1402,7 +1402,7 @@ class L2EFChain_mu(L2EFChainDef):
 
     ########### EF algos  #################
 
-    from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
+    from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorMultiHypoConfig, TrigMuonEFExtrapolatorHypoConfig
 
@@ -1481,7 +1481,7 @@ class L2EFChain_mu(L2EFChainDef):
     ########### Sequence List ##############
 
     self.EFsequenceList += [['',
-                             [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo",createRoIDescriptors=True)],
+                             [GenericDummyUnseededAllTEAlgo("EFDummyAlgo",createRoIDescriptors=True)],
                              'EF_dummy']]
     if "nscan03" in self.chainPart['FSinfo']:
       cone = "_cone03"
@@ -1965,6 +1965,11 @@ class L2EFChain_mu(L2EFChainDef):
       RoiUpdater.EtaHalfWidth = 0.10
       RoiUpdater.PhiHalfWidth = 0.10
     
+    from RegionSelector.RegSelToolConfif import makeRegSelTool_Pixel
+    from RegionSelector.RegSelToolConfif import makeRegSelTool_SCT
+    RoiUpdater.RegSelTool_Pixel = makeRegSelTool_Pixel()
+    RoiUpdater.RegSelTool_SCT   = makeRegSelTool_SCT()
+
     from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
     theL2StandAloneAlg  = TrigL2MuonSAConfig(L2AlgName)
     from TrigMuonHypo.TrigMuonHypoConfig import MufastHypoConfig

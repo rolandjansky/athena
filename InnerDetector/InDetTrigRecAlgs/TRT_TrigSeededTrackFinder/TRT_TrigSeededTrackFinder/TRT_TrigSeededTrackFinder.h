@@ -36,9 +36,8 @@
 //!< Trigger specific stuff
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInterfaces/FexAlgo.h"
+#include "IRegionSelector/IRegSelTool.h"
 
-
-class IRegSelSvc;
 
 namespace InDet {
 
@@ -78,7 +77,7 @@ namespace InDet {
       std::ostream& dump     (std::ostream& out) const;
 
   protected:
-      ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
+      ToolHandle<IRegSelTool>     m_regionSelector{ this, "RegSelTool", "RegSelTool/RegSelTool_TRT" };      //!< region selector service
       
       double       m_etaHalfWidth{};   //!< ROI half-width in eta.
       double       m_phiHalfWidth{};   //!< ROI half-width in phi.

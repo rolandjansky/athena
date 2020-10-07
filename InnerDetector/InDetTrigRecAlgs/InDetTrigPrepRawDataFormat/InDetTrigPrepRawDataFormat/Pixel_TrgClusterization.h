@@ -44,8 +44,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "IRegionSelector/IRegSelTool.h"
 
-class IRegSelSvc;
+
 class TrigTimer;
 class PixelID;
 class IROBDataProviderSvc;
@@ -116,7 +117,7 @@ namespace InDet {
     const PixelID*           m_idHelper{};
     PixelClusterContainer*   m_clusterContainer{};
     
-    ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+    ToolHandle<IRegSelTool>  m_regionSelector{ this, "RegSelTool", "RegSelTool/RegSelTool_Pixel" };     //!< region selector service
     bool m_doFullScan;             //!< support for FullScan mode
     double                   m_etaHalfWidth;       //!< ROI half-width in eta
     double                   m_phiHalfWidth;       //!< ROI half-width in phi

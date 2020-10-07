@@ -24,15 +24,9 @@ TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t,
 					     const std::string& n,
 					     const IInterface*  p ) : 
   AthAlgTool(t,n,p),
-  m_layerNumberTool("TrigL2LayerNumberTool"),
-  m_regsel_pix( "RegSelTool/RegSelTool_Pixel", this),
-  m_regsel_sct( "RegSelTool/RegSel_SCT", this)
+  m_layerNumberTool("TrigL2LayerNumberTool")
 {
   declareInterface< ITrigSpacePointConversionTool >( this );
-
-  //  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
-  declareProperty( "RegSel_Pixel",           m_regsel_pix);
-  declareProperty( "RegSel_SCT",             m_regsel_sct);
 
   declareProperty( "DoPhiFiltering",         m_filter_phi = true );
   declareProperty( "UseBeamTilt",            m_useBeamTilt = true );

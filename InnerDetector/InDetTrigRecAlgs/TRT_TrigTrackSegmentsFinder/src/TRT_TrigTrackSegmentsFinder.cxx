@@ -21,7 +21,7 @@
 
 //Trigger stuff
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include <ostream>
 
 
@@ -33,13 +33,11 @@ InDet::TRT_TrigTrackSegmentsFinder::TRT_TrigTrackSegmentsFinder
 (const std::string& name,ISvcLocator* pSvcLocator):
   HLT::FexAlgo(name, pSvcLocator),
   m_segmentsMakerTool("InDet::TRT_TrackSegmentsMaker_ATLxk/InDetTrigTRT_TrackSegmentsMaker"),
-  m_regionSelector("RegSelSvc", name),
   m_etaHalfWidth(0.1),
   m_phiHalfWidth(0.1),
   m_doFullScan(false)
 {
   declareProperty("SegmentsMakerTool", m_segmentsMakerTool);
-  declareProperty("RegionSelector", m_regionSelector);
   declareProperty("EtaHalfWidth",  m_etaHalfWidth);
   declareProperty("PhiHalfWidth",  m_phiHalfWidth);
   declareProperty("doFullScan",    m_doFullScan);
@@ -131,9 +129,8 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
     // TRT hash id's:
     if(doTiming()) m_timerRegSel->start();
     std::vector<IdentifierHash> listOfTRTIds; 
-    m_regionSelector->DetHashIDList(TRT, 
-				    *roi, 
-				    listOfTRTIds );
+    m_regionSelector->HashIDList( *roi,listOfTRTIds );
+				    
     if(doTiming()) m_timerRegSel->stop();
 
     if(doTiming()) m_timerSegMaker->resume();

@@ -498,6 +498,10 @@ if doPixel:
                                                           gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                           DataObjectName          = InDetKeys.PixelRDOs(),
                                                           ClustersName            = InDetKeys.PixelClusters())
+
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+    InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
+
     topSequence += InDetPixelClusterization
 
 # For SCT

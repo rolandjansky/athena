@@ -18,10 +18,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/HypoAlgo.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
+
 class StoreGateSvc;
 class SCT_ID;
 class PixelID;
-class IRegSelSvc;
+
 
 
 class TrigLLPInnerDetectorHypo: public HLT::HypoAlgo {
@@ -40,7 +43,9 @@ class TrigLLPInnerDetectorHypo: public HLT::HypoAlgo {
   HLT::ErrorCode checkDetectorMask();
   
   Bool_t                        m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
-  ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
+
+  ToolHandle<IRegSelTool>  m_regionSelector_pix { this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel" };      //!< region selector tool
+  ToolHandle<IRegSelTool>  m_regionSelector_sct { this, "RegSelTool_SCT",   "RegSelTool/RegSelTool_SCT"   };      //!< region selector tool
   
   const PixelID* m_pixHelper;   
   const SCT_ID* m_sctHelper;

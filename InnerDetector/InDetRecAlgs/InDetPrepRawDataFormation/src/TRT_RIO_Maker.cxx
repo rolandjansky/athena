@@ -34,7 +34,6 @@ namespace InDet {
   m_rioContainerKey("TRT_DriftCircles"),
   m_mode_rio_production(0),
   m_trtBadChannels(0),
-  m_regionSelector("RegSelSvc", name),
   m_rioContainerCacheKey("")
   {
     // Read TRT_RIO_Maker steering parameters
@@ -110,7 +109,7 @@ namespace InDet {
       for(const TrigRoiDescriptor* roi : *roiCollection){
          
          listOfTRTIds.clear(); //Prevents needless memory reallocations
-         m_regionSelector->DetHashIDList( TRT, *roi, listOfTRTIds);
+         m_regionSelector->HashIDList( *roi, listOfTRTIds);
 #ifndef NDEBUG
           ATH_MSG_VERBOSE(*roi);
           ATH_MSG_VERBOSE( "REGTEST: SCT : Roi contains " 

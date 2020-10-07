@@ -59,19 +59,21 @@ if InDetTrigFlags.useConditionsClasses():
 else:
   include ("InDetRecExample/InDetRecConditionsAccess.py")
 
-#manipulate RegSelSvc settings to be aware of the inactive detelems
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-RegSelSvc = RegSelSvcDefault()
+# remove all the old RegSelSvc setting - leave commented 
+# while we determinte whether the RegSel migration has been successful
+# manipulate RegSelSvc settings to be aware of the inactive detelems
+# from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+# RegSelSvc = RegSelSvcDefault()
 
-RegSelSvc.DisableFromConditions = False
-RegSelSvc.DisablePixelFromConditions = False
-RegSelSvc.DisableTRTFromConditions = False
-RegSelSvc.DisableSCTFromConditions = False
+# RegSelSvc.DisableFromConditions = False
+# RegSelSvc.DisablePixelFromConditions = False
+# RegSelSvc.DisableTRTFromConditions = False
+# RegSelSvc.DisableSCTFromConditions = False
 from InDetTrigRecExample.InDetTrigConfigConditions import \
          SCT_ConditionsSetup, TRT_ConditionsSetup
-RegSelSvc.PixConditionsSvc = ""      #empty as it does not work
-RegSelSvc.SCTConditionsTool = "SCT_ConditionsSummaryTool/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummaryTool")
-RegSelSvc.TRTConditionsSvc = "TRT_ConditionsSummarySvc/"+TRT_ConditionsSetup.instanceName("InDetTRTConditionsSummaryService")
+# RegSelSvc.PixConditionsSvc = ""      #empty as it does not work
+# RegSelSvc.SCTConditionsTool = "SCT_ConditionsSummaryTool/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummaryTool")
+# RegSelSvc.TRTConditionsSvc = "TRT_ConditionsSummarySvc/"+TRT_ConditionsSetup.instanceName("InDetTRTConditionsSummaryService")
 
 #this should be our common cabling setup/
 # online running data are dealt with in the TriggerJobOpts 

@@ -35,7 +35,6 @@ namespace InDet{
   m_gangedAmbiguitiesFinder("InDet::PixelGangedAmbiguitiesFinder", this), //made private
   m_rdoContainerKey(""),
   m_roiCollectionKey(""),
-  m_regionSelector("RegSelSvc", name),
   m_roiSeeded(false),
   m_idHelper(nullptr),
   m_clusterContainerKey(""),
@@ -163,7 +162,7 @@ namespace InDet{
       for (; roi!=roiE; ++roi) {
         
         listOfPixIds.clear();//Prevents needless memory reallocations
-        m_regionSelector->DetHashIDList( PIXEL, **roi, listOfPixIds);
+        m_regionSelector->HashIDList( **roi, listOfPixIds);
         ATH_MSG_VERBOSE(**roi);
         ATH_MSG_VERBOSE( "REGTEST: Pixel : Roi contains " 
 		     << listOfPixIds.size() << " det. Elements" );
