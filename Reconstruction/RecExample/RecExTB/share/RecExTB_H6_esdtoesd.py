@@ -63,7 +63,7 @@ include("LArConditionsCommon/LArConditionsCommon_H6G4_jobOptions.py")
 include( "LArConditionsCommon/LArIdMap_H6_jobOptions.py" )
 include( "CaloCondAthenaPool/CaloCondAthenaPool_joboptions.py")
 PoolSvc.ReadCatalog += [ "prfile:PoolCat_H6_tbcond.xml" ]
-print "FileCatalog: ", PoolSvc.ReadCatalog
+print("FileCatalog: ", PoolSvc.ReadCatalog)
 
 
 # - GeoModel ---
@@ -127,7 +127,7 @@ for x in topSequence.CaloTopoCluster.ClusterCorrectionTools:
   if x.find("BadChan") == -1:
      tlist += [x]
   else:   
-     print "Removing: ",x," from CaloTopoCluster.ClusterCorrectionTools" 
+     print("Removing: ",x," from CaloTopoCluster.ClusterCorrectionTools")
 topSequence.CaloTopoCluster.ClusterCorrectionTools = tlist
 
 
@@ -167,8 +167,8 @@ lcPerf.doRecoEfficiency = True
 lcPerf.isTestbeam = True
 
 
-print "topSequence",topSequence
-print "dumpMasterSequence"
+print("topSequence",topSequence)
+print("dumpMasterSequence")
 from AthenaCommon.AlgSequence import dumpMasterSequence
 dumpMasterSequence()
 
