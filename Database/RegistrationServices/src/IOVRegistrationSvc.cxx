@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,7 +20,6 @@
 //#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Athena includes
-#include "StoreGate/StoreGate.h"
 #include "IOVDbSvc/IIOVCondDbSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
