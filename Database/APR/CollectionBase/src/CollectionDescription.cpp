@@ -20,8 +20,8 @@ using namespace std;
 
 pool::CollectionDescription::CollectionDescription( const std::string& name,
                                                     const std::string& type,
-                                                    std::string connection,
-                                                    std::string eventReferenceColumnName ) 
+                                                    const std::string& connection,
+                                                    const std::string& eventReferenceColumnName ) 
   : m_name( name ),
     m_type( type ),
     m_connection( connection ),
@@ -343,7 +343,7 @@ pool::CollectionDescription::setName( const std::string& name )
       // rename frament in column map
       for( std::map< std::string, std::string >::iterator colI = m_fragmentNameForColumnName.begin();
 	   colI != m_fragmentNameForColumnName.end();
-	   colI++ ) {
+	   ++colI ) {
 	 if( colI->second == m_name ) {
 	    colI->second = name;
 	    // change the reference inside the column
@@ -409,7 +409,7 @@ pool::CollectionDescription::setColumnId( pool::CollectionColumn *column, int id
       while( column_iter != m_columnIdForColumnName.end() ) {
 	 if( id < column_iter->second )
 	    id = column_iter->second;
-	 column_iter++;
+	 ++column_iter;
       }
       id++;
    }
@@ -869,8 +869,8 @@ pool::CollectionDescription::createIndex( std::string indexName, const std::vect
   // Generate unique name for index.
   if( !indexName.size() ) {
      indexName = fragmentName;
-     for( std::vector< std::string >::const_iterator iName = columnNames.begin(); iName != columnNames.end(); iName++ )     {
-	indexName += "_" + *iName; 
+     for (const std::string& name : columnNames) {
+	indexName += "_" + name; 
      }
      indexName += "_IDX";
   }
@@ -1023,9 +1023,9 @@ setUniqueConstraint( std::string constraintName, const std::vector< std::string 
   if( !constraintName.size() ) {
      // Generate unique name for unique constraint.
      constraintName = fragmentName;
-     for ( std::vector< std::string >::const_iterator iName = columnNames.begin(); iName != columnNames.end(); iName++ )
+     for (const std::string& name : columnNames)
      {
-	constraintName += "_" + *iName; 
+	constraintName += "_" + name; 
      }
      constraintName += "_UC";
   }
@@ -1109,7 +1109,7 @@ pool::CollectionDescription::unsetUniqueConstraint( const std::vector< std::stri
       delete *iConstraint;
       iConstraint = m_uniqueConstraints.erase( iConstraint );
       for ( std::map< std::string, pool::CollectionColumn* >::iterator iColumn = columnForColumnName.begin();
-            iColumn != columnForColumnName.end(); iColumn++ )
+            iColumn != columnForColumnName.end(); ++iColumn )
       {
         iColumn->second->setIsUnique( false );
       }

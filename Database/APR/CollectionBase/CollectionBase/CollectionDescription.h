@@ -47,8 +47,8 @@ namespace pool {
      */
     CollectionDescription( const std::string& name,
                            const std::string& type,
-                           std::string connection = "",
-                           std::string eventReferenceColumnName = "" );
+                           const std::string& connection = "",
+                           const std::string& eventReferenceColumnName = "" );
     
     /**
      * Copy constructor.
