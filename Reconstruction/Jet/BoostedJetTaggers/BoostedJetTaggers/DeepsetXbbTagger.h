@@ -10,14 +10,23 @@
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetSelector.h"
 
+#include <xAODTracking/VertexContainer.h>
+
 namespace lwt {
   class LightweightGraph;
   class NanReplacer;
 }
 
-namespace Dexter {
-  class TrackSelectorConfig;
+namespace DeepsetXbbTagger {
+
+  struct TrackSelectorConfig
+  {
+    float pt_minumum = 1e3;
+    float d0_maximum = 1;
+    float z0_maximum = 1.5;
+  };
   class TrackSelector;  
+  class BTagSecVtxAugmenter;
   class DexterInputBuilder;
 }
 
@@ -57,11 +66,17 @@ public:
 
   // check how many subjets there are
   size_t n_subjets(const xAOD::Jet& jet) const;
+  
+  // Get PrimaryVertex
+  xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer*) const;
 
 protected:
    // the location where CVMFS files live
   std::string m_neuralNetworkFile;
   std::string m_configurationFile;
+
+  // secvtx collection name
+  std::string m_secvtx_collection_name;
 
   // variable cleaner, replace Nan and Inf with default values
   typedef std::unique_ptr<lwt::NanReplacer> Cleaner;
@@ -69,7 +84,7 @@ protected:
 
   // neural network and feeder class
   std::unique_ptr<lwt::LightweightGraph> m_lwnn;
-  std::unique_ptr<Dexter::DexterInputBuilder> m_input_builder;
+  std::unique_ptr<DeepsetXbbTagger::DexterInputBuilder> m_input_builder;
 
   // threshold to cut on for keep()
   // default 1000000000 - but the user must set this to use the tool sensibly
@@ -81,11 +96,11 @@ protected:
   // if no decoration name is given we look it up from the
   // configuration output name
   std::map<std::string, std::string> m_decoration_names;
-  std::vector<SG::AuxElement::Decorator<float> > m_decorators;
+  std::vector<SG::AuxElement::Decorator<double> > m_decorators;
 
   // Record the offset of each input variable
-  std::map<std::string, float> m_offsets;
-  std::map<std::string, float> m_scales;
+  std::map<std::string, double> m_offsets;
+
 };
 
 #endif

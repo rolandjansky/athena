@@ -5,6 +5,7 @@
         "pt_threshold": 5000
     },
     "track": {
+        "node_name": "node_0",
         "maximum_number": 25,
         "track_pt_minimum": 500,
         "track_d0_maximum": 3.5,
@@ -29,17 +30,17 @@
         ] 
     },
     "sexctx": {
-        "collection": "SoftBVrtClusterTool_MSVTight_Vertices",
+        "node_name": "node_1",
         "maximum_number": 12,
         "variables":[
             "deltaEta_subjet",
             "deltaPhi_subjet",
             "Lxy",
             "Lz",
-            "LxySignificance",
-            "LzSignificance",
+            "Lxy_significance",
+            "Lz_significance",
             "pTfrac_jet",
-            "secvtx_mass"
+            "secvtx_log_mass"
         ]
     },
     "types": {
@@ -53,7 +54,7 @@
                 "type": "int"
             },
             {
-                "regex":"^(numberOf_)",
+                "regex":"^(number)",
                 "type": "int"
             },
             {

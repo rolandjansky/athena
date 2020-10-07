@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -27,6 +27,7 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
+#include "xAODTracking/VertexContainer.h"
 #include "AsgTools/Check.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "PATCore/TAccept.h"
@@ -34,7 +35,7 @@
 // Tool testing include(s):
 #include "AsgTools/AnaToolHandle.h"
 #include "JetInterface/IJetSelector.h"
-#include "BoostedJetTaggers/MassDecoXbbTagger.h"
+#include "BoostedJetTaggers/DeepsetXbbTagger.h"
 
 using namespace std;
 
@@ -44,9 +45,7 @@ int main( int argc, char* argv[] ) {
   char* APP_NAME = argv[ 0 ];
 
   // arguments
-  TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.15579292._000001.pool.root.1"; // hh->bbbb
-  //TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.15577910._000001.pool.root.1"; // QCD 361029
-  //TString fileName = "/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/DAOD_FTAG5.15578792._000001.pool.root.1"; // QCD 361024
+  TString fileName = "/eos/user/y/yuchou/DxAOD/mc16_13TeV.346115.PowhegPy8EG_ggZH_H125_a20a20_4b.deriv.DAOD_FTAG1.e7370_a875_r9364_p4239/DAOD_FTAG1.22347060._000007.pool.root.1"; 
   int  ievent=-1;
   int  nevents=-1;
   bool verbose=false;
@@ -135,14 +134,14 @@ int main( int argc, char* argv[] ) {
   Long64_t entries = event.getEntries();
 
   // Fill a validation true with the tag return value
-  std::unique_ptr<TFile> outputFile(TFile::Open( "output_MassDecoXbbTagger.root", "recreate" ));
+  std::unique_ptr<TFile> outputFile(TFile::Open( "output_Dexter.root", "recreate" ));
   int pass;
-  double QCDScore, HiggsScore, TopScore;
+  float dexter_pbb, dexter_pb, dexter_pl;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
-  Tree->Branch( "QCDSorce", &QCDScore, "QCDScore/D" );
-  Tree->Branch( "HiggsSorce", &HiggsScore, "HiggsScore/D" );
-  Tree->Branch( "TopSorce", &TopScore, "TopScore/D" );
+  Tree->Branch( "dexter_pbb", &dexter_pbb, "dexter_pb/F" );
+  Tree->Branch( "dexter_pb", &dexter_pb, "dexter_pb/F" );
+  Tree->Branch( "dexter_pl", &dexter_pl, "dexter_pb/F" );
 
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -153,13 +152,12 @@ int main( int argc, char* argv[] ) {
   // setup the tool handle as per the
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
-  std::cout<<"Initializing Mass Decorrelated Xbb Tagger"<<std::endl;
-  asg::AnaToolHandle<MassDecoXbbTagger> m_Tagger; //!
-  m_Tagger.setTypeAndName("MassDecoXbbTagger","MassDecoXbbTagger");
+  std::cout<<"Initializing Dexter"<<std::endl;
+  asg::AnaToolHandle<Dexter> m_Tagger; //!
+  m_Tagger.setTypeAndName("Dexter","Dexter");
 
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::VERBOSE);
-  m_Tagger.setProperty( "neuralNetworkFile","/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/WeiAdm3bStd1_OptSave2.json");
-  //m_Tagger.setProperty( "configurationFile","/eos/user/g/gang/public/BoostedJetTaggers/MassDecoXbbTagger/test_config.json");
+  m_Tagger.setProperty( "neuralNetworkFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
   m_Tagger.setProperty( "tagThreshold", 0.5);
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
@@ -184,28 +182,28 @@ int main( int argc, char* argv[] ) {
       continue;
     }
 
-    // Get the jets
-    const xAOD::JetContainer* myJets = 0;
-    std::string jc_name = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets";
-    auto sc = event.retrieve( myJets, jc_name );
-    if (sc != StatusCode::SUCCESS) return 1;
-
+    // Get the jets & msv collections
+    const xAOD::JetContainer *myJets = nullptr;
+    std::string jc_name = "AntiKt8EMPFlowJets";
+    auto sc_jet = event.retrieve( myJets, jc_name );
+    
+    if (sc_jet != StatusCode::SUCCESS) return 1;
 
     // Loop over jet container
     for(const xAOD::Jet* jet : *myJets ){
 
-      if (m_Tagger->n_subjets(*jet) >= 2 && jet->pt() > 250e3) {
+      if (m_Tagger->n_subjets(*jet) == 2 && jet->pt() > 20e3) {
         auto scores = m_Tagger->getScores(*jet);
         if (verbose) {
-	  std::cout << "QCD Score: " << scores.at("QCDScore") << std::endl;
-	  std::cout << "Higgs Score: " << scores.at("HiggsScore") << std::endl;
-	  std::cout << "Top Score: " << scores.at("TopScore") << std::endl;
-	}
+          std::cout << "BB Score: " << scores.at("dexter_pbb") << std::endl;
+          std::cout << "B Score: " << scores.at("dexter_pb") << std::endl;
+          std::cout << "Light Score: " << scores.at("dexter_pl") << std::endl;
+        }
         bool res = m_Tagger->keep( *jet );
         pass = res;
-	QCDScore = scores.at("QCDScore");
-	HiggsScore = scores.at("HiggsScore");
-	TopScore = scores.at("TopScore");
+        dexter_pbb = scores.at("dexter_pbb");
+        dexter_pb = scores.at("dexter_pb");
+        dexter_pl = scores.at("dexter_pl");
         Tree->Fill();
       }
     }
