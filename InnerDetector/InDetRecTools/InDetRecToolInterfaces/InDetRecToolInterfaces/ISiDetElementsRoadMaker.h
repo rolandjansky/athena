@@ -29,6 +29,7 @@ namespace InDetDD {
 }
 
 namespace InDet {
+  class SiDetElementRoadMakerData_xk; 
 
   /**
    * @class ISiDetElementsRoadMaker
@@ -56,13 +57,13 @@ namespace InDet {
       virtual void detElementsRoad
 	(std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-         bool test) const=0;
+         bool test, InDet::SiDetElementRoadMakerData_xk &) const=0;
 
       virtual void detElementsRoad
       (const EventContext& ctx,
        MagField::AtlasFieldCache& fieldCache,
        const Trk::TrackParameters&,Trk::PropDirection,
-       std::list<const InDetDD::SiDetectorElement*>&) const=0;
+       std::list<const InDetDD::SiDetectorElement*>&, InDet::SiDetElementRoadMakerData_xk &) const=0;
       //@} 
 
       ///////////////////////////////////////////////////////////////////

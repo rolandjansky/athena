@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiDetElementsRoadTool_xk/SiDetElementsRoadMaker_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementRoadMakerData_xk.h"
 
 #include "SiDetElementsRoadUtils_xk.h"
 
@@ -42,8 +43,8 @@ InDet::SiDetElementsRoadMaker_xk::SiDetElementsRoadMaker_xk
 StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 {
   //Class optimization checks
-  static_assert(std::is_trivially_copyable<SiDetElementLink_xk::UsedFlag>::value);
-  static_assert(std::is_trivially_destructible<SiDetElementLink_xk::UsedFlag>::value);
+  static_assert(std::is_trivially_copyable<SiDetElementRoadMakerData_xk::UsedFlag>::value);
+  static_assert(std::is_trivially_destructible<SiDetElementRoadMakerData_xk::UsedFlag>::value);
   static_assert(std::is_trivially_copyable<SiDetElementLink_xk::ElementWay>::value);
   static_assert(std::is_trivially_destructible<SiDetElementLink_xk::ElementWay>::value);
   static_assert(std::is_trivially_copyable<SiDetElementLink_xk>::value);
@@ -303,7 +304,8 @@ std::ostream& InDet::operator <<
 void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (std::list<Amg::Vector3D>& GP,
  std::list<const InDetDD::SiDetectorElement*>& Road,
- bool testDirection) const
+ bool testDirection,
+ SiDetElementRoadMakerData_xk & roadMakerData) const
 {  
   if (!m_usePIX && !m_useSCT) return;
 
@@ -356,8 +358,13 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
   
   std::vector<InDet::SiDetElementLink_xk::ElementWay> lDE;
-  /// book an impressively nested structure to keep track of which detector elements we use 
-  ElementUsageTracker & used = *getElementUsageTracker(); 
+  /// reset the module usage data
+  if (!roadMakerData.isInitialized){
+    bookUsageTracker(roadMakerData,layer);
+  }
+  else{ 
+    roadMakerData.resetUsageTracker();
+  }
 
   /// done with the first probed position. Now we can start to move along the trajectory
   ++currentPosition;
@@ -424,18 +431,18 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       for (; n1<static_cast<int>(layer[1].size()); ++n1) {
         /// stop if we moved past the targer point in R
 	      if (par_targetPoint[3] < layer[1].at(n1).r()) break;
-        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
+        assert( roadMakerData.elementUsageTracker.at(1).size() > static_cast<unsigned int>(n1) );
         /// collect all compatible detector elements from the current layer
-	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
+	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
       }
       /// if we are moving inward in R, iterate the other way for the barrel
     } else {
       for (--n1; n1>=0; --n1) {
         /// stop if we moved past the test point in R
 	      if (par_targetPoint[3] > layer[1].at(n1).r()+dr) break;
-        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
+        assert( roadMakerData.elementUsageTracker.at(1).size() > static_cast<unsigned int>(n1) );
         /// collect all compatible detector elements        
-	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
+	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[1][n1]);
       }
       ++n1;
     }
@@ -445,16 +452,16 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if (par_targetPoint[2]>par_startingPoint[2]) {
       for (; n2<static_cast<int>(layer[2].size()); ++n2) {
 	      if (par_targetPoint[2] < layer[2].at(n2).z()) break;
-        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
+        assert( roadMakerData.elementUsageTracker.at(2).size() > static_cast<unsigned int>(n2) );
         /// collect all compatible detector elements        
-	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[2][n2]);
+	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
 	      if (par_targetPoint[2] > layer[2].at(n2).z()) break;
-        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
+        assert( roadMakerData.elementUsageTracker.at(2).size() > static_cast<unsigned int>(n2) );
         /// collect all compatible detector elements        
-	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE, used[2][n2]);
+	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE, roadMakerData.elementUsageTracker[2][n2]);
       }
       ++n2;
     }
@@ -464,16 +471,16 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if (par_targetPoint[2]<par_startingPoint[2]) {
       for (; n0<static_cast<int>(layer[0].size()); ++n0) {
 	      if (par_targetPoint[2] > layer[0].at(n0).z()) break;
-        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
+        assert( roadMakerData.elementUsageTracker.at(0).size() > static_cast<unsigned int>(n0) );
         /// collect all compatible detector elements        
-	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
+	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
       }
     } else {
       for (--n0; n0>=0; --n0) {
 	      if (par_targetPoint[2] < layer[0].at(n0).z()) break;
-        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
+        assert( roadMakerData.elementUsageTracker.at(0).size() > static_cast<unsigned int>(n0) );
         /// collect all compatible detector elements        
-	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
+	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[0][n0]);
       }
       ++n0;
     }
@@ -495,37 +502,19 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 }
 
 /// obtain an event usage tracker object 
-InDet::SiDetElementsRoadMaker_xk::ElementUsageTracker* InDet::SiDetElementsRoadMaker_xk::getElementUsageTracker() const{
+void InDet::SiDetElementsRoadMaker_xk::bookUsageTracker(InDet::SiDetElementRoadMakerData_xk & data, const SiDetElementsLayerVectors_xk &layers) const{
 
-    const SiDetElementsLayerVectors_xk &layer = *getLayers();
-
-    Gaudi::Hive::ContextSpecificPtr<ElementUsageTracker> p_aux_usageTracker ATLAS_THREAD_SAFE;
-    ElementUsageTracker* theTracker{nullptr}; 
-    if (!p_aux_usageTracker){
-       p_aux_usageTracker = new ElementUsageTracker();
-       theTracker = p_aux_usageTracker.get();
-       /// book sufficient space
-       /// module_i: iterate over the detector side 
-       for ( unsigned int side_i=0; side_i<3; ++side_i) {
-          (*theTracker)[side_i].resize( layer[side_i].size() ); /// for each side, book the number of layers we expect to see
-          for (unsigned int layer_i=0; layer_i < layer[side_i].size(); ++layer_i) {
-              /// for each layer, book one slot for each detector element on the layer
-              (*theTracker)[side_i][layer_i].resize( layer[side_i][layer_i].nElements() );
-          }
-       }
+    /// book sufficient space
+    /// module_i: iterate over the detector side 
+    for ( unsigned int side_i=0; side_i<3; ++side_i) {
+      data.elementUsageTracker[side_i].resize( layers[side_i].size() ); /// for each side, book the number of layers we expect to see
+      for (unsigned int layer_i=0; layer_i < layers[side_i].size(); ++layer_i) {
+          /// for each layer, book one slot for each detector element on the layer
+          data.elementUsageTracker[side_i][layer_i].resize( layers[side_i][layer_i].nElements() );
+      }
     }
-    else{
-       theTracker = p_aux_usageTracker.get();
-      /// reset this tracker 
-       for ( unsigned int side_i=0; side_i<3; ++side_i) {
-          for (unsigned int layer_i=0; layer_i < layer[side_i].size(); ++layer_i) {
-              /// reset the used flags - only possibly by overwriting
-              std::fill((*theTracker)[side_i][layer_i].begin(), (*theTracker)[side_i][layer_i].end(), InDet::SiDetElementLink_xk::UsedFlag{});
-          }
-       }
-    }
-    return theTracker;
-}
+    data.isInitialized=true;
+} 
 
 ///////////////////////////////////////////////////////////////////
 // Main methods for road builder using track parameters and direction
@@ -536,7 +525,8 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
  MagField::AtlasFieldCache& fieldCache,
  const Trk::TrackParameters& Tp,
  Trk::PropDirection D,
- std::list<const InDetDD::SiDetectorElement*>& R) const
+ std::list<const InDetDD::SiDetectorElement*>& R,
+ SiDetElementRoadMakerData_xk & roadMakerData) const
 {
   if (!m_usePIX && !m_useSCT) return;
   /// 500 MeV / pT 
@@ -589,7 +579,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     }
   }
   /// now perform the road building using our set of positions
-  detElementsRoad(G, R,testDirection);
+  detElementsRoad(G, R,testDirection, roadMakerData);
 }
 
 

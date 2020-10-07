@@ -98,6 +98,10 @@ namespace InDet {
     return m_conversionData;
   }
 
+  SiDetElementRoadMakerData_xk& SiTrackMakerEventData_xk::roadMakerData() {
+    return m_roadMakerData;
+  }
+
   SiCombinatorialTrackFinderData_xk& SiTrackMakerEventData_xk::combinatorialData() {
     return m_combinatorialData;
   }

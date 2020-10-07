@@ -31,7 +31,7 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
 (const std::array<float,6> & startingPoint,
  const std::array<float,3> & searchDirection,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
- std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const
+ std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const
 {
 
   /// In the following, identify where we cross the layer in r
@@ -99,7 +99,7 @@ void InDet::SiDetElementsLayer_xk::getEndcapDetElements
 (const std::array<float,6> & startingPoint,
  const std::array<float,3> & searchDirection,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
- std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const
+ std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const
 {
   /// solve the linear equation 
   /// z_layer = z_startingPont + s * z_searchDirection
@@ -137,7 +137,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
  float phiCrossing,
  float reducedRoadWidth,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
- std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const
+ std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const
 {
   constexpr float pi = M_PI;
   constexpr float pi2 = 2.*pi; 

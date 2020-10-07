@@ -54,7 +54,7 @@ namespace InDet{
      /// of the detector.  
      @author Igor.Gavrilenko@cern.ch     
   */
-
+  class SiDetElementRoadMakerData_xk; 
 
   class SiDetElementsRoadMaker_xk : 
     public extends<AthAlgTool, ISiDetElementsRoadMaker>
@@ -83,14 +83,16 @@ namespace InDet{
     virtual void detElementsRoad
       (std::list<Amg::Vector3D>&, 
        std::list<const InDetDD::SiDetectorElement*>&,
-       bool test) const override;
+       bool test,
+       SiDetElementRoadMakerData_xk & roadMakerData) const override;
 
     virtual void detElementsRoad
       (const EventContext& ctx,
        MagField::AtlasFieldCache& fieldCache,
        const Trk::TrackParameters&,
        Trk::PropDirection,
-       std::list<const InDetDD::SiDetectorElement*>&) const override;
+       std::list<const InDetDD::SiDetectorElement*>&,
+       SiDetElementRoadMakerData_xk & roadMakerData) const override;
     //@}
 
     ///////////////////////////////////////////////////////////////////
@@ -162,9 +164,7 @@ namespace InDet{
        return layerVec.cptr();
     }
 
-    typedef std::array<std::vector<std::vector<InDet::SiDetElementLink_xk::UsedFlag> >,3> ElementUsageTracker;
-    
-    ElementUsageTracker* getElementUsageTracker() const;
+    void bookUsageTracker(InDet::SiDetElementRoadMakerData_xk & data, const SiDetElementsLayerVectors_xk &layers) const;
 
   };
 
