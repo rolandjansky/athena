@@ -1,46 +1,28 @@
-################################################################################
-# Package: LArIdentifier
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArIdentifier )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/IdDict
-                          DetectorDescription/Identifier
-                          PRIVATE
-                          Calorimeter/CaloIdentifier
-                          Control/StoreGate
-                          DetectorDescription/IdDictParser
-                          GaudiKernel )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( LArIdentifier
                    src/*.cxx
                    PUBLIC_HEADERS LArIdentifier
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaKernel AtlasDetDescr IdDict Identifier StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel IdDictParser GaudiKernel )
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel AtlasDetDescr IdDict Identifier StoreGateLib
+                   PRIVATE_LINK_LIBRARIES CaloIdentifier GaudiKernel )
 
 atlas_add_dictionary( LArIdentifierDict
                       LArIdentifier/LArIdentifierDict.h
                       LArIdentifier/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasDetDescr IdDict Identifier CaloIdentifier AthenaKernel StoreGateLib SGtests IdDictParser GaudiKernel LArIdentifier )
+                      LINK_LIBRARIES LArIdentifier )
 
 atlas_add_executable( test_laronlineid
                       test/test_laronlineid.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasDetDescr IdDict Identifier CaloIdentifier AthenaKernel StoreGateLib SGtests IdDictParser GaudiKernel LArIdentifier )
+                      LINK_LIBRARIES GaudiKernel IdDictParser LArIdentifier )
 
 atlas_add_executable( test_larhvid
                       test/test_larhvid.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasDetDescr IdDict Identifier CaloIdentifier AthenaKernel StoreGateLib SGtests IdDictParser GaudiKernel LArIdentifier )
-
+                      LINK_LIBRARIES GaudiKernel IdDictParser LArIdentifier )
