@@ -125,9 +125,7 @@ struct ParallelFileMerger : public TObject
          if (syncBranches(outCollTree, inCollTree)) {
             input->Write();
          }
-         if (syncBranches(inCollTree, outCollTree)) {
-            fMerger.GetOutputFile()->Write();
-         }
+         syncBranches(inCollTree, outCollTree);
       }
       Bool_t result = fMerger.PartialMerge(TFileMerger::kIncremental | TFileMerger::kResetable | TFileMerger::kKeepCompression);
       TIter nextKey(input->GetListOfKeys());
