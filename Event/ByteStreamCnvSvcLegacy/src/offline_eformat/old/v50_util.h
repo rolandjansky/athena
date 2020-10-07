@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_OFFLINE_EFORMAT_OLD_V50_UTIL_H
@@ -22,7 +22,6 @@ namespace v50 {
 uint32_t convert_to_40(const uint32_t* src, uint32_t* dest, uint32_t max,
                        eformat::CheckSum event_checksum=eformat::NO_CHECKSUM,
                        eformat::CheckSum rob_checksum=eformat::NO_CHECKSUM);
-
 }} // namespace offline_eformat::V50
 
 #endif // BYTESTREAMCNVSVC_EFORMAT_OLD_V50_UTIL_H

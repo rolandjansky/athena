@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <time.h>
@@ -214,16 +214,16 @@ void DataWriter::date_timeAsInt(uint32_t &getDate, uint32_t &getTime) const
     long a_time;
     time(&a_time);
     
-    struct tm*  t;
-    t = localtime( &a_time);
+    struct tm  t;
+    localtime_r( &a_time, &t);
     
-    getDate= 1000000*t->tm_mday+
-	     10000*(1+t->tm_mon)+
-	     1900+t->tm_year;
+    getDate= 1000000*t.tm_mday+
+	     10000*(1+t.tm_mon)+
+	     1900+t.tm_year;
 
-    getTime= 10000*t->tm_hour+
-	     100*t->tm_min+
-	     t->tm_sec ;
+    getTime= 10000*t.tm_hour+
+	     100*t.tm_min+
+	     t.tm_sec ;
 }
 
 
@@ -278,8 +278,8 @@ DWError DataWriter::putData(const unsigned int& dataSize, const void *event)
 {
 
   uint32_t todisk;
-  struct iovec iov;
-  iov.iov_base = const_cast<void *>(event);
+  iovec_const iov;
+  iov.iov_base = event;
   iov.iov_len = dataSize;
   return this->putData(1, &iov, todisk);
 }
@@ -293,13 +293,13 @@ DWError DataWriter::putData(const unsigned int& entries, const struct iovec * my
 
 DWError DataWriter::putData(const unsigned int& dataSize, const void *event, uint32_t& sizeToDisk){
   
-  struct iovec iov;
-  iov.iov_base = const_cast<void *>(event);
+  iovec_const iov;
+  iov.iov_base = event;
   iov.iov_len = dataSize;
   return this->putData(1, &iov, sizeToDisk);
 }
 
-DWError DataWriter::putData(const unsigned int& entries, const struct iovec * my_iovec, uint32_t& sizeToDisk){
+DWError DataWriter::putData(const unsigned int& entries, const iovec_const * my_iovec, uint32_t& sizeToDisk){
   return this->putData_implementation(entries, my_iovec, sizeToDisk);
 }
 
@@ -307,22 +307,22 @@ DWError DataWriter::putData(const unsigned int& entries, const struct iovec * my
 DWError DataWriter::putPrecompressedData(const unsigned int& dataSize, 
 					 const void *event){
 
-  struct iovec iov;
-  iov.iov_base = const_cast<void *>(event);
+  iovec_const iov;
+  iov.iov_base = event;
   iov.iov_len = dataSize;
   return this->putPrecompressedData(1, &iov);
 }
 
 
 DWError DataWriter::putPrecompressedData(const unsigned int& entries, 
-					 const struct iovec* my_iovec){
+					 const iovec_const* my_iovec){
 
   uint32_t todisk;
   return this->putData_implementation(entries, my_iovec, todisk, true);
 }
 
 
-DWError DataWriter::putData_implementation(const unsigned int& entries, const struct iovec * my_iovec, uint32_t& sizeToDisk, bool precompressed){
+DWError DataWriter::putData_implementation(const unsigned int& entries, const iovec_const * my_iovec, uint32_t& sizeToDisk, bool precompressed){
 
   ERS_DEBUG(3,"DataWriter::putData called for an iovec.");
   if(!m_cFileOpen) openNextFile();
@@ -644,8 +644,8 @@ bool DataWriter::inTransition() const {
 
 void DataWriter::file_record(void *ri, const void *pi) {
 
-  uint32_t *record = (uint32_t *)ri;
-  uint32_t *pattern = (uint32_t *)pi;
+  uint32_t *record = reinterpret_cast<uint32_t *>(ri);
+  const uint32_t *pattern = reinterpret_cast<const uint32_t *>(pi);
   int size=pattern[1];
 
   for(int i=0; i<size; i++) {
