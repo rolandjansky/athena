@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -11,7 +11,7 @@
 
 #include "xAODBase/IParticleHelpers.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 namespace CP {
 
@@ -30,10 +30,8 @@ StatusCode CalibratedEgammaProvider::initialize() {
 
   if(m_tool.empty()) { //set up a default tool with the es2012c calibration
       m_tool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/AutoConfiguredEgammaCalibTool");
-      ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc",name());
-      std::string fullToolName = "ToolSvc.AutoConfiguredEgammaCalibTool";
-      StringProperty pESModel("esModel","es2012c");
-      CHECK( josvc->addPropertyToCatalogue(fullToolName,pESModel) );
+      ServiceHandle<Gaudi::Interfaces::IOptionsSvc> josvc("JobOptionsSvc",name());
+      josvc->set("ToolSvc.AutoConfiguredEgammaCalibTool.esModel", "es2012c");
   }
 
    ATH_CHECK(m_tool.retrieve());

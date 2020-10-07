@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,13 +23,13 @@
 #include <string>
 
 // FrameWork includes
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 
 // forward declarations
-class IJobOptionsSvc;
 namespace DerivationFramework {
   class IThinningTool;
 }
@@ -73,7 +73,7 @@ private:
  private:
   /// The job options service (will be used to forward this algs properties to
   /// the private tool)
-  ServiceHandle<IJobOptionsSvc> m_jos;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jos;
 
   StringProperty m_streamName
   { this, "StreamName", "", "Name of the stream being thinned" };
