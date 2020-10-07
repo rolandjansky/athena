@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INCLUDE_IMPLICITCOLLECTION_IMPLICITCOLLECTION_H
@@ -36,8 +36,8 @@ namespace pool {
        @param mode collection's open mode. For the moment only READONLY mode is allowed.
     */
     ImplicitCollection( ISession* session,
-                        std::string connection,
-                        std::string name,
+                        const std::string& connection,
+                        const std::string& name,
                         ICollection::OpenMode mode );
 
     /// Constructor compying to the new Collections API
