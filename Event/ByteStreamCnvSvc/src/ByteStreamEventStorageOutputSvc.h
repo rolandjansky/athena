@@ -174,8 +174,8 @@ class ByteStreamEventStorageOutputSvc:
   bool initDataWriter(const EventContext* ctx = nullptr);
   bool initDataWriterContents(
       const xAOD::EventInfo*, const ByteStreamMetadata*);
-  const ByteStreamMetadata * getByteStreamMetadata(
-      const EventContext* ctx = nullptr);
+  const ByteStreamMetadata * getByteStreamMetadata();
+  const ByteStreamMetadata * getByteStreamMetadata(const EventContext& ctx);
 
   struct EventCache {
     inline void releaseEvent() {
