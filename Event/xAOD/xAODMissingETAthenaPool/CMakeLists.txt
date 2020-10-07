@@ -38,7 +38,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODMISSINGETATHENAPOOL_REFERENCE_TAG
-       xAODMissingETAthenaPoolReference-01-00-00 )
+       xAODMissingETAthenaPoolReference-01-01-00 )
   run_tpcnv_legacy_test( xAODMissingETAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODMissingETAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMISSINGETATHENAPOOL_REFERENCE_TAG} )
