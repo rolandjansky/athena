@@ -983,8 +983,11 @@ ps_rerun_list = [
       'xe0noL1_l2fsperf_trktc_lcw',
       'xe0noL1_l2fsperf_pufittrack_lcw_nojcalib',
       'xe0noL1_l2fsperf_trkmht',
-      'xe0noL1_l2fsperf_trkmht_LRT',
       ]
+
+ps_unconvtrk_list= [
+      'xe0noL1_l2fsperf_trkmht_LRT',
+]    
 
 if TriggerFlags.doFTK():
     ps_rerun_list += [
@@ -1090,7 +1093,7 @@ if TriggerFlags.doFTK():
 #-----------------------------------------------------
 
 
-chain_list=ps_online_list+ps_cosmic_list+ps_minb_list
+chain_list=ps_online_list+ps_cosmic_list+ps_minb_list+ps_unconvtrk_list
 if TriggerFlags.doFTK():
     chain_list+=ps_ftk_beamspot_list
 
