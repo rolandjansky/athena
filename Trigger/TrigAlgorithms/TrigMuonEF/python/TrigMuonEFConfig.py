@@ -363,6 +363,8 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
     kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
+    #Should be safe as the dynamic alignment is only for data
+    kwargs.setdefault("ParticleCaloExtensionToolID", pcExtensionTool)
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
     kwargs.setdefault("AmbiguityProcessor", CfgGetter.getPublicTool('TrigMuonAmbiProcessor'))
     kwargs.setdefault('MakeTrackAtMSLink',True)

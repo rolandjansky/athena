@@ -154,14 +154,14 @@ namespace xAOD {
       coneCoreSize = m_coneCoreSizeMu;
 
     // muon etcone isolation
-    const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
-    if( trkp ) return caloCellIsolation(result,*trkp,cones,corrlist,container,coneCoreSize, derefMap);
+    const Muon* muon = dynamic_cast<const Muon*>(&particle);
+    if(muon) return caloCellIsolation(result,*muon,cones,corrlist,coneCoreSize, derefMap);
 
     // egamma etcone isolation
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
     if( egam ) return caloCellIsolation(result,*egam,cones,corrlist,container);
 
-    ATH_MSG_WARNING("CaloCellIsolation only supported for TrackParticles and Egamma");
+    ATH_MSG_WARNING("CaloCellIsolation only supported for Muons and Egamma");
 
     return true;
 #endif // not XAOD_ANALYSIS
@@ -238,18 +238,17 @@ namespace xAOD {
   }
 
 
-  // casted interface for TrackParticle cell-based isolation (etcone)
+  // casted interface for Muon cell-based isolation (etcone)
   bool CaloIsolationTool::caloCellIsolation( CaloIsolation& result,
 #ifndef XAOD_ANALYSIS
-  const TrackParticle& tp,
+					     const Muon& muon,
 #endif
-	const std::vector<Iso::IsolationType>& isoTypes, CaloCorrection corrlist
+					     const std::vector<Iso::IsolationType>& isoTypes, CaloCorrection corrlist
 #ifndef XAOD_ANALYSIS
-	, const CaloCellContainer* container
-        , double coneCoreSize
-        , const derefMap_t& derefMap
+					     , double coneCoreSize
+					     , const derefMap_t& derefMap
 #endif
-	) const {
+					     ) const {
     if( isoTypes.empty() ) {
       ATH_MSG_WARNING("Empty list passed, failing calculation");
       return false;
@@ -263,13 +262,13 @@ namespace xAOD {
 
     if (theFlavour == Iso::etcone)
 #ifndef XAOD_ANALYSIS
-      return etConeIsolation(result, tp, isoTypes, container, coneCoreSize, derefMap);
+      return etConeIsolation(result, muon, isoTypes, coneCoreSize, derefMap);
 #else
-      return true;
+    return true;
 #endif
 
     ATH_MSG_WARNING("Unsupported isolation flavour passed, cannot calculate isolation " <<
-		    static_cast<int>(theFlavour));
+                    static_cast<int>(theFlavour));
 
     return false;
   }
@@ -696,6 +695,93 @@ namespace xAOD {
     if(!m_saveOnlyRequestedCorrections ||
        result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreMuon))){
       correctIsolationEnergy_MuonCore(result, tp, derefMap);
+    }
+
+    return true;
+  }
+#endif
+
+#ifndef XAOD_ANALYSIS
+  // etcone implementation for Muon
+  bool CaloIsolationTool::etConeIsolation( CaloIsolation& result, const Muon& muon,
+                                           const std::vector<Iso::IsolationType>& isoTypes,
+                                           double coneCoreSize,
+                                           const derefMap_t& derefMap) const {
+
+    std::vector<double> conesf;
+    double maxConeSize = -1;
+    for( auto isoType : isoTypes ){
+      if( Iso::isolationFlavour(isoType) != Iso::etcone ) {
+        ATH_MSG_WARNING("Unsupported isolation type passed, cannot calculate isolation " << static_cast<int>(isoType));
+        return false;
+      }
+      double cone = Iso::coneSize(isoType);
+      conesf.push_back(cone);
+      if(cone>maxConeSize) maxConeSize = cone;
+    }
+
+    const xAOD::CaloCluster* muonCluster=*muon.clusterLink();
+    if(!muonCluster){//have to figure this part out
+      ATH_MSG_WARNING("muon has no cluster, cannot calculate etcone isolation");
+      return false;
+    }
+    /// add coreCone if asked -- make sure it's the last one! or a better
+    const double coreConeDR = coneCoreSize;
+    bool doCoreCone = (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)));
+    if(doCoreCone && maxConeSize<coreConeDR) maxConeSize = coreConeDR;
+    /// start the calculation
+    ATH_MSG_DEBUG("calculating etcone for # " << conesf.size() << " cones");
+    Trk::CaloCellSelectorLayerdR selector(maxConeSize);
+    selector.preSelectAction(*muonCluster);
+    ATH_MSG_DEBUG("looping over cells " << muonCluster->size());
+    for(unsigned int i=0; i<conesf.size(); i++){
+      double totE = 0.;
+      selector.setConeSize(conesf[i]);
+      xAOD::CaloCluster::const_cell_iterator cell_itr=muonCluster->begin();
+      for(; cell_itr!=muonCluster->end(); ++cell_itr){
+        if( !selector.select(**cell_itr) ) continue;
+        if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*cell_itr)->caloDDE()->getSampling()) continue;
+        totE += (*cell_itr)->et();
+      }
+      result.etcones[i] = totE;
+      ATH_MSG_DEBUG("etcone raw: coneSize = " << conesf[i] << "; etcone = " << result.etcones[i]);
+    }
+    ATH_MSG_DEBUG("done looping over cells ");
+    /// do coreCone
+    if(doCoreCone){
+      ATH_MSG_DEBUG("starting etcone, coreCone");
+      double totE = 0.;
+      selector.setConeSize(coreConeDR);
+      xAOD::CaloCluster::const_cell_iterator cell_itr=muonCluster->begin();
+      for(; cell_itr!=muonCluster->end(); ++cell_itr){
+        if( !selector.select(**cell_itr) ) continue;
+        if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*cell_itr)->caloDDE()->getSampling()) continue;
+        totE += (*cell_itr)->et();
+      }
+      std::map<Iso::IsolationCorrectionParameter,float> corecorr;
+      corecorr[Iso::coreEnergy] = totE;
+      corecorr[Iso::coreArea]   = coreConeDR*coreConeDR*M_PI;
+      result.coreCorrections[Iso::coreCone] = corecorr;
+      ATH_MSG_DEBUG("done etcone, coreCone");
+
+      /// apply the correction if required.
+      if(result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))){
+        double ecore = totE;
+        ATH_MSG_DEBUG("Applying coreCone correction for trackParticle etcone isolation.");
+        for( unsigned int i=0;i<result.etcones.size();++i ) {
+          result.etcones[i] -= ecore;
+          ATH_MSG_DEBUG("i: " << i << " cone [before] " << result.etcones[i]+ecore << " cone [after] " << result.etcones[i]);
+        }
+      }
+    }
+
+    // calculate etcore
+    if(!m_saveOnlyRequestedCorrections ||
+       result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreMuon))){
+      const TrackParticle* tp = nullptr;
+      if(muon.primaryTrackParticleLink().isValid() && muon.author()!=2) tp = *muon.primaryTrackParticleLink();
+      if( !tp) tp = *muon.inDetTrackParticleLink();
+      correctIsolationEnergy_MuonCore(result, *tp, derefMap);
     }
 
     return true;
@@ -1221,8 +1307,8 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if(muI!=derefMap.end() && muI->second->isAvailable<float>("ET_Core")){
       ecore = muI->second->auxdataConst<float>("ET_Core");
     }else{
-     ATH_MSG_WARNING("ET_Core of muon not found! coreMuon isolation correction will not be applied!!!");
-     return false;
+      ATH_MSG_WARNING("ET_Core of muon not found! coreMuon isolation correction will not be applied!!!");
+      return false;
     }
 
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;

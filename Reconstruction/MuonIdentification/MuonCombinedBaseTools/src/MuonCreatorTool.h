@@ -130,7 +130,7 @@ namespace MuonCombined {
 
     void setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const;
 
-    void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer ) const;
+    void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer, Trk::CaloExtension* inputCaloExt = nullptr ) const;
 
     void getRpcTiming(const xAOD::TrackParticle& tp,
 		      std::vector<unsigned int>& rpcHitIdentifier,
@@ -151,6 +151,7 @@ namespace MuonCombined {
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
     ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter {this, "MuonPrinter", "Rec::MuonPrintingTool/MuonPrintingTool"};
     ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtTool {this, "ParticleCaloExtensionTool", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"};
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtToolID {this, "ParticleCaloExtensionToolID", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"};
     ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator {this, "TrackParticleCreator", "Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"};
     ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor {this, "AmbiguityProcessor", "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
     ToolHandle<Trk::IPropagator> m_propagator {this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
