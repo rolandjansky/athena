@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -139,11 +139,11 @@ StatusCode MdtCalibDbCoolStrTool::initialize() {
     }
   }
 
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
   ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
   ATH_CHECK( m_IOVDbSvc.retrieve() );
   ATH_CHECK( m_regionSvc.retrieve() );
+  ATH_CHECK(m_idHelperTool.retrieve());
 
   // register callbacks
   const DataHandle<CondAttrListCollection> tubeData;
@@ -361,7 +361,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
 
     // find chamber ID
     bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
-    Identifier chId = m_mdtIdHelper->elementID(name,ieta,iphi,true,&isValid);
+    Identifier chId = m_idHelperTool->mdtIdHelper().elementID(name,ieta,iphi,true,&isValid);
     if (!isValid) {
     	ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping...");
     	continue;
@@ -371,15 +371,15 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
 
     // get chamber hash
     IdentifierHash hash;
-    IdContext idCont = m_mdtIdHelper->module_context();
-    if (m_mdtIdHelper->get_hash( chId , hash, &idCont )) ATH_MSG_WARNING("Retrieving module hash for Identifier " << chId.get_compact() << " failed");
+    IdContext idCont = m_idHelperTool->mdtIdHelper().module_context();
+    if (m_idHelperTool->mdtIdHelper().get_hash( chId , hash, &idCont )) ATH_MSG_WARNING("Retrieving module hash for Identifier " << chId.get_compact() << " failed");
 
     // we have to check whether the retrieved Identifier is valid. The problem is that the is_valid() function of the Identifier class does only check
     // for the size of the number, not for the physical validity. The get_detectorElement_hash function of the MuonIdHelper however returns 
     // an error in case the Identifier is not part of the vector of physically valid Identifiers (the check could also be done using the module hash)
     // It is important that the methods from MuonIdHelper are called which are not overwritten by the MdtIdHelper
     IdentifierHash detElHash;
-    if (m_mdtIdHelper->MuonIdHelper::get_detectorElement_hash(chId, detElHash )) {
+    if (m_idHelperTool->mdtIdHelper().MuonIdHelper::get_detectorElement_hash(chId, detElHash )) {
     	ATH_MSG_WARNING("Retrieving detector element hash for Identifier " << chId.get_compact() << " failed, thus Identifier is not valid, skipping...");
         continue;
     }
@@ -403,7 +403,7 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
     // retrieve the existing one (created by defaultt0() )
     tubes = (*m_tubeData)[hash];
 
-    if(tubes==NULL) {
+    if(!tubes) {
       ATH_MSG_INFO( "Illegal station (2)! (" << name << "," << iphi << "," << ieta << ")" );
       continue;
     }
@@ -413,8 +413,16 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
     int ntubesLay = tubes->numTubes();
     int size      = nml*nlayers*ntubesLay;
     if(size!=ntubes) {
-      ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId.get_compact()<< " size (" << size << ") does not match the one found in DB (" << ntubes << ")");
-      return StatusCode::FAILURE;
+      // currently there is no calibration DB for Run3 or Run4, i.e. nothing for the new
+      // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
+      if (m_idHelperTool->issMdt(chId) && name.find("BI")!=std::string::npos) {
+        ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
+        return StatusCode::SUCCESS;
+      }
+      else {
+        ATH_MSG_ERROR( "Pre-existing MdtTubeCalibContainer for chamber ID " <<chId.get_compact()<< " size ("<<size<<") does not match the one found in DB ("<<ntubes<<")");
+        return StatusCode::FAILURE;
+      }
     }
 
     //Extract T0, ADCcal, valid flag for each tube from payload.
@@ -737,17 +745,17 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
       MuonFixedId id(regionId);
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
-      if( m_regionSvc->RegionType()==ONEPERCHAMBER && m_mdtIdHelper->multilayer(athenaId)==2 ) {
+      if( m_regionSvc->RegionType()==ONEPERCHAMBER && m_idHelperTool->mdtIdHelper().multilayer(athenaId)==2 ) {
         ATH_MSG_VERBOSE("MdtCalibDbCoolStrTool::loadRt Ignore ML2 RT for region "<<regionId<<" "<<
-			m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(athenaId))<<"_"<<
-			m_mdtIdHelper->stationPhi(athenaId)<<"_"<<m_mdtIdHelper->stationEta(athenaId)<<
-			" ML"<<m_mdtIdHelper->multilayer(athenaId));  //TEMP
+			m_idHelperTool->mdtIdHelper().stationNameString(m_idHelperTool->mdtIdHelper().stationName(athenaId))<<"_"<<
+			m_idHelperTool->mdtIdHelper().stationPhi(athenaId)<<"_"<<m_idHelperTool->mdtIdHelper().stationEta(athenaId)<<
+			" ML"<<m_idHelperTool->mdtIdHelper().multilayer(athenaId));  //TEMP
 	continue;
       }
       IdentifierHash hash;  //chamber hash
-      IdContext idCont = m_mdtIdHelper->module_context();
-      idCont = m_mdtIdHelper->module_context();
-      m_mdtIdHelper->get_hash( athenaId, hash, &idCont );
+      IdContext idCont = m_idHelperTool->mdtIdHelper().module_context();
+      idCont = m_idHelperTool->mdtIdHelper().module_context();
+      m_idHelperTool->mdtIdHelper().get_hash( athenaId, hash, &idCont );
       ATH_MSG_VERBOSE( "Fixed region Id "<<regionId<<" converted into athena Id "<<athenaId <<" and then into hash "<<hash);
       regionId = hash;      //reset regionId to chamber hash
     }
@@ -866,14 +874,14 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
 	    (*m_rtData)[0] = new MuonCalib::MdtRtRelation( rt, reso, 0.);
 	    break;   // only read one RT from COOL for ONERT option.
 	  // If doing ML2 RTs, and this is a ML2 RT function then add it to the end of m_rtData
-	  } else if( m_regionSvc->RegionType()==ONEPERMULTILAYER && m_mdtIdHelper->multilayer(athenaId)==2 ) {
+	  } else if( m_regionSvc->RegionType()==ONEPERMULTILAYER && m_idHelperTool->mdtIdHelper().multilayer(athenaId)==2 ) {
 	    ATH_MSG_VERBOSE("MdtCalibDbCoolStrTool::loadRt Load ML2 RT for region "<<regionId<<" "<<
-			 m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(athenaId))<<"_"<<
-			 m_mdtIdHelper->stationPhi(athenaId)<<"_"<<m_mdtIdHelper->stationEta(athenaId)<<
-			 " ML"<<m_mdtIdHelper->multilayer(athenaId));
+			 m_idHelperTool->mdtIdHelper().stationNameString(m_idHelperTool->mdtIdHelper().stationName(athenaId))<<"_"<<
+			 m_idHelperTool->mdtIdHelper().stationPhi(athenaId)<<"_"<<m_idHelperTool->mdtIdHelper().stationEta(athenaId)<<
+			 " ML"<<m_idHelperTool->mdtIdHelper().multilayer(athenaId));
 	    (*m_rtData).push_back(new MuonCalib::MdtRtRelation( rt, reso, 0.));
 	    IdentifierHash mlHash;
-	    m_mdtIdHelper->get_detectorElement_hash( athenaId, mlHash ); 
+	    m_idHelperTool->mdtIdHelper().get_detectorElement_hash( athenaId, mlHash ); 
 	    m_regionSvc->setRegionHash(mlHash);
 	  } else {   //store RT for chamber or ML1 if doing ONEPERMULTILAYER
 	    (*m_rtData)[regionId] = new MuonCalib::MdtRtRelation( rt, reso, 0.);
@@ -945,15 +953,15 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s() {
     m_tubeData = new MdtTubeCalibContainerCollection();
   }
   //Resize tube container according to the number of chambers
-  m_tubeData->resize( m_mdtIdHelper->module_hash_max() );
+  m_tubeData->resize( m_idHelperTool->mdtIdHelper().module_hash_max() );
   ATH_MSG_DEBUG( " Created new MdtTubeCalibContainerCollection size " << m_tubeData->size() );
 
   // Inverse of wire propagation speed
   float inversePropSpeed = 1./(299.792458*m_prop_beta);
 
   //loop over modules (MDT chambers) and create an MdtTubeContainer for each
-  MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
-  MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
+  MdtIdHelper::const_id_iterator it     = m_idHelperTool->mdtIdHelper().module_begin();
+  MdtIdHelper::const_id_iterator it_end = m_idHelperTool->mdtIdHelper().module_end();
   for(; it!=it_end;++it ) {
     MuonCalib::MdtTubeCalibContainer *tubes=0;
     //create an MdtTubeContainer
@@ -968,7 +976,7 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s() {
       int nlayers=tubes->numLayers();
       int ntubes=tubes->numTubes();
       int size = nml*nlayers*ntubes;
-      ATH_MSG_VERBOSE( "Adding chamber " << m_mdtIdHelper->print_to_string(*it) );
+      ATH_MSG_VERBOSE( "Adding chamber " << m_idHelperTool->mdtIdHelper().print_to_string(*it) );
       ATH_MSG_VERBOSE( " size " << size << " ml " << nml << " l " << nlayers << " t " 
 		       << ntubes << " address " << tubes );
       for( int ml=0;ml<nml;++ml ){
@@ -985,8 +993,8 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s() {
     }  //end loop over chambers (modules)
     ATH_MSG_VERBOSE( " set t0's done " );
     IdentifierHash hash;
-    IdContext idCont = m_mdtIdHelper->module_context();
-    m_mdtIdHelper->get_hash( *it, hash, &idCont );
+    IdContext idCont = m_idHelperTool->mdtIdHelper().module_context();
+    m_idHelperTool->mdtIdHelper().get_hash( *it, hash, &idCont );
 
     if( hash < m_tubeData->size() ){
       (*m_tubeData)[hash] = tubes;
@@ -996,7 +1004,7 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s() {
 	int nml     = tubes->numMultilayers();
 	int nlayers = tubes->numLayers();
 	int ntubes  = tubes->numTubes();	
-	ATH_MSG_VERBOSE( "CHAMBERLIST: " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(*it)) << " " << m_mdtIdHelper->stationEta(*it) << " " << m_mdtIdHelper->stationPhi(*it) << " " << nml*nlayers*ntubes << " " << nml << " " << nlayers << " " << ntubes << " dummy " << hash );
+	ATH_MSG_VERBOSE( "CHAMBERLIST: " << m_idHelperTool->mdtIdHelper().stationNameString(m_idHelperTool->mdtIdHelper().stationName(*it)) << " " << m_idHelperTool->mdtIdHelper().stationEta(*it) << " " << m_idHelperTool->mdtIdHelper().stationPhi(*it) << " " << nml*nlayers*ntubes << " " << nml << " " << nlayers << " " << ntubes << " dummy " << hash );
       }
     } else {
       if(tubes) delete tubes;
@@ -1012,18 +1020,18 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s() {
 MuonCalib::MdtTubeCalibContainer* MdtCalibDbCoolStrTool::buildMdtTubeCalibContainer(const Identifier &id) {    
   MuonCalib::MdtTubeCalibContainer *tubes = 0;
 
-  const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(id,1,1,1) );
+  const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperTool->mdtIdHelper().channelID(id,1,1,1) );
   const MuonGM::MdtReadoutElement *detEl2 = 0;
-  if (m_mdtIdHelper->numberOfMultilayers(id) == 2){
-    detEl2 = m_detMgr->getMdtReadoutElement(m_mdtIdHelper->channelID(id,2,1,1) );
+  if (m_idHelperTool->mdtIdHelper().numberOfMultilayers(id) == 2){
+    detEl2 = m_detMgr->getMdtReadoutElement(m_idHelperTool->mdtIdHelper().channelID(id,2,1,1) );
   } else {
-    ATH_MSG_VERBOSE( "A single multilayer for this station " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id))<<","<< m_mdtIdHelper->stationPhi(id) <<","<< m_mdtIdHelper->stationEta(id) );
+    ATH_MSG_VERBOSE( "A single multilayer for this station " << m_idHelperTool->mdtIdHelper().stationNameString(m_idHelperTool->mdtIdHelper().stationName(id))<<","<< m_idHelperTool->mdtIdHelper().stationPhi(id) <<","<< m_idHelperTool->mdtIdHelper().stationEta(id) );
   }
 
   ATH_MSG_VERBOSE( " new det el " << detEl );
   
   if( !detEl ){ 
-    ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_mdtIdHelper->print_to_string(id) );
+    ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_idHelperTool->mdtIdHelper().print_to_string(id) );
   } else {
     int nml = 2;
     if( !detEl2 ) nml = 1;
@@ -1043,13 +1051,13 @@ MuonCalib::MdtTubeCalibContainer* MdtCalibDbCoolStrTool::buildMdtTubeCalibContai
     // build the region name in the format STATION_ETA_PHI
     std::string rName;
 
-    int stName = m_mdtIdHelper->stationName(id);
-    int stPhi  = m_mdtIdHelper->stationPhi(id);
-    int stEta  = m_mdtIdHelper->stationEta(id);
+    int stName = m_idHelperTool->mdtIdHelper().stationName(id);
+    int stPhi  = m_idHelperTool->mdtIdHelper().stationPhi(id);
+    int stEta  = m_idHelperTool->mdtIdHelper().stationEta(id);
   
     std::string separator("_");
     MuonCalib::ToString ts;
-    rName = m_mdtIdHelper->stationNameString(stName);
+    rName = m_idHelperTool->mdtIdHelper().stationNameString(stName);
     rName += separator + ts( stPhi ) + separator + ts( stEta );
     tubes = new MuonCalib::MdtTubeCalibContainer( rName,nml, nlayers, ntubes );
   }
