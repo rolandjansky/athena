@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTDIGITTOMDTRDO_H
@@ -7,10 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class MuonMDT_CablingSvc;
 class MdtCsmContainer;
-class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +34,7 @@ class MdtDigitToMdtRDO : public AthAlgorithm {
   ServiceHandle<ActiveStoreSvc> m_activeStore;
   ServiceHandle<MuonMDT_CablingSvc>       m_cabling;
   MdtCsmContainer *    m_csmContainer;
-  const MdtIdHelper*   m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   bool m_BMEpresent;
 };
 

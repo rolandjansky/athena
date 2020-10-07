@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -31,7 +31,7 @@ MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLoc
   AthAlgorithm(name, pSvcLocator),
   m_activeStore("ActiveStoreSvc", name), 
   m_cabling("MuonMDT_CablingSvc", name),
-  m_csmContainer(0), m_mdtIdHelper(0),
+  m_csmContainer(0),
   m_BMEpresent(false)
 {
 }
@@ -42,8 +42,8 @@ StatusCode MdtDigitToMdtRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
   ATH_CHECK( m_cabling.retrieve() );
+  ATH_CHECK(m_idHelperTool.retrieve());
 
   if ( fillTagInfo().isFailure() ) {
     ATH_MSG_WARNING( "Could not fill the tagInfo for MDT cabling"  );
@@ -54,7 +54,7 @@ StatusCode MdtDigitToMdtRDO::initialize()
   m_csmContainer->addRef();
 
   // check if the layout includes elevator chambers
-  m_BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
+  m_BMEpresent = m_idHelperTool->mdtIdHelper().stationNameIndex("BME") != -1;
   if ( m_BMEpresent )
     ATH_MSG_INFO( "Processing configuration for layouts with BME chambers."  );
   
@@ -96,7 +96,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 
   ATH_MSG_DEBUG( "in execute() : fill_MDTdata"  );
 
-  IdContext mdtContext = m_mdtIdHelper->module_context();
+  IdContext mdtContext = m_idHelperTool->mdtIdHelper().module_context();
 
   m_activeStore->setStore( &*evtStore() );
 
@@ -117,10 +117,10 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
       const MdtDigitCollection* mdtCollection = *it_coll;
       IdentifierHash moduleHash = mdtCollection->identifierHash();
       Identifier moduleId;
-      m_mdtIdHelper->get_id(moduleHash, moduleId, &mdtContext); 
-      int name    = m_mdtIdHelper->stationName(moduleId);
-      int eta     = m_mdtIdHelper->stationEta(moduleId);
-      int phi     = m_mdtIdHelper->stationPhi(moduleId);
+      m_idHelperTool->mdtIdHelper().get_id(moduleHash, moduleId, &mdtContext); 
+      int name    = m_idHelperTool->mdtIdHelper().stationName(moduleId);
+      int eta     = m_idHelperTool->mdtIdHelper().stationEta(moduleId);
+      int phi     = m_idHelperTool->mdtIdHelper().stationPhi(moduleId);
  
       // Get the online ID of the MDT module
       uint8_t subsystem;
@@ -139,21 +139,21 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	ATH_MSG_ERROR( name << " "
                        << eta << " " << phi << " "
                        << "and dummy multilayer=1, layer=1, tube=1 ."  );
-        std::abort();
+        return StatusCode::FAILURE;
       } 
 
       Identifier chid1, chid2;
       if ( m_BMEpresent ){
 	// 1st ML channel get_id
-	chid1 = m_mdtIdHelper->channelID(m_mdtIdHelper->stationName(moduleId),
-					 m_mdtIdHelper->stationEta(moduleId),
-					 m_mdtIdHelper->stationPhi(moduleId),
+	chid1 = m_idHelperTool->mdtIdHelper().channelID(m_idHelperTool->mdtIdHelper().stationName(moduleId),
+					 m_idHelperTool->mdtIdHelper().stationEta(moduleId),
+					 m_idHelperTool->mdtIdHelper().stationPhi(moduleId),
 					 1, 1, 1 );
 	// 2nd ML channel id
 	if ( name == 53 ) {
-	  chid2 = m_mdtIdHelper->channelID(m_mdtIdHelper->stationName(moduleId),
-					   m_mdtIdHelper->stationEta(moduleId),
-					   m_mdtIdHelper->stationPhi(moduleId),
+	  chid2 = m_idHelperTool->mdtIdHelper().channelID(m_idHelperTool->mdtIdHelper().stationName(moduleId),
+					   m_idHelperTool->mdtIdHelper().stationEta(moduleId),
+					   m_idHelperTool->mdtIdHelper().stationPhi(moduleId),
 					   2, 1, 1 );
         
         }
@@ -189,7 +189,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	    ATH_MSG_ERROR( name << " "
                            << eta << " " << phi << " "
                            << " and dummy multilayer=1, layer=1, tube=1 ."  );
-            std::abort();
+            return StatusCode::FAILURE;
 	  } 
 
 	  mdtCsm_2nd = new MdtCsm(chid2, elementHash_2nd, subsystem_2ndcsm, mrod_2ndcsm, link_2ndcsm);
@@ -204,11 +204,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	  const MdtDigit* mdtDigit = *it_dig;
 	  Identifier channelId = mdtDigit->identify();
 	    
-	  if (m_mdtIdHelper->valid(channelId)) 
+	  if (m_idHelperTool->mdtIdHelper().valid(channelId)) 
 	    {
-	      int multilayer = m_mdtIdHelper->multilayer(channelId);
-	      int layer      = m_mdtIdHelper->tubeLayer(channelId);
-	      int tube       = m_mdtIdHelper->tube(channelId);
+	      int multilayer = m_idHelperTool->mdtIdHelper().multilayer(channelId);
+	      int layer      = m_idHelperTool->mdtIdHelper().tubeLayer(channelId);
+	      int tube       = m_idHelperTool->mdtIdHelper().tube(channelId);
 	            
 	      // Get the online Id of the channel
 	      cabling = m_cabling->getOnlineId(name, eta, phi, 
@@ -216,13 +216,21 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 					       subsystem, mrod, link, 
 					       tdc, channel);
 	            
-	      if (!cabling) {
-		ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
-		ATH_MSG_ERROR( name << " "
-                               << eta << " " << phi << " "
-                               << multilayer << " " << layer << " " << tube  );
-                std::abort();
-	      } 
+        if (!cabling) {
+          // as long as there is no BIS78 cabling, to avoid a hard crash, replace the tubeNumber
+          // of tubes not covered in the cabling by 1
+          if (m_idHelperTool->mdtIdHelper().stationName(channelId)==1
+             && std::abs(m_idHelperTool->mdtIdHelper().stationEta(channelId))>6
+             && m_idHelperTool->issMdt(channelId)) {
+             ATH_MSG_WARNING("Found BIS78 sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 for now...");
+            cabling = m_cabling->getOnlineId(name, eta, phi, multilayer, 1, 1,subsystem, mrod, link, tdc, channel);
+          }
+          if (!cabling) {
+            ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
+            ATH_MSG_ERROR( name << " " << eta << " " << phi << " " << multilayer << " " << layer << " " << tube  );
+            return StatusCode::FAILURE;
+          }
+        } 
 
 	      bool masked = mdtDigit->is_masked();
 	      // Create the new AMT hit
