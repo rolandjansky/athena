@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 
@@ -6,8 +6,6 @@ def GetCoolChannelSelection(partition, gain, withPS):
     if (gain<0 or gain>3):
         print ("ERROR Gain out of range: ", gain)
         return ""
-    AccList=[]
-    PSList=[]
     if (gain==0):
         g=0
     elif (gain==1): #Medium
@@ -17,7 +15,7 @@ def GetCoolChannelSelection(partition, gain, withPS):
     else:
         print("ERROR Gain out of range: ", gain)
         return ""
-    retString=""
+    retstring=""
     if (partition=="EMBA"):
         retstring="%i:%i"%(g+35,g+66)
         if (withPS):
