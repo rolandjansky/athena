@@ -52,10 +52,10 @@ double JetHelpers::Interpolate2D(const TH1* histo, const double x, const double 
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
     // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
     // Probable reason is that FindBin isn't const, but there should be a const version...
-    const TAxis* fXaxis = xAxis == 1 ? histo->GetXaxis() : xAxis == 2 ? histo->GetYaxis() : xAxis == 3 ? histo->GetZaxis() : NULL;
-    const TAxis* fYaxis = yAxis == 1 ? histo->GetXaxis() : yAxis == 2 ? histo->GetYaxis() : yAxis == 3 ? histo->GetZaxis() : NULL;
+    const TAxis* fXaxis = xAxis == 1 ? histo->GetXaxis() : xAxis == 2 ? histo->GetYaxis() : xAxis == 3 ? histo->GetZaxis() : nullptr;
+    const TAxis* fYaxis = yAxis == 1 ? histo->GetXaxis() : yAxis == 2 ? histo->GetYaxis() : yAxis == 3 ? histo->GetZaxis() : nullptr;
 
-    if (!fXaxis || !fYaxis)
+    if (!fXaxis || !fYaxis || histo->GetDimension() != 2)
     {
         histo->Error("Interpolate2D","Failed to parse axes from inputs");
         return 0;
