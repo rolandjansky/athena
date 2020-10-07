@@ -499,7 +499,7 @@ InDet::SiDetElementsRoadMaker_xk::ElementUsageTracker* InDet::SiDetElementsRoadM
 
     const SiDetElementsLayerVectors_xk &layer = *getLayers();
 
-    static Gaudi::Hive::ContextSpecificPtr<ElementUsageTracker> p_aux_usageTracker ATLAS_THREAD_SAFE;
+    Gaudi::Hive::ContextSpecificPtr<ElementUsageTracker> p_aux_usageTracker ATLAS_THREAD_SAFE;
     ElementUsageTracker* theTracker{nullptr}; 
     if (!p_aux_usageTracker){
        p_aux_usageTracker = new ElementUsageTracker();
@@ -519,12 +519,12 @@ InDet::SiDetElementsRoadMaker_xk::ElementUsageTracker* InDet::SiDetElementsRoadM
       /// reset this tracker 
        for ( unsigned int side_i=0; side_i<3; ++side_i) {
           for (unsigned int layer_i=0; layer_i < layer[side_i].size(); ++layer_i) {
-              /// for each layer, book one slot for each detector element on the layer
+              /// reset the used flags - only possibly by overwriting
               std::fill((*theTracker)[side_i][layer_i].begin(), (*theTracker)[side_i][layer_i].end(), InDet::SiDetElementLink_xk::UsedFlag{});
           }
        }
     }
-    return p_aux_usageTracker.get();
+    return theTracker;
 }
 
 ///////////////////////////////////////////////////////////////////
