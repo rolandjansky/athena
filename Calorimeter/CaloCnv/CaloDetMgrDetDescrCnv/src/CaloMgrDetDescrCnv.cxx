@@ -8,7 +8,7 @@
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
