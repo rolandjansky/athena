@@ -205,7 +205,8 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	    if(tot_FE_cluster_energy!=0){ // ! div 0
 	      frac_FE_cluster_energy_matched=FE_sum_matched_cellEnergy / tot_FE_cluster_energy ;
 	    }
-	    
+	    if(frac_FE_cluster_energy_matched>0){ 
+	      ATH_MSG_INFO("Fraction of energy used in match: "<<frac_FE_cluster_energy_matched<<", ismatched? "<<isCellMatched<<"");}
 	    if(isCellMatched){ // cell matched => Link the two objects.
 	      // Add Muon element link to a vector
 	      // index() is the unique index of the muon in the muon container   
