@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_ICOLLECTIONSCHEMAEDITOR_H
@@ -177,7 +177,7 @@ namespace pool {
      *
      * @param columnName Name of column for which constraint is applied.
      */
-    virtual void setUniqueConstraint( std::string constraintName, const std::string& columnName ) = 0;
+    virtual void setUniqueConstraint( const std::string& constraintName, const std::string& columnName ) = 0;
 
     /**
      * Sets a unique constraint on one or more columns of the collection. Automatically generates a
@@ -185,7 +185,7 @@ namespace pool {
      *
      * @param columnNames Names of columns for which constraint is applied.
      */
-    virtual void setUniqueConstraint( std::string constraintName, const std::vector<std::string>& columnNames ) = 0;
+    virtual void setUniqueConstraint( const std::string& constraintName, const std::vector<std::string>& columnNames ) = 0;
 
     /**
      * Unsets an existing unique constraint on a single column of the collection, 

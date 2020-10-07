@@ -278,7 +278,7 @@ namespace pool {
      *
      * @param columnName Name of column for which constraint is applied.
      */
-    virtual void setUniqueConstraint( std::string constraintName, const std::string& columnName );
+    virtual void setUniqueConstraint( const std::string& constraintName, const std::string& columnName );
 
     /**
      * Sets a unique constraint on one or more columns of the collection description. Automatically generates
@@ -286,7 +286,7 @@ namespace pool {
      *
      * @param columnNames Names of columns for which constraint is applied.
      */
-    virtual void setUniqueConstraint( std::string constraintName, const std::vector<std::string>& columnNames );
+    virtual void setUniqueConstraint( const std::string& constraintName, const std::vector<std::string>& columnNames );
 
     /**
      * Unsets an existing unique constraint on a single column of the collection description, 

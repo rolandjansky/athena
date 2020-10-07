@@ -923,7 +923,7 @@ pool::CollectionDescription::dropIndex( const std::vector<std::string>& columnNa
 
 
 void
-pool::CollectionDescription::setUniqueConstraint( std::string constraintName, const std::string& columnName )
+pool::CollectionDescription::setUniqueConstraint( const std::string& constraintNameIn, const std::string& columnName )
 {
    const std::string& methodName("setUniqueConstraint");
    // Check that column is defined in collection description and get its description object.
@@ -933,6 +933,7 @@ pool::CollectionDescription::setUniqueConstraint( std::string constraintName, co
    std::string fragmentName = collectionFragmentName( columnName );
 
   // Generate unique name for unique constraint.
+   std::string constraintName = constraintNameIn;
    if( !constraintName.size() ) {
       constraintName = fragmentName + columnName + "_UC";
    }
@@ -953,8 +954,10 @@ pool::CollectionDescription::setUniqueConstraint( std::string constraintName, co
 
 void
 pool::CollectionDescription::
-setUniqueConstraint( std::string constraintName, const std::vector< std::string >& columnNames )
+setUniqueConstraint( const std::string& constraintNameIn, const std::vector< std::string >& columnNames )
 {
+    std::string constraintName = constraintNameIn;
+
     const std::string& methodName("setUniqueConstraint");
     // Check if constraint is on a single column.
     if ( columnNames.size() == 1 ){
