@@ -25,8 +25,7 @@ def addLHE3Weights(seq, pref = '', var_dict = {}):
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 # skip this in datfrom AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource() == 'geant4':
+if DerivationFrameworkHasTruth:
 
   mcweight_dict_orig = dict()
   mcweight_dict = dict()

@@ -286,7 +286,7 @@ from DerivationFrameworkMCTruth.MCTruthCommon import addTopQuarkAndDownstreamPar
 from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
 from DerivationFrameworkMCTruth.MCTruthCommon import addTruthCollectionNavigationDecorations
 
-if globalflags.DataSource()=="geant4":
+if DerivationFrameworkHasTruth:
     addStandardTruthContents()
     addTopQuarkAndDownstreamParticles()
     addHFAndDownstreamParticles(addB=True, addC=False, generations=1)
@@ -641,7 +641,7 @@ addJetOutputs(EXOT8SlimmingHelper,["AntiKt4EMPFlowJets",
                                     "AntiKt4PV0TrackJets"])
 
 
-if globalflags.DataSource()=="geant4":
+if DerivationFrameworkHasTruth:
     for truthc in [
       "TruthElectrons",
       "TruthMuons",

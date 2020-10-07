@@ -527,7 +527,7 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
         return
     else:
         isMC = False
-        if globalflags.DataSource() == 'geant4':
+        if DerivationFrameworkHasTruth:
           isMC = True
 
         distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")

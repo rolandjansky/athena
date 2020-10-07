@@ -26,7 +26,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 
 
 isMC = False
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
   isMC = True
 #====================================================================
 # SET UP STREAM   

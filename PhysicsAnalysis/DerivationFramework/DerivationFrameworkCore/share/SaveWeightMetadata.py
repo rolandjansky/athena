@@ -1,7 +1,7 @@
 
 from AthenaCommon.GlobalFlags import globalflags
-
-if globalflags.DataSource() == 'geant4':
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+if DerivationFrameworkHasTruth:
     from PyUtils import AthFile
     af = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
 

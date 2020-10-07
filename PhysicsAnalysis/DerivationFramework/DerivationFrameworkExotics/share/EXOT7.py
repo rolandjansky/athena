@@ -65,11 +65,11 @@ from JetRec.JetRecConf import JetAlgorithm
 
 #set MC flag
 isMC = False
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
   isMC = True
 
 #run GenFilterTool
-if globalflags.DataSource() == 'geant4':
+if glDerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.GenFilterToolSetup import *
   augTools.append(ToolSvc.DFCommonTruthGenFilt)
 
@@ -287,7 +287,7 @@ EXOT7MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT7
                                                                 PreserveDescendants = False)
 
 from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     ToolSvc += EXOT7MCThinningTool
     thinningTools.append(EXOT7MCThinningTool)
     ToolSvc += EXOT7TMCThinningTool
@@ -325,7 +325,7 @@ addOriginCorrectedClusters(EXOT7SlimmingHelper, writeLC = True, writeEM = False)
 
 ##Adding Jet collections to dictionary
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets','AntiKtVR30Rmax4Rmin02TrackJets','AntiKt4EMPFlowJets','AntiKt4EMTopoJets','AntiKt2PV0TrackJets']
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
   listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets','AntiKt4TruthWZJets','AntiKt10TruthJets'])
 for i in listJets:
   EXOT7SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
