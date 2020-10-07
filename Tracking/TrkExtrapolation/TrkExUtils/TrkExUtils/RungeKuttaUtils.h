@@ -131,7 +131,7 @@ namespace RungeKuttaUtils
   bool
   transformLocalToGlobal(bool,
                          const Trk::Surface*,
-                         const double* ATH_RESTRICT,
+                         const AmgVector(5)& ATH_RESTRICT,
                          double* ATH_RESTRICT);
 
   /////////////////////////////////////////////////////////////////////////////////
