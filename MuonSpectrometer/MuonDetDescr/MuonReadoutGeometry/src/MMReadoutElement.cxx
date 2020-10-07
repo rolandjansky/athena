@@ -41,6 +41,7 @@ namespace MuonGM {
     m_rots = 0.;
     m_rotz = 0.;
     m_rott = 0.;
+    m_offset = 0.;
 
     m_hasALines = false;
     m_hasBLines = false;
@@ -188,7 +189,8 @@ namespace MuonGM {
       MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(getStationEta()), getStationPhi(), m_ml, side);
       MMReadoutParameters roParam = mm->GetReadoutParameters();
 
-
+      double ylFrame = mm->ylFrame();
+      double ysFrame = mm->ysFrame();
       m_halfX = roParam.activeH/2;    //0.5*radial length (active area)
       m_minHalfY = roParam.activeBottomLength/2;   //0.5*bottom length (active area)
       m_maxHalfY = roParam.activeTopLength/2;       //0.5*top length (active area)
@@ -219,15 +221,17 @@ namespace MuonGM {
       m_etaDesign[il].maxYPhi = roParam.maxYPhi;
       m_etaDesign[il].totalStrips = roParam.tStrips;
       m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
-      m_etaDesign[il].offset = roParam.offset;
+      m_etaDesign[il].ylFrame = ylFrame;
+      m_etaDesign[il].ysFrame = ysFrame;
+      m_offset = -0.5*(m_etaDesign[il].ylFrame - m_etaDesign[il].ysFrame);
       if (m_ml < 1 || m_ml > 2)
         reLog()<<MSG::WARNING <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       
       if (m_etaDesign[il].sAngle == 0.) {    // eta layers
 
-        m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + pitch + m_etaDesign[il].offset;
+        m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + pitch;
         m_etaDesign[il].signY  = 1 ;
-        m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))) + 1; // Total number of active strips
+        m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))); // Total number of active strips
 	
       } else { // stereo layers
           
@@ -248,9 +252,9 @@ namespace MuonGM {
         double fPos = -0.5*m_etaDesign[il].xSize - low_swift + lm1_swift;
         double lPos = 0.5*m_etaDesign[il].xSize + up_swift;
 
-        m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch )) + 1;
+        m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch ));
 
-        m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta)*pitch) + pitch + m_etaDesign[il].offset;
+        m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta)*pitch) + pitch;
 
       }
       m_nStrips.push_back(m_etaDesign[il].totalStrips);
@@ -273,7 +277,6 @@ namespace MuonGM {
     m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX, m_minHalfY, m_maxHalfY));
 
     for( int layer = 0; layer < m_nlayers; ++layer ){
-
       // identifier of the first channel
       Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 1);
 
@@ -282,6 +285,7 @@ namespace MuonGM {
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
       m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
+             Amg::Translation3D(0.,0.,m_offset)*
 						 Amg::AngleAxis3D(-90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
 
       // surface info (center, normal) 
@@ -314,9 +318,10 @@ namespace MuonGM {
     int gg = manager()->mmIdHelper()->gasGap(id);
     
     //    Amg::Vector3D  locP = (m_Xlg[gg-1].inverse())*locPos;
-    Amg::Vector3D  locP = (m_Xlg[gg-1])*locPos;
+    Amg::Vector3D  locP = (m_Xlg[gg-1])*Amg::Translation3D(0.,0.,m_offset)*locPos;
     reLog()<<MSG::DEBUG<<"locPos in the gg      r.f. "<<locPos<<endmsg;
     reLog()<<MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
+
     return absTransform()*locP;
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
@@ -19,8 +19,10 @@ sTGCDetectorHelper::sTGCDetectorHelper()
 	{
 		sTGCDetectorDescription* st=dynamic_cast<sTGCDetectorDescription*>(vl_iter.second);
 		//AGDDMicromegas* st1=dynamic_cast<AGDDMicromegas*>(st);
-		if (st) 
+		if (st) {
 			sTGCList[vl_iter.first]=st;
+			sTGCListSubType[vl_iter.second->subType()]=st;
+		}
 	}
 	
 }
@@ -102,3 +104,10 @@ sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorType(std::string ty
 	if (sTGCList.find(type) != sTGCList.end()) return sTGCList[type];
 	return nullptr;
 }
+
+sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorSubType(std::string type)
+{
+	if (sTGCListSubType.find(type) != sTGCListSubType.end()) return sTGCListSubType[type];
+	return nullptr;
+}
+

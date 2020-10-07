@@ -171,18 +171,18 @@
 <var name="NSW_MM_LM_distanceFromIP" value="7536"/>
 <var name="NSW_MM_SM_distanceFromIP" value="7072"/>
 <!-- Thickness of Multilayer and the subcomponent (mm)-->
-<var name="NSW_MM_GasTck" value="5.04"/>
-<var name="NSW_MM_ROPcbTck" value="11.69"/>
-<var name="NSW_MM_DriftPcbTck" value="11.284"/>
+<var name="NSW_MM_GasTck" value="5.05"/>
+<var name="NSW_MM_ROPcbTck" value="11.75"/>
+<var name="NSW_MM_DriftPcbTck" value="11.3"/>
 <var name="NSW_MM_MultilayerTck" value="NSW_NbrOfLayers* NSW_MM_GasTck + (NSW_NbrOfDriftPcb) * NSW_MM_DriftPcbTck+ ( NSW_NbrOfROPcb) * NSW_MM_ROPcbTck" /> <!-- Thickness of one multilayer -->
 
 <!-- Large sector modules (LM1" LM2). Modules are all trapezoid. ""Height"": radial envelope" ""base/top Width"": upper/lower side of the trapezoid-->
 <var name="NSW_MM_LM1_InnerRadius" value="923" />
 <var name="NSW_MM_LM1_Length" value="2310" />
 <var name="NSW_MM_LM1_outerRadius" value="NSW_MM_LM1_InnerRadius+NSW_MM_LM1_Length" />
-<var name="NSW_MM_LM1_f1" value="30"/>
-<var name="NSW_MM_LM1_f2" value="30"/>
-<var name="NSW_MM_LM1_f3" value="100"/>
+<var name="NSW_MM_LM1_f1" value="35.175"/>
+<var name="NSW_MM_LM1_f2" value="35.625"/>
+<var name="NSW_MM_LM1_f3" value="117.26"/>
 <var name="NSW_MM_LMGap_Length" value="5" /> <!-- Radial gap between LM1 and LM2 -->
 <var name="NSW_MM_LM2_InnerRadius" value="NSW_MM_LM1_outerRadius+NSW_MM_LMGap_Length" />
 <var name="NSW_MM_LM2_Length" value="1410" />
@@ -191,19 +191,19 @@
 <var name="NSW_MM_LM1_topWidth" value="2008.5" />
 <var name="NSW_MM_LM2_baseWidth" value="2022.8" />
 <var name="NSW_MM_LM2_topWidth" value="2220" />
-<var name="NSW_MM_LM2_f1" value="30"/>
-<var name="NSW_MM_LM2_f2" value="30"/>
-<var name="NSW_MM_LM2_f3" value="100"/>
+<var name="NSW_MM_LM2_f1" value="35.175"/>
+<var name="NSW_MM_LM2_f2" value="35.175"/>
+<var name="NSW_MM_LM2_f3" value="112.52"/>
 <!-- These lines added by Alexandre Laurier to fix MM active Geometry / updated values by Chara Kitsaki -->
 <!-- *_activeBottom: bottom length -->
 <!-- *_activeTop: top length -->
 <!-- *_activeH: radial distance -->
 <var name="NSW_MM_LM1_activeBottom" value="426.73"/>
 <var name="NSW_MM_LM1_activeTop" value="1753.0"/>
-<var name="NSW_MM_LM1_activeH" value="2238.75"/>
+<var name="NSW_MM_LM1_activeH" value="2239.2"/>
 <var name="NSW_MM_LM2_activeBottom" value="1802.5"/>
 <var name="NSW_MM_LM2_activeTop" value="1990.0"/>
-<var name="NSW_MM_LM2_activeH" value="1339.2"/>
+<var name="NSW_MM_LM2_activeH" value="1339.65"/>
 <!-- These lines added by Chara Kitsaki to implement all the parameters needed for the strips description -->
 <!-- *_etaMissedTop: the #of eta strips that are not connected to the FE boards (top part of the module) -->
 <!-- *_etaMissedBottom: the #of eta strips that are not connected to the FE boards (bottom part of the module) -->
@@ -228,9 +228,9 @@
 <var name="NSW_MM_SM1_Length" value="2210" />
 <var name="NSW_MM_SM1_outerRadius" value="NSW_MM_SM1_InnerRadius+NSW_MM_SM1_Length" />
 <var name="NSW_MM_SMGap_Length" value="5" /> <!-- Radial gap between SM1 and SM2 -->
-<var name="NSW_MM_SM1_f1" value="30"/>
-<var name="NSW_MM_SM1_f2" value="30"/>
-<var name="NSW_MM_SM1_f3" value="100"/>
+<var name="NSW_MM_SM1_f1" value="34.1875"/>
+<var name="NSW_MM_SM1_f2" value="35.0875"/>
+<var name="NSW_MM_SM1_f3" value="114.02"/>
 <var name="NSW_MM_SM2_InnerRadius" value="NSW_MM_SM1_outerRadius+NSW_MM_SMGap_Length" />
 <var name="NSW_MM_SM2_Length" value="1350" />
 <var name="NSW_MM_SM2_outerRadius" value="NSW_MM_SM2_InnerRadius+NSW_MM_SM2_Length" />
@@ -238,16 +238,16 @@
 <var name="NSW_MM_SM1_topWidth" value="1319.2" />
 <var name="NSW_MM_SM2_baseWidth" value="1321.1" />
 <var name="NSW_MM_SM2_topWidth" value="1821.5" />
-<var name="NSW_MM_SM2_f1" value="30"/>
-<var name="NSW_MM_SM2_f2" value="30"/>
-<var name="NSW_MM_SM2_f3" value="100"/>
+<var name="NSW_MM_SM2_f1" value="35.1375"/>
+<var name="NSW_MM_SM2_f2" value="34.7625"/>
+<var name="NSW_MM_SM2_f3" value="114.4"/>
 <!-- These lines added by Alexandre Laurier to fix MM active Geometry / updated values by Chara Kitsaki -->
 <var name="NSW_MM_SM1_activeBottom" value="284.0"/>
 <var name="NSW_MM_SM1_activeTop" value="1078.4"/>
-<var name="NSW_MM_SM1_activeH" value="2140.3"/>
+<var name="NSW_MM_SM1_activeH" value="2140.725"/>
 <var name="NSW_MM_SM2_activeBottom" value="1103.05"/>
 <var name="NSW_MM_SM2_activeTop" value="1579.6"/>
-<var name="NSW_MM_SM2_activeH" value="1279.675"/>
+<var name="NSW_MM_SM2_activeH" value="1280.1"/>
 <!-- These lines added by Chara Kitsaki to implement all the parameters needed for the strips description -->
 <var name="NSW_MM_SM1_etaMissedTop" value="41"/>
 <var name="NSW_MM_SM1_etaMissedBottom" value="42"/>
@@ -267,7 +267,7 @@
 
 
 <!-- Thickness of inter-multilayer spacers -->
-<var name="NSW_MM_SpacerThickness" value="50" />
+<var name="NSW_MM_SpacerThickness" value="52" />
 
 <!-- Global z-coordinate for the sector center -->
 <!--  <var name="NSW_MM_LargeSector_ZCENTER" value="NSW_MM_LM_distanceFromIP + 4.*NSW_MM_DriftPcbTck + 4.*NSW_MM_ROPcbTck + 4.*NSW_MM_GasTck + NSW_MM_SpacerThickness/2."/>
@@ -289,16 +289,16 @@
 <!-- At the corners of the module some strips are shorter in length and they are routed to the FE boards (routed strips). These areas are of low efficiency. LM1 is the special case (there is not much space to route any strips at the module's bottom part) -->
 
 <micromegas type="sMD1-1-1" tech="MM_1" subType="M1L1" sWidth="NSW_MM_LM1_baseWidth" lWidth="NSW_MM_LM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM1_Length" ylFrame="NSW_MM_LM1_f1" ysFrame="NSW_MM_LM1_f2" xFrame="NSW_MM_LM1_f3" >
-<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM1_InnerRadius" roLength="NSW_MM_LM1_Length" activeBottomLength="NSW_MM_LM1_activeBottom" activeTopLength="NSW_MM_LM1_activeTop" activeH="NSW_MM_LM1_activeH" minYPhiR="12" minYPhiL="0.69" maxYPhi="6.69" nMissedTopEta="NSW_MM_LM1_etaMissedTop" nMissedBottomEta="NSW_MM_LM1_etaMissedBottom" nMissedTopStereo="NSW_MM_LM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM1_stereoMissedBottom" nRoutedTop="NSW_MM_LM1_stereoRoutedTop" nRoutedBottom="NSW_MM_LM1_stereoRoutedBottom" dlStereoTop="257.61" dlStereoBottom="426.73" totalStrips="5120" zLayout="Z_POSITIVE" offset="0.225"/>
+<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM1_InnerRadius" roLength="NSW_MM_LM1_Length" activeBottomLength="NSW_MM_LM1_activeBottom" activeTopLength="NSW_MM_LM1_activeTop" activeH="NSW_MM_LM1_activeH" minYPhiR="12" minYPhiL="0.69" maxYPhi="6.69" nMissedTopEta="NSW_MM_LM1_etaMissedTop" nMissedBottomEta="NSW_MM_LM1_etaMissedBottom" nMissedTopStereo="NSW_MM_LM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM1_stereoMissedBottom" nRoutedTop="NSW_MM_LM1_stereoRoutedTop" nRoutedBottom="NSW_MM_LM1_stereoRoutedBottom" dlStereoTop="257.61" dlStereoBottom="426.73" totalStrips="5120" zLayout="Z_POSITIVE" />
 </micromegas>
 <micromegas type="sMD1-2-1" tech="MM_1" subType="M2L1" sWidth="NSW_MM_LM2_baseWidth" lWidth="NSW_MM_LM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM2_Length" ylFrame="NSW_MM_LM2_f1" ysFrame="NSW_MM_LM2_f2" xFrame="NSW_MM_LM2_f3" >
-<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM2_InnerRadius" roLength="NSW_MM_LM2_Length" activeBottomLength="NSW_MM_LM2_activeBottom" activeTopLength="NSW_MM_LM2_activeTop" activeH="NSW_MM_LM2_activeH" minYPhiR="21.39" minYPhiL="0" maxYPhi="23.77" nMissedTopEta="NSW_MM_LM2_etaMissedTop" nMissedBottomEta="NSW_MM_LM2_etaMissedBottom" nMissedTopStereo="NSW_MM_LM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM2_stereoMissedBottom" nRoutedTop="NSW_MM_LM2_stereoRoutedTop" nRoutedBottom="NSW_MM_LM2_stereoRoutedBottom" dlStereoTop="909.4" dlStereoBottom="815.32" totalStrips="3072" zLayout="Z_POSITIVE" offset="0."/>
+<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM2_InnerRadius" roLength="NSW_MM_LM2_Length" activeBottomLength="NSW_MM_LM2_activeBottom" activeTopLength="NSW_MM_LM2_activeTop" activeH="NSW_MM_LM2_activeH" minYPhiR="21.39" minYPhiL="0" maxYPhi="23.77" nMissedTopEta="NSW_MM_LM2_etaMissedTop" nMissedBottomEta="NSW_MM_LM2_etaMissedBottom" nMissedTopStereo="NSW_MM_LM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM2_stereoMissedBottom" nRoutedTop="NSW_MM_LM2_stereoRoutedTop" nRoutedBottom="NSW_MM_LM2_stereoRoutedBottom" dlStereoTop="909.4" dlStereoBottom="815.32" totalStrips="3072" zLayout="Z_POSITIVE" />
 </micromegas>
 <micromegas type="sMD1-1-2" tech="MM_1" subType="M1L2" sWidth="NSW_MM_LM1_baseWidth" lWidth="NSW_MM_LM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM1_Length" ylFrame="NSW_MM_LM1_f1" ysFrame="NSW_MM_LM1_f2" xFrame="NSW_MM_LM1_f3" >
-<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM1_InnerRadius" roLength="NSW_MM_LM1_Length" activeBottomLength="NSW_MM_LM1_activeBottom" activeTopLength="NSW_MM_LM1_activeTop" activeH="NSW_MM_LM1_activeH" minYPhiR="12" minYPhiL="0.69" maxYPhi="6.69" nMissedTopEta="NSW_MM_LM1_etaMissedTop" nMissedBottomEta="NSW_MM_LM1_etaMissedBottom" nMissedTopStereo="NSW_MM_LM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM1_stereoMissedBottom" nRoutedTop="NSW_MM_LM1_stereoRoutedTop" nRoutedBottom="NSW_MM_LM1_stereoRoutedBottom" dlStereoTop="257.61" dlStereoBottom="426.73" totalStrips="5120" zLayout="Z_POSITIVE" offset="0.225"/>
+<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM1_InnerRadius" roLength="NSW_MM_LM1_Length" activeBottomLength="NSW_MM_LM1_activeBottom" activeTopLength="NSW_MM_LM1_activeTop" activeH="NSW_MM_LM1_activeH" minYPhiR="12" minYPhiL="0.69" maxYPhi="6.69" nMissedTopEta="NSW_MM_LM1_etaMissedTop" nMissedBottomEta="NSW_MM_LM1_etaMissedBottom" nMissedTopStereo="NSW_MM_LM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM1_stereoMissedBottom" nRoutedTop="NSW_MM_LM1_stereoRoutedTop" nRoutedBottom="NSW_MM_LM1_stereoRoutedBottom" dlStereoTop="257.61" dlStereoBottom="426.73" totalStrips="5120" zLayout="Z_POSITIVE" />
 </micromegas>
 <micromegas type="sMD1-2-2" tech="MM_1" subType="M2L2" sWidth="NSW_MM_LM2_baseWidth" lWidth="NSW_MM_LM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM2_Length" ylFrame="NSW_MM_LM2_f1" ysFrame="NSW_MM_LM2_f2" xFrame="NSW_MM_LM2_f3" >
-<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM2_InnerRadius" roLength="NSW_MM_LM2_Length" activeBottomLength="NSW_MM_LM2_activeBottom" activeTopLength="NSW_MM_LM2_activeTop" activeH="NSW_MM_LM2_activeH" minYPhiR="21.39" minYPhiL="0" maxYPhi="23.77" nMissedTopEta="NSW_MM_LM2_etaMissedTop" nMissedBottomEta="NSW_MM_LM2_etaMissedBottom" nMissedTopStereo="NSW_MM_LM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM2_stereoMissedBottom" nRoutedTop="NSW_MM_LM2_stereoRoutedTop" nRoutedBottom="NSW_MM_LM2_stereoRoutedBottom" dlStereoTop="909.4" dlStereoBottom="815.32" totalStrips="3072" zLayout="Z_POSITIVE" offset="0."/>
+<mm_readout stripPitch="0.45" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_LargeSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_LM2_InnerRadius" roLength="NSW_MM_LM2_Length" activeBottomLength="NSW_MM_LM2_activeBottom" activeTopLength="NSW_MM_LM2_activeTop" activeH="NSW_MM_LM2_activeH" minYPhiR="21.39" minYPhiL="0" maxYPhi="23.77" nMissedTopEta="NSW_MM_LM2_etaMissedTop" nMissedBottomEta="NSW_MM_LM2_etaMissedBottom" nMissedTopStereo="NSW_MM_LM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_LM2_stereoMissedBottom" nRoutedTop="NSW_MM_LM2_stereoRoutedTop" nRoutedBottom="NSW_MM_LM2_stereoRoutedBottom" dlStereoTop="909.4" dlStereoBottom="815.32" totalStrips="3072" zLayout="Z_POSITIVE" />
 </micromegas>
 
 <!--Chilufya<mmSpacer type="spa1-1" tech="Spa_1" sWidth="NSW_MM_LM1_baseWidth" lWidth="NSW_MM_LM1_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_LM1_Length" />
@@ -307,16 +307,16 @@
 
 <!-- small wheel -->
 <micromegas type="sMD3-1-1" tech="MM_1" subType="M1S1" sWidth="NSW_MM_SM1_baseWidth" lWidth="NSW_MM_SM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM1_Length" ylFrame="NSW_MM_SM1_f1" ysFrame="NSW_MM_SM1_f2" xFrame="NSW_MM_SM1_f3" >
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM1_InnerRadius" roLength="NSW_MM_SM1_Length" activeBottomLength="NSW_MM_SM1_activeBottom" activeTopLength="NSW_MM_SM1_activeTop" activeH="NSW_MM_SM1_activeH" minYPhiR="0.75" minYPhiL="0" maxYPhi="1.36" nMissedTopEta="NSW_MM_SM1_etaMissedTop" nMissedBottomEta="NSW_MM_SM1_etaMissedBottom" nMissedTopStereo="NSW_MM_SM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM1_stereoMissedBottom" nRoutedTop="NSW_MM_SM1_stereoRoutedTop" nRoutedBottom="NSW_MM_SM1_stereoRoutedBottom" dlStereoTop="52.15" dlStereoBottom="28.41" totalStrips="5120" zLayout="Z_POSITIVE" offset="0.025"/>
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM1_InnerRadius" roLength="NSW_MM_SM1_Length" activeBottomLength="NSW_MM_SM1_activeBottom" activeTopLength="NSW_MM_SM1_activeTop" activeH="NSW_MM_SM1_activeH" minYPhiR="0.75" minYPhiL="0" maxYPhi="1.36" nMissedTopEta="NSW_MM_SM1_etaMissedTop" nMissedBottomEta="NSW_MM_SM1_etaMissedBottom" nMissedTopStereo="NSW_MM_SM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM1_stereoMissedBottom" nRoutedTop="NSW_MM_SM1_stereoRoutedTop" nRoutedBottom="NSW_MM_SM1_stereoRoutedBottom" dlStereoTop="52.15" dlStereoBottom="28.41" totalStrips="5120" zLayout="Z_POSITIVE" />
 </micromegas>
 <micromegas type="sMD3-2-1" tech="MM_1" subType="M2S1" sWidth="NSW_MM_SM2_baseWidth" lWidth="NSW_MM_SM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM2_Length" ylFrame="NSW_MM_SM2_f1" ysFrame="NSW_MM_SM2_f2" xFrame="NSW_MM_SM2_f3" >
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM2_InnerRadius" roLength="NSW_MM_SM2_Length" activeBottomLength="NSW_MM_SM2_activeBottom" activeTopLength="NSW_MM_SM2_activeTop" activeH="NSW_MM_SM2_activeH" minYPhiR="2.53" minYPhiL="0" maxYPhi="7.92" nMissedTopEta="NSW_MM_SM2_etaMissedTop" nMissedBottomEta="NSW_MM_SM2_etaMissedBottom" nMissedTopStereo="NSW_MM_SM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM2_stereoMissedBottom" nRoutedTop="NSW_MM_SM2_stereoRoutedTop" nRoutedBottom="NSW_MM_SM2_stereoRoutedBottom" dlStereoTop="303.86" dlStereoBottom="96.14" totalStrips="3072" zLayout="Z_POSITIVE" offset="0.2375"/>
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER-NSW_MM_MultilayerTck/2.-NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM2_InnerRadius" roLength="NSW_MM_SM2_Length" activeBottomLength="NSW_MM_SM2_activeBottom" activeTopLength="NSW_MM_SM2_activeTop" activeH="NSW_MM_SM2_activeH" minYPhiR="2.53" minYPhiL="0" maxYPhi="7.92" nMissedTopEta="NSW_MM_SM2_etaMissedTop" nMissedBottomEta="NSW_MM_SM2_etaMissedBottom" nMissedTopStereo="NSW_MM_SM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM2_stereoMissedBottom" nRoutedTop="NSW_MM_SM2_stereoRoutedTop" nRoutedBottom="NSW_MM_SM2_stereoRoutedBottom" dlStereoTop="303.86" dlStereoBottom="96.14" totalStrips="3072" zLayout="Z_POSITIVE" />
 </micromegas>
 <micromegas type="sMD3-1-2" tech="MM_1" subType="M1S2" sWidth="NSW_MM_SM1_baseWidth" lWidth="NSW_MM_SM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM1_Length" ylFrame="NSW_MM_SM1_f1" ysFrame="NSW_MM_SM1_f2" xFrame="NSW_MM_SM1_f3" >
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM1_InnerRadius" roLength="NSW_MM_SM1_Length" activeBottomLength="NSW_MM_SM1_activeBottom" activeTopLength="NSW_MM_SM1_activeTop" activeH="NSW_MM_SM1_activeH" minYPhiR="0.75" minYPhiL="0" maxYPhi="1.36" nMissedTopEta="NSW_MM_SM1_etaMissedTop" nMissedBottomEta="NSW_MM_SM1_etaMissedBottom" nMissedTopStereo="NSW_MM_SM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM1_stereoMissedBottom" nRoutedTop="NSW_MM_SM1_stereoRoutedTop" nRoutedBottom="NSW_MM_SM1_stereoRoutedBottom" dlStereoTop="52.15" dlStereoBottom="28.41" totalStrips="5120" zLayout="Z_POSITIVE" offset="0.025"/>
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM1_InnerRadius" roLength="NSW_MM_SM1_Length" activeBottomLength="NSW_MM_SM1_activeBottom" activeTopLength="NSW_MM_SM1_activeTop" activeH="NSW_MM_SM1_activeH" minYPhiR="0.75" minYPhiL="0" maxYPhi="1.36" nMissedTopEta="NSW_MM_SM1_etaMissedTop" nMissedBottomEta="NSW_MM_SM1_etaMissedBottom" nMissedTopStereo="NSW_MM_SM1_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM1_stereoMissedBottom" nRoutedTop="NSW_MM_SM1_stereoRoutedTop" nRoutedBottom="NSW_MM_SM1_stereoRoutedBottom" dlStereoTop="52.15" dlStereoBottom="28.41" totalStrips="5120" zLayout="Z_POSITIVE" />
 </micromegas>
 <micromegas type="sMD3-2-2" tech="MM_1" subType="M2S2" sWidth="NSW_MM_SM2_baseWidth" lWidth="NSW_MM_SM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM2_Length" ylFrame="NSW_MM_SM2_f1" ysFrame="NSW_MM_SM2_f2" xFrame="NSW_MM_SM2_f3" >
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM2_InnerRadius" roLength="NSW_MM_SM2_Length" activeBottomLength="NSW_MM_SM2_activeBottom" activeTopLength="NSW_MM_SM2_activeTop" activeH="NSW_MM_SM2_activeH" minYPhiR="2.53" minYPhiL="0" maxYPhi="7.92" nMissedTopEta="NSW_MM_SM2_etaMissedTop" nMissedBottomEta="NSW_MM_SM2_etaMissedBottom" nMissedTopStereo="NSW_MM_SM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM2_stereoMissedBottom" nRoutedTop="NSW_MM_SM2_stereoRoutedTop" nRoutedBottom="NSW_MM_SM2_stereoRoutedBottom" dlStereoTop="303.86" dlStereoBottom="96.14" totalStrips="3072" zLayout="Z_POSITIVE" offset="0.2375"/>
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" driftThickness="NSW_MM_DriftPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1" zPos="NSW_MM_SmallSector_ZCENTER+NSW_MM_MultilayerTck/2.+NSW_MM_SpacerThickness/2." distanceFromZAxis="NSW_MM_SM2_InnerRadius" roLength="NSW_MM_SM2_Length" activeBottomLength="NSW_MM_SM2_activeBottom" activeTopLength="NSW_MM_SM2_activeTop" activeH="NSW_MM_SM2_activeH" minYPhiR="2.53" minYPhiL="0" maxYPhi="7.92" nMissedTopEta="NSW_MM_SM2_etaMissedTop" nMissedBottomEta="NSW_MM_SM2_etaMissedBottom" nMissedTopStereo="NSW_MM_SM2_stereoMissedTop" nMissedBottomStereo="NSW_MM_SM2_stereoMissedBottom" nRoutedTop="NSW_MM_SM2_stereoRoutedTop" nRoutedBottom="NSW_MM_SM2_stereoRoutedBottom" dlStereoTop="303.86" dlStereoBottom="96.14" totalStrips="3072" zLayout="Z_POSITIVE" />
 </micromegas>
 <!--Chilufya<mmSpacer type="spa3-1" tech="Spa_1" sWidth="NSW_MM_SM1_baseWidth" lWidth="NSW_MM_SM1_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_SM1_Length" />
 <mmSpacer type="spa3-2" tech="Spa_1" sWidth="NSW_MM_SM2_baseWidth" lWidth="NSW_MM_SM2_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_SM2_Length" />Chilufya-->
