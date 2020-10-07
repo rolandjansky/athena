@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RELATIONALCOLLECTION_RELATIONALCOLLECTIONSCHEMAEDITOR_H
@@ -242,7 +242,7 @@ namespace pool {
        *
        * @param columnName Name of column for which constraint is applied.
        */
-      void setUniqueConstraint( std::string constraintName, const std::string& columnName );
+      void setUniqueConstraint( const std::string& constraintName, const std::string& columnName );
 
       /**
        * Sets a unique constraint on one or more columns of the collection. Automatically generates a
@@ -250,7 +250,7 @@ namespace pool {
        *
        * @param columnNames Names of columns for which constraint is applied.
        */
-      void setUniqueConstraint( std::string constraintName, const std::vector<std::string>& columnNames );
+      void setUniqueConstraint( const std::string& constraintName, const std::vector<std::string>& columnNames );
 
       /**
        * Unsets an existing unique constraint on a single column of the collection, 

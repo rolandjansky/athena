@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RelationalCollection.h"
@@ -403,10 +403,9 @@ drop_impl( const std::string& _fragmentName,
       }
 
       // If collection fragment has parent fragments, update parent fragment rows in collection headers table.
-      for ( std::vector< std::string >::const_iterator iName = parentFragmentNames.begin(); 
-            iName != parentFragmentNames.end(); iName++ )
+      for (const std::string& name : parentFragmentNames )
       {
-         m_whereDataForCollectionNameInHeadersTable->begin()->data<std::string>() = *iName;
+         m_whereDataForCollectionNameInHeadersTable->begin()->data<std::string>() = name;
          std::string setClause = RelationalCollectionNames::childCollectionNameVariableInCollectionHeadersTable() + " = " + "\'\'" + " , " + RelationalCollectionNames::foreignKeyNameVariableInCollectionHeadersTable() + " = " + "\'\'";
          nominalSchema.tableHandle( RelationalCollectionNames::nameOfCollectionHeadersTable() ).dataEditor().updateRows(
             setClause,
@@ -1548,7 +1547,7 @@ createLinkIdToTokenKeyMaps( const std::string& fragmentName )
 
 void
 pool::RelationalCollection::RelationalCollection::createIndex( const std::string& indexName,
-                                                               const std::vector< std::string > columnNames,
+                                                               const std::vector< std::string >& columnNames,
                                                                bool isUnique )
 {
    coral::ISchema& nominalSchema = m_session->nominalSchema();
@@ -1605,7 +1604,7 @@ pool::RelationalCollection::RelationalCollection::createIndex( const std::string
   delete query;
   bool indexFound = false;
   for( std::map< std::string, std::vector< std::string >* >::const_iterator iData = 
-          collectionColumnNamesForIndexName.begin(); iData != collectionColumnNamesForIndexName.end(); iData++ )
+          collectionColumnNamesForIndexName.begin(); iData != collectionColumnNamesForIndexName.end(); ++iData )
   {
     std::string existingIndexName = iData->first;
     std::vector< std::string >* existingColumnNames = iData->second;
@@ -1748,7 +1747,7 @@ setUniqueConstraint( const std::string& constraintName, const std::vector< std::
   for(         std::map< std::string, std::vector< std::string >* >::const_iterator iData = 
           collectionColumnNamesForUniqueConstraintName.begin();
        iData != collectionColumnNamesForUniqueConstraintName.end(); 
-       iData++ )
+       ++iData )
   {
     std::string existingUniqueConstraintName = iData->first;
     std::vector< std::string >* existingColumnNames = iData->second;
@@ -1885,7 +1884,7 @@ pool::RelationalCollection::RelationalCollection::retrieveIndexDescriptions( con
   for( std::map< std::string, std::vector< std::string >* >::const_iterator iIndex = 
           collectionColumnNamesForIndexName.begin();
        iIndex != collectionColumnNamesForIndexName.end();
-       iIndex++ )
+       ++iIndex )
   {
     std::string indexName = iIndex->first;
 
@@ -1965,7 +1964,7 @@ pool::RelationalCollection::RelationalCollection::retrieveUniqueConstraintDescri
   // Add unique constraints to collection description.
   for( std::map< std::string, std::vector< std::string >* >::const_iterator iConstraint = 
        collectionColumnNamesForUniqueConstraintName.begin(); iConstraint != 
-       collectionColumnNamesForUniqueConstraintName.end(); iConstraint++ )
+       collectionColumnNamesForUniqueConstraintName.end(); ++iConstraint )
   {
      // MN: FIX guess - check functionality!
      // m_description.setUniqueConstraint( iConstraint->first, *iConstraint->second );
