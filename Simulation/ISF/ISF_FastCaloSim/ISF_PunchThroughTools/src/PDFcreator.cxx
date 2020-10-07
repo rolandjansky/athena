@@ -53,7 +53,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       else {
         //Check if iterator input energy is closer to previous energy, if yes choose this instead
         itPrevEnergy = std::prev(itUpperEnergy);
-        if (abs(inputParameters.at(0) - itPrevEnergy->first) < abs(itUpperEnergy->first - inputParameters.at(0))){
+        if (std::fabs(inputParameters.at(0) - itPrevEnergy->first) < std::fabs(itUpperEnergy->first - inputParameters.at(0))){
           selectedEnergy = itPrevEnergy;
           secondSelectedEnergy = itUpperEnergy;
         }
@@ -77,7 +77,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
         }
 
         //calculate a distance of the input energy to the bin edge
-        double distance = fabs(energyBinEdge - inputParameters.at(0))/fabs(selectedEnergy->first - energyBinEdge);
+        double distance = std::fabs(energyBinEdge - inputParameters.at(0))/std::fabs(selectedEnergy->first - energyBinEdge);
 
         //if we get a random number larger than the distance then choose other energy.
         double rand = CLHEP::RandFlat::shoot(m_randomEngine);
@@ -105,7 +105,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
     if(m_energy_etaRange_hists1D.size() > 1){
 
     //if input eta is closer to upper eta boundary in itSelecteEtaWindow then select next window as second best choice
-    if(fabs(inputParameters.at(1) - itSelectedEtaWindow->first.at(1)) <  fabs(inputParameters.at(1) - itSelectedEtaWindow->first.at(0))){
+    if(std::fabs(inputParameters.at(1) - itSelectedEtaWindow->first.at(1)) <  std::fabs(inputParameters.at(1) - itSelectedEtaWindow->first.at(0))){
       if(itSelectedEtaWindow != std::prev(etaMinEtaMax_hists.end())){
         itSecondEtaWindow = std::next(itSelectedEtaWindow);
       }
@@ -129,7 +129,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       etaBinEdge = itSecondEtaWindow->first.at(0);
     }
     //calculate a distance of the input eta to the bin edge
-    double distance = fabs(etaBinEdge - inputParameters.at(1))/fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
+    double distance = std::fabs(etaBinEdge - inputParameters.at(1))/std::fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
     //if we get a random number larger than the distance then choose other energy.
     double rand = CLHEP::RandFlat::shoot(m_randomEngine);
     if(rand > distance){
@@ -181,7 +181,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       } else {
         //Check if iterator input energy is closer to previous iterator energy, if yes choose this instead
         itPrevEnergy = std::prev(itUpperEnergy);
-        if (fabs(inputParameters.at(0) - itPrevEnergy->first) < fabs(itUpperEnergy->first - inputParameters.at(0))){
+        if (std::fabs(inputParameters.at(0) - itPrevEnergy->first) < std::fabs(itUpperEnergy->first - inputParameters.at(0))){
           selectedEnergy = itPrevEnergy;
           secondSelectedEnergy = itUpperEnergy;
         }
@@ -205,7 +205,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
         }
 
         //calculate a distance of the input energy to the bin edge
-        double distance = fabs(energyBinEdge - inputParameters.at(0))/fabs(selectedEnergy->first - energyBinEdge);
+        double distance = std::fabs(energyBinEdge - inputParameters.at(0))/std::fabs(selectedEnergy->first - energyBinEdge);
 
         //if we get a random number larger than the distance then choose other energy.
         double rand = CLHEP::RandFlat::shoot(m_randomEngine);
@@ -234,7 +234,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
     //if we have multiple eta params do interpolation
     if(etaMinEtaMax_hists.size() > 1){
       //if input eta is closer to upper eta boundary in itSelecteEtaWindow then select next window as second best choice
-      if(abs(inputParameters.at(1) - itSelectedEtaWindow->first.at(1)) <  abs(inputParameters.at(1) - itSelectedEtaWindow->first.at(0))){
+      if(std::abs(inputParameters.at(1) - itSelectedEtaWindow->first.at(1)) <  std::abs(inputParameters.at(1) - itSelectedEtaWindow->first.at(0))){
         if(itSelectedEtaWindow != std::prev(etaMinEtaMax_hists.end())){
           itSecondEtaWindow = std::next(itSelectedEtaWindow);
         }
@@ -259,7 +259,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
         etaBinEdge = itSecondEtaWindow->first.at(0);
       }
       //calculate a distance of the input eta to the bin edge
-      double distance = fabs(etaBinEdge - inputParameters.at(1))/fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
+      double distance = std::fabs(etaBinEdge - inputParameters.at(1))/std::fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
       //if we get a random number larger than the distance then choose other energy.
       double rand = CLHEP::RandFlat::shoot(m_randomEngine);
       if(rand > distance){
