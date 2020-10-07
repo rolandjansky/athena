@@ -1,12 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def LArCellDeadOTXCorrToolDefault(name='LArCellDeadOTXCorr'):
+    from AthenaCommon.Logging import logging
+    mlog = logging.getLogger( 'LArCellDeadOTXCorrToolDefault' )
 
-    import traceback
     try :
         from LArCellRec.LArCellRecConf import LArCellDeadOTXCorr
         theLArCellDeadOTXCorr = LArCellDeadOTXCorr(name)
-    except:
+    except Exception:
+        import traceback
         mlog.error("could not get handle to LArCellDeadOTXCorr Quit")
         traceback.print_exc()
         return False 
@@ -51,9 +53,9 @@ def LArCellDeadOTXCorrToolDefault(name='LArCellDeadOTXCorr'):
 
 
         L1CaloDb=""
-        if not 'L1CaloDbConnection' in dir():
+        if 'L1CaloDbConnection' not in dir():
             if 'L1CaloSqliteDB' in dir():
-                L1CaloDbConnection="<dbConnection>sqlite://;schema=" + L1CaloSqliteDB + ";dbname=L1CALO</dbConnection>"
+                L1CaloDbConnection="<dbConnection>sqlite://;schema=" + L1CaloSqliteDB + ";dbname=L1CALO</dbConnection>" # noqa: F821
             else:
                 L1CaloDb="TRIGGER"
                 L1CaloDbConnection=""
