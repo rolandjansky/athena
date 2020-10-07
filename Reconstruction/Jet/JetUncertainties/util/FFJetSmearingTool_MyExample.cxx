@@ -370,58 +370,42 @@ config.makeTool (ffjetsmearingtool, cleanup);
             // Show status
             if(ievent % 100==0) std::cout << "Event " << ievent << " of " << nevents << std::endl;
 
-
+            //************************************************************//
             // Print some event information for fun
-            const xAOD::EventInfo* ei = nullptr;
-            CHECK( event.retrieve(ei, "EventInfo") );
-
             if(want_to_debug){
+                const xAOD::EventInfo* ei = nullptr;
+                CHECK( event.retrieve(ei, "EventInfo") );
+
                 std::cout << "===>>>  start processing event #" << ei->eventNumber() << ", run #" << ei->runNumber() << " " << ievent << " events processed so far  <<<===" << std::endl;
 
-            }
 
+                // Get the truth jets from the event
+                const xAOD::JetContainer* jets_truth = nullptr;
+                CHECK( event.retrieve(jets_truth, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets") );
 
-            // Get the truth jets from the event
-            const xAOD::JetContainer* jets_truth = nullptr;
-            CHECK( event.retrieve(jets_truth, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets") );
-            if(want_to_debug){
                 std::cout << "Number of truth jets: " << jets_truth->size() << std::endl;
-            }
-        //Loop over the truth jets in the event
-            xAOD::JetContainer::const_iterator jetItr;
-            for(jetItr = jets_truth->begin(); jetItr != jets_truth->end(); ++jetItr){
- 
-                const xAOD::Jet* jet_truth = *jetItr;
 
-                if(want_to_debug){
+                //Loop over the truth jets in the event
+                for(const xAOD::Jet* jet_truth : *jets_truth){
                     // Print basic info about this jet
                     std::cout << "Truth Jet: pt = " << jet_truth->pt()*MeVtoGeV << ", mass = " << jet_truth->m()*MeVtoGeV << ", eta = " << jet_truth->eta() << std::endl;
                 }
 
 
-            }
 
-
-
-            // Get the reco jets from the event
-            const xAOD::JetContainer* jets_reco = nullptr;
-            CHECK( event.retrieve(jets_reco, reco_jetColl) ); 
+                // Get the reco jets from the event
+                const xAOD::JetContainer* jets_reco = nullptr;
+                CHECK( event.retrieve(jets_reco, reco_jetColl) ); 
  
-            if(want_to_debug){
                 std::cout << "Number of reco jets: " << jets_reco->size() << std::endl;
-            }
-            //Loop over the reco jets in the event
-            //xAOD::JetContainer::const_iterator jetItr;
-            for(jetItr = jets_reco->begin(); jetItr != jets_reco->end(); ++jetItr){
 
-                const xAOD::Jet* jet_reco = *jetItr;
+                //Loop over the reco jets in the event
+                for(const xAOD::Jet* jet_reco : *jets_reco){
 
-                if(want_to_debug){
                     // Print basic info about this jet
-                    std::cout << "Reco Jet: pt = " <<  jet_reco->pt()*MeVtoGeV << ", mass = " <<  jet_reco->m()*MeVtoGeV << ", eta = " <<  jet_reco->eta() << std::endl;
                 }
             }
-
+            //************************************************************//
 
 
 

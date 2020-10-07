@@ -403,25 +403,20 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet jet_reco, xAOD::Jet& 
     double dRmin=9999; //we will take the closest jet reco-truth
 
     //Loop over the truth jets in the event to match
-    xAOD::JetContainer::const_iterator jetItr;
-    for(jetItr = jets_truth->begin(); jetItr != jets_truth->end(); ++jetItr){
-
-        const xAOD::Jet* jet_truth = *jetItr;
-
-        double dR=jet_reco.p4().DeltaR(jet_truth->p4());
-
-        if(dR < dRmax_truthJet){//The closest truth jet is used as matched
-            if( dR < dRmin ){
-                dRmin=dR;
-                xAOD::JetFourMom_t p4 = jet_truth->jetP4();
-                jet_truth_matched.setJetP4(p4);
+    const xAOD::Jet* close_jet = nullptr;
+    for (const auto& jet_truth : *jets_truth) {
+        float dR_Test = jet_reco.p4().DeltaR(jet_truth->p4());
+        if ( dR_Test < dRmax_truthJet){
+            if(dR_Test < dRmin){
+                close_jet = jet_truth;
+                dRmin = dR_Test;
             }
         }
     }
+    if(dRmin > 999){ return StatusCode::FAILURE;}
 
-    if(dRmin < 999)  return StatusCode::SUCCESS; //A matching truth jet has been found
-
-    return StatusCode::FAILURE; //No asociated truth jet has been found in the event
+    jet_truth_matched.setJetP4(close_jet->jetP4());
+    return StatusCode::SUCCESS;
 } 
 
 
