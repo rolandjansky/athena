@@ -1,18 +1,7 @@
-################################################################################
-# Package: CosmicGenerator
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CosmicGenerator )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Generators/AtlasHepMC
-                          Generators/GeneratorModules
-                          Generators/AtlasHepMC
-                          PRIVATE
-                          GaudiKernel )
 
 # External dependencies:
 find_package( CLHEP )
@@ -30,8 +19,7 @@ atlas_add_library( CosmicGeneratorLib
 
 atlas_add_component( CosmicGenerator
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaKernel GeneratorModulesLib GaudiKernel CosmicGeneratorLib )
+                     LINK_LIBRARIES CosmicGeneratorLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
