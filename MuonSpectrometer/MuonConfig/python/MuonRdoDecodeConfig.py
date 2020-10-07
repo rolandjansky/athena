@@ -126,7 +126,7 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     acc.merge( MDTCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
+    from MuonConfig.MuonCalibrationConfig import MdtCalibDbAlgCfg
     acc.merge (MdtCalibDbAlgCfg(flags))
 
     # Make sure muon geometry is configured

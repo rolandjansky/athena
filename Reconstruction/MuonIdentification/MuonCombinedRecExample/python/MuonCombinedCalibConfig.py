@@ -9,14 +9,20 @@ beamFlags = jobproperties.Beam
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonRecExample.MuonRecFlags import muonRecFlags
-#from MuonCalibAlgs.MuonCalibFlags import muonCalibFlags
 from MuonCnvExample.MuonCalibFlags import muonCalibFlags
-
 from RecExConfig.RecFlags import rec
 
-
 # configure calib algs for standalone
-from MuonRecExample import MuonCalibConfig
+if muonRecFlags.doCalibNtuple():
+    from MuonRecExample import MuonAlignConfig
+    from MuonCnvExample import setupMuonCalibNtuple
+    setupMuonCalibNtuple()
+elif muonRecFlags.doCalib():
+    from MuonRecExample import MuonAlignConfig
+    from MuonCnvExample import setupMuonCalib
+    setupMuonCalib()
+else:
+    logMuon.warning("Loading %s but not setting up any MuonCalibration or Ntuple" % __name__ )
 # NB. call setDefaults *after* import MuonCalibConfig
 muonCalibFlags.setDefaults()
 

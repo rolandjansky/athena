@@ -185,9 +185,17 @@ if muonRecFlags.useAlignmentCorrections():
 #--------------------------------------------------------------------------
 # Make Calibration Ntuple or run Calibration Algorithm
 #--------------------------------------------------------------------------
-if muonRecFlags.doCalib() or muonRecFlags.doCalibNtuple():
+if muonRecFlags.doCalibNtuple():
     from MuonRecExample import MuonAlignConfig
-    from MuonRecExample import MuonCalibConfig
+    from MuonCnvExample import setupMuonCalibNtuple
+    setupMuonCalibNtuple()
+elif muonRecFlags.doCalib():
+    from MuonRecExample import MuonAlignConfig
+    from MuonCnvExample import setupMuonCalib
+    setupMuonCalib()
+else:
+    logMuon.warning("Loading %s but not setting up any MuonCalibration or Ntuple" % __name__ )
+
 
 #--------------------------------------------------------------------------
 # Evaluate tracking performance

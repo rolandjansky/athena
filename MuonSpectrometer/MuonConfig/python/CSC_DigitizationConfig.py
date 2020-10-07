@@ -48,7 +48,7 @@ def CSC_DigitizationToolCommonCfg(flags, name="CscDigitizationTool", **kwargs):
     kwargs.setdefault("DriftVelocity", 39)
     kwargs.setdefault("ElectronEnergy", 66) # eV
 
-    from MuonConfig.MuonCalibConfig import CscCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
     kwargs.setdefault("cscCalibTool", acc.popToolsAndMerge(CscCalibToolCfg(flags)))
 
     CscDigitizationTool = CompFactory.CscDigitizationTool
