@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -54,6 +55,8 @@
 //for looping on FEBs
 #include "LArRawEvent/LArFebHeaderContainer.h"
 
+//Helper:
+#include "LArMonitoring/LArStrHelper.h"
 
 //Header:
 #include "LArNoiseCorrelationMonAlg.h"
@@ -175,7 +178,10 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
   LArDigitContainer::const_iterator itDig_2;
   LArDigitContainer::const_iterator itDig_e= pLArDigitContainer->end(); 
-  
+
+  /** helper for feb names*/
+  LArStrHelper larStrHelp;
+
   /** Loop over digits*/
   for ( ; itDig!=itDig_e;++itDig) {
     const LArDigit* pLArDigit = *itDig;
@@ -195,7 +201,8 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
     HWIdentifier febID = m_LArOnlineIDHelper->feb_Id(id);
     int ch1 = m_LArOnlineIDHelper->channel(id);
 
-    std::string febSTR = febString(febID); 
+    std::string febSTR = larStrHelp.febNameString(m_LArOnlineIDHelper->isEMBchannel(id),m_LArOnlineIDHelper->pos_neg(id),m_LArOnlineIDHelper->feedthrough(id),m_LArOnlineIDHelper->slot(id));
+      //febString(febID); 
     /** If we are only plotting a sub-set of FEBs, check if it belongs to that set */
     if(m_plotCustomFEBSset) {
       bool plotThisFEB=false;

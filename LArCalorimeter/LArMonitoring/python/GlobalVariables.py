@@ -5,6 +5,13 @@ from __future__ import print_function
 from ROOT import TMath
 import AthenaCommon.SystemOfUnits as Units
 
+#import cppyy
+#cppyy.load_library("libLArStrHelperDict")
+#import LArStrHelper 
+#import ROOT
+#ROOT.gROOT.GetClass('LArStrHelper::febNameString')
+from ROOT import LArStrHelper
+
 class LArDQGlobals(object):
       __slots__ = ('HVeta_EMB','HVphi_EMB','HVeta_EMEC','HVphi_EMEC','HVeta_HECFcal','HVphi_HECFcal',
                    'LB_Bins','LB_Min','LB_Max','BCID_Bins','BCID_Min','BCID_Max',
@@ -118,14 +125,19 @@ lArDQGlobals.Sides=["A","C"]
 
 
 #numbers from LArCalorimeter/LArIdentifier/LArIdentifier/LArOnlineID_Base.h
-feedthroughString="ft"
-slotString="slot"
-barrelString="Barrel"
-endcapString="Endcap"
-lArDQGlobals.febsBarrelA=[barrelString+"A"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_32 for i_slot in range_1_15]
-lArDQGlobals.febsBarrelC=[barrelString+"C"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_32 for i_slot in range_1_15]
-lArDQGlobals.febsEndcapA=[endcapString+"A"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_25 for i_slot in range_1_16]
-lArDQGlobals.febsEndcapC=[endcapString+"C"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_25 for i_slot in range_1_16]
+#feedthroughString="ft"
+#slotString="slot"
+#barrelString="Barrel"
+#endcapString="Endcap"
+larStrHelp=LArStrHelper()
+lArDQGlobals.febsBarrelA=[larStrHelp.febNameString(True,1,i_ft,i_slot) for i_ft in range_0_32 for i_slot in range_1_15]
+lArDQGlobals.febsBarrelC=[larStrHelp.febNameString(True,0,i_ft,i_slot) for i_ft in range_0_32 for i_slot in range_1_15]
+lArDQGlobals.febsEndcapA=[larStrHelp.febNameString(False,1,i_ft,i_slot) for i_ft in range_0_25 for i_slot in range_1_16]  
+lArDQGlobals.febsEndcapC=[larStrHelp.febNameString(False,0,i_ft,i_slot) for i_ft in range_0_25 for i_slot in range_1_16]
+#lArDQGlobals.febsBarrelA=[barrelString+"A"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_32 for i_slot in range_1_15]
+#lArDQGlobals.febsBarrelC=[barrelString+"C"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_32 for i_slot in range_1_15]
+#lArDQGlobals.febsEndcapA=[endcapString+"A"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_25 for i_slot in range_1_16]
+#lArDQGlobals.febsEndcapC=[endcapString+"C"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_25 for i_slot in range_1_16]
 
 
 #ROD ranges

@@ -31,8 +31,17 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
 
     larNoiseCorrelMonAlg = helper.addAlgorithm(algoinstance,'larNoiseCorrelMonAlg')
 
-    #set custom list of FEBs to be monitored (if you want one): each FEB should be passed as a string of the form "BarrelAft01slot10", case sensitive, numbers should have 2 digits (should match function LArNoiseCorrelationMonAlg::febString
-    customFEBStoMonitor=["BarrelAft03slot09","EndcapCft11slot05","EndcapAft06slot02"]
+    #set custom list of FEBs to be monitored (if you want one): each FEB should be passed as a string of the form "BarrelAft01slot10"
+    FEBs_from_DQ_run_350440 = ["endcapAft19slot12","endcapAft19slot09","endcapAft20slot09"]
+
+    customFEBStoMonitor=FEBs_from_DQ_run_350440
+
+
+    #correct custom FEBs for upper-lower cases or single-digit ft and slot numbers (e.g. 3 instead of 03)
+    from ROOT import LArStrHelper
+    larStrHelp=LArStrHelper()
+    customFEBStoMonitor=[larStrHelp.fixFEBname(nm) for nm in customFEBStoMonitor]
+
 
     # adding BadChan masker private tool
     from AthenaConfiguration.ComponentFactory import isRun3Cfg
@@ -72,7 +81,7 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
 
     larNoiseCorrelMonAlg.IgnoreBadChannels=True
     larNoiseCorrelMonAlg.TriggerChain = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY" #turn off for calibration run 
-    larNoiseCorrelMonAlg.IsCalibrationRun = True    #test with calibration
+    larNoiseCorrelMonAlg.IsCalibrationRun = False
 #        larNoiseCorrelMonAlg.LArDigitContainerKey=Gain #test with calibration  
 
     #deal with custom febs to monitor (if any)
@@ -93,6 +102,7 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
         febsToMonitorEndcapA=list(setCustomFEBS.intersection(lArDQGlobals.febsEndcapA))
         febsToMonitorBarrelC=list(setCustomFEBS.intersection(lArDQGlobals.febsBarrelC))
         febsToMonitorEndcapC=list(setCustomFEBS.intersection(lArDQGlobals.febsEndcapC))
+
         if len(febsToMonitorBarrelA)==0 and len(febsToMonitorEndcapA)==0 and len(febsToMonitorBarrelC)==0 and len(febsToMonitorEndcapC)==0:
             print("LArNoiseCorrelationMonAlg:WARNING. None of the following FEBs were recognised, no plot will be produced")
             print(customFEBStoMonitor)
@@ -104,7 +114,7 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
 #            customFEBStoMonitor_forAlgo=[[lArDQGlobals.dictBarrelEndcap[i[0]],lArDQGlobals.dictSides[i[1]],int(i[2]),int(i[3])] for i in customFEBStoMonitor]
  #           larNoiseCorrelMonAlg.FEBsToMonitor=customFEBStoMonitor_forAlgo
             larNoiseCorrelMonAlg.PlotCustomFEBSset=True
-            larNoiseCorrelMonAlg.FEBlist=customFEBStoMonitor
+            larNoiseCorrelMonAlg.FEBlist=febsToMonitorBarrelA+febsToMonitorBarrelC+febsToMonitorEndcapA+febsToMonitorEndcapC
             pass
         pass
 
@@ -186,6 +196,7 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
                                 ybins=lArDQGlobals.FEB_N_channels,ymin=lArDQGlobals.FEB_channels_Min,ymax=lArDQGlobals.FEB_channels_Max,
                                 pattern=febsToMonitorEndcapC)
 
+    print(correlArray)
 
     if isRun3Cfg():
         cfg.merge(helper.result())
@@ -207,12 +218,8 @@ if __name__=='__main__':
    from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
    createLArMonConfigFlags()
 
- #  from AthenaConfiguration.TestDefaults import defaultTestFiles
-#   ConfigFlags.Input.Files = defaultTestFiles.RAW
-
-   #test on calibration
-   ConfigFlags.Input.Files = ['/eos/user/m/mspalla/DATA/data18_13TeV.00364098.physics_CosmicCalo.merge.RAW/data18_13TeV.00364098.physics_CosmicCalo.merge.RAW._lb0150._SFO-ALL._0001.1']
-#['/eos/atlas/atlastier0/rucio//data20_calib/calibration_LArElec-Pedestal-5s-High-Barrel-A-RawData/00380631/data20_calib.00380631.calibration_LArElec-Pedestal-5s-High-Barrel-A-RawData.daq.RAW/data20_calib.00380631.calibration_LArElec-Pedestal-5s-High-Barrel-A-RawData.daq.RAW._lb0000._SFO-1._0001.data']
+   from AthenaConfiguration.TestDefaults import defaultTestFiles
+   ConfigFlags.Input.Files = defaultTestFiles.RAW
 
    ConfigFlags.Output.HISTFileName = 'LArNoiseCorrMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
