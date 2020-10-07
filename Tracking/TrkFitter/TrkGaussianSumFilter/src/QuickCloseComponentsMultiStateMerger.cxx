@@ -19,6 +19,59 @@
 #include <limits>
 
 using namespace GSFUtils;
+namespace {
+
+/// Method for merging and assembling a state
+Trk::MultiComponentState
+mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
+                   Trk::MultiComponentState& statesToMerge,
+                   const unsigned int maximumNumberOfComponents)
+{
+  const int32_t n = statesToMerge.size();
+  AlignedDynArray<Component1D, alignment> components(n);
+  for (int32_t i = 0; i < n; ++i) {
+    const AmgSymMatrix(5)* measuredCov = statesToMerge[i].first->covariance();
+    const AmgVector(5)& parameters = statesToMerge[i].first->parameters();
+    // Fill in infomation
+    const double cov =
+      measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP) : -1.;
+    components[i].mean = parameters[Trk::qOverP];
+    components[i].cov = cov;
+    components[i].invCov = cov > 0 ? 1. / cov : 1e10;
+    components[i].weight = statesToMerge[i].second;
+  }
+
+  // Gather the merges
+  const std::vector<std::pair<int16_t, int16_t>> merges =
+    findMerges(components.buffer(), n, maximumNumberOfComponents);
+
+  // Do the full 5D calculations of the merge
+  for (const auto& mergePair : merges) {
+    const int16_t mini = mergePair.first;
+    const int16_t minj = mergePair.second;
+    Trk::MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
+                                                        statesToMerge[minj]);
+    statesToMerge[minj].first.reset();
+    statesToMerge[minj].second = 0.;
+  }
+  // Assemble the final result
+  for (auto& state : statesToMerge) {
+    // Avoid merge ones
+    if (!state.first) {
+      continue;
+    }
+    cache.multiComponentState.emplace_back(
+      Trk::ComponentParameters(state.first.release(), state.second));
+    cache.validWeightSum += state.second;
+  }
+  Trk::MultiComponentState mergedState =
+    Trk::MultiComponentStateAssembler::assembledState(cache);
+  // Clear the state vector
+  statesToMerge.clear();
+  return mergedState;
+}
+
+} // end anonympus namespace
 
 Trk::MultiComponentState
 Trk::QuickCloseComponentsMultiStateMerger::merge(
@@ -60,54 +113,4 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(
   }
 
   return mergeFullDistArray(cache, statesToMerge, maximumNumberOfComponents);
-}
-
-Trk::MultiComponentState
-Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
-  MultiComponentStateAssembler::Cache& cache,
-  Trk::MultiComponentState& statesToMerge,
-  const unsigned int maximumNumberOfComponents)
-{
-  const int32_t n = statesToMerge.size();
-  AlignedDynArray<Component1D, alignment> components(n);
-  for (int32_t i = 0; i < n; ++i) {
-    const AmgSymMatrix(5)* measuredCov = statesToMerge[i].first->covariance();
-    const AmgVector(5)& parameters = statesToMerge[i].first->parameters();
-    // Fill in infomation
-    const double cov =
-      measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP) : -1.;
-    components[i].mean = parameters[Trk::qOverP];
-    components[i].cov = cov;
-    components[i].invCov = cov > 0 ? 1. / cov : 1e10;
-    components[i].weight = statesToMerge[i].second;
-  }
-
-  // Gather the merges
-  const std::vector<std::pair<int16_t, int16_t>> merges =
-    findMerges(components.buffer(), n, maximumNumberOfComponents);
-
-  // Do the full 5D calculations of the merge
-  for (const auto& mergePair : merges) {
-    const int16_t mini = mergePair.first;
-    const int16_t minj = mergePair.second;
-    MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
-                                                   statesToMerge[minj]);
-    statesToMerge[minj].first.reset();
-    statesToMerge[minj].second = 0.;
-  }
-  // Assemble the final result
-  for (auto& state : statesToMerge) {
-    // Avoid merge ones
-    if (!state.first) {
-      continue;
-    }
-    cache.multiComponentState.push_back(
-      ComponentParameters(state.first.release(), state.second));
-    cache.validWeightSum += state.second;
-  }
-  Trk::MultiComponentState mergedState =
-    MultiComponentStateAssembler::assembledState(cache);
-  // Clear the state vector
-  statesToMerge.clear();
-  return mergedState;
 }
