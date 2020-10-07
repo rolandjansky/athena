@@ -71,7 +71,7 @@ void usage() {
     std::cout << "YOU HAVE TO ADAPT THE OPTIONS TO FFJETSMEARINGCORRECTION" << std::endl;
     std::cout << "        --help : To get the help you're reading" << std::endl;
     std::cout << "        --jetColl= : Specify the jet collection (TrimmedLargeR)" << std::endl;
-    std::cout << "        --MassDef= : Specify the kind of jet mass used (CALO, TA, Comb)" << std::endl;
+    std::cout << "        --MassDef= : Specify the kind of jet mass used (Calo, TA, Comb)" << std::endl;
     std::cout << "        --sample= : Specify input xAOD" << std::endl;
     std::cout << "        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=rel21/Spring2020/FFJetSmearingTool_TestOnly_JMR.config   --DebugTool=true" << std::endl;
 }
@@ -224,7 +224,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
     //Set output level threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL, 7=ALWAYS)
     ffjetsmearingtool.setProperty ("OutputLevel", MSG::ERROR);
 
-    if(want_to_debug==true){
+    if(want_to_debug){
         ffjetsmearingtool.setProperty ("OutputLevel", MSG::VERBOSE);
     }
 //***************************************************************** TESTINGGGG**********************
@@ -257,7 +257,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 
     //--------------------
-    // Calibrate jets (ir is necessary to extract the CALO and TA from a Combined jet). The user have to calibrate the jets before using the SmearingTool
+    // Calibrate jets (ir is necessary to extract the Calo and TA from a Combined jet). The user have to calibrate the jets before using the SmearingTool
     //--------------------
     const std::string name_JetCalibTools = "JetCalibTool_LC";
 
@@ -372,19 +372,19 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 
             // Print some event information for fun
-            const xAOD::EventInfo* ei = 0;
+            const xAOD::EventInfo* ei = nullptr;
             CHECK( event.retrieve(ei, "EventInfo") );
 
-            if(want_to_debug==true){
+            if(want_to_debug){
                 std::cout << "===>>>  start processing event #" << ei->eventNumber() << ", run #" << ei->runNumber() << " " << ievent << " events processed so far  <<<===" << std::endl;
 
             }
 
 
             // Get the truth jets from the event
-            const xAOD::JetContainer* jets_truth = 0;
+            const xAOD::JetContainer* jets_truth = nullptr;
             CHECK( event.retrieve(jets_truth, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets") );
-            if(want_to_debug==true){
+            if(want_to_debug){
                 std::cout << "Number of truth jets: " << jets_truth->size() << std::endl;
             }
         //Loop over the truth jets in the event
@@ -393,7 +393,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
  
                 const xAOD::Jet* jet_truth = *jetItr;
 
-                if(want_to_debug==true){
+                if(want_to_debug){
                     // Print basic info about this jet
                     std::cout << "Truth Jet: pt = " << jet_truth->pt()/1000. << ", mass = " << jet_truth->m()/1000. << ", eta = " << jet_truth->eta() << std::endl;
                 }
@@ -404,10 +404,10 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 
             // Get the reco jets from the event
-            const xAOD::JetContainer* jets_reco = 0;
+            const xAOD::JetContainer* jets_reco = nullptr;
             CHECK( event.retrieve(jets_reco, reco_jetColl) ); 
  
-            if(want_to_debug==true){
+            if(want_to_debug){
                 std::cout << "Number of reco jets: " << jets_reco->size() << std::endl;
             }
             //Loop over the reco jets in the event
@@ -416,7 +416,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                 const xAOD::Jet* jet_reco = *jetItr;
 
-                if(want_to_debug==true){
+                if(want_to_debug){
                     // Print basic info about this jet
                     std::cout << "Reco Jet: pt = " <<  jet_reco->pt()/1000. << ", mass = " <<  jet_reco->m()/1000. << ", eta = " <<  jet_reco->eta() << std::endl;
                 }
@@ -429,7 +429,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
             jet_truth_matched.makePrivateStore();
  
             // Retrieve jet container
-            const xAOD::JetContainer* jets = 0;
+            const xAOD::JetContainer* jets = nullptr;
             CHECK( event.retrieve( jets, reco_jetColl ) );
 
             // Shallow copy 
@@ -438,7 +438,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
             //Give a TruthLabel to the jets. We will need it in the FFSmearingTool to apply the uncertainties of one jet topology or another
             m_JetTruthLabelingTool.modify(*(jets_shallowCopy.first));
 	
-            if(want_to_debug==true)std::cout << "Start the loop over the jets " << std::endl;
+            if(want_to_debug)std::cout << "Start the loop over the jets " << std::endl;
 
             bool lead_jet = true;//to fill the histogram
 
@@ -458,44 +458,43 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jet_reco_CALO_FourMom);
                 jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA_FourMom);
 
-                if(want_to_debug==true && kindofmass == "Comb"){   
+                if(want_to_debug && kindofmass == "Comb"){   
                     std::cout << "Comb jet mass = " << jet_reco_Comb_FourMom.mass() << std::endl;
-                    std::cout << "CALO jet mass = " << jet_reco_CALO_FourMom.mass() << std::endl;
+                    std::cout << "Calo jet mass = " << jet_reco_CALO_FourMom.mass() << std::endl;
                     std::cout << "TA jet mass = " << jet_reco_TA_FourMom.mass() << std::endl;
                 }
 
-                std::unique_ptr<xAOD::Jet> jet_reco_Comb(new xAOD::Jet()); //You have to initialize the jet object this way. If not, oyu will encounter breaks when running 
+                std::unique_ptr<xAOD::Jet> jet_reco_Comb = std::make_unique<xAOD::Jet>(); //You have to initialize the jet object this way. 
+                                                                                            //If not, oyu will encounter breaks when running 
                 jet_reco_Comb->makePrivateStore(); //And after that we have to give it a private store to avoid a brak when using setJetP4
                 jet_reco_Comb->setJetP4(jet_reco_Comb_FourMom);
-                std::unique_ptr<xAOD::Jet> jet_reco_CALO(new xAOD::Jet());
+                std::unique_ptr<xAOD::Jet> jet_reco_CALO = std::make_unique<xAOD::Jet>();     
                 jet_reco_CALO->makePrivateStore();
                 jet_reco_CALO->setJetP4(jet_reco_CALO_FourMom);
-                xAOD::Jet* jet_reco_TA = new xAOD::Jet();
+//                xAOD::Jet* jet_reco_TA = new xAOD::Jet();
+                std::unique_ptr<xAOD::Jet> jet_reco_TA = std::make_unique<xAOD::Jet>();  
                 jet_reco_TA->makePrivateStore();
                 jet_reco_TA->setJetP4(jet_reco_TA_FourMom);
 
-                if(want_to_debug==true){
+                if(want_to_debug && kindofmass == "Comb"){
                     std::cout << "NEW Comb jet mass = " << jet_reco_Comb->m() << std::endl;
                     std::cout << "NEW CALO jet mass = " << jet_reco_CALO->m() << std::endl;
                     std::cout << "NEW TA jet mass = " << jet_reco_TA->m() << std::endl;
                 }
 
-
-                //delete jet_reco_TA;
-
 //------------------------------------------------------------------------------------------------------------------------------------------//
 
+                if(kindofmass=="Calo"){ std::cout << "CALO jet mass = " << jet_reco->m() << std::endl;}
+                if(kindofmass=="TA"){ std::cout << "TA jet mass = " << jet_reco_TA->m() << std::endl;}
+
+                if(kindofmass=="TA"){m_JetTruthLabelingTool.modifyJet(*(jet_reco_TA)); };//To tag the TA jet with the jet topology
 
 
-                if(!(ffjetsmearingtool.getMatchedTruthJet(*jet_reco, jet_truth_matched).isSuccess())){ 
-                    delete jet_reco_TA;
-                    continue;            
-                }
+                if(!(ffjetsmearingtool.getMatchedTruthJet(*jet_reco, jet_truth_matched).isSuccess())){ continue;}
 
                 if(lead_jet == true){reco_jet_mass_hist->Fill(jet_reco->m()/1000.); matched_truth_jet_mass_hist->Fill(jet_truth_matched.m()/1000.);  }
 
                 if(kindofmass=="TA"){
-                    //CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco_TA) );// , "Failed to do truth labeling for large-R jet" 
 
                     Double_t aux_original_jet_mass = jet_reco->m()/1000.;
 
@@ -519,7 +518,12 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                     }
                 }
-                delete jet_reco_TA;
+
+                if(want_to_debug){
+                    if(kindofmass=="Comb"){ std::cout << "Comb jet mass after smearing = " << jet_reco->m() << std::endl;}
+                    if(kindofmass=="Calo"){ std::cout << "CALO jet mass after smearing = " << jet_reco->m() << std::endl;}
+                    if(kindofmass=="TA"){ std::cout << "TA jet mass after smearing = " << jet_reco_TA->m() << std::endl;}
+                }
 
             }
             delete jets_shallowCopy.first;
