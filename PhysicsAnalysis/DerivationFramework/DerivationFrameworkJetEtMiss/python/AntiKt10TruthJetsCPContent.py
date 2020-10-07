@@ -5,4 +5,5 @@ AntiKt10TruthJetsCPContent = [
 "AntiKt10TruthJetsAux.PartonTruthLabelID",
 "AntiKt10TruthJetsAux.GhostBHadronsFinal.GhostCHadronsFinalCount.GhostBHadronsFinalCount.GhostTQuarksFinal.GhostTQuarksFinalCount",
 "AntiKt10TruthJetsAux.GhostHBosons.GhostHBosonsCount.GhostWBosons.GhostWBosonsCount.GhostZBosons.GhostZBosonsCount",
+"AntiKt10TruthJetsAux.R10TruthLabel_R21Precision",
 ]

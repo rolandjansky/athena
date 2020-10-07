@@ -199,11 +199,11 @@ def addAntiKt4TruthWZJets(sequence,outputlist):
 
 def addAntiKt10TruthJets(sequence,outputlist):
     if DerivationFrameworkHasTruth:
-        addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+        addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthWZJets(sequence,outputlist):
     if DerivationFrameworkHasTruth:
-        addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+        addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4TruthDressedWZJets(sequence,outputlist):
     if DerivationFrameworkHasTruth:
@@ -484,8 +484,8 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def addJetTruthLabel(jetalg,algname,labelname,sequence):
-    supportedLabelNames = ['R10TruthLabel_R21Consolidated']
-    supportedTruthJets = ['AntiKt10TruthTrimmedPtFrac5SmallR20']
+    supportedLabelNames = ['R10TruthLabel_R21Consolidated','R10TruthLabel_R21Precision']
+    supportedTruthJets = ['AntiKt10Truth','AntiKt10TruthTrimmedPtFrac5SmallR20']
     supportedRecoJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKSoftDropBeta100Zcut10','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf','AntiKt10UFOCHSTrimmedPtFrac5SmallR20']
     supportedJets = supportedRecoJets + supportedTruthJets
     if not jetalg in supportedJets:
