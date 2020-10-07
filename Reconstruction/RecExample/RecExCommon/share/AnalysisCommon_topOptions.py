@@ -214,8 +214,8 @@ elif rec.readAOD():
 
 
 if rec.OutputLevel() <= DEBUG:
-    print " Initial content of objKeyStore "
-    print objKeyStore
+    print(" Initial content of objKeyStore ")
+    print(objKeyStore)
     pass
 
 # typical objKeyStore usage
