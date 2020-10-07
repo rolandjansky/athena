@@ -7,7 +7,7 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/TEvent.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #endif 
 
 #include "TrigConfxAOD/xAODConfigTool.h"

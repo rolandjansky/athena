@@ -5,7 +5,7 @@
 // author: cpollard@cern.ch
 
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 using namespace std;
 using namespace xAOD;

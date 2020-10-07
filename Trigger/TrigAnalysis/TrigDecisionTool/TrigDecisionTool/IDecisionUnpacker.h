@@ -8,7 +8,7 @@
 #ifndef TRIG_IDECISIONUNPACKER_H
 #define TRIG_IDECISIONUNPACKER_H
 
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include <map>
 #include <unordered_map>
 #include <string>

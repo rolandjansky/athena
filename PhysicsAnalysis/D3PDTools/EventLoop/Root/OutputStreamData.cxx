@@ -12,7 +12,7 @@
 
 #include <EventLoop/OutputStreamData.h>
 
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <TH1.h>

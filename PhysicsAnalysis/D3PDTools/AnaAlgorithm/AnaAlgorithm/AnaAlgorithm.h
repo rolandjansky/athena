@@ -20,7 +20,7 @@
 #include <vector>
 #else
 #include <AthenaBaseComps/AthHistogramAlgorithm.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <StoreGate/StoreGateSvc.h>
 #include <GaudiKernel/IIncidentListener.h>
 #include <GaudiKernel/ServiceHandle.h>

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <xAODRootAccess/Init.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 int main (int argc, char **argv)
 {

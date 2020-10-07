@@ -27,7 +27,7 @@
 #include "xAODCore/ShallowCopy.h"
 
 //Asg includes
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "PATCore/AcceptData.h"
 #include "PATInterfaces/SystematicsUtil.h"
 

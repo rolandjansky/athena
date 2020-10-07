@@ -11,9 +11,9 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/MessageCheck.h>
-#include <AsgTools/IMessagePrinter.h>
-#include <AsgTools/MessagePrinterOverlay.h>
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/IMessagePrinter.h>
+#include <AsgMessaging/MessagePrinterOverlay.h>
 #include <AsgTesting/UnitTest.h>
 #include <AsgTesting/MessagePrinterMock.h>
 #include <cmath>

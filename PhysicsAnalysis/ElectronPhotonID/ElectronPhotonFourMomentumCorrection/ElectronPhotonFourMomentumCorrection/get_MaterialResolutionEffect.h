@@ -8,7 +8,7 @@
 #include <math.h>
 #include <memory>
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 #include "TH1.h"
 #include "TH2D.h"

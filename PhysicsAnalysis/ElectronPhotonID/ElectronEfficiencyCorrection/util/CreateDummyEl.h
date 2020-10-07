@@ -11,7 +11,7 @@
 #ifdef ROOTCORE
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 #endif // ROOTCORE
 
 StatusCode getElectrons(const std::vector<std::pair<double,double> >& pt_eta, int runNumber,

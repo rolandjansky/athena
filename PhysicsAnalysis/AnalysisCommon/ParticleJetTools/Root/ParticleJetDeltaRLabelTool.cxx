@@ -6,7 +6,7 @@
 #include "ParticleJetTools/ParticleJetLabelCommon.h"
 #include "xAODJet/JetContainer.h"
 #include "AsgDataHandles/ReadHandle.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 using namespace std;
 using namespace xAOD;

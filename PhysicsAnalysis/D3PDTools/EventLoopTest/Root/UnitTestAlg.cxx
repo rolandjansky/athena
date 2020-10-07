@@ -27,8 +27,8 @@
 #include <TTree.h>
 #include <TObjString.h>
 
-#include <AsgTools/MsgStream.h>
-#include <AsgTools/MsgStreamMacros.h>
+#include <AsgMessaging/MsgStream.h>
+#include <AsgMessaging/MsgStreamMacros.h>
 
 //
 // method implementations

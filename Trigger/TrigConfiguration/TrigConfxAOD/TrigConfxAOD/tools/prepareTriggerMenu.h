@@ -9,7 +9,7 @@
 #define TRIGCONFXAOD_TOOLS_PREPARETRIGGERMENU_H
 
 // Infrastructure include(s):
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 // xAOD include(s):
 #include "xAODTrigger/TriggerMenu.h"

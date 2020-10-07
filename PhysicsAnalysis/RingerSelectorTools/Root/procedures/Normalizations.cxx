@@ -4,7 +4,7 @@
 
 // $Id: Normalizations.cxx 770805 2016-08-30 14:03:33Z ssnyder $
 #include "RingerSelectorTools/procedures/Normalizations.icc"
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 #include <algorithm>
 

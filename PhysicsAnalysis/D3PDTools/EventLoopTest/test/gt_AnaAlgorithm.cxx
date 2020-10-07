@@ -16,7 +16,7 @@
 #include <AnaAlgorithm/AlgorithmWorkerData.h>
 #include <EventLoopTest/UnitTestAlg5.h>
 #include <AsgTools/ToolHandle.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>

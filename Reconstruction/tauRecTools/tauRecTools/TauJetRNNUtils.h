@@ -7,7 +7,7 @@
 
 #include <unordered_map>
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 #include "xAODTau/TauJet.h"
 

@@ -5,7 +5,7 @@
 #ifndef JETUNCERTAINTIES_CORRELATIONMATRIX_H
 #define JETUNCERTAINTIES_CORRELATIONMATRIX_H
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
 #include "xAODJet/Jet.h"

@@ -14,7 +14,7 @@
 #include "egammaMVALayerDepth.h"
 
 // for the ConversionHelper (deprecated?)
-#include <AsgTools/AsgMessaging.h>
+#include <AsgMessaging/AsgMessaging.h>
 
 #include "TLorentzVector.h"
 

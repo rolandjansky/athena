@@ -28,7 +28,7 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "PATInterfaces/SystematicCode.h"
 

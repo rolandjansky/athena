@@ -19,7 +19,7 @@
 #include <string>
 
 #ifdef XAOD_STANDALONE
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #endif
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/getMessageSvc.h"
