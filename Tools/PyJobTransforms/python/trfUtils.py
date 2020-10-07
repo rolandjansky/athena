@@ -1196,6 +1196,318 @@ class ParallelJobProcessor(object):
         ))
         msg.debug(self.statusReport())
 
+## @brief Analytics service class
+class analytic():
+
+    _fit = None
+
+    def __init__(self, **kwargs):
+        self._fit = None
+
+    ## Fitting function
+    #  For a linear model: y(x) = slope * x + intersect
+    #  @param x list of input data (list of floats or ints).
+    #  @param y: list of input data (list of floats or ints).
+    #  @param model: model name (string).
+    def fit(self, x, y, model='linear'):
+        try:
+            self._fit = Fit(x=x, y=y, model=model)
+        except Exception as e:
+            msg.warning('fit failed! {0}'.format(e))
+
+        return self._fit
+
+    # Return the slope of a linear fit, y(x) = slope * x + intersect
+    def slope(self):
+        slope = None
+
+        if self._fit:
+            slope = self._fit.slope()
+        else:
+            msg.warning('Fit has not been defined')
+
+        return slope
+
+    # Return a properly formatted job metrics string with analytics data.
+    # Currently the function returns a fit for 'pss' vs 'time', whose slope measures memory leaks.
+    # @param filename: memory monitor output file (string).
+    # @param x_name: optional string, name selector for table column.
+    # @param y_name: optional string, name selector for table column.
+    # @param precision: optional precision for fitted slope parameter, default 2.
+    # @param tails: should tails be used? (boolean).
+    # @param minPoints: minimun desired points of data to be fitted (after removing tail)
+    # @return: {"slope": slope, "chi2": chi2}
+    def getFittedData(self, filename, x_name='Time', y_name='pss', precision=2, tails=False, minPoints=5):
+        _memFileToTable = memFileToTable()
+        fitResult = {}
+        table = _memFileToTable.getTable(filename, header=None, separator="\t")
+        if table:
+            # extract data to be fitted
+            x, y = self.extractFromTable(table, x_name, y_name)
+            # remove tails if desired
+            # this is useful e.g. for memory monitor data where the first and last values
+            # represent allocation and de-allocation, ie not interesting
+            # here tail is defined to be first and last 20% of data
+            if not tails:
+                tail = int(len(x)/5)
+                msg.info('removing tails from the memory monitor data; 20% from each side')
+                x = x[tail:]
+                x = x[:-tail]
+                y = y[tail:]
+                y = y[:-tail]
+
+            if len(x)==len(y) and len(x) > minPoints:
+                msg.info('fitting {0} vs {1}'.format(y_name, x_name))
+                try:
+                    fit = self.fit(x, y)
+                    _slope = self.slope()
+                except Exception as e:
+                    msg.warning('failed to fit data, x={0}, y={1}: {2}'.format(x, y, e))
+                else:
+                    if _slope:
+                        slope = round(fit.slope(), precision)
+                        chi2 = round(fit.chi2(), precision)
+                        fitResult = {"slope": slope, "chi2": chi2}
+                        if slope:
+                            HRslope, unit = self.formatBytes(slope)
+                            msg.info('slope of the fitted line: {0} {1} (using {2} data points, chi2={3})'.format(HRslope, unit, len(x), chi2))
+            else:
+                msg.warning('wrong length of table data, x={0}, y={1} (must be same and length>={2})'.format(x, y, minPoints))
+
+        return fitResult
+
+    # Extract wanted columns. e.g. x: Time , y: pss+swap
+    # @param x_name: column name to be extracted (string).
+    # @param y_name: column name to be extracted (may contain '+'-sign) (string).
+    # @return: x (list), y (list).
+    def extractFromTable(self, table, x_name, y_name):
+        headerUpperVersion = {'pss':'PSS', 'swap':'Swap', 'rss':'RSS', 'vmem':'VMEM'}
+        x = table.get(x_name, [])
+        if '+' not in y_name:
+            y = table.get(y_name, [])
+            if len(y)==0:
+                y = table.get(headerUpperVersion[y_name], [])
+        else:
+            try:
+                y1_name = y_name.split('+')[0]
+                y2_name = y_name.split('+')[1]
+                y1_value = table.get(y1_name, [])
+                y2_value = table.get(y2_name, [])
+                if len(y1_value)==0 or len(y2_value)==0:
+                    y1_value = table.get(headerUpperVersion[y1_name], [])
+                    y2_value = table.get(headerUpperVersion[y2_name], [])
+            except Exception as e:
+                msg.warning('exception caught: {0}'.format(e))
+                x = []
+                y = []
+            else:
+                # create new list with added values (1,2,3) + (4,5,6) = (5,7,9)
+                y = [x0 + y0 for x0, y0 in zip(y1_value, y2_value)]
+
+        return x, y
+
+    # Make the result of slope human readable (HR)
+    # default unit is KB
+    def formatBytes(self, size):
+        # decimal system
+        power = 1000
+        n = 1
+        power_labels = {1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+        while size > power:
+            size /= power
+            n += 1
+        return round(size, 2), power_labels[n]+'B/s'
+
+
+## @brief Low-level fitting class
+class Fit():
+    _model = 'linear'  # fitting model
+    _x = None  # x values
+    _y = None  # y values
+    _xm = None  # x mean
+    _ym = None  # y mean
+    _ss = None  # sum of square deviations
+    _ss2 = None  # sum of deviations
+    _slope = None  # slope
+    _intersect = None  # intersect
+    _chi2 = None  # chi2
+
+    def __init__(self, **kwargs):
+        # extract parameters
+        self._model = kwargs.get('model', 'linear')
+        self._x = kwargs.get('x', None)
+        self._y = kwargs.get('y', None)
+        self._math = math()
+
+        if not self._x or not self._y:
+            msg.warning('input data not defined')
+
+        if len(self._x) != len(self._y):
+            msg.warning('input data (lists) have different lengths')
+
+        # base calculations
+        if self._model == 'linear':
+            self._ss = self._math.sum_square_dev(self._x)
+            self._ss2 = self._math.sum_dev(self._x, self._y)
+            self.set_slope()
+            self._xm = self._math.mean(self._x)
+            self._ym = self._math.mean(self._y)
+            self.set_intersect()
+            self.set_chi2()
+
+        else:
+            msg.warning("\'{0}\' model is not implemented".format(self._model))
+
+    def fit(self):
+        #Return fitting object.
+        return self
+
+    def value(self, t):
+        #Return the value y(x=t) of a linear fit y(x) = slope * x + intersect.
+        return self._slope * t + self._intersect
+
+    def set_chi2(self):
+        #Calculate and set the chi2 value.
+        y_observed = self._y
+        y_expected = []
+        for x in self._x:
+            y_expected.append(self.value(x))
+        if y_observed and y_observed != [] and y_expected and y_expected != []:
+            self._chi2 = self._math.chi2(y_observed, y_expected)
+        else:
+            self._chi2 = None
+
+    def chi2(self):
+        #Return the chi2 value.
+        return self._chi2
+
+    def set_slope(self):
+        #Calculate and set the slope of the linear fit.
+        if self._ss2 and self._ss and self._ss != 0:
+            self._slope = self._ss2 / self._ss
+        else:
+            self._slope = None
+
+    def slope(self):
+        #Return the slope value.
+        return self._slope
+
+    def set_intersect(self):
+        #Calculate and set the intersect of the linear fit.
+        if self._ym and self._slope and self._xm:
+            self._intersect = self._ym - self._slope * self._xm
+        else:
+            self._intersect = None
+
+    def intersect(self):
+        #Return the intersect value.
+        return self._intersect
+
+
+## @brief some mathematical tools
+class math():
+
+    #Return the sample arithmetic mean of data.
+    def mean(self, data):
+        n = len(data)
+        if n < 1:
+            msg.warning('mean requires at least one data point')
+        return sum(data)/n
+
+    # Return sum of square deviations of sequence data.
+    # Sum (x - x_mean)**2
+    def sum_square_dev(self, data):
+        c = self.mean(data)
+        return sum((x - c) ** 2 for x in data)
+
+    # Return sum of deviations of sequence data.
+    # Sum (x - x_mean)*(y - y_mean)
+    def sum_dev(self, x, y):
+        c1 = self.mean(x)
+        c2 = self.mean(y)
+        return sum((_x - c1) * (_y - c2) for _x, _y in zip(x, y))
+
+    # Return the chi2 sum of the provided observed and expected values.
+    def chi2(self, observed, expected):
+        if 0 in expected:
+            return 0.0
+        return sum((_o - _e) ** 2 / _e for _o, _e in zip(observed, expected))
+
+
+## @brief  Extract a table of data from a txt file
+#  @details E.g. header="Time    nprocs  nthreads    wtime   stime   utime   pss rss swap    vmem"
+#  or the first line in the file
+#  each of which will become keys in the dictionary, whose corresponding values are stored in lists, with the entries
+#  corresponding to the values in the rows of the input file.
+#  The output dictionary will have the format
+#  {'Time': [ .. data from first row .. ], 'VMEM': [.. data from second row], ..}
+#  @param filename name of input text file, full path (string).
+#  @param header header string.
+#  @param separator separator character (char).
+#  @return dictionary.
+class memFileToTable():
+
+    def getTable(self, filename, header=None, separator="\t"):
+        tabledict = {}
+        keylist = []
+        try:
+            f = open(filename, 'r')
+        except Exception as e:
+            msg.warning("failed to open file: {0}, {1}".format(filename, e))
+        else:
+            firstline = True
+            for line in f:
+                fields = line.split(separator)
+                if firstline:
+                    firstline = False
+                    tabledict, keylist = self._defineTableDictKeys(header, fields, separator)
+                    if not header:
+                        continue
+                # from now on, fill the dictionary fields with the input data
+                i = 0
+                for field in fields:
+                    # get the corresponding dictionary key from the keylist
+                    key = keylist[i]
+                    # store the field value in the correct list
+                    tabledict[key].append(float(field))
+                    i += 1
+            f.close()
+
+        return tabledict
+
+    ## @brief Define the keys for the tabledict dictionary.
+    # @param header header string.
+    # @param fields header content string.
+    # @param separator separator character (char).
+    # @return tabledict (dictionary), keylist (ordered list with dictionary key names).
+    def _defineTableDictKeys(self, header, fields, separator):
+        tabledict = {}
+        keylist = []
+
+        if not header:
+            # get the dictionary keys from the header of the file
+            for key in fields:
+                # first line defines the header, whose elements will be used as dictionary keys
+                if key == '':
+                    continue
+                if key.endswith('\n'):
+                    key = key[:-1]
+                tabledict[key] = []
+                keylist.append(key)
+        else:
+            # get the dictionary keys from the provided header
+            keys = header.split(separator)
+            for key in keys:
+                if key == '':
+                    continue
+                if key.endswith('\n'):
+                    key = key[:-1]
+                tabledict[key] = []
+                keylist.append(key)
+
+        return tabledict, keylist
+
+
 ### @brief return Valgrind command
 #   @detail This function returns a Valgrind command for use with Athena. The
 #   command is returned as a string (by default) or a list, as requested using
