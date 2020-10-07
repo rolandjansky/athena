@@ -33,7 +33,7 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND AND NOT SIMULATIONBASE
    AND NOT GENERATIONBASE )
    set( XAODJETATHENAPOOL_REFERENCE_TAG
-      xAODJetAthenaPoolReference-01-00-00 )
+      xAODJetAthenaPoolReference-01-01-00 )
    run_tpcnv_legacy_test( xAODJetAthenaPool_20.7.2.2   AOD-20.7.2.2-full
       REQUIRED_LIBRARIES xAODJetAthenaPoolPoolCnv
       REFERENCE_TAG ${XAODJETATHENAPOOL_REFERENCE_TAG} )
