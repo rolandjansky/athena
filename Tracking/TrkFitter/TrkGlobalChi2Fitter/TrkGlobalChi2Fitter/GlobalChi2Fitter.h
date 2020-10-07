@@ -17,6 +17,7 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkToolInterfaces/IUpdator.h"
+#include "TrkToolInterfaces/IBoundaryCheckTool.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IPropagator.h"
@@ -155,6 +156,19 @@ namespace Trk {
       std::unique_ptr<const TrackParameters> m_parameters;
       std::unique_ptr<TransportJacobian> m_jacobian;
       std::optional<std::vector<std::unique_ptr<const TrackParameters>>> m_preholes;
+    };
+
+    /*
+     * This struct serves as a very simple container for the five different
+     * hole and dead module states that we want to count, which are the dead
+     * Pixels, dead SCTs, Pixel holes, SCT holes, and SCT double holes.
+     */
+    struct TrackHoleCount {
+      unsigned int m_pixel_hole = 0;
+      unsigned int m_sct_hole = 0;
+      unsigned int m_sct_double_hole = 0;
+      unsigned int m_pixel_dead = 0;
+      unsigned int m_sct_dead = 0;
     };
 
     struct Cache {
@@ -531,6 +545,27 @@ namespace Trk {
       ParticleHypothesis
     ) const;
 
+    /**
+     * @brief Helper method which performs an extrapolation with additional
+     * logic for hole search.
+     *
+     * This method is a wrapper around extrapolateStepwise from the
+     * extrapolator interface, with the added functionality that it will null
+     * any returned track parameters which are on the start and end surface.
+     *
+     * @param[in] ctx An event context for extrapolation.
+     * @param[in] src The track parameters to start extrapolating from.
+     * @param[in] dst The track state to extrapolate to.
+     * @param[in] propdir The propagation direction.
+     * @return A vector of track states, just like normal extrapolation.
+     */
+    std::vector<std::unique_ptr<const TrackParameters>> holesearchExtrapolation(
+      const EventContext & ctx,
+      const TrackParameters & src,
+      const GXFTrackState & dst,
+      PropDirection propdir
+    ) const;
+
     std::unique_ptr<const TrackParameters> makePerigee(
       Cache &,
       const TrackParameters &,
@@ -641,6 +676,7 @@ namespace Trk {
       const GXFTrackState &,
       PropDirection,
       MagneticFieldProperties,
+      bool,
       bool
     ) const;
 
@@ -671,6 +707,7 @@ namespace Trk {
      * @param[in] propdir The propagation direction.
      * @param[in] bf The magnetic field properties.
      * @param[in] calcderiv If set, calculate the derivative.
+     * @param[in] holesearch If set, search for holes.
      *
      * @return An instance of PropagationResult, which is a struct with three
      * members. Firstly, it contains a unique pointer to a set of track
@@ -689,7 +726,96 @@ namespace Trk {
       const GXFTrackState &,
       PropDirection,
       MagneticFieldProperties,
+      bool,
       bool
+    ) const;
+
+    /**
+     * @brief Extracts a collection of track states which are important for
+     * hole search.
+     *
+     * This method helps extract the measurement (and outlier) states from a
+     * track. These are the states between which we want to do a hole search,
+     * so the result of calling this method can be used as a source of truth
+     * for conducting a hole search on the track.
+     *
+     * This method only returns states between the first and last measurements
+     * on the track, which is the region in which we are interested in doing a
+     * hole search.
+     *
+     * As an example, if we denote scatterers as S, and measurements as M, this
+     * method would reduce the following track with numbered states:
+     *
+     * 1 2 3 4 5 6 7 8 9
+     * M S S M M S M S S
+     *
+     * Into a list of references [1, 4, 5, 7].
+     *
+     * This method ensures that each pair of consecutive states in the return
+     * value list is a target for a hole search extrapolation.
+     *
+     * @param[in] trajectory The trajectory from which to extract states.
+     * @return A vector of state references as described above.
+     */
+    std::vector<std::reference_wrapper<GXFTrackState>> holeSearchStates(
+      GXFTrajectory & trajectory
+    ) const;
+
+    /**
+     * @brief Conduct a hole search between a list of states, possibly reusing
+     * existing information.
+     *
+     * Given a collection of state references, this method will conduct a hole
+     * search between consecutive pairs of states, possibly reusing existing
+     * information stored in the state data types. The method will check
+     * whether the state contains any previous hole search data and use it. If
+     * there is no data, it will run additional extrapolations to gather that
+     * data. It will then use a helper method to count holes and dead modules
+     * and return a total count.
+     *
+     * In some cases, this method may error. Should this occur, it will return
+     * a non-extant value.
+     *
+     * @param[in] ctx An event context used for extrapolation.
+     * @param[in] states A list of states to operate on, using consecutive
+     * states as extrapolation regions.
+     * @return A list of hole counts if the process succeeded, or a non-extant
+     * value in case of an error.
+     */
+    std::optional<GlobalChi2Fitter::TrackHoleCount> holeSearchProcess(
+      const EventContext & ctx,
+      const std::vector<std::reference_wrapper<GXFTrackState>> & states
+    ) const;
+
+    /**
+     * @brief Helper method for the hole search that does the actual counting
+     * of holes and dead modules.
+     *
+     * This is a helper function that does a lot of esoteric and weird things
+     * that you most likely won't need to know about. The gist of it is that
+     * you pass it a vector of track parameters and a counting object, and it
+     * will update those counters according to its analysis of the track
+     * parameters.
+     *
+     * Unfortunately, due to the design of this method, it requires quite a lot
+     * of persistent state between invocations for the same track. That's bad
+     * design of course, but it is how it is for now. This means that there
+     * are quite a few state parameters.
+     *
+     * @param[in] hc A list of candidate hole track parameters to analyse.
+     * @param[in,out] id_set A set of identifiers found to be holes or dead.
+     * @param[in,out] sct_set A set of identifiers of SCT holes.
+     * @param[in,out] rv The hole count container to update.
+     * @param[in] count_holes Holes are counted only if this is enabled.
+     * @param[in] count_dead Dead modules are counted only if this is enabled.
+     */
+    void holeSearchHelper(
+      const std::vector<std::unique_ptr<const TrackParameters>> & hc,
+      std::set<Identifier> & id_set,
+      std::set<Identifier> & sct_set,
+      TrackHoleCount & rv,
+      bool count_holes,
+      bool count_dead
     ) const;
 
     FitterStatusCode calculateTrackParameters(
@@ -756,6 +882,7 @@ namespace Trk {
     ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider {this, "CaloMaterialProvider", "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", ""};
     ToolHandle<IMaterialEffectsOnTrackProvider> m_calotool {this, "MuidTool", "Rec::MuidMaterialEffectsOnTrackProvider/MuidMaterialEffectsOnTrackProvider", ""};
     ToolHandle<IMaterialEffectsOnTrackProvider> m_calotoolparam {this, "MuidToolParam", "", ""};
+    ToolHandle<IBoundaryCheckTool> m_boundaryCheckTool {this, "BoundaryCheckTool", "", "Boundary checking tool for detector sensitivities" };
 
     ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc;
 
@@ -791,6 +918,7 @@ namespace Trk {
     Gaudi::Property<bool> m_useCaloTG {this, "UseCaloTG", false};
     Gaudi::Property<bool> m_rejectLargeNScat {this, "RejectLargeNScat", false};
     Gaudi::Property<bool> m_createSummary {this, "CreateTrackSummary", true};
+    Gaudi::Property<bool> m_holeSearch {this, "DoHoleSearch", false};
 
     Gaudi::Property<double> m_outlcut {this, "OutlierCut", 5.0};
     Gaudi::Property<double> m_p {this, "Momentum", 0.0};
@@ -803,6 +931,13 @@ namespace Trk {
     Gaudi::Property<int> m_fixbrem {this, "FixBrem", -1};
 
     ParticleMasses m_particleMasses;
+
+    /*
+     * This little volume defines the inner detector. Its exact size is set at
+     * the time that the fitter object is created. We just make one and keep
+     * it around to save us a few allocations.
+     */
+    Trk::Volume m_idVolume;
 
     /*
      * The following members are mutable. They keep track of the number of
