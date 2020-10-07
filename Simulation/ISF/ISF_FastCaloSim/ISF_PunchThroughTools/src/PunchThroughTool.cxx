@@ -384,7 +384,7 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
     for ( ; pdgIt != pdgItEnd; ++pdgIt, ++minEnergyIt)
       {   
         if (std::abs(m_initPs->pdgCode()) == *pdgIt){
-          if(sqrt( m_initPs->momentum().mag2() + m_initPs->mass()*m_initPs->mass() ) < *minEnergyIt){
+          if(std::sqrt( m_initPs->momentum().mag2() + m_initPs->mass()*m_initPs->mass() ) < *minEnergyIt){
             ATH_MSG_DEBUG("[ punchthrough ] particle does not meet initiator min energy requirement. Dropping it in the calo.");
             return 0;
           }
@@ -414,7 +414,7 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
   // now store some parameters from the given particle locally
   // in this class
   //  -> the energy
-  m_initEnergy = sqrt( m_initPs->momentum().mag2() + mass*mass );
+  m_initEnergy = std::sqrt( m_initPs->momentum().mag2() + mass*mass );
   //  -> get geometrical properties
   //  -> the pseudorapidity eta
   m_initEta = m_initPs->position().eta();
@@ -554,7 +554,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
 
       // get the energy of the particle which was just created
       double restMass = m_particleDataTable->particle(std::abs(pdg))->mass();
-      double curEnergy = sqrt(par->momentum().mag2() + restMass*restMass);
+      double curEnergy = std::sqrt(par->momentum().mag2() + restMass*restMass);
 
       // calculate the maximum energy to be available for all
       // following punch-through particles created
@@ -996,9 +996,9 @@ ISF::ISFParticle* ISF::PunchThroughTool::createExitPs( int pdg,
 
   Amg::Vector3D mom;
   double mass = m_particleDataTable->particle(std::abs(pdg))->mass();
-  Amg::setRThetaPhi( mom, sqrt(energy*energy - mass*mass), momTheta, momPhi);
+  Amg::setRThetaPhi( mom, std::sqrt(energy*energy - mass*mass), momTheta, momPhi);
   ATH_MSG_DEBUG("setRThetaPhi pre input parameters: energy = "<< energy <<" mass = "<< mass);
-  ATH_MSG_DEBUG("setRThetaPhi input parameters: sqrt(energy*energy - mass*mass) = "<< sqrt(energy*energy - mass*mass) <<" momTheta = "<< momTheta <<" momPhi = "<< momPhi);
+  ATH_MSG_DEBUG("setRThetaPhi input parameters: std::sqrt(energy*energy - mass*mass) = "<< std::sqrt(energy*energy - mass*mass) <<" momTheta = "<< momTheta <<" momPhi = "<< momPhi);
 
 
   double charge = m_particleDataTable->particle(std::abs(pdg))->charge();
@@ -1099,7 +1099,7 @@ Amg::Vector3D ISF::PunchThroughTool::propagator(double theta,double phi) const
   y = r*sin(phi);
   Amg::Vector3D pos(x, y, z);
 
-  ATH_MSG_DEBUG("position of produced punch-through particle: x = "<< x <<" y = "<< y <<" z = "<< z<<" r = "<< pos.perp() <<"sqrt(x^2+y^2) = "<< sqrt(x*x+y*y) );
+  ATH_MSG_DEBUG("position of produced punch-through particle: x = "<< x <<" y = "<< y <<" z = "<< z<<" r = "<< pos.perp() <<"std::sqrt(x^2+y^2) = "<< std::sqrt(x*x+y*y) );
   ATH_MSG_DEBUG("GeoID thinks: Calo: "<< m_geoIDSvc->inside(pos, AtlasDetDescr::fAtlasCalo) <<" MS: "<< m_geoIDSvc->inside(pos,AtlasDetDescr::fAtlasMS));
 
   return pos;
