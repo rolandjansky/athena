@@ -305,7 +305,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 //**************************************************************************************
 
-
+        static constexpr float MeVtoGeV = 1.e-3;
 
         //----------------------------------
         // Define histograms
@@ -395,7 +395,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                 if(want_to_debug){
                     // Print basic info about this jet
-                    std::cout << "Truth Jet: pt = " << jet_truth->pt()/1000. << ", mass = " << jet_truth->m()/1000. << ", eta = " << jet_truth->eta() << std::endl;
+                    std::cout << "Truth Jet: pt = " << jet_truth->pt()*MeVtoGeV << ", mass = " << jet_truth->m()*MeVtoGeV << ", eta = " << jet_truth->eta() << std::endl;
                 }
 
 
@@ -418,7 +418,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                 if(want_to_debug){
                     // Print basic info about this jet
-                    std::cout << "Reco Jet: pt = " <<  jet_reco->pt()/1000. << ", mass = " <<  jet_reco->m()/1000. << ", eta = " <<  jet_reco->eta() << std::endl;
+                    std::cout << "Reco Jet: pt = " <<  jet_reco->pt()*MeVtoGeV << ", mass = " <<  jet_reco->m()*MeVtoGeV << ", eta = " <<  jet_reco->eta() << std::endl;
                 }
             }
 
@@ -492,29 +492,29 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                 if(!(ffjetsmearingtool.getMatchedTruthJet(*jet_reco, jet_truth_matched).isSuccess())){ continue;}
 
-                if(lead_jet == true){reco_jet_mass_hist->Fill(jet_reco->m()/1000.); matched_truth_jet_mass_hist->Fill(jet_truth_matched.m()/1000.);  }
+                if(lead_jet == true){reco_jet_mass_hist->Fill(jet_reco->m()*MeVtoGeV); matched_truth_jet_mass_hist->Fill(jet_truth_matched.m()*MeVtoGeV);  }
 
                 if(kindofmass=="TA"){
 
-                    Double_t aux_original_jet_mass = jet_reco->m()/1000.;
+                    Double_t aux_original_jet_mass = jet_reco->m()*MeVtoGeV;
 
                     ffjetsmearingtool.applyCorrection(*jet_reco_TA);
                     if(lead_jet == true && aux_original_jet_mass > 0){
-                    smeared_reco_jet_mass_hist->Fill(jet_reco_TA->m()/1000.); lead_jet=false;
+                    smeared_reco_jet_mass_hist->Fill(jet_reco_TA->m()*MeVtoGeV); lead_jet=false;
 
-                    hist_jet_mass_scale_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, (jet_reco_TA->m()/1000.)/*/(aux_original_jet_mass)*/);
+                    hist_jet_mass_scale_change_3D->Fill(jet_reco->pt()*MeVtoGeV, aux_original_jet_mass, (jet_reco_TA->m()*MeVtoGeV)/*/(aux_original_jet_mass)*/);
                     }
                 }  
                 else{
-                    Double_t aux_original_jet_mass = jet_reco->m()/1000.;
+                    Double_t aux_original_jet_mass = jet_reco->m()*MeVtoGeV;
 
                     ffjetsmearingtool.applyCorrection(*jet_reco);
                     if(lead_jet == true && aux_original_jet_mass > 0){
-                        smeared_reco_jet_mass_hist->Fill(jet_reco->m()/1000.); lead_jet=false; 
+                        smeared_reco_jet_mass_hist->Fill(jet_reco->m()*MeVtoGeV); lead_jet=false; 
 
-                        hist_jet_mass_scale_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, (jet_reco->m()/1000.)/*/(aux_original_jet_mass)*/);
+                        hist_jet_mass_scale_change_3D->Fill(jet_reco->pt()*MeVtoGeV, aux_original_jet_mass, (jet_reco->m()*MeVtoGeV)/*/(aux_original_jet_mass)*/);
 
-                        hist_jet_mass_resolution_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, TMath::Abs((jet_reco->m()/1000.) - (aux_original_jet_mass))/ aux_original_jet_mass);
+                        hist_jet_mass_resolution_change_3D->Fill(jet_reco->pt()*MeVtoGeV, aux_original_jet_mass, TMath::Abs((jet_reco->m()*MeVtoGeV) - (aux_original_jet_mass))/ aux_original_jet_mass);
 
                     }
                 }

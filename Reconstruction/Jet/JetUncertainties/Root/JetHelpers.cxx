@@ -55,7 +55,7 @@ double JetHelpers::Interpolate2D(const TH1* histo, const double x, const double 
     const TAxis* fXaxis = xAxis == 1 ? histo->GetXaxis() : xAxis == 2 ? histo->GetYaxis() : xAxis == 3 ? histo->GetZaxis() : nullptr;
     const TAxis* fYaxis = yAxis == 1 ? histo->GetXaxis() : yAxis == 2 ? histo->GetYaxis() : yAxis == 3 ? histo->GetZaxis() : nullptr;
 
-    if (!fXaxis || !fYaxis || histo->GetDimension() != 2)
+    if (!fXaxis || !fYaxis || histo->GetDimension() != 3)
     {
         histo->Error("Interpolate2D","Failed to parse axes from inputs");
         return 0;
