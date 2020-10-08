@@ -12,15 +12,17 @@
 
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 
+#include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "StorageSvc/DbType.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "AthenaKernel/IAthenaIPCTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "PoolSvc/IPoolSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
+#include "PoolSvc/IPoolSvc.h"
 
 #include <vector>
 #include <map>
@@ -37,7 +39,8 @@ template <class TYPE> class SvcFactory;
  **/
 class ATLAS_CHECK_THREAD_SAFETY AthenaPoolCnvSvc : public ::AthCnvSvc,
 		public virtual IAthenaPoolCnvSvc,
-		public virtual IIncidentListener {
+		public virtual IIncidentListener,
+		public virtual IIoComponent {
    // Allow the factory class access to the constructor
    friend class SvcFactory<AthenaPoolCnvSvc>;
 
@@ -45,8 +48,10 @@ public:
 
    /// Required of all Gaudi Services
    StatusCode initialize();
+   StatusCode io_reinit();
    /// Required of all Gaudi Services
    StatusCode finalize();
+   StatusCode io_finalize();
    /// Required of all Gaudi services:  see Gaudi documentation for details
    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 

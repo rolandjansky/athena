@@ -384,11 +384,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   }
 
   if(m_useSharedWriter && m_dataShare) {
-    if(!m_dataShare->makeClient(m_rankId + 1).isSuccess()) {
-      ATH_MSG_ERROR("Failed to make the conversion service a share client");
+    IProperty* propertyServer = dynamic_cast<IProperty*>(m_dataShare);
+    if (propertyServer==0 || propertyServer->setProperty("MakeStreamingToolClient", m_rankId + 1).isFailure()) {
+      ATH_MSG_ERROR("Could not change AthenaPoolCnvSvc MakeClient Property");
       return outwork;
     } else {
-    ATH_MSG_DEBUG("Successfully made the conversion service a share client");
+      ATH_MSG_DEBUG("Successfully made the conversion service a share client");
     }
   }
 
