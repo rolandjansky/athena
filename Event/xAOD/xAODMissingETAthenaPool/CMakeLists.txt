@@ -3,15 +3,6 @@
 # Declare the package name:
 atlas_subdir( xAODMissingETAthenaPool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthContainers
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/xAOD/xAODMissingET
-                          GaudiKernel )
-
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODMissingETAthenaPoolPoolCnv
    src/*.h src/*.cxx
