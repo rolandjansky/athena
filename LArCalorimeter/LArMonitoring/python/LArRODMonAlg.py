@@ -190,19 +190,19 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                            type='TH1F', path=part_hist_path,
                            xbins=lArDQGlobals.DSPTime_Bins, xmin=lArDQGlobals.DSPTime_Min, xmax=lArDQGlobals.DSPTime_Max)
 
-    darray.defineHistogram('slot,FT;Out_E_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
+    darray.defineHistogram('slot,FT;RAW_Out_E_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
                            type='TH2I', path=part_hist_path,
                            weight='weight_e',
                            xbins=lArDQGlobals.FEB_Slot["EMECA"][1], xmin=lArDQGlobals.FEB_Slot["EMECA"][0]-0.5, xmax=lArDQGlobals.FEB_Slot["EMECA"][1]+0.5,
                            ybins=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+1, ymin=lArDQGlobals.FEB_Feedthrough["EMBA"][0]-0.5, ymax=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+0.5)
 
-    darray.defineHistogram('slot,FT;Out_T_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
+    darray.defineHistogram('slot,FT;RAW_Out_T_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
                            type='TH2I', path=part_hist_path,
                            weight='weight_t',
                            xbins=lArDQGlobals.FEB_Slot["EMECA"][1], xmin=lArDQGlobals.FEB_Slot["EMECA"][0]-0.5, xmax=lArDQGlobals.FEB_Slot["EMECA"][1]+0.5,
                            ybins=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+1, ymin=lArDQGlobals.FEB_Feedthrough["EMBA"][0]-0.5, ymax=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+0.5)
 
-    darray.defineHistogram('slot,FT;Out_Q_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
+    darray.defineHistogram('slot,FT;RAW_Out_Q_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
                            type='TH2I', path=part_hist_path,
                            weight='weight_q',
                            xbins=lArDQGlobals.FEB_Slot["EMECA"][1], xmin=lArDQGlobals.FEB_Slot["EMECA"][0]-0.5, xmax=lArDQGlobals.FEB_Slot["EMECA"][1]+0.5,

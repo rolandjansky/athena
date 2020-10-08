@@ -157,6 +157,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
        ft_n = int(ft_up - ft_low)
 
        darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet],topPath=hist_path)
+
        # Known bad FEBS
        darray.defineHistogram('slotBad,FTBad;KnownBadFEB', title='Known Bad FEBs {0} ; Slot ; FT', 
                               type='TH2I', 

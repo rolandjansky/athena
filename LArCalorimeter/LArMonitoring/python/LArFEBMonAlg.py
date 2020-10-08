@@ -151,18 +151,18 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
                                   xlabels=lArDQGlobals.EvtRej_labels)
-    Group.defineHistogram('EvtRej,EvtRejYield1D;EventsRejectedYield', 
+    Group.defineHistogram('EvtRej,EvtRejYield1D;RAW_EventsRejectedYield', 
                                   title='Data corruption yield:Corruption type:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins-1, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max-1,
                                   xlabels=lArDQGlobals.EvtRejYield_labels)
-    Group.defineHistogram('LB0,EvtRejYield;YieldOfRejectedEventsVsLB', 
+    Group.defineHistogram('LB0,EvtRejYield;RAW_YieldOfRejectedEventsVsLB', 
                                   title='Yield of corrupted events (DATACORRUPTED):Luminosity Block:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
-    Group.defineHistogram('LB0,EvtRejYieldOut;YieldOfRejectedEventsVsLBout', 
+    Group.defineHistogram('LB0,EvtRejYieldOut;RAW_YieldOfRejectedEventsVsLBout', 
                                   title='Yield of corrupted events (DATACORRUPTED) not vetoed by time window:Luminosity Block:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
@@ -203,7 +203,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
          isOnline=True
 
     if isOnline:     
-       Group.defineHistogram('LBf,EvtRejYield;EventsRejectedLB',
+       Group.defineHistogram('LBf,EvtRejYield;RAW_EventsRejectedLB',
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=summary_hist_path,
@@ -229,126 +229,126 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
 
        darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet])
 
-       darray.defineHistogram('slotPar,FTPar;Parity',
+       darray.defineHistogram('slotPar,FTPar;RAW_Parity',
                               title='Parity error:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotBcid,FTBcid;BCID',
+       darray.defineHistogram('slotBcid,FTBcid;RAW_BCID',
                               title='BCID mismatch betw. 2 halves of FEB:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotRadd,FTRadd;RADD',
+       darray.defineHistogram('slotRadd,FTRadd;RAW_RADD',
                               title='Sample header mismatch betw. 2 halves of FEB:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotEvtid,FTEvtid;EVTID',
+       darray.defineHistogram('slotEvtid,FTEvtid;RAW_EVTID',
                               title='EVTID mismatch betw. 2 halves of FEB:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotScac,FTScac;SCACStatus',
+       darray.defineHistogram('slotScac,FTScac;RAW_SCACStatus',
                               title='Wrong SCAC status in one half of a FEB:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotscout,FTscout;scaOutOfRange',
+       darray.defineHistogram('slotscout,FTscout;RAW_scaOutOfRange',
                               title='Sca out of range:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotgain,FTgain;gainMismatch',
+       darray.defineHistogram('slotgain,FTgain;RAW_gainMismatch',
                               title='Gain mismatch within time samples:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slottype,FTtype;typeMismatch',
+       darray.defineHistogram('slottype,FTtype;RAW_typeMismatch',
                               title='Event type mismatch:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotsmp,FTsmp;badNbOfSamp',
+       darray.defineHistogram('slotsmp,FTsmp;RAW_badNbOfSamp',
                               title='Non uniform number of samples:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotzero,FTzero;zeroSamp',
+       darray.defineHistogram('slotzero,FTzero;RAW_zeroSamp',
                               title='Empty FEB data blocks:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotsum,FTsum;checkSum',
+       darray.defineHistogram('slotsum,FTsum;RAW_checkSum',
                               title='Checksum / DSP block size:Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotmis,FTmis;missingHeader',
+       darray.defineHistogram('slotmis,FTmis;RAW_missingHeader',
                               title='Missing header :Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotgain,FTgain;badGain',
+       darray.defineHistogram('slotgain,FTgain;RAW_badGain',
                               title='Bad gain :Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotabs,FTabs;LArFEBMonErrorsAbsolute',
+       darray.defineHistogram('slotabs,FTabs;RAW_LArFEBMonErrorsAbsolute',
                               title='Nb of events with at least one error :Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
         
-       darray.defineHistogram('slotmist,FTmist;missingTriggerType',
+       darray.defineHistogram('slotmist,FTmist;RAW_missingTriggerType',
                               title='LVL1 trigger type missing or different from event type :Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotnb,FTnb;nbOfEvts',
+       darray.defineHistogram('slotnb,FTnb;RAW_nbOfEvts',
                               title='Nb of events (DSP header check only) :Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotnb,FTnb,weightsweet1;NbOfSweet1PerFEB',
+       darray.defineHistogram('slotnb,FTnb,weightsweet1;RAW_NbOfSweet1PerFEB',
                               title='Average # of cells with (qfactor+time) readout :Slot:FT',
                               type='TProfile2D',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotnb,FTnb,weightsweet2;NbOfSweet2PerFEB',
+       darray.defineHistogram('slotnb,FTnb,weightsweet2;RAW_NbOfSweet2PerFEB',
                               title='Average # of cells with samples readout :Slot:FT',
                               type='TProfile2D',
                               path=hist_path,
@@ -361,7 +361,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               path=hist_path,
                               xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5)
 
-       darray.defineHistogram('slotMasked,FTMasked;knownFaultyFEB',
+       darray.defineHistogram('slotMasked,FTMasked;RAW_knownFaultyFEB',
                               title='FEB with known errors (1:err. ignored 2:FEB masked):Slot:FT',
                               type='TH2I',
                               path=hist_path,
@@ -375,7 +375,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
 
        if isOnline:
-          darray.defineHistogram('LBf,erronl;EventsRejectedLB',
+          darray.defineHistogram('LBf,erronl;RAW_EventsRejectedLB',
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
