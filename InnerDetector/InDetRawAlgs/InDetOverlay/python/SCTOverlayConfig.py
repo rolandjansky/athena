@@ -38,6 +38,9 @@ def SCTRawDataProviderAlgCfg(flags, name="SCTRawDataProvider", **kwargs):
     kwargs.setdefault("LVL1IDKey", flags.Overlay.BkgPrefix + "SCT_LVL1ID")
     kwargs.setdefault("BCIDKey", flags.Overlay.BkgPrefix + "SCT_BCID")
 
+    from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
+    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags)))
+
     SCTRawDataProvider = CompFactory.SCTRawDataProvider
     alg = SCTRawDataProvider(name, **kwargs)
     acc.addEventAlgo(alg)
