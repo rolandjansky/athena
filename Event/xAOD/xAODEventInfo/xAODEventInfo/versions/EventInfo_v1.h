@@ -148,6 +148,8 @@ namespace xAOD {
       void setMCEventWeights( const std::vector< float >& value );
       /// The weight of one specific MC event used in the simulation
       float mcEventWeight( size_t i = 0 ) const;
+      /// Does this event have MC event weights?
+      bool hasMCEventWeights() const;
 
       /// Event type codes that can be set/checked in the bitmask
       enum EventType {
