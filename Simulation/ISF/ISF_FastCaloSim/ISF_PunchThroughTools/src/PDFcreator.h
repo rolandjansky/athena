@@ -13,9 +13,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 // ROOT includes
-#include "TFile.h"
-#include "TF1.h"
-#include "TObject.h"
+#include "TH1F.h"
 #include "TH2F.h"
 
 
@@ -66,7 +64,7 @@ namespace ISF
     m_energy_etaRange_hists2D.insert(std::make_pair(energy, inner));
     };
 
-    /** get the random value with this methode, by providing the input parameters */
+    /** get the random value with this method, by providing the input parameters */
     double getRand( std::vector<double> inputPar, double outEnergy = 0., double randMin = 0., double randMax = 0.);
     std::string getName(){return m_name;};
     static bool compareEnergy1D(std::pair< double , std::map< std::vector<double>, TH1*> > map, double value){ return map.first < value; };
@@ -79,7 +77,6 @@ namespace ISF
     std::string                         m_name;               //!< Give pdf a name for debug purposes 
     std::map< double , std::map< std::vector<double>, TH1*> > m_energy_etaRange_hists1D; //!< map of energies to map of eta ranges to 1D histograms
     std::map< double , std::map< std::vector<double>, TH2*> > m_energy_etaRange_hists2D; //!< map of energies to map of eta ranges to 2D histograms
-    std::map< double , std::map< std::vector<double>, TObject*> > m_energy_etaRange_tobject; //!< map of energies to map of eta ranges to histograms
 
 
   };
