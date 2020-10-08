@@ -1095,7 +1095,7 @@ class checkFileTrigSize_RTT:
 
             #for new xAOD    
             if re.search("Total",line):
-                if (unicode(splitline[4])).isnumeric():
+                if (str(splitline[4])).isnumeric():
                     self.total = float(splitline[4])
 
             #only count the good lines (ie. not "=====", etc.)
@@ -1203,8 +1203,8 @@ class checkFileTrigSize_RTT:
 
             
         print()
-        print("Summary of catagories:")
-        fout.write( "\n Summary of catagories:\n") 
+        print("Summary of categories:")
+        fout.write( "\n Summary of categories:\n")
 
         #print the size of each counter (and calculate the sum)
         for counter in listofCounters:
