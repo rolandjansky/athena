@@ -885,9 +885,152 @@
   <posXYZ  volume="SS"  X_Y_Z="0.; 0.; -7177." rot=" 0. ; 0. ; 0." />
 </composition>
 
+<!-- ================================================ LS/SS Frames ========================================= -->
+<!-- SS_Frame -->
+<gvxysx name="SS_Frame_Main" material="muo::FR4" dZ="10.4">
+    <gvxy_point X_Y="172.6; 911.2"/>
+    <gvxy_point X_Y="172.6; 986.2"/>
+    <gvxy_point X_Y="235.1; 1403.7"/>
+    <gvxy_point X_Y="348.7; 1386.7"/>
+    <gvxy_point X_Y="366.4; 1505.4"/>
+    <gvxy_point X_Y="252.7; 1522.4"/>
+    <gvxy_point X_Y="582.3; 3727.8"/>
+    <gvxy_point X_Y="795.; 3696.1"/>
+    <gvxy_point X_Y="812.7; 3814.8"/>
+    <gvxy_point X_Y="600.1; 3846.5"/>
+    <gvxy_point X_Y="688.2; 4436.4"/>
+</gvxysx>
+
+<gvxysx name="SS_Frame_Sub1" material="muo::FR4" dZ="11.">
+    <gvxy_point X_Y="470.5; 3486.4"/>
+    <gvxy_point X_Y="601.2; 4361.4"/>
+</gvxysx>
+
+<gvxysx name="SS_Frame_Sub2" material="muo::FR4" dZ="11.">
+    <gvxy_point X_Y="290.5; 2282.6"/>
+    <gvxy_point X_Y="452.5; 3366.4"/>
+</gvxysx>
+
+<gvxysx name="SS_Frame_Sub3" material="muo::FR4" dZ="11.">
+    <gvxy_point X_Y="96.8; 986.2"/>
+    <gvxy_point X_Y="272.6; 2162.6"/>
+</gvxysx>
+
+<subtraction name="SS_Frame" >
+    <posXYZ volume="SS_Frame_Main" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="SS_Frame_Sub1" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="SS_Frame_Sub2" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="SS_Frame_Sub3" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+</subtraction>
+
+<tubs name="LM_SS_Fixed_Interfaces_main" material="ShieldSteel" Rio_Z="0.; 37.5; 410." nbPhi="32"/>
+
+<box name="LM_SS_Fixed_Interfaces_Subtr" material="ShieldSteel" X_Y_Z="80.; 130.; 31."/>
+
+<subtraction name="LM_SS_Fixed_Interfaces" >
+    <posXYZ volume="LM_SS_Fixed_Interfaces_main" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="LM_SS_Fixed_Interfaces_Subtr" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+</subtraction>
+
+<composition  name="SS_Frame_Assembly" >
+    <posXYZ volume="SS_Frame" X_Y_Z=" 0.; 0.; 136.8" rot=" 0.; 0.; 0." />
+    <posXYZ volume="SS_Frame" X_Y_Z=" 0.; 0.; -136.8" rot=" 0.; 0.; 0." />
+    <posXYZ volume="SS_Frame" X_Y_Z=" 0.; 0.; 197.2" rot=" 0.; 0.; 0." />
+    <posXYZ volume="SS_Frame" X_Y_Z=" 0.; 0.; -197.2" rot=" 0.; 0.; 0." />
+    <posXYZ volume="LM_SS_Fixed_Interfaces" X_Y_Z=" 846.; 3749.; 0." rot=" 0.; 0.; 0." />
+    <posXYZ volume="LM_SS_Fixed_Interfaces" X_Y_Z=" -846.; 3749.; 0." rot=" 0.; 0.; 0." />
+    <posXYZ volume="LM_SS_Fixed_Interfaces" X_Y_Z=" -399.7; 1439.7; 0." rot=" 0.; 0.; 0." />
+</composition>
+
+<composition  name="SS_Frame_Assembly_Pos" >
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 22.5" />
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 67.5" />
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 112.5" />
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 157.5" />
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 202.5" />
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 247.5" />
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 292.5" />
+    <posXYZ volume="SS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 337.5" />
+</composition>
+<!-- End SS_Frame -->
+
+<!-- LS_Frame -->
+<gvxysx name="LS_Frame_Main" material="muo::FR4" dZ="10.6">
+    <gvxy_point X_Y="277.29; 940."/>
+    <gvxy_point X_Y="277.29; 1015."/>
+    <gvxy_point X_Y="495.6; 1890.3"/>
+    <gvxy_point X_Y="665.5; 1890.3"/>
+    <gvxy_point X_Y="695.4; 2010.2"/>
+    <gvxy_point X_Y="525.5; 2010.2"/>
+    <gvxy_point X_Y="923.57; 3606.2"/>
+    <gvxy_point X_Y="1083.2; 3566.4"/>
+    <gvxy_point X_Y="1112.2; 3682.8"/>
+    <gvxy_point X_Y="952.6; 3722.6"/>
+    <gvxy_point X_Y="1040.5; 4075."/>
+    <gvxy_point X_Y="1040.5; 4622."/>
+</gvxysx>
+
+<gvxysx name="LS_Frame_Sub1" material="muo::FR4" dZ="11.">
+    <gvxy_point X_Y="965.5; 4547."/>
+    <gvxy_point X_Y="965.5; 4085."/>
+    <gvxy_point X_Y="825.; 3525."/>
+</gvxysx>
+
+<gvxysx name="LS_Frame_Sub2" material="muo::FR4" dZ="11.">
+    <gvxy_point X_Y="796.; 3405."/>
+    <gvxy_point X_Y="525.; 2317.8"/>
+</gvxysx>
+
+<gvxysx name="LS_Frame_Sub3" material="muo::FR4" dZ="11.">
+    <gvxy_point X_Y="494.9; 2197.8"/>
+    <gvxy_point X_Y="200.; 1015."/>
+</gvxysx>
+
+<subtraction name="LS_Frame" >
+    <posXYZ volume="LS_Frame_Main" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="LS_Frame_Sub1" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="LS_Frame_Sub2" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="LS_Frame_Sub3" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+</subtraction>
+
+<tubs name="LM_LS_Fixed_Interfaces_main" material="ShieldSteel" Rio_Z="0.; 37.4; 410." nbPhi="32"/>
+
+<subtraction name="LM_LS_Fixed_Interfaces" >
+    <posXYZ volume="LM_LS_Fixed_Interfaces_main" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+    <posXYZ volume="LM_SS_Fixed_Interfaces_Subtr" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.;0."/>
+</subtraction>
+
+<composition  name="LS_Frame_Assembly" >
+    <posXYZ volume="LS_Frame" X_Y_Z=" 0.; 0.; 136.7" rot=" 0.; 0.; 0." />
+    <posXYZ volume="LS_Frame" X_Y_Z=" 0.; 0.; -136.7" rot=" 0.; 0.; 0." />
+    <posXYZ volume="LS_Frame" X_Y_Z=" 0.; 0.; 197.3" rot=" 0.; 0.; 0." />
+    <posXYZ volume="LS_Frame" X_Y_Z=" 0.; 0.; -197.3" rot=" 0.; 0.; 0." />
+    <posXYZ volume="LM_LS_Fixed_Interfaces" X_Y_Z=" 1139.32; 3615.; 0." rot=" 0.; 0.; 0." />
+    <posXYZ volume="LM_LS_Fixed_Interfaces" X_Y_Z=" -1139.32; 3615.; 0." rot=" 0.; 0.; 0." />
+    <posXYZ volume="LM_LS_Fixed_Interfaces" X_Y_Z=" -720.55; 1935.83; 0." rot=" 0.; 0.; 0." />
+</composition>
+
+<composition  name="LS_Frame_Assembly_Pos" >
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0." />
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 45." />
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 90." />
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 135." />
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 180." />
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 225." />
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 270." />
+    <posXYZ volume="LS_Frame_Assembly" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 315." />
+</composition>
+<!-- End LS_Frame -->
+
 <composition  name="NSW_Spacer" >
+  <!-- Aside -->
   <posXYZ  volume="LS_and_SS_SideA" />
+  <posXYZ volume="SS_Frame_Assembly_Pos" X_Y_Z=" 0.; 0.; 7177." rot=" 0.; 0.; 0." />
+  <posXYZ volume="LS_Frame_Assembly_Pos" X_Y_Z=" 0.; 0.; 7641." rot=" 0.; 0.; 0." />
+  <!-- Cside -->
   <posXYZ  volume="LS_and_SS_SideC" />
+  <posXYZ volume="SS_Frame_Assembly_Pos" X_Y_Z=" 0.; 0.; -7177." rot=" 0.; 0.; 0." />
+  <posXYZ volume="LS_Frame_Assembly_Pos" X_Y_Z=" 0.; 0.; -7641." rot=" 0.; 0.; 0." />
 </composition>
 
 </section>
@@ -1354,7 +1497,7 @@
 
 <subtraction  name="Tube_alu_feet" >
   <posXYZ  volume="Tube_alu_feet_MainBox" />
-  <posXYZ  volume="Tube_alu_feet_CutBox"  X_Y_Z="-120.94; 337.19; 16.5" rot="   0. ; 0. ; 12.5" />
+  <posXYZ  volume="Tube_alu_feet_CutBox" />
 </subtraction>
 
 <box  name="Fix_nut"      material="ShieldSteel"  X_Y_Z="50.; 52.; 290. " />
@@ -1578,183 +1721,6 @@
 
 </section>
 
-<!-- ===========================================NJD=========================================== -->
-
-<section name       = "NJD Disk"
-         version    = "0.0"
-         date       = "16-11-2016"
-         author     = "Georgian Engineering Team - Niko Tsutskiridze"
-         top_volume = "NJD_Disk">
-
-<!-- NJD Disk -->
-
-<!-- main disk-->
-<tubs name="MD01"   material="ShieldSteel"  Rio_Z="430.; 4360.; 40."  nbPhi="32." />
-<tubs name="MD02"   material="ShieldSteel"  Rio_Z="430.; 2700.;  48.7"  nbPhi="32." />
-<tubs name="MDB01_Cut"   material="ShieldSteel"  Rio_Z="0.; 840.; 3."  nbPhi="32." />
-
-<gvxy   name="MD03"   material="ShieldSteel"  dZ="40." >
-  <gvxy_point X_Y="-3370.; -3950."/>
-  <gvxy_point X_Y="-3370.; -3880."/>
-  <gvxy_point X_Y="-3679.5; -2484."/>
-  <gvxy_point X_Y="-3990.; -1734.39"/>
-  <gvxy_point X_Y="-2599.16; -3470."/>
-  <gvxy_point X_Y="-2670.; -3570."/>
-  <gvxy_point X_Y="-2670.; -3950."/>
-</gvxy>
-
-<subtraction name="MDB01_Un" >
- <posXYZ volume="MD01" />
- <posXYZ volume="MDB01_Cut" X_Y_Z=" 0.; 0.; 19.4 " />
-</subtraction>
-
-<union name="MDB01" >
- <posXYZ volume="MDB01_Un" />
- <posXYZ volume="MD03"  />
- <posXYZ volume="MD03" rot=" 0.; 180.; 0."/>
-</union>
-<!-- End main disk-->
-
-
-<!-- Ret.Flux -->
-<tubs name="FLUX_Box"   material="ShieldSteel"  Rio_Z="3800.; 4360.; 39.9"  nbPhi="32." />
-<box  name="FLUX_Cut_Box" material="ShieldSteel"  X_Y_Z="2200.; 400.;  50." />
-
-<subtraction name="FLUX" >
- <posXYZ volume="FLUX_Box" />
- <posXYZ volume="FLUX_Cut_Box" X_Y_Z=" -1930.; 3430.; 0." />
-</subtraction>
-<!-- End Ret.Flux -->
-
-<!-- FIXING PLATE -->
-<box  name="FIXING_PLATE" material="ShieldSteel"  X_Y_Z="350.; 975.;  40.9" />
-<box  name="FIXING_PLATE_Special" material="ShieldSteel"  X_Y_Z="350.; 787.5;  40.9" />
-
-<composition name="FIXING_PLATE_Pos" >
- <posXYZ volume="FIXING_PLATE" X_Y_Z=" 0.; 3252.5; 0." />
-</composition>
-
-<composition name="FIXING_PLATE_Ass" >
- <posXYZ volume="FIXING_PLATE_Special" X_Y_Z=" -1208.8; 2918.31; 0." rot=" 0.; 0.; 22.5" />
- <posXYZ volume="FIXING_PLATE_Pos" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 67.5" />
- <posXYZ volume="FIXING_PLATE_Pos" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 112.5" />
- <posXYZ volume="FIXING_PLATE_Pos" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 157.5" />
- <posXYZ volume="FIXING_PLATE_Pos" X_Y_Z=" 0.; 0.; 0."  rot=" 0.; 0.; 202.5" />
- <posXYZ volume="FIXING_PLATE_Pos" X_Y_Z=" 0.; 0.; 0."  rot=" 0.; 0.; 247.5" />
- <posXYZ volume="FIXING_PLATE_Pos" X_Y_Z=" 0.; 0.; 0."  rot=" 0.; 0.; 292.5" />
- <posXYZ volume="FIXING_PLATE_Pos" X_Y_Z=" 0.; 0.; 0."  rot=" 0.; 0.; 337.5" />
-</composition>
-<!-- End FIXING PLATE -->
-
-<!-- NJD feet-->
-<gvxy   name="JF01"   material="ShieldSteel"  dZ="37.3" >
-  <gvxy_point X_Y="-3300.; -3950."/>
-  <gvxy_point X_Y="-3300.; -3480."/>
-  <gvxy_point X_Y="-3270.; -3450."/>
-  <gvxy_point X_Y="-2730.; -3450."/>
-  <gvxy_point X_Y="-2700.; -3480."/>
-  <gvxy_point X_Y="-2700.; -3950."/>
-</gvxy>
-
-<gvxy   name="JF02"   material="ShieldSteel"  dZ="35." >
-  <gvxy_point X_Y="-342.4; -3950."/>
-  <gvxy_point X_Y="-342.4; -3930."/>
-  <gvxy_point X_Y="-77.4; -3470."/>
-  <gvxy_point X_Y="-57.4; -3470."/>
-  <gvxy_point X_Y="-57.4; -3920."/>
-  <gvxy_point X_Y="-87.4; -3950."/>
-</gvxy>
-
-<gvxy   name="JF03"   material="ShieldSteel"  dZ="48." >
-  <gvxy_point X_Y="-3370.; -362."/>
-  <gvxy_point X_Y="-3370.; 704."/>
-  <gvxy_point X_Y="-3495.; 704."/>
-  <gvxy_point X_Y="-3495.; 933."/>
-  <gvxy_point X_Y="-2660.; 933."/>
-  <gvxy_point X_Y="-2660.; 653."/>
-  <gvxy_point X_Y="-2700.; 653."/>
-  <gvxy_point X_Y="-2700.; 523."/>
-  <gvxy_point X_Y="-2590.; 523."/>
-  <gvxy_point X_Y="-2590.; -52."/>
-  <gvxy_point X_Y="-2685.; -52."/>
-  <gvxy_point X_Y="-2685.; -362."/>
-</gvxy>
-
-<gvxy   name="JF04"   material="ShieldSteel"  dZ="41.6" >
-  <gvxy_point X_Y="-453.5; -4251.1"/>
-  <gvxy_point X_Y="-453.5; -4158.1"/>
-  <gvxy_point X_Y="-603.; -4083.1"/>
-  <gvxy_point X_Y="-603.; -4038.1"/>
-  <gvxy_point X_Y="-362.; -4038.1"/>
-  <gvxy_point X_Y="-362.; -3998.1"/>
-  <gvxy_point X_Y="883.; -3998.1"/>
-  <gvxy_point X_Y="883.; -4251.1"/>
-</gvxy>
-
-<gvxy   name="JF05"   material="ShieldSteel"  dZ="356.1" >
-  <gvxy_point X_Y="-603.; -4048.1"/>
-  <gvxy_point X_Y="-603.; -4038.1"/>
-  <gvxy_point X_Y="-362.; -4038.1"/>
-  <gvxy_point X_Y="-362.; -3998.1"/>
-  <gvxy_point X_Y="-253.; -3998.1"/>
-  <gvxy_point X_Y="-253.; -4048.1"/>
-</gvxy>
-
-<box  name="JF06" material="ShieldSteel"  X_Y_Z="536.; 253.; 71.4" />
-
-<!-- Right-->
-<composition name="Right_Feet" >
- <posXYZ volume="JF01" X_Y_Z=" 0.; 0.; 38.7" rot=" 0.; 0.; 0." />
- <posXYZ volume="JF02" X_Y_Z=" -2802.5; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF02" X_Y_Z=" -3197.5; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF03" X_Y_Z=" 0.; -3974.05; 0." rot=" -90.; 0.; 0." />
- <posXYZ volume="JF04" X_Y_Z=" -2805.2; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF04" X_Y_Z=" -3203.; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF05" X_Y_Z=" -3004.1; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF06" X_Y_Z=" -3000.; -4124.6; -918.75" rot=" 0.; 0.; 0." />
-</composition>
-<!-- End Right-->
-
-<!-- Left-->
-<composition name="Left_Feet" >
- <posXYZ volume="JF01" X_Y_Z=" 0.; 0.; 38.7" rot=" 0.; 180.; 0." />
- <posXYZ volume="JF02" X_Y_Z=" 2802.5; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF02" X_Y_Z=" 3197.5; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF03" X_Y_Z=" 0.; -3974.05; 0." rot=" -90.; 0.; 180." />
- <posXYZ volume="JF04" X_Y_Z=" 2805.2; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF04" X_Y_Z=" 3203.; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF05" X_Y_Z=" 3004.1; 0.; 0." rot=" 0.; 90.; 0." />
- <posXYZ volume="JF06" X_Y_Z=" 3000.; -4124.6; -918.75" rot=" 0.; 0.; 0." />
-</composition>
-<!-- End Right-->
-<!-- End NJD feet-->
-
-<composition name="JDDisk_ASide" >
- <posXYZ volume="MDB01"  X_Y_Z=" 0.; 0.; 6880." rot=" 0.; 0.; 0." />
- <posXYZ volume="MD02" X_Y_Z=" 0.; 0.; 6835.6" rot=" 0.; 0.;0."/>
- <posXYZ volume="FLUX" X_Y_Z=" 0.; 0.; 6840." rot=" 0.; 0.; 0." />
- <posXYZ volume="FIXING_PLATE_Ass" X_Y_Z=" 0.; 0.; 6839.5" rot=" 0.; 0.; 0." />
- <posXYZ volume="Right_Feet"  X_Y_Z=" 0.; 0.; 6880." rot=" 0.; 180.; 0." />
- <posXYZ volume="Left_Feet"  X_Y_Z=" 0.; 0.; 6880." rot=" 0.; 180.; 0." />
-</composition>
-
-<composition name="JDDisk_CSide" >
- <posXYZ volume="MDB01"  X_Y_Z=" 0.; 0.; -6880." rot=" 0.; 180.; 0." />
- <posXYZ volume="MD02" X_Y_Z=" 0.; 0.; -6835.6" rot=" 0.; 0.;0."/>
- <posXYZ volume="FLUX" X_Y_Z=" 0.; 0.; -6840." rot=" 0.; 0.; 0." />
- <posXYZ volume="FIXING_PLATE_Ass" X_Y_Z=" 0.; 0.; -6839.5" rot=" 0.; 0.; 0." />
- <posXYZ volume="Right_Feet"  X_Y_Z=" 0.; 0.; -6880." rot=" 0.; 0.; 0." />
- <posXYZ volume="Left_Feet"  X_Y_Z=" 0.; 0.; -6880." rot=" 0.; 0.; 0." />
-</composition>
-<!-- End NJD Disk -->
-
-<composition  name="NJD_Disk" >
- <posXYZ volume="JDDisk_ASide"  X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0." />
- <posXYZ volume="JDDisk_CSide"  X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0." />
-</composition>
-
-</section>
-
 <!-- ==================================================Feet========================================= -->
 
 <section name       = "A Plate"
@@ -1834,7 +1800,6 @@
  <posXYZ volume="NSW_MM" X_Y_Z="0.;0.;0." />
  <posXYZ volume="NSW_Spacer" />
  <posXYZ volume="NSW_Aluminum_Structure_and_HUB" />
- <posXYZ volume="NJD_Disk" />
  <posXYZ volume="A_Plate" />
 </composition>
 
