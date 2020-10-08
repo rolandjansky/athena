@@ -88,15 +88,21 @@ StatusCode EventCounterAlg::execute()
     // Get the EventInfo object
     const xAOD::EventInfo* evtInfo = 0;
     ATH_CHECK( evtStore()->retrieve(evtInfo, "EventInfo") );
-    // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
-    if ( !(evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) ) {
-      ATH_MSG_DEBUG("We are not running on simulation and thus, nothing to be done here");
-      m_trackOtherMCWeights = false;
-      return StatusCode::SUCCESS;
-    }
 
     // Get all MC event weights
     const std::vector<float>& mcWeights = evtInfo->mcEventWeights();
+
+    // Now some useful cross checks. Normal case first:
+    // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
+    if ( !(evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) && mcWeights.size()==0) {
+      ATH_MSG_DEBUG("We are not running on simulation and thus, nothing to be done here");
+      m_trackOtherMCWeights = false;
+      return StatusCode::SUCCESS;
+    } else if ( !(evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) && mcWeights.size()!=0) {
+      ATH_MSG_DEBUG("We appear to be running data overlay (MC weights, but not IS_SIMULATION)");
+    } else if ( (evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) && mcWeights.size()==0) {
+      ATH_MSG_WARNING("Running MC simulation, but no event weights identified (size==0)");
+    }
 
     // Set up everything during the first event
     if ( m_eventsProcessed == 0 ){
