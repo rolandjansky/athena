@@ -427,18 +427,17 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
   // test for each registered punch-through pdg if a punch-through
   // occures and create these particles
   // -> therefore loop over all registered pdg ids
-  std::map<int,PunchThroughParticle*>::const_iterator it;
   // to keep track of the correlated particles which were already simulated:
   // first int is pdg, second int is number of particles created
   std::map<int, int> corrPdgNumDone;
 
   // loop over all particle pdgs
-  for ( it = m_particles.begin(); it != m_particles.end(); ++it )
+  for (const auto& it : m_particles) 
     {
       // the pdg that is currently treated
-      int doPdg = it->first;
+      int doPdg = it.first;
       // get the current particle's correlated pdg
-      int corrPdg = it->second->getCorrelatedPdg();
+      int corrPdg = it.second->getCorrelatedPdg();
 
       // if there is a correlated particle type to this one
       if (corrPdg)
@@ -894,7 +893,7 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
   // this will store the distributions for the punch through particles
   // (as map of energy & eta of the incoming particle)
   PDFcreator *pdf = new PDFcreator(m_randomEngine);
-
+  
   
 
       //Get directory object
