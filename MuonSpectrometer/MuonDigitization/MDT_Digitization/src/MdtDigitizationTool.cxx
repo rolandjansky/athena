@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -253,7 +253,7 @@ StatusCode MdtDigitizationTool::initialize() {
   m_digitContainer->addRef();
   
   //simulation identifier helper	
-  muonHelper = MdtHitIdHelper::GetHelper();
+  muonHelper = MdtHitIdHelper::GetHelper(m_idHelper->tubeMax());
   
   //get the r->t conversion tool
   if( m_digiTool.retrieve().isFailure() ) {

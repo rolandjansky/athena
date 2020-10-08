@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_PARTICLEGAMMA2_H
@@ -14,11 +14,6 @@ Function particleGamma returns the value of gamma factor for Qball particle.
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
-
-#include "GaudiKernel/AlgFactory.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonSimEvent/MdtHitIdHelper.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "PileUpTools/PileUpMergeSvc.h"

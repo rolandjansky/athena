@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_CHARGECALCULATOR_H
@@ -19,11 +19,6 @@ to the third digit of decimal number of the  pdgid.
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
-
-#include "GaudiKernel/AlgFactory.h"
-
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonSimEvent/MdtHitIdHelper.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "PileUpTools/PileUpMergeSvc.h"
