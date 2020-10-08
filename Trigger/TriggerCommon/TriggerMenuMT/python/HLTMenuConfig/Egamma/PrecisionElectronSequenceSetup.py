@@ -4,6 +4,7 @@
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+from AthenaCommon.Constants import DEBUG
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
@@ -25,9 +26,9 @@ def precisionElectronSequence(ConfigFlags):
 
     # Configure the reconstruction algorithm sequence
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionElectronRecoSequences import precisionElectronRecoSequence
-    (electronPrecisionRec, electronPrecisionTrack, sequenceOut) = precisionElectronRecoSequence(InViewRoIs)
+    (electronPrecisionRec, sequenceOut) = precisionElectronRecoSequence(InViewRoIs)
 
-    electronPrecisionInViewAlgs = parOR("electronPrecisionInViewAlgs", [electronPrecisionTrack, electronPrecisionRec])
+    electronPrecisionInViewAlgs = parOR("electronPrecisionInViewAlgs", [electronPrecisionRec])
     precisionElectronViewsMaker.ViewNodeName = "electronPrecisionInViewAlgs"
 
     electronPrecisionAthSequence = seqAND("electronPrecisionAthSequence", [precisionElectronViewsMaker, electronPrecisionInViewAlgs ] )
@@ -43,6 +44,7 @@ def precisionElectronMenuSequence():
     thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT")
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
+    thePrecisionElectronHypo.OutputLevel = DEBUG
 
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
 
