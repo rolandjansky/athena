@@ -118,7 +118,9 @@ def LArNoiseCorrelationMonConfigCore(helper, algoinstance,inputFlags):
         pass
 
     #prepare the monitoring group
-    correlArray = helper.addArray([larNoiseCorrelMonAlg.FEBlist],larNoiseCorrelMonAlg,"RAWNoiseCorr",'/LAr/','run') 
+    grpName="NoiseCorr"
+    larNoiseCorrelMonAlg.NoiseCorrGroupName=grpName
+    correlArray = helper.addArray([larNoiseCorrelMonAlg.FEBlist],larNoiseCorrelMonAlg,grpName,'/LAr/','run') 
 #    correlArray = helper.addArray([lArDQGlobals.BarrelEndcap,lArDQGlobals.Sides,lArDQGlobals.Feedthrough_RangeMax,lArDQGlobals.Slot_RangeMax],larNoiseCorrelMonAlg,"NoiseCorrRAW",'/LAr/','run')
 
     hist_path='NoiseCorrelation/'

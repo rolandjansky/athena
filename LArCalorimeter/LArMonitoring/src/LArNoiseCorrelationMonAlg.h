@@ -89,6 +89,7 @@ private:
   SG::ReadHandleKey<LArDigitContainer> m_LArDigitContainerKey{this,"LArDigitContainerKey","FREE","SG key of LArDigitContainer read from Bytestream"};
   
   /** the group array **/
+  Gaudi::Property<std::string> m_noiseCorrGroupName {this, "NoiseCorrGroupName", "NoiseCorr"};
   std::map<std::string,int> m_noiseCorrGroups;
 
   /** Declare methods used*/

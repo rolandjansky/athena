@@ -105,7 +105,7 @@ LArNoiseCorrelationMonAlg::initialize()
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
 
   /*now the group*/
-  m_noiseCorrGroups=Monitored::buildToolMap<int>(m_tools,"NoiseCorrRAW",m_FEBlist);
+  m_noiseCorrGroups=Monitored::buildToolMap<int>(m_tools,m_noiseCorrGroupName,m_FEBlist);
 
   return StatusCode::SUCCESS;
 }
