@@ -302,7 +302,7 @@ std::ostream& InDet::operator <<
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
-(std::list<Amg::Vector3D>& GP,
+(std::list<Amg::Vector3D>& globalPositions,
  std::list<const InDetDD::SiDetectorElement*>& Road,
  bool testDirection,
  SiDetElementRoadMakerData_xk & roadMakerData) const
@@ -323,7 +323,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   const SiDetElementsLayerVectors_xk &layer = *getLayers();
 
   /// iterators over the positions to consider
-  std::list<Amg::Vector3D>::iterator currentPosition=GP.begin(), endPositions=GP.end();
+  std::list<Amg::Vector3D>::iterator currentPosition=globalPositions.begin(), endPositions=globalPositions.end();
 
   /// fill an array with the reference point (start with the first one), the road width and a placeholder
   /// for the step length
@@ -358,11 +358,16 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
   
   std::vector<InDet::SiDetElementLink_xk::ElementWay> lDE;
-  /// reset the module usage data
+
+  /// reset the detector-element usage info. 
+  /// If we are the first client to see this event data object,
+  /// we allocate the storage for all modules 
   if (!roadMakerData.isInitialized){
     bookUsageTracker(roadMakerData,layer);
   }
   else{ 
+    /// if we are not the first client, we reset the event data without
+    /// re-allocation
     roadMakerData.resetUsageTracker();
   }
 
@@ -524,8 +529,8 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (const EventContext& ctx,
  MagField::AtlasFieldCache& fieldCache,
  const Trk::TrackParameters& Tp,
- Trk::PropDirection D,
- std::list<const InDetDD::SiDetectorElement*>& R,
+ Trk::PropDirection direction,
+ std::list<const InDetDD::SiDetectorElement*>& Road,
  SiDetElementRoadMakerData_xk & roadMakerData) const
 {
   if (!m_usePIX && !m_useSCT) return;
@@ -539,7 +544,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   if (S  > 1000. ) S  = 1000. ;
 
   bool testDirection = true;
-  if (D<0) {
+  if (direction<0) {
     testDirection = false;
     S=-S;
   }
@@ -560,7 +565,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
   /// if we are extrapolating along them momentum direction, 
   /// we pick out the part ascending in R 
-  if (D > 0) {
+  if (direction > 0) {
     std::list<Amg::Vector3D>::iterator currentPosition=G.begin(), nextPosition, endPositions=G.end();
     float r0 = (*currentPosition).x()*(*currentPosition).x()+(*currentPosition).y()*(*currentPosition).y();
 
@@ -579,7 +584,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     }
   }
   /// now perform the road building using our set of positions
-  detElementsRoad(G, R,testDirection, roadMakerData);
+  detElementsRoad(G, Road,testDirection, roadMakerData);
 }
 
 
