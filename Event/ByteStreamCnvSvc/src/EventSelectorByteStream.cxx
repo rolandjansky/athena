@@ -182,10 +182,9 @@ StatusCode EventSelectorByteStream::reinit(lock_t& /*lock*/) {
    m_NumEvents = 0;
    bool retError = false;
    if (!m_helperTools.empty()) {
-      for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
-           last = m_helperTools.end(); iter != last; iter++) {
-         if (!(*iter)->postInitialize().isSuccess()) {
-            ATH_MSG_FATAL("Failed to postInitialize() " << (*iter)->name());
+      for (ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+         if (!tool->postInitialize().isSuccess()) {
+            ATH_MSG_FATAL("Failed to postInitialize() " << tool->name());
             retError = true;
          }
       }
@@ -248,10 +247,9 @@ StatusCode EventSelectorByteStream::finalize() {
          ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
       }
    }
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
-        last = m_helperTools.end(); iter != last; iter++) {
-      if (!(*iter)->preFinalize().isSuccess()) {
-         ATH_MSG_WARNING("Failed to preFinalize() " << (*iter)->name());
+   for (ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+      if (!tool->preFinalize().isSuccess()) {
+         ATH_MSG_WARNING("Failed to preFinalize() " << tool->name());
       }
    }
    delete m_beginIter; m_beginIter = 0;
@@ -357,10 +355,9 @@ StatusCode EventSelectorByteStream::nextImpl(IEvtSelector::Context& it,
       return(StatusCode::SUCCESS);
    }
    // Call all selector tool preNext before starting loop
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
-                   last = m_helperTools.end(); iter != last; iter++) {
-      if (!(*iter)->preNext().isSuccess()) {
-         ATH_MSG_WARNING("Failed to preNext() " << (*iter)->name());
+   for (const ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+      if (!tool->preNext().isSuccess()) {
+         ATH_MSG_WARNING("Failed to preNext() " << tool->name());
       }
    }
    if (!m_counterTool.empty()) {
@@ -406,14 +403,13 @@ StatusCode EventSelectorByteStream::nextImpl(IEvtSelector::Context& it,
          StatusCode status(StatusCode::SUCCESS);
          // Build event info attribute list
          if (recordAttributeListImpl(lock).isFailure()) ATH_MSG_WARNING("Unable to build event info att list");
-         for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
-		         last = m_helperTools.end(); iter != last; iter++) {
-            StatusCode toolStatus = (*iter)->postNext();
+         for (const ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+            StatusCode toolStatus = tool->postNext();
             if (toolStatus.isRecoverable()) {
-               ATH_MSG_INFO("Request skipping event from: " << (*iter)->name());
+               ATH_MSG_INFO("Request skipping event from: " << tool->name());
                status = StatusCode::RECOVERABLE;
             } else if (toolStatus.isFailure()) {
-               ATH_MSG_WARNING("Failed to postNext() " << (*iter)->name());
+               ATH_MSG_WARNING("Failed to postNext() " << tool->name());
                status = StatusCode::FAILURE;
             }
          }
