@@ -69,7 +69,7 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
 
 
     HitID hitid = _hit->MDTid();
-    MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper();
+    MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(_mdtID->tubeMax());
 
     std::string stname = mdthhelper->GetStationName(hitid);
     int         steta  = mdthhelper->GetZSector(hitid);
