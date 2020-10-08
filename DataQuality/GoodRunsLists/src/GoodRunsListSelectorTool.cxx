@@ -1,7 +1,7 @@
 #ifndef XAOD_ANALYSIS
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "StoreGate/StoreGate.h"
 
 #include "TFormula.h"
 #include "TSystem.h"

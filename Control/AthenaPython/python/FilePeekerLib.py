@@ -231,7 +231,7 @@ class FilePeeker(PyAthena.Alg):
                     spec   = a.specification()
                     a_type = spec.typeName()
                     if a_type.find('string') >= 0:
-                        a_data = a.data('string')()
+                        a_data = a.data['string']()
                         try:
                             a_data = eval(a_data,{},{})
                         except Exception:
