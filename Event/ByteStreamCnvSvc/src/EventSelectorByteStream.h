@@ -29,6 +29,8 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "ByteStreamData/RawEvent.h"
+#include "CxxUtils/checker_macros.h"
+#include <mutex>
 
 // Forward declarations.
 class ISvcLocator;
@@ -124,6 +126,9 @@ public:
    virtual StatusCode io_reinit() override;
 
 protected:
+   typedef std::mutex mutex_t;
+   typedef std::lock_guard<mutex_t> lock_t;
+
    //-------------------------------------------------
    // ISecondaryEventSelector
    /// Handle file transition at the next iteration
@@ -138,45 +143,59 @@ protected:
    virtual bool disconnectIfFinished(const SG::SourceID &fid) const override;
 
 private: // internal member functions
+   StatusCode nextImpl(Context& it, lock_t& lock) const;
+   StatusCode previousImpl(Context& it, lock_t& lock) const;
+   StatusCode nextHandleFileTransitionImpl(IEvtSelector::Context& it,
+                                           lock_t& lock) const;
+   StatusCode recordAttributeListImpl(std::lock_guard<std::mutex>& lock) const;
+   StatusCode fillAttributeListImpl(coral::AttributeList *attrList, const std::string &suffix, bool copySource,
+                                    lock_t& lock) const;
+
    /// Reinitialize the service when a @c fork() occured/was-issued
-   StatusCode reinit();
-   StatusCode openNewRun() const;
-   void nextFile() const; 
+   StatusCode reinit(lock_t& lock);
+   StatusCode openNewRun(lock_t& lock) const;
+   void nextFile(lock_t& lock) const; 
    /// Search for event with number evtNum.
-   int findEvent(int evtNum) const;
+   int findEvent(int evtNum, lock_t& lock) const;
    StoreGateSvc* eventStore() const;
 
 private: // properties
+   // FIXME: A Gaudi EventSelector is not meant to have mutable state.
+   // Any needed state is meant to be kept in the Context object.
+   // So the mutable members here should instead be kept in
+   // EventContextByteStream.  However, making that work would
+   // require redesigning other Athena interfaces.  So for now,
+   // just add a mutex to protect access to them.
+   mutable mutex_t m_mutex;
+   mutable int           m_fileCount ATLAS_THREAD_SAFE = 0;  //!< number of files to process.
+   mutable std::vector<int>     m_numEvt ATLAS_THREAD_SAFE;
+   mutable std::vector<int>     m_firstEvt ATLAS_THREAD_SAFE;
+   mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator ATLAS_THREAD_SAFE;
+   mutable std::vector<long> m_skipEventSequence ATLAS_THREAD_SAFE;
+   mutable long m_NumEvents ATLAS_THREAD_SAFE = 0; // Number of Events read so far.
+   mutable ToolHandle<IAthenaIPCTool> m_eventStreamingTool ATLAS_THREAD_SAFE {this, "SharedMemoryTool", "", ""};
+
    /// IsSecondary, know if this is an instance of secondary event selector
    Gaudi::Property<bool> m_isSecondary{this, "IsSecondary", false, ""};
 
    Gaudi::Property<std::string> m_eventSourceName{this, "ByteStreamInputSvc", "", ""};
    Gaudi::Property<bool> m_procBadEvent{this, "ProcessBadEvent", false, ""}; //!< process bad events, which fail check_tree().
    Gaudi::Property<int>  m_maxBadEvts{this, "MaxBadEvents", -1, ""};         //!< number of bad events allowed before quitting.
-   mutable int           m_fileCount{};  //!< number of files to process.
-
-   mutable std::vector<int>     m_numEvt;
-   mutable std::vector<int>     m_firstEvt;
 
    EventContextByteStream*  m_beginIter{};
    EventContextByteStream*  m_endIter{};
    ByteStreamInputSvc*      m_eventSource{};
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "Input", {}, ""};
-   mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Gaudi::Details::PropertyBase&);
    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
 
    Gaudi::Property<long> m_skipEvents{this, "SkipEvents", 0, ""}; // Number of events to skip at the beginning
    Gaudi::Property<std::vector<long>> m_skipEventSequenceProp{this, "SkipEventSequence", {}, ""};
-   mutable std::vector<long> m_skipEventSequence;
 
    bool m_firstFileFired{};
    bool m_beginFileFired{};
    bool m_inputCollectionsFromIS{};
-   mutable long m_NumEvents{}; // Number of Events read so far.
-
-   mutable ToolHandle<IAthenaIPCTool> m_eventStreamingTool{this, "SharedMemoryTool", "", ""};
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
    ToolHandleArray<IAthenaSelectorTool> m_helperTools{this};

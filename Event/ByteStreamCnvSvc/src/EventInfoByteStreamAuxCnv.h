@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOBYTESTREAMAUXCNV_H
@@ -46,7 +46,7 @@ class EventInfoByteStreamAuxCnv : public Converter, public AthMessaging
   static const CLID& classID();
 
  private:
-  const char* ascTime(unsigned int t);    //!< convert timestamp to ascii time.
+  std::string ascTime(unsigned int t);    //!< convert timestamp to ascii time.
   ByteStreamCnvSvc* m_ByteStreamCnvSvc;   //!< pointer to BS CnvSvc
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider; //!< RODDataProviderSvc handle
   ServiceHandle<StoreGateSvc> m_mdSvc;                  //!< TDS handle
