@@ -280,6 +280,7 @@ public:
     inline bool                isRun2Cabling()     const { return m_run2; }
     inline bool                isRun2PlusCabling() const { return m_run2plus; }
     inline bool                isRun3Cabling()     const { return m_run3; }
+    inline int                 runPeriod()         const { return (2 * int(m_run2) + 3 * int(m_run3)); }
 };
 
 #endif // TILECONDITIONS_TILECABLINGSERVICE_H
