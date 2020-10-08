@@ -765,7 +765,13 @@ StatusCode RpcDigitizationTool::doDigitization() {
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
 
-      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, trklink).isFailure()) return StatusCode::FAILURE ;
+      // as long there is no proper implementation of the BIS78 cabling and digitisation,
+      // skip this method to avoid hard crash of digitisation
+      if (stationName.find("BIS")!=std::string::npos && std::abs(stationEta)>6) {
+        ATH_MSG_WARNING("skipping DetectionEfficiency for BIS78");
+      } else {
+        if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, trklink).isFailure()) return StatusCode::FAILURE ;
+      }
       ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
@@ -2380,7 +2386,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
     index += m_FracClusterSize1_A.size()/2*measuresPhi ;
     if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-      ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName) ;
+      ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName) ;
       return 1;
     }
     FracClusterSize1    = m_FracClusterSize1_A      [index];
@@ -2392,7 +2398,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	  index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName) ;
+	ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName) ;
 	return 1;
       }
 
@@ -2430,7 +2436,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       index += m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	  index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-	ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
+	ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
 	return 1;
       }
       FracClusterSize1	= m_FracClusterSize1_A      [index];
@@ -2442,7 +2448,7 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 	index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
 	if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	    index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	  ATH_MSG_ERROR ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
+	  ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
 	  return 1;
 	}
 
