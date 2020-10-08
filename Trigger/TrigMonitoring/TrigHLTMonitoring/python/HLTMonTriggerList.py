@@ -177,27 +177,31 @@ class HLTMonTriggerList:
 
 	# Config of monitoring lists which are dependent on running mode
 	def set_HLTMonTrigList_pp(self):
-		self.monitoring_bjet = bjet.monitoring_bjet_pp
-		self.monitoring_mujet = bjet.monitoring_mujet_pp
+                self.monitoring_bjet = bjet.monitoring_bjet_pp
+                self.monitoring_mujet = bjet.monitoring_mujet_pp
 
-		self.primary_bphys = bphys.primary_bphys_pp
+                self.primary_bphys = bphys.primary_bphys_pp
 
-		self.monitoring_l1jet = jets.monitoring_l1jet_pp
-		self.monitoring_jet = jets.monitoring_jet_pp
-		self.primary_l1jet = jets.primary_l1jet_pp
-		self.primary_jet = jets.primary_jet_pp
+                self.monitoring_l1jet = jets.monitoring_l1jet_pp
+                self.monitoring_jet = jets.monitoring_jet_pp
+                self.primary_l1jet = jets.primary_l1jet_pp
+                self.primary_jet = jets.primary_jet_pp
 
-		self.monitoring_met_shifter = met.monitoring_met_shifter_pp
-		self.monitoring_met_expert = met.monitoring_met_expert_pp
+                self.monitoring_met_shifter = met.monitoring_met_shifter_pp
+                self.monitoring_met_expert = met.monitoring_met_expert_pp
 
-		self.monitoring_muonNonIso = muon.monitoring_muonNonIso_pp
-		self.monitoring_muonIso = muon.monitoring_muonIso_pp
-		self.monitoring_MSonly = muon.monitoring_MSonly_pp
-		self.monitoring_muonEFFS = muon.monitoring_muonEFFS_pp
-		self.monitoring_muonLowpt = muon.monitoring_muonLowpt
-		self.monitoring_muon_Support = muon.monitoring_muon_Support_pp
+                self.monitoring_muonNonIso = muon.monitoring_muonNonIso_pp
+                self.monitoring_muonIso = muon.monitoring_muonIso_pp
+                self.monitoring_MSonly = muon.monitoring_MSonly_pp
+                self.monitoring_muonEFFS = muon.monitoring_muonEFFS_pp
+                self.monitoring_muonLowpt = muon.monitoring_muonLowpt
+                self.monitoring_muon_Support = muon.monitoring_muon_Support_pp
 
-		self.monitoring_tau = tau.monitoring_tau_pp
+                self.monitoring_tau = tau.monitoring_tau_pp
+
+                #override if both pp and MC are true
+                if DQMonFlags.monManDataType()=='monteCarlo':
+                        self.monitoring_tau = tau.monitoring_tau_validation
 
 	def set_HLTMonTrigList_HI(self):
 		self.monitoring_bjet = bjet.monitoring_bjet_hi
