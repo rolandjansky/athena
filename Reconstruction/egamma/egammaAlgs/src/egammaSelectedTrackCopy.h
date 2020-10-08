@@ -168,13 +168,13 @@ private:
                         "SCT_DetectorElementCollection",
                         "Key of SiDetectorElementCollection for SCT" };
 
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllClusters;
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedClusters;
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTracks;
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedTracks;
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllSiTracks;
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedSiTracks;
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTRTTracks;
-  mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedTRTTracks;
+  mutable Gaudi::Accumulators::Counter<> m_AllClusters;
+  mutable Gaudi::Accumulators::Counter<> m_SelectedClusters;
+  mutable Gaudi::Accumulators::Counter<> m_AllTracks;
+  mutable Gaudi::Accumulators::Counter<> m_SelectedTracks;
+  mutable Gaudi::Accumulators::Counter<> m_AllSiTracks;
+  mutable Gaudi::Accumulators::Counter<> m_SelectedSiTracks;
+  mutable Gaudi::Accumulators::Counter<> m_AllTRTTracks;
+  mutable Gaudi::Accumulators::Counter<> m_SelectedTRTTracks;
 };
 #endif
