@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************************************
@@ -15,7 +15,8 @@
 
 // ************************************************************************************
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 class TileHWID;
 
@@ -24,8 +25,9 @@ class TileHWID;
 #include <fstream>
 
 
-class TileCorrelation {
-
+class TileCorrelation
+  : public AthMessaging
+{
   public:
     TileCorrelation();
     ~TileCorrelation();
@@ -54,10 +56,6 @@ class TileCorrelation {
     void buildPulseShape(std::vector<double> &pulseShape, std::vector<double> &pulseShapeY,
         std::vector<double> &pulseShapeT, int dignum);
 
-    /// Log a message using the Athena controlled logging system
-    MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-    /// Check whether the logging system is active at the provided verbosity level
-    bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
   private:
     //double SS(9,9);
@@ -80,11 +78,6 @@ class TileCorrelation {
     double m_S11[4][64][48][2][9];
     double m_S12[4][64][48][2][9];
     double m_S22[4][64][48][2][9];
-
-    //  const TileInfo *m_tileInfo;
-
-    /// Private message stream member
-    mutable Athena::MsgStreamMember m_msg;
 };
 
 
