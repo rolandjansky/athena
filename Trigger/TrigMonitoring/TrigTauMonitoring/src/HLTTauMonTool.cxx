@@ -9,7 +9,6 @@
  *    Maintained by ccuenca, jengbou
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 #include "AnalysisUtils/AnalysisMisc.h"
@@ -413,7 +412,7 @@ StatusCode HLTTauMonTool::fill() {
         bool good_tau_BDT = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
         bool good_tau_RNN = (*offlinetau)->isTau(xAOD::TauJetParameters::JetRNNSigMedium);
         if(!Selection(*offlinetau)) continue;
-        if( !(good_tau_BDT || good_tau_BDT) ) continue;
+        if( !(good_tau_BDT || good_tau_RNN) ) continue;
         if (good_tau_BDT) m_taus_BDT.push_back( *offlinetau );
         if (good_tau_RNN) m_taus_RNN.push_back( *offlinetau );
       }
@@ -1155,15 +1154,12 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("Check01");
+
   hist("hL1RoIEta")->Fill(aL1Tau->eta());
-  ATH_MSG_DEBUG("Check02");
   hist("hL1RoIPhi")->Fill(aL1Tau->phi());
-  ATH_MSG_DEBUG("Check03");
   hist2("hL1EtaVsPhi")->Fill(aL1Tau->eta(),aL1Tau->phi());
-  ATH_MSG_DEBUG("Check04");
   hist("hL1RoIeT")->Fill(aL1Tau->eT()/GeV);
-  ATH_MSG_DEBUG("Check05");
+  ATH_MSG_DEBUG("L1Et: " << aL1Tau->eT()/GeV);
 
   uint8_t isoBit = aL1Tau->isol();
   if(isoBit/128) hist("hL1RoIisol")->Fill(8);
@@ -1174,22 +1170,15 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   if((isoBit/4)%2) hist("hL1RoIisol")->Fill(3);
   if((isoBit/2)%2) hist("hL1RoIisol")->Fill(2);
   if((isoBit/1)%2) hist("hL1RoIisol")->Fill(1);
-  ATH_MSG_DEBUG("Check06");
+
   hist("hL1RoITauClus")->Fill(aL1Tau->tauClus()/GeV);
-  ATH_MSG_DEBUG("Check07");
   //hist("hL1RoITauClus2")->Fill(aL1Tau->tauClus()/GeV);
   hist("hL1RoIEMIso")->Fill(aL1Tau->emIsol()/GeV);
-  ATH_MSG_DEBUG("Check08");
   hist("hL1RoIHadCore")->Fill(aL1Tau->hadCore()/GeV);
-  ATH_MSG_DEBUG("Check09");
   hist("hL1RoIHadIsol")->Fill(aL1Tau->hadIsol()/GeV);
-  ATH_MSG_DEBUG("Check10");
   hist2("hL1RoITauClusEMIso")->Fill(aL1Tau->tauClus()/GeV,aL1Tau->emIsol()/GeV);
-  ATH_MSG_DEBUG("Check11");
   hist2("hL1EtVsPhi")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->phi());
-  ATH_MSG_DEBUG("Check12");
   hist2("hL1EtVsEta")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->eta());
-  ATH_MSG_DEBUG("Check13");
 
   const xAOD::JetRoIContainer *l1jets = 0;
   if ( !evtStore()->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
@@ -1205,12 +1194,10 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
    float dPhi = deltaPhi(aL1Tau->phi(),(*itL1Jet)->phi());
    if(deltaR(aL1Tau->eta(), (*itL1Jet)->eta(), aL1Tau->phi(), (*itL1Jet)->phi()) > 0.3) continue;
    hist2("hL1RoITauVsJet")->Fill(aL1Tau->eT()/CLHEP::GeV,(*itL1Jet)->etLarge()/CLHEP::GeV);
-   ATH_MSG_DEBUG("Check014");
+   ATH_MSG_DEBUG("L1 Jet etLarge" << (*itL1Jet)->etLarge()/CLHEP::GeV);
    if(aL1Tau->eT()>(*itL1Jet)->etLarge()) {
   hist2("hL1RoITauVsJetMismatch")->Fill(dEta,dPhi);
-  ATH_MSG_DEBUG("Check015");
   hist2("hL1RoITauVsJetDEt")->Fill(aL1Tau->eT()/CLHEP::GeV,aL1Tau->eT()/CLHEP::GeV-(*itL1Jet)->etLarge()/CLHEP::GeV);
-  ATH_MSG_DEBUG("Check016");
    } 
   }
 
@@ -1436,6 +1423,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       }
           if(aEFTau->detail(xAOD::TauJetParameters::centFrac, centFrac))
       {
+        ATH_MSG_DEBUG("centFrac: " << centFrac << " " << trigItem);
         hist("hEFcentFrac1PNCorr")->Fill(centFrac);
               if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))  profile("hEFcentFrac1PNCmu")->Fill(mu, centFrac);
       }

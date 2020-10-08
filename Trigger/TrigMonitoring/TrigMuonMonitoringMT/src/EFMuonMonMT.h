@@ -16,9 +16,21 @@ class EFMuonMonMT : public TrigMuonMonitorAlgorithm{
  public:
   EFMuonMonMT(const std::string& name, ISvcLocator* pSvcLocator );
 
+  virtual StatusCode initialize() override;
+
  protected:
   virtual StatusCode fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const override;
   virtual StatusCode fillVariablesPerOfflineMuonPerChain(const EventContext &ctx, const xAOD::Muon* mu, const std::string &chain) const override;
+  virtual StatusCode fillVariables(const EventContext& ctx) const override;
+  virtual StatusCode fillVariablesPerOfflineMuon(const EventContext &ctx, const xAOD::Muon* mu) const override;
+
+ private:
+  SG::ReadHandleKey<xAOD::MuonContainer> m_EFSAMuonContainerKey {this, "EFSAMuonContainerName", "HLT_Muons_RoI", "EFSAMuon container"};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_EFCBMuonContainerKey {this, "EFCBMuonContainerName", "HLT_MuonsCB_RoI", "EFCBMuon container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_MStrackContainerKey {this, "ExtrapolatedMStrackConntainner", "HLT_MSExtrapolatedMuons_RoITrackParticles", "EFCBMuon container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_CBtrackContainerKey {this, "CBtrackContainerName", "HLT_CBCombinedMuon_RoITrackParticles", "EFCBMuon container"};
+  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_muonIso30Key {this, "MuonIso03Name", "HLT_MuonsIso.ptcone03", "Isolation in ptcone03" };
+
 
 };
 

@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonLinearSegmentMakerUtilities )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonStationIndex
-                          PRIVATE
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkRIO_OnTrack )
-
 # External dependencies:
 find_package( Eigen )
 find_package( GSL )

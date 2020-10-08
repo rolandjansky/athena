@@ -245,6 +245,7 @@ class ThresholdDefLegacy:
 
         ThresholdValue.setDefaults('JET', {'window' : 8})
 
+        # Standart jet (-31<=eta<=31)
         for thrV in [5, 10, 12, 15, 20, 25, 30, 35, 40, 50, 60, 70, 75, 85, 100, 120, 150,175, 250, 400]:
             LegacyThreshold('J%i' % thrV, 'JET').addThrValue(CL.JetOff).addThrValue(thrV, etamin=-31, etamax=31, priority=1) # jets are between -31 and 31 -ATR-11526
                 
@@ -259,10 +260,8 @@ class ThresholdDefLegacy:
         for thrV in [75]:
             LegacyThreshold('J%iA' % thrV, 'JET').addThrValue(CL.JetOff).addThrValue( thrV, etamin = 15,  etamax = 23, priority=1)
             LegacyThreshold('J%iC' % thrV, 'JET').addThrValue(CL.JetOff).addThrValue( thrV, etamin = -23,  etamax = -15, priority=1)          
-        
-
         # Central jet
-        for (thrV, etamax) in [(12,23), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
+        for (thrV, etamax) in [(12,23), (12,28), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
             LegacyThreshold('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(CL.JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet

@@ -50,12 +50,12 @@ public:
   //
 
 
-  // /**
-  //  * @brief Default constructor.
-  //  *
-  //  * The handle will not be usable until a non-blank key is assigned.
-  //  */
-  // ReadHandle();
+  /**
+   * @brief Default constructor.
+   *
+   * The handle will not be usable until a non-blank key is assigned.
+   */
+  ReadHandle() = default;
 
 
   /**
@@ -136,11 +136,28 @@ public:
 
   /**
    * @brief Is the referenced object present in SG?
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool isPresent() const;
+
+
+  /**
+   * @brief Is the referenced object present in SG?
    * @param key SG key to test.
    *
    * Const method; the handle does not change as a result of this.
    */
   bool isPresent_impl (const std::string& key) const;
+
+
+protected:
+  /**
+   * @brief Protected constructor used by WriteDecorHandle.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context, or nullptr to use the global default.
+   */
+  explicit ReadHandle (const VarHandleKey& key, const EventContext* ctx);
 
 
 private:

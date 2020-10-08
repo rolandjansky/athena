@@ -352,9 +352,14 @@ class AlgFactory(object):
 
         
         # assert len(self.hypo_params.jet_attributes) > 1
-        algType = 'TrigHLTJetHypo2'
-        kargs = self.etaet_kargs(algType, 'singlemass')
-        kargs['hypoStrategy'] = '"SingleMass"'
+        algType  = 'TrigHLTJetHypo2'
+        kargs    = self.etaet_kargs(algType, 'singlemass')
+        hypo     = self.menu_data.hypo_params
+        smc_mins = [ja.smc_min for ja in hypo.jet_attributes]
+        smc_maxs = [ja.smc_max for ja in hypo.jet_attributes]
+        kargs['smc_mins']     = smc_mins
+        kargs['smc_maxs']     = smc_maxs
+        kargs['hypoStrategy'] = '"singlemass"'
         return [Alg(algType, (), kargs)]
 
 
@@ -466,6 +471,7 @@ class AlgFactory(object):
 
 
     def superRoIMaker(self):
+
         factory = 'SeededAlgo'
 
         name = '"SeededAlgo_%s"' % self.seed

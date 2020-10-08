@@ -132,7 +132,7 @@ StatusCode GetLCDeadMaterial::initialize()
   input chain
   ******************************************** */
   TChain *pChain = new TChain("DeadMaterialTree");
-  if( !m_inputRootFiles.size() ) {
+  if( m_inputRootFiles.empty() ) {
     ATH_MSG_FATAL( " Empty vector of input root files! "  );
     return StatusCode::FAILURE;
   }
@@ -164,7 +164,7 @@ StatusCode GetLCDeadMaterial::initialize()
       delete dmFit;
       return StatusCode::FAILURE;
     }
-    if(m_reportProfiles.size()) dmFit->make_report(m_reportProfiles);
+    if(!m_reportProfiles.empty()) dmFit->make_report(m_reportProfiles);
     delete dmFit;
   }
 
@@ -182,11 +182,11 @@ StatusCode GetLCDeadMaterial::initialize()
       ATH_MSG_FATAL( "Failed in CaloHadDMCoeffMinim::process()"  );
       return StatusCode::FAILURE;
     }
-    if(m_reportMinimization.size()) dmMinim->make_report(m_reportMinimization);
+    if(!m_reportMinimization.empty()) dmMinim->make_report(m_reportMinimization);
     delete dmMinim;
   }
 
-  CaloLocalHadCoeff *result = 0;
+  CaloLocalHadCoeff *result = nullptr;
   if(newHadDMCoeffMinim) {
     result = new CaloLocalHadCoeff(*newHadDMCoeffMinim);
   }else if(newHadDMCoeffFit) {

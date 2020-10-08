@@ -30,6 +30,7 @@ def _createCfgFlags():
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
+    acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers",[]))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
@@ -62,6 +63,8 @@ def _createCfgFlags():
         import os
         if "AthSimulation_DIR" in os.environ:
             return "AthSimulation"
+        if "AthGeneration_DIR" in os.environ:
+            return "AthGeneration"
         #TODO expand this method.
         return "Athena"
     acf.addFlag('Common.Project', _checkProject())
@@ -165,7 +168,12 @@ def _createCfgFlags():
     def __indet():
         from InDetConfig.InDetConfigFlags import createInDetConfigFlags
         return createInDetConfigFlags()
-    _addFlagsCategory(acf, "InDet", __indet, 'InDetConfig' )    
+    _addFlagsCategory(acf, "InDet", __indet, 'InDetConfig' )
+
+    def __itk():
+        from InDetConfig.ITkConfigFlags import createITkConfigFlags
+        return createITkConfigFlags()
+    _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
 
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
@@ -181,6 +189,11 @@ def _createCfgFlags():
         from egammaConfig.egammaConfigFlags import createEgammaConfigFlags
         return createEgammaConfigFlags()
     _addFlagsCategory(acf, "Egamma", __egamma, 'egammaConfig' )
+
+    def __met():
+        from METReconstruction.METConfigFlags import createMETConfigFlags
+        return createMETConfigFlags()
+    _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
 
     def __pflow():
         from eflowRec.PFConfigFlags import createPFConfigFlags

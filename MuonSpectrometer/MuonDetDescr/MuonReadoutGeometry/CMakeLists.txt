@@ -6,32 +6,10 @@
 atlas_subdir( MuonReadoutGeometry )
 
 # Extra dependencies, based on the environment (no MuonCondSvc needed in AthSimulation):
-set( extra_deps )
 set( extra_libs )
 if( NOT SIMULATIONBASE )
-  set( extra_deps MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc )
   set( extra_libs MuonCondSvcLib )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/CxxUtils
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          MuonSpectrometer/MuonAlignment/MuonAlignmentData
-                          MuonSpectrometer/MuonIdHelpers
-                          Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkDetDescr/TrkDistortedSurfaces
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          ${extra_deps}
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/AGDD/AGDDModel
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          MuonSpectrometer/MuonDetDescr/MuonAGDDDescription )
 
 # External dependencies:
 find_package( GeoModelCore )

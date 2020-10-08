@@ -22,6 +22,7 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual ~TrigBjetMonitorAlgorithm();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
+
  private:
   //  Gaudi::Property<bool> m_doRandom {this,"RandomHist",false}; 
   Gaudi::Property<bool> m_doRandom {this,"RandomHist",true};
@@ -37,6 +38,6 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 
-  bool m_doRun2;
+
 };
 #endif

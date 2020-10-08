@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelTDAQCondAlg.h
@@ -17,13 +17,12 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelTDAQData.h"
 
 #include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class PixelTDAQCondAlg : public AthReentrantAlgorithm {
   public:
@@ -37,11 +36,8 @@ class PixelTDAQCondAlg : public AthReentrantAlgorithm {
     const PixelID* m_pixelID{nullptr};
     ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
-    {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
-
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
-    {this, "ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules", "Input key of TDAQ deadmap conditions folder"};
+    {this, "ReadKey", "", "Input key of TDAQ deadmap conditions folder"};
 
     SG::WriteCondHandleKey<PixelTDAQData> m_writeKey
     {this, "WriteKey", "PixelTDAQCondData", "Output key of pixel module data"};

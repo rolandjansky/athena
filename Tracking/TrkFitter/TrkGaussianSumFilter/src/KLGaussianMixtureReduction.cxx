@@ -1,12 +1,14 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "CxxUtils/features.h"
 #include "CxxUtils/vec.h"
-#include "CxxUtils/vectorize.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include <limits>
+#include <stdexcept>
+
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -23,15 +25,41 @@
  * @date 26th November 2019
  *
  * Implementation of KLGaussianMixtureReduction
- *
  */
-
-/// This enables -ftree-vectorize in gcc (since we compile with -O2)
-ATH_ENABLE_VECTORIZATION;
 
 namespace {
 using namespace GSFUtils;
 
+/**
+ * @brief Helper struct to map position in
+ * triangular array to I, J indices
+ */
+struct triangularToIJ
+{
+  int16_t I = -1;
+  int16_t J = -1;
+};
+
+std::vector<triangularToIJ>
+createToIJ128()
+{
+  // Create a trangular array mapping for the maximum size
+  // we will ever have 8 (max bethe heitle material) x16 (state components)
+  // =128. 128 * (128-1)/2 = 8128
+  //
+  // The typical number we use is 6x12 = 72.
+  //
+  constexpr int16_t n = 128;
+  constexpr int32_t nn = n * (n - 1) / 2;
+  std::vector<triangularToIJ> indexMap(nn);
+  for (int16_t i = 1; i < n; ++i) {
+    const int32_t indexConst = (i - 1) * i / 2;
+    for (int16_t j = 0; j < i; ++j) {
+      indexMap[indexConst + j] = { i, j };
+    }
+  }
+  return indexMap;
+}
 /**
  * Based on
  * https://www.sciencedirect.com/science/article/pii/089812218990103X
@@ -103,6 +131,7 @@ recalculateDistances(const Component1D* componentsIn,
 {
   const Component1D* components = static_cast<const Component1D*>(
     __builtin_assume_aligned(componentsIn, alignment));
+
   float* distances =
     static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
 
@@ -147,6 +176,7 @@ calculateAllDistances(const Component1D* componentsIn,
     __builtin_assume_aligned(componentsIn, alignment));
   float* distances =
     static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
     const Component1D componentI = components[i];
@@ -178,43 +208,38 @@ resetDistances(float* distancesIn, const int32_t minj, const int32_t n)
   }
 }
 
-}
+} // anonymous namespace
 namespace GSFUtils {
 
 /**
  * Merge the componentsIn and return
- * which componets got merged
+ * which componets got merged.
  */
-std::vector<std::pair<int32_t, int32_t>>
+std::vector<std::pair<int16_t, int16_t>>
 findMerges(Component1D* componentsIn,
-           const int32_t inputSize,
-           const int32_t reducedSize)
+           const int16_t inputSize,
+           const int16_t reducedSize)
 {
   Component1D* components = static_cast<Component1D*>(
     __builtin_assume_aligned(componentsIn, alignment));
-  // Based on the inputSize allocate enough space for the pairwise distances
-  const int32_t n = inputSize;
-  const int32_t nn = n * (n - 1) / 2;
-  // Create a trianular mapping for the pairwise distances
-  std::vector<triangularToIJ> convert;
-  convert.reserve(nn);
 
-  for (int32_t i = 1; i < n; ++i) {
-    const int indexConst = (i - 1) * i / 2;
-    for (int32_t j = 0; j < i; ++j) {
-      int32_t index = indexConst + j;
-      convert[index] = { i, j };
-    }
+  // Sanity check. Function  throw on invalid inputs
+  if (inputSize < 0 || inputSize > 128 || reducedSize > inputSize) {
+    throw std::runtime_error("Invalid InputSize or reducedSize");
   }
-  // We need to work with multiple of 8, in principle this is a requirement
-  // of aligned_alloc (although not in POSIX ) i.e allocation should be multiple
-  // of the requested size.
+  // We need just one for the full duration of a job
+  const static std::vector<triangularToIJ> convert = createToIJ128();
+
+  // Based on the inputSize allocate enough space for the pairwise distances
+  const int16_t n = inputSize;
+  const int32_t nn = n * (n - 1) / 2;
+  // We work with a  multiple of 8*floats (32 bytes).
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
   AlignedDynArray<float, alignment> distances(
     nn2, std::numeric_limits<float>::max());
 
   // vector to be returned
-  std::vector<std::pair<int32_t, int32_t>> merges;
+  std::vector<std::pair<int16_t, int16_t>> merges;
   merges.reserve(inputSize - reducedSize);
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
@@ -225,8 +250,8 @@ findMerges(Component1D* componentsIn,
     // see if we have the next already
     const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
     const triangularToIJ conversion = convert[minIndex];
-    const int32_t mini = conversion.I;
-    const int32_t minj = conversion.J;
+    const int16_t mini = conversion.I;
+    const int16_t minj = conversion.J;
     // Combine the 2 components
     combine(components[mini], components[minj]);
     // re-calculate distances wrt the new component at mini
@@ -242,16 +267,29 @@ findMerges(Component1D* componentsIn,
 
 /**
  * findMinimumIndex
- * For FindMinimumIndex at x86_64 we have
- * AVX2,SSE4.1,SSE2  versions
- * These assume that the number of elements is a multiple
- * of 8 and are to be used for sizeable inputs.
- * We also provide a default "scalar" implementation
+ * Assume that the number of elements is a multiple
+ * of 8 and is to be used for sizeable inputs.
+ *
+ * It uses the CxxUtils:vec class which provides
+ * a degree of portability.
+ *
+ * avx2 gives us lanes 8 float wide
+ * SSE4.1 gives us efficient blend
+ * so we employ function multiversioning
+ *
+ * For non-sizeable inputs
+ * std::distance(array, std::min_element(array, array + n))
+ * can be good enough instead of calling this function.
+ *
+ * Note than the above "STL"  code in gcc
+ * (up to 10.2 at least) this emits
+ * a cmov which make it considerable slower
+ * than the clang when the branch can
+ * be well predicted.
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2")))
-int32_t
+__attribute__((target("avx2"))) int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
@@ -284,8 +322,7 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
-__attribute__((target("sse4.1")))
-int32_t
+__attribute__((target("sse4.1"))) int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
@@ -335,10 +372,9 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
-/*
- * SSE2 does not have a blend/select instruction.
- */
-__attribute__((target("sse2")))
+#endif // end of x86_64 versions
+__attribute__((target("default")))
+#endif // HAVE_FUNCTION_MULTIVERSIONING
 int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
@@ -388,23 +424,5 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
-#endif // end of x86_64 versions
-// Always fall back to a simple default version with no intrinsics
-__attribute__((target("default")))
-#endif // HAVE_FUNCTION_MULTIVERSIONING
-int32_t
-findMinimumIndex(const float* distancesIn, const int n)
-{
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  float minDistance = array[0];
-  int32_t minIndex = 0;
-  for (int i = 0; i < n; ++i) {
-    const float value = array[i];
-    if (value < minDistance) {
-      minIndex = i;
-      minDistance = value;
-    }
-  }
-  return minIndex;
-}
+
 } // end namespace GSFUtils

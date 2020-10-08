@@ -8,7 +8,7 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODCore/ShallowCopy.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #endif 
 
 #include "TrigConfxAOD/xAODConfigTool.h"

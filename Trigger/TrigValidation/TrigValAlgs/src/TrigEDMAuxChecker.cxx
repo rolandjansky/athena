@@ -20,7 +20,7 @@ TrigEDMAuxChecker::~TrigEDMAuxChecker() {}
 StatusCode TrigEDMAuxChecker::initialize() { 
     ATH_MSG_INFO("Initializing TrigEDMAuxChecker");
     std::vector<std::string> auxvar;
-    for(auto key:m_auxList){
+    for(const auto& key:m_auxList){
         ATH_MSG_INFO("REGTEST AuxStore " << key);
         m_auxmap.insert(std::make_pair(key,auxvar));
         m_dynauxmap.insert(std::make_pair(key,auxvar));
@@ -50,12 +50,12 @@ StatusCode TrigEDMAuxChecker::finalize() {
     return StatusCode::SUCCESS; 
 }
 
-void TrigEDMAuxChecker::dumpDecorators(const xAOD::AuxContainerBase *x,const std::string key){
+void TrigEDMAuxChecker::dumpDecorators(const xAOD::AuxContainerBase *x,const std::string& key){
     ATH_MSG_DEBUG("REGTEST: DUMP DECORATORS");
     ATH_MSG_DEBUG("Container size " << x->size() );
     //Get list of auxids
-    const SG::auxid_set_t auxIds=x->getAuxIDs(); 
-    const SG::auxid_set_t dyn_auxids = x->getDynamicAuxIDs();
+    const SG::auxid_set_t& auxIds=x->getAuxIDs(); 
+    const SG::auxid_set_t& dyn_auxids = x->getDynamicAuxIDs();
     const std::type_info *type(0);
     //Get registry to determine variable type
     SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();

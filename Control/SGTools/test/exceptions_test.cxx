@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file SGTools/test/exceptions_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -22,6 +20,8 @@ void test1()
   std::cout << SG::ExcBadDataProxyCast (123, typeid(int)).what() << "\n";
 
   std::cout << SG::ExcProxyCollision (123, "abc", 456, "def").what() << "\n";
+
+  std::cout << SG::ExcSgkeyCollision ("asd", 123, "def", 456, 789).what() << "\n";
 }
 
 

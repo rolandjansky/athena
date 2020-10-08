@@ -15,7 +15,7 @@
 #include <array>
 #include <memory>
 
-#include <AsgTools/AsgMessaging.h>
+#include <AsgMessaging/AsgMessaging.h>
 #include <xAODRootAccess/TEvent.h>
 #include <xAODRootAccess/TStore.h>
 #include <xAODEgamma/Electron.h>

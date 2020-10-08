@@ -12,7 +12,7 @@ Purpose : create a ExoticPhysTag - a word to encode ExoticPhys specific informat
 
 *****************************************************************************/
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "ExoticPhysTagTools/ExoticPhysTagTool.h"

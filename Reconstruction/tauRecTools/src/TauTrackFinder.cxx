@@ -11,12 +11,11 @@
 #include "xAODTau/TauTrackContainer.h"
 
 #include "TauTrackFinder.h"
-#include "tauRecTools/KineUtils.h"
 #include "tauRecTools/TrackSort.h"
 
 
-TauTrackFinder::TauTrackFinder(const std::string& name ) :
-        TauRecToolBase(name) {
+TauTrackFinder::TauTrackFinder(const std::string& name) :
+  TauRecToolBase(name) {
     m_EMSamplings = {CaloSampling::EME1, CaloSampling::EMB1};
     m_HadSamplings = {CaloSampling::TileBar1, CaloSampling::HEC1, CaloSampling::TileExt1};
 }
@@ -31,18 +30,18 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_trackSelectorTool_tau.retrieve() );
     ATH_CHECK( m_trackToVertexTool.retrieve() );
     ATH_CHECK( m_caloExtensionTool.retrieve() );
-    
+    ATH_CHECK( m_trackToVertexIPEstimator.retrieve() );
+
     // initialize ReadHandleKey
     // allow empty for trigger
     ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
     // use CaloExtensionTool when key is empty 
     ATH_CHECK( m_ParticleCacheKey.initialize(SG::AllowEmpty) );
 
-    return StatusCode::SUCCESS;
-}
+    if (inTrigger()) {
+      ATH_CHECK(m_beamSpotKey.initialize());
+    }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::finalize() {
     return StatusCode::SUCCESS;
 }
 
@@ -74,7 +73,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   }
 
   // get the primary vertex
-  const xAOD::Vertex* pVertex = pTau.vertexLink()!=0 ? (*pTau.vertexLink()) : NULL;
+  const xAOD::Vertex* pVertex = nullptr;
+  if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
 
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
@@ -203,6 +203,53 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   ATH_MSG_DEBUG("numTrack: " << "/" << pTau.nTracks());
   ATH_MSG_DEBUG("charge: " << "/" << pTau.charge());
 
+  // impact parameter variables w.r.t. tau vertex 
+  const xAOD::Vertex* vxcand = nullptr;
+
+  xAOD::Vertex theBeamspot;
+  theBeamspot.makePrivateStore();
+
+  if (inTrigger()) { // online: use beamspot
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    if(beamSpotHandle.isValid()) {
+      theBeamspot.setPosition(beamSpotHandle->beamPos());
+      const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
+      theBeamspot.setCovariancePosition(cov);
+      vxcand = &theBeamspot;
+    }
+    else {
+      ATH_MSG_DEBUG("No Beamspot object in tau candidate");
+    }
+  }
+  else if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
+    vxcand = pTau.vertex();
+  }
+
+  static const SG::AuxElement::Decorator<float> dec_d0TJVA("d0TJVA");
+  static const SG::AuxElement::Decorator<float> dec_z0sinthetaTJVA("z0sinthetaTJVA");
+  static const SG::AuxElement::Decorator<float> dec_d0SigTJVA("d0SigTJVA");
+  static const SG::AuxElement::Decorator<float> dec_z0sinthetaSigTJVA("z0sinthetaSigTJVA");
+
+  for(auto track : pTau.allTracks()) {      
+    dec_d0TJVA(*track) = track->track()->d0();
+    dec_z0sinthetaTJVA(*track) = track->z0sinThetaTJVA(pTau);
+    dec_d0SigTJVA(*track) = -999.;
+    dec_z0sinthetaSigTJVA(*track) = -999.;
+
+    // in the trigger, z0sintheta and corresponding significance are meaningless if we use the beamspot
+    if(vxcand) {
+      std::unique_ptr<const Trk::ImpactParametersAndSigma> myIPandSigma 
+	= std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(track->track(), vxcand));
+      
+      if(myIPandSigma) {
+	dec_d0TJVA(*track) = myIPandSigma->IPd0;
+	dec_z0sinthetaTJVA(*track) = myIPandSigma->IPz0SinTheta;
+	dec_d0SigTJVA(*track) = (myIPandSigma->sigmad0 != 0.) ? (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ) : -999.;
+	dec_z0sinthetaSigTJVA(*track) = (myIPandSigma->sigmaz0SinTheta != 0.) ? (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ) : -999.;
+      }
+    }
+  }
+
   // extrapolate core tracks to calorimeter surface
   // store information only in ExtraDetailsContainer
   if(!m_bypassExtrapolator)
@@ -224,7 +271,7 @@ TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet& p
         const xAOD::TrackParticle& trackParticle,
         const xAOD::Vertex* primaryVertex) const
 {
-    double dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),trackParticle.eta(),trackParticle.phi());
+    double dR = pTau.p4().DeltaR(trackParticle.p4());
 
     if (dR > m_maxJetDr_wide) return NotTauTrack;
 

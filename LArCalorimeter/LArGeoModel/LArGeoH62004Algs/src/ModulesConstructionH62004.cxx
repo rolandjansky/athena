@@ -10,9 +10,7 @@
 
 // need if we want to use EMEC from LArGeoTBEC:
 #include "LArGeoTBEC/EMECModuleConstruction.h"
-//#include "LArGeoEndcap/EMECConstruction.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoPcon.h"

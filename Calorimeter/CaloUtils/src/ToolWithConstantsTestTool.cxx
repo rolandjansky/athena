@@ -38,7 +38,7 @@ ToolWithConstantsTestTool::initialize()
   ServiceHandle<Athena::IRCUSvc> rcusvc ("Athena::RCUSvc", name());
   ATH_CHECK( rcusvc.retrieve() );
 
-  typedef CondCont<CaloRec::ToolConstants> CondCont_t;
+  using CondCont_t = CondCont<CaloRec::ToolConstants>;
   DataObjID id (ClassID_traits<CondCont_t>::ID(), m_condKey);
   auto cc = std::make_unique<CondCont_t> (*rcusvc.get(), id);
 

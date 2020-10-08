@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/dynamic_bitset.hpp>
 
 #include "GaudiKernel/ToolHandle.h"
 #include "tauRecTools/TauRecToolBase.h"
@@ -31,12 +32,10 @@ public:
     virtual ~TauPi0CreateROI();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer, std::vector<CaloCell*>& map) override;
-    virtual StatusCode finalize() override;
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer, boost::dynamic_bitset<>& map) const override;
 
 private:
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
-
 };
 
 #endif	/* TAUPI0CREATEROI_H */

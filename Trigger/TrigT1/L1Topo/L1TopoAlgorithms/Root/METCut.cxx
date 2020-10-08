@@ -20,8 +20,6 @@
 
 REGISTER_ALG_TCS(METCut)
 
-using namespace std;
-
 
 TCS::METCut::METCut(const std::string & name) : DecisionAlg(name)
 {

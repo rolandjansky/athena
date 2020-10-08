@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,13 +33,13 @@ namespace RootUtils {
  * @brief PyROOT object proxy pickle support
  * @param self object proxy instance to be pickled
  */
-PyObject* ObjectProxyReduce( PyObject* self, PyObject* )
+PyObject* CPPInstanceReduce( PyObject* self, PyObject* )
 {
   // Turn the object proxy instance into a character stream and return for
   // pickle, together with the callable object that can restore the stream
   // into the object proxy instance.
 
-  void* vself = TPython::ObjectProxy_AsVoidPtr( self );    // checks type
+  void* vself = TPython::CPPInstance_AsVoidPtr( self );    // checks type
   if ( ! vself ) {
      PyErr_SetString( PyExc_TypeError,
        "__reduce__ requires an object proxy instance as first argument" );
@@ -80,12 +80,12 @@ PyObject* ObjectProxyReduce( PyObject* self, PyObject* )
 
 
 /**
- * @brief Helper for (un)pickling of ObjectProxy's
+ * @brief Helper for (un)pickling of CPPInstance's
  * @param args The Python arguments.
  */
-PyObject* ObjectProxyExpand( PyObject*, PyObject* args )
+PyObject* CPPInstanceExpand( PyObject*, PyObject* args )
 {
-  // This method is a helper for (un)pickling of ObjectProxy instances.
+  // This method is a helper for (un)pickling of CPPInstance instances.
   PyObject* pybuf = 0;
   const char* clname = 0;
   if ( ! PyArg_ParseTuple( args, const_cast< char* >( "O!s:__expand__" ),
@@ -100,22 +100,23 @@ PyObject* ObjectProxyExpand( PyObject*, PyObject* args )
                    kFALSE );
 
   void* result = buf.ReadObjectAny( 0 );
-  return TPython::ObjectProxy_FromVoidPtr( result, clname );
+  return TPython::CPPInstance_FromVoidPtr( result, clname );
 }
 
 
 /**
- * @brief Install the pickling of ObjectProxy's functionality.
+ * @brief Install the pickling of CPPInstance's functionality.
  * @param libpyroot_pymodule The libPyROOT python module
- * @param objectproxy_pytype The ObjectProxy python type
+ * @param CPPInstance_pytype The CPPInstance python type
  */
-void PyROOTPickle::Initialize( PyObject* libpyroot_pymodule, PyObject* objectproxy_pytype )
+void PyROOTPickle::Initialize( PyObject* libpyroot_pymodule, PyObject* cppinstance_pytype )
 {
   Py_INCREF( libpyroot_pymodule );
-  PyTypeObject* pytype = (PyTypeObject*)objectproxy_pytype;
+  PyTypeObject* pytype = (PyTypeObject*)cppinstance_pytype;
 
+  // Don't change this name to CPPInstance since it's saved in pickles.
   static PyMethodDef s_pdefExp = { (char*)"_ObjectProxy__expand__",
-            (PyCFunction)ObjectProxyExpand, METH_VARARGS, (char*)"internal function" };
+            (PyCFunction)CPPInstanceExpand, METH_VARARGS, (char*)"internal function" };
 
   PyObject* pymname = PyROOT_PyUnicode_FromString( PyModule_GetName( libpyroot_pymodule ) );
   gExpand = PyCFunction_NewEx( &s_pdefExp, NULL, pymname );
@@ -130,14 +131,14 @@ void PyROOTPickle::Initialize( PyObject* libpyroot_pymodule, PyObject* objectpro
   }
 
   static PyMethodDef s_pdefRed = { (char*)"__reduce__",
-            (PyCFunction)ObjectProxyReduce, METH_NOARGS, (char*)"internal function" };
+            (PyCFunction)CPPInstanceReduce, METH_NOARGS, (char*)"internal function" };
 
   PyObject* descr = PyDescr_NewMethod( pytype, &s_pdefRed );
   isOk = PyDict_SetItemString( pytype->tp_dict, s_pdefRed.ml_name, descr) == 0;
   Py_DECREF( descr );
   if ( ! isOk ) {
     Py_DECREF( libpyroot_pymodule );
-    PyErr_SetString( PyExc_TypeError, "could not add __reduce__ function to ObjectProxy" );
+    PyErr_SetString( PyExc_TypeError, "could not add __reduce__ function to CPPInstance" );
     return;
   }
 

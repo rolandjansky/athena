@@ -57,7 +57,7 @@ StatusCode MuonHitTestToolBase::executeCheckEventInfo()
   for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
     HepMC::GenEvent::particle_const_iterator p;
     for (p= (**e).particles_begin(); p!= (**e).particles_end(); p++) {
-      if ( (*p)->barcode()<200000) {
+      if ( HepMC::barcode(*p)<200000) {
         Amg::Vector3D temp_momentum((**p).momentum().px(),
                                     (**p).momentum().py(),
                                     (**p).momentum().pz());

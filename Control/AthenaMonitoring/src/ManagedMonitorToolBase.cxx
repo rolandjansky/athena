@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ManagedMonitorToolBase_CXX
@@ -24,8 +24,8 @@
 #include "AthMonBench.h"
 #include "StoreGate/ReadCondHandle.h"
 
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IHistogramSvc.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
@@ -745,21 +745,22 @@ initialize()
      return sc;
    }
 
-   ServiceHandle<IJobOptionsSvc> joSvc( "JobOptionsSvc", name() );
-   sc = joSvc.retrieve();
-   if( !sc.isSuccess() ) {
-      msg(MSG::ERROR) << "!! Unable to locate the JobOptionsSvc service !!" << endmsg;
-      return StatusCode::FAILURE;
-   }
+   ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc( "JobOptionsSvc", name() );
+   ATH_CHECK( joSvc.retrieve() );
    ATH_MSG_DEBUG("  --> Found service \"JobOptionsSvc\"");
 
-   std::string client( m_managerNameProp + "Properties" );
+   const std::string client( m_managerNameProp + "Properties" );
    ATH_MSG_DEBUG("  --> Asking for properties " << client);
-   sc = joSvc->setMyProperties( client, this );
-   if( !sc.isSuccess() ) {
-      msg(MSG::ERROR) << "!! Unable to set properties in JobOptionsSvc !!" << endmsg;
-   }
-   ATH_MSG_DEBUG("  --> Set Properties in \"JobOptionsSvc\"");
+
+   auto getProp = [this,joSvc](std::string& var, const std::string& name) {
+     if (joSvc->has(name))
+       var = joSvc->get(name);
+     else
+       ATH_MSG_DEBUG("Cannot read " << name);  // on purpose not an ERROR (will be set by setMonManager)
+   };
+   getProp( m_fileKey, client + ".FileKey");
+   getProp( m_dataTypeStr, client + ".DataType");
+   getProp( m_environmentStr, client + ".Environment");
 
    ATH_MSG_DEBUG("      * Properties set from " << client << " to the values:\n"
 		 << "        FileKey: " << m_fileKey << "\n"

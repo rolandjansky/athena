@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZdcID_H
@@ -131,7 +131,7 @@ IdentifierHash
 ZdcID::module_hash      (Identifier module_id) const
 {
     // module hash is composed of side and module
-    static unsigned int nmodule = m_module_impl.field().get_maximum() + 1;
+    static const unsigned int nmodule = m_module_impl.field().get_maximum() + 1;
     return (nmodule*m_side_impl.unpackToIndex(module_id) + module(module_id));
 }
 
@@ -140,9 +140,9 @@ IdentifierHash
 ZdcID::channel_hash      (Identifier channel_id) const
 {
     // module hash is composed of side,  module, type and channel
-    static unsigned int nmodule  = m_module_impl.field().get_maximum() + 1;
-    static unsigned int ntype    = m_type_impl.field().get_maximum() + 1;
-    static unsigned int nchannel = m_channel_impl.field().get_maximum() + 1;
+    static const unsigned int nmodule  = m_module_impl.field().get_maximum() + 1;
+    static const unsigned int ntype    = m_type_impl.field().get_maximum() + 1;
+    static const unsigned int nchannel = m_channel_impl.field().get_maximum() + 1;
     return ((nmodule*ntype*nchannel)*m_side_impl.unpackToIndex(channel_id)
             + (ntype*nchannel)*module(channel_id) 
             + nchannel*type(channel_id) 

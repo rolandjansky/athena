@@ -10,8 +10,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "AthContainers/ConstDataVector.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 // Do I need IAsgTool? I need AsgTool for the eventStore()
 class CopyTruthParticles : public IJetExecuteTool, public asg::AsgTool {

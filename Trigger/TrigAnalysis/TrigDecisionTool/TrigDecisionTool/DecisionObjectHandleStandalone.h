@@ -12,7 +12,7 @@
 #include <string>
 
 // ASG include(s):
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // xAOD include(s):
 #include "xAODTrigger/TrigDecision.h"
@@ -22,7 +22,7 @@
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "TrigDecisionTool/EventPtrDef.h"
 
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 
 namespace Trig {

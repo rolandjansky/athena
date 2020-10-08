@@ -127,9 +127,6 @@ class HltEventLoopMgr(_HltEventLoopMgr):
       super(HltEventLoopMgr, self).__init__(name)
       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
       self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
-      self.MonTool.defineHistogram('ErrorAlgName,ErrorCode', path='EXPERT', type='TH2I',
-                                   title='Error StatusCodes per algorithm;Algorithm name;StatusCode',
-                                   xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
       self.MonTool.defineHistogram('TotalTime', path='EXPERT', type='TH1F',
                                    title='Total event processing time (all events);Time [ms];Events',
                                    xbins=200, xmin=0, xmax=10000)
@@ -142,4 +139,8 @@ class HltEventLoopMgr(_HltEventLoopMgr):
       self.MonTool.defineHistogram('SlotIdleTime', path='EXPERT', type='TH1F',
                                    title='Time between freeing and assigning a scheduler slot;Time [ms];Events',
                                    xbins=400, xmin=0, xmax=400)
+
+      from TrigSteerMonitor.TrigSteerMonitorConfig import getTrigErrorMonTool
+      self.TrigErrorMonTool = getTrigErrorMonTool()
+
       return

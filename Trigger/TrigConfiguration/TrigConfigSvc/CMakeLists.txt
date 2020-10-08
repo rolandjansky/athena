@@ -30,3 +30,7 @@ atlas_add_alias( checkTrigger "checkTrigger.py" )
 atlas_add_test( AccumulatorTest
    SCRIPT python -m TrigConfigSvc.TrigConfigSvcConfig
    POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( FrontierTest
+   SCRIPT python -m TrigConfigSvc.TrigConfFrontier
+   POST_EXEC_SCRIPT nopost.sh )

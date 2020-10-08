@@ -70,7 +70,7 @@ CscRODReadOut::CscRODReadOut(double startTime, uint16_t samplingTime,
 
 }
 
-void CscRODReadOut::encodeFragments(const std::vector<uint16_t>  amplitude,  
+void CscRODReadOut::encodeFragments(const std::vector<uint16_t>&  amplitude,  
 				    std::vector<uint32_t>& v) const {
   
   int numberOfFragments = amplitude.size();

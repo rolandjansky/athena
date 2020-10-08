@@ -26,7 +26,7 @@
 #include <map>
 #include <memory>
 
-#include <AsgTools/AsgMessaging.h>
+#include <AsgMessaging/AsgMessaging.h>
 
 #include <TFile.h>
 #include <TTree.h>

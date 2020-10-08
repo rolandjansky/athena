@@ -13,15 +13,11 @@ CompetingSCT_ClustersOnTrackCnv_p1::persToTrans( const InDet::CompetingSCT_Clust
                                                        InDet::CompetingSCT_ClustersOnTrack *transObj, 
                                                        MsgStream &log )
 {
-  
-   std::vector< TPObjRef >::const_iterator  it = persObj->m_containedChildRots.begin(), 
-                                            itE = persObj->m_containedChildRots.end();
-                                            
    std::vector< const InDet::SCT_ClusterOnTrack * > containedChildRots;
-   
-   for (; it!=itE;it++) {
+
+   for (const TPObjRef& ref : persObj->m_containedChildRots) {
        ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
-       const InDet::SCT_ClusterOnTrack* mcot = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(createTransFromPStore(&rotCnv, *it, log));
+       const InDet::SCT_ClusterOnTrack* mcot = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(createTransFromPStore(&rotCnv, ref, log));
        containedChildRots.push_back( mcot );
    }
 

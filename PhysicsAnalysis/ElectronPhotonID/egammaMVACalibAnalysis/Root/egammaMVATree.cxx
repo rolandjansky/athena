@@ -146,7 +146,7 @@ void egammaMVATreeEgamma::update(const xAOD::Egamma* particle, const xAOD::CaloC
 {
   ATH_MSG_DEBUG("updating egamma from cluster");
   ATH_MSG_DEBUG(m_functions_float_from_calo_cluster.size() << " float functions");
-  if (!cluster and m_functions_float_from_calo_cluster.size() > 0) { ATH_MSG_FATAL("egamma cluster pointer is null"); }
+  if (!cluster and !m_functions_float_from_calo_cluster.empty()) { ATH_MSG_FATAL("egamma cluster pointer is null"); }
   for (auto& var_function : m_functions_float_from_calo_cluster) {
     auto& var = std::get<2>(var_function);
     const auto& f = std::get<1>(var_function);
@@ -155,7 +155,7 @@ void egammaMVATreeEgamma::update(const xAOD::Egamma* particle, const xAOD::CaloC
   }
   ATH_MSG_DEBUG("updating egamma from particle");
   ATH_MSG_DEBUG(m_functions_float_from_particle.size() << " float functions");
-  if (!particle and m_functions_float_from_particle.size() > 0) { ATH_MSG_FATAL("particle pointer is null"); }
+  if (!particle and !m_functions_float_from_particle.empty()) { ATH_MSG_FATAL("particle pointer is null"); }
   for (auto& var_function : m_functions_float_from_particle) {
     auto& var = std::get<2>(var_function);
     const auto& f = std::get<1>(var_function);
@@ -324,8 +324,8 @@ void egammaMVATreePhoton::update(const xAOD::Photon* photon, const xAOD::CaloClu
     ATH_MSG_DEBUG(std::get<0>(var_function) << " = " << var << " == " << std::get<2>(var_function) << " at " << &var);
   }
 
-  if (m_functions_int_from_ConversionHelper.size() > 0 or
-      m_functions_float_from_ConversionHelper.size() > 0)
+  if (!m_functions_int_from_ConversionHelper.empty() or
+      !m_functions_float_from_ConversionHelper.empty())
   {
     if (!photon and !m_force_conversion_to_zero_when_null_photon) { ATH_MSG_FATAL("photon pointer is null"); }
     ATH_MSG_DEBUG("computing function with Conversion Helper");

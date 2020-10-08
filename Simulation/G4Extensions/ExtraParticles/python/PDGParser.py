@@ -131,7 +131,8 @@ class PDGParser(object):
                     prop = 'width'
                 else:
                     raise ValueError(
-                        'Unidentified symbol %s for particle %s' % (symbol, baseName))
+                        'Unidentified symbol %s for particle %s' % (
+                            symbol, baseName))
 
                 pdgs = splitLine[1:1+len(charges)]
                 value = float(splitLine[1+len(charges)])
@@ -149,8 +150,14 @@ class PDGParser(object):
                         self.extraParticles[name] = ExtraParticle(**kwargs)
                     else:
                         if getattr(self.extraParticles[name], prop) != -1:
-                            self.log.warning("Property %s is already set for particle %s. Current value is %s and incoming value is %s." ,
-                                             (prop, name, getattr(self.extraParticles[name], prop), value))
+                            self.log.warning(
+                                "Property %s is already"
+                                "set for particle %s."
+                                "Current value is %s and"
+                                "incoming value is %s.",
+                                prop, name,
+                                getattr(self.extraParticles[name], prop),
+                                value)
                             continue
                         setattr(self.extraParticles[name], prop, value)
 
@@ -189,7 +196,7 @@ class PDGParser(object):
 
     def createList(self):
 
-        # make a new whitelist for GenParticleSimWhiteList (only pdgId is needed)
+        # make a new whitelist for GenParticleSimWhiteList
         with open('G4particle_whitelist_ExtraParticles.txt', 'w') as writer:
             for name in self.extraParticles:
                 writer.write('%s\n' % self.extraParticles[name].pdg)

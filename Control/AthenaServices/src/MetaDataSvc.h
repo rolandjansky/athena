@@ -12,18 +12,18 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
+#include "Gaudi/Property.h"  // no forward decl: typedef
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
+#include "GaudiKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IMetaDataTool.h"
 #include "AthenaKernel/IMetaDataSvc.h"
 
-#include "boost/bind.hpp"
-
 #include <map>
+#include <typeinfo>
 
 // Forward declarations
 class IAddressCreator;
@@ -115,6 +115,22 @@ public: // Non-static members
 
    CLID remapMetaContCLID( const CLID& item_id ) const;
 
+   class ToolLockGuard {
+   public:
+      ToolLockGuard(const MetaDataSvc& mds) : m_mds(mds) { m_mds.lockTools(); }
+      ~ToolLockGuard() { m_mds.unlockTools(); }
+      ToolLockGuard(const ToolLockGuard&) = delete;
+      void operator=(const ToolLockGuard&) = delete;
+   private:
+      const MetaDataSvc& m_mds;
+   };
+
+   void lockTools() const;
+   void unlockTools() const;
+   
+   void recordHook(const std::type_info&) override;
+   void removeHook(const std::type_info&) override;
+
 private:
    /// Add proxy to input metadata store - can be called directly or via BeginInputFile incident
    StatusCode addProxyToInputMetaDataStore(const std::string& tokenStr);
@@ -128,6 +144,7 @@ private: // data
    ServiceHandle<IFileMgr> m_fileMgr;
    ServiceHandle<IIncidentSvc> m_incSvc;
    ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
+   ServiceHandle< IClassIDSvc > m_classIDSvc{"ClassIDSvc", name()};
  
    long m_storageType;
    bool m_clearedInputDataStore;
@@ -138,11 +155,14 @@ private: // data
    std::map<CLID, std::string> m_toolForClid;
    std::map<std::string, std::string> m_streamForKey;
 
+   std::map<CLID, unsigned int> m_handledClasses;
+
 private: // properties
    /// MetaDataContainer, POOL container name for MetaData.
    StringProperty                 m_metaDataCont;
-   /// MetaDataTools, vector with the MetaData tools.
+   /// MetaDataTools, vector with the MetaData tools
    ToolHandleArray<IMetaDataTool> m_metaDataTools;
+
 };
- 
+
 #endif

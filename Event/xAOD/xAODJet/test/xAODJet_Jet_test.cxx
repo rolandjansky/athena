@@ -19,7 +19,7 @@
 #include <cassert>
 
 ////////////////////////////////////////////////////////////////
-// Helper functions 
+// Helper functions
 ////////////////////////////////////////////////////////////////
 
 bool is_equal (double x1, double x2)
@@ -30,15 +30,22 @@ bool is_equal (double x1, double x2)
   return false;
 }
 
-#define TEST_MSG( msg ) std::cout << msg << std::endl
+#define TEST_MSG(msg) std::cout << msg << std::endl
 
-#define TESTMACRO( failcond , errmsg )  do { if(! ( failcond)  ) {TEST_MSG( "TEST FAILED : " << errmsg ) ; return 1 ;} else {TEST_MSG( "TEST SUCCEEDED : "<< errmsg );} } while(0)
-
+#define TESTMACRO(failcond, errmsg)                                            \
+  do {                                                                         \
+    if (!(failcond)) {                                                         \
+      TEST_MSG("TEST FAILED : " << errmsg);                                    \
+      return 1;                                                                \
+    } else {                                                                   \
+      TEST_MSG("TEST SUCCEEDED : " << errmsg);                                 \
+    }                                                                          \
+  } while (0)
 
 
 
 ////////////////////////////////////////////////////////////////
-// Test functions 
+// Test functions
 ////////////////////////////////////////////////////////////////
 
 
@@ -72,7 +79,7 @@ int testJetCopy ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
 
   TEST_MSG("\n ---------------- testJetCopy  ");
   xAOD::Jet* jet0 = jetCont[0];
-    
+
   //xAOD::Jet copy0(*jet0);
   TEST_MSG( " --> testing assignment operator "<< jet0->getAttribute<float>("Width")  );
   xAOD::Jet copy0; copy0 = *jet0;
@@ -89,7 +96,7 @@ int testJetCopy ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   TESTMACRO( is_equal( jet0->getAttribute<float>("Width") , copy1.getAttribute<float>("Width")), "copy0 jet Width identical" );
 
 
-  TEST_MSG( " --> test copy into a container" );  
+  TEST_MSG( " --> test copy into a container" );
   // here we test that assigning to a jet part of a container works as exepected
   xAOD::JetContainer cont;
   xAOD::JetAuxContainer* aux = new xAOD::JetAuxContainer();
@@ -113,14 +120,14 @@ int testAttributes ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   const xAOD::Jet* jet = jetCont[0];
 
   float phi = jet->getAttribute<float>("Width");
-  // Test direct call by enum vs string 
+  // Test direct call by enum vs string
   TESTMACRO( is_equal(phi , jet->getAttribute<float>(xAOD::JetAttribute::Width) ), "attribute retieval str vs enum" );
 
   // test retrieve as double
-  TESTMACRO( is_equal(phi , jet->getAttribute<double>(xAOD::JetAttribute::Width) ), "attribute as double" ); 
- 
-  
-  // Test get by reference call by enum vs string 
+  TESTMACRO( is_equal(phi , jet->getAttribute<double>(xAOD::JetAttribute::Width) ), "attribute as double" );
+
+
+  // Test get by reference call by enum vs string
   float w1=0,w2=0;
   bool ok1= jet->getAttribute<float>("Width", w1);
   bool ok2= jet->getAttribute<float>(xAOD::JetAttribute::Width, w2);
@@ -133,12 +140,12 @@ int testAttributes ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   // Test setting attributes
   xAOD::Jet* jet_nc = jetCont[0]  ;
   jet_nc->setAttribute(xAOD::JetAttribute::Width, 123.456) ;
-  TESTMACRO( is_equal( 123.456 , jet->getAttribute<float>(xAOD::JetAttribute::Width) ), "set then retrieve attribute" );  
+  TESTMACRO( is_equal( 123.456 , jet->getAttribute<float>(xAOD::JetAttribute::Width) ), "set then retrieve attribute" );
 
   std::vector<float> v = {1. ,2. ,4. };
   jet_nc->setAttribute("TestVect", v);
-  TESTMACRO( v == jet->getAttribute<std::vector<float> >("TestVect")  , "retrieved vector identical" );  
-  
+  TESTMACRO( v == jet->getAttribute<std::vector<float> >("TestVect")  , "retrieved vector identical" );
+
 
   // retrieve scale as attribute
   TEST_MSG("  --> retrieve 4-momentum");
@@ -146,7 +153,7 @@ int testAttributes ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   TESTMACRO( p4constit == jet->jetP4(xAOD::JetScale::JetConstitScaleMomentum), "Scale momentum retrieved as attribute identical to scale");
   jet_nc->setAttribute( "MyScale", p4constit*1.2);
   TESTMACRO( (p4constit*1.2) == jet->jetP4("MyScale"), "Scale momentum set as attribute identical when retrived as scale");
-  
+
 
   return 0;
 }
@@ -160,15 +167,15 @@ int testLink ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   jet->setAssociatedObject("MyJet", jetL);
   TESTMACRO( jetL == jet->getAssociatedObject<xAOD::Jet>("MyJet"), "jet retrieved from asso identical");
   TESTMACRO( jetL == jet->getAssociatedObject<xAOD::IParticle>("MyJet"), "jet retrieved  from as IParticle asso identical");
-  const xAOD::Jet* jetL2 ; 
+  const xAOD::Jet* jetL2 ;
   TESTMACRO( jet->getAssociatedObject("MyJet",jetL2), "getAssociatedObject(id,o) returned true");
   TESTMACRO( jetL == jetL2 , "getAssociatedObject(id,o) retrieved identical");
 
   ElementLink<xAOD::IParticleContainer> el = jet->getAttribute< ElementLink<xAOD::IParticleContainer> >("MyJet");
-  TESTMACRO( *el == jetL ,"jet retrieved as EL identical"); 
+  TESTMACRO( *el == jetL ,"jet retrieved as EL identical");
   // test setting vector of objects :
   std::vector< const xAOD::Jet* > vecJets = {jetL, jetCont[2] };
-  jet->setAssociatedObjects("VecJets", vecJets); 
+  jet->setAssociatedObjects("VecJets", vecJets);
   std::vector< const xAOD::Jet* > retrievedJets;
   bool r = jet->getAssociatedObjects( "VecJets", retrievedJets);
   TESTMACRO( r, "retrieval of VecJets done" );
@@ -183,7 +190,7 @@ int testKinematicChange(){
   jet.makePrivateStore();
   xAOD::JetFourMom_t v(1,1,2,3);
   jet.setJetP4(v);
-  
+
   double px0 = jet.px();
   double e0 = jet.e();
 
@@ -217,7 +224,7 @@ int testConstituents ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   xAOD::JetConstituentVector vec = jet.getConstituents();
   TESTMACRO( (vec.size() == 2) , "size of JetConstituentVector : 2=="<< vec.size() );
 
-  xAOD::JetConstituent jc = vec.at(0); 
+  xAOD::JetConstituent jc = vec.at(0);
   TESTMACRO( ( jc.rawConstituent() == c1 ) , " identical constituent retrieved from JetConstituent object");
 
   TEST_MSG("   Pt    finding scale     uncalconstit scale" );
@@ -239,7 +246,7 @@ int testConstituents ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont){
   TESTMACRO( (jet.rawConstituent(1)==c2), "identical 2nd  constituent");
 
 
-  return 0; 
+  return 0;
 }
 
 
@@ -267,7 +274,7 @@ int testClusterConstituents ATLAS_NOT_THREAD_SAFE (xAOD::JetContainer& jetCont, 
   TESTMACRO( is_equal( vec2[0]->e(), clustCont[0]->e() ), "LC cluster constituent at expected scale");
   TESTMACRO( is_equal( (*vec2.begin())->e(), clustCont[0]->e() ) , "LC cluster constituent at expected scale (from iterator)");
   TESTMACRO( is_equal( (*vec2.begin(xAOD::UncalibratedJetConstituent))->e(), clustCont[0]->rawE() ) , "LC cluster constituent at expected scale (from iterator at EM scale)");
-  
+
   return 0;
 }
 
@@ -303,7 +310,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
   assert( testJetCreation() == 0);
   assert( testKinematicChange() == 0 );
-  
+
 
   xAOD::JetTests::fillStandardTestJets( jetCont );
   std::cout << " OK filled jets "<< jetCont.size() << std::endl;
@@ -313,7 +320,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   assert( testJetCopy(jetCont) == 0);
   assert( testConstituents(jetCont) == 0);
   assert( testAttributes(jetCont) == 0) ;
-  
+
   xAOD::JetContainer& jetCont2 = xAOD::JetTests::createEmptyJetContainer("TestJetCont2");
   xAOD::JetTests::fillStandardTestJets( jetCont2 );
   std::cout << " OK filled jets2 "<< jetCont2.size() << std::endl;

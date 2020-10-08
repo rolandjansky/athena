@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelGeometryManager_H
@@ -29,7 +29,7 @@ class PixelGeometryManager {
 
 public:
   
-  PixelGeometryManager(const PixelGeoModelAthenaComps * athenaComps);
+  PixelGeometryManager(PixelGeoModelAthenaComps * athenaComps);
   virtual ~PixelGeometryManager();
 
   //
@@ -46,7 +46,7 @@ public:
   virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const = 0;
 
   // Legacy tables
-  virtual PixelLegacyManager * legacyManager() const;
+  virtual PixelLegacyManager * legacyManager();
 
  // 
   // VERSION INFORMATION
@@ -603,7 +603,8 @@ public:
   virtual int EmptyRowConnections(int index)=0;
 
   // CommonItems for Det Elements
-  virtual InDetDD::SiCommonItems * commonItems() const=0;
+  virtual InDetDD::SiCommonItems * commonItems()=0;
+  virtual const InDetDD::SiCommonItems * commonItems() const=0;
   virtual void setCommonItems(InDetDD::SiCommonItems * commonItems)=0; 
 
    // ID helper
@@ -621,6 +622,7 @@ public:
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
 
+  PixelGeoModelAthenaComps * athenaComps() {return m_athenaComps;}
   const PixelGeoModelAthenaComps * athenaComps() const {return m_athenaComps;}
 
   /////
@@ -661,7 +663,7 @@ public:
 private:
   
   // Access to athena components
-  const PixelGeoModelAthenaComps * m_athenaComps;
+  PixelGeoModelAthenaComps * m_athenaComps;
 
 
 };

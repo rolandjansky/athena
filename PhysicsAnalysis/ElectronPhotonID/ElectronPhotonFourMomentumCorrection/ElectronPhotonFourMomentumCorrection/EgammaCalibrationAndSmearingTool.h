@@ -16,7 +16,7 @@
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "xAODEgamma/Electron.h"

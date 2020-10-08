@@ -1,15 +1,15 @@
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr  (GaudiCoreSvc v33r1)
-                                          running on pc-tbed-pub-21.cern.ch on Mon Aug  3 16:45:27 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Fri Oct  2 12:36:26 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-ClassIDSvc           INFO  getRegistryEntries: read 5171 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7552 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 TrigTraversal        INFO HLT_mufast_chain
 TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #3 (HLTPassRaw)
 TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #13 (MU_H_1__MU1)
@@ -97,46 +97,46 @@ TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #32 (MUEM
 TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #31 (MUEM_F_1__EM0)
 TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #2 (EM0)
 TrigTraversal        INFO [All passing features] HLT_mufast_chain features size:1
-  Feature 0 pt:20, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
 
 TrigTraversal        INFO [All passing features] HLT_mu_chain features size:2
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
 
 TrigTraversal        INFO [All passing features] HLT_mu_em_chain features size:4
-  Feature 0 pt:21, state:ACTIVE
-  Feature 1 pt:20, state:ACTIVE
-  Feature 2 pt:31, state:ACTIVE
-  Feature 3 pt:30, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:30, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
 TrigTraversal        INFO [All passing features] HLT_em_chain features size:2
-  Feature 0 pt:31, state:ACTIVE
-  Feature 1 pt:30, state:ACTIVE
+  Feature  pt:30, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
 TrigTraversal        INFO [All passing features] All chains features size:4
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
-  Feature 2 pt:31, state:ACTIVE
-  Feature 3 pt:30, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:30, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
 TrigTraversal        INFO [Final passing feature] HLT_mufast_chain features size:1
-  Feature 0 pt:20, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
 
 TrigTraversal        INFO [Final passing feature] HLT_mu_chain features size:2
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
 
 TrigTraversal        INFO [Final passing feature] HLT_mu_em_chain features size:2
-  Feature 0 pt:21, state:ACTIVE
-  Feature 1 pt:31, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
 TrigTraversal        INFO [Final passing feature] HLT_em_chain features size:1
-  Feature 0 pt:31, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
 TrigTraversal        INFO [Final passing feature] All chains features size:3
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
-  Feature 2 pt:31, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
  ---------- Now Include Failing Features 
 TrigTraversal        INFO HLT_mufast_chain
@@ -237,68 +237,69 @@ TrigTraversal        INFO             |-> HLTNav_MyDecisionContainer #33 (MUEM_H
 TrigTraversal        INFO               |-> HLTNav_MyDecisionContainer #32 (MUEM_IM_1__EM0)
 TrigTraversal        INFO                 |-> HLTNav_MyDecisionContainer #31 (MUEM_F_1__EM0)
 TrigTraversal        INFO                   |-> HLTNav_MyDecisionContainer #2 (EM0)
-TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #6 (MU_H_1__MU0)
-TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #5 (MU_IM_1__MU0)
-TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #4 (MU_F_1__MU0)
-TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
 TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #9 (MUEM_H_1__MU0)
 TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #8 (MUEM_IM_1__MU0)
 TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #7 (MUEM_F_1__MU0)
 TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
+TrigTraversal        INFO |-> HLTNav_MyDecisionContainer #6 (MU_H_1__MU0)
+TrigTraversal        INFO   |-> HLTNav_MyDecisionContainer #5 (MU_IM_1__MU0)
+TrigTraversal        INFO     |-> HLTNav_MyDecisionContainer #4 (MU_F_1__MU0)
+TrigTraversal        INFO       |-> HLTNav_MyDecisionContainer #0 (MU0)
 TrigTraversal        INFO [All passing/failing features] HLT_mufast_chain features size:2
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:5, state:INACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
 TrigTraversal        INFO [All passing/failing features] HLT_mu_chain features size:3
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
-  Feature 2 pt:5, state:INACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
 TrigTraversal        INFO [All passing/failing features] HLT_mu_em_chain features size:5
-  Feature 0 pt:21, state:ACTIVE
-  Feature 1 pt:20, state:ACTIVE
-  Feature 2 pt:31, state:ACTIVE
-  Feature 3 pt:30, state:ACTIVE
-  Feature 4 pt:5, state:INACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:30, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
 TrigTraversal        INFO [All passing/failing features] HLT_em_chain features size:2
-  Feature 0 pt:31, state:ACTIVE
-  Feature 1 pt:30, state:ACTIVE
+  Feature  pt:30, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
 TrigTraversal        INFO [All passing/failing features] All chains features size:5
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
-  Feature 2 pt:31, state:ACTIVE
-  Feature 3 pt:30, state:ACTIVE
-  Feature 4 pt:5, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:30, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
 TrigTraversal        INFO [Final passing/failing feature] HLT_mufast_chain features size:2
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:5, state:INACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
 TrigTraversal        INFO [Final passing/failing feature] HLT_mu_chain features size:3
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
-  Feature 2 pt:5, state:INACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
 TrigTraversal        INFO [Final passing/failing feature] HLT_mu_em_chain features size:3
-  Feature 0 pt:21, state:ACTIVE
-  Feature 1 pt:31, state:ACTIVE
-  Feature 2 pt:5, state:INACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
 TrigTraversal        INFO [Final passing/failing feature] HLT_em_chain features size:1
-  Feature 0 pt:31, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
 
 TrigTraversal        INFO [Final passing/failing feature] All chains features size:4
-  Feature 0 pt:20, state:ACTIVE
-  Feature 1 pt:21, state:ACTIVE
-  Feature 2 pt:31, state:ACTIVE
-  Feature 3 pt:5, state:ACTIVE
+  Feature  pt:20, state:ACTIVE
+  Feature  pt:21, state:ACTIVE
+  Feature  pt:31, state:ACTIVE
+  Feature  pt:5, state:INACTIVE
 
  ---------- Check Explicit Type 
 TrigTraversal        INFO [Explicit Final Muon Features] HLT_mu_em_chain features size:2
-  Feature 0 pt:21, state:UNSET
-  Feature 1 pt:5, state:UNSET
+  Feature  pt:21, state:UNSET
+  Feature  pt:5, state:UNSET
 
 TrigTraversal        INFO [Explicit Final Electron Features] HLT_mu_em_chain features size:1
-  Feature 0 pt:31, state:UNSET
+  Feature  pt:31, state:UNSET
+

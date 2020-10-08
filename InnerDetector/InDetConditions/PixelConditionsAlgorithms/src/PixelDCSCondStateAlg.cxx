@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDCSCondStateAlg.h"
@@ -17,9 +17,7 @@ StatusCode PixelDCSCondStateAlg::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
   ATH_CHECK(m_condSvc.retrieve());
-
-  ATH_CHECK(m_moduleDataKey.initialize());
-  ATH_CHECK(m_readKeyState.initialize(!m_readKeyState.empty()));
+  ATH_CHECK(m_readKeyState.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKeyState.initialize());
   if (m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
@@ -40,24 +38,26 @@ StatusCode PixelDCSCondStateAlg::execute(const EventContext& ctx) const {
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelDCSStateData> writeCdoState(std::make_unique<PixelDCSStateData>());
-
   
-  SG::ReadCondHandle<PixelModuleData> modDataHdl(m_moduleDataKey,ctx);
-  const PixelModuleData* modData=(*modDataHdl);
-  writeHandleState.addDependency(modDataHdl);
-  ATH_MSG_INFO("Range of input PixelModule data is " << modDataHdl.getRange()); 
-  
+  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+  const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
 
-  if (modData->getUseDCSStateConditions()) {
-    SG::ReadCondHandle<CondAttrListCollection> readHandleState(m_readKeyState, ctx);
-    writeHandleState.addDependency(readHandleState);
-    const CondAttrListCollection* readCdoState(*readHandleState); 
+  EventIDRange rangeW{start, stop};
+
+  if (!m_readKeyState.empty()) {
+    SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKeyState, ctx);
+    const CondAttrListCollection* readCdoState(*readHandle); 
     if (readCdoState==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object (state)");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleState.fullKey() << " readCdo->size()= " << readCdoState->size());
-    ATH_MSG_INFO("Range of state input is " << readHandleState.getRange());
+    // Get the validitiy range
+    if (not readHandle.range(rangeW)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdoState->size());
+    ATH_MSG_INFO("Range of state input is " << rangeW);
 
     // Read state info
     std::string paramState = "FSM_state";
@@ -82,7 +82,7 @@ StatusCode PixelDCSCondStateAlg::execute(const EventContext& ctx) const {
     for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) { writeCdoState->setModuleStatus(i,PixelDCSStateData::DCSModuleState::READY); }
   }
 
-  if (writeHandleState.record(std::move(writeCdoState)).isFailure()) {
+  if (writeHandleState.record(rangeW, std::move(writeCdoState)).isFailure()) {
     ATH_MSG_FATAL("Could not record PixelDCSStateData " << writeHandleState.key() << " with EventRange " << writeHandleState.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
   }

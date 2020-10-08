@@ -13,7 +13,7 @@
 #include <algorithm>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // HepMC includes
 #include "AtlasHepMC/GenEvent.h"
@@ -327,7 +327,7 @@ void McVtxFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
   ATH_MSG_VERBOSE("In McVtxFilterTool::addVertex( vtxType= "<<vtxType<< " )");
   HepMC::GenVertex * vtx = evt->barcode_to_vertex(srcVtx->barcode());
   if ( 0 == vtx ) {
-    vtx = new HepMC::GenVertex();
+    vtx = HepMC::newGenVertexPtr();
     vtx->set_position( srcVtx->position() );
     vtx->set_id( srcVtx->id() );
     vtx->suggest_barcode( srcVtx->barcode() );
@@ -341,7 +341,7 @@ void McVtxFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 	++parent ) {
     HepMC::GenParticle * mother = evt->barcode_to_particle( (*parent)->barcode() );
     if ( 0 == mother ) {
-      mother = new HepMC::GenParticle;
+      mother = HepMC::newGenParticlePtr();
       mother->set_momentum( (*parent)->momentum() );
       mother->set_generated_mass( (*parent)->generated_mass() );
       mother->set_pdg_id( (*parent)->pdg_id() );
@@ -368,7 +368,7 @@ void McVtxFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 			<< (*child)->pdg_id() << "|" 
 			<< (*child)->barcode() << "]");
       } else {
-	daughter = new HepMC::GenParticle;
+	daughter = HepMC::newGenParticlePtr();
 	daughter->set_momentum( (*child)->momentum() );
    daughter->set_generated_mass( (*child)->generated_mass() );
 	daughter->set_pdg_id( (*child)->pdg_id() );
@@ -450,7 +450,7 @@ bool McVtxFilterTool::keepParticle( const VtxType::Flag vtxType,
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void McVtxFilterTool::setupFilters( Property& /*decayPatterns*/ )
+void McVtxFilterTool::setupFilters( Gaudi::Details::PropertyBase& /*decayPatterns*/ )
 {
   m_filters.clear();
   m_counter.clear();

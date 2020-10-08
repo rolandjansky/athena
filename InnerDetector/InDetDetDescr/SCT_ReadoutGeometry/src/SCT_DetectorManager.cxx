@@ -22,6 +22,7 @@ namespace InDetDD {
 
   const int FIRST_HIGHER_LEVEL = 2;
 
+
   SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore )
     : SiDetectorManager(detStore, "SCT"),
       m_idHelper(0),
@@ -42,7 +43,26 @@ namespace InDetDD {
     } 
   }
 
-
+  SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore , std::string name)
+    : SiDetectorManager(detStore,name),
+      m_idHelper(0),
+      m_isLogical(false) // Change to true to change the definition of local module corrections
+  {
+    ATH_MSG_INFO("Using contructor with name specification, to create SCT_DetectorManager named "<<name<<endmsg);
+    //  
+    // Initialized the Identifier helper.
+    //
+    StatusCode sc = detStore->retrieve(m_idHelper, "SCT_ID");  
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve SCT id helper");
+    }
+    // Initialize the collections.
+    if (m_idHelper) {
+      m_elementCollection.resize(m_idHelper->wafer_hash_max());
+      m_alignableTransforms.resize(m_idHelper->wafer_hash_max());
+      m_moduleAlignableTransforms.resize(m_idHelper->wafer_hash_max()/2);
+    } 
+  }
 
   SCT_DetectorManager::~SCT_DetectorManager()
   {

@@ -15,9 +15,9 @@
 #include <string>
 
 // FrameWork includes
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/DataHandle.h"
 
 // METInterface includes
 #include "METInterface/IMETMaker.h"
@@ -123,10 +123,6 @@ namespace met {
 			     xAOD::MissingETAssociationHelper* helper,
 			     xAOD::MissingETContainer* metCont);
 
-    StatusCode buildMETSum(const std::string& totalName,
-                           xAOD::MissingETContainer* metCont,
-                           MissingETBase::Types::bitmask_t softTermsSource);
-
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
@@ -140,10 +136,6 @@ namespace met {
     ///////////////////////////////////////////////////////////////////
   private:
 
-    StatusCode fillMET(xAOD::MissingET *& met,
-		       xAOD::MissingETContainer * metCont,
-		       const std::string& metKey,
-		       const MissingETBase::Types::bitmask_t metSource);
     bool acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const;
     const xAOD::Vertex* getPV() const;
 

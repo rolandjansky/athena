@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: StoreGateBindings/python/Bindings.py
 # @author: Wim Lavrijsen <WLavrijsen@lbl.gov>
@@ -16,19 +16,10 @@ Sebastien Binet (binet@cern.ch)
 def _setup():
     import cppyy
     # StoreGate bindings from dictionary
-    cppyy.loadDictionary( "libAthenaPythonDict" )      # for clidsvc
-    cppyy.loadDictionary( "libStoreGateBindingsDict" ) # for storegatesvc
-    cppyy.loadDictionary( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
+    cppyy.load_library( "libAthenaPythonDict" )      # for clidsvc
+    cppyy.load_library( "libStoreGateBindingsDict" ) # for storegatesvc
+    cppyy.load_library( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
 
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')  # noqa: F841
-    _ath= cppyy.makeNamespace('AthenaInternal')
-
-    # ROOT6 workaround, kick the loading of headers
-    _ath.ROOT6_AthenaPython_WorkAround_Dummy
-    _ath.ROOT6_StoreGateBindings_WorkAround_Dummy
-    # end workaround
-    
     global py_retrieve
     py_retrieve = cppyy.gbl.AthenaInternal.retrieveObjectFromStore
 
@@ -92,7 +83,7 @@ def _setup():
     # dict-pythonization of storegate: __getitem__
     def __getitem__ (self, key):
         try:
-            ret = py_sg_getitem(self, key.encode())
+            ret = py_sg_getitem(self, str(key).encode())
         except LookupError as err:
             raise KeyError(str(err))
         if ret and hasattr(ret,'setStore') and not ret.hasStore():
@@ -145,9 +136,17 @@ def _setup():
             clid = self._pyclidsvc.clid(clid.__name__)
         if clid is None:
             return [p.name() for p in self.proxies()]
-        return list(self._cpp_keys(clid, allKeys))
+        return [str(x) for x in self._cpp_keys(clid, allKeys)]
     StoreGateSvc._cpp_keys = StoreGateSvc.keys
     StoreGateSvc.keys = keys
+
+
+    #The cppyy version that comes with ROOT v6.22 checks also __len__!=0
+    #when casting to bool. Since we defined a __len__ method, newly-created 
+    #(empty) StoreGate instances are always casted to False and therefore 
+    #considered invalid. 
+    #Work-around by implementing our own __bool__ method
+    StoreGateSvc.__bool__ = lambda self : True
     
     return
 

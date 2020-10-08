@@ -7,8 +7,99 @@
 
 #include "Sherpa_i/Sherpa_i.h"
 
-//needed from Sherpa EvtGenerator
-#include "SHERPA/Main/Sherpa.H"
+//needed from Sherpa EvtGeneratorz
+//#include "SHERPA/Main/Sherpa.H"
+/** Begin of  content of Sherpa.H */
+#ifndef SHERPA_Main_Sherpa_H
+#define SHERPA_Main_Sherpa_H
+
+#include "ATOOLS/Org/CXXFLAGS_PACKAGES.H"
+#include "ATOOLS/Org/Exception.H"
+#ifdef HEPMC3
+#undef USING__HEPMC2
+#else
+#undef USING__HEPMC3
+#endif
+
+
+namespace ATOOLS {
+  class Blob_List;
+  class Cluster_Amplitude;
+}
+
+#ifdef USING__HEPMC2
+namespace HepMC{ class GenEvent; }
+namespace SHERPA { class HepMC2_Interface; }
+#endif
+
+#ifdef USING__HEPMC3
+namespace HepMC3{ class GenEvent; }
+namespace SHERPA { class HepMC3_Interface; }
+#endif
+
+namespace SHERPA {
+  class Initialization_Handler;
+  class Event_Handler;
+  class Input_Output_Handler;
+
+  class Sherpa: public ATOOLS::Terminator_Object {
+  private:
+    std::string   m_path;
+    long int      m_trials, m_debugstep, m_debuginterval, m_displayinterval;
+    long int      m_evt_output, m_evt_output_start;
+    double        m_evt_starttime;
+
+    Initialization_Handler * p_inithandler;
+    Event_Handler          * p_eventhandler;
+#ifdef USING__HEPMC2
+    HepMC2_Interface       * p_hepmc2;
+#endif
+#ifdef USING__HEPMC3
+    HepMC3_Interface       * p_hepmc3;
+#endif
+
+    void DrawLogo(const int mode);  
+
+    void PrepareTerminate();
+
+  public:
+
+    Sherpa();
+    ~Sherpa();
+
+    bool InitializeTheRun(int argc,char * argv[]);
+    bool InitializeTheEventHandler();
+
+    bool GenerateOneEvent(bool reset=true);
+#ifdef USING__HEPMC2
+    void FillHepMCEvent(HepMC::GenEvent& event);
+#endif
+#ifdef USING__HEPMC3
+    void FillHepMCEvent(HepMC3::GenEvent& event);
+#endif
+
+    double TotalXS();
+    double TotalErr();
+
+    std::string PDFInfo();
+
+    bool SummarizeRun();
+
+    long int NumberOfEvents() const;
+
+    const ATOOLS::Blob_List &GetBlobList() const;
+
+    double GetMEWeight(const ATOOLS::Cluster_Amplitude &ampl,const int mode=0) const;
+    
+    inline Initialization_Handler * GetInitHandler() const 
+    { return p_inithandler; }
+    inline Event_Handler * GetEventHandler() const 
+    { return p_eventhandler; }
+    
+  };
+}
+#endif 
+ /*End of content of Sherpa.H */
 #include "SHERPA/Initialization/Initialization_Handler.H"
 #include "SHERPA/Tools/Variations.H"
 #include "ATOOLS/Org/Exception.H"

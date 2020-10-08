@@ -7,64 +7,67 @@
 
 #include <vector>
 
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "xAODTracking/TrackParticle.h"
-
-#include "TrkParameters/TrackParameters.h"
-
-#include "MuonLayerEvent/MuonLayerSurface.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
+#include "MuonLayerEvent/MuonLayerSurface.h"
 #include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#include "TrkExInterfaces/IExtrapolator.h"
+#include "xAODTracking/TrackParticle.h"
 
 namespace Trk {
-  class Surface;
+class Surface;
 }
 
 namespace Muon {
 
-  class MuonSystemExtension;
+class MuonSystemExtension;
 
-  class MuonSystemExtensionTool :  virtual public IMuonSystemExtensionTool, public AthAlgTool {
+class MuonSystemExtensionTool : virtual public IMuonSystemExtensionTool, public AthAlgTool {
   public:
-    typedef std::vector< MuonLayerSurface > SurfaceVec;
+    typedef std::vector<MuonLayerSurface> SurfaceVec;
 
     /** Default AlgTool functions */
     MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonSystemExtensionTool() {};
+    virtual ~MuonSystemExtensionTool(){};
     StatusCode initialize();
 
     /** get muon system extension */
-    bool muonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension*& muonSystemExtention ) const;
+    bool muonSystemExtension(const xAOD::TrackParticle&  indetTrackParticle,
+                             const MuonSystemExtension*& muonSystemExtention) const;
 
   private:
-    /** initialize geometry */    
+    /** initialize geometry */
     bool initializeGeometry();
-    bool initializeGeometryBarrel( int sector, const Amg::AngleAxis3D& sectorRotation );
-    bool initializeGeometryEndcap( int sector, MuonStationIndex::DetectorRegionIndex regionIndex, const Amg::AngleAxis3D& sectorRotation );
+    bool initializeGeometryBarrel(int sector, const Amg::AngleAxis3D& sectorRotation);
+    bool initializeGeometryEndcap(int sector, MuonStationIndex::DetectorRegionIndex regionIndex,
+                                  const Amg::AngleAxis3D& sectorRotation);
 
 
     /** get surfaces to be intersected for a given start parameters */
-    SurfaceVec getSurfacesForIntersection( const Trk::TrackParameters& muonEntryPars ) const;
+    SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars) const;
 
-    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; 
-    ToolHandle<Trk::IExtrapolator> m_extrapolator; 
-    
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
+        this,
+        "ParticleCaloExtensionTool",
+        "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",
+    };
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{
+        this,
+        "Extrapolator",
+        "Trk::Extrapolator/AtlasExtrapolator",
+    };
+
     /** reference surfaces per region and sector */
-    std::vector< std::vector< SurfaceVec > > m_referenceSurfaces;
+    std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;
 
     /** sector mapping helper */
     MuonSectorMapping m_sectorMapping;
-
-  };
-}
-
+};
+}  // namespace Muon
 
 
 #endif
- 
-

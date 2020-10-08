@@ -56,6 +56,7 @@ namespace MuonCalib {
     void setLocalPointOfClosestApproach( const Amg::Vector3D &point ); //!< sets point of closest approach in local coordinates
     void setDriftTime( float t );                          //!< sets drift time
     void setDriftRadius( float r, float sigmaR );          //!< sets drift radius and drift radius error
+    void setTubeRadius( float r );                         //!< sets tube inner radius 
     void setDistanceToTrack( float dist, float sigmaDist );//!< sets the distance to the fitted track and its error
     void setTimeFromTrackDistance( float t, float sigmaT );//!< sets the time of the distance to the fitted track (and its error)
     void setSlewingTime( float slew );                     //!< sets the time correction due to slewing
@@ -91,6 +92,7 @@ namespace MuonCalib {
     float signedDistanceToTrack() const;                   //!< retrieve the distance of the track to the wire
     float sigmaDistanceToTrack() const;                    //!< retrieve the error on the distance of the track to the wire
     float sigma2DistanceToTrack() const;                   //!< retrieve the error squared on the distance of the track to the wire
+    float tubeRadius() const;                              //!< retrieve the inner radius of the drift tube
     float distanceToReadout() const;                       //!< retrieve the distance to readout
     float slewingTime() const;                             //!< retrieve the timing correction due to slewing
     float bFieldTime() const;                              //!< retrieve the timing correction due to the magnetic field (lorentz angle)
@@ -151,7 +153,7 @@ namespace MuonCalib {
     float      m_xtwin;                           //!< twin position 
     float      m_sigmaXTwin;                      //!< twin position error
     bool       m_segmentT0Applied;                //!< true if segment t0 is substr. from drift time
-
+    float m_tubeRadius;                           //!< inner tube radius
   };
 
   inline void MdtCalibHitBase::setIdentifier( const MuonFixedId &id ) {
@@ -189,6 +191,10 @@ namespace MuonCalib {
   inline void MdtCalibHitBase::setDriftRadius( float r, float sigmaR ) {
     m_driftRadius = r;
     m_sigma2DriftRadius = sigmaR*sigmaR;
+  }
+
+  inline void MdtCalibHitBase::setTubeRadius( float r ) {
+    m_tubeRadius = r;
   }
 
   inline void MdtCalibHitBase::setDistanceToTrack( float dist, float sigmaDist ) {
@@ -411,6 +417,10 @@ namespace MuonCalib {
   
   inline void MdtCalibHitBase::setSegmentT0Applied(bool flag) {
     m_segmentT0Applied=flag;
+  }
+
+  inline float MdtCalibHitBase::tubeRadius() const {
+    return m_tubeRadius;
   }
 
 }  //namespace MuonCalib

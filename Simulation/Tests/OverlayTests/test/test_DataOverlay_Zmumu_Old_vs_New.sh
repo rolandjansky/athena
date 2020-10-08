@@ -22,6 +22,7 @@ Overlay_tf.py \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
 --postInclude 'EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
+--postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --imf False
 
 rc=$?
@@ -59,8 +60,10 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask1 \
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask2 \
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask3 \
-            xAOD::EventAuxInfo_v2_EventInfoAux.actualInteractionsPerCrossing \
-            xAOD::EventAuxInfo_v2_EventInfoAux.averageInteractionsPerCrossing
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.actualInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.averageInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDLowBits \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDHighBits
     rc3=$?
 fi
 echo "art-result: $rc3 comparison"

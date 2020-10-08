@@ -26,26 +26,26 @@ class SubDetectorFactoryBase
 { 
 
 public:
-  SubDetectorFactoryBase(const InDetDD::AthenaComps * athenaComps)
+  SubDetectorFactoryBase(InDetDD::AthenaComps * athenaComps)
     : m_athenaComps(athenaComps),
       m_materialManager(0)
   {}
 
-  SubDetectorFactoryBase(const InDetDD::AthenaComps * athenaComps,
+  SubDetectorFactoryBase(InDetDD::AthenaComps * athenaComps,
 			 InDetMaterialManager * matManager)
     : m_athenaComps(athenaComps),
       m_materialManager(matManager)
   {}
 
-  StoreGateSvc * detStore ATLAS_NOT_THREAD_SAFE () const {return m_athenaComps->detStore();} // const method returns non-const pointer
+  StoreGateSvc * detStore() {return m_athenaComps->detStore();}
 
   const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
 
-  IRDBAccessSvc * rdbAccessSvc ATLAS_NOT_THREAD_SAFE () const {return m_athenaComps->rdbAccessSvc();} // const method returns non-const pointer
+  IRDBAccessSvc * rdbAccessSvc() const {return m_athenaComps->rdbAccessSvc();}
   
   const IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
 
-  InDetMaterialManager * materialManager ATLAS_NOT_THREAD_SAFE () const {return m_materialManager;} // const method returns non-const pointer
+  InDetMaterialManager * materialManager() {return m_materialManager;}
 
  //Declaring the Message method for further use
   MsgStream& msg (MSG::Level lvl) const { return m_athenaComps->msg(lvl); }
@@ -53,10 +53,10 @@ public:
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
 
-  const InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
+  InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
   
 private:
-  const InDetDD::AthenaComps *  m_athenaComps;
+  InDetDD::AthenaComps *  m_athenaComps;
   
 protected:
   InDetMaterialManager * m_materialManager;

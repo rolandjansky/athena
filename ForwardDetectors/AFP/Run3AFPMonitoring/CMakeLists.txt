@@ -1,5 +1,6 @@
 ################################################################################
 # Package: Run3AFPMonitoring
+# Author: N. Dikic 
 ################################################################################
 
 # Declare the package name:
@@ -12,9 +13,9 @@ atlas_depends_on_subdirs(
         Control/AthenaBaseComps
         Control/AthenaMonitoringKernel
         GaudiKernel
-	Event/xAOD/xAODForward
-	xAODForward/AFPSiHit
-	xAODForward/AFPToFHit	
+        Event/xAOD/xAODForward
+        xAODForward/AFPSiHit
+        xAODForward/AFPToFHit
         LumiBlock/LumiBlockComps
         LumiBlock/LumiBlockData
         Trigger/TrigEvent/TrigDecisionInterface
@@ -31,6 +32,10 @@ atlas_depends_on_subdirs(
         Trigger/TrigAnalysis/TrigDecisionTool
         Trigger/TrigAnalysis/TrigAnalysisInterfaces
         MuonSpectrometer/MuonAlignment/MuonAlignmentData
+        
+        Event/EventContainers
+        #Tools/PathResolver
+        #Control/StoreGate
 )
 
 # External dependencies:
@@ -50,7 +55,10 @@ atlas_add_component( Run3AFPMonitoring
         LumiBlockCompsLib
         LumiBlockData
         TrigDecisionToolLib
+        TrigAnalysisInterfaces
         xAODForward
+        xAODTrigger
+        #Trigger
         AthenaKernel
         SGAudCore
         AthenaPoolUtilities

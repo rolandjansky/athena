@@ -48,10 +48,23 @@ TGC_RegSelCondAlg::TGC_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcL
 
 
 
+StatusCode TGC_RegSelCondAlg::initialize() {
+  ATH_CHECK(MuonRegSelCondAlg::initialize());
+  ATH_CHECK(m_mdtCablingKey.initialize());
+  return StatusCode::SUCCESS;
+}
 
 
 
-std::unique_ptr<RegSelSiLUT> TGC_RegSelCondAlg::createTable( const MuonMDT_CablingMap* /* mdtCabling */ ) const { 
+std::unique_ptr<RegSelSiLUT> TGC_RegSelCondAlg::createTable( const EventContext& ctx, EventIDRange& id_range ) const { 
+
+  SG::ReadCondHandle<MuonMDT_CablingMap> mdtCabling( m_mdtCablingKey, ctx );
+
+  if( !mdtCabling.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << mdtCabling.key());
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }   
+
 
   /// now get the TGC cabling service ...
 

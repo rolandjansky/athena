@@ -60,16 +60,16 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'InputContainer' property
-  void setupInputContainer( Property& /*prop*/ );
+  void setupInputContainer( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'OutputContainer' property
-  void setupOutputContainer( Property& /*prop*/ );
+  void setupOutputContainer( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'SortVariable' property
-  void setupSortVar( Property& /*prop*/ );
+  void setupSortVar( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'SortDeceding' property
-  void setupSortDescending( Property& /*prop*/ );
+  void setupSortDescending( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
 
@@ -124,26 +124,26 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 /// This internal method will realize if a user sets the 'InputContainer' property
-inline void ParticleSortingAlg::setupInputContainer( Property& /*prop*/ ) {
+inline void ParticleSortingAlg::setupInputContainer( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'OutputContainer' property
-inline void ParticleSortingAlg::setupOutputContainer( Property& /*prop*/ ) {
+inline void ParticleSortingAlg::setupOutputContainer( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setOutCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'SortVariable' property
-inline void ParticleSortingAlg::setupSortVar( Property& /*prop*/ )
+inline void ParticleSortingAlg::setupSortVar( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_setSortVar = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'SortDeceding' property
-inline void ParticleSortingAlg::setupSortDescending( Property& /*prop*/ )
+inline void ParticleSortingAlg::setupSortDescending( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_setSortDescending = true;
   return;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRebuilder.cxx
@@ -11,6 +11,7 @@
 
 // METUtilities includes
 #include "METUtilities/METRebuilder.h"
+#include "METUtilities/METHelpers.h"
 
 // MET EDM
 #include "xAODMissingET/MissingETContainer.h"
@@ -38,8 +39,11 @@
 // Track errors
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
+
 #ifndef ROOTCORE
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #endif
 
 namespace met {
@@ -213,14 +217,14 @@ namespace met {
 	ATH_CHECK( trkSelTool->initialize() );
 	m_trkseltool = ToolHandle<InDet::IInDetTrackSelectionTool>(trkSelTool);
 #else
-	ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc",name());
+	ServiceHandle<Gaudi::Interfaces::IOptionsSvc> josvc("JobOptionsSvc",name());
 	std::string toolName = "IDTrkSel_METUtil";
 	ATH_MSG_INFO("METRebuilder: Autoconfiguring " << toolName);
 	m_trkseltool.setTypeAndName("InDet::InDetTrackSelectionTool/"+toolName);
 	std::string fullToolName = "ToolSvc."+toolName;
-	ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName,FloatProperty("maxZ0SinTheta",1.5)) );
-	ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName,FloatProperty("maxD0overSigmaD0",1.5)) );
-	ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName,StringProperty("CutLevel","TightPrimary")) );
+    josvc->set(fullToolName + ".maxZ0SinTheta", Gaudi::Utils::toString<float>(1.5));
+    josvc->set(fullToolName + ".maxD0overSigmaD0",Gaudi::Utils::toString<float>(1.5));
+    josvc->set(fullToolName + ".CutLevel","TightPrimary");
 #endif
       }
       ATH_CHECK( m_trkseltool.retrieve() );
@@ -681,34 +685,6 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  // **** Sum up MET terms ****
-
-  StatusCode METRebuilder::buildMETSum(const std::string& totalName,
-                                       xAOD::MissingETContainer* metCont)
-  {
-    ATH_MSG_DEBUG("Build MET total: " << totalName);
-
-    MissingET* metFinal = nullptr; // new MissingET(0.,0.,0.,"Final",MissingETBase::Source::total());
-    if(fillMET(metFinal, metCont, totalName, MissingETBase::Source::total()) != StatusCode::SUCCESS){
-      ATH_MSG_ERROR("failed to fill MET term");
-      return StatusCode::FAILURE;
-    }
-    //    metCont->push_back(metFinal);
-
-    for(MissingETContainer::const_iterator iMET=metCont->begin();
-        iMET!=metCont->end(); ++iMET) {
-      if(*iMET==metFinal) continue;
-      *metFinal += **iMET;
-    }
-
-    ATH_MSG_DEBUG( "Rebuilt MET Final --"
-                  << " mpx: " << metFinal->mpx()
-                  << " mpy: " << metFinal->mpy()
-                  );
-
-    return StatusCode::SUCCESS;
-  }
-
   ///////////////////////////////////////////////////////////////////
   // Const methods:
   ///////////////////////////////////////////////////////////////////
@@ -799,23 +775,5 @@ namespace met {
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
   ///////////////////////////////////////////////////////////////////
-  StatusCode METRebuilder::fillMET(xAOD::MissingET *& met,
-				   xAOD::MissingETContainer * metCont,
-				   const std::string& metKey,
-				   const MissingETBase::Types::bitmask_t metSource){
-    if(met){
-      ATH_MSG_ERROR("You can't fill a filled MET value");
-      return StatusCode::FAILURE;
-    }
-
-    met = new xAOD::MissingET;
-    metCont->push_back(met);
-
-    met->setName  (metKey);
-    met->setSource(metSource);
-
-    return StatusCode::SUCCESS;
-}
-
 
 } //> end namespace met

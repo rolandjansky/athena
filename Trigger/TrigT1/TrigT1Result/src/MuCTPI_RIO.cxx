@@ -22,16 +22,8 @@ MuCTPI_RIO::MuCTPI_RIO()
     m_headerLVL1TriggerType( 0 ), m_headerDetEventType( 0 ), m_headerNDataWords( 0 ),
     m_headerNStatusWords( 0 ), m_bcId( 0 ), m_sum() {
 
-  m_roI.clear();
-  m_headerStatusWords.clear();
 }
 
-/**
- * Another useless I-don't-do-anythin' destructor.
- */
-MuCTPI_RIO::~MuCTPI_RIO() {
-
-}
 
 /**
  * This function sets the muon candidate multiplicity sums in the 6 p<sub>T</sub> thresholds.
@@ -196,13 +188,6 @@ MuCTPI_RIO::MyRoI::MyRoI( const uint16_t bcId, const uint16_t pTVal,const uint16
   : m_bcId( bcId ), m_pTvalue( pTVal ), m_pTnumber( pTnumber ), m_eta( eta ), m_phi( phi ),
     m_sectorID( secID ), m_sysId( sysId ), m_hemisphere( hemisphere ? true : false ), m_roINumber( roiNum ), m_accepted( accepted ), 
     m_first( first ), m_duplicatedRoI( duplicatedRoI ), m_duplicatedSector( duplicatedSector ) {}
-
-/**
- * Another useless I-don't-do-anythin' destructor.
- */
-MuCTPI_RIO::MyRoI::~MyRoI() {
-
-}
 
 /**
  * This function is not responsible for actually printing the information, it just creates

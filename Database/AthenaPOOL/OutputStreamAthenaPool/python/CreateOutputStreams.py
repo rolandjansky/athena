@@ -3,12 +3,11 @@
 ## @file OutputStreamAthenaPool.py
 ## @brief Helper methods to create output streams
 ## @author Peter van Gemmeren <gemmeren@bnl.gov>
-## $Id: OutputStreamAthenaPool.py,v 1.10 2009-04-27 18:19:34 gemmeren Exp $
 ###############################################################
 
 from __future__ import print_function
 
-from AthenaCommon.AppMgr import theApp
+from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
@@ -24,6 +23,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
    if trigNavThinningSvc is None:
       trigNavThinningSvc = _trigNavThinningSvcs.get (streamName, None)
 
+
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
@@ -31,9 +31,13 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
       WritingTool = writingTool,
       ItemList    = [ "EventInfo#*" ]
       )
+   outputStream.ExtraOutputs += [("DataHeader", "StoreGateSvc+" + streamName)]
    #outputStream.ItemList += [ "xAOD::EventInfo#*" ]
    outputStream.MetadataStore = svcMgr.MetaDataStore
-   outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
+   outputStream.MetadataItemList = [
+        "EventStreamInfo#" + streamName,
+        "IOVMetaDataContainer#*",
+   ]
 
    ## get a handle on the default top-level algorithm sequence
    from AthenaCommon.AlgSequence import AlgSequence
@@ -48,8 +52,9 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # Tell tool to pick it up
          outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
-         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder         
-         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
+         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
+         EventInfoTagBuilder = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter,
+                                                   Tool=EventInfoAttListTool())
          from AthenaCommon.GlobalFlags  import globalflags
          if globalflags.InputFormat() == 'bytestream':
             #No event-tag input in bytestream
@@ -68,7 +73,15 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
       streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
       streamInfoTool.Key = streamName
       streamInfoTool.EventInfoKey = eventInfoKey
-      outputStream.HelperTools = [ streamInfoTool ]
+      # for xAOD access, add EventFormat to all POOL output streams
+      # Key to use for event format on this stream
+      event_format_key = 'EventFormat{}'.format(streamName)
+      event_format_tool = CfgMgr.xAODMaker__EventFormatStreamHelperTool(
+         "{}_MakeEventFormat".format(streamName),
+         Key=event_format_key,
+      )
+      outputStream.MetadataItemList += ["xAOD::EventFormat#{}".format(event_format_key)]
+      outputStream.HelperTools = [ streamInfoTool, event_format_tool]
 
 
    # Support for MT thinning.

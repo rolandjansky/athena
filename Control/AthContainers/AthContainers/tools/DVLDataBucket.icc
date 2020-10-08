@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DVLDataBucket.icc,v 1.2 2008-06-17 00:44:17 ssnyder Exp $
 /**
  * @file  AthContainers/tools/DVLDataBucket.icc
  * @author scott snyder
@@ -17,6 +15,7 @@
 
 #include "AthContainers/exceptions.h"
 #include "AthenaKernel/IRegisterTransient.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 
 namespace SG {
@@ -143,17 +142,27 @@ void*
 DVLDataBucket<T>::cast (CLID clid, IRegisterTransient* irt /*= 0*/,
                         bool /*isConst = true*/)
 {
-  T* ptr = *((DataBucket<T>*)this);
-
   // Test for trivial conversion.
   // FIXME: Assumes we can reinterpret_cast between DV* and ViewVector<DV>*.
-  if (clid == m_clid || clid == DataBucket<T>::classID())
-    return ptr;
+  if (ATH_LIKELY (clid == m_clid) || clid == DataBucket<T>::classID())
+    return this->ptr();
 
-  // Try looking for a true base conversion.
-  void* ret = SG::BaseInfo<T>::cast (ptr, clid);
-  if (ret)
+  // Try looking for a true base conversion,
+  // first using static SG_BASES information.
+  // This can all be unfolded at compile time, so is fast, but
+  // doesn't take into account SG_ADD_BASES.
+  void* ret = this->tryStaticConversion (clid);
+  if (ret) {
     return ret;
+  }
+
+  T* ptr = this->ptr();
+
+  // Then try using BaseInfo, in case of SG_ADD_BASES.
+  ret = SG::BaseInfo<T>::cast (ptr, clid);
+  if (ret) {
+    return ret;
+  }
 
   // See if we've already made an instance for this type.
   // We don't expect to have more than a few, so no point in doing
@@ -195,17 +204,27 @@ DVLDataBucket<T>::cast (const std::type_info& tinfo,
                         IRegisterTransient* irt /*= 0*/,
                         bool /*isConst = true*/)
 {
-  T* ptr = *((DataBucket<T>*)this);
-
   // Test for trivial conversion.
   // FIXME: Assumes we can reinterpret_cast between DV* and ViewVector<DV>*.
-  if (&tinfo == m_ti || tinfo == DataBucket<T>::tinfo())
-    return ptr;
+  if (ATH_LIKELY (&tinfo == m_ti) || tinfo == DataBucket<T>::tinfo())
+    return this->ptr();
+
+  // Try looking for a true base conversion,
+  // first using static SG_BASES information.
+  // This can all be unfolded at compile time, so is fast, but
+  // doesn't take into account SG_ADD_BASES.
+  void* ret = this->tryStaticConversion (tinfo);
+  if (ret) {
+    return ret;
+  }
+
+  T* ptr = this->ptr();
 
   // Try looking for a true base conversion.
-  void* ret = SG::BaseInfo<T>::cast (ptr, tinfo);
-  if (ret)
+  ret = SG::BaseInfo<T>::cast (ptr, tinfo);
+  if (ret) {
     return ret;
+  }
 
   // See if we've already made an instance for this type.
   // We don't expect to have more than a few, so no point in doing
@@ -230,6 +249,29 @@ DVLDataBucket<T>::cast (const std::type_info& tinfo,
   }
 
   return newcont;
+}
+
+
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a clid.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The class ID to which to convert.
+ * @param tinfo The @a std::type_info of the type to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ *
+ * This allows the callee to choose whether to use clid or tinfo.
+ * Here we use clid.
+ */
+template <typename T>
+inline
+void* DVLDataBucket<T>::cast (CLID clid,
+                              const std::type_info& /*tinfo*/,
+                              SG::IRegisterTransient* irt /*= 0*/,
+                              bool isConst /*= true*/)
+{
+  return DVLDataBucket::cast (clid, irt, isConst);
 }
 
 

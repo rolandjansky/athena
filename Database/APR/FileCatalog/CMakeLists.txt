@@ -1,29 +1,15 @@
-################################################################################
-# Package: FileCatalog
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( FileCatalog )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/APR/POOLCore
-                          Control/AthenaBaseComps
-                          GaudiUtils
-                          PRIVATE
-                          GaudiKernel
-                          AtlasTest/TestTools
-                          Database/PersistentDataModel
-                          )
 
 # Component(s) in the package:
 link_directories( ${GAUDI_LIBRARY_DIR} )
 atlas_add_library( FileCatalog
                    src/*.cpp
-                   PUBLIC_HEADERS FileCatalog 
-                   LINK_LIBRARIES POOLCore
-                   GaudiKernel AthenaBaseComps PersistentDataModel
-                   PRIVATE_LINK_LIBRARIES TestTools GaudiUtils )
+                   PUBLIC_HEADERS FileCatalog
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel POOLCore
+                   PRIVATE_LINK_LIBRARIES PersistentDataModel )
 
 atlas_add_test( URIParser_test
                 SOURCES

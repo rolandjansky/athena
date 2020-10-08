@@ -22,7 +22,7 @@ StatusCode DetectorGeometryBase::initialize()
     {
       m_detectorName = this->name();
       // re-initialize m_detectorName in order to take the real detector name rather than the path to it
-      size_t ipos=m_detectorName.value().find_last_of(".");
+      size_t ipos=m_detectorName.value().find_last_of('.');
       size_t length=m_detectorName.value().size();
       if (ipos<length)
         {
@@ -162,7 +162,7 @@ void DetectorGeometryBase::ResetEnvelope()
 {
 }
 
-void DetectorGeometryBase::SetDetectorName(const std::string s)
+void DetectorGeometryBase::SetDetectorName(const std::string& s)
 {
   m_detectorName=s;
 }

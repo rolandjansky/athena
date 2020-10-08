@@ -35,14 +35,14 @@
 
 #include <sstream>
 
-SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps, 
+SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(InDetDD::AthenaComps * athenaComps, 
 					     InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
 }
 
 //## Other Operations (implementation)
-void SCT_ServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc and materialManager methods are used.
+void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 {
 
   msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
@@ -244,7 +244,7 @@ const GeoShape* SCT_ServMatFactoryDC3::createShape(int volType,
   return IDShape;
 }
 
-const GeoMaterial* SCT_ServMatFactoryDC3::createMaterial ATLAS_NOT_THREAD_SAFE // Thread unsafe materialManager method is used.
+const GeoMaterial* SCT_ServMatFactoryDC3::createMaterial
                                                   (const std::string & name,
 						   int volType, 
 						   double fractionRL,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FOURMOMUTILS_JETBROADENING_H
@@ -15,7 +15,7 @@ namespace FourMomUtils
 {
   typedef INavigable4MomentumCollection::const_iterator I4MomIter_t;
 
-  bool jetBroadening(const I4MomIter_t iBeg, const I4MomIter_t iEnd,
+  bool jetBroadening(const I4MomIter_t& iBeg, const I4MomIter_t& iEnd,
                      double& wideJetBroadening, double& totalJetBroadening,
                      CLHEP::Hep3Vector thrust, bool useThreeD = false );
 

@@ -22,7 +22,7 @@ TRTParametersOfStrawPlanes::TRTParametersOfStrawPlanes() : m_msg("TRTParametersO
   DefineParameters();
 
   if (m_pParameters->GetInteger("PrintParametersOfStrawPlanes"))
-    PrintParameters();
+    PrintParameters(m_msg.get());
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfStrawPlanes done" << endmsg;
 }
@@ -130,11 +130,10 @@ void TRTParametersOfStrawPlanes::DefineParameters()
 
   // Called by TRTParametersOfStrawPlanes
 
-void TRTParametersOfStrawPlanes::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTUtilities and TRTOutputFile classes are used.
+void TRTParametersOfStrawPlanes::PrintParameters(MsgStream& msg) const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::PrintParameters" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfStrawPlanes::PrintParameters" << endmsg;
 
-  TRTUtilities* pUtilities = TRTUtilities::GetPointer();
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -144,7 +143,8 @@ void TRTParametersOfStrawPlanes::PrintParameters ATLAS_NOT_THREAD_SAFE () const 
          << std::endl;
 
   output << "Parameters of straw planes AB:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfStrawPlanesAB,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfStrawPlanesAB,
     m_outerRadiusOfStrawPlanesAB, m_lengthOfStrawPlane);
   output << "  numberOfStrawsInPlanesAB=" << m_numberOfStrawsInPlanesAB
          << std::endl;
@@ -152,31 +152,37 @@ void TRTParametersOfStrawPlanes::PrintParameters ATLAS_NOT_THREAD_SAFE () const 
   if (m_pParameters->GetInteger("SectorsABC"))
   {
     output << std::endl << "Parameters of sectors AB:" << std::endl;
-    pUtilities->PrintTubeParameters(m_innerRadiusOfSectorsAB,
+    TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                      m_innerRadiusOfSectorsAB,
       m_outerRadiusOfSectorsAB, m_lengthOfSector);
     output << "  numberOfStrawsInSectorsAB=" << m_numberOfStrawsInSectorsAB
            << std::endl;
   }
 
   output << std::endl << "Parameters of straws AB:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfStraw, m_lengthOfStrawsAB);
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_outerRadiusOfStraw, m_lengthOfStrawsAB);
   output << "  position=" << m_positionOfStrawsAB << " mm" << std::endl;
 
   output << std::endl << "Parameters of gas AB:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfGas,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfGas,
     m_outerRadiusOfGas, m_lengthOfGasAB);
 
   output << std::endl << "Parameters of dead regions AB:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfDeadRegion,
     m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionsAB);
 
   output << std::endl << "Parameters of wires AB:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfWire, m_lengthOfWiresAB);
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_outerRadiusOfWire, m_lengthOfWiresAB);
 
   if (m_pParameters->GetInteger("WheelsC"))
   {
     output << std::endl << "Parameters of straw plane C:" << std::endl;
-    pUtilities->PrintTubeParameters(m_innerRadiusOfStrawPlaneC,
+    TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                      m_innerRadiusOfStrawPlaneC,
       m_outerRadiusOfStrawPlaneC, m_lengthOfStrawPlane);
     output << "  numberOfStrawsInPlaneC=" << m_numberOfStrawsInPlaneC
            << std::endl;
@@ -184,29 +190,33 @@ void TRTParametersOfStrawPlanes::PrintParameters ATLAS_NOT_THREAD_SAFE () const 
     if (m_pParameters->GetInteger("SectorsABC"))
     {
       output << std::endl << "Parameters of sector C:" << std::endl;
-      pUtilities->PrintTubeParameters(m_innerRadiusOfSectorC,
+      TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                        m_innerRadiusOfSectorC,
         m_outerRadiusOfSectorC, m_lengthOfSector);
       output << "  numberOfStrawsInSectorC=" << m_numberOfStrawsInSectorC
              << std::endl;
     }
 
     output << std::endl << "Parameters of straw C:" << std::endl;
-    pUtilities->PrintTubeParameters(m_outerRadiusOfStraw, m_lengthOfStrawC);
+    TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                      m_outerRadiusOfStraw, m_lengthOfStrawC);
     output << "  position=" << m_positionOfStrawC << " mm" << std::endl;
 
     output << std::endl << "Parameters of gas C:" << std::endl;
-    pUtilities->PrintTubeParameters(m_innerRadiusOfGas,
+    TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                      m_innerRadiusOfGas,
       m_outerRadiusOfGas, m_lengthOfGasC);
 
     output << std::endl << "Parameters of dead region C:" << std::endl;
-    pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
+    TRTUtilities::PrintTubeParameters(*pOutputFile,m_innerRadiusOfDeadRegion,
       m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionC);
 
     output << std::endl << "Parameters of wire C:" << std::endl;
-    pUtilities->PrintTubeParameters(m_outerRadiusOfWire, m_lengthOfWireC);
+    TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                      m_outerRadiusOfWire, m_lengthOfWireC);
   }
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::PrintParameters done" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfStrawPlanes::PrintParameters done" << endmsg;
 }

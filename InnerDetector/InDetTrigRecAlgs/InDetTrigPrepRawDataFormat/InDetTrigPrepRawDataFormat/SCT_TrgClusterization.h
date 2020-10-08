@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -37,15 +37,15 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
 
 //typedefs - cannot be declared forward
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -110,7 +110,7 @@ namespace InDet {
     SCT_ClusterContainer*   m_clusterContainer;
     
     // !<  Trigger part
-    ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service
+    ToolHandle<IRegSelTool>    m_regionSelector{ this, "RegSelTool", "RegSelTool/RegSelTool_SCT" }; //!<  region selector service
     bool m_doFullScan;                       //!<  support for FullScan mode
     double                  m_etaHalfWidth;          //!<  ROI half-width in eta.
     double                  m_phiHalfWidth;          //!<  ROI half-width in phi.

@@ -15,8 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Property.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"

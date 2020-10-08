@@ -65,7 +65,7 @@ def splitInterSignatureChainDict(chainDict):
                     
     #log.info("ListOfSplitChainDicts", chainPart['chainPartName'])
     
-    #oder the splitted dicts
+    #order the splitted dicts
     orderedListOfSplitChainDicts = []
     if "mergingOrder" not in chainDict:
         log.debug("No merging order given for chain %s.", chainDict['chainName'])
@@ -103,7 +103,7 @@ def splitChainInDict(chainName):
       from TrigCompositeUtils.TrigCompositeUtils import legName
       chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
       if len(chainDict['chainParts']) ==1:
-        return [chainDict]
+        return [deepcopy(chainDict)]
                   
       listOfChainDicts = []     
       for count, chainDictPart in enumerate(chainDict['chainParts']):

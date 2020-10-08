@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -153,7 +153,7 @@ StatusCode ZdcRec::execute()
 
 	// SG has the ownership of m_rawCollection, and it should be copyed intead of just
 	// being passed around.
-	for (iter=tmpCollection->begin();iter!=tmpCollection->end();iter++) {
+	for (iter=tmpCollection->begin();iter!=tmpCollection->end();++iter) {
 	    m_rawCollection->push_back(*iter);
 	}
 

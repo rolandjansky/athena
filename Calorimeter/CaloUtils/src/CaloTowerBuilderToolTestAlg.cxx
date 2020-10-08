@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  CaloTowerBuilderToolTestAlg.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,9 +10,6 @@
 
 #undef NDEBUG
 
-//This is a test so no need to be thread safe
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "CaloTowerBuilderToolTestAlg.h"
 #include "CaloUtils/CaloTowerBuilderTool.h"
@@ -22,6 +17,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/errorcheck.h"
+#include "TestTools/random.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <cstdlib>
 #include <iostream>
@@ -33,34 +29,6 @@ using CLHEP::GeV;
 
 
 namespace {
-
-
-// Dufus-quality RNG, using LCG.  Constants from numerical recipies.
-// I don't particularly care about RNG quality here, just about
-// getting something that's reproducible.
-#include <stdint.h>
-uint32_t seed = 1;
-uint32_t rngmax = static_cast<uint32_t> (-1);
-uint32_t rng()
-{
-  seed = (1664525*seed + 1013904223);
-  return seed;
-}
-
-float randf (float rmax, float rmin = 0)
-{
-  return static_cast<float>(rng()) / rngmax * (rmax-rmin) + rmin;
-}
-int randi (int rmax, int rmin = 0)
-{
-  return static_cast<int> (randf(rmax, rmin));
-}
-
-struct RNG
-{
-  int operator() (int n) const { return randi (n); }
-};
-//RNG stlrand;
 
 
 bool comp (double x1, double x2, double thresh = 1e-6)
@@ -82,7 +50,8 @@ CaloTowerBuilderToolTestAlg::CaloTowerBuilderToolTestAlg
   (const std::string& name,
    ISvcLocator* pSvcLocator)
     : AthAlgorithm (name, pSvcLocator),
-      m_builder ("CaloTowerBuilderTool")
+      m_builder ("CaloTowerBuilderTool"),
+      m_seed (1)
 {
 }
 
@@ -108,14 +77,14 @@ CaloCellContainer*
 CaloTowerBuilderToolTestAlg::make_cells()
 {
   CaloCellContainer* cells = new CaloCellContainer;
-  const CaloDetDescrManager* ddman = 0;
+  const CaloDetDescrManager* ddman = nullptr;
   if ( detStore()->retrieve (ddman, "CaloMgr").isFailure() )
     std::abort();
   for (CaloCell_ID::SUBCALO subcalo : m_calos) {
     for (const CaloDetDescrElement* dde :
            ddman->element_range (subcalo))
     {
-      float energy = randf (100*GeV);
+      float energy = Athena_test::randf_seed (m_seed, 100*GeV);
       cells->push_back (new CaloCell (dde, energy, 0, 0, 0, 
                                       CaloGain::LARMEDIUMGAIN) );
     }
@@ -133,7 +102,7 @@ CaloTowerBuilderToolTestAlg::test_subseg (const CaloTowerSeg::SubSeg& subseg,
   CHECK( m_builder->execute (tow, cells, &subseg) );
 
   for (size_t i = 0; i < tow->size(); i++) {
-    typedef CaloTowerContainer::index_t index_t;
+    using index_t = CaloTowerContainer::index_t;
     index_t ieta1 = tow->getTowerEtaIndex (i);
     index_t iphi1 = tow->getTowerPhiIndex (i);
     index_t ieta0 = ieta1 + subseg.etamin()-1;

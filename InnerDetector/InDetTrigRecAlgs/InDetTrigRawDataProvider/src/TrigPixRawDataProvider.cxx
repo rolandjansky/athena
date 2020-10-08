@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigPixRawDataProvider.h"
@@ -7,7 +7,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "AthenaKernel/getMessageSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "IRegionSelector/IRegSelTool.h" 
 #include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
 
 
@@ -26,7 +26,6 @@ namespace InDet {
 						  const std::string& name,
 						  const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("PixelRawDataProviderTool"),
     m_id(0),
@@ -36,7 +35,7 @@ namespace InDet {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "PixelRDOs_EFID");
     declareProperty("RawDataProviderTool", m_rawDataTool);
-    declareProperty("DecodingErrorsKey", m_decodingErrorsKey="PixBSErr");
+    declareProperty("DecodingErrorsKey", m_decodingErrorsKey="PixelByteStreamErrs");
   }
 
   TrigPixRawDataProvider::~TrigPixRawDataProvider(){
@@ -112,7 +111,7 @@ namespace InDet {
     }
 
     if( !evtStore()->transientContains<IDCInDetBSErrContainer>(m_decodingErrorsKey) ) {
-      m_decodingErrors = new IDCInDetBSErrContainer(m_id->wafer_hash_max(),  std::numeric_limits<int>::min());
+      m_decodingErrors = new IDCInDetBSErrContainer(m_rawDataTool->SizeOfIDCInDetBSErrContainer(),  std::numeric_limits<int>::min());
       ATH_CHECK(evtStore()->record(m_decodingErrors, m_decodingErrorsKey));
     } else {
       ATH_CHECK(evtStore()->retrieve(m_decodingErrors, m_decodingErrorsKey));
@@ -133,9 +132,8 @@ namespace InDet {
       ATH_MSG_DEBUG ( "REGTEST:" << *roi );
     
       //double zmax = 168; 
-      m_regionSelector->DetROBIDListUint( PIXEL, 
-					  *roi, 
-					  robIDlist); 
+      m_regionSelector->ROBIDList( *roi, robIDlist ); 
+
     } else {
       msg(MSG::ERROR) << name() << " invoked without an RoI data " << endmsg;
       return StatusCode::FAILURE;

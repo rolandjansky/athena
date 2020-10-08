@@ -1,11 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/MdtHitIdHelper.h"
+
 #include <iostream>
+#include <iomanip> // for std::array
 
 MdtHitIdHelper* MdtHitIdHelper::m_help = nullptr;
+
+namespace {
+    const static std::array<char, 4> v1 = {'B','E','T','C'};
+    const static std::array<char, 9> v2 = {'I','M','O','E','1','2','3','4','S'};
+    const static std::array<char, 7> v3 = {'S','L','E','R','F','G','M'};
+}
 
 //private constructor
 MdtHitIdHelper::MdtHitIdHelper() : HitIdHelper()
@@ -14,24 +22,31 @@ MdtHitIdHelper::MdtHitIdHelper() : HitIdHelper()
   Initialize();
 }
 
+MdtHitIdHelper::MdtHitIdHelper(const unsigned int nTubes) : HitIdHelper()
+{
+  InitializeStationName();
+  Initialize(nTubes);
+}
+
 MdtHitIdHelper* MdtHitIdHelper::GetHelper()
 {
   if (!m_help) m_help = new MdtHitIdHelper();
   return m_help;
 }
 
-static char v1[] = {'B','E','T','C'};
-static char v2[] = {'I','M','O','E','1','2','3','4','S'};
-static char v3[] = {'S','L','E','R','F','G','M'};
+MdtHitIdHelper* MdtHitIdHelper::GetHelper(const unsigned int nTubes)
+{
+  if (!m_help) m_help = new MdtHitIdHelper(nTubes);
+  return m_help;
+}
 
-
-void MdtHitIdHelper::Initialize()
+void MdtHitIdHelper::Initialize(const unsigned int nTubes)
 {
   InitializeField("PhiSector",1,8);
   InitializeField("ZSector",-8,8);
   InitializeField("MultiLayer",1,2);
   InitializeField("Layer",1,4);
-  InitializeField("Tube",1,78);
+  InitializeField("Tube",1,nTubes);
 }
 
 void MdtHitIdHelper::InitializeStationName()

@@ -78,7 +78,7 @@ StatusCode WMultiLeptonFilter::filterEvent() {
 	}
 #else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if ( abs((*pitr)->pdg_id()) == 24 && (*pitr)->status() == 3) {
+      if ( std::abs((*pitr)->pdg_id()) == 24 && (*pitr)->status() == 3) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
         HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
         HepMC::GenVertex::particle_iterator thisMother = firstMother;
@@ -88,14 +88,14 @@ StatusCode WMultiLeptonFilter::filterEvent() {
           ATH_MSG_DEBUG(" W barcode "   << (*pitr)->barcode() << "  status = "  << (*pitr)->status());
           ATH_MSG_DEBUG(" a W mother "  << (*thisMother)->pdg_id()<< " barc = " << (*thisMother)->barcode());
           if ( (*thisMother)->pdg_id() == 25 )     fromhiggs  = true;
-          if ( abs((*thisMother)->pdg_id()) == 6 ) fromtop    = true;
+          if ( std::abs((*thisMother)->pdg_id()) == 6 ) fromtop    = true;
           ATH_MSG_DEBUG(" W from " << fromhiggs << "  "  << fromtop);
         }
         HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
         HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
         HepMC::GenVertex::particle_iterator thisChild = firstChild;
         for (; thisChild != endChild; ++thisChild) {
-          if ( (abs((*thisChild)->pdg_id()) == 11) ) {
+          if ( (std::abs((*thisChild)->pdg_id()) == 11) ) {
             if (fromhiggs) NLeptonsH++;
             if (fromtop)   NLeptonsT++;
             if (fromhiggs && ((*thisChild)->pdg_id() == -11) )  m_H_WPlus_e++;
@@ -105,7 +105,7 @@ StatusCode WMultiLeptonFilter::filterEvent() {
             ATH_MSG_DEBUG(" electron from W ");
           }
 
-          if ( (abs((*thisChild)->pdg_id()) == 13) ) {
+          if ( (std::abs((*thisChild)->pdg_id()) == 13) ) {
             if (fromhiggs) NLeptonsH++;
             if (fromtop)   NLeptonsT++;
             if (fromhiggs && ((*thisChild)->pdg_id() == -13) )  m_H_WPlus_m++;

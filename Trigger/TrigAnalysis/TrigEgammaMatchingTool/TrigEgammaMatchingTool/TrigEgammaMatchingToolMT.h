@@ -5,7 +5,7 @@
 #ifndef TrigEgammaMatchingToolMT_H
 #define TrigEgammaMatchingToolMT_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -33,20 +33,24 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
         TrigEgammaMatchingToolMT( const std::string& name );
 
 
-        ~TrigEgammaMatchingToolMT();
+        ~TrigEgammaMatchingToolMT()=default;
         StatusCode initialize();
 
 
-        bool match(const xAOD::Egamma *,const std::string&) const;
-        bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&) const;
+        bool match(const xAOD::Egamma *,const std::string&, unsigned int condition=TrigDefs::Physics ) const;
+        bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
         
         std::string key( std::string ) const;
         
-        template<class T> bool ancestorPassed( const TrigCompositeUtils::Decision*, const std::string trigger , const std::string key) const;
+        template<class T> bool ancestorPassed( const TrigCompositeUtils::Decision*, const std::string trigger , const std::string key,
+                                               unsigned int condition=TrigDefs::Physics ) const;
         
-        template<class T> TrigCompositeUtils::LinkInfo<T> getFeature( const TrigCompositeUtils::Decision *, std::string trigger ) const;
-        template<class T> std::vector<TrigCompositeUtils::LinkInfo<T>> getFeatures( const TrigCompositeUtils::Decision *, std::string trigger ) const;
-        template<class T> std::vector<TrigCompositeUtils::LinkInfo<T>> getFeatures( const TrigCompositeUtils::Decision *, std::string trigger, std::string key  ) const;
+        template<class T> TrigCompositeUtils::LinkInfo<T> getFeature( const TrigCompositeUtils::Decision *, std::string trigger,
+                                                                      unsigned int condition=TrigDefs::Physics ) const;
+        template<class T> std::vector<TrigCompositeUtils::LinkInfo<T>> getFeatures( const TrigCompositeUtils::Decision *, std::string trigger , 
+                                                                                    unsigned int condition=TrigDefs::Physics ) const;
+        template<class T> std::vector<TrigCompositeUtils::LinkInfo<T>> getFeatures( const TrigCompositeUtils::Decision *, std::string trigger, std::string key ,
+                                                                                    unsigned int condition=TrigDefs::Physics ) const;
         
         
         const xAOD::EmTauRoI* getL1Feature( const TrigCompositeUtils::Decision * ) const;
@@ -56,15 +60,16 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
 
     private:
         
-        bool matchHLTElectron(const xAOD::Electron *,const std::string &, const TrigCompositeUtils::Decision *&) const;
-        bool matchHLTPhoton(  const xAOD::Photon   *,const std::string &, const TrigCompositeUtils::Decision *&) const;
-        bool matchHLTCalo(    const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&) const;
-        bool matchL2Electron( const xAOD::Electron *,const std::string &, const TrigCompositeUtils::Decision *&) const;
-        bool matchL2Photon(   const xAOD::Photon   *,const std::string &, const TrigCompositeUtils::Decision *&) const;
-        bool matchL2Calo(     const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&) const;
-        bool matchL1(         const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&) const;
+        bool matchHLTElectron(const xAOD::Electron *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
+        bool matchHLTPhoton(  const xAOD::Photon   *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
+        bool matchHLTCalo(    const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
+        bool matchL2Electron( const xAOD::Electron *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
+        bool matchL2Photon(   const xAOD::Photon   *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
+        bool matchL2Calo(     const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
+        bool matchL1(         const xAOD::Egamma   *,const std::string &, const TrigCompositeUtils::Decision *&, unsigned int condition=TrigDefs::Physics ) const;
       
-        template<class T> bool closestObject( const xAOD::Egamma *, const TrigCompositeUtils::Decision *&, std::string trigger, std::string key ) const;
+        template<class T> bool closestObject( const xAOD::Egamma *, const TrigCompositeUtils::Decision *&, std::string trigger, std::string key,
+                                              unsigned int condition=TrigDefs::Physics ) const;
         
 
         inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const

@@ -25,7 +25,7 @@
 // MCTruth includes
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/VTrackInformation.h"
 
@@ -175,7 +175,7 @@ namespace G4UA {
         //               " and is returned to ISF.");
 
         const ISF::ISFParticle*    parent = curISP;
-        HepMC::GenParticlePtr truthParticle = m_eventInfo->GetCurrentlyTraced();
+        HepMC::GenParticlePtr truthParticle = m_atlasG4EvtUserInfo->GetCurrentlyTraced();
         this->returnParticleToISF(aTrack, parent, truthParticle, nextGeoID);
       }
 
@@ -241,9 +241,14 @@ namespace G4UA {
         G4Exception("iGeant4::TrackProcessorUserActionPassBack", "NoTrackInformation", FatalException, description);
         return nullptr; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
       }
+#ifdef HEPMC3
+      HepMC::GenParticlePtr          primaryHepParticle = std::const_pointer_cast<HepMC3::GenParticle>(trackInfo->GetPrimaryHepMCParticle());
+      HepMC::GenParticlePtr   generationZeroHepParticle = std::const_pointer_cast<HepMC3::GenParticle>(trackInfo->GetHepMCParticle());
 
+#else
       HepMC::GenParticlePtr         primaryHepParticle = const_cast<HepMC::GenParticlePtr>(trackInfo->GetPrimaryHepMCParticle());
       HepMC::GenParticlePtr  generationZeroHepParticle = const_cast<HepMC::GenParticlePtr>(trackInfo->GetHepMCParticle());
+#endif
 
       ISF::TruthBinding* tBinding = new ISF::TruthBinding(truthParticle, primaryHepParticle, generationZeroHepParticle);
 

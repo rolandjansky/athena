@@ -69,7 +69,7 @@ namespace MuonCombined {
       ATH_MSG_VERBOSE("Re-Fitting track " << std::endl << m_printer->print(msTrack) << std::endl << m_printer->printStations(msTrack));
       Trk::Track* standaloneTrack = 0;
       const Trk::Vertex* vertex = 0;
-      if( m_extrapolationStrategy == 0 ) {
+      if( m_extrapolationStrategy == 0u ) {
         standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
       } else {
          standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
@@ -81,14 +81,16 @@ namespace MuonCombined {
 	  standaloneTrack=0;
 	  ATH_MSG_DEBUG("extrapolated track has no DOF, don't use it");
 	}
-	double mschi2=2.5; //a default we should hopefully never have to use (taken from CombinedMuonTrackBuilder)
-	if(msTrack.fitQuality()->doubleNumberDoF()>0) mschi2=msTrack.fitQuality()->chiSquared()/msTrack.fitQuality()->doubleNumberDoF();
-	//choice of 1000 is slightly arbitrary, the point is that the fit should be really be terrible
-	if(standaloneTrack->fitQuality()->chiSquared()/standaloneTrack->fitQuality()->doubleNumberDoF()>1000*mschi2){
-	  delete standaloneTrack;
-	  standaloneTrack=0;
-	  ATH_MSG_DEBUG("extrapolated track has a degraded fit, don't use it");
-        }
+	else{
+	  double mschi2=2.5; //a default we should hopefully never have to use (taken from CombinedMuonTrackBuilder)
+	  if(msTrack.fitQuality()->doubleNumberDoF()>0) mschi2=msTrack.fitQuality()->chiSquared()/msTrack.fitQuality()->doubleNumberDoF();
+	  //choice of 1000 is slightly arbitrary, the point is that the fit should be really be terrible
+	  if(standaloneTrack->fitQuality()->chiSquared()/standaloneTrack->fitQuality()->doubleNumberDoF()>1000*mschi2){
+	    delete standaloneTrack;
+	    standaloneTrack=0;
+	    ATH_MSG_DEBUG("extrapolated track has a degraded fit, don't use it");
+	  }
+	}
       }
       if (standaloneTrack) {
 	standaloneTrack->info().setParticleHypothesis(Trk::muon);

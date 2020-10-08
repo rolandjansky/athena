@@ -142,7 +142,7 @@ void ISF::ConeSimSelector::update(const ISFParticle& particle)
             }
 
           // test whether any of the pdg codes is found in the genParticle history
-          HepMC::ConstGenParticlePtr relative = HepMCHelper::findRealtiveWithPDG( *genParticle, m_relation, m_relatives);
+          HepMC::ConstGenParticlePtr relative = HepMCHelper::findRealtiveWithPDG( genParticle, m_relation, m_relatives);
 
           if (relative)
             {

@@ -18,6 +18,7 @@
 #include "G4StepPoint.hh"
 #include "G4VProcess.hh"
 
+#include <cmath>
 #include <iostream>
 
 namespace G4UA{
@@ -49,7 +50,7 @@ namespace G4UA{
     double postStepKinetic = PostStepPoint->GetKineticEnergy();
 
     // pre-step position
-    G4ThreeVector myPos = PreStepPoint->GetPosition();
+    const G4ThreeVector& myPos = PreStepPoint->GetPosition();
 
     // particle name
     G4String particleName = "nucleus";
@@ -169,13 +170,13 @@ namespace G4UA{
 
       // initial energy
       InitializeFillHistogram(m_report.histoMapMap_InitialE, "InitialE", particleName, "AllATLAS",
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), 1.0);
       InitializeFillHistogram(m_report.histoMapMap_vol_InitialE, "vol_InitialE", particleName, m_initialVolume,
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), 1.0);
       InitializeFillHistogram(m_report.histoMapMap_mat_InitialE, "mat_InitialE", particleName, m_initialMaterial,
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), 1.0);
       InitializeFillHistogram(m_report.histoMapMap_prc_InitialE, "prc_InitialE", particleName, m_initialProcess,
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), 1.0);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), 1.0);
     }
 
     // last step
@@ -197,13 +198,13 @@ namespace G4UA{
                               10000, 0.5, 10000.5, nSteps, 1.);
       // number of steps vs initial energy
       InitializeFillHistogram(m_report.histoMapMap_numberOfStepsPerInitialE, "numberOfStepsPerInitialE", particleName, "AllATLAS",
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), nSteps);
       InitializeFillHistogram(m_report.histoMapMap_vol_numberOfStepsPerInitialE, "vol_numberOfStepsPerInitialE", particleName, m_initialVolume,
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), nSteps);
       InitializeFillHistogram(m_report.histoMapMap_mat_numberOfStepsPerInitialE, "mat_numberOfStepsPerInitialE", particleName, m_initialMaterial,
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), nSteps);
       InitializeFillHistogram(m_report.histoMapMap_prc_numberOfStepsPerInitialE, "prc_numberOfStepsPerInitialE", particleName, m_initialProcess,
-                              1000, -9, 7, log10(m_initialKineticEnergyOfStep), nSteps);
+                              1000, -9, 7, std::log10(m_initialKineticEnergyOfStep), nSteps);
       // track length vs initial energy
       InitializeFillHistogram(m_report.histoMapMap_trackLengthPerInitialE, "trackLengthPerInitialE", particleName, "AllATLAS",
                               1000, -9, 7, log10(tr->GetTrackLength()), 1.);
@@ -217,7 +218,7 @@ namespace G4UA{
   }
 
   void StepHistogram::InitializeFillHistogram2D(HistoMapMap_t &hMapMap, const char* suffix,
-                                                G4String particleName, G4String vol,
+                                                const G4String& particleName, const G4String& vol,
                                                 int nbinsx, double xmin, double xmax, 
                                                 int nbinsy, double ymin, double ymax, 
                                                 double valuex, double valuey, double weight)
@@ -237,7 +238,7 @@ namespace G4UA{
   }
 
   void StepHistogram::InitializeFillHistogram(HistoMapMap_t &hMapMap, const char* suffix,
-                                              G4String particleName, G4String vol,
+                                              const G4String& particleName, const G4String& vol,
                                               int nbins, double xmin, double xmax, double value, double weight)
   {
     if ( hMapMap.find(vol) == hMapMap.end() ) {
@@ -255,7 +256,7 @@ namespace G4UA{
   }
 
   void StepHistogram::InitializeFillHistogram(HistoMapMap_t &hMapMap, const char* suffix,
-                                              G4String particleName, G4String vol,
+                                              const G4String& particleName, const G4String& vol,
                                               int nbins, double *edges, double value, double weight)
   {
     if ( hMapMap.find(vol) == hMapMap.end() ) {
@@ -272,7 +273,7 @@ namespace G4UA{
     hMap[particleName]->Fill(value, weight);
   }
 
-  void StepHistogram::Report::mergeMaps(HistoMapMap_t &selfMap, HistoMapMap_t refMap) {
+  void StepHistogram::Report::mergeMaps(HistoMapMap_t &selfMap, const HistoMapMap_t& refMap) {
     for (auto const& ref : refMap)
     {
       if ( selfMap.find(ref.first) == selfMap.end() ) {

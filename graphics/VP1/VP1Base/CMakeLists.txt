@@ -1,19 +1,7 @@
-# $Id: CMakeLists.txt 784633 2016-11-16 16:16:34Z rbianchi $
-################################################################################
-# Package: VP1Base
-################################################################################
-# Author: Riccardo Maria BIANCHI <rbianchi@cern.ch>
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package:
 atlas_subdir( VP1Base )
-
-# Set up the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC 
-                          DetectorDescription/GeoPrimitives
-    	                  Event/xAOD/xAODBase
-                          PRIVATE 
-                          graphics/VP1/VP1HEPVis )
 
 # Get OS version
 atlas_os_id( _os _isValid )
@@ -46,5 +34,5 @@ atlas_add_library( VP1Base VP1Base/*.h src/*.cxx src/*.qrc
    PUBLIC_HEADERS VP1Base
    INCLUDE_DIRS ${QT5_INCLUDE_DIRS} ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES ${QT5_LIBRARIES} ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
+   LINK_LIBRARIES ${QT5_LIBRARIES} ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives xAODBase
    PRIVATE_LINK_LIBRARIES VP1HEPVis )

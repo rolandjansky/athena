@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigEgammaFastCaloHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -20,7 +20,7 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_clustersKey.initialize() );
-  ATH_CHECK( m_ringsKey.initialize());
+  ATH_CHECK( m_ringsKey.initialize(SG::AllowEmpty));
 
   renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
   renounce( m_ringsKey );
@@ -63,25 +63,30 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
+    auto d = newDecisionIn( decisions, name() );
+    
     // get Rings
-    auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);
-    ATH_CHECK( ringerShapeHandle.isValid() );
+    const xAOD::TrigRingerRingsContainer* rings = nullptr;    
+    if ( not m_ringsKey.empty() ) {      
+      auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);
+      ATH_CHECK( ringerShapeHandle.isValid() );
+      rings = ringerShapeHandle.cptr();	
+      ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
 
-    ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
+      // link the rings      
+      auto el = ViewHelper::makeLink( *viewEL, ringerShapeHandle, 0 );
+      ATH_CHECK( el.isValid() );
+      d->setObjectLink( "ringer",  el );
+      
+    }
+
 
 
 
     // create new decision
-    auto d = newDecisionIn( decisions, name() );
-
-    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), ringerShapeHandle.cptr()->at(0), previousDecision );
+    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), (rings ? rings->at(0) : nullptr) , previousDecision );
     
-    // link the rings
-    {
-      auto el = ViewHelper::makeLink( *viewEL, ringerShapeHandle, 0 );
-      ATH_CHECK( el.isValid() );
-      d->setObjectLink( "ringer",  el );
-    }
+
     // link the cluster
     { 
       auto clus = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );

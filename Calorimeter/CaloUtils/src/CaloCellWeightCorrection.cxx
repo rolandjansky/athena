@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -49,7 +49,7 @@ CaloCellWeightCorrection::~CaloCellWeightCorrection()
 StatusCode CaloCellWeightCorrection::initialize() {
 
 //---- retrieve the noisetool ----------------
-  IToolSvc* toolSvc = 0;// Pointer to Tool Service
+  IToolSvc* toolSvc = nullptr;// Pointer to Tool Service
   ATH_CHECK( service("ToolSvc", toolSvc) );
 
 // access tools  and store them

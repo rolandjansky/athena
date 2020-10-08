@@ -15,7 +15,7 @@ RIO_OnTrackErrorScalingCondAlg::RIO_OnTrackErrorScalingCondAlg(const std::string
 {
 }
 
-StatusCode RIO_OnTrackErrorScalingCondAlg::initialize ATLAS_NOT_THREAD_SAFE() {
+StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readKey.initialize());
 
@@ -61,13 +61,13 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::addErrorScaling (const std::string &t
   catch (std::runtime_error &err) {
     std::stringstream types;
     RIO_OnTrackErrorScalingKitManager::instance().dumpKits(types);
-    ATH_MSG_FATAL( "Invalide ErrorScalking type name : " << type_name << ". Registered types:" << types.str() );
+    ATH_MSG_FATAL( "Invalid ErrorScaling type name : " << type_name << ". Registered types:" << types.str() );
     return StatusCode::FAILURE;
   }
   catch (std::exception &err) {
     std::stringstream types;
     RIO_OnTrackErrorScalingKitManager::instance().dumpKits(types);
-    ATH_MSG_FATAL( "Caught exception: " << err.what() << " Invalide ErrorScalking type name : " << type_name << ". Registered types:" << types.str() );
+    ATH_MSG_FATAL( "Caught exception: " << err.what() << " Invalid ErrorScaling type name : " << type_name << ". Registered types:" << types.str() );
     return StatusCode::FAILURE;
   }
   m_kits.push_back(the_kit);
@@ -87,10 +87,10 @@ public:
   }
 
   template <typename T_Obj>
-  std::string dumpKeys ATLAS_NOT_THREAD_SAFE () const {
+  std::string dumpKeys() const {
     std::stringstream out;
     std::vector<std::string> keys_out;
-    const_cast<StoreGateSvc *>(this->getCS())->keys<T_Obj>(keys_out,true,false);
+    this->getCS()->template keys<T_Obj>(keys_out,true,false);
     for(const std::string &a_key : keys_out) {
       out << " " << a_key;
     }
@@ -134,6 +134,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::execute() {
         std::pair<unsigned int, unsigned int> idx = m_attributeMap.at(attr_name);
         if (idx.first != std::numeric_limits<unsigned int>::max()) {
           assert( idx.first < error_scaling.size());
+          // cppcheck-suppress assertWithSideEffect
           assert( idx.second < error_scaling[idx.first]->params().size());
 
           const int nvals=alist[att_i++].data<int>();

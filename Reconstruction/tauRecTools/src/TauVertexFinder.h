@@ -12,8 +12,6 @@
 #include "JetEDM/TrackVertexAssociation.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 
 /** 
@@ -43,8 +41,6 @@ public:
   StatusCode executeVertexFinder(xAOD::TauJet& pTau,
                                 const xAOD::VertexContainer* vertexContainer = nullptr,
                                 const xAOD::TrackParticleContainer* trackContainer = nullptr) const override;
-
-  StatusCode finalize() override;
 
 private:
   ElementLink<xAOD::VertexContainer>

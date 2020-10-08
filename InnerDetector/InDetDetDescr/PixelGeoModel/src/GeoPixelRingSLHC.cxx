@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelRingSLHC.h"
@@ -25,8 +25,11 @@
 
 //#include <iostream>
 
-GeoPixelRingSLHC::GeoPixelRingSLHC(GeoPixelSiCrystal& sensor)
-  : m_sensor(sensor)
+GeoPixelRingSLHC::GeoPixelRingSLHC(InDetDD::PixelDetectorManager* m_DDmgr,
+                                   PixelGeometryManager* mgr,
+                                   GeoPixelSiCrystal& sensor)
+  : GeoVPixelFactory (m_DDmgr, mgr),
+    m_sensor(sensor)
 {
   //nop, code moved to build to prevent leak (coverity 115114)
 }
@@ -51,7 +54,7 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
   GeoLogVol * ringLog = new GeoLogVol("ringLog",ringTube,air);
   //(sar)... until here
   
-  GeoPixelModule gpmod(m_sensor);
+  GeoPixelModule gpmod(m_DDmgr, m_gmt_mgr, m_sensor);
   GeoFullPhysVol* ringPhys = new GeoFullPhysVol(ringLog);
   int idisk = m_gmt_mgr->GetLD();
   int iring = m_gmt_mgr->Eta();

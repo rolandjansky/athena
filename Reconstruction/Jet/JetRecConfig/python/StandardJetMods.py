@@ -1,25 +1,28 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+"""
+This module defines the standard JetModifier tools used in jet reco
 
+Definitions are grouped in a dictionary of tool configurations using the helpers defined
+in package configs.
+This dict maps a modifier alias to the JetModifier config object
+that in turn will be responsible for generating a configured tool.
+
+The JetModifier config class is defined in JetDefinition.py 
+[Optional] Args to the JetModifier constructor are:
+   1. Tool Type (ignored if the helper is a custom one)
+   2. Tool Name (ignored if the helper is a custom one)
+  [3.] Config helper
+  [4.] Prereqs (default to []). Can also be a function.
+  [5.] Flag passJetDef specifying if the helper needs the jet definition
+        --> should this be by default? prefer to avoid ignored args
+"""
 from .JetDefinition import JetModifier
 
-########################################################################
-# Define the dictionary of tool configurations using the helpers defined
-# in package configs.
-# This dict maps a modifier alias to the JetModifier config object
-# that in turn will be responsible for generating a configured tool.
-#
-# [Optional] Args to the JetModifier constructor are:
-#    1. Tool Type (ignored if the helper is a custom one)
-#    2. Tool Name (ignored if the helper is a custom one)
-#   [3.] Config helper
-#   [4.] Prereqs (default to []). Can also be a function.
-#   [5.] Flag passJetDef specifying if the helper needs the jet definition
-#         --> should this be by default? prefer to avoid ignored args
 jetmoddict = {}
 
 ########################################################################
 # Define the simple modifier setups here -- those defined in JetRec.
-#from JetRec import JetRecConf
+
 from AthenaConfiguration.ComponentFactory import CompFactory
 def getJetFilterTool(modspec):
     threshold = int(modspec)
@@ -28,7 +31,7 @@ def getJetFilterTool(modspec):
     return jetptfilter
 jetrecmods = {
     "Sort":   JetModifier("JetSorter","jetsort"),
-    "Filter": JetModifier("JetFilterTool","jetptfilter",helperfn=getJetFilterTool),
+    "Filter": JetModifier("JetFilterTool","jetptfilter",createfn=getJetFilterTool),
 }
 jetmoddict.update (jetrecmods)
 
@@ -42,7 +45,7 @@ jetmoddict.update (jetrecmods)
 from JetCalibTools import JetCalibToolsConfig
 jetcalibmods = {
     "Calib": JetModifier("JetCalibrationTool","jetcalib_jetcoll_calibseq",
-                         helperfn=JetCalibToolsConfig.getJetCalibToolFromString,
+                         createfn=JetCalibToolsConfig.getJetCalibToolFromString,
                          prereqs=JetCalibToolsConfig.getJetCalibToolPrereqs,passJetDef=True)
     }
 jetmoddict.update(jetcalibmods)
@@ -55,34 +58,42 @@ jetmoddict.update(jetcalibmods)
 # Standard jet moments
 from JetMomentTools import JetMomentToolsConfig
 jetmomentmods = {
+
     # Easy cases, no special config or prereqs, just default tool config
-    "CaloEnergies":    JetModifier("JetCaloEnergies", "jetens"),
     "ClusterMoments":  JetModifier("JetClusterMomentsTool", "clsmoms"),
-    "LArHVCorr":       JetModifier("JetLArHVTool", "larhvcorr"),
     "ECPSFrac":        JetModifier("JetECPSFractionTool", "ecpsfrac"),
     "Width":           JetModifier("JetWidthTool", "width"),
 
     # More complex cases here
+    "CaloEnergies":    JetModifier("JetCaloEnergies", "jetens",
+                                   prereqs=["mod:EMScaleMom"]
+    ),
     "CaloQuality":     JetModifier("JetCaloQualityTool", "caloqual",
-                                   helperfn=JetMomentToolsConfig.getCaloQualityTool),
+                                   createfn=JetMomentToolsConfig.getCaloQualityTool),
     "ConstitFourMom":  JetModifier("JetConstitFourMomTool", "constitfourmom_basename",
-                                   helperfn=JetMomentToolsConfig.getConstitFourMomTool,
+                                   createfn=JetMomentToolsConfig.getConstitFourMomTool,
+                                   passJetDef=True),
+    "EMScaleMom":      JetModifier("JetEMScaleMomTool", "emscalemom_basename",
+                                   createfn=JetMomentToolsConfig.getEMScaleMomTool,
                                    passJetDef=True),
     "JVF":             JetModifier("JetVertexFractionTool", "jvf",
-                                   helperfn=JetMomentToolsConfig.getJVFTool,
+                                   createfn=JetMomentToolsConfig.getJVFTool,
                                    prereqs = ["mod:TrackMoments"] ),
     "JVT":             JetModifier("JetVertexTaggerTool", "jvt",
-                                   helperfn=JetMomentToolsConfig.getJVTTool,
+                                   createfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ]),
+    "LArHVCorr":       JetModifier("JetLArHVTool", "larhvcorr",
+                                   prereqs = ["mod:EMScaleMom"]),
     "OriginSetPV":     JetModifier("JetOriginCorrectionTool", "origin_setpv",
                                    prereqs = [ "mod:JVF" ]),
     "TrackMoments":    JetModifier("JetTrackMomentsTool", "trkmoms",
-                                   helperfn=JetMomentToolsConfig.getTrackMomentsTool,
-                                   prereqs = [ "input:JetSelectedTracks","input:JetTrackVtxAssoc","ghost:Track" ]),
+                                   createfn=JetMomentToolsConfig.getTrackMomentsTool,
+                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ]),
+
     "TrackSumMoments": JetModifier("JetTrackSumMomentsTool", "trksummoms",
-                                   helperfn=JetMomentToolsConfig.getTrackSumMomentsTool,
-                                   prereqs = [ "input:JetSelectedTracks","input:JetTrackVtxAssoc","ghost:Track" ]),
-    }
+                                   createfn=JetMomentToolsConfig.getTrackSumMomentsTool,
+                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ]),
+}
 jetmoddict.update(jetmomentmods)
 
 # Truth labelling moments
@@ -90,16 +101,16 @@ from ParticleJetTools import ParticleJetToolsConfig
 particlejetmods = {
     # Easy cases, no special config or prereqs, just default tool config
     "PartonTruthLabel": JetModifier("Analysis::JetPartonTruthLabel","partontruthlabel",
-                                    prereqs=["ghost:TruthLabelPartons"]),
+                                    prereqs=["ghost:Partons"]),
 
     # More complex cases here
     "TruthPartonDR":    JetModifier("Analysis::JetConeLabeling","truthpartondr",
-                                    helperfn=ParticleJetToolsConfig.getJetConeLabeling),
+                                    createfn=ParticleJetToolsConfig.getJetConeLabeling),
     "JetDeltaRLabel":   JetModifier("ParticleJetDeltaRLabelTool","jetdrlabeler_jetptmin",
-                                    helperfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,
-                                    prereqs=["input:TruthLabelBHadronsFinal",
-                                             "input:TruthLabelCHadronsFinal",
-                                             "input:TruthLabelTausFinal"])
+                                    createfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,
+                                    prereqs=["ghost:BHadronsFinal",
+                                             "ghost:CHadronsFinal",
+                                             "ghost:TausFinal"])
     }
 jetmoddict.update(particlejetmods)
 
@@ -107,3 +118,15 @@ jetmoddict.update(particlejetmods)
 
 # This can also be expanded by users if they would rather do this than
 # pass in JetModifier instances in the JetDefinition
+
+
+## TEMPORARY HACK (change the names of ghost tracks )
+from JetRecTools.JetRecToolsConfig import trackcollectionmap
+trackcollectionmap[""] =  {
+    "Tracks":           "InDetTrackParticles",
+    "JetTracks":        "JetSelectedTracks",
+    "Vertices":         "PrimaryVertices",
+    "TVA":              "JetTrackVtxAssoc",
+    "GhostTracks":      "PseudoJetGhostTrack",
+    "GhostTracksLabel": "GhostTrack",
+    }

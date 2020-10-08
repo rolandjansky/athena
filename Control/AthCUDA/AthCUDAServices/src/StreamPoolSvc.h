@@ -12,7 +12,7 @@
 #include "AthCUDAInterfaces/IStreamPoolSvc.h"
 
 // Framework include(s).
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthService.h"
 
 // System include(s).

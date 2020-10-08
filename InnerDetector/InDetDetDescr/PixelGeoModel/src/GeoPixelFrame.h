@@ -7,14 +7,15 @@
 
 #include "GeoVPixelFactory.h"
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelFrame : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelFrame : public GeoVPixelFactory {
 
 public:  
-  GeoPixelFrame();
+  GeoPixelFrame(InDetDD::PixelDetectorManager* ddmgr,
+                PixelGeometryManager* mgr);
   void BuildAndPlace(GeoFullPhysVol * parent, int section);
 
 private:
-  virtual GeoVPhysVol* Build() {return 0;} // unused - but satisfy interface
+  virtual GeoVPhysVol* Build() override {return 0;} // unused - but satisfy interface
   bool same(double v1, double v2);
 };
 

@@ -10,15 +10,13 @@ import argparse
 import shutil
 import subprocess
 import json
-import six
 from TrigValTools.TrigARTUtils import package_prefix, find_scripts, remember_cwd
 
 
 def minimal_pattern(package):
     dict = {'TriggerTest':      '(test_trig_data_v1Dev_build|test_trig_data_newJO_build)',
             'TrigP1Test':       'test_trigP1_v1Dev_build',
-            'TrigAnalysisTest': 'test_trigAna_RDOtoRDOTrig_mt1_build',
-            'TrigUpgradeTest':  None}
+            'TrigAnalysisTest': 'test_trigAna_RDOtoRDOTrig_v1Dev_build'}
     if package == 'ALL':
         return '({})'.format('|'.join([v for v in dict.values() if v]))
     elif package in dict and dict[package] is not None:
@@ -29,7 +27,7 @@ def minimal_pattern(package):
 
 
 def get_parser():
-    packages = ['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest', 'ALL']
+    packages = ['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'ALL']
     parser = argparse.ArgumentParser(usage='%(prog)s [options] [PackageName]')
     parser.add_argument('package',
                         metavar='PackageName',
@@ -122,7 +120,7 @@ def analyse_results(all_test_results):
     max_len_col1 = len(max(table.keys(), key=len))
     max_len_col2 = len(max(table.values(), key=len))
     logging.info('-'*(max_len_col1+max_len_col2+7))
-    for k, v in six.iteritems(table):
+    for k, v in table.items():
         logging.info('| {col1:<{width1}} | {col2:<{width2}} |'.format(
             col1=k, width1=max_len_col1,
             col2=v, width2=max_len_col2))

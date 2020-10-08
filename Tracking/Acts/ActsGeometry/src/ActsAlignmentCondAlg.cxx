@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsAlignmentCondAlg.h"
@@ -11,9 +11,6 @@
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteCondHandle.h"
 
@@ -49,10 +46,6 @@ StatusCode ActsAlignmentCondAlg::initialize() {
     ATH_MSG_ERROR("unable to retrieve CondSvc");
     return StatusCode::FAILURE;
   }
-
-  ATH_CHECK(detStore()->retrieve(p_pixelManager, "Pixel"));
-  ATH_CHECK(detStore()->retrieve(p_SCTManager, "SCT"));
-  ATH_CHECK(detStore()->retrieve(p_TRTManager, "TRT"));
 
   if (m_wchk.initialize().isFailure()) {
     ATH_MSG_ERROR("unable to initialize WriteCondHandle with key"

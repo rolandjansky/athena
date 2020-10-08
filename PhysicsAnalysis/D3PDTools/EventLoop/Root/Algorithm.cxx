@@ -23,8 +23,8 @@
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TH1.h>
 
-#include <AsgTools/MsgLevel.h>
-#include <AsgTools/MsgStream.h>
+#include <AsgMessaging/MsgLevel.h>
+#include <AsgMessaging/MsgStream.h>
 
 //
 // method implementations

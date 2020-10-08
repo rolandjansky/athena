@@ -29,7 +29,7 @@ class PixelServMatFactoryFS   {
   // Creation of geometry:
   void create(GeoPhysVol *motherP, GeoPhysVol *motherM);
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
  private:  
   
@@ -41,7 +41,7 @@ class PixelServMatFactoryFS   {
   StoreGateSvc                    *m_detStore;
   ServiceHandle<IRDBAccessSvc>     m_rdbAccess;
   std::unique_ptr<InDetMaterialManager> m_materialManager;
-  mutable Athena::MsgStreamMember  m_msg ATLAS_THREAD_SAFE;
+  Athena::MsgStreamMember  m_msg;
 
 };
 

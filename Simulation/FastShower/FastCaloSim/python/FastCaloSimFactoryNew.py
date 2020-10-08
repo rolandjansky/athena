@@ -62,14 +62,14 @@ def FastShowerCellBuilderToolBaseCfg(flags, name, **kwargs):
     #theFastShowerCellBuilderTool.Invisibles=[12, 14, 16, 1000022]
     #########################################################################################################
 
-    acc.setPrivateTools(CompFactory.FastShowerCellBuilderTool(name, **kwargs))
+    acc.addPublicTool(CompFactory.FastShowerCellBuilderTool(name, **kwargs))
     return acc
 
 
 def FastShowerCellBuilderToolCfg(flags, **kwargs):
 
     acc = FastShowerCellBuilderToolBaseCfg(flags, name="ISF_FastShowerCellBuilderTool", **kwargs)
-    tool = acc.popPrivateTools()
+    tool = acc.getPublicTool("ISF_FastShowerCellBuilderTool")
 
     try:
         ParticleParametrizationFileName = tool.ParticleParametrizationFileName
@@ -87,5 +87,4 @@ def FastShowerCellBuilderToolCfg(flags, **kwargs):
     mlog.verbose("all values:")
     mlog.verbose(tool)
 
-    acc.setPrivateTools(tool)
     return acc

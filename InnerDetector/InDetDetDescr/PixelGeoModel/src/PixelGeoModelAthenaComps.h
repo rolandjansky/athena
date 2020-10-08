@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelGeoModel_PixelGeoModelAthenaComps_H
@@ -21,15 +21,15 @@ public:
 
   //Add BCM
   void setBCM(IGeoSubDetTool * bcmTool);
-  IGeoSubDetTool *bcm() const;
+  IGeoSubDetTool *bcm();
 
   //Add BLM
   void setBLM(IGeoSubDetTool * blmTool);
-  IGeoSubDetTool *blm() const;
+  IGeoSubDetTool *blm();
 
  //Add Builder Tool
   void setServiceBuilderTool(IInDetServMatBuilderTool * serviceBuilderTool);
-  IInDetServMatBuilderTool *serviceBuilderTool() const;
+  IInDetServMatBuilderTool *serviceBuilderTool();
 
   //Id helper
   void setIdHelper(const PixelID* idHelper);

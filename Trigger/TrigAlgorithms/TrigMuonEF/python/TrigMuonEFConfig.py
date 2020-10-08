@@ -363,6 +363,8 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
     kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
+    #Should be safe as the dynamic alignment is only for data
+    kwargs.setdefault("ParticleCaloExtensionToolID", pcExtensionTool)
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
     kwargs.setdefault("AmbiguityProcessor", CfgGetter.getPublicTool('TrigMuonAmbiProcessor'))
     kwargs.setdefault('MakeTrackAtMSLink',True)
@@ -375,6 +377,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
     kwargs.setdefault('MuonTrackBuilder', 'TMEF_CombinedMuonTrackBuilder')
+    kwargs.setdefault('MuonSegmentTrackBuilder', CfgGetter.getPublicTool("MooMuonTrackBuilder"))
     return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
 
 def TMEF_MuonPRDSelectionTool(name="TMEF_MuonPRDSelectionTool",**kwargs):
@@ -439,7 +442,7 @@ def TMEF_MuonStauSegmentRegionRecoveryTool(name='TMEF_MuonStauSegmentRegionRecov
     if athenaCommonFlags.isOnline:
         kwargs.setdefault('MdtCondKey', "")
     return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
-    
+
 def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', **kwargs ):
    kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
    return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
@@ -496,13 +499,15 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFConf.TrigMuonEFStandaloneTr
 
         if MuonGeometryFlags.hasCSC(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
+        muonLayerHoughTool = CfgGetter.getPublicTool("MuonLayerHoughTool")
+        muonLayerHoughTool.DoTruth=False
+
         self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
-                                                                HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"),
+                                                                HoughPatternFinder = muonLayerHoughTool,
                                                                 Csc2dSegmentMaker=("Csc2dSegmentMaker/Csc2dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""),
                                                                 Csc4dSegmentMaker=("Csc4dSegmentMaker/Csc4dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""))
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
-        CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
         self.MdtRawDataProvider = "TMEF_MdtRawDataProviderTool"
@@ -548,8 +553,6 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFConf.TrigMuonEFStandaloneTr
         #CSC
         ToolSvc += CscRdoToCscPrepDataTool
         self.CscPrepDataProvider=CscRdoToCscPrepDataTool
-        #We use the clusters not the PRD hits directly for CSCs
-        self.CscPrepDataContainer="CSC_Clusters"
         #TGC
         ToolSvc += TgcRdoToTgcPrepDataTool
         self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
@@ -879,3 +882,5 @@ class TrigMuonEFTrackIsolationMTConfig (TrigMuonEFConf.TrigMuonEFTrackIsolationA
         # Use offline isolation variables
         self.useVarIso = True
         self.MuonContName = "Muons"
+        self.ptcone02Name = "Muons.ptcone02"
+        self.ptcone03Name = "Muons.ptcone03"

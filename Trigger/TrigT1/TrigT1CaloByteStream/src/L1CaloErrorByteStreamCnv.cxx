@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,7 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/StlVectorClids.h"
 #include "AthenaKernel/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "L1CaloErrorByteStreamTool.h"
 
@@ -26,7 +27,7 @@ L1CaloErrorByteStreamCnv::L1CaloErrorByteStreamCnv( ISvcLocator* svcloc )
     : Converter( storageType(), classID(), svcloc ),
       m_name("L1CaloErrorByteStreamCnv"),
       m_tool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
-      m_log(msgSvc(), m_name), m_debug(false)
+      m_debug(false)
 {
 }
 
@@ -52,19 +53,9 @@ long L1CaloErrorByteStreamCnv::storageType()
 StatusCode L1CaloErrorByteStreamCnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-  m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endmsg;
 
-  StatusCode sc = Converter::initialize();
-  if ( sc.isFailure() )
-    return sc;
-
-  // Retrieve Tool
-  sc = m_tool.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
-    return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
+  ATH_CHECK( Converter::initialize() );
+  ATH_CHECK( m_tool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -74,32 +65,26 @@ StatusCode L1CaloErrorByteStreamCnv::initialize()
 StatusCode L1CaloErrorByteStreamCnv::createObj( IOpaqueAddress* pAddr,
                                                 DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
-
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
+    REPORT_ERROR (StatusCode::FAILURE) << " Can not cast to ByteStreamAddress ";
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endmsg;
-
-  std::vector<unsigned int>* const errCollection =
-                                             new std::vector<unsigned int>;
-
-  StatusCode sc = m_tool->errors(errCollection);
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
-    delete errCollection;
-    return sc;
+  if (m_debug) {
+    REPORT_MESSAGE (MSG::DEBUG) << " Creating Objects " << nm;
   }
 
-  pObj = SG::asStorable(errCollection);
+  auto errCollection = std::make_unique<std::vector<unsigned int> >();
 
-  return sc;
+  ATH_CHECK( m_tool->errors(errCollection.get()) );
+
+  pObj = SG::asStorable(std::move(errCollection));
+
+  return StatusCode::SUCCESS;
 }
 
 } // end namespace

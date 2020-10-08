@@ -22,5 +22,6 @@ atlas_add_library (ZdcAnalysisLib
 		  Root/*.cxx
 		  PUBLIC_HEADERS ZdcAnalysis
                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                  LINK_LIBRARIES AsgDataHandlesLib
 		  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODForward xAODTrigL1Calo xAODEventInfo PathResolver
 		  )

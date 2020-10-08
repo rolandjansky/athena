@@ -42,7 +42,6 @@ Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthAllAlgSeq)
 Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthEndSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthAlgEvtSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthOutSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthRegSeq) ... dupe ignored
 ClassIDSvc           INFO RE-initializing ClassIDSvc
 ApplicationMgr       INFO Application Manager Reinitialized successfully
 ApplicationMgr       INFO Application Manager Started successfully

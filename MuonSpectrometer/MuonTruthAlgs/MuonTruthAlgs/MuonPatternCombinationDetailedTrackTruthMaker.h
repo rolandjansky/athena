@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPATTERNCOMBINATIONDETAILEDTRACKTRUTHMAKER_H
 #define MUONPATTERNCOMBINATIONDETAILEDTRACKTRUTHMAKER_H
 
-#include <string>
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonRecToolInterfaces/IDetailedMuonPatternTruthBuilder.h"
+
+#include <string>
+#include <vector>
 
 /**
  * This algorithm produces track truth data using Muon PRD truth collections.
@@ -27,24 +27,17 @@ public:
   
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
   
 private:
-  // PRD truth maps in any order
-  std::vector<std::string> m_PRD_TruthNames;
+  Gaudi::Property<std::vector<std::string>> m_PRD_TruthNames{this,"PRD_TruthNames",{"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"},"PRD truth maps in any order"};
 
-  // Track input
-  std::string m_trackCollectionName;
+  Gaudi::Property<std::string> m_trackCollectionName{this,"TrackCollectionName","MooreTracks","Track input"};
 
-  // Muon pattern combination collection input
-  std::string m_collection;
+  Gaudi::Property<std::string> m_collection{this,"MuonPatternCombinationCollection","MuonHoughPatternCombinations","Muon pattern combination collection input"};
 
-  // DetailedTrackTruthCollection output
-  std::string m_detailedTrackTruthName;
+  Gaudi::Property<std::string> m_detailedTrackTruthName{this,"DetailedTrackTruthNames","","DetailedTrackTruthCollection output"};
 
-  // Tool Handle for truth tool
-  ToolHandle<Trk::IDetailedMuonPatternTruthBuilder> m_truthTool;
-
+  ToolHandle<Trk::IDetailedMuonPatternTruthBuilder> m_truthTool{this,"TruthTool","Trk::DetailedMuonPatternTruthBuilder/DetailedMuonPatternTruthBuilder"};
 };
 
 #endif/*MUONPATTERNCOMBINATIONDETAILEDTRACKTRUTHMAKER_H*/

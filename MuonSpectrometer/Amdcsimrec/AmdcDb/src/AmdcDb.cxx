@@ -307,18 +307,15 @@ IRDBRecordset_ptr AmdcDb::getRecordsetPtr(const std::string& node,
                                           const std::string& /*tag2node*/ ,
                                           const std::string& /*connName*/)
 {
-  const IRDBRecordset* pIRDBRecordset{nullptr}; 
   if(tag=="RDB") {
-    pIRDBRecordset = p_AmdcDbSvcFromRDB->getRecordset(node);
+    return p_AmdcDbSvcFromRDB->getRecordset(node);
   }
   else if(tag=="Amdc") {
-    pIRDBRecordset = p_AmdcDbSvcFromAmdc->getRecordset(node);
+    return p_AmdcDbSvcFromAmdc->getRecordset(node);
   }
-
-  if(pIRDBRecordset)
-    return IRDBRecordset_ptr(const_cast<IRDBRecordset*>(pIRDBRecordset));
-  else
+  else {
     return m_emptyRecordset;
+  }
 }
 
 // Functions of IRDBAccessSvc Not implemented

@@ -1,13 +1,7 @@
-#
-# Build configuration for the standalone AthLinksSA package.
-#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the name of this package:
 atlas_subdir( AthLinks )
-
-# This package depends on other packages:
-atlas_depends_on_subdirs(
-   PUBLIC Control/xAODRootAccessInterfaces )
 
 # This package uses ROOT:
 find_package( ROOT COMPONENTS Core )

@@ -34,8 +34,6 @@ namespace CP
     ANA_CHECK (m_calibrationTool.retrieve());
     m_systematicsList.addHandle (m_jetHandle);
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
-    ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -47,13 +45,7 @@ namespace CP
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         xAOD::JetContainer *jets = nullptr;
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
-        for (xAOD::Jet *jet : *jets)
-        {
-          if (m_preselection.getBool (*jet))
-          {
-            ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_calibrationTool->applyCorrection (*jet));
-          }
-        }
+        ANA_CHECK (m_calibrationTool->applyCalibration(*jets));
         return StatusCode::SUCCESS;
       });
   }

@@ -35,10 +35,14 @@ def allTE_trkfast( signature="FS" ):
         from TrigInDetConfig.InDetSetup import makeInDetAlgs
         from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE
 
-        viewAlgs, viewVerify  = makeInDetAlgs( whichSignature=signature, rois=inputMakerAlg.InViewRoIs )
+        #Load signature configuration (containing cut values, names of collections, etc)
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+        IDTrigConfig = getInDetTrigConfig( signature )
+
+        viewAlgs, viewVerify  = makeInDetAlgs( config = IDTrigConfig,  rois=inputMakerAlg.InViewRoIs)
 
         vertexAlg = T2VertexBeamSpot_activeAllTE( "vertex_"+signature )
-        vertexAlg.TrackCollection = "TrigFastTrackFinder_Tracks_"+signature
+        vertexAlg.TrackCollection = IDTrigConfig.FT.trkTracksFTF()
 
         viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+beamspotViewRoI_'+signature ),
                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),

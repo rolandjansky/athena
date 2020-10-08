@@ -44,7 +44,7 @@ def _is_exit_early():
 @acmdlib.argument('--ignore-leaves',
                   nargs='*',
                   default=('Token', 'index_ref',),
-                  help='set of leaves names to ignore from comparison; can be a branch name or a partial leaf name (without any trailing dots)')
+                  help='set of leaves names to ignore from comparison; can be a branch name or a partial leaf name (accepts regex)')
 @acmdlib.argument('--enforce-leaves',
                   nargs='*',
                   default=('BCID',),
@@ -134,16 +134,37 @@ def main(args):
         fnew = ru.RootFileDumper(args.new, args.tree_name)
         pass
     
+    def build_ignore_list( all_leaves, ignore_leaves ):
+        """ Here we build the list of leaves that'll be ignored in the diff"""
+
+        import re
+        result = set()
+
+        # Loop over leaves and patterns, add matches to the results
+        # The set() is taken elsewhere in the code
+        for leaf in all_leaves:
+            for pattern in ignore_leaves:
+                try:
+                    m = re.match(pattern, leaf)
+                except TypeError:
+                    continue
+                if m:
+                    result.add(leaf)
+
+        return result
+
     def tree_infos(tree, args):
         nentries = tree.GetEntriesFast()
         # l.GetBranch().GetName() gives the full leaf path name
-        leaves = [l.GetBranch().GetName() for l in tree.GetListOfLeaves()
-                  if l.GetBranch().GetName() not in args.ignore_leaves]
+        all_leaves = [ l.GetBranch().GetName() for l in tree.GetListOfLeaves() ]
+        ignore_leaves = build_ignore_list( all_leaves, args.ignore_leaves )
+        leaves = [ leaf for leaf in all_leaves if leaf not in ignore_leaves ]
         if args.leaves_prefix:
             leaves = [l.replace(args.leaves_prefix, '') for l in leaves]
         return {
-            'entries' : nentries,
+            'entries': nentries,
             'leaves': set(leaves),
+            'ignored': ignore_leaves
             }
     
     def ordered_indices(tree, reverse_order = False):
@@ -221,7 +242,7 @@ def main(args):
                 msg.warning(' - [%s]', l)
 
         # need to remove trailing dots as they confuse reach_next()
-        skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | set(args.ignore_leaves) ]
+        skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | infos['old']['ignored'].union(infos['new']['ignored']) ]
         for l in skip_leaves:
             msg.debug('skipping [%s]', l)
 

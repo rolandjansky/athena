@@ -12,19 +12,20 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/RT","TrtCalibRt-MCnewDigi_ToTon_7T
 #conddb.blockFolder("/MDT/RT")
 #conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-00",force=True,forceMC=True)
 #conddb.blockFolder("/MDT/RTBLOB")
-#conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True)
+#conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True,className="CondAttrListCollection")
 
 conddb.blockFolder("/PIXEL/HLT/DCS/HV")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-UPD1-00",force=True,forceData=True)
 conddb.blockFolder("/PIXEL/HLT/DCS/TEMPERATURE")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE","PixDCSTemp-UPD1-00",force=True,forceData=True)
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
-conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True,className="AthenaAttributeList")
 conddb.blockFolder("/PIXEL/PixReco")
 conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixReco","PixReco-SIM-RUN12-000-01",force=True,forceMC=True)
 
 conddb.blockFolder("/TRT/Cond/DigVers")
-conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
+conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True,
+                        className = 'AthenaAttributeList')
 
 conddb.addOverride("/LAR/ElecCalibOfl/Shape/RTM/5samples1phase","LARElecCalibOflShapeRTM5samples1phase-UPD1-04")
 

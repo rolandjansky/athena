@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
-#include <iostream>
 #include <cstdint>
+#include <iostream>
 int
 main()
 {

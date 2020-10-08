@@ -201,10 +201,10 @@ def flatAlgorithmSequences( start ):
             if isSequence( c ):
                 __inner( c, collector )
 
-    from collections import defaultdict
+    from collections import defaultdict,OrderedDict
     c = defaultdict(list)
     __inner(start, c)
-    return c
+    return OrderedDict(c)
 
 def flatSequencers( start, algsCollection=None ):
     """ Returns dict of sequences keyed by name and containing list of it's members """

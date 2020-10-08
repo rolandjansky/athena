@@ -86,7 +86,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
       "Muon slice specific option. Place Muon and MuonCandidate inside newly spawned View instance. See also InViewMuons, InViewMuonCandidates" };
 
     // TODO - phase this out by reading the muon from the parent View. Remove any ambiguity.
-    SG::WriteHandleKey< ConstDataVector<xAOD::MuonContainer> > m_inViewMuons {this,"InViewMuons","",
+    SG::WriteHandleKey< xAOD::MuonContainer > m_inViewMuons {this,"InViewMuons","",
       "Name with which the Muon should be inserted into the views"};
 
     SG::WriteHandleKey< ConstDataVector<MuonCandidateCollection> > m_inViewMuonCandidates {this,"InViewMuonCandidates","",

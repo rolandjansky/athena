@@ -17,7 +17,7 @@
 
 #include <EventLoop/VomsProxySvc.h>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/GridTools.h>

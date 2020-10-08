@@ -25,7 +25,6 @@
 
 #include <fstream>
 
-using namespace Acts::VectorHelpers;
 using Box = Acts::Volume::BoundingBox; // shortcut
 
 using CVBBV = Acts::CylinderVolumeBounds::BoundValues;
@@ -96,7 +95,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   }
 
   std::shared_ptr<Acts::TrackingVolume> calo
-      = Acts::TrackingVolume::create(std::make_shared<Acts::Transform3D>(Acts::Transform3D::Identity()),
+      = Acts::TrackingVolume::create(Acts::Transform3D::Identity(),
                                      caloVolBounds,
                                      std::move(boxStore),
                                      std::move(cellVols),
@@ -261,12 +260,8 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
           tVolOrdPosNeg, std::move(binUtilityPosNeg));
 
   double chokeZOffset = caloDZ2 + (caloDZ1 - caloDZ2)/2.;
-  auto posTrf
-   = std::make_shared<const Acts::Transform3D>(
-       Acts::Translation3D(Acts::Vector3D::UnitZ()*chokeZOffset));
-  auto negTrf
-   = std::make_shared<const Acts::Transform3D>(
-       Acts::Translation3D(Acts::Vector3D::UnitZ()* -1 *chokeZOffset));
+  Acts::Transform3D posTrf(Acts::Translation3D(Acts::Vector3D::UnitZ() * chokeZOffset));
+  Acts::Transform3D negTrf(Acts::Translation3D(Acts::Vector3D::UnitZ()* -1 *chokeZOffset));
 
   auto posNegCylBounds = std::make_shared<Acts::CylinderVolumeBounds>(
        caloRMin, caloRMax, (caloDZ1 - caloDZ2) / 2.);
@@ -296,23 +291,21 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
       = std::make_shared<const Acts::BinnedArrayXD<Acts::TrackingVolumePtr>>(
           tVolOrderedCtr, std::move(binUtilityCtr));
 
-  auto ctrContainer = Acts::TrackingVolume::create(
-      std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()),
-      std::make_shared<Acts::CylinderVolumeBounds>(
-          caloRMin, caloRMax, caloDZ2),
-      tVolArrCtr);
+auto ctrContainer = Acts::TrackingVolume::create(Acts::Transform3D::Identity(),
+                        std::make_shared<Acts::CylinderVolumeBounds>(
+                        caloRMin, caloRMax, caloDZ2),
+                        tVolArrCtr);
   ATH_MSG_VERBOSE("Built central container " << *ctrContainer);
   ATH_MSG_VERBOSE("- containing: " << idContainer->volumeName() << ", " << calo->volumeName());
 
   // and now combine those together into another one
   Acts::TrackingVolumeArrayCreator tvac{Acts::TrackingVolumeArrayCreator::Config{}};
 
-  auto mainContainer = Acts::TrackingVolume::create(
-      std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()),
-      std::make_shared<Acts::CylinderVolumeBounds>(
-          caloRMin, caloRMax, caloDZ1),
-      tvac.trackingVolumeArray(gctx, {negContainer, ctrContainer, posContainer},
-                               Acts::binZ));
+auto mainContainer = Acts::TrackingVolume::create(Acts::Transform3D::Identity(),
+    std::make_shared<Acts::CylinderVolumeBounds>(
+    caloRMin, caloRMax, caloDZ1),
+    tvac.trackingVolumeArray(gctx, {negContainer, ctrContainer, posContainer},
+    Acts::binZ));
 
   ATH_MSG_VERBOSE("Built main container: " << *mainContainer);
 
@@ -323,6 +316,7 @@ std::shared_ptr<Acts::CutoutCylinderVolumeBounds>
 ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::unique_ptr<Box>>& boxStore,
                      std::shared_ptr<const Acts::TrackingVolume> insideVolume) const
 {
+  using namespace Acts::VectorHelpers; 
   // determine the dimensions of the
   double rmin_at_center = std::numeric_limits<double>::max();
   double rmin_at_choke  = std::numeric_limits<double>::max();
@@ -535,11 +529,11 @@ ActsCaloTrackingVolumeBuilder::build_endcap(double z,
   p7 = glob2vol * p7;
   p8 = glob2vol * p8;
 
-  auto globalToLocal = std::make_shared<Acts::Transform3D>(glob2vol.inverse());
+  auto globalToLocal = glob2vol.inverse();
 
   auto cubo = std::make_shared<Acts::GenericCuboidVolumeBounds>(
       std::array<Acts::Vector3D, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
-  Acts::AbstractVolume vol(std::move(globalToLocal), std::move(cubo));
+  Acts::AbstractVolume vol(globalToLocal, std::move(cubo));
 
   return vol;
 }
@@ -607,12 +601,12 @@ ActsCaloTrackingVolumeBuilder::build_barrel(double r,
   p7 = glob2vol * p7;
   p8 = glob2vol * p8;
 
-  auto globalToLocal = std::make_shared<Acts::Transform3D>(glob2vol.inverse());
+  auto globalToLocal = glob2vol.inverse();
 
   auto cubo = std::make_shared<Acts::GenericCuboidVolumeBounds>(
       std::array<Acts::Vector3D, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
 
-  Acts::AbstractVolume vol(std::move(globalToLocal), std::move(cubo));
+  Acts::AbstractVolume vol(globalToLocal, std::move(cubo));
 
   return vol;
 }
@@ -657,11 +651,11 @@ ActsCaloTrackingVolumeBuilder::build_box(double x, double dx, double y, double d
   p7 = glob2vol * p7;
   p8 = glob2vol * p8;
 
-  auto globalToLocal = std::make_shared<Acts::Transform3D>(glob2vol.inverse());
+  auto globalToLocal = glob2vol.inverse();
 
   auto cubo = std::make_shared<Acts::GenericCuboidVolumeBounds>(
       std::array<Acts::Vector3D, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
-  Acts::AbstractVolume vol(std::move(globalToLocal), std::move(cubo));
+  Acts::AbstractVolume vol(globalToLocal, std::move(cubo));
 
   return vol;
 }

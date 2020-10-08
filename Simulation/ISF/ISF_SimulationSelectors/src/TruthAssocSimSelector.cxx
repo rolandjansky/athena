@@ -73,7 +73,7 @@ bool  ISF::TruthAssocSimSelector::passSelectorCuts(const ISFParticle& particle) 
       if (genParticle)
         {
           // test whether any of the pdg codes is found in the genParticle history
-          HepMC::ConstGenParticlePtr relative = HepMCHelper::findRealtiveWithPDG( *genParticle, m_relation, m_relatives);
+          HepMC::ConstGenParticlePtr relative = HepMCHelper::findRealtiveWithPDG( genParticle, m_relation, m_relatives);
           // in case a relative was found
           if (relative)
             {
@@ -84,7 +84,7 @@ bool  ISF::TruthAssocSimSelector::passSelectorCuts(const ISFParticle& particle) 
                               << " barcode=" << particle.barcode() << ")"
                               << " passes due relative particle"
                               << " (pdg=" << relative->pdg_id() << ","
-                              << " barcode=" << HepMC::barcode(*relative) << ")" );
+                              << " barcode=" << HepMC::barcode(relative) << ")" );
               // selector cuts passed
               return true;
             } // found relative

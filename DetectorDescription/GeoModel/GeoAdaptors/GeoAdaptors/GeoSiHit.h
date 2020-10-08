@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOADAPTORS_GEOSIHIT_h
@@ -39,17 +39,20 @@ class GeoSiHit {
 
   // Is this hit ok?
 
-  operator bool () const { return s_sct || s_pix; }
+  operator bool () const { return true; }
 
  private:
-  
-  static void init();
+  static const InDetDD::PixelDetectorManager* initPixMgr();
+  static const InDetDD::SCT_DetectorManager*  initSctMgr();
+  static const PixelID*                       initPixID();
+  static const SCT_ID*                        initSctID();
+
+  const InDetDD::PixelDetectorManager* pixMgr() const;
+  const InDetDD::SCT_DetectorManager*  sctMgr() const;
+  const PixelID*                       pixID()  const;
+  const SCT_ID*                        sctID()  const;
 
   const SiHit                                     *m_hit;
-  static const InDetDD::SCT_DetectorManager       *s_sct;
-  static const InDetDD::PixelDetectorManager      *s_pix;
-  static const PixelID                            *s_pID;
-  static const SCT_ID                             *s_sID;
 };
 
 #include "GeoAdaptors/GeoSiHit.icc"

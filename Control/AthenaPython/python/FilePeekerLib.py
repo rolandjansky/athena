@@ -20,10 +20,8 @@ import six
 
 ### helper functions ----------------------------------------------------------
 def _import_ROOT():
-    import sys
-    sys.argv.insert(1, '-b')
     import ROOT
-    del sys.argv[1]
+    ROOT.gROOT.SetBatch(True)
     return ROOT
 
 ### ---
@@ -233,7 +231,7 @@ class FilePeeker(PyAthena.Alg):
                     spec   = a.specification()
                     a_type = spec.typeName()
                     if a_type.find('string') >= 0:
-                        a_data = a.data('string')()
+                        a_data = a.data['string']()
                         try:
                             a_data = eval(a_data,{},{})
                         except Exception:

@@ -39,6 +39,7 @@ private:
   ToolHandleArray<IJetHistoFiller> m_jetFillerTools;
 
   bool m_failureOnMissingContainer;
-  
+  bool m_onlyPassingJets;
+
 };
 #endif

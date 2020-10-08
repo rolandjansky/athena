@@ -1,148 +1,93 @@
 """
 This job options file will run an example extrapolation using the
-Acts tracking geometry, the material map and the Acts extrapolation toolchain.
+Acts tracking geometry and the Acts extrapolation toolchain.
 """
 
-import os
-import logging
+# start from scratch with component accumulator
 
-# Use Global flags and DetFlags.
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.GlobalFlags import globalflags
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-from AthenaCommon.Logging import log as msg
-nThreads = jp.ConcurrencyFlags.NumThreads()
-# for some reason, the synchronization fails if we run in ST...
-if (nThreads < 1) :
-    msg.fatal('numThreads must be >0. Did you set the --threads=N option?')
-    sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
+from ActsGeometry.ActsGeometryConfig import ActsExtrapolationToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = [
-    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/esd/100evts10lumiblocks.ESD.root"
-]
+def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs):
+  result = ComponentAccumulator()
 
-import AthenaPoolCnvSvc.ReadAthenaPool
+  if "ExtrapolationTool" not in kwargs:
+    extrapTool = ActsExtrapolationToolCfg(configFlags)
+    kwargs["ExtrapolationTool"] = extrapTool.getPrimary()
+    result.merge(extrapTool)
 
-# build GeoModel
-import AthenaPython.ConfigLib as apcl
-cfg = apcl.AutoCfg(name = 'MaterialMapValidation', input_files=athenaCommonFlags.FilesInput())
+  ActsExtrapolationAlg = CompFactory.ActsExtrapolationAlg
+  alg = ActsExtrapolationAlg(name, **kwargs)
+  result.addEventAlgo(alg)
 
-cfg.configure_job()
+  return result
 
-from AthenaCommon.GlobalFlags import globalflags
-if len(globalflags.ConditionsTag())!=0:
-  from IOVDbSvc.CondDB import conddb
-  conddb.setGlobalTag(globalflags.ConditionsTag())
+if "__main__" == __name__:
+  from AthenaCommon.Configurable import Configurable
+  from AthenaCommon.Logging import log
+  from AthenaCommon.Constants import VERBOSE, INFO
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+  from ActsGeometry.ActsGeometryConfig import ActsMaterialTrackWriterSvcCfg
+  from ActsGeometry.ActsGeometryConfig import ActsExtrapolationToolCfg
 
-from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-InDetGeometryFlags.useDynamicAlignFolders=True
+  Configurable.configurableRun3Behavior = True
 
-# Just the pixel and SCT
-DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+  ## Just enable ID for the moment.
+  ConfigFlags.Input.isMC             = True
+  ConfigFlags.Beam.Type = ''
+  ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
+  ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
+  ConfigFlags.Detector.SimulateBpipe = True
+  ConfigFlags.Detector.SimulateID    = True
+  ConfigFlags.Detector.GeometryBpipe = True
+  ConfigFlags.Detector.GeometryID    = True
+  ConfigFlags.Detector.GeometryPixel = True
+  ConfigFlags.Detector.GeometrySCT   = True
+  ConfigFlags.Detector.GeometryCalo  = True
+  ConfigFlags.Detector.GeometryMuon  = False
+  ConfigFlags.Detector.GeometryTRT   = True
+  ConfigFlags.TrackingGeometry.MaterialSource = "material-maps.json"
 
+  ConfigFlags.Concurrency.NumThreads = 10
+  ConfigFlags.Concurrency.NumConcurrentEvents = 10
 
-# Initialize geometry
-# THIS ACTUALLY DOES STUFF!!
-from AtlasGeoModel import GeoModelInit
-from AtlasGeoModel import SetGeometryVersion
+  ConfigFlags.lock()
+  ConfigFlags.dump()
 
-from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.OutputLevel( INFO )
-AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataDependencies( True )
-AlgScheduler.EnableConditions( True )
-AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
+  cfg = MainServicesCfg(ConfigFlags)
 
-## SET UP ALIGNMENT CONDITIONS ALGORITHM
-from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc( OutputLevel=INFO )
-from ActsGeometry import ActsGeometryConf
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
+  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+  cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
 
-# nominal alignment: all deltas are identity
-# condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
-                                                     # OutputLevel=VERBOSE)
+  alignCondAlgCfg = ActsAlignmentCondAlgCfg(ConfigFlags)
 
-condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
-                                                 OutputLevel=INFO)
-# periodic shift alignment. Configurable z-shift per lumiblock.
-# (currently pixel only)
-# condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
-                                            # ZShiftPerLB=0.5,
-                                            # OutputLevel=VERBOSE)
-## END OF CONDITIONS SETUP
+  cfg.merge(alignCondAlgCfg)
 
-from AthenaCommon.AppMgr import ServiceMgr
+  cfg.merge(ActsMaterialTrackWriterSvcCfg("ActsMaterialTrackWriterSvc",
+                                          "MaterialTracks_mapped.root"))
+  print('DEF WRITER : ')
+  extrapol = ActsExtrapolationToolCfg(ConfigFlags,
+                                      InteractionMultiScatering = True,
+                                      InteractionEloss = True,
+                                      InteractionRecord = True)
+  cfg.merge(extrapol)
+  
+  alg = ActsExtrapolationAlgCfg(ConfigFlags,
+                                OutputLevel=INFO,
+                                NParticlesPerEvent=int(1e4),
+                                EtaRange=[-2.5, 2.5],
+                                PtRange=[20, 100],
+                                WriteMaterialTracks = True,
+                                ExtrapolationTool=extrapol.getPrimary())
 
-# set up and configure the acts geometry construction
-from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
-trkGeomSvc = ActsTrackingGeometrySvc()
-# used for the proxies during material mapping
-trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
-trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
-trkGeomSvc.OutputLevel = INFO
-trkGeomSvc.BuildSubDetectors = [
-  "Pixel",
-  "SCT",
-  # "TRT",
-  # "Calo",
-]
-trkGeomSvc.UseMaterialMap = True
-trkGeomSvc.MaterialMapInputFile = "material-maps.json"
-ServiceMgr += trkGeomSvc
+  cfg.merge(alg)
 
-# We need the Magnetic fiels
-import MagFieldServices.SetupField
+  cfg.printConfig()
 
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
+  log.info("CONFIG DONE")
 
-# This is the main extrapolation demo algorithm
-from ActsGeometry.ActsGeometryConf import ActsExtrapolationAlg
-alg = ActsExtrapolationAlg()
-alg.EtaRange = [-2.4, 2.4]
-alg.OutputLevel = INFO
-alg.NParticlesPerEvent = int(1e4)
-
-
-# Record the material track for material map validation
-alg.WriteMaterialTracks = True
-# we only need this if the extrap alg is set up to write mat tracks
-if alg.WriteMaterialTracks == True:
-  mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
-  mTrackWriterSvc.OutputLevel = INFO
-  mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
-  ServiceMgr += mTrackWriterSvc
-
-# sets up the extrapolation tool
-# this sets up the tracking geometry svc through the tracking geometry tool
-exTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
-exTool.OutputLevel = INFO
-exTool.FieldMode = "ATLAS"
-exTool.InteractionMultiScatering = True
-exTool.InteractionEloss = True
-exTool.InteractionRecord = True
-# The extrapolation tool accesses the trackinggeometry service
-# through this tool. This tool has the conditions dependencies
-# on the alignment GeoAlignmentStores (pseudo-alignment only right now).
-# For each event, the GAS for the IOV needs to be set from the algorithm.
-trkGeomTool = CfgMgr.ActsTrackingGeometryTool("ActsTrackingGeometryTool")
-trkGeomTool.OutputLevel = INFO;
-exTool.TrackingGeometryTool = trkGeomTool
-
-alg.ExtrapolationTool = exTool
-
-# Make the event heardbeat output a bit nicer
-eventPrintFrequency = 10000
-if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
-    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
-if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
-    ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
-
-job += alg
-
-theApp.EvtMax = 10000
+  cfg.run(100)

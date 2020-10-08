@@ -4,7 +4,7 @@
 
 #ifndef __ELECTRONEFFICIENCYCORRECTIONMESSAGING__
 #define __ELECTRONEFFICIENCYCORRECTIONMESSAGING__
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 namespace MSGHELPERS{
     const asg::AsgMessaging& getMsgStream();

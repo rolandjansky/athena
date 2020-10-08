@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DBM_Telescope.h"
@@ -86,7 +86,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
 
   GeoTrf::RotateX3D rmX10(-10.*Gaudi::Units::deg);
 
-  DBM_ModuleCage moduleCage;
+  DBM_ModuleCage moduleCage (m_DDmgr, m_gmt_mgr);
   GeoVPhysVol* moduleCagePhys = moduleCage.Build();
 
   // parameters for rotating the 3-layer unit

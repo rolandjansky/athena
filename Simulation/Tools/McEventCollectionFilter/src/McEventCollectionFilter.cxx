@@ -9,6 +9,9 @@
 //
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Flow.h"
+#include "AtlasHepMC/Polarization.h"
 //
 #include "InDetSimEvent/SiHit.h"
 #include "MuonSimEvent/TGCSimHit.h"
@@ -198,13 +201,18 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
 
   //to set geantino vertex as a truth primary vertex
-  HepMC::GenVertexPtr hScatVx = genEvt->barcode_to_vertex(-3);
+  HepMC::GenVertexPtr hScatVx = HepMC::barcode_to_vertex(genEvt,-3);
   if(hScatVx!=nullptr) {
-    HepMC::FourVector pmvxpos=hScatVx->position();
+    const HepMC::FourVector& pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
+#ifdef HEPMC3 
+    auto itrp = hScatVx->particles_in().begin();
+    if (hScatVx->particles_in().size()==2){
+#else
     HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
     if (hScatVx->particles_in_size()==2){
+#endif
       HepMC::FourVector mom1=(*itrp)->momentum();
       HepMC::FourVector mom2=(*(++itrp))->momentum();
       HepMC::FourVector vxmom;
@@ -217,6 +225,9 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
     }
   }
 
+#ifdef HEPMC3 
+  if(!evt->vertices().empty()) for (auto vtx: evt->vertices()) evt->remove_vertex(vtx);
+#else
   if(!evt->vertices_empty()){
     HepMC::GenEvent::vertex_iterator itvtx = evt->vertices_begin();
     for (;itvtx != evt ->vertices_end(); ++itvtx ) {
@@ -225,11 +236,12 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
       delete vtx;
     }
   }
+#endif
 
   //--------------------------------------
   if(m_IsKeepTRTElect){
     for(int i=0;i<(int) m_elecBarcode.size();i++){
-      HepMC::GenParticlePtr thePart=genEvt->barcode_to_particle(m_elecBarcode[i]);
+      HepMC::GenParticlePtr thePart=HepMC::barcode_to_particle(genEvt,m_elecBarcode[i]);
       if (!thePart){
         ATH_MSG_DEBUG( "Could not find particle for barcode " << m_elecBarcode[i] );
         continue;
@@ -239,7 +251,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
                                                                     thePart->status());
       HepMC::suggest_barcode(thePart_new, m_elecBarcode[i]);
 
-      HepMC::FourVector pos= vx->position();
+      const HepMC::FourVector& pos= vx->position();
       HepMC::GenVertexPtr vx_new = HepMC::newGenVertexPtr(pos);
       vx_new->add_particle_out(thePart_new);
       evt->add_vertex(vx_new);
@@ -248,7 +260,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
   //.....add new vertex with geantino
   evt->add_vertex(genVertex);
-  m_RefBarcode=HepMC::barcode(*genPart);
+  m_RefBarcode=HepMC::barcode(genPart);
 
   m_outputTruthCollection->push_back(evt);
 

@@ -27,6 +27,10 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     algTRTMonitoringRun3ESD = helper.addAlgorithm(CompFactory.TRTMonitoringRun3ESD_Alg,
                                                'AlgTRTMonitoringRun3')
 
+    # trigger flag
+    if not inputFlags.DQ.triggerDataAvailable:
+        algTRTMonitoringRun3ESD.TrigDecisionObjectName = ''
+
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     result.merge(AtlasGeometryCfg(inputFlags))
 

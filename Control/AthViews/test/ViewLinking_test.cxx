@@ -4,7 +4,6 @@
 
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "StoreGate/ReadHandle.h"

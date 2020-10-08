@@ -137,7 +137,7 @@ void PhysicsListSvc::SetPhysicsOptions()
     // Send UI commands
     ATH_MSG_DEBUG("G4 Command: Trying in SetPhysicsOptions()");
     G4UImanager* ui = G4UImanager::GetUIpointer();
-    for (auto g4command : g4commands) {
+    for (const auto& g4command : g4commands) {
       int returnCode = ui->ApplyCommand( g4command );
       CommandLog(returnCode, g4command);
     }

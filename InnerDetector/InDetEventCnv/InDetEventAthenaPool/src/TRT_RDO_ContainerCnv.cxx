@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_RDO_ContainerCnv.h"
@@ -73,6 +73,7 @@ StatusCode TRT_RDO_ContainerCnv::initialize() {
    m_converter_p1.initialize(idhelper, m_storeGate);
    m_converter_TP1.initialize(idhelper);
    m_converter_TP2.initialize(idhelper);
+   m_converter_TP3.initialize(idhelper);
 
    ATH_MSG_DEBUG("Converter initialized");
 
@@ -126,9 +127,17 @@ TRT_RDO_Container* TRT_RDO_ContainerCnv::createTransient() {
   static const pool::Guid   p1_guid("CFBDB7A8-C788-4EE7-A260-3C8B680234FE"); // with TRT_RDORawData
   static const pool::Guid   TP1_guid("DA76970C-E019-43D2-B2F9-25660DCECD9D"); // for t/p separated version with InDetRawDataContainer_p1
   static const pool::Guid   TP2_guid("7138342E-0A80-4A32-A387-2842A01C2539"); // for t/p separated version with InDetRawDataContainer_p2
+  static const pool::Guid   TP3_guid("D0313948-9BC8-415F-BE58-7BA8178F93CD"); // for t/p separated version with InDetRawDataContainer_p3
   ATH_MSG_DEBUG("createTransient(): main converter");
 
-  if( compareClassGuid(TP2_guid) ) {
+  if( compareClassGuid(TP3_guid) ) {
+    ATH_MSG_DEBUG("createTransient(): New TP version - TP3 branch");
+    std::unique_ptr< InDetRawDataContainer_p3 >   col_vect( poolReadObject< InDetRawDataContainer_p3 >() );
+    TRT_RDO_Container *res = m_converter_TP3.createTransient( col_vect.get(), msg() );
+    ATH_MSG_DEBUG("createTransient(), TP3 branch: returns TRANS = "<<shortPrint(res));
+    return res;
+  }
+  else if( compareClassGuid(TP2_guid) ) {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP2 branch");
     std::unique_ptr< InDetRawDataContainer_p2 >   col_vect( poolReadObject< InDetRawDataContainer_p2 >() );
     TRT_RDO_Container *res = m_converter_TP2.createTransient( col_vect.get(), msg() );

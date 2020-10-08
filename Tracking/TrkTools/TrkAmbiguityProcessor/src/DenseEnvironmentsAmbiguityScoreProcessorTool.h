@@ -11,7 +11,6 @@
 #include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 
 //need to include the following, since its a typedef and can't be forward declared.
@@ -21,6 +20,7 @@
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 #include "AmbiCounter.icc"
 #include <map>
 #include <set>
@@ -40,14 +40,15 @@ namespace Trk {
                                                       virtual public ITrackAmbiguityScoreProcessorTool
   {
   public:
-    enum class EStatType {
+    enum class ScoreCategory {
       kNtracks,
       kNcandidates,
       kNcandScoreZero,
       kNcandDouble,
+      kNaccept,
       kNCounter
     };
-    using TrackStat3 = AmbiCounter<EStatType>;
+    using Counter = AmbiCounter<ScoreCategory>;
       // public types
       typedef std::multimap< TrackScore, const Track* > TrackScoreMap;
       typedef std::vector<const PrepRawData*> PrdSignature;
@@ -56,11 +57,10 @@ namespace Trk {
       // default methods
       DenseEnvironmentsAmbiguityScoreProcessorTool(const std::string&,const std::string&,const IInterface*);
       virtual ~DenseEnvironmentsAmbiguityScoreProcessorTool();
-      virtual StatusCode initialize() override;
-      virtual StatusCode finalize  () override;
+      virtual StatusCode initialize() override final;
+      virtual StatusCode finalize  () override final;
 
-      virtual void process(std::vector<const Track*>* tracks,
-                           TracksScores* trackScoreTrackMap) const override;
+      virtual void process(const TrackCollection & tracks, TracksScores* trackScoreTrackMap) const override final;
 
       /** statistics output to be called by algorithm during finalize. */
       void statistics() override;
@@ -72,18 +72,20 @@ namespace Trk {
          @param tracks the TrackCollection is looped over, 
          and each Trk::Track is added to the various caches. 
          The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(std::vector<const Track*>* tracks,
+      void addNewTracks(const TrackCollection & tracks,
                         TracksScores* trackScoreTrackMap) const;
 
       /**  Find SiS Tracks that share hits in the track score map*/
       void overlappingTracks(const TracksScores* scoreTrackMap,
                              InDet::PixelGangedClusterAmbiguities *splitClusterMap,
+                             Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                              Trk::PRDtoTrackMap &prd_to_track_map) const;
 
       /**  Update pixel split information based using the fitted track*/
       void updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
                                                                  const Trk::TrackParameters*> & clusterTrkPara,
-                                                 InDet::PixelGangedClusterAmbiguities *splitClusterMap) const;
+                                                 InDet::PixelGangedClusterAmbiguities *splitClusterMap,
+                                                 Trk::ClusterSplitProbabilityContainer &splitProbContainer) const;
 
                
       /**Scoring tool
@@ -97,10 +99,6 @@ namespace Trk {
       ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoToolNotGanged
          {this, "AssociationToolNotGanged", "Trk::PRDtoTrackMapTool" };  // @TODO why are ganged pixels ignored ?
        
-      /** selection tool - here the decision which hits remain on a track and
-          which are removed are made */
-      ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
-
       /** recalculate split prob tool **/
       ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool; 
 
@@ -114,6 +112,11 @@ namespace Trk {
       SG::WriteHandleKey<Trk::PRDtoTrackMap>  m_assoMapName
          {this,"AssociationMapName",""};  ///< the key given to the newly created association map
 
+     SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>  m_clusterSplitProbContainerIn
+         {this,"InputClusterSplitProbabilityName",""};  ///< the key given to the newly created association map
+     SG::WriteHandleKey<Trk::ClusterSplitProbabilityContainer>  m_clusterSplitProbContainerOut
+         {this,"OutputClusterSplitProbabilityName",""};  ///< the key given to the newly created association map
+
       /**NN split sprob cut for 2 particle clusters */      
       float m_sharedProbCut;
 
@@ -122,7 +125,7 @@ namespace Trk {
 
       std::vector<float>     m_etaBounds;           //!< eta intervals for internal monitoring
       mutable std::mutex m_statMutex;
-      mutable TrackStat3  m_stat ATLAS_THREAD_SAFE;
+      mutable Counter  m_stat ATLAS_THREAD_SAFE;
   };
 } //end ns
 

@@ -12,7 +12,7 @@
 #include <EventLoopAlgs/DuplicateChecker.h>
 #include <EventLoopAlgs/Global.h>
 
-#include <AsgTools/MsgStream.h>
+#include <AsgMessaging/MsgStream.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/IWorker.h>
 #include <RootCoreUtils/Assert.h>

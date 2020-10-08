@@ -104,6 +104,8 @@ StatusCode PixelPrepDataToxAOD::initialize()
   m_write_offsets = m_clustercontainer_key.key() + "Offsets";
   ATH_CHECK(m_write_offsets.initialize());
 
+  ATH_CHECK(m_clusterSplitProbContainer.initialize( !m_clusterSplitProbContainer.key().empty()));
+
   return StatusCode::SUCCESS;
 }
 
@@ -255,9 +257,10 @@ StatusCode PixelPrepDataToxAOD::execute()
    
       AUXDATA(xprd,char,isFake)      =  (char)prd->isFake(); 
       AUXDATA(xprd,char,gangedPixel) =  (char)prd->gangedPixel(); 
-      AUXDATA(xprd,int,isSplit)      =  (int)prd->isSplit(); 
-      AUXDATA(xprd,float,splitProbability1)  =  prd->splitProbability1(); 
-      AUXDATA(xprd,float,splitProbability2)  =  prd->splitProbability2(); 
+      const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(prd);
+      AUXDATA(xprd,int,isSplit)      =  static_cast<int>(splitProb.isSplit());
+      AUXDATA(xprd,float,splitProbability1)  =  splitProb.splitProbability1();
+      AUXDATA(xprd,float,splitProbability2)  =  splitProb.splitProbability2();
 
       // Need to add something to Add the NN splitting information
       if(m_writeNNinformation) addNNInformation( xprd,  prd, 7, 7);
@@ -265,7 +268,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       // Add information for each contributing hit
       if(m_writeRDOinformation) {
         IdentifierHash moduleHash = clusterCollection->identifyHash();
-        AUXDATA(xprd,int,isBSError) = (int)m_pixelSummary->isBSError(moduleHash);
+        AUXDATA(xprd,int,hasBSError) = (int)m_pixelSummary->hasBSError(moduleHash);
         AUXDATA(xprd,int,DCSState) = dcsState->getModuleStatus(moduleHash);
 
         float deplVoltage = 0.0;

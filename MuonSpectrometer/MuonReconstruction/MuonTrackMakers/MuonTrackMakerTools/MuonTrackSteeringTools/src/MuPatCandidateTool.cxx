@@ -33,9 +33,6 @@
 #include <set>
 #include <cstdlib>  // for std::abs( int )
 
-#define BETTER_BOOKKEEPING
-
-
 namespace Muon {
 
   MuPatCandidateTool::MuPatCandidateTool(const std::string& t, const std::string& n, const IInterface* p)    
@@ -109,96 +106,50 @@ namespace Muon {
   }
 
 
-  bool MuPatCandidateTool::extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, const Trk::Track* track ) const {
+  bool MuPatCandidateTool::extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const {
     // add segment to candidate
     can.addSegment(&segInfo,track);
     return recalculateCandidateSegmentContent( can );
   }
   
-  MuPatTrack* MuPatCandidateTool::copyCandidate( MuPatTrack& canIn ) const {
+  std::unique_ptr<MuPatTrack> MuPatCandidateTool::copyCandidate( MuPatTrack* canIn ) const {
     // copy and update hits
-    MuPatTrack* can = new MuPatTrack(canIn);
-#ifdef BETTER_BOOKKEEPING
-    // nothing needed here
-#else
-    updateHits(*can,can->track().measurementsOnTrack()->stdcont());
-#endif
+    std::unique_ptr<MuPatTrack> can = std::make_unique<MuPatTrack>(*canIn);
     return can;
   }
 
-  MuPatTrack* MuPatCandidateTool::copyCandidateAndTransferTrack( MuPatTrack& canIn ) const {
-    MuPatTrack* can = copyCandidate( canIn ); // does not copy track (lazy copy)
-    // transfer ownership of track (to avoid copy of track if possible)
-    if ( canIn.ownsTrack() ) {
-      // canIn owns it, can transfer ownership
-      can->updateTrack( &canIn.releaseTrack() );
-    } else {
-      // someone else owns it. Have to make a copy.
-      can->updateTrack( new Trk::Track(canIn.track()) );
-    }
-    return can;
-  }
-
-
-  MuPatTrack* MuPatCandidateTool::createCandidate( MuPatSegment& segInfo, const Trk::Track* track ) const {
+  std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const {
 
     // create the new candidate
-    MuPatTrack* candidate = new MuPatTrack(&segInfo,track);
-
-#ifdef BETTER_BOOKKEEPING
+    std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(&segInfo,track));
     recalculateCandidateSegmentContent( *candidate );
-#else
-    m_hitHandler->create( candidate->track(),candidate->hitList() );
-
-    // update the hit summary
-    updateHits(*candidate,candidate->track().measurementsOnTrack()->stdcont());
-#endif
-
     return candidate;
   }
 
-  bool MuPatCandidateTool::updateTrack( MuPatTrack& candidate, const Trk::Track* track ) const {
+  bool MuPatCandidateTool::updateTrack( MuPatTrack& candidate, std::unique_ptr<Trk::Track>& track ) const {
     candidate.updateTrack( track );
     return recalculateCandidateSegmentContent( candidate );
   }
 
   
-  MuPatTrack* MuPatCandidateTool::createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, 
-						       const Trk::Track* track ) const {
+  std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, 
+								   std::unique_ptr<Trk::Track>& track ) const {
 
     // create the new candidate
-    MuPatTrack* candidate = new MuPatTrack(&segInfo1,&segInfo2,track);
-
-#ifdef BETTER_BOOKKEEPING
+    std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(&segInfo1,&segInfo2,track));
     recalculateCandidateSegmentContent( *candidate );
-#else
-    m_hitHandler->create( candidate->track(),candidate->hitList() ); 	  
-
-    // update the hit summary
-    updateHits(*candidate,candidate->track().measurementsOnTrack()->stdcont());
-#endif
-
     return candidate;
   }
 
 
-  MuPatTrack* MuPatCandidateTool::createCandidate( const Trk::Track* track ) const {
+  std::unique_ptr<MuPatTrack> MuPatCandidateTool::createCandidate( std::unique_ptr<Trk::Track>& track ) const {
 
     // create a dummy segment vector
     std::vector<MuPatSegment*> segments;
 
     // create the new candidate
-    MuPatTrack* candidate = new MuPatTrack(segments,track);
-
-#ifdef BETTER_BOOKKEEPING
+    std::unique_ptr<MuPatTrack> candidate(new MuPatTrack(segments,track));
     recalculateCandidateSegmentContent( *candidate );
-#else
-    m_hitHandler->create( candidate->track(), candidate->hitList() );
-
-    // update the hit summary
-    updateHits(*candidate,candidate->track().measurementsOnTrack()->stdcont());
-#endif
-
     return candidate;
   }
 
@@ -623,11 +574,11 @@ namespace Muon {
     return oss.str();
   }
 
-  std::string MuPatCandidateTool::print( const std::vector<MuPatTrack*>& tracks, int level ) const{
+  std::string MuPatCandidateTool::print( const std::vector<std::unique_ptr<MuPatTrack> >& tracks, int level ) const{
     std::ostringstream oss;
     oss << "MuPatTracks " << tracks.size() << std::endl;
-    std::vector<MuPatTrack*>::const_iterator tit = tracks.begin();
-    std::vector<MuPatTrack*>::const_iterator tit_end = tracks.end();
+    std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit = tracks.begin();
+    std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit_end = tracks.end();
     for( ;tit!=tit_end;++tit ) oss << " " << print(**tit,level) << std::endl;
     
     return oss.str();

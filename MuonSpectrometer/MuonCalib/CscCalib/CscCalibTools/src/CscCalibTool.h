@@ -156,16 +156,14 @@ protected:
   // define bipolar functional shape
   // Parameters are from Kostas presentation at the following link (09/2007)
   // http://indico.cern.ch/getFile.py/access?contribId=1&resId=1&materialId=slides&confId=18787
-  float m_integrationNumber;
-  float m_integrationNumber2;
+  double m_integrationNumber;
+  double m_integrationNumber2;
 
-  float m_samplingTime;
-  float m_signalWidth;
-  float m_timeOffset; // bipolar's start time (or drift time)
-  float m_timeOffsetRange;
+  double m_samplingTime;
+  double m_signalWidth;
+  double m_timeOffset; // bipolar's start time (or drift time)
 
-  float m_latency; // new in 2010....latency may be controlled in CscCalibTool.
-  float m_latencyInDigitization; // new in 12/2010 for New Digitization package...
+  double m_latency; // new in 2010....latency may be controlled in CscCalibTool.
 
   unsigned int m_nSamples;
   mutable std::unique_ptr<TF1> m_addedfunc ATLAS_THREAD_SAFE = nullptr; // Guarded by m_mutex

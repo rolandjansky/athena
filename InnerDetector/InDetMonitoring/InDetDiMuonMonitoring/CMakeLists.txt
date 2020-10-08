@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( InDetDiMuonMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaMonitoring
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          PRIVATE
-                          Control/CxxUtils
-                          Control/StoreGate )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 find_package( GeoModelCore )

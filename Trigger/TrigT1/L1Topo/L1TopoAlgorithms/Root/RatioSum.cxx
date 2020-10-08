@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * RatioSum.cpp
@@ -22,10 +22,8 @@
 
 REGISTER_ALG_TCS(RatioSum)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::RatioSum::RatioSum(const std::string & name) : DecisionAlg(name)
@@ -201,8 +199,8 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
    unsigned int objC(0);
    for( TCS::GenericTOB * tob : *input[1]) {
 
-      if( parType_t(fabs(tob->eta())) > p_EtaMax2 ) continue; // Eta cut
-      if( parType_t(fabs(tob->eta())) < p_EtaMin2 ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) > p_EtaMax2 ) continue; // Eta cut
+      if( parType_t(std::abs(tob->eta())) < p_EtaMin2 ) continue; // Eta cut
       if( tob->Et() <= p_MinET2 ) continue; // E_T cut
 
       TRG_MSG_DEBUG("Jet : ET = " << tob->Et());
@@ -218,8 +216,8 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
            ++tob1) 
          {
 	
-          if( parType_t(fabs((*tob1)->eta())) > p_EtaMax3 ) continue; // Eta cut
-          if( parType_t(fabs((*tob1)->eta())) < p_EtaMin3 ) continue; // Eta cut
+          if( parType_t(std::abs((*tob1)->eta())) > p_EtaMax3 ) continue; // Eta cut
+          if( parType_t(std::abs((*tob1)->eta())) < p_EtaMin3 ) continue; // Eta cut
           if( (*tob1)->Et() <= p_MinET3 ) continue; // E_T cut
           sumET += (*tob1)->Et() ;
 

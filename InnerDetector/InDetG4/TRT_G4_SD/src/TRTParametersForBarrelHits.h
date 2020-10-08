@@ -10,7 +10,7 @@
 class TRTParameters;
 class TRTProcessingOfBarrelHits;
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersForBarrelHits // Thread unsafe TRTParameters and TRTProcessingOfBarrelHits classes are used.
+class TRTParametersForBarrelHits
 {
 public:
   TRTParametersForBarrelHits(TRTProcessingOfBarrelHits*);
@@ -22,7 +22,7 @@ private:
 
   int m_printMessages; //FIXME not used
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTProcessingOfBarrelHits* m_pProcessingOfBarrelHits;
 
   int m_verboseLevel;

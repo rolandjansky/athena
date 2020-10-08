@@ -22,7 +22,7 @@ int main() {
 #endif
 
 // FrameWork includes
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 #include "AsgTools/AnaToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
@@ -244,8 +244,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 
 
     //this builds the final track and cluster met sums, using systematic varied container
-    ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
-    ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
+    ANA_CHECK( met::buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
+    ANA_CHECK( met::buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
 
     ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
     ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));

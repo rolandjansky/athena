@@ -6,6 +6,7 @@ import sys
 import traceback
 
 
+
 def exc2string2():
     """Provide traceback ehen an exception has been raised"""
     llist = sys.exc_info()
@@ -19,8 +20,6 @@ def exc2string2():
 try:
     from TriggerMenu.commonUtils.LeptonIsoEDConfig import TrigHLTEnergyDensityCentral, TrigHLTEnergyDensityForward
 
-    from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
-    
     from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
                                             TrigCaloClusterMaker_topo)
 
@@ -59,15 +58,19 @@ def EnergyDensitySequence(te_in):
 def fullScanTopoClusterSequence():
     te_in = ''
     te_out = 'EF_FSTopoClusters'
+    
+    #   from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo as DummyAlgp
+    
+    from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo 
 
-    alglist = [DummyAlgo('RoiCreator'),
-               TrigCaloCellMaker_jet_fullcalo('TriggerCaloCellMaker_FS',
-                                              doNoise=0,
-                                              AbsE=True,
-                                              doPers=True),
-               TrigCaloClusterMaker_topo('TopoCaloClusterMaker_topo_FS',
-                                         doMoments=True,
-                                         doLC=True)]
+    alglist = [ GenericDummyUnseededAllTEAlgo('RoiCreator'),
+                TrigCaloCellMaker_jet_fullcalo('TriggerCaloCellMaker_FS',
+                                               doNoise=0,
+                                               AbsE=True,
+                                               doPers=True),
+                TrigCaloClusterMaker_topo('TopoCaloClusterMaker_topo_FS',
+                                          doMoments=True,
+                                          doLC=True)]
     return SequenceSpecifier(te_in, te_out, alglist).generate()
 
 
@@ -83,7 +86,11 @@ def getFullScanCaloSequences():
     '''
     import collections
     caloSeqMap = collections.OrderedDict()
-    theDummyRoiCreator=DummyAlgo('RoiCreator')
+
+    from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo # as DummyAlgp
+
+    theDummyRoiCreator = GenericDummyUnseededAllTEAlgo('RoiCreator')
+
     cellMaker=TrigCaloCellMaker_jet_fullcalo('TriggerCaloCellMaker_FS',
                                               doNoise=0,
                                               AbsE=True,

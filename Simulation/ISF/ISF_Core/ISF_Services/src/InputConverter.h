@@ -83,7 +83,11 @@ namespace ISF {
 
     const G4ParticleDefinition* getG4ParticleDefinition(int pdgcode) const;
 
+#ifdef HEPMC3
+    G4PrimaryParticle* getG4PrimaryParticle(HepMC::ConstGenParticlePtr gp) const;
+#else
     G4PrimaryParticle* getG4PrimaryParticle(const HepMC::GenParticle& gp) const;
+#endif
 
     G4PrimaryParticle* getG4PrimaryParticle(const ISF::ISFParticle& isp, bool useHepMC) const;
 
@@ -93,16 +97,32 @@ namespace ISF {
     bool isInsideG4WorldVolume(const ISF::ISFParticle& isp, const G4VSolid* worldSolid) const;
 
     /** get right GenParticle mass */
+#ifdef HEPMC3
+    double getParticleMass(HepMC::ConstGenParticlePtr p) const;
+#else
     double getParticleMass(const HepMC::GenParticle& p) const;
+#endif
 
     /** get all generator particles which pass filters */
-    std::vector<HepMC::GenParticle*> getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+#ifdef HEPMC3
+    std::vector<HepMC::ConstGenParticlePtr > getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+#else
+    std::vector<HepMC::GenParticlePtr > getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+#endif
 
     /** check if the given particle passes all filters */
+#ifdef HEPMC3
+    bool passesFilters(HepMC::ConstGenParticlePtr p) const;
+#else
     bool passesFilters(const HepMC::GenParticle& p) const;
+#endif
 
     /** convert GenParticle to ISFParticle */
+#ifdef HEPMC3
+    ISF::ISFParticle* convertParticle(HepMC::ConstGenParticlePtr genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
+#else
     ISF::ISFParticle* convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
+#endif
 
     /** ParticlePropertyService and ParticleDataTable */
     ServiceHandle<IPartPropSvc>           m_particlePropSvc;          //!< particle properties svc to retrieve PDT

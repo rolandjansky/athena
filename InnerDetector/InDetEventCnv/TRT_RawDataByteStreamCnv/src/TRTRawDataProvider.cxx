@@ -14,7 +14,6 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 TRTRawDataProvider::TRTRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
   AthAlgorithm      ( name, pSvcLocator ),
-  m_regionSelector  ("RegSelSvc", name), 
   m_robDataProvider ( "ROBDataProviderSvc", name ),
   m_rawDataTool     ( "TRTRawDataProviderTool",this ),
   m_CablingSvc      ( "TRT_CablingSvc", name ),
@@ -117,9 +116,7 @@ StatusCode TRTRawDataProvider::execute()
       for (; roi!=roiE; ++roi) {
         superRoI.push_back(*roi);
       }
-      m_regionSelector->DetROBIDListUint( TRT, 
-					  superRoI,
-					  listOfRobs);
+      m_regionSelector->ROBIDList( superRoI, listOfRobs );
   }
   std::vector<const ROBFragment*> listOfRobf;
   m_robDataProvider->getROBData( listOfRobs, listOfRobf);

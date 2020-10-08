@@ -6,7 +6,7 @@
  * @file   GsfExtrapolator.h
  * @date   Tuesday 25th January 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * Extrapolation of MultiComponentState class. It is an                                                                    
+ * Extrapolation of MultiComponentState class. It is an
  * AlgTool inheriting from the IMultiStateExtrapolator class
  */
 
@@ -19,11 +19,9 @@
 #include "TrkExInterfaces/INavigator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-
+#include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
@@ -43,9 +41,6 @@ class TrackingVolume;
 class TrackingGeometry;
 class TrackStateOnSurface;
 class MaterialProperties;
-class IMultiComponentStateMerger;
-class IMaterialMixtureConvolution;
-class IMultipleScatteringUpdator;
 /** @class GsfExtrapolator */
 
 class GsfExtrapolator final
@@ -96,7 +91,6 @@ public:
                ParticleHypothesis particle) const override final;
 
 private:
-
   /** These are the methods that do the actual heavy lifting when extrapolating
    * with a cache */
   MultiComponentState extrapolateImpl(
@@ -289,41 +283,42 @@ private:
     ""
   };
 
-  bool m_propagatorStickyConfiguration; //!< Switch between simple and full
-                                        //!< configured propagators
-  bool m_surfaceBasedMaterialEffects;   //!< Switch to turn on/off surface based
-                                        //!< material effects
+  //!< Switch between simple and full configured propagators
+  bool m_propagatorStickyConfiguration;
+  //!< Switch to turn on/off surface based material effects
+  bool m_surfaceBasedMaterialEffects;
   bool m_fastField;
-  unsigned int
-    m_propagatorConfigurationLevel; //!< Configuration level of the propagator
-  unsigned int m_propagatorSearchLevel; //!< Search level of the propagator
+  //! < Configuration level of the propagator
+  unsigned int m_propagatorConfigurationLevel;
+  //!< Search level of the propagator
+  unsigned int m_propagatorSearchLevel;
   Trk::MagneticFieldProperties m_fieldProperties;
 
+  //!< Statistics: Number of calls to the main extrapolate method
   mutable Gaudi::Accumulators::Counter<int,
                                        Gaudi::Accumulators::atomicity::full>
-    m_extrapolateCalls; //!< Statistics: Number of calls to the main extrapolate
-                        //!< method
+    m_extrapolateCalls;
+  //!< Statistics: Number of calls to the extrapolate directly method
   mutable Gaudi::Accumulators::Counter<int,
                                        Gaudi::Accumulators::atomicity::full>
-    m_extrapolateDirectlyCalls; //!< Statistics: Number of calls to the
-                                //!< extrapolate directly method
+    m_extrapolateDirectlyCalls;
+  //!< Statistics: Number of calls to the  extrapolate directly fallback
   mutable Gaudi::Accumulators::Counter<int,
                                        Gaudi::Accumulators::atomicity::full>
-    m_extrapolateDirectlyFallbacks; //!< Statistics: Number of calls to the
-                                    //!< extrapolate directly fallback
+    m_extrapolateDirectlyFallbacks;
+  //!< Statistics: Number of times navigation stepping fails to go the  right
+  //!< way
   mutable Gaudi::Accumulators::Counter<int,
                                        Gaudi::Accumulators::atomicity::full>
-    m_navigationDistanceIncreaseBreaks; //!< Statistics: Number of times
-                                        //!< navigation stepping fails to go the
-                                        //!< right way
+    m_navigationDistanceIncreaseBreaks;
+  //!< Statistics: Number of times a tracking volume oscillation is detected
   mutable Gaudi::Accumulators::Counter<int,
                                        Gaudi::Accumulators::atomicity::full>
-    m_oscillationBreaks; //!< Statistics: Number of times a tracking volume
-                         //!< oscillation is detected
+    m_oscillationBreaks;
+  //!< Statistics: Number of times the volume boundary is missed
   mutable Gaudi::Accumulators::Counter<int,
                                        Gaudi::Accumulators::atomicity::full>
-    m_missedVolumeBoundary; //!< Statistics: Number of times the volume boundary
-                            //!< is missed
+    m_missedVolumeBoundary;
 };
 
 } // end namespace Trk

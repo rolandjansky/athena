@@ -27,7 +27,8 @@
 #include "xAODCore/ShallowCopy.h"
 
 //Asg includes
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "PATCore/AcceptData.h"
 #include "PATInterfaces/SystematicsUtil.h"
 
 #include <ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h>
@@ -93,12 +94,12 @@ int main( int argc, char* argv[] ) {
 
     CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", (unsigned int)311481 ) );
     CHECK( myEgCorrections.setProperty("UseRandomRunNumber",false) );
-    myEgCorrections.initialize();
+    CHECK( myEgCorrections.initialize() );
 
     AsgElectronLikelihoodTool * m_LHToolTight = new AsgElectronLikelihoodTool("m_LHToolTight");
     CHECK (m_LHToolTight->setProperty("primaryVertexContainer","PrimaryVertices") );
     m_LHToolTight->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf").ignore();
-    m_LHToolTight->initialize();
+    CHECK ( m_LHToolTight->initialize() );
 
 
     // Get a list of systematics
@@ -156,7 +157,7 @@ int main( int argc, char* argv[] ) {
             xAOD::Electron* el = *el_it;
             if (el->pt() < 25000) continue;//skip electrons outside of recommendations
 
-            bool LHacc = m_LHToolTight->accept(el);
+            bool LHacc {m_LHToolTight->accept(el)};
             std::cout << "acc:  "<< LHacc << std::endl;
             if(!m_LHToolTight->accept(el)) continue; 
             if (fabs(el->caloCluster()->etaBE(2)) > 2.4) continue;//skip electrons outside of recommendations

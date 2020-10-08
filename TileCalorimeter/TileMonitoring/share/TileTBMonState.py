@@ -1,3 +1,9 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
+from __future__ import print_function
+
 from AthenaCommon.Logging import logging
 tilemon_log = logging.getLogger('TileTBMonState.py')
 
@@ -110,11 +116,9 @@ else:
                 TilePedRun = True
                 tilemon_log.info('Set up run type: Pedestals (TilePedRun=True)')
             elif data[12] == 8:
-                run_type = 'CIS mono'
-            elif data[12] == 8:
-                run_type = 'CIS scan'
+                run_type = 'CIS'
                 TileCisRun = True
-                tilemon_log.info('Set up run type: CIS scan (TileCisRun=True)')
+                tilemon_log.info('Set up run type: CIS (TileCisRun=True)')
                 
             tilemon_log.info('TILE CONFIGURATION: RunType: %s, Mode: %s, Samples: %s, Pipeline: %s, I3Delay: %s, Event: %s, Phase: %s, DAC: %s, Capacity: %s'
                              % (run_type, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]))
@@ -237,9 +241,9 @@ if 'UpdatePeriod' in dir():
 if 'BufferSize' not in dir():
     BufferSize=2000
 try:
-     ByteStreamEmonInputSvc.BufferSize = BufferSize
+    ByteStreamEmonInputSvc.BufferSize = BufferSize
 except Exception:
-     treatException("Could not set BufferSize")
+    treatException("Could not set BufferSize")
 
 
 PublishInclude = '.*LBA01.*|.*LBC01.*|.*LBA02.*|.*LBC02.*|.*EBC03.*|.*BeamElements.*|.*TileTB.*|.*LBA04.*|.*LBC04.*'
@@ -251,7 +255,7 @@ if 'PublishInclude' in dir():
 ByteStreamCnvSvc = Service( 'ByteStreamCnvSvc' )
 theApp.ExtSvc += [ 'ByteStreamCnvSvc']
 
-print ByteStreamEmonInputSvc
+print(ByteStreamEmonInputSvc)
 
 
 if not 'OutputDirectory' in dir() or True:
@@ -314,9 +318,9 @@ class ShowLVL1(PyAthena.Alg):
         ev = self.sg.retrieve('EventInfo')
 
         # Print some LVL1 information
-        print "Run:",ev.event_ID().run_number(),"Event:",ev.event_ID().event_number()
+        print("Run:",ev.event_ID().run_number(),"Event:",ev.event_ID().event_number())
         for x in  ev.trigger_info().level1TriggerInfo():
-            print "0x%08x" % x
+            print("0x%08x" % x)
 
         return PyAthena.StatusCode.Success        
 

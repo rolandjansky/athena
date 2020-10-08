@@ -19,7 +19,6 @@
 
 # Temporary VP1 compilation issues
 - graphics/VP1/VP1Systems/VP1TriggerSystems
-- graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
@@ -29,14 +28,15 @@
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
++ PhysicsAnalysis/Algorithms/MuonAnalysisAlgorithms
++ PhysicsAnalysis/Algorithms/SelectionHelpers
++ PhysicsAnalysis/Algorithms/SystematicsHandles
 - PhysicsAnalysis/Algorithms/.*
-- PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 - PhysicsAnalysis/AnalysisCommon/PMGTools
 - PhysicsAnalysis/D3PDTools/EventLoop.*
 - PhysicsAnalysis/D3PDTools/MultiDraw
 - PhysicsAnalysis/D3PDTools/SampleHandler
 - PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
-- PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 - PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 - PhysicsAnalysis/JetPhys/SemileptonicCorr
 - PhysicsAnalysis/SUSYPhys/SUSYTools
@@ -62,4 +62,3 @@
 # Old packages that don't work with AthenaMT
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
-

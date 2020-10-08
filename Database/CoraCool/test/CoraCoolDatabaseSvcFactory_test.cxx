@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,6 +8,9 @@
  * @date June, 2019
  * @brief A test for CoraCoolDatabaseSvcFactory in the Boost framework
  */
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN

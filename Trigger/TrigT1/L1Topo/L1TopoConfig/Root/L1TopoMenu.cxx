@@ -20,32 +20,12 @@ L1TopoMenu::L1TopoMenu(const std::string & name, const std::string & version) :
 {}  
 
 
-L1TopoMenu::L1TopoMenu(L1TopoMenu&& o) :
-   m_name( std::move(o.m_name) ),
-   m_version( std::move(o.m_version) ),
-   m_smk( std::move(o.m_smk) ),
-   m_algos( std::move(o.m_algos) ),
-   m_topoconfig( std::move(o.m_topoconfig) ),
-   m_outputlist( std::move(o.m_outputlist) )
-{}
-
 
 L1TopoMenu::~L1TopoMenu() {}
 
-L1TopoMenu& 
-L1TopoMenu::operator=(L1TopoMenu&& o) {
-   m_name = std::move(o.m_name);
-   m_version = std::move(o.m_version);
-   m_smk = std::move(o.m_smk);
-   m_algos = std::move(o.m_algos);
-   m_topoconfig = std::move(o.m_topoconfig);
-   m_outputlist = std::move(o.m_outputlist);
-   return *this;
-}
-
 void
-L1TopoMenu::addAlgorithm(const TXC::L1TopoConfigAlg &alg) {
-   m_algos.push_back(alg);
+L1TopoMenu::addAlgorithm(TXC::L1TopoConfigAlg &&alg) {
+   m_algos.emplace_back(std::move(alg));
 }
 
 const L1TopoConfigAlg &

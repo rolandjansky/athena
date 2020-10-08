@@ -7,6 +7,12 @@ class IDTrigRoiUpdater ( PESA__TrigRoiUpdater ):
   def __init__(self, name="IDTrigRoiUpdater_Electron_IDT", type="electron"):
     super ( PESA__TrigRoiUpdater, self ).__init__(name)
 
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+
+    self.RegSelTool_Pixel = makeRegSelTool_Pixel()
+    self.RegSelTool_SCT   = makeRegSelTool_SCT()
+
     from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
     self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]
     self.PhiHalfWidth = InDetTrigSliceSettings[('phiHalfWidth',type)]

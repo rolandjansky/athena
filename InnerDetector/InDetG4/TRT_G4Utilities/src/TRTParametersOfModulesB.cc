@@ -257,7 +257,7 @@ void TRTParametersOfModulesB::DefineParameters()
   delete [] yOfHolesB;
 
   if (m_pParameters->GetInteger("PrintParametersOfModulesB"))
-    PrintParameters(xGlobalOfHolesB, yGlobalOfHolesB);
+    PrintParameters(m_msg.get(), xGlobalOfHolesB, yGlobalOfHolesB);
 
   delete [] xGlobalOfHolesB;
   delete [] yGlobalOfHolesB;
@@ -268,10 +268,10 @@ void TRTParametersOfModulesB::DefineParameters()
 
   // Called by DefineParameters
 
-void TRTParametersOfModulesB::PrintParameters(double* xGlobalOfHolesB,
+void TRTParametersOfModulesB::PrintParameters(MsgStream& msg, double* xGlobalOfHolesB,
   double* yGlobalOfHolesB) const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::PrintParameters" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesB::PrintParameters" << endmsg;
 
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
@@ -383,5 +383,5 @@ void TRTParametersOfModulesB::PrintParameters(double* xGlobalOfHolesB,
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::PrintParameters done" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesB::PrintParameters done" << endmsg;
 }

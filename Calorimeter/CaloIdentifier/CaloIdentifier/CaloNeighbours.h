@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOIDENTIFIER_CALONEIGHBOURS_H
@@ -100,7 +100,7 @@ public:
   // default destructor
   virtual ~CaloNeighbours();
 
-  int initialize(const CaloCell_Base_ID* caloID, std::string filename);
+  int initialize(const CaloCell_Base_ID* caloID, const std::string& filename);
 
   int get_nextInCalo(const IdentifierHash &id,std::vector<IdentifierHash>& neighbourList) const;
 

@@ -1,10 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
           MCTrueSeedFinder.cxx - Description in header file
 *********************************************************************/
+
+#include <utility>
+
+
 
 #include "TrkVertexSeedFinderTools/MCTrueSeedFinder.h"
 #include "TrkTrack/Track.h"
@@ -30,7 +34,7 @@ namespace {
       float first; ///< weight
       Amg::Vector3D second; ///< vertex position
       Interactions_pair(float p1, Amg::Vector3D p2)
-	: first(p1), second(p2) {};
+	: first(p1), second(std::move(p2)) {};
       /// define order: note that we sort inversed in intensity (highest first)
       bool operator> (const Interactions_pair& other) const
       {return first < other.first;}
@@ -160,7 +164,7 @@ namespace Trk
 				  (*Vert)->position().z());
       
       //now store info about position and "intensity" (here: scalar sum of p_T^2)
-      interactionsColl.push_back( Interactions_pair (sum_pt2, vtxPosition) );
+      interactionsColl.emplace_back(sum_pt2, vtxPosition );
     } // end loop over GenEvent
 
     //now sort the container and store results to interactions
@@ -200,10 +204,7 @@ namespace Trk
 
     if( *iter == evt ) {
       //this is the hard-scattering event (first of the collection)
-      if (! m_removeHardScattering)
-	return true; 
-      else
-	return false;
+      return ! m_removeHardScattering;
     }
 
     int gotzero = 1;
@@ -250,9 +251,7 @@ namespace Trk
     }
     float charge = pd->charge();
 
-    if( std::abs( charge ) < 1E-5 ) return false;
-
-    return true;
+    return std::abs( charge ) >= 1E-5;
   }
 
 

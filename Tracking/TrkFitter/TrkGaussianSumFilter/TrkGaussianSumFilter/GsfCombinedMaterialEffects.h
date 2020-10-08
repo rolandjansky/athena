@@ -6,7 +6,7 @@
  * @file   GsfCombinedMaterialEffects.h
  * @date   Friday 11th January 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * Class definition for consideration of multiple scatter and energy 
+ * Class definition for consideration of multiple scatter and energy
  * loss effects from material simultaneously
  */
 
@@ -16,7 +16,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
 namespace Trk {
@@ -34,10 +34,7 @@ public:
   virtual ~GsfCombinedMaterialEffects() override;
 
   /** AlgTool initialise method */
-  virtual StatusCode initialize() override;
-
-  /** AlgTool finalise method */
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override final;
 
   virtual void compute(
     IMultiStateMaterialEffects::Cache&,
@@ -48,26 +45,30 @@ public:
     ParticleHypothesis = nonInteracting) const override final;
 
 private:
-  void scattering(IMultiStateMaterialEffects::Cache&,
-                  const ComponentParameters&,
-                  const MaterialProperties&,
-                  double,
-                  PropDirection direction = anyDirection,
-                  ParticleHypothesis particleHypothesis = nonInteracting) const;
+  struct GSFScatteringCache
+  {
+    double deltaThetaCov = 0;
+    double deltaPhiCov = 0;
 
-  void energyLoss(IMultiStateMaterialEffects::Cache&,
-                  const ComponentParameters&,
-                  const MaterialProperties&,
-                  double,
-                  PropDirection direction = anyDirection,
-                  ParticleHypothesis particleHypothesis = nonInteracting) const;
-
-  ToolHandle<IMultipleScatteringUpdator> m_msUpdator{
-    this,
-    "MultipleScatteringUpdator",
-    "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",
-    ""
+    void reset()
+    {
+      deltaThetaCov = 0;
+      deltaPhiCov = 0;
+    }
   };
+
+  void scattering(GSFScatteringCache&,
+                  const ComponentParameters& componentParameters,
+                  const MaterialProperties& materialProperties,
+                  double pathLength) const;
+
+  void energyLoss(Trk::GSFEnergyLossCache&,
+                  const ComponentParameters&,
+                  const MaterialProperties&,
+                  double,
+                  PropDirection direction = anyDirection,
+                  ParticleHypothesis particleHypothesis = nonInteracting) const;
+
 
   ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator{
     this,
@@ -75,7 +76,7 @@ private:
     "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",
     ""
   };
-  ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{
+  ToolHandle<IBetheHeitlerEffects> m_betheHeitlerEffects{
     this,
     "BetheHeitlerEffects",
     "Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects",

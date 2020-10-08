@@ -15,15 +15,12 @@
 #ifndef MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 #define MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 
-
-#include <atomic>
-
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-// For magneticfield
+
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
@@ -47,21 +44,19 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
 
+#include <atomic>
 
 class CaloEnergy;
 class MessageHelper;
 
 namespace Trk {
-class PerigeeSurface;
-class PseudoMeasurementOnTrack;
-class RecVertex;
-class TrackStateOnSurface;
-class TrackingVolume;
-class Volume;
-}  // namespace Trk
+    class PerigeeSurface;
+    class PseudoMeasurementOnTrack;
+    class RecVertex;
+    class TrackStateOnSurface;
+}
 
 namespace Rec {
-
 
 class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
   public:
@@ -98,13 +93,13 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    /** 
+    /**
         fit a set of MeasurementBase objects with starting value for perigeeParameters */
     Trk::Track* fit(const Trk::MeasurementSet& /*measurementSet*/, const Trk::TrackParameters& /*perigeeStartValue*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const;
 
-    /** 
+    /**
         combined muon fit */
     Trk::Track* fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack,
                     const Trk::RunOutlierRemoval  runOutlier         = false,
@@ -171,31 +166,105 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
 
     // helpers, managers, tools
-    ToolHandle<Rec::IMuidCaloEnergy>                m_caloEnergyParam;
-    ToolHandle<Rec::IMuidCaloTrackStateOnSurface>   m_caloTSOS;
-    ToolHandle<Muon::IMuonTrackCleaner>             m_cleaner;
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>    m_cscRotCreator;
-    ToolHandle<Trk::IExtrapolator>                  m_extrapolator;
-    ToolHandle<Trk::ITrackFitter>                   m_fitter;    // curved track fitter
-    ToolHandle<Trk::ITrackFitter>                   m_fitterSL;  // straight line fitter
-    ToolHandle<Trk::IIntersector>                   m_intersector;
-    ToolHandle<Trk::IMaterialAllocator>             m_materialAllocator;
-    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator;
-    ToolHandle<Muon::IMuonErrorOptimisationTool>    m_muonErrorOptimizer;
-    ToolHandle<Muon::IMuonHoleRecoveryTool>         m_muonHoleRecovery;
-    ToolHandle<Trk::IPropagator>                    m_propagator;
-    ToolHandle<Trk::IPropagator>                    m_propagatorSL;
-    ToolHandle<Muon::MuonEDMPrinterTool>            m_printer;
-    ToolHandle<Rec::IMuonTrackQuery>                m_trackQuery;
-    ToolHandle<Trk::ITrackSummaryTool>              m_trackSummary;
-    ToolHandle<Trk::ITrkMaterialProviderTool>       m_materialUpdator;
+    ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
+        this,
+        "CaloEnergyParam",
+        "Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam",
+    };
+    ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_caloTSOS{
+        this,
+        "CaloTSOS",
+        "Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface",
+    };
+    ToolHandle<Muon::IMuonTrackCleaner> m_cleaner{
+        this,
+        "Cleaner",
+        "Muon::MuonTrackCleaner/MuidTrackCleaner",
+    };
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscRotCreator{
+        this,
+        "CscRotCreator",
+        "",
+    };
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{
+        this,
+        "Extrapolator",
+        "Trk::Extrapolator/AtlasExtrapolator",
+    };
+    ToolHandle<Trk::ITrackFitter> m_fitter{
+        this,
+        "Fitter",
+        "Trk::iPatFitter/iPatFitter",
+    };  // curved track fitter
+    ToolHandle<Trk::ITrackFitter> m_fitterSL{
+        this,
+        "SLFitter",
+        "Trk::iPatFitter/iPatSLFitter",
+    };  // straight line fitter
+    ToolHandle<Trk::IIntersector> m_intersector{
+        this,
+        "Intersector",
+        "Trk::RungeKuttaIntersector/RungeKuttaIntersector",
+    };
+    ToolHandle<Trk::IMaterialAllocator> m_materialAllocator{
+        this,
+        "MaterialAllocator",
+        "",
+    };
+    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
+        this,
+        "MdtRotCreator",
+        "",
+    };
+    ToolHandle<Muon::IMuonErrorOptimisationTool> m_muonErrorOptimizer{
+        this,
+        "MuonErrorOptimizer",
+        "Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool",
+    };
+    ToolHandle<Muon::IMuonHoleRecoveryTool> m_muonHoleRecovery{
+        this,
+        "MuonHoleRecovery",
+        "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool",
+    };
+    ToolHandle<Trk::IPropagator> m_propagator{
+        this,
+        "Propagator",
+        "Trk::IntersectorWrapper/IntersectorWrapper",
+    };
+    ToolHandle<Trk::IPropagator> m_propagatorSL{
+        this,
+        "SLPropagator",
+        "Trk::StraightLinePropagator/MuonStraightLinePropagator",
+    };
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };
+    ToolHandle<Rec::IMuonTrackQuery> m_trackQuery{
+        this,
+        "TrackQuery",
+        "Rec::MuonTrackQuery/MuonTrackQuery",
+    };
+    ToolHandle<Trk::ITrackSummaryTool> m_trackSummary{
+        this,
+        "TrackSummaryTool",
+        "Trk::TrackSummaryTool/MuidTrackSummaryTool",
+    };
+    ToolHandle<Trk::ITrkMaterialProviderTool> m_materialUpdator{
+        this,
+        "CaloMaterialProvider",
+        "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool",
+    };
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
+                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // Read handle for conditions object to get the field cache
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;  // init with callback
-    ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc;
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
+        this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this,"TrackingGeometrySvc","TrackingGeometrySvc/AtlasTrackingGeometrySvc"};  // init with callback
+    ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc/TrackingVolumesSvc"};
 
     Trk::MagneticFieldProperties m_magFieldProperties;
 
@@ -231,8 +300,8 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     bool m_inputSlimming;
 
     // constants
-    const Trk::Volume* m_calorimeterVolume;
-    const Trk::Volume* m_indetVolume;
+    const Trk::Volume*         m_calorimeterVolume;
+    const Trk::Volume*         m_indetVolume;
     const Trk::TrackingVolume* m_spectrometerEntrance;
 
     // vertex region and phi modularity for pseudo-measurement constraints

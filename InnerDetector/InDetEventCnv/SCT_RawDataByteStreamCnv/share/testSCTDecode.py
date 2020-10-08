@@ -246,9 +246,9 @@ if doDump:
     outStream = AthenaPoolOutputStream("OutStream", "testSCTDecode.pool.root")
     outStream.ItemList  = ["xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."]
     outStream.ItemList += ["SCT_RDO_Container#SCT_RDOs"]
-    outStream.ItemList += ["InDetBSErrContainer#SCT_ByteStreamErrs"]
+    outStream.ItemList += ["IDCInDetBSErrContainer#SCT_ByteStreamErrs"]
     outStream.ItemList += ["InDet::SCT_ClusterContainer#SCT_Clusters"]
-    outStream.ItemList += ["SCT_FlaggedCondData#SCT_FlaggedCondData"]
+    outStream.ItemList += ["IDCInDetBSErrContainer#SCT_FlaggedCondData"]
     # outStream.ItemList += ["SpacePointContainer#SCT_SpacePoints"]
     outStream.ItemList += ["xAOD::SCTRawHitValidationContainer#*", "xAOD::SCTRawHitValidationAuxContainer#*"]
     outStream.ItemList += ["xAOD::TrackMeasurementValidationContainer#*", "xAOD::TrackMeasurementValidationAuxContainer#*"]

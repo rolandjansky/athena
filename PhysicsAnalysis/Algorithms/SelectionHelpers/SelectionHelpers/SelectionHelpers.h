@@ -8,7 +8,7 @@
 #ifndef SELECTION_HELPERS__SELECTION_HELPERS_H
 #define SELECTION_HELPERS__SELECTION_HELPERS_H
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <cstdint>
 
 namespace asg

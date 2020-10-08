@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************************************
@@ -30,19 +30,19 @@
 
 
 // Constructor & destructor
-CalibHitIDCheck::CalibHitIDCheck(std::string name, ISvcLocator* pSvcLocator)
+CalibHitIDCheck::CalibHitIDCheck(const std::string& name, ISvcLocator* pSvcLocator)
   :AthAlgorithm(name, pSvcLocator), 
    m_Merge(false),
-   m_LArDMHitCnt(0),
-   m_ActiveHitCnt(0),
-   m_InactiveHitCnt(0),
-   m_TileActiveHitCnt(0),
-   m_TileInactiveHitCnt(0),
-   m_TileDMHitCnt(0),
+   m_LArDMHitCnt(nullptr),
+   m_ActiveHitCnt(nullptr),
+   m_InactiveHitCnt(nullptr),
+   m_TileActiveHitCnt(nullptr),
+   m_TileInactiveHitCnt(nullptr),
+   m_TileDMHitCnt(nullptr),
    m_Check(true), 
    m_ShowAll(false), 
    m_CheckAll(false),
-   m_id_helper(0)
+   m_id_helper(nullptr)
 {
   m_larInactiveHitContainer  = "LArCalibrationHitInactive";
   m_larActiveHitContainer    = "LArCalibrationHitActive";

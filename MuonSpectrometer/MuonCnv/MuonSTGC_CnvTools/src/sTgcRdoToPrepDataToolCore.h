@@ -83,7 +83,7 @@ namespace Muon
       SG::WriteHandleKey<sTgcPrepDataContainer> m_stgcPrepDataContainerKey;
       bool m_merge; // merge Prds
 
-      ToolHandle<ISTgcClusterBuilderTool> m_clusterBuilderTool;
+      ToolHandle<ISTgcClusterBuilderTool> m_clusterBuilderTool{this,"ClusterBuilderTool","Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool"};
 
    }; 
 } // end of namespace

@@ -44,6 +44,8 @@ namespace xAODPrivate {
 namespace CP {
    class xAODWriterAlg;
 }
+class xAODTEventBranch;
+class xAODTMetaBranch;
 
 namespace xAOD {
 
@@ -53,8 +55,6 @@ namespace xAOD {
    class TObjectManager;
    class TAuxStore;
    class TChainStateTracker;
-   class TEventBranch;
-   class TMetaBranch;
    class TFileMerger;
    class TEvent;
    class TTreeMgr;
@@ -78,8 +78,8 @@ namespace xAOD {
 
       // Declare the friend functions/classes:
       friend ::TTree* MakeTransientTree( TEvent&, const char* );
-      friend class xAOD::TEventBranch;
-      friend class xAOD::TMetaBranch;
+      friend class ::xAODTEventBranch;
+      friend class ::xAODTMetaBranch;
       friend class xAOD::TFileMerger;
       friend class xAOD::TTreeMgr;
       friend class xAODPrivate::THolderBucket;
@@ -102,7 +102,7 @@ namespace xAOD {
       /// Constructor connecting the objects to an input TTree/TChain
       TEvent( ::TTree* tree, EAuxMode mode = kUndefinedAccess );
       /// Destructor
-      ~TEvent();
+      virtual ~TEvent();
 
       /// Do not allow copy-constructing this object:
       TEvent( const TEvent& parent ) = delete;

@@ -10,9 +10,10 @@ import sys
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+from OverlayConfiguration.OverlayHelpers import OverlayMessageSvcCfg
 from OverlayConfiguration.OverlaySteering import OverlayMainCfg
 from OverlayConfiguration.OverlayTestHelpers import \
-    CommonTestArgumentParser, JobOptsDumperCfg, TestMessageSvcCfg, \
+    CommonTestArgumentParser, OverlayJobOptsDumperCfg, \
     defaultTestFlags, postprocessAndLockFlags, printAndRun
 
 # Set up logging and new style config
@@ -48,8 +49,8 @@ acc = OverlayMainCfg(ConfigFlags)
 if args.profile:
     from PerfMonVTune.PerfMonVTuneConfig import VTuneProfilerServiceCfg
     acc.merge(VTuneProfilerServiceCfg(ConfigFlags))
-acc.merge(JobOptsDumperCfg(ConfigFlags))
-acc.merge(TestMessageSvcCfg(ConfigFlags))
+acc.merge(OverlayJobOptsDumperCfg(ConfigFlags))
+acc.merge(OverlayMessageSvcCfg(ConfigFlags))
 
 # dump pickle
 with open("ConfigOverlay.pkl", "wb") as f:

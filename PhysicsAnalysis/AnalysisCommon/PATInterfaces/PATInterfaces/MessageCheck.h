@@ -9,7 +9,7 @@
 #define PAT_INTERFACES__MESSAGE_CHECK_H
 
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 namespace CP
 {

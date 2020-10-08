@@ -7,7 +7,7 @@ import time
 
 # import PyDataHeader and PyCLIDSvc
 import cppyy
-cppyy.loadDictionary("PyAnalysisCoreDict")
+cppyy.load_library("libPyAnalysisCoreDict")
 
 #############################################################################
 

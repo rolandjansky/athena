@@ -9,6 +9,8 @@
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "TrigSteeringEvent/OnlineErrorCode.h"
+#include "TrigSteerMonitor/ISchedulerMonSvc.h"
+#include "TrigSteerMonitor/ITrigErrorMonTool.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -27,6 +29,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/SmartIF.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 // TDAQ includes
 #include "eformat/write/FullEventFragment.h"
@@ -45,7 +48,6 @@ class IAlgorithm;
 class IAlgResourcePool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
-class IJobOptionsSvc;
 class IScheduler;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
@@ -155,9 +157,6 @@ private:
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
-  /// Produce a subset of IAlgExecStateSvc::algExecStates with only non-success StatusCodes
-  std::unordered_map<std::string_view,StatusCode> algExecErrors(const EventContext& eventContext) const;
-
   /// Drain the scheduler from all actions that may be queued
   DrainSchedulerStatusCode drainScheduler();
 
@@ -174,16 +173,18 @@ private:
 
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
-  ServiceHandle<IJobOptionsSvc>      m_jobOptionsSvc;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc>      m_jobOptionsSvc;
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
   ServiceHandle<IConversionSvc>      m_outputCnvSvc{this, "OutputCnvSvc", "OutputCnvSvc"};
+  ServiceHandle<ISchedulerMonSvc>    m_schedulerMonSvc{this, "SchedulerMonSvc", "SchedulerMonSvc"};
   ToolHandle<TrigCOOLUpdateHelper>   m_coolHelper{this, "CoolUpdateTool", "TrigCOOLUpdateHelper"};
   ToolHandle<HLTResultMTMaker>       m_hltResultMaker{this, "ResultMaker", "HLTResultMTMaker"};
   ToolHandle<GenericMonitoringTool>  m_monTool{this, "MonTool", "", "Monitoring tool"};
+  ToolHandle<ITrigErrorMonTool>      m_errorMonTool{this, "TrigErrorMonTool", "TrigErrorMonTool", "Error monitoring tool"};
 
   SmartIF<IHiveWhiteBoard> m_whiteboard;
   SmartIF<IAlgResourcePool> m_algResourcePool;
@@ -243,6 +244,9 @@ private:
   Gaudi::Property<bool> m_rewriteLVL1{
     this, "RewriteLVL1", false,
     "Encode L1 results to ByteStream and write to the output. Possible only with athenaHLT, not online."};
+
+  Gaudi::Property<bool> m_monitorScheduler{
+    this, "MonitorScheduler", false, "Enable SchedulerMonSvc to collect scheduler status data in online histograms"};
 
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};

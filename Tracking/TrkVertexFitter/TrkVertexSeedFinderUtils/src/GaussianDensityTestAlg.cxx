@@ -13,10 +13,10 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
-#include "xAODTracking/Vertex.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "xAODTracking/Vertex.h"
 
 #include <limits>
 

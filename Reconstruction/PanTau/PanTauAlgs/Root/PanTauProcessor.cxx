@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -246,8 +246,9 @@ StatusCode      PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD:
 
 
 void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
-    
-    tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased,      -1111., -1111., -1111., -1111.);
+    //default four momentum set to previous calibration state: TauEtaCalib
+    TLorentzVector defaultP4 = tauJet->p4(xAOD::TauJetParameters::TauEtaCalib);
+    tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased, defaultP4.Pt(), defaultP4.Eta(), defaultP4.Phi(), defaultP4.M());
     
     //charged
     std::vector< ElementLink< xAOD::PFOContainer > > chrgPFOLinks = tauJet->protoChargedPFOLinks();
@@ -263,20 +264,3 @@ void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
     
     return;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -22,7 +22,7 @@ def GeoModelCfg(configFlags):
     if configFlags.Detector.Simulate:
         ## Protects GeoModelSvc in the simulation from the AlignCallbacks
         gms.AlignCallbacks = False
-    result.addService(gms,primary=True)
+    result.addService(gms, primary=True, create=True)
 
 
     #Get DetDescrCnvSvc (for identifier dictionaries (identifier helpers)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -42,8 +42,8 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include <math.h>
 #include <CLHEP/Vector/LorentzVector.h>
+#include <cmath>
 
 
 using CLHEP::HepLorentzVector;
@@ -57,9 +57,9 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
 							   const std::string& name,
 							   const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_calo_id(0),
-    m_caloDM_ID(0),
-    m_caloDmDescrManager(0),
+    m_calo_id(nullptr),
+    m_caloDM_ID(nullptr),
+    m_caloDmDescrManager(nullptr),
     m_useParticleID(true),
     m_energyMin(200*MeV),
     m_energyMinCalib(20*MeV),
@@ -91,25 +91,25 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
   m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_FRAC_REST"),xAOD::CaloCluster::ENG_CALIB_FRAC_REST));
 
   // Name(s) of Moments which can be stored on the AOD - all others go to ESD
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_TOT"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_OUT_L"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_OUT_M"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_OUT_T"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_EMB0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_EME0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_TILEG3"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_TOT"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_EMB0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_TILE0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_TILEG3"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_EME0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_HEC0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_FCAL"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_LEAKAGE"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_UNCLASS"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_FRAC_EM"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_FRAC_HAD"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_FRAC_REST"));
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_TOT");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_OUT_L");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_OUT_M");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_OUT_T");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_EMB0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_EME0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_TILEG3");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_TOT");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_EMB0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_TILE0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_TILEG3");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_EME0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_HEC0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_FCAL");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_LEAKAGE");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_UNCLASS");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_FRAC_EM");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_FRAC_HAD");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_FRAC_REST");
 
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
   declareProperty("CalibrationHitContainerNames",m_CalibrationHitContainerNames);
@@ -501,7 +501,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
                 if ( jpO < -m_n_phi_out ) jpO +=  2*m_n_phi_out;
                 if ( jpO >=  m_n_phi_out ) jpO -=  2*m_n_phi_out;
                 for (unsigned int ii=0;ii<3;ii++) {
-                  std::vector<std::vector <int > > *pClusList=0;
+                  std::vector<std::vector <int > > *pClusList=nullptr;
                   if ( ii == 0 && m_doOutOfClusterL ) 
                     pClusList = &clusListL;
                   else if ( ii == 1 && m_doOutOfClusterM ) 
@@ -550,7 +550,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
   // + energy is shared among clusters within certain area
   // + distance to clusters and energy in specific samplings are used as sharing criteria
   // + calculations are done separately for different dead material areas
-  std::vector<std::vector <int > > *pClusList=0;
+  std::vector<std::vector <int > > *pClusList=nullptr;
   if ( m_MatchDmType == kMatchDmLoose ) {
     pClusList = &clusListL;
   } else if ( m_MatchDmType == kMatchDmMedium ) {
@@ -567,7 +567,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
       for(;chIter!=chIterE;chIter++)  {
         Identifier myId = (*chIter)->cellID();
         if (m_calo_id->is_lar_dm(myId) || m_calo_id->is_tile_dm(myId)) {
-          CaloDmDescrElement* myCDDE(0);
+          CaloDmDescrElement* myCDDE(nullptr);
           myCDDE = m_caloDmDescrManager->get_element(myId);
           if ( myCDDE ) {
             int pid(0);
@@ -713,7 +713,7 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
       get_calib_frac(truthBarcodeToPdgCodeMap, clusInfo, engCalibFrac);
     }
 
-    if ( m_momentsNames.size() > 0 ) {
+    if ( !m_momentsNames.empty() ) {
       std::vector<double> myMoments(m_validMoments.size(),0);
       // assign moments 
       moment_name_set::const_iterator vMomentsIter = m_validMoments.begin(); 
@@ -820,7 +820,6 @@ Calculation of energy fraction caused by particles of different types
 void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,int>& truthBarcodeToPdgCodeMap,
                                                    const MyClusInfo& clusInfo, std::vector<double> &engFrac) const
 {
-  static unsigned int nWarnings = 0;
   engFrac.assign(kCalibFracMax, 0.0);
   if(clusInfo.engCalibIn.engTot <= 0.0) return;
   // each MyClusInfo has a map of particle's barcode and particle calibration deposits in given cluster
@@ -829,10 +828,7 @@ void CaloCalibClusterMomentsMaker2::get_calib_frac(const std::map<unsigned int,i
     int pdg_id = 0;
     try { pdg_id = truthBarcodeToPdgCodeMap.at(barcode); }
     catch (const std::out_of_range& e){
-      if (nWarnings < 10 ){
-	ATH_MSG_WARNING("truthBarcodeToPdgCodeMap cannot find an entry with barcode " << barcode);
-	nWarnings++;
-      }
+      ATH_MSG_WARNING("truthBarcodeToPdgCodeMap cannot find an entry with barcode " << barcode);
       continue;
     }
 

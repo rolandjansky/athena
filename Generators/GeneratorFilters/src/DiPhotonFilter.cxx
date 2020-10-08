@@ -110,7 +110,7 @@ StatusCode DiPhotonFilter::filterEvent() {
         double sumPz = MCTruthPhotonList2[0]->momentum().pz()+MCTruthPhotonList2[1]->momentum().pz();
         double sumE  = MCTruthPhotonList2[0]->momentum().e() +MCTruthPhotonList2[1]->momentum().e();
         double m2 = sumE*sumE-(sumPx*sumPx+sumPy*sumPy+sumPz*sumPz);
-        double mGamGam = m2 >= 0. ? sqrt(m2) : -sqrt(-m2);
+        double mGamGam = m2 >= 0. ? std::sqrt(m2) : -std::sqrt(-m2);
 
         ATH_MSG_DEBUG("mass(gamgam) = " << mGamGam << " (CLHEP::MeV)");
         if (m_diphoton_massmin >= 0. && m_diphoton_massmax >= 0.) {
@@ -130,7 +130,7 @@ StatusCode DiPhotonFilter::filterEvent() {
             double sumPz = MCTruthPhotonList2[i]->momentum().pz()+MCTruthPhotonList2[j]->momentum().pz();
             double sumE  = MCTruthPhotonList2[i]->momentum().e() +MCTruthPhotonList2[j]->momentum().e();
             double m2 = sumE*sumE-(sumPx*sumPx+sumPy*sumPy+sumPz*sumPz);
-            double mGamGam = m2 >= 0. ? sqrt(m2) : -sqrt(-m2);
+            double mGamGam = m2 >= 0. ? std::sqrt(m2) : -std::sqrt(-m2);
             ATH_MSG_DEBUG("mass(gamgam) = " << mGamGam << " (CLHEP::MeV)");
             if (m_diphoton_massmin >= 0. && m_diphoton_massmax >= 0.) {
               if (mGamGam >= m_diphoton_massmin && mGamGam <= m_diphoton_massmax) ++nGood;

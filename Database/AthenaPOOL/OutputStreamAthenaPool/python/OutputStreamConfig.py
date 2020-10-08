@@ -45,9 +45,13 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
       OutputFile = fileName,
       HelperTools = [ streamInfoTool, tct ],
       )
+   outputStream.ExtraOutputs += [("DataHeader", "StoreGateSvc+" + streamName)]
    result.addService(StoreGateSvc("MetaDataStore"))
    outputStream.MetadataStore = result.getService("MetaDataStore")
-   outputStream.MetadataItemList = [ "EventStreamInfo#Stream" + streamName, "IOVMetaDataContainer#*" ]
+   outputStream.MetadataItemList = [
+        "EventStreamInfo#Stream" + streamName,
+        "IOVMetaDataContainer#*",
+   ]
 
    # Event Tag
    if not disableEventTag:
@@ -55,17 +59,24 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
       outputStream.WritingTool.AttributeListKey=key
       # build eventinfo attribute list
       EventInfoAttListTool, EventInfoTagBuilder=CompFactory.getComps("EventInfoAttListTool","EventInfoTagBuilder",)
-      result.addPublicTool(EventInfoAttListTool())
-      tagBuilder = EventInfoTagBuilder(AttributeList=key)
+      tagBuilder = EventInfoTagBuilder(AttributeList=key,
+                                       Tool=EventInfoAttListTool())
       result.addEventAlgo(tagBuilder)
 
-   # For xAOD output
-   if streamName=="xAOD":
-      xAODMaker__EventFormatSvc=CompFactory.xAODMaker.EventFormatSvc
-      # Simplifies naming 
-      result.addService(xAODMaker__EventFormatSvc())
-      outputStream.MetadataItemList.append( "xAOD::EventFormat#EventFormat" )
+   # Make EventFormat object
+   event_format_key = 'EventFormat{}'.format(streamName)
+   event_format_tool = CompFactory.xAODMaker.EventFormatStreamHelperTool(
+      '{}_MakeEventFormat'.format(event_format_key),
+      Key=event_format_key,
+   )
+   outputStream.HelperTools.append(event_format_tool)
 
+   # Simplifies naming 
+   outputStream.MetadataItemList.append(
+      "xAOD::EventFormat#{}".format(event_format_key)
+   )
+   # For xAOD output
+   if "xAOD" in streamName:
       xAODMaker__FileMetaDataMarkUpTool=CompFactory.xAODMaker.FileMetaDataMarkUpTool
       streamMarkUpTool = xAODMaker__FileMetaDataMarkUpTool( streamName + "_FileMetaDataMarkUpTool" )
       streamMarkUpTool.Key = streamName

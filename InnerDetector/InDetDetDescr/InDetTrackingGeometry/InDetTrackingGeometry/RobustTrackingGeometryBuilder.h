@@ -23,6 +23,8 @@
 #include <vector>
 #include <string>
 
+#include "CxxUtils/checker_macros.h"
+
 #ifndef TRKDETDESCR_TAKESMALLERBIGGER
 #define TRKDETDESCR_TAKESMALLERBIGGER
 #define takeSmaller(current,test) current = current < test ? current : test
@@ -76,7 +78,7 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      const Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const; 
+      const Trk::TrackingGeometry* trackingGeometry ATLAS_NOT_THREAD_SAFE (const Trk::TrackingVolume* tvol = 0) const; 
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
@@ -84,7 +86,8 @@ namespace InDet {
     private:
         
       /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers */
-      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::Layer*>& negLayers,
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
+                                                 (const std::vector<const Trk::Layer*>& negLayers,
                                                   const std::vector<const Trk::Layer*>& centralLayers,
                                                   const std::vector<const Trk::Layer*>& posLayers,
                                                   double rMin, double rMax,

@@ -10,7 +10,7 @@
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/EventContext.h"

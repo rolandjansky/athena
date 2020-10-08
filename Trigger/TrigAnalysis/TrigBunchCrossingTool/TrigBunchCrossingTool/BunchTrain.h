@@ -13,7 +13,7 @@
 #include <iosfwd>
 
 // Gaudi/Athena include(s):
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchCrossing.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -81,7 +81,10 @@ const Trk::Surface&  CaloSurfaceHelper::GetFlatEntrySurface (const CaloCell_ID::
 
   const Trk::Surface* surf = side>0 ? m_flatEntrySurfs[sample].first : m_flatEntrySurfs[sample].second;
 
-  if (!surf) ATH_MSG_FATAL(" failed to retrieve flat entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+  if (!surf) {
+    ATH_MSG_FATAL(" failed to retrieve flat entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+    std::abort();
+  }
   return *surf;
 }
 
@@ -89,7 +92,10 @@ const Trk::Surface& CaloSurfaceHelper::GetEntrySurface(const CaloCell_ID::CaloSa
 
   const Trk::Surface* surf = side>0 ? m_entrySurfs[sample].first : m_entrySurfs[sample].second;
 
-  if (!surf) ATH_MSG_FATAL(" failed to retrieve entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+  if (!surf) {
+    ATH_MSG_FATAL(" failed to retrieve entry layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+    std::abort();
+  }
   return *surf;
 }
 
@@ -97,7 +103,10 @@ const Trk::Surface& CaloSurfaceHelper::GetExitSurface (const CaloCell_ID::CaloSa
 
   const Trk::Surface* surf = side>0 ? m_exitSurfs[sample].first : m_exitSurfs[sample].second;
 
-  if (!surf) ATH_MSG_FATAL(" failed to retrieve exit layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+  if (!surf) {
+    ATH_MSG_FATAL(" failed to retrieve exit layer for sample:"<<sample<<" on side:"<<side<<" crashing....");
+    std::abort();
+  }
   return *surf;
 }
 
@@ -118,9 +127,9 @@ void CaloSurfaceHelper::get_flat_surfaces() {
 
   for (unsigned int i=0; i < m_entrySurfs.size(); i++) {
     // cloning turns sliding surface into "standard" one
-    Trk::Surface* surf1=m_entrySurfs[i].first ? m_entrySurfs[i].first->clone() : 0;        
-    Trk::Surface* surf2=m_entrySurfs[i].second ? m_entrySurfs[i].second->clone() : 0;   
-    m_flatEntrySurfs.push_back(std::pair<const Trk::Surface*,const Trk::Surface*>(surf1,surf2));
+    Trk::Surface* surf1=m_entrySurfs[i].first ? m_entrySurfs[i].first->clone() : nullptr;        
+    Trk::Surface* surf2=m_entrySurfs[i].second ? m_entrySurfs[i].second->clone() : nullptr;   
+    m_flatEntrySurfs.emplace_back(surf1,surf2);
 
   }
 

@@ -9,9 +9,9 @@
 //#define FSMWMODE1DFINDER_DEBUG
 
 #include "TrkVertexSeedFinderUtils/FsmwMode1dFinder.h"
+#include <algorithm>
 #include <cmath>
 #include <vector>
-#include <algorithm>
 
 namespace Trk
 {

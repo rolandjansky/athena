@@ -29,9 +29,9 @@
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
-
-//#include "TrigVKalFitter/TrigVKalFitter.h"
-//#include "TrigVKalFitter/VKalVrtAtlas.h"
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+#include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
 class ISvcLocator;
 
@@ -216,7 +216,6 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   
   // create vector for TrigEFBphys particles
-    //  const TrigEFBphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer * xAODTrigBphysColl(0);
     
   // get vector of TrigEFBphys particles from outputTE

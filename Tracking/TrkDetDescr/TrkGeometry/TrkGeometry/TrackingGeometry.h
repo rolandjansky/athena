@@ -119,7 +119,7 @@ namespace Trk {
     private:
       /** Geometry Builder busineess:
           the geometry builder has to sign*/
-      void sign(GeometrySignature geosit, GeometryType geotype = Static) const;
+      void sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype = Static) const;
     
       /** Geometry Builder busineess:
           set all contained surfaces TG owned - this should save memory and avoid surface copying 

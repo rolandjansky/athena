@@ -46,12 +46,6 @@ then
     version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
 fi
 
-#find boost 
-boost=$(find /cvmfs/atlas.cern.ch/repo/sw/software/21.6/sw/lcg/releases/Boost/*/*/* -type d -name "boost-*")
-if [ -z $boost ]
-then
-    echo "WARNING: lhapdf-config could not find boost headers"
-fi
 
 if [[ $# -eq 0 || -n $( echo $* | egrep -- "--help|-h" ) ]]; then
     echo "lhapdf-config: configuration tool for the LHAPDF"
@@ -81,7 +75,7 @@ tmp=$( echo "$*" | egrep -- '--\<incdir\>')
 test -n "$tmp" && OUT="$OUT ${prefix}/include"
 
 tmp=$( echo "$*" | egrep -- '--\<cflags|cppflags|cxxflags\>')
-test -n "$tmp" && OUT="$OUT -I${prefix}/include -I$boost"
+test -n "$tmp" && OUT="$OUT -I${prefix}/include "
 
 tmp=$( echo "$*" | egrep -- '--\<libdir\>')
 test -n "$tmp" && OUT="$OUT ${exec_prefix}/lib"

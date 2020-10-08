@@ -5,11 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibMath )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/EventPrimitives
-                          Control/AthenaKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

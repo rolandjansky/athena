@@ -18,7 +18,7 @@
 #include <utility>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IAlgContextSvc.h"

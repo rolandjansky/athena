@@ -70,7 +70,6 @@ private:
       , "AveIntPerXKey"
       , "EventInfo.AveIntPerXDecor"
       , "Decoration for Average Interaction Per Crossing"};
-  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
   Trk::ParticleMasses        m_particlemasses;
 
@@ -113,9 +112,9 @@ public:
   /** Virtual destructor*/
   virtual ~TRT_ToT_dEdx();
   /** AlgTool initailize method.*/
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** AlgTool finalize method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /**
    * @brief function to calculate sum ToT normalised to number of used hits
@@ -123,7 +122,12 @@ public:
    * @param useHitsHT decide if HT hits should be used in the estimate
    * @return dEdx value
    */
-  double dEdx(const Trk::Track* track, bool useHThits=true) const;
+  using ITRT_ToT_dEdx::dEdx;
+  using ITRT_ToT_dEdx::usedHits;
+  using ITRT_ToT_dEdx::getTest;
+  virtual double dEdx(const EventContext& ctx,
+                      const Trk::Track* track,
+                      bool useHThits = true) const override final;
 
   /**
    * @brief function to calculate number of used hits
@@ -131,7 +135,24 @@ public:
    * @param useHitsHT decide if HT hits should be used in the estimate
    * @return nHits
    */
-  double usedHits(const Trk::Track* track, bool useHThits=true) const;
+  virtual double usedHits(const EventContext& ctx,
+                          const Trk::Track* track,
+                          bool useHThits = true) const override final;
+  /**
+   * @brief function to calculate likelihood ratio test
+   * @param observed dEdx
+   * @param track parameter
+   * @param particle hypothesis
+   * @param antihypothesis
+   * @param number of used hits
+   * @return test value between 0 and 1
+   */
+  virtual double getTest(const EventContext& ctx,
+                         const double dEdx_obs,
+                         const double pTrk,
+                         Trk::ParticleHypothesis hypothesis,
+                         Trk::ParticleHypothesis antihypothesis,
+                         int nUsedHits) const override final;
 
 protected:
   /** 
@@ -142,16 +163,18 @@ protected:
    * @param length length in straw
    * @return decision
    */
-  bool isGoodHit(const Trk::TrackStateOnSurface* trackState, bool useHitsHT, double& length) const;
+  bool isGoodHit(const EventContext& ctx,
+                 const Trk::TrackStateOnSurface* trackState,
+                 bool useHitsHT,
+                 double& length) const;
 
   /**
    * @brief correct overall dEdx normalization on track level
    * @param number of primary vertices per event
    * @return scaling variable
    */
-  double correctNormalization(double nVtx=-1) const;
+  double correctNormalization(const EventContext& ctx, double nVtx = -1) const;
 
-public:
   /**
    * @brief function to calculate likelihood from prediction and resolution
    * @param observed dEdx
@@ -160,30 +183,34 @@ public:
    * @param number of used hits
    * @return brobability  value between 0 and 1
    */
-  double getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const;
-  double getProb(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const;
+  double getProb(const EventContext& ctx,
+                 const Trk::TrackStateOnSurface* itr,
+                 const double dEdx_obs,
+                 const double pTrk,
+                 Trk::ParticleHypothesis hypothesis,
+                 int nUsedHits) const;
+  double getProb(const EventContext& ctx,
+                 EGasType gasType,
+                 const double dEdx_obs,
+                 const double pTrk,
+                 Trk::ParticleHypothesis hypothesis,
+                 int nUsedHits) const;
 
-  /**
-   * @brief function to calculate likelihood ratio test
-   * @param observed dEdx
-   * @param track parameter
-   * @param particle hypothesis
-   * @param antihypothesis
-   * @param number of used hits
-   * @return test value between 0 and 1
-   */
-  double getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const;
   /**
    * @brief function to calculate expectation value for dEdx using BB fit
    * @param track momentum
    * @param hypothesis
    * @return dEdx_pred
    */
-  double predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis) const;
+  double predictdEdx(const EventContext& ctx,
+                     const Trk::TrackStateOnSurface* itr,
+                     const double pTrk,
+                     Trk::ParticleHypothesis hypothesis) const;
 
-  double predictdEdx(EGasType gasType, const double pTrk, Trk::ParticleHypothesis hypothesis) const;
-
-
+  double predictdEdx(const EventContext& ctx,
+                     EGasType gasType,
+                     const double pTrk,
+                     Trk::ParticleHypothesis hypothesis) const;
 
   /**
    * @brief function to extract most likely mass in bg [0,3]
@@ -191,9 +218,11 @@ public:
    * @param measured dEdx
    * @return mass
    */
-  double mass(const Trk::TrackStateOnSurface *itr, const double pTrk, double dEdx ) const;
+  double mass(const EventContext& ctx,
+              const Trk::TrackStateOnSurface* itr,
+              const double pTrk,
+              double dEdx) const;
 
-protected:
   /**
    * @brief main function to correct ToT values on hit level as a function of track radius and z-position
    * @param track on surface object
@@ -203,16 +232,21 @@ protected:
    * @param bool variable whether mimic ToT to other gas hits shoule be used 
    * @return corrected value for ToT
    */
-  double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, double length) const;
-    
+  double correctToT_corrRZ(const EventContext& ctx,
+                           const Trk::TrackStateOnSurface* itr,
+                           double length) const;
+
   /**
    * @brief return gas type for that hit
    * @param track on surface object
    * @return gasType
    */
-  EGasType gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const; 
-  EGasType gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const; 
-      
+  EGasType gasTypeInStraw(const EventContext& ctx,
+                          const Trk::TrackStateOnSurface* itr) const;
+  EGasType gasTypeInStraw(
+    const EventContext& ctx,
+    const InDet::TRT_DriftCircleOnTrack* driftcircle) const;
+
 private:
 
   SG::ReadCondHandleKey<TRTDedxcorrection> m_ReadKey{this,"Dedxcorrection","Dedxcorrection","Dedx constants in-key"};   
@@ -262,8 +296,13 @@ private:
    * @param bool variable to specify whether data or MC correction
    * @return correction
    */
-  double fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const;
-   
+  double fitFuncEndcap_corrRZL(const EventContext& ctx,
+                               EGasType gasType,
+                               double driftRadius,
+                               double radialPosition,
+                               int Layer,
+                               int sign) const;
+
   /**  
    * @brief function to compute correction factor in barrel region  
    * @param driftradius
@@ -274,7 +313,12 @@ private:
    * @param bool variable to specify whether data or MC correction  
    * @return correction
    */
-  double fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const;
+  double fitFuncBarrel_corrRZL(const EventContext& ctx,
+                               EGasType gasType,
+                               double driftRadius,
+                               double zPosition,
+                               int Layer,
+                               int StrawLayer) const;
 
   /* Calibration functions for occupancy corrections */
   double hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;
@@ -309,6 +353,8 @@ public:
 
   void  showDEDXSetup() const;
 
+// static methods
+static double calculateTrackLengthInStraw(const Trk::TrackStateOnSurface* trackState, const TRT_ID* identifier);
   
 };
 

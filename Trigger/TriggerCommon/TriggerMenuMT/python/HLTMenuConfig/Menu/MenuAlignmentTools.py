@@ -20,28 +20,40 @@ the_signature_grouping = OrderedDict([
     ('Jet','JetMET'),
     ('MET','JetMET'),
     ('Bjet','JetMET'),
+    ('MuonnoL1', 'MuonnoL1'),
+    ('UnconventionalTracking','UnconventionalTracking'),
     ])
+
+def getAlignmentGroupFromPattern(sName, extra):
+    signature_for_alignment = sName + extra
+    
+    if signature_for_alignment in the_signature_grouping.keys():
+        return the_signature_grouping[signature_for_alignment]
+    elif sName in  the_signature_grouping.keys():
+        return the_signature_grouping[sName]
+    else:
+        log.info("No alignment grouping for signature %s (%s)",sName,extra)
+        return sName
 
 # Here, we use a list of all the signature combinations in the menu and the signature
 # groupings/orderings we've defined in the_signature_grouping to calculate which signatures
 # need to be ordered compared to which others.
 # The function returns a dictionary of an ordered list of signatures each signature belongs to
 #    e.g. 'Muon' : ['Egamma','Muon']    
-def analyseCombinations(combinations_in_menu, signatures_in_combinations, doGroupSignatures = True):
+def analyseCombinations(combinations_in_menu, alignmentGroups_in_combinations):
     
-        # need to find out of if a signature, or anything in combination with that signature, 
-        # is in combination with any other signature
-        # 1 electron, 2 photon, 3 muon, 4 tau, 5 jet, 6 met, 7 b-jet, 8 B-physics
-        # but some of these share input makers and algorithms, so they need to be grouped!
-        # alternatively, the IMs/signatures/etc. could have their names unique for each signature
-        sig_dict = {"Electron":0,"Photon":1,"Muon":2,"Tau":3,"Jet":4,"MET":5,"Bjet":6,"Bphysics":7}
+        # need to find out of if an alignment group, or anything in combination with that
+        # aligment group, is in combination with any other alignment group.
         
-        # Egamma = Electron+Photon, JetMET = Jet/MET/Bjet shared for now, because they share an input maker!
-        # HT chain are (will be) part of the jet signature.
-        if doGroupSignatures:
-            seen = set()
-            sig_dict = dict((x,len(seen)-1) for x in the_signature_grouping.values() if not (x in seen or seen.add(x)))
-            log.debug('Grouping of signatures to align: %s',sig_dict)
+        # first we make a dictionary of the ordering, based on the_signature_grouping 
+        # e.g. 1 electron+photon, 2 muon, 3 tau, 4 jet/met/b-jet, 5 noL1 muons
+        sig_dict = {}
+        igrp = 0
+        for _,v in the_signature_grouping.items():
+            if v not in sig_dict:
+                sig_dict[v] = igrp
+                igrp += 1
+        
         inv_sig_dict = {v: k for k, v in sig_dict.items()}
         
         the_matrix = np.eye((len(sig_dict)))
@@ -87,45 +99,12 @@ def analyseCombinations(combinations_in_menu, signatures_in_combinations, doGrou
         unique_by_sig = [[ inv_sig_dict[sig_int] for sig_int in setlist ] for setlist in unique_sets]
 
         sig_to_set = {}
-        for sig in signatures_in_combinations:
+        for sig in alignmentGroups_in_combinations:
             for aset in unique_by_sig:
                 if sig in aset:
                     sig_to_set[sig] = aset
          
         return sig_to_set
-        
-# redefine the various signature lists/dicts to use the grouped signatures (e.g. not
-# electron, photon but instead egamma)
-def groupSignatures(combinations_in_menu, signatures_to_align, length_of_configs):
-    for icomb,comb in enumerate(combinations_in_menu):
-        if any([acomb in the_signature_grouping for acomb in comb]):
-            tmpcomb = []
-            for asig in comb:
-                if asig in the_signature_grouping:
-                    tmpcomb += [the_signature_grouping[asig]]
-                else:
-                    # not sure this could come up - but if we have something random like minbias + muon chains? 
-                    tmpcomb += [asig]
-
-        combinations_in_menu[icomb] = tmpcomb
-        
-    signatures_to_align = list(signatures_to_align) #was a set, make a list!
-    for isig, asig in enumerate(signatures_to_align):
-        if asig in the_signature_grouping:
-            signatures_to_align[isig] = the_signature_grouping[asig]
-                                        
-    signatures_to_align = list(set(signatures_to_align)) #get rid of duplicates
-          
-    log.debug('Signatures that are going to be aligned: %s',signatures_to_align)
-    log.debug('Signature combinations that are in the menu: %s',combinations_in_menu)
-
-    for newsig in set(the_signature_grouping.values()):
-        if newsig not in length_of_configs:
-            # get all the signatures in the new sig:
-            corresponding_sig_lengths = [length_of_configs.get(oldsig,0) for oldsig in the_signature_grouping if the_signature_grouping[oldsig] == newsig]
-            length_of_configs[newsig] = max(corresponding_sig_lengths)
-
-    return combinations_in_menu, signatures_to_align, length_of_configs
 
 # takes the list of signatures in a chain and changes it to be the post-grouping signatures
 # e.g. ['Electron','Muon'] ==> ['Egamma','Muon] 

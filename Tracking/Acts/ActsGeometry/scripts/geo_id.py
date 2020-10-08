@@ -6,7 +6,7 @@ import sys
 
 # file = sys.argv[1]
 
-class GeometryID:
+class GeometryIdentifier:
     volume_mask    = 0xff00000000000000
     boundary_mask  = 0x00ff000000000000
     layer_mask     = 0x0000ff0000000000
@@ -53,7 +53,7 @@ class GeometryID:
         return (self._value & mask) >> self._ffs(mask)
 
     def __repr__(self):
-        fmt = "GeometryID(vol={}, bnd={}, lay={}, app={}, sen={}, chn={})"
+        fmt = "GeometryIdentifier(vol={}, bnd={}, lay={}, app={}, sen={}, chn={})"
         return fmt.format(self.vol_id, 
                           self.bnd_id, 
                           self.lay_id, 
@@ -67,7 +67,7 @@ class GeometryID:
 
 # for idx, event in enumerate(tree):
     # for geo_id_ in event.step_geo_id:
-        # geo_id = GeometryID(geo_id_)
+        # geo_id = GeometryIdentifier(geo_id_)
         # print(geo_id)
 
     # print("----")

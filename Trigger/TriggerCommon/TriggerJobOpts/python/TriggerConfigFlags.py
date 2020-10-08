@@ -31,6 +31,9 @@ def createTriggerFlags():
     # Enable Run-3 LVL1 simulation and/or decoding
     flags.addFlag('Trigger.enableL1Phase1', False)
 
+    # Enable usage of new L1 menu 
+    flags.addFlag('Trigger.readLVL1FromJSON', True)
+
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
@@ -151,6 +154,9 @@ def createTriggerFlags():
     # list of objects to be written to ESD
     flags.addFlag('Trigger.ESDEDMSet', 'ESD')
 
+    # to allow stroing extra EDM items via preExec
+    flags.addFlag('Trigger.ExtraEDMList', [])
+
     # tag to be used for condutions used by HLT code
     flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-01')
 
@@ -196,10 +202,22 @@ def createTriggerFlags():
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateL1Menu', False)
     
-    # L1 XML file name 
-    flags.addFlag('Trigger.LVL1ConfigFile',
-                  lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+    def _deriveL1ConfigName(prevFlags):
+        import re
+        log = logging.getLogger('TrigConfigSvcCfg')
+        pattern = re.compile(r'_v\d+|DC14')
+        menuName=prevFlags.Trigger.triggerMenuSetup
+        patternPos = pattern.search(menuName)
+        if patternPos:
+            menuName=menuName[:patternPos.end()]
+        else:
+            log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+        
+        return "LVL1config_"+menuName+"_" + prevFlags.Trigger.menuVersion + ".xml"
 
+    # L1 XML file name 
+    flags.addFlag('Trigger.LVL1ConfigFile', _deriveL1ConfigName)
+   
     # L1 Json file name 
     flags.addFlag('Trigger.L1MenuFile',
                   lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
@@ -260,6 +278,8 @@ def createTriggerFlags():
         return createMuonConfigFlags()
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
+    from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
+    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
 
     from TriggerJobOpts.MenuConfigFlags import createMenuFlags
     flags.join( createMenuFlags() )

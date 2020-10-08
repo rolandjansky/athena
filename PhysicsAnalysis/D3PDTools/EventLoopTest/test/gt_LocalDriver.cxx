@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <EventLoop/LocalDriver.h>
 #include <EventLoopTest/UnitTestConfig.h>
 #include <EventLoopTest/UnitTestFixture.h>
@@ -41,8 +41,8 @@ namespace EL
 {
   // this has to be SLOW, since it requires the entire release to have
   // been build for it to work
-  INSTANTIATE_TEST_CASE_P(SLOW_LocalDriverTest, UnitTestFixture,
-			  ::testing::Values(MyUnitTestConfig()),);
+  INSTANTIATE_TEST_SUITE_P(SLOW_LocalDriverTest, UnitTestFixture,
+                           ::testing::Values(MyUnitTestConfig()));
 }
 
 int main (int argc, char **argv)

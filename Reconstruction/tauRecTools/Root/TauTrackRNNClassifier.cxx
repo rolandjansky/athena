@@ -46,7 +46,7 @@ StatusCode TauTrackRNNClassifier::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TauTrackRNNClassifier::executeRNNTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon){
+StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon) const {
 
   std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
 
@@ -108,50 +108,44 @@ TrackRNN::~TrackRNN()
 }
 
 //______________________________________________________________________________
-StatusCode TrackRNN::finalize()
-{
-  delete m_RNNClassifier;
-  m_RNNClassifier = nullptr;
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
 StatusCode TrackRNN::initialize()
-{
-  m_vClassProb = std::vector<double>(5);   
+{  
   ATH_CHECK(addWeightsFile());
   
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*> vTracks, xAOD::TauJet& xTau)
+StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau) const
 {
   std::sort(vTracks.begin(), vTracks.end(), [](const xAOD::TauTrack * a, const xAOD::TauTrack * b) {return a->pt() > b->pt();});
 
   if(vTracks.size() == 0)
     return StatusCode::SUCCESS;
 
-  SG::AuxElement::Accessor<float> idScoreCharged("rnn_chargedScore");
-  SG::AuxElement::Accessor<float> idScoreIso("rnn_isolationScore");
-  SG::AuxElement::Accessor<float> idScoreConv("rnn_conversionScore");
-  SG::AuxElement::Accessor<float> idScoreFake("rnn_fakeScore");
-  SG::AuxElement::Accessor<float> idScoreUncl("rnn_unclassifiedScore");
+  static const SG::AuxElement::Accessor<float> idScoreCharged("rnn_chargedScore");
+  static const SG::AuxElement::Accessor<float> idScoreIso("rnn_isolationScore");
+  static const SG::AuxElement::Accessor<float> idScoreConv("rnn_conversionScore");
+  static const SG::AuxElement::Accessor<float> idScoreFake("rnn_fakeScore");
+  static const SG::AuxElement::Accessor<float> idScoreUncl("rnn_unclassifiedScore");
 
-  SG::AuxElement::Accessor<int> nTrkCharged("nRnnChargedTracks");
-  SG::AuxElement::Accessor<int> nTrkIso("nRnnIsolationTracks");
-  SG::AuxElement::Accessor<int> nTrkConv("nRnnConvertionTracks");
-  SG::AuxElement::Accessor<int> nTrkFake("nRnnFakeTracks");
-  SG::AuxElement::Accessor<int> nTrkUncl("nRnnUnclassifiedTracks");
+  static const SG::AuxElement::Accessor<int> nTrkCharged("nRnnChargedTracks");
+  static const SG::AuxElement::Accessor<int> nTrkIso("nRnnIsolationTracks");
+  static const SG::AuxElement::Accessor<int> nTrkConv("nRnnConvertionTracks");
+  static const SG::AuxElement::Accessor<int> nTrkFake("nRnnFakeTracks");
+  static const SG::AuxElement::Accessor<int> nTrkUncl("nRnnUnclassifiedTracks");
 
-  ATH_CHECK(setVars(vTracks, xTau));
+  VectorMap valueMap;
+  ATH_CHECK(calulateVars(vTracks, xTau, valueMap));
 
   SeqNodeMap seqInput;
   NodeMap nodeInput;
   
-  seqInput["input_1"] = m_valueMap; 
+  seqInput["input_1"] = valueMap; 
 
   VectorMap mValue = m_RNNClassifier->scan(nodeInput, seqInput, "time_distributed_2");
+
+  std::vector<double> vClassProb(5);
 
   int nChargedTracks = 0;
   int nIsoTracks = 0;
@@ -161,28 +155,28 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*> vTracks, xAOD::
   for (unsigned int i = 0; i < vTracks.size(); ++i){
 
     if(i >= m_nMaxNtracks && m_nMaxNtracks > 0){
-      m_vClassProb[0] = 0.0;
-      m_vClassProb[1] = 0.0;
-      m_vClassProb[2] = 0.0;
-      m_vClassProb[3] = 0.0;
-      m_vClassProb[4] = 1.0;
+      vClassProb[0] = 0.0;
+      vClassProb[1] = 0.0;
+      vClassProb[2] = 0.0;
+      vClassProb[3] = 0.0;
+      vClassProb[4] = 1.0;
     }else{
-      m_vClassProb[0] = mValue["type_0"][i];
-      m_vClassProb[1] = mValue["type_1"][i];
-      m_vClassProb[2] = mValue["type_2"][i];
-      m_vClassProb[3] = mValue["type_3"][i];
-      m_vClassProb[4] = 0.0;
+      vClassProb[0] = mValue["type_0"][i];
+      vClassProb[1] = mValue["type_1"][i];
+      vClassProb[2] = mValue["type_2"][i];
+      vClassProb[3] = mValue["type_3"][i];
+      vClassProb[4] = 0.0;
     }
 
-    idScoreCharged(*vTracks[i]) = m_vClassProb[0];
-    idScoreConv(*vTracks[i]) = m_vClassProb[1];
-    idScoreIso(*vTracks[i]) = m_vClassProb[2];
-    idScoreFake(*vTracks[i]) = m_vClassProb[3];
-    idScoreUncl(*vTracks[i]) = m_vClassProb[4];
+    idScoreCharged(*vTracks[i]) = vClassProb[0];
+    idScoreConv(*vTracks[i]) = vClassProb[1];
+    idScoreIso(*vTracks[i]) = vClassProb[2];
+    idScoreFake(*vTracks[i]) = vClassProb[3];
+    idScoreUncl(*vTracks[i]) = vClassProb[4];
 
     int iMaxIndex = 3; // for safty reasons set this to FT to circumvent bias
-    for (unsigned int j = 0; j < m_vClassProb.size(); ++j){
-      if(m_vClassProb[j] > m_vClassProb[iMaxIndex]) iMaxIndex = j;
+    for (unsigned int j = 0; j < vClassProb.size(); ++j){
+      if(vClassProb[j] > vClassProb[iMaxIndex]) iMaxIndex = j;
     }
 
     if(iMaxIndex == 3){
@@ -209,8 +203,6 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*> vTracks, xAOD::
     nTrkFake(xTau) = nFakeTracks;
     nTrkUncl(xTau) = nUnclTracks;
 
-
-    ATH_CHECK(resetVars());
   return StatusCode::SUCCESS;
 }
 
@@ -224,17 +216,16 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*> vTracks, xAOD::
 //______________________________________________________________________________
 StatusCode TrackRNN::addWeightsFile()
 {
-
   std::string sInputWeightsPath = find_file(m_sInputWeightsPath);
   ATH_MSG_DEBUG("InputWeightsPath: " << sInputWeightsPath);
 
   std::ifstream nn_config_istream(sInputWeightsPath);
   
-  m_NNconfig = lwtDev::parse_json_graph(nn_config_istream);
+  lwtDev::GraphConfig NNconfig = lwtDev::parse_json_graph(nn_config_istream);
   
-  m_RNNClassifier = new lwtDev::LightweightGraph(m_NNconfig, m_NNconfig.outputs.begin()->first);
+  m_RNNClassifier = std::make_unique<lwtDev::LightweightGraph>(NNconfig, NNconfig.outputs.begin()->first);
 
-  if(m_RNNClassifier==0) {
+  if(!m_RNNClassifier) {
     ATH_MSG_FATAL("Couldn't configure neural network!");
     return StatusCode::FAILURE;
   }
@@ -243,49 +234,49 @@ StatusCode TrackRNN::addWeightsFile()
 }
 
 //______________________________________________________________________________
-StatusCode TrackRNN::setVars(const std::vector<xAOD::TauTrack*> vTracks, const xAOD::TauJet& xTau)
+StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, const xAOD::TauJet& xTau, tauRecTools::VectorMap& valueMap) const
 {
-
-  // initialize m_valueMap
+  // initialize map with values
+  valueMap.clear();
   unsigned int n_timeSteps = vTracks.size();
   if(m_nMaxNtracks > 0 && n_timeSteps>m_nMaxNtracks)
     n_timeSteps = m_nMaxNtracks;
 
+  valueMap["log(trackPt)"] = std::vector<double>(n_timeSteps);
+  valueMap["log(jetSeedPt)"] = std::vector<double>(n_timeSteps);
+  valueMap["(trackPt/jetSeedPt[0])"] = std::vector<double>(n_timeSteps);
+  valueMap["trackEta"] = std::vector<double>(n_timeSteps);
+  valueMap["z0sinThetaTJVA"] = std::vector<double>(n_timeSteps);
+  valueMap["log(rConv)"] = std::vector<double>(n_timeSteps);
+  valueMap["tanh(rConvII/500)"] = std::vector<double>(n_timeSteps);
+  valueMap["dRJetSeedAxis"] = std::vector<double>(n_timeSteps);
+  valueMap["tanh(d0/10)"] = std::vector<double>(n_timeSteps);
+  valueMap["qOverP*1000"] = std::vector<double>(n_timeSteps);
+  valueMap["numberOfInnermostPixelLayerHits"] = std::vector<double>(n_timeSteps);
+  valueMap["numberOfPixelSharedHits"] = std::vector<double>(n_timeSteps);
+  valueMap["numberOfSCTSharedHits"] = std::vector<double>(n_timeSteps);
+  valueMap["numberOfTRTHits"] = std::vector<double>(n_timeSteps);
+  valueMap["eProbabilityHT"] = std::vector<double>(n_timeSteps);
+  valueMap["nPixHits"] = std::vector<double>(n_timeSteps);
+  valueMap["nSiHits"] = std::vector<double>(n_timeSteps);
+  valueMap["charge"] = std::vector<double>(n_timeSteps);
 
-  m_valueMap["log(trackPt)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["log(jetSeedPt)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["(trackPt/jetSeedPt[0])"] = std::vector<double>(n_timeSteps);
-  m_valueMap["trackEta"] = std::vector<double>(n_timeSteps);
-  m_valueMap["z0sinThetaTJVA"] = std::vector<double>(n_timeSteps);
-  m_valueMap["log(rConv)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tanh(rConvII/500)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["dRJetSeedAxis"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tanh(d0/10)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["qOverP*1000"] = std::vector<double>(n_timeSteps);
-  m_valueMap["numberOfInnermostPixelLayerHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["numberOfPixelSharedHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["numberOfSCTSharedHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["numberOfTRTHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["eProbabilityHT"] = std::vector<double>(n_timeSteps);
-  m_valueMap["nPixHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["nSiHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["charge"] = std::vector<double>(n_timeSteps);
-
+  double fTauSeedPt = xTau.ptJetSeed();
+  double log_TauSeedPt = std::log(fTauSeedPt);
 
   unsigned int i = 0;
   for(xAOD::TauTrack* xTrack : vTracks)
   {
     const xAOD::TrackParticle* xTrackParticle = xTrack->track();
 
-    double fTauSeedPt = xTau.ptJetSeed();
     double fTrackPt = xTrackParticle->pt();
     double fTrackEta = xTrackParticle->eta();
     double fTrackCharge = xTrackParticle->charge();
-    double fZ0SinthetaTJVA = xTrack->z0sinThetaTJVA(xTau);
-    double fRConv = xTrack->rConv(xTau);
-    double fRConvII = xTrack->rConvII(xTau);
+    double fZ0SinthetaTJVA = xTrack->z0sinthetaTJVA();
+    double fRConv = xTrack->rConv();
+    double fRConvII = xTrack->rConvII();
     double fDRJetSeedAxis = xTrack->dRJetSeedAxis(xTau);
-    double fD0 = xTrackParticle->d0();
+    double fD0 = xTrack->d0TJVA();
     double fQoverP = xTrackParticle->qOverP();
 
     uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
@@ -300,61 +291,39 @@ StatusCode TrackRNN::setVars(const std::vector<xAOD::TauTrack*> vTracks, const x
     uint8_t iNumberOfContribPixelLayers = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers) );
     uint8_t iNumberOfPixelHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles) );
     uint8_t iNumberOfSCTHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles) );
-  
-    float fTracksNumberOfInnermostPixelLayerHits = (float)iTracksNumberOfInnermostPixelLayerHits;
-    float fTracksNPixelHits = (float)iTracksNPixelHits;
-    float fTracksNPixelDeadSensors = (float)iTracksNPixelDeadSensors;
-    float fTracksNPixelSharedHits = (float)iTracksNPixelSharedHits;
-    float fTracksNSCTHits = (float)iTracksNSCTHits;
-    float fTracksNSCTDeadSensors = (float)iTracksNSCTDeadSensors;
-    float fTracksNSCTSharedHits = (float)iTracksNSCTSharedHits;
-    //float fTracksNTRTHighThresholdHits = (float)iTracksNTRTHighThresholdHits;
-    float fTracksNTRTHits = (float)iTracksNTRTHits;
-  
-    float fTracksNPixHits = fTracksNPixelHits + fTracksNPixelDeadSensors;
-    float fTracksNSiHits = fTracksNPixelHits + fTracksNPixelDeadSensors + fTracksNSCTHits + fTracksNSCTDeadSensors;
-  
+
     float fTracksEProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT) );
   
     //float fNumberOfContribPixelLayers = float(iNumberOfContribPixelLayers);
     //float fNumberOfPixelHoles = float(iNumberOfPixelHoles);
     //float fNumberOfSCTHoles = float(iNumberOfSCTHoles);
 
-    m_valueMap["log(trackPt)"][i] = log(fTrackPt);
-    m_valueMap["log(jetSeedPt)"][i] = log(fTauSeedPt);
-    m_valueMap["(trackPt/jetSeedPt[0])"][i] = (fTrackPt/fTauSeedPt);
-    m_valueMap["trackEta"][i] = fTrackEta;
-    m_valueMap["z0sinThetaTJVA"][i] = fZ0SinthetaTJVA;
-    m_valueMap["log(rConv)"][i] = log(fRConv);
-    m_valueMap["tanh(rConvII/500)"][i] = tanh(fRConvII/500.0);
-    m_valueMap["dRJetSeedAxis"][i] = fDRJetSeedAxis;
-    m_valueMap["tanh(d0/10)"][i] = tanh(fD0/10);
-    m_valueMap["qOverP*1000"][i] = fQoverP*1000.0;
-    m_valueMap["numberOfInnermostPixelLayerHits"][i] = fTracksNumberOfInnermostPixelLayerHits;
-    m_valueMap["numberOfPixelSharedHits"][i] = fTracksNPixelSharedHits;
-    m_valueMap["numberOfSCTSharedHits"][i] = fTracksNSCTSharedHits;
-    m_valueMap["numberOfTRTHits"][i] = fTracksNTRTHits;
-    m_valueMap["eProbabilityHT"][i] = fTracksEProbabilityHT;
-    m_valueMap["nPixHits"][i] = fTracksNPixHits;
-    m_valueMap["nSiHits"][i] = fTracksNSiHits;
-    m_valueMap["charge"][i] = fTrackCharge;
+    valueMap["log(trackPt)"][i] = std::log(fTrackPt);
+    valueMap["log(jetSeedPt)"][i] = log_TauSeedPt;
+    valueMap["(trackPt/jetSeedPt[0])"][i] = (fTrackPt/fTauSeedPt);
+    valueMap["trackEta"][i] = fTrackEta;
+    valueMap["z0sinThetaTJVA"][i] = fZ0SinthetaTJVA;
+    valueMap["log(rConv)"][i] = std::log(fRConv);
+    valueMap["tanh(rConvII/500)"][i] = std::tanh(fRConvII/500.0);
+    valueMap["dRJetSeedAxis"][i] = fDRJetSeedAxis;
+    valueMap["tanh(d0/10)"][i] = std::tanh(fD0/10.);
+    valueMap["qOverP*1000"][i] = fQoverP*1000.0;
+    valueMap["numberOfInnermostPixelLayerHits"][i] = (float) iTracksNumberOfInnermostPixelLayerHits;
+    valueMap["numberOfPixelSharedHits"][i] = (float) iTracksNPixelSharedHits;
+    valueMap["numberOfSCTSharedHits"][i] = (float) iTracksNSCTSharedHits;
+    valueMap["numberOfTRTHits"][i] = (float) iTracksNTRTHits;
+    valueMap["eProbabilityHT"][i] = fTracksEProbabilityHT;
+    valueMap["nPixHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors);
+    valueMap["nSiHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors + iTracksNSCTHits + iTracksNSCTDeadSensors);
+    valueMap["charge"][i] = fTrackCharge;
 
     ++i;
     if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks)
       break;
-
   }
 
   return StatusCode::SUCCESS;
 } 
-
-StatusCode TrackRNN::resetVars(){
-
-  for(auto varIt=m_valueMap.begin(); varIt!=m_valueMap.end(); varIt++)
-    (varIt->second).clear();
-
-  return StatusCode::SUCCESS;
-}
 
 //______________________________________________________________________________
 //StatusCode TrackRNN::setTriggerVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, const xAOD::TauTrack* lead_track)

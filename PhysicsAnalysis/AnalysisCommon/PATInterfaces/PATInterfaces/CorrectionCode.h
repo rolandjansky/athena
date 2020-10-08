@@ -32,7 +32,7 @@ namespace CP {
    /// $Revision: 719663 $
    /// $Date: 2016-01-25 21:27:50 +0100 (Mon, 25 Jan 2016) $
    ///
-   class CorrectionCode {
+   class [[nodiscard]] CorrectionCode {
 
    public:
       /// Possible values for the correction code

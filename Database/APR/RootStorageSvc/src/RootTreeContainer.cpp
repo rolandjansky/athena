@@ -206,7 +206,11 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
                    if( dsc.rows_written ) {
                       // catch up with the rows written by other branches
                       newBrDsc.object = nullptr;
-                      newBrDsc.branch->SetAddress( nullptr );
+                      // As of root 6.22, calling SetAddress with nullptr
+                      // may not work as expected if the address had
+                      // previously been set to something non-null.
+                      // So we need to create the temp object ourselves.
+                      newBrDsc.branch->SetAddress( newBrDsc.dummyAddr() );
                       for( size_t r=0; r<dsc.rows_written; ++r ) {
                          num_bytes += newBrDsc.branch->BackFill();
                       }
@@ -261,8 +265,12 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
       BranchDesc& dsc = descMapElem.second;
       if( !dsc.written ) {
          dsc.object = nullptr;
-         dsc.branch->SetAddress( nullptr );
-         // cout << "   Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
+         // As of root 6.22, calling SetAddress with nullptr
+         // may not work as expected if the address had
+         // previously been set to something non-null.
+         // So we need to create the temp object ourselves.
+         dsc.branch->SetAddress( dsc.dummyAddr() );
+         // cout << "   aaa Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
          if( isBranchContainer() && !m_treeFillMode ) {
             size_t bytes_out = dsc.branch->Fill();
             num_bytes += bytes_out;
@@ -1201,7 +1209,7 @@ DbStatus RootTreeContainer::transAct(Transaction::Action action)
       return Success;
    }
    // check if all TTree branches were filled and write the TTree
-   Branches::const_iterator k;
+   Branches::iterator k;
    for(k=m_branches.begin(); k !=m_branches.end(); ++k) {
       Long64_t branchEntries = k->branch->GetEntries();
       Long64_t treeEntries = m_tree->GetEntries();
@@ -1225,6 +1233,8 @@ DbStatus RootTreeContainer::transAct(Transaction::Action action)
              << DbPrint::endmsg;
          return Error;
       }
+      BranchDesc& dsc = (*k);
+      dsc.rows_written = 0;
    }
    return Success;
 }

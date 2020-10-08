@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 namespace Trk 
 {
@@ -31,6 +32,7 @@ namespace Trk
     void setConeSize( double coneSize ) { m_coneSize2 = coneSize*coneSize; }
 
     bool preSelectAction( const Trk::CaloExtension& caloExtension );
+    bool preSelectAction( const xAOD::CaloCluster& caloCluster );
     bool select( const CaloCell& cell ) const; // select or reject the cell
 
   private:

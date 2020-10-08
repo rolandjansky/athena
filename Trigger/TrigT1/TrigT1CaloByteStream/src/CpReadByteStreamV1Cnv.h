@@ -59,9 +59,7 @@ private:
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
   /// Message log
-  mutable MsgStream m_log;
   bool m_debug;
-
 };
 
 } // end namespace

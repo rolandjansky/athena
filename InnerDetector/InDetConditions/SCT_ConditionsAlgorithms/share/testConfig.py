@@ -1,4 +1,5 @@
-test="run2Data"
+test="run2MC"
+useSlim=True
 
 import AthenaCommon.AtlasUnixStandardJob
 
@@ -175,6 +176,14 @@ elif (test=='run2Data'):
   sct_ConfigurationConditionsToolSetup.setChannelFolderDb("/SCT/DAQ/Config/Chip")
   sct_ConfigurationConditionsToolSetup.setModuleFolderDb("/SCT/DAQ/Config/Module")
   sct_ConfigurationConditionsToolSetup.setMurFolderDb("/SCT/DAQ/Config/MUR")
+
+if useSlim:
+  if (test=='run2MC'):
+    sct_ConfigurationConditionsToolSetup.setChannelFolder("/SCT/DAQ/Config/ChipSlim")
+    # conddb.blockFolder("/SCT/DAQ/Config/Chip")
+    # conddb.addFolderWithTag("SCT_OFL","/SCT/DAQ/Config/Chip","SctDaqConfigChip-MC-14",force=True,forceMC=True,className="CondAttrListVec");
+    # conddb.blockFolder("/SCT/DAQ/Config/ChipSlim")
+    conddb.addFolderWithTag("SCT_OFL","/SCT/DAQ/Config/ChipSlim","SctDaqConfigChipSlim-MC-14",force=True,forceMC=True,className="CondAttrListVec");
 
 sct_ConfigurationConditionsToolSetup.setup()
 

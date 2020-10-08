@@ -26,7 +26,7 @@
 #include <xAODCore/tools/ReadStats.h>
 #include <xAODCore/tools/PerfStats.h>
 #include <xAODCore/tools/IOStats.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <TList.h>
 
 //

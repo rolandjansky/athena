@@ -1,19 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TGC_RawDataProviderToolCore.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "TGC_RawDataProviderToolCore.h"
 
 #include "MuonRDO/TgcRdoContainer.h"
-
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 //================ Constructor =================================================
 
@@ -22,11 +14,9 @@ Muon::TGC_RawDataProviderToolCore::TGC_RawDataProviderToolCore(
 						       const std::string& n,
 						       const IInterface*  p) :
   AthAlgTool(t, n, p),
-  m_decoder("Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout", this),
-  m_cabling(0),
+  m_cabling(nullptr),
   m_robDataProvider("ROBDataProviderSvc",n) 
 {
-  declareProperty("Decoder",     m_decoder);
 }
 
 //================ Initialisation =================================================

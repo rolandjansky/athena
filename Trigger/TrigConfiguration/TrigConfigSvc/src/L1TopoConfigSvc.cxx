@@ -11,7 +11,7 @@ using namespace std;
 
 TrigConf::L1TopoConfigSvc::L1TopoConfigSvc(const string& name, ISvcLocator* pSvcLocator) : 
    base_class(name, pSvcLocator),
-   m_menu(new TXC::L1TopoMenu)
+   m_menu( nullptr )
 {
    base_class::declareCommonProperties();
 }
@@ -31,6 +31,8 @@ TrigConf::L1TopoConfigSvc::initialize() {
       return StatusCode::SUCCESS;
    }
 
+   m_menu = std::make_unique<TXC::L1TopoMenu>();
+
    CHECK(initStorageMgr());
    
    m_menu->setSMK( m_dbSMKey );
@@ -39,8 +41,6 @@ TrigConf::L1TopoConfigSvc::initialize() {
    bool loadSuccess = m_storageMgr->l1topoMenuLoader().load( *m_menu );
 
    CHECK(freeStorageMgr());
-
-   //   m_menu->print();
 
    return loadSuccess ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }

@@ -1,6 +1,4 @@
-################################################################################
-# Package: DataQualityInterfaces
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityInterfaces )
@@ -17,7 +15,7 @@ find_package( nlohmann_json )
 atlas_add_root_dictionary( DataQualityInterfaces
                            DataQualityInterfacesDictSource
                            ROOT_HEADERS DataQualityInterfaces/DatabaseConfig.h DataQualityInterfaces/MiniConfig.h DataQualityInterfaces/MiniConfigTreeNode.h DataQualityInterfaces/HanApp.h DataQualityInterfaces/HanConfig.h DataQualityInterfaces/HanConfigAlgLimit.h DataQualityInterfaces/HanConfigAlgPar.h DataQualityInterfaces/HanConfigParMap.h DataQualityInterfaces/HanConfigAssessor.h DataQualityInterfaces/HanConfigCompAlg.h DataQualityInterfaces/HanConfigGroup.h DataQualityInterfaces/HanConfigMetadata.h DataQualityInterfaces/ConditionsSingleton.h DataQualityInterfaces/LinkDef.h
-                           EXTERNAL_PACKAGES ROOT  Boost tdaq-common COOL CORAL nlohmann_json)
+                           EXTERNAL_PACKAGES ROOT Boost tdaq-common COOL CORAL nlohmann_json)
 
 atlas_add_library( DataQualityInterfaces
                    src/HanAlgorithmConfig.cxx
@@ -45,15 +43,12 @@ atlas_add_library( DataQualityInterfaces
 
 atlas_add_executable( han
                       src/han.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} DataQualityInterfaces )
+                      LINK_LIBRARIES DataQualityInterfaces )
 
 atlas_add_executable( han-config-gen
                       src/han_config_gen.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}  nlohmann_json::nlohmann_json ${COOL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} DataQualityInterfaces nlohmann_json::nlohmann_json ${CORAL_LIBRARIES} ${COOL_LIBRARIES} )
+                      LINK_LIBRARIES DataQualityInterfaces CxxUtils )
 
 atlas_add_executable( han-config-print
                       src/han_config_print.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} DataQualityInterfaces )
+                      LINK_LIBRARIES DataQualityInterfaces )

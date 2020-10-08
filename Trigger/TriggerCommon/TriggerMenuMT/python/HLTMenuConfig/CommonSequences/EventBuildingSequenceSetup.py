@@ -61,6 +61,12 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'LArPEB' in eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.DetNames = ['PIXEL', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD']
+
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel, makeRegSelTool_SCT, makeRegSelTool_TRT 
+        tool.RegSelTool_Pixel = makeRegSelTool_Pixel()
+        tool.RegSelTool_SCT   = makeRegSelTool_SCT()
+        tool.RegSelTool_TRT   = makeRegSelTool_TRT()
+
         tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
         tool.addCTPResultToROBList()  # add the CTP result to the list
@@ -93,6 +99,12 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addSubDets([SubDetector.FORWARD_ALPHA,
                          SubDetector.TDAQ_CTP
         ])
+    elif 'CSCPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([
+            SubDetector.CSC
+         ])
+
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)
@@ -122,3 +134,38 @@ def pebSequence(eventBuildType, inputMaker):
     if findAlgorithm(seq, inputMaker.name()) != inputMaker:
         seq += inputMaker
     return seq
+
+
+def findEventBuildingStep(chainConfig):
+    pebSteps = [s for s in chainConfig.steps if 'PEBInfoWriter' in s.name and 'EmptyPEBAlign' not in s.name]
+    if len(pebSteps) == 0:
+        return None
+    elif len(pebSteps) > 1:
+        raise RuntimeError('Multiple Event Building steps in one chain are not supported but found in chain ' + chainConfig.name)
+    return pebSteps[0]
+
+
+def alignEventBuildingSteps(all_chains):
+    def is_peb(chainData):
+        return len(chainData[0]['eventBuildType']) > 0
+    all_peb_chains = list(filter(is_peb, all_chains))
+    maxPebStepPosition = {} # {eventBuildType: N}
+    def getPebStepPosition(chainConfig):
+        pebStep = findEventBuildingStep(chainConfig)
+        return chainConfig.steps.index(pebStep) + 1
+
+    # First loop to find the maximal PEB step positions to which we need to align
+    for chainDict, chainConfig, lengthOfChainConfigs in all_peb_chains:
+        pebStepPosition = getPebStepPosition(chainConfig)
+        ebt = chainDict['eventBuildType']
+        if ebt not in maxPebStepPosition or pebStepPosition > maxPebStepPosition[ebt]:
+            maxPebStepPosition[ebt] = pebStepPosition
+
+    # Second loop to insert empty steps before the PEB steps where needed
+    for chainDict, chainConfig, lengthOfChainConfigs in all_peb_chains:
+        pebStepPosition = getPebStepPosition(chainConfig)
+        ebt = chainDict['eventBuildType']
+        if pebStepPosition < maxPebStepPosition[ebt]:
+            numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
+            log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainDict['chainName'], numStepsNeeded)
+            chainConfig.insertEmptySteps(chainDict,'EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)

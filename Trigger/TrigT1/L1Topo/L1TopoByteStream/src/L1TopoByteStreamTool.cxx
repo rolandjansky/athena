@@ -267,6 +267,7 @@ StatusCode L1TopoByteStreamTool::convert(const ROBF* rob, L1TopoRDO*& result) {
     const uint32_t nstatus = rob->rod_nstatus();
     ATH_MSG_VERBOSE("Number of status words: " << nstatus);
     std::vector<uint32_t> vStatusWords;
+    vStatusWords.reserve(nstatus);
     ATH_MSG_VERBOSE("Dumping ROD status words:");
     for (uint32_t i = 0; i < nstatus; ++i, ++it_status) {
       vStatusWords.push_back(static_cast<uint32_t>(*it_status));
@@ -294,6 +295,7 @@ StatusCode L1TopoByteStreamTool::convert(const ROBF* rob, L1TopoRDO*& result) {
 
     ATH_MSG_VERBOSE("Dumping L1Topo data words:");
     std::vector<uint32_t> vDataWords;
+    vDataWords.reserve(ndata);
     for (uint32_t i = 0; i < ndata; ++i, ++it_data) {
       vDataWords.push_back(static_cast<uint32_t>(*it_data));
       ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setfill('0') << std::setw(8)
@@ -302,8 +304,8 @@ StatusCode L1TopoByteStreamTool::convert(const ROBF* rob, L1TopoRDO*& result) {
 
     // create L1Topo RDO
     result = new L1TopoRDO();
-    result->setDataWords(vDataWords);
-    result->setStatusWords(vStatusWords);
+    result->setDataWords(std::move(vDataWords));
+    result->setStatusWords(std::move(vStatusWords));
     if (error_status) {
       result->setError(L1Topo::Error::SLINK_STATUS_ERROR);
     }

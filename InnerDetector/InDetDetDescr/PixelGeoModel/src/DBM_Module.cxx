@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,10 @@
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 using namespace InDetDD;
 
-DBM_Module::DBM_Module() {
+DBM_Module::DBM_Module(InDetDD::PixelDetectorManager* ddmgr,
+                       PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
 
   double thickness = 0.5;
 

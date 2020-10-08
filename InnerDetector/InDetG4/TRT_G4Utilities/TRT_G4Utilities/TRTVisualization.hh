@@ -14,26 +14,18 @@ class G4LogicalVolume;
 class G4VisAttributes;
 
 
-class ATLAS_NOT_THREAD_SAFE TRTVisualization // static variable and thread unsafe exit are used.
+class TRTVisualization
 {
   public:
+    TRTVisualization();
     ~TRTVisualization();
-
-    static TRTVisualization* GetPointer()
-    {
-      if (!s_pVisualization)
-        s_pVisualization = new TRTVisualization;
-      return s_pVisualization;
-    }
 
     void Visualize(G4LogicalVolume*, int);
  
-    MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+    MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
     bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
   private:
-    TRTVisualization();
-
     void Initialize();
 
     G4VisAttributes* m_pVisAttributeRed;
@@ -44,10 +36,7 @@ class ATLAS_NOT_THREAD_SAFE TRTVisualization // static variable and thread unsaf
     G4VisAttributes* m_pVisAttributeCyan;
     G4VisAttributes* m_pVisAttributeBlack;
 
-    static TRTVisualization* s_pVisualization;
-
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
+    Athena::MsgStreamMember m_msg;
 };
 
 #endif

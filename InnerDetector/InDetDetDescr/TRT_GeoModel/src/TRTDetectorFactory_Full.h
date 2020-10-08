@@ -29,14 +29,14 @@ class GeoFullPhysVol;
 class TRTParameterInterface;
 class InDetMaterialManager;
 
-class ATLAS_NOT_THREAD_SAFE TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  { // Static variables are used.
+class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
 
  public:
   
   //--------------------------Public Interface:--------------------------------//
   //                                                                           //
   // Constructor:                                                              //
-  TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,            //
+  TRTDetectorFactory_Full(InDetDD::AthenaComps * athenaComps,                  //
 			  const ITRT_StrawStatusSummaryTool * sumTool,         //
 			  bool useOldActiveGasMixture,                         //
 			  bool DC2CompatibleBarrelCoordinates,                 //
@@ -88,7 +88,7 @@ class ATLAS_NOT_THREAD_SAFE TRTDetectorFactory_Full : public InDetDD::DetectorFa
   //GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false ) const;
   GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false, ActiveGasMixture gasMixture = GM_XENON) const;
   //GeoFullPhysVol  *makeStrawPlane( size_t w ) const;
-  GeoFullPhysVol  *makeStrawPlane( size_t w , ActiveGasMixture gasMixture = GM_XENON) const;
+  GeoFullPhysVol  *makeStrawPlane( size_t w , ActiveGasMixture gasMixture = GM_XENON);
 
   // private member data:
   InDetDD::TRT_DetectorManager * m_detectorManager;
@@ -105,6 +105,8 @@ class ATLAS_NOT_THREAD_SAFE TRTDetectorFactory_Full : public InDetDD::DetectorFa
   bool m_doKrypton;
   bool m_useDynamicAlignFolders;
 
+  GeoFullPhysVol* m_type1Planes[3] = {nullptr, nullptr, nullptr};
+  GeoFullPhysVol* m_type2Planes[3] = {nullptr, nullptr, nullptr};
 };
 
 #endif // TRTDetectorFactory_Full_h

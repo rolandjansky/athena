@@ -16,17 +16,12 @@
 #include "xAODMuon/SlowMuonAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+
 #include <vector>
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator)
-{
-  declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
-  declareProperty("CreateSAmuons", m_doSA=false);
-  declareProperty("MakeClusters",m_makeClusters=true);
+  AthAlgorithm(name,pSvcLocator) {
 }
-
-MuonCreatorAlg::~MuonCreatorAlg(){}
 
 StatusCode MuonCreatorAlg::initialize()
 {
@@ -61,6 +56,17 @@ StatusCode MuonCreatorAlg::initialize()
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
   }
+  ATH_MSG_DEBUG("MuonCreatorAlg has been setup  successfully");
+  ATH_MSG_DEBUG("    *** SegmentTrackContainer:            "<<m_segTrkContainerName);
+  ATH_MSG_DEBUG("    *** SegmentContainer:                 "<<m_segContainerName);
+  ATH_MSG_DEBUG("    *** CombinedTrackContainer:           "<<m_combinedTrkCollectionName);
+  ATH_MSG_DEBUG("    *** xAOD::CombinedTrackContainer:     "<<m_combinedCollectionName);
+ 
+  ATH_MSG_DEBUG("    *** xAOD::ExtrpolatedTrackContainer:  "<<m_extrapolatedCollectionName);
+  ATH_MSG_DEBUG("    *** ExtrpolatedTrackContainer:        "<<m_extrapolatedTrkCollectionName);  
+  ATH_MSG_DEBUG("    *** xAOD::MSOnlyTrackContainer:       "<<m_msOnlyExtrapolatedCollectionName);
+  ATH_MSG_DEBUG("    *** ExtrpolatedTackContainer:         "<<m_msOnlyExtrapolatedTrkCollectionName);
+  
 
   return StatusCode::SUCCESS;
 }
@@ -200,11 +206,5 @@ StatusCode MuonCreatorAlg::execute()
                                       cbtrks_eta, cbtrks_phi);
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode MuonCreatorAlg::finalize()
-{
   return StatusCode::SUCCESS;
 }

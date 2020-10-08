@@ -70,7 +70,7 @@ TRTSensitiveDetector::TRTSensitiveDetector(const std::string& name, const std::s
 // Called by TRTSensitiveDetector
 // Once per run
 
-void TRTSensitiveDetector::InitializeHitProcessing ATLAS_NOT_THREAD_SAFE () // Thread unsafe TRTParametersForBarrelHits, TRTParametersForEndCapHits  classes are used.
+void TRTSensitiveDetector::InitializeHitProcessing()
 {
   if(verboseLevel>4)
     {
@@ -132,21 +132,17 @@ void TRTSensitiveDetector::InitializeHitProcessing ATLAS_NOT_THREAD_SAFE () // T
 
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
-  m_pMaterialXe = nist->FindOrBuildMaterial("XeCO2O2");
+  m_pMaterialXe = nist->FindOrBuildMaterial("trt::XeCO2O2");
   if (!m_pMaterialXe && verboseLevel>4)
     {
       G4cout << GetName() << " Could not find Xe material (Only OK if no TRT straws are filled with Xenon)" << G4endl;
     }
-  m_pMaterialKr = nist->FindOrBuildMaterial("KrCO2O2");
-  if (!m_pMaterialKr)
+  m_pMaterialKr = nist->FindOrBuildMaterial("trt::KrCO2O2");
+  if (!m_pMaterialKr && verboseLevel>4)
     {
-      m_pMaterialKr = nist->FindOrBuildMaterial("trt::KrCO2O2");
-      if (!m_pMaterialKr && verboseLevel>4)
-        {
-          G4cout << GetName() << " Could not find Kr material (Only OK if no TRT straws are filled with Krypton)" << G4endl;
-        }
+      G4cout << GetName() << " Could not find Kr material (Only OK if no TRT straws are filled with Krypton)" << G4endl;
     }
-  m_pMaterialAr = nist->FindOrBuildMaterial("ArCO2O2");
+  m_pMaterialAr = nist->FindOrBuildMaterial("trt::ArCO2O2");
   if (!m_pMaterialAr && verboseLevel>4)
     {
       G4cout << GetName() << " Could not find Ar material (Only OK if no TRT straws are filled with Argon)" << G4endl;

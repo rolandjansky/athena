@@ -227,10 +227,10 @@ StatusCode LeptonPairFilter::filterEvent() {
 	id1 = vLeptonPDGIDs[i];
 	id2 = vLeptonPDGIDs[j];
 	//classify the pair and count it
-	if(abs(id1)==abs(id2) && id1*id2 < 0) nSFOS+=1;
-	else if(abs(id1)==abs(id2) && id1*id2 > 0) nSFSS+=1;
-	else if(abs(id1)!=abs(id2) && id1*id2 < 0) nOFOS+=1;
-	else if(abs(id1)!=abs(id2) && id1*id2 > 0) nOFSS+=1;
+	if(std::abs(id1)==std::abs(id2) && id1*id2 < 0) nSFOS+=1;
+	else if(std::abs(id1)==std::abs(id2) && id1*id2 > 0) nSFSS+=1;
+	else if(std::abs(id1)!=std::abs(id2) && id1*id2 < 0) nOFOS+=1;
+	else if(std::abs(id1)!=std::abs(id2) && id1*id2 > 0) nOFSS+=1;
 	else ATH_MSG_ERROR( "Couldn't classify lepton pair"  );
     }
   }

@@ -28,13 +28,7 @@ def precisionPhotonRecoSequence(RoIs):
     import AthenaCommon.CfgMgr as CfgMgr
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier")
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
-                              ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                              ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
-
-    # Make sure the required objects are still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
+                              ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' )]
 
 
     # Retrieve the factories now
@@ -67,6 +61,11 @@ def precisionPhotonRecoSequence(RoIs):
     trigTopoEgammaAlgo.SuperPhotonRecCollectionName = trigPhotonAlgo.SuperPhotonRecCollectionName
     collectionOut = trigTopoEgammaAlgo.PhotonOutputName
     thesequence += trigTopoEgammaAlgo
+
+    # Add CaloIsolationTool
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigPhotonIsoBuilderCfg
+    isoBuilder = TrigPhotonIsoBuilderCfg()
+    thesequence += isoBuilder
 
     return (thesequence, collectionOut)
 

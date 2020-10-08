@@ -207,7 +207,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
 
 
 bool HeavyFlavorHadronFilter::isBwithWeakDK(const int pID) const {
-  int id = abs(pID);
+  int id = std::abs(pID);
   return ( id == 511   || // B+
            id == 521   || // B0
            id == 531   || // Bs
@@ -223,7 +223,7 @@ bool HeavyFlavorHadronFilter::isBwithWeakDK(const int pID) const {
 
 
 bool HeavyFlavorHadronFilter::isDwithWeakDK(const int pID) const {
-  int id = abs(pID);
+  int id = std::abs(pID);
   return ( id == 411   || // D+
            id == 421   || // D0
            id == 431   || // Ds

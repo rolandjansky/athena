@@ -25,7 +25,7 @@ for item in CILMergeAOD.list():
 CILMergeAOD.removeItem(removed_items)
 
 StreamAOD.ItemList=CILMergeAOD()
-print CILMergeAOD.list()
+print(CILMergeAOD.list())
 
 
 

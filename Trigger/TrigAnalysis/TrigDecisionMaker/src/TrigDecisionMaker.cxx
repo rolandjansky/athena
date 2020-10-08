@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -26,8 +26,6 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 
-#include "TrigT1Result/RoIBResult.h"
-
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteering/Lvl1ResultAccessTool.h"
 
@@ -41,7 +39,7 @@
 using namespace TrigDec;
 
 TrigDecisionMaker::TrigDecisionMaker(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", this),
     m_nEvents(0),
@@ -56,20 +54,6 @@ TrigDecisionMaker::TrigDecisionMaker(const std::string &name, ISvcLocator *pSvcL
     m_hlt_passed(0)
 {
   declareProperty("TrigConfigSvc", m_trigConfigSvc, "Trigger config service");
-
-  declareProperty("doL1", m_doL1 = true);
-  declareProperty("doL2", m_doL2 = true);
-  declareProperty("doEF", m_doEF = true);
-  declareProperty("doHLT", m_doHLT = true);
-//  declareProperty("doEvtInfo", m_doEvtInfo = false);
-
-  declareProperty("TrigDecisionKey", m_trigDecisionKey = "TrigDecision");
-  declareProperty("L1ResultKey",     m_l1ResultKey = "");
-  declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");
-  declareProperty("EFResultKey",     m_efResultKey = "HLTResult_EF");
-  declareProperty("HLTResultKey",    m_hltResultKey = "HLTResult_HLT");
-//  declareProperty("EventInfoKey",    m_evtInfoKey  = "McEventInfo");
-//  declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision");
 }
 
 
@@ -106,12 +90,20 @@ StatusCode TrigDecisionMaker::initialize()
   ATH_MSG_DEBUG ( " doHLT           = " << (m_doHLT ? "True":"False") ) ;
   ATH_MSG_DEBUG ( " TrigDecisionKey = " << m_trigDecisionKey ) ;
   ATH_MSG_DEBUG ( " TrigL1ResultKey = " << m_l1ResultKey ) ;
+  ATH_MSG_DEBUG ( " TrigROIBL1ResultKey = " << m_l1roibResultKey ) ;
   ATH_MSG_DEBUG ( " TrigL2ResultKey = " << m_l2ResultKey ) ;
   ATH_MSG_DEBUG ( " TrigEFResultKey = " << m_efResultKey ) ;
   ATH_MSG_DEBUG ( " TrigHLTResultKey= " << m_hltResultKey ) ;
 
   ATH_CHECK( m_lvl1Tool.retrieve() );
   ATH_CHECK( m_trigConfigSvc.retrieve() );
+
+  ATH_CHECK( m_trigDecisionKey.initialize() );
+  ATH_CHECK( m_l1ResultKey.initialize(m_doL1) );
+  ATH_CHECK( m_l1roibResultKey.initialize(m_doL1) );
+  ATH_CHECK( m_l2ResultKey.initialize(m_doL2) );
+  ATH_CHECK( m_efResultKey.initialize(m_doEF) );
+  ATH_CHECK( m_hltResultKey.initialize(m_doHLT) );
 
   return StatusCode::SUCCESS;
 }
@@ -153,7 +145,7 @@ StatusCode TrigDecisionMaker::finalize()
 }
 
 
-StatusCode TrigDecisionMaker::execute()
+StatusCode TrigDecisionMaker::execute(const EventContext& ctx) const
 {
   // increment event counter
   m_nEvents++;
@@ -164,7 +156,7 @@ StatusCode TrigDecisionMaker::execute()
   const HLT::HLTResult*   efResult = 0;
   const HLT::HLTResult*   hltResult = 0;
 
-  ResultStatus l1Stat = getL1Result(l1Result);
+  ResultStatus l1Stat = getL1Result(l1Result, ctx);
   if (!l1Result) {
     if (l1Stat == NotRequested ) m_l1_notReq++;
     else if (l1Stat == SGError || l1Stat == ProcError)  m_l1_error++;
@@ -172,7 +164,7 @@ StatusCode TrigDecisionMaker::execute()
   }
   else if (l1Result->isAccepted()) m_l1_passed++;
 
-  ResultStatus l2Stat = getHLTResult(l2Result, L2);
+  ResultStatus l2Stat = getHLTResult(l2Result, L2, ctx);
   if (!l2Result) {
     if (l2Stat == NotRequested ) m_l2_notReq++;
     else if (l2Stat == SGError || l2Stat == ProcError)  m_l2_error++;
@@ -180,7 +172,7 @@ StatusCode TrigDecisionMaker::execute()
   }
   else if (l2Result->isAccepted()) m_l2_passed++;
 
-  ResultStatus efStat = getHLTResult(efResult, EF);
+  ResultStatus efStat = getHLTResult(efResult, EF, ctx);
   if (!efResult) {
     if (efStat == NotRequested ) m_ef_notReq++;
     else if (efStat == SGError || efStat == ProcError)  m_ef_error++;
@@ -189,7 +181,7 @@ StatusCode TrigDecisionMaker::execute()
   else if (efResult->isAccepted()) m_ef_passed++;
 
 
-  ResultStatus hltStat = getHLTResult(hltResult, HLT);
+  ResultStatus hltStat = getHLTResult(hltResult, HLT, ctx);
   if (!hltResult) {
     if (hltStat == NotRequested ) m_hlt_notReq++;
     else if (hltStat == SGError || hltStat == ProcError)  m_hlt_error++;
@@ -204,7 +196,7 @@ StatusCode TrigDecisionMaker::execute()
     return StatusCode::SUCCESS;
   }
 
-  TrigDecision* trigDec = new TrigDecision();
+  std::unique_ptr<TrigDecision> trigDec = std::make_unique<TrigDecision>();
 
   trigDec->m_configMasterKey = m_trigConfigSvc->masterKey();
 
@@ -218,65 +210,49 @@ StatusCode TrigDecisionMaker::execute()
 
 
   // get the bunch crossing id
-  const EventInfo* eventInfo = 0;  
-  if ( evtStore()->retrieve(eventInfo).isFailure() ) {
-    ATH_MSG_WARNING ( "Failed to retrieve event info" ) ;
-  } else {
-    const EventID* myEventID = eventInfo->event_ID();
-    ATH_MSG_DEBUG ( "Run " << myEventID->run_number()
-                    << "; Event " << myEventID->event_number()
-                    << "; BC-ID " << myEventID->bunch_crossing_id() ) ;
-    char x = getBGByte(myEventID->bunch_crossing_id());
-    trigDec->m_bgCode = x;
-  }
-  
+  ATH_MSG_DEBUG ( "Run " << ctx.eventID().run_number()
+                  << "; Event " << ctx.eventID().event_number()
+                  << "; BC-ID " << ctx.eventID().bunch_crossing_id() ) ;
+  char x = getBGByte(ctx.eventID().bunch_crossing_id());
+  trigDec->m_bgCode = x;
 
-  std::string tdKey = updatedDecisionKey();
-  StatusCode sc = evtStore()->record(trigDec, tdKey, true);
-
-  if (sc.isFailure()) {
+  SG::WriteHandle<TrigDecision> writeHandle{m_trigDecisionKey, ctx};
+  if (writeHandle.record(std::move(trigDec)).isFailure()) {
     ATH_MSG_ERROR ( "Failed to record TrigDecision to StoreGate with key "
-                    << tdKey << "!" ) ;
+                    << m_trigDecisionKey << "!" ) ;
 
     m_td_error++;
     return StatusCode::FAILURE;
   }
 
   ATH_MSG_DEBUG ( "Recorded TrigDecision to StoreGate with key = "
-                  << tdKey << "." ) ;
+                  << m_trigDecisionKey << "." ) ;
   
 
   return StatusCode::SUCCESS;
 }
 
-TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lvl1Result*& result)
+TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lvl1Result*& result, const EventContext& ctx) const
 {
   result = 0;
   if (!m_doL1) return NotRequested;
 
-  if ( evtStore()->contains<LVL1CTP::Lvl1Result>("Lvl1Result") ) {
-    if ( evtStore()->retrieve(result, "Lvl1Result").isFailure() ) {
-      return SGError;
-    }
+  SG::ReadHandle<LVL1CTP::Lvl1Result> l1RH{m_l1ResultKey, ctx};
+  if (l1RH.isValid()) {
+    result = l1RH.cptr();
     return OK;
   }
 
-  if (!evtStore()->contains<ROIB::RoIBResult>(m_l1ResultKey)) {
+  SG::ReadHandle<ROIB::RoIBResult> l1roibRH{m_l1roibResultKey, ctx};
+  if (!l1roibRH.isValid()) {
+    result = nullptr;
     ATH_MSG_WARNING ( "Trying to do L1, but RoIBResult not found" ) ;
     return NotFound;
   }
 
-  const ROIB::RoIBResult* roIBResult = 0;
+  const ROIB::RoIBResult* roIBResult = l1roibRH.cptr();
 
-  StatusCode sc = evtStore()->retrieve(roIBResult, m_l1ResultKey);
-
-  if (sc.isFailure() || !roIBResult) {
-    ATH_MSG_ERROR ( "Error retrieving RoIBResult from StoreGate" ) ;
-    result = 0;
-    return SGError;
-  }
-
-  ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1ResultKey ) ;
+  ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1roibResultKey ) ;
 
   std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig();
 
@@ -292,7 +268,7 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
 
 
 TrigDecisionMaker::ResultStatus TrigDecisionMaker::getHLTResult(const HLT::HLTResult*& result,
-                                                                TrigLevel level)
+                                                                TrigLevel level, const EventContext& ctx) const
 {
   result = 0;
 
@@ -303,20 +279,17 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getHLTResult(const HLT::HLTRe
 
   if ((level == L2 && !m_doL2) || (level == EF && !m_doEF) || (level == HLT && !m_doHLT)) return NotRequested;
   
-  const std::string& key = (level == L2 ? m_l2ResultKey : (level == EF) ? m_efResultKey : m_hltResultKey);
+  const SG::ReadHandleKey<HLT::HLTResult>& key = (level == L2 ? m_l2ResultKey : (level == EF) ? m_efResultKey : m_hltResultKey);
 
-  if (!evtStore()->contains<HLT::HLTResult>(key)) {
-    ATH_MSG_WARNING ( "Trying to get HLT result, but not found with key "
-                      << key ) ;
-    return NotFound;
-  }
+  SG::ReadHandle<HLT::HLTResult> hltRH{key, ctx};
 
-  StatusCode sc = evtStore()->retrieve(result, key);
-  if (sc.isFailure()) {
+  if (!hltRH.isValid()) {
     ATH_MSG_ERROR ( "Error retrieving HLTResult from StoreGate" ) ;
-    result = 0;
+    result = nullptr;
     return SGError;
   }
+
+  result = hltRH.cptr();
 
   ATH_MSG_DEBUG ( "Got HLTResult from StoreGate with key " << key ) ;
 
@@ -324,25 +297,7 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getHLTResult(const HLT::HLTRe
 }
 
 
-std::string TrigDecisionMaker::updatedDecisionKey()
-{
-  std::string key = m_trigDecisionKey;
-  bool alreadyThere = true;
-
-  while (alreadyThere) {
-    if (evtStore()->contains<TrigDecision>( key )) {
-      ATH_MSG_WARNING ( key << " already exists: "
-                        << " using new key " << key << "+." ) ;
-      key += "+";
-    }
-    else alreadyThere = false;
-  }
-
-  return key;
-}
-
-
-char TrigDecisionMaker::getBGByte(int BCId) {
+char TrigDecisionMaker::getBGByte(int BCId) const {
 
    const TrigConf::BunchGroupSet* bgs = m_trigConfigSvc->bunchGroupSet();
    if(!bgs) {

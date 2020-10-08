@@ -27,7 +27,6 @@
  */
 #include "HLTMinBiasMonTool.h" 
  
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -108,9 +107,6 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 
 	//Lvl-2 containers
 	declareProperty("SPContainerName", m_spContainerName);
-
-	// Cut made on time over-threshold before any multiplicities are calculated.
-	declareProperty("PixelCLToTCut", m_timeOverThresholdCut = 20.);
 
 	// If set to false the trigger combination of Pixel and SCT is an OR.
 	declareProperty("TriggerTypeAND", m_triggerTypeAND = true);

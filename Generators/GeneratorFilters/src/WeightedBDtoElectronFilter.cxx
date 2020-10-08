@@ -235,14 +235,14 @@ std::string WeightedBDtoElectronFilter::longToStr( const long n ) const {
 
 bool WeightedBDtoElectronFilter::isBBaryon(const int pID) const {
   // PdgID of B-baryon is of form ...xxx5xxx
-  std::string idStr = longToStr( abs(pID) );
+  std::string idStr = longToStr( std::abs(pID) );
   char digit4 = idStr[ idStr.length() - 4 ];
   return (digit4=='5');
 }
 
 bool WeightedBDtoElectronFilter::isBMeson(const int pID) const {
   // PdgID of B-meson is of form ...xxx05xx
-  std::string idStr = longToStr( abs(pID) );
+  std::string idStr = longToStr( std::abs(pID) );
   char digit3 = idStr[ idStr.length() - 3 ];
   char digit4;
   if ( idStr.length() < 4 ) { digit4 = '0'; }
@@ -252,14 +252,14 @@ bool WeightedBDtoElectronFilter::isBMeson(const int pID) const {
 
 bool WeightedBDtoElectronFilter::isDBaryon(const int pID) const {
   // PdgID of D-baryon is of form ...xxx4xxx
-  std::string idStr = longToStr( abs(pID) );
+  std::string idStr = longToStr( std::abs(pID) );
   char digit4 = idStr[ idStr.length() - 4 ];
   return (digit4=='4');
 }
 
 bool WeightedBDtoElectronFilter::isDMeson(const int pID) const {
   // PdgID of D-meson is of form ...xxx04xx
-  std::string idStr = longToStr( abs(pID) );
+  std::string idStr = longToStr( std::abs(pID) );
   char digit3 = idStr[ idStr.length() - 3 ];
   char digit4;
   if( idStr.length() < 4 ) { digit4 = '0'; }

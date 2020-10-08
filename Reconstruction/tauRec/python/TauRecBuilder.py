@@ -23,12 +23,11 @@ import traceback
 from RecExConfig.Configured import Configured
 from .TauRecConfigured import TauRecConfigured
 
-# global tauRec config keys
+# global tauRec config keys - to be replaced with tauRecFlags
 _outputType = "xAOD::TauJetContainer"
 _outputKey = "TauJets"
 _outputAuxType = "xAOD::TauJetAuxContainer"
 _outputAuxKey = "TauJetsAux."
-_track_collection = "InDetTrackParticles"
 
 ################################################################################
 ## @class TauRecCoreBuilder
@@ -40,19 +39,20 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
     Find clusters used for Pi0 identification and eflow variables.
     PhotonConversion will be run here too.
     """
-  
+    
     _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey,
                     'xAOD::TauTrackContainer' : 'TauTracks',
                     'xAOD::CaloClusterContainer' : 'TauShotClusters',
                     'xAOD::PFOContainer' : 'TauShotParticleFlowObjects',
                     'CaloCellContainer' : 'TauCommonPi0Cells',
                     }
-    
+
+
     def __init__(self, name = "TauCoreBuilder",doPi0Clus=False, doTJVA=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
         self.do_TJVA = doTJVA
-        TauRecConfigured.__init__(self, name)
+        TauRecConfigured.__init__(self, name, doPi0Clus)
 
 
  
@@ -65,8 +65,8 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         from RecExConfig.ObjKeyStore import objKeyStore
         objKeyStore.addManyTypesStreamESD(self._output)
-        objKeyStore.addManyTypesStreamAOD(self._output)              
-        objKeyStore.addManyTypesTransient(self._output)              
+        objKeyStore.addManyTypesStreamAOD(self._output)   
+        objKeyStore.addManyTypesTransient(self._output)
         
         import tauRec.TauAlgorithmsHolder as taualgs
         from tauRec.tauRecFlags import tauFlags
@@ -78,7 +78,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         tools = []
         try:
-            tools.append(taualgs.getJetSeedBuilder(seed_collection_name=tauFlags.tauRecSeedJetCollection()))
+            tools.append(taualgs.getJetSeedBuilder())
 
             # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
             from InDetRecExample.InDetJobProperties import InDetFlags
@@ -95,9 +95,11 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
                 tools.append(taualgs.getTauTrackRNNClassifier())
             if jobproperties.Beam.beamType()!="cosmics":
                 tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            
             tools.append(taualgs.getCellVariables())
             tools.append(taualgs.getElectronVetoVars())
             tools.append(taualgs.getTauShotFinder()) 
+
             if self.doPi0Clus:
                 tools.append(taualgs.getPi0ClusterFinder())
             
@@ -122,182 +124,5 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
     
     def outputType(self):
          return self._outputType
-
-
-# No longer used
-################################################################################
-## @class TauRecPi0EflowProcessor
-# Calculate eflow information and run the Pi0 finder algorithms
-################################################################################
-class TauRecPi0EflowProcessor ( TauRecConfigured ) :
-    """Calculate eflow information and run the Pi0 finder algorithms.
-    This needs to be done in a separate step, because first special cluster and cell container have to be build.
-    """
-       
-    def __init__(self, name = "TauProcessorPi0EflowTools",doPi0Clus=False):
-        self.name = name
-        self.doPi0Clus = doPi0Clus
-        TauRecConfigured.__init__(self, name)
-    
-    def configure(self):
-        mlog = logging.getLogger ('TauRecPi0EflowProcessor::configure:')
-        mlog.info('entering')
-        
-        
-        import tauRec.TauAlgorithmsHolder as taualgs
-        
-        ########################################################################
-        # Tau Modifier Algos 
-        ########################################################################
-        try:
-            from tauRecTools.tauRecToolsConf import TauProcessorTool
-            self._TauProcessorToolHandle = TauProcessorTool(
-                name = self.name,
-                TauContainer             = _outputKey,
-                TauAuxContainer          = _outputAuxKey,
-            )
-        except Exception:
-            mlog.error("could not get handle to TauProcessor")
-            traceback.print_exc()
-            return False
-             
-        tools = []
-        try:
-            #tools.append(taualgs.getTauEflowTrackMatchCells())
-            #tools.append(taualgs.getTauEflowAddCaloInfo())  
-            #tools.append(taualgs.getTauEflowVariables())     
-      
-            if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
-            
-            TauRecConfigured.AddToolsToToolSvc(self, tools)
-            self.TauProcessorToolHandle().Tools = tools
-            
-        except Exception:
-            mlog.error("could not append tools to TauProcessor")
-            traceback.print_exc()
-            return False   
-        
-        TauRecConfigured.WrapTauRecToolExecHandle(self, self.TauProcessorToolHandle())
-        
-        return True    
-    
-    # Helpers
-    def TauProcessorToolHandle(self):
-        return self._TauProcessorToolHandle
-
-# No longer used
-################################################################################
-## @class TauRecVariablesProcessor
-# Calculate remaining Tau variables and properties
-################################################################################
-class TauRecVariablesProcessor ( TauRecConfigured ) :
-    """Calculate remaining Tau variables and properties. 
-    Use informations available also in AODs, so no cell level is needed.
-    """
-    
-    def __init__(self, name = "TauRecVariablesProcessor", inAODmode=False, doPi0Clus=False):
-        self.name = name
-        self.doPi0Clus = doPi0Clus
-        self.AODmode = inAODmode 
-        TauRecConfigured.__init__(self, name)
-    
-    
-    def configure(self):
-        mlog = logging.getLogger ('TauRecVariablesProcessor::configure:')
-        mlog.info('entering')
-        
-        
-        import tauRec.TauAlgorithmsHolder as taualgs
-        
-        ########################################################################
-        # Tau Modifier Algos 
-        ########################################################################
-        try:
-            from tauRecTools.tauRecToolsConf import TauProcessorTool
-            self._TauProcessorToolHandle = TauProcessorTool(
-                name = self.name,
-                TauContainer             = _outputKey,
-                TauAuxContainer          = _outputAuxKey,
-                runOnAOD                 = self.AODmode)
-        
-        except Exception:
-            mlog.error("could not get handle to TauProcessorTool")
-            traceback.print_exc()
-            return False
-             
-        tools = []
-        try:
-            #tools.append(taualgs.getEnergyCalibrationEM())
-            # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
-            from InDetRecExample.InDetJobProperties import InDetFlags
-            if InDetFlags.doVertexFinding():
-                tools.append(taualgs.getTauVertexVariables())
-            tools.append(taualgs.getTauCommonCalcVars())
-            tools.append(taualgs.getTauSubstructure())
-            if self.doPi0Clus: 
-                tools.append(taualgs.getPi0ClusterScaler())
-                tools.append(taualgs.getPi0ScoreCalculator())
-                # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
-                tools.append(taualgs.getPi0Selector())
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #
-            ## for testing purpose
-            #tools.append(taualgs.getTauTestDump())
-            #
-
-            from tauRec.tauRecFlags import tauFlags
-
-            # PanTau:
-            if tauFlags.doPanTau() :
-                import PanTauAlgs.JobOptions_Main_PanTau as pantau
-                tools.append(pantau.getPanTau())
-            
-            #these tools need pantau info
-            tools.append(taualgs.getCombinedP4FromRecoTaus())
-            if jobproperties.Beam.beamType()!="cosmics":
-                tools.append(taualgs.getMvaTESVariableDecorator())
-            tools.append(taualgs.getMvaTESEvaluator())
-
-            if tauFlags.doRunTauDiscriminant():
-                tools.append(taualgs.getTauIDVarCalculator())
-                tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT1P", weightsFile="vars2016_pt_gamma_1p_isofix.root", minNTracks=0, maxNTracks=1)) #update config?
-                tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT3P", weightsFile="vars2016_pt_gamma_3p_isofix.root", minNTracks=2, maxNTracks=1000)) #update config?
-                tools.append(taualgs.getTauWPDecoratorJetBDT())
-                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
-                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_bar", 
-                                                           weightsFile="EleBDT1PBar.root", minNTracks=1, maxAbsTrackEta=1.37, 
-                                                           outputVarName="BDTEleScore")) #update config?
-                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end1", 
-                                                           weightsFile="EleBDT1PEnd1.root", minNTracks=1, minAbsTrackEta=1.37, 
-                                                           maxAbsTrackEta=2.0, outputVarName="BDTEleScore")) #update config?
-                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end23", 
-                                                           weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
-                                                           maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
-                tools.append(taualgs.getTauWPDecoratorEleBDT())
-                tools.append(taualgs.getTauEleOLRDecorator())
-                pass
-
-            tools+=tauFlags.tauRecToolsDevToolListProcessor()
-            ## lock tau containers -> must be the last tau tool!!
-            #tools.append(taualgs.getContainerLock())
-            TauRecConfigured.AddToolsToToolSvc(self, tools)
-            self.TauProcessorToolHandle().Tools = tools
-        
-        except Exception:
-            mlog.error("could not append tools to TauProcessor")
-            traceback.print_exc()
-            return False
-
-        self
-
-        TauRecConfigured.WrapTauRecToolExecHandle(self, self.TauProcessorToolHandle())
-        
-        
-        return True    
-    
-
-    #helpers
-    def TauProcessorToolHandle(self):
-        return self._TauProcessorToolHandle
 
 #end

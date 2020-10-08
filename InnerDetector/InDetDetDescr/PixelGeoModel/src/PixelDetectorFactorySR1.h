@@ -20,8 +20,8 @@ class PixelDetectorFactorySR1 : public InDetDD::DetectorFactoryBase {
  public:
   
   // Constructor:
-  PixelDetectorFactorySR1(const PixelGeoModelAthenaComps * athenaComps,
-			  const PixelSwitches & switches) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe GeoVPixelFactory class is used.
+  PixelDetectorFactorySR1(PixelGeoModelAthenaComps * athenaComps,
+			  const PixelSwitches & switches);
     
   // Destructor:
   ~PixelDetectorFactorySR1();

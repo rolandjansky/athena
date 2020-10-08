@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: PyLogger.cxx,v 1.1 2007-12-15 06:54:28 ssnyder Exp $
 /**
  * @file  RootUtils/src/pyroot/PyLogger.cxx
  * @author scott snyder
@@ -12,7 +10,7 @@
 
 
 #include "RootUtils/PyLogger.h"
-#include "TPyException.h"
+#include "Utility.h"
 
 
 namespace RootUtils {
@@ -79,7 +77,7 @@ void PyLogger::call (PyObject* fn, const char* msg)
 
   PyObject* res = PyObject_CallFunction (fn, (char*)"s", msg);
   if (res == 0)
-    throw PyROOT::TPyException();
+    throw RootUtils::PyException();
   Py_DECREF (res);
 }
 

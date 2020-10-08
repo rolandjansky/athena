@@ -38,9 +38,6 @@ namespace TCS {
       parType_t      p_MinET1 = { 0 };
       parType_t      p_MinET2 = { 0 };
 
-      TH1 * m_histAcceptMinDPhi2[3]= {};
-      TH1 * m_histRejectMinDPhi2[3] = {};
-
    };
    
 }

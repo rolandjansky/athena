@@ -30,9 +30,9 @@ efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 from TrigMinBias.TrigMinBiasConfig import (EFMbTrkFex,EFMbTrkHypoExclusiveLoose,EFMbTrkHypoExclusiveTight,EFMbTrkHypo,
                                            EFMbVxFex,MbVxHypo,MbTrkHypo)
 
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
+from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo
 from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
-dummyRoI=DummyRoI(name='MinBiasDummyRoI', createRoIDescriptors = True, NumberOfOutputTEs=1)
+dummyRoI=GenericDummyUnseededAllTEAlgo(name='MinBiasDummyRoI' ) # these aren't needed - they are he default settings already ! , createRoIDescriptors = True, NumberOfOutputTEs=1)
 terminateAlgo = PrescaleAlgo('terminateAlgo')
 
 # for HI

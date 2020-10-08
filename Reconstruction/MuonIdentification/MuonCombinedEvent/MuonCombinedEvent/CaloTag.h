@@ -44,7 +44,8 @@ namespace MuonCombined {
                 float   sigmaMinusDeltaE=0.0,
                 float   sigmaPlusDeltaE=0.0,
                 unsigned short energyLossType=0,
-                float          likelhoold=0,
+                float          likelihood=0,
+                float          muonScore=0,
                 unsigned short tag=0);
 
     /** full constructor with the detailed deposits in Calo */
@@ -54,7 +55,8 @@ namespace MuonCombined {
                 float   sigmaMinusDeltaE,
                 float   sigmaPlusDeltaE,
                 unsigned short energyLossType,
-                float likelhoold,
+                float likelihood,
+                float muonScore,
                 unsigned short tag,
                 const std::vector<DepositInCalo>& deposits);
 
@@ -77,6 +79,9 @@ namespace MuonCombined {
     /** the calo Muon Identification likehood */
     double caloLRLikelihood() const { return  m_caloLRLikelihood; }
 
+    /** the calo Muon score */
+    double caloMuonScore() const { return  m_caloMuonScore; }
+
     /** the vector of detailed deposits in calo layers */
     const std::vector<DepositInCalo>& depositInCalo() const { return m_deposits; }
 
@@ -93,6 +98,9 @@ namespace MuonCombined {
 
     /** set the likelihood */
     void set_caloLRLikelihood ( const float likelihood ) { m_caloLRLikelihood = likelihood; }
+
+    /** set the calo muon score */
+    void set_caloMuonScore ( const float muonScore ) { m_caloMuonScore = muonScore; }
 
     /** set the tag */
     void set_caloMuonIdTag ( unsigned short tag ) { m_caloMuonIdTag = tag; }
@@ -112,8 +120,14 @@ namespace MuonCombined {
     /** access to secondary author */
     Author author2() const { return m_author2; }
 
+    /** access to third author */
+    Author author3() const { return m_author3; }
+
     /** set the secondary author */
     void set_author2 ( const Author author2 ) { m_author2 = author2; }
+
+    /** set the third author */
+    void set_author3 ( const Author author3 ) { m_author3 = author3; }
 
   private:
     /** block copy and assignment */
@@ -124,11 +138,13 @@ namespace MuonCombined {
 
     EnergyLossType m_energyLossType;
     float          m_caloLRLikelihood;
+    float          m_caloMuonScore;
     unsigned short m_caloMuonIdTag;
     float          m_fsrCandidateEnergy;
     std::vector<DepositInCalo> m_deposits;
     float          m_etCore;  // summed cell ET in core DeltaR 
-    Author	   m_author2; // in case of tag by both Algorithms
+    Author	   m_author2; // in case of tag by more than one algorithm
+    Author	   m_author3; // in case of tag by all three algorithms
 
 
   };

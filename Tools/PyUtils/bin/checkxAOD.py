@@ -37,7 +37,6 @@ if __name__ == "__main__":
     ( options, args ) = parser.parse_args()
 
     # Set up categorization matching strings:
-    # Set up categorization matching strings:
     categoryStrings = {
         "MetaData" : ["^DataHeader", "(.*)_mems$", "(.*)_timings$", "^Token$", "^RawInfoSummaryForTag$", "^index_ref$"],
         "Trig"     : ["^HLT", "^LVL1", "^xTrig", "^Trig", "^CTP_Decision", "^TrigInDetTrackTruthMap", "^TrigNavigation", ".*TriggerTowers", "TileTTL1MBTS", "^TileL2Cnt", "RoIBResult","^_TRIGGER","^L1TopoRawData"],
@@ -49,10 +48,11 @@ if __name__ == "__main__":
         "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks", "^NCB_MuonSegments"],
         "BTag"     : ["^BTag"],
         "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
-        "Jet"      : ["^CamKt", "^AntiKt", "^Jet","^LCOriginTopoClusters","^EMOriginTopoClusters"],
+        "Jet"      : ["^CamKt", "^AntiKt", "^Jet(?!.*ParticleFlowObjects$)","^LCOriginTopoClusters","^EMOriginTopoClusters"],
         "CaloTopo" : ["CaloCalTopoCluster"],
         "Calo"     : ["^LAr", "^AllCalo", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
-        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"]
+        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"],
+        "AFP"      : ["^AFP"]
         }
     
     fileNames = []

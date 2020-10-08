@@ -89,46 +89,30 @@ MagField::AtlasFieldMap::initializeMap(TFile* rootfile,
   // }
   int id;
   double zmin;
-
   double zmax;
-
   double rmin;
-
   double rmax;
-
   double phimin;
-
   double phimax;
   double bscale;
   int ncond;
   bool* finite;
   double* p1x;
-
   double* p1y;
-
   double* p1z;
-
   double* p2x;
-
   double* p2y;
-
   double* p2z;
   double* curr;
   int nmeshz;
-
   int nmeshr;
-
   int nmeshphi;
   double* meshz;
-
   double* meshr;
-
   double* meshphi;
   int nfield;
   short* fieldz;
-
   short* fieldr;
-
   short* fieldphi;
   // define the fixed-sized branches first
   tree->SetBranchAddress("id", &id);

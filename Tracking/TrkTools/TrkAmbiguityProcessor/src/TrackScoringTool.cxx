@@ -5,7 +5,6 @@
 
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrackScoringTool.h"
-#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -19,13 +18,11 @@ Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 					const IInterface*  p )
 					:
 					AthAlgTool(t,n,p),
-					m_trkSummaryTool("Trk::TrackSummaryTool"),
 					m_summaryTypeScore(Trk::numberOfTrackSummaryTypes)
 {
 	declareInterface<ITrackScoringTool>(this);
-	declareProperty("SumHelpTool",          m_trkSummaryTool);
-	
-	//set some test values
+
+        //set some test values
 	m_summaryTypeScore[Trk::numberOfPixelHits]	      =  20;
 	m_summaryTypeScore[Trk::numberOfPixelSharedHits]      = -10;  // a shared hit is only half the weight
 	m_summaryTypeScore[Trk::numberOfPixelHoles]	      = -10;  // a hole is bad
@@ -45,10 +42,10 @@ Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 	m_summaryTypeScore[Trk::numberOfOutliersOnTrack]      =  -2;  // an outlier might happen
 
 	// scoring for Muons is missing
-	m_summaryTypeScore[Trk::numberOfMdtHits]	= 20;   
-	m_summaryTypeScore[Trk::numberOfTgcPhiHits]	= 20; 
+	m_summaryTypeScore[Trk::numberOfMdtHits]	= 20;
+	m_summaryTypeScore[Trk::numberOfTgcPhiHits]	= 20;
 	m_summaryTypeScore[Trk::numberOfTgcEtaHits]	= 10;
-	m_summaryTypeScore[Trk::numberOfCscPhiHits]	= 20;     
+	m_summaryTypeScore[Trk::numberOfCscPhiHits]	= 20;
 	m_summaryTypeScore[Trk::numberOfCscEtaHits]	= 20;
 	m_summaryTypeScore[Trk::numberOfRpcPhiHits]	= 20;
 	m_summaryTypeScore[Trk::numberOfRpcEtaHits]	= 10;
@@ -57,11 +54,9 @@ Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 Trk::TrackScoringTool::~TrackScoringTool(){
 }
 
-StatusCode 
+StatusCode
 Trk::TrackScoringTool::initialize(){
 	ATH_CHECK( AlgTool::initialize());
-	ATH_CHECK( m_trkSummaryTool.retrieve());
-	ATH_MSG_VERBOSE("Retrieved tool " << m_trkSummaryTool );
 	return StatusCode::SUCCESS;
 }
 
@@ -69,20 +64,17 @@ StatusCode Trk::TrackScoringTool::finalize(){
 	return AlgTool::finalize();
 }
 
-Trk::TrackScore 
-Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const{
-	const TrackSummary* summary = nullptr;
-	if (suppressHoleSearch)
-	  summary = m_trkSummaryTool->createSummaryNoHoleSearch(track);
-	else
-	  summary = m_trkSummaryTool->createSummary(track);
+Trk::TrackScore
+Trk::TrackScoringTool::score( const Track& track, [[maybe_unused]] const bool suppressHoleSearch ) const{
+        if (!track.trackSummary()) {
+           ATH_MSG_FATAL("Attempt to score a track without a summary.");
+        }
 
-	Trk::TrackScore score = TrackScore( simpleScore(track, *summary) );
-	delete summary;
+	Trk::TrackScore score = TrackScore( simpleScore(track, *track.trackSummary()) );
 	return score;
 }
 
-Trk::TrackScore 
+Trk::TrackScore
 Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trackSummary ) const{
 	// --- reject bad tracks
 	if (track.fitQuality() && track.fitQuality()->numberDoF() < 0) {
@@ -101,8 +93,8 @@ Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trac
 	for (int i=0; i<Trk::numberOfTrackSummaryTypes; ++i) {
 		int value = trackSummary.get(static_cast<Trk::SummaryType>(i));
 		//value is -1 if undefined.
-		if (value>0) { 
-		  score+=m_summaryTypeScore[i]*value; 
+		if (value>0) {
+		  score+=m_summaryTypeScore[i]*value;
 		  ATH_MSG_VERBOSE("\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score);
 		}
 	}

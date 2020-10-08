@@ -39,7 +39,7 @@ class SGInputLoader
   /// Default constructor: 
   SGInputLoader();
 
-  void loader(Property&);
+  void loader(Gaudi::Details::PropertyBase&);
   bool loadObjs(const DataObjIDColl& objs) const;
 
   /// Properties

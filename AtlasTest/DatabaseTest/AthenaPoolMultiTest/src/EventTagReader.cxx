@@ -12,7 +12,7 @@
 #include "EventTagReader.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "CoralBase/AttributeListSpecification.h"

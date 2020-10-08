@@ -1,22 +1,21 @@
-[==========] Running 1 test from 1 test case.
+[==========] Running 1 test from 1 test suite.
 [----------] Global test environment set-up.
 [----------] 1 test from InitGaudiGoogleTestTest
 [ RUN      ] InitGaudiGoogleTestTest.basictest
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Wed Jul  4 10:48:30 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
+                                          running on 36d5a1e47246 on Sat Sep 12 19:51:31 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventLoopMgr         INFO Histograms converted successfully according to request.
 ToolSvc              INFO Removing all tools created by ToolSvc
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
-[       OK ] InitGaudiGoogleTestTest.basictest (44 ms)
-[----------] 1 test from InitGaudiGoogleTestTest (44 ms total)
+[       OK ] InitGaudiGoogleTestTest.basictest (382 ms)
+[----------] 1 test from InitGaudiGoogleTestTest (382 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test case ran. (44 ms total)
+[==========] 1 test from 1 test suite ran. (382 ms total)
 [  PASSED  ] 1 test.

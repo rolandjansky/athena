@@ -11,7 +11,7 @@
 #include <vector>                       // for vector
 #include "CoolCoralClient.h"            // for COOLCORALClient
 
-class ATLAS_NOT_THREAD_SAFE TRT_COOLCORALClient : private COOLCORALClient { // Thread unsafe coral::AttributeList is used.
+class TRT_COOLCORALClient : private COOLCORALClient {
 
  public:
 

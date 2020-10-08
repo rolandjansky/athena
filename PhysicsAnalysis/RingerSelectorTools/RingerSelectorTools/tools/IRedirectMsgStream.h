@@ -10,8 +10,8 @@
 // without C++11 enum class.
 #if !defined(RINGER_STANDALONE)
 // Asg includes:
-# include "AsgTools/MsgStream.h"
-# include "AsgTools/MsgStreamMacros.h"
+# include "AsgMessaging/MsgStream.h"
+# include "AsgMessaging/MsgStreamMacros.h"
 //#pragma message "ASGTOOL or XAOD_STANDALONE"
 #else
 # include <iostream>

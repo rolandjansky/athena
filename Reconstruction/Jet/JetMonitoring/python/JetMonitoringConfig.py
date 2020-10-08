@@ -445,6 +445,7 @@ class SelectSpec(ToolSpec):
             args['Selector'] = selSpec
 
 
+
         self.name = selname
         self.path = path
         ConfigDict.__init__(self, **args)
@@ -460,7 +461,7 @@ class SelectSpec(ToolSpec):
         from AthenaConfiguration.ComponentFactory import CompFactory
         # conf = self.clone(self.name)
         # name = conf.pop('name')
-        selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1))
+        selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1), InverseJetSel=self.get('InverseJetSel',False))
         if hasattr(self,'Selector'):
             self.Selector.topLevelDir = self.topLevelDir
             self.Selector.bottomLevelDir = self.bottomLevelDir
@@ -514,6 +515,7 @@ class JetMonAlgSpec(ConfigDict):
         args.setdefault('topLevelDir', 'Jets/')
         args.setdefault('bottomLevelDir', '')
         args.setdefault('failureOnMissingContainer', True)
+        args.setdefault('onlyPassingJets', True)
         ConfigDict.__init__(self, defaultPath=defaultPath, TriggerChain=TriggerChain, **args)
         tmpL = self.FillerTools
         self.FillerTools = []
@@ -529,6 +531,7 @@ class JetMonAlgSpec(ConfigDict):
         alg.TriggerChain = self.TriggerChain
         alg.JetContainerName = self.JetContainerName
         alg.FailureOnMissingContainer = self.failureOnMissingContainer
+        alg.OnlyPassingJets = self.onlyPassingJets
         
         path = self.defaultPath
         tools = []

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_PPMSUBBLOCKV1_H
@@ -173,8 +173,7 @@ class PpmSubBlockV1 : public L1CaloSubBlock {
    bool unpackUncompressedErrors();
 
    //  Global error flags
-   mutable uint32_t m_globalError;
-   mutable bool     m_globalDone;
+   uint32_t m_globalError;
 
    //  Triggered slice offsets, pedestal value
    int m_lutOffset;

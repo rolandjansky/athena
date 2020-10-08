@@ -84,7 +84,7 @@ ErrorCode LvlTopoConverter::hltExecute(std::vector<HLT::SteeringChain*>&) {
 }
 
 namespace {
-   StatusCode max(StatusCode x, StatusCode y) {
+   StatusCode max(const StatusCode& x, const StatusCode& y) {
       return StatusCode ( x.getCode() >= y.getCode() ? x.getCode() : y.getCode() );
    }
 }

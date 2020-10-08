@@ -52,20 +52,20 @@ namespace Pythia8 {
       switch(m_energyMode(settingsPtr)){
       case 8:
 	if(m < 0.0375){
-	  weightBW *= 121.88e-12*exp(13.0*m);
+	  weightBW *= 121.88e-12*std::exp(13.0*m);
 	}else{
-	  weightBW *= 1.0e-12*exp(18.5*m-1.4*log(m));
+	  weightBW *= 1.0e-12*std::exp(18.5*m-1.4*std::log(m));
 	}
 
 	break;
 
       case 13:
 	if(m < 0.023){
-	  weightBW *= 102.77e-12*exp(11.5*m);
+	  weightBW *= 102.77e-12*std::exp(11.5*m);
 	}else if(m < 0.231){
-	  weightBW *= 1.0e-12*exp(16.1*m-1.2*log(m));
+	  weightBW *= 1.0e-12*std::exp(16.1*m-1.2*std::log(m));
 	}else{
-	  weightBW *= 1.8675e-16*exp(31.7*m-4.6*log(m));
+	  weightBW *= 1.8675e-16*std::exp(31.7*m-4.6*std::log(m));
 	}
 	break;
 

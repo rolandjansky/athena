@@ -1,29 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_RawDataProviderToolCore.h"
 #include "MuonRDO/MdtCsmContainer.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
-
-// using namespace OFFLINE_FRAGMENTS_NAMESPACE;
-Muon::MDT_RawDataProviderToolCore::MDT_RawDataProviderToolCore(const std::string& t,
-						       const std::string& n,
-						       const IInterface*  p )
-  :
-  AthAlgTool(t,n,p),
-  m_decoder("MdtROD_Decoder/MdtROD_Decoder", this),
-  m_robDataProvider ("ROBDataProviderSvc",n)
-{ 
-  //  template for property declaration
-  declareProperty ("Decoder", m_decoder);
+Muon::MDT_RawDataProviderToolCore::MDT_RawDataProviderToolCore(const std::string& t, const std::string& n, const IInterface*  p ) :
+  AthAlgTool(t,n,p){ 
 }
-
-
-Muon::MDT_RawDataProviderToolCore::~MDT_RawDataProviderToolCore()
-{}
 
 StatusCode Muon::MDT_RawDataProviderToolCore::initialize()
 {    
@@ -60,26 +44,19 @@ StatusCode Muon::MDT_RawDataProviderToolCore::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MDT_RawDataProviderToolCore::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer)
 {
   ATH_MSG_VERBOSE("convert(): " << vecRobs.size()<<" ROBFragments.");    
 
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator itFrag;
-  
-  for (itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
+  for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* frag : vecRobs)
     {
       //convert only if data payload is delivered
-      if ( (**itFrag).rod_ndata()!=0 )
+      if ( frag->rod_ndata()!=0 )
 	{
 	  //std::vector<IdentifierHash> coll =
-	  //                          to_be_converted(**itFrag,collections);
+	  //                          to_be_converted(*frag,collections);
 	  
-	  if (m_decoder->fillCollections(**itFrag, mdtContainer).isFailure())
+	  if (m_decoder->fillCollections(*frag, mdtContainer).isFailure())
             {
 	      // store the error conditions into the StatusCode and continue
             }
@@ -88,7 +65,7 @@ StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer( const std::v
 	{
 	  if(msgLvl(MSG::DEBUG))
 	    {
-	      uint32_t sourceId= (**itFrag).source_id();
+	      uint32_t sourceId= frag->source_id();
 	      msg(MSG::DEBUG) << " ROB " << MSG::hex << sourceId
 			    << " is delivered with an empty payload" << MSG::dec;
 	    }

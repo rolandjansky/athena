@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOPLEVELTPCONVERTER_H
@@ -12,6 +12,7 @@
 
 #include "TopLevelTPCnvBaseP.h"
 #include "TPConverter.h"
+#include "CxxUtils/checker_macros.h"
 
 
 /** @class TopLevelTPConverter
@@ -93,7 +94,11 @@ public:
       @return TRANS* transient object passed by a pointer
   */
   virtual TRANS*  createTransient(const TL_PERS* persObj, MsgStream &log) {
-     setPStorage( const_cast<TL_PERS*>(persObj) ); 
+     // FIXME: TPConverter uses the same non-const member m_pStorage
+     // for both reading and writing, but we want it to be const
+     // in the former case.
+     TL_PERS* pers_nc ATLAS_THREAD_SAFE = const_cast<TL_PERS*>(persObj);
+     setPStorage( pers_nc ); 
      return createTransient( log );
   }
 
@@ -194,7 +199,11 @@ public:
 
   // ----------------------  methods used by T_TPCnv<> converters
   virtual void persToTrans (const PERS* pers, TRANS* trans, MsgStream& msg) {
-    setPStorage (const_cast<TL_PERS*> (pers));
+    // FIXME: TPConverter uses the same non-const member m_pStorage
+    // for both reading and writing, but we want it to be const
+    // in the former case.
+    TL_PERS* pers_nc ATLAS_THREAD_SAFE = const_cast<TL_PERS*>(pers);
+    setPStorage( pers_nc ); 
     m_mainConverter.pstoreToTrans (0, trans, msg);
   }
   

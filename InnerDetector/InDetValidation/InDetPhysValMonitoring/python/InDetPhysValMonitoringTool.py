@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from InDetPhysValMonitoring.ConfigUtils import serviceFactory,toolFactory
@@ -53,17 +53,21 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                             FillTrackInJetPlots = True)
          from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
          addTruthJetsIfNotExising(jets_name)
+         if InDetPhysValFlags.doValidateTracksInBJets():
+            kwargs=setDefaults(kwargs,
+                              FillTrackInBJetPlots = True)
+
       else :
          kwargs=setDefaults(kwargs,
                             JetContainerName    ='' ,
                             FillTrackInJetPlots = False)
-      
+
       #adding the VeretxTruthMatchingTool
       from InDetTruthVertexValidation.InDetTruthVertexValidationConf import InDetVertexTruthMatchTool
-      kwargs=setDefaults(kwargs, 
+      kwargs=setDefaults(kwargs,
                         useVertexTruthMatchTool = True,
          		VertexTruthMatchTool = toolFactory(InDetVertexTruthMatchTool) )
-      
+
       #Options for Truth Strategy : Requires full pile-up truth containers for some
       if InDetPhysValFlags.setTruthStrategy() == 'All' or InDetPhysValFlags.setTruthStrategy() == 'PileUp' :
         from RecExConfig.AutoConfiguration import IsInInputFile
@@ -74,9 +78,9 @@ def getInDetPhysValMonitoringTool(**kwargs) :
             print ('WARNING Truth Strategy for InDetPhysValMonitoring set to %s but TruthPileupEvents are missing in the input; resetting to HardScatter only' % (InDetPhysValFlags.setTruthStrategy()))
       elif InDetPhysValFlags.setTruthStrategy() != 'HardScatter' :
         print ('WARNING Truth Strategy for for InDetPhysValMonitoring set to invalid option %s; valid flags are ["HardScatter", "All", "PileUp"]' %  (InDetPhysValFlags.setTruthStrategy()))
-         
 
-      
+
+
 
 
    else :
@@ -89,7 +93,8 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          TruthSelectionTool         = '',
                          # the jet container is actually meant to be a truth jet container
                          JetContainerName           ='',
-                         FillTrackInJetPlots        = False)
+                         FillTrackInJetPlots        = False,
+                         FillTrackInBJetPlots       = False)
 
    # Control the number of output histograms
    if InDetPhysValFlags.doPhysValOutput() :
@@ -157,6 +162,17 @@ def getInDetPhysValMonitoringToolDBM(**kwargs) :
                       name                       = 'InDetPhysValMonitoringToolDBM',
                       SubFolder                  = 'DBM/',
                       TrackParticleContainerName = InDetKeys.DBMTracks(),
+                      useTrackSelection          = True)
+
+   return getInDetPhysValMonitoringTool(**kwargs)
+
+def getInDetLargeD0PhysValMonitoringTool(**kwargs) :
+   from InDetRecExample.InDetJobProperties import InDetFlags
+   from InDetRecExample.InDetKeys import InDetKeys
+   kwargs=setDefaults(kwargs,
+                      name                       = 'InDetPhysValMonitoringToolLargeD0',
+                      SubFolder                  = 'LargeD0/',
+                      TrackParticleContainerName = InDetKeys.xAODLargeD0TrackParticleContainer() if InDetFlags.storeSeparateLargeD0Container() else  InDetKeys.xAODTrackParticleContainer(),
                       useTrackSelection          = True)
 
    return getInDetPhysValMonitoringTool(**kwargs)

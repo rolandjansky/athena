@@ -8,7 +8,7 @@
 /// @author: James Robinson
 
 // EDM include(s):
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 #include "AsgTools/AnaToolHandle.h"
 
 // Project dependent include(s)

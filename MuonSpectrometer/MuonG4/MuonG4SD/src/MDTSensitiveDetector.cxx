@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSensitiveDetector.h"
@@ -14,14 +14,14 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // construction/destruction
-MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
+MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::string& hitCollectionName, const unsigned int nTubesMax)
   : G4VSensitiveDetector( name )
   , m_MDTHitColl( hitCollectionName )
   , m_driftRadius(0.)
   , m_globalTime(0.)
   , m_DEFAULT_TUBE_RADIUS( std::numeric_limits<double>::max() )
 {
-  m_muonHelper = MdtHitIdHelper::GetHelper();
+  m_muonHelper = MdtHitIdHelper::GetHelper(nTubesMax);
 }
 
 // Implemenation of memebr functions
@@ -128,11 +128,11 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
 {
   // attributes of the MDT identifier construction
   std::string stationName;
-  int         stationEta=0;
-  int         stationPhi=0;
-  int         multilayer=0;
-  int         tubeLayer=0;
-  int         tube=0;
+  int         stationEta=1;
+  int         stationPhi=1;
+  int         multilayer=1;
+  int         tubeLayer=1;
+  int         tube=1;
 
   bool isAssembly = false;
   // scan geometry tree to identify the tube

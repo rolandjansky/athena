@@ -8,7 +8,7 @@
 #define INDETTRACKSELECTIONTOOL_IINDETTRACKSELECTIONTOOL_H
 
 // Framework include(s):
-#include "AsgAnalysisInterfaces/ISelectionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
 #include "PATCore/AcceptData.h"
 #include "PATCore/AcceptInfo.h"
 
@@ -48,7 +48,7 @@ namespace InDet {
   /// @author Michael Clark <michael.ryan.clark@cern.ch>
   /// 
   ///
-  class IInDetTrackSelectionTool : public virtual CP::ISelectionTool
+  class IInDetTrackSelectionTool : public virtual IAsgSelectionTool
 { 
     /// Declare the interface that the class provides
     ASG_TOOL_INTERFACE( InDet::IInDetTrackSelectionTool )

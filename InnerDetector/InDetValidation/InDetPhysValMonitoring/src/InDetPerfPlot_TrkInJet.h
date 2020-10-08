@@ -14,7 +14,7 @@
 
 class InDetPerfPlot_TrkInJet: public InDetPlotBase {
 public:
-  InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir);
+  InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir, bool bookFakeAndEff=true);
   void fill(const xAOD::TrackParticle& trk, const xAOD::Jet& jet);
 
   void fillEfficiency(const xAOD::TruthParticle& trk, const xAOD::Jet& jet, const bool isEfficient);
@@ -71,6 +71,8 @@ private:
   TEfficiency* m_fakerate_vs_dR;
   TEfficiency* m_fakerate_vs_smalldR;
   TEfficiency* m_fakerate_vs_jetpT;
+
+  bool m_doFakeAndEff;
 
 
 };

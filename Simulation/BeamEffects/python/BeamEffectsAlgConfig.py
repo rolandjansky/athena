@@ -64,17 +64,16 @@ def makeGenEventVertexPositioner(ConfigFlags,name="GenEventVertexPositioner", **
 ## LorentzVectorGenerators
 def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **kwargs):
     """Return a conditional (? todo) vertex positioner tool"""
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    BeamSpotCondAlg = CompFactory.BeamSpotCondAlg
     from RngComps.RandomServices import RNG
 
     acc = ComponentAccumulator()
     
     acc.merge(RNG(engine=ConfigFlags.Random.Engine, name="AthRNGSvc"))
     kwargs.setdefault('RandomSvc', acc.getService("AthRNGSvc"))
-        
-    acc.merge(addFoldersSplitOnline(ConfigFlags,"INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList'))
-    acc.addCondAlgo(BeamSpotCondAlg("BeamSpotCondAlg"))
+
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
+
     acc.setPrivateTools(Simulation__VertexBeamCondPositioner(name, **kwargs))
     return acc
 
@@ -103,7 +102,7 @@ def BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs):
     alg = Simulation__BeamEffectsAlg(name="BeamEffectsAlg", **kwargs)
 
     # Set default properties
-    alg.ISFRun = False 
+    alg.ISFRun = ConfigFlags.Sim.ISFRun
     alg.InputMcEventCollection = "GEN_EVENT"
     alg.OutputMcEventCollection = "BeamTruthEvent"
 
@@ -130,7 +129,7 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     alg = acc.getPrimary()
     ItemList = ["McEventCollection#" + alg.OutputMcEventCollection]
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(ConfigFlags, "HITS", ItemList=ItemList))
+    acc.merge(OutputStreamCfg(ConfigFlags, "HITS", ItemList=ItemList, disableEventTag=True))
     return acc
 
 
@@ -171,7 +170,7 @@ if __name__ == "__main__":
     #included to stop segmentation error - TODO see why it's failing
     ConfigFlags.Input.isMC = True
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14" #conditions tag for conddb (which one to use - old one for simulation)
-    ConfigFlags.Input.RunNumber = 284500 # run test job with and without run number and 222510
+    ConfigFlags.Input.RunNumber = [284500] # run test job with and without run number and 222510
 
     # Finalize 
     ConfigFlags.lock()

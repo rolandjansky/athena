@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+import re
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
@@ -493,7 +494,9 @@ class readL1TopoConfigFromXML(JobProperty):
 
     def _do_action(self):
         """ setup some consistency """
-        if self.get_Value() is False:
+        if self.get_Value():
+            TriggerFlags.inputL1TopoConfigFile = "TriggerMenuXML/L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+        else:
             TriggerFlags.inputL1TopoConfigFile = TriggerFlags.outputL1TopoConfigFile()
 
 _flags.append(readL1TopoConfigFromXML)
@@ -520,6 +523,8 @@ class readLVL1configFromXML(JobProperty):
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
             TriggerFlags.Lvl1.items.set_On()
         else:
+            menuXMLPackage = "TriggerMenuMT" if TriggerFlags.doMT() else "TriggerMenuXML"
+            TriggerFlags.inputLVL1configFile = menuXMLPackage + "/LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
             xmlFile=TriggerFlags.inputLVL1configFile()
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
             if xmlFile!='NONE' and not os.path.exists(findFileInXMLPATH(xmlFile)):
@@ -559,12 +564,11 @@ class readHLTconfigFromXML(JobProperty):
         else:
             if TriggerFlags.inputHLTconfigFile != 'NONE':
                 
-                TriggerFlags.inputHLTconfigFile = "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+                TriggerFlags.inputHLTconfigFile = "TriggerMenuXML/HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
                 nightlyPaths=os.environ['XMLPATH'].split(':')
 
                 for p in nightlyPaths:
-                    #print p+"/TriggerMenuXML/HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-                    full_path_name = p+"/TriggerMenuXML/"+TriggerFlags.inputHLTconfigFile()
+                    full_path_name = p+"/"+TriggerFlags.inputHLTconfigFile()
                     if os.path.exists(full_path_name) is True:
                         log.info("The HLT xml file is: "+full_path_name)
                         success = True
@@ -613,12 +617,7 @@ class outputL1TopoConfigFile(JobProperty):
             # cases, e.g. MC_pp_v5_tight_mc_prescale. Prescaling is
             # not available for L1Topo, therefore that part is being
             # removed.
-            import re
-            menuSetup = TriggerFlags.triggerMenuSetup()
-            m = re.match(r'(.*v\d(?:_primaries)?).*', menuSetup)
-            if m:
-                menuSetup = m.groups()[0]
-            return "L1Topoconfig_" + menuSetup + "_" + TriggerFlags.menuVersion() + ".xml"
+            return "L1Topoconfig_" + _getMenuBaseName(TriggerFlags.triggerMenuSetup()) + "_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
         
@@ -631,7 +630,7 @@ class outputLVL1configFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "LVL1config_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            return "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
         
@@ -671,7 +670,7 @@ class inputL1TopoConfigFile(JobProperty):
     If TriggerFlags.readL1TopoConfigFromXML()==True, then this file is
     used for L1TopoConfiguration.
     
-    Defaults to L1TopoConfig_<triggerMenuSetup>_<menuVersion>.xml
+    Defaults to L1Topoconfig_<triggerMenuSetup>_<menuVersion>.xml
     """
     statusOn=True
     allowedType=['str']
@@ -679,7 +678,7 @@ class inputL1TopoConfigFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "L1TopoConfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            return "L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
         
@@ -699,12 +698,18 @@ class inputLVL1configFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "LVL1config_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            return "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
-        
+
 _flags.append(inputLVL1configFile)
 
+# remove prescale suffixes
+def _getMenuBaseName(menuName):
+    m = re.match(r'(.*v\d(?:_primaries)?).*', menuName)
+    if m:
+        menuName = m.groups()[0]
+    return menuName
 
 
 class inputHLTconfigFile(JobProperty):
@@ -828,6 +833,7 @@ class triggerMenuSetup(JobProperty):
         'Dev_HI_run3_v1', # Dev_HI_run3 for AthenaMT
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         'Cosmic_run3_v1',
+        'LS2_v1_TriggerValidation_mc_prescale'
         ]
 
     _default_menu='Physics_pp_v7_primaries'
@@ -849,10 +855,10 @@ class triggerMenuSetup(JobProperty):
         elif self.get_Value() == 'InitialBeam_default':
             self.set_Value(self._default_InitialBeam_menu)
             self._log.info("%s - trigger menu 'InitialBeam_default' changed to '%s'", self.__class__.__name__, self.get_Value())
-            
+
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
-            TriggerFlags.inputLVL1configFile = "LVL1config_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
+            TriggerFlags.inputLVL1configFile = "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile is None):
             TriggerFlags.inputHLTconfigFile = "HLTconfig_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
 

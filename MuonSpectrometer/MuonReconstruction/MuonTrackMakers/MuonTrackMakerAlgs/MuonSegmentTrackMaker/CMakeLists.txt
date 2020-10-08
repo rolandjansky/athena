@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonSegmentTrackMaker )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaMonitoringKernel
-                          GaudiKernel
-                          PRIVATE
-                          Control/StoreGate
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          Reconstruction/Particle
-                          Tracking/TrkEvent/TrkSegment
-                          Tracking/TrkEvent/TrkTrack )
-
 # Component(s) in the package:
 atlas_add_component( MuonSegmentTrackMaker
                      src/*.cxx

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -14,6 +14,7 @@ PURPOSE: Class for calibrating a TRT sub-level
           
 ********************************************************************/
 
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <map>
 #include <set>
@@ -140,9 +141,9 @@ class caldata{
   /**flag indicating if any calibration has been made*/ bool calflag;
   /**flag indicating if an R-t calibration has been made*/ bool rtflag;
   /**flag indicating if a t0 calibration has been made*/ bool t0flag;
-  /**the 1D time residual histogram (100 bins)*/ float* m_treshist;
-  /**the 1D residual histogram (100 bins)*/ float* reshist;
-  /**the 2D rt histogram (20x32 bins)*/ float* rthist;
+  /**the 1D time residual histogram (100 bins)*/ std::vector<float> m_treshist;
+  /**the 1D residual histogram (100 bins)*/ std::vector<float> reshist;
+  /**the 2D rt histogram (20x32 bins)*/ std::vector<float> rthist;
   /**the rt graph*/ RtGraph* rtgraph;
 };
 
@@ -186,7 +187,10 @@ public:
      @param[in] rtr which rt-relation to use
      @param[in] rtb which rt binning to use
   */
-  Calibrator(int,std::string,int,int,std::string,std::string,float);
+  Calibrator(int,const std::string&,int,int,const std::string&,const std::string&,float);
+
+  Calibrator (const Calibrator&) = delete;
+  Calibrator& operator= (const Calibrator&) = delete;
 
   /**
      Destructor
@@ -241,7 +245,7 @@ public:
      @param[in] caldata_above the caldata object from the sub-module above the one to be calibrated
      @return the root directory where the histgrams were written
   */
-  TDirectory* Calibrate(TDirectory*, std::string, std::string, caldata*);
+  TDirectory* Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory*, std::string, std::string, caldata*);
 
   /**
      Makes the R-t fit
@@ -249,7 +253,7 @@ public:
      @param[in] rtHist the 2D root histogram with the R-t data
      @return the t0 from the R-t fit
   */
-  float FitRt(std::string,std::string,TH2F*,TDirectory*);
+  float FitRt ATLAS_NOT_THREAD_SAFE (std::string,std::string,TH2F*,TDirectory*);
 
   /**
      Makes the time residual fit
@@ -257,7 +261,7 @@ public:
      @param[in] tresHist the 1D root histogram with the time residuals
      @return the mean value of the time residual fit
   */
-  float FitTimeResidual(std::string,TH1F*);
+  float FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string,TH1F*);
 
   /**
      Makes the residual fit
@@ -265,7 +269,7 @@ public:
      @param[in] resHist the 1D root histogram with the residuals
      @return the mean value of the residual fit
   */
-  float FitResidual(std::string,TH1F*);
+  float FitResidual ATLAS_NOT_THREAD_SAFE (std::string,TH1F*);
 
   /**
      Creates an ntuple with entries containing data associated with the sub-modules in a sub level

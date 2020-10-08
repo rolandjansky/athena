@@ -8,7 +8,7 @@
 #define TRIGGERMATCHINGTOOL_MINIMALSUMASSOCIATION_H
 
 #include "TriggerMatchingTool/IAssociationStrategy.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 
 class MinimalSumAssociation : public IAssociationStrategy, public asg::AsgMessaging {

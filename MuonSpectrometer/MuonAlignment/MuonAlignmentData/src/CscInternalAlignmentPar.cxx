@@ -37,7 +37,7 @@ void CscInternalAlignmentPar::getParameters(float& s, float& z, float& t,
   rotT = m_rotT;
 }
 
-void CscInternalAlignmentPar::setAmdbId(std::string type, int jff, int jzz, int job, int wireLayer) 
+void CscInternalAlignmentPar::setAmdbId(const std::string& type, int jff, int jzz, int job, int wireLayer) 
 {
   m_Type = type;
   m_Jff  = jff;

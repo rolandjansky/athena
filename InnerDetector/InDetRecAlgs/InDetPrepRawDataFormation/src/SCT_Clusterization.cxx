@@ -15,12 +15,15 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDORawData.h"
+#include "SCT_ConditionsData/SCT_FlaggedCondEnum.h"
 #include "StoreGate/WriteHandle.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+#include <limits>
+#include <unordered_map>
+
 namespace InDet {
   using namespace InDet;
-  static const std::string moduleFailureReason{"SCT_Clusterization: Exceeds max fired strips"};
 
   // Constructor with parameters:
   SCT_Clusterization::SCT_Clusterization(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -28,6 +31,7 @@ namespace InDet {
   {
     // Get parameter values from jobOptions file
     declareProperty("ClusterContainerCacheKey", m_clusterContainerCacheKey="");
+    declareProperty("FlaggedCondCacheKey", m_flaggedCondCacheKey="");
   }
 
   // Initialize method:
@@ -50,6 +54,7 @@ namespace InDet {
     ATH_CHECK(m_clusterContainerLinkKey.initialize());
     ATH_CHECK(m_clusterContainerCacheKey.initialize(not m_clusterContainerCacheKey.key().empty()));
     ATH_CHECK(m_flaggedCondDataKey.initialize());
+    ATH_CHECK(m_flaggedCondCacheKey.initialize(not m_flaggedCondCacheKey.key().empty()));
 
     // Get the clustering tool
     ATH_CHECK(m_clusteringTool.retrieve());
@@ -83,8 +88,17 @@ namespace InDet {
     ATH_CHECK(clusterContainer.isValid());
     ATH_MSG_DEBUG("SCT clusters '" << clusterContainer.name() << "' symlinked in StoreGate");
 
-    SG::WriteHandle<SCT_FlaggedCondData> flaggedCondData{m_flaggedCondDataKey, ctx};
-    ATH_CHECK(flaggedCondData.record(std::make_unique<SCT_FlaggedCondData>()));
+    SG::WriteHandle<IDCInDetBSErrContainer> flaggedCondData{m_flaggedCondDataKey, ctx};
+    if (m_flaggedCondCacheKey.key().empty()) {
+      ATH_CHECK(flaggedCondData.record( std::make_unique<IDCInDetBSErrContainer>(m_idHelper->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min())));
+      ATH_MSG_DEBUG("Created IDCInDetBSErrContainer w/o using external cache");
+    } else {
+      SG::UpdateHandle<IDCInDetBSErrContainer_Cache> flaggedCondCacheHandle(m_flaggedCondCacheKey, ctx);
+      ATH_CHECK(flaggedCondCacheHandle.isValid() );
+      ATH_CHECK(flaggedCondData.record( std::make_unique<IDCInDetBSErrContainer>(flaggedCondCacheHandle.ptr())) );
+      ATH_MSG_DEBUG("Created SCT IDCInDetBSErrContainer using external cache");
+    }
+    std::unordered_map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> flaggedCondMap; // temporary store of flagged condition error
 
     // First, we have to retrieve and access the container, not because we want to 
     // use it, but in order to generate the proxies for the collections, if they 
@@ -133,7 +147,11 @@ namespace InDet {
               unsigned int nFiredStrips{0};
               for (const SCT_RDORawData* rdo: *rd) nFiredStrips += rdo->getGroupSize();
               if (nFiredStrips > m_maxFiredStrips.value()) {
-                flaggedCondData->insert(std::make_pair(rd->identifyHash(), moduleFailureReason));
+                if (flaggedCondMap.count(rd->identifyHash())==0) {
+                  flaggedCondMap[rd->identifyHash()]  = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                } else {
+                  flaggedCondMap[rd->identifyHash()] |= (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                }
                 continue;
               }
             }
@@ -179,8 +197,12 @@ namespace InDet {
 		unsigned int nFiredStrips{0};
 		for (const SCT_RDORawData* rdo: *RDO_Collection) nFiredStrips += rdo->getGroupSize();
 		if (nFiredStrips > m_maxFiredStrips.value()) {
-		  flaggedCondData->insert(std::make_pair(id, moduleFailureReason));
-                continue;
+                  if (flaggedCondMap.count(id)==0) {
+                    flaggedCondMap[id]  = (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                  } else {
+                    flaggedCondMap[id] |= (1 << SCT_FlaggedCondEnum::ExceedMaxFiredStrips);
+                  }
+                  continue;
 		}
 	      }
 	    }
@@ -208,6 +230,12 @@ namespace InDet {
     }
     // Set container to const
     ATH_CHECK(clusterContainer.setConst());
+
+    // Fill flaggedCondData
+    for (auto [hash, error] : flaggedCondMap) {
+      flaggedCondData->setOrDrop(hash, error);
+    }
+
     return StatusCode::SUCCESS;
   }
 

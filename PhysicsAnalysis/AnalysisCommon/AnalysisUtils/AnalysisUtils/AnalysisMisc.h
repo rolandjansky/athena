@@ -15,22 +15,25 @@
 #include <vector>
 #include <algorithm>
 
-#include "EventKernel/INavigable4Momentum.h"
-
-#include "McParticleEvent/TruthParticleContainer.h"
-
 #include "CxxUtils/fpcompare.h"
-#include "CLHEP/Vector/LorentzVector.h"
 #include "AthContainers/DataVector.h"
 #include "boost/type_traits/remove_pointer.hpp"
 #include "boost/type_traits/is_convertible.hpp"
 
+#ifndef XAOD_STANDALONE
+#include "CLHEP/Vector/LorentzVector.h"
+#include "EventKernel/INavigable4Momentum.h"
+#include "McParticleEvent/TruthParticleContainer.h"
+#endif
+
 namespace AnalysisUtils {
+
+#ifndef XAOD_STANDALONE
   
   /** compute @f$ \Delta @f$
    */
   namespace Delta {
-    
+
     /** @f$ \Delta\phi @f$
      */
     inline double phi (const INavigable4Momentum *p1, const INavigable4Momentum *p2) {
@@ -396,6 +399,8 @@ namespace AnalysisUtils {
 
   ///////////////////////////////////////////////////////////////////////////
 
+#endif
+  
   /** sort 
    */
   namespace Sort {
@@ -497,6 +502,7 @@ namespace AnalysisUtils {
     }
   } // end of Sort namespace
 
+#ifndef XAOD_STANDALONE
   ///////////////////////////////////////////////////////////////////////////
 
   /** classify
@@ -528,6 +534,8 @@ namespace AnalysisUtils {
 	}
     }
   } // end of Classify namespace
+
+#endif
 
 } // end of AnalysisUtils namespace
 

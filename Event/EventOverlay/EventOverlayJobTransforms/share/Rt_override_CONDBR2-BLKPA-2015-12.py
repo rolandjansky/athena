@@ -7,7 +7,7 @@ from RecExConfig.RecAlgsFlags import recAlgs
 #conddb.blockFolder("/MDT/RT")
 #conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-04",force=True,forceMC=True)
 conddb.blockFolder("/MDT/RTBLOB")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True)
+conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True,className="CondAttrListCollection")
 
 #from Guillaume
 conddb.blockFolder("/LAR/LArCellPositionShift");
@@ -17,10 +17,11 @@ conddb.addOverride("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/4samples1phase","LARElecC
 svcMgr.PoolSvc.ReadCatalog+=["xmlcatalog_file:"+"/cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml"]
 
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
-conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True,className="AthenaAttributeList")
 
 conddb.blockFolder("/TRT/Cond/DigVers")
-conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
+conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True,
+                        className = 'AthenaAttributeList')
 
 ###################################################
 printfunc ("RT OVERRIDE, for CONDBR2-BLKPA-2015-12")
@@ -76,7 +77,7 @@ if DetFlags.writeRDOPool.pixel_on():
     conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
 
 conddb.blockFolder("/PIXEL/PixdEdx")
-conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN1-000-02",force=True,forceMC=True)
+conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN1-000-02",force=True,forceMC=True,className="AthenaAttributeList")
 mcIDoverlay=False
 if mcIDoverlay:
     printfunc ("ACH777: Using MC overlay Lorentz DB settings")
@@ -122,9 +123,16 @@ conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEA","MuonAlignTGCEndC
 conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEC","MuonAlignTGCEndCapCAlign-0001-DEFAULT",force=True,forceMC=True,className='CondAttrListCollection')
 
 conddb.blockFolder("/SCT/DAQ/Config/Chip")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",force=True)
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",force=True,className="CondAttrListVec")
 conddb.blockFolder("/SCT/DAQ/Config/Module")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True)
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True,className="CondAttrListVec")
+
+conddb.blockFolder("/LAR/BadChannels/BadChannels")
+conddb.blockFolder("/LAR/BadChannelsOfl/BadChannels")
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/BadChannels","LARBadChannelsBadChannels-HECAQ3Missing",force=True,forceMC=True,className="CondAttrListCollection")
+conddb.blockFolder("/LAR/BadChannels/MissingFEBs")
+conddb.blockFolder("/LAR/BadChannelsOfl/MissingFEBs")
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True,className="AthenaAttributeList")
 
 dofolderoverrides = True
 if dofolderoverrides:

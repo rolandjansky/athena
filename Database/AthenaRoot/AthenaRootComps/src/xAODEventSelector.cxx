@@ -24,7 +24,7 @@
 #include "TKey.h"
 #include "TLeaf.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // Framework includes
 //#include "GaudiKernel/GenericAddress.h"
@@ -46,7 +46,7 @@
 #include "SGTools/StlMapClids.h"     // to make sure we have their clids
 #include "SGTools/StlVectorClids.h"  // to make sure we have their clids
 #include "SGTools/TransientAddress.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
 
 // EventInfo includes
 #include "EventInfo/EventInfo.h"

@@ -31,7 +31,7 @@
 
 
 using CLHEP::GeV;
-typedef xAOD::CaloCluster::FourMom_t FourMom_t;
+using FourMom_t = xAOD::CaloCluster::FourMom_t;
 
 
 bool is_equal (double x1, double x2)

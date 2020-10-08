@@ -40,7 +40,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
-InDetServMatFactorySLHC::InDetServMatFactorySLHC(const InDetServMatAthenaComps * athenaComps)
+InDetServMatFactorySLHC::InDetServMatFactorySLHC(InDetServMatAthenaComps * athenaComps)
   :  InDetDD::DetectorFactoryBase(athenaComps),
      m_athenaComps(athenaComps),
      m_manager(0)
@@ -59,7 +59,7 @@ InDetServMatFactorySLHC::~InDetServMatFactorySLHC()
 
 
 //## Other Operations (implementation)
-void InDetServMatFactorySLHC::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world ) // Thread unsafe InDetMaterialManager constructor and fetchTables method are used.
+void InDetServMatFactorySLHC::create(GeoPhysVol *world )
 {
 
   // Get the material manager:  
@@ -133,7 +133,7 @@ const InDetDD::InDetServMatManager* InDetServMatFactorySLHC::getDetectorManager 
 }
 
 void
-InDetServMatFactorySLHC::fetchTables ATLAS_NOT_THREAD_SAFE ()  // Thread unsafe rdbAccessSvc method is used.
+InDetServMatFactorySLHC::fetchTables()
 {
   DecodeVersionKey indetVersionKey(geoDbTagSvc(), "InnerDetector");
 

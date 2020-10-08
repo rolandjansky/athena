@@ -22,7 +22,7 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"

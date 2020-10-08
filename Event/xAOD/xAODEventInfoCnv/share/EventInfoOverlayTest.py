@@ -72,6 +72,14 @@ theApp.EvtMax = 100
 #--------------------------------------------------------------
 # Algorithms
 #--------------------------------------------------------------
+# Beam spot conditions
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+from IOVDbSvc.CondDB import conddb
+conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+condSeq += BeamSpotCondAlg("BeamSpotCondAlg")
+
 # Run the overlay
 from AthenaCommon import CfgGetter
 EventInfoOverlay = CfgGetter.getAlgorithm("EventInfoOverlay")

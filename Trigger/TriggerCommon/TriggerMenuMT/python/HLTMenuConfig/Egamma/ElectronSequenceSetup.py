@@ -1,8 +1,8 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags 
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -17,10 +17,12 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 def fastElectronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'electron' )
   
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs" # contract with the fastCalo
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature = "Electron", separateTrackParticleCreator="Electron", rois = RoIs )
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
@@ -28,12 +30,6 @@ def fastElectronSequence(ConfigFlags):
     viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
 
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATUS"):
-      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATE"):
-      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
-    
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():

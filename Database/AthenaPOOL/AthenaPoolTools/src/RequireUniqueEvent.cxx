@@ -11,7 +11,7 @@
 
 // the user data-class defintions
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
                                                           
 #include <string>
 #include "EventInfo/EventInfo.h"

@@ -174,5 +174,312 @@
    end of hit content plots
    ========================================================
   -->
+
+<!--
+   =======================================================
+   TRT Extension plots
+   ========================================================
+  -->
+<h id="fracTRTExtensions_vs_eta" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="fracTRTExtensions_vs_pt" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="fracTRTExtensions_vs_nvertices" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="Number of Reconstucted Vertices" n="50" lo="0" hi="100"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="fracTRTExtensions_vs_mu" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="#LT#mu#GT" n="50" lo="0" hi="100"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+
+
+<h id="fracTRTExtensions_matched_vs_eta" type="TEfficiency" title="Fraction of TRT Extended Matched Tracks">
+  <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fraction of TRT Extended Matched Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="fracTRTExtensions_matched_vs_pt" type="TEfficiency" title="Fraction of TRT Extended Matched Tracks">
+  <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
+  <y title="Fraction of TRT Extended Matched Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="chi2ndofTRTExtensions" type="TH1F" title="reco_{#chi^2/ndof}">
+  <x title="reco_{#chi^2/ndof}" n="100" lo="0.0" hi="5.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="chi2ndofNoTRTExtensions" type="TH1F" title="reco_{#chi^2/ndof}">
+  <x title="reco_{#chi^2/ndof}" n="100" lo="0.0" hi="5.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+
+<h id="ptresNoTRTExtensions_vs_eta" type="TH2F" title="residual vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="reco_{p_{T} #times q/p_{T}} - truth_{p_{T} #times q/p_{T}}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="ptresNoTRTExtensions_vs_pt" type="TH2F" title="residual vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="reco_{pT #times q/pT} - truth_{pT #times q/pT}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="ptresTRTExtensions_vs_eta" type="TH2F" title="residual vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="reco_{p_{T} #times q/p_{T}} - truth_{p_{T} #times q/p_{T}}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="ptresTRTExtensions_vs_pt" type="TH2F" title="residual vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="reco_{pT #times q/pT} - truth_{pT #times q/pT}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="ptresolutionTRTExtensions_vs_eta" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptresmeanTRTExtensions_vs_eta" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptresolutionNoTRTExtensions_vs_eta" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptresmeanNoTRTExtensions_vs_eta" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptresolutionTRTExtensions_vs_pt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptresmeanTRTExtensions_vs_pt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptresolutionNoTRTExtensions_vs_pt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+
+<h id="ptresmeanNoTRTExtensions_vs_pt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+
+<h id="ptpullwidthTRTExtensions_vs_eta" type="TH1F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullmeanTRTExtensions_vs_eta" type="TH1F" title="mean of pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="means pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullwidthTRTExtensions_vs_pt" type="TH1F" title="pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+<h id="ptpullmeanTRTExtensions_vs_pt" type="TH1F" title="mean of pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+
+<h id="ptpullwidthNoTRTExtensions_vs_eta" type="TH1F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullmeanNoTRTExtensions_vs_eta" type="TH1F" title="mean of pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="means pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullwidthNoTRTExtensions_vs_pt" type="TH1F" title="pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+<h id="ptpullmeanNoTRTExtensions_vs_pt" type="TH1F" title="mean of pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullTRTExtensions_vs_eta" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+<h id="ptpullTRTExtensions_vs_pt" type="TH2F" title="pull  vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+<h id="ptpullNoTRTExtensions_vs_eta" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+<h id="ptpullNoTRTExtensions_vs_pt" type="TH2F" title="pull  vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+
+<!--
+   =======================================================
+   end TRT Extension plots
+   ========================================================
+  -->
+
+<!--
+   =======================================================
+   ANT plots
+   ========================================================
+  -->
+
+<h id="efficiencySplit_vs_eta" type="TEfficiency" title="Efficiency">
+  <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiencySplit_vs_pt" type="TEfficiency" title="Efficiency">
+  <x title="p_{T} [GeV]" n="100" lo="0" hi="50"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiencySplit_vs_phi" type="TEfficiency" title="Efficiency">
+  <x title="#phi" n="32" lo="-3.14;" hi="3.14"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiencySplit_vs_d0" type="TEfficiency" title="Efficiency">
+  <x title="d_{0} [mm]" n="150" lo="-300.0" hi="300.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiencySplit_vs_z0" type="TEfficiency" title="Efficiency">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiencySplit_vs_radius" type="TEfficiency" title="Efficiency">
+  <x title="r_{production} [mm]" n="150" lo="0." hi="600.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiencySplit_vs_mu" type="TEfficiency" title="Efficiency">
+  <x title="#LT#mu#GT" n="100" lo="0.0" hi="100.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="efficiencySplit_vs_nvertices" type="TEfficiency" title="Efficiency">
+  <x title="number of vertices" n="100" lo="0.0" hi="100.0"/>
+  <y title="Efficiency" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_eta" type="TEfficiency" title="Fake Rate">
+  <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_pt" type="TEfficiency" title="Fake Rate">
+  <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_phi" type="TEfficiency" title="Fake Rate">
+  <x title="#phi" n="32" lo="-3.14;" hi="3.14"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_d0" type="TEfficiency" title="Fake Rate">
+  <x title="d_{0} [mm]" n="150" lo="-300.0" hi="300.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_z0" type="TEfficiency" title="Fake Rate">
+  <x title="z_{0} [mm]" n="150" lo="-500.0" hi="500.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_radius" type="TEfficiency" title="Fake Rate">
+  <x title="r_{production} [mm]" n="150" lo="0." hi="600.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_mu" type="TEfficiency" title="Fake Rate">
+  <x title="#LT#mu#GT" n="100" lo="0.0" hi="100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakeSplit_vs_nvertices" type="TEfficiency" title="Fake Rate">
+  <x title="number of vertices" n="100" lo="0.0" hi="100.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="trkpropSplit_vs_d0" type="TH1F" title="reco_{d_{0}}">
+  <x title="reco_{d0} [mm]" n="100" lo="-300.0" hi="300.0"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkpropSplit_vs_z0" type="TH1F" title="reco_{z_{0}}">
+  <x title="reco_{z_{0}}" n="100" lo="-500.0" hi="500.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkpropSplit_vs_phi" type="TH1F" title="reco_{#phi}">
+  <x title="reco_{#phi} [rads]" n="100" lo="-&PI;" hi="&PI;"/>
+  <y title="Number of Entries"/>
+</h>
+<h id="trkpropSplit_vs_eta" type="TH1F" title="reco_{#eta}">
+  <x title="reco_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="trkpropSplit_vs_pt" type="TH1F" title="reco_{p_{T}} [GeV]">
+  <x title="reco_{p_{T}} [GeV]" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="ntrkSplit_vs_mu" type="TH2" title="Number of tracks versus mu">
+  <x title="#LT#mu#GT" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+<h id="ntrkSplit_vs_nvertices" type="TH2" title="Number of tracks versus nvertices">
+  <x title="Number of vertices" n="100" lo="0.0" hi="100.0"/>
+  <y title="Number of Tracks / Event" n="500" lo="0" hi="900"/>
+</h>
+
+<!--
+   =======================================================
+   end ANT plots
+   ========================================================
+  -->
+
+
+
+
 </hdef>
+
+
 

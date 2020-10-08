@@ -24,24 +24,26 @@
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 
+#include "SCT_ConditionsData/SCT_FlaggedCondEnum.h"
 
 //Gaudi includes
 #include "AthenaKernel/Timeout.h"
 
 //Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <cmath>
+#include <limits>
+#include <unordered_map>
 
 namespace InDet{
 
   using namespace InDet;
-  static const std::string maxRDOsReached("SCT_TrgClusterization: Exceeds max RDOs");
 
   //----------------------------------  
   //           Constructor:
@@ -56,7 +58,6 @@ namespace InDet{
     m_flaggedCondDataName("SCT_FlaggedCondData_TRIG"),
     m_idHelper(0),
     m_clusterContainer(nullptr),
-    m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1),
@@ -75,7 +76,6 @@ namespace InDet{
     declareProperty("clusteringTool",      m_clusteringTool);
     declareProperty("ClustersName",        m_clustersName);
     declareProperty("FlaggedCondDataName", m_flaggedCondDataName);
-    declareProperty("RegionSelectorTool",  m_regionSelector );
     declareProperty("doFullScan",          m_doFullScan );
 
     declareProperty("EtaHalfWidth",        m_etaHalfWidth);
@@ -268,9 +268,10 @@ namespace InDet{
     }
     
     // Prepare SCT_FlaggedCondData
-    SCT_FlaggedCondData* flaggedCondData{nullptr};
-    if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
-      flaggedCondData = new SCT_FlaggedCondData{};
+    IDCInDetBSErrContainer* flaggedCondData{nullptr};
+    std::unordered_map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> flaggedCondMap;
+    if (!store()->transientContains<IDCInDetBSErrContainer>(m_flaggedCondDataName)) {
+      flaggedCondData = new IDCInDetBSErrContainer {m_idHelper->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min()};
 
       if (store()->record(flaggedCondData, m_flaggedCondDataName, true, true).isFailure()) {
         ATH_MSG_WARNING(" Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !");
@@ -363,7 +364,7 @@ namespace InDet{
 
     if (!(roi->isFullscan())){
       if(doTiming()) m_timerRegSel->start();
-      m_regionSelector->DetHashIDList(SCT, *roi, m_listOfSctIds );
+      m_regionSelector->HashIDList( *roi, m_listOfSctIds );
       if(doTiming()) m_timerRegSel->stop();
       
       m_numSctIds = m_listOfSctIds.size();
@@ -425,7 +426,12 @@ namespace InDet{
 	const size_t rdosize = RDO_Collection->size();
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = RDO_Collection->identifyHash();
-          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          if (flaggedCondMap.count(hid)==0) {
+            flaggedCondMap[hid]  = (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          } else {
+            flaggedCondMap[hid] |= (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          }
+
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -500,7 +506,12 @@ namespace InDet{
 	
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = rd->identifyHash();
-          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          if (flaggedCondMap.count(hid)==0) {
+            flaggedCondMap[hid]  = (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          } else {
+            flaggedCondMap[hid] |= (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          }
+
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -549,6 +560,11 @@ namespace InDet{
       m_timerCluster->stop();
     }
 
+    // Fill flaggedCondData
+    for (auto [hash, error] : flaggedCondMap) {
+      flaggedCondData->setOrDrop(hash, error);
+    }
+    
     ATH_MSG_DEBUG( "REGTEST: Number of reconstructed clusters = " << m_numSctClusters );
 
     return HLT::OK;
@@ -602,11 +618,8 @@ namespace InDet{
     ATH_MSG_DEBUG( "REGTEST prepareROBs / event"
 		   << *roi);
 
-    //const TrigRoiDescriptor fs(true);
-
     std::vector<unsigned int> uIntListOfRobs;
-    m_regionSelector->DetROBIDListUint( SCT, *roi, uIntListOfRobs );
-    //m_regionSelector->DetROBIDListUint( SCT, fs, uIntListOfRobs );
+    m_regionSelector->ROBIDList( *roi, uIntListOfRobs );
 
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in SCT: " );

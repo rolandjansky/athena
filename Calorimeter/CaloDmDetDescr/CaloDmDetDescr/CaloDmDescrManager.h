@@ -159,7 +159,7 @@ class CaloDmDescrManager {
     StoreGateSvc* m_detStore;
 
     CaloDmDescrElement* build_element(const Identifier& cellId, const CaloDmRegion *myRegion);
-    StatusCode load_regions(std::string DmRegionFileName);
+    StatusCode load_regions(const std::string& DmRegionFileName);
     void build_element_vector();
 
     std::vector<CaloDmRegion *> m_DmRegionVector;

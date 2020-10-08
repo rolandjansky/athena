@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonCalibConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
+from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 
 Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon.MdtDriftCircleOnTrackCreator
 Muon__CscClusterOnTrackCreator=CompFactory.Muon.CscClusterOnTrackCreator
@@ -104,6 +104,9 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
             kwargs.setdefault("UseLooseErrors", flags.Muon.useLooseErrorTuning)  # LooseErrors on data                          
     
     kwargs.setdefault("IsMC", flags.Input.isMC)
+
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("doMDT", False)
                  
     result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, **kwargs),primary=True)
     return result

@@ -107,8 +107,6 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_min_trk_flightDirRelEta("minimumTrackRelativeEta" + flipString(f)),
   m_max_trk_flightDirRelEta("maximumTrackRelativeEta" + flipString(f)),
   m_avg_trk_flightDirRelEta("averageTrackRelativeEta" + flipString(f)),
-  m_smt_mu_pt("SMT_mu_pt"),
-  m_smt_isDefaults("SMT_isDefaults"),
   m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
   m_rnnip_isDefaults(rnn(f) + "_isDefaults")
 {
@@ -150,7 +148,6 @@ std::vector<std::string> BTagJetAugmenter::getDecoratorKeys() const {
         m_min_trk_flightDirRelEta.auxid(),
         m_max_trk_flightDirRelEta.auxid(),
         m_avg_trk_flightDirRelEta.auxid(),
-        m_smt_isDefaults.auxid(),
         m_rnnip_isDefaults.auxid()}) {
     keys.push_back(type_registry.getName(auxid));
   }
@@ -392,11 +389,6 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     m_avg_trk_flightDirRelEta(btag) = NAN;
   }
 
-  if (m_smt_mu_pt(btag) > 0) {
-    m_smt_isDefaults(btag) = 0;
-  }  else {
-    m_smt_isDefaults(btag) = 1;
-  }
   m_rnnip_isDefaults(btag) = 0;
 
 }

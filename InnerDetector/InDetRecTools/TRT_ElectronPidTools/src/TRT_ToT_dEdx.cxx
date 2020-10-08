@@ -47,7 +47,7 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
   declareProperty("AssociationTool", m_assoTool);
   declareProperty("TRT_LocalOccupancyTool", m_localOccTool);
-  
+
   setDefaultConfiguration();
 
   m_timingProfile         = nullptr;
@@ -98,13 +98,13 @@ TRT_ToT_dEdx::~TRT_ToT_dEdx() = default;
 
 
 // initialize
-StatusCode TRT_ToT_dEdx::initialize() 
+StatusCode TRT_ToT_dEdx::initialize()
 {
 
   MsgStream log(msgSvc(), name());
-  
+
   // retrieve TRT-ID helper
-  
+
   StatusCode sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     ATH_MSG_ERROR ( "Could not get TRT_ID helper !" );
@@ -116,11 +116,10 @@ StatusCode TRT_ToT_dEdx::initialize()
   if ( sc.isFailure() || nullptr == m_timingProfile) {
     ATH_MSG_DEBUG ("Can not find ChronoStatSvc name="<<m_timingProfile );
   }
- 
+
   // Initialize ReadHandleKey and ReadCondHandleKey
   ATH_CHECK(m_rdhkEvtInfo.initialize());
   ATH_CHECK(m_ReadKey.initialize());
-  ATH_CHECK(m_trtDetEleContKey.initialize());
   //Get AssoTool
   ATH_CHECK(m_assoTool.retrieve());
   //Get LocalOccupancyTool
@@ -131,27 +130,27 @@ StatusCode TRT_ToT_dEdx::initialize()
     ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
     ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
     return sc;
-  } 
-    if ( !m_TRTStrawSummaryTool.empty() ) 
+  }
+    if ( !m_TRTStrawSummaryTool.empty() )
       ATH_MSG_INFO ( "Retrieved tool " << m_TRTStrawSummaryTool );
-  
 
-  if (m_useTrackPartWithGasType > EGasType::kUnset || 
+
+  if (m_useTrackPartWithGasType > EGasType::kUnset ||
       m_useTrackPartWithGasType < EGasType::kXenon) {
     ATH_MSG_ERROR("Property TRT_dEdx_useTrackPartWithGasType has an invalid "
                   << "value: " << m_useTrackPartWithGasType);
     return StatusCode::FAILURE;
   }
-      
+
   showDEDXSetup();
 
-  ATH_MSG_INFO ( name() << " initialize() successful" );    
+  ATH_MSG_INFO ( name() << " initialize() successful" );
   return StatusCode::SUCCESS;
 }
 
 
 
-StatusCode TRT_ToT_dEdx::finalize() 
+StatusCode TRT_ToT_dEdx::finalize()
 {
   MsgStream log(msgSvc(), name());
   ATH_MSG_DEBUG ( "... in finalize() ..." );
@@ -159,7 +158,11 @@ StatusCode TRT_ToT_dEdx::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, bool useHitsHT, double& length) const
+bool
+TRT_ToT_dEdx::isGoodHit(const EventContext& ctx,
+                        const Trk::TrackStateOnSurface* trackState,
+                        bool useHitsHT,
+                        double& length) const
 {
   const Trk::MeasurementBase* trkM = trackState->measurementOnTrack();
   if (!trkM)  {
@@ -182,65 +185,44 @@ bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, bool us
   }
 
   const Trk::TrackParameters* trkP = trackState->trackParameters();
-  if(trkP==nullptr)return false; 
+  if(trkP==nullptr)return false;
 
-  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
-  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
-  if (not trtDetEleHandle.isValid() or elements==nullptr) {
-    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
-    return false;
-  }
-
-  double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
-  double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
-  double Trt_HitTheta = trkP->parameters()[Trk::theta];
-  double Trt_HitPhi = trkP->parameters()[Trk::phi];
-  double error = sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
-  Identifier DCId = driftcircle->identify();
-  int HitPart =  m_trtId->barrel_ec(DCId);
-  //IdentifierHash hashId = m_trtId->straw_layer_hash(DCId);
-  Identifier strawLayerId = m_trtId->layer_id(DCId);                                                                                            
-  IdentifierHash hashId = m_trtId->straw_layer_hash(strawLayerId);                                                                            
-  const InDetDD::TRT_BaseElement* element = elements->getDetectorElement(hashId);
-  double strawphi = element->center(DCId).phi();
+  double Trt_Rtrack = std::abs(trkP->parameters()[Trk::locR]);
+  double Trt_RHit = std::abs(driftcircle->localParameters()[Trk::driftRadius]);
+  double error = std::sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
 
   if (trackState->type(Trk::TrackStateOnSurface::Outlier)) return false; //Outliers
   if (m_useZeroRHitCut && Trt_RHit==0 && error>1.) return false;    //Select precision hits only
   if ((Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack)) return false; // drift radius close to wire or wall
 
-  length=0;
-  if (std::abs(HitPart)==1) { //Barrel
-    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
-  } else if (std::abs(HitPart)==2) { //EndCap
-    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
-  } else {
-    ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
-    throw std::exception();
-  }
+  length = calculateTrackLengthInStraw(trackState, m_trtId);
 
   if (m_divideByL and length < 1.7) return false; // Length in the straw
 
   if (!useHitsHT) {
     int TrtHl = driftcircle->highLevel();
-    if (TrtHl==1) return false; 
+    if (TrtHl==1) return false;
   }
 
   if (m_useTrackPartWithGasType != kUnset) { // don't preselect hits
-    if(m_useTrackPartWithGasType != gasTypeInStraw(trackState)) return false;
+    if(m_useTrackPartWithGasType != gasTypeInStraw(ctx,trackState)) return false;
   }
 
   if (driftcircle->prepRawData()->timeOverThreshold()==0.) return false; // If ToT for this hit equal 0, skip it.
-  
+
   return true;
 }
 
-double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
-{ 
+double
+TRT_ToT_dEdx::dEdx(const EventContext& ctx,
+                   const Trk::Track* track,
+                   bool useHitsHT) const
+{
   ATH_MSG_DEBUG("dEdx()");
 
   double nVtx=-1.;
   // Event information
-  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo);
+  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo,ctx);
   if(!eventInfoDecor.isPresent()) {
     REPORT_MESSAGE(MSG::FATAL) << "EventInfo decoration not available!";
     return 0;
@@ -259,33 +241,33 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
   if (!track) {
     return 0;
   }
-  const DataVector<const Trk::TrackStateOnSurface>* vtsos = track->trackStateOnSurfaces(); 
+  const DataVector<const Trk::TrackStateOnSurface>* vtsos = track->trackStateOnSurfaces();
   if (!vtsos) {
     return 0;
   }
-  
+
   EGasType gasType;
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itr  = vtsos->begin();
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator itre = vtsos->end();  
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator itre = vtsos->end();
 
   double correctionFactor = 1.;
-  
+
   if (m_toolScenario==kAlgStandard) {
     std::vector<double> vecToT;
     double ToTsum = 0;
 
     for ( ; itr!=itre ; ++itr) {
       double length = 0;
-      if ( isGoodHit((*itr), useHitsHT, length)) {
-	      double ToT_correct = correctToT_corrRZ(*itr, length);
+      if ( isGoodHit(ctx,(*itr), useHitsHT, length)) {
+	      double ToT_correct = correctToT_corrRZ(ctx,*itr, length);
 	      if (m_correctionType == kHitBased){
 	        correctionFactor = hitOccupancyCorrection(*itr);
 	        ToT_correct*=correctionFactor;
 	      }
         vecToT.push_back(ToT_correct);
       }
-    } 
-          
+    }
+
     sort(vecToT.begin(), vecToT.end());
     size_t nhits = vecToT.size();
 
@@ -300,26 +282,30 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
     if (m_correctionType == kTrackBased) {
       correctionFactor=trackOccupancyCorrection(track, useHitsHT);
     } else {
-      correctionFactor=correctNormalization(nVtx);
+      correctionFactor=correctNormalization(ctx,nVtx);
     }
     ToTsum*=correctionFactor;
     return ToTsum/nhits;
   }
-  
+
   if(m_toolScenario==kAlgReweight || m_toolScenario==kAlgReweightTrunkOne) {
     std::vector<double> vecToT_Xe;
     std::vector<double> vecToT_Ar;
     std::vector<double> vecToT_Kr;
 
     if(m_useTrackPartWithGasType!=kUnset) {
-      ATH_MSG_WARNING("dEdX_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to"<<m_useTrackPartWithGasType<<", but kUnset is requiered. Check you tool configuration.");
+      ATH_MSG_WARNING(
+        "dEdX_Estimator():: Using m_toolScenario="
+        << m_toolScenario << " scenario m_useTrackPartWithGasType is set to"
+        << m_useTrackPartWithGasType
+        << ", but kUnset is requiered. Check you tool configuration.");
     }
 
     for ( ; itr!=itre ; ++itr) {
       double length=0;
-      if (isGoodHit((*itr), useHitsHT, length)) {
-        gasType=gasTypeInStraw(*itr);
-	      double ToT_correct = correctToT_corrRZ(*itr, length);
+      if (isGoodHit(ctx,(*itr), useHitsHT, length)) {
+        gasType=gasTypeInStraw(ctx,*itr);
+	      double ToT_correct = correctToT_corrRZ(ctx,*itr, length);
 	      if (m_correctionType == kHitBased) {
           correctionFactor = hitOccupancyCorrection(*itr);
         }
@@ -334,7 +320,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
 	      ATH_MSG_ERROR("dEdX_Estimator():: During scenario kAlgReweight variable gasTypeInStraw got value kUnset.");
         }
       }
-    } 
+    }
 
     sort(vecToT_Xe.begin(), vecToT_Xe.end());
     sort(vecToT_Ar.begin(), vecToT_Ar.end());
@@ -373,7 +359,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
         }
       }
     }
-    
+
     // Boost speed.
     size_t nhits  = nhitsXe + nhitsAr + nhitsKr;
     if(nhits<1) return 0.0;
@@ -386,10 +372,10 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
     }
     for (size_t i = 0; i < nhitsAr;i++) {
       ToTsumAr+=vecToT_Ar.at(i);
-    } 
+    }
     for (size_t i = 0; i < nhitsKr;i++) {
       ToTsumKr+=vecToT_Kr.at(i);
-    } 
+    }
 
     ToTsumXe = (nhitsXe>0) ? ToTsumXe/nhitsXe : 0;
     ToTsumAr = (nhitsAr>0) ? ToTsumAr/nhitsAr : 0;
@@ -399,7 +385,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
 	  if (m_correctionType == kTrackBased) {
       correctionFactor = trackOccupancyCorrection(track, useHitsHT);
     } else {
-      correctionFactor = correctNormalization(nVtx);
+      correctionFactor = correctNormalization(ctx,nVtx);
     }
     ToTsum *= correctionFactor;
 
@@ -410,7 +396,10 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
   return 0.;
 }
 
-double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool useHitsHT) const
+double
+TRT_ToT_dEdx::usedHits(const EventContext& ctx,
+                       const Trk::Track* track,
+                       bool useHitsHT) const
 {
   ATH_MSG_DEBUG("usedHits()");
   EGasType gasType = kUnset;
@@ -418,23 +407,23 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool useHitsHT) const
   if (!track) {
     return 0;
   }
-  const DataVector<const Trk::TrackStateOnSurface>* vtsos = track->trackStateOnSurfaces(); 
+  const DataVector<const Trk::TrackStateOnSurface>* vtsos = track->trackStateOnSurfaces();
   if (!vtsos) {
     return 0;
   }
 
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itr  = vtsos->begin();
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator itre = vtsos->end();  
-  
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator itre = vtsos->end();
+
   if (m_toolScenario==kAlgStandard) {
     int nhits =0;
 
     for ( ; itr!=itre ; ++itr) {
       double length=0;
-      if (isGoodHit((*itr), useHitsHT, length)) {
+      if (isGoodHit(ctx,(*itr), useHitsHT, length)) {
         nhits++;
       }
-    } 
+    }
     if (m_divideByL) nhits -= m_nTrunkateHits;
     return nhits;
   } else if (m_toolScenario==kAlgReweight || m_toolScenario==kAlgReweightTrunkOne) {
@@ -444,13 +433,17 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool useHitsHT) const
     int nhitsKr = 0;
 
     if(m_useTrackPartWithGasType!=kUnset) {
-      ATH_MSG_WARNING("usedHits_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to "<<m_useTrackPartWithGasType<<", but kUnset is required. Check you tool configuration.");
+      ATH_MSG_WARNING(
+        "usedHits_Estimator():: Using m_toolScenario="
+        << m_toolScenario << " scenario m_useTrackPartWithGasType is set to "
+        << m_useTrackPartWithGasType
+        << ", but kUnset is required. Check you tool configuration.");
     }
 
     for ( ; itr!=itre ; ++itr) {
       double length=0;
-      if ( isGoodHit((*itr), useHitsHT, length)) {
-        gasType=gasTypeInStraw(*itr);
+      if ( isGoodHit(ctx,(*itr), useHitsHT, length)) {
+        gasType=gasTypeInStraw(ctx,*itr);
         if (gasType==kXenon) {
           nhitsXe++;
         } else if (gasType==kArgon) {
@@ -482,17 +475,29 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool useHitsHT) const
   return 0;
 }
 
-double TRT_ToT_dEdx::getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const
+double
+TRT_ToT_dEdx::getProb(const EventContext& ctx,
+                      const Trk::TrackStateOnSurface* itr,
+                      const double dEdx_obs,
+                      const double pTrk,
+                      Trk::ParticleHypothesis hypothesis,
+                      int nUsedHits) const
 {
-  EGasType gasType = gasTypeInStraw(itr);
-  return getProb(gasType, dEdx_obs, pTrk, hypothesis, nUsedHits);
+  EGasType gasType = gasTypeInStraw(ctx, itr);
+  return getProb(ctx,gasType, dEdx_obs, pTrk, hypothesis, nUsedHits);
 }
 
-double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const
-{        
+double
+TRT_ToT_dEdx::getProb(const EventContext& ctx,
+                      EGasType gasType,
+                      const double dEdx_obs,
+                      const double pTrk,
+                      Trk::ParticleHypothesis hypothesis,
+                      int nUsedHits) const
+{
   ATH_MSG_DEBUG("getProb():: gasTypeInStraw = "<<gasType<<"");
 
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if (dEdxCorrection==nullptr) {
     ATH_MSG_ERROR(" getProb: Could not find any dEdxCorrection in CondStore. Return zero.");
@@ -505,7 +510,7 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
     gasType = kXenon;
   }
 
-  double dEdx_pred = predictdEdx(gasType, pTrk, hypothesis); 
+  double dEdx_pred = predictdEdx(ctx,gasType, pTrk, hypothesis);
   if (dEdx_pred==0) return 0.0;
   if (hypothesis==Trk::electron) {
     // correction for pTrk in [MeV]
@@ -514,28 +519,45 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
     dEdx_pred= dEdx_pred/correct;
   }
 
-  double Resolution = dEdxCorrection->resolution[gasType][0]+dEdxCorrection->resolution[gasType][1]*(nUsedHits+0.5)+dEdxCorrection->resolution[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+dEdxCorrection->resolution[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
-  if(hypothesis==Trk::electron){
-    Resolution = dEdxCorrection->resolutionElectron[gasType][0]+dEdxCorrection->resolutionElectron[gasType][1]*(nUsedHits+0.5)+dEdxCorrection->resolutionElectron[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+dEdxCorrection->resolutionElectron[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
+  double Resolution =
+    dEdxCorrection->resolution[gasType][0] +
+    dEdxCorrection->resolution[gasType][1] * (nUsedHits + 0.5) +
+    dEdxCorrection->resolution[gasType][2] * (nUsedHits + 0.5) *
+      (nUsedHits + 0.5) +
+    dEdxCorrection->resolution[gasType][3] * (nUsedHits + 0.5) *
+      (nUsedHits + 0.5) * (nUsedHits + 0.5);
+  if (hypothesis == Trk::electron) {
+    Resolution =
+      dEdxCorrection->resolutionElectron[gasType][0] +
+      dEdxCorrection->resolutionElectron[gasType][1] * (nUsedHits + 0.5) +
+      dEdxCorrection->resolutionElectron[gasType][2] * (nUsedHits + 0.5) *
+        (nUsedHits + 0.5) +
+      dEdxCorrection->resolutionElectron[gasType][3] * (nUsedHits + 0.5) *
+        (nUsedHits + 0.5) * (nUsedHits + 0.5);
   }
 
-  double prob =exp( -0.5 * ( ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) * 
-                             ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) ))  ; 
+  double prob = std::exp( -0.5 * ( ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) *
+                             ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) ))  ;
 
   ATH_MSG_DEBUG("getProb():: return "<<prob<<"");
   return prob;
 }
 
-
-double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const
+double
+TRT_ToT_dEdx::getTest(const EventContext& ctx,
+                      const double dEdx_obs,
+                      const double pTrk,
+                      Trk::ParticleHypothesis hypothesis,
+                      Trk::ParticleHypothesis antihypothesis,
+                      int nUsedHits) const
 {
   ATH_MSG_DEBUG("getTest()");
 
   EGasType gasType = kUnset;
   if ( dEdx_obs<=0. || pTrk<=0. || nUsedHits<=0 ) return 0.5;
-  
-  double Pone = getProb(gasType, dEdx_obs,pTrk,hypothesis,nUsedHits);
-  double Ptwo = getProb(gasType, dEdx_obs,pTrk,antihypothesis,nUsedHits);
+
+  double Pone = getProb(ctx,gasType, dEdx_obs,pTrk,hypothesis,nUsedHits);
+  double Ptwo = getProb(ctx,gasType, dEdx_obs,pTrk,antihypothesis,nUsedHits);
   if ((Pone+Ptwo) != 0) {
     ATH_MSG_DEBUG("getTest():: return "<<Pone/(Pone+Ptwo)<<"");
     return Pone/(Pone+Ptwo);
@@ -544,60 +566,97 @@ double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::Part
   }
 }
 
-double TRT_ToT_dEdx::predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis) const
+double
+TRT_ToT_dEdx::predictdEdx(const EventContext& ctx,
+                          const Trk::TrackStateOnSurface* itr,
+                          const double pTrk,
+                          Trk::ParticleHypothesis hypothesis) const
 {
-  EGasType gasType = gasTypeInStraw(itr);
-  return predictdEdx(gasType, pTrk, hypothesis);
+  EGasType gasType = gasTypeInStraw(ctx, itr);
+  return predictdEdx(ctx,gasType, pTrk, hypothesis);
 }
 
-double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::ParticleHypothesis hypothesis) const
+double
+TRT_ToT_dEdx::predictdEdx(const EventContext& ctx,
+                          EGasType gasType,
+                          const double pTrk,
+                          Trk::ParticleHypothesis hypothesis) const
 {
-  ATH_MSG_DEBUG("predictdEdx(): gasTypeInStraw = "<<gasType<<"");
+  ATH_MSG_DEBUG("predictdEdx(): gasTypeInStraw = " << gasType << "");
 
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  if(dEdxCorrection==nullptr)
-    {
-      ATH_MSG_ERROR(" predictdEdx: Could not find any dEdxCorrection in CondStore. Return zero.");
-      return 0;
-    }
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{ m_ReadKey,ctx };
+  const TRTDedxcorrection* dEdxCorrection{ *readHandle };
+  if (dEdxCorrection == nullptr) {
+    ATH_MSG_ERROR(" predictdEdx: Could not find any dEdxCorrection in "
+                  "CondStore. Return zero.");
+    return 0;
+  }
 
-  if(gasType==kUnset)
-    {
-      ATH_MSG_DEBUG("predictdEdx():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
-      ATH_MSG_DEBUG("predictdEdx():: Now gasTypeInStraw sets to kXenon.");
-      gasType = kXenon;
-    }
+  if (gasType == kUnset) {
+    ATH_MSG_DEBUG(
+      "predictdEdx():: gasTypeInStraw set kUnset that is not allowed! Use "
+      "gasTypeInStraw(*itr) to get gas type info for that hit first!");
+    ATH_MSG_DEBUG("predictdEdx():: Now gasTypeInStraw sets to kXenon.");
+    gasType = kXenon;
+  }
 
   double mass = m_particlemasses.mass[hypothesis];
 
   double betaGamma = pTrk/mass;
   /** @todo why is it possible that a 20 MeV particle reaches this point? (see Savannah bug 94644) */
-  // low momentum particle can create floating point error 
+  // low momentum particle can create floating point error
   // do we need the check in the log parameter in addition? will create CPU increase
   // do we want to throw an assertion here?
-  if(pTrk<100)return 0; 
-  if(m_divideByL){    
-    if(dEdxCorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDivideByLengthDedxP5[gasType]))<=0) return 0;
-    return dEdxCorrection->paraDivideByLengthDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType])  * 
-      (dEdxCorrection->paraDivideByLengthDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType] ) 
-       - log(dEdxCorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDivideByLengthDedxP5[gasType]) ) ) );
-  } 
-    if(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) )<=0)return 0; 
-    return dEdxCorrection->paraDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType])  * 
-      (dEdxCorrection->paraDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType] ) 
-       - log(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) ) ) );
-  
-  //return 0;  
+  if (pTrk < 100)
+    return 0;
+  if (m_divideByL) {
+    if (dEdxCorrection->paraDivideByLengthDedxP3[gasType] +
+          1. / (std::pow(betaGamma,
+                         dEdxCorrection->paraDivideByLengthDedxP5[gasType])) <=
+        0)
+      return 0;
+    return dEdxCorrection->paraDivideByLengthDedxP1[gasType] /
+           std::pow(std::sqrt((betaGamma * betaGamma) /
+                              (1. + (betaGamma * betaGamma))),
+                    dEdxCorrection->paraDivideByLengthDedxP4[gasType]) *
+           (dEdxCorrection->paraDivideByLengthDedxP2[gasType] -
+            std::pow(std::sqrt((betaGamma * betaGamma) /
+                               (1. + (betaGamma * betaGamma))),
+                     dEdxCorrection->paraDivideByLengthDedxP4[gasType]) -
+            log(dEdxCorrection->paraDivideByLengthDedxP3[gasType] +
+                1. / (std::pow(
+                       betaGamma,
+                       dEdxCorrection->paraDivideByLengthDedxP5[gasType]))));
+  }
+  if (dEdxCorrection->paraDedxP3[gasType] +
+        1. / (std::pow(betaGamma, dEdxCorrection->paraDedxP5[gasType])) <=
+      0)
+    return 0;
+  return dEdxCorrection->paraDedxP1[gasType] /
+         std::pow(
+           std::sqrt((betaGamma * betaGamma) / (1. + (betaGamma * betaGamma))),
+           dEdxCorrection->paraDedxP4[gasType]) *
+         (dEdxCorrection->paraDedxP2[gasType] -
+          std::pow(
+            std::sqrt((betaGamma * betaGamma) / (1. + (betaGamma * betaGamma))),
+            dEdxCorrection->paraDedxP4[gasType]) -
+          log(dEdxCorrection->paraDedxP3[gasType] +
+              1. / (std::pow(betaGamma, dEdxCorrection->paraDedxP5[gasType]))));
+
+  //return 0;
 }
 
-double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk, double dEdx ) const
+double
+TRT_ToT_dEdx::mass(const EventContext& ctx,
+                   const Trk::TrackStateOnSurface* itr,
+                   const double pTrk,
+                   double dEdx) const
 {
-  EGasType gasType = gasTypeInStraw(itr);
+  EGasType gasType = gasTypeInStraw(ctx,itr);
 
   ATH_MSG_DEBUG("mass(): gasTypeInStraw = "<<gasType<<"");
 
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr)
     {
@@ -617,9 +676,11 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   /** @todo make failsafe */
   static const double bg_min = 0.001;
   static const double bg_max = 3;   // maximal allowed bg
-  
-  static const std::string blumRolandiFunction = "( [0]/sqrt( (x*x/([5]*[5]))/(1.+(x*x/([5]*[5]))) )^[3] ) * ([1] - sqrt( (x*x/([5]*[5]))/(1.+(x*x/([5]*[5]))) )^[3] - log([2]+1./((x/[5])^[4]) ) )";
-  
+
+  static const std::string blumRolandiFunction =
+    "( [0]/sqrt( (x*x/([5]*[5]))/(1.+(x*x/([5]*[5]))) )^[3] ) * ([1] - sqrt( "
+    "(x*x/([5]*[5]))/(1.+(x*x/([5]*[5]))) )^[3] - log([2]+1./((x/[5])^[4]) ) )";
+
   TF1 blumRolandi( "BR", blumRolandiFunction.c_str(), 0.7, 100000);
 
   blumRolandi.SetParameters(dEdxCorrection->paraDedxP1[gasType],
@@ -629,24 +690,25 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
                             dEdxCorrection->paraDedxP5[gasType],
                             1.);
   //blumRolandi.SetParameters(&dEdxCorrection->para_dEdx_BB);
-  double betaGamma = blumRolandi.GetX(dEdx, bg_min, bg_max); 
-  
+  double betaGamma = blumRolandi.GetX(dEdx, bg_min, bg_max);
+
   ATH_MSG_DEBUG("mass():: return "<<pTrk/betaGamma<<"");
-        
+
   return pTrk/betaGamma;
 }
 
 /* returns gas type for given straw */
 // TODO: move this functionality to TRT_StrawStatusSummaryTool.
-TRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const
+TRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const EventContext& ctx,
+                                                    const Trk::TrackStateOnSurface *itr) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   if (!trkM)  {
-    return kUnset;   
+    return kUnset;
   }
 
   // Check if this is RIO on track
-  //annd if yes check if is TRT Drift Circle 
+  //annd if yes check if is TRT Drift Circle
   //then set the ptr
   const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
   if (trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
@@ -660,24 +722,33 @@ TRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurfa
     return kUnset;
   }
 
-  return gasTypeInStraw(driftcircle);
+  return gasTypeInStraw(ctx,driftcircle);
 }
 
-TRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const
+TRT_ToT_dEdx::EGasType
+TRT_ToT_dEdx::gasTypeInStraw(
+  const EventContext& ctx,
+  const InDet::TRT_DriftCircleOnTrack* driftcircle) const
 {
-  Identifier DCid = driftcircle->identify();  
-  
+  Identifier DCid = driftcircle->identify();
+
   // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton, EmulatedArgon, EmulatedKrypton}.
   // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
   EGasType GasType=kUnset; // kUnset is default
   if (!m_TRTStrawSummaryTool.empty()) {
-    int stat = m_TRTStrawSummaryTool->getStatusHT(DCid);
+    int stat = m_TRTStrawSummaryTool->getStatusHT(DCid,ctx);
     if       ( stat==2 || stat==3 ) { GasType = kXenon; } // Xe
     else if  ( stat==1 || stat==4 ) { GasType = kArgon; } // Ar
     else if  ( stat==5 )            { GasType = kKrypton; } // Kr
     else if  ( stat==6 )            { GasType = kArgon; } // Emulated Ar
-    else if  ( stat==7 )            { GasType = kKrypton; } // Emulated Kr
-    else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)' or 'EmulatedArgon(6)' or 'EmulatedKr(7)'!");
+    else if  ( stat==7 )            { GasType = kKrypton;
+    } // Emulated Kr
+    else {
+      ATH_MSG_FATAL(
+        "getStatusHT = "
+        << stat
+        << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or "
+           "'Krypton(5)' or 'EmulatedArgon(6)' or 'EmulatedKr(7)'!");
       throw std::exception();
     }
   }
@@ -689,9 +760,10 @@ TRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircle
 // Corrections
 /////////////////////////////////
 
-double TRT_ToT_dEdx::correctNormalization(double nVtx) const
+double
+TRT_ToT_dEdx::correctNormalization(const EventContext& ctx, double nVtx) const
 {
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr) {
     ATH_MSG_ERROR(" correctNormalization: Could not find any dEdxCorrection in CondStore. Return zero.");
@@ -712,7 +784,10 @@ double TRT_ToT_dEdx::correctNormalization(double nVtx) const
   return (slope*dEdxCorrection->normNzero[gasType]+offset)/(slope*nVtx+offset+shift);
 }
 
-double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, double length) const
+double
+TRT_ToT_dEdx::correctToT_corrRZ(const EventContext& ctx,
+                                const Trk::TrackStateOnSurface* itr,
+                                double length) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   const Trk::TrackParameters* trkP = itr->trackParameters();
@@ -727,7 +802,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, doub
       driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
     }
   }
- 
+
   if (!driftcircle) {
     return 0;
   }
@@ -744,37 +819,37 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, doub
   int hitPart =  m_trtId->barrel_ec(DCId);
   int StrawLayer = m_trtId->straw_layer(DCId);
   int Layer = m_trtId->layer_or_wheel(DCId);
-  double hitRtrack = fabs(trkP->parameters()[Trk::locR]);
-  EGasType gasType = gasTypeInStraw(itr);  
+  double hitRtrack = std::abs(trkP->parameters()[Trk::locR]);
+  EGasType gasType = gasTypeInStraw(ctx,itr);
   if(gasType==kUnset) {
     ATH_MSG_ERROR("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: Gas type in straw is kUnset! Return ToT = 0");
     return 0;
   }
- 
+
   if(m_divideByL && length>0) timeOverThreshold = timeOverThreshold/length;
   if(!m_corrected) return timeOverThreshold;
   /* else correct */
-           
+
   double hitZ = driftcircle->globalPosition().z();
   double trackx =  driftcircle->globalPosition().x();
   double tracky =  driftcircle->globalPosition().y();
-  double hitPosR = sqrt(trackx*trackx+tracky*tracky);
-  
-  /** @todo implement possiblity to set the scaling factor run-by-run from database, 
+  double hitPosR = std::sqrt(trackx*trackx+tracky*tracky);
+
+  /** @todo implement possiblity to set the scaling factor run-by-run from database,
       should probably be done later on track- level */
   double ToTmip = 1;
   double valToT = 0;
   if(m_divideByL){
     if (abs(hitPart)==1) // Barrel
-      valToT = fitFuncBarrel_corrRZL(gasType, hitRtrack, hitZ, Layer, StrawLayer);
+      valToT = fitFuncBarrel_corrRZL(ctx,gasType, hitRtrack, hitZ, Layer, StrawLayer);
     else // End-cap
-      valToT = fitFuncEndcap_corrRZL(gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
+      valToT = fitFuncEndcap_corrRZL(ctx,gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
   }else{
     if (abs(hitPart)==1) // Barrel
       valToT = fitFuncBarrel_corrRZ(gasType, hitRtrack, hitZ, Layer, StrawLayer);
     else // End-cap
       valToT = fitFuncEndcap_corrRZ(gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
-  } 
+  }
   if (std::isinf(valToT)) return 0.;
   if (valToT!=0) return ToTmip*timeOverThreshold/valToT;
   return 0.;
@@ -788,7 +863,7 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(EGasType gasType, double driftRadius,d
   return fitFuncBarrelLong_corrRZ(gasType, driftRadius, zPosition, Layer, StrawLayer);
 }
 
-double TRT_ToT_dEdx::fitFuncEndcap_corrRZ(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const 
+double TRT_ToT_dEdx::fitFuncEndcap_corrRZ(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const
 {
   /**
    * T(r,R) = T0(r)+ a(r)*R
@@ -804,8 +879,8 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
    *                   |z|       /|z| - l  \
    * T(r,z) = T0(r) +   ---  exp|----------|
    *                    v(r)     \  s(r)   /
-   */ 
-  double z = fabs(zPosition);
+   */
+  double z = std::abs(zPosition);
   int sign=1;
   if(zPosition<0)sign=-1;
   double l = 704.6;
@@ -819,7 +894,7 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   if (not inRange(expArg, -600.0,600.0)){
     return expArg>0 ? std::numeric_limits<double>::infinity():0.;
   }
-  return T0+(z/v)*exp(expArg);
+  return T0+(z/v)*std::exp(expArg);
 }
 
 double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRadius,double zPosition, int StrawLayer) const
@@ -827,12 +902,12 @@ double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRad
   /**
    *  T(r,z) = T0(r)+ b(r)*|z|
    */
-  double z = fabs(zPosition);
+  double z = std::abs(zPosition);
   int sign=1;
   if(zPosition<0)sign=-1;
   double T0 = fitFuncPol_corrRZ(gasType, 0,driftRadius,0,StrawLayer,sign,1);
   double b  = fitFuncPol_corrRZ(gasType, 1,driftRadius,0,StrawLayer,sign,1);
-  return T0+b*z; 
+  return T0+b*z;
 }
 
 
@@ -845,7 +920,7 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
       ATH_MSG_ERROR(" fitFuncPol_corrRZ: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
-  
+
   double a = 0;
   double b = 0;
   double c = 0;
@@ -862,7 +937,7 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
       d = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
       e = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
       f = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
-     
+
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
       a = dEdxCorrection->paraShortCorrRZ[gasType][(6*parameter+0)*9+Layer+offset];
@@ -905,26 +980,32 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
       d = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+3)*28+Layer];
       e = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+4)*28+Layer];
       f = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+5)*28+Layer];
-    }    
+    }
   }
   return a+b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
 }
 
-double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const 
+double
+TRT_ToT_dEdx::fitFuncEndcap_corrRZL(const EventContext& ctx,
+                                    EGasType gasType,
+                                    double driftRadius,
+                                    double radialPosition,
+                                    int Layer,
+                                    int sign) const
 {
   /*
    * T(r,R) = T0(r)+ a(r)*R
    */
 
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr) {
     ATH_MSG_ERROR(" fitFuncEndcap_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
     return 0;
   }
 
-  double r = fabs(driftRadius);
-  double a,b,c,d,e,f,g,h,i;  
+  double r = std::abs(driftRadius);
+  double a,b,c,d,e,f,g,h,i;
   if(sign >0) Layer+=14;
   if(m_isData){
     a = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(0)*28+Layer];
@@ -932,42 +1013,48 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
     c = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(2)*28+Layer];
     d = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(3)*28+Layer];
     e = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(4)*28+Layer];
-    f = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(5)*28+Layer];  
-    g = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(6)*28+Layer];  
-    h = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(7)*28+Layer];  
-    i = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(8)*28+Layer];  
+    f = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(5)*28+Layer];
+    g = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(6)*28+Layer];
+    h = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(7)*28+Layer];
+    i = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(8)*28+Layer];
   }else{
     a = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(0)*28+Layer];
     b = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(1)*28+Layer];
     c = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(2)*28+Layer];
     d = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(3)*28+Layer];
     e = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(4)*28+Layer];
-    f = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(5)*28+Layer];  
-    g = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(6)*28+Layer];  
-    h = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(7)*28+Layer];  
-    i = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(8)*28+Layer]; 
-  } 
+    f = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(5)*28+Layer];
+    g = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(6)*28+Layer];
+    h = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(7)*28+Layer];
+    i = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(8)*28+Layer];
+  }
 
   double T1    = b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
   double slope = g+h*r+i*r*r;
   double T0    = a;
-  
+
   return T0+T1+slope*radialPosition;
 }
 
-double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,double zPosition, int Layer, int Strawlayer) const 
+double
+TRT_ToT_dEdx::fitFuncBarrel_corrRZL(const EventContext& ctx,
+                                    EGasType gasType,
+                                    double driftRadius,
+                                    double zPosition,
+                                    int Layer,
+                                    int Strawlayer) const
 {
   /*
-   * T(r,z) = T0(r)+ b(r)*z*z 
+   * T(r,z) = T0(r)+ b(r)*z*z
    */
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey,ctx};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr) {
     ATH_MSG_ERROR(" fitFuncBarrel_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
     return 0;
   }
 
-  double a,b,c,d,e,f,g;  
+  double a,b,c,d,e,f,g;
   if (Layer==0 && Strawlayer<9) { // short straws
     if (m_isData){
       a = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(0)*9+Strawlayer];
@@ -1005,12 +1092,12 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
       g = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(6)*30*3+Layer*30+Strawlayer];
     }
   }
-  double z = fabs(zPosition);
-  double r = fabs(driftRadius);
+  double z = std::abs(zPosition);
+  double r = std::abs(driftRadius);
   double T0neg=a;
-  double T0pos=b;  
-  double T1 = exp(-c*r*r)+d*r;
-  double slope = e*r+f*r*r+g*r*r*r;  
+  double T0pos=b;
+  double T1 = std::exp(-c*r*r)+d*r;
+  double slope = e*r+f*r*r+g*r*r*r;
   double result;
   result = T0neg+T1+slope*z;
   if (zPosition>0) result = T0pos+T1+slope*z;
@@ -1022,7 +1109,7 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  
+
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
 
   // Check if this is RIO on track
@@ -1054,11 +1141,11 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   int HitPart =  m_trtId->barrel_ec(DCId);
   double Trt_HitTheta = trkP->parameters()[Trk::theta];
   double trackEta = -log(tan(Trt_HitTheta/2.0));
-		  
+
   double localOccupancy = m_localOccTool->LocalOccupancy(trackEta, phimodule);
   double ToTmip = 1;
   double valToT = 1.;
-	
+
   double p0=0., p1=0., p2=0., p0_flat=0.;
 
   //the calibration array is structured as follows (hence the non intuitive numbers)
@@ -1098,7 +1185,7 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   //Hence the tot value is divided by the value of the function
   //multiplied to the non-shared intercept
   valToT = p0_flat/(p0+p1*localOccupancy+p2*localOccupancy*localOccupancy);
-	
+
   return ToTmip*valToT;
 }
 
@@ -1106,7 +1193,7 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  
+
   double corr=-999.;
   double trackOcc = m_localOccTool->LocalOccupancy(*track);
   const Trk::TrackParameters* perigee = track->perigeeParameters();
@@ -1127,4 +1214,51 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
   }
 
   return corr;
+}
+
+double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface* trackState, const TRT_ID* identifier) {
+  if (trackState->type(Trk::TrackStateOnSurface::Outlier)) return 0.; //Outliers
+
+  const Trk::MeasurementBase* trkM = trackState->measurementOnTrack();
+  if (!trkM)  {
+    return 0.;
+  }
+
+  // Check if this is RIO on track
+  // and if yes check if is TRT Drift Circle
+  // then set the ptr
+  const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+  if (trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(trkM);
+    if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+      driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+    }
+  }
+
+  if (!driftcircle) {
+    return 0.;
+  }
+
+  const Trk::TrackParameters* trkP = trackState->trackParameters();
+  if(trkP==nullptr) return 0.;
+
+  double Trt_Rtrack = std::abs(trkP->parameters()[Trk::locR]);
+  double Trt_HitTheta = trkP->parameters()[Trk::theta];
+  double Trt_HitPhi = trkP->parameters()[Trk::phi];
+  Identifier DCId = driftcircle->identify();
+  int HitPart = std::abs(identifier->barrel_ec(DCId));
+  const InDetDD::TRT_BaseElement* element = driftcircle->detectorElement();
+  double strawphi = element->center(DCId).phi();
+
+  double length=0;
+  if (HitPart == 1) { //Barrel
+    length = 2*std::sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./std::abs(std::sin(Trt_HitTheta));
+  } else if (HitPart == 2) { //EndCap
+    length = 2*std::sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./std::sqrt(1-std::sin(Trt_HitTheta)*std::sin(Trt_HitTheta)*std::cos(Trt_HitPhi-strawphi)*std::cos(Trt_HitPhi-strawphi));
+  } else {
+    // This should never happen
+    throw std::runtime_error("Unknown barrel/endcap identifier: " + std::to_string(HitPart) + ". Must be 1(Barrel) or 2(Endcap)");
+  }
+
+  return length;
 }

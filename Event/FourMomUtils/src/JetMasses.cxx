@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FourMomUtils/JetMasses.h"
@@ -15,7 +15,7 @@ using std::abs;
 using std::exp;
 
 bool
-jetMasses( const I4MomIter_t iBeg, const I4MomIter_t iEnd,
+jetMasses( const I4MomIter_t& iBeg, const I4MomIter_t& iEnd,
      double& heavyJetMass, double& lightJetMass,
      CLHEP::Hep3Vector thrust )
 {

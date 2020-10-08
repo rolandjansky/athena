@@ -14,7 +14,6 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "AthContainers/ConstDataVector.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 namespace InDet
@@ -24,7 +23,6 @@ namespace InDet
     : HLT::AllTEAlgo(n, pSvcLoc),
       m_runWithoutField(false),
       m_VertexFinderTool("InDet::InDetPriVxFinderTool/InDetTrigPriVxFinderTool"),
-      m_fieldSvc("AtlasFieldSvc", n),
       m_BeamCondSvc("BeamCondSvc", n),
       m_retrieve_tracks_from_SG(false),
       m_track_collection_from_SG("Unconfigured_TrigVxPrimaryAllTE_For_SG_Access")
@@ -59,24 +57,15 @@ namespace InDet
       msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
-    else{
-      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endmsg;
-    }
     
-    if (m_fieldSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve service " << m_fieldSvc << endmsg;
+    if (m_fieldCondObjInputKey.initialize().isFailure()){
+      ATH_MSG_FATAL("Failed to initialize " << m_fieldCondObjInputKey);
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
-    else {
-      msg() << MSG::INFO << "Retrieved tool " << m_fieldSvc << endmsg;
-    }
 
     if (m_BeamCondSvc.retrieve().isFailure()){
       msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    }
-    else {
-      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endmsg;
     }
 
     return HLT::OK;
@@ -164,7 +153,13 @@ namespace InDet
 	runVtx = false;
       }
       
-      if (!m_runWithoutField && !m_fieldSvc->solenoidOn()){
+      EventContext ctx = Gaudi::Hive::currentContext();
+      MagField::AtlasFieldCache fieldCache;
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+      fieldCondObj->getInitializedCache (fieldCache);
+
+      if (!m_runWithoutField && !fieldCache.solenoidOn()){
 	if(outputLevel <= MSG::DEBUG)
 	  msg() << MSG::DEBUG << "Solenoid Off and RunWithoutField=False. Algorithm not executed!" << endmsg;
 	runVtx = false;

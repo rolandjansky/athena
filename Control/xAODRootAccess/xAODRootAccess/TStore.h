@@ -47,8 +47,13 @@ namespace xAOD {
    public:
       /// Default constructor
       TStore();
+      /// Disallow copying the object
+      TStore( const TStore& ) = delete;
       /// Destructor
       virtual ~TStore();
+
+      /// Disallow copying the object
+      TStore& operator=( const TStore& ) = delete;
 
       /// Set this as the active transient store in the application
       void setActive();

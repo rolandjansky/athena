@@ -4,8 +4,11 @@ from PyUtils.Decorators import memoize
 from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 import json
+
+def getL1PrescaleFolderName():
+    return "/TRIGGER/LVL1/Lvl1ConfigKey <tag>HEAD</tag>"
 
 def getHLTPrescaleFolderName():
     return "/TRIGGER/HLT/PrescaleKey <tag>HEAD</tag>"
@@ -72,32 +75,6 @@ def createL1PrescalesFileFromMenu( flags ):
         log.info("Generated default L1 prescale set %s", outfile.name)
 
 
-# Creates an HLT Prescale file from the menu
-# this is a temporary solution, in the final version the HLTPrescalesSet file should come from the menu
-def createHLTPrescalesFileFromMenu( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
-    menuFN = getHLTMenuFileName( flags )
-    with open(menuFN,'r') as fh:
-        data = json.load(fh, object_pairs_hook = odict)
-        pso = odict()
-        pso['filetype'] = 'hltprescale'
-        pso['name'] = data['name']
-        pso['prescales'] = odict()
-        ps = pso['prescales']
-        for name, chain in data['chains'].items():
-            ps[name] = odict([
-                ("name", name),
-                ("counter", chain['counter']),
-                ("hash", chain['nameHash']),
-                ("prescale", 1),
-                ("enabled", 1)
-            ])
-    psFN = getHLTPrescalesSetFileName( flags )
-    with open(psFN, 'w') as outfile:
-        json.dump(pso, outfile, indent = 4)
-        log.info("Generated default HLT prescale set %s", outfile.name)
-
-
 def getTrigConfigFromFlag( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
     tcflag = flags.Trigger.triggerConfig
@@ -141,9 +118,32 @@ def generateL1Menu( flags ):
 
 # configuration of L1ConfigSvc
 @memoize
+def getL1TopoConfigSvc( flags ):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    # configure config svc
+    TrigConf__L1TopoConfigSvc = CompFactory.getComp("TrigConf::L1TopoConfigSvc")
+    l1topoConfigSvc = TrigConf__L1TopoConfigSvc("L1TopoConfigSvc")
+
+    l1topoConfigSvc.ConfigSource = "XML"
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    l1topoXMLFile = TriggerFlags.inputL1TopoConfigFile() if flags is None else flags.Trigger.LVL1TopoConfigFile
+    # check if file exists in this directory otherwise add the package to aid path resolution
+    # also a '/' in the file name indicates that no package needs to be added
+    import os.path
+    if not ( "/" in l1topoXMLFile or os.path.isfile(l1topoXMLFile) ):
+        l1topoXMLFile = "TriggerMenuMT/" + l1topoXMLFile
+    l1topoConfigSvc.XMLMenuFile = l1topoXMLFile
+    log.info( "Configured L1TopoConfigSvc with input file : %s", l1topoXMLFile )
+
+    from AthenaCommon.AppMgr import theApp
+    theApp.CreateSvc += [ "TrigConf::L1TopoConfigSvc/L1TopoConfigSvc" ]
+    return l1topoConfigSvc
+
+
+# configuration of L1ConfigSvc
+@memoize
 def getL1ConfigSvc( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    from AthenaCommon.Logging import log
     # generate menu file
     generatedFile = generateL1Menu( flags )
 
@@ -198,40 +198,6 @@ def getHLTConfigSvc( flags ):
     return hltConfigSvc
 
 
-# configuration of CondAlg providing the HLTPrescalesSet
-@memoize
-def setupHLTPrescaleCondAlg( flags = None ):
-    log = logging.getLogger('TrigConfigSvcCfg')
-    TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
-    hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlg")
-
-    tc = getTrigConfigFromFlag( flags )
-    hltPrescaleCondAlg.Source = tc["source"]
-    if tc["source"] == "COOL":
-        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
-    elif tc["source"] == "DB":
-        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
-        hltPrescaleCondAlg.HLTPsk    = tc["hltpsk"]
-    elif tc["source"] == "FILE":
-        hltPrescaleCondAlg.Filename = getHLTPrescalesSetFileName( flags )
-    else:
-        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
-
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if tc["source"] == "COOL" or athenaCommonFlags.isOnline():
-        if flags is None: # old style config
-            from IOVDbSvc.CondDB import conddb
-            conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
-            log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
-    # add the hltPrescaleCondAlg to condseq
-    if flags is None: # old style config
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        condSequence += conf2toConfigurable( hltPrescaleCondAlg )
-        log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
-    return hltPrescaleCondAlg
-
-
 # provide L1 config service in new JO
 def L1ConfigSvcCfg( flags ):
     acc = ComponentAccumulator()
@@ -249,21 +215,62 @@ def HLTConfigSvcCfg( flags ):
 def TrigConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addService( getL1ConfigSvc( flags ) )
-    acc.addService( getHLTConfigSvc( flags ) )
+    acc.addService( getL1ConfigSvc( flags ), create=True )
+    acc.addService( getHLTConfigSvc( flags ), create=True )
     return acc
 
+def L1PrescaleCondAlgCfg( flags ):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    log.info("Setting up L1PrescaleCondAlg")
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    TrigConf__L1PrescaleCondAlg = CompFactory.getComp("TrigConf::L1PrescaleCondAlg")
+    l1PrescaleCondAlg = TrigConf__L1PrescaleCondAlg("L1PrescaleCondAlg")
+
+    tc = getTrigConfigFromFlag( flags )
+    l1PrescaleCondAlg.Source = tc["source"]
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline():
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(flags, getL1PrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
+        log.info("Adding folder %s to CompAcc", getL1PrescaleFolderName() )
+    if tc["source"] == "COOL":
+        l1PrescaleCondAlg.TriggerDB = tc["dbconn"]
+    elif tc["source"] == "DB":
+        l1PrescaleCondAlg.TriggerDB = tc["dbconn"]
+        l1PrescaleCondAlg.L1Psk    = tc["l1psk"]
+    elif tc["source"] == "FILE":
+        l1PrescaleCondAlg.Filename = getL1PrescalesSetFileName( flags )
+    else:
+        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
+    acc.addCondAlgo(l1PrescaleCondAlg)
+    return acc
 
 def HLTPrescaleCondAlgCfg( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
+    log.info("Setting up HLTPrescaleCondAlg")
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addCondAlgo( setupHLTPrescaleCondAlg( flags ) )
+    TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
+    hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlg")
+
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "COOL":
+    hltPrescaleCondAlg.Source = tc["source"]
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline():
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         acc.merge(addFolders(flags, getHLTPrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
         log.info("Adding folder %s to CompAcc", getHLTPrescaleFolderName() )
+    if tc["source"] == "COOL":
+        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
+    elif tc["source"] == "DB":
+        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
+        hltPrescaleCondAlg.HLTPsk    = tc["hltpsk"]
+    elif tc["source"] == "FILE":
+        hltPrescaleCondAlg.Filename = getHLTPrescalesSetFileName( flags )
+    else:
+        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
+    acc.addCondAlgo(hltPrescaleCondAlg)
     return acc
 
 

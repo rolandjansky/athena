@@ -1,16 +1,7 @@
-################################################################################
-# Package: VP1MissingEtSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1MissingEtSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          graphics/VP1/VP1Base
-                          PRIVATE
-                          Reconstruction/MissingETEvent
-                          graphics/VP1/VP1Utils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -25,7 +16,6 @@ set( CMAKE_AUTOMOC TRUE )
 set( CMAKE_AUTORCC TRUE )
 # to let CMake find .h files automatically-generated from .ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 
 # Component(s) in the package:
 atlas_add_library( VP1MissingEtSystems VP1MissingEtSystems/*.h src/*.h src/*.cxx src/*.qrc 

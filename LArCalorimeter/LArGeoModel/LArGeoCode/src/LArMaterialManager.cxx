@@ -146,7 +146,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG<<" Contraction " << contract << endmsg;
     msg << MSG::DEBUG <<"  Thinabs Density =  "<< density*(Gaudi::Units::cm3/GeoModelKernelUnits::g) << endmsg;
 
-    GeoMaterial* Thin_abs = new GeoMaterial("Thinabs",density);
+    GeoMaterial* Thin_abs = new GeoMaterial("LAr::Thinabs",density);
     Thin_abs->add(Lead,Fracpb);
     Thin_abs->add(Iron,Fracfe);
     Thin_abs->add(Glue,Fracgl);
@@ -174,7 +174,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick << endmsg;
     msg << MSG::DEBUG <<"  Thickabs Density =  " << density*(Gaudi::Units::cm3/GeoModelKernelUnits::g) << endmsg;
 
-    GeoMaterial* Thick_abs = new GeoMaterial("Thickabs",density);
+    GeoMaterial* Thick_abs = new GeoMaterial("LAr::Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
     Thick_abs->add(Iron,Fracfe);
     Thick_abs->add(Glue,Fracgl);
@@ -201,7 +201,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Total mass, Thickness:"<<Totalmasse<<" ,"<<Totalthicke<< endmsg;
     msg << MSG::DEBUG <<"  Electrode Density =  " << density*(Gaudi::Units::cm3/GeoModelKernelUnits::g) << endmsg;
 
-    GeoMaterial* Kapton_Cu = new GeoMaterial("KaptonC",density);
+    GeoMaterial* Kapton_Cu = new GeoMaterial("LAr::KaptonC",density);
     Kapton_Cu->add(Copper,FracCu);
     Kapton_Cu->add(Kapton,FracKap);
     m_storedManager->addMaterial("LAr",Kapton_Cu);
@@ -218,7 +218,7 @@ void LArMaterialManager::buildMaterials()
     const double frmassKapOverCu = frmassKap / frmassCu;
     density = Copper->getDensity()*(1.+frmassKapOverCu)
              /(1.+frmassKapOverCu*Copper->getDensity()/Kapton->getDensity());
-    GeoMaterial* Cable_elect = new GeoMaterial("Cables",density);
+    GeoMaterial* Cable_elect = new GeoMaterial("LAr::Cables",density);
     double fractionmass;
     Cable_elect->add(Copper, fractionmass=frmassCu*Gaudi::Units::perCent);
     Cable_elect->add(Kapton, fractionmass=frmassKap*Gaudi::Units::perCent);
@@ -242,7 +242,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Total mass, Thickness:"
 	             << TotalmassMBe <<" ," <<TotalthickMBe<< endmsg;
     msg << MSG::DEBUG <<"  M_board Density =  "<<density*(Gaudi::Units::cm3/GeoModelKernelUnits::g) << endmsg;
-    GeoMaterial*  Moth_elect = new GeoMaterial("MBoards",density);
+    GeoMaterial*  Moth_elect = new GeoMaterial("LAr::MBoards",density);
     // ****GU:   use fraction per masses of G10 and Cu
     Moth_elect->add(G10,FracMBG10);
     Moth_elect->add(Copper,FracMBCu);
@@ -257,7 +257,7 @@ void LArMaterialManager::buildMaterials()
     const GeoElement *O = m_storedManager->getElement("Oxygen");
 
     density = dB.getDouble("BarrelMotherboards", "BarrelMotherboards-00", "DG10")*(GeoModelKernelUnits::g/Gaudi::Units::cm3);   //LArEMBEpoxyVolumicMass
-    GeoMaterial* SiO2 = new GeoMaterial("SiO2",density);
+    GeoMaterial* SiO2 = new GeoMaterial("LAr::SiO2",density);
     double fractionSi=28.09/(28.09+2*16.0);
     SiO2->add(Si,fractionSi);
     double fractionO=2.*16.0/(28.09+2.*16.0);
@@ -265,7 +265,7 @@ void LArMaterialManager::buildMaterials()
     SiO2->lock();
 // Gten for the bars of the calorimeter= mixture of regular G10 and SiO2
     density=1.72*GeoModelKernelUnits::g/Gaudi::Units::cm3;    // should be replaced by number from database
-    GeoMaterial* Gten_bar = new GeoMaterial("G10_bar",density);
+    GeoMaterial* Gten_bar = new GeoMaterial("LAr::G10_bar",density);
     Gten_bar->add(G10,0.38);    // should be replaced by number from database
     Gten_bar->add(SiO2,0.62);   // should be replaced by number from database
     m_storedManager->addMaterial("LAr",Gten_bar);
@@ -287,7 +287,7 @@ void LArMaterialManager::buildMaterials()
     double fracSBCu = ThSBCu*dcu*inv_TotalMassSB;
     double fracSBAr = ThSBAr*dar*inv_TotalMassSB;
     density = TotalMassSB/TotalThickSB;
-    GeoMaterial* Summing_board = new GeoMaterial("SBoard",density);
+    GeoMaterial* Summing_board = new GeoMaterial("LAr::SBoard",density);
     Summing_board->add(LAr,fracSBAr);
     Summing_board->add(Copper,fracSBCu);
     m_storedManager->addMaterial("LAr",Summing_board);
@@ -313,7 +313,7 @@ void LArMaterialManager::buildMaterials()
 
     const GeoElement *H = m_storedManager->getElement( "Hydrogen" );
 
-    GeoMaterial *Vacuum = new GeoMaterial( "Vacuum", Gaudi::Units::universe_mean_density );
+    GeoMaterial *Vacuum = new GeoMaterial( "LAr::Vacuum", Gaudi::Units::universe_mean_density );
     Vacuum->add( H, 1. );
     m_storedManager->addMaterial("LAr", Vacuum );
 #ifdef DEBUGGEO
@@ -364,7 +364,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(Gaudi::Units::cm3/GeoModelKernelUnits::g)  << endmsg;
 
 
-    GeoMaterial* Thin_abs = new GeoMaterial("EMEC_Thinabs",density);
+    GeoMaterial* Thin_abs = new GeoMaterial("LAr::EMEC_Thinabs",density);
     Thin_abs->add(Lead,Fracpb);
     Thin_abs->add(Iron,Fracfe);
     Thin_abs->add(Glue,Fracgl);
@@ -400,7 +400,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endmsg;
     msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(Gaudi::Units::cm3/GeoModelKernelUnits::g) <<endmsg;
 
-    GeoMaterial* Thick_abs = new GeoMaterial("EMEC_Thickabs",density);
+    GeoMaterial* Thick_abs = new GeoMaterial("LAr::EMEC_Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
     Thick_abs->add(Iron,Fracfe);
     Thick_abs->add(Glue,Fracgl);
@@ -428,7 +428,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endmsg;
     msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(Gaudi::Units::cm3/GeoModelKernelUnits::g) <<endmsg;
 
-    GeoMaterial* EMEC_shell = new GeoMaterial("EMEC_shell",density);
+    GeoMaterial* EMEC_shell = new GeoMaterial("LAr::EMEC_shell",density);
     EMEC_shell->add(Iron,Fracfe);
     EMEC_shell->add(Glue,Fracgl);
     m_storedManager->addMaterial("LAr",EMEC_shell);
@@ -464,7 +464,7 @@ void LArMaterialManager::buildMaterials()
     //    density = Totalmass/Totalthick;
     density = (Totalmass/Totalthick)/(contract*contract*contract);
 
-    GeoMaterial* G10FeOuter = new GeoMaterial("G10FeOuter",density);
+    GeoMaterial* G10FeOuter = new GeoMaterial("LAr::G10FeOuter",density);
     G10FeOuter->add(G10,FracG10);
     G10FeOuter->add(Iron,Fracfe);
     G10FeOuter->add(Glue,Fracgl);
@@ -495,7 +495,7 @@ void LArMaterialManager::buildMaterials()
     //    density = Totalmass/Totalthick;
     density = (Totalmass/Totalthick)/(contract*contract*contract);
 
-    GeoMaterial* G10FeInner = new GeoMaterial("G10FeInner",density);
+    GeoMaterial* G10FeInner = new GeoMaterial("LAr::G10FeInner",density);
     G10FeInner->add(G10,FracG10);
     G10FeInner->add(Iron,Fracfe);
     G10FeInner->add(Glue,Fracgl);
@@ -508,17 +508,17 @@ void LArMaterialManager::buildMaterials()
 
   // Materials for Barrel and Endcap Signal Feedthroughs
   {
-    GeoMaterial* myIron   = m_storedManager->getMaterial("std::Iron");
-    GeoMaterial* myCopper = m_storedManager->getMaterial("std::Copper");
-    GeoMaterial* myKapton = m_storedManager->getMaterial("std::Kapton");
-    GeoMaterial* myAlu    = m_storedManager->getMaterial("std::Aluminium");
-    GeoMaterial* myLAr    = m_storedManager->getMaterial("std::LiquidArgon");
-    GeoElement* O  = m_storedManager->getElement("Oxygen");
-    GeoElement* Na = m_storedManager->getElement("Potassium");
-    GeoElement* Si = m_storedManager->getElement("Silicon");
-    GeoElement* Ca = m_storedManager->getElement("Calcium");
+    const GeoMaterial* myIron   = m_storedManager->getMaterial("std::Iron");
+    const GeoMaterial* myCopper = m_storedManager->getMaterial("std::Copper");
+    const GeoMaterial* myKapton = m_storedManager->getMaterial("std::Kapton");
+    const GeoMaterial* myAlu    = m_storedManager->getMaterial("std::Aluminium");
+    const GeoMaterial* myLAr    = m_storedManager->getMaterial("std::LiquidArgon");
+    const GeoElement* O  = m_storedManager->getElement("Oxygen");
+    const GeoElement* Na = m_storedManager->getElement("Potassium");
+    const GeoElement* Si = m_storedManager->getElement("Silicon");
+    const GeoElement* Ca = m_storedManager->getElement("Calcium");
 
-    GeoMaterial* myGlass = new GeoMaterial("PinCarrierGlas",2.40*Gaudi::Units::g/Gaudi::Units::cm3);
+    GeoMaterial* myGlass = new GeoMaterial("LAr::PinCarrierGlas",2.40*Gaudi::Units::g/Gaudi::Units::cm3);
     myGlass->add(O ,0.459800);
     myGlass->add(Na,0.096441);
     myGlass->add(Si,0.336553);
@@ -537,7 +537,7 @@ void LArMaterialManager::buildMaterials()
      * hardcoded volume = 37*170^2*pi = 3766141 mm^3
      */
     const double wflange_total = 1.88 + 5.84 + 1.0 + 6.634 + 2.036;
-    GeoMaterial* warm_flange = new GeoMaterial("FT::WarmFlange",
+    GeoMaterial* warm_flange = new GeoMaterial("LAr::FT::WarmFlange",
         wflange_total*Gaudi::Units::kg / (3766141.*Gaudi::Units::mm3)
     );
     warm_flange->add(myAlu, 2.88 / wflange_total);
@@ -559,7 +559,7 @@ void LArMaterialManager::buildMaterials()
     const double mGlass = 0.036;
     const double mCopper = 0.170;
     const double mFe = m - mGlass - mCopper;
-    GeoMaterial* cold_flange = new GeoMaterial("FT::ColdFlange",
+    GeoMaterial* cold_flange = new GeoMaterial("LAr::FT::ColdFlange",
         m*Gaudi::Units::kg / (2201561.*Gaudi::Units::mm3)
     );
     cold_flange->add(myIron, mFe / m);
@@ -577,7 +577,7 @@ void LArMaterialManager::buildMaterials()
         0        seal ring (sum whole ring to warm flange)
         hardcoded volume is 225*pi*(229^2 - (229 - 15)^2)/4 = 1253790 mm^3
     */
-    GeoMaterial* bellow_mat = new GeoMaterial("FT::Bellow",
+    GeoMaterial* bellow_mat = new GeoMaterial("LAr::FT::Bellow",
       1.351*Gaudi::Units::kg / (1253790.*Gaudi::Units::mm3)
     );
     bellow_mat->add(myIron, 1.);
@@ -593,7 +593,7 @@ void LArMaterialManager::buildMaterials()
        hardcoded volume is 225*pi*(229 - 15)^2/4 = 8092821 mm^3
 
     */
-    GeoMaterial* vacuum_cables_mat = new GeoMaterial("FT::VacuumCables",
+    GeoMaterial* vacuum_cables_mat = new GeoMaterial("LAr::FT::VacuumCables",
       6.943*Gaudi::Units::kg / (8092821.*Gaudi::Units::mm3)
     );
     vacuum_cables_mat->add(myCopper, 0.5657);
@@ -611,7 +611,7 @@ void LArMaterialManager::buildMaterials()
     const double mCopper = vCopper*8.96;
     const double mKapton = vKapton*1.3;
     const double m = mCopper + mKapton;
-    GeoMaterial* cable_mat = new GeoMaterial("FT::Cable",
+    GeoMaterial* cable_mat = new GeoMaterial("LAr::FT::Cable",
         m*Gaudi::Units::g / ((vCopper + vKapton)*Gaudi::Units::cm3)
     );
     cable_mat->add(myCopper, mCopper / m);
@@ -627,7 +627,7 @@ void LArMaterialManager::buildMaterials()
     const double va = v - vc;
     const double mc = vc * 2.9/0.95;
     const double ma = va * 1.392;
-    GeoMaterial* pigtail_mat = new GeoMaterial("FT::Pigtail",
+    GeoMaterial* pigtail_mat = new GeoMaterial("LAr::FT::Pigtail",
         (mc + ma)*Gaudi::Units::g / (v*Gaudi::Units::cm3)
     );
     msg << MSG::DEBUG << pigtail_mat->getName() << " "

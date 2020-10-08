@@ -1,4 +1,3 @@
-#include "../egammaBuilder.h"
 #include "../egammaRecBuilder.h"
 #include "../topoEgammaBuilder.h"
 #include "../egammaForwardBuilder.h"
@@ -12,7 +11,6 @@
 #include "../egammaSelectedTrackCopy.h"
 #include "../EMGSFCaloExtensionBuilder.h"
 
-DECLARE_COMPONENT( egammaBuilder )
 DECLARE_COMPONENT( egammaRecBuilder )
 DECLARE_COMPONENT( topoEgammaBuilder )
 DECLARE_COMPONENT( egammaForwardBuilder )

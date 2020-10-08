@@ -4,46 +4,43 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 LArBadChannelCondAlg, LArBadFebCondAlg, LArBadChannelMasker=CompFactory.getComps("LArBadChannelCondAlg","LArBadFebCondAlg","LArBadChannelMasker",)
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
-from IOVDbSvc.IOVDbSvcConfig import addFolders
+from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 
-def LArBadChannelCfg(configFlags, tag=""):
+def LArBadChannelCfg(configFlags, tag=None):
 
     result=LArOnOffIdMappingCfg(configFlags)
-    
-    if configFlags.Common.isOnline or configFlags.Input.isMC:
-        foldername="/LAR/BadChannels/BadChannels"
-    else:
-        foldername="/LAR/BadChannelsOfl/BadChannels"
-        pass
-    
-    if configFlags.Common.isOnline: 
-        dbname="LAR"
-    else:
-        dbname="LAR_OFL"
+    rekey="/LAR/BadChannels/BadChannels"
 
-    result.merge(addFolders(configFlags,foldername + tag,detDb=dbname,className="CondAttrListCollection"))
-    
-    theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername)
+    if configFlags.Overlay.DataOverlay:
+        # TODO: move this in a better location
+        result.merge(addFolders(configFlags, "/LAR/BadChannels/BadChannels", "LAR_OFL", className="CondAttrListCollection", tag="LARBadChannelsBadChannels-HECAQ3Missing", db="OFLP200"))
+    elif configFlags.Input.isMC:
+        result.merge(addFolders(configFlags,"/LAR/BadChannels/BadChannels","LAR_OFL",tag=tag,
+                                className="CondAttrListCollection"))
+    else:
+        result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/BadChannels",
+                                        f"/LAR/BadChannelsOfl/BadChannels<key>{rekey}</key>",tag=tag,
+                                        className="CondAttrListCollection"))  
+    theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=rekey)
     result.addCondAlgo(theLArBadChannelCondAlgo)
     return result
 
 
-def LArBadFebCfg(configFlags, tag=""):
+def LArBadFebCfg(configFlags, tag=None):
     result=ComponentAccumulator()
+    rekey="/LAR/BadChannels/MissingFEBs"
 
-    if configFlags.Common.isOnline or configFlags.Input.isMC:
-        foldername="/LAR/BadChannels/MissingFEBs"
+    if configFlags.Overlay.DataOverlay:
+        # TODO: move this in a better location
+        result.merge(addFolders(configFlags, "/LAR/BadChannels/MissingFEBs", "LAR_OFL", className="AthenaAttributeList", tag="LArBadChannelsMissingFEBs-IOVDEP-04", db="OFLP200"))
+    elif configFlags.Input.isMC:
+        result.merge(addFolders(configFlags,"/LAR/BadChannels/MissingFEBs","LAR_OFL",tag=tag,
+                                className="AthenaAttributeList"))
     else:
-        foldername="/LAR/BadChannelsOfl/MissingFEBs"
-        pass
-
-    if configFlags.Common.isOnline: 
-        dbname="LAR"
-    else:
-        dbname="LAR_OFL"
-
-    result.merge(addFolders(configFlags,foldername + tag,detDb=dbname,className="AthenaAttributeList"))
-    result.addCondAlgo(LArBadFebCondAlg(ReadKey=foldername))
+        result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/MissingFEBs",
+                                           f"/LAR/BadChannelsOfl/MissingFEBs<key>{rekey}</key>",tag=tag,
+                                           className="AthenaAttributeList"))  
+    result.addCondAlgo(LArBadFebCondAlg(ReadKey=rekey))
     return result
 
 

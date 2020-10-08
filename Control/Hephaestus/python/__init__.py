@@ -12,9 +12,9 @@ def setup():
 
   # make sure that 3rd party libraries can see Hephaestus symbols by letting
   # python load the memory tracker in "broadcast" mode
-    import DLFCN, sys
+    import sys
     dlflags = sys.getdlopenflags() 
-    sys.setdlopenflags( DLFCN.RTLD_GLOBAL | DLFCN.RTLD_NOW )
+    sys.setdlopenflags( os.RTLD_GLOBAL | os.RTLD_NOW )
     import MemoryTracker
     sys.setdlopenflags( dlflags )
 

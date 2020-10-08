@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///============================================================
@@ -110,7 +110,7 @@ StatusCode CaloTopoTowerAlg::initialize()
 
   m_caloSelection=false;
   unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO) ;
-  if (m_caloIndices.size()>0 && m_caloIndices.size()<nSubCalo) m_caloSelection=true;
+  if (!m_caloIndices.empty() && m_caloIndices.size()<nSubCalo) m_caloSelection=true;
 
   ATH_MSG_INFO( " Calo selection applied ? " << m_caloSelection  );
   if (m_caloSelection) {
@@ -156,7 +156,7 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
   }
 
   ///+++ pick up CaloCell2ClusterMap from StoreGate
-  const CaloClusterContainer* clusterContainer = 0;
+  const CaloClusterContainer* clusterContainer = nullptr;
   
   SG::ReadHandle<CaloCell2ClusterMap> cellToClusterMap(  m_cellToClusterMapKey, ctx );
   
@@ -177,7 +177,7 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
   CaloCell2ClusterMap::const_iterator fClusMap(cellToClusterMap->begin());
   CaloCell2ClusterMap::const_iterator lClusMap(cellToClusterMap->end());
   ATH_MSG_DEBUG( "Starting loop over Navigable CaloCell2ClusterMap"  );
-  while ( clusterContainer == 0 && fClusMap != lClusMap )
+  while ( clusterContainer == nullptr && fClusMap != lClusMap )
   {
     ATH_MSG_VERBOSE( "In loop over Navigable CaloCell2ClusterMap"  );
     if (*fClusMap) 
@@ -195,9 +195,9 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
   }
   
   // Make sure the cluster container is not NULL
-  if ( clusterContainer == 0 )
+  if ( clusterContainer == nullptr )
   {
-    if (theCells->size() >0 ) {  
+    if (!theCells->empty() ) {  
       ATH_MSG_WARNING( "No cluster found from  CaloCell2ClusterMap, tool unusable" );
       return StatusCode::SUCCESS;
     }

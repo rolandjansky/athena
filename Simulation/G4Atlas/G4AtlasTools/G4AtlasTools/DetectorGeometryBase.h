@@ -52,7 +52,7 @@ public:
 
   std::string GetDetectorName() const override;
 
-  void SetDetectorName(const std::string) override;
+  void SetDetectorName(const std::string&) override;
 
   void SetParent(IDetectorGeometryTool*) override;
 

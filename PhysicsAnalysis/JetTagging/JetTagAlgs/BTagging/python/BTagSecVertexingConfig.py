@@ -2,7 +2,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
+#from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
+from BTagging.InDetImprovedJetFitterVxFinderConfig import InDetImprovedJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
@@ -29,7 +30,7 @@ def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     if TimeStamp:
         TimeStamp = '_' + TimeStamp
 
-    newJetFitterVxFinder = acc.popToolsAndMerge(NewJetFitterVxFinderCfg(flags, 'JFVxFinder'))
+    newJetFitterVxFinder = acc.popToolsAndMerge(InDetImprovedJetFitterVxFinderCfg(flags, 'JFVxFinder'))
     secVtxFinderList.append(newJetFitterVxFinder)
     secVtxFinderTrackNameList.append('BTagTrackToJetAssociator')
     secVtxFinderxAODBaseNameList.append('JetFitter')

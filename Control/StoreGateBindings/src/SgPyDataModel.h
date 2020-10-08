@@ -33,6 +33,7 @@ extern CLID PyCLID;
 
 // PyROOT includes
 #include "AthenaPyRoot.h"
+#include "CPyCppyy/PyException.h"
 
 #include <unordered_map>
 
@@ -103,9 +104,12 @@ namespace SG {
     virtual void* object() override
     { 
       return m_clid != PyCLID
-        ? ObjectProxy_ASVOIDPTR(m_pyObj)
+        ? CPPInstance_ASVOIDPTR(m_pyObj)
         : m_pyObj; 
     }
+
+
+    using DataBucketBase::cast;
 
 
     /**
@@ -418,7 +422,7 @@ namespace SG {
       _SGPY_MSG("PyProxyDict::proxy(" 
                 << (proxy ? proxy->clID() : id)   << ", "
                 << (proxy ? proxy->name() : skey) << ")...");
-      pyproxy = TPython::ObjectProxy_FromVoidPtr((void*)proxy, 
+      pyproxy = TPython::CPPInstance_FromVoidPtr((void*)proxy, 
                                                  "SG::DataProxy");
 
       _SGPY_MSG("PyProxyDict::proxy(...)... [done]");
@@ -429,8 +433,8 @@ namespace SG {
     PyObject* newPyDataObject( const char* klass, void* addr=0 )
     {
       PyObject* obj = NULL;
-      if ( !(obj = TPython::ObjectProxy_FromVoidPtr((void*)addr, klass)) ) {
-        throw PyROOT::TPyException();
+      if ( !(obj = TPython::CPPInstance_FromVoidPtr((void*)addr, klass)) ) {
+        throw CPyCppyy::PyException();
       }
       return obj;
     }

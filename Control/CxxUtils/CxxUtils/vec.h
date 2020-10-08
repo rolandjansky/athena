@@ -5,6 +5,7 @@
 /**
  * @file CxxUtils/vec.h
  * @author scott snyder <snyder@bnl.gov>
+ * @author Christos Anastopoulos (additional helper methods)
  * @date Mar, 2020
  * @brief Vectorization helpers.
  *
@@ -13,6 +14,7 @@
  * that is much easier to read and more portable than one would get
  * using intrinsics directly.  However, it is still non-standard,
  * and there are some operations which are kind of awkward.
+ *
  * This file provides some helpers for writing vectorized code
  * in C++, as well as a standard-compliant fallback that can be used
  * if the vector types are not available.
@@ -24,35 +26,74 @@
  * attribute is supported or a fallback C++ class intended to be
  * (mostly) functionally equivalent.
  *
+ *
+ * The GCC, clang and fallback vector types support:
+ * ++, --, +,-,*,/,%, =, &,|,^,~, >>,<<, !, &&, ||,
+ * ==, !=, >, <, >=, <=, =, sizeof and Initialization from brace-enclosed lists
+ *
+ * Furthemore the GCC and clang>=10 vector types support the ternary operator.
+ *
  * We also support some additional operations.
  *
  * Deducing useful types:
+ *
  *  - @c CxxUtils::vec_type_t<VEC> is the element type of @c VEC.
  *  - @c CxxUtils::mask_type_t<VEC> is the vector type return by relational
  *                                  operations.
  *
  * Deducing the num of elements in a vectorized type:
+ *
  *  - @c CxxUtils::vec_size<VEC>() is the number of elements in @c VEC.
  *  - @c CxxUtils::vec_size(const VEC&) is the number of elements in @c VEC.
  *
- * Methods providing similar functionality to certain x86-64 SIMD intrinsics:
+ * Additional Helpers for common SIMD operations:
+ *
  *  - @c CxxUtils::vbroadcast (VEC& v, T x) initializes each element of
  *                                          @c v with @c x.
- *  - @c CxxUtils::vload (VEC& dst, vec_type_t<VEC>* mem_addr)
- *                                          loads elements from @c mem_addr
+ *  - @c CxxUtils::vload (VEC& dst, const vec_type_t<VEC>* src)
+ *                                          loads elements from @c src
  *                                          to @c dst
- *  - @c CxxUtils::vstore (vec_type_t<VEC>* mem_addr, VEC& src)
+ *  - @c CxxUtils::vstore (vec_type_t<VEC>* dst, const VEC& src)
  *                                          stores elements from @c src
- *                                          to @c mem_addr
+ *                                          to @c dst
  *  - @c CxxUtils::vselect (VEC& dst, const VEC& a, const VEC& b, const
- *                          mask_type_t<VEC>& mask)
- *                          copies elements from @c a or @c b, depending
+ *                          mask_type_t<VEC>& mask) copies elements
+ *                          from @c a or @c b, depending
  *                          on the value of @c  mask to @c dst.
  *                          dst[i] = mask[i] ? a[i] : b[i]
- *  - @c CxxUtils::vmin   (VEC& dst, const VEC& a, const VEC& b)
+ *  - @c CxxUtils::vmin     (VEC& dst, const VEC& a, const VEC& b)
  *                         copies to @c dst[i]  the min(a[i],b[i])
- *  - @c CxxUtils::vmax   (VEC& dst, const VEC& a, const VEC& b)
+ *  - @c CxxUtils::vmax    (VEC& dst, const VEC& a, const VEC& b)
  *                         copies to @c dst[i]  the max(a[i],b[i])
+ *  - @c CxxUtils::vpermute<mask> (VEC& dst, const VEC& src)
+ *                          Fills dst with permutation of src
+ *                          according to mask.
+ *                          Mask is a list of integers that specifies the elements
+ *                          that should be extracted and returned in src.
+ *                          dst[i] = src[mask[i]] where mask[i] is the ith integer
+ *                          in the mask.
+ *  - @c CxxUtils::vblend<mask> (VEC& dst, const VEC& src1,const VEC& src2)
+ *                          Fills dst with permutation of src1 and src2
+ *                          according to mask.
+ *                          Mask is a list of integers that specifies the elements
+ *                          that should be extracted and returned in src1 and src2.
+ *                          An index i in the interval [0,N) indicates that element number i 
+ *                          from the first input vector should be placed in the
+ *                          corresponding position in the result vector.  
+ *                          An index in the interval [N,2N)
+ *                          indicates that the element number i-N
+ *                          from the second input vector should be placed 
+ *                          in the corresponding position in the result vector.
+ *
+ * In terms of expected performance it might be  advantageous to
+ * use vector types that fit the size of the ISA.
+ * e.g 128 bit wide for SSE, 256 wide for AVX.
+ *
+ * Specifying a combination that is not valid for the current architecture
+ * causes the compiler to synthesize the instructions using a narrower mode.
+ *
+ * Consider using Function Multiversioning (CxxUtils/features.h)
+ * if you really need to target efficiently multiple ISAs.
  */
 
 #ifndef CXXUTILS_VEC_H
@@ -77,8 +118,8 @@ namespace CxxUtils {
 #ifndef WANT_VECTOR_FALLBACK
 # define WANT_VECTOR_FALLBACK 0
 #endif
-#if (!HAVE_VECTOR_SIZE_ATTRIBUTE) || WANT_VECTOR_FALLBACK!=0
 
+#if (!HAVE_VECTOR_SIZE_ATTRIBUTE) || WANT_VECTOR_FALLBACK!=0
 
 /**
  * @brief Fallback vectorized class.
@@ -285,8 +326,9 @@ ivec<T, N> operator|| (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
   return c;
 }
 
-
 #endif // !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+
+
 
 
 #if HAVE_VECTOR_SIZE_ATTRIBUTE
@@ -304,6 +346,7 @@ using vec = vec_fb<T, N>;
 #endif
 
 
+
 /**
  * @brief Deduce the element type from a vectorized type.
  */
@@ -319,37 +362,12 @@ struct vec_type
   typedef std::remove_cv_t<std::remove_reference_t<type1> > type;
 };
 
-
 /// Deduce the element type from a vectorized type.
-template <class VEC>
+template<class VEC>
 using vec_type_t = typename vec_type<VEC>::type;
 
-
 /**
- * @brief Return the number of elements in a vectorized type.
- */
-template <class VEC>
-inline
-constexpr size_t vec_size()
-{
-  typedef vec_type_t<VEC> ELT;
-  return sizeof(VEC) / sizeof(ELT);
-}
-
-
-/**
- * @brief Return the number of elements in a vectorized type.
- */
-template <class VEC>
-inline
-constexpr size_t vec_size(const VEC&)
-{
-  typedef vec_type_t<VEC> ELT;
-  return sizeof(VEC) / sizeof(ELT);
-}
-
-/**
- * brief Deduce the type of a mask , type returned by relational operations,
+ * brief Deduce the type of the mask returned by relational operations,
  * for a vectorized type.
  */
 template<class VEC>
@@ -361,13 +379,34 @@ struct mask_type
       type1;
   typedef std::remove_cv_t<std::remove_reference_t<type1>> type;
 };
-template<class VEC>
 /// Deduce the mask type for a vectorized type.
+template<class VEC>
 using mask_type_t = typename mask_type<VEC>::type;
 
 /**
- * brief Copy a scalar to each element of a vectorized type.
- * Similar functionality to _mm_set/_mm_broadcast x86-64 intrinsics.
+ * @brief Return the number of elements in a vectorized type.
+ */
+template<class VEC>
+inline constexpr size_t
+vec_size()
+{
+  typedef vec_type_t<VEC> ELT;
+  return sizeof(VEC) / sizeof(ELT);
+}
+
+/**
+ * @brief Return the number of elements in a vectorized type.
+ */
+template<class VEC>
+inline constexpr size_t
+vec_size(const VEC&)
+{
+  typedef vec_type_t<VEC> ELT;
+  return sizeof(VEC) / sizeof(ELT);
+}
+
+/**
+ * @brief Copy a scalar to each element of a vectorized type.
  */
 template<typename VEC, typename T>
 inline void
@@ -388,40 +427,39 @@ vbroadcast(VEC& v, T x)
 }
 
 /*
- * @brief load elements from  memory address (C-array)
- * to a vectorized type. Similar to _mm_load intrinsics
+ * @brief load elements from  memory address src (C-array)
+ * to a vectorized type dst.
+ * Used memcpy to avoid alignment issues
  */
 template<typename VEC>
 inline void
-vload(VEC& dst, vec_type_t<VEC>* mem_addr)
+vload(VEC& dst, vec_type_t<VEC> const* src)
 {
-  std::memcpy(&dst, mem_addr, sizeof(VEC));
+  std::memcpy(&dst, src, sizeof(VEC));
 }
 
 /*
- * @brief load elements from a vectorized type to
- * a memory address (C-array).
- * Similar to _mm_store intrinsics
+ * @brief store elements from a vectorized type src to
+ * to a memory address dst (C-array).
+ * Uses memcpy to avoid alignment issues
  */
 template<typename VEC>
 inline void
-vstore(vec_type_t<VEC>* mem_addr, VEC& src)
+vstore(vec_type_t<VEC>* dst, const VEC& src)
 {
-  std::memcpy(mem_addr, &src, sizeof(VEC));
+  std::memcpy(dst, &src, sizeof(VEC));
 }
 
 /*
- * @brief select/blend function.
- * Similar to _mm_blend X86-64 intrinsics
+ * @brief select elements based on a mask
+ * Fill dst according to
+ * dst[i] = mask[i] ? a[i] : b[i]
  */
 template<typename VEC>
 inline void
 vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
 {
-// clang supports the ternary operator for vectorized types
-// only for llvm version 10 and above.
-#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
-  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     dst[i] = mask[i] ? a[i] : b[i];
@@ -433,14 +471,13 @@ vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
 
 /*
  * @brief vectorized min.
- * Similar to _mm_min  X86-64 intrinsics
+ * copies to @c dst[i]  the min(a[i],b[i])
  */
 template<typename VEC>
 inline void
 vmin(VEC& dst, const VEC& a, const VEC& b)
 {
-#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
-  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     dst[i] = a[i] < b[i] ? a[i] : b[i];
@@ -452,14 +489,13 @@ vmin(VEC& dst, const VEC& a, const VEC& b)
 
 /*
  * @brief vectorized max.
- * Similar to _mm_max X86-64 intrinsics
+ * copies to @c dst[i]  the max(a[i],b[i])
  */
 template<typename VEC>
 inline void
 vmax(VEC& dst, const VEC& a, const VEC& b)
 {
-#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
-  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     dst[i] = a[i] > b[i] ? a[i] : b[i];
@@ -469,7 +505,74 @@ vmax(VEC& dst, const VEC& a, const VEC& b)
 #endif
 }
 
-} // namespace CxxUtils
+/*
+ * Helper for static asserts for argument packs
+ */
+namespace bool_pack_helper {
+template<bool...>
+struct bool_pack;
+template<bool... bs>
+using all_true = std::is_same<bool_pack<bs..., true>, bool_pack<true, bs...>>;
+}
+/**
+ * @brief vpermute function.
+ * move any element of a vector src
+ * into any or multiple position inside dst.
+ */
+template<size_t... Indices, typename VEC>
+inline void
+vpermute(VEC& dst, const VEC& src)
+{
 
+  constexpr size_t N = vec_size<VEC>();
+  static_assert((sizeof...(Indices) == N),
+                "Number of indices different than vector size");
+  static_assert(
+    bool_pack_helper::all_true<(Indices >= 0 && Indices < N)...>::value,
+    "permute indices outside allowed range");
+
+#if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+  dst = VEC{ src[Indices]... };
+#elif defined(__clang__)
+  dst = __builtin_shufflevector(src, src, Indices...);
+#else // gcc
+  dst = __builtin_shuffle(src, mask_type_t<VEC>{ Indices... });
+#endif
+}
+
+/**
+ * @brief vblend function.
+ * permutes and blends elements from two vectors
+ * Similar to the permute functions, but with two input vectors.  
+ */
+template<size_t... Indices, typename VEC>
+inline void
+vblend(VEC& dst, const VEC& src1, const VEC& src2)
+{
+  constexpr size_t N = vec_size<VEC>();
+  static_assert((sizeof...(Indices) == N),
+                "Number of indices different than vector size");
+  static_assert(
+    bool_pack_helper::all_true<(Indices >= 0 && Indices < 2 * N)...>::value,
+    "blend indices outside allowed range");
+
+#if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+  size_t pos{ 0 };;
+  for (size_t i : { Indices... }) {
+    if (i < N) {
+      dst[pos] = src1[i];
+    } else {
+      dst[pos] = src2[i - N];
+    }
+    ++pos;
+  }
+#elif defined(__clang__)
+  dst = __builtin_shufflevector(src1, src2, Indices...);
+#else // gcc
+  dst = __builtin_shuffle(src1, src2, mask_type_t<VEC>{ Indices... });
+#endif
+}
+
+} // namespace CxxUtils
 
 #endif // not CXXUTILS_VEC_H

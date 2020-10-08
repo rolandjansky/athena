@@ -79,7 +79,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     // Create a custom std::function to extract BoundParameters 
     // from TrackWrapper
-    std::function<Acts::BoundParameters(TrackWrapper)> extractParameters =
+    std::function<Acts::BoundTrackParameters(TrackWrapper)> extractParameters =
         [](TrackWrapper params) { return params.parameters(); };
 
     // Vertex fitter configuration
@@ -104,7 +104,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     // Vertex seed finder
     VertexSeedFinder::Config seedFinderConfig;
-    //seedFinderConfig.trackDensityEstimator = trackDensity;
+    seedFinderConfig.trackDensityEstimator = trackDensity;
     VertexSeedFinder seedFinder(seedFinderConfig, extractParameters);
     VertexFinder::Config finderConfig(std::move(fitter), seedFinder,
       ipEst, linearizer);
@@ -249,8 +249,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
       , cov(3,0) , cov(3,1) , cov(3,2) , cov(3,3) , cov(3,4) *1./(1_MeV) , 0 
       , cov(4,0) *1./(1_MeV) , cov(4,1) *1./(1_MeV) , cov(4,2) *1./(1_MeV) , cov(4,3) *1./(1_MeV) , cov(4,4) *1./(1_MeV*1_MeV), 0
       , 0. , 0. , 0. , 0., 0., 1.;
-
-      allTracks.emplace_back(trk.get(),Acts::BoundParameters(geoContext, covMat, actsParams, perigeeSurface));
+      
+      allTracks.emplace_back(trk.get(),Acts::BoundTrackParameters(perigeeSurface, actsParams, covMat));
     }
 
     std::vector<const TrackWrapper*> allTrackPtrs;
@@ -366,7 +366,7 @@ return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 
 Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundParameters& bound, const Acts::Vector3D& surfCenter) const {
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const {
   using namespace Acts::UnitLiterals;
   AmgSymMatrix(5)* cov =  new AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
   cov->col(Trk::qOverP) *= 1_MeV;
@@ -405,5 +405,3 @@ ActsAdaptiveMultiPriVtxFinderTool::estimateSignalCompatibility(xAOD::Vertex* vtx
   }
   return totalPt2 * std::sqrt((double) nTracks);
 }
-
-

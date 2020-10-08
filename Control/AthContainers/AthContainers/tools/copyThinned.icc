@@ -122,18 +122,13 @@ copyThinned1 (const CONTAINER& orig,
 {
   // T->P conversion is done from within copyAuxStoreThinned,
   // so we need to call it regardless of whether or not
-  // thinning is actually done.  Don't call it though if the
-  // container is empty.
-  // The cast is needed because some xAOD aux store classes
-  // declare a data member `size'.
-  if (static_cast<const SG::IAuxStore&>(orig).size() > 0)
-  {
-    auto newcont = std::make_unique<CONTAINER>();
-    copyAuxStoreThinned (orig, *newcont, info);
-    return newcont;
-  }
-
-  return std::make_unique<CONTAINER> (orig);
+  // thinning is actually done.  Variable selection happens there
+  // as well, so need to call it even if the container is empty.
+  // (Actually, in that case, all dynamic variables will be removed,
+  // but that's ok.)
+  auto newcont = std::make_unique<CONTAINER>();
+  copyAuxStoreThinned (orig, *newcont, info);
+  return newcont;
 }
 
 

@@ -43,6 +43,14 @@ nucone10 = 8
 getattr (ROOT.xAOD, 'TrackParticleContainer_v1', None)
 getattr (ROOT.xAOD, 'Jet_v1', None)
 
+#Typed nullptr:
+JetAssociationBase = getattr (cppyy.gbl, 'JetAssociationBase', None)
+Analysis = getattr (cppyy.gbl, 'Analysis', None)
+Muon = getattr (Analysis, 'Muon', None) if Analysis else None
+jetAssocNull = cppyy.bind_object(cppyy.nullptr, JetAssociationBase) if JetAssociationBase else None
+muonNull = cppyy.bind_object(cppyy.nullptr, Muon) if Muon else None
+
+
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):
     ROOT.TrackParticleTruthCollection()[ROOT.Rec.TrackParticleTruthKey()]
@@ -151,7 +159,7 @@ Can be used for formatting expressions that using longs in py2.
 # For root 6.08, need to use __cppname__ rather than __name__
 # for the name of a type if it's there.
 def typename(t):
-    return getattr (t, '__cppname__', t.__name__)
+    return getattr (t, '__cpp_name__', t.__name__)
 
 ### library methods ------------------------------------------------------------
 
@@ -2102,8 +2110,8 @@ def dump_CaloClusterCellLink (l, f):
 def dump_CaloCell (l, f):
     fprint (f, l.ID().getString())
     if l.__class__ == PyAthena.TileCell:
-        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene1(), l.time1(), ord(l.qual1()), ord(l.qbit1()), l.gain1()))
-        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene2(), l.time2(), ord(l.qual2()), ord(l.qbit2()), l.gain2()))
+        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene1(), l.time1(), l.qual1(), l.qbit1(), l.gain1()))
+        fprint (f, '%.2f %.2f %d %d %d ' % (l.ene2(), l.time2(), l.qual2(), l.qbit2(), l.gain2()))
     else:
         fprint (f, '%.2f %.2f %d %d %d ' % (l.energy(), l.time(), l.quality(), l.provenance(), l.gain()))
     return
@@ -2930,7 +2938,7 @@ def dump_PhotonAssociation (a, f):
 def dump_MuonAssociation (a, f):
     dump_JetAssociationBase (a, f)
     muo = a.muon()
-    if muo:
+    if muo != muonNull:
         fprint (f, a.getMuonWeight (muo))
         dump_Fourvec (muo, f)
     return
@@ -2995,7 +3003,7 @@ def dump_Jet (j, f):
     fprint (f, '\n      assoc ')
     for ak in j.getAssociationKeys():
         ass = j.getAssociationBase(ak)
-        if not ass: continue
+        if ass == jetAssocNull : continue
         fprint (f, '\n         ', ak)
         if isinstance (ass, PyAthena.Analysis.ElectronAssociation):
             dump_ElectronAssociation (ass, f)
@@ -3010,8 +3018,8 @@ def dump_Jet (j, f):
         else:
             fprint (f, ass)
     ti = j.jetTagInfoVector()
+    fprint (f, '\n      tag info:')
     if ti:
-        fprint (f, '\n      tag info:')
         #ROOT.SetOwnership (ti, True)
         ti = list(ti)
         ti.sort (key=_infoType)
@@ -4762,7 +4770,7 @@ def generic_dump_auxitem (x, auxid, f):
         fprint (f, '<unavailable>')
         return
     try:
-        obj = ROOT.TPython.ObjectProxy_FromVoidPtr (buf, tname)
+        obj = ROOT.TPython.CPPInstance_FromVoidPtr (buf, tname)
     except TypeError:
         fprint (f, '<unknown %s>'%tname)
         return
@@ -4999,7 +5007,7 @@ dumpspecs = [
     ['InDetRawDataContainer<InDetRawDataCollection<PixelRDORawData> >', dump_PixelRawDataContainer],
     ['InDetRawDataContainer<InDetRawDataCollection<TRT_RDORawData> >', dump_TRT_RawDataContainer],
     ['InDetRawDataContainer<InDetRawDataCollection<SCT_RDORawData> >', dump_SCT_RawDataContainer],
-    ['multimap<const InDet::SiCluster*,const InDet::SiCluster*,InDet::compare_SiCluster>', dump_PixelGangedClusterAmbiguities],
+    ['std::multimap<const InDet::SiCluster*,const InDet::SiCluster*,InDet::compare_SiCluster>', dump_PixelGangedClusterAmbiguities],
     ['TileDigitsContainer',                  dump_TileDigitsContainer],
     ['TileContainer<TileL2>',                dump_TileL2],
     ['TileContainer<TileTTL1>',              dump_TileTTL1],

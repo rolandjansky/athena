@@ -14,7 +14,7 @@ Purpose : create a GlobalTriggerTag - The Tag information associated to the even
 #include "EventTagUtils/GlobalTriggerTagTool.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

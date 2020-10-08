@@ -10,6 +10,10 @@ def setMinimalCaloSetup() :
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
+  if not hasattr(svcMgr,'RegSelSvcDefault'):
+    from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+    svcMgr += RegSelSvcDefault()
+
 
 
 ########################
@@ -138,13 +142,7 @@ def HLTRoITopoRecoSequence(RoIs):
     import AthenaCommon.CfgMgr as CfgMgr
     HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV")
     HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs' ),
-                                             ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                             ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-
-    # Make sure BCID average still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
+                                             ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")

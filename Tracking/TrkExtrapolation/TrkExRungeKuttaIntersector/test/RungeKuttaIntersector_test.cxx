@@ -321,7 +321,7 @@ void createAtlasFieldCacheCondObj(SGTest::TestStore &store) {
    SG::WriteCondHandle<AtlasFieldCacheCondObj> fieldHandle {fieldKey};
    std::unique_ptr<MagField::AtlasFieldMap> fieldMap=getFieldMap("MagneticFieldMaps/bfieldmap_7730_20400_14m.root",7730,20400);
    auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
-   assert( fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.release()));
+   fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.release());
    assert( fieldHandle.record(r1_1, std::move(fieldCondObj)).isSuccess());
 }
 

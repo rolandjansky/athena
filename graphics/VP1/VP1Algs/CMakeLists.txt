@@ -1,19 +1,7 @@
-################################################################################
-# Package: VP1Algs
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1Algs )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PRIVATE
-                          Event/EventInfo
-                          Tools/PathResolver
-                          graphics/VP1/VP1Gui
-                          graphics/VP1/VP1UtilsBase )
 
 # "Externals" dependencies - They are needed at runtime, only
 find_package( libxkbcommon ) 
@@ -28,7 +16,6 @@ atlas_add_component( VP1Algs
                      PRIVATE_LINK_LIBRARIES VP1Gui VP1UtilsBase )
 
 # Install files from the package:
-atlas_install_headers( VP1Algs )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/vp1 )
@@ -58,5 +45,4 @@ set( VP1AlgsEnvironment_DIR ${CMAKE_CURRENT_BINARY_DIR}
 # And now "find" it! It will set the env vars defined in the package's 'Config' file.
 find_package( VP1AlgsEnvironment )
 # message( "VP1PLUGINPATH has been set to: " $ENV{VP1PLUGINPATH} )
-
 

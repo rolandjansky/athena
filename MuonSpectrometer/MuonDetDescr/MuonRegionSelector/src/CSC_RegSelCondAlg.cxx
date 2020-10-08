@@ -49,7 +49,23 @@ CSC_RegSelCondAlg::CSC_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcL
 
 
 
-std::unique_ptr<RegSelSiLUT> CSC_RegSelCondAlg::createTable( const MuonMDT_CablingMap* /* mdtCabling */ ) const { 
+StatusCode CSC_RegSelCondAlg::initialize() {
+  ATH_CHECK(MuonRegSelCondAlg::initialize());
+  ATH_CHECK(m_mdtCablingKey.initialize());
+  return StatusCode::SUCCESS;
+}
+
+
+
+std::unique_ptr<RegSelSiLUT> CSC_RegSelCondAlg::createTable( const EventContext& ctx, EventIDRange& id_range ) const { 
+
+  SG::ReadCondHandle<MuonMDT_CablingMap> mdtCabling( m_mdtCablingKey, ctx );
+
+  if( !mdtCabling.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << mdtCabling.key());
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }   
+  
 
   /// now get the CSC cabling service ...
 

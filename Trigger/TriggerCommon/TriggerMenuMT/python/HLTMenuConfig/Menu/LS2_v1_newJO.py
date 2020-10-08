@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 import six
@@ -34,17 +34,26 @@ def setupMenu(flags):
     #---------------------------------------------------------------------
     SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
+    MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
+    CombinedGroup = ['RATE:Combined', 'BW:Combined']
 
     flags.Trigger.menu.muon = [        
         ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup)
+        ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup),
+
+        ChainProp(name='HLT_mu20_msonly_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu10_msonly_L1MU10', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup)
     ]
 
     flags.Trigger.menu.electron = [
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_2e3_etcut_L12EM3', groups=MultiElectronGroup),
+# this chain does not work yet        
+        ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup)
     ]
@@ -61,7 +70,8 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.combined = [
-        ChainProp(name='HLT_e7_mu10_L1EM7_MU10', groups=SingleElectronGroup)
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=CombinedGroup),
+        ChainProp(name='HLT_e7_etcut_mu12_L1EM7_MU10', groups=CombinedGroup)
     ]
 
 if __name__ == "__main__":
@@ -93,6 +103,9 @@ if __name__ == "__main__":
     menu = generateMenu( ConfigFlags )
 
     acc.merge(menu)
+
+    acc.printConfig()
+
     # print all hypo algs and their hypo tools for debugging
     from AthenaCommon.CFElements import flatAlgorithmSequences    
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )

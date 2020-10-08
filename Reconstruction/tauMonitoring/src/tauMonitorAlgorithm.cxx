@@ -176,8 +176,11 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     
     for (const auto& tau : *shallowTaus) {
-        TLorentzVector calibratedVec = tau->p4(xAOD::TauJetParameters::FinalCalib);
-        tau->setP4(calibratedVec.Pt(), calibratedVec.Eta(), calibratedVec.Phi(), calibratedVec.M());
+        // avoid unphysical tau calibration
+        if (abs(tau->etaFinalCalib()) < 5) {
+            TLorentzVector calibratedVec = tau->p4(xAOD::TauJetParameters::FinalCalib);
+            tau->setP4(calibratedVec.Pt(), calibratedVec.Eta(), calibratedVec.Phi(), calibratedVec.M());
+        }
 
         tauEta = tau->eta();
         tauPhi = tau->phi();
@@ -270,9 +273,9 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
                 if (
                      (m_kinGroupName != "tauMonKinGroupTauTrig"  && m_kinGroupName != "tauMonKinGroupEleTrig" && m_kinGroupName != "tauMonKinGroupJetTrig") || 
-                     (m_kinGroupName == "tauMonKinGroupTauTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau[2-9][0-9]_.*")) ||
-                     (m_kinGroupName == "tauMonKinGroupEleTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
-                     (m_kinGroupName == "tauMonKinGroupJetTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
+                     (m_kinGroupName == "tauMonKinGroupTauTrig" && !trigDecTool.empty() && trigDecTool->isPassed("HLT_tau[2-9][0-9]_.*")) ||
+                     (m_kinGroupName == "tauMonKinGroupEleTrig" && !trigDecTool.empty() && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
+                     (m_kinGroupName == "tauMonKinGroupJetTrig" && !trigDecTool.empty() && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
                 ){
 
                     if(m_kinGroupName != "tauMonKinGroupGlobal" && tauEt > lowerEtThreshold && tauBDTLoose){

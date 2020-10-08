@@ -27,7 +27,7 @@ namespace xAOD {
    /// $Revision: 598368 $
    /// $Date: 2014-05-22 12:23:54 +0200 (Thu, 22 May 2014) $
    ///
-   class TReturnCode {
+   class [[nodiscard]] TReturnCode {
 
    public:
       /// Enumeration listing the possible return codes
@@ -39,6 +39,8 @@ namespace xAOD {
          kRecoverable = 2
       };
 
+      /// Default constructor
+      TReturnCode() : TReturnCode(kSuccess) {}
       /// Constructor with a return code value
       TReturnCode( EReturnCode code );
       /// Copy constructor

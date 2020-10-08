@@ -118,8 +118,8 @@ namespace Trk{
 
     /** update the TSOS vector for the Muon Spectrometer applying X0 and Eloss scaling*/
     void updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS,
-                                                  DataVector<const Trk::TrackStateOnSurface>::iterator firstMS,
-                                                  double X0ScaleMS, double ElossScaleMS) const;
+                        const DataVector<const Trk::TrackStateOnSurface>::iterator& firstMS,
+                        double X0ScaleMS, double ElossScaleMS) const;
 
     //* Helper to indentify detector volume**/
     unsigned int getVolumeByGeo(const Trk::TrackStateOnSurface* m) const;

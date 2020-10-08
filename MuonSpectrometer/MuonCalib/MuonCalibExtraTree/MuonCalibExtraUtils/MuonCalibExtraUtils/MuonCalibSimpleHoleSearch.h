@@ -10,14 +10,14 @@
 #include "MuonCalibExtraUtils/MuonFixedIdManipulator.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 
 namespace MuonCalib {
 
 
-  class MuonCalibSimpleHoleSearch {
+  class ATLAS_NOT_THREAD_SAFE MuonCalibSimpleHoleSearch {
   public:
     struct Result {
       Result() {}

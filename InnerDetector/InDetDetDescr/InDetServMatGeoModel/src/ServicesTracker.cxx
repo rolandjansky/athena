@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/ServicesTracker.h"
@@ -79,13 +79,13 @@ void ServicesTracker::finaliseServices()
 {
   msg(MSG::INFO) << "ServicesTracker::finaliseServices called for " << m_volumes.size() << " volumes" << endmsg;
 
-  ComputeStaveServices staveComputer(msgStream());
+  ComputeStaveServices staveComputer;
   ConvertStaveServices staveConverter;
 
   std::map<const ServicesLayer*, ServiceMaterial> layerMaterial; // cache the layer services
 
   typedef  std::vector<ServiceVolume*>::iterator VolumeIter;
-  for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); iv++) {
+  for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); ++iv) {
     std::vector<ServiceMaterial> result; // = (**iv).materials(); // preserve already present mat. (EOS)
     if ((**iv).isEOS()) addEosMaterial(**iv, result);
     
@@ -98,7 +98,8 @@ void ServicesTracker::finaliseServices()
       if (iMat !=  layerMaterial.end()) layerMat = iMat->second;
       else {
 	StaveServices sserv = staveComputer.compute( layer.type(), layer.part(), layer.number(),
-						     layer.modulesPerStave(), layer.chipsPerModule());
+						     layer.modulesPerStave(), layer.chipsPerModule(),
+                                                     msgStream().get());
 	layerMat = staveConverter.convertStaveServices( sserv);
 
 	layerMat.multiply( layer.nStaves()); // scale from one stave to full layer

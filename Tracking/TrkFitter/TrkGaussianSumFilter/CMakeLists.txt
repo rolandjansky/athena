@@ -25,14 +25,19 @@ atlas_install_runtime( Data/*.par )
 #Executables for tests
 atlas_add_executable( GSF_testFindMinimumIndex
 	test/testFindMinimumIndex.cxx src/KLGaussianMixtureReduction.cxx
-        LINK_LIBRARIES CxxUtils )
+  LINK_LIBRARIES CxxUtils )
 
 atlas_add_executable( GSF_testAlignedDynArray
 	test/testAlignedDynArray.cxx)
 
 atlas_add_executable( GSF_testMergeComponents
 	test/testMergeComponents.cxx src/KLGaussianMixtureReduction.cxx
-        LINK_LIBRARIES CxxUtils )
+  LINK_LIBRARIES CxxUtils )
+
+atlas_add_executable( GSF_testFindMode
+	test/testFindMode.cxx src/MultiComponentStateModeCalculator.cxx
+  LINK_LIBRARIES CxxUtils TrkMultiComponentStateOnSurface)
+
 
 #Tests
 atlas_add_test(ut_GSF_testFindMinimumIndex
@@ -43,4 +48,7 @@ atlas_add_test(ut_GSF_testAlignedDynArray
 
 atlas_add_test(ut_GSF_testMergeComponents
 	SCRIPT GSF_testMergeComponents)
+
+atlas_add_test(ut_GSF_testFindMode
+	SCRIPT GSF_testFindMode)
 

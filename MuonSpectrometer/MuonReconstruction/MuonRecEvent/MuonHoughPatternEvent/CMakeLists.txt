@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonHoughPatternEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          DetectorDescription/GeoPrimitives
-                          PRIVATE
-                          Control/CxxUtils
-                          Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkPrepRawData )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Hist Core Tree MathCore RIO pthread )

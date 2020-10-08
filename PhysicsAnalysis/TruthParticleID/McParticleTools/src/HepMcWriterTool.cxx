@@ -151,7 +151,7 @@ StatusCode HepMcWriterTool::write( const HepMC::GenEvent* evt )
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void HepMcWriterTool::setupBackend( Property& /*prop*/ )
+void HepMcWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   // defaults
   std::string protocol = "ascii";

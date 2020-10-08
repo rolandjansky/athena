@@ -220,7 +220,7 @@ CLASS_DEF( MetaContBase , 34480469 , 1 )
 //
 #define METACONT_DEF(T, CLID) \
   CLASS_DEF( MetaCont<T>, CLID, 1 )             \
-  SG_BASE( MetaCont<T>, MetaContBase )
+  SG_BASES( MetaCont<T>, MetaContBase )
 
 #endif
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinCaloCellsAlg.cxx
@@ -15,8 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Property.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 
 
@@ -86,20 +85,19 @@ StatusCode ThinCaloCellsAlg::initialize()
   ATH_MSG_DEBUG( "Got the full name of the tool: " << fullToolName );
 
   // Now, set all properties of the private skimTool that were acutally configured
-	ATH_MSG_DEBUG( "Setting property" << m_streamName
+  ATH_MSG_DEBUG( "Setting property" << m_streamName
                  << " of private tool with name: '" << fullToolName << "'" );
-  ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-                                             StringProperty("StreamName",m_streamName) ) );
+  m_jos->set (fullToolName + ".StreamName", m_streamName.value());
 
   if (m_setCaloCellKey) {
     ATH_MSG_DEBUG( "Setting property" << m_caloCellKey
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_caloCellKey) );
+    m_jos->set (fullToolName + "." + m_caloCellKey.name(), m_caloCellKey.value() );
   }
   if (m_setInCollKey) {
     ATH_MSG_DEBUG( "Setting property" << m_inCollKeyList
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_inCollKeyList) );
+    m_jos->set (fullToolName + "." + m_inCollKeyList.name(), m_inCollKeyList.toString());
   }
   ATH_MSG_DEBUG( "Done setting properties of the tool");
 

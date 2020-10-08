@@ -14,8 +14,8 @@ import cppyy
 from PyUtils.Helpers import ROOT6Setup
 ROOT6Setup()
 
-cppyy.loadDictionary('TrigByteStreamToolsDict')
-cppyy.loadDictionary('CTPfragment')
+cppyy.load_library('libTrigByteStreamToolsDict')
+cppyy.load_library('libCTPfragment')
 from ROOT import CTPdataformat
 from ROOT import CTPfragment as _CTPfragment
 from ROOT.CTPfragment import getFolderUpdates  # noqa: F401  (import into our namespace)

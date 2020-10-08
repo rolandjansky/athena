@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -17,6 +17,8 @@ TrigEgammaPrecisionPhotonHypoToolInc::TrigEgammaPrecisionPhotonHypoToolInc( cons
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {
 	declareProperty("PhotonIsEMSelector"        ,m_egammaPhotonCutIDTool   );
+	declareProperty("RelEtConeCut"              ,m_RelEtConeCut=-999.);
+
     }
 
 StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  {
@@ -34,6 +36,10 @@ StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  {
   // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the photon Identification. This is a *must*
   ATH_MSG_DEBUG( "Retrieving egammaPhotonCutIDTool..."  );
   CHECK( m_egammaPhotonCutIDTool.retrieve() );
+
+  // Retrieving Luminosity info
+  ATH_MSG_DEBUG( "Retrieving luminosityCondData..."  );
+  ATH_CHECK( m_avgMuKey.initialize() );
 
   unsigned int nEtaBin = m_etabin.size();
 #define CHECK_SIZE( __n) if ( m_##__n.size() !=  (nEtaBin - 1) )		\
@@ -63,11 +69,14 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
   auto monEta       = Monitored::Scalar( "Eta", -99. ); 
   auto monPhi       = Monitored::Scalar( "Phi", -99. );
+  auto mon_mu       = Monitored::Scalar("mu",   -1.);
+  auto mon_etcone20 = Monitored::Scalar("etcone20",   -99.);
+  auto mon_reletcone20 = Monitored::Scalar("reletcone20",   -99.);
   auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
   auto monitorIt    = Monitored::Group( m_monTool, ET,
 					       dEta, dPhi, 
                                                etaBin, monEta,
-					       monPhi,PassedCuts );
+					       monPhi, mon_mu, mon_etcone20, mon_reletcone20, PassedCuts );
  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
@@ -146,9 +155,19 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   std::bitset<32> isEMdecision = m_egammaPhotonCutIDTool->accept(input.photon).getCutResultInvertedBitSet();
   ATH_MSG_DEBUG("isEM Result bitset: " << isEMdecision);
 
+  // get average luminosity information to calculate LH
+  
+  float avg_mu = 0; 
+  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_avgMuKey);
+  if(eventInfoDecor.isPresent()) {
+    avg_mu = eventInfoDecor(0);
+    ATH_MSG_DEBUG("Average mu " << avg_mu);
+    mon_mu = avg_mu;
+  }
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
     Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), reletcone20(999);
 
     
   // variables based on HCAL
@@ -183,6 +202,24 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   // E(+/-3)-E(+/-1)/E(+/-1)
   input.photon->showerShapeValue(fracm, xAOD::EgammaParameters::fracs1);
 
+  input.photon->isolationValue(ptcone20, xAOD::Iso::ptcone20);
+
+  input.photon->isolationValue(ptcone30, xAOD::Iso::ptcone30);
+
+  input.photon->isolationValue(ptcone40, xAOD::Iso::ptcone40);
+
+  input.photon->isolationValue(etcone20, xAOD::Iso::etcone20);
+
+  input.photon->isolationValue(etcone30, xAOD::Iso::etcone30);
+
+  input.photon->isolationValue(etcone40, xAOD::Iso::etcone40);
+
+  input.photon->isolationValue(topoetcone20, xAOD::Iso::topoetcone20);
+
+  input.photon->isolationValue(topoetcone30, xAOD::Iso::topoetcone30);
+
+  input.photon->isolationValue(topoetcone40, xAOD::Iso::topoetcone40);
+
   ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
   ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
   ATH_MSG_DEBUG( "  e277   " << e277 ) ;
@@ -195,6 +232,21 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   ATH_MSG_DEBUG( "  DeltaE " << DeltaE ) ;
   ATH_MSG_DEBUG( "  wtot   " << wtot ) ;
   ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
+  ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
+  ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
+  ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
+  ATH_MSG_DEBUG( " etcone20 " << etcone20 ) ;
+  ATH_MSG_DEBUG( " etcone30 " << etcone30 ) ;
+  ATH_MSG_DEBUG( " etcone40 " << etcone40 ) ;
+  ATH_MSG_DEBUG( " topoetcone20 " << topoetcone20 ) ;
+  ATH_MSG_DEBUG( " topoetcone30 " << topoetcone30 ) ;
+  ATH_MSG_DEBUG( " topoetcone40 " << topoetcone40 ) ;
+  // Monitor showershapes                      
+  mon_etcone20 = etcone20;
+  reletcone20 = etcone20/input.photon->caloCluster()->et();
+  ATH_MSG_DEBUG("reletcone20 = " <<reletcone20  );
+  mon_reletcone20 = reletcone20;
+  ATH_MSG_DEBUG("m_RelEtConeCut = " << m_RelEtConeCut );
 
 
  // Decode isEM bits of result to see which bits passed and which bits fialed
@@ -202,9 +254,25 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
 
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT isEM failed");
+      return pass;
   } else {
       ATH_MSG_DEBUG("ACCEPT isEM passed");
   }
+  // Check if need to apply isolation
+  // First check logic. if cut is very negative, then no isolation cut is defined
+  // if m_RelEtConeCut <-100 then hypo is configured not to apply isolation
+  if (m_RelEtConeCut < -100){
+      ATH_MSG_DEBUG(" not applying isolation. Returning NOW");
+      ATH_MSG_DEBUG("TAccept = " << pass);
+      return pass;
+  }
+  // Then, It will pass if reletcone20 is less than cut:
+  pass = (reletcone20 < m_RelEtConeCut);
+  //
+  // Reach this point successfully  
+  ATH_MSG_DEBUG( "pass = " << pass );
+
+  return pass;
 
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );

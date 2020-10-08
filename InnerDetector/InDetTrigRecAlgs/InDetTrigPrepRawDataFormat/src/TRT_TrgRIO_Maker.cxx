@@ -22,7 +22,7 @@
 
 //Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -43,7 +43,6 @@ namespace InDet{
     m_driftcircle_tool("InDet::TRT_DriftCircleTool"), 
     m_riocontainer(0),
     m_mode_rio_production(0),
-    m_regionSelector("RegSelSvc", name),
     m_bsErrorSvc("TRT_ByteStream_ConditionsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
     m_doFullScan(false),
@@ -293,7 +292,7 @@ namespace InDet{
     
       if(doTiming()) m_timerRegSel->start();
       
-      m_regionSelector->DetHashIDList( TRT, *roi, m_listOfTrtIds);
+      m_regionSelector->HashIDList( *roi, m_listOfTrtIds);
       m_numTrtIds = m_listOfTrtIds.size();
 
       if(doTiming()) m_timerRegSel->stop();
@@ -499,7 +498,7 @@ namespace InDet{
     ATH_MSG_DEBUG( "REGTEST prepareROBs / event RoI " << *roi);
 
     std::vector<unsigned int> uIntListOfRobs;
-    m_regionSelector->DetROBIDListUint( TRT, *roi, uIntListOfRobs );
+    m_regionSelector->ROBIDList( *roi, uIntListOfRobs );
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in TRT: ");
     for(auto i : uIntListOfRobs)

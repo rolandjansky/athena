@@ -21,7 +21,7 @@ StatusCode MultiLeptonFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = *itr;
     for (auto part: *genEvt) {
       if ( part->status() != 1) continue;
-	  if ( abs(part->pdg_id()) == 11 || abs(part->pdg_id()) == 13 ) {
+	  if ( std::abs(part->pdg_id()) == 11 || abs(part->pdg_id()) == 13 ) {
 	    if (part->momentum().perp() >= m_Ptmin && std::abs(part->momentum().pseudoRapidity()) <= m_EtaRange) {
 	      numLeptons += 1;
 	    }

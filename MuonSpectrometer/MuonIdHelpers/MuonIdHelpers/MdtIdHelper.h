@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -69,7 +69,7 @@ class MdtIdHelper : public MuonIdHelper
 
   // Destructor
 
-  virtual ~MdtIdHelper();
+  virtual ~MdtIdHelper()=default;
 
 
   ////////////// compact identifier stuff begins ////////////////////////////////////// 
@@ -84,10 +84,10 @@ class MdtIdHelper : public MuonIdHelper
   // Atlas Identifier builders
 
   Identifier elementID(int stationName, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
-  Identifier elementID(std::string stationNameStr, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
+  Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
   Identifier elementID(const Identifier& channelID) const;
   Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool check=false, bool* isValid=0) const;
-  Identifier channelID(std::string stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool check=false, bool* isValid=0) const;
+  Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool check=false, bool* isValid=0) const;
   Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube, bool check=false, bool* isValid=0) const;
 
   Identifier parentID (const Identifier& id) const;
@@ -144,10 +144,10 @@ class MdtIdHelper : public MuonIdHelper
   int gasGap(const Identifier& id) const; 
   /// always false for MDTs 
   bool measuresPhi(const Identifier& id) const; 
-  /// is this an sMDT chamber
-  bool isSmallMdt(const Identifier& id) const;
   /// is this a BMG chamber
   bool isBMG(const Identifier& id) const;
+  /// is this a BME chamber
+  bool isBME(const Identifier& id) const;
 
  private:
 
@@ -198,6 +198,7 @@ class MdtIdHelper : public MuonIdHelper
       TubeMin             =  1,
       TubeMax             = 78
     };
+  unsigned int m_tubesMax; // maximum number of tubes in any chamber
 };
 
 // For backwards compatibility
@@ -230,7 +231,7 @@ inline Identifier MdtIdHelper::elementID(int stationName,
   return result;
 }
 
-inline Identifier MdtIdHelper::elementID(std::string stationNameStr,
+inline Identifier MdtIdHelper::elementID(const std::string& stationNameStr,
 					 int stationEta, int stationPhi, bool check, bool* isValid) const
 {
   Identifier id;
@@ -269,7 +270,7 @@ inline Identifier MdtIdHelper::channelID(int stationName,
   return result;
 }
 
-inline Identifier MdtIdHelper::channelID(std::string stationNameStr,
+inline Identifier MdtIdHelper::channelID(const std::string& stationNameStr,
 					 int stationEta, int stationPhi,
 					 int multilayer, int tubeLayer, int tube,
 					 bool check, bool* isValid) const
@@ -346,10 +347,10 @@ inline bool MdtIdHelper::measuresPhi(const Identifier& /*id*/) const
 
 } 
 
-inline bool MdtIdHelper::isSmallMdt(const Identifier& id) const
+inline bool MdtIdHelper::isBME(const Identifier& id) const
 {
   int index=stationName(id);
-  if(stationNameIndex("BME")==index || stationNameIndex("BMG")==index) return true;
+  if(stationNameIndex("BME")==index) return true;
   else return false;
 }
 
@@ -430,7 +431,7 @@ inline int MdtIdHelper::tubeMin() const
 
 inline int MdtIdHelper::tubeMax() const
 {
-  return TubeMax;
+  return m_tubesMax;
 }
 /// Utility methods
 

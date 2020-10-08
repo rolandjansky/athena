@@ -42,7 +42,7 @@ atlas_install_joboptions( share/*.py )
 find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
    set( INDETEVENTATHENAPOOL_REFERENCE_TAG
-        InDetEventAthenaPoolReference-01-00-00 )
+        InDetEventAthenaPoolReference-02-00-00 )
    run_tpcnv_legacy_test( InDetEventTPCnv_16.6.2.1 ESD-16.6.2.1
                    REFERENCE_TAG ${INDETEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
@@ -54,7 +54,9 @@ endif()
 foreach( name
          InDetSimDataCollectionCnv_p1_test
          InDetSimDataCollectionCnv_p2_test
-         InDetSimDataCollectionCnv_p3_test )
+         InDetSimDataCollectionCnv_p3_test
+         TRT_LoLumRawDataContainerCnv_p1_test
+         TRT_LoLumRawDataContainerCnv_p2_test )
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx

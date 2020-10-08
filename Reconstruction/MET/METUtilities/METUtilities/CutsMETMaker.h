@@ -10,7 +10,7 @@
 // Author: Russell Smith <rsmith@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODEgamma/Electron.h"

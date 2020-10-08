@@ -10,8 +10,15 @@ include.block ('InDetRecExample/ConfiguredNewTrackingSiPattern.py')
 
 class  ConfiguredNewTrackingSiPattern:
 
-   def __init__(self, InputCollections = None, ResolvedTrackCollectionKey = None, SiSPSeededTrackCollectionKey = None , NewTrackingCuts = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[]):
-      
+   def __init__(self,
+                InputCollections = None,
+                ResolvedTrackCollectionKey = None,
+                SiSPSeededTrackCollectionKey = None ,
+                NewTrackingCuts = None,
+                TrackCollectionKeys=[] ,
+                TrackCollectionTruthKeys=[],
+                ClusterSplitProbContainer=''):
+
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
 
@@ -92,14 +99,23 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
-            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = NewTrackingCuts.MaxSeedsPerSP()
-            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedSeeds = NewTrackingCuts.KeepAllConfirmedSeeds()
+            
+            if not InDetFlags.doHeavyIon():
+               InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointStrips = NewTrackingCuts.MaxSeedsPerSP_Strips()
+               InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointPixels = NewTrackingCuts.MaxSeedsPerSP_Pixels()
+               InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedStripSeeds = NewTrackingCuts.KeepAllConfirmedStripSeeds()
+               InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedPixelSeeds = NewTrackingCuts.KeepAllConfirmedPixelSeeds()
+               InDetSiSpacePointsSeedMaker.mindRadius  = 10. 
+               # limit size of space-point vector, uses auto-grow mechanism 
+               # to avoid exceeding bounds (should rarely happen) 
+               InDetSiSpacePointsSeedMaker.maxSizeSP  = 200 
 
          if NewTrackingCuts.mode() == "R3LargeD0":
+            InDetSiSpacePointsSeedMaker.optimisePhiBinning = False
             InDetSiSpacePointsSeedMaker.usePixel = False
             InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
-            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = NewTrackingCuts.MaxSeedsPerSP()
-            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedSeeds = NewTrackingCuts.KeepAllConfirmedSeeds()
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointStrips = NewTrackingCuts.MaxSeedsPerSP_Strips()
+            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedStripSeeds = NewTrackingCuts.KeepAllConfirmedStripSeeds()
             InDetSiSpacePointsSeedMaker.maxdRadius = 150
             InDetSiSpacePointsSeedMaker.seedScoreBonusConfirmationSeed = -2000  #let's be generous
 
@@ -474,20 +490,36 @@ class  ConfiguredNewTrackingSiPattern:
          #
          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
 
+         # @TODO is the cluster split probability container needed here ?
+         ambi_track_summary_tool = TrackingCommon.getInDetTrackSummaryTool(namePrefix                 = 'InDetAmbiguityProcessorSplitProb',
+                                                                           nameSuffix                 = NewTrackingCuts.extension(),
+                                                                           ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
+                                                                           RenounceInputHandles       = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
+           # DenseEnvironmentsAmbiguityScoreProcessorTool
+           from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
+           InDetAmbiguityScoreProcessor = ScoreProcessorTool(name               = 'InDetAmbiguityScoreProcessor'+NewTrackingCuts.extension(),
+                                                             ScoringTool        = InDetAmbiScoringTool,
+                                                             SplitProbTool      = NnPixelClusterSplitProbTool if InDetFlags.doPixelClusterSplitting() and 'NnPixelClusterSplitProbTool' in globals() else None,
+                                                             AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
+                                                             AssociationToolNotGanged  = TrackingCommon.getPRDtoTrackMapTool(),
+                                                             AssociationMapName = 'PRDToTrackMap'+NewTrackingCuts.extension(),
+                                                             InputClusterSplitProbabilityName = ClusterSplitProbContainer,
+                                                             OutputClusterSplitProbabilityName = 'SplitProb'+NewTrackingCuts.extension())
+           
             # DenseEnvironmentsAmbiguityProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityProcessorTool as ProcessorTool
            use_low_pt_fitter =  True if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) else False
 
            from AthenaCommon import CfgGetter
            from InDetRecExample.TrackingCommon import setDefaults
-           if len(NewTrackingCuts.extension()) > 0 :
-              fitter_args = setDefaults({},  SplitClusterMapExtension = NewTrackingCuts.extension() )
-              fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
-                           else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
-           else :
-              fitter_list=[     CfgGetter.getPublicTool('InDetTrackFitter')    if not use_low_pt_fitter \
-                           else CfgGetter.getPublicTool('InDetTrackFitterLowPt')]
+           fitter_args = setDefaults({},
+                                     nameSuffix                   = 'Ambi'+NewTrackingCuts.extension(),
+                                     SplitClusterMapExtension     = NewTrackingCuts.extension(),
+                                     ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
+                                     RenounceInputHandles         = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+           fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
+                             else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
 
            if InDetFlags.doRefitInvalidCov() :
               from AthenaCommon import CfgGetter
@@ -499,40 +531,33 @@ class  ConfiguredNewTrackingSiPattern:
                  fitter_list.append(CfgGetter.getPublicTool('KalmanFitter'))
                  fitter_list.append(CfgGetter.getPublicTool('ReferenceKalmanFitter'))
 
+
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
                                                    Fitter             = fitter_list ,
                                                    AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                    AssociationMapName = 'PRDToTrackMap'+NewTrackingCuts.extension(),
-                                                   TrackSummaryTool   = TrackingCommon.getInDetTrackSummaryTool(),
+                                                   TrackSummaryTool   = ambi_track_summary_tool,
                                                    ScoringTool        = InDetAmbiScoringTool,
                                                    SelectionTool      = InDetAmbiTrackSelectionTool,
+                                                   InputClusterSplitProbabilityName = 'SplitProb'+NewTrackingCuts.extension(),
+                                                   OutputClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
                                                    SuppressHoleSearch = False,
                                                    tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                    caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                    pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                   RefitPrds          = True,
-                                                   doHadCaloSeed      = InDetFlags.doCaloSeededRefit(),
-                                                   InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet")
+                                                   RefitPrds          = True)
 
-           # DenseEnvironmentsAmbiguityScoreProcessorTool
-           from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
-           InDetAmbiguityScoreProcessor = ScoreProcessorTool(name               = 'InDetAmbiguityScoreProcessor'+NewTrackingCuts.extension(),
-                                                             ScoringTool        = InDetAmbiScoringTool,
-                                                             SplitProbTool      = NnPixelClusterSplitProbTool if InDetFlags.doPixelClusterSplitting() and 'NnPixelClusterSplitProbTool' in globals() else None,
-                                                             AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
-                                                             AssociationToolNotGanged  = TrackingCommon.getPRDtoTrackMapTool(),
-                                                             AssociationMapName = 'PRDToTrackMap'+NewTrackingCuts.extension(),
-                                                             SelectionTool      = InDetAmbiTrackSelectionTool)
-           # hasScoreProcessorTool = True
          else:
            from AthenaCommon import CfgGetter
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
                                                  Fitter             = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                  AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
-                                                 TrackSummaryTool   = TrackingCommon.getInDetTrackSummaryTool(),
+                                                 TrackSummaryTool   = ambi_track_summary_tool,
                                                  ScoringTool        = InDetAmbiScoringTool,
                                                  SelectionTool      = InDetAmbiTrackSelectionTool,
+                                                 InputClusterSplitProbabilityName = ClusterSplitProbContainer,
+                                                 OutputClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
                                                  SuppressHoleSearch = False,
                                                  tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                  caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
@@ -549,8 +574,6 @@ class  ConfiguredNewTrackingSiPattern:
               elif NewTrackingCuts.extension() == "Disappearing":
                  InDetAmbiguityScoreProcessor.SplitClusterMap_old  = InDetKeys.SplitClusterAmbiguityMap()
               InDetAmbiguityScoreProcessor.SplitClusterMap_new  = InDetKeys.SplitClusterAmbiguityMap()+NewTrackingCuts.extension()
-           if InDetFlags.doTIDE_RescalePixelCovariances() :
-            InDetAmbiguityProcessor.applydRcorrection = True
 
          if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":
             InDetAmbiguityProcessor.SuppressHoleSearch = True

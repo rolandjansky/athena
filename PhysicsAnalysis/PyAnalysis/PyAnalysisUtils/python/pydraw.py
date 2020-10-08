@@ -1105,7 +1105,7 @@ def _get_hist (ndim, args, hname, htitle):
         # the object, so IsOnHeap might return false for it.)
         # Force the issue by doing a C++ delete directly.
         ROOT.gROOT.ProcessLine ("delete (%s*)%d" %
-                                (hold.__class__.__cppname__,
+                                (hold.__class__.__cpp_name__,
                                  ROOT.AddressOf(hold)[0]))
 
     # Create the histogram.
