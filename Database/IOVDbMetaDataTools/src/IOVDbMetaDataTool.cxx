@@ -18,7 +18,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
 #include "CxxUtils/checker_macros.h"
