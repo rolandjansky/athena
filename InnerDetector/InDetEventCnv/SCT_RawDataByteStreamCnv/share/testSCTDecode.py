@@ -122,7 +122,6 @@ sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
                                                 PixelCablingSvc = None,
-                                                PixelModuleData = "",
                                                 PixelChargeCalibCondData = "",
                                                 PixelOfflineCalibData = '',
                                                 PixelLorentzAngleTool = None,
