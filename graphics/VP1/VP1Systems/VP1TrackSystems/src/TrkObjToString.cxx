@@ -381,13 +381,19 @@ TrkObjToString::fullInfo(const Trk::MeasurementBase& meas)
 
   QStringList info ("Local");
 
-  QString posInfo = QString("(") + QString::number(meas.localParameters ()[Trk::loc1])  ;
-  if (meas.localParameters ().dimension()==2 ) {
-    posInfo.append(", ");
-    posInfo.append( QString::number(meas.localParameters ()[Trk::loc2] ) );
+  QString posInfo("");
+  if (meas.localParameters().contains(Trk::loc1)) {
+      posInfo = QString("(") + QString::number(meas.localParameters()[Trk::loc1])  ;
+
+      if (meas.localParameters ().dimension()==2 ) {
+          posInfo.append(", ");
+          posInfo.append( QString::number(meas.localParameters ()[Trk::loc2] ) );
+      }
+      posInfo.append(") [CLHEP::mm]");
+      info+= posInfo;
+  } else {
+      info+= QString("[no 'Local' parameters available]");
   }
-  posInfo.append(") [CLHEP::mm]");
-  info+= posInfo;
 
   const Amg::MatrixX& err = meas.localCovariance();
   info+="Error";

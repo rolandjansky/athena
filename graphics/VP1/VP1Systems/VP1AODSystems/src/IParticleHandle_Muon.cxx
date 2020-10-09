@@ -368,6 +368,10 @@ QStringList IParticleHandle_Muon::clicked() const
 #if defined BUILDVP1LIGHT
   Amg::Vector3D IParticleHandle_Muon::momentum() const
   {
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return Amg::Vector3D();
+    }
     double phi = m_d->muon->primaryTrackParticle()->phi0();
     double theta = m_d->muon->primaryTrackParticle()->theta();
 
@@ -398,6 +402,11 @@ QStringList IParticleHandle_Muon::clicked() const
 #else
   Amg::Vector3D IParticleHandle_Muon::momentum() const
   {
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return Amg::Vector3D();
+    }
+    //return Amg::Vector3D(); // RMB test 
     const Trk::Perigee& p = m_d->muon->primaryTrackParticle()->perigeeParameters();
     return p.momentum();
   }
@@ -408,6 +417,10 @@ QStringList IParticleHandle_Muon::clicked() const
 #if defined BUILDVP1LIGHT
   Amg::Vector3D IParticleHandle_Muon::position() const
   {
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return Amg::Vector3D();
+    }
     double d0 = m_d->muon->primaryTrackParticle()->d0();
     double z0 = m_d->muon->primaryTrackParticle()->z0();
     double phi = m_d->muon->primaryTrackParticle()->phi0();
@@ -424,6 +437,10 @@ QStringList IParticleHandle_Muon::clicked() const
 #else
     Amg::Vector3D IParticleHandle_Muon::position() const
   {
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return Amg::Vector3D();
+    }
     const Trk::Perigee& p = m_d->muon->primaryTrackParticle()->perigeeParameters();
     return p.position(); // TODO: check what this returns
   }
@@ -432,18 +449,29 @@ QStringList IParticleHandle_Muon::clicked() const
 //____________________________________________________________________
 const xAOD::IParticle& IParticleHandle_Muon::iParticle() const
 {
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+    }
   return *(m_d->muon->primaryTrackParticle());
 }
 
 //____________________________________________________________________
 double IParticleHandle_Muon::charge() const
 {
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return 0.0;
+    }
   return m_d->muon->primaryTrackParticle()->charge();
 }
 
 //____________________________________________________________________
 unsigned int IParticleHandle_Muon::quality() const
 {
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return 0;
+    }
   return static_cast<unsigned int>(m_d->muon->quality());
 }
 
@@ -499,8 +527,12 @@ QString IParticleHandle_Muon::qualityString() const{
 
 QString IParticleHandle_Muon::shortInfo() const
 {
-  QString l("|P|="+VP1Msg::str(momentum().mag()/SYSTEM_OF_UNITS::GeV)+" [GeV], " +muonTypeString() + ", "+qualityString()  );
   
+  QString l("");
+  l+= "|P|=";
+  l+= VP1Msg::str(momentum().mag()/SYSTEM_OF_UNITS::GeV)+" [GeV], ";
+  l+= muonTypeString() + ", ";
+  l+= qualityString();
   return l;
 }
 
@@ -508,8 +540,14 @@ void IParticleHandle_Muon::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIt
 {
   IParticleHandleBase::fillObjectBrowser(listOfItems); // Obligatory!
 
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return;
+    }
+  
+
   QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
-  TSOSitem->setText(0, QString("Def. Parameters " ) );
+  TSOSitem->setText(0, QString("Def. Parameters [d0,z0,phi0,theta,qOverP]" ) );
   QString dParameters("(");
   dParameters+=QString::number(m_d->muon->primaryTrackParticle()->d0());
   dParameters+=", ";
@@ -567,9 +605,14 @@ const QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> >& IParticleHandle
     return m_d->parametersAndPositions;
   
   typedef std::pair<xAOD::ParameterPosition, Amg::Vector3D> paramAndPos;
+  
   #if defined BUILDVP1LIGHT
     m_d->parametersAndPositions.append(paramAndPos(xAOD::BeamLine, position() ) );
   #else
+    if( !(m_d->collHandle->hasPrimaryTrackParticleInfo()) ) {
+        m_d->collHandle->printMsgNoTrackParticle();
+        return m_d->parametersAndPositions;
+    }
     const Trk::Perigee& peri = m_d->muon->primaryTrackParticle()->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
     m_d->parametersAndPositions.append(paramAndPos(xAOD::BeamLine, Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()) ) );
   #endif // BUILDVP1LIGHT

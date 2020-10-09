@@ -727,8 +727,8 @@ void AscObj_TSOS::addRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple,
     Amg::Vector2D  localPos;
     /*
      * see:
-     * https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkEventPrimitives/trunk/TrkEventPrimitives/LocalParameters.h
-     * https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkEventPrimitives/trunk/src/LocalParameters.cxx
+     * Tracking/TrkEvent/TrkEventPrimitives/trunk/TrkEventPrimitives/LocalParameters.h
+     * Tracking/TrkEvent/TrkEventPrimitives/trunk/src/LocalParameters.cxx
      */
     if (locParams.contains(Trk::loc1)) {
     	localPos( locParams.get(Trk::loc1), locParams.contains(Trk::loc2) ? locParams.get(Trk::loc2) : 0 );
