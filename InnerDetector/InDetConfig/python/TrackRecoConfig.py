@@ -4,15 +4,15 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 ##------------------------------------------------------------------------------
-def BCM_ZeroSuppressionCfg(flags, **kwargs):
+def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("BcmContainerName", "BCM_RDOs")
-    algo = CompFactory.BCM_ZeroSuppression("InDetBCM_ZeroSuppression", **kwargs)
+    algo = CompFactory.BCM_ZeroSuppression(name=name, **kwargs)
     acc.addEventAlgo(algo, primary = True)
     return acc
 
 ##------------------------------------------------------------------------------
-def PixelClusterizationCfg(flags, **kwargs) :
+def PixelClusterizationCfg(flags, name = "InDetPixelClusterization", **kwargs) :
     acc = ComponentAccumulator()
     sub_acc = MergedPixelsToolCfg(flags, **kwargs)
     merged_pixels_tool = sub_acc.getPrimary()
@@ -21,24 +21,29 @@ def PixelClusterizationCfg(flags, **kwargs) :
     ambi_finder=sub_acc.getPrimary()
     acc.merge(sub_acc)
 
-    acc.addEventAlgo( CompFactory.InDet.PixelClusterization(   name         = "InDetPixelClusterization",
-                                                    clusteringTool          = merged_pixels_tool,
-                                                    gangedAmbiguitiesFinder = ambi_finder,
-                                                    DataObjectName          = "PixelRDOs",
-                                                    ClustersName            = "PixelClusters" ))
+    # Region selector tools for Pixel
+    from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
+    RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
+
+    kwargs.setdefault("clusteringTool", merged_pixels_tool)
+    kwargs.setdefault("gangedAmbiguitiesFinder", ambi_finder)
+    kwargs.setdefault("DataObjectName", "PixelRDOs")
+    kwargs.setdefault("ClustersName", "PixelClusters")
+    kwargs.setdefault("RegSelTool", RegSelTool_Pixel)
+
+    acc.addEventAlgo(CompFactory.InDet.PixelClusterization(name=name, **kwargs))
     return acc
 ##------------------------------------------------------------------------------
-def PixelClusterizationPUCfg(flags, **kwargs) :
-    kwargs.setdefault("name", "InDetPixelClusterizationPU")
+def PixelClusterizationPUCfg(flags, name="InDetPixelClusterizationPU", **kwargs) :
     kwargs.setdefault("DataObjectName", "Pixel_PU_RDOs")
     kwargs.setdefault("ClustersName", "PixelPUClusters")
     kwargs.setdefault("AmbiguitiesMap", "PixelClusterAmbiguitiesMapPU")
-    return PixelClusterizationCfg(flags, **kwargs)
+    return PixelClusterizationCfg(flags, name=name, **kwargs)
 
 ##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
 
-def SCTClusterizationCfg(flags, **kwargs) :
+def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
     acc = ComponentAccumulator()
 
     # Need to get SCT_ConditionsSummaryTool for e.g. SCT_ClusteringTool
@@ -49,33 +54,32 @@ def SCTClusterizationCfg(flags, **kwargs) :
     accbuf = ClusterMakerToolCfg(flags)
     InDetClusterMakerTool = accbuf.getPrimary()
     acc.merge(accbuf)
-    InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool(    name              = "InDetSCT_ClusteringTool",
-                                                            globalPosAlg     = InDetClusterMakerTool,
-                                                            conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
+    InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool( name           = "InDetSCT_ClusteringTool",
+                                                                    globalPosAlg   = InDetClusterMakerTool,
+                                                                    conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
     if flags.InDet.selectSCTIntimeHits :
        if flags.InDet.InDet25nsec : 
           InDetSCT_ClusteringTool.timeBins = "01X" 
        else: 
           InDetSCT_ClusteringTool.timeBins = "X1X" 
 
-    acc.addEventAlgo( CompFactory.InDet.SCT_Clusterization(    name                    = "InDetSCT_Clusterization",
-                                                    clusteringTool          = InDetSCT_ClusteringTool,
-                                                    DataObjectName          = 'SCT_RDOs', ##InDetKeys.SCT_RDOs(),
-                                                    ClustersName            = 'SCT_Clusters', ##InDetKeys.SCT_Clusters(),
-                                                    conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged  ) )
+    kwargs.setdefault("clusteringTool", InDetSCT_ClusteringTool)
+    kwargs.setdefault("DataObjectName", 'SCT_RDOs') ##InDetKeys.SCT_RDOs()
+    kwargs.setdefault("ClustersName", 'SCT_Clusters') ##InDetKeys.SCT_Clusters()
+    kwargs.setdefault("conditionsTool", InDetSCT_ConditionsSummaryToolWithoutFlagged)
+
+    acc.addEventAlgo( CompFactory.InDet.SCT_Clusterization(name=name, **kwargs))
 
     return acc
 
-
 ##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
 
-def SCTClusterizationPUCfg(flags, **kwargs) :
-    kwargs.setdefault("name", "InDetSCT_ClusterizationPU")
+def SCTClusterizationPUCfg(flags, name="InDetSCT_ClusterizationPU", **kwargs) :
     kwargs.setdefault("DataObjectName", "SCT_PU_RDOs" )   #flags.InDetKeys.SCT_PU_RDOs
-    kwargs.setdefault("ClustersName", "SCT_PU_Clusters") #flags.InDetKeys.SCT_PU_Clusters
-    return SCTClusterizationCfg(flags, **kwargs)
+    kwargs.setdefault("ClustersName", "SCT_PU_Clusters")  #flags.InDetKeys.SCT_PU_Clusters
+    return SCTClusterizationCfg(flags, name=name, **kwargs)
 
 ##------------------------------------------------------------------------------
 def PixelGangedAmbiguitiesFinderCfg(flags) :
@@ -83,7 +87,6 @@ def PixelGangedAmbiguitiesFinderCfg(flags) :
     InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
     acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
     return acc
-
 
 ##------------------------------------------------------------------------------
 def MergedPixelsToolCfg(flags, **kwargs) :
@@ -109,9 +112,11 @@ def MergedPixelsToolCfg(flags, **kwargs) :
      
       acc.addPublicTool(InDetMergedPixelsTool, primary=True)
       return acc
+
 ##------------------------------------------------------------------------------
-def ClusterMakerToolCfg(flags, **kwargs) :
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg
+def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
+    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg,
+                                                                 PixelOfflineCalibCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
 
     acc = ComponentAccumulator()
     # This directly needs the following Conditions data:
@@ -119,7 +124,11 @@ def ClusterMakerToolCfg(flags, **kwargs) :
     acc.merge( PixelChargeCalibCondAlgCfg(flags))
     acc.merge( PixelConfigCondAlgCfg(flags))
 
-    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = "InDetClusterMakerTool", **kwargs)
+    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
+    acc.merge(PixelCablingCondAlgCfg(flags))
+    acc.merge(PixelReadoutSpeedAlgCfg(flags))
+
+    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = name, **kwargs)
 
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
     SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )    
