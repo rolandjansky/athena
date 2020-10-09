@@ -44,6 +44,10 @@ atlas_add_test( TestSCTLorentzAngle
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 
+atlas_add_test( TestSCTLorentzAngleNewConf
+                SCRIPT python -m SiLorentzAngleTool.SCTSiLorentzAngleTestAlgConfig
+                PROPERTIES TIMEOUT 300 )
+
 atlas_add_test( SiLorentzAngleConfig_test
                 SCRIPT test/SiLorentzAngleConfig_test.py
                 PROPERTIES TIMEOUT 30 )
