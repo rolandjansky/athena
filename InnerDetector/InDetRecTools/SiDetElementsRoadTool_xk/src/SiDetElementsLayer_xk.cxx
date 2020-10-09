@@ -31,7 +31,7 @@ void InDet::SiDetElementsLayer_xk::getBarrelDetElements
 (const std::array<float,6> & startingPoint,
  const std::array<float,3> & searchDirection,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
- std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const
+ std::vector<bool>   &used) const
 {
 
   /// In the following, identify where we cross the layer in r
@@ -99,7 +99,7 @@ void InDet::SiDetElementsLayer_xk::getEndcapDetElements
 (const std::array<float,6> & startingPoint,
  const std::array<float,3> & searchDirection,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
- std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const
+ std::vector<bool>   &used) const
 {
   /// solve the linear equation 
   /// z_layer = z_startingPont + s * z_searchDirection
@@ -137,7 +137,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
  float phiCrossing,
  float reducedRoadWidth,
  std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
- std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const
+ std::vector<bool>   &used) const
 {
   constexpr float pi = M_PI;
   constexpr float pi2 = 2.*pi; 
@@ -166,7 +166,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
   while(1) {
     assert( static_cast<unsigned int>(i)<m_elements.size() );
     /// if detector element i on this layer is not already used for this road
-    if(!used[i].used()) {
+    if(!used[i]) {
       /// 
       float dPhi =std::abs(m_elements[i].phi()-phiCrossing); 
       if(dPhi>pi) dPhi=std::abs(dPhi-pi2);    /// project delta phi into -pi..pi
@@ -187,7 +187,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
           ) {
          /// we found a compatible detector element - add to our list  
          lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1]))); 
-         used[i].setUsed();
+         used[i]=true;
       }
     }
     ++i; 
@@ -204,7 +204,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
     /// stop at full circle
     if(i==i1) return;
     assert( static_cast<unsigned int>(i)<m_elements.size() );
-    if(!used[i].used()) {
+    if(!used[i]) {
       float dPhi =std::abs(m_elements[i].phi()-phiCrossing); 
       if(dPhi>pi) dPhi=std::abs(dPhi-pi2);
       if((dPhi-reducedRoadWidth)>m_dfe) return;
@@ -212,7 +212,7 @@ void InDet::SiDetElementsLayer_xk::getDetElements
 
       if((intersectionOutcome[0]-startingPoint[4])<=0 && (intersectionOutcome[1]-startingPoint[4])<=0.) {
          lDE.push_back(InDet::SiDetElementLink_xk::ElementWay(&m_elements[i],startingPoint[5]+intersectionOutcome[2],std::max(intersectionOutcome[0],intersectionOutcome[1]))); 
-         used[i].setUsed();
+         used[i]=true;
       }
     }
   }

@@ -43,8 +43,6 @@ InDet::SiDetElementsRoadMaker_xk::SiDetElementsRoadMaker_xk
 StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 {
   //Class optimization checks
-  static_assert(std::is_trivially_copyable<SiDetElementRoadMakerData_xk::UsedFlag>::value);
-  static_assert(std::is_trivially_destructible<SiDetElementRoadMakerData_xk::UsedFlag>::value);
   static_assert(std::is_trivially_copyable<SiDetElementLink_xk::ElementWay>::value);
   static_assert(std::is_trivially_destructible<SiDetElementLink_xk::ElementWay>::value);
   static_assert(std::is_trivially_copyable<SiDetElementLink_xk>::value);

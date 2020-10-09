@@ -81,13 +81,13 @@ namespace InDet{
         (const std::array<float,6> & startingPoint,
          const std::array<float,3> & searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
-         std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const;
+         std::vector<bool>   &used) const;
 
       void getEndcapDetElements
 	      (const std::array<float,6> & startingPoint,
          const std::array<float,3> & searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
-         std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const;
+         std::vector<bool>   &used) const;
 
       void sortDetectorElements();
 
@@ -114,7 +114,7 @@ namespace InDet{
                           float phiCrossing,
                           float reducedRoadWidth,
                           std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
-                          std::vector<InDet::SiDetElementRoadMakerData_xk::UsedFlag>   &used) const;
+                          std::vector<bool>   &used) const;
     };
   
   /////////////////////////////////////////////////////////////////////////////////
