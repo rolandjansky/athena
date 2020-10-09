@@ -139,6 +139,9 @@ StatusCode Pythia8_i::genInitialize() {
   // switch off verbose event print out
   m_pythia.readString("Next:numberShowEvent = 0");
 
+  // Add flag to switch off from JO the Pythia8ToHepMC::print_inconsistency internal variable
+  m_pythia.settings.addFlag("AthenaPythia8ToHepMC:print_inconsistency",true);
+
   // Add UserHooks first because these potentially add new settings that must exist prior to parsing commands
 
   bool firstHook=true;
@@ -318,6 +321,7 @@ StatusCode Pythia8_i::genInitialize() {
       canInit = false;
     }
   }
+  
 
   StatusCode returnCode = SUCCESS;
 
@@ -336,6 +340,9 @@ StatusCode Pythia8_i::genInitialize() {
   m_failureCount = 0;
 
   m_internal_event_number = 0;
+
+  // Set set_print_inconsistency to Athena corresponding flag (allowing to change it from JO)
+  m_pythiaToHepMC.set_print_inconsistency(  m_pythia.settings.flag("AthenaPythia8ToHepMC:print_inconsistency")  );
 
   m_pythiaToHepMC.set_store_pdf(true);
 
