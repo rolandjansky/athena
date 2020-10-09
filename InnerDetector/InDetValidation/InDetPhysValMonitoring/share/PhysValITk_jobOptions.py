@@ -124,9 +124,6 @@ ServiceMgr+=HistogramDefinitionSvc()
 ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPVMPlotDefITK.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
-if(not foundGeoTag):
-   ToolSvc.InDetTrackingGeometryBuilder.MinimalRadialGapForVolumeSplit=10.
-
 # this fills some extra histograms when not running over DAOD
 # when running over DAOD, decorators should be off to prevent crashes
 if not runDAOD : 
