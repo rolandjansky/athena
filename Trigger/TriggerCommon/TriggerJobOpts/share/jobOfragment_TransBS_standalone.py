@@ -44,7 +44,8 @@ if TriggerFlags.doCalo():
    StreamBS.ItemList += ["LArRawChannelContainer#*"]
    from AthenaCommon.AppMgr import ToolSvc
    from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
-   ToolSvc += LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
+   ToolSvc += LArRawDataContByteStreamToolConfig(InitializeForWriting=True,
+                                                 stream = StreamBS)
    # Tile
    theApp.Dlls += ["TileByteStream"]
    StreamBS.ItemList += ["TileRawChannelContainer#*"]
