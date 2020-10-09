@@ -11,38 +11,46 @@
 TauAODList = []
 
 #------------------------------------------------------------------------------
-# Tau Pi0 cluster
-#------------------------------------------------------------------------------
-#TauAODList += [ "xAOD::CaloClusterContainer#TauPi0Clusters" ]
-#TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
-
-TauAODList += [ "xAOD::CaloClusterContainer#TauPi0SubtractedClusters" ]
-TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0SubtractedClustersAux." ]
-TauAODList += [ "CaloClusterCellLinkContainer#TauPi0SubtractedClusters_links" ]
-
-#------------------------------------------------------------------------------
-# TauRec main xAOD containers
+# Taus
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::TauJetContainer#TauJets" ]
 TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-mu.-nVtxPU.-ABS_ETA_LEAD_TRACK.-TAU_ABSDELTAPHI.-TAU_ABSDELTAETA.-absipSigLeadTrk" ]
 
 #------------------------------------------------------------------------------
-# TauRec tauTrack xAOD containers
+# Tau tracks
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::TauTrackContainer#TauTracks" ]
 TauAODList += [ "xAOD::TauTrackAuxContainer#TauTracksAux." ]
 
 #------------------------------------------------------------------------------
-# Secondary Vertex for Tau Decay
+# Secondary vertex
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::VertexContainer#TauSecondaryVertices" ]
 TauAODList += [ "xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex" ]
 
 #------------------------------------------------------------------------------
+# Pi0 cells
+#------------------------------------------------------------------------------
+TauAODList += [ "CaloCellContainer#TauCommonPi0Cells" ]
+TauAODList += [ "CaloClusterCellLinkContainer#TauInitialPi0Clusters_links" ]
+
+#------------------------------------------------------------------------------
+# Pi0 initial clusters
+#------------------------------------------------------------------------------
+TauAODList += [ "xAOD::CaloClusterContainer#TauInitialPi0Clusters" ]
+TauAODList += [ "xAOD::CaloClusterAuxContainer#TauInitialPi0ClustersAux." ]
+
+#------------------------------------------------------------------------------
+# Shot clusters
+#------------------------------------------------------------------------------
+TauAODList += [ "xAOD::CaloClusterContainer#TauShotClusters"]
+TauAODList += [ "xAOD::CaloClusterAuxContainer#TauShotClustersAux."]
+
+#------------------------------------------------------------------------------
 # Final reconstructed 4-vectors of Pi0s
 #------------------------------------------------------------------------------
-TauAODList += [ "xAOD::ParticleContainer#finalTauPi0s" ]
-TauAODList += [ "xAOD::ParticleAuxContainer#finalTauPi0sAux." ]
+TauAODList += [ "xAOD::ParticleContainer#TauFinalPi0s" ]
+TauAODList += [ "xAOD::ParticleAuxContainer#TauFinalPi0sAux." ]
 
 #------------------------------------------------------------------------------
 # Shot ParticleFlowObjects
@@ -68,18 +76,10 @@ TauAODList += [ "xAOD::PFOAuxContainer#TauNeutralParticleFlowObjectsAux." ]
 TauAODList += [ "xAOD::PFOContainer#TauHadronicParticleFlowObjects" ]
 TauAODList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
 
+#------------------------------------------------------------------------------
+# Di-tau AOD content
+#------------------------------------------------------------------------------
 from DiTauRec.DiTauRecFlags import jobproperties
 if jobproperties.DiTauRecFlags.doDiTauRec():
     include("DiTauRec/DiTauAODList.py")
     TauAODList += DiTauAODList
-
-
-#-------------------------------------------------------------------------
-# eflowObjects for tau
-#--------------------------------------------------------------------------
-#TauAODList += [ "eflowObjectContainer#eflowObjects_tauMode" ]
-#TauAODList += [ "xAOD::PFOContainer#neutralTauPFO_eflowRec" ]
-#TauAODList += [ "xAOD::PFOAuxContainer#neutralTauPFO_eflowRecAux." ]
-#TauAODList += [ "xAOD::PFOContainer#chargedTauPFO_eflowRec" ]
-#TauAODList += [ "xAOD::PFOAuxContainer#chargedTauPFO_eflowRecAux." ]
-
