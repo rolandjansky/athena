@@ -1578,6 +1578,10 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
   //
   Tb.setParameters(&Su,p); 
   if(useJac) {
+    if (!Ta.iscovariance()) {
+      return false;
+    }
+
     Tb.newCovarianceMatrix(Ta,Jac);
     const double* cv = Tb.cov();
     if( cv[0]<=0. || cv[2]<=0. || cv[5]<=0. || cv[9]<=0. || cv[14]<=0.) return false;

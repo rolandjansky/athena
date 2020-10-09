@@ -1111,6 +1111,10 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
   Jac[19] =(C*P[40]-s4*C44)*n;          // dThe/dCM
   Jac[20] = 1.;                         // dCM /dCM
 
+  if (!Ta.iscovariance()) {
+    return false;
+  }
+
   Tb.newCovarianceMatrix(Ta,Jac); 
   const double* t = &Tb.cov()[0];
   if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
