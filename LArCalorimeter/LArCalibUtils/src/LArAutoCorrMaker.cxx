@@ -49,7 +49,6 @@ LArAutoCorrMaker::LArAutoCorrMaker(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("KeyOutput",    m_keyoutput="LArAutoCorr");
   declareProperty("events_ref",   m_nref=50);
   declareProperty("nsigma",       m_rms_cut=5);
-  declareProperty("Nsamples",     m_nsamples=32);
   declareProperty("normalize",    m_normalize=1); 
   declareProperty("physics",      m_physics=0); 
   declareProperty("GroupingType", m_groupingType); 
@@ -139,7 +138,10 @@ StatusCode LArAutoCorrMaker::execute()
     ATH_MSG_DEBUG("Got LArDigitContainer with key " << *key_it <<", size="  << larDigitContainer->size());
     ++m_nEvents;
     LArDigitContainer::const_iterator it=larDigitContainer->begin();
-    LArDigitContainer::const_iterator it_end=larDigitContainer->end();    
+    LArDigitContainer::const_iterator it_end=larDigitContainer->end();  
+    m_nsamples = (*larDigitContainer->begin())->nsamples();
+    ATH_MSG_DEBUG("NSAMPLES (from digit container) = " << m_nsamples );
+
     for(;it!=it_end;it++){
       const HWIdentifier chid=(*it)->hardwareID();
       const CaloGain::CaloGain gain=(*it)->gain();
