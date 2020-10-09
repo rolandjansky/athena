@@ -21,6 +21,7 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonRDO/MM_RawData.h"
+#include "MuonRDO/STGC_RawData.h"
 
 #include "TRandom3.h"
 #include "TTree.h"
@@ -37,8 +38,10 @@ namespace Muon {
     
     StatusCode calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const;
     StatusCode calibrateStrip(const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const;
-    StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const;
     
+    StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const;
+    StatusCode calibrateStrip(const Muon::STGC_RawData* sTGCRawData, NSWCalib::CalibratedStrip& calibStrip) const;
+
     double pdoToCharge(const int pdoCounts, const Identifier& stripID) const;
     int chargeToPdo(const float charge, const Identifier& stripID) const;
 
@@ -46,6 +49,7 @@ namespace Muon {
     virtual StatusCode finalize();
 
     StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const override;
+
   private:
 
     ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
