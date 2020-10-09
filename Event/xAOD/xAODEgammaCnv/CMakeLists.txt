@@ -1,24 +1,7 @@
-################################################################################
-# Package: xAODEgammaCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODEgammaCnv )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Event/xAOD/xAODEgamma
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Event/FourMom
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTruth
-                          PhysicsAnalysis/AnalysisCommon/ParticleEvent
-                          Reconstruction/Particle
-                          Reconstruction/egamma/egammaEvent )
 
 # Component(s) in the package:
 atlas_add_library( xAODEgammaCnvLib
