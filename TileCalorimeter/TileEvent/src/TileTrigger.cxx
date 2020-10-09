@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -27,7 +27,9 @@
 #include <iomanip>
 
 // get cabling
-extern TileCablingService * s_cabling;
+namespace {
+const TileCablingService * const s_cabling = TileCablingService::getInstance();
+}
 
 TileTrigger::TileTrigger(int id, const Identifier& mtid, double mtsum, 
 		std::vector<Identifier>& boardtid, std::vector<double>& boardtsum,

@@ -29,7 +29,7 @@
 
 ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(
     const std::string& name, ISvcLocator* pSvcLocator)
-  : ByteStreamOutputSvc(name, pSvcLocator) {
+  : base_class(name, pSvcLocator) {
 }
 
 
@@ -125,7 +125,7 @@ ByteStreamEventStorageOutputSvc::initDataWriter(const EventContext* ctx) {
       : SG::get(m_eventInfoKey, *ctx);
   if (eventInfo == nullptr) ATH_MSG_WARNING("failed to retrieve EventInfo");
 
-  const ByteStreamMetadata* metaData = getByteStreamMetadata(ctx);
+  const ByteStreamMetadata* metaData = ctx == nullptr ? getByteStreamMetadata() : getByteStreamMetadata(*ctx);
   if (metaData == nullptr)
     ATH_MSG_WARNING("failed to retrieve ByteStreamMetaData");
 
@@ -290,13 +290,28 @@ ByteStreamEventStorageOutputSvc::io_reinit() {
 
 
 const ByteStreamMetadata *
-ByteStreamEventStorageOutputSvc::getByteStreamMetadata(
-    const EventContext* ctx) {
-  const ByteStreamMetadataContainer* metaDataCont = ctx == nullptr
-      ? SG::get(m_byteStreamMetadataKey)
-      : SG::get(m_byteStreamMetadataKey, *ctx);
+ByteStreamEventStorageOutputSvc::getByteStreamMetadata()
+{
+  SG::ReadHandle<ByteStreamMetadataContainer> metaDataCont (m_byteStreamMetadataKey);
 
-  if (metaDataCont == nullptr) return nullptr;
+  if (!metaDataCont.isValid()) return nullptr;
+
+  if (metaDataCont->size() > 1)
+    ATH_MSG_WARNING("Multiple run parameters in MetaDataStore. "
+                    "Bytestream format only supports one. Arbitrarily "
+                    "choosing first.");
+
+  return metaDataCont->front();
+}
+
+
+const ByteStreamMetadata *
+ByteStreamEventStorageOutputSvc::getByteStreamMetadata(
+    const EventContext& ctx)
+{
+  SG::ReadHandle<ByteStreamMetadataContainer> metaDataCont (m_byteStreamMetadataKey, ctx);
+
+  if (!metaDataCont.isValid()) return nullptr;
 
   if (metaDataCont->size() > 1)
     ATH_MSG_WARNING("Multiple run parameters in MetaDataStore. "
@@ -445,11 +460,17 @@ ByteStreamEventStorageOutputSvc::updateDataWriterParameters(
 StatusCode
 ByteStreamEventStorageOutputSvc::queryInterface(
     const InterfaceID& riid, void** ppvInterface) {
+
+  if ( !ppvInterface ) return StatusCode::FAILURE;
+
+  // find indirect interfaces :
   if (ByteStreamOutputSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface = dynamic_cast<ByteStreamOutputSvc*>(this);
+  } else if (base_class::queryInterface(riid, ppvInterface).isSuccess()) {
+    return StatusCode::SUCCESS;
   } else {
     // Interface is not directly available: try out a base class
-    ATH_CHECK(::AthService::queryInterface(riid, ppvInterface));
+    return ::AthService::queryInterface(riid, ppvInterface);
   }
   addRef();
   return StatusCode::SUCCESS;

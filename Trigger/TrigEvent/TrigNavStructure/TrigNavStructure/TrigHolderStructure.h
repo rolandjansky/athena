@@ -12,7 +12,7 @@
 
 #include <boost/variant.hpp>
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "TrigNavStructure/Types.h"
 #include "TrigNavStructure/BaseHolder.h"
 #include "TrigNavStructure/TriggerElement.h"

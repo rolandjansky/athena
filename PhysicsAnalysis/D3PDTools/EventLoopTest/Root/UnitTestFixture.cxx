@@ -11,7 +11,7 @@
 
 #include <EventLoopTest/UnitTestFixture.h>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <EventLoop/Driver.h>
 #include <AnaAlgorithm/AnaAlgorithmConfig.h>
 #include <EventLoopTest/UnitTestAlg1.h>

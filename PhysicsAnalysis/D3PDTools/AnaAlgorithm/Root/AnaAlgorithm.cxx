@@ -12,7 +12,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <TH1.h>
 #include <TH2.h>

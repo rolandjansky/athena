@@ -6,7 +6,7 @@
 #define ASSOCIATIONUTILS_OVERLAPLINKHELPER_H
 
 // Framework includes
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 // EDM includes
 #include "xAODBase/IParticleContainer.h"

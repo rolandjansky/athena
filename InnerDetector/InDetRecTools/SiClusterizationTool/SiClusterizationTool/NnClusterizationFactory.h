@@ -134,6 +134,15 @@ namespace InDet {
     // Handling lwtnn inputs
     typedef std::map<std::string, std::map<std::string, double> > InputMap;
 
+    /* Estimate number of particles for both with and w/o tracks */
+    /* Method 1: using older TTrainedNetworks */
+    std::vector<double> estimateNumberOfParticlesTTN(const TTrainedNetworkCollection &nn_collection,
+                                                     std::vector<double> inputData) const;
+
+    /* Estimate number of particles for both with and w/o tracks */
+    /* Method 2: using lwtnn for more flexible interfacing */
+    std::vector<double> estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input) const;
+
     /* Estimate position for both with and w/o tracks */
     /* Method 1: using older TTrainedNetworks */
     std::vector<Amg::Vector2D> estimatePositionsTTN(

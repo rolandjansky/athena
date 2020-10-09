@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/Global.h>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 namespace EL
 {

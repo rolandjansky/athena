@@ -1,25 +1,7 @@
-################################################################################
-# Package: CaloCellCorrection
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloCellCorrection )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloCondBlobObjs
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Calorimeter/CaloUtils
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloEvent
-                          DetectorDescription/Identifier )
 
 # External dependencies:
 find_package( CLHEP )
@@ -30,7 +12,7 @@ atlas_add_component( CaloCellCorrection
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel CaloDetDescrLib CaloEvent Identifier )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloCondBlobObjs CaloConditions CaloDetDescrLib CaloEvent CaloIdentifier CaloInterfaceLib CaloUtilsLib GaudiKernel Identifier StoreGateLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

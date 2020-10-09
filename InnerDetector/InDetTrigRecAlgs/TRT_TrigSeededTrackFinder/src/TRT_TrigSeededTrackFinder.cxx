@@ -18,7 +18,7 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -36,7 +36,6 @@ using namespace std;
 
 InDet::TRT_TrigSeededTrackFinder::TRT_TrigSeededTrackFinder (const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),
-    m_regionSelector("RegSelSvc", name),
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1),
     m_doFullScan(false),
@@ -49,7 +48,6 @@ InDet::TRT_TrigSeededTrackFinder::TRT_TrigSeededTrackFinder (const std::string& 
   m_doExtension = false ; //Find the track TRT extension
   m_saveTRT = true ; //Save stand-alone TRT segments
 
-  declareProperty("RegionSelectorTool"         ,m_regionSelector   ); //RegionSelector tool
   declareProperty("EtaHalfWidth"               ,m_etaHalfWidth     ); //Eta half-width of RoI
   declareProperty("PhiHalfWidth"               ,m_phiHalfWidth     ); //Phi half-width of RoI
   declareProperty("doFullScan"                 ,m_doFullScan       ); // Enables full scan mode
@@ -218,17 +216,15 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltExecute(const HLT::TriggerEl
     //    const double zmax= 168;
 
     // SCT hash id's:
-    m_regionSelector->DetHashIDList(SCT,
-				    *roi,
-				    listOfSCTIds );
+    m_regionSelector->HashIDList( *roi, listOfSCTIds );
 
     m_nDetElSCT = listOfSCTIds.size();
     if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of SCT detector elements:" << m_nDetElSCT << endmsg;
 
     // pixels hash id's:
-    m_regionSelector->DetHashIDList( PIXEL,
-				     *roi,
-				     listOfPixIds);
+    m_regionSelector->HashIDList( *roi, listOfPixIds );
+				     
+				     
     m_nDetElPixel = listOfPixIds.size();
     if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Number of Pixel detector elements:" << m_nDetElPixel << endmsg;
 

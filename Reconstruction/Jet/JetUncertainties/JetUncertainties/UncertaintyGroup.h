@@ -12,7 +12,7 @@
 #include "xAODJet/Jet.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 #include "TString.h"
 

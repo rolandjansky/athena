@@ -59,14 +59,32 @@ namespace InDet{
       void  set(double,double,double,double,double);
       void  add(const SiDetElementLink_xk&);
       int   nElements() const;
+
+
+      ////////////////////////////////////////////////////////////////////
+      /// Get barrel detector elements
+      /// Input parameters: startPoint[0] - X     searchDirection[0] - Ax 
+      ///                   startPoint[1] - Y     searchDirection[1] - Ay
+      ///                   startPoint[2] - Z     searchDirection[2] - Az
+      ///                   startPoint[3] - R
+      ///                   startPoint[4] - width
+      ///                   startPoint[5] - step
+      /// Will populate 'lDE' and update 'used' with the detector elements
+      /// compatible with a crossing by a straight trajectory starting 
+      /// at 'startPoint' and moving in direction 'searchDirection'. 
+      /// The two additional elements of startPoint are the 
+      /// road width used as tolerance in the crossing test (in mm) 
+      /// and the step (distance to travel to the module). 
+      ////////////////////////////////////////////////////////////////////
       void getBarrelDetElements
-        (float*,
-         float*,
+        (const std::array<float,6> & startingPoint,
+         const std::array<float,3> & searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
+
       void getEndcapDetElements
-	(float*,
-         float*,
+	      (const std::array<float,6> & startingPoint,
+         const std::array<float,3> & searchDirection,
          std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
          std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
 
@@ -85,13 +103,15 @@ namespace InDet{
       float  m_dfe ;                               // max azimuthal width of de
       std::vector<SiDetElementLink_xk> m_elements; // detector elements
  
-      ///////////////////////////////////////////////////////////////////
-      // Methods
-      ///////////////////////////////////////////////////////////////////
-      void getDetElements(float*,
-                          float*,
-                          float,
-                          float,
+      /// internal helper which resolves the phi-multiplicity of elements
+      /// within a layer. Same logic as above. Extra args: 
+      /// 'phiCrossing' is the phi coordinate of the layer crossing
+      /// and 'reducedRoadWidth' is a phi tolerance obtained by 
+      /// dividing the search road width by the radius of the layer  
+      void getDetElements(const std::array<float,6> & startingPoint,
+                          const std::array<float,3> & searchDirection,
+                          float phiCrossing,
+                          float reducedRoadWidth,
                           std::vector<InDet::SiDetElementLink_xk::ElementWay> &lDE,
                           std::vector<InDet::SiDetElementLink_xk::UsedFlag>   &used) const;
     };

@@ -30,7 +30,7 @@
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/PixelRDO_Container.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 
 
@@ -78,7 +78,7 @@ private:
   ToolHandle< PixelGangedAmbiguitiesFinder > m_gangedAmbiguitiesFinder; 
   SG::ReadHandleKey<PixelRDO_Container> m_rdoContainerKey;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+  ToolHandle<IRegSelTool>     m_regionSelector { this, "RegSelTool", "RegSelTool/RegSelTool_Pixel" };     //!< region selector tool
   bool m_roiSeeded;
   const PixelID* m_idHelper;
   SG::WriteHandleKey<PixelClusterContainer> m_clusterContainerKey;

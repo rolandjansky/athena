@@ -12,7 +12,7 @@
 
 #include "TriggerMatchingTool/MatchingTool.h"
 #include "TriggerMatchingTool/IAssociationStrategy.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 namespace Trig {
 

@@ -11,9 +11,12 @@
 
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
+
+#include "IRegionSelector/IRegSelTool.h"
+
 #include <iosfwd>
 
-class IRegSelSvc;
+
 class TrigTimer;
 
 namespace InDet {
@@ -72,7 +75,7 @@ namespace InDet {
       MsgStream&    dumpevent(MsgStream&    out) const;
 
       //!< Trigger part
-      ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+      ToolHandle<IRegSelTool>     m_regionSelector{ this, "RegSelTool", "RegSelTool/RegSelTool_TRT" };     //!< region selector service
       double                  m_etaHalfWidth{};   //!< ROI half-width in eta.
       double                  m_phiHalfWidth{};   //!< ROI half-width in phi.
       bool m_doFullScan{}; 			//!< supports FullScan mode

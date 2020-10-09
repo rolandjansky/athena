@@ -8,11 +8,11 @@
 #include "eformat/DetectorMask.h"
 #include "eformat/SourceIdentifier.h"
 
+#include "RoiDescriptor/RoiDescriptor.h"
+
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-
-#include "IRegionSelector/IRegSelSvc.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
@@ -31,14 +31,12 @@
 TrigLLPInnerDetectorHypo::TrigLLPInnerDetectorHypo(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::HypoAlgo(name, pSvcLocator), 
     m_hltExecuteInitialisationRun(kFALSE),
-    m_regionSelector("RegSelSvc", name),
     m_pixHelper(0),
     m_sctHelper(0)
     {
 
       declareProperty("PixelSP_ContainerName",                   m_pixelSpName = "PixelTrigSpacePoints"  );
       declareProperty("SCT_SP_ContainerName",                    m_sctSpName = "SCT_TrigSpacePoints"     );
-      declareProperty("RegionSelectorTool",                      m_regionSelector);
       
       declareProperty("MaxNModIdentifier",                       m_maxnid = 100 );
       declareProperty("PixelModuleThreshold",                    m_pixModuleThreshold = 50 );
@@ -102,11 +100,21 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltInitialize() {
 
   ATH_MSG_DEBUG( "Initialize: " << name()  );
 
-  if ( m_regionSelector.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Unable to retrieve RegionSelector tool " << m_regionSelector.type()  );
+  if ( m_regionSelector_pix.retrieve().isFailure() ) {
+    ATH_MSG_FATAL( "Unable to retrieve RegionSelector tool " << m_regionSelector_pix.type()  );
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-  } else
-    ATH_MSG_INFO( "Successfully initialised RegionSelector tool !"  );
+  } else { 
+    ATH_MSG_INFO( "Successfully initialised Pixel RegionSelector tool !"  );
+  }
+
+
+  if ( m_regionSelector_sct.retrieve().isFailure() ) {
+    ATH_MSG_FATAL( "Unable to retrieve RegionSelector tool " << m_regionSelector_sct.type()  );
+    return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+  } else { 
+    ATH_MSG_INFO( "Successfully initialised SCT RegionSelector tool !"  );
+  }
+
 
   StatusCode sc_pixH = detStore()->retrieve(m_pixHelper, "PixelID");
   if( sc_pixH.isFailure() ){
@@ -227,7 +235,7 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* /
     ATH_MSG_DEBUG( "Successfully retrieved pixel SP container!"  );
   }
   
-  m_regionSelector->DetHashIDList(PIXEL, m_listOfPixIds );
+  m_regionSelector_pix->HashIDList( RoiDescriptor(true), m_listOfPixIds );
   m_pixListSize = m_listOfPixIds.size();
   
   if( m_pixListSize != 0 ){
@@ -304,7 +312,7 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* /
     return HLT::TOOL_FAILURE;
   }
   
-  m_regionSelector->DetHashIDList(SCT, m_listOfSctIds );
+  m_regionSelector_sct->HashIDList( RoiDescriptor(true), m_listOfSctIds );
   m_sctListSize = m_listOfSctIds.size();
   
   if( m_sctListSize !=0 ){

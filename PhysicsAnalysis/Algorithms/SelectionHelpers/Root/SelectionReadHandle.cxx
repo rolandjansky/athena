@@ -11,8 +11,8 @@
 
 #include <SelectionHelpers/SelectionReadHandle.h>
 
-#include <AsgTools/MessageCheck.h>
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/StatusCode.h>
 
 //
 // method implementations

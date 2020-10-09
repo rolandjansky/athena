@@ -27,13 +27,7 @@ namespace QuickCloseComponentsMultiStateMerger {
 MultiComponentState
 merge(Trk::MultiComponentState&&, const unsigned int maximumNumberOfComponents);
 
-/// Method for merging and assembling a state
-MultiComponentState
-mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
-                   Trk::MultiComponentState&,
-                   const unsigned int maximumNumberOfComponents);
 }
-
 }
 
 #endif

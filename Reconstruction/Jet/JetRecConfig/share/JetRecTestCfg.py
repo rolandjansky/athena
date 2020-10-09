@@ -20,7 +20,7 @@ def JetRecTestCfg(jetdefs,configFlags,args):
         jetlog.info("Printing component accumulators for each jet collection")
     jetcas = []
     for jetdef in jetdefs:
-       jetcomps = JetRecConfig.JetRecCfg(jetdef,configFlags,jetnameprefix="New")
+       jetcomps = JetRecConfig.JetRecCfg(jetdef,configFlags)
        if args.printAccumulators:
            jetcomps.printConfig(withDetails=args.verboseAccumulators,summariseProps=True)
        jetcas.append(jetcomps)
@@ -35,75 +35,62 @@ def JetRecTestCfg(jetdefs,configFlags,args):
 
 def DefineJetCollections(configFlags):
 
-    # Here we define the jet configurations we want to build
-    # These mod and ghost lists should go in a common module
-    standardrecomods = ["Width","TrackMoments","TrackSumMoments","JVF","JVT","OriginSetPV",
-                        "CaloEnergies","LArHVCorr"]
-    clustermods = ["ECPSFrac","ClusterMoments"]
-    truthmods = ["PartonTruthLabel","TruthPartonDR","JetDeltaRLabel:5000"] if configFlags.Input.isMC else []
-
-    from JetRecConfig.JetDefinition import JetGhost
-    ghostlist = ["Track","MuonSegment","Truth"]
-    standardghosts = [JetGhost(ghosttype) for ghosttype in ghostlist]
-    flavourghostlist = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
-                        "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                        "TausFinal",
-                        "WBosons", "ZBosons", "HBosons", "TQuarksFinal",
-                        "Partons",
-                        ]
-    flavourghosts = [JetGhost("TruthLabel"+ghosttype) for ghosttype in flavourghostlist]
-    standardghosts += flavourghosts
-
     ########################################################################
     # First a demonstration of just building jets using standard definitions
-    from JetRecConfig.StandardJetDefs import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
+    from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
 
-    # This updates the original jet definitions, so might be a little risky
-    # in derivation code. Safer would be to always deepcopy into a local variable.
-    AntiKt4EMTopo.ptminfilter = 15e3
-    AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + clustermods + truthmods
-    AntiKt4EMTopo.ghostdefs = standardghosts
-    #AntiKt4EMTopo.modifiers = ["Calib:AnalysisLatest:mc"]
 
-    AntiKt4EMPFlow.ptminfilter = 10e3
-    AntiKt4EMPFlow.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + truthmods
-    AntiKt4EMPFlow.ghostdefs = standardghosts
-    #AntiKt4EMPFlow.modifiers = ["Calib:AnalysisLatest:mc"]
+    # ************************
+    # TEMPORARY : comment out jet def modifications
+    
+    # # This updates the original jet definitions, so might be a little risky
+    # # in derivation code. Safer would be to always deepcopy into a local variable.
+    # #AntiKt4EMTopo.ptminfilter = 15e3
+    # AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + clustermods + truthmods
 
-    AntiKt4Truth.ptminfilter = 2e3
-    AntiKt4Truth.extrainputs = ["EventDensity"]
+    # AntiKt4EMPFlow.ptminfilter = 10e3
+    # AntiKt4EMPFlow.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + truthmods
+    # AntiKt4EMPFlow.ghostdefs = standardghosts
+    # #AntiKt4EMPFlow.modifiers = ["Calib:AnalysisLatest:mc"]
 
-    AntiKt4TruthWZ.ptminfilter = 2e3
-    AntiKt4TruthWZ.extrainputs = ["EventDensity"]
+    # AntiKt4Truth.ptminfilter = 2e3
+    # AntiKt4Truth.extrainputs = ["EventDensity"]
 
-    ########################################################################
-    # Now we define our own definitions
-    from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
-    EMTopoCSSK = JetConstit(xAODType.CaloCluster, ["EM","Origin","CS","SK"])
-    AntiKt4EMTopoCSSK = JetDefinition("AntiKt",0.4,EMTopoCSSK,ptmin=2e3,ptminfilter=2e3)
-    AntiKt4EMTopoCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + clustermods + truthmods
-    AntiKt4EMTopoCSSK.ghostdefs = standardghosts
-    AntiKt4EMTopoCSSK.extrainputs = ["EventDensity"]
+    # AntiKt4TruthWZ.ptminfilter = 2e3
+    # AntiKt4TruthWZ.extrainputs = ["EventDensity"]
 
     ########################################################################
-    # We can also copy and modify the standard ones
-    from copy import deepcopy
-    from JetRecConfig.StandardJetDefs import CHSPFlow
+    # ************************
+    # TEMPORARY : comment out custom CSSK definitions
+    # # Now we define our own definitions
+    # from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
+    # EMTopoCSSK = JetConstit(xAODType.CaloCluster, ["EM","Origin","CS","SK"])
+    # AntiKt4EMTopoCSSK = JetDefinition("AntiKt",0.4,EMTopoCSSK,ptmin=2e3,ptminfilter=2e3)
+    # AntiKt4EMTopoCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + clustermods + truthmods
+    # AntiKt4EMTopoCSSK.ghostdefs = standardghosts
+    # AntiKt4EMTopoCSSK.extrainputs = ["EventDensity"]
 
-    CSSKPFlow = deepcopy(CHSPFlow)
-    CSSKPFlow.modifiers = ["CS","SK"]
-    AntiKt4EMPFlowCSSK = deepcopy(AntiKt4EMPFlow)
-    AntiKt4EMPFlowCSSK.inputdef = CSSKPFlow
-    AntiKt4EMPFlowCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + truthmods
-    AntiKt4EMPFlowCSSK.ptmin = 2e3
-    AntiKt4EMPFlowCSSK.ptminfilter = 2e3
-    AntiKt4EMPFlowCSSK.ghostdefs = standardghosts
-    AntiKt4EMPFlowCSSK.extrainputs = ["EventDensity"]
+    # ########################################################################
+    # # We can also copy and modify the standard ones
+    # from copy import deepcopy
+    # from JetRecConfig.StandardJetDefs import CHSPFlow
 
-    jetdefs = [AntiKt4EMTopo,
-               AntiKt4EMPFlow,
-               AntiKt4EMTopoCSSK,
-               AntiKt4EMPFlowCSSK]
+    # CSSKPFlow = deepcopy(CHSPFlow)
+    # CSSKPFlow.modifiers = ["CS","SK"]
+    # AntiKt4EMPFlowCSSK = deepcopy(AntiKt4EMPFlow)
+    # AntiKt4EMPFlowCSSK.inputdef = CSSKPFlow
+    # AntiKt4EMPFlowCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + truthmods
+    # AntiKt4EMPFlowCSSK.ptmin = 2e3
+    # AntiKt4EMPFlowCSSK.ptminfilter = 2e3
+    # AntiKt4EMPFlowCSSK.ghostdefs = standardghosts
+    # AntiKt4EMPFlowCSSK.extrainputs = ["EventDensity"]
+
+    jetdefs = [
+        AntiKt4EMTopo.clone(prefix="New"),
+        AntiKt4EMPFlow.clone(prefix="New"),
+        # AntiKt4EMTopoCSSK,
+        # AntiKt4EMPFlowCSSK,
+    ]
     if configFlags.Input.isMC:
         jetdefs += [AntiKt4Truth,
                     AntiKt4TruthWZ]

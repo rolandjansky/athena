@@ -20,7 +20,8 @@ def PixelClusterizationCfg(flags, **kwargs) :
     sub_acc = PixelGangedAmbiguitiesFinderCfg(flags)
     ambi_finder=sub_acc.getPrimary()
     acc.merge(sub_acc)
-    acc.addEventAlgo( CompFactory.InDet.PixelClusterization(   name                    = "InDetPixelClusterization",
+
+    acc.addEventAlgo( CompFactory.InDet.PixelClusterization(   name         = "InDetPixelClusterization",
                                                     clusteringTool          = merged_pixels_tool,
                                                     gangedAmbiguitiesFinder = ambi_finder,
                                                     DataObjectName          = "PixelRDOs",

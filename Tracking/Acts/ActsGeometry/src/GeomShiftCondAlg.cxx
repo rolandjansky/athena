@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/GeomShiftCondAlg.h"
@@ -11,9 +11,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 #include "GaudiKernel/ICondSvc.h"

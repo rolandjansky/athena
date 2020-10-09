@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinCaloClustersAlg.cxx
@@ -16,7 +16,6 @@
 
 // FrameWork includes
 #include "Gaudi/Property.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 
 
@@ -94,23 +93,22 @@ StatusCode ThinCaloClustersAlg::initialize()
   // Now, set all properties of the private skimTool that were acutally configured
 	ATH_MSG_DEBUG( "Setting property" << m_streamName
                        << " of private tool with name: '" << fullToolName << "'" );
-        ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-                                                   StringProperty("StreamName",m_streamName) ) );
+    m_jos->set (fullToolName + ".StreamName", m_streamName);
 
   if (m_setCaloClusKey) {
     ATH_MSG_DEBUG( "Setting property" << m_caloClusKey
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_caloClusKey) );
+    m_jos->set (fullToolName + "." + m_caloClusKey.name(), m_caloClusKey.value());
   }
   if (m_setInCollKey) {
     ATH_MSG_DEBUG( "Setting property" << m_inCollKeyList
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_inCollKeyList) );
+    m_jos->set (fullToolName + "." + m_inCollKeyList.name(), m_inCollKeyList.toString());
   }
   if (m_setSelection) {
     ATH_MSG_DEBUG( "Setting property" << m_selection
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_selection) );
+    m_jos->set (fullToolName + "." + m_selection.name(), m_selection.value());
   }
   ATH_MSG_DEBUG( "Done setting properties of the tool");
 

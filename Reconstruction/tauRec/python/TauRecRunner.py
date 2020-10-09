@@ -42,9 +42,8 @@ class TauRecRunner ( TauRecRunConfigured ) :
   
     _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey }
     
-    def __init__(self, name = "TauRecRunner",doPi0Clus=False):
+    def __init__(self, name = "TauRecRunner"):
         self.name = name
-        self.doPi0Clus = doPi0Clus
         TauRecRunConfigured.__init__(self, name)
 
 
@@ -67,25 +66,17 @@ class TauRecRunner ( TauRecRunConfigured ) :
         
         tools = []
                         
-        ### TauRecPi0EflowProcessor ###
-        # Tools in this section were originally in TauRecPi0EflowProcessor
-        if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
-            
-        ###############################
+        tools.append(taualgs.getPi0ClusterCreator())
+        tools.append(taualgs.getPi0ClusterScaler())
+        tools.append(taualgs.getPi0ScoreCalculator())
+        tools.append(taualgs.getPi0Selector())
         
-        ### TauRecVariablesProcessor ###
         from InDetRecExample.InDetJobProperties import InDetFlags
-        # Tools in this section were originally in TauRecVariablesProcessor
         if tauFlags.isStandalone() or InDetFlags.doVertexFinding():
             tools.append(taualgs.getTauVertexVariables())
 
         tools.append(taualgs.getTauCommonCalcVars())
         tools.append(taualgs.getTauSubstructure())
-
-        if self.doPi0Clus:
-            tools.append(taualgs.getPi0ClusterScaler())
-            tools.append(taualgs.getPi0ScoreCalculator())
-            tools.append(taualgs.getPi0Selector())
 
         tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
 

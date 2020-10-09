@@ -23,9 +23,10 @@
 #include <string>
 
 #include "TrigInterfaces/AllTEAlgo.h"
+#include "IRegionSelector/IRegSelTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 
-class IRegSelSvc;
 
 namespace HLT {
   class TriggerElement;
@@ -64,8 +65,9 @@ namespace PESA
     bool m_prefetchPIX;
     bool m_prefetchSCT;
 
-    std::string       m_regionSelectorName;
-    IRegSelSvc*       m_regionSelector;
+    std::string              m_regionSelectorName;
+    ToolHandle<IRegSelTool>  m_regionSelector_pix { this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel" };
+    ToolHandle<IRegSelTool>  m_regionSelector_sct { this, "RegSelTool_SCT",   "RegSelTool/RegSelTool_SCT" };
 
   };
 } // end of namespace

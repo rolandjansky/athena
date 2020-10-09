@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -27,7 +27,9 @@
 #include <iostream>
 
 // get cabling
-extern TileCablingService * s_cabling;
+namespace {
+const TileCablingService * const s_cabling = TileCablingService::getInstance();
+}
 
 TileSimData::TileSimData( const Identifier& id ) : m_pmt_id( id )
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AnalysisTools/AANTupleStream.h"
@@ -9,17 +9,17 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAddressCreator.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "GaudiKernel/IIoComponentMgr.h"
+
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
 #include "PersistentDataModel/DataHeader.h"
@@ -766,9 +766,9 @@ AANTupleStream::io_reinit()
     return StatusCode::FAILURE;
   }
 
-  ServiceHandle<IJobOptionsSvc> josvc ("JobOptionsSvc", this->name());
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> josvc ("JobOptionsSvc", this->name());
   if ( !josvc.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR ("Could not retrieve IJobOptionsSvc/JobOptionsSvc !");
+    ATH_MSG_ERROR ("Could not retrieve IOptionsSvc/JobOptionsSvc !");
     return StatusCode::FAILURE;
   }
 
@@ -791,12 +791,8 @@ AANTupleStream::io_reinit()
   }
   
   // recreate the proper property value...
-  std::vector<std::string> outvec(1);
-  outvec[0] = "AANT DATAFILE='" + m_fileName + "' OPT='RECREATE'";
-  StringArrayProperty prop ("Output", outvec);
-  if ( !josvc->addPropertyToCatalogue ("THistSvc", prop).isSuccess() ) {
-    ATH_MSG_ERROR ("Could not update THistSvc.Output property with new name !");
-  }
+  std::vector<std::string> outvec = {"AANT DATAFILE='" + m_fileName + "' OPT='RECREATE'"};
+  josvc->set("THistSvc.Output", Gaudi::Utils::toString(outvec));
 
   // handle schema...
   if (!m_schemaDone) {

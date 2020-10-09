@@ -5,7 +5,7 @@
 #include "ParticleJetTools/CopyTruthParticles.h"
 #include <memory>
 #include "TruthUtils/PIDHelpers.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/WriteHandle.h"
 

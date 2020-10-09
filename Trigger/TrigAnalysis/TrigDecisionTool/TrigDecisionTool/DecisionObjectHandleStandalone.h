@@ -12,7 +12,7 @@
 #include <string>
 
 // ASG include(s):
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // xAOD include(s):
 #include "xAODTrigger/TrigDecision.h"

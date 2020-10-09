@@ -25,7 +25,7 @@
 #include <TTree.h>
 #include <TLorentzVector.h>
 
-#include <AsgTools/AsgMessaging.h>
+#include <AsgMessaging/AsgMessaging.h>
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
 #include "egammaMVACalib/egammaMVAFunctions.h"

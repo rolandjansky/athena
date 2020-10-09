@@ -40,7 +40,7 @@ namespace met {
 
   using namespace xAOD;
 
-  static SG::AuxElement::ConstAccessor<std::vector<ElementLink<IParticleContainer> > > cacc_ghosttruth("GhostTruth");
+  static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<IParticleContainer> > > cacc_ghosttruth("GhostTruth");
 
   // Constructors
   ////////////////

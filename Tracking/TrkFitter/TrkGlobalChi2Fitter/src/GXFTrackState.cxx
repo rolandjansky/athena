@@ -249,4 +249,12 @@ namespace Trk {
   bool GXFTrackState::getStateType(TrackStateOnSurface::TrackStateOnSurfaceType t) const {
     return m_tsType.test(t);
   }
+
+  std::optional<std::vector<std::unique_ptr<const TrackParameters>>> & GXFTrackState::getHoles(void) {
+    return m_holes;
+  }
+
+  void GXFTrackState::setHoles(std::vector<std::unique_ptr<const TrackParameters>> && v) {
+    m_holes = std::move(v);
+  }
 }

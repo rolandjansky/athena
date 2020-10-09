@@ -13,7 +13,7 @@
 #include "POOLRootAccess/TEvent.h" //event looping
 #include "GaudiKernel/ToolHandle.h" //for better working with tools
 
-#include "AsgTools/MessageCheck.h" //messaging
+#include "AsgMessaging/MessageCheck.h" //messaging
 using namespace asg::msgUserCode;  //messaging
 
 //ROOT includes

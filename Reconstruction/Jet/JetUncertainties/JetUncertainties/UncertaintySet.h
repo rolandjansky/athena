@@ -11,7 +11,8 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "PATInterfaces/SystematicSet.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgTools/IAsgTool.h"
 
 #include <string>
 #include <vector>

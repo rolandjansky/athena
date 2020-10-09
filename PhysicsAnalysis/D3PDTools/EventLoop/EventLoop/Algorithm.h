@@ -24,7 +24,7 @@
 #include <EventLoop/Global.h>
 
 #include <TNamed.h>
-#include <AsgTools/INamedInterface.h>
+#include <AsgMessaging/INamedInterface.h>
 #include <AsgTools/SgTEvent.h>
 #include <EventLoop/StatusCode.h>
 

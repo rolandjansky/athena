@@ -296,8 +296,13 @@ private:
    * @param bool variable to specify whether data or MC correction
    * @return correction
    */
-  double fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const;
-   
+  double fitFuncEndcap_corrRZL(const EventContext& ctx,
+                               EGasType gasType,
+                               double driftRadius,
+                               double radialPosition,
+                               int Layer,
+                               int sign) const;
+
   /**  
    * @brief function to compute correction factor in barrel region  
    * @param driftradius
@@ -308,7 +313,12 @@ private:
    * @param bool variable to specify whether data or MC correction  
    * @return correction
    */
-  double fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const;
+  double fitFuncBarrel_corrRZL(const EventContext& ctx,
+                               EGasType gasType,
+                               double driftRadius,
+                               double zPosition,
+                               int Layer,
+                               int StrawLayer) const;
 
   /* Calibration functions for occupancy corrections */
   double hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;

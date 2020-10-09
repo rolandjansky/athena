@@ -30,7 +30,7 @@ function (datamodel_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
                   PROPERTIES TIMEOUT 300
-                  LOG_IGNORE_PATTERN "has different type than the branch|no dictionary for class|^StorageSvc +INFO|Cache alignment|Unable to locate catalog${ARG_EXTRA_IGNORE}"
+                  LOG_IGNORE_PATTERN "has different type than the branch|no dictionary for class|^StorageSvc +INFO|Cache alignment|Unable to locate catalog|IOVDbSvc[0-9 ]+INFO${ARG_EXTRA_IGNORE}"
                   ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-03"
                    )
   if( ARG_DEPENDS )

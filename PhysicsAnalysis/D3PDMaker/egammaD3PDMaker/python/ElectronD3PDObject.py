@@ -358,16 +358,6 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
     #                           ])
 
 
-    defineBlockAndAlg \
-      (ElectronD3PDObject,
-       1, 'UDShowerDepth',
-       D3PDMakerCoreComps.AuxDataFillerTool,
-       'egammaShowerDepthConfig',
-       AuxPrefix = auxprefix,
-       Vars = ['calibHitsShowerDepth #Shower depth as defined by the calib hits cluster correction',
-               ])
-
-
     # `target' arg needs to be passed in from the caller;
     # otherwise, we don't make this block.
     def _jetAssocLevel (reqlev, args):

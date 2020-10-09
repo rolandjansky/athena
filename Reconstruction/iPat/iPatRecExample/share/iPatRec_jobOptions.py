@@ -92,10 +92,10 @@ if DetFlags.detdescr.ID_on() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRI
     # include the RegionSelector service
     if DetFlags.haveRIO.TRT_on():
         from AthenaCommon.AppMgr import ServiceMgr
-        from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-        iPatRegSelSvc  = RegSelSvcDefault()
-        iPatRegSelSvc.enableTRT = True
-        ServiceMgr += iPatRegSelSvc
+        # from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+        # iPatRegSelSvc  = RegSelSvcDefault()
+        # iPatRegSelSvc.enableTRT = True
+        # ServiceMgr += iPatRegSelSvc
 
     # -------------------------------------------------------------
     # Algorithm Private Options: iPatRec

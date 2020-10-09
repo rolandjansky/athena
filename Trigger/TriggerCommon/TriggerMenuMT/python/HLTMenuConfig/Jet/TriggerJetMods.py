@@ -17,4 +17,6 @@ def getConstitFourMomTool_copy():
     return cfourmom
 
 ConstitFourMom_copy = JetModifier("JetConstitFourMomTool", "constitfourmom_copy",
-                                   helperfn=getConstitFourMomTool_copy)
+                                   createfn=getConstitFourMomTool_copy)
+from JetRecConfig.StandardJetMods import jetmoddict
+jetmoddict['ConstitFourMom_copy'] = ConstitFourMom_copy

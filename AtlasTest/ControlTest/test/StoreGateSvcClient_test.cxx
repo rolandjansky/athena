@@ -16,7 +16,6 @@
 #include <cassert>
 
 
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/SGtests.h"
 #include "AthenaKernel/ILockable.h"

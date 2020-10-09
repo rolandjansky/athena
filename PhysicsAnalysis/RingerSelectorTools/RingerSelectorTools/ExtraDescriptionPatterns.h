@@ -8,7 +8,7 @@
 #define RINGERSELECTORTOOLS_EXTRADESCRIPTIONPATTERNS_H
 
 // Asg includes:
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 // std includes:
 #include <bitset>

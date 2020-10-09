@@ -10,7 +10,7 @@
 
 // EDM includes
 #include "AsgTools/AnaToolHandle.h"
-#include "AsgTools/MessageCheck.h"  // for messaging
+#include "AsgMessaging/MessageCheck.h"  // for messaging
 #include "POOLRootAccess/TEvent.h"  // event looping
 #include "xAODJet/JetContainer.h"   // for jet studies
 #include "GaudiKernel/ToolHandle.h" // for better working with tools

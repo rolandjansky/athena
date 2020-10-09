@@ -23,6 +23,9 @@ _partitionName = {0: 'AUX', 1 : 'LBA', 2 : 'LBC', 3 : 'EBA', 4 : 'EBC', 5 : 'All
 _gainName = {0 : 'LG', 1 : 'HG'}
 _sampleName = {0 : 'SampA', 1 : 'SampB', 2 : 'SampD', 3 : 'SampE', 4 : 'AllSamp'}
 
+_cellNameTMDB_LB = ["D0", "D1L", "D1R", "D2R", "D2L", "D3L", "D3R", ""]
+_cellNameTMDB_EB = ["D5L", "D5R", "D6L", "D6R"]
+
 def getCellName(partition, channel):
     '''
     This function returns name of Tile cell for given partition and channel.
@@ -186,6 +189,13 @@ def getLabels(labels, partition = ''):
         labels = getCellChannelLabels(partition)
 
     return labels
+
+
+def getCellNameTMDB(partition, channel):
+        return _cellNameTMDB_LB[channel] if partition.startswith('L') else _cellNameTMDB_EB[channel]
+
+def getCellChannelTMDB_Labels(partition):
+        return _cellNameTMDB_LB if partition.startswith('L') else _cellNameTMDB_EB
 
 
 def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = False, type = 'TH2D', value = '', trigger = '', run = ''):
@@ -575,3 +585,48 @@ def addTileModuleArray(helper, algorithm, name, title, path,
                                     xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                     run = run, triggers = triggers, subDirectory = subDirectory,
                                     xlabels = ('modules'), perPartition = True, separator = separator )
+
+
+
+def addTileTMDB_2DHistogramsArray(helper, algorithm, name = '', value = '',
+                                    title = '', path = '', type = 'TH2D', run = ''):
+
+    array = helper.addArray([int(Tile.MAX_ROS - 1)], algorithm, name)
+    for postfix, tool in array.Tools.items():
+        ros = int(postfix.split('_').pop()) + 1
+        
+        partition = getPartitionName(ros)
+        nxlabels = getModuleLabels(partition)
+        nylabels = getCellChannelTMDB_Labels(partition)
+        ybins = len(nylabels)
+                    
+        fullName = 'module,channel' + (',' + value if 'Profile' in type else '') + ';'
+        fullName += getTileHistogramName(name, partition = partition)
+        
+        fullTitle = getTileHistogramTitle(title, run = run, partition = partition)
+        
+        tool.defineHistogram( fullName, path = path, type = type, title = fullTitle,
+                                xlabels = nxlabels, ylabels = nylabels,
+                                xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
+                                ybins = ybins, ymin = -0.5, ymax = ybins - 0.5)
+
+
+
+def addTileTMDB_1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '',
+                                path = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = ''):
+
+    for ros in range(1, Tile.MAX_ROS):
+        partition = getPartitionName(ros)
+        histName = "{}_{}".format(name, partition)
+        nChannels = len(_cellNameTMDB_LB) if partition.startswith('L') else len(_cellNameTMDB_EB)
+        array = helper.addArray([nChannels], algorithm,  histName)
+        for postfix, tool in array.Tools.items():
+            channel = int(postfix.split('_').pop())
+
+            fullName = xvalue + (',' + value if 'Profile' in type else '') + ';'
+            fullName += histName + '_' + getCellNameTMDB(partition, channel)
+
+            fullTitle = getTileHistogramTitle(title, run = run, partition = partition)
+
+            tool.defineHistogram( fullName, path = path, type = type, title = fullTitle,
+                                 xbins = xbins, xmin = xmin, xmax = xmax)

@@ -1851,7 +1851,7 @@ namespace Muon {
       if( m_idHelperSvc->rpcIdHelper().measuresPhi((*mit)->identify()) )  ++nphi;
       else ++neta;
     }
-    ATH_MSG_DEBUG("fillTGC: Filling " << m_idHelperSvc->toStringChamber(chid) 
+    ATH_MSG_DEBUG("fillRPC: Filling " << m_idHelperSvc->toStringChamber(chid) 
                                       << ": loc s"    << sector << " " << MuonStationIndex::regionName(region) << " " << MuonStationIndex::layerName(layer) 
                                       << " -> eta hits " << neta 
                                       << " phi hits "  << nphi );

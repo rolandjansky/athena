@@ -33,16 +33,13 @@ TauPi0CreateROI::~TauPi0CreateROI() {
 
 StatusCode TauPi0CreateROI::initialize() {
     
-    // retrieve tools
-    ATH_MSG_DEBUG( "Retrieving tools" );
-    
     ATH_CHECK( m_caloCellInputContainer.initialize() );
 
     return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, std::vector<CaloCell*>& addedCellsMap) const {
+StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, boost::dynamic_bitset<>& addedCellsMap) const {
 
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -84,12 +81,11 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellCont
 
         // Store cell in output container
         const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
-        bool isNewCell = (addedCellsMap.at(cellHash)==NULL);
 
-        if(isNewCell){
+	if(!addedCellsMap.test(cellHash)) {
             CaloCell* copyCell = cell->clone();
             pPi0CellContainer.push_back(copyCell);
-            addedCellsMap[cellHash] = copyCell;
+	    addedCellsMap.set(cellHash);
         }
     }
 

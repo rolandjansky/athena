@@ -117,7 +117,7 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
     """Return ComponentAccumulator with configured CscDigitToCscRDO algorithm"""
     # for Csc, configuration is in the tool CscDigitToCscRDOTool
     # configure dependency
-    from MuonConfig.MuonCalibConfig import CscCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
     acc = CscCalibToolCfg(flags)
     CscCalibTool = acc.popPrivateTools()
     # configure basic parameters

@@ -571,10 +571,10 @@ if doLAr or doTile:
                 x.find("/CALO/HadCalibration/CaloOutOfCluster") == -1 and \
                 x.find("/CALO/HadCalibration/CaloOutOfClusterPi0") == -1 and \
                 x.find("/CALO/HadCalibration/CaloDMCorr2") == -1:
-                    print "adding ",x," to IOVDbSvc.Folders" 
+                    print("adding ",x," to IOVDbSvc.Folders")
                     myIOVDbFolders += [x]
              else:
-                    print "removing ",x," from IOVDbSvc.Folders"
+                    print("removing ",x," from IOVDbSvc.Folders")
 
         iovdbsvc.Folders = myIOVDbFolders
         if not doCaloTopoLocalCalibDb or doSim:
@@ -584,7 +584,7 @@ if doLAr or doTile:
              iovdbsvc.Folders+=["/CALO/HadCalibration/CaloOutOfCluster"+"<dbConnection>sqlite://X;schema=myOOC05BERT200.db;dbname=OFLP200</dbConnection>"+"<tag>CaloHadOOCCorr-CSC05-BERT</tag>"]
              iovdbsvc.Folders+=["/CALO/HadCalibration/CaloOutOfClusterPi0"+"<dbConnection>sqlite://X;schema=myOOCPi005BERT200.db;dbname=OFLP200</dbConnection>"+"<tag>CaloHadOOCCorrPi0-CSC05-BERT</tag>"]
              iovdbsvc.Folders+=["/CALO/HadCalibration/CaloDMCorr2"+"<dbConnection>sqlite://X;schema=myDBHadDMCoeff200.db;dbname=OFLP200</dbConnection>"+"<tag>CaloHadDMCorr-002-00</tag>"]
-             print iovdbsvc.Folders
+             print(iovdbsvc.Folders)
              if not os.access('myEMFrac05BERT200.db',os.R_OK):
                 os.system('cp -f /afs/cern.ch/user/m/menke/public/AtlasOffline-14.2.21/myEMFrac05BERT200.db .')
              if not os.access('myInvWeight05BERT200.db',os.R_OK):

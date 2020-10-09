@@ -15,6 +15,10 @@
   <class name="LArDigitContainer" id="B15FFDA0-206D-4062-8B5F-582A1ECD5502" />
   <class name="DataVector<LArDigit>" />
   <class name="std::vector<LArDigit*>" />
+  <class name="LArSCDigit" />
+  <class name="LArSCDigitContainer" id="A9F35100-49CB-4A1B-AA25-5FCF1737BBE5" />
+  <class name="LArRawSC" />
+  <class name="LArRawSCContainer" id="CEBA32C8-FA00-4FCB-97DC-37F7F7C841BD" />
  
 <!--  <class name="std::vector<float>" /> -->
   <class name="LArTTL1Container" id="38FAECC7-D0C5-4DD8-8FAE-8D35F0542ECD" />

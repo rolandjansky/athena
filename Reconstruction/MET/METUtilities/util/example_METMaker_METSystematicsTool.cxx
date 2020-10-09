@@ -23,7 +23,7 @@ int main() {
 #endif
 
 // FrameWork includes
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 #include "AsgTools/AnaToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"

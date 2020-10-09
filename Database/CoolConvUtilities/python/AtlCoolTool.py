@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -814,6 +814,7 @@ class AtlCoolTool:
         res.append('Searching under %s for tags referenced by %s' % (node,tag))
         nodelist=self.db.listAllNodes()
         for inode in nodelist:
+            inode = str(inode)
             if (inode[:len(node)]==node):
                 # look only in multiversion folders
                 multi=True

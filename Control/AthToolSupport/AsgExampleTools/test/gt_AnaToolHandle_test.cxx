@@ -327,7 +327,7 @@ namespace asg
   // check make(type)
   TEST_F (AnaToolHandleUseTest, makeTyped)
   {
-    ASSERT_DEATH (tool.make ("asg::UnitTestTool1"), "");
+    ASSERT_DEATH (tool.make ("asg::UnitTestTool1").ignore(), "");
   }
 #endif
 
@@ -351,7 +351,7 @@ namespace asg
   // check makeNew<type>()
   TEST_F (AnaToolHandleUseTest, makeNew)
   {
-    ASSERT_DEATH (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"), "");
+    ASSERT_SUCCESS (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"));
   }
 #endif
 
@@ -432,7 +432,7 @@ namespace asg
   // check setProperty<int>()
   TEST_F (AnaToolHandleUseTest, setPropertyInt)
   {
-    ASSERT_DEATH (tool.setProperty<int> ("propertyInt", 42), "");
+    ASSERT_DEATH (tool.setProperty<int> ("propertyInt", 42).ignore(), "");
   }
 #endif
 
@@ -461,7 +461,7 @@ namespace asg
   // check setProperty(const char*)
   TEST_F (AnaToolHandleUseTest, setPropertyString)
   {
-    ASSERT_DEATH (tool.setProperty ("propertyString", "42"), "");
+    ASSERT_DEATH (tool.setProperty ("propertyString", "42").ignore(), "");
   }
 #endif
 
@@ -487,7 +487,7 @@ namespace asg
   // check initialize()
   TEST_F (AnaToolHandleUseTest, initialize)
   {
-    ASSERT_DEATH (tool.initialize(), "");
+    ASSERT_DEATH (tool.initialize().ignore(), "");
   }
 #endif
 

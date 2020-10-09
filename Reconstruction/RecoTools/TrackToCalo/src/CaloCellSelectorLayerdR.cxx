@@ -20,32 +20,34 @@ namespace Trk
   CaloCellSelectorLayerdR::~CaloCellSelectorLayerdR(){}
 
   bool CaloCellSelectorLayerdR::preSelectAction( const Trk::CaloExtension& caloExtension ){
-
-    //std::cout << "CaloCellSelectorLayerdR p00" << std::endl;
     if( caloExtension.caloLayerIntersections().empty() ) return false;
-    //std::cout << "CaloCellSelectorLayerdR p01" << std::endl;
     CaloExtensionHelpers::midPointEtaPhiHashLookupVector( caloExtension, m_midPoints );
     return true;
   }
 
+  bool CaloCellSelectorLayerdR::preSelectAction( const xAOD::CaloCluster& caloCluster ){
+    m_midPoints.clear();
+    m_midPoints.resize(CaloSampling::getNumberOfSamplings());
+    for(unsigned int i=0; i<CaloSampling::Unknown; i++){
+      auto s = static_cast<CaloSampling::CaloSample>(i);
+      if(!caloCluster.hasSampling(s)) m_midPoints.push_back(std::make_tuple(false,0.,0.));
+      else m_midPoints.push_back(std::make_tuple(true,caloCluster.etaSample(s),caloCluster.phiSample(s)));
+    }
+    return true;
+  }
+
+
   bool CaloCellSelectorLayerdR::select( const CaloCell& cell )const {
     // select cell within dR from the midPoint of the same calo layer
     const CaloDetDescrElement* dde = cell.caloDDE();
-    //std::cout << "CaloCellSelectorLayerdR p1" << std::endl;
     if(!dde) return false;
 
     int samplingID = dde->getSampling();
-    //std::cout << "CaloCellSelectorLayerdR p2 " << samplingID << std::endl;
-    //for (auto entry : m_midPoints){
-    //  std::cout << std::get<0>(entry) << std::endl;
-    //}
     if ( !std::get<0>(m_midPoints[samplingID]) ) return false;
     double dr = Utils::deltaR2( std::get<1>(m_midPoints[samplingID]),dde->eta(),std::get<2>(m_midPoints[samplingID]),dde->phi());
     if( dr < m_coneSize2){
-      //std::cout << "CaloCellSelectorLayerdR p3" << std::endl;
       return true;
     }
-    //std::cout << "CaloCellSelectorLayerdR p4" << std::endl;
     return false;
   }
 

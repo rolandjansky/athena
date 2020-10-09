@@ -109,9 +109,11 @@ class L2EFChain_Beamspot(L2EFChainDef):
      from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
      [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
         
-     from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
+     from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo 
 
-     self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpottracks']]
+     dummyAllTEAlgo = GenericDummyUnseededAllTEAlgo("L2DummyAlgo")
+     
+     self.L2sequenceList += [ [[""], [dummyAllTEAlgo]+trk_alg, 'L2_BeamSpottracks']]
 
      self.L2sequenceList +=[[['L2_BeamSpottracks'], [theFex], 'L2_fex']]
      self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  

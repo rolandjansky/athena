@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonCalibConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
+from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 
 Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon.MdtDriftCircleOnTrackCreator
 Muon__CscClusterOnTrackCreator=CompFactory.Muon.CscClusterOnTrackCreator

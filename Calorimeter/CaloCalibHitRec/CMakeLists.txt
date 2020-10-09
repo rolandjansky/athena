@@ -1,50 +1,23 @@
-################################################################################
-# Package: CaloCalibHitRec
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloCalibHitRec )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloDmDetDescr
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloRec
-                          Calorimeter/CaloSimEvent
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODCaloEvent
-			  Event/xAOD/xAODTruth
-                          Control/CxxUtils
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloEvent
-                          Control/AthenaKernel
-                          DetectorDescription/AtlasDetDescr
-                          LArCalorimeter/LArRecEvent
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          TileCalorimeter/TileEvent
-                          Tools/PathResolver )
 
 # External dependencies:
 find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_library( CaloCalibHitRecLib
-                     src/*.cxx
-		     PUBLIC_HEADERS CaloCalibHitRec
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent xAODTruth GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver CxxUtils )
+                   src/*.cxx
+		           PUBLIC_HEADERS CaloCalibHitRec
+                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent CxxUtils GaudiKernel Identifier StoreGateLib xAODCaloEvent xAODTruth
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasDetDescr CaloDetDescrLib CaloEvent CaloUtilsLib LArRecEvent McParticleEvent PathResolver TileEvent )
 
 # Component(s) in the package:
 atlas_add_component( CaloCalibHitRec
-                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent xAODTruth GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver CxxUtils )
+                     LINK_LIBRARIES CaloCalibHitRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

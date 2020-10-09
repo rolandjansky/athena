@@ -10,7 +10,7 @@
 #include <string>
 #include "TrigNavStructure/ITrigHolderFactory.h"
 #include "TrigNavStructure/BaseHolder.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class IConversionSvc;

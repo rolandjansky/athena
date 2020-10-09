@@ -15,7 +15,7 @@
 #include "TObjArray.h"
 #include "TFile.h"
 
-#include "AsgTools/MsgStreamMacros.h"
+#include "AsgMessaging/MsgStreamMacros.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetAccessors.h"

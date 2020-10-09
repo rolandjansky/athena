@@ -160,7 +160,8 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     prereqs = []
     prereqs.append("mod:ConstitFourMom")
     if "JetArea" in calibseq: # Will not insert a prefix here
-        prereqs.append("input:EventDensity")
+        if calibcontext.startswith("Trig"): prereqs.append("input:HLT_EventDensity")
+        else: prereqs.append("input:EventDensity")
     if "GSC" in calibseq:
         prereqs += ["mod:CaloEnergies"]
         if calibcontext != "TrigRun2": # No track/MS GSC for trigger w/o FTK

@@ -25,7 +25,6 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 
 
-class IRegSelSvc;
 
 namespace HLT {
   class TriggerElement;
@@ -68,10 +67,6 @@ namespace PESA
 
     double m_etaHalfWidth;
     double m_phiHalfWidth;
-
-
-    std::string       m_regionSelectorName;
-    IRegSelSvc*       m_regionSelector;
 
   };
 } // end of namespace
