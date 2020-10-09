@@ -108,10 +108,11 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 nbins = 10
                 if station==1:
                     nbins = 648
-                if station==2 or station==3:
+                elif station==2 or station==3:
                     nbins = 528
-                if station==4:
+                else: # station==4
                     nbins = 90
+
                 myGroup.defineHistogram(x_name+','+y_name+';'+y_name+'_vs_lb',
                                         title=y_name+'_vs_lb;Luminosity block;Chamber index',type='TH2F',
                                         path=hitPath,xbins=100,xmin=-0.5,xmax=99.5,
@@ -130,12 +131,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
                 if station==1:
                     nbinsx = 15
                     nbinsy = 48
-                if station==2 or station==3:
+                elif station==2 or station==3:
                     nbinsx = 12
                     nbinsy = 48
-                if station==4:
+                else: # station==4
                     nbinsx = 4
                     nbinsy = 24
+
                 myGroup.defineHistogram(x_name+','+y_name+';'+name+'_vs_iEta',
                                         title=name+'_vs_iEta;iEta;Chamber index',type='TH2F',path=hitPath,
                                         xbins=nbinsx,xmin=0.5,xmax=nbinsx+0.5,
@@ -162,37 +164,33 @@ def TgcRawDataMonitoringConfig(inputFlags):
                                 if s_or_w=="S":
                                     nbins = 32
                                 else:
-                                    if station==1 and eta==0 and lay==1: nbins = 105
-                                    if station==1 and eta==0 and lay==1: nbins = 104
-                                    if station==1 and eta==0 and lay==1: nbins = 105
-                                    if station==2 and eta==0: nbins = 125
-                                    if station==3 and eta==0: nbins = 122
-
-                                    if station==1 and eta==1: nbins = 24
-                                    if station==2 and eta==1: nbins = 32
-                                    if station==3 and eta==1: nbins = 31
-
-                                    if station==1 and eta==2: nbins = 23
-                                    if station==2 and eta==2: nbins = 32
-                                    if station==3 and eta==2: nbins = 30
-
-                                    if station==1 and eta==3 and lay==1: nbins = 61
-                                    if station==1 and eta==3 and lay==1: nbins = 62
-                                    if station==1 and eta==3 and lay==1: nbins = 62
-                                    if station==2 and eta==3: nbins = 32
-                                    if station==3 and eta==3: nbins = 32
-
-                                    if station==1 and eta==4 and lay==1: nbins = 92
-                                    if station==1 and eta==4 and lay==1: nbins = 91
-                                    if station==1 and eta==4 and lay==1: nbins = 91
-                                    if station==2 and eta==4: nbins = 103
-                                    if station==3 and eta==4: nbins = 106
-
-                                    if station==2 and eta==5: nbins = 110
-                                    if station==3 and eta==5: nbins = 96
-
-                                    if station==4 and eta==0: nbins = 32
-                                    if station==4 and eta==1: nbins = 24
+                                    if station==1:
+                                        if eta==1:     nbins = 24
+                                        elif eta==2:   nbins = 23
+                                        elif eta==3:
+                                            if lay==1: nbins = 61
+                                            else:      nbins = 62
+                                        elif eta==4:
+                                            if lay==1: nbins = 92
+                                            else:      nbins = 91
+                                        else: # forward
+                                            if lay==2: nbins = 104
+                                            else:      nbins = 105
+                                    elif station==2:
+                                        if eta==1 or eta==2 or eta==3: nbins = 32
+                                        elif eta==4:                   nbins = 103
+                                        elif eta==5:                   nbins = 110
+                                        else:                          nbins = 125 # forward
+                                    elif station==3:
+                                        if eta==1:   nbins = 31
+                                        elif eta==2: nbins = 30
+                                        elif eta==3: nbins = 32
+                                        elif eta==4: nbins = 106
+                                        elif eta==5: nbins = 96
+                                        else:        nbins = 122
+                                    else: # EI/FI
+                                        if eta==1:   nbins = 24 # EI
+                                        else:        nbins = 32 # FI
 
                                 myGroup.defineHistogram('hits_on_'+chamber_name+s_or_w,
                                                         title='Hits_on_'+chamber_name+s_or_w+";Channel ID;Number of events",

@@ -285,9 +285,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       tgcHit.M = 0;
       tgcHit.istation = tgcHit.station;
       if( tgcHit.istation == 41 || tgcHit.istation == 42 ) tgcHit.M = 1;
-      if( tgcHit.istation == 43 || tgcHit.istation == 44 ) tgcHit.M = 2;
-      if( tgcHit.istation == 45 || tgcHit.istation == 46 ) tgcHit.M = 3;
-      if( tgcHit.istation == 47 || tgcHit.istation == 48 ) tgcHit.M = 4; // EIFI
+      else if( tgcHit.istation == 43 || tgcHit.istation == 44 ) tgcHit.M = 2;
+      else if( tgcHit.istation == 45 || tgcHit.istation == 46 ) tgcHit.M = 3;
+      else if( tgcHit.istation == 47 || tgcHit.istation == 48 ) tgcHit.M = 4; // EIFI
       if(tgcHit.M == 0){
 	ATH_MSG_ERROR("unknown station: " << tgcHit.istation);
       }
@@ -321,13 +321,13 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
 	}else if( tgcHit.istation == 48 ){// EI
 	  int iphi2 = (tgcHit.iphi>=21)?(tgcHit.iphi-21):(tgcHit.iphi); // 0,1,2,..,20
 	  if(iphi2>=0&&iphi2<=2){ tgcHit.sector = 1; tgcHit.f = iphi2;}
-	  if(iphi2>=3&&iphi2<=5){ tgcHit.sector = 3; tgcHit.f = iphi2-3;}
-	  if(iphi2>=6&&iphi2<=8){ tgcHit.sector = 5; tgcHit.f = iphi2-6;}
-	  if(iphi2>=9&&iphi2<=10){ tgcHit.sector = 7; tgcHit.f = iphi2-9 +1;}
-	  if(iphi2>=11&&iphi2<=13){ tgcHit.sector = 9; tgcHit.f = iphi2-11;}
-	  if(iphi2>=14&&iphi2<=15){ tgcHit.sector = 11; tgcHit.f = iphi2-13;}
-	  if(iphi2>=16&&iphi2<=18){ tgcHit.sector = 13; tgcHit.f = iphi2-16;}
-	  if(iphi2>=19&&iphi2<=20){ tgcHit.sector = 15; tgcHit.f = iphi2-19 +1;}
+	  else if(iphi2>=3&&iphi2<=5){ tgcHit.sector = 3; tgcHit.f = iphi2-3;}
+	  else if(iphi2>=6&&iphi2<=8){ tgcHit.sector = 5; tgcHit.f = iphi2-6;}
+	  else if(iphi2>=9&&iphi2<=10){ tgcHit.sector = 7; tgcHit.f = iphi2-9 +1;}
+	  else if(iphi2>=11&&iphi2<=13){ tgcHit.sector = 9; tgcHit.f = iphi2-11;}
+	  else if(iphi2>=14&&iphi2<=15){ tgcHit.sector = 11; tgcHit.f = iphi2-13;}
+	  else if(iphi2>=16&&iphi2<=18){ tgcHit.sector = 13; tgcHit.f = iphi2-16;}
+	  else if(iphi2>=19&&iphi2<=20){ tgcHit.sector = 15; tgcHit.f = iphi2-19 +1;}
 	  tgcHit.E = 1;
 	  tgcHit.L = tgcHit.igasGap;
 	  tgcHit.name = Form("%s%02iM04f%02iE01L%02i%s",tgcHit.side.Data(),tgcHit.sector,tgcHit.f,tgcHit.L,(tgcHit.isStrip>0)?("S"):("W"));
