@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMATOPOCLUSTERCOPIER_H
@@ -47,9 +47,9 @@ class egammaTopoClusterCopier : public AthReentrantAlgorithm {
   Gaudi::Property<float> m_ECut {this, "ECut", 500, "minimum energy of selected clusters"};
   Gaudi::Property<float> m_EMFracCut {this, "EMFracCut", 0.5, "mimimum EM fraction"};
  
-  mutable Gaudi::Accumulators::Counter<long int>                     m_AllClusters;            
-  mutable Gaudi::Accumulators::Counter<long int>                     m_PassPreSelection;
-  mutable Gaudi::Accumulators::Counter<long int>                     m_PassSelection; 
+  mutable Gaudi::Accumulators::Counter<>                     m_AllClusters;
+  mutable Gaudi::Accumulators::Counter<>                     m_PassPreSelection;
+  mutable Gaudi::Accumulators::Counter<>                     m_PassSelection;
 };
 
 #endif // EGAMMATOOLS_EMCLUSTERTOOL_H
