@@ -64,8 +64,9 @@ class TrigEDMChecker ( TrigEDMChecker ):
 
 
 def getEDMAuxList():
-    from TrigEDMConfig.TriggerEDM import getTriggerObjList,TriggerHLTList
-    tlist=getTriggerObjList('AODFULL',[TriggerHLTList])
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    #from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    tlist=getTriggerEDMList('AODFULL',3)
     objlist=[]
     for t,kset in six.iteritems(tlist):
         for k in kset:
