@@ -167,6 +167,7 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
 {
   MSG::Level old_level=level();
   const bool debug = msgLvl(MSG::DEBUG);
+  const bool verbose = msgLvl(MSG::VERBOSE);
 
   //Execute the first get_nr_of_init() simulate calls only once. Used for example to initialize the center position
   TFCSLateralShapeParametrizationHitBase::Hit hit;
@@ -209,8 +210,8 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     hit.reset();
     hit.E()=Ehit;
     bool failed=false;
-    if(debug) if(ihit==2) {
-      //Switch debug output back to INFO to avoid huge logs
+    if(debug) if(ihit==2) if(!verbose) {
+      //Switch debug output back to INFO to avoid huge logs, but keep full log in verbose
       PropagateMSGLevel(MSG::INFO);
     }
     for(auto hititr=hitloopstart; hititr!=m_chain.end(); ++hititr) {
