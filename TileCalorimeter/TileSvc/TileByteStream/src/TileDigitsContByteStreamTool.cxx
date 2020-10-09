@@ -102,22 +102,20 @@ StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEv
                   << " number of channels " << MSG::dec << n );
   }
 
-  TileROD_Encoder* theEncoder;
-
   // TileROD_Encoder has collected all the channels, now can fill the ROD block data.
 
-  for (std::pair<uint32_t, TileROD_Encoder> reidAndEncoder: mapEncoder) {
+  for (std::pair<const uint32_t, TileROD_Encoder>& reidAndEncoder: mapEncoder) {
 
     theROD = fea->getRodData(reidAndEncoder.first);
-    theEncoder = &(reidAndEncoder.second);
+    TileROD_Encoder& theEncoder = reidAndEncoder.second;
 
     // RODId is already defined so use it for the exception
 
     if ((reidAndEncoder.first & 0xf00)) {
-      theEncoder->fillRODTileMuRcvDigi(*theROD);
+      theEncoder.fillRODTileMuRcvDigi(*theROD);
     } else {
-      if (m_doFragType1) theEncoder->fillROD1(*theROD);
-      if (m_doFragType5) theEncoder->fillROD5D(*theROD);
+      if (m_doFragType1) theEncoder.fillROD1(*theROD);
+      if (m_doFragType5) theEncoder.fillROD5D(*theROD);
     }
     
     ATH_MSG_DEBUG( " Number words in ROD " << MSG::hex <<" 0x"<< reidAndEncoder.first << MSG::dec << " : " << theROD->size() );
