@@ -166,6 +166,26 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
 
     return currentHypo
 
+def TrigTrkPrecHypoToolFromDict( chainDict ):
+
+    name = chainDict['chainName']
+    chainPart = chainDict['chainParts'][0]
+
+    criteria  = chainPart['selection']
+    threshold = chainPart['threshold']
+
+    from TrigTauHypo.TrigTauHypoConf import TrigTrkPrecHypoTool
+    currentHypo = TrigTrkPrecHypoTool(name)
+    currentHypo.MonTool = ""
+
+    if criteria == 'cosmic':
+      currentHypo.LowerPtCut      = int(threshold)*1000.
+      currentHypo.TracksInCoreCut = 9999
+      currentHypo.TracksInIsoCut  = 9999
+      currentHypo.DeltaZ0Cut      = 9999.
+
+    return currentHypo
+
 
 def TrigL2TauHypoToolFromDict( chainDict ):
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigTrackPreSelHypoTool_H
-#define TrigTrackPreSelHypoTool_H
+#ifndef TrigTrkPrecHypoTool_H
+#define TrigTrkPrecHypoTool_H
 
 #include "Gaudi/Property.h"
 #include "xAODTau/TauJet.h"
@@ -14,7 +14,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
-#include "ITrigTrackPreSelHypoTool.h"
+#include "ITrigTrkPrecHypoTool.h"
 
 class StoreGateSvc;
 
@@ -22,19 +22,19 @@ namespace HLT {
   class TriggerElement;
 }
 
-class TrigTrackPreSelHypoTool : public extends<AthAlgTool, ITrigTrackPreSelHypoTool> {
+class TrigTrkPrecHypoTool : public extends<AthAlgTool, ITrigTrkPrecHypoTool> {
  public:
-  TrigTrackPreSelHypoTool( const std::string& type, 
+  TrigTrkPrecHypoTool( const std::string& type, 
            const std::string& name, 
            const IInterface* parent );
 
-  virtual ~TrigTrackPreSelHypoTool();
+  virtual ~TrigTrkPrecHypoTool();
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigTrackPreSelHypoTool::TrackingInfo>& input )  const override;
+  virtual StatusCode decide( std::vector<ITrigTrkPrecHypoTool::TrackingInfo>& input )  const override;
 
-  virtual bool decide( const ITrigTrackPreSelHypoTool::TrackingInfo& i ) const override;
+  virtual bool decide( const ITrigTrkPrecHypoTool::TrackingInfo& i ) const override;
 
  private:
 
