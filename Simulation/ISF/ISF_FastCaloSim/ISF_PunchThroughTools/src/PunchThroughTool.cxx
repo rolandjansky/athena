@@ -382,7 +382,7 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
     std::vector<int>::const_iterator minEnergyIt    = m_initiatorsMinEnergy.begin();
     // loop over all known punch-through initiators
     for ( ; pdgIt != pdgItEnd; ++pdgIt, ++minEnergyIt)
-      {   
+      {
         if (std::abs(m_initPs->pdgCode()) == *pdgIt){
           if(std::sqrt( m_initPs->momentum().mag2() + m_initPs->mass()*m_initPs->mass() ) < *minEnergyIt){
             ATH_MSG_DEBUG("[ punchthrough ] particle does not meet initiator min energy requirement. Dropping it in the calo.");
@@ -432,7 +432,7 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
   std::map<int, int> corrPdgNumDone;
 
   // loop over all particle pdgs
-  for (const auto& it : m_particles) 
+  for (const auto& it : m_particles)
     {
       // the pdg that is currently treated
       int doPdg = it.first;
@@ -756,59 +756,59 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   // read in the data needed to construct the distributions for the number of punch-through particles
 
   // (1.) get the distribution function for the number of punch-through particles
-  PDFcreator *pdf_num = readLookuptablePDF(pdg, "NumExitPDG");
+  std::shared_ptr<ISF::PDFcreator> pdf_num(readLookuptablePDF(pdg, "NumExitPDG"));
   if (!pdf_num ) return StatusCode::FAILURE; // return error if something went wrong
 
   // (2.) get the PDF for the punch-through energy
-  PDFcreator *pdf_energy = readLookuptablePDF(pdg, "ExitEnergyPDG");
+  std::shared_ptr<PDFcreator> pdf_energy (readLookuptablePDF(pdg, "ExitEnergyPDG"));
   if (!pdf_energy)
     {
-      delete pdf_num;
+      //delete pdf_num;
       return StatusCode::FAILURE; // return error if something went wrong
     }
 
   // (3.) get the PDF for the punch-through particles difference in
   //      theta compared to the incoming particle
-  PDFcreator *pdf_theta = readLookuptablePDF(pdg, "ExitDeltaThetaPDG");
+  std::shared_ptr<PDFcreator> pdf_theta (readLookuptablePDF(pdg, "ExitDeltaThetaPDG"));
   if (!pdf_theta)
     {
-      delete pdf_num; delete pdf_energy;
+      //delete pdf_num; //delete pdf_energy;
       return StatusCode::FAILURE;
     }
 
   // (4.) get the PDF for the punch-through particles difference in
   //      phi compared to the incoming particle
-  PDFcreator *pdf_phi = readLookuptablePDF(pdg, "ExitDeltaPhiPDG");
+  std::shared_ptr<PDFcreator> pdf_phi (readLookuptablePDF(pdg, "ExitDeltaPhiPDG"));
   if (!pdf_phi)
     {
-      delete pdf_num; delete pdf_energy; delete pdf_theta;
+      //delete pdf_num; //delete pdf_energy; //delete pdf_theta;
       return StatusCode::FAILURE;
     }
 
   // (5.) get the PDF for the punch-through particle momentum delta theta angle
-  PDFcreator *pdf_momTheta = readLookuptablePDF(pdg, "MomDeltaThetaPDG");
+  std::shared_ptr<PDFcreator> pdf_momTheta (readLookuptablePDF(pdg, "MomDeltaThetaPDG"));
   if (!pdf_momTheta)
     {
-      delete pdf_num; delete pdf_energy; delete pdf_theta; delete pdf_phi;
+      //delete pdf_num; //delete pdf_energy; //delete pdf_theta; //delete pdf_phi;
       return StatusCode::FAILURE;
     }
 
   // (6.) get the PDF for the punch-through particle momentum delta phi angle
-  PDFcreator *pdf_momPhi = readLookuptablePDF(pdg, "MomDeltaPhiPDG");
+  std::shared_ptr<PDFcreator> pdf_momPhi (readLookuptablePDF(pdg, "MomDeltaPhiPDG"));
   if (!pdf_momPhi)
     {
-      delete pdf_num; delete pdf_energy; delete pdf_theta; delete pdf_phi; delete pdf_momTheta;
+      //delete pdf_num; //delete pdf_energy; //delete pdf_theta; //delete pdf_phi; //delete pdf_momTheta;
       return StatusCode::FAILURE;
     }
 
   // (7.) now finally store all this in the right std::map
   PunchThroughParticle *particle = new PunchThroughParticle(pdg, doAntiparticle);
-  particle->setNumParticlesPDF(pdf_num);
-  particle->setExitEnergyPDF(pdf_energy);
-  particle->setExitDeltaThetaPDF(pdf_theta);
-  particle->setExitDeltaPhiPDF(pdf_phi);
-  particle->setMomDeltaThetaPDF(pdf_momTheta);
-  particle->setMomDeltaPhiPDF(pdf_momPhi);
+  particle->setNumParticlesPDF(move(pdf_num));
+  particle->setExitEnergyPDF(move(pdf_energy));
+  particle->setExitDeltaThetaPDF(move(pdf_theta));
+  particle->setExitDeltaPhiPDF(move(pdf_phi));
+  particle->setMomDeltaThetaPDF(move(pdf_momTheta));
+  particle->setMomDeltaPhiPDF(move(pdf_momPhi));
 
   // (8.) set some additional particle and simulation properties
   const double restMass = m_particleDataTable->particle(std::abs(pdg))->mass();
@@ -886,15 +886,15 @@ StatusCode ISF::PunchThroughTool::registerCorrelation(int pdgID1, int pdgID2,
  *  ==> see headerfile
  *======================================================================*/
 
-ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string folderName)
-{ 
+std::shared_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string folderName)
+{
 
   // will hold the PDFcreator class which will be returned at the end
   // this will store the distributions for the punch through particles
   // (as map of energy & eta of the incoming particle)
-  PDFcreator *pdf = new PDFcreator(m_randomEngine);
-  
-  
+  //PDFcreator *pdf = new PDFcreator(m_randomEngine);
+  std::shared_ptr<ISF::PDFcreator> pdf(new PDFcreator(m_randomEngine));
+
 
       //Get directory object
       std::stringstream dirName;
@@ -905,7 +905,7 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
       if(! dir)
       {
         ATH_MSG_ERROR( "[ punchthrough ] unable to retrieve directory object ("<< folderName << pdg << ")" );
-        delete pdf;
+        //delete pdf;
         return 0;
       }
 
@@ -929,13 +929,13 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
           hist2D = (TH2*)key->ReadObj();
           histName = hist2D->GetName();
         }
-        //extract energy and eta from hist name 6 and 1 to position delimeters correctly 
+        //extract energy and eta from hist name 6 and 1 to position delimeters correctly
         std::string strEnergy = histName.substr( histName.find_first_of("E") + 1, histName.find_first_of("_")-histName.find_first_of("E") - 1 );
         histName.erase(0, histName.find_first_of("_") + 1);
         std::string strEtaMin = histName.substr( histName.find("etaMin") + 6, histName.find_first_of("_") - histName.find("etaMin") - 6 );
         histName.erase(0, histName.find("_") + 1);
         std::string strEtaMax = histName.substr( histName.find("etaMax") + 6, histName.length());
-        
+
         //convert string slice information to int and push back to vector
         std::vector<double> energyEtaMinEtaMax;
         energyEtaMinEtaMax.push_back(std::stod(strEnergy));
@@ -949,7 +949,7 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
         etaMinEtaMax.push_back(std::stod(strEtaMax)/100.);
 
 
-        //Add entry to pdf map 
+        //Add entry to pdf map
         if(strcmp(key->GetClassName(), "TH1F") == 0){
           pdf->addToEnergyEtaRangeHist1DMap(energy, etaMinEtaMax, hist1D);
         }
@@ -958,7 +958,7 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
         }
       }
 
-    
+
 
   return pdf;
 }

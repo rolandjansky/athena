@@ -80,7 +80,7 @@ namespace ISF {
     StatusCode registerCorrelation(int pdgID1, int pdgID2,double minCorrEnergy = 0., double fullCorrEnergy = 0.);
 
     /** reads out the lookuptable for the given type of particle */
-    PDFcreator *readLookuptablePDF(int pdgID, std::string folderName);
+    std::shared_ptr<ISF::PDFcreator> readLookuptablePDF(int pdgID, std::string folderName);
 
     /** create the right number of punch-through particles for the given pdg
      *  and return the number of particles which was created. also create these
