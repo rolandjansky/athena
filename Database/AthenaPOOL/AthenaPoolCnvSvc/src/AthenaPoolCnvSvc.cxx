@@ -320,8 +320,22 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          const std::string& opt = (*iter)[0];
          std::string data = (*iter)[1];
          const std::string& file = (*iter)[2];
-         if (opt == "TREE_AUTO_FLUSH" && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
-            m_fileFlushSetting[file] = atoi(data.c_str());
+         const std::string& cont = (*iter)[3];
+         std::size_t colon = m_containerPrefixProp.value().find(":");
+         if (colon == std::string::npos) colon = 0; // Used to remove leading technology
+         else colon++;
+         std::size_t equal = cont.find("="); // Used to remove leading "TTree="
+         if (equal == std::string::npos) equal = 0;
+         else equal++;
+         if (opt == "TREE_AUTO_FLUSH" && cont.substr(equal) == m_containerPrefixProp.value().substr(colon) && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
+            int flush = atoi(data.c_str());
+            if (flush < m_numberEventsPerWrite.value()) {
+               flush = flush * (int((m_numberEventsPerWrite.value() - 1) / flush) + 1);
+            }
+            if (flush > 0) {
+               ATH_MSG_DEBUG("connectOutput setting auto write for: " << file << " to " << flush << " events");
+               m_fileFlushSetting[file] = flush;
+            }
          }
       }
    }
