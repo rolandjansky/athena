@@ -12,7 +12,7 @@ find_package( libffi )
 atlas_add_component( VP1Algs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel EventInfo PathResolver 
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel EventInfo PathResolver  xAODEventInfo 
                      PRIVATE_LINK_LIBRARIES VP1Gui VP1UtilsBase )
 
 # Install files from the package:
