@@ -47,7 +47,7 @@ def LArCollisionTimeMonConfig(inputFlags):
 def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_hist_path):
 
 
-    larCollTimeMonAlg = helper.addAlgorithm(algoinstance,larColTime_hist_path[0:-6]+'MonAlg')
+    larCollTimeMonAlg = helper.addAlgorithm(algoinstance,larColTime_hist_path+'MonAlg')
 
 
     collTimeGroupName="LArCollisionTimeMonGroup"
