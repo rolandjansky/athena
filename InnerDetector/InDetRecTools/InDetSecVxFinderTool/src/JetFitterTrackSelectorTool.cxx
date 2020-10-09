@@ -111,11 +111,11 @@ using namespace InDet;
       
       // Recomputing Perigee w.r.t PV
       Trk::PerigeeSurface mySurface( primaryVertex.position() );
-      const Trk::TrackParameters* myMeasuredPerigee = m_extrapolator->extrapolate( track,mySurface );
-      if ( myMeasuredPerigee == nullptr ) {
-	ATH_MSG_DEBUG( " Extrapolation to primary vertex failed. Skipping track " );
-	compatibilityDecorator ( track ) = 0.;
-	return 0;
+      std::unique_ptr<const Trk::TrackParameters>  myMeasuredPerigee(m_extrapolator->extrapolate( track,mySurface ));
+      if ( !myMeasuredPerigee) {
+        ATH_MSG_DEBUG( " Extrapolation to primary vertex failed. Skipping track " );
+        compatibilityDecorator ( track ) = 0.;
+        return 0;
       }
       
       

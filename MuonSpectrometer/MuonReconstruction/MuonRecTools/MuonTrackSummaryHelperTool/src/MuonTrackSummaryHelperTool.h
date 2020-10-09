@@ -44,7 +44,9 @@ namespace Muon {
     virtual ~MuonTrackSummaryHelperTool()=default;
         
     virtual StatusCode initialize() override;
-        
+
+    using IExtendedTrackSummaryHelperTool::analyse;    
+    using IExtendedTrackSummaryHelperTool::updateSharedHitCount;    
     virtual void analyse(
                          const Trk::Track& trk,
                          const Trk::RIO_OnTrack* rot,
