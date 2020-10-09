@@ -35,7 +35,6 @@ static constexpr uintptr_t ABORTEDflag = UINTPTR_MAX-1;
 static constexpr size_t s_defaultBucketSize =2;
 
 typedef std::true_type thread_safe;
-typedef std::set<IdentifierHash> idset_t;
 
 #include "EventContainers/deleter.h"
 
