@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArABBADecoder.h"
@@ -35,7 +35,8 @@ StatusCode LArABBADecoder::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArABBADecoder::convert(const RawEvent* re, LArDigitContainer* coll) {
+StatusCode LArABBADecoder::convert(const RawEvent* re, LArDigitContainer* coll) const
+{
 
   bool ret=false;
   // Check fragment validity:
@@ -75,8 +76,8 @@ StatusCode LArABBADecoder::convert(const RawEvent* re, LArDigitContainer* coll) 
 }
 
 
-void LArABBADecoder::fillCollection(const ROBFragment* robFrag, LArDigitContainer* coll) {
-
+void LArABBADecoder::fillCollection(const ROBFragment* robFrag, LArDigitContainer* coll) const
+{
   const CaloGain::CaloGain dummyGain=CaloGain::LARHIGHGAIN;
   LArDigit * scDigit=0 ;
 
