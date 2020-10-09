@@ -1,31 +1,13 @@
-################################################################################
-# Package: LArRawUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArRawUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloTTDetDescr
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawEvent
-                          Calorimeter/CaloTriggerTool
-                          PRIVATE
-                          DetectorDescription/AtlasDetDescr
-                          LArCalorimeter/LArCabling )
 
 # Component(s) in the package:
 atlas_add_library( LArRawUtilsLib
                    src/*.cxx
                    PUBLIC_HEADERS LArRawUtils
-                   LINK_LIBRARIES CaloIdentifier CaloTTDetDescr AthenaBaseComps AthenaKernel Identifier GaudiKernel LArIdentifier LArRawEvent StoreGateLib SGtests CaloTriggerToolLib LArToolsLib
+                   LINK_LIBRARIES CaloIdentifier CaloTTDetDescr AthenaBaseComps AthenaKernel Identifier GaudiKernel LArCablingLib LArIdentifier LArRawEvent StoreGateLib CaloTriggerToolLib
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr )
 
 atlas_add_component( LArRawUtils
