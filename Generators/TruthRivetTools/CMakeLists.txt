@@ -5,15 +5,6 @@
 # Declare the name of the package:
 atlas_subdir( TruthRivetTools )
 
-# Declare the dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-	Control/AthToolSupport/AsgTools
-    Generators/AtlasHepMC
-   PRIVATE
-	GaudiKernel
-    GenInterfaces )
-
 # External dependencies:
 find_package( HepMC )
 find_package( Rivet )
