@@ -95,7 +95,7 @@ def makePublicTool(tool_creator) :
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
             if private is False :
-                print ('DEBUG add to ToolSvc %s' % (tool.name()))
+                log.debug ('Add to ToolSvc %s' % (tool.name()))
                 ToolSvc += tool
             return tool
         else :
@@ -274,6 +274,23 @@ def getPixelClusterNnCondAlg(**kwargs) :
     from SiClusterizationTool.SiClusterizationToolConf import InDet__TTrainedNetworkCondAlg
     return InDet__TTrainedNetworkCondAlg(kwargs.pop("name", 'PixelClusterNnCondAlg'), **kwargs)
 
+def getLWTNNCondAlg(**kwargs) :
+
+    # Check for the folder
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalibJSON'):
+        # COOL binding
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixelClustering/PixelNNCalibJSON",
+                                    "/PIXEL/PixelClustering/PixelNNCalibJSON",className='CondAttrListCollection')
+
+    # What we'll store it as
+    kwargs=setDefaults(kwargs,
+                       WriteKey = 'PixelClusterNNJSON')
+
+    # Set up the algorithm
+    from SiClusterizationTool.SiClusterizationToolConf import InDet__LWTNNCondAlg
+    return InDet__LWTNNCondAlg(kwargs.pop("name", "LWTNNCondAlg"),**kwargs)
+
 def getPixelClusterNnWithTrackCondAlg(**kwargs) :
 
     kwargs = setDefaults( kwargs,
@@ -306,10 +323,33 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
     if 'PixelLorentzAngleTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelLorentzAngleTool = getPixelLorentzAngleTool())
 
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    useTTrainedNetworks = InDetFlags.useNNTTrainedNetworks()
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    
+    if useTTrainedNetworks :
+      log.debug("Setting up TTrainedNetworks")
+      createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
+      createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    else :
+
+      ######################################
+      # Temporary - pixel clustering setup #
+      ######################################
+      # Allow use of folder that exists but is not yet in global tag.
+      # Different names in different DB instances....
+      if not ('conddb' in dir()):
+        from IOVDbSvc.CondDB import conddb
+
+      if (conddb.dbmc == "OFLP200" or (conddb.dbdata=="OFLP200" and globalflags.DataSource=='data')) :
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-SIM-RUN2-000-00")
+      if ((conddb.dbmc == "CONDBR2" and globalflags.DataSource!='data') or conddb.dbdata == "CONDBR2") :
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-00")
+      ## End of temporary code
+
+      log.debug("Setting up lwtnn system")
+      createAndAddCondAlg( getLWTNNCondAlg,                  'LWTNNCondAlg')
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults( kwargs,
@@ -319,8 +359,10 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
                           useRecenteringNNWithTracks         = False if do_runI else False,  # default,
                           correctLorShiftBarrelWithoutTracks = 0,
                           correctLorShiftBarrelWithTracks    = 0.030 if do_runI else 0.000,  # default,
+                          useTTrainedNetworks                = useTTrainedNetworks,
                           NnCollectionReadKey                = 'PixelClusterNN',
-                          NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack')
+                          NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack',
+                          NnCollectionJSONReadKey            = '' if useTTrainedNetworks else 'PixelClusterNNJSON')
     return InDet__NnClusterizationFactory(name=the_name, **kwargs)
 
 @makePublicTool
@@ -353,8 +395,6 @@ def getInDetPixelClusterOnTrackToolNNSplitting(name='InDetPixelClusterOnTrackToo
         if 'NnClusterizationFactory' not in kwargs :
             kwargs = setDefaults(kwargs, NnClusterizationFactory  = getNnClusterizationFactory())
 
-        if InDetFlags.doTIDE_RescalePixelCovariances() :
-            kwargs = setDefaults(kwargs, applydRcorrection = True)
     return getInDetPixelClusterOnTrackToolBase(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackTool(name='InDetPixelClusterOnTrackTool', **kwargs) :
@@ -473,8 +513,12 @@ def getInDetTRT_DriftCircleOnTrackUniversalToolCosmics(name='TRT_DriftCircleOnTr
 
 @makePublicTool
 def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
+    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix']
+    pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
+    # note nameSuffix is strupped by makeName
     the_name = makeName( name, kwargs)
-    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
+    for an_arg in  strip_args:
+        kwargs.pop(an_arg,None)
     from InDetRecExample.InDetJobProperties import InDetFlags
     use_broad_cluster_pix = InDetFlags.useBroadPixClusterErrors() and (not InDetFlags.doDBMstandalone())
     use_broad_cluster_sct = InDetFlags.useBroadSCTClusterErrors() and (not InDetFlags.doDBMstandalone())
@@ -482,12 +526,10 @@ def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
         if use_broad_cluster_pix :
             kwargs = setDefaults( kwargs,
-                                  ToolPixelCluster = getInDetBroadPixelClusterOnTrackTool(nameSuffix               = split_cluster_map_extension,
-                                                                                          SplitClusterMapExtension = split_cluster_map_extension))
+                                  ToolPixelCluster = getInDetBroadPixelClusterOnTrackTool(**pix_cluster_on_track_args))
         else :
             kwargs = setDefaults( kwargs,
-                                  ToolPixelCluster = getInDetPixelClusterOnTrackTool(nameSuffix               = split_cluster_map_extension,
-                                                                                     SplitClusterMapExtension = split_cluster_map_extension))
+                                  ToolPixelCluster = getInDetPixelClusterOnTrackTool(**pix_cluster_on_track_args))
 
     if 'ToolSCT_Cluster' not in kwargs :
         if use_broad_cluster_sct :
@@ -506,43 +548,38 @@ def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
 
 def getInDetRotCreatorPattern(name='InDetRotCreatorPattern', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        split_cluster_map_extension = kwargs.get('SplitClusterMapExtension','')
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         kwargs = setDefaults(kwargs,
-                             ToolPixelCluster = getInDetPixelClusterOnTrackToolPattern(nameSuffix               = split_cluster_map_extension,
-                                                                                       SplitClusterMapExtension = split_cluster_map_extension))
+                             ToolPixelCluster = getInDetPixelClusterOnTrackToolPattern(**pix_cluster_on_track_args))
     return getInDetRotCreator(name=name, **kwargs)
 
 
 def getInDetRotCreatorDBM(name='InDetRotCreatorDBM', **kwargs) :
-    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
     if 'ToolPixelCluster' not in kwargs :
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         from InDetRecExample.InDetJobProperties import InDetFlags
         from AthenaCommon.DetFlags              import DetFlags
         if InDetFlags.loadRotCreator() and DetFlags.haveRIO.pixel_on():
             kwargs = setDefaults(kwargs,
-                                 ToolPixelCluster = getInDetPixelClusterOnTrackToolDBM(nameSuffix               = split_cluster_map_extension,
-                                                                                       SplitClusterMapExtension = split_cluster_map_extension))
+                                 ToolPixelCluster = getInDetPixelClusterOnTrackToolDBM(**pix_cluster_on_track_args))
         else :
             kwargs = setDefaults(kwargs,
-                                 ToolPixelCluster = getInDetPixelClusterOnTrackTool(nameSuffix               = split_cluster_map_extension,
-                                                                                    SplitClusterMapExtension = split_cluster_map_extension))
+                                 ToolPixelCluster = getInDetPixelClusterOnTrackTool(**pix_cluster_on_track_args))
     return getInDetRotCreator(name=name, **kwargs)
 
 def getInDetRotCreatorDigital(name='InDetRotCreatorDigital', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        split_cluster_map_extension = kwargs.get('SplitClusterMapExtension','')
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         kwargs = setDefaults(kwargs,
-                             ToolPixelCluster = getInDetPixelClusterOnTrackToolDigital(nameSuffix               = split_cluster_map_extension,
-                                                                                       SplitClusterMapExtension = split_cluster_map_extension))
+                             ToolPixelCluster = getInDetPixelClusterOnTrackToolDigital(**pix_cluster_on_track_args))
     return getInDetRotCreator(name=name, **kwargs)
 
 # @TODO rename to InDetBroadRotCreator
 def getInDetBroadRotCreator(name='InDetBroadInDetRotCreator', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        split_cluster_map_extension = kwargs.get('SplitClusterMapExtension','')
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
         kwargs = setDefaults(kwargs,
-                             ToolPixelCluster    = getInDetBroadPixelClusterOnTrackTool(nameSuffix               = split_cluster_map_extension,
-                                                                                        SplitClusterMapExtension = split_cluster_map_extension))
+                             ToolPixelCluster    = getInDetBroadPixelClusterOnTrackTool(**pix_cluster_on_track_args))
     if 'ToolSCT_Cluster' not in kwargs :
         kwargs = setDefaults(kwargs,
                              ToolSCT_Cluster     = getInDetBroadSCT_ClusterOnTrackTool())
@@ -840,6 +877,27 @@ def getInDetSCT_ConditionsSummaryTool() :
     return def_InDetSCT_ConditionsSummaryTool
 
 @makePublicTool
+def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
+    the_name = makeName(name, kwargs)
+    from AthenaCommon.DetFlags import DetFlags
+    from InDetRecExample.InDetJobProperties import InDetFlags
+
+    if 'SctSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
+
+    if 'PixelLayerTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelLayerTool   = getInDetTestPixelLayerTool())
+
+    kwargs = setDefaults(
+        kwargs,
+        UsePixel=DetFlags.haveRIO.pixel_on(),
+        UseSCT=DetFlags.haveRIO.SCT_on(),
+    )
+
+    from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+    return InDet__InDetBoundaryCheckTool(name=the_name, **kwargs)
+
+@makePublicTool
 def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     the_name = makeName( name, kwargs)
     from AthenaCommon.DetFlags    import DetFlags
@@ -848,18 +906,13 @@ def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     if 'Extrapolator' not in kwargs :
         kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
 
-    if 'SctSummaryTool' not in kwargs :
-        kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
-
-    if 'PixelLayerTool' not in kwargs :
-        kwargs = setDefaults( kwargs, PixelLayerTool   = getInDetTestPixelLayerTool())
+    if 'BoundaryCheckTool' not in kwargs :
+        kwargs = setDefaults( kwargs, BoundaryCheckTool= getInDetBoundaryCheckTool())
 
     if InDetFlags.doCosmics :
         kwargs = setDefaults( kwargs, Cosmics = True)
 
     kwargs = setDefaults( kwargs,
-                          usePixel                     = DetFlags.haveRIO.pixel_on(),
-                          useSCT                       = DetFlags.haveRIO.SCT_on(),
                           CountDeadModulesAfterLastHit = True)
 
     from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
@@ -1017,11 +1070,16 @@ def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs
 def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
     # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
     hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
+    id_helper_args = copyArgs(kwargs,['ClusterSplitProbabilityName','RenounceInputHandles','namePrefix','nameSuffix']) if 'ClusterSplitProbabilityName' in kwargs else {}
+    kwargs.pop('ClusterSplitProbabilityName',None)
+    kwargs.pop('RenounceInputHandles',None)
     kwargs.pop('isHLT',None)
     the_name = makeName( name, kwargs)
     do_holes=kwargs.get("doHolesInDet",True)
+    if do_holes :
+        id_helper_args.update(hlt_args)
     if 'InDetSummaryHelperTool' not in kwargs :
-        kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelper(**hlt_args) if do_holes else getInDetSummaryHelperNoHoleSearch())
+        kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelper(**id_helper_args) if do_holes else getInDetSummaryHelperNoHoleSearch(**id_helper_args))
 
     #
     # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
@@ -1041,7 +1099,14 @@ def getInDetTrackSummaryToolNoHoleSearch(name='InDetTrackSummaryToolNoHoleSearch
 def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**kwargs) :
 
     if 'InDetSummaryHelperTool' not in kwargs :
-        kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits())
+        copy_args=['ClusterSplitProbabilityName','RenounceInputHandles','namePrefix','nameSuffix']
+        do_holes=kwargs.get("doHolesInDet",True)
+        if do_holes :
+            copy_args += ['isHLT']
+        id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
+        kwargs.pop('ClusterSplitProbabilityName',None)
+        kwargs.pop('RenounceInputHandles',None)
+        kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
 
     if 'TRT_ElectronPidTool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool())
@@ -1280,6 +1345,50 @@ def getInDetAmbiScoringTool(NewTrackingCuts, name='InDetAmbiScoringTool', **kwar
                                                       maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
                                                       maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
 
+@makePublicTool
+def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
+    NewTrackingCuts = kwargs.pop("NewTrackingCuts")
+    the_name=makeName(name,kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    from AthenaCommon.DetFlags              import DetFlags
+    have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
+    if have_calo_rois :
+        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
+        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetNNScoringTool
+    return InDet__InDetNNScoringTool(the_name,
+                                       **setDefaults(kwargs,
+                                                     nnCutConfig             = "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json",
+                                                     nnCutThreshold          = InDetFlags.nnCutLargeD0Threshold(),
+                                                     Extrapolator            = getInDetExtrapolator(),
+                                                     SummaryTool             = getInDetTrackSummaryTool(),
+                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
+                                                     useAmbigFcn             = True,  # this is NewTracking
+                                                     useTRT_AmbigFcn         = False,
+                                                     maxZImp                 = NewTrackingCuts.maxZImpact(),
+                                                     maxEta                  = NewTrackingCuts.maxEta(),
+                                                     usePixel                = NewTrackingCuts.usePixel(),
+                                                     useSCT                  = NewTrackingCuts.useSCT(),
+                                                     doEmCaloSeed            = have_calo_rois)
+                                       )
+
+def getInDetNNScoringTool(NewTrackingCuts, name='InDetNNScoringTool', **kwargs) :
+    return getInDetNNScoringToolBase(name+NewTrackingCuts.extension(),
+                                       **setDefaults( kwargs,
+                                                      NewTrackingCuts         = NewTrackingCuts,
+                                                      useAmbigFcn             = True,  # this is NewTracking
+                                                      useTRT_AmbigFcn         = False,
+                                                      minTRTonTrk             = 0,
+                                                      minTRTPrecisionFraction = 0,
+                                                      minPt                   = NewTrackingCuts.minPT(),
+                                                      maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
+                                                      minSiClusters           = NewTrackingCuts.minClusters(),
+                                                      minPixel                = NewTrackingCuts.minPixel(),
+                                                      maxSiHoles              = NewTrackingCuts.maxHoles(),
+                                                      maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
+                                                      maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
+                                                      maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
+
 def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringTool',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
     return getInDetAmbiScoringToolBase('InDetTRT_SeededScoringTool',
@@ -1350,3 +1459,157 @@ def getSolenoidalIntersector(name="SolenoidalIntersector", **kwargs) :
     createAndAddCondAlg(getSolenoidParametrizationCondAlg, "SolenoidParametrizationCondAlg")
     from TrkExSolenoidalIntersector.TrkExSolenoidalIntersectorConf import Trk__SolenoidalIntersector
     return Trk__SolenoidalIntersector(the_name, **setDefaults(kwargs, SolenoidParameterizationKey = 'SolenoidParametrization'))
+
+def searchProb(prob_val) :
+    def iterateComp() :
+       from AthenaCommon.AppMgr import ToolSvc
+       from AthenaCommon.Configurable import ConfigurableAlgTool
+
+       for a_tool in ToolSvc.getChildren() :
+           yield a_tool
+       from AthenaCommon.AlgSequence import AlgSequence
+       topSequence = AlgSequence()
+       for an_alg in topSequence.getChildren() :
+           yield an_alg
+           for name,prop in an_alg.getProperties().items() :
+               if isinstance(prop,ConfigurableAlgTool) and not prop.isInToolSvc() :
+                   yield prop
+
+    for a_comp in iterateComp() :
+        for name,prop in a_comp.getProperties().items() :
+            if isinstance(prop ,str) and prop == prob_val :
+                return True
+    return False
+
+def hasSplitProb(key) :
+    # @TODO find better solution than searching through a huge number of properties
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if IsInInputFile('Trk::ClusterSplitProbabilityContainer',key) :
+        return True
+
+    if searchProb(key) :
+        return True
+    return False
+
+def combinedClusterSplitProbName() :
+  # precisely mimics the configuration in InDetRec_jobOptions
+  # chaings in InDetRec_jobOptions to the ClusterSplitProbContainer also have to be implemented here
+  # To synchronise with InDetRec_jobOptions the logic can be extracted with
+  # grep "CombinedInDetClusterSplitProbContainer\|ClusterSplitProbContainer\|[[:space:]]\(el\|\)if\([[:space:]]\|(\)\|[[:space:]]else[[:space:]]*:\|ConfiguredNewTrackingCuts" 
+  #    InnerDetector/InDetExample/InDetRecExample/share/InDetRec_jobOptions.py
+  # @TODO find a better way to provide the final name of ClusterSplitProbContainer used for the combined InDetTrackParticles
+  from AthenaCommon.BeamFlags import jobproperties
+  from InDetRecExample.InDetJobProperties import InDetFlags
+  CombinedInDetClusterSplitProbContainer = ''
+  ClusterSplitProbContainer=''
+  if InDetFlags.Enabled():
+    from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+    if ('InDetNewTrackingCuts' not in dir()):
+      if InDetFlags.doDBMstandalone():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
+      elif InDetFlags.doVtxLumi():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxLumi")
+      elif InDetFlags.doVtxBeamSpot():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxBeamSpot")
+      elif InDetFlags.doCosmics():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
+      elif InDetFlags.doHeavyIon():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
+      elif InDetFlags.doSLHC():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHC")
+      elif InDetFlags.doIBL():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("IBL")
+      elif InDetFlags.doHighPileup():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HighPileup")
+      elif InDetFlags.doMinBias():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("MinBias")
+      elif InDetFlags.doDVRetracking():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("R3LargeD0")
+      else:
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
+    if InDetFlags.doTrackSegmentsPixel():
+      if ('InDetNewTrackingCutsPixel' not in dir()):
+        InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsPixel.extension()
+      # @TODO CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doTrackSegmentsSCT():
+      if ('InDetNewTrackingCutsSCT' not in dir()):
+        InDetNewTrackingCutsSCT = ConfiguredNewTrackingCuts("SCT")
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSCT.extension()
+      # @TODO CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doTRTPhaseCalculation() and not jobproperties.Beam.beamType()=="collisions" and InDetFlags.doNewTracking():
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doNewTracking() and (not InDetFlags.doTRTPhaseCalculation() or jobproperties.Beam.beamType()=="collisions"):
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doBackTracking():
+      ClusterSplitProbContainer = 'InDetTRT_SeededAmbiguityProcessorSplitProb'+InDetNewTrackingCuts.extension()
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    ClusterSplitProbContainerLargeD0=''
+    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
+      if ('InDetNewTrackingCutsLargeD0' not in dir()):
+        if InDetFlags.doLowPtLargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
+        elif InDetFlags.doR3LargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
+        else:
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
+      ClusterSplitProbContainerLargeD0 = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLargeD0.extension()
+      if not InDetFlags.storeSeparateLargeD0Container():
+        ClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
+    if InDetFlags.doLowPt():
+      if ('InDetNewTrackingCutsLowPt' not in dir()):
+        InDetNewTrackingCutsLowPt = ConfiguredNewTrackingCuts("LowPt")
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLowPt.extension()
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doVeryLowPt():
+      if ('InDetNewTrackingCutsVeryLowPt' not in dir()):
+        InDetNewTrackingCutsVeryLowPt = ConfiguredNewTrackingCuts("VeryLowPt")
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsVeryLowPt.extension()
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doTRTStandalone():
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
+      if InDetFlags.doSLHCVeryForward():
+       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
+         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks")
+         ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
+         CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+      else:
+       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
+        InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
+        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
+      if ('InDetNewTrackingCutsSLHCConversionFinding' not in dir()):
+        InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSLHCConversionFinding.extension()
+      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doBeamGas():
+      if ('InDetNewTrackingCutsBeamGas' not in dir()):
+        InDetNewTrackingCutsBeamGas = ConfiguredNewTrackingCuts("BeamGas")
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsBeamGas.extension()
+      if jobproperties.Beam.beamType() == "singlebeam":
+        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
+    if InDetFlags.doCosmics() and InDetFlags.doNewTracking() : # @TODO should also consider: and len(InputCombinedInDetTracks) > 1:
+      CombinedInDetClusterSplitProbContainer = ''  # @TODO really no split prob container ?
+    if InDetFlags.doNewTrackingPattern() or InDetFlags.doBeamHalo():
+      if InDetFlags.useExistingTracksAsInput():
+          pass # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
+      if InDetFlags.doDBMstandalone():
+          CombinedInDetClusterSplitProbContainer=''
+  return CombinedInDetClusterSplitProbContainer if hasSplitProb(CombinedInDetClusterSplitProbContainer) else ''
+
+def pixelClusterSplitProbName() :
+    ClusterSplitProbContainer=combinedClusterSplitProbName()
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doTrackSegmentsDisappearing():
+      if ('InDetNewTrackingCutsDisappearing' not in dir()):
+        print ("InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now")
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsDisappearing = ConfiguredNewTrackingCuts("Disappearing")
+      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsDisappearing.extension()
+    return ClusterSplitProbContainer if hasSplitProb(ClusterSplitProbContainer) else ''
+

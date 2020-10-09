@@ -2,9 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -50,17 +47,8 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 
-inline void GeoMDTHit::init()
-{
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(s_man,"Muon").isSuccess())
-      s_mdtID = s_man->mdtIdHelper();
-}
-
-
 inline GeoMDTHit::GeoMDTHit (const MDTSimHit & h) {
     m_hit = &h;
-    if(!s_mdtID) init();
 }
 
 
@@ -69,7 +57,8 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
 
 
     HitID hitid = m_hit->MDTid();
-    MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper();
+    const MdtIdHelper* mdtID = mgr()->mdtIdHelper();
+    MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(mdtID->tubeMax());
 
     std::string stname = mdthhelper->GetStationName(hitid);
     int         steta  = mdthhelper->GetZSector(hitid);
@@ -78,19 +67,20 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
     int         tl     = mdthhelper->GetLayer(hitid);
     int         tube   = mdthhelper->GetTube(hitid);
 
-    Identifier offid = s_mdtID->channelID(stname,
-                                         steta,
-                                         stphi,ml,tl,tube);
+    Identifier offid = mdtID->channelID(stname,
+                                        steta,
+                                        stphi,ml,tl,tube);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MdtReadoutElement* mdtdet = s_man->getMdtReadoutElement(offid);
+    const MuonGM::MdtReadoutElement* mdtdet = mgr()->getMdtReadoutElement(offid);
     if (mdtdet == NULL)
     {
+        const MdtIdHelper* mdtID = mgr()->mdtIdHelper();
         std::cerr<<"MDT readout element not found for Id = "
-                 <<s_mdtID->show_to_string(offid)<<std::endl;
+                 <<mdtID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
@@ -103,22 +93,15 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
     return simHitPos;
 }
 
-inline void GeoRPCHit::init()
-{
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(s_man,"Muon").isSuccess())
-      s_rpcID = s_man->rpcIdHelper();
-}
-
 inline GeoRPCHit::GeoRPCHit (const RPCSimHit & h) {
     m_hit = &h;
-    if(!s_rpcID) init();
 }
 
 inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
 
     HitID hitid = m_hit->RPCid();
-    RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper(s_rpcID->gasGapMax());
+    const RpcIdHelper* rpcID = mgr()->rpcIdHelper();
+    RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper(rpcID->gasGapMax());
     std::string stname = rpchhelper->GetStationName(hitid);
     int         steta  = rpchhelper->GetZSector(hitid);
     int         stphi  = rpchhelper->GetPhiSector(hitid);
@@ -128,14 +111,14 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
     int         gg     = rpchhelper->GetGasGapLayer(hitid);
     int         mfi    = rpchhelper->GetMeasuresPhi(hitid);
     int         strip  = 1;
-    Identifier offid = s_rpcID->channelID(stname,
-                                         steta,
-                                         stphi,
-                                         dbr, dbz, dbp, gg, mfi, strip);
+    Identifier offid = rpcID->channelID(stname,
+                                        steta,
+                                        stphi,
+                                        dbr, dbz, dbp, gg, mfi, strip);
     if ( offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
 
-    const MuonGM::RpcReadoutElement* rpcdet = s_man->getRpcReadoutElement(offid);
+    const MuonGM::RpcReadoutElement* rpcdet = mgr()->getRpcReadoutElement(offid);
     if (rpcdet != NULL)
     {
       Amg::Vector3D xU;
@@ -146,23 +129,16 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
     }
     else
     {
+        const RpcIdHelper* rpcID = mgr()->rpcIdHelper();
         std::cerr<<"RPC readout element not found for Id = "
-                 <<s_rpcID->show_to_string(offid)<<std::endl;
+                 <<rpcID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
 }
 
-inline void GeoTGCHit::init()
-{
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(s_man,"Muon").isSuccess())
-      s_tgcID = s_man->tgcIdHelper();
-}
-
 inline GeoTGCHit::GeoTGCHit (const TGCSimHit & h) {
     m_hit = &h;
-    if(!s_tgcID) init();
 }
 
 inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
@@ -175,14 +151,15 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
     int         gg     = tgchhelper->GetGasGap(hitid);
     int         isstrip= 0;
     int         channel= 1;
-    Identifier offid = s_tgcID->channelID(stname,
-                                         steta,
-                                         stphi,
-                                         gg, isstrip, channel);
+    const TgcIdHelper* tgcID = mgr()->tgcIdHelper();
+    Identifier offid = tgcID->channelID(stname,
+                                        steta,
+                                        stphi,
+                                        gg, isstrip, channel);
     if ( offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
 
-    const MuonGM::TgcReadoutElement* tgcdet = s_man->getTgcReadoutElement(offid);
+    const MuonGM::TgcReadoutElement* tgcdet = mgr()->getTgcReadoutElement(offid);
     if (tgcdet != NULL)
     {
         Amg::Vector3D xU;
@@ -193,21 +170,15 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
     }
     else
     {
+        const TgcIdHelper* tgcID = mgr()->tgcIdHelper();
         std::cerr<<"TGC readout element not found for Id = "
-                 <<s_tgcID->show_to_string(offid)<<std::endl;
+                 <<tgcID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 }
 
-inline void GeoCSCHit::init()
-{
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(s_man,"Muon").isSuccess())
-      s_cscID = s_man->cscIdHelper();
-}
 inline GeoCSCHit::GeoCSCHit (const CSCSimHit & h) {
     m_hit = &h;
-    if (!s_cscID) init();
 }
 
 inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
@@ -223,19 +194,21 @@ inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
     int        measphi = 0;
     int        channel = 1;
     
-    Identifier offid = s_cscID->channelID(stname,
-                                         steta,
-                                         stphi,ml,wl,measphi,channel);
+    const CscIdHelper* cscID = mgr()->cscIdHelper();
+    Identifier offid = cscID->channelID(stname,
+                                        steta,
+                                        stphi,ml,wl,measphi,channel);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::CscReadoutElement* cscdet = s_man->getCscReadoutElement(offid);
+    const MuonGM::CscReadoutElement* cscdet = mgr()->getCscReadoutElement(offid);
     if (cscdet == NULL)
     {
+        const CscIdHelper* cscID = mgr()->cscIdHelper();
         std::cerr<<"CSC readout element not found for Id = "
-                 <<s_cscID->show_to_string(offid)<<std::endl;
+                 <<cscID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
@@ -247,33 +220,27 @@ inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
   
 }
 
-inline void GeoMMHit::init()
-{
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(s_man,"Muon").isSuccess())
-      s_mmID = s_man->mmIdHelper();
-}
-
 inline GeoMMHit::GeoMMHit (const MMSimHit & h) {
     m_hit = &h;
-    if (!s_mmID) init();
 }
 
 inline Amg::Vector3D GeoMMHit::getGlobalPosition() const {
 
     HitID hitid = m_hit->MMId();
-    MM_SimIdToOfflineId simToOffline(s_mmID);
+    const MmIdHelper* mmID = mgr()->mmIdHelper();
+    MM_SimIdToOfflineId simToOffline(mmID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MMReadoutElement* mmdet = s_man->getMMReadoutElement(offid);
+    const MuonGM::MMReadoutElement* mmdet = mgr()->getMMReadoutElement(offid);
     if (mmdet == NULL)
     {
+        const MmIdHelper* mmID = mgr()->mmIdHelper();
         std::cerr<<"MM readout element not found for Id = "
-                 <<s_mmID->show_to_string(offid)<<std::endl;
+                 <<mmID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
@@ -285,18 +252,20 @@ inline Amg::Vector3D GeoMMHit::getGlobalPosition() const {
 inline Amg::Vector3D GeoMMHit::getTrkGlobalPosition() const {
 
     HitID hitid = m_hit->MMId();
-    MM_SimIdToOfflineId simToOffline(s_mmID);
+    const MmIdHelper* mmID = mgr()->mmIdHelper();
+    MM_SimIdToOfflineId simToOffline(mmID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MMReadoutElement* mmdet = s_man->getMMReadoutElement(offid);
+    const MuonGM::MMReadoutElement* mmdet = mgr()->getMMReadoutElement(offid);
     if (mmdet == NULL)
     {
+        const MmIdHelper* mmID = mgr()->mmIdHelper();
         std::cerr<<"MM readout element not found for Id = "
-                 <<s_mmID->show_to_string(offid)<<std::endl;
+                 <<mmID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
     Amg::Vector3D trkLocP = getTrkLocalPosition();
@@ -309,18 +278,20 @@ inline Amg::Vector3D GeoMMHit::getTrkLocalPosition() const {
 
 
     HitID hitid = m_hit->MMId();
-    MM_SimIdToOfflineId simToOffline(s_mmID);
+    const MmIdHelper* mmID = mgr()->mmIdHelper();
+    MM_SimIdToOfflineId simToOffline(mmID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MMReadoutElement* mmdet = s_man->getMMReadoutElement(offid);
+    const MuonGM::MMReadoutElement* mmdet = mgr()->getMMReadoutElement(offid);
     if (mmdet == NULL)
     {
+        const MmIdHelper* mmID = mgr()->mmIdHelper();
         std::cerr<<"MM readout element not found for Id = "
-                 <<s_mmID->show_to_string(offid)<<std::endl;
+                 <<mmID->show_to_string(offid)<<std::endl;
     }
 
     Amg::Transform3D gToL = mmdet->absTransform().inverse();
@@ -332,32 +303,27 @@ inline Amg::Vector3D GeoMMHit::getTrkLocalPosition() const {
     return trkLocHit;
 }
 
-inline void GeosTGCHit::init()
-{
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(s_man,"Muon").isSuccess())
-      s_stgcID = s_man->stgcIdHelper();
-}
 inline GeosTGCHit::GeosTGCHit (const sTGCSimHit & h) {
     m_hit = &h;
-    if (!s_stgcID) init();
 }
 
 inline Amg::Vector3D GeosTGCHit::getGlobalPosition() const {
 
     HitID hitid = m_hit->sTGCId();
-    sTgcSimIdToOfflineId simToOffline(s_stgcID);
+    const sTgcIdHelper* stgcID = mgr()->stgcIdHelper();
+    sTgcSimIdToOfflineId simToOffline(stgcID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::sTgcReadoutElement* stgcdet = s_man->getsTgcReadoutElement(offid);
+    const MuonGM::sTgcReadoutElement* stgcdet = mgr()->getsTgcReadoutElement(offid);
     if (stgcdet == NULL)
     {
+        const sTgcIdHelper* stgcID = mgr()->stgcIdHelper();
         std::cerr<<"sTGC readout element not found for Id = "
-                 <<s_stgcID->show_to_string(offid)<<std::endl;
+                 <<stgcID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 

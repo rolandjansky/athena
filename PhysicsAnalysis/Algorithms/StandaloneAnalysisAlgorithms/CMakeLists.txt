@@ -8,16 +8,6 @@ if( NOT XAOD_STANDALONE )
    return()
 endif()
 
-# Set the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/xAODRootAccess
-   PhysicsAnalysis/Algorithms/SystematicsHandles
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PRIVATE
-   Control/AthContainers
-   PhysicsAnalysis/D3PDTools/EventLoop )
-
 # External(s):
 find_package( ROOT COMPONENTS Core RIO )
 

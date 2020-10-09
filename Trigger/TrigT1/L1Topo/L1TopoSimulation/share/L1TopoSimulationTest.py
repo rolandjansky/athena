@@ -71,10 +71,9 @@ svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREA
 
 #  set algCardinality = 1 to disable cloning for all Algs
 algCardinality = nThreads
-
 #  Cloning can be disable for any alg  
 
-if (algCardinality > 1):   
+if (algCardinality > 1):
    for alg in topSequence:      
       name = alg.name()
       if name in ["L1TopoSimulation"] :

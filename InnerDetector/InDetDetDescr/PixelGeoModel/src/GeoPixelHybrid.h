@@ -8,10 +8,14 @@
 #include "GeoVPixelFactory.h"
 class GeoLogVol;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelHybrid : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelHybrid : public GeoVPixelFactory {
  public:
-    GeoPixelHybrid(bool isModule3D): m_isModule3D(isModule3D) {};
-    virtual GeoVPhysVol* Build();
+    GeoPixelHybrid(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr,
+                   bool isModule3D)
+      : GeoVPixelFactory (ddmgr, mgr),
+        m_isModule3D(isModule3D) {};
+    virtual GeoVPhysVol* Build() override;
 
  private:
   bool m_isModule3D;

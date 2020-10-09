@@ -9,7 +9,7 @@ AtlasFieldCacheCondObj::AtlasFieldCacheCondObj()
 AtlasFieldCacheCondObj::~AtlasFieldCacheCondObj() {}
 
 
-bool
+void
 AtlasFieldCacheCondObj::initialize(double solFieldScale,
                                    double torFieldScale,
                                    const MagField::AtlasFieldMap* fieldMap)
@@ -18,6 +18,5 @@ AtlasFieldCacheCondObj::initialize(double solFieldScale,
     m_solFieldScale = solFieldScale;
     m_torFieldScale = torFieldScale;
     m_fieldMap      = fieldMap;
-    return (m_fieldMap) != nullptr; // return false if cast failed
 }
 

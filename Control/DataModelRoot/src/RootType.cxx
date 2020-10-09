@@ -626,7 +626,7 @@ std::string TScopeAdapter::Name( unsigned int mod ) const
 }
 
 //____________________________________________________________________________
-TScopeAdapter TScopeAdapter::DeclaringScope  ATLAS_NOT_THREAD_SAFE () const
+TScopeAdapter TScopeAdapter::DeclaringScope() const
 {
    std::string name = Name( Reflex::FINAL | Reflex::SCOPED );
    std::string::size_type pos = name.rfind( "::" );
@@ -948,6 +948,12 @@ Bool_t TScopeAdapter::IsAbstract() const
       return fClass->Property() & kIsAbstract;   // assume set only for classes
 
    return kFALSE;
+}
+
+//____________________________________________________________________________
+void* TScopeAdapter::Cast (const TScopeAdapter& cl, void* obj, bool up) const
+{
+  return fClass->DynamicCast (cl.Class(), obj, up);
 }
 
 //____________________________________________________________________________

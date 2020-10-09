@@ -32,7 +32,7 @@ Ringer::AsgElectronRingerSelector __AsgRingerSel__("testRead");
 MsgStream &msg = __AsgRingerSel__.msg();
 #else
 #include "RingerSelectorTools/AsgElectronRingerSelector.h"
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 MsgStream msg("testRead");
 #endif
 

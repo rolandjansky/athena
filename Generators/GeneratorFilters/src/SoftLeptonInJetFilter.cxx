@@ -86,7 +86,7 @@ StatusCode SoftLeptonInJetFilter::filterEvent() {
         double deltaEta = eta_b[ib]-eta_e[ie];
         double deltaPhi = std::abs(phi_b[ib]-phi_e[ie]);
         if (deltaPhi  > M_PI ) deltaPhi = std::abs(deltaPhi-2*M_PI);
-        dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+        dR = std::sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 
         if (dR < m_jet_cone) {
           e_found[ib]++;

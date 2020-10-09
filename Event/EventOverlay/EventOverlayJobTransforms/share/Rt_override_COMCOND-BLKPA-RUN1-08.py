@@ -13,10 +13,11 @@ from RecExConfig.RecAlgsFlags import recAlgs
 conddb.addOverride("/LAR/ElecCalibOfl/Shape/RTM/5samples1phase","LARElecCalibOflShapeRTM5samples1phase-UPD1-04")
 
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
-conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True,className="AthenaAttributeList")
 
 conddb.blockFolder("/TRT/Cond/DigVers")
-conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
+conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True,
+                        className = 'AthenaAttributeList')
 
 ###################################################
 printfunc ("RT OVERRIDE, for CONDBR2-BLKPA-2015-12")
@@ -73,7 +74,7 @@ conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/LorentzAngleScale","PixLorentzAngleS
 conddb.blockFolder("/PIXEL/DCS/TEMPERATURE")
 conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/TEMPERATURE","PixDCSTemp-SIM-RUN1-000-00",force=True,forceMC=True)
 conddb.blockFolder("/PIXEL/PixdEdx")
-conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN1-000-02",force=True,forceMC=True)
+conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN1-000-02",force=True,forceMC=True,className="AthenaAttributeList")
 conddb.blockFolder("/SCT/DCS/HV")
 conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/HV","SctDcsHv-01",force=True,forceMC=True)
 conddb.blockFolder("/SCT/DCS/MODTEMP")

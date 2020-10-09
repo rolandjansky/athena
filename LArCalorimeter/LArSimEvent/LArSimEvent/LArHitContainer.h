@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArHitContainer
@@ -26,7 +26,7 @@ class LArHitContainer:public AthenaHitsVector<LArHit>
 {
 public: 
 
-  LArHitContainer (std::string collectionName="DefaultCollectionName" ); 
+  LArHitContainer (const std::string& collectionName="DefaultCollectionName" ); 
 
   virtual ~LArHitContainer()  ; 
 

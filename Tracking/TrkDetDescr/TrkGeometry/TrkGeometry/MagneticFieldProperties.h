@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,79 +9,63 @@
 #ifndef TRKGEOMETRY_MAGNETICFIELDPROPERTIES_H
 #define TRKGEOMETRY_MAGNETICFIELDPROPERTIES_H
 
-//Gaudi
-#include "GaudiKernel/MsgStream.h"
+// Gaudi
 #include "GaudiKernel/GaudiException.h"
-//Trk
+#include "GaudiKernel/MsgStream.h"
+// Trk
 #include "TrkGeometry/MagneticFieldMode.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-//STD
+// STD
 #include <iostream>
 
 namespace Trk {
 
-  /** 
-   @class MagneticFieldProperties
+/**
+ @class MagneticFieldProperties
+  magnetic field properties to steer the behavior of the extrapolation
+ @author Andreas.Salzburger@cern.ch
+ @author (Athena MT) Christos Anastopoulos
+ */
+class MagneticFieldProperties
+{
 
-     new magnetic field properties to steer the behavior of the extrapolation
-     
-   @author Andreas.Salzburger@cern.ch 
-   */
-  class MagneticFieldProperties {
-      
-    public:
-      /**Constructor for magnetic field mode - full field is default */
-      MagneticFieldProperties(MagneticFieldMode mode=Trk::FullField);
+public:
+  /**Constructor for magnetic field mode - full field is default */
+  MagneticFieldProperties(MagneticFieldMode mode = Trk::FullField);
+  /**Constructor for magnetic field mode */
+  MagneticFieldProperties(const Amg::Vector3D& field);
+  // default copy/move/dtor
+  MagneticFieldProperties(const MagneticFieldProperties&) = default;
+  MagneticFieldProperties(MagneticFieldProperties&&) = default;
+  MagneticFieldProperties& operator=(const MagneticFieldProperties&) = default;
+  MagneticFieldProperties& operator=(MagneticFieldProperties&&) = default;
+  ~MagneticFieldProperties() = default;
 
-      /**Constructor for magnetic field mode */
-      MagneticFieldProperties(const Amg::Vector3D& field);
-      
-      /**Copy Constructor */  
-      MagneticFieldProperties(const MagneticFieldProperties& matprop);
-    
-      /**Destructor*/
-      virtual ~MagneticFieldProperties(){}
-      
-      /**Assignment operator */
-      MagneticFieldProperties& operator=(const MagneticFieldProperties& matprop);
+  /**Cast operator*/
+  operator MagneticFieldMode() const;
 
-      /**Move assignment operator */
-      MagneticFieldProperties& operator=(MagneticFieldProperties && matprop);
-      
-      /**Cast operator*/
-      operator MagneticFieldMode () const;
-            
-      /**Returns the MagneticFieldMode as specified */
-      MagneticFieldMode magneticFieldMode() const;
-            
-      /** Get the magnetic field - in case of constant field only - throws exception if mode is not constant */
-      const Amg::Vector3D& magneticField() const;
+  /**Returns the MagneticFieldMode as specified */
+  MagneticFieldMode magneticFieldMode() const;
 
-    protected:
-      MagneticFieldMode              m_magneticFieldMode;
-      Amg::Vector3D                          m_magneticField;
-  };
+  /** Get the magnetic field - in case of constant field only - throws exception
+   * if mode is not constant */
+  const Amg::Vector3D& magneticField() const;
 
+protected:
+  MagneticFieldMode m_magneticFieldMode;
+  Amg::Vector3D m_magneticField;
+};
 
-  inline MagneticFieldProperties::operator MagneticFieldMode () const { return m_magneticFieldMode; }  
+/**Overload of << operator for both, MsgStream and std::ostream for debug
+ * output*/
+MsgStream&
+operator<<(MsgStream& sl, const MagneticFieldProperties& mprop);
 
-  inline MagneticFieldMode MagneticFieldProperties::magneticFieldMode() const { return m_magneticFieldMode; }  
-  
-  inline const Amg::Vector3D& MagneticFieldProperties::magneticField() const { 
-      if ( m_magneticFieldMode != Trk::ConstantField ) 
-          throw GaudiException("Trk::MagneticFieldProperties", "You can only ask for a field value if you have a constant field!", StatusCode::FAILURE);
-      return m_magneticField;
-  }
+std::ostream&
+operator<<(std::ostream& sl, const MagneticFieldProperties& mprop);
 
-
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
-MsgStream& operator << ( MsgStream& sl, const MagneticFieldProperties& mprop);
-
-std::ostream& operator << ( std::ostream& sl, const MagneticFieldProperties& mprop);
-    
 } // end of namespace
-
+#include "TrkGeometry/MagneticFieldProperties.icc"
 #endif // TRKGEOMETRY_MAGNETICFIELDPROPERTIES_H
-
 

@@ -146,6 +146,11 @@ const xAOD::EventInfo* PileUpMergeSvc::getPileUpEvent( StoreGateSvc* sg, const s
          }
       }
    } else {
+      // Don't allow more than one thread per slot through here.
+      // Otherwise, we can get errors with multiple threads trying
+      // to record the EventInfo object.
+      std::lock_guard<std::mutex> lock (*m_slotMutex);
+
       // Try reading old EventInfo
       const EventInfo* pEvent = einame.empty()?
          sg->tryConstRetrieve< ::EventInfo >()

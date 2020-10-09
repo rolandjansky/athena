@@ -24,7 +24,6 @@ __all__ = [ 'theApp', 'ServiceMgr', 'ToolSvc', 'AuditorSvc', 'theAuditorSvc',
             'athCondSeq',
             'athAlgSeq',    'topSequence',
             'athOutSeq',
-            'athRegSeq',
             ]
 
 ### helpers ------------------------------------------------------------------
@@ -263,7 +262,7 @@ class AthAppMgr( AppMgr ):
 
    def __build_master_sequence (self):
       """helper method to build the top-level AthSequencer from all bits and
-         pieces : AthMasterSeq, AthAlgSeq, AthOutSeq, AthRegSeq
+         pieces : AthMasterSeq, AthAlgSeq, AthOutSeq
       """
       from . import AlgSequence as _as
       from AthenaServices.AthenaServicesConf import AthIncFirerAlg as IFA
@@ -277,7 +276,6 @@ class AthAppMgr( AppMgr ):
          athAlgSeq    = _as.AthSequencer ("AthAlgSeq",IgnoreFilterPassed=True, StopOverride=True)
          athEndSeq    = _as.AthSequencer ("AthEndSeq",Sequential=True)
          athOutSeq    = _as.AthSequencer ("AthOutSeq", StopOverride=True)
-         athRegSeq    = _as.AthSequencer ("AthRegSeq", StopOverride=True)
          athAllAlgSeq = _as.AthSequencer ("AthAllAlgSeq", StopOverride=True)
          athAlgEvtSeq = _as.AthSequencer ("AthAlgEvtSeq",Sequential = True, StopOverride=True)
          # transfer old TopAlg to new AthAlgSeq
@@ -337,7 +335,6 @@ class AthAppMgr( AppMgr ):
 
          athMasterSeq += athAlgEvtSeq
          athMasterSeq += athOutSeq
-         athMasterSeq += athRegSeq
          
          Logging.log.debug ("building master sequence... [done]")
          return athMasterSeq
@@ -654,6 +651,8 @@ class AthAppMgr( AppMgr ):
       # Touch these types early, before dictionaries are loaded,
       # to prevent spurious error messages from ROOT.
       # See ATLASRECTS-3486.
+      from os import environ
+      environ['CLING_STANDARD_PCH'] = 'none' #See bug ROOT-10789
       import cppyy
       getattr(cppyy.gbl, 'vector<bool>')
       getattr(cppyy.gbl, 'vector<float>')
@@ -671,7 +670,7 @@ class AthAppMgr( AppMgr ):
       try:
          # Set threaded flag to release the python GIL when we're in C++
          is_threaded = jp.ConcurrencyFlags.NumThreads() > 0
-         self.getHandle()._appmgr.initialize._threaded = is_threaded
+         self.getHandle()._appmgr.initialize.__release_gil__ = is_threaded
          sc = self.getHandle().initialize()
          if sc.isFailure():
             self._exitstate = ExitCodes.INI_ALG_FAILURE
@@ -740,7 +739,7 @@ class AthAppMgr( AppMgr ):
       try:
          # Set threaded flag to release the GIL on execution
          executeRunMethod = self.getHandle()._evtpro.executeRun
-         executeRunMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         executeRunMethod.__release_gil__ = jp.ConcurrencyFlags.NumThreads() > 0
          sc = executeRunMethod(nEvt)
          if sc.isFailure() and not self._exitstate:
             self._exitstate = ExitCodes.EXE_ALG_FAILURE   # likely, no guarantee
@@ -796,7 +795,7 @@ class AthAppMgr( AppMgr ):
          # Set threaded flag to release the GIL when finalizing in the c++
          from AthenaCommon.ConcurrencyFlags import jobproperties as jp
          finalizeMethod = self.getHandle()._appmgr.finalize
-         finalizeMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
+         finalizeMethod.__release_gil__ = jp.ConcurrencyFlags.NumThreads() > 0
          sc = finalizeMethod()
          if sc.isFailure():
             self._exitstate = ExitCodes.FIN_ALG_FAILURE
@@ -998,12 +997,9 @@ def AuditorSvc():             # backwards compatibility
 #                 +--- athEndSeq
 #         |
 #         +--- athOutSeq
-#         |
-#         +--- athRegSeq
 athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
 athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )
 athAlgSeq    = AlgSequence.AthSequencer( "AthAlgSeq" )
 athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )
-athRegSeq    = AlgSequence.AthSequencer( "AthRegSeq" )
 
 topSequence  = AlgSequence.AlgSequence( "TopAlg" )     # for backward compatibility

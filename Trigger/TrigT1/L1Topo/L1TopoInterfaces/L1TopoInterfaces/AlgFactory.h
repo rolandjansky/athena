@@ -1,14 +1,8 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  AlgFactory.h
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/20/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#ifndef L1TopoInterfaces_AlgFactory
+#define L1TopoInterfaces_AlgFactory
 
-#ifndef __L1TopoCoreSimulation__AlgFactory__
-#define __L1TopoCoreSimulation__AlgFactory__
-
-#include <iostream>
+#include <string>
 #include <vector>
 #include <map>
 
@@ -51,7 +45,7 @@ namespace TCS {
 
       AlgMap_t m_algs;
       
-      static AlgFactory * fg_instance;
+      static thread_local AlgFactory * fg_instance;
    };
    
 }

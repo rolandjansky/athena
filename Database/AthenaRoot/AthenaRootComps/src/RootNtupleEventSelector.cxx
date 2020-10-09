@@ -45,7 +45,7 @@
 #include "SGTools/StlMapClids.h"     // to make sure we have their clids
 #include "SGTools/StlVectorClids.h"  // to make sure we have their clids
 #include "SGTools/TransientAddress.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
 
 #include "TObject.h"
 #include "TTree.h"
@@ -856,7 +856,7 @@ RootNtupleEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientA
 
 /// callback to synchronize the list of input files
 void 
-RootNtupleEventSelector::setupInputCollection( Property& /*inputCollectionsName*/ )
+RootNtupleEventSelector::setupInputCollection( Gaudi::Details::PropertyBase& /*inputCollectionsName*/ )
 {
   // nothing ?
   return;

@@ -25,12 +25,6 @@ class TauCellVariables : public TauRecToolBase {
     /** @brief Destructor */
     ~TauCellVariables();
     
-    /** @brief Initialization of this tool */
-    virtual StatusCode initialize() override;
-
-    /** @brief Finalization of this tool */
-    virtual StatusCode finalize() override;
-
     /** @brief Perform the calculation of cell variables for each tau candidate */
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
@@ -46,11 +40,10 @@ class TauCellVariables : public TauRecToolBase {
     Gaudi::Property<double> m_stripEthr {this, "StripEthreshold", 0.2 * Gaudi::Units::GeV, "energy threshould for strip cell"};
     Gaudi::Property<double> m_cellCone {this, "CellCone", 0.2, "outer cone for cells used in calculation"};
     Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of vertex correction"};
-    Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
+    Gaudi::Property<bool> m_useSubtractedCluster {this, "UseSubtractedCluster", true, "use shower subtracted clusters in calo calculations"};
 };
 
-
-
+//______________________________________________________________________________
 inline bool TauCellVariables::isEMLayer(const CaloSampling::CaloSample& calo) const {
   if ((calo == CaloSampling::PreSamplerB) ||
       (calo == CaloSampling::PreSamplerE) ||
@@ -65,8 +58,7 @@ inline bool TauCellVariables::isEMLayer(const CaloSampling::CaloSample& calo) co
   }
 }
 
-
-
+//______________________________________________________________________________
 inline bool TauCellVariables::isStripLayer(const CaloSampling::CaloSample& calo) const {
   if ((calo == CaloSampling::EMB1) ||
       (calo == CaloSampling::EME1)) {
@@ -78,4 +70,3 @@ inline bool TauCellVariables::isStripLayer(const CaloSampling::CaloSample& calo)
 }
 
 #endif	/* TAUREC_TAUCELLVARIABLES_H */
-

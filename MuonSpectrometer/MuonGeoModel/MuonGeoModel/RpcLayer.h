@@ -1,11 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RpcLayer_H
 #define RpcLayer_H
 
+#include "MuonGeoModel/DetectorElement.h"
+#include "GeoModelKernel/GeoVPhysVol.h"
+
 #include <string>
+#include <vector>
 
 namespace MuonGM {
 

@@ -17,12 +17,6 @@ if not 'rec' in dir():
 
 from RecExConfig.RecAlgsFlags import recAlgs
 
-if rec.doTrigger() == False:
-   DQMonFlags.useTrigger=False     # steers trigger-awareness
-   DQMonFlags.doLVL1CaloMon=False
-   DQMonFlags.doCTPMon=False
-   DQMonFlags.doHLTMon=False
-
 # Set the data type based on beamType/HI flag
 if globalflags.DataSource.get_Value() == 'geant4':
    DQMonFlags.monManDataType = 'monteCarlo'
@@ -71,6 +65,14 @@ elif DQMonFlags.monType=='BSall':
 else:
    local_logger.warning("invalid DQMonFlags.monType: %s, using default monManEnvironment", DQMonFlags.monType())
 
+# the meaning of this flag has changed in MT
+if (rec.doTrigger() == False and 
+    not (TriggerFlags.doMT() and DQMonFlags.monManEnvironment=='tier0ESD' and DQMonFlags.useTrigger())):
+   DQMonFlags.useTrigger=False     # steers trigger-awareness
+   DQMonFlags.doLVL1CaloMon=False
+   DQMonFlags.doCTPMon=False
+   DQMonFlags.doHLTMon=False
+
 if not DQMonFlags.doMonitoring():
    local_logger.info("monitoring globally switched off")
    DQMonFlags.doGlobalMon=False
@@ -104,53 +106,54 @@ if not DQMonFlags.doMonitoring():
 else:
    local_logger.info("monitoring environment set to %s", DQMonFlags.monManEnvironment())
 
-   # AOD monitoring
-   if DQMonFlags.monManEnvironment == 'AOD':
-      DQMonFlags.histogramFile='MonitorAOD.root'
-      DQMonFlags.doCaloMon=False
-      DQMonFlags.doLArMon=False
-      DQMonFlags.doTileMon=False
-#      DQMonFlags.doJetMon=False
-      # ??
-      DQMonFlags.doCTPMon=False
-      DQMonFlags.doPixelMon=False
-      DQMonFlags.doSCTMon=False
-      DQMonFlags.doTRTMon=False
-      DQMonFlags.doTRTElectronMon=False
-#      DQMonFlags.doInDetGlobalMon=False
-#      DQMonFlags.doInDetAlignMon=False
+   # new-style monitoring drives this internally so skip this section
+   if not DQMonFlags.doNewMonitoring:
 
-      DQMonFlags.doGlobalMon=False
-      DQMonFlags.doLVL1CaloMon=False
-      DQMonFlags.doHLTMon=False
-      DQMonFlags.doEgammaMon=False
-      DQMonFlags.doMuonRawMon=False
-      DQMonFlags.doLucidMon=False
+      # AOD monitoring
+      if DQMonFlags.monManEnvironment == 'AOD':
+         DQMonFlags.histogramFile='MonitorAOD.root'
+         DQMonFlags.doCaloMon=False
+         DQMonFlags.doLArMon=False
+         DQMonFlags.doTileMon=False
+         DQMonFlags.doCTPMon=False
+         DQMonFlags.doPixelMon=False
+         DQMonFlags.doSCTMon=False
+         DQMonFlags.doTRTMon=False
+         DQMonFlags.doTRTElectronMon=False
+         DQMonFlags.doInDetGlobalMon=False
+         DQMonFlags.doInDetAlignMon=False
 
-   # ESD monitoring: switch off DQ monitoring packages which are not yet migrated:
-   elif DQMonFlags.monManEnvironment == 'tier0ESD':
-      DQMonFlags.histogramFile='MonitorESD.root'
-      DQMonFlags.doCTPMon=False
-      DQMonFlags.doPixelMon=False
-      DQMonFlags.doSCTMon=False
-      DQMonFlags.doTRTMon=False
-      DQMonFlags.doTRTElectronMon=False
-      DQMonFlags.doInDetGlobalMon=False
-      DQMonFlags.doInDetAlignMon=False
-   # ESD monitoring: packages which use only ESD: disable when running over BS
-   elif DQMonFlags.monManEnvironment == 'tier0Raw':
-      DQMonFlags.doInDetPerfMon=False
-      DQMonFlags.doMissingEtMon=False
-      DQMonFlags.doTauMon=False
-      DQMonFlags.doMuonTrackMon=False
-      DQMonFlags.doMuonAlignMon=False
-      DQMonFlags.doMuonPhysicsMon=False
-      DQMonFlags.doMuonSegmentMon=False
-      DQMonFlags.doMuonTrkPhysMon=False
-      DQMonFlags.doMuonCombinedMon=False
-      DQMonFlags.doLucidMon=False
-      DQMonFlags.doJetTagMon=False
-      DQMonFlags.doJetMon=False
+         DQMonFlags.doGlobalMon=False
+         DQMonFlags.doLVL1CaloMon=False
+         DQMonFlags.doHLTMon=False
+         DQMonFlags.doEgammaMon=False
+         DQMonFlags.doMuonRawMon=False
+         DQMonFlags.doLucidMon=False
+
+      # ESD monitoring: switch off DQ monitoring packages which are not yet migrated:
+      elif DQMonFlags.monManEnvironment == 'tier0ESD':
+         DQMonFlags.histogramFile='MonitorESD.root'
+         DQMonFlags.doCTPMon=False
+         DQMonFlags.doPixelMon=False
+         DQMonFlags.doSCTMon=False
+         DQMonFlags.doTRTMon=False
+         DQMonFlags.doTRTElectronMon=False
+         DQMonFlags.doInDetGlobalMon=False
+         DQMonFlags.doInDetAlignMon=False
+      # ESD monitoring: packages which use only ESD: disable when running over BS
+      elif DQMonFlags.monManEnvironment == 'tier0Raw':
+         DQMonFlags.doInDetPerfMon=False
+         DQMonFlags.doMissingEtMon=False
+         DQMonFlags.doTauMon=False
+         DQMonFlags.doMuonTrackMon=False
+         DQMonFlags.doMuonAlignMon=False
+         DQMonFlags.doMuonPhysicsMon=False
+         DQMonFlags.doMuonSegmentMon=False
+         DQMonFlags.doMuonTrkPhysMon=False
+         DQMonFlags.doMuonCombinedMon=False
+         DQMonFlags.doLucidMon=False
+         DQMonFlags.doJetTagMon=False
+         DQMonFlags.doJetMon=False
       
    # switch off monitoring if reco is off during BS reading
    if rec.readRDO() and not 'DetFlags' in dir():
@@ -246,9 +249,9 @@ if (not rec.doJetMissingETTag() or (rec.readRDO() and not jobproperties.JetRecFl
 if (not rec.doTau()):
    DQMonFlags.doTauMon=False
 
-# covered now by doJetMissingETTag
-# if (not recAlgs.doMissingET()):
-#    DQMonFlags.doMissingEtMon=False
+if not rec.doAFP() or DQMonFlags.monManDataType == 'monteCarlo':
+   DQMonFlags.doAFPMon=False
+
 
 #
 # Stream Aware Monitoring

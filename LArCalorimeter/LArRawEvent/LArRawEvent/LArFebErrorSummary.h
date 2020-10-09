@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFEBERRORSUMMARY_H
@@ -54,7 +54,7 @@ class LArFebErrorSummary
   /** @brief  error is stored in a map with key = feb id */
   std::map<unsigned int,uint16_t> m_feb_errors; 
 
-  static std::string  m_errorStrings[N_LArFebErrorType] ; 
+  static const std::string  m_errorStrings[N_LArFebErrorType] ; 
 };
 
 CLASS_DEF(LArFebErrorSummary,223531796,0)

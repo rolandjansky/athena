@@ -5,14 +5,15 @@
 #ifndef TAUREC_TAUJETRNNEVALUATOR_H
 #define TAUREC_TAUJETRNNEVALUATOR_H
 
-#include <memory>
-
 #include "tauRecTools/TauRecToolBase.h"
+#include "tauRecTools/ITauVertexCorrection.h"
 
-// xAOD includes
 #include "xAODTau/TauJet.h"
 
-// Forward declarations
+#include "AsgTools/ToolHandle.h"
+
+#include <memory>
+
 class TauJetRNN;
 
 /**
@@ -35,11 +36,11 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode execute(xAOD::TauJet &tau) const override;
     // Getter for the underlying RNN implementation
-    TauJetRNN *get_rnn_0p();
-    TauJetRNN *get_rnn_1p();
-    TauJetRNN *get_rnn_3p();
+    const TauJetRNN* get_rnn_0p() const;
+    const TauJetRNN* get_rnn_1p() const;
+    const TauJetRNN* get_rnn_3p() const;
 
-private:
+public:
     // Selects tracks to be used as input to the network
     StatusCode get_tracks(const xAOD::TauJet &tau,
                           std::vector<const xAOD::TauTrack *> &out) const;
@@ -69,7 +70,10 @@ private:
     std::unique_ptr<TauJetRNN> m_net_1p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
 
-    bool m_incShowerSubtr;
+    bool m_useSubtractedCluster;
+
+    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
+      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
 
 

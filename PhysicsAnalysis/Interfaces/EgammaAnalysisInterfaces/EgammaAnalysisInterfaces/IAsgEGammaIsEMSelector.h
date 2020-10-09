@@ -18,24 +18,24 @@
 */
 
 // Include the interfaces
-#include "AsgAnalysisInterfaces/ISelectionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
 
 class EventContext;
 
-class IAsgEGammaIsEMSelector : virtual public CP::ISelectionTool
+class IAsgEGammaIsEMSelector : virtual public IAsgSelectionTool
 {
 
   ASG_TOOL_INTERFACE(IAsgEGammaIsEMSelector)
 
 public:
 
-  /// @name IAsgEGammaIsEMSelector methods in Addition to the ISelectionTool
+  /// @name IAsgEGammaIsEMSelector methods in Addition to the IAsgSelectionTool
   /// @{
 
-  /// accept with pointer to  IParticle  so as to not hide the ISelectionTool one
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
   virtual asg::AcceptData accept( const EventContext& ctx, const xAOD::IParticle* part ) const = 0;
 

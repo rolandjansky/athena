@@ -127,6 +127,8 @@ class ConfigDBLoader(ConfigLoader):
                     connection = connect(userpw["user"], userpw["password"], tns, threaded=False)
                 elif connSvc.startswith("frontier:"):
                     raise NotImplementedError("Python-loading of trigger configuration from Frontier has not yet been implemented")
+                elif connSvc.startswith("sqlite_file:"):
+                    raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
                 return connection, schema
             except Exception as e:
                 raise RuntimeError(e)
@@ -145,7 +147,7 @@ class ConfigDBLoader(ConfigLoader):
                 failures += [ (q.format(**qdict), str(e)) ]
             else:
                 configblob = cursor.fetchall()[0][0]
-                config = json.loads(str(configblob), object_pairs_hook = odict)
+                config = json.loads(configblob.read().decode("utf-8"), object_pairs_hook = odict)
                 break
         if not config:
             for q,f in failures:

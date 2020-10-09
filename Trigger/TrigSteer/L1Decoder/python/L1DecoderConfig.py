@@ -168,7 +168,7 @@ def L1DecoderCfg(flags, seqName = None):
     decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1Phase1 else ""
     decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
-                                               MonTool = CTPUnpackingMonitoring(512, 200) )
+                                                           MonTool = CTPUnpackingMonitoring(512, 200) )
     #Transient bytestream
     if flags.Input.Format == "POOL":
         transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
@@ -179,13 +179,15 @@ def L1DecoderCfg(flags, seqName = None):
     decoderAlg.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
                                   OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
 
-    unpackers, rerunUnpackers = createCaloRoIUnpackers()
-    decoderAlg.roiUnpackers += unpackers
-    decoderAlg.rerunRoiUnpackers += rerunUnpackers
+    if flags.Trigger.doCalo:
+        unpackers, rerunUnpackers = createCaloRoIUnpackers()
+        decoderAlg.roiUnpackers += unpackers
+        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
-    unpackers, rerunUnpackers = createMuonRoIUnpackers()
-    decoderAlg.roiUnpackers += unpackers
-    decoderAlg.rerunRoiUnpackers += rerunUnpackers
+    if flags.Trigger.doMuon:
+        unpackers, rerunUnpackers = createMuonRoIUnpackers()
+        decoderAlg.roiUnpackers += unpackers
+        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
     decoderAlg.prescaler = createPrescalingTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring

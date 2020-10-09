@@ -16,6 +16,7 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthToolSupport/AsgDataHandles
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODEventShape
@@ -38,7 +39,7 @@ atlas_add_library( JetCalibToolsLib
    PUBLIC_HEADERS JetCalibTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODEventShape
-   xAODJet xAODTracking PATInterfaces JetInterface
+   xAODJet xAODTracking PATInterfaces JetInterface AsgDataHandlesLib
    PRIVATE_LINK_LIBRARIES xAODMuon PathResolver )
 
 if( NOT XAOD_STANDALONE )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGIT_H
@@ -73,7 +73,7 @@ class LArDigit  {
     /** @brief Set new digits in object.
         @param[in] samples  vector of ADC time samples
     */
-    void setSamples( std::vector < short > samples);
+    void setSamples( const std::vector < short >& samples);
 
     /** @brief Destructor */
     virtual ~LArDigit() { }

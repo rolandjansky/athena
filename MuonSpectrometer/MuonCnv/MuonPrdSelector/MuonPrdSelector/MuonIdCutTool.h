@@ -80,9 +80,7 @@ class MuonIdCutTool :  virtual public IMuonIdCutTool, public AthAlgTool   {
  
     int FindSector(unsigned int staName, unsigned int staPhi) const;
 
-
-
-    ToolHandle<MuonCalib::IIdToFixedIdTool>        m_idToFixedIdTool;     //<! tool to assist with Identifiers
+    ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool{this,"IdToFixedIdTool","MuonCalib::IdToFixedIdTool","tool to assist with Identifiers"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

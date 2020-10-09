@@ -114,6 +114,19 @@
          targetClass="DataLink<xAOD::EnergySumRoI_v2>"
          source="" target="" />
 
+  <!-- Phase I L1Calo RoI dictionaries: -->
+  <!-- RoI interface types -->
+   <class name="xAOD::eFexEMRoI_v1" />
+   <class name="xAOD::eFexEMRoIContainer_v1"
+          id="89FFBED7-9DDF-4FC4-B099-2B4F827BD098" />
+   <typedef name="xAOD::eFexEMRoI" />
+   <typedef name="xAOD::eFexEMRoIContainer" />
+
+  <!-- RoI auxilliary types --> 
+   <class name="xAOD::eFexEMRoIAuxContainer_v1"
+          id="6A1D7149-7476-4F23-8896-D88CB3BF6846" />
+   <typedef name="xAOD::eFexEMRoIAuxContainer" />
+
    <!-- xAOD::TriggerMenu interface type(s). -->
    <class name="xAOD::TriggerMenu_v1" />
    <class name="xAOD::TriggerMenuContainer_v1"

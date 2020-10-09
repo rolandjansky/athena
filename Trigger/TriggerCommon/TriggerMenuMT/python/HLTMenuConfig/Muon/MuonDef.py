@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:
@@ -37,9 +37,6 @@ def muCombSequenceCfg(flags):
 
 def muCombOvlpRmSequenceCfg(flags):
     return muCombOvlpRmSequence()
-
-def muEFMSSequenceCfg(flags):
-    return muEFMSSequence()
 
 def muEFSASequenceCfg(flags):
     return muEFSASequence()
@@ -113,7 +110,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
-            "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFMS']],
+            "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFSA']],
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
             "Dr": [['getmuFastDr', 'getmuCombDr']],
@@ -135,12 +132,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
-
-
-        # tmp comment out OverlapRm /FP:
-        doOvlpRm= False
-           
-
         if doOvlpRm:
            return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg] )
         else:
@@ -158,11 +149,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
-
-         # tmp comment out OverlapRm /FP:
-        doOvlpRm= False
-
-
         if doOvlpRm:
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
         else:
@@ -172,9 +158,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getmuEFSA(self):
         return self.getStep(3,'muEFSA',[ muEFSASequenceCfg])
 
-    # --------------------
-    def getmuEFMS(self):
-        return self.getStep(3,'muEFMS', [muEFMSSequenceCfg])
 
     # --------------------
     def getmuIso(self):

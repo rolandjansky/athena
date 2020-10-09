@@ -40,7 +40,7 @@ namespace ROIB {
     // constants:
     /** a ROD trailer as used in the LVL1 has 5 words, not counting the one
        hardware word in the end */
-    static const unsigned int wordsPerTrailer = 5;	    //!< number of words in trailer (Ref: ATL-DA-ES-0029.)
+    static constexpr unsigned int wordsPerTrailer = 5;	    //!< number of words in trailer (Ref: ATL-DA-ES-0029.)
     
     //! default constructor: empty object
     Trailer()
@@ -52,8 +52,8 @@ namespace ROIB {
     Trailer& operator=(const Trailer&) =default;
 
     //! constructor which fully specifies the initialiser values
-    Trailer( const std::vector< uint32_t >& v)
-      : m_trailer( v ) {}
+    Trailer( std::vector< uint32_t > &&v)
+      : m_trailer( std::move(v) ) {}
 
     //! constructor specifying the number of data words and the error status
     Trailer( const uint32_t, const uint32_t );

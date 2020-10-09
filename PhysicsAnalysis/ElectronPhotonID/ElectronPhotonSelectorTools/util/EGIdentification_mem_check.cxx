@@ -16,7 +16,7 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "AsgTools/AnaToolHandle.h"
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 
 int main(){
   using namespace asg::msgUserCode;

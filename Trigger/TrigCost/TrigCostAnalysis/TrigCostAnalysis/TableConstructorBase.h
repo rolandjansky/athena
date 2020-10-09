@@ -11,7 +11,7 @@
 
 #include "TableEntry.h"
 
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TString.h"

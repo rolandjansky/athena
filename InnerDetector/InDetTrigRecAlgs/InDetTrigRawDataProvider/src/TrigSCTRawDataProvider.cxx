@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigSCTRawDataProvider.h"
@@ -10,7 +10,7 @@
 
 //#include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "IRegionSelector/IRegSelTool.h" 
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -25,7 +25,6 @@ namespace InDet {
 						  const std::string& name,
 						  const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_id(nullptr),
     m_container(nullptr),
@@ -129,7 +128,7 @@ namespace InDet {
 
     m_bsErrCont = nullptr;
     if (!evtStore()->transientContains<IDCInDetBSErrContainer>(m_bsErrCont_Key)) {
-      m_bsErrCont = new IDCInDetBSErrContainer(m_id->wafer_hash_max(), std::numeric_limits<int>::min());
+      m_bsErrCont = new IDCInDetBSErrContainer(m_id->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min());
       if (evtStore()->record(m_bsErrCont, m_bsErrCont_Key, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsErrCont_Key);
         return StatusCode::FAILURE;
@@ -159,10 +158,7 @@ namespace InDet {
       ATH_MSG_DEBUG( "REGTEST:" << *roi);
 
       //      double zmax = 168; 
-      m_regionSelector->DetROBIDListUint( SCT, 
-					  *roi, 
-					  robIDlist);                                       
-
+      m_regionSelector->ROBIDList( *roi, robIDlist );
 
     } else {
       m_cablingTool->getAllRods(robIDlist);

@@ -17,18 +17,18 @@ class GeoMaterial;
 class ExtParameterisedVolumeBuilder: public VolumeBuilder
 {
 public:
-  ExtParameterisedVolumeBuilder(std::string n, Geo2G4AssemblyFactory* G4AssemblyFactory);
+  ExtParameterisedVolumeBuilder(const std::string& n, Geo2G4AssemblyFactory* G4AssemblyFactory);
   ///
   G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const;
   ///
-  Geo2G4AssemblyVolume* BuildAssembly(PVConstLink pv) const;
+  Geo2G4AssemblyVolume* BuildAssembly(const PVConstLink& pv) const;
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
  private:
   /// Prints info when some PhysVol contains both types (PV and ST) of daughters
-  void PrintSTInfo(std::string volume) const;
+  void PrintSTInfo(const std::string& volume) const;
   ///
   void getMatEther() const;
 

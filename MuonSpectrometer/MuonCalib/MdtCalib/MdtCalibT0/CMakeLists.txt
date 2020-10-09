@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MdtCalibT0 )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibInterfaces
-                          MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneBase
-                          PRIVATE
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier
-                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibStl )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Graf Minuit Core Tree MathCore Hist RIO pthread MathMore Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 

@@ -108,7 +108,7 @@ std::vector< const Trk::PrepRawData* >
 Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map,
                                       const Trk::Track& track) const
 {
-  typedef std::vector<const Trk::PrepRawData*> PRDs_t;
+  using PRDs_t = std::vector<const Trk::PrepRawData *>;
 
   ensureType(virt_prd_to_track_map);
   PRDtoTrackMap &prd_to_track_map = static_cast<PRDtoTrackMap&>(virt_prd_to_track_map);

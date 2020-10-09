@@ -5,37 +5,6 @@
 # Declare the package name:
 atlas_subdir( CaloMonitoring )
 
-# Declare the package's dependencies:
-
-atlas_depends_on_subdirs(
-   PUBLIC
-   Calorimeter/CaloEvent
-   Calorimeter/CaloIdentifier
-   Calorimeter/CaloInterface
-   Commission/CommissionEvent
-   Control/AthenaMonitoring
-   Control/StoreGate
-   DetectorDescription/Identifier
-   Event/xAOD/xAODCaloEvent
-   GaudiKernel
-   LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArRecConditions
-   LArCalorimeter/LArCabling
-   Reconstruction/MissingETEvent
-   Reconstruction/egamma/egammaEvent
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-   Tools/LWHists
-   Trigger/TrigAnalysis/TrigDecisionTool
-   PRIVATE
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloGeoHelpers
-   Control/AthenaKernel
-   Event/xAOD/xAODEventInfo
-   LArCalorimeter/LArRecEvent
-   Reconstruction/Jet/JetEvent
-   Reconstruction/RecBackground/RecBackgroundEvent
-   Trigger/TrigAnalysis/TrigAnalysisInterfaces )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist MathCore Gpad )
 
@@ -48,7 +17,7 @@ atlas_add_component( CaloMonitoring
    LArIdentifier LArRecConditions LArCablingLib MissingETEvent egammaEvent
    ElectronPhotonSelectorToolsLib LWHists TrigDecisionToolLib CaloDetDescrLib
    CaloGeoHelpers AthenaKernel xAODEventInfo LArRecEvent JetEvent
-   RecBackgroundEvent )
+   RecBackgroundEvent CaloInterfaceLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )

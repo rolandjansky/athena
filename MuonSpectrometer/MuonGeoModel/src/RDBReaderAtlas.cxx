@@ -613,28 +613,31 @@ void RDBReaderAtlas::ProcessTGCreadout () {
         m_mgr->storeTgcReadoutParams(std::move(rpar));
       }
     }
-  } else { //if (getGeometryVersion().substr(0,1) == "Q")
+  } else {
     //
     // in case of layout Q and following
     //
     AmdcDb* theAmdcDb = dynamic_cast<AmdcDb*>(m_pRDBAccess);
-    IRDBRecordset_ptr ggln = m_pRDBAccess->getRecordsetPtr("GGLN",m_geoTag,m_geoNode);
-    if (theAmdcDb) ggln = theAmdcDb->getRecordsetPtr("GGLN",m_geoTag,m_geoNode);
+    IRDBRecordset_ptr ggln = theAmdcDb ? theAmdcDb->getRecordsetPtr("GGLN","Amdc")  : m_pRDBAccess->getRecordsetPtr("GGLN",m_geoTag,m_geoNode);
 
     int version(0);
     float wirespacing(0);
-    if(ggln->size()){
+    unsigned int gglnSize(0);
+    if (ggln) gglnSize = ggln->size();
+    else {
+      log << MSG::WARNING << " ProcessTGCreadout - IRDBRecordset_ptr GGLN is nullptr" << endmsg;
+    }
+    if(gglnSize){
       version = (int) (*ggln)[0]->getInt("VERS");
       wirespacing = (*ggln)[0]->getFloat("WIRESP")*Gaudi::Units::mm;
     }
 
-    log << MSG::INFO
-        << " ProcessTGCreadout - version " << version << " wirespacing " << wirespacing << endmsg;
+    log << MSG::INFO << " ProcessTGCreadout - version " << version << " wirespacing " << wirespacing << endmsg;
 
     MYSQL *mysql = MYSQL::GetPointer();
 
     // loop over the banks of station components: ALMN
-    for (unsigned int ich = 0; ich<ggln->size(); ++ich) {
+    for (unsigned int ich = 0; ich<gglnSize; ++ich) {
       int type = (int)(*ggln)[ich]->getInt("JSTA");
       std::string name = "TGCReadout"+MuonGM::buildString(type,2);
 

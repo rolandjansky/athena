@@ -14,11 +14,11 @@ class Test_jetDefInstantiator(unittest.TestCase):
         inst = Instantiator()
         self.assertTrue(len(inst.cache) == 0)
         self.assertTrue(
-            inst(alg).__class__.__name__ == 'PESA__DummyUnseededAllTEAlgo')
+            inst(alg).__class__.__name__ == 'GenericDummyUnseededAllTEAlgo')
         self.assertTrue(len(inst.cache) == 1)
         inst(alg)
         self.assertTrue(
-            inst(alg).__class__.__name__ == 'PESA__DummyUnseededAllTEAlgo')
+            inst(alg).__class__.__name__ == 'GenericDummyUnseededAllTEAlgo')
         
 
     def test_1(self):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -18,6 +18,10 @@ class ZdcSignalSinc {
 
   ZdcSignalSinc(int);
   ~ZdcSignalSinc();
+
+  ZdcSignalSinc(const ZdcSignalSinc&) = delete;
+  ZdcSignalSinc& operator= (const ZdcSignalSinc&) = delete;
+
   int    process(double *,double gain=1., double ped=0.,
 		 double frac=1., bool corr=true);
   int    getError();

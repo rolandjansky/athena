@@ -10,13 +10,13 @@ ScoutingInfo::ScoutingInfo() {
 ScoutingInfo::~ScoutingInfo() {
 }
 
-void ScoutingInfo::add(CLID clid, std::string name){
+void ScoutingInfo::add(CLID clid, const std::string& name){
   
   std::pair < CLID, std::string > clid_Name (clid, name);
   m_clidName.insert(m_clidName.end(), clid_Name);
 }
 
-void ScoutingInfo::add(std::pair<CLID, std::string> clid_Name){
+void ScoutingInfo::add(const std::pair<CLID, std::string>& clid_Name){
   
   m_clidName.insert(m_clidName.end(), clid_Name);
 }

@@ -8,9 +8,7 @@
 namespace Muon {
 
   MuonPrepRawDataCollectionProviderTool::MuonPrepRawDataCollectionProviderTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_layerHashProvider("Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool")
-  {
+    AthAlgTool(type,name,parent) {
     declareInterface<MuonPrepRawDataCollectionProviderTool>(this);
     m_locations.resize(MuonStationIndex::TechnologyIndexMax);
     m_locations[MuonStationIndex::MDT] = "MDT_DriftCircles";

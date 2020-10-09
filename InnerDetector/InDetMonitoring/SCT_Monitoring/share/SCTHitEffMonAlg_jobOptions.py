@@ -31,7 +31,7 @@ BunchCrossingCondAlgDefault()
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.
 
-from ROOT import SCT_Monitoring as sctMon
+from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 
 myMonGroup = [
     helper.addGroup(

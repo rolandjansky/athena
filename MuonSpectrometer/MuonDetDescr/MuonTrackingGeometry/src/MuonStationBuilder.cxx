@@ -12,9 +12,7 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-// Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-// Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/IDetachedTrackingVolumeBuilder.h"
 #include "TrkDetDescrUtils/BinUtility.h"
@@ -274,7 +272,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    if (isLargeSector) sectorL.push_back(layer);
 	    else sectorS.push_back(layer);
 	    if(isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Large sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0() << " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
-	    if(!isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Large sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0()<< " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
+	    if(!isLargeSector) ATH_MSG_INFO( "new NSW prototype build for Small sector: " << protoName <<", "<<vols[ish].second.size() << " x0 " << mat.fullMaterial(layTransf.translation())->x0()<< " thickness " << (mat.fullMaterial(layTransf.translation()))->thickness() );
 	  } else {
             ATH_MSG_DEBUG( " NO layer build for: " << protoName);
 	  }
@@ -825,7 +823,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	} // end if "Shift" (station)
 	vol.next();      
       }      
-      ATH_MSG_INFO( name() << stations.size() <<" station prototypes built " );    
+      ATH_MSG_INFO( name() << " " << stations.size() <<" station prototypes built " );
    }
    
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1060,17 +1058,19 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
 {
   ATH_MSG_VERBOSE( name() <<" identifying prototype " );    
 
-  std::string stationName = station->volumeName();
-  ATH_MSG_VERBOSE( " for station " << stationName );    
+  const std::string stationName = station->volumeName();
+  ATH_MSG_VERBOSE( " for station " << stationName );
+  const std::string stationNameShort = stationName.substr(0,3);
+  const std::string stationFirstChar = stationName.substr(0,1);
 
-  if (m_idHelperSvc->hasMDT() && (stationName.substr(0,1)=="B" || stationName.substr(0,1)=="E" )) { 
+  if (m_idHelperSvc->hasMDT() && (stationFirstChar=="B" || stationFirstChar=="E" )) {
     // MDT
-    int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex( stationName.substr(0,3) ); 
+    int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex( stationNameShort );
     int nameIndexC = nameIndex;
-    if (stationName.substr(0,3)=="EIS") nameIndexC = 22; 
-    if (stationName.substr(0,3)=="BIM") nameIndexC = 23; 
-    if (stationName.substr(0,3)=="BME") nameIndexC = 24; 
-    if (stationName.substr(0,3)=="BMG") nameIndexC = 25; 
+    if (stationNameShort=="EIS") nameIndexC = 22;
+    if (stationNameShort=="BIM") nameIndexC = 23;
+    if (stationNameShort=="BME") nameIndexC = 24;
+    if (stationNameShort=="BMG") nameIndexC = 25;
 
     for (int multi = 0; multi < 2; multi++ ) {
       const MuonGM::MdtReadoutElement* multilayer = m_muonMgr->getMdtReadoutElement(nameIndexC,eta+8,phi-1,multi);
@@ -1092,7 +1092,7 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
 	    } 
           }
         }
-      }     
+      }
     }
     
     // RPC ?
@@ -1102,35 +1102,60 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
       for (unsigned int iv=0;iv<vols.size();iv++) if (m_idHelperSvc->hasRPC() && vols[iv]->volumeName() == "RPC") {
         // for active layers do a search of associated ROE
         const std::vector<const Trk::Layer*>* layers = vols[iv]->confinedArbitraryLayers();
-        int nameIndex = m_idHelperSvc->rpcIdHelper().stationNameIndex( stationName.substr(0,3) ); 
-        if (stationName.substr(0,3)=="BME") nameIndex=12;              // hack for BME
-        if (stationName.substr(0,3)=="BMG") nameIndex=13;              // hack for BMG (even though BMG don't have RPC)
-        // loop over doubletR, doubletZ 
-	for (int doubletR = 0; doubletR < 2; doubletR++ ) {
-	for (int doubletZ = 0; doubletZ < 3; doubletZ++ ) {
-	for (int doubletPhi = 0; doubletPhi < 1; doubletPhi++ ) {
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(nameIndex-2,eta+8,phi-1,doubletR,doubletZ);
-	  if (rpc) {
-            if (doubletZ < rpc->getDoubletZ() ) {  
-	      for (int gasGap=0; gasGap<2; gasGap++) {
-		Identifier etaId = m_idHelperSvc->rpcIdHelper().channelID(nameIndex,eta,phi,
-							    doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,0,1); 
-		  for (unsigned int il=0;il<layers->size();il++) {
-		    if ((*layers)[il]->layerType() != 0 && (*layers)[il]->surfaceRepresentation().isOnSurface(transf.inverse()*rpc->stripPos(etaId),false,0.5*(*layers)[il]->thickness() ) ) {
-                      const Amg::Vector3D locPos1 = (*layers)[il]->surfaceRepresentation().transform().inverse()*transf.inverse()*rpc->stripPos(etaId);
-                      const Amg::Vector3D locPos2 = rpc->surface(etaId).transform().inverse()*rpc->stripPos(etaId);
-                      double swap = ( fabs( locPos1[1] - locPos2[0] ) > 0.001 ) ? 20000. : 0. ;
-		      unsigned int id = etaId.get_identifier32().get_compact();
-		      (*layers)[il]->setLayerType(id);
-                      const Amg::Vector3D locPos = (*layers)[il]->surfaceRepresentation().transform().inverse()
-			*transf.inverse()*rpc->surface(etaId).center(); 
-		      (*layers)[il]->setRef(swap + locPos[0]);
-		    } 
-		  }
-	 }}}}}}                  
+        int nameIndex = m_idHelperSvc->rpcIdHelper().stationNameIndex(stationNameShort);
+        if (stationNameShort=="BME") continue; // BME chambers do not have RPCs
+        if (stationNameShort=="BMG") continue; // BMG chambers do not have RPCs
+        // the following checks are not necessarily needed, since calling channelID with check=true would catch them
+        // However, since these validity checks are slow, let's manually skip the obvious non-existant ones
+        //
+        // only BOG7/8 and BMS2/4 have doubletZ=3, the remaing BOG and BOF4 have doubletZ=1
+        int doubletZMax=2;
+        if (stationNameShort.find("BMS")!=std::string::npos && (std::abs(eta)==2 || std::abs(eta)==4)) doubletZMax=3;
+        else if (stationNameShort.find("BOG")!=std::string::npos) {
+          if (std::abs(eta)==7 || std::abs(eta)==8) doubletZMax=3;
+          else doubletZMax=1;
+        } else if (stationNameShort.find("BOF")!=std::string::npos && std::abs(eta)==4) doubletZMax=1;
+        // all BOL/BOS and BOF1 have doubletR=1
+        int doubletRMax=2;
+        if (stationNameShort.find("BOL")!=std::string::npos) doubletRMax=1;
+        else if (stationNameShort.find("BOS")!=std::string::npos) doubletRMax=1;
+        else if (stationNameShort.find("BOF")!=std::string::npos && std::abs(eta)==1) doubletRMax=1;
+        for (int doubletR = 0; doubletR < doubletRMax; doubletR++ ) {
+          for (int doubletZ = 0; doubletZ < doubletZMax; doubletZ++ ) {
+            for (int doubletPhi = 0; doubletPhi < 1; doubletPhi++ ) {
+              bool isValid=false;
+              // the RpcIdHelper expects doubletR/doubletZ/doubletPhi to start at 1
+              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(nameIndex,eta,phi,doubletR+1,doubletZ+1, doubletPhi+1, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+              if (!isValid) {
+                ATH_MSG_DEBUG("Could not find valid Identifier for station="<<nameIndex<<", eta="<<eta<<", phi="<<phi<<", doubletR="<<doubletR+1<<", doubletZ="<<doubletZ+1<<", doubletPhi="<<doubletPhi+1<<", continuing...");
+                continue;
+              }
+              const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(id);
+              if (rpc) {
+                if (doubletZ < rpc->getDoubletZ() ) {
+                  for (int gasGap=0; gasGap<2; gasGap++) {
+                    Identifier etaId = m_idHelperSvc->rpcIdHelper().channelID(nameIndex,eta,phi,doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,0,1);
+                    for (unsigned int il=0;il<layers->size();il++) {
+                      if ((*layers)[il]->layerType() != 0 && (*layers)[il]->surfaceRepresentation().isOnSurface(transf.inverse()*rpc->stripPos(etaId),false,0.5*(*layers)[il]->thickness() ) ) {
+                        const Amg::Vector3D locPos1 = (*layers)[il]->surfaceRepresentation().transform().inverse()*transf.inverse()*rpc->stripPos(etaId);
+                        const Amg::Vector3D locPos2 = rpc->surface(etaId).transform().inverse()*rpc->stripPos(etaId);
+                        double swap = ( fabs( locPos1[1] - locPos2[0] ) > 0.001 ) ? 20000. : 0. ;
+                        unsigned int id = etaId.get_identifier32().get_compact();
+                        (*layers)[il]->setLayerType(id);
+                        const Amg::Vector3D locPos = (*layers)[il]->surfaceRepresentation().transform().inverse()
+                        *transf.inverse()*rpc->surface(etaId).center();
+                        (*layers)[il]->setRef(swap + locPos[0]);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
-  } 
+  }
 
   // by now, all the layers should be identified - verify
   if (station->confinedVolumes()) {

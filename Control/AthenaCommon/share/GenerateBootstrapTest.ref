@@ -1,16 +1,14 @@
 Willing to acquire file bootstrap.pkl from
-/build/mnowak/work/sealsvc/build/x86_64-centos7-gcc8-opt/share/bootstrap.pkl
+/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-dbg/x86_64-centos7-gcc8-dbg/share/bootstrap.pkl
 copy bootstrap.pkl
 ... Read 2 items from python pickle file:  bootstrap.pkl
 ... Read 2 items from python pickle file:  bootstrap_test.pkl
-Given list of size 0. Not looking for differences.
-Step 1: reference file #components: 28
-Step 2: file to check  #components: 28
+Step 1: reference file #components: 27
+Step 2: file to check  #components: 27
 Willing to acquire file bootstrap_threaded.pkl from
-/build/mnowak/work/sealsvc/build/x86_64-centos7-gcc8-opt/share/bootstrap_threaded.pkl
+/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-dbg/x86_64-centos7-gcc8-dbg/share/bootstrap_threaded.pkl
 copy bootstrap_threaded.pkl
 ... Read 2 items from python pickle file:  bootstrap_threaded.pkl
 ... Read 2 items from python pickle file:  bootstrap_threaded_test.pkl
-Given list of size 0. Not looking for differences.
-Step 1: reference file #components: 34
-Step 2: file to check  #components: 34
+Step 1: reference file #components: 33
+Step 2: file to check  #components: 33

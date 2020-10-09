@@ -5,7 +5,6 @@
 
 #include "TrigGenericAlgs/SeededSuperRoiAllTEAlgo.h"
 #include "TrigNavigation/TriggerElement.h"
-#include "IRegionSelector/IRegSelSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CxxUtils/phihelper.h"
@@ -16,8 +15,7 @@ SeededSuperRoiAllTEAlgo::SeededSuperRoiAllTEAlgo(const std::string& name, ISvcLo
   : HLT::AllTEAlgo(name, pSvcLocator),
     m_runOncePerEvent(true),
     m_was_run(false),
-    m_useRoiSizes(true),
-    m_regionSelector(0)
+    m_useRoiSizes(true)
 {
   declareProperty("NumberOfOutputTEs", m_numberOfOutputTEs = 1, "configure the number of output TEs this algorithm will create");
   declareProperty("createRoIDescriptors",  m_createRoIDescriptors=true, "create SuperRoi descriptor if set true");
@@ -27,19 +25,12 @@ SeededSuperRoiAllTEAlgo::SeededSuperRoiAllTEAlgo(const std::string& name, ISvcLo
   declareProperty("UseRoiSizes",  m_useRoiSizes=true, "User RoI sizes rather than width parameters");
   declareProperty("EtaHalfWidth",  m_etaHalfWidth=0.1, "RoI eta half width");
   declareProperty("PhiHalfWidth",  m_phiHalfWidth=0.1, "RoI phi half width");
-  declareProperty("RegionSelectorTool",    m_regionSelectorName = "RegSelSvc", "instance of the RegionSelector service");
 }
 
 
 HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltInitialize(){
 
   m_was_run=false; 
-
-  if ( (serviceLocator()->service( m_regionSelectorName, m_regionSelector)).isFailure() ) {
-    msg() << MSG::FATAL 
-	  << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endmsg;
-    return HLT::BAD_JOB_SETUP;
-  };
 
   return HLT::OK; 
 }
@@ -159,16 +150,6 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltEndEvent() {
 
 HLT::ErrorCode SeededSuperRoiAllTEAlgo::prepareRobRequests(const std::vector<HLT::TEConstVec>& /* inputTE */){
 
-  std::vector<unsigned int> uIntListOfRobs;
-
-  if (m_prefetchPIX){
-    m_regionSelector->DetROBIDListUint( PIXEL, uIntListOfRobs);
-  }
-  if (m_prefetchSCT){
-    m_regionSelector->DetROBIDListUint( SCT, uIntListOfRobs);
-  }
-
-  config()->robRequestInfo()->addRequestScheduledRobIDs(uIntListOfRobs); 	
 
   return HLT::OK;
 } 

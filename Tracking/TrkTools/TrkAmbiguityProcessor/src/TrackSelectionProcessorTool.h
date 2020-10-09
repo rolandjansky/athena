@@ -14,6 +14,7 @@
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
 //need to include the following, since its a typedef and can't be forward declared.
 #include "TrkTrack/TrackCollection.h"
@@ -106,6 +107,11 @@ namespace Trk {
       /** key for the PRDtoTrackMap to filled by the ambiguity score processor.**/
       SG::ReadHandleKey<Trk::PRDtoTrackMap>  m_assoMapName
          {this,"AssociationMapName",""};  ///< the key given to the newly created association map
+
+      SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerIn
+         {this, "InputClusterSplitProbabilityName", "",""};
+      SG::WriteHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerOut
+         {this, "OutputClusterSplitProbabilityName", "",""};
 
       /** option to disable sorting based on track score and 
     use the ordering provided externally*/

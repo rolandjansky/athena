@@ -152,7 +152,13 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelNoiseFilter.TileCondToolNoiseSample.TileOnlineSampleNoise = ''
                 NoiseFilterTools += [theTileRawChannelNoiseFilter]
 
-                if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
+            if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
+                if jobproperties.TileRecFlags.correctTimeJumps():
+                    from TileRecUtils.TileRecUtilsConf import TileTimeBCOffsetFilter
+                    theTileTimeBCOffsetFilter = TileTimeBCOffsetFilter()
+                    NoiseFilterTools += [theTileTimeBCOffsetFilter]
+
+                if len(NoiseFilterTools) > 0:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelCorrectionAlg
                     theTileRawChannelCorrectionAlg = TileRawChannelCorrectionAlg()
                     theTileRawChannelCorrectionAlg.NoiseFilterTools= NoiseFilterTools

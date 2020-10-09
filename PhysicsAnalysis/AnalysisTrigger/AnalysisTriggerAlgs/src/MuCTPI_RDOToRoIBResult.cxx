@@ -75,17 +75,17 @@ StatusCode MuCTPI_RDOToRoIBResult::execute() {
    //
    // Create the new MuCTPI result:
    //
-   ROIB::MuCTPIResult newResult( roibresult->muCTPIResult().header(),
-                                 roibresult->muCTPIResult().trailer(),
-                                 roi_vector );
+   ROIB::MuCTPIResult newResult( ROIB::Header(roibresult->muCTPIResult().header()),
+                                 ROIB::Trailer(roibresult->muCTPIResult().trailer()),
+                                 std::move(roi_vector) );
 
    //
    // Create and save the new RoIBResult object:
    //
-   ROIB::RoIBResult* new_roibresult = new ROIB::RoIBResult( newResult,
-                                                            roibresult->cTPResult(),
-                                                            roibresult->jetEnergyResult(),
-                                                            roibresult->eMTauResult() );
+   ROIB::RoIBResult* new_roibresult = new ROIB::RoIBResult( std::move(newResult),
+                                                            ROIB::CTPResult(roibresult->cTPResult()),
+                                                            std::vector< ROIB::JetEnergyResult >(roibresult->jetEnergyResult()),
+                                                            std::vector< ROIB::EMTauResult >(roibresult->eMTauResult()) );
    CHECK( evtStore()->record( new_roibresult, m_roibOutputKey ) );
    ATH_MSG_VERBOSE( "Saved the fixed RoIBResult object with key: "
                     << m_roibOutputKey );

@@ -28,7 +28,7 @@ namespace LArG4 {
 #endif
      }
 
-    void LocalCalibrationCalculator::GeometryTypeUpdateHandler(Property&)
+    void LocalCalibrationCalculator::GeometryTypeUpdateHandler(Gaudi::Details::PropertyBase&)
     {
       std::string geoTypeString = m_strgeometryType.value();
       std::transform(geoTypeString.begin(), geoTypeString.end(),geoTypeString.begin(), ::toupper);

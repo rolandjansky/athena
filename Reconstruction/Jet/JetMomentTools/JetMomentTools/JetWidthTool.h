@@ -14,8 +14,9 @@
 
 #include "JetInterface/IJetDecorator.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "AsgTools/ToolHandle.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 #include "PFlowUtils/IWeightPFOTool.h"
 

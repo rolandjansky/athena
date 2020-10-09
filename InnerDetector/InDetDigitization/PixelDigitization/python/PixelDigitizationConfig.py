@@ -4,8 +4,6 @@ from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
-from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-from AthenaCommon.DetFlags import DetFlags
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
@@ -69,7 +67,8 @@ def SensorSimTool(name="SensorSimTool", **kwargs):
     return CfgMgr.SensorSimTool(name, **kwargs)
 
 def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
-    from AthenaCommon.AppMgr import ToolSvc
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
     kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FrontEndSimTool(name, **kwargs)
 
@@ -102,7 +101,6 @@ def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
     return CfgMgr.FEI3SimTool(name, **kwargs)
 
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
-    from AthenaCommon import CfgGetter
     from AthenaCommon.AppMgr import ServiceMgr
     from AthenaCommon.AppMgr import ToolSvc
     from IOVDbSvc.CondDB import conddb
@@ -128,14 +126,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-
-        PixelConfigCondAlg.UseCalibConditions=True
-        PixelConfigCondAlg.UseDeadmapConditions=True
-        PixelConfigCondAlg.UseDCSStateConditions=False
-        PixelConfigCondAlg.UseDCSStatusConditions=False
-        PixelConfigCondAlg.UseDCSHVConditions=True
-        PixelConfigCondAlg.UseDCSTemperatureConditions=True
-        PixelConfigCondAlg.UseTDAQConditions=False
         PixelConfigCondAlg.UseCablingConditions=False
 
         from AthenaCommon.BeamFlags import jobproperties
@@ -313,12 +303,12 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
             elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif (geoFlags.isIBL() == False):
+        elif not geoFlags.isIBL():
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         else:
             # Planar IBL
             if (geoFlags.IBLLayout() == "planar"):
-                if (geoFlags.isDBM() == True):
+                if geoFlags.isDBM():
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
@@ -383,10 +373,10 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     #####################
     # Cabling map Setup #
     #####################
-    if geoFlags.isIBL()==True and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+    if geoFlags.isIBL() and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
         conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
-    if geoFlags.isIBL()==True and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+    if geoFlags.isIBL() and not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
         condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
 
@@ -399,7 +389,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
     pixelReadKey = ''
     if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
-        pixelReaddKey = '/PIXEL/CablingMap'
         if not conddb.folderRequested("/PIXEL/CablingMap"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
 
@@ -408,7 +397,8 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
                                        ReadKey = pixelReadKey,
                                        MappingFile=IdMappingDat,
-                                       RodIDForSingleLink40=0)
+                                       RodIDForSingleLink40=0,
+                                       RecordInInitialize=not globalflags.isOverlay())
 
     if not conddb.folderRequested("/PIXEL/PixReco"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
@@ -449,18 +439,13 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
         ToolSvc += SiLorentzAngleTool(name="PixelLorentzAngleTool", 
                                       DetectorName="Pixel", 
-                                      UseMagFieldCache = True,
+                                      DetEleCollKey="PixelDetectorElementCollection",
+                                      UseMagFieldCache=True,
                                       SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
 ############################################################################################
 # Set up Tool/Service
 ############################################################################################
-
-    #################
-    # Setup deadmap #
-    #################
-    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
 
     #####################
     # Setup Cabling Svc #

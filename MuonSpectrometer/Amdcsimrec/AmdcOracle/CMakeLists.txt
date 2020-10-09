@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( AmdcOracle )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PRIVATE
-                          Database/RDBAccessSvc
-                          MuonSpectrometer/Amdcsimrec/AmdcDb )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

@@ -187,8 +187,15 @@ def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=0):
 
 # inner detector
 
+def regSelTool_Pixel_Cfg(flags):
+    return regSelToolCfg(flags, "Pixel", CompFactory.SiRegSelCondAlg)
+
 def regSelTool_SCT_Cfg(flags):
     return regSelToolCfg(flags, "SCT", CompFactory.SiRegSelCondAlg)
+
+def regSelTool_TRT_Cfg(flags):
+    return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg)
+
 
 # muon spectrometer
 

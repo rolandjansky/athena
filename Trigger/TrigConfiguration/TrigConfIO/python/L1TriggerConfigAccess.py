@@ -35,7 +35,7 @@ class L1MenuAccess(TriggerConfigAccess):
             return self._config["items"]
 
     def thresholdTypes(self):
-        thrTypes = self._config["thresholds"].keys()
+        thrTypes = list(self._config["thresholds"].keys())
         if "legacyCalo" in thrTypes:
             thrTypes.remove("legacyCalo")
             thrTypes += self._config["thresholds"]["legacyCalo"].keys()

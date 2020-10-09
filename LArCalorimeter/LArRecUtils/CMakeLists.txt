@@ -69,7 +69,7 @@ atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ign
 
 atlas_add_test( LArFCalTowerBuilderTool
                 SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/LArFCalTowerBuilderTool_test.sh
-                LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
+                LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|IOVDbSvc +INFO"
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( LArRecUtilsConfig_test

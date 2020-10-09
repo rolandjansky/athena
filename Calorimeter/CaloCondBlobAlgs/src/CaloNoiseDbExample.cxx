@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCondBlobAlgs/CaloNoiseDbExample.h"
 //#include "CaloInterface/ICaloNoiseTool.h"
-
-//=== Athena includes
-#include "StoreGate/StoreGate.h"
 
 //=== Gaudi includes
 #include "GaudiKernel/MsgStream.h"
@@ -23,8 +20,8 @@
 //_______________________________________________________________________________________
 CaloNoiseDbExample::CaloNoiseDbExample(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_evt(0),
-  m_calo_id(0)
+  m_evt(nullptr),
+  m_calo_id(nullptr)
 {
   declareProperty("FolderName"   , m_foldername="/CALO/Ofl/Noise/CellNoise");
 }

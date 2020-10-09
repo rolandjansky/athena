@@ -3,30 +3,37 @@
 # Declare the package name:
 atlas_subdir( AthAsgExUnittest )
 
+# Necessary external(s).
+find_package( GTest )
+find_package( GMock )
+
 # Libraries in the package:
 atlas_add_library( AthAsgExUnittestLib
-                   MyPackage/*.h src/*.cxx
-                   Root/*.cxx
-                   NO_PUBLIC_HEADERS
-                   LINK_LIBRARIES GaudiKernel AsgTools AthAnalysisBaseCompsLib )
+   AthAsgExUnittest/*.h Root/*.cxx
+   PUBLIC_HEADERS AthAsgExUnittest
+   LINK_LIBRARIES AsgTools )
 
 atlas_add_component( AthAsgExUnittest
-                     src/components/*.cxx
-                     LINK_LIBRARIES AthAsgExUnittestLib )
+   src/*.h src/*.cxx src/components/*.cxx
+   LINK_LIBRARIES AthAnalysisBaseCompsLib AsgTools AthAsgExUnittestLib )
 
 # Add tests:
 atlas_add_test( gt_AthAsgExUnittest
   SOURCES test/gt_AthAsgExUnittest.cxx
-  LINK_LIBRARIES GaudiKernel GoogleTestTools AthAsgExUnittestLib )
+  LINK_LIBRARIES GaudiKernel GoogleTestTools AsgTools AthAnalysisBaseCompsLib
+  AthAsgExUnittestLib )
 
 atlas_add_test( gt_AthExUnittest
   SOURCES test/gt_AthExUnittest.cxx
-  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps AsgTools )
+  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps
+  AthAsgExUnittestLib )
 
 atlas_add_test( gt_MockxAODJet
   SOURCES test/gt_MockxAODJet.cxx
-  LINK_LIBRARIES xAODJet GoogleTestTools )
+  INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+  LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} xAODJet )
 
 atlas_add_test( gt_xAODJet
   SOURCES test/gt_xAODJet.cxx
-  LINK_LIBRARIES xAODJet GoogleTestTools )
+  INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+  LINK_LIBRARIES ${GTEST_LIBRARIES} xAODJet )

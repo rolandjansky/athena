@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfig_DSConfigSvc
@@ -18,6 +18,7 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include <memory>
+#include <set>
 
 namespace TXC {
    class L1TopoMenu;
@@ -156,8 +157,8 @@ namespace TrigConf {
       ServiceHandle< StoreGateSvc > m_detstore;
 
       ///to avoid crashes when a folder is not present and allow for lvl1/htl separation : 
-      /// /* std::string folders will take the info on folders from IOVDbSvc*/
-      std::string m_folders;
+      /// /* m_folders will take the info on folders from IOVDbSvc*/
+      std::set<std::string> m_folders;
 
 
       // hasFolder(folder_name) will return true if folder_name is found in the string returned by IOVDbSvc, false otherwise

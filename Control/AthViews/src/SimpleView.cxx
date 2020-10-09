@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdexcept>
 #include "AthViews/SimpleView.h"
 #include "AthViews/View.h"
+#include "SGTools/transientKey.h"
 
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
   m_store( storeName, Name ),
@@ -17,6 +18,17 @@ SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string con
 SimpleView::~SimpleView()
 {
 }
+
+
+/**
+ * @brief Construct a key as used in the parent store.
+ * @brief key The key as used in the view.
+ */
+std::string SimpleView::viewKey (const std::string& key) const
+{
+  return SG::transientKey (m_name + "_" + key);
+}
+
 
 void SimpleView::linkParent( const IProxyDict* parent ) {
   auto castParent = dynamic_cast< const SG::View* >( parent );
@@ -63,8 +75,7 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
 SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, const bool allowFallThrough ) const
 {
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
-  const std::string viewKey = m_name + "_" + key;
-  auto localProxy = m_store->proxy( id, viewKey );
+  auto localProxy = m_store->proxy( id, viewKey(key) );
   if ( isValid( localProxy ) ) {
     return localProxy;
   }
@@ -168,8 +179,7 @@ bool SimpleView::tryELRemap( sgkey_t sgkey_in, size_t index_in, sgkey_t & sgkey_
  */
 SG::DataProxy * SimpleView::recordObject( SG::DataObjectSharedPtr<DataObject> obj, const std::string& key, bool allowMods, bool returnExisting )
 {
-  const std::string viewKey = m_name + "_" + key;
-  return m_store->recordObject( obj, viewKey, allowMods, returnExisting );
+  return m_store->recordObject( obj, viewKey(key), allowMods, returnExisting );
 }
 
 /**
@@ -215,8 +225,7 @@ const std::string& SimpleView::name() const
 //IStringPool
 IStringPool::sgkey_t SimpleView::stringToKey( const std::string& str, CLID clid )
 {
-  const std::string viewKey = m_name + "_" + str;
-  return m_store->stringToKey( viewKey, clid );
+  return m_store->stringToKey( viewKey(str), clid );
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key ) const
 {
@@ -230,8 +239,7 @@ const std::string* SimpleView::keyToString( IStringPool::sgkey_t key, CLID& clid
 }
 void SimpleView::registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid )
 {
-	const std::string viewKey = m_name + "_" + str;
-	m_store->registerKey( key, viewKey, clid );
+	m_store->registerKey( key, viewKey(str), clid );
 }
 
 void SimpleView::setROI(const ElementLink<TrigRoiDescriptorCollection>& roi) {

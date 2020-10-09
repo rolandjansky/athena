@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCEVENTCOLLECTIONFILTER_H
@@ -48,6 +48,7 @@ private:
   StatusCode TGCHitsTruthRelink();
   StatusCode STGC_HitsTruthRelink();
   StatusCode MM_HitsTruthRelink();
+  StatusCode BCMHitsTruthRelink();
 
   SG::ReadHandle<McEventCollection>  m_inputTruthCollection;
   SG::ReadHandle<SiHitCollection>  m_inputBCMHits;
@@ -79,6 +80,7 @@ private:
   bool m_UseCSCHits;
   bool m_UseSTGCHits;
   bool m_UseMMHits;
+  bool m_UseBCMHits;
   //---------------------
   //std::string   m_HitName;
   int m_RefBarcode;

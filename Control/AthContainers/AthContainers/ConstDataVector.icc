@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ConstDataVector.icc 717853 2016-01-14 21:41:19Z ssnyder $
 /**
  * @file AthContainers/ConstDataVector.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -379,7 +376,7 @@ ConstDataVector<DV>::back ()
 template <class DV>
 inline
 typename ConstDataVector<DV>::iterator
-ConstDataVector<DV>::begin()
+ConstDataVector<DV>::begin() noexcept
 {
   return to_my_iterator (DV::begin());
 }
@@ -397,7 +394,7 @@ ConstDataVector<DV>::begin()
 template <class DV>
 inline
 typename ConstDataVector<DV>::iterator
-ConstDataVector<DV>::end()
+ConstDataVector<DV>::end() noexcept
 {
   return to_my_iterator (DV::end());
 }
@@ -415,7 +412,7 @@ ConstDataVector<DV>::end()
 template <class DV>
 inline
 typename ConstDataVector<DV>::reverse_iterator
-ConstDataVector<DV>::rbegin()
+ConstDataVector<DV>::rbegin() noexcept
 {
   return reverse_iterator (to_my_iterator (DV::end()));
 }
@@ -433,7 +430,7 @@ ConstDataVector<DV>::rbegin()
 template <class DV>
 inline
 typename ConstDataVector<DV>::reverse_iterator
-ConstDataVector<DV>::rend()
+ConstDataVector<DV>::rend() noexcept
 {
   return reverse_iterator (to_my_iterator (DV::begin()));
 }
@@ -451,13 +448,17 @@ ConstDataVector<DV>::rend()
  *
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
+ *
+ * Returns the pushed pointer.
  */
 template <class DV>
 inline
-void ConstDataVector<DV>::push_back(value_type pElem)
+typename ConstDataVector<DV>::value_type
+ConstDataVector<DV>::push_back(value_type pElem)
 {
   typename DV::value_type p ATLAS_THREAD_SAFE = const_cast<typename DV::value_type> (pElem);
   DV::push_back (p);
+  return p;
 }
 
 
@@ -471,14 +472,17 @@ void ConstDataVector<DV>::push_back(value_type pElem)
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
  *
- * For @c DataVector, this is just the same as @c push_back.
+ * For @c DataVector, this is like the same as @c push_back, and
+ * it returns the pushed element.
  * It's included just for interface compatibility with `std::vector`.
  */
 template <class DV>
 inline
-void ConstDataVector<DV>::emplace_back(value_type pElem)
+typename ConstDataVector<DV>::value_type
+ConstDataVector<DV>::emplace_back(value_type pElem)
 {
   this->push_back (pElem);
+  return pElem;
 }
 
 
@@ -566,15 +570,19 @@ void ConstDataVector<DV>::insert (iterator position,
  *
  * Note: this method may only be called using the most derived
  * @c DataVector in the hierarchy.
+ *
+ * Returns the pushed pointer.
  */
 template <class DV>
 inline
-void ConstDataVector<DV>::push_back(std::unique_ptr<const base_value_type> pElem)
+typename ConstDataVector<DV>::value_type
+ConstDataVector<DV>::push_back(std::unique_ptr<const base_value_type> pElem)
 {
   typename DV::value_type ptmp ATLAS_THREAD_SAFE =
     const_cast<typename DV::value_type> (pElem.release());
   std::unique_ptr<typename DV::base_value_type> ptr (ptmp);
   DV::push_back (std::move (ptr));
+  return ptmp;
 }
 
 

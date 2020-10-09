@@ -35,7 +35,7 @@ myMonGroup = helper.addGroup(myMonAlg, "SCTErrMonitor", "SCT/")
 
 # Configure histograms
 
-from ROOT import SCT_Monitoring as sctMon
+from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 
 # Filled in fillHistograms
 myMonGroup.defineHistogram(varname = "lumiBlock;NumberOfEventsVsLB",

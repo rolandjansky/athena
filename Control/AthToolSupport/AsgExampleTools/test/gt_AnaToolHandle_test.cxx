@@ -22,6 +22,12 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+#if __clang__
+// Work around warnings from gtest code.   See
+// https://github.com/google/googletest/pull/2316.
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 //
 // method implementations
 //
@@ -321,7 +327,7 @@ namespace asg
   // check make(type)
   TEST_F (AnaToolHandleUseTest, makeTyped)
   {
-    ASSERT_DEATH (tool.make ("asg::UnitTestTool1"), "");
+    ASSERT_DEATH (tool.make ("asg::UnitTestTool1").ignore(), "");
   }
 #endif
 
@@ -345,7 +351,7 @@ namespace asg
   // check makeNew<type>()
   TEST_F (AnaToolHandleUseTest, makeNew)
   {
-    ASSERT_DEATH (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"), "");
+    ASSERT_SUCCESS (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"));
   }
 #endif
 
@@ -412,7 +418,11 @@ namespace asg
   }
 
   // check setProperty<int>()
+#ifdef XAOD_STANDALONE
   TEST_F (AnaToolHandleMakeTest, setPropertyInt_failure)
+#else
+  TEST_F (AnaToolHandleMakeTest, DISABLED_setPropertyInt_failure)
+#endif
   {
     ASSERT_SUCCESS (tool.setProperty<int> ("UNKNOWN_PROPERTY", 42));
     ASSERT_FAILURE (tool.initialize ());
@@ -422,7 +432,7 @@ namespace asg
   // check setProperty<int>()
   TEST_F (AnaToolHandleUseTest, setPropertyInt)
   {
-    ASSERT_DEATH (tool.setProperty<int> ("propertyInt", 42), "");
+    ASSERT_DEATH (tool.setProperty<int> ("propertyInt", 42).ignore(), "");
   }
 #endif
 
@@ -437,7 +447,11 @@ namespace asg
   }
 
   // check setProperty(const char*)
+#ifdef XAOD_STANDALONE
   TEST_F (AnaToolHandleMakeTest, setPropertyString_failure)
+#else
+  TEST_F (AnaToolHandleMakeTest, DISABLED_setPropertyString_failure)
+#endif
   {
     ASSERT_SUCCESS (tool.setProperty ("UNKNOWN_PROPERTY", "42"));
     ASSERT_FAILURE (tool.initialize ());
@@ -447,7 +461,7 @@ namespace asg
   // check setProperty(const char*)
   TEST_F (AnaToolHandleUseTest, setPropertyString)
   {
-    ASSERT_DEATH (tool.setProperty ("propertyString", "42"), "");
+    ASSERT_DEATH (tool.setProperty ("propertyString", "42").ignore(), "");
   }
 #endif
 
@@ -473,7 +487,7 @@ namespace asg
   // check initialize()
   TEST_F (AnaToolHandleUseTest, initialize)
   {
-    ASSERT_DEATH (tool.initialize(), "");
+    ASSERT_DEATH (tool.initialize().ignore(), "");
   }
 #endif
 
@@ -682,7 +696,7 @@ namespace asg
     }
   };
 
-  TYPED_TEST_CASE_P (SetToolHandlePropertyTest);
+  TYPED_TEST_SUITE_P (SetToolHandlePropertyTest);
 
   TYPED_TEST_P (SetToolHandlePropertyTest, setRegPublicHandle)
   {
@@ -704,7 +718,7 @@ namespace asg
     this->testSetToolHandle ("anaPrivateHandle", false, false);
   }
 
-  REGISTER_TYPED_TEST_CASE_P (SetToolHandlePropertyTest, setRegPublicHandle, setRegPrivateHandle, setAnaPublicHandle, setAnaPrivateHandle);
+  REGISTER_TYPED_TEST_SUITE_P (SetToolHandlePropertyTest, setRegPublicHandle, setRegPrivateHandle, setAnaPublicHandle, setAnaPrivateHandle);
 
 
 
@@ -723,7 +737,7 @@ namespace asg
     AnaToolHandle<IUnitTestTool1> handle;
   };
 #ifdef ROOTCORE
-  INSTANTIATE_TYPED_TEST_CASE_P (PublicAnaSubToolTest, SetToolHandlePropertyTest, PublicAnaSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (PublicAnaSubToolTest, SetToolHandlePropertyTest, PublicAnaSubTool);
 #endif
 
   struct PrivateAnaSubTool
@@ -744,7 +758,7 @@ namespace asg
     AnaToolHandle<IUnitTestTool1> handle;
   };
 #ifdef ROOTCORE
-  INSTANTIATE_TYPED_TEST_CASE_P (PrivateAnaSubToolTest, SetToolHandlePropertyTest, PrivateAnaSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (PrivateAnaSubToolTest, SetToolHandlePropertyTest, PrivateAnaSubTool);
 #endif
 
   struct EmptyRegSubTool
@@ -759,7 +773,7 @@ namespace asg
 
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (EmptyRegSubToolTest, SetToolHandlePropertyTest, EmptyRegSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (EmptyRegSubToolTest, SetToolHandlePropertyTest, EmptyRegSubTool);
 
   struct InvalidSubTool
   {
@@ -774,7 +788,7 @@ namespace asg
 
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (InvalidSubToolTest, SetToolHandlePropertyTest, InvalidSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (InvalidSubToolTest, SetToolHandlePropertyTest, InvalidSubTool);
 
   struct NamedSubTool
   {
@@ -802,7 +816,7 @@ namespace asg
 #endif
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (NamedSubToolTest, SetToolHandlePropertyTest, NamedSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (NamedSubToolTest, SetToolHandlePropertyTest, NamedSubTool);
 
 #ifdef ROOTCORE
   struct PointerRegSubTool
@@ -821,7 +835,7 @@ namespace asg
     AnaToolHandle<IUnitTestTool1> tool;
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (PointerRegSubToolTest, SetToolHandlePropertyTest, PointerRegSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (PointerRegSubToolTest, SetToolHandlePropertyTest, PointerRegSubTool);
 #endif
 
 
@@ -830,8 +844,8 @@ namespace asg
   TEST (AnaToolHandleTest, athena_job_options_property)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("propertyInt", "57")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".propertyInt", "57");
 
     AnaToolHandle<IUnitTestTool1> handle ("asg::UnitTestTool1/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -841,11 +855,11 @@ namespace asg
     EXPECT_EQ (57, handle->getPropertyInt ());
   }
 
-  TEST (AnaToolHandleTest, athena_job_options_misspelled)
+  TEST (AnaToolHandleTest, DISABLED_athena_job_options_misspelled)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("invalid", "57")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".invalid", "57");
 
     AnaToolHandle<IUnitTestTool1> handle ("asg::UnitTestTool1/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -855,11 +869,10 @@ namespace asg
   TEST (AnaToolHandleTest, athena_job_options_type_private)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1A/anaPrivateHandle")));
-
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", "")));
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", "")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".anaPrivateHandle", "asg::UnitTestTool1A/anaPrivateHandle");
+    joSvc->set ("ToolSvc." + name + ".regPublicHandle", "");
+    joSvc->set ("ToolSvc." + name + ".regPrivateHandle", "");
 
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -871,12 +884,12 @@ namespace asg
   TEST (AnaToolHandleTest, athena_job_options_subtool)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1/anaPrivateHandle")));
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name + ".anaPrivateHandle", StringProperty("propertyInt", "48")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".anaPrivateHandle", "asg::UnitTestTool1/anaPrivateHandle");
+    joSvc->set ("ToolSvc." + name + ".anaPrivateHandle.propertyInt", "48");
 
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", "")));
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", "")));
+    joSvc->set ("ToolSvc." + name + ".regPublicHandle", "");
+    joSvc->set ("ToolSvc." + name + ".regPrivateHandle", "");
 
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     EXPECT_TRUE (handle.isUserConfigured());
@@ -999,7 +1012,7 @@ namespace asg
     {
       ASSERT_SUCCESS (th3.setProperty ("usePublic", true));
     }
-    
+
     ASSERT_SUCCESS (th3.initialize ());
     if (value == -1)
     {
@@ -1011,7 +1024,7 @@ namespace asg
     }
   }
 
-  INSTANTIATE_TEST_CASE_P
+  INSTANTIATE_TEST_SUITE_P
   (MySubtoolTest1, SubtoolTest, ::testing::Values
    (std::make_tuple ("regPublicHandle",  "public",  "ATH"),
     std::make_tuple ("anaPublicHandle",  "public",  "ATH"),
@@ -1030,7 +1043,7 @@ namespace asg
     std::make_tuple ("regPrivateHandle", "private", "empty"),
     std::make_tuple ("anaPrivateHandle", "private", "empty"),
     std::make_tuple ("regPrivateHandle", "private", "none"),
-    std::make_tuple ("anaPrivateHandle", "private", "none")),);
+    std::make_tuple ("anaPrivateHandle", "private", "none")));
 }
 
 ATLAS_GOOGLE_TEST_MAIN

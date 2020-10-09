@@ -9,40 +9,35 @@ atlas_subdir( TrkAmbiguityProcessor )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          DetectorDescription/AtlasDetDescr
-                          GaudiKernel			  
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
+                          GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          Tracking/TrkDetDescr/TrkDetElementBase
+                          InnerDetector/InDetRecEvent/InDetPrepRawData
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/TrkTruthData
-                          Tracking/TrkEvent/TrkCaloClusterROI
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkValidation/TrkValInterfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces          )
 
 # External dependencies:
-find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-find_package( HepPDT )
 
 # Component(s) in the package:
-atlas_add_library(   TrkAmbiguityProcessorLib
+atlas_add_component( TrkAmbiguityProcessor
                      src/DenseEnvironmentsAmbiguityProcessorTool.cxx
                      src/DenseEnvironmentsAmbiguityScoreProcessorTool.cxx
-                   
-                     PUBLIC_HEADERS TrkAmbiguityProcessor
+                     src/AmbiguityProcessorUtility.cxx
+                     src/AmbiguityProcessorBase.cxx
+                     src/SimpleAmbiguityProcessorTool.cxx
+                     src/TrackScoringTool.cxx
+                     src/TrackSelectionProcessorTool.cxx
+                     src/ToolVisitor.cxx
+                     src/RenounceToolInputsVisitor.cxx
+                     src/components/*.cxx
                      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces TrkCaloClusterROI)
-
-atlas_add_component( TrkAmbiguityProcessor
-                     src/SimpleAmbiguityProcessorTool.cxx  src/TrackScoringTool.cxx  src/TrackSelectionProcessorTool.cxx
-                     src/components/*.cxx 
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} TrkAmbiguityProcessorLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps  GaudiKernel InDetRecToolInterfaces InDetPrepRawData TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces)
 

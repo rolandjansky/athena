@@ -12,7 +12,10 @@
 #include "InDetPerformanceMonitoring/MuonSelector.h"
 
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
+
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "CxxUtils/checker_macros.h"
 
@@ -24,7 +27,7 @@ class TrackParticle;
 //==============================================================================
 // Class declaration...
 //==============================================================================
-class ATLAS_NOT_THREAD_SAFE ZmumuEvent : public EventAnalysis // Thread unsafe MuonSelector class is used.
+class ZmumuEvent : public EventAnalysis
 {
  public:
   ZmumuEvent();
@@ -56,8 +59,9 @@ class ATLAS_NOT_THREAD_SAFE ZmumuEvent : public EventAnalysis // Thread unsafe M
     NUM_TYPES
   };
 
-  virtual void Init();
-  virtual bool Reco();
+  virtual void Init() override;
+  bool Reco(const xAOD::MuonContainer& muonContainer,
+            const xAOD::VertexContainer& vertexContainer);
 
   // Public access methods
   unsigned int  getNumberOfTaggedMuons()         {  return m_numberOfFullPassMuons; }
@@ -66,7 +70,8 @@ class ATLAS_NOT_THREAD_SAFE ZmumuEvent : public EventAnalysis // Thread unsafe M
   const xAOD::Muon*      getCombMuon(  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : NULL;  }
   const xAOD::TrackParticle*  getMSTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : NULL;  }
   const xAOD::TrackParticle*  getIDTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : NULL;  }
-  const xAOD::TrackParticle*  getLooseIDTk( unsigned int uPart );
+  const xAOD::TrackParticle*  getLooseIDTk( unsigned int uPart,
+                                            const xAOD::TrackParticleContainer& trackParticleContainer);
 
   float getPtImbalance( ZTYPE eType );
 
@@ -86,10 +91,9 @@ class ATLAS_NOT_THREAD_SAFE ZmumuEvent : public EventAnalysis // Thread unsafe M
     m_xMuonID.doIsoSelection(doIso);
   }
 
-  void setContainer( PerfMonServices::CONTAINERS container) { m_container = container; };
 
- protected:
-  virtual void BookHistograms();
+protected:
+  virtual void BookHistograms() override;
 
  private:
   typedef EventAnalysis PARENT;
@@ -102,7 +106,6 @@ class ATLAS_NOT_THREAD_SAFE ZmumuEvent : public EventAnalysis // Thread unsafe M
 
   // Active mu-cuts for the analysis
   MuonSelector            m_xMuonID;
-  PerfMonServices::CONTAINERS m_container;
 
   // Tag Setup variables
   unsigned int m_uMuonTags;

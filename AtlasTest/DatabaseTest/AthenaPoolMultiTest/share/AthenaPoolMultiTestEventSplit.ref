@@ -1,5 +1,6 @@
 Py:Athena            INFO including file "AthenaPoolMultiTest/ExampleStreamConfig.py"
 PoolSvc              INFO Setting up APR FileCatalog and Streams
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 Splitter1           DEBUG Property update for OutputLevel : new value = 2
 Splitter1            INFO in initialize()
 Splitter1           DEBUG input handles: 3
@@ -13,34 +14,33 @@ Splitter3           DEBUG output handles: 0
 Splitter3           DEBUG Data Deps for Splitter3
 Triggered            INFO in initialize()
 DecisionSvc          INFO Inserting stream: Stream2 with no Algs
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version AthenaServices-00-00-00
 Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
+Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream2_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Stream2'])
 Stream2              INFO Data output: AthenaPoolMultiTest_Split2.root
 Stream2              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
+Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream1_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
 Stream1              INFO Data output: AthenaPoolMultiTest_Split1.root
 Stream1              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version AthenaServices-00-00-00
 Stream3.Stream3...   INFO Initializing Stream3.Stream3_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Stream3              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream3_MakeEventStreamInfo'])
+Stream3              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream3_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream3_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Stream3'])
 Stream3              INFO Data output: AthenaPoolMultiTest_Split3.root
 Stream3              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Others with no Algs
 Others.OthersTool    INFO Initializing Others.OthersTool - package version AthenaServices-00-00-00
 Others.Others_M...   INFO Initializing Others.Others_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Others               INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Others_MakeEventStreamInfo'])
+Others               INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Others_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Others_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Others'])
 Others               INFO Data output: AthenaPoolMultiTest_Missed.root
 Others               INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Bad with no Algs
 Bad.BadTool          INFO Initializing Bad.BadTool - package version AthenaServices-00-00-00
 Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo'])
+Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Bad_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Bad'])
 Bad                  INFO Data output: AthenaPoolMultiTest_Missed.root
 Bad                  INFO I/O reinitialization...
 Splitter1           DEBUG in execute()
@@ -293,25 +293,30 @@ Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
 Triggered            INFO in finalize()
-ItemListSvc         DEBUG STREAM Bad has (1) items
+ItemListSvc         DEBUG STREAM Bad has (2) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
-ItemListSvc         DEBUG STREAM Others has (6) items
+ItemListSvc         DEBUG    - xAOD::EventFormat_EventFormatBad
+ItemListSvc         DEBUG STREAM Others has (7) items
 ItemListSvc         DEBUG    - EventStreamInfo_Others
+ItemListSvc         DEBUG    - xAOD::EventFormat_EventFormatOthers
 ItemListSvc         DEBUG  --> Overlap with Stream1 (5) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (5) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (5) items
-ItemListSvc         DEBUG STREAM Stream1 has (7) items
+ItemListSvc         DEBUG STREAM Stream1 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream1
+ItemListSvc         DEBUG    - xAOD::EventFormat_EventFormatStream1
 ItemListSvc         DEBUG  --> Overlap with Others (5) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
-ItemListSvc         DEBUG STREAM Stream2 has (7) items
+ItemListSvc         DEBUG STREAM Stream2 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream2
+ItemListSvc         DEBUG    - xAOD::EventFormat_EventFormatStream2
 ItemListSvc         DEBUG  --> Overlap with Others (5) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream3 (6) items
-ItemListSvc         DEBUG STREAM Stream3 has (7) items
+ItemListSvc         DEBUG STREAM Stream3 has (8) items
 ItemListSvc         DEBUG    - EventStreamInfo_Stream3
+ItemListSvc         DEBUG    - xAOD::EventFormat_EventFormatStream3
 ItemListSvc         DEBUG  --> Overlap with Others (5) items
 ItemListSvc         DEBUG  --> Overlap with Stream1 (6) items
 ItemListSvc         DEBUG  --> Overlap with Stream2 (6) items

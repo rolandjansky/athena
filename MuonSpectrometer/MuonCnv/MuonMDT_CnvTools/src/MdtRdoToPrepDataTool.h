@@ -6,6 +6,7 @@
 #define MUONMdtRdoToPrepDataTool_H
      
 #include "MdtRdoToPrepDataToolCore.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Muon 
 {
@@ -21,7 +22,7 @@ namespace Muon
       @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class MdtRdoToPrepDataTool : virtual public MdtRdoToPrepDataToolCore
+  class ATLAS_NOT_THREAD_SAFE MdtRdoToPrepDataTool : virtual public MdtRdoToPrepDataToolCore
   {
   public:
     MdtRdoToPrepDataTool(const std::string&,const std::string&,const IInterface*);

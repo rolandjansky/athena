@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELINTERFACES_IGEOMODELTOOL_H
@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 
 static const InterfaceID IID_IGeoModelTool( "IGeoModelTool", 1, 0 );
 
@@ -25,7 +26,7 @@ public:
     virtual StatusCode clear() = 0;
 
     // Register callback function on ConDB object
-    virtual StatusCode registerCallback() = 0;
+    virtual StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () = 0;
 
     // Callback function itself
     virtual StatusCode align(IOVSVC_CALLBACK_ARGS) = 0;

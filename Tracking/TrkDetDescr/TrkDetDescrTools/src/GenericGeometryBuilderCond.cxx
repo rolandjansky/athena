@@ -111,26 +111,21 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilde
     // vacuum
     Trk::Material vacuum;
     
-    RZPairVector envelopeDefs;  
-    // build the inner detector if configured
-    if (m_geometrySignature == Trk::ID){
-        // get the dimensions from the envelope service 
-        envelopeDefs = m_enclosingEnvelopeSvc->getInDetRZValues();
-        ATH_MSG_VERBOSE("       -> retrieved Inner Detector envelope definitions at size " << envelopeDefs.size());
-    } else if ( m_geometrySignature == Trk::Calo  ){
-        // get the dimensions from the envelope service 
-        envelopeDefs = m_enclosingEnvelopeSvc->getCaloRZValues();
-        ATH_MSG_VERBOSE("       -> retrieved Calorimeter envelope definitions at size " << envelopeDefs.size());
-    } else if ( m_geometrySignature == Trk::MS ) {
-        // get the dimensions from the envelope service 
-        envelopeDefs = m_enclosingEnvelopeSvc->getMuonRZValues();
-        ATH_MSG_VERBOSE("       -> retrieved Muon System envelope definitions at size " << envelopeDefs.size());
-    } else {
-        ATH_MSG_WARNING("No geometry signature found, return 0.");
-        //dummy infinite range
-        EventIDRange range;
-        return std::make_pair(range,tGeometry);
+    const std::map<int,AtlasDetDescr::AtlasRegion> trk2DetDesc{
+      {Trk::ID,AtlasDetDescr::fAtlasID},
+      {Trk::Calo,AtlasDetDescr::fAtlasCalo},
+      {Trk::MS,AtlasDetDescr::fAtlasMS}
+    };
+
+    const auto addId=trk2DetDesc.find(m_geometrySignature);
+    if (addId==trk2DetDesc.end()) {
+      ATH_MSG_WARNING("No geometry signature found, return 0.");
+      //dummy infinite range
+      EventIDRange range;
+      return std::make_pair(range,tGeometry);
     }
+
+    const RZPairVector& envelopeDefs=m_enclosingEnvelopeSvc->getRZBoundary(addId->second);
 
     // ------------------------------- overall dimensions ----------------------------------------------
     // get the maximum extend in R

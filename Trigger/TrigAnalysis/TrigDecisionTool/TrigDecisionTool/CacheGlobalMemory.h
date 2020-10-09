@@ -32,18 +32,21 @@
 #include "TrigConfL1Data/CTPConfig.h"
 
 #include "TrigSteeringEvent/Chain.h"
-#include "TrigDecisionEvent/TrigDecision.h"
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
+
+#ifndef XAOD_STANDALONE
 #include "EventInfo/EventInfo.h"
+#include "TrigDecisionEvent/TrigDecision.h"
+#endif
 
 namespace HLT {
   class Chain;
@@ -104,9 +107,9 @@ namespace Trig {
 
     const HLT::TrigNavStructure* navigation() const {   //!< gives back pointer to navigation object (unpacking if necessary)
       if(!m_unpacker->unpacked_navigation()){
-	if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
-	  ATH_MSG_WARNING("unpack Navigation failed");
-	}
+        if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
+          ATH_MSG_WARNING("unpack Navigation failed");
+	      }
       }
       return m_navigation; 
     }
@@ -142,8 +145,11 @@ namespace Trig {
 
     void setDecisionKeyPtr(SG::ReadHandleKey<xAOD::TrigDecision>* k) { m_decisionKeyPtr = k; }
     void setNavigationKeyPtr(SG::ReadHandleKey<xAOD::TrigNavigation>* k) { m_navigationKeyPtr = k; }
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
     void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
     void setOldEventInfoKeyPtr(SG::ReadHandleKey<EventInfo>* k) { m_oldEventInfoKeyPtr = k; }
+#endif
 
     SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() { return m_decisionKeyPtr; }
 
@@ -211,8 +217,12 @@ namespace Trig {
     mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer;
 
     SG::ReadHandleKey<xAOD::TrigDecision>* m_decisionKeyPtr; //!< Parent TDT's read handle key
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
     SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecisionKeyPtr; //!< Parent TDT's read handle key
     SG::ReadHandleKey<EventInfo>* m_oldEventInfoKeyPtr; //!< Parent TDT's read handle key
+#endif
+
     SG::ReadHandleKey<xAOD::TrigNavigation>* m_navigationKeyPtr; //!< Parent TDT's read handle key
 
     typedef std::unordered_map<std::string, const TrigConf::HLTChain*> ChainHashMap_t;

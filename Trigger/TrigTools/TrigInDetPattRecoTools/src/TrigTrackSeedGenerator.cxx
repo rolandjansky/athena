@@ -35,10 +35,6 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
 }
 
 TrigTrackSeedGenerator::~TrigTrackSeedGenerator() {
-  for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
-    delete (*it).second;
-  }
-  m_triplets.clear();
   delete m_pStore;
 
   m_SoA.clear();
@@ -104,9 +100,6 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
   m_zMinus = roiDescriptor->zedMinus() - m_zTol;
   m_zPlus  = roiDescriptor->zedPlus() + m_zTol;
   
-  for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
-    delete (*it).second;
-  }
   m_triplets.clear();
 
   int nLayers = (int) m_settings.m_layerGeometry.size();
@@ -205,7 +198,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	//std::cout<<"middle sp : r="<<rm<<" phi="<<spm->phi()<<" z="<<zm<<" has "<<nOuter<<" outer neighbours and "<<nInner<<" inner neighbours"<<std::endl;
 	
 	if(m_nInner != 0 && m_nOuter != 0) {
-	  INTERNAL_TRIPLET_BUFFER tripletVec;
+	  std::vector<TrigInDetTriplet> tripletVec;
 	    
 	  createTripletsNew(spm, m_nInner, m_nOuter, tripletVec, roiDescriptor);
 	    
@@ -228,9 +221,6 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 
 void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, const std::vector<float>& vZv) {
   
-  for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
-    delete (*it).second;
-  }
   m_triplets.clear();
 
   if(vZv.empty()) return;
@@ -267,7 +257,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 	  float zm = spm->z();
 	  float rm = spm->r();
 
-	  INTERNAL_TRIPLET_BUFFER tripletVec;
+	  std::vector<TrigInDetTriplet> tripletVec;
 
 	  for(const auto zVertex : vZv) {//loop over zvertices
 
@@ -340,7 +330,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
   bool isBarrel = (typeJ == 0);
 
-  if(isBarrel && fabs(refCoordJ-rm)>m_maxDeltaRadius) return false;
+  if(isBarrel && std::fabs(refCoordJ-rm)>m_maxDeltaRadius) return false;
 
   //boundaries for nextLayer
 
@@ -353,8 +343,8 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
       m_minCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;//+deltaRefCoord
       m_maxCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;//-deltaRefCoord
-      m_minCoord -= deltaRefCoord*fabs(zm-m_zMinus)/rm;//corrections due to the layer width
-      m_maxCoord += deltaRefCoord*fabs(zm-m_zPlus)/rm;
+      m_minCoord -= deltaRefCoord*std::fabs(zm-m_zMinus)/rm;//corrections due to the layer width
+      m_maxCoord += deltaRefCoord*std::fabs(zm-m_zPlus)/rm;
       //if(m_minCoord>m_maxCoord) {
       //std::cout<<"1 WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
       //}
@@ -363,8 +353,8 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
       m_minCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;//+deltaRefCoord
       m_maxCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;//-deltaRefCoord
-      m_minCoord -= deltaRefCoord*fabs(zm-m_zPlus)/rm;
-      m_maxCoord += deltaRefCoord*fabs(zm-m_zMinus)/rm;
+      m_minCoord -= deltaRefCoord*std::fabs(zm-m_zPlus)/rm;
+      m_maxCoord += deltaRefCoord*std::fabs(zm-m_zMinus)/rm;
       //if(m_minCoord>m_maxCoord) {
       //std::cout<<"2 WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
       //}
@@ -392,8 +382,8 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
 	m_minCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
 	m_maxCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
-	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zMinus);
-	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zPlus);
+	m_minCoord -= deltaRefCoord*rm/std::fabs(zm-m_zMinus);
+	m_maxCoord += deltaRefCoord*rm/std::fabs(zm-m_zPlus);
 
 	if(zm <= m_zPlus) m_maxCoord = maxB;
 	
@@ -415,8 +405,8 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
 	m_minCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
 	m_maxCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
-	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zPlus);
-	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zMinus);
+	m_minCoord -= deltaRefCoord*rm/std::fabs(zm-m_zPlus);
+	m_maxCoord += deltaRefCoord*rm/std::fabs(zm-m_zMinus);
 	//if(m_minCoord>m_maxCoord) {
 	//std::cout<<"32 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
 	//}
@@ -439,8 +429,8 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
 	m_minCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
 	m_maxCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
-	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zPlus);
-	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zMinus);
+	m_minCoord -= deltaRefCoord*rm/std::fabs(zm-m_zPlus);
+	m_maxCoord += deltaRefCoord*rm/std::fabs(zm-m_zMinus);
 	if(zm > m_zMinus) m_maxCoord = maxB;	
 	if(m_minCoord > maxB) return false;
 	if(m_maxCoord < minB) return false;
@@ -460,8 +450,8 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
 	m_minCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
 	m_maxCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
-	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zMinus);
-	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zPlus);
+	m_minCoord -= deltaRefCoord*rm/std::fabs(zm-m_zMinus);
+	m_maxCoord += deltaRefCoord*rm/std::fabs(zm-m_zPlus);
 	//if(m_minCoord>m_maxCoord) {
 	//std::cout<<"42 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
 	//}
@@ -469,7 +459,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
     }
   }
   //if(m_minCoord>m_maxCoord) {
-  // std::cout<<"WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+  //std::cout<<"WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
   // }
   //float tmp = m_maxCoord;m_maxCoord = m_minCoord;m_minCoord = tmp;
   //}
@@ -539,8 +529,8 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
     
     float dr = rsp - rm;
     
-    if(fabs(dr)>m_maxDeltaRadius ) continue;
-    if(fabs(dr)<m_minDeltaRadius ) continue;
+    if(std::fabs(dr)>m_maxDeltaRadius ) continue;
+    if(std::fabs(dr)<m_minDeltaRadius ) continue;
     
     //inner doublet check
     
@@ -548,7 +538,7 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
     
     float dz = zsp - zm;
     float tau = dz/dr;
-    if (fabs(tau) > 7.41) continue;
+    if (std::fabs(tau) > 7.41) continue;
     
     
     float z0  = zm - rm*tau;
@@ -583,8 +573,8 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool ch
     float zsp = (*spIt)->z();  
     float dr = rsp - rm;
 	      
-    if(fabs(dr)>m_maxDeltaRadius ) continue;
-    if(fabs(dr)<m_minDeltaRadius ) continue;
+    if(std::fabs(dr)>m_maxDeltaRadius ) continue;
+    if(std::fabs(dr)<m_minDeltaRadius ) continue;
 		
     //inner doublet check
 
@@ -592,7 +582,7 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool ch
  
     float dz = zsp - zm;
     float tau = dz/dr;
-    if (fabs(tau) > 7.41) continue;//|eta|<2.7
+    if (std::fabs(tau) > 7.41) continue;//|eta|<2.7
 
     if(dr<0) {
       m_SoA.m_spi[m_nInner++] = *spIt;
@@ -607,7 +597,7 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool ch
 }
 
 void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int nInner, int nOuter,
-					    INTERNAL_TRIPLET_BUFFER& output, const IRoiDescriptor* roiDescriptor) {
+					    std::vector<TrigInDetTriplet>& output, const IRoiDescriptor* roiDescriptor) {
 
 
   if(nInner==0 || nOuter==0) return;
@@ -775,30 +765,28 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       //6. add new triplet
 
-      const double Q = fabs_d0*fabs_d0;
+      const float Q = fabs_d0*fabs_d0;
       if(output.size()>=m_settings.m_maxTripletBufferLength) {
         std::sort(output.begin(), output.end(), 
-          [](const std::pair<float, TrigInDetTriplet*>& A, const std::pair<float, TrigInDetTriplet*>& B) {
-            return A.first > B.first;
+          [](const TrigInDetTriplet& A, const TrigInDetTriplet& B) {
+            return A.Q() > B.Q();
           }
         );
 
-        INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
-        if( Q >= (*it).first) continue;
-        delete (*it).second;
+        std::vector<TrigInDetTriplet>::iterator it = output.begin();
+        if( Q >= (*it).Q()) {
+          continue;
+        }
         output.erase(it);
       }
 
-      TrigInDetTriplet* t = new TrigInDetTriplet(*m_SoA.m_spi[innIdx], *pS, *m_SoA.m_spo[outIdx-nInner], Q);
-
-
-      output.push_back(std::pair<double, TrigInDetTriplet*>(Q,t));
+      output.emplace_back(*m_SoA.m_spi[innIdx], *pS, *m_SoA.m_spo[outIdx-nInner], Q);
     }
   }
 }
 
 void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, int nInner, int nOuter,
-					       INTERNAL_TRIPLET_BUFFER& output, const IRoiDescriptor* roiDescriptor) {
+					       std::vector<TrigInDetTriplet>& output, const IRoiDescriptor* roiDescriptor) {
 
   if(nInner==0 || nOuter==0) return;
 
@@ -1065,8 +1053,8 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
       const double Q = fabs_d0*fabs_d0;
       if(output.size()>=m_settings.m_maxTripletBufferLength) {
         std::sort(output.begin(), output.end(), 
-          [](const std::pair<float, TrigInDetTriplet*>& A, const std::pair<float, TrigInDetTriplet*>& B) {
-            return A.first > B.first;
+          [](const TrigInDetTriplet& A, const TrigInDetTriplet& B) {
+            return A.Q() > B.Q();
           }
         );
         //unsigned int count = 0;
@@ -1076,11 +1064,10 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
         //  count++;
         //}
 
-        INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
-        if( Q >= (*it).first) {
+        std::vector<TrigInDetTriplet>::iterator it = output.begin();
+        if( Q >= (*it).Q()) {
           continue;
         }
-        delete (*it).second;
         output.erase(it);
         //count = 0;
         //for (auto entry : output) {
@@ -1092,8 +1079,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
       const TrigSiSpacePointBase* pSPI = (type1==0) ? m_SoA.m_sorted_sp[iter1] : m_SoA.m_sorted_sp[iter2];
       const TrigSiSpacePointBase* pSPO = (type1==0) ? m_SoA.m_sorted_sp[iter2] : m_SoA.m_sorted_sp[iter1];
 
-      TrigInDetTriplet* t = new TrigInDetTriplet(*pSPI, *pS, *pSPO, Q);
-      output.push_back(std::pair<double, TrigInDetTriplet*>(Q,t));
+      output.emplace_back(*pSPI, *pS, *pSPO, Q);
     }
 
     iter1++;
@@ -1101,27 +1087,23 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
 }
 
-void TrigTrackSeedGenerator::storeTriplets(INTERNAL_TRIPLET_BUFFER& tripletVec) {
-  for(INTERNAL_TRIPLET_BUFFER::iterator it=tripletVec.begin();it!=tripletVec.end();++it) {
-    double Q = (*it).first;
-    if((*it).second->s3().isSCT()) {
-      Q += (*it).second->s1().isSCT() ? 1000.0 : 10000.0;
+void TrigTrackSeedGenerator::storeTriplets(std::vector<TrigInDetTriplet>& tripletVec) {
+  for(std::vector<TrigInDetTriplet>::iterator it=tripletVec.begin();it!=tripletVec.end();++it) {
+    float newQ = (*it).Q();
+    if((*it).s3().isSCT()) {
+      newQ += (*it).s1().isSCT() ? 1000.0 : 10000.0;
     }
-    m_triplets.push_back(std::pair<double, TrigInDetTriplet*>(Q, (*it).second));
+    (*it).Q(newQ);
+    m_triplets.push_back((*it));
   }
 }
 
-void TrigTrackSeedGenerator::getSeeds(std::vector<TrigInDetTriplet*>& vs) {
+void TrigTrackSeedGenerator::getSeeds(std::vector<TrigInDetTriplet>& vs) {
   vs.clear();
-  vs.reserve(m_triplets.size());
   std::sort(m_triplets.begin(), m_triplets.end(), 
-    [](const std::pair<float, TrigInDetTriplet*>& A, const std::pair<float, TrigInDetTriplet*>& B) {
-      return A.first > B.first;
+    [](const TrigInDetTriplet& A, const TrigInDetTriplet& B) {
+      return A.Q() < B.Q();
     }
   );
-  for(INTERNAL_TRIPLET_BUFFER::reverse_iterator it=m_triplets.rbegin();it!=m_triplets.rend();++it) {
-    vs.push_back((*it).second);
-    (*it).second = NULL;//ownership transferred
-  }
-  m_triplets.clear();
+  vs = std::move(m_triplets);
 }

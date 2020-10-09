@@ -7,7 +7,7 @@
 #include <string>
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #include "CxxUtils/make_unique.h"
 #include "HIEventUtils/HIVertexSelectionTool.h"
 #include "xAODTracking/VertexContainer.h"

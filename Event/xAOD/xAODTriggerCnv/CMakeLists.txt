@@ -1,49 +1,22 @@
-# $Id: CMakeLists.txt 782320 2016-11-04 10:28:41Z krasznaa $
-################################################################################
-# Package: xAODTriggerCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODTriggerCnv )
 
 # Extra dependencies, based on the build environment:
 if( XAOD_STANDALONE )
-   set( extra_deps PRIVATE Control/xAODRootAccess )
    set( interface_extra_libs )
 elseif( XAOD_ANALYSIS )
-   set( extra_deps GaudiKernel Control/AthenaKernel )
    set( interface_extra_libs GaudiKernel )
 else()
-   set( extra_deps GaudiKernel
-      PRIVATE
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Control/StoreGate
-      Event/EventInfo
-      PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
-      Trigger/TrigAnalysis/TrigAnalysisInterfaces
-      Trigger/TrigConfiguration/TrigConfHLTData
-      Trigger/TrigConfiguration/TrigConfInterfaces
-      Trigger/TrigEvent/TrigDecisionEvent
-      Trigger/TrigEvent/TrigDecisionInterface
-      Trigger/TrigEvent/TrigSteeringEvent )
    set( interface_extra_libs GaudiKernel )
 endif()
-
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODTrigger
-   ${extra_deps} )
 
 atlas_add_library( xAODTriggerCnvLib
                    xAODTriggerCnv/*.h
                    INTERFACE
                    PUBLIC_HEADERS xAODTriggerCnv
                    LINK_LIBRARIES ${interface_extra_libs} xAODTrigger AsgTools )
-
 
 # Build the package differently in standalone and Athena modes:
 if( XAOD_STANDALONE )
@@ -63,12 +36,15 @@ if( XAOD_STANDALONE )
    # The test(s) need(s) ROOT:
    find_package( ROOT COMPONENTS Core Tree RIO )
 
-   # Test(s) in standalone mode:
-   atlas_add_test( ut_xaodtriggercnv_triggermenumetadatatool_test
-      SOURCES test/ut_xaodtriggercnv_triggermenumetadatatool_test.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODTrigger
-      xAODTriggerCnv )
+   # FIX ME: temporarily disabled as part of the migration of AnalysisBase
+   #         to master
+
+   # # Test(s) in standalone mode:
+   # atlas_add_test( ut_xaodtriggercnv_triggermenumetadatatool_test
+   #    SOURCES test/ut_xaodtriggercnv_triggermenumetadatatool_test.cxx
+   #    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   #    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODTrigger
+   #    xAODTriggerCnv )
 
 elseif( XAOD_ANALYSIS )
 

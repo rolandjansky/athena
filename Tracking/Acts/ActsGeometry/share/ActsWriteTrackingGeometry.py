@@ -1,118 +1,91 @@
-import os
-import logging
+###############################################################
+#
+# Write the tracking geometry as a obj and json files.
+#
+###############################################################
 
-# Use Global flags and DetFlags.
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.GlobalFlags import globalflags
+##########################################################################
+# start from scratch with component accumulator
 
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-from AthenaCommon.Logging import log as msg
-nThreads = jp.ConcurrencyFlags.NumThreads()
-# for some reason, the synchronization fails if we run in ST...
-if (nThreads < 1) :
-    msg.fatal('numThreads must be >0. Did you set the --threads=N option?')
-    sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = [
-    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/esd/100evts10lumiblocks.ESD.root"
-]
+from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg
+from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometryToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsMaterialJsonWriterToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsObjWriterToolCfg
 
-import AthenaPoolCnvSvc.ReadAthenaPool
+def ActsWriteTrackingGeometryCfg(configFlags, name="ActsWriteTrackingGeometry", **kwargs):
 
-# build GeoModel
-import AthenaPython.ConfigLib as apcl
-cfg = apcl.AutoCfg(name = 'TrackingGeometryTest', input_files=athenaCommonFlags.FilesInput())
+  result = ComponentAccumulator()
 
-cfg.configure_job()
+  acc, actsTrackingGeometryTool = ActsTrackingGeometryToolCfg(configFlags) 
+  result.merge(acc)
+  ActsMaterialJsonWriterTool = ActsMaterialJsonWriterToolCfg(OutputFile = "geometry-maps.json",
+                                                             processSensitives = False,
+                                                             processnonmaterial = True)
 
-from AthenaCommon.GlobalFlags import globalflags
-if len(globalflags.ConditionsTag())!=0:
-  from IOVDbSvc.CondDB import conddb
-  conddb.setGlobalTag(globalflags.ConditionsTag())
+  kwargs["MaterialJsonWriterTool"] = ActsMaterialJsonWriterTool.getPrimary()                                                           
+  result.merge(ActsMaterialJsonWriterTool)
 
-from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-InDetGeometryFlags.useDynamicAlignFolders=True
+  ActsObjWriterTool = ActsObjWriterToolCfg(OutputDirectory = "obj",
+                                           SubDetectors = ["Pixel", "SCT", "TRT"])
+ 
+  kwargs["ObjWriterTool"] = ActsObjWriterTool.getPrimary()     
+  result.merge(ActsObjWriterTool)
 
-# Just the pixel and SCT
-DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+  ActsWriteTrackingGeometry = CompFactory.ActsWriteTrackingGeometry
+  alg = ActsWriteTrackingGeometry(name, **kwargs)
+  result.addEventAlgo(alg)
 
-from AtlasGeoModel import GeoModelInit
-from AtlasGeoModel import SetGeometryVersion
-from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvc
-svcMgr += getEnvelopeDefSvc()
+  return result
 
+if "__main__" == __name__:
+  from AthenaCommon.Configurable import Configurable
+  from AthenaCommon.Logging import log
+  from AthenaCommon.Constants import VERBOSE, INFO
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
-from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.OutputLevel( INFO )
-AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataDependencies( True )
-AlgScheduler.EnableConditions( True )
-AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
+  Configurable.configurableRun3Behavior = True
 
-## SET UP ALIGNMENT CONDITIONS ALGORITHM
-from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc( OutputLevel=INFO )
-from ActsGeometry import ActsGeometryConf
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
+  ## Just enable ID for the moment.
+  ConfigFlags.Input.isMC             = True
+  ConfigFlags.Beam.Type = ''
+  ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
+  ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
+  ConfigFlags.Detector.SimulateBpipe = False
+  ConfigFlags.Detector.SimulateID    = False
+  ConfigFlags.Detector.GeometryBpipe = True
+  ConfigFlags.Detector.GeometryID    = True
+  ConfigFlags.Detector.GeometryPixel = True
+  ConfigFlags.Detector.GeometrySCT   = True
+  ConfigFlags.Detector.GeometryCalo  = True
+  ConfigFlags.Detector.GeometryMuon  = False
+  ConfigFlags.Detector.GeometryTRT   = True
 
-condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
-                                                 OutputLevel=VERBOSE)
-## END OF CONDITIONS SETUP
+  ConfigFlags.Concurrency.NumThreads = 1
+  ConfigFlags.Concurrency.NumConcurrentEvents = 1
 
+  ConfigFlags.lock()
+  ConfigFlags.dump()
 
-from AthenaCommon.AppMgr import ServiceMgr
+  cfg = MainServicesCfg(ConfigFlags)
 
-# set up and configure the acts geometry construction
-from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometrySvc
-trkGeomSvc = ActsTrackingGeometrySvc()
-# used for the proxies during material mapping
-trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
-trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
-trkGeomSvc.OutputLevel = INFO
-trkGeomSvc.BuildSubDetectors = [
-  "Pixel",
-  "SCT",
-  # "TRT",
-  # "Calo",
-]
-ServiceMgr += trkGeomSvc
+  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+  cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
 
-import MagFieldServices.SetupField
+  alignCondAlgCfg = ActsAlignmentCondAlgCfg(ConfigFlags)
 
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
+  cfg.merge(alignCondAlgCfg)
 
-trkGeomTool = CfgMgr.ActsTrackingGeometryTool("ActsTrackingGeometryTool")
-trkGeomTool.OutputLevel = INFO;
+  alg = ActsWriteTrackingGeometryCfg(ConfigFlags,
+                                     OutputLevel=VERBOSE)
 
-# from ActsGeometry.ActsGeometryConf import ActsWriteTrackingGeometryTransforms
-# alg = ActsWriteTrackingGeometryTransforms(OutputLevel = VERBOSE)
-# alg.TrackingGeometryTool = trkGeomTool
-# job += alg
+  cfg.merge(alg)
 
-mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
-mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
-mActsMaterialJsonWriterTool.FilePath = "geometry-maps.json"
+  cfg.printConfig()
 
-from ActsGeometry.ActsGeometryConf import ActsWriteTrackingGeometry
-alg = ActsWriteTrackingGeometry(OutputLevel = VERBOSE)
-alg.TrackingGeometryTool = trkGeomTool
-alg.ObjWriterTool.OutputDirectory = "obj"
-alg.ObjWriterTool.SubDetectors = ["Pixel", "SCT"]
-alg.MaterialJsonWriterTool = mActsMaterialJsonWriterTool
+  log.info("CONFIG DONE")
 
-job += alg
-
-
-# Make the event heardbeat output a bit nicer
-eventPrintFrequency = 100
-if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
-    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
-if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
-    ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
-
-
-theApp.EvtMax = 1
+  cfg.run(1)

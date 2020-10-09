@@ -13,7 +13,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 // Gaudi includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 /** @class ExampleL1TriggerByteStreamTool
  *  @brief Example implementation of a tool for L1 RoI conversion from BS to xAOD and from xAOD to BS

@@ -52,7 +52,7 @@ EventSelectorByteStream::EventSelectorByteStream(
 
 
 /******************************************************************************/
-void EventSelectorByteStream::inputCollectionsHandler(Property&) {
+void EventSelectorByteStream::inputCollectionsHandler(Gaudi::Details::PropertyBase&) {
   if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
     this->reinit().ignore();
   }
@@ -1014,7 +1014,7 @@ void EventSelectorByteStream::syncEventCount(int count) const
 }
 
 //__________________________________________________________________________
-bool EventSelectorByteStream::disconnectIfFinished(SG::SourceID /* fid */) const
+bool EventSelectorByteStream::disconnectIfFinished(const SG::SourceID &/* fid */) const
 {
    return true;
 }

@@ -489,7 +489,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       if( m_nTrkQ >= 0 ){
 	int charge = 0;
 	//for(const auto& trk : thisIterationTracks)
- 	for(ElementLink<xAOD::TrackParticleContainer> trk : thisIterationTracks) 
+ 	for(const ElementLink<xAOD::TrackParticleContainer>& trk : thisIterationTracks) 
 	  charge += ( (*trk)->charge() > 0 ) ? 1 : -1 ;
 	if( abs(charge) != m_nTrkQ ){
 	  ATH_MSG_DEBUG(" |Charge| = "<< abs(charge) << " required "<<m_nTrkQ << " thus fail" );

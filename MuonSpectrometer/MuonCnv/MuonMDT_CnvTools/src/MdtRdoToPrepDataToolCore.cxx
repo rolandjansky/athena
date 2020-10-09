@@ -29,11 +29,8 @@ namespace {
 
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
-  m_calibrationTool("MdtCalibrationTool",this),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()),
   m_calibratePrepData(true),
-  m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder", this),
   m_fullEventDone(false),
   m_BMEpresent(false),
   m_BMGpresent(false),
@@ -61,13 +58,12 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, c
   // DataHandle
   declareProperty("RDOContainer",	m_rdoContainerKey = std::string("MDTCSM"),"MdtCsmContainer to retrieve");
   declareProperty("OutputCollection",	m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),"Muon::MdtPrepDataContainer to record");
-
-  declareProperty("CalibrationTool",m_calibrationTool);
 }
 
 StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(AthAlgTool::initialize());
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+  ATH_CHECK(detStore()->retrieve(muDetMgr));
   ATH_CHECK(m_calibrationTool.retrieve());
   ATH_MSG_VERBOSE("MdtCalibrationTool retrieved with pointer = "<<m_calibrationTool);
   ATH_CHECK(m_idHelperSvc.retrieve());
@@ -106,10 +102,10 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
     for(int phi=6; phi<8; phi++) { // phi sectors
       for(int eta=1; eta<4; eta++) { // eta sectors
         for(int side=-1; side<2; side+=2) { // side
-          if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
-          for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+          if( !muDetMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+          for(int roe=1; roe<=( muDetMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
             const MdtReadoutElement* mdtRE =
-                  dynamic_cast<const MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+                  dynamic_cast<const MdtReadoutElement*> ( ( muDetMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
             if(mdtRE) initDeadChannels(mdtRE);
           }
         }
@@ -122,11 +118,6 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(m_mdtPrepDataContainerKey.initialize());
   ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_muDetMgrKey.initialize());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::MdtRdoToPrepDataToolCore::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
@@ -413,13 +404,12 @@ void Muon::MdtRdoToPrepDataToolCore::printPrepData(  )
       if ( mdtColl->size() > 0 ) 
         {            
           ATH_MSG_DEBUG("PrepData Collection ID "<<m_idHelperSvc->toString(mdtColl->identify()));
-          MdtPrepDataCollection::const_iterator it_mdtPrepData;
-          for (it_mdtPrepData=mdtColl->begin(); it_mdtPrepData != mdtColl->end(); it_mdtPrepData++) {
+          for (const MdtPrepData* prepData : *mdtColl) {
             nhitcoll++;
             nhits++;
             ATH_MSG_DEBUG(" in this coll. "<<nhitcoll<<" prepData id = "
-                         <<m_idHelperSvc->toString((*it_mdtPrepData)->identify())
-                         <<" tdc/adc ="<<(*it_mdtPrepData)->tdc()<<"/"<< (*it_mdtPrepData)->adc());
+                         <<m_idHelperSvc->toString(prepData->identify())
+                         <<" tdc/adc ="<<prepData->tdc()<<"/"<< prepData->adc());
           }
           ncoll++;
           ATH_MSG_DEBUG("*** Collection "<<ncoll<<" Summary: N. hits = "<<nhitcoll);
@@ -561,7 +551,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
       ATH_MSG_WARNING("Found issue MDT RDO decoder for subdetId/mrodId/csmId "
                       <<subdetId<<"/"<<mrodId<<"/"<<csmId<<" amtHit channelId/tdcId ="
                       <<amtHit->channelId()<<"/"<<amtHit->tdcId());
-      itD++;
+      ++itD;
       continue;
     }
 
@@ -574,7 +564,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
         if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
           ATH_MSG_DEBUG("processCsm : Deleting BMG digit with identifier" << m_idHelperSvc->mdtIdHelper().show_to_string(channelId) );
           delete newDigit;
-	  itD++;
+	  ++itD;
           continue;
         }
       }
@@ -646,7 +636,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
       ATH_MSG_WARNING("Detector Element not found for Identifier from the cabling service <"
                       <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
-      itD++;
+      ++itD;
       continue;
     }
     if (!descriptor->containsId(channelId)) {
@@ -654,7 +644,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm* rdoColl, std
                       <<" does not contains candidate prd Identifier <"
                       <<m_idHelperSvc->toString(channelId)<<">  =>>ignore this hit");
       delete newDigit;
-      itD++;
+      ++itD;
       continue;
     }
       
@@ -902,15 +892,12 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm* rdoColl,
     }
   }// end for-loop over rdoColl  
  
-  // make iterator over mdtDigitColl map
-  std::map<int, std::pair<MdtDigit*, MdtDigit*> >::iterator iter_map;
-
   //iterate over mdtDigitColl
-  for( iter_map = mdtDigitColl.begin(); iter_map != mdtDigitColl.end(); iter_map++ ) {
+  for (const std::pair<const int, std::pair<MdtDigit*, MdtDigit*> >& digitPair : mdtDigitColl) {
 
     // get the twin hits from mdtDigitColl
-    MdtDigit* digit = iter_map->second.first;
-    MdtDigit* second_digit = iter_map->second.second;
+    MdtDigit* digit = digitPair.second.first;
+    MdtDigit* second_digit = digitPair.second.second;
 
     if (!digit) {
       ATH_MSG_FATAL("nullptr to a digit ");

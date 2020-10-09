@@ -13,7 +13,7 @@ Purpose : create a Flavor Tagging Event Tag - a word to encode Flavor Tagging sp
 *****************************************************************************/
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "StoreGate/StoreGateSvc.h"

@@ -1,12 +1,20 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool") 
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigPhotonSelectors
-def _IncTool(name, threshold, sel):
 
-    log.debug('TrigEgammaPrecisionPhotonHypoTool _IncTool("'+name+'", threshold = '+str(threshold) + ', sel = '+str(sel))
+CaloIsolationCut = {
+        None: None,
+        'icaloloose': 0.1,
+        'icalomedium': 0.075,
+        'icalotight': 0.
+        }
+
+def _IncTool(name, threshold, sel, iso):
+
+    log.debug('TrigEgammaPrecisionPhotonHypoTool _IncTool("'+name+'", threshold = '+str(threshold) + ', sel = '+str(sel)+',  iso = '+str(iso))
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoToolInc    
 
@@ -39,39 +47,33 @@ def _IncTool(name, threshold, sel):
 
     # configure the selector tool corresponding the selection set by sel
     tool.PhotonIsEMSelector = TrigPhotonSelectors(sel)
+    if  iso  and iso != '':
+        if iso not in CaloIsolationCut:
+            log.error('Isolation cut %s not defined!', iso)
+        log.debug('Configuring Isolation cut %s with value %d',iso,CaloIsolationCut[iso])
+        tool.RelEtConeCut = CaloIsolationCut[iso]
+
+
 
     return tool
-
-
-def _MultTool(name):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoToolMult
-    return TrigEgammaPrecisionPhotonHypoToolMult( name )
 
 
 def TrigEgammaPrecisionPhotonHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
 
-    def __mult(cpart):
-        return int( cpart['multiplicity'] )
-
     def __th(cpart):
         return cpart['threshold']
     
     def __sel(cpart):
         return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+   
+    def __iso(cpart):
+        return cpart['isoInfo']
+
     
     name = d['chainName']
-
-    # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
-    if len(cparts) > 1 or __mult(cparts[0]) > 1:
-        tool = _MultTool(name)
-        for cpart in cparts:
-            for cutNumber in range( __mult( cpart ) ):
-                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __th( cpart ), __sel( cpart) ) ]
-
-        return tool
-    else:        
-        return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ) )
+        
+    return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso( cparts[0])  )
                    
     

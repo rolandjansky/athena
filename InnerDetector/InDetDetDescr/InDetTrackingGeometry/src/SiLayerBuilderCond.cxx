@@ -226,7 +226,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
   }
   const InDetDD::SiDetectorElementCollection* readCdo{**readHandle};
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = readCdo->begin();    
-  for (; sidetIter != readCdo->end(); sidetIter++){
+  for (; sidetIter != readCdo->end(); ++sidetIter){
      // Barrel check
      if ((*sidetIter) && (*sidetIter)->isBarrel()){
        // unit test
@@ -491,13 +491,13 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       if (splitDone) {
           ATH_MSG_DEBUG( "[ Split mode / Part 1 ] Layer cached for Part 2" );
           readHandle->range(s_splitIOVRange);
-          if (activeLayer) s_splitCylinderLayers.push_back(activeLayer);   
+          s_splitCylinderLayers.push_back(activeLayer);   
           // get the split radius to the smallest one possible
           if (m_splitMode > 0) takeSmaller( s_splitRadius, currentLayerRadius);
           ATH_MSG_DEBUG("[ Split mode / part 1 ] Split radius (temproarily) set to : " << s_splitRadius );
        } else {
           if (m_splitMode < 0) takeBigger ( s_splitRadius, currentLayerRadius );
-          if (activeLayer) cylinderDetectionLayers.push_back(activeLayer);
+          cylinderDetectionLayers.push_back(activeLayer);
        } 
        // increase the layer counter --- it is built
        ++layerCounter;            
@@ -637,7 +637,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   // [-A1-] ------------------------ first LOOP over Detector Elements of sensitive layers -------------------------------                 
   // -- get the missing dimensions by loop over DetElements
   sidetIter = readCdo->begin();
-  for (; sidetIter != readCdo->end(); sidetIter++){
+  for (; sidetIter != readCdo->end(); ++sidetIter){
      // take it - if 
      // a) you have a detector element ... protection
      // b) the detector element is EC (in the non-DBM case)
@@ -722,7 +722,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   // [-A2-] ------------------------ second LOOP over Detector Elements of sensitive layers -------------------------------                 
   // fill the elements for the layers into the surface arrays
   sidetIter = readCdo->begin();
-  for (; sidetIter != readCdo->end(); sidetIter++){
+  for (; sidetIter != readCdo->end(); ++sidetIter){
     // Endcap
     if ( ((*sidetIter) && ((!isDBM && (*sidetIter)->isEndcap()) || (isDBM && (*sidetIter)->isDBM()))) ){     
         // get the identifier & calculate current layer and current disk from it     

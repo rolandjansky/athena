@@ -9,7 +9,7 @@
 #include <iostream>
 
 // Gaudi/Athena include(s):
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/BunchTrain.h"

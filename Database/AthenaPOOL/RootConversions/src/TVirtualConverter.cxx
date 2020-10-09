@@ -212,7 +212,7 @@ TVirtualConverter::~TVirtualConverter()
 /**
  * @brief Return the transient class, to which we're converting.
  */
-TClass* TVirtualConverter::GetTransClass() const
+TClass* TVirtualConverter::GetTransClass()
 {
   return fTransClass;
 }
@@ -221,7 +221,7 @@ TClass* TVirtualConverter::GetTransClass() const
 /**
  * @brief Return the persistent class, from which we're converting.
  */
-TClass* TVirtualConverter::GetPersClass() const
+TClass* TVirtualConverter::GetPersClass()
 {
   return fPersClass;
 }
@@ -381,8 +381,7 @@ void TVirtualConverter::CheckStreamInfos()
         // class), and add it to the persistent class's list.
         TStreamerInfo* new_si =(TStreamerInfo*)(trans_sis->At(v)->Clone());
         new_si->SetClass (fPersClass);
-        // MN: consider using ROOT6  TClass::RegisterStreamerInfo(info)?
-        const_cast<TObjArray*>(pers_sis)->AddAtAndExpand (new_si, v);
+        fPersClass->RegisterStreamerInfo (new_si);
       }
     }
 

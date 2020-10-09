@@ -28,5 +28,8 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
+# Use RootComp reference from test_trig_mc_v1Dev_build
+test.get_step('RootComp').ref_test_name = 'trig_mc_v1Dev_build'
+
 import sys
 sys.exit(test.run())

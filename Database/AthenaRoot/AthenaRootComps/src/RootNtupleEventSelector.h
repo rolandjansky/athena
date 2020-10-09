@@ -20,7 +20,7 @@
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IAddressProvider.h"
@@ -139,7 +139,7 @@ class RootNtupleEventSelector :
   StatusCode endInputFile (RootNtupleEventContext* rctx) const;
 
   /// callback to synchronize the list of input files
-  void setupInputCollection( Property& inputCollectionsName );
+  void setupInputCollection( Gaudi::Details::PropertyBase& inputCollectionsName );
 
   /// helper method to create proxies
   StatusCode createRootBranchAddresses(StoreID::type storeID,

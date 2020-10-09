@@ -10,18 +10,18 @@
 
 
 #undef NDEBUG
-#include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
+#include "CxxUtils/ubsan_suppress.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
-#include "TestTools/initGaudi.h"
+#include "TInterpreter.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/expect_exception.h"
-#include "CxxUtils/ubsan_suppress.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/EventContext.h"
-#include "TInterpreter.h"
-#include <iostream>
+#include "TestTools/initGaudi.h"
+#include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 // for the field map
 #include "PathResolver/PathResolver.h"
@@ -30,8 +30,8 @@
 
 // for populating conditions store
 #include "SGTools/TestStore.h"
-#include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/WriteCondHandle.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 // for the conditions data
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
@@ -140,7 +140,7 @@ void createNewtonTrkDistanceFinderCondData(SGTest::TestStore &store) {
    {
       std::unique_ptr<MagField::AtlasFieldMap> fieldMap=getFieldMap("MagneticFieldMaps/bfieldmap_7730_20400_14m.root",7730,20400);
       auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
-      assert( fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.release()));
+      fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.release());
       assert( fieldHandle.record(r1_1, std::move(fieldCondObj)).isSuccess());
    }
 }

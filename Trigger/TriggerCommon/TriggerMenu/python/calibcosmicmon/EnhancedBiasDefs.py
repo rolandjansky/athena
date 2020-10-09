@@ -70,10 +70,12 @@ class L2EFChain_EnhancedBiasTemplate(L2EFChainDef):
 
 
         # sequence/signature/TErenaming
-        from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo        
         from TrigHypoCommonTools.TrigHypoCommonToolsConf import L1InfoHypo
         
-        self.dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_%s" %(self.algType))
+        from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig  import GenericDummyUnseededAllTEAlgo
+
+
+        self.dummyAlg = GenericDummyUnseededAllTEAlgo("EF_DummyFEX_%s" %(self.algType))
         self.dummyAlg.createRoIDescriptors  = False
         self.dummyAlg.NumberOfOutputTEs     = 1
             

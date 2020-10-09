@@ -17,7 +17,6 @@
 #include <cmath>
 #include <cassert>
 
-using namespace std;
 
 
 CountHepMC::CountHepMC(const std::string& name, ISvcLocator* pSvcLocator) :

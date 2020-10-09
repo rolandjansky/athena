@@ -19,9 +19,6 @@
 
 REGISTER_ALG_TCS(LAr)
 
-using namespace std;
-
-
 
 TCS::LAr::LAr(const std::string & name) : DecisionAlg(name)
 {

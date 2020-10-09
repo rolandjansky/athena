@@ -205,7 +205,12 @@ def BTagCfg(inputFlags, JetCollection = [], **kwargs):
             result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
 
         if splitAlg:
-            secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator', 'MSV':'BTagTrackToJetAssociatorBB'}
+            if kwargs.get('Release', None) == '22':
+                #JetParticleAssociationAlg not implemented for BTagTrackToJetAssociatorBB in rel 22
+                secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
+            else:
+                secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator', 'MSV':'BTagTrackToJetAssociatorBB'}
+
             result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SecVertexingAndAssociators = secVertexingAndAssociators, **kwargs))
         else:
             if kwargs.get('Release', None):
@@ -242,9 +247,6 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
 
     #Track Association
     TrackToJetAssociators = list(set(SecVertexingAndAssociators.values()))
-    if kwargs.get('Release', None) == '22':
-        #JetParticleAssociationAlg not implemented for BTagTrackToJetAssociatorBB in rel 22
-        TrackToJetAssociators.remove('BTagTrackToJetAssociatorBB')
 
     for assoc in TrackToJetAssociators:
         result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", assoc, **kwargs))
@@ -258,17 +260,15 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
             print( v + ' is not configured, Sec vertex finding skipped')
             del SecVertexingAndAssociators[k]
         else:
-            #result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
             result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "PrimaryVertices", k, v))
             #Sec vertexing
-            #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "PrimaryVertices", k, v))
+            result.merge(JetSecVertexingAlgCfg(inputFlags, inputFlags.BTagging.OutputFiles.Prefix + jet, jet, "PrimaryVertices", k, v))
 
     #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', 'BTagTrackToJetAssociatorBB'))
 
     #BTagging
     for ts in timestamp:
-        result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = TaggerList, SVandAssoc = SecVertexingAndAssociators, TimeStamp = ts, **kwargs))
+        result.merge(JetBTaggingAlgCfg(inputFlags, BTaggingCollection = inputFlags.BTagging.OutputFiles.Prefix + jet, JetCollection = jet, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = TaggerList, SVandAssoc = SecVertexingAndAssociators, TimeStamp = ts, **kwargs))
 
     if jet in postTagDL2JetToTrainingMap:
         #Track Augmenter
@@ -286,7 +286,7 @@ def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps, 
 
     AthSequencer=CompFactory.AthSequencer
 
-    BTagCollection = 'BTagging_'+JetCollection
+    BTagCollection = inputFlags.BTagging.OutputFiles.Prefix+JetCollection
     sequenceName = BTagCollection + "_HLTaggers"
     if TimeStamp:
             BTagCollection += '_' + TimeStamp
@@ -295,9 +295,9 @@ def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps, 
     HLBTagSeq = AthSequencer(sequenceName, Sequential = True)
     result.addSequence(HLBTagSeq)
 
-    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, sequenceName, JetCollection = JetCollection, BTagCollection = BTagCollection, Associator = Associator) )
+    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, JetCollection=JetCollection, BTagCollection=BTagCollection, Associator = Associator, sequenceName=sequenceName) )
     for dl2 in TrainingMaps:
-        result.merge(HighLevelBTagAlgCfg(inputFlags, sequenceName, BTagCollection, dl2) )
+        result.merge(HighLevelBTagAlgCfg(inputFlags, BTagCollection, 'InDetTrackParticles', dl2, sequenceName) )
 
     return result
 

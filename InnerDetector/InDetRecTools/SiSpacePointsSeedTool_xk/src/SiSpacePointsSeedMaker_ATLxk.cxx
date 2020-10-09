@@ -143,9 +143,17 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
 
     /// set the spacepoint iterator to the beginning of the space-point list  
     data.i_spforseed = data.l_spforseed.begin();
+    // Set the seed multiplicity strategy of the event data to the one configured
+    // by the user for strip seeds
+    data.maxSeedsPerSP = m_maxOneSizeSSS;
+    data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedStripSeeds;
   } ///< end if-statement for iteration 0 
   else {  /// for the second iteration (PPP pass), don't redo the full init required the first time 
     data.r_first = 0;     ///< reset the first radial bin 
+    // Set the seed multiplicity strategy of the event data to the one configured
+    // by the user for pixel seeds
+    data.maxSeedsPerSP = m_maxOneSizePPP;
+    data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedPixelSeeds;
     /// call fillLists to repopulate the candidate space points and exit 
     fillLists(data);
     return;
@@ -953,21 +961,46 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
 
   /// The max Nb. of bins possible is given by the binning enum 
   const int   nPhiBinsMax = arraySizePhi;
-  const float inverseSizePhiMax = static_cast<float>(nPhiBinsMax)/twoPi; ///< for run-3: 53 : 6.28 ~ 8.43, bin size 0.118
+  const float inverseSizePhiMax = static_cast<float>(nPhiBinsMax)/twoPi; ///< for run-3: 200 : 6.28 ~ 31.8, bin size 0.0314
 
-  /// the minumum allowed granularity is given by a magic number. 
-  /// best guess: 100 MeV min track pt? 
-  const float inverseSizePhiMin = 100./60.;     ///< 1.67, bin size 0.6
+  /// the minumum allowed phi-granularity is the one we would need 
+  /// to reconstruct 100 MeV tracks. 
+  /// The approximate formula below estimates the maximum curvature
+  /// we expect in a 2T magnetic field, assuming we want to contain
+  /// all Si hits from our track in the phi slice we are looking at
+  /// - very conservative indeed, as we never need SCT and PIX at the 
+  /// same time! 
+  constexpr float inverseSizePhiMin = 100./60.;     ///< 1.67, bin size 0.6
 
-  /// minimum expected pt. 
-  float ptm = 400.;
-  /// if we cut below 400 MeV, adapt the ptm 
-  if (!m_dbm && m_ptmin < ptm) ptm = m_ptmin;
-
-  /// binning driven by the min pt we expect  
-  /// likely driven by the phi rotation we expect between 2 SP at miminum pt (max curvature) 
-  m_inverseBinSizePhi = ptm /60.;
-  /// for example 400. / 60 = 6.67, bin size 0.15
+  /// derive the optimum bin size in phi for our needs. 
+  /// We do this by checking the size needed for each of the passes we run, 
+  /// and then pick the larger one (more conservative). 
+  /// This is slightly less optimal than using separate settings per pass, but avoids 
+  /// having to book and store in memory two distinct R-phi-Z maps.
+  
+  if (m_optimisePhiBinning){
+    /// case 1: PPP seeds, if we use them
+    constexpr float radiusPixelStart = 33.; /// approximate lowest R location of pixel hits (driven by barrel)
+    constexpr float radiusPixelEnd = 150.;  /// approximate largest R location of pixel hits (driven by endcap)
+    /// The factor 3 we divide by is motivated by the fact that we combine sets of
+    /// three consecutive phi bins in the seed making step. So each individual bin should 
+    /// be approximately a third of the maximum expected azimutal deflection
+    const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin,m_maxdImpact,radiusPixelStart,radiusPixelEnd)/3. : 0.; 
+    /// case 2: SSS seeds, if we use them
+    constexpr float radiusSctStart = 295.; ; /// approximate lowest R location of strip hits (driven by barrel)
+    constexpr float radiusSctEnd = 560.; /// approximate largest R location of strip hits (driven by endcap)
+    const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin,m_maxdImpactSSS,radiusSctStart,radiusSctEnd)/3. : 0.; 
+    /// pick the larger of the two and invert
+    m_inverseBinSizePhi = 1./std::max(binSizePhi_PPP, binSizePhi_SSS); 
+  }
+  else {
+    /// this is the default phi binning as operated in release 21 - optimised for 
+    /// a trajectory with 400 MeV, from the origin, and Rmin = 0 / Rmax = 600mm   float ptm = 400.;
+    float ptm = 400.; 
+    /// if we cut below 400 MeV, adapt the ptm 
+    if (!m_dbm && m_ptmin < ptm) ptm = m_ptmin;
+    m_inverseBinSizePhi = ptm /60.;
+  }
 
   /// truncate the bin size to fall within our thresholds
   if      (m_inverseBinSizePhi > inverseSizePhiMax) m_inverseBinSizePhi = inverseSizePhiMax;
@@ -1217,6 +1250,20 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
   * For the second iteration, we reset it to zero and thus start in the pixels. 
   **/ 
   
+    const std::map<float, int> ztoBin{
+      {-2500.    ,0},
+      {-1400.    ,1},
+      {-925.     ,2},
+      {-450.     ,3},
+      {-250      ,4},
+      { 250      ,5},
+      { 450      ,6},
+      { 925      ,7},
+      { 1400     ,8},
+      { 2500     ,9},
+      { 100000   ,10},  ///< if we encounter Si hits at z > +100m, we are probably not in ATLAS anymore...
+    };
+
   for (int radialBin=data.r_first; radialBin<m_nBinsR;  ++radialBin) {
 
     /// skip empty radial bins
@@ -1274,19 +1321,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
       * a logN lookup speed 
       **/
       int zBin{0};
-      const std::map<float, int> ztoBin{
-        {-2500.    ,0},
-        {-1400.    ,1},
-        {-925.     ,2},
-        {-450.     ,3},
-        {-250      ,4},
-        { 250      ,5},
-        { 450      ,6},
-        { 925      ,7},
-        { 1400     ,8},
-        { 2500     ,9},
-        { 100000   ,10},  ///< if we encounter Si hits at z > +100m, we are probably not in ATLAS anymore...
-      };
       auto bound = ztoBin.lower_bound(Z); 
       /// some protection in case things go REALLY wrong
       if (bound == ztoBin.end()){
@@ -1315,7 +1349,32 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
 
   data.state = 0;
 }
-   
+
+
+
+float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) const
+{
+  /// here we approximate the largest curvature
+  /// that can be expected for the seeds we build
+  /// using R[mm] ~ pT[MeV] / (0.3 * B[T]), with B == 2T
+  float Rm = pTmin/.6;
+
+  /// for LRT, the maximum allowed d0 may be larger than 
+  /// the radius at which the innermost hit is possible.
+  /// In that case, our "worst case" trajectory
+  /// generating the largest phi displacement
+  ///  will be the one with a hit at Rmin and 
+  /// d0 == Rmin.
+  float worstCaseD0 = maxd0;
+  if (maxd0 > Rmin) worstCaseD0 = Rmin; 
+
+  float sI = std::abs(std::asin(worstCaseD0/Rmin) - std::asin(worstCaseD0/Rmax)); 
+  float sF = std::abs(std::asin(Rmax/(2.*Rm))-std::asin(Rmin/(2.*Rm)));
+  return sI+sF; 
+}
+
+
+                                                                                          
 ///////////////////////////////////////////////////////////////////
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
@@ -1547,7 +1606,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp(EventData& data) const
       } 
 
       /// now run the seed search for the current phi-z bin.
-      if (!data.trigger) production3Sp       (data, iter_bottomCands, iter_endBottomCands, iter_topCands, iter_endTopCands, numberBottomCells, numberTopCells, nseed);
+      if (!data.trigger) production3Sp       (data, iter_bottomCands, iter_endBottomCands, iter_topCands, iter_endTopCands, numberBottomCells, numberTopCells, nseed,zBinIndex[z]);
       else               production3SpTrigger(data, iter_bottomCands, iter_endBottomCands, iter_topCands, iter_endTopCands, numberBottomCells, numberTopCells, nseed);
     }
 
@@ -1577,7 +1636,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
  std::array <std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
  std::array <std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands ,
  std::array <std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
- const int numberBottomCells, const int numberTopCells, int& nseed) const
+ const int numberBottomCells, const int numberTopCells, int& nseed, const int zbin) const
 {
   /** 
    * This methid implements the seed search for a single phi-Z region of the detector. 
@@ -1589,14 +1648,39 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
   std::vector<InDet::SiSpacePointForSeed*>::iterator iter_centralSP=iter_bottomCands[0];
   std::vector<InDet::SiSpacePointForSeed*>::iterator iter_otherSP;  ///< will be used for iterating over top/bottom SP
 
-  /// radial interval for the central SP.
-  /// For the PPP (PPS) pass, take Pixel layers 1,2,3
-  float rmin =  40.;
-  float rmax = 140.;
+  /** 
+   * Next, we work out where we are within the ATLAS geometry.
+   * This will help us identify which space-points we need to 
+   * consider as potential central points of a seed. 
+   **/
+
+  /// identify if we are looking at pixel or strip space points
+  bool isStrip = ((*iter_centralSP)->spacepoint->clusterList().second); 
+
+  /// bins 4,5,6 are the region in z = +/- 450 mm - "barrel like" in terms
+  /// of hit locations
+  bool isBarrelRegion = (zbin >=4 && zbin <= 6); 
+  bool isTransitionRegion = (zbin == 3 || zbin == 7);   // region in z = 450 - 925mm 
+  float rmin =  40.;    /// the central SP should not be in the IBL (nothing could go below)
+  float rmax = 140.;    /// in the pixels, the highest-up SP can be fairly far out along the disk
+
+  if (isBarrelRegion){
+    rmax = 100;   /// in the barrel pixels, we also remove the outermost layer from the central SP search 
+  }
   /// for strip seed formation, allow most of the strip volume
-  if((*iter_centralSP)->spacepoint->clusterList().second) {
-    rmin = 280.;
-    rmax = 540.;
+  if(isStrip) {
+    /// default behaviour, applies in the forward region
+    rmin = 285.;    /// start slightly above the lowest r occuring in the SCT for the central SP
+    rmax = 450.;    /// for the central SP, do not go all the way to the upper edge of a disk. 
+    if (isBarrelRegion){
+      rmin = 335;  /// in the barrel avoid the first strip layer for the central SP
+      rmax = 450.; /// skip last barrel layer as well - there must be a hit beyond
+    }
+    else if (isTransitionRegion){
+      rmin = 335;  /// in the transition also avoid the first strip layer for the central SP
+      rmax = 550;  /// here, actually go higher than otherwise, to catch the ~full extent of the 
+                   /// first two disks. We manually exclude the flat barrel part below
+    }
   }
 
   /// find the first central SP candidate above the minimum radius. 
@@ -1621,6 +1705,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
   const float& dzdrmin = data.dzdrmin;
   data.CmSp.clear();
 
+  /// keep track of the SP storace capacity. 
+  /// Extend it needed (should rarely be the case)
+  size_t SPcapacity = data.SP.size(); 
+
   /// Loop through all central space point candidates
   for (; iter_centralSP!=iter_endBottomCands[0]; ++iter_centralSP) {
 
@@ -1632,16 +1720,25 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     const float&        Y    = (*iter_centralSP)->y();
     const float&        Z    = (*iter_centralSP)->z();
 
+    /// for the central SP, we veto locations on the last disk - 
+    /// there would be no "outer" hits to complete a seed. 
+    double absZ = std::abs(Z); 
+    /// veto the last strip disk
+    if (isStrip && absZ > 2650. ) continue;
+    /// veto the last pixel disk
+    if (!isStrip && absZ > 600.) continue;
+    /// veto strip barrel layer 4 in the transition region
+    if (isStrip && isTransitionRegion && absZ < 750. && R > 450.) continue; 
+
     /// initialise a counter for found bottom links
     /// This also serves as an index in the data.SP vector
-    int                 Nb   = 0;
+    size_t                 Nb   = 0;
 
     /// Bottom links production
     /// Loop over all the cells where we expect to find such SP 
-    bool abortBottomLoop=false;
-    for (int cell=0; !abortBottomLoop && cell<numberBottomCells; ++cell) {
+    for (int cell=0; cell<numberBottomCells; ++cell) {
       /// in each cell, loop over the space points
-      for (iter_otherSP=iter_bottomCands[cell]; !abortBottomLoop && iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+      for (iter_otherSP=iter_bottomCands[cell]; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
         
         /// evaluate the radial distance between the central and bottom SP
         const float& Rb =(*iter_otherSP)->radius();
@@ -1661,6 +1758,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         const float dZdR = (Z-(*iter_otherSP)->z())/dR;
         /// and abs value 
         const float absdZdR = std::abs(dZdR);
+        /// this is effectively a segment-level eta cut - exclude too shallow seed segments
         if (absdZdR < dzdrmin or absdZdR > dzdrmax) continue;
   
         /// Comparison with vertices Z coordinates
@@ -1669,26 +1767,30 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 	      if(z0 > zmax || z0 < zmin) continue;
         /// found a bottom SP candidate, write it into the data object
         data.SP[Nb] = (*iter_otherSP);
-        /// abort if we exceed the capacity for saving space points
-        if (++Nb==m_maxsizeSP) abortBottomLoop=true;
+        /// if we are exceeding the SP capacity of our data object,
+        /// make it resize its vectors. Will add 50 slots by default,
+        /// so rarely should happen more than once per event.  
+        if (++Nb==SPcapacity){
+            data.resizeSPCont();
+            SPcapacity=data.SP.size();
+        }
       } ///< end of loop over SP in bottom candidate cell
     } ///< end of loop over bottom candidate cells
 
     /// if we did not find ANY bottom SP, or if we exceed the storage capacity, we abort this seed candidate. 
-    if (!Nb || Nb==m_maxsizeSP) continue;
+    if (!Nb) continue;
 
     /// now continue with the top SP search. 
     /// Make the counter start at Nb, as this serves as a running 
     /// index in the SP list for this seed. 
-    int Nt = Nb;
+    size_t Nt = Nb;
     
     /// Top links production
-    bool abortTopLoop=false;
 
     /// again, loop over cells of interest, this time for the top SP candidate
-    for (int cell=0; !abortTopLoop && cell<numberTopCells; ++cell) {
+    for (int cell=0; cell<numberTopCells; ++cell) {
       /// loop over each SP in each cell 
-      for (iter_otherSP=iter_topCands[cell]; !abortTopLoop && iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
+      for (iter_otherSP=iter_topCands[cell];iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
   
         /// evaluate the radial distance, 
         float Rt =(*iter_otherSP)->radius();
@@ -1713,8 +1815,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
  	      if(z0 > zmax || z0 < zmin) continue;
         /// add SP to the list
         data.SP[Nt] = (*iter_otherSP);
-        /// check capacity exceeding abort condition
-        if (++Nt==m_maxsizeSP) abortTopLoop=true;
+        /// if we are exceeding the SP capacity of our data object,
+        /// make it resize its vectors. Will add 50 slots by default,
+        /// so rarely should happen more than once per event.  
+        if (++Nt==SPcapacity) {
+          data.resizeSPCont(); 
+          SPcapacity=data.SP.size();
+        }
       } ///< end of loop over SP within top candidate cell
     } ///< end of loop over top candidate cells
     
@@ -1731,7 +1838,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
     /// check all SP candidates we found during our loop and 
     /// compute geometrical variables w.r.t the central point. 
-    for (int i=0; i<Nt; ++i) {
+    for (size_t i=0; i<Nt; ++i) {
 
       InDet::SiSpacePointForSeed* sp = data.SP[i];
 
@@ -1748,7 +1855,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       /// inverse distance of the candidate space point to the central point 
       float dr  = sqrt(r2);
       /// estimate slope in z - distance traveled in transverse plane vs z direction. 
-      /// rough estimate of 1/sin theta from 2 points
+      /// rough estimate of 1/tan theta from 2 points
       float tz  = dz*dr;
 
       /// if we are looking at a bottom SP candidate, flip the sign to account for 
@@ -1756,49 +1863,57 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       if (i < Nb) tz = -tz;
 
       /// save this into our data object
-      data.Tz[i]   = tz;      ///< 1/ sin theta
+      data.Tz[i]   = tz;      ///< 1/ tan theta
       data.Zo[i]   = Z-R*tz;  ///< z0 estimate. 
       data.R [i]   = dr;      ///< inverse distance to central SP
       data.U [i]   = x*r2;    ///< transformed U coordinate  
       data.V [i]   = y*r2;    ///< transformed V coordinate 
-      data.Er[i]   = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;    ///< 1/r² (cov(z)) + 1/r²sin²theta cov(r)
+      data.Er[i]   = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;    ///<squared Error on 1/tan theta coming from the space-point position errors
     }
-
-    /// tweak covariance matrix elements
-    covr0      *= .5;
-    covz0      *= 2.;
 
     data.nOneSeeds = 0;
     data.mapOneSeeds_Pro.clear();
 
     /// Three space points comparison
     /// first, loop over the bottom point candidates
-    for (int b=0; b<Nb; ++b) {
+    for (size_t b=0; b<Nb; ++b) {
       
       /// retrieve the geometrical paranmeters w.r.t the central SP for this candidate
       float  Zob  = data.Zo[b];       ///< z0 estimate from central+bottom SP
-      float  Tzb  = data.Tz[b];       ///< 1/sintheta estimate from central+bottom SP
-      float  Rb2r = data.R [b]*covr0; ///< inverse distance times covariance on r coordinate
-      float  Rb2z = data.R [b]*covz0; ///< inverse distance times covariance on z coordinate
-      float  Erb  = data.Er[b];       ///< 1/r² (cov(z)) + 1/r²sin²theta cov(r)
+      float  Tzb  = data.Tz[b];       ///< 1/tanTheta estimate from central+bottom SP
+      float  Erb  = data.Er[b];       ///< this is the uncertainty in 1/tanTheta on the bottom segment resulting from the position errors in the 2 SP
       float  Vb   = data.V [b];       ///< v-coordinate of bottom SP  
       float  Ub   = data.U [b];       ///< u-coordinate of bottom SP
-      float  Tzb2 = (1.+Tzb*Tzb);     ///< 1+1/sin²theta 
-      float sTzb2 = sqrt(Tzb2);       ///< sqrt (1+1/sin²theta)
-      float  CSA  = Tzb2*COFK;        ///< magic number x (1+1+sin²theta) 
-      float ICSA  = Tzb2*ipt2C;       ///< magic number x inverse of 90% of the pt cut, squared x (1+1+sin²theta) 
+      float  Tzb2 = (1.+Tzb*Tzb);     ///< 1+1/tan²theta - converts transverse to total squared pt
+      float sTzb2 = sqrt(Tzb2);       ///< sqrt (1+1/tan²theta) - used to convert pt to |p|
+      float sigmaSquaredScatteringPtDependent  = Tzb2*COFK;        ///< this, when divided by the 2R², yields an approximated multiple scattering term assuming the measured pt. 
+      float sigmaSquaredScatteringMinPt  = Tzb2*ipt2C;       ///< this is an approximate worst case multiple scattering term assuming the lowest 
+                                      ///  pt we allow and the estimated theta angle
       /// max IP
       float d0max  = maxd0cut;
       /// for strips, apply the strip version of the IP cut 
       if (data.SP[b]->spacepoint->clusterList().second) d0max = maxd0cutstrips;
 
       /// inner loop over the top point candidates
-      for (int t=Nb;  t<Nt; ++t) {
+      for (size_t t=Nb;  t<Nt; ++t) {
 
-        /// this appears to be an eta-compatibility cut between the two segments 
-        float dT  = ((Tzb-data.Tz[t])*(Tzb-data.Tz[t])-data.R[t]*Rb2z-(Erb+data.Er[t]))
-                  -(data.R[t]*Rb2r)*((Tzb+data.Tz[t])*(Tzb+data.Tz[t]));
-        if (dT > ICSA) continue;    
+        /// Apply a cut on the compatibility between the r-z slope of the two seed segments. 
+        /// This is done by comparing the squared difference between slopes, and comparing 
+        /// to the squared uncertainty in this difference - we keep a seed if the difference 
+        /// is compatible within the assumed uncertainties. 
+        
+        /// average value of 1/tan(theta), approximate the slope at the location of the central space point
+        float meanOneOverTanTheta = (Tzb+data.Tz[t])/2.; 
+        /// squared error on the difference in tan(theta) due to space point position errors. 
+        float sigmaSquaredSpacePointErrors = Erb+data.Er[t]   /// pre-computed individual squared errors on 1/tan(theta) for the two segments 
+                        + 2. * covz0 * data.R[t]*data.R[b]    /// mixed term with z-uncertainty on central SP
+                        + 2. * covr0 * data.R[t]*data.R[b] * meanOneOverTanTheta * meanOneOverTanTheta; // mixed term with r-uncertainy on central SP
+        /// start out by subtracting from the squared difference in 1/tanTheta the space-point-related squared error
+        float remainingSquaredDelta  = (Tzb-data.Tz[t])*(Tzb-data.Tz[t]) - sigmaSquaredSpacePointErrors; 
+
+        /// First, we test using a generous scattering term calculated assuming the minimum pt we expect
+        /// to reconstruct.  
+        if (remainingSquaredDelta  - sigmaSquaredScatteringMinPt > 0 ) continue;    
 
         /** 
         * The following exploits the transformation u:=x/(x²+y²); v:=y/(x²+y²); 
@@ -1827,12 +1942,20 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         float B   = Vb-A*Ub;            ///< B parameter, V axis intercept of the seed point distribution in the U,V plane 
         float onePlusAsquare  = 1.+A*A;
         float BSquare  = B*B;
+
         /** With this radius (and pT) estimate, we can apply our pt cut. 
          * Reminder, ipt2K is 1 / (K x 0.9 x pt-cut)², where K translates pt into 2R. 
          * So here we can apply the pt cut directly on the (2R)² estimate without
-         * the extra overhead of conversion / division
-         **/ 
-        if (BSquare  > ipt2K*onePlusAsquare || dT*onePlusAsquare > BSquare*CSA) continue;
+         * the extra overhead of conversion / division.
+         * The second check is a refinement of the above Tz compatibility cut,
+         * replacing the sigmaSquaredScatteringMinPt scattering contribution which assumes the lowest pt 
+         * by one based on the actual estimated pt. 
+         * 
+         * The second term in this if-statement applies a second version of the 
+         * 1/tan(theta) compatibility, this time using a scattering term scaled by the actual measured
+         * pt. This refines the cut applied above, following the same logic ("delta² - sigma² ?<=0")
+         **/
+        if (BSquare  > ipt2K*onePlusAsquare || remainingSquaredDelta*onePlusAsquare > BSquare*sigmaSquaredScatteringPtDependent) continue;
 
         /** This is an estimate of the transverse impact parameter. 
         * The reasoning is that, in the x-y frame with the central SP as origin and 
@@ -1850,13 +1973,14 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         * Note that below, the variable R is the radial coordinate fo the central SP, 
         * corresponding to r_central in the notation above. 
         **/
-	float d0 = 0;         
-	if(std::abs(B) < 1e-10) d0  = std::abs((A-B*R)*R);         
-	else{
-	  float x0 = -A/(2.*B);
-	  float rTrack = std::sqrt(onePlusAsquare/BSquare)*.5;
-	  d0 = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2*x0*R +R*R));
-	}
+        float d0 = 0;         
+        if(std::abs(B) < 1e-10) d0  = std::abs((A-B*R)*R);  
+        /// apply the precise d0 calculation if we don't have to worry about floating point exceptions        
+        else{
+          float x0 = -A/(2.*B);
+          float rTrack = std::sqrt(onePlusAsquare/BSquare)*.5;
+          d0 = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2*x0*R +R*R));
+        }
 
         /// apply d0 cut to seed 
         if (d0 <= d0max) {
@@ -2096,13 +2220,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeed
   }
   /// There are three cases where we simply add our new seed to the list and push it into the map: 
     /// a) we have not yet reached our max number of seeds 
-  if (data.nOneSeeds < m_maxOneSize
+  if (data.nOneSeeds < data.maxSeedsPerSP
     /// b) we have reached the max number but always want to keep confirmed seeds 
     /// and the new seed is a confirmed one, with worse quality than the worst one so far 
-      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
+      || (data.keepAllConfirmedSeeds  && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
     /// c) we have reached the max number but always want to keep confirmed seeds 
     ///and the new seed of higher quality than the worst one so far, with the latter however being confirmed 
-      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
+      || (data.keepAllConfirmedSeeds  && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
     ){
     data.OneSeeds_Pro[data.nOneSeeds].set(p1,p2,p3,z);
     data.mapOneSeeds_Pro.insert(std::make_pair(seedCandidateQuality, &data.OneSeeds_Pro[data.nOneSeeds]));
@@ -2140,6 +2264,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
 
   /// sort common SP by curvature 
   if(data.CmSp.size() > 2) std::sort(data.CmSp.begin(), data.CmSp.end(), comCurvature());
+      
+  float bottomR=SPb->radius();
+  float bottomZ=SPb->z();
 
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_otherSP;
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_commonTopSP = data.CmSp.begin(), ie = data.CmSp.end();
@@ -2151,6 +2278,25 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
     /// the seed quality is set to d0 initially 
     float seedQuality    = (*it_commonTopSP).second->param();
     float originalSeedQuality   = (*it_commonTopSP).second->param();
+
+    if(m_maxdImpact > 50){      //This only applies to LRT
+
+      float topR=(*it_commonTopSP).second->radius();
+      float topZ=(*it_commonTopSP).second->z();
+
+      float theta1=std::atan2(topR-bottomR,topZ-bottomZ);
+      float eta1=-std::log(std::tan(.5*theta1));
+
+      float Zot=bottomZ - (bottomR-originalSeedQuality) * ((topZ-bottomZ)/(topR-bottomR));
+      float theta0=std::atan2((*it_commonTopSP).second->param(),Zot);
+      float eta0=-std::log(std::tan(.5*theta0));
+
+      float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
+      //calculate weighted average of d0 and deltaEta, normalized by their maximum values
+      float f=std::min(0.5,originalSeedQuality/200.);  //0.5 and 200 are parameters chosen from a grid scan to optimize efficiency
+      seedQuality*=(1-f)/300.;
+      seedQuality+=f*deltaEta/2.5;
+    }
 
     bool                topSPisPixel = !(*it_commonTopSP).second->spacepoint->clusterList().second;
     
@@ -2197,11 +2343,12 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
       /// if the other SP is too close to the current top one, skip 
       float radiusOtherSP = (*it_otherSP).second->radius();
       if (std::abs(radiusOtherSP-radiusTopSP) < m_drmin) continue;
-      /// if we have a confirmation seed, we improve the score of the seed. 
+      // if we have a confirmation seed, we improve the score of the seed. 
       seedQuality += m_seedScoreBonusConfirmationSeed;
-      /// only look for one confirmation seed! 
-      break;
+      // apply confirmation bonus only once
+      break; 
     }
+
     /// kick this seed candidate if the score is too high (lower values = better) 
     if (seedQuality > data.maxScore) continue;
     
@@ -2378,8 +2525,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newSeed
 }
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::initializeEventData(EventData& data) const {
-  int seedArrayPerSPSize = m_maxOneSize; 
-  if (m_alwaysKeepConfirmedSeeds)  seedArrayPerSPSize = 50; 
+  int seedArrayPerSPSize = (m_maxOneSizePPP>m_maxOneSizeSSS ? m_maxOneSizePPP : m_maxOneSizeSSS); 
+  if (m_alwaysKeepConfirmedStripSeeds || m_alwaysKeepConfirmedPixelSeeds)  seedArrayPerSPSize = 50; 
   data.initialize(EventData::ATLxk,
                   m_maxsizeSP,
                   seedArrayPerSPSize,

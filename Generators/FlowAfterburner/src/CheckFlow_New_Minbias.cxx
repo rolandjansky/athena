@@ -39,7 +39,7 @@
 
 using namespace TruthHelper;
 
-//typedef std::vector<const HepMC::GenParticlePtr>  MCParticleCollection ;
+//typedef std::vector<HepMC::ConstGenParticlePtr>  MCParticleCollection ;
 
 CheckFlow_New_Minbias::CheckFlow_New_Minbias(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
@@ -293,8 +293,8 @@ StatusCode CheckFlow_New_Minbias::execute() {
         } 
 
         if( rapid >3.2 && rapid< 4.9){
-          cos_n_pos[ihar]+=cos(  (ihar+1)*phi);
-          sin_n_pos[ihar]+=sin(  (ihar+1)*phi);
+          cos_n_pos[ihar]+=std::cos(  (ihar+1)*phi);
+          sin_n_pos[ihar]+=std::sin(  (ihar+1)*phi);
           ngenerated_pos++;
         
           cos_n_pt_pos[ihar]+=pt*cos(  (ihar+1)*phi);
@@ -302,12 +302,12 @@ StatusCode CheckFlow_New_Minbias::execute() {
           ngenerated_pt_pos +=pt;
         } 
         if( rapid <-3.2 && rapid >-4.9){
-          cos_n_neg[ihar]+=cos(  (ihar+1)*phi);
-          sin_n_neg[ihar]+=sin(  (ihar+1)*phi);
+          cos_n_neg[ihar]+=std::cos(  (ihar+1)*phi);
+          sin_n_neg[ihar]+=std::sin(  (ihar+1)*phi);
           ngenerated_neg++;
         
-          cos_n_pt_neg[ihar]+=pt*cos(  (ihar+1)*phi);
-          sin_n_pt_neg[ihar]+=pt*sin(  (ihar+1)*phi);
+          cos_n_pt_neg[ihar]+=pt*std::cos(  (ihar+1)*phi);
+          sin_n_pt_neg[ihar]+=pt*std::sin(  (ihar+1)*phi);
           ngenerated_pt_neg +=pt;
         } 
       } 
@@ -334,11 +334,11 @@ StatusCode CheckFlow_New_Minbias::execute() {
 //EbE vn for ID acceptance end pt>0.5GeV
   for(int ihar=0;ihar<6;ihar++){
     if(tot_ID1>0.01){
-      double temp1= sqrt(cos_ID1[ihar]*cos_ID1[ihar] + sin_ID1[ihar]*sin_ID1[ihar])/tot_ID1;
+      double temp1= std::sqrt(cos_ID1[ihar]*cos_ID1[ihar] + sin_ID1[ihar]*sin_ID1[ihar])/tot_ID1;
       m_hist_vn_ebe_ID1[ihar][ib_imp]->Fill(temp1);
     }
     if(tot_ID2>0.01){
-      double temp2= sqrt(cos_ID2[ihar]*cos_ID2[ihar] + sin_ID2[ihar]*sin_ID2[ihar])/tot_ID2;
+      double temp2= std::sqrt(cos_ID2[ihar]*cos_ID2[ihar] + sin_ID2[ihar]*sin_ID2[ihar])/tot_ID2;
       m_hist_vn_ebe_ID2[ihar][ib_imp]->Fill(temp2);
     }
   } 
@@ -352,19 +352,19 @@ StatusCode CheckFlow_New_Minbias::execute() {
     cos_n[ihar] = ( cos_n_pos[ihar]+ cos_n_neg[ihar] )  /  (ngenerated_pos+ngenerated_neg);
     sin_n[ihar] = ( sin_n_pos[ihar]+ sin_n_neg[ihar] )  /  (ngenerated_pos+ngenerated_neg);
 
-    float psi_reco=atan2(sin_n[ihar],cos_n[ihar])/(ihar+1);
+    float psi_reco=std::atan2(sin_n[ihar],cos_n[ihar])/(ihar+1);
     m_hist_Psi_n_ebe[ihar][ib_imp]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
-    m_hist_vn_ebe   [ihar][ib_imp]->Fill(sqrt(cos_n[ihar]*cos_n[ihar] +sin_n[ihar]*sin_n[ihar] ));
+    m_hist_vn_ebe   [ihar][ib_imp]->Fill(std::sqrt(cos_n[ihar]*cos_n[ihar] +sin_n[ihar]*sin_n[ihar] ));
 
-    Psi_n_reco_pos[ihar]=atan2(sin_n_pos[ihar],cos_n_pos[ihar])/ (ihar+1);
-    Psi_n_reco_neg[ihar]=atan2(sin_n_neg[ihar],cos_n_neg[ihar])/ (ihar+1);
+    Psi_n_reco_pos[ihar]=std::atan2(sin_n_pos[ihar],cos_n_pos[ihar])/ (ihar+1);
+    Psi_n_reco_neg[ihar]=std::atan2(sin_n_neg[ihar],cos_n_neg[ihar])/ (ihar+1);
     Psi_n_reco    [ihar]=psi_reco;
 
 
     cos_n_pt[ihar] = ( cos_n_pt_pos[ihar]+ cos_n_pt_neg[ihar] )  /  (ngenerated_pt_pos+ngenerated_pt_neg);
     sin_n_pt[ihar] = ( sin_n_pt_pos[ihar]+ sin_n_pt_neg[ihar] )  /  (ngenerated_pt_pos+ngenerated_pt_neg);
 
-    psi_reco=atan2(sin_n_pt[ihar],cos_n_pt[ihar])/(ihar+1);
+    psi_reco=std::atan2(sin_n_pt[ihar],cos_n_pt[ihar])/(ihar+1);
     m_hist_Psi_n_ebe_pt[ihar][ib_imp]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
   }
 
@@ -377,10 +377,10 @@ StatusCode CheckFlow_New_Minbias::execute() {
     float psi1,psi2;
     for(int ihar2=0;ihar2<6;ihar2++){
       psi1=(ihar+1)*Psi_n[ihar];psi2=(ihar2+1)*Psi_n[ihar2]; 
-      m_hist_psi_corr_true[ihar*6+ihar2][ib_imp]->Fill(  atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
+      m_hist_psi_corr_true[ihar*6+ihar2][ib_imp]->Fill(  std::atan2(  std::sin(psi1-psi2),std::cos(psi1-psi2) )  );
 
       psi1=(ihar+1)*Psi_n_reco[ihar];psi2=(ihar2+1)*Psi_n_reco[ihar2]; 
-      m_hist_psi_corr_reco[ihar*6+ihar2][ib_imp]->Fill( atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
+      m_hist_psi_corr_reco[ihar*6+ihar2][ib_imp]->Fill( std::atan2(  std::sin(psi1-psi2),std::cos(psi1-psi2) )  );
     }
   }
 

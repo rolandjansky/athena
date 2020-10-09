@@ -33,7 +33,6 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 
 namespace Trk {
-  //class TrackParticleBase;
   class VxSecVertexInfo;
   class VxJetCandidate;
   class RecVertex;
@@ -65,19 +64,18 @@ namespace InDet {
     ~InDetJetFitterVxFinder();
 
     Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & /*primaryVertex*/,
-                                              const TLorentzVector & /*jetMomentum*/,
-                                              const std::vector<const xAOD::IParticle*> & /*inputTracks*/) const
-          {
-            /* not implemented */
-            return 0;
-          }
+					const TLorentzVector & /*jetMomentum*/,
+					const std::vector<const xAOD::IParticle*> & /*inputTracks*/ ) const
+    {
+      /* not implemented */
+      return 0;
+    }
     
-    
-    Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
+    const Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
                                               const TLorentzVector & jetMomentum,
 					      const std::vector<const Trk::TrackParticleBase*> & inputTracks) const;
 
-    Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
+    const Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
                                               const TLorentzVector & jetMomentum,
                                               const std::vector<const Trk::TrackParticleBase*> & firstInputTracks,
                                               const std::vector<const Trk::TrackParticleBase*> & secondInputTracks,
@@ -88,20 +86,19 @@ namespace InDet {
     void doTheFit(Trk::VxJetCandidate* myJetCandidate,
                   bool performClustering=true) const;
 
+    ToolHandle< Trk::JetFitterInitializationHelper > m_initializationHelper {this,"JetFitterInitializationHelper","Trk::JetFitterInitializationHelper",""};
+    ToolHandle< Trk::JetFitterHelper > m_helper {this,"JetFitterHelper","Trk::JetFitterHelper",""};
+    ToolHandle< Trk::JetFitterRoutines > m_routines {this,"JetFitterRoutines","Trk::JetFitterRoutines",""};
+    ToolHandle< Trk::ITrackSelectorTool > m_trkFilter {this,"TrackSelector","InDet::InDetDetailedTrackSelectorTool",""}; 
 
-    ToolHandle<Trk::JetFitterInitializationHelper> m_initializationHelper;
-    ToolHandle<Trk::JetFitterHelper> m_helper;
-    ToolHandle<Trk::JetFitterRoutines> m_routines;
-    ToolHandle<Trk::ITrackSelectorTool> m_trkFilter; 
 
+    Gaudi::Property< int > m_maxNumDeleteIterations {this,"MaxNumDeleteIterations",30,""};
+    Gaudi::Property< float > m_vertexProbCut {this,"VertexProbCut",0.01,""};
+    Gaudi::Property< int >  m_maxClusteringIterations {this,"MaxClusteringIterations",30,""};
+    Gaudi::Property< float > m_vertexClusteringProbabilityCut {this,"VertexClusteringProbabilityCut",0.01,""};
+    Gaudi::Property< bool > m_useFastClustering {this,"UseFastClustering",false,""};
 
-    int m_maxNumDeleteIterations;
-    float m_vertexProbCut;
-    int m_maxClusteringIterations;
-    float m_vertexClusteringProbabilityCut;
-    bool m_useFastClustering;
-
-    int m_maxTracksToFitAtOnce;
+    Gaudi::Property< int > m_maxTracksToFitAtOnce {this,"MaxTracksToFitAtOnce",15,""};
 
   };//end class declaration
 

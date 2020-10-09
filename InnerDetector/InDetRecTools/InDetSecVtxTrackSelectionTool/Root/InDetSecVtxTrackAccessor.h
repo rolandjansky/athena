@@ -9,8 +9,9 @@
 #ifndef INDETSECVTXTRACKSELECTIONTOOL_INDETTRACKACCESSOR_H
 #define INDETSECVTXTRACKSELECTIONTOOL_INDETTRACKACCESSOR_H
 
-#include "AsgTools/StatusCode.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/StatusCode.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgTools/IAsgTool.h"
 
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticle.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTINTERSECTGEOMETRY_H
@@ -15,7 +15,6 @@ namespace MuonGM {
   class MdtReadoutElement;
 }
 
-class MdtIdHelper;
 class MdtCondDbData;
 
 namespace TrkDriftCircleMath {
@@ -23,11 +22,10 @@ namespace TrkDriftCircleMath {
 }
 
 namespace Muon {
-
+  class IMuonIdHelperSvc;
   class MdtIntersectGeometry : public MuonIntersectGeometry {
   public:
-    MdtIntersectGeometry( const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData,
-                          MsgStream* msg);
+    MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData, MsgStream* msg, const Muon::IMuonIdHelperSvc* idHelp);
     MdtIntersectGeometry(const MdtIntersectGeometry &right);
     MdtIntersectGeometry & operator=(const MdtIntersectGeometry &right);
     ~MdtIntersectGeometry();
@@ -49,9 +47,9 @@ namespace Muon {
     TrkDriftCircleMath::MdtChamberGeometry* m_mdtGeometry;
     const MuonGM::MdtReadoutElement*        m_detElMl0;
     const MuonGM::MdtReadoutElement*        m_detElMl1;
-    const MuonGM::MuonDetectorManager*      m_detMgr;
+    const MuonGM::MuonDetectorManager*      m_detMgr; // cannot use ReadCondHandleKey since no athena component
     const MdtCondDbData*                    m_dbData;
-    const MdtIdHelper*                      m_mdtIdHelper;
+    const Muon::IMuonIdHelperSvc*           m_idHelperSvc;
     std::set<Identifier>                    m_deadTubesML;
     std::vector<Identifier>                 m_deadTubes;
   };

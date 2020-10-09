@@ -93,8 +93,6 @@ StatusCode ZdcRecChannelToolV2::initialize()
 	}
 	m_zdcId = zdcId;
 
-	ZdcCablingService::getInstance()->setZdcID(m_zdcId);
-
 	msg(MSG::DEBUG) << "--> ZDC : END OF MODIFICATION 0" << endmsg ;
 	return StatusCode::SUCCESS;
 
@@ -121,17 +119,14 @@ int ZdcRecChannelToolV2::convertTT2ZM(const xAOD::TriggerTowerContainer* ttColle
   hashmapType digits_map;
   Identifier chan_id;
   
-  xAOD::TriggerTowerContainer::const_iterator tt_itr = ttCollection->begin();
-  xAOD::TriggerTowerContainer::const_iterator tt_end = ttCollection->end();
-
   //std::cout << "Zdc TT's have " << ttCollection->size() << " towers" << std::endl;
 
-  for (;tt_itr != tt_end;tt_itr++)
+  for (const xAOD::TriggerTower* tt : *ttCollection)
     {
-      //std::cout << "ZdcTT coolId = " << (*tt_itr)->coolId() << std::endl;
-      //std::cout << ZdcToString(*(*tt_itr)) << std::endl;
+      //std::cout << "ZdcTT coolId = " << tt->coolId() << std::endl;
+      //std::cout << ZdcToString(*tt) << std::endl;
 
-      uint32_t coolId = (*tt_itr)->coolId();
+      uint32_t coolId = tt->coolId();
       uint32_t pin = (coolId>>8) & 0xf;
       uint32_t asic = coolId & 0xf;
       uint32_t slinkChannel = asic*16 + pin;
@@ -175,10 +170,10 @@ int ZdcRecChannelToolV2::convertTT2ZM(const xAOD::TriggerTowerContainer* ttColle
 	  (*iter).second->setType(m_zdcId->type(chan_id));
 	  (*iter).second->setChannel(m_zdcId->channel(chan_id));
 	  //std::cout << "Trying to set element links of " << chan_id << std::dec << std::endl;
-	  if (gain==0&&delay==0) (*iter).second->setTTg0d0Link( ElementLink<xAOD::TriggerTowerContainer_v2> ((*tt_itr),*ttCollection ) );
-	  if (gain==0&&delay==1) (*iter).second->setTTg0d1Link( ElementLink<xAOD::TriggerTowerContainer_v2> ((*tt_itr),*ttCollection ) );
-	  if (gain==1&&delay==0) (*iter).second->setTTg1d0Link( ElementLink<xAOD::TriggerTowerContainer_v2> ((*tt_itr),*ttCollection ) );
-	  if (gain==1&&delay==1) (*iter).second->setTTg1d1Link( ElementLink<xAOD::TriggerTowerContainer_v2> ((*tt_itr),*ttCollection ) );
+	  if (gain==0&&delay==0) (*iter).second->setTTg0d0Link( ElementLink<xAOD::TriggerTowerContainer_v2> (tt,*ttCollection ) );
+	  if (gain==0&&delay==1) (*iter).second->setTTg0d1Link( ElementLink<xAOD::TriggerTowerContainer_v2> (tt,*ttCollection ) );
+	  if (gain==1&&delay==0) (*iter).second->setTTg1d0Link( ElementLink<xAOD::TriggerTowerContainer_v2> (tt,*ttCollection ) );
+	  if (gain==1&&delay==1) (*iter).second->setTTg1d1Link( ElementLink<xAOD::TriggerTowerContainer_v2> (tt,*ttCollection ) );
 	}
       
     }
@@ -190,7 +185,7 @@ int ZdcRecChannelToolV2::convertTT2ZM(const xAOD::TriggerTowerContainer* ttColle
   hashmapType::iterator iter = digits_map.begin();
   hashmapType::iterator iter_end = digits_map.end();
 
-  for (;iter != iter_end;iter++)
+  for (;iter != iter_end;++iter)
     {
       makeWaveformFromDigits( *((*iter).second) );
     }
@@ -347,7 +342,7 @@ int ZdcRecChannelToolV2::splitWaveform(std::map<int,float>& waveform, std::vecto
   adcs.clear();
   std::map<int,float>::const_iterator wf_it = waveform.begin();
   std::map<int,float>::const_iterator wf_end = waveform.end();
-  for (;wf_it != wf_end;wf_it++)
+  for (;wf_it != wf_end;++wf_it)
     {
       //std::cout << iwf++ << "t=" << (*wf_it).first << " a=" << (*wf_it).second << std::endl;
       times.push_back((*wf_it).first / 10. ); // convert back to ns

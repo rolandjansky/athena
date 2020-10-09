@@ -78,11 +78,8 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
 
    //check if a SelectorType has been specified in the joSvc 
    //should retire this code at some point (hangover from basicxAOD.opts)
-   auto properties = m_joSvc->getProperties("TEvent");
-   if(properties) {
-      for(auto prop : *properties) {
-	if(prop->name()=="EventSelectorType") m_evtSelect.setTypeAndName(prop->toString() + "/" + m_evtSelect.name());
-      }
+   if (m_joSvc->has("TEvent.EventSelectorType")) {
+     m_evtSelect.setTypeAndName(m_joSvc->get("TEvent.EventSelectorType") + "/" + m_evtSelect.name());
    }
 
    AAH::setProperty( m_evtLoop , "ClearStorePolicy", "BeginEvent" ).ignore();    //for interactive use of storegate

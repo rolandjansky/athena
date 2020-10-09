@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -125,7 +125,6 @@ StatusCode ZdcByteStreamTool::initialize()
 	  msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endmsg;
 	}
 	m_zdcID = zdcID;
-	ZdcCablingService::getInstance()->setZdcID(m_zdcID);
 
 	return StatusCode::SUCCESS;
 }
@@ -562,7 +561,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
   while (iter != iter_end)
     {
       ttCollection->push_back((*iter).second);
-      iter++;
+      ++iter;
     }
 
   msg(MSG::DEBUG) << "-->ZDC: Collection has " << ttCollection->size() << " elements " << endmsg;

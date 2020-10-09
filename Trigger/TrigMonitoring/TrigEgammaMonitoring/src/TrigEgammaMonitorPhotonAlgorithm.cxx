@@ -44,12 +44,13 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 {
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorPhotonAlgorithm");
 
+
     if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }
     
-
+    
     ATH_MSG_DEBUG("Chains for Analysis " << m_trigList);
 
     for(const auto& trigger : m_trigList){
@@ -59,7 +60,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
           
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs;
-        
+    
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
@@ -117,7 +118,8 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
       }
       xAOD::Photon *ph = new xAOD::Photon(*eg);
       ph->auxdecor<bool>(decor)=static_cast<bool>(true);
-      match()->match(ph, trigItem, dec);
+      match()->match(ph, trigItem, dec, TrigDefs::includeFailedDecisions);
+      //match()->match(ph, trigItem, dec);
       std::pair< const xAOD::Photon*, const TrigCompositeUtils::Decision * > pair(ph,dec);
       pairObjs.push_back(pair);
 

@@ -11,7 +11,7 @@ try:
 except Exception:
    treatException("Could not load AthenaMonitoring/DQMonFlagsConfig_jobOptions.py")
 
-if DQMonFlags.doMonitoring(): 
+if DQMonFlags.doMonitoring() and not DQMonFlags.doNewMonitoring():
    if DQMonFlags.useTrigger():
       # trigger decision tool
       try:

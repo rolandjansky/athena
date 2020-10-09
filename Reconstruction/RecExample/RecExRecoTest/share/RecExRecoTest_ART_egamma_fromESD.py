@@ -159,7 +159,7 @@ except Exception:
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 
 from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
-CaloExtensionBuilder("NoCut", 500.) 
+CaloExtensionBuilder() 
 
 from egammaRec.egammaRecFlags import jobproperties
 

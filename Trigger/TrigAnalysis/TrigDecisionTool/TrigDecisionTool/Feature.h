@@ -25,7 +25,7 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
 
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 #include "TrigNavStructure/TriggerElement.h"
 #include "xAODTrigger/EmTauRoI.h"
@@ -134,6 +134,16 @@ namespace Trig {
       : m_owning_feature(feature),
 	m_feature(m_owning_feature.get()),
 	m_te(feat.te()), m_label(feat.label()), m_owned(true) { }
+
+    ///Add move operator
+    Feature(Feature&&) noexcept = default;
+
+    ///Add copy operator
+    Feature(const Feature&) = default;
+
+    Feature& operator=(const Feature&) = default;
+
+    Feature& operator=(Feature&&) = default;
 
     /**
      * @brief constructor of valid Feature object 

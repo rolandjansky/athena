@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/IChronoStatSvc.h"
@@ -89,7 +89,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
   }
   const CaloCell2ClusterMap*  cellToClusterMap=theTowers->GetCellToClusterMap();
   bool delete_cellToClusterMap=false;
-  if(cellToClusterMap==0  ){
+  if(cellToClusterMap==nullptr  ){
     cellToClusterMap=CreateCaloCell2ClusterMap(clusters);
     delete_cellToClusterMap=true;
   }
@@ -132,11 +132,11 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
   //Finished loading variables from CaloTopoTowerContainer 
   //////////////////////////////////////////////////////////////////////////////
   ///+++ consistency: pick up CaloClusterContainer pointer from map
-  const CaloClusterContainer* clusterContainer = 0;
+  const CaloClusterContainer* clusterContainer = nullptr;
   CaloCell2ClusterMap::const_iterator fClusMap(cellToClusterMap->begin());
   CaloCell2ClusterMap::const_iterator lClusMap(cellToClusterMap->end());
   ATH_MSG_DEBUG("Starting loop over Navigable CaloCell2ClusterMap");
-  while ( clusterContainer == 0 && fClusMap != lClusMap ){
+  while ( clusterContainer == nullptr && fClusMap != lClusMap ){
     ATH_MSG_VERBOSE("In loop over Navigable CaloCell2ClusterMap");
     if (*fClusMap) {
       // Pick first Navigable and then ask first entry in this
@@ -152,8 +152,8 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
   }
   
   // Make sure the cluster container is not NULL
-  if ( clusterContainer == 0 ) {
-    if (Cells->size() >0 ) {  
+  if ( clusterContainer == nullptr ) {
+    if (!Cells->empty() ) {  
       ATH_MSG_WARNING( "No cluster found from  CaloCell2ClusterMap, tool unusable" );
     }
     else {

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file DataProxy_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -20,8 +18,11 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/ILockable.h"
 #include "AthenaKernel/IResetable.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
+#include "boost/format.hpp"
+#include <chrono>
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -29,7 +30,9 @@
 
 struct X1
 {
-  ~X1() {}
+  X1(int x1 = 0) : m_x1(x1) {}
+  virtual ~X1() {}
+  int m_x1;
 };
 CLASS_DEF(X1, 8011, 1)
 
@@ -308,8 +311,172 @@ void test5()
 }
 
 
-int main()
+//***************************************************************************
+// Tests for benchmarking DataProxy pointer conversion operations.
+//
+
+
+struct X2
+  : public X1
 {
+  X2 (int x) : X1(x), m_x2 (x*2) {}
+  int m_x2;
+};
+SG_BASE( X2, X1 );
+CLASS_DEF(X2, 8125, 1)
+
+
+struct X3
+  : public X2
+{
+  X3 (int x) : X2(x), m_x3 (x*3) {}
+  int m_x3;
+};
+SG_BASE( X3, X2 );
+CLASS_DEF(X3, 8126, 1)
+
+
+struct X4
+  : virtual public X1
+{
+  X4 (int x) : X1(x), m_x4 (x*4) {}
+  int m_x4;
+};
+SG_BASE( X4, SG_VIRTUAL(X1) );
+CLASS_DEF(X4, 8127, 1)
+
+
+struct X5
+  : public X4, virtual public X1
+{
+  X5 (int x) : X1(x), X4(x), m_x5 (x*5) {}
+  int m_x5;
+};
+SG_BASES2( X5, X4, SG_VIRTUAL(X1) );
+CLASS_DEF(X5, 8128, 1)
+
+
+template <class TARGET>
+float time_bucket_clid (const int n, DataBucketBase& dbb)
+{
+  CLID clid = ClassID_traits<TARGET>::ID();
+  auto start = std::chrono::steady_clock::now();
+  for (int i=0; i < n; i++) {
+    const TARGET* t = static_cast<const TARGET*> (dbb.cast (clid));
+    assert (t->m_x1 == 10);
+  }
+  auto end = std::chrono::steady_clock::now();
+  std::chrono::duration<float> elapsed = end - start;
+  return elapsed.count() / n * 1e9;
+}
+
+
+template <class TARGET>
+float time_bucket_ti (const int n, DataBucketBase& dbb)
+{
+  const std::type_info& ti = typeid (TARGET);
+  auto start = std::chrono::steady_clock::now();
+  for (int i=0; i < n; i++) {
+    const TARGET* t = static_cast<const TARGET*> (dbb.cast (ti));
+    assert (t->m_x1 == 10);
+  }
+  auto end = std::chrono::steady_clock::now();
+  std::chrono::duration<float> elapsed = end - start;
+  return elapsed.count() / n * 1e9;
+}
+
+
+template <class TARGET>
+float time_storable (const int n, DataBucketBase& dbb, SG::DataProxy& proxy)
+{
+  auto start = std::chrono::steady_clock::now();
+  for (int i=0; i < n; i++) {
+    const TARGET* t = SG::Storable_cast<TARGET> (&dbb, true, &proxy, true);
+    assert (t->m_x1 == 10);
+  }
+  auto end = std::chrono::steady_clock::now();
+  std::chrono::duration<float> elapsed = end - start;
+  return elapsed.count() / n * 1e9;
+}
+
+
+template <class TARGET>
+float time_proxy (const int n, SG::DataProxy& proxy)
+{
+  auto start = std::chrono::steady_clock::now();
+  for (int i=0; i < n; i++) {
+    const TARGET* t = SG::DataProxy_cast<TARGET> (&proxy);
+    assert (t->m_x1 == 10);
+  }
+  auto end = std::chrono::steady_clock::now();
+  std::chrono::duration<float> elapsed = end - start;
+  return elapsed.count() / n * 1e9;
+}
+
+
+float time_access (const int n, SG::DataProxy& proxy)
+{
+  auto start = std::chrono::steady_clock::now();
+  for (int i=0; i < n; i++) {
+    if (proxy.isValid()) proxy.accessData();
+  }
+  auto end = std::chrono::steady_clock::now();
+  std::chrono::duration<float> elapsed = end - start;
+  return elapsed.count() / n * 1e9;
+}
+
+
+template <class SOURCE, class TARGET>
+void perftest1 (const int n)
+{
+  auto x1 = std::make_unique<SOURCE>(10);
+  auto dbb = std::make_unique<SG::DataBucket<SOURCE> > (std::move (x1));
+  auto dbb_ptr = dbb.get();
+  float t_clid = time_bucket_clid<TARGET> (n, *dbb);
+  float t_ti = time_bucket_ti<TARGET> (n, *dbb);
+  SG::TransientAddress taddr (ClassID_traits<X2>::ID(), "foo");
+  SG::DataProxy dp (dbb.release(), std::move (taddr));
+  float t_storable = time_storable<TARGET> (n, *dbb_ptr, dp);
+  float t_dp = time_proxy<TARGET> (n, dp);
+  float t_acc = time_access (n, dp);
+  std::cout << boost::format ("%2s -> %2s  %6.2f  %6.2f  %6.2f  %6.2f  %6.2f\n")
+    % ClassID_traits<SOURCE>::typeName()
+    % ClassID_traits<TARGET>::typeName()
+    % t_clid
+    % t_ti
+    % t_storable
+    % t_dp
+    % t_acc;
+}
+
+
+void perftest (const int n)
+{
+  std::cout << boost::format ("          %6s  %6s  %6s  %6s  %6s\n")
+    % "clid" % "ti" % "storab" % "proxy" % "acc";
+
+  perftest1<X1, X1> (n);
+  perftest1<X2, X1> (n);
+  perftest1<X3, X1> (n);
+  perftest1<X4, X1> (n);
+  perftest1<X5, X1> (n);
+}
+
+
+//***************************************************************************
+
+
+int main (int argc, char** argv)
+{
+  if (argc >= 2 && std::string (argv[1]) ==  "--perf") {
+    int n = 1000000;
+    if (argc >= 3) {
+      n = atoi (argv[2]);
+    }
+    perftest(n);
+    return 0;
+  }
+
   test1();
   test2();
   test3();

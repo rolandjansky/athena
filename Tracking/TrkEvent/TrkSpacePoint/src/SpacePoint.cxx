@@ -23,18 +23,13 @@
 namespace Trk
 {
   
-  // Destructor:
-  SpacePoint::~SpacePoint()
-  {
-    delete m_clusList;
-  }
   
   // ------------------------------------------------------------------
   
   // Default constructor
   SpacePoint::SpacePoint()
     :
-    m_clusList(nullptr),
+    m_clusList(nullptr, nullptr),
     m_elemIdList(0,0),
     m_position(),
     m_globalCovariance()
@@ -43,42 +38,6 @@ namespace Trk
   
   // ------------------------------------------------------------------
   
-  // copy constructor
-  SpacePoint::SpacePoint(const SpacePoint & SP) :
-    Trk::MeasurementBase(SP)
-  {
-    m_elemIdList = SP.m_elemIdList;
-    m_position = SP.m_position;
-    if (SP.m_clusList){
-      m_clusList = new std::pair<const PrepRawData*, const PrepRawData*>(*SP.m_clusList);
-    } else {
-      m_clusList=nullptr;
-    }    
-    m_globalCovariance = SP.m_globalCovariance; 
-  }
-  
-  // ------------------------------------------------------------------
-  
-  //assignment operator
-  SpacePoint& SpacePoint::operator=(const SpacePoint& SP)
-  {
-    if (&SP !=this) 
-    {
-			Trk::MeasurementBase::operator=(SP);
-			delete m_clusList;
-			m_elemIdList = SP.m_elemIdList;
-			m_position = SP.m_position;
-			if (SP.m_clusList){
-			  m_clusList = new std::pair<const PrepRawData*, const PrepRawData*>(*SP.m_clusList);
-			}  else {
-        m_clusList=nullptr;
-      }  
-			m_globalCovariance = SP.m_globalCovariance; 
-    }
-    return *this;
-  }
-  
-  // ------------------------------------------------------------------
   
   /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
   MsgStream& operator << ( MsgStream& sl, const Trk::SpacePoint& spacePoint)
@@ -104,6 +63,7 @@ namespace Trk
     cov<<
       lc(0,0),lc(0,1),0.,
       lc(1,0),lc(1,1),0.,
+      // cppcheck-suppress constStatement
       0.     ,0.     ,0.;
 
     const Amg::RotationMatrix3D& R = associatedSurface().transform().rotation();
@@ -113,8 +73,8 @@ namespace Trk
 
   const Surface& SpacePoint::associatedSurface() const
     { 
-      assert(m_clusList->first->detectorElement()); 
-      return m_clusList->first->detectorElement()->surface(); 
+      assert(m_clusList.first->detectorElement());
+      return m_clusList.first->detectorElement()->surface();
     }
 
 } // end of namespace

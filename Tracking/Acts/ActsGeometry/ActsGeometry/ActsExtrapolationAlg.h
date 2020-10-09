@@ -8,12 +8,12 @@
 // ATHENA
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/GeometryIdentifier.hpp"
 
 // STL
 #include <memory>
@@ -58,6 +58,7 @@ private:
 
   // material track writer for the material map validation
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, "Write material track"};
+  Gaudi::Property<bool> m_writePropStep{this, "WritePropStep", false, "Write propagation step"};
   ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
 
   mutable std::mutex m_writeMutex{};

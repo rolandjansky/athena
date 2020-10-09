@@ -169,7 +169,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::doFineScan(std::vector<int>& fl
 }
 
 StatusCode  Muon::ProjectionMMClusterBuilderTool::doPositionCalculation(std::vector<double>& v_posxc, 
-  const std::vector<double>& v_cor,const std::vector<int> idx_selected, double& xmean, double& xmeanErr,double& qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer)const {
+  const std::vector<double>& v_cor,const std::vector<int>& idx_selected, double& xmean, double& xmeanErr,double& qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer)const {
     //determine cluster charge
     qtot=0;
     for(const auto& idx:idx_selected) qtot+=prdsOfLayer.at(idx).charge();

@@ -14,7 +14,6 @@
 // Athena includes
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"//Material Manager
 #include "GeoModelInterfaces/StoredMaterialManager.h"//Material Manager
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h" //Converting GeoMaterial -> G4Material
 #include "PathResolver/PathResolver.h"
@@ -112,12 +111,11 @@ void TRTTransitionRadiation::Initialize() {
     ATH_MSG_FATAL ( "Can not access Detector Store " );
     return;
   };
-  const StoredMaterialManager* sMaterialManager = nullptr;
-  if (StatusCode::SUCCESS != detStore->retrieve(sMaterialManager, std::string("MATERIALS"))) {
+  const StoredMaterialManager* materialManager = nullptr;
+  if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     ATH_MSG_FATAL ( "Could not retrieve material manager from Detector Store" );
     return;
   };
-  const AbsMaterialManager *materialManager = &*sMaterialManager;//TK: figure out why &* (overloaded * ?)
 
   Geo2G4MaterialFactory geo2g4_material_fact;//Note - this is a very lightweight class!
   G4Material *g4mat_Gas(geo2g4_material_fact.Build(materialManager->getMaterial("trt::CO2")));

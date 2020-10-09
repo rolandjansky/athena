@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,10 @@
 #include <algorithm>
 using std::max;
 
-GeoPixelStaveRingServices::GeoPixelStaveRingServices(GeoPixelLadder& ladder, GeoPixelStaveSupport& staveSupport):
+GeoPixelStaveRingServices::GeoPixelStaveRingServices(InDetDD::PixelDetectorManager* ddmgr,
+                                                     PixelGeometryManager* mgr,
+                                                     GeoPixelLadder& ladder, GeoPixelStaveSupport& staveSupport):
+  GeoVPixelFactory (ddmgr, mgr),
   m_ladder(ladder),m_staveSupport(staveSupport),
   m_supportPhysA(0),m_supportPhysC(0),m_supportMidRing(0),
   m_xformSupportA(0), m_xformSupportC(0), m_xformSupportMidRing(0)
@@ -65,11 +68,11 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   if((!endblockA) || (!endblockC) || (!endblockFlex) || (!serviceCoolPipe))
   {
           m_gmt_mgr->msg(MSG::ERROR) <<"dynamic_cast failure in "<<__FILE__<< ":"<< __LINE__<<endmsg;
-          exit(EXIT_FAILURE);
+          std::abort();
   } 
   
   // Define staveRing for side A
-  GeoPixelStaveRing staveRing;
+  GeoPixelStaveRing staveRing (m_DDmgr, m_gmt_mgr);
   std::ostringstream lnameA;
   lnameA << "Brl0A_StaveRing";
   GeoVPhysVol* ringphysA = staveRing.SetParametersAndBuild(lnameA.str(),"AC");

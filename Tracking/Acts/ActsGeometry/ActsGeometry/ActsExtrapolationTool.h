@@ -9,8 +9,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
+
+// Need to include this early; otherwise, we run into errors with
+// ReferenceWrapperAnyCompat in clang builds due the is_constructable
+// specialization defined there getting implicitly instantiated earlier.
+#include "Acts/Propagator/Propagator.hpp"
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
@@ -21,17 +26,19 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "Acts/Propagator/DebugOutputActor.hpp"
 #include "Acts/Propagator/StandardAborters.hpp"
+#include "Acts/Propagator/SurfaceCollector.hpp"
 #include "Acts/Utilities/Result.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 #include <cmath>
 
 namespace Acts {
 class Surface;
 class BoundaryCheck;
+class Logger;
 }
 
 
@@ -53,39 +60,37 @@ public:
 private:
   // set up options for propagation
   using SteppingLogger = Acts::detail::SteppingLogger;
-  using DebugOutput = Acts::DebugOutputActor;
   using EndOfWorld = Acts::EndOfWorldReached;
-  using ResultType = Acts::Result<std::pair<ActsPropagationOutput,
-                                            DebugOutput::result_type>>;
+  using ResultType = Acts::Result<ActsPropagationOutput>;
 
 
 public:
   virtual
   ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
-                   const Acts::BoundParameters& startParameters,
+                   const Acts::BoundTrackParameters& startParameters,
                    Acts::NavigationDirection navDir = Acts::forward,
                    double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
-  std::unique_ptr<const Acts::CurvilinearParameters>
+  std::unique_ptr<const Acts::CurvilinearTrackParameters>
   propagate(const EventContext& ctx,
-            const Acts::BoundParameters& startParameters,
+            const Acts::BoundTrackParameters& startParameters,
             Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
   ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
-                   const Acts::BoundParameters& startParameters,
+                   const Acts::BoundTrackParameters& startParameters,
                    const Acts::Surface& target,
                    Acts::NavigationDirection navDir = Acts::forward,
                    double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
-  std::unique_ptr<const Acts::BoundParameters>
+  std::unique_ptr<const Acts::BoundTrackParameters>
   propagate(const EventContext& ctx,
-            const Acts::BoundParameters& startParameters,
+            const Acts::BoundTrackParameters& startParameters,
             const Acts::Surface& target,
             Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const override;
@@ -105,6 +110,7 @@ public:
 
 private:
   std::unique_ptr<ActsExtrapolationDetail::VariantPropagator> m_varProp;
+  std::unique_ptr<const Acts::Logger> m_logger{nullptr};
 
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 

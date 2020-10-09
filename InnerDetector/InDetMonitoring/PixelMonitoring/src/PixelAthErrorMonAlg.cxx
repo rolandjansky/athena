@@ -26,13 +26,112 @@ StatusCode PixelAthErrorMonAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
   ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-  if ( !m_pixelErrorTool.empty() ) ATH_CHECK( m_pixelErrorTool.retrieve() );
 
   return AthMonitorAlgorithm::initialize();
 }
 
 
 StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const {
+
+  //====================================================================================
+  // This is an example how to read the Error informaiton.
+  //
+  // The Error word is defined in 
+  //    InDetConditions/PixelConditionsData/PixelConditionsData/PixelByteStreamErrors.h
+  //
+  // The IDCInDetBSErrContainer can be accessed through 
+  //    m_pixelCondSummaryTool->getBSErrorWord(i,ctx) 
+  // where
+  //    i= [    0,  2047] : module error
+  //
+  //  for PIXEL(FEI3):
+  //     = [ 2048,  4095] :   FE-0 error
+  //     = [ 4096,  6143] :   FE-1 error
+  //     = [ 6144,  8191] :   FE-2 error
+  //          ...    ...      ...
+  //          ...    ...      ...
+  //     = [30720, 32767] :  FE-14 error
+  //     = [32768, 34815] :  FE-15 error
+  //
+  //  for IBL(FEI4):
+  //     = [ 2048,  4095] :   FE-0 error
+  //     = [ 4096,  6143] :   FE-1 error
+  //     = [34816, 35095] :  Error counter in bit#=1 from ServiceRecords
+  //     = [35096, 35375] :  Error counter in bit#=2 from ServiceRecords
+  //          ...    ...      ...
+  //          ...    ...      ...
+  //     = [43496, 43776] :  Error counter in bit#=32 from ServiceRecords
+  //
+  //====================================================================================
+  //
+  // Print all Module/FE errors
+  int maxHash = m_pixelid->wafer_hash_max();
+
+  for (int i=0; i<maxHash; i++) {
+    // Get accumulated errors (Module)
+    
+    uint64_t kErrorWord = m_pixelCondSummaryTool->getBSErrorWord(i,ctx);
+
+    ATH_MSG_DEBUG("Module hash=" << i << " has");
+    if      (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TimeOut        )) { ATH_MSG_DEBUG("      TimeOut         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BCID           )) { ATH_MSG_DEBUG("      BCID            state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LVL1ID         )) { ATH_MSG_DEBUG("      LVL1ID          state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Preamble       )) { ATH_MSG_DEBUG("      Preamble        state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Trailer        )) { ATH_MSG_DEBUG("      Trailer         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Flagged        )) { ATH_MSG_DEBUG("      Flagged         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::DisableFE      )) { ATH_MSG_DEBUG("      DisableFE       state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BadFE          )) { ATH_MSG_DEBUG("      BadFE           state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::ROD            )) { ATH_MSG_DEBUG("      ROD             state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Decoding       )) { ATH_MSG_DEBUG("      Decoding        state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Invalid        )) { ATH_MSG_DEBUG("      Invalid         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LinkMaskedByPPC)) { ATH_MSG_DEBUG("      LinkMaskedByPPC state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Limit          )) { ATH_MSG_DEBUG("      Limit           state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TruncatedROB   )) { ATH_MSG_DEBUG("      TruncatedROB    state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MaskedROB      )) { ATH_MSG_DEBUG("      MaskedROB       state..."); }
+    else                                                                                         { ATH_MSG_DEBUG("      no entry             ..."); }
+
+    // Loop over all FE
+    int nFE = 16;
+    if (i<12 || i>2035) { nFE=2; }  // for DBM
+    if (i>155 && i<436) { nFE=2; }  // for FEI4
+
+    for (int j=0; j<nFE; j++) {
+      int channelFE = (1+j)*maxHash+i;    // (FE_channel+1)*2048 + moduleHash
+      uint64_t kErrorFEWord = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      TimeOut         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID           )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BCID            state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID         )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LVL1ID          state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble       )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Preamble        state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Trailer         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Flagged         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::DisableFE      )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      DisableFE       state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BadFE           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::ROD            )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      ROD             state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding       )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Decoding        state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Invalid         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC)) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LinkMaskedByPPC state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Limit           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TruncatedROB   )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      TruncatedROB    state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MaskedROB      )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MaskedROB       state..."); }
+    }
+
+    // Get IBL SearviceRecords : IBL hashID[156-435]
+    if (i>155 && i<436) {
+      for (int j=0; j<2; j++) {
+        for (int k=1; k<32; k++) {
+          int indexOffset = 17*maxHash;
+          int channelFE = indexOffset+(k-1)*280*2+2*(i-156)+j;    // offset+(ServiceCode)*(#IBLxFE) + (#FE)x(moduleHash-156) + FE
+          uint64_t serviceCounter = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
+          ATH_MSG_DEBUG("   IBL SearviceRecords bit=" << j << "  " << serviceCounter);
+        }
+      }
+    }
+  }
+
+
+//===================================================================
+// Here I let Pixel DQ people refill the Error word with new method.
+/* 
   using namespace Monitored;
 
   int lb = GetEventInfo(ctx)->lumiBlock();
@@ -330,7 +429,9 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   for (unsigned int cat = 0; cat < ErrorCategory::COUNT; ++cat) {
     fill1DProfLumiLayers(error_names_cat_norm[cat], lb, num_errormodules_per_cat[cat]);
   }
-  
+
+  */
+
   return StatusCode::SUCCESS;
 }
 

@@ -9,9 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-/////////////////////////////////////////////////////////////////////////////
 #include "MuonCalibEvent/MuonCalibPatternCollection.h"
-
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
@@ -46,10 +44,6 @@ output the muon calibration input.
     StatusCode execute();
 
   private:
-
-    /** retrieve patterns and segments from storegate */
-    //    const Muon::MuonSegmentCollection* retrieveSegments();
-  
     /** retrieve patterns from storegate */
     const MuonSegmentCombinationCollection* retrieveSegmentCombinations() const;
     const Trk::SegmentCollection* retrieveSegments(const std::string colName) const;
@@ -96,11 +90,11 @@ output the muon calibration input.
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     /** pointer to MdtCalibSvc */
-    ToolHandle<MdtCalibrationTool> m_calibrationTool;
+    ToolHandle<MdtCalibrationTool> m_calibrationTool{this,"CalibrationTool","MdtCalibrationTool"};
 
     /** IdentifierTool initialization */
-    ToolHandle< Muon::IMuonPatternSegmentAssociationTool> m_assocTool;
-    ToolHandle< IIdToFixedIdTool> m_idToFixedIdTool;
+    ToolHandle<Muon::IMuonPatternSegmentAssociationTool> m_assocTool{this,"PatternSegmentAssociationTool","Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"};
+    ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool{this,"IdToFixedIdTool","MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool"};
 
 
     /** -1: Take infirmation from error-strategy

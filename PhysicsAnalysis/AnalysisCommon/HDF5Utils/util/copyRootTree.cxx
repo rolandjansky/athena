@@ -22,6 +22,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <memory>
 #include <regex>
 #include <iostream>
+#include <set>
 
 // ______________________________________________________________________
 // Variable buffer classes

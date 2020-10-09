@@ -7,9 +7,10 @@
 
 #include "GeoVPixelFactory.h"
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelEnvelope : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelEnvelope : public GeoVPixelFactory {
  public:
-  virtual GeoVPhysVol* Build();
+  using GeoVPixelFactory::GeoVPixelFactory;
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif

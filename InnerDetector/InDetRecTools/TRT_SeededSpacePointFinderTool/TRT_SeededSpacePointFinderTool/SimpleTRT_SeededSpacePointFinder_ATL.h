@@ -26,7 +26,7 @@
 
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 
 class MsgStream;
@@ -122,7 +122,7 @@ namespace InDet{
 
 
        /** Region Selector */
-       ServiceHandle<IRegSelSvc> m_pRegionSelector;
+       ToolHandle<IRegSelTool> m_pRegionSelector{ this, "RegSelTool_SCT", "RegSelTool/RegSelTool_SCT" };
 
        /**ID SCT helper*/
        const SCT_ID* m_sctId;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DBM_ModuleCage.h"
@@ -132,7 +132,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
     // set telescope layer number 
     m_gmt_mgr->SetCurrentLD(i);
 
-    DBM_Module module;
+    DBM_Module module (m_DDmgr, m_gmt_mgr);
     GeoVPhysVol* modulePhys = module.Build();
 
     Rspacing = m_gmt_mgr->DBMSpacingRadial();

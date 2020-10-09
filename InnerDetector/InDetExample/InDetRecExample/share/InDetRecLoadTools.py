@@ -82,15 +82,6 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         ToolSvc += NnClusterizationFactory
 
-        # special setup for DVRetracking mode
-        # if InDetFlags.doDVRetracking() :
-           # COOL binding
-        from IOVDbSvc.CondDB import conddb
-        if InDetFlags.doTIDE_RescalePixelCovariances() :
-            if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
-                # COOL binding
-                conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
-
         if (InDetFlags.doPrintConfigurables()):
             printfunc (NnClusterizationFactory)
 elif InDetFlags.doPixelClusterSplitting():
@@ -479,6 +470,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
                                                                        AssociationTool  = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                                        TrackSummaryTool = TrackingCommon.getInDetTrackSummaryTool(),
                                                                        SelectionTool    = InDetAmbiTrackSelectionToolCosmics,
+                                                                       OutputClusterSplitProbabilityName = 'InDetAmbiguityProcessorCosmicsSplitProb',
                                                                        SuppressTrackFit = True,
                                                                        ForceRefit       = False,
                                                                        RefitPrds        = False)
@@ -571,30 +563,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     InDetVtxSeedFinder = Trk__TrackDensitySeedFinder(name="GaussianDensitySeedFinder",
                                                      DensityEstimator=GaussDensityEstimator)
 
-  elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding'):
-    from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__LocalMax1DClusterFinder, Trk__VertexImageMaker
-    InDetMedImgClusterFinder = Trk__LocalMax1DClusterFinder(name="InDetMedImgClusterFinder",
-                                                            weightThreshold=1500.0,
-                                                            mergeParameter=0.95,
-                                                            clusterWindowXY=0.34,
-                                                            refineZ=True,
-                                                            gaussianWindow=True)
-    ToolSvc += InDetMedImgClusterFinder
-    InDetMedImgMaker = Trk__VertexImageMaker(name="InDetMedImgMaker",
-                                             xbins=32,
-                                             ybins=32,
-                                             zbins=2048,
-                                             xrange=2.0,
-                                             yrange=2.0,
-                                             zrange=200.0,
-                                             cutoffFreqDenominator_xy=2,
-                                             cutoffFreqDenominator_z=1,
-                                             angularCutoffParameter=0.75)
-    ToolSvc += InDetMedImgMaker
-    from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ImagingSeedFinder
-    InDetVtxSeedFinder = Trk__ImagingSeedFinder(name="InDetMedImgSeedFinder",
-                                                VertexCluster=InDetMedImgClusterFinder,
-                                                VertexImageMaker=InDetMedImgMaker)
 
   elif (InDetFlags.doPrimaryVertex3DFinding()):
     from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
@@ -789,7 +757,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (InDetFlags.primaryVertexSetup() == 'DefaultKalmanFinding' or
       InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or
       InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
-      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' or
       InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ):
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexSmoother
     InDetVertexSmoother = Trk__SequentialVertexSmoother(name = "InDetSequentialVertexSmoother")
@@ -826,27 +793,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                     VertexSmoother         = InDetVertexSmoother
                                                     # VertexUpdator   = # no setting required
                                                     )
-  elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
-
-      from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
-      InDet3DVtxSeedFinder = Trk__CrossDistancesSeedFinder(name                = "InDet3DCrossDistancesSeedFinder",
-                                                           trackdistcutoff     = 1.,
-                                                           trackdistexppower   = 2,
-                                                           # Mode1dFinder = # default, no setting needed
-                                                           )
-      ToolSvc+=InDet3DVtxSeedFinder
-      if (InDetFlags.doPrintConfigurables()):
-        printfunc (InDet3DVtxSeedFinder)
-    #
-    # --- load configured adaptive vertex fitter (with simplified seed finder for start point)
-    #
-      from TrkVertexFitters.TrkVertexFittersConf import Trk__AdaptiveVertexFitter
-      InDetVxFitterTool = Trk__AdaptiveVertexFitter(name                         = "InDetAdaptiveVxFitterTool",
-                                                    SeedFinder                   = InDet3DVtxSeedFinder,
-                                                    LinearizedTrackFactory       = InDetLinFactory,
-                                                    ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
-                                                    AnnealingMaker               = InDetAnnealingMaker,
-                                                    VertexSmoother               = InDetVertexSmoother)
 
   elif (InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or
         InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
@@ -896,16 +842,29 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     # --- load adaptive multi primary vertex finder
     #
-    from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
-    InDetPriVxFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(
-        name="InDetAdaptiveMultiPriVxFinderTool",
-        SeedFinder=InDetVtxSeedFinder,
-        VertexFitterTool=InDetVxFitterTool,
-        TrackSelector=InDetTrackSelectorTool,
-        useBeamConstraint=InDetFlags.useBeamConstraint(),
-        selectiontype=0,
-        TracksMaxZinterval=3,  # mm
-        do3dSplitting=InDetFlags.doPrimaryVertex3DFinding())
+    if not InDetFlags.useActsPriVertexing():
+      from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
+      InDetPriVxFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetAdaptiveMultiPriVxFinderTool",
+                                                                      SeedFinder        = InDetVtxSeedFinder,
+                                                                      VertexFitterTool  = InDetVxFitterTool,
+                                                                      TrackSelector     = InDetTrackSelectorTool,
+                                                                      useBeamConstraint = InDetFlags.useBeamConstraint(),
+                                                                      selectiontype     = 0,
+  								                                                    TracksMaxZinterval = 3,#mm 
+                                                                      do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
+    else:
+      from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool
+      from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+      actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
+      actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
+      actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
+      InDetPriVxFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool",
+                                                               TrackSelector     = InDetTrackSelectorTool,
+                                                               useBeamConstraint = InDetFlags.useBeamConstraint(),
+                                                               tracksMaxZinterval = 3,#mm 
+                                                               do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
+                                                               TrackingGeometryTool = actsTrackingGeometryTool,
+                                                               ExtrapolationTool = actsExtrapolationTool)
 
   else:
     #

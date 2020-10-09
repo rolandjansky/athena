@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDeadMapCondAlg.h"
@@ -16,8 +16,7 @@ StatusCode PixelDeadMapCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelDeadMapCondAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
-  ATH_CHECK(m_moduleDataKey.initialize());
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_readKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -44,8 +43,7 @@ StatusCode PixelDeadMapCondAlg::execute(const EventContext& ctx) const {
                           EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
 
   EventIDRange rangeW{start, stop};
-
-  if (SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getUseDeadmapConditions()) {
+  if (!m_readKey.empty()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
     const CondAttrListCollection* readCdo = *readHandle; 
     if (readCdo==nullptr) {

@@ -43,7 +43,7 @@ CachedValue<T>::CachedValue (const T& val)
  */
 template <class T>
 inline
-CachedValue<T>::CachedValue (T&& val)
+CachedValue<T>::CachedValue (T&& val) noexcept
   : m_cacheValid (VALID),
     m_val (std::move (val))
 {
@@ -74,7 +74,7 @@ CachedValue<T>::CachedValue (const CachedValue& other)
  */
 template <class T>
 inline
-CachedValue<T>::CachedValue (CachedValue&& other)
+CachedValue<T>::CachedValue (CachedValue&& other) noexcept
   : m_cacheValid (INVALID)
 {
   if (other.m_cacheValid == VALID) {
@@ -132,7 +132,7 @@ CachedValue<T>& CachedValue<T>::operator= (const CachedValue& other)
  */
 template <class T>
 inline
-CachedValue<T>& CachedValue<T>::operator= (CachedValue&& other)
+CachedValue<T>& CachedValue<T>::operator= (CachedValue&& other) noexcept
 {
   if (this != &other) {
     if (other.m_cacheValid == VALID) {
@@ -203,7 +203,7 @@ void CachedValue<T>::set (const T& val) const
  */
 template <class T>
 inline
-void CachedValue<T>::set (T&& val) const
+void CachedValue<T>::set (T&& val) const noexcept
 {
   // Interlocked assignment of the cached value,
   // only if the current state is INVALID.
@@ -269,7 +269,7 @@ void CachedValue<T>::store (const T& val)
  */
 template <class T>
 inline
-void CachedValue<T>::store (T&& val)
+void CachedValue<T>::store (T&& val) noexcept
 {
   m_cacheValid = VALID;
   m_val = std::move (val);

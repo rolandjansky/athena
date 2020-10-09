@@ -25,11 +25,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AppMgr import theApp
 
 #--------------------------------------------------------------
-# Load POOL support for DoubleEventSelector
-#--------------------------------------------------------------
-import AthenaPoolCnvSvc.ReadAthenaPoolDouble
-
-#--------------------------------------------------------------
 # Set flags and load det descr
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags  import globalflags
@@ -40,6 +35,11 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 globalflags.isOverlay.set_Value_and_Lock(True)
 overlayFlags.isDataOverlay.set_Value_and_Lock(False)
 overlayFlags.isOverlayMT.set_Value_and_Lock(True)
+
+#--------------------------------------------------------------
+# Load POOL support for DoubleEventSelector
+#--------------------------------------------------------------
+import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 
 # For general flags
 rec.doAOD       = False
@@ -72,6 +72,14 @@ theApp.EvtMax = 100
 #--------------------------------------------------------------
 # Algorithms
 #--------------------------------------------------------------
+# Beam spot conditions
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+from IOVDbSvc.CondDB import conddb
+conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
+from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+condSeq += BeamSpotCondAlg("BeamSpotCondAlg")
+
 # Run the overlay
 from AthenaCommon import CfgGetter
 EventInfoOverlay = CfgGetter.getAlgorithm("EventInfoOverlay")

@@ -51,7 +51,9 @@ namespace TrigConf {
        * @param data Reference to the data container 
        */
       DataStructure(const ptree & data);
+      DataStructure(const std::string & name, const ptree & data);
       DataStructure(ptree && data);
+      DataStructure(const std::string & name, ptree && data);
 
       /** Destructor */
       virtual ~DataStructure();
@@ -106,7 +108,7 @@ namespace TrigConf {
        */
       bool hasAttribute(const std::string & key) const;
 
-      /** Check for attribute
+      /** Check if child exists
        * @param path The path to the child, relative to the current one in form "path.to.child"
        * @return true if path exists
        */

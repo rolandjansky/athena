@@ -12,6 +12,7 @@ import signal
 import subprocess
 import time
 import re
+import psutil
 from enum import Enum
 from threading import Timer
 from TrigValTools.TrigValSteering.Common import get_logger, art_result, running_in_CI
@@ -60,9 +61,7 @@ class Step(object):
             if self.result is not None:
                 result = self.result
             else:
-                self.log.error('report_result was called but result is None')
-                self.report_result(1, 'TestConfig')
-                sys.exit(1)
+                self.misconfig_abort('report_result was called but result is None')
 
         if name is None:
             if self.name is not None:
@@ -72,6 +71,15 @@ class Step(object):
 
         art_result(result, name)
 
+    def misconfig_abort(self, error_msg, *args, **kwargs):
+        '''
+        Print an error message (arguments passed to logging.error),
+        report non-zero art-result and exit the process with non-zero code
+        '''
+        self.log.error('Misconfiguration in %s: '+error_msg, self.name, *args, **kwargs)
+        self.report_result(1, 'TestConfig')
+        sys.exit(1)
+
     def __trace_and_kill(self, pid, signal, backtrace_list):
         '''
         Produce a backtrace for a process and its children, then call
@@ -79,24 +87,24 @@ class Step(object):
         where the first is filled with the backtrace by this function
         (it has to be a list to be mutable).
         '''
-        # Produce backtrace for the parent and all children
-
         try:
-            import psutil
+            # Produce backtrace for the parent and all children
             parent = psutil.Process(pid)
             backtrace = ''
             for proc in [parent] + parent.children(recursive=True):
                 backtrace += '\nTraceback for {} PID {}:\n'.format(proc.name(), proc.pid)
                 backtrace += subprocess.check_output('$ROOTSYS/etc/gdb-backtrace.sh {}'.format(proc.pid),
-                                                     stderr=subprocess.STDOUT, shell=True)
-        except ImportError:
-            # psutil is missing in LCG_96 python3
-            backtrace = 'psutil not available; no backtrace generated'
+                                                        stderr=subprocess.STDOUT, shell=True).decode('utf-8')
+            backtrace_list[0] = backtrace
 
-        backtrace_list[0] = backtrace
+            # Kill the process
+            os.killpg(pid, signal)
 
-        # Kill the process
-        os.killpg(pid, signal)
+        except Exception as e:
+            # This may happen e.g. if one of the processes finishes before we generate backtrace
+            msg = 'Caught exception while generating backtrace: ' + str(e)
+            backtrace_list[0] = msg
+            self.log.error(msg)
 
     def __execute_with_timeout(self, cmd, timeout_sec):
         '''
@@ -210,5 +218,16 @@ def get_step_from_list(step_name, step_list):
     '''
     for step in step_list:
         if step.name is not None and step_name in step.name:
+            return step
+    return None
+
+
+def get_step_type_from_list(step_type, step_list):
+    '''
+    Retrieve the first test matching the type from the list. Returns None if
+    no match is found.
+    '''
+    for step in step_list:
+        if isinstance(step, step_type):
             return step
     return None

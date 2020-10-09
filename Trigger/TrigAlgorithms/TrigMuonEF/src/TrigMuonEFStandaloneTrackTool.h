@@ -35,6 +35,8 @@
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include <fstream>
+#include "MuonCablingData/MuonMDT_CablingMap.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "CxxUtils/checker_macros.h"
@@ -376,11 +378,15 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
   SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
   SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKeyNextBC;
-  SG::ReadHandleKey <Muon::CscPrepDataContainer> m_cscKey;
   SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+
+  //write handle for CSC cluster container
+  SG::WriteHandleKey <Muon::CscPrepDataContainer> m_cscClustersKey{this, "CscClusterContainer", "CSC_Clusters", "Output CSC Cluster container"};
 
   bool m_ignoreCSC;
   ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;
+  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_mdtCablingKey{this, "MdtCablingKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcCablingKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
 };
 

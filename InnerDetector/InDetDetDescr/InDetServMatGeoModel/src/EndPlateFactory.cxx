@@ -30,7 +30,7 @@
 #include <iostream>
 
 
-EndPlateFactory::EndPlateFactory(const InDetDD::AthenaComps * athenaComps, InDetMaterialManager * matManager)
+EndPlateFactory::EndPlateFactory(InDetDD::AthenaComps * athenaComps, InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
 }
@@ -43,7 +43,7 @@ EndPlateFactory::~EndPlateFactory()
 
 
 //## Other Operations (implementation)
-void EndPlateFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother)
+void EndPlateFactory::create(GeoPhysVol *mother)
 {
    DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
    IRDBRecordset_ptr shell  = rdbAccessSvc()->getRecordsetPtr("EPShell",  indetVersionKey.tag(), indetVersionKey.node());

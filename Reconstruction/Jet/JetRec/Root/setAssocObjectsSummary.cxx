@@ -2,6 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "JetRec/setAssocObjectsSummary.h"
+#include <numeric>
 
 void
 setAssocObjectsSummary(const std::vector<const xAOD::IParticle*>& constituents,

@@ -424,8 +424,9 @@ namespace xAOD {
       }
 
       // Check if the EventFormat branch is available:
-      static const char* EVENTFORMAT_BRANCH_NAME = "EventFormat";
-      if( ! m_inMetaTree->GetBranch( EVENTFORMAT_BRANCH_NAME ) ) {
+      static const std::string eventFormatBranchName =
+         Utils::getFirstBranchMatch( m_inMetaTree, "EventFormat");
+      if( ! m_inMetaTree->GetBranch( eventFormatBranchName.c_str() ) ) {
          // This can happen when the file was produced by an Athena job that
          // didn't have any input events itself. This means that the file
          // doesn't actually have any useful metadata.
@@ -439,7 +440,7 @@ namespace xAOD {
       // Read in the event format object:
       EventFormat* format = 0; ::TBranch* br = 0;
       const Int_t status =
-         m_inMetaTree->SetBranchAddress( EVENTFORMAT_BRANCH_NAME,
+         m_inMetaTree->SetBranchAddress( eventFormatBranchName.c_str(),
                                          &format, &br );
       if( status < 0 ) {
          ::Error( "xAOD::TEvent::readFrom",
@@ -1108,19 +1109,6 @@ namespace xAOD {
             ::Error( "xAOD::TEvent::copy",
                      XAOD_MESSAGE( "Internal logic error detected" ) );
             return TReturnCode::kFailure;
-         }
-         // Set up the filtering:
-         if( filter ) {
-            void* io1 = auxMgr->holder()->getAs( typeid( SG::IAuxStoreIO ) );
-            SG::IAuxStoreIO* io2 = reinterpret_cast< SG::IAuxStoreIO* >( io1 );
-            if( ! io2 ) {
-               ::Error( "xAOD::TEvent::copy",
-                        XAOD_MESSAGE( "Couldn't get SG::IAuxStoreIO pointer to "
-                                      "object: %s" ),
-                        ( keyToUse + "Aux." ).c_str() );
-               return TReturnCode::kFailure;
-            }
-            io2->selectAux( *filter );
          }
          RETURN_CHECK( "xAOD::TEvent::copy",
                        record( auxMgr->object(),
@@ -3097,16 +3085,17 @@ namespace xAOD {
 
       // Check if we have rules defined for which auxiliary properties
       // to write out:
+      xAOD::AuxSelection sel;
       if( ! metadata ) {
          auto item_itr = m_auxItemList.find( mgr->branch()->GetName() );
          if( item_itr != m_auxItemList.end() ) {
-            aux->selectAux( item_itr->second );
+            sel.selectAux( item_itr->second );
          }
       }
 
       // Get the dynamic auxiliary variables held by this object, which
       // were selected to be written:
-      const SG::auxid_set_t auxids = aux->getSelectedAuxIDs();
+      const SG::auxid_set_t auxids = sel.getSelectedAuxIDs (aux->getSelectedAuxIDs());
 
       // If there are no dynamic auxiliary variables in the object, return
       // right away:
@@ -3410,5 +3399,6 @@ namespace xAOD {
 
       return getOutputObject( key, ti, metadata );
    }
+
 
 } // namespace xAOD

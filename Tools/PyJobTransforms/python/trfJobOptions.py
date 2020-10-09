@@ -58,12 +58,12 @@ class JobOptionsTemplate(object):
         msg.info('Writing runArgs to file \"%s\"', self._runArgsFile)
 
         ## Check consistency btw --CA flag and provided skeletons:
-        if 'CA' in self._exe.conf.argdict:
+        if self._exe._isCAEnabled():
             if self._exe._skeletonCA is None:
                 errMsg = "Got the --CA option but this transform doesn't supply a ComponentAccumulator-based skeleton file"
                 msg.error(errMsg)
                 raise  trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_RUNARGS_ERROR'),errMsg)
-        else: # 'CA' not in self._exe.conf.argdict
+        else: # not self._exe._isCAEnabled():
             if self._exe._skeleton is None:
                 errMsg = "No --CA option given, but this transform doesn't supply old-style skeleton file"
                 msg.error(errMsg)
@@ -203,7 +203,15 @@ class JobOptionsTemplate(object):
                             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
                     if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
                         print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
-                if 'CA' in self._exe.conf.argdict:
+                if self._exe._isCAEnabled():
+                    print(os.linesep, '# Threading flags', file=runargsFile)
+                    #Pass the number of threads
+                    threads = self._exe._athenaMT
+                    concurrentEvents = self._exe._athenaConcurrentEvents
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('threads', threads))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'threads', threads), file=runargsFile)
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('concurrentEvents', concurrentEvents))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'concurrentEvents', concurrentEvents), file=runargsFile)
                     #ComponentAccumulator based config, import skeleton here:
                     print(os.linesep, '# Import skeleton and execute it', file=runargsFile)
                     print('from {0} import fromRunArgs'.format(self._exe._skeletonCA),file=runargsFile)
@@ -243,7 +251,7 @@ class JobOptionsTemplate(object):
         self.writeRunArgs(input = input, output = output)
         # Make sure runArgs and skeleton are valid
         self.ensureJobOptions()
-        if 'CA' in self._exe.conf.argdict:
+        if self._exe._isCAEnabled():
             #ComponentAccumulator based config, use only runargs file
             return [ self._runArgsFile ]
         else:

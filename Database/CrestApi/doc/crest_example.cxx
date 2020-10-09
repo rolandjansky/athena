@@ -1146,12 +1146,11 @@ int main()
     std::cout << std:: endl << "test: storeBatchPayloadsFs" << std::endl;
 
     std::string name56 = "test_MvG3a";
-    uint64_t endtime56 = 200;
     std::string str56 =  "{\"niovs\": 2,\"format\": \"PYLD_JSON\",\"iovsList\":[{\"since\":800,\"payload\":\"vv1\"},{\"since\":900,\"payload\":\"ww1\"}]}";
     nlohmann::json js56 = myCrestClientL.getJson(str56);
 
     try {
-       myCrestClientL.storeBatchPayloadsFs(name56, endtime56, js56);
+       myCrestClientL.storeBatchPayloadsFs(name56, js56);
        std::cout << std:: endl << "test: storeBatchPayloadsFs (success) " << std::endl;
     }
     catch(const std::runtime_error& e){

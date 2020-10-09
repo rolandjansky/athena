@@ -5,9 +5,6 @@ Tools configurations for ISF
 KG Tan, 17/06/2012
 """
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from ISF_Config.ISF_jobProperties import ISF_Flags
 
@@ -18,7 +15,7 @@ def getInput_GenericGenerator(name="ISF_Input_GenericGenerator", **kwargs):
     kwargs.setdefault('orders', sorted([]))
 
     athenaCommonFlags.PoolEvgenInput.set_Off()
-    import AthenaCommon.AtlasUnixGeneratorJob
+    import AthenaCommon.AtlasUnixGeneratorJob # noqa: F401
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
@@ -34,7 +31,7 @@ def getInput_GenericGenerator(name="ISF_Input_GenericGenerator", **kwargs):
 ############## Input: GenericFiles ###############
 def getInput_GenericFiles(name="ISF_Input_GenericFiles", **kwargs):
     # Takes input file from athenaCommonFlags.PoolEvgenInput
-    import AthenaPoolCnvSvc.ReadAthenaPool
+    import AthenaPoolCnvSvc.ReadAthenaPool # noqa: F401
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.EventPersistencySvc.CnvServices += [ 'AthenaPoolCnvSvc' ]
     ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolEvgenInput.get_Value()
@@ -207,7 +204,6 @@ def getKernel_GenericSimulatorMT(name="ISF_Kernel_GenericSimulatorMT", **kwargs)
     kwargs.setdefault("ParticleKillerTool", "ISF_ParticleKillerTool" )
     kwargs.setdefault("GeoIDSvc", "ISF_GeoIDSvc" )
     kwargs.setdefault("InputConverter", "ISF_InputConverter")
-    kwargs.setdefault("OutputLevel", 1)
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
     #kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
@@ -590,7 +586,7 @@ def getKernel_ATLFASTII_PileUp(name="ISF_Kernel_ATLFASTII_PileUp", **kwargs):
 ############## Simulator: G4HS_FastPileup ###############
 def getKernel_G4HS_FastPileup(name="ISF_Kernel_G4HS_FastPileup", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_PileupParticleKillerSelector',
-						       'ISF_FullGeant4Selector' ]        ) 
+                                                       'ISF_FullGeant4Selector' ]        ) 
     kwargs.setdefault("IDSimulationSelectors"      , [ 'ISF_FatrasPileupSelector',
                                                        'ISF_FullGeant4Selector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonFatrasPileupSelector',

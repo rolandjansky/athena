@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,6 +23,7 @@
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "TrigT1CaloEvent/CPMRoI.h"
 
@@ -37,7 +38,7 @@ CpmRoiByteStreamV1Cnv::CpmRoiByteStreamV1Cnv( ISvcLocator* svcloc )
       m_tool("LVL1BS::CpmRoiByteStreamV1Tool/CpmRoiByteStreamV1Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
       m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
-      m_log(msgSvc(), m_name), m_debug(false)
+      m_debug(false)
 {
 }
 
@@ -63,41 +64,18 @@ long CpmRoiByteStreamV1Cnv::storageType()
 StatusCode CpmRoiByteStreamV1Cnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-  m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endmsg;
 
-  StatusCode sc = Converter::initialize();
-  if ( sc.isFailure() )
-    return sc;
-
-  //Get ByteStreamCnvSvc
-  sc = m_ByteStreamEventAccess.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve service "
-          << m_ByteStreamEventAccess << endmsg;
-    return sc;
-  } else {
-    m_log << MSG::DEBUG << "Retrieved service "
-          << m_ByteStreamEventAccess << endmsg;
-  }
-
-  // Retrieve Tool
-  sc = m_tool.retrieve();
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
-    return StatusCode::FAILURE;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
+  ATH_CHECK( Converter::initialize() );
+  ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
+  ATH_CHECK(  m_tool.retrieve() );
 
   // Get ROBDataProvider
-  sc = m_robDataProvider.retrieve();
+  StatusCode sc = m_robDataProvider.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::WARNING << "Failed to retrieve service "
-          << m_robDataProvider << endmsg;
+    REPORT_MESSAGE (MSG::WARNING) << "Failed to retrieve service "
+                                  << m_robDataProvider;
     // return is disabled for Write BS which does not require ROBDataProviderSvc
     // return sc ;
-  } else {
-    m_log << MSG::DEBUG << "Retrieved service "
-          << m_robDataProvider << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -108,18 +86,18 @@ StatusCode CpmRoiByteStreamV1Cnv::initialize()
 StatusCode CpmRoiByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
                                              DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
-
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
+    REPORT_ERROR (StatusCode::FAILURE) << " Can not cast to ByteStreamAddress ";
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endmsg;
+  if (m_debug) {
+    REPORT_MESSAGE (MSG::DEBUG) << " Creating Objects " << nm;
+  }
 
   // get SourceIDs
   const std::vector<uint32_t>& vID(m_tool->sourceIDs(nm));
@@ -129,26 +107,20 @@ StatusCode CpmRoiByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
   m_robDataProvider->getROBData( vID, robFrags );
 
   // size check
-  DataVector<LVL1::CPMRoI>* const roiCollection = new DataVector<LVL1::CPMRoI>;
+  auto roiCollection = std::make_unique<DataVector<LVL1::CPMRoI> >();
   if (m_debug) {
-    m_log << MSG::DEBUG << " Number of ROB fragments is " << robFrags.size()
-          << endmsg;
+    REPORT_MESSAGE (MSG::DEBUG) << " Number of ROB fragments is " << robFrags.size();
   }
   if (robFrags.size() == 0) {
-    pObj = SG::asStorable(roiCollection) ;
+    pObj = SG::asStorable(std::move(roiCollection)) ;
     return StatusCode::SUCCESS;
   }
 
-  StatusCode sc = m_tool->convert(robFrags, roiCollection);
-  if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
-    delete roiCollection;
-    return sc;
-  }
+  ATH_CHECK( m_tool->convert(robFrags, roiCollection.get()) );
 
-  pObj = SG::asStorable(roiCollection);
+  pObj = SG::asStorable(std::move(roiCollection));
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // createRep should create the bytestream from RDOs.
@@ -156,13 +128,11 @@ StatusCode CpmRoiByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
 StatusCode CpmRoiByteStreamV1Cnv::createRep( DataObject* pObj,
                                              IOpaqueAddress*& pAddr )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endmsg;
-
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   DataVector<LVL1::CPMRoI>* roiCollection = 0;
   if( !SG::fromStorable( pObj, roiCollection ) ) {
-    m_log << MSG::ERROR << " Cannot cast to DataVector<CPMRoI>" << endmsg;
+    REPORT_ERROR (StatusCode::FAILURE)  << " Cannot cast to DataVector<CPMRoI>";
     return StatusCode::FAILURE;
   }
 

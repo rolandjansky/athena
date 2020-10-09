@@ -106,11 +106,24 @@ class TrigMultiTrkComboHypoConfig(object):
         elif 'bBmumu' in topoAlgs:
             tool.LowerMassCut =  4000 #MeV
             tool.UpperMassCut =  8500 #MeV
-            tool.Chi2VtxCut = 60
 
         elif 'bDimu' in topoAlgs:
-            tool.LowerMassCut =   100 #MeV
+            tool.LowerMassCut =  1500 #MeV
             tool.UpperMassCut = 14000 #MeV
+
+        elif 'bDimu2700' in topoAlgs:
+            tool.LowerMassCut =   100 #MeV
+            tool.UpperMassCut =  2700 #MeV
+
+        elif 'bPhi' in topoAlgs:
+            tool.LowerMassCut =   940 #MeV
+            tool.UpperMassCut =  1100 #MeV
+            tool.Chi2VtxCut = 10
+
+        elif 'bTau' in topoAlgs:
+            tool.LowerMassCut =     0 #MeV
+            tool.UpperMassCut =  2700 #MeV
+            tool.Chi2VtxCut = 50
 
         tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
         return tool

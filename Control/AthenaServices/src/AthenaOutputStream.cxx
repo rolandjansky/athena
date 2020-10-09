@@ -13,7 +13,6 @@
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/AlgTool.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
@@ -22,17 +21,21 @@
 #include "AthenaKernel/IItemListSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandle.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
+#include "SGTools/transientKey.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
 #include "AthenaKernel/CLIDRegistry.h"
+#include "xAODCore/AuxSelection.h"
+#include "xAODCore/AuxCompression.h"
 
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
-#include "AthContainersInterfaces/IAuxStoreCompression.h"
 #include "OutputStreamSequencerSvc.h"
 #include "MetaDataSvc.h"
+#include "SelectionVetoes.h"
 
 #include <boost/tokenizer.hpp>
 #include <cassert>
@@ -94,6 +97,7 @@ namespace {
     virtual const CLID& clID() const override { return m_clid; }
     virtual void* object() override { return m_ptr; }
     virtual const std::type_info& tinfo() const override { return m_tinfo; }
+    using DataBucketBase::cast;
     virtual void* cast (CLID /*clid*/,
                         SG::IRegisterTransient* /*irt*/ = nullptr,
                         bool /*isConst*/ = true) override
@@ -287,16 +291,24 @@ StatusCode AthenaOutputStream::initialize() {
    }
 
    // Check compression settings and print some information about the configuration
-   if(m_compressionBitsHigh < 5) {
+   // Both should be between [5, 23] and high compression should be < low compression
+   if(m_compressionBitsHigh < 5 || m_compressionBitsHigh > 23) {
      ATH_MSG_INFO("Float compression mantissa bits for high compression " <<
-                  "(" << m_compressionBitsHigh << ") is too low, setting it to 5.");
-     m_compressionBitsHigh = 5;
+                  "(" << m_compressionBitsHigh << ") is outside the allowed range of [5, 23].");
+     ATH_MSG_INFO("Setting it to the appropriate limit.");
+     m_compressionBitsHigh = m_compressionBitsHigh < 5 ? 5 : 23;
    }
-   if(m_compressionBitsLow < m_compressionBitsHigh) {
+   if(m_compressionBitsLow < 5 || m_compressionBitsLow > 23) {
      ATH_MSG_INFO("Float compression mantissa bits for low compression " <<
-                  "(" << m_compressionBitsLow << ") is lower than high compression " <<
-                  "(" << m_compressionBitsHigh << ")! Setting it to the high compression value.");
-     m_compressionBitsLow = m_compressionBitsHigh;
+                  "(" << m_compressionBitsLow << ") is outside the allowed range of [5, 23].");
+     ATH_MSG_INFO("Setting it to the appropriate limit.");
+     m_compressionBitsLow = m_compressionBitsLow < 5 ? 5 : 23;
+   }
+   if(m_compressionBitsLow <= m_compressionBitsHigh) {
+     ATH_MSG_ERROR("Float compression mantissa bits for low compression " <<
+                   "(" << m_compressionBitsLow << ") is lower than or equal to high compression " <<
+                   "(" << m_compressionBitsHigh << ")! Please check the configuration! ");
+     return StatusCode::FAILURE;
    }
    if(m_compressionListHigh.value().empty() && m_compressionListLow.value().empty()) {
      ATH_MSG_VERBOSE("Both high and low float compression lists are empty. Float compression will NOT be applied.");
@@ -305,6 +317,19 @@ StatusCode AthenaOutputStream::initialize() {
      ATH_MSG_INFO("High compression will use " << m_compressionBitsHigh << " mantissa bits, and " <<
                   "low compression will use " << m_compressionBitsLow << " mantissa bits.");
    }
+
+   /// Set SG key for selected variable information.
+   // For CreateOutputStream.py, the algorithm name is the same as the stream
+   // name.  But OutputStreamConfig.py adds `OutputStream' to the front.
+   std::string streamName = this->name();
+   if (streamName.substr (0, 12) == "OutputStream") {
+     streamName.erase (0, 12);
+   }
+   m_selVetoesKey = "SelectionVetoes_" + streamName;
+   ATH_CHECK( m_selVetoesKey.initialize() );
+
+   m_compInfoKey = "CompressionInfo_" + streamName;
+   ATH_CHECK( m_compInfoKey.initialize() );
 
    ATH_MSG_DEBUG("End initialize");
    return StatusCode::SUCCESS;
@@ -325,7 +350,7 @@ void AthenaOutputStream::handle(const Incident& inc)
    std::unique_lock<mutex_t>  lock(m_mutex);
 
    // Handle Event Ranges for Event Service
-   if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() )
+   if( m_outSeqSvc->inUse() )
    {
       if( inc.type() == "MetaDataStop" )  {
          // all substreams should be closed by this point
@@ -394,6 +419,9 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
    if( m_metaDataSvc->prepareOutput(outputFN).isFailure() ) {
       throw GaudiException("Failed on MetaDataSvc prepareOutput", name(), StatusCode::FAILURE);
    }
+   // lock all metadata to prevent updates during writing
+   MetaDataSvc::ToolLockGuard   tool_guard( *m_metaDataSvc );
+
    // Always force a final commit in stop - mainly applies to AthenaPool
    if (m_writeOnFinalize) {
       if (write().isFailure()) {  // true mean write AND commit
@@ -516,7 +544,7 @@ StatusCode AthenaOutputStream::write() {
    
    // Clear any previously existing item list
    clearSelection();
-   collectAllObjects();
+   ATH_CHECK( collectAllObjects() );
 
    // keep a local copy of the object lists so they are not overwritten when we release the lock
    IDataSelector objects = std::move( m_objects );
@@ -580,7 +608,7 @@ StatusCode AthenaOutputStream::write() {
       }
    }
    bool doCommit = false;
-   if (m_events % m_autoSend.value() == 0 && outputFN.find("?pmerge=") != std::string::npos) {
+   if (m_autoSend.value() > 0 && m_events % m_autoSend.value() == 0) {
       doCommit = true;
       ATH_MSG_DEBUG("commitOutput sending data.");
    }
@@ -602,27 +630,37 @@ void AthenaOutputStream::clearSelection()     {
    m_altObjects.clear();
 }
 
-void AthenaOutputStream::collectAllObjects() {
+StatusCode AthenaOutputStream::collectAllObjects() {
    if (m_itemListFromTool) {
       if (!m_streamer->getInputItemList(&*m_p2BWritten).isSuccess()) {
          ATH_MSG_WARNING("collectAllObjects() could not get ItemList from Tool.");
       }
    }
+
+   auto vetoes = std::make_unique<SG::SelectionVetoes>();
+   auto compInfo = std::make_unique<SG::CompressionInfo>();
+
    m_p2BWritten->updateItemList(true);
    std::vector<CLID> folderclids;
    // Collect all objects that need to be persistified:
    //FIXME refactor: move this in folder. Treat as composite
    for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; i++) {
-      addItemObjects(*i);
+     addItemObjects(*i, *vetoes, *compInfo);
       folderclids.push_back(i->id());
    }
 
-   // FIXME This is a bruteforece hack to remove items erroneously 
+   // FIXME This is a bruteforce hack to remove items erroneously 
    // added somewhere in the morass of the addItemObjects logic
    IDataSelector prunedList;
    for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
       if (std::find(folderclids.begin(),folderclids.end(),(*it)->clID())!=folderclids.end()) {
-         prunedList.push_back(*it);  // build new list that is correct
+         if (SG::isTransientKey ((*it)->name())) {
+           ATH_MSG_ERROR("Request to write transient object key " <<
+                         (*it)->name() << " ignored");
+         }
+         else {
+           prunedList.push_back(*it);  // build new list that is correct
+         }
       }
       else {
          ATH_MSG_DEBUG("Object " << (*it)->clID() <<","<< (*it)->name() << " found that was not in itemlist");
@@ -639,10 +677,24 @@ void AthenaOutputStream::collectAllObjects() {
          m_objects.push_back(*it);  // then copy others new into previous
       }
    }
+
+   // If there were any variable selections, record the information in SG.
+   if (!vetoes->empty()) {
+     ATH_CHECK( SG::makeHandle (m_selVetoesKey).record (std::move (vetoes)) );
+   }
+
+   // Store the lossy float compression information in the SG.
+   if (!compInfo->empty()) {
+     ATH_CHECK( SG::makeHandle (m_compInfoKey).record (std::move (compInfo)) );
+   }
+
+   return StatusCode::SUCCESS;
 }
 
 //FIXME refactor: move this in folder. Treat as composite
-void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
+void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
+                                        SG::SelectionVetoes& vetoes,
+                                        SG::CompressionInfo& compInfo)
 {
    // anything after a dot is a list of dynamic Aux attrubutes, separated by dots
    size_t dotpos = item.key().find('.');
@@ -668,79 +720,20 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
       }
    }
 
-   // Here we build the list of attributes for the float compression
-   // CompressionList follows the same logic as the ItemList
-   // We find the matching keys, read the string after "Aux.",
-   // tokenize by "." and build an std::set of these to be
-   // communicated to IAuxStoreCompression down below
-   std::vector<unsigned int> comp_bits{ m_compressionBitsHigh, m_compressionBitsLow };
-   std::vector<std::set<std::string>> comp_attr;
-   comp_attr.resize(2);
-   if(item_key.find("Aux.") != string::npos) {
-     // First the high compression list
-     for (SG::IFolder::const_iterator iter = m_compressionDecoderHigh->begin(), iterEnd = m_compressionDecoderHigh->end();
-            iter != iterEnd; iter++) {
-       // First match the IDs for early rejection.
-       if (iter->id() != item_id) {
-         continue;
+   // Here we build the list of attributes for the lossy float compression
+   // Note that we do not allow m_compressionBitsHigh >= m_compressionBitsLow
+   // Otherwise is, in any case, a logical error and they'd potentially overwrite each other
+   std::map< unsigned int, std::set< std::string > > comp_attr_map;
+   comp_attr_map[ m_compressionBitsHigh ] = buildCompressionSet( m_compressionDecoderHigh, item_id, item_key );
+   comp_attr_map[ m_compressionBitsLow  ] = buildCompressionSet( m_compressionDecoderLow, item_id, item_key );
+
+   // Print some debugging information regarding the lossy float compression configuration
+   for( const auto& it : comp_attr_map ) {
+     ATH_MSG_DEBUG("     Comp Attr " << it.second.size() << " with " << it.first << " mantissa bits.");
+     if ( it.second.size() > 0 ) {
+       for( const auto& attr : it.second ) {
+          ATH_MSG_DEBUG("       >> " << attr);
        }
-       // Then find the compression item key and the compression list string
-       size_t seppos = iter->key().find(".");
-       string comp_item_key{""}, comp_str{""};
-       if(seppos != string::npos) {
-         comp_item_key = iter->key().substr(0, seppos+1);
-         comp_str = iter->key().substr(seppos+1);
-       } else {
-         comp_item_key = iter->key();
-       }
-       // Proceed only if the keys match and the
-       // compression list string is not empty
-       if (!comp_str.empty() && comp_item_key == item_key) {
-         std::stringstream ss(comp_str);
-         std::string attr;
-         while( std::getline(ss, attr, '.') ) {
-            comp_attr[0].insert(attr);
-         }
-       }
-     }
-     // Then the low compression list
-     // Code duplication is not nice but not worth making modular
-     for (SG::IFolder::const_iterator iter = m_compressionDecoderLow->begin(), iterEnd = m_compressionDecoderLow->end();
-            iter != iterEnd; iter++) {
-       // First match the IDs for early rejection.
-       if (iter->id() != item_id) {
-         continue;
-       }
-       // Then find the compression item key and the compression list string
-       size_t seppos = iter->key().find(".");
-       string comp_item_key{""}, comp_str{""};
-       if(seppos != string::npos) {
-         comp_item_key = iter->key().substr(0, seppos+1);
-         comp_str = iter->key().substr(seppos+1);
-       } else {
-         comp_item_key = iter->key();
-       }
-       // Proceed only if the keys match and the
-       // compression list string is not empty
-       if (!comp_str.empty() && comp_item_key == item_key) {
-         std::stringstream ss(comp_str);
-         std::string attr;
-         while( std::getline(ss, attr, '.') ) {
-            comp_attr[1].insert(attr);
-         }
-       }
-     }
-   }
-   ATH_MSG_DEBUG("     Comp Attr High: " << comp_attr[0].size() << " with " << comp_bits[0] << " mantissa bits.");
-   if ( comp_attr[0].size() > 0 ) {
-     for(auto attr : comp_attr[0]) {
-        ATH_MSG_DEBUG("       >> " << attr);
-     }
-   }
-   ATH_MSG_DEBUG("     Comp Attr Low: " << comp_attr[1].size() << " with " << comp_bits[1] << " mantissa bits.");
-   if ( comp_attr[1].size() > 0 ) {
-     for(auto attr : comp_attr[1]) {
-        ATH_MSG_DEBUG("       >> " << attr);
      }
    }
 
@@ -856,11 +849,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   tns << tn;
                }
 
-               // Make the decision whether to try to call
-               // SG::IAuxStoreIO::selectAux(...) based on the SG key of the
-               // object. Because even if aux_attr is empty, we may need to
-               // reset an auxiliary store back to not being slimmed, after
-               // a previous stream slimmed it.
+               /// Handle variable selections.
                if (item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
                   SG::IAuxStoreIO* auxio(nullptr);
                   try {
@@ -871,43 +860,45 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                                     << itemProxy->clID() << " to SG::IAuxStoreIO*" );
                      auxio = nullptr;
                   }
-                  if( auxio ) {
-                     // collect dynamic Aux selection (parse the line, attributes separated by dot)
-                     std::set<std::string> attributes;
-                     if( aux_attr.size() ) {
-                        std::stringstream ss(aux_attr);
-                        std::string attr;
-                        while( std::getline(ss, attr, '.') ) {
-                           attributes.insert(attr);
-                           std::stringstream temp;
-                           temp << tns.str() << attr;
-                           if (m_itemSvc->addStreamItem(this->name(),temp.str()).isFailure()) {
-                              ATH_MSG_WARNING("Unable to record item " << temp.str() << " in Svc");
-                           }
-                        }
-                        // don't let keys with wildcard overwrite existing selections
-                        // MN: TODO: this condition was always true - need a better check
-                        //if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
-                        //    || item_key.find('*') == string::npos )
-                        //   auxio->selectAux(attributes);
-                     }
-                     // Reset selection even if empty - in case we write multiple streams 
-                     auxio->selectAux( attributes );
+
+                  if (auxio) {
+                    handleVariableSelection (*auxio, *itemProxy,
+                                             tns.str(), aux_attr,
+                                             vetoes);
                   }
-                  // Here comes the compression logic using SG::IAuxStoreCompression
-                  // similar to that of SG::IAuxStoreIO above
-                  SG::IAuxStoreCompression* auxcomp( nullptr );
+
+                  // Here comes the compression logic using ThinningInfo
+                  SG::IAuxStore* auxstore( nullptr );
                   try {
-                    SG::fromStorable( itemProxy->object(), auxcomp, true );
+                    SG::fromStorable( itemProxy->object(), auxstore, true );
                   } catch( const std::exception& ) {
                     ATH_MSG_DEBUG( "Error in casting object with CLID "
-                                   << itemProxy->clID() << " to SG::IAuxStoreCompression*" );
-                    auxcomp = nullptr;
+                                   << itemProxy->clID() << " to SG::IAuxStore*" );
+                    auxstore = nullptr;
                   }
-                  if ( auxcomp ) {
-                    auxcomp->setCompressedAuxIDs( comp_attr );
-                    auxcomp->setCompressionBits( comp_bits );
-                  }
+                  if ( auxstore ) {
+                    // Get a hold of all AuxIDs for this store (static, dynamic etc.)
+                    const SG::auxid_set_t allVars = auxstore->getAuxIDs();
+
+                    // Get a handle on the compression information for this store
+                    std::string key = item_key;
+                    key.erase (key.size()-4, 4);
+
+                    // Build the compression list, retrieve the relevant AuxIDs and
+                    // store it in the relevant map that is going to be inserted into
+                    // the ThinningCache later on by the ThinningCacheTool
+                    xAOD::AuxCompression compression;
+                    compression.setCompressedAuxIDs( comp_attr_map );
+                    for( const auto& it : compression.getCompressedAuxIDs( allVars ) ) {
+                      if( it.second.size() > 0 ) { // insert only if the set is non-empty
+                        compInfo[ key ][ it.first ] = it.second;
+                        ATH_MSG_DEBUG( "Container " << key << " has " << it.second.size() <<
+                                       " variables that'll be lossy float compressed"
+                                       " with " << it.first << " mantissa bits" );
+                      }
+                    } // End of loop over variables to be lossy float compressed
+                  } // End of lossy float compression logic
+
                }
 
                added = true;
@@ -942,7 +933,102 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
    }
 }
 
-void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
+/// Here we build the list of attributes for the float compression
+/// CompressionList follows the same logic as the ItemList
+/// We find the matching keys, read the string after "Aux.",
+/// tokenize by "." and build an std::set of these to be
+/// communicated to ThinningInfo elsewhere in the code.
+std::set<std::string>
+AthenaOutputStream::buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
+                                         const CLID& item_id,
+                                         const std::string& item_key) const
+{
+  // Create an empty result
+  std::set<std::string> result;
+
+  // Check the item is indeed Aux.
+  if(item_key.find("Aux.") == string::npos) {
+    return result;
+  }
+
+  // First the high compression list
+  for (SG::IFolder::const_iterator iter = handle->begin(), iterEnd = handle->end();
+         iter != iterEnd; iter++) {
+    // First match the IDs for early rejection.
+    if (iter->id() != item_id) {
+      continue;
+    }
+    // Then find the compression item key and the compression list string
+    size_t seppos = iter->key().find(".");
+    string comp_item_key{""}, comp_str{""};
+    if(seppos != string::npos) {
+      comp_item_key = iter->key().substr(0, seppos+1);
+      comp_str = iter->key().substr(seppos+1);
+    } else {
+      comp_item_key = iter->key();
+    }
+    // Proceed only if the keys match and the
+    // compression list string is not empty
+    if (!comp_str.empty() && comp_item_key == item_key) {
+      std::stringstream ss(comp_str);
+      std::string attr;
+      while( std::getline(ss, attr, '.') ) {
+         result.insert(attr);
+      }
+    }
+  }
+
+  // All done, return the result
+  return result;
+}
+
+void AthenaOutputStream::handleVariableSelection (SG::IAuxStoreIO& auxio,
+                                                  SG::DataProxy& itemProxy,
+                                                  const std::string& tns,
+                                                  const std::string& aux_attr,
+                                                  SG::SelectionVetoes& vetoes) const
+{
+  // collect dynamic Aux selection (parse the line, attributes separated by dot)
+  std::set<std::string> attributes;
+  if( aux_attr.size() ) {
+    std::stringstream ss(aux_attr);
+    std::string attr;
+    while( std::getline(ss, attr, '.') ) {
+      attributes.insert(attr);
+      std::stringstream temp;
+      temp << tns << attr;
+      if (m_itemSvc->addStreamItem(this->name(),temp.str()).isFailure()) {
+        ATH_MSG_WARNING("Unable to record item " << temp.str() << " in Svc");
+      }
+    }
+  }
+
+  // Return early if there's no selection.
+  if (attributes.empty()) {
+    return;
+  }
+
+  std::string key = itemProxy.name();
+  if (key.size() >= 4 && key.substr (key.size()-4, 4) == "Aux.")
+  {
+    key.erase (key.size()-4, 4);
+  }
+
+  SG::auxid_set_t dynVars = auxio.getSelectedAuxIDs();
+
+  // Find the entry for the selection.
+  SG::auxid_set_t& vset = vetoes[key];
+
+  // Form the veto mask for this object.
+  xAOD::AuxSelection sel;
+  sel.selectAux (attributes);
+  vset = sel.getSelectedAuxIDs (dynVars);
+
+  vset.flip();
+}
+
+
+void AthenaOutputStream::itemListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    // Assuming concrete SG::Folder also has an itemList property
    IProperty *pAsIProp(nullptr);
    if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -952,7 +1038,7 @@ void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
+void AthenaOutputStream::excludeListHandler(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_decoder.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
@@ -961,7 +1047,7 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerHigh(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderHigh.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderHigh)) ||
@@ -970,7 +1056,7 @@ void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandlerLow(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerLow(Gaudi::Details::PropertyBase& /* theProp */) {
    IProperty *pAsIProp(nullptr);
    if ((m_compressionDecoderLow.retrieve()).isFailure() ||
            nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderLow)) ||
@@ -1079,6 +1165,9 @@ StatusCode AthenaOutputStream::io_finalize() {
    if (!incSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get the IncidentSvc");
       return StatusCode::FAILURE;
+   }
+   if (m_dataStore->clearStore().isSuccess()) {
+      ATH_MSG_WARNING("Cannot clear the DataStore");
    }
    incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;

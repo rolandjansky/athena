@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexTools/DummyVertexSelectionTool.h"
@@ -11,7 +11,7 @@ namespace Trk{
  
    //constructor
   DummyVertexSelectionTool::DummyVertexSelectionTool ( const std::string& t, const std::string& n, const IInterface*  p )
-          : AthAlgTool ( t,n,p ),m_randomSvc("AtRndmGenSvc", n),  m_randomEngineName("VertexRnd"), m_randomEngine(0)
+          : AthAlgTool ( t,n,p ),m_randomSvc("AtRndmGenSvc", n),  m_randomEngineName("VertexRnd"), m_randomEngine(nullptr)
   {
     declareInterface<IVertexSelectionTool> ( this );
      declareProperty("RandomStreamName",           m_randomEngineName,     "Name of the random number stream");

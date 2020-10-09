@@ -5,7 +5,6 @@
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
-#include "AthenaKernel/CLASS_DEF.h"
 #include <cassert>
 #include <algorithm>
 #include <numeric>
@@ -199,7 +198,7 @@ namespace
             std::vector<unsigned int> cuts,
             std::vector<std::pair<unsigned int, unsigned int>>& out)
   {
-    for(auto coll : collections)
+    for(const auto& coll : collections)
     {
       if(std::find(std::begin(idname_exclude),
                    std::end(idname_exclude),

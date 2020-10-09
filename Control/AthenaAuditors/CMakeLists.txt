@@ -9,13 +9,6 @@ find_package( gdb )
 find_package( gperftools )
 find_package( libunwind )
 
-# Skip building the package if an external is not available.
-if( ( NOT Boost_FOUND ) OR ( NOT GDB_FOUND ) OR
-    ( NOT GPERFTOOLS_FOUND ) OR ( NOT LIBUNWIND_FOUND ) )
-  message( WARNING "Not all externals available, not building AthenaAuditors." )
-  return()
-endif()
-
 # Component(s) in the package:
 atlas_add_component( AthenaAuditors
    src/*.h src/*.cxx src/components/*.cxx

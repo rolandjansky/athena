@@ -6,15 +6,6 @@
 # The name of the package:
 atlas_subdir( TauAnalysisAlgorithms )
 
-# The package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Event/xAOD/xAODTau
-   PhysicsAnalysis/Algorithms/SelectionHelpers
-   PhysicsAnalysis/Algorithms/SystematicsHandles
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PhysicsAnalysis/TauID/TauAnalysisTools )
-
 atlas_add_library( TauAnalysisAlgorithmsLib
    TauAnalysisAlgorithms/*.h TauAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS TauAnalysisAlgorithms
@@ -42,12 +33,12 @@ if( XAOD_STANDALONE )
    atlas_add_test( testJobData
       SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFullSim
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
-      PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFastSim
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
-      PROPERTIES TIMEOUT 600 )
+   # atlas_add_test( testJobFullSim    #testJobFullSim and testJobFastSim are temporarily removed awaiting TauTruthMatchigToolMigration (ATLASG-1548) 
+   #    SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+   #    PROPERTIES TIMEOUT 600 )
+   # atlas_add_test( testJobFastSim
+   #    SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+   #    PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py

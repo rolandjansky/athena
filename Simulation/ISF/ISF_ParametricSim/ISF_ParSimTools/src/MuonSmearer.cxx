@@ -216,7 +216,7 @@ bool iParSim::MuonSmearer::smear(xAOD::TrackParticle* xaodTP, CLHEP::HepRandomEn
   return true;
 }
 
-bool iParSim::MuonSmearer::getBinsFromFile(std::string ptFile, std::string etaFile){
+bool iParSim::MuonSmearer::getBinsFromFile(const std::string& ptFile, const std::string& etaFile){
 
   // clear the input vectors
   m_pt_min.clear();

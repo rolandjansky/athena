@@ -5,25 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonResonanceTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          Event/EventPrimitives
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTruth
-                          PhysicsAnalysis/AnalysisCommon/PATInterfaces
-                          PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections
-                          PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
-                          PhysicsAnalysis/MuonID/MuonSelectorTools
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigAnalysis/TrigMuonMatching
-                          Tracking/TrkValidation/TrkValHistUtils
-                          PRIVATE
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel )
-
 # Component(s) in the package:
 atlas_add_library( MuonResonanceToolsLib
                    Root/*.cxx

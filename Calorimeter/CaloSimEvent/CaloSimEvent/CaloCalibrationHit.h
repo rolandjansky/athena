@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloCalibrationHit
@@ -75,13 +75,13 @@ class CaloCalibrationHit
 
   /** Copy constructor **/
   CaloCalibrationHit(const CaloCalibrationHit &cchSource)
+    : m_ID (cchSource.m_ID),
+      m_energy0 (cchSource.m_energy0),
+      m_energy1 (cchSource.m_energy1),
+      m_energy2 (cchSource.m_energy2),
+      m_energy3 (cchSource.m_energy3),
+      m_particleID (cchSource.m_particleID)
   {
-    m_ID = cchSource.m_ID;
-    m_energy0 = cchSource.m_energy0;
-    m_energy1 = cchSource.m_energy1;
-    m_energy2 = cchSource.m_energy2;
-    m_energy3 = cchSource.m_energy3;
-    m_particleID = cchSource.m_particleID;
   }
 
   /** Assignment operator **/

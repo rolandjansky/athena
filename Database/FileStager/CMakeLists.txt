@@ -1,21 +1,10 @@
-################################################################################
-# Package: FileStager
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( FileStager )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Hist Tree RIO Cint Core MathCore pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
-find_package( Boost )
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
-
-# tag ROOTSTLDictLibs was not recognized in automatic conversion in cmt2cmake
+find_package( ROOT COMPONENTS Hist Tree RIO Core )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( FileStagerLib
@@ -28,18 +17,16 @@ atlas_add_library( FileStagerLib
                    src/*.cxx
                    ${FileStagerLibDictSource}
                    PUBLIC_HEADERS FileStager
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_component( FileStager
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel FileStagerLib )
+                     LINK_LIBRARIES FileStagerLib )
 
 atlas_add_executable( StageMonitor
                       bin/StageMonitor.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel FileStagerLib )
+                      LINK_LIBRARIES FileStagerLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Csc2dSegmentMaker.h
@@ -14,58 +14,62 @@
 // for each combination.
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CscSegmentMakers/ICscSegmentFinder.h"  // MuonSegmentCombinationCollection.h MuonSegmentCombination.h included
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
-#include "CscSegmentMakers/ICscSegmentFinder.h" // MuonSegmentCombinationCollection.h MuonSegmentCombination.h included
 
 namespace Muon {
-  class CscPrepData;
+class CscPrepData;
 }
 
 class CscSegmentMaker : public AthAlgorithm {
-  
-public:  // methods
 
-  // Constructor.
-  CscSegmentMaker(const std::string& name, ISvcLocator* pSvcLocator);
+  public:  // methods
+    // Constructor.
+    CscSegmentMaker(const std::string& name, ISvcLocator* pSvcLocator);
 
-  // Destructor.
-  ~CscSegmentMaker();
+    // Destructor.
+    ~CscSegmentMaker();
 
-  // Initialization.
-  StatusCode initialize();
+    // Initialization.
+    StatusCode initialize();
 
-  // Event processing.
-  StatusCode execute();
+    // Event processing.
+    StatusCode execute();
 
-  // Finalization.
-  StatusCode finalize();
+    // Finalization.
+    StatusCode finalize();
 
-  
-private:  // methods
 
-  StatusCode build_segments();
-  
-private:  // data
+  private:  // methods
+    StatusCode build_segments();
 
-  // Number of events dumped.
-  int m_dumped;
-  // Debug flags.
-  bool m_dump;
-  int m_dumpcount;
+  private:  // data
+    // Number of events dumped.
+    int m_dumped;
+    // Debug flags.
+    bool m_dump;
+    int  m_dumpcount;
 
-  // Properties.
-  std::string m_sg_inkey;
-  std::string m_sg_outkey;
-  std::string m_sg_4d_outkey;
+    // Properties.
+    std::string m_sg_inkey;
+    std::string m_sg_outkey;
+    std::string m_sg_4d_outkey;
 
-  ToolHandle<ICscSegmentFinder> m_2dseg_finder;
-  ToolHandle<ICscSegmentFinder> m_4dseg_finder;
+    ToolHandle<ICscSegmentFinder> m_2dseg_finder{
+        this,
+        "segfinder_2d",
+        "",
+    };
+    ToolHandle<ICscSegmentFinder> m_4dseg_finder{
+        this,
+        "segfinder_4d",
+        "",
+    };
 
-  // Output container.
-  std::unique_ptr<MuonSegmentCombinationCollection> m_psegs;
-  std::unique_ptr<MuonSegmentCombinationCollection> m_psegs4d;
-
+    // Output container.
+    std::unique_ptr<MuonSegmentCombinationCollection> m_psegs;
+    std::unique_ptr<MuonSegmentCombinationCollection> m_psegs4d;
 };
 
 #endif

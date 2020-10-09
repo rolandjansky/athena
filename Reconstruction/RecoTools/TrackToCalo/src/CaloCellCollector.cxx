@@ -18,7 +18,7 @@
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 #include <tuple>
-typedef CaloCell_ID::CaloSample CaloSample;
+using CaloSample = CaloCell_ID::CaloSample;
 
 Rec::CaloCellCollector::CaloCellCollector ()
     :

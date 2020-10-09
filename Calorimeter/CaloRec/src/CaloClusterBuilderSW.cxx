@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  
@@ -157,7 +157,7 @@ CaloClusterBuilderSW::execute(const EventContext& ctx,
     return StatusCode::FAILURE;
   }
 
-  if((m_FillClusterCells==false) && m_nextra>0){
+  if((!m_FillClusterCells) && m_nextra>0){
     ATH_MSG_WARNING( "FillClusterCells = FALSE && nextra>0. nextra is meaningless quantity!!!" );
   }
   

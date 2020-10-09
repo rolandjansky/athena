@@ -19,7 +19,7 @@
  * @author Joerg Stelzer  <Joerg.Stelzer@cern.ch>  - DESY
  *
  ***********************************************************************************/
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "TrigDecisionTool/ChainGroupFunctions.h"
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/ChainGroup.h"
@@ -62,7 +62,13 @@ namespace Trig {
 
     
   private:
-    SG::SlotSpecificObj<Trig::CacheGlobalMemory> m_cacheGlobalMemory;    
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+    SG::SlotSpecificObj<Trig::CacheGlobalMemory> m_cacheGlobalMemory;
+#else // Analysis or Standalone
+    Trig::CacheGlobalMemory m_cacheGlobalMemory;
+#endif
+
     Trig::ExpertMethods* m_expertMethods;
     TrigDecisionToolCore (const TrigDecisionToolCore&);
     TrigDecisionToolCore& operator= (const TrigDecisionToolCore&);

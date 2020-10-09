@@ -35,7 +35,7 @@ def SCTTracksMonAlgConfig(inputFlags):
         myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
 
     doTrigger = False
-    if not inputFlags.isMC:
+    if not inputFlags.Input.isMC:
         if inputFlags.Trigger.doHLT:
             doTrigger = True
     myMonAlg.doTrigger = doTrigger

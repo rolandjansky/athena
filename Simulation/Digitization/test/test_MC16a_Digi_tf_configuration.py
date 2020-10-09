@@ -155,18 +155,18 @@ class TestDigitizationMC16a(unittest.TestCase):
                 expected_Property)
 
 
-    def test___PileUpToolsAlg_is_second_in_AthAlgSeq(self):
-        expected_AlgSequence = ['TimingAlg/DigiTimerBegin', 'PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg', 'LArRawChannelBuilderAlg/LArRawChannelBuilder', 'LArDigitThinner/LArDigitThinner', 'TileDigitsMaker/TileDigitsMaker', 'TileDQstatusAlg/TileDQstatusAlg', 'TileRawChannelMaker/TileRChMaker', 'TileRawChannelToL2/TileRawChannelToL2', 'CscDigitToCscRDO/CscDigitToCscRDO', 'MdtDigitToMdtRDO/MdtDigitToMdtRDO', 'RpcDigitToRpcRDO/RpcDigitToRpcRDO', 'TgcDigitToTgcRDO/TgcDigitToTgcRDO', 'LArTTL1Maker/LArTTL1Maker', 'TileHitToTTL1/TileHitToTTL1', 'TilePulseForTileMuonReceiver/TilePulseForTileMuonReceiver', 'TileMuonReceiverDecision/TileMuonReceiverDecision']
+    def test___PileUpToolsAlg_is_third_in_AthAlgSeq(self):
+        expected_AlgSequence = ['TimingAlg/DigiTimerBegin', 'Simulation::BeamSpotFixerAlg/BeamSpotFixerAlg', 'PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg', 'LArRawChannelBuilderAlg/LArRawChannelBuilder', 'LArDigitThinner/LArDigitThinner', 'TileDigitsMaker/TileDigitsMaker', 'TileDQstatusAlg/TileDQstatusAlg', 'TileRawChannelMaker/TileRChMaker', 'TileRawChannelToL2/TileRawChannelToL2', 'CscDigitToCscRDO/CscDigitToCscRDO', 'MdtDigitToMdtRDO/MdtDigitToMdtRDO', 'RpcDigitToRpcRDO/RpcDigitToRpcRDO', 'TgcDigitToTgcRDO/TgcDigitToTgcRDO', 'LArTTL1Maker/LArTTL1Maker', 'TileHitToTTL1/TileHitToTTL1', 'TilePulseForTileMuonReceiver/TilePulseForTileMuonReceiver', 'TileMuonReceiverDecision/TileMuonReceiverDecision']
         ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = [ alg for alg in eval(ath_alg_seqence_as_str) if alg not in ignore_Algs ]
 
-        actual_2nd_ath_alg_sequence_entry = ath_alg_seqence_list[1]
+        actual_3rd_ath_alg_sequence_entry = ath_alg_seqence_list[2]
         print(ath_alg_seqence_list)
-        expected_2nd_ath_alg_sequence_entry = "PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg"
-        self.assertEqual(expected_2nd_ath_alg_sequence_entry,
-                         actual_2nd_ath_alg_sequence_entry)
+        expected_3rd_ath_alg_sequence_entry = "PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg"
+        self.assertEqual(expected_3rd_ath_alg_sequence_entry,
+                         actual_3rd_ath_alg_sequence_entry)
         self.assertEqual(expected_AlgSequence, ath_alg_seqence_list)
 
 
@@ -314,7 +314,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MdtDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MdtDigitizationTool'
-        expected_property_list = ['CalibrationDbTool', 'DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MaskedStations', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
+        expected_property_list = ['CalibrationDbTool', 'DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MaskedStations', 'MuonIdHelperSvc', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-800'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(

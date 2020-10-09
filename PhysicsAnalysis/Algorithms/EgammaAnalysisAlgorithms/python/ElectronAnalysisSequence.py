@@ -10,6 +10,8 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 # E/gamma import(s).
 from xAODEgamma.xAODEgammaParameters import xAOD
 
+import PATCore.ParticleDataType
+
 def makeElectronAnalysisSequence( dataType, workingPoint,
                                   deepCopyOutput = False,
                                   shallowViewOutput = True,
@@ -260,10 +262,10 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Fast
+          PATCore.ParticleDataType.Fast
     elif dataType == 'mc':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Full
+          PATCore.ParticleDataType.Full
         pass
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix

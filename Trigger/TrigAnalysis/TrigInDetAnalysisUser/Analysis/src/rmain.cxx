@@ -342,7 +342,6 @@ int usage(const std::string& name, int status) {
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   s << "\nReport bugs to sutt@cern.ch";
   s << std::endl;
-
   
   return status;
 }
@@ -542,10 +541,10 @@ int main(int argc, char** argv)
 
   double chi2prob = 0;
 
-  //int npix_rec = 1; // JK removed (unused)
-  //int nsct_rec = -1;  // JK removed (unused)
+  int npix_rec = -2; 
+  int nsct_rec = -2;
 
-  //double pT_rec = 0;  // JK removed (unused)
+  double pT_rec = 0;  
   double eta_rec = 5;
 
   double Rmatch = 0.1;
@@ -613,10 +612,10 @@ int main(int argc, char** argv)
   if ( pdgId==0 && inputdata.isTagDefined("pdgId") ) pdgId = inputdata.GetValue("pdgId");
   
 
-  //if ( inputdata.isTagDefined("npix_rec") ) npix_rec = inputdata.GetValue("npix_rec");  // JK removed (unused)
-  //if ( inputdata.isTagDefined("nsct_rec") ) nsct_rec = inputdata.GetValue("nsct_rec");  // JK removed (unused)
+  if ( inputdata.isTagDefined("npix_rec") ) npix_rec = inputdata.GetValue("npix_rec");
+  if ( inputdata.isTagDefined("nsct_rec") ) nsct_rec = inputdata.GetValue("nsct_rec");
 
-  //if ( inputdata.isTagDefined("pT_rec") )  pT_rec  = inputdata.GetValue("pT_rec");  // JK removed (unused)
+  if ( inputdata.isTagDefined("pT_rec") )  pT_rec  = inputdata.GetValue("pT_rec");
   if ( inputdata.isTagDefined("eta_rec") ) eta_rec = inputdata.GetValue("eta_rec");
 
   if ( inputdata.isTagDefined("a0") )           a0     = inputdata.GetValue("a0");
@@ -781,7 +780,8 @@ int main(int argc, char** argv)
     else vtxind_rec = atoi_check( vertexSelection_rec ); 
   }
   
-  
+  std::cout << "vertexSelection:     " << vertexSelection << std::endl; 
+  std::cout << "vertexSelection_rec: " << vertexSelection_rec << std::endl; 
 
 
 #if 0
@@ -1025,7 +1025,7 @@ int main(int argc, char** argv)
 
   std::cout << "filter_passthrough" << std::endl;
 
-  Filter_Track filter_passthrough( 10, 1000,  2000, 0, -2, -2, 1, -2,  -2, -2);
+  Filter_Track filter_passthrough( 10, 1000,  2000, pT_rec, npix_rec, nsct_rec, 1, -2,  -2, -2);
 
   TrackFilter* testFilter = &filter_passthrough;
 
@@ -1390,7 +1390,10 @@ int main(int argc, char** argv)
   std::cout << "starting event loop " << time_str() << std::endl;
     
 
-  for ( unsigned ifile=0 ; run && ifile<filenames.size() && ( nfiles==0 || ifile<nfiles ) ; ifile++ ) { 
+  size_t max_files = filenames.size();
+  if ( nfiles!=0 && nfiles<max_files ) max_files = nfiles;
+
+  for ( size_t ifile=0 ; run && ifile<max_files; ifile++ ) { 
 
     bool newfile = true;
 
@@ -1453,6 +1456,8 @@ int main(int argc, char** argv)
       //    Nentries++;
 
      data->GetEntry(i);
+
+
      //    if (i==0) {
      //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
      //    }
@@ -1503,24 +1508,22 @@ int main(int argc, char** argv)
 
     hevent->Fill( event );
 
- 
-
     if ( filenames.size()<2 ) { 
-      if ( (Nentries<10) || i%(Nentries/10)==0 || i%1000==0 || debugPrintout )  { 
+      if ( (cNentries<10) || i%(cNentries/10)==0 || i%1000==0 || debugPrintout )  { 
         std::cout << "run "      << track_ev->run_number() 
                   << "\tevent "  << track_ev->event_number() 
                   << "\tlb "     << track_ev->lumi_block() 
                   << "\tchains " << track_ev->chains().size()
                   << "\ttime "   << track_ev->time_stamp();
-        std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
+        std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/cNentries)*0.1 << "%)\t" << time_str() << std::endl;
         //   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
       }
     }  
-
-    if ( newfile ) { 
+    else if ( newfile ) { 
 
       int pfiles = filenames.size();
       if ( nfiles>0 ) pfiles = nfiles; 
+
 
       std::cout << "file entries=" << data->GetEntries();
 
@@ -1566,7 +1569,7 @@ int main(int argc, char** argv)
     if ( truthMatch ) { 
       for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
         if ( chains[ic].name()=="Truth" ) {
-          truthTracks.selectTracks( chains[ic].rois()[0].tracks() );
+          truthTracks.selectTracks( chains[ic][0].tracks() );
           break;
         }
       }
@@ -1575,9 +1578,9 @@ int main(int argc, char** argv)
     //// get the reference tracks
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
       if ( chains[ic].name()==refChain ) {
-        offTracks.selectTracks( chains[ic].rois()[0].tracks() );
+        offTracks.selectTracks( chains[ic][0].tracks() );
         //extract beamline position values from rois
-        beamline_ref = chains[ic].rois()[0].user();
+        beamline_ref = chains[ic][0].user();
         // std::cout << "beamline: " << chains[ic].name() << "  " << beamline_ref << std::endl;
         break;
       }
@@ -1587,56 +1590,63 @@ int main(int argc, char** argv)
     /// select the reference offline vertices
     
     std::vector<TIDA::Vertex> vertices;
-    
-    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
 
-    int     selectvtx = -1;
-    double  selection = 0;
+    //    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
     
-    //    std::vector<TIDA::Vertex>& vertices = vertices;
-     
-    if ( bestPTVtx || bestPT2Vtx )  {  
-      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
-        if ( mv[iv].Ntracks()==0 ) continue;
-        double selection_ = 0.0;
-        for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
+    const TIDA::Chain* vtxchain = track_ev->chain("Vertex");
+
+    if ( vtxchain && vtxchain->size()>0 ) { 
+ 
+      const std::vector<TIDA::Vertex>& mv = vtxchain->at(0).vertices();
+
+      int     selectvtx = -1;
+      double  selection = 0;
+      
+      //  std::vector<TIDA::Vertex>& vertices = vertices;
+      if ( debugPrintout ) std::cout << "vertices:\n" << mv << std::endl;      
+      
+      if ( bestPTVtx || bestPT2Vtx )  {  
+	for ( size_t iv=0 ; iv<mv.size() ; iv++ ) {
+	  if ( mv[iv].Ntracks()==0 ) continue;
+	  double selection_ = 0.0;
+	  for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
           TIDA::Track* tr = offTracks.tracks().at(itr);
           if( std::fabs(mv[iv].z()-tr->z0()) < 1.5 ) { 
             if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
             else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
           }
         }
-        if( selection_>selection){
-          selection = selection_;
-          selectvtx = iv;
-        }
+	  if( selection_>selection){
+	    selection = selection_;
+	    selectvtx = iv;
+	  }
+	}
+	if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
       }
-      if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
-    }
-    else if ( vtxind>=0 ) {
-      if ( unsigned(vtxind)<mv.size() ) vertices.push_back( mv[vtxind] );
-    }
-    else { 
-      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
-    }
-    
-    
-    //    if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
-    //    else                     std::cout << "NO vertex !!!" << std::endl;
-
-    /// always push back the vector - if required there will be only one vertex on it
-    filter_vertex.setVertex( vertices );
-
-    /// calculate number of "vertex tracks"
-
-    NvtxCount = 0;
-
-    for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
-      int Ntracks = mv[iv].Ntracks();
-      if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
-        Nvtxtracks += Ntracks;
-        //      vertices.push_back( mv[iv] );
-        NvtxCount++;
+      else if ( vtxind>=0 ) {
+	if ( size_t(vtxind)<mv.size() ) vertices.push_back( mv[vtxind] );
+      }
+      else { 
+	for ( size_t iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
+      }
+      
+      //      if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
+      //      else                     std::cout << "NO vertex !!!" << std::endl;
+      
+      /// always push back the vector - if required there will be only one vertex on it
+      filter_vertex.setVertex( vertices );
+      
+      /// calculate number of "vertex tracks"
+      
+      NvtxCount = 0;
+      
+      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
+	int Ntracks = mv[iv].Ntracks();
+	if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
+	  Nvtxtracks += Ntracks;
+	  //      vertices.push_back( mv[iv] );
+	  NvtxCount++;
+	}
       }
     }
 
@@ -1682,7 +1692,6 @@ int main(int argc, char** argv)
     if ( !foundReference ) continue;
     
     if ( debugPrintout ) { 
-      std::cout << "vertices:\n" << mv << std::endl;
       std::cout << "reference chain:\n" << *refchain << std::endl;
     }
     

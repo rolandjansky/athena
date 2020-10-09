@@ -6,12 +6,10 @@
 Definitions of post-exec check steps in Trigger ART tests
 '''
 
-import sys
 import os
 import re
 import subprocess
 import json
-import six
 import glob
 
 from TrigValTools.TrigValSteering.Step import Step, get_step_from_list
@@ -23,10 +21,17 @@ class RefComparisonStep(Step):
     def __init__(self, name):
         super(RefComparisonStep, self).__init__(name)
         self.reference = None
+        self.ref_test_name = None
         self.input_file = None
         self.explicit_reference = False  # True if reference doesn't exist at configuration time
 
     def configure(self, test):
+        if self.reference and self.ref_test_name:
+            self.misconfig_abort('Both options "reference" and "ref_test_name" used. Use at most one of them.')
+
+        if not self.ref_test_name:
+            self.ref_test_name = test.name
+
         if self.reference is not None:
             # Do nothing if the reference will be produced later
             if self.explicit_reference:
@@ -47,21 +52,25 @@ class RefComparisonStep(Step):
                 return super(RefComparisonStep, self).configure(test)
 
         if self.input_file is None:
-            self.log.error('Cannot configure %s because input_file not specified',
-                           self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('input_file not specified')
 
         branch = os.environ.get('AtlasBuildBranch')  # Available after asetup
-        if branch is None:
+        if not branch:
             branch = os.environ.get('gitlabTargetBranch')  # Available in CI
-        if branch is None:
-            self.log.warning('Cannot determine the branch name, both variables '
-                             'AtlasBuildBranch and gitlabTargetBranch are empty')
-            branch = 'UNKNOWN_BRANCH'
+        if not branch:
+            jobName = os.environ.get('JOB_NAME')  # Available in nightly build system (ATR-21836)
+            if jobName:
+                branch = jobName.split('_')[0].split('--')[0]
+        if not branch:
+            msg = 'Cannot determine the branch name, all variables are empty: AtlasBuildBranch, gitlabTargetBranch, JOB_NAME'
+            if self.required:
+                self.misconfig_abort(msg)
+            else:
+                self.log.warning(msg)
+                branch = 'UNKNOWN_BRANCH'
 
         sub_path = '{}/ref/{}/test_{}/'.format(
-            test.package_name, branch, test.name)
+            test.package_name, branch, self.ref_test_name)
         ref_eos = art_input_eos + sub_path + self.input_file
         ref_cvmfs = art_input_cvmfs + sub_path + self.input_file
         if os.path.isfile(ref_eos):
@@ -123,10 +132,9 @@ class LogMergeStep(Step):
                 self.log_files.append(step.name)
         # Protect against infinite loop
         if self.merged_name in self.log_files:
-            self.log.error('%s output log name %s is same as one of the input log names.'\
-                           ' This will lead to infinite loop, aborting.', self.name, self.merged_name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort(
+                'output log name %s is same as one of the input log names.'
+                ' This will lead to infinite loop, aborting.', self.merged_name)
         super(LogMergeStep, self).configure(test)
 
     def process_extra_regex(self):
@@ -138,9 +146,8 @@ class LogMergeStep(Step):
                 self.log_files.append(f)
 
     def merge_logs(self):
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
         try:
-            with open(self.merged_name, 'w', **encargs) as merged_file:
+            with open(self.merged_name, 'w', encoding='utf-8') as merged_file:
                 for log_name in self.log_files:
                     if not os.path.isfile(log_name):
                         if self.warn_if_missing:
@@ -148,7 +155,7 @@ class LogMergeStep(Step):
                             merged_file.write(
                                 '### WARNING Missing {} ###\n'.format(log_name))
                         continue
-                    with open(log_name, **encargs) as log_file:
+                    with open(log_name, encoding='utf-8') as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
                         for line in log_file:
                             merged_file.write(line)
@@ -160,6 +167,8 @@ class LogMergeStep(Step):
 
     def run(self, dry_run=False):
         self.process_extra_regex()
+        # Sort log files by modification time
+        self.log_files.sort(key=lambda f : os.path.getmtime(f) if os.path.isfile(f) else 0)
         self.log.info('Running %s merging logs %s into %s',
                       self.name, self.log_files, self.merged_name)
         if dry_run:
@@ -294,11 +303,10 @@ class RegTestStep(RefComparisonStep):
         if not os.path.isfile(log_file):
             self.log.error('%s input file %s is missing', self.name, log_file)
             return False
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
-        with open(log_file, **encargs) as f_in:
+        with open(log_file, encoding='utf-8') as f_in:
             matches = re.findall('({}.*).*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
-            with open(self.input_file, 'w', **encargs) as f_out:
+            with open(self.input_file, 'w', encoding='utf-8') as f_out:
                 for line in matches:
                     linestr = str(line[0]) if type(line) is tuple else line
                     f_out.write(linestr+'\n')
@@ -360,7 +368,8 @@ class RootCompStep(RefComparisonStep):
                 self.log.debug(
                     'Skipping %s because both reference and input are missing',
                     self.name)
-                return 0, '# (internal) {} -> skipped'.format(self.name)
+                self.result = 0
+                return self.result, '# (internal) {} -> skipped'.format(self.name)
             else:  # input exists but reference not
                 self.log.error('Missing reference for %s', self.name)
                 self.result = 999
@@ -413,23 +422,27 @@ class TailStep(Step):
         self.args += ' >'+self.output_name
         super(TailStep, self).configure(test)
 
-class DownloadRefStep(Step):
-    '''Execute art.py download to downlaod results from previous day '''
 
-    def __init__(self, name='DownloadRefWeb'):
+class DownloadRefStep(Step):
+    '''Execute art.py download to get results from previous days'''
+
+    def __init__(self, name='DownloadRef'):
         super(DownloadRefStep, self).__init__(name)
         self.executable = 'art.py'
-        self.artpackage = ' '
-        self.artjobname = ' '
-        self.args = 'download '
+        self.args = 'download'
+        self.artpackage = None
+        self.artjobname = None
         self.timeout = 20*60
         self.required = True
         self.auto_report_result = True
 
     def configure(self, test):
+        if not self.artpackage:
+            self.artpackage = test.package_name
+        if not self.artjobname:
+            self.artjobname = 'test_'+test.name+'.py'
         self.args += ' '+self.artpackage+' '+self.artjobname
         super(DownloadRefStep, self).configure(test)
-
 
 
 class HistCountStep(InputDependentStep):
@@ -444,50 +457,6 @@ class HistCountStep(InputDependentStep):
     def configure(self, test):
         self.args += ' '+self.input_file
         super(HistCountStep, self).configure(test)
-
-
-class PhysValWebStep(InputDependentStep):
-    '''Execute physval_make_web_display.py to make PhysVal web display from NTUP_PHYSVAL.root'''
-
-    def __init__(self, name='PhysValWeb'):
-        super(PhysValWebStep, self).__init__(name)
-        self.input_file = 'NTUP_PHYSVAL.pool.root'
-        self.executable = 'physval_make_web_display.py'
-        self.refdir = ' '
-        self.sig=' '
-        self.args = '--ratio --drawopt HISTPE --refdrawopt HIST --title Test '
-        self.auto_report_result = True
-        self.timeout = 30*60
-        self.required = True
-        
-    def configure(self, test):
-        outargs = ' --outdir PHYSVAL_WEB/'+self.sig
-        dirargs = ' --startpath run_1/HLT/'+self.sig
-        self.args += ' '+outargs+' '+dirargs
-        super(PhysValWebStep, self).configure(test)
-
-    def run(self, dry_run=False):
-        for fname in os.listdir('.'):
-            if fname.startswith('ref-'): 
-                self.refdir = fname
-        refargs = ' --reffile Ref:'+self.refdir+'/NTUP_PHYSVAL.pool.root '
-        self.args += ' '+refargs+' '+self.input_file
-        retcode, cmd = super(PhysValWebStep, self).run(dry_run)
-        fname='PHYSVAL_WEB/'+self.sig+'/index.html'
-        if os.path.exists(fname):
-            f=open(fname,"r")
-            nred=0
-            for line in f:
-                if (line.find('Red') != -1):
-                    nred+=1
-            if nred > 0:
-                self.log.debug("red histograms in display for slice %s %d",self.sig,nred)
-                retcode+=nred
-        else:
-            retcode+=1000
-            self.log.debug("missing index.html file for slice: %s ",self.sig)
-        self.report_result(retcode,"CheckWeb"+self.sig)
-        return retcode, cmd
 
 
 class ChainDumpStep(InputDependentStep):
@@ -591,8 +560,7 @@ class ZeroCountsStep(Step):
                 self.name, input_file)
             return -1
         lines_checked = 0
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
-        with open(input_file, **encargs) as f_in:
+        with open(input_file, encoding='utf-8') as f_in:
             for line in f_in.readlines():
                 split_line = line.split()
                 lines_checked += 1
@@ -676,7 +644,7 @@ class MessageCountStep(Step):
                 self.log.warning('%s cannot open file %s', self.name, json_file)
             with open(json_file) as f:
                 summary = json.load(f)
-                for level, threshold in six.iteritems(self.thresholds):
+                for level, threshold in self.thresholds.items():
                     if summary[level] > threshold:
                         self.result += 1
                         self.log.info(

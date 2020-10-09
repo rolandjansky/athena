@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/IChronoStatSvc.h"
@@ -28,8 +28,7 @@
 CaloTowerBuilderTool::CaloTowerBuilderTool(const std::string& name,
 					   const std::string& type,
 					   const IInterface* parent)
-  : CaloTowerBuilderToolBase(name,type,parent),
-    m_caloDDM(nullptr)
+  : CaloTowerBuilderToolBase(name,type,parent)
     //  , m_errorCounter(0)
 {
   declareInterface<ICaloTowerBuilderToolBase>(this);    
@@ -52,7 +51,6 @@ CaloTowerBuilderTool::~CaloTowerBuilderTool()
 
 // protected!
 StatusCode CaloTowerBuilderTool::initializeTool() {
-  ATH_CHECK( detStore()->retrieve (m_caloDDM, "CaloMgr") );
   m_caloIndices = parseCalos (m_includedCalos);
   return this->checkSetup(msg());
 }
@@ -78,7 +76,7 @@ CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
     unsigned int ci = firstC.hash();
     double weightC = firstC.weight();
     int cndx = cells->findIndex(ci);
-    const CaloCell* cellPtr = 0;
+    const CaloCell* cellPtr = nullptr;
     if (cndx >= 0)
       cellPtr = (*cells)[cndx];
     // get weights
@@ -236,7 +234,7 @@ StatusCode CaloTowerBuilderTool::execute (CaloTowerContainer* theContainer)
 // protected
 StatusCode CaloTowerBuilderTool::checkSetup(MsgStream& /*log*/) {
   // any calos registered
-  if (m_caloIndices.size() == 0) {
+  if (m_caloIndices.empty()) {
     ATH_MSG_ERROR("no match in requested calorimeter ranges ("
         << m_includedCalos.size() << " requested)");
     // print out requested keys
@@ -304,7 +302,12 @@ CaloTowerBuilderTool::parseCalos
 StatusCode CaloTowerBuilderTool::rebuildLookup()
 {
   if (towerSeg().neta() != 0 && towerSeg().nphi() != 0) {
-    if (m_cellStore.buildLookUp(*m_caloDDM, towerSeg(), m_caloIndices)) {
+
+    // Cannot do this in initialize: see ATLASRECTS-5012
+    const CaloDetDescrManager* caloDDM = nullptr;
+    ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
+
+    if (m_cellStore.buildLookUp(*caloDDM, towerSeg(), m_caloIndices)) {
       return StatusCode::SUCCESS;
     }
   }

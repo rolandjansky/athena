@@ -654,6 +654,8 @@ def exeResourceReport(exe, report):
 
     if exe.memStats:
         exeResource['memory'] = exe.memStats
+    if exe.memAnalysis:
+        exeResource['memoryAnalysis'] = exe.memAnalysis
     if exe.eventCount:
         exeResource['nevents'] = exe.eventCount
     if exe.athenaMP:

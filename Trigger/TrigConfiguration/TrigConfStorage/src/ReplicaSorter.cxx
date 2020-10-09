@@ -35,9 +35,9 @@ TrigConf::ReplicaSorter::sort(std::vector<const coral::IDatabaseServiceDescripti
       if (conn.find("sqlite_file")==std::string::npos) {
          // extract the server name (assuming URLs "techno://server/schema")
          // example of current conn naming scheme:  coral://127.0.0.1:3320/&oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_REPR
-         std::string::size_type ipos0=conn.find("&");
+         std::string::size_type ipos0=conn.find('&');
          std::string::size_type ipos1=conn.find("://",ipos0+1);
-         std::string::size_type ipos2=conn.find("/",ipos1+3);
+         std::string::size_type ipos2=conn.find('/',ipos1+3);
          if (ipos1!=std::string::npos && ipos2!=std::string::npos) {
             const std::string server=conn.substr(ipos1+3,ipos2-ipos1-3);
             // check if this server is on list of replicas to use for domain
@@ -72,7 +72,7 @@ TrigConf::ReplicaSorter::readConfig() {
       const char* chost=getenv("HOSTNAME");
       if (chost) m_hostname=chost;
       // check if the returned host has a .
-      if (m_hostname.find(".")==std::string::npos) {
+      if (m_hostname.find('.')==std::string::npos) {
          m_hostname="unknown";
          char cstr_host[HOST_NAME_MAX];
          if (gethostname(cstr_host, sizeof(cstr_host))==0) {
@@ -112,7 +112,7 @@ TrigConf::ReplicaSorter::readConfig() {
          std::vector<std::string> servers;
          bool atCERN = false;
          while (iofs1<buf.size()) {
-            std::string::size_type iofs2=buf.find(" ",iofs1);
+            std::string::size_type iofs2=buf.find(' ',iofs1);
             // allow for trailing linefeed
             if (iofs2==std::string::npos) iofs2=buf.size()-1;
             std::string token=buf.substr(iofs1,iofs2-iofs1);
@@ -192,7 +192,7 @@ TrigConf::ReplicaSorter::findFile(const std::string filename,
    len=pathvar.size();
    std::string name;
    while (!fptr && iofs1<len) {
-      iofs2=pathvar.find(":",iofs1);
+      iofs2=pathvar.find(':',iofs1);
       if (iofs2==std::string::npos) iofs2=len;
       name=pathvar.substr(iofs1,iofs2-iofs1)+"/"+filename;
       fptr=fopen(name.c_str(),"r");

@@ -365,7 +365,7 @@ int main( int argc, char* argv[] )
       // }
     }
     if (xTauJetContainer->empty())
-      T2MT.retrieveTruthTaus();
+      CHECK (T2MT.retrieveTruthTaus());
     xEvent.fill();
   }
 

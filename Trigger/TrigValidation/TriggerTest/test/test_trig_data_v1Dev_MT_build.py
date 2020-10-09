@@ -31,10 +31,13 @@ test.check_steps = CheckSteps.default_check_steps(test)
 
 # Add a step comparing counts in the log against reference from test_trig_data_v1Dev_build
 refcomp = CheckSteps.RegTestStep("CountRefComp")
-refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
+refcomp.regex = r'TrigSignatureMoniMT\s*INFO\sHLT_.*|TrigSignatureMoniMT\s*INFO\s-- #[0-9]+ (Events|Features).*'
 refcomp.reference = 'TriggerTest/ref_data_v1Dev_build.ref'
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
+
+# Use RootComp reference from test_trig_data_v1Dev_build
+test.get_step('RootComp').ref_test_name = 'trig_data_v1Dev_build'
 
 import sys
 sys.exit(test.run())

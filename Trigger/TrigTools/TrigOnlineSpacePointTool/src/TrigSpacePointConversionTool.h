@@ -62,8 +62,8 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   void transformSpacePoints(std::vector<TrigSiSpacePointBase>&, const EventContext&) const;
 
   /// new region selector tools
-  ToolHandle<IRegSelTool> m_regsel_pix;
-  ToolHandle<IRegSelTool> m_regsel_sct;
+  ToolHandle<IRegSelTool> m_regsel_pix { this, "RegSelTool_Pixel",  "RegSelTool/RegSelTool_Pixel" };
+  ToolHandle<IRegSelTool> m_regsel_sct { this, "RegSelTool_SCT",    "RegSelTool/RegSelTool_SCT"   };
 
 };
 #endif

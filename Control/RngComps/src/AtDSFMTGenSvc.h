@@ -21,7 +21,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class IAlgorithm; 
 class ISvcLocator;

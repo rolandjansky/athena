@@ -115,10 +115,10 @@ if args.stage == 1:
   call(["git", "fetch", "upstream"])
 
   # Check we're not going to trample on work
-  localChanges = check_output(["git", "status", "--porcelain"])
+  localChanges = check_output(["git", "status", "--porcelain"],text=True)
   if localChanges != "":
     print("Local changes: " + localChanges)
-    prompt = raw_input(bcolors.WARNING + 'This will discard all local changes in the repository which are not already committed, please confirm this is OK! (y/n): ' + bcolors.ENDC)
+    prompt = input(bcolors.WARNING + 'This will discard all local changes in the repository which are not already committed, please confirm this is OK! (y/n): ' + bcolors.ENDC)
     if (prompt != "Y" and prompt != "y"):
       print(bcolors.HEADER + 'Exiting' + bcolors.ENDC)
       exit()
@@ -152,7 +152,7 @@ if args.stage == 1:
 
   print(bcolors.HEADER + 'Performing reset ' + bcolors.ENDC)
 
-  result = check_output(["git", "status", "--porcelain"])
+  result = check_output(["git", "status", "--porcelain"],text=True)
   toReset = []
   responsibleRule = ""
 
@@ -169,6 +169,7 @@ if args.stage == 1:
 
       doKeep = False
       doProgress = False
+      
       for path in args.packages: # For each package in the list of merge-packages
         pathSplit = path.rstrip('/').split('/') # Explode path
         if level == len(pathSplit) and path == responsibleRule:
@@ -219,7 +220,7 @@ if args.stage == 1:
 
 elif args.stage == 2:
 
-  conflicted = check_output(["git", "diff", "--name-only", "--diff-filter=U"])
+  conflicted = check_output(["git", "diff", "--name-only", "--diff-filter=U"],text=True)
   if conflicted != "":
     print(bcolors.FAIL + "Conflicting paths remain, please resolve and use 'git add' on:\n" + conflicted  + bcolors.ENDC)
     print(bcolors.HEADER + 'Use "git status" to check the state of the merge' + bcolors.ENDC)

@@ -27,8 +27,26 @@
 
 InDet::SiTrackMaker_xk::SiTrackMaker_xk
 (const std::string& t,const std::string& n,const IInterface* p)
-  : base_class(t, n, p)
+  : base_class(t, n, p),
+    m_totalInputSeeds{ },
+    m_totalUsedSeeds{ },
+    m_totalNoTrackPar{ },
+    m_totalBremSeeds{ }, 
+    m_twoClusters{ },
+    m_wrongRoad{ },
+    m_wrongInit{ },
+    m_noTrack{ },
+    m_notNewTrack{ },
+    m_bremAttempt{ },
+    m_outputTracks{ },
+    m_extraTracks{ },
+    m_bremTracks{ },
+    m_seedsWithTrack{ },
+    m_deSize{ },
+    m_usedSeedsEta( SiCombinatorialTrackFinderData_xk::kNSeedTypes, std::vector<double>(SiCombinatorialTrackFinderData_xk::kNRapidityRanges, 0.) ),
+    m_seedsWithTracksEta( SiCombinatorialTrackFinderData_xk::kNSeedTypes, std::vector<double>(SiCombinatorialTrackFinderData_xk::kNRapidityRanges, 0.) )
 {
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -81,6 +99,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 
   m_heavyion = false;
 
+
   // TrackpatternRecoInfo preparation 
   //
   if        (m_patternName == "SiSpacePointsSeedMaker_Cosmic"     )  {
@@ -109,6 +128,25 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 
   if (m_pTmin < 20.) m_pTmin = 20.;
 
+
+  for (int i=0; i!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++i) {
+    m_totalInputSeeds[i] = 0;
+    m_totalNoTrackPar[i]  = 0;
+    m_totalUsedSeeds[i]  = 0.;
+    m_outputTracks[i]      = 0;
+    m_totalBremSeeds[i]  = 0;
+    m_bremTracks[i]     = 0;
+    m_twoClusters[i]     = 0;
+    m_wrongRoad[i]       = 0;
+    m_wrongInit[i]       = 0;
+    m_noTrack[i]         = 0;
+    m_notNewTrack[i]     = 0;
+    m_bremAttempt[i]     = 0;
+    m_seedsWithTrack[i]        = 0;
+    m_deSize[i]          = 0.;
+    for(int j=0; j!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges ;++j) { m_usedSeedsEta[i][j]=0.; m_seedsWithTracksEta[i][j]=0.;}
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
   ////////////////////////////////////////////////////////////////////////////////
@@ -121,12 +159,213 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 
 StatusCode InDet::SiTrackMaker_xk::finalize()
 {
+  MsgStream &out = msg(MSG::INFO);
+  out << "::finalize() -- statistics:" <<std::endl;
+  dumpStatistics(out);
+  out<<endmsg; 
   return AlgTool::finalize();
 }
 
 ///////////////////////////////////////////////////////////////////
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
+
+MsgStream& InDet::SiTrackMaker_xk::dumpStatistics(MsgStream &out) const
+{
+
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+  out<<"| Kind of seed         |     PPP      |     PPS      |     PSS      |     SSS      |     ALL      |"
+       <<std::endl;
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+  out<<"| Input  seeds         | "
+     <<std::setw(12)<<m_totalInputSeeds[0]<<" | "
+     <<std::setw(12)<<m_totalInputSeeds[1]<<" | "
+     <<std::setw(12)<<m_totalInputSeeds[2]<<" | "
+     <<std::setw(12)<<m_totalInputSeeds[3]<<" | "
+     <<std::setw(12)<<(m_totalInputSeeds[0]+m_totalInputSeeds[1]+m_totalInputSeeds[2]+m_totalInputSeeds[3])
+     <<" |"<<std::endl;
+
+  out<<"| No track parameters  | "
+     <<std::setw(12)<<m_totalNoTrackPar[0]<<" | " 
+     <<std::setw(12)<<m_totalNoTrackPar[1]<<" | " 
+     <<std::setw(12)<<m_totalNoTrackPar[2]<<" | " 
+     <<std::setw(12)<<m_totalNoTrackPar[3]<<" | " 
+     <<std::setw(12)<<(m_totalNoTrackPar[0]+m_totalNoTrackPar[1]+ m_totalNoTrackPar[2]+m_totalNoTrackPar[3])
+     <<" |"<<std::endl;
+
+  out<<"| Used   seeds         | "
+     <<std::setw(12)<<m_totalUsedSeeds[0]<<" | " 
+     <<std::setw(12)<<m_totalUsedSeeds[1]<<" | " 
+     <<std::setw(12)<<m_totalUsedSeeds[2]<<" | " 
+     <<std::setw(12)<<m_totalUsedSeeds[3]<<" | " 
+     <<std::setw(12)<<(m_totalUsedSeeds[0]+m_totalUsedSeeds[1]+ m_totalUsedSeeds[2]+m_totalUsedSeeds[3])
+     <<" |"<<std::endl;
+
+  out<<"| Used   seeds  brem   | "
+     <<std::setw(12)<<m_totalBremSeeds[0]<<" | " 
+     <<std::setw(12)<<m_totalBremSeeds[1]<<" | " 
+     <<std::setw(12)<<m_totalBremSeeds[2]<<" | " 
+     <<std::setw(12)<<m_totalBremSeeds[3]<<" | " 
+     <<std::setw(12)<<(m_totalBremSeeds[0]+m_totalBremSeeds[1]+m_totalBremSeeds[2]+m_totalBremSeeds[3]) 
+     <<" |"<<std::endl;
+
+  double tdetsize = 0.;
+  int    goodseed = 0;
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; i++) {
+    tdetsize+= m_deSize[i];
+    goodseed+= m_totalUsedSeeds[i];
+    if(m_totalUsedSeeds[i] > 0.) m_deSize[i]= m_deSize[i]/m_totalUsedSeeds[i]; 
+  }
+  if(goodseed > 0) tdetsize/=double(goodseed);
+
+  out<<"| Det elements in road | "
+     <<std::setw(12)<<std::setprecision(4)<<m_deSize[0]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_deSize[1]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_deSize[2]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_deSize[3]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<tdetsize 
+     <<" |"<<std::endl;
+
+
+  out<<"| Two clusters on DE   | "
+     <<std::setw(12)<<m_twoClusters[0]<<" | " 
+     <<std::setw(12)<<m_twoClusters[1]<<" | " 
+     <<std::setw(12)<<m_twoClusters[2]<<" | " 
+     <<std::setw(12)<<m_twoClusters[3]<<" | " 
+     <<std::setw(12)<<(m_twoClusters[0]+m_twoClusters[1]+m_twoClusters[2]+m_twoClusters[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Wrong DE road        | "
+     <<std::setw(12)<<m_wrongRoad[0]<<" | " 
+     <<std::setw(12)<<m_wrongRoad[1]<<" | " 
+     <<std::setw(12)<<m_wrongRoad[2]<<" | " 
+     <<std::setw(12)<<m_wrongRoad[3]<<" | " 
+     <<std::setw(12)<<(m_wrongRoad[0]+m_wrongRoad[1]+m_wrongRoad[2]+m_wrongRoad[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Wrong initialization | "
+     <<std::setw(12)<<m_wrongInit[0]<<" | " 
+     <<std::setw(12)<<m_wrongInit[1]<<" | " 
+     <<std::setw(12)<<m_wrongInit[2]<<" | " 
+     <<std::setw(12)<<m_wrongInit[3]<<" | " 
+     <<std::setw(12)<<(m_wrongInit[0]+m_wrongInit[1]+m_wrongInit[2]+m_wrongInit[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Can not find track   | "
+     <<std::setw(12)<<m_noTrack[0]<<" | " 
+     <<std::setw(12)<<m_noTrack[1]<<" | " 
+     <<std::setw(12)<<m_noTrack[2]<<" | " 
+     <<std::setw(12)<<m_noTrack[3]<<" | " 
+     <<std::setw(12)<<(m_noTrack[0]+m_noTrack[1]+m_noTrack[2]+m_noTrack[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| It is not new track  | "
+     <<std::setw(12)<<m_notNewTrack[0]<<" | " 
+     <<std::setw(12)<<m_notNewTrack[1]<<" | " 
+     <<std::setw(12)<<m_notNewTrack[2]<<" | " 
+     <<std::setw(12)<<m_notNewTrack[3]<<" | " 
+     <<std::setw(12)<<(m_notNewTrack[0]+m_notNewTrack[1]+m_notNewTrack[2]+m_notNewTrack[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Attempts brem model  | "
+     <<std::setw(12)<<m_bremAttempt[0]<<" | " 
+     <<std::setw(12)<<m_bremAttempt[1]<<" | " 
+     <<std::setw(12)<<m_bremAttempt[2]<<" | " 
+     <<std::setw(12)<<m_bremAttempt[3]<<" | " 
+     <<std::setw(12)<<(m_bremAttempt[0]+m_bremAttempt[1]+m_bremAttempt[2]+m_bremAttempt[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Output tracks        | "
+     <<std::setw(12)<<m_outputTracks[0]<<" | "  
+     <<std::setw(12)<<m_outputTracks[1]<<" | " 
+     <<std::setw(12)<<m_outputTracks[2]<<" | "  
+     <<std::setw(12)<<m_outputTracks[3]<<" | "  
+     <<std::setw(12)<<(m_outputTracks[0]+m_outputTracks[1]+m_outputTracks[2]+m_outputTracks[3])
+     <<" |"<<std::endl;
+
+  out<<"| Output extra tracks  | "
+     <<std::setw(12)<<m_extraTracks[0]<<" | "  
+     <<std::setw(12)<<m_extraTracks[1]<<" | " 
+     <<std::setw(12)<<m_extraTracks[2]<<" | "  
+     <<std::setw(12)<<m_extraTracks[3]<<" | "  
+     <<std::setw(12)<<(m_extraTracks[0]+m_extraTracks[1]+m_extraTracks[2]+m_extraTracks[3])
+     <<" |"<<std::endl;
+
+  out<<"| Output tracks brem   | "
+     <<std::setw(12)<<m_bremTracks[0]<<" | "  
+     <<std::setw(12)<<m_bremTracks[1]<<" | " 
+     <<std::setw(12)<<m_bremTracks[2]<<" | "  
+     <<std::setw(12)<<m_bremTracks[3]<<" | "  
+     <<std::setw(12)<<(m_bremTracks[0]+m_bremTracks[1]+m_bremTracks[2]+m_bremTracks[3])
+     <<" |"<<std::endl;
+
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+     <<std::endl;
+   out<<"| Seeds  with  track   | "
+     <<std::setw(12)<<m_seedsWithTrack[0]<<" | "
+     <<std::setw(12)<<m_seedsWithTrack[1]<<" | "
+     <<std::setw(12)<<m_seedsWithTrack[2]<<" | "
+     <<std::setw(12)<<m_seedsWithTrack[3]<<" | "
+     <<std::setw(12)<<(m_seedsWithTrack[0]+m_seedsWithTrack[1]+m_seedsWithTrack[2]+m_seedsWithTrack[3])
+     <<" | Number seeds |"<<std::endl;
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+     <<std::endl;
+
+  std::vector<std::pair<int,std::string>> rapidityTablePrint;
+  //Defining the range values to be printed
+  rapidityTablePrint.push_back(std::make_pair(0,std::string("| Track/Used   0.0-0.5 | ")));
+  rapidityTablePrint.push_back(std::make_pair(1,std::string("|              0.5-1.0 | ")));
+  rapidityTablePrint.push_back(std::make_pair(1,std::string("|              1.0-1.5 | ")));
+  rapidityTablePrint.push_back(std::make_pair(3,std::string("|              1.5-2.0 | ")));
+  rapidityTablePrint.push_back(std::make_pair(4,std::string("|              2.0-2.5 | ")));
+  rapidityTablePrint.push_back(std::make_pair(5,std::string("|              2.5-3.0 | ")));
+  rapidityTablePrint.push_back(std::make_pair(6,std::string("|              3.0-3.5 | ")));
+  rapidityTablePrint.push_back(std::make_pair(7,std::string("|              3.5-4.0 | ")));
+
+
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges; ++i) {
+   
+    std::array<double,SiCombinatorialTrackFinderData_xk::kNSeedTypes+1> pu;
+    pu.fill(0);
+
+    double totalUsedSeedsEta = 0.;
+
+    for(int j = 0; j != SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++j){
+
+      if(m_usedSeedsEta[j][i]!=0.) pu[j]=m_seedsWithTracksEta[j][i]/m_usedSeedsEta[j][i];
+      totalUsedSeedsEta += m_usedSeedsEta[j][i];
+
+    } 
+
+    if(totalUsedSeedsEta!=0.) {
+
+      for(int j = 0; j != SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++j){
+
+        pu[SiCombinatorialTrackFinderData_xk::kNSeedTypes] += m_seedsWithTracksEta[j][i];
+ 
+      }
+      pu[SiCombinatorialTrackFinderData_xk::kNSeedTypes] /= totalUsedSeedsEta;
+    }
+
+    out<<rapidityTablePrint.at(i).second;
+    out<<std::setw(12)<<std::setprecision(4)<<pu[0]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[1]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[2]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[3]<<" | "  
+       <<std::setw(12)<<std::setprecision(4)<<pu[4]<<" | "
+       <<std::setw(12)<<static_cast<int>(m_seedsWithTracksEta[0][i])+static_cast<int>(m_seedsWithTracksEta[1][i])+static_cast<int>(m_seedsWithTracksEta[2][i])+static_cast<int>(m_seedsWithTracksEta[3][i])
+       <<" |"<<std::endl;
+  }
+
+
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|--------------|"
+     <<std::endl;
+
+  return out;
+
+}
 
 MsgStream& InDet::SiTrackMaker_xk::dump(SiTrackMakerEventData_xk& data, MsgStream& out) const
 {
@@ -260,6 +499,8 @@ void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEvent
   data.inputseeds() = 0;
   data.goodseeds()  = 0;
   data.findtracks() = 0;
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatAllTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) data.summaryStatAll()[i][k]; }
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatEtaTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) { for(int r=0; r!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges; ++r) data.summaryStatUsedInTrack()[i][k][r]; } }  
 
   // Retrieve 
   //
@@ -325,6 +566,9 @@ void InDet::SiTrackMaker_xk::newTrigEvent(const EventContext& ctx, SiTrackMakerE
   data.inputseeds() = 0;
   data.goodseeds()  = 0;
   data.findtracks() = 0;
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatAllTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) data.summaryStatAll()[i][k]; }
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatEtaTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) { for(int r=0; r!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges; ++r) data.summaryStatUsedInTrack()[i][k][r]; } }
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -342,7 +586,36 @@ void InDet::SiTrackMaker_xk::endEvent(SiTrackMakerEventData_xk& data) const
 
   // end event for seed to track tool
   if (m_seedsegmentsWrite) m_seedtrack->endEvent(data.conversionData());
- 
+
+  // fill statistics
+  {
+    std::lock_guard<std::mutex> lock(m_counterMutex);
+
+    for(int K = 0; K != SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++K) {
+      for(int r = 0; r != 8; ++r) {
+        m_usedSeedsEta[K][r] += data.summaryStatUsedInTrack()[kUsedSeedsEta][K][r];
+        m_seedsWithTracksEta[K][r] += data.summaryStatUsedInTrack()[kSeedsWithTracksEta][K][r];
+      }
+    }
+  }
+    for (int K = 0; K != SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++K) { 
+      m_totalInputSeeds[K] +=  data.summaryStatAll()[kTotalInputSeeds][K]; 
+      m_totalUsedSeeds[K] = m_totalUsedSeeds[K] + data.summaryStatAll()[kTotalUsedSeeds][K];
+      m_totalNoTrackPar[K] += data.summaryStatAll()[kTotalNoTrackPar][K];
+      m_totalBremSeeds[K] += data.summaryStatAll()[kTotalBremSeeds][K];
+      m_twoClusters[K] += data.summaryStatAll()[kTwoClusters][K];
+      m_wrongRoad[K] += data.summaryStatAll()[kWrongRoad][K];
+      m_wrongInit[K] += data.summaryStatAll()[kWrongInit][K];
+      m_noTrack[K] += data.summaryStatAll()[kNoTrack][K];
+      m_notNewTrack[K] += data.summaryStatAll()[kNotNewTrack][K];
+      m_bremAttempt[K] += data.summaryStatAll()[kBremAttempt][K];
+      m_outputTracks[K] += data.summaryStatAll()[kOutputTracks][K];
+      m_extraTracks[K] += data.summaryStatAll()[kExtraTracks][K];
+      m_bremTracks[K] += data.summaryStatAll()[kBremTracks][K];
+      m_seedsWithTrack[K] += data.summaryStatAll()[kSeedsWithTracks][K];
+      m_deSize[K] = m_deSize[K] + data.summaryStatAll()[kDESize][K];
+
+  }
   // Print event information 
   //
   if (msgLevel()<=0) {
@@ -359,6 +632,12 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 (const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const
 {
   ++data.inputseeds();
+  
+  int K = kindSeed(Sp);     
+  int r = rapidity(Sp); 
+
+  ++data.summaryStatAll()[kTotalInputSeeds][K];
+
   std::list<Trk::Track*> tracks;
   if (!data.pix() && !data.sct()) return tracks;
   
@@ -386,8 +665,12 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   const Trk::TrackParameters* Tp = nullptr;
   if (data.dbm()) Tp = getAtaPlaneDBM(fieldCache, data, Sp);
   else Tp = getAtaPlane(fieldCache, data, sss && m_useHClusSeed, Sp);
-  if (!Tp) return tracks;
-  ++data.goodseeds();
+  if (!Tp) 
+  {
+     ++data.summaryStatAll()[kTotalNoTrackPar][K];
+     return tracks;
+  }
+  ++data.goodseeds(); 
 
   // Get detector elements road
   //
@@ -402,20 +685,32 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
     return tracks;
   }
 
+  data.summaryStatAll()[kDESize][K] += double(DE.size());
+  ++data.summaryStatAll()[kTotalUsedSeeds][K];
+
   std::list<Amg::Vector3D> Gp;
-  
+
+  ++data.summaryStatUsedInTrack()[kUsedSeedsEta][K][r];
+
   // Find possible list of tracks using space points space points information
   //
   if (!m_useBremModel) {
     tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack());
   } else if (!m_useCaloSeeds) {
+    ++data.summaryStatAll()[kTotalBremSeeds][K];
     tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), false);
   } else if (isCaloCompatible(data)) {
+    ++data.summaryStatAll()[kTotalBremSeeds][K];
     tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), true);
   } else {
     tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack());
   }
-  
+
+  std::array<bool,SiCombinatorialTrackFinderData_xk::kNCombStats> inf{0,0,0,0,0,0};   m_tracksfinder->fillStatistic(data.combinatorialData(),inf);                                      
+  for (size_t p =0; p<inf.size(); ++p){
+    if(inf[p]) ++data.summaryStatAll()[m_indexToEnum[p]][K];
+  } 
+
   if (m_seedsfilter) {
     std::list<Trk::Track*>::iterator t = tracks.begin();
     while (t!=tracks.end()) {
@@ -423,11 +718,19 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
         delete (*t);
         tracks.erase(t++);
       } else {
+        if((*t)->info().trackProperties(Trk::TrackInfo::BremFit)) ++data.summaryStatAll()[kBremTracks][K];
         clusterTrackMap(data, *t++);
       }
     }
   }
   data.findtracks() += tracks.size();
+
+  if(tracks.size() != 0) {
+    ++data.summaryStatAll()[kSeedsWithTracks][K];
+    ++data.summaryStatUsedInTrack()[kSeedsWithTracksEta][K][r];
+    data.summaryStatAll()[kOutputTracks][K] += tracks.size();
+    data.summaryStatAll()[kExtraTracks][K] += (tracks.size()-1);
+  }                       
 
   // Call seed to track execution
   //
@@ -435,6 +738,7 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 
   delete Tp;
   return tracks;
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -478,7 +782,7 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   if (!m_useBremModel) {
     tracks = m_tracksfinder->getTracks        (data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack());
   } else if (!m_useCaloSeeds) {
-    tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(), false);
+   tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(), false);
   } else if (isCaloCompatible(data)) {
     tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(), true);
   } else {
@@ -801,6 +1105,39 @@ bool InDet::SiTrackMaker_xk::newSeed(SiTrackMakerEventData_xk& data, const std::
   return nt!=n;
 }
 
+///////////////////////////////////////////////////////////////////
+//// Kind of seed calculation 0-PPP, 1-PPS, 2-PSS, 3-SSS another -1
+/////////////////////////////////////////////////////////////////////
+
+
+int InDet::SiTrackMaker_xk::kindSeed(const std::vector<const Trk::SpacePoint*>& Sp) const
+{
+  if(Sp.size()!=3) return 4;
+  
+  std::vector<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+  
+  int n = 0;
+  for(; s!=se; ++s) {if((*s)->clusterList().second) ++n;}
+  return n;
+}
+
+int InDet::SiTrackMaker_xk::rapidity(const std::vector<const Trk::SpacePoint*>& Sp) const
+{ 
+  if(Sp.size() < 2) return 0;
+
+  //std::vector<const Trk::SpacePoint*>::const_iterator s = Sp.begin();
+  
+  double x = Sp[0]->globalPosition().x(); 
+  double y = Sp[0]->globalPosition().y();
+  double z = Sp[0]->globalPosition().z();
+  //++s;
+  x = Sp[1]->globalPosition().x()-x; 
+  y = Sp[1]->globalPosition().y()-y;
+  z = Sp[1]->globalPosition().z()-z;
+  int n = int(2.*std::abs(log(tan(.5*atan2(sqrt(x*x+y*y),z)))));
+  if(n > 7) n = 7;
+  return n;
+}
 
 ///////////////////////////////////////////////////////////////////
 // Clusters-track multimap production

@@ -14,7 +14,7 @@
 #include <TString.h>
 #include <TObject.h>
 #include <TFile.h>
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 class TTreeFormula;
 class TList;
@@ -102,7 +102,7 @@ class egammaMVACalib : public asg::AsgMessaging
       **/
     egammaMVACalib(int particle,
 		   bool useNewBDTs = true,
-		   TString folder = "",
+		   const TString& folder = "",
 		   const TString & method = "BDTG",
 		   int calibrationType = correctEaccordion,
 		   bool debug=false,
@@ -119,7 +119,7 @@ class egammaMVACalib : public asg::AsgMessaging
 
     void setPeakCorrection(ShiftType shift_type) { m_shiftType = shift_type; };
     /** Set the peak correction by a capital string **/
-    void setPeakCorrection(TString shift_type);
+    void setPeakCorrection(const TString& shift_type);
 
     /** Use cluster energy if MVA response is 0 **/
     void useClusterIf0(bool useCluster = true) { m_clusterEif0 = useCluster; }
@@ -198,7 +198,7 @@ class egammaMVACalib : public asg::AsgMessaging
      * @param update Display the progress after N events
      **/
     TTree* getMVAResponseTree(TTree *tree, int Nentries = -1,
-			      TString branchName = "", TString copyBranches = "input",
+			      TString branchName = "", const TString& copyBranches = "input",
 			      int first_event = 0, bool flatten = false, int update=10000);
 
     /** Return the shift corresponding to the ReaderID and type **/
@@ -223,8 +223,6 @@ class egammaMVACalib : public asg::AsgMessaging
     /** Return a clone of the TH2Poly object used for defining the binning **/
     TH2Poly* getTH2Poly() const;
 
-    /** Write a ROOT file (MVACalib_<particle>.root) to be used with the new BDT model **/
-    void writeROOTfile(const TString& directory, int particle = (int) INVALIDPARTICLE);
 
     /** Return the reader that corresponds to the given key (or null pointer) **/
     TMVA::Reader* getReader(egammaMVACalib::ReaderID key)
@@ -268,11 +266,6 @@ class egammaMVACalib : public asg::AsgMessaging
     /** Get the list of variables separated by comma **/
     static TString* getVariables(TMVA::Reader *reader);
 
-    /** Add the information of a TMVA::Reader with "BDTG" method to TObjArrays **/
-    static void addReaderInfoToArrays(TMVA::Reader *reader,
-				      TObjArray *trees,
-				      TObjArray *variables,
-				      int index);
 
 
  protected:
@@ -379,7 +372,7 @@ class egammaMVACalib : public asg::AsgMessaging
     /** Used by getMVAResponseTree: clone input tree, activating the branches defined by
      * \<copyBranches\> and deactivating all of them first if \<deactivateFirst\>=true
      **/
-    TTree* getOutputTree(TString copyBranches, bool deactivateFirst=true);
+    TTree* getOutputTree(const TString& copyBranches, bool deactivateFirst=true);
 
     /** Check if the given bin is consistent with the previous definitions **/
     bool checkBin(int bin, float etaMin, float etaMax, float etMin, float etMax);

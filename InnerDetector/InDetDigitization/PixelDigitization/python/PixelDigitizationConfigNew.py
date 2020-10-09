@@ -21,6 +21,7 @@ from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSum
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -148,14 +149,7 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     acc = PixelGeometryCfg(flags)
 
     # module parameters
-    acc.merge(PixelConfigCondAlgCfg(flags,
-                                    UseCalibConditions=True,
-                                    UseDeadmapConditions=True,
-                                    UseDCSStateConditions=False,
-                                    UseDCSStatusConditions=False,
-                                    UseDCSHVConditions=True,
-                                    UseDCSTemperatureConditions=True,
-                                    UseTDAQConditions=False))
+    acc.merge(PixelConfigCondAlgCfg(flags))
     # charge calibration
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
@@ -207,38 +201,62 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
 
 def PixelDigitizationToolCfg(flags, name="PixelDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured BasicPixelDigitizationTool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(PixelDigitizationBasicToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def PixelGeantinoTruthDigitizationToolCfg(flags, name="PixelGeantinoTruthDigitizationTool", **kwargs):
     """Return configured PixelDigitizationTool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("ParticleBarcodeVeto", 0)
     PixelDigitizationTool = CompFactory.PixelDigitizationTool
-    return PixelDigitizationTool(name, **kwargs)
+    acc.setPrivateTools(PixelDigitizationTool(name, **kwargs))
+    return acc
 
 
 def PixelDigitizationHSToolCfg(flags, name="PixelDigitizationHSTool", **kwargs):
     """Return ComponentAccumulator with PixelDigitizationTool configured for Hard Scatter"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 1)
-    return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(PixelDigitizationBasicToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def PixelDigitizationPUToolCfg(flags, name="PixelDigitizationPUTool", **kwargs):
     """Return ComponentAccumulator with PixelDigitizationTool configured for PileUp"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 2)
     kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
     kwargs.setdefault("SDOCollName", "Pixel_PU_SDO_Map")
-    return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(PixelDigitizationBasicToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def PixelDigitizationSplitNoMergePUToolCfg(flags, name="PixelDigitizationSplitNoMergePUTool", **kwargs):
     """Return ComponentAccumulator with PixelDigitizationTool configured for PileUpPixelHits"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(PixelRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("InputObjectName", "PileupPixelHits")
     kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
     kwargs.setdefault("SDOCollName", "Pixel_PU_SDO_Map")
-    return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(PixelDigitizationBasicToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def PixelOverlayDigitizationToolCfg(flags, name="PixelOverlayDigitizationTool", **kwargs):
@@ -256,8 +274,7 @@ def PixelRangeCfg(flags, name="PixelRange", **kwargs):
     kwargs.setdefault("LastXing", Pixel_LastXing(flags))
     kwargs.setdefault("CacheRefreshFrequency", 1.0) # default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["SiHitCollection#PixelHits"])
-    PileUpXingFolder = CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def PixelOutputCfg(flags):
@@ -316,19 +333,21 @@ def PixelOverlayDigitizationCfg(flags, **kwargs):
 
 
 # additional specialisations
-def PixelDigitizationHSCfg(flags, name="PixelDigitizationHS", **kwargs):
+def PixelDigitizationHSCfg(flags, **kwargs):
     """Return ComponentAccumulator for Hard-Scatter-only Pixel digitization and Output"""
-    acc = PixelDigitizationHSToolCfg(flags)
-    kwargs["PileUpTools"] = acc.popPrivateTools()
-    acc = PixelDigitizationBasicCfg(flags, name=name, **kwargs)
+    acc = ComponentAccumulator()
+    tool = acc.popToolsAndMerge(PixelDigitizationHSToolCfg(flags))
+    kwargs["PileUpTools"] = tool
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
     acc.merge(PixelOutputCfg(flags))
     return acc
 
 
-def PixelDigitizationPUCfg(flags, name="PixelDigitizationPU", **kwargs):
+def PixelDigitizationPUCfg(flags, **kwargs):
     """Return ComponentAccumulator with Pile-up-only Pixel digitization and Output"""
-    acc = PixelDigitizationPUToolCfg(flags)
-    kwargs["PileUpTools"] = acc.popPrivateTools()
-    acc = PixelDigitizationBasicCfg(flags, name=name, **kwargs)
+    acc = ComponentAccumulator()
+    tool = acc.popToolsAndMerge(PixelDigitizationPUToolCfg(flags))
+    kwargs["PileUpTools"] = tool
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
     acc.merge(PixelOutputCfg(flags))
     return acc

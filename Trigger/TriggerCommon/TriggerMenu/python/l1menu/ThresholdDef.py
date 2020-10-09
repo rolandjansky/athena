@@ -19,7 +19,7 @@ class ThresholdDef:
         # MUON
         ThresholdValue.setDefaults('MUON', {'etamin' : -49,'etamax' : 49, 'phimin' : 0,'phimax' : 64}) # keep this as an example how defaults for groups can be defined
 
-        for thrV in [0, 4, 6, 10, 11, 15, 20]:
+        for thrV in [0, 4, 6, 10, 11, 15, 20, 21]:
             tc.registerThr('MU%i' % thrV, 'MUON').addThrValue(thrV)
 
 

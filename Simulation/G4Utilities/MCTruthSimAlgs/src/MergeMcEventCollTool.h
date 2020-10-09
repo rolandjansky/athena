@@ -7,7 +7,7 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
@@ -67,9 +67,9 @@ private:
   //** Ensure that any GenEvent::HeavyIon info is stored in the signal GenEvent.
   StatusCode saveHeavyIonInfo(const McEventCollection *pMcEvtColl);
   //** Classify the current GenParticle according to the MC Truth Taskforce requirements
-  MergeMcEventCollTool::puType classifyVertex(const HepMC::GenParticle *pCurrentVertexParticle, const HepMC::GenVertex *pCurrentParticleProductionVertex, double currentEventTime);
+  MergeMcEventCollTool::puType classifyVertex(const HepMC::GenParticlePtr  pCurrentVertexParticle, const HepMC::GenVertexPtr  pCurrentParticleProductionVertex, double currentEventTime);
   //** Check if the current GenVertex contains beam particles
-  bool isInitialCollisionVertex(const HepMC::GenVertex *pCurrentVertex) const;
+  bool isInitialCollisionVertex(const HepMC::GenVertexPtr  pCurrentVertex) const;
   //** Check whether the current McEventCollection has already been truth-filtered
   bool isTruthFiltertedMcEventCollection(const McEventCollection *pMcEvtColl) const;
   //** Map from GenEvent to puType FIXME: Simpler to key the map on GenEvent* ?

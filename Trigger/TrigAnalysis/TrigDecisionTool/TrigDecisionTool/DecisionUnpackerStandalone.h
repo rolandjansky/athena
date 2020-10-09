@@ -9,7 +9,7 @@
 #define TRIGDECISIONTOOL_DECISIONUNPACKERSTANDALONE_H
 
 // ASG include(s):
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // Trigger configuration include(s):
 #include "TrigConfHLTData/HLTChain.h"
@@ -24,7 +24,7 @@
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
 
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 // Forward declaration(s):
 namespace HLT {

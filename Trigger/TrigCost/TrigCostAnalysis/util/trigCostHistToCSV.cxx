@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include <string.h>
@@ -13,6 +13,7 @@
 
 #include "TrigCostAnalysis/TableConstructors/AlgorithmTableConstructor.h"
 #include "TrigCostAnalysis/TableConstructors/GlobalTableConstructor.h"
+#include "TrigCostAnalysis/TableConstructors/ThreadOccupancyTableConstructor.h"
 
 #include "TFile.h"
 #include "TString.h"
@@ -57,9 +58,15 @@ void exportDirectory(TFile* file, const std::vector<TString>& dir, float walltim
   if (dir.at(1) == "Algorithm_HLT") {
     AlgorithmTableConstructor atc("Algorithm_HLT");
     table = atc.getTable(file, rootDir, walltime);
+  } else if (dir.at(1) == "Algorithm_Class_HLT") {
+    AlgorithmTableConstructor atc("Algorithm_Class_HLT");
+    table = atc.getTable(file, rootDir, walltime);
   } else if (dir.at(1) == "Global_HLT") {
     GlobalTableConstructor gtc("Global_HLT");
     table = gtc.getTable(file, rootDir, walltime);
+  } else if (dir.at(1) == "Thread_Occupancy_HLT") {
+    ThreadOccupancyTableConstructor totc("Thread_Occupancy_HLT");
+    table = totc.getTable(file, rootDir, walltime);
   }
 
   std::ofstream fstream(exportName.Data());

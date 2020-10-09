@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelUtilities/GeoBorderSurface.h"
@@ -8,7 +8,7 @@
 
 #include <exception>
 
-GeoBorderSurface::GeoBorderSurface(std::string name,
+GeoBorderSurface::GeoBorderSurface(const std::string& name,
 				   GeoOpticalPhysVol* pv1,
 				   GeoOpticalPhysVol* pv2,
 				   GeoOpticalSurface* opticalSurface):

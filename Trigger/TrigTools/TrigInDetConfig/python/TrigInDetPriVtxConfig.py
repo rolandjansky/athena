@@ -68,7 +68,7 @@ def  impactEstimator_builder( signature, extrapolator ) :
 
 
 
-def  trackSelectorTool_builder( signature, trackSummaryTool, extrapolator ) :
+def  trackSelectorTool_builder( signature, trackSummaryTool, extrapolator, cuts ) :
 
     from AthenaCommon.AppMgr import ToolSvc
     
@@ -77,26 +77,24 @@ def  trackSelectorTool_builder( signature, trackSummaryTool, extrapolator ) :
     from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
    
     trackSelectorTool = InDet__InDetTrackSelectionTool( name     = "InDetTrigDetailedTrackSelectionTool" + signature,
-                                                       Extrapolator     = extrapolator ) 
-
-# these changes need to go in next ...
-#                                                        TrackSummaryTool = trackSummaryTool,
-#                                                        CutLevel = configuredTrigVtxCuts.TrackCutLevel(),
-#                                                        # maybe have all these cuts passed in just by passing in the configuredVtsCuts object 
-#                                                        minPt    = configuredTrigVtxCuts.minPT(),
-#                                                        maxD0    = configuredTrigVtxCuts.IPd0Max(),
-#                                                        maxZ0    = configuredTrigVtxCuts.z0Max(),
-#                                                        maxZ0SinTheta = configuredTrigVtxCuts.IPz0Max(),
-#                                                        maxSigmaD0    = configuredTrigVtxCuts.sigIPd0Max(),
-#                                                        maxSigmaZ0SinTheta = configuredTrigVtxCuts.sigIPz0Max(),
-#                                                        maxChiSqperNdf     = configuredTrigVtxCuts.fitChi2OnNdfMax(), # Seems not to be implemented?
-#                                                        maxAbsEta          = configuredTrigVtxCuts.etaMax(),
-#                                                        minNInnermostLayerHits = configuredTrigVtxCuts.nHitInnermostLayer(),
-#                                                        minNPixelHits    = configuredTrigVtxCuts.nHitPix(),
-#                                                        maxNPixelHoles   = configuredTrigVtxCuts.nHolesPix(),
-#                                                        minNSctHits      = configuredTrigVtxCuts.nHitSct(),
-#                                                        minNTrtHits      = configuredTrigVtxCuts.nHitTrt(),
-#                                                        minNSiHits       = configuredTrigVtxCuts.nHitSi() )
+                                                        Extrapolator     = extrapolator, 
+                                                        TrackSummaryTool = trackSummaryTool,
+                                                        CutLevel      = cuts.TrackCutLevel(),
+                                                        # maybe have all these cuts passed in just by passing in the configuredVtsCuts object 
+                                                        minPt         = cuts.minPT(),
+                                                        maxD0         = cuts.IPd0Max(),
+                                                        maxZ0         = cuts.z0Max(),
+                                                        maxZ0SinTheta = cuts.IPz0Max(),
+                                                        maxSigmaD0    = cuts.sigIPd0Max(),
+                                                        maxSigmaZ0SinTheta = cuts.sigIPz0Max(),
+                                                        maxChiSqperNdf     = cuts.fitChi2OnNdfMax(), # Seems not to be implemented?
+                                                        maxAbsEta          = cuts.etaMax(),
+                                                        minNInnermostLayerHits = cuts.nHitInnermostLayer(),
+                                                        minNPixelHits    = cuts.nHitPix(),
+                                                        maxNPixelHoles   = cuts.nHolesPix(),
+                                                        minNSctHits      = cuts.nHitSct(),
+                                                        minNTrtHits      = cuts.nHitTrt(),
+                                                        minNSiHits       = cuts.nHitSi() )
 
     ToolSvc += trackSelectorTool
    
@@ -147,12 +145,10 @@ def vertexFinderTool_builder( signature ) :
     trackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
     extrapolator     = TrackingCommon.getInDetExtrapolator()
 
-    # NB: not yet ready to go in, but we have the code here in readiness ...
     # get the selection cuts use to select the actual tracks in the tool ...
-    #   from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVertexingCuts 
-    #   configuredTrigVtxCuts = ConfiguredTrigVertexingCuts() 
-    #   configuredTrigVtxCuts.printInfo()
-
+    from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts 
+    vtxcuts = ConfiguredTrigVtxCuts() 
+    vtxcuts.printInfo()
 
     
     # now create the five sub tools needed ...
@@ -160,7 +156,7 @@ def vertexFinderTool_builder( signature ) :
     linearTrackFactory     =     linearTrackFactory_builder( signature, extrapolator )
     vertexFitterTool       =       vertexFitterTool_builder( signature, linearTrackFactory, extrapolator )
     impactEstimator        =        impactEstimator_builder( signature, extrapolator )
-    trackSelectorTool      =      trackSelectorTool_builder( signature, trackSummaryTool, extrapolator )
+    trackSelectorTool      =      trackSelectorTool_builder( signature, trackSummaryTool, extrapolator, vtxcuts )
     trackDensitySeedFinder = trackDensitySeedFinder_builder( signature )
     
     # now create the actual vertex finder tool ...
@@ -177,14 +173,13 @@ def vertexFinderTool_builder( signature ) :
                                                              SeedFinder               = trackDensitySeedFinder,
                                                              ImpactPoint3dEstimator   = impactEstimator,
                                                              LinearizedTrackFactory   = linearTrackFactory,
-                                                             useBeamConstraint        = False,
+                                                             useBeamConstraint        = True,
                                                              significanceCutSeeding   = 12,
                                                              maximumChi2cutForSeeding = 49,
                                                              maxVertices              = 200,
-                                                             createSplitVertices      = False )
-# these too should go in next ...
-#                                                            doMaxTracksCut           = configuredTrigVtxCuts.doMaxTracksCut(),
-#                                                            MaxTracks                = configuredTrigVtxCuts.MaxTracks() )
+                                                             createSplitVertices      = False,
+                                                             doMaxTracksCut           = vtxcuts.doMaxTracksCut(),
+                                                             MaxTracks                = vtxcuts.MaxTracks() )
                                                            
     
  # InDetAdaptiveMultiPriVxFinderTool job options for later 
@@ -302,12 +297,12 @@ def vertexFinder_builder( signature, inputTracks, outputVertices ) :
     return  [ vertexFinder ]
 
 
-
 # old function for backwards compatability
+#TODO inputTrackCollection is obsolete, remove in the next MR iteration
+def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection, config ) :
 
-def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection ) :
     return vertexFinder_builder( signature      = whichSignature, 
-                                 inputTracks    = inputTrackCollection,
+                                 inputTracks    = config.FT.tracksFTF(),
                                  outputVertices = outputVtxCollection )
     
 

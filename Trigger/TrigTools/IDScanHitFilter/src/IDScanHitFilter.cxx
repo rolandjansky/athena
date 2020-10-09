@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ IDScanHitFilter::IDScanHitFilter(const std::string& t,
 
 }
 
-StatusCode IDScanHitFilter::initialize ATLAS_NOT_THREAD_SAFE()
+StatusCode IDScanHitFilter::initialize()
 {
   m_dPhidRCut = 0.3/m_pTcutInMeV;
 
@@ -90,13 +90,10 @@ StatusCode IDScanHitFilter::initialize ATLAS_NOT_THREAD_SAFE()
   /// NB: decrement the endcap pixels, as we want the layer number 
   ///     of the last barrel layer, not the number of the first 
   ///     endcap pixel layer
-  FilterBin::setMaxLayers( maxSiliconLayerNum );
-  FilterBin::setMaxBarrelLayer( offsetEndcapPixels-1 );
-
-  /// initialisise the HitFilter with the correct number of layers
+  /// initialise the HitFilter with the correct number of layers
   /// NB: DO NOT pass in the max eta here, but remember that it can be set here!!
   ///     the parameter initialisation is very messy for this stuff 
-  iHitFilter::initialise( maxSiliconLayerNum ); /// , 3.0 ); 
+  iHitFilter::initialise( maxSiliconLayerNum, offsetEndcapPixels-1 ); /// , 3.0 ); 
 
   // NB: Now set the other way - ie, set m_fullScan=true, 
   //     then this will enforce m_ROIphiHalfWidth=M_PI, but in 
@@ -206,10 +203,9 @@ void IDScanHitFilter::makeTracks( GroupList& idScanGroups, TrigInDetTrackCollect
 							      1.0/ptInv );
 
     std::vector<const TrigSiSpacePoint*> spacePointsOnTrack;
-    for(std::list<IdScanSpPoint *>::iterator hitItr=gItr->groupHits().begin();
-	hitItr!=gItr->groupHits().end();hitItr++) 
+    for (IdScanSpPoint* sp : gItr->groupHits())
       {
-	spacePointsOnTrack.push_back( (**hitItr).commonSP() );
+	spacePointsOnTrack.push_back( sp->commonSP() );
       }
     std::vector<const TrigSiSpacePoint*>* spv = new std::vector<const TrigSiSpacePoint*>;
     spv->assign(spacePointsOnTrack.begin(),spacePointsOnTrack.end());

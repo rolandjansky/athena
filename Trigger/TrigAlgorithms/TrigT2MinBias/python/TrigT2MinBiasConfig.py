@@ -416,6 +416,12 @@ class MbSpFex ( TrigCountSpacePoints ) :
         self.PixelClusSizeMin = trigT2MinBiasProperties.pixelClusSizeMin()
         self.PixelClusSizeMax = trigT2MinBiasProperties.pixelClusSizeMax()
 
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+
+        self.RegSelTool_Pixel = makeRegSelTool_Pixel()
+        self.RegSelTool_SCT   = makeRegSelTool_SCT()
+
         #self.SpacePointProviderTool = ospTool
         time = TrigTimeHistToolConfig("MbSpFexTimers")
         time.NumberOfHistBins = 100

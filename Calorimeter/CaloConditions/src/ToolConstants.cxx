@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ToolConstants.cxx,v 1.5 2009-04-09 14:41:17 ssnyder Exp $
 /**
  * @file  ToolConstants.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -13,6 +11,7 @@
 
 #include "CaloConditions/ToolConstants.h"
 #include "GaudiKernel/GaudiException.h"
+#include <sstream>
 
 
 namespace CaloRec {
@@ -61,8 +60,13 @@ ToolConstants::getrep (const std::string& context,
                        const std::string& key) const
 {
   Maptype::const_iterator i = m_map.find (key);
-  if (i == m_map.end())
-    error (context, key, "Can't find key");
+  if (i == m_map.end()) {
+    std::ostringstream ss;
+    for (const auto& p : m_map) {
+      ss << " " << p.first;
+    }
+    error (context, key, "Can't find key in" + ss.str());
+  }
   return i->second;
 }
 
@@ -121,11 +125,9 @@ void ToolConstants::error (const std::string& context,
 void ToolConstants::writeConstants(std::ostream& stream,
                                    const std::string& name) const
 {
-  Maptype::const_iterator it=m_map.begin();
-  Maptype::const_iterator it_e=m_map.end();
-  for (;it!=it_e;it++) {
-    stream << name << "." << it->first << " = ";
-    it->second.write_array(stream);
+  for (const std::pair<const std::string, CxxUtils::Arrayrep>& p : m_map) {
+    stream << name << "." << p.first << " = ";
+    p.second.write_array(stream);
   }
   stream << std::endl;
 }

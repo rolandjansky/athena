@@ -50,7 +50,7 @@ StatusCode SimTimeEstimate::execute()
             //  it decays.  This algorithm will always be a little tricky 
             //  in those cases, but better to *overestimate* the sim time.
             
-            if(std::find(m_pidsToSkip.begin(), m_pidsToSkip.end(), abs(part->pdg_id())) != m_pidsToSkip.end()) continue; 
+            if(std::find(m_pidsToSkip.begin(), m_pidsToSkip.end(), std::abs(part->pdg_id())) != m_pidsToSkip.end()) continue; 
             // Add in the total energy
             m_total_Energy += pmom.e(); 
             m_eventEnergy += pmom.e();

@@ -19,7 +19,6 @@ RT_Relation_DigiTool::RT_Relation_DigiTool( const std::string& type,
 					    const IInterface* parent )
   : AthAlgTool(type,name,parent)
   , m_maxRadius(0)
-  , m_muonGeoMgr(0)
   , m_idHelper(0)
 {
   declareInterface<IMDT_DigitizationTool>(this);
@@ -43,30 +42,27 @@ MdtDigiToolOutput RT_Relation_DigiTool::digitize(const MdtDigiToolInput& input,C
 
 StatusCode RT_Relation_DigiTool::initialize()
 {
-
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
   if(detStore()->contains<MuonDetectorManager>( "Muon" )){
-    StatusCode status = detStore()->retrieve(m_muonGeoMgr);
-    if (status.isFailure()) {
-      ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
-      return status;
-    }
-    else {
+      ATH_CHECK(detStore()->retrieve(muDetMgr));
       ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
       //initialize the MdtIdHelper
-      m_idHelper = m_muonGeoMgr->mdtIdHelper();
+      m_idHelper = muDetMgr->mdtIdHelper();
       ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
-      if(!m_idHelper) return status;
-    }
+      if(!m_idHelper) {
+        ATH_MSG_ERROR("MdtIdHelper is nullptr");
+        return StatusCode::FAILURE;
+      }
   }
 
-  initializeTube();
+  initializeTube(muDetMgr);
 
   return StatusCode::SUCCESS;
 }
 
-bool RT_Relation_DigiTool::initializeTube(){
+bool RT_Relation_DigiTool::initializeTube(const MuonGM::MuonDetectorManager* detMgr){
 
-  m_maxRadius = m_muonGeoMgr->getGenericMdtDescriptor()->innerRadius;
+  m_maxRadius = detMgr->getGenericMdtDescriptor()->innerRadius;
 
   if (m_rt.size() < 1) {
     std::string inputFile = RT_DATA;
@@ -85,8 +81,6 @@ bool RT_Relation_DigiTool::initializeTube(){
     }
     m_rt[0]->read_rt(rt_file);
   }
-
-  m_maxRadius = m_muonGeoMgr->getGenericMdtDescriptor()->innerRadius;
 
   ATH_MSG_DEBUG("Initialized Inner tube radius to " << m_maxRadius );
 

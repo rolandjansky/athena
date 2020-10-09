@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -76,8 +76,10 @@ class ConfiguredNewTrackingCuts :
     self.__seedFilterLevel         = 1
     self.__maxdImpactPPSSeeds      = 1.7
     self.__maxdImpactSSSSeeds      = 1000.0
-    self.__maxSeedsPerSP           = 5
-    self.__keepAllConfirmedSeeds   = False
+    self.__maxSeedsPerSP_Pixels    = 5
+    self.__maxSeedsPerSP_Strips    = 5
+    self.__keepAllConfirmedPixelSeeds   = False
+    self.__keepAllConfirmedStripSeeds   = False
 
     # --- min pt cut for brem
     self.__minPTBrem               = 1. * Units.GeV # off
@@ -210,6 +212,8 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 13 and DetFlags.detdescr.Calo_allOn():
       # --- turn on RoI seeded for Back Tracking and TRT only
       self.__RoISeededBackTracking   = True
+      self.__minRoIClusterEt         = 4500. * Units.MeV #Default cut to mimic rel21-ish
+
 
     if self.__indetflags.cutLevel() >= 14 :
       self.__minPT                   = 0.5 * Units.GeV
@@ -225,6 +229,7 @@ class ConfiguredNewTrackingCuts :
       # Designed to speed up reconstruction at minimal performance impact. 
       self.__roadWidth              = 12
       self.__maxdImpactSSSSeeds     = 5.0 * Units.mm
+      self.__maxZImpact              = 200
 
     if self.__indetflags.cutLevel() >= 18:
       # Further tuning of the pattern recognition designed to 
@@ -232,9 +237,9 @@ class ConfiguredNewTrackingCuts :
       # impact. Kept as separate level pending cross-check of 
       # seed confirmation robustness with end-of-run-3 radiation
       # damage. 
-      self.__keepAllConfirmedSeeds  = True
-      self.__maxSeedsPerSP          = 1
-
+      self.__keepAllConfirmedPixelSeeds  = True
+      self.__maxSeedsPerSP_Pixels          = 1
+      self.__maxSeedsPerSP_Strips          = 5
     
     if self.__indetflags.cutLevel() >= 19:
       # Calo cluster Et for RoI seeded backtracking for TRT segment finding
@@ -242,10 +247,7 @@ class ConfiguredNewTrackingCuts :
       self.__minRoIClusterEt         = 6000. * Units.MeV
       self.__minSecondaryPt          = 3.0 * Units.GeV  # Increase pT cut used for back-tracking to match calo-RoI
 
-    if self.__indetflags.cutLevel() >= 20:
-      print('--------> FATAL ERROR, cut level undefined, abort !')
-      import sys
-      sys.exit()
+    assert self.__indetflags.cutLevel() < 20 , "default cut level is wrong {}.format(self.__indetflags.cutLevel())"
 
     # --------------------------------------
     # --- now the overwrites for special setups
@@ -274,23 +276,6 @@ class ConfiguredNewTrackingCuts :
       self.__rejectShortExtensions = False
 
 
-#    if rec.Commissioning():
-#      self.__minClusters             = 7                # Igor 6, was 7
-#      self.__maxHoles                = 5                # was 5
-#      self.__maxPixelHoles           = 2                # was 5
-#      self.__maxSctHoles             = 5                # was 5
-#      self.__maxDoubleHoles          = 4                # was 2
-#      self.__maxPrimaryImpact        = 50.0  * Units.mm # low lumi
-#      self.__maxZImpact              = 500.0 * Units.mm
-
-#    if rec.Commissioning():
-#      self.__maxSecondaryHoles       = 5
-#      self.__maxSecondaryPixelHoles  = 5
-#      self.__maxSecondarySCTHoles    = 5
-#      self.__maxSecondaryDoubleHoles = 2
-#      self.__SecondaryXi2max         = 50.0
-#      self.__SecondaryXi2maxNoAdd    = 100.0
-
     # --- SLHC setup
     if mode == "SLHC":
       self.__extension               = "SLHC"
@@ -302,19 +287,9 @@ class ConfiguredNewTrackingCuts :
       # --- cluster cuts
       self.__minClusters             = 9
       self.__minSiNotShared          = 8
-      #self.__maxShared               = 3 # cut is now on number of shared modules
-      #self.__maxHoles                = 3
-      #self.__maxPixelHoles           = D2
-      #self.__maxSctHoles             = 2
-      #self.__maxDoubleHoles          = 2
+
       # --- also tighten pattern cuts
       self.__radMax                  = 1000. * Units.mm
-      #self.__seedFilterLevel         = 1
-      #self.__nHolesMax               = self.__maxHoles
-      #self.__nHolesGapMax            = self.__maxHoles
-      #self.__Xi2max                  = 15.0
-      #self.__Xi2maxNoAdd             = 35.0
-      #self.__nWeightedClustersMin    = self.__minClusters-1
 
     # --- IBL setup
     if mode == "IBL" :
@@ -335,9 +310,9 @@ class ConfiguredNewTrackingCuts :
     # --- mode for min bias, commissioning or doRobustReco
     if mode == 'MinBias' or self.__indetflags.doRobustReco():
       if self.__indetflags.doHIP300():
-       self.__minPT                     = 0.300 * Units.GeV
+        self.__minPT                     = 0.300 * Units.GeV
       else:
-       self.__minPT                     = 0.100 * Units.GeV
+        self.__minPT                     = 0.100 * Units.GeV
       self.__minClusters               = 5
       self.__minSecondaryPt            = 0.4 * Units.GeV  # Pt cut for back tracking + segment finding for these
       self.__minTRTonlyPt              = 0.4 * Units.GeV  # Pt cut for TRT only
@@ -400,8 +375,8 @@ class ConfiguredNewTrackingCuts :
       self.__nWeightedClustersMin    = 8   
       self.__maxdImpactSSSSeeds      = 300.0
       self.__doZBoundary             = True
-      self.__keepAllConfirmedSeeds   = True
-      self.__maxSeedsPerSP           = 1
+      self.__keepAllConfirmedStripSeeds   = True
+      self.__maxSeedsPerSP_Strips    = 1
 
 
     # --- mode for high-d0 tracks down to 100 MeV (minPT, minClusters, minSecondaryPt cuts loosened to MinBias level)
@@ -456,20 +431,12 @@ class ConfiguredNewTrackingCuts :
       self.__maxZImpact              = 150.0 * Units.mm
       self.__minClusters             = 6
       self.__minSiNotShared          = 4
-      #self.__maxShared               = 3
       self.__maxHoles                = 0
-      #self.__maxPixelHoles           = D2
-      #self.__maxSctHoles             = 2
-      #self.__maxDoubleHoles          = 2
+
       # --- also tighten pattern cuts
       self.__radMax                  = 1000. * Units.mm
       self.__radMin                  = 0. * Units.mm # not turn on this cut for now
-      #self.__seedFilterLevel         = 1
-      #self.__nHolesMax               = self.__maxHoles
-      #self.__nHolesGapMax            = self.__maxHoles
-      #self.__Xi2max                  = 15.0
-      #self.__Xi2maxNoAdd             = 35.0
-      #self.__nWeightedClustersMin    = self.__minClusters-1
+
       # --- turn on Z Boundary seeding
       self.__doZBoundary              = False #
 
@@ -602,7 +569,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxSctHoles      = 3
       self.__maxDoubleHoles   = 1
       self.__minTRTonTrk      = 15
-      self.__minTRTOnly       = 15
+      self.__minTRTonly       = 15
       self.__roadWidth        = 60.
       self.__seedFilterLevel  = 3
       self.__Xi2max           = 60.0
@@ -1018,11 +985,17 @@ class ConfiguredNewTrackingCuts :
   def RoadWidth( self ) :
     return self.__roadWidth
 
-  def MaxSeedsPerSP( self ) :
-    return self.__maxSeedsPerSP
+  def MaxSeedsPerSP_Strips( self ) :
+    return self.__maxSeedsPerSP_Strips
+
+  def MaxSeedsPerSP_Pixels( self ) :
+    return self.__maxSeedsPerSP_Pixels
     
-  def KeepAllConfirmedSeeds( self ) :
-    return self.__keepAllConfirmedSeeds
+  def KeepAllConfirmedPixelSeeds( self ) :
+    return self.__keepAllConfirmedPixelSeeds
+    
+  def KeepAllConfirmedStripSeeds( self ) :
+    return self.__keepAllConfirmedStripSeeds
 
   def seedFilterLevel( self ) :
     return self.__seedFilterLevel

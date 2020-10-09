@@ -11,6 +11,28 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 import AthenaCommon.CfgMgr as CfgMgr
 
+
+#Retrieve short name for tau signature that can be used as suffix to be appended to the names of alg/tools
+#Based on these names specific ID config is retrieved
+#This utilizes name of the reco sequence from which checks specific string pattern
+def _getTauSignatureShort( name ):
+    #Do we want to set empty string as dummy? Some assert check instead?
+    signature = ""
+    if "FTFId" in name:
+      signature = 'tauId'
+    elif "FTFTrackInView" in name:
+      signature = 'tauTrk'
+    elif "FTFTrackTwo" in name:
+      signature = 'tauTrkTwo'
+    elif "FTFIso" in name:
+      signature = 'tauIso'
+    elif "EF" in name:
+      signature = 'tauEF'
+
+    #Append tauCore?
+    return signature
+
+
 def _algoTauRoiUpdater(inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdaterMT
     algo                               = TrigTauCaloRoiUpdaterMT("TauCaloRoiUpdater")
@@ -43,7 +65,7 @@ def _algoTauCaloOnlyMVA(L1RoIs, inputRoIs, clusters):
     algo.Key_trackPartInputContainer   = ""
     algo.Key_trigTauJetInputContainer  = ""
     algo.Key_trigTauTrackInputContainer  = ""
-    algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnlyMVA")
+    algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnly")
     algo.Key_trigTauTrackOutputContainer = "HLT_tautrack_dummy"
     return algo
 
@@ -76,12 +98,13 @@ def _algoTauPrecision(inputRoIs, tracks, step):
     algo.L1RoIKey                        = "TAUCaloRoIs"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     algo.Key_trackPartInputContainer     = tracks
     if "Id" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
+       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     elif "Track" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_Presel"
+       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_Presel"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Precision")   
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Precision")
     return algo
@@ -95,13 +118,12 @@ def _algoTauPrecisionMVA(inputRoIs, tracks, step):
     algo.L1RoIKey                        = "TAUCaloRoIs"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnlyMVA"
-    if "EF" in step:
-       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
+    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     algo.Key_trackPartInputContainer     = tracks
     algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_MVA")
+    algo.Key_trigJetSeedOutputKey        = recordable("HLT_jet_seed")
     return algo
 
 def tauCaloRecoSequence(InViewRoIs, SeqName):
@@ -142,16 +164,10 @@ def tauCaloSequence(ConfigFlags):
     tauCaloRecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloRecoVDV" )
     tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                   ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
     tauCaloInViewSequence += tauCaloRecoVDV
-
-    # Make sure the required objects are still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
 
     tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
     return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    
@@ -174,16 +190,10 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVARecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloMVARecoVDV" )
     tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                      ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                     ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                      ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
     tauCaloMVAInViewSequence += tauCaloMVARecoVDV
-
-    # Make sure the required objects are still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
 
     tauCaloMVASequence = seqAND("tauCaloMVASequence", [tauCaloMVAViewsMaker, tauCaloMVAInViewSequence ])
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
@@ -192,71 +202,49 @@ def tauIdTrackSequence( RoIs , name):
 
     tauIdTrackSequence = seqAND(name)
 
-    signName = "Tau"
+    signatureName = _getTauSignatureShort( name )
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( signatureName )
 
-    if ("Iso" in name) or ("TrackTwo" in name) or ("EF" in name):
-      signName = 'TauIso'
+    #TODO: are both FTF necessary for taus??
+    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+    viewAlgs, viewVerify = makeInDetAlgs(config = IDTrigConfig, rois = RoIs)
+
+
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator=signName, rois = RoIs )
-
-    tauViewDataVerifierName = ""
-    if "FTFId" in name:
-      tauViewDataVerifierName = "tauViewDataVerifierIdFTF"
-    elif "FTFTrackInView" in name:
-      tauViewDataVerifierName = "tauViewDataVerifierTrackFTF"
-    elif "FTFTrackTwo" in name:
-      tauViewDataVerifierName = "tauViewDataVerifierTrackTwoFTF"
-    elif "FTFIso" in name:
-      tauViewDataVerifierName = "tauViewDataVerifierIsoFTF"
-    elif "EF" in name:
-      tauViewDataVerifierName = "tauViewDataVerifierEF"
-
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator=signName, rois = RoIs, viewVerifier = tauViewDataVerifierName )
-
-    if "FTFIso" in name:
-       viewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' )]
-    else:
-       viewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]
+    #FIXME: are both FTF necessary for taus??
+    #viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs)
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs, viewVerifier = 'tauViewDataVerifierName')
 
     viewVerify.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
                                ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
                                ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
-                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' )]
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]
 
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-
     if globalflags.InputFormat.is_bytestream():
-      viewVerify.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+      viewVerify.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
     else:
       topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
       viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
     for viewAlg in viewAlgs:
        tauIdTrackSequence += viewAlg
-       if "TrigFastTrackFinder" in  viewAlg.name():
-         TrackCollection = viewAlg.TracksName
-       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():          
-         TrackParticlesName = viewAlg.TrackParticlesName
+
 
     if "FTFTrackInView" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = TrackParticlesName, step = "Track")
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT.tracksFTF(), step = "Track")
       tauIdTrackSequence += tauPreselectionAlg
     elif "TrackTwo" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = TrackParticlesName, step = "TrackTwo")
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT.tracksFTF(), step = "TrackTwo")
       tauIdTrackSequence += tauPreselectionAlg      
 
     #Precision Tracking
@@ -267,21 +255,8 @@ def tauIdTrackSequence( RoIs , name):
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     #Pass verifier as an argument and it will automatically append necessary DataObjects@NOTE: Don't provide any verifier if loaded in the same view as FTF
-
-    precName = ""
-    if "FTFId" in name:
-      precName = 'tauId'
-    elif "FTFTrackInView" in name:
-      precName = 'tauTrk'
-    elif "FTFTrackTwo" in name:
-      precName = 'tauTrkTwo'
-    elif "FTFIso" in name:
-      precName = 'tau'
-    elif "EF" in name:
-      precName = 'tauEF'
-
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( precName,  verifier = False, rois = RoIs, inputFTFtracks= TrackCollection )
-    PTSeq = parOR("precisionTrackingIn"+precName, PTAlgs  )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = False, rois = RoIs )
+    PTSeq = parOR("precisionTrackingIn"+signatureName, PTAlgs  )
 
     #Get last tracks from the list as input for other alg       
     tauIdTrackSequence += PTSeq
@@ -307,30 +282,21 @@ def tauCoreTrackSequence( RoIs, name ):
 
     tauCoreTrackSequence = seqAND(name)
 
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'tauCore' )
+
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature='TauCore', separateTrackParticleCreator="TauCore", rois = RoIs )
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
 
     for viewAlg in viewAlgs:
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
 
-    if "MVA" in name:
-       viewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA' )]
-    else:
-       viewVerify.DataObjects += [( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]
-
-
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
-                               ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #For some reason not picked up properly
-
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      from AthenaCommon.AlgSequence import AlgSequence
-      topSequence = AlgSequence()
-      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
+                               ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                               ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),#For some reason not picked up properly
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 
 
     tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
 
@@ -341,28 +307,6 @@ def tauCoreTrackSequence( RoIs, name ):
     sequenceOut = TrackCollection
 
     return tauCoreTrackSequence, sequenceOut
-
-def tauFTFTrackTwoSequence(ConfigFlags):
-
-    RecoSequenceName = "tauFTFTrackTwoInViewSequence"
-
-    newRoITool                    = ViewCreatorFetchFromViewROITool()
-    newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_Tau_TrackTwo") #RoI collection recorded to EDM
-    newRoITool.InViewRoIs         = "UpdatedTrackRoI" #input RoIs from calo only step 
-
-    ftfTrackTwoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrackTwo")
-    ftfTrackTwoViewsMaker.RoIsLink          = "roi"
-    ftfTrackTwoViewsMaker.RoITool           = newRoITool
-    ftfTrackTwoViewsMaker.InViewRoIs        = "RoiForID"
-    ftfTrackTwoViewsMaker.Views             = "TAUFTFTrackTwoViews"
-    ftfTrackTwoViewsMaker.ViewFallThrough   = True
-    ftfTrackTwoViewsMaker.RequireParentView = True
-    ftfTrackTwoViewsMaker.ViewNodeName      = RecoSequenceName
-
-    (tauFTFTrackTwoInViewSequence, sequenceOut) = tauIdTrackSequence( ftfTrackTwoViewsMaker.InViewRoIs, RecoSequenceName)
-
-    tauFastTrackTwoSequence = seqAND("tauFastTrackTwoSequence", [ftfTrackTwoViewsMaker, tauFTFTrackTwoInViewSequence ])
-    return (tauFastTrackTwoSequence, ftfTrackTwoViewsMaker, sequenceOut)
 
 def tauFTFTrackSequence(ConfigFlags):
 
@@ -408,28 +352,6 @@ def tauFTFIdSequence(ConfigFlags):
     tauFastTrackIdSequence = seqAND("tauFastTrackIdSequence", [ftfIdViewsMaker, tauFTFIdInViewSequence ])
     return (tauFastTrackIdSequence, ftfIdViewsMaker, sequenceOut)
 
-def tauFTFCoreMVASequence(ConfigFlags):
-
-    RecoSequenceName = "tauFTFCoreMVAInViewSequence"
-
-    newRoITool                             = ViewCreatorFetchFromViewROITool()
-    newRoITool.RoisWriteHandleKey          = recordable("HLT_Roi_TauCore_MVA") #RoI collection recorded to EDM                                
-    newRoITool.InViewRoIs                  = "UpdatedCaloRoI" #input RoIs from calo only step        
-
-    ftfCoreMVAViewsMaker                   = EventViewCreatorAlgorithm("IMFTFCoreMVA")
-    ftfCoreMVAViewsMaker.RoIsLink          = "roi"
-    ftfCoreMVAViewsMaker.RoITool           = newRoITool
-    ftfCoreMVAViewsMaker.InViewRoIs        = "RoiForTauCore"
-    ftfCoreMVAViewsMaker.Views             = "TAUFTFCoreMVAViews"
-    ftfCoreMVAViewsMaker.ViewFallThrough   = True
-    ftfCoreMVAViewsMaker.RequireParentView = True
-    ftfCoreMVAViewsMaker.ViewNodeName      = RecoSequenceName
-
-    (tauFTFCoreMVAInViewSequence, sequenceOut) = tauCoreTrackSequence( ftfCoreMVAViewsMaker.InViewRoIs, RecoSequenceName)
-
-    tauFastTrackCoreMVASequence = seqAND("tauFastTrackCoreMVASequence", [ftfCoreMVAViewsMaker, tauFTFCoreMVAInViewSequence ])
-    return (tauFastTrackCoreMVASequence, ftfCoreMVAViewsMaker, sequenceOut)
-
 def tauFTFCoreSequence(ConfigFlags):
 
     RecoSequenceName = "tauFTFCoreInViewSequence"
@@ -439,7 +361,8 @@ def tauFTFCoreSequence(ConfigFlags):
     newRoITool.InViewRoIs               = "UpdatedCaloRoI" #input RoIs from calo only step   
 
     ftfCoreViewsMaker                   = EventViewCreatorAlgorithm("IMFTFCore")
-    ftfCoreViewsMaker.RoIsLink          = "roi"
+    #ftfCoreViewsMaker.RoIsLink          = "roi"
+    ftfCoreViewsMaker.mergeUsingFeature = True
     ftfCoreViewsMaker.RoITool           = newRoITool
     ftfCoreViewsMaker.InViewRoIs        = "RoiForTauCore"
     ftfCoreViewsMaker.Views             = "TAUFTFCoreViews"
@@ -463,7 +386,7 @@ def tauFTFIsoSequence(ConfigFlags):
     ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
     ftfIsoViewsMaker.RoIsLink          = "roi"
     ftfIsoViewsMaker.RoITool           = newRoITool
-    ftfIsoViewsMaker.InViewRoIs        = "RoiForID"
+    ftfIsoViewsMaker.InViewRoIs        = "RoiForTauCore"
     ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
     ftfIsoViewsMaker.ViewFallThrough   = True
     ftfIsoViewsMaker.RequireParentView = True
@@ -485,7 +408,7 @@ def tauEFSequence(ConfigFlags):
     efViewsMaker                   = EventViewCreatorAlgorithm("IMTauEF")
     efViewsMaker.RoIsLink          = "roi"  
     efViewsMaker.RoITool           = newRoITool
-    efViewsMaker.InViewRoIs        = "RoiForID"
+    efViewsMaker.InViewRoIs        = "RoiForTauCore"
     efViewsMaker.Views             = "TAUEFViews"
     efViewsMaker.ViewFallThrough   = True
     efViewsMaker.RequireParentView = True
@@ -495,3 +418,27 @@ def tauEFSequence(ConfigFlags):
 
     tauEFSequence = seqAND("tauEFSequence", [efViewsMaker, tauEFInViewSequence ])
     return (tauEFSequence, efViewsMaker, sequenceOut)
+
+
+def tauFTFTrackTwoSequence(ConfigFlags):
+
+    RecoSequenceName = "tauFTFTrackTwoInViewSequence"
+
+    newRoITool                    = ViewCreatorFetchFromViewROITool()
+    newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_Tau_TrackTwo") #RoI collection recorded to EDM
+    newRoITool.InViewRoIs         = "UpdatedTrackRoI" #input RoIs from calo only step 
+
+    ftfTrackTwoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrackTwo")
+    ftfTrackTwoViewsMaker.RoIsLink          = "roi"
+    ftfTrackTwoViewsMaker.RoITool           = newRoITool
+    ftfTrackTwoViewsMaker.InViewRoIs        = "RoiForTauCore"
+    ftfTrackTwoViewsMaker.Views             = "TAUFTFTrackTwoViews"
+    ftfTrackTwoViewsMaker.ViewFallThrough   = True
+    ftfTrackTwoViewsMaker.RequireParentView = True
+    ftfTrackTwoViewsMaker.ViewNodeName      = RecoSequenceName
+
+    (tauFTFTrackTwoInViewSequence, sequenceOut) = tauIdTrackSequence( ftfTrackTwoViewsMaker.InViewRoIs, RecoSequenceName)
+
+    tauFastTrackTwoSequence = seqAND("tauFastTrackTwoSequence", [ftfTrackTwoViewsMaker, tauFTFTrackTwoInViewSequence ])
+    return (tauFastTrackTwoSequence, ftfTrackTwoViewsMaker, sequenceOut)
+

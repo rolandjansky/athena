@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMETMONITORING_TRIGMETMONITORALGORITHM_H
@@ -36,6 +36,10 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tcpufit_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_trkmht_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_pfsum_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_pfopufit_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_cvfpufit_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_pf_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_em_met_key;
 
   std::string m_L1Chain1;
   std::string m_HLTChain1;

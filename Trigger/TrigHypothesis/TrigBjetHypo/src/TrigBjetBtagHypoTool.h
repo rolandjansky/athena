@@ -67,6 +67,8 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
   Gaudi::Property< double > m_bTaggingCut {this,"BTaggingCut",-20.,"lower bound of the discriminant variable to be selected for b-tagging"};
 
+  Gaudi::Property< double > m_cFrac {this,"cFraction",0.08,"c-fraction for DL1r LLR computation"};
+
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;
   //  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" }; Temporary commenting this out

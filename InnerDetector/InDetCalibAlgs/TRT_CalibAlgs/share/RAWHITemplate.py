@@ -422,6 +422,7 @@ print TRT_StrawStatus
 
 
 
+
 topSequence.InDetTRT_RIO_Maker.TRTEffiCut=0.5
 topSequence.InDetSCT_Clusterization.TRTEffiCut=0.5
 topSequence.InDetPixelClusterization.TRTEffiCut=0.5

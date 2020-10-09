@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TruthController_H
@@ -9,18 +9,17 @@ class TrackVisualizationHelper;
 
 class TruthController {
 public:
-  static TruthController *getTruthController();
+  static const TruthController *getTruthController();
   void setVisualizationHelper(TrackVisualizationHelper *);
-  TrackVisualizationHelper* getVisualizationHelper() const
+  const TrackVisualizationHelper* getVisualizationHelper() const
   {
     return m_theVisHelper;
   }
 private:
   // this is a singleton
-  static TruthController *s_thePointer;
   TruthController();
-  TruthController(const TruthController&) {}
-  TruthController& operator= (const TruthController&);
+  TruthController(const TruthController&) = delete;
+  TruthController& operator= (const TruthController&) = delete;
   ~TruthController();
   TrackVisualizationHelper *m_theVisHelper;
 };

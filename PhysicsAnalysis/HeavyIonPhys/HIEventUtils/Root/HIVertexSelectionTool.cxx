@@ -5,7 +5,7 @@
 
 #include "HIEventUtils/HIVertexSelectionTool.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 using std::string;
 

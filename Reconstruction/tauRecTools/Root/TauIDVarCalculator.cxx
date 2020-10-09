@@ -13,7 +13,6 @@
 
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/xAODP4Helpers.h"
-#include "AsgDataHandles/ReadHandle.h"
 
 #include "TLorentzVector.h"
 
@@ -22,78 +21,45 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
-  m_incShowerSubtr(true)
+  m_useSubtractedCluster(true)
 {
-  declareProperty("IncShowerSubtr", m_incShowerSubtr);
+  declareProperty("UseSubtractedCluster", m_useSubtractedCluster);
 }
 
 StatusCode TauIDVarCalculator::initialize()
-{
-  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
+{  
+  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
 {
-  int nVtx = 0;
-  if(!inTrigger()){
+  static const SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
 
-    nVtx = int(LOW_NUMBER);    
-    // Get the primary vertex container from StoreGate
-    const xAOD::VertexContainer* vertexContainer = nullptr;
-    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
-    if (!vertexInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-      return StatusCode::FAILURE;                                                                                                                              
-    }
-    else{
-      vertexContainer = vertexInHandle.cptr();
-      nVtx=0;
-      for( auto vertex : *vertexContainer ){
-	if(!vertex) continue;
-	// WARNING! the nVtx definition is different from the MVA TES equivalent, where we only count pileup vertices
-	int nTrackParticles = vertex->nTrackParticles();
-        if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
-            (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
-          nVtx++;
-        }
-      }
-    }
-  }
- 
-  SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
-  float ipSigLeadTrk=0.;
-  if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
-    return StatusCode::FAILURE;
-  acc_absipSigLeadTrk(tau) = std::abs(ipSigLeadTrk);
+  acc_absipSigLeadTrk(tau) = (tau.nTracks()>0) ? std::abs(tau.track(0)->d0SigTJVA()) : 0.;
   
-  //don't calculate EleBDT variables if run from TrigTauDiscriminant:
   if(inTrigger()) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
-  SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
-  SG::AuxElement::Accessor<float> acc_leadTrackProbHT("leadTrackProbHT");
-  SG::AuxElement::Accessor<float> acc_leadTrackEta("leadTrackEta");
-  SG::AuxElement::Accessor<float> acc_absDeltaEta("TAU_ABSDELTAETA");
-  SG::AuxElement::Accessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
-  const SG::AuxElement::ConstAccessor<float> acc_sumEMCellEtOverLeadTrkPt("sumEMCellEtOverLeadTrkPt");
-  const SG::AuxElement::ConstAccessor<float> acc_etHadAtEMScale("etHadAtEMScale");
-  const SG::AuxElement::ConstAccessor<float> acc_etEMAtEMScale("etEMAtEMScale");
-  SG::AuxElement::Accessor<float> acc_EMFractionAtEMScaleMOVEE3("EMFRACTIONATEMSCALE_MOVEE3");
-  SG::AuxElement::Accessor<float> acc_seedTrkSecMaxStripEtOverPt("TAU_SEEDTRK_SECMAXSTRIPETOVERPT");
-  const SG::AuxElement::ConstAccessor<float> acc_secMaxStripEt("secMaxStripEt");
-  const SG::AuxElement::ConstAccessor<float> acc_centFrac("centFrac");
-  const SG::AuxElement::ConstAccessor<float> acc_etOverPtLeadTrk("etOverPtLeadTrk");
-  SG::AuxElement::Accessor<float> acc_corrftrk("CORRFTRK");
-  SG::AuxElement::Accessor<float> acc_centFracCorrected("CORRCENTFRAC");
+  static const SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
+  static const SG::AuxElement::Accessor<float> acc_leadTrackProbHT("leadTrackProbHT");
+  static const SG::AuxElement::Accessor<float> acc_absDeltaEta("TAU_ABSDELTAETA");
+  static const SG::AuxElement::Accessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
+  static const SG::AuxElement::ConstAccessor<float> acc_sumEMCellEtOverLeadTrkPt("sumEMCellEtOverLeadTrkPt");
+  static const SG::AuxElement::ConstAccessor<float> acc_etHadAtEMScale("etHadAtEMScale");
+  static const SG::AuxElement::ConstAccessor<float> acc_etEMAtEMScale("etEMAtEMScale");
+  static const SG::AuxElement::Accessor<float> acc_EMFractionAtEMScaleMOVEE3("EMFRACTIONATEMSCALE_MOVEE3");
+  static const SG::AuxElement::Accessor<float> acc_seedTrkSecMaxStripEtOverPt("TAU_SEEDTRK_SECMAXSTRIPETOVERPT");
+  static const SG::AuxElement::ConstAccessor<float> acc_secMaxStripEt("secMaxStripEt");
+  static const SG::AuxElement::ConstAccessor<float> acc_centFrac("centFrac");
 
   // Will: Fixed variables for R21
-  SG::AuxElement::Accessor<float> acc_EMFracFixed("EMFracFixed");
-  SG::AuxElement::Accessor<float> acc_hadLeakFracFixed("hadLeakFracFixed");
-  SG::AuxElement::Accessor<float> acc_etHotShotDR1("etHotShotDR1"); // replace secMaxStripEt
-  SG::AuxElement::Accessor<float> acc_etHotShotWin("etHotShotWin"); // replace secMaxStripEt
-  SG::AuxElement::Accessor<float> acc_etHotShotDR1OverPtLeadTrk("etHotShotDR1OverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
-  SG::AuxElement::Accessor<float> acc_etHotShotWinOverPtLeadTrk("etHotShotWinOverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
+  static const SG::AuxElement::Accessor<float> acc_EMFracFixed("EMFracFixed");
+  static const SG::AuxElement::Accessor<float> acc_hadLeakFracFixed("hadLeakFracFixed");
+  static const SG::AuxElement::Accessor<float> acc_etHotShotDR1("etHotShotDR1"); // replace secMaxStripEt
+  static const SG::AuxElement::Accessor<float> acc_etHotShotWin("etHotShotWin"); // replace secMaxStripEt
+  static const SG::AuxElement::Accessor<float> acc_etHotShotDR1OverPtLeadTrk("etHotShotDR1OverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
+  static const SG::AuxElement::Accessor<float> acc_etHotShotWinOverPtLeadTrk("etHotShotWinOverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
 
 
   // EMFracFixed and eHad1AtEMScaleFixed (for acc_hadLeakFracFixed)
@@ -113,42 +79,44 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
   std::vector<CaloSampling::CaloSample> Had1Samps = { 
         CaloSampling::HEC0, CaloSampling::TileBar0, CaloSampling::TileGap1, CaloSampling::TileExt0};
 
-  // Get Clusters via Jet Seed 
-  const xAOD::Jet *jetSeed = (*tau.jetLink());
-  if (!jetSeed) {
+  if (! tau.jetLink().isValid()) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
-  } 
+  }
+  const xAOD::Jet *jetSeed = tau.jet();
+  
+  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+  
+  const xAOD::Vertex* tauVertex = nullptr;
+  if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
+  
+  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
 
-  auto p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
-  float eEMAtEMScaleFixed = 0;
-  float eHadAtEMScaleFixed = 0;
-  float eHad1AtEMScaleFixed = 0;
-
-  // Loop through jets, get links to clusters
   std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster));
+  
+  float eEMAtEMScaleFixed = 0.;
+  float eHadAtEMScaleFixed = 0.;
+  float eHad1AtEMScaleFixed = 0.;
 
-  for( auto cl : clusterList){
+  for (const xAOD::CaloCluster* cluster  : clusterList) {
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
     
-    // Only take clusters with dR<0.2 w.r.t IntermediateAxis
-    if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
+    if( tauAxis.DeltaR(clusterP4) > 0.2 ) continue;
     
     for( auto samp : EMSamps )
-      eEMAtEMScaleFixed += cl->eSample(samp);
+      eEMAtEMScaleFixed += cluster->eSample(samp);
     for( auto samp : HadSamps )
-      eHadAtEMScaleFixed += cl->eSample(samp);
+      eHadAtEMScaleFixed += cluster->eSample(samp);
     for( auto samp : Had1Samps )
-      eHad1AtEMScaleFixed += cl->eSample(samp);  
+      eHad1AtEMScaleFixed += cluster->eSample(samp);  
   }
-  acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0 ? 
+  acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0. ? 
       eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;
  
   if(tau.nTracks() > 0){
-    const xAOD::TrackParticle* track = 0;
-    track = tau.track(0)->track();
+    const xAOD::TrackParticle* track = tau.track(0)->track();
     acc_absEtaLead(tau) = std::abs( track->eta() );
-    acc_leadTrackEta(tau) = std::abs( track->eta() );
     acc_absDeltaEta(tau) = std::abs( track->eta() - tau.eta() );
     acc_absDeltaPhi(tau) = std::abs( track->p4().DeltaPhi(tau.p4()) );
     //EMFRACTIONATEMSCALE_MOVEE3:
@@ -160,14 +128,14 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
     float tau_seedCalo_etEMAtEMScale_yesE3 = etEMScale1 + tau_E3;
     acc_EMFractionAtEMScaleMOVEE3(tau) = tau_seedCalo_etEMAtEMScale_yesE3 / (tau_seedCalo_etEMAtEMScale_yesE3 + tau_seedCalo_etHadAtEMScale_noE3);
     //TAU_SEEDTRK_SECMAXSTRIPETOVERPT:
-    acc_seedTrkSecMaxStripEtOverPt(tau) = (track->pt() != 0) ? acc_secMaxStripEt(tau) / track->pt() : LOW_NUMBER;
+    acc_seedTrkSecMaxStripEtOverPt(tau) = (track->pt() != 0.) ? acc_secMaxStripEt(tau) / track->pt() : LOW_NUMBER;
 
     float fTracksEProbabilityHT;
     track->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT);
     acc_leadTrackProbHT(tau) = fTracksEProbabilityHT;
     
     // hadLeakFracFixed
-    acc_hadLeakFracFixed(tau) = (track->p4().P() != 0) ? eHad1AtEMScaleFixed / track->p4().P() : LOW_NUMBER;
+    acc_hadLeakFracFixed(tau) = (track->p4().P() != 0.) ? eHad1AtEMScaleFixed / track->p4().P() : LOW_NUMBER;
 
     // HOT SHOTS!!!!!
     // --------------
@@ -182,15 +150,15 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
     ATH_MSG_DEBUG("track EM " << ", eta: " << etaCalo << ", phi: " << phiCalo );
     
     // Get hottest shot in dR<0.1 and in 0.05 x 0.1 window
-    float etHotShotDR1 = 0;
-    float etHotShotWin = 0;
+    float etHotShotDR1 = 0.;
+    float etHotShotWin = 0.;
     for( auto shotLink : tau.shotPFOLinks() ){
         if( not shotLink.isValid() ){
             ATH_MSG_WARNING("Invalid shotLink");
             continue;
         }
-        const xAOD::PFO* shot = (*shotLink);
-        float etShot = 0;
+        const xAOD::PFO* shot = *shotLink;
+        float etShot = 0.;
         shot->attribute(xAOD::PFODetails::tauShots_pt3, etShot);
        
         // In dR < 0.1
@@ -204,10 +172,11 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
     }
     acc_etHotShotDR1(tau) = etHotShotDR1;
     acc_etHotShotWin(tau) = etHotShotWin;
-    acc_etHotShotDR1OverPtLeadTrk(tau) = (track->pt() != 0) ? etHotShotDR1 / track->pt() : LOW_NUMBER;
-    acc_etHotShotWinOverPtLeadTrk(tau) = (track->pt() != 0) ? etHotShotWin / track->pt() : LOW_NUMBER;
+    acc_etHotShotDR1OverPtLeadTrk(tau) = (track->pt() != 0.) ? etHotShotDR1 / track->pt() : LOW_NUMBER;
+    acc_etHotShotWinOverPtLeadTrk(tau) = (track->pt() != 0.) ? etHotShotWin / track->pt() : LOW_NUMBER;
 
-  }else{
+  }
+  else{
     acc_absEtaLead(tau) = LOW_NUMBER;
     acc_absDeltaEta(tau) = LOW_NUMBER;
     acc_absDeltaPhi(tau) = LOW_NUMBER;
@@ -219,18 +188,6 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
     acc_etHotShotDR1OverPtLeadTrk(tau) = LOW_NUMBER; 
     acc_etHotShotWinOverPtLeadTrk(tau) = LOW_NUMBER; 
   }
-  //CORRFTRK
-  float correction = nVtx != int(LOW_NUMBER) ? 0.003 * nVtx : 0.;
-  float etOverpTLeadTrk = acc_etOverPtLeadTrk(tau);
-  float ptLeadTrkOverEt = etOverpTLeadTrk > 0 ? 1. / etOverpTLeadTrk : LOW_NUMBER;
-  acc_corrftrk(tau) = ptLeadTrkOverEt != -1111. ? ptLeadTrkOverEt + correction : ptLeadTrkOverEt;
-  
-  acc_centFracCorrected(tau) = tau.pt() < 80. * GeV ? acc_centFrac(tau) + correction : acc_centFrac(tau);
  
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauIDVarCalculator::finalize()
-{
   return StatusCode::SUCCESS;
 }

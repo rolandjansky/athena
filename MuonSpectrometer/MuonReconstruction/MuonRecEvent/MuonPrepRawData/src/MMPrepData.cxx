@@ -139,23 +139,6 @@ namespace Muon
     m_author(RIO.m_author)
   { }
 
-  //move constructor:
-  MMPrepData::MMPrepData(MMPrepData&& RIO):
-    MuonCluster(std::move(RIO)),
-    m_detEl( RIO.m_detEl ),
-    m_time(RIO.m_time),
-    m_charge(RIO.m_charge),
-    m_driftDist(RIO.m_driftDist),
-    m_angle(RIO.m_angle),
-    m_chisqProb(RIO.m_chisqProb),
-    m_stripNumbers(RIO.m_stripNumbers),
-    m_stripTimes(RIO.m_stripTimes),
-    m_stripCharges(RIO.m_stripCharges),
-    m_stripDriftDist(RIO.m_stripDriftDist),
-    m_stripDriftErrors(RIO.m_stripDriftErrors),
-    m_author(RIO.m_author)
-  { }
-
   /// set the micro-tpc quantities
   void MMPrepData::setMicroTPC(float angle, float chisqProb)
   {
@@ -214,28 +197,6 @@ namespace Muon
 
   }
 
-  MMPrepData&
-  MMPrepData::operator=(MMPrepData&& RIO)
-  {
-    if (&RIO !=this)
-      {
-	MuonCluster::operator=(std::move(RIO));
-	m_detEl =  RIO.m_detEl ;
-	m_time =  RIO.m_time ;
-	m_charge =  RIO.m_charge ;
-	m_driftDist = RIO.m_driftDist;
-	m_angle = RIO.m_angle;
-	m_chisqProb = RIO.m_chisqProb;
-	m_stripNumbers = RIO.m_stripNumbers;
-	m_stripTimes = RIO.m_stripTimes;
-	m_stripCharges = RIO.m_stripCharges;
-	m_stripDriftDist = RIO.m_stripDriftDist;
-	m_stripDriftErrors = RIO.m_stripDriftErrors;
-	m_author = RIO.m_author;
-      }
-    return *this;
-
-  }
 
   MsgStream&
   MMPrepData::dump( MsgStream&    stream) const

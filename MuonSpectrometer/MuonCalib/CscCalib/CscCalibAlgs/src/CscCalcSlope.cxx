@@ -2,11 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TH1I.h"
-#include "TF1.h"
-#include "TGraphErrors.h"
-#include "TFile.h"
-#include "TProfile.h"
+#include "CscCalcSlope.h"
 
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
@@ -15,48 +11,49 @@
 #include "GaudiKernel/Chrono.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
+#include "CscCalibData/CscCalibResultContainer.h"
+#include "CscCalibData/CscCalibReportContainer.h"
+#include "CscCalibData/CscCalibReportSlope.h"
+#include "BipolarFit.h"
 
-#include <string>
+#include "TH1I.h"
+#include "TF1.h"
+#include "TGraphErrors.h"
+#include "TFile.h"
+#include "TProfile.h"
+
 #include <iostream>
 #include <fstream>
 #include <bitset>
 #include <inttypes.h>
 
-#include "CscCalcSlope.h"
-#include "BipolarFit.h"
-
-#include "CscCalibData/CscCalibResultContainer.h"
-#include "CscCalibData/CscCalibReportContainer.h"
-#include "CscCalibData/CscCalibReportSlope.h"
-
 namespace MuonCalib {
 
   CscCalcSlope::CscCalcSlope(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_storeGate(NULL),
-    m_cscCalibTool(NULL),
-    m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
-    m_chronoSvc(NULL),
+    m_storeGate(nullptr),
+    m_cscCalibTool(nullptr),
+    m_chronoSvc(nullptr),
     m_outputFileName("output.cal"),
     m_dumpAllHists(false),
     m_maxStripHash(0),
     m_lastPulserLevel(-999),
-    m_fracProfs(NULL),
-    m_fracGraphs(NULL),
-    m_bitHists(NULL),
-    m_fitReturns(NULL),
-    m_resGraph(NULL),
-    m_calGraphs(NULL),
-    m_currentAmpProf(NULL),
-    m_ampProfs(NULL),
-    m_pulsedChambers(NULL),
+    m_fracProfs(nullptr),
+    m_fracGraphs(nullptr),
+    m_bitHists(nullptr),
+    m_fitReturns(nullptr),
+    m_resGraph(nullptr),
+    m_calGraphs(nullptr),
+    m_currentAmpProf(nullptr),
+    m_ampProfs(nullptr),
+    m_pulsedChambers(nullptr),
     m_eventCnt(0),
-    m_slopes(NULL),
-    m_intercepts(NULL),
-    m_peds(NULL),
-    m_noises(NULL),
-    m_peakTimeProf(NULL),
-    m_peakTimes(NULL),
+    m_slopes(nullptr),
+    m_intercepts(nullptr),
+    m_peds(nullptr),
+    m_noises(nullptr),
+    m_peakTimeProf(nullptr),
+    m_peakTimes(nullptr),
     m_numBits(12)
   {
     declareProperty("OutputFile", m_outputFileName = "");
@@ -209,7 +206,7 @@ namespace MuonCalib {
     m_calGraphs = new DataVector<TGraphErrors>(SG::VIEW_ELEMENTS);
     for(unsigned int chanItr =0; chanItr <= m_maxStripHash; chanItr++)
     {
-      m_calGraphs->push_back(NULL);
+      m_calGraphs->push_back(nullptr);
     }
 
 

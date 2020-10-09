@@ -74,8 +74,8 @@ ToolSvc += TrackIsoTool500
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
 import ROOT, cppyy
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
+cppyy.load_library('libxAODCoreRflxDict')
+cppyy.load_library('libxAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
                                                                 TrackIsolationTool = TrackIsoTool,

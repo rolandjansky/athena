@@ -43,7 +43,7 @@ class CondInputLoader
 
   // need to override the ExtraInputs/Outputs property handler
   // from AthAlgorithm
-  void extraDeps_update_handler(Property&);
+  void extraDeps_update_handler(Gaudi::Details::PropertyBase&);
 
   /// Containers
   Gaudi::Property<DataObjIDColl> m_load{this,"Load",{},

@@ -11,7 +11,7 @@
 
 #include <SelectionHelpers/ISelectionAccessor.h>
 
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <SelectionHelpers/SelectionAccessorBits.h>
 #include <SelectionHelpers/SelectionAccessorChar.h>
 #include <SelectionHelpers/SelectionAccessorInvert.h>

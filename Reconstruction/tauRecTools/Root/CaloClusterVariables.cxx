@@ -22,36 +22,36 @@ m_totMass(DEFAULT),
 m_effMass(DEFAULT),
 m_totEnergy(DEFAULT),
 m_effEnergy(DEFAULT),
-m_doVertexCorrection(false),
-m_incShowerSubtr(true){
+m_useSubtractedCluster(true){
 }
 
 //*******************************************
 // update/fill the cluster based variables
 //*******************************************
 
-bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
+bool CaloClusterVariables::update(const xAOD::TauJet& pTau, const ToolHandle<ITauVertexCorrection>& tauVertexCorrection) {
+    
+    if (! pTau.jetLink().isValid()) return false;
 
-    const xAOD::Jet* pSeed = *pTau.jetLink();
-    if(!pSeed) return false;
+    const xAOD::Jet* jetSeed = pTau.jet();
+    const xAOD::Vertex* jetVertex = tauVertexCorrection->getJetVertex(*jetSeed);
 
-    // Loop through jets, get links to clusters
+    const xAOD::Vertex* tauVertex = nullptr;
+    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+ 
     std::vector<const xAOD::CaloCluster*> clusterList;
-    StatusCode sc = tauRecTools::GetJetClusterList(pSeed, clusterList, m_incShowerSubtr);
+    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster);
 
-    std::vector<CaloVertexedClusterType> constituents;
-    for (auto pCluster : clusterList){
-      // correct cluster
-      if (pTau.vertexLink() && m_doVertexCorrection)
-	constituents.emplace_back (*pCluster, (*pTau.vertexLink())->position());
-      else
-        constituents.emplace_back (*pCluster);
+    std::vector<TLorentzVector> clusterP4Vector;
+    for (const xAOD::CaloCluster* cluster : clusterList) {
+      TLorentzVector clusterP4 = tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+      clusterP4Vector.push_back(clusterP4);
     }
 
-    this->m_numConstit = (int) constituents.size();
+    this->m_numConstit = (int) clusterP4Vector.size();
 
     // Order constituents by energy
-    sort(constituents.begin(), constituents.end(), CaloClusterCompare());
+    sort(clusterP4Vector.begin(), clusterP4Vector.end(), CaloClusterCompare());
 
     //****************************************
     // Looping over all constituents
@@ -63,24 +63,16 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     double sum_e = 0;
     double sum_of_E2 = 0;
     double sum_radii = 0;
-    TLorentzVector centroid = calculateTauCentroid(this->m_numConstit, constituents);
+    TLorentzVector centroid = calculateTauCentroid(this->m_numConstit, clusterP4Vector);
 
-    for (const CaloVertexedClusterType& c : constituents) {
-        double energy = c.e();
+    for (const TLorentzVector& clusterP4 : clusterP4Vector) {
+        double energy = clusterP4.E();
         sum_of_E2 += energy*energy;
 
-        double px = c.p4().Px();
-        double py = c.p4().Py();
-        double pz = c.p4().Pz();
-        // FF: phi is wrong in case px,py AND pz is negative when using HepLorentzVector(px,py,pz,1)
-        // because phi = atan(py/px)
-        // in trigger many clusters have negative energies/momentum
-        // negative values of px and py are only treated correctly if pz is positive.
-        // Otherwise px and py must be taken as positive values
-        // so using cluster eta/phi directly instead of creating a HLV.
-        //CLHEP::HepLorentzVector constituentHLV(px, py, pz, 1);
-        //sum_radii += centroid.deltaR(constituentHLV);
-        double dr = std::sqrt( std::pow(c.eta() - centroid.Eta(),2) + std::pow(c.phi() - centroid.Phi(),2));
+        double px = clusterP4.Px();
+        double py = clusterP4.Py();
+        double pz = clusterP4.Pz();
+        double dr = clusterP4.DeltaR(centroid);
         sum_radii += dr;
         sum_e += energy;
         sum_px += px;
@@ -95,7 +87,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     if (this->m_numConstit < 2) this->m_totMass = DEFAULT;
     else {
         double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
-        this->m_totMass = mass2 > 0 ? sqrt(mass2) : -sqrt(-mass2);
+        this->m_totMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
     }
 
     // Calculate the average radius of the constituents wrt the tau centroid
@@ -122,18 +114,18 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     sum_e = 0;
     sum_of_E2 = 0;
     sum_radii = 0;
-    centroid = calculateTauCentroid(this->m_effNumConstit_int, constituents);
+    centroid = calculateTauCentroid(this->m_effNumConstit_int, clusterP4Vector);
 
     int icount = this->m_effNumConstit_int;
-    for (const CaloVertexedClusterType& c : constituents) {
+    for (const TLorentzVector& clusterP4 : clusterP4Vector) {
       if (icount <= 0) break;
       --icount;
 
-        double energy = c.e();
-        double px = c.p4().Px();
-        double py = c.p4().Py();
-        double pz = c.p4().Pz();
-        double dr = std::sqrt( std::pow(c.eta() - centroid.Eta(),2) + std::pow(c.phi() - centroid.Phi(),2));
+        double energy = clusterP4.E();
+        double px = clusterP4.Px();
+        double py = clusterP4.Py();
+        double pz = clusterP4.Pz();
+        double dr = clusterP4.DeltaR(centroid);
         sum_radii += dr;
 
         sum_e += energy;
@@ -149,7 +141,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     if (this->m_effNumConstit_int < 2) this->m_effMass = DEFAULT;
     else {
         double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
-        this->m_effMass = mass2 > 0 ? sqrt(mass2) : -sqrt(-mass2);
+        this->m_effMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
     }
 
     // Calculate the average radius of the constituents wrt the tau centroid
@@ -162,19 +154,19 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
 //***********************************************************
 // Calculate the geometrical center of the tau constituents
 //***********************************************************
-TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents) {
+TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector) {
 
     double px = 0;
     double py = 0;
     double pz = 0;
     double current_px, current_py, current_pz, modulus;
 
-    for (const CaloVertexedClusterType& c : constituents) {
+    for (const TLorentzVector& clusterP4: clusterP4Vector) {
       if (nConst <= 0) break;
       --nConst;
-        current_px = c.p4().Px();
-        current_py = c.p4().Py();
-        current_pz = c.p4().Pz();
+        current_px = clusterP4.Px();
+        current_py = clusterP4.Py();
+        current_pz = clusterP4.Pz();
         modulus = sqrt(current_px * current_px + current_py * current_py + current_pz * current_pz);
         px += current_px / modulus;
         py += current_py / modulus;

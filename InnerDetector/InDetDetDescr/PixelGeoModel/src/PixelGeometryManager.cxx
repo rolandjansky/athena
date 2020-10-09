@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeometryManager.h"
 
 using namespace std;
 
-PixelGeometryManager::PixelGeometryManager(const PixelGeoModelAthenaComps * athenaComps) :
+PixelGeometryManager::PixelGeometryManager(PixelGeoModelAthenaComps * athenaComps) :
   m_athenaComps(athenaComps)
 {}
 
@@ -14,7 +14,7 @@ PixelGeometryManager::~PixelGeometryManager()
 {}
 
 // Default implementation return 0.
-PixelLegacyManager * PixelGeometryManager::legacyManager() const
+PixelLegacyManager * PixelGeometryManager::legacyManager()
 {
   return 0;
 }

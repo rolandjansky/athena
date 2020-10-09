@@ -6,7 +6,7 @@
 #define ASSOCIATIONUTILS_TOOLBOX_H
 
 // Framework includes
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "AsgTools/AnaToolHandle.h"
 
 // Local includes

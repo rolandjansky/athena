@@ -27,8 +27,6 @@
 
 REGISTER_ALG_TCS(InvariantMassDeltaPhiInclusive2)
 
-using namespace std;
-
 
 TCS::InvariantMassDeltaPhiInclusive2::InvariantMassDeltaPhiInclusive2(const std::string & name) : DecisionAlg(name)
 {
@@ -127,8 +125,8 @@ TCS::InvariantMassDeltaPhiInclusive2::initialize() {
 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       string hname_accept = "hInvariantMassDeltaPhiInclusive2_accept_bit"+to_string((int)i);
-       string hname_reject = "hInvariantMassDeltaPhiInclusive2_reject_bit"+to_string((int)i);
+       std::string hname_accept = "hInvariantMassDeltaPhiInclusive2_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hInvariantMassDeltaPhiInclusive2_reject_bit"+std::to_string((int)i);
        // mass
        bookHist(m_histAcceptM, hname_accept, "INVM vs DPHI", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
        bookHist(m_histRejectM, hname_reject, "INVM vs DPHI", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]), 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);

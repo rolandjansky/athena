@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

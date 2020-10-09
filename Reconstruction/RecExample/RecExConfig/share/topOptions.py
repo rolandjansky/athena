@@ -60,12 +60,12 @@ aPhotonMaker=PhotonMaker(driving=True)
 bPhotonMaker=PhotonMaker()
 thebPMAlg=bPhotonMaker.PhotonBuilderHandle()
 
-print "Py:top output ",bPhotonMaker.outputTypeKey()
+print("Py:top output ",bPhotonMaker.outputTypeKey())
 # can modify the al property as follow
 # bPhotonMaker.PhotonBuilderHandle().egammaContainer = "egammaContainerTruc"
 
 
-print "Py: top instance property", thebPMAlg.egammaContainer
+print("Py: top instance property", thebPMAlg.egammaContainer)
 
 
 
@@ -74,10 +74,10 @@ print "Py: top instance property", thebPMAlg.egammaContainer
 #topSequence.setup()
 #exec 'topSequence.__self= []'
 #algorithms with property mods
-print topSequence
+print(topSequence)
 # only list algorithms
-print topSequence.sequence()
+print(topSequence.sequence())
 
 
-print "Py:top print again list of top algorithms"
-print theApp.TopAlg
+print("Py:top print again list of top algorithms")
+print(theApp.TopAlg)

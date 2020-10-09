@@ -21,7 +21,7 @@
 #include "PixelConditionsData/PixelModuleData.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 class PixelConfigCondAlg : public AthReentrantAlgorithm {
@@ -37,27 +37,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
 
     // Switch parameters
-    Gaudi::Property<bool> m_useCalibConditions
-    {this, "UseCalibConditions", true, "Use conditions DB for charge calibration"};
-
-    Gaudi::Property<bool> m_useDeadmapConditions
-    {this, "UseDeadmapConditions", true, "Use conditions DB for pixel deadmap module/FE"};
-
-    Gaudi::Property<bool> m_useDCSStateConditions
-    {this, "UseDCSStateConditions", false, "Use DCSState conditions DB"};
-
-    Gaudi::Property<bool> m_useDCSStatusConditions
-    {this, "UseDCSStatusConditions", false, "Use DCSStatus conditions DB"};
-
-    Gaudi::Property<bool> m_useDCSHVConditions
-    {this, "UseDCSHVConditions", true, "Use DCS HV conditions DB"};
-
-    Gaudi::Property<bool> m_useDCSTemperatureConditions
-    {this, "UseDCSTemperatureConditions", true, "Use DCS temperature conditions DB"};
-
-    Gaudi::Property<bool> m_useTDAQConditions
-    {this, "UseTDAQConditions", false, "Use TDAQ conditions DB (NOTE only valid in RUN-1)"};
-
     Gaudi::Property<bool> m_useCablingConditions
     {this, "UseCablingConditions", true, "Use cabling map conditions DB"};
 
@@ -575,7 +554,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "DistortionInputSource", 4, "Source of module distortions: 0 (none), 1 (constant), 2 (text file), 3 (random), 4 (database)"};
 
     Gaudi::Property<int> m_distortionVersion
-    {this, "DistortionVersion", 1, "Version number for distortion model"};
+    {this, "DistortionVersion", -1, "Version number for distortion model"};
 
     Gaudi::Property<double> m_distortionR1
     {this, "DistortionR1", 0.1/CLHEP::meter, "Fixed distortion parameters: radius of curvature"}; //corresponding to a sagitta of 50 um
@@ -602,7 +581,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "DistortionWriteToFile", false, "Record data in storegate"}; 
 
     Gaudi::Property<std::string> m_distortionFileName
-    {this, "DistortionFileName", "PixelSurveyDistortions.txt","Read distortions from this file"}; 
+    {this, "DistortionFileName", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/TrackingCP/PixelDistortions/PixelDistortionsData_v2_BB.txt","Read distortions from this file"};
 
     // Cabling parameters
     Gaudi::Property<bool> m_cablingMapToFile

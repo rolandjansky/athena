@@ -23,7 +23,7 @@
 //
 // ........ Gaudi needed includes
 //
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "GaudiKernel/INTupleSvc.h"

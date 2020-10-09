@@ -32,7 +32,7 @@
 
 EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name,
                                                  ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -43,7 +43,7 @@ StatusCode EMBremCollectionBuilder::initialize() {
   ATH_CHECK(m_OutputTrkPartContainerKey.initialize());
   ATH_CHECK(m_OutputTrackContainerKey.initialize());
   ATH_CHECK(m_TruthParticlesLinkKey.initialize(m_doTruth));
-  
+
   /* retrieve the track refitter tool*/
   ATH_CHECK(m_trkRefitTool.retrieve());
   /* Get the particle creation tool */
@@ -52,12 +52,12 @@ StatusCode EMBremCollectionBuilder::initialize() {
   ATH_CHECK(m_slimTool.retrieve());
   /* Get the track summary tool */
   ATH_CHECK(m_summaryTool.retrieve());
-  
-  return StatusCode::SUCCESS;
-}  
 
-StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){ 
-  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
+
   ATH_MSG_INFO ("Not refitted due to Silicon Requirements " << m_FailedSiliconRequirFit);
   ATH_MSG_INFO ("Failed Fit Tracks " << m_FailedFitTracks);
   ATH_MSG_INFO ("RefittedTracks " << m_RefittedTracks);
@@ -66,7 +66,7 @@ StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
 }
 
 StatusCode
-EMBremCollectionBuilder::execute_r(const EventContext& ctx) const
+EMBremCollectionBuilder::execute(const EventContext& ctx) const
 {
   /*
    * Read in the input
@@ -99,62 +99,62 @@ EMBremCollectionBuilder::execute_r(const EventContext& ctx) const
   SG::WriteHandle<TrackCollection> finalTracks(m_OutputTrackContainerKey, ctx);
   ATH_CHECK(finalTracks.record(std::make_unique<TrackCollection>()));
   TrackCollection* cPtrTracks = finalTracks.ptr();
-  /* 
+  /*
    * Split TRT-alone from silicon ones
    * For the TRT we can get all the info already
    */
   std::vector<const xAOD::TrackParticle*> siliconTrkTracks;
-  siliconTrkTracks.reserve(16); 
+  siliconTrkTracks.reserve(16);
   std::vector<TrackWithIndex> trtAloneTrkTracks;
-  trtAloneTrkTracks.reserve(16); 
+  trtAloneTrkTracks.reserve(16);
   for(const xAOD::TrackParticle* track : *selectedTracks){
     const Trk::Track* trktrack{nullptr};
-    if (  track->trackLink().isValid() ){ 
+    if (  track->trackLink().isValid() ){
       trktrack =track->track();
     }
     else{
       ATH_MSG_ERROR("TrackParticle has not Track --  are you running on AOD?");
       return StatusCode::FAILURE;
     }
-    int nSiliconHits_trk =0; 
-    uint8_t dummy(0); 
+    int nSiliconHits_trk =0;
+    uint8_t dummy(0);
     if( track->summaryValue(dummy,xAOD::numberOfSCTHits) ){
       nSiliconHits_trk += dummy;
     }
     if(track->summaryValue(dummy,xAOD::numberOfPixelHits) ){
       nSiliconHits_trk += dummy;
     }
-    ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);    
+    ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);
 
     if(nSiliconHits_trk >= m_MinNoSiHits){
-      siliconTrkTracks.push_back(track); 
+      siliconTrkTracks.push_back(track);
     }else{
       //copy Trk::Track and keep also the index of the original
       trtAloneTrkTracks.emplace_back(
         std::make_unique<Trk::Track>(*trktrack),track->index());
     }
   }
-  /* 
+  /*
    * Refitted  and possible failed fit info
    */
-  std::vector<TrackWithIndex> refitted; 
-  refitted.reserve(siliconTrkTracks.size());    
-  std::vector<TrackWithIndex> failedfit; 
+  std::vector<TrackWithIndex> refitted;
+  refitted.reserve(siliconTrkTracks.size());
+  std::vector<TrackWithIndex> failedfit;
   /*
    * Do the refit and get all the info
    */
-  ATH_CHECK(refitTracks(ctx,siliconTrkTracks,refitted,failedfit)); 
+  ATH_CHECK(refitTracks(ctx,siliconTrkTracks,refitted,failedfit));
   siliconTrkTracks.clear();
   /*
    * Fill the final collections
    */
   ATH_CHECK(createCollections(refitted,failedfit,trtAloneTrkTracks,
                     cPtrTracks,cPtrTrkPart,trackTES.ptr()));
-   /* 
+   /*
    * update counters
    * */
   m_RefittedTracks.fetch_add(refitted.size(), std::memory_order_relaxed);
-  m_FailedFitTracks.fetch_add(failedfit.size(), std::memory_order_relaxed); 
+  m_FailedFitTracks.fetch_add(failedfit.size(), std::memory_order_relaxed);
   m_FailedSiliconRequirFit.fetch_add(trtAloneTrkTracks.size(),std::memory_order_relaxed);
   return StatusCode::SUCCESS;
 }
@@ -169,7 +169,7 @@ EMBremCollectionBuilder::refitTracks(
   for (const xAOD::TrackParticle* in:input){
     const Trk::Track* track =in->track();
     IegammaTrkRefitterTool::Cache cache{};
-    StatusCode status = m_trkRefitTool->refitTrack(ctx,                                                   
+    StatusCode status = m_trkRefitTool->refitTrack(ctx,
                                                    track,
                                                    cache);
     if (status == StatusCode::SUCCESS){
@@ -177,7 +177,7 @@ EMBremCollectionBuilder::refitTracks(
       //this is new track
       refitted.emplace_back(
         std::move(cache.refittedTrack),in->index()
-        ); 
+        );
     }
     else{
       ATH_MSG_DEBUG("FIT FAILED ");
@@ -185,7 +185,7 @@ EMBremCollectionBuilder::refitTracks(
       failedfit.emplace_back(
         std::make_unique<Trk::Track>(*track),in->index()
         );
-    }    
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -210,11 +210,11 @@ EMBremCollectionBuilder::createCollections(
   for (auto& Info : refitted){
     ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
   }
-                                                               
+
   for (auto& Info  :  failedfit){
     ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
   }
-                                                                
+
   for (auto& Info : trtAlone){
     ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
   }
@@ -299,7 +299,7 @@ EMBremCollectionBuilder::createNew(
   m_slimTool->slimTrack(*(Info.track));
   finalTracks->push_back(std::move(Info.track));
   ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1);
-  aParticle->setTrackLink( trackLink );     
+  aParticle->setTrackLink( trackLink );
   return StatusCode::SUCCESS;
 }
 
@@ -310,19 +310,19 @@ EMBremCollectionBuilder::updateGSFTrack(
 {
 
   //update the summary of the non-const track without hole search
-  m_summaryTool->updateRefittedTrack(*(Info.track));
+  m_summaryTool->updateTrackSummary(*(Info.track));
   //Get the summary so as to add info to it
   Trk::TrackSummary* summary = Info.track->trackSummary();
 
   size_t origIndex = Info.origIndex;
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
-  
+
   uint8_t dummy(0);
   if (m_doPix) {
     //copy over dead sensors
     uint8_t deadPixel= original->summaryValue(dummy,xAOD::numberOfPixelDeadSensors)?dummy:0;
     summary->update(Trk::numberOfPixelDeadSensors,deadPixel);
-    
+
     int nPixHitsRefitted = summary->get(Trk::numberOfPixelHits);
     int nPixOutliersRefitted = summary->get(Trk::numberOfPixelOutliers);
     int nPixHitsOriginal = original->summaryValue(dummy,xAOD::numberOfPixelHits) ? dummy:-1;
@@ -336,10 +336,10 @@ EMBremCollectionBuilder::updateGSFTrack(
   }
   if (m_doSCT) {
     uint8_t deadSCT= original->summaryValue(dummy,xAOD::numberOfSCTDeadSensors)?dummy:0;
-    summary->update(Trk::numberOfSCTDeadSensors,deadSCT); 
+    summary->update(Trk::numberOfSCTDeadSensors,deadSCT);
 
     uint8_t SCTDoubleHoles = original->summaryValue(dummy,xAOD::numberOfSCTDoubleHoles )?dummy:0;
-    summary->update(Trk::numberOfSCTDoubleHoles , SCTDoubleHoles); 
+    summary->update(Trk::numberOfSCTDoubleHoles , SCTDoubleHoles);
 
     int nSCTHitsRefitted = summary->get(Trk::numberOfSCTHits);
     int nSCTOutliersRefitted = summary->get(Trk::numberOfSCTOutliers);

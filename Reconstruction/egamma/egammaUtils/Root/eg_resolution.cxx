@@ -18,14 +18,11 @@ T* get_object(TFile& file, const std::string& name){
 }
 
 eg_resolution::eg_resolution(const std::string& configuration)
-  : asg::AsgMessaging("eg_resolution"),
-    m_file0(),
-    m_file1(),
-    m_file2(),
-    m_file3()
+  : m_file0()
+  , m_file1()
+  , m_file2()
+  , m_file3()
 {
-  ATH_MSG_INFO("Initialize eg_resolution");
-  
   if (configuration == "run1") {
     m_file0 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run1.root").c_str() );
     m_file1 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run1.root").c_str() );
@@ -40,10 +37,8 @@ eg_resolution::eg_resolution(const std::string& configuration)
   }
 
   if (!m_file0 or !m_file1 or !m_file2 or !m_file3) {
-    ATH_MSG_ERROR("cannot find input file for resolutions");
     throw std::runtime_error("cannot find input file for resolutions");
   }
-
   m_hSampling[0][0] = get_object<TH1>(*m_file0, "hsamplingG");
   m_hSampling[0][1] = get_object<TH1>(*m_file0, "hsampling80");
   m_hSampling[0][2] = get_object<TH1>(*m_file0, "hsampling90");
@@ -87,12 +82,10 @@ eg_resolution::eg_resolution(const std::string& configuration)
   m_etaBins = aa->GetXbins();
 }
 
-//=========================================================================
-eg_resolution::~eg_resolution(){
-}
+eg_resolution::~eg_resolution(){}
 
 /*
- * inputs are 
+ * inputs are
  * particle_type (0=elec, 1=reco unconv photon, 2=reco conv photon, 3=true unconv photon)
  * energy in MeV
  * eta
@@ -103,12 +96,10 @@ double eg_resolution::getResolution(int particle_type, double energy, double eta
 {
 
    if (particle_type<0 || particle_type>3) {
-     ATH_MSG_ERROR("particle type must be 0, 1, 2 or 3");
      throw std::runtime_error("particle type must be 1, 2 or 3");
    }
 
    if (resolution_type<0 || resolution_type>2) {
-     ATH_MSG_ERROR("resolution type must be 0, 1, 2");
      throw std::runtime_error("resolution type must be 0, 1, 2");
    }
 
@@ -122,7 +113,6 @@ double eg_resolution::getResolution(int particle_type, double energy, double eta
    }
 
    if (ibinEta<0 || ibinEta>= m_etaBins->GetSize()) {
-     ATH_MSG_ERROR("eta outside range");
      throw std::runtime_error("eta outside range");
    }
 
@@ -154,7 +144,6 @@ double eg_resolution::getResolution(const xAOD::Egamma& particle, int resolution
   }
   assert (particle_type != 1);
 
-  // TODO: check definitions
   const double eta = particle.caloCluster()->eta();
   const double energy = particle.e();
   return getResolution(particle_type, energy, eta, resolution_type);

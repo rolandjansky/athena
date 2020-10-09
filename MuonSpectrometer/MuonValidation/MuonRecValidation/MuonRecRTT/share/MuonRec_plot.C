@@ -76,59 +76,32 @@
 
 
   //c6 Canvas 
-//  int trmaxmboy = tree2->GetMaximum("MboyTrkVT_NTrk");
-//  int trbinmboy = trmaxmboy+1;
   TH1F *mboytracks = new TH1F("mboytracks"," Muonboy tracks per event", 10, 0, 10);
   TH1F *mboytracksqoverp = new TH1F("mboytracksqoverp"," Muonboy track q/p (1/MeV) ", 60, -150000., 150000.);
   TH1F *mboytrackspt = new TH1F("mboytrackspt"," Muonboy track pt (MeV)", 50, 0., 100000.);
   TH1F *mboytrackseta = new TH1F("mboytrackseta"," Muonboy track eta", 60, -3., 3.);
   TH1F *mboytracksphi = new TH1F("mboytracksphi"," Muonboy track phi", 60, -3.1416, 3.1416);
-
-  //TH1F *mboytrackseta = new TH1F("mboytrackseta"," Eta distribution of Muonboy Tracks per Event", 112, -2.7,2.7);
-  //TH1F *mboytracksphi = new TH1F("mboytracksphi"," Phi distribution of Muonboy Tracks per Event", 72, 0,3.5);
-  //TH1F *mboytracksimpa0 = new TH1F("mboytracksimpa0"," Impact parameter distribution (mm) in Rphi plane of extrapolated to the vertex Mboy Tracks ", 440, -11000, 11000);
-  //TH1F *mboytracksimpZ = new TH1F("mboytracksimpZ"," Impact parameter distribution (mm) in Z plane of extrapolated to the vertex Mboy Tracks ", 800, -20000, 20000);
-  //TH1F *mboytracksX =new TH1F("mboytracksX", " X at closest approach (mm) of extrapolated to the vertex Mboy Tracks", 440, -11000, 11000);
-  //TH1F *mboytracksY =new TH1F("mboytracksY", " Y at closest approach (mm) of extrapolated to the vertex Mboy Tracks", 440, -11000, 11000);
-  //TH1F *mboytracksZ =new TH1F("mboytracksZ", " Z at closest approach (mm) of extrapolated to the vertex Mboy Tracks", 800, -20000, 20000);
-
   //c61 Canvas
   TH1F *mboyhitsontracks = new TH1F("mboyhitsontracks"," Muonboy Hits on Track per Event", 50, 0,100);
   TH1F *mboyhitstech = new TH1F("mboyhitstech","Muonboy hits belong to MDT/RPC/TGC/CSC=1/2/3/4 ",8,0.,8);
   TH1F *mboytrackresiduals = new TH1F("mboytrackresiduals", " Muonboy MDT residuals on Track per Event", 50, -5, 5);
-  // TH1F *mboymdthitsontrack = new TH1F("mboymdthitsontrack", " Muonboy MDT hits on Track per Event", 50,0,50);
-  // TH1F *mboyrpchitsontrack = new TH1F("mboyrpchitsontrack", " Muonboy RPC hits on Track per Event", 50,0,50);
-  // TH1F *mboytgchitsontrack = new TH1F("mboytgchitsontrack", " Muonboy TGC hits on Track per Event", 50,0,50);
   TH1F *mboyhitsrpctime = new TH1F("mboyhitsrpctime", "Muonboy hits on Track time measured from RC",50,0,200);
   TH1F *mboyhitstgcchannel = new TH1F("mboyhitstgcchannel","Muonboy hits on Track TGC number of strip",500,0,500);
   TH1F *mboyhitscscwirelayer = new TH1F("mboyhitscscwirelayer","Muonboy hits on Track CSC wire layer ",4,0,4);
 
   //c62 Canvas 
-//  int segmaxmboy = tree2->GetMaximum("MboySeg_nseg");
-//  int segbinmboy = segmaxmboy+1;
   TH1F *mboyseg = new TH1F("mboyseg"," Muonboy Segments per Event", 100, 0, 100);
   TH1F *mboyhitsonseg = new TH1F("mboyhitsonseg"," Muonboy Total number of hits per Segment", 20, 0,20);
-  //TH1F *mboyhitsonsegX = new TH1F("mboyhitsonsegX", "Muonboy Segments X of crossing point (mm)",440, -11000, 11000);
-  //TH1F *mboyhitsonsegY =  new TH1F("mboyhitsonsegY",  "Muonboy Segments Y of crossing point (mm)",440, -11000, 11000);
-  //TH1F *mboyhitsonsegZ =  new TH1F("mboyhitsonsegZ",  "Muonboy Segments Z of crossing point (mm)",800, -20000, 20000); 
   TH1F *mboysegtheta = new TH1F("mboysegtheta"," Muonboy Segments Theta distribution ", 60,0,3.1416);
   TH1F *mboysegphi = new TH1F("mboysegphi"," Muonboy Segments Phi distribution ", 60, -3.1416, 3.1416);
 
 
  //c8 Canvas
-//  int trmaxmoore = tree2->GetMaximum("Moore_nmuon");
-//  int trbinmoore = trmaxmoore+1;
   TH1F *mooretracks = new TH1F("mooretracks"," Moore Tracks per Event", 10, 0, 10);
   TH1F *mooretracksqoverp = new TH1F("mooretracksqoverp"," Moore track q/p (1/MeV) ", 60, -150000., 150000.);
   TH1F *mooretrackspt = new TH1F("mooretrackspt"," Moore track pt (MeV)", 50, 0., 100000.);
   TH1F *mooretrackseta = new TH1F("mooretrackseta"," Moore track eta", 60, -3., 3.);
   TH1F *mooretracksphi = new TH1F("mooretracksphi"," Moore track phi", 60, -3.1416, 3.1416);
-
-  //TH1F *mooretracksimpa0 = new TH1F("mooretracksimpa0"," Impact parameter distribution (mm) in Rphi plane of Moore Tracks ", 440, -11000, 11000);
-  //TH1F *mooretracksimpZ = new TH1F("mooretracksimpZ"," Impact parameter distribution (mm) in Z plane of  Moore Tracks ", 800, -20000, 20000);
-  //TH1F *mooretracksX =new TH1F("mooretracksX", " X at closest approach (mm) of extrapolated to the vertex Moore Tracks", 440, -11000, 11000);
-  //TH1F *mooretracksY =new TH1F("mooretracksY", " Y at closest approach (mm) of extrapolated to the vertex Moore Tracks", 440, -11000, 11000);
-  //TH1F *mooretracksZ =new TH1F("mooretracksZ", " Z at closest approach (mm) of extrapolated to the vertex Moore Tracks", 800, -20000, 20000);
 
   //c81 Canvas
   TH1F *mooremdthitsontrack = new TH1F("mooremdthitsontrack"," Moore MDT hits on Track ", 50,0,50);
@@ -142,8 +115,6 @@
   TH1F *mooretgcphihitsontrack = new TH1F("mooretgcphihitsontrack"," Moore TGC phi hits on Track ", 10,0,10);
  
   //c85 Canvas
-//  int segmaxmoore = tree2->GetMaximum("MooreSegments_nseg");
-//  int segbinmoore = segmaxmoore+1;
   TH1F *mooreseg = new TH1F("mooreseg"," Moore Segments per Event", 100, 0, 100);
   TH1F *moorehitsonseg = new TH1F("moorehitsonseg"," Moore Hits per Segment", 20,0,20);
   TH1F *mooresegtheta = new TH1F("mooresegtheta"," Moore Segments Theta distribution ", 60,0,3.1416);
@@ -186,13 +157,6 @@
 
   //c6 Canvas
   tree2.Draw("MboyTrkVT_NTrk>>mboytracks");
-  //tree2.Draw("(-1.*log(tan(atan2(1.,MboyTrkVT_CotTh)/2.)))>>mboytrackseta");
-  //tree2.Draw("MboyTrkVT_Phi>>mboytracksphi");
-  //tree2.Draw("MboyTrkVT_A0>>mboytracksimpa0");
-  //tree2.Draw("MboyTrkVT_Z>>mboytracksimpZ");
-  //tree2.Draw("MboyTrkVT_Xpt>>mboytracksX");
-  //tree2.Draw("MboyTrkVT_Ypt>>mboytracksY");
-  //tree2.Draw("MboyTrkVT_Zpt>>mboytracksZ");
 
   tree1.Draw("1./trk_qOverP>>mboytracksqoverp","trk_author==100");
   tree1.Draw("sin(trk_theta)/abs(trk_qOverP)>>mboytrackspt","trk_author==100");
@@ -203,19 +167,12 @@
   tree2.Draw("MboyTrkVT_digits>>mboyhitsontracks");
   tree2.Draw("MboyTrkVT_TrHi_ChamberTech>>mboyhitstech");
   tree2.Draw("MboyTrkVT_TrHi_Rdigi-MboyTrkVT_TrHi_Rtrack>>mboytrackresiduals","MboyTrkVT_TrHi_ChamberTech==1");
-  //  tree2.Draw("MboyTrkVT_TrHi_hits>>mboymdthitsontrack","MboyTrkVT_TrHi_ChamberTech==1");
-  //  tree2.Draw("MboyTrkVT_TrHi_hits>>mboyrpchitsontrack","MboyTrkVT_TrHi_ChamberTech==2");
-  //  tree2.Draw("MboyTrkVT_TrHi_hits>>mboytgchitsontrack","MboyTrkVT_TrHi_ChamberTech==3");
   tree2.Draw("MboyTrkVT_TrHi_RpcTime>>mboyhitsrpctime");
   tree2.Draw("MboyTrkVT_TrHi_Channel>>mboyhitstgcchannel");
   tree2.Draw("MboyTrkVT_TrHi_ChamberLayer>>mboyhitscscwirelayer");
 
   //c72 Canvas
   tree2.Draw("MboySeg_nseg>>mboyseg"); 
-  //tree2.Draw("MboySeg_Ndigits>>mboyhitsonseg");
-  //tree2.Draw("MboySeg_Xpt>>mboyhitsonsegX");
-  //tree2.Draw("MboySeg_Ypt>>mboyhitsonsegY");
-  //tree2.Draw("MboySeg_Zpt>>mboyhitsonsegZ");
   tree1.Draw("seg_nHits>>mboyhitsonseg","seg_author==3");
   tree1.Draw("acos(seg_gDirZ)>>mboysegtheta","seg_author==3");
   tree1.Draw("atan2(seg_gDirY,seg_gDirX)>>mboysegphi","seg_author==3");
@@ -246,9 +203,6 @@
 
   //c85 Canvas
   tree2.Draw("MooreSegments_nseg>>mooreseg");
-  //tree2.Draw("MooreSegments_nhit>>moorehitsonseg");
-  //tree2.Draw("MooreSegments_theta>>mooresegtheta");
-  //tree2.Draw("MooreSegments_phi>>mooresegphi");
   tree1.Draw("seg_nHits>>moorehitsonseg","seg_author==4");
   tree1.Draw("acos(seg_gDirZ)>>mooresegtheta","seg_author==4");
   tree1.Draw("atan2(seg_gDirY,seg_gDirX)>>mooresegphi","seg_author==4");
@@ -256,8 +210,6 @@
   //MboyTrkVT_CotTh,MboyTrkVT_Phi,MboyTrkVT_PTInv
   tree2.Draw("MooreSegments_nseg>>seg_nsegMoo");
   tree2.Draw("MboySeg_nseg>>seg_nsegMB");
-
-  //double eta = -1.*log(tan(atan2(double(1.),double(MboyTrkVT_CotTh))/double(2.)));
 
 //Prepare canvas with plots 
 
@@ -377,22 +329,6 @@
   mboytracksphi.SetMinimum(0);
   mboytracksphi.SetFillColor(2);
   mboytracksphi.Draw();
-  //c6.cd(4);
-  //mboytracksimpa0.SetFillColor(2);
-  //mboytracksimpa0.Draw();
-  //c6.cd(5);
-  //mboytracksimpZ.SetFillColor(2);
-  //mboytracksimpZ.Draw();
-  //c6.cd(6);
-  //c6.cd(7);
-  //mboytracksX.SetFillColor(2);
-  //mboytracksX.Draw();
-  //c6.cd(8);
-  //mboytracksY.SetFillColor(2);
-  //mboytracksY.Draw();
-  //c6.cd(9);
-  //mboytracksZ.SetFillColor(2);
-  //mboytracksZ.Draw();
   c6.Update();
   c6.SaveAs("AAN_mboytracks.gif");
 
@@ -430,16 +366,6 @@
   c62.cd(2);
   mboyhitsonseg.SetFillColor(2);
   mboyhitsonseg.Draw();
-  //c62.cd(3);
-  //c62.cd(4);
-  //mboyhitsonsegX.SetFillColor(2);
-  //mboyhitsonsegX.Draw();
-  //c62.cd(5);
-  //mboyhitsonsegY.SetFillColor(2);
-  //mboyhitsonsegY.Draw();
-  //c62.cd(6);
-  //mboyhitsonsegZ.SetFillColor(2);
-  //mboyhitsonsegZ.Draw();
   c62.cd(3);
   mboysegtheta.SetFillColor(2);
   mboysegtheta.Draw();
@@ -460,27 +386,16 @@
   c8.cd(2);
   mooretracksqoverp.SetFillColor(2);
   mooretracksqoverp.Draw();
-  //mooretracksimpa0.SetFillColor(2);
-  //mooretracksimpa0.Draw();
   c8.cd(3);
   mooretrackspt.SetFillColor(2);
   mooretrackspt.Draw();
-  //mooretracksimpZ.SetFillColor(2);
-  //mooretracksimpZ.Draw();
   c8.cd(4);
   mooretrackseta.SetFillColor(2);
   mooretrackseta.Draw();
-  //mooretracksX.SetFillColor(2);
-  //mooretracksX.Draw();
   c8.cd(5);
   mooretracksphi.SetMinimum(0);
   mooretracksphi.SetFillColor(2);
   mooretracksphi.Draw();
-  //mooretracksY.SetFillColor(2);
-  //mooretracksY.Draw();
-  //c8.cd(6);
-  //mooretracksZ.SetFillColor(2);
-  //mooretracksZ.Draw();
   c8.Update();
   c8.SaveAs("AAN_mooretracks.gif");
 

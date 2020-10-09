@@ -183,13 +183,13 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if the fit failed.
     */
-    Trk::Track* fit( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry, const PrepVec* externalPhiHits ) const; 
+    std::unique_ptr<Trk::Track> fit( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry, const PrepVec* externalPhiHits ) const; 
 
     /** refit a MuPatTrack */
-    Trk::Track* refit( const MuPatTrack& trkCan ) const;
+    std::unique_ptr<Trk::Track> refit( const MuPatTrack& trkCan ) const;
 
     /** refit a track */
-    Trk::Track* refit( const Trk::Track& track ) const;
+    std::unique_ptr<Trk::Track> refit( const Trk::Track& track ) const;
 
     /** impose upper and lower bound on momentum */
     double restrictedMomentum( double momentum ) const;
@@ -198,18 +198,18 @@ namespace Muon {
     Trk::Perigee* createPerigee( const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas ) const;
 
     /** fit track */
-    Trk::Track* fit( const Trk::Perigee& startPars, MeasVec& hits, GarbageCan& garbage, Trk::ParticleHypothesis partHypo = Trk::muon, bool prefit = false ) const;
+    std::unique_ptr<Trk::Track> fit( const Trk::Perigee& startPars, MeasVec& hits, GarbageCan& garbage, Trk::ParticleHypothesis partHypo = Trk::muon, bool prefit = false ) const;
 
     /** fit track, refit if needed */
-    Trk::Track* fitWithRefit( const Trk::Perigee& startPars, MeasVec& hits ) const;
+    std::unique_ptr<Trk::Track> fitWithRefit( const Trk::Perigee& startPars, MeasVec& hits ) const;
 
     /** split given track if it crosses the calorimeter volume, code assumes that the track was already extrapolated to the
         muon entry record using the MuonTrackExtrapolationTool. It uses the double perigee to spot the tracks to be split.
     */
-    std::pair<Trk::Track*,Trk::Track*> splitTrack( const Trk::Track& track ) const;
+    std::pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> > splitTrack( const Trk::Track& track ) const;
 
     /** construct a track from a list of TSOS and a start parameters */
-    Trk::Track* fitSplitTrack( const Trk::TrackParameters& startPars, const std::vector<const Trk::TrackStateOnSurface*>& tsos, GarbageCan& garbage ) const;
+    std::unique_ptr<Trk::Track> fitSplitTrack( const Trk::TrackParameters& startPars, const std::vector<const Trk::TrackStateOnSurface*>& tsos, GarbageCan& garbage ) const;
 
   private:
     /** clean and evaluate the track, 
@@ -243,7 +243,7 @@ namespace Muon {
     unsigned int hasPhiConstrain( FitterData& inputData) const;
 
     /** check whether data has sufficient phi constraints */
-    unsigned int hasPhiConstrain( const Trk::Track& track ) const;
+    unsigned int hasPhiConstrain( Trk::Track* track ) const;
     
     /** create fake phi hit on the surface of the give measurement */
     const Trk::MeasurementBase* createFakePhiForMeasurement( const Trk::MeasurementBase& measurement, const Amg::Vector3D* overlapPos, 

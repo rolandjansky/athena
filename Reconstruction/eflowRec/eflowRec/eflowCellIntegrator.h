@@ -40,7 +40,7 @@ public:
   virtual ~eflowRecursiveGaussLegendreIntegrator() { }
 
   virtual double integrate(const eflowRange& range) {
-    /* Try a 5th and 6th order Gauss–Legendre quadrature */
+    /* Try a 5th and 6th order Gauss-Legendre quadrature */
     double I5 = DoGaussLegendreIntegration(range, 5);
     double I6 = DoGaussLegendreIntegration(range, 6);
 
@@ -59,7 +59,7 @@ public:
 private:
 
   double DoGaussLegendreIntegration(const eflowRange& range, int nOrder){
-    /* Perform nth order Gauss–Legendre quadrature, see
+    /* Perform nth order Gauss-Legendre quadrature, see
      * http://en.wikipedia.org/wiki/Gaussian_quadrature#Gauss.E2.80.93Legendre_quadrature */
 
     /* Array offset for legendre weights/roots */

@@ -31,26 +31,26 @@ if globalflags.DetDescrVersion.get_Value().find('ATLAS-GEONSF-') >= 0 :
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(True)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(True)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMCT-00-00-00')
-    print 'configuring reco with solenoid off, toroid on from DetDescrVersion:',globalflags.DetDescrVersion.get_Value()
+    print('configuring reco with solenoid off, toroid on from DetDescrVersion:',globalflags.DetDescrVersion.get_Value())
     
 if globalflags.DetDescrVersion.get_Value().find('ATLAS-GEO-') >= 0 :
     jobproperties.BField.solenoidOn.set_Value_and_Lock(True)
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(True)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(True)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMCST-00-00-00')
-    print 'configuring reco with solenoid on, toroid on from DetDescrVersion:',globalflags.DetDescrVersion.get_Value()
+    print('configuring reco with solenoid on, toroid on from DetDescrVersion:',globalflags.DetDescrVersion.get_Value())
     
 if globalflags.DetDescrVersion.get_Value().find('ATLAS-GEONF-') >= 0 :
     jobproperties.BField.solenoidOn.set_Value_and_Lock(False)
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(False)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(False)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMC-00-00-00')
-    print 'configuring reco with solenoid off, toroid off from DetDescrVersion:',globalflags.DetDescrVersion.get_Value()
+    print('configuring reco with solenoid off, toroid off from DetDescrVersion:',globalflags.DetDescrVersion.get_Value())
         
 if globalflags.DetDescrVersion.get_Value().find('ATLAS-GEONTF-') >= 0 :
     jobproperties.BField.solenoidOn.set_Value_and_Lock(True)
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(False)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(False)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMCS-00-00-00')
-    print 'configuring reco with solenoid on, toroid off from DetDescrVersion:',globalflags.DetDescrVersion.get_Value()
+    print('configuring reco with solenoid on, toroid off from DetDescrVersion:',globalflags.DetDescrVersion.get_Value())
  

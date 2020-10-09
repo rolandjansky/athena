@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonSimEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Database/AtlasSealCLHEP
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Generators/GeneratorObjects
-                          MuonSpectrometer/MuonIdHelpers
-                          Simulation/HitManagement )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

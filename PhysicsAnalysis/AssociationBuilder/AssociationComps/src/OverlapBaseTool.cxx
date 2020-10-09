@@ -8,14 +8,6 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-
-// STL includes
-
-// Boost includes
-#include <boost/bind.hpp>
-
-// FrameWork includes
-
 // AssociationComps includes
 #include "OverlapBaseTool.h"
 

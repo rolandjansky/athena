@@ -35,7 +35,7 @@ msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime
+from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -180,9 +180,12 @@ class transformExecutor(object):
         self._exeStart = self._exeStop = None
         self._valStart = self._valStop = None
         self._memStats = {}
+        self._memLeakResult = {}
+        self._memFullFile = None
         self._eventCount = None
         self._athenaMP = None
         self._athenaMT = None
+        self._athenaConcurrentEvents = None
         self._dbMonitor = None
         
         # Holder for execution information about any merges done by this executor in MP mode
@@ -376,6 +379,10 @@ class transformExecutor(object):
     @property
     def memStats(self):
         return self._memStats
+
+    @property
+    def memAnalysis(self):
+        return self._memLeakResult
 
     @property
     def postExeCpuTime(self):
@@ -713,6 +720,7 @@ class scriptExecutor(transformExecutor):
             if self._memMonitor:
                 try:
                     self._memSummaryFile = 'prmon.summary.' + self._name + '.json'
+                    self._memFullFile = 'prmon.full.' + self._name
                     memMonitorCommand = ['prmon', '--pid', str(p.pid), '--filename', 'prmon.full.' + self._name, 
                                          '--json-summary', self._memSummaryFile, '--interval', '30']
                     mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True, **encargs)
@@ -760,7 +768,7 @@ class scriptExecutor(transformExecutor):
                 msg.warning('Failed to load JSON memory summmary file {0}: {1}'.format(self._memSummaryFile, e))
                 self._memMonitor = False
                 self._memStats = {}
-            
+
 
     def validate(self):
         if self._valStart is None:
@@ -961,8 +969,8 @@ class athenaExecutor(scriptExecutor):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
                                                             'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
 
-        # Try to detect AthenaMT mode and number of threads
-        self._athenaMT = detectAthenaMTThreads(self.conf.argdict)
+        # Try to detect AthenaMT mode, number of threads and number of concurrent events
+        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict)
 
         # Try to detect AthenaMP mode and number of workers
         self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
@@ -1133,7 +1141,9 @@ class athenaExecutor(scriptExecutor):
         self.setValStart()
         self._hasValidated = True
         deferredException = None
-        
+        memLeakThreshold = 5000
+        _hasMemLeak = False
+
         ## Our parent will check the RC for us
         try:
             super(athenaExecutor, self).validate()
@@ -1141,7 +1151,26 @@ class athenaExecutor(scriptExecutor):
             # In this case we hold this exception until the logfile has been scanned
             msg.error('Validation of return code failed: {0!s}'.format(e))
             deferredException = e
-                
+
+        ## Get results of memory monitor analysis (slope and chi2)
+        # the analysis is a linear fit to 'pss' va 'Time' (fit to at least 5 data points)
+        # to obtain a good fit, tails are excluded from data
+        # if the slope of 'pss' is higher than 'memLeakThreshold' and an error is already caught,
+        # a message will be added to the exit message
+        # the memory leak threshold is defined based on analysing several jobs with memory leak,
+        # however it is rather arbitrary and could be modified
+        if self._memFullFile:
+            msg.info('Analysing memory monitor output file {0} for possible memory leak'.format(self._memFullFile))
+            self._memLeakResult = analytic().getFittedData(self._memFullFile)
+            if self._memLeakResult:
+                if self._memLeakResult['slope'] > memLeakThreshold:
+                    _hasMemLeak = True
+                    msg.warning('Possible memory leak; abnormally high values in memory monitor parameters (ignore this message if the job has finished successfully)')
+            else:
+                msg.warning('Failed to analyse the memory monitor file {0}'.format(self._memFullFile))
+        else:
+            msg.info('No memory monitor file to be analysed')
+
         # Logfile scan setup
         # Always use ignorePatterns from the command line
         # For patterns in files, pefer the command line first, then any special settings for
@@ -1185,6 +1214,9 @@ class athenaExecutor(scriptExecutor):
             # Add any logfile information we have
             if worstError['nLevel'] >= stdLogLevels['ERROR']:
                 deferredException.errMsg = deferredException.errMsg + "; {0}".format(exitErrorMessage)
+            # Add the result of memory analysis
+            if _hasMemLeak:
+                deferredException.errMsg = deferredException.errMsg + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
             raise deferredException
         
         
@@ -1194,6 +1226,9 @@ class athenaExecutor(scriptExecutor):
         elif worstError['nLevel'] >= stdLogLevels['ERROR']:
             self._isValidated = False
             msg.error('Fatal error in athena logfile (level {0})'.format(worstError['level']))
+            # Add the result of memory analysis
+            if _hasMemLeak:
+                exitErrorMessage = exitErrorMessage + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
             raise trfExceptions.TransformLogfileErrorException(trfExit.nameToCode('TRF_EXEC_LOGERROR'), 
                                                                    'Fatal error in athena logfile: "{0}"'.format(exitErrorMessage))
 
@@ -1203,6 +1238,22 @@ class athenaExecutor(scriptExecutor):
 
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
+
+    ## @brief Check if running with CA
+    def _isCAEnabled(self):
+        # CA not present, not running with CA
+        if 'CA' not in self.conf.argdict:
+            return False
+
+        # CA present but None, all substeps running with CA
+        if self.conf.argdict['CA'] is None:
+            return True
+
+        # CA enabled for a substep, running with CA
+        if self.conf.argdict['CA'].returnMyValue(name=self.name, substep=self.substep) is True:
+            return True
+
+        return False
 
     ## @brief Prepare the correct command line to be used to invoke athena
     def _prepAthenaCommandLine(self):
@@ -1306,7 +1357,7 @@ class athenaExecutor(scriptExecutor):
                 self._cmd.append('--nprocs=%s' % str(self._athenaMP))
 
         #Switch to ComponentAccumulator based config if requested
-        if 'CA' in self.conf.argdict:
+        if self._isCAEnabled():
             self._cmd.append("--CA")
 
         # Add topoptions

@@ -15,7 +15,7 @@ from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
+from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo as DumyRoI
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 from TrigTRTHighTHitCounter.TrigTRTHighTHitCounterConf import TrigTRTHTHCounter, TrigTRTHTHhypo
 ##################

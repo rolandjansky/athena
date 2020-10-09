@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TConvertingBranchElement.h,v 1.7 2008-04-25 20:35:13 ssnyder Exp $
 /**
  * @file TConvertingBranchElement.h
  * @author scott snyder <snyder@bnl.gov>
@@ -54,6 +52,8 @@
 #if defined(__clang__)
 # pragma clang diagnostic pop
 #endif
+
+#include <atomic>
 
 class TVirtualConverter;
 
@@ -212,7 +212,7 @@ private:
   bool               fConvDontReset;     //! Flag that the next read should
                                          //  not reset the buffer pointer.
                                          //  See GetEntry().
-  static bool        fgDoDel;            //! If true, try to delete the
+  static std::atomic<bool> fgDoDel;      //! If true, try to delete the
                                          //  branch object when the branch
                                          //  is deleted.
 

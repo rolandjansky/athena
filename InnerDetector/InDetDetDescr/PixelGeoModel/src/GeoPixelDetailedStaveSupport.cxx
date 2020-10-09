@@ -27,8 +27,10 @@
 #include <cmath>
 using std::max;
 
-GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport()
-  : m_transform(GeoTrf::Transform3D::Identity())
+GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport(InDetDD::PixelDetectorManager* ddmgr,
+                                                           PixelGeometryManager* mgr)
+  : GeoPixelStaveSupport (ddmgr, mgr),
+    m_transform(GeoTrf::Transform3D::Identity())
 {
   m_staveEnvelopShape=0;
   m_bVerbose = (m_gmt_mgr->msgLvl(MSG::DEBUG));
@@ -36,7 +38,7 @@ GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport()
 
 }
 
-GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ATLAS_NOT_THREAD_SAFE () { // Thread unsafe GeoPixelSiCrystal and GeoPixelModule classes are used.
+GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ( ) {
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build detailed stave support description :  layout "<<m_gmt_mgr->PixelStaveLayout()<<endmsg;
 
@@ -45,8 +47,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ATLAS_NOT_THREAD_SAFE () { // T
   int staveLayout = m_gmt_mgr->PixelStaveLayout();
   
   // Module geometry
-  GeoPixelSiCrystal theSensor(isBLayer);
-  GeoPixelModule pm(theSensor);
+  GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, isBLayer);
+  GeoPixelModule pm(m_DDmgr, m_gmt_mgr, theSensor);
   double pmThicknessN=pm.ThicknessN_noSvc();
   double pmThicknessP=pm.ThicknessP();
   double pmWidth=pm.Width();
@@ -65,8 +67,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ATLAS_NOT_THREAD_SAFE () { // T
 
   if(staveLayout==5||staveLayout==6||staveLayout==7)     // 75/25 or 50/50
     {
-      GeoPixelSiCrystal theSensor3D(isBLayer,true);
-      GeoPixelModule pm3D(theSensor3D);
+      GeoPixelSiCrystal theSensor3D(m_DDmgr, m_gmt_mgr, isBLayer,true);
+      GeoPixelModule pm3D(m_DDmgr, m_gmt_mgr, theSensor3D);
 
       pmThicknessN3D=pm3D.ThicknessN();
       pmThicknessP3D=pm3D.ThicknessP();
@@ -107,8 +109,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ATLAS_NOT_THREAD_SAFE () { // T
     {
       // Get the 3D module description
       bool isModule3D=true;
-      GeoPixelSiCrystal theSensor3D(isBLayer,isModule3D);
-      GeoPixelModule pm3D(theSensor3D);     
+      GeoPixelSiCrystal theSensor3D(m_DDmgr, m_gmt_mgr, isBLayer,isModule3D);
+      GeoPixelModule pm3D(m_DDmgr, m_gmt_mgr, theSensor3D);
       Module3DLength=pm3D.Length();
 
       if(staveLayout==5||staveLayout==7)  // 75/25
@@ -1279,11 +1281,11 @@ GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( do
     double xMid = xVertices[0]-m_width_svc*xDir;
     double yMid = yVertices[0]-m_width_svc*yDir+1.;
     convexStaveEnvelopShape->addVertex(xMid, yMid);
-    convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
+    convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc, yMid);
 
     xMid = xVertices[0]-m_width_svc*xDir;
     yMid = yVertices[0]-m_width_svc*.25*yDir+1.;
-    convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
+    convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc, yMid);
     convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yMid);
     convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yVertices[0]);
 

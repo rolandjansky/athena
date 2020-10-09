@@ -93,7 +93,7 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
   // Get IdHelper from ToolService
   ATH_CHECK(m_idHelperSvc.retrieve());
   // the MS helpers for the different technologies
-  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper();
+  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper(m_idHelperSvc->mdtIdHelper().tubeMax());
   m_rpcHitIdHelper = RpcHitIdHelper::GetHelper(m_idHelperSvc->rpcIdHelper().gasGapMax());
   m_tgcHitIdHelper = TgcHitIdHelper::GetHelper();
   m_cscHitIdHelper = CscHitIdHelper::GetHelper();
@@ -252,7 +252,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       double eKin = sqrt( mom*mom+mass*mass) - mass;
       // the rest of information needs adjustment once full sim hits available
       double energyDeposit = 1.;
-      const Amg::Vector3D pos=parm->position();
+      const Amg::Vector3D& pos=parm->position();
       const Amg::Vector3D unitMom=parm->momentum().normalized();
 
       MMSimHit nswMMHit = MMSimHit(simID,timeInfo, pos, 

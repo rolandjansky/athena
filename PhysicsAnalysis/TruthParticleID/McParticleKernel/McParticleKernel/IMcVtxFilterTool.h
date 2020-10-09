@@ -54,7 +54,7 @@ class IMcVtxFilterTool : virtual public IAlgTool,
 
   /** Return true if one of the McVtxFilters accept this GenVertex
    */
-  virtual bool isAccepted( const HepMC::GenVertex* vtx ) const = 0;
+  virtual bool isAccepted( HepMC::ConstGenVertexPtr vtx ) const = 0;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

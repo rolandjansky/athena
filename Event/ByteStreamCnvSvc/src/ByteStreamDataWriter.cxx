@@ -166,6 +166,41 @@ ByteStreamDataWriter::makeWriter(int version,
     return std::unique_ptr<ByteStreamDataWriter>(res);
 }
 
+std::unique_ptr<ByteStreamDataWriter>
+ByteStreamDataWriter::makeWriter(const DataWriterParameters& parameters) {
+  // initiate with production file name
+  if (parameters.theFNCB == nullptr)
+    return makeWriter(
+      parameters.version,
+      parameters.writingPath,
+      parameters.fileNameCore,
+      parameters.rPar,
+      parameters.fmdStrings,
+      parameters.maxFileNE,
+      parameters.maxFileMB,
+      parameters.startIndex,
+      parameters.compression,
+      parameters.compLevel);
+
+  // initiate for user-defined file name
+  return makeWriter(
+      parameters.version,
+      parameters.writingPath,
+      parameters.theFNCB,
+      parameters.rPar,
+      parameters.project,
+      parameters.streamType,
+      parameters.streamName,
+      parameters.stream,
+      parameters.lumiBlockNumber,
+      parameters.applicationName,
+      parameters.fmdStrings,
+      parameters.maxFileNE,
+      parameters.maxFileMB,
+      parameters.compression,
+      parameters.compLevel);
+}
+
 namespace {
 
 ByteStreamDataWriterCurrent::ByteStreamDataWriterCurrent(const std::string& writingPath,
@@ -178,15 +213,15 @@ ByteStreamDataWriterCurrent::ByteStreamDataWriterCurrent(const std::string& writ
                                                          EventStorage::CompressionType compression,
                                                          unsigned int compLevel)
 {
-    m_writer.reset(new EventStorage::DataWriter(writingPath,
-                                                fileNameCore,
-                                                rPar,
-                                                fmdStrings,
-                                                startIndex,
-                                                compression,
-                                                compLevel));
-    m_writer->setMaxFileNE(maxFileNE);
-    m_writer->setMaxFileMB(maxFileMB);
+  m_writer.reset(new EventStorage::DataWriter(writingPath,
+                                              fileNameCore,
+                                              rPar,
+                                              fmdStrings,
+                                              startIndex,
+                                              compression,
+                                              compLevel));
+  m_writer->setMaxFileNE(maxFileNE);
+  m_writer->setMaxFileMB(maxFileMB);
 }
 
 ByteStreamDataWriterCurrent::ByteStreamDataWriterCurrent(const std::string& writingPath,
@@ -204,32 +239,32 @@ ByteStreamDataWriterCurrent::ByteStreamDataWriterCurrent(const std::string& writ
                                                          EventStorage::CompressionType compression,
                                                          unsigned int compLevel)
 {
-    m_writer.reset(new EventStorage::DataWriter(writingPath,
-                                                theFNCB,
-                                                rPar,
-                                                project,
-                                                streamType,
-                                                streamName,
-                                                stream,
-                                                lumiBlockNumber,
-                                                applicationName,
-                                                fmdStrings,
-                                                compression,
-                                                compLevel));
-    m_writer->setMaxFileNE(maxFileNE);
-    m_writer->setMaxFileMB(maxFileMB);
+  m_writer.reset(new EventStorage::DataWriter(writingPath,
+                                              theFNCB,
+                                              rPar,
+                                              project,
+                                              streamType,
+                                              streamName,
+                                              stream,
+                                              lumiBlockNumber,
+                                              applicationName,
+                                              fmdStrings,
+                                              compression,
+                                              compLevel));
+  m_writer->setMaxFileNE(maxFileNE);
+  m_writer->setMaxFileMB(maxFileMB);
 }
 
 EventStorage::DWError
 ByteStreamDataWriterCurrent::putData(unsigned int dataSize, const void *data)
 {
-    return m_writer->putData(dataSize, data);
+  return m_writer->putData(dataSize, data);
 }
 
 bool
 ByteStreamDataWriterCurrent::good() const
 {
-    return m_writer->good();
+  return m_writer->good();
 }
 
 } // namespace

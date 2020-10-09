@@ -13,7 +13,7 @@
 
 class GeoMaterial;
 class GeoElement;
-class AbsMaterialManager;
+class StoredMaterialManager;
 class StoreGateSvc;
 class IGeometryDBSvc;
 
@@ -47,7 +47,7 @@ public:
 		       IRDBRecordset_ptr compositionTable,
 		       const std::string & space = "");
   InDetMaterialManager(const std::string & managerName, 
-		       const InDetDD::AthenaComps *) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe AthenaComps::detStore() const is used.
+		       InDetDD::AthenaComps *);
   ~InDetMaterialManager();
 
   void addWeightTable(IRDBRecordset_ptr weightTable, const std::string & space = "");
@@ -102,7 +102,7 @@ public:
   // in the arguments as a vector of materials and multiplictive factors.
   const GeoMaterial * getMaterialForVolumeLength(const std::string & name,
 						 const std::vector<std::string> & materialComponents, 
-						 const std::vector<double> factors, 
+						 const std::vector<double>& factors, 
 						 double volume, 
 						 double length);
   
@@ -132,7 +132,7 @@ public:
   void addMaterial(GeoMaterial *material);
 
   //Declaring the Message method for further use
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl){ return m_msg.get().level() <= lvl; }
@@ -186,7 +186,7 @@ private:
   };
   
   
-  const AbsMaterialManager * retrieveManager(const StoreGateSvc* detStore);
+  const StoredMaterialManager * retrieveManager(const StoreGateSvc* detStore);
   const GeoMaterial* getAdditionalMaterial(const std::string & materialName) const; 
   bool compareDensity(double d1, double d2) const;
   void addWeightTableOld(IRDBRecordset_ptr weightTable, const std::string & space);
@@ -217,7 +217,7 @@ private:
   void createMaterial(const MaterialDef & material);
   double getExtraScaleFactor(const std::string & materialName);
 
-  const AbsMaterialManager *m_materialManager;
+  const StoredMaterialManager *m_materialManager;
   std::string m_managerName;
 
   typedef std::map<std::string, const GeoMaterial *> MaterialStore;
@@ -233,7 +233,7 @@ private:
   ExtraScaleFactorMap m_scalingMap;
 
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+  Athena::MsgStreamMember m_msg;
 
   // Has linear weight flag. 
   bool m_extraFunctionality;

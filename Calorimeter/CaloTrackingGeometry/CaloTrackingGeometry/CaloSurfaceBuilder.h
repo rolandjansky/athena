@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -26,6 +26,8 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloDetDescr/CaloSubdetNames.h"
+
+#include <mutex>
 
 class CaloDetDescrManager;
 class ICaloCoordinateTool;
@@ -143,19 +145,20 @@ public:
 private:
 
   // fill cashed surfaces
-  void fill_tg_surfaces();
+  void fill_tg_surfaces() const;
 
   // CaloDetDescr usal stuff
   //const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd;
+  const mutable CaloDetDescrManager* m_calo_dd;
 
   //TileDetDescr stuff
   const TileDetDescrManager* m_tile_dd;
 
   // cash the surfaces for TG builder
-  mutable std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > m_layerEntries;  
-  mutable std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > m_layerExits;  
-  
+  mutable std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > m_layerEntries;
+  mutable std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > m_layerExits;
+  mutable std::once_flag m_fillOnce;
+
 // needed to cover TestBeam
 //  ToolHandle<ICaloCoordinateTool>               m_calo_tb_coord;
 
@@ -174,10 +177,16 @@ private:
 };
 
 inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces() const
-{ return m_layerEntries; }
+{
+  std::call_once( m_fillOnce, [this](){fill_tg_surfaces();} );
+  return m_layerEntries;
+}
 
 inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::exitSurfaces() const
-{ return m_layerExits; }
+{
+  std::call_once( m_fillOnce, [this](){fill_tg_surfaces();} );
+  return m_layerExits;
+}
 
  
 #endif // CALOTRACKINGGEOMETRY_CALOSURFACEBUILDER_H

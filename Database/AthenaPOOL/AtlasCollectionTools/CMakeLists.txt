@@ -1,17 +1,7 @@
-################################################################################
-# Package: AtlasCollectionTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AtlasCollectionTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          DataQuality/GoodRunsLists
-                          Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/PersistencySvc
-                          Database/APR/StorageSvc )
 
 # Necessary external(s):
 find_package( cx_Oracle )
@@ -22,13 +12,11 @@ atlas_add_library( AtlasCollectionTools
                    src/GlobalUniqueKey.cxx
                    src/GlobalSum.cxx
                    NO_PUBLIC_HEADERS
-                   LINK_LIBRARIES GoodRunsListsLib
-                   PRIVATE_LINK_LIBRARIES CollectionBase CollectionUtilities PersistencySvc StorageSvc )
+                   PRIVATE_LINK_LIBRARIES CollectionUtilities GoodRunsListsLib )
 
 atlas_add_executable( AthCollAppend
                       src/CollAppend.cxx
-                      LINK_LIBRARIES GoodRunsListsLib CollectionBase CollectionUtilities PersistencySvc StorageSvc AtlasCollectionTools )
-
+                      LINK_LIBRARIES AtlasCollectionTools CollectionUtilities )
 
 # Install files from the package:
 atlas_install_python_modules( python/countGuidsClient.py python/eventLookupClient.py )

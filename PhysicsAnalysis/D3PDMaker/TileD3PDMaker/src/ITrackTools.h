@@ -50,7 +50,6 @@
 #include "Identifier/Identifier.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
-#include "TrackToVertex/TrackToVertex.h"
 
 // xAOD tracks and clusters
 #include "xAODTracking/TrackParticleContainer.h"

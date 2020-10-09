@@ -56,9 +56,9 @@ StatusCode RegSelCondAlg_LAr::initialize() {
 
 StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
 
-  ATH_MSG_DEBUG("RegSelCondAlg_LAr::execute() -- enter -- ");
-
-   /// do stuff here ...  
+  ATH_MSG_INFO( "RegSelConfAlg_LAr:execute() " << name() );
+   
+  /// do stuff here ...  
   ATH_MSG_DEBUG( "Creating region selector table " << m_tableKey );
 
   SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
@@ -72,7 +72,7 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
     return StatusCode::SUCCESS;
   }
 
-   
+
   /// annoyingly take the pixel cabling to determine whether to build this
   /// calorimeter table using the EventIDRange.
   /// Once the calorimeter has it own conditions data cabling, then we can
@@ -87,7 +87,8 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
     return StatusCode::FAILURE;
   }   
 
-  
+  ATH_MSG_DEBUG( "RegSelConfAlg_LAr: " << name() << " found range: " << id_range );
+
   ATH_MSG_INFO( "creating new LAr table" );
 
   /// create the new lookup table

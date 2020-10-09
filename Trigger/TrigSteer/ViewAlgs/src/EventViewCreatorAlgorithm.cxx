@@ -221,9 +221,13 @@ StatusCode EventViewCreatorAlgorithm::placeRoIInView( const ElementLink<TrigRoiD
 StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObject, SG::View* view, const EventContext& context ) const {
   // fill the Muon output collection
   ATH_MSG_DEBUG( "Adding Muon To View : " << m_inViewMuons.key()<<" and "<<m_inViewMuonCandidates.key() );
-  auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::MuonContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
-  oneObjectCollection->push_back( theObject );
+  auto oneObjectCollection = std::make_unique< xAOD::MuonContainer >();
+  auto oneObjectAuxCollection = std::make_unique< xAOD::MuonAuxContainer >();
+  oneObjectCollection->setStore( oneObjectAuxCollection.get() );
+
+  xAOD::Muon* copiedMuon = new xAOD::Muon();
+  oneObjectCollection->push_back( copiedMuon );
+  *copiedMuon = *theObject;
 
   auto muonCandidate = std::make_unique< ConstDataVector< MuonCandidateCollection > >();
   muonCandidate->clear( SG::VIEW_ELEMENTS );
@@ -234,7 +238,7 @@ StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObje
   //store both in the view
   auto handleMuon = SG::makeHandle( m_inViewMuons,context );
   ATH_CHECK( handleMuon.setProxyDict( view ) );
-  ATH_CHECK( handleMuon.record( std::move( oneObjectCollection ) ) );
+  ATH_CHECK( handleMuon.record( std::move( oneObjectCollection ), std::move( oneObjectAuxCollection )) );
 
   auto handleCandidate = SG::makeHandle( m_inViewMuonCandidates,context );
   ATH_CHECK( handleCandidate.setProxyDict( view ) );

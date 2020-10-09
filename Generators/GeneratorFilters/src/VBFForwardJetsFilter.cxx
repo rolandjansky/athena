@@ -145,7 +145,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
         ATH_MSG_INFO("photon pt(Gaudi::Units::GeV) = " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << " eta = " << (*pitr)->momentum().pseudoRapidity());
       }
       // electon
-      if ( abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
+      if ( std::abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
            (*pitr)->momentum().perp() >= m_LGMinPt && std::abs((*pitr)->momentum().pseudoRapidity()) <= m_LGMaxEta) {
         MCTruthElectronList.push_back((*pitr));
         ATH_MSG_INFO("electron pt(Gaudi::Units::GeV) = " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << " eta = " << (*pitr)->momentum().pseudoRapidity());
@@ -158,9 +158,9 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
         int leptonic = 0;
         for ( ; begin != end; begin++ ) {
           if ( (*begin)->production_vertex() != tau->end_vertex() ) continue;
-          if ( abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
-          if ( abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
-          if ( abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
+          if ( std::abs( (*begin)->pdg_id() ) == 12 ) leptonic = 1;
+          if ( std::abs( (*begin)->pdg_id() ) == 14 ) leptonic = 2;
+          if ( std::abs( (*begin)->pdg_id() ) == 15 ) leptonic = 11;
         }
 
         if (leptonic == 0) {
@@ -272,7 +272,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
 CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
 
-  if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
+  if ( ( std::abs( part->pdg_id() ) == 12 ) || ( std::abs( part->pdg_id() ) == 14 ) || ( std::abs( part->pdg_id() ) == 16 ) ) {
     nu.setPx(part->momentum().px());
     nu.setPy(part->momentum().py());
     nu.setPz(part->momentum().pz());
@@ -295,7 +295,7 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepM
       double deta = jet->eta()-list[i]->momentum().pseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
-      double dr = sqrt(deta*deta+dphi*dphi);
+      double dr = std::sqrt(deta*deta+dphi*dphi);
       double ratio_pt= std::abs((jet->pt()-list[i]->momentum().perp())/list[i]->momentum().perp());
       if (ratio_pt < m_RatioPtJLG && dr < minDR) minDR = dr;
     }

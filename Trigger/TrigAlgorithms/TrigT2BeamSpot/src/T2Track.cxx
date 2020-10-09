@@ -12,19 +12,6 @@
 
 namespace PESA
 {
-  double trackChi2Prob( const T2Track& track )
-  {
-    // FIXME: unify with vertexChi2Prob()
-    double chi2Prob = 0.;
-    const int    ndf  = track.NDF();
-    const double chi2 = track.Qual() * track.NDF();
-    if ( ndf  > 0  &&  chi2 > 0. && ! std::isinf( chi2 ) )
-      {
-        chi2Prob = TMath::Prob(chi2,ndf);
-      }
-    return chi2Prob;
-  }
-
 
   std::ostream& operator<<( std::ostream& os, const T2Track& track )
   {

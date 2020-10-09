@@ -21,13 +21,14 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "GaudiKernel/EventContext.h"
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/VertexFwd.h"
+
+class EventContext;
 
 namespace Root{
   class TPhotonIsEMSelector;
@@ -38,7 +39,7 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
 
 {
   ASG_TOOL_CLASS3(AsgPhotonIsEMSelector, IAsgPhotonIsEMSelector,
-		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
+		  IAsgEGammaIsEMSelector, IAsgSelectionTool)
 
   public:
 

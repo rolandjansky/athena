@@ -34,7 +34,7 @@ CLASS_DEF( IParticleLinkContainer , 1340008338 , 1 )
 
 
 // This defines how to convert an INav4MomLinkContainer to an INavigable4MomentumCollection
-class ATLAS_NOT_THREAD_SAFE IParticleLinkContainerToIParticleContainerConverter
+class IParticleLinkContainerToIParticleContainerConverter
   : public SG::CopyConversion<IParticleLinkContainer,
                               IParticleContainer>
 {
@@ -48,7 +48,11 @@ public:
       dst.reserve (sz);
       for (size_t i = 0; i < sz; i++) {
         const IParticle* p = *(src[i]).cptr();
-        dst.push_back (const_cast<IParticle*> (p));
+        // FIXME: Ok, since the target ends up recorded in the event
+        // store as const.  But should change the interfaces so that
+        // we get a ConstDataVector to fill.
+        IParticle* p_nc ATLAS_THREAD_SAFE = const_cast<IParticle*> (p);
+        dst.push_back (p_nc);
       }
     }
   }

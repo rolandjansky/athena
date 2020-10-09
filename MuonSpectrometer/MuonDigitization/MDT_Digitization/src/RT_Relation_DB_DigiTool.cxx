@@ -2,26 +2,21 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MDT_Digitization/MdtDigiToolInput.h"
 #include "MDT_Digitization/RT_Relation_DB_DigiTool.h"
+
+#include "MDT_Digitization/MdtDigiToolInput.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <iostream>
 
 using namespace MuonGM;
 
-RT_Relation_DB_DigiTool::RT_Relation_DB_DigiTool( const std::string& type, const std::string& name, const IInterface* parent ) 
-: AthAlgTool(type,name,parent)
-, m_maxRadius(0)
-, m_muonGeoMgr(0)
-, m_calibrationDbTool("MdtCalibrationDbTool",this)
-{
+RT_Relation_DB_DigiTool::RT_Relation_DB_DigiTool( const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type,name,parent),
+    m_maxRadius(0),
+    m_muonGeoMgr(nullptr) {
   declareInterface<IMDT_DigitizationTool>(this);
-  declareProperty("EffectiveRadius",  m_effRadius = 14.4275);
-  declareProperty("CalibrationDbTool",m_calibrationDbTool);
 }
-
-
 
 StatusCode RT_Relation_DB_DigiTool::initialize()
 {
@@ -38,10 +33,6 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
     else
     {  
       ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate");
-      //initialize the MdtIdHelper
-//         m_idHelper = m_muonGeoMgr->mdtIdHelper();
-//         ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
-//         if(!m_idHelper) return status;
     }
   }
   

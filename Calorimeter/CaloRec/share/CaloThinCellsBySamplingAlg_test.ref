@@ -242,7 +242,6 @@ ApplicationMgr    SUCCESS           AthSequencer/AthEndSeq
 ApplicationMgr    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
 ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg2
 ApplicationMgr    SUCCESS      AthSequencer/AthOutSeq
-ApplicationMgr    SUCCESS      AthSequencer/AthRegSeq
 ApplicationMgr    SUCCESS ******************************************************************************
 ClassIDSvc           INFO  getRegistryEntries: read 104 CLIDRegistry entries for module ALL
 CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/OnOffIdMap'

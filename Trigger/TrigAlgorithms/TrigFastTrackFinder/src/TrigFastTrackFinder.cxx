@@ -379,17 +379,20 @@ namespace InDet {
 }
 
 StatusCode TrigFastTrackFinder::execute() {
+
   auto ctx = getContext();
   //RoI preparation/update 
+
   SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
+
   ATH_CHECK(roiCollection.isValid());
-  TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
-  TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+
   TrigRoiDescriptor internalRoI;
-  for (; roi != roiE; ++roi) {
-    internalRoI.push_back(*roi);
-  }
-  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
+
+  if ( roiCollection->size()>1 ) ATH_MSG_WARNING( "More than one Roi in the collection: " << m_roiCollectionKey << ", this is not supported - use a composite Roi" );  
+  if ( roiCollection->size()>0 ) internalRoI = **roiCollection->begin();
+
+  //  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_countTotalRoI++;
 
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey, ctx);
@@ -533,10 +536,10 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   mnt_timer_TripletMaking.start();
 
-  std::vector<TrigInDetTriplet*> triplets;
+  std::vector<TrigInDetTriplet> triplets;
+
 
   if(!m_useGPU) {
-
     TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
 
     seedGen.loadSpacePoints(convertedSpacePoints);
@@ -582,11 +585,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
-    TrigInDetTriplet* seed = triplets[tripletIdx];
+    const TrigInDetTriplet &seed = triplets[tripletIdx];
 
-    const Trk::SpacePoint* osp1 = seed->s1().offlineSpacePoint();
-    const Trk::SpacePoint* osp2 = seed->s2().offlineSpacePoint();
-    const Trk::SpacePoint* osp3 = seed->s3().offlineSpacePoint();
+    const Trk::SpacePoint* osp1 = seed.s1().offlineSpacePoint();
+    const Trk::SpacePoint* osp2 = seed.s2().offlineSpacePoint();
+    const Trk::SpacePoint* osp3 = seed.s3().offlineSpacePoint();
 
     if(m_checkSeedRedundancy) {
       //check if clusters do not belong to any track
@@ -629,7 +632,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   }
 
   m_trackMaker->endEvent(trackEventData);
-  for(auto& seed : triplets) delete seed;
 
   //clone removal
   if(m_doCloneRemoval) {
@@ -1240,7 +1242,7 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const E
 }
 
 void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, const IRoiDescriptor* roi, const std
-::vector<TrigSiSpacePointBase>& vsp, std::vector<TrigInDetTriplet*>& output) const {
+::vector<TrigSiSpacePointBase>& vsp, std::vector<TrigInDetTriplet>& output) const {
   
   output.clear();
 
@@ -1276,8 +1278,7 @@ void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, c
       const TrigSiSpacePointBase& SPi = vsp[pOutput->m_innerIndex[k]];
       const TrigSiSpacePointBase& SPm = vsp[pOutput->m_middleIndex[k]];
       const TrigSiSpacePointBase& SPo = vsp[pOutput->m_outerIndex[k]];
-      TrigInDetTriplet* t = new TrigInDetTriplet(SPi, SPm, SPo, pOutput->m_Q[k]);
-      output.push_back(t);
+      output.emplace_back(SPi, SPm, SPo, pOutput->m_Q[k]);
     }
   }
 

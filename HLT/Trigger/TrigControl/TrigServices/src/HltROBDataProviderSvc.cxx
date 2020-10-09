@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "HltROBDataProviderSvc.h"
 #include "TrigKernel/HltExceptions.h"
 
 // Gaudi
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 // hltinterface / data collector
 #include "hltinterface/DataCollector.h"
@@ -105,29 +105,18 @@ StatusCode HltROBDataProviderSvc::initialize()
   bool robOKSconfigFound = false;
 
   if ( m_readROBfromOKS.value() ) {
-    ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
-    if ((p_jobOptionsSvc.retrieve()).isFailure()) {
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
+    if ((jobOptionsSvc.retrieve()).isFailure()) {
       ATH_MSG_ERROR("Could not find JobOptionsSvc");
     } else {
-      const std::vector<const Property*>* dataFlowProps = p_jobOptionsSvc->getProperties("DataFlowConfig");
-      if(!dataFlowProps)
-        ATH_MSG_ERROR("Could not find DataFlowConfig properties");
-      else
-      {
-        for ( const Property* cur : *dataFlowProps ) {
-          // the enabled ROB list is found
-          if ( cur->name() == "DF_Enabled_ROB_IDs" ) {
-            if (m_enabledROBs.assign(*cur)) {
-              robOKSconfigFound = true;
-	      ATH_MSG_INFO(" ---> Read from OKS                                                = "
-			   << MSG::dec << m_enabledROBs.value().size() << " enabled ROB IDs.");
-            } else {
-              ATH_MSG_WARNING(" Could not set Property 'enabledROBs' from OKS.");
-            }
-          }
-        }
+      if (jobOptionsSvc->has("DataFlowConfig.DF_Enabled_ROB_IDs") &&
+          m_enabledROBs.fromString(jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs")).isSuccess()) {
+        robOKSconfigFound = true;
+        ATH_MSG_INFO(" ---> Read from OKS                                                = "
+                     << MSG::dec << m_enabledROBs.value().size() << " enabled ROB IDs.");
+      } else {
+        ATH_MSG_WARNING("Could not set Property 'enabledROBs' from OKS.");
       }
-      p_jobOptionsSvc.release().ignore();
     }
   }
 
@@ -230,11 +219,9 @@ void HltROBDataProviderSvc::addROBData(const EventContext& context, const std::v
 
   // allocate vector of missing ROB Ids
   std::vector<uint32_t> robIds_missing ;
-  robIds_missing.reserve( robIds.size() ) ;
 
   // allocate vector with existing ROB fragments in cache
   std::vector<const ROBF*> robFragments_inCache ;
-  robFragments_inCache.reserve( robIds.size() ) ;
 
   // check input ROB list against cache
   eventCache_checkRobListToCache(cache,robIds, robFragments_inCache, robIds_missing ) ;
@@ -336,7 +323,6 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
   // allocate vector of missing ROB Ids
   std::vector<uint32_t> robIds_missing ;
-  robIds_missing.reserve( robIds.size() ) ;
 
   // check input ROB list against cache
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
@@ -386,8 +372,6 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
   eventCache_addRobData(cache, robFragments_missing) ;
 
   // return all the requested ROB fragments from the cache
-  robFragments.clear() ;
-  robIds_missing.clear() ;
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
 }
 
@@ -545,7 +529,7 @@ void HltROBDataProviderSvc::eventCache_clear(EventCache* cache)
   cache->globalEventNumber = 0;
   cache->eventStatus       = 0;    
   cache->isEventComplete   = false;    
-  cache->robmap.clear();
+  { cache->robmap.clear(); }
 }
 
 void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, const std::vector<uint32_t>& robIds_toCheck, 
@@ -554,6 +538,15 @@ void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, co
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << " number of ROB Ids to check = " << robIds_toCheck.size());
 
+  // clear output arrays
+  robFragments_inCache.clear();
+  robIds_missing.clear();
+
+  // allocate sufficient space for output arrays
+  robFragments_inCache.reserve( robIds_toCheck.size() );
+  robIds_missing.reserve( robIds_toCheck.size() );
+
+  // check input ROB ids
   for (uint32_t id : robIds_toCheck) {
 
     // check for duplicate IDs on the list of missing ROBs
@@ -564,12 +557,13 @@ void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, co
     }
 
     // check if ROB is already in cache
-    ROBMAP::const_iterator map_it = cache->robmap.find(id);
-    if (map_it != cache->robmap.end()) {
-      ATH_MSG_VERBOSE(__FUNCTION__ << " ROB Id 0x" << MSG::hex << id << MSG::dec
-		      << " found for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
-      robFragments_inCache.push_back( &(map_it->second) );
-      continue;
+    { ROBMAP::const_iterator map_it = cache->robmap.find(id);
+      if (map_it != cache->robmap.end()) {
+	ATH_MSG_VERBOSE(__FUNCTION__ << " ROB Id 0x" << MSG::hex << id << MSG::dec
+			<< " found for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
+	robFragments_inCache.push_back( &(map_it->second) );
+	continue;
+      }
     }
 
     // check if ROB is actually enabled for readout
@@ -614,11 +608,12 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, const std::
     }
 
     // check if ROB is already in cache
-    ROBMAP::const_iterator it = cache->robmap.find(id);
-    if (it != cache->robmap.end()) {
-      ATH_MSG_VERBOSE(__FUNCTION__ << " Duplicate ROB Id 0x" << MSG::hex << id << MSG::dec
-		      << " found for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
-      continue;
+    { ROBMAP::const_iterator it = cache->robmap.find(id);
+      if (it != cache->robmap.end()) {
+	ATH_MSG_VERBOSE(__FUNCTION__ << " Duplicate ROB Id 0x" << MSG::hex << id << MSG::dec
+			<< " found for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
+	continue;
+      }
     }
 
     // check for ROBs with no data 
@@ -643,12 +638,12 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, const std::
     }
 
     // add ROB to map
-    cache->robmap[id] = rob;
+    { cache->robmap[id] = rob; }
   }
 }
 
 HltROBDataProviderSvc::EventCache::~EventCache()
 {
   //  delete event;
-  robmap.clear();
+  { robmap.clear(); }
 }

@@ -4,7 +4,15 @@
 
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
+#include <iomanip> // for std::array
+
 RpcHitIdHelper* RpcHitIdHelper::m_help = nullptr;
+
+namespace {
+    const static std::array<char, 4> v1 = {'B','E','T','C'};
+    const static std::array<char, 9> v2 = {'I','M','O','E','1','2','3','4','S'};
+    const static std::array<char, 6> v3 = {'S','L','E','R','F','G'};
+}
 
 //private constructor
 RpcHitIdHelper::RpcHitIdHelper() : HitIdHelper()
@@ -30,11 +38,6 @@ RpcHitIdHelper* RpcHitIdHelper::GetHelper(unsigned int nGasGaps)
   if (!m_help) m_help = new RpcHitIdHelper(nGasGaps);
   return m_help;
 }
-
-static char v1[] = {'B','E','T','C'};
-static char v2[] = {'I','M','O','E','1','2','3','4','S'};
-static char v3[] = {'S','L','E','R','F','G'};
-
 
 void RpcHitIdHelper::Initialize(unsigned int nGasGaps)
 {

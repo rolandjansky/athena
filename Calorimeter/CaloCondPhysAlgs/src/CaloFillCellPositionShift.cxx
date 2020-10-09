@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloFillCellPositionShift.h"
@@ -13,7 +13,7 @@
 
 //Constructor
 CaloFillCellPositionShift::CaloFillCellPositionShift(const std::string& name, ISvcLocator* pSvcLocator):
-AthAlgorithm(name,pSvcLocator),m_calo_id(NULL),m_cellPos(NULL),m_key("LArCellPositionShift")
+AthAlgorithm(name,pSvcLocator),m_calo_id(nullptr),m_cellPos(nullptr),m_key("LArCellPositionShift")
 {
   declareProperty("outputKey",m_key,"Key for output CaloCellPositionShift");
 }

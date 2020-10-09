@@ -123,10 +123,11 @@ if DetFlags.writeRDOPool.any_on():
         eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"
     else:
         eventInfoKey = "EventInfo"
-    streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, noTag=not premixing, eventInfoKey=eventInfoKey)
+    streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, eventInfoKey=eventInfoKey)
     from Digitization.DigiOutput import getStreamRDO_ItemList
     streamRDO.ItemList = getStreamRDO_ItemList(logDigitization_flags)
-    streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]
+    if digitizationFlags.digiSteeringConf.get_Value() == 'TestTruthJetFilter':
+        streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]
     streamRDO.OutputFile = athenaCommonFlags.PoolRDOOutput()
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_LEVEL = '1'" ]

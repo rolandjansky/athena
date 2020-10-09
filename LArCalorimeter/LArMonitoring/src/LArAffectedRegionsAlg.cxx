@@ -432,7 +432,7 @@ LArAffectedRegionsAlg::fillHistograms( const EventContext& ctx ) const
     }
     
     // FCAL
-    ATH_MSG_INFO("layermin=" << layermin << " layermin-21=" << layermin-21);
+    ATH_MSG_DEBUG("layermin=" << layermin << " layermin-21=" << layermin-21);
     if(layermin>=21 && layermin<=23){
       //set the group to fill(only depends on layer)
       std::string fcal_layer_name=m_MonGroupName;

@@ -1,19 +1,9 @@
-Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
 Py:MetaReader        INFO Current mode used: peeker
-Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
 Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
-                                          running on 1fe14f8366e2 on Tue Jul 21 15:04:26 2020
-====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 PyComponentMgr       INFO Initializing PyComponentMgr...
 TestAlg              INFO Initializing TestAlg...
-ClassIDSvc           INFO  getRegistryEntries: read 20810 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 423 CLIDRegistry entries for module ALL
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -31,7 +21,6 @@ ApplicationMgr    SUCCESS           AthSequencer/AthEndSeq
 ApplicationMgr    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
 ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg2
 ApplicationMgr    SUCCESS      AthSequencer/AthOutSeq
-ApplicationMgr    SUCCESS      AthSequencer/AthRegSeq
 ApplicationMgr    SUCCESS ******************************************************************************
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
@@ -89,8 +78,8 @@ testMerge:  CaloUtils::ToolWithConstantsTestTool 2 .test.ca1 = [3, 4.5, 6]
 .test.order = 0
 
 
-ToolSvc.tool1       ERROR CaloUtils/src/ToolWithConstants.cxx:112 (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for tools of differing types: foofoo and CaloUtils::ToolWithConstantsTestTool
-ToolSvc.tool1       ERROR CaloUtils/src/ToolWithConstants.cxx:118 (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for differing versions of tool CaloUtils::ToolWithConstantsTestTool: 10 and 2
+ToolSvc.tool1       ERROR ../ToolWithConstants.cxx (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for tools of differing types: foofoo and CaloUtils::ToolWithConstantsTestTool
+ToolSvc.tool1       ERROR ../ToolWithConstants.cxx (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for differing versions of tool CaloUtils::ToolWithConstantsTestTool: 10 and 2
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #284500 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #284500 1 events processed so far  <<<===
 284500 0 1000
@@ -222,10 +211,10 @@ ToolSvc.tool1        INFO m_ca2 [
 
 ToolSvc.tool2        INFO m_cf1 2.5
 ToolSvc.tool2        INFO m_ci1 10
-ToolSvc.tool2        INFO m_cb1 Can't find key
+ToolSvc.tool2        INFO m_cb1 Can't find key in
 ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
 
-ToolSvc.tool2        INFO m_ca2 Can't find key
+ToolSvc.tool2        INFO m_ca2 Can't find key in
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #284500 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #284500 7 events processed so far  <<<===
 284500 3 1000
@@ -242,17 +231,12 @@ ToolSvc.tool1        INFO m_ca2 [
 
 ToolSvc.tool2        INFO m_cf1 2.5
 ToolSvc.tool2        INFO m_ci1 10
-ToolSvc.tool2        INFO m_cb1 Can't find key
+ToolSvc.tool2        INFO m_cb1 Can't find key in
 ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
 
-ToolSvc.tool2        INFO m_ca2 Can't find key
+ToolSvc.tool2        INFO m_ca2 Can't find key in
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #284500 8 events processed so far  <<<===
 ApplicationMgr       INFO Application Manager Stopped successfully
-IncidentProcAlg1     INFO Finalize
-TestAlg              INFO Finalizing TestAlg...
-IncidentProcAlg2     INFO Finalize
-EventSelector        INFO finalize
 ToolSvc              INFO Removing all tools created by ToolSvc
-PyComponentMgr       INFO Finalizing PyComponentMgr...
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully

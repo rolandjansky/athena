@@ -10,10 +10,11 @@ from __future__ import print_function
 __version__ = "$Id: ParameterDbFiller.py,v 1.3 2008-11-13 12:25:23 schaffer Exp $"
 __author__  = "RD Schaffer <R.D.Schaffer@cern.ch>"
 
-import sys, os, string
+import sys
+import os
 import collections
 import six
-from PyCool import cool,coral
+from PyCool import cool
 
 class ParameterDbFillerError(Exception):
     def __init__(self, value):
@@ -61,11 +62,9 @@ class ParameterDbFiller(object):
 
     def genSimDb(self, dbFileName = None):
         # Allow to define specific file name, otherwise use 
-        customDb = False
-        if dbFileName == None:
+        if dbFileName is None:
             # Set to default value
             dbFileName = "SimParams.db"
-            customDb = True
 
         # Generate db: args -  file name, dbname, params, folder path
         self.genDb(dbFileName, 'SIMPARAM', self.simParams, '/Simulation/Parameters')
@@ -73,11 +72,9 @@ class ParameterDbFiller(object):
 
     def genDigitDb(self, dbFileName = None):
         # Allow to define specific file name, otherwise use 
-        customDb = False
-        if dbFileName == None:
+        if dbFileName is None:
             # Set to default value
             dbFileName = "DigitParams.db"
-            customDb = True
 
         # Generate db: args -  file name, dbname, params, folder path
         self.genDb(dbFileName, 'DIGPARAM', self.digitParams, '/Digitization/Parameters', self.digitParams64)
@@ -86,9 +83,9 @@ class ParameterDbFiller(object):
     def genDb(self, dbFileName, dbName, params, folderPath, params64 = {}):
 
         # Do checks
-        if self.beginRun == None:
+        if self.beginRun is None:
             raise ParameterDbFillerError ('Must set begin run number before generating db')
-        if self.endRun == None:
+        if self.endRun is None:
             raise ParameterDbFillerError ('Must set end run number before generating db')
         if len(params) == 0:
             raise ParameterDbFillerError ('No parameters for db ' + dbName)
@@ -97,7 +94,7 @@ class ParameterDbFiller(object):
         try:
             os.remove(dbFileName)
             print ("ParameterDbFiller.genDb:  Removed db", dbFileName)
-        except:
+        except Exception:
             pass
 
         # get database service and open database
@@ -171,7 +168,7 @@ class ParameterDbFiller(object):
             try:
                 f = db.getFolder(ff)
                 print ("ParameterDbFiller.dumpDb:  Dumping folder " + str(ff))
-            except:
+            except Exception:
                 #print ("Skipping " + str(ff))
                 continue
 

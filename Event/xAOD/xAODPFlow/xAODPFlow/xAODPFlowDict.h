@@ -43,12 +43,11 @@ namespace {
      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, IParticleContainer );
      // Weird/bad types used by the PFO reconstruction as attributes on
      // xAOD::PFO objects. :-(
-     std::pair< ElementLink< xAOD::CaloClusterContainer >, double > dummy1;
-     std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > >
-     dummy2;
-     std::vector< std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > >
-     dummy3;
-     std::vector< xAOD::PFODetails::PFOLeptonType > dummy4;
+     std::pair< ElementLink< xAOD::CaloClusterContainer >, double > FlowElemdummy1;
+     std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > FlowElemdummy2;
+     std::vector< std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > > FlowElemdummy3;
+     std::vector< xAOD::PFODetails::PFOLeptonType > FlowElemdummy4;
+     
 
    };
 }

@@ -29,11 +29,11 @@
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IService.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 
 #include <sstream>
@@ -329,8 +329,8 @@ bool psc::Psc::configure(const ptree& config)
 
   ERS_DEBUG(1,"Configured ApplicationMgr in state: " << m_pesaAppMgr->FSMState());
 
-  ServiceHandle<IJobOptionsSvc> p_jobOptionSvc("JobOptionsSvc","psc::Psc");
-  SmartIF<IProperty> jos_propif{&(*p_jobOptionSvc)};
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> jobOptionSvc("JobOptionsSvc","psc::Psc");
+  SmartIF<IProperty> jos_propif{&(*jobOptionSvc)};
   if(m_config->didUserSetLogLevel())
     jos_propif->setProperty("OutputLevel", m_config->getLogLevelAsNumStr()).ignore();
 
@@ -350,61 +350,30 @@ bool psc::Psc::configure(const ptree& config)
 
   // Write list of configured ROB IDs into the JobOptions Catalogue
   if ( m_config->enabled_robs.size() != 0 ) {
-
-    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue("DataFlowConfig",
-        SimpleProperty< std::vector<uint32_t> >("DF_Enabled_ROB_IDs",m_config->enabled_robs));
-    if ( sc.isFailure() ) {
-      ERS_PSC_ERROR("psc::Psc::configure: Error could not write list of configured ROB IDs in JobOptions Catalogue: "
-                      <<" number of ROB IDs read from OKS = " << m_config->enabled_robs.size()) ;
-      return false;
-    }
-
+    jobOptionSvc->set("DataFlowConfig.DF_Enabled_ROB_IDs",
+                      Gaudi::Utils::toString<std::vector<uint32_t>>(m_config->enabled_robs));
     ERS_DEBUG(1,"psc::Psc::configure: Wrote configuration for enabled ROBs in JobOptions Catalogue: "
               <<" number of ROB IDs read from OKS = " << m_config->enabled_robs.size());
   }
 
   // Write list of configured Sub Det IDs into the JobOptions Catalogue
   if ( m_config->enabled_SubDets.size() != 0 ) {
-
-    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue("DataFlowConfig",
-	SimpleProperty< std::vector<uint32_t> >("DF_Enabled_SubDet_IDs",m_config->enabled_SubDets));
-    if ( sc.isFailure() ) {
-      ERS_PSC_ERROR("psc::Psc::configure: Error could not write list of configured sub detector IDs in JobOptions Catalogue: "
-                      <<" number of Sub Det IDs read from OKS = " << m_config->enabled_SubDets.size()) ;
-      return false;
-    }
-
+    jobOptionSvc->set("DataFlowConfig.DF_Enabled_SubDet_IDs",
+                      Gaudi::Utils::toString<std::vector<uint32_t>>(m_config->enabled_SubDets));
     ERS_DEBUG(1,"psc::Psc::configure: Wrote configuration for enabled sub detectors in JobOptions Catalogue: "
               <<" number of Sub Det IDs read from OKS = " << m_config->enabled_SubDets.size());
   }
 
   // Write the maximum HLT output size into the JobOptions Catalogue
   if (std::string opt = m_config->getOption("MAXEVENTSIZEMB"); !opt.empty()) {
-    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue("DataFlowConfig",
-      IntegerProperty("DF_MaxEventSizeMB", std::stoi(opt)));
-    if ( sc.isFailure() ) {
-      ERS_PSC_ERROR("psc::Psc::configure: Error could not write DF_MaxEventSizeMB in JobOptions Catalogue");
-      return false;
-    }
+    jobOptionSvc->set("DataFlowConfig.DF_MaxEventSizeMB", opt);
     ERS_DEBUG(1,"psc::Psc::configure: Wrote DF_MaxEventSizeMB=" << opt << " in JobOptions Catalogue");
   }
 
   // Write configuration for HLT muon calibration infrastructure in JobOptions catalogue
   if ( (m_config->getOption("MUONCALBUFFERNAME") != "NONE") && (m_config->getOption("MUONCALBUFFERNAME") != "") ) {
-    std::map<std::string, std::string>  muoncal_properties;
-    muoncal_properties["MuonCalBufferName"]  = "MUONCALBUFFERNAME" ;
-    muoncal_properties["MuonCalBufferSize"]  = "MUONCALBUFFERSIZE" ;
-
-    for(std::map<std::string, std::string>::const_iterator it = muoncal_properties.begin(); it != muoncal_properties.end(); ++it) {
-      StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue("MuonHltCalibrationConfig",
-          StringProperty(it->first,m_config->getOption(it->second)));
-      if ( sc.isFailure() ) {
-        ERS_PSC_ERROR("psc::Psc::configure: Error could not write HLT Muon Calibration buffer parameter: "
-            << it->first << " = "
-            << m_config->getOption(it->second) << " in JobOptions Catalogue.") ;
-        return false;
-      }
-    }
+    jobOptionSvc->set("MuonHltCalibrationConfig.MuonCalBufferName", m_config->getOption("MUONCALBUFFERNAME"));
+    jobOptionSvc->set("MuonHltCalibrationConfig.MuonCalBufferSize", m_config->getOption("MUONCALBUFFERSIZE"));
 
     ERS_DEBUG(1,"psc::Psc::configure: Wrote configuration for HLT Muon Calibration in JobOptions Catalogue: "
         <<" MuonCalBufferName = " << m_config->getOption("MUONCALBUFFERNAME")
@@ -506,14 +475,18 @@ bool psc::Psc::prepareForRun (const ptree& args)
   {
     ERS_PSC_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump()
                   << "\" - " << e.what())
-
     return false;
   }
   catch(const ptree_bad_data & e)
   {
     ERS_PSC_ERROR("Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - "
                   << e.what())
+    return false;
+  }
 
+  // Initializations needed for start()
+  if(!callOnEventLoopMgr<ITrigEventLoopMgr>([&args](ITrigEventLoopMgr* mgr) {return mgr->prepareForStart(args);},
+                                            "prepareForStart").isSuccess()) {
     return false;
   }
 
@@ -539,9 +512,7 @@ bool psc::Psc::prepareForRun (const ptree& args)
     }
     return ret;
   };
-  if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess())
-  {
-    ERS_PSC_ERROR("Error preparing the EventLoopMgr");
+  if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess()) {
     return false;
   }
 
@@ -559,7 +530,6 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
 
   if(!callOnEventLoopMgr<IService>(&IService::sysStop, "sysStop").isSuccess())
   {
-    ERS_PSC_ERROR("Error stopping the EventLoopManager");
     return false;
   }
 
@@ -737,7 +707,6 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
              {return mgr->hltUpdateAfterFork(args);};
   if(!callOnEventLoopMgr<ITrigEventLoopMgr>(upd, "hltUpdateAfterFork").isSuccess())
   {
-    ERS_PSC_ERROR("Error updating EventLoopMgr after fork");
     return false;
   }
 
@@ -752,21 +721,13 @@ bool psc::Psc::finalizeWorker (const boost::property_tree::ptree& /*args*/)
 
 bool psc::Psc::setDFProperties(std::map<std::string, std::string> name_tr_table)
 {
-  ServiceHandle<IJobOptionsSvc> p_jobOptionSvc("JobOptionsSvc","psc::Psc");
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> jobOptionSvc("JobOptionsSvc","psc::Psc");
   for(const auto& prop : name_tr_table)
   {
     const auto& val = m_config->getOption(prop.second);
-    auto sc = p_jobOptionSvc->addPropertyToCatalogue(
-        "DataFlowConfig", StringProperty(prop.first, val));
-    if(sc.isFailure())
-    {
-      ERS_PSC_ERROR("Error could not write Data Flow parameter: "
-          << prop.first << " = " << val << " in JobOptions Catalogue.") ;
-      return false;
-    }
-    else
-      ERS_DEBUG(0,"Wrote configuration for Data Flow in JobOptions Catalogue: "
-                  << prop.first << " = " << val);
+    jobOptionSvc->set("DataFlowConfig."+prop.first, val);
+    ERS_DEBUG(0,"Wrote configuration for Data Flow in JobOptions Catalogue: "
+              << prop.first << " = " << val);
   }
 
   return true;
@@ -786,19 +747,11 @@ bool psc::Psc::setAthenaProperties() {
   }
 
   // Use the JobOptionsSvc to write athena-specific options in JobOptions Catalogue of EventLoopMgr
-  ServiceHandle<IJobOptionsSvc> p_jobOptionSvc("JobOptionsSvc","psc::Psc");
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> jobOptionSvc("JobOptionsSvc","psc::Psc");
 
   std::string opt = m_config->getOption("HARDTIMEOUT");
   if (!opt.empty()) {
-    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
-      eventLoopMgrName,
-      FloatProperty("HardTimeout",std::stof(opt))
-    );
-    if (sc.isFailure()) {
-      ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
-                    << ".HardTimeout property in JobOptions Catalogue");
-      return false;
-    }
+    jobOptionSvc->set(eventLoopMgrName+".HardTimeout", opt);
   }
   else {
     ERS_PSC_ERROR("Failed to get the HARDTIMEOUT property from the configuration tree");
@@ -807,15 +760,7 @@ bool psc::Psc::setAthenaProperties() {
 
   opt = m_config->getOption("SOFTTIMEOUTFRACTION");
   if (!opt.empty()) {
-    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
-      eventLoopMgrName,
-      FloatProperty("SoftTimeoutFraction",std::stof(opt))
-    );
-    if (sc.isFailure()) {
-      ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
-                    << ".SoftTimeoutFraction property in JobOptions Catalogue");
-      return false;
-    }
+    jobOptionSvc->set(eventLoopMgrName+".SoftTimeoutFraction", opt);
   }
   else {
     ERS_PSC_ERROR("Failed to get the SOFTTIMEOUTFRACTION property from the configuration tree");
@@ -828,14 +773,7 @@ bool psc::Psc::setAthenaProperties() {
 
   opt = m_config->getOption("NEVENTSLOTS");
   if (!opt.empty()) {
-    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
-      "EventDataSvc",
-      IntegerProperty("NSlots",std::stoi(opt))
-    );
-    if (sc.isFailure()) {
-      ERS_PSC_ERROR("Error could not write the EventDataSvc.NSlots property in JobOptions Catalogue");
-      return false;
-    }
+    jobOptionSvc->set("EventDataSvc.NSlots", opt);
   }
   else {
     ERS_PSC_ERROR("Failed to get the NEVENTSLOTS property from the configuration tree");
@@ -844,14 +782,7 @@ bool psc::Psc::setAthenaProperties() {
 
   opt = m_config->getOption("NTHREADS");
   if (!opt.empty()) {
-    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
-      "AvalancheSchedulerSvc",
-      IntegerProperty("ThreadPoolSize",std::stoi(opt))
-    );
-    if (sc.isFailure()) {
-      ERS_PSC_ERROR("Error could not write the AvalancheSchedulerSvc.ThreadPoolSize property in JobOptions Catalogue");
-      return false;
-    }
+    jobOptionSvc->set("AvalancheSchedulerSvc.ThreadPoolSize", opt);
   }
   else {
     ERS_PSC_ERROR("Failed to get the NTHREADS property from the configuration tree");

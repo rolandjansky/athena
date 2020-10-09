@@ -44,6 +44,7 @@ namespace MuonGM {
     m_hasALines = false;
     m_hasBLines = false;
     m_delta = Amg::Transform3D::Identity();
+    m_offset = 0.;
     m_ml = mL;
     
     // get the setting of the caching flag from the manager
@@ -240,6 +241,9 @@ namespace MuonGM {
       m_etaDesign[il].inputPitch = stgc->stripPitch();
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
       m_etaDesign[il].inputWidth = stgc->stripWidth();
+      // If the top and bottom frames are not the same widths, the active geometry is incorrectly positionned by half the difference
+      m_offset = 0.5*(m_etaDesign[il].ylFrame-m_etaDesign[il].ysFrame);
+
       if (!tech){
         throw std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::initDesign() - Failed To get Technology for stgc element: %s", __FILE__, __LINE__, stgc->GetName().c_str()));
       }
@@ -396,9 +400,6 @@ namespace MuonGM {
         m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
         m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));
       }
-      
-      // If the top and bottom frames are not the same widths, the active geometry is incorrectly positionned by half the difference
-      double offset = 0.5*(m_etaDesign[layer].ylFrame-m_etaDesign[layer].ysFrame);
 
       // identifier of the first channel - wire plane - locX along phi, locY max->min R
       Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 2, 1);
@@ -407,12 +408,12 @@ namespace MuonGM {
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
       if (m_sTGC_type == 1 || m_sTGC_type == 2)
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-						 Amg::Translation3D(0,0.,-offset)*
+						 Amg::Translation3D(0,0.,-m_offset)*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
       else if (m_sTGC_type == 3) // if QL3, diamond. have to shift geometry to account for origin not being in center
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-					Amg::Translation3D(0,0.,-offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
+					Amg::Translation3D(0,0.,-m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
       else throw std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Wire Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
@@ -436,12 +437,12 @@ namespace MuonGM {
 
       if (m_sTGC_type == 1 || m_sTGC_type == 2)
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-						 Amg::Translation3D(shift,0.,-offset)*
+						 Amg::Translation3D(shift,0.,-m_offset)*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)));
 
       else if (m_sTGC_type == 3) // if QL3, diamond. have to shift geometry to account for origin not being in center
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-					Amg::Translation3D(shift,0.,-offset + m_halfX[layer] - m_etaDesign[layer].yCutout)*
+					Amg::Translation3D(shift,0.,-m_offset + m_halfX[layer] - m_etaDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
       else std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Strip Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
 
@@ -456,12 +457,12 @@ namespace MuonGM {
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
       if (m_sTGC_type == 1 || m_sTGC_type == 2)
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-						 Amg::Translation3D(-shift,0.,-offset)*
+						 Amg::Translation3D(-shift,0.,-m_offset)*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
       else if (m_sTGC_type == 3) // if QL3, diamond. have to shift geometry to account for origin not being in center
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-					Amg::Translation3D(-shift,0.,-offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
+					Amg::Translation3D(-shift,0.,-m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
       else std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Pad Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
@@ -500,7 +501,34 @@ namespace MuonGM {
   Amg::Vector3D sTgcReadoutElement::localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const
   {
     int gg = manager()->stgcIdHelper()->gasGap(id);
-    Amg::Vector3D  locP = m_Xlg[gg-1]*locPos;
+    int channelType = manager()->stgcIdHelper()->channelType(id);
+
+    Amg::Vector3D locP(0,0,0);
+    // strip plane moved along normal, pad plane in the opposite direction
+    // We no longer want the readout elements to be seperated by the gas gas volume
+    // We place all 3 readouts at the center of the gas gap in z, with a 10 micron offset to seperate them
+    double shift = 0.01;
+    if((gg-1)%2) shift = -shift;
+
+    if(channelType == 0){ //if pad plane
+      if(m_sTGC_type == 1 || m_sTGC_type == 2)
+        locP = m_Xlg[gg-1]*Amg::Translation3D(-shift,0.,-m_offset)*locPos;
+      else if(m_sTGC_type == 3)
+        locP = m_Xlg[gg-1]*Amg::Translation3D(-shift,0.,-m_offset + m_PadhalfX[gg-1] - m_padDesign[gg-1].yCutout)*locPos;
+    }
+    else if( channelType == 1 ){ //if strip plane
+      if(m_sTGC_type == 1 || m_sTGC_type == 2)
+        locP = m_Xlg[gg-1]*Amg::Translation3D(shift,0.,-m_offset)*locPos;
+      else if(m_sTGC_type == 3)
+        locP = m_Xlg[gg-1]*Amg::Translation3D(shift,0.,-m_offset + m_halfX[gg-1] - m_etaDesign[gg-1].yCutout)*locPos;
+    }
+    else if(channelType == 2){ //if wire plane 
+      if(m_sTGC_type == 1 || m_sTGC_type == 2)
+        locP = m_Xlg[gg-1]*Amg::Translation3D(0,0.,-m_offset)*locPos;
+      else if(m_sTGC_type == 3)
+        locP = m_Xlg[gg-1]*Amg::Translation3D(0,0.,-m_offset + m_PadhalfX[gg-1] - m_padDesign[gg-1].yCutout)*locPos;
+    }
+
 #ifndef NDEBUG
     MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
     if (log.level()<=MSG::DEBUG) {

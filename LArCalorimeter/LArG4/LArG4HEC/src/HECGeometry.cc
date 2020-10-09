@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::HEC::HECGeometry
@@ -23,8 +23,8 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/Units.h"
 
@@ -69,7 +69,8 @@ namespace LArG4 {
 
       if (!m_hecManager)
         {
-          StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+          ServiceHandle<StoreGateSvc> detStore ("DetectorStore" ,"HECGeometry");
+          ATH_CHECK(detStore.retrieve() );
           ATH_CHECK(detStore->retrieve(m_hecManager));
         }
       // This is VERY clumsy, but at the moment the only way to get the eta boundaries

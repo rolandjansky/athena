@@ -23,19 +23,16 @@ if 'InDetTrigFlags' not in dir():
 
 
 
-def makeInDetAlgsNoView( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True ):
+def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
 
-  viewAlgs, viewVerify = makeInDetAlgs( whichSignature, separateTrackParticleCreator, rois, doFTF, None )
+  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None)
   return viewAlgs
 
-def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier' ):
-  #If signature specified add suffix to the algorithms
-  signature =  whichSignature if whichSignature else ''
-  if signature != "" and separateTrackParticleCreator == "":
-    separateTrackParticleCreator = signature
-
-  if signature == "" :
-    raise ValueError('makeInDetAlgs() No signature specified')
+def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier'):
+  if config is None :
+    raise ValueError('makeInDetAlgs() No config provided!')
+  #Add suffix to the algorithms
+  signature =  '_{}'.format( config.name )
 
   #Global keys/names for Trigger collections 
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -55,7 +52,9 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
+                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
+                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
     
@@ -72,9 +71,11 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
                                          ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
       topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
                                          ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
 
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -109,6 +110,11 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = rois
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
+    InDetPixelRawDataProvider.BSErrorsCacheKey = InDetCacheNames.PixBSErrCacheKey
+
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel 
+
+    InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
 
     viewAlgs.append(InDetPixelRawDataProvider)
 
@@ -156,9 +162,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   #Pixel clusterisation
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
 
-  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-  PixelConfigCondAlg.UseCalibConditions = False
-
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool_" + signature,
                                                   SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
@@ -169,12 +172,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool_" + signature,
-                                                  globalPosAlg            = InDetClusterMakerTool,
-                                                  MinimalSplitSize        = 0,
-                                                  MaximalSplitSize        = 49,
-                                                  MinimalSplitProbability = 0,
-                                                  DoIBLSplitting = True,
-  )
+                                                  globalPosAlg            = InDetClusterMakerTool)
   # Enable duplcated RDO check for data15 because duplication mechanism was used.
   from RecExConfig.RecFlags import rec
   if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
@@ -197,6 +195,9 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetPixelClusterization.RoIs = rois
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
 
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+  InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
+
   viewAlgs.append(InDetPixelClusterization)
 
   # Create SCT_ConditionsSummaryTool
@@ -212,6 +213,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
   sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
   sct_ConfigurationConditionsToolSetup.setToolName("InDetSCT_ConfigurationConditionsTool_" + signature)
+  if globalflags.DataSource() == 'geant4':
+     sct_ConfigurationConditionsToolSetup.setChannelFolder("/SCT/DAQ/Config/ChipSlim") # For MC (OFLP200)
   sct_ConfigurationConditionsToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ConfigurationConditionsToolSetup.getTool().getFullName())
 
@@ -260,6 +263,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = rois
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+  InDetSCT_Clusterization.FlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey
 
   from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
   InDetSCT_Clusterization.RegSelTool = makeRegSelTool_SCT()
@@ -303,33 +307,35 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
   if doFTF: 
+      #Load signature configuration (containing cut values, names of collections, etc)
+      #from .InDetTrigConfigSettings import getInDetTrigConfig
+      #configSetting = getInDetTrigConfig( whichSignature )
+      if config is None:
+            raise ValueError('makeInDetAlgs() No signature config specified')
+
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
-      theFTF.RoIs = rois
-      theFTF.TracksName = "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator
-      
-      #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
-      if whichSignature=="Electron":
-         theFTF.doCloneRemoval = True
+      #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType )
+      theFTF.RoIs           = rois
+      theFTF.TracksName     = config.FT.trkTracksFTF() 
+      theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
 
       viewAlgs.append(theFTF)
 
 
       from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-      from TrigEDMConfig.TriggerEDMRun3 import recordable
       from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
-      trackCollection = "HLT_IDTrack_" + separateTrackParticleCreator + "_FTF"
 
 
-      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                                TrackName = "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
+      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
+                                                                TrackName = config.FT.trkTracksFTF(),
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     
-      if separateTrackParticleCreator == "BeamSpot" : 
-         theTrackParticleCreatorAlg.TrackParticlesName = trackCollection
-      else:
-         theTrackParticleCreatorAlg.TrackParticlesName = recordable( trackCollection )
+      
+      #In general all FTF trackParticle collections are recordable except beamspot to save space
+      theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
+
       viewAlgs.append(theTrackParticleCreatorAlg)
 
 

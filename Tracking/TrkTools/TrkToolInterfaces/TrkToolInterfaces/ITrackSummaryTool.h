@@ -5,8 +5,8 @@
 #ifndef TRKITRACKSUMMARYTOOL_H
 #define TRKITRACKSUMMARYTOOL_H
 
-#include "GaudiKernel/IAlgTool.h"
 #include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/IAlgTool.h"
 
 #include <memory>
 namespace Trk {
@@ -27,41 +27,35 @@ class ITrackSummaryTool : virtual public IAlgTool
 public:
   static const InterfaceID& interfaceID();
 
-  /** create a summary object from passed Track. The summary object belongs to
-      you, the user, and so you must take care of deletion of it.
-      If the track has a summary already a clone is returned back.
-      @param onlyUpdateTrack If false (default) then the summary is cloned and
-     added to the track, and a separate summary returned. If true, only update
-     track and return nullptr */
-  virtual const Trk::TrackSummary* createSummary
-  ATLAS_NOT_THREAD_SAFE(const Track& track,
-                        bool onlyUpdateTrack = false) const = 0;
-
-  /** create a summary object of passed track without doing the tedious hole
-     search. Same comments as for createSummary apply here, of course, too. */
-  virtual const Trk::TrackSummary* createSummaryNoHoleSearch
-  ATLAS_NOT_THREAD_SAFE(const Track& track) const = 0;
-
-  /** create a summary object from a passed Track.
-    If the track has a summary already a clone is returned back.
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
     const Track& track) const = 0;
-
-  /** create a summary object of passed track without doing the tedious hole
-   search. If the track has a summary already a clone is returned back.*/
+  
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * but without doing the hole search.
+   * Does not modify the const track.
+   */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
     const Track& track) const = 0;
 
-  /** method which can be used to update the track and add a summary to it.
-      This can be used to add a summary to a track and then retrieve it from it
-     without the need to clone. */
+  /** Same behavious as
+   * IExtendedTrackSummaryTool:computeAndReplaceTrackSummary
+   * but without the need to pass
+   * Trk::PRDtoTrackMap
+   * Does hole search
+   */
   virtual void updateTrack(Track& track) const = 0;
 
-  /** method which can be used to update a refitted track and add a summary to
-   * it, without doing shard hit/ or hole search. Adds a summary to a track and
-   * then retrieve it from it without the need to clone. */
-  virtual void updateRefittedTrack(Track& track) const = 0;
+  /** method which can be used to update the summary of a track
+   * it, without doing shared hit/ or hole search. 
+   * If a summary is present is modified in place
+   * otherwise a new one is created.
+   */
+  virtual void updateTrackSummary(Track& track) const = 0;
 
   /** method to update the shared hit content only, this is optimised for track
    * collection merging. */
@@ -72,11 +66,11 @@ public:
   virtual void updateAdditionalInfo(Track& track) const = 0;
 };
 
-inline const InterfaceID& Trk::ITrackSummaryTool::interfaceID()
-{ 
-	return IID_ITrackSummaryTool; 
+inline const InterfaceID&
+Trk::ITrackSummaryTool::interfaceID()
+{
+  return IID_ITrackSummaryTool;
 }
 
-
 }
-#endif 
+#endif

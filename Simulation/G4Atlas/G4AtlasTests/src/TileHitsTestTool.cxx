@@ -13,6 +13,8 @@
 #include <TH2D.h>
 #include <TH1.h>
 
+#include <cmath>
+
 TileHitsTestTool::TileHitsTestTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SimTestToolBase(type, name, parent),
     m_tileID(0), m_tileTBID(0), m_tileMgr(0),
@@ -90,7 +92,7 @@ StatusCode TileHitsTestTool::processEvent() {
         for (int i=0; i<(*i_hit).size();++i) {
           energy+=(*i_hit).energy(i);
           m_tile_energy->Fill((*i_hit).energy(i));
-          m_tile_log_energy->Fill( log((*i_hit).energy(i)) );
+          m_tile_log_energy->Fill( std::log((*i_hit).energy(i)) );
           m_tile_time->Fill((*i_hit).time(i));
         }
         etot+=energy;
@@ -128,7 +130,7 @@ StatusCode TileHitsTestTool::processEvent() {
                 {
                   energy+=(*i_hit).energy(i);
                   m_tile_energy->Fill((*i_hit).energy(i));
-                  m_tile_log_energy->Fill( log((*i_hit).energy(i))) ;
+                  m_tile_log_energy->Fill( std::log((*i_hit).energy(i))) ;
                   m_tile_time->Fill((*i_hit).time(i));
                 }
               etot+=energy;

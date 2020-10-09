@@ -21,7 +21,7 @@
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
 
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
@@ -49,7 +49,7 @@ namespace G4UA {
 namespace iGeant4 {
 
 TrackProcessorUserActionBase::TrackProcessorUserActionBase():
-  m_eventInfo(nullptr),
+  m_atlasG4EvtUserInfo(nullptr),
   m_curBaseISP(nullptr)
 {;
 }
@@ -57,14 +57,14 @@ TrackProcessorUserActionBase::TrackProcessorUserActionBase():
 void TrackProcessorUserActionBase::BeginOfEventAction(const G4Event*)
 {
   m_curBaseISP = nullptr;
-  m_eventInfo = ::iGeant4::ISFG4Helper::getEventInformation();
+  m_atlasG4EvtUserInfo = ::iGeant4::ISFG4Helper::getAtlasG4EventUserInfo();
   return;
 }
 
 void TrackProcessorUserActionBase::EndOfEventAction(const G4Event*)
 {
   m_curBaseISP = nullptr;
-  m_eventInfo = nullptr;
+  m_atlasG4EvtUserInfo = nullptr;
   return;
 }
 
@@ -166,9 +166,15 @@ void TrackProcessorUserActionBase::setupPrimary(G4Track& aTrack)
   }
 
   int regenerationNr = ppInfo->GetRegenerationNr();
+#ifdef HEPMC3
+  auto primaryTruthParticle = truthBinding->getGenerationZeroTruthParticle();
+  auto generationZeroTruthParticle = truthBinding->getGenerationZeroTruthParticle();
+  auto currentlyTracedHepPart = truthBinding->getTruthParticle();
+#else
   auto* primaryTruthParticle = truthBinding->getGenerationZeroTruthParticle();
   auto* generationZeroTruthParticle = truthBinding->getGenerationZeroTruthParticle();
   auto* currentlyTracedHepPart = truthBinding->getTruthParticle();
+#endif
   auto classification = classify(primaryTruthParticle,
                                  generationZeroTruthParticle,
                                  currentlyTracedHepPart,
@@ -191,11 +197,19 @@ void TrackProcessorUserActionBase::setupSecondary(const G4Track& aTrack)
   auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(aTrack);
 
   // why does TrackInformation return *const* GenParticle and ISFParticle objects!?
+#ifdef HEPMC3
+  HepMC::GenParticlePtr currentlyTracedTruthParticle =  std::const_pointer_cast<HepMC3::GenParticle>( trackInfo->GetHepMCParticle() );
+  HepMC::GenParticlePtr primaryTruthParticle =  std::const_pointer_cast<HepMC3::GenParticle>( trackInfo->GetPrimaryHepMCParticle() );
+  auto* baseISFParticle = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
+
+  setCurrentParticle(baseISFParticle, primaryTruthParticle, currentlyTracedTruthParticle);
+#else
   HepMC::GenParticlePtr currentlyTracedTruthParticle = const_cast<HepMC::GenParticlePtr>( trackInfo->GetHepMCParticle() );
   HepMC::GenParticlePtr primaryTruthParticle = const_cast<HepMC::GenParticlePtr>( trackInfo->GetPrimaryHepMCParticle() );
   auto* baseISFParticle = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
 
   setCurrentParticle(baseISFParticle, primaryTruthParticle, currentlyTracedTruthParticle);
+#endif
   return;
 }
 
@@ -204,8 +218,8 @@ void TrackProcessorUserActionBase::setCurrentParticle(ISF::ISFParticle* baseISFP
                                                       HepMC::GenParticlePtr truthCurrentlyTraced)
 {
   m_curBaseISP = baseISFParticle;
-  m_eventInfo->SetCurrentPrimary( truthPrimary );
-  m_eventInfo->SetCurrentlyTraced( truthCurrentlyTraced );
+  m_atlasG4EvtUserInfo->SetCurrentPrimary( truthPrimary );
+  m_atlasG4EvtUserInfo->SetCurrentlyTraced( truthCurrentlyTraced );
   return;
 }
 

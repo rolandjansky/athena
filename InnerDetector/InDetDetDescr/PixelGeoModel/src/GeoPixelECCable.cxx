@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelECCable.h"
@@ -8,7 +8,9 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
-GeoPixelECCable::GeoPixelECCable() 
+GeoPixelECCable::GeoPixelECCable(InDetDD::PixelDetectorManager* ddmgr,
+                                 PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
 {}
 
 

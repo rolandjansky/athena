@@ -23,15 +23,13 @@ ExtraTreeMuonFillerTool::ExtraTreeMuonFillerTool(const std::string &type, const 
   m_hitsForSA(true),
   m_hitsForSAE(true),
   m_hitsForCombined(true),
-  m_hitsForStatCombined(true),
-  m_propagator("Trk::StraightLinePropagator/MuonStraightLinePropagator") {
+  m_hitsForStatCombined(true) {
   declareProperty("MuonContainer", m_muonContainer);
   declareProperty("AuthorOffset", m_authorOffset);
   declareProperty("HitsForSA", m_hitsForSA);
   declareProperty("HitsForSAE", m_hitsForSAE);
   declareProperty("HitsForCombined", m_hitsForCombined);
   declareProperty("HitsForStatCombined", m_hitsForStatCombined);
-  declareProperty("Propagator", m_propagator);
 }
 
 StatusCode ExtraTreeMuonFillerTool::initialize() {

@@ -9,7 +9,47 @@ template<class T> std::tuple<bool,double,double> MuonMatchingTool :: trigPosForM
 
 
 template<class T, class OFFL>
+const T* MuonMatchingTool :: matchReadHandle(const OFFL* offl, float reqdR,
+                                             SG::ReadHandleKey<DataVector<T> > ReadHandleKey, const EventContext& ctx,
+                                             std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
+
+  ATH_MSG_DEBUG("MuonMonitoring::matchReadHandle<T>");
+
+  using CONTAINER = DataVector<T>;
+  const T* ptr = nullptr;
+
+  SG::ReadHandle<CONTAINER> trigmuons(ReadHandleKey, ctx);
+  if (! trigmuons.isValid() ) {
+    ATH_MSG_ERROR("evtStore() does not contain collection with name " << ReadHandleKey);
+    return ptr;
+  }
+
+  double offlEta = offl->eta();
+  double offlPhi = offl->phi();
+
+  for(const auto& trigmu : *trigmuons){
+    const auto [status, trigEta, trigPhi] = trigPosForMatchFunc(trigmu);
+    if(!status) continue;
+    double deta = offlEta - trigEta;
+    double dphi = xAOD::P4Helpers::deltaPhi(offlPhi, trigPhi);
+    double dR = sqrt(deta*deta + dphi*dphi);
+
+    ATH_MSG_VERBOSE("Trigger muon candidate eta=" << trigEta << " phi=" << trigPhi  << " pt=" << trigmu->pt() << " dR=" << dR);
+    if( dR<reqdR ){
+      reqdR = dR;
+      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " pt=" << trigmu->pt() << " dR=" << dR);
+      ptr = trigmu; 
+    }
+  }
+  
+  return ptr;
+
+}
+
+
+template<class T, class OFFL>
 const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float reqdR, bool &pass,
+                                   const std::string containerSGKey,
                                    std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
   ATH_MSG_DEBUG("MuonMonitoring::match<T>");
@@ -17,7 +57,7 @@ const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float req
   using CONTAINER = DataVector<T>;
   const T* ptr = nullptr;
 
-  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = searchLinkInfo<T>(offl, trig, reqdR, pass, trigPosForMatchFunc);
+  const TrigCompositeUtils::LinkInfo<CONTAINER> featureLinkInfo = matchLinkInfo<T>(offl, trig, reqdR, pass, containerSGKey, trigPosForMatchFunc);
   if( featureLinkInfo.isValid() ){
     const ElementLink<CONTAINER> link = featureLinkInfo.link;
     ptr = *link;
@@ -29,17 +69,18 @@ const T* MuonMatchingTool :: match(const OFFL* offl, std::string trig, float req
 
 
 template<class T, class OFFL>
-const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: searchLinkInfo(const OFFL* offl, std::string trig, float reqdR, bool &pass,
-                                                                                      std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
+const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: matchLinkInfo(const OFFL* offl, std::string trig, float reqdR, bool &pass,
+                                                                                     const std::string containerSGKey,
+                                                                                     std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
 
-  ATH_MSG_DEBUG("MuonMonitoring::searchLinkInfo<T>");
+  ATH_MSG_DEBUG("MuonMonitoring::matchLinkInfo<T>");
 
   using CONTAINER = DataVector<T>;
 
   double offlEta = offl->eta();
   double offlPhi = offl->phi();
 
-  std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = m_trigDec->features<CONTAINER>( trig, TrigDefs::includeFailedDecisions );
+  std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = m_trigDec->features<CONTAINER>( trig, TrigDefs::includeFailedDecisions, containerSGKey );
   TrigCompositeUtils::LinkInfo<CONTAINER> muonLinkInfo;
   for(const TrigCompositeUtils::LinkInfo<CONTAINER>& featureLinkInfo : featureCont){
     if ( !featureLinkInfo.isValid() ) continue;
@@ -63,3 +104,39 @@ const TrigCompositeUtils::LinkInfo<DataVector<T> > MuonMatchingTool :: searchLin
   return muonLinkInfo;
 
 }
+
+
+template<class T>
+const xAOD::Muon* MuonMatchingTool :: matchOff(const EventContext& ctx, const T* trig, float reqdR,
+                                               std::tuple<bool,double,double> (*offlinePosForMatchFunc)(const xAOD::Muon*), std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*)) const {
+
+  ATH_MSG_DEBUG("MuonMonitoring::matchOff<T>");
+
+  const xAOD::Muon *muon = nullptr;
+
+  SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
+  if (! muons.isValid() ) {
+    ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
+    return muon;
+  }
+
+  const auto [trigstatus, trigEta, trigPhi] = trigPosForMatchFunc(trig);
+  if(!trigstatus) return muon;
+
+  for(const auto &mu : *muons){
+    const auto [offstatus, offEta, offPhi] = offlinePosForMatchFunc(mu);
+    if(!offstatus) continue;
+    float deta = offEta - trigEta;
+    float dphi = xAOD::P4Helpers::deltaPhi(offPhi, trigPhi);
+    double dR = sqrt(deta*deta + dphi*dphi);
+
+    if(dR < reqdR){
+      reqdR = dR;
+      muon = mu;
+      ATH_MSG_DEBUG("* Trigger muon eta=" << trigEta << " phi=" << trigPhi  << " offEta=" << offEta << " offPhi=" << offPhi << " dR=" << dR);
+    }
+  }  
+
+  return muon;
+} 
+

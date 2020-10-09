@@ -12,6 +12,8 @@
 
 #include "TrigAccelEvent/TrigInDetAccelCodes.h"
 
+#include <sstream>
+
 extern "C" TrigAccel::WorkFactory* getFactory() {
   return new TrigInDetModuleCuda();
 }
@@ -25,147 +27,89 @@ extern "C" void deleteFactory(TrigAccel::WorkFactory* c){
   delete mod;
 }
 
-TrigInDetModuleCuda::TrigInDetModuleCuda() : m_maxNumberOfContexts(12), m_maxDevice(0), m_usePinnedMemory(true), 
-						  m_useWriteCombinedMemory(false),  m_linkOutputToShm(false), m_dumpTimeLine(false) {
+void TrigInDetModuleCuda::getNumberOfGPUs() {
+  pid_t childpid;
+  int fd[2];
+  // create pipe descriptors
+  pipe(fd);
 
-  m_d_detmodels.clear();
-
-  cudaGetDeviceCount(&m_maxDevice);
-
-  cudaError_t error = cudaGetLastError();
-
-  if(error != cudaSuccess) {
-    m_maxDevice = 0;
+  childpid = fork();
+  if(childpid != 0) {  // parent
+    close(fd[1]);
+    // read the data (blocking operation)
+    read(fd[0], &m_maxDevice, sizeof(m_maxDevice));
+    // close the read-descriptor
+    close(fd[0]);
   }
+  else {  // child
+    // writing only, no need for read-descriptor
+    close(fd[0]);
+    int maxDevice = 0;
+    cudaGetDeviceCount(&maxDevice);
+    cudaError_t error = cudaGetLastError();
+    if(error != cudaSuccess) {
+      maxDevice = 0;
+    }
+    // send the value on the write-descriptor
+    write(fd[1], &maxDevice, sizeof(maxDevice)); 
+    // close the write descriptor
+    close(fd[1]);
+    exit(0);
+  }
+}
+
+TrigInDetModuleCuda::TrigInDetModuleCuda() : m_maxDevice(0), m_dumpTimeLine(false) {
+
+  m_h_detmodel = 0;
+
+  getNumberOfGPUs();
 
   for(unsigned int i=0;i<getProvidedAlgs().size();i++) {
     m_workItemCounters[i] = 0;
   }
+  
+  m_h_detmodel = (unsigned char*) malloc(sizeof(TrigAccel::DETECTOR_MODEL));
 
   m_timeLine.clear();
 
 }
 
 TrigInDetModuleCuda::~TrigInDetModuleCuda() {
-
-  SeedMakingDeviceContext* ps = 0;
   
-  std::cout<<"deleting "<<m_seedMakingDcQueue.unsafe_size()<<" device contexts"<<std::endl;
-  
-  while(m_seedMakingDcQueue.try_pop(ps)) deleteSeedMakingContext(ps);
-
-  for(auto dm : m_d_detmodels) {
-    cudaSetDevice(dm.first);
-    cudaFree(dm.second);
-
-  }
-  m_d_detmodels.clear();
-
+  free(m_h_detmodel);
+  m_h_detmodel = 0;
   if(m_dumpTimeLine) {
-
-     std::cout<<"time_line has "<<m_timeLine.size()<<" events"<<std::endl;
-     if(m_timeLine.size() > 0) {
-        tbb::tick_count t0 = m_timeLine[0].m_time;
-        std::ofstream tl("timeLine.csv");
-        tl<<"workId,eventType,time"<<std::endl;
-        tl<<m_timeLine[0].m_workId<<","<<m_timeLine[0].m_eventType<<",0"<<std::endl;
-        for(unsigned int tIdx = 1;tIdx < m_timeLine.size();++tIdx) {
-           tbb::tick_count t1 = m_timeLine[tIdx].m_time;
-           auto duration = t1-t0;
-           tl<<m_timeLine[tIdx].m_workId<<","<<m_timeLine[tIdx].m_eventType<<","<<1000*duration.seconds()<<std::endl;
-        }
-        tl.close();
-     }
-  }
+    if(m_timeLine.size() > 0) {
+       tbb::tick_count t0 = m_timeLine[0].m_time;
+       std::ostringstream fileName;
+       fileName <<"timeLine_"<<getpid()<<".csv";
+       std::ofstream tl(fileName.str());
+       tl<<"workId,eventType,time"<<std::endl;
+       tl<<m_timeLine[0].m_workId<<","<<m_timeLine[0].m_eventType<<",0"<<std::endl;
+       for(unsigned int tIdx = 1;tIdx < m_timeLine.size();++tIdx) {
+          tbb::tick_count t1 = m_timeLine[tIdx].m_time;
+          auto duration = t1-t0;
+          tl<<m_timeLine[tIdx].m_workId<<","<<m_timeLine[tIdx].m_eventType<<","<<1000*duration.seconds()<<std::endl;
+       }
+       tl.close();
+      m_timeLine.clear();
+    }
+ }
 }
 
 bool TrigInDetModuleCuda::configure() {
-
-  std::vector<int> allowedGPUs, nDeviceContexts;
-
-  allowedGPUs.resize(1,0);//configured for just 1 device with deviceId = 0
-
-  nDeviceContexts.resize(1,8);//configured for 8 DataContexts
 
   if(m_maxDevice == 0) {
      std::cout<<"No CUDA devices found"<<std::endl;
      return false;
   }
-  
-  if(allowedGPUs.empty() || nDeviceContexts.empty()) return false;
-
-  if(allowedGPUs.size() != nDeviceContexts.size()) return false;
-
-  unsigned int dcIndex=0;
-
-  size_t memTotalSize = 0;
-
-  std::vector< SeedMakingDeviceContext*> vSeedDCs[100];//we do not have that many GPUs
-
-  int nDCTotal=0;
-
-  for(std::vector<int>::iterator devIt = allowedGPUs.begin(); devIt!= allowedGPUs.end();++devIt, dcIndex++) {
-
-    int deviceId = (*devIt);
-
-    if(deviceId<0 || deviceId>=m_maxDevice) continue;
-
-    size_t memTotalSizeOnDevice = 0;
-
-    cudaSetDevice(deviceId);
-
-    checkError();
-        
-    unsigned char* d_detmodel;
-
-    cudaMalloc((void **)&d_detmodel, sizeof(TrigAccel::DETECTOR_MODEL));
-
-    checkError();
-    
-    m_d_detmodels.insert(std::pair<unsigned int, unsigned char*>(deviceId, d_detmodel));
-    
-    int nDC = nDeviceContexts[dcIndex];
-    nDCTotal += nDC;
-
-    memTotalSizeOnDevice += sizeof(TrigAccel::DETECTOR_MODEL);
-
-    for(int dc=0;dc<nDC;dc++) {
-      SeedMakingDeviceContext* p = createSeedMakingContext(deviceId);
-      memTotalSizeOnDevice += p->deviceSize();
-      vSeedDCs[dcIndex].push_back(p);
-    }
-
-    memTotalSize += memTotalSizeOnDevice;
-    
-    std::cout<<"GPU"<<deviceId<<" allocated data context size = "<<1e-6*memTotalSizeOnDevice<<" MBytes"<<std::endl;
-  }
-
-  int nDCLeft = nDCTotal;
-  while(nDCLeft>0) {
-     for(unsigned int iGPU=0;iGPU<allowedGPUs.size();iGPU++) {
-        if(vSeedDCs[iGPU].empty()) continue;
-	m_seedMakingDcQueue.push(vSeedDCs[iGPU].back());
-	vSeedDCs[iGPU].pop_back();
-        --nDCLeft;
-     }
-  }
-  
-  std::cout<<"Data context queue : ";
-  for(tbb::concurrent_queue< SeedMakingDeviceContext*>::const_iterator i(m_seedMakingDcQueue.unsafe_begin()); i!=m_seedMakingDcQueue.unsafe_end(); ++i ) {
-    std::cout<<(*i)->m_deviceId<<" ";
-  }
-  std::cout<<std::endl;
-
-  std::cout<<"Total size of memory allocated on all GPUs = "<<1e-6*memTotalSize<<" MBytes"<<std::endl;
-
   return true;
 }
 
-
-SeedMakingDeviceContext* TrigInDetModuleCuda::createSeedMakingContext(int id) {
+SeedMakingDeviceContext* TrigInDetModuleCuda::createSeedMakingContext(int id) const {
 
   cudaSetDevice(id);
-
+  checkError(11);
   SeedMakingDeviceContext* p = new SeedMakingDeviceContext;
 
   p->m_deviceId = id;
@@ -173,7 +117,7 @@ SeedMakingDeviceContext* TrigInDetModuleCuda::createSeedMakingContext(int id) {
   //set stream
 
   cudaStreamCreate(&p->m_stream);
-
+  checkError(12);
   //check device property
 
   cudaDeviceProp deviceProp;
@@ -194,78 +138,49 @@ SeedMakingDeviceContext* TrigInDetModuleCuda::createSeedMakingContext(int id) {
 
   //Allocate memory
   
-  cudaMalloc((void **)&p->d_settings, sizeof(TrigAccel::SEED_FINDER_SETTINGS));
+  cudaMalloc((void **)&p->d_settings,    sizeof(TrigAccel::SEED_FINDER_SETTINGS));
   cudaMalloc((void **)&p->d_spacepoints, sizeof(TrigAccel::SPACEPOINT_STORAGE));
-
-  auto dmIt = m_d_detmodels.find(p->m_deviceId);
-  if(dmIt!=m_d_detmodels.end()) {
-    p->d_detmodel = (*dmIt).second;
-  }
-  
+  cudaMalloc((void **)&p->d_detmodel,    sizeof(TrigAccel::DETECTOR_MODEL));
+  checkError();
   cudaMalloc((void **)&p->d_outputseeds, sizeof(TrigAccel::OUTPUT_SEED_STORAGE));
   cudaMalloc((void **)&p->d_doubletstorage, sizeof(DOUBLET_STORAGE));
   cudaMalloc((void **)&p->d_doubletinfo, sizeof(DOUBLET_INFO));
-
+  checkError(13);
 
   p->d_size = sizeof(TrigAccel::SEED_FINDER_SETTINGS) +  
-              sizeof(TrigAccel::SPACEPOINT_STORAGE) + sizeof(TrigAccel::OUTPUT_SEED_STORAGE) + sizeof(DOUBLET_STORAGE) + sizeof(DOUBLET_INFO);
-
+              sizeof(TrigAccel::SPACEPOINT_STORAGE) + sizeof(TrigAccel::OUTPUT_SEED_STORAGE) + sizeof(DOUBLET_STORAGE) + sizeof(DOUBLET_INFO) + 
+              sizeof(TrigAccel::DETECTOR_MODEL);
+  
   cudaMallocHost((void **)&p->h_settings, sizeof(TrigAccel::SEED_FINDER_SETTINGS));
   cudaMallocHost((void **)&p->h_spacepoints, sizeof(TrigAccel::SPACEPOINT_STORAGE));
   cudaMallocHost((void **)&p->h_outputseeds, sizeof(TrigAccel::OUTPUT_SEED_STORAGE));
 
   p->h_size = sizeof(TrigAccel::SEED_FINDER_SETTINGS) + sizeof(TrigAccel::SPACEPOINT_STORAGE) + sizeof(TrigAccel::OUTPUT_SEED_STORAGE);
-
-  return p;
-}
-
-void TrigInDetModuleCuda::deleteSeedMakingContext(SeedMakingDeviceContext* p) {
-
-  int id = p->m_deviceId;
-
-  cudaSetDevice(id);
-
-  cudaStreamDestroy(p->m_stream);
-
-  cudaFree(p->d_settings);
-  cudaFree(p->d_spacepoints);
   
-  cudaFree(p->d_outputseeds);
-  cudaFree(p->d_doubletstorage);
-  cudaFree(p->d_doubletinfo);
-
-  cudaFreeHost(p->h_settings);
-  cudaFreeHost(p->h_spacepoints);
-  cudaFreeHost(p->h_outputseeds);
-
-  delete p;
-
+  checkError(14);
+  return p;
 }
 
 
 TrigAccel::Work* TrigInDetModuleCuda::createWork(int workType, std::shared_ptr<TrigAccel::OffloadBuffer> data){
   
   if(workType == TrigAccel::InDetJobControlCode::SIL_LAYERS_EXPORT){
-    
-    for(auto dm : m_d_detmodels) {
 
-       unsigned int deviceId = dm.first;
+    memcpy(m_h_detmodel, (unsigned char*)data->get(), sizeof(TrigAccel::DETECTOR_MODEL));
 
-       cudaSetDevice(deviceId);
-       
-       cudaMemcpy(dm.second, (unsigned char*)data->get(), sizeof(TrigAccel::DETECTOR_MODEL), cudaMemcpyHostToDevice);
-    }
     return 0;
   }
 
   if(workType == TrigAccel::InDetJobControlCode::MAKE_SEEDS){
  
-    SeedMakingDeviceContext* ctx = 0;
-    
-    while(!m_seedMakingDcQueue.try_pop(ctx)) {
-      //      std::cout<<"waiting for free device context..."<<std::endl;
-    };
+    int deviceId = 0;//always using device 0 for the time being
 
+    //TO-DO: to support mult-GPU load balancing get deviceId from a tbb_concurrent_queue
+
+    SeedMakingDeviceContext* ctx = createSeedMakingContext(deviceId);
+
+    cudaMemcpy(ctx->d_detmodel, m_h_detmodel, sizeof(TrigAccel::DETECTOR_MODEL), cudaMemcpyHostToDevice);
+    checkError(21);
     TrigAccel::SEED_MAKING_JOB *pArray = reinterpret_cast<TrigAccel::SEED_MAKING_JOB*>(data->get());
     
     //1. copy settings to the context host array
@@ -282,9 +197,7 @@ TrigAccel::Work* TrigInDetModuleCuda::createWork(int workType, std::shared_ptr<T
     
     unsigned int workId = workNum*100;
     
-    SeedMakingWorkCuda* w = new SeedMakingWorkCuda(workId, SeedMakingWorkContextCuda(ctx, m_usePinnedMemory, 
-									     m_useWriteCombinedMemory, 
-									     m_linkOutputToShm), data, m_seedMakingDcQueue, m_timeLine);
+    SeedMakingWorkCuda* w = new SeedMakingWorkCuda(workId, ctx, data, &m_timeLine);
     
     return w;
   }

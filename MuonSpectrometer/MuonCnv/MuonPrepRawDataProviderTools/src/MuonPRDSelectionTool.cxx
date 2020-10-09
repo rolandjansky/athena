@@ -10,16 +10,10 @@ namespace Muon {
 
  MuonPRDSelectionTool::MuonPRDSelectionTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
-    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
-    m_recoValidationTool("", this),
     m_distanceToTubeCut(1000.),
     m_secondCoordinateCut(1500.)
   {
     declareInterface<IMuonPRDSelectionTool>(this);
-    declareProperty("MdtDriftCircleOnTrackCreator",m_mdtCreator);
-    declareProperty("MuonClusterOnTrackCreator",m_clusterCreator);
-    declareProperty("MuonRecoValidationTool",m_recoValidationTool);
   }
 
   StatusCode MuonPRDSelectionTool::initialize() {

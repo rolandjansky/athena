@@ -23,7 +23,7 @@ int main() {
 #endif
 
 // FrameWork includes
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 #include "AsgTools/AnaToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
@@ -279,8 +279,8 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 
       //this builds the final track or cluster met sums, using systematic varied container
       //In the future, you will be able to run both of these on the same container to easily output CST and TST
-      ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
-      //ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
+      ANA_CHECK( met::buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
+      //ANA_CHECK( met::buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
 
       //we record the container to the store, with a systematic indicated name
       ANA_CHECK( store->record( newMetContainer,    "FinalMETContainer_" + iSysSet.name()      ));

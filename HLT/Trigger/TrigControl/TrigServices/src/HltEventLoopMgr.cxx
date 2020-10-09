@@ -26,7 +26,6 @@
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -139,14 +138,14 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> EventInfoRHKey            = " << m_eventInfoRHKey.key());
 
   ATH_CHECK( m_jobOptionsSvc.retrieve() );
-  const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
-  if (prop)
-    ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << prop->toString());
+  const std::string& slots = m_jobOptionsSvc->get("EventDataSvc.NSlots");
+  if (!slots.empty())
+    ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << slots);
   else
     ATH_MSG_WARNING("Failed to retrieve the job property EventDataSvc.NSlots");
-  prop = m_jobOptionsSvc->getClientProperty("AvalancheSchedulerSvc","ThreadPoolSize");
-  if (prop)
-    ATH_MSG_INFO(" ---> NumThreads              = " << prop->toString());
+  const std::string& threads = m_jobOptionsSvc->get("AvalancheSchedulerSvc.ThreadPoolSize");
+  if (!threads.empty())
+    ATH_MSG_INFO(" ---> NumThreads              = " << threads);
   else
    ATH_MSG_WARNING("Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize");
 
@@ -186,6 +185,9 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
   ATH_CHECK(m_outputCnvSvc.retrieve());
   ATH_CHECK(m_ioCompMgr.retrieve());
+  if (m_monitorScheduler) {
+    ATH_CHECK(m_schedulerMonSvc.retrieve());
+  }
 
   //----------------------------------------------------------------------------
   // Initialise tools
@@ -194,8 +196,9 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_coolHelper.retrieve());
   // HLT result builder
   ATH_CHECK(m_hltResultMaker.retrieve());
-  // Monitoring tool
+  // Monitoring tools
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+  ATH_CHECK(m_errorMonTool.retrieve());
 
   //----------------------------------------------------------------------------
   // Initialise data handle keys
@@ -250,7 +253,8 @@ StatusCode HltEventLoopMgr::finalize()
                  m_detectorStore,
                  m_inputMetaDataStore,
                  m_evtSelector,
-                 m_outputCnvSvc);
+                 m_outputCnvSvc,
+                 m_schedulerMonSvc);
 
   releaseTool(m_coolHelper,
               m_hltResultMaker,
@@ -265,6 +269,43 @@ StatusCode HltEventLoopMgr::finalize()
 }
 
 // =============================================================================
+// Implementation of ITrigEventLoopMgr::prepareForStart
+// =============================================================================
+StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
+{
+  try {
+    const auto& rparams = pt.get_child("RunParams");
+    m_sorHelper = std::make_unique<TrigSORFromPtreeHelper>(msgSvc(), m_detectorStore, m_sorPath, rparams);
+  }
+  catch(ptree_bad_path& e) {
+    ATH_MSG_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what());
+    return StatusCode::FAILURE;
+  }
+
+  // Override run/timestamp if needed
+  if (m_forceRunNumber > 0) {
+    m_sorHelper->setRunNumber(m_forceRunNumber);
+    ATH_MSG_WARNING("Run number overwrite:" << m_forceRunNumber);
+  }
+  if (m_forceSOR_ns > 0) {
+    m_sorHelper->setSORtime_ns(m_forceSOR_ns);
+    ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
+  }
+
+  // Set our "run context" (invalid event/slot)
+  m_currentRunCtx.setEventID( m_sorHelper->eventID() );
+  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                           m_currentRunCtx.eventID().run_number()));
+
+  // Some algorithms expect a valid context during start()
+  ATH_MSG_DEBUG("Setting context for start transition: " << m_currentRunCtx.eventID());
+  Gaudi::Hive::setCurrentContext(m_currentRunCtx);
+
+  return StatusCode::SUCCESS;
+}
+
+
+// =============================================================================
 // Implementation of ITrigEventLoopMgr::prepareForRun
 // =============================================================================
 StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
@@ -276,9 +317,9 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
 
-    ATH_CHECK(clearTemporaryStores());  // do the necessary resets
-    ATH_CHECK( processRunParams(pt) );  // update SOR in det store
-    ATH_CHECK( updateMagField(pt) );    // update magnetic field
+    ATH_CHECK( clearTemporaryStores() );                 // do the necessary resets
+    ATH_CHECK( m_sorHelper->fillSOR(m_currentRunCtx) );  // update SOR in det store
+    ATH_CHECK( updateMagField(pt) );                     // update magnetic field
 
     auto& soral = getSorAttrList();
 
@@ -305,14 +346,6 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
-  }
-  catch(const ptree_bad_path & e)
-  {
-    ATH_MSG_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what());
-  }
-  catch(const ptree_bad_data & e)
-  {
-    ATH_MSG_ERROR("Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - " << e.what());
   }
   catch(const std::runtime_error& e)
   {
@@ -411,6 +444,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 StatusCode HltEventLoopMgr::executeRun(int maxevt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->startMonitoring());
+
   StatusCode sc = StatusCode::SUCCESS;
   try {
     sc = nextEvent(maxevt);
@@ -424,6 +460,8 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
     ATH_MSG_FATAL("Event loop failed, unknown exception caught");
     sc = StatusCode::FAILURE;
   }
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->stopMonitoring());
 
   // Stop the timer thread
   {
@@ -716,9 +754,8 @@ StatusCode HltEventLoopMgr::executeEvent(EventContext &&ctx)
 void HltEventLoopMgr::updateDFProps()
 {
   auto getDFProp = [&](const std::string& name, std::string& value, bool required = true) {
-                     const auto* prop = m_jobOptionsSvc->getClientProperty("DataFlowConfig", name);
-                     if (prop) {
-                       value = prop->toString();
+                     if (m_jobOptionsSvc->has("DataFlowConfig."+name)) {
+                       value = m_jobOptionsSvc->get("DataFlowConfig."+name);
                        ATH_MSG_INFO(" ---> Read from DataFlow configuration: " << name << " = " << value);
                      } else {
                        msg() << (required ? MSG::WARNING : MSG::INFO)
@@ -732,36 +769,6 @@ void HltEventLoopMgr::updateDFProps()
   getDFProp( "DF_Pid", wpid, false );
   if (!wid.empty()) m_workerID = std::stoi(wid);
   if (!wpid.empty()) m_workerPID = std::stoi(wpid);
-}
-
-// =============================================================================
-StatusCode HltEventLoopMgr::processRunParams(const ptree & pt)
-{
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-
-  const auto& rparams = pt.get_child("RunParams");
-  TrigSORFromPtreeHelper sorhelp(msgSvc(), m_detectorStore, m_sorPath, rparams);
-
-  // Override run/timestamp if needed
-  if (m_forceRunNumber > 0) {
-    sorhelp.setRunNumber(m_forceRunNumber);
-    ATH_MSG_WARNING("Run number overwrite:" << m_forceRunNumber);
-  }
-  if (m_forceSOR_ns > 0) {
-    sorhelp.setSORtime_ns(m_forceSOR_ns);
-    ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
-  }
-
-  // Set our "run context" (invalid event/slot)
-  m_currentRunCtx.setEventID( sorhelp.eventID() );
-  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
-                                                           m_currentRunCtx.eventID().run_number()));
-
-  // Fill SOR parameters from ptree and inform IOVDbSvc
-  ATH_CHECK( sorhelp.fillSOR(m_currentRunCtx) );
-
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -827,16 +834,6 @@ StatusCode HltEventLoopMgr::updateMagField(const ptree& pt) const
     try {
       auto tor_cur = pt.get<float>("Magnets.ToroidsCurrent.value");
       auto sol_cur = pt.get<float>("Magnets.SolenoidCurrent.value");
-
-      // Set currents on service (deprecated: ATLASRECTS-4687)
-      IProperty* fieldSvc{nullptr};
-      service("AtlasFieldSvc", fieldSvc, /*createIf=*/false).ignore();
-      if ( fieldSvc ) {
-        ATH_MSG_INFO("Setting field currents on AtlasFieldSvc");
-        ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseSoleCurrent", sol_cur) );
-        ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseToroCurrent", tor_cur) );
-      }
-      else ATH_MSG_WARNING("Cannot retrieve AtlasFieldSvc");
 
       // Set current on conditions alg
       const IAlgManager* algMgr = Gaudi::svcLocator()->as<IAlgManager>();
@@ -1188,22 +1185,6 @@ void HltEventLoopMgr::runEventTimer()
 }
 
 // =============================================================================
-std::unordered_map<std::string_view,StatusCode> HltEventLoopMgr::algExecErrors(const EventContext& eventContext) const {
-  std::unordered_map<std::string_view,StatusCode> algErrors;
-  for (const auto& [key, state] : m_aess->algExecStates(eventContext)) {
-    if (!state.execStatus().isSuccess()) {
-      ATH_MSG_DEBUG("Algorithm " << key << " returned StatusCode " << state.execStatus().message()
-                    << " in event " << eventContext.eventID());
-      algErrors[key.str()] = state.execStatus();
-      auto monErrorAlgName = Monitored::Scalar<std::string>("ErrorAlgName", key.str());
-      auto monErrorCode = Monitored::Scalar<std::string>("ErrorCode", state.execStatus().message());
-      auto mon = Monitored::Group(m_monTool, monErrorAlgName, monErrorCode);
-    }
-  }
-  return algErrors;
-}
-
-// =============================================================================
 /**
  * @brief Retrieves finished events from the scheduler, processes their output and cleans up the slots
  * @return SUCCESS if at least one event was finished, SCHEDULER_EMPTY if there are no events being processed,
@@ -1262,7 +1243,7 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     // Check the event processing status
     if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
       markFailed();
-      auto algErrors = algExecErrors(*thisFinishedEvtContext);
+      auto algErrors = m_errorMonTool->algExecErrors(*thisFinishedEvtContext);
       HLT::OnlineErrorCode errCode = isTimedOut(algErrors) ?
                                      HLT::OnlineErrorCode::TIMEOUT : HLT::OnlineErrorCode::PROCESSING_FAILURE;
       HLT_DRAINSCHED_CHECK(sc, "Processing event with context " << *thisFinishedEvtContext

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,13 +25,13 @@
 #include <string>
 
 // FrameWork includes
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 
 // forward declarations
-class IJobOptionsSvc;
 namespace DerivationFramework {
   class IThinningTool;
 }
@@ -63,13 +63,13 @@ private:
   // The update handlers
 
   /// This internal method will realize if a user sets the 'CaloClustersToThin' property
-  void setupCaloClustersToThin( Property& /*prop*/ );
+  void setupCaloClustersToThin( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'InputContainerList' property
-  void setupInputContainerList( Property& /*prop*/ );
+  void setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'Selection' property
-  void setupSelection( Property& /*prop*/ );
+  void setupSelection( Gaudi::Details::PropertyBase& /*prop*/ );
 
 
   ///////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ private:
  private:
   /// The job options service (will be used to forward this algs properties to
   /// the private tool)
-  ServiceHandle<IJobOptionsSvc> m_jos;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jos;
 
   StringProperty m_streamName
   { this, "StreamName", "", "Name of the stream being thinned" };
@@ -120,19 +120,19 @@ private:
 ///////////////////////////////////////////////////////////////////
 
 /// This internal method will realize if a user sets the 'CaloClustersToThin' property
-inline void ThinCaloClustersAlg::setupCaloClustersToThin( Property& /*prop*/ ) {
+inline void ThinCaloClustersAlg::setupCaloClustersToThin( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setCaloClusKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'InputContainerList' property
-inline void ThinCaloClustersAlg::setupInputContainerList( Property& /*prop*/ ) {
+inline void ThinCaloClustersAlg::setupInputContainerList( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setInCollKey = true;
   return;
 }
 
 /// This internal method will realize if a user sets the 'Selection' property
-inline void ThinCaloClustersAlg::setupSelection( Property& /*prop*/ ) {
+inline void ThinCaloClustersAlg::setupSelection( Gaudi::Details::PropertyBase& /*prop*/ ) {
   m_setSelection = true;
   return;
 }

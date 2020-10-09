@@ -32,7 +32,7 @@
 #include <cstdlib>
 
 
-bool TConvertingBranchElement::fgDoDel = false;
+std::atomic<bool> TConvertingBranchElement::fgDoDel = false;
 
 
 namespace {
@@ -1062,7 +1062,7 @@ void TConvertingBranchElement::ReadLeavesMemberBranchCountConverting(TBuffer& b)
    // For split-class branch, base class branch, data member branch, or top-level branch.
    // which do have a branch count and are not a counter.
    
-   R__ASSERT(fStreamerType != TVirtualStreamerInfo::kCounter);
+   assert(fStreamerType != TVirtualStreamerInfo::kCounter);
 
    ValidateAddress();
    if (fObject == 0)

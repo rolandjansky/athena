@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_CPMROIBYTESTREAMCNV_H
@@ -69,7 +69,6 @@ private:
   ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
 
   /// Message log
-  mutable MsgStream m_log;
   bool m_debug;
 
 };

@@ -255,7 +255,7 @@ CLHEP::HepLorentzVector CosmicGenerator::generateVertexReweighted(void) {
     }
     else
       {
-        r_val = sqrt(m_radius*max_r*ran_one);
+        r_val = std::sqrt(m_radius*max_r*ran_one);
         accept=1;
       }
   }
@@ -525,9 +525,9 @@ StatusCode CosmicGenerator::callGenerator() {
       // m_pdgCode.push_back(charge*13);
       m_pdgCode.push_back(charge*-13);
 
-      const HepPDT::ParticleData* particle = particleData(abs(m_pdgCode.back()));
+      const HepPDT::ParticleData* particle = particleData(std::abs(m_pdgCode.back()));
       if (particle==nullptr){
-        ATH_MSG_FATAL( "Particle with PDG ID=" << abs(m_pdgCode.back()) << " returned a nullptr" );
+        ATH_MSG_FATAL( "Particle with PDG ID=" << std::abs(m_pdgCode.back()) << " returned a nullptr" );
         return StatusCode::FAILURE;
       }
 
@@ -574,10 +574,10 @@ StatusCode CosmicGenerator::callGenerator() {
           return StatusCode::FAILURE;
         }
 
-      double p = sqrt(p2);
-      double px = p*sin(theta)*cos(phi);
-      double pz = p*sin(theta)*sin(phi);
-      double py = -p*cos(theta);
+      double p = std::sqrt(p2);
+      double px = p*std::sin(theta)*std::cos(phi);
+      double pz = p*std::sin(theta)*std::sin(phi);
+      double py = -p*std::cos(theta);
 
       // Do we need to swap Y- and Z-axis for the PixelEndCap C Cosmic test ?
       // if not...do nothing...if so, invert position of y- and z- coordinate

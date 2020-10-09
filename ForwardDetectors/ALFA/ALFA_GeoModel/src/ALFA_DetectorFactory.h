@@ -1,26 +1,23 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ALFA_DetectorFactory_h
-#define ALFA_DetectorFactory_h 1
+#ifndef ALFAGEOMODEL_ALFADETECTORFACTORY_H
+#define ALFAGEOMODEL_ALFADETECTORFACTORY_H
 
 #include "ALFA_Geometry/ALFA_constants.h"
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
-//#include "ALFA_GeoModel/ALFA_DetectorTool.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "ALFA_GeoModel/ALFA_DetectorManager.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-//#include "GeoModelSvc/StoredMaterialManager.h"
-#include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include <string>
 #include <vector>
 
 class StoreGateSvc;
-class AbsMaterialManager;
+class StoredMaterialManager;
 class IRDBRecordset;
 class GeoShape;
 class GeoPhysVol;

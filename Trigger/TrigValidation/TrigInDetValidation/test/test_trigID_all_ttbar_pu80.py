@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu80_grid
+# art-description: art job for all_ttbar_pu80
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
 # art-athena-mt: 4
+# art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -24,8 +26,8 @@
 # art-output: *.dat 
 
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
+from TrigValTools.TrigValSteering import Test, CheckSteps
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
 import sys,getopt
@@ -51,61 +53,15 @@ for opt,arg in opts:
         postproc=True
 
 
-chains = [
-    'HLT_mu6_idperf_L1MU6',
-    'HLT_mu24_idperf_L1MU20',
-    'HLT_e5_etcut_L1EM3',  ## need an idperf chain once one is in the menu
-    'HLT_tau25_idperf_tracktwo_L1TAU12IM',
-    'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20'
-]
-
-preexec_trig = ';'.join([
-    'doEmptyMenu=True',
-    'doMuonSlice=True',
-    'doEgammaSlice=True',
-    'doTauSlice=True',
-    'doBjetSlice=True',
-    'selectChains='+str(chains)
-])
-
-
-preexec_reco = ';'.join([
-    'from RecExConfig.RecFlags import rec',
-    'rec.doForwardDet=False',
-    'rec.doEgamma=False',
-    'rec.doMuonCombined=False',
-    'rec.doJetMissingETTag=False',
-    'rec.doTau=False'
-])
-
-preexec_aod = ';'.join([
-     preexec_reco,
-     'from ParticleBuilderOptions.AODFlags import AODFlags',
-     'AODFlags.ThinGeantTruth.set_Value_and_Lock(False)',
-     'AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False)',
-     'AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)',
-     'AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)'
-])
-
-
-
-preexec_all = ';'.join([
-    'from TriggerJobOpts.TriggerFlags import TriggerFlags',
-    'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
-])
-
-rdo2aod = ExecStep.ExecStep()
-rdo2aod.type = 'Reco_tf'
-rdo2aod.max_events = 1000 # TODO: 2000 events
+rdo2aod = TrigInDetReco()
+rdo2aod.slices = ['muon','electron','tau','bjet']
+rdo2aod.max_events = 2000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
-rdo2aod.input = 'ttbar_pu80'   
+rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  
 
-rdo2aod.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
-    preexec_trig, preexec_all, preexec_reco, preexec_aod)
 
 test = Test.Test()
 test.art_type = 'grid'
@@ -117,44 +73,54 @@ if (not exclude):
 # Run Tidardict
 if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
-    rdict.args='TIDAdata-run3.dat -r Offline -f data-hists.root -b Test_bin.dat '
+    rdict.args='TIDAdata-run3-offline.dat -r Offline -f data-hists.root -b Test_bin.dat '
     test.check_steps.append(rdict)
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF'
-comp.output_dir = 'HLTL2-plots-muon'
+comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
+comp.test='ttbar'
 test.check_steps.append(comp)
  
  
-comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF  HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig'
-comp2.output_dir = 'HLTEF-plots-muon'
+comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
+comp2.test='ttbar'
 test.check_steps.append(comp2)
 
-comp3=TrigInDetCompStep('CompareStep3')
-comp3.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
-comp3.output_dir = 'HLTEF-plots-bjet'
+
+comp3=TrigInDetCompStep('Comp_L2bjet','L2','bjet')
+comp3.test='ttbar'
 test.check_steps.append(comp3)
 
-comp4=TrigInDetCompStep('CompareStep4')
-comp4.chains='HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
-comp4.output_dir = 'HLTEF-plots-electron'
+comp4=TrigInDetCompStep('Comp_EFbjet','EF','bjet')
+comp4.test='ttbar'
 test.check_steps.append(comp4)
 
-comp5=TrigInDetCompStep('CompareStep5')
-comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
-comp5.output_dir = 'HLTEF-plots-tau'
+comp5=TrigInDetCompStep('Comp_L2tau','L2','tau')
+comp5.test='ttbar'
 test.check_steps.append(comp5)
 
+comp6=TrigInDetCompStep('Comp_EFtau','EF','tau')
+comp6.test='ttbar'
+test.check_steps.append(comp6)
 
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+comp7=TrigInDetCompStep('Comp_L2ele','L2','electron')
+comp7.test='ttbar'
+test.check_steps.append(comp7)
+
+comp8=TrigInDetCompStep('Comp_EFele','EF','electron')
+comp8.test='ttbar'
+test.check_steps.append(comp8)
+
+comp9=TrigInDetCompStep('Comp_L2FS','L2','FS')
+comp9.test='ttbar'
+test.check_steps.append(comp9)
+
+# CPU cost steps
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 
 

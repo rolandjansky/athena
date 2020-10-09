@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,13 +13,8 @@
 #include "MuonPrepDataToxAOD.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-namespace Muon {
-  class IMuonClusterOnTrackCreator;
-}
-namespace Trk {
-  class IResidualPullCalculator;
-}
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 class TGC_PrepDataToxAOD : public MuonPrepDataToxAOD<Muon::TgcPrepDataContainer,MuonSimDataCollection> {
 public:
@@ -37,8 +32,8 @@ public:
   void addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::TgcPrepData& prd, const MuonSimData* sdo ) const;
 
 private:
-  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator;
-  ToolHandle<Trk::IResidualPullCalculator>     m_pullCalculator;
+  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator{this,"ClusterOnTrackCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
+  ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator{this,"PullCalculator","Trk::ResidualPullCalculator/ResidualPullCalculator"};
 };
 
 

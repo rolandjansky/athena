@@ -5,7 +5,9 @@
 #include "../TrigConfJobOptionsSvc.h"
 #include "../TrigConfigSvc.h"
 
+#include "../L1PrescaleCondAlg.h"
 #include "../HLTPrescaleCondAlg.h"
+
 
 DECLARE_COMPONENT( TrigConf::L1TopoConfigSvc )
 DECLARE_COMPONENT( TrigConf::LVL1ConfigSvc )
@@ -14,4 +16,5 @@ DECLARE_COMPONENT( TrigConf::JobOptionsSvc )
 DECLARE_COMPONENT( TrigConf::DSConfigSvc )
 DECLARE_COMPONENT( TrigConf::TrigConfigSvc )
 
+DECLARE_COMPONENT( TrigConf::L1PrescaleCondAlg )
 DECLARE_COMPONENT( TrigConf::HLTPrescaleCondAlg )

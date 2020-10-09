@@ -109,7 +109,6 @@ class doxAOD(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-
 # @brief run truth-matching on tracks to evaluate tracking performance
 #
 # It will enable matching for the Combined Muon algorithms that are running
@@ -165,6 +164,7 @@ class createScaleCalibrationInput(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+ 
 
 ## The container with all the flags to steer MuonCombined reconstruction
 class MuonCombinedRec(JobPropertyContainer):

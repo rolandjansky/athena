@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-FSILocation:: FSILocation(std::string name,
+FSILocation:: FSILocation(const std::string& name,
                           double radius,
                           double phi,
                           int side)

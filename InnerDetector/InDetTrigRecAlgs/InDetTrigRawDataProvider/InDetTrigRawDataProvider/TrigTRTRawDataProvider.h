@@ -25,13 +25,14 @@
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
 #include <string>
 
 class IRoiDescriptor;
 class TRT_ID;
 class ITRT_CablingSvc;
 class IROBDataProviderSvc;
-class IRegSelSvc;
 class ITRTRawDataProviderTool;
 
 
@@ -57,7 +58,7 @@ namespace InDet {
     StatusCode initContainer();
     
   private:
-    ServiceHandle<IRegSelSvc>           m_regionSelector;     
+    ToolHandle<IRegSelTool>             m_regionSelector { this, "RegSelTool", "RegSetTool/RegSelTool_TRT" };     
     ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
     ToolHandle<ITRTRawDataProviderTool> m_rawDataTool;
     ServiceHandle<ITRT_CablingSvc>      m_IdMapping;

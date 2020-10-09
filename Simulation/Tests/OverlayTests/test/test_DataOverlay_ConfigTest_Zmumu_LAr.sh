@@ -13,50 +13,59 @@
 # art-output: *.pkl
 # art-output: *Config.txt
 
-set -o pipefail
-
 events=2
 
-OverlayBS_tf.py \
---inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
+Overlay_tf.py \
+--detectors LAr \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.OverlaySim/HITS.pool.root \
+--inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
 --maxEvents $events \
 --conditionsTag CONDBR2-BLKPA-2016-12 \
 --samplingFractionDbTag FTFP_BERT_BIRK \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
---postExec 'outStream.ItemList.remove("xAOD::EventInfoContainer#*"); outStream.ItemList.remove("xAOD::EventInfoAuxContainer#*");' \
---preInclude 'SimulationJobOptions/preInclude.LArOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
 --postInclude 'EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
 --ignorePatterns "L1TopoMenuLoader.+ERROR." \
 --imf False \
 --athenaopts '"--config-only=ConfigLegacy.pkl"'
 
-OverlayBS_tf.py \
---inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
+Overlay_tf.py \
+--detectors LAr \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.OverlaySim/HITS.pool.root \
+--inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
 --maxEvents $events \
 --conditionsTag CONDBR2-BLKPA-2016-12 \
 --samplingFractionDbTag FTFP_BERT_BIRK \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
---postExec 'job+=CfgMgr.JobOptsDumperAlg(FileName="OverlayLegacyConfig.txt"); outStream.ItemList.remove("xAOD::EventInfoContainer#*"); outStream.ItemList.remove("xAOD::EventInfoAuxContainer#*");' \
---preInclude 'SimulationJobOptions/preInclude.LArOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
+--postExec 'job+=CfgMgr.JobOptsDumperAlg(FileName="OverlayLegacyConfig.txt");' 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --postInclude 'EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
 --ignorePatterns "L1TopoMenuLoader.+ERROR." \
 --imf False
 
 rc=$?
+mv log.Overlay log.OverlayLegacy
 echo "art-result: $rc configLegacy"
-mv log.OverlayBS log.OverlayLegacy
 
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    OverlayTest.py LAr -d -t 1 -n $events 2>&1 | tee log.OverlayTest
+    Overlay_tf.py \
+    --CA \
+    --detectors LAr \
+    --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.OverlaySim/HITS.pool.root \
+    --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
+    --outputRDOFile dataOverlayRDO.pool.root \
+    --maxEvents $events \
+    --conditionsTag CONDBR2-BLKPA-2016-12 \
+    --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \
+    --postExec 'with open("ConfigOverlay.pkl", "wb") as f: acc.store(f)' \
+    --imf False \
+    --athenaopts="--threads=1"
     rc2=$?
+    mv log.Overlay log.OverlayTest
 fi
 echo  "art-result: $rc2 configNew"
 
@@ -73,8 +82,10 @@ then
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask1 \
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask2 \
             xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask3 \
-            xAOD::EventAuxInfo_v2_EventInfoAux.actualInteractionsPerCrossing \
-            xAOD::EventAuxInfo_v2_EventInfoAux.averageInteractionsPerCrossing
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.actualInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.averageInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDLowBits \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDHighBits
     rc3=$?
 fi
 echo  "art-result: $rc3 comparison"

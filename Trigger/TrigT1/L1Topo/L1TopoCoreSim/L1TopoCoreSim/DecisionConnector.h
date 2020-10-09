@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  DecisionConnector.h
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/20/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef L1TopoCoreSimulation_DecisionConnector
-#define L1TopoCoreSimulation_DecisionConnector
+#ifndef L1TopoCoreSim_DecisionConnector
+#define L1TopoCoreSim_DecisionConnector
 
 #include "L1TopoCoreSim/Connector.h"
 

@@ -3,7 +3,6 @@
   <namespace name="CP"/>
   <class name="CP::IClassificationTool" />
   <class name="CP::IEfficiencyScaleFactorTool" />
-  <class name="CP::ISelectionTool" />
   <class name="CP::IPileupReweightingTool" />
   <class name="IGoodRunsListSelectionTool" />
   <class name="IObservableTool" />

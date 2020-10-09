@@ -12,9 +12,15 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 
+#include "AsgMessaging/MessageCheck.h"
+
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
 int main(int argc, char* argv[]) {
+
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+   
 
    std::string whatToRead = "$ASG_TEST_FILE_MC";
    if(argc>1) whatToRead = argv[1];
@@ -24,18 +30,18 @@ int main(int argc, char* argv[]) {
    const xAOD::EventInfo_v1* evtInfo = 0;
 
 
-   xAOD::Init();
-  TChain* c = new TChain("CollectionTree"); 
-  c->Add(whatToRead.c_str());
-  xAOD::TEvent evt2;
-  evt2.readFrom(c);
+   ANA_CHECK (xAOD::Init());
+   TChain* c = new TChain("CollectionTree"); 
+   c->Add(whatToRead.c_str());
+   xAOD::TEvent evt2;
+   ANA_CHECK (evt2.readFrom(c));
 
    int maxEvt2 = evt2.getEntries(); 
    TStopwatch st2;
    st2.Start();
    for(int i=0; i< maxEvt2; i++) {
       evt2.getEntry(i);
-      evt2.retrieve( evtInfo , "EventInfo" );
+      ANA_CHECK (evt2.retrieve( evtInfo , "EventInfo" ));
       evtInfo->eventNumber();
    }
    st2.Stop();

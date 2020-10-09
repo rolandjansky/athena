@@ -51,25 +51,12 @@ def getGSFTrackFitter():
         GsfMaterialConvolution=GsfMaterialUpdator,
         SurfaceBasedMaterialEffects=False)
 
-    from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import (
-        Trk__KalmanUpdatorAmg as ConfiguredKalmanUpdator)
-
-    egTrkUpdator = ConfiguredKalmanUpdator('egTrkUpdator')
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
-        Trk__GsfMeasurementUpdator)
-
-    GsfMeasurementUpdator = Trk__GsfMeasurementUpdator(
-        name='GsfMeasurementUpdator',
-        Updator=egTrkUpdator)
-
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GaussianSumFitter)
 
     GSFTrackFitter = Trk__GaussianSumFitter(
         name='GSFTrackFitter',
         ToolForExtrapolation=GsfExtrapolator,
-        MeasurementUpdatorType=GsfMeasurementUpdator,
         ReintegrateOutliers=True,
         MakePerigee=True,
         RefitOnMeasurementBase=True,

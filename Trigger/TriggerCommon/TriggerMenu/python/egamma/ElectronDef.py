@@ -14,9 +14,9 @@ from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theElectronUEMonitoring
 from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import TrigL2CaloRingerFexHypo_e_NoCut
 from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
 from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_Clean
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
+from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo as DummyRoI
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.egamma.ElectronDef")

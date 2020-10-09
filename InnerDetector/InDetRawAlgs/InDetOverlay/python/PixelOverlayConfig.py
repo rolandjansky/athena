@@ -51,6 +51,11 @@ def PixelOverlayAlgCfg(flags, name="PixelOverlay", **kwargs):
             "PixelRDO_Container#PixelRDOs"
         ]))
 
+        if flags.Overlay.DataOverlay:
+            acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+                "IDCInDetBSErrContainer#PixelByteStreamErrs"
+            ]))
+
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[

@@ -190,9 +190,12 @@ def MuonCombinedAlgCfg( flags, name="MuonCombinedAlg",**kwargs ):
     # CombinedTagMaps must be in a 1-1 correspondence
     # with MuonCombinedTagTools.
     for h in kwargs['MuonCombinedTool'].MuonCombinedTagTools:
-        if h.find('FitTagTool') >= 0:
+    #     print (h)
+    # import sys
+    # sys.exit(1)
+        if str(h).find('FitTagTool') >= 0:
             tagmaps.append ('muidcoTagMap')
-        elif h.find('StacoTagTool') >= 0:
+        elif str(h).find('StacoTagTool') >= 0:
             tagmaps.append ('stacoTagMap')
     kwargs.setdefault("CombinedTagMaps", tagmaps)
     alg = CompFactory.MuonCombinedAlg(name,**kwargs)
@@ -232,9 +235,13 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     # but don't set this default in case the StauCreatorAlg is created (see below)
     if not flags.MuonCombined.doMuGirl and not name=="StauCreatorAlg":
         kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("MakeClusters", False)
-    #     kwargs.setdefault("ClusterContainerName", "")
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("MakeClusters", False)
+        kwargs.setdefault("ClusterContainerName", "")
+        if flags.Muon.SAMuonTrigger:
+            kwargs.setdefault("CreateSAmuons", True)
+            kwargs.setdefault("TagMaps", [])
+
     alg = CompFactory.MuonCreatorAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result

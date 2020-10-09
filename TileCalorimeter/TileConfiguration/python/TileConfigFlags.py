@@ -29,6 +29,7 @@ def createTileConfigFlags():
      tcf.addFlag('Tile.doOverflowFit', True)
      tcf.addFlag('Tile.zeroAmplitudeWithoutDigits', _zeroAmplitudeWithouDigits)
      tcf.addFlag('Tile.correctPedestalDifference', _correctPedestalDifference)
+     tcf.addFlag('Tile.correctTimeJumps', _correctTimeJumps)
      tcf.addFlag('Tile.RawChannelContainer', _getRawChannelContainer)
      tcf.addFlag('Tile.useDCS', _useDCS)
      tcf.addFlag('Tile.TimingType', _getTimingType)
@@ -102,6 +103,13 @@ def _zeroAmplitudeWithouDigits(prevFlags):
 def _correctPedestalDifference(prevFlags):
      if not prevFlags.Common.isOnline:
           return _zeroAmplitudeWithouDigits(prevFlags)
+     else:
+          return False
+
+
+def _correctTimeJumps(prevFlags):
+     if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format == 'BS':
+          return True
      else:
           return False
 

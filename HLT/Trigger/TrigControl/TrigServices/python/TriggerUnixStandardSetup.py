@@ -68,7 +68,7 @@ def setupCommonServices():
 
     # setup ROOT6
     from PyUtils.Helpers import ROOT6Setup
-    ROOT6Setup()
+    ROOT6Setup(batch=True)
 
     # Setup online THistSvc unless specifically configured otherwise
     #    setup the THistSvc early and force the creation of the THistSvc 
@@ -106,8 +106,8 @@ def setupCommonServices():
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
 
     # Online services for ByteStream input/output
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc, TrigEventSelectorByteStream
-    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigEventSelectorByteStream
+    from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConfig import TrigByteStreamInputSvc, TrigByteStreamCnvSvc
     svcMgr += TrigByteStreamCnvSvc("ByteStreamCnvSvc") # this name is hard-coded in some converters
     svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
     svcMgr += TrigByteStreamInputSvc("ByteStreamInputSvc")

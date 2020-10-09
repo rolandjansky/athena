@@ -24,7 +24,7 @@ Geo2G4LVFactory::Geo2G4LVFactory()
 {
 }
 
-G4LogicalVolume* Geo2G4LVFactory::Build(const PVConstLink thePhys,
+G4LogicalVolume* Geo2G4LVFactory::Build(const PVConstLink& thePhys,
                                         bool& descend) const
 {
   static Geo2G4SolidFactory theSolidFactory;

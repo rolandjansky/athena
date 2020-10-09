@@ -15,14 +15,11 @@
 
 #include <boost/scoped_ptr.hpp>
 
-using std::vector;
-using std::string;
-
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
 
-TauPi0CreateROI::TauPi0CreateROI(   const string& name ) :
+TauPi0CreateROI::TauPi0CreateROI(const std::string& name) :
      TauRecToolBase(name)
 {
 }
@@ -36,15 +33,13 @@ TauPi0CreateROI::~TauPi0CreateROI() {
 
 StatusCode TauPi0CreateROI::initialize() {
     
-    // retrieve tools
-    ATH_MSG_DEBUG( "Retrieving tools" );
-    
     ATH_CHECK( m_caloCellInputContainer.initialize() );
 
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, std::vector<CaloCell*>& addedCellsMap) {
+//______________________________________________________________________________
+StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, boost::dynamic_bitset<>& addedCellsMap) const {
 
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -67,7 +62,7 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellCont
     pCellContainer = caloCellInHandle.cptr();
     
     // get only EM cells within dR<0.4
-    vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
+    std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
     emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
     boost::scoped_ptr<CaloCellList> pCells(new CaloCellList(pCellContainer,emSubCaloBlocks)); 
     pCells->select(pTau.eta(), pTau.phi(), 0.4); // TODO: change hardcoded 0.4 to tau cone variable, (or func. from TauJet)?
@@ -86,19 +81,14 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellCont
 
         // Store cell in output container
         const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
-        bool isNewCell = (addedCellsMap.at(cellHash)==NULL);
 
-        if(isNewCell){
+	if(!addedCellsMap.test(cellHash)) {
             CaloCell* copyCell = cell->clone();
             pPi0CellContainer.push_back(copyCell);
-            addedCellsMap[cellHash] = copyCell;
+	    addedCellsMap.set(cellHash);
         }
     }
 
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0CreateROI::finalize() {
     return StatusCode::SUCCESS;
 }
 

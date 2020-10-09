@@ -40,6 +40,18 @@ void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
                           SG::IAuxStore& copy,
                           const SG::ThinningInfo* info);
 
+/**
+ * @brief Helper method to apply lossy float compression
+ * @param dst Pointer to the start of the vector's data
+ * @param idst Index of element in vector
+ * @param eltSize Element size for the auxid
+ * @param typeName Type name for the auxid
+ * @param nmantissa Compression level to be used for the auxid
+ */
+void lossyFloatCompress (void* dst, std::size_t dst_index,
+                         const std::size_t& eltSize,
+                         const std::string& typeName,
+                         const unsigned int& nmantissa);
 
 } // namespace SG
 

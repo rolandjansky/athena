@@ -106,13 +106,8 @@ namespace Trk {
       EnergyLossUpdator(const std::string&,const std::string&,const IInterface*);
 
       /**Virtual destructor*/
-      virtual ~EnergyLossUpdator();
+      virtual ~EnergyLossUpdator() = default;
        
-      /** AlgTool initailize method.*/
-      virtual StatusCode initialize() override;
-      /** AlgTool finalize method */
-      virtual StatusCode finalize() override;
-        
       /** dEdX calculation when providing MaterialProperties,
         a momentum, a pathlength, and a ParicleHypothesis:
         

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -11,24 +11,32 @@ class CfgFlag(object):
     def __init__(self,default):
         if default is None:
             raise RuntimeError("Default value of a flag must not be None")
-        if callable(default):
-            self._value=None
-            self._setDef=default
-        else:
-            self._value=default
-            self._setDef=None
+        self.set(default)
         return
 
 
     def set(self,value):
-        self._value=value
+        if callable(value):
+            self._value=None
+            self._setDef=value
+        else:
+            self._value=value
+            self._setDef=None
         return
 
     def get(self,flagdict=None):
-        if self._value is None:
-            #Have to call the method to obtain the default value
+        if self._value is not None:
+            return deepcopy(self._value)
+
+        #Have to call the method to obtain the default value, and then reuse it in all next accesses
+        if flagdict.locked():
+            # optimise future reads, drop possibility to update this flag ever
             self._value=self._setDef(flagdict)
-        return deepcopy(self._value)
+            self._setDef=None
+            return deepcopy(self._value)
+        else:
+            #use function for as long as the flags are not locked
+            return deepcopy(self._setDef(flagdict))
 
     def __repr__(self):
         if self._value is not None:
@@ -74,6 +82,7 @@ class FlagAddress(object):
 
         if self._flags.hasFlag( merged ):
             return self._flags._get( merged )
+
         raise RuntimeError( "No such flag: {}  The name is likely incomplete.".format(merged) )
 
     def __setattr__( self, name, value ):
@@ -195,6 +204,9 @@ class AthConfigFlags(object):
         for f in self._flagdict.keys():
             if f.startswith(path):
                 return True
+        for c in self._dynaflags.keys():
+            if c.startswith(path):
+                return True
         return False
 
     def hasFlag(self, name):
@@ -283,12 +295,12 @@ class AthConfigFlags(object):
             #End loop over flags
             pass
 
-        #Last sanity check: Make sure that teh replaced section still contains teh same names:
-        if (replacedNames!=replacementNames):
+        #Last sanity check: Make sure that the replaced section still contains the same names:
+        if not replacementNames.issuperset(replacedNames):
             _msg.error(replacedNames)
             _msg.error(replacementNames)
-            raise RuntimeError("Attempt to replace incompatible subsets: None matching flag names are "
-                               + repr(replacedNames ^ replacementNames ))
+            raise RuntimeError("Attempt to replace incompatible flags subsets: distinct flag are "
+                               + repr(replacementNames - replacedNames))
         newFlags = AthConfigFlags(newFlagDict)
         newFlags._dynaflags = deepcopy(self._dynaflags)
         return newFlags
@@ -310,24 +322,28 @@ class AthConfigFlags(object):
             self._flagdict[fullName]=flag
 
         for (name,loader) in other._dynaflags.items():
-            if prefix+"."+name in self._dynaflags:
-                raise KeyError("Duplicated dynamic flags name: {}".format( name ) )
-        self._dynaflags.update(other._dynaflags)
-            #self.join( loader(), name )
-
+            fullName = prefix+"."+name if prefix != "" else name
+            if fullName in self._dynaflags:
+                raise KeyError("Duplicated dynamic flags name: {}".format( fullName ) )
+            _msg.debug("Joining dynamic flags with %s", fullName)
+            self._dynaflags[fullName] = loader
         return
 
-    def dump(self):
+    def dump(self, pattern=".*"):
+        import re
+        compiled = re.compile(pattern)
         print("{:40} : {}".format( "Flag Name","Value" ) )
         for name in sorted(self._flagdict):
-            print("{:40} : {}".format( name, repr(self._flagdict[name] ) ) )
+            if compiled.match(name):
+                print("{:40} : {}".format( name, repr(self._flagdict[name] ) ) )
 
         if len(self._dynaflags) == 0:
             return
         print("Flag categories that can be loaded dynamically")
         print("{:25} : {:>30} : {}".format( "Category","Generator name", "Defined in" ) )
         for name,gen_and_prefix in sorted(self._dynaflags.items()):
-            print("{:25} : {:>30} : {}".format( name, gen_and_prefix[0].__name__, '/'.join(gen_and_prefix[0].__code__.co_filename.split('/')[-2:]) ) )
+            if compiled.match(name):
+                print("{:25} : {:>30} : {}".format( name, gen_and_prefix[0].__name__, '/'.join(gen_and_prefix[0].__code__.co_filename.split('/')[-2:]) ) )
 
 
     def initAll(self):
@@ -525,6 +541,21 @@ class TestOverwriteFlags(TestFlagsSetupDynamic):
         copyf.dump()
         print("")
 
+class TestDynamicDependentFlags(unittest.TestCase):
+    def runTest(self):
+        print("""... Check if dynamic dependent flags work""")
+        flags = AthConfigFlags()
+        flags.addFlag("A", True)
+        flags.addFlag("B", lambda prevFlags: 3 if prevFlags.A is True else 10 )
+        flags.addFlag("C", lambda prevFlags: 'A' if prevFlags.A is True else 'B' )
+        assert flags.B == 3
+        flags.A = False
+        assert flags.B == 10
+        flags.A = True
+        flags.lock()
+        assert flags.C == 'A'
+        print("")
+
 class flagsFromArgsTest(unittest.TestCase):
     def setUp(self):
         self.flags = AthConfigFlags()
@@ -558,5 +589,6 @@ if __name__ == "__main__":
     suite.addTest(TestDynamicFlagsRead())
     suite.addTest(TestDynamicFlagsSet())
     suite.addTest(TestOverwriteFlags())
+    suite.addTest(TestDynamicDependentFlags())
     runner = unittest.TextTestRunner(failfast=False)
     runner.run(suite)

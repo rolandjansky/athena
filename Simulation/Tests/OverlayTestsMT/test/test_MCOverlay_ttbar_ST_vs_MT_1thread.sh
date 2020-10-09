@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-description: MC+MC Overlay with MT support, running with 4 threads
+# art-description: MC+MC Overlay with MT support, running with 1 thread
 # art-type: grid
 # art-athena-mt: 8
 # art-include: master/Athena
@@ -23,6 +23,7 @@ Overlay_tf.py \
 --conditionsTag OFLCOND-MC16-SDR-20 \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
+--postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
 --imf False
 
 rc=$?
@@ -40,6 +41,7 @@ then
     --conditionsTag OFLCOND-MC16-SDR-20 \
     --geometryVersion ATLAS-R2-2016-01-00-01 \
     --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
+    --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' \
     --imf False
     rc2=$?
 fi

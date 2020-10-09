@@ -22,8 +22,8 @@
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "IRegionSelector/IRegSelTool.h"
 
-class IRegSelSvc;
 
 namespace PESA
 
@@ -47,7 +47,9 @@ namespace PESA
     float m_zHalfWidth;
 
     //ROB prefetching
-    ServiceHandle<IRegSelSvc>     m_regionSelector;     
+    ToolHandle<IRegSelTool>     m_regionSelector_pix { this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel" };     
+    ToolHandle<IRegSelTool>     m_regionSelector_sct { this, "RegSelTool_SCT",   "RegSelTool/RegSelTool_SCT"   };     
+
     //!< region selector service
     bool  m_requestPIXRobs;
     bool  m_requestSCTRobs;

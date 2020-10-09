@@ -5,7 +5,11 @@ atlas_subdir( Tauolapp_i )
 
 # External dependencies:
 find_package( CLHEP )
+if (HEPMC3_USE)
+find_package( Tauolapp COMPONENTS TauolaFortran TauolaHepMC3 )
+else()
 find_package( Tauolapp COMPONENTS TauolaFortran TauolaHepMC )
+endif()
 
 # Component(s) in the package:
 atlas_add_component( Tauolapp_i
@@ -16,4 +20,4 @@ atlas_add_component( Tauolapp_i
    GeneratorObjects )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py )

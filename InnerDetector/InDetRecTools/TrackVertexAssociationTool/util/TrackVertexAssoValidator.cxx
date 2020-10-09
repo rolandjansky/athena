@@ -22,7 +22,7 @@
 #   include "xAODRootAccess/tools/ReturnCheck.h"
 #endif
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 // EDM include(s):
 #include "xAODTracking/TrackParticle.h"

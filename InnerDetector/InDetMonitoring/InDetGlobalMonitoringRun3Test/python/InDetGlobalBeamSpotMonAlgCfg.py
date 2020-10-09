@@ -22,7 +22,7 @@ def InDetGlobalBeamSpotMonAlgCfg(helper, alg, **kwargs):
     pathbs = '/InDetGlobal/BeamSpot'
     
     # Histograms for track-based beam spot monitoring:
-    varName = 'm_trkD0,m_trkD0Phi;trkDPhi'
+    varName = 'm_trkD0Phi,m_trkD0;trkDPhi'
     bsGroup.defineHistogram(varName,type="TH2F",title="DCA vs Phi; #varphi (rad);d_{0} (#mum)", path=pathbs, xbins=100, xmin=-3.5, xmax=3.5, ybins=100, ymin=-1000, ymax=1000)
 
     if (expert):
@@ -33,7 +33,7 @@ def InDetGlobalBeamSpotMonAlgCfg(helper, alg, **kwargs):
     
     #Histograms of assumed beam spot position
     if (m_useBeamspot):
-        varName = 'm_trkD0Corr,m_trkD0PhiCorr;trkDPhiCorr'
+        varName = 'm_trkD0PhiCorr,m_trkD0Corr;trkDPhiCorr'
         bsGroup.defineHistogram(varName,type="TH2F",title="DCA vs Phi wrt Beamspot;#varphi (rad);d_{0} (#mum)",path=pathbs,xbins=100, xmin=-3.5,xmax=3.5, ybins=100, ymin=-500,ymax=500)
         varName = 'm_bsX;bsX'
         bsGroup.defineHistogram(varName, type="TH1F", title="Beam spot position: x;x (mm)",path=pathbs,xbins=100,xmin=-10,xmax=10)
@@ -66,11 +66,11 @@ def InDetGlobalBeamSpotMonAlgCfg(helper, alg, **kwargs):
     
     
     #Histograms that are independent of the useBeamSpot parameters
-    varName = 'm_pvX,m_pvZ;pvXZ'
+    varName = 'm_pvZ,m_pvX;pvXZ'
     bsGroup.defineHistogram(varName, type="TH2F", title="Primary vertex: x vs z;z (mm);x (mm)", path=pathbs, xbins=100, xmin=-500, xmax=500, ybins=100, ymin=-10, ymax=10)
-    varName = 'm_pvY,m_pvZ;pvYZ'
+    varName = 'm_pvZ,m_pvY;pvYZ'
     bsGroup.defineHistogram(varName, type="TH2F", title="Primary vertex: y vs z;z (mm);y (mm)", path=pathbs, xbins=100, xmin=-500, xmax=500, ybins=100, ymin=-10,ymax=10)
-    varName = 'm_pvY,m_pvX;pvYX'
+    varName = 'm_pvX,m_pvY;pvYX'
     bsGroup.defineHistogram(varName, type="TH2F", title="Primary vertex: y vs x;x (mm);y (mm)", path=pathbs, xbins=100, xmin=-10, xmax=10, ybins=100, ymin=-10, ymax=10)
     varName = 'm_pvChiSqDof;pvChiSqDof'
     bsGroup.defineHistogram(varName, type="TH1F", title="",path=pathbs,xbins=100,xmin=0,xmax=20)

@@ -32,19 +32,6 @@ class MuonMatchingTool : public AthAlgTool {
   virtual StatusCode initialize() override;
 
 
-  enum L1Items{ L1_MU4=1, L1_MU6, L1_MU10, L1_MU11, L1_MU15, L1_MU20, L1_MU21,ERROR};
-  int L1ItemSTI(std::string l1item) const {
-    if( "L1_MU4"==l1item) return L1Items::L1_MU4;
-    if( "L1_MU6"==l1item) return L1Items::L1_MU6;
-    if( "L1_MU10"==l1item) return L1Items::L1_MU10;
-    if( "L1_MU11"==l1item) return L1Items::L1_MU11;
-    if( "L1_MU15"==l1item) return L1Items::L1_MU15;
-    if( "L1_MU20"==l1item) return L1Items::L1_MU20;
-    if( "L1_MU21"==l1item) return L1Items::L1_MU21;
-    return L1Items::ERROR;
-  }
-
-
   /**
    * @brief Function that searches for a Level 1 muon candidate and judges if it is matched to a given offline muon.
    * @param mu Offline muon around which Level 1 candidates are searched.
@@ -77,6 +64,13 @@ class MuonMatchingTool : public AthAlgTool {
   const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> searchL2SALinkInfo(const xAOD::Muon *mu, std::string trigger) const;
 
   /**
+   * @brief Function that searches for an L2 standalone muon (L2MuonSA) candidate by ReadHandle and judges if it is matched to a given offlineSA muon.
+   * @param mu Offline muon around which L2MuonSA candidates are searched.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   */
+  const xAOD::L2StandAloneMuon* matchL2SAReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
+
+  /**
    * @brief Function that searches for an L2 combined muon (L2muComb) candidate and judges if it is matched to a given offline muon.
    * @param mu Offline muon around which L2muComb candidates are searched.
    * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
@@ -98,6 +92,13 @@ class MuonMatchingTool : public AthAlgTool {
   const TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> searchL2CBLinkInfo(const xAOD::Muon *mu, std::string trigger) const;
 
   /**
+   * @brief Function that searches for an L2 combined muon (L2muComb) candidate by ReadHandle and judges if it is matched to a given offlineCB muon.
+   * @param mu Offline muon around which L2muComb candidates are searched.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   */
+  const xAOD::L2CombinedMuon* matchL2CBReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
+
+  /**
    * @brief Function that searches for an EF standalone muon (EFSA) candidate and judges if it is matched to a given offline muon.
    * @param mu Offline muon around which EFSA candidates are searched.
    * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
@@ -106,6 +107,22 @@ class MuonMatchingTool : public AthAlgTool {
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
    */
   const xAOD::Muon* matchEFSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+
+  /**
+   * @brief Function that searches for an EF standalone muon (EFSA) candidate and judges if it is matched to a given track particle.
+   * @param mu Offline muon around which EFSA candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @return Pointer to the matched candidate. This is inValid link when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFSALinkInfo( const xAOD::Muon *mu, std::string trig) const;
+
+  /**
+   * @brief Function that searches for an EF standalone muon (EFSA) candidate by ReadHandle and judges if it is matched to a given offlineSA muon.
+   * @param mu Offline muon around which EFSA candidates are searched.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   */
+  const xAOD::Muon* matchEFSAReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
 
   /**
    * @brief Function that searches for an EF combined muon (EFCB) candidate and judges if it is matched to a given offline muon.
@@ -117,33 +134,67 @@ class MuonMatchingTool : public AthAlgTool {
    */
   const xAOD::Muon* matchEFCB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
+  /**
+   * @brief Function that searches for an EF combined muon (EFCB) candidate and judges if it is matched to a given track particle.
+   * @param mu Offline muon around which EFCB candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @return Pointer to the matched candidate. This is inValid link when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFCBLinkInfo( const xAOD::Muon *mu, std::string trig) const;
 
   /**
-   * @brief Function that searches for an offline muon within @c DR_cut from the given eta-phi (of a online muon)
-   * @param ctx Reference to the @c EventContext needed for accessing the @c Muons container.
-   * @param trigEta Eta of the given online muon
-   * @param trigPhi Phi of the given online muon
-   * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
+   * @brief Function that searches for an EF combined muon (EFCB) candidate by ReadHandle and judges if it is matched to a given offlineCB muon.
+   * @param mu Offline muon around which EFCB candidates are searched.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    */
-  const xAOD::Muon* matchOff( const EventContext& ctx, float trigEta, float trigPhi, float DR_cut) const;
+  const xAOD::Muon* matchEFCBReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
 
   /**
-   * @brief Function that searches for an offline muon matched to L2SA muon from the given eta-phi (of a online muon)
-   * @param ctx Reference to the @c EventContext needed for accessing the @c Muons container.
-   * @param trigEta Eta of the given online muon
-   * @param trigPhi Phi of the given online muon
-   * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
+   * @brief Function that searches for an EF isolation muon (EFIso) candidate and judges if it is matched to a given offline muon.
+   * @param mu Offline muon around which EFIso candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if the matched candidate passed the hypothesis step.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
    */
-  const xAOD::Muon* matchL2SAtoOff( const EventContext& ctx, float trigEta, float trigPhi) const;
+  const xAOD::Muon* matchEFIso(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
   /**
-   * @brief Function that searches for an offline muon matched to L2CB muon from the given eta-phi (of a online muon)
+   * @brief Function that searches for an EF isolation muon (EFIso) candidate and judges if it is matched to a given track particle.
+   * @param mu Offline muon around which EFIso candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @return Pointer to the matched candidate. This is inValid link when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFIsoLinkInfo( const xAOD::Muon *mu, std::string trig) const;
+
+
+  /**
+   * @brief Function that searches for an EF muon track (e.g. ExtrapolatedMuonSpectrometerTrackParticle, CombinedTrackParticle) matched to a EF muon.
+   * @param ctx Reference to the @c EventContext needed for accessing the @c TrackParticle container.
+   * @param muLinkInfo LinkInfo of EF muon.
+   * @param ReadHandleKey of TrackParticle container.
+   * @return Pointer to the matched TrackParticle. This is @c nullpt rwhen there is no TrackParticle found.
+   */
+  const xAOD::TrackParticle* SearchEFTrack(const EventContext &ctx, const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muLinkInfo, SG::ReadHandleKey<xAOD::TrackParticleContainer> ReadHandleKey) const;
+
+
+  /**
+   * @brief Function that searches for an offline muon matched to L2SA muon
    * @param ctx Reference to the @c EventContext needed for accessing the @c Muons container.
-   * @param trigEta Eta of the given online muon
-   * @param trigPhi Phi of the given online muon
+   * @param samu the given online muon
    * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
    */
-  const xAOD::Muon* matchL2CBtoOff( const EventContext& ctx, float trigEta, float trigPhi) const;
+  const xAOD::Muon* matchL2SAtoOff( const EventContext& ctx, const xAOD::L2StandAloneMuon* samu) const;
+
+  /**
+   * @brief Function that searches for an offline muon matched to L2CB muon
+   * @param ctx Reference to the @c EventContext needed for accessing the @c Muons container.
+   * @param cbmu the given online muon
+   * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
+   */
+  const xAOD::Muon* matchL2CBtoOff( const EventContext& ctx, const xAOD::L2CombinedMuon* cbmu) const;
 
 
   bool isMatchedL2SA(const xAOD::L2StandAloneMuon*, const xAOD::Muon*) const;
@@ -168,12 +219,47 @@ class MuonMatchingTool : public AthAlgTool {
   static double reqdRL1byPt(double mupt);
 
 
+  static std::tuple<bool,double,double> trigPosForMatchSATrack(const xAOD::Muon *mu);
+  static std::tuple<bool,double,double> trigPosForMatchCBTrack(const xAOD::Muon *mu);
+  static std::tuple<bool,double,double> PosForMatchSATrack(const xAOD::Muon *mu);
+  static std::tuple<bool,double,double> PosForMatchCBTrack(const xAOD::Muon *mu);
+
+  
  private:
+
+  enum L1Items{ L1_MU4=1, L1_MU6, L1_MU10, L1_MU11, L1_MU15, L1_MU20, L1_MU21,ERROR};
+  int L1ItemStringToInt(std::string l1item) const {
+    if( "L1_MU4"==l1item) return L1Items::L1_MU4;
+    if( "L1_MU6"==l1item) return L1Items::L1_MU6;
+    if( "L1_MU10"==l1item) return L1Items::L1_MU10;
+    if( "L1_MU11"==l1item) return L1Items::L1_MU11;
+    if( "L1_MU15"==l1item) return L1Items::L1_MU15;
+    if( "L1_MU20"==l1item) return L1Items::L1_MU20;
+    if( "L1_MU21"==l1item) return L1Items::L1_MU21;
+    return L1Items::ERROR;
+  }
 
   const float m_L2SAreqdR = 0.25;
   const float m_L2CBreqdR = 0.03;
+  const float m_EFreqdR = 0.03;
 
   // private methods
+  /**
+   * @brief Function that searches for an online muon candidate of type T by ReadHandle and judges if it is matched to a given offline muon.
+   * @param offl Position of the offline muon used for computing dR.
+   * @param reqdR Requirement of dR used for the matching. Note that reqdR is updated with the dR of the found candidate.
+   * @param ReadHandleKey SG::ReadHandleKey of online muon.
+   * @param ctx EventContext. 
+   * @param trigPosForMatchFunc Function pointer that implements cuts for the online muon candidates.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   * @see MuonMatchingTool.icc for the implementation and MuonMatchingTool.cxx for the instantiation.
+   * @todo Consider improving the argument list.
+   */
+  template<class T, class OFFL> const T* matchReadHandle(const OFFL* offl, float reqdR,
+                                                         SG::ReadHandleKey<DataVector<T> > ReadHandleKey, const EventContext& ctx,
+                                                         std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+
+
   /**
    * @brief Function that searches for an online muon candidate of type T closest to a given offline muon. 
    * @param offl Position of the offline muon used for computing dR.
@@ -184,8 +270,10 @@ class MuonMatchingTool : public AthAlgTool {
    * @see MuonMatchingTool.icc for the implementation and MuonMatchingTool.cxx for the instantiation.
    * @todo Consider improving the argument list.
    */
-  template<class T, class OFFL> const TrigCompositeUtils::LinkInfo<DataVector<T> > searchLinkInfo(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
-				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+  template<class T, class OFFL> 
+  const TrigCompositeUtils::LinkInfo<DataVector<T> > matchLinkInfo(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
+                                                                   const std::string containerSGKey = "",
+				                                   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
 
   /**
    * @brief Function that searches for an online muon candidate of type T and judges if it is matched to a given offline muon.
@@ -200,7 +288,25 @@ class MuonMatchingTool : public AthAlgTool {
    * @todo Consider improving the argument list.
    */
   template<class T, class OFFL> const T* match(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
-				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+                                               const std::string containerSGKey = "",
+				               std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+
+  /**
+   * @brief Function that searches for an offline muon candidate matched to online muon of type T.
+   * @param trig Position of the online muon used for computing dR.
+   * @param reqdR Requirement of dR used for the matching. Note that reqdR is updated with the dR of the found candidate.
+   * @param offlinePosForMatchFunc Function pointer that implements cuts for the offline muon candidates.
+   * @param trigPosForMatchFunc Function pointer that implements cuts for the online muon candidates.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   * @see MuonMatchingTool.icc for the implementation and MuonMatchingTool.cxx for the instantiation.
+   * @todo Consider improving the argument list.
+   */
+  template<class T> const xAOD::Muon* matchOff(const EventContext& ctx, const T* trig, float reqdR,
+                                               std::tuple<bool,double,double> (*offlinePosForMatchFunc)(const xAOD::Muon*),
+                                               std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+
+
   const Amg::Vector3D offlineMuonAtPivot(const xAOD::Muon *mu) const;
   double FermiFunction(double x, double x0, double w) const;
   const Trk::TrackParameters* extTrackToTGC(const xAOD::TrackParticle *track) const;
@@ -209,10 +315,15 @@ class MuonMatchingTool : public AthAlgTool {
   // static methods
   // Template methods that perform different matching schemes for T=xAOD::L2StandAloneMuon, xAOD::L2CombinedMuon and xAOD::Muon (EF).
   template<class T> static inline std::tuple<bool,double,double> trigPosForMatch(const T *trig);
-  static inline std::tuple<bool,double,double> trigPosForMatchEFSA(const xAOD::Muon *trig);
 
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey {this, "MuonRoIContainerName", "LVL1MuonRoIs", "Level 1 muon container"};
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey {this, "MuonContainerName", "Muons", "Offline muon container"};
+  SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_L2MuonSAContainerKey {this, "L2StandAloneMuonContainerName", "HLT_MuonL2SAInfo", "L2MuonSA container"};
+  SG::ReadHandleKey<xAOD::L2CombinedMuonContainer> m_L2muCombContainerKey {this, "L2CombinedMuonContainerName", "HLT_MuonL2CBInfo", "L2muComb container"};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_EFSAMuonContainerKey {this, "EFSAMuonContainerName", "HLT_Muons_RoI", "EFSAMuon container"};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_EFCBMuonContainerKey {this, "EFCBMuonContainerName", "HLT_MuonsCB_RoI", "EFCBMuon container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_MStrackContainerKey {this, "ExtrapolatedMStrackConntainner", "HLT_MSExtrapolatedMuons_RoITrackParticles", "ExtrapolatedMuons track container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_CBtrackContainerKey {this, "CBtrackContainerName", "HLT_CBCombinedMuon_RoITrackParticles", "CombinedMuon track container"};
 
   // properties
   Gaudi::Property<bool> m_use_extrapolator {this, "UseExtrapolator", false, "Flag to enable the extrapolator for matching offline and trigger muons"};

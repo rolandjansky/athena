@@ -17,24 +17,24 @@ fhistory = os.path.expanduser("~/.LArCellConditionsHist")
 
 
 def usage():
-    print sys.argv[0]+": Convert and expand LAr Identifiers, print some database content"
-    print "Options:"
-    print "-c Print also (some) electronic calibration constants"
-    print "-s Use SingleVersion folders (default)"
-    print "-m Use MultiVersion folders (the opposite of -s)"
-    print "-g Include geometrical position (true eta/phi)"
-    print "-d Include DSP thresholds"
-    print "-r <run> Specify a run number"
-    print "-t <tag> Specify global tag"
-    print "--detdescr <DetDescrVersion>"
-    print "--sqlite <sqlitefile>"
-    print "-h Print this help text and exit"
+    print(sys.argv[0]+": Convert and expand LAr Identifiers, print some database content")
+    print("Options:")
+    print("-c Print also (some) electronic calibration constants")
+    print("-s Use SingleVersion folders (default)")
+    print("-m Use MultiVersion folders (the opposite of -s)")
+    print("-g Include geometrical position (true eta/phi)")
+    print("-d Include DSP thresholds")
+    print("-r <run> Specify a run number")
+    print("-t <tag> Specify global tag")
+    print("--detdescr <DetDescrVersion>")
+    print("--sqlite <sqlitefile>")
+    print("-h Print this help text and exit")
         
 try:
     opts,args=getopt.getopt(sys.argv[1:],"csmgdhr:t:",["help","detdescr=","sqlite="])
-except Exception,e:
+except Exception as e:
     usage()
-    print e
+    print(e)
     sys.exit(-1)
 
     
@@ -70,15 +70,15 @@ try:
     if run is None:
         defRun=0x7fffffff
         prompt= "Enter run number [%i]:" % defRun
-        runIn=raw_input(prompt).strip()
+        runIn=input(prompt).strip()
         if runIn=="":
             run=defRun
         else:
             if runIn.isdigit():
-                run=long(runIn)
+                run=int(runIn)
             else:
                 usage()
-                print "Expect numerical parameter for run, got",runIn
+                print("Expect numerical parameter for run, got",runIn)
                 sys.exit(0)
                 pass
             pass
@@ -91,7 +91,7 @@ try:
             defTag="COMCOND-BLKPA-RUN1-06"
             pass
         prompt= "Enter conditions tag [%s]:" % defTag
-        tagIn=raw_input(prompt).strip()
+        tagIn=input(prompt).strip()
         if tagIn=="":
             tag=defTag
         else:
@@ -100,12 +100,12 @@ try:
 
     if geo and not detdescrset:
         prompt="Enter DetectorDescripton tag [%s]:" % detdescrtag
-        detdescrtagIn=raw_input(prompt).strip()
+        detdescrtagIn=input(prompt).strip()
         if detdescrtagIn != "":
             detdescrtag=detdescrtagIn
                 
 except:
-    print "Failed to get run number and/or conditions tag"
+    print("Failed to get run number and/or conditions tag")
     sys.exit(0)
 
 

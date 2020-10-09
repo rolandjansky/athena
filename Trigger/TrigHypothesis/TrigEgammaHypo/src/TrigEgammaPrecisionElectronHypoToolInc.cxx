@@ -6,8 +6,9 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-
+#include "xAODPrimitives/IsolationType.h"
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 
 
 using namespace TrigCompositeUtils;
@@ -19,6 +20,7 @@ TrigEgammaPrecisionElectronHypoToolInc::TrigEgammaPrecisionElectronHypoToolInc( 
     m_decisionId( HLT::Identifier::fromToolName( name ) ) 
    {
         declareProperty("ElectronLHSelector"        ,m_egammaElectronLHTool   );
+	declareProperty("RelPtConeCut"              ,m_RelPtConeCut=-999.);
     }
 
 StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
@@ -61,24 +63,21 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
 
   bool pass = false;
 
-  // Likelihood output
-   std::vector<float> lhval_monitored;
-  // Lumi monitoring
-   std::vector<double> avgmu_monitored;
-
   auto ET           = Monitored::Scalar( "Et_em"   , -1.0 );
-  auto dEta         = Monitored::Scalar( "dEta", -1. ); 
+  auto dEta         = Monitored::Scalar( "dEta", -1. );
   auto dPhi         = Monitored::Scalar( "dPhi", -1. );
   auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
-  auto monEta       = Monitored::Scalar( "Eta", -99. ); 
+  auto monEta       = Monitored::Scalar( "Eta", -99. );
   auto monPhi       = Monitored::Scalar( "Phi", -99. );
   auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto mon_lhval    = Monitored::Collection("LikelihoodRatio",   lhval_monitored);
-  auto mon_mu       = Monitored::Collection("mu",   avgmu_monitored);  
+  auto mon_lhval    = Monitored::Scalar("LikelihoodRatio",   -99.);
+  auto mon_mu       = Monitored::Scalar("mu",   -1.);
+  auto mon_ptcone20 = Monitored::Scalar("ptcone20",   -99.);
+  auto mon_relptcone20 = Monitored::Scalar("ptcone20",   -99.);
   auto monitorIt    = Monitored::Group( m_monTool, 
 					       dEta, dPhi, 
                                                etaBin, monEta,
-					       monPhi,PassedCuts,mon_lhval,mon_mu);
+					       monPhi,PassedCuts,mon_lhval,mon_mu, mon_ptcone20, mon_relptcone20);
  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
@@ -167,14 +166,14 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   if(eventInfoDecor.isPresent()) {
     avg_mu = eventInfoDecor(0);
     ATH_MSG_DEBUG("Average mu " << avg_mu);
-    avgmu_monitored.push_back(avg_mu);
+    mon_mu = avg_mu;
     asg::AcceptData accept =  m_egammaElectronLHTool->accept(ctx,input.electron,avg_mu);
     pass = (bool) accept;
   
     // Monitor the LH value
     lhval=m_egammaElectronLHTool->calculate(ctx, input.electron,avg_mu);
     ATH_MSG_DEBUG("LHValue with avgmu " << lhval);
-    lhval_monitored.push_back(lhval);
+    mon_lhval = lhval;
   }  
   else{
     ATH_MSG_WARNING("EventInfo decoration not available!");
@@ -183,16 +182,14 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
     // Monitor the LH value
     lhval=m_egammaElectronLHTool->calculate(ctx, input.electron);
     ATH_MSG_DEBUG("LHValue without avgmu " << lhval);
-    lhval_monitored.push_back(lhval);
+    mon_lhval = lhval;
   }
-
-  ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
-  
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
     Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999);
 
-    
+
   // variables based on HCAL
   // transverse energy in 1st scintillator of hadronic calorimeter/ET
   input.electron->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
@@ -225,6 +222,24 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   // E(+/-3)-E(+/-1)/E(+/-1)
   input.electron->showerShapeValue(fracm, xAOD::EgammaParameters::fracs1);
 
+  input.electron->isolationValue(ptcone20, xAOD::Iso::ptcone20);
+
+  input.electron->isolationValue(ptcone30, xAOD::Iso::ptcone30);
+
+  input.electron->isolationValue(ptcone40, xAOD::Iso::ptcone40);
+
+  input.electron->isolationValue(etcone20, xAOD::Iso::etcone20);
+
+  input.electron->isolationValue(etcone30, xAOD::Iso::etcone30);
+
+  input.electron->isolationValue(etcone40, xAOD::Iso::etcone40);
+
+  input.electron->isolationValue(topoetcone20, xAOD::Iso::topoetcone20);
+
+  input.electron->isolationValue(topoetcone30, xAOD::Iso::topoetcone30);
+
+  input.electron->isolationValue(topoetcone40, xAOD::Iso::topoetcone40);
+
   ATH_MSG_DEBUG(" electron Cluster Et "<<ET);
   ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
   ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
@@ -238,16 +253,45 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   ATH_MSG_DEBUG( "  DeltaE " << DeltaE ) ;
   ATH_MSG_DEBUG( "  wtot   " << wtot ) ;
   ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
-  ATH_MSG_DEBUG(" trackPT "<<input.electron->trackParticle()->pt());
-  ATH_MSG_DEBUG(" d0 "<<input.electron->trackParticle()->d0());
-  ATH_MSG_DEBUG(" z0 "<<input.electron->trackParticle()->z0());
+  ATH_MSG_DEBUG( " trackPT "<<input.electron->trackParticle()->pt());
+  ATH_MSG_DEBUG( " d0      "<<input.electron->trackParticle()->d0());
+  ATH_MSG_DEBUG( " z0      "<<input.electron->trackParticle()->z0());
+  ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
+  ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
+  ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
+  ATH_MSG_DEBUG( " etcone20 " << etcone20 ) ;
+  ATH_MSG_DEBUG( " etcone30 " << etcone30 ) ;
+  ATH_MSG_DEBUG( " etcone40 " << etcone40 ) ;
+  ATH_MSG_DEBUG( " topoetcone20 " << topoetcone20 ) ;
+  ATH_MSG_DEBUG( " topoetcone30 " << topoetcone30 ) ;
+  ATH_MSG_DEBUG( " topoetcone40 " << topoetcone40 ) ;
+  // Monitor showershapes
+  mon_ptcone20 = ptcone20;
+  relptcone20 = ptcone20/input.electron->pt();
+  ATH_MSG_DEBUG("relptcone20 = " <<relptcone20  );
+  mon_relptcone20 = relptcone20;
+  ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
 
+  // Evaluating lh *after* retrieving variables for monitoing and debuging purposes
+  ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT Likelihood failed");
+      return pass;
   } else {
       ATH_MSG_DEBUG("ACCEPT Likelihood passed");
   }
 
+  // Check if need to apply isolation
+  // First check logic. if cut is very negative, then no isolation cut is defined
+  // if m_RelPtConeCut <-100 then hypo is configured not to apply isolation
+  if (m_RelPtConeCut < -100){
+      ATH_MSG_DEBUG(" not applying isolation. Returning NOW");
+      ATH_MSG_DEBUG("TAccept = " << pass);
+      return pass;
+  }
+  // Then, It will pass if relptcone20 is less than cut:
+  pass = (relptcone20 < m_RelPtConeCut);
+  //
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );
 

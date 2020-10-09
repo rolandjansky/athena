@@ -14,7 +14,7 @@ except:
     pass
 
 if len(substep)==0:
-    print "Failed to obtain substep, will use PID for file with db folder list" 
+    print("Failed to obtain substep, will use PID for file with db folder list")
     substep=str(getpid())
 
 

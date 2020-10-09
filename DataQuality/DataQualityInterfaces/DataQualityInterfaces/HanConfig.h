@@ -47,7 +47,9 @@ public:
   virtual ~HanConfig();
 
 
-  virtual void AssembleAndSave( std::string infileName, std::string outfileName, std::string connectionString, long runNumber, bool bulk);
+  virtual void AssembleAndSave( std::string infileName, std::string outfileName,
+                                std::string connectionString="sqlite://;schema=/afs/cern.ch/user/a/atlasdqm/dqmdisk1/cherrypy-devel/RefDB.db;dbname=REFDB",
+                                long runNumber=2147483646, bool bulk=false);
 
   virtual void BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output );
 #ifndef __CINT__

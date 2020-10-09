@@ -30,7 +30,7 @@ namespace Muon {
     virtual StatusCode  finalize() override;
 
     /** optimise the error strategy used for the track */
-    virtual Trk::Track* optimiseErrors( Trk::Track& track ) const override;
+    virtual std::unique_ptr<Trk::Track> optimiseErrors( Trk::Track* track ) const override;
 
   private:
     ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface" };

@@ -104,6 +104,13 @@ private:
    * */
   unsigned int m_event_counter;
 
+  // Information to remove certain readings if needed
+  std::map<std::string, std::map<int,std::vector<int>*>*>           m_readingsMap;
+  std::map<std::string, std::map<int,std::vector<int>*>*>::iterator m_readingsMap_it;
+  std::map<int, std::vector<int>*>::iterator                        m_channelMap_it;
+
+
+  int m_sampleShift;
 };
 
 #endif

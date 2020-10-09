@@ -12,14 +12,17 @@
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
-#include "TrigDecisionEvent/TrigDecision.h"
 
 
 class StoreGateSvc;
+
+namespace TrigDec {
+  class TrigDecision;
+}
 
 namespace HLT {
   class TrigNavStructure;

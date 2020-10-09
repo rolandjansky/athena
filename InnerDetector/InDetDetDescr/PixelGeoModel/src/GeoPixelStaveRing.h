@@ -7,11 +7,12 @@
 
 #include "GeoVPixelFactory.h"
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelStaveRing :  public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelStaveRing :  public GeoVPixelFactory {
 
 public:  
-  GeoPixelStaveRing();
-  virtual GeoVPhysVol* Build();
+  GeoPixelStaveRing(InDetDD::PixelDetectorManager* ddmgr,
+                    PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   GeoVPhysVol* SetParametersAndBuild(std::string,std::string);
   double GetPositionAlongZAxis() const { return m_zPosition; }

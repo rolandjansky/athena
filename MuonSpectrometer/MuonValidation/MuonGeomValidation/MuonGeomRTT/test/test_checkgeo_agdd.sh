@@ -4,9 +4,9 @@
 #
 # art-type: grid
 # art-include: master/Athena
-# art-include: 21.3/Athena
 #
 # art-output: *.txt
+# art-output: *.data
 
 art.py createpoolfile
 
@@ -25,7 +25,7 @@ then
 fi
 
 # now, compare the output of AGDD from the local file with the blob from the db
-diff Generated_AGDD_pool.txt Out.AmdcOracle.AM.AGDDtemp.data
+diff Generated_AGDD_pool.txt Out.AmdcOracle.AM.AGDDtemp.data &> diff_database_local.txt
 echo  "art-result: ${exit_code} diff-check"
 if [ ${exit_code} -ne 0 ]
 then

@@ -32,7 +32,7 @@
 using InDetDD::PixelDetectorManager; 
 using InDetDD::SiCommonItems; 
 
-PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athenaComps,
+PixelDetectorFactory::PixelDetectorFactory(PixelGeoModelAthenaComps * athenaComps,
 					   const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(0),
@@ -40,11 +40,9 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
-  GeoVPixelFactory::SetDDMgr(m_detectorManager);
 
   // Create the geometry manager.
   m_geometryManager =  new OraclePixGeoManager(athenaComps);
-  GeoVPixelFactory::setGeometryManager(m_geometryManager);
 
   // Pass the switches
   m_geometryManager->SetServices(switches.services());
@@ -114,7 +112,7 @@ PixelDetectorFactory::~PixelDetectorFactory()
 
 
 //## Other Operations (implementation)
-void PixelDetectorFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) // Thread usnafe GeoPixelEnvelope class is used.
+void PixelDetectorFactory::create(GeoPhysVol *world)
 {
   if(msgLvl(MSG::INFO)) {
     msg(MSG::INFO) << "Building Pixel Detector" << endmsg;
@@ -134,7 +132,7 @@ void PixelDetectorFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) // T
 
   //
   // Create the Pixel Envelope...
-  GeoPixelEnvelope pe;
+  GeoPixelEnvelope pe (m_detectorManager, m_geometryManager);
   GeoVPhysVol* pephys = pe.Build() ;
   GeoAlignableTransform * transform = new GeoAlignableTransform(topTransform);
   

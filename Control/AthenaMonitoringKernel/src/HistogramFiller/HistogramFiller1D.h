@@ -24,42 +24,35 @@ namespace Monitored {
       : HistogramFiller(definition, provider) {
     }
 
-    virtual HistogramFiller1D* clone() const override {
-      return new HistogramFiller1D( *this );
-    }
-
-    virtual unsigned fill() const override {
-      if (m_monVariables.size() != 1) { return 0; }
-      const IMonitoredVariable& var = m_monVariables.at(0).get();
-
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
       std::function<bool(size_t)> cutMaskAccessor;
-      if (m_monCutMask) {
+      if ( vars.cut ) {
         // handling of the cutmask
-        auto cutMaskValuePair = getCutMaskFunc();
+        auto cutMaskValuePair = getCutMaskFunc(vars.cut);
         if (cutMaskValuePair.first == 0) { return 0; }
-        if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != var.size())) {
+        if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != vars.var[0]->size())) {
           MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
           log << MSG::ERROR << "CutMask does not match the size of plotted variable: "
-              << cutMaskValuePair.first << " " << var.size() << endmsg;
+              << cutMaskValuePair.first << " " << vars.var[0]->size() << endmsg;
         }
         cutMaskAccessor = cutMaskValuePair.second;
       }
 
-      if (m_monWeight) {
-        auto weightAccessor = [&](size_t i){ return m_monWeight->get(i); };
+      if (vars.weight) {
+        auto weightAccessor = [&](size_t i){ return vars.weight->get(i); };
 
-        if (ATH_UNLIKELY(m_monWeight->size() != var.size())) {
+        if (ATH_UNLIKELY(vars.weight->size() != vars.var[0]->size())) {
           MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
           log << MSG::ERROR << "Weight does not match the size of plotted variable: "
-              << m_monWeight->size() << " " << var.size() << endmsg;
+              << vars.weight->size() << " " << vars.var[0]->size() << endmsg;
         }
         // Need to fill here while weightVector is still in scope
-        if (not m_monCutMask) return HistogramFiller::fill<TH1>(weightAccessor, detail::noCut, var);
-        else                  return HistogramFiller::fill<TH1>(weightAccessor, cutMaskAccessor, var);
+        if (not vars.cut) return HistogramFiller::fill<TH1>(weightAccessor, detail::noCut, *vars.var[0]);
+        else                  return HistogramFiller::fill<TH1>(weightAccessor, cutMaskAccessor, *vars.var[0]);
       }
 
-      if (not m_monCutMask) return HistogramFiller::fill<TH1>(detail::noWeight, detail::noCut, var);
-      else                  return HistogramFiller::fill<TH1>(detail::noWeight, cutMaskAccessor, var);
+      if (not vars.cut) return HistogramFiller::fill<TH1>(detail::noWeight, detail::noCut, *vars.var[0]);
+      else                  return HistogramFiller::fill<TH1>(detail::noWeight, cutMaskAccessor, *vars.var[0]);      
     }
   };
 }

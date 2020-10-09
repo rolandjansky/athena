@@ -26,8 +26,8 @@ void MuCTPI_RDOCnv_p1::persToTrans( const MuCTPI_RDO_p1* persObj, MuCTPI_RDO* tr
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state..." << endmsg;
 
-   *transObj = MuCTPI_RDO (persObj->m_candidateMultiplicity,
-                           persObj->m_dataWord);
+   *transObj = MuCTPI_RDO (std::vector< uint32_t >(persObj->m_candidateMultiplicity),
+                           std::vector< uint32_t >(persObj->m_dataWord)); //manual copy
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state [OK]" << endmsg;
 

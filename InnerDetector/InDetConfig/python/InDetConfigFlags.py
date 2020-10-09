@@ -39,7 +39,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
   icf.addFlag("InDet.doLargeD0", False)
   icf.addFlag("InDet.useExistingTracksAsInput", False) # Use already processed Track from a (D)ESD input file. This flag is related with ProcessedESDTracks InDetKey 
-  icf.addFlag("InDet.cutLevel", 16) # Control cuts and settings for different lumi to limit CPU and disk space 
+  icf.addFlag("InDet.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.priVtxCutLevel", 3 ) # Control vertexing cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
@@ -165,7 +165,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doTIDE_Ambi", True) # Switch for running TIDE Ambi 
   icf.addFlag("InDet.doRefitInvalidCov", False) # Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices.
   icf.addFlag("InDet.doRejectInvalidCov", False) # Reject all tracks which have a non positive definite covariance matrix after the refit.
-  icf.addFlag("InDet.doTIDE_RescalePixelCovariances", False) # Switch for running TIDE pixel cluster covariance rescaling 
   icf.addFlag("InDet.doSSSfilter", True) # Switch for running SSS filter
   icf.addFlag("InDet.pT_SSScut", -1) # Pt cut for SSS filter [GeV]
   icf.addFlag("InDet.ForceCoraCool", False) # Use old (non CoolVectorPayload) SCT Conditions 
@@ -174,6 +173,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doSLHCVeryForward", False ) # Turn running of SLHC reconstruction for Very Forward extension on and off 
   icf.addFlag("InDet.doTRTGlobalOccupancy", False) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation) 
   icf.addFlag("InDet.doNNToTCalibration", False ) # USe ToT calibration for NN clustering rather than Charge 
+  icf.addFlag("InDet.useNNTTrainedNetworks", True ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
   icf.addFlag("InDet.keepAdditionalHitsOnTrackParticle", False) # Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!) 
   icf.addFlag("InDet.doSCTModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later 
   icf.addFlag("InDet.doParticleConversion", False) # In case anyone still wants to do Rec->xAOD TrackParticle Conversion 
@@ -181,6 +181,35 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs 
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
-  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.PixelOn))
-  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.SCTOn))
+  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoPixel))
+  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoSCT))
+
+  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createSLHCTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createSLHCConversionFindingTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createForwardSLHCTracksTrackingFlags, createVeryForwardSLHCTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
+
+  icf.addFlagsCategory ("InDet.Tracking", createTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SLHCTracking", createSLHCTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.HighPileupTracking", createHighPileupTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.MinBiasTracking", createMinBiasTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LargeD0Tracking", createLargeD0TrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.R3LargeD0Tracking", createR3LargeD0TrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LowPtLargeD0Tracking", createLowPtLargeD0TrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LowPtTracking", createLowPtTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SLHCConversionFindingTracking", createSLHCConversionFindingTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VeryLowPtTracking", createVeryLowPtTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.ForwardTracksTracking", createForwardTracksTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.ForwardSLHCTracksTracking", createForwardSLHCTracksTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VeryForwardSLHCTracksTracking", createVeryForwardSLHCTracksTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.BeamGasTracking", createBeamGasTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VtxLumiTracking", createVtxLumiTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VtxBeamSpotTracking", createVtxBeamSpotTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.CosmicsTracking", createCosmicsTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.HeavyIonTracking", createHeavyIonTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.PixelTracking", createPixelTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.DisappearingTracking", createDisappearingTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SCTTracking", createSCTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.TRTTracking", createTRTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingFlags, prefix=True)
+
   return icf

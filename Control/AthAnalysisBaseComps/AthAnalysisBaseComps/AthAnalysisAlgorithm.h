@@ -58,7 +58,7 @@ public:
   virtual StatusCode sysExecute(const EventContext&) override;
 
 protected:
-  void updateEvtStore(Property& prop);
+  void updateEvtStore(Gaudi::Details::PropertyBase& prop);
 
   /// Function called when first execute is encountered
   /// user can read event information with evtStore()

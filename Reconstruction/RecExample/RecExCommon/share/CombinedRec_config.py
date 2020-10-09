@@ -23,14 +23,14 @@ AODFix_Init()
 from CaloRec.CaloRecFlags import jobproperties
 
 #
-# functionality : CaloExtensionBuilder setup 
-# to be used  in tau, pflow, e/gamma 
+# functionality : CaloExtensionBuilder setup
+# to be used  in tau, pflow, e/gamma
 #
 pdr.flag_domain('CaloExtensionBuilder')
 if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
-    try:        
+    try:
         from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
-        CaloExtensionBuilder("NoCut", 500.) #Arguments are cutLevel and minPt for track selection
+        CaloExtensionBuilder()
     except Exception:
         treatException("Cannot include CaloExtensionBuilder !")
 
@@ -56,7 +56,7 @@ if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
         rec.doMuonCombined = False
 
 #
-#  functionality : add cells crossed by high pt ID tracks 
+#  functionality : add cells crossed by high pt ID tracks
 #
 if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on() and DetFlags.Muon_on() and DetFlags.Calo_on():
     from AthenaCommon.CfgGetter import getPublicTool
@@ -66,13 +66,13 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
     caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = pcExtensionTool)
 
-    topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg", 
+    topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg",
                                                           ParticleCaloCellAssociationTool=caloCellAssociationTool)
 
 
 #
 # functionality : energy flow
-#                                                                                                 
+#
 pdr.flag_domain('eflow')
 if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuonCombined())):
     try:
@@ -116,7 +116,7 @@ if (rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()) and
 if jetOK and recAlgs.doMuonSpShower() and DetFlags.detdescr.Muon_on() and DetFlags.haveRIO.Calo_on() :
     try:
         include("MuonSpShowerBuilderAlgs/MuonSpShowerBuilder_jobOptions.py")
-    except Exception:    
+    except Exception:
         treatException("Could not set up MuonSpShower. Switched off !")
         recAlgs.doMuonSpShower=False
 else:
@@ -151,7 +151,14 @@ if jetOK and rec.doTau():
     protectedInclude ("tauRec/tauRec_config.py")
 AODFix_posttauRec()
 
-
+#
+# functionality: Flow element tau links
+#
+if recAlgs.doEFlow():
+    try:
+        include( "eflowRec/tauFELinkConfig.py" )
+    except Exception:
+        treatException("Could not set up tau-FE links")
 
 
 
@@ -165,7 +172,7 @@ if recAlgs.doMissingET() and DetFlags.Calo_on() and DetFlags.ID_on() and DetFlag
     except Exception:
         treatException("Could not set up MissingET. Switched off !")
         recAlgs.doMissingET=False
-        
+
 else:
     recAlgs.doMissingET=False
 AODFix_postMissingETRec()
@@ -185,6 +192,3 @@ else:
 pdr.flag_domain('caloringer')
 if rec.doCaloRinger:
   include('CaloRingerAlgs/CaloRinger_jobOptions.py')
-
-
-        

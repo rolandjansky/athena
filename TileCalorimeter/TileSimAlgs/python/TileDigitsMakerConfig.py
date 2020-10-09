@@ -148,8 +148,10 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
             tileDigitsContainer = tileDigitsMaker.getDefaultProperty('TileFilteredContainer')
 
     tileDigitsContainer = tileDigitsContainer.split('+').pop()
-    outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
-    
+    if flags.Digitization.AddCaloDigi:
+        outputItemList = ['TileDigitsContainer#*']
+    else:
+        outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
 
     if flags.Output.doWriteRDO:
         if flags.Digitization.TruthOutput:
@@ -191,6 +193,12 @@ if __name__ == "__main__":
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
+
+    if 'EventInfo' not in ConfigFlags.Input.Collections:
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+        acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                     inputKey='McEventInfo',
+                                     outputKey='EventInfo'))
 
     acc.merge( TileDigitsMakerOutputCfg(ConfigFlags) )
 

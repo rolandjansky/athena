@@ -4,6 +4,7 @@
 
 #include "METMakerAlg.h"
 #include "METInterface/IMETMaker.h"
+#include "METUtilities/METHelpers.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETComposition.h"
@@ -30,7 +31,6 @@ namespace met {
 			   ISvcLocator* pSvcLocator )
     : ::AthAlgorithm( name, pSvcLocator ),
     m_metKey(""),
-    m_metMap("METAssoc"),
     m_metmaker(this),  
     m_muonSelTool(this,""),
     m_elecSelLHTool(this,""),
@@ -41,7 +41,7 @@ namespace met {
     declareProperty( "Maker",          m_metmaker                        );
     declareProperty( "METCoreName",    m_CoreMetKey  = "MET_Core"        );
     declareProperty("METName",         m_metKey = std::string("MET_Reference"),"MET container");
-    declareProperty("METMapName",      m_metMap );
+    declareProperty("METMapName",      m_metMapKey = "METAssoc" );
 
     declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
     declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
@@ -103,6 +103,7 @@ namespace met {
     ATH_CHECK( m_JetContainerKey.initialize() );
     ATH_CHECK( m_CoreMetKey.initialize() );
     ATH_CHECK( m_metKey.initialize() );
+    ATH_CHECK( m_metMapKey.initialize() );
 
     return StatusCode::SUCCESS;
   }
@@ -125,9 +126,13 @@ namespace met {
     ATH_CHECK( metHandle.record (std::make_unique<xAOD::MissingETContainer>(),                      std::make_unique<xAOD::MissingETAuxContainer>()) );
     xAOD::MissingETContainer* newMet=metHandle.ptr();
 
-    ATH_CHECK( m_metMap.isValid() );
+    SG::ReadHandle<xAOD::MissingETAssociationMap> metMap(m_metMapKey);
+    if (!metMap.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_metMapKey.key());
+      return StatusCode::FAILURE;
+    }
 
-    MissingETAssociationHelper metHelper(&(*m_metMap));
+    MissingETAssociationHelper metHelper(&(*metMap));
     // Retrieve containers ***********************************************
 
     /// MET
@@ -258,12 +263,12 @@ namespace met {
 
     MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
     if((*newMet)[m_softtrkname]) trksource = (*newMet)[m_softtrkname]->source();
-    if( m_metmaker->buildMETSum("FinalTrk", newMet, trksource).isFailure() ){
+    if( buildMETSum("FinalTrk", newMet, trksource).isFailure() ){
       ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
     }
     MissingETBase::Types::bitmask_t clsource = MissingETBase::Source::LCTopo;
     if((*newMet)[m_softclname]) clsource = (*newMet)[m_softclname]->source();
-    if( m_metmaker->buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
+    if( buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
       ATH_MSG_WARNING("Building MET FinalClus sum failed.");
     }
 

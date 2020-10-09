@@ -24,6 +24,13 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
+atlas_add_library( JetMonitoringLib
+   JetMonitoring/*.h
+   INTERFACE
+   PUBLIC_HEADERS JetMonitoring
+   LINK_LIBRARIES xAODJet GaudiKernel AthenaMonitoringLib )
+
+
 # Component(s) in the package:
 atlas_add_component( JetMonitoring
                      src/*.cxx
