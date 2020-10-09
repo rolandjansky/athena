@@ -17,7 +17,7 @@
 
 //Trigger stuff
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 
 //tools
@@ -61,7 +61,6 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetTrigSiSpacePointsSeedMaker"),
   m_zvertexmaker("InDet::SiZvertexMaker_xk/InDetTrigZvertexMaker"),
   m_trackmaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
-  m_regionSelector("RegSelSvc", name),
   m_etaHalfWidth(0.1),
   m_phiHalfWidth(0.1),
   m_doFullScan(false),
@@ -75,7 +74,6 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
   
   declareProperty("useZvertexTool",m_useZvertexTool);
   declareProperty("useSeedMaker",m_useSeedMaker);
-  declareProperty("RegionSelectorTool",m_regionSelector);
   declareProperty("EtaHalfWidth",  m_etaHalfWidth);
   declareProperty("PhiHalfWidth",  m_phiHalfWidth);
   declareProperty("doFullScan",    m_doFullScan);
@@ -167,10 +165,16 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltInitialize() {
 
   if(!m_doFullScan){
     // Retrieving Region Selector Tool
-    if ( m_regionSelector.retrieve().isFailure() ) {
+    if ( m_regionSelector_pixel.retrieve().isFailure() ) {
       msg() << MSG::FATAL
 	    << "Unable to retrieve RegionSelector tool "
-	    << m_regionSelector.type() << endmsg;
+	    << m_regionSelector_pixel.type() << endmsg;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    if ( m_regionSelector_sct.retrieve().isFailure() ) {
+      msg() << MSG::FATAL
+	    << "Unable to retrieve RegionSelector tool "
+	    << m_regionSelector_sct.type() << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
   }
@@ -264,12 +268,12 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       m_timerRegSel->start();
     
     // SCT hash id's:
-    m_regionSelector->DetHashIDList(SCT, *roi, listOfSCTIds );
+    m_regionSelector_sct->HashIDList( *roi, listOfSCTIds );
     
     m_nDetElSCT = listOfSCTIds.size();
     
     // pixels hash id's:
-    m_regionSelector->DetHashIDList( PIXEL, *roi, listOfPixIds);
+    m_regionSelector_pixel->HashIDList( *roi, listOfPixIds);
     m_nDetElPixel = listOfPixIds.size();
 
     if(doTiming()) 

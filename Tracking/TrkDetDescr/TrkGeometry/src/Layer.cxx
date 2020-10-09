@@ -118,6 +118,7 @@ Trk::Layer& Trk::Layer::operator=(const Trk::Layer& lay)
   if (this != &lay){
     delete m_overlapDescriptor;
     delete m_surfaceArray;
+    m_layerThickness                    = lay.m_layerThickness;
     m_enclosingTrackingVolume           = lay.m_enclosingTrackingVolume;
     m_enclosingDetachedTrackingVolume   = lay.m_enclosingDetachedTrackingVolume;
     m_overlapDescriptor                 = (lay.m_overlapDescriptor) ? lay.m_overlapDescriptor->clone() : nullptr;

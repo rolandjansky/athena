@@ -3,7 +3,7 @@
 	2020 Matthias Schott - Uni Mainz
 */
 
-#include "MuonTrackMonitorAlgorithm.h"
+#include "MuonTrackMonitoring/MuonTrackMonitorAlgorithm.h"
 
 MuonTrackMonitorAlgorithm::MuonTrackMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
     :AthMonitorAlgorithm(name,pSvcLocator){}
@@ -413,10 +413,8 @@ StatusCode MuonTrackMonitorAlgorithm::fillHistograms(const EventContext& ctx) co
 
 	ATH_CHECK( analyseLowLevelMuonFeatures(*Muons, lumiBlockID) );
 	ATH_CHECK( analyseCombinedTracks(*Muons, lumiBlockID) );
-	if (dataType() != DataType_t::cosmics) {
-		ATH_CHECK( analyseZBosonCandidates(*Muons, lumiBlockID) );
-		ATH_CHECK( analyseJPsiCandidates(*Muons, lumiBlockID) );
-	}
+	ATH_CHECK( analyseZBosonCandidates(*Muons, lumiBlockID) );
+	ATH_CHECK( analyseJPsiCandidates(*Muons, lumiBlockID) );
 
 	return StatusCode::SUCCESS;
 }

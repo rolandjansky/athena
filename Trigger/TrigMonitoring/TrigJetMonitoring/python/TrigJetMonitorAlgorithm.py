@@ -60,12 +60,12 @@ Chain2JetCollDict['MT'] = {
   'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_AntiKt10LCTopoJets_subjes',
   'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
-  'HLT_j45_ftf_pf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
-  'HLT_j45_ftf_subjesgscIS_pf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
-  'HLT_j45_ftf_subresjesgscIS_pf_L1J20'    : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
-  'HLT_j85_ftf_pf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
-  'HLT_j45_ftf_pf_nojcalib_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
-  'HLT_j45_ftf_csskpf_nojcalib_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
+  'HLT_j45_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
+  'HLT_j45_pf_subjesgscIS_ftf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
+  'HLT_j45_pf_subresjesgscIS_ftf_L1J20'    : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
+  'HLT_j85_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
+  'HLT_j45_pf_nojcalib_ftf_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
+  'HLT_j45_csskpf_nojcalib_ftf_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
 }
 TurnOnCurves['MT'] = { # ref chain, offline jet coll
   'HLT_j420_L1J100'                        : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
@@ -74,7 +74,7 @@ TurnOnCurves['MT'] = { # ref chain, offline jet coll
   'HLT_j460_a10_lcw_subjes_L1J100'         : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
   'HLT_j460_a10t_lcw_jes_L1J100'           : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
-  'HLT_j85_ftf_pf_L1J20'                   : ['HLT_j45_ftf_pf_L1J20','AntiKt4EMPFlowJets'],
+  'HLT_j85_pf_ftf_L1J20'                   : ['HLT_j45_pf_ftf_L1J20','AntiKt4EMPFlowJets'],
 }
 
 # Legacy
@@ -471,14 +471,14 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
    if 'smc' in chain:
      trigConf.appendHistos(
              SelectSpec( 'm50', '50<m', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain,
+               ToolSpec('JetHistoTriggEfficiency', chain+'_m50',
                  Group='jetTrigGroup_'+chain+'_m50',
                  Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg
                ),
              ] ),
              SelectSpec( 'et500', '500<et', chainFolder, FillerTools = [
-               ToolSpec('JetHistoTriggEfficiency', chain,
+               ToolSpec('JetHistoTriggEfficiency', chain+'_et500',
                  Group='jetTrigGroup_'+chain+'_et500',
                  Var=retrieveVarToolConf("m"), # In this context we can not just pass a str alias to describe a histo variable
                  ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg

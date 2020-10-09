@@ -24,6 +24,10 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
                 job.InDetPixelRawDataProvider.RDOKey = overlayFlags.bkgPrefix()+"PixelRDOs"
             else:
                 job.InDetPixelRawDataProvider.RDOKey = overlayFlags.dataStore()+"+PixelRDOs"
+
+            from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+            job.InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
             #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
         else:

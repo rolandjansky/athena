@@ -79,7 +79,7 @@ def getTauAxis():
                                     ClusterCone = 0.2,
                                     VertexCorrection = True,
                                     TauVertexCorrection = getTauVertexCorrection(),
-                                    IncShowerSubtr = tauFlags.useShowerSubClusters() )
+                                    UseSubtractedCluster = tauFlags.useSubtractedCluster() )
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
@@ -124,7 +124,7 @@ def getCellVariables(cellConeSize=0.2, prefix=''):
             StripEthreshold = 0.2*GeV,
             CellCone = cellConeSize,
             VertexCorrection = True,
-            IncShowerSubtr = tauFlags.useShowerSubClusters() )
+            UseSubtractedCluster = tauFlags.useSubtractedCluster() )
             
     cached_instances[_name] = TauCellVariables   
     return TauCellVariables
@@ -291,7 +291,6 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
                                               )
@@ -311,7 +310,7 @@ def getTauSubstructure():
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
                                                           TauVertexCorrection = getTauVertexCorrection(),
-                                                          IncShowerSubtr = tauFlags.useShowerSubClusters()
+                                                          UseSubtractedCluster = tauFlags.useSubtractedCluster()
                                                        )
     
     cached_instances[_name] = TauSubstructureVariables
@@ -330,7 +329,7 @@ def getElectronVetoVars():
                                                         VertexCorrection = True,
                                                         ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                                         tauEVParticleCache = getParticleCache(),
-                                                        IncShowerSubtr = tauFlags.useShowerSubClusters() )
+                                                        UseSubtractedCluster = tauFlags.useSubtractedCluster() )
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables
@@ -389,7 +388,7 @@ def getPi0ClusterCreator():
     from tauRecTools.tauRecToolsConf import TauPi0ClusterCreator
     TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name,
                                                 TauVertexCorrection = getTauVertexCorrection(),
-                                                IncShowerSubtr = tauFlags.useShowerSubClusters()
+                                                UseSubtractedCluster = tauFlags.useSubtractedCluster()
                                                 )
     
     cached_instances[_name] = TauPi0ClusterCreator
@@ -665,6 +664,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     tauParticleCache = getParticleCache(),
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
+                                    TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
                                     #removeTracksOutsideZ0wrtLeadTrk = True
                                     )
@@ -680,7 +680,7 @@ def getMvaTESVariableDecorator():
     MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name,
                                                       Key_vertexInputContainer=_DefaultVertexContainer,
                                                       TauVertexCorrection = getTauVertexCorrection(),
-                                                      IncShowerSubtr = tauFlags.useShowerSubClusters() )
+                                                      UseSubtractedCluster = tauFlags.useSubtractedCluster() )
     cached_instances[_name] = MvaTESVariableDecorator
     return MvaTESVariableDecorator
 
@@ -894,7 +894,7 @@ def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P=
                                               OutputLayer=OutputLayer,
                                               OutputNode=OutputNode,
                                               TauVertexCorrection = getTauVertexCorrection(),
-                                              IncShowerSubtr = tauFlags.useShowerSubClusters() )
+                                              UseSubtractedCluster = tauFlags.useSubtractedCluster() )
     cached_instances[_name] = myTauJetRNNEvaluator
     return myTauJetRNNEvaluator
 
@@ -917,7 +917,7 @@ def getTauIDVarCalculator():
     from tauRecTools.tauRecToolsConf import TauIDVarCalculator   
 
     myTauIDVarCalculator = TauIDVarCalculator(name=_name,
-                                              IncShowerSubtr = tauFlags.useShowerSubClusters(),
+                                              UseSubtractedCluster = tauFlags.useSubtractedCluster(),
                                               TauVertexCorrection = getTauVertexCorrection())
     cached_instances[_name] = myTauIDVarCalculator
     return myTauIDVarCalculator
@@ -944,7 +944,7 @@ def getTauEleRNNEvaluator(_n,
                               OutputLayer=OutputLayer,
                               OutputNode=OutputNode,
                               TauVertexCorrection = getTauVertexCorrection(),
-                              IncShowerSubtr = tauFlags.useShowerSubClusters())
+                              UseSubtractedCluster = tauFlags.useSubtractedCluster())
 
     cached_instances[_name] = tool
     return tool

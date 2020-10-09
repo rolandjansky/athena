@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsData/PixelModuleData.h
@@ -28,27 +28,6 @@ class PixelModuleData {
     int getChipStatus(const int chanNum) const;
 
     // Switch parameters
-    void setUseCalibConditions(bool UseCalibConditions);
-    bool getUseCalibConditions() const;
-
-    void setUseDeadmapConditions(bool UseDeadmapConditions);
-    bool getUseDeadmapConditions() const;
-
-    void setUseDCSStateConditions(bool UseDCSStateConditions);
-    bool getUseDCSStateConditions() const;
-
-    void setUseDCSStatusConditions(bool UseDCSStatusConditions);
-    bool getUseDCSStatusConditions() const;
-
-    void setUseDCSHVConditions(bool UseDCSHVConditions);
-    bool getUseDCSHVConditions() const;
-
-    void setUseDCSTemperatureConditions(bool UseDCSTemperatureConditions);
-    bool getUseDCSTemperatureConditions() const;
-
-    void setUseTDAQConditions(bool UseTDAQConditions);
-    bool getUseTDAQConditions() const;
-
     void setUseCablingConditions(bool UseCablingConditions);
     bool getUseCablingConditions() const;
 
@@ -213,13 +192,6 @@ class PixelModuleData {
 
     typedef std::map<int, std::vector<float>> chipCharge;
 
-    bool m_useCalibConditions;
-    bool m_useDeadmapConditions;
-    bool m_useDCSStateConditions;
-    bool m_useDCSStatusConditions;
-    bool m_useDCSHVConditions;
-    bool m_useDCSTemperatureConditions;
-    bool m_useTDAQConditions;
     bool m_useCablingConditions;
 
     double m_bunchSpace;

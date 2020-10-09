@@ -1064,11 +1064,11 @@ namespace Muon {
 
   //core algorithm for endcap vertex reconstruction
   Amg::Vector3D MSVertexRecoTool::VxMinQuad(const std::vector<Tracklet> &tracks) const {    
-    float s(0.),sx(0.),sy(0.),sxy(0.),sxx(0.),d(0.);
-    float sigma = 1.;
+    double s(0.),sx(0.),sy(0.),sxy(0.),sxx(0.),d(0.);
+    double sigma = 1.;
     for(unsigned int i=0; i<tracks.size(); ++i) {
-      float TrkSlope = std::tan(tracks.at(i).getML1seg().alpha());
-      float TrkInter = tracks.at(i).getML1seg().globalPosition().perp() - tracks.at(i).getML1seg().globalPosition().z()*TrkSlope;
+      double TrkSlope = std::tan(tracks.at(i).getML1seg().alpha());
+      double TrkInter = tracks.at(i).getML1seg().globalPosition().perp() - tracks.at(i).getML1seg().globalPosition().z()*TrkSlope;
       s += 1./(sq(sigma));
       sx += TrkSlope/(sq(sigma));
       sxx += sq(TrkSlope)/sq(sigma);
@@ -1081,9 +1081,9 @@ namespace Muon {
         return MyVx;	
     }
 
-    float Rpos = (sxx*sy - sx*sxy)/d;
-    float Zpos = (sx*sy - s*sxy)/d;
-      
+    double Rpos = (sxx*sy - sx*sxy)/d;
+    double Zpos = (sx*sy - s*sxy)/d;
+
     Amg::Vector3D MyVx(Rpos,0,Zpos);
   
     return MyVx;

@@ -137,7 +137,6 @@ else :
 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
 
 ServiceMgr += PixelConditionsSummarySvc()
-ServiceMgr.PixelConditionsSummarySvc.UseSpecialPixelMap = False
 ServiceMgr.PixelConditionsSummarySvc.UseDCS = False
 ServiceMgr.PixelConditionsSummarySvc.UseByteStream = True
 
@@ -166,7 +165,12 @@ if doClusterization :
   include( "PixelConditionsServices/PixelCalibSvc_jobOptions.py" )
 
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
-  topSequence += InDet__PixelClusterization("PixelClusterization")
+
+  pixelClusterization = InDet__PixelClusterization("PixelClusterization")
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+  pixelClusterization.RegSelTool = makeReagSelTool_Pixel()
+
+  topSequence += pixelClusterization
   import logging
   logger = logging.getLogger( 'PixelCalibAlgs' )
   logger.info(topSequence.PixelClusterization)

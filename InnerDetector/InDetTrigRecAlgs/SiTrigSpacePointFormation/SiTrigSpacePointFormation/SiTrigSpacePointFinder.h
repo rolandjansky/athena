@@ -41,6 +41,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
 #include <string>
 #include <vector>
 
@@ -49,7 +51,7 @@
 class SpacePointCollection; 
 class SpacePointContainer; 
 class SpacePointOverlapCollection;
-class IRegSelSvc;
+
 class TrigTimer;
 
 namespace InDet{
@@ -98,7 +100,9 @@ namespace InDet{
     ToolHandle< ITrigSCT_SpacePointTool > m_trigSpacePointTool;
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
     
-    ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+    ToolHandle<IRegSelTool>     m_regionSelector_pixel { this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel" };     //!< region selector service
+    ToolHandle<IRegSelTool>     m_regionSelector_sct   { this, "RegSelTool_SCT",   "RegSelTool/RegSelTool_SCT" };     //!< region selector service
+ 
     bool m_doFullScan;		//!< skip RegionSelector and indefFind for FullScan
     
     double                  m_etaHalfWidth;          //!< ROI half-width in eta

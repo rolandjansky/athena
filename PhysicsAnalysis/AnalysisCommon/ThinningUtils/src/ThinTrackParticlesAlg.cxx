@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinTrackParticlesAlg.cxx
@@ -16,7 +16,6 @@
 
 // FrameWork includes
 #include "Gaudi/Property.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 
 
@@ -119,43 +118,42 @@ StatusCode ThinTrackParticlesAlg::initialize()
   // Now, set all properties of the private skimTool that were acutally configured
   ATH_MSG_DEBUG( "Setting property" << m_streamName
                  << " of private tool with name: '" << fullToolName << "'" );
-  ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-                                             StringProperty("StreamName",m_streamName) ) );
+  m_jos->set (fullToolName + ".StreamName", m_streamName.value());
 
   if (m_setTrackPartKey) {
     ATH_MSG_DEBUG( "Setting property" << m_trackParticleKey
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_trackParticleKey) );
+    m_jos->set (fullToolName + "." + m_trackParticleKey.name(), m_trackParticleKey.value());
   }
   if (m_setInCollKey) {
     ATH_MSG_DEBUG( "Setting property" << m_inCollKeyList
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_inCollKeyList) );
+    m_jos->set (fullToolName + "." + m_inCollKeyList.name(), m_inCollKeyList.toString());
   }
   if (m_setSelection) {
     ATH_MSG_DEBUG( "Setting property" << m_selection
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_selection) );
+    m_jos->set (fullToolName + "." + m_selection.name(), m_selection.value() );
   }
   if (m_setTauConv) {
     ATH_MSG_DEBUG( "Setting property" << m_tauConversion
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_tauConversion) );
+    m_jos->set (fullToolName + "." + m_tauConversion.name(), m_tauConversion.toString());
   }
   if (m_setTauWide) {
     ATH_MSG_DEBUG( "Setting property" << m_tauWide
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_tauWide) );
+    m_jos->set (fullToolName + "." + m_tauWide.name(), m_tauWide.toString());
   }
   if (m_setTauOther) {
     ATH_MSG_DEBUG( "Setting property" << m_tauOther
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_tauOther) );
+    m_jos->set (fullToolName + "." + m_tauOther.name(), m_tauOther.toString());
   }
   if (m_setNEleTPMax) {
     ATH_MSG_DEBUG( "Setting property" << m_nElectronPTMax
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_nElectronPTMax) );
+    m_jos->set (fullToolName + "." + m_nElectronPTMax.name(), m_nElectronPTMax.toString());
   }
   ATH_MSG_DEBUG( "Done setting properties of the tool");
 

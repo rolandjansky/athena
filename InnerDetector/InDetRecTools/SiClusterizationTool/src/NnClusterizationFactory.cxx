@@ -22,9 +22,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <TMath.h>
-#include <TH1.h>
-#include <TH1F.h>
-#include <TH2F.h>
 #include "TrkNeuralNetworkUtils/TTrainedNetwork.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "SiClusterizationTool/NnNormalization.h"
@@ -97,9 +94,9 @@ namespace InDet {
           else {
             if (m_nParticleGroup[network_i]>0) {
 	      if (m_nParticleGroup[network_i]>=match_result.size()) {
-		      std::stringstream msg; msg << "Regex and match group of particle multiplicity do not coincide (groups=" << match_result.size() << " n particle group=" << m_nParticleGroup[network_i]
-			                        << "; type=" << network_i << ")";
-		      throw std::logic_error(msg.str());
+		ATH_MSG_ERROR("Regex and match group of particle multiplicity do not coincide (groups=" << match_result.size()
+			      << " n particle group=" << m_nParticleGroup[network_i]
+			      << "; type=" << network_i << ")");
 	      }
               int n_particles=atoi( match_result[m_nParticleGroup[network_i]].str().c_str());
               if (n_particles<=0 || static_cast<unsigned int>(n_particles)>m_maxSubClusters) {
@@ -302,11 +299,6 @@ namespace InDet {
 
     double tanl=0;
 
-    SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
-    if (!nn_collection.isValid()) {
-      std::stringstream msg; msg  << "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key();
-      throw std::runtime_error(msg.str() );
-    }
     NNinput input( createInput(pCluster,
                                beamSpotPosition,
                                tanl,
@@ -320,14 +312,21 @@ namespace InDet {
 
 
     std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
-    // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-    std::vector<double> resultNN_NoTrack( ((*(nn_collection->at(m_nParticleNNId))).*m_calculateOutput)(inputData) );  
 
-    ATH_MSG_VERBOSE(" NOTRACK Prob of n. particles (1): " << resultNN_NoTrack[0] <<
-                    " (2): " << resultNN_NoTrack[1] <<
-                    " (3): " << resultNN_NoTrack[2]);
+    // If using old TTrainedNetworks, fetch correct ones for the
+    // without-track situation and call them now.
+    if (m_useTTrainedNetworks) {
+      SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
+      if (!nn_collection.isValid()) {
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+      }
+      return estimateNumberOfParticlesTTN(**nn_collection, inputData);
+    }
 
-    return resultNN_NoTrack;
+    // Otherwise, prepare lwtnn input map and use new networks.
+    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
+    return estimateNumberOfParticlesLWTNN(nnInputData);
+
   }
 
   std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
@@ -336,12 +335,6 @@ namespace InDet {
                                                                          int sizeX,
                                                                          int sizeY) const
   {
-
-    SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
-    if (!nn_collection.isValid()) {
-      std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithTrack.key();
-      throw std::runtime_error(msg.str() );
-    }
 
     Amg::Vector3D dummyBS(0,0,0);
 
@@ -361,12 +354,60 @@ namespace InDet {
     addTrackInfoToInput(input,pixelSurface,trackParsAtSurface,tanl);
 
     std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
+
+    // If using old TTrainedNetworks, fetch correct ones for the
+    // with-track situation and call them now.
+    if (m_useTTrainedNetworks) {
+      SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
+      if (!nn_collection.isValid()) {
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+      }
+      return estimateNumberOfParticlesTTN(**nn_collection, inputData);
+    }
+
+    // Otherwise, prepare lwtnn input map and use new networks.
+    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
+    return estimateNumberOfParticlesLWTNN(nnInputData);
+
+  }
+
+  std::vector<double> NnClusterizationFactory::estimateNumberOfParticlesTTN(const TTrainedNetworkCollection &nn_collection,
+                                                                            std::vector<double> inputData) const
+  {
+    ATH_MSG_DEBUG("Using TTN number network");
     // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-    std::vector<double> resultNN( ( ( *(nn_collection->at(m_nParticleNNId))).*m_calculateOutput)(inputData) );
+    std::vector<double> resultNN_TTN( ((*(nn_collection.at(m_nParticleNNId))).*m_calculateOutput)(inputData) );
 
-    ATH_MSG_VERBOSE(" Prob of n. particles (1): " << resultNN[0] << " (2): " << resultNN[1] << " (3): " << resultNN[2]);
+    ATH_MSG_VERBOSE(" TTN Prob of n. particles (1): " << resultNN_TTN[0] <<
+                                             " (2): " << resultNN_TTN[1] <<
+                                             " (3): " << resultNN_TTN[2]);
 
-    return resultNN;
+    return resultNN_TTN;
+  }
+
+  std::vector<double> NnClusterizationFactory::estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input) const
+  {
+    SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
+    if (!lwtnn_collection.isValid()) {
+      ATH_MSG_ERROR( "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
+    }
+    ATH_MSG_DEBUG("Using lwtnn number network");
+    // Evaluate the number network once per cluster
+    lwt::ValueMap discriminant = lwtnn_collection->at(0)->compute(input);
+    double num0 = discriminant["output_number0"];
+    double num1 = discriminant["output_number1"];
+    double num2 = discriminant["output_number2"];
+    // Get normalized predictions
+    double prob1 = num0/(num0+num1+num2);
+    double prob2 = num1/(num0+num1+num2);
+    double prob3 = num2/(num0+num1+num2);
+    std::vector<double> number_probabilities{prob1, prob2, prob3};
+
+    ATH_MSG_VERBOSE(" LWTNN Prob of n. particles (1): " << number_probabilities[0] <<
+                                               " (2): " << number_probabilities[1] <<
+                                               " (3): " << number_probabilities[2]);
+
+    return number_probabilities;
   }
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
@@ -399,8 +440,7 @@ namespace InDet {
     if (m_useTTrainedNetworks) {
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
       if (!nn_collection.isValid()) {
-        std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
       }
       // *(ReadCondHandle<>) returns a pointer rather than a reference ...
       return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,sizeX,sizeY,numberSubClusters,errors);
@@ -448,8 +488,7 @@ namespace InDet {
     if (m_useTTrainedNetworks) {
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
       if (!nn_collection.isValid()) {
-        std::stringstream msg; msg << "Failed to get trained network collection with key " << m_readKeyWithTrack.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithTrack.key() );
       }
 
       return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,sizeX,sizeY,numberSubClusters,errors);
@@ -463,7 +502,7 @@ namespace InDet {
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositionsTTN(
                                                 const TTrainedNetworkCollection &nn_collection,
-                                                std::vector<double> inputData,
+                                                const std::vector<double>& inputData,
                                                 const NNinput& input,
                                                 const InDet::PixelCluster& pCluster,
                                                 int sizeX,
@@ -524,28 +563,28 @@ namespace InDet {
     
     SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
     if (!lwtnn_collection.isValid()) {
-      std::stringstream msg; msg << "Failed to get LWTNN network collection with key " << m_readKeyJSON.key();
-      throw std::runtime_error( msg.str() );      
+      ATH_MSG_ERROR(  "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
     }
 
     // Need to evaluate the correct network once per cluster we're interested in.
     // Save the output
     std::vector<double> positionValues;
     std::vector<Amg::MatrixX> errorMatrices;
+    errorMatrices.reserve(numberSubClusters);
+    positionValues.reserve(numberSubClusters * 2);
     for (int cluster = 1; cluster < numberSubClusters+1; cluster++) {
 
       // Check that the network is defined. 
       // If not, we are outside an IOV and should fail
       if (not lwtnn_collection->at(numberSubClusters)) {
-        std::stringstream msg; msg << "No lwtnn network configured for this run! If you are outside the valid range for lwtnn-based configuration, plesae run with useNNTTrainedNetworks instead." << m_readKeyJSON.key();
-        throw std::runtime_error( msg.str() );
+	ATH_MSG_ERROR( "No lwtnn network configured for this run! If you are outside the valid range for lwtnn-based configuration, plesae run with useNNTTrainedNetworks instead." << m_readKeyJSON.key() );
       }
 
       std::string outNodeName = "merge_"+std::to_string(cluster);
       std::map<std::string, double> position = lwtnn_collection->at(numberSubClusters)->compute(input, {},outNodeName);
 
       ATH_MSG_DEBUG("Testing for numberSubClusters " << numberSubClusters << " and cluster " << cluster);
-      for (auto item : position) {
+      for (const auto& item : position) {
         ATH_MSG_DEBUG(item.first << ": " << item.second);
       }
       positionValues.push_back(position["mean_x"]);
@@ -1050,22 +1089,12 @@ namespace InDet {
     return input;
   }
 
-  std::vector<std::vector<float> > matrixOfToT;
-  std::vector<float> vectorOfPitchesY;
-
+  input.matrixOfToT.reserve(sizeX);
   for (int a=0;a<sizeX;a++)
   {
-    std::vector<float> Yvector;
-    for (int b=0;b<sizeY;b++)
-    {
-      Yvector.push_back(0);
-    }
-    input.matrixOfToT.push_back(Yvector);
+    input.matrixOfToT.emplace_back(sizeY, 0.0);
   }
-  for (int b=0;b<sizeY;b++)
-  {
-    input.vectorOfPitchesY.push_back(0.4);
-  }
+  input.vectorOfPitchesY.assign(sizeY, 0.4);
 
   rdosBegin = rdos.begin();
   //charge = chList.size() ? chList.begin() : chListRecreated.begin();
@@ -1162,9 +1191,9 @@ namespace InDet {
   Amg::Vector3D globalPos = element->globalPosition(centroid);
   Amg::Vector3D my_track = globalPos-beamSpotPosition;
 
-  Amg::Vector3D my_normal = element->normal();
-  Amg::Vector3D my_phiax = element->phiAxis();
-  Amg::Vector3D my_etaax = element->etaAxis();
+  const Amg::Vector3D &my_normal = element->normal();
+  const Amg::Vector3D &my_phiax = element->phiAxis();
+  const Amg::Vector3D &my_etaax = element->etaAxis();
   float trkphicomp = my_track.dot(my_phiax);
   float trketacomp = my_track.dot(my_etaax);
   float trknormcomp = my_track.dot(my_normal);

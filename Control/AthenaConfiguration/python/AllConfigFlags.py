@@ -30,6 +30,7 @@ def _createCfgFlags():
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
+    acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers",[]))) # former global.RunNumber
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
@@ -167,7 +168,12 @@ def _createCfgFlags():
     def __indet():
         from InDetConfig.InDetConfigFlags import createInDetConfigFlags
         return createInDetConfigFlags()
-    _addFlagsCategory(acf, "InDet", __indet, 'InDetConfig' )    
+    _addFlagsCategory(acf, "InDet", __indet, 'InDetConfig' )
+
+    def __itk():
+        from InDetConfig.ITkConfigFlags import createITkConfigFlags
+        return createITkConfigFlags()
+    _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
 
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags

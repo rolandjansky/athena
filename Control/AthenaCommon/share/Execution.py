@@ -46,6 +46,13 @@ for script in opts.scripts:
 
 else:
  ## only get here if all scripts successfully included
+   if "-h" in opts.user_opts or "--help" in opts.user_opts:
+      # The user script was displaying help messages stop here
+      # In most cases, the user script should kill the process already (argparse
+      # does this for you) but just in case print our help message and stop
+      from AthenaCommon.AthOptionsParser import _error_msg
+      print(_error_msg)
+      theApp.exit()
 
  ## load from .pkl file if given
    if opts.fromdb:

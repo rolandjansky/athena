@@ -5,7 +5,6 @@
 
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrackScoringTool.h"
-#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -19,13 +18,11 @@ Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 					const IInterface*  p )
 					:
 					AthAlgTool(t,n,p),
-					m_trkSummaryTool("Trk::TrackSummaryTool"),
 					m_summaryTypeScore(Trk::numberOfTrackSummaryTypes)
 {
 	declareInterface<ITrackScoringTool>(this);
-	declareProperty("SumHelpTool",          m_trkSummaryTool);
 
-	//set some test values
+        //set some test values
 	m_summaryTypeScore[Trk::numberOfPixelHits]	      =  20;
 	m_summaryTypeScore[Trk::numberOfPixelSharedHits]      = -10;  // a shared hit is only half the weight
 	m_summaryTypeScore[Trk::numberOfPixelHoles]	      = -10;  // a hole is bad
@@ -60,8 +57,6 @@ Trk::TrackScoringTool::~TrackScoringTool(){
 StatusCode
 Trk::TrackScoringTool::initialize(){
 	ATH_CHECK( AlgTool::initialize());
-	ATH_CHECK( m_trkSummaryTool.retrieve());
-	ATH_MSG_VERBOSE("Retrieved tool " << m_trkSummaryTool );
 	return StatusCode::SUCCESS;
 }
 
@@ -70,22 +65,13 @@ StatusCode Trk::TrackScoringTool::finalize(){
 }
 
 Trk::TrackScore
-Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const{
+Trk::TrackScoringTool::score( const Track& track, [[maybe_unused]] const bool suppressHoleSearch ) const{
+        if (!track.trackSummary()) {
+           ATH_MSG_FATAL("Attempt to score a track without a summary.");
+        }
 
-  // Used to call the now removed not MT safe
-  // summary = m_trkSummaryTool->createSummary(track);
-  // We keep the non-thread safe logic only here.
-  // Locally to where is actually used
-  // To decide for a better design
-  //
-  Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
-  if (suppressHoleSearch) {
-    nonConstTrack.setTrackSummary(m_trkSummaryTool->summaryNoHoleSearch(track));
-  } else {
-    nonConstTrack.setTrackSummary(m_trkSummaryTool->summary(track));
-  }
-  Trk::TrackScore score = TrackScore(simpleScore(track, *(nonConstTrack.trackSummary())));
-  return score;
+	Trk::TrackScore score = TrackScore( simpleScore(track, *track.trackSummary()) );
+	return score;
 }
 
 Trk::TrackScore

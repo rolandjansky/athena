@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -46,6 +46,7 @@ ISF::FastCaloSimV2ParamSvc::FastCaloSimV2ParamSvc(const std::string& name, ISvcL
   declareProperty("ParamsInputFilename"            ,       m_paramsFilename);
   declareProperty("ParamsInputObject"              ,       m_paramsObject);
   declareProperty("PrintParametrization"           ,       m_printParametrization);
+  declareProperty("CompressMemory"                 ,       m_CompressMemory);
 }
 
 /** framework methods */
@@ -79,11 +80,13 @@ StatusCode ISF::FastCaloSimV2ParamSvc::initialize()
 
   paramsFile->Close();
 
-  m_param->set_geometry(m_caloGeo.get());
+  if(m_CompressMemory) m_param->RemoveDuplicates();
+  m_param->set_geometry(m_caloGeo.get()); /// does not take ownership
   m_param->setLevel(msg().level());
   if (m_printParametrization) {
     m_param->Print("short");
   }
+  if(m_CompressMemory) m_param->RemoveNameTitle();
   return StatusCode::SUCCESS;
 }
 

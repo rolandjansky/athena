@@ -9,15 +9,40 @@
 
 #include "AthenaRootSharedWriterSvc.h"
 
+#include "TBranch.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TFileMerger.h"
 #include "TKey.h"
+#include "TLeaf.h"
 #include "TMemFile.h"
 #include "TMessage.h"
 #include "TMonitor.h"
 #include "TServerSocket.h"
 #include "TSocket.h"
+#include "TTree.h"
+
+/// Definiton of a branch descriptor from RootTreeContainer
+struct BranchDesc {
+public:
+   TClass* clazz;
+   using dummy_ptr_t = std::unique_ptr<void, std::function<void(void*)> >;
+   std::unique_ptr<void, std::function<void(void*)> > dummyptr;
+   void* dummy = 0;
+
+   BranchDesc(TClass* cl) : clazz(cl) {}
+
+   void*     dummyAddr()
+   {
+      if (clazz) {
+         std::function<void(void*)> del = std::bind(&TClass::Destructor, clazz, std::placeholders::_1, false);
+         dummyptr = std::unique_ptr<void, std::function<void(void*)> >(clazz->New(), std::move(del));
+         dummy = dummyptr.get();
+         return &dummy;
+      }
+      return nullptr;
+   }
+};
 
 /* Code from ROOT tutorials/net/parallelMergeServer.C, reduced to handle TTrees only */
 
@@ -35,7 +60,7 @@ struct ParallelFileMerger : public TObject
    {
    }
 
-   ULong_t  Hash() const
+   ULong_t Hash() const
    {
       return fFilename.Hash();
    }
@@ -45,13 +70,67 @@ struct ParallelFileMerger : public TObject
       return fFilename;
    }
 
+// Add missing branches to client tree and BackFill before merging
+   bool syncBranches(TTree* fromTree, TTree* toTree)
+   {
+      bool updated = false;
+      const TObjArray* fromBranches = fromTree->GetListOfBranches();
+      const TObjArray* toBranches = toTree->GetListOfBranches();
+      int nBranches = fromBranches->GetEntriesFast();
+      for (int k = 0; k < nBranches; ++k) {
+         TBranch* branch = static_cast<TBranch*>(fromBranches->UncheckedAt(k));
+         if (toBranches->FindObject(branch->GetName()) == nullptr) {
+            TBranch* newBranch = nullptr;
+            TClass* cl = TClass::GetClass(branch->GetClassName());
+            BranchDesc desc(cl);
+            void* empty = desc.dummyAddr();
+            char buff[32];
+            if (strlen(branch->GetClassName()) > 0) {
+               newBranch = toTree->Branch(branch->GetName(), branch->GetClassName(), nullptr, branch->GetBasketSize(), branch->GetSplitLevel());
+               newBranch->SetAddress(empty);
+            } else {
+               TObjArray* outLeaves = branch->GetListOfLeaves();
+               TLeaf* leaf = static_cast<TLeaf*>(outLeaves->UncheckedAt(0));
+               std::string type = leaf->GetTypeName();
+               std::string attr = leaf->GetName();
+               if (type == "Int_t") type = attr + "/I";
+               else if (type == "Short_t") type = attr + "/S";
+               else if (type == "Long_t") type = attr + "/L";
+               else if (type == "UInt_t") type = attr + "/i";
+               else if (type == "UShort_t") type = attr + "/s";
+               else if (type == "UShort_t") type = attr + "/s";
+               else if (type == "Float_t") type = attr + "/F";
+               else if (type == "Double_t") type = attr + "/D";
+               else if (type == "Char_t") type = attr + "/B";
+               else if (type == "UChar_t") type = attr + "/b";
+               else if (type == "Bool_t") type = attr + "/O";
+               newBranch = toTree->Branch(branch->GetName(), buff, type.c_str(), 2048);
+            }
+            int nEntries = toTree->GetEntries();
+            for (int m = 0; m < nEntries; ++m) {
+               newBranch->BackFill();
+            }
+            updated = true;
+         }
+      }
+      return updated;
+   }
+
    Bool_t MergeTrees(TFile *input)
    {
       fMerger.AddFile(input);
+      TTree* outCollTree = static_cast<TTree*>(fMerger.GetOutputFile()->Get("CollectionTree"));
+      TTree* inCollTree = static_cast<TTree*>(input->Get("CollectionTree"));
+      if (inCollTree != nullptr && outCollTree != nullptr) {
+         if (syncBranches(outCollTree, inCollTree)) {
+            input->Write();
+         }
+         syncBranches(inCollTree, outCollTree);
+      }
       Bool_t result = fMerger.PartialMerge(TFileMerger::kIncremental | TFileMerger::kResetable | TFileMerger::kKeepCompression);
       TIter nextKey(input->GetListOfKeys());
       while (TKey* key = static_cast<TKey*>(nextKey())) {
-         TClass *cl = TClass::GetClass(key->GetClassName());
+         TClass* cl = TClass::GetClass(key->GetClassName());
          if (0 != cl->GetResetAfterMerge()) {
             key->Delete();
             input->GetListOfKeys()->Remove(key);

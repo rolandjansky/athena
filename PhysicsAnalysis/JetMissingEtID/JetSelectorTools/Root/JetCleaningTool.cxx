@@ -16,7 +16,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 #include "JetSelectorTools/Helpers.h"
 
 // xAOD/ASG includes
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // STL includes
 #include <iostream>

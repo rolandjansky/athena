@@ -9,7 +9,7 @@
 #define SYSTEMATICS_HANDLES__SYS_READ_HANDLE_ARRAY_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/AsgMessagingForward.h>
+#include <AsgMessaging/AsgMessagingForward.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <boost/functional/hash.hpp>

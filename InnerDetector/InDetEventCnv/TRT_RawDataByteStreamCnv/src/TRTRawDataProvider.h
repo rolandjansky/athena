@@ -17,7 +17,7 @@
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
 #include "TRT_Cabling/ITRT_CablingSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "IRegionSelector/IRegSelTool.h" 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -54,7 +54,8 @@ public:
 
 private:
 
-  ServiceHandle<IRegSelSvc>             m_regionSelector;     
+  ToolHandle<IRegSelTool>             m_regionSelector { this, "RegSelTool", "RegSelTool/RegSelTool_TRT" }
+;     
   ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
   ToolHandle<ITRTRawDataProviderTool> m_rawDataTool;
   ServiceHandle<ITRT_CablingSvc>     m_CablingSvc;

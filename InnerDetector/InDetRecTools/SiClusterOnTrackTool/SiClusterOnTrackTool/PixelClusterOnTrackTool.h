@@ -27,6 +27,8 @@
 
 #include "PixelGeoModel/IIBLParameterSvc.h"
 
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
+
 #include <atomic>
 #include <mutex>
 
@@ -92,23 +94,29 @@ protected:
   const InDet::PixelClusterOnTrack* correctDefault(const Trk::PrepRawData&,
                                                    const Trk::TrackParameters&) const;
 
-  virtual const InDet::PixelClusterOnTrack* correctNN(const Trk::PrepRawData&, const Trk::TrackParameters&) const;
-  virtual bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&,
+  const InDet::PixelClusterOnTrack* correctNN(const Trk::PrepRawData&, const Trk::TrackParameters&) const;
+
+  bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&,
+                             Amg::Vector2D&,  Amg::MatrixX&) const;
+
+  bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,
                            Amg::Vector2D&,  Amg::MatrixX&) const;
 
-  virtual bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,
-                           Amg::Vector2D&,  Amg::MatrixX&) const;
-
-  virtual const InDet::PixelClusterOnTrack* correct
-    (const Trk::PrepRawData&, const Trk::TrackParameters&, 
+  const InDet::PixelClusterOnTrack* correct
+    (const Trk::PrepRawData&, const Trk::TrackParameters&,
      const InDet::PixelClusterStrategy) const;
 
+  const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &getClusterSplittingProbability(const InDet::PixelCluster*pix) const {
+      if (!pix || m_clusterSplitProbContainer.key().empty())  return Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
 
-  ///////////////////////////////////////////////////////////////////
-  // Private methods:
-  ///////////////////////////////////////////////////////////////////
-  
- private:
+      SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer(m_clusterSplitProbContainer);
+      if (!splitProbContainer.isValid()) {
+         ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
+      }
+      return splitProbContainer->splitProbability(pix);
+  }
+
+private:
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
@@ -164,6 +172,11 @@ protected:
        /** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
   SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterMapKey;
+
+  SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>   m_clusterSplitProbContainer
+     {this, "ClusterSplitProbabilityName", "",""};
+  Gaudi::Property<std::vector<std::string> >                 m_renounce
+     {this, "RenounceInputHandles", {},""};
 
   //moved from static to member variable
   static constexpr int s_nbinphi=9;

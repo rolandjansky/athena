@@ -5,7 +5,7 @@
 #ifndef ASSOCIATIONUTILS_MACROCHECKS_H
 #define ASSOCIATIONUTILS_MACROCHECKS_H
 
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 // Checks that pointer is non-null, prints error.
 // Can only be used in context where the ATH_MSG_XXX macros work

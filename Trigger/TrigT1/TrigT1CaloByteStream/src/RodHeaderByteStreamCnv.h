@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_RODHEADERBYTESTREAMCNV_H
@@ -53,13 +53,6 @@ private:
 
   /// Tool that does the actual work
   ToolHandle<LVL1BS::RodHeaderByteStreamTool> m_tool;
-
-
-
-  /// Message log
-  mutable MsgStream m_log;
-  bool m_debug;
-
 };
 
 } // end namespace

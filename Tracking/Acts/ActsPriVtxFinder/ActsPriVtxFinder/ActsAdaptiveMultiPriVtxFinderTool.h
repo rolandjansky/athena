@@ -60,19 +60,19 @@ class ActsAdaptiveMultiPriVtxFinderTool : public extends<AthAlgTool, InDet::IVer
 // Track wrapper input for the Acts vertexing
 class TrackWrapper {
 public:
-  TrackWrapper(const Trk::ITrackLink* trkLink, const Acts::BoundParameters& boundParams)
+  TrackWrapper(const Trk::ITrackLink* trkLink, const Acts::BoundTrackParameters& boundParams)
     : m_trkLink(trkLink)
     , m_boundParams(boundParams)
 
   {}
 
-  const Acts::BoundParameters& parameters() const {return m_boundParams;}
+  const Acts::BoundTrackParameters& parameters() const {return m_boundParams;}
 
   const Trk::ITrackLink* trackLink() const {return m_trkLink;}
 
 private:
   const Trk::ITrackLink* m_trkLink;
-  Acts::BoundParameters m_boundParams;
+  Acts::BoundTrackParameters m_boundParams;
 };
 
 public:
@@ -96,7 +96,7 @@ private:
   findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const;
 
   Trk::Perigee* actsBoundToTrkPerigee(
-  const Acts::BoundParameters& bound, const Acts::Vector3D& surfCenter) const;
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const;
 
   double estimateSignalCompatibility(xAOD::Vertex* vtx) const;
 

@@ -271,6 +271,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
 
         // Did we correctly select the best reco HS vertex using sumpt2?
         truthVtx = getTruthVertex(bestRecoHSVtx_sumpt2);
+        if (!truthVtx){
+            ATH_MSG_INFO("No truth HS - not filling vertex truth matching."); 
+            return;
+        }
         localPUDensity = getLocalPUDensity(truthVtx, truthHSVertices, truthPUVertices);
         fillHisto(m_vx_hs_sel_eff, localPUDensity, (bestRecoHSVtx_sumpt2 == bestRecoHSVtx_truth));
 

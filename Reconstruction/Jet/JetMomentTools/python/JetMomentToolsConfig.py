@@ -74,7 +74,7 @@ def getConstitFourMomTool(jetdef):
     cfourmom = CompFactory.JetConstitFourMomTool("constitfourmom_{0}".format(jetdef.basename))
     if "LCTopo" in jetdef.basename or "EMTopo" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]
-        if "HLT_" in jetdef.inputdef.inputname:
+        if "HLT_" in jetdef.fullname():
             cfourmom.AltConstitColls = [""]
             cfourmom.AltConstitScales = [0]
             cfourmom.AltJetScales = ["JetConstitScaleMomentum"]
@@ -104,6 +104,7 @@ def getJVFTool(modspec=""):
         TrackParticleContainer  = trackcollectionmap[modspec]["Tracks"],
         TrackSelector = jettrackselloose,
     )
+    print('aaaa', modspec, jvf.VertexContainer)
     return jvf
 
 

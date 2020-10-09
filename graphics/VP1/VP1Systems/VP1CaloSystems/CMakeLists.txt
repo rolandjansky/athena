@@ -1,37 +1,9 @@
-# $Id: CMakeLists.txt 731930 2016-03-23 16:08:20Z krasznaa $
-################################################################################
-# Package: VP1CaloSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1CaloSystems )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   DetectorDescription/Identifier
-   graphics/VP1/VP1Base
-   PRIVATE
-   Calorimeter/CaloConditions
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloEvent
-   Calorimeter/CaloIdentifier
-   Control/StoreGate
-   DetectorDescription/GeoModel/GeoModelUtilities
-   GaudiKernel
-   LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArRawEvent
-   LArCalorimeter/LArCabling
-   TileCalorimeter/TileConditions
-   TileCalorimeter/TileDetDescr
-   TileCalorimeter/TileEvent
-   TileCalorimeter/TileIdentifier
-   graphics/VP1/VP1Systems/VP1UtilitySystems
-   graphics/VP1/VP1HEPVis
-   graphics/VP1/VP1Utils )
-
 # External dependencies:
-find_package( CLHEP )
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets )
 #find_package( Qwt )
@@ -46,13 +18,7 @@ set( CMAKE_AUTOMOC TRUE )
 atlas_add_library( VP1CaloSystems
    VP1CaloSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1CaloSystems
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${QWT_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
-   DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier VP1Base Qt5::Core
-   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${QWT_LIBRARIES} ${GEOMODELCORE_LIBRARIES} CaloDetDescrLib
-   StoreGateLib LArCablingLib TileConditionsLib CaloConditions CaloEvent
-   CaloIdentifier GeoModelUtilities GaudiKernel LArIdentifier
-   LArRawEvent TileDetDescr TileEvent TileIdentifier VP1HEPVis VP1Utils
-   Qt5::Gui )
+   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GaudiKernel GeoPrimitives Identifier VP1Base Qt5::Core
+   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${QWT_LIBRARIES} CaloConditions CaloDetDescrLib CaloEvent CaloIdentifier GeoModelUtilities LArCablingLib LArIdentifier LArRawEvent StoreGateLib TileConditionsLib TileDetDescr TileEvent TileIdentifier VP1HEPVis VP1Utils Qt5::Gui )

@@ -105,7 +105,7 @@ StatusCode iFatras::PRD_PlanarTruthTrajectoryBuilder::refreshEvent()  {
    
 }
 
-const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& iFatras::PRD_PlanarTruthTrajectoryBuilder::truthTrajectories() const {
+const std::map< HepMC::ConstGenParticlePtr , Trk::PRD_TruthTrajectory >& iFatras::PRD_PlanarTruthTrajectoryBuilder::truthTrajectories() const {
     // ndof
     size_t ndofTotal = 0;
     size_t ndof      = 0;
@@ -125,7 +125,7 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& iFatras::
         for ( ; prdMtCIter != prdMtCIterE; ++ prdMtCIter ){
 	  ATH_MSG_VERBOSE("  2-Count " << second_count++ );
             // check if entry exists and if   
-            const HepMC::GenParticle* curGenP       = (*prdMtCIter).second;
+            auto  curGenP       = (*prdMtCIter).second;
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
             if ( curGenP->momentum().perp() < m_minPt ) continue;
@@ -139,7 +139,7 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& iFatras::
             if (prd){
 	      ATH_MSG_VERBOSE("  I got the PRD for Id = " << curIdentifier );
                 // try to find the entry for this GenParticle 
-                std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTrajIter = m_gpPrdTruthTrajectories.find(curGenP);
+                std::map< HepMC::ConstGenParticlePtr , Trk::PRD_TruthTrajectory >::iterator prdTrajIter = m_gpPrdTruthTrajectories.find(curGenP);
                 if ( prdTrajIter ==  m_gpPrdTruthTrajectories.end() ){
                     // first PRD associated to this: create PRD_TruthTrajectory object
                     Trk::PRD_TruthTrajectory newPrdTruthTrajectory;
@@ -164,8 +164,8 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& iFatras::
 
     // PART 2 --------------------------------------------------------------------------------------------------------
     // loop through the provided list of manipulators ( sorter is included )
-    std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
-    std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
+    std::map< HepMC::ConstGenParticlePtr , Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
+    std::map< HepMC::ConstGenParticlePtr , Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
     for ( ; prdTruthTrajIter != prdTruthTrajIterE; ++prdTruthTrajIter ){
         if ( m_prdTruthTrajectoryManipulators.size() ){
             ToolHandleArray<Trk::IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIter  = m_prdTruthTrajectoryManipulators.begin();

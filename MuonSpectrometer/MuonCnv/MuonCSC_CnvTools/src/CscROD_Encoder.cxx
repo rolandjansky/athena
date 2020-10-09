@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of CscROD_Encoder class 
@@ -73,16 +73,13 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
  uint8_t firstBitSummary = m_cscRdo->firstBitSummary();
 
  /** encode strip data fragments :: ROD body */
- std::map<uint16_t,rpu>::iterator rpuBegin = mapRPU.begin(); 
- std::map<uint16_t,rpu>::iterator rpuEnd   = mapRPU.end();
-
  mLog << MSG::DEBUG << "Number of RPU in this ROD = " << mapRPU.size() << endmsg;
   
  unsigned int rpuIndex = 0;
- for (; rpuBegin != rpuEnd; rpuBegin++) {
+ for (std::pair<const uint16_t, rpu>& rpuPair : mapRPU) {
 
    /** this RPU identifier */
-   uint16_t rpuID = (*rpuBegin).first;
+   uint16_t rpuID = rpuPair.first;
    mLog << MSG::DEBUG << "CscROD_Encoder : RPU id " << rpuID << endmsg;
 
    /** RPU size from simulation - assume no ghost words: 
@@ -96,12 +93,10 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
        where one sample = 12-bit ADC. The 2 words at the start of the cluster describe 
        the cluster size and location. The %2 accounts for the old number of samples */
    uint32_t spuSize[] = {0, 0, 0, 0, 0};
-   std::vector<const CscRawData*>::const_iterator it     = (*rpuBegin).second.begin();
-   std::vector<const CscRawData*>::const_iterator it_end = (*rpuBegin).second.end();
    uint16_t numberOfDataWords = 0;
    uint32_t sampleDataWords = 0;
-   for (; it != it_end; ++it) {
-     uint16_t spuID = (*it)->rpuID();
+   for (const CscRawData* rawData : rpuPair.second) {
+     uint16_t spuID = rawData->rpuID();
      mLog << MSG::DEBUG << "CscROD_Encoder : The SPU ID " << spuID << endmsg;
      unsigned int i = 0x800; 
      if ( spuID < 4 ) i=spuID;
@@ -111,7 +106,7 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
        mLog << MSG::ERROR << "CscROD_Encoder : SPU ID out of range - " << spuID << " Stop and fix it " << endmsg;
      } else {
        mLog << MSG::DEBUG << "CscROD_Encoder : SPU ID and Index = " << spuID << " " << i << endmsg;
-       uint16_t size = ((*it)->samples()).size();
+       uint16_t size = (rawData->samples()).size();
        uint16_t unitSize = size/2 + size%2;
        spuSize[i] += 1;
        numberOfDataWords += 2 + unitSize;
@@ -174,16 +169,11 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
                                 (0xFF & spuSize[4] ) << 24;
    v.push_back( secondClusterWord );
 
-   /** reset the iterators */
-   it     = (*rpuBegin).second.begin();
-   it_end = (*rpuBegin).second.end();
-
    /** strip addresses and ADC samples - the first 2 words contain the
        address and the width+time+timeFlag, following the ADC samplings */
    unsigned int check = 0;
-   for (; it != it_end; ++it) {
+   for (const CscRawData* rawData : rpuPair.second) {
 
-     const CscRawData * rawData = (*it);
      uint32_t address    = rawData->address();
      uint16_t time       = rawData->time();
      uint16_t width      = rawData->width();

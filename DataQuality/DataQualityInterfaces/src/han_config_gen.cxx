@@ -13,6 +13,9 @@
 #include "DataQualityInterfaces/HanConfig.h"
 #include "DataQualityInterfaces/ConditionsSingleton.h"
 
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
+
 namespace {
 
 void usage( const std::string& command_name, int exit_code );
@@ -36,6 +39,8 @@ public:
 
 int main( int argc, char *argv[] )
 {
+  CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
+
   CmdLineArgs arg( argc, argv );
   
   std::string infileName( arg.mconfig );

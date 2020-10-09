@@ -16,7 +16,7 @@
 #include "GaudiKernel/IDataSelector.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 //  #include "SGTools/TransientAddress.h"
 
 //External definitions

@@ -1,41 +1,9 @@
-# $Id: CMakeLists.txt 728680 2016-03-09 15:15:07Z krasznaa $
-################################################################################
-# Package: VP1PRDSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1PRDSystems )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   DetectorDescription/GeoPrimitives
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-   InnerDetector/InDetRecEvent/InDetPrepRawData
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-   Tracking/TrkEvent/TrkPrepRawData
-   Tracking/TrkEvent/TrkSpacePoint
-   graphics/VP1/VP1Base
-   graphics/VP1/VP1Utils
-   PRIVATE
-   Control/AthContainers
-   DetectorDescription/GeoModel/GeoModelUtilities
-   Event/EventPrimitives
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-   MuonSpectrometer/MuonIdHelpers
-   Tracking/TrkDetDescr/TrkSurfaces
-   Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-   Tracking/TrkEvent/TrkMeasurementBase
-   Tracking/TrkEvent/TrkRIO_OnTrack
-   Tracking/TrkEvent/TrkSegment
-   Tracking/TrkEvent/TrkTrack
-   graphics/VP1/VP1HEPVis
-   graphics/VP1/VP1Systems/VP1GuideLineSystems )
-
 # External dependencies:
-find_package( CLHEP )
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets)
 find_package( GeoModelCore )
@@ -48,12 +16,7 @@ set( CMAKE_AUTOMOC TRUE )
 # Component(s) in the package:
 atlas_add_library( VP1PRDSystems VP1PRDSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1PRDSystems
-   PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoPrimitives InDetReadoutGeometry TRT_ReadoutGeometry
-   InDetPrepRawData MuonPrepRawData TrkPrepRawData TrkSpacePoint VP1Base
-   VP1Utils MuonIdHelpersLib Qt5::Core Qt5::Gui
-   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers
-   GeoModelUtilities EventPrimitives InDetIdentifier MuonReadoutGeometry
-   TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack
-   TrkSegment TrkTrack VP1HEPVis VP1GuideLineSystems  )
+   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoPrimitives InDetPrepRawData InDetReadoutGeometry MuonPrepRawData TrkPrepRawData TrkSpacePoint VP1Base VP1Utils Qt5::Core Qt5::Gui
+   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} AthContainers EventPrimitives GeoModelUtilities InDetIdentifier MuonIdHelpersLib MuonReadoutGeometry TRT_ReadoutGeometry TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkSegment TrkSurfaces TrkTrack VP1GuideLineSystems VP1HEPVis )

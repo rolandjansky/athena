@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Sub-Block class for PPM data.
@@ -57,7 +57,6 @@ const int      ZdcPpmSubBlock::s_ppmChannel[64] = {0,  4,  8,  12,  16,  20,  24
 
 ZdcPpmSubBlock::ZdcPpmSubBlock() :
 		m_globalError(0),
-		m_globalDone(false),
         m_lutOffset(-1),
         m_fadcOffset(-1),
         m_pedestal(10),
@@ -77,7 +76,6 @@ void ZdcPpmSubBlock::clear()
 {
   ZdcSubBlock::clear();
   m_globalError   = 0;
-  m_globalDone    = false;
   m_lutOffset     = -1;
   m_fadcOffset    = -1;
   m_datamap.clear();
@@ -211,8 +209,10 @@ void ZdcPpmSubBlock::fillPpmError(const int chan, const int errorWord)
   if (m_errormap.empty()) m_errormap.resize(s_glinkPins);
   // Expand one ASIC channel disabled bit to four
   const uint32_t chanDisabled = (errorWord & 0x1) << asic(chan);
-  m_errormap[pin(chan)] |= (((errorWord >> 1) << s_asicChannels)
-                                              | chanDisabled) & s_errorMask;
+  uint32_t word = (((errorWord >> 1) << s_asicChannels)
+                   | chanDisabled) & s_errorMask;
+  m_errormap[pin(chan)] |= word;
+  m_globalError |= word;
 }
 
 // Store an error word corresponding to a G-Link pin
@@ -221,6 +221,10 @@ void ZdcPpmSubBlock::fillPpmPinError(const int pin, const int errorWord)
 {
   if (m_errormap.empty()) m_errormap.resize(s_glinkPins);
   m_errormap[pin] = errorWord & s_errorMask;
+  m_globalError = 0;
+  for (uint32_t word : m_errormap) {
+    m_globalError |= word;
+  }
 }
 
 // Return the error word for a data channel
@@ -250,13 +254,6 @@ int ZdcPpmSubBlock::ppmPinError(const int pin) const
 
 bool ZdcPpmSubBlock::errorBit(const int bit) const
 {
-  if ( ! m_globalDone) {
-    std::vector<uint32_t>::const_iterator pos;
-    for (pos = m_errormap.begin(); pos != m_errormap.end(); ++pos) {
-      m_globalError |= *pos;
-    }
-    m_globalDone  = true;
-  }
   return m_globalError & (0x1 << bit);
 }
 
@@ -417,10 +414,12 @@ bool ZdcPpmSubBlock::unpackNeutral()
   if (!rc) setUnpackErrorCode(ZdcSubBlock::UNPACK_DATA_TRUNCATED);
   // Errors
   m_errormap.clear();
+  m_globalError = 0;
   for (int pin = 0; pin < s_glinkPins; ++pin) {
     uint32_t error = unpackerNeutral(pin, s_errorBits);
     error |= unpackerNeutralParityError(pin) << s_errorBits;
     m_errormap.push_back(error);
+    m_globalError |= error;
   }
   return rc;
 }
@@ -449,8 +448,11 @@ bool ZdcPpmSubBlock::unpackUncompressedErrors()
 {
   unpackerInit();
   m_errormap.clear();
+  m_globalError = 0;
   for (int pin = 0; pin < s_glinkPins; ++pin) {
-    m_errormap.push_back(unpacker(s_wordLen));
+    uint32_t word = unpacker(s_wordLen);
+    m_errormap.push_back(word);
+    m_globalError |= word;
   }
   const bool rc = unpackerSuccess();
   if (!rc) setUnpackErrorCode(ZdcSubBlock::UNPACK_DATA_TRUNCATED);

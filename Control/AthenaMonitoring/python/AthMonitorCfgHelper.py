@@ -102,6 +102,8 @@ class AthMonitorCfgHelper(object):
         tool -- a GenericMonitoringTool Configurable object. This can be used to define
                 histograms associated with that group (using defineHistogram).
         '''
+        if name == alg.getName():
+            raise ValueError(f"Cannot have a monitoring group with the same name as the parent algorithm ({name})")
         array = self.addArray([1],alg,name,topPath=topPath,defaultDuration=defaultDuration)
         return array[0]
 
@@ -132,6 +134,7 @@ class AthMonitorCfgHelper(object):
 
         pathToSet = self.inputFlags.DQ.FileKey+('/%s' % topPath if topPath else '')
         array.broadcast('HistPath',pathToSet)
+        array.broadcast('UseCache',True)
         # in the future, autodetect if we are online or not
         array.broadcast('convention','OFFLINE')
         array.broadcast('defaultDuration',defaultDuration)
@@ -271,6 +274,7 @@ class AthMonitorCfgHelperOld(object):
         # Broadcast member values to each element of the array
         array.broadcast('THistSvc',svcMgr.THistSvc)
         array.broadcast('HistPath',pathToSet)
+        array.broadcast('UseCache',True)
         array.broadcast('convention',conventionName)
         array.broadcast('defaultDuration',defaultDuration)
         alg.GMTools += array.toolList()

@@ -69,7 +69,7 @@ ErrorStrategy
 
 Trigger-specific parameters are:
 <ul>
-<li>RegionSelectorToolName = "RegSelSvc" name of the RegionSelector tool, </li>
+<li>RegSelToolName = "RegSelTool/RegSelTool_TRT" name of the RegSel tool, </li>
 <li>EtaHalfWidth  - RoI half-width in eta </li>
 <li>PhiHalfWidth - RoI half-width in phi </li>
 </ul>

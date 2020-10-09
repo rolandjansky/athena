@@ -14,7 +14,8 @@ using CLHEP::ns;
 
 LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_onlineHelper(0)
+  m_onlineHelper(0),
+  m_sampleShift(0)
 {
   declareProperty("LArAccuCalibDigitContainerName",m_calibAccuDigitContainerName, "LArAccumulatedCalibDigits");
   declareProperty("KeyList",m_keylist);
@@ -22,6 +23,7 @@ LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, I
   declareProperty("DelayScale",m_delayScale=1*ns);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=false);
   declareProperty("isSC",m_isSC=false);
+  declareProperty("SampleShift",m_sampleShift=0);
   m_delay=-1;
   m_event_counter=0;
 }
@@ -56,6 +58,14 @@ StatusCode LArCalibDigitsAccumulator::initialize(){
   ATH_CHECK( m_calibMapKey.initialize() );
 
   m_Accumulated.resize(m_onlineHelper->channelHashMax());
+
+  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
+  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
+  for (;key_it!=key_it_e;key_it++) { 
+    std::map<int,std::vector<int>*>* map_forKey = new std::map<int,std::vector<int>*>();
+    m_readingsMap[*key_it] = map_forKey;
+  }
+
 
   return StatusCode::SUCCESS;
 }
@@ -98,7 +108,16 @@ StatusCode LArCalibDigitsAccumulator::execute()
   
   //Loop over all containers that are to be processed (e.g. different gains)
   for (;key_it!=key_it_e;key_it++) { 
-    
+
+    std::map<int,std::vector<int>*>* readingsMap_pointer = 0;
+    m_readingsMap_it = m_readingsMap.find(*key_it);
+    if (m_readingsMap_it == m_readingsMap.end()) {
+      ATH_MSG_INFO("Did not find corresponding map for key " << *key_it);
+    } else {
+      readingsMap_pointer = m_readingsMap_it->second;
+    }
+
+
     sc=evtStore()->retrieve(calibDigitContainer,*key_it);
     if(sc.isFailure()) {
       ATH_MSG_ERROR( "Can't retrieve LArCalibDigitContainer with key " << *key_it << "from StoreGate." );
@@ -144,6 +163,19 @@ StatusCode LArCalibDigitsAccumulator::execute()
       const IdentifierHash febhash = m_onlineHelper->feb_Hash(febid);
       const IdentifierHash hashid = m_onlineHelper->channel_Hash(chid);
       
+
+      m_channelMap_it = readingsMap_pointer->find(chid.get_identifier32().get_compact());
+      std::vector<int>* cellStorage;
+      if (m_channelMap_it == readingsMap_pointer->end()) {
+	std::vector<int>* cellVector = new std::vector<int>();
+        (*readingsMap_pointer)[chid.get_identifier32().get_compact()] = cellVector;
+        
+        cellStorage = cellVector;
+      } else {
+        cellStorage = m_channelMap_it->second;
+      }
+
+
       // BELOW: DIRTY HACK BECAUSE THERE SEEMS TO BE A BUG IN THE CABLINGSVC CONCERNING THE CALIBLINES.
 
       // get calibration settings
@@ -172,22 +204,21 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	  ATH_MSG_DEBUG( "Delay is changing to " << (*it)->delay() << " from " << m_delay << ": book a new LArAccumulatedCalibDigitContainer" );
 	  m_delay=(*it)->delay();
 	}
-
+      
       CaloGain::CaloGain gain=(*it)->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN)
 	{ATH_MSG_ERROR( "Found not-matching gain number ("<< (int)gain <<")" );
           delete larAccuCalibDigitContainer;
 	  return StatusCode::FAILURE;
 	}
-
+      
       // object to be filled for each cell
       LArAccumulated& cellAccumulated = m_Accumulated[hashid];
       
       // trigger counter for each cell
       cellAccumulated.m_ntrigger++;
-
-      ATH_MSG_DEBUG( "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << (*it)->DAC() );
-
+      ATH_MSG_INFO( "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << (*it)->DAC() );
+            
       // at first trigger, initialize vectors
       unsigned int sizeSamples = (*it)->samples().size();
       ATH_MSG_DEBUG( "sizeSteps = " << sizeSteps << ", # of samples = " << sizeSamples );
@@ -215,6 +246,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
       
 
       for(unsigned int j=0;j<sizeSamples;j++){
+	cellStorage->push_back((*it)->samples()[j]);
 	cellAccumulated.m_sum[j] += (*it)->samples()[j];
 	cellAccumulated.m_sum2[j] += (*it)->samples()[j]*(*it)->samples()[j];
       }
@@ -227,12 +259,36 @@ StatusCode LArCalibDigitsAccumulator::execute()
       if(cellAccumulated.m_ntrigger==nTriggerPerStep[febhash]){
 	ATH_MSG_DEBUG( "filling LArAccumulatedCalibDigit " );
 	ATH_MSG_DEBUG( "chid = " << chid << ", gain = " << gain << ", DAC = " << (*it)->DAC() << ", isPulsed = " << isPulsed << ", delay = " << m_delay << ", trigPerStep = " << nTriggerPerStep[febhash] << ", istep = " << iStepTrigger[febhash] );
+
+
+
+	if ( m_sampleShift != 0 ){
+	  int half_sam = (int)((sizeSamples-m_sampleShift)/2.);
+	  
+	  // First loop to find "allGood" samplings and their mean values
+	  for (unsigned int sample = 0; sample < sizeSamples; ++sample) {
+	    std::vector<int> sampleVector;
+	    
+	    for (unsigned int trig = 0; trig < nTriggerPerStep[febhash]; ++trig) {
+	      sampleVector.push_back(cellStorage->at(trig*(sizeSamples-m_sampleShift)+sample));
+	    }
+	    sort(sampleVector.begin(), sampleVector.end());
+	    
+	    uint32_t sum  = 0;
+	    uint32_t sum2 = 0;
+	    
+	    for (unsigned int trig = 0; trig < nTriggerPerStep[febhash]; ++trig) {
+	      if (std::abs(sampleVector.at(trig) - sampleVector.at(half_sam)) < 10) {
+		sum  += sampleVector.at(trig);
+		sum2 += sampleVector.at(trig) * sampleVector.at(trig);
+	      }
+	    }
+	  }
+	}
 	
 	accuCalibDigit->setAddSubStep(cellAccumulated.m_sum,cellAccumulated.m_sum2,nTriggerPerStep[febhash]);
 	iStepTrigger[febhash]++;
 	
-	//	std::cout << "DAC after = " << accuCalibDigit->DAC() << std::endl;
-
 	std::vector<float> mean =  accuCalibDigit->mean();
 	std::vector<float> RMS =  accuCalibDigit->RMS();
 
@@ -245,6 +301,9 @@ StatusCode LArCalibDigitsAccumulator::execute()
 
 	cellAccumulated.m_ntrigger = 0;
 
+	delete cellStorage;
+	(*readingsMap_pointer).erase(chid.get_identifier32().get_compact());
+	
       }
       
     }// loop over cells in container

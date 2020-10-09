@@ -59,6 +59,7 @@ namespace MuonCombined {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
     ATH_CHECK(m_caloExtTool.retrieve());
+    ATH_CHECK(m_caloExtToolID.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
@@ -274,7 +275,7 @@ namespace MuonCombined {
     // skip all muons without extrapolated track
     if( !candidate.extrapolatedTrack() ) {
       ATH_MSG_DEBUG("MuonCreatorTool::create(...) No extrapolated track - aborting. Will not create Muon.");
-      return 0; // Do we really want to do this?
+      return nullptr; // Do we really want to do this?
     }
     
     // Create the xAOD object:
@@ -291,13 +292,13 @@ namespace MuonCombined {
     if(!muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
       ATH_MSG_DEBUG("Creation of track particle for SA muon failed, removing it");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
 
     //make sure we can extrapolate the track back through the calo, otherwise it's not a muon
@@ -308,17 +309,24 @@ namespace MuonCombined {
     if(!caloExtension){
       ATH_MSG_DEBUG("failed to get a calo extension for this SA muon, discard it");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
     if( caloExtension->caloLayerIntersections().empty()){
       ATH_MSG_DEBUG("failed to retrieve any calo layers for this SA muon, discard it");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
 
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
-    if(m_useCaloCells) collectCells(*muon,outputData.clusterContainer);
+    if(m_useCaloCells) collectCells(*muon,outputData.clusterContainer,caloExtension.get());
+    if (m_requireIDTracks){
+      if (!muon->trackParticle(xAOD::Muon::TrackParticleType:: InnerDetectorTrackParticle)){
+	ATH_MSG_DEBUG("The muon does not have any associated ID track although it should have. Discard it");
+	outputData.muonContainer->pop_back();
+	return nullptr;
+      }
+    }
 
     return muon;
   }
@@ -1606,7 +1614,7 @@ namespace MuonCombined {
     if (problem) ATH_MSG_VERBOSE("Dumping problematic muon: "<<m_muonPrinter->print(muon));
   }
   
-  void MuonCreatorTool::collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer ) const {
+  void MuonCreatorTool::collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer, Trk::CaloExtension* inputCaloExt ) const {
     muon.auxdata< float >("ET_Core")     = 0;
     muon.auxdata< float >("ET_EMCore")   = 0;
     muon.auxdata< float >("ET_TileCore") = 0;
@@ -1621,18 +1629,29 @@ namespace MuonCombined {
     // get ParticleCellAssociation
     ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi());
 
-    std::unique_ptr<Trk::CaloExtension> caloExtension =m_caloExtTool->caloExtension(*tp);
-    if(!caloExtension){
-      ATH_MSG_WARNING("Can not get caloExtension.");
-      return;
-    };
-
-    if( caloExtension->caloLayerIntersections().empty())
-      ATH_MSG_DEBUG( "Received a caloExtension object without track extrapolation");
-
+    xAOD::CaloCluster* cluster=nullptr;
     SG::ReadHandle<CaloCellContainer> container(m_cellContainerName);
 
-    xAOD::CaloCluster* cluster = m_cellCollector.collectCells( *caloExtension, *container, *clusterContainer );
+    if(!inputCaloExt){ //need to make one
+      //for some reason, ID tracks need to be extrapolated from the ID exit, and combined from the perigee
+      std::unique_ptr<Trk::CaloExtension> caloExtension;
+      if(muon.muonType()==xAOD::Muon::SegmentTagged || muon.muonType()==xAOD::Muon::CaloTagged){
+	ATH_MSG_DEBUG("use the ID track extension tool");
+	caloExtension=m_caloExtToolID->caloExtension(*tp);
+      }
+      else caloExtension=m_caloExtTool->caloExtension(*tp);
+      if(!caloExtension){
+	ATH_MSG_WARNING("Can not get caloExtension.");
+	return;
+      }
+
+      if( caloExtension->caloLayerIntersections().empty())
+	ATH_MSG_DEBUG( "Received a caloExtension object without track extrapolation");
+
+      cluster = m_cellCollector.collectCells( *caloExtension, *container, *clusterContainer );
+    }
+    else cluster = m_cellCollector.collectCells( *inputCaloExt, *container, *clusterContainer );
+
     if( !cluster ){
       ATH_MSG_WARNING("Failed to create cluster from ParticleCellAssociation");
       return;
@@ -1641,7 +1660,7 @@ namespace MuonCombined {
     }
 	
     // create element links
-    ElementLink< xAOD::CaloClusterContainer >   clusterLink(*clusterContainer,clusterContainer->size()-1);
+    ElementLink< xAOD::CaloClusterContainer > clusterLink(*clusterContainer,clusterContainer->size()-1);
     muon.setClusterLink(clusterLink);
 
     const CaloNoise* caloNoise = nullptr;

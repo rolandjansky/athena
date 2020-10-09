@@ -9,7 +9,7 @@
 #include <memory>
 
 // Infrastructure includes
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // Local includes
 #include "AssociationUtils/IObjectAssociator.h"

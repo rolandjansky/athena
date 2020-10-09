@@ -10,6 +10,7 @@
 #include "InDetTrackAccessor.h"
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
+#include "AsgTools/IAsgTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #ifndef XAOD_ANALYSIS

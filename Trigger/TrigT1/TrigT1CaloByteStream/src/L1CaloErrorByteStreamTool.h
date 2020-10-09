@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_L1CALOERRORBYTESTREAMTOOL_H
@@ -13,6 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
 
 class IInterface;
 class InterfaceID;
@@ -55,7 +56,7 @@ class L1CaloErrorByteStreamTool : public AthAlgTool {
      ErrorMap m_rodMap;
      std::mutex m_mutex;
    };
-   mutable SG::SlotSpecificObj<ErrorMaps> m_maps;
+   mutable SG::SlotSpecificObj<ErrorMaps> m_maps ATLAS_THREAD_SAFE;
 };
 
 } // end namespace

@@ -38,7 +38,7 @@ atlas_add_dictionary( POOLRootAccessDict
 atlas_add_executable( ut_basicRead_test
                       test/ut_basicRead_test.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccessLib xAODEventInfo )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccessLib xAODEventInfo AsgMessagingLib )
 
 atlas_add_executable( ut_basicxAODRead_test
                       test/ut_basicxAODRead_test.cxx

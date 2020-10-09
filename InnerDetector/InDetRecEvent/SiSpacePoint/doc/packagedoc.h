@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,19 +9,16 @@
 @section SiSpacePoint_SiSpacePointIntro Introduction
 
 This package contains the definition and implementation for the
-classes SCT_SpacePoint and PixelSpacePoint. Both classes are derived from
-TrkSpacePoint. 
+InDet::PixelSpacePoint and InDet::SCT_SpacePoint classes. Both classes are derived from
+Trk::TrkSpacePoint.
 
 @section SiSpacePoint_SiSpacePoint Class Overview
   The SiSpacePoint package contains the following classes:
 
-   - PixelSpacePoint: The SpacePoints for the PixelDetector.
-     Most information is taken from PrepRawData, which is
-     given to the constructor. Local errors are set
-     (assumed constant for the time being) and global errors
-     are derived from them.  Local errors are
-     assumed constant for the time being. They are only initialized when
-     inquired and buffered after that.
+   - InDet::PixelSpacePoint: The SpacePoints for the PixelDetector.
+     Most information including local errors is taken from PrepRawData, which is
+     given to the constructor.
+     Global errors are derived from them local errors.
 
    - SCT_SpacePoint: The SpacePoints for the SCT. Most
      information is derived from the GlobalPosition, which

@@ -21,7 +21,7 @@ def CSCDataOverlayExtraCfg(flags, **kwargs):
 
 def CscOverlayAlgCfg(flags, name="CscOverlay", **kwargs):
     """Return a ComponentAccumulator for CSCOverlay algorithm"""
-    from MuonConfig.MuonCalibConfig import CscCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
     acc = CscCalibToolCfg(flags)
     kwargs.setdefault("CalibTool", acc.popPrivateTools())
 

@@ -29,7 +29,7 @@ class MvaTESVariableDecorator
 
  private:
 
-  bool m_incShowerSubtr;
+  bool m_useSubtractedCluster;
 
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
       "AveIntPerXKey", 

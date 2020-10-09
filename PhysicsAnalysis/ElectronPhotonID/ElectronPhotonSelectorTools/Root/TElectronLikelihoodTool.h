@@ -20,7 +20,8 @@ June 2011
 #define TELECTRONLIKELIHOODTOOL_H
 
 // Include the return objects and the base class
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgTools/IAsgTool.h"
 #include "PATCore/AcceptData.h"
 #include "PATCore/AcceptInfo.h"
 //

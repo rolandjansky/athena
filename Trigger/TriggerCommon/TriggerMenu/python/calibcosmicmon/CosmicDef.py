@@ -194,8 +194,9 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             newchainName = self.chainName[:pos]
 
         # common L2 sequence
-        from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-        theAllTEDummyFakeROI = PESA__DummyUnseededAllTEAlgo("Cosmic"+newchainName+"AllTEDummy")
+        from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo
+
+        theAllTEDummyFakeROI = GenericDummyUnseededAllTEAlgo("Cosmic"+newchainName+"AllTEDummy")
 
         from TrigHypoCommonTools.TrigHypoCommonToolsConf import L1InfoHypo
         theL1InfoHypo = L1InfoHypo("L1InfoHypo"+newchainName)

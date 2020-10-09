@@ -47,7 +47,7 @@ atlas_add_executable( han
 
 atlas_add_executable( han-config-gen
                       src/han_config_gen.cxx
-                      LINK_LIBRARIES DataQualityInterfaces )
+                      LINK_LIBRARIES DataQualityInterfaces CxxUtils )
 
 atlas_add_executable( han-config-print
                       src/han_config_print.cxx

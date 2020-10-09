@@ -35,13 +35,8 @@ TauVertexVariables::~TauVertexVariables() {
 
 StatusCode TauVertexVariables::initialize() {
   
-  ATH_CHECK( m_trackToVertexIPEstimator.retrieve() );
   ATH_CHECK( m_fitTool.retrieve() );
   ATH_CHECK( m_SeedFinder.retrieve() );
-
-  if (inTrigger()) {
-    ATH_CHECK(m_beamSpotKey.initialize());
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -51,97 +46,53 @@ StatusCode TauVertexVariables::initialize() {
 //-----------------------------------------------------------------------------
 StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) const {
 
-  // impact parameter variables for standard tracks
-  if (pTau.nTracks() > 0) {
-
-    std::unique_ptr<const Trk::ImpactParametersAndSigma> myIPandSigma;
-    const xAOD::Vertex* vxcand = nullptr;
-
-    xAOD::Vertex theBeamspot;
-    theBeamspot.makePrivateStore();
-
-    if (inTrigger()) { // online: use beamspot
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      if(beamSpotHandle.isValid()){
-        theBeamspot.setPosition(beamSpotHandle->beamPos());
-        const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
-        theBeamspot.setCovariancePosition(cov);
-        vxcand = &theBeamspot;
-
-	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand));
-      }
-      else {
-        ATH_MSG_DEBUG("No Beamspot object in tau candidate");
-      }
-    }
-    else if (pTau.vertexLink().isValid()) { // offline: obtain tau vertex by link
-      vxcand = pTau.vertex() ;
-      //check if vertex has a valid type (skip if vertex has type NoVtx)
-      if (vxcand->vertexType() != xAOD::VxType::NoVtx) {
-	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand));
-      }
-    }
-
-    if (myIPandSigma) {
-      // kept for now, but will be discontinued as we now store these for all tracks, not only the leading one
-      pTau.setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ));
-      pTau.setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ));
-    }
-    else {
-      ATH_MSG_DEBUG("trackToVertexIPestimator failed for a standard track!");
-      pTau.setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)(-999.));
-      pTau.setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)(-999.));
-    }
-
-    // in the trigger, z0sintheta IP and corresponding significance are meaningless if we use the beamspot
-    if(vxcand && (inTrigger() || (!inTrigger() && vxcand->vertexType() != xAOD::VxType::NoVtx))) {
-      static const SG::AuxElement::Decorator<float> dec_d0IPsig("d0IPsig");
-      static const SG::AuxElement::Decorator<float> dec_z0sinthetaIPsig("z0sinthetaIPsig");
-
-      for(auto track : pTau.allTracks()) {
-	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(track->track(), vxcand));
-	if(myIPandSigma) {
-	  dec_d0IPsig(*track) = (myIPandSigma->sigmad0 != 0.) ? (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ) : -999.;
-	  dec_z0sinthetaIPsig(*track) = (myIPandSigma->sigmaz0SinTheta != 0.) ? (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ) : -999.;
-	}
-	else {
-	  dec_d0IPsig(*track) = -999.;
-	  dec_z0sinthetaIPsig(*track) = -999.;
-	}
-      }
-    }
-  }
-  else {
-    ATH_MSG_DEBUG("Tau has no tracks");
-  }
-
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(-1111.));
   
-  //try to find secondary vertex if more than 1 track and the tau vertex is available
+  // try to find secondary vertex if more than 1 track and the tau vertex is available
   if ( pTau.nTracks() < 2 ||  !pTau.vertexLink().isValid() ) {
     return StatusCode::SUCCESS;
   }
 
-  // get xAOD TrackParticles and Trk::Tracks
+  // xAOD TrackParticles
   std::vector<const xAOD::TrackParticle*> xaodTracks;
+  // standard reconstruction uses Trk::Tracks in SeedFinder
   std::vector<const Trk::Track*> origTracks;
-  for (unsigned i = 0; i < pTau.nTracks(); ++i) {
-    xaodTracks.push_back(pTau.track(i)->track());
-    ATH_MSG_VERBOSE("xAOD::TrackParticle " <<i<<": "<< pTau.track(i)->pt() << " "  << pTau.track(i)->eta()  << " "  << pTau.track(i)->phi());
-    if (pTau.track(i)->track()) {
-      origTracks.push_back(pTau.track(i)->track()->track());
+  // reconstruction from xAOD uses Trk::TrackParameters (Trk::Track not available)
+  std::vector<const Trk::TrackParameters*> origTrackParameters;
+
+  for (const xAOD::TauTrack* track : pTau.tracks()) {
+    xaodTracks.push_back(track->track());
+
+    if(track->track()->track()) {
+      origTracks.push_back(track->track()->track());
     }
     else {
-      ATH_MSG_WARNING("no Trk::Track for xAOD::TrackParticle");
+      const Trk::Perigee& perigee = track->track()->perigeeParameters();
+      origTrackParameters.push_back(static_cast<const Trk::TrackParameters*>(&perigee));
     }
   }
 
-  // get the starting point for the fit using Trk::Tracks
-  const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTracks);
-  ATH_MSG_VERBOSE("seedPoint x/y/perp=" << seedPoint.x() <<  " " << seedPoint.y() << " "<< seedPoint.z() << " " << std::sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()+seedPoint.y()));
+  // origTrackParameters should be empty in standard reconstruction, origTracks should be empty when re-running from xAOD
+  if(origTracks.size()>0 && origTrackParameters.size()>0) {
+    ATH_MSG_ERROR("Inconsistent mix of Trk::Track and Trk::TrackParameter");
+    return StatusCode::FAILURE;
+  }
 
-  // fitting the vertex itself
-  xAOD::Vertex* xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
+  xAOD::Vertex* xAODvertex = nullptr;
+
+  if(origTracks.size() > 0) {
+    // get the starting point for the fit using Trk::Tracks
+    const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTracks);
+    // fitting the vertex
+    xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
+  }
+  else if (origTrackParameters.size() > 0) {
+    // get the starting point for the fit using Trk::TrackParameters
+    const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTrackParameters);
+    // fitting the vertex
+    xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
+  }
+
   if (!xAODvertex) {
     ATH_MSG_WARNING("no secondary vertex found!");
     return StatusCode::SUCCESS;
@@ -157,7 +108,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
     ATH_MSG_VERBOSE("secondary vertex recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
     pSecVtxContainer.push_back(xAODvertex);
     xAODvertex->setVertexType(xAOD::VxType::NotSpecified);
-    pTau.setSecondaryVertex(&pSecVtxContainer, xAODvertex); 		// set the link to the vertex
+    pTau.setSecondaryVertex(&pSecVtxContainer, xAODvertex);
   }
   else {
     delete xAODvertex; // delete the vertex when in trigger mode, because we can not save it

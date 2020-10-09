@@ -25,7 +25,8 @@ from AthenaServices.AthenaServicesConf import AthenaOutputStream
 topSequence += AthenaOutputStream(
     "StreamBS",
     EvtConversionSvc = "ByteStreamCnvSvc",
-    OutputFile = "ByteStreamRDP_OutputSvc"
+    OutputFile = "ByteStreamRDP_OutputSvc",
+    ExtraInputs = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ) ],
     )
 # ByteStreamCnvSvc is an input CnvSvc now. 
 EventPersistencySvc = svcMgr.EventPersistencySvc

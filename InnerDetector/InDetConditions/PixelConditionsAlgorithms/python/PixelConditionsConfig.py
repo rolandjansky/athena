@@ -16,16 +16,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
 
     # FIXME commented properties are not currently accepted by PixelConfigCondAlg
     CondArgs = {}
-    # Switch parameters
-    CondArgs.update(
-        UseCalibConditions=True,
-        UseDeadmapConditions=True,
-        UseDCSStateConditions=(not flags.Input.isMC and flags.InDet.usePixelDCS),
-        UseDCSStatusConditions=(not flags.Input.isMC and flags.InDet.usePixelDCS),
-        UseDCSHVConditions=True,
-        UseDCSTemperatureConditions=True,
-        UseTDAQConditions=False,
-    )
     if flags.Beam.Type == "cosmics":
         CondArgs.update(
             UseComTime=True,
@@ -53,7 +43,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             DBMTimeOffset=[5.0,5.0,5.0]
         )
 
-    if flags.Input.isMC:
+    if flags.Input.isMC or flags.Overlay.DataOverlay:
         # Digitization parameters
         CondArgs.update(
             BunchSpace=25.0,
@@ -375,8 +365,6 @@ def PixelDCSCondHVAlgCfg(flags, name="PixelDCSCondHVAlg", **kwargs):
         acc.merge(addFolders(flags, "/PIXEL/HLT/DCS/HV", "PIXEL_ONL", className="CondAttrListCollection"))
     else:
         acc.merge(addFolders(flags, "/PIXEL/DCS/HV", "DCS_OFL", className="CondAttrListCollection"))
-    kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKey", "/PIXEL/DCS/HV")
     kwargs.setdefault("WriteKey", "PixelDCSHVCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondHVAlg(name, **kwargs))
     return acc
@@ -389,7 +377,6 @@ def PixelDCSCondStateAlgCfg(flags, name="PixelDCSCondStateAlg", **kwargs):
         kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
     else:
         kwargs.setdefault("ReadKeyState", "")
-    kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("WriteKeyState", "PixelDCSStateCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondStateAlg(name, **kwargs))
     return acc
@@ -402,7 +389,6 @@ def PixelDCSCondStatusAlgCfg(flags, name="PixelDCSCondStatusAlg", **kwargs):
         kwargs.setdefault("ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS")
     else:
         kwargs.setdefault("ReadKeyStatus", "")
-    kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("WriteKeyStatus", "PixelDCSStatusCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondStatusAlg(name, **kwargs))
     return acc

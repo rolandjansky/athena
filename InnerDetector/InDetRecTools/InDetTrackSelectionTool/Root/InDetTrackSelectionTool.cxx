@@ -5,7 +5,7 @@
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 #include "InDetTrackCut.h"
 
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #include "xAODTracking/TrackingPrimitives.h"
 
 #ifndef XAOD_ANALYSIS

@@ -20,6 +20,9 @@
 #include <fstream>
 
 namespace {
+
+using BH = Trk::GsfBetheHeitlerEffects;
+
 template<class T>
 bool
 inRange(const T& var, const T& lo, const T& hi)
@@ -49,118 +52,111 @@ betheHeitlerVariance(const double r)
 }
 
 void
-correctWeights(Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture)
+correctWeights(BH::MixtureParameters& mixture, const int numberOfComponents)
 {
 
-  if (mixture.empty()) {
+  if (numberOfComponents < 1) {
     return;
   }
-
   // Obtain the sum of weights
   double weightSum(0.);
-
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
-    mixture.begin();
-  for (; component != mixture.end(); ++component) {
-    weightSum += (*component).weight;
+  for (int i = 0; i < numberOfComponents; ++i) {
+    weightSum += mixture[i].weight;
   }
-
   // Rescale so that total weighting is 1
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::iterator modifiableComponent =
-    mixture.begin();
-
-  for (; modifiableComponent != mixture.end(); ++modifiableComponent) {
-    (*modifiableComponent).weight /= weightSum;
+  for (int i = 0; i < numberOfComponents; ++i) {
+    mixture[i].weight /= weightSum;
   }
 }
 
 double
-correctedFirstMean(
-  const double pathlengthInX0,
-  const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture)
+correctedFirstMean(const double pathlengthInX0,
+                   const BH::MixtureParameters& mixture,
+                   const int numberOfComponents)
 {
-
-  if (mixture.empty()) {
-    return 0.;
+  if (numberOfComponents < 1) {
+    return 0;
   }
   // Obtain the difference between the true and weighted sum
   double meanBH = betheHeitlerMean(pathlengthInX0);
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
-    mixture.begin() + 1;
-  for (; component != mixture.end(); ++component) {
-    meanBH -= (*component).weight * (*component).mean;
+  for (int i = 1; i < numberOfComponents; ++i) {
+    meanBH -= mixture[i].weight * mixture[i].mean;
   }
+
   // return the corrected mean for the first component
   return std::max(std::min(meanBH / mixture[0].weight, 1.), 0.);
 }
 
 double
-correctedFirstVariance(
-  const double pathlengthInX0,
-  const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture)
+correctedFirstVariance(const double pathlengthInX0,
+                       const BH::MixtureParameters& mixture,
+                       const int numberOfComponents)
 {
-
-  if (mixture.empty()) {
-    return 0.;
+  if (numberOfComponents < 1) {
+    return 0;
   }
 
   // Obtain the difference between the true and weighed sum variances
   double varianceBH =
     betheHeitlerVariance(pathlengthInX0) +
     (betheHeitlerMean(pathlengthInX0) * betheHeitlerMean(pathlengthInX0));
+
   varianceBH -= mixture[0].weight * mixture[0].mean * mixture[0].mean;
 
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
-    mixture.begin() + 1;
-  for (; component != mixture.end(); ++component) {
-    varianceBH -= (*component).weight * ((*component).mean * (*component).mean +
-                                         (*component).variance);
+  for (int i = 1; i < numberOfComponents; ++i) {
+    varianceBH -= mixture[i].weight *
+                  (mixture[i].mean * mixture[i].mean + mixture[i].variance);
   }
+
   return std::max(varianceBH / mixture[0].weight, 0.);
 }
 
-Trk::GsfBetheHeitlerEffects::MixtureParameters
+BH::MixtureParameters
 getTranformedMixtureParameters(
-  const std::vector<Trk::GsfBetheHeitlerEffects::Polynomial>& polynomialWeights,
-  const std::vector<Trk::GsfBetheHeitlerEffects::Polynomial>& polynomialMeans,
-  const std::vector<Trk::GsfBetheHeitlerEffects::Polynomial>& polynomialVariances,
+  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+    polynomialWeights,
+  const std::array<BH::Polynomial, BH::maxNumberofComponents>& polynomialMeans,
+  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+    polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
 {
 
-  Trk::GsfBetheHeitlerEffects::MixtureParameters mixture;
-  mixture.reserve(numberOfComponents);
+  BH::MixtureParameters mixture{};
   for (int i = 0; i < numberOfComponents; ++i) {
     const double updatedWeight = polynomialWeights[i](pathlengthInX0);
     const double updatedMean = polynomialMeans[i](pathlengthInX0);
     const double updatedVariance = polynomialVariances[i](pathlengthInX0);
-    mixture.emplace_back(logisticFunction(updatedWeight),
-                         logisticFunction(updatedMean),
-                         exp(updatedVariance));
+    mixture[i] = { logisticFunction(updatedWeight),
+                   logisticFunction(updatedMean),
+                   std::exp(updatedVariance) };
   }
   return mixture;
 }
 
-Trk::GsfBetheHeitlerEffects::MixtureParameters
+BH::MixtureParameters
 getMixtureParameters(
-  const std::vector<Trk::GsfBetheHeitlerEffects::Polynomial>& polynomialWeights,
-  const std::vector<Trk::GsfBetheHeitlerEffects::Polynomial>& polynomialMeans,
-  const std::vector<Trk::GsfBetheHeitlerEffects::Polynomial>& polynomialVariances,
+  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+    polynomialWeights,
+  const std::array<BH::Polynomial, BH::maxNumberofComponents>& polynomialMeans,
+  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+    polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
 {
 
-  Trk::GsfBetheHeitlerEffects::MixtureParameters mixture;
-  mixture.reserve(numberOfComponents);
+  BH::MixtureParameters mixture{};
   for (int i = 0; i < numberOfComponents; ++i) {
     const double updatedWeight = polynomialWeights[i](pathlengthInX0);
     const double updatedMean = polynomialMeans[i](pathlengthInX0);
     const double updatedVariance = polynomialVariances[i](pathlengthInX0);
-    mixture.emplace_back(
-      updatedWeight, updatedMean, updatedVariance * updatedVariance);
+    mixture[i] = { updatedWeight,
+                   updatedMean,
+                   updatedVariance * updatedVariance };
   }
   return mixture;
 }
+
 } // end of Anonymous namespace for Helper methods
 
 Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type,
@@ -217,6 +213,8 @@ Trk::GsfBetheHeitlerEffects::initialize()
 bool
 Trk::GsfBetheHeitlerEffects::readParameters()
 {
+
+  // Read std polynomial
   std::string resolvedFileName =
     PathResolver::find_file(m_parameterisationFileName, "DATAPATH");
   if (!resolvedFileName.empty()) {
@@ -238,14 +236,14 @@ Trk::GsfBetheHeitlerEffects::readParameters()
   fin >> orderPolynomial;
   fin >> m_transformationCode;
   //
-  if (not inRange(m_numberOfComponents, 0, 8)) {
-    ATH_MSG_ERROR("numberOfComponents Parameter out of range 0-8: "
-                  << m_numberOfComponents);
+  if (not inRange(m_numberOfComponents, 0, maxNumberofComponents)) {
+    ATH_MSG_ERROR("numberOfComponents Parameter out of range 0- "
+                  << maxNumberofComponents << " : " << m_numberOfComponents);
     return false;
   }
-  if (not inRange(orderPolynomial, 0, 10)) {
-    ATH_MSG_ERROR(
-      "orderPolynomial Parameter out of range 0-10: " << orderPolynomial);
+  if (not inRange(orderPolynomial, 0, maxOrderPolynomial)) {
+    ATH_MSG_ERROR("orderPolynomial Parameter out of range 0- "
+                  << maxOrderPolynomial << " : " << orderPolynomial);
     return false;
   }
   if (not inRange(m_transformationCode, 0, 10)) {
@@ -260,11 +258,13 @@ Trk::GsfBetheHeitlerEffects::readParameters()
 
   int componentIndex = 0;
   for (; componentIndex < m_numberOfComponents; ++componentIndex) {
-    m_polynomialWeights.push_back(readPolynomial(fin, orderPolynomial));
-    m_polynomialMeans.push_back(readPolynomial(fin, orderPolynomial));
-    m_polynomialVariances.push_back(readPolynomial(fin, orderPolynomial));
+    m_polynomialWeights[componentIndex] = readPolynomial(fin, orderPolynomial);
+    m_polynomialMeans[componentIndex] = readPolynomial(fin, orderPolynomial);
+    m_polynomialVariances[componentIndex] =
+      readPolynomial(fin, orderPolynomial);
   }
 
+  // Read the high X0 polynomial
   if (m_useHighX0) {
     resolvedFileName =
       PathResolver::find_file(m_parameterisationFileNameHighX0, "DATAPATH");
@@ -288,14 +288,20 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     fin >> orderPolynomial;
     fin >> m_transformationCodeHighX0;
     //
-    if (not inRange(m_numberOfComponentsHighX0, 0, 8)) {
-      ATH_MSG_ERROR("numberOfComponents Parameter out of range 0-8: "
+    if (not inRange(m_numberOfComponentsHighX0, 0, maxNumberofComponents)) {
+      ATH_MSG_ERROR("numberOfComponentsHighX0 Parameter out of range 0- "
+                    << maxNumberofComponents << " : "
                     << m_numberOfComponentsHighX0);
       return false;
     }
-    if (not inRange(orderPolynomial, 0, 10)) {
-      ATH_MSG_ERROR(
-        "orderPolynomial Parameter out of range 0-10: " << orderPolynomial);
+    if (m_numberOfComponentsHighX0 != m_numberOfComponents) {
+      ATH_MSG_ERROR(" numberOfComponentsHighX0 != numberOfComponents");
+      return false;
+    }
+
+    if (not inRange(orderPolynomial, 0, maxOrderPolynomial)) {
+      ATH_MSG_ERROR("orderPolynomial Parameter out of range 0- "
+                    << maxOrderPolynomial << " : " << orderPolynomial);
       return false;
     }
     if (not inRange(m_transformationCodeHighX0, 0, 10)) {
@@ -310,10 +316,12 @@ Trk::GsfBetheHeitlerEffects::readParameters()
 
     int componentIndex = 0;
     for (; componentIndex < m_numberOfComponentsHighX0; ++componentIndex) {
-      m_polynomialWeightsHighX0.push_back(readPolynomial(fin, orderPolynomial));
-      m_polynomialMeansHighX0.push_back(readPolynomial(fin, orderPolynomial));
-      m_polynomialVariancesHighX0.push_back(
-        readPolynomial(fin, orderPolynomial));
+      m_polynomialWeightsHighX0[componentIndex] =
+        readPolynomial(fin, orderPolynomial);
+      m_polynomialMeansHighX0[componentIndex] =
+        readPolynomial(fin, orderPolynomial);
+      m_polynomialVariancesHighX0[componentIndex] =
+        readPolynomial(fin, orderPolynomial);
     }
   }
   return true;
@@ -354,9 +362,6 @@ Trk::GsfBetheHeitlerEffects::compute(
   double pathlengthInX0 = pathLength / radiationLength;
 
   if (pathlengthInX0 < m_singleGaussianRange) {
-    ATH_MSG_DEBUG("Trying to apply energy loss to "
-                  << pathlengthInX0
-                  << " x/x0. No Bethe-Heitler effects applied");
     cache.weights.push_back(1.);
     cache.deltaPs.push_back(0.);
     cache.deltaQOvePCov.push_back(0.);
@@ -366,10 +371,10 @@ Trk::GsfBetheHeitlerEffects::compute(
   // If the amount of material is between 0.0001 and 0.01 return the gaussian
   // approximation to the Bethe-Heitler distribution
   if (pathlengthInX0 < m_lowerRange) {
-    const double meanZ = exp(-1. * pathlengthInX0);
+    const double meanZ = std::exp(-1. * pathlengthInX0);
     const double sign = (direction == Trk::oppositeMomentum) ? 1. : -1.;
-    const double varZ =
-      exp(-1. * pathlengthInX0 * log(3.) / log(2.)) - exp(-2. * pathlengthInX0);
+    const double varZ = std::exp(-1. * pathlengthInX0 * std::log(3.) / std::log(2.)) -
+                        std::exp(-2. * pathlengthInX0);
     double deltaP(0.);
     double varQoverP(0.);
     if (direction == Trk::alongMomentum) {
@@ -423,17 +428,19 @@ Trk::GsfBetheHeitlerEffects::compute(
   }
 
   // Correct the mixture
-  correctWeights(mixture);
+  correctWeights(mixture, m_numberOfComponents);
 
   if (m_correctionFlag == 1) {
-    mixture[0].mean = correctedFirstMean(pathlengthInX0, mixture);
+    mixture[0].mean =
+      correctedFirstMean(pathlengthInX0, mixture, m_numberOfComponents);
   }
   if (m_correctionFlag == 2) {
-    mixture[0].mean = correctedFirstMean(pathlengthInX0, mixture);
-    mixture[0].variance = correctedFirstVariance(pathlengthInX0, mixture);
+    mixture[0].mean =
+      correctedFirstMean(pathlengthInX0, mixture, m_numberOfComponents);
+    mixture[0].variance =
+      correctedFirstVariance(pathlengthInX0, mixture, m_numberOfComponents);
   }
 
-  //
   int componentIndex = 0;
   double weightToBeRemoved(0.);
   int componentWithHighestMean(0);
@@ -476,10 +483,6 @@ Trk::GsfBetheHeitlerEffects::compute(
       varianceInverseMomentum =
         mixture[componentIndex].variance / (momentum * momentum);
     } // end backwards propagation if clause
-
-    AmgSymMatrix(5) newCovarianceMatrix;
-    newCovarianceMatrix.setZero();
-    newCovarianceMatrix(Trk::qOverP, Trk::qOverP) = varianceInverseMomentum;
     cache.deltaQOvePCov.push_back(varianceInverseMomentum);
   } // end for loop over all components
 }

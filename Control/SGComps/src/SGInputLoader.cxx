@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019, 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // SGInputLoader.cxx 
@@ -114,8 +114,14 @@ SGInputLoader::execute()
       SG::VarHandleKey vhk(obj->clid(),obj->key(),Gaudi::DataHandle::Writer);
       if (StoreID::findStoreID(vhk.storeHandle().name()) == StoreID::EVENT_STORE) {
         toLoad.emplace(*obj);
-      } else {
-        ATH_MSG_WARNING("Will not auto-load proxy for non-EventStore object: "
+      }
+      else if (StoreID::findStoreID(vhk.storeHandle().name()) == StoreID::CONDITION_STORE) {
+        ATH_MSG_ERROR("Unresolved conditions dependency: "
+                        << *obj);
+        return StatusCode::FAILURE;
+      }
+      else {
+        ATH_MSG_DEBUG("Will not auto-load proxy for non-EventStore object: "
                         << *obj);
       }
     }

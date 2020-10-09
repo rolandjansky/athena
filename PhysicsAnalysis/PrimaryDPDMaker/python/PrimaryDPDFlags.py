@@ -325,6 +325,21 @@ class WriteRAWPerfDPD_ZMUMU(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteRAWPerfDPD_ZMUMU)
 listRAWtoDPD.append(WriteRAWPerfDPD_ZMUMU.StreamName)
 
+class WriteRAWPerfDPD_DIMU(JobProperty):
+    """ Produce the primary DPD DiMu in Byte Stream format."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_DIMU"
+    FileName       = ""
+    Prescale       = 1
+    isVirtual      = False
+    DPDMakerScript = "PrimaryDPDMaker/DRAW_DIMU.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteRAWPerfDPD_DIMU)
+listRAWtoDPD.append(WriteRAWPerfDPD_DIMU.StreamName)
+
+
 class WriteDRAW_EGZ(JobProperty):
     """ Produce the DRAW for EGamma calibration in Z events."""
     statusOn       = True

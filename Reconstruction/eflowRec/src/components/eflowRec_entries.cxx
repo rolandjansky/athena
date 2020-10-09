@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "eflowRec/eflowTrackCaloExtensionTool.h"
 #include "eflowRec/eflowTrackCaloDummyExtensionTool.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
@@ -22,6 +26,7 @@
 #include "eflowRec/PFEGammaPFOAssoc.h"
 #include "eflowRec/PFMuonFlowElementAssoc.h"
 #include "eflowRec/PFEGamFlowElementAssoc.h"
+#include "eflowRec/PFTauFlowElementAssoc.h"
 
 DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
@@ -47,4 +52,4 @@ DECLARE_COMPONENT(  eflowCellEOverPTool_mc12_HLLHC)
 DECLARE_COMPONENT( eflowCellEOverPTool_mc12_LC)
 DECLARE_COMPONENT( PFMuonFlowElementAssoc )
 DECLARE_COMPONENT( PFEGamFlowElementAssoc )
-
+DECLARE_COMPONENT( PFTauFlowElementAssoc )

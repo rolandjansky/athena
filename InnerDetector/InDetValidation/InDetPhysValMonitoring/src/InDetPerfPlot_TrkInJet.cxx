@@ -19,7 +19,7 @@
 using namespace IDPVM;
 
 
-InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir) :
+InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir, bool bookFakeAndEff) :
   InDetPlotBase(pParent, sDir),
 
   m_nInnerMostPixelHits_vs_dR{},
@@ -68,7 +68,8 @@ InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::stri
 
   m_fakerate_vs_dR{},
   m_fakerate_vs_smalldR{},
-  m_fakerate_vs_jetpT{} {
+  m_fakerate_vs_jetpT{},
+  m_doFakeAndEff(bookFakeAndEff) {
 
   //nop
 
@@ -119,14 +120,15 @@ InDetPerfPlot_TrkInJet::initializePlots() {
   book(m_reco_lowpt_vs_dR, "reco_lowpt_vs_dR");
 
   book(m_reco_chi2Overndof_vs_dR, "reco_chi2Overndof_vs_dR");
+  if (m_doFakeAndEff){
+    book(m_efficiency_vs_dR, "efficiency_vs_dR");
+    book(m_efficiency_vs_smalldR, "efficiency_vs_smalldR");
+    book(m_efficiency_vs_jetpT, "efficiency_vs_jetpT");
 
-  book(m_efficiency_vs_dR, "efficiency_vs_dR");
-  book(m_efficiency_vs_smalldR, "efficiency_vs_smalldR");
-  book(m_efficiency_vs_jetpT, "efficiency_vs_jetpT");
-
-  book(m_fakerate_vs_dR, "fakerate_vs_dR");
-  book(m_fakerate_vs_smalldR, "fakerate_vs_smalldR");
-  book(m_fakerate_vs_jetpT, "fakerate_vs_jetpT");
+    book(m_fakerate_vs_dR, "fakerate_vs_dR");
+    book(m_fakerate_vs_smalldR, "fakerate_vs_smalldR");
+    book(m_fakerate_vs_jetpT, "fakerate_vs_jetpT");
+  }
 
 }
 
@@ -252,7 +254,7 @@ InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle& trk, const xAOD::Jet& je
 
 void
 InDetPerfPlot_TrkInJet::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood) {
-
+  if (!m_doFakeAndEff) return; 
   float dR = jet.p4().DeltaR(truth.p4());
   float jetpT = jet.pt() / Gaudi::Units::GeV;
   fillHisto(m_efficiency_vs_dR, dR, isGood);
@@ -263,6 +265,7 @@ InDetPerfPlot_TrkInJet::fillEfficiency(const xAOD::TruthParticle& truth, const x
 
 void
 InDetPerfPlot_TrkInJet::fillFakeRate(const xAOD::TrackParticle& trk, const xAOD::Jet& jet, const bool isFake) {
+  if (!m_doFakeAndEff) return; 
   float dR = jet.p4().DeltaR(trk.p4());
   float jetpT = jet.pt() / Gaudi::Units::GeV;
 

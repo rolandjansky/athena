@@ -15,7 +15,7 @@
  ****************************************************************************/
 
 //main header
-#include "InDetGlobalMonitoringRun3Test/InDetGlobalPrimaryVertexMonAlg.h"
+#include "InDetGlobalPrimaryVertexMonAlg.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "xAODTracking/TrackParticleContainer.h"

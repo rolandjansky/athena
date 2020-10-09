@@ -6,6 +6,7 @@
 
 // STL include(s):
 #include <functional>
+#include <regex>
 
 // ROOT include(s):
 #include <TError.h>
@@ -311,6 +312,22 @@ namespace xAOD {
 
          // Return the massaged name:
          return result;
+      }
+
+      std::string getFirstBranchMatch( TTree * tree,
+                                        const std::string& pre ) {
+         const TObjArray * pBranches = tree->GetListOfBranches();
+         const std::regex pattern( ".*" + pre + ".*" );
+
+         for( int i = 0; i < pBranches->GetLast() ; ++i ) {
+            const std::string name = pBranches->At(i)->GetName();
+
+            if( std::regex_match( name, pattern ) )
+               return name;
+
+         }
+
+         return pre;
       }
 
    } // namespace Utils

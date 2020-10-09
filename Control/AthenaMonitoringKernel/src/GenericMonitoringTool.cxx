@@ -100,69 +100,126 @@ namespace Monitored {
     }
 }
 
+namespace std {
+  // Next four functions are for speeding up lookups in the the caching of invokeFillers
+  // They allow us to directly compare keys of the cache std::map
+  // with vectors of IMonitoredVariables, avoiding memory allocations
+  // these compare strings and IMonitoredVariables
+  bool operator<(const std::string& a, const std::reference_wrapper<Monitored::IMonitoredVariable>& b)  {
+    return a < b.get().name();
+  }
+  bool operator<(const std::reference_wrapper<Monitored::IMonitoredVariable>& a, const std::string& b)  {
+    return a.get().name() < b;
+  }
+
+  // lexicographical comparison of cache map items and vector of IMonitoredVariables
+  bool operator<(const std::vector<std::string>& lhs,
+                 const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& rhs) {
+    return std::lexicographical_compare(lhs.begin(), lhs.end(),
+                                        rhs.begin(), rhs.end());
+  }
+  bool operator<(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& lhs,
+                 const std::vector<std::string>& rhs) {
+    return std::lexicographical_compare(lhs.begin(), lhs.end(),
+                                        rhs.begin(), rhs.end());
+  }
+}
 
 void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const {
   std::scoped_lock guard(m_fillMutex);
-  for ( auto filler: m_fillers ) {
+  // This is the list of fillers to consider in the invocation.
+  // If we are using the cache then this may be a proper subset of m_fillers; otherwise will just be m_fillers
+  const std::vector<std::shared_ptr<Monitored::HistogramFiller>>* fillerList{nullptr};
+  // do we need to update the cache?
+  bool makeCache = false;
+  // list of matched fillers, if we need to update the cache
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> matchedFillerList;
+  if (m_useCache) {
+    const auto match = m_fillerCacheMap.find(monitoredVariables);
+    if (match != m_fillerCacheMap.end()) {
+      fillerList = &(match->second);
+    } else {
+      fillerList = &m_fillers;
+      makeCache = true;
+    }
+  } else {
+    fillerList = &m_fillers;
+  }
+  for ( auto filler: *fillerList ) {
     m_vars.reset();
     const int fillerCardinality = filler->histogramVariablesNames().size() + (filler->histogramWeightName().empty() ? 0: 1) + (filler->histogramCutMaskName().empty() ? 0 : 1);
 
     if ( fillerCardinality == 1 ) { // simplest case, optimising this to be super fast
       for ( auto& var: monitoredVariables ) {
         if ( var.get().name().compare( filler->histogramVariablesNames()[0] ) == 0 )  {
-	  m_vars.var[0] = &var.get();
+          m_vars.var[0] = &var.get();
           filler->fill( m_vars );
+          if (makeCache) { 
+            matchedFillerList.push_back(filler); 
+          }
           break;
         }
       }
     } else { // a more complicated case, and cuts or weights
       int matchesCount = 0;
       for ( const auto& var: monitoredVariables ) {
-	bool matched = false;
-	for ( unsigned fillerVarIndex = 0; fillerVarIndex < filler->histogramVariablesNames().size(); ++fillerVarIndex ) {
-	  if ( var.get().name().compare( filler->histogramVariablesNames()[fillerVarIndex] ) == 0 ) {
-	    m_vars.set(fillerVarIndex, &var.get());
-	    matched = true;
-	    matchesCount++;
-	    break;
-	  }
-	}
-	if ( matchesCount == fillerCardinality ) break;
-	if ( not matched ) { // may be a weight or cut variable still
-	  if ( var.get().name().compare( filler->histogramWeightName() ) == 0 )  {
-	    m_vars.weight = &var.get();
-	    matchesCount ++;
-	  } else if ( var.get().name().compare( filler->histogramCutMaskName() ) == 0 )  {
-	    m_vars.cut = &var.get();
-	    matchesCount++;
-	  }
-	}
-	if ( matchesCount == fillerCardinality ) break;
+        bool matched = false;
+        for ( unsigned fillerVarIndex = 0; fillerVarIndex < filler->histogramVariablesNames().size(); ++fillerVarIndex ) {
+          if ( var.get().name().compare( filler->histogramVariablesNames()[fillerVarIndex] ) == 0 ) {
+            m_vars.set(fillerVarIndex, &var.get());
+            matched = true;
+            matchesCount++;
+            break;
+          }
+        }
+        if ( matchesCount == fillerCardinality ) break;
+        if ( not matched ) { // may be a weight or cut variable still
+          if ( var.get().name().compare( filler->histogramWeightName() ) == 0 )  {
+            m_vars.weight = &var.get();
+            matchesCount ++;
+          } else if ( var.get().name().compare( filler->histogramCutMaskName() ) == 0 )  {
+            m_vars.cut = &var.get();
+            matchesCount++;
+         }
+        }
+        if ( matchesCount == fillerCardinality ) break;
       }
       if ( matchesCount == fillerCardinality ) {
-	filler->fill( m_vars );
+        filler->fill( m_vars );
+        if (makeCache) { 
+          matchedFillerList.push_back(filler); 
+        }
       } else if ( ATH_UNLIKELY( matchesCount != 0 ) ) { // something has matched, but not all, worth informing user
-	bool reasonFound = false;
-	if (ATH_UNLIKELY(!filler->histogramWeightName().empty() && !m_vars.weight)) {
-	  reasonFound = true;
-	  ATH_MSG_DEBUG("Filler weight not found in monitoredVariables:"
-			<< "\n  Filler weight               : " << filler->histogramWeightName()
-			<< "\n  Asked to fill from mon. vars: " << monitoredVariables);
-	}
-	if (ATH_UNLIKELY(!filler->histogramCutMaskName().empty() && !m_vars.cut)) {
-	  reasonFound = true;
-	  ATH_MSG_DEBUG("Filler cut mask not found in monitoredVariables:"
-			<< "\n  Filler cut mask             : " << filler->histogramCutMaskName()
-			<< "\n  Asked to fill from mon. vars: " << monitoredVariables);
-	}
-	if ( not reasonFound ) {
-	  ATH_MSG_DEBUG("Filler has different variables than monitoredVariables:"
-			<< "\n  Filler variables            : " << filler->histogramVariablesNames()
-			<< "\n  Asked to fill from mon. vars: " << monitoredVariables
-			<< "\n  Selected monitored variables: " << m_vars.names() );
-	}
+        bool reasonFound = false;
+        if (ATH_UNLIKELY(!filler->histogramWeightName().empty() && !m_vars.weight)) {
+          reasonFound = true;
+          ATH_MSG_DEBUG("Filler weight not found in monitoredVariables:"
+            << "\n  Filler weight               : " << filler->histogramWeightName()
+            << "\n  Asked to fill from mon. vars: " << monitoredVariables);
+        }
+        if (ATH_UNLIKELY(!filler->histogramCutMaskName().empty() && !m_vars.cut)) {
+          reasonFound = true;
+          ATH_MSG_DEBUG("Filler cut mask not found in monitoredVariables:"
+            << "\n  Filler cut mask             : " << filler->histogramCutMaskName()
+            << "\n  Asked to fill from mon. vars: " << monitoredVariables);
+        }
+        if ( not reasonFound ) {
+          ATH_MSG_DEBUG("Filler has different variables than monitoredVariables:"
+            << "\n  Filler variables            : " << filler->histogramVariablesNames()
+            << "\n  Asked to fill from mon. vars: " << monitoredVariables
+            << "\n  Selected monitored variables: " << m_vars.names() );
+        }
       }
     }
+  }
+
+  if (makeCache) {
+    std::vector<std::string> key;
+    key.reserve(monitoredVariables.size());
+    for (const auto& mv : monitoredVariables) {
+      key.push_back(mv.get().name());
+    }
+    m_fillerCacheMap[key] = matchedFillerList;
   }
 }
 

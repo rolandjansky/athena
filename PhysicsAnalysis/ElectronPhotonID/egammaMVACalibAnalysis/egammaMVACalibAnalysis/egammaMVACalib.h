@@ -14,7 +14,7 @@
 #include <TString.h>
 #include <TObject.h>
 #include <TFile.h>
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 class TTreeFormula;
 class TList;

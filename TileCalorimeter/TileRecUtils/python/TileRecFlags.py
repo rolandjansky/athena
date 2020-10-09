@@ -209,14 +209,15 @@ class readDigits(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
-
+#
 class doTileOverflowFit(JobProperty):
     """ set to True if apply fit builder for raw channels with overflow
     """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
-    
+
+#
 class simulateTrips(JobProperty):
     """ set to True if drawer trips simulation has to be done
     """
@@ -224,7 +225,7 @@ class simulateTrips(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False    
 
-
+#
 class zeroAmplitudeWithoutDigits(JobProperty):
     """ zero amplitude in Tile raw channel container from DSP reconstructed with OF1 method
         if amplitude is above threshold but there are no corresponding digits 
@@ -234,6 +235,7 @@ class zeroAmplitudeWithoutDigits(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+#
 class correctPedestalDifference(JobProperty):
     """ correct amplitude in Tile raw channel container from DSP reconstructed with OF1 method
         if there is online pedestal difference 
@@ -242,7 +244,15 @@ class correctPedestalDifference(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True    
 
-                    
+#
+class correctTimeJumps(JobProperty):
+    """ appply time correction for channels with possible +/-25 ns time jumps
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+
 # Defines the container for the performance monitoring flags  
 class TileRecFlags(JobPropertyContainer):
     """ The global Tile reconstruction flag/job property container.
@@ -283,7 +293,8 @@ list_jobproperties = [
     doTileOverflowFit,
     simulateTrips,
     zeroAmplitudeWithoutDigits,
-    correctPedestalDifference
+    correctPedestalDifference,
+    correctTimeJumps
     ]
 
 for i in list_jobproperties:

@@ -52,8 +52,12 @@ StatusCode PixelCablingCondAlg::initialize() {
   std::unique_ptr<PixelCablingCondData> writeCdo(std::make_unique<PixelCablingCondData>());
   const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
   const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+
+  /// FIXME: this is a hack to get the code to work - the comfiguration should be 
+  ///        such that the cabling is now only configured with a proper IoV and not 
+  ///        in the initialise method
   EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                       EventIDBase (1, UNDEFEVT, UNDEFNUM, 0, 0));
+                       EventIDBase (9999999, UNDEFEVT, UNDEFNUM, 0, 0));
 
   // Signed values
   int barrel_ec, eta_module;

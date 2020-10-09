@@ -492,7 +492,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printFeatures(features_final_em, "[Explicit Final Electron Features] HLT_mu_em_chain", log);  
 
   // Check filtering on the collection name. Note sub-string matching, omitting the "My".
-  std::vector< LinkInfo<xAOD::ElectronContainer> > features_final_em_correctContainer   = recursiveGetFeaturesOfType<xAOD::ElectronContainer>(graph_HLT_mu_em_chain, "ElectronContainer");
+  std::vector< LinkInfo<xAOD::ElectronContainer> > features_final_em_correctContainer   = recursiveGetFeaturesOfType<xAOD::ElectronContainer>(graph_HLT_mu_em_chain, ".*ElectronContainer.*");
   std::vector< LinkInfo<xAOD::ElectronContainer> > features_final_em_incorrectContainer = recursiveGetFeaturesOfType<xAOD::ElectronContainer>(graph_HLT_mu_em_chain, "WrongContainerName");
   VALUE ( features_final_em_correctContainer.size() ) EXPECTED ( features_final_em.size() );
   VALUE ( features_final_em_incorrectContainer.size() ) EXPECTED ( 0 );
@@ -510,15 +510,25 @@ void printFeatures(const std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> >&
   using namespace TrigCompositeUtils;
   std::stringstream ss;
   ss << name << " features size:" << featureContainer.size() << std::endl;
-  size_t count = 0;
+  std::vector<std::string> strings;
   for (const TrigCompositeUtils::LinkInfo<CONTAINER>& featureLinkInfo : featureContainer) {
+    std::stringstream ss1;
     std::string stateStr;
     switch (featureLinkInfo.state) {
       case ActiveState::ACTIVE: stateStr = "ACTIVE"; break;
       case ActiveState::INACTIVE: stateStr = "INACTIVE"; break;
       case ActiveState::UNSET: default: stateStr = "UNSET"; break;
     }
-    ss << "  Feature " << count++ << " pt:" << (*featureLinkInfo.link)->pt() << ", state:" << stateStr << std::endl;
+    ss1 << "  Feature  pt:" << (*featureLinkInfo.link)->pt() << ", state:" << stateStr << std::endl;
+    strings.push_back (ss1.str());
+  }
+
+  // The ordering of elements in featureContainer is unpredictable
+  // due to the iteration over set<NavGraphNode*>.
+  // Sort the results so that the output is reproducible.
+  std::sort (strings.begin(), strings.end());
+  for (const std::string& s : strings) {
+    ss << s;
   }
   log << MSG::INFO << ss.str() << endmsg;
 }

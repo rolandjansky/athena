@@ -471,6 +471,7 @@ class AlgFactory(object):
 
 
     def superRoIMaker(self):
+
         factory = 'SeededAlgo'
 
         name = '"SeededAlgo_%s"' % self.seed

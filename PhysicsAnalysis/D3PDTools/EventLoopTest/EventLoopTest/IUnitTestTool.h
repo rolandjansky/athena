@@ -10,7 +10,7 @@
 #define EVENT_LOOP_TEST__I_UNIT_TEST_TOOL_H
 
 #include <AsgTools/IAsgTool.h>
-#include <AsgTools/MsgLevel.h>
+#include <AsgMessaging/MsgLevel.h>
 
 namespace EL
 {

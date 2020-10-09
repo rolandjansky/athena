@@ -11,7 +11,7 @@
 #include <string>
 #include <iostream>
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "AsgTools/ToolHandle.h"
 
 #include "xAODTau/TauJet.h"

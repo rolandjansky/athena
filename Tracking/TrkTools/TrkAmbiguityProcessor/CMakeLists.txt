@@ -9,18 +9,15 @@ atlas_subdir( TrkAmbiguityProcessor )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          DetectorDescription/AtlasDetDescr
-                          GaudiKernel			  
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
+                          GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          Tracking/TrkDetDescr/TrkDetElementBase
+                          InnerDetector/InDetRecEvent/InDetPrepRawData
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/TrkTruthData
-                          Tracking/TrkEvent/TrkCaloClusterROI
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkValidation/TrkValInterfaces
@@ -42,5 +39,5 @@ atlas_add_component( TrkAmbiguityProcessor
                      src/RenounceToolInputsVisitor.cxx
                      src/components/*.cxx
                      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces  TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps  GaudiKernel InDetRecToolInterfaces InDetPrepRawData TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces)
 

@@ -16,9 +16,9 @@ __doc__ = " An athena-like algorithm to interactivly convert LAr Identifiers and
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 
-import cppyy 
+import ROOT,cppyy 
 
-from ROOT import HWIdentifier, Identifier, Identifier32, IdentifierHash, LArBadChannel
+from ROOT import HWIdentifier, Identifier, Identifier32, IdentifierHash, LArBadChannel, LArBadChanBitPacking
 from ROOT import CaloDetDescrManager
 
 from ctypes import c_uint
@@ -62,6 +62,12 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if self._detStore is None:
             self.msg.error("Failed to get DetectorStore")
             return StatusCode.Failure
+
+        self._condStore = StoreGate.pointer("ConditionStore")
+        if (self._condStore is None):
+            self.msg.error("Failed to get ConditionStore")
+            return StatusCode.Failure
+
         # Get LArOnlineID helper class
         self.onlineID=self._detStore.retrieve("LArOnlineID","LArOnlineID")
         if self.onlineID is None:
@@ -86,8 +92,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
 
 
-        self.class_larBCBitPacking=cppyy.makeClass("LArBadChanBitPacking")
-        self.bc_packing=self.class_larBCBitPacking()
+        self.bc_packing=LArBadChanBitPacking()
 
         self.noisepattern=0
         for n in ("lowNoiseHG","highNoiseHG","unstableNoiseHG","lowNoiseMG","highNoiseMG","unstableNoiseMG","lowNoiseLG","highNoiseLG","unstableNoiseLG","sporadicBurstNoise"):
@@ -126,13 +131,16 @@ class LArCellConditionsAlg(PyAthena.Alg):
         self.msg.info('running execute...')
 
         #for some obscure reason, we need run dump before we can retrieve the flat objects using their abstract interface
-        garbagedump = open(os.devnull, 'w')
-        self._detStore.dump(garbagedump)
+        garbagedump = open("sgdump.txt", 'w')
+        self._condStore.dump(garbagedump)
         garbagedump.close()
+
+        eid=ROOT.Gaudi.Hive.currentContext().eventID()
 
         if self.includeConditions:
             try:
-                self.larPedestal=self._detStore.retrieve("ILArPedestal","Pedestal")
+                condCont=self._condStore.retrieve("CondCont<ILArPedestal>","LArPedestal")
+                self.larPedestal=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve Pedestal from DetStore")
                 import traceback
@@ -140,7 +148,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larPedestal=None
                 
             try:
-                self.larMphysOverMcal=self._detStore.retrieve("ILArMphysOverMcal","LArMphysOverMcal")
+                condCont=self._condStore.retrieve("CondCont<ILArMphysOverMcal>","LArMphysOverMcal")
+                self.larMphysOverMcal=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve MphysOverMcal from DetStore")
                 import traceback
@@ -148,7 +157,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larMphysOverMcal=None
 
             try:
-                self.larRamp=self._detStore.retrieve("ILArRamp","LArRamp")
+                condCont=self._condStore.retrieve("CondCont<ILArRamp>","LArRamp")
+                self.larRamp=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArRamp from DetStore")
                 import traceback
@@ -156,7 +166,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larRamp=None
                 
             try:
-                self.larDAC2uA=self._detStore.retrieve("ILArDAC2uA","LArDAC2uA")
+                condCont=self._condStore.retrieve("CondCont<ILArDAC2uA>","LArDAC2uA")
+                self.larDAC2uA=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArDAC2uA from DetStore")
                 import traceback
@@ -164,7 +175,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larDAC2uA=None
 
             try:
-                self.laruA2MeV=self._detStore.retrieve("ILAruA2MeV","LAruA2MeV")
+                condCont=self._condStore.retrieve("CondCont<ILAruA2MeV>","LAruA2MeV")
+                self.laruA2MeV=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LAruA2MeV from DetStore")
                 import traceback
@@ -172,7 +184,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.laruA2MeV=None
 
             try:
-                self.larhvScaleCorr=self._detStore.retrieve("ILArHVScaleCorr","LArHVScaleCorr")
+                condCont=self._condStore.retrieve("CondCont<ILArHVScaleCorr>","LArHVScaleCorr")
+                self.larhvScaleCorr=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArHVScaleCorr from DetStore")
                 import traceback
@@ -202,7 +215,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
             id=None
             chid=None
             rep_in=self.readInput() #"Enter Id >").upper().strip()
-            #print ("User Input...")
             #rep_in="EMBA 0 0 60 2"
             rep=rep_in.upper()
             
@@ -283,7 +295,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         return StatusCode.Success
 
     def printChannelInfo(self,id,chid):
-        
+        print(self.IdentifiersToString(chid,id))
         if id!=self.noid: #Don't try to show anything more for disconnected channels
             if self.includeLocation:
                 try:
@@ -347,7 +359,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
                     print("DSP Thresholds: None")
 
 
-
     def finalize(self):
         self.msg.info('finalizing...')
         return StatusCode.Success
@@ -358,7 +369,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         print(out)
         self.nLinesPrinted=self.nLinesPrinted+1
         if self.nLinesPrinted%40 is 0:
-            c=raw_input("Press 'q' to quit, 'a' for all ...")
+            c=input("Press 'q' to quit, 'a' for all ...")
             if c.upper().startswith("Q"):
                 return True
             if c.upper().startswith("A"):
@@ -369,7 +380,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
     def readInput(self):
         self.nLinesPrinted=0
         try:
-            rep=raw_input("Enter Id >")
+            rep=input("Enter Id >")
         except:
             return ""
 
@@ -480,7 +491,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 return None
 
         else: #given as expanded ID
-            tbl=maketrans(",:;/\#","      "); 
+            tbl=str.maketrans(",:;/\#","      "); 
             fields=[]
             for f in upInput.translate(tbl).split():
                 if len(f):
@@ -619,7 +630,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 return None
 
         else: #given as expanded ID
-            tbl=maketrans(",:;/\#","      "); 
+            tbl=str.maketrans(",:;/\#","      "); 
             fields=[]
             for f in upInput.translate(tbl).split():
                 if len(f):

@@ -46,10 +46,6 @@ xaodStream.AddItem( "xAOD::VertexAuxContainer_v1#*" )
 xaodStream.AddItem( "xAOD::TauJetContainer_v1#*" )
 xaodStream.AddItem( "xAOD::TauJetAuxContainer_v1#*" )
 
-# Make sure that the event format object is added to the output:
-theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
-xaodStream.AddMetaDataItem( "xAOD::EventFormat_v1#EventFormat" )
-
 # Check what happened to the stream:
 xaodStream.Print()
 

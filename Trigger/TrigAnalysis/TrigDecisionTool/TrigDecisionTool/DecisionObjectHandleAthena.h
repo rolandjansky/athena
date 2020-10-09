@@ -19,7 +19,7 @@
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "TrigDecisionTool/EventPtrDef.h"
 #include "TrigDecisionEvent/TrigDecision.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 #include "StoreGate/ReadHandleKey.h"
 

@@ -21,9 +21,9 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
-  m_incShowerSubtr(true)
+  m_useSubtractedCluster(true)
 {
-  declareProperty("IncShowerSubtr", m_incShowerSubtr);
+  declareProperty("UseSubtractedCluster", m_useSubtractedCluster);
 }
 
 StatusCode TauIDVarCalculator::initialize()
@@ -35,10 +35,8 @@ StatusCode TauIDVarCalculator::initialize()
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
 {
   static const SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
-  float ipSigLeadTrk=0.;
-  if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
-    return StatusCode::FAILURE;
-  acc_absipSigLeadTrk(tau) = std::abs(ipSigLeadTrk);
+
+  acc_absipSigLeadTrk(tau) = (tau.nTracks()>0) ? std::abs(tau.track(0)->d0SigTJVA()) : 0.;
   
   if(inTrigger()) return StatusCode::SUCCESS;
   
@@ -95,7 +93,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
   TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
 
   std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster));
   
   float eEMAtEMScaleFixed = 0.;
   float eHadAtEMScaleFixed = 0.;

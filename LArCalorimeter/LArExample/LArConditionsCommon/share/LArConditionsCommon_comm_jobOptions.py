@@ -284,6 +284,7 @@ if larCondFlags.LoadElecCalib():
 
 
 #special case for overlay jobs: We need LArfSampl 
+from AthenaCommon.DetFlags import DetFlags
 if DetFlags.overlay.LAr_on() and larCondFlags.LArfSamplTag()!="":
    printfunc ("Tag=%s" % larCondFlags.LArfSamplTag())
    conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl",larCondFlags.LArfSamplTag(),force=True,forceMC=True,className="LArfSamplMC")

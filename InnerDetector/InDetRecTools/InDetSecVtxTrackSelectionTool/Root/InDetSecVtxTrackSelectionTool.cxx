@@ -6,7 +6,7 @@
 #include "InDetSecVtxTrackSelectionTool/InDetSecVtxTrackSelectionTool.h"
 #include "InDetSecVtxTrackCut.h"
 
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #ifndef XAOD_ANALYSIS
 #include "TrkTrack/Track.h"

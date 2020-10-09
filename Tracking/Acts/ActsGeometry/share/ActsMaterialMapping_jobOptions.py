@@ -1,139 +1,100 @@
 ###############################################################
 #
-# Loads Detector Description for Pixel and SCT
-# and prints out various quanities for each detector element.
+# Map material from a Geantino scan onto the surfaces and 
+# volumes of the detector to creat a material map.
 #
 ###############################################################
 
 
-# Use Global flags and DetFlags.
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.GlobalFlags import globalflags
+##########################################################################
+# start from scratch with component accumulator
 
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-nThreads = jp.ConcurrencyFlags.NumThreads()
-ServiceMgr.MessageSvc.defaultLimit = 20000
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-# Just the pixel and SCT
-DetFlags.ID_setOn()
-DetFlags.detdescr.pixel_setOn()
-DetFlags.detdescr.SCT_setOn()
-DetFlags.Calo_setOff()
+from ActsGeometry.ActsGeometryConfig import ActsMaterialStepConverterToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsSurfaceMappingToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsMaterialJsonWriterToolCfg
 
-# MC or data - affects which conditions database instance is used
-globalflags.DataSource='geant4'
-#globalflags.DataSource='data'
+from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg
 
-# Select the geometry version.
-globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
+def ActsMaterialMappingCfg(configFlags, name = "ActsMaterialMapping", **kwargs):
+  result = ComponentAccumulator()
 
-# print "HERE"
-# print globalflags.DetDescrVersion
+  MaterialStepConverterTool = ActsMaterialStepConverterToolCfg()
+  kwargs["MaterialStepConverterTool"] = MaterialStepConverterTool.getPrimary()   
+  result.merge(MaterialStepConverterTool)
 
-# LorentzAngle Svc needs field now
-import MagFieldServices.SetupField
+  ActsSurfaceMappingTool = ActsSurfaceMappingToolCfg(configFlags)
+  kwargs["SurfaceMappingTool"] = ActsSurfaceMappingTool.getPrimary()   
+  result.merge(ActsSurfaceMappingTool)
 
-# Initialize geometry
-# THIS ACTUALLY DOES STUFF!!
-from AtlasGeoModel import GeoModelInit
-from AtlasGeoModel import SetGeometryVersion
+  ActsMaterialJsonWriterTool = ActsMaterialJsonWriterToolCfg(OutputFile = "material-maps.json",
+                                                            processSensitives = False,
+                                                            processnonmaterial = False)
+  kwargs["MaterialJsonWriterTool"] = ActsMaterialJsonWriterTool.getPrimary()   
+  result.merge(ActsMaterialJsonWriterTool)
 
-# For misalignments
-from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
-# conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
+  ActsMaterialMapping = CompFactory.ActsMaterialMapping
+  alg = ActsMaterialMapping(name, **kwargs)
+  result.addEventAlgo(alg)
 
-from AthenaCommon.AppMgr import ServiceMgr
+  return result
 
-# Read material step file
-import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile.root"]
+if "__main__" == __name__:
+  from AthenaCommon.Configurable import Configurable
+  from AthenaCommon.Logging import log
+  from AthenaCommon.Constants import VERBOSE, INFO
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+  from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+  from ActsGeometry.ActsGeometryConfig import ActsMaterialTrackWriterSvcCfg
+  Configurable.configurableRun3Behavior = True
 
+  ## Just enable ID for the moment.
+  ConfigFlags.Input.isMC             = True
+  ConfigFlags.Beam.Type = ''
+  ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
+  ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
+  ConfigFlags.Detector.SimulateBpipe = False
+  ConfigFlags.Detector.SimulateID    = False
+  ConfigFlags.Detector.GeometryBpipe = True
+  ConfigFlags.Detector.GeometryID    = True
+  ConfigFlags.Detector.GeometryPixel = True
+  ConfigFlags.Detector.GeometrySCT   = True
+  ConfigFlags.Detector.GeometryCalo  = True
+  ConfigFlags.Detector.GeometryMuon  = False
+  ConfigFlags.Detector.GeometryTRT   = True
+  ConfigFlags.TrackingGeometry.MaterialSource = "geometry-maps.json"
+  ConfigFlags.Concurrency.NumThreads = 1
+  ConfigFlags.Concurrency.NumConcurrentEvents = 1
 
-from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.OutputLevel( INFO )
-AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataDependencies( True )
-AlgScheduler.EnableConditions( True )
-# AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
+  ConfigFlags.lock()
+  ConfigFlags.dump()
 
+  cfg = MainServicesCfg(ConfigFlags)
 
-from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc( OutputLevel=INFO )
+  cfg.merge(ActsMaterialTrackWriterSvcCfg("ActsMaterialTrackWriterSvc",
+                                          "MaterialTracks_mapping.root"))
 
-# ServiceMgr += CfgMgr.THistSvc()
-# ServiceMgr.THistSvc.Output += ["MATTRACKVAL DATAFILE='MaterialTracks.root' OPT='RECREATE'"]
-# ServiceMgr.ToolSvc.OutputLevel = VERBOSE
+  cfg.merge(PoolReadCfg(ConfigFlags))
+  eventSelector = cfg.getService("EventSelector")
+  eventSelector.InputCollections = ["MaterialStepFile.root"]
 
+  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+  cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
 
-# Set up ACTS tracking geometry service
-from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
-trkGeomSvc = ActsTrackingGeometrySvc()
-trkGeomSvc.OutputLevel = INFO
-trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
-trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
-trkGeomSvc.BuildSubDetectors = [
-  "Pixel",
-  "SCT",
-  # "TRT",
-  # "Calo",
-]
-ServiceMgr += trkGeomSvc
+  alignCondAlgCfg = ActsAlignmentCondAlgCfg(ConfigFlags)
 
-trkGeomTool = CfgMgr.ActsTrackingGeometryTool("ActsTrackingGeometryTool")
-trkGeomTool.OutputLevel = INFO;
+  cfg.merge(alignCondAlgCfg)
 
-# Set up ACTS extrapolation cell writer service
-# exCellWriterSvc = CfgMgr.ActsExCellWriterSvc("ActsExCellWriterSvc")
-# exCellWriterSvc.FilePath = "excells_charged_mapping.root"
-# ServiceMgr += exCellWriterSvc
-mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
-mTrackWriterSvc.OutputLevel = INFO
-mTrackWriterSvc.FilePath = "MaterialTracks_mapping.root"
-# mTrackWriterSvc.MaxQueueSize = 10
-ServiceMgr += mTrackWriterSvc
+  alg = ActsMaterialMappingCfg(ConfigFlags,
+                               OutputLevel=INFO)
 
-mMaterialStepConverterTool = CfgMgr.ActsMaterialStepConverterTool("ActsMaterialStepConverterTool")
-mMaterialStepConverterTool.OutputLevel = INFO
+  cfg.merge(alg)
 
-mActsSurfaceMappingTool = CfgMgr.ActsSurfaceMappingTool("ActsSurfaceMappingTool")
-mActsSurfaceMappingTool.OutputLevel = INFO
-mActsSurfaceMappingTool.TrackingGeometryTool = trkGeomTool
+  cfg.printConfig()
 
-mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
-mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
-mActsMaterialJsonWriterTool.FilePath = "material-maps.json"
+  log.info("CONFIG DONE")
 
-from ActsGeometry import ActsGeometryConf
-
-## SET UP ALIGNMENT CONDITIONS ALGORITHM
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
-                                                 OutputLevel=INFO)
-## END OF CONDITIONS SETUP
-
-# Set up algorithm sequence
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
-
-eventPrintFrequency = 1000
-
-if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
-    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
-if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
-    ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
-
-from GaudiAlg.GaudiAlgConf import EventCounter
-job += EventCounter(Frequency=1000)
-
-# Set up material mapping algorithm
-from ActsGeometry.ActsGeometryConf import ActsMaterialMapping
-
-alg = ActsMaterialMapping()
-alg.Cardinality = 0#nThreads
-alg.MaterialStepConverterTool = mMaterialStepConverterTool
-alg.SurfaceMappingTool = mActsSurfaceMappingTool
-alg.MaterialJsonWriterTool = mActsMaterialJsonWriterTool
-alg.OutputLevel = INFO
-job += alg
+  cfg.run(80000)

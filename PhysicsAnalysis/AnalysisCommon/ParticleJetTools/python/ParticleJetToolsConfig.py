@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -36,18 +36,21 @@ truthpartoptions = {
     "FlavourLabel":{"ToolType":CompFactory.CopyFlavorLabelTruthParticles,"ptmin":5000},
 }
 def getCopyTruthLabelParticles(truthtype):
-    truthcategory = ""
+    toolProperties = {}
     if truthtype == "Partons":
         truthcategory = "Partons"
-    if truthtype in ["WBosons", "ZBosons", "HBosons", "TQuarksFinal"]:
+    elif truthtype in ["WBosons", "ZBosons", "HBosons", "TQuarksFinal"]:
         truthcategory = "BosonTop"
     else:
         truthcategory = "FlavourLabel"
+        toolProperties['ParticleType'] = truthtype
+        
     tooltype = truthpartoptions[truthcategory]["ToolType"]
-    ptmin = truthpartoptions[truthcategory]["ptmin"]
-    ctp = tooltype("truthpartcopy_{0}".format(truthtype),
-                   PtMin = ptmin,
-                   OutputName = "TruthLabel{0}".format(truthtype))
+    toolProperties.update( PtMin = truthpartoptions[truthcategory]["ptmin"],
+                           OutputName = "TruthLabel"+truthtype)
+    ctp = tooltype("truthpartcopy_"+truthtype,
+                   **toolProperties
+                   )
     return ctp
 
 # Generates input truth particle containers for truth jets

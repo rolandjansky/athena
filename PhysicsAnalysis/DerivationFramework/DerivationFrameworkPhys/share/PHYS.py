@@ -8,14 +8,14 @@
 # It requires the reductionConf flag PHYS in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
-from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkInDet import InDetCommon
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool
+from DerivationFrameworkJetEtMiss import METCommon
+from DerivationFrameworkEGamma import EGammaCommon
+from DerivationFrameworkEGamma import ElectronsCPDetailedContent
+from DerivationFrameworkMuons import MuonsCommon
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
@@ -68,7 +68,7 @@ if (DerivationFrameworkIsMonteCarlo):
    # SUSY signal
    from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
    if IsSUSYSignal():
-      from DerivationFrameworkSUSY.SUSYWeightMetadata import *
+      from DerivationFrameworkSUSY import SUSYWeightMetadata
    # Add sumOfWeights metadata for LHE3 multiweights =======
    #from DerivationFrameworkCore.LHE3WeightMetadata import *
 

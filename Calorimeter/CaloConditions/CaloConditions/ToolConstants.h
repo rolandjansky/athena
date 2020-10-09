@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ToolConstants.h,v 1.5 2009-04-09 14:41:17 ssnyder Exp $
 /**
  * @file  ToolConstants.h
  * @author scott snyder <snyder@bnl.gov>

@@ -13,7 +13,7 @@
 #include <iostream>
 
 // Gaudi/Athena include(s):
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 /// Helper operator for printing std::set variables easily
 template< typename T >

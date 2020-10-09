@@ -7,7 +7,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "AthenaKernel/getMessageSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "IRegionSelector/IRegSelTool.h" 
 #include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
 
 
@@ -26,7 +26,6 @@ namespace InDet {
 						  const std::string& name,
 						  const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("PixelRawDataProviderTool"),
     m_id(0),
@@ -133,9 +132,8 @@ namespace InDet {
       ATH_MSG_DEBUG ( "REGTEST:" << *roi );
     
       //double zmax = 168; 
-      m_regionSelector->DetROBIDListUint( PIXEL, 
-					  *roi, 
-					  robIDlist); 
+      m_regionSelector->ROBIDList( *roi, robIDlist ); 
+
     } else {
       msg(MSG::ERROR) << name() << " invoked without an RoI data " << endmsg;
       return StatusCode::FAILURE;

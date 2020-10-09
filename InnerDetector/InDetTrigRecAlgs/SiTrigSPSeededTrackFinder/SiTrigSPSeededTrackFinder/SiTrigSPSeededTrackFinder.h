@@ -29,6 +29,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
 
@@ -36,7 +38,6 @@
 
 //forward declarations
 class TrigTimer;
-class IRegSelSvc;
 
 namespace InDet {
   class ISiSpacePointsSeedMaker;
@@ -113,7 +114,8 @@ namespace InDet {
     ToolHandle< ISiTrackMaker           > m_trackmaker;   // Track                maker
     
     //!< Trigger part
-    ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
+    ToolHandle<IRegSelTool>     m_regionSelector_pixel { this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel" };    //!< pixel region selector tool
+    ToolHandle<IRegSelTool>     m_regionSelector_sct   { this, "RegSelTool_SCT",   "RegSelTool/RegSelTool_SCT" };      //!< sct region selector tool
 
     StringProperty m_prdToTrackMap
        {this,"PRDtoTrackMap",""};                        //!< optional map between PRDs and tracks to identify shared hits.

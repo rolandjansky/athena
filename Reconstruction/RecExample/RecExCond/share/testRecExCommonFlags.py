@@ -15,18 +15,18 @@ include ("RecExCommon/RecExCommon_flags.py")
 from AthenaCommon.GlobalFlags  import globalflags
 #if globalflags.InputFormat()=='bytestream': # jobproperties.GlobalFlags.InputFormat() is equivalent
 #   dosomething
-print globalflags.DetDescrVersion()
+print(globalflags.DetDescrVersion())
 
 if globalflags.DetDescrVersion()[0:3]=="DC2":
-    print " this is DC2 "
+    print(" this is DC2 ")
 else:
-    print " this is not DC2 "
+    print(" this is not DC2 ")
 
 from RecExConfig.RecFlags import recAlgs
 if recAlgs.doTrigger() ^ doTrigger:
-    print "recAlgs.doTrigger() and doTrigger inconsistent"
+    print("recAlgs.doTrigger() and doTrigger inconsistent")
 else:
-    print "recAlgs.doTrigger() and doTrigger consistent"
+    print("recAlgs.doTrigger() and doTrigger consistent")
 
 
 # stop the hard way

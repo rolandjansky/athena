@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file TileEvent/test/TileMutableDigitsContainer_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -24,16 +22,20 @@ static const size_t NCOLL = 2;
 static const size_t NCHAN = 10;
 
 
-IdDictParser parser;
-TileHWID hwid;
-TileTBID tbid;
-TileID   tileid;
-
 
 class TileCablingSvc
 {
 public:
-  static
+  IdDictParser parser;
+  TileHWID hwid;
+  TileTBID tbid;
+  TileID   tileid;
+
+  TileCablingSvc()
+  {
+    init_idhelpers();
+  }
+
   void init_idhelpers()
   {
     tileid.set_do_neighbours (false);
@@ -265,7 +267,7 @@ void test1()
 int main()
 {
   std::cout << "TileMutableDigitsContainer_test\n";
-  TileCablingSvc::init_idhelpers();
+  TileCablingSvc cabling;
   test1();
   return 0;
 }

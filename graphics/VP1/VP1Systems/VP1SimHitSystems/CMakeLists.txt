@@ -1,21 +1,7 @@
-################################################################################
-# Package: VP1SimHitSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1SimHitSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          graphics/VP1/VP1Base
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoAdaptors
-                          DetectorDescription/GeoPrimitives
-                          ForwardDetectors/ForwardSimulation/ForwardRegion_SimEv
-                          InnerDetector/InDetSimEvent
-                          MuonSpectrometer/MuonSimEvent
-                          graphics/VP1/VP1Utils )
 
 # External dependencies:
 find_package( Coin3D )

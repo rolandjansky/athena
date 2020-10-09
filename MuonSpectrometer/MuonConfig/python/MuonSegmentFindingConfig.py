@@ -23,7 +23,7 @@ Muon__MuonSegmentSelectionTool=CompFactory.getComp("Muon::MuonSegmentSelectionTo
 Muon__MuonClusterSegmentFinder=CompFactory.getComp("Muon::MuonClusterSegmentFinder")
 
 #Local
-from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
+from MuonConfig.MuonCalibrationConfig import MdtCalibDbAlgCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterTool
 from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtCalibWindowNumber
 
@@ -405,7 +405,7 @@ def QratCscClusterFitterCfg(flags, **kwargs):
 
 def CalibCscStripFitterCfg(flags, name = "CalibCscStripFitter",**kwargs):
     CalibCscStripFitter=CompFactory.CalibCscStripFitter
-    from MuonConfig.MuonCalibConfig import CscCalibToolCfg
+    from MuonConfig.MuonCalibrationConfig import CscCalibToolCfg
     result = CscCalibToolCfg(flags)
     kwargs.setdefault("cscCalibTool", result.popPrivateTools() )
     result.setPrivateTools(CalibCscStripFitter(name=name,**kwargs))

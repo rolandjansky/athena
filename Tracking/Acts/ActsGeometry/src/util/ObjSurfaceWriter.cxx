@@ -15,7 +15,7 @@
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
 #include "Acts/Surfaces/SurfaceBounds.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/GeometryIdentifier.hpp"
 
 #include "Acts/Geometry/Polyhedron.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
@@ -166,7 +166,7 @@ Acts::ObjSurfaceWriter::write(const Acts::GeometryContext &gctx,
     ACTS_VERBOSE(">>Obj: Writing out a CylinderSurface with r = "
                  << cylinderBounds->get(Acts::CylinderBounds::eR));
     // name the object
-    auto layerID = surface.geoID().layer();
+    auto layerID = surface.geometryId().layer();
     (*(m_cfg.outputStream))
         << " o Cylinder_" << std::to_string(layerID) << '\n';
     // output to the file
@@ -188,7 +188,7 @@ Acts::ObjSurfaceWriter::write(const Acts::GeometryContext &gctx,
     ACTS_VERBOSE(">>Obj: Writing out a DiskSurface at z = "
                  << sTransform.translation().z());
     // name the object
-    auto layerID = surface.geoID().layer();
+    auto layerID = surface.geometryId().layer();
     (*(m_cfg.outputStream)) << "o Disk_" << std::to_string(layerID) << '\n';
     // we use the tube writer in the other direction
     double rMin      = radialBounds->rMin();

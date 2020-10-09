@@ -22,6 +22,12 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+#if __clang__
+// Work around warnings from gtest code.   See
+// https://github.com/google/googletest/pull/2316.
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 //
 // method implementations
 //
@@ -321,7 +327,7 @@ namespace asg
   // check make(type)
   TEST_F (AnaToolHandleUseTest, makeTyped)
   {
-    ASSERT_DEATH (tool.make ("asg::UnitTestTool1"), "");
+    ASSERT_DEATH (tool.make ("asg::UnitTestTool1").ignore(), "");
   }
 #endif
 
@@ -345,7 +351,7 @@ namespace asg
   // check makeNew<type>()
   TEST_F (AnaToolHandleUseTest, makeNew)
   {
-    ASSERT_DEATH (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"), "");
+    ASSERT_SUCCESS (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"));
   }
 #endif
 
@@ -426,7 +432,7 @@ namespace asg
   // check setProperty<int>()
   TEST_F (AnaToolHandleUseTest, setPropertyInt)
   {
-    ASSERT_DEATH (tool.setProperty<int> ("propertyInt", 42), "");
+    ASSERT_DEATH (tool.setProperty<int> ("propertyInt", 42).ignore(), "");
   }
 #endif
 
@@ -455,7 +461,7 @@ namespace asg
   // check setProperty(const char*)
   TEST_F (AnaToolHandleUseTest, setPropertyString)
   {
-    ASSERT_DEATH (tool.setProperty ("propertyString", "42"), "");
+    ASSERT_DEATH (tool.setProperty ("propertyString", "42").ignore(), "");
   }
 #endif
 
@@ -481,7 +487,7 @@ namespace asg
   // check initialize()
   TEST_F (AnaToolHandleUseTest, initialize)
   {
-    ASSERT_DEATH (tool.initialize(), "");
+    ASSERT_DEATH (tool.initialize().ignore(), "");
   }
 #endif
 
@@ -690,7 +696,7 @@ namespace asg
     }
   };
 
-  TYPED_TEST_CASE_P (SetToolHandlePropertyTest);
+  TYPED_TEST_SUITE_P (SetToolHandlePropertyTest);
 
   TYPED_TEST_P (SetToolHandlePropertyTest, setRegPublicHandle)
   {
@@ -712,7 +718,7 @@ namespace asg
     this->testSetToolHandle ("anaPrivateHandle", false, false);
   }
 
-  REGISTER_TYPED_TEST_CASE_P (SetToolHandlePropertyTest, setRegPublicHandle, setRegPrivateHandle, setAnaPublicHandle, setAnaPrivateHandle);
+  REGISTER_TYPED_TEST_SUITE_P (SetToolHandlePropertyTest, setRegPublicHandle, setRegPrivateHandle, setAnaPublicHandle, setAnaPrivateHandle);
 
 
 
@@ -731,7 +737,7 @@ namespace asg
     AnaToolHandle<IUnitTestTool1> handle;
   };
 #ifdef ROOTCORE
-  INSTANTIATE_TYPED_TEST_CASE_P (PublicAnaSubToolTest, SetToolHandlePropertyTest, PublicAnaSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (PublicAnaSubToolTest, SetToolHandlePropertyTest, PublicAnaSubTool);
 #endif
 
   struct PrivateAnaSubTool
@@ -752,7 +758,7 @@ namespace asg
     AnaToolHandle<IUnitTestTool1> handle;
   };
 #ifdef ROOTCORE
-  INSTANTIATE_TYPED_TEST_CASE_P (PrivateAnaSubToolTest, SetToolHandlePropertyTest, PrivateAnaSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (PrivateAnaSubToolTest, SetToolHandlePropertyTest, PrivateAnaSubTool);
 #endif
 
   struct EmptyRegSubTool
@@ -767,7 +773,7 @@ namespace asg
 
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (EmptyRegSubToolTest, SetToolHandlePropertyTest, EmptyRegSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (EmptyRegSubToolTest, SetToolHandlePropertyTest, EmptyRegSubTool);
 
   struct InvalidSubTool
   {
@@ -782,7 +788,7 @@ namespace asg
 
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (InvalidSubToolTest, SetToolHandlePropertyTest, InvalidSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (InvalidSubToolTest, SetToolHandlePropertyTest, InvalidSubTool);
 
   struct NamedSubTool
   {
@@ -810,7 +816,7 @@ namespace asg
 #endif
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (NamedSubToolTest, SetToolHandlePropertyTest, NamedSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (NamedSubToolTest, SetToolHandlePropertyTest, NamedSubTool);
 
 #ifdef ROOTCORE
   struct PointerRegSubTool
@@ -829,7 +835,7 @@ namespace asg
     AnaToolHandle<IUnitTestTool1> tool;
     ToolHandle<IUnitTestTool1> handle;
   };
-  INSTANTIATE_TYPED_TEST_CASE_P (PointerRegSubToolTest, SetToolHandlePropertyTest, PointerRegSubTool);
+  INSTANTIATE_TYPED_TEST_SUITE_P (PointerRegSubToolTest, SetToolHandlePropertyTest, PointerRegSubTool);
 #endif
 
 

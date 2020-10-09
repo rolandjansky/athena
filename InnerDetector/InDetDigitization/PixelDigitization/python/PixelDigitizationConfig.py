@@ -126,14 +126,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-
-        PixelConfigCondAlg.UseCalibConditions=True
-        PixelConfigCondAlg.UseDeadmapConditions=True
-        PixelConfigCondAlg.UseDCSStateConditions=False
-        PixelConfigCondAlg.UseDCSStatusConditions=False
-        PixelConfigCondAlg.UseDCSHVConditions=True
-        PixelConfigCondAlg.UseDCSTemperatureConditions=True
-        PixelConfigCondAlg.UseTDAQConditions=False
         PixelConfigCondAlg.UseCablingConditions=False
 
         from AthenaCommon.BeamFlags import jobproperties
@@ -447,7 +439,8 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
         ToolSvc += SiLorentzAngleTool(name="PixelLorentzAngleTool", 
                                       DetectorName="Pixel", 
-                                      UseMagFieldCache = True,
+                                      DetEleCollKey="PixelDetectorElementCollection",
+                                      UseMagFieldCache=True,
                                       SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
 ############################################################################################
