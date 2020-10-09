@@ -7,14 +7,14 @@
 
 #include "GeneratorModules/GenModule.h"
 
-#include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/HepMC2.h"
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Pythia8_i/UserHooksFactory.h"
+
+#include "Pythia8Plugins/HepMC2.h"
 
 #include <stdexcept>
 
