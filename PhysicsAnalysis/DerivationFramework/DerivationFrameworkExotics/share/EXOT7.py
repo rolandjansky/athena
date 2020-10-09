@@ -69,7 +69,7 @@ if DerivationFrameworkHasTruth:
   isMC = True
 
 #run GenFilterTool
-if glDerivationFrameworkHasTruth:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.GenFilterToolSetup import *
   augTools.append(ToolSvc.DFCommonTruthGenFilt)
 
