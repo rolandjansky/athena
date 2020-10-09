@@ -29,7 +29,6 @@ Here are the active monitoring algorithms / tools:
 @subsection SCT_Monitoring_SCT_MonitoringConfigurationNewNew Configuration in the new DQ framework and the new job configuration framework
 
 InnerDetector/InDetMonitoring/SCT_Monitoring/python/SCTMonitoringConfig.py is the main configuration script.
-Only SCTLorentzMonAlg and SCTTracksMonAlg are configured in the script using SCTLorentzMonAlg.py and SCTTracksMonAlg.py because the Inner Dector configuration is not fully ready in the new job configuration framework as of October, 2020.
 
 When the Reco_tf.py command is used, the chain is the following:
 - Reconstruction/RecJobTransforms/scripts/Reco_tf.py
@@ -38,12 +37,6 @@ When the Reco_tf.py command is used, the chain is the following:
 - Control/AthenaMonitoring/share/DataQualitySteering_jobOptions.py
 - Control/AthenaMonitoring/python/AthenaMonitoringCfg.py
 - InnerDetector/InDetMonitoring/SCT_Monitoring/python/SCTMonitoringConfig.py
-
-Individual algorithms can be run using the configuration scripts like:
-
-\verbatim
-python -m SCT_Monitoring.SCTLorentzMonAlg
-\endverbatim
 
 @subsection SCT_Monitoring_SCT_MonitoringConfigurationNewOld Configuration in the new DQ framework and the old job configuration framework
 
