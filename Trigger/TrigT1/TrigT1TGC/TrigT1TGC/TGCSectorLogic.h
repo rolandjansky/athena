@@ -38,6 +38,7 @@ class  TGCHighPtChipOut;
 class  TGCTMDB;
 class  TGCNSW;
 class  TGCNSWCoincidenceMap;
+class  TGCGoodMF;
 
 //for Run3
 class TGCTrackSelectorOut;
@@ -78,6 +79,7 @@ public:
 		    const TGCTileMuCoincidenceMap* mapTM);
   void setNSWMap(std::shared_ptr<const TGCNSW> nsw,
 		 std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
+  void setGoodMFMap(const TGCGoodMF* mapGoodMF);
   void showResult(TGCSLSelectorOut* out);
  
   TGCSectorLogic(TGCArguments*, TGCRegionType regionIn, int id);
@@ -118,6 +120,7 @@ private:
   int m_sideId, m_octantId;
   TGCRegionType m_region;
   int  m_NumberOfWireHighPtBoard;
+  bool m_useGoodMF;
 
   TGCSSCController m_SSCController;
   TGCRPhiCoincidenceMatrix m_matrix;
@@ -126,6 +129,7 @@ private:
   const TGCTMDB*            m_pTMDB;
   std::shared_ptr<const TGCNSW>             m_nsw;
   std::shared_ptr<const TGCNSWCoincidenceMap> m_mapNSW;
+  const TGCGoodMF*            m_mapGoodMF;
 
   // for Run2
   TGCSLPreSelector m_preSelector; 

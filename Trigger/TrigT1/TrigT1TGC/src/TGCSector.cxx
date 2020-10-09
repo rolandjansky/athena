@@ -147,6 +147,9 @@ TGCSector::TGCSector(TGCArguments* tgcargs)
     std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW = db->getNSWCoincidenceMap(m_sideId, m_octantId,m_moduleId);
     setNSWMap(mapNSW);
 
+    const TGCGoodMF* mapGoodMF = db->getGoodMFMap();
+    setGoodMFMap(mapGoodMF);
+
   }
 
   // set connection between boards;
@@ -306,7 +309,10 @@ void TGCSector::setNSWMap(std::shared_ptr<const TGCNSWCoincidenceMap>  mapNSW)
   if (m_SL) m_SL->setNSWMap(m_NSW, mapNSW);
 }
 
-
+void TGCSector::setGoodMFMap(const TGCGoodMF* mapGoodMF)
+{
+  if (m_SL) m_SL->setGoodMFMap(mapGoodMF);
+}
 
 
 void TGCSector::connectPPToSB(const TGCConnectionPPToSB* connection)

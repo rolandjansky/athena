@@ -13,6 +13,7 @@
 #include "TrigT1TGC/TGCNSW.h"
 #include "TrigT1TGC/NSWTrigOut.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
+#include "TrigT1TGC/TGCGoodMF.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
@@ -46,6 +47,7 @@ namespace LVL1TGCTrigger {
     m_stripHighPtChipOut(0),
     m_useEIFI(false),
     m_useTileMu(false),
+    m_useGoodMF(false),
     m_tgcArgs(tgcargs)
 {
   m_sideId = (idIn/NumberOfModule)/NumberOfOctant;
@@ -111,6 +113,12 @@ void TGCSectorLogic::setTileMuMap(const TGCTMDB* tmdb,
   if( m_nsw == 0 || m_mapNSW == 0){tgcArgs()->set_USE_NSW(false);}
 }
 
+void TGCSectorLogic::setGoodMFMap(const TGCGoodMF* mapGoodMF)
+{
+  m_mapGoodMF = mapGoodMF;
+  if (m_mapGoodMF !=0){m_useGoodMF = true;}
+  else{m_useGoodMF = false;}
+}
 
 void TGCSectorLogic::setWireHighPtBoard(int port, TGCHighPtBoard* highPtBoard)
 {
@@ -192,6 +200,17 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
 	}
       }
     }
+
+    if(tgcArgs()->useRun3Config()){
+      if(coincidenceOut){
+        if (m_useGoodMF){
+          bool isgoodMF;
+          isgoodMF = m_mapGoodMF->test_GoodMF(m_moduleId,SSCid,coincidenceOut->getRoI());
+          coincidenceOut->setGoodMFFlag(isgoodMF);
+        }
+      }
+    }
+
     ////////////////////////////////////////////
     // do coincidence with Inner Tracklet of EIFI and/or TileMu
 
