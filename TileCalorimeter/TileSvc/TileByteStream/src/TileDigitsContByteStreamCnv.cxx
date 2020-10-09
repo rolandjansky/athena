@@ -87,7 +87,7 @@ StatusCode TileDigitsContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, Da
   }
 
   const std::string containerName(*(pRE_Addr->par()));
-  bool isTMDB(containerName == "MuRcvDigitsCnt");
+  bool isTMDB(containerName == std::string("MuRcvDigitsCnt"));
 
   uint32_t newrob = 0x0;
 
