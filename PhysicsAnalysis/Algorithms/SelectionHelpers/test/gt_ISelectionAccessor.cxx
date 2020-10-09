@@ -15,7 +15,7 @@
 #include <SelectionHelpers/SelectionAccessorBits.h>
 #include <SelectionHelpers/SelectionAccessorList.h>
 #include <SelectionHelpers/SelectionAccessorNull.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <xAODJet/Jet.h>
 #include <gtest/gtest.h>

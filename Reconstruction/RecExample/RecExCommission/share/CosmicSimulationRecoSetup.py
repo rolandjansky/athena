@@ -36,28 +36,28 @@ if globalflags.DetDescrVersion=='ATLAS-GEONSF-07-00-00':
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(True)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(True)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMCT-00-00-00')
-    print 'configuring reco with solenoid off, toroid on from DetDescrVersion: ATLAS-GEONSF-07-00-00'
+    print('configuring reco with solenoid off, toroid on from DetDescrVersion: ATLAS-GEONSF-07-00-00')
     
 if globalflags.DetDescrVersion=='ATLAS-GEO-07-00-00':
     jobproperties.BField.solenoidOn.set_Value_and_Lock(True)
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(True)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(True)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMCST-00-00-00')
-    print 'configuring reco with solenoid on, toroid on from DetDescrVersion: ATLAS-GEO-07-00-00'
+    print('configuring reco with solenoid on, toroid on from DetDescrVersion: ATLAS-GEO-07-00-00')
     
 if globalflags.DetDescrVersion=='ATLAS-GEONF-07-00-00':
     jobproperties.BField.solenoidOn.set_Value_and_Lock(False)
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(False)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(False)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMC-00-00-00')
-    print 'configuring reco with solenoid off, toroid off from DetDescrVersion: ATLAS-GEONF-07-00-00'
+    print('configuring reco with solenoid off, toroid off from DetDescrVersion: ATLAS-GEONF-07-00-00')
         
 if globalflags.DetDescrVersion=='ATLAS-GEONTF-07-00-00':
     jobproperties.BField.solenoidOn.set_Value_and_Lock(True)
     jobproperties.BField.barrelToroidOn.set_Value_and_Lock(False)
     jobproperties.BField.endcapToroidOn.set_Value_and_Lock(False)
     globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-SIMCS-00-00-00')
-    print 'configuring reco with solenoid on, toroid off from DetDescrVersion: ATLAS-GEONTF-07-00-00'
+    print('configuring reco with solenoid on, toroid off from DetDescrVersion: ATLAS-GEONTF-07-00-00')
                             
 
                                                 

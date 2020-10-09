@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TString.h"

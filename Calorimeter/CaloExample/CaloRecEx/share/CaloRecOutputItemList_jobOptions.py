@@ -17,6 +17,12 @@ CaloClusterItemList=[]
 CaloClusterKeys=[]
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
+if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
+    CaloClusterKeys+=["CaloCalTopoTowers"]
+if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
+    CaloClusterKeys+=["CaloCalTopoSignals"]
+##CaloClusterKeys+=["CaloCalFwdTopoTowers"]
+
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]
@@ -105,6 +111,18 @@ AODMoments=[#"LATERAL"
             ,"BadChannelList"
             ,#"LATERAL"
             ]
+
+if jobproperties.CaloRecFlags.doExtendedClusterMoments.get_Value():
+    AODMoments += ["LATERAL"
+                   ,"LONGITUDINAL"
+                   ,"ENG_BAD_HV_CELLS"
+                   ,"N_BAD_HV_CELLS"
+                   ,"SIGNIFICANCE"
+                   ,"CELL_SIGNIFICANCE"
+                   ,"CELL_SIG_SAMPLING"
+                   ,"PTD"
+                   ,"MASS"
+                   ]
 try:
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doDigiTruth():
@@ -133,6 +151,15 @@ try:
                 ,"ETA_DigiHSTruth"
                 ,"PHI_DigiHSTruth"
                 ]
+      if jobproperties.CaloRecFlags.doExtendedClusterMoments.get_Value():
+            AODMoments+=["ENG_BAD_HV_CELLS_Truth"
+                         ,"N_BAD_HV_CELLS_Truth"
+                         ,"SIGNIFICANCE_Truth"
+                         ,"CELL_SIGNIFICANCE_Truth"
+                         ,"CELL_SIG_SAMPLING_Truth"
+                         ,"PTD_Truth"
+                 ]
+
 except:
     log = logging.getLogger('CaloRecOutputItemList')
     log.info('Unable to import DigitizationFlags in CaloRecOutputItemList_jobOptions. Expected in AthenaP1')
@@ -149,6 +176,11 @@ CaloClusterKeys=[]
 
 
 CaloClusterKeys+=["CaloCalTopoClusters"]
+if jobproperties.CaloRecFlags.doCaloTopoTower.get_Value():
+    CaloClusterKeys+=["CaloCalTopoTowers"]
+if jobproperties.CaloRecFlags.doCaloTopoSignal.get_Value():
+    CaloClusterKeys+=["CaloCalTopoSignals"]
+
 CaloClusterKeys+=["CombinedCluster"]
 #CaloClusterKeys+=["EMTopoCluster430"]
 CaloClusterKeys+=["EMTopoSW35"]

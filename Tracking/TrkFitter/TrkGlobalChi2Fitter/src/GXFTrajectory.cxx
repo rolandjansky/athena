@@ -558,6 +558,10 @@ namespace Trk {
     }
   }
 
+  const std::vector<std::unique_ptr<GXFTrackState>> & GXFTrajectory::trackStates() const {
+    return m_states;
+  }
+
   std::vector<std::unique_ptr<GXFTrackState>> & GXFTrajectory::trackStates() {
     return m_states;
   }

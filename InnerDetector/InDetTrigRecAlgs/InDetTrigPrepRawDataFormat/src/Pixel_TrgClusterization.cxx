@@ -31,7 +31,7 @@
 
 // Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -57,7 +57,6 @@ namespace InDet{
     m_pixelRDOContainerName("PixelRDOs"),    // RDO container
     m_clustersName("PixelTrigClusters"),
     m_ambiguitiesMapName("TrigPixelClusterAmbiguitiesMap"),
-    m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1),
@@ -71,7 +70,6 @@ namespace InDet{
     declareProperty("ClustersName",            m_clustersName);
     declareProperty("AmbiguitiesMapName",      m_ambiguitiesMapName);
 
-    declareProperty("RegionSelectorTool",      m_regionSelector);
     declareProperty("doFullScan",              m_doFullScan);
     declareProperty("EtaHalfWidth",            m_etaHalfWidth);
     declareProperty("PhiHalfWidth",            m_phiHalfWidth);
@@ -361,7 +359,7 @@ namespace InDet{
 
     if (!(roi->isFullscan())){
       if(doTiming()) m_timerRegSel->start();
-      m_regionSelector->DetHashIDList( PIXEL, *roi, m_listOfPixIds);
+      m_regionSelector->HashIDList( *roi, m_listOfPixIds);
       m_numPixIds = m_listOfPixIds.size();
       ATH_MSG_DEBUG( "REGTEST: Pixel : Roi contains " 
 		     << m_numPixIds << " det. Elements" );
@@ -619,12 +617,8 @@ namespace InDet{
 		   << " located at   phi = " <<  roi->phi()
 		   << ", eta = " << roi->eta() );
 		
-
-    //const TrigRoiDescriptor fs(true);
-
     std::vector<unsigned int> uIntListOfRobs;
-    m_regionSelector->DetROBIDListUint( PIXEL, *roi, uIntListOfRobs );
-    //m_regionSelector->DetROBIDListUint( PIXEL, fs, uIntListOfRobs );
+    m_regionSelector->ROBIDList( *roi, uIntListOfRobs );
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in PIX: " );
     for(uint i_lid(0); i_lid<uIntListOfRobs.size(); i_lid++)

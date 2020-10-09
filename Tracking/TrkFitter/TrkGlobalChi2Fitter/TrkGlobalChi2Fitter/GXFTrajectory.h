@@ -71,6 +71,7 @@ namespace Trk {
     int numberOfPseudoMeasurements();
     int numberOfOutliers();
 
+    const std::vector<std::unique_ptr<GXFTrackState>> & trackStates() const;
     std::vector<std::unique_ptr<GXFTrackState>> & trackStates();
     std::vector < std::pair < double, double >>&scatteringAngles();
     std::vector < std::pair < double, double >>&scatteringSigmas();

@@ -18,7 +18,7 @@
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "EventInfo/EventInfo.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 #include "StoreGate/ReadHandleKey.h"
 

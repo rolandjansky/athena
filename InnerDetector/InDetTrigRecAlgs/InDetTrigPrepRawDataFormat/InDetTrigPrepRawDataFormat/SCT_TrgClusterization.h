@@ -37,7 +37,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
@@ -110,7 +110,7 @@ namespace InDet {
     SCT_ClusterContainer*   m_clusterContainer;
     
     // !<  Trigger part
-    ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service
+    ToolHandle<IRegSelTool>    m_regionSelector{ this, "RegSelTool", "RegSelTool/RegSelTool_SCT" }; //!<  region selector service
     bool m_doFullScan;                       //!<  support for FullScan mode
     double                  m_etaHalfWidth;          //!<  ROI half-width in eta.
     double                  m_phiHalfWidth;          //!<  ROI half-width in phi.

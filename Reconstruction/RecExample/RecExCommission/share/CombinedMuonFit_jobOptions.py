@@ -11,7 +11,7 @@ GlobalChi2FitterComb=Trk__GlobalChi2Fitter(name='GlobalChi2FitterComb',
 
 ToolSvc += GlobalChi2FitterComb
 
-print GlobalChi2FitterComb
+print(GlobalChi2FitterComb)
 
 from CombinedMuonRefit.CombinedMuonRefitConf import ReFitMuon
 MuonReFitTrack2 = ReFitMuon (name = "CombMuonRefit",
@@ -25,7 +25,7 @@ MuonReFitTrack2 = ReFitMuon (name = "CombMuonRefit",
                              OutputLevel=3)
 
 topSequence += MuonReFitTrack2
-print          MuonReFitTrack2
+print(MuonReFitTrack2)
 
 #GlobalChi2FitterBarrel.OutputLevel=1
 #GlobalChi2FitterBarrel.NumericalDerivs=True

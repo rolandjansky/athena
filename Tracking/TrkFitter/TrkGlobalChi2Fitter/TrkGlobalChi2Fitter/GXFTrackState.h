@@ -47,7 +47,7 @@ namespace Trk {
     const MeasurementBase *measurement(void);
 
     void setTrackParameters(std::unique_ptr<const TrackParameters>);
-    const TrackParameters *trackParameters(void);
+    const TrackParameters *trackParameters(void) const;
     
     GXFMaterialEffects *materialEffects();
     const Surface *surface() const;
@@ -114,6 +114,9 @@ namespace Trk {
      */
     bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType type) const;
 
+    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> & getHoles(void);
+    void setHoles(std::vector<std::unique_ptr<const TrackParameters>> &&);
+
   private:
     std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
@@ -132,7 +135,7 @@ namespace Trk {
     bool m_recalib;             //!< Has this measurement already been recalibrated?
     bool m_measphi;
     Amg::Vector3D m_globpos;
-    std::optional<std::vector<const TrackParameters *>> m_preholes;
+    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> m_holes;
 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -150,7 +153,7 @@ namespace Trk {
     return m_covariancematrix;
   }
 
-  inline const TrackParameters *GXFTrackState::trackParameters(void) {
+  inline const TrackParameters *GXFTrackState::trackParameters(void) const {
     return m_trackpar.get();
   }
 

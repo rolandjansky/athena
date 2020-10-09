@@ -109,8 +109,17 @@ if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
     PixelOfflineCalibCondAlg.InputSource = 2
 
 from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
-job += InDet__PixelClusterization("PixelClusterization")
+
+pixelClusterization = InDet__PixelClusterization("PixelClusterization")
+
+from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+pixelClusterization.RegSelTool = makeRegSelTool_Pixel()
+
+job += pixelClusterization
+
 print job.PixelClusterization
+
+
 
 from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
 job += InDet__SiTrackerSpacePointFinder("PixelSpacePoints",

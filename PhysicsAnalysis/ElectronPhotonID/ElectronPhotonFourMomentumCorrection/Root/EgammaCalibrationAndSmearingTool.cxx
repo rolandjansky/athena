@@ -702,7 +702,7 @@ CP::CorrectionCode EgammaCalibrationAndSmearingTool::correctedCopy(const xAOD::P
 double EgammaCalibrationAndSmearingTool::getEnergy(const xAOD::Photon& input)
 {
   xAOD::Photon* new_particle = nullptr;
-  correctedCopy(input, new_particle);
+  ANA_CHECK_THROW (correctedCopy(input, new_particle));
   const double e = new_particle->e();
   delete new_particle;
   return e;
@@ -711,7 +711,7 @@ double EgammaCalibrationAndSmearingTool::getEnergy(const xAOD::Photon& input)
 double EgammaCalibrationAndSmearingTool::getEnergy(const xAOD::Electron& input)
 {
   xAOD::Electron* new_particle = nullptr;
-  correctedCopy(input, new_particle);
+  ANA_CHECK_THROW (correctedCopy(input, new_particle));
   const double e = new_particle->e();
   delete new_particle;
   return e;
@@ -854,7 +854,7 @@ CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamm
 
 double EgammaCalibrationAndSmearingTool::getEnergy(xAOD::Egamma* p, const xAOD::EventInfo* event_info)
 {
-  applyCorrection(*p, *event_info);
+  ANA_CHECK_THROW (applyCorrection(*p, *event_info));
   ATH_MSG_DEBUG("returning " << p->e());
   return p->e();
 }

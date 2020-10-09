@@ -8,7 +8,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/MsgStream.h"
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "StoreGate/StoreGate.h"
 
 using CLHEP::deg;
 

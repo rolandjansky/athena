@@ -10,7 +10,7 @@
 
 //#include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
+#include "IRegionSelector/IRegSelTool.h" 
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -25,7 +25,6 @@ namespace InDet {
 						  const std::string& name,
 						  const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_id(nullptr),
     m_container(nullptr),
@@ -159,10 +158,7 @@ namespace InDet {
       ATH_MSG_DEBUG( "REGTEST:" << *roi);
 
       //      double zmax = 168; 
-      m_regionSelector->DetROBIDListUint( SCT, 
-					  *roi, 
-					  robIDlist);                                       
-
+      m_regionSelector->ROBIDList( *roi, robIDlist );
 
     } else {
       m_cablingTool->getAllRods(robIDlist);

@@ -89,18 +89,17 @@ namespace xAOD {
       // This never seems to have more than one entry???
       typedef std::map<const IParticle*, const IParticle*> derefMap_t;
 
-      /** cast for TrackParticle (etcone muon) */    
-      bool caloCellIsolation( CaloIsolation& result, 
+      /** cast for Muon (etcone muon) */
+      bool caloCellIsolation( CaloIsolation& result,
 #ifndef XAOD_ANALYSIS
-      const TrackParticle& tp, 
+			      const Muon& muon,
 #endif
-      const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections
+			      const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections
 #ifndef XAOD_ANALYSIS
-      , const CaloCellContainer* container
-      , double coneCoreSize
-      , const derefMap_t& derefMap
+			      , double coneCoreSize
+			      , const derefMap_t& derefMap
 #endif
-      ) const;
+			      ) const;
 
       /** cast for egamma (etcone egamma)*/    
       bool caloCellIsolation( CaloIsolation& result, const Egamma& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections
@@ -150,6 +149,14 @@ namespace xAOD {
       bool etConeIsolation( CaloIsolation& result, const TrackParticle& tp, 
 			    const std::vector<Iso::IsolationType>& isoTypes, 
 			    const CaloCellContainer* container,
+                            double coneCoreSize,
+                            const derefMap_t& derefMap) const;
+#endif
+
+      // etcone computation for TrackParticle
+#ifndef XAOD_ANALYSIS
+      bool etConeIsolation( CaloIsolation& result, const Muon& muon,
+                            const std::vector<Iso::IsolationType>& isoTypes,
                             double coneCoreSize,
                             const derefMap_t& derefMap) const;
 #endif

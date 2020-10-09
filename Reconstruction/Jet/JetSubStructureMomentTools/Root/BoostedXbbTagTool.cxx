@@ -5,7 +5,7 @@
 #include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
 #include "JetSubStructureUtils/BoostedXbbTag.h"
 #include "xAODMuon/Muon.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 using namespace std;
 

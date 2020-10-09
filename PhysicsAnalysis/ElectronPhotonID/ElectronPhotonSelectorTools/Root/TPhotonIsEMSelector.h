@@ -26,7 +26,8 @@
 #include "PATCore/AcceptInfo.h"
 #include "PATCore/AcceptData.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include <vector>
 #include <string>

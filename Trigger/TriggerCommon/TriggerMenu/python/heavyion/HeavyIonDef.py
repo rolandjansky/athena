@@ -21,8 +21,8 @@ efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 efid_heavyIon = TrigEFIDSequence("heavyIonFS","heavyIonFS","InsideOut").getSequence()
 efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
-dummyRoI=DummyRoI(name='MinBiasDummyRoI', createRoIDescriptors = True, NumberOfOutputTEs=1)
+from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo as DummyRoI
+dummyRoI=DummyRoI(name='MinBiasDummyRoI' ) #, createRoIDescriptors = True, NumberOfOutputTEs=1)
 
 # for HI
 from TrigHIHypo.TrigHIHypoConfig import HIEFTrackHypo_AtLeastOneTrack

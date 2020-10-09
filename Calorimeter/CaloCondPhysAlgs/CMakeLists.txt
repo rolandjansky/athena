@@ -1,45 +1,13 @@
-################################################################################
-# Package: CaloCondPhysAlgs
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloCondPhysAlgs )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloCondBlobObjs
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          GaudiKernel
-                          LArCalorimeter/LArCabling
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRecUtils
-                          LArCalorimeter/LArTools
-                          LArCalorimeter/LArRawConditions
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          PRIVATE
-                          Calorimeter/CaloConditions
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloUtils
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
-                          LArCalorimeter/LArGeoModel/LArHV
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
-                          LArCalorimeter/LArSimEvent 
-			  Control/CxxUtils)
-
 # External dependencies:
 find_package( CLHEP )
 find_package( COOL COMPONENTS CoolKernel )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( CORAL COMPONENTS CoralBase )
+find_package( ROOT COMPONENTS Core Tree )
 
 # Component(s) in the package:
 atlas_add_component( CaloCondPhysAlgs
@@ -47,8 +15,8 @@ atlas_add_component( CaloCondPhysAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers 
-		     CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib LArRawConditions
-		     CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier xAODEventInfo LArHV LArReadoutGeometry LArSimEvent CxxUtils)
+		             CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel LArCablingLib LArElecCalib LArIdentifier TrigDecisionToolLib LArRawConditions
+		             CaloConditions CaloEvent CaloInterfaceLib CaloUtilsLib AthenaPoolUtilities Identifier xAODEventInfo LArHV LArReadoutGeometry LArSimEvent CxxUtils)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -27,7 +27,7 @@
 #include "xAODCore/AuxContainerBase.h"
 
 #include "egammaMVACalibAnalysis/egammaMVATool.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // Infrastructure include(s):
 #ifdef ROOTCORE

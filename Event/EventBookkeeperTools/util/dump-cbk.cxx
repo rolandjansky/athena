@@ -12,7 +12,7 @@
 #include <xAODRootAccess/tools/TFileAccessTracer.h>
 
 // ASG
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTools/ToolHandle.h>
 #include <AsgTools/AsgMetadataTool.h>
 #include <AthAnalysisBaseComps/AthAnalysisHelper.h>

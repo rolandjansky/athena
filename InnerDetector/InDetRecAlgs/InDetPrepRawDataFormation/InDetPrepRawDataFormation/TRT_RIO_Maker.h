@@ -27,7 +27,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 //fwd declarations
 class StatusCode;
 class ISvcLocator;
@@ -72,7 +72,7 @@ namespace InDet{
 
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{this, "RoIs", "", "RoIs to read in"};
     BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};
-    ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+    ToolHandle<IRegSelTool>     m_regionSelector { this, "RegSelTool", "RegSelTool/RegSelTool_TRT" };     //!< region selector tool
     SG::UpdateHandleKey<InDet::TRT_DriftCircleContainerCache> m_rioContainerCacheKey;
 
   };

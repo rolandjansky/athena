@@ -115,9 +115,7 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
      for (; roi!=roiE; ++roi) {
        superRoI.push_back(*roi);
      }
-     m_regionSelector->DetROBIDListUint( PIXEL,
-					 superRoI,
-					 listOfRobs);
+     m_regionSelector->ROBIDList( superRoI, listOfRobs );
   }
   std::vector<const ROBFragment*> listOfRobf;
 

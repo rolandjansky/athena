@@ -9,7 +9,7 @@
 #define ASGTOOLS_ASGCOMPONENT_ICC
 
 #include <AsgTools/PropertyMgr.h>
-#include <AsgTools/StatusCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <AsgTools/TProperty.h>
 #include <utility>
 

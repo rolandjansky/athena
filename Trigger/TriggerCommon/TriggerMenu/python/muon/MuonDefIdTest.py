@@ -492,7 +492,7 @@ class L2EFChain_mu(L2EFChainDef):
 
     ########### EF algos  #################
 
-    from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
+    from TrigGenericAlgs.GenericDummyUnseededAllTEAlgoConfig import GenericDummyUnseededAllTEAlgo 
 
     from AthenaCommon import CfgGetter
 
@@ -562,7 +562,7 @@ class L2EFChain_mu(L2EFChainDef):
     ########### Sequence List ##############
 
     self.EFsequenceList += [['',
-                            [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")]+
+                            [GenericDummyUnseededAllTEAlgo("EFDummyAlgo")]+
                             [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA"),
                              theTrigMuonEFSA_FS_Hypo],
                              'EF_SA_FS']]

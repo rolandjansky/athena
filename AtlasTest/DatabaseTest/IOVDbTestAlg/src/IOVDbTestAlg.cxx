@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVDbTestAlg.h"
@@ -11,7 +11,6 @@
 #include "IOVDbTestConditions/IOVDbTestAmdbCorrection.h"
 
 // Athena includes
-#include "StoreGate/StoreGate.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 // Gaudi includes

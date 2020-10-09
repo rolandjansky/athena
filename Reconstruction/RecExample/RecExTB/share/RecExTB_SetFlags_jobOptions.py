@@ -6,7 +6,7 @@ dataPathList.insert(0, os.curdir)
 from AthenaCommon.Utils.unixtools import FindFile
 filename = FindFile( 'prefix.txt', dataPathList, os.R_OK )
 if filename is None:
-   print 'ERROR: SetFlags.py could not find list of file prefixes, prefix.txt'
+   print('ERROR: SetFlags.py could not find list of file prefixes, prefix.txt')
 text = open(filename,'r')
 for line in text.readlines():
     words = string.split(line)
@@ -15,4 +15,4 @@ for line in text.readlines():
         if string.atoi(Run) == RunNumber:
             FilePrefix = words[1]
 text.close()
-print 'Prefix ', FilePrefix    
+print('Prefix ', FilePrefix)

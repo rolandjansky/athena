@@ -12,7 +12,7 @@
 #include "AthContainers/ConstDataVector.h"
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/WriteHandle.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 #ifndef XAOD_STANDALONE
 // Usage of metadata is for now only possible in Athena...

@@ -6,7 +6,7 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 // ==================================================================
 bool PhotonHelpers::passOQquality(const xAOD::Photon *ph){

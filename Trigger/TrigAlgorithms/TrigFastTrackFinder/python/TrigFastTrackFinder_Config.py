@@ -237,8 +237,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
         from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
       
-        spTool.RegSel_Pixel = makeRegSelTool_Pixel()
-        spTool.RegSel_SCT   = makeRegSelTool_SCT()
+        spTool.RegSelTool_Pixel = makeRegSelTool_Pixel()
+        spTool.RegSelTool_SCT   = makeRegSelTool_SCT()
 
         ToolSvc += spTool
         self.SpacePointProviderTool=spTool

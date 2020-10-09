@@ -31,7 +31,7 @@ class TH2;
 #include "TObjArray.h"
 // Core includes
 #include "PATCore/PATCoreEnums.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 namespace Root {
 class TElectronEfficiencyCorrectionTool : public asg::AsgMessaging

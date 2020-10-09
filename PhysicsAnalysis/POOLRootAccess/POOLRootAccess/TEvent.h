@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/Bootstrap.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventSeek.h"
 
@@ -60,12 +60,14 @@ namespace POOL {
          ServiceHandle<StoreGateSvc>& evtStore() { return m_evtStore; }
          ServiceHandle<StoreGateSvc>& inputMetaStore() { return m_inputMetaStore; }
 
-         template<typename T> void setEvtLoopProperty( const char* name, const T& val ) {
-            m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , StringProperty( name,  Gaudi::Utils::toString ( val ) ) ).ignore();
-         }
-
          template<typename T> void setEvtSelProperty( const char* name, const T& val ) {
-            m_joSvc->addPropertyToCatalogue( m_evtSelect.name() , StringProperty( name,  Gaudi::Utils::toString ( val ) ) ).ignore();
+            if constexpr (std::is_convertible_v<T, std::string>) {
+               // Gaudi::Utils::toString adds extra quotes, don't do this for strings:
+               m_joSvc->set(m_evtSelect.name() + "." + name, std::string(val));
+            }
+            else {
+               m_joSvc->set(m_evtSelect.name() + "." + name, Gaudi::Utils::toString(val));
+            }
          }
 
          //forward retrieve calls to the evtStore
@@ -112,7 +114,7 @@ namespace POOL {
          long m_size = -1; //cache of the event size, filled on first call to getEntries
 
          IEventProcessor* m_evtProcessor;
-         ServiceHandle<IJobOptionsSvc> m_joSvc;
+         ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_joSvc;
 
          ServiceHandle<IEventSeek> m_evtLoop; //the AthenaEventLoopMgr
          ServiceHandle<IEvtSelectorSeek> m_evtSelect; //the EventSelectorAthenaPool

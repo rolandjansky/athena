@@ -515,7 +515,7 @@ def createLowPtLargeD0TrackingFlags():
 def createLowPtTrackingFlags():
     icf = createTrackingFlags()
     icf.extension        = "LowPt"
-    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.minPt + 0.3) * Units.GeV
+    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.minPT + 0.3) * Units.GeV
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 5
     icf.minSiNotShared   = 4

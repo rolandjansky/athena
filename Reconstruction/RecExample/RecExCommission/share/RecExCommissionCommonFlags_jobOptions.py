@@ -194,7 +194,7 @@ if not 'InDetKeys' in dir():
     #
     # --- setup StoreGate keys (JobProperties!)
     #
-    print "InDetRec_jobOptions: InDetKeys not set before - I import them now"
+    print("InDetRec_jobOptions: InDetKeys not set before - I import them now")
     from InDetRecExample.InDetKeys import InDetKeys
 #    InDetKeys.lock_JobProperties()
                                                                          

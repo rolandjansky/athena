@@ -25,7 +25,7 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #else
 #include "POOLRootAccess/TEvent.h"
 #include "StoreGate/StoreGateSvc.h"

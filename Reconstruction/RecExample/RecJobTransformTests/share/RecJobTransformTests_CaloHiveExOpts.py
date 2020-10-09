@@ -135,14 +135,14 @@ StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 
-print StreamESD.ItemList
+print(StreamESD.ItemList)
 
 #---------------------------------------------------------------------------------#
 # MT-specific code
 if nThreads >=1 :
    include ( "CaloHiveEx/CaloHiveDeps.py" )
 
-print "==========================================================================================\n"
+print("==========================================================================================\n")
 
 #
 ## set which Algorithms can be cloned

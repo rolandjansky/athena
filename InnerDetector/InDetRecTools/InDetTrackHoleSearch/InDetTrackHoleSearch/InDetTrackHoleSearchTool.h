@@ -11,11 +11,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IBoundaryCheckTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include <atomic>
 #include <vector>
@@ -136,18 +135,22 @@ namespace InDet
  	  Return value: True if filling was successful, false otherwise
 	  This method distills the relevant hits out of a given track
       */
-      bool getMapOfHits(const Trk::Track& track , 
-			const Trk::ParticleHypothesis partHyp,
-			std::map<const Identifier, const Trk::TrackStateOnSurface*>& mapOfHits,
-			std::map<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >& mapOfPredictions) const;
-      
-      /** This method searches for holes in a track. It receives a list of detector responses sorted along the
-	  track. The TSOS in the list of hits should contain TrackParameters or at least MeasurementOnTrack.
-	  The method extrapolates along the tracks, using the hit information to update the extrapolation procedure.
-	  Surface without detector responses, which are crossed by the extrapolation are counted as holes. The
-	  number of holes found is returned through the information array. 
-	  Input: mapOfHits,mapOfPredicitons
-	  Output: Changes in information,listOfHoles
+      bool getMapOfHits(
+        const EventContext& ctx,
+        const Trk::Track& track,
+        const Trk::ParticleHypothesis partHyp,
+        std::map<const Identifier, const Trk::TrackStateOnSurface*>& mapOfHits,
+        std::map<const Identifier,std::pair<const Trk::TrackParameters*, const bool>>&
+          mapOfPredictions) const;
+
+      /** This method searches for holes in a track. It receives a list of
+         detector responses sorted along the track. The TSOS in the list of hits
+         should contain TrackParameters or at least MeasurementOnTrack. The
+         method extrapolates along the tracks, using the hit information to
+         update the extrapolation procedure. Surface without detector responses,
+         which are crossed by the extrapolation are counted as holes. The number
+         of holes found is returned through the information array. Input:
+         mapOfHits,mapOfPredicitons Output: Changes in information,listOfHoles
       */
       void performHoleSearchStepWise(std::map<const Identifier, const Trk::TrackStateOnSurface*>& mapOfHits,
 				     std::map<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >& mapOfPredictions,

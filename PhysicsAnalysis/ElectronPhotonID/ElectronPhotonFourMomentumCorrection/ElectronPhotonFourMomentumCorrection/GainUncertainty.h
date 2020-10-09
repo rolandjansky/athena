@@ -5,7 +5,7 @@
 #ifndef ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINUNCERTAINTYY_H
 #define ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINUNCERTAINTYY_H
 
-#include <AsgTools/AsgMessaging.h>
+#include <AsgMessaging/AsgMessaging.h>
 #include <PATCore/PATCoreEnums.h>
 #include <memory>
 #include <string>

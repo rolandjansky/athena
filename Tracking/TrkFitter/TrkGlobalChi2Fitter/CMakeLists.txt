@@ -37,6 +37,7 @@ atlas_add_library(
     TrkToolInterfaces
     MagFieldElements
     MagFieldConditions
+    InDetReadoutGeometry
 )
 
 # Component(s) in the package:

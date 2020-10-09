@@ -35,7 +35,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -154,9 +153,6 @@ namespace OverlayTesting {
 
       ASSERT_TRUE( m_appMgr->configure().isSuccess() );
       ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
-
-      m_jobOptionsSvc = m_svcLoc->service("JobOptionsSvc");
-      ASSERT_TRUE( m_jobOptionsSvc.isValid() );
     }
 
     void TearDownGaudi() {
@@ -172,7 +168,6 @@ namespace OverlayTesting {
     IAppMgrUI*               m_appMgr = nullptr;
     SmartIF<ISvcLocator>     m_svcLoc;
     SmartIF<ISvcManager>     m_svcMgr;
-    SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
     SmartIF<IToolSvc>        m_toolSvc;
     SmartIF<IProperty>       m_propMgr;
   };

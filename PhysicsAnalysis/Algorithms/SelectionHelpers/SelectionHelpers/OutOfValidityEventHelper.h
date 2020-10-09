@@ -8,7 +8,7 @@
 #ifndef SELECTION_HELPERS__OUT_OF_VALIDITY_EVENT_HELPER_H
 #define SELECTION_HELPERS__OUT_OF_VALIDITY_EVENT_HELPER_H
 
-#include <AsgTools/MsgStream.h>
+#include <AsgMessaging/MsgStream.h>
 #include <AthContainers/AuxElement.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>

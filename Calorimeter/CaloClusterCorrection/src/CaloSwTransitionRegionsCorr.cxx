@@ -20,7 +20,6 @@ PURPOSE:  Effective corrections for transition regions like eta=0
 
 #include "CaloSwTransitionRegionsCorr.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGate.h" 
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 

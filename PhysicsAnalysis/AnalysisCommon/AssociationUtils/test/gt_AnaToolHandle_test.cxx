@@ -6,7 +6,7 @@
  */
 
 #include "AsgTesting/UnitTest.h"
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MessageCheck.h"
 #include "gtest/gtest.h"
 #ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"

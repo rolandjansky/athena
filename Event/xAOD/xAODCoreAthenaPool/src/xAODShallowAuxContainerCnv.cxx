@@ -22,8 +22,8 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
 
 ///Here follows a specialized version of the copyAuxStoreThinned method, with a few changes for shallow aux containers
          const xAOD::ShallowAuxContainer& orig = *trans; //need the 'const' version to ensure use the const methods!
-         size_t nremaining = 0;
          size_t size = orig.size();
+         size_t nremaining = size;
 
          std::string key2 = key;
          if (key2.size() >= 4 && key2.substr (key2.size()-4, 4) == "Aux.")
@@ -37,9 +37,26 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
          }
 
          //if there is no thinning to do, then just return a regular copy 
-         if(!dec) return new xAOD::ShallowAuxContainer(orig);
+         // Be sure to also check for variable vetoes.
+         if(!dec) {
+           SG::auxid_set_t ids;
+           if (info) {
+             ids = orig.getSelectedAuxIDs();
+             ids &= info->m_vetoed;
+           }
+           if (ids.empty()) {
+             return new xAOD::ShallowAuxContainer(orig);
+           }
+         }
          xAOD::ShallowAuxContainer* newcont = new xAOD::ShallowAuxContainer; //dont use copy constructor (like copyThinned.h), want it to have it's own internal store
-         newcont->setParent(trans->parent());newcont->setShallowIO(trans->shallowIO());
+         newcont->setParent(trans->parent());
+
+         // newcont should be set for shallow IO regardless of the setting
+         // of the original container.  Below we're going to copy all the
+         // variables that should be written.  Any variables left in the
+         // parent that are not also in newcont are ones that were
+         // explicitly vetoed.
+         newcont->setShallowIO(true);
 
          // Access the auxiliary type registry:
          SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();

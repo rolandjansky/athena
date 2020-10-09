@@ -11,3 +11,7 @@
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArRawEvent/LArLATOMEHeaderContainer.h" 
 //#include "LArRawEvent/LArRawChannelContainer.h" 
+#include "LArRawEvent/LArSCDigit.h" 
+#include "LArRawEvent/LArSCDigitContainer.h" 
+#include "LArRawEvent/LArRawSC.h" 
+#include "LArRawEvent/LArRawSCContainer.h" 

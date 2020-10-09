@@ -57,13 +57,18 @@ def pfoRecoSequence(dummyFlags, RoIs, **recoDict):
     jetRecoDict["calib"] = "em"
     jetRecoDict["dataType"] = "pf"
     constit = defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix)
+    from JetRecConfig.ConstModHelpers import aliasToInputDef
+    constit = aliasToInputDef(constit)
     constit_mod_seq = getConstitModAlg(
         constit,
-        "HLT",
-        tvaKey="JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict),
-        vtxKey="HLT_IDVertex_FS",
+        # "HLT",
+        # tvaKey="JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict),
+        # vtxKey="HLT_IDVertex_FS",
     )
-    return [tcSeq, pfSeq, constit_mod_seq], pfoPrefix
+    allSeqs = [tcSeq, pfSeq]
+    if constit_mod_seq :
+        allSeqs.append(constit_mod_seq)
+    return allSeqs, pfoPrefix
 
 
 def cvfClusterSequence(dummyFlags, RoIs, **recoDict):

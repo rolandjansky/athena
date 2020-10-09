@@ -8,7 +8,7 @@
  * @date 26th November 2019
  *
  *
- * @brief Uyilities to facilitate the calculation of the
+ * @brief Utilities to facilitate the calculation of the
  * divergence between components of the mixture
  * and the merging of similar componets.
  *

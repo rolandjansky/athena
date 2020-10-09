@@ -9,7 +9,7 @@
 #define SYSTEMATICS_HANDLES__SYS_DECORATION_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/AsgMessagingForward.h>
+#include <AsgMessaging/AsgMessagingForward.h>
 #include <AthContainers/AuxElement.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>

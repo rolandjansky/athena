@@ -19,7 +19,7 @@
  * @author Joerg Stelzer  <Joerg.Stelzer@cern.ch>  - DESY
  *
  ***********************************************************************************/
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "TrigDecisionTool/ChainGroupFunctions.h"
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/ChainGroup.h"

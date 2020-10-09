@@ -34,7 +34,7 @@ namespace CP {
    /// $Revision: 717600 $
    /// $Date: 2016-01-13 18:48:13 +0100 (Wed, 13 Jan 2016) $
    ///
-   class SystematicCode {
+   class [[nodiscard]] SystematicCode {
 
    public:
       /// Possible values for the systematic code

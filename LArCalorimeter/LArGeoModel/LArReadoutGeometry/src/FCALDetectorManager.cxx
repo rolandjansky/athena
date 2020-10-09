@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Bootstrap.h"
@@ -8,7 +8,6 @@
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArHV/LArHVManager.h"
-#include "StoreGate/StoreGate.h"
 
 FCALDetectorManager::FCALDetectorManager (const FCALHVManager* hvManager)
   : GeoVDetectorManager()

@@ -5,31 +5,6 @@
 # Declare the package name:
 atlas_subdir( InDetTrackSelectorTool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          InnerDetector/InDetConditions/BeamSpotConditionsData
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
-                          Control/AthContainers
-                          DetectorDescription/GeoPrimitives
-                          Event/EventPrimitives
-                          InnerDetector/InDetConditions/TRT_ConditionsServices
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkParticleBase
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkEvent/VxVertex
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions )
 
 # External dependencies:
 find_package( CLHEP )
@@ -41,7 +16,7 @@ atlas_add_component( InDetTrackSelectorTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AthContainers GeoPrimitives EventPrimitives TRT_ConditionsServicesLib InDetRIO_OnTrack TrkSurfaces TrkParticleBase TrkRIO_OnTrack TrkTrack TrkTrackSummary VxVertex TrkExInterfaces MagFieldElements MagFieldConditions )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AthContainers GeoPrimitives EventPrimitives TRT_ConditionsServicesLib InDetRIO_OnTrack TrkSurfaces TrkParticleBase TrkRIO_OnTrack TrkTrack TrkTrackSummary VxVertex TrkExInterfaces MagFieldElements MagFieldConditions BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackSelectorTool )

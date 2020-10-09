@@ -5,7 +5,7 @@
 #ifndef JETUNCERTAINTIES_OPTIONHELPER_H
 #define JETUNCERTAINTIES_OPTIONHELPER_H
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include <vector>
 #include <utility>
 #include "TString.h"

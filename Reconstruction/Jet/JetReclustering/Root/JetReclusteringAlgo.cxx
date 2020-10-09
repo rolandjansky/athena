@@ -17,7 +17,7 @@
 #include <EventLoop/OutputStream.h>
 
 // ANA_CHECK macro
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 // this is needed to distribute the algorithm to the workers
 ClassImp(JetReclusteringAlgo)

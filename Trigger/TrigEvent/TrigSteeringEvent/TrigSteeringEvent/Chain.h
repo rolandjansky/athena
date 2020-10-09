@@ -28,8 +28,8 @@
 #include "TrigConfHLTData/HLTChain.h"
 
 #ifdef XAOD_STANDALONE
-#include "AsgTools/MsgStream.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AsgMessaging/MsgStream.h"
+#include "AsgMessaging/MsgStreamMacros.h"
 #endif
 #ifndef XAOD_STANDALONE
 #include "GaudiKernel/MsgStream.h"

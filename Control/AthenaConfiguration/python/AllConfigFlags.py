@@ -168,7 +168,12 @@ def _createCfgFlags():
     def __indet():
         from InDetConfig.InDetConfigFlags import createInDetConfigFlags
         return createInDetConfigFlags()
-    _addFlagsCategory(acf, "InDet", __indet, 'InDetConfig' )    
+    _addFlagsCategory(acf, "InDet", __indet, 'InDetConfig' )
+
+    def __itk():
+        from InDetConfig.ITkConfigFlags import createITkConfigFlags
+        return createITkConfigFlags()
+    _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
 
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
