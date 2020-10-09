@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -705,7 +705,9 @@ namespace Muon {
     std::vector<unsigned long long> mdtTruthHits;
     std::vector<unsigned long long> cscTruthHits;
     std::vector<unsigned long long> tgcTruthHits;
+    std::vector<unsigned long long> stgcTruthHits;
     std::vector<unsigned long long> rpcTruthHits;
+    std::vector<unsigned long long> mmTruthHits;
 
     // loop over chamber layers
     int nEI=0,nEM=0;
@@ -721,14 +723,18 @@ namespace Muon {
 	  if((lay.first==Muon::MuonStationIndex::EMS || lay.first==Muon::MuonStationIndex::EML) && nEM>1) continue; //otherwise we double-count
 	  tgcTruthHits.push_back(id.get_compact());
 	}
+	else if(m_idHelper->issTgc(id)) stgcTruthHits.push_back(id.get_compact());
 	else if(m_idHelper->isRpc(id)) rpcTruthHits.push_back(id.get_compact());
+	else if(m_idHelper->isMM(id)) mmTruthHits.push_back(id.get_compact());
       }
     }
     truthParticle.auxdata<std::vector<unsigned long long> >("truthMdtHits")=mdtTruthHits;
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits")=cscTruthHits;
+    if(m_idHelper->HasCSC()) truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits")=cscTruthHits;
     truthParticle.auxdata<std::vector<unsigned long long> >("truthRpcHits")=rpcTruthHits;
     truthParticle.auxdata<std::vector<unsigned long long> >("truthTgcHits")=tgcTruthHits;
-    ATH_MSG_VERBOSE("Added "<<mdtTruthHits.size()<<" mdt truth hits, "<<cscTruthHits.size()<<" csc truth hits, "<<rpcTruthHits.size()<<" rpc truth hits, and "<<tgcTruthHits.size()<<" tgc truth hits");
+    if(m_idHelper->HasSTgc()) truthParticle.auxdata<std::vector<unsigned long long> >("truthStgcHits")=stgcTruthHits;
+    if(m_idHelper->HasMM()) truthParticle.auxdata<std::vector<unsigned long long> >("truthMMHits")=mmTruthHits;
+    ATH_MSG_VERBOSE("Added "<<mdtTruthHits.size()<<" mdt truth hits, "<<cscTruthHits.size()<<" csc truth hits, "<<rpcTruthHits.size()<<" rpc truth hits, "<<tgcTruthHits.size()<<" tgc truth hits, "<<stgcTruthHits.size()<<" stgc truth hits, "<<mmTruthHits.size()<<" micromega truth hits");
   }
 
   // Finalize method:
