@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTHitsTestTool.h"
@@ -40,7 +40,7 @@ using namespace MuonGM;
 
 Identifier MDTHitsTestTool::getIdentifier(HitID mdthit) 
 {
-  MdtHitIdHelper* mdthelper = MdtHitIdHelper::GetHelper();
+  MdtHitIdHelper* mdthelper = MdtHitIdHelper::GetHelper(m_pMdtIdHelper->tubeMax());
   std::string mdt_stname = mdthelper->GetStationName(mdthit);
   int         mdt_steta  = mdthelper->GetZSector(mdthit);
   int         mdt_stphi  = mdthelper->GetPhiSector(mdthit);
