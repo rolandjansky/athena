@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //$Id: URIParser_test.cxx 457829 2011-09-08 13:13:25Z mnowak $
@@ -36,7 +36,7 @@ int main(){
     p.parse();p.dump(); 
   }catch(const pool::Exception& er){
     std::cerr <<er.what()<< std::endl;
-    exit(1);
+    return 1;
   }
 }
 
