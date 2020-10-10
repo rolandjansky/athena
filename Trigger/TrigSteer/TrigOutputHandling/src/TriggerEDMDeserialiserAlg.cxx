@@ -300,9 +300,9 @@ void TriggerEDMDeserialiserAlg::toBuffer( TriggerEDMDeserialiserAlg::PayloadIter
 
 void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
   std::string extStreamerInfos = "bs-streamerinfos.root";
-  std::string m_extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
-  ATH_MSG_DEBUG( "Using " << m_extFile );
-  TFile f(m_extFile.c_str());
+  std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
+  ATH_MSG_DEBUG( "Using " << extFile );
+  TFile f(extFile.c_str());
   TList *a = f.GetStreamerInfoList();
   TIter nextinfo(a);
   TStreamerInfo *inf;
