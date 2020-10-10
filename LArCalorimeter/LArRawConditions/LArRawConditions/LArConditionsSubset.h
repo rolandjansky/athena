@@ -236,11 +236,13 @@ public:
     //Get NCHANNELPERFEB
     unsigned                channelVectorSize() const;
 
-private:
-
     /// Fill map from vector
-    void                    fillMap() const; 
+    // This is also called from a ROOT read rule after an object is read.
+    // (Nominally private, but needs to be public to be callable
+    // from a ROOT read rule.)
+    void                    fillMap(); 
 
+private:
     /// Size of channel vector
     enum Subset_size {
 	NCHANNELPERFEB = 128
@@ -256,7 +258,7 @@ private:
 
     typedef typename std::map<FebId, unsigned int>  SubsetMap;
 
-    mutable SubsetMap       m_subsetMap;
+    SubsetMap               m_subsetMap;
     SubsetVector            m_subset;
     unsigned int            m_gain; 
     unsigned int            m_channel;
@@ -270,9 +272,10 @@ private:
 template<class T> 
 inline 
 void
-LArConditionsSubset<T>::fillMap() const
+LArConditionsSubset<T>::fillMap()
 {
     // Fill map from subset
+    m_subsetMap.clear();
 
 //     std::cout << "fillMap: subset size, map size "
 // 	      << m_subset.size() << " " << m_subsetMap.size()
@@ -354,6 +357,8 @@ void LArConditionsSubset<T>::assign (const LArConditionsSubset<U>& other,
     m_correctionVec[i].first = otherCorr[i].first;
     copier (otherCorr[i].second, m_correctionVec[i].second);
   }
+
+  fillMap();
 }
 
 
@@ -374,7 +379,6 @@ LArConditionsSubset<T>::findChannelVector(FebId  febID)
 // 	      << std::endl; 
 
 
-    if (!m_subsetMap.size()) fillMap();
     typename SubsetMap::const_iterator  it = m_subsetMap.find(febID);
     if (it != m_subsetMap.end()) {
 	unsigned int index = (*it).second;
@@ -395,7 +399,6 @@ inline
 typename LArConditionsSubset<T>::ConstSubsetIt
 LArConditionsSubset<T>::findChannelVector(FebId  febID) const
 {
-    if (!m_subsetMap.size()) fillMap();
     typename SubsetMap::const_iterator  it = m_subsetMap.find(febID);
     if (it != m_subsetMap.end()) {
 	unsigned int index = (*it).second;
