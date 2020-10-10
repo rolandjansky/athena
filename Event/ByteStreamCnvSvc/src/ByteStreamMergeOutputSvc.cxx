@@ -5,8 +5,6 @@
 #include "ByteStreamMergeOutputSvc.h"
 #include "ByteStreamData/ByteStream.h"
 
-#include "StoreGate/StoreGate.h"
-
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
