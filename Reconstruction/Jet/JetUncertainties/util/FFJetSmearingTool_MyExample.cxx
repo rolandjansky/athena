@@ -333,7 +333,10 @@ config.makeTool (ffjetsmearingtool, cleanup);
         //numBinsMass = 12;
         //numBinsPt = 10;
 
-        TH3F* hist_jet_mass_scale_change_3D    = new TH3F ("hist_jet_mass_scale_change_3D","hist_jet_mass_scale_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsMass,0,upperlimit1/*mass*/);
+
+        std::unique_ptr<TH3F> hist_jet_mass_scale_change_3D;
+        hist_jet_mass_scale_change_3D =  std::make_unique<TH3F>("hist_jet_mass_scale_change_3D","hist_jet_mass_scale_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsMass,0,upperlimit1/*mass*/);
+ //       TH3F* hist_jet_mass_scale_change_3D    = new TH3F ("hist_jet_mass_scale_change_3D","hist_jet_mass_scale_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsMass,0,upperlimit1/*mass*/);
 
 
         float lowerlimit3 = -0.5;
@@ -341,8 +344,9 @@ config.makeTool (ffjetsmearingtool, cleanup);
         int numBinsDiff = 100;
 
 
-
-        TH3F* hist_jet_mass_resolution_change_3D    = new TH3F ("hist_jet_mass_resolution_change_3D","hist_jet_mass_resolution_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsDiff,lowerlimit3,upperlimit3/*mass*/);
+        std::unique_ptr<TH3F> hist_jet_mass_resolution_change_3D;
+        hist_jet_mass_resolution_change_3D =  std::make_unique<TH3F>("hist_jet_mass_resolution_change_3D","hist_jet_mass_resolution_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsDiff,lowerlimit3,upperlimit3/*mass*/);
+//        TH3F* hist_jet_mass_resolution_change_3D    = new TH3F ("hist_jet_mass_resolution_change_3D","hist_jet_mass_resolution_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsDiff,lowerlimit3,upperlimit3/*mass*/);
 
 
 
@@ -403,6 +407,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 for(const xAOD::Jet* jet_reco : *jets_reco){
 
                     // Print basic info about this jet
+                    std::cout << "Reco Jet: pt = " <<  jet_reco->pt()*MeVtoGeV << ", mass = " <<  jet_reco->m()*MeVtoGeV << ", eta = " <<  jet_reco->eta() << std::endl;
                 }
             }
             //************************************************************//
@@ -605,10 +610,8 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
         c2->Print(output_path_resolution_debug);
 
-        delete hist_jet_mass_scale_change_3D;
         delete hist_jet_mass_scale_change_2D;
 
-        delete hist_jet_mass_resolution_change_3D;
         delete hist_jet_mass_resolution_change_2D;
 
         delete c1;

@@ -269,7 +269,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         return StatusCode::FAILURE;
     }
 
-    m_CALO_ResponseMap  = dynamic_cast<TH2D*>(data_file->Get( CaloResponseMap_path ));
+    m_CALO_ResponseMap  = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get( CaloResponseMap_path )));
     m_CALO_ResponseMap->SetDirectory(0);
 
 
@@ -282,7 +282,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             return StatusCode::FAILURE;
         }
 
-        m_TA_ResponseMap  = dynamic_cast<TH2D*>(data_file->Get( TAResponseMap_path ));
+        m_TA_ResponseMap  = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get( TAResponseMap_path )));
         m_TA_ResponseMap->SetDirectory(0);//To keep it open when we close the .root file
     }
 
@@ -304,7 +304,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMS";
 
-            m_Syst_Hist_map[Syst_Name] = dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str()));
+            m_Syst_Hist_map[Syst_Name] = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str())));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
         }
@@ -326,7 +326,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMR";
 
-            m_Syst_Hist_map[Syst_Name] = dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str()));
+            m_Syst_Hist_map[Syst_Name] = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str())));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
         }
@@ -372,8 +372,8 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         return StatusCode::FAILURE;
     }
 
-    m_caloMassWeight = dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(Calo_weight_hist_name));
-    m_TAMassWeight = dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(TA_weight_hist_name));
+    m_caloMassWeight = std::make_unique<TH3F>(*dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(Calo_weight_hist_name)));
+    m_TAMassWeight = std::make_unique<TH3F>(*dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(TA_weight_hist_name)));
 
     m_caloMassWeight->SetDirectory(0);
     m_TAMassWeight->SetDirectory(0);//To keep it open when we close the .root file
@@ -731,9 +731,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
         p4_aux = xAOD::JetFourMom_t(jet_reco_TA.pt(),jet_reco_TA.eta(),jet_reco_TA.phi(),smeared_TA_mass);
         jet_reco_TA = p4_aux;
 
-        caloRes=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()*m_MeVtoGeV,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),std::abs(jet_reco_CALO.eta()));
+        caloRes=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight.get() ,jet_reco_CALO.e()*m_MeVtoGeV,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),std::abs(jet_reco_CALO.eta()));
 
-        TARes=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight,jet_reco_TA.e()*m_MeVtoGeV,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),std::abs(jet_reco_TA.eta()));
+        TARes=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight.get() ,jet_reco_TA.e()*m_MeVtoGeV,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),std::abs(jet_reco_TA.eta()));
 
         //The histograms with the weights that we are reading was deffined with the code "e_LOGmOe_eta" what means that each axis correspond to:
         //-X: Jet Energy

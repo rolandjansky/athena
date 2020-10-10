@@ -50,6 +50,8 @@
 #include "TEnv.h"
 #include "TMath.h"
 
+#include "ROOT/RMakeUnique.hxx"
+
 /// Implementation of the Forward Folding (FF) Jet smearing tool interface
 ///
 /// This tool allows to smear and unsmear the mass of Large R jets using 
@@ -168,12 +170,13 @@ namespace CP {
             std::string  m_HistogramsFilePath;
 
             //Response matrix
-            TH2D* m_CALO_ResponseMap;
-            TH2D* m_TA_ResponseMap;
+            std::unique_ptr<TH2D> m_CALO_ResponseMap;
+            std::unique_ptr<TH2D> m_TA_ResponseMap;
 
             //Two histograms to extract the Calo and TA weights in the Combined mass of the jet
-            TH3F* m_caloMassWeight;
-            TH3F* m_TAMassWeight;
+//            TH3F* m_caloMassWeight;
+            std::unique_ptr<TH3F> m_caloMassWeight;
+            std::unique_ptr<TH3F> m_TAMassWeight;
 
 
             //The list of systemaics
@@ -183,7 +186,7 @@ namespace CP {
             std::map<std::string,std::string> m_Syst_HistPath_map;
             std::map<std::string,std::string> m_Syst_MassDefAffected_map;
             std::map<std::string,std::string> m_Syst_TopologyAffected_map;
-            std::map<std::string,TH2D*> m_Syst_Hist_map;
+            std::map<std::string,std::unique_ptr<TH2D>> m_Syst_Hist_map;
             std::map<std::string,std::string> m_Syst_Affects_JMSorJMR;
 
             int m_InfoWarnings;
