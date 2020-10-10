@@ -11,6 +11,7 @@ print "ACH123 new OverlayOutputItemList_jobOptions.py"
 
 # overlay output stream
 outStream.ItemList += [ "EventInfo#*", "PileUpEventInfo#*" ]
+outStream.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
 outStream.ItemList += [ "LumiBlockCollection#*" ]
 
 if DetFlags.overlay.Truth_on():
@@ -94,5 +95,3 @@ if DetFlags.overlay.LVL1_on():
                            "DataVector<LVL1::JEMRoI>#*",
                            "DataVector<LVL1::JEMEtSums>#*",
                            "LVL1::CMMRoI#*"]
-
-

@@ -133,6 +133,11 @@ def preplist(input):
          triglist.append(k + "#" + j)
    return triglist
 
+StreamRDO.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+# Never store wildcarded legacy EventInfo
+if "EventInfo#*" in StreamRDO.ItemList:
+    StreamRDO.ItemList.remove("EventInfo#*")
+
 StreamRDO.ItemList += ["HLT::HLTResult#HLTResult_HLT"]
 StreamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecision"]
 StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
