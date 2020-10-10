@@ -46,6 +46,8 @@ public:
 private:
   friend StatusCode tester( TriggerEDMDeserialiserAlg* );
 
+  void add_bs_streamerinfos();
+
   SG::ReadHandleKey<HLT::HLTResultMT> m_resultKey { this, "ResultKey", "HLTResultMT", "Key of the HLT result object"  };
   Gaudi::Property<std::string> m_prefix{ this, "Prefix", "", "Set for testing to avoid clash with the input collections" };
   Gaudi::Property<int> m_moduleID{ this, "ModuleID", 0, "Module ID of HLT result ROB, default 0 is the main HLT result, others are for TLA, calibration etc." };
