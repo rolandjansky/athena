@@ -22,6 +22,7 @@
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventIncident.h"
 #include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // IOVDbSvc
 #include "AthenaKernel/IIOVDbSvc.h"
@@ -490,11 +491,19 @@ TagInfoMgr::fillMetaData   (const TagInfo* tagInfo, const CondAttrListCollection
     const EventInfo* evt   = 0;
     unsigned int runNumber = 0;
     if (StatusCode::SUCCESS != m_storeGate->retrieve(evt)) {
-        // For simulation, we may be in the initialization phase and
-        // must get the run number from the event selector
-        if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
-            m_log << MSG::ERROR << "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror" << endmsg;      
-            return (StatusCode::FAILURE);
+        // First also check for xAOD::EventInfo
+        const xAOD::EventInfo* xAODEvt = 0;
+
+        if (StatusCode::SUCCESS != m_storeGate->retrieve(xAODEvt)) {
+            // For simulation, we may be in the initialization phase and
+            // must get the run number from the event selector
+            if (StatusCode::SUCCESS != getRunNumber (runNumber)) {
+                m_log << MSG::ERROR << "fillMetaData:  Could not get event info neither via retrieve nor from the EventSelectror" << endmsg;      
+                return (StatusCode::FAILURE);
+            }
+        }
+        else {
+            runNumber = xAODEvt->runNumber();
         }
     }
     else {

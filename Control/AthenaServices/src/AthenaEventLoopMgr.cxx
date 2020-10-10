@@ -37,6 +37,9 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 
+#include "xAODEventInfo/EventInfo.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
+
 #include "ClearStorePolicy.h"
 
 #include "AthenaEventLoopMgr.h"
@@ -675,7 +678,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
         pEventPtr = CxxUtils::make_unique<EventInfo>
           (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)0);
         pEvent = pEventPtr.get();
-        
+
       } catch (...) {
       }
 /* FIXME: PvG, not currently written
@@ -692,11 +695,43 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 */
     }
     if ( pEvent == 0 ) {
-      StatusCode sc = eventStore()->retrieve(pEvent);
-      if( !sc.isSuccess() ) {
-        m_msg << MSG::ERROR 
-	      << "Unable to retrieve Event root object" << endreq;
-        return (StatusCode::FAILURE);
+      pEvent=eventStore()->tryConstRetrieve<EventInfo>();
+      if (pEvent == 0) {
+	//Try getting xAOD::EventInfo object
+	const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>();
+	if (xAODEvent==nullptr) {
+	  m_msg << MSG::ERROR
+		<< "Failed to get EventID from input. Tried both xAOD::EventInfo and legacy EventInfo"
+		<< endmsg;
+	  return (StatusCode::FAILURE);
+	}
+	// Record the old-style object for those clients that still need it
+	pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
+	pEvent = pEventPtr.get();
+	StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
+	if( !sc.isSuccess() )  {
+	  m_msg << MSG::ERROR << "Error declaring event data object" << endmsg;
+	  return StatusCode::FAILURE;
+	}
+      }
+    } else {
+      // Ensure we still have old EventInfo
+      const EventInfo* pEventOld = eventStore()->tryConstRetrieve<EventInfo>();
+      if (pEventOld == nullptr) {
+        const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>();
+        if (xAODEvent == nullptr) {
+          m_msg << MSG::ERROR << "Failed to produce legacy EventInfo from xAODEventInfo" << endmsg;
+          return StatusCode::FAILURE;
+        }
+
+        std::unique_ptr<EventInfo> pEventPtrLegacy = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
+        StatusCode sc = eventStore()->record(std::move(pEventPtrLegacy), "");
+        if( !sc.isSuccess() )  {
+          m_msg << MSG::ERROR << "Error declaring event data object" << endmsg;
+          return StatusCode::FAILURE;
+        } else {
+          m_msg << MSG::INFO << "Recorded legacy EventInfo for backwards compatibility" << endmsg;
+        }
       }
     }
   }
@@ -1093,7 +1128,6 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   }
 
   // Construct EventInfo
-  const EventInfo* pEvent(0);
   IOpaqueAddress* addr = 0;
   sc = m_evtSelector->next(*m_evtContext);
   if(!sc.isSuccess()) {
@@ -1120,10 +1154,23 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   }
 
   // Retrieve the Event object
-  sc = eventStore()->retrieve(pEvent);
-  if(!sc.isSuccess()) {
-    m_msg << MSG::ERROR << "Unable to retrieve Event root object" << endreq;
-    return;
+  std::unique_ptr<EventInfo> pEventPtr;
+  const EventInfo* pEvent = eventStore()->tryConstRetrieve<EventInfo>();
+  if(!pEvent) {
+    //Try getting xAOD::EventInfo object
+    const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>();
+    if(!xAODEvent) {
+      m_msg << MSG::ERROR << "Failed to get EventID from input. Tried both xAOD::EventInfo and legacy EventInfo" << endmsg;
+      return;
+    }
+    // Record the old-style object for those clients that still need it
+    pEventPtr = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
+    pEvent = pEventPtr.get();
+    sc = eventStore()->record(std::move(pEventPtr),"");
+    if( !sc.isSuccess() )  {
+      m_msg << MSG::ERROR << "Error declaring event data object" << endmsg;
+      return;
+    }
   }
 
   sc = beginRunAlgorithms(*pEvent);

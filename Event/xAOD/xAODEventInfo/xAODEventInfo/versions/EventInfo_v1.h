@@ -243,6 +243,27 @@ namespace xAOD {
       /// Set average interactions per crossing for all BCIDs
       void setAverageInteractionsPerCrossing( float value );
 
+      /// Unique pile-up mixture identifier definition
+      struct PileUpMixtureID {
+         unsigned long long lowBits{};
+         unsigned long long highBits{};
+      };
+
+      /// Unique pile-up mixture identifier
+      PileUpMixtureID pileUpMixtureID() const;
+      /// Set unique pile-up mixture identifier
+      void setPileUpMixtureID( const PileUpMixtureID &value );
+
+      /// Unique pile-up mixture identifier low bits
+      unsigned long long pileUpMixtureIDLowBits() const;
+      /// Set unique pile-up mixture identifier low bits
+      void setPileUpMixtureIDLowBits( unsigned long long value );
+
+      /// Unique pile-up mixture identifier high bits
+      unsigned long long pileUpMixtureIDHighBits() const;
+      /// Set unique pile-up mixture identifier high bits
+      void setPileUpMixtureIDHighBits( unsigned long long value );
+
       /// Enumerator describing the types of pileup events
       enum PileUpType {
          Unknown     = 99, ///< Type not known/specified
@@ -458,8 +479,11 @@ namespace xAOD {
 
    }; // class EventInfo_v1
 
-   /// A helper operator to be able to print debug messages easily
+   /// A helper operators to be able to print debug messages easily
    std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1& ei );
+   std::ostream& operator<< ( std::ostream& out, const xAOD::EventInfo_v1::PileUpMixtureID& id );
+   /// PileUpMixtureID comparison helper operator
+   bool operator== ( const xAOD::EventInfo_v1::PileUpMixtureID& a, const xAOD::EventInfo_v1::PileUpMixtureID& b );
 
 } // namespace xAOD
 
