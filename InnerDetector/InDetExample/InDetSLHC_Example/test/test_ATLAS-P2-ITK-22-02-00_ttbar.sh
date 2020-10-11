@@ -24,7 +24,7 @@ dcube_rec_lastref="dcube_alt_last"
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 #artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
-name="InclinedAlternative"
+name="ttbar"
 script="`basename \"$0\"`"
 evnt=$artdata/InDetSLHC_Example/inputs/EVNT.01485091._001049.pool.root.1
 
@@ -96,15 +96,9 @@ if [ $dosim -ne 0 ]; then
     --outputHITSFile  "$hits" \
     --skipEvents      0 \
     --maxEvents       10 \
-    --randomSeed      873254 \
-    --geometryVersion ATLAS-P2-ITK-22-02-00_VALIDATION \
-    --conditionsTag   OFLCOND-MC15c-SDR-14-04 \
-    --truthStrategy   MC15aPlus \
-    --DataRunNumber   242000 \
-    --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' \
-    --preExec     all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption="InclinedAlternative"' \
-    --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' \
-    --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False; from AthenaCommon import CfgGetter;CfgGetter.getService("ISF_MC15aPlusTruthService").BeamPipeTruthStrategies+=["ISF_MCTruthStrategyGroupIDHadInt_MC15"];' all:'ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True'
+    --AMI             s3595
+
+
 
 
 
@@ -136,20 +130,10 @@ if [ $dorec -ne 0 ]; then
     --outputAODFile    physval.AOD.root \
     --outputDAOD_IDTRKVALIDFile "$daod" \
     --maxEvents        10 \
-    --digiSteeringConf StandardInTimeOnlyTruth \
-    --geometryVersion  ATLAS-P2-ITK-22-02-00 \
-    --conditionsTag    OFLCOND-MC15c-SDR-14-04 \
-    --DataRunNumber    242000 \
-      --steering doRAWtoALL \
-      --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' 'RAWtoALL:'${clustering_type}',InDetSLHC_Example/postInclude.RDOAnalysis.py'\
- --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]'\
- 'RAWtoALL:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)'\
- --preInclude  'all:InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' 'default:InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py'\
- --postExec 'HITtoRDO:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'RAWtoALL:ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO;from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg;decorators = InDetPhysValDecoratorAlg();topSequence += decorators;' 'all:ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True'
-
-
-### ; from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd; SCT_FrontEnd.DataCompressionMode = 2;
-### AttributeError: 'SCT_FrontEnd' object attribute 'DataCompressionMode' is read-only
+    --AMI              r12064 \
+    --preExec 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'RAWtoALL:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)' \
+    --steering doRAWtoALL \
+    
 
 
 
