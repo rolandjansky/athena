@@ -117,9 +117,6 @@ int main( int argc, char* argv[] ) {
   xAOD::TReturnCode::enableFailure();
 
   // Open the input file:
-  TFile* ifile( TFile::Open( fileName, "READ" ) );
-  if( !ifile ) Error( APP_NAME, "Cannot find file %s",fileName.Data() );
-
   TChain *chain = new TChain ("CollectionTree","CollectionTree");
   chain->Add(fileName);
 
@@ -152,9 +149,9 @@ int main( int argc, char* argv[] ) {
   // setup the tool handle as per the
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
-  std::cout<<"Initializing Dexter"<<std::endl;
-  asg::AnaToolHandle<Dexter> m_Tagger; //!
-  m_Tagger.setTypeAndName("Dexter","Dexter");
+  std::cout<<"Initializing DexterTool"<<std::endl;
+  asg::AnaToolHandle<DexterTool> m_Tagger; //!
+  m_Tagger.setTypeAndName("DexterTool","DexterTool");
 
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::VERBOSE);
   m_Tagger.setProperty( "neuralNetworkFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");

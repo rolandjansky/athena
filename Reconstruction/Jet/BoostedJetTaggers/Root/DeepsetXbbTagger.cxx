@@ -139,7 +139,7 @@ namespace {
 }
 
 
-Dexter::Dexter( const std::string& name ) :
+DexterTool::DexterTool( const std::string& name ) :
   asg::AsgTool(name),
   m_neuralNetworkFile(""),
   m_configurationFile(NN_CONFIG),
@@ -159,9 +159,9 @@ Dexter::Dexter( const std::string& name ) :
   declareProperty( "decorationNames", m_decoration_names);
 }
 
-Dexter::~Dexter() {}
+DexterTool::~DexterTool() {}
 
-StatusCode Dexter::initialize(){
+StatusCode DexterTool::initialize(){
 
   using namespace DeepsetXbbTagger;
 
@@ -190,10 +190,6 @@ StatusCode Dexter::initialize(){
       m_offsets[input.name] = -input.offset;
     }
   }
-  // for (const auto& node: config.inputs) {
-  //   m_var_cleaners.emplace_back(
-  //     node.name, std::make_unique<lwt::NanReplacer>(m_offsets, lwt::rep::all));
-  // }
 
   // setup track/secvtx input
   ATH_MSG_DEBUG("Dexter sequences inputs:");
@@ -204,10 +200,6 @@ StatusCode Dexter::initialize(){
       m_offsets[input.name] = -input.offset;
     }
   }
-  // for (const auto& node: config.input_sequences) {
-  //   m_var_cleaners.emplace_back(
-  //     node.name, std::make_unique<lwt::NanReplacer>(m_offsets, lwt::rep::all));
-  // }  
 
   // setup outputs
   if (config.outputs.size() != 1) {
@@ -276,7 +268,7 @@ StatusCode Dexter::initialize(){
 }
 
 
-std::map<std::string, double> Dexter::getScores(const xAOD::Jet& jet)
+std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
   const {
 
   using namespace DeepsetXbbTagger;
@@ -312,13 +304,6 @@ std::map<std::string, double> Dexter::getScores(const xAOD::Jet& jet)
     }
   }
 
-  // if we have any NaN or infinite values, replace them with defaults
-  // DexterInputBuilder::VSMap cleaned_sequences;
-  // for (const auto& cleaner: m_var_cleaners) {
-  //   cleaned.emplace(
-  //     cleaner.first, cleaner.second->replace(inputs.at(cleaner.first)));
-  // }
-
   auto nn_output = m_lwnn->compute(inputs, input_sequences);
   ATH_MSG_VERBOSE("Dexter Xbb light-flavor score " << nn_output.at(m_output_value_names.at(0)));
   ATH_MSG_VERBOSE("Dexter Xbb b-flavor score " << nn_output.at(m_output_value_names.at(1)));
@@ -326,11 +311,11 @@ std::map<std::string, double> Dexter::getScores(const xAOD::Jet& jet)
   return nn_output;
 }
 
-int Dexter::keep(const xAOD::Jet& jet) const {
+int DexterTool::keep(const xAOD::Jet& jet) const {
   return getScore(jet) > m_tag_threshold;
 }
 
-double Dexter::getScore(const xAOD::Jet& jet) const {
+double DexterTool::getScore(const xAOD::Jet& jet) const {
   if (m_output_value_names.size() > 1) {
     ATH_MSG_DEBUG("asked for the first tagger score from a multi-class tagger");
   }
@@ -338,7 +323,7 @@ double Dexter::getScore(const xAOD::Jet& jet) const {
   return nn_output.at(m_output_value_names.at(0));
 }
 
-void Dexter::decorate(const xAOD::Jet& jet) const {
+void DexterTool::decorate(const xAOD::Jet& jet) const {
   std::map<std::string, double> scores = getScores(jet);
   size_t dec_num = 0;
   for (const auto& dec: m_decorators) {
@@ -346,7 +331,7 @@ void Dexter::decorate(const xAOD::Jet& jet) const {
     dec_num++;
   }
 }
-void Dexter::decorateSecond(const xAOD::Jet& ref, 
+void DexterTool::decorateSecond(const xAOD::Jet& ref, 
                                   const xAOD::Jet& target) const {
   std::map<std::string, double> scores = getScores(ref);
   size_t dec_num = 0;
@@ -356,7 +341,7 @@ void Dexter::decorateSecond(const xAOD::Jet& ref,
   }
 }
 
-std::set<std::string> Dexter::decorationNames() const {
+std::set<std::string> DexterTool::decorationNames() const {
   std::set<std::string> out;
   for (const auto& pair: m_decoration_names) {
     out.insert(pair.second);
@@ -364,11 +349,11 @@ std::set<std::string> Dexter::decorationNames() const {
   return out;
 }
 
-size_t Dexter::n_subjets(const xAOD::Jet& jet) const {
+size_t DexterTool::n_subjets(const xAOD::Jet& jet) const {
   return m_input_builder->n_subjets(jet);
 }
 
-xAOD::Vertex* Dexter::getPrimaryVertex(const xAOD::VertexContainer* vertexContainer) const {                                                                                                           
+xAOD::Vertex* DexterTool::getPrimaryVertex(const xAOD::VertexContainer* vertexContainer) const {                                                                                                           
   for( auto vtx_itr : *vertexContainer ) {
       if(vtx_itr->vertexType() != xAOD::VxType::VertexType::PriVtx) { continue; }
       return vtx_itr;
