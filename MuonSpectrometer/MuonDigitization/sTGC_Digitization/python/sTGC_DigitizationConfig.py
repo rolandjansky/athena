@@ -9,14 +9,14 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 
 # The earliest bunch crossing time for which interactions will be sent 
-# to the sTGCDigitizationTool. 
+# to the sTGCDigitizationTool. BCID = -4
 def sTGC_FirstXing(): 
-    return -375 
+    return -100
  
 # The latest bunch crossing time for which interactions will be sent 
-# to the sTGCDigitizationTool. 
+# to the sTGCDigitizationTool. BCID = 3
 def sTGC_LastXing(): 
-    return 175 
+    return 100
 
 def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc() )   

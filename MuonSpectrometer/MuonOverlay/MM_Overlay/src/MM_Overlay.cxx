@@ -46,6 +46,17 @@ namespace Overlay {
 			    <<typeid(MmDigit).name()
 			    <<endmsg;
     }
+
+    // This is a needed temporary hack for which I dont fully understand the source. Alexandre Laurier 2020-10-06
+    // For some reason, sometimes the "main digit"'s size is empty.
+    // In these cases, dataContainer is larger than mcContainer which goes against the basic overlay assumption
+    // These happen in cases where we create very busy signal events.
+    // A MicroMega digit is a vector of strips, so an empty digit makes no sense.
+    bool skipOverlay = false;
+    if (mainDigit.stripResponseTime().size() == 0) {
+      mainDigit = ovlDigit;
+      skipOverlay = true;
+    }
     
     // ----------------------------------------------------------------
     // the real merging happens here
@@ -58,9 +69,10 @@ namespace Overlay {
     float sig_time = mainDigit.stripResponseTime()[0]; 
     float bkg_time = ovlDigit.stripResponseTime()[0]; 
 
-
+    if (skipOverlay) { // do nothing since 1 digit was empty. Keep the original
+    }
     // background masks Physics hit - no correction to the ADC 
-    if ( abs(sig_time - bkg_time) > parent->timeIntegrationWindow() && sig_time < bkg_time ) {
+    else if ( abs(sig_time - bkg_time) > parent->timeIntegrationWindow() && sig_time < bkg_time ) {
       // do nothing - keep mainDigit.
     } 
     // Physics hit masks the background hit - no correct to the AOD 
