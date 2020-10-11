@@ -95,6 +95,11 @@ def SCTOverlayAlgCfg(flags, name="SCTOverlay", **kwargs):
             "SCT_RDO_Container#SCT_RDOs"
         ]))
 
+        if flags.Overlay.DataOverlay:
+            acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+                "IDCInDetBSErrContainer#SCT_ByteStreamErrs"
+            ]))
+
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
