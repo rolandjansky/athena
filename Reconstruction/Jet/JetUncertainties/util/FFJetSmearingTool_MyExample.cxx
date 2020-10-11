@@ -335,7 +335,6 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
         std::unique_ptr<TH3F> hist_jet_mass_scale_change_3D;
         hist_jet_mass_scale_change_3D =  std::make_unique<TH3F>("hist_jet_mass_scale_change_3D","hist_jet_mass_scale_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsMass,0,upperlimit1/*mass*/);
- //       TH3F* hist_jet_mass_scale_change_3D    = new TH3F ("hist_jet_mass_scale_change_3D","hist_jet_mass_scale_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsMass,0,upperlimit1/*mass*/);
 
 
         float lowerlimit3 = -0.5;
@@ -345,7 +344,6 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
         std::unique_ptr<TH3F> hist_jet_mass_resolution_change_3D;
         hist_jet_mass_resolution_change_3D =  std::make_unique<TH3F>("hist_jet_mass_resolution_change_3D","hist_jet_mass_resolution_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsDiff,lowerlimit3,upperlimit3/*mass*/);
-//        TH3F* hist_jet_mass_resolution_change_3D    = new TH3F ("hist_jet_mass_resolution_change_3D","hist_jet_mass_resolution_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsDiff,lowerlimit3,upperlimit3/*mass*/);
 
 
 
@@ -459,7 +457,6 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 std::unique_ptr<xAOD::Jet> jet_reco_CALO = std::make_unique<xAOD::Jet>();     
                 jet_reco_CALO->makePrivateStore();
                 jet_reco_CALO->setJetP4(jet_reco_CALO_FourMom);
-//                xAOD::Jet* jet_reco_TA = new xAOD::Jet();
                 std::unique_ptr<xAOD::Jet> jet_reco_TA = std::make_unique<xAOD::Jet>();  
                 jet_reco_TA->makePrivateStore();
                 jet_reco_TA->setJetP4(jet_reco_TA_FourMom);

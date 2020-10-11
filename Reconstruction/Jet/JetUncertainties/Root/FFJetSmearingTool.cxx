@@ -644,7 +644,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
 
     //Obtain the jet mass scale (JMS) and the jet mass resolution (JMR) nominal values and variation that correspond to the jet_reco
 
-//    double JMS=1; double JMS_err; double JMR=1; double JMR_err;	
     double JMS (1), JMS_err(0), JMR(1), JMR_err(0);
     double scale;
     double resolution;

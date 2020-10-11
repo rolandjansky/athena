@@ -50,7 +50,7 @@
 #include "TEnv.h"
 #include "TMath.h"
 
-#include "ROOT/RMakeUnique.hxx"
+#include <memory> //to use make_unique
 
 /// Implementation of the Forward Folding (FF) Jet smearing tool interface
 ///
@@ -174,7 +174,6 @@ namespace CP {
             std::unique_ptr<TH2D> m_TA_ResponseMap;
 
             //Two histograms to extract the Calo and TA weights in the Combined mass of the jet
-//            TH3F* m_caloMassWeight;
             std::unique_ptr<TH3F> m_caloMassWeight;
             std::unique_ptr<TH3F> m_TAMassWeight;
 
