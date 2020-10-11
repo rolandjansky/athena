@@ -7,23 +7,18 @@
 
 #include "SCT_InducedChargedModel.h"
 
-#include "TRandom.h"
-
-#include "PathResolver/PathResolver.h"
-
-void SCT_InducedChargedModel::Init(float vdepl, float vbias) {
+void SCT_InducedChargedModel::Init(float vdepl, float vbias, IdentifierHash m_hashId, ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc) {
 
   ATH_MSG_INFO("--- Induced Charged Model Paramter (Begin) --------");
 
 //---------------setting basic parameters---------------------------
 
-  m_VD = vdepl;    // full depletion voltage [Volt] negative for type-P
-  m_VB = vbias;   // applied bias voltage [Volt]    
+  m_VD = vdepl;   // full depletion voltage [Volt] negative for type-P
+  m_VB = vbias;   // applied bias voltage [Volt]
+  m_T = m_siConditionsSvc->temperature(m_hashId) + Gaudi::Units::STP_Temperature;
 
 //------------------------ initialize subfunctions ------------
 
-  init_mud_h(m_T);
-  init_mud_e(m_T);
   loadICMParameters();
   
 //------------ find delepletion deph for model=0 and 1 -------------
@@ -50,62 +45,14 @@ void SCT_InducedChargedModel::Init(float vdepl, float vbias) {
   ATH_MSG_INFO(" DepletionDepth\t\t"<< m_depletion_depth << " cm");
   ATH_MSG_INFO(" StripPitch\t\t"<< m_strip_pitch << " cm");
   ATH_MSG_INFO("--- Induced Charged Model Paramter (End) ---------");  
-  
+
   return;
-}
-
-//--------------------------------------------------------------
-//   drift mobility for electrons
-//--------------------------------------------------------------
-double SCT_InducedChargedModel::mud_e(double E) {
-  return m_vs_e/m_Ec_e/pow(1+pow(E/m_Ec_e,m_beta_e),1./m_beta_e);
-}
-
-//--------------------------------------------------------------
-//   initialize drift mobility for electrons
-//--------------------------------------------------------------
-void SCT_InducedChargedModel::init_mud_e(double T) {
-   m_vs_e=1.53E9*pow( T,-0.87);
-   m_Ec_e = 1.01*pow( T, 1.55);
-   m_beta_e = 2.57E-2* pow(T,0.66);
-
-   ATH_MSG_INFO("---- parameters for electron transport -----");
-   ATH_MSG_INFO(" Saturation drift velosity = "<< m_vs_e );
-   ATH_MSG_INFO(" Phenomenological equation paramter Ec = "<< m_Ec_e);
-   ATH_MSG_INFO(" Phenomenological equation paramter Beta = "<< m_beta_e );
-   ATH_MSG_INFO("--------------------------------------------");
-
-   return ;
-}
-
-//--------------------------------------------------------------
-//   drift mobility for holes
-//--------------------------------------------------------------
-double SCT_InducedChargedModel::mud_h(double E) {
-  return m_vs_h/m_Ec_h/pow(1+pow(E/m_Ec_h,m_beta_h),1./m_beta_h);
-}
-
-//--------------------------------------------------------------
-//   initialize drift mobility for holes
-//--------------------------------------------------------------
-void SCT_InducedChargedModel::init_mud_h(double T) {
-  m_vs_h = 1.62E8 * pow( T, -0.52);
-  m_Ec_h = 1.24 * pow( T, 1.68);
-  m_beta_h = 0.46 * pow(T,0.17);
-  
-  ATH_MSG_INFO("---- parameters for hole transport ---------");
-  ATH_MSG_INFO(" Saturation drift velosity = "<< m_vs_h );
-  ATH_MSG_INFO(" Phenomenological equation paramter Ec = "<< m_Ec_h);
-  ATH_MSG_INFO(" Phenomenological equation paramter Beta = "<< m_beta_h );
-  ATH_MSG_INFO("--------------------------------------------");
-
-  return ;
 }
 
 //---------------------------------------------------------------------
 //  holeTransport
 //---------------------------------------------------------------------
-void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2 ) {
+void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, IdentifierHash m_hashId, ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc) {
 
 // transport holes in the bulk 
 // T. Kondo, 2010.9.9, 2017.7.20
@@ -113,9 +60,9 @@ void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, 
 //   m_transportTimeMax  [nsec]
 //   m_transportTimeStep [nsec]     
 //   m_bulk_depth        [cm]
-// Induced currents are added to every m_transportTimeStep:
-//   Q_m2[200],Q_m1[200],Q_00[200],Q_p1[200],Q_p2[200] 
-// 
+// Induced currents are added to every m_transportTimeStep (defailt is 0.5 ns):
+// Q_m2[100],Q_m1[100],Q_00[100],Q_p1[100],Q_p2[100] 
+// means 50 ns storages of charges in each strips. 
 
    double x = x0;  // original hole position [cm]
    double y = y0;  // original hole position [cm]
@@ -123,11 +70,11 @@ void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, 
    double t_current = 0.;
    double qstrip[5];  // induced charges on strips due to a hole
    double vx, vy, D;
-   for (int istrip = -2 ; istrip < 3 ; istrip++) qstrip[istrip+2] = 
+   for (int istrip = -2 ; istrip <= 2 ; istrip++) qstrip[istrip+2] = 
            induced(istrip, x, y); // original induced charge bu hole +e 
    while ( t_current < m_transportTimeMax ) {
      if ( !isInBulk ) break;
-     if ( !hole( x, y, vx, vy, D)) break ;
+     if ( !hole( x, y, vx, vy, D, m_hashId, m_siPropertiesSvc)) break ;
      double delta_y = vy * m_transportTimeStep *1.E-9; 
      y += delta_y;
      double dt = m_transportTimeStep;
@@ -139,22 +86,22 @@ void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, 
      t_current = t_current + dt;
      x += vx * dt *1.E-9;
      double diffusion = sqrt (2.* D * dt*1.E-9);
-     y += diffusion * gRandom->Gaus(0.,1.);
-     x += diffusion * gRandom->Gaus(0.,1.);
-     if( y > m_bulk_depth) {
+     y += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, 1.0);
+     x += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, 1.0);
+     if ( y > m_bulk_depth ) {
          y = m_bulk_depth;
          isInBulk = false;  // outside bulk region
      }
 
 //   get induced current by subtracting induced charges
-     for (int istrip = -2 ; istrip < 3 ; istrip++) {
+     for (int istrip = -2 ; istrip <= 2 ; istrip++) {
         double qnew = induced( istrip, x, y);
         int jj = istrip + 2;
         double dq = qnew - qstrip[jj];
         qstrip[jj] = qnew ;
 
 	int jt = int( (t_current+0.001) / m_transportTimeStep) ; 
-        if(jt < 200) {
+        if (jt < 100) {
 	  switch(istrip) {
 	  case -2: Q_m2[jt] += dq ; break;
 	  case -1: Q_m1[jt] += dq ; break;
@@ -173,7 +120,7 @@ void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, 
 //---------------------------------------------------------------------
 //  electronTransport
 //---------------------------------------------------------------------
-void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2 ) {
+void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, IdentifierHash m_hashId, ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc ) {
 
 // transport electrons in the bulk 
 // T. Kondo, 2010.9.9, 2017.7.20
@@ -181,9 +128,9 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
 //   m_transportTimeMax  [nsec]
 //   m_transportTimeStep [nsec]     
 //   m_bulk_depth        [cm]
-// Induced currents are added to every m_transportTimeStep:
-//   Q_m2[200],Q_m1[200],Q_00[200],Q_p1[200],Q_p2[200] 
-// 
+// Induced currents are added to every m_transportTimeStep (defailt is 0.5 ns):
+// Q_m2[100],Q_m1[100],Q_00[100],Q_p1[100],Q_p2[100] 
+// means 50 ns storages of charges in each strips. 
 
    double x = x0;  // original electron position [cm]
    double y = y0;  // original electron position [cm]
@@ -191,11 +138,11 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
    double t_current = 0.;
    double qstrip[5];
    double vx, vy, D;
-   for (int istrip = -2 ; istrip < 3 ; istrip++) 
-   qstrip[istrip+2] = -induced(istrip, x, y);
+   for (int istrip = -2 ; istrip <= 2 ; istrip++) 
+     qstrip[istrip+2] = -induced(istrip, x, y);
    while (t_current < m_transportTimeMax) {
      if ( !isInBulk ) break;
-     if ( !electron( x, y, vx, vy, D)) break ;
+     if ( !electron( x, y, vx, vy, D, m_hashId, m_siPropertiesSvc)) break ;
      double delta_y = vy * m_transportTimeStep *1.E-9; 
      y += delta_y;
      double dt = m_transportTimeStep;  // [nsec]
@@ -207,22 +154,22 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
      t_current = t_current + dt;
      x += vx * dt *1.E-9;
      double diffusion = sqrt (2.* D * dt*1.E-9);
-     y += diffusion * gRandom->Gaus(0.,1.);
-     x += diffusion * gRandom->Gaus(0.,1.);
-     if( y < m_y_origin_min) {
+     y += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, 1.0);
+     x += diffusion * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, 1.0);
+     if ( y < m_y_origin_min ) {
         y = m_y_origin_min;
         isInBulk = false;
      }
 
 //   get induced current by subtracting induced charges
-     for (int istrip = -2 ; istrip < 3 ; istrip++) {
+     for (int istrip = -2 ; istrip <= 2 ; istrip++) {
         double qnew = -induced( istrip, x, y);
         int jj = istrip + 2;
         double dq = qnew - qstrip[jj];
         qstrip[jj] = qnew ;
 
 	int jt = int( (t_current + 0.001) / m_transportTimeStep);
-        if(jt< 200) {
+        if (jt< 100) {
 	  switch(istrip) {
 	  case -2: Q_m2[jt] += dq ; break;
 	  case -1: Q_m1[jt] += dq ; break;
@@ -241,17 +188,19 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
 //---------------------------------------------------------------
 //      parameters for electron transport
 //---------------------------------------------------------------
-bool SCT_InducedChargedModel::electron(double x_e, double y_e, double &vx_e, double &vy_e, double &D_e) {
+bool SCT_InducedChargedModel::electron(double x_e, double y_e, double &vx_e, double &vy_e, double &D_e, IdentifierHash m_hashId, ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc) {
 
 double E, Ex, Ey, mu_e, v_e, r_e, tanLA_e, secLA, cosLA, sinLA;
 EField(x_e, y_e, Ex, Ey);    // [V/cm]
-if( Ey > 0.) {
+if ( Ey > 0.) {
    double REx = -Ex; // because electron has negative charge 
    double REy = -Ey; // because electron has negative charge
    E = sqrt(Ex*Ex+Ey*Ey);
-   mu_e = mud_e(E);
+   mu_e = m_siPropertiesSvc->getSiProperties(m_hashId).calcElectronDriftMobility(m_T,E*CLHEP::volt/CLHEP::cm);
+   mu_e *= (CLHEP::volt/CLHEP::cm)/(CLHEP::cm/CLHEP::s);
    v_e = mu_e * E;
-   r_e = 1.13+0.0008*(m_T-273.15);
+   r_e = 0;
+   r_e = 1.13+0.0008*(m_T-Gaudi::Units::STP_Temperature);
    tanLA_e = r_e * mu_e * (-m_B) * 1.E-4;  // because e has negative charge
    secLA = sqrt(1.+tanLA_e*tanLA_e);
    cosLA=1./secLA;
@@ -267,15 +216,17 @@ if( Ey > 0.) {
 //---------------------------------------------------------------
 //      parameters for hole transport
 //---------------------------------------------------------------
-bool SCT_InducedChargedModel::hole(double x_h, double y_h, double &vx_h, double &vy_h, double &D_h) {
+bool SCT_InducedChargedModel::hole(double x_h, double y_h, double &vx_h, double &vy_h, double &D_h, IdentifierHash m_hashId, ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc) {
 
 double E, Ex, Ey, mu_h, v_h, r_h, tanLA_h, secLA, cosLA, sinLA;
 EField( x_h, y_h, Ex, Ey);  // [V/cm]
-if( Ey > 0.) {
+if ( Ey > 0.) {
    E = sqrt(Ex*Ex+Ey*Ey);
-   mu_h = mud_h(E);
+   mu_h = m_siPropertiesSvc->getSiProperties(m_hashId).calcHoleDriftMobility(m_T,E*CLHEP::volt/CLHEP::cm);
+   mu_h *= (CLHEP::volt/CLHEP::cm)/(CLHEP::cm/CLHEP::s);
    v_h = mu_h * E;
-   r_h = 0.72 - 0.0005*(m_T-273.15);
+   r_h = 0;
+   r_h = 0.72 - 0.0005*(m_T-Gaudi::Units::STP_Temperature);
    tanLA_h = r_h * mu_h * m_B * 1.E-4;
    secLA = sqrt(1.+tanLA_h*tanLA_h);
    cosLA=1./secLA;
@@ -329,9 +280,9 @@ void SCT_InducedChargedModel::EField( double x, double y, double &Ex, double &Ey
 
    Ex = 0.;
    Ey = 0.;
-   if( y < 0. || y > m_bulk_depth) return;
+   if ( y < 0. || y > m_bulk_depth) return;
 //---------- case for FEM analysis solution  -------------------------
-   if(m_EfieldModel==2) {       
+   if (m_EfieldModel==2) {       
        int iy = int (y/deltay);
        double fy = (y-iy*deltay) / deltay;
        double xhalfpitch=m_strip_pitch/2.;
@@ -356,14 +307,14 @@ void SCT_InducedChargedModel::EField( double x, double y, double &Ex, double &Ey
 //---------------- end of data bank search---
        Ex = Ex00*(1.-fx)*(1.-fy) + Ex10*fx*(1.-fy)
               + Ex01*(1.-fx)*fy + Ex11*fx*fy ;
-       if(xx > xhalfpitch ) Ex = -Ex;
+       if (xx > xhalfpitch ) Ex = -Ex;
        Ey = Ey00*(1.-fx)*(1.-fy) + Ey10*fx*(1.-fy)
               + Ey01*(1.-fx)*fy + Ey11*fx*fy ;
        return;
    }
 
 //---------- case for uniform electriv field ------------------------
-   if( m_EfieldModel ==0 ) {
+   if ( m_EfieldModel==0 ) {
        if ( m_bulk_depth - y < m_depletion_depth && m_depletion_depth >0. ) {
           Ey = m_VB / m_depletion_depth ;   
        } else { 
@@ -372,7 +323,7 @@ void SCT_InducedChargedModel::EField( double x, double y, double &Ex, double &Ey
        return;
    }
 //---------- case for flat diode model ------------------------------
-   if(m_EfieldModel==1) {       
+   if ( m_EfieldModel==1 ) {
        if(m_VB > abs(m_VD)) { 
           Ey = (m_VB+m_VD)/m_bulk_depth 
                 - 2.*m_VD*(m_bulk_depth-y)/(m_bulk_depth*m_bulk_depth);
@@ -393,13 +344,21 @@ return;
 /////////////////////////////////////////////////////////////////////
 
 void SCT_InducedChargedModel::loadICMParameters(){
+// Loading Ramo potential and Electric field.                                 
+// In strip pitch directions :
+//  Ramo potential : 80 divisions (81 points) with 5 um intervals from 40-440 um.
+//  Electric field : 16 divisions (17 points) with 2.5 um intervals from 0-40 um.
+// In sensor depth directions (for both potential and Electric field):
+//  114 divisions (115 points) with 2.5 nm intervals for 285 um.           
 
   TFile *hfile = new TFile( PathResolverFindCalibFile("SCT_Digitization/SCT_InducedChargedModel.root").c_str() );
 
-  h_Potential_FDM = (TH2F *)hfile -> Get("Potential_FDM");
-  h_Potential_FEM = (TH2F *)hfile -> Get("Potential_FEM");
+  h_Potential_FDM = static_cast<TH2F *>(hfile->Get("Potential_FDM"));
+  h_Potential_FEM = static_cast<TH2F *>(hfile->Get("Potential_FEM"));
 
-  if(m_VD<-180 || m_VD>70 ){
+  constexpr float MinBiasV_ICM_FEM = -180.0;
+  constexpr float MaxBiasV_ICM_FEM = 70.0;
+  if ( m_VD<MinBiasV_ICM_FEM || m_VD>MaxBiasV_ICM_FEM ){
     m_EfieldModel = 1; // Change to FDM
     ATH_MSG_INFO("Changed to Flat Diode Model since deplettion volage is out of range. (-180 < m_VD < 70 is allow.)");  
   }
@@ -407,9 +366,9 @@ void SCT_InducedChargedModel::loadICMParameters(){
   // For Ramo Potential 
   for (int ix=0 ; ix <81 ; ix++ ){
     for (int iy=0 ; iy<115 ; iy++ ) {
-      if(m_EfieldModel==2){ // FEM
+      if (m_EfieldModel==2){ // FEM
 	m_PotentialValue[ix][iy] = h_Potential_FEM -> GetBinContent(ix+1,iy+1);
-      }else{ // FDM	
+      } else { // FDM	
 	m_PotentialValue[ix][iy] = h_Potential_FDM -> GetBinContent(ix+1,iy+1);
       }
     }
@@ -418,34 +377,54 @@ void SCT_InducedChargedModel::loadICMParameters(){
   h_Potential_FDM -> Delete();
   h_Potential_FEM -> Delete();
 
-  if( m_EfieldModel == 2 ){
+  if ( m_EfieldModel == 2 ){
 
     float VFD0[9]= { -180, -150, -120, -90, -60, -30, 0, 30, 70};
-    char hxname[9][16]= {"Ex_FEM_M180_0","Ex_FEM_M150_0","Ex_FEM_M120_0","Ex_FEM_M90_0",
-			 "Ex_FEM_M60_0","Ex_FEM_M30_0","Ex_FEM_0_0","Ex_FEM_30_0","Ex_FEM_70_0",};
-    char hyname[9][16]= {"Ey_FEM_M180_0","Ey_FEM_M150_0","Ey_FEM_M120_0","Ey_FEM_M90_0",
-			 "Ey_FEM_M60_0","Ey_FEM_M30_0","Ey_FEM_0_0","Ey_FEM_30_0","Ey_FEM_70_0",};
+
+    std::vector<std::string> hx_list;
+    std::vector<std::string> hy_list;
+
+    hx_list.push_back("Ex_FEM_M180_0");
+    hx_list.push_back("Ex_FEM_M150_0");
+    hx_list.push_back("Ex_FEM_M120_0");
+    hx_list.push_back("Ex_FEM_M90_0");
+    hx_list.push_back("Ex_FEM_M60_0");
+    hx_list.push_back("Ex_FEM_M30_0");
+    hx_list.push_back("Ex_FEM_0_0");
+    hx_list.push_back("Ex_FEM_30_0");
+    hx_list.push_back("Ex_FEM_70_0");
+
+    hy_list.push_back("Ey_FEM_M180_0");
+    hy_list.push_back("Ey_FEM_M150_0");
+    hy_list.push_back("Ey_FEM_M120_0");
+    hy_list.push_back("Ey_FEM_M90_0");
+    hy_list.push_back("Ey_FEM_M60_0");
+    hy_list.push_back("Ey_FEM_M30_0");
+    hy_list.push_back("Ey_FEM_0_0");
+    hy_list.push_back("Ey_FEM_30_0");
+    hy_list.push_back("Ey_FEM_70_0");
+
     int iVFD = 0;
     float dVFD1 = 0;
     float dVFD2 = 0;
-    for (iVFD=0; iVFD<8; iVFD++)  {
+    for ( iVFD=0; iVFD<8; iVFD++ ){ // 2 of 9 will be seleted.
       dVFD1 = m_VD - VFD0[iVFD];
       dVFD2 = VFD0[iVFD+1] - m_VD;
       if( dVFD2 >= 0 ) break;
     }
     
-    h_Ex1 = (TH2F *)hfile -> Get( hxname[iVFD] );
-    h_Ex2 = (TH2F *)hfile -> Get( hxname[iVFD+1] );
-    h_Ey1 = (TH2F *)hfile -> Get( hyname[iVFD] );
-    h_Ey2 = (TH2F *)hfile -> Get( hyname[iVFD+1] );
-    h_ExHV = (TH2F *)hfile -> Get("Ex_FEM_0_100");
-    h_EyHV = (TH2F *)hfile -> Get("Ey_FEM_0_100");
+    h_Ex1 = static_cast<TH2F *>(hfile->Get((hx_list.at(iVFD)).c_str()));
+    h_Ex2 = static_cast<TH2F *>(hfile->Get((hx_list.at(iVFD+1)).c_str()));
+    h_Ey1 = static_cast<TH2F *>(hfile->Get((hy_list.at(iVFD)).c_str()));
+    h_Ey2 = static_cast<TH2F *>(hfile->Get((hy_list.at(iVFD+1)).c_str()));
+    h_ExHV = static_cast<TH2F *>(hfile->Get("Ex_FEM_0_100"));
+    h_EyHV = static_cast<TH2F *>(hfile->Get("Ey_FEM_0_100"));
 
     float scalingFactor = m_VB / 100;
 
     // For Electric field    
-    for (int ix=0 ; ix <17 ; ix++ ){
-      for (int iy=0 ; iy<115 ; iy++ ) {
+    for (int ix=0 ; ix <17 ; ix++){
+      for (int iy=0 ; iy<115 ; iy++) {
  	float Ex1 = h_Ex1->GetBinContent(ix+1,iy+1);
 	float Ex2 = h_Ex2->GetBinContent(ix+1,iy+1);
 	float ExHV = h_ExHV-> GetBinContent(ix+1,iy+1);       
@@ -460,12 +439,12 @@ void SCT_InducedChargedModel::loadICMParameters(){
       }
     }
     
-    h_Ex1 -> Delete();
-    h_Ex2 -> Delete();
-    h_Ey1 -> Delete();
-    h_Ey2 -> Delete();
-    h_ExHV -> Delete();
-    h_EyHV -> Delete();
+    h_Ex1->Delete();
+    h_Ex2->Delete();
+    h_Ey1->Delete();
+    h_Ey2->Delete();
+    h_ExHV->Delete();
+    h_EyHV->Delete();
   }
   
   hfile -> Close();

@@ -11,38 +11,64 @@
 // C++ Standard Library
 #include <iostream>
 
+// ROOT
 #include "TH2.h"
 #include "TFile.h"
 
+// Athena
 #include "AthenaKernel/MsgStreamMember.h"
+#include "SiPropertiesSvc/ISiPropertiesSvc.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "Identifier/IdentifierHash.h"
+#include "PathResolver/PathResolver.h"
 
-class SCT_InducedChargedModel{
+// Gaudi
+#include "GaudiKernel/PhysicalConstants.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+// Random number
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"  // for RandGaussZiggurat 
+#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
+class SCT_InducedChargedModel {
 
  public:
 
-  void holeTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2 ) ;
-  void electronTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2 ) ;
+  void Init(float vdepl, float vnbais, IdentifierHash m_hashId, 
+	    ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc);
+  void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) {  m_rndmEngine = rndmEngine; };
+  void setMagneticField(double B){ m_B = - B*1000; }; // m_B in [Tesla]
 
-  void Init(float vdepl, float vnbais);
+  void holeTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, IdentifierHash m_hashId, ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc) ;
+  void electronTransport(double x0, double y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, IdentifierHash m_hashId, ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc ) ;
 
  private:
 
-  bool electron( double x_e, double y_e, double &vx_e, double &vy_e, double &D_e);
-  bool hole(double x_h, double y_h, double &vx_h, double &vy_h, double &D_h) ;
+  void loadICMParameters();
+
+  bool electron(double x_e, double y_e, double &vx_e, double &vy_e, double &D_e,
+		IdentifierHash m_hashId, 
+		ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc) ;
+  bool hole(double x_h, double y_h, double &vx_h, double &vy_h, double &D_h,
+	    IdentifierHash m_hashId, 
+	    ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc) ;
   double induced (int istrip, double x, double y) ;
   void EField( double x, double y, double &Ex, double &Ey ) ; 
-  double mud_e(double E) ;
-  double mud_h(double E) ;
-  void init_mud_e(double T) ;
-  void init_mud_h(double T) ;
-  void loadICMParameters() ;
+
 
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
-
- private:
 
   // Private message stream member
   mutable Athena::MsgStreamMember m_msg;
@@ -51,8 +77,8 @@ class SCT_InducedChargedModel{
    int    m_EfieldModel = 2 ; // 0(uniform E), 1(flat diode model), 2 (FEM solusions)
    double m_VD = -30. ;   // full depletion voltage [Volt] negative for type-P
    double m_VB = 75. ;   // applied bias voltage [Volt]
-   double m_T = 273.15;
-   double m_B = -2.0 ;  // [Tesla]
+   double m_T;
+   double m_B;
    double m_transportTimeStep = 0.50;    // one step side in time [nsec]
    double m_transportTimeMax = 50.0;     // maximun tracing time [nsec]
    double m_x0;
@@ -65,18 +91,8 @@ class SCT_InducedChargedModel{
    double m_y_origin_min;
 
 //-------- parameters for e, h transport --------------------------------
-   double m_kB = 1.38E-23;  // [m^2*kg/s^2/K]
-   double m_e = 1.602E-19;  // [Coulomb]
-   double m_vs_e;
-   double m_Ec_e ;
-   double m_vs_h;
-   double m_Ec_h ;
-   double m_driftMobility; // [cm**2/V/s]
-   double m_diffusion;     // [cm**2/s]
-   double m_beta_e ;
-   double m_beta_h ;
-   double m_theta;
-   double m_tanLA;
+   double m_kB = Gaudi::Units::k_Boltzmann / Gaudi::Units::joule; // [m^2*kg/s^2/K]
+   double m_e = Gaudi::Units::e_SI;  // [Coulomb]
 
 //--------- parameters of induced charged model from root file ---------
    TH2F *h_Potential_FDM;
@@ -89,13 +105,18 @@ class SCT_InducedChargedModel{
    TH2F *h_EyHV;
 
 //---------- arrays of FEM analysis -----------------------------------
+// Storages for Ramo potential and Electric field.
+// In strip pitch directions :                                                   
+//  Ramo potential : 80 divisions (81 points) with 5 um intervals from 40-440 um. 
+//  Electric field : 16 divisions (17 points) with 2.5 um intervals from 0-40 um.
+// In sensor depth directions (for both potential and Electric field):
+//  114 divisions (115 points) with 2.5 nm intervals for 285 um.
+ 
    double m_PotentialValue[81][115];
    double m_ExValue[17][115];
    double m_EyValue[17][115];
 
-//-----------------char string for sprintf-------------------------------
-   char m_cid[200];
-
+   CLHEP::HepRandomEngine   *m_rndmEngine; //!< Random number generation engine 
 
 };
 
