@@ -53,7 +53,6 @@ AtlasDetectorID::AtlasDetectorID(void)
         m_LAR_HEC_ID(2),
         m_LAR_FCAL_ID(3),
         m_LAR_FCAL_MODULE_INDEX(999),
-        m_LAR_HGTD_ID(-2),
         m_MDT_ID(0),
         m_CSC_ID(1),
         m_RPC_ID(2),
@@ -105,7 +104,6 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_LAR_HEC_ID              (other.m_LAR_HEC_ID),
         m_LAR_FCAL_ID             (other.m_LAR_FCAL_ID),
         m_LAR_FCAL_MODULE_INDEX   (other.m_LAR_FCAL_MODULE_INDEX),
-        m_LAR_HGTD_ID             (other.m_LAR_HGTD_ID),
         m_MDT_ID                  (other.m_MDT_ID),
         m_CSC_ID                  (other.m_CSC_ID),
         m_RPC_ID                  (other.m_RPC_ID),
@@ -172,7 +170,6 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_LAR_HEC_ID            = other.m_LAR_HEC_ID;
         m_LAR_FCAL_ID           = other.m_LAR_FCAL_ID;
         m_LAR_FCAL_MODULE_INDEX = other.m_LAR_FCAL_MODULE_INDEX;
-        m_LAR_HGTD_ID           = other.m_LAR_HGTD_ID;
         m_MDT_ID                = other.m_MDT_ID;
         m_CSC_ID                = other.m_CSC_ID;
         m_RPC_ID                = other.m_RPC_ID;
@@ -362,16 +359,6 @@ AtlasDetectorID::lar_fcal          (void) const
     // Pack field
     m_det_impl.pack     (lar_field_value(), result);
     m_lar_part_impl.pack(m_LAR_FCAL_ID, result);
-    return (result);
-}
-
-Identifier
-AtlasDetectorID::lar_hgtd          (void) const
-{
-    Identifier result((Identifier::value_type)0);
-    // Pack field
-    m_det_impl.pack     (lar_field_value(), result);
-    m_lar_part_impl.pack(m_LAR_HGTD_ID, result);
     return (result);
 }
 
@@ -688,16 +675,6 @@ AtlasDetectorID::is_lar_minifcal        (const ExpandedIdentifier& id) const
     bool result = false;
     if ( is_lar_fcal(id) && id.fields() > 3 ){
         if ( abs(id[3]) == 0 ) result = true;
-    }
-    return result;
-}
-
-bool
-AtlasDetectorID::is_lar_hgtd            (const ExpandedIdentifier& id) const
-{
-    bool result = false;
-    if ( is_lar(id) && id.fields() > 1 ){
-        if ( id[1] == m_LAR_HGTD_ID ) result = true;
     }
     return result;
 }
@@ -1026,7 +1003,6 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
     m_LAR_HEC_ID            = -1;
     m_LAR_FCAL_ID           = -1;
     m_LAR_FCAL_MODULE_INDEX = 999;
-    m_LAR_HGTD_ID           = -1;
     m_MDT_ID                = -1;
     m_CSC_ID                = -1;
     m_RPC_ID                = -1;
@@ -1494,37 +1470,6 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
             }
             return (1);
         }
-        label = field->find_label("HGTD");
-        if (label) {
-            if (label->m_valued) {
-                m_LAR_HGTD_ID = label->m_value;
-            }
-            else {
-                if(m_msgSvc) {
-                    MsgStream log(m_msgSvc, "AtlasDetectorID" );
-                    log << MSG::VERBOSE << "initLevelsFromDict - label HGTD does NOT have a value (not required when not running HGTD)"
-                        << endreq;
-                }
-                else {
-                    std::cout << "AtlasDetectorID::initLevelsFromDict - label HGTD does NOT have a value (not required when not running HGTD)"
-                              << std::endl;
-                }
-		//                return (1);
-            }
-        }
-        else {
-            if(m_msgSvc) {
-                MsgStream log(m_msgSvc, "AtlasDetectorID" );
-                log << MSG::VERBOSE << "initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)"
-                    << endreq;
-            }
-            else {
-                std::cout << "AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)"
-                          << std::endl;
-            }
-	    //            return (1);
-        }
-        // set
 
         field = m_lar_dict->find_field("module") ;
         if (field) {
