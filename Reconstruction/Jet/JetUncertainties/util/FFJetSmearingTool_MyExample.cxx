@@ -58,7 +58,7 @@
   do {                                               \
     const bool result = ARG;                         \
     if(!result) {                                    \
-      std::cout << "Failed to execute: "<< #ARG <<std::endl;\
+      printf("Failed to execute: %s \n", #ARG);\
       return 1;                                      \
     }                                                \
   } while( false )
@@ -67,13 +67,13 @@
 
 // Help message if the  --help option is given by the user
 void usage() {
-    std::cout << "Running options:" << std::endl;
-    std::cout << "YOU HAVE TO ADAPT THE OPTIONS TO FFJETSMEARINGCORRECTION" << std::endl;
-    std::cout << "        --help : To get the help you're reading" << std::endl;
-    std::cout << "        --jetColl= : Specify the jet collection (TrimmedLargeR)" << std::endl;
-    std::cout << "        --MassDef= : Specify the kind of jet mass used (Calo, TA, Comb)" << std::endl;
-    std::cout << "        --sample= : Specify input xAOD" << std::endl;
-    std::cout << "        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=rel21/Spring2020/FFJetSmearingTool_TestOnly_JMR.config   --DebugTool=true" << std::endl;
+    printf("Running options:\n");
+    printf("YOU HAVE TO ADAPT THE OPTIONS TO FFJETSMEARINGCORRECTION\n");
+    printf("        --help : To get the help you're reading\n");
+    printf("        --jetColl= : Specify the jet collection (TrimmedLargeR)\n");
+    printf("        --MassDef= : Specify the kind of jet mass used (Calo, TA, Comb)\n");
+    printf("        --sample= : Specify input xAOD\n");
+    printf("        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=rel21/Spring2020/FFJetSmearingTool_TestOnly_JMR.config   --DebugTool=true \n");
 }
 
 
@@ -131,35 +131,34 @@ int main(int argc, char* argv[]){
 
 
     if(sample==""){
-        std::cout << "No input xAOD file specified, exiting" << std::endl;
+        printf("No input xAOD file specified, exiting\n");
         return 1;
     }
     if(truth_jetColl==""){
-        std::cout << "No truth jet collection specified, exiting" << std::endl;
+        printf("No truth jet collection specified, exiting\n");
         return 1;
     }
     if(reco_jetColl==""){
-        std::cout << "No truth jet collection specified, exiting" << std::endl;
+        printf("No truth jet collection specified, exiting\n");
         return 1;
     }
     if(string_kindofmass==""){
-        std::cout << "No kind of jet mass specified, exiting" << std::endl;
+        printf("No kind of jet mass specified, exiting\n");
         return 1;
     }
     if(string_configfile_path==""){
-        std::cout << "No ConfigFile specified, exiting" << std::endl;
+        printf("No ConfigFile specified, exiting\n");
         return 1;
     }
     if(string_debugtool==""){
-        std::cout << "No debugtool specified, exiting" << std::endl;
+        printf("No debugtool specified, exiting\n");
         return 1;
     }
     if(output==""){
-        std::cout << "output not specified, exiting" << std::endl;
+        printf("output not specified, exiting\n");
         return 1;
     }
-    std::cout << sample << " " << truth_jetColl << " " << reco_jetColl  << " " << output << " " << string_debugtool  << std::endl;
-
+    printf("%s %s %s %s %s \n", sample.c_str(), truth_jetColl.c_str(), reco_jetColl.c_str(), output.c_str(), string_debugtool.c_str());
 
 
     TString kindofmass = string_kindofmass;
@@ -216,7 +215,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
     // Initialize the tool
     if(!(ffjetsmearingtool.initialize().isSuccess())){
-        std::cout << "Initialization of FFJetSmearingTool failed, exiting" << std::endl;
+        printf("Initialization of FFJetSmearingTool failed, exiting\n");
         return 0;
     }
 
@@ -231,10 +230,10 @@ config.makeTool (ffjetsmearingtool, cleanup);
     // Print the recommended systematics
 
     const CP::SystematicSet& recommendedSysts = ffjetsmearingtool.recommendedSystematics();//take the systematics of the FFJETSmearing Tool
-    std::cout << "Recommended systematics:" << std::endl;
+    printf("Recommended systematics: \n");
     for(auto sysItr = recommendedSysts.begin();
         sysItr != recommendedSysts.end(); ++sysItr){
-        std::cout << sysItr->name().c_str() << std::endl;
+        printf("%s \n", sysItr->name().c_str());
     }
 
 
@@ -283,7 +282,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
     jetCalibrationTool.setProperty("DEVmode", false);
 
     if(!(jetCalibrationTool.initialize().isSuccess())){
-        std::cout << "Initialization of JetCalibTools failed, exiting" << std::endl;
+        printf("Initialization of JetCalibTools failed, exiting \n");
         return 0;
     }
 //--------------------------------------------------------
@@ -291,14 +290,14 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
     for (auto sys : recommendedSysts) { sysList.push_back(CP::SystematicSet({sys})); }
 
-    std::cout << "\n=============SYSTEMATICS CHECK NOW" << std::endl;
+    printf("\n=============SYSTEMATICS CHECK NOW \n");
     for (auto sys : sysList)	 {
         // Tell the calibration tool which variation to apply
         if (ffjetsmearingtool.applySystematicVariation(sys) != CP::SystematicCode::Ok) {
-            std::cout << "Error, Cannot configure calibration tool for systematics" << std::endl;
+            printf("Error, Cannot configure calibration tool for systematics \n");
         }
 
-        std::cout << "\nWe are using the systematic " << sys.name()  << std::endl;
+        printf("\nWe are using the systematic %s \n", sys.name().c_str());
 
 	
 
@@ -366,13 +365,13 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
             // Load the event:
             if( event.getEntry( ievent ) < 0 ) {
-                std::cout << "Failed to load entry " << ievent << std::endl;
+                printf("Failed to load entry %lld \n", ievent);
                 return 1;
             }
 
 
             // Show status
-            if(ievent % 100==0) std::cout << "Event " << ievent << " of " << nevents << std::endl;
+            if(ievent % 100==0) printf("Event %lld of %lld \n", ievent, nevents);
 
             //************************************************************//
             // Print some event information for fun
@@ -380,19 +379,19 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 const xAOD::EventInfo* ei = nullptr;
                 CHECK( event.retrieve(ei, "EventInfo") );
 
-                std::cout << "===>>>  start processing event #" << ei->eventNumber() << ", run #" << ei->runNumber() << " " << ievent << " events processed so far  <<<===" << std::endl;
+                printf("===>>>  start processing event #%llu, run #%i, %lld events processed so far  <<<=== \n", ei->eventNumber(), ei->runNumber(), ievent);
 
 
                 // Get the truth jets from the event
                 const xAOD::JetContainer* jets_truth = nullptr;
                 CHECK( event.retrieve(jets_truth, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets") );
 
-                std::cout << "Number of truth jets: " << jets_truth->size() << std::endl;
+                printf("Number of truth jets: %lu \n", jets_truth->size());
 
                 //Loop over the truth jets in the event
                 for(const xAOD::Jet* jet_truth : *jets_truth){
                     // Print basic info about this jet
-                    std::cout << "Truth Jet: pt = " << jet_truth->pt()*MeVtoGeV << ", mass = " << jet_truth->m()*MeVtoGeV << ", eta = " << jet_truth->eta() << std::endl;
+                    printf("Truth Jet: pt = %f, mass = %f, eta = %f \n", jet_truth->pt()*MeVtoGeV, jet_truth->m()*MeVtoGeV, jet_truth->eta());
                 }
 
 
@@ -401,13 +400,13 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 const xAOD::JetContainer* jets_reco = nullptr;
                 CHECK( event.retrieve(jets_reco, reco_jetColl) ); 
  
-                std::cout << "Number of reco jets: " << jets_reco->size() << std::endl;
+                printf("Number of reco jets: %lu \n", jets_reco->size());
 
                 //Loop over the reco jets in the event
                 for(const xAOD::Jet* jet_reco : *jets_reco){
 
                     // Print basic info about this jet
-                    std::cout << "Reco Jet: pt = " <<  jet_reco->pt()*MeVtoGeV << ", mass = " <<  jet_reco->m()*MeVtoGeV << ", eta = " <<  jet_reco->eta() << std::endl;
+                    printf("Reco Jet: pt = %f, mass = %f, eta = %f \n", jet_reco->pt()*MeVtoGeV, jet_reco->m()*MeVtoGeV, jet_reco->eta());
                 }
             }
             //************************************************************//
@@ -427,7 +426,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
             //Give a TruthLabel to the jets. We will need it in the FFSmearingTool to apply the uncertainties of one jet topology or another
             m_JetTruthLabelingTool.modify(*(jets_shallowCopy.first));
 	
-            if(want_to_debug)std::cout << "Start the loop over the jets " << std::endl;
+            if(want_to_debug) printf("Start the loop over the jets \n");
 
             bool lead_jet = true;//to fill the histogram
 
@@ -448,9 +447,9 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA_FourMom);
 
                 if(want_to_debug && kindofmass == "Comb"){   
-                    std::cout << "Comb jet mass = " << jet_reco_Comb_FourMom.mass() << std::endl;
-                    std::cout << "Calo jet mass = " << jet_reco_CALO_FourMom.mass() << std::endl;
-                    std::cout << "TA jet mass = " << jet_reco_TA_FourMom.mass() << std::endl;
+                    printf("Comb jet mass = %f \n", jet_reco_Comb_FourMom.mass());
+                    printf("Calo jet mass = %f \n", jet_reco_CALO_FourMom.mass());
+                    printf("TA jet mass = %f \n", jet_reco_TA_FourMom.mass());
                 }
 
                 std::unique_ptr<xAOD::Jet> jet_reco_Comb = std::make_unique<xAOD::Jet>(); //You have to initialize the jet object this way. 
@@ -466,15 +465,15 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 jet_reco_TA->setJetP4(jet_reco_TA_FourMom);
 
                 if(want_to_debug && kindofmass == "Comb"){
-                    std::cout << "NEW Comb jet mass = " << jet_reco_Comb->m() << std::endl;
-                    std::cout << "NEW CALO jet mass = " << jet_reco_CALO->m() << std::endl;
-                    std::cout << "NEW TA jet mass = " << jet_reco_TA->m() << std::endl;
+                    printf("NEW Comb jet mass = %f \n", jet_reco_Comb->m());
+                    printf("NEW CALO jet mass = %f \n", jet_reco_CALO->m());
+                    printf("NEW TA jet mass = %f \n", jet_reco_TA->m());
                 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------//
 
-                if(kindofmass=="Calo"){ std::cout << "CALO jet mass = " << jet_reco->m() << std::endl;}
-                if(kindofmass=="TA"){ std::cout << "TA jet mass = " << jet_reco_TA->m() << std::endl;}
+                if(kindofmass=="Calo"){ printf("CALO jet mass = %f \n", jet_reco->m()); }
+                if(kindofmass=="TA"){ printf("TA jet mass = %f \n", jet_reco_TA->m()); }
 
                 if(kindofmass=="TA"){m_JetTruthLabelingTool.modifyJet(*(jet_reco_TA)); };//To tag the TA jet with the jet topology
 
@@ -509,9 +508,9 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 }
 
                 if(want_to_debug){
-                    if(kindofmass=="Comb"){ std::cout << "Comb jet mass after smearing = " << jet_reco->m() << std::endl;}
-                    if(kindofmass=="Calo"){ std::cout << "CALO jet mass after smearing = " << jet_reco->m() << std::endl;}
-                    if(kindofmass=="TA"){ std::cout << "TA jet mass after smearing = " << jet_reco_TA->m() << std::endl;}
+                    if(kindofmass=="Comb"){ printf("Comb jet mass after smearing = %f \n", jet_reco->m()); }
+                    if(kindofmass=="Calo"){ printf("CALO jet mass after smearing = %f \n", jet_reco->m()); }
+                    if(kindofmass=="TA"){ printf("TA jet mass after smearing = %f \n", jet_reco_TA->m()); }
                 }
 
             }

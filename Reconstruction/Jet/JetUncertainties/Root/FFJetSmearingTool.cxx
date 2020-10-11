@@ -556,8 +556,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
     if(!(getMatchedTruthJet(jet_reco, jet_truth_matched).isSuccess())){
 
         m_InfoWarnings = m_InfoWarnings + 1; 
-        if(m_InfoWarnings < 5) ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared.");
-        else if(m_InfoWarnings == 5) ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared. This is the last time this message is shown.");
+        if(m_InfoWarnings < 5) ATH_MSG_VERBOSE("No truth jet match with this reco jet. The jet will not be smeared.");
+        else if(m_InfoWarnings == 5) ATH_MSG_VERBOSE("No truth jet match with this reco jet. The jet will not be smeared. This is the last time this message is shown.");
 
         return CP::CorrectionCode::OutOfValidityRange; 
     }
@@ -644,7 +644,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
 
     //Obtain the jet mass scale (JMS) and the jet mass resolution (JMR) nominal values and variation that correspond to the jet_reco
 
-    double JMS=1; double JMS_err; double JMR=1; double JMR_err;	
+//    double JMS=1; double JMS_err; double JMR=1; double JMR_err;	
+    double JMS (1), JMS_err(0), JMR(1), JMR_err(0);
     double scale;
     double resolution;
 
