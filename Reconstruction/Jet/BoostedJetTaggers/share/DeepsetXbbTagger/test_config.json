@@ -1,0 +1,73 @@
+{
+    "node_name": "node_0",
+    "subjet": {
+        "collection": "ExKt2GASubJets",
+        "pt_threshold": 5000
+    },
+    "track": {
+        "node_name": "node_0",
+        "maximum_number": 25,
+        "track_pt_minimum": 500,
+        "track_d0_maximum": 3.5,
+        "track_z0_maximum": 5, 
+        "variables":[
+            "IP3D_signed_d0",
+            "IP3D_signed_z0",
+            "IP3D_signed_d0_significance",
+            "IP3D_signed_z0_significance",
+            "numberOfNextToInnermostPixelLayerHits",
+            "numberOfInnermostPixelLayerHits",
+            "numberOfInnermostPixelLayerSharedHits",
+            "numberOfInnermostPixelLayerSplitHits",
+            "numberOfPixelSharedHits",
+            "numberOfPixelSplitHits",
+            "numberOfSCTSharedHits",
+            "numberOfPixelHits",
+            "numberOfSCTHits",
+            "deltaEta_subjet",
+            "deltaPhi_subjet",
+            "pTfrac_jet"
+        ] 
+    },
+    "sexctx": {
+        "node_name": "node_1",
+        "maximum_number": 12,
+        "variables":[
+            "deltaEta_subjet",
+            "deltaPhi_subjet",
+            "Lxy",
+            "Lz",
+            "Lxy_significance",
+            "Lz_significance",
+            "pTfrac_jet",
+            "secvtx_log_mass"
+        ]
+    },
+    "types": {
+        "regexes": [
+            {
+                "regex": "^(IP[23]D_|SV[12]_|rnnip_)p(b|c|u|tau)",
+                "type": "double"
+            },
+            {
+                "regex": "^(JetFitter_|SV1_)[Nn]",
+                "type": "int"
+            },
+            {
+                "regex":"^(number)",
+                "type": "int"
+            },
+            {
+                "regex": "^(JetFitter_|SV1_|IP3D_signed_|delta|Lxy|Lz|pTfrac_|secvtx_)",
+                "type": "float"
+            }
+        ]
+    },
+    "outputs": {
+        "decoration_map": {
+			"dexter_pl": "dexter_pl",
+			"dexter_pb": "dexter_pb",
+			"dexter_pbb": "dexter_pbb"
+		}
+    }
+}
