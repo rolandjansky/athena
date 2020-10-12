@@ -1,13 +1,7 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # The name of the package:
 atlas_subdir( GenInterfaces )
-
-# The dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Generators/AtlasHepMC
-   GaudiKernel )
-
-# External dependencies:
 
 # Component(s) in the package:
 atlas_add_library( GenInterfacesLib
@@ -19,5 +13,4 @@ atlas_add_library( GenInterfacesLib
 atlas_add_dictionary( GenInterfacesDict
    GenInterfaces/GenInterfacesDict.h
    GenInterfaces/selection.xml
-   LINK_LIBRARIES AtlasHepMCLib GenInterfacesLib )
-
+   LINK_LIBRARIES GenInterfacesLib )

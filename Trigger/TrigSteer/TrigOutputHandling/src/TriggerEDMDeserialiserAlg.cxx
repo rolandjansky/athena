@@ -178,15 +178,19 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       }
 
       if ( isxAODInterfaceContainer ) {
+        static const RootType vbase = RootType::ByNameNoQuiet( "SG::AuxVectorBase" );
 	currentAuxStore = nullptr; // the store will be following, setting it to nullptr assure we catch issue with of missing Aux
-	xAODInterfaceContainer = reinterpret_cast<SG::AuxVectorBase*>(dataBucket->object());
+	xAODInterfaceContainer =
+          reinterpret_cast<SG::AuxVectorBase*>(classDesc.Cast (vbase, dataBucket->object(), true));
       } else if ( isxAODAuxContainer )  {
 	ATH_CHECK( key.back() == '.' );
 	ATH_CHECK( std::count( key.begin(), key.end(), '.')  == 1 );
 	ATH_CHECK( currentAuxStore == nullptr );
 	ATH_CHECK( xAODInterfaceContainer != nullptr );
-	
-	xAOD::AuxContainerBase* auxHolder = reinterpret_cast<xAOD::AuxContainerBase*>(dataBucket->object());
+
+        static const RootType auxinterface = RootType::ByNameNoQuiet( "SG::IAuxStore" );
+	xAOD::AuxContainerBase* auxHolder =
+          reinterpret_cast<xAOD::AuxContainerBase*>(classDesc.Cast (auxinterface, dataBucket->object(), true));
 	ATH_CHECK( auxHolder != nullptr );
 	xAODInterfaceContainer->setStore( auxHolder );
 	currentAuxStore = new WritableAuxStore();

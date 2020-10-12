@@ -47,8 +47,9 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "LArRecConditions/LArCalibLineMapping.h"
 //#include "LArCalibTriggerAccumulator.h"
-
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -76,6 +77,8 @@ public:
 
 private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+
   //Private member functions
   // choose reconstruction mode (i.e. OF or Parabola)
   void chooseRecoMode() ;
@@ -100,7 +103,8 @@ private:
   ToolHandle<LArParabolaPeakRecoTool> m_peakParabolaTool;
   ToolHandle<LArShapePeakRecoTool>    m_peakShapeTool;
   ToolHandle<LArOFPeakRecoTool>       m_peakOFTool;
- 
+  ToolHandle<ICaloSuperCellIDTool> m_sc2ccMappingTool;
+
   unsigned m_event_counter; 
   int m_delay;
   int m_ipassShape; 
@@ -161,6 +165,14 @@ private:
   bool        m_iterate;
 
   uint16_t m_fatalFebErrorPattern;
+
+  // For calib line mapping, only used for SC for now 
+  IntegerProperty m_nPulsedCalibLines;
+  std::vector<int> m_pulsedCalibLines;    
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapSCKey{this,"CalibMapSCKey","LArCalibIdMapSC","SG Key of calib line mapping object"};
+  
+
 
 };
 

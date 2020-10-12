@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,8 +20,6 @@ void printUsage(){
   std::cout<< "usage: registerPFN -p pfname [ -u contactstring -t filetype -g guid -h ]" <<std::endl;
 }
 
-static const char* opts[] = {"p","t","g","u","h",0};
-
 
 int main(int argc, char** argv)
 {
@@ -33,6 +31,7 @@ int main(int argc, char** argv)
   std::string myguid;
   try{
     CommandLine commands(argc,argv);
+    const char* opts[] = {"p","t","g","u","h",0};
     commands.CheckOptions(opts);
 
     if( commands.Exists("u") ){
@@ -51,17 +50,17 @@ int main(int argc, char** argv)
     }
     if( commands.Exists("h") ){
       printUsage();
-      exit(0);
+      return 0;
     }
   }catch(std::string& strError){
     std::cerr<<"Error: command parsing error "<<strError<<std::endl;
-    exit(0);
+    return 0;
   }
   
   if( mypfn.empty() ){
     printUsage();
     std::cerr<<"Error: must specify pfname using -p"<<std::endl;
-    exit(0);
+    return 0;
   }
   try{  
     std::unique_ptr<IFileCatalog> mycatalog(new IFileCatalog);
@@ -76,10 +75,10 @@ int main(int argc, char** argv)
     std::cout<<myguid<<std::endl;
   }catch (const pool::Exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }catch (const std::exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }
 }
 

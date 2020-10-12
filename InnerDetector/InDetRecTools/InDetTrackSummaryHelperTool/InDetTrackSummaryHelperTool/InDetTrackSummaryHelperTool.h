@@ -57,34 +57,43 @@ namespace InDet {
         Output: Changes in information and hitPattern
         Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
     */
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::PRDtoTrackMap *prd_to_track_map,
-                         const Trk::RIO_OnTrack* rot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information, 
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
+    using IExtendedTrackSummaryHelperTool::analyse;
+    virtual void analyse(
+      const EventContext& ctx,
+      const Trk::Track& track,
+      const Trk::PRDtoTrackMap* prd_to_track_map,
+      const Trk::RIO_OnTrack* rot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
 
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::PRDtoTrackMap *prd_to_track_map,
-                         const Trk::CompetingRIOsOnTrack* crot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information, 
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
+    virtual void analyse(
+      const EventContext& ctx,
+      const Trk::Track& track,
+      const Trk::PRDtoTrackMap* prd_to_track_map,
+      const Trk::CompetingRIOsOnTrack* crot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
 
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::RIO_OnTrack* rot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information,
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override {
-      analyse(track,nullptr,rot,tsos,information,hitPattern);
+    virtual void analyse(
+      const Trk::Track& track,
+      const Trk::RIO_OnTrack* rot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
+    {
+      analyse(track, nullptr, rot, tsos, information, hitPattern);
     }
 
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::CompetingRIOsOnTrack* crot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information,
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override {
-      analyse(track,nullptr, crot,tsos,information,hitPattern);
+    virtual void analyse(
+      const Trk::Track& track,
+      const Trk::CompetingRIOsOnTrack* crot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
+    {
+      analyse(track, nullptr, crot, tsos, information, hitPattern);
     }
 
     /** Input : track, partHyp
