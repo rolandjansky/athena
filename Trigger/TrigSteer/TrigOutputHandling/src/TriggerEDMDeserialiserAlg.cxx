@@ -304,12 +304,13 @@ void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
   TFile extFile(extFilePath.c_str());
   m_streamerInfoList = std::unique_ptr<TList>(extFile.GetStreamerInfoList());
   for(const auto&& infObj: *m_streamerInfoList) {
-    auto inf = (TStreamerInfo*)infObj;
-    TString t_name=inf->GetName();
+    TString t_name=infObj->GetName();
     if (t_name.BeginsWith("listOfRules")){
       ATH_MSG_WARNING( "Could not re-load  class " << t_name );
       continue;
     }
+
+    TStreamerInfo* inf = dynamic_cast<TStreamerInfo*>(infObj);
     inf->BuildCheck();
     TClass *cl = inf->GetClass();
     if (cl)
