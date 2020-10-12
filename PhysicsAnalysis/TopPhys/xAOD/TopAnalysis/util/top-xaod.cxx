@@ -111,8 +111,9 @@ int main(int argc, char** argv) {
   
   ATH_MSG_INFO("INPUT: Configuration file (argv[1]) = "
 	       << argv[1] << "\n");
-  std::string settingsFilename = PathResolverFindCalibFile(argv[1]);
-  ATH_MSG_INFO("LOCATED (using PathResolver): Configuration file = "
+  std::string settingsFilename = PathResolver::find_file(argv[1],"DATAPATH");
+
+  ATH_MSG_INFO("LOCATED (using PathResolverFindFile ): Configuration file = "
 	       << settingsFilename << "\n");
   
   ATH_MSG_INFO("Configuration Files:\n"
