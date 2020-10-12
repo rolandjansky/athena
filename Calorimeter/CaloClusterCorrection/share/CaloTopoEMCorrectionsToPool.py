@@ -19,9 +19,13 @@ CaloTopoEMCorrKeys = ['ele633', 'ele420', 'gam633']
 from CaloClusterCorrection.CaloTopoEMCorrections import CaloTopoEMCorrections
 from CaloClusterCorrection.common import CALOCORR_EMTOPO
 
-(corr_output_list, tag_list) =\
-                   CaloTopoEMCorrections.config_for_pool (CaloTopoEMCorrKeys,
+from CaloClusterCorrection.compat import makeFlags
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+(corr_output_list, tag_list, ca) =\
+                   CaloTopoEMCorrections.config_for_pool (makeFlags(),
+                                                          CaloTopoEMCorrKeys,
                                                           CALOCORR_EMTOPO)
+appendCAtoAthena (ca)
 
 # include the basic setup for the conditions output stream
 pool_file = CALOCORR_POOLFILE

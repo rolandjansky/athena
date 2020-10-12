@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwEtaoff_g3.py,v 1.3 2009-04-19 02:41:06 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwEtaoff_g3.py
 # Created: Nov 2006, sss
@@ -12,7 +10,9 @@
 #
 
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import \
+     CALOCORR_EMB1, CALOCORR_EMB2, CALOCORR_EME1, CALOCORR_EME2, \
+     EMB1, EME1, EMB2, EME2
 
 
 #############################################################################

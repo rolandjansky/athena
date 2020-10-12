@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: CaloClusterCorrection/python/CaloSwLongWeights_atlfast_v1.py
@@ -10,7 +10,7 @@
 # 
 #
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 
 #######################################################################
 # 5x5 cluster size electrons.

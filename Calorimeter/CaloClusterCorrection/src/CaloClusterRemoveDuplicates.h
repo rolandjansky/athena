@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTERREMOVEDUPLICATES_H
@@ -47,9 +47,6 @@ class CaloClusterRemoveDuplicates :  public AthAlgTool, virtual public CaloClust
   // If two cluster are within deta_cut and dphi_cut, lower ET one will be removed
   float m_deta_cut;
   float m_dphi_cut;
-
-  // Not used, but required to use this with CaloRunClusterCorrections.
-  int m_order;
 };
 
 #endif
