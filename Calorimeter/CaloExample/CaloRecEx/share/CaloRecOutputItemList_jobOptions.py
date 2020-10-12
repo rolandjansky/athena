@@ -1,5 +1,5 @@
 #**************   ESD list  ************************************************
-
+from CaloRec.CaloRecFlags import jobproperties
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.Logging import logging
 
