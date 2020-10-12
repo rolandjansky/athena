@@ -149,9 +149,14 @@ def PrepareStandAloneBTagCfg(inputFlags):
 
     return result
 
-def BTagRecoCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
+def BTagRecoCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):  
 
-    result=ComponentAccumulator()
+    seqName = "TopSeq"
+    from AthenaCommon.ConcurrencyFlags import jobproperties 
+    if jobproperties.ConcurrencyFlags.NumThreads() >= 1 :
+        seqName = "AthAlgSeq"
+
+    result=ComponentAccumulator( seqName )
 
     taggerList = inputFlags.BTagging.run2TaggersList
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
