@@ -18,6 +18,7 @@
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkSurfaces/Surface.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
 
 class MsgStream;
@@ -48,7 +49,7 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const Surface*   associatedSurface ()     const {return   m_surface      ;}
+      const Surface*   associatedSurface ()     const {return   m_surface.get();}
       bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       Amg::Vector2D    localPosition     ()     const;
       const Amg::Vector3D& momentum      ()     const;
@@ -115,7 +116,7 @@ namespace Trk {
       // Protected data
       ///////////////////////////////////////////////////////////////////
 
-      const  Surface* m_surface       ;
+      SurfaceUniquePtrT<const Surface> m_surface;
       AmgVector(5)    m_parameters    ;
       std::unique_ptr<AmgSymMatrix(5)> m_covariance;
       mutable Amg::Vector3D m_position ATLAS_THREAD_SAFE;
@@ -165,12 +166,11 @@ namespace Trk {
 
   inline PatternTrackParameters::PatternTrackParameters()
     {
-      m_surface      =     nullptr;
       m_parameters.setZero();
     }
 
   inline PatternTrackParameters::PatternTrackParameters(const PatternTrackParameters& P):
-    m_surface(P.m_surface),m_parameters{}
+    m_parameters{}
     {
       *this = P;
     }
@@ -179,7 +179,12 @@ namespace Trk {
     (const PatternTrackParameters& P) 
     {
       if (&P != this){
-        m_surface        = P.m_surface       ;
+        if (P.m_surface != nullptr) {
+          m_surface.reset(P.m_surface->isFree() ? P.m_surface->clone() : P.m_surface.get());
+        } else {
+          m_surface.reset(nullptr);
+        }
+
         m_parameters     = P.m_parameters    ;
 
         if (P.m_covariance != nullptr) {
@@ -209,7 +214,7 @@ namespace Trk {
   inline void PatternTrackParameters::setParameters
     (const Surface* s,const double* p)
     {
-      m_surface        =     s;  
+      m_surface.reset(s->isFree() ? s->clone() : s);
       m_parameters[ 0] = p[ 0];
       m_parameters[ 1] = p[ 1];
       m_parameters[ 2] = p[ 2];
@@ -254,7 +259,7 @@ namespace Trk {
   inline void PatternTrackParameters::setParametersWithCovariance
     (const Surface* s,const double* p,const double* c)
     {
-      m_surface        =     s;
+      m_surface.reset(s->isFree() ? s->clone() : s);
       m_parameters[ 0] = p[ 0];
       m_parameters[ 1] = p[ 1];
       m_parameters[ 2] = p[ 2];

@@ -39,9 +39,11 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
 
   if(!T) { return false;
 }
+  if (!T->hasSurface()) {
+    return false;
+  }
 
-  m_surface = &T->associatedSurface(); if(!m_surface) { return false;
-}
+  m_surface.reset(T->associatedSurface().isFree() ? T->associatedSurface().clone() : &T->associatedSurface());
 
   m_parameters = T->parameters();
 
@@ -164,7 +166,7 @@ MsgStream& Trk::operator    <<
 
 std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 {
-  const Trk::Surface*  s = m_surface;
+  const Trk::Surface*  s = m_surface.get();
   const AmgVector(5)&  P = m_parameters;
   std::string name;
   std::string iscov;
@@ -231,7 +233,7 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 
 MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
 {
-  const Trk::Surface*  s = m_surface; 
+  const Trk::Surface*  s = m_surface.get();
   const AmgVector(5)&  P = m_parameters;
   std::string name;
   std::string iscov;
@@ -483,8 +485,12 @@ bool Trk::PatternTrackParameters::initiate
   m_parameters[ 2] = Tp.m_parameters[ 2];
   m_parameters[ 3] = Tp.m_parameters[ 3];
   m_parameters[ 4] = Tp.m_parameters[ 4];
-  
-  m_surface        = Tp.m_surface;  
+
+  if (Tp.m_surface != nullptr) {
+    m_surface.reset(Tp.m_surface->isFree() ? Tp.m_surface->clone() : Tp.m_surface.get());
+  } else {
+    m_surface.reset(nullptr);
+  }
 
   m_posmom_updated = false;
   
@@ -508,8 +514,8 @@ void Trk::PatternTrackParameters::changeDirection()
 }
 
 
-  if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface) &&
-     !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface)) {
+  if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()) &&
+     !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface.get())) {
     
     if(m_covariance == nullptr) { return;
 }
@@ -558,17 +564,17 @@ void Trk::PatternTrackParameters::updatePositionCache(void) const {
     return;
   }
 
-  if (const Trk::PlaneSurface * plane = dynamic_cast<const Trk::PlaneSurface*>(m_surface); plane != nullptr) {
+  if (const Trk::PlaneSurface * plane = dynamic_cast<const Trk::PlaneSurface*>(m_surface.get()); plane != nullptr) {
     m_position = localToGlobal(plane);
-  } else if (const Trk::StraightLineSurface * line = dynamic_cast<const Trk::StraightLineSurface*>(m_surface); line != nullptr) {
+  } else if (const Trk::StraightLineSurface * line = dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()); line != nullptr) {
     m_position = localToGlobal(line);
-  } else if (const Trk::DiscSurface * disc = dynamic_cast<const Trk::DiscSurface*>(m_surface); disc != nullptr) {
+  } else if (const Trk::DiscSurface * disc = dynamic_cast<const Trk::DiscSurface*>(m_surface.get()); disc != nullptr) {
     m_position = localToGlobal(disc);
-  } else if (const Trk::CylinderSurface * cylinder = dynamic_cast<const Trk::CylinderSurface*>(m_surface); cylinder != nullptr) {
+  } else if (const Trk::CylinderSurface * cylinder = dynamic_cast<const Trk::CylinderSurface*>(m_surface.get()); cylinder != nullptr) {
     m_position = localToGlobal(cylinder);
-  } else if (const Trk::PerigeeSurface * pline = dynamic_cast<const Trk::PerigeeSurface*>(m_surface); pline != nullptr) {
+  } else if (const Trk::PerigeeSurface * pline = dynamic_cast<const Trk::PerigeeSurface*>(m_surface.get()); pline != nullptr) {
     m_position = localToGlobal(pline);
-  } else if (const Trk::ConeSurface * cone = dynamic_cast<const Trk::ConeSurface*>(m_surface); cone != nullptr) {
+  } else if (const Trk::ConeSurface * cone = dynamic_cast<const Trk::ConeSurface*>(m_surface.get()); cone != nullptr) {
     m_position = localToGlobal(cone);
   } else {
     m_position.setZero();
