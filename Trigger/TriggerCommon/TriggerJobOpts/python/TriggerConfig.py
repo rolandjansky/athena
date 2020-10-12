@@ -369,6 +369,8 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
+        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamType = 'unknown'
+        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamName = 'SingleStream'
         acc.merge( writingAcc )
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
