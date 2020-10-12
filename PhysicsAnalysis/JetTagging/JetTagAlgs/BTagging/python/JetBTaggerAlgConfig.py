@@ -11,7 +11,7 @@ JetBTaggerAlg=CompFactory.Analysis.JetBTaggerAlg
 
 def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName="", TaggerList=[], SetupScheme="", **options):
     
-    seqName = "TopSeq"
+    seqName = "TopAlg"
     from AthenaCommon.ConcurrencyFlags import jobproperties
     if jobproperties.ConcurrencyFlags.NumThreads() >= 1 :
         seqName = "AthAlgSeq"

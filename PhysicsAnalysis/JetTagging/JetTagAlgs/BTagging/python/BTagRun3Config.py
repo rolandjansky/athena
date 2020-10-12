@@ -151,7 +151,7 @@ def PrepareStandAloneBTagCfg(inputFlags):
 
 def BTagRecoCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):  
 
-    seqName = "TopSeq"
+    seqName = "TopAlg"
     from AthenaCommon.ConcurrencyFlags import jobproperties 
     if jobproperties.ConcurrencyFlags.NumThreads() >= 1 :
         seqName = "AthAlgSeq"
