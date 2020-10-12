@@ -6,12 +6,12 @@ def LArCollisionTimeMonConfigOld(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
     
-    larColTime_hist_path='LArCollisionTimeNewAlg'
+    larColTime_hist_path='LArCollisionTime'
 
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArCollisionTimeMonAlgOldCfg')
     LArCollisionTimeMonConfigCore(helper, LArCollisionTimeMonAlg,inputFlags,larColTime_hist_path)
 
-    larColTime_hist_path='LArClusterCollisionTimeNewAlg'
+    larColTime_hist_path='LArClusterCollisionTime'
     LArCollisionTimeMonConfigCore(helper, LArCollisionTimeMonAlg,inputFlags,larColTime_hist_path)
     helper.monSeq.LArClusterCollisionTimeMonAlg.Key = "ClusterCollTime"
     helper.monSeq.LArClusterCollisionTimeMonAlg.nCells = 0
@@ -29,12 +29,12 @@ def LArCollisionTimeMonConfig(inputFlags):
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     cfg = LArCollisionTimeCfg(inputFlags)
 
-    larColTime_hist_path='LArCollisionTimeNewAlg'
+    larColTime_hist_path='LArCollisionTime'
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArCollisionTimeMonConfigCore(helper, CompFactory.LArCollisionTimeMonAlg,inputFlags,larColTime_hist_path)
 
-    larClusColTime_hist_path='LArClusterCollisionTimeNewAlg'
+    larClusColTime_hist_path='LArClusterCollisionTime'
     LArCollisionTimeMonConfigCore(helper, CompFactory.LArCollisionTimeMonAlg('LArClusterCollisionTimeMonAlg'),inputFlags,larClusColTime_hist_path)
     for algo in helper.monSeq.Members:
        if algo.name == 'LArClusterCollisionTimeMonAlg':
@@ -47,7 +47,7 @@ def LArCollisionTimeMonConfig(inputFlags):
 def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_hist_path):
 
 
-    larCollTimeMonAlg = helper.addAlgorithm(algoinstance,larColTime_hist_path[0:-6]+'MonAlg')
+    larCollTimeMonAlg = helper.addAlgorithm(algoinstance,larColTime_hist_path+'MonAlg')
 
 
     collTimeGroupName="LArCollisionTimeMonGroup"
