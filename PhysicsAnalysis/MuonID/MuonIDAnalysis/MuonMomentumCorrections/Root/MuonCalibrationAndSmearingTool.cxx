@@ -35,9 +35,9 @@ namespace CP {
     m_HighPtSystThreshold(300.00),
     m_useStatComb(false),
     m_SagittaCorrPhaseSpace(false),
-    m_IterWeight(0.5),
     m_doSagittaCorrection(false),
     m_doSagittaMCDistortion(false),
+    m_IterWeight(0.5),
     m_SagittaRelease("sagittaBiasDataAll_03_02_19"),
     m_MuonSelectionTool("") {
     
@@ -491,10 +491,10 @@ namespace CP {
 
     if(m_currentParameters->SagittaBias != MCAST::SystVariation::Default){
       if(m_currentParameters->SagittaBias == MCAST::SystVariation::Up){
-        p2=m_IterWeight*p2;
+        p2=0.5*p2;
       }
       else if (m_currentParameters->SagittaBias == MCAST::SystVariation::Down){
-        p2=-m_IterWeight*p2;
+        p2=-0.5*p2;
       }
     }
     return p2;
@@ -834,7 +834,7 @@ namespace CP {
 
       bool isSystematic = (SystCase == MCAST::SagittaSysType::RHO);
 
-      if(isSystematic ) {
+      if(isSystematic) {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = muonInfo.ptcb * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
@@ -910,10 +910,26 @@ namespace CP {
         rho=m_fixedRho;
       }
       
-      // Rescaling momentum to make sure it is consistent with nominal value
-      double nom_ptcb = nom_rho*ptCB + (1-nom_rho)*ptWeight;
-      double ptcb = rho*ptCB + (1-rho)*ptWeight;
-      muonInfo.ptcb = ptcb * origPt / nom_ptcb;
+      ATH_MSG_VERBOSE("Rho weighting details: rho (nominal) = " << rho << " (" << nom_rho << ")" );
+      ATH_MSG_VERBOSE("Rho weighting details: pt_cb_corr = " << ptCB );
+      ATH_MSG_VERBOSE("Rho weighting details: pt_weight_corr = " << ptWeight );
+
+      // Rescaling momentum to make sure it is consistent with nominal value (needed for systematics only)
+      // Systematics are evaluated around the vanilla momentum value, hence the need to rescale
+      if(isSystematic) {
+        // Nominal case, to determine scaling factor
+        double nom_ptcb = nom_rho*ptCB + (1-nom_rho)*ptWeight;
+        double ptcb_ratio = nom_ptcb / origPt;
+        // This specific (systematic) case
+        double ptcb = rho*ptCB + (1-rho)*ptWeight;
+        // Rescaling
+        muonInfo.ptcb = ptcb * ptcb_ratio; 
+      }
+      else {
+        muonInfo.ptcb = rho*ptCB + (1-rho)*ptWeight;
+      }
+
+      ATH_MSG_VERBOSE("Rho weighting details: final_pt = " << muonInfo.ptcb );
       
       return CorrectionCode::Ok;
     }
@@ -1060,7 +1076,9 @@ namespace CP {
       if(m_doSagittaCorrection){
         CorrectionCode sgCode = applySagittaBiasCorrectionAuto(MCAST::DetectorType::CB, mu, false, MCAST::SagittaSysType::NOMINAL, muonInfo);
         if(sgCode!=CorrectionCode::Ok) return sgCode;
+        ATH_MSG_VERBOSE("Rho weighting details: stored_pt = " << muonInfo.ptcb );
         mu.setP4( muonInfo.ptcb * GeVtoMeV, muonInfo.eta, muonInfo.phi );
+        ATH_MSG_VERBOSE("Rho weighting details: really_stored_pt = " << mu.pt() );
       }
 
       mu.auxdata< float >( "InnerDetectorPt" ) = muonInfo.ptid * GeVtoMeV;
