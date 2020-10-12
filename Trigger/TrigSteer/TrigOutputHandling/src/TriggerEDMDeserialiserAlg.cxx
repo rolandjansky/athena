@@ -22,7 +22,6 @@
 #include "TriggerEDMCLIDs.h"
 
 #include "TFile.h"
-#include "TList.h"
 #include "TStreamerInfo.h"
 #include "PathResolver/PathResolver.h"
 
@@ -300,23 +299,21 @@ void TriggerEDMDeserialiserAlg::toBuffer( TriggerEDMDeserialiserAlg::PayloadIter
 
 void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
   std::string extStreamerInfos = "bs-streamerinfos.root";
-  std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
-  ATH_MSG_DEBUG( "Using " << extFile );
-  TFile f(extFile.c_str());
-  TList *a = f.GetStreamerInfoList();
-  TIter nextinfo(a);
-  TStreamerInfo *inf;
-  while ((inf = (TStreamerInfo *)nextinfo()) != 0){
+  std::string extFilePath = PathResolver::find_file(extStreamerInfos, "DATAPATH");
+  ATH_MSG_DEBUG( "Using " << extFilePath );
+  TFile extFile(extFilePath.c_str());
+  m_streamerInfoList = std::unique_ptr<TList>(extFile.GetStreamerInfoList());
+  for(const auto&& infObj: *m_streamerInfoList) {
+    auto inf = (TStreamerInfo*)infObj;
     TString t_name=inf->GetName();
     if (t_name.BeginsWith("listOfRules")){
       ATH_MSG_WARNING( "Could not re-load  class " << t_name );
       continue;
     }
     inf->BuildCheck();
-    //this triggers a crash on lcg60
     TClass *cl = inf->GetClass();
     if (cl)
       ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
-		     << " checksum: " << inf->GetCheckSum()  );
+		     << " checksum: " << std::hex << inf->GetCheckSum()  );
   }
 }

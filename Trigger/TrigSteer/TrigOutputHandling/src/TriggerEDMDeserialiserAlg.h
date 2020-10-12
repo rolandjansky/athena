@@ -12,6 +12,7 @@
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "TrigSerializeTP/TrigSerTPTool.h"
 
+#include "TList.h"
 
 
 /**
@@ -58,6 +59,8 @@ private:
   ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc", "Service that translates persistent to transient representation" };
   
   ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool", "Tool to do Transient/Persistent conversion (Old EDM)"};
+
+  std::unique_ptr<TList> m_streamerInfoList;
 
   typedef  std::vector<uint32_t> Payload;
   typedef  std::vector<uint32_t>::const_iterator PayloadIterator;
