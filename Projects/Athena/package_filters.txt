@@ -5,10 +5,9 @@
 # Don't pick up anything from the Projects directory:
 - Projects/.*
 
-# We currently build the HLT as part of Athena. Uncomment the following three lines to revert:
-#+ HLT/Trigger/TrigTransforms/TrigTransform
-#- HLT/.*
-#- Trigger/TrigValidation/TrigP1Test
++ HLT/Trigger/TrigTransforms/TrigTransform
+- HLT/.*
+- Trigger/TrigValidation/TrigP1Test
 - HLT/HLToks
 - Trigger/TrigFTK/FTKStandaloneMonitoring
 
