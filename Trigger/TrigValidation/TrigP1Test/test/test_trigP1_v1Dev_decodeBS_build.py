@@ -6,14 +6,11 @@
 # art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering.Common import find_file
 
 ##################################################
 # Helper functions to build the test steps
 ##################################################
-
-def findFile(pattern):
-    '''Bash inline file name finder'''
-    return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
 
 def filterBS(stream_name):
     '''Extract ByteStream data for a given stream from a file with multiple streams'''
@@ -21,7 +18,7 @@ def filterBS(stream_name):
     filterStep.type = 'other'
     filterStep.executable = 'trigbs_extractStream.py'
     filterStep.input = ''
-    filterStep.args = '-s ' + stream_name + ' ' + findFile('*_HLTMPPy_output.*.data')
+    filterStep.args = '-s ' + stream_name + ' ' + find_file('*_HLTMPPy_output.*.data')
     return filterStep
 
 def decodeBS(stream_name):
@@ -31,7 +28,7 @@ def decodeBS(stream_name):
     decodeStep.job_options = 'TriggerJobOpts/decodeBS.py'
     decodeStep.input = ''
     decodeStep.explicit_input = True
-    decodeStep.args = '--filesInput='+findFile('*'+stream_name+'*._athenaHLT*.data')
+    decodeStep.args = '--filesInput='+find_file('*'+stream_name+'*._athenaHLT*.data')
     decodeStep.perfmon = False  # no need to run PerfMon for this step
     return decodeStep
 

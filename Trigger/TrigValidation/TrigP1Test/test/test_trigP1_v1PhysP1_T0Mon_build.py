@@ -6,11 +6,7 @@
 # art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-
-
-def findFile(pattern):
-    return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
-
+from TrigValTools.TrigValSteering.Common import find_file
 
 # HLT step (BS->BS)
 hlt = ExecStep.ExecStep()
@@ -26,7 +22,7 @@ filter_bs = ExecStep.ExecStep('FilterBS')
 filter_bs.type = 'other'
 filter_bs.executable = 'trigbs_extractStream.py'
 filter_bs.input = ''
-filter_bs.args = '-s Main ' + findFile('*_HLTMPPy_output.*.data')
+filter_bs.args = '-s Main ' + find_file('*_HLTMPPy_output.*.data')
 
 # Tier-0 reco step (BS->ESD->AOD)
 tzrecoPreExec = ' '.join([
@@ -44,7 +40,7 @@ tzreco.threads = 1
 tzreco.input = ''
 tzreco.explicit_input = True
 tzreco.max_events = 50
-tzreco.args = '--inputBSFile=' + findFile('*.physics_Main*._athenaHLT*.data')  # output of the previous step
+tzreco.args = '--inputBSFile=' + find_file('*.physics_Main*._athenaHLT*.data')  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
