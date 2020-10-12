@@ -19,7 +19,7 @@
 // For shallow copy containers
 #include "xAODCore/ShallowCopy.h"
 
-// For the forcing of the tau truth container build 
+// For the forcing of the tau truth container build
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 // For handling systematics
@@ -29,6 +29,14 @@
 // For finding calibration files
 #include "PathResolver/PathResolver.h"
 
+// For CBK access
+#include "xAODCutFlow/CutBookkeeper.h"
+#include "xAODCutFlow/CutBookkeeperContainer.h"
+#ifndef XAOD_STANDALONE // For now metadata is Athena-only
+//#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+#include "EventInfo/EventStreamInfo.h"
+#endif
+
 // For output of histograms
 #include "TH1F.h"
 #include "TFile.h"
@@ -36,6 +44,9 @@
 // For configuration
 #include "TString.h"
 #include "TEnv.h"
+
+// For string manipulation
+#include <regex>
 
 const unsigned int nSel=5;
 namespace Cut {
@@ -56,6 +67,7 @@ SUSYToolsAlg::SUSYToolsAlg(const std::string& name,
   : EL::AnaAlgorithm (name, pSvcLocator)
   , m_SUSYTools("")
   , m_Nevts(0)
+  , m_kernel("")
   , m_configFile("SUSYTools/SUSYTools_Default.conf")
   , m_tauTruthTool("")
   , m_CheckTruthJets(true)
@@ -109,7 +121,7 @@ StatusCode SUSYToolsAlg::initialize() {
     m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatchingTool");
     ATH_CHECK( m_tauTruthTool.setProperty("WriteTruthTaus", true) );
     ATH_CHECK( m_tauTruthTool.retrieve() );
-    ATH_MSG_INFO("Retrieved tool: " << m_tauTruthTool->name() );  
+    ATH_MSG_INFO("Retrieved tool: " << m_tauTruthTool->name() );
   }
 
   sysInfoList.clear();
@@ -133,9 +145,10 @@ StatusCode SUSYToolsAlg::initialize() {
   syst_tau_weights={"Nominal"};
   syst_jet_weights={"Nominal"};
   syst_fatjet_weights={"Nominal"};
+  syst_trkjet_weights={"Nominal"};
   syst_btag_weights={"Nominal"};
 
-  for (const auto& sysInfo : sysInfoList) { 
+  for (const auto& sysInfo : sysInfoList) {
 
     bool syst_affectsElectrons = ST::testAffectsObject(xAOD::Type::Electron, sysInfo.affectsType);
     bool syst_affectsMuons     = ST::testAffectsObject(xAOD::Type::Muon, sysInfo.affectsType);
@@ -144,17 +157,20 @@ StatusCode SUSYToolsAlg::initialize() {
     bool syst_affectsJets      = ST::testAffectsObject(xAOD::Type::Jet, sysInfo.affectsType);
     bool syst_affectsBTag      = ST::testAffectsObject(xAOD::Type::BTag, sysInfo.affectsType);
     bool syst_affectsEventWeight     = (sysInfo.affectsType == ST::SystObjType::EventWeight);
-    
+
     if(sysInfo.affectsWeights){
       std::string sys_name = sysInfo.systset.name();
-      if (syst_affectsElectrons)                syst_el_weights.push_back(sys_name);  
-      if (syst_affectsMuons)                    syst_mu_weights.push_back(sys_name);  
-      if (syst_affectsPhotons)                  syst_ph_weights.push_back(sys_name);  
-      if (syst_affectsTaus)                     syst_tau_weights.push_back(sys_name);  
-      if (syst_affectsJets)                     syst_jet_weights.push_back(sys_name);  
-      if (syst_affectsJets)                     syst_fatjet_weights.push_back(sys_name);
+      if (syst_affectsElectrons)                syst_el_weights.push_back(sys_name);
+      if (syst_affectsMuons)                    syst_mu_weights.push_back(sys_name);
+      if (syst_affectsPhotons)                  syst_ph_weights.push_back(sys_name);
+      if (syst_affectsTaus)                     syst_tau_weights.push_back(sys_name);
+      if (syst_affectsJets) {
+                                                syst_jet_weights.push_back(sys_name);
+                                                syst_fatjet_weights.push_back(sys_name);
+                                                syst_trkjet_weights.push_back(sys_name);
+      }
       if (syst_affectsBTag)                     syst_btag_weights.push_back(sys_name);
-      if (syst_affectsEventWeight)              syst_event_weights.push_back(sys_name);  
+      if (syst_affectsEventWeight)              syst_event_weights.push_back(sys_name);
     }
   }
 
@@ -183,37 +199,45 @@ StatusCode SUSYToolsAlg::initialize() {
 
 
   //-- Book histograms
-  ATH_CHECK( book(TH1D("el_n_flow_nominal", "Electron Cutflow (Nominal)", nSel, 0, nSel) ) );
-  ATH_CHECK( book(TH1D("el_trigmatch_eff_nominal", "Electron Trigger Matching Efficiency (Nominal)", n_el_trig, 0, n_el_trig) ) );
-  ATH_CHECK( book(TH1D("el_pt_nominal", "Electron Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("el_n_flow_nominal", "Electron Cutflow (Nominal);Electron Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("el_trigmatch_eff_nominal", "Electron Trigger Matching Efficiency (Nominal);Electron Trigger Matching Efficiency (Nominal);N", n_el_trig, 0, n_el_trig) ) );
+  ATH_CHECK( book(TH1D("el_pt_nominal", "Electron p_{T} (Nominal);Electron p_{T} (Nominal) [GeV];N / [1 GeV]", 100, 0, 100) ) );
 
-  ATH_CHECK( book(TH1D("ph_n_flow_nominal", "Photon Cutflow (Nominal)", nSel, 0, nSel) ) );
-  ATH_CHECK( book(TH1D("ph_trigmatch_eff_nominal", "Photon Trigger Matching Efficiency (Nominal)", n_ph_trig, 0, n_ph_trig) ) );
-  ATH_CHECK( book(TH1D("ph_pt_nominal", "Photon Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("ph_n_flow_nominal", "Photon Cutflow (Nominal);Photon Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("ph_trigmatch_eff_nominal", "Photon Trigger Matching Efficiency (Nominal);Photon Trigger Matching Efficiency (Nominal);N", n_ph_trig, 0, n_ph_trig) ) );
+  ATH_CHECK( book(TH1D("ph_pt_nominal", "Photon p_{T} (Nominal);Photon p_{T} (Nominal) [GeV];N / [1 GeV]", 100, 0, 100) ) );
 
-  ATH_CHECK( book(TH1D("mu_n_flow_nominal", "Muon Cutflow (Nominal)", nSel, 0, nSel) ) );
-  ATH_CHECK( book(TH1D("mu_trigmatch_eff_nominal", "Muon Trigger Matching Efficiency (Nominal)", n_mu_trig, 0, n_mu_trig) ) );
-  ATH_CHECK( book(TH1D("mu_pt_nominal", "Muon Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("mu_n_flow_nominal", "Muon Cutflow (Nominal);Muon Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("mu_trigmatch_eff_nominal", "Muon Trigger Matching Efficiency (Nominal);Muon Trigger Matching Efficiency (Nominal);N", n_mu_trig, 0, n_mu_trig) ) );
+  ATH_CHECK( book(TH1D("mu_pt_nominal", "Muon p_{T} (Nominal);Muon p_{T} (Nominal) [GeV];N / [1 GeV]", 100, 0, 100) ) );
 
-  ATH_CHECK( book(TH1D("jet_n_flow_nominal", "Jet Cutflow (Nominal)", nSel, 0, nSel) ) );
-  ATH_CHECK( book(TH1D("jet_pt_nominal", "Jet Pt (Nominal)", 100, 0, 500) ) );
+  ATH_CHECK( book(TH1D("jet_n_flow_nominal", "Jet Cutflow (Nominal);Jet Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("jet_pt_nominal", "Jet p_{T} (Nominal);Jet p_{T} (Nominal) [GeV];N / [5 GeV]", 100, 0, 500) ) );
 
-  ATH_CHECK( book(TH1D("fatjet_n_flow_nominal", "Large R. Jet Cutflow (Nominal)", nSel, 0, nSel) ) );
-  ATH_CHECK( book(TH1D("fatjet_pt_nominal", "Large R. Jet Pt (Nominal)", 100, 0, 500) ) );
+  ATH_CHECK( book(TH1D("bjet_n_flow_nominal", "b-jet Cutflow (Nominal);b-jet Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("bjet_pt_nominal", "b-jet p_{T} (Nominal);b-jet p_{T} (Nominal) [GeV];N / [5 GeV]", 100, 0, 500) ) );
+  ATH_CHECK( book(TH1D("bjet_bweight_nominal", "b-jet b-weight (Nominal);b-jet b-weight (Nominal);N / (0.1);N", 500, -25, 25) ) );
 
-  ATH_CHECK( book(TH1D("tau_n_flow_nominal", "Tau Cutflow (Nominal)", nSel, 0, nSel) ) );
-  ATH_CHECK( book(TH1D("tau_pt_nominal", "Tau Pt (Nominal)", 100, 0, 100) ) );
+  ATH_CHECK( book(TH1D("fatjet_n_flow_nominal", "Large R. Jet Cutflow (Nominal);Large R. Jet Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("fatjet_pt_nominal", "Large R. Jet p_{T} (Nominal);Large R. Jet p_{T} (Nominal) [GeV];N / [5 GeV]", 100, 0, 500) ) );
 
-  ATH_CHECK( book(TH1D("met_et", "MET (Nominal)", 50, 0, 500) ) ); //MET (+Components)
-  ATH_CHECK( book(TH1D("met_phi", "MET_phi (Nominal)", 50, -5, 5) ) );
-  ATH_CHECK( book(TH1D("met_sumet", "MET_sumet (Nominal)", 50, 0, 500) ) );
-  ATH_CHECK( book(TH1D("met_et_tst", "MET [PVSoftTrk] (Nominal)", 50, 0, 500) ) );
-  ATH_CHECK( book(TH1D("met_et_el", "MET [RefEle] (Nominal)", 50, 0, 500) ) );
-  ATH_CHECK( book(TH1D("met_et_ph", "MET [RefGamma] (Nominal)", 50, 0, 500) ) );
-  ATH_CHECK( book(TH1D("met_et_mu", "MET [Muons] (Nominal)", 50, 0, 500) ) );
-  ATH_CHECK( book(TH1D("met_et_jet", "MET [RefJet] (Nominal)", 50, 0, 500) ) );
-  ATH_CHECK( book(TH1D("met_et_tau", "MET [RefTau] (Nominal)", 50, 0, 500) ) );
-  
+  ATH_CHECK( book(TH1D("trkjet_n_flow_nominal", "Track Jet Cutflow (Nominal);Track Jet Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("trkjet_pt_nominal", "Track Jet p_{T} (Nominal);Track Jet p_{T} (Nominal) [GeV];N / [5 GeV]", 100, 0, 500) ) );
+  ATH_CHECK( book(TH1D("trkjet_bweight_nominal", "Track Jet b-weight (Nominal);Track Jet b-weight (Nominal) [GeV];N / (0.1);N", 500, -25, 25) ) );
+
+  ATH_CHECK( book(TH1D("tau_n_flow_nominal", "Tau Cutflow (Nominal);Tau Cutflow (Nominal);N", nSel, 0, nSel) ) );
+  ATH_CHECK( book(TH1D("tau_pt_nominal", "Tau p_{T} (Nominal);Tau p_{T} (Nominal) [GeV];N / [1 GeV]", 100, 0, 100) ) );
+
+  ATH_CHECK( book(TH1D("met_et", "MET (Nominal);MET (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) ); //MET (+Components)
+  ATH_CHECK( book(TH1D("met_phi", "MET_phi (Nominal);MET_phi (Nominal);N", 50, -5, 5) ) );
+  ATH_CHECK( book(TH1D("met_sumet", "MET_sumet (Nominal);MET_sumet (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_tst", "MET [PVSoftTrk] (Nominal);MET [PVSoftTrk] (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_el", "MET [RefEle] (Nominal);MET [RefEle] (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_ph", "MET [RefGamma] (Nominal);MET [RefGamma] (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_mu", "MET [Muons] (Nominal);MET [Muons] (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_jet", "MET [RefJet] (Nominal);MET [RefJet] (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) );
+  ATH_CHECK( book(TH1D("met_et_tau", "MET [RefTau] (Nominal);MET [RefTau] (Nominal) [GeV];N / [10 GeV]", 50, 0, 500) ) );
+
   const int n_event_weights = (int)(syst_event_weights.size());
   const int n_el_weights = (int)(syst_el_weights.size());
   const int n_mu_weights = (int)(syst_mu_weights.size());
@@ -221,16 +245,18 @@ StatusCode SUSYToolsAlg::initialize() {
   const int n_tau_weights = (int)(syst_tau_weights.size());
   const int n_jet_weights = (int)(syst_jet_weights.size());
   const int n_fatjet_weights = (int)(syst_fatjet_weights.size());
+  const int n_trkjet_weights = (int)(syst_trkjet_weights.size());
   const int n_btag_weights = (int)(syst_btag_weights.size());
 
-  ATH_CHECK( book(TH1D("weight_event", "Event weights (Nom+Systematics) [MC*PRW]", n_event_weights,0,n_event_weights))); //weights
-  ATH_CHECK( book(TH1D("weight_electrons", "Electron total weights (Nom+Systematics)",  n_el_weights,0, n_el_weights) ) );  //weights
-  ATH_CHECK( book(TH1D("weight_muons", "Muon total weights (Nom+Systematics)",  n_mu_weights,0, n_mu_weights) ) );  //weights
-  ATH_CHECK( book(TH1D("weight_photons", "Photon total weights (Nom+Systematics)",  n_ph_weights,0, n_ph_weights) ) );  //weights
-  ATH_CHECK( book(TH1D("weight_taus", "Tau total weights (Nom+Systematics)",  n_tau_weights,0, n_tau_weights) ) );  //weights
-  ATH_CHECK( book(TH1D("weight_jets", "Jet total weights (Nom+Systematics)",  n_jet_weights,0, n_jet_weights) ) );  //weights
-  ATH_CHECK( book(TH1D("weight_fatjets", "Large R. jet total weights (Nom+Systematics)",  n_fatjet_weights,0, n_fatjet_weights) ) );  //weights
-  ATH_CHECK( book(TH1D("weight_btags", "Btagging total weights (Nom+Systematics)",  n_btag_weights,0, n_btag_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_event", "Event weights (Nom+Systematics) [MC*PRW];Event weights (Nom+Systematics) [MC*PRW];weight", n_event_weights,0,n_event_weights))); //weights
+  ATH_CHECK( book(TH1D("weight_electrons", "Electron total weights (Nom+Systematics);Electron total weights (Nom+Systematics);weight",  n_el_weights,0, n_el_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_muons", "Muon total weights (Nom+Systematics);Muon total weights (Nom+Systematics);weight",  n_mu_weights,0, n_mu_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_photons", "Photon total weights (Nom+Systematics);Photon total weights (Nom+Systematics);weight",  n_ph_weights,0, n_ph_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_taus", "Tau total weights (Nom+Systematics);Tau total weights (Nom+Systematics);weight",  n_tau_weights,0, n_tau_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_jets", "Jet total weights (Nom+Systematics);Jet total weights (Nom+Systematics);weight",  n_jet_weights,0, n_jet_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_fatjets", "Large R. jet total weights (Nom+Systematics);Large R. jet total weights (Nom+Systematics);weight",  n_fatjet_weights,0, n_fatjet_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_trkjets", "Track jet total weights (Nom+Systematics);Track jet total weights (Nom+Systematics);weight",  n_trkjet_weights,0, n_trkjet_weights) ) );  //weights
+  ATH_CHECK( book(TH1D("weight_btags", "Btagging total weights (Nom+Systematics);Btagging total weights (Nom+Systematics);weight",  n_btag_weights,0, n_btag_weights) ) );  //weights
 
   // retrieve SUSYTools config file
   TEnv rEnv;
@@ -244,7 +270,13 @@ StatusCode SUSYToolsAlg::initialize() {
   ATH_MSG_INFO( "Config file opened" );
 
   m_FatJetCollection = rEnv.GetValue("Jet.LargeRcollection", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" );
-  
+  m_TrkJetCollection = rEnv.GetValue("TrackJet.Collection", "AntiKtVR30Rmax4Rmin02TrackJets" );
+  m_TrkJetTimeStamp  = rEnv.GetValue("TrackJet.TimeStamp", "201810" );
+  // Trim comments from config entries
+  std::regex comment("#.*$");
+  m_FatJetCollection = regex_replace(m_FatJetCollection, comment, "");
+  m_TrkJetCollection = regex_replace(m_TrkJetCollection, comment, "");
+  if ( m_TrkJetTimeStamp.compare("")!=0 ) m_TrkJetCollection += "_BTagging"+m_TrkJetTimeStamp;
 
   return StatusCode::SUCCESS;
 }
@@ -321,6 +353,10 @@ StatusCode SUSYToolsAlg::finalize() {
   for (unsigned int i=1; i < nSel+1; i++){ fatjet_n_flow_nominal->GetXaxis()->SetBinLabel(i, SCut[i-1].Data()); }
   fatjet_n_flow_nominal->GetXaxis()->SetLabelSize(0.05);
 
+  TH1* trkjet_n_flow_nominal = hist("trkjet_n_flow_nominal");
+  for (unsigned int i=1; i < nSel+1; i++){ trkjet_n_flow_nominal->GetXaxis()->SetBinLabel(i, SCut[i-1].Data()); }
+  trkjet_n_flow_nominal->GetXaxis()->SetLabelSize(0.05);
+
   TH1* tau_n_flow_nominal = hist("tau_n_flow_nominal");
   for (unsigned int i=1; i < nSel+1; i++){ tau_n_flow_nominal->GetXaxis()->SetBinLabel(i, SCut[i-1].Data()); }
   tau_n_flow_nominal->GetXaxis()->SetLabelSize(0.05);
@@ -349,6 +385,7 @@ StatusCode SUSYToolsAlg::finalize() {
   TH1* weight_taus      = hist("weight_taus");
   TH1* weight_jets      = hist("weight_jets");
   TH1* weight_fatjets   = hist("weight_fatjets");
+  TH1* weight_trkjets   = hist("weight_trkjets");
   TH1* weight_btags     = hist("weight_btags");
   for (unsigned int i=1; i < syst_event_weights.size()+1; i++){ weight_event->GetXaxis()->SetBinLabel(i, syst_event_weights.at(i-1).c_str()); }
   weight_event->GetXaxis()->SetLabelSize(0.05);
@@ -364,6 +401,8 @@ StatusCode SUSYToolsAlg::finalize() {
   weight_jets->GetXaxis()->SetLabelSize(0.05);
   for (unsigned int i=1; i < syst_fatjet_weights.size()+1; i++){ weight_fatjets->GetXaxis()->SetBinLabel(i, syst_fatjet_weights.at(i-1).c_str()); }
   weight_fatjets->GetXaxis()->SetLabelSize(0.05);
+  for (unsigned int i=1; i < syst_trkjet_weights.size()+1; i++){ weight_trkjets->GetXaxis()->SetBinLabel(i, syst_trkjet_weights.at(i-1).c_str()); }
+  weight_trkjets->GetXaxis()->SetLabelSize(0.05);
   for (unsigned int i=1; i < syst_btag_weights.size()+1; i++){ weight_btags->GetXaxis()->SetBinLabel(i, syst_btag_weights.at(i-1).c_str()); }
   weight_btags->GetXaxis()->SetLabelSize(0.05);
 
@@ -375,8 +414,9 @@ StatusCode SUSYToolsAlg::finalize() {
   weight_taus      ->Scale(1/(float)weight_taus->GetBinContent(1));
   weight_jets      ->Scale(1/(float)weight_jets->GetBinContent(1));
   weight_fatjets   ->Scale(1/(float)weight_fatjets->GetBinContent(1));
+  weight_trkjets   ->Scale(1/(float)weight_trkjets->GetBinContent(1));
   weight_btags     ->Scale(1/(float)weight_btags->GetBinContent(1));
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -396,7 +436,7 @@ StatusCode SUSYToolsAlg::execute() {
     ATH_MSG_ERROR( "Cannot reset SUSYTools systematics" );
   }
 
-  // METMaker crashes if there's no PV, check that before anything, 
+  // METMaker crashes if there's no PV, check that before anything,
   // and skip to the next event if there isn't one
   if (m_SUSYTools->GetPrimVtx() == nullptr) {
     ATH_MSG_WARNING("No PV found for this event! Skipping...");
@@ -410,8 +450,42 @@ StatusCode SUSYToolsAlg::execute() {
   ATH_CHECK( evtStore()->retrieve(evtInfo, "EventInfo") );
   bool isSim = ( m_dataSource > 0 );
 
+  if ( m_Nevts==0 ) {
+    std::string stream;
+#ifdef ROOTCORE
+    // Read the CutBookkeeper container on the first event
+    const xAOD::CutBookkeeperContainer* completeCBC = 0;
+    if (!evtStore()->event()->retrieveMetaInput(completeCBC, "CutBookkeepers").isSuccess()) {
+      ATH_MSG_ERROR("Failed to retrieve CutBookkeepers from MetaData! Exiting.");
+    }
+    std::string cbkname;
+    for ( auto cbk : *completeCBC ) {
+      cbkname = cbk->name();
+      stream = cbk->inputStream();
+      if (cbkname.find("PHYSVAL")!=std::string::npos) m_kernel="PHYSVAL";
+      else if (cbkname.find("PHYSLITE")!=std::string::npos) m_kernel="PHYSLITE";
+      else if (stream.find("StreamDAOD")!=std::string::npos) m_kernel=stream.replace(stream.find("Stream"),6,"");
+      else m_kernel="other";
+    }
+#else
+    // check the stream info
+    const EventStreamInfo* esi = 0;
+    CHECK( inputMetaStore()->retrieve(esi) );
+    for ( auto stream : esi->getProcessingTags() ) {
+      if (stream.find("PHYSVAL")!=std::string::npos) m_kernel="PHYSVAL";
+      else if (stream.find("PHYSLITE")!=std::string::npos) m_kernel="PHYSLITE";
+      else if (stream.find("StreamDAOD")!=std::string::npos) m_kernel=stream.replace(stream.find("Stream"),6,"");
+      else m_kernel="other";
+    }
+#endif
+    ATH_MSG_INFO("Input file kernel type: " << m_kernel);
+  }
+
+  int period = 100;
+  if (m_Nevts==0 || (m_Nevts % period == 99)) ATH_MSG_INFO("===>>>  start processing event #" << evtInfo->eventNumber() << ", run #" << evtInfo->runNumber() << " | " << m_Nevts << " events processed so far <<<===");
+
   // SZ - check if truth jets are there; if not, fail miserably since they're actually needed...
-  // this hopefully will be automatically solved once new R21 test samples will become available  
+  // this hopefully will be automatically solved once new R21 test samples will become available
   if( !evtStore()->contains<xAOD::JetContainer>( "AntiKt4TruthJets" ) && m_CheckTruthJets && isSim ) {
     ATH_MSG_ERROR( "Failed to retrieve the AntiKt4TruthJets container. Likely this test is running over an R21 xAOD." );
     ATH_MSG_ERROR( "Exiting miserably, since it's needed e.g. by the JetJvtEfficiency tool." );
@@ -452,16 +526,36 @@ StatusCode SUSYToolsAlg::execute() {
     } else {
       //std::string fatjetcoll = m_FatJetCollection.substr(0, m_FatJetCollection.size()-4);
       ATH_CHECK( m_SUSYTools->GetFatJets(fatjets_nominal,fatjets_nominal_aux) ); //,true,fatjetcoll,true) );
-      ATH_MSG_DEBUG( "Number of Large Radius jets: " << fatjets_nominal->size() );   
+      ATH_MSG_DEBUG( "Number of Large Radius jets: " << fatjets_nominal->size() );
     }
   } else if(doFatJets) {
     ATH_MSG_DEBUG("FatJets xAOD::JetContainer with name " << m_FatJetCollection <<" not found");
     doFatJets=false;
   }
 
-//  // FIXME: Make empty TruthTaus if taus_nominal is empty and not data 
-//  // Tau code fails in this case!  
-  if( isSim ) {
+  static bool doTrkJets=true;
+  const xAOD::JetContainer* trkjets_test(0);
+  xAOD::JetContainer* trkjets_nominal(0);
+  xAOD::ShallowAuxContainer* trkjets_nominal_aux(0);
+  if( doTrkJets && evtStore()->contains<xAOD::JetContainer>( m_TrkJetCollection ) ){
+    if( !evtStore()->retrieve( trkjets_test, m_TrkJetCollection ).isSuccess() ){
+      ATH_MSG_ERROR("Failed to retrieve xAOD::JetContainer with name " << m_TrkJetCollection );
+      return StatusCode::FAILURE;
+    } else {
+      //std::string trkjetcoll = m_TrkJetCollection.substr(0, m_TrkJetCollection.size()-4);
+      ATH_CHECK( m_SUSYTools->GetTrackJets(trkjets_nominal,trkjets_nominal_aux) ); //,true,trkjetcoll,true) );
+      ATH_MSG_DEBUG( "Number of track jets: " << trkjets_nominal->size() );
+    }
+  } else if(doTrkJets) {
+    ATH_MSG_DEBUG("TrkJets xAOD::JetContainer with name " << m_TrkJetCollection <<" not found");
+    doTrkJets=false;
+  }
+
+  bool doTau = true;
+  if (m_kernel.find("SUSY19")!=std::string::npos) doTau = false;
+  // FIXME: Make empty TruthTaus if taus_nominal is empty and not data
+  // Tau code fails in this case!
+  if( isSim && doTau ) {
     const xAOD::TauJetContainer* p_TauJets = 0;
     ATH_CHECK( evtStore()->retrieve(p_TauJets, "TauJets") );
     if( !evtStore()->contains<xAOD::TruthParticleContainer>("TruthTaus") && p_TauJets->size()==0 ){
@@ -489,10 +583,13 @@ StatusCode SUSYToolsAlg::execute() {
     }
   }
 
+
   xAOD::TauJetContainer* taus_nominal(0);
   xAOD::ShallowAuxContainer* taus_nominal_aux(0);
-  ATH_CHECK( m_SUSYTools->GetTaus(taus_nominal, taus_nominal_aux) );
-  ATH_MSG_DEBUG( "Number of taus: " << taus_nominal->size() );
+  if (doTau) { 
+     ATH_CHECK( m_SUSYTools->GetTaus(taus_nominal, taus_nominal_aux) ); 
+     ATH_MSG_DEBUG( "Number of taus: " << taus_nominal->size() );
+  }
 
   xAOD::MissingETContainer* metcst_nominal = new xAOD::MissingETContainer;
   xAOD::MissingETAuxContainer* metcst_nominal_aux = new xAOD::MissingETAuxContainer;
@@ -522,18 +619,18 @@ StatusCode SUSYToolsAlg::execute() {
   xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
   mettst_nominal->setStore(mettst_nominal_aux);
   mettst_nominal->reserve(10);
-  
+
   ATH_CHECK( m_SUSYTools->GetMET(*mettst_nominal,
                              jets_nominal,
                              electrons_nominal,
                              muons_nominal,
                              photons_nominal, 0, true, true) );
-  
+
   ATH_MSG_DEBUG("RefFinal TST etx=" << (*mettst_nominal)["Final"]->mpx()
                 << ", ety=" << (*mettst_nominal)["Final"]->mpy()
                 << ", et=" << (*mettst_nominal)["Final"]->met()
                 << ", sumet=" << (*mettst_nominal)["Final"]->sumet());
-  
+
   double metsig_tst(0.);
 
   ATH_CHECK( m_SUSYTools->GetMETSig(*mettst_nominal,
@@ -545,29 +642,29 @@ StatusCode SUSYToolsAlg::execute() {
   TH1* met_et    = hist("met_et");
   TH1* met_sumet = hist("met_sumet");
   TH1* met_phi   = hist("met_phi");
-  
+
   TH1* met_et_tst = hist("met_et_tst");
   TH1* met_et_el  = hist("met_et_el");
   TH1* met_et_ph  = hist("met_et_ph");
   TH1* met_et_mu  = hist("met_et_mu");
   TH1* met_et_jet = hist("met_et_jet");
   //TH1* met_et_tau = hist("met_et_tau");
-  
+
   met_et->Fill( (*mettst_nominal)["Final"]->met()*0.001 );
   met_sumet->Fill( (*mettst_nominal)["Final"]->sumet()*0.001 );
   met_phi->Fill( (*mettst_nominal)["Final"]->phi() );
-  
+
   met_et_tst->Fill( (*mettst_nominal)["PVSoftTrk"]->met() *0.001 );
   met_et_el->Fill(  (*mettst_nominal)["RefEle"]->met()    *0.001 );
   met_et_ph->Fill(  (*mettst_nominal)["RefGamma"]->met()  *0.001 );
   met_et_mu->Fill(  (*mettst_nominal)["Muons"]->met()     *0.001 );
   met_et_jet->Fill( (*mettst_nominal)["RefJet"]->met()    *0.001 );
   // met_et_tau->Fill( (*mettst_nominal)["RefTau"]->met()    *0.001 );
-  
+
   //--- Overlap Removal
   ATH_CHECK( m_SUSYTools->OverlapRemoval(electrons_nominal, muons_nominal, jets_nominal, 0, taus_nominal) );
-  
-  
+
+
   //--- Weights
   TH1* weight_event     = hist("weight_event");
   TH1* weight_electrons = hist("weight_electrons");
@@ -576,12 +673,13 @@ StatusCode SUSYToolsAlg::execute() {
   TH1* weight_taus      = hist("weight_taus");
   TH1* weight_jets      = hist("weight_jets");
   TH1* weight_fatjets   = hist("weight_fatjets");
+  TH1* weight_trkjets   = hist("weight_trkjets");
   TH1* weight_btags     = hist("weight_btags");
 
 
   //--- Monitoring
-  //----- Electrons 
-      
+  //----- Electrons
+
   TH1* el_n_flow_nominal = hist("el_n_flow_nominal");
   TH1* el_trigmatch_eff_nominal = hist("el_trigmatch_eff_nominal");
   TH1* el_pt_nominal     = hist("el_pt_nominal");
@@ -605,7 +703,7 @@ StatusCode SUSYToolsAlg::execute() {
             passTM |= passit;
             if(passit) el_trigmatch_eff_nominal->SetBinContent(idx, el_trigmatch_eff_nominal->GetBinContent(idx)+1);
             idx++;
-          }              
+          }
           if(passTM) el_n_flow_nominal->Fill(Cut::trigmatch);
         }
       }
@@ -614,7 +712,7 @@ StatusCode SUSYToolsAlg::execute() {
   }
 
   //----- Photons
-      
+
   TH1* ph_n_flow_nominal = hist("ph_n_flow_nominal");
   TH1* ph_trigmatch_eff_nominal = hist("ph_trigmatch_eff_nominal");
   TH1* ph_pt_nominal     = hist("ph_pt_nominal");
@@ -637,7 +735,7 @@ StatusCode SUSYToolsAlg::execute() {
             passTM |= passit;
             if(passit) ph_trigmatch_eff_nominal->SetBinContent(idx, ph_trigmatch_eff_nominal->GetBinContent(idx)+1);
             idx++;
-          }              
+          }
           if(passTM) ph_n_flow_nominal->Fill(Cut::trigmatch);
         }
       }
@@ -646,18 +744,18 @@ StatusCode SUSYToolsAlg::execute() {
   }
 
   //----- Muons
-      
+
   TH1* mu_n_flow_nominal = hist("mu_n_flow_nominal");
   TH1* mu_trigmatch_eff_nominal = hist("mu_trigmatch_eff_nominal");
   TH1* mu_pt_nominal     = hist("mu_pt_nominal");
 
   for(auto mu : *muons_nominal) {
     mu_n_flow_nominal->Fill(Cut::all);
-    if ( mu->auxdata<char>("baseline") == 1 ){ 
+    if ( mu->auxdata<char>("baseline") == 1 ){
       mu_n_flow_nominal->Fill(Cut::baseline);
-      if ( mu->auxdata<char>("passOR") == 1 ){ 
+      if ( mu->auxdata<char>("passOR") == 1 ){
         mu_n_flow_nominal->Fill(Cut::passOR);
-        if ( mu->auxdata<char>("signal") == 1 ){ 
+        if ( mu->auxdata<char>("signal") == 1 ){
           mu_n_flow_nominal->Fill(Cut::signal);
 
           count_mu_signal++;
@@ -671,37 +769,57 @@ StatusCode SUSYToolsAlg::execute() {
             idx++;
           }
           if(passTM) mu_n_flow_nominal->Fill(Cut::trigmatch);
-        }          
+        }
       }
     }
     mu_pt_nominal->Fill(mu->pt() * 1e-3);
   }
 
   //----- Jets
-      
+
   TH1* jet_n_flow_nominal = hist("jet_n_flow_nominal");
   TH1* jet_pt_nominal     = hist("jet_pt_nominal");
+  TH1* bjet_n_flow_nominal = hist("bjet_n_flow_nominal");
+  TH1* bjet_pt_nominal     = hist("bjet_pt_nominal");
+  TH1* bjet_bweight_nominal = hist("bjet_bweight_nominal");
+  bool bjet = false;
 
   for(auto jet : *jets_nominal) {
     jet_n_flow_nominal->Fill(Cut::all);
-    if ( jet->auxdata<char>("baseline") == 1 ){ 
+    if ( jet->auxdata<char>("bjet") == 1  ) bjet = true;
+    if (bjet) bjet_n_flow_nominal->Fill(Cut::all);
+    //
+    if ( jet->auxdata<char>("baseline") == 1 ){
       jet_n_flow_nominal->Fill(Cut::baseline);
-      if ( jet->auxdata<char>("passOR") == 1 ){ 
+      if (bjet) {
+         bjet_n_flow_nominal->Fill(Cut::baseline);
+      }
+
+      if ( jet->auxdata<char>("passOR") == 1 ){
         jet_n_flow_nominal->Fill(Cut::passOR);
-        if ( jet->auxdata<char>("signal") == 1 ){ 
+        if (bjet) bjet_n_flow_nominal->Fill(Cut::passOR);
+        if ( jet->auxdata<char>("signal") == 1 ){
           jet_n_flow_nominal->Fill(Cut::signal);
           jet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets
-        }          
+          if (bjet) {
+             bjet_n_flow_nominal->Fill(Cut::signal);
+             bjet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for (b)jets
+          }
+        }
       }
     }
     jet_pt_nominal->Fill(jet->pt() * 1e-3);
+    if (bjet) {
+      bjet_pt_nominal->Fill(jet->pt() * 1e-3);
+      bjet_bweight_nominal->Fill( jet->auxdata<double>("btag_weight") );
+    }
   }
 
   //----- Large R. Jets
 
   TH1* fatjet_n_flow_nominal = hist("fatjet_n_flow_nominal");
   TH1* fatjet_pt_nominal     = hist("fatjet_pt_nominal");
-  
+
   if( doFatJets ) {
     for(auto fatjet : *fatjets_nominal) {
       fatjet_n_flow_nominal->Fill(Cut::all);
@@ -711,11 +829,36 @@ StatusCode SUSYToolsAlg::execute() {
           fatjet_n_flow_nominal->Fill(Cut::passOR);
           if ( fatjet->auxdata<char>("signal") == 1 ){
             fatjet_n_flow_nominal->Fill(Cut::signal);
-            fatjet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets  
+            fatjet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets
           }
         }
       }
       fatjet_pt_nominal->Fill(fatjet->pt() * 1e-3);
+    }
+  }
+
+  //----- Track Jets
+
+  TH1* trkjet_n_flow_nominal = hist("trkjet_n_flow_nominal");
+  TH1* trkjet_pt_nominal     = hist("trkjet_pt_nominal");
+  TH1* trkjet_bweight_nominal     = hist("trkjet_bweight_nominal");
+
+  if( doTrkJets ) {
+    for(auto trkjet : *trkjets_nominal) {
+      trkjet_n_flow_nominal->Fill(Cut::all);
+      if ( trkjet->auxdata<char>("baseline") == 1 ){
+        trkjet_n_flow_nominal->Fill(Cut::baseline);
+
+        if ( trkjet->auxdata<char>("passOR") == 1 ){
+          trkjet_n_flow_nominal->Fill(Cut::passOR);
+          if ( trkjet->auxdata<char>("signal") == 1 ){
+            trkjet_n_flow_nominal->Fill(Cut::signal);
+            trkjet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets
+          }
+        }
+      }
+      trkjet_pt_nominal->Fill(trkjet->pt() * 1e-3);
+      trkjet_bweight_nominal->Fill( trkjet->auxdata<double>("btag_weight") );
     }
   }
 
@@ -724,19 +867,21 @@ StatusCode SUSYToolsAlg::execute() {
   TH1* tau_n_flow_nominal = hist("tau_n_flow_nominal");
   TH1* tau_pt_nominal     = hist("tau_pt_nominal");
 
-  for(auto tau : *taus_nominal) {
-    tau_n_flow_nominal->Fill(Cut::all);
-    if ( tau->auxdata<char>("baseline") == 1 ){
-      tau_n_flow_nominal->Fill(Cut::baseline);
-      if ( tau->auxdata<char>("passOR") == 1 ){
-        tau_n_flow_nominal->Fill(Cut::passOR);
-        if ( tau->auxdata<char>("signal") == 1 ){
-          tau_n_flow_nominal->Fill(Cut::signal);
-          tau_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for taus
+  if ( doTau ) {
+    for(auto tau : *taus_nominal) {
+      tau_n_flow_nominal->Fill(Cut::all);
+      if ( tau->auxdata<char>("baseline") == 1 ){
+        tau_n_flow_nominal->Fill(Cut::baseline);
+        if ( tau->auxdata<char>("passOR") == 1 ){
+          tau_n_flow_nominal->Fill(Cut::passOR);
+          if ( tau->auxdata<char>("signal") == 1 ){
+            tau_n_flow_nominal->Fill(Cut::signal);
+            tau_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for taus
+          }
         }
       }
+      tau_pt_nominal->Fill(tau->pt() * 1e-3);
     }
-    tau_pt_nominal->Fill(tau->pt() * 1e-3);
   }
 
   // Set up the event weights
@@ -764,6 +909,7 @@ StatusCode SUSYToolsAlg::execute() {
   double muons_weight_nominal(1.);
   double jets_weight_nominal(1.);
   double fatjets_weight_nominal(1.);
+  double trkjets_weight_nominal(1.);
   double btag_weight_nominal(1.);
   double taus_weight_nominal(1.);
   double event_weight_nominal(1.);
@@ -805,10 +951,10 @@ StatusCode SUSYToolsAlg::execute() {
         prw_weight = m_SUSYTools->GetPileupWeight();
       }
       event_weight *= prw_weight;
-      size_t iwbin = find(syst_event_weights.begin(), syst_event_weights.end(), sys.name()) - syst_event_weights.begin(); 
-      if(iwbin < syst_event_weights.size()) {  weight_event->SetBinContent(iwbin+1, weight_event->GetBinContent(iwbin+1)+event_weight); }    
+      size_t iwbin = find(syst_event_weights.begin(), syst_event_weights.end(), sys.name()) - syst_event_weights.begin();
+      if(iwbin < syst_event_weights.size()) {  weight_event->SetBinContent(iwbin+1, weight_event->GetBinContent(iwbin+1)+event_weight); }
     }
-    
+
 
     // Define the generic collection pointers
     xAOD::ElectronContainer* electrons(electrons_nominal);
@@ -816,6 +962,7 @@ StatusCode SUSYToolsAlg::execute() {
     xAOD::MuonContainer* muons(muons_nominal);
     xAOD::JetContainer* jets(jets_nominal);
     xAOD::JetContainer* fatjets(fatjets_nominal);
+    xAOD::JetContainer* trkjets(trkjets_nominal);
     xAOD::TauJetContainer* taus(taus_nominal);
     xAOD::MissingETContainer *mettst(mettst_nominal), *metcst(metcst_nominal);
     xAOD::MissingETAuxContainer *mettst_aux(mettst_nominal_aux), *metcst_aux(metcst_nominal_aux);
@@ -862,7 +1009,7 @@ StatusCode SUSYToolsAlg::execute() {
         jets = jets_syst;
       }
 
-      if (syst_affectsTaus) {
+      if (syst_affectsTaus && doTau) {
         ATH_MSG_DEBUG("Get systematics-varied taus");
         xAOD::TauJetContainer* taus_syst(0);
         xAOD::ShallowAuxContainer* taus_syst_aux(0);
@@ -917,21 +1064,21 @@ StatusCode SUSYToolsAlg::execute() {
       ATH_MSG_VERBOSE( "  Electron passing baseline selection?" << (int) el->auxdata<char>("baseline") );
       ATH_MSG_VERBOSE( "  Electron passing signal selection?" << (int) el->auxdata<char>("signal") );
       if (el->auxdata< char >("signal") == 1)
-        ATH_MSG_VERBOSE( "  Electron weight " << el->auxdata<float>("effscalefact") );
-      
+        ATH_MSG_VERBOSE( "  Electron weight " << el->auxdata<double>("effscalefact") );
+
     }
     if (isNominal) {
       electrons_weight_nominal = electrons_weight;
-      weight_electrons->SetBinContent(1, weight_electrons->GetBinContent(1)+electrons_weight);    
+      weight_electrons->SetBinContent(1, weight_electrons->GetBinContent(1)+electrons_weight);
     }
     else if (!syst_affectsElectrons) {
       electrons_weight = electrons_weight_nominal;
     }
     else if ( sysInfo.affectsWeights ){
-      size_t iwbin = find(syst_el_weights.begin(), syst_el_weights.end(), sys.name()) - syst_el_weights.begin(); 
-      if(iwbin < syst_el_weights.size()) {  weight_electrons->SetBinContent(iwbin+1, weight_electrons->GetBinContent(iwbin+1)+electrons_weight); }    
+      size_t iwbin = find(syst_el_weights.begin(), syst_el_weights.end(), sys.name()) - syst_el_weights.begin();
+      if(iwbin < syst_el_weights.size()) {  weight_electrons->SetBinContent(iwbin+1, weight_electrons->GetBinContent(iwbin+1)+electrons_weight); }
     }
-    
+
     event_weight *= electrons_weight;
 
 
@@ -949,21 +1096,21 @@ StatusCode SUSYToolsAlg::execute() {
       ATH_MSG_VERBOSE( "  Photon passing baseline selection?" << (int) el->auxdata<char>("baseline") );
       ATH_MSG_VERBOSE( "  Photon passing signal selection?" << (int) el->auxdata<char>("signal") );
       if (el->auxdata< char >("signal") == 1)
-        ATH_MSG_VERBOSE( "  Photon weight " << el->auxdata<float>("effscalefact") );
-      
+        ATH_MSG_VERBOSE( "  Photon weight " << el->auxdata<double>("effscalefact") );
+
     }
     if (isNominal) {
       photons_weight_nominal = photons_weight;
-      weight_photons->SetBinContent(1, weight_photons->GetBinContent(1)+photons_weight);    
+      weight_photons->SetBinContent(1, weight_photons->GetBinContent(1)+photons_weight);
     }
     else if (!syst_affectsPhotons) {
       photons_weight = photons_weight_nominal;
     }
     else if ( sysInfo.affectsWeights ){
-      size_t iwbin = find(syst_ph_weights.begin(), syst_ph_weights.end(), sys.name()) - syst_ph_weights.begin(); 
-      if(iwbin < syst_ph_weights.size()) {  weight_photons->SetBinContent(iwbin+1, weight_photons->GetBinContent(iwbin+1)+photons_weight); }    
+      size_t iwbin = find(syst_ph_weights.begin(), syst_ph_weights.end(), sys.name()) - syst_ph_weights.begin();
+      if(iwbin < syst_ph_weights.size()) {  weight_photons->SetBinContent(iwbin+1, weight_photons->GetBinContent(iwbin+1)+photons_weight); }
     }
-    
+
     event_weight *= photons_weight;
 
 
@@ -982,19 +1129,19 @@ StatusCode SUSYToolsAlg::execute() {
       ATH_MSG_VERBOSE( "  Muon passing signal selection?" << (int) mu->auxdata<char>("signal") );
       ATH_MSG_VERBOSE( "  Muon is a cosmic ray?" << (int) mu->auxdata<char>("cosmic") );
       if (mu->auxdata< char >("signal") == 1)
-        ATH_MSG_VERBOSE( "  Muon weight " << mu->auxdata<float>("effscalefact") );
+        ATH_MSG_VERBOSE( "  Muon weight " << mu->auxdata<double>("effscalefact") );
     }
 
     if (isNominal) {
       muons_weight_nominal = muons_weight;
-      weight_muons->SetBinContent(1, weight_muons->GetBinContent(1)+muons_weight);    
+      weight_muons->SetBinContent(1, weight_muons->GetBinContent(1)+muons_weight);
     }
     else if (!syst_affectsMuons) {
       muons_weight = muons_weight_nominal;
     }
     else if ( sysInfo.affectsWeights ){
-      size_t iwbin = find(syst_mu_weights.begin(), syst_mu_weights.end(), sys.name()) - syst_mu_weights.begin(); 
-      if(iwbin < syst_mu_weights.size()) {  weight_muons->SetBinContent(iwbin+1, weight_muons->GetBinContent(iwbin+1)+muons_weight); }    
+      size_t iwbin = find(syst_mu_weights.begin(), syst_mu_weights.end(), sys.name()) - syst_mu_weights.begin();
+      if(iwbin < syst_mu_weights.size()) {  weight_muons->SetBinContent(iwbin+1, weight_muons->GetBinContent(iwbin+1)+muons_weight); }
     }
 
     event_weight *= muons_weight;
@@ -1013,21 +1160,21 @@ StatusCode SUSYToolsAlg::execute() {
       }
     }
 
-    float jet_weight(1.);    
-    float btag_weight(1.);   
+    float jet_weight(1.);
+    float btag_weight(1.);
     if( m_dataSource > 0) { //isMC
-      
+
       if (isNominal) { //btagging
         btag_weight_nominal = btag_weight = m_SUSYTools->BtagSF(jets);
-        weight_btags->SetBinContent(1, weight_btags->GetBinContent(1)+btag_weight);    
+        weight_btags->SetBinContent(1, weight_btags->GetBinContent(1)+btag_weight);
       }
       else if (!syst_affectsBTag){
         btag_weight = btag_weight_nominal;
       }
       else{
         btag_weight = m_SUSYTools->BtagSF(jets);
-        size_t iwbin = find(syst_btag_weights.begin(), syst_btag_weights.end(), sys.name()) - syst_btag_weights.begin(); 
-        if(iwbin < syst_btag_weights.size()) {  weight_btags->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+btag_weight); }    
+        size_t iwbin = find(syst_btag_weights.begin(), syst_btag_weights.end(), sys.name()) - syst_btag_weights.begin();
+        if(iwbin < syst_btag_weights.size()) {  weight_btags->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+btag_weight); }
       }
 
       if(isNominal){ //JVT
@@ -1039,8 +1186,8 @@ StatusCode SUSYToolsAlg::execute() {
       }
       else if ( syst_affectsJets && sysInfo.affectsWeights ){
         jet_weight = m_SUSYTools->JVT_SF(jets);
-        size_t iwbin = find(syst_jet_weights.begin(), syst_jet_weights.end(), sys.name()) - syst_jet_weights.begin(); 
-        if(iwbin < syst_jet_weights.size()) {  weight_jets->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+jet_weight); }    
+        size_t iwbin = find(syst_jet_weights.begin(), syst_jet_weights.end(), sys.name()) - syst_jet_weights.begin();
+        if(iwbin < syst_jet_weights.size()) {  weight_jets->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+jet_weight); }
       }
     }
 
@@ -1049,7 +1196,7 @@ StatusCode SUSYToolsAlg::execute() {
     ATH_MSG_DEBUG("Combined jet scale factor: " << jet_weight);
 
 
-    //--- Large R. Jets 
+    //--- Large R. Jets
 
     if( doFatJets ) {
       ATH_MSG_DEBUG("Working on fat jets");
@@ -1058,64 +1205,96 @@ StatusCode SUSYToolsAlg::execute() {
         ATH_MSG_VERBOSE( " Jet is baseline ? " << (int) fatjet->auxdata<char>("baseline") );
         ATH_MSG_VERBOSE( " Jet passes OR ? " << (int) fatjet->auxdata<char>("passOR") );
       }
-      
-      float fatjet_weight(1.);
-      if( m_dataSource > 0) { //isMC 
 
-        if(isNominal){ //JVT - no JVT cuts for fat jets! 
-          fatjets_weight_nominal = fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets); 
+      float fatjet_weight(1.);
+      if( m_dataSource > 0) { //isMC
+
+        if(isNominal){ //JVT - no JVT cuts for fat jets!
+          fatjets_weight_nominal = fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets);
           weight_fatjets->SetBinContent(1, weight_fatjets->GetBinContent(1)+fatjet_weight);
         }
         else if (!syst_affectsJets || (syst_affectsJets && !sysInfo.affectsWeights)){
           fatjet_weight = fatjets_weight_nominal;
       }
         else if ( syst_affectsJets && sysInfo.affectsWeights ){
-          fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets); 
+          fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets);
           size_t iwbin = find(syst_fatjet_weights.begin(), syst_fatjet_weights.end(), sys.name()) - syst_fatjet_weights.begin();
           if(iwbin < syst_fatjet_weights.size()) {  weight_fatjets->SetBinContent(iwbin+1, weight_fatjets->GetBinContent(iwbin+1)+fatjet_weight); }
         }
       }
-      
+
       ATH_MSG_DEBUG("Combined large radius jet scale factor: " << fatjet_weight);
     }
 
-    //--- Taus
-    ATH_MSG_DEBUG("Working on taus");
-    float taus_weight(1.);
-    for ( const auto& ta : *taus ) {
-      if( m_dataSource > 0 ){
-        if (isNominal || syst_affectsTaus) {
-          if ((ta->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
-            taus_weight *= m_SUSYTools->GetSignalTauSF(*ta);;
-          }
+    //--- Track Jets
+
+    if( doTrkJets ) {
+      ATH_MSG_DEBUG("Working on trk jets");
+      for ( const auto& trkjet : *trkjets ) {
+        ATH_MSG_VERBOSE( " Jet is bad? " << (int) trkjet->auxdata<char>("bad") );
+        ATH_MSG_VERBOSE( " Jet is baseline ? " << (int) trkjet->auxdata<char>("baseline") );
+        ATH_MSG_VERBOSE( " Jet passes OR ? " << (int) trkjet->auxdata<char>("passOR") );
+      }
+
+      float trkjet_weight(1.);
+      if( m_dataSource > 0) { //isMC
+
+        if(isNominal){ //JVT - no JVT cuts for trk jets!
+          trkjets_weight_nominal = trkjet_weight = 1;//m_SUSYTools->JVT_SF(trkjets);
+          weight_trkjets->SetBinContent(1, weight_trkjets->GetBinContent(1)+trkjet_weight);
+        }
+        else if (!syst_affectsJets || (syst_affectsJets && !sysInfo.affectsWeights)){
+          trkjet_weight = trkjets_weight_nominal;
+        }
+        else if ( syst_affectsJets && sysInfo.affectsWeights ){
+          trkjet_weight = 1;//m_SUSYTools->JVT_SF(trkjets);
+          size_t iwbin = find(syst_trkjet_weights.begin(), syst_trkjet_weights.end(), sys.name()) - syst_trkjet_weights.begin();
+          if(iwbin < syst_trkjet_weights.size()) {  weight_trkjets->SetBinContent(iwbin+1, weight_trkjets->GetBinContent(iwbin+1)+trkjet_weight); }
         }
       }
-      ATH_MSG_VERBOSE( "  Tau passing baseline selection?" << (int) ta->auxdata<char>("baseline") );
-      ATH_MSG_VERBOSE( "  Tau passing signal selection?" << (int) ta->auxdata<char>("signal") );
-      if (ta->auxdata< char >("signal") == 1)
-        ATH_MSG_VERBOSE( "  Tau weight " << ta->auxdata<float>("effscalefact") );
+
+      ATH_MSG_DEBUG("Combined track jet scale factor: " << trkjet_weight);
     }
 
-    if (isNominal) {
-      taus_weight_nominal = taus_weight;
-      weight_taus->SetBinContent(1, weight_taus->GetBinContent(1)+taus_weight);
-    }
-    else if (!syst_affectsTaus) {
-      taus_weight = taus_weight_nominal;
-    }
-    else if ( sysInfo.affectsWeights ){
-      size_t iwbin = find(syst_tau_weights.begin(), syst_tau_weights.end(), sys.name()) - syst_tau_weights.begin();
-      if(iwbin < syst_tau_weights.size()) {  weight_taus->SetBinContent(iwbin+1, weight_taus->GetBinContent(iwbin+1)+taus_weight); }
-    }
-
-    event_weight *= taus_weight;
+    //--- Taus
+    if ( doTau ) {
+      ATH_MSG_DEBUG("Working on taus");
+      float taus_weight(1.);
+      for ( const auto& ta : *taus ) {
+        if( m_dataSource > 0 ){
+          if (isNominal || syst_affectsTaus) {
+            if ((ta->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
+              taus_weight *= m_SUSYTools->GetSignalTauSF(*ta, true, true, "HLT_tau25_medium1_tracktwo");;
+            }
+          }
+        }
+        ATH_MSG_VERBOSE( "  Tau passing baseline selection?" << (int) ta->auxdata<char>("baseline") );
+        ATH_MSG_VERBOSE( "  Tau passing signal selection?" << (int) ta->auxdata<char>("signal") );
+        if (ta->auxdata< char >("signal") == 1)
+          ATH_MSG_VERBOSE( "  Tau weight " << ta->auxdata<double>("effscalefact") );
+      }
   
+      if (isNominal) {
+        taus_weight_nominal = taus_weight;
+        weight_taus->SetBinContent(1, weight_taus->GetBinContent(1)+taus_weight);
+      }
+      else if (!syst_affectsTaus) {
+        taus_weight = taus_weight_nominal;
+      }
+      else if ( sysInfo.affectsWeights ){
+        size_t iwbin = find(syst_tau_weights.begin(), syst_tau_weights.end(), sys.name()) - syst_tau_weights.begin();
+        if(iwbin < syst_tau_weights.size()) {  weight_taus->SetBinContent(iwbin+1, weight_taus->GetBinContent(iwbin+1)+taus_weight); }
+      }
+  
+      event_weight *= taus_weight;
+    }
+
 
 
     ATH_MSG_DEBUG("Full event weight: " << event_weight);
     if (isNominal) {event_weight_nominal = event_weight;}
     else if (sysInfo.affectsWeights) ATH_MSG_DEBUG("Difference with nominal weight: " << event_weight - event_weight_nominal);
-  
+
     // Clean up the systematics copies
     if (sysInfo.affectsKinematics) {
       delete metcst;
