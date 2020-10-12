@@ -469,8 +469,8 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 //------------------------------------------------------------------------------------------------------------------------------------------//
 
-                if(kindofmass=="Calo"){ printf("CALO jet mass = %f \n", jet_reco->m()); }
-                if(kindofmass=="TA"){ printf("TA jet mass = %f \n", jet_reco_TA->m()); }
+                if(want_to_debug && kindofmass=="Calo"){ printf("CALO jet mass = %f \n", jet_reco->m()); }
+                if(want_to_debug && kindofmass=="TA"){ printf("TA jet mass = %f \n", jet_reco_TA->m()); }
 
                 if(kindofmass=="TA"){m_JetTruthLabelingTool.modifyJet(*(jet_reco_TA)); };//To tag the TA jet with the jet topology
 

@@ -663,8 +663,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
         scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
 
-        if(scale != 1 || resolution != 1){
-
+        if(TMath::Abs(scale-1) > 0.0001 || TMath::Abs(resolution-1)  > 0.0001){
             is_CALO_mass_smeared = true;
 
             ATH_MSG_VERBOSE("Forward Folding CALO procedure will use scale=" << scale << ", resolution=" << resolution << " and average respose=" << avg_response_CALO);
@@ -683,7 +682,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
         scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
 
-        if(scale != 1 || resolution != 1){
+        if(TMath::Abs(scale-1) > 0.0001 || TMath::Abs(resolution-1)  > 0.0001){
 
             is_TA_mass_smeared = true;
 

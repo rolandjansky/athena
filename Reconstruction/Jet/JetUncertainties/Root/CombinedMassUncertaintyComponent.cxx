@@ -458,9 +458,6 @@ double CombinedMassUncertaintyComponent::getWeightFactorCalo(const xAOD::Jet& je
 double CombinedMassUncertaintyComponent::getWeightFactorTA(const xAOD::Jet& jet, const double massShiftFactor) const
 {
     if(m_TAMassScale_weights(jet).M() < 0.0) return 0;
-    float JetTrackAssistedMassCalibrated_from_JetCalibTools;
-    jet.getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
-    if( JetTrackAssistedMassCalibrated_from_JetCalibTools == 0) return 0;
     if(!m_TAMassWeight) return 0;
     return readHistoFromParam(m_TAMassScale_weights(jet),*m_TAMassWeight,m_weightParam,massShiftFactor);
 }
