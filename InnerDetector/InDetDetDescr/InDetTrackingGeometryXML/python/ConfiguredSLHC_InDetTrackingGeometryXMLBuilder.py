@@ -309,4 +309,5 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
                                                       OutputLevel               = TrkDetFlags.InDetBuildingOutputLevel(),
                                                       ExitVolumeName            = TrkDetFlags.InDetContainerName(),
                                                       MagneticFieldMode         = TrkDetFlags.MagneticFieldMode(),
+                                                      MinimalRadialGapForVolumeSplit=10.,
                                                       isSLHC = True)
