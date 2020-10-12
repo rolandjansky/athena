@@ -10,6 +10,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
+#include "xAODEventInfo/EventInfo.h"
 #include "PATInterfaces/SystematicsUtil.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"

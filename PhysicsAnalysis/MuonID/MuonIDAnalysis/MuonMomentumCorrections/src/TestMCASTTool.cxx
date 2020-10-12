@@ -63,6 +63,12 @@ StatusCode TestMCASTTool::initialize() {
 }
 
 StatusCode TestMCASTTool::execute() {
+
+  //---\\---// Retrieving EventInfo
+  const xAOD::EventInfo* m_EvtInfo = nullptr;
+  ATH_CHECK( evtStore()->retrieve( m_EvtInfo, "EventInfo" ) );
+  ATH_MSG_DEBUG( "Event Number: " << m_EvtInfo->eventNumber() );
+
   //---\\---// Retrieving muons from container
   const xAOD::MuonContainer* muons = 0;
   ATH_CHECK( evtStore()->retrieve( muons, m_sgKey ) );
@@ -83,6 +89,7 @@ StatusCode TestMCASTTool::execute() {
   m_MSExtr->Reset();
   m_MSOnlyExtr->Reset();
 
+  ATH_MSG_DEBUG( "Calibrating muon" ); 
 
   for(; mu_itr != mu_end; ++mu_itr) {
 
