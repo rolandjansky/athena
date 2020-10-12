@@ -46,8 +46,6 @@ namespace LVL1TGCTrigger {
     m_stripHighPtBoard(0),
     m_stripHighPtChipOut(0),
     m_useEIFI(false),
-    m_useTileMu(false),
-    m_useGoodMF(false),
     m_tgcArgs(tgcargs)
 {
   m_sideId = (idIn/NumberOfModule)/NumberOfOctant;

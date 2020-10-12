@@ -120,7 +120,7 @@ private:
   int m_sideId, m_octantId;
   TGCRegionType m_region;
   int  m_NumberOfWireHighPtBoard;
-  bool m_useGoodMF;
+  bool m_useGoodMF{false};
 
   TGCSSCController m_SSCController;
   TGCRPhiCoincidenceMatrix m_matrix;
@@ -152,7 +152,7 @@ private:
   // for inner trigger
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
   bool m_useEIFI;
-  bool m_useTileMu;
+  bool m_useTileMu{false};
   TGCArguments* m_tgcArgs;
 };
 
