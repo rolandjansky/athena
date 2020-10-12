@@ -15,21 +15,6 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "TF1.h"
 
-<<<<<<< HEAD
-std::vector<float> shaperInputTime;
-std::vector<float> shaperInputCharge;
-// set drift electron's timing and charge via above vector before use function
-double shaperResponseFunction(double *x, double *par){
-  double response=0;
-  for(size_t i=0; i<shaperInputTime.size(); i++){
-    double amp = (x[0]>shaperInputTime[i])? shaperInputCharge[i]*std::pow((x[0]-shaperInputTime[i])/par[1],par[0])*std::exp(-(x[0]-shaperInputTime[i])/par[1]) :0;
-    response += amp;
-  }
-  return response;
-}
-=======
->>>>>>> a4700095198... Merge branch 'vmmShaper' into '21.3'
-
 /*******************************************************************************/
 MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
   m_peakTime(0),
@@ -44,34 +29,8 @@ MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::initialize()
 {
-<<<<<<< HEAD
-  
-  float peakTimeMultiplier = 0;
-  
-  if(!m_decoupleShaperFunctionParamaters){
-    
-    peakTimeMultiplier = std::sqrt(m_peakTime / 50.);
-    m_alpha = 2.5 * peakTimeMultiplier;
-    
-    m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
-    m_h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
-    m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
-    
-  } else {
-    
-    peakTimeMultiplier = (m_peakTime / 50.);
-    m_alpha = 2.5;
-    
-    m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
-    m_h_intFn->SetParameter( 0, m_alpha ); // previously split into the alpha parameter
-    m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
-    
-  }
-  
-=======
   m_vmmShaper = std::make_unique<VMM_Shaper>(m_peakTime);
   m_vmmShaper->initialize();
->>>>>>> a4700095198... Merge branch 'vmmShaper' into '21.3'
 }
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::clearValues()
