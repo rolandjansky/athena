@@ -337,7 +337,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   /// the first position from the left side
   int n0 = 0;
   for (; n0!=static_cast<int>(layer[0].size()); ++n0) {
-    if (par_startingPoint[2] > layer[0].at(n0).z()) break;
+    if (par_startingPoint[2] > layer[0][n0].z()) break;
   }
 
   /// check the barrel layers
@@ -345,13 +345,13 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   /// the first position in the radial direction
   int n1 = 0;
   for (; n1!=static_cast<int>(layer[1].size()); ++n1) {
-    if (par_startingPoint[3] < layer[1].at(n1).r()) break;
+    if (par_startingPoint[3] < layer[1][n1].r()) break;
   }
   /// and finally, the left endcap. 
   /// this time, look for the layer closest on the right side. 
   int n2 = 0;
   for (; n2!=static_cast<int>(layer[2].size()); ++n2) {
-    if (par_startingPoint[2] < layer[2].at(n2).z()) break;
+    if (par_startingPoint[2] < layer[2][n2].z()) break;
   }
 
   
@@ -432,19 +432,19 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       /// loop over all barrel layers (starting with the closest one previously identified)
       for (; n1<static_cast<int>(layer[1].size()); ++n1) {
         /// stop if we moved past the targer point in R
-	      if (par_targetPoint[3] < layer[1].at(n1).r()) break;
-        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
+	      if (par_targetPoint[3] < layer[1][n1].r()) break;
+        assert( used[1].size() > static_cast<unsigned int>(n1) );
         /// collect all compatible detector elements from the current layer
-	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
+	      layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
       }
       /// if we are moving inward in R, iterate the other way for the barrel
     } else {
       for (--n1; n1>=0; --n1) {
         /// stop if we moved past the test point in R
-	      if (par_targetPoint[3] > layer[1].at(n1).r()+dr) break;
-        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
+	      if (par_targetPoint[3] > layer[1][n1].r()+dr) break;
+        assert( used[1].size() > static_cast<unsigned int>(n1) );
         /// collect all compatible detector elements        
-	      layer[1].at(n1).getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
+	      layer[1][n1].getBarrelDetElements(par_startingPoint, searchDirection, lDE, used[1][n1]);
       }
       ++n1;
     }
@@ -453,17 +453,17 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     /// again check if we are moving forward or back in z
     if (par_targetPoint[2]>par_startingPoint[2]) {
       for (; n2<static_cast<int>(layer[2].size()); ++n2) {
-	      if (par_targetPoint[2] < layer[2].at(n2).z()) break;
-        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
+	      if (par_targetPoint[2] < layer[2][n2].z()) break;
+        assert( used[2].size() > static_cast<unsigned int>(n2) );
         /// collect all compatible detector elements        
-	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[2][n2]);
+	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
-	      if (par_targetPoint[2] > layer[2].at(n2).z()) break;
-        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
+	      if (par_targetPoint[2] > layer[2][n2].z()) break;
+        assert( used[2].size() > static_cast<unsigned int>(n2) );
         /// collect all compatible detector elements        
-	      layer[2].at(n2).getEndcapDetElements(par_startingPoint, searchDirection, lDE, used[2][n2]);
+	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE, used[2][n2]);
       }
       ++n2;
     }
@@ -472,17 +472,17 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     /// same game as above
     if (par_targetPoint[2]<par_startingPoint[2]) {
       for (; n0<static_cast<int>(layer[0].size()); ++n0) {
-	      if (par_targetPoint[2] > layer[0].at(n0).z()) break;
-        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
+	      if (par_targetPoint[2] > layer[0][n0].z()) break;
+        assert( used[0].size() > static_cast<unsigned int>(n0) );
         /// collect all compatible detector elements        
-	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
+	      layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
       }
     } else {
       for (--n0; n0>=0; --n0) {
-	      if (par_targetPoint[2] < layer[0].at(n0).z()) break;
-        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
+	      if (par_targetPoint[2] < layer[0][n0].z()) break;
+        assert( used[0].size() > static_cast<unsigned int>(n0) );
         /// collect all compatible detector elements        
-	      layer[0].at(n0).getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
+	      layer[0][n0].getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[0][n0]);
       }
       ++n0;
     }
