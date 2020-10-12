@@ -3,7 +3,7 @@
 */
 
 #include "JetReclustering/JetReclusteringTool.h"
-#include "AsgTools/Check.h"
+#include "AsgMessaging/Check.h"
 
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetFromPseudojet.h"

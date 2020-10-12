@@ -273,7 +273,7 @@ if doLAr:
     include( "CaloCondAthenaPool/CaloCondAthenaPool_joboptions.py")
 
     PoolSvc.ReadCatalog += [ "prfile:PoolCat_H6_tbcond.xml" ]
-    print "FileCatalog: ", PoolSvc.ReadCatalog
+    print("FileCatalog: ", PoolSvc.ReadCatalog)
     
 DetectorStore.OutputLevel = ERROR
 
@@ -827,7 +827,7 @@ if doMakeTopoCluster:
       if x.find("BadChan") == -1:
          tlist += [x]
       else:   
-         print "Removing: ",x," from CaloTopoCluster.ClusterCorrectionTools" 
+         print("Removing: ",x," from CaloTopoCluster.ClusterCorrectionTools")
     topSequence.CaloTopoCluster.ClusterCorrectionTools = tlist
     # remove CaloCellNeighborsAverageCorr from CaloCellMaker
     clist=[]
@@ -835,7 +835,7 @@ if doMakeTopoCluster:
       if y.getName().find("NeighborsAverageCorr") == -1:
          clist += [y]
       else:   
-         print "Removing: ",y," from CaloCellMaker.CaloCellMakerToolNames" 
+         print("Removing: ",y," from CaloCellMaker.CaloCellMakerToolNames")
     topSequence.CaloCellMaker.CaloCellMakerToolNames = clist
     
     # Configuring LArBadChanTool    
@@ -1103,11 +1103,9 @@ if doSim:
    conddb.iovdbsvc.forceRunNumber = RunNumber
 conddb.blockFolder("/LAR/LArElecCalibEC04/LArShapeComplete/LArPhysWave")
 conddb.blockFolder("/LAR/CellCorrOfl/deadOTX")
-print conddb.iovdbsvc.Folders
+print(conddb.iovdbsvc.Folders)
 
 
-#print "qqq1> topSequence",topSequence
-#print "qqq2> dumpMasterSequence"
 #from AthenaCommon.AlgSequence import dumpMasterSequence
 #dumpMasterSequence()
 

@@ -25,7 +25,7 @@
 /// $Revision: 612639 $
 /// $Date: 2014-08-20 14:26:10 +0200 (Wed, 20 Aug 2014) $
 ///
-class StatusCode {
+class [[nodiscard]] StatusCode {
 
 public:
    /// Convenience StatusCode types

@@ -11,11 +11,12 @@
 
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"
 #include "xAODTrigMinBias/TrigHisto2D.h"
+#include "IRegionSelector/IRegSelTool.h"
 
 class SCT_ID;
 class PixelID;
 class TrigSpacePointCounts;
-class IRegSelSvc;
+
 
 /** @class TrigCountSpacePoints
 
@@ -47,7 +48,8 @@ class TrigCountSpacePoints: public HLT::AllTEAlgo {
   HLT::ErrorCode checkDetectorMask();
   
   Bool_t                        m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
-  ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
+  ToolHandle<IRegSelTool>     m_regionSelector_pix{ this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel" };      //!< region selector service
+  ToolHandle<IRegSelTool>     m_regionSelector_sct{ this, "RegSelTool_SCT",   "RegSelTool/RegSelTool_SCT"   };      //!< region selector service
   
   bool m_doPixelSp; //!< Flag to switch on or off Pixel space point retrieval 
   bool m_doSctSp; //!< Flag to switch on or off SCT space point retrieval 

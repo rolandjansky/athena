@@ -155,7 +155,7 @@ def SCTHitEffMonAlgConfig(inputFlags):
 
     # SCTEC, SCTB, SCTEA
     for isub in range(sctMon.N_REGIONS):
-        profileLabels = range(limit[isub])
+        profileLabels = list(range(limit[isub]))
         for k in range(limit[isub]):
             profileLabels[k] = dedicatedTitle(k, isub)
         # Efficiency
@@ -180,7 +180,7 @@ def SCTHitEffMonAlgConfig(inputFlags):
         # Efficiency as a function of LB
         myMonGroup[isub].defineHistogram(varname= "LumiBlock, eff;"+"effLumiBlock", #different names for fill
                                          type= "TProfile",
-                                         title= "Efficiency vs Luminosity block in "+sctMon.subDetName[isub]+";Luminosity block"+";Efficiency",
+                                         title= "Efficiency vs Luminosity block in "+subDetName[isub]+";Luminosity block"+";Efficiency",
                                          path="eff",
                                          xbins=sctMon.NBINS_LBs,
                                          xmin=0.5,

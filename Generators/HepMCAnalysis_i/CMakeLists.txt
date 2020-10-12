@@ -1,21 +1,7 @@
-################################################################################
-# Package: HepMCAnalysis_i
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( HepMCAnalysis_i )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaBaseComps
-   GaudiKernel
-   Generators/AtlasHepMC
-   PRIVATE
-   Control/StoreGate
-   Event/EventInfo
-   Generators/GeneratorObjects
-   Generators/TruthUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -29,8 +15,6 @@ set( HEPMC_HepMCAnalysis_INTERFACE_DIR  ${HEPMC3_INCLUDE_DIR}/../share/HepMC3/in
 else()
 set( HEPMC_HepMCAnalysis_INTERFACE_DIR  )
 endif()
-
-
 
 # Component(s) in the package:
 atlas_add_component( HepMCAnalysis_i

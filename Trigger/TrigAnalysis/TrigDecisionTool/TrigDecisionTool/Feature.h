@@ -25,7 +25,7 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
 
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 #include "TrigNavStructure/TriggerElement.h"
 #include "xAODTrigger/EmTauRoI.h"

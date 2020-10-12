@@ -4,7 +4,7 @@
 
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "TEnv.h"
 #include <iostream>
 #include <sstream>   

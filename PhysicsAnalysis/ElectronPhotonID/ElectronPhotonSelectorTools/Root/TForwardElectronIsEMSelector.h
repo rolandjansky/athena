@@ -20,7 +20,8 @@
 // ROOT includes
 // Include the return object and the base class
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATCore/AcceptInfo.h"
 #include "PATCore/AcceptData.h"
 #include <vector>

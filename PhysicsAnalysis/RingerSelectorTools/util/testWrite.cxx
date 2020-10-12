@@ -35,7 +35,7 @@ Ringer::AsgElectronRingerSelector __AsgRingerSel__("testWrite");
 MsgStream &msg = __AsgRingerSel__.msg();
 #else
 #include "RingerSelectorTools/AsgElectronRingerSelector.h"
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 MsgStream msg("testWrite");
 #endif
 

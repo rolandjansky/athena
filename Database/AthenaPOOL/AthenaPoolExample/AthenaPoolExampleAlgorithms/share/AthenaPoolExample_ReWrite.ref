@@ -1,17 +1,17 @@
-Wed Sep 23 17:58:44 CEST 20?0
+Tue Oct  6 16:03:44 CEST 20?0
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5565 configurables from 45 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5569 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
-                                          running on lxplus750.cern.ch on Wed Sep 23 17:58:51 20?0
+                                          running on 58dd451bc47f on Tue Oct  6 16:03:49 20?0
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
@@ -31,9 +31,10 @@ PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-09-22T2101/Athena/22.0.18/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus750.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO No specific match for domain found - use default fallback
+DBReplicaSvc         INFO Total of 2 servers found for host 58dd451bc47f [ATLF atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -70,7 +71,9 @@ SimplePoolFile1...  DEBUG --->Reading Shape[5 , ????]: [1 Column(s)]
 SimplePoolFile1...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --->Reading Shape[6 , ????]: [1 Column(s)]
 SimplePoolFile1...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 7 Entries in total.
+SimplePoolFile1...  DEBUG --->Reading Shape[7 , ????]: [1 Column(s)]
+SimplePoolFile1...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
+##Shapes            DEBUG No objects passing selection criteria... Container has 8 Entries in total.
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
@@ -95,11 +98,13 @@ SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLCollectionTree(MagicNumber)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (b , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [20?]  (c , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [20?]  (c , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [20?]  (d , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [20?]  (d , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 12 Entries in total.
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [20?]  (e , ffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:????
+##Links             DEBUG No objects passing selection criteria... Container has 13 Entries in total.
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -161,16 +166,21 @@ Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Thinnin...  DEBUG Property update for OutputLevel : new value = 2
-Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
+Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream1_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
 Stream1              INFO Data output: SimplePoolFile3.root
+ClassIDSvc           INFO  getRegistryEntries: read 171 CLIDRegistry entries for module ALL
+MetaDataSvc         DEBUG MetaDataSvc will handle ClassID 167728019
 Stream1              INFO I/O reinitialization...
+MetaDataSvc         DEBUG MetaDataSvc will handle ClassID 167728019
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG End initialize
 Stream1             DEBUG input handles: 0
 Stream1             DEBUG output handles: 2
 Stream1             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEventStreamInfo (MakeEventStreamInfo)
+Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEventFormat (xAODMaker::EventFormatStreamHelperTool)
 Stream1             DEBUG Adding private ToolHandle tool Stream1.ThinningCacheTool_Stream1 (Athena::ThinningCacheTool)
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
@@ -284,11 +294,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 1
@@ -400,6 +412,10 @@ SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(MagicNumber)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile3.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile3.root and cont: POOLContainerForm(DataHeaderForm)
+MetaDataSvc         DEBUG MetaDataSvc will handle ClassID 167728019
+MetaDataSvc         DEBUG MetaDataSvc will handle ClassID 167728019
+MetaDataSvc         DEBUG MetaDataSvc will handle ClassID 243004407
+MetaDataSvc         DEBUG MetaDataSvc will handle ClassID 243004407
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 1 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -465,11 +481,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
@@ -540,11 +558,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
@@ -615,11 +635,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
@@ -690,11 +712,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
@@ -765,11 +789,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
@@ -840,11 +866,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
@@ -915,11 +943,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
@@ -990,11 +1020,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
@@ -1065,11 +1097,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
@@ -1140,11 +1174,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
@@ -1215,11 +1251,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
@@ -1290,11 +1328,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
@@ -1365,11 +1405,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
@@ -1440,11 +1482,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
@@ -1515,11 +1559,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
@@ -1590,11 +1636,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
@@ -1665,11 +1713,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
@@ -1740,11 +1790,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
@@ -1815,11 +1867,13 @@ Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #2101
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #9103
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
@@ -1827,6 +1881,7 @@ Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 20
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
+MetaDataSvc         DEBUG retireMetadataSource: FID:????
 EventSelector        INFO Disconnecting input sourceID: ????
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -1836,16 +1891,24 @@ MetaDataSvc         DEBUG MetaDataSvc::stop()
 Stream1             DEBUG slot 0  handle() incident type: MetaDataStop
 MetaDataSvc         DEBUG  calling metaDataStop for ToolSvc.IOVDbMetaDataTool
 MetaDataSvc         DEBUG Locking metadata tools
-Stream1             DEBUG metadataItemList: [EventStreamInfo#Stream1, IOVMetaDataContainer#*]
+Stream1             DEBUG metadataItemList: [EventStreamInfo#Stream1, IOVMetaDataContainer#*, xAOD::EventFormat#EventFormatStream1]
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
 Stream1             DEBUG            Key:Stream1
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Transforming MetaCont<EventStreamInfo> to EventStreamInfo for output
 Stream1             DEBUG  Added object 167728019,"Stream1"
+Stream1             DEBUG addItemObjects(243004407,"EventFormatStream1") called
+Stream1             DEBUG            Key:EventFormatStream1
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Transforming MetaCont<xAOD::EventFormat> to xAOD::EventFormat for output
+Stream1             DEBUG  Added object 243004407,"EventFormatStream1"
 Stream1             DEBUG addItemObjects(1316383046,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
+MetaDataSvc         DEBUG Not translating metadata item ID #1316383046
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO EventStreamInfo_p3 [????]
@@ -1859,20 +1922,33 @@ SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:EventStreamInfo_p3
 SimplePoolFile3...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO xAOD::EventFormat_v1 [????]
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::EventFormat_v1/EventFormatStream1)
+MetaData(xAOD::...  DEBUG Opening
+MetaData(xAOD::...  DEBUG    attributes# = 1
+MetaData(xAOD::...  DEBUG Branch container 'xAOD::EventFormat_v1_EventFormatStream1'
+MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::EventFormat_v1/EventFormatStream1) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [20?]  (c , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG ---->Class:xAOD::EventFormat_v1
+SimplePoolFile3...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [20?]  (c , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [20?]  (d , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (d , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (e , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
+ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
 Stream1              INFO Metadata records written: 21
 MetaDataSvc         DEBUG Unlocking metadata tools
 Stream1             DEBUG Leaving incident handler for MetaDataStop
@@ -1893,13 +1969,13 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 62
-cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 66
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 21
-cObj_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.159(+-    1.25)/       0/      10 [ms] #= 63
-fRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.323(+-    1.77)/       0/      10 [ms] #= 62
-cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.139(+-    1.17)/       0/      10 [ms] #=144
-ChronoStatSvc        INFO Time User   : Tot=  280 [ms]  #=  1
+cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 66
+cRep_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.159(+-    1.25)/       0/      10 [ms] #= 63
+cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.317(+-    1.75)/       0/      10 [ms] #= 63
+cRepR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.069(+-   0.828)/       0/      10 [ms] #=145
+fRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.317(+-    1.75)/       0/      10 [ms] #= 63
+ChronoStatSvc        INFO Time User   : Tot=  210 [ms]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

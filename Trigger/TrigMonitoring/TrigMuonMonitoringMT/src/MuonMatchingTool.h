@@ -171,6 +171,16 @@ class MuonMatchingTool : public AthAlgTool {
 
 
   /**
+   * @brief Function that searches for an EF muon track (e.g. ExtrapolatedMuonSpectrometerTrackParticle, CombinedTrackParticle) matched to a EF muon.
+   * @param ctx Reference to the @c EventContext needed for accessing the @c TrackParticle container.
+   * @param muLinkInfo LinkInfo of EF muon.
+   * @param ReadHandleKey of TrackParticle container.
+   * @return Pointer to the matched TrackParticle. This is @c nullpt rwhen there is no TrackParticle found.
+   */
+  const xAOD::TrackParticle* SearchEFTrack(const EventContext &ctx, const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muLinkInfo, SG::ReadHandleKey<xAOD::TrackParticleContainer> ReadHandleKey) const;
+
+
+  /**
    * @brief Function that searches for an offline muon matched to L2SA muon
    * @param ctx Reference to the @c EventContext needed for accessing the @c Muons container.
    * @param samu the given online muon
@@ -209,6 +219,8 @@ class MuonMatchingTool : public AthAlgTool {
   static double reqdRL1byPt(double mupt);
 
 
+  static std::tuple<bool,double,double> trigPosForMatchSATrack(const xAOD::Muon *mu);
+  static std::tuple<bool,double,double> trigPosForMatchCBTrack(const xAOD::Muon *mu);
   static std::tuple<bool,double,double> PosForMatchSATrack(const xAOD::Muon *mu);
   static std::tuple<bool,double,double> PosForMatchCBTrack(const xAOD::Muon *mu);
 
@@ -258,9 +270,10 @@ class MuonMatchingTool : public AthAlgTool {
    * @see MuonMatchingTool.icc for the implementation and MuonMatchingTool.cxx for the instantiation.
    * @todo Consider improving the argument list.
    */
-  template<class T, class OFFL> const TrigCompositeUtils::LinkInfo<DataVector<T> > matchLinkInfo(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
-                                   const std::string containerSGKey = "",
-				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+  template<class T, class OFFL> 
+  const TrigCompositeUtils::LinkInfo<DataVector<T> > matchLinkInfo(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
+                                                                   const std::string containerSGKey = "",
+				                                   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
 
   /**
    * @brief Function that searches for an online muon candidate of type T and judges if it is matched to a given offline muon.
@@ -275,8 +288,8 @@ class MuonMatchingTool : public AthAlgTool {
    * @todo Consider improving the argument list.
    */
   template<class T, class OFFL> const T* match(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
-                                   const std::string containerSGKey = "",
-				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+                                               const std::string containerSGKey = "",
+				               std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
 
   /**
    * @brief Function that searches for an offline muon candidate matched to online muon of type T.
@@ -309,6 +322,8 @@ class MuonMatchingTool : public AthAlgTool {
   SG::ReadHandleKey<xAOD::L2CombinedMuonContainer> m_L2muCombContainerKey {this, "L2CombinedMuonContainerName", "HLT_MuonL2CBInfo", "L2muComb container"};
   SG::ReadHandleKey<xAOD::MuonContainer> m_EFSAMuonContainerKey {this, "EFSAMuonContainerName", "HLT_Muons_RoI", "EFSAMuon container"};
   SG::ReadHandleKey<xAOD::MuonContainer> m_EFCBMuonContainerKey {this, "EFCBMuonContainerName", "HLT_MuonsCB_RoI", "EFCBMuon container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_MStrackContainerKey {this, "ExtrapolatedMStrackConntainner", "HLT_MSExtrapolatedMuons_RoITrackParticles", "ExtrapolatedMuons track container"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_CBtrackContainerKey {this, "CBtrackContainerName", "HLT_CBCombinedMuon_RoITrackParticles", "CombinedMuon track container"};
 
   // properties
   Gaudi::Property<bool> m_use_extrapolator {this, "UseExtrapolator", false, "Flag to enable the extrapolator for matching offline and trigger muons"};

@@ -29,7 +29,7 @@ ATLAS Collaboration
 
 // Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -60,7 +60,6 @@ namespace InDet{
     m_spOverlapColl(0),
     m_trigSpacePointTool ("InDet::SCT_TrigSpacePointTool"),
     m_SiSpacePointMakerTool ("InDet::SiSpacePointMakerTool"),
-    m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1)
@@ -80,7 +79,6 @@ namespace InDet{
     declareProperty("ProcessOverlaps",          m_overlap);
     declareProperty("OverlapSPName",            m_spOverlapName);
 
-    declareProperty("RegionSelectorTool",      m_regionSelector);
     declareProperty("doFullScan",              m_doFullScan);
     declareProperty("EtaHalfWidth",            m_etaHalfWidth );
     declareProperty("PhiHalfWidth",            m_phiHalfWidth );
@@ -138,14 +136,19 @@ namespace InDet{
 
     if(!m_doFullScan){  
       // Retrieving Region Selector Tool:
-      if ( m_regionSelector.retrieve().isFailure() ) {
-	ATH_MSG_FATAL( "Unable to retrieve RegionSelector tool "  
-		       << m_regionSelector.type() );
+      if ( m_regionSelector_pixel.retrieve().isFailure() ) {
+	ATH_MSG_FATAL( "Unable to retrieve Pixel RegionSelector tool "  
+		       << m_regionSelector_pixel.type() );
+	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
+      if ( m_regionSelector_sct.retrieve().isFailure() ) {
+	ATH_MSG_FATAL( "Unable to retrieve SCT RegionSelector tool "  
+		       << m_regionSelector_sct.type() );
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
     }
     else{
-      ATH_MSG_INFO( "RegionSelector is not needed for FullScan " );
+      ATH_MSG_INFO( "RegionSelector is not needed for FullScan (not strictly true - we can use fullscan RoiDescriptors" );
     }
 
     // Get an Identifier helper object
@@ -440,10 +443,7 @@ namespace InDet{
       if(!m_doFullScan){
 	//   Get the SCT RDO's:
 	if(doTiming()) m_timerRegSel->resume();
-      
-	m_regionSelector->DetHashIDList(SCT, 
-					*roi, 
-					m_listOfSctIds );
+	m_regionSelector_sct->HashIDList( *roi, m_listOfSctIds );
 	if(doTiming()) m_timerRegSel->pause();
       }
 
@@ -619,12 +619,8 @@ namespace InDet{
 
       if(!m_doFullScan){
 	if(doTiming()) m_timerRegSel->resume();
-      
-	m_regionSelector->DetHashIDList( PIXEL, 
-					 *roi, 
-					 m_listOfPixIds);
-      
-	if(doTiming()) m_timerRegSel->pause();
+      	m_regionSelector_pixel->HashIDList( *roi, m_listOfPixIds );
+      	if(doTiming()) m_timerRegSel->pause();
       }
     
       m_nPix=0;

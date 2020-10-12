@@ -43,8 +43,8 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   declareProperty("Extrapolator"         , m_extrapolator);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
-  declareProperty("minSiHits"            , m_minSiHits = 3);  
-  declareProperty("CountDeadModulesAfterLastHit", m_countDeadModulesAfterLastHit = true);  
+  declareProperty("minSiHits"            , m_minSiHits = 3);
+  declareProperty("CountDeadModulesAfterLastHit", m_countDeadModulesAfterLastHit = true);
 }
 
 //================ Destructor =================================================
@@ -53,7 +53,7 @@ InDet::InDetTrackHoleSearchTool::~InDetTrackHoleSearchTool() {
 
 //================ Initialisation =================================================
 StatusCode InDet::InDetTrackHoleSearchTool::initialize() {
-  
+
   StatusCode sc = AlgTool::initialize();
   if (sc.isFailure()) return sc;
 
@@ -76,7 +76,7 @@ StatusCode InDet::InDetTrackHoleSearchTool::finalize() {
 }
 
 //============================================================================================
-void InDet::InDetTrackHoleSearchTool::countHoles(const Trk::Track& track, 
+void InDet::InDetTrackHoleSearchTool::countHoles(const Trk::Track& track,
                                                  std::vector<int>& information,
                                                  const Trk::ParticleHypothesis partHyp) const {
   std::vector<const Trk::TrackStateOnSurface*>* listOfHoles = nullptr;
@@ -87,14 +87,14 @@ void InDet::InDetTrackHoleSearchTool::countHoles(const Trk::Track& track,
          it != listOfHoles->end(); ++it) {
       delete (*it);
     }
-    delete listOfHoles; 
+    delete listOfHoles;
     listOfHoles = nullptr;
   }
   return;
 }
 
 //============================================================================================
-const DataVector<const Trk::TrackStateOnSurface>* InDet::InDetTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track, 
+const DataVector<const Trk::TrackStateOnSurface>* InDet::InDetTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
                                                                                                    const Trk::ParticleHypothesis partHyp) const {
   std::vector<const Trk::TrackStateOnSurface*>* listOfHoles = new std::vector<const Trk::TrackStateOnSurface*>;
   searchForHoles(track, 0, listOfHoles,partHyp);
@@ -111,7 +111,7 @@ const DataVector<const Trk::TrackStateOnSurface>* InDet::InDetTrackHoleSearchToo
 }
 
 //============================================================================================
-const Trk::Track*  InDet::InDetTrackHoleSearchTool::getTrackWithHoles(const Trk::Track& track, 
+const Trk::Track*  InDet::InDetTrackHoleSearchTool::getTrackWithHoles(const Trk::Track& track,
                                                                       const Trk::ParticleHypothesis partHyp) const {
   std::vector<const Trk::TrackStateOnSurface*>* listOfHoles = new std::vector<const Trk::TrackStateOnSurface*>;
   searchForHoles(track, 0, listOfHoles,partHyp);
@@ -122,7 +122,7 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::getTrackWithHoles(const Trk:
 }
 
 //============================================================================================
-const Trk::Track* InDet::InDetTrackHoleSearchTool::getTrackWithHolesAndOutliers(const Trk::Track& track, 
+const Trk::Track* InDet::InDetTrackHoleSearchTool::getTrackWithHolesAndOutliers(const Trk::Track& track,
                                                                                 const Trk::ParticleHypothesis partHyp) const {
   return getTrackWithHoles(track,partHyp);
 }
@@ -130,7 +130,7 @@ const Trk::Track* InDet::InDetTrackHoleSearchTool::getTrackWithHolesAndOutliers(
 
 //============================================================================================
 
-void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track, 
+void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track,
                                                      std::vector<int>* information,
                                                      std::vector<const Trk::TrackStateOnSurface*>* listOfHoles,
                                                      const Trk::ParticleHypothesis partHyp) const {
@@ -146,13 +146,13 @@ void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track,
     (*information)[Trk::numberOfTRTDeadStraws]     = -1;
 
   }
-  
+
   std::map<const Identifier, const Trk::TrackStateOnSurface*> mapOfHits;
 
   // JEF: fix of [bug #44382] Poor Tracking Software Performance without SCT
   // the mapOfPrediction needs the knowledge weather a holesearch should be carried out
   // on this identifier or just the search for dead modules
-  // therefore: if the boolean is set to true, a holesearch will be caarried out, otherwise just 
+  // therefore: if the boolean is set to true, a holesearch will be caarried out, otherwise just
   // the search for dead modules
   // for identifiers BEFORE the last measurement (and after the first): holesearch will be carried out always
   // for identifiers AFTER the last measurement (or before the first), we have to distiguish two different scenarios:
@@ -161,7 +161,8 @@ void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track,
   //    measurement, but no holes
   std::map<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >     mapOfPredictions;
 
-  bool listOk = getMapOfHits(track,partHyp,mapOfHits,mapOfPredictions);
+  bool listOk = getMapOfHits(
+    Gaudi::Hive::currentContext(), track, partHyp, mapOfHits, mapOfPredictions);
 
   if (listOk) {
     ATH_MSG_DEBUG("Perform stepwise hole search");
@@ -180,7 +181,8 @@ void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track,
 }
 
 // ====================================================================================================================
-bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track, 
+bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
+                                                   const Trk::Track& track,
                                                    const Trk::ParticleHypothesis partHyp,
                                                    std::map<const Identifier, const Trk::TrackStateOnSurface*>& mapOfHits,
                                                    std::map<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >& mapOfPredictions) const {
@@ -194,9 +196,9 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
   //std::cout << "track: " << track << std::endl;
   int imeas = 0;
   const Trk::TrackParameters* firstsipar = nullptr;
-  
+
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator iterTSOS = track.trackStateOnSurfaces()->begin();
-       iterTSOS!=track.trackStateOnSurfaces()->end();++iterTSOS) { 
+       iterTSOS!=track.trackStateOnSurfaces()->end();++iterTSOS) {
     // type of state is measurement, hole or outlier ?
     if ((*iterTSOS)->type(Trk::TrackStateOnSurface::Measurement) ||
         (*iterTSOS)->type(Trk::TrackStateOnSurface::Outlier)) {
@@ -204,18 +206,18 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
       bool hasID = false;
       if ((*iterTSOS)->measurementOnTrack() != nullptr
           && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement() != nullptr
-          && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement()->identify() != 0) { 
+          && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement()->identify() != 0) {
         id    = (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement()->identify();
         hasID = true;
       } else if ((*iterTSOS)->trackParameters() != nullptr
                  && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement() != nullptr
-                 && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() != 0) { 
+                 && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() != 0) {
         id    = (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify();
         hasID = true;
       }
       // copy all Si track states, including the holes and outliers
       if (hasID && (m_atlasId->is_pixel(id) || m_atlasId->is_sct(id))) {
-        // sort the state according to the id 
+        // sort the state according to the id
         mapOfHits.insert(std::pair<const Identifier, const Trk::TrackStateOnSurface*>(id,*iterTSOS));
         if (!(*iterTSOS)->type(Trk::TrackStateOnSurface::Outlier)) {
           ++imeas;
@@ -227,18 +229,18 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
           }
         }
         // for cosmics: remember parameters of first SI TSOS
-        if (m_cosmic && !firstsipar && (*iterTSOS)->trackParameters()) firstsipar=(*iterTSOS)->trackParameters(); 
+        if (m_cosmic && !firstsipar && (*iterTSOS)->trackParameters()) firstsipar=(*iterTSOS)->trackParameters();
         if ((*iterTSOS)->trackParameters()) {
-          ATH_MSG_VERBOSE("TSOS pos: " << (*iterTSOS)->trackParameters()->position() 
+          ATH_MSG_VERBOSE("TSOS pos: " << (*iterTSOS)->trackParameters()->position()
                           << "   r: " << sqrt(pow((*iterTSOS)->trackParameters()->position().x(),2)
                                               +pow((*iterTSOS)->trackParameters()->position().y(),2))
                           << "     Si measurement");
         }
       } else {
         if ((*iterTSOS)->trackParameters()) {
-          ATH_MSG_VERBOSE("TSOS pos: " << (*iterTSOS)->trackParameters()->position() 
+          ATH_MSG_VERBOSE("TSOS pos: " << (*iterTSOS)->trackParameters()->position()
                           << "   r: " << sqrt(pow((*iterTSOS)->trackParameters()->position().x(),2)
-                                              +pow((*iterTSOS)->trackParameters()->position().y(),2)) 
+                                              +pow((*iterTSOS)->trackParameters()->position().y(),2))
                           << "     TRT measurement");
         }
       }
@@ -259,10 +261,10 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
 
   if (m_cosmic) {
     // retrieve surface, from which hole search should start
-    // retrieve tracking geometry 
+    // retrieve tracking geometry
     const Trk::TrackingGeometry* trackingGeometry =  m_extrapolator->trackingGeometry();
     // get sct volume
-    const Trk::TrackingVolume* sctVolume = trackingGeometry->trackingVolume("InDet::Detectors::SCT::Barrel"); 
+    const Trk::TrackingVolume* sctVolume = trackingGeometry->trackingVolume("InDet::Detectors::SCT::Barrel");
     //get BoundarySurface for cylinder between sct and trt
     const Trk::CylinderSurface* sctCylinder = nullptr;
     const Trk::Surface* sctSurface= &(sctVolume->boundarySurfaces()[Trk::tubeOuterCover].get()->surfaceRepresentation());
@@ -277,15 +279,16 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
 
     if (firstsipar) {
       //std::cout << "firstsipar: " << *firstsipar << " pos: " << firstsipar->position() << std::endl;
-      startParameters.reset(m_extrapolator->extrapolate(*firstsipar,
+      startParameters.reset(m_extrapolator->extrapolate(ctx,
+                                                        *firstsipar,
                                                         *sctCylinder,
                                                         Trk::oppositeMomentum,
                                                         true,
                                                         partHyp));
     }
-    
+
     // if track can't be extrapolated to this cylinder (EC track!), extrapolate to disc outside TRT/SCT EC
-    if (!startParameters) {  
+    if (!startParameters) {
       ATH_MSG_DEBUG("no start parameters on SCT cylinder, try TRT ec disc");
       // get BoundarySurface for disk which encloses TRT ECs
       // depending on track origin use neg or pos EC
@@ -298,7 +301,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       } else {
-        const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::PositiveEndcap");  
+        const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::PositiveEndcap");
         const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::positiveFaceXY].get()->surfaceRepresentation());
         if(trtSurface->type()==Trk::Surface::Disc){
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
@@ -307,7 +310,8 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
 
       if (trtDisc) {
         // extrapolate track to disk
-        startParameters.reset(m_extrapolator->extrapolate(*firstsipar,
+        startParameters.reset(m_extrapolator->extrapolate(ctx,
+                                                          *firstsipar,
                                                           *trtDisc,
                                                           Trk::oppositeMomentum,
                                                           true,
@@ -315,13 +319,14 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
       }
     }
   } else {  // no cosmics
-    
+
     if (track.perigeeParameters()) {
        startParameters.reset( track.perigeeParameters()->clone());
     } else if (track.trackParameters()->front()) {
       ATH_MSG_DEBUG("No perigee, extrapolate to 0,0,0");
       // go back to perigee
-      startParameters.reset( m_extrapolator->extrapolate(*(track.trackParameters()->front()),
+      startParameters.reset( m_extrapolator->extrapolate(ctx,
+                                                         *(track.trackParameters()->front()),
                                                          Trk::PerigeeSurface(),
                                                          Trk::anyDirection,
                                                          false, partHyp));
@@ -341,11 +346,11 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
     ATH_MSG_DEBUG("We are looking for an extended list of holes, so add eventual holes before first hits");
     foundFirst = true;
   }
-  
+
   Identifier          id(0);
   const Trk::Surface* surf  = nullptr;
   bool                hasID = false;
-  
+
   // 2nd iteration to find predictions
   DataVector<const Trk::TrackStateOnSurface>::const_iterator iterTSOS = track.trackStateOnSurfaces()->begin();
 
@@ -359,10 +364,10 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
     }
   }
 
-  ATH_MSG_VERBOSE("start position: " << startParameters->position() 
+  ATH_MSG_VERBOSE("start position: " << startParameters->position()
                   << "   r: " << sqrt(pow(startParameters->position().x(),2)
                                       +pow(startParameters->position().y(),2)));
- 
+
   int measno=0;
   int nmeas=(int)track.measurementsOnTrack()->size();
   for (; iterTSOS!=track.trackStateOnSurfaces()->end();++iterTSOS) {
@@ -381,13 +386,13 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
       }
       if ((*iterTSOS)->measurementOnTrack() != nullptr
           && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement() != nullptr
-          && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement()->identify() != 0) { 
+          && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement()->identify() != 0) {
         id    = (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement()->identify();
         surf  = &(*iterTSOS)->measurementOnTrack()->associatedSurface();
         hasID = true;
       } else if ((*iterTSOS)->trackParameters() != nullptr
                  && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement() != nullptr
-                 && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() != 0) { 
+                 && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() != 0) {
         id    = (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify();
         surf  = &((*iterTSOS)->trackParameters()->associatedSurface());
         hasID = true;
@@ -397,13 +402,14 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
 
       // see if this is an Si state !
       if ((m_cosmic && per) || (hasID && (m_atlasId->is_pixel(id) || m_atlasId->is_sct(id) || m_atlasId->is_trt(id)))) {
-        
+
         if (m_atlasId->is_trt(id)) ATH_MSG_VERBOSE("Target is TRT, see if we can add something");
-        
+
         // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
 
         std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
-          m_extrapolator->extrapolateStepwise(*startParameters,
+          m_extrapolator->extrapolateStepwise(ctx,
+                                              *startParameters,
                                               *surf,
                                               Trk::alongMomentum,
                                               false, partHyp);
@@ -414,12 +420,12 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
         }
 
         ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList.size());
-        
+
         // loop over the predictons and analyze them
         for (std::unique_ptr<const Trk::TrackParameters>& thisParameters : paramList) {
-          ATH_MSG_VERBOSE("extrapolated pos: " << thisParameters->position() << "   r: " << 
+          ATH_MSG_VERBOSE("extrapolated pos: " << thisParameters->position() << "   r: " <<
                           sqrt(pow(thisParameters->position().x(),2)+pow(thisParameters->position().y(),2)));
-      
+
           // check if surface has identifer !
           Identifier id2;
           if ((thisParameters->associatedSurface()).associatedDetectorElement() != nullptr &&
@@ -444,22 +450,22 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
             if (m_cosmic) continue;
             else break;
           }
-      
+
           // see if this surface is in the list
           std::map<const Identifier, const Trk::TrackStateOnSurface*>::iterator iTSOS = mapOfHits.find(id2);
-      
+
           if (iTSOS == mapOfHits.end() && !foundFirst) {
             ATH_MSG_VERBOSE("Si surface before first Si measurement, skip it and continue");
             continue;
           }
-      
+
           // this is a measurement on the track ?
           if (iTSOS != mapOfHits.end()) {
             if (!foundFirst && !(*iterTSOS)->type(Trk::TrackStateOnSurface::Outlier)) {
               ATH_MSG_VERBOSE("Found first Si measurement !");
               foundFirst = true;
             }
-          
+
             // is this a surface which might have a better prediction ?
             if (iTSOS->second->trackParameters()) {
               ATH_MSG_VERBOSE("Found track parameter on Si surface, take it");
@@ -469,7 +475,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
               startParameters.reset(thisParameters->clone());
             }
           }
-      
+
           // add surface, test insert !
           std::pair<const Trk::TrackParameters*,const bool> trackparampair (thisParameters.release(),true);
           if (mapOfPredictions.insert(std::pair<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >(id2,trackparampair)).second) {
@@ -485,7 +491,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
           ATH_MSG_VERBOSE("Target was no longer an Si element, break loop");
           break;
         }
-        
+
       }
     }
     if ((*iterTSOS)->type(Trk::TrackStateOnSurface::Measurement) && !(*iterTSOS)->type(Trk::TrackStateOnSurface::Outlier)) measno++;
@@ -499,22 +505,23 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
   if (!m_atlasId->is_trt(id) && (m_countDeadModulesAfterLastHit || m_extendedListOfHoles || m_cosmic)) {
     ATH_MSG_DEBUG("Search for dead modules after the last Si measurement");
     if (m_extendedListOfHoles || m_cosmic) ATH_MSG_DEBUG("Search for extended list of holes");
-      
-    Trk::CylinderVolumeBounds* cylinderBounds = new Trk::CylinderVolumeBounds(560, 2750); 
+
+    Trk::CylinderVolumeBounds* cylinderBounds = new Trk::CylinderVolumeBounds(560, 2750);
     // don't delete the cylinderBounds -> it's taken care of by Trk::VOlume (see Trk::SharedObject)
-    Trk::Volume* boundaryVol = new Trk::Volume(0, cylinderBounds); 
+    Trk::Volume* boundaryVol = new Trk::Volume(0, cylinderBounds);
     // extrapolate this parameter blindly to search for more Si hits (not very fast, I know)
 
     std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
-      m_extrapolator->extrapolateBlindly(*startParameters,
+      m_extrapolator->extrapolateBlindly(ctx,
+                                         *startParameters,
                                          Trk::alongMomentum,
                                          false, partHyp,
                                          boundaryVol);
 if (paramList.empty()) {
       ATH_MSG_VERBOSE("--> Did not manage to extrapolate to another surface, break loop");
-    } else {    
+    } else {
       ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList.size());
-  
+
       // loop over the predictions and analyze them
       for (std::unique_ptr<const Trk::TrackParameters>& thisParameter : paramList) {
         // check if surface has identifer !
@@ -522,13 +529,13 @@ if (paramList.empty()) {
         if (thisParameter->associatedSurface().associatedDetectorElement() != nullptr &&
             thisParameter->associatedSurface().associatedDetectorElement()->identify() != 0) {
           id2 = thisParameter->associatedSurface().associatedDetectorElement()->identify();
-    
+
           // check if it is Si or Pixel
           if (!(m_atlasId->is_pixel(id2) || m_atlasId->is_sct(id2))) {
             ATH_MSG_VERBOSE("Surface is not Pixel or SCT, stop loop over parameters in this step");
             break;
           }
-    
+
           // JEF: bool parameter in trackparampair: flag weather this hit should be considered as hole; if not, just cound dead modules
           std::pair<const Trk::TrackParameters*,const bool> trackparampair (thisParameter.release(),m_extendedListOfHoles || m_cosmic);
           if (mapOfPredictions.insert(std::pair<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >(id2,trackparampair)).second) {
@@ -552,10 +559,10 @@ if (paramList.empty()) {
     boundaryVol = nullptr;
     //delete cylinderBounds; cylinderBounds = 0; // Till : don't delete this guy, it's deleted already when the boundaryVol gets deleted !
   }
-    
+
   ATH_MSG_DEBUG("Number of Predictions found: " << mapOfPredictions.size());
   return true;
-  
+
 }
 
 //=================================================================================================================
@@ -565,33 +572,33 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
                                                                 std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const {
   /** This function looks for holes in a given set of TrackStateOnSurface (TSOS) within the Si-detectors.
       In order to do so, an extrapolation is performed from detector element to the next and compared to the ones in the TSOS.
-      If surfaces other than the ones in the track are crossed, these are possible holes or dead modules. Checks for sensitivity of 
+      If surfaces other than the ones in the track are crossed, these are possible holes or dead modules. Checks for sensitivity of
       struck material are performed.
-      
+
       The function requires the TSOS to have either TrackParameters (should have) or a MeasurementBase (must have). The startPoint
       of an extrapolation is required to be a TP. In case only a MB is present, the extrapolation Startpoint is set by the
       result TP of the last extrapolation, if possible.
   */
-  
+
   // counters to steer first/last Si hit logic
   unsigned int foundTSOS = 0;
   int  PixelHoles = 0, SctHoles = 0, SctDoubleHoles = 0, PixelDead=0, SctDead=0;
   std::set<Identifier> SctHoleIds;
-  
+
   ATH_MSG_DEBUG("Start iteration");
   ATH_MSG_DEBUG("Number of hits+outliers: " << mapOfHits.size() << " and predicted parameters:" << mapOfPredictions.size());
-  
+
   for (std::map<const Identifier,std::pair<const Trk::TrackParameters*,const bool> >::const_iterator it = mapOfPredictions.begin();
        it != mapOfPredictions.end(); ++it) {
-      
+
     const Trk::TrackParameters* nextParameters = (it->second).first;
-      
+
     Identifier id = nextParameters->associatedSurface().associatedDetectorElement()->identify();
-      
+
     // search for this ID in the list
     std::map<const Identifier, const Trk::TrackStateOnSurface*>::iterator iTSOS = mapOfHits.find(id);
-      
-    if (iTSOS == mapOfHits.end()) { 
+
+    if (iTSOS == mapOfHits.end()) {
       switch (m_boundaryCheckTool->boundaryCheck(*nextParameters)) {
         case Trk::BoundaryCheckResult::DeadElement:
           if (m_atlasId->is_pixel(id)) {
@@ -608,8 +615,8 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
           continue;
         case Trk::BoundaryCheckResult::Candidate:
           break;
-      }   
- 
+      }
+
       // increment tmp counters only if this detElement should be considered for a proper holesearch
       // this info is the boolean in the (mapOfPredictions->second).second
       if (((it->second).second)) {
@@ -619,16 +626,16 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
         } else if (m_atlasId->is_sct(id)) {
           ATH_MSG_VERBOSE("Found element is a SCT hole, add it to the list and continue");
           ++SctHoles;
-                  
-          // check double sct 
+
+          // check double sct
           // obtain backside of SCT module
-          const InDetDD::SiDetectorElement* thisElement = 
+          const InDetDD::SiDetectorElement* thisElement =
             dynamic_cast<const InDetDD::SiDetectorElement *> (nextParameters->associatedSurface().associatedDetectorElement());
           if (!thisElement) {
             ATH_MSG_ERROR ("cast to SiDetectorElement failed, should never happen !");
             continue;
           }
-                  
+
           const Identifier otherId = thisElement->otherSide()->identify();
           // loop over holes and look for the other one
           if (SctHoleIds.find(otherId) != SctHoleIds.end()) {
@@ -637,7 +644,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
           }
           // keep this id for double side check
           SctHoleIds.insert(id);
-      
+
         }
         // add to tmp list of holes
         if (listOfHoles) listOfHoles->push_back(createHoleTSOS(nextParameters));
@@ -646,7 +653,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
         continue;
       }
     } // end (iTSOS == mapOfHits.end())
-      
+
     if (iTSOS->second->type(Trk::TrackStateOnSurface::Outlier)) {
       ++foundTSOS;
       ATH_MSG_VERBOSE("Found TSOS is an outlier, not a hole, skip it and continue");
@@ -654,7 +661,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
       mapOfHits.erase(iTSOS);
       continue;
     }
-      
+
     if (iTSOS->second->type(Trk::TrackStateOnSurface::Measurement)) {
       ++foundTSOS;
       ATH_MSG_VERBOSE("Found TSOS is a measurement, continue");
@@ -663,17 +670,17 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
       continue;
     }
   } // end of loop
-  
-  ATH_MSG_DEBUG("==> Total number of holes found: " 
+
+  ATH_MSG_DEBUG("==> Total number of holes found: "
                 << PixelHoles << " Pixel holes, "
                 << SctHoles << " Sct holes, "
                 << SctDoubleHoles << " Double holes");
-  
+
   if (listOfHoles) ATH_MSG_DEBUG("==> Size of listOfHoles: " << listOfHoles->size());
-  
+
   if (mapOfHits.size() != 0) {
     int ioutliers = 0, imeasurements = 0;
-    for (std::map<const Identifier, const Trk::TrackStateOnSurface*>::const_iterator iter = mapOfHits.begin(); 
+    for (std::map<const Identifier, const Trk::TrackStateOnSurface*>::const_iterator iter = mapOfHits.begin();
          iter != mapOfHits.end(); ++iter) {
       if (iter->second->type(Trk::TrackStateOnSurface::Outlier)) ++ioutliers;
       else if (iter->second->type(Trk::TrackStateOnSurface::Measurement)) ++imeasurements;
@@ -684,7 +691,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
       if (PixelHoles+SctHoles+SctDoubleHoles > 0) {
         ATH_MSG_DEBUG("Not all measurements found, but holes. Left measurements: "
                       << imeasurements << " outliers: " << ioutliers << " found: " << foundTSOS
-                      << " Pixel holes: " << PixelHoles << " Sct holes: " << SctHoles 
+                      << " Pixel holes: " << PixelHoles << " Sct holes: " << SctHoles
                       << " Double holes: " << SctDoubleHoles);
       } else {
         ATH_MSG_DEBUG("Problem ? Not all measurements found. Left measurements: "
@@ -692,7 +699,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
       }
     }
   }
-  
+
   // update information and return
   if (information) {
     (*information)[Trk::numberOfPixelHoles]       = PixelHoles;
@@ -701,7 +708,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
     (*information)[Trk::numberOfPixelDeadSensors] = PixelDead;
     (*information)[Trk::numberOfSCTDeadSensors]   = SctDead;
   }
-  
+
   return;
 }
 
@@ -714,11 +721,11 @@ const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(
 }
 
 // ====================================================================================================================
-const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::Track& oldTrack, 
+const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::Track& oldTrack,
                                                                     std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const {
   DataVector<const Trk::TrackStateOnSurface>* trackTSOS = new DataVector<const Trk::TrackStateOnSurface>;
 
-  // get states from track 
+  // get states from track
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = oldTrack.trackStateOnSurfaces()->begin();
        it != oldTrack.trackStateOnSurfaces()->end(); ++it) {
     // veto old holes
@@ -746,10 +753,10 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   if (perigee) {
 
     Trk::TrackStateOnSurfaceComparisonFunction CompFunc(perigee->momentum());
-  
-    // we always have to sort holes in 
+
+    // we always have to sort holes in
     // if (!is_sorted(trackTSOS->begin(),trackTSOS->end(), CompFunc)) {
-      
+
     if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
       /* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
          not 100% transitive comparison functor.

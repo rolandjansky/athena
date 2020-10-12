@@ -1,20 +1,7 @@
-################################################################################
-# Package: VP1MCSystems
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1MCSystems )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          graphics/VP1/VP1Base
-                          PRIVATE
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          GaudiKernel
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          graphics/VP1/VP1Utils )
 
 # External dependencies:
 find_package( CLHEP )

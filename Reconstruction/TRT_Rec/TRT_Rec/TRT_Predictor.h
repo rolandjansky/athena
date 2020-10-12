@@ -14,7 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "iPatInterfaces/ITRT_Predictor.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -59,7 +59,7 @@ private:
 
     // helpers, managers, tools
     // SurfaceIntersector*				m_intersector;
-    ServiceHandle<IRegSelSvc>			m_regionSelector;
+    ToolHandle<IRegSelTool>			m_regionSelector { this, "RegSelTool", "RegSelTool/RegSetTool_TRT" };
     ToolHandle<Trk::IIntersector>		m_rungeKuttaIntersector;
     const InDetDD::TRT_DetectorManager*		m_manager;
 

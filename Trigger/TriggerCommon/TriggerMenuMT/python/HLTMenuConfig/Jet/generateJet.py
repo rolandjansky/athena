@@ -56,22 +56,24 @@ def generateChains( flags, chainDict ):
 
     #sequencing of actual jet reconstruction
     from JetRecConfig import JetRecConfig
-    from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
-   
+    from JetRecConfig.JetDefinition import JetConstitSeq, JetDefinition, xAODType, JetInputDef
+    from JetRecConfig.StandardJetConstits import jetinputdefdic
+
+    # declare a jet source for the HLT clusters if needed :
+    jetinputdefdic.setdefault(clustersname , JetInputDef(clustersname, xAODType.CaloCluster) )
     #hardcoded jet collection for now 
     clustermods = ["ECPSFrac","ClusterMoments"]
     trigMinPt = 7e3
-    HLT_EMTopo = JetConstit( xAODType.CaloCluster, ["EM"])
-    HLT_EMTopo.rawname = clustersname
-    HLT_EMTopo.inputname = clustersname
-    HLT_AntiKt4EMTopo_subjesIS = JetDefinition( "AntiKt", 0.4, HLT_EMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt)
+    HLT_EMTopo = JetConstitSeq( "HLT_EMTopo",xAODType.CaloCluster, ["EM"], clustersname, clustersname,label="EMTopo")
+    
+    HLT_AntiKt4EMTopo_subjesIS = JetDefinition( "AntiKt", 0.4, HLT_EMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt,
+                                                prefix="HLT_",
+                                                suffix = "_subjesIS",
+                                               )
     HLT_AntiKt4EMTopo_subjesIS.modifiers = ["Calib:TrigRun2:data:JetArea_EtaJES_GSC_Insitu:HLT_Kt4EMTopoEventShape","Sort"] + clustermods 
 
-    jetprefix="HLT_"
-    jetsuffix="_subjesIS"
-    evsprefix="HLT_"
     # May need a switch to disable automatic modifier prerequisite generation
-    jetRecoComps = JetRecConfig.JetRecCfg(HLT_AntiKt4EMTopo_subjesIS, flags, jetprefix, jetsuffix, evsprefix)
+    jetRecoComps = JetRecConfig.JetRecCfg(HLT_AntiKt4EMTopo_subjesIS, flags) 
     inEventReco.mergeReco(jetRecoComps)    
 
     acc.merge(inEventReco,stepReco.getName())
@@ -79,7 +81,7 @@ def generateChains( flags, chainDict ):
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
     hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
-    jetsfullname = jetprefix+HLT_AntiKt4EMTopo_subjesIS.basename+"Jets"+jetsuffix
+    jetsfullname = HLT_AntiKt4EMTopo_subjesIS.fullname()
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo)
 

@@ -561,7 +561,7 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
   while (iter != iter_end)
     {
       ttCollection->push_back((*iter).second);
-      iter++;
+      ++iter;
     }
 
   msg(MSG::DEBUG) << "-->ZDC: Collection has " << ttCollection->size() << " elements " << endmsg;

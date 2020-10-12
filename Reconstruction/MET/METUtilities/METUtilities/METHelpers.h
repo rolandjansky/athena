@@ -13,8 +13,8 @@
 #define METUTILITIES_MET_METHELPERS_H 1
 
 // Framework includes
-#include "AsgTools/MessageCheck.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/MessageCheck.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"

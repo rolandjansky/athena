@@ -30,7 +30,7 @@ typedef asg::SgTEvent* EventPtr;
 typedef StoreGateSvc* EventPtr;
 #endif //XAOD_STANDALONE
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 
 //forward declarations

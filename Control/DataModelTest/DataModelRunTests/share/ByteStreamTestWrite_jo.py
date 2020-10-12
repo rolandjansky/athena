@@ -94,6 +94,7 @@ athenaCommonFlags.BSRDOOutput = 'test.bs'
 from ByteStreamCnvSvc import WriteByteStream
 from StoreGate.StoreGateConf import StoreGateSvc
 svcMgr += StoreGateSvc('InputMetaDataStore')
+svcMgr += StoreGateSvc('MetaDataStore')
 StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
 # List of DO's to write out
 StreamBSFileOutput.ItemList   += fullItemList

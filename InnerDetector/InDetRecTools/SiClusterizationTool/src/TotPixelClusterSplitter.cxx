@@ -196,7 +196,7 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   std::vector<int> Totgroups[2];
   std::vector<int> Lvl1groups[2];
 
-  const std::vector<int> OrigTots = OrigCluster.totList();
+  const std::vector<int>& OrigTots = OrigCluster.totList();
   const int Lvl1a = OrigCluster.LVL1A();
   
   const AtlasDetectorID* aid = Element->getIdHelper();

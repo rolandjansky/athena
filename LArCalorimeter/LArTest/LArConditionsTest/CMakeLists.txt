@@ -1,33 +1,7 @@
-################################################################################
-# Package: LArConditionsTest
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArConditionsTest )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArCabling
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawConditions
-                          LArCalorimeter/LArRawUtils
-                          LArCalorimeter/LArTools
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          LArCalorimeter/LArCOOLConditions )
-
-# External dependencies:
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Component(s) in the package:
 atlas_add_component( LArConditionsTest
@@ -36,14 +10,10 @@ atlas_add_component( LArConditionsTest
                      src/LArCondDataTest.cxx
                      src/LArConditionsTestAlg.cxx
                      src/LArCablingTest.cxx
-                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawUtilsLib LArToolsLib CaloDetDescrLib CaloEvent CaloIdentifier AthenaKernel AthenaPoolUtilities LArCOOLConditions CaloInterfaceLib )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib Identifier GaudiKernel LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawUtilsLib LArRecConditions CaloDetDescrLib CaloEvent CaloIdentifier AthenaKernel CaloInterfaceLib )
 
 # Install files from the package:
-atlas_install_headers( LArConditionsTest )
 atlas_install_joboptions( share/*.py )
-
-
 
 function (larconditions_run_test testName)
   cmake_parse_arguments( ARG "" "DEPENDS" "" ${ARGN} )
@@ -55,14 +25,13 @@ function (larconditions_run_test testName)
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/larconditions_${testName}.sh
                   ENVIRONMENT ATLAS_REFERENCE_TAG=LArConditionsTest/LArConditionsTest-01-00-12
                   PROPERTIES TIMEOUT 1200
-                  LOG_IGNORE_PATTERN "Data source lookup|Resolved path|Failed to connect to service|Release number|Sorting algorithm|Failed to connect|Failure while attempting to connect|Reading file|^CORAL/|being retired|^Domain|INFO GeoModelSvc|locate catalog|Cache alignment|COOL_DISABLE|Failed to get ContainerHandle|^RalSessionMgr Info|^RelationalDatabase Info|Bootstrap.py|MetaDataSvc|xAODMaker|Opening COOL connection|Disconnecting from"
+                  LOG_IGNORE_PATTERN "Data source lookup|Resolved path|Failed to connect to service|Release number|Sorting algorithm|Failed to connect|Failure while attempting to connect|Reading file|^CORAL/|being retired|^Domain|INFO GeoModelSvc|locate catalog|Cache alignment|COOL_DISABLE|Failed to get ContainerHandle|^RalSessionMgr Info|^RelationalDatabase Info|Bootstrap.py|MetaDataSvc|xAODMaker|Opening COOL connection|Disconnecting from|IOVDbSvc +INFO"
                    )
   if( ARG_DEPENDS )
     set_tests_properties( LArConditionsTest_${testName}_ctest
                           PROPERTIES DEPENDS LArConditionsTest_${ARG_DEPENDS}_ctest )
   endif()
 endfunction (larconditions_run_test)
-
 
 larconditions_run_test (LArConditionsTest)
 larconditions_run_test (LArConditionsTestWriteNoReg)

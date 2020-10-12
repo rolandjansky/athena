@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 int main()
 {

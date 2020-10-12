@@ -25,7 +25,7 @@
 
 // PAT includes
 #include "PATCore/PATCoreEnums.h"
-#include <AsgTools/AsgMessaging.h>
+#include <AsgMessaging/AsgMessaging.h>
 
 
 // ROOT includes

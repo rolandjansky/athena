@@ -14,7 +14,7 @@
 #include "TrkGeometry/MaterialStep.h"
 
 // ACTS
-#include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Material/MaterialSlab.hpp"
 
 // STL
 #include <iostream>
@@ -65,9 +65,9 @@ ActsMaterialStepConverterTool::convertToMaterialTrack(const Trk::MaterialStepCol
     Acts::MaterialInteraction interaction;
 
     Acts::Vector3D pos{step->hitX(), step->hitY(), step->hitZ()};
-    Acts::MaterialProperties matProp(step->x0(), step->l0(), step->A(), step->Z(), step->rho(),step->steplength());
+    Acts::MaterialSlab matProp(Acts::Material::fromMassDensity(step->x0(), step->l0(), step->A(), step->Z(), step->rho()),step->steplength());
     interaction.position = pos;
-    interaction.materialProperties = matProp;
+    interaction.materialSlab = matProp;
     sum_X0 += step->steplengthInX0();
     sum_L0 += step->steplengthInL0();
     nStep.push_back(interaction);

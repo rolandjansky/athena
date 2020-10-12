@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -14,7 +14,6 @@
 ################################################################################
 
 from RecExConfig.Configured import Configured
-from AthenaCommon.SystemOfUnits import *
 
 ################################################################################
 ## @class TauRecRunConfigured
@@ -32,14 +31,14 @@ class TauRecRunConfigured ( Configured ) :
         from tauRec.tauRecFlags import tauFlags
         self._TauRunnerAlgHandle = TauRunnerAlg ( name=self.name+'Alg', 
                                                   Key_tauInputContainer="tmp_TauJets",
-                                                  Key_Pi0ClusterInputContainer="TauPi0SubtractedClusters",
+                                                  Key_Pi0ClusterInputContainer="TauInitialPi0Clusters",
                                                   Key_tauOutputContainer="TauJets",
                                                   Key_neutralPFOOutputContainer="TauNeutralParticleFlowObjects",
                                                   Key_pi0ClusterOutputContainer="TauPi0Clusters",
                                                   Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects",
                                                   Key_vertexOutputContainer = "TauSecondaryVertices",
                                                   Key_chargedPFOOutputContainer = "TauChargedParticleFlowObjects",
-                                                  Key_pi0Container= "finalTauPi0s"
+                                                  Key_pi0Container= "TauFinalPi0s"
                                                   )
                                                                                                 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
@@ -57,13 +56,8 @@ class TauRecRunConfigured ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from tauRec.tauRecFlags import tauFlags
         for tool in tools :
-            # if tool.__slots__['calibFolder'].count('TauDiscriminant'):
-            #     tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
-            # else :
-            #     tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             if tool not in ToolSvc : ToolSvc += tool
-            pass
 
     def TauRunnerAlgHandle(self):
         return self._TauRunnerAlgHandle

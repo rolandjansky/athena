@@ -951,6 +951,12 @@ Bool_t TScopeAdapter::IsAbstract() const
 }
 
 //____________________________________________________________________________
+void* TScopeAdapter::Cast (const TScopeAdapter& cl, void* obj, bool up) const
+{
+  return fClass->DynamicCast (cl.Class(), obj, up);
+}
+
+//____________________________________________________________________________
 bool TScopeAdapter::operator==( const TScopeAdapter& rh ) const
 {
 // comparison operator, used for STL containers (implementation debatable)

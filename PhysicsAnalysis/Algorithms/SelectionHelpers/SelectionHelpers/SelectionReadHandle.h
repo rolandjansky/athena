@@ -9,7 +9,7 @@
 #define SELECTION_HELPERS_SELECTION_READ_HANDLE_H
 
 #include <AthContainers/AuxElement.h>
-#include <AsgTools/MsgStream.h>
+#include <AsgMessaging/MsgStream.h>
 #include <memory>
 
 class StatusCode;

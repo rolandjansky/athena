@@ -134,6 +134,7 @@ class AthMonitorCfgHelper(object):
 
         pathToSet = self.inputFlags.DQ.FileKey+('/%s' % topPath if topPath else '')
         array.broadcast('HistPath',pathToSet)
+        array.broadcast('UseCache',True)
         # in the future, autodetect if we are online or not
         array.broadcast('convention','OFFLINE')
         array.broadcast('defaultDuration',defaultDuration)
@@ -273,6 +274,7 @@ class AthMonitorCfgHelperOld(object):
         # Broadcast member values to each element of the array
         array.broadcast('THistSvc',svcMgr.THistSvc)
         array.broadcast('HistPath',pathToSet)
+        array.broadcast('UseCache',True)
         array.broadcast('convention',conventionName)
         array.broadcast('defaultDuration',defaultDuration)
         alg.GMTools += array.toolList()

@@ -486,6 +486,8 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
   ATH_CHECK(m_cscClustersKey.initialize());
   //segment overlap removal
   ATH_CHECK( m_segmentOverlapRemovalTool.retrieve() );
+  ATH_CHECK(m_mdtCablingKey.initialize());
+  ATH_CHECK(m_rpcCablingKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -902,6 +904,18 @@ if (m_useMdtData>0) {
       }
       if (m_rpcPrepDataProvider->decode( getRpcRobList(muonRoI) ).isSuccess()) {
 	ATH_MSG_DEBUG("ROB-based seeded PRD decoding of RPC done successfully");
+	SG::ReadCondHandle<RpcCablingCondData> rpcCableHandle{m_rpcCablingKey};
+	const RpcCablingCondData* rpcCabling{*rpcCableHandle};
+	if(!rpcCabling){
+	  ATH_MSG_ERROR("nullptr to the read rpc cabling conditions object");
+	  return HLT::NAV_ERROR;
+	}
+	rpc_hash_ids.clear();
+	if(rpcCabling->giveRDO_fromROB(m_RpcRobList, rpc_hash_ids).isFailure()){
+	  ATH_MSG_ERROR("could not convert RPC robs to hash ID vector");
+	  return HLT::NAV_ERROR;
+	}
+
       } else {
 	ATH_MSG_WARNING("ROB-based seeded PRD decoding of RPC failed");
       }
@@ -941,6 +955,13 @@ if (m_useMdtData>0) {
       }
       if (m_mdtPrepDataProvider->decode( getMdtRobList(muonRoI) ).isSuccess()) {
 	ATH_MSG_DEBUG("ROB-based seeded decoding of MDT done successfully");
+	SG::ReadCondHandle<MuonMDT_CablingMap> mdtCableHandle{m_mdtCablingKey};
+	const MuonMDT_CablingMap* mdtCabling{*mdtCableHandle};
+	if(!mdtCabling){
+	  ATH_MSG_ERROR("nullptr to the read mdt cabling conditions object");
+	  return HLT::NAV_ERROR;
+	}
+	mdt_hash_ids = mdtCabling->getChamberHashVec(m_MdtRobList);
       } else {
 	ATH_MSG_WARNING("ROB-based seeded decoding of MDT failed");
       }
@@ -1170,7 +1191,7 @@ if (m_useMdtData>0) {
   
   // Get MDT container
   if (m_useMdtData && !mdt_hash_ids.empty()) {
-    
+
     const MdtPrepDataContainer* mdtPrds = 0;
     SG::ReadHandle<Muon::MdtPrepDataContainer> MdtCont(m_mdtKey);
     if( !MdtCont.isValid() ) {

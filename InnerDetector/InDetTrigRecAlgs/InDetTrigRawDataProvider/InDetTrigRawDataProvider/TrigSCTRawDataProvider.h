@@ -28,11 +28,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
 #include <string>
 
 class TrigRoiDescriptor;
 class SCT_ID;
-class IRegSelSvc;
 class IROBDataProviderSvc;
 class MsgStream;
 class IRoiDescriptor;
@@ -62,7 +63,7 @@ namespace InDet {
     StatusCode initContainer();
     
   private:
-    ServiceHandle<IRegSelSvc>           m_regionSelector;     
+    ToolHandle<IRegSelTool>             m_regionSelector { this, "RegSelTool", "RegSelTool/RegSelTool_SCT" };     
     ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
     ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, "RawDataTool", "SCTRawDataProviderTool"};
     ToolHandle<ISCT_CablingTool>        m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};

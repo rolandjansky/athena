@@ -29,6 +29,8 @@ if __name__=='__main__':
                         help='Print detailed Athena configuration')
     parser.add_argument('--threads', type=int, default=0,
                         help='Number of threads/concurrent events')
+    parser.add_argument('--perfmon', action='store_true',
+                        help='Run perfmon')
     args, _ = parser.parse_known_args()
 
     # Setup the Run III behavior
@@ -74,6 +76,10 @@ if __name__=='__main__':
                         ConfigFlags.DQ.Environment)
             log.warning('Will proceed but best guess is this is an error')
 
+    # perfmon
+    if args.perfmon:
+        ConfigFlags.PerfMon.doFullMonMT=True
+
     if args.preExec:
         # bring things into scope
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
@@ -106,6 +112,12 @@ if __name__=='__main__':
     # add FPE auditor
     from AthenaConfiguration.ComponentFactory import CompFactory
     cfg.addService(CompFactory.AuditorSvc(Auditors=[CompFactory.FPEAuditor().getFullJobOptName()]))
+
+    # add perfmon
+    if args.perfmon:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
+
 
     if isReadingRaw:
         # attempt to start setting up reco ...

@@ -87,8 +87,12 @@ namespace xAOD {
          Topo_633   = 12,
          // transient cluster for AODCellContainer
          SW_7_11    = 13,
-	 //New (2016) egamma cluster
-	 SuperCluster=14,
+	     //New (2016) egamma cluster
+	     SuperCluster=14,
+         //New (2020) cluster representation of towers
+         Tower_01_01 = 15,
+         Tower_005_005 = 16,
+         Tower_fixed_area = 17,
          CSize_Unknown = 99
       };
 

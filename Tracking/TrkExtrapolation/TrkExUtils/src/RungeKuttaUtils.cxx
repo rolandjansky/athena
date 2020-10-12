@@ -27,20 +27,31 @@ namespace{
  * Hide all internal implementation methods
  * inside an anonymous namespace
  */
+/*The notation of this package
+in array P[42].
+                 /dL0    /dL1    /dPhi   /dThe   /dCM
+X  ->P[0]  dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]
+Y  ->P[1]  dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]
+Z  ->P[2]  dZ /   P[ 9]   P[16]   P[23]   P[30]   P[37]
+Ax ->P[3]  dAx/   P[10]   P[17]   P[24]   P[31]   P[38]
+Ay ->P[4]  dAy/   P[11]   P[18]   P[25]   P[32]   P[39]
+Az ->P[5]  dAz/   P[12]   P[19]   P[26]   P[33]   P[40]
+CM ->P[6]  dCM/   P[13]   P[20]   P[27]   P[34]   P[41]
+*/
 
-inline
-void globalToLocalVecHelper(double* ATH_RESTRICT P,
-    const double s0,
-       const double s1,
-       const double s2,
-       const double s3,
-       const double s4)
+inline void
+globalToLocalVecHelper(double* ATH_RESTRICT P,
+                       const double s0,
+                       const double s1,
+                       const double s2,
+                       const double s3,
+                       const double s4)
 {
   using namespace CxxUtils;
   using vec2 = CxxUtils::vec<double, 2>;
   using vec4 = CxxUtils::vec<double, 4>;
 
-  /*
+  /* Calculation
       P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
       P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
       P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
@@ -52,32 +63,17 @@ void globalToLocalVecHelper(double* ATH_RESTRICT P,
       P[35]-=(s4*P[ 3]); P[36]-=(s4*P[ 4]); P[37]-=(s4*P[ 5]);
       P[38]-=(s4*P[42]); P[39]-=(s4*P[43]); P[40]-=(s4*P[44]);
       */
-
   /*
    * The naming convention we follow is
-   *
    * A_B -->SIMD vector of
    * of size 2 containing
    * {A,B}
    * For example :
    * dZdTheta_dAxdTheta --> {dZ/dTheta, dAx/dTheta}
    * --> {P[30],P[31]}
-   *
-   * using the notation of this package
-   *
-   *        /dL0    /dL1    /dPhi   /dThe   /dCM
-   * dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]
-   * dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]
-   * dZ /   P[ 9]   P[16]   P[23]   P[30]   P[37]
-   * dAx/   P[10]   P[17]   P[24]   P[31]   P[38]
-   * dAy/   P[11]   P[18]   P[25]   P[32]   P[39]
-   * dAz/   P[12]   P[19]   P[26]   P[33]   P[40]
-   * dCM/   P[13]   P[20]   P[27]   P[34]   P[41]
    */
-
   vec2 Pmult1 = { P[3], P[4] };
   vec4 Pmult2 = { P[5], P[42], P[43], P[44] };
-
   vec2 dXdL0_dYdL0;
   vload(dXdL0_dYdL0, &P[7]);
   vec4 dZdL0_dAxdL0_dAydL0_dAzdL0;
@@ -124,6 +120,49 @@ void globalToLocalVecHelper(double* ATH_RESTRICT P,
   vstore(&P[37], dZdCM_dAxdCM_AydCM_dAzdCM);
 }
 
+inline void
+mutl3x5Helper(double* ATH_RESTRICT Jac,
+              const double* ATH_RESTRICT V,
+              const double* ATH_RESTRICT P)
+{
+  /* The following matrix multiplication
+   * 5x1 = 5x3 * 3X1
+   * for the Jacobian
+   * is repeated multiple times
+   * Jac[ 0] = Ax[0]*P[ 7]+Ax[1]*P[ 8]+Ax[2]*P[ 9];                               // dL0/dL0
+   * Jac[ 1] = Ax[0]*P[14]+Ax[1]*P[15]+Ax[2]*P[16];                               // dL0/dL1
+   * Jac[ 2] = Ax[0]*P[21]+Ax[1]*P[22]+Ax[2]*P[23];                               // dL0/dPhi
+   * Jac[ 3] = Ax[0]*P[28]+Ax[1]*P[29]+Ax[2]*P[30];                               // dL0/dThe
+   * Jac[ 4] = Ax[0]*P[35]+Ax[1]*P[36]+Ax[2]*P[37];                               // dL0/dCM
+   * Jac[ 5] = Ay[0]*P[ 7]+Ay[1]*P[ 8]+Ay[2]*P[ 9];                               // dL1/dL0
+   * Jac[ 6] = Ay[0]*P[14]+Ay[1]*P[15]+Ay[2]*P[16];                               // dL1/dL1
+   * Jac[ 7] = Ay[0]*P[21]+Ay[1]*P[22]+Ay[2]*P[23];                               // dL1/dPhi
+   * Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30];                               // dL1/dThe
+   * Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37];                               // dL1/dCM
+  */
+  using vec2 = CxxUtils::vec<double, 2>;
+  vec2 V1 = { V[0], V[0] };
+  vec2 V2 = { V[1], V[1] };
+  vec2 V3 = { V[2], V[2] };
+
+  // 1st and 2nd element
+  vec2 P1v1 = { P[0], P[7] };
+  vec2 P1v2 = { P[1], P[8] };
+  vec2 P1v3 = { P[2], P[9] };
+  vec2 res1 = V1 * P1v1 + V2 * P1v2 + V3 * P1v3;
+  CxxUtils::vstore(&Jac[0], res1);
+
+  // 3th and 4th element
+  vec2 P2v1 = { P[14], P[21] };
+  vec2 P2v2 = { P[15], P[22] };
+  vec2 P2v3 = { P[16], P[23] };
+  vec2 res2 = V1 * P2v1 + V2 * P2v2 + V3 * P2v3;
+  CxxUtils::vstore(&Jac[2], res2);
+
+  // The 5th element
+  Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
+}
+
 void
 transformGlobalToPlane(const Amg::Transform3D&  T,
                        bool useJac,
@@ -149,26 +188,12 @@ transformGlobalToPlane(const Amg::Transform3D&  T,
   if(A!=0.) A=1./A;
   S[0]*=A; S[1]*=A; S[2]*=A;
 
-  const double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  const double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2];
-  const double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
-
+  double s[5]={};
+  mutl3x5Helper(s,S,&P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
-  //
-  Jac[ 0] = Ax[0]*P[ 7]+Ax[1]*P[ 8]+Ax[2]*P[ 9];                               // dL0/dL0
-  Jac[ 1] = Ax[0]*P[14]+Ax[1]*P[15]+Ax[2]*P[16];                               // dL0/dL1
-  Jac[ 2] = Ax[0]*P[21]+Ax[1]*P[22]+Ax[2]*P[23];                               // dL0/dPhi
-  Jac[ 3] = Ax[0]*P[28]+Ax[1]*P[29]+Ax[2]*P[30];                               // dL0/dThe
-  Jac[ 4] = Ax[0]*P[35]+Ax[1]*P[36]+Ax[2]*P[37];                               // dL0/dCM
-  Jac[ 5] = Ay[0]*P[ 7]+Ay[1]*P[ 8]+Ay[2]*P[ 9];                               // dL1/dL0
-  Jac[ 6] = Ay[0]*P[14]+Ay[1]*P[15]+Ay[2]*P[16];                               // dL1/dL1
-  Jac[ 7] = Ay[0]*P[21]+Ay[1]*P[22]+Ay[2]*P[23];                               // dL1/dPhi
-  Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30];                               // dL1/dThe
-  Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37];                               // dL1/dCM
+  mutl3x5Helper(&Jac[0],Ax,&P[7]);
+  mutl3x5Helper(&Jac[5],Ay,&P[7]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -203,36 +228,23 @@ transformGlobalToDisc(const Amg::Transform3D&  T,
   if(A!=0.) A=1./A;
   S[0]*=A; S[1]*=A; S[2]*=A;
 
-  const double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  const double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2];
-  const double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
-
+  double s[5]={};
+  mutl3x5Helper(s,S,&P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
   //
   double Ri = 1./par[0];
-  const double A0 =(RC*Ax[0]+RS*Ay[0])*Ri;
-  const double A1 =(RC*Ax[1]+RS*Ay[1])*Ri;
-  const double A2 =(RC*Ax[2]+RS*Ay[2])*Ri;
-  const double B0 =(RC*Ay[0]-RS*Ax[0])*(Ri=1./R2);
-  const double B1 =(RC*Ay[1]-RS*Ax[1])*Ri;
-  const double B2 =(RC*Ay[2]-RS*Ax[2])*Ri;
 
-  Jac[ 0] = A0*P[ 7]+A1*P[ 8]+A2*P[ 9];                                        // dL0/dL0
-  Jac[ 1] = A0*P[14]+A1*P[15]+A2*P[16];                                        // dL0/dL1
-  Jac[ 2] = A0*P[21]+A1*P[22]+A2*P[23];                                        // dL0/dPhi
-  Jac[ 3] = A0*P[28]+A1*P[29]+A2*P[30];                                        // dL0/dThe
-  Jac[ 4] = A0*P[35]+A1*P[36]+A2*P[37];                                        // dL0/dCM
-  Jac[ 5] = B0*P[ 7]+B1*P[ 8]+B2*P[ 9];                                        // dL1/dL0
-  Jac[ 6] = B0*P[14]+B1*P[15]+B2*P[16];                                        // dL1/dL1
-  Jac[ 7] = B0*P[21]+B1*P[22]+B2*P[23];                                        // dL1/dPhi
-  Jac[ 8] = B0*P[28]+B1*P[29]+B2*P[30];                                        // dL1/dThe
-  Jac[ 9] = B0*P[35]+B1*P[36]+B2*P[37];                                        // dL1/dCM
+  const double Av[3] = { (RC * Ax[0] + RS * Ay[0]) * Ri,
+                         (RC * Ax[1] + RS * Ay[1]) * Ri,
+                         (RC * Ax[2] + RS * Ay[2]) * Ri };
+  const double Bv[3] = { (RC * Ay[0] - RS * Ax[0]) * (Ri = 1. / R2),
+                         (RC * Ay[1] - RS * Ax[1]) * Ri,
+                         (RC * Ay[2] - RS * Ax[2]) * Ri };
+
+  mutl3x5Helper(&Jac[0],Av,&P[7]);
+  mutl3x5Helper(&Jac[5],Bv,&P[7]);
 }
-
 /////////////////////////////////////////////////////////////////////////////////
 // Global position transformation to local Cylinder system coordinate
 /////////////////////////////////////////////////////////////////////////////////
@@ -270,30 +282,18 @@ transformGlobalToCylinder(const Amg::Transform3D&  T,
   const double az = P[5]-Az[2]*C; z-=(B*Az[2]);
   double A  =(ax*x+ay*y+az*z);  if(A!=0.) A=1./A; x*=A; y*=A; z*=A;
 
-  const double s0 = P[ 7]*x+P[ 8]*y+P[ 9]*z;
-  const double s1 = P[14]*x+P[15]*y+P[16]*z;
-  const double s2 = P[21]*x+P[22]*y+P[23]*z;
-  const double s3 = P[28]*x+P[29]*y+P[30]*z;
-  const double s4 = P[35]*x+P[36]*y+P[37]*z;
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
-
+  const double S[3] = { x, y, z };
+  double s[5] = {};
+  mutl3x5Helper(s, S, &P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
   // Jacobian production
   //
-  const double A0 =(RC*Ay[0]-RS*Ax[0])*(R=1./R);
-  const double A1 =(RC*Ay[1]-RS*Ax[1])* R;
-  const double A2 =(RC*Ay[2]-RS*Ax[2])* R;
+  const double Av[3] = { (RC * Ay[0] - RS * Ax[0]) * (R = 1. / R),
+                         (RC * Ay[1] - RS * Ax[1]) * R,
+                         (RC * Ay[2] - RS * Ax[2]) * R };
 
-  Jac[ 0] = A0*P[ 7]+A1*P[ 8]+A2*P[ 9];                                        // dL0/dL0
-  Jac[ 1] = A0*P[14]+A1*P[15]+A2*P[16];                                        // dL0/dL1
-  Jac[ 2] = A0*P[21]+A1*P[22]+A2*P[23];                                        // dL0/dPhi
-  Jac[ 3] = A0*P[28]+A1*P[29]+A2*P[30];                                        // dL0/dThe
-  Jac[ 4] = A0*P[35]+A1*P[36]+A2*P[37];                                        // dL0/dCM
-  Jac[ 5] = Az[0]*P[ 7]+Az[1]*P[ 8]+Az[2]*P[ 9];                               // dL1/dL0
-  Jac[ 6] = Az[0]*P[14]+Az[1]*P[15]+Az[2]*P[16];                               // dL1/dL1
-  Jac[ 7] = Az[0]*P[21]+Az[1]*P[22]+Az[2]*P[23];                               // dL1/dPhi
-  Jac[ 8] = Az[0]*P[28]+Az[1]*P[29]+Az[2]*P[30];                               // dL1/dThe
-  Jac[ 9] = Az[0]*P[35]+Az[1]*P[36]+Az[2]*P[37];                               // dL1/dP4
+  mutl3x5Helper(&Jac[0], Av, &P[7]);
+  mutl3x5Helper(&Jac[5], Az, &P[7]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -344,16 +344,9 @@ transformGlobalToLine(const Amg::Transform3D&  T,
 
   // Jacobian production
   //
-  Jac[ 0] = Bx  *P[ 7]+By  *P[ 8]+Bz  *P[ 9];       // dL0/dL0
-  Jac[ 1] = Bx  *P[14]+By  *P[15]+Bz  *P[16];       // dL0/dL1
-  Jac[ 2] = Bx  *P[21]+By  *P[22]+Bz  *P[23];       // dL0/dPhi
-  Jac[ 3] = Bx  *P[28]+By  *P[29]+Bz  *P[30];       // dL0/dThe
-  Jac[ 4] = Bx  *P[35]+By  *P[36]+Bz  *P[37];       // dL0/dCM
-  Jac[ 5] = A[0]*P[ 7]+A[1]*P[ 8]+A[2]*P[ 9];       // dL1/dL0
-  Jac[ 6] = A[0]*P[14]+A[1]*P[15]+A[2]*P[16];       // dL1/dL1
-  Jac[ 7] = A[0]*P[21]+A[1]*P[22]+A[2]*P[23];       // dL1/dPhi
-  Jac[ 8] = A[0]*P[28]+A[1]*P[29]+A[2]*P[30];       // dL1/dThe
-  Jac[ 9] = A[0]*P[35]+A[1]*P[36]+A[2]*P[37];       // dL1/dCM
+  const double B[3]={Bx,By,Bz};
+  mutl3x5Helper(&Jac[0],B,&P[7]);
+  mutl3x5Helper(&Jac[5],A,&P[7]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -402,7 +395,7 @@ transformGlobalToCone(const Amg::Transform3D&  T,
 void
 transformPlaneToGlobal(bool useJac,
                        const Amg::Transform3D& T,
-                       const double* ATH_RESTRICT p,
+                       const AmgVector(5)& ATH_RESTRICT p,
                        double* ATH_RESTRICT P)
 {
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -429,7 +422,7 @@ transformPlaneToGlobal(bool useJac,
 void
 transformDiscToGlobal(bool useJac,
                       const Amg::Transform3D& T,
-                      const double* ATH_RESTRICT p,
+                      const AmgVector(5)& ATH_RESTRICT p,
                       double* ATH_RESTRICT P)
 {
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -459,7 +452,7 @@ void
 transformCylinderToGlobal(bool useJac,
                           const Amg::Transform3D& T,
                           double R,
-                          const double* ATH_RESTRICT p,
+                          const AmgVector(5)& ATH_RESTRICT p,
                           double* ATH_RESTRICT P)
 {
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -488,7 +481,7 @@ transformCylinderToGlobal(bool useJac,
 void
 transformLineToGlobal(bool useJac,
                       const Amg::Transform3D& T,
-                      const double* ATH_RESTRICT p,
+                      const AmgVector(5)& ATH_RESTRICT p,
                       double* ATH_RESTRICT P)
 {
   const double A[3] = {T(0,2),T(1,2),T(2,2)};
@@ -532,10 +525,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 {
   const Trk::TrackParameters* pTp  = &Tp; if(!pTp) return false;
 
-  const AmgVector(5) Vp = Tp.parameters();
-  double p[5] = {Vp[0],Vp[1],Vp[2],Vp[3],Vp[4]};
-
-  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),p,P);
+  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),Tp.parameters(),P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -548,10 +538,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 {
   const Trk::NeutralParameters* pTp = &Tp; if(!pTp) return false;
 
-  const AmgVector(5) Vp = Tp.parameters();
-  double p[5] = {Vp[0],Vp[1],Vp[2],Vp[3],Vp[4]};
-
-  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),p,P);
+  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),Tp.parameters(),P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -562,7 +549,12 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 bool Trk::RungeKuttaUtils::transformLocalToGlobal
 (bool useJac,const Trk::PatternTrackParameters& Tp,double* P)
 {
-  return transformLocalToGlobal(useJac,Tp.associatedSurface(),Tp.par(),P);
+  // TODO: Remove copies when Trk::PatternTrackParameters migrates uses AMG types.
+  const double * p = Tp.par();
+  AmgVector(5) tmp;
+  tmp << p[0], p[1], p[2], p[3], p[4];
+
+  return transformLocalToGlobal(useJac,Tp.associatedSurface(),tmp,P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -940,7 +932,7 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
     }
     */
   }
-  return std::make_pair(Sm,N);
+  return std::make_pair(Sm, N);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -948,7 +940,7 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
 /////////////////////////////////////////////////////////////////////////////////
 
 AmgSymMatrix(5) * Trk::RungeKuttaUtils::newCovarianceMatrix(
-                    const double* J,
+                    const double* ATH_RESTRICT J,
                     const AmgSymMatrix(5) & M)
 {
   AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
@@ -1003,7 +995,7 @@ AmgSymMatrix(5) * Trk::RungeKuttaUtils::newCovarianceMatrix(
 bool
 Trk::RungeKuttaUtils::transformLocalToGlobal(bool useJac,
                                              const Trk::Surface* Su,
-                                             const double* ATH_RESTRICT p,
+                                             const AmgVector(5)& ATH_RESTRICT p,
                                              double* ATH_RESTRICT P)
 {
   if(!Su) return false;
@@ -1088,13 +1080,9 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
   if(A!=0.) A=1./A;
   S[0]*=A; S[1]*=A; S[2]*=A;
 
-  const double s0 = P[ 7]*S[0]+P[ 8]*S[1]+P[ 9]*S[2];
-  const double s1 = P[14]*S[0]+P[15]*S[1]+P[16]*S[2];
-  const double s2 = P[21]*S[0]+P[22]*S[1]+P[23]*S[2];
-  const double s3 = P[28]*S[0]+P[29]*S[1]+P[30]*S[2];
-  const double s4 = P[35]*S[0]+P[36]*S[1]+P[37]*S[2];
-
-  globalToLocalVecHelper(P, s0, s1, s2, s3, s4);
+  double s[5]={};
+  mutl3x5Helper(s,S,&P[7]);
+  globalToLocalVecHelper(P, s[0], s[1], s[2], s[3], s[4]);
 
   double P3,P4,C = P[3]*P[3]+P[4]*P[4];
   if(C > 1.e-20) {C= 1./C ; P3 = P[3]*C; P4 =P[4]*C; C =-sqrt(C);}

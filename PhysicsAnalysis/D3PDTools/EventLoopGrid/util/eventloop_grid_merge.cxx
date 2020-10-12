@@ -5,7 +5,7 @@
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <xAODRootAccess/Init.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <TList.h>
 #include <TSystem.h>
 #include <TFile.h>

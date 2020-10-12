@@ -81,6 +81,8 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   std::unique_ptr<SG::ReadCondHandle<SCT_CablingData> >      sctCabling;
 
   EventIDRange id_range;
+
+  ATH_MSG_DEBUG( "RegSelCondAlg:" << name() );
   
   if (m_managerName=="SCT") { // SCT
     sctCabling = std::make_unique<SG::ReadCondHandle<SCT_CablingData> >( m_sctCablingKey, ctx );
@@ -90,12 +92,22 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
     }   
   }
   else { // PIXEL 
+
+    ATH_MSG_DEBUG( "RegSelCondAlg: " << name() << "\t" << m_pixCablingKey );
+    ATH_MSG_DEBUG( "RegSelCondAlg: " << ctx );
+    ATH_MSG_DEBUG( "RegSelCondAlg: " << id_range << "( initial range )" );
+
     pixCabling = std::make_unique<SG::ReadCondHandle<PixelCablingCondData> >( m_pixCablingKey, ctx );
     if( !pixCabling->range( id_range ) ) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << pixCabling->key());
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << pixCabling->key() << " : " << id_range );
       return StatusCode::FAILURE;
     }   
+    ATH_MSG_DEBUG( "RegSelCondAlg: " << id_range << "( final range )" );
+
   }
+
+  ATH_MSG_DEBUG( "RegSelCondAlg:" << name() << " done" );
+
 
   std::unique_ptr<RegSelSiLUT> rd;
 

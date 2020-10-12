@@ -9,6 +9,10 @@
 
 #undef NDEBUG
 
+// Otherwise we get warnings about mutable members in gmock.
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 // Tested AthAlgorithm
 #include "../InDetOverlay/TRTOverlay.h"
 
@@ -35,7 +39,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -66,18 +69,18 @@ namespace OverlayTesting {
     MOCK_CONST_METHOD1(getDetectorOccupancy, std::map<int, double>(const TRT_RDO_Container*) );
 
     // Dummy methods to confirm status
-    virtual StatusCode initialize() override final {
+    virtual StatusCode initialize() final {
       ATH_MSG_INFO ("initializing MockTRT_LocalOccupancy: " << name());
       return StatusCode::SUCCESS;
     };
 
     // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
     /** Return the local occupancy for the sectors crossed by a given track */
-    virtual float LocalOccupancy( const Trk::Track& ) const override { return 1.0; }; // not used - dummy implementation
-    virtual float LocalOccupancy(const double, const double) const  override{ return 1.0; }; // not used - dummy implementation
+    virtual float LocalOccupancy( const Trk::Track& ) const { return 1.0; }; // not used - dummy implementation
+    virtual float LocalOccupancy(const double, const double) const { return 1.0; }; // not used - dummy implementation
 
     /** Return the global occupancy of the event*/
-    virtual std::vector<float> GlobalOccupancy( ) const override { std::vector<float> dummyVect{}; return dummyVect; }; // not used - dummy implementation
+    virtual std::vector<float> GlobalOccupancy( ) const { std::vector<float> dummyVect{}; return dummyVect; }; // not used - dummy implementation
   };
 
   DECLARE_COMPONENT( MockTRT_LocalOccupancy )
@@ -97,23 +100,23 @@ namespace OverlayTesting {
     virtual ~MockTRT_StrawStatusSummaryTool() = default;
 
     // Dummy methods to confirm status
-    virtual StatusCode initialize() override final {
+    virtual StatusCode initialize() final {
       ATH_MSG_INFO ("initializing MockTRT_StrawStatusSummaryTool: " << name());
       return StatusCode::SUCCESS;
     };
 
-    virtual int getStatus(const Identifier ) const override { return 1; }; // not used - dummy implementation
-    virtual int getStatusPermanent(const Identifier) const override { return 1; }; // not used - dummy implementation
+    virtual int getStatus(const Identifier ) const { return 1; }; // not used - dummy implementation
+    virtual int getStatusPermanent(const Identifier) const { return 1; }; // not used - dummy implementation
     MOCK_CONST_METHOD1(getStatusHT, int(const Identifier)); // This is the only method that we actually need! <--------------
-    virtual bool get_status(const Identifier) const override { return false; }; // not used - dummy implementation
-    virtual bool get_statusHT(const Identifier) const override { return false; }; // not used - dummy implementation
-    virtual const StrawStatusContainer* getStrawStatusHTContainer() const override {return nullptr;}; // not used - dummy implementation
+    virtual bool get_status(const Identifier) const { return false; }; // not used - dummy implementation
+    virtual bool get_statusHT(const Identifier) const { return false; }; // not used - dummy implementation
+    virtual const StrawStatusContainer* getStrawStatusHTContainer() const {return nullptr;}; // not used - dummy implementation
 
-    virtual int getStatus(const Identifier, const EventContext&  ) const override { return 1; }; // not used - dummy implementation
-    virtual int getStatusPermanent(const Identifier, const EventContext& ) const override { return 1; }; // not used - dummy implementation
-    virtual int getStatusHT(const Identifier, const EventContext& ) const override { return 1; }; // not used - dummy implementation
-    virtual bool get_status(const Identifier, const EventContext& ) const override { return false; }; // not used - dummy implementation
-    virtual bool get_statusHT(const Identifier, const EventContext& ) const override { return false; }; // not used - dummy implementation
+    virtual int getStatus(const Identifier, const EventContext&  ) const { return 1; }; // not used - dummy implementation
+    virtual int getStatusPermanent(const Identifier, const EventContext& ) const { return 1; }; // not used - dummy implementation
+    virtual int getStatusHT(const Identifier, const EventContext& ) const { return 1; }; // not used - dummy implementation
+    virtual bool get_status(const Identifier, const EventContext& ) const { return false; }; // not used - dummy implementation
+    virtual bool get_statusHT(const Identifier, const EventContext& ) const { return false; }; // not used - dummy implementation
 
   };
 
@@ -154,9 +157,6 @@ namespace OverlayTesting {
 
       ASSERT_TRUE( m_appMgr->configure().isSuccess() );
       ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
-
-      m_jobOptionsSvc = m_svcLoc->service("JobOptionsSvc");
-      ASSERT_TRUE( m_jobOptionsSvc.isValid() );
     }
 
     void TearDownGaudi() {
@@ -172,7 +172,6 @@ namespace OverlayTesting {
     IAppMgrUI*               m_appMgr = nullptr;
     SmartIF<ISvcLocator>     m_svcLoc;
     SmartIF<ISvcManager>     m_svcMgr;
-    SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
     SmartIF<IToolSvc>        m_toolSvc;
     SmartIF<IProperty>       m_propMgr;
   };
@@ -364,7 +363,7 @@ namespace OverlayTesting {
     // check output makes sense
     SG::ReadHandle<TRT_RDO_Container> outputDataHandle{"StoreGateSvc+TRT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
-    ASSERT_EQ( outputDataHandle->numberOfCollections(), 0 );
+    ASSERT_EQ( outputDataHandle->numberOfCollections(), 0u );
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_empty_collections) {
@@ -395,7 +394,7 @@ namespace OverlayTesting {
     // check output makes sense
     SG::ReadHandle<TRT_RDO_Container> outputDataHandle{"StoreGateSvc+TRT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
-    ASSERT_EQ( outputDataHandle->numberOfCollections(),1 );
+    ASSERT_EQ( outputDataHandle->numberOfCollections(),1u );
     const TRT_RDO_Collection *outputCollection = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection, nullptr );
     ASSERT_TRUE( outputCollection->empty() );
@@ -429,7 +428,7 @@ namespace OverlayTesting {
     // check output makes sense
     SG::ReadHandle<TRT_RDO_Container> outputDataHandle{"StoreGateSvc+TRT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
-    ASSERT_EQ( outputDataHandle->numberOfCollections(), 2 );
+    ASSERT_EQ( outputDataHandle->numberOfCollections(), 2u );
     const TRT_RDO_Collection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection1, nullptr );
     ASSERT_TRUE( outputCollection1->empty() );
@@ -487,10 +486,10 @@ namespace OverlayTesting {
     // check output makes sense
     SG::ReadHandle<TRT_RDO_Container> outputDataHandle{"StoreGateSvc+TRT_RDOs"};
     ASSERT_TRUE( outputDataHandle.isValid() );
-    ASSERT_EQ( outputDataHandle->numberOfCollections(), 1 );
+    ASSERT_EQ( outputDataHandle->numberOfCollections(), 1u );
     const TRT_RDO_Collection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection1, nullptr );
-    ASSERT_EQ( outputCollection1->size(), 1 );
+    ASSERT_EQ( outputCollection1->size(), 1u );
     const TRT_LoLumRawData* outputDigit1 = dynamic_cast<const TRT_LoLumRawData*>(outputCollection1->at(0));
     ASSERT_NE( outputDigit1, nullptr );
     ASSERT_EQ( outputDigit1->highLevel(), sigHT );
@@ -566,7 +565,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( outputDataHandle.isValid() );
     const TRT_RDO_Collection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection1, nullptr );
-    ASSERT_EQ( outputCollection1->size(), 1 );
+    ASSERT_EQ( outputCollection1->size(), 1u );
     const TRT_LoLumRawData* outputDigit1 = dynamic_cast<const TRT_LoLumRawData*>(outputCollection1->at(0));
     ASSERT_NE( outputDigit1, nullptr );
     ASSERT_EQ( outputDigit1->highLevel(), sigHT );
@@ -574,7 +573,7 @@ namespace OverlayTesting {
     ASSERT_EQ( outputDigit1->driftTimeBin(), sigDriftTimeBin );
     const TRT_RDO_Collection *outputCollection2 = outputDataHandle->indexFindPtr(bkgElementHash);
     ASSERT_NE( outputCollection2, nullptr );
-    ASSERT_EQ( outputCollection2->size(), 1 );
+    ASSERT_EQ( outputCollection2->size(), 1u );
     const TRT_LoLumRawData* outputDigit2 = dynamic_cast<const TRT_LoLumRawData*>(outputCollection2->at(0));
     ASSERT_NE( outputDigit2, nullptr );
     ASSERT_EQ( outputDigit2->highLevel(), bkgHT );
@@ -642,7 +641,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( outputDataHandle.isValid() );
     const TRT_RDO_Collection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection1, nullptr );
-    ASSERT_EQ( outputCollection1->size(), 1 );
+    ASSERT_EQ( outputCollection1->size(), 1u );
     const TRT_LoLumRawData* outputDigit1 = dynamic_cast<const TRT_LoLumRawData*>(outputCollection1->at(0));
     ASSERT_NE( outputDigit1, nullptr );
     ASSERT_EQ( outputDigit1->highLevel(), sigHT );
@@ -728,12 +727,12 @@ namespace OverlayTesting {
     ASSERT_TRUE( outputDataHandle.isValid() );
     const TRT_RDO_Collection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection1, nullptr );
-    ASSERT_EQ( outputCollection1->size(), 1 );
+    ASSERT_EQ( outputCollection1->size(), 1u );
     const TRT_LoLumRawData* outputDigit1 = dynamic_cast<const TRT_LoLumRawData*>(outputCollection1->at(0));
     ASSERT_NE( outputDigit1, nullptr );
     ASSERT_EQ( outputDigit1->highLevel(), sigHT );
     ASSERT_EQ( outputDigit1->timeOverThreshold(), outputTOT );
-    ASSERT_EQ( outputDigit1->driftTimeBin(), outputDriftTimeBin );
+    ASSERT_EQ( outputDigit1->driftTimeBin(), static_cast<int>(outputDriftTimeBin) );
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_collections_with_differing_LT_RDOs_same_strawID) {
@@ -826,12 +825,12 @@ namespace OverlayTesting {
     ASSERT_TRUE( outputDataHandle.isValid() );
     const TRT_RDO_Collection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection1, nullptr );
-    ASSERT_EQ( outputCollection1->size(), 1 );
+    ASSERT_EQ( outputCollection1->size(), 1u );
     const TRT_LoLumRawData* outputDigit1 = dynamic_cast<const TRT_LoLumRawData*>(outputCollection1->at(0));
     ASSERT_NE( outputDigit1, nullptr );
     ASSERT_EQ( outputDigit1->highLevel(), sigHT );
     ASSERT_EQ( outputDigit1->timeOverThreshold(), outputTOT );
-    ASSERT_EQ( outputDigit1->driftTimeBin(), outputDriftTimeBin );
+    ASSERT_EQ( outputDigit1->driftTimeBin(), static_cast<int>(outputDriftTimeBin) );
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_collections_with_differing_LT_RDOs_same_strawID_ForceHTbit) {
@@ -923,12 +922,12 @@ namespace OverlayTesting {
     ASSERT_TRUE( outputDataHandle.isValid() );
     const TRT_RDO_Collection *outputCollection1 = outputDataHandle->indexFindPtr(sigElementHash);
     ASSERT_NE( outputCollection1, nullptr );
-    ASSERT_EQ( outputCollection1->size(), 1 );
+    ASSERT_EQ( outputCollection1->size(), 1u );
     const TRT_LoLumRawData* outputDigit1 = dynamic_cast<const TRT_LoLumRawData*>(outputCollection1->at(0));
     ASSERT_NE( outputDigit1, nullptr );
     ASSERT_EQ( outputDigit1->highLevel(), true );
     ASSERT_EQ( outputDigit1->timeOverThreshold(), outputTOT );
-    ASSERT_EQ( outputDigit1->driftTimeBin(), outputDriftTimeBin );
+    ASSERT_EQ( outputDigit1->driftTimeBin(), static_cast<int>(outputDriftTimeBin) );
   }
 
 } // <-- namespace OverlayTesting

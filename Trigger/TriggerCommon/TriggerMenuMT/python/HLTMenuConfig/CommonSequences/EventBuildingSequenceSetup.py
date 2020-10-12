@@ -61,6 +61,12 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'LArPEB' in eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.DetNames = ['PIXEL', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD']
+
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel, makeRegSelTool_SCT, makeRegSelTool_TRT 
+        tool.RegSelTool_Pixel = makeRegSelTool_Pixel()
+        tool.RegSelTool_SCT   = makeRegSelTool_SCT()
+        tool.RegSelTool_TRT   = makeRegSelTool_TRT()
+
         tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
         tool.addCTPResultToROBList()  # add the CTP result to the list

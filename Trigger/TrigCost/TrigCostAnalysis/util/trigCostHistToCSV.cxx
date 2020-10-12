@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include <string.h>

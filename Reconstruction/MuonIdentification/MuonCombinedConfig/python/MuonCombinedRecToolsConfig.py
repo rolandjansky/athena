@@ -228,6 +228,10 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
     result.merge(acc)
 
+    acc = ParticleCaloExtensionToolCfg(flags)
+    kwargs.setdefault("ParticleCaloExtensionToolID", acc.getPrimary() )
+    result.merge(acc)
+
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg, MuonTrackSummaryToolCfg
     acc = MuonAmbiProcessorCfg(flags)
     kwargs.setdefault("AmbiguityProcessor", acc.popPrivateTools())

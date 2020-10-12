@@ -5,7 +5,8 @@
 #ifndef JETUNCERTAINTIES_UNCERTAINTYHISTOGRAM_H
 #define JETUNCERTAINTIES_UNCERTAINTYHISTOGRAM_H
 
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "TString.h"
 #include "TH1.h"

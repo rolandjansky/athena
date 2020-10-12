@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h"
@@ -10,6 +10,7 @@
 #include "TH2F.h"
 #include "TRandom.h"
 #include "TFile.h"
+#include "TClass.h"
 
 //=============================================
 //======= TFCS1DFunctionInt32Histogram =========
@@ -76,6 +77,16 @@ double TFCS1DFunctionInt32Histogram::rnd_to_fct(double rnd) const
   } else {                             
     return m_HistoBorders[binx] + (m_HistoBorders[binx+1]-m_HistoBorders[binx]) / 2;
   }
+}
+
+bool TFCS1DFunctionInt32Histogram::operator==(const TFCS1DFunction& ref) const
+{
+  if(IsA()!=ref.IsA()) return false;
+  const TFCS1DFunctionInt32Histogram& ref_typed=static_cast<const TFCS1DFunctionInt32Histogram&>(ref);
+
+  if(m_HistoBorders!=ref_typed.m_HistoBorders) return false;
+  if(m_HistoContents!=ref_typed.m_HistoContents) return false;
+  return true;
 }
 
 void TFCS1DFunctionInt32Histogram::unit_test(TH1* hist)

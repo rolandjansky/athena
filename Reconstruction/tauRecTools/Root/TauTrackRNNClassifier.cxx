@@ -272,11 +272,11 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
     double fTrackPt = xTrackParticle->pt();
     double fTrackEta = xTrackParticle->eta();
     double fTrackCharge = xTrackParticle->charge();
-    double fZ0SinthetaTJVA = xTrack->z0sinThetaTJVA(xTau);
-    double fRConv = xTrack->rConv(xTau);
-    double fRConvII = xTrack->rConvII(xTau);
+    double fZ0SinthetaTJVA = xTrack->z0sinthetaTJVA();
+    double fRConv = xTrack->rConv();
+    double fRConvII = xTrack->rConvII();
     double fDRJetSeedAxis = xTrack->dRJetSeedAxis(xTau);
-    double fD0 = xTrackParticle->d0();
+    double fD0 = xTrack->d0TJVA();
     double fQoverP = xTrackParticle->qOverP();
 
     uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
@@ -306,7 +306,7 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
     valueMap["log(rConv)"][i] = std::log(fRConv);
     valueMap["tanh(rConvII/500)"][i] = std::tanh(fRConvII/500.0);
     valueMap["dRJetSeedAxis"][i] = fDRJetSeedAxis;
-    valueMap["tanh(d0/10)"][i] = std::tanh(fD0/10);
+    valueMap["tanh(d0/10)"][i] = std::tanh(fD0/10.);
     valueMap["qOverP*1000"][i] = fQoverP*1000.0;
     valueMap["numberOfInnermostPixelLayerHits"][i] = (float) iTracksNumberOfInnermostPixelLayerHits;
     valueMap["numberOfPixelSharedHits"][i] = (float) iTracksNPixelSharedHits;

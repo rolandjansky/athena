@@ -363,6 +363,8 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
     kwargs.setdefault("ParticleCaloExtensionTool", pcExtensionTool)
+    #Should be safe as the dynamic alignment is only for data
+    kwargs.setdefault("ParticleCaloExtensionToolID", pcExtensionTool)
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
     kwargs.setdefault("AmbiguityProcessor", CfgGetter.getPublicTool('TrigMuonAmbiProcessor'))
     kwargs.setdefault('MakeTrackAtMSLink',True)
@@ -375,7 +377,18 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
     kwargs.setdefault('MuonTrackBuilder', 'TMEF_CombinedMuonTrackBuilder')
-    kwargs.setdefault('MuonSegmentTrackBuilder', CfgGetter.getPublicTool("MooMuonTrackBuilder"))
+    from MuonRecExample.MuonRecUtils import ExtraFlags
+    extraFlags = ExtraFlags()
+    extraFlags.setFlagDefault("doSegmentPhiMatching", True)
+    from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
+    extraFlags.setFlagDefault(muonStandaloneFlags.optimiseMomentumResolutionUsingChi2) # take name & value from JobProperty
+    extraFlags.setFlagDefault(muonStandaloneFlags.strategy)
+    extraFlags.setFlagDefault(muonStandaloneFlags.trackBuilder)
+    extraFlags.setFlagDefault(muonStandaloneFlags.printSummary)
+    extraFlags.setFlagDefault(muonStandaloneFlags.refinementTool)
+    if "TrackBuilderTool" not in kwargs:
+        extraFlags.setFlagDefault('UseTrackingHistory',True)
+    kwargs.setdefault('MuonSegmentTrackBuilder', CfgGetter.getPublicToolClone("MooMuonTrackBuilder","MooTrackBuilderTemplate",extraFlags=extraFlags))
     return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
 
 def TMEF_MuonPRDSelectionTool(name="TMEF_MuonPRDSelectionTool",**kwargs):

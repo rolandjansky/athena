@@ -10,6 +10,7 @@
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "TrigSteeringEvent/OnlineErrorCode.h"
 #include "TrigSteerMonitor/ISchedulerMonSvc.h"
+#include "TrigSteerMonitor/ITrigErrorMonTool.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -156,9 +157,6 @@ private:
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
-  /// Produce a subset of IAlgExecStateSvc::algExecStates with only non-success StatusCodes
-  std::unordered_map<std::string_view,StatusCode> algExecErrors(const EventContext& eventContext) const;
-
   /// Drain the scheduler from all actions that may be queued
   DrainSchedulerStatusCode drainScheduler();
 
@@ -186,6 +184,7 @@ private:
   ToolHandle<TrigCOOLUpdateHelper>   m_coolHelper{this, "CoolUpdateTool", "TrigCOOLUpdateHelper"};
   ToolHandle<HLTResultMTMaker>       m_hltResultMaker{this, "ResultMaker", "HLTResultMTMaker"};
   ToolHandle<GenericMonitoringTool>  m_monTool{this, "MonTool", "", "Monitoring tool"};
+  ToolHandle<ITrigErrorMonTool>      m_errorMonTool{this, "TrigErrorMonTool", "TrigErrorMonTool", "Error monitoring tool"};
 
   SmartIF<IHiveWhiteBoard> m_whiteboard;
   SmartIF<IAlgResourcePool> m_algResourcePool;

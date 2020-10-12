@@ -34,6 +34,7 @@ class ZdcPpmSubBlock : public ZdcSubBlock {
    ~ZdcPpmSubBlock();
 
    /// Clear all data
+   // cppcheck-suppress duplInheritedMember
    void clear();
 
    /// Store PPM header

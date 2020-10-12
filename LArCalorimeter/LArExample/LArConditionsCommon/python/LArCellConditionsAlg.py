@@ -16,9 +16,9 @@ __doc__ = " An athena-like algorithm to interactivly convert LAr Identifiers and
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 
-import cppyy 
+import ROOT,cppyy 
 
-from ROOT import HWIdentifier, Identifier, Identifier32, IdentifierHash, LArBadChannel
+from ROOT import HWIdentifier, Identifier, Identifier32, IdentifierHash, LArBadChannel, LArBadChanBitPacking
 from ROOT import CaloDetDescrManager
 
 from ctypes import c_uint
@@ -62,6 +62,12 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if self._detStore is None:
             self.msg.error("Failed to get DetectorStore")
             return StatusCode.Failure
+
+        self._condStore = StoreGate.pointer("ConditionStore")
+        if (self._condStore is None):
+            self.msg.error("Failed to get ConditionStore")
+            return StatusCode.Failure
+
         # Get LArOnlineID helper class
         self.onlineID=self._detStore.retrieve("LArOnlineID","LArOnlineID")
         if self.onlineID is None:
@@ -74,20 +80,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             self.msg.error("Failed to get CaloCell_ID")
             return StatusCode.Failure
 
-
-        # -----------------------------------------------------------
-        # Initialize LArCabling service
-        self.larCablingSvc=PyAthena.py_tool("LArCablingLegacyService")
-        if self.larCablingSvc is None:
-            self.msg.error('Problem retrieving LArCablingService pointer !')
-            return StatusCode.Failure
-        else:
-            self.msg.info('retrieved [%s]', self.larCablingSvc.name())
-
-
-
-        self.class_larBCBitPacking=cppyy.makeClass("LArBadChanBitPacking")
-        self.bc_packing=self.class_larBCBitPacking()
+        self.bc_packing=LArBadChanBitPacking()
 
         self.noisepattern=0
         for n in ("lowNoiseHG","highNoiseHG","unstableNoiseHG","lowNoiseMG","highNoiseMG","unstableNoiseMG","lowNoiseLG","highNoiseLG","unstableNoiseLG","sporadicBurstNoise"):
@@ -125,14 +118,32 @@ class LArCellConditionsAlg(PyAthena.Alg):
     def execute(self):
         self.msg.info('running execute...')
 
-        #for some obscure reason, we need run dump before we can retrieve the flat objects using their abstract interface
-        garbagedump = open(os.devnull, 'w')
-        self._detStore.dump(garbagedump)
-        garbagedump.close()
+        #for debugging purposes:
+        #sgdump = open("sgdump.txt", 'w')
+        #self._condStore.dump(sgdump)
+        #sgdump.close()
 
+        eid=ROOT.Gaudi.Hive.currentContext().eventID()
+
+        try:
+            condCont=self._condStore.retrieve("CondCont<LArOnOffIdMapping>","LArOnOffIdMap")
+            self.larCabling=condCont.find(eid)
+        except Exception:
+            print("ERROR, failed to get LArCabling")
+            return StatusCode.Failure
+
+
+        try:
+            condCont=self._condStore.retrieve("CondCont<LArBadChannelCont>","LArBadChannel")
+            self.badChannels=condCont.find(eid)
+        except Exception:
+            print("ERROR, failed to get LArBadChannels")
+            return StatusCode.Failure
+            
         if self.includeConditions:
             try:
-                self.larPedestal=self._detStore.retrieve("ILArPedestal","Pedestal")
+                condCont=self._condStore.retrieve("CondCont<ILArPedestal>","LArPedestal")
+                self.larPedestal=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve Pedestal from DetStore")
                 import traceback
@@ -140,7 +151,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larPedestal=None
                 
             try:
-                self.larMphysOverMcal=self._detStore.retrieve("ILArMphysOverMcal","LArMphysOverMcal")
+                condCont=self._condStore.retrieve("CondCont<ILArMphysOverMcal>","LArMphysOverMcal")
+                self.larMphysOverMcal=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve MphysOverMcal from DetStore")
                 import traceback
@@ -148,7 +160,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larMphysOverMcal=None
 
             try:
-                self.larRamp=self._detStore.retrieve("ILArRamp","LArRamp")
+                condCont=self._condStore.retrieve("CondCont<ILArRamp>","LArRamp")
+                self.larRamp=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArRamp from DetStore")
                 import traceback
@@ -156,7 +169,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larRamp=None
                 
             try:
-                self.larDAC2uA=self._detStore.retrieve("ILArDAC2uA","LArDAC2uA")
+                condCont=self._condStore.retrieve("CondCont<ILArDAC2uA>","LArDAC2uA")
+                self.larDAC2uA=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArDAC2uA from DetStore")
                 import traceback
@@ -164,7 +178,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.larDAC2uA=None
 
             try:
-                self.laruA2MeV=self._detStore.retrieve("ILAruA2MeV","LAruA2MeV")
+                condCont=self._condStore.retrieve("CondCont<ILAruA2MeV>","LAruA2MeV")
+                self.laruA2MeV=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LAruA2MeV from DetStore")
                 import traceback
@@ -172,7 +187,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self.laruA2MeV=None
 
             try:
-                self.larhvScaleCorr=self._detStore.retrieve("ILArHVScaleCorr","LArHVScaleCorr")
+                condCont=self._condStore.retrieve("CondCont<ILArHVScaleCorr>","LArHVScaleCorr")
+                self.larhvScaleCorr=condCont.find(eid)
             except Exception:
                 print ("WARNING: Failed to retrieve LArHVScaleCorr from DetStore")
                 import traceback
@@ -202,7 +218,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
             id=None
             chid=None
             rep_in=self.readInput() #"Enter Id >").upper().strip()
-            #print ("User Input...")
             #rep_in="EMBA 0 0 60 2"
             rep=rep_in.upper()
             
@@ -228,9 +243,9 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 t_int=int(rep,10)
                 t=Identifier(c_uint(t_int))
                 if self.onlineID.is_lar(t):
-                    print(t," IsLAr (online)")
+                    print(t.get_identifier32().get_compact()," IsLAr (online)")
                 if self.offlineID.is_lar(t):
-                    print(t," isLAr (offline)")
+                    print(t.get_identifier32().getCompact()," isLAr (offline)")
             except:
                 pass
 
@@ -243,7 +258,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 if s==-1:s=0
                 chid=self.getOnlineIDFromString(rep[s:])
                 if chid is not None and self.onlineID.is_lar(chid):
-                    id=self.larCablingSvc.cnvToIdentifier(chid)
+                    id=self.larCabling.cnvToIdentifier(chid)
                     if id is None: id=self.noid
                     self.printChannelInfo(id,chid)
                 else:
@@ -256,7 +271,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 if s==-1:s=0
                 id=self.getOfflineIDFromString(rep[s:])
                 if id is not None and self.offlineID.is_lar(id):
-                    chid=self.larCablingSvc.createSignalChannelID(id)
+                    chid=self.larCabling.createSignalChannelID(id)
                     self.printChannelInfo(id,chid)
                 else:
                     print("ERROR: Could not interpret input.")
@@ -266,11 +281,11 @@ class LArCellConditionsAlg(PyAthena.Alg):
             #Try to interpet input as identifiers
             chid=self.getOnlineIDFromString(rep)
             if chid is not None and self.onlineID.is_lar(chid):
-                id=self.larCablingSvc.cnvToIdentifier(chid)
+                id=self.larCabling.cnvToIdentifier(chid)
             else: #try interpret at offline ID
                 id=self.getOfflineIDFromString(rep)
                 if id is not None and self.offlineID.is_lar(id):
-                     chid=self.larCablingSvc.createSignalChannelID(id)
+                     chid=self.larCabling.createSignalChannelID(id)
                      
             if chid is None or id is None:
                 print( "ERROR: Could not interpret input.")
@@ -283,7 +298,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
         return StatusCode.Success
 
     def printChannelInfo(self,id,chid):
-        
+        bc=self.badChannels.status(chid)
+        print(self.IdentifiersToString(chid,id)+ " " + self.bc_packing.stringStatus(bc))
         if id!=self.noid: #Don't try to show anything more for disconnected channels
             if self.includeLocation:
                 try:
@@ -319,8 +335,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                         ped=-9999
                         pedRMS=-9999
 
-                    print ("Ped: %.3f " % ped,end="")
-                    print ("PedRMS: %.3f" % pedRMS,end="")
+                    print (" Ped: %.3f " % ped,end="")
+                    print (" PedRMS: %.3f" % pedRMS,end="")
 
                     if self.larRamp is not None:
                         ramp=self.larRamp.ADC2DAC(chid,gain)
@@ -336,7 +352,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                         print (" MphysOverMcal: %.5f" % mpmc,end="")
                     else:
                         print (" MphysOverMcal: None",end="")
-                    print (os.linesep)
+                    print ("")
             if self.includeDSPTh:
                 if self.larDSPThr is not None:
                     tQThr=self.larDSPThr.tQThr(chid)
@@ -345,7 +361,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
                     print("DSP Thresholds: tQ:%f, samples:%f, trigSum:%f" % (tQThr,samThr,trgSumTrh))
                 else:
                     print("DSP Thresholds: None")
-
 
 
     def finalize(self):
@@ -358,7 +373,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         print(out)
         self.nLinesPrinted=self.nLinesPrinted+1
         if self.nLinesPrinted%40 is 0:
-            c=raw_input("Press 'q' to quit, 'a' for all ...")
+            c=input("Press 'q' to quit, 'a' for all ...")
             if c.upper().startswith("Q"):
                 return True
             if c.upper().startswith("A"):
@@ -369,7 +384,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
     def readInput(self):
         self.nLinesPrinted=0
         try:
-            rep=raw_input("Enter Id >")
+            rep=input("Enter Id >")
         except:
             return ""
 
@@ -401,7 +416,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             onlName+="FT "+str(ft)+"("+ftname+")/Slot "+str(slot)+"/Chan "+str(chan)
 
             try:
-                calibLines=self.larCablingSvc.calibSlotLine(chid);
+                calibLines=self.larCabling.calibSlotLine(chid);
                 if (len(calibLines)):
                     onlName+="/CL"
                     for calib_chid in calibLines:
@@ -480,7 +495,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 return None
 
         else: #given as expanded ID
-            tbl=maketrans(",:;/\#","      "); 
+            tbl=str.maketrans(",:;/\#","      "); 
             fields=[]
             for f in upInput.translate(tbl).split():
                 if len(f):
@@ -619,7 +634,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 return None
 
         else: #given as expanded ID
-            tbl=maketrans(",:;/\#","      "); 
+            tbl=str.maketrans(",:;/\#","      "); 
             fields=[]
             for f in upInput.translate(tbl).split():
                 if len(f):
@@ -703,7 +718,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         outfile=None
         layer=None
         cl=None
-        tbl=maketrans(",:;#=","     ");
+        tbl=str.maketrans(",:;#=","     ");
         tokens=[]
         for t in input.translate(tbl).split():
             if len(t):
@@ -800,7 +815,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                     print("Unknown Keyword",tokens[i]    )
             i=i+1
 
-        print("Searching for cells with",end="")
+        print("Searching for cells with ",end="")
         if eta is not None: print(" %.3f <= eta <= %.3f" % (eta[0],eta[1]),end="")
         if phi is not None: print(" %.3f <= phi <= %.3f" % (phi[0],phi[1]),end="")
         if layer is not None: print(" %.0f <= layer <= %.0f" % (layer[0],layer[1]),end="")
@@ -844,9 +859,14 @@ class LArCellConditionsAlg(PyAthena.Alg):
         #for idH in range(self.offlineID.calo_cell_hash_max()): //This one includes also tile cells
         for idH in range(182468):
             idHash=IdentifierHash(idH)
-            chid=self.larCablingSvc.createSignalChannelIDFromHash(idHash)
+            chid=self.larCabling.createSignalChannelIDFromHash(idHash)
             
             #print ("Loop hash=%i , on: %x , off: %x" % (idH, chid.get_identifier32().get_compact(), self.offlineID.cell_id(idHash).get_identifier32().get_compact()))
+            #Check Bad-Channel Status
+            bcstat=self.badChannels.status(chid)
+            if bctypes!=0:
+                bcw=bcstat.packedData()
+                if bcw & bctypes == 0: continue
 
                     
             #Check Online Id
@@ -857,7 +877,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
             if cl is not None:
                 try:
-                    calibLines=self.larCablingSvc.calibSlotLine(chid);
+                    calibLines=self.larCabling.calibSlotLine(chid);
                     keep=False
                     for foundCLs in calibLines:
                         if self.onlineID.channel(foundCLs) == cl:
@@ -880,13 +900,13 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 p=theDDE.phi()
                 if eta is not None and (e<eta[0] or e>eta[1]): continue
                 if phi is not None and (p<phi[0] or p>phi[1]): continue
-                ep=" eta=%.3f phi=%.3f" % (e,p)
+                ep=" eta=%.3f phi=%.3f " % (e,p)
                 
             id=self.offlineID.cell_id(idHash)
             if subcalo is not None and subcalo!=self.offlineID.sub_calo(id): continue
             if layer is not None and (self.offlineID.sampling(id)<layer[0] or self.offlineID.sampling(id)>layer[1]): continue
 
-            br=self.output(self.IdentifiersToString(chid,id) + " " +ep,outfile)
+            br=self.output(self.IdentifiersToString(chid,id) + " " +ep+self.bc_packing.stringStatus(bcstat),outfile)
             if br: break
             
         if outfile is not None: outfile.close()

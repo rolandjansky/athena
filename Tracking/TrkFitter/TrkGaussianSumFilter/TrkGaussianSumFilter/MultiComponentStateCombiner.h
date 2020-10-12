@@ -60,10 +60,6 @@ combineWithWeight(const MultiComponentState&,
                   const bool useMode = false,
                   const double fractionPDFused = 1.0);
 
-std::unique_ptr<Trk::ComponentParameters>
-compute(const MultiComponentState*,
-        const bool useMode = false,
-        const double fractionPDFused = 1.0);
 }
 } // end Trk namespace
 

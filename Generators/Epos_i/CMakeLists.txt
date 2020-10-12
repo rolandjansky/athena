@@ -1,18 +1,7 @@
-################################################################################
-# Package: Epos_i
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Epos_i )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Generators/GeneratorModules
-                          Generators/AtlasHepMC
-                          PRIVATE
-                          Control/AthenaKernel
-                          GaudiKernel
-                          Generators/TruthUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -36,8 +25,7 @@ atlas_add_library( Epos_iLib
 
 atlas_add_component( Epos_i
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CRMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${CRMC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib GeneratorModulesLib AthenaKernel GaudiKernel TruthUtils Epos_iLib )
+                     LINK_LIBRARIES Epos_iLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

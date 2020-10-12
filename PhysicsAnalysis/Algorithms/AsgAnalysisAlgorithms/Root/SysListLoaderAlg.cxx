@@ -13,7 +13,7 @@
 
 #include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <PATInterfaces/MakeSystematicsVector.h>
 #include <PATInterfaces/SystematicRegistry.h>
 

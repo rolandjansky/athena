@@ -19,7 +19,6 @@
 
 # Temporary VP1 compilation issues
 - graphics/VP1/VP1Systems/VP1TriggerSystems
-- graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*

@@ -291,7 +291,6 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
                                               )
@@ -665,6 +664,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     tauParticleCache = getParticleCache(),
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
+                                    TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
                                     #removeTracksOutsideZ0wrtLeadTrk = True
                                     )

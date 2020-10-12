@@ -9,7 +9,7 @@
 #include "Normalizations.h"
 #include <cmath>
 #include <limits>
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 
 /**
  * @brief Namespace dedicated for Ringer utilities

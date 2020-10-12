@@ -30,8 +30,7 @@ following access pattern:
 
 <pre>
   const EMBDetectorManager * manager=NULL;
-  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  detStore->retrieve(manager);
+  ATH_CHECK( detStore()->retrieve(manager) );
   if (manager) {
   }
 </pre>

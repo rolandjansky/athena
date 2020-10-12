@@ -12,6 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectro
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronSequenceSetup import precisionElectronMenuSequence
 
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
@@ -32,11 +33,15 @@ def precisionElectronSequenceCfg( flags ):
 
 # this must be moved to the HypoTool file:
 def diElectronMassComboHypoToolFromDict(chainDict):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDielectronMassHypoTool
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaMassHypoTool
     name = chainDict['chainName']
-    tool= TrigEgammaDielectronMassHypoTool(name)
+    monTool = GenericMonitoringTool("MonTool_"+name)
+    monTool.Histograms = [defineHistogram('MassOfAccepted', type='TH1F', path='EXPERT', title="Mass in accepted combinations [MeV]", xbins=75, xmin=0, xmax=150000)]
+    tool= TrigEgammaMassHypoTool(name)
     tool.LowerMassElectronClusterCut = 50000
     tool.UpperMassElectronClusterCut = 130000
+    monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
+    tool.MonTool = monTool
     return tool
 
 #----------------------------------------------------------------

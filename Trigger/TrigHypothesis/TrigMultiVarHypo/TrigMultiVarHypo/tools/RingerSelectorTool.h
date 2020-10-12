@@ -20,7 +20,7 @@
 #include "TrigMultiVarHypo/tools/procedures/Norm1.h"
 
 #include "AthenaMonitoringKernel/MonitoredTimer.h"
-#include "AsgTools/AsgMessaging.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include <memory>
 #include <string>
 

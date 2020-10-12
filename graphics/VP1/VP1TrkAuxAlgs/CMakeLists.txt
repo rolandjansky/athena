@@ -1,22 +1,7 @@
-################################################################################
-# Package: VP1TrkAuxAlgs
-################################################################################
-# Author: <abandoned>
-################################################################################
+# Copyright (C) 2020 2002, 2020-CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1TrkAuxAlgs )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaBaseComps
-   PRIVATE
-   GaudiKernel
-   Tracking/TrkExtrapolation/TrkExInterfaces
-   Tracking/TrkFitter/TrkFitterInterfaces
-   graphics/VP1/VP1Base
-   graphics/VP1/VP1Utils )
 
 # External dependencies:
 find_package( Qt5 COMPONENTS Core  )
@@ -25,6 +10,3 @@ find_package( Qt5 COMPONENTS Core  )
 atlas_add_component( VP1TrkAuxAlgs src/*.cxx src/components/*.cxx
    LINK_LIBRARIES Qt5::Core AthenaBaseComps GaudiKernel TrkExInterfaces ${SOQT_LIBRARIES}
    TrkFitterInterfaces VP1Base VP1Utils )
-
-# Install files from the package:
-atlas_install_headers( VP1TrkAuxAlgs )

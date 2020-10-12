@@ -128,6 +128,7 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
     jclust.JetAlgorithm = "AntiKt"
     jclust.JetRadius = 1.0
     jclust.PtMin = 10e3 # MeV
+    jclust.GhostArea = 0.01
     jclust.InputPseudoJets = "PseudoJetMerged_"+buildjetsname
     jclust.JetInputType = 1 # Hardcoded "magic number" for now
     # See https://gitlab.cern.ch/atlas/athena/blob/master/Event/xAOD/xAODJet/xAODJet/JetContainerInfo.h

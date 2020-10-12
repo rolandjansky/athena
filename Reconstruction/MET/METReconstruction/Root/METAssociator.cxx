@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // METAssociator.cxx
@@ -54,15 +54,13 @@ namespace met {
     m_caloIsolationTool(this,""),
     m_pvcollKey(""),
     m_clcollKey(""),
-    m_trkcollKey(""),
-    m_pfcollKey("")
+    m_trkcollKey("")
   {
     ATH_MSG_INFO("METAssoc constructor");
     declareProperty( "InputCollection",    m_input_data_key                      );
     declareProperty( "PrimVxColl",         m_pvcoll      = "PrimaryVertices"     );
     declareProperty( "TrkColl",            m_trkcoll     = "InDetTrackParticles" );
     declareProperty( "ClusColl",           m_clcoll      = "CaloCalTopoClusters" );
-    declareProperty( "PFlowColl",          m_pfcoll      = "CHSParticleFlowObjects" );
     declareProperty( "UseModifiedClus",    m_useModifiedClus = false            );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
@@ -109,13 +107,6 @@ namespace met {
       }
     }
 
-    if(m_pfcoll == "JetETMissParticleFlowObjects") {
-      ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcoll << "\".");
-      ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Configured to use PFlow collection \"" << m_pfcoll << "\".");
-    }
     //initialise read handle keys
     if(m_useTracks){
       ATH_CHECK( m_pvcollKey.assign(m_pvcoll));
@@ -124,8 +115,14 @@ namespace met {
       ATH_CHECK( m_trkcollKey.initialize());
     }
     if(m_pflow){
-      ATH_CHECK( m_pfcollKey.assign(m_pfcoll));
       ATH_CHECK( m_pfcollKey.initialize());
+      if(m_pfcollKey.key() == "JetETMissParticleFlowObjects") {
+        ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcollKey.key() << "\".");
+        ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
+        return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_INFO("Configured to use PFlow collection \"" << m_pfcollKey.key() << "\".");
+      }
     }
     if(!m_skipconst || m_forcoll.empty()){
       ATH_CHECK( m_clcollKey.assign(m_clcoll));
@@ -263,7 +260,7 @@ namespace met {
       constits.trkCont=trCont.cptr();
 
       if(m_pflow) {
-	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcoll);
+	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcollKey.key());
 	constits.pfoCont = 0;
         SG::ReadHandle<PFOContainer> pfCont(m_pfcollKey);
         if (!pfCont.isValid()) {

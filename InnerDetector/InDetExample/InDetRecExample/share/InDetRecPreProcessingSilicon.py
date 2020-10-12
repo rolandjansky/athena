@@ -153,6 +153,10 @@ if InDetFlags.doPRDFormation():
                                                             gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                             DataObjectName          = InDetKeys.PixelRDOs(),
                                                             ClustersName            = InDetKeys.PixelClusters())
+
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+      InDetPixelClusterization.RegSelTool = makeRegSelTool_Pixel()
+
       topSequence += InDetPixelClusterization
       if (InDetFlags.doPrintConfigurables()):
          printfunc (InDetPixelClusterization)
@@ -164,6 +168,10 @@ if InDetFlags.doPRDFormation():
                                                                 DataObjectName          = InDetKeys.PixelPURDOs(),
                                                                 ClustersName            = InDetKeys.PixelPUClusters(),
                                                                 AmbiguitiesMap = "PixelClusterAmbiguitiesMapPU")
+
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+        InDetPixelClusterizationPU.RegSelTool = makeRegSelTool_Pixel()
+
         topSequence += InDetPixelClusterizationPU
         if (InDetFlags.doPrintConfigurables()):
           printfunc (InDetPixelClusterizationPU)

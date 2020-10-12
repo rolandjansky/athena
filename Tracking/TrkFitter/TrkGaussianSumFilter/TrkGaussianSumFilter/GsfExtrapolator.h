@@ -295,30 +295,18 @@ private:
   Trk::MagneticFieldProperties m_fieldProperties;
 
   //!< Statistics: Number of calls to the main extrapolate method
-  mutable Gaudi::Accumulators::Counter<int,
-                                       Gaudi::Accumulators::atomicity::full>
-    m_extrapolateCalls;
+  mutable Gaudi::Accumulators::Counter<> m_extrapolateCalls;
   //!< Statistics: Number of calls to the extrapolate directly method
-  mutable Gaudi::Accumulators::Counter<int,
-                                       Gaudi::Accumulators::atomicity::full>
-    m_extrapolateDirectlyCalls;
+  mutable Gaudi::Accumulators::Counter<> m_extrapolateDirectlyCalls;
   //!< Statistics: Number of calls to the  extrapolate directly fallback
-  mutable Gaudi::Accumulators::Counter<int,
-                                       Gaudi::Accumulators::atomicity::full>
-    m_extrapolateDirectlyFallbacks;
+  mutable Gaudi::Accumulators::Counter<> m_extrapolateDirectlyFallbacks;
   //!< Statistics: Number of times navigation stepping fails to go the  right
   //!< way
-  mutable Gaudi::Accumulators::Counter<int,
-                                       Gaudi::Accumulators::atomicity::full>
-    m_navigationDistanceIncreaseBreaks;
+  mutable Gaudi::Accumulators::Counter<> m_navigationDistanceIncreaseBreaks;
   //!< Statistics: Number of times a tracking volume oscillation is detected
-  mutable Gaudi::Accumulators::Counter<int,
-                                       Gaudi::Accumulators::atomicity::full>
-    m_oscillationBreaks;
+  mutable Gaudi::Accumulators::Counter<> m_oscillationBreaks;
   //!< Statistics: Number of times the volume boundary is missed
-  mutable Gaudi::Accumulators::Counter<int,
-                                       Gaudi::Accumulators::atomicity::full>
-    m_missedVolumeBoundary;
+  mutable Gaudi::Accumulators::Counter<> m_missedVolumeBoundary;
 };
 
 } // end namespace Trk

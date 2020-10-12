@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrization_h
@@ -45,6 +45,9 @@ public:
   virtual void set_eta(const TFCSParametrizationBase& ref);
   virtual void set_Ekin_eta(const TFCSParametrizationBase& ref);
   virtual void set_pdgid_Ekin_eta(const TFCSParametrizationBase& ref);
+  
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
 
 private:
   std::set< int > m_pdgid;

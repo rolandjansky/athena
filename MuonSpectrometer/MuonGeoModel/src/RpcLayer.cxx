@@ -2,10 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "MuonGeoModel/RpcLayer.h"
 
 #include "MuonGeoModel/Rpc.h"
 #include "MuonGeoModel/RPC_Technology.h"
-#include "MuonGeoModel/RpcLayer.h"
 #include "MuonGeoModel/Cutout.h"
 #include "MuonGeoModel/MYSQL.h"
 #include "GeoModelKernel/GeoCutVolAction.h"
@@ -18,9 +18,10 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "MuonReadoutGeometry/GlobalUtilities.h"
+#include "GeoModelKernel/GeoShapeSubtraction.h" // for cutouts
+
 #include <iomanip>
 #include <TString.h> // for Form
-#include "GeoModelKernel/GeoShapeSubtraction.h" // for cutouts
 
 namespace {
   static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
@@ -112,10 +113,15 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
                                     strpanWidth/2.-strpanCopperThickness,
                                     strpanLength/2.-strpanCopperThickness);
   const GeoShape* scustrpan = sstrpan;
+
+  auto stripMaterial = getMaterialManager()->getMaterial("muo::RpcFoam");
+  if (m->nGasGaps()==3) { // for BIS RPCs
+    stripMaterial = getMaterialManager()->getMaterial("muo::Forex");
+  }
+
   GeoLogVol* lcustrpan = new GeoLogVol("RPC_StripPanelCuSkin", scustrpan,
                                         getMaterialManager()->getMaterial("std::Copper"));
-  GeoLogVol* lfoamstrpan = new GeoLogVol("RPC_StripPanelFoam", sfoamstrpan,
-                                          getMaterialManager()->getMaterial("muo::RpcFoam"));
+  GeoLogVol* lfoamstrpan = new GeoLogVol("RPC_StripPanelFoam", sfoamstrpan, stripMaterial);
 
   newpos += strpanThickness/2. + tol/2.;
   GeoPhysVol* pcustrpan11 = new GeoPhysVol(lcustrpan);
@@ -202,23 +208,23 @@ GeoVPhysVol* RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     if (name == "RPC26" ) { //big RPC7
       gasLength   = ggLength - 93.25; // ggLength - deadframesizeEta
       gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-      y_translation = -45.715;
-      z_translation = -37.85;
+      y_translation = -9.1;
+      z_translation = 3.22;
     } else if (name == "RPC27" ){//small RPC7
       gasLength   = ggLength - 93.12; // ggLength - deadframesizeEta
       gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-      y_translation = -45.715;
-      z_translation = -37.63;
+      y_translation = -9.1;
+      z_translation = 3.06;
     } else if (name == "RPC28"){//big RPC8
       gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
       gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-      y_translation = -26.99;
-      z_translation = -37.64;
+      y_translation = -27.7;
+      z_translation = 3.11;
     } else if (name == "RPC29"){//small RPC8
       gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
       gasWidth    = ggWidth - 109.2; // ggWidth - deadframesizePhi
-      y_translation = -45.8;
-      z_translation = -37.64;
+      y_translation = -8.8;
+      z_translation = 3.11;
     }
   }
 

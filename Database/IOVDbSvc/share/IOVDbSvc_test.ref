@@ -1,40 +1,28 @@
 IOVDbSvc_test
 
 
-Initializing Gaudi ApplicationMgr using job opts user_path/athena/Database/IOVDbSvc/share/IOVDbSvc_test.txt
-JobOptionsSvc        INFO # =======> user_path/athena/Database/IOVDbSvc/share/../share/IOVDbSvc_test.txt
+Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/m/mnowak/athena/event.service.mp/build/x86_64-centos7-gcc8-opt/jobOptions/IOVDbSvc/IOVDbSvc_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/m/mnowak/athena/event.service.mp/build/x86_64-centos7-gcc8-opt/jobOptions/IOVDbSvc/IOVDbSvc_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
-JobOptionsSvc        INFO # (2,1): IOVDbSvc.Folders = ["/key1", "/key2<extensible/>"]
+JobOptionsSvc        INFO # (2,1): IOVDbSvc.Folders = ["<db>sqlite://none;schema=mytest.db;dbname=OFLP200</db> /key1", "<db>sqlite://none;schema=mytest.db;dbname=OFLP200</db> /key2<extensible/>"]
 JobOptionsSvc        INFO # (3,1): EventPersistencySvc.CnvServices += ["AthenaPoolCnvSvc"]
-JobOptionsSvc        INFO Job options successfully read in from ../share/IOVDbSvc_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/m/mnowak/athena/event.service.mp/build/x86_64-centos7-gcc8-opt/jobOptions/IOVDbSvc/IOVDbSvc_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r4)
-                                          running on lxplus021.cern.ch on Mon Nov 19 14:46:10 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
+                                          running on aibuild20-040.cern.ch on Fri Oct  2 21:29:07 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 642 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 758 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
-PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
-PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-11-17T2340/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus021.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
-PoolSvc              INFO Successfully setup replica sorting algorithm
-PoolSvc              INFO Setting up APR FileCatalog and Streams
-PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
 IOVDbFolder          INFO Extensible folder /key2
 IOVDbSvc             INFO Initialised with 2 connections and 2 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+ClassIDSvc           INFO  getRegistryEntries: read 1467 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
@@ -42,9 +30,19 @@ IOVDbSvc             INFO Disconnecting from sqlite://none;schema=mytest.db;dbna
 test1
 IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://none;schema=mytest.db;dbname=OFLP200
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-01T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host aibuild20-040.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 IOVDbFolder          INFO Increase cache length (step 1) for folder /key2 to 8589934590 at validityKey 85899345935
 IOVDbSvc             INFO Opening COOL connection for sqlite://none;schema=mytest.db;dbname=OFLP200
 IOVDbSvc             INFO Disconnecting from sqlite://none;schema=mytest.db;dbname=OFLP200
-

@@ -119,14 +119,15 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       // Perigee, no alignment -> default geo context
       ActsGeometryContext gctx = m_extrapolationTool->trackingGeometryTool()
                                      ->getNominalGeometryContext();
-      auto anygctx = gctx.any();
-      Acts::BoundParameters startParameters(
-          anygctx, std::move(cov), std::move(pars), std::move(surface));
+      Acts::BoundTrackParameters startParameters(std::move(surface), std::move(pars), std::move(cov));
       output = m_extrapolationTool->propagationSteps(ctx, startParameters);
       if(output.first.size() == 0) {
         ATH_MSG_WARNING("Got ZERO steps from the extrapolation tool");
       }
-      m_propStepWriterSvc->write(output.first);
+      if (m_writePropStep) {
+        m_propStepWriterSvc->write(output.first);
+      }
+
       if(m_writeMaterialTracks){
         Acts::RecordedMaterialTrack track;
         track.first.first = Acts::Vector3D(0,0,0);

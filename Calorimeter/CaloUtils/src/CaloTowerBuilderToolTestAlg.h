@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloTowerBuilderToolTestAlg.h
  * @author scott snyder <snyder@bnl.gov>
@@ -23,9 +20,10 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
+#include <cstdint>
 class CaloCellContainer;
 class CaloTowerContainer;
-class ICaloTowerBuilderToolBase;
+class ICaloTowerBuilderToolBase; 
 
 
 class CaloTowerBuilderToolTestAlg
@@ -61,6 +59,8 @@ private:
   ToolHandle<ICaloTowerBuilderToolBase> m_builder;
   std::vector<CaloCell_ID::SUBCALO> m_calos;
   CaloTowerSeg m_seg;
+
+  uint32_t m_seed;
 };
 
 

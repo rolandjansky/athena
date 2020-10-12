@@ -71,11 +71,11 @@ StatusCode TauAnalysisToolsExampleAthena::execute()
     tau = new xAOD::TauJet();
     tau->makePrivateStore( **tau_itr );
 
-    m_effTool->applyEfficiencyScaleFactor(*tau);
+    ATH_CHECK (m_effTool->applyEfficiencyScaleFactor(*tau));
 
     ATH_MSG_INFO( "  sf = " << tau->auxdata< double >( "TauScaleFactorJetID" ) );
 
-    m_smearTool->applyCorrection(*tau);
+    ATH_CHECK (m_smearTool->applyCorrection(*tau));
     ATH_MSG_INFO( "Unsmeared tau pt " << tau->pt() << " Smeared tau pt: " << tau->p4().Pt());
   }
 
