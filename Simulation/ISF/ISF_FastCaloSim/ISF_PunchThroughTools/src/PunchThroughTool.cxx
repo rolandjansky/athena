@@ -431,6 +431,7 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
   // first int is pdg, second int is number of particles created
   std::map<int, int> corrPdgNumDone;
 
+
   // loop over all particle pdgs
   for (const auto& it : m_particles)
     {
@@ -526,6 +527,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
       do
         {
           numParticles = lround( p->getNumParticlesPDF()->getRand(parameters) );
+
           // scale the number of particles if requested
           numParticles = lround( numParticles *= p->getNumParticlesFactor() );
         }
@@ -756,11 +758,11 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   // read in the data needed to construct the distributions for the number of punch-through particles
 
   // (1.) get the distribution function for the number of punch-through particles
-  std::shared_ptr<ISF::PDFcreator> pdf_num(readLookuptablePDF(pdg, "NumExitPDG"));
+  std::unique_ptr<ISF::PDFcreator> pdf_num(readLookuptablePDF(pdg, "NumExitPDG"));
   if (!pdf_num ) return StatusCode::FAILURE; // return error if something went wrong
 
   // (2.) get the PDF for the punch-through energy
-  std::shared_ptr<PDFcreator> pdf_energy (readLookuptablePDF(pdg, "ExitEnergyPDG"));
+  std::unique_ptr<PDFcreator> pdf_energy (readLookuptablePDF(pdg, "ExitEnergyPDG"));
   if (!pdf_energy)
     {
       //delete pdf_num;
@@ -769,7 +771,7 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
 
   // (3.) get the PDF for the punch-through particles difference in
   //      theta compared to the incoming particle
-  std::shared_ptr<PDFcreator> pdf_theta (readLookuptablePDF(pdg, "ExitDeltaThetaPDG"));
+  std::unique_ptr<PDFcreator> pdf_theta (readLookuptablePDF(pdg, "ExitDeltaThetaPDG"));
   if (!pdf_theta)
     {
       //delete pdf_num; //delete pdf_energy;
@@ -778,7 +780,7 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
 
   // (4.) get the PDF for the punch-through particles difference in
   //      phi compared to the incoming particle
-  std::shared_ptr<PDFcreator> pdf_phi (readLookuptablePDF(pdg, "ExitDeltaPhiPDG"));
+  std::unique_ptr<PDFcreator> pdf_phi (readLookuptablePDF(pdg, "ExitDeltaPhiPDG"));
   if (!pdf_phi)
     {
       //delete pdf_num; //delete pdf_energy; //delete pdf_theta;
@@ -786,7 +788,7 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
     }
 
   // (5.) get the PDF for the punch-through particle momentum delta theta angle
-  std::shared_ptr<PDFcreator> pdf_momTheta (readLookuptablePDF(pdg, "MomDeltaThetaPDG"));
+  std::unique_ptr<PDFcreator> pdf_momTheta (readLookuptablePDF(pdg, "MomDeltaThetaPDG"));
   if (!pdf_momTheta)
     {
       //delete pdf_num; //delete pdf_energy; //delete pdf_theta; //delete pdf_phi;
@@ -794,7 +796,7 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
     }
 
   // (6.) get the PDF for the punch-through particle momentum delta phi angle
-  std::shared_ptr<PDFcreator> pdf_momPhi (readLookuptablePDF(pdg, "MomDeltaPhiPDG"));
+  std::unique_ptr<PDFcreator> pdf_momPhi (readLookuptablePDF(pdg, "MomDeltaPhiPDG"));
   if (!pdf_momPhi)
     {
       //delete pdf_num; //delete pdf_energy; //delete pdf_theta; //delete pdf_phi; //delete pdf_momTheta;
@@ -886,15 +888,14 @@ StatusCode ISF::PunchThroughTool::registerCorrelation(int pdgID1, int pdgID2,
  *  ==> see headerfile
  *======================================================================*/
 
-std::shared_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string folderName)
+std::unique_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string folderName)
 {
 
   // will hold the PDFcreator class which will be returned at the end
   // this will store the distributions for the punch through particles
   // (as map of energy & eta of the incoming particle)
   //PDFcreator *pdf = new PDFcreator(m_randomEngine);
-  std::shared_ptr<ISF::PDFcreator> pdf(new PDFcreator(m_randomEngine));
-
+  std::unique_ptr<ISF::PDFcreator> pdf = std::make_unique<ISF::PDFcreator>(m_randomEngine);
 
       //Get directory object
       std::stringstream dirName;

@@ -39,18 +39,18 @@ namespace ISF
     /** all following is used to set up the class */
     void setName( std::string PDFname ){ m_name = PDFname; }; //get the pdf's name
     void addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist) { //add entry to map linking energy, eta window and histogram
-    std::map<std::vector<double>, TH1*> inner; 
+    std::map<std::vector<double>, TH1*> inner;
     if(m_energy_etaRange_hists1D.find(energy) != m_energy_etaRange_hists1D.end()){
       inner = m_energy_etaRange_hists1D.find(energy)->second;
       m_energy_etaRange_hists1D.erase(energy);
       inner.insert(std::make_pair(etaMinEtaMax, hist));
     }
     else{
-      inner.insert(std::make_pair(etaMinEtaMax, hist)); 
-    } 
+      inner.insert(std::make_pair(etaMinEtaMax, hist));
+    }
     m_energy_etaRange_hists1D.insert(std::make_pair(energy, inner));
 
-    }; 
+    };
     void addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, TH2 *hist) { //add entry to map linking energy, eta window and histogram
     std::map< std::vector<double>, TH2*> inner;
     if(m_energy_etaRange_hists2D.find(energy) != m_energy_etaRange_hists2D.end()){
@@ -58,23 +58,23 @@ namespace ISF
       m_energy_etaRange_hists2D.erase(energy);
       inner.insert(std::make_pair(etaMinEtaMax, hist));
     }
-    else{ 
-      inner.insert(std::make_pair(etaMinEtaMax, hist)); 
-    }  
+    else{
+      inner.insert(std::make_pair(etaMinEtaMax, hist));
+    }
     m_energy_etaRange_hists2D.insert(std::make_pair(energy, inner));
     };
 
     /** get the random value with this method, by providing the input parameters */
-    double getRand( std::vector<double> inputPar, double outEnergy = 0., double randMin = 0., double randMax = 0.);
-    std::string getName(){return m_name;};
-    static bool compareEnergy1D(std::pair< double , std::map< std::vector<double>, TH1*> > map, double value){ return map.first < value; };
-    static bool compareEnergy2D(std::pair< double , std::map< std::vector<double>, TH2*> > map, double value){ return map.first < value; };
-    static bool compareEtaMax1D(std::pair< std::vector<double>, TH1*> map, double value){ return map.first.at(1) < value; };
-    static bool compareEtaMax2D(std::pair< std::vector<double>, TH2*> map, double value){ return map.first.at(1) < value; };
+    double getRand( const std::vector<double>& inputPar, const double& outEnergy = 0., const double& randMin = 0., const double& randMax = 0.) const;
+    std::string getName() const {return m_name;};
+    static bool compareEnergy1D(const std::pair< double , std::map< std::vector<double>, TH1*> > map, const double value){ return map.first < value; };
+    static bool compareEnergy2D(const std::pair< double , std::map< std::vector<double>, TH2*> > map, const double value){ return map.first < value; };
+    static bool compareEtaMax1D(const std::pair< std::vector<double>, TH1*> map, const double value){ return map.first.at(1) < value; };
+    static bool compareEtaMax2D(const std::pair< std::vector<double>, TH2*> map, const double value){ return map.first.at(1) < value; };
 
   private:
     CLHEP::HepRandomEngine             *m_randomEngine;       //!< Random Engine
-    std::string                         m_name;               //!< Give pdf a name for debug purposes 
+    std::string                         m_name;               //!< Give pdf a name for debug purposes
     std::map< double , std::map< std::vector<double>, TH1*> > m_energy_etaRange_hists1D; //!< map of energies to map of eta ranges to 1D histograms
     std::map< double , std::map< std::vector<double>, TH2*> > m_energy_etaRange_hists2D; //!< map of energies to map of eta ranges to 2D histograms
 

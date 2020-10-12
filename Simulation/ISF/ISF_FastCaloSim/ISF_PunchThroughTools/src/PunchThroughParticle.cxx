@@ -103,7 +103,7 @@ void ISF::PunchThroughParticle::setMomAngleFactor(double momAngleFactor)
  *  ==> see headerfile
  *=======================================================================*/
 
-void ISF::PunchThroughParticle::setNumParticlesPDF(std::shared_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setNumParticlesPDF(std::unique_ptr<PDFcreator> pdf)
 {
   m_pdfNumParticles = move(pdf);
 }
@@ -138,7 +138,7 @@ void ISF::PunchThroughParticle::setCorrelation(int corrPdg,
  *  ==> see headerfile
  *=======================================================================*/
 
-void ISF::PunchThroughParticle::setExitEnergyPDF(std::shared_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setExitEnergyPDF(std::unique_ptr<PDFcreator> pdf)
 {
   m_pdfExitEnergy = move(pdf);
 }
@@ -148,7 +148,7 @@ void ISF::PunchThroughParticle::setExitEnergyPDF(std::shared_ptr<PDFcreator> pdf
  *  ==> see headerfile
  *=======================================================================*/
 
-void ISF::PunchThroughParticle::setExitDeltaThetaPDF(std::shared_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setExitDeltaThetaPDF(std::unique_ptr<PDFcreator> pdf)
 {
   m_pdfExitDeltaTheta = move(pdf);
 }
@@ -158,7 +158,7 @@ void ISF::PunchThroughParticle::setExitDeltaThetaPDF(std::shared_ptr<PDFcreator>
  *  ==> see headerfile
  *=======================================================================*/
 
-void ISF::PunchThroughParticle::setExitDeltaPhiPDF(std::shared_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setExitDeltaPhiPDF(std::unique_ptr<PDFcreator> pdf)
 {
   m_pdfExitDeltaPhi = move(pdf);
 }
@@ -167,7 +167,7 @@ void ISF::PunchThroughParticle::setExitDeltaPhiPDF(std::shared_ptr<PDFcreator> p
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-void ISF::PunchThroughParticle::setMomDeltaThetaPDF(std::shared_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setMomDeltaThetaPDF(std::unique_ptr<PDFcreator> pdf)
 {
   m_pdfMomDeltaTheta = move(pdf);
 }
@@ -176,7 +176,7 @@ void ISF::PunchThroughParticle::setMomDeltaThetaPDF(std::shared_ptr<PDFcreator> 
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-void ISF::PunchThroughParticle::setMomDeltaPhiPDF(std::shared_ptr<PDFcreator> pdf)
+void ISF::PunchThroughParticle::setMomDeltaPhiPDF(std::unique_ptr<PDFcreator> pdf)
 {
   m_pdfMomDeltaPhi = move(pdf);
 }

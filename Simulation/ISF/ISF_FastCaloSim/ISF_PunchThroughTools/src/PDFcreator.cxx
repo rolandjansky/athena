@@ -23,17 +23,16 @@
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outEnergy, double randMin, double randMax)
-{  
+double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, const double& outEnergy, const double& randMin, const double& randMax) const
+{
 
     //define variable to return from getRand call, should never returh zero
     double random = 0;
 
-
     //Implementation for 1D hist
     if(!m_energy_etaRange_hists1D.empty()){
     //Select energy values neighbouring input energy
-    std::map< double , std::map< std::vector<double>, TH1*> >::iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
+    std::map< double , std::map< std::vector<double>, TH1*> >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
 
     //selects first energy that is not less than input energy
     itUpperEnergy = std::lower_bound(m_energy_etaRange_hists1D.begin(), std::prev(m_energy_etaRange_hists1D.end()), inputParameters.at(0), compareEnergy1D);
@@ -45,11 +44,11 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       //if closest energy is largest entry in pdf select that
       if (itUpperEnergy == std::prev(m_energy_etaRange_hists1D.end())) {
         selectedEnergy = std::prev(m_energy_etaRange_hists1D.end());
-      } 
+      }
       //if closest energy is smallest entry in pdf select that
       else if (itUpperEnergy == m_energy_etaRange_hists1D.begin()) {
         selectedEnergy = m_energy_etaRange_hists1D.begin();
-      } 
+      }
       else {
         //Check if iterator input energy is closer to previous energy, if yes choose this instead
         itPrevEnergy = std::prev(itUpperEnergy);
@@ -97,7 +96,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
     std::map< std::vector<double>, TH1*> etaMinEtaMax_hists = selectedEnergy->second;
 
     std::map< std::vector<double>, TH1*>::iterator itSelectedEtaWindow, itSecondEtaWindow;
-    
+
     //choose first max eta that is not less than input eta
     itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax1D);
 
@@ -136,7 +135,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       itSelectedEtaWindow = itSecondEtaWindow;
     }
   }
-    
+
 
     //get the chosen histogram from the map
     TH1* hist = itSelectedEtaWindow->second;
@@ -162,7 +161,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
     //Implementation for 2D hist
     if(!m_energy_etaRange_hists2D.empty()){
     //Select energy values neighbouring input energy
-    std::map< double , std::map< std::vector<double>, TH2*> >::iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
+    std::map< const double , std::map< std::vector<double>, TH2*> >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
 
     //selects first energy that is not less than input energy
     itUpperEnergy = std::lower_bound(m_energy_etaRange_hists2D.begin(), std::prev(m_energy_etaRange_hists2D.end()), inputParameters.at(0), compareEnergy2D);
@@ -173,7 +172,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       if (itUpperEnergy == std::prev(m_energy_etaRange_hists2D.end())) {
         //select final iterator in map
         selectedEnergy = std::prev(m_energy_etaRange_hists2D.end());
-      } 
+      }
       else if (itUpperEnergy == m_energy_etaRange_hists2D.begin()) {
         //choose first iterator in map
         selectedEnergy = m_energy_etaRange_hists2D.begin();
@@ -227,7 +226,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
     std::map< std::vector<double>, TH2*> etaMinEtaMax_hists = selectedEnergy->second;
 
     std::map< std::vector<double>, TH2*>::iterator itSelectedEtaWindow, itSecondEtaWindow;
-    
+
     //choose first max eta that is not less than input eta
     itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax2D);
 
@@ -249,7 +248,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       else{
         itSecondEtaWindow = std::next(itSelectedEtaWindow);
       }
-    
+
       //find the boundary between the two selected eta windows
       double etaBinEdge;
       if(itSelectedEtaWindow->first.at(0) > itSecondEtaWindow->first.at(0)){
@@ -301,10 +300,10 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, double outE
       }
     }
 
-    } 
+    }
 
     return random;
 
-  
+
 
 }
