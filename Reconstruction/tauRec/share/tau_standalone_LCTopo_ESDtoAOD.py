@@ -1,5 +1,6 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/input/standalone.ESD.pool.root"]
+athenaCommonFlags.FilesInput = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/input/standalone.ESD.pool.root"]
+athenaCommonFlags.PoolAODOutput = "LCTopo_AOD.pool.root"
 
 from RecExConfig.RecFlags import rec
 rec.doEgamma.set_Value_and_Lock(False)
