@@ -51,8 +51,8 @@ namespace Trk {
       const Surface*   associatedSurface ()     const {return   m_surface      ;}
       bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       Amg::Vector2D    localPosition     ()     const;
-      Amg::Vector3D    momentum          ()     const; 
-      Amg::Vector3D    position          ()     const; 
+      const Amg::Vector3D& momentum      ()     const;
+      const Amg::Vector3D& position      ()     const;
       const AmgVector(5)& parameters     ()     const;
       const AmgSymMatrix(5)* covariance  ()     const;
       double           charge            ()     const;	
@@ -118,6 +118,9 @@ namespace Trk {
       const  Surface* m_surface       ;
       AmgVector(5)    m_parameters    ;
       std::unique_ptr<AmgSymMatrix(5)> m_covariance;
+      mutable Amg::Vector3D m_position ATLAS_THREAD_SAFE;
+      mutable Amg::Vector3D m_momentum ATLAS_THREAD_SAFE;
+      mutable bool          m_posmom_updated ATLAS_THREAD_SAFE = false;
 
       ///////////////////////////////////////////////////////////////////
       // Comments
@@ -141,6 +144,10 @@ namespace Trk {
       Amg::Vector3D localToGlobal(const CylinderSurface    *) const;
       Amg::Vector3D localToGlobal(const PerigeeSurface     *) const;
       Amg::Vector3D localToGlobal(const ConeSurface        *) const;
+
+      void updateCache(void) const;
+      void updatePositionCache(void) const;
+      void updateMomentumCache(void) const;
     };
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +188,14 @@ namespace Trk {
             *m_covariance = *P.m_covariance;
           }
         }
+
+        if (P.m_posmom_updated) {
+          m_position = P.m_position;
+          m_momentum = P.m_momentum;
+          m_posmom_updated = true;
+        }
       }
+
       return (*this);
     }
 
@@ -201,6 +215,7 @@ namespace Trk {
       m_parameters[ 3] = p[ 3];
       m_parameters[ 4] = p[ 4];
       m_covariance.reset(nullptr);
+      m_posmom_updated = false;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -244,6 +259,7 @@ namespace Trk {
       m_parameters[ 2] = p[ 2];
       m_parameters[ 3] = p[ 3];
       m_parameters[ 4] = p[ 4];
+      m_posmom_updated = false;
       setCovariance(c  );
     }
 
@@ -309,6 +325,8 @@ namespace Trk {
 	N.correctionIMom() > 1. ? 
 	  m_parameters[ 4]/=N.correctionIMom() : m_parameters[ 4]*=N.correctionIMom();
       }
+
+      m_posmom_updated = false;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -332,6 +350,8 @@ namespace Trk {
 	N.correctionIMom() > 1. ? 
 	  m_parameters[ 4]*=N.correctionIMom() : m_parameters[ 4]/=N.correctionIMom();
       }
+
+      m_posmom_updated = false;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -392,17 +412,12 @@ namespace Trk {
       return m_parameters;
     }          
   
-  inline Amg::Vector3D PatternTrackParameters::momentum      () const
+  inline const Amg::Vector3D& PatternTrackParameters::momentum      () const
     {
-      double p   = m_parameters[4]!=0. ?  1./fabs(m_parameters[4]) :  10e9;
-
-      double Sf;
-      double Cf; sincos(m_parameters[2],&Sf,&Cf);
-      double Se;
-      double Ce; sincos(m_parameters[3],&Se,&Ce);
-      double psn = p*Se;
-      Amg::Vector3D GM(psn*Cf,psn*Sf,p*Ce);
-      return GM;
+      if (!m_posmom_updated) {
+        updateCache();
+      }
+      return m_momentum;
     } 
 
   inline const AmgSymMatrix(5) * PatternTrackParameters::covariance  () const

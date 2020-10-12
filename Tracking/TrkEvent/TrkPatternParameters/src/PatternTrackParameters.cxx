@@ -61,6 +61,9 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
   else {
     m_covariance.reset(nullptr);
   }
+
+  m_posmom_updated = false;
+
   return true;
 }
 
@@ -131,44 +134,12 @@ AmgSymMatrix(5) Trk::PatternTrackParameters::newCovarianceMatrix
 // Global position of simple track parameters
 ///////////////////////////////////////////////////////////////////
 
-Amg::Vector3D Trk::PatternTrackParameters::position() const
+const Amg::Vector3D& Trk::PatternTrackParameters::position() const
 {
-  
-  Amg::Vector3D gp(0.,0.,0.);
-  if(!m_surface) { return gp;
-}
-
-  const Trk::PlaneSurface       * plane  ;
-  if((plane   = dynamic_cast<const Trk::PlaneSurface*>       (m_surface))) {
-    return localToGlobal(plane   );
+  if (!m_posmom_updated) {
+    updateCache();
   }
-  
-  const Trk::StraightLineSurface* line   ; 
-  if((line    = dynamic_cast<const Trk::StraightLineSurface*>(m_surface))) {
-    return localToGlobal(line    );
-  }
-
-  const Trk::DiscSurface        * disc   ;
-  if((disc    = dynamic_cast<const Trk::DiscSurface*>        (m_surface))) {
-    return localToGlobal(disc    );
-  }
-
-  const Trk::CylinderSurface    * cylinder;
-  if((cylinder= dynamic_cast<const Trk::CylinderSurface*>    (m_surface))) {
-    return localToGlobal(cylinder);
-  }
-
-  const Trk::PerigeeSurface     * pline   ;
-  if((pline   = dynamic_cast<const Trk::PerigeeSurface*>     (m_surface))) {
-    return localToGlobal(pline   );
-  }
-
-  const Trk::ConeSurface        *  cone   ;
-  if((cone    = dynamic_cast<const Trk::ConeSurface*>        (m_surface))) {
-    return localToGlobal(cone   );
-  }
-
-  return gp;
+  return m_position;
 } 
 
 ///////////////////////////////////////////////////////////////////
@@ -514,6 +485,8 @@ bool Trk::PatternTrackParameters::initiate
   m_parameters[ 4] = Tp.m_parameters[ 4];
   
   m_surface        = Tp.m_surface;  
+
+  m_posmom_updated = false;
   
   return true;
 }
@@ -547,10 +520,14 @@ void Trk::PatternTrackParameters::changeDirection()
     m_covariance->fillSymmetric(0, 4, -(*m_covariance)(0, 4));
     m_covariance->fillSymmetric(1, 4, -(*m_covariance)(1, 4));
     m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
+
+    m_posmom_updated = false;
     return;
   }
 
   m_parameters[ 0] = -m_parameters[ 0];
+
+  m_posmom_updated = false;
 
   if(m_covariance == nullptr) { return;
 }
@@ -561,4 +538,42 @@ void Trk::PatternTrackParameters::changeDirection()
   m_covariance->fillSymmetric(2, 3, -(*m_covariance)(2, 3));
   m_covariance->fillSymmetric(1, 4, -(*m_covariance)(1, 4));
   m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
+}
+
+void Trk::PatternTrackParameters::updateCache(void) const {
+  updatePositionCache();
+  updateMomentumCache();
+  m_posmom_updated = true;
+}
+
+void Trk::PatternTrackParameters::updatePositionCache(void) const {
+  if (!m_surface) {
+    m_position.setZero();
+    return;
+  }
+
+  if (const Trk::PlaneSurface * plane = dynamic_cast<const Trk::PlaneSurface*>(m_surface); plane != nullptr) {
+    m_position = localToGlobal(plane);
+  } else if (const Trk::StraightLineSurface * line = dynamic_cast<const Trk::StraightLineSurface*>(m_surface); line != nullptr) {
+    m_position = localToGlobal(line);
+  } else if (const Trk::DiscSurface * disc = dynamic_cast<const Trk::DiscSurface*>(m_surface); disc != nullptr) {
+    m_position = localToGlobal(disc);
+  } else if (const Trk::CylinderSurface * cylinder = dynamic_cast<const Trk::CylinderSurface*>(m_surface); cylinder != nullptr) {
+    m_position = localToGlobal(cylinder);
+  } else if (const Trk::PerigeeSurface * pline = dynamic_cast<const Trk::PerigeeSurface*>(m_surface); pline != nullptr) {
+    m_position = localToGlobal(pline);
+  } else if (const Trk::ConeSurface * cone = dynamic_cast<const Trk::ConeSurface*>(m_surface); cone != nullptr) {
+    m_position = localToGlobal(cone);
+  } else {
+    m_position.setZero();
+  }
+}
+
+void Trk::PatternTrackParameters::updateMomentumCache(void) const {
+  double p = m_parameters[4] != 0. ? 1. / std::abs(m_parameters[4]) : 10e9;
+
+  double Sf = std::sin(m_parameters[2]), Cf = std::cos(m_parameters[2]);
+  double Se = std::sin(m_parameters[3]), Ce = std::cos(m_parameters[3]);
+
+  m_momentum = {p * Se * Cf, p * Se * Sf, p * Ce};
 }
