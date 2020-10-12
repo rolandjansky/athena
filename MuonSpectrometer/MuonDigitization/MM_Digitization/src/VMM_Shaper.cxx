@@ -39,7 +39,7 @@ void VMM_Shaper::initialize() {
     m_peakTimeChargeScaling = (m_peakTime < mmIonFlowTime ? 1.0*m_peakTime/mmIonFlowTime : 1.0);
 }
 
-void VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, TH1F &response) {
+void VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, TH1F &response) const {
     for (uint i_electron = 0; i_electron < effectiveCharge.size(); i_electron++) {
         for (double ti = electronsTime[i_electron]; ti < m_maxTime; ti += m_timeStep) {
             double t = (ti-electronsTime.at(i_electron))*(10^-9);
@@ -51,7 +51,7 @@ void VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const st
     }
 }
 
-void VMM_Shaper::vmmPeakResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) {
+void VMM_Shaper::vmmPeakResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) const {
     TH1F response("response", "response", m_nBins, 0, m_maxTime);
 
     vmmResponse(effectiveCharge, electronsTime, response);
@@ -64,7 +64,7 @@ void VMM_Shaper::vmmPeakResponse(const std::vector<float> effectiveCharge, const
 }
 
 
-void VMM_Shaper::vmmThresholdResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) {
+void VMM_Shaper::vmmThresholdResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const {
     TH1F response("response", "response", m_nBins, 0, m_maxTime);
 
     vmmResponse(effectiveCharge, electronsTime, response);
@@ -77,7 +77,7 @@ void VMM_Shaper::vmmThresholdResponse(const std::vector<float> effectiveCharge, 
 }
 
 
-int VMM_Shaper::findPeak(const TH1F &response, const double &electronicsThreshold){
+int VMM_Shaper::findPeak(const TH1F &response, const double &electronicsThreshold) const{
     TH1F derivative("derivative", "derivative", m_nBins, 0, m_maxTime);
 
     // First the derivative gets calculated, then its zero crossing is searched for
@@ -104,7 +104,7 @@ int VMM_Shaper::findPeak(const TH1F &response, const double &electronicsThreshol
 }
 
 
-bool VMM_Shaper::hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double &electronicsThreshold) {
+bool VMM_Shaper::hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double &electronicsThreshold) const {
     TH1F response("response", "response", m_nBins, 0, m_maxTime);
     vmmResponse(effectiveCharge, electronsTime, response);
     int i_aboveThreshold = response.FindFirstBinAbove(electronicsThreshold);

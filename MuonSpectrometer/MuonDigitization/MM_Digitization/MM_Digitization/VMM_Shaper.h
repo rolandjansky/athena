@@ -12,14 +12,14 @@
 class VMM_Shaper{
  public:
     VMM_Shaper(float peakTime);
-    virtual ~VMM_Shaper() {}
+    virtual ~VMM_Shaper()=default;
 
     void initialize();
 
-    void vmmPeakResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak);
-    void vmmThresholdResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold);
+    void vmmPeakResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) const;
+    void vmmThresholdResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const;
 
-    bool hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double &electronicsThreshold);
+    bool hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double &electronicsThreshold) const;
 
 
  private:
@@ -34,8 +34,8 @@ class VMM_Shaper{
 
      double m_peakTimeChargeScaling;
 
-     void vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, TH1F &response);
-     int findPeak(const TH1F &response, const double &electronicsThreshold);
+     void vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, TH1F &response) const;
+     int findPeak(const TH1F &response, const double &electronicsThreshold) const;
 
 
 
