@@ -544,6 +544,12 @@ void Trk::PatternTrackParameters::updateCache(void) const {
   updatePositionCache();
   updateMomentumCache();
   m_posmom_updated = true;
+
+  if (m_parameters[4] > 0.0) {
+    m_chargeDef = 1;
+  } else {
+    m_chargeDef = -1;
+  }
 }
 
 void Trk::PatternTrackParameters::updatePositionCache(void) const {

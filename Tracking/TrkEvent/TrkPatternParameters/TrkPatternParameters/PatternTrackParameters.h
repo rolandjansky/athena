@@ -120,6 +120,7 @@ namespace Trk {
       std::unique_ptr<AmgSymMatrix(5)> m_covariance;
       mutable Amg::Vector3D m_position ATLAS_THREAD_SAFE;
       mutable Amg::Vector3D m_momentum ATLAS_THREAD_SAFE;
+      mutable Trk::Charged  m_chargeDef ATLAS_THREAD_SAFE;
       mutable bool          m_posmom_updated ATLAS_THREAD_SAFE = false;
 
       ///////////////////////////////////////////////////////////////////
@@ -366,8 +367,10 @@ namespace Trk {
 
   inline double         PatternTrackParameters::charge        () const
     {
-      if(m_parameters[4] > 0.) { return 1.; } return -1.;
-
+      if (!m_posmom_updated) {
+        updateCache();
+      }
+      return m_chargeDef.charge();
     }	
 
   inline double         PatternTrackParameters::sinPhi        () const
