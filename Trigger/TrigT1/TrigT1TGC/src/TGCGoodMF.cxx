@@ -71,9 +71,9 @@ bool TGCGoodMF::readBadMFList()
   //initialize
   std::string buf;
   std::string fullName, tag;    char delimiter = '\n';
-  std::string fn = "HotRoI.v1.db";
+  std::string fn = "/HotRoI/HotRoI.v1.db";
 
-  fullName = PathResolver::FindCalibDirectory("dev/HotRoI")+fn;
+  fullName = PathResolver::FindCalibDirectory("dev")+fn;
   int mod,maxssc;
   std::ifstream file(fullName.c_str(),std::ios::in); 
   while(getline(file,buf,delimiter)) {
