@@ -35,8 +35,12 @@
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 
+#include "SCT_InducedChargedModel.h"
+
 #include "GaudiKernel/ToolHandle.h"
 #include <iostream>
+
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // Charges and hits
 class SiHit;
@@ -87,7 +91,12 @@ private:
   void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;} 
   void setCosmicsRun(bool cosmicsRun)                            {m_cosmicsRun = cosmicsRun;}
   void setComTimeFlag(bool useComTime)                           {m_useComTime = useComTime;}      
-  void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine)       {m_rndmEngine = rndmEngine;}
+  void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) {
+    m_rndmEngine = rndmEngine;
+    if ( m_doInducedChargedModel ){
+      m_InducedChargedModel->setRandomEngine( m_rndmEngine );
+    }
+  }
   void setDetectorElement(const InDetDD::SiDetectorElement *ele) {m_element = ele; setVariables();} 
 
   /** create a list of surface charges from a hit */
@@ -162,6 +171,7 @@ private:
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
   ServiceHandle<ISCT_RadDamageSummarySvc> m_radDamageSvc;
+  ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine
@@ -180,6 +190,10 @@ private:
   double m_center;
   double m_tanLorentz;
   bool m_isBarrel;
+
+  // For Induced Charged Module, M.Togawa
+  std::unique_ptr<SCT_InducedChargedModel> m_InducedChargedModel;
+  bool m_doInducedChargedModel;  //!< Flag to use Induced Charged Model
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H

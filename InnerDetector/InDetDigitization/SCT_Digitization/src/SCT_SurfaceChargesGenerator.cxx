@@ -63,6 +63,7 @@ parent)
     m_doHistoTrap(false),
     m_doRamo(false),
     m_doCTrap(false),
+    m_doInducedChargedModel(false),
     m_thistSvc(nullptr),
     m_h_efieldz(nullptr),
     m_h_efield(nullptr),
@@ -90,6 +91,7 @@ parent)
     m_distortionsTool("SCT_DistortionsTool", this),
     m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
+    m_magFieldSvc("AtlasFieldSvc", name),
     m_radDamageSvc("SCT_RadDamageSummarySvc", name),
     m_element(0),
     m_rndmEngine(0),
@@ -107,6 +109,7 @@ parent)
     declareProperty("SmallStepLength", m_smallStepLength = 5);
     declareProperty("SiConditionsSvc", m_siConditionsSvc);
     declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
+    declareProperty("MagFieldSvc", m_magFieldSvc);
     //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
     declareProperty("doDistortions", m_doDistortions,
                     "Simulation of module distortions");
@@ -124,6 +127,8 @@ parent)
                     "Tool to retrieve SCT distortions");
     declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
     declareProperty("isOverlay", m_isOverlay=false);
+    declareProperty("m_doInducedChargedModel", m_doInducedChargedModel,
+                    "Flag for Induced Charged Model"); //
 }
 
 // Destructor:
@@ -151,6 +156,9 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
 
     // Get ISCT_ModuleDistortionsTool
     ATH_CHECK(m_distortionsTool.retrieve());
+
+    // Get IMagFieldSvc
+    ATH_CHECK(m_magFieldSvc.retrieve());
 
     if (m_doTrapping) {
         ///////////////////////////////////////////////////
@@ -236,6 +244,12 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     }
     ///////////////////////////////////////////////////
 
+    // Induced Charged Module. M.Togawa    
+    if ( m_doInducedChargedModel ){
+      m_InducedChargedModel = std::make_unique<SCT_InducedChargedModel>();
+      m_InducedChargedModel->Init(m_vdepl,m_vbias,m_hashId,m_siConditionsSvc);
+    }
+
     m_smallStepLength *= CLHEP::micrometer;
     m_tSurfaceDrift *= CLHEP::ns;
 
@@ -295,7 +309,7 @@ float SCT_SurfaceChargesGenerator::DriftTime(float zhit) const {
     float denominator = m_depletionVoltage + m_biasVoltage - (2.0 * zhit * m_depletionVoltage / m_thickness);
     if (denominator <= 0.0) {
         if (m_biasVoltage >= m_depletionVoltage) { // Should not happen
-	  if(!m_isOverlay) {
+	  if (!m_isOverlay) {
             ATH_MSG_ERROR("DriftTime: negative argument X for log(X) " << zhit);
 	  }
 	  return -1.0;
@@ -496,6 +510,21 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
     float yhit = xPhi;
     float zhit = xDep;
 
+    if ( m_doInducedChargedModel ){ // Setting magnetic field for the ICM.
+      HepGeom::Point3D<double> localpos(xhit,yhit,zhit);
+      HepGeom::Point3D<double> globalpos;
+      globalpos = m_element->globalPositionHit(localpos);
+      double point[3] = {globalpos.x(),globalpos.y(),globalpos.z()};
+      double field[3] = {0};
+      m_magFieldSvc->getField(point, field);
+      if ( m_isBarrel ){
+	m_InducedChargedModel->setMagneticField(field[2]);
+      }else{
+	double B_r = sqrt(pow(field[0],2)+pow(field[1],2));
+	m_InducedChargedModel->setMagneticField( B_r );
+      }
+    }
+
     if (m_doDistortions) {
         if (m_isBarrel) {// Only apply disortions to barrel
                                          // modules
@@ -583,9 +612,12 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
         if (tdrift > 0.0) {
             float x1 = xhit + StepX * dstep;// (static_cast<float>(istep)+0.5) ;
             float y1 = yhit + StepY * dstep;// (static_cast<float>(istep)+0.5) ;
-            y1 += m_tanLorentz * zReadout; // !< Taking into account the magnetic
-                                         // field
-            float diffusionSigma = DiffusionSigma(zReadout);
+
+	    float diffusionSigma = 0;
+	    if ( !m_doInducedChargedModel ){ 
+	      diffusionSigma = DiffusionSigma(zReadout);
+	      y1 += m_tanLorentz * zReadout; // !< Taking into account the magnetic field	      
+	    } // Should be treated in Induced Charged Model.
 
             for (int i = 0; i < m_numberOfCharges; ++i) {
                 float rx = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
@@ -733,6 +765,49 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
                 } // m_doTrapping==true
 
                 if (!m_doRamo) {
+
+		  if ( m_doInducedChargedModel ){ // Induced Charged Model
+
+		    // Charges storages for 50 ns. 0.5 ns steps.
+		    double Q_m2[100]={0}, Q_m1[100]={0}, Q_00[100]={0}, Q_p1[100]={0},Q_p2[100]={0}; 
+
+		    // Unit for y and z : mm -> cm in SCT_InducedChargedModel
+		    m_InducedChargedModel->holeTransport(y0/10,z0/10,Q_m2,Q_m1,
+							 Q_00,Q_p1,Q_p2,
+							 m_hashId, m_siPropertiesSvc);
+		    m_InducedChargedModel->electronTransport(y0/10,z0/10,Q_m2,
+							     Q_m1,Q_00,Q_p1,Q_p2,
+							     m_hashId, m_siPropertiesSvc);
+
+		    for (int it=0; it<100; it++){
+		      if ( Q_00[it] == 0.0) continue;
+
+		      double ICM_time = (it+0.5)*0.5 + timeOfFlight;
+
+		      double Q_new[5]={0};
+		      Q_new[0] = Q_m2[it];
+		      Q_new[1] = Q_m1[it];
+		      Q_new[2] = Q_00[it];
+		      Q_new[3] = Q_p1[it];
+		      Q_new[4] = Q_p2[it];
+
+		      for (int strip = -2; strip <= 2; strip++) {
+			double ystrip = y1 + strip * stripPitch;
+			SiLocalPosition position(m_element->hitLocalToLocal(x1, ystrip));
+			if (m_design->inActiveArea(position)) {
+			  inserter(SiSurfaceCharge(position,
+						   SiCharge(q1 * Q_new[strip+2],
+							    ICM_time, hitproc,
+							    trklink)));
+			}
+		      }		   
+		    }
+
+		  } // End Induced Charged Model
+
+
+		  if ( !m_doInducedChargedModel ){  // SCT_Digitization
+		    
                     SiLocalPosition position(m_element->hitLocalToLocal(xd,
                                                                         yd));
                     if (m_design->inActiveArea(position)) {
@@ -772,6 +847,9 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
                         // "<<position<<" of the element is out of active area,
                         // charge = "<<q1) ;
                     }
+
+		  } // End of SCT_Digitization 
+
                 } // end of loop on charges
             }
         }
@@ -852,7 +930,7 @@ void SCT_SurfaceChargesGenerator::setVariables() {
   m_electronHolePairsPerEnergy = m_siPropertiesSvc->getSiProperties(m_hashId).electronHolePairsPerEnergy();
 
   // get sensor thickness and tg lorentz from SiDetectorDesign
-  if(m_design) {
+  if (m_design) {
     m_thickness = m_design->thickness();
   } else {
     m_thickness = 0.;
