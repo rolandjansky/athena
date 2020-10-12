@@ -10,13 +10,14 @@ from BTagging.BTagToolConfig import BTagToolCfg
 JetBTaggerAlg=CompFactory.Analysis.JetBTaggerAlg
 
 def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName="", TaggerList=[], SetupScheme="", **options):
-    
-    seqName = "TopAlg"
+
+    acc=None
     from AthenaCommon.ConcurrencyFlags import jobproperties
     if jobproperties.ConcurrencyFlags.NumThreads() >= 1 :
-        seqName = "AthAlgSeq"
+        acc=ComponentAccumulator()
+    else:
+        acc=ComponentAccumulator( "TopAlg" )
 
-    acc=ComponentAccumulator( seqName )
     jetcol = JetCollection
 
     # setup the Analysis__BTagTrackAssociation tool
