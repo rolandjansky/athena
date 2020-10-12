@@ -14,6 +14,9 @@ def TRTRawDataProviderAlgCfg(flags, name="TRTRawDataProvider", **kwargs):
 
     kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
 
+    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
+    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags)))
+
     TRTRawDataProvider = CompFactory.TRTRawDataProvider
     alg = TRTRawDataProvider(name, **kwargs)
     acc.addEventAlgo(alg)
