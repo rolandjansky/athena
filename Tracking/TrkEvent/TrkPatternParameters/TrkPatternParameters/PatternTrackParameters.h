@@ -54,7 +54,7 @@ namespace Trk {
       Amg::Vector3D    momentum          ()     const; 
       Amg::Vector3D    position          ()     const; 
       const AmgVector(5)& parameters     ()     const;
-      AmgSymMatrix(5)  covariance        ()     const;
+      const AmgSymMatrix(5)* covariance  ()     const;
       double           charge            ()     const;	
       double           sinPhi            ()     const;
       double           cosPhi            ()     const;
@@ -405,9 +405,9 @@ namespace Trk {
       return GM;
     } 
 
-  inline AmgSymMatrix(5) PatternTrackParameters::covariance  () const
+  inline const AmgSymMatrix(5) * PatternTrackParameters::covariance  () const
     {
-      return *m_covariance;
+      return m_covariance.get();
     }
 
 } // end of name space

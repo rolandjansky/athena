@@ -575,7 +575,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
   }
   Trk::FitQuality      * fqu = new Trk::FitQualityOnSurface(m_xi2,m_ndf)         ;
 
-  return new Trk::TrackSegment(Trk::LocalParameters(P[0],P[1],P[2],P[3],P[4]),m_parameters.covariance(),sur,rio,fqu,Trk::Segment::TRT_SegmentMaker);
+  return new Trk::TrackSegment(Trk::LocalParameters(P[0],P[1],P[2],P[3],P[4]),*m_parameters.covariance(),sur,rio,fqu,Trk::Segment::TRT_SegmentMaker);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -982,14 +982,15 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
 void InDet::TRT_Trajectory_xk::updateTrackParameters(Trk::PatternTrackParameters& T)
 {
+  const AmgSymMatrix(5)& v = *T.covariance();
+  const AmgSymMatrix(5)& w = *m_parameters.covariance();
 
-  if(m_parameters.covariance()(4, 4) >= T.covariance()(4, 4)) return;
+  if(w(4, 4) >= v(4, 4)) return;
 
   double Pi    = m_parameters.parameters()[ 4];
-  double CovPi = m_parameters.covariance()(4, 4);
+  double CovPi = w(4, 4);
 
   const AmgVector(5)& p = T.parameters();
-  const AmgSymMatrix(5) v = T.covariance();
 
   double V[15] = {v(0, 0),
 		  v(0, 1),v(1, 1),

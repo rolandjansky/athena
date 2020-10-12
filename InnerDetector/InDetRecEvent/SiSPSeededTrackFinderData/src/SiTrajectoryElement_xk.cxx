@@ -841,7 +841,7 @@ InDet::SiTrajectoryElement_xk::trackParameters(bool cov,int Q)
         if(addCluster(m_parametersSM,m_parametersSM)){     
           return m_parametersSM.convert(cov);
         }
-        else if(m_parametersUpdatedBackward.covariance()(4, 4) < m_parametersPredForward.covariance()(4, 4)){
+        else if((*m_parametersUpdatedBackward.covariance())(4, 4) < (*m_parametersPredForward.covariance())(4, 4)){
           return m_parametersUpdatedBackward.convert(cov);
         }
         else{
@@ -939,7 +939,7 @@ InDet::SiTrajectoryElement_xk::trackParametersWithNewDirection(bool cov,int Q)
     if(Q==0) {
       if(m_cluster) {
 	if(addCluster(m_parametersSM,m_parametersSM))                return trackParameters(m_parametersSM,cov);
-	else if(m_parametersUpdatedBackward.covariance()(4, 4) < m_parametersPredForward.covariance()(4, 4)) return trackParameters(m_parametersUpdatedBackward,cov);
+	else if((*m_parametersUpdatedBackward.covariance())(4, 4) < (*m_parametersPredForward.covariance())(4, 4)) return trackParameters(m_parametersUpdatedBackward,cov);
 	else                                                         return trackParameters(m_parametersPredForward,cov);
       }
       else                                                           return trackParameters(m_parametersSM,cov);
@@ -1330,11 +1330,11 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
     Jac[20] = 1.;                         // dCM /dCM
 
     /// covariance matrix production using jacobian - CovNEW = J*CovOLD*Jt
-    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(startingParameters.covariance(), Jac);
+    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(*startingParameters.covariance(), Jac);
     outputParameters.setParametersWithCovariance(m_surface, p, newCov);
 
     /// check for negative diagonals in the cov
-    const AmgSymMatrix(5) t = outputParameters.covariance();
+    const AmgSymMatrix(5) & t = *outputParameters.covariance();
     if(t(0, 0)<=0. || t(1, 1)<=0. || t(2, 2)<=0. || t(3, 3)<=0. || t(4, 4)<=0.) return false;
   } else {
     /// write into output parameters. Assign our surface to them

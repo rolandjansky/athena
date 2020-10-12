@@ -534,7 +534,7 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
   if(!T.iscovariance()) {N = 0; return false;}
 
   const AmgVector(5) & p = T.parameters();
-  const AmgSymMatrix(5) cov = T.covariance();
+  const AmgSymMatrix(5) & cov = *T.covariance();
 
   double t[5] = {p[0],p[1],
 		 cov(0, 0),cov(0, 1),cov(1, 1)};
@@ -649,7 +649,7 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
   if(!T.iscovariance()) {N = 0; return false;}
 
   const AmgVector(5) & p = T.parameters();
-  const AmgSymMatrix(5) cov = T.covariance();
+  const AmgSymMatrix(5) & cov = *T.covariance();
 
   double t[5] = {p[0],p[1],
 		 cov(0, 0),cov(0, 1),cov(1, 1)};
@@ -1859,7 +1859,7 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 
   if(!T.iscovariance()) return false; 
 
-  const AmgSymMatrix(5) cov = T.covariance();
+  const AmgSymMatrix(5) & cov = *T.covariance();
 
   V[ 0] = cov(0, 0);
   V[ 1] = cov(0, 1);

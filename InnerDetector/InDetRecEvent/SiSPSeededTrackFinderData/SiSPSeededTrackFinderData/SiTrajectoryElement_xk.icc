@@ -53,14 +53,16 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereo
 {
   if (m_detstatus<=0) return 0;
 
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
+
   int nLinksFound     = 0;
   /// predicted local position
   double P0  = Tp.parameters()[0];
   double P1  = Tp.parameters()[1];
   /// covariance for prediction 
-  double PV0 = Tp.covariance()(0, 0);   /// X,X
-  double PV1 = Tp.covariance()(0, 1);   /// X,Y
-  double PV2 = Tp.covariance()(1, 1);   /// Y,Y
+  double PV0 = Tp_cov(0, 0);   /// X,X
+  double PV1 = Tp_cov(0, 1);   /// X,Y
+  double PV2 = Tp_cov(1, 1);   /// Y,Y
   /// chi² cut values 
   double Xc  = m_xi2maxlink;     
   double bestX2  = m_xi2maxlink;
@@ -161,14 +163,15 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
 {
   if (m_detstatus<=0) return 0;
 
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
   int nLinksFound     = 0;
   /// predicted local position
   double P0  = Tp.parameters()[0];
   double P1  = Tp.parameters()[1];
   /// covariance of prediction
-  double PV0 = Tp.covariance()(0, 0);
-  double PV1 = Tp.covariance()(0, 1);
-  double PV2 = Tp.covariance()(1, 1);
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   /// chi2 cuts
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
@@ -254,14 +257,15 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 {
   if (m_detstatus<=0) return 0;
 
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
   int nLinksFound     = 0;
   /// predicted local position
   double P0  = Tp.parameters()[0];
   double P1  = Tp.parameters()[1];
   /// and cov of prediction
-  double PV0 = Tp.covariance()(0, 0);
-  double PV1 = Tp.covariance()(0, 1);
-  double PV2 = Tp.covariance()(1, 1);
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   /// chi2 cuts
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
@@ -347,12 +351,13 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
 
   if (m_detstatus<=0) return 0;
 
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
   int nLinksFound     = 0;
   double P0  = Tp.parameters()[0];
   double P1  = Tp.parameters()[1];
-  double PV0 = Tp.covariance()(0, 0);
-  double PV1 = Tp.covariance()(0, 1);
-  double PV2 = Tp.covariance()(1, 1);
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xl  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
@@ -419,12 +424,13 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
   /// for detailed documentation, please see searchClustersWithoutStereoPIX
   if (m_detstatus<=0) return 0;
 
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
   int nLinksFound     = 0;
   double P0  = Tp.parameters()[0];
   double P1  = Tp.parameters()[1];
-  double PV0 = Tp.covariance()(0, 0);
-  double PV1 = Tp.covariance()(0, 1);
-  double PV2 = Tp.covariance()(1, 1);
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
 
@@ -480,12 +486,13 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
   /// for detailed documentation, please see searchClustersWithoutStereoSCT
   if (m_detstatus<=0) return 0;
 
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
   int nLinksFound     = 0;
   double P0  = Tp.parameters()[0];
   double P1  = Tp.parameters()[1];
-  double PV0 = Tp.covariance()(0, 0);
-  double PV1 = Tp.covariance()(0, 1);
-  double PV2 = Tp.covariance()(1, 1);
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
 
