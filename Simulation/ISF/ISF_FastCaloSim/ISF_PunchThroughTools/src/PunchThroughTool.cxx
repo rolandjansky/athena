@@ -433,12 +433,12 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
 
 
   // loop over all particle pdgs
-  for (const auto& it : m_particles)
+  for (const auto& currentParticle : m_particles)
     {
       // the pdg that is currently treated
-      int doPdg = it.first;
+      int doPdg = currentParticle.first;
       // get the current particle's correlated pdg
-      int corrPdg = it.second->getCorrelatedPdg();
+      int corrPdg = currentParticle.second->getCorrelatedPdg();
 
       // if there is a correlated particle type to this one
       if (corrPdg)
@@ -765,7 +765,6 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   std::unique_ptr<PDFcreator> pdf_energy (readLookuptablePDF(pdg, "ExitEnergyPDG"));
   if (!pdf_energy)
     {
-      //delete pdf_num;
       return StatusCode::FAILURE; // return error if something went wrong
     }
 
@@ -774,7 +773,6 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   std::unique_ptr<PDFcreator> pdf_theta (readLookuptablePDF(pdg, "ExitDeltaThetaPDG"));
   if (!pdf_theta)
     {
-      //delete pdf_num; //delete pdf_energy;
       return StatusCode::FAILURE;
     }
 
@@ -783,7 +781,6 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   std::unique_ptr<PDFcreator> pdf_phi (readLookuptablePDF(pdg, "ExitDeltaPhiPDG"));
   if (!pdf_phi)
     {
-      //delete pdf_num; //delete pdf_energy; //delete pdf_theta;
       return StatusCode::FAILURE;
     }
 
@@ -791,7 +788,6 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   std::unique_ptr<PDFcreator> pdf_momTheta (readLookuptablePDF(pdg, "MomDeltaThetaPDG"));
   if (!pdf_momTheta)
     {
-      //delete pdf_num; //delete pdf_energy; //delete pdf_theta; //delete pdf_phi;
       return StatusCode::FAILURE;
     }
 
@@ -799,18 +795,17 @@ ISF::PunchThroughTool::registerParticle(int pdg, bool doAntiparticle,
   std::unique_ptr<PDFcreator> pdf_momPhi (readLookuptablePDF(pdg, "MomDeltaPhiPDG"));
   if (!pdf_momPhi)
     {
-      //delete pdf_num; //delete pdf_energy; //delete pdf_theta; //delete pdf_phi; //delete pdf_momTheta;
       return StatusCode::FAILURE;
     }
 
   // (7.) now finally store all this in the right std::map
   PunchThroughParticle *particle = new PunchThroughParticle(pdg, doAntiparticle);
-  particle->setNumParticlesPDF(move(pdf_num));
-  particle->setExitEnergyPDF(move(pdf_energy));
-  particle->setExitDeltaThetaPDF(move(pdf_theta));
-  particle->setExitDeltaPhiPDF(move(pdf_phi));
-  particle->setMomDeltaThetaPDF(move(pdf_momTheta));
-  particle->setMomDeltaPhiPDF(move(pdf_momPhi));
+  particle->setNumParticlesPDF(std::move(pdf_num));
+  particle->setExitEnergyPDF(std::move(pdf_energy));
+  particle->setExitDeltaThetaPDF(std::move(pdf_theta));
+  particle->setExitDeltaPhiPDF(std::move(pdf_phi));
+  particle->setMomDeltaThetaPDF(std::move(pdf_momTheta));
+  particle->setMomDeltaPhiPDF(std::move(pdf_momPhi));
 
   // (8.) set some additional particle and simulation properties
   const double restMass = m_particleDataTable->particle(std::abs(pdg))->mass();
@@ -906,7 +901,6 @@ std::unique_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int p
       if(! dir)
       {
         ATH_MSG_ERROR( "[ punchthrough ] unable to retrieve directory object ("<< folderName << pdg << ")" );
-        //delete pdf;
         return 0;
       }
 

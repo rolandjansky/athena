@@ -26,7 +26,7 @@
 double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, const double& outEnergy, const double& randMin, const double& randMax) const
 {
 
-    //define variable to return from getRand call, should never returh zero
+    //define variable to return from getRand call, should never return zero
     double random = 0;
 
     //Implementation for 1D hist
