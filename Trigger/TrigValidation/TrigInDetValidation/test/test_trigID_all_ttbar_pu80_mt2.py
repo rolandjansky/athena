@@ -4,7 +4,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -56,8 +56,8 @@ for opt,arg in opts:
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon','electron','tau','bjet']
 rdo2aod.max_events = 2000 
-rdo2aod.threads = 4 
-rdo2aod.concurrent_events = 4 
+rdo2aod.threads = 8 
+rdo2aod.concurrent_events = 8
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  

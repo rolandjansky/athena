@@ -143,15 +143,31 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     mymuon.tagged = triggerMatching(muon,m_trigTagDefs)==StatusCode::SUCCESS ? true : false;
     /* fill info of isolation among muons */
     mymuon.isolated = true;
+    mymuon.probeOK = false;
+    if(!m_TagAndProbe.value()) mymuon.probeOK = true;
     for(const auto& muon2 : *muons){
       if( muon == muon2 )continue;
+
       TLorentzVector muonvec2;
       muonvec2.SetPtEtaPhiM(muon2->pt(),muon2->eta(),muon2->phi(),m_muonMass.value());
       float dr = muonvec2.DeltaR( mymuon.fourvec );
       if( dr < m_isolationWindow.value() ){
   	mymuon.isolated = false;
-  	break;
       }
+
+      if( muon2->muonType()!=xAOD::Muon::Combined )continue;
+      if( muon2->author()!=xAOD::Muon::MuidCo && muon2->author()!=xAOD::Muon::STACO )continue;
+      if( muon2->quality()!=xAOD::Muon::Tight && muon2->quality()!=xAOD::Muon::Medium )continue;
+      if( triggerMatching(muon2,m_trigTagDefs)!=StatusCode::SUCCESS )continue;
+      if(!m_TagAndProbeZmumu.value()){
+	mymuon.probeOK=true;
+      }else{
+	if( muon->charge() == muon2->charge() )continue;
+	double dimuon_mass = (muonvec2 + mymuon.fourvec).M();
+	if(std::abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
+	mymuon.probeOK=true;
+      }
+
     }
     /* fill extrapolation info (only to TGC) */
     extrapolate( muon, mymuon );
@@ -179,32 +195,18 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       }
       if(pass) mymuon.matchedL1ThrInclusive.insert(ithr);
     }
+
     /* store MyMuon */
     mymuons.push_back( mymuon );
   }
 
-  /* fill probe of tag-and-probe info */
-  for(auto mymuon : mymuons){
-    mymuon.probeOK_any = false;
-    mymuon.probeOK_Z = false;
-    for(const auto& mu2 : mymuons){
-      if( mymuon.muon == mu2.muon )continue;
-      if( !mu2.tagged )continue;
-      mymuon.probeOK_any = true;
-      if( mymuon.muon->charge() == mu2.muon->charge() )continue;
-      double dimuon_mass = (mu2.fourvec + mymuon.fourvec).M();
-      if(std::abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
-      mymuon.probeOK_Z = true;
-      break;
-    }
-  }
   
-  auto muon_eta = Monitored::Collection("muon_eta",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->eta():-10;});variables.push_back(muon_eta);
-  auto muon_phi = Monitored::Collection("muon_phi",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi);
-  auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
-  auto muon_phi_tgc = Monitored::Collection("muon_phi_tgc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_tgc);
-  auto muon_pt_rpc = Monitored::Collection("muon_pt_rpc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())<1.05)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_rpc);
-  auto muon_pt_tgc = Monitored::Collection("muon_pt_tgc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_tgc);
+  auto muon_eta = Monitored::Collection("muon_eta",mymuons,[](const MyMuon& m){return (m.probeOK&&m.muon->pt()/1000>30)?m.muon->eta():-10;});variables.push_back(muon_eta);
+  auto muon_phi = Monitored::Collection("muon_phi",mymuons,[](const MyMuon& m){return (m.probeOK&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi);
+  auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (m.probeOK&&std::abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
+  auto muon_phi_tgc = Monitored::Collection("muon_phi_tgc",mymuons,[](const MyMuon& m){return (m.probeOK&&std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_tgc);
+  auto muon_pt_rpc = Monitored::Collection("muon_pt_rpc",mymuons,[](const MyMuon& m){return (m.probeOK&&std::abs(m.muon->eta())<1.05)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_rpc);
+  auto muon_pt_tgc = Monitored::Collection("muon_pt_tgc",mymuons,[](const MyMuon& m){return (m.probeOK&&std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_tgc);
   auto muon_l1passThr1 = Monitored::Collection("muon_l1passThr1",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(1)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr1);
   auto muon_l1passThr2 = Monitored::Collection("muon_l1passThr2",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(2)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr2);
   auto muon_l1passThr3 = Monitored::Collection("muon_l1passThr3",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(3)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr3);
@@ -236,6 +238,12 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   }
   const TgcIdHelper& tgcIdHelper = m_idHelperSvc->tgcIdHelper();
   std::vector<TgcHit> tgcHits;
+  std::set<TString> chamber_list;
+  std::map<TString,std::vector<TgcHit>> tgcHitsMap;
+  std::map<TString,std::vector<int>> tgcHitPhiMap;
+  std::map<TString,std::vector<int>> tgcHitEtaMap;
+  std::map<TString,std::vector<int>> tgcHitPhiMapGlobal;
+  std::map<TString,std::vector<int>> tgcHitTiming;
   for(auto tgccnt : *tgcPrd){
     for(auto data : *tgccnt){
       TgcHit tgcHit;
@@ -268,7 +276,101 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       tgcHit.phi = tgcIdHelper.stationPhi(id);
       tgcHit.station = tgcIdHelper.stationName(id);
       tgcHit.bunch = bunch;
+
+      tgcHit.igasGap = tgcHit.gasGap;
+      tgcHit.ieta = tgcHit.eta;
+      tgcHit.iphi = tgcHit.phi;
+      tgcHit.side = ( tgcHit.ieta > 0 )?("A"):("C");
+      tgcHit.iside = ( tgcHit.ieta > 0 )?(0):(1);
+      tgcHit.M = 0;
+      tgcHit.istation = tgcHit.station;
+      if( tgcHit.istation == 41 || tgcHit.istation == 42 ) tgcHit.M = 1;
+      else if( tgcHit.istation == 43 || tgcHit.istation == 44 ) tgcHit.M = 2;
+      else if( tgcHit.istation == 45 || tgcHit.istation == 46 ) tgcHit.M = 3;
+      else if( tgcHit.istation == 47 || tgcHit.istation == 48 ) tgcHit.M = 4; // EIFI
+      if(tgcHit.M == 0){
+	ATH_MSG_ERROR("unknown station: " << tgcHit.istation);
+      }
+
+      if( tgcHit.M != 4 ){ // Big Wheel, (M1,M2,M3)
+	if( tgcHit.istation % 2 == 0 ){ // Endcap
+	  int iphi2 = tgcHit.iphi + 1; // 2,3,4,..,49
+	  if(iphi2>=48)iphi2-=48; // 0,1,2,3 ..., 47
+	  tgcHit.sector = int(iphi2 / 4) + 1; // 1,2,3,,,12
+	  tgcHit.f = iphi2 - (tgcHit.sector-1) * 4; // 0,1,2,3
+	  tgcHit.E = (tgcHit.M==1) ? ( 5 - TMath::Abs( tgcHit.ieta ) ) : ( 6 - TMath::Abs( tgcHit.ieta ) );
+	  tgcHit.L = tgcHit.igasGap;
+	  tgcHit.name = Form( "%s%02iM%02if%02iE%02iL%02i%s", tgcHit.side.Data(), tgcHit.sector, tgcHit.M, tgcHit.f, tgcHit.E, tgcHit.L,(tgcHit.isStrip>0)?("S"):("W"));
+	}else{ // Forward
+	  int iphi2 = tgcHit.iphi; // 1,2,3,4,..,25
+	  if(iphi2>=24)iphi2-=24; // 0,1,2,3 ...,23
+	  tgcHit.sector = int(iphi2 / 2) + 1; // 1,2,3,,,12
+	  tgcHit.f = iphi2 - (tgcHit.sector-1) * 2; // 0,1
+	  if(tgcHit.f==1)tgcHit.f = 2;//0,2
+	  tgcHit.E = 0; // F
+	  tgcHit.L = tgcHit.igasGap;
+	  tgcHit.name = Form( "%s%02iM%02if%02iF00L%02i%s", tgcHit.side.Data(), tgcHit.sector, tgcHit.M, tgcHit.f, tgcHit.L,(tgcHit.isStrip>0)?("S"):("W"));
+	}
+      }else{ // Small Wheel (M4)
+	if( tgcHit.istation == 47 ){// FI
+	  tgcHit.sector = 0;
+	  tgcHit.f = tgcHit.iphi; // 1,2,3..24
+	  tgcHit.E = 0;
+	  tgcHit.L = tgcHit.igasGap;
+	  tgcHit.name = Form("%s00M04f%02iF00L%02i%s",tgcHit.side.Data(),tgcHit.f,tgcHit.L,(tgcHit.isStrip>0)?("S"):("W"));
+	}else if( tgcHit.istation == 48 ){// EI
+	  int iphi2 = (tgcHit.iphi>=21)?(tgcHit.iphi-21):(tgcHit.iphi); // 0,1,2,..,20
+	  if(iphi2>=0&&iphi2<=2){ tgcHit.sector = 1; tgcHit.f = iphi2;}
+	  else if(iphi2>=3&&iphi2<=5){ tgcHit.sector = 3; tgcHit.f = iphi2-3;}
+	  else if(iphi2>=6&&iphi2<=8){ tgcHit.sector = 5; tgcHit.f = iphi2-6;}
+	  else if(iphi2>=9&&iphi2<=10){ tgcHit.sector = 7; tgcHit.f = iphi2-9 +1;}
+	  else if(iphi2>=11&&iphi2<=13){ tgcHit.sector = 9; tgcHit.f = iphi2-11;}
+	  else if(iphi2>=14&&iphi2<=15){ tgcHit.sector = 11; tgcHit.f = iphi2-13;}
+	  else if(iphi2>=16&&iphi2<=18){ tgcHit.sector = 13; tgcHit.f = iphi2-16;}
+	  else if(iphi2>=19&&iphi2<=20){ tgcHit.sector = 15; tgcHit.f = iphi2-19 +1;}
+	  tgcHit.E = 1;
+	  tgcHit.L = tgcHit.igasGap;
+	  tgcHit.name = Form("%s%02iM04f%02iE01L%02i%s",tgcHit.side.Data(),tgcHit.sector,tgcHit.f,tgcHit.L,(tgcHit.isStrip>0)?("S"):("W"));
+	}else{
+	  ATH_MSG_ERROR("Unknown detector");
+	}
+      }
       tgcHits.push_back(tgcHit);
+      tgcHitsMap[tgcHit.name].push_back(tgcHit);
+      chamber_list.insert(tgcHit.name);
+
+      TString station_name = Form("%sM%02i%s",tgcHit.side.Data(),tgcHit.M,(tgcHit.isStrip>0)?("S"):("W"));
+      int phimap_index = 0;
+      int etamap_index = 0;
+      int phimap_global_index = 0; // no empty bins compare to the above index
+      if( tgcHit.M==1 ){
+	phimap_index = (tgcHit.sector - 1) * 4 + tgcHit.f + 1;
+	int tmpeta = (tgcHit.E==0)?(5):(tgcHit.E);
+	etamap_index = (tmpeta - 1) * 3 + tgcHit.L;
+	int tmpphi = tgcHit.f;
+	if( tgcHit.E==0 && tgcHit.f==2 ) tmpphi = 1;
+	if( tgcHit.E>0 ) phimap_global_index = (tmpeta - 1) * 144 + (tgcHit.sector - 1) * 12 + tmpphi * 3 + tgcHit.L;
+	else             phimap_global_index = 576 + (tgcHit.sector - 1) * 6 + tmpphi * 3 + tgcHit.L;
+      }else if( tgcHit.M==2 || tgcHit.M==3 ){
+	phimap_index = (tgcHit.sector - 1) * 4 + tgcHit.f + 1;
+	int tmpeta = (tgcHit.E==0)?(6):(tgcHit.E);
+	etamap_index = (tmpeta - 1) * 2 + tgcHit.L;
+	int tmpphi = tgcHit.f;
+	if( tgcHit.E==0 && tgcHit.f==2 ) tmpphi = 1;
+	if( tgcHit.E>0 ) phimap_global_index = (tmpeta - 1) * 96 + (tgcHit.sector - 1) * 8 + tmpphi * 2 + tgcHit.L;
+	else             phimap_global_index = 480 + (tgcHit.sector - 1) * 4 + tmpphi * 2 + tgcHit.L;
+      }else if( tgcHit.M==4 ){
+	phimap_index = tgcHit.iphi;
+	int tmpeta = (tgcHit.E==0)?(2):(tgcHit.E);
+	etamap_index = (tmpeta - 1) * 2 + tgcHit.L;
+	if( tgcHit.E>0 ) phimap_global_index = (tgcHit.iphi-1) * 2 + tgcHit.L;
+	else             phimap_global_index = 42 + (tgcHit.iphi-1) * 2 + tgcHit.L;
+      }
+      tgcHitPhiMap[station_name].push_back(phimap_index);
+      tgcHitEtaMap[station_name].push_back(etamap_index);
+      tgcHitPhiMapGlobal[station_name].push_back(phimap_global_index);
+      tgcHitTiming[station_name].push_back(bunch);
+
     }
   }
 
@@ -276,6 +378,23 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   auto hit_bunch = Monitored::Collection("hit_bunch",tgcHits,[](const TgcHit& m){return m.bunch;});variables.push_back(hit_bunch);
   auto hit_sideA = Monitored::Collection("hit_sideA",tgcHits,[](const TgcHit& m){return m.z>0;});variables.push_back(hit_sideA);
   auto hit_sideC = Monitored::Collection("hit_sideC",tgcHits,[](const TgcHit& m){return m.z<0;});variables.push_back(hit_sideC);
+
+  for(auto chamber_name : chamber_list){
+    auto hits_on_a_chamber = Monitored::Collection(Form("hits_on_%s",chamber_name.Data()),tgcHitsMap[chamber_name],[](const TgcHit& m){return m.channel;});
+    fill(m_packageName,hits_on_a_chamber);
+  }
+
+  for(auto phimap : tgcHitPhiMap){
+    auto x = Monitored::Collection(Form("x_%s",phimap.first.Data()),tgcHitEtaMap[phimap.first],[](const int& m){return m;});
+    auto y = Monitored::Collection(Form("y_%s",phimap.first.Data()),phimap.second,[](const int& m){return m;});
+    fill(m_packageName,x,y);
+  }
+  for(auto phimap : tgcHitPhiMapGlobal){
+    auto x = Monitored::Scalar<int>(Form("lb_for_%s",phimap.first.Data()),GetEventInfo(ctx)->lumiBlock());
+    auto y = Monitored::Collection(Form("%s",phimap.first.Data()),phimap.second,[](const int& m){return m;});
+    auto z = Monitored::Collection(Form("timing_for_%s",phimap.first.Data()),tgcHitTiming[phimap.first],[](const int& m){return m;});
+    fill(m_packageName,x,y,z);
+  }
   
   SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinCurr(m_TgcCoinDataContainerCurrBCKey, ctx);
   if(!tgcCoinCurr.isValid()){

@@ -1,30 +1,7 @@
-# $Id: CMakeLists.txt 744578 2016-05-03 16:26:20Z krasznaa $
-################################################################################
-# Package: xAODMetaDataCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODMetaDataCnv )
-
-# Extra dependencies, based on the environment that we're in:
-if( NOT XAOD_STANDALONE )
-  set(
-    extra_deps
-    GaudiKernel
-    PRIVATE
-    Control/AthenaKernel
-    Database/AthenaPOOL/AthenaPoolUtilities
-    Event/EventInfo
-  )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthToolSupport/AsgTools
-  Event/xAOD/xAODMetaData
-  ${extra_deps}
-)
 
 # Build the package differently in standalone and Athena modes:
 if( XAOD_STANDALONE )

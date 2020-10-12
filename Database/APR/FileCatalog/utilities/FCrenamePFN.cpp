@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**FCrenamePFN.cpp -- FileCatalog command line tool to rename PFN. Used in the case the file has been moved.
@@ -18,8 +18,6 @@ void printUsage(){
   std::cout<<"usage: FCrenamePFN -p pfname -n newpfname [-u contactstring -h]" <<std::endl;
 }
 
-static const char* opts[] = {"p","n","u","h",0};
-
 
 int main(int argc, char** argv)
 {
@@ -30,6 +28,7 @@ int main(int argc, char** argv)
   std::string  mynewpfn;
   try{
     CommandLine commands(argc,argv);
+    const char* opts[] = {"p","n","u","h",0};
     commands.CheckOptions(opts);
 
     if( commands.Exists("u") ){
@@ -43,17 +42,17 @@ int main(int argc, char** argv)
     }
     if( commands.Exists("h") ){
       printUsage();
-      exit(0);
+      return 0;
     }
   }catch(std::string& strError){
     std::cerr << "error "<<strError<<std::endl;
-    exit(1);
+    return 1;
   }
   
   if( mypfn.empty() || mynewpfn.empty() ){
     printUsage();
     std::cerr<<"must specify pfname using -p, newpfname using -n "<<std::endl;
-    exit(0);
+    return 0;
   }
   try{
     std::unique_ptr<IFileCatalog> mycatalog(new IFileCatalog);
@@ -67,10 +66,10 @@ int main(int argc, char** argv)
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }catch (const std::exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }
 }
 

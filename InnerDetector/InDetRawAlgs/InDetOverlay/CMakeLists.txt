@@ -31,7 +31,7 @@ atlas_add_test( SCTOverlay_test
                 ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( TRTOverlay_test
-                SOURCES src/TRTOverlay.cxx test/TRTOverlay_test.cxx
+                SOURCES test/TRTOverlay_test.cxx src/TRTOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
                 LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib TRT_ElectronPidToolsLib IdDictParser ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES}
                 ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )

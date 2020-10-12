@@ -1,27 +1,10 @@
-################################################################################
-# Package: LArCalibTest
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArCalibTest )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloConditions
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawEvent
-                          LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArCabling
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Control/StoreGate
-                          Event/xAOD/xAODEventInfo
-                          LArCalorimeter/LArRawConditions
-                          LArCalorimeter/LArCOOLConditions
-                          Tools/PathResolver )
+# External dependencies:
+find_package( CORAL COMPONENTS CoralBase )
 
 # Component(s) in the package:
 atlas_add_component( LArCalibTest
@@ -29,10 +12,9 @@ atlas_add_component( LArCalibTest
                      src/DumpCaloBadChannels.cxx
                      src/FixLArElecCalib.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloConditions CaloIdentifier AthenaBaseComps GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib CaloDetDescrLib StoreGateLib SGtests xAODEventInfo LArRawConditions LArCOOLConditions PathResolver )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloConditions CaloDetDescrLib CaloIdentifier GaudiKernel Identifier LArCOOLConditions LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRecConditions PathResolver StoreGateLib xAODEventInfo )
 
 # Install files from the package:
-atlas_install_headers( LArCalibTest )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

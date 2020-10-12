@@ -13,61 +13,34 @@
 ################################################################################
 
 import os, sys, string
-
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
 from AthenaCommon.BeamFlags import jobproperties
 import traceback
-
 from RecExConfig.Configured import Configured
 from .TauRecConfigured import TauRecConfigured
 
-# global tauRec config keys - to be replaced with tauRecFlags
-_outputType = "xAOD::TauJetContainer"
-_outputKey = "TauJets"
-_outputAuxType = "xAOD::TauJetAuxContainer"
-_outputAuxKey = "TauJetsAux."
-
 ################################################################################
 ## @class TauRecCoreBuilder
-# Build proper tau candidates and associate tracks, vertex and cells
+# Build tau candidates and associate tracks, vertex and cells
 ################################################################################
 class TauRecCoreBuilder ( TauRecConfigured ) :
-    """Build proper tau candidates and associate tracks, vertex and cells. 
+    """Build tau candidates and associate tracks, vertex and cells. 
     Calculate properties based on cell informations. 
-    Find clusters used for Pi0 identification and eflow variables.
-    PhotonConversion will be run here too.
-    """
-    
-    _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey,
-                    'xAOD::TauTrackContainer' : 'TauTracks',
-                    'xAOD::CaloClusterContainer' : 'TauShotClusters',
-                    'xAOD::PFOContainer' : 'TauShotParticleFlowObjects',
-                    'CaloCellContainer' : 'TauCommonPi0Cells',
-                    }
-
+    Find cells used for Pi0 identification and eflow variables.
+    """    
 
     def __init__(self, name = "TauCoreBuilder",doPi0Clus=False, doTJVA=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
         self.do_TJVA = doTJVA
         TauRecConfigured.__init__(self, name, doPi0Clus)
-
-
  
     def configure(self):
         mlog = logging.getLogger ('TauCoreBuilder.py::configure:')
         mlog.info('entering')
-        
-        
-        from RecExConfig.RecFlags import rec    
-        
-        from RecExConfig.ObjKeyStore import objKeyStore
-        objKeyStore.addManyTypesStreamESD(self._output)
-        objKeyStore.addManyTypesStreamAOD(self._output)   
-        objKeyStore.addManyTypesTransient(self._output)
-        
+                
         import tauRec.TauAlgorithmsHolder as taualgs
         from tauRec.tauRecFlags import tauFlags
         
@@ -118,11 +91,5 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
     # Helpers 
     def TauBuilderToolHandle(self):
         return self._TauBuilderToolHandle
-
-    def outputKey(self):
-         return self._output[self._outputType]
-    
-    def outputType(self):
-         return self._outputType
 
 #end

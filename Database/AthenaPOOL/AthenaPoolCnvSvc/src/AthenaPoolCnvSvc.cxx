@@ -9,12 +9,12 @@
 
 #include "AthenaPoolCnvSvc.h"
 
+#include "GaudiKernel/AttribStringParser.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/FileIncident.h"
-
-#include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/AttribStringParser.h"
+#include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
@@ -23,7 +23,6 @@
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
 #include "PersistentDataModel/DataHeader.h"
-
 
 #include "StorageSvc/DbReflex.h"
 
@@ -61,6 +60,13 @@ StatusCode AthenaPoolCnvSvc::initialize() {
          ServiceHandle<IService> arswsvc("AthenaRootSharedWriterSvc", this->name());
          ATH_CHECK(arswsvc.retrieve());
       }
+   }
+   // Register this service for 'I/O' events
+   ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
+   ATH_CHECK(iomgr.retrieve());
+   if (!iomgr->io_register(this).isSuccess()) {
+      ATH_MSG_FATAL("Could not register myself with the IoComponentMgr !");
+      return(StatusCode::FAILURE);
    }
    // Extracting MaxFileSizes for global default and map by Database name.
    for (std::vector<std::string>::const_iterator iter = m_maxFileSizes.value().begin(),
@@ -101,6 +107,12 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
+StatusCode AthenaPoolCnvSvc::io_reinit() {
+   ATH_MSG_DEBUG("I/O reinitialization...");
+   m_contextAttr.clear();
+   return(StatusCode::SUCCESS);
+}
+//______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::finalize() {
    // Release AthenaSerializeSvc
    if (!m_serializeSvc.empty()) {
@@ -135,6 +147,11 @@ StatusCode AthenaPoolCnvSvc::finalize() {
 
    m_cnvs.clear();
    m_cnvs.shrink_to_fit();
+   return(StatusCode::SUCCESS);
+}
+//______________________________________________________________________________
+StatusCode AthenaPoolCnvSvc::io_finalize() {
+   ATH_MSG_DEBUG("I/O finalization...");
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -266,7 +283,10 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       return(StatusCode::FAILURE);
    }
    if (m_makeStreamingToolClient.value() > 0 && !m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer() && !m_outputStreamingTool[0]->isClient()) {
-      m_outputStreamingTool[0]->makeClient(m_makeStreamingToolClient.value()).ignore();
+      if (!makeClient(m_makeStreamingToolClient.value()).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+         return(StatusCode::FAILURE);
+      }
    }
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_streamMetaDataOnly || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
@@ -670,7 +690,10 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
       m_chronoStatSvc->chronoStart("cRepR_ALL");
    }
    if (m_makeStreamingToolClient.value() > 0 && !m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer() && !m_outputStreamingTool[0]->isClient()) {
-      m_outputStreamingTool[0]->makeClient(m_makeStreamingToolClient.value()).ignore();
+      if (!makeClient(m_makeStreamingToolClient.value()).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+         return(nullptr);
+      }
    }
    Token* token = nullptr;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()

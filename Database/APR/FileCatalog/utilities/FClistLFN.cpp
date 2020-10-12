@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**FClistLFN.cpp -- FileCatalog command line tool to list all the LFN entries from the catalog.
@@ -20,8 +20,6 @@ using namespace pool;
 void printUsage(){
   std::cout<<"usage: FClistLFN [-p pfname] [-u contactstring] [-h]" <<std::endl; 
 }
-
-static const char* opts[] = {"p","u","h",0};
 
 
 class contactParser{
@@ -58,6 +56,7 @@ int main(int argc, char** argv)
   std::string  mypfn;
   try{
     CommandLine commands(argc,argv);
+    const char* opts[] = {"p","u","h",0};
     commands.CheckOptions(opts);
     
     if( commands.Exists("u") ){
@@ -70,11 +69,11 @@ int main(int argc, char** argv)
     }
     if( commands.Exists("h") ){
       printUsage();
-      exit(0);
+      return 0;
     }
   }catch(std::string& strError){
     std::cerr<< "Error: command parsing error "<<strError<<std::endl;
-    exit(0);
+    return 0;
   }
 
   if( !mypfn.empty() ) {
@@ -116,10 +115,10 @@ int main(int argc, char** argv)
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }catch (const std::exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }
 }
 

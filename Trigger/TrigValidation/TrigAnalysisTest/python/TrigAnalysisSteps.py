@@ -164,7 +164,9 @@ def trig_analysis_exec_steps(input_file='AOD.pool.root'):
     return [
         TrigDecChecker(in_file=input_file),
         TrigEDMChecker(in_file=input_file),
-        TrigEDMAuxChecker(in_file=input_file)]
+        # to be fixed and enabled
+        #TrigEDMAuxChecker(in_file=input_file)
+    ]
 
 def trig_analysis_check_steps():
     return [CheckFileTrigSizeStep()]

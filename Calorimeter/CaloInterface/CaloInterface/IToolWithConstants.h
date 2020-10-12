@@ -15,7 +15,7 @@
 
 
 #include "CaloConditions/ToolConstants.h"
-#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/EventContext.h"
 #include <string>
@@ -27,7 +27,7 @@
  * Defines operations needed by CaloClusterCorrDBWriter.
  */
 class IToolWithConstants
-  : virtual public IInterface
+  : virtual public IAlgTool
 {
 public:
   DeclareInterfaceID (IToolWithConstants, 1, 0);
