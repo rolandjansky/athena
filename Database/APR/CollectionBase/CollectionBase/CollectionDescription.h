@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONDESCRIPTION_H
@@ -573,13 +573,16 @@ namespace pool {
     // check if the column contains tokens
     virtual bool 	isTokenColumn( const std::string& columnName, const std::string& method ) const;
 
-    // this version includes the 'mothod name' in the error message
-    virtual pool::CollectionColumn* column( const std::string& columnName, const std::string& methodName ) const;
+    // this version includes the 'method name' in the error message
+    virtual pool::CollectionColumn* column( const std::string& columnName, const std::string& methodName );
+    virtual const pool::CollectionColumn* column( const std::string& columnName, const std::string& methodName ) const;
 
     // returns non-const fragment pointer
-    virtual pool::CollectionFragment* collectionFragment( int fragmentId, const std::string& method  ) const;
+    virtual pool::CollectionFragment* collectionFragment( int fragmentId, const std::string& method  );
+    virtual const pool::CollectionFragment* collectionFragment( int fragmentId, const std::string& method  ) const;
     // returns non-const fragment pointer
-    virtual pool::CollectionFragment* collectionFragment( const std::string& fragmentName, const std::string& method ) const;
+    virtual pool::CollectionFragment* collectionFragment( const std::string& fragmentName, const std::string& method );
+    virtual const pool::CollectionFragment* collectionFragment( const std::string& fragmentName, const std::string& method ) const;
 
  public:
     /// print out the description (debugging)
