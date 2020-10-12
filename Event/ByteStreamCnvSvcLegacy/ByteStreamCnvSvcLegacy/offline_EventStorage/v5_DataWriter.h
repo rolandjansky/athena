@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -44,7 +44,8 @@ namespace offline_EventStorage_v5 {
 class DataWriter : boost::noncopyable
 {
 public:
- 
+  using iovec_const = offline_EventStorage_v5::iovec_const;
+
   /** 
       constructor with metadata strings 
       \param writingPath directory where to write data  
@@ -111,7 +112,7 @@ private:
 
 
   EventStorage::DWError putData_implementation(const unsigned int& entries,
-				 const struct iovec * my_iovec, 
+				 const iovec_const * my_iovec, 
 				 uint32_t& sizeToDisk,
 				 bool precompressed = false);
   
@@ -191,7 +192,7 @@ public:
       \param locations of the data chunks
   */
   EventStorage::DWError putPrecompressedData(const unsigned int& entries,
-			       const struct iovec* my_iovec);
+			       const iovec_const* my_iovec);
 
 
   /** 
@@ -224,7 +225,7 @@ public:
       \param my_iovec locations of the data chunks
       \param &sizeToDisk will be update with the actual chunck size on disk
   */
-  EventStorage::DWError putData(const unsigned int& entries, const struct iovec* my_iovec,
+  EventStorage::DWError putData(const unsigned int& entries, const iovec_const* my_iovec,
 		  uint32_t& sizeToDisk);
 
 
