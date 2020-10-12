@@ -104,7 +104,7 @@ atlas_add_library( SUSYToolsLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
    PileupReweightingLib PathResolver TauAnalysisToolsLib TriggerAnalysisInterfacesLib
    TriggerMatchingToolLib TrigConfInterfaces TrigConfxAODLib
-   xAODTrigMissingET xAODMetaData ${extra_libs} )
+   xAODTrigMissingET xAODMetaData xAODCutFlow ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( SUSYTools

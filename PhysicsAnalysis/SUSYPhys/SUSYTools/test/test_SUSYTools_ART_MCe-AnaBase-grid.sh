@@ -9,8 +9,8 @@
 # Create empty pool file
 art.py createpoolfile
 
-echo "Running SUSYTools test: \'TestSUSYToolsAlg.py -t MCe -m -1\'"
-TestSUSYToolsAlg.py -t MCe -m -1
+echo "Running SUSYTools test: \'TestSUSYToolsAlg.py -t mc16e -m 1500\'"
+TestSUSYToolsAlg.py -t mc16e -m 1500
 echo  "art-result: $? TEST"
 
 mv submitDir/hist-SUSYTools.root ./hist-MCe_DAOD_PHYSVAL.root
