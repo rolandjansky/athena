@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
   
   ATH_MSG_INFO("INPUT: Configuration file (argv[1]) = "
 	       << argv[1] << "\n");
-  std::string settingsFilename = PathResolver::find_file(argv[1],"DATAPATH");
+  std::string settingsFilename = PathResolver::find_file(argv[1],"DATAPATH",PathResolver::LocalSearch);
 
   ATH_MSG_INFO("LOCATED (using PathResolverFindFile ): Configuration file = "
 	       << settingsFilename << "\n");

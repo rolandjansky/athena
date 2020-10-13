@@ -104,7 +104,7 @@ class Config:
         txt = '('
         iconfigFile=0
         for configFile in self.settingsFile.split(','):
-            cutsFileIsARealFile = checkForFile(ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch))
+            cutsFileIsARealFile = checkForFile(ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.LocalSearch))
             if cutsFileIsARealFile:
                 txt += 'exists'
             else:
@@ -220,7 +220,7 @@ def submit(config, allSamples):
     if not checkForFile(configFile):
         print logger.WARNING     + " WARNING - Did not find config file %s in this dir "%(configFile) + logger.ENDC
         print logger.WARNING     + "       - Attempt to find this file in a sensible location using PathResolver... " + logger.ENDC
-        settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
+        settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.LocalSearch)      
         if settingsFilePath == "":
             print logger.FAIL    + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
             print '%s does not exist in this directory and cannot be found using PathResolver, exiting!' % configFile
@@ -230,7 +230,7 @@ def submit(config, allSamples):
 
   outputFiles = []
   for configFile in config.settingsFile.split(','):
-    settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+    settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.LocalSearch)
 
     #Look in the cuts file for the output filename
     outputFilename = 'EMPTY'
@@ -440,7 +440,7 @@ if __name__ == '__main__':
 
 
 def checkForShowerAlgorithm(Samples, cutfile):    
-    settingsFilePath = ROOT.PathResolver.find_file(cutfile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+    settingsFilePath = ROOT.PathResolver.find_file(cutfile, "DATAPATH", ROOT.PathResolver.LocalSearch)
     noShowerDatasets = []
     customTDPFile = None
     tmp = open(settingsFilePath, "r")
@@ -502,7 +502,7 @@ def checkPRWFile(Samples, cutfile):
     # We need to find the PRW files being used and make use of the checkPRW 
     # checkPRW.py --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
     # First, find the PRW names from cutfile
-    settingsFilePath = ROOT.PathResolver.find_file(cutfile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+    settingsFilePath = ROOT.PathResolver.find_file(cutfile, "DATAPATH", ROOT.PathResolver.LocalSearch)
     print logger.OKBLUE + " - Processing checks for PRWConfig in " + settingsFilePath + logger.ENDC
     tmp = open(settingsFilePath, "r")
     PRWConfig = None
