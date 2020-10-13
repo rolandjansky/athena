@@ -82,6 +82,9 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
+    from pprint import pprint
+    pprint(chain_dict)
+
     log.debug('trigJetHypoToolFromDictc chainDict %s', str(chain_dict))
 
     try:
@@ -100,7 +103,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     chain_name = chain_dict['chainName']
 
     toolSetter = None
-    if 'HT' in chain_name:
+    if 'agg' in chain_name:
         toolSetter=ConditionsToolSetterHT(chain_name)
     else:
         toolSetter=ConditionsToolSetterFastReduction(chain_name)
