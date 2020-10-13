@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEDIGITS_BYTESTREAMTOOL_H
@@ -43,12 +43,12 @@ class TileDigitsContByteStreamTool: public AthAlgTool {
      */
     static const InterfaceID& interfaceID();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** Provides conversion from TileDigitsContainer to BS
      */
-    StatusCode convert(DIGITS* cont, FullEventAssembler<TileHid2RESrcID> *fea);
+    StatusCode convert(DIGITS* cont, FullEventAssembler<TileHid2RESrcID> *fea) const;
 
   private:
 

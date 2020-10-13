@@ -66,31 +66,32 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
 StatusCode
 Trk::GaussianSumFitter::initialize()
 {
-  StatusCode sc;
-  // Request the GSF extrapolator
-  ATH_CHECK(m_extrapolator.retrieve());
-  // Request the RIO_OnTrack creator
-  // No need to return if RioOnTrack creator tool, only if PrepRawData is used
-  if (m_rioOnTrackCreator.retrieve().isFailure()) {
-    if (!m_refitOnMeasurementBase) {
-      ATH_MSG_FATAL("Attempting to use PrepRawData with no RIO_OnTrack creator "
-                    "tool provided... Exiting!");
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO(
-      "Request to retrieve the RIO_OnTrack Creator"
-      << "failed but track is fit at the MeasurementBase level... Continuing!");
-  }
-  if (m_overideMaterialEffectsSwitch) {
-    ATH_MSG_INFO("Material effects in forwards fitter have been overiden by "
-                 "jobOptions... New "
-                 "Trk::ParticleHypothesis: "
-                 << m_overideMaterialEffects);
-  }
+
   if (m_maximumNumberOfComponents > 16) {
     ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
     return StatusCode::FAILURE;
   }
+
+  // Request the GSF extrapolator
+  ATH_CHECK(m_extrapolator.retrieve());
+
+  // Request the RIO_OnTrack creator
+  // No need to return if RioOnTrack creator tool, only if PrepRawData is used
+  if (!m_refitOnMeasurementBase) {
+    ATH_MSG_INFO("NOT refitOnMeasurementBase");
+    ATH_CHECK(m_rioOnTrackCreator.retrieve());
+  } else {
+    ATH_MSG_INFO("refitOnMeasurementBase");
+    m_rioOnTrackCreator.disable();
+  }
+
+  if (m_overideMaterialEffectsSwitch) {
+    ATH_MSG_INFO("Material effects in forward fitter have been overiden by "
+                 "jobOptions... New "
+                 "Trk::ParticleHypothesis: "
+                 << m_overideMaterialEffects);
+  }
+
   // Initialise the closest track parameters search algorithm
   Amg::Vector3D referencePosition(m_sortingReferencePoint[0],
                                   m_sortingReferencePoint[1],
@@ -922,8 +923,14 @@ Trk::GaussianSumFitter::stepForwardFit(
 {
   // Protect against undefined Measurement or PrepRawData
   if (!originalPrepRawData && !originalMeasurement) {
+    ATH_MSG_WARNING("No measurement base or PrepRawData  passed to "
+                    "StepForwardFit... Exiting!");
+    return false;
+  }
+
+  if (!originalMeasurement && m_refitOnMeasurementBase) {
     ATH_MSG_WARNING(
-      "No measurement information passed to StepForwardFit... Exiting!");
+      "No measurement base information passed to StepForwardFit... Exiting!");
     return false;
   }
 
@@ -932,7 +939,6 @@ Trk::GaussianSumFitter::stepForwardFit(
     ATH_MSG_WARNING("ForwardTrajectory object is not defined... Exiting!");
     return false;
   }
-
   // Extrapolate multi-component state to the next measurement surface
   Trk::MultiComponentState extrapolatedState =
     m_extrapolator->extrapolate(ctx,

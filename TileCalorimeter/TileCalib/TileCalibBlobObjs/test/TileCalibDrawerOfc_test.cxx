@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -14,6 +14,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 
 #include "TestTools/FLOATassert.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -31,7 +32,7 @@ static const int NGAINS(1);
 static const unsigned int NSAMPLES(1);
 
 
-void test1() {
+void test1 ATLAS_NOT_THREAD_SAFE () {
 
   std::cout << "test1\n";
   
@@ -176,7 +177,7 @@ int prepareReferenceFile () {
 }
 
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
 
   //  prepareReferenceFile();
 

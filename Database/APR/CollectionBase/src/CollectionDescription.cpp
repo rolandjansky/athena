@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/CollectionDescription.h"
@@ -1450,7 +1450,7 @@ pool::CollectionDescription::numberOfColumns( std::string fragmentName ) const
    if( !fragmentName.size() )  {
       return  m_attributeColumnForColumnName.size() + m_tokenColumnForColumnName.size();
    }
-   CollectionFragment* fragment = collectionFragment( fragmentName, "numberOfColumns" );
+   const CollectionFragment* fragment = collectionFragment( fragmentName, "numberOfColumns" );
    return fragment->attributeColumns().size() + fragment->tokenColumns().size();
 }
 
@@ -1481,7 +1481,7 @@ pool::CollectionDescription::columnPtr( const std::string& name ) const
 
 // internal use protected method (when non-const column is needed). throws exceptions
 pool::CollectionColumn *
-pool::CollectionDescription::column( const std::string& name, const std::string& method ) const
+pool::CollectionDescription::column( const std::string& name, const std::string& method )
 {
    std::map< std::string, pool::CollectionColumn* >::const_iterator iColumn;
    iColumn = m_attributeColumnForColumnName.find( name );
@@ -1496,6 +1496,22 @@ pool::CollectionDescription::column( const std::string& name, const std::string&
 }
    
 
+
+const pool::CollectionColumn *
+pool::CollectionDescription::column( const std::string& name, const std::string& method ) const
+{
+   std::map< std::string, pool::CollectionColumn* >::const_iterator iColumn;
+   iColumn = m_attributeColumnForColumnName.find( name );
+   if( iColumn == m_attributeColumnForColumnName.end() ) {
+      iColumn = m_tokenColumnForColumnName.find( name );
+      if( iColumn == m_tokenColumnForColumnName.end() )  {
+         std::string errorMsg = "Column with name `" + name + "' does NOT exist.";
+         throw pool::Exception(errorMsg, "CollectionDescription::" + method, "CollectionBase");
+      }
+   }
+   return iColumn->second;
+}
+   
 
 int 
 pool::CollectionDescription::numberOfTokenColumns( std::string fragmentName ) const
@@ -1609,7 +1625,7 @@ pool::CollectionDescription::attributeColumn( const std::string& columnName ) co
 const pool::ICollectionColumn&
 pool::CollectionDescription::attributeColumn( int columnId, int fragmentId ) const
 {
-   CollectionFragment* fragment = collectionFragment( fragmentId, "attributeColumn" );
+   const CollectionFragment* fragment = collectionFragment( fragmentId, "attributeColumn" );
    std::vector< pool::CollectionColumn* > columns = fragment->attributeColumns();
 
    if( columnId >= 0 && columnId < (int) columns.size() )  {
@@ -1630,7 +1646,7 @@ pool::CollectionDescription::attributeColumn( int columnId, int fragmentId ) con
 const pool::ICollectionColumn&
 pool::CollectionDescription::attributeColumn( int columnId, const std::string& fragmentName ) const
 {
-   CollectionFragment* fragment = collectionFragment( fragmentName, "attributeColumn" );
+   const CollectionFragment* fragment = collectionFragment( fragmentName, "attributeColumn" );
    std::vector< pool::CollectionColumn* > columns = fragment->attributeColumns();
    if( columnId >= 0 && columnId < (int)columns.size() )    {
       return *( columns[ columnId ] );
@@ -1777,6 +1793,22 @@ pool::CollectionDescription::collectionFragment( const std::string& fragmentName
    
 
 pool::CollectionFragment *
+pool::CollectionDescription::collectionFragment( const std::string& fragmentName, const std::string& method )
+{
+   std::map< std::string, pool::CollectionFragment* >::const_iterator iFragment = 
+      m_fragmentForFragmentName.find( fragmentName );
+
+   if( iFragment == m_fragmentForFragmentName.end() )  {
+      std::string errorMsg = "Collection fragment `" + fragmentName + "' NOT found.";
+      throw pool::Exception( errorMsg,
+			     "CollectionDescription::" + method,
+			     "CollectionBase" );
+   } 
+   return iFragment->second;
+}
+
+
+const pool::CollectionFragment *
 pool::CollectionDescription::collectionFragment( const std::string& fragmentName, const std::string& method ) const
 {
    std::map< std::string, pool::CollectionFragment* >::const_iterator iFragment = 
@@ -1800,6 +1832,24 @@ pool::CollectionDescription::collectionFragment( int fragmentId ) const
 
 
 pool::CollectionFragment *
+pool::CollectionDescription::collectionFragment( int fragmentId, const std::string& method  )
+{
+  std::map< int, pool::CollectionFragment* >::const_iterator iFragment = m_fragmentForFragmentId.find( fragmentId );
+
+  if ( iFragment == m_fragmentForFragmentId.end() )
+  {
+    std::string errorMsg = "Not using a collection fragment with ID " + std::to_string(fragmentId);
+    throw pool::Exception( errorMsg,
+                           "CollectionDescription::" + method,
+                           "CollectionBase" );
+  }
+ 
+  return iFragment->second;
+}
+
+
+
+const pool::CollectionFragment *
 pool::CollectionDescription::collectionFragment( int fragmentId, const std::string& method  ) const
 {
   std::map< int, pool::CollectionFragment* >::const_iterator iFragment = m_fragmentForFragmentId.find( fragmentId );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_TILECALIBDRAWERBASE_H
@@ -131,7 +131,8 @@ class TileCalibDrawerBase{
   //==================================================================
   /** @brief Returns start address of iEle-th basic unit. 
       @param iEle sequential basic unit number */
-  void* getAddress(unsigned int iEle) const;
+  const void* getAddress(unsigned int iEle) const;
+        void* getAddress(unsigned int iEle);
   
   /** @brief The header size in units of uint32_t. */
   static const unsigned int m_hdrSize32 = 5;
@@ -139,6 +140,9 @@ class TileCalibDrawerBase{
  protected:
   /** @brief Ctor for const blob. */
   TileCalibDrawerBase(const coral::Blob& blob);
+
+  /** @brief Ctor for non-const blob. */
+  TileCalibDrawerBase(coral::Blob& blob);
 
   /** @brief (re-)creation of the referenced BLOB object.
       @param objType Object type
@@ -165,12 +169,15 @@ class TileCalibDrawerBase{
   void dumpHeader(std::ostream& stm) const; 
 
  private:
-  /** @brief Reference to the BLOB*/
-  coral::Blob*  m_blob;
+  /** @brief Non-const reference to the BLOB.
+             (Only present if we were created with a non-const blob.) */
+  coral::Blob*  m_blob_nc;
+  /** @brief Const reference to the BLOB (always there) */
+  const coral::Blob*  m_blob;
   /** @brief Cache blob starting address as uint_32t* */
-  uint32_t*     m_blobStart32;
+  const uint32_t*  m_blobStart32;
   /** @brief Cache blob starting address as uint_16t* */
-  uint16_t*     m_blobStart16;
+  const uint16_t*  m_blobStart16;
   /** @brief Cache blob size in units of uint32_t */
   uint64_t      m_blobSize32;
     /** @brief Is this TileCalibDrawer owner of the BLOB */
@@ -236,13 +243,25 @@ TileCalibDrawerBase::getCommentSizeUint32() const
 
 //
 //_________________________________________________________
-__attribute__((always_inline)) inline void* 
+__attribute__((always_inline)) inline const void* 
 TileCalibDrawerBase::getAddress(unsigned int iEle) const
 {
   if(iEle>=getNObjs()){ 
     throw TileCalib::IndexOutOfRange("TileCalibDrawerBase::getAddress", iEle, getNObjs());
   }
-  return static_cast<void*>( m_blobStart32 + m_hdrSize32 + getObjSizeUint32()*iEle );
+  return static_cast<const void*>( m_blobStart32 + m_hdrSize32 + getObjSizeUint32()*iEle );
+}
+
+//
+//_________________________________________________________
+__attribute__((always_inline)) inline void* 
+TileCalibDrawerBase::getAddress(unsigned int iEle)
+{
+  if(iEle>=getNObjs()){ 
+    throw TileCalib::IndexOutOfRange("TileCalibDrawerBase::getAddress", iEle, getNObjs());
+  }
+  uint32_t* blobStart32 = static_cast<uint32_t*>(m_blob_nc->startingAddress());
+  return static_cast<void*>( blobStart32 + m_hdrSize32 + getObjSizeUint32()*iEle );
 }
 
 //
@@ -251,8 +270,8 @@ __attribute__((always_inline)) inline uint64_t
 TileCalibDrawerBase::getTimeStamp() const 
 {
   if(!getCommentSizeUint32()) return 0;
-  return *(reinterpret_cast<uint64_t*>(m_blobStart32 + m_hdrSize32 +
-				       getNObjs()*getObjSizeUint32()));
+  return *(reinterpret_cast<const uint64_t*>(m_blobStart32 + m_hdrSize32 +
+                                             getNObjs()*getObjSizeUint32()));
 }
 
 #endif

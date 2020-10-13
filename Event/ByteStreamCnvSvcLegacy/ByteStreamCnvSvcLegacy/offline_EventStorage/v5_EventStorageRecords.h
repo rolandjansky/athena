@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,6 +32,12 @@
 
 namespace offline_EventStorage_v5 {
     
+  struct iovec_const
+  {
+    const void* iov_base;
+    size_t iov_len;
+  };
+ 
   enum CompressionType { NONE, RESERVED, UNKNOWN, ZLIB};
 
   struct  file_start_record 

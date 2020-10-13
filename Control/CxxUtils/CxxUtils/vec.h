@@ -557,7 +557,7 @@ vblend(VEC& dst, const VEC& src1, const VEC& src2)
     "blend indices outside allowed range");
 
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
-  size_t pos{ 0 };;
+  size_t pos{ 0 };
   for (size_t i : { Indices... }) {
     if (i < N) {
       dst[pos] = src1[i];

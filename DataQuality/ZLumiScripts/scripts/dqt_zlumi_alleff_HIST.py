@@ -24,7 +24,7 @@ infilename = args.infile
 infile = ROOT.TFile.Open(infilename, 'READ')
 
 runmode = args.mode
-print 'Running in', runmode, 'mode'
+print('Running in', runmode, 'mode')
 
 
 runname = None
@@ -33,17 +33,17 @@ for k in infile.GetListOfKeys():
         runname = k.GetName()
         break
 if not runname:
-    print 'Cannot find run directory in input file'
+    print('Cannot find run directory in input file')
     sys.exit(1)
 else:
-    print 'Found runname', runname
+    print('Found runname', runname)
 
 lbdirs = []
 for k in infile.Get(runname).GetListOfKeys():
     if k.GetName().startswith('lb_'):
         lbdirs.append(k.GetName())
 
-print 'Now to dump'
+print('Now to dump')
 lbnums = sorted([int(_[3:]) for _ in lbdirs])
 
 effcyt = ROOT.TH1F('effcyt', 'Trigger efficiency', lbnums[-1]-lbnums[0]+1, lbnums[0]-0.5, 
@@ -88,7 +88,7 @@ tl.Branch('aestat', o_aestat, 'aestat/F')
 
 from DQUtils import fetch_iovs
 #rset=set(_[0] for _ in rlb)
-#print rset
+#print(rset)
 lblb = fetch_iovs("LBLB", runs=int(runname[4:])).by_run
 for lb in sorted(lbdirs):
     if runmode == "Zee":
@@ -106,7 +106,7 @@ for lb in sorted(lbdirs):
     lbnum = int(lb[3:])
     yld = (h[2], h[3])
     ylderr = (h.GetBinError(2), h.GetBinError(3))
-    #print yld, ylderr
+    #print(yld, ylderr)
     A, B = yld
     o_z_one[0], o_z_two[0] = yld
     if B == 0: continue
@@ -118,7 +118,7 @@ for lb in sorted(lbdirs):
     try:
         iov = lblb[int(runname[4:])][lbnum-1]
         o_lbwhen[0], o_lbwhen[1] = iov.StartTime/1e9, iov.EndTime/1e9
-    except Exception, e:
+    except Exception as e:
         o_lbwhen[0], o_lbwhen[1] = 0, 0
     effcyt.SetBinContent(lbnum-lbnums[0]+1, eff)
     effcyt.SetBinError(lbnum-lbnums[0]+1, o_trigeffstat[0])
@@ -132,11 +132,11 @@ for lb in sorted(lbdirs):
     nomatchos, nomatchoserr = extract(hno)
     nomatchss, nomatchsserr = extract(hns)
     if args.debug:
-        print lb
-        print ' ->', matchos, matchoserr
-        print ' ->', matchss, matchsserr
-        print ' ->', nomatchos, nomatchoserr
-        print ' ->', nomatchss, nomatchsserr
+        print(lb)
+        print(' ->', matchos, matchoserr)
+        print(' ->', matchss, matchsserr)
+        print(' ->', nomatchos, nomatchoserr)
+        print(' ->', nomatchss, nomatchsserr)
     A = float(matchos-matchss)
     Aerr = (matchoserr**2+matchsserr**2)**.5
     B = float(nomatchos-nomatchss)
@@ -163,7 +163,7 @@ for lb in sorted(lbdirs):
 
     tl.Fill()
 tl.Write()
-print 'Done'
+print('Done')
 
 c1 = ROOT.TCanvas()
 effcya.SetMarkerStyle(21)
@@ -198,7 +198,7 @@ if sumweights:
     for ibin in xrange(1,sumweights.GetNbinsX()+1):
         o_lb[0] = int(sumweights.GetBinCenter(ibin))
         ctrbin = ctr.FindBin(o_lb[0])
-        print ibin, o_lb[0], sumweights[ibin], ctr[ctrbin]
+        print(ibin, o_lb[0], sumweights[ibin], ctr[ctrbin])
         if sumweights[ibin] == 0: continue
         p = ctr[ctrbin]/sumweights[ibin]
         o_alleff[0]=p

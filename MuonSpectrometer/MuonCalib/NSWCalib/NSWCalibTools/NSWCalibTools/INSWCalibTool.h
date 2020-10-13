@@ -30,11 +30,12 @@ namespace NSWCalib {
   };
 
 }
- 
+
 namespace Muon {
 
   class MM_RawData;
   class MMPrepData;
+  class STGC_RawData;
 
   class INSWCalibTool : virtual public IAlgTool {
     
@@ -44,9 +45,10 @@ namespace Muon {
 
   public:  // interface methods
     
-    virtual StatusCode calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const = 0;
+    virtual StatusCode calibrateClus(const Muon::MMPrepData* prepRawData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const = 0;
     virtual StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const = 0;
     virtual StatusCode calibrateStrip(const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip&calibStrip) const = 0;
+    virtual StatusCode calibrateStrip(const Muon::STGC_RawData* sTGCRawData, NSWCalib::CalibratedStrip& calibStrip) const = 0;
     virtual StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const = 0;
   };
   

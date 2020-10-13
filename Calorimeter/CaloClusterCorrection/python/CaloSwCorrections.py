@@ -1,20 +1,19 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: CaloSwCorrections.py,v 1.40 2009-04-30 20:29:53 ssnyder Exp $
-#
 # File: CaloClusterCorrection/python/CaloSwCorrections.py
 # Created: Nov 2006, sss
 # Purpose: Top-level configuration file for EM cluster corrections.
 #
-# The main entry point here is make_CaloSwCorrections, which returns
+# The main entry point here is make_CaloSwCorrectionsCfg, which returns
+# ComponentAccumulator with
 # a list of correction tools.  It can be used either `le menu' --- selecting
 # a predefined list of correction tools, or `a la carte' --- explicitly
 # specifying the list of tools you want to run.
 #
 # The simplest way of using it is like this:
 #
-#   make_CaloSwCorrections (key)
+#   ca = make_CaloSwCorrectionsCfg (flags, key)
 #
 # Here, `key' is a string that denotes the type of cluster which you
 # are correcting.  It should be something like `ele55' for 5x5 electrons,
@@ -29,7 +28,7 @@
 # By default, the latest version of the corrections appropriate to the
 # geometry being used will be chosen.  You can override this selection
 # by supplying the `version' argument.  It may also be overridden
-# with caloClusterCorrectionFlags.CaloSwWhichCorrection.
+# with Calo.ClusterCorrection.CaloSwWhichCorrection.
 # For the list of known version
 # names, see the variable `CaloSwCorrection_versions' below.
 # In particular, using version `none' turns off the corrections.
@@ -39,7 +38,7 @@
 # the version to be used for individual correction by adding
 # parameters of the form CORRECTION_version.  For example:
 #
-#   make_CaloSwCorrections (key, version='v4', lwc_version='v3')
+#   make_CaloSwCorrectionsCfg (flags ,key, version='v4', lwc_version='v3')
 #
 # uses the `v4' corrections, except that we use version `v3' of the
 # layer weight corrections.  You can also specify CORRECTION_key
@@ -47,7 +46,7 @@
 # and CORRECTION_XXX to override any individual parameter
 # of a correction.  For example:
 #
-#   make_CaloSwCorrections (key, lwc_degree=2)
+#   make_CaloSwCorrectionsCfg (flags, key, lwc_degree=2)
 #
 # makes the full standard set of corrections, except that the interpolation
 # degree for the layer weights correction is changed to 2.
@@ -55,13 +54,13 @@
 # You can explicitly specify a list of corrections to run with the
 # `corrlist' argument.  For example,
 #
-#   make_CaloSwCorrections (key, corrlist=[[layers], [update], [gap]])
+#   make_CaloSwCorrectionsCfg (flags, key, corrlist=[[layers], [update], [gap]])
 #
 # runs only the `layers', `update', and `gap' corrections.  The names
 # used here, like `layers' should be functions defined with this
 # signature:
 #
-#    def layers (cells_name, suffix, version, key, source, **kw):
+#    def layers (flags, cells_name, suffix, version, key, source, **kw):
 #
 # Definitions for all the standard corrections are contained in this file.
 # Note that the names of these functions are what are used to recognize
@@ -81,9 +80,10 @@
 # settings may be specified as following (name, value) tuples
 # in the list.  For example:
 #
-#   make_CaloSwCorrections (key, corrlist=[[layers],
-#                                          [update],
-#                                          [gap, 'v3', ('degree', 2)]])
+#   make_CaloSwCorrectionsCfg (flags,
+#                              key, corrlist=[[layers],
+#                                             [update],
+#                                             [gap, 'v3', ('degree', 2)]])
 #
 # says to use version `v3' of the gap correction, and in addition,
 # to override the interpolation degree to be 2.
@@ -92,27 +92,27 @@
 # list will be augmented so that cells will be weighted to avoid
 # double-counting the energy of cells that are in more than one cluster.
 # This may also be enabled by adding the string `_wt' to the end
-# of the correction version name, or by setting the DoSlidingWindowCellWeights
-# flag.
+# of the correction version name, or by setting the
+# Calo.ClusterCorrections.doSlidingWindowCellWeights flag.
 #
 # Similarly, if the parameter `remdup' is set to True, then the standard
 # correction list will be augmented so that if there are multiple clusters
 # too close together, all but one will be removed.
 # This may also be enabled by adding the string `_remdup' to the end
 # of the correction version name, or by setting the
-# DoSlidingWindowRemoveDuplicates flag.
+# Calo.ClusterCorrection.doSlidingWindowRemoveDuplicates flag.
 #
 # Also, if the parameter `rembad' is set to True, then the standard
 # correction list will be augmented so that clusters deemed to be
 # bad (below an energy threshold) will be removed.
 # This may also be enabled by adding the string `_rembad' to the end
 # of the correction version name, or by setting the
-# DoSlidingWindowRemoveBad flag.
+# Calo.ClusterCorrection.doSlidingWindowRemoveBad flag.
 #
 # There are three ways in which a correction can get configured: from
 # job options, from pool, or from cool.  You can specify which ones
-# to use by adding the `source' argument to make_CaloSwCorrections.
-# This is one of the following (defined in common.py):
+# to use by adding the `source' argument to make_CaloSwCorrectionsCfg.
+# This is one of the following (defined in constants.py):
 #
 #  - CALOCORR_JO: Configure from job options
 #  - CALOCORR_POOL: Configure from a pool file
@@ -123,7 +123,7 @@
 #
 # This parameter may be specified as a list of any of these values; in that
 # case, all the possibilities will be tried in order.  The default is taken
-# from caloClusterCorrectionFlags.DefaultSource
+# from Calo.ClusterCorrection.defaultSource
 # if it hasn't been explicitly set.  The usual setting is to try first
 # cool, then pool, then job options.  (Note that there are a couple
 # corrections which are not saved to pool/cool and can thus only
@@ -136,112 +136,122 @@
 # with a string of the form `MODULE.NAME'.
 #
 
-import sys
-import re
-from CaloClusterCorrection.CaloClusterCorrectionFlags \
-     import caloClusterCorrectionFlags
-from CaloClusterCorrection.CaloComputeSWcellWeights \
-     import make_CaloComputeSWcellWeights
-from CaloClusterCorrection.CaloSwLayers      import make_CaloSwLayers
-from CaloClusterCorrection.CaloSwRfac        import make_CaloSwRfac
-from CaloClusterCorrection.CaloSwEtaoff      import make_CaloSwEtaoff
-from CaloClusterCorrection.CaloSwPhioff      import make_CaloSwPhioff
-from CaloClusterCorrection.CaloSwEtamod      import make_CaloSwEtamod
-from CaloClusterCorrection.CaloSwPhimod      import make_CaloSwPhimod
-from CaloClusterCorrection.CaloSwClusterUpdate \
-     import make_CaloSwClusterUpdate
-from CaloClusterCorrection.CaloSwGap         import make_CaloSwGap
-from CaloClusterCorrection.CaloSwLongWeights import make_CaloSwLongWeights
-from CaloClusterCorrection.CaloSwCalibHitsCalibration import make_CaloSwCalibHitsCalibration
-from CaloClusterCorrection.CaloSwDeadOTX_ps import make_CaloSwDeadOTX_ps
-from CaloClusterCorrection.CaloSwDeadOTX_back import make_CaloSwDeadOTX_back
-from CaloClusterCorrection.CaloSwTransitionRegionsCorr import make_CaloSwTransitionRegionsCorr
-from CaloClusterCorrection.CaloClusterListBadChannel   import make_CaloClusterListBadChannel
-from CaloClusterCorrection.CaloSwClcon       import make_CaloSwClcon
-from CaloClusterCorrection.CaloSwTime        import make_CaloSwTime
-from CaloClusterCorrection.common            import *
-from CaloClusterCorrection.CaloClusterCorrectionFlags \
-     import caloClusterCorrectionFlags
+# Need to be sure that we always get run3 configurables in the imported
+# steering modules.
+from AthenaCommon.Configurable import Configurable
 
-from CaloClusterCorrection.CaloClusterRemoveDuplicates import make_CaloClusterRemoveDuplicates
-from CaloClusterCorrection.CaloClusterRemoveBad import make_CaloClusterRemoveBad
+try:
+    _wasRun3 = Configurable.configurableRun3Behavior
+    Configurable.configurableRun3Behavior = True
+
+    import re
+    from CaloClusterCorrection.CaloComputeSWcellWeights \
+         import make_CaloComputeSWcellWeights
+    from CaloClusterCorrection.CaloSwLayers      import make_CaloSwLayers
+    from CaloClusterCorrection.CaloSwRfac        import make_CaloSwRfac
+    from CaloClusterCorrection.CaloSwEtaoff      import make_CaloSwEtaoff
+    from CaloClusterCorrection.CaloSwPhioff      import make_CaloSwPhioff
+    from CaloClusterCorrection.CaloSwEtamod      import make_CaloSwEtamod
+    from CaloClusterCorrection.CaloSwPhimod      import make_CaloSwPhimod
+    from CaloClusterCorrection.CaloSwClusterUpdate \
+         import make_CaloSwClusterUpdate
+    from CaloClusterCorrection.CaloSwGap         import make_CaloSwGap
+    from CaloClusterCorrection.CaloSwLongWeights import make_CaloSwLongWeights
+    from CaloClusterCorrection.CaloSwCalibHitsCalibration import make_CaloSwCalibHitsCalibration
+    from CaloClusterCorrection.CaloSwDeadOTX_ps import make_CaloSwDeadOTX_ps
+    from CaloClusterCorrection.CaloSwDeadOTX_back import make_CaloSwDeadOTX_back
+    from CaloClusterCorrection.CaloSwTransitionRegionsCorr import make_CaloSwTransitionRegionsCorr
+    from CaloClusterCorrection.CaloClusterListBadChannel   import make_CaloClusterListBadChannel
+    from CaloClusterCorrection.CaloSwClcon       import make_CaloSwClcon
+    from CaloClusterCorrection.CaloSwTime        import make_CaloSwTime
+    from CaloClusterCorrection.constants         import \
+         CALOCORR_SW, EMB1, EME1, EMB2, EME2
+    from CaloClusterCorrection.common            import CaloClusterCorrSetup
+    from CaloClusterCorrection.compat            import makeFlags, unpackCA
+    
+    from CaloClusterCorrection.CaloClusterRemoveDuplicates import make_CaloClusterRemoveDuplicates
+    from CaloClusterCorrection.CaloClusterRemoveBad import make_CaloClusterRemoveBad
+
+finally:
+    Configurable.configurableRun3Behavior = _wasRun3
+
 
 ##############################################################################
 # Here we define wrapper functions to set up all of the standard corrections.
 # In the case where a correction has multiple versions for different
 # samplings, we define multiple wrappers here.
 # These are the names to use in the correction list and in the
-# arguments to make_CaloSwCorrection.
+# arguments to make_CaloSwCorrectionCfg.
 #
 
-def layers (cells_name, *args, **kw):
-    return make_CaloSwLayers (None, cells_name=cells_name, *args, **kw)
+def layers (flags, cells_name, *args, **kw):
+    return make_CaloSwLayers (flags, None, cells_name=cells_name, *args, **kw)
 
-def weight (cells_name, *args, **kw):
-    return make_CaloComputeSWcellWeights (None, *args, **kw)
+def weight (flags, cells_name, *args, **kw):
+    return make_CaloComputeSWcellWeights (flags, None, *args, **kw)
 
-def rfac (cells_name, *args, **kw):
-    return make_CaloSwRfac (None, *args, **kw)
+def rfac (flags, cells_name, *args, **kw):
+    return make_CaloSwRfac (flags, None, *args, **kw)
 
-def etaoff_b1 (cells_name, *args, **kw):
-    return make_CaloSwEtaoff (EMB1, None, *args, **kw)
+def etaoff_b1 (flags, cells_name, *args, **kw):
+    return make_CaloSwEtaoff (flags, EMB1, None, *args, **kw)
 
-def etaoff_b2 (cells_name, *args, **kw):
-    return make_CaloSwEtaoff (EMB2, None, *args, **kw)
+def etaoff_b2 (flags, cells_name, *args, **kw):
+    return make_CaloSwEtaoff (flags, EMB2, None, *args, **kw)
 
-def etaoff_e1 (cells_name, *args, **kw):
-    return make_CaloSwEtaoff (EME1, None, *args, **kw)
+def etaoff_e1 (flags, cells_name, *args, **kw):
+    return make_CaloSwEtaoff (flags, EME1, None, *args, **kw)
 
-def etaoff_e2 (cells_name, *args, **kw):
-    return make_CaloSwEtaoff (EME2, None, *args, **kw)
+def etaoff_e2 (flags, cells_name, *args, **kw):
+    return make_CaloSwEtaoff (flags, EME2, None, *args, **kw)
 
-def phioff_b2 (cells_name, *args, **kw):
-    return make_CaloSwPhioff (EMB2, None, *args, **kw)
+def phioff_b2 (flags, cells_name, *args, **kw):
+    return make_CaloSwPhioff (flags, EMB2, None, *args, **kw)
 
-def phioff_e2 (cells_name, *args, **kw):
-    return make_CaloSwPhioff (EME2, None, *args, **kw)
+def phioff_e2 (flags, cells_name, *args, **kw):
+    return make_CaloSwPhioff (flags, EME2, None, *args, **kw)
 
-def phimod (cells_name, *args, **kw):
-    return make_CaloSwPhimod (None, *args, **kw)
+def phimod (flags, cells_name, *args, **kw):
+    return make_CaloSwPhimod (flags, None, *args, **kw)
 
-def etamod (cells_name, *args, **kw):
-    return make_CaloSwEtamod (None, *args, **kw)
+def etamod (flags, cells_name, *args, **kw):
+    return make_CaloSwEtamod (flags, None, *args, **kw)
 
-def update (cells_name, *args, **kw):
-    return make_CaloSwClusterUpdate (None, *args, **kw)
+def update (flags, cells_name, *args, **kw):
+    return make_CaloSwClusterUpdate (flags, None, *args, **kw)
 
-def gap (cells_name, *args, **kw):
-    return make_CaloSwGap (None, cells_name=cells_name, *args, **kw)
+def gap (flags, cells_name, *args, **kw):
+    return make_CaloSwGap (flags, None, cells_name=cells_name, *args, **kw)
 
-def lwc (cells_name, *args, **kw):
-    return make_CaloSwLongWeights (None, *args, **kw)
+def lwc (flags, cells_name, *args, **kw):
+    return make_CaloSwLongWeights (flags, None, *args, **kw)
 
-def calhits (cells_name, *args, **kw):
-    return make_CaloSwCalibHitsCalibration (None, *args, **kw)
+def calhits (flags, cells_name, *args, **kw):
+    return make_CaloSwCalibHitsCalibration (flags, None, *args, **kw)
 
-def trcorr (cells_name, *args, **kw):
-    return make_CaloSwTransitionRegionsCorr (None, *args, **kw)
+def trcorr (flags, cells_name, *args, **kw):
+    return make_CaloSwTransitionRegionsCorr (flags, None, *args, **kw)
 
-def deadOTXps (cells_name, *args, **kw):
-    return make_CaloSwDeadOTX_ps ( None, *args, **kw )
+def deadOTXps (flags, cells_name, *args, **kw):
+    return make_CaloSwDeadOTX_ps (flags, None, *args, **kw )
 
-def deadOTXback (cells_name, *args, **kw):
-    return make_CaloSwDeadOTX_back ( None, *args, **kw )
+def deadOTXback (flags, cells_name, *args, **kw):
+    return make_CaloSwDeadOTX_back (flags, None, *args, **kw )
 
-def clcon (cells_name, *args, **kw):
-    return make_CaloSwClcon (None, *args, **kw)
+def clcon (flags, cells_name, *args, **kw):
+    return make_CaloSwClcon (flags, None, *args, **kw)
 
-def removeduplicates (cells_name, *args, **kw):
-    return make_CaloClusterRemoveDuplicates (None, *args, **kw)
+def removeduplicates (flags, cells_name, *args, **kw):
+    return make_CaloClusterRemoveDuplicates (flags, None, *args, **kw)
 
-def removebad (cells_name, *args, **kw):
-    return make_CaloClusterRemoveBad (None, *args, **kw)
+def removebad (flags, cells_name, *args, **kw):
+    return make_CaloClusterRemoveBad (flags, None, *args, **kw)
 
-def listBadChannel (cells_name, *args, **kw):
-    return make_CaloClusterListBadChannel (CALOCORR_SW, None, *args, **kw)
+def listBadChannel (flags, cells_name, *args, **kw):
+    return make_CaloClusterListBadChannel (flags, CALOCORR_SW, None, *args, **kw)
 
-def time (cells_name, *args, **kw):
-    return make_CaloSwTime (None, *args, **kw)
+def time (flags, cells_name, *args, **kw):
+    return make_CaloSwTime (flags, None, *args, **kw)
 
 
 ##############################################################################
@@ -261,8 +271,8 @@ def _version_match (version, fragment):
 class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
 
     name = "EM sliding-window"
-    version_override_flag = caloClusterCorrectionFlags.CaloSwWhichCorrection
-    correction_generation_flag = caloClusterCorrectionFlags.CaloSwGeneration
+    version_override_flag_name = 'caloSwWhichCorrection'
+    correction_generation_flag_name = 'caloSwGeneration'
     correction_generation_default = "00-02-13"
 
     ##########################################################################
@@ -506,8 +516,8 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
                     [etamod,    'v4',          502],
                     [time,                     801],
                     [listBadChannel,           820]],
-		      
-	
+                      
+        
         # Calibration hits and transition region corrections updated
         # for release 14.0.0 geometry (ATLAS-CSC-05-00-00).
         # Other corrections still based on 12.
@@ -1107,10 +1117,8 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
     ##########################################################################
     # Code to handle cell weighting.
     #
-    def make_corrections (self, **kw_in):
-        kw = {}
-        if caloClusterCorrectionFlags.CaloSwCorrectionArgs.statusOn:
-            kw = caloClusterCorrectionFlags.CaloSwCorrectionArgs().copy()
+    def make_corrections (self, flags, **kw_in):
+        kw = flags.Calo.ClusterCorrection.caloSwCorrectionArgs
         kw.update (kw_in)
 
         for kk in ['weighting', 'remdup', 'rembad']:
@@ -1118,32 +1126,34 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
                 setattr (self, kk, kw[kk])
                 del kw[kk]
         
-        return CaloClusterCorrSetup.make_corrections (self, **kw)
+        return CaloClusterCorrSetup.make_corrections (self, flags, **kw)
 
 
-    def lookup_version (self, version):
+    def lookup_version (self, flags, version, corrclass):
         # Special cases:
         #  If the version name includes `_wt', turn on weighting.
         (self.weighting, version) = _version_match (version, 'wt')
 
-        #  If the version name includes with `_remdup',
+        #  If the version name includes `_remdup',
         #  turn on duplicate removal.
         (self.remdup, version) = _version_match (version, 'remdup')
 
-        #  If the version name includes with `_rembad',
+        #  If the version name includes `_rembad',
         #  turn on bad cluster removal.
         (self.rembad, version) = _version_match (version, 'rembad')
 
         # Now, find the standard list of corrections to use.
         (vcorrlist, version) = CaloClusterCorrSetup.lookup_version (self,
-                                                                    version)
+                                                                    flags,
+                                                                    version,
+                                                                    corrclass)
 
         # Check global flags.
-        if caloClusterCorrectionFlags.DoSlidingWindowCellWeights():
+        if flags.Calo.ClusterCorrection.doSlidingWindowCellWeights:
             self.weighting = 1
-        if caloClusterCorrectionFlags.DoSlidingWindowRemoveDuplicates():
+        if flags.Calo.ClusterCorrection.doSlidingWindowRemoveDuplicates:
             self.remdup = 1
-        if caloClusterCorrectionFlags.DoSlidingWindowRemoveBad():
+        if flags.Calo.ClusterCorrection.doSlidingWindowRemoveBad:
             self.rembad = 1
 
         # If weighting or rembad is turned on, make the appropriate additions
@@ -1154,7 +1164,7 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
                 if c[0] == layers:
                     ilayers = i
                     break
-            if ilayers != None:
+            if ilayers is not None:
                 vcorrlist = vcorrlist[:]
                 if self.rembad:
                     vcorrlist.insert (ilayers + 1, [removebad, 121])
@@ -1182,7 +1192,57 @@ CaloSwCorrections = CaloSwCorrectionsSetup()
 
 
 ##############################################################################
-# Main entry point to create a list of correction tools.
+# Main entry point to create a list of correction tools
+#
+
+#
+# Create and return a CA of correction tools.
+# FLAGS are the configuration flags.
+# KEY is a string that specifies the correction type.
+# SUFFIX is a string to add to the end of each tool name.
+# VERSION specifies which version of corrections to use.
+# CORRLIST can be used to explicitly specify which corrections to run.
+# CELLS_NAME is the SG key to use to find the calorimeter cells,
+# for those corrections that require it.
+# SOURCE specifies the source(s) from which tools are configured.
+# See above for details.
+# None means to use the default.
+# If WEIGHTING is true, then cells are weighted to avoid
+# double-counting energy for cells that are shared between clusters.
+# If REMDUP is true, then in groups of clusters that are very close
+# together, we drop all but one.
+#
+# For more detailed information, see the comments at the start of this file.
+#
+def make_CaloSwCorrectionsCfg (flags,
+                               key = None,
+                               suffix = '',
+                               version = None,
+                               corrlist = None,
+                               cells_name = None,
+                               source = None,
+                               weighting = False,
+                               remdup = False,
+                               rembad = False,
+                               **kw):
+    return CaloSwCorrections.make_corrections (flags,
+                                               corrclass = CALOCORR_SW,
+                                               key = key,
+                                               suffix = suffix,
+                                               version = version,
+                                               corrlist = corrlist,
+                                               cells_name = cells_name,
+                                               source = source,
+                                               weighting = weighting,
+                                               remdup = remdup,
+                                               rembad = rembad,
+                                               **kw)
+
+
+
+##############################################################################
+# Backwards compatibility:
+# Main entry point to create a list of correction tools (old configuration)
 #
 
 #
@@ -1213,23 +1273,26 @@ def make_CaloSwCorrections (key = None,
                             remdup = False,
                             rembad = False,
                             **kw):
-    return CaloSwCorrections.make_corrections (corrclass = CALOCORR_SW,
-                                               key = key,
-                                               suffix = suffix,
-                                               version = version,
-                                               corrlist = corrlist,
-                                               cells_name = cells_name,
-                                               source = source,
-                                               weighting = weighting,
-                                               remdup = remdup,
-                                               rembad = rembad,
-                                               **kw)
+    try:
+        wasRun3 = Configurable.configurableRun3Behavior
+        Configurable.configurableRun3Behavior = True
+        ca = CaloSwCorrections.make_corrections (makeFlags(),
+                                                 corrclass = CALOCORR_SW,
+                                                 key = key,
+                                                 suffix = suffix,
+                                                 version = version,
+                                                 corrlist = corrlist,
+                                                 cells_name = cells_name,
+                                                 source = source,
+                                                 weighting = weighting,
+                                                 remdup = remdup,
+                                                 rembad = rembad,
+                                                 **kw)
+    finally:
+        Configurable.configurableRun3Behavior = wasRun3
+    return unpackCA (ca)
 
 
-
-##############################################################################
-# Compatibility hacks.
-#
 
 #
 # Creating an instance of this class gives you something which
@@ -1243,7 +1306,7 @@ class CaloSwCorrections_compat:
         self.version = version
         return
     def set (self, alg, suffix='', corrlist ='ele55', key = None):
-        if type (corrlist) == type (''):
+        if isinstance (corrlist, str):
             key = corrlist
             corrlist = None
 

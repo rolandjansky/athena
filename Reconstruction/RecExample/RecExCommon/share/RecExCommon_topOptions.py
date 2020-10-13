@@ -1284,6 +1284,14 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
+            if rec.readESD() and rec.doTau:
+                from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
+                alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauInitialPi0Clusters',
+                                                StreamName = 'StreamAOD',
+                                                Clusters = 'TauInitialPi0Clusters',
+                                                Cells = 'TauCommonPi0Cells')
+                topSequence += alg
+
         except Exception:
             treatException("Could not make AOD cells" )
 

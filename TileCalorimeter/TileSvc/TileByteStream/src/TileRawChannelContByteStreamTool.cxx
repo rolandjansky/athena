@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -81,8 +81,8 @@ StatusCode TileRawChannelContByteStreamTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContainer, FullEventAssembler<TileHid2RESrcID> *fea) {
-
+StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContainer, FullEventAssembler<TileHid2RESrcID> *fea) const
+{
   bool isTMDB = evtStore()->proxy(rawChannelContainer)->name() == "MuRcvRawChCnt";
 
   TileFragHash::TYPE contType = rawChannelContainer->get_type();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RelationalCollectionMetadata.h"
@@ -334,7 +334,7 @@ namespace pool {
          query->setCondition( RelationalCollectionBindVariables::whereClauseForMetadata(),
                               m_whereDataForMetadata );
          return ICollectionMetadata::const_iterator(
-            new RelationalCollectionMetadataIterator( this, query.release(),
+           std::make_unique<RelationalCollectionMetadataIterator>( this, query.release(),
 						      entries() < 10000? &m_keyInfo : 0 ) );
       }
 
@@ -343,7 +343,7 @@ namespace pool {
       RelationalCollectionMetadata::end() const
       {
          return ICollectionMetadata::const_iterator(
-            new RelationalCollectionMetadataIterator( 0, 0, 0 ) );
+            std::make_unique<RelationalCollectionMetadataIterator>( nullptr, nullptr, nullptr ) );
       }
         
 
