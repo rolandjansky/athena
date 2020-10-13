@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -759,20 +759,6 @@ if ( m_doCoolDB ) {
    
  	      // and add the digit to the collection
  	      Identifier prdcoll_id = *it_list;
-
- 	      //    // RPC digits do not hold anymore time of flight : digit time (and RDO time) is TOF subtracted
- 	      //    // recalculate the time of flight in case it was not in the RDOs
- 	      //    if (time==0) {
- 	      //      // get the digit position
- 	      //      const MuonGM::RpcReadoutElement* descriptor =
- 	      //  m_muonMgr->getRpcReadoutElement(stripOfflineId);
- 	      //
- 	      //      const HepGeom::Point3D<double> stripPos = descriptor->stripPos(stripOfflineId);
- 	      //      // TEMP : set the time of flight from the digit position
- 	      //      // temporary solution
- 	      //      time = static_cast<int> ( stripPos.distance()/(299.7925*CLHEP::mm/CLHEP::ns) );
- 	      //
- 	      //
  
  	      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_rpcIdHelper,prdcoll_id, 0)  ;
  	      std::string		 sector_dphi_layer	= rpclayersectorsidename[12]		 ;
@@ -848,9 +834,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
     MonGroup rpclv1_shift_dqmf( this, m_generic_path_rpclv1monitoring + "/GLOBAL", run, ATTRIB_UNMANAGED )  ;
     MonGroup rpcCoolDb( this, m_generic_path_rpclv1monitoring+"/CoolDB", run, ATTRIB_UNMANAGED )         ;
      
-    if(newEventsBlock){}
-    if(newLumiBlock){}
-    if(newRun)
+    if(newRunFlag())
       {         
 
 	ATH_MSG_DEBUG ( "RPCLV1 RawData Monitoring : isNewRun" );
@@ -1569,20 +1553,6 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
    
     // and add the digit to the collection
     Identifier prdcoll_id = *it_list;
-
-    //    // RPC digits do not hold anymore time of flight : digit time (and RDO time) is TOF subtracted
-    //    // recalculate the time of flight in case it was not in the RDOs
-    //    if (time==0) {
-    //      // get the digit position
-    //      const MuonGM::RpcReadoutElement* descriptor =
-    //  m_muonMgr->getRpcReadoutElement(stripOfflineId);
-    //     
-    //      const HepGeom::Point3D<double> stripPos = descriptor->stripPos(stripOfflineId);
-    //      // TEMP : set the time of flight from the digit position
-    //      // temporary solution
-    //      time = static_cast<int> ( stripPos.distance()/(299.7925*CLHEP::mm/CLHEP::ns) );
-    //   
-    //
     
     std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_rpcIdHelper,prdcoll_id, 0)  ; 
     std::string                sector_dphi_layer      = rpclayersectorsidename[12]             ;
@@ -1854,17 +1824,23 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
   
   int NTotStripsSideA = 1;
   int NTotStripsSideC = 1;     
- 
-  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( kName, 1 , istatPhi+1, ir, 1, m_idblPhi+1 );    
-  
-  if(rpc != NULL ){  
+
+  Identifier rpcId = m_rpcIdHelper->channelID(kName, 1, istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=1, phi="<<istatPhi+1<<", doubletR="<<ir);
+  }
+  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(rpcId);
+  if(rpc){
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
-  } 
-  rpc = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );    
-  
-  if(rpc != NULL ){  
+  }
+  rpcId = m_rpcIdHelper->channelID(kName, -1, istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 5 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=-1, phi="<<istatPhi+1<<", doubletR="<<ir);
+  }
+  rpc = m_muonMgr->getRpcReadoutElement(rpcId);
+  if(rpc){
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
     NTotStripsSideC = rpcstripshift[7]+rpcstripshift[18]; 
@@ -1901,10 +1877,12 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
 	  if(abs(ieta-8)==7&&ir==1&&kName==2)continue;	
 	  if(m_isec==12&&abs(ieta-8)==6&&ir==1&&kName==2)continue;
 	  if(abs(ieta-8)==7&&ir==2)irc=1; 
-	  if(m_isec==12&&abs(ieta-8)==6&&ir==2)irc=1;	 
-											   
-    	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(kName, ieta-8, istatPhi+1, irc, iz+1, m_idblPhi+1);  
-    	  if( rpc == NULL ) continue;   
+	  if(m_isec==12&&abs(ieta-8)==6&&ir==2)irc=1;
+
+        rpcId = m_rpcIdHelper->channelID(kName, ieta-8, istatPhi+1, irc, iz+1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+        if (!rpcId.is_valid()) continue;
+        const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(rpcId);
+        if(!rpc) continue;
 	  
     	  if  ( iz+1 != rpc->getDoubletZ() ) { 
     	    continue ;
@@ -1946,9 +1924,6 @@ StatusCode RpcLv1RawDataValAlg::procHistograms()
 {
  
   ATH_MSG_DEBUG ( "RpcLv1RawDataValAlg finalize()" );
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){} 
   return StatusCode::SUCCESS;
 }
 

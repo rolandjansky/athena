@@ -350,7 +350,6 @@ namespace MuonGM {
 
   inline bool sTgcReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {
     Amg::Vector2D lpos(0., 0.);
-
     if (!stripPosition(id, lpos)) return false;
     surface(id).localToGlobal(lpos, Amg::Vector3D(0., 0., 0.), gpos);
     return true;

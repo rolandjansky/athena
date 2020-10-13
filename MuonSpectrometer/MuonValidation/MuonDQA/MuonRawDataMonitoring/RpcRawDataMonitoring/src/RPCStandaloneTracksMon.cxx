@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1488,19 +1488,10 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  mineta = 100 ; maxeta=-100 ;
 		  minphi = 100 ; maxphi=-100 ;
  
- 
-		  //std::cout <<  " Start track fitting. with PointperTrack " << PointperTrack  <<std::endl ;
- 
+  
 		  for (int i_3D=0;i_3D!=N_Rpc_Clusters3D;i_3D++) {
 
 		    if(Rpc_track[ i_3D ] != N_Rpc_Tracks)continue;
-		    /*
-		      std::cout << i_3D <<" " <<LayerType.at(i_3D)<<" "<< (Rpc_Point.at(i_3D)).x() << " " << (Rpc_Point.at(i_3D)).y() << " " <<(Rpc_Point.at(i_3D)).z() <<std::endl ;
-		      std::cout << SmallLarge.at(i_3D)<<std::endl ;
-		      std::cout << Rpc_Station_3D.at(i_3D)<<" "<<Rpc_Eta_3D.at(i_3D)<<" "<< Rpc_Phi_3D.at(i_3D)<< std::endl ;
-		      std::cout << Rpc_DBLr_3D.at(i_3D)<<" "<<Rpc_DBLz_3D.at(i_3D)<<" "<< Rpc_DBLphi_3D.at(i_3D)<< " "<< Rpc_GasGap_3D.at(i_3D)<< std::endl ;
-		    */
- 
 		    //gap to span to find intersections
 		    if(minphi>Rpc_Phi_3D.at(i_3D))minphi=Rpc_Phi_3D.at(i_3D);
 		    if(maxphi<Rpc_Phi_3D.at(i_3D))maxphi=Rpc_Phi_3D.at(i_3D);
@@ -1508,10 +1499,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    if(maxeta<Rpc_Eta_3D.at(i_3D))maxeta=Rpc_Eta_3D.at(i_3D);
  
 		    if(SmallLarge.at( i_3D)==0){
-		      if(PlaneType.at( i_3D)==0)NplaneSmall0=1; if(PlaneType.at( i_3D)==1)NplaneSmall1=1; if(PlaneType.at( i_3D)==2)NplaneSmall2=1;
+		      if(PlaneType.at( i_3D)==0)NplaneSmall0=1;
+          if(PlaneType.at( i_3D)==1)NplaneSmall1=1;
+          if(PlaneType.at( i_3D)==2)NplaneSmall2=1;
 		    }
 		    else if(SmallLarge.at( i_3D)==1){
-		      if(PlaneType.at( i_3D)==0)NplaneLarge0=1; if(PlaneType.at( i_3D)==1)NplaneLarge1=1; if(PlaneType.at( i_3D)==2)NplaneLarge2=1;
+		      if(PlaneType.at( i_3D)==0)NplaneLarge0=1;
+          if(PlaneType.at( i_3D)==1)NplaneLarge1=1;
+          if(PlaneType.at( i_3D)==2)NplaneLarge2=1;
 		    }  
 			 
 		    xav += Rpc_x_3D.at( i_3D) ; yav += Rpc_y_3D.at( i_3D) ; zav += Rpc_z_3D.at( i_3D) ;
@@ -1679,9 +1674,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 			      for(int iz   =      1; iz   !=      3+1; iz++	){
 				for(int idp = 1; idp != 2 + 1; idp++ ){
 
-				  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, ir, iz, idp);
-	      
-				  if(rpc == NULL )continue;
+          bool isValid=false;
+          Identifier rpcId = m_rpcIdHelper->channelID(iname, ieta, iphi, ir, iz, idp, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+          if (!isValid) {
+            ATH_MSG_DEBUG("Could not find valid Identifier for station="<<iname<<", eta="<<ieta<<", phi="<<iphi<<", doubletR="<<ir<<", doubletZ="<<iz<<", doubletPhi="<<idp<<", continuing...");
+            continue;
+          }
+          const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(rpcId);
+          if(!rpc)continue;
 	
 	
 				  if(iname==2||iname==4){
@@ -2386,9 +2386,10 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		irpc_clus_measphi  =  m_rpcIdHelper->measuresPhi(prd_id)  ;
 
 		// get the cluster position
-		const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prd_id);
-	      
-		const Amg::Vector3D stripPosC = descriptor->stripPos(prd_id);
+    const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(prd_id);
+    if(!rpc) continue;
+    const Amg::Vector3D stripPosC = rpc->stripPos(prd_id);
+
 	      
 		irpc_clus_posx = stripPosC.x() ;
 		irpc_clus_posy = stripPosC.y() ;
@@ -2435,15 +2436,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		sector_dphi_layer        = rpclayersectorsidename[12]  ;
 	      
 	      
-		irpc_clus_measphi  =  m_rpcIdHelper->measuresPhi(prd_id)  ;	
-		
-		const MuonGM::RpcReadoutElement* rpc = 
-		  m_muonMgr->getRpcRElement_fromIdFields(irpc_clus_station, irpc_clus_eta, irpc_clus_phi, 
-							 irpc_clus_doublr, irpc_clus_doublz, irpc_clus_doublphi);
-
-		if(rpc == NULL )continue;
-	 
-//		Identifier idr = rpc->identify();
+		irpc_clus_measphi  =  m_rpcIdHelper->measuresPhi(prd_id);
 		  
 		Amg::Vector3D  Vector3DGapG = rpc->gasGapPos(irpc_clus_doublz, irpc_clus_doublphi, irpc_clus_gasgap  );
 		Amg::Vector3D norm3DGap   = rpc->normal   ( /*                 irpc_clus_doublphi, irpc_clus_gasgap  */);
@@ -2665,10 +2658,8 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
       MonGroup rpcprd_dq_BC( this, m_generic_path_rpcmonitoring + "/RPCBC", run, ATTRIB_UNMANAGED )        ;
       MonGroup rpc_radiography(this, m_generic_path_rpcmonitoring +"/RPCRadiography",run, ATTRIB_UNMANAGED) ;
       MonGroup rpc_triggerefficiency(this, m_generic_path_rpcmonitoring +"/TriggerEfficiency",run, ATTRIB_UNMANAGED) ;
-    
-      if(newEventsBlock){}
-      if(newLumiBlock){}
-      if(newRun)
+
+      if(newRunFlag())
 	{      
 	  ATH_MSG_INFO ( "RPCStandaloneTracksMon : begin of run" );
 	
@@ -3571,13 +3562,16 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 		    for (int idbphi=0; idbphi!=2; idbphi++) {
 		      for ( int imeasphi=0; imeasphi!=2; imeasphi++ ) {
 			for (int igap=0; igap!=2; igap++) {
+        bool isValid=false;
+        Identifier rpcId = m_rpcIdHelper->channelID(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+        if (!isValid) {
+          ATH_MSG_DEBUG("Could not find valid Identifier for station="<<iname<<", eta="<<(ieta-8)<<", phi="<<int(i_sec/2)+1<<", doubletR="<<ir+1<<", doubletZ="<<idbz+1<<", doubletPhi="<<idbphi+1<<", continuing...");
+          continue;
+        }
+        const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(rpcId);
 			  // need to pay attention to BME case - not yet considered here .... 
-			  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi);
-			  //std::cout <<" iname  "<<iname <<" ieta  "<<ieta-8 << " ir "<< ir<<" idbz  "<<idbz << " idbphi "<<idbphi << " imeasphi "<< imeasphi<<" igap "<<igap<< std::endl;
-			  if ( rpc != NULL ) {
-			    
-			    // Identifier gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, bool check=false, bool* isValid=0) const;
-			    // Identifier panelID  (int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, int measuresPhi, bool check=false, bool* isValid=0) const;
+			  if (rpc) {
+
 			    panelId = m_rpcIdHelper->panelID(iname, ieta-8, int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, igap+1, imeasphi) ; 
 			    
 			    indexplane = ir ;
@@ -4722,9 +4716,13 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int m_isec, std:
 	}   
       }  
       NEtaTotStripsSideC = 0; NEtaTotStripsSideA = 0; NPhiTotStrips=0;
-      const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iName, 1, istatPhi, ir, 1, 1);
- 
-      if(rpc != NULL ){
+
+      Identifier rpcId = m_rpcIdHelper->channelID(iName, 1, istatPhi, ir, 1, 1, 1, 1, 1); // last 5 arguments are: int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip
+      if (!rpcId.is_valid()) {
+        ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<iName<<", eta=1, phi="<<istatPhi<<", doubletR="<<ir);
+      }
+      const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(rpcId); 
+      if(rpc){
 	Identifier idr = rpc->identify();
 	std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
 	NphiStrips         =  rpcstripshift[0] ;
@@ -4913,10 +4911,19 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::str
  
   int kName = iName ;
   if(kName==1)kName=53;//BMLE
-  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( kName,  1 , istatPhi+1, ir, 1, m_idblPhi+1 );   
-  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );  
-  
-  if(rpc != NULL ){  
+
+  Identifier rpcId = m_rpcIdHelper->channelID(kName, 1 , istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ=1, doubletPhi="<<m_idblPhi+1);
+  }
+  Identifier rpcId_c = m_rpcIdHelper->channelID(kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId_c.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=-1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ=1, doubletPhi="<<m_idblPhi+1);
+  }
+  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcReadoutElement(rpcId);   
+  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcReadoutElement(rpcId_c);
+
+  if(rpc){
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
@@ -5016,10 +5023,19 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
  
   int kName = iName ;
   if(kName==1)kName=53;//BMLE
-  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( kName,  1 , istatPhi+1, ir, 1, m_idblPhi+1 );   
-  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );  
-  
-  if(rpc != NULL ){  
+
+  Identifier rpcId = m_rpcIdHelper->channelID(kName, 1 , istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ=1, doubletPhi="<<m_idblPhi+1);
+  }
+  Identifier rpcId_c = m_rpcIdHelper->channelID(kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId_c.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=-1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ=1, doubletPhi="<<m_idblPhi+1);
+  }
+  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcReadoutElement(rpcId);
+  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcReadoutElement(rpcId_c);  
+
+  if(rpc){
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
@@ -5319,9 +5335,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
       MonGroup rpcprd_dq_BA      ( this, m_generic_path_rpcmonitoring + "/RPCBA"   ,  run, ATTRIB_UNMANAGED );
       MonGroup rpcprd_dq_BC      ( this, m_generic_path_rpcmonitoring + "/RPCBC"   ,  run, ATTRIB_UNMANAGED );
     
-      if(endOfEventsBlock){}
-      if(endOfLumiBlock){}
-      if(endOfRun){        
+      if(endOfRunFlag()){        
     
 	sc = rpcprd_dq_BA.getHist(RPCBA_layerTrackProj,"Layer_TrackProj_sideA");	      
 	if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't get Layer_TrackProj_sideA  hist" );  

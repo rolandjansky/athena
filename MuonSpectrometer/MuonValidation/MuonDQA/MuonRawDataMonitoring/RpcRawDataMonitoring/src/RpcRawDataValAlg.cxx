@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2209,8 +2209,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
       MonGroup rpcprd_dq_BC_TrigTower( this, m_generic_path_rpcmonitoring + "/RPCBC", run, ATTRIB_UNMANAGED )    ;
       MonGroup rpcTrigRoad ( this, m_generic_path_rpcmonitoring + "/TriggerRoad", run, ATTRIB_UNMANAGED )  ;
     
-      if(newEventsBlock){}
-      if(newLumiBlock && m_doLumiPlot){
+      if(newLumiBlockFlag() && m_doLumiPlot){
 	
 	MonGroup rpcTrig_lumi_block ( this, m_generic_path_rpcmonitoring + "/lumiblock", lumiBlock, ATTRIB_UNMANAGED )  ;
  	
@@ -2241,7 +2240,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  	  
 	  
       }
-      if(newRun)
+      if(newRunFlag())
 	{      
 	  ATH_MSG_INFO (  "RPC RawData Monitoring : begin of run" );
 	  	  
@@ -3604,9 +3603,11 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
      
   for(int ieta = -1; ieta != 1+1; ieta++ ){
      if(ieta==0)continue;
-     const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, idr , 1, 1 );
-	      
-     if(rpc == NULL )continue;
+
+      Identifier rpcId = m_rpcIdHelper->channelID(iname, ieta, iphi, idr , 1, 1, 1, 1, 1); // last 5 arguments are: int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip
+      if (!rpcId.is_valid()) continue;
+      const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(rpcId);
+      if(!rpc)continue;
      Identifier idr = rpc->identify();
      std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
 		rpcpanel_dbindex   =  rpcstripshift[23];
@@ -4974,10 +4975,19 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
  
   int kName = iName ;
   if(kName==1)kName=53;//BMLE
-  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( kName,  1 , istatPhi+1, ir, 1, m_idblPhi+1 );   
-  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );  
-  
-  if(rpc != NULL ){  
+
+  Identifier rpcId = m_rpcIdHelper->channelID(kName, 1 , istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ="<<1<<", doubletPhi="<<m_idblPhi+1);
+  }
+  Identifier rpcId_c = m_rpcIdHelper->channelID(kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId_c.is_valid()) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=-1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ="<<1<<", doubletPhi="<<m_idblPhi+1);
+  }
+  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcReadoutElement(rpcId);   
+  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcReadoutElement(rpcId_c); 
+
+  if(rpc){
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
@@ -5017,10 +5027,15 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
 	  if(abs(ieta-8)==7&&ir==1&&kNameF==2)continue;	
 	  if(m_isec==12&&abs(ieta-8)==6&&ir==1&&kNameF==2)continue;
 	  if(abs(ieta-8)==7&&ir==2&&kNameF==2)irc=1; 
-	  if(m_isec==12&&abs(ieta-8)==6&&ir==2&&kNameF==2)irc=1;	 
-											   
-    	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(kNameF, ieta-8, istatPhi+1, irc, iz+1, m_idblPhi+1);  
-    	  if( rpc == NULL ) continue;   
+	  if(m_isec==12&&abs(ieta-8)==6&&ir==2&&kNameF==2)irc=1;
+
+        Identifier id = m_rpcIdHelper->channelID(kNameF, ieta-8, istatPhi+1, irc, iz+1, m_idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+        if (!id.is_valid()) {
+          ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kNameF<<", eta="<<ieta-8<<", phi="<<istatPhi+1<<", doubletR="<<irc<<", doubletZ="<<iz+1<<", doubletPhi="<<m_idblPhi+1);
+          continue;
+        }
+        const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(id);  
+        if(!rpc) continue;
 	  
     	  if  ( iz+1 != rpc->getDoubletZ() ) { 
     	    continue ;
@@ -5032,32 +5047,17 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
     	  for ( int istripEta=0; istripEta!=rpcElemEtaStrip; istripEta++ ) {
     	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 0, istripEta+1) ;
     	    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
-	    
-	    
-	    //  if((istatPhi+1)==4&&kNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(m_idblPhi+1==1)&&(ig+1==2)){ 
-	    //std::cout << istripEta << " ETA FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
-	    //}
     	    if( strip_id == 0 ) continue;
     	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
-	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, m_idblPhi+1, ig+1, istripEta+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< m_idblPhi+1<< " "<< ig+1 << " "<< " "<< istripEta+1<< " "<<std::endl;
-	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, panel_id.get_identifier32().get_compact()) ;
-          }
+        }
     	  for ( int istripPhi=0; istripPhi!=rpcElemPhiStrip; istripPhi++ ) {
     	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 1, istripPhi+1) ;				     
     	    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
-	    
-	     
- 	    //if((istatPhi+1)==4&&kNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(m_idblPhi+1==1)&&(ig+1==2)){ 
- 	    //std::cout << istripPhi << " PHI FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
- 	    //}
-	    
-    	    if( strip_id == 0 ) continue;    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
-	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, m_idblPhi+1, ig+1, istripPhi+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< m_idblPhi+1<< " "<< ig+1 << " "<< " "<< istripPhi+1<< " "<< std::endl;
-
-	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
+    	    if( strip_id == 0 ) continue;
+          coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, panel_id.get_identifier32().get_compact() );
-          }
+        }
         } // end loop on doubletZ
       }
     }  // end loop on stationeta
@@ -5080,9 +5080,7 @@ StatusCode RpcRawDataValAlg::procHistograms()
    
   if( m_doRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {    
     
-      if(endOfEventsBlock){}
-      if(endOfLumiBlock){}
-      if(endOfRun){        
+      if(endOfRunFlag()){        
 	if ( m_doTrigEvol && (rpc_eventstotal > minStatTrEvol) ) {    
  
 	  rpc2DEtaStatBinX_BA 	= int ( rpc2DEtaStationTriggerHits_Side_Pt[enumBA_LowPt]->GetNbinsX() );

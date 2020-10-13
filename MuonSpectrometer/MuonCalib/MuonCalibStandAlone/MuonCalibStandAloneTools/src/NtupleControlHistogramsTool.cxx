@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -971,18 +971,14 @@ void NtupleControlHistogramsTool::createMaps(const MuonFixedId & id) {
  // get the rpc geom information
  
  // loop over possible R doublets
-	m_nb_totalEtaStrips[station_identifier]=0;
 	m_nb_totalEtaStrips2[station_identifier]=0;
 	for (int r_doublet=0; r_doublet<2; r_doublet++){
 	// loop over possible Z doublets
 		for (int z_doublet=0; z_doublet<4; z_doublet++){
-			const MuonGM::RpcReadoutElement *RpcRoEl = 
-					m_detMgr->getRpcRElement_fromIdFields(
-						m_MdtIdHelper -> stationName(station_id),// int stationName,
-						m_MdtIdHelper -> stationEta(station_id), // int stationEta,
-						m_MdtIdHelper -> stationPhi(station_id), // int stationPhi
-						r_doublet+1,z_doublet+1,1// int doubletR, int doubletZ, int doubletPhi
-						);
+            bool isValid=false;
+            Identifier rpcId = m_RpcIdHelper->channelID(m_MdtIdHelper->stationName(station_id), m_MdtIdHelper->stationEta(station_id), m_MdtIdHelper->stationPhi(station_id), r_doublet+1, z_doublet+1, 1, 1, 1, 1, true, &isValid); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+            if (!isValid) continue;
+            const MuonGM::RpcReadoutElement* RpcRoEl = m_detMgr->getRpcReadoutElement(rpcId);
 
 		//save nuber of eta strips per doublet, if there is one
 			if (RpcRoEl){
