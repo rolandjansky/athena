@@ -1,29 +1,13 @@
-################################################################################
-# Package: ALFA_CLinkAlg
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ALFA_CLinkAlg )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthLinks
-                          Control/StoreGate
-                          Event/xAOD/xAODForward
-                          ForwardDetectors/ALFA/ALFA_CLinkEv
-                          GaudiKernel
-                          PRIVATE
-                          Event/EventInfo )
 
 # Component(s) in the package:
 atlas_add_component( ALFA_CLinkAlg
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks StoreGateLib SGtests xAODForward ALFA_CLinkEv GaudiKernel EventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks xAODForward ALFA_CLinkEv GaudiKernel EventInfo )
 
 # Install files from the package:
-atlas_install_headers( ALFA_CLinkAlg )
 atlas_install_joboptions( share/*.py )
-
