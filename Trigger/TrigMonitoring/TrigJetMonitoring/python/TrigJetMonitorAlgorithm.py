@@ -62,7 +62,6 @@ Chain2JetCollDict['MT'] = {
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
   'HLT_j45_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
   'HLT_j45_pf_subjesgscIS_ftf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
-  'HLT_j45_pf_subresjesgscIS_ftf_L1J20'    : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
   'HLT_j85_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
   'HLT_j45_pf_nojcalib_ftf_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
   'HLT_j45_csskpf_nojcalib_ftf_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
