@@ -37,6 +37,9 @@ public:
   const QString& name, xAOD::Type::ObjectType type );
   virtual ~IParticleCollHandle_Muon();
 
+  void printMsgNoTrackParticle();
+  bool hasPrimaryTrackParticleInfo();
+
   virtual void init(VP1MaterialButtonBase* matBut=0);//reimplementations must start with a call to this.
   virtual void setupSettingsFromControllerSpecific(AODSystemController*);
 
@@ -55,7 +58,6 @@ private slots:
   void setMinimumQuality(unsigned int); // Can't use xAOD::Muon::Quality because of the boost/Qt bug.
   void updateShownAssociatedObjects(); // Will get settings from the button.
   void resetCachedValuesCuts();
-
 
 private:
 
