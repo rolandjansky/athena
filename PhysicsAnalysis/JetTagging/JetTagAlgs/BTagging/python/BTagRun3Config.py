@@ -176,7 +176,7 @@ def BTagRecoCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
     result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = JetCollection[0], PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerList, **kwargs))
 
     from AthenaCommon.ConcurrencyFlags import jobproperties
-    if jobproperties.ConcurrencyFlags.NumThreads() >= 0 :
+    if jobproperties.ConcurrencyFlags.NumThreads() == 0 :
         for el in result._allSequences:
             el.name = "TopAlg"
 
