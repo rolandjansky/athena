@@ -330,14 +330,14 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,Diff
         exclusion_list = []
         with open(diff_rules_file) as f:
             for line in f:
-                exclusion_list.append('"'+line.rstrip()+'"')
+                exclusion_list.append(r"'{}'".format(line.rstrip()))
     else:
         logging.info("No diff rules file exists, using the default list")
-        exclusion_list = ['"index_ref"', '"(.*)_timings$"', '"(.*)_mems$"']
+        exclusion_list = [r"'index_ref'", r"'(.*)_timings\.(.*)'", r"'(.*)_mems\.(.*)'"]
 
     exclusion_list = ' '.join(exclusion_list)
 
-    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root -v --error-mode resilient --ignore-leaves "+exclusion_list+" --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves "+exclusion_list+" --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     output,error = output.decode('utf-8'), error.decode('utf-8')
 
