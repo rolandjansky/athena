@@ -47,9 +47,6 @@ fatjetcontexts = { # Ungroomed, SD and PtFrac5 trimmed fat jets
     "CaloMass":      ("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TAMass":        ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TrigUngroomed": ("JES_Full2012dataset_Rscan_June2014.config","00-04-77","JetArea_EtaJES"),
-    "TrigSoftDrop":  ("JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config","00-04-82","EtaJES_JMS"),
-}
-fatjetptfrac4contexts = { # PtFrac4 trimmed jets
     "TrigTrimmed":   ("JES_MC15recommendation_FatJet_June2015_PtFrac4.config","00-04-82","EtaJES_JMS"),
 }
 
@@ -67,8 +64,7 @@ calibcontexts = {
     "AntiKt4LCTopo":topocontexts,
     "AntiKt10LCTopo":fatjetcontexts,
     # Standard trimmed
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20":fatjetcontexts,
-    "AntiKt10LCTopoTrimmedPtFrac4SmallR20":fatjetptfrac4contexts,
+    "AntiKt10LCTopoTrimmedPtFrac4SmallR20":fatjetcontexts,
     # Large-R PFlow Soft Drop CSSK
     "AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10":fatjetcontexts,
     # R-Scan
