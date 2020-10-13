@@ -149,19 +149,36 @@ def PrepareStandAloneBTagCfg(inputFlags):
 
     return result
 
+def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):  
+
+    result=ComponentAccumulator()
+
+    taggerList = inputFlags.BTagging.run2TaggersList
+    result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
+
+    secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
+    result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = JetCollection[0], TaggerList = taggerList, SecVertexingAndAssociators = secVertexingAndAssociators, **kwargs))
+
+    from AthenaCommon.ConcurrencyFlags import jobproperties
+    if jobproperties.ConcurrencyFlags.NumThreads() == 0 :
+        for el in result._allSequences:
+            el.name = "TopAlg"
+
+    return result
+
 def BTagRecoCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):  
 
-    result=None
-    from AthenaCommon.ConcurrencyFlags import jobproperties
-    if jobproperties.ConcurrencyFlags.NumThreads() >= 1 :
-        result=ComponentAccumulator()
-    else:
-        result=ComponentAccumulator( "TopAlg" )
+    result=ComponentAccumulator()
 
     taggerList = inputFlags.BTagging.run2TaggersList
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
 
     result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = JetCollection[0], PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerList, **kwargs))
+
+    from AthenaCommon.ConcurrencyFlags import jobproperties
+    if jobproperties.ConcurrencyFlags.NumThreads() >= 0 :
+        for el in result._allSequences:
+            el.name = "TopAlg"
 
     return result
 
@@ -242,6 +259,13 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
         'BTagging/201903/dl1r/antikt4empflow/network.json',
         'BTagging/201903/dl1/antikt4empflow/network.json',
         #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+        ],
+        'AntiKt4EMTopo': [
+        #'BTagging/201903/smt/antikt4empflow/network.json',
+        'BTagging/201903/rnnip/antikt4empflow/network.json',
+        'BTagging/201903/dl1r/antikt4empflow/network.json',
+        'BTagging/201903/dl1/antikt4empflow/network.json',
+        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
         ]
     }
 
@@ -283,6 +307,7 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
             #HighLevel taggers can not be run with time stamped containers
             if ts == "":
                 result.merge(RunHighLevelTaggersCfg(inputFlags, jet, 'BTagTrackToJetAssociator', postTagDL2JetToTrainingMap[jet], ts))
+
 
     return result
 

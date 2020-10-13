@@ -134,8 +134,8 @@ if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
         ConfigFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
         ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
         # Configure BTagging algorithm
-        from BTagging.BTagRun3Config import BTagRecoCfg
-        CAtoGlobalWrapper(BTagRecoCfg, ConfigFlags)
+        from BTagging.BTagRun3Config import BTagRecoSplitCfg
+        CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
     except Exception:
         treatException("Could not set up btagging reconstruction")
         btaggingOK=False
@@ -192,3 +192,6 @@ else:
 pdr.flag_domain('caloringer')
 if rec.doCaloRinger:
   include('CaloRingerAlgs/CaloRinger_jobOptions.py')
+
+
+
