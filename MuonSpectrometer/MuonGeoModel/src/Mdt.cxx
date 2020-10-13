@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,9 +12,17 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoShape.h"
 
+#include <TString.h> // for Form
+#include "float.h"
+
 #define verbose_mdt false
 
 namespace MuonGM {
+
+float round(const float toRound, const unsigned int decimals) {
+  unsigned int factor = std::pow(10,decimals);
+  return std::round(toRound*factor)/factor;
+}
 
 Mdt::Mdt(Component* ss, std::string lVName): DetectorElement(ss->name)
 {
@@ -62,6 +70,24 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
   int Ncuts = vcutdef.size();
   if (Ncuts > 0) {
     if (verbose_mdt) std::cout << " mdt cutouts are on " << std::endl;
+
+    bool cutoutsVsX=false;
+    bool cutoutsVsY=false;
+    // first check whether there are several cutouts with different amdb x or y coordinates
+    float lastX(FLT_MAX);
+    float lastY(FLT_MAX);
+    for (int i = 0; i < Ncuts; ++i) {
+      if (lastX!=FLT_MAX && lastX*vcutdef[i]->dx<0) cutoutsVsX=true;
+      lastX = vcutdef[i]->dx;
+      if (lastY!=FLT_MAX && lastY*vcutdef[i]->dy<0) cutoutsVsY=true;
+      lastY = vcutdef[i]->dy;
+    }
+    if (cutoutsVsX&&cutoutsVsY) {
+      throw std::runtime_error(Form("File: %s, Line: %d\nMdt::build() - Found more than one cutout in amdb-x direction and more than one cutout in amdb-y direction, currently not supported", __FILE__, __LINE__));
+    }
+
+    if (!cutoutsVsX) { // nominal case (used for BMS/BOG/BMG etc.)
+
     int cutoutNtubes[5];           // Number of tubes in sub-multilayer[i]
     bool cutoutFullLength[5];      // True if this region is outside the cutout
     double cutoutXtubes[5];        // Location of tube center within sub-ml[i] along x-amdb
@@ -91,7 +117,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
     int cutLocationCode[3] = {0, 0, 0};
     for (int i = 0; i < Ncuts; i++) {
       if (vcutdef[i]->dy <= 0) cutLocationCode[i] = -1;
-      if (vcutdef[i]->dy + vcutdef[i]->lengthY >= top) cutLocationCode[i] = 1;
+      if (round(vcutdef[i]->dy + vcutdef[i]->lengthY,2) >= round(top,2)) cutLocationCode[i] = 1;
     }
 
     // Calculate quantities needed by multilayer
@@ -251,6 +277,80 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
     }
     
     layer->cutoutAtAngle = cutAtAngle;
+
+  } else {
+    // there are several cutouts along the amdb-x coordinate
+
+    if (longWidth!=width) {
+      throw std::runtime_error(Form("File: %s, Line: %d\nMdt::build() - only support cutouts along amdb-x for rectangular chambers", __FILE__, __LINE__));
+    }
+
+    std::vector<std::pair<double,double>> nonCutoutXSteps;
+    std::vector<std::pair<double,double>> nonCutoutYSteps;
+
+    // Order cutouts by increasing dx
+    for (int i = 0; i < Ncuts; i++) {
+      for (int j = i+1; j < Ncuts; j++) {
+        if (vcutdef[j]->dx < vcutdef[i]->dx) {
+          Cutout* c = vcutdef[i];
+          vcutdef[i] = vcutdef[j];
+          vcutdef[j] = c;
+        }
+      }
+    }
+
+    // in amdb-coordinates
+    double xminChamber = round(-width/2,2);
+    double xmaxChamber = round(width/2,2);
+    double yminChamber = 0;
+    double ymaxChamber = round(length-tubePitch/2,2);
+
+    double latestXMax=xminChamber;
+
+    for (int i = 0; i < Ncuts; ++i) {
+      Cutout* c = vcutdef[i];
+      double lowerX = round(c->dx - c->widthXs/2,2);
+      double xmin = (lowerX <= xminChamber) ? xminChamber : lowerX;
+      if (xmin<latestXMax) {
+        throw std::runtime_error(Form("File: %s, Line: %d\nMdt::build() - cannot have cutouts along amdb-x which overlap in amdb-x", __FILE__, __LINE__));
+      }
+      if (i==0 && xmin>xminChamber) {
+        // we start with a full slice without cutout
+        nonCutoutXSteps.push_back(std::make_pair(xminChamber,lowerX));
+        nonCutoutYSteps.push_back(std::make_pair(yminChamber,ymaxChamber));
+      }
+      double upperX = round(c->dx + c->widthXs/2,2);
+      double xmax = (upperX >= xmaxChamber) ? xmaxChamber : upperX;
+
+      double ymin = round(c->dy+c->lengthY,2) < ymaxChamber ? c->dy+c->lengthY : 0;
+      double ymax = ymaxChamber <= round(c->dy+c->lengthY,2) ? c->dy : ymaxChamber;
+
+      if (latestXMax<xmin) {
+        // there is a full slice between latestXMax and xmin
+        nonCutoutXSteps.push_back(std::make_pair(latestXMax,xmin));
+        nonCutoutYSteps.push_back(std::make_pair(yminChamber,ymaxChamber));
+      }
+
+      nonCutoutXSteps.push_back(std::make_pair(xmin,xmax));
+      nonCutoutYSteps.push_back(std::make_pair(ymin,ymax));
+
+
+      if (i==Ncuts-1 && xmax<xmaxChamber) {
+        // we end with a full slice without cutout
+        nonCutoutXSteps.push_back(std::make_pair(xmax,xmaxChamber));
+        nonCutoutYSteps.push_back(std::make_pair(yminChamber,ymaxChamber));
+      }
+
+      latestXMax = xmax;
+    }
+
+    // Pass information to multilayer and MdtComponent
+    m_component->cutoutTubeXShift = 0;
+    layer->cutoutNsteps = nonCutoutXSteps.size();
+    layer->m_nonCutoutXSteps = nonCutoutXSteps;
+    layer->m_nonCutoutYSteps = nonCutoutYSteps;
+    layer->cutoutAtAngle = false;
+  }
 
     return layer->build();
 
