@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONROWBUFFER_H
@@ -8,6 +8,7 @@
 #include "CollectionBase/TokenList.h"
 
 #include "CoralBase/AttributeList.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 
@@ -102,7 +103,12 @@ namespace pool {
     TokenList 				m_tokenList;
 
     /// List of Attributes.
-    coral::AttributeList		m_attributeList;
+    // Changed to a pointed to be able to avoid thread-safety checker
+    // warnings about AttributeList.  We can change back to holding
+    // this by value once those warnings are removed.
+    coral::AttributeList*		m_attributeList;
+
+    bool deleteAL ATLAS_NOT_THREAD_SAFE ();
   };
 }
 

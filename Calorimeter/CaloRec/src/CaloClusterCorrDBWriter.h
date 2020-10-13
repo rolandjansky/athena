@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOCLUSTERCORRDBWRITER
@@ -20,42 +20,40 @@
 
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloInterface/IToolWithConstants.h"
 #include "CaloRec/Blob2ToolConstants.h"
 #include <vector>
 #include <string>
 
 
-class CaloClusterCorrDBWriter : public AthAlgorithm
+class CaloClusterCorrDBWriter : public AthReentrantAlgorithm
 {
 
  public:
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
-  CaloClusterCorrDBWriter(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~CaloClusterCorrDBWriter();
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
   
  private:
-
-  /** @brief The list of tool names (jobOptions)*/
-  std::vector<std::string> m_correctionToolNames;
+  /** @brief The list of tools */
+  ToolHandleArray<IToolWithConstants> m_tools
+  { this, "ClusterCorrectionTools", {}, "Cluster correction tools" };
 
   /** @brief Key for the DetectorStore (jobOptions) 
    * The ToolConstants will be recorded with this key.
    */
-  std::string m_key;
+  StringProperty m_key
+  { this, "key", "" };
 
-  std::string m_inlineFolder;
+  StringProperty m_inlineFolder
+  { this, "COOLInlineFolder", "" };
 
-  /** @brief the actual list of tools corresponding to above names */
-  std::vector<CaloRec::ToolWithConstantsMixin*>  m_correctionTools; 
-
-  ToolHandle<Blob2ToolConstants> m_blobTool;
-  
+  ToolHandle<Blob2ToolConstants> m_blobTool
+  { this, "Blob2ToolConstants", "Blob2ToolConstants" };
 };
 
 #endif // CALOREC_CALOCLUSTERCORRDBWRITER

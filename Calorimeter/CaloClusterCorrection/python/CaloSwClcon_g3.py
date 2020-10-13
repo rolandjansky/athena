@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwClcon_g3.py,v 1.3 2009-04-21 21:16:21 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwClcon_g3.py
 # Created: Nov 2006, sss
@@ -12,10 +10,7 @@
 #
 
 
-import string
-
-
-    # 3x3 cluster size corrections
+# 3x3 cluster size corrections
 qclcon_g3_correction_33 = \
     [ 1.078375, 1.073588, 1.068029, 1.067124, 1.065353, 1.063478,
       1.063487, 1.064091, 1.064620, 1.065535, 1.065928, 1.064441,

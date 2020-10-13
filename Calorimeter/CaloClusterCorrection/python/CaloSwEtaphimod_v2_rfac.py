@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwEtaphimod_v2_rfac.py,v 1.1 2006-11-14 14:51:28 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwEtaphimod_v2_rfac.py
 # Created: Nov 2006, sss

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Author: F. Ledroit (ledroit@lpsc.in2p3.fr)
 # LArTTL1 creation from LArHits with LArTTL1Maker algorithm
@@ -20,7 +20,7 @@ class LArTTL1Getter ( Configured )  :
         try:
             from LArL1Sim.LArTTL1Getter import LArTTL1Getter
             theLArTTL1Getter=LArTTL1Getter()
-        except:
+        except Exception:
             mlog.error("could not get handle to LArTTL1Getter Quit")
             traceback.print_exc()
             return False
@@ -35,13 +35,13 @@ class LArTTL1Getter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from LArL1Sim.LArL1SimConf import LArTTL1Maker                
-        except:
+        except Exception:
             mlog.error("could not import LArL1Sim.LArTTL1Maker")
             traceback.print_exc()
             return False
 
         theLArTTL1Maker=LArTTL1Maker()
-        self._LArTTL1Maker = theLArTTL1Maker ;
+        self._LArTTL1Maker = theLArTTL1Maker
 
         # Configure LArTTL1Maker here
         #theLArTTL1Maker.SubDetectors="LAr_All"
@@ -74,7 +74,6 @@ class LArTTL1Getter ( Configured )  :
         topSequence = AlgSequence()
 
         # check if LArdigitization is run before. If yes, uses hit map from detector store produces from lardigitization
-        from Digitization.DigitizationFlags import jobproperties
         from AthenaCommon.DetFlags import DetFlags
         if DetFlags.digitize.LAr_on():
             mlog.info("Using hit map from LArDigitMaker algoritm")

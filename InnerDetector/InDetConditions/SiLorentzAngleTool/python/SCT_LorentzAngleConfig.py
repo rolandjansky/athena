@@ -1,6 +1,6 @@
 """Define methods to configure SCTLorentzAngleTool
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaCommon import Logging
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,6 +8,7 @@ SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
 SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
+from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 def SCT_LorentzAngleToolCfg(flags, name="SCT_LorentzAngleTool", **kwargs):
@@ -29,6 +30,7 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
         msg.error("Setting is wrong: both forceUseDB and forceUseGeoModel cannot be True at the same time")
     # construct with field services
     acc = MagneticFieldSvcCfg(flags)
+    acc.merge(SCT_GeometryCfg(flags)) # For SCT_DetectorElementCollection used in SCTSiLorentzAngleCondAlg
     tool = kwargs.get("SiLorentzAngleTool", SCT_LorentzAngleToolCfg(flags))
     if not forceUseGeoModel:
         DCSkwargs = {}

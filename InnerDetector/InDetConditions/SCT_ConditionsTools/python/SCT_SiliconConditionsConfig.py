@@ -1,9 +1,10 @@
 """Define methods to configure SiPropertiesTool
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 SCT_SiliconHVCondAlg=CompFactory.SCT_SiliconHVCondAlg
 SCT_SiliconTempCondAlg=CompFactory.SCT_SiliconTempCondAlg
 SCT_SiliconConditionsTool=CompFactory.SCT_SiliconConditionsTool
@@ -20,6 +21,7 @@ def SCT_SiliconConditionsCfg(flags, name="SCT_Silicon", **kwargs):
     DCSConditionsTool may be provided in kwargs
     """
     acc = ComponentAccumulator()
+    acc.merge(GeoModelCfg(flags)) # For SCT_ID used in SCT_SiliconConditionsTool
     CondArgs = {}
     DCSConditionsTool = kwargs.get("DCSConditionsTool")
     if DCSConditionsTool:

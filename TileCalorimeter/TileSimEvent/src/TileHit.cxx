@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -30,8 +30,10 @@
 #include <cmath>
 
 
+namespace {
 // get cabling
-TileCablingService * s_cabling = TileCablingService::getInstance();
+const TileCablingService * const s_cabling = TileCablingService::getInstance();
+}
 
 TileHit::TileHit(const Identifier & id, float energy, float time)
     : m_pmt_id( id )

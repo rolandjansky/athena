@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 SCT_DCSConditionsTool=CompFactory.SCT_DCSConditionsTool
 SCT_DCSConditionsStatCondAlg=CompFactory.SCT_DCSConditionsStatCondAlg
@@ -22,6 +23,7 @@ def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
     DCSConditionsTool may be provided in kwargs
     """
     acc = ComponentAccumulator()
+    acc.merge(GeoModelCfg(flags)) # For SCT_ID used in SCT_DCSConditionsTool
     tool = kwargs.get("DCSConditionsTool", SCT_DCSConditionsToolCfg(flags))
     # folder arguments
     dbInstance = kwargs.get("dbInstance", "DCS_OFL")

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,6 +22,7 @@
 #include "eformat/Status.h"
 #include "eformat/Issue.h"
 #include "eformat/checksum.h"
+#include "CxxUtils/checker_macros.h"
 #include <cstring>
 
 static const unsigned int ROB_HEADER = 0;
@@ -279,7 +280,10 @@ void offline_eformat::v40_write::ROBFragment::status (uint32_t n, const uint32_t
   m_node[ROB_STATUS].size_word = m_node[ROB_HEADER].base[5] = n; //set new values
   m_node[ROB_HEADER].base[1] += n;
   m_node[ROB_HEADER].base[2] += n;
-  m_node[ROB_STATUS].base = const_cast<uint32_t*>(status);
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* status_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(status);
+  m_node[ROB_STATUS].base = status_nc;
 }
 
 void offline_eformat::v40_write::ROBFragment::rod_status (uint32_t n,
@@ -290,7 +294,10 @@ void offline_eformat::v40_write::ROBFragment::rod_status (uint32_t n,
   m_node[ROB_HEADER].base[1] -= m_node[ROD_TRAILER].base[0]; //remove count from previous status
   m_node[ROD_STATUS].size_word = m_node[ROD_TRAILER].base[0] = n; //set new values
   m_node[ROB_HEADER].base[1] += n; //set ROB header's total fragment size
-  m_node[ROD_STATUS].base = const_cast<uint32_t*>(status); 
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* status_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(status);
+  m_node[ROD_STATUS].base = status_nc;
 }
 
 void offline_eformat::v40_write::ROBFragment::status_position (uint32_t v)
@@ -318,7 +325,10 @@ void offline_eformat::v40_write::ROBFragment::rod_data (uint32_t n, const uint32
   m_node[ROB_HEADER].base[1] -= m_node[ROD_TRAILER].base[1]; 
   m_node[ROD_DATA].size_word = m_node[ROD_TRAILER].base[1] = n; //set new values
   m_node[ROB_HEADER].base[1] += n; //set ROB header's total fragment size back
-  m_node[ROD_DATA].base = const_cast<uint32_t*>(data); 
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* data_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(data); 
+  m_node[ROD_DATA].base = data_nc;
 }
 
 void offline_eformat::v40_write::ROBFragment::checksum_type(uint32_t s)
@@ -345,7 +355,7 @@ const eformat::write::node_t* offline_eformat::v40_write::ROBFragment::rod_bind(
   return &m_node[ROD_HEADER];
 }
 
-const eformat::write::node_t* offline_eformat::v40_write::ROBFragment::bind(void)
+eformat::write::node_t* offline_eformat::v40_write::ROBFragment::bind(void)
 {
   m_node[ROD_TRAILER].next = 0; //cuts off the checksum word
   m_node[ROB_CHECKSUM].next = 0; //cuts off relation ships with other fragments 

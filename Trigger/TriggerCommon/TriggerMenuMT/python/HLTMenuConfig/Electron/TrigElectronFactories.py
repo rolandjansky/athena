@@ -71,3 +71,18 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
             #MonTool = monTool
             )
     return TrigTopoEgammaElectron()
+
+def PrecisionElectronTopoMonitorCfg(name = 'PrecisionElectronTopoEgammaBuilder'):
+    
+    from TrigEgammaMonitoring import TrigEgammaMonitoringConf
+    from TrigEgammaMonitoring.egammaMonitorPrecisionConfig import egammaMonitorPrecisionCfg
+    monTool = egammaMonitorPrecisionCfg(name)
+
+    PrecisionElectronTopoMonitor = AlgFactory( TrigEgammaMonitoringConf.egammaMonitorElectronAlgorithm,
+            name = name,
+            doAdd = False,
+            ElectronKey = TrigEgammaKeys.outputElectronKey,
+            MonTool = monTool
+            )
+
+    return PrecisionElectronTopoMonitor()

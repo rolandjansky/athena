@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONSERVICE_H
 #define COLLECTIONBASE_COLLECTIONSERVICE_H
 
 #include "CollectionBase/ICollectionService.h"
+#include "CxxUtils/checker_macros.h"
 
 
 namespace pool {
@@ -21,7 +22,7 @@ namespace pool {
    * of the metadata of an existing collection. Note that a class that inherits from this 
    * interface must also inherit from the SEAL Service base class. 
    */
-   class CollectionService : virtual public ICollectionService
+   class ATLAS_NOT_THREAD_SAFE CollectionService : virtual public ICollectionService
   {
     // DECLARE_SEAL_COMPONENT;
  

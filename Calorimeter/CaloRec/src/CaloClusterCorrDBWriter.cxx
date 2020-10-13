@@ -9,76 +9,23 @@
 
 
 #include "CaloClusterCorrDBWriter.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "CaloRec/ToolWithConstantsMixin.h"
 #include "CaloConditions/ToolConstants.h"
 #include "AthenaKernel/errorcheck.h"
 
-//#include "ToolConstants2Blob.h"
-
 
 using namespace CaloRec;
-
-//#############################################################################
-CaloClusterCorrDBWriter::CaloClusterCorrDBWriter(const std::string& name, 
-						 ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator),
-    m_blobTool("Blob2ToolConstants")
-{
-  // Name(s) of Cluster Correction Tools
-  declareProperty("ClusterCorrectionTools", m_correctionToolNames);
-  declareProperty("key",m_key="");
-  declareProperty("COOLInlineFolder",m_inlineFolder);
-}
-
-//#############################################################################
-
-CaloClusterCorrDBWriter::~CaloClusterCorrDBWriter()
-{ }
 
 //#############################################################################
 
 StatusCode CaloClusterCorrDBWriter::initialize()
 {
-  //Get ToolSvc  
-  IToolSvc*     p_toolSvc;
-  CHECK( service("ToolSvc", p_toolSvc) );
-
-  CHECK( m_blobTool.retrieve());
-
-  
-  // allocate tools derived from ToolsWithConstants
-  std::vector<std::string>::const_iterator firstTool=m_correctionToolNames.begin();
-  std::vector<std::string>::const_iterator lastTool =m_correctionToolNames.end();
-  for ( ; firstTool != lastTool; ++firstTool ) {
-    IAlgTool* algToolPtr;
-    ListItem  clusAlgoTool(*firstTool);
-    StatusCode scTool = p_toolSvc->retrieveTool(clusAlgoTool.type(),
-						clusAlgoTool.name(),
-						algToolPtr,
-						this);
-    if ( scTool.isFailure() ) {
-      REPORT_MESSAGE(MSG::ERROR) << "Cannot find tool for " << *firstTool;
-    }
-    else {
-      REPORT_MESSAGE(MSG::INFO) << m_key << ": "
-                                << "Found tool for " << *firstTool;
-      
-      // check for tool type
-      CaloRec::ToolWithConstantsMixin* theTool = 
-	dynamic_cast<CaloRec::ToolWithConstantsMixin*>(algToolPtr);
-      if ( theTool != nullptr ) { 
-	m_correctionTools.push_back(theTool);
-      }
-    }
-  }
+  ATH_CHECK( m_blobTool.retrieve());
+  ATH_CHECK( m_tools.retrieve());
   REPORT_MESSAGE(MSG::INFO) << m_key << ": "
-                            << "Found " << m_correctionTools.size() <<
+                            << "Found " << m_tools.size() <<
     " tools.";
   return StatusCode::SUCCESS;
 }
@@ -87,6 +34,7 @@ StatusCode CaloClusterCorrDBWriter::initialize()
 
 StatusCode CaloClusterCorrDBWriter::finalize()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (!m_inlineFolder.empty()) {
     CaloRec::ToolConstants tc;
     std::string toolnames;
@@ -100,15 +48,15 @@ StatusCode CaloClusterCorrDBWriter::finalize()
       CHECK(detStore()->record(attrColl,m_inlineFolder));
     }
 
-    for (size_t i = 0; i < m_correctionTools.size(); i++) {
-      CHECK( m_correctionTools[i]->mergeConstants (tc) );
-      toolnames += m_correctionTools[i]->name() + " ";	
+    for (size_t i = 0; i < m_tools.size(); i++) {
+      CHECK( m_tools[i]->mergeConstants (tc, ctx) );
+      toolnames += m_tools[i]->name() + " ";	
     }
     coral::AttributeList* attrList=m_blobTool->ToolConstantsToAttrList(&tc);
     if (!attrList)
       return StatusCode::FAILURE;
     
-    const std::string& tName=m_key;//m_correctionTools[i]->name();
+    const std::string& tName=m_key;
     attrColl->add(coolChannelNbr,tName);
     attrColl->add(coolChannelNbr,*attrList);
     
@@ -121,9 +69,9 @@ StatusCode CaloClusterCorrDBWriter::finalize()
   else {
     auto tc = std::make_unique<CaloRec::ToolConstants>();
     std::string toolnames;
-    for (size_t i = 0; i < m_correctionTools.size(); i++) {
-      CHECK( m_correctionTools[i]->mergeConstants (*tc) );
-      toolnames += m_correctionTools[i]->name() + " ";
+    for (size_t i = 0; i < m_tools.size(); i++) {
+      CHECK( m_tools[i]->mergeConstants (*tc, ctx) );
+      toolnames += m_tools[i]->name() + " ";
     }
 
     CHECK( detStore()->record (std::move(tc), m_key) );
@@ -142,7 +90,7 @@ StatusCode CaloClusterCorrDBWriter::finalize()
 
 //#############################################################################
 
-StatusCode CaloClusterCorrDBWriter::execute()
+StatusCode CaloClusterCorrDBWriter::execute (const EventContext& /*ctx*/) const
 {
   return StatusCode::SUCCESS;
 }

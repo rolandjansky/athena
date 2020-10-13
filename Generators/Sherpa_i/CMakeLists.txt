@@ -1,19 +1,7 @@
-################################################################################
-# Package: Sherpa_i
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Sherpa_i )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          Generators/GeneratorModules
-                          Generators/AtlasHepMC
-                          Generators/TruthUtils
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel )
 
 # Set the version of Sherpa to use:
 #set( SHERPA_VERSION 2.2.2 )

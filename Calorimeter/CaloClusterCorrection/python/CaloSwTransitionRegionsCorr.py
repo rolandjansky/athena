@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwTransitionRegionsCorr.py,v 1.5 2009-04-22 17:26:22 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwTransitionRegionsCorr.py
 # Created: Dec, 2007, L. Carminati
@@ -15,15 +13,17 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls = CaloClusterCorrectionConf.CaloSwTransitionRegionsCorr
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls = CompFactory.CaloSwTransitionRegionsCorr  # CaloClusterCorrection
 CaloSwTransitionRegionsCorr_versions = [
 
     # 12.0.3 simulation and reconstruction, with ideal (calib0) geometry.
@@ -45,6 +45,7 @@ CaloSwTransitionRegionsCorr_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -61,16 +62,18 @@ CaloSwTransitionRegionsCorr_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwTransitionRegionsCorr (name = None,
-                    suffix = None,
-                    version = None,
-                    key = CALOCORR_DEFAULT_KEY,
-                    source = None,
-                    confclass = None,
-                    **kw):
+def make_CaloSwTransitionRegionsCorr (flags,
+                                      name = None,
+                                      suffix = None,
+                                      version = None,
+                                      key = CALOCORR_DEFAULT_KEY,
+                                      source = None,
+                                      confclass = None,
+                                      **kw):
 
     # Make the tool.
-    return makecorr (versions  = CaloSwTransitionRegionsCorr_versions,
+    return makecorr (flags,
+                     versions  = CaloSwTransitionRegionsCorr_versions,
                      name      = name,
                      basename  = 'trcorr',
                      suffix    = suffix,

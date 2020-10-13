@@ -82,12 +82,11 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
                     
     # Second calibration DB Service in case pile-up and physics hits have different calibrations
-    if ConfigFlags.Detector.RecoTRT:
-        TRT_CalDbTool = CompFactory.TRT_CalDbTool
-        InDetTRTCalDbTool2 = TRT_CalDbTool(	name="TRT_CalDbTool2",
-                                            RtFolderName="/TRT/Calib/MC/RT",
-                                            T0FolderName="/TRT/Calib/MC/T0")
+    if flags.Detector.RecoTRT:
+        from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
+        InDetTRTCalDbTool2 = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
         acc.addPublicTool(InDetTRTCalDbTool2)
+
         kwargs.setdefault("TRTCalDbTool2", InDetTRTCalDbTool2)
         kwargs.setdefault("IsOverlay", True)
         kwargs.setdefault("IsMC", False)
@@ -209,6 +208,10 @@ def InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name
     #
     InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool"))
     acc.addPublicTool(InDetTRT_DriftCircleTool)
+
+    # Region selector tools for TRT
+    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
+    RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
     #
     # --- TRT_RIO_Maker Algorithm
     #
@@ -216,6 +219,7 @@ def InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name
     kwargs.setdefault("TrtDescrManageLocation", 'TRT')
     kwargs.setdefault("TRTRDOLocation", 'TRT_RDOs')
     kwargs.setdefault("TRTRIOLocation", collection)
+    kwargs.setdefault("RegSelTool", RegSelTool_TRT)
 
     acc.addEventAlgo(CompFactory.InDet.TRT_RIO_Maker(name, **kwargs))
     return acc
@@ -227,6 +231,10 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
     #
     InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool"))
     acc.addPublicTool(InDetTRT_DriftCircleTool)
+
+    # Region selector tools for TRT
+    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
+    RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
     #
     # --- TRT_RIO_Maker Algorithm
     #
@@ -234,6 +242,7 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
     kwargs.setdefault("TrtDescrManageLocation", 'TRT')
     kwargs.setdefault("TRTRDOLocation", 'TRT_PU_RDOs')
     kwargs.setdefault("TRTRIOLocation", collectionPU)
+    kwargs.setdefault("RegSelTool", RegSelTool_TRT)
 
     acc.addEventAlgo(CompFactory.InDet.TRT_RIO_Maker(name, **kwargs))
     return acc
@@ -241,6 +250,13 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
 ########################################################################################################
 def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
     acc = ComponentAccumulator()
+
+    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
+
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelCablingCondAlgCfg(flags))
+    acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
     if flags.InDet.doPRDFormation and flags.InDet.doTRT_PRDFormation:
         #
@@ -305,6 +321,11 @@ if __name__ == "__main__":
 
     msgService = top_acc.getService('MessageSvc')
     msgService.Format = "S:%s E:%e % F%138W%S%7W%R%T  %0W%M"
+
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    top_acc.merge( PixelGeometryCfg(ConfigFlags) )
+    top_acc.merge( SCT_GeometryCfg(ConfigFlags) )
 
     if not ConfigFlags.InDet.doDBMstandalone:
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))

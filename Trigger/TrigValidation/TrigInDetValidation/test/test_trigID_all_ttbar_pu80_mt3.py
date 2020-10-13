@@ -4,7 +4,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
-# art-athena-mt: 4
+# art-athena-mt: 12
 # art-memory: 4096
 # art-output: *.txt
 # art-output: *.log
@@ -55,8 +55,8 @@ for opt,arg in opts:
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon','electron','tau','bjet']
 rdo2aod.max_events = 2000 
-rdo2aod.threads = 4
-rdo2aod.concurrent_events = 1 
+rdo2aod.threads = 12
+rdo2aod.concurrent_events = 12 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -14,6 +14,7 @@
 #include "CoralBase/AttributeListSpecification.h"
 
 #include "TestTools/FLOATassert.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -34,7 +35,7 @@ const std::vector<std::vector<float> > channel0data = {
 const std::vector<float> channel1data = {100, 200, 300, 1000, 2000, 3000};
 
 
-void testTileCalibDrawerFltV100() {
+void testTileCalibDrawerFltV100 ATLAS_NOT_THREAD_SAFE () {
 
   std::cout << "testTileCalibDrawerFltV100\n";
   
@@ -67,7 +68,7 @@ void testTileCalibDrawerFltV100() {
 }
 
 
-void testTileCalibDrawerFltV200() {
+void testTileCalibDrawerFltV200 ATLAS_NOT_THREAD_SAFE () {
 
   std::cout << "testTileCalibDrawerFltV200\n";
   
@@ -119,7 +120,7 @@ void testTileCalibDrawerFltV200() {
 
 
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
 
 
   testTileCalibDrawerFltV100();

@@ -124,7 +124,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     noisyROGroup = helper.addGroup(
         larNoisyROMonAlg,
         NoisyROMonGroupName,
-        '/LAr/NoisyRONewAlg/'
+        '/LAr/NoisyRO/'
     )
 
 
@@ -148,7 +148,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
     for subdet in range(0,2): 
-       hist_path='/LAr/NoisyRONewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
+       hist_path='/LAr/NoisyRO/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        slot_n = int(slot_up - slot_low)
@@ -157,6 +157,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
        ft_n = int(ft_up - ft_low)
 
        darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larNoisyROMonAlg,lArDQGlobals.SubDet[subdet],topPath=hist_path)
+
        # Known bad FEBS
        darray.defineHistogram('slotBad,FTBad;KnownBadFEB', title='Known Bad FEBs {0} ; Slot ; FT', 
                               type='TH2I', 

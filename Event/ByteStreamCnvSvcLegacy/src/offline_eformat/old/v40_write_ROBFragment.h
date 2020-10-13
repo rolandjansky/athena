@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,6 +20,7 @@
 
 #include "eformat/write/node.h"
 #include "eformat/Version.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace offline_eformat {
 
@@ -30,8 +31,8 @@ namespace offline_eformat {
     /**
      * Defines a helper class to aid the creation of ROB fragments.
      */
-    class ROBFragment {
-
+    class ROBFragment
+    {
     public:
 
       /**
@@ -477,7 +478,7 @@ namespace offline_eformat {
        * Outputs a concatenation of eformat::write::node making up a list with
        * the contents of this ROB fragment.
        */
-      const eformat::write::node_t* bind (void);
+      eformat::write::node_t* bind (void);
 
       /**
        * Outputs a concatenation of eformat::write::node making up a list with
@@ -503,12 +504,13 @@ namespace offline_eformat {
        *
        * @param n The sibling following this fragment
        */
-      inline void next (const ROBFragment* n) { m_next = n; }
+      inline void next (ROBFragment* n) { m_next = n; }
 
       /**
        * Returns the next sibling
        */
       inline const ROBFragment* next (void) const { return m_next; }
+      inline       ROBFragment* next (void)       { return m_next; }
 
     private: //to make the code simpler
 
@@ -526,7 +528,7 @@ namespace offline_eformat {
       uint32_t m_checksum; ///< The ROB trailer
       eformat::write::node_t m_node[8]; ///< Node representation
       v40_write::FullEventFragment* m_parent; ///< My parent
-      const v40_write::ROBFragment* m_next; ///< Next sibling
+      v40_write::ROBFragment* m_next; ///< Next sibling
 
     };
 

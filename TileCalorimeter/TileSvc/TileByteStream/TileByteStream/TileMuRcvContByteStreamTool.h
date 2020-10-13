@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -50,11 +50,11 @@ class TileMuRcvContByteStreamTool: public AthAlgTool {
   /** AlgTool InterfaceID */
   static const InterfaceID& interfaceID( );
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /** Provides conversion from TileMuRcvContainer to bytestream */
-  StatusCode convert(TileMuonReceiverContainer* cont, FullEventAssembler<TileHid2RESrcID> *fea);
+  StatusCode convert(TileMuonReceiverContainer* cont, FullEventAssembler<TileHid2RESrcID> *fea) const;
 
  private:
 

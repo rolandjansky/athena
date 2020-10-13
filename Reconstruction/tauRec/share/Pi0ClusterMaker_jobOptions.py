@@ -249,8 +249,8 @@ TopoSplitterForTaus.RestrictHECIWandFCalNeighbors  = False
 TopoSplitterForTaus.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 
 # cluster maker
-cluster_container = 'TauPi0SubtractedClusters'
-CaloTopoForTausMaker = CaloClusterMaker ("TauPi0SubtractedClusterMaker")
+cluster_container = 'TauInitialPi0Clusters'
+CaloTopoForTausMaker = CaloClusterMaker ("TauInitialPi0ClusterMaker")
 CaloTopoForTausMaker.ClustersOutputName=cluster_container
 CaloTopoForTausMaker.ClusterMakerTools=[
     TopoClusterForTaus.getFullName(),

@@ -1,24 +1,7 @@
-################################################################################
-# Package: Hijing_i
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Hijing_i )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Generators/GeneratorFortranCommon
-   Generators/GeneratorModules
-   Generators/AtlasHepMC
-   Control/CxxUtils
-   PRIVATE
-   Control/AthenaKernel
-   Control/StoreGate
-   GaudiKernel
-   Generators/GeneratorObjects
-   Generators/GeneratorUtils
-   Generators/TruthUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -38,7 +21,7 @@ atlas_add_library( Hijing_iLib
    LINK_LIBRARIES ${HIJING_LIBRARIES} ${CLHEP_LIBRARIES}
    GeneratorFortranCommonLib GeneratorModulesLib StoreGateLib
    PRIVATE_LINK_LIBRARIES AtlasHepMCLib AthenaKernel GaudiKernel
-   GeneratorObjects TruthUtils )
+   GeneratorObjects GeneratorUtilsLib TruthUtils )
 
 atlas_add_component( Hijing_i
    src/components/*.cxx

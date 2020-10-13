@@ -1,28 +1,10 @@
-################################################################################
-# Package: GeneratorObjects
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GeneratorObjects )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthLinks
-                          Control/SGTools
-                          Control/AthenaKernel
-                          Event/xAOD/xAODTruth
-                          GaudiKernel
-                          Generators/AtlasHepMC
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/CxxUtils
-                          Control/RootUtils
-                          Control/StoreGate )
-
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( GTest )
 
 # Component(s) in the package:
@@ -31,16 +13,14 @@ atlas_add_library( GeneratorObjects
                    src/McEventCollection.cxx
                    src/HijingEventParams.cxx
                    PUBLIC_HEADERS GeneratorObjects
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES  AtlasHepMCLib AthContainers AthLinks SGTools xAODTruth GaudiKernel RootUtilsPyROOT StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools AthenaKernel RootUtils )
+                   LINK_LIBRARIES AthenaKernel AtlasHepMCLib AthContainers AthLinks SGTools xAODTruth GaudiKernel RootUtils StoreGateLib )
 
 atlas_add_dictionary( GeneratorObjectsDict
                       GeneratorObjects/McEventDict.h
                       GeneratorObjects/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}  AtlasHepMCLib AthContainers AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects )
+                      LINK_LIBRARIES GeneratorObjects RootUtils )
 
 # Install a dummy rootmap file to suppress loading the rootmap from hepmc3,
 # which defines dictionary entries for HepMC types that clash with
@@ -52,11 +32,9 @@ atlas_install_generic ( share/libHepMC3rootIO.rootmap
 
 atlas_add_test( HepMcParticleLink_test
                 SOURCES test/HepMcParticleLink_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthContainers CxxUtils AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects ${GTEST_LIBRARIES} )
-
+                INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} CxxUtils GeneratorObjects TestTools )
 
 atlas_add_test( CachedParticlePtr_test
                 SOURCES test/CachedParticlePtr_test.cxx
-                LINK_LIBRARIES GeneratorObjects AtlasHepMCLib)
-
+                LINK_LIBRARIES GeneratorObjects )

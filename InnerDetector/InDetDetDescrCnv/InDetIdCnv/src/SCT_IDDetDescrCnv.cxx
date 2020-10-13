@@ -17,7 +17,7 @@
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
 
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/SCT_ID.h"

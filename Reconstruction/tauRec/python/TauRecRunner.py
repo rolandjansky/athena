@@ -13,59 +13,37 @@
 ################################################################################
 
 import os, sys, string
-
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
 from AthenaCommon.BeamFlags import jobproperties
 import traceback
-
 from RecExConfig.Configured import Configured
 from .TauRecRunConfigured import TauRecRunConfigured
-
-# global tauRec config keys
-_outputType = "xAOD::TauJetContainer"
-_outputKey = "TauJets"
-_outputAuxType = "xAOD::TauJetAuxContainer"
-_outputAuxKey = "TauJetsAux."
 
 ################################################################################
 ## @class TauRecRunner
 # Build proper tau candidates and associate tracks, vertex and cells
 ################################################################################
 class TauRecRunner ( TauRecRunConfigured ) :
-    """Build proper tau candidates and associate tracks, vertex and cells. 
-    Calculate properties based on cell informations. 
-    Find clusters used for Pi0 identification and eflow variables.
-    PhotonConversion will be run here too.
+    """Build final tau candidates.
+    Run algorithms that require pi0 cells, and all downstream algorithms.
     """
   
-    _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey }
-    
     def __init__(self, name = "TauRecRunner"):
         self.name = name
         TauRecRunConfigured.__init__(self, name)
-
-
  
     def configure(self):
         mlog = logging.getLogger ('TauRecRunner.py::configure:')
         mlog.info('entering')
                 
-        from RecExConfig.RecFlags import rec    
-        
-        # xxx ToDo: still needed?        
-        from RecExConfig.ObjKeyStore import objKeyStore
-        objKeyStore.addManyTypesStreamESD(self._output)
-        objKeyStore.addManyTypesStreamAOD(self._output)              
-        
-        import tauRec.TauAlgorithmsHolder as taualgs
-        
-        from tauRec.tauRecFlags import tauFlags
-                
+        from RecExConfig.RecFlags import rec                
+        import tauRec.TauAlgorithmsHolder as taualgs        
+        from tauRec.tauRecFlags import tauFlags                
         
         tools = []
-                        
+        
         tools.append(taualgs.getPi0ClusterCreator())
         tools.append(taualgs.getPi0ClusterScaler())
         tools.append(taualgs.getPi0ScoreCalculator())
@@ -129,14 +107,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
                 
         # run first part of Tau Builder
         TauRecRunConfigured.WrapTauRecToolExecHandle(self, tool=tools)
-        return True
-        
-
-    def outputKey(self):
-         return self._output[self._outputType]
-    
-    def outputType(self):
-         return self._outputType
-
+        return True        
 
 #end

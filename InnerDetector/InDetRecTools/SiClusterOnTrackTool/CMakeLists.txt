@@ -5,33 +5,6 @@
 # Declare the package name:
 atlas_subdir( SiClusterOnTrackTool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          InnerDetector/InDetConditions/InDetCondTools
-                          InnerDetector/InDetDetDescr/SCT_ModuleDistortions
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkEventUtils
-                          Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils
-                          Control/StoreGate
-                          PRIVATE
-                          Event/EventPrimitives
-                          InnerDetector/InDetConditions/PixelConditionsTools
-                          InnerDetector/InDetConditions/PixelConditionsData
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/PixelGeoModel
-                          InnerDetector/InDetRecTools/SiClusterizationTool
-                          Tracking/TrkDetDescr/TrkSurfaces )
-
 # External dependencies:
 find_package( Eigen )
 
@@ -40,7 +13,7 @@ atlas_add_component( SiClusterOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiClusterizationToolLib TrkSurfaces TrkRIO_OnTrack PixelConditionsData TrkNeuralNetworkUtilsLib TrkEventUtils)
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiClusterizationToolLib TrkSurfaces TrkRIO_OnTrack PixelConditionsData TrkNeuralNetworkUtilsLib TrkEventUtils SCT_ModuleDistortionsLib )
 
 # Install files from the package:
 atlas_install_headers( SiClusterOnTrackTool )

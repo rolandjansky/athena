@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -65,8 +65,8 @@ StatusCode TileDigitsContByteStreamTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEventAssembler<TileHid2RESrcID> *fea) {
-
+StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEventAssembler<TileHid2RESrcID> *fea) const
+{
   FullEventAssembler<TileHid2RESrcID>::RODDATA* theROD;
 
   std::map<uint32_t, TileROD_Encoder> mapEncoder;

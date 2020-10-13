@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -39,13 +39,11 @@
 
 
 TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc) 
-  : Converter(storageType(), classID(), svcloc)
-  , ::AthMessaging(msgSvc(), "TileDigitsContByteStreamCnv")
-  , m_name("TileDigitsContByteStreamCnv")
+  : AthConstConverter(storageType(), classID(), svcloc, "TileDigitsContByteStreamCnv")
   , m_tool("TileDigitsContByteStreamTool")
-  , m_byteStreamEventAccess("ByteStreamCnvSvc", m_name)
+  , m_byteStreamEventAccess("ByteStreamCnvSvc", name())
   , m_byteStreamCnvSvc(0)
-  , m_robSvc("ROBDataProviderSvc", m_name)
+  , m_robSvc("ROBDataProviderSvc", name())
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
 {
@@ -77,8 +75,8 @@ StatusCode TileDigitsContByteStreamCnv::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-
+StatusCode TileDigitsContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const
+{
   ATH_MSG_DEBUG(" Executing createObj method ");
 
   ByteStreamAddress *pRE_Addr;
@@ -147,7 +145,8 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
 }
 
 
-StatusCode TileDigitsContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
+StatusCode TileDigitsContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const
+{
   // convert TileDigitsContainer in the container into ByteStream
 
   ATH_MSG_DEBUG(" Executing createRep method ");

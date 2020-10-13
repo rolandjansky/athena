@@ -45,8 +45,8 @@ for i in xrange(recoztree.GetEntries()):
     if recoztree.lblive < 10 : continue
     effztree.Draw('alleff:alleffstat', 'run==%s&&lb==%s' % (recoztree.run, recoztree.lb), 'goff')
     if effztree.GetSelectedRows() == 0:
-        print 'Broken for run, lb %s %s' % (recoztree.run, recoztree.lb)
-        print 'We THINK there are %d events here ...' % (recoztree.zraw)
+        print('Broken for run, lb %s %s' % (recoztree.run, recoztree.lb))
+        print('We THINK there are %d events here ...' % (recoztree.zraw))
         continue
     lbzero = (recoztree.lb // LUMIBLOCKS)*LUMIBLOCKS
     run = recoztree.run
@@ -107,7 +107,7 @@ for entry, entryval in sorted(entrydict.items()):
         entryval['offlumi'] /= entryval['livetime']
         eff = entryval['rolleff']/entryval['rollefferrsq']
         efferr = 1/entryval['rollefferrsq']**.5
-        #print 'LIVETIME2', entryval['livetime']
+        #print('LIVETIME2', entryval['livetime'])
         entryval['zrate'] = entryval['zcount']/eff/entryval['livetime']
         entryval['zratestat'] = (entryval['zcounterrsq']/eff/eff + (entryval['zcount']/eff**2*efferr)**2)**.5/entryval['livetime']
         o_run[0], o_lb[0] = entry
@@ -123,7 +123,7 @@ for entry, entryval in sorted(entrydict.items()):
         o_lblive[0] = entryval['livetime']
         o_lhcfill[0] = entryval['lhcfill']
         if o_zlumi[0] < 4 or o_zlumi[0] > 15:
-            print o_lb[0], o_zlumi[0], entryval['zcount'], eff, entryval['livetime']
+            print(o_lb[0], o_zlumi[0], entryval['zcount'], eff, entryval['livetime'])
         t.Fill()
 #t.Write()
 newrzt = recoztree.CloneTree()

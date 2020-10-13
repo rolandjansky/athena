@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_TILEBCHPRBS_H
@@ -102,9 +102,7 @@ class TileBchPrbs
   
  private:
   /** @brief Initializes the problem description map*/
-  static void initPrbDesc();
-  /** @brief PROBLEM to description association. */
-  static std::map<Prb,std::string> m_prbNames;
+  static std::map<Prb,std::string> initPrbDesc();
 };
 
 #endif
