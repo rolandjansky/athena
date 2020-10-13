@@ -51,6 +51,8 @@ private:
 
   const TRT_ID *m_trtId{};
 
+  Gaudi::Property<bool> m_sortBkgInput{this, "SortBkgInput", false, "Sort background input RDOs"};
+
   SG::ReadHandleKey<TRT_RDO_Container> m_bkgInputKey{this, "BkgInputKey", "Bkg_TRT_RDOs"," ReadHandleKey for Background Input TRT_RDO_Container"};
   SG::ReadHandleKey<TRT_RDO_Container> m_signalInputKey{this, "SignalInputKey", "Sig_TRT_RDOs", "ReadHandleKey for Signal Input TRT_RDO_Container"};
   SG::WriteHandleKey<TRT_RDO_Container> m_outputKey{this, "OutputKey", "TRT_RDOs", "WriteHandleKey for Output TRT_RDO_Container"};
