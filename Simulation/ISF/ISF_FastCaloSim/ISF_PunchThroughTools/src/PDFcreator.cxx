@@ -272,7 +272,8 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     TAxis *xaxis = hist2d->GetXaxis();
     Int_t binx = xaxis->FindBin(outEnergy);
 
-    TH1* hist = hist2d->ProjectionY("projectionHist",binx,binx);
+    TH1 * hist = hist2d->ProjectionY("projectionHist",binx,binx);
+    std::unique_ptr<TH1> hist_unique(hist);
 
     //incase we select an empty x bin, chose next closest appropriate bin
     while (hist->GetEntries() == 0.){
