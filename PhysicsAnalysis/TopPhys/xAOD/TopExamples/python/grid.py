@@ -104,7 +104,7 @@ class Config:
         txt = '('
         iconfigFile=0
         for configFile in self.settingsFile.split(','):
-            cutsFileIsARealFile = checkForFile(configFile)
+            cutsFileIsARealFile = checkForFile(ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.LocalSearch))
             if cutsFileIsARealFile:
                 txt += 'exists'
             else:
@@ -218,38 +218,30 @@ def submit(config, allSamples):
   #Check for cuts file
   for configFile in config.settingsFile.split(','):
     if not checkForFile(configFile):
-        print logger.FAIL    + " Error - %s does not exist in this directory "%(configFile) + logger.ENDC
-        print logger.WARNING + "       - Attempt to find this file in a sensible location... " + logger.ENDC
-        settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
+        print logger.WARNING     + " WARNING - Did not find config file %s in this dir "%(configFile) + logger.ENDC
+        print logger.WARNING     + "       - Attempt to find this file in a sensible location using PathResolver... " + logger.ENDC
+        settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.LocalSearch)      
         if settingsFilePath == "":
-            print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
-            print '%s does not exist in this directory and cannot be found' % configFile
-            print 'Please make it before submitting'
-            sys.exit(1)      
+            print logger.FAIL    + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
+            print '%s does not exist in this directory and cannot be found using PathResolver, exiting!' % configFile
+            sys.exit(1)
         else:
-            print logger.WARNING + "       - Found an appropriate file " + logger.ENDC
-            print logger.WARNING + "       - Will copy " + logger.ENDC + configFile + logger.WARNING + " from " + logger.ENDC + settingsFilePath 
-            print logger.WARNING + "       - Confirm this is okay before continuing " + logger.ENDC
-            user_check = raw_input(logger.OKBLUE + "Type yes/y/Y in order to proceed ...: " + logger.ENDC)
-            if(user_check != "yes" and user_check != "y" and user_check != "Y"):
-                print logger.FAIL + " Exiting submission " + logger.ENDC
-                sys.exit(2)
-            print logger.OKGREEN + "       - Confirmed " + logger.ENDC
-            os.system("cp %s %s"%(settingsFilePath,"./"))
+            print logger.WARNING + "       - Found an appropriate file %s "%(settingsFilePath) + logger.ENDC
 
   outputFiles = []
   for configFile in config.settingsFile.split(','):
+    settingsFilePath = ROOT.PathResolver.find_file(configFile, "DATAPATH", ROOT.PathResolver.LocalSearch)
+
     #Look in the cuts file for the output filename
     outputFilename = 'EMPTY'
-    for l in open(configFile):
+    for l in open(settingsFilePath, "r"):
         #ignore text after comments
         if l.find('#') > -1:
             l = l.split('#')[0]
-
         if l.find('OutputFilename') > -1:
             outputFilename = l.replace('OutputFilename', '').strip()
     if outputFilename == 'EMPTY':
-        print logger.FAIL + 'OutputFilename not found in ' + configFile + logger.ENDC
+        print logger.FAIL + 'OutputFilename not found in ' + settingsFilePath + logger.ENDC
         sys.exit(1)
     else:
         outputFiles.append(outputFilename)
@@ -448,9 +440,10 @@ if __name__ == '__main__':
 
 
 def checkForShowerAlgorithm(Samples, cutfile):    
+    settingsFilePath = ROOT.PathResolver.find_file(cutfile, "DATAPATH", ROOT.PathResolver.LocalSearch)
     noShowerDatasets = []
     customTDPFile = None
-    tmp = open(cutfile, "r")
+    tmp = open(settingsFilePath, "r")
     for line in tmp.readlines():
         if "TDPPath" not in line:
             continue
@@ -481,7 +474,7 @@ def checkForShowerAlgorithm(Samples, cutfile):
                     noShowerDatasets += [dsid]
 
     if len(noShowerDatasets) > 0:
-        print 'TopDataPreparation .data file specified in '+cutfile+' was checked.'
+        print 'TopDataPreparation .data file specified in '+settingsFilePath+' was checked.'
         print 'The following datasets do not have a showering algorithm defined in TopDataPreparation and will fail on the grid. Please ask for this to be fixed in TopDataPreparation!'
         for ds in set(noShowerDatasets):
             print ds
@@ -509,8 +502,9 @@ def checkPRWFile(Samples, cutfile):
     # We need to find the PRW files being used and make use of the checkPRW 
     # checkPRW.py --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
     # First, find the PRW names from cutfile
-    print logger.OKBLUE + " - Processing checks for PRWConfig in " + cutfile + logger.ENDC
-    tmp = open(cutfile, "r")
+    settingsFilePath = ROOT.PathResolver.find_file(cutfile, "DATAPATH", ROOT.PathResolver.LocalSearch)
+    print logger.OKBLUE + " - Processing checks for PRWConfig in " + settingsFilePath + logger.ENDC
+    tmp = open(settingsFilePath, "r")
     PRWConfig = None
     PRWConfig_FS = None
     PRWConfig_AF = None
@@ -530,10 +524,10 @@ def checkPRWFile(Samples, cutfile):
             PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.split()[1:] ]  )
 
     if PRWConfig and PRWConfig_AF:
-        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_AF" + logger.ENDC
+        print logger.FAIL + " - Problem in cutfile " + settingsFilePath + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_AF" + logger.ENDC
         return
     elif PRWConfig and PRWConfig_FS:
-        print logger.FAIL + " - Problem in cutfile " + cutfile + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_FS" + logger.ENDC
+        print logger.FAIL + " - Problem in cutfile " + settingsFilePath + ": PRWConfigFiles is inconsistent with usage of PRWConfigFiles_FS" + logger.ENDC
         return
     elif PRWConfig and not PRWConfig_FS and not PRWConfig_AF:
         PRWConfig_FS = PRWConfig
