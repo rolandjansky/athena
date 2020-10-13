@@ -32,7 +32,7 @@ namespace Trk {
   class PerigeeSurface     ;
   class ConeSurface        ;
 
-  class PatternTrackParameters
+  class PatternTrackParameters : public ParametersBase<5, Trk::Charged>
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
@@ -51,20 +51,22 @@ namespace Trk {
 
       const Surface&   associatedSurface ()     const {return   *m_surface;}
       bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
-      Amg::Vector2D    localPosition     ()     const;
-      const Amg::Vector3D& momentum      ()     const;
-      const Amg::Vector3D& position      ()     const;
-      const AmgVector(5)& parameters     ()     const;
-      const AmgSymMatrix(5)* covariance  ()     const;
-      double           charge            ()     const;	
       double           sinPhi            ()     const;
       double           cosPhi            ()     const;
       double           sinTheta          ()     const;
       double           cosTheta          ()     const;
       double           cotTheta          ()     const;
-      double           pT                ()     const;
-      double           eta               ()     const;   
       void             changeDirection   ()          ;
+
+      virtual const Amg::Vector3D& position() const override final;
+      virtual const Amg::Vector3D& momentum() const override final;
+      virtual double charge() const override final;
+      virtual bool hasSurface() const override final;
+      virtual Amg::RotationMatrix3D measurementFrame() const override final;
+      virtual PatternTrackParameters * clone() const override final;
+      virtual ParametersType type() const override final;
+      virtual int surfaceType() const override final;
+      virtual void updateParametersHelper(const AmgVector(5) &) override final;
 
       ///////////////////////////////////////////////////////////////////
       // Methods set
@@ -117,11 +119,6 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
 
       SurfaceUniquePtrT<const Surface> m_surface;
-      AmgVector(5)    m_parameters    ;
-      std::unique_ptr<AmgSymMatrix(5)> m_covariance;
-      mutable Amg::Vector3D m_position ATLAS_THREAD_SAFE;
-      mutable Amg::Vector3D m_momentum ATLAS_THREAD_SAFE;
-      mutable Trk::Charged  m_chargeDef ATLAS_THREAD_SAFE;
       mutable bool          m_posmom_updated ATLAS_THREAD_SAFE = false;
 
       ///////////////////////////////////////////////////////////////////
@@ -164,13 +161,14 @@ namespace Trk {
   /////////////////////////////////////////////////////////////////////////////////
 
 
-  inline PatternTrackParameters::PatternTrackParameters()
+  inline PatternTrackParameters::PatternTrackParameters():
+    ParametersBase<5, Trk::Charged>()
     {
       m_parameters.setZero();
     }
 
   inline PatternTrackParameters::PatternTrackParameters(const PatternTrackParameters& P):
-    m_parameters{}
+    PatternTrackParameters()
     {
       *this = P;
     }
@@ -364,12 +362,6 @@ namespace Trk {
   // Different  track parameters
   ///////////////////////////////////////////////////////////////////
 
-  inline Amg::Vector2D PatternTrackParameters::localPosition () const
-    {
-      Amg::Vector2D lp(m_parameters[0],m_parameters[1]);  
-      return lp;
-    }
-
   inline double         PatternTrackParameters::charge        () const
     {
       if (!m_posmom_updated) {
@@ -403,36 +395,13 @@ namespace Trk {
       return (1./tan(m_parameters[3]));
     }
 
-  inline double         PatternTrackParameters::pT            () const
-    {
-      if(m_parameters[4]!=0.) { return fabs(sin(m_parameters[3])/m_parameters[4]);
-}
-      return 10e9;
-    }
-
-  inline double         PatternTrackParameters::eta           () const
-    {
-      return -log(tan(.5*m_parameters[3]));
-    }   
-  
-  inline const AmgVector(5)& PatternTrackParameters::parameters    () const
-    {
-      return m_parameters;
-    }          
-  
   inline const Amg::Vector3D& PatternTrackParameters::momentum      () const
     {
       if (!m_posmom_updated) {
         updateCache();
       }
       return m_momentum;
-    } 
-
-  inline const AmgSymMatrix(5) * PatternTrackParameters::covariance  () const
-    {
-      return m_covariance.get();
     }
-
 } // end of name space
 
 #endif // PatternTrackParameters

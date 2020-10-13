@@ -589,3 +589,27 @@ void Trk::PatternTrackParameters::updateMomentumCache(void) const {
 
   m_momentum = {p * Se * Cf, p * Se * Sf, p * Ce};
 }
+
+bool Trk::PatternTrackParameters::hasSurface() const {
+  return m_surface != nullptr;
+}
+
+Amg::RotationMatrix3D Trk::PatternTrackParameters::measurementFrame() const {
+  return associatedSurface().measurementFrame(this->position(), this->momentum());
+}
+
+Trk::PatternTrackParameters * Trk::PatternTrackParameters::clone() const {
+  return new PatternTrackParameters(*this);
+}
+
+Trk::ParametersType Trk::PatternTrackParameters::type() const {
+  return Trk::AtaSurface;
+}
+
+int Trk::PatternTrackParameters::surfaceType() const {
+  return m_surface->type();
+}
+
+void Trk::PatternTrackParameters::updateParametersHelper(const AmgVector(5) &) {
+  updateCache();
+}
