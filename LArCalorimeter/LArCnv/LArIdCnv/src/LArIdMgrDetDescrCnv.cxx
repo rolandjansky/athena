@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,10 +7,6 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: LArIdMgrDetDescrCnv.cxx,v 1.14 2009-02-11 04:50:26 ssnyder Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "LArIdCnv/LArIdMgrDetDescrCnv.h"
 #include "LArIdentifier/LArIdManager.h"
@@ -28,22 +24,13 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
 
 // Identifier includes
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 long int
 LArIdMgrDetDescrCnv::repSvcType() const
