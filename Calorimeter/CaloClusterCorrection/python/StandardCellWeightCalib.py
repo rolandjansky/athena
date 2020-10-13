@@ -5,6 +5,7 @@
 #--
 #-- Note the input for this calibration is jet driven. The fitted default
 
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -165,20 +166,20 @@ class H1Calibration(object):
                 if 'Topo' in input: return  H1Calibration.getCalibDBParams('Cone',0.4,'H1Topo',onlyCellWeight,isMC)
                 else:               return  H1Calibration.getCalibDBParams('Cone',0.4,'H1Tower',onlyCellWeight,isMC)
             # else try to find a good fall back
-            _logger.warning("getCalibDBParams: no dedicated calibration for %s %s %s"%(finder,mainparam,input))
+            _logger.warning("getCalibDBParams: no dedicated calibration for %s %s %s", finder,mainparam,input)
             if finder not in [ 'Kt', 'Cone' ]    : finder = 'Cone'     # fall back to ATLAS Cone
             if input  not in [ 'Topo', 'Tower' ] : input  = 'Tower'    # fall back to Tower
             if finder == 'Kt' : l = [ 0.4, 0.6 ]
             else:               l = [ 0.4, 0.7 ]
             (m,mainparam) = min( [ (abs(p-mainparam),p) for p in l ] ) # main parameter optimization (??)
-            _logger.warning("getCalibDBParams: defaulted calibration to %s %s %s"%(finder,mainparam,input))
+            _logger.warning("getCalibDBParams: defaulted calibration to %s %s %s", finder,mainparam,input)
             return H1Calibration.getCalibDBParams(finder,mainparam,input,onlyCellWeight,isMC)
     #-- load DB folder
     @staticmethod
     def loadCaloFolder(folder,tag,isMC=False):
         from IOVDbSvc.CondDB       import conddb
         from AthenaCommon.AppMgr   import ServiceMgr
-        from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
+        IOVDbSvc = CompFactory.IOVDbSvc  # IOVDbSvc
         ServiceMgr += IOVDbSvc()
         IOVDbSvc = ServiceMgr.IOVDbSvc
         if isMC:
@@ -203,7 +204,7 @@ def getCellWeightTool(finder="Cone",mainparam=0.4,input="Topo", onlyCellWeight=F
     input/str      : input objects triggers calibration weights
     mainparam/float: size parameter for jet
     """
-    from CaloClusterCorrection.CaloClusterCorrectionConf import H1WeightToolCSC12Generic
+    H1WeightToolCSC12Generic = CompFactory.H1WeightToolCSC12Generic  # CaloClusterCorrection
     
     if globalflags.DataSource()=='data':
       isMC=False

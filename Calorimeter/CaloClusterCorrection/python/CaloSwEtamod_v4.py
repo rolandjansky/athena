@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwEtamod_v4.py,v 1.1 2006-11-17 16:46:56 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwEtamod_v4.py
 # Created: Nov 2006, sss
@@ -15,7 +13,7 @@
 #
 
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 from AthenaCommon.SystemOfUnits import GeV
 
 

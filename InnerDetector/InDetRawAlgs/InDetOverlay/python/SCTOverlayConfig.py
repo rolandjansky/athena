@@ -38,6 +38,9 @@ def SCTRawDataProviderAlgCfg(flags, name="SCTRawDataProvider", **kwargs):
     kwargs.setdefault("LVL1IDKey", flags.Overlay.BkgPrefix + "SCT_LVL1ID")
     kwargs.setdefault("BCIDKey", flags.Overlay.BkgPrefix + "SCT_BCID")
 
+    from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
+    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags)))
+
     SCTRawDataProvider = CompFactory.SCTRawDataProvider
     alg = SCTRawDataProvider(name, **kwargs)
     acc.addEventAlgo(alg)
@@ -94,6 +97,11 @@ def SCTOverlayAlgCfg(flags, name="SCTOverlay", **kwargs):
         acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
             "SCT_RDO_Container#SCT_RDOs"
         ]))
+
+        if flags.Overlay.DataOverlay:
+            acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+                "IDCInDetBSErrContainer#SCT_ByteStreamErrs"
+            ]))
 
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

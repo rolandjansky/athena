@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -30,10 +30,8 @@
 
 
 TileBeamElemContByteStreamCnv::TileBeamElemContByteStreamCnv(ISvcLocator* svcloc)
-  : Converter(storageType(), classID(), svcloc)
-  , ::AthMessaging(msgSvc(), "TileBeamElemContByteStreamCnv")
-  , m_name("TileBeamElemContByteStreamCnv")
-  , m_robSvc("ROBDataProviderSvc", m_name)
+  : AthConstConverter(storageType(), classID(), svcloc, "TileBeamElemContByteStreamCnv")
+  , m_robSvc("ROBDataProviderSvc", name())
   , m_decoder("TileROD_Decoder")
   , m_ROBID()
   , m_hid2re(nullptr)
@@ -64,8 +62,8 @@ StatusCode TileBeamElemContByteStreamCnv::initialize() {
 }
 
 
-StatusCode TileBeamElemContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-
+StatusCode TileBeamElemContByteStreamCnv::createObjConst (IOpaqueAddress* pAddr, DataObject*& pObj) const
+{
   ATH_MSG_DEBUG( " Executing createObj method" );
 
   ByteStreamAddress* pRE_Addr;
@@ -114,7 +112,8 @@ StatusCode TileBeamElemContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataO
   return StatusCode::SUCCESS;  
 }
 
-StatusCode TileBeamElemContByteStreamCnv::createRep(DataObject* /* pObj */, IOpaqueAddress*& /* pAddr */) {
+StatusCode TileBeamElemContByteStreamCnv::createRepConst(DataObject* /* pObj */, IOpaqueAddress*& /* pAddr */) const
+{
   // No conversion from TileBeamElem to BS 
 
   ATH_MSG_ERROR( " Can not create BS from TileBeamElem   " );

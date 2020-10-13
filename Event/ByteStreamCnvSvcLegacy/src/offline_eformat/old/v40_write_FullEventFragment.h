@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,7 @@
 #define OFFLINE_EFORMAT_V40_WRITE_FULLEVENTFRAGMENT_H
 
 #include "v40_write_ROBFragment.h"
+#include "CxxUtils/checker_macros.h"
 #include <cstring>
 
 namespace offline_eformat {
@@ -34,8 +35,8 @@ namespace offline_eformat {
     /**
      * Defines a helper class to aid the creation of FullEvent fragments.
      */
-    class FullEventFragment {
-
+    class FullEventFragment
+    {
     public:
 
       /**
@@ -74,36 +75,13 @@ namespace offline_eformat {
        */
       FullEventFragment ();
 
-      /**
-       * Copy constructor. This will only copy the meta data, not the fragment
-       * relationships and block-data (children and status block) contained in
-       * the to-be-copied fragment. If you wish this fragment to have the same
-       * children of the copied fragment, you have to do this operation
-       * manually, after copying. If you wish to make a copy of the status as
-       * well, do it manually and then assign it to this fragment using the
-       * status() method.
-       *
-       * @param other The other fragment to take the meta data from.
-       */
-      FullEventFragment (const FullEventFragment& other);
+      FullEventFragment (const FullEventFragment& other) = delete;
+      FullEventFragment& operator= (const FullEventFragment& other) = delete;
 
       /**
        * Base destructor
        */
       virtual ~FullEventFragment ();
-
-      /**
-       * Assigment operator. This will only copy the meta data, not the
-       * fragment relationships and block-data (children and parent and status
-       * block) contained in the to-be-copied fragment. If you wish this
-       * fragment has the same parents, and children of the copied fragment,
-       * you have to do this operation manually, after copying. If you wish to
-       * make a copy of the status as well, do it manually and then assign it
-       * to this fragment using the status() method.
-       *
-       * @param other The other fragment to take the meta data from.
-       */
-      FullEventFragment& operator= (const FullEventFragment& other);
 
       /**
        * Copies the header (meta data information) from another existing

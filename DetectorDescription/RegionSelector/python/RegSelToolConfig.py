@@ -26,8 +26,10 @@ def _createRegSelCondAlg( detector,  CondAlgConstructor ):
 
     if detector == "Pixel":
         condAlg.DetEleCollKey = "PixelDetectorElementCollection"
+        condAlg.PixelCablingCondData = "PixelCablingCondData"
     elif detector == "SCT":
         condAlg.DetEleCollKey = "SCT_DetectorElementCollection"
+        condAlg.SCT_CablingData = "SCT_CablingData"
     return condAlg
 
 def _createRegSelTool( detector, enable ):

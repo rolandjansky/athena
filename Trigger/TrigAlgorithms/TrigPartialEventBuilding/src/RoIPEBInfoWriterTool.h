@@ -27,24 +27,10 @@ protected:
   virtual PEBInfoWriterToolBase::PEBInfo createPEBInfo(const PEBInfoWriterToolBase::Input& input) const override;
 
 private:
-  // ------------------------- Service handles ---------------------------------
-  ServiceHandle<IRegSelSvc> m_regionSelector {
-    this, "RegionSelector", "RegSelSvc/RegSelSvc", "Region Selector service"
+  // ------------------------- Tool handles ------------------------------------
+  ToolHandleArray<IRegSelTool> m_regionSelectorTools {
+    this, "RegionSelectorTools", {}, "Region Selector tools"
   };
-
-  ToolHandle<IRegSelTool> m_regionSelector_pix {
-    this, "RegSelTool_Pixel", "RegSelTool/RegSelTool_Pixel", "Region Selector Tool"
-  };
-
-  ToolHandle<IRegSelTool> m_regionSelector_sct {
-    this, "RegSelTool_SCT", "RegSelTool/RegSelTool_SCT", "Region Selector Tool"
-  };
-
-  ToolHandle<IRegSelTool> m_regionSelector_trt {
-    this, "RegSelTool_TRT", "RegSelTool/RegSelTool_TRT", "Region Selector Tool"
-  };
-
-
 
   // ------------------------- Properties --------------------------------------
   Gaudi::Property<float> m_etaEdge {
@@ -56,11 +42,6 @@ private:
   Gaudi::Property<float> m_phiWidth {
     this, "PhiWidth", 0.1, "Half-width of the RoI in phi (Phi-PhiWidth; Phi+PhiWidth)"
   };
-  Gaudi::Property<std::vector<std::string> > m_detNames {
-    this, "DetNames", {},
-    "List of detectors from which ROBs in RoI will be included. Naming follows RegSelEnums DETID. "
-    "\"All\" is also a possible value."
-  }; // No string parsing would be needed if DETID wasn't a global enum and was available in python
   Gaudi::Property<std::vector<uint32_t> > m_extraROBs {
     this, "ExtraROBs", {},
     "Static list of additional ROBs to add for partial event building in each event where the chain passes"

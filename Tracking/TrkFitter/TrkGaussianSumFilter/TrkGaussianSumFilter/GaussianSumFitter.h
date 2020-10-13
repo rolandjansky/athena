@@ -196,6 +196,7 @@ private:
     "state in final trajectory"
   };
 
+
   Gaudi::Property<bool> m_reintegrateOutliers{ this,
                                                "ReintegrateOutliers",
                                                true,
@@ -242,19 +243,19 @@ private:
 
   // Counters for fit statistics
   // Number of Fit PrepRawData Calls
-  mutable std::atomic<int> m_FitPRD;
+  mutable std::atomic<unsigned long int> m_FitPRD;
   // Number of Fit MeasurementBase Calls
-  mutable std::atomic<int> m_FitMeasurementBase;
+  mutable std::atomic<unsigned long int> m_FitMeasurementBase;
   // Number of Foward Fit Failures
-  mutable std::atomic<int> m_ForwardFailure;
+  mutable std::atomic<unsigned long int> m_ForwardFailure;
   // Number of Smoother Failures
-  mutable std::atomic<int> m_SmootherFailure;
+  mutable std::atomic<unsigned long int> m_SmootherFailure;
   // Number of MakePerigee Failures
-  mutable std::atomic<int> m_PerigeeFailure;
+  mutable std::atomic<unsigned long int> m_PerigeeFailure;
   // Number of Tracks that fail fit Quailty test
-  mutable std::atomic<int> m_fitQualityFailure;
+  mutable std::atomic<unsigned long int> m_fitQualityFailure;
   // Number of Tracks that are successfull
-  mutable std::atomic<int> m_fitSuccess;
+  mutable std::atomic<unsigned long int> m_fitSuccess;
 };
 
 } // end Trk namespace

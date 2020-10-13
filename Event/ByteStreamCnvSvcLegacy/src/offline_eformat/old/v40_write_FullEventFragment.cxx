@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -111,43 +111,8 @@ offline_eformat::v40_write::FullEventFragment::FullEventFragment ()
   initialize();
 }
 
-offline_eformat::v40_write::FullEventFragment::FullEventFragment
-  (const offline_eformat::v40_write::FullEventFragment& other)
-{
-  *this = other;
-}
-
 offline_eformat::v40_write::FullEventFragment::~FullEventFragment()
 {
-}
-
-offline_eformat::v40_write::FullEventFragment&
-  offline_eformat::v40_write::FullEventFragment::operator=
-(const offline_eformat::v40_write::FullEventFragment& other)
-{
-  if (this != &other) {
-    initialize();
-    copy_header(other);
-    //copy extra payload attached
-    if (other.m_node[10].size_word) {
-      m_node[9].next = &m_node[10];
-      set(m_node[10], other.m_node[10].base, other.m_node[10].size_word, 0);
-    }
-    //copy the ROBFragments attached
-    for (const v40_write::ROBFragment*
-           it = other.m_child; it; it = it->next())
-      append(const_cast<v40_write::ROBFragment*>(it));
-    //get the unchecked ROB fragments attached
-    if (m_n_unchecked) {
-      m_n_unchecked = other.m_n_unchecked;
-      for (uint32_t i=0; i < m_n_unchecked; ++i) {
-        set(m_unchecked[i], other.m_unchecked[i].base,
-            other.m_unchecked[i].size_word, &m_unchecked[i+1]);
-      }
-      m_unchecked[m_n_unchecked-1].next = 0;
-    }
-  }
-  return *this;
 }
 
 void offline_eformat::v40_write::FullEventFragment::copy_header(const uint32_t* other)
@@ -210,7 +175,10 @@ void offline_eformat::v40_write::FullEventFragment::status
   m_node[1].size_word = m_node[0].base[5] = n; //set new values
   m_node[0].base[1] += n;
   m_node[0].base[2] += n;
-  m_node[1].base = const_cast<uint32_t*>(status);
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* status_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(status);
+  m_node[1].base = status_nc;
 }
 
 void offline_eformat::v40_write::FullEventFragment::lvl1_trigger_info
@@ -221,7 +189,10 @@ void offline_eformat::v40_write::FullEventFragment::lvl1_trigger_info
   m_node[3].size_word = m_node[2].base[10] = n; //set new values
   m_node[0].base[1] += n; //fragment size
   m_node[0].base[2] += n; //header size
-  m_node[3].base = const_cast<uint32_t*>(data);
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* data_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(data);
+  m_node[3].base = data_nc;
 }
 
   void offline_eformat::v40_write::FullEventFragment::lvl2_trigger_info
@@ -232,7 +203,10 @@ void offline_eformat::v40_write::FullEventFragment::lvl1_trigger_info
   m_node[5].size_word = m_node[4].base[0] = n; //set new values
   m_node[0].base[1] += n; //fragment size
   m_node[0].base[2] += n; //header size
-  m_node[5].base = const_cast<uint32_t*>(data);
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* data_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(data);
+  m_node[5].base = data_nc;
 }
 
 void offline_eformat::v40_write::FullEventFragment::event_filter_info
@@ -243,7 +217,10 @@ void offline_eformat::v40_write::FullEventFragment::event_filter_info
   m_node[7].size_word = m_node[6].base[0] = n; //set new values
   m_node[0].base[1] += n; //fragment size
   m_node[0].base[2] += n; //header size
-  m_node[7].base = const_cast<uint32_t*>(data);
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* data_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(data);
+  m_node[7].base = data_nc;
 }
 
 void offline_eformat::v40_write::FullEventFragment::stream_tag
@@ -254,7 +231,10 @@ void offline_eformat::v40_write::FullEventFragment::stream_tag
   m_node[9].size_word = m_node[8].base[0] = n; //set new values
   m_node[0].base[1] += n; //fragment size
   m_node[0].base[2] += n; //header size
-  m_node[9].base = const_cast<uint32_t*>(data);
+  // FIXME: I'm assuming that these are ok.
+  // Probably can't avoid this as long as we're using node_t from eformat.
+  uint32_t* data_nc ATLAS_THREAD_SAFE = const_cast<uint32_t*>(data);
+  m_node[9].base = data_nc;
 }
 
 void offline_eformat::v40_write::FullEventFragment::append
@@ -299,9 +279,8 @@ offline_eformat::v40_write::FullEventFragment::bind (void)
   last->next = 0; //potentially remove old checksum
 
   //iterate over the attached children
-  for (v40_write::ROBFragment* curr = m_child; curr;
-      curr = const_cast<v40_write::ROBFragment*>(curr->next())) {
-    last->next = const_cast<eformat::write::node_t*>(curr->bind());
+  for (v40_write::ROBFragment* curr = m_child; curr; curr = curr->next()) {
+    last->next = curr->bind();
     while (last->next) last = last->next; //advance until end
   }
 
