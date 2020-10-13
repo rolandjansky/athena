@@ -706,8 +706,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       std::string key=stName+techname;
 
       // for cutouts:
-      // MDT cutouts for BOS1,5, BMS7,14, (problem with BMS4,10),  EMS
-      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) || stname == "BMG" ||
+      // MDT cutouts for BOS1,5, BMS7,14, (problem with BMS4,10), EMS, BMG and BIS MDT14
+      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) || stname == "BMG" || techname=="MDT14" ||
                             (stname == "BMS" && (std::abs(zi) == 1 && fi == 3)) ||
                             (stname == "EMS" && (std::abs(zi) == 1 || std::abs(zi) == 3)));
       if (((manager->IncludeCutoutsFlag() &&  mdtCutoutFlag) || 
@@ -1436,32 +1436,32 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           int stationPhi = fi+1;
           int doubletR   = 1;
           int nfields    = 6;
-          int doubletZ   = 0;
+          int doubletZ   = 1;
 
           if (nRpc > 1 && nDoubletR == 2 && ypos>0.) doubletR=2;
           ndbz[doubletR-1]++;
 
-
-          float zdivision=100.;// point between doubletZ=1 and 2;          
-          if (stname=="BIS"&&std::abs(zi)==7)  zdivision=400.;//BIS78 : RPC8 is smaller than other RPCs
-
-          if    (zi <= 0 && !is_mirrored) {
-            // the special cases 
-            doubletZ = 1;
-            if (zpos<-zdivision*CLHEP::mm)    doubletZ=2;
-            if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
-              doubletZ = 3;
-              nfields++;
-            }
-            if (fabs(xpos) > 100.*CLHEP::mm ) ndbz[doubletR-1]--;
+          // the BI RPCs are 3-gap RPCs mounted inside of the BI sMDTs, 
+          // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
+          if (stname.find("BI")!=std::string::npos) {
+            if (std::abs(stationPhi)>=7 && rp->posz>100) doubletZ=2;
+            else doubletZ = ndbz[doubletR-1];
           } else {
-            doubletZ = 1;
-            if (zpos > zdivision*CLHEP::mm) doubletZ=2;
-            if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
+          // non BI RPCs
+            if (zi <= 0 && !is_mirrored) {
+              if (zpos<-100*CLHEP::mm) doubletZ=2;
+            } else {
+              if (zpos>100*CLHEP::mm) doubletZ=2;
+            }
+          }
+
+          // BMS (BOG) RPCs can have |xpos|=950 (|xpos|=350)
+          if (std::abs(xpos) > 100.*CLHEP::mm) {
+            if (ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
             }
-            if (fabs(xpos) > 100.*CLHEP::mm ) ndbz[doubletR-1]--;
+            ndbz[doubletR-1]--;
           }
 
           int dbphi = 1;

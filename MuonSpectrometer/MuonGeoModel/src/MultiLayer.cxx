@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MultiLayer.h"
@@ -38,8 +38,9 @@ namespace MuonGM {
 
 MultiLayer::MultiLayer(std::string n): DetectorElement(n),
   nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.),
-  mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0), cutoutAtAngle(false)
-{
+  mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0), cutoutAtAngle(false),
+  m_nonCutoutXSteps(),
+  m_nonCutoutYSteps() {
    MYSQL* mysql = MYSQL::GetPointer();
    MDT* md = (MDT*)mysql->GetTechnology(name);
    if (md != NULL) {
@@ -92,7 +93,9 @@ GeoFullPhysVol* MultiLayer::build()
       else if (fabs(foamthicknessup - 30.00*CLHEP::mm) < 0.1) foamthicknessup = 30.00*CLHEP::mm;
       else if (fabs(foamthicknessup - 10.00*CLHEP::mm) < 0.1
                && logVolName.find("BMG") != std::string::npos ) foamthicknessup = 10.00*CLHEP::mm;
-      else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
+      else if ( logVolName.find("MDT09") != std::string::npos || logVolName.find("MDT14") != std::string::npos ) {
+      // MDT09 is used for BME and BIS sMDTs, MDT14 is used for 2nd multilayer of BIS78
+      // All those sMDTs have no foam layer
 	foamthicknesslow = 0.;
 	foamthicknessup  = 0.;
       } else {
@@ -107,7 +110,9 @@ GeoFullPhysVol* MultiLayer::build()
       else if (fabs(foamthicknesslow - 30.00*CLHEP::mm) < 0.1) foamthicknesslow = 30.00*CLHEP::mm;
       else if (fabs(foamthicknesslow - 10.00*CLHEP::mm) < 0.1
                && logVolName.find("BMG") != std::string::npos ) foamthicknesslow = 10.00*CLHEP::mm;
-      else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
+      else if ( logVolName.find("MDT09") != std::string::npos || logVolName.find("MDT14") != std::string::npos ) {
+      // MDT09 is used for BME and BIS sMDTs, MDT14 is used for 2nd multilayer of BIS78
+      // All those sMDTs have no foam layer
 	foamthicknesslow = 0.;
 	foamthicknessup  = 0.;
       } else {
@@ -122,6 +127,39 @@ GeoFullPhysVol* MultiLayer::build()
       // No cutouts - layer is a simple box or trapezoid
       slay = new GeoTrd(mdtthickness/2, mdtthickness/2, width/2, 
                         longWidth/2, length/2);
+  } else if (m_nonCutoutXSteps.size()) {
+    // there are cutouts sliced along amdb-x (slices in amdb-y)
+    double submlthick = mdtthickness/2.; // corresponds to half amdb-z (chamber height=constant)
+
+    // loop on the cutout slices and create rectangular boxes which are NOT cutout and add them together to an envelope
+    for (unsigned int i = 0; i < m_nonCutoutXSteps.size(); ++i) {
+
+      double submlwidth = (m_nonCutoutXSteps.at(i).second-m_nonCutoutXSteps.at(i).first)/2; // corresponds to half amdb-x
+      double submllength = (m_nonCutoutYSteps.at(i).second-m_nonCutoutYSteps.at(i).first)/2; // corresponds to half amdb-y
+
+      // need a transform between center multilayer and center of trapezoid (y is amdb-x, z is amdb-y)
+      double yPos = (m_nonCutoutXSteps.at(i).first+m_nonCutoutXSteps.at(i).second)/2;
+      double zPos = (m_nonCutoutYSteps.at(i).first+m_nonCutoutYSteps.at(i).second)/2-length/2;
+      HepGeom::Transform3D submlpos = HepGeom::Translate3D(0.,yPos,zPos);
+
+      const GeoTrd* tempSLay = nullptr;
+      const GeoShape* tempSLay1 = nullptr;
+
+      if (submlthick*submlwidth*submllength > 0) {
+        tempSLay = new GeoTrd(submlthick, submlthick, submlwidth, submlwidth, submllength);
+        tempSLay1 = &( (*tempSLay)<<submlpos);
+      } else {
+        std::cout << " problem with shape of temporary trapezoid in LogVolName "
+            << logVolName << " thick,width,length=" << submlthick << "," << submlwidth << "," << submllength << std::endl;
+      }
+
+      if (slay) {
+        slay = &(slay->add(*tempSLay1));
+      } else {
+        slay = tempSLay1;
+      }
+    } // Loop over cutout steps
+
     } else {
       // Layer to be built as a boolean of boxes and trapezoids to represent cutouts
       if (verbose_multilayer) std::cout << name << " has " << cutoutNsteps
@@ -179,6 +217,7 @@ GeoFullPhysVol* MultiLayer::build()
                   << " " << submlwidths << " " << submllength << std::endl;
         }
 
+      if (!(foamthicknessup==0 && foamthicknesslow==0)) {
         if (foamthicknessup > foamthicknesslow) {
           if (foamthicknessup*submlwidths*submllength > 0) {
             if (cutoutFullLength[isub]) {
@@ -213,6 +252,7 @@ GeoFullPhysVol* MultiLayer::build()
                       << " " << submlwidths << " " << submllength << std::endl;
           }
         }
+      }
 
         submlwidths = submlwidthl;
 
@@ -240,7 +280,7 @@ GeoFullPhysVol* MultiLayer::build()
     stube = new GeoTube(0.0, tubePitch/2., tL);
     stube = & ( (*stube) << HepGeom::RotateX3D(90.*CLHEP::deg) );
     const GeoShape* stubewithcut = NULL;
-    if (cutoutNsteps > 1) {
+    if (cutoutNsteps > 1 && !m_nonCutoutXSteps.size()) {
       double toptubelength = cutoutTubeLength[cutoutNsteps-1];
       if (cutoutFullLength[cutoutNsteps-1]) toptubelength = longWidth;
       stubewithcut = new GeoTube(0.0, tubePitch/2., toptubelength/2.0);
@@ -261,12 +301,12 @@ GeoFullPhysVol* MultiLayer::build()
         slay = &(slay->subtract( (*stube)<<HepGeom::Translate3D(-mdtthickness/2.+yy[i],0.,-length/2.) ));
         // add tube at the end
         // distinguish stations with/without cutouts
-        if (cutoutNsteps == 1) {
+        if (cutoutNsteps == 1 || m_nonCutoutXSteps.size()) {
           // no cutouts
           if (verbose_multilayer) std::cout << " Adding tube at xx = " << yy[i]
                                             << " z = " << length/2. << std::endl;
           slay = &(slay->add( (*stube)<<HepGeom::Translate3D(-mdtthickness/2.+yy[i],0.,length/2.-tubePitch/2.) ));
-        } else {
+        } else { // adaption of tube cuts only needed for cutouts along amdb-y
           // there are cutouts
           if (verbose_multilayer) std::cout << " Adding tube at xx = " << yy[i]
                                             << " y(cutout!) = " << cutoutXtubes[cutoutNsteps-1]
@@ -313,14 +353,16 @@ GeoFullPhysVol* MultiLayer::build()
       mfoam = matManager->getMaterial("muo::Foam");
       lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
 
-    } else if (logVolName == "BME1MDT09" || logVolName == "BME2MDT09") {
-      lfoam = 0;
+    } else if ( logVolName.find("MDT09") != std::string::npos || logVolName.find("MDT14") != std::string::npos ) {
+      // MDT09 is used for BME and BIS sMDTs, MDT14 is used for 2nd multilayer of BIS78
+      // All those sMDTs have no foam layer
+      lfoam = nullptr;
     } else {
       std::cout<<" no foam thickeness, while it was expected "<<std::endl;
       throw std::runtime_error("ATTENTION:  no foam"); 
     }   
     
-    if ( logVolName != "BME1MDT09" && logVolName != "BME2MDT09" ) {  //@@
+    if (lfoam) {
       pfoam = new GeoPhysVol(lfoam);
       GeoTransform* xf = new GeoTransform (HepGeom::TranslateX3D(foamposition));
       GeoNameTag* nt = new GeoNameTag(name+" MultiLayerFoam");
@@ -340,7 +382,7 @@ GeoFullPhysVol* MultiLayer::build()
     std::vector<int> Ntubes;
 
     // No cutouts
-    if (cutoutNsteps <= 1) {
+    if (cutoutNsteps <= 1 || m_nonCutoutXSteps.size()) { // adaption of tube cuts only needed for cutouts along amdb-y
       for (int j = 0; j < nrOfSteps; j++) {
         tube.length=width+j*diff/nrOfSteps;
 
@@ -551,7 +593,7 @@ GeoFullPhysVol* MultiLayer::build()
         }
       } // Loop over layers
 
-    } else if (cutoutNsteps > 1) {
+    } else if (cutoutNsteps > 1 && !m_nonCutoutXSteps.size()) { // adaption of tube cuts only needed for cutouts along amdb-y
       bool arrowpointoutwards=false;
       bool cutAtAngle = cutoutAtAngle;
       if (xx[1]-xx[0]>0.) 
