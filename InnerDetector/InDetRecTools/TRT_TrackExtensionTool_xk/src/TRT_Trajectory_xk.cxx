@@ -522,7 +522,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
   // Test quality of propagation to perigee
   if(fabs(m_parameters.pT()) < m_minTRTSegmentpT) return 0;
 
-  const Trk::Surface* sur = m_parameters.associatedSurface();
+  const Trk::Surface* sur = &m_parameters.associatedSurface();
 
   DataVector<const Trk::MeasurementBase>* rio
       = new DataVector<const Trk::MeasurementBase>;
@@ -1033,7 +1033,7 @@ void InDet::TRT_Trajectory_xk::updateTrackParameters(Trk::PatternTrackParameters
   P[ 2] +=V[12]*Wd;
   P[ 3] +=V[13]*Wd;
   P[ 4]  = Pi;
-  T.setParametersWithCovariance(T.associatedSurface(),P,V);
+  T.setParametersWithCovariance(&T.associatedSurface(),P,V);
 }
 
 

@@ -1419,7 +1419,7 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
  double                       & Step  ) const 
 {  
   const Trk::Surface* su = &Su; if(!su) return false;
-  if(su == Ta.associatedSurface()) {Tb = Ta; return true;}
+  if(su == &Ta.associatedSurface()) {Tb = Ta; return true;}
 
   cache.m_direction               = D ; 
 

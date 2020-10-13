@@ -49,7 +49,7 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const Surface*   associatedSurface ()     const {return   m_surface.get();}
+      const Surface&   associatedSurface ()     const {return   *m_surface;}
       bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       Amg::Vector2D    localPosition     ()     const;
       const Amg::Vector3D& momentum      ()     const;

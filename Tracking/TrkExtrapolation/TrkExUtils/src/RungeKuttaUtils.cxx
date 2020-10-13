@@ -603,7 +603,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 bool Trk::RungeKuttaUtils::transformLocalToGlobal
 (bool useJac,const Trk::PatternTrackParameters& Tp,double* P)
 {
-  return transformLocalToGlobal(useJac,Tp.associatedSurface(),Tp.parameters(),P);
+  return transformLocalToGlobal(useJac,&Tp.associatedSurface(),Tp.parameters(),P);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1218,7 +1218,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
   P[1] = p[1];
   P[2] = p[2];
   P[3] = p[3];
-  jacobianTransformCurvilinearToLocal(P,Tp.associatedSurface(),Jac);
+  jacobianTransformCurvilinearToLocal(P,&Tp.associatedSurface(),Jac);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -434,7 +434,7 @@ bool                        Trk::KalmanUpdator_xk::combineStates
 
     if(updateWithFiveDim(false,m,mv,p,pv,x2)) {
       testAngles(p,pv);
-      T3.setParametersWithCovariance(T1.associatedSurface(),p,pv);
+      T3.setParametersWithCovariance(&T1.associatedSurface(),p,pv);
       return true;
     }
     return false;
@@ -491,7 +491,7 @@ bool                        Trk::KalmanUpdator_xk::combineStates
 
     if(updateWithFiveDim(true,m,mv,p,pv,Q)) {
       testAngles(p,pv);
-      T3.setParametersWithCovariance(T1.associatedSurface(),p,pv);
+      T3.setParametersWithCovariance(&T1.associatedSurface(),p,pv);
       return true;
     }
     return false;
@@ -941,7 +941,7 @@ bool Trk::KalmanUpdator_xk::update
     else if(N==1) update = updateWithOneDim(O,X,m,mv,p,pv,Q);
     if(update) {
       testAngles(p,pv);
-      Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+      Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
     }
     return update;
   }
@@ -954,7 +954,7 @@ bool Trk::KalmanUpdator_xk::update
   else if(N==2) update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
 
 
-  if(update) Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+  if(update) Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
   return update;
 }
 
@@ -996,7 +996,7 @@ bool Trk::KalmanUpdator_xk::updateOneDimension
     }
     if(update) {
       testAngles(p,pv);
-      Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+      Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
     }
     return update;
   }
@@ -1006,7 +1006,7 @@ bool Trk::KalmanUpdator_xk::updateOneDimension
   if(O<0) return false;
   Q = 0.;
   update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
-  if(update) Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+  if(update) Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
   return update;
 }
 
@@ -1106,7 +1106,7 @@ bool Trk::KalmanUpdator_xk::update
     else                  update = updateWithAnyDim(O,X,m,mv,p,pv,Q,N,k);
    if(update) {
      testAngles(p,pv);
-     Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+     Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
    }
    return update;
   }
@@ -1118,7 +1118,7 @@ bool Trk::KalmanUpdator_xk::update
   if     (N==1 && k==1)  update = updateNoMeasuredWithOneDim(m,mv,p,pv);
   else if(N==2 && k==3)  update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
   else                   update = updateNoMeasuredWithAnyDim(m,mv,p,pv,k);
-  if(update) Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+  if(update) Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
   return update;
 }
 

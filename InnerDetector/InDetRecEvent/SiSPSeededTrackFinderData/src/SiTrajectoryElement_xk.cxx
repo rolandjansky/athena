@@ -61,7 +61,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   if(!startingPatternPars.production(&startingParameters)) return false;
 
   /// get the surface belonging to our staring pars
-  const Trk::Surface* pl = startingPatternPars.associatedSurface();
+  const Trk::Surface* pl = &startingPatternPars.associatedSurface();
 
   /// Track propagation if needed
   /// if we are already on the correct surface, we can assign the params as they ar
@@ -797,7 +797,7 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
 Trk::TrackStateOnSurface*  
 InDet::SiTrajectoryElement_xk::trackPerigeeStateOnSurface ()
 {
-  if(m_parametersUpdatedBackward.associatedSurface()!=m_surface) return 0;
+  if(&m_parametersUpdatedBackward.associatedSurface()!=m_surface) return 0;
   
   double step                   ;
   Trk::PatternTrackParameters Tp; 
@@ -1178,7 +1178,7 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
   sincos(localParameters.parameters()[2],&sinPhi,&cosPhi);  
   sincos(localParameters.parameters()[3],&sintheta,&cosTheta);
   /// get the surface corresponding to the local parameters
-  const Trk::Surface* pSurface=localParameters.associatedSurface();
+  const Trk::Surface* pSurface=&localParameters.associatedSurface();
   if (!pSurface){
     throw(std::runtime_error("TrackParameters associated surface is null pointer in InDet::SiTrajectoryElement_xk::transformPlaneToGlobal"));
   }
