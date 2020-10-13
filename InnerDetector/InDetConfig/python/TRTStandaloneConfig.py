@@ -246,7 +246,7 @@ if __name__ == "__main__":
     top_acc.merge(MuonGeoModelCfg(ConfigFlags))
     top_acc.merge(MuonIdHelperSvcCfg(ConfigFlags))
 
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
     ###
     ###
     top_acc.merge(TC.PixelClusterNnCondAlgCfg(ConfigFlags))
