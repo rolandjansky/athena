@@ -456,9 +456,9 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if (par_targetPoint[2]>par_startingPoint[2]) {
       for (; n2<static_cast<int>(layer[2].size()); ++n2) {
 	      if (par_targetPoint[2] < layer[2][n2].z()) break;
-        assert( used[2].size() > static_cast<unsigned int>(n2) );
+        assert( roadMakerData.elementUsageTracker[2].size() > static_cast<unsigned int>(n2) );
         /// collect all compatible detector elements        
-	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE,used[2][n2]);
+	      layer[2][n2].getEndcapDetElements(par_startingPoint, searchDirection, lDE,roadMakerData.elementUsageTracker[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
