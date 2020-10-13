@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -285,13 +285,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
 
      for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
      {
-	 //         int st = sname_index + MuonDetectorManager::NRpcStatTypeOff;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NRpcStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
                  {
 		   double keepxC=0.;
@@ -311,13 +308,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                   <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                                   <<dbr_index<<" "<<dbz_index
                                   <<std::endl;
-                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
-                         
-                         if (rpc == NULL) continue;
+                         int stationName = p_MuonMgr->rpcStationName(sname_index);
+                         bool isValid=false;
+                         Identifier id = p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index+1, dbr_index+1, dbz_index+1, 1, 1, 1, 1, true, &isValid); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                         if (!isValid) continue;
+                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
+                         if (!rpc) continue;
                          fout<<" ///////////////////// Found a RpcReadoutElement for indices = "
                                   <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                                   <<dbr_index<<" "<<dbz_index
@@ -3185,24 +3181,21 @@ void MuonGMCheck::testRpcCache_here()
      int nre = 0;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
      {
-	 //         int st = sname_index + MuonDetectorManager::NRpcStatTypeOff;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NRpcStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
                  {
                      for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
                      {
-                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
+                        int stationName = p_MuonMgr->rpcStationName(sname_index);
+                        bool isValid=false;
+                        Identifier id = m_muIdHelper->rpcIdHelper().channelID(stationName, seta_index, sphi_index+1, dbr_index+1, dbz_index+1, 1, 1, 1, 1, true, &isValid); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                        if (!isValid) continue;
+                        const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
 
-			 if (rpc == NULL) {
+			 if (!rpc) {
 			   continue;			 
 			 }
                          nre++;

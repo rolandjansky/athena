@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,6 @@ RpcLv1RawDataEfficiency::~RpcLv1RawDataEfficiency()
 StatusCode RpcLv1RawDataEfficiency::initialize()
 {
   // Init message stream
-  m_log.setLevel(outputLevel());                // individual outputLevel not known before initialize
   m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
   
   msg(MSG::INFO) << "In initializing 'RpcLv1RawDataEfficiency'" << endreq;
@@ -352,10 +351,8 @@ StatusCode RpcLv1RawDataEfficiency::bookHistogramsRecurrent()
   StatusCode sc = StatusCode::SUCCESS; 
 
   // not used yet, but commenting them out leads to "unused variables" warnings since they are passed as arguments to the function  
-  if(newEventsBlock){}
-  if(newLumiBlock){}
 
-  if(newRun){ //book all histograms per new run
+  if(newRunFlag()){ //book all histograms per new run
     std::string m_generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1Efficiency";
     MonGroup MG_SectorHits(this, m_generic_path_rpclv1monitoring + "/SectorHits", run, ATTRIB_UNMANAGED ); 
 
@@ -452,16 +449,6 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 StatusCode RpcLv1RawDataEfficiency::procHistograms()
 {
   msg(MSG::INFO) << "RpcLv1RawDataEfficiency finalize()" << endreq;
-  if(endOfEventsBlock){}
-
-  // Process histograms per LumiBlock
-  if(endOfLumiBlock){}
-
-  // Process histograms per Run
-  if(endOfRun){ 
-  
-  } // isEndOfRun
-
   return StatusCode::SUCCESS;
 }
 
