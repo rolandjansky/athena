@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONROITOOLS_TRIGMUONROITOOL_H
@@ -24,7 +24,7 @@ class TrigMuonRoITool: public extends<AthAlgTool, ITrigMuonRoITool>
     virtual StatusCode initialize() override;
 
     /// Decoding the muCTPi RoIB and DAQ ROB and return in and out of time RoIs
-    virtual std::unique_ptr<TrigMuonRoITool::MuonRois> decodeMuCTPi() override;
+    virtual std::unique_ptr<TrigMuonRoITool::MuonRois> decodeMuCTPi(const EventContext& ctx) const;
 
 
     private:
@@ -45,10 +45,10 @@ class TrigMuonRoITool: public extends<AthAlgTool, ITrigMuonRoITool>
     static const uint32_t NUMBER_OF_PT_THRESHOLDS = 6;   // Number of pT thresholds
 
     /// Helper for converting a mirod DAQ data word to a muCTPi RoIB data word
-    uint32_t mirodToRoIBDataWord( uint32_t data_word );
+    uint32_t mirodToRoIBDataWord( uint32_t data_word ) const;
 
     /// Helper to print contents of a muCTPi RoIB data word
-    void dumpRoIBDataWord(uint32_t data_word );
+    void dumpRoIBDataWord(uint32_t data_word ) const;
 
     /// Configurable to decide how to decode muCTPi
     bool m_decodeMuCTPiFromROB;
