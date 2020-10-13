@@ -109,6 +109,9 @@ class  ConfiguredNewTrackingSiPattern:
                # limit size of space-point vector, uses auto-grow mechanism 
                # to avoid exceeding bounds (should rarely happen) 
                InDetSiSpacePointsSeedMaker.maxSizeSP  = 200 
+               InDetSiSpacePointsSeedMaker.dImpactCutSlopeUnconfirmedSSS  = 1.25 
+               InDetSiSpacePointsSeedMaker.dImpactCutSlopeUnconfirmedPPP  = 2.0 
+
 
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.optimisePhiBinning = False
@@ -518,6 +521,10 @@ class  ConfiguredNewTrackingSiPattern:
                                      SplitClusterMapExtension     = NewTrackingCuts.extension(),
                                      ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
                                      RenounceInputHandles         = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+           if InDetFlags.doHolesInFitter(): 
+               fitter_args=setDefaults(fitter_args,
+                                     BoundaryCheckTool= TrackingCommon.getInDetBoundaryCheckTool(),
+                                     DoHoleSearch                 = True)
            fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
                              else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
 
@@ -530,7 +537,6 @@ class  ConfiguredNewTrackingSiPattern:
               else :
                  fitter_list.append(CfgGetter.getPublicTool('KalmanFitter'))
                  fitter_list.append(CfgGetter.getPublicTool('ReferenceKalmanFitter'))
-
 
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
                                                    Fitter             = fitter_list ,
