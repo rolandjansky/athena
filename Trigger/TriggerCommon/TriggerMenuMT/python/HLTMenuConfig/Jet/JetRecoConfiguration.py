@@ -38,7 +38,8 @@ def extractRecoDict(chainParts):
                 recoDict[k] = p[k]
 
     # set proper jetCalib key in default case
-    if recoDict['jetCalib'] == "default": recoDict['jetCalib'] = interpretJetCalibDefault(recoDict)
+    if recoDict['jetCalib'] == "default":
+        recoDict['jetCalib'] = interpretJetCalibDefault(recoDict)
 
     return recoDict
 
