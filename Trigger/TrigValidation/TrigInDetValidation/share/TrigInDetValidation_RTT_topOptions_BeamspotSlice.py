@@ -51,9 +51,12 @@ topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
 FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
 if 'mlExtensions' in dir() and mlExtensions==True:
   FTF.doSeedRedundancyCheck = True
-  FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
+  if 'seedML' in dir():
+    FTF.UseTrigSeedML  = seedML #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
+  else:
+    FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
   FTF.TrigSeedML_LUT = 'trigseed_ML_medium.lut' #can be _loose, _medium, or _strict
-
+  print FTF
 
 if 'fastZFinder' in dir() and fastZFinder==True:
   from AthenaCommon.AppMgr import ToolSvc
