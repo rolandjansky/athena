@@ -22,8 +22,8 @@ def TrigMuonEfficiencyMonTTbarConfig(helper):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    # To do: add multi-muon chain and msonly chain
-    Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20']
+    # To do: add noL1 chain
+    Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20', 'HLT_mu60_0eta105_msonly_L1MU20', 'HLT_mu14_L1MU10']
 
     for chain in Chains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMonMT,'TrigMuEff_ttbar_'+chain)
@@ -31,7 +31,6 @@ def TrigMuonEfficiencyMonTTbarConfig(helper):
         monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU20'
         monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU20'
         monAlg.Method = 'TTbarTagAndProbe'
-        monAlg.MuonType = ROOT.xAOD.Muon_v1.Combined
         monAlg.MonitoredChains = [chain]
         threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
         monAlg.L1Seeds = [regex('L1MU').sub('L1_MU', level1)]
@@ -41,9 +40,7 @@ def TrigMuonEfficiencyMonTTbarConfig(helper):
         GroupName = 'Eff_ttbar_'+chain
         histGroup = helper.addGroup(monAlg, GroupName, 'HLT/MuonMon/Efficiency/ttbar/'+chain)
 
-        if "ivar" not in chain:
-            monAlg.doEFIso = False
-
+        PlotConfig(monAlg, chain)
         defineEfficiencyHistograms(monAlg, histGroup, GroupName, chain)
 
     return
@@ -54,8 +51,8 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    # To do: add multi-muon chain and msonly chain
-    Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20']
+    # To do: add noL1 chain
+    Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20', 'HLT_mu60_0eta105_msonly_L1MU20', 'HLT_mu14_L1MU10']
 
     for chain in Chains:
         monAlg = helper.addAlgorithm(CompFactory.TrigMuonEfficiencyMonMT,'TrigMuEff_ZTP_'+chain)
@@ -63,7 +60,6 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
         monAlg.EventTrigger = 'HLT_mu26_ivarmedium_L1MU20'
         monAlg.TagTrigger = 'HLT_mu26_ivarmedium_L1MU20'
         monAlg.Method = 'ZTagAndProbe'
-        monAlg.MuonType = ROOT.xAOD.Muon_v1.Combined
         monAlg.MonitoredChains = [chain]
         threshold, level1 = regex('HLT_mu([0-9]+).*_(L1MU[0-9]+)').match(chain).groups()
         monAlg.L1Seeds = [regex('L1MU').sub('L1_MU', level1)]
@@ -73,13 +69,28 @@ def TrigMuonEfficiencyMonZTPConfig(helper):
         GroupName = 'Eff_ZTP_'+chain
         histGroup = helper.addGroup(monAlg, GroupName, 'HLT/MuonMon/Efficiency/ZTP/'+chain)
 
-        if "ivar" not in chain:
-            monAlg.doEFIso = False
-
+        PlotConfig(monAlg, chain)
         defineEfficiencyHistograms(monAlg, histGroup, GroupName, chain)
 
     return
 
+
+
+def PlotConfig(monAlg, chain):
+
+     if "msonly" in chain:
+         monAlg.MuonType = ROOT.xAOD.Muon_v1.MuonStandAlone
+     else:
+         monAlg.MuonType = ROOT.xAOD.Muon_v1.Combined
+
+     if "msonly" in chain:
+         monAlg.doL2CB = False
+         monAlg.doEFCB = False
+     if "ivar" not in chain:
+         monAlg.doEFIso = False
+
+     if "0eta105" in chain:
+         monAlg.BarrelOnly = True
 
 
 def defineEfficiencyHistograms(monAlg, histGroup, GroupName, chain):
@@ -93,51 +104,55 @@ def defineEfficiencyHistograms(monAlg, histGroup, GroupName, chain):
                                   title='L1MU Efficiency '+chain+';'+xlabel+';Efficiency',
                                   type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_L2SApass,'+GroupName+'_'+xvariable+';EffL2SA_'+xvariable+'_wrt_Upstream',
-                                  title='L2MuonSA Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
-                                  cutmask=GroupName+'_L1pass',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+        if monAlg.doL2SA:
+            histGroup.defineHistogram(GroupName+'_L2SApass,'+GroupName+'_'+xvariable+';EffL2SA_'+xvariable+'_wrt_Upstream',
+                                      title='L2MuonSA Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_L1pass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+        
+            histGroup.defineHistogram(GroupName+'_L2SApass,'+GroupName+'_'+xvariable+';EffL2SA_'+xvariable+'_wrt_offlineCB',
+                                      title='L2MuonSA Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+        
+        if monAlg.doL2CB: 
+            histGroup.defineHistogram(GroupName+'_L2CBpass,'+GroupName+'_'+xvariable+';EffL2CB_'+xvariable+'_wrt_Upstream',
+                                      title='L2muComb Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_L2SApass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_L2SApass,'+GroupName+'_'+xvariable+';EffL2SA_'+xvariable+'_wrt_offlineCB',
-                                  title='L2MuonSA Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+            histGroup.defineHistogram(GroupName+'_L2CBpass,'+GroupName+'_'+xvariable+';EffL2CB_'+xvariable+'_wrt_offlineCB',
+                                      title='L2muComb Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_L2CBpass,'+GroupName+'_'+xvariable+';EffL2CB_'+xvariable+'_wrt_Upstream',
-                                  title='L2muComb Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
-                                  cutmask=GroupName+'_L2SApass',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+        if monAlg.doEFSA:
+            histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+xvariable+';EffEFSA_'+xvariable+'_wrt_Upstream',
+                                      title='EFSA Muon Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_L2CBpass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_L2CBpass,'+GroupName+'_'+xvariable+';EffL2CB_'+xvariable+'_wrt_offlineCB',
-                                  title='L2muComb Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+            histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+xvariable+';EffEFSA_'+xvariable+'_wrt_offlineCB',
+                                      title='EFSA Muon Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+xvariable+';EffEFSA_'+xvariable+'_wrt_Upstream',
-                                  title='EFSA Muon Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
-                                  cutmask=GroupName+'_L2CBpass',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+            histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+xvariable+';EffEFSA_'+xvariable+'_wrt_offlineCB_passedL2SA',
+                                      title='EFSA Muon Efficiency passed L2SA '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_L2SApass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+xvariable+';EffEFSA_'+xvariable+'_wrt_offlineCB',
-                                  title='EFSA Muon Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+        if monAlg.doEFCB:
+            histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+xvariable+';EffEFCB_'+xvariable+'_wrt_Upstream',
+                                      title='EFCB Muon Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_EFSApass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+xvariable+';EffEFSA_'+xvariable+'_wrt_offlineCB_passedL2SA',
-                                  title='EFSA Muon Efficiency passed L2SA '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
-                                  cutmask=GroupName+'_L2SApass',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+            histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+xvariable+';EffEFCB_'+xvariable+'_wrt_offlineCB',
+                                      title='EFCB Muon Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
-        histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+xvariable+';EffEFCB_'+xvariable+'_wrt_Upstream',
-                                  title='EFCB Muon Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
-                                  cutmask=GroupName+'_EFSApass',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
-    
-        histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+xvariable+';EffEFCB_'+xvariable+'_wrt_offlineCB',
-                                  title='EFCB Muon Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
-    
-        histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+xvariable+';EffEFCB_'+xvariable+'_wrt_offlineCB_passedL2CB',
-                                  title='EFCB Muon Efficiency passed L2CB '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
-                                  cutmask=GroupName+'_L2CBpass',
-                                  type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+            histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+xvariable+';EffEFCB_'+xvariable+'_wrt_offlineCB_passedL2CB',
+                                      title='EFCB Muon Efficiency passed L2CB '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_L2CBpass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
     
     
         if monAlg.doEFIso:
