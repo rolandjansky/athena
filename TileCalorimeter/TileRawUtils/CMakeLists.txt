@@ -1,35 +1,15 @@
-################################################################################
-# Package: TileRawUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TileRawUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          TileCalorimeter/TileEvent
-                          TileCalorimeter/TileIdentifier
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Control/StoreGate
-			  DetectorDescription/IRegionSelector	
-                          DetectorDescription/RegionSelector
-			  InnerDetector/InDetConditions/PixelConditionsData
-                          TileCalorimeter/TileConditions
-                          TileCalorimeter/TileDetDescr
-			  TileCalorimeter/TileSvc/TileByteStream )
+# External dependencies:
+find_package( tdaq-common COMPONENTS ers )
 
 # Component(s) in the package:
 atlas_add_component( TileRawUtils
                      src/Tile*.cxx
                      src/Reg*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloIdentifier AthenaBaseComps Identifier GaudiKernel TileEvent TileIdentifier CaloDetDescrLib StoreGateLib SGtests RegionSelectorLib TileConditionsLib TileDetDescr TileByteStreamLib PixelConditionsData )
-
-# Install files from the package:
-atlas_install_headers( TileRawUtils )
-
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier GaudiKernel TileEvent TileIdentifier CaloDetDescrLib StoreGateLib IRegionSelector RegionSelectorLib TileCalibBlobObjs TileConditionsLib TileDetDescr TileByteStreamLib PixelConditionsData )
