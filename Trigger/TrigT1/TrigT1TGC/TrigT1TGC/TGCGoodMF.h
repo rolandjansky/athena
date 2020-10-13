@@ -31,7 +31,7 @@ class TGCArguments;
 class TGCGoodMF {
 public:
   TGCGoodMF(TGCArguments*);
-  ~TGCGoodMF();
+  ~TGCGoodMF() = default;
 
   TGCGoodMF(const TGCGoodMF& right);
   const TGCGoodMF& operator=(const TGCGoodMF& right);

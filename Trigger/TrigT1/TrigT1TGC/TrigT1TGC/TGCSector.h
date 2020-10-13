@@ -95,7 +95,7 @@ private:
 		  const TGCEIFICoincidenceMap* mapI=0);
   void setTileMuMap(const TGCTileMuCoincidenceMap* map);
   void setNSWMap(std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
-  void setGoodMFMap(const TGCGoodMF* mapGoodMF);
+  void setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF);
   void connectPPToSB(const TGCConnectionPPToSB* connection);
   void connectSBToHPB(const TGCConnectionSBToHPB* connection);
   void connectHPBToSL(const TGCConnectionHPBToSL* connection);

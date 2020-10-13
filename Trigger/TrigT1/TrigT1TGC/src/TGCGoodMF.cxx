@@ -42,10 +42,6 @@ TGCGoodMF::TGCGoodMF(TGCArguments* tgcargs)
   }
 }
 
-TGCGoodMF::~TGCGoodMF()
-{
-}
-
 TGCGoodMF::TGCGoodMF(const TGCGoodMF& right)
 {
   m_tgcArgs=right.m_tgcArgs;
@@ -85,14 +81,13 @@ bool TGCGoodMF::readBadMFList()
       // get BadMF list
       getline(file,buf,delimiter);
       std::istringstream cont(buf);
-      std::map<int,int> mapssc; // <SSCId,badMFId>
+      std::map<int,int> mapssc = m_mapisgoodMF[mod]; // mapssc = <SSCId,badMFId>, m_mapisgoodMF = <ModuleId,<~>>
       int badMFId;
       for(int i=0; i<=maxssc; i++) {
         cont>>badMFId;
         if(badMFId < 0) continue;
         mapssc[i] = badMFId;
       }
-      m_mapisgoodMF[mod] = mapssc; // <ModuleId,<~>>
     }
   }
   return true;
@@ -103,7 +98,7 @@ bool TGCGoodMF::test_GoodMF(int moduleId,int sscId,int RoI) const
   std::map<int, std::map<int, int> >::const_iterator itModule=m_mapisgoodMF.find(moduleId);
   if (itModule==m_mapisgoodMF.end()) return true;
 
-  std::map<int, int> mapssc = itModule->second;
+  const std::map<int, int> &mapssc = itModule->second;
   std::map<int, int>::const_iterator itSSC=mapssc.find(sscId);
   if (itSSC==mapssc.end()) return true;
 
@@ -117,8 +112,7 @@ bool TGCGoodMF::test_GoodMF(int moduleId,int sscId,int RoI) const
   if(RoI%N_RoIofSSC >= 4){ RoIId = RoI%N_RoIofSSC-4; }
   else{ RoIId = RoI%N_RoIofSSC+4; }
   
-  if(bs[RoIId]){return false;}
-  else return true;
+  return !bs[RoIId];
 }
 
 

@@ -111,11 +111,10 @@ void TGCSectorLogic::setTileMuMap(const TGCTMDB* tmdb,
   if( m_nsw == 0 || m_mapNSW == 0){tgcArgs()->set_USE_NSW(false);}
 }
 
-void TGCSectorLogic::setGoodMFMap(const TGCGoodMF* mapGoodMF)
+void TGCSectorLogic::setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF)
 {
   m_mapGoodMF = mapGoodMF;
-  if (m_mapGoodMF !=0){m_useGoodMF = true;}
-  else{m_useGoodMF = false;}
+  m_useGoodMF = m_mapGoodMF != nullptr;
 }
 
 void TGCSectorLogic::setWireHighPtBoard(int port, TGCHighPtBoard* highPtBoard)

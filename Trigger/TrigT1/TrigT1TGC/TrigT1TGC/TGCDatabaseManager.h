@@ -51,7 +51,7 @@ class TGCDatabaseManager : public AthMessaging
   const TGCEIFICoincidenceMap* getEIFICoincidenceMap(int sideId) const;
   const TGCTileMuCoincidenceMap* getTileMuCoincidenceMap() const;
   std::shared_ptr<TGCNSWCoincidenceMap> getNSWCoincidenceMap(int sideId, int octantId, int moduleId) const;
-  TGCGoodMF* getGoodMFMap() const;
+  std::shared_ptr<TGCGoodMF> getGoodMFMap() const;
 
   TGCConnectionInPP* getConnectionInPP(TGCPatchPanel* patchPanel) const;
   void addConnectionInPP(const TGCPatchPanel* patchPanel, const TGCConnectionInPP* connectionInPP);
@@ -73,7 +73,7 @@ class TGCDatabaseManager : public AthMessaging
   std::array<std::array<std::array<std::shared_ptr<TGCNSWCoincidenceMap>, NumberOfModuleInBW>, NumberOfOctant>, NumberOfSide> m_mapNSW;
   TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
   TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][NumberOfPatchPanelType][TotalNumForwardBackwardType];
-  TGCGoodMF* m_mapGoodMF;
+  std::shared_ptr<TGCGoodMF> m_mapGoodMF;
 
   std::map<PatchPanelIDs, std::pair<const TGCConnectionInPP, PatchPanelPointers> > m_patchPanelToConnectionInPP;
   
@@ -105,7 +105,7 @@ std::shared_ptr<TGCNSWCoincidenceMap> TGCDatabaseManager::getNSWCoincidenceMap(i
 }
 
 inline
-TGCGoodMF* TGCDatabaseManager::getGoodMFMap() const
+std::shared_ptr<TGCGoodMF> TGCDatabaseManager::getGoodMFMap() const
 {
       return m_mapGoodMF;
 }

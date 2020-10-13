@@ -79,7 +79,7 @@ public:
 		    const TGCTileMuCoincidenceMap* mapTM);
   void setNSWMap(std::shared_ptr<const TGCNSW> nsw,
 		 std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
-  void setGoodMFMap(const TGCGoodMF* mapGoodMF);
+  void setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF);
   void showResult(TGCSLSelectorOut* out);
  
   TGCSectorLogic(TGCArguments*, TGCRegionType regionIn, int id);
@@ -129,7 +129,7 @@ private:
   const TGCTMDB*            m_pTMDB;
   std::shared_ptr<const TGCNSW>             m_nsw;
   std::shared_ptr<const TGCNSWCoincidenceMap> m_mapNSW;
-  const TGCGoodMF*            m_mapGoodMF;
+  std::shared_ptr<const TGCGoodMF>          m_mapGoodMF;
 
   // for Run2
   TGCSLPreSelector m_preSelector; 

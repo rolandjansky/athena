@@ -170,7 +170,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 
   }
   if(tgcArgs()->useRun3Config()){
-    m_mapGoodMF = new TGCGoodMF(tgcArgs());
+    m_mapGoodMF.reset(new TGCGoodMF(tgcArgs()));
   }
 }
 
