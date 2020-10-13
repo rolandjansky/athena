@@ -299,11 +299,11 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt10JetRCJets_subjesIS',                      'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt10JetRCJets_subjesISAux.'+JetVars,       'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jesAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jesAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_nojcalib',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_nojcalibAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_nojcalib',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_nojcalibAux.'+JetVars, 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalib',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalibAux.'+JetVars, 'BS ESD AODFULL', 'Jet'),

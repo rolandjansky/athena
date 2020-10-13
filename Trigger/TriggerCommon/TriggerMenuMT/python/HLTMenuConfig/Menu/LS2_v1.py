@@ -213,7 +213,6 @@ def setupMenu():
 
         ChainProp(name='HLT_j45_pf_ftf_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_subresjesgscIS_ftf_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_pf_ftf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j45_nojcalib_L1J20', groups=SingleJetGroup),

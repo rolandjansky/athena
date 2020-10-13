@@ -42,13 +42,15 @@ rscanlc6 = {
     "RScanLatest":("JES_MC16Recommendation_Rscan6LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_Insitu")
 }
 
-fatjetcontexts = {
+fatjetcontexts = { # Ungroomed, SD and PtFrac5 trimmed fat jets
     "CombinedMass":  ("JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config","00-04-81","EtaJES_JMS"),
     "CaloMass":      ("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TAMass":        ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TrigUngroomed": ("JES_Full2012dataset_Rscan_June2014.config","00-04-77","JetArea_EtaJES"),
-    "TrigTrimmed":   ("JES_MC15recommendation_FatJet_June2015.config","00-04-77","EtaJES_JMS"),
     "TrigSoftDrop":  ("JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config","00-04-82","EtaJES_JMS"),
+}
+fatjetptfrac4contexts = { # PtFrac4 trimmed jets
+    "TrigTrimmed":   ("JES_MC15recommendation_FatJet_June2015_PtFrac4.config","00-04-82","EtaJES_JMS"),
 }
 
 # List AFII config files separately, to avoid needing to specify a different context
@@ -66,6 +68,7 @@ calibcontexts = {
     "AntiKt10LCTopo":fatjetcontexts,
     # Standard trimmed
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20":fatjetcontexts,
+    "AntiKt10LCTopoTrimmedPtFrac4SmallR20":fatjetptfrac4contexts,
     # Large-R PFlow Soft Drop CSSK
     "AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10":fatjetcontexts,
     # R-Scan

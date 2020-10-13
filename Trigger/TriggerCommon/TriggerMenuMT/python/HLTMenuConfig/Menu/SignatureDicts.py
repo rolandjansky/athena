@@ -152,7 +152,7 @@ JetChainParts_Default = {
     'recoAlg'       :'a4',
     'dataType'      :'tc',
     'calib'         :'em',
-    'jetCalib'      :'subjesIS',
+    'jetCalib'      :'default',
     'scan'          :'FS',
     'addInfo'       : [],
     'TLA'           : '',
