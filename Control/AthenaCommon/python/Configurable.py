@@ -124,9 +124,6 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
                try:
                   setattr( conf, n, v )
                except AttributeError as originalAttributeError:
-                # rather annoying that we have to be somewhat silent here (the
-                # most common cases are 'name' and user kw args to be supplied
-                # to an overridden __init__)
 
                 # now for a completely different can of worms ...
                   acceptableKeyWord = False
