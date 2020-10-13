@@ -81,7 +81,7 @@ bool TGCGoodMF::readBadMFList()
       // get BadMF list
       getline(file,buf,delimiter);
       std::istringstream cont(buf);
-      std::map<int,int> mapssc = m_mapisgoodMF[mod]; // mapssc = <SSCId,badMFId>, m_mapisgoodMF = <ModuleId,<~>>
+      std::map<int,int>& mapssc = m_mapisgoodMF[mod]; // mapssc = <SSCId,badMFId>, m_mapisgoodMF = <ModuleId,<~>>
       int badMFId;
       for(int i=0; i<=maxssc; i++) {
         cont>>badMFId;
