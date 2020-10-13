@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Produce web display comparing Run-3 trigger to Run-2 (legacy) trigger using legacy monitoring NTUP_PHYSVAL from previous nightlies
 # art-type: grid
 # art-include: master/Athena

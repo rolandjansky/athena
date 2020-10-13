@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Run Trigger on data with athena and write ByteStream output, then run offline reco
 # art-type: build
 # art-include: master/Athena

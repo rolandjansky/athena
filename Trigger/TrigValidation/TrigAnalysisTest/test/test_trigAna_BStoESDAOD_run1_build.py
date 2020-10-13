@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Test of reconstruction of Run-1 data with trigger
 # art-type: build
 # art-include: master/Athena
