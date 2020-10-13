@@ -203,7 +203,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
                 return JetHelpers::Interpolate(m_histo,valX);
 
             case Interpolate::None:
-                return m_histo->GetBinContent(JetHelpers::FindBin(m_histo->GetXaxis(),valX));
+                return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX));
 
             default:
                 ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
@@ -223,14 +223,14 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
 
             case Interpolate::OnlyX:
                 // Interpolate on the x projection for a given Y bin
-                return JetHelpers::Interpolate(m_cachedProj.at(0).at(JetHelpers::FindBin(m_histo->GetYaxis(),valY)).get(),valX);
+                return JetHelpers::Interpolate(m_cachedProj.at(0).at((m_histo->GetYaxis())->FindBin(valY)).get(),valX);
 
             case Interpolate::OnlyY:
                 // Interpolate on the y projection for a given X bin
-                return JetHelpers::Interpolate(m_cachedProj.at(0).at(JetHelpers::FindBin(m_histo->GetXaxis(),valX)).get(),valY);
+                return JetHelpers::Interpolate(m_cachedProj.at(0).at((m_histo->GetXaxis())->FindBin(valX)).get(),valY);
 
             case Interpolate::None:
-                return m_histo->GetBinContent(JetHelpers::FindBin(m_histo->GetXaxis(),valX),JetHelpers::FindBin(m_histo->GetYaxis(),valY));
+                return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX),(m_histo->GetYaxis())->FindBin(valY));
 
             default:
                 ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
@@ -248,14 +248,14 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
 
         case Interpolate::OnlyX:
             // Interpolate on the x projection for a given y,z bin
-            return JetHelpers::Interpolate(m_cachedProj.at(JetHelpers::FindBin(m_histo->GetYaxis(),valY)).at(JetHelpers::FindBin(m_histo->GetZaxis(),valZ)).get(),valX);
+            return JetHelpers::Interpolate(m_cachedProj.at((m_histo->GetYaxis())->FindBin(valY)).at((m_histo->GetZaxis())->FindBin(valZ)).get(),valX);
 
         case Interpolate::OnlyY:
             // Interpolate on the y projection for a given x,z bin
-            return JetHelpers::Interpolate(m_cachedProj.at(JetHelpers::FindBin(m_histo->GetXaxis(),valX)).at(JetHelpers::FindBin(m_histo->GetZaxis(),valZ)).get(),valY);
+            return JetHelpers::Interpolate(m_cachedProj.at((m_histo->GetXaxis())->FindBin(valX)).at((m_histo->GetZaxis())->FindBin(valZ)).get(),valY);
 
         case Interpolate::None:
-            return m_histo->GetBinContent(JetHelpers::FindBin(m_histo->GetXaxis(),valX),JetHelpers::FindBin(m_histo->GetYaxis(),valY),JetHelpers::FindBin(m_histo->GetZaxis(),valZ));
+            return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX),(m_histo->GetYaxis())->FindBin(valY),(m_histo->GetZaxis())->FindBin(valZ));
 
         default:
             ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());

@@ -20,7 +20,6 @@ namespace JetHelpers
         double Interpolate(const TH1* histo, const double x);
         double Interpolate(const TH1* histo, const double x, const double y);
         double Interpolate(const TH1* histo, const double x, const double y, const double z);
-        Int_t FindBin(const TAxis* axis, const double x);
         
         double Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis=1, const int yAxis=2, const int otherDimBin=-1);
 

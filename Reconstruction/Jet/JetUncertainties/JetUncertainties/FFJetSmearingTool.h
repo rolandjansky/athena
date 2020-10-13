@@ -138,7 +138,7 @@ namespace CP {
 
             CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) override;// The user has to use this function to smear it's jet mass
 
-            StatusCode getMatchedTruthJet( xAOD::Jet jet_reco, xAOD::Jet& jet_truth_matched);
+            StatusCode getMatchedTruthJet( xAOD::Jet& jet_reco, xAOD::Jet& jet_truth_matched) const override;
 
         private:
 

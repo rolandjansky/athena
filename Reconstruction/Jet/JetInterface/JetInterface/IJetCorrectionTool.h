@@ -23,8 +23,8 @@ class IJetCorrectionTool : virtual public asg::IAsgTool
         /// Virtual destructor
         virtual ~IJetCorrectionTool()=default;
 
-
-        //All the public functions from the tool that will be used by the tool are live inside "CP" so they are declared in "JetCPInterfaces/ICPJetCorrectionTool"
+        virtual StatusCode getMatchedTruthJet( xAOD::Jet& jet_reco, xAOD::Jet& jet_truth_matched) const = 0;
+        //The other public functions from the tool that will be used by the tool are live inside "CP" so they are declared in "JetCPInterfaces/ICPJetCorrectionTool"
 
 }; // class IJetCorrectionTool
 

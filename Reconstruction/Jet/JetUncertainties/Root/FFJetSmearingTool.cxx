@@ -392,7 +392,8 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 // The function "getMatchedTruthJet" finds the truth jet that match with the given jet_reco and it save it in the given jet_truth_matched jet.
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet jet_reco, xAOD::Jet& jet_truth_matched){
+StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet& jet_reco, xAOD::Jet& jet_truth_matched) const
+{
 
     // Get the truth jets of the event
     const xAOD::JetContainer* jets_truth = nullptr;
@@ -722,8 +723,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
 
         xAOD::JetFourMom_t p4_aux;
 
-        //The smearing do not change the pt but it changes the mass (so the energy too) so, itf we want to perform the smearing properly, we have to change the Calo and TA foru m	//omenta before looking at the weights map
-        //omenta before looking at the weights map
+        //The smearing do not change the pt but it changes the mass (so the energy too) so, itf we want to perform the smearing properly, we have to change 
+        //the Calo and TA foru momenta before looking at the weights map
         p4_aux = xAOD::JetFourMom_t(jet_reco_CALO.pt(),jet_reco_CALO.eta(),jet_reco_CALO.phi(),smeared_CALO_mass);//The smearing do not change the pt but it changes the Energy 
         jet_reco_CALO = p4_aux;
 
