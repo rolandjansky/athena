@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -356,15 +356,16 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 		layerSector_name  = sector_name + layer_name  ;
 
-		int stname_index = irpcstationName;
-		if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
-	        else stname_index = irpcstationName-2;
 		NetaStrips = 0 ;
 		for(int idbz=0; idbz!= 3; idbz++){
-		  ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
-		  const MuonGM::RpcReadoutElement* rpc = 
-		    m_muonMgr->getRpcReadoutElement(stname_index, irpcstationEta+8, irpcstationPhi-1, irpcdoubletR-1, idbz);
-		  if(rpc != NULL ){
+        ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
+        Identifier id = m_rpcIdHelper->channelID(irpcstationName,irpcstationEta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+        if (!id.is_valid()) {
+          ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<irpcstationEta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
+          continue;
+        }
+        const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(id);
+        if(rpc){
 		    NetaStrips +=  rpc->NetaStrips();
 		  } 
 		}
@@ -382,15 +383,19 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  /////// NB !!!!!
 		  // the eta strip number increases going far away from IP
 		  // the phi strip numeber increases going from HV side to RO side
-		  int stname_index = irpcstationName;
-		  if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
-		  else stname_index = irpcstationName-2;
 		  stripzmin   =      0 ;
 		  stripzmax   = -10000 ;
-		  for(int ieta=0; ieta!= 17; ieta++){
+      // the RpcIdHelper stationEta ranges from -8 to 8
+		  for(int ieta=-8; ieta<9; ieta++){
 		    for(int idbz=0; idbz!= 3; idbz++){
-		      const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(stname_index, ieta, irpcstationPhi-1, irpcdoubletR-1, idbz);
-		      if(rpc != NULL ){
+          Identifier id = m_rpcIdHelper->channelID(irpcstationName,ieta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+          if (!id.is_valid()) {
+            ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<ieta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
+            continue;
+          }
+          const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(id);
+          if(rpc){
+
 			const Amg::Vector3D r1 = rpc-> globalPosition();
 			pitch = rpc-> StripPitch(0)  ;
 		
@@ -410,7 +415,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  wirezmax     = -10000. ;
 		  wirezmin     = +10000. ;
 		  foundmin     =      0  ;	
-				  
+			
+      int stname_index = irpcstationName;
 		  if (irpcstationName == 53) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
 		  else stname_index = irpcstationName;
 		  for(int eta=0; eta!=17; eta++){ 
@@ -438,7 +444,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		// Per Sector
 		const MuonDQAHistList& hists1 = m_stationHists.getList( sector_name );
 		TH2* mdttubevsrpcetastripsector;
- 	      
+
 		//get information from geomodel to book and fill rpc histos with the right max strip number
 		const MuonGM::RpcReadoutElement* descriptor =  m_muonMgr->getRpcReadoutElement(prd_id);
 		const Amg::Vector3D stripPos = descriptor->stripPos(prd_id);
@@ -612,11 +618,8 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
     //declare a group of histograms
     std::string m_generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
     MonGroup mdtrpc_shift_dqmf( this, m_generic_path_mdtvsrpcmonitoring+ "/Dqmf", run, ATTRIB_UNMANAGED ) ;
-  
-    if(newEventsBlock){}
-    if(newLumiBlock){}
 
-    if(newRun) 
+    if(newRunFlag()) 
       {
 	ATH_MSG_DEBUG ( "MdtVsRpcRawDataValAlg : isNewRun" );
 	// Book RAW or ESD capable histos
@@ -836,10 +839,6 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string m_sector_na
 StatusCode MdtVsRpcRawDataValAlg::procHistograms()
 {
   ATH_MSG_DEBUG ( "MdtVsRpcRawDataValAlg finalize()" );
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){}
- 
   return StatusCode::SUCCESS; 
 }
  

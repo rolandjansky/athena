@@ -123,10 +123,6 @@ namespace MuonGM {
     //!< access via internally defined array indices; not friendly to users
     const MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4) const;
     //!< access via internally defined array indices; not friendly to users
-    //
-
-    const RpcReadoutElement* getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5) const;
-    //!< access via internally defined array indices; not friendly to users
 
     const TgcReadoutElement* getTgcReadoutElement(int i1, int i2, int i3) const;
     //!< access via internally defined array indices; not friendly to users
@@ -144,9 +140,6 @@ namespace MuonGM {
     const MMReadoutElement* getMMRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
     //!< access via extended identifier field (no unpacking)
 
-    const RpcReadoutElement* getRpcRElement_fromIdFields(int i1, int i2, int i3, int i4, int i5, int i6) const;
-    //!< access via extended identifier field (very limited unpacking)
-
     const TgcReadoutElement* getTgcRElement_fromIdFields(int i1, int i2, int i3) const;
     //!< access via extended identifier field (no unpacking)
 
@@ -157,12 +150,6 @@ namespace MuonGM {
     inline const RpcReadoutElement* getRpcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
     inline const TgcReadoutElement* getTgcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
     inline const CscReadoutElement* getCscReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
-    // TODO: New Small Wheel
-
-    //    void addMdtDetectorElement(MdtDetectorElement*);   
-    //    void addRpcDetectorElement(RpcDetectorElement*);   
-    //    void addTgcDetectorElement(TgcDetectorElement*);   
-    //    void addCscDetectorElement(CscDetectorElement*);   
 
     inline const MdtDetectorElement* getMdtDetectorElement(IdentifierHash id)  const;//!< access via data-collection hash id
 
@@ -205,7 +192,7 @@ namespace MuonGM {
     // Setting the identifier helpers
     inline void set_mdtIdHelper(const MdtIdHelper* idh);
     inline void set_cscIdHelper(const CscIdHelper* idh);
-    inline void set_rpcIdHelper(const RpcIdHelper* idh);
+    void set_rpcIdHelper(const RpcIdHelper* idh);
     inline void set_tgcIdHelper(const TgcIdHelper* idh);
     // New Small Wheel
     inline void set_stgcIdHelper(const sTgcIdHelper* idh);
@@ -252,18 +239,16 @@ namespace MuonGM {
       {    
         MdtRElMaxHash = 2500,
         CscRElMaxHash = 130,
-        RpcRElMaxHash = 1200,
+        RpcRElMaxHash = 2600,
         TgcRElMaxHash = 1600
-        // TODO: New Small Wheel
       };
     
     enum detElementHashMax
       {    
         MdtDetElMaxHash = 1200,
         CscDetElMaxHash = 65,
-        RpcDetElMaxHash = 650,
+        RpcDetElMaxHash = 1300,
         TgcDetElMaxHash = 1600
-        // TODO: New Small Wheel
       };
     
     
@@ -278,10 +263,7 @@ namespace MuonGM {
       };
     enum RpcGMRanges
       {
-	//        NRpcStatType     = 12,
-        NRpcStatType     = 16, // Massimo: ADD BIL,BIS,BIR, BIM RPC	
-        //NRpcStatTypeOff  = -2,
-        NRpcStatTypeOff  =  0,// start from zero to inclide BI
+        NRpcStatType     = 12, // there are 12 station types where RPCs can be installed: BML/BMS/BOL/BOS/BMF/BOF/BOG/BME/BIR/BIM/BIL/BIS
         NRpcStatEta      = 17,
         NRpcStEtaOffset  = 8,
         NRpcStatPhi      = 8,
@@ -381,10 +363,32 @@ namespace MuonGM {
     MdtAsBuiltPar* getMdtAsBuiltParams(Identifier id);
 
     //!< provide a pointer to the msg svc to all readout geometry 
-    inline IMessageSvc* msgSvc() const;    
+    inline IMessageSvc* msgSvc() const;
+
+    int rpcStationName(const int stationIndex) const; // map the RPC station indices (0-NRpcStatType) back to the RpcIdHelper stationNames
     
   private:
-    
+    const RpcReadoutElement* getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5) const;
+    RpcReadoutElement* getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5);
+    const RpcReadoutElement* getRpcRElement_fromIdFields(int i1, int i2, int i3, int i4, int i5, int i6) const;
+
+    unsigned int rpcStationTypeIdx(const int stationName) const; // map the RPC stationNames from the RpcIdHelper to 0-NRpcStatType
+    enum RpcStatType {
+        BML=0,
+        BMS,
+        BOL,
+        BOS,
+        BMF,
+        BOF,
+        BOG,
+        BME,
+        BIR,
+        BIM,
+        BIL,
+        BIS,
+        UNKNOWN
+    };
+
     int m_cachingFlag;
     int m_cacheFillingFlag;
     int m_minimalgeo;
@@ -462,6 +466,9 @@ namespace MuonGM {
     // CscInternalAlignmentMapContainer (pointers) will be created by RDBReaderAccess at the first attempt to store a CscInternalAlignmentPar -rot and transl parameters are held by the CSCredoutElements and the corresponding A-line is provided with this map (key Identifier) by the manager - the manager is responsible to delete the CscInternalAlignmentPar
     mutable  CscInternalAlignmentMapContainer * m_cscALineContainer;
     mutable  MdtAsBuiltMapContainer* m_AsBuiltParamsMap;
+    /// RPC name caches
+    std::map<int,int> m_rpcStatToIdx;
+    std::map<int,int> m_rpcIdxToStat;
 
     //!< hold a pointer to the message svc to be used by all readout geometry 
     IMessageSvc* m_msgSvc;
@@ -480,7 +487,6 @@ namespace MuonGM {
 
   void MuonDetectorManager::set_mdtIdHelper(const MdtIdHelper* idh) {m_mdtIdHelper = idh;}
   void MuonDetectorManager::set_cscIdHelper(const CscIdHelper* idh) {m_cscIdHelper = idh;}
-  void MuonDetectorManager::set_rpcIdHelper(const RpcIdHelper* idh) {m_rpcIdHelper = idh;}
   void MuonDetectorManager::set_tgcIdHelper(const TgcIdHelper* idh) {m_tgcIdHelper = idh;}
   // New Small Wheel
   void MuonDetectorManager::set_stgcIdHelper(const sTgcIdHelper* idh) {m_stgcIdHelper = idh;}

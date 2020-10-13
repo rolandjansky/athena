@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -1158,102 +1158,6 @@ void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume*
     }
   }
 
-  /*
-  if (stationName.substr(0,1)=="B" || stationName.substr(0,1)=="E" ) { 
-
-    // MDT
-    int nameIndex = m_mdtIdHelper->stationNameIndex( stationName.substr(0,3) ); 
-    int nameIndexC = nameIndex;
-    if (stationName.substr(0,3)=="EIS") nameIndexC = 22; 
-    if (stationName.substr(0,3)=="BIM") nameIndexC = 23; 
-    for (int multi = 0; multi < 2; multi++ ) {
-      const MuonGM::MdtReadoutElement* multilayer = m_muonMgr->getMdtReadoutElement(nameIndexC,eta+8,phi-1,multi);
-      if (multilayer) {
-        const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(multilayer->center());
-        if (!assocVol ) ATH_MSG_WARNING( "valid multilayer outside station:" << stationName );
-        if (assocVol) {
-	  int nLayers = multilayer->getNLayers();
-	  for (int layer =1; layer <= nLayers ; layer++) {
-	    Identifier id = m_mdtIdHelper->channelID(nameIndex,eta,phi,multi+1,layer,1);           
-	    if (id>0) {
-	      // retrieve associated layer
-	      HepGeom::Point3D<double> gp = multilayer->tubePos(id);
-	      const Trk::Layer* assocLay = assocVol->associatedLayer(gp);
-	      unsigned int iD = id;
-	      if (assocLay && assocLay->layerType()!= iD) {
-		std::cout <<"ERROR IDENTIFICATION:"<<stationName<<","<<assocLay->layerType()<<","<<id<<std::endl;
-                Identifier newId(assocLay->layerType());  
-		std::cout << m_mdtIdHelper->elementID(newId) <<","<< m_mdtIdHelper->elementID(id)<<std::endl;
-              }
-	      if (assocLay) assocLay->setLayerType(iD); 
-	      if (assocLay) {
-		//const Trk::LocalPosition* locPos = (assocLay->surfaceRepresentation()).globalToLocal(gp,0.001);
-                Amg::Vector3D locPos = assocLay->surfaceRepresentation().transform().inverse()*gp;
-		if (fabs(assocLay->getRef()-locPos[1])>0.01) 
-		  std::cout << "ERROR REFERENCE:"<< stationName<<","<<assocLay->getRef()<<","<<locPos[1]<<std::endl;
-		if (fabs(locPos[2])>0.01) 
-		  std::cout << "ERROR Alignment:"<< stationName<<","<<assocLay->getRef()<<","<<locPos[2]<<std::endl;
-		assocLay->setRef(locPos[1]);
-	      }
-	    } 
-          }
-        }
-      }     
-    }
-    
-    // RPC ?
-    const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = station->trackingVolume()->confinedVolumes();
-    if (confinedVolumes){
-      const std::vector<const Trk::TrackingVolume*>& vols = confinedVolumes->arrayObjects();
-      for (unsigned int iv=0;iv<vols.size();iv++) if (vols[iv]->volumeName() == "RPC") {
-        // for active layers do a search of associated ROE
-        const std::vector<const Trk::Layer*>* layers = vols[iv]->confinedArbitraryLayers();
-        int nameIndex = m_rpcIdHelper->stationNameIndex( stationName.substr(0,3) ); 
-        // loop over doubletR, doubletZ 
-	for (int doubletR = 0; doubletR < 2; doubletR++ ) {
-	for (int doubletZ = 0; doubletZ < 3; doubletZ++ ) {
-	for (int doubletPhi = 0; doubletPhi < 1; doubletPhi++ ) {
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(nameIndex-2,eta+8,phi-1,doubletR,doubletZ);
-	  if (rpc) {
-            if (doubletZ < rpc->getDoubletZ() ) {  
-	      for (int gasGap=0; gasGap<2; gasGap++) {
-		Identifier etaId = m_rpcIdHelper->channelID(nameIndex,eta,phi,
-							    doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,0,1); 
-		Identifier phiId = m_rpcIdHelper->channelID(nameIndex,eta,phi,
-							    doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,1,1); 
-		if (m_rpcIdHelper->valid(etaId)){
-		  for (unsigned int il=0;il<layers->size();il++) {
-		    if ((*layers)[il]->layerType() != 0 && (*layers)[il]->isOnLayer(rpc->stripPos(etaId)) ) {
-		      unsigned int id = etaId;
-		      if ((*layers)[il]->layerType()!= id) {
-                        std::cout <<"ERROR IDENTIFICATION:RPC:"<<stationName<<","<<(*layers)[il]->layerType()<<","<<id<<std::endl;
-                        std::cout <<"ERROR IDENTIFICATION:RPC:"<<il<<","<<(*layers)[il]->surfaceRepresentation().center() <<std::endl;
-			Identifier newId((*layers)[il]->layerType());  
-			std::cout << m_rpcIdHelper->elementID(newId) <<","<< m_rpcIdHelper->elementID(etaId)<<std::endl;
-			std::cout << m_rpcIdHelper->doubletR(newId) <<","<< m_rpcIdHelper->doubletR(etaId)<<std::endl;
-                        std::cout << m_rpcIdHelper->doubletZ(newId)<<","<<m_rpcIdHelper->doubletPhi(newId)<<","<<m_rpcIdHelper->gasGap(newId)
-				  <<","<<m_rpcIdHelper->measuresPhi(newId)<<","<<m_rpcIdHelper->strip(newId)<<std::endl;
-                        std::cout << m_rpcIdHelper->doubletZ(etaId)<<","<<m_rpcIdHelper->doubletPhi(etaId)<<","<<m_rpcIdHelper->gasGap(etaId)
-				  <<","<<m_rpcIdHelper->measuresPhi(etaId)<<","<<m_rpcIdHelper->strip(etaId)<<std::endl;
-                      } else {
-                        std::cout <<"RPC IDENTIFICATION OK:"<<stationName<<","<<(*layers)[il]->layerType()<<","<<id<<std::endl;
-                        std::cout <<"RPC IDENTIFICATION OK:"<<il<<","<<(*layers)[il]->surfaceRepresentation().center() <<std::endl;
-                      }
-		      (*layers)[il]->setLayerType(id);
-                      //turn eta position into integer to truncate
-		      HepGeom::Point3D<double> locPosEta = ((*layers)[il]->surfaceRepresentation().transform().inverse()) * (rpc->stripPos(etaId));
-		      HepGeom::Point3D<double> locPosPhi = ((*layers)[il]->surfaceRepresentation().transform().inverse()) * (rpc->stripPos(phiId));
-                      int etaRefi = int(1000*locPosEta[Trk::locY]);                       
-		      (*layers)[il]->setRef( 10e4+locPosPhi[Trk::locX] + 10e5*(etaRefi+10e6));
-		    } 
-		  }
-		}
-	 }}}}}}                  
-      }
-    }
-  } 
-  */ 
-
   // by now, all the layers should be identified - verify
   if (station->trackingVolume()->confinedVolumes()) {
     const std::vector<const Trk::TrackingVolume*> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
@@ -1289,17 +1193,19 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
 {
   ATH_MSG_VERBOSE( name() <<" identifying prototype " );    
 
-  std::string stationName = station->volumeName();
+  const std::string stationName = station->volumeName();
+  const std::string stationNameShort = stationName.substr(0,3);
+
   ATH_MSG_VERBOSE( " for station " << stationName );    
 
   if (m_mdtIdHelper && (stationName.substr(0,1)=="B" || stationName.substr(0,1)=="E" )) { 
     // MDT
     int nameIndex = m_mdtIdHelper->stationNameIndex( stationName.substr(0,3) ); 
     int nameIndexC = nameIndex;
-    if (stationName.substr(0,3)=="EIS") nameIndexC = 22; 
-    if (stationName.substr(0,3)=="BIM") nameIndexC = 23; 
-    if (stationName.substr(0,3)=="BME") nameIndexC = 24; 
-    if (stationName.substr(0,3)=="BMG") nameIndexC = 25; 
+    if (stationNameShort=="EIS") nameIndexC = 22; 
+    if (stationNameShort=="BIM") nameIndexC = 23; 
+    if (stationNameShort=="BME") nameIndexC = 24; 
+    if (stationNameShort=="BMG") nameIndexC = 25; 
 
     for (int multi = 0; multi < 2; multi++ ) {
       const MuonGM::MdtReadoutElement* multilayer = m_muonMgr->getMdtReadoutElement(nameIndexC,eta+8,phi-1,multi);
@@ -1343,41 +1249,54 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
       for (unsigned int iv=0;iv<vols.size();iv++) if (m_rpcIdHelper && vols[iv]->volumeName() == "RPC") {
         // for active layers do a search of associated ROE
         const std::vector<const Trk::Layer*>* layers = vols[iv]->confinedArbitraryLayers();
-        int nameIndex = m_rpcIdHelper->stationNameIndex( stationName.substr(0,3) ); 
-        if (stationName.substr(0,3)=="BME") nameIndex=12;              // hack for BME
-        if (stationName.substr(0,3)=="BMG") nameIndex=13;              // hack for BMG (even though BMG don't have RPC)
-        // loop over doubletR, doubletZ 
-	for (int doubletR = 0; doubletR < 2; doubletR++ ) {
-	for (int doubletZ = 0; doubletZ < 3; doubletZ++ ) {
-	for (int doubletPhi = 0; doubletPhi < 1; doubletPhi++ ) {
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(nameIndex-2,eta+8,phi-1,doubletR,doubletZ);
-	  if (rpc) {
-            if (doubletZ < rpc->getDoubletZ() ) {  
-	      for (int gasGap=0; gasGap<2; gasGap++) {
-		Identifier etaId = m_rpcIdHelper->channelID(nameIndex,eta,phi,
-							    doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,0,1); 
-		//Identifier phiId = m_rpcIdHelper->channelID(nameIndex,eta,phi,
-		//					    doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,1,1); 
-		if (1/*m_rpcIdHelper->valid(etaId)*/){
-		  for (unsigned int il=0;il<layers->size();il++) {
-		    if ((*layers)[il]->layerType() != 0 && (*layers)[il]->surfaceRepresentation().isOnSurface(transf.inverse()*rpc->stripPos(etaId),false,0.5*(*layers)[il]->thickness() ) ) {
-                      const Amg::Vector3D locPos1 = (*layers)[il]->surfaceRepresentation().transform().inverse()*transf.inverse()*rpc->stripPos(etaId);
-                      const Amg::Vector3D locPos2 = rpc->surface(etaId).transform().inverse()*rpc->stripPos(etaId);
-                      double swap = ( fabs( locPos1[1] - locPos2[0] ) > 0.001 ) ? 20000. : 0. ;
-		      unsigned int id = etaId.get_identifier32().get_compact();
-		      (*layers)[il]->setLayerType(id);
-                      const Amg::Vector3D locPos = (*layers)[il]->surfaceRepresentation().transform().inverse()
-			*transf.inverse()*rpc->surface(etaId).center(); 
-		      (*layers)[il]->setRef(swap + locPos[0]);
-                      //turn eta position into integer to truncate
-		      //HepGeom::Point3D<double> locPosEta = ((*layers)[il]->surfaceRepresentation().transform().inverse()) * (rpc->stripPos(etaId));
-		      //HepGeom::Point3D<double> locPosPhi = ((*layers)[il]->surfaceRepresentation().transform().inverse()) * (rpc->stripPos(phiId));
-                      //int etaRefi = int(1000*locPosEta[Trk::locY]);                       
-		      //(*layers)[il]->setRef( 10e4+locPosPhi[Trk::locX] + 10e5*(etaRefi+10e6));
-		    } 
-		  }
-		}
-	 }}}}}}                  
+        int nameIndex = m_rpcIdHelper->stationNameIndex(stationNameShort);
+        if (stationNameShort=="BME") continue; // BME chambers do not have RPCs
+        if (stationNameShort=="BMG") continue; // BMG chambers do not have RPCs
+        // only BOG7/8 and BMS2/4 have doubletZ=3, the remaing BOG and BOF4 have doubletZ=1
+        int doubletZMax=2;
+        if (stationNameShort.find("BMS")!=std::string::npos && (std::abs(eta)==2 || std::abs(eta)==4)) doubletZMax=3;
+        else if (stationNameShort.find("BOG")!=std::string::npos) {
+          if (std::abs(eta)==7 || std::abs(eta)==8) doubletZMax=3;
+          else doubletZMax=1;
+        } else if (stationNameShort.find("BOF")!=std::string::npos && std::abs(eta)==4) doubletZMax=1;
+        // all BOL/BOS and BOF1 have doubletR=1
+        int doubletRMax=2;
+        if (stationNameShort.find("BOL")!=std::string::npos) doubletRMax=1;
+        else if (stationNameShort.find("BOS")!=std::string::npos) doubletRMax=1;
+        else if (stationNameShort.find("BOF")!=std::string::npos && std::abs(eta)==1) doubletRMax=1;
+        for (int doubletR = 0; doubletR < doubletRMax; doubletR++ ) {
+          for (int doubletZ = 0; doubletZ < doubletZMax; doubletZ++ ) {
+            for (int doubletPhi = 0; doubletPhi < 1; doubletPhi++ ) {
+              bool isValid=false;
+              // the RpcIdHelper expects doubletR/doubletZ/doubletPhi to start at 1
+              Identifier id = m_rpcIdHelper->channelID(nameIndex,eta,phi,doubletR+1,doubletZ+1, doubletPhi+1, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+              if (!isValid) {
+                ATH_MSG_DEBUG("Could not find valid Identifier for station="<<nameIndex<<", eta="<<eta<<", phi="<<phi<<", doubletR="<<doubletR+1<<", doubletZ="<<doubletZ+1<<", doubletPhi="<<doubletPhi+1<<", continuing...");
+                continue;
+              }
+              const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(id);
+              if (rpc) {
+                if (doubletZ < rpc->getDoubletZ() ) {
+                  for (int gasGap=0; gasGap<2; gasGap++) {
+                    Identifier etaId = m_rpcIdHelper->channelID(nameIndex,eta,phi,doubletR+1,doubletZ+1,doubletPhi+1,gasGap+1,0,1);
+                    for (unsigned int il=0;il<layers->size();il++) {
+                      if ((*layers)[il]->layerType() != 0 && (*layers)[il]->surfaceRepresentation().isOnSurface(transf.inverse()*rpc->stripPos(etaId),false,0.5*(*layers)[il]->thickness() ) ) {
+                        const Amg::Vector3D locPos1 = (*layers)[il]->surfaceRepresentation().transform().inverse()*transf.inverse()*rpc->stripPos(etaId);
+                        const Amg::Vector3D locPos2 = rpc->surface(etaId).transform().inverse()*rpc->stripPos(etaId);
+                        double swap = ( fabs( locPos1[1] - locPos2[0] ) > 0.001 ) ? 20000. : 0. ;
+                        unsigned int id = etaId.get_identifier32().get_compact();
+                        (*layers)[il]->setLayerType(id);
+                        const Amg::Vector3D locPos = (*layers)[il]->surfaceRepresentation().transform().inverse()
+                        *transf.inverse()*rpc->surface(etaId).center();
+                        (*layers)[il]->setRef(swap + locPos[0]);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }                
       }
     }
   } 

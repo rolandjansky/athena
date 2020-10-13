@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGMNtupleWriter.h"
@@ -18,7 +18,6 @@ namespace MuonGM {
    
   MuonGMNtupleWriter::MuonGMNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    //m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_tree(0),
     m_nevents(0),
     m_detMgr(NULL)
@@ -125,7 +124,13 @@ namespace MuonGM {
 	for( int i3 = 0;i3<MuonDetectorManager::NRpcStatPhi; ++i3 ){
 	  for( int i4 = 0;i4<MuonDetectorManager::NDoubletR; ++i4 ){
 	    for( int i5 = 0;i5<MuonDetectorManager::NDoubletZ; ++i5 ){
-	      const RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(i1,i2,i3,i4,i5);
+
+          int stationName = m_detMgr->rpcStationName(i1);
+          bool isValid=false;
+          Identifier id = m_detMgr->rpcIdHelper()->channelID(stationName, i2, i3+1, i4+1, i5+1, 1, 1, 1, 1, true, &isValid); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+          if (!isValid) continue;
+          const RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(id);
+
 	      if( !detEl ) continue;
 	      ++nrpc;
 

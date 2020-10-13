@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,6 @@ RpcLv1RawDataSectorLogic::~RpcLv1RawDataSectorLogic()
 StatusCode RpcLv1RawDataSectorLogic::initialize()
 {
   // Init message stream
-  m_log.setLevel(outputLevel());                // individual outputLevel not known before initialize
   m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
   
   m_log << MSG::INFO << "In initializing 'RpcLv1RawDataSectorLogic': "          << endreq;
@@ -408,9 +407,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
      
     MonGroup rpclv1sl_shift ( this, m_generic_path_rpclv1monitoring + "/Overview", run, ATTRIB_UNMANAGED );
     
-    if(newEventsBlock){}
-
-    if(newLumiBlock && m_lumiblockhist){
+    if(newLumiBlockFlag() && m_lumiblockhist){
       MonGroup rpclv1sl_lumi_block ( this, m_generic_path_rpclv1monitoring + "/lumiblock", lumiBlock, ATTRIB_UNMANAGED )  ;
       if (m_debuglevel) {
       	//m_log << MSG::DEBUG << "SHIFT : "<< shift << endreq;
@@ -482,7 +479,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
     }// isNewLumiBlock
     
     
-    if(newRun) {
+    if(newRunFlag()) {
       
       if (m_debuglevel) {
 	//m_log << MSG::DEBUG << "SHIFT : "<< shift << endreq;
@@ -798,9 +795,6 @@ StatusCode RpcLv1RawDataSectorLogic::procHistograms()
 {
 
   if (m_debuglevel) m_log << MSG::DEBUG << "RpcLv1RawDataSectorLogic finalize()" << endreq;
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){} 
   return StatusCode::SUCCESS;
 }
 

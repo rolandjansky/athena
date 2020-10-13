@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/AlgFactory.h"
@@ -968,13 +968,13 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream&  OutFile){
      {
       for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
       {
-       const RpcReadoutElement* pReadoutElement = 
-           p_MuonDetectorManager->getRpcReadoutElement(sname_index,
-        					       seta_index,
-        					       sphi_index,
-        					       dbr_index,
-        					       dbz_index);
-       if (pReadoutElement == NULL) continue;
+       int stationName = p_MuonDetectorManager->rpcStationName(sname_index);
+       bool isValid=false;
+       Identifier id = m_muIdHelper->rpcIdHelper().channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true, &isValid); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+       if (!isValid) continue;
+       const MuonGM::RpcReadoutElement* pReadoutElement = p_MuonDetectorManager->getRpcReadoutElement(id);
+       if (pReadoutElement == nullptr) continue;
+
        Identifier idr = pReadoutElement->identify();
        Identifier idp = m_muIdHelper->rpcIdHelper().parentID(idr);
 
