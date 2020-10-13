@@ -1578,6 +1578,13 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
   //
   Tb.setParameters(&Su,p); 
   if(useJac) {
+    /**
+     * WARNING: This check was added to prevent a possible bug where invalid
+     * covariance matrices were being used and propagated. This fix alters the
+     * physics output, and may need to be more thoroughly validated. In
+     * addition, there may be an overarching issue causing these invalid
+     * covariance matrices from ever reaching this point in the code.
+     */
     if (!Ta.iscovariance()) {
       return false;
     }
