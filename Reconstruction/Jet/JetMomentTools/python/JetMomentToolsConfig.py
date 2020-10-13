@@ -104,7 +104,6 @@ def getJVFTool(modspec=""):
         TrackParticleContainer  = trackcollectionmap[modspec]["Tracks"],
         TrackSelector = jettrackselloose,
     )
-    print('aaaa', modspec, jvf.VertexContainer)
     return jvf
 
 
@@ -132,7 +131,6 @@ def getTrackMomentsTool(modspec=""):
 
 def getTrackSumMomentsTool(modspec=""):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
-    print (jettrackselloose)
 
     tracksummoments = CompFactory.JetTrackSumMomentsTool(
         "trksummoms",
