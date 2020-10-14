@@ -290,15 +290,6 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
   // update the parameters vector
   m_parameters = updatedParameters;
 
-  // position or momentum update needed
-  if (updatePosition) {
-    if (m_surface) {
-      m_surface->localToGlobal(this->localPosition(), m_momentum, m_position);
-    } else {
-      m_momentum.setZero();
-      m_position.setZero();
-    }
-  }
   // momentum update is needed
   if (updateMomentum) {
     double phi = m_parameters[Trk::phi];
@@ -311,6 +302,15 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
     double sinTheta = sin(theta);
     m_momentum = Amg::Vector3D(
       p * cos(phi) * sinTheta, p * sin(phi) * sinTheta, p * cos(theta));
+  }
+
+  // position or momentum update needed
+  if (updatePosition) {
+    if (m_surface) {
+      m_surface->localToGlobal(this->localPosition(), m_momentum, m_position);
+    } else {
+      m_position.setZero();
+    }
   }
 }
 
