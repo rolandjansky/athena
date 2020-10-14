@@ -521,10 +521,6 @@ class  ConfiguredNewTrackingSiPattern:
                                      SplitClusterMapExtension     = NewTrackingCuts.extension(),
                                      ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
                                      RenounceInputHandles         = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
-           if InDetFlags.doHolesInFitter(): 
-               fitter_args=setDefaults(fitter_args,
-                                     BoundaryCheckTool= TrackingCommon.getInDetBoundaryCheckTool(),
-                                     DoHoleSearch                 = True)
            fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
                              else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
 
