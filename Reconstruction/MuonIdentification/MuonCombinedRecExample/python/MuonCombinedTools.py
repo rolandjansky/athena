@@ -136,6 +136,7 @@ def MuonCreatorTool_LRT(name="MuonCreatorTool_LRT",**kwargs):
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
+    kwargs.setdefault("ParticleCaloExtensionToolID", getPublicTool("MuonParticleCaloExtensionTool") )
     kwargs.setdefault("MuonPrinter", getPublicTool("MuonPrintingTool") )
     kwargs.setdefault("RequireIDTrack", True)
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
