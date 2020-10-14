@@ -2817,8 +2817,12 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 	    for( int doubletPhi  =  1 ;  doubletPhi  != 3;  doubletPhi++ ){
 	      for( int gasGap      =  1 ;  gasGap	  != 3;  gasGap++     ){
 
-		const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
-		if(rpc == 0 )continue;
+    bool isValid=false;
+    Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+    if (!isValid) continue;
+    const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
+
+		if(!rpc)continue;
 		Identifier idr = rpc->identify();
 		if(idr == 0 )continue;
 		Identifier atlasIdEta = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, 0, 1)     ;
@@ -3016,8 +3020,12 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 	      for( int gasGap      =  1 ;  gasGap	  != 3;  gasGap++     ){
 		for( int measphi     =  0 ;  measphi	  != 2;  measphi++    ){
 
-		  const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
-		  if(rpc == 0 )continue;
+      bool isValid=false;
+      Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+      if (!isValid) continue;
+      const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
+      if(!rpc)continue;
+
 		  Identifier idr = rpc->identify();
 		  if(idr == 0 )continue;
 		  Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, 1)     ;
@@ -3055,8 +3063,12 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 	      for( int gasGap      =  1 ;  gasGap	  != 3;  gasGap++     ){
 		for( int measphi     =  0 ;  measphi	  != 2;  measphi++    ){
 
-		  const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
-		  if(rpc == 0 )continue;
+      bool isValid=false;
+      Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+      if (!isValid) continue;
+      const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
+      if(!rpc)continue;
+
 		  Identifier idr = rpc->identify();
 		  if(idr == 0 )continue;
 		  Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, 1)     ;
@@ -3143,8 +3155,12 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		for( int measphi     =  0 ;  measphi	  != 2;  measphi++    ){
 		  for( int strip       =  1 ;  strip	  !=81;  strip++      ){
 
-		    const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
-		    if(rpc == 0 )continue;
+        bool isValid=false;
+        Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+        if (!isValid) continue;
+        const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
+        if(!rpc) continue;
+
 		    Identifier idr = rpc->identify();
 		    if(idr == 0 )continue;
 		    Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, strip)     ;

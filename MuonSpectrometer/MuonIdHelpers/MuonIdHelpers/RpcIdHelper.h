@@ -76,7 +76,7 @@ class RpcIdHelper : public MuonIdHelper
   Identifier elementID(const Identifier& channelID) const;
   Identifier channelID(int stationName, int stationEta, int stationPhi,
 		       int doubletR, int doubletZ, int doubletPhi,
-		       int gasGap, int measuresPhi, int strip, bool check=false, bool* isValid=0) const;
+		       int gasGap, int measuresPhi, int strip, bool check=false, bool* isValid=0, bool noPrint=false) const;
   Identifier channelID(std::string stationNameStr, int stationEta,
 		       int stationPhi, int doubletR, int doubletZ,
 		       int doubletPhi, int gasGap, int measuresPhi, int strip, bool check=false, bool* isValid=0) const;
@@ -191,7 +191,7 @@ class RpcIdHelper : public MuonIdHelper
   bool validChannel(const Identifier& id, int stationName, int stationEta, 
 		    int stationPhi,int doubletR, int doubletZ, 
 		    int doubletPhi, int gasGap,int measuresPhi, 
-		    int strip) const;
+		    int strip, bool noPrint=false) const;
   bool validPad    (const Identifier& id, int stationName, int stationEta, 
 		    int stationPhi,int doubletR, int doubletZ, 
 		    int doubletPhi) const;
@@ -414,7 +414,7 @@ inline Identifier RpcIdHelper::gapID(const Identifier& padID, int gasGap,bool ch
 inline Identifier RpcIdHelper::channelID(int stationName, int stationEta, int stationPhi,
 					 int doubletR, int doubletZ, int doubletPhi,
 					 int gasGap, int measuresPhi, int strip,
-					 bool check, bool* isValid) const
+					 bool check, bool* isValid, bool noPrint) const
 {
 
   // pack fields independently
@@ -434,7 +434,7 @@ inline Identifier RpcIdHelper::channelID(int stationName, int stationEta, int st
   if ( check ) {
     val = this->validChannel(result,stationName,stationEta,
 			     stationPhi,doubletR,doubletZ,
-			     doubletPhi,gasGap,measuresPhi,strip);  
+			     doubletPhi,gasGap,measuresPhi,strip, noPrint);  
     if ( isValid ) *isValid = val;
   }
   return result;

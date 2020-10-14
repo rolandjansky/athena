@@ -505,16 +505,7 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
 	m_rpcArrayByHash[Idhash] = x;
     }
     
-    int stname_indexId = m_rpcIdHelper->stationName(id);
-    int stname_index = stname_indexId + NRpcStatTypeOff;
-    if (stname_indexId == 53) // BME 
-    {
-	stname_index = NRpcStatType-2;
-    }
-    else if (stname_indexId == 54) // BOE 
-    {
-	stname_index = NRpcStatType-1;
-    }
+    int stname_index = rpcStationTypeIdx(m_rpcIdHelper->stationName(id));
 
     int steta_index  = m_rpcIdHelper->stationEta(id)  + NRpcStEtaOffset;
     int stphi_index  = m_rpcIdHelper->stationPhi(id)  - 1;
@@ -623,16 +614,9 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
 
 const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement (const Identifier id) const
 {   
-    int stname_indexId = m_rpcIdHelper->stationName(id);
-    int stname_index = stname_indexId + NRpcStatTypeOff;
-    if (stname_indexId == 53) // BME 
-    {
-	stname_index = NRpcStatType-2;
-    }
-    else if (stname_indexId == 54) // BOE 
-    {
-	stname_index = NRpcStatType-1;
-    }
+  int stationName = m_rpcIdHelper->stationName(id);
+  int stname_index = rpcStationTypeIdx(stationName);
+
   int steta_index  = m_rpcIdHelper->stationEta(id)  + NRpcStEtaOffset;
   int stphi_index  = m_rpcIdHelper->stationPhi(id)  - 1;
   int dbr_index    = m_rpcIdHelper->doubletR(id)    - 1;
@@ -644,7 +628,7 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement (const Identi
   // BMS 6/ |stEta|= 4 / dbR = 1 / dbZ = 2
   // these are the special cases where we want the rpc at doubletPhi = 2
   // to be addressed with a dbz_index=dbZ+1
-  if (m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id)) == "BMS")
+  if (m_rpcIdHelper->stationNameString(stationName) == "BMS")
   {
       if (abs(m_rpcIdHelper->stationEta(id)) == 2 &&
           m_rpcIdHelper->doubletZ(id) == 3)
@@ -1400,17 +1384,6 @@ const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1
                                                                           int i2,
                                                                           int i3, int i4, int i5, int i6) const
 {
-    int stname_indexId = i1; 
-    int stname_index = stname_indexId + NRpcStatTypeOff;
-    if (stname_indexId == 53) // BME 
-    {
-	stname_index = NRpcStatType-2;
-    }
-    else if (stname_indexId == 54) // BOE 
-    {
-	stname_index = NRpcStatType-1;
-    }
-
 
       int steta_index  = i2 + NRpcStEtaOffset;
       int stphi_index  = i3 - 1;
@@ -1458,7 +1431,7 @@ const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1
           }      
       }
       
-      return getRpcReadoutElement(stname_index, steta_index, stphi_index, dbr_index, dbz_index);
+      return getRpcReadoutElement(i1, steta_index, stphi_index, dbr_index, dbz_index);
 }
 const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5)const
 {
@@ -2295,6 +2268,48 @@ MdtAsBuiltPar* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) {
     return 0;
   }
   return iter->second;
+}
+
+unsigned int MuonDetectorManager::rpcStationTypeIdx(const int stationName) const {
+  std::map<int,int>::const_iterator itr = m_rpcStatToIdx.find(stationName);
+  if (itr != m_rpcStatToIdx.end()) return itr->second;
+  return RpcStatType::UNKNOWN;
+}
+
+int MuonDetectorManager::rpcStationName(const int stationIndex) const {
+    std::map<int,int>::const_iterator itr = m_rpcIdxToStat.find(stationIndex);
+    if (itr != m_rpcIdxToStat.end()) return itr->second;
+    return -1;
+}
+void MuonDetectorManager::set_rpcIdHelper(const RpcIdHelper* idh) {
+    m_rpcIdHelper = idh;
+    m_rpcStatToIdx.clear();
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BML"),  RpcStatType::BML));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BMS"),  RpcStatType::BMS));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOL"),  RpcStatType::BOL));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOS"),  RpcStatType::BOS));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BMF"),  RpcStatType::BMF));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOF"),  RpcStatType::BOF));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOG"),  RpcStatType::BOG));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BME"),  RpcStatType::BME));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIR"),  RpcStatType::BIR));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIM"),  RpcStatType::BIM));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIL"),  RpcStatType::BIL));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIS"),  RpcStatType::BIS));
+
+    m_rpcIdxToStat.clear();
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BML, m_rpcIdHelper->stationNameIndex("BML")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BMS, m_rpcIdHelper->stationNameIndex("BMS")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOL, m_rpcIdHelper->stationNameIndex("BOL")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOS, m_rpcIdHelper->stationNameIndex("BOS")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BMF, m_rpcIdHelper->stationNameIndex("BMF")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOF, m_rpcIdHelper->stationNameIndex("BOF")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOG, m_rpcIdHelper->stationNameIndex("BOG")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BME, m_rpcIdHelper->stationNameIndex("BME")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIR, m_rpcIdHelper->stationNameIndex("BIR")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIM, m_rpcIdHelper->stationNameIndex("BIM")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIL, m_rpcIdHelper->stationNameIndex("BIL")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIS, m_rpcIdHelper->stationNameIndex("BIS")));
 }
 
 } // namespace MuonGM
