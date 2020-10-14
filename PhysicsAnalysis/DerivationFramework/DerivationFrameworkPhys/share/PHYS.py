@@ -357,8 +357,9 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
-trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
-trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
+# Needs a further MR as described above
+#trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+#trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
