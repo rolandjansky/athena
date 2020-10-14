@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::MiniFCAL::MiniFCALAssignIdentifier
@@ -32,7 +32,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "StoreGate/StoreGate.h"
 //#include "AthenaKernel/getMessageSvc.h"
 
 #include "G4ios.hh"
