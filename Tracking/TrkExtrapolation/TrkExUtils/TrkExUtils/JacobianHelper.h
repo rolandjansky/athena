@@ -26,19 +26,19 @@ namespace Trk {
     ///  hence the use of array pointers rather than std constructs. 
     /////////////////////////////////////////////////////////////////////////////////
 
-    inline void propJacobian(double* __restrict__ P,      /// P is a 42-element array containing global coordinates, direction,
+    inline void propJacobian(double* ATH_RESTRICT P,      /// P is a 42-element array containing global coordinates, direction,
                                                           /// inverse momentum and Jacobian of transformation. 
                                                           /// Its elements are updated in-place by this method. 
-                const double* __restrict__ H0,            /// H0, H1, and H3 represent the field at the three points 
-                const double* __restrict__ H1,            /// eachj is a 3-element array 
-                const double* __restrict__ H2,
+                const double* ATH_RESTRICT H0,            /// H0, H1, and H3 represent the field at the three points 
+                const double* ATH_RESTRICT H1,            /// eachj is a 3-element array 
+                const double* ATH_RESTRICT H2,
 
-                const double* __restrict__ A,             /// A represents the direction vector before propagation      
+                const double* ATH_RESTRICT A,             /// A represents the direction vector before propagation      
                                                           /// It is a 3-vector          
-                const double* __restrict__ A0,            /// A0, A3, A4, and A6 represent cross products of the direction  
-                const double* __restrict__ A3,            /// with the field across the 3 points. Each is a 3-vector.      
-                const double* __restrict__ A4,
-                const double* __restrict__ A6,
+                const double* ATH_RESTRICT A0,            /// A0, A3, A4, and A6 represent cross products of the direction  
+                const double* ATH_RESTRICT A3,            /// with the field across the 3 points. Each is a 3-vector.      
+                const double* ATH_RESTRICT A4,
+                const double* ATH_RESTRICT A6,
                 const double S3)                          /// S3 is a step length
     {
         using namespace CxxUtils;
