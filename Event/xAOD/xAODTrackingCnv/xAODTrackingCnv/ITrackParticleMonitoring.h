@@ -22,7 +22,7 @@ public:
 
 
    /* Monitor track parameters via mon tool, prefix and suffix allows to switch between different Track collections if needed */
-   virtual void monitor_tracks(const std::string &prefix, const std::string &suffix, const xAOD::TrackParticleContainer &tracks ) = 0;
+   virtual void monitor_tracks(const std::string &prefix, const std::string &suffix, const xAOD::TrackParticleContainer &tracks ) const = 0;
 
 };
 

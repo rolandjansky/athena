@@ -81,12 +81,12 @@ def makeInDetPrecisionTracking( config = None,
       if "electron" in config.name  or "tau" in config.name:
          trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
-      Parameter_config = True 
+      #Parameter_config = True 
       SummaryTool_config = trigTrackSummaryTool
       ToolSvc += SummaryTool_config
   else:
       SummaryTool_config = InDetTrigTrackSummaryTool
-      Parameter_config = False
+      #Parameter_config = False
 
 
   #-----------------------------------------------------------------------------
@@ -287,60 +287,15 @@ def makeInDetPrecisionTracking( config = None,
   #                      Track particle conversion algorithm
   #
   #
-  #TODO: convert into builders/getters
-  #Monitoring has been removed in the recent MR, put back in
-  """ Use the finalised track collection and convert it to container of xAOD Track Particles  """
-  
-  
-  from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-  InDetTrigMTxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name =  "%sxAODParticleCreatorTool%s" %(algNamePrefix, signature),
-                                                                     Extrapolator = InDetTrigExtrapolator,
-                                                                     KeepParameters = Parameter_config,
-                                                                     #TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits) 
-                                                                     TrackSummaryTool = SummaryTool_config)
-  
-  ToolSvc += InDetTrigMTxAODParticleCreatorTool
-  log.debug(InDetTrigMTxAODParticleCreatorTool)
-  
-  
-  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
-  InDetTrigMTxAODTrackCollectionCnvTool= xAODMaker__TrackCollectionCnvTool(
-     name = "%sxAODTrackCollectionCnvTool%s" %(algNamePrefix, signature),
-     TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
-  
+  from .InDetTrigCommon import trackParticleCnv_builder
+  trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_IDTrig' ), #IDTrig suffix signifies that this is for precision tracking
+                                                 config               = config,
+                                                 inTrackCollectionKey = outPTTracks,
+                                                 outTrackParticlesKey = outPTTrackParticles,
+                                                 )
+  log.debug(trackParticleCnvAlg)
+  ptAlgs.append(trackParticleCnvAlg)
 
-  ToolSvc += InDetTrigMTxAODTrackCollectionCnvTool
-  log.debug(InDetTrigMTxAODTrackCollectionCnvTool)
-  
-  #This one shouldn't be necessary
-  #TODO: obsolete turn off
-  from xAODTrackingCnv.xAODTrackingCnvConf import  xAODMaker__RecTrackParticleContainerCnvTool
-  InDetTrigMTRecTrackParticleContainerCnvTool=  xAODMaker__RecTrackParticleContainerCnvTool(
-     name = "%sRecTrackContainerCnvTool%s" %(algNamePrefix, signature),
-     TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool )
-  
-  ToolSvc += InDetTrigMTRecTrackParticleContainerCnvTool
-  #print (InDetTrigMTRecTrackParticleContainerCnvTool)
-  
-  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
-  InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "%sxAODParticleCreatorAlg%s" %( algNamePrefix, signature),
-                                                                      # Properties below are used for:  TrackCollection -> xAOD::TrackParticle
-                                                                        ConvertTracks = True,  #Turn on  retrieve of TrackCollection, false by default
-                                                                        TrackContainerName                        = outPTTracks,
-                                                                        xAODTrackParticlesFromTracksContainerName = outPTTrackParticles,
-                                                                        TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
-                                                                       ## Properties below are used for: Rec:TrackParticle, aod -> xAOD::TrackParticle (Turn off)
-                                                                        ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm
-                                                                        xAODContainerName = '',  
-                                                                        RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
-                                                                        TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
-                                                                        )
-  
-  
-  #allViewAlgorithms += InDetTrigMTxAODTrackParticleCnvAlg
-  log.debug(InDetTrigMTxAODTrackParticleCnvAlg)
-  ptAlgs.append( InDetTrigMTxAODTrackParticleCnvAlg)
-  
   #ToolSvc.InDetTrigHoleSearchTool.SctSummaryTool.InDetTrigInDetSCT_FlaggedConditionTool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
   
   
