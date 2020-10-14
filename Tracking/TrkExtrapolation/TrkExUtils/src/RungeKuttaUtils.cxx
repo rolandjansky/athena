@@ -141,45 +141,77 @@ globalToLocalVecHelper(double* ATH_RESTRICT P,
 
 }
 
+/* Helper to replace repeated calculation  of
+ * 5x1 = 5x3 * 3X1
+ * for the Jacobian
+ *
+ * E.g a calculation like :
+ * Jac[ 0] = Ax[0]*P[ 7]+Ax[1]*P[ 8]+Ax[2]*P[ 9]; // dL0/dL0
+ * Jac[ 1] = Ax[0]*P[14]+Ax[1]*P[15]+Ax[2]*P[16];  // dL0/dL1
+ * Jac[ 2] = Ax[0]*P[21]+Ax[1]*P[22]+Ax[2]*P[23]; // dL0/dPhi
+ * Jac[ 3] = Ax[0]*P[28]+Ax[1]*P[29]+Ax[2]*P[30]; // dL0/dThe
+ * Jac[ 4] = Ax[0]*P[35]+Ax[1]*P[36]+Ax[2]*P[37]; // dL0/dCM
+ * Jac[ 5] = Ay[0]*P[ 7]+Ay[1]*P[ 8]+Ay[2]*P[ 9]; // dL1/dL0
+ * Jac[ 6] = Ay[0]*P[14]+Ay[1]*P[15]+Ay[2]*P[16]; // dL1/dL1
+ * Jac[ 7] = Ay[0]*P[21]+Ay[1]*P[22]+Ay[2]*P[23];  // dL1/dPhi
+ * Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30]; // dL1/dThe
+ * Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37]; // dL1/dCM
+ * is replaces with
+ *  mutl3x5Helper(&Jac[0],Ax,&P[7]);
+ *  mutl3x5Helper(&Jac[5],Ay,&P[7]);
+ */
 inline void
 mutl3x5Helper(double* ATH_RESTRICT Jac,
               const double* ATH_RESTRICT V,
               const double* ATH_RESTRICT P)
 {
-  /* The following matrix multiplication
-   * 5x1 = 5x3 * 3X1
-   * for the Jacobian
-   * is repeated multiple times
-   * Jac[ 0] = Ax[0]*P[ 7]+Ax[1]*P[ 8]+Ax[2]*P[ 9];                               // dL0/dL0
-   * Jac[ 1] = Ax[0]*P[14]+Ax[1]*P[15]+Ax[2]*P[16];                               // dL0/dL1
-   * Jac[ 2] = Ax[0]*P[21]+Ax[1]*P[22]+Ax[2]*P[23];                               // dL0/dPhi
-   * Jac[ 3] = Ax[0]*P[28]+Ax[1]*P[29]+Ax[2]*P[30];                               // dL0/dThe
-   * Jac[ 4] = Ax[0]*P[35]+Ax[1]*P[36]+Ax[2]*P[37];                               // dL0/dCM
-   * Jac[ 5] = Ay[0]*P[ 7]+Ay[1]*P[ 8]+Ay[2]*P[ 9];                               // dL1/dL0
-   * Jac[ 6] = Ay[0]*P[14]+Ay[1]*P[15]+Ay[2]*P[16];                               // dL1/dL1
-   * Jac[ 7] = Ay[0]*P[21]+Ay[1]*P[22]+Ay[2]*P[23];                               // dL1/dPhi
-   * Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30];                               // dL1/dThe
-   * Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37];                               // dL1/dCM
-  */
+  using vec2 = CxxUtils::vec<double, 2>;
+   /*
+   * |Jac[0] |= |V[0]| * |P[0]| + |V[1]| * |P[1] | + |V[2]| * |P[2] |
+   * |Jac[1] |= |V[0]| * |P[7]| + |V[1]| * |P[8] | + |V[2]| * |P[9] |
+
+   * |Jac[2] |= |V[0]| * |P[14]| + |V[1]| * |P[15]| +  |V[2]| * |P[16]|
+   * |Jac[3] |= |V[0]| * |P[21]| + |V[1]| * |P[22]| +  |V[2]| *  |P[23]|
+   *
+   * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
+   *
+   * The first do we do in vertical SIMD (128 bit ) fashion
+   *
+   * {Jac[0] | Jac[1]} =
+   * {V[0] | V[0]} * {P[0]  | P[7]} +
+   * {V[1] | V[1]} * {P[1]  | P[8]}
+   * {V[2] | V[2]} * {P[16] | P[23}
+   *
+   * {Jac[2] | Jac[3]} =
+   * {V[0] | V[0]} * {P[14] | P[21]} +
+   * {V[1] | V[1]} * {P[15] | P[22]} +
+   * {V[2] | V[2]} * {P[16] | P[23}
+   *
+   * Where  {} is a SIMD size 2 vector
+   *
+   * The remaining odd element is done at the end
+   * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
+   */
   using vec2 = CxxUtils::vec<double, 2>;
   vec2 V1 = { V[0], V[0] };
   vec2 V2 = { V[1], V[1] };
   vec2 V3 = { V[2], V[2] };
 
-  // 1st and 2nd element
+  // 1st/2nd element
   vec2 P1v1 = { P[0], P[7] };
   vec2 P1v2 = { P[1], P[8] };
   vec2 P1v3 = { P[2], P[9] };
   vec2 res1 = V1 * P1v1 + V2 * P1v2 + V3 * P1v3;
-  CxxUtils::vstore(&Jac[0], res1);
 
-  // 3th and 4th element
+  // 3th/4th element
   vec2 P2v1 = { P[14], P[21] };
   vec2 P2v2 = { P[15], P[22] };
   vec2 P2v3 = { P[16], P[23] };
   vec2 res2 = V1 * P2v1 + V2 * P2v2 + V3 * P2v3;
-  CxxUtils::vstore(&Jac[2], res2);
 
+  //store results
+  CxxUtils::vstore(&Jac[0], res1);
+  CxxUtils::vstore(&Jac[2], res2);
   // The 5th element
   Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
 }
