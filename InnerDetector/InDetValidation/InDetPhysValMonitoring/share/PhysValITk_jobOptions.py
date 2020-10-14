@@ -131,11 +131,10 @@ if(not foundGeoTag):
 # when running over DAOD, decorators should be off to prevent crashes
 if not runDAOD : 
 
-  if(foundGeoTag):
-    ToolSvc.InDetPhysHitDecoratorTool.UseNewITkLayerNumbering = False
-
   from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
   decorators = InDetPhysValDecoratorAlg()
+  if(foundGeoTag):
+    decorators.InDetPhysHitDecoratorTool.UseNewITkLayerNumbering = False
   topSequence += decorators
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
