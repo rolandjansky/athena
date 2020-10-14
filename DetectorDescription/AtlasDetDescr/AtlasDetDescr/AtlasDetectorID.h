@@ -87,7 +87,6 @@ public:
     Identifier          lar_em          (void) const;
     Identifier          lar_hec         (void) const;
     Identifier          lar_fcal        (void) const;
-    Identifier          lar_hgtd        (void) const;
     //@}
 
     /// @name Muon subsystem ids
@@ -177,7 +176,6 @@ public:
     bool                is_lar_hec      (Identifier id) const;
     bool                is_lar_fcal     (Identifier id) const;
     bool                is_lar_minifcal (Identifier id) const;
-    bool                is_lar_hgtd     (Identifier id) const;
     /// LAr/Tile dead material:
     bool                is_lar_dm       (Identifier id) const; 
     bool                is_tile_dm      (Identifier id) const; 
@@ -210,7 +208,6 @@ public:
     bool                is_lar_hec      (const ExpandedIdentifier& id) const;
     bool                is_lar_fcal     (const ExpandedIdentifier& id) const;
     bool                is_lar_minifcal (const ExpandedIdentifier& id) const;
-    bool                is_lar_hgtd     (const ExpandedIdentifier& id) const;
     bool                is_mdt          (const ExpandedIdentifier& id) const;
     bool                is_csc          (const ExpandedIdentifier& id) const;
     bool                is_tgc          (const ExpandedIdentifier& id) const;
@@ -275,7 +272,6 @@ protected:
     ExpandedIdentifier          lar_em_exp          (void) const;
     ExpandedIdentifier          lar_hec_exp         (void) const;
     ExpandedIdentifier          lar_fcal_exp        (void) const;
-    ExpandedIdentifier          lar_hgtd_exp        (void) const;
 
     /// Forward
     ExpandedIdentifier          alfa_exp            (void) const;
@@ -297,7 +293,6 @@ protected:
     int                 lar_em_field_value       () const;  
     int                 lar_hec_field_value      () const; 
     int                 lar_fcal_field_value     () const;
-    int                 lar_hgtd_field_value     () const;
     int                 mdt_field_value          () const;
     int                 csc_field_value          () const;
     int                 rpc_field_value          () const;
@@ -371,7 +366,6 @@ private:
     int                 m_LAR_HEC_ID; 
     int                 m_LAR_FCAL_ID;
     int                 m_LAR_FCAL_MODULE_INDEX;
-    int                 m_LAR_HGTD_ID;
     int                 m_MDT_ID;
     int                 m_CSC_ID;
     int                 m_RPC_ID;
@@ -531,13 +525,6 @@ AtlasDetectorID::lar_fcal_exp        (void) const
     return (result << m_LAR_FCAL_ID);
 }
 
-inline ExpandedIdentifier
-AtlasDetectorID::lar_hgtd_exp        (void) const
-{
-    ExpandedIdentifier result(lar_exp());
-    return (result << m_LAR_HGTD_ID);
-}
-
 inline ExpandedIdentifier          
 AtlasDetectorID::alfa_exp             (void) const
 {
@@ -601,9 +588,6 @@ AtlasDetectorID::lar_hec_field_value      () const {return (m_LAR_HEC_ID);}
 
 inline int                 
 AtlasDetectorID::lar_fcal_field_value     () const {return (m_LAR_FCAL_ID);}
-
-inline int
-AtlasDetectorID::lar_hgtd_field_value     () const {return (m_LAR_HGTD_ID);}
 
 inline int                 
 AtlasDetectorID::mdt_field_value          () const {return (m_MDT_ID);}
@@ -795,16 +779,6 @@ AtlasDetectorID::is_lar_minifcal            (Identifier id) const
     bool result = false;
     if(is_lar_fcal(id)) {
         result = (m_lar_fcal_module_impl.unpack(id) == 0);
-    }
-    return result;
-}
-
-inline bool
-AtlasDetectorID::is_lar_hgtd             (Identifier id) const
-{
-    bool result = false;
-    if(is_lar(id)) {
-        result = (m_lar_part_impl.unpack(id) == m_LAR_HGTD_ID);
     }
     return result;
 }
