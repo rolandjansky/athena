@@ -1,27 +1,7 @@
-################################################################################
-# Package: TBMonitoring
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TBMonitoring )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaMonitoring
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          TestBeam/TBEvent
-                          TestBeam/TBUtils
-                          PRIVATE
-                          Control/AthenaKernel
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloUtils
-                          Event/EventInfo
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArCabling )
 
 # External dependencies:
 find_package( AIDA )
@@ -34,13 +14,12 @@ atlas_add_library( TBMonitoringLib
                    INCLUDE_DIRS ${AIDA_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloGeoHelpers CaloIdentifier Identifier GaudiKernel TBEvent AthenaMonitoringLib StoreGateLib SGtests CaloUtilsLib LArCablingLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel CaloEvent EventInfo LArIdentifier )
+                   LINK_LIBRARIES ${AIDA_LIBRARIES} CaloGeoHelpers CaloIdentifier Identifier GaudiKernel TBEvent AthenaMonitoringLib StoreGateLib TBUtilsLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel CaloEvent CaloUtilsLib EventInfo LArCablingLib LArIdentifier )
 
 atlas_add_component( TBMonitoring
                      src/components/*.cxx
-                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel TBEvent AthenaKernel CaloEvent CaloUtilsLib EventInfo LArIdentifier LArCablingLib TBMonitoringLib )
+                     LINK_LIBRARIES TBMonitoringLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt share/*.py )

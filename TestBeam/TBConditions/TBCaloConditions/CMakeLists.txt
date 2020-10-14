@@ -1,30 +1,18 @@
-################################################################################
-# Package: TBCaloConditions
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TBCaloConditions )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/CondDBObjects
-                          Event/EventInfo )
-
 # Component(s) in the package:
 atlas_add_library( TBCaloConditionsLib
-                   src/*.cxx
+                   TBCaloConditions/*.h
+                   INTERFACE
                    PUBLIC_HEADERS TBCaloConditions
-                   LINK_LIBRARIES GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities CondDBObjects EventInfo )
+                   LINK_LIBRARIES GaudiKernel )
 
 atlas_add_component( TBCaloConditions
-                     src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities CondDBObjects EventInfo TBCaloConditionsLib )
+                     src/*.cxx src/components/*.cxx
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps StoreGateLib AthenaPoolUtilities CondDBObjects EventInfo TBCaloConditionsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
