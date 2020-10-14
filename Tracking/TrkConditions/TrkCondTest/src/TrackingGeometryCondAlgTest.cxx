@@ -49,7 +49,7 @@ StatusCode Trk::TrackingGeometryCondAlgTest::execute(const EventContext& ctx) co
     return StatusCode::FAILURE;
   }
 
-  for (ToolHandle<Trk::IGeometryProcessor>& proc : m_trackingGeometryProcessors) {
+  for (const ToolHandle<Trk::IGeometryProcessor>& proc : m_trackingGeometryProcessors) {
     ATH_MSG_VERBOSE("PRINT SVC TG");
     ATH_CHECK(proc->process(*m_trackingGeometry));
     ATH_MSG_VERBOSE("PRINT COND TG");
