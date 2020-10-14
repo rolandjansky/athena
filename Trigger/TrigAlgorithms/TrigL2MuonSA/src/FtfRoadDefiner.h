@@ -31,7 +31,7 @@ namespace TrigL2MuonSA {
   public:
     StatusCode defineRoad( const xAOD::TrackParticle* idtrack,
 			   TrigL2MuonSA::MuonRoad&    muonRoad);
-    const Trk::TrackParameters* extTrack( const xAOD::TrackParticle* trk, double R, double halflength, int& extFlag );
+    std::unique_ptr<const Trk::TrackParameters> extTrack( const xAOD::TrackParticle* trk, const double R, const double halflength,  int& extFlag );
 
   protected:
 

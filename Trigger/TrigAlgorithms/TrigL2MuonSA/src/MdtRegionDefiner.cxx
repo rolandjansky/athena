@@ -40,7 +40,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 							 TrigL2MuonSA::MuonRoad& muonRoad,
 							 TrigL2MuonSA::MdtRegion& mdtRegion)
 {
-  const double ZERO_LIMIT = 1e-5;
+  constexpr double ZERO_LIMIT = 1e-5;
   mdtRegion.Clear();
   
   int sectors[2];
@@ -179,7 +179,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
   else {
     for (int i=0; i<6; i++){
       for (int j=0; j<2; j++){
-        if (abs(muonRoad.extFtfMiddlePhi) > ZERO_LIMIT) { // for inside-out
+        if (std::abs(muonRoad.extFtfMiddlePhi) > ZERO_LIMIT) { // for inside-out
           if (i==4) muonRoad.phi[9][j] = muonRoad.extFtfMiddlePhi;
           else if (i==5) muonRoad.phi[10][j] = muonRoad.extFtfMiddlePhi;
           else muonRoad.phi[i][j] = muonRoad.extFtfMiddlePhi;

@@ -652,12 +652,14 @@ def getInsideOutMuonChainNames():
     muonSlice = TriggerFlags.MuonSlice.signatures()
     bphysSlice = TriggerFlags.BphysicsSlice.signatures()
     chains =[]
-    if muonSlice:
-        for chain in muonSlice:
-            if "l2io" not in chain.name:
-                chains.append(chain.name)
-    if bphysSlice:
-        for chain in bphysSlice:
-            if "l2io" not in chain.name:
-                chains.append(chain.name)
+
+    try:
+        chains += [chain.name for chain in muonSlice if "l2io" not in chain.name]
+    except Exception as e:
+        print(e)
+    try:
+        chains += [chain.name for chain in bphysSlice if "l2io" not in chain.name]
+    except Exception as e:
+        print(e)
+
     return chains

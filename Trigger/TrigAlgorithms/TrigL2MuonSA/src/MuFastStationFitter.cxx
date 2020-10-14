@@ -16,6 +16,11 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+namespace{
+  constexpr double ZERO_LIMIT = 1.e-6;
+}
+
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -86,19 +91,18 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
                                                               TrigL2MuonSA::RpcFitResult& rpcFitResult,
                                                               std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
-  const double ZERO_LIMIT = 1e-5;
 
   //
   for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
 
     if (rpcFitResult.isSuccess) {
       //      itTrack->phiMSDir = rpcFitResult.phiDir;
-      itTrack.phiMSDir = (cos(rpcFitResult.phi)!=0)? tan(rpcFitResult.phi): 0;
+      itTrack.phiMSDir = (cos(rpcFitResult.phi)!=0)? std::tan(rpcFitResult.phi): 0;
     } else {
-      if ( abs(muonRoad.extFtfMiddlePhi) > ZERO_LIMIT ) { //inside-out
-	itTrack.phiMSDir = (cos(muonRoad.extFtfMiddlePhi)!=0)? tan(muonRoad.extFtfMiddlePhi): 0;
+      if ( std::abs(muonRoad.extFtfMiddlePhi) > ZERO_LIMIT ) { //inside-out
+	itTrack.phiMSDir = (cos(muonRoad.extFtfMiddlePhi)!=0)? std::tan(muonRoad.extFtfMiddlePhi): 0;
       } else {
-	itTrack.phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
+	itTrack.phiMSDir = (cos(p_roi->phi())!=0)? std::tan(p_roi->phi()): 0;
       }
       itTrack.isRpcFailure = true;
     }
@@ -118,7 +122,6 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const LVL1::
 								    TrigL2MuonSA::TgcFitResult& tgcFitResult,
 								    std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
-  const double ZERO_LIMIT = 1e-5;
 
   for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
 
@@ -165,7 +168,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
     ATH_CHECK( m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, itTrack, muonRoad) );
 
     if ( itTrack.etaBin < -1 ) {
-      itTrack.etaBin = static_cast<int>((fabs(muonRoad.extFtfMiddleEta)-1.)/0.05);
+      itTrack.etaBin = (int)((fabs(muonRoad.extFtfMiddleEta)-1.)/0.05); // eta binning is the same as AlphaBetaEstimate
     }
 
     ATH_CHECK( m_ptFromAlphaBeta->setPt(itTrack,tgcFitResult) );
@@ -193,7 +196,6 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
    float Xor, Yor, sigma, rm=0., phim=0;
    float Ymid, Xmid, Amid;
 
-   const float ZERO_LIMIT         = 1e-6;
    const unsigned int MAX_STATION = 10; // no BMG(Backup=10)
    const float SIGMA              = 0.0080;
    const float DRIFTSPACE_LIMIT   = 16.;
@@ -368,7 +370,6 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
       float Ymid  = 0.;
       float Xmid  = 0.;
       float Amid  = 0.;
-      const float ZERO_LIMIT         = 1e-6;
       const float SIGMA              = 0.0080;
       const float DRIFTSPACE_LIMIT   = 16.;
       const int   MIN_MDT_FOR_FIT    = 3;
@@ -512,7 +513,6 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
   float Xor, Yor, sigma, rm=0., phim=0;
   float Ymid, Xmid, Amid;
  
-  const float ZERO_LIMIT         = 1e-6;
   const unsigned int MAX_STATION = 8;
   const float SIGMA              = 0.0080;
   const float DRIFTSPACE_LIMIT   = 16.;
@@ -1418,8 +1418,6 @@ int TrigL2MuonSA::MuFastStationFitter::Evlfit(int Ifla, TrigL2MuonSA::PBFitResul
   pbFitResult.NDOF = -2;
   Ntry = 0;
   Ifit = 0;
-  
-  const double ZERO_LIMIT = 1e-6;
   
   for(j=0;j<pbFitResult.NPOI;j++) if(pbFitResult.IGLIN[j]>=1) pbFitResult.NDOF++;
   
