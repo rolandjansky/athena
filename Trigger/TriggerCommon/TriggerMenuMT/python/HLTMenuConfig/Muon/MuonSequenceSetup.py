@@ -5,7 +5,8 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
+from AthenaCommon.Logging import logging
+log = logging.getLogger('MuonSequenceSetup')
 
 #-----------------------------------------------------#
 ### Used the algorithms as Step1 "muFast step" ###
@@ -656,10 +657,10 @@ def getInsideOutMuonChainNames():
     try:
         chains += [chain.name for chain in muonSlice if "l2io" not in chain.name]
     except Exception as e:
-        print(e)
+        log.debug(e)
     try:
         chains += [chain.name for chain in bphysSlice if "l2io" not in chain.name]
     except Exception as e:
-        print(e)
+        log.debug(e)
 
     return chains
