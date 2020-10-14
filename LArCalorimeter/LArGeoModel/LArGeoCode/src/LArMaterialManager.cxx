@@ -6,7 +6,6 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/Units.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/PhysicalConstants.h"
