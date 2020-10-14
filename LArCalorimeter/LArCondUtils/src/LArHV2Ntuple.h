@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheLArHV2Ntuple.h
@@ -16,7 +16,15 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/CondHandleKeyArray.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArHVIdMapping.h"
+#include "LArHV/EMBHVManager.h"
+#include "LArHV/EMECHVManager.h"
+#include "LArHV/EMBPresamplerHVManager.h"
+#include "LArHV/EMECPresamplerHVManager.h"
+#include "LArHV/HECHVManager.h"
+#include "LArHV/FCALHVManager.h"
 
 #include "TTree.h"
 
@@ -25,6 +33,7 @@ class LArOnlineID;
 class Identifier;
 class HWIdentifier;
 class CaloDetDescrManager;
+class CondAttrListCollection;
 
 class LArHV2Ntuple : public AthAlgorithm {
   public:
@@ -32,18 +41,21 @@ class LArHV2Ntuple : public AthAlgorithm {
     /** Standard Athena-Algorithm Constructor */
     LArHV2Ntuple(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~LArHV2Ntuple();
+    virtual ~LArHV2Ntuple();
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    virtual StatusCode          initialize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
-    /** standard Athena-Algorithm method */
-    StatusCode          finalize(){return StatusCode::SUCCESS;}
+    virtual StatusCode          execute() override;
     
   private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+  SG::ReadCondHandleKey<LArHVIdMapping> m_hvCablingKey
+    {this, "LArHVIdMapping", "LArHVIdMap", "SG key for HV ID mapping"};
+  SG::ReadCondHandleKeyArray<CondAttrListCollection>  m_DCSFolderKeys
+    { this, "DCSFolderNames", {"/LAR/DCS/HV/BARREl/I16", "/LAR/DCS/HV/BARREL/I8"}, "DCS folders with HV values"};
+
 
   //---------------------------------------------------
   // Member variables
@@ -76,6 +88,13 @@ class LArHV2Ntuple : public AthAlgorithm {
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   std::map<int, std::vector<HWIdentifier> >m_hvonlId_map;
 
-  std::vector<int> GetHVLines(const Identifier& id) ;
+  std::vector<int> GetHVLines (const EMBHVManager::EMBHVData& hvdata_EMB,
+                               const EMBPresamplerHVManager::EMBPresamplerHVData& hvdata_EMBPS,
+                               const EMECHVManager::EMECHVData& hvdata_EMEC_OUT,
+                               const EMECHVManager::EMECHVData& hvdata_EMEC_IN,
+                               const EMECPresamplerHVManager::EMECPresamplerHVData& hvdata_EMECPS,
+                               const HECHVManager::HECHVData& hvdata_HEC,
+                               const FCALHVManager::FCALHVData& hvdata_FCAL,
+                               const Identifier& id) ;
 };
 #endif
