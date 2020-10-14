@@ -635,11 +635,11 @@ namespace Muon {
       }
     }
     truthParticle.auxdata<std::vector<unsigned long long> >("truthMdtHits")=mdtTruthHits;
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits")=cscTruthHits;
+    if (m_idHelperSvc->hasCSC()) truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits")=cscTruthHits;
     truthParticle.auxdata<std::vector<unsigned long long> >("truthTgcHits")=tgcTruthHits;
     truthParticle.auxdata<std::vector<unsigned long long> >("truthRpcHits")=rpcTruthHits;
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthStgcHits")=stgcTruthHits;
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthMMHits")=mmTruthHits;
+    if (m_idHelperSvc->hasSTgc()) truthParticle.auxdata<std::vector<unsigned long long> >("truthStgcHits")=stgcTruthHits;
+    if (m_idHelperSvc->hasMM()) truthParticle.auxdata<std::vector<unsigned long long> >("truthMMHits")=mmTruthHits;
 
     ATH_MSG_VERBOSE("Added "<<mdtTruthHits.size()<<" mdt truth hits, "<<cscTruthHits.size()<<" csc truth hits, "<<rpcTruthHits.size()<<" rpc truth hits, and "<<tgcTruthHits.size()<<" tgc truth hits");
   }

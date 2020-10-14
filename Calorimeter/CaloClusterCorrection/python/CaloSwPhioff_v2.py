@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwPhioff_v2.py,v 1.2 2006-11-16 07:07:45 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwPhioff_v2.py
 # Created: Nov 2006, sss
@@ -14,7 +12,8 @@
 # This was added in LArClusterRec-02-05-12, in 8.6.0.
 #
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import \
+     CALOCORR_EMB2, CALOCORR_EME2, EMB2, EME2
 from AthenaCommon.SystemOfUnits import GeV
 import math
 

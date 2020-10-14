@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 #######################################################################
@@ -28,7 +28,7 @@
 # 5) CaloSWCalHitsEfront_slope_v2_gam
 #######################################################################
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 
 #######################################################################
 
@@ -1935,7 +1935,7 @@ samplings_depths = [
 [ 2.4625 , 0.0 , 3.77207 , 15.3194 , 31.8341 ],
 [ 2.4875 , 0.0 , 3.83388 , 15.5645 , 32.2648 ],
 
-];
+]
 
 #######################################################################
 

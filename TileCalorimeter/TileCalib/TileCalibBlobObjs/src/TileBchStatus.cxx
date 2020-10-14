@@ -1,23 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileBchStatus.h"
 #include <algorithm>
 
 //=== static memebers
-TileBchStatus::PrbSet TileBchStatus::m_refBad;
-TileBchStatus::PrbSet TileBchStatus::m_refNoisy;
-TileBchStatus::PrbSet TileBchStatus::m_refNoGainL1;
-TileBchStatus::PrbSet TileBchStatus::m_refBadTiming;
-TileBchStatus::PrbSet TileBchStatus::m_refWrongBCID;
-TileBchStatus::PrbSet TileBchStatus::m_refTimingDmuBcOffset;
+TileBchStatus::LockedPrbSet TileBchStatus::s_refBad ATLAS_THREAD_SAFE;
+TileBchStatus::LockedPrbSet TileBchStatus::s_refNoisy ATLAS_THREAD_SAFE;
+TileBchStatus::LockedPrbSet TileBchStatus::s_refNoGainL1 ATLAS_THREAD_SAFE;
+TileBchStatus::LockedPrbSet TileBchStatus::s_refBadTiming ATLAS_THREAD_SAFE;
+TileBchStatus::LockedPrbSet TileBchStatus::s_refWrongBCID ATLAS_THREAD_SAFE;
+TileBchStatus::LockedPrbSet TileBchStatus::s_refTimingDmuBcOffset ATLAS_THREAD_SAFE;
 
 //
 //_________________________________________________________
 TileBchStatus::TileBchStatus()
 {
-  if(!m_refBad.size()) initClassifierDefinitions();
+  if(!s_refBad.size()) initClassifierDefinitions();
 }
 
 //
@@ -25,7 +25,7 @@ TileBchStatus::TileBchStatus()
 TileBchStatus::TileBchStatus(const PrbSet& prbSet) : 
   m_prbSet(prbSet)
 {
-  if(!m_refBad.size()) initClassifierDefinitions();
+  if(!s_refBad.size()) initClassifierDefinitions();
 }
 
 //
@@ -91,50 +91,62 @@ void
 TileBchStatus::initClassifierDefinitions()
 {
   //=== define which problems trigger a bad state
+  PrbSet refBad;
   //=== adc
-  m_refBad.insert(TileBchPrbs::GeneralMaskAdc);
-  m_refBad.insert(TileBchPrbs::AdcDead);
-  m_refBad.insert(TileBchPrbs::SevereStuckBit);
-  m_refBad.insert(TileBchPrbs::SevereDataCorruption);
-  m_refBad.insert(TileBchPrbs::VeryLargeHfNoise);
-  m_refBad.insert(TileBchPrbs::NoData);
-  m_refBad.insert(TileBchPrbs::WrongDspConfig);
+  refBad.insert(TileBchPrbs::GeneralMaskAdc);
+  refBad.insert(TileBchPrbs::AdcDead);
+  refBad.insert(TileBchPrbs::SevereStuckBit);
+  refBad.insert(TileBchPrbs::SevereDataCorruption);
+  refBad.insert(TileBchPrbs::VeryLargeHfNoise);
+  refBad.insert(TileBchPrbs::NoData);
+  refBad.insert(TileBchPrbs::WrongDspConfig);
   //=== channel
-  m_refBad.insert(TileBchPrbs::GeneralMaskChannel);
-  m_refBad.insert(TileBchPrbs::NoPmt);
-  m_refBad.insert(TileBchPrbs::NoHV);
-  m_refBad.insert(TileBchPrbs::WrongHV);
+  refBad.insert(TileBchPrbs::GeneralMaskChannel);
+  refBad.insert(TileBchPrbs::NoPmt);
+  refBad.insert(TileBchPrbs::NoHV);
+  refBad.insert(TileBchPrbs::WrongHV);
   //=== online (adc)
-  m_refBad.insert(TileBchPrbs::OnlineGeneralMaskAdc);
+  refBad.insert(TileBchPrbs::OnlineGeneralMaskAdc);
+  s_refBad.set (std::move (refBad));
   
+  PrbSet refNoisy;
   //=== define which problems trigger a noisy state
-  m_refNoisy.insert(TileBchPrbs::LargeHfNoise);
-  m_refNoisy.insert(TileBchPrbs::CorrelatedNoise);
-  m_refNoisy.insert(TileBchPrbs::LargeLfNoise);
+  refNoisy.insert(TileBchPrbs::LargeHfNoise);
+  refNoisy.insert(TileBchPrbs::CorrelatedNoise);
+  refNoisy.insert(TileBchPrbs::LargeLfNoise);
+  s_refNoisy.set (std::move (refNoisy));
 
+  PrbSet refNoGainL1;
   //=== define which problems trigger a NoGainL1 state
-  m_refNoGainL1.insert(TileBchPrbs::AdcDead);
-  m_refNoGainL1.insert(TileBchPrbs::NoPmt);
-  m_refNoGainL1.insert(TileBchPrbs::NoHV);
-  m_refNoGainL1.insert(TileBchPrbs::TrigGeneralMask);
-  m_refNoGainL1.insert(TileBchPrbs::TrigNoGain);
-  m_refNoGainL1.insert(TileBchPrbs::TrigNoisy);
-  m_refNoGainL1.insert(TileBchPrbs::DisableForL1);
+  refNoGainL1.insert(TileBchPrbs::AdcDead);
+  refNoGainL1.insert(TileBchPrbs::NoPmt);
+  refNoGainL1.insert(TileBchPrbs::NoHV);
+  refNoGainL1.insert(TileBchPrbs::TrigGeneralMask);
+  refNoGainL1.insert(TileBchPrbs::TrigNoGain);
+  refNoGainL1.insert(TileBchPrbs::TrigNoisy);
+  refNoGainL1.insert(TileBchPrbs::DisableForL1);
+  s_refNoGainL1.set (std::move (refNoGainL1));
 
+  PrbSet refBadTiming;
   //=== define which problems trigger a bad timing
-  m_refBadTiming.insert(TileBchPrbs::BadTiming);
+  refBadTiming.insert(TileBchPrbs::BadTiming);
   //=== online
-  m_refBadTiming.insert(TileBchPrbs::OnlineBadTiming);
+  refBadTiming.insert(TileBchPrbs::OnlineBadTiming);
+  s_refBadTiming.set (std::move (refBadTiming));
 
+  PrbSet refTimingDmuBcOffset;
   //=== define which problems trigger an affected timing
-  m_refTimingDmuBcOffset.insert(TileBchPrbs::TimingDmuBcOffset);
+  refTimingDmuBcOffset.insert(TileBchPrbs::TimingDmuBcOffset);
   //=== online
-  m_refTimingDmuBcOffset.insert(TileBchPrbs::OnlineTimingDmuBcOffset);
+  refTimingDmuBcOffset.insert(TileBchPrbs::OnlineTimingDmuBcOffset);
+  s_refTimingDmuBcOffset.set (std::move (refTimingDmuBcOffset));
 
+  PrbSet refWrongBCID;
   //=== define which problems trigger a wrong BCID
-  m_refWrongBCID.insert(TileBchPrbs::WrongBCID);
+  refWrongBCID.insert(TileBchPrbs::WrongBCID);
   //=== online
-  m_refWrongBCID.insert(TileBchPrbs::OnlineWrongBCID);
+  refWrongBCID.insert(TileBchPrbs::OnlineWrongBCID);
+  s_refWrongBCID.set (std::move (refWrongBCID));
 }
 
 //
@@ -142,7 +154,7 @@ TileBchStatus::initClassifierDefinitions()
 void 
 TileBchStatus::defineBad(const TileBchStatus& status)
 {
-  m_refBad = status.getPrbs();
+  s_refBad.set (status.getPrbs());
 }
 
 //
@@ -150,7 +162,7 @@ TileBchStatus::defineBad(const TileBchStatus& status)
 void 
 TileBchStatus::defineNoisy(const TileBchStatus& status)
 {
-  m_refNoisy = status.getPrbs();
+  s_refNoisy.set (status.getPrbs());
 }
 
 //
@@ -158,7 +170,7 @@ TileBchStatus::defineNoisy(const TileBchStatus& status)
 void 
 TileBchStatus::defineNoGainL1(const TileBchStatus& status)
 {
-  m_refNoGainL1 = status.getPrbs();
+  s_refNoGainL1.set (status.getPrbs());
 }
 
 //
@@ -166,7 +178,7 @@ TileBchStatus::defineNoGainL1(const TileBchStatus& status)
 void 
 TileBchStatus::defineBadTiming(const TileBchStatus& status)
 {
-  m_refBadTiming = status.getPrbs();
+  s_refBadTiming.set (status.getPrbs());
 }
 
 //
@@ -174,7 +186,7 @@ TileBchStatus::defineBadTiming(const TileBchStatus& status)
 void
 TileBchStatus::defineTimingDmuBcOffset(const TileBchStatus& status)
 {
-  m_refTimingDmuBcOffset = status.getPrbs();
+  s_refTimingDmuBcOffset.set (status.getPrbs());
 }
 
 //
@@ -182,7 +194,7 @@ TileBchStatus::defineTimingDmuBcOffset(const TileBchStatus& status)
 void
 TileBchStatus::defineWrongBCID(const TileBchStatus& status)
 {
-  m_refWrongBCID = status.getPrbs();
+  s_refWrongBCID.set (status.getPrbs());
 }
 
 //
@@ -190,7 +202,7 @@ TileBchStatus::defineWrongBCID(const TileBchStatus& status)
 TileBchStatus 
 TileBchStatus::getDefinitionBad()
 {
-  return TileBchStatus(m_refBad);
+  return s_refBad;
 }
 
 //
@@ -198,7 +210,7 @@ TileBchStatus::getDefinitionBad()
 TileBchStatus
 TileBchStatus::getDefinitionNoisy()
 {
-  return TileBchStatus(m_refNoisy);
+  return s_refNoisy;
 }
 
 //
@@ -206,7 +218,7 @@ TileBchStatus::getDefinitionNoisy()
 TileBchStatus
 TileBchStatus::getDefinitionNoGainL1()
 {
-  return TileBchStatus(m_refNoGainL1);
+  return s_refNoGainL1;
 }
 
 //
@@ -214,7 +226,7 @@ TileBchStatus::getDefinitionNoGainL1()
 TileBchStatus
 TileBchStatus::getDefinitionBadTiming()
 {
-  return TileBchStatus(m_refBadTiming);
+  return s_refBadTiming;
 }
 
 //
@@ -222,7 +234,7 @@ TileBchStatus::getDefinitionBadTiming()
 TileBchStatus
 TileBchStatus::getDefinitionTimingDmuBcOffset()
 {
-  return TileBchStatus(m_refTimingDmuBcOffset);
+  return s_refTimingDmuBcOffset;
 }
 
 //
@@ -230,7 +242,7 @@ TileBchStatus::getDefinitionTimingDmuBcOffset()
 TileBchStatus
 TileBchStatus::getDefinitionWrongBCID()
 {
-  return TileBchStatus(m_refWrongBCID);
+  return s_refWrongBCID;
 }
 
 //
@@ -254,4 +266,15 @@ TileBchStatus::getString() const
     prbStr += TileBchPrbs::getDescription(*iPrb) + "; ";
   } 
   return prbStr;
+}
+
+//
+//_________________________________________________________
+bool TileBchStatus::LockedPrbSet::test (const PrbSet& s) const
+{
+  std::lock_guard lock (m_mutex);
+  PrbSet overlapp;
+  std::insert_iterator<PrbSet> insItr(overlapp, overlapp.begin()); 
+  std::set_intersection(m_set.begin(),m_set.end(), s.begin(),  s.end(), insItr);
+  return !overlapp.empty();
 }

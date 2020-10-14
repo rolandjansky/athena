@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOLSVC_IPOOLSVC_H
@@ -14,6 +14,7 @@
 #include "CollectionBase/ICollection.h"
 #include "PersistencySvc/ITransaction.h"
 #include "DataModelRoot/RootType.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 
@@ -92,7 +93,8 @@ public: // Non-static members
    /// @param collectionName [IN] string containing the persistent name of the collection.
    /// @param openMode [IN] ICollection open mode of the collection.
    /// @param contextId [IN] id for PoolSvc persistency service to use for input.
-   virtual pool::ICollection* createCollection(const std::string& collectionType,
+   virtual pool::ICollection* createCollection ATLAS_NOT_THREAD_SAFE
+          (const std::string& collectionType,
 	   const std::string& connection,
 	   const std::string& collectionName,
 	   const pool::ICollection::OpenMode& openMode = pool::ICollection::READ,
@@ -102,7 +104,7 @@ public: // Non-static members
    /// @param c [IN] collection to be registered
    /// @param overwrite [IN] whether to overwrite
    /// @param sharedCat [IN] whether to use same catalog as data
-   virtual void registerExistingCollection(pool::ICollection* c, bool overwrite, bool sharedCat = true) = 0;
+   virtual void registerExistingCollection ATLAS_NOT_THREAD_SAFE (pool::ICollection* c, bool overwrite, bool sharedCat = true) = 0;
 
    /// @return a token for a container entry.
    /// @param connection [IN] string containing the connection/file name.

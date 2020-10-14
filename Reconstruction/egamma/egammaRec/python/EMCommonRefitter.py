@@ -6,16 +6,17 @@ from InDetRecExample import TrackingCommon as TrackingCommon
 print("EMCommonRefitter.py")
 
 
-def getGSFTrackFitter():
+def getGSFTrackFitter(doRefitOnMeasurementBase=True):
 
-    # setup Rot and error scaling
-    egRotCreator = TrackingCommon.getInDetRotCreator(
-        name='egRotCreator',
-        private=True)
+    egRotCreator = None
+    if not doRefitOnMeasurementBase:
+        egRotCreator = TrackingCommon.getInDetRotCreator(
+            name='egRotCreator',
+            private=True)
 
-    TrackingCommon.createAndAddCondAlg(
-        TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
-        'RIO_OnTrackErrorScalingCondAlg')
+        TrackingCommon.createAndAddCondAlg(
+            TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
+            'RIO_OnTrackErrorScalingCondAlg')
 
     # setup Rk propagator
     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import (
@@ -57,7 +58,7 @@ def getGSFTrackFitter():
         ToolForExtrapolation=GsfExtrapolator,
         ReintegrateOutliers=True,
         MakePerigee=True,
-        RefitOnMeasurementBase=True,
+        RefitOnMeasurementBase=doRefitOnMeasurementBase,
         DoHitSorting=True,
         ToolForROTCreation=egRotCreator)
     # --- end of fitter loading

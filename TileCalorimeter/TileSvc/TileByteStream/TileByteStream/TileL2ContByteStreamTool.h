@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -55,11 +55,11 @@ class TileL2ContByteStreamTool: public AthAlgTool {
   /** AlgTool InterfaceID */
   static const InterfaceID& interfaceID( );
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /** Provides conversion from TileL2Container to BS */
-  StatusCode convert(TileL2Container* cont, FullEventAssembler<TileHid2RESrcID> *fea);
+  StatusCode convert(TileL2Container* cont, FullEventAssembler<TileHid2RESrcID> *fea) const;
 
  private:
 

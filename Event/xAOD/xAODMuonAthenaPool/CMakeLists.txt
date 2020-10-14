@@ -29,7 +29,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODMUONATHENAPOOL_REFERENCE_TAG
-       xAODMuonAthenaPoolReference-01-00-00 )
+       xAODMuonAthenaPoolReference-01-01-00 )
   run_tpcnv_legacy_test( xAODMuonAthenaPool_master-20190911   AOD-master-20190911-full
                    REQUIRED_LIBRARIES xAODMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMUONATHENAPOOL_REFERENCE_TAG} )

@@ -5,6 +5,13 @@ from __future__ import print_function
 from ROOT import TMath
 import AthenaCommon.SystemOfUnits as Units
 
+#import cppyy
+#cppyy.load_library("libLArStrHelperDict")
+#import LArStrHelper 
+#import ROOT
+#ROOT.gROOT.GetClass('LArStrHelper::febNameString')
+from ROOT import LArStrHelper
+
 class LArDQGlobals(object):
       __slots__ = ('HVeta_EMB','HVphi_EMB','HVeta_EMEC','HVphi_EMEC','HVeta_HECFcal','HVphi_HECFcal',
                    'LB_Bins','LB_Min','LB_Max','BCID_Bins','BCID_Min','BCID_Max',
@@ -30,8 +37,9 @@ class LArDQGlobals(object):
                    'Cell_Time_Min','Cell_Time_Max','Emin','Emax','DEmin','DEmax','Qmin','Qmax','DQmin','DQmax',
                    'Tmin','Tmax','DTmin','DTmax','OnlineOffline','TTriggerTypeMax','MaxCellThresholdADC',
                    'CorruptionSource','Streams',
-                   'Partitions','Sides','Variables','Layers','Cell_Variables')
-
+                   'Partitions','Sides','Variables','Layers','Cell_Variables',
+                   'febsBarrelA','febsEndcapA','febsBarrelC','febsEndcapC')
+      
 
 lArDQGlobals = LArDQGlobals()
 
@@ -111,6 +119,25 @@ lArDQGlobals.Feedthrough_Slot_labels_Barrel=[str(If) if Is==1 else '' for If in 
 range_0_25=range(25)
 range_1_16=range(1,16)
 lArDQGlobals.Feedthrough_Slot_labels_Endcap=[str(If) if Is==1 else '' for If in range_0_25 for Is in range_1_16]
+
+#feedthrough+slot ranges for noise correlation plots
+lArDQGlobals.Sides=["A","C"]
+
+
+#numbers from LArCalorimeter/LArIdentifier/LArIdentifier/LArOnlineID_Base.h
+#feedthroughString="ft"
+#slotString="slot"
+#barrelString="Barrel"
+#endcapString="Endcap"
+larStrHelp=LArStrHelper()
+lArDQGlobals.febsBarrelA=[larStrHelp.febNameString(True,1,i_ft,i_slot) for i_ft in range_0_32 for i_slot in range_1_15]
+lArDQGlobals.febsBarrelC=[larStrHelp.febNameString(True,0,i_ft,i_slot) for i_ft in range_0_32 for i_slot in range_1_15]
+lArDQGlobals.febsEndcapA=[larStrHelp.febNameString(False,1,i_ft,i_slot) for i_ft in range_0_25 for i_slot in range_1_16]  
+lArDQGlobals.febsEndcapC=[larStrHelp.febNameString(False,0,i_ft,i_slot) for i_ft in range_0_25 for i_slot in range_1_16]
+#lArDQGlobals.febsBarrelA=[barrelString+"A"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_32 for i_slot in range_1_15]
+#lArDQGlobals.febsBarrelC=[barrelString+"C"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_32 for i_slot in range_1_15]
+#lArDQGlobals.febsEndcapA=[endcapString+"A"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_25 for i_slot in range_1_16]
+#lArDQGlobals.febsEndcapC=[endcapString+"C"+feedthroughString+str(i_ft).zfill(2)+slotString+str(i_slot).zfill(2) for i_ft in range_0_25 for i_slot in range_1_16]
 
 
 #ROD ranges
@@ -250,7 +277,6 @@ lArDQGlobals.Gains=["Low Gain","Medium Gain","High Gain"]
 
 #Creation of the dictionnary
 lArDQGlobals.Cell_Variables={}
-lArDQGlobals.Sides=["A","C"]
 lArDQGlobals.Variables=["etaRange","phiRange","etaNbin", "phiNbin","etasize","etaCellSize","etaMin"]
 lArDQGlobals.Layers=["0","1","2","3"]
 for Variable in lArDQGlobals.Variables :

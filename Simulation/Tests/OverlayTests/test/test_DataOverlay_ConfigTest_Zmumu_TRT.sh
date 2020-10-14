@@ -16,7 +16,7 @@
 events=2
 
 Overlay_tf.py \
---detectors TRT \
+--detectors TRT Pixel \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.OverlaySim/HITS.pool.root \
 --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
@@ -30,7 +30,7 @@ Overlay_tf.py \
 --athenaopts '"--config-only=ConfigLegacy.pkl"'
 
 Overlay_tf.py \
---detectors TRT \
+--detectors TRT Pixel \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.OverlaySim/HITS.pool.root \
 --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
@@ -52,7 +52,7 @@ if [ $rc -eq 0 ]
 then
     Overlay_tf.py \
     --CA \
-    --detectors TRT \
+    --detectors TRT Pixel \
     --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.OverlaySim/HITS.pool.root \
     --inputBS_SKIMFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1 \
     --outputRDOFile dataOverlayRDO.pool.root \

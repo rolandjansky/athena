@@ -80,7 +80,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
     Group = helper.addGroup(
         larRODMonAlg,
         GroupName,
-        '/LAr/DSPMonitoringNewAlg'
+        '/LAr/DSPMonitoring'
     )
 
 
@@ -162,7 +162,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
           )
 
     #DQMD histos
-    dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
+    dqmd_hist_path='/LAr/DSPMonitoring/DQMD/'
     darray = helper.addArray([lArDQGlobals.Partitions],larRODMonAlg,"RODMon")
     darray.defineHistogram('Ediff,Erange;DE_ranges', title='EOnline - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',#'E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
                            type='TH2F', path=dqmd_hist_path,
@@ -179,7 +179,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
 
     #per partition, currently in one dir only
-    part_hist_path='/LAr/DSPMonitoringNewAlg/perPartition/'
+    part_hist_path='/LAr/DSPMonitoring/perPartition/'
     darray.defineHistogram('Ediff;DE', title='E_offline - E_online:E_offline - E_online',
                            type='TH1F', path=part_hist_path,
                            xbins=lArDQGlobals.DSPEnergy_Bins, xmin=lArDQGlobals.DSPEnergy_Min, xmax=lArDQGlobals.DSPEnergy_Max)
@@ -190,19 +190,19 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                            type='TH1F', path=part_hist_path,
                            xbins=lArDQGlobals.DSPTime_Bins, xmin=lArDQGlobals.DSPTime_Min, xmax=lArDQGlobals.DSPTime_Max)
 
-    darray.defineHistogram('slot,FT;Out_E_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
+    darray.defineHistogram('slot,FT;RAW_Out_E_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
                            type='TH2I', path=part_hist_path,
                            weight='weight_e',
                            xbins=lArDQGlobals.FEB_Slot["EMECA"][1], xmin=lArDQGlobals.FEB_Slot["EMECA"][0]-0.5, xmax=lArDQGlobals.FEB_Slot["EMECA"][1]+0.5,
                            ybins=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+1, ymin=lArDQGlobals.FEB_Feedthrough["EMBA"][0]-0.5, ymax=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+0.5)
 
-    darray.defineHistogram('slot,FT;Out_T_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
+    darray.defineHistogram('slot,FT;RAW_Out_T_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
                            type='TH2I', path=part_hist_path,
                            weight='weight_t',
                            xbins=lArDQGlobals.FEB_Slot["EMECA"][1], xmin=lArDQGlobals.FEB_Slot["EMECA"][0]-0.5, xmax=lArDQGlobals.FEB_Slot["EMECA"][1]+0.5,
                            ybins=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+1, ymin=lArDQGlobals.FEB_Feedthrough["EMBA"][0]-0.5, ymax=lArDQGlobals.FEB_Feedthrough["EMBA"][1]+0.5)
 
-    darray.defineHistogram('slot,FT;Out_Q_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
+    darray.defineHistogram('slot,FT;RAW_Out_Q_FT_vs_SLOT',title='# of cells with E_offline - E_online > numerical precision : Slot : Feedthrough',
                            type='TH2I', path=part_hist_path,
                            weight='weight_q',
                            xbins=lArDQGlobals.FEB_Slot["EMECA"][1], xmin=lArDQGlobals.FEB_Slot["EMECA"][0]-0.5, xmax=lArDQGlobals.FEB_Slot["EMECA"][1]+0.5,

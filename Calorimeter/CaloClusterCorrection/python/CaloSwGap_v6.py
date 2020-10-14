@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwGap_v6.py,v 1.1 2012-03-03 laplace Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwGap_v6.py
 # Created: March 2012, SL
@@ -20,7 +18,7 @@
 #                         "bad phi" regions with TG3 cells missing
 #
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 
 #############################################################################
 

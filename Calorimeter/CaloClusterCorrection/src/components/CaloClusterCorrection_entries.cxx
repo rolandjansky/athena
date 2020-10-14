@@ -49,7 +49,6 @@
 #include "../CaloClusterRemoveDuplicates.h"
 #include "../CaloClusterRemoveBad.h"
 
-#include "../CaloRunClusterCorrections.h"
 #include "../CaloDummyCorrection.h"
 
 
@@ -104,6 +103,5 @@ DECLARE_COMPONENT( CaloClusterBadChannelList )
 DECLARE_COMPONENT( CaloClusterRemoveDuplicates )
 DECLARE_COMPONENT( CaloClusterRemoveBad )
 
-DECLARE_COMPONENT( CaloRunClusterCorrections )
 DECLARE_COMPONENT( CaloDummyCorrection )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -14,8 +14,8 @@ std::string offline_EventStorage_v5::string_record(void *ri, const void *pi) {
 
   std::ostringstream s;
   
-  uint32_t *record = (uint32_t *)ri;
-  uint32_t *pattern = (uint32_t *)pi;
+  uint32_t *record = reinterpret_cast<uint32_t *>(ri);
+  const uint32_t *pattern = reinterpret_cast<const uint32_t *>(pi);
   int size=pattern[1];
 
   for(int i=0; i<size; i++) {
@@ -55,8 +55,8 @@ std::string offline_EventStorage_v5::string_record(offline_EventStorage_v5::file
 
 void offline_EventStorage_v5::reset_record(void *ri, const void *pi) {
 
-  uint32_t *record = (uint32_t *)ri;
-  uint32_t *pattern = (uint32_t *)pi;
+  uint32_t *record = reinterpret_cast<uint32_t *>(ri);
+  const uint32_t *pattern = reinterpret_cast<const uint32_t *>(pi);
   int size=pattern[1];
 
   for(int i=0; i<size; i++) record[i] = pattern[i];

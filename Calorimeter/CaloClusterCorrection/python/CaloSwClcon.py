@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwClcon.py,v 1.8 2009-04-19 02:41:06 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwClcon.py
 # Created: Nov 2006, sss
@@ -20,16 +18,18 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls_g3 = CaloClusterCorrectionConf.CaloSwClcon_g3
-cls_v2 = CaloClusterCorrectionConf.CaloSwClcon_v2
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls_g3 = CompFactory.CaloSwClcon_g3 # CaloClusterCorrection
+cls_v2 = CompFactory.CaloSwClcon_v2 # CaloClusterCorrection
 CaloSwClcon_versions = [
 
     # The original G3-based correction, translated from the
@@ -55,6 +55,7 @@ CaloSwClcon_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -72,7 +73,8 @@ CaloSwClcon_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwClcon (name = None,
+def make_CaloSwClcon (flags,
+                      name = None,
                       suffix = None,
                       version = None,
                       key = CALOCORR_DEFAULT_KEY,
@@ -80,7 +82,8 @@ def make_CaloSwClcon (name = None,
                       confclass = None,
                       **kw):
     # Make the tool.
-    return makecorr (versions  = CaloSwClcon_versions,
+    return makecorr (flags,
+                     versions  = CaloSwClcon_versions,
                      name      = name,
                      basename  = 'clcon',
                      suffix    = suffix,
