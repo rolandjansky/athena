@@ -1221,8 +1221,6 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     //   
     if((!ste && S0 > fabs(S)*100.) || fabs(P[45]+=S) > 2000.) return false;
     ste = true;
-
-    double A00 = A[0], A11=A[1], A22=A[2];
 	
     double A0arr[3]{A0,B0,C0}; 
     double A3arr[3]{A3,B3,C3}; 
