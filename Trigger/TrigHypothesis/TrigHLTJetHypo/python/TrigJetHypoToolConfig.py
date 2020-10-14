@@ -82,9 +82,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
-    from pprint import pprint
-    pprint(chain_dict)
-
+    
     log.debug('trigJetHypoToolFromDictc chainDict %s', str(chain_dict))
 
     try:
