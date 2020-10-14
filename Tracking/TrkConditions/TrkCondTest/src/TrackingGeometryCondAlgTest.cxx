@@ -28,18 +28,8 @@ StatusCode Trk::TrackingGeometryCondAlgTest::initialize()
   ATH_CHECK(m_trackingGeometryReadKey.initialize());
 
 
-  if (m_trackingGeometrySvc.retrieve().isSuccess()) {
-    ATH_MSG_INFO("Successfully retrieved " << m_trackingGeometrySvc);
-  } else {
-    ATH_MSG_WARNING("Couldn't retrieve " << m_trackingGeometrySvc << ". ");
-    return StatusCode::FAILURE;
-  }
-  if ((m_trackingGeometryProcessors.retrieve()).isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve tool(s) in  " << m_trackingGeometryProcessors );
-    return StatusCode::FAILURE;
-  } else{
-    ATH_MSG_INFO( "Retrieved tools : " << m_trackingGeometryProcessors );
-  }
+  ATH_CHECK(m_trackingGeometrySvc.retrieve());
+  ATH_CHECK(m_trackingGeometryProcessors.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -59,17 +49,11 @@ StatusCode Trk::TrackingGeometryCondAlgTest::execute(const EventContext& ctx) co
     return StatusCode::FAILURE;
   }
 
-  for (ToolHandle<Trk::IGeometryProcessor> proc : m_trackingGeometryProcessors) {
+  for (ToolHandle<Trk::IGeometryProcessor>& proc : m_trackingGeometryProcessors) {
     ATH_MSG_VERBOSE("PRINT SVC TG");
-    if(proc->process(*m_trackingGeometry).isFailure()){
-      ATH_MSG_FATAL("Could not process the TrackingGeometry from SVC");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(proc->process(*m_trackingGeometry));
     ATH_MSG_VERBOSE("PRINT COND TG");
-    if(proc->process(*trkGeom).isFailure()){
-      ATH_MSG_FATAL("Could not process the TrackingGeometry from CONDALG");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(proc->process(*trkGeom));
   }
   return StatusCode::SUCCESS;
 }
