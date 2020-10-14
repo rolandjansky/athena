@@ -102,13 +102,6 @@ StatusCode CpByteStreamTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// Finalize
-
-StatusCode CpByteStreamTool::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 // Conversion bytestream to CPM towers
 
 StatusCode CpByteStreamTool::convert(
@@ -152,7 +145,6 @@ StatusCode CpByteStreamTool::convert(const LVL1::CPBSCollection* const cp,
 
   // Clear the event assembler
   FullEventAssembler<L1CaloSrcIdMap> fea;
-  fea.clear();
   const uint16_t minorVersion = m_srcIdMap.minorVersion();
   fea.setRodMinorVersion(minorVersion);
 
@@ -471,7 +463,7 @@ StatusCode CpByteStreamTool::convertBs(
   LocalData ld;
 
   // Check if overlap tower channels wanted
-  const std::string flag("Overlap");
+  const static std::string flag("Overlap");
   const std::string::size_type pos = sgKey.find(flag);
   ld.coreOverlap =
    (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;

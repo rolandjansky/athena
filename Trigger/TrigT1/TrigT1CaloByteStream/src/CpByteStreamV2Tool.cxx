@@ -112,13 +112,6 @@ StatusCode CpByteStreamV2Tool::initialize()
     return StatusCode::SUCCESS;
 }
 
-// Finalize
-
-StatusCode CpByteStreamV2Tool::finalize()
-{
-    return StatusCode::SUCCESS;
-}
-
 // Conversion bytestream to CPM towers
 StatusCode CpByteStreamV2Tool::convert(
     const std::string& sgKey,
@@ -531,7 +524,7 @@ StatusCode CpByteStreamV2Tool::convertBs(
 {
     LocalData ld;
 
-    const std::string flag("Overlap");
+    const static std::string flag("Overlap");
     const std::string::size_type pos = sgKey.find(flag);
     ld.coreOverlap =
         (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;

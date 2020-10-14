@@ -107,13 +107,6 @@ StatusCode CpByteStreamV1Tool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// Finalize
-
-StatusCode CpByteStreamV1Tool::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 // Conversion bytestream to CPM towers
 
 StatusCode CpByteStreamV1Tool::convert(
@@ -157,7 +150,6 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 
   // Clear the event assembler
   FullEventAssembler<L1CaloSrcIdMap> fea;
-  fea.clear();
   const uint16_t minorVersion = m_srcIdMap.minorVersionPreLS1();
   fea.setRodMinorVersion(minorVersion);
 
@@ -474,7 +466,7 @@ StatusCode CpByteStreamV1Tool::convertBs(
 {
   LocalData ld;
 
-  const std::string flag("Overlap");
+  const static std::string flag("Overlap");
   const std::string::size_type pos = sgKey.find(flag);
   ld.coreOverlap =
     (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;

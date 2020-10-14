@@ -59,8 +59,7 @@ class CpByteStreamTool : public AthAlgTool {
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
 
    /// Convert ROB fragments to CPM towers
    StatusCode convert(const std::string& sgKey,
