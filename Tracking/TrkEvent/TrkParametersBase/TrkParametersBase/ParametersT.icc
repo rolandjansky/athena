@@ -11,6 +11,7 @@
 #include <utility>
 // Trk
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkSurfaces/Surface.h"
 
 namespace Trk {
 
@@ -286,6 +287,13 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
     (updatedParameters[Trk::phi] != m_parameters[Trk::phi]) ||
     (updatedParameters[Trk::theta] != m_parameters[Trk::theta]) ||
     (updatedParameters[qOverP] != m_parameters[qOverP]);
+
+  if constexpr (
+    S::staticType() == Trk::Surface::Line ||
+    S::staticType() == Trk::Surface::Perigee
+  ) {
+    updatePosition |= updateMomentum;
+  }
 
   // update the parameters vector
   m_parameters = updatedParameters;
