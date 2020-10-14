@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: checkTriggerxAOD.py rwhite $ 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This is a modified version of PyUtils/bin/checkFile.py. It has been taught
 # how to sum up the sizes of all the branches belonging to a single xAOD
@@ -11,7 +9,6 @@
 # This is a modified version of checkxAOD.py to provide trigger specific
 # information in an organized way.
 
-__version__ = "$Revision: 776363 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
     "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>, " \
     "RD Schaffer R.D.Schaffer@cern.ch" \
@@ -23,8 +20,7 @@ import os
 import re
 
 from optparse import OptionParser
-from TrigEDMConfig.TriggerEDM import *
-from ROOT import TH1, THStack
+import TrigEDMConfig.TriggerEDM as edm
 
 def categorizeData(categData):
     categorizedData = []
@@ -95,11 +91,11 @@ def printCategoryData(categData,diskTotal):
     print( "=" * 80 )
     print( "CSV for categories disk size/evt and fraction:" )
     # print out comment separated list in descending order
-    print ",".join(dsName[::-1])
+    print(",".join(dsName[::-1]))
     b = ['{:<0.3f}'.format(i)  for i in ds[::-1]]
-    print ",".join(b)
+    print(",".join(b))
     b = ['{:<0.3f}'.format(i)  for i in dsFrac[::-1]]
-    print ",".join(b)
+    print(",".join(b))
     print( "=" * 80 )
     print( "" )
 
@@ -109,7 +105,7 @@ def sortTrigData(orderedData,diskTotal):
     memSize = 0.0
     diskSize = 0.0
     for d in orderedData:
-        catName = getCategory(d.name).strip()
+        catName = edm.getCategory(d.name).strip()
         if(catName == 'NOTFOUND'): continue
         if catName in orderTrigData.keys():
             orderTrigData[ catName ].append(d)
@@ -146,7 +142,7 @@ def printAuxDynVars(dynvars):
 
     for key,items in dynvars.items():
         print( "=" * 80 )
-        print key
+        print(key)
         print( "=" * 80 )
         for var in items:
             print('%s'%var)
@@ -199,11 +195,11 @@ if __name__ == "__main__":
         fileNames = [ arg for arg in args if arg[ 0 ] != "-" ]
         pass
 
-    if options.fileName == None and len( fileNames ) == 0:
+    if options.fileName is None and len( fileNames ) == 0:
         str( parser.print_help() or "" )
         sys.exit( 1 )
 
-    if options.fileName != None:
+    if options.fileName is not None:
         fileName = os.path.expandvars( os.path.expanduser( options.fileName ) )
         fileNames.append( fileName )
         pass
@@ -234,18 +230,18 @@ if __name__ == "__main__":
             # The name of this branch:
             brName = d.name
             # Check if this is a static auxiliary store:
-            m = re.match( "(.*)Aux\..*", d.name )
+            m = re.match( r"(.*)Aux\..*", d.name )
             if m:
                 # Yes, it is. And the name of the main object/container is:
                 brName = m.group( 1 )
                 pass
             # Check if this is a dynamic auxiliary variable:
-            m = re.match( "(.*)AuxDyn\..*", d.name )
+            m = re.match( r"(.*)AuxDyn\..*", d.name )
             if m:
                 # Oh yes, it is. Let's construct the name of the main
                 # object/container:
                 brName = m.group( 1 )
-                if getCategory(d.name) != 'NOTFOUND':
+                if edm.getCategory(d.name) != 'NOTFOUND':
                     if brName in categTrigDynVars:
                         categTrigDynVars[brName].append(d.name)
                     else:
@@ -373,13 +369,9 @@ if __name__ == "__main__":
             # Now repeat to add Trigger Categories (from EDMConfig)
             found = False
             catName = '*Unknown*'
-            if getCategory(d_name) != 'NOTFOUND':
+            if edm.getCategory(d_name) != 'NOTFOUND':
                 found = True
-                #if 'InDetTrigTrackingxAODCnv' in d_name:
-                #    catName = 'Trig_InDet'
-                #else:
-                #    catName = 'Trig_'+getCategory(d_name)
-                catName = 'Trig_'+getCategory(d_name)
+                catName = 'Trig_'+edm.getCategory(d_name)
                 nameType += ' [' + catName + ']'
                 if catName in categTrigData.keys():
                     categTrigData[ catName ].memSize  += d.memSize
@@ -459,8 +451,8 @@ if __name__ == "__main__":
             pass
 
         if len(fileNames) > 1:
-            print ""
+            print()
         pass # loop over fileNames
 
-    print "## Bye."
+    print("## Bye.")
     sys.exit( 0 )

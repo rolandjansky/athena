@@ -236,6 +236,18 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     #mon.FinalChainStep = allChains
     mon.L1Decisions  = getProp( l1Decoder, 'L1DecoderSummaryKey' )
 
+    # For now use old svcMgr interface as this service is not available from acc.getService()
+    algToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if hasattr(svcMgr,'HltEventLoopMgr'):
+        svcMgr.HltEventLoopMgr.TrigErrorMonTool.AlgToChainTool = conf2toConfigurable(algToChainTool)
+
+        svcMgr.HltEventLoopMgr.TrigErrorMonTool.MonTool.defineHistogram(
+            'ErrorChainName,ErrorCode', path='EXPERT', type='TH2I',
+            title='Error StatusCodes per chain;Chain name;StatusCode',
+            xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+
+
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in list(filters.values()) ]
 
@@ -369,6 +381,8 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
+        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamType = 'unknown'
+        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamName = 'SingleStream'
         acc.merge( writingAcc )
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1 followed by Tier0 HLT monitoring step with Run-3 DQ framework
 # art-type: build
 # art-include: master/Athena

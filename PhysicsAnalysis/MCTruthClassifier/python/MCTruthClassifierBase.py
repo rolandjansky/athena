@@ -1,62 +1,57 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
+from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-from AthenaCommon.BeamFlags import jobproperties
-import traceback
-import EventKernel.ParticleDataType
-from RecExConfig.Configured import Configured
-from InDetRecExample.InDetKeys import InDetKeys
-from AthenaCommon.DetFlags import DetFlags
-import AthenaCommon.CfgMgr as CfgMgr
 
 
-mlog = logging.getLogger ('MCTruthClassifierBase.py::configure:')
+mlog = logging.getLogger('MCTruthClassifierBase.py::configure:')
 mlog.info('entering')
 
-from AthenaCommon.AppMgr import ToolSvc
-	
-# Configure the extrapolator
-from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-theAtlasExtrapolator=AtlasExtrapolator(name = 'MCTruthClassifieExtrapolator')
-theAtlasExtrapolator.DoCaloDynamic = False # this turns off dynamic calculation of eloss in calorimeters
-# all left to MaterialEffects/EnergyLossUpdators
-	           
-from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MaterialEffectsUpdator
-AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'AtlasMaterialEffectsUpdator')
-ToolSvc += AtlasMaterialEffectsUpdator #default material effects updator
-NoElossMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'NoElossMaterialEffectsUpdator')
-NoElossMaterialEffectsUpdator.EnergyLoss = False
-ToolSvc += NoElossMaterialEffectsUpdator
-	           
-# setup MaterialEffectsUpdator arrays
-MyUpdators = []
-# This is truth particles  so 
-#    MyUpdators += [AtlasMaterialEffectsUpdator] # for ID
-MyUpdators += [NoElossMaterialEffectsUpdator] # for ID
-MyUpdators += [NoElossMaterialEffectsUpdator] # for Calo
-MyUpdators += [NoElossMaterialEffectsUpdator] # for muon
-# MyUpdators += [NoElossMaterialEffectsUpdator] # for muon
-	           
-MySubUpdators = []
-MySubUpdators += [NoElossMaterialEffectsUpdator.name()] # for ID
-#    MySubUpdators += [AtlasMaterialEffectsUpdator.name()] # for ID
-MySubUpdators += [NoElossMaterialEffectsUpdator.name()] # for Calo
-MySubUpdators += [NoElossMaterialEffectsUpdator.name()] # for muon
-	           
-theAtlasExtrapolator.MaterialEffectsUpdators = MyUpdators
-theAtlasExtrapolator.SubMEUpdators = MySubUpdators
-	           
-from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-ClassifierParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(name="ClassifierParticleCaloExtensionTool",
-                                                                    Extrapolator = theAtlasExtrapolator)
-ToolSvc+=ClassifierParticleCaloExtensionTool
 
-from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
-from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-MCTruthClassifier = MCTruthClassifier(name = 'MCTruthClassifier',
-                                      barcodeG4Shift = firstSimCreatedBarcode(),
-                                      ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)
-  
+def getMCTruthClassifierExtrapolator():
+    # Configure the extrapolator, starting from the ATLAS one
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    theAtlasExtrapolator = AtlasExtrapolator(
+        name='MCTruthClassifieExtrapolator')
+
+    # this turns off dynamic calculation of eloss in calorimeters
+    theAtlasExtrapolator.DoCaloDynamic = False
+    # all left to MaterialEffects/EnergyLossUpdators
+    from TrkExTools.TrkExToolsConf import (
+        Trk__MaterialEffectsUpdator as MaterialEffectsUpdator)
+
+    NoElossMaterialEffectsUpdator = MaterialEffectsUpdator(
+        name='NoElossMaterialEffectsUpdator')
+    NoElossMaterialEffectsUpdator.EnergyLoss = False
+
+    # We extrapolate truth to calo (mainly photons) with no-eloss
+    # The 1st list is the updators we are to use
+    MyUpdators = []
+    MyUpdators += [NoElossMaterialEffectsUpdator]
+    # And here for which part we are going to use them
+    MySubUpdators = []
+    MySubUpdators += [NoElossMaterialEffectsUpdator.name()]  # Global
+    MySubUpdators += [NoElossMaterialEffectsUpdator.name()]  # ID
+    MySubUpdators += [NoElossMaterialEffectsUpdator.name()]  # beampipe
+    MySubUpdators += [NoElossMaterialEffectsUpdator.name()]  # calo
+    MySubUpdators += [NoElossMaterialEffectsUpdator.name()]  # MS
+    MySubUpdators += [NoElossMaterialEffectsUpdator.name()]  # cavern
+    theAtlasExtrapolator.MaterialEffectsUpdators = MyUpdators
+    theAtlasExtrapolator.SubMEUpdators = MySubUpdators
+
+    return theAtlasExtrapolator
+
+
+ClassifierParticleCaloExtensionTool = Trk__ParticleCaloExtensionTool(
+    name="ClassifierParticleCaloExtensionTool",
+    Extrapolator=getMCTruthClassifierExtrapolator())
+
+MCTruthClassifier = MCTruthClassifier(
+    name='MCTruthClassifier',
+    barcodeG4Shift=firstSimCreatedBarcode(),
+    ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)
+
 ToolSvc += MCTruthClassifier

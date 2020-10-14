@@ -44,7 +44,7 @@ JetCollections['MT'] = [
   'HLT_AntiKt4EMTopoJets_subjesIS',                   # default small-R EM
   'HLT_AntiKt10JetRCJets_subjesIS',                   # a10r
   'HLT_AntiKt10LCTopoJets_subjes',                    # a10
-  'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes', # a10t
+  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', # a10t
   'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',              # pflow w/o calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',           # pflow w/ calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        # pflow w/ residual + calo+track GSC
@@ -58,11 +58,10 @@ Chain2JetCollDict['MT'] = {
   'HLT_3j200_L1J100'                       : 'HLT_AntiKt4EMTopoJets_subjesIS',
   'HLT_j460_a10r_L1J100'                   : 'HLT_AntiKt10JetRCJets_subjesIS',
   'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_AntiKt10LCTopoJets_subjes',
-  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
+  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
   'HLT_j45_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
   'HLT_j45_pf_subjesgscIS_ftf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
-  'HLT_j45_pf_subresjesgscIS_ftf_L1J20'    : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
   'HLT_j85_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
   'HLT_j45_pf_nojcalib_ftf_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
   'HLT_j45_csskpf_nojcalib_ftf_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',

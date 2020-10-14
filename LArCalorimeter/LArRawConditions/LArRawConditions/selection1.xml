@@ -19,6 +19,14 @@
   <class name="LArConditionsSubset<LArAutoCorrP>"  id="4E7E36E9-2121-4327-88C5-8A516D6D6D2A" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArAutoCorrP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArAutoCorrP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int,LArAutoCorrP>"/>
   <class name="std::pair<unsigned int,std::vector<LArAutoCorrP> >"/>
@@ -35,6 +43,14 @@
   <class name="LArConditionsSubset<LArCaliPulseParamsP>"  id="D1D15524-04F0-4A75-ABC7-948D90491504" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArCaliPulseParamsP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArCaliPulseParamsP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArCaliPulseParamsP>"/>
   <class name="std::pair<unsigned int, std::vector<LArCaliPulseParamsP> >"/>
@@ -51,6 +67,14 @@
   <class name="LArConditionsSubset<LArDAC2uAP>"  id="00BB980F-D174-4AD7-A5C7-DC66BA71C4D2" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArDAC2uAP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArDAC2uAP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArDAC2uAP>"/>
   <class name="std::pair<unsigned int, std::vector<LArDAC2uAP> >"/>
@@ -67,6 +91,14 @@
   <class name="LArConditionsSubset<LArDetCellParamsP>"  id="11272A20-3A6B-4E1B-B96C-27117868ED09" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArDetCellParamsP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArDetCellParamsP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArDetCellParamsP>"/>
   <class name="std::pair<unsigned int, std::vector<LArDetCellParamsP> >"/>
@@ -83,6 +115,14 @@
   <class name="LArConditionsSubset<LArfSamplP>"  id="6E808031-FCAD-4DB6-9246-E5D926790FED" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArfSamplP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArfSamplP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArfSamplP>"/>
   <class name="std::pair<unsigned int, std::vector<LArfSamplP> >"/>
@@ -98,6 +138,14 @@
   <class name="LArConditionsSubset<LArH6OscillationP>"  id="425EBF82-9EC7-4A2E-A112-49439F26E45B" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArH6OscillationP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArH6OscillationP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArH6OscillationP>"/>
   <class name="std::pair<unsigned int, std::vector<LArH6OscillationP> >"/>
@@ -113,6 +161,16 @@
   <!-- picked up by iterator pattern below. -->
   <!-- <class name="LArSingleFloatP" /> -->
   <class name="LArConditionsSubset<LArSingleFloatP>" />
+  <!-- ??? why isn't m_subsetMap declared transient here? --->
+  <read sourceClass="LArConditionsSubset<LArSingleFloatP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArSingleFloatP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
+
   <class name="std::pair<unsigned int, LArSingleFloatP>"/>
   <class name="std::pair<unsigned int, std::vector<LArSingleFloatP> >"/>
   <class name="std::vector<LArSingleFloatP>"/>
@@ -129,6 +187,14 @@
   <class name="LArConditionsSubset<LArMinBiasP>"  id="71652545-4809-45A5-9125-5ACA8FB5AC0C" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArMinBiasP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArMinBiasP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArMinBiasP>"/>
   <class name="std::pair<unsigned int, std::vector<LArMinBiasP> >"/>
@@ -145,6 +211,14 @@
   <class name="LArConditionsSubset<LArMinBiasAverageP>"  id="3235F39A-7C1D-4FB9-9F56-6A6251AC3360" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArMinBiasAverageP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArMinBiasAverageP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
 
   <class name="std::pair<unsigned int, LArMinBiasAverageP>"/>
@@ -163,6 +237,14 @@
   <class name="LArConditionsSubset<LArMphysOverMcalP>"  id="9C53AC43-3FD6-470F-A6FF-1DF80E85ACBF" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArMphysOverMcalP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArMphysOverMcalP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArMphysOverMcalP>"/>
   <class name="std::pair<unsigned int, std::vector<LArMphysOverMcalP> >"/>
@@ -179,6 +261,14 @@
   <class name="LArConditionsSubset<LArNoiseP>"  id="A96F4520-9C5E-49E6-89A3-5E26A781CE11" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArNoiseP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArNoiseP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArNoiseP>"/>
   <class name="std::pair<unsigned int, std::vector<LArNoiseP> >"/>
@@ -200,6 +290,14 @@
   <class name="LArConditionsSubset<LArOFCP>"  id="3E5389EF-D163-4099-91D9-D3F0EE06C1CD" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArOFCP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArOFCP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArOFCP>"/>
   <class name="std::pair<unsigned int, std::vector<LArOFCP> >"/>
@@ -219,6 +317,14 @@
   <class name="LArConditionsSubset<LArPedestalP>"  id="E17191DD-4C0A-4B1A-AE49-7D587C6BE3EE" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArPedestalP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArPedestalP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArPedestalP>"/>
   <class name="std::pair<unsigned int, std::vector<LArPedestalP> >"/>
@@ -236,6 +342,14 @@
   <class name="LArConditionsSubset<LArPhysCaliTdiffP>"  id="A7FB91FF-4535-4EB7-87F8-A34BA477ECE0" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArPhysCaliTdiffP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArPhysCaliTdiffP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LArPhysCaliTdiffP>"/>
   <class name="std::pair<unsigned int, std::vector<LArPhysCaliTdiffP> >"/>
@@ -254,6 +368,15 @@
   <class name="LArConditionsSubset<LArRampP>"  id="4019776D-D528-4401-9CBD-7956C4B00607" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LArRampP>" version="[1-]"
+        targetClass="LArConditionsSubset<LArRampP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
+
   <class name="std::pair<unsigned int, LArRampP>"/>
   <class name="std::pair<unsigned int, std::vector<LArRampP> >"/>
   <class name="std::vector<LArRampP>"/>
@@ -270,6 +393,14 @@
   <class name="LArConditionsSubset<LAruA2MeVP>"  id="CBF815A2-F18C-4C18-9E93-A8EE67CEE59F" >
     <field name="m_subsetMap" transient="true" />
   </class>
+  <read sourceClass="LArConditionsSubset<LAruA2MeVP>" version="[1-]"
+        targetClass="LArConditionsSubset<LAruA2MeVP>" source=""
+        target="" >
+  <![CDATA[
+     // Need to build the map before the object can be used.
+     if (newObj) newObj->fillMap();
+  ]]>
+  </read>
 
   <class name="std::pair<unsigned int, LAruA2MeVP>"/>
   <class name="std::pair<unsigned int, std::vector<LAruA2MeVP> >"/>

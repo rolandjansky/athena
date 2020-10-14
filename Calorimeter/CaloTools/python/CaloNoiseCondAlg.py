@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgSequence import AthSequencer
 from IOVDbSvc.CondDB import conddb
@@ -17,9 +17,11 @@ def CaloNoiseCondAlg(noisetype="totalNoise"):
         return getattr(condSeq,noiseAlgName)
  
     if (conddb.isMC):
-        condSeq += _CaloNoiseCondAlgMC(noiseAlgName,noisetype)
+        alg = _CaloNoiseCondAlgMC(noiseAlgName,noisetype)
     else: 
-        condSeq += _CaloNoiseCondAlgData(noiseAlgName,noisetype)
+        alg = _CaloNoiseCondAlgData(noiseAlgName,noisetype)
+    condSeq += alg
+    return alg
 
 
 def _CaloNoiseCondAlgMC(noiseAlgName,noisetype):

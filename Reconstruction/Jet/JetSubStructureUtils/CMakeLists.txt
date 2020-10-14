@@ -1,19 +1,7 @@
-################################################################################
-# Package: JetSubStructureUtils
-################################################################################ 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetSubStructureUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMuon
-   PhysicsAnalysis/MuonID/MuonSelectorTools
-   Reconstruction/Jet/JetEDM
-   PRIVATE
-   Tools/PathResolver )
 
 # External dependencies:
 find_package( FastJet )
@@ -27,8 +15,7 @@ atlas_add_library( JetSubStructureUtils
    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES}
-   xAODJet xAODMuon JetEDM
-   MuonSelectorToolsLib
+   xAODJet xAODMuon MuonSelectorToolsLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 # Install files from the package:

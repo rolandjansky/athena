@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
@@ -22,8 +22,6 @@
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CaloInterface/ICaloNoiseTool.h"
-
-#include "StoreGate/StoreGate.h"
 
 // STL stuff
 #include <map> 

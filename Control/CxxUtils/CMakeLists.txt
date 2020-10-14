@@ -102,6 +102,12 @@ atlas_add_test( exctrace2_test
    LINK_LIBRARIES CxxUtils
    LOG_IGNORE_PATTERN "no version information available" )
 
+atlas_add_test(
+   OptionalContainer_test
+   SOURCES test/OptionalContainer_test.cxx
+   LINK_LIBRARIES CxxUtils
+)
+
 # Set up the "simple" tests:
 foreach( test sincos_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test

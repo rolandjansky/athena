@@ -1111,6 +1111,17 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
   Jac[19] =(C*P[40]-s4*C44)*n;          // dThe/dCM
   Jac[20] = 1.;                         // dCM /dCM
 
+  /**
+   * WARNING: This check was added to prevent a possible bug where invalid
+   * covariance matrices were being used and propagated. This fix alters the
+   * physics output, and may need to be more thoroughly validated. In addition,
+   * there may be an overarching issue causing these invalid covariance
+   * matrices from ever reaching this point in the code.
+   */
+  if (!Ta.iscovariance()) {
+    return false;
+  }
+
   Tb.newCovarianceMatrix(Ta,Jac); 
   const double* t = &Tb.cov()[0];
   if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
