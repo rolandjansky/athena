@@ -46,18 +46,18 @@ class AthenaAttributeList : public coral::AttributeList,
 public:
 
     /// Construct empty attribute list with empty specification.
-    AthenaAttributeList () ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    AthenaAttributeList ();
 
     /// Copy attribute lists.
-    explicit AthenaAttributeList(const coral::AttributeList& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    explicit AthenaAttributeList(const coral::AttributeList& rhs);
         
     /// Construct attribute list according to the specification.
     /// The link to the specification is kept internally.
     /// User must make sure that the lifetime of the specification covers
     /// the lifetime of the attribute list.
-    explicit AthenaAttributeList(const coral::AttributeListSpecification& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE ;
+    explicit AthenaAttributeList(const coral::AttributeListSpecification& rhs);
 
-    ~AthenaAttributeList() ATLAS_CTORDTOR_NOT_THREAD_SAFE {}
+    ~AthenaAttributeList() {}
 
     /// print to simulate function provided by old POOL AttributeList
     void print(std::ostream& os) const;
