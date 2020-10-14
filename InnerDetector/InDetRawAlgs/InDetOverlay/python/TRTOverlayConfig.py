@@ -53,6 +53,7 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg
     acc.merge(TRTStrawCondAlgCfg(flags))
 
+    kwargs.setdefault("SortBkgInput", flags.Overlay.DataOverlay)
     kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "TRT_RDOs")
     kwargs.setdefault("SignalInputSDOKey", flags.Overlay.SigPrefix + "TRT_SDO_Map")

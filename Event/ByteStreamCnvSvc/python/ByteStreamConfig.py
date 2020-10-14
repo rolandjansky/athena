@@ -130,7 +130,6 @@ def ByteStreamWriteCfg(flags, type_names=None):
         OutputDirectory="./",
         AppName="Athena",
         RunNumber=all_runs.pop(),
-        OutputLevel=2,
     )
     result.addService(event_storage_output)
     # release variable depends the way the env is configured
@@ -139,7 +138,6 @@ def ByteStreamWriteCfg(flags, type_names=None):
     bytestream_conversion = comp_factory.ByteStreamCnvSvc(
         name="ByteStreamCnvSvc",
         ByteStreamOutputSvcList=[event_storage_output.getName()],
-        OutputLevel=2,
     )
     result.addService(bytestream_conversion)
 
@@ -148,7 +146,6 @@ def ByteStreamWriteCfg(flags, type_names=None):
         EvtConversionSvc=bytestream_conversion.name,
         OutputFile="ByteStreamEventStorageOutputSvc",
         ItemList=type_names if type_names else list(),
-        OutputLevel=2,
     )
     result.addEventAlgo(output_stream, primary=True)
 
