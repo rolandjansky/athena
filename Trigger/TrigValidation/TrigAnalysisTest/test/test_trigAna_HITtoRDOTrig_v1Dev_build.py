@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Test of transform HITS->RDO with serial athena followed by RDO->RDO_TRIG with threads=1
 # art-type: build
 # art-include: master/Athena

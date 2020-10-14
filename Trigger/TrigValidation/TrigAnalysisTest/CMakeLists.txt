@@ -1,29 +1,7 @@
-################################################################################
-# Package: TrigAnalysisTest
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigAnalysisTest )
-
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/AthToolSupport/AsgTools Control/xAODRootAccess
-      Trigger/TrigConfiguration/TrigConfxAOD )
-else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Trigger/TrigAnalysis/TrigDecisionTool
-   PRIVATE
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODTrigBphys
-   Event/xAOD/xAODTrigMissingET
-   ${extra_deps} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore Hist RIO )
@@ -62,16 +40,13 @@ if( XAOD_STANDALONE )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( bin/*.py test/test*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( test/exec*.sh test/test*.sh )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( bin/*.py test/exec*.sh test/test*.sh test/test*.py )
 atlas_install_data( share/*.ref )
 
 # Unit tests:
-atlas_add_test( flake8_test_dir
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/test
-                POST_EXEC_SCRIPT nopost.sh )
-
 atlas_add_test( TrigValSteeringUT
                 SCRIPT trigvalsteering-unit-tester.py ${CMAKE_CURRENT_SOURCE_DIR}/test
                 PROPERTIES TIMEOUT 300
