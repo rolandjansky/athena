@@ -40,11 +40,13 @@ plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20",
 
 # Define triggers for tagging 
 monitoring_tags = [
+                   'HLT_e26_lhtight_nod0_e15_etcut_L1EM7_Zee',
                    'HLT_e24_lhmedium_ivarloose',
                    'HLT_e24_lhmedium_L1EM20VH',
                    'HLT_e24_lhmedium_nod0_ivarloose',
                    'HLT_e24_lhtight_nod0_ivarloose',
-                   'HLT_e26_lhtight_nod0_ivarloose']
+                   'HLT_e26_lhtight_nod0_ivarloose'
+                   ]
 
 monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
@@ -91,6 +93,7 @@ monitoringTP_electron = [
                          'HLT_e24_lhvloose_nod0_L1EM20VH',
                          'HLT_e24_lhmedium_nod0_L1EM20VH',
                          'HLT_e24_lhmedium_L1EM20VH',
+                         'HLT_e26_lhtight_nod0',
                          'HLT_e26_lhtight_nod0_ivarloose',                        
                          'HLT_e28_lhtight_idperf',                        
                          'HLT_e28_lhtight_nod0_ivarloose',                        
@@ -107,6 +110,7 @@ monitoring_photon = ['HLT_g25_medium_L1EM20VH',
                      'HLT_g35_loose',
                      'HLT_g20_tight_icalovloose_L1EM15VHI',
                      'HLT_g20_tight',
+                     'HLT_g22_tight',
                      'HLT_g120_loose',
                      'HLT_g140_loose',
                      'HLT_g200_loose'
@@ -145,7 +149,6 @@ validationTP_electron = [
     # 2017
     'HLT_e26_lhmedium_nod0',
     'HLT_e24_lhmedium_nod0_L1EM20VH',
-    'HLT_e24_lhvloose_nod0_L1EM20VH',
     'HLT_e19_lhvloose_nod0',
     'HLT_e17_lhloose_nod0',
     'HLT_e12_lhloose_nod0',
