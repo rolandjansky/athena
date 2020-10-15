@@ -1,4 +1,4 @@
-4#!/usr/bin/env python
+#!/usr/bin/env python
 
 # art-description: art job for all_ttbar_pu80_short
 # art-type: grid
