@@ -66,6 +66,7 @@ else:
    local_logger.warning("invalid DQMonFlags.monType: %s, using default monManEnvironment", DQMonFlags.monType())
 
 # the meaning of this flag has changed in MT
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 if (rec.doTrigger() == False and 
     not (TriggerFlags.doMT() and DQMonFlags.monManEnvironment=='tier0ESD' and DQMonFlags.useTrigger())):
    DQMonFlags.useTrigger=False     # steers trigger-awareness
