@@ -556,9 +556,9 @@ TrigSignatureMoniMT                                 INFO -- #209090273 Features 
 TrigSignatureMoniMT                                 INFO HLT_mu10_ivarmedium_mu10_10invm70_L12MU10 #2386882549
 TrigSignatureMoniMT                                 INFO -- #2386882549 Events         20         20         0          0          0          0          0          0          0          0          0          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #2386882549 Features                             0          0          0          0          0          0          0          0          0          -          -          -          -          
-TrigSignatureMoniMT                                 INFO HLT_mu10_lateMu_L1MU10 #48780310
-TrigSignatureMoniMT                                 INFO -- #48780310 Events           20         20         0          0          0          0          0          0          -          -          -          -          -          -          -          0          
-TrigSignatureMoniMT                                 INFO -- #48780310 Features                               0          0          0          0          0          0          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_mu10_lateMu_L1LATE-MU10_XE50 #1787564306
+TrigSignatureMoniMT                                 INFO -- #1787564306 Events         20         20         0          0          0          0          0          0          -          -          -          -          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #1787564306 Features                             0          0          0          0          0          0          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_mu11_mu6_bBmumu_L1MU11_2MU6 #947854469
 TrigSignatureMoniMT                                 INFO -- #947854469 Events          20         20         0          0          0          0          0          0          0          0          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #947854469 Features                              0          0          0          0          0          0          0          0          -          -          -          -          -          
