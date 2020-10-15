@@ -11,7 +11,7 @@ L2OverlapRemoverMonMT :: L2OverlapRemoverMonMT(const std::string& name, ISvcLoca
 {}
 
 
-StatusCode L2OverlapRemoverMonMT :: fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const {
+StatusCode L2OverlapRemoverMonMT :: fillVariablesPerChain(const EventContext &, const std::string &chain) const {
 
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
   ATH_CHECK( fillVariablesOverlapRemoverPlots<xAOD::L2StandAloneMuon>(chain, "L2SA") );
