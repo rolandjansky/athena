@@ -37,6 +37,7 @@ class TgcRoadDefiner: public AthAlgTool
   virtual StatusCode initialize() override;
 
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
+                        const bool                   insideOut,
                         const TrigL2MuonSA::TgcHits& tgcHits,
                         TrigL2MuonSA::MuonRoad&      muonRoad,
                         TrigL2MuonSA::TgcFitResult&  tgcFitResult);

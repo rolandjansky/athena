@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:
@@ -37,6 +37,9 @@ def muCombSequenceCfg(flags):
 
 def muCombOvlpRmSequenceCfg(flags):
     return muCombOvlpRmSequence()
+
+def mul2IOOvlpRmSequenceCfg(flags):
+    return mul2IOOvlpRmSequence()
 
 def muEFSASequenceCfg(flags):
     return muEFSASequence()
@@ -107,6 +110,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
             "fast":[['getmuFast']],
             "Comb":[['getmuFast', 'getmuComb']],
+            "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
@@ -123,7 +127,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getmuFast(self):
         doOvlpRm = False
-        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName:
+        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName or "l2io" in self.chainName:
            doOvlpRm = False
         elif self.mult>1:
            doOvlpRm = True
@@ -153,6 +157,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
         else:
            return self.getStep(2, 'muComb', [muCombSequenceCfg] )
+
+    # --------------------
+    def getmuCombIO(self):
+        return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg] )
 
     # --------------------
     def getmuEFSA(self):
