@@ -29,7 +29,7 @@
 
 Slices  = ['muon']
 RunEF   = True
-Events  = 8000 
+Events  = 2000 
 Threads = 1 
 Slots   = 1
 Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
