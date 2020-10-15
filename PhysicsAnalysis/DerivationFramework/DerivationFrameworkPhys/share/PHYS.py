@@ -18,6 +18,7 @@ from DerivationFrameworkEGamma import ElectronsCPDetailedContent
 from DerivationFrameworkMuons import MuonsCommon
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 
 #====================================================================
 # SET UP STREAM   
@@ -77,34 +78,40 @@ if (DerivationFrameworkIsMonteCarlo):
 #====================================================================
 # TRIGGER CONTENT   
 #====================================================================
-## Lines commented out temporarily 29th July 2020 to allow validation to proceed. Will need a new MR to fix.
 ## See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
 ## Get single and multi mu, e, photon triggers
 ## Jet, tau, multi-object triggers not available in the matching code
-#allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-#trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
-#trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
-#trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
-#trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
+allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
+trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
+trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
+trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
 ## Add cross-triggers for some sets
-#trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
-#trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-#trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
+trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
 ## Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
-#trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
+trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
 #
 ## Merge and remove duplicates
-#trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
-#trigger_names_full_tau = list(set(trig_tau+trig_txe))
+trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
+trigger_names_full_tau = list(set(trig_tau+trig_txe))
 #
 ## Now reduce the list...
-#from RecExConfig.InputFilePeeker import inputFileSummary
-#trigger_names_notau = []
-#trigger_names_tau = []
-#for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
-#    if not 'ChainName' in trig_item: continue
-#    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
-#    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
+trigger_names_notau = []
+trigger_names_tau = []
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
+for chain_name in GetFileMD(athenaCommonFlags.FilesInput.get_Value())['TriggerMenu']['HLTChains']:
+   if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
+   if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
+# Create trigger matching decorations
+# More migration work needed as of 14th October. New MR will be made.
+#trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
+#        trigger_list = trigger_names_notau, add_to_df_job=True)
+#trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau',
+#        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
+
 
 
 #====================================================================
@@ -349,6 +356,10 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt",
                                       "TruthPrimaryVertices.t.x.y.z"]
 
+# Add trigger matching
+# Needs a further MR as described above
+#trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+#trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
