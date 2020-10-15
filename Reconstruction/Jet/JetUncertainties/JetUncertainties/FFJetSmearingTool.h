@@ -136,7 +136,7 @@ namespace CP {
             /// @}
 
 
-            CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) override;// The user has to use this function to smear it's jet mass
+            CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) const override;// The user has to use this function to smear it's jet mass
 
             StatusCode getMatchedTruthJet( xAOD::Jet& jet_reco, xAOD::Jet& jet_truth_matched) const;
 
@@ -187,8 +187,6 @@ namespace CP {
             std::map<std::string,std::string> m_Syst_TopologyAffected_map;
             std::map<std::string,std::unique_ptr<TH2D>> m_Syst_Hist_map;
             std::map<std::string,std::string> m_Syst_Affects_JMSorJMR;
-
-            int m_InfoWarnings;
 
             //The current systematic configuration
             struct SysData final

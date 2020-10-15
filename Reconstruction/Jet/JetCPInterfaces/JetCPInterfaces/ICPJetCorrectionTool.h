@@ -35,7 +35,7 @@ class ICPJetCorrectionTool : virtual public asg::IAsgTool,
 //        virtual ~ICPJetCorrectionTool()=default;
 
         /// Apply a systematic variation 
-        virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) = 0;
+        virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) const = 0;
 
 }; // class ICPJetCorrectionTool
 

@@ -30,7 +30,6 @@ FFJetSmearingTool::FFJetSmearingTool(const std::string name)
     , m_EtaRange(0)
     , m_calibArea("CalibArea-08")
     , m_histFileName("")
-    , m_InfoWarnings(0)
     {
     declareProperty( "MassDef", m_MassDef_string = ""                             );
     declareProperty( "ConfigFile", m_configFile = ""        );//Path to the config file. By default it points to XXX
@@ -532,7 +531,7 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet& jet_reco, double jet_mass_va
 // Once the tool is initialized. The user can call the function "SmearJetMass" to perform the jet smearing using FF (for the current systematic in his loop)
 //-----------------------------------------------------------------------------
 
-CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
+CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) const{
 
     ATH_MSG_VERBOSE("//---------------------------------------------------------------//");
     ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco.pt() << ", mass = " << jet_reco.m() << ", eta = " << jet_reco.eta());
@@ -555,11 +554,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco){
     jet_truth_matched.makePrivateStore();
 
     if(!(getMatchedTruthJet(jet_reco, jet_truth_matched).isSuccess())){
-
-        m_InfoWarnings = m_InfoWarnings + 1; 
-        if(m_InfoWarnings < 5) ATH_MSG_VERBOSE("No truth jet match with this reco jet. The jet will not be smeared.");
-        else if(m_InfoWarnings == 5) ATH_MSG_VERBOSE("No truth jet match with this reco jet. The jet will not be smeared. This is the last time this message is shown.");
-
+        ATH_MSG_VERBOSE("No truth jet match with this reco jet. The jet will not be smeared.");
         return CP::CorrectionCode::OutOfValidityRange; 
     }
 
