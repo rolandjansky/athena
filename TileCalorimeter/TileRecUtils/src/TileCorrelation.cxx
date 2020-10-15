@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////
@@ -35,7 +35,8 @@
 
 ////////////////////////////////////////
 TileCorrelation::TileCorrelation()
-  : m_SS()
+  : AthMessaging (Athena::getMessageSvc(), "TileCorrelation")
+  , m_SS()
   , m_S()
   , m_R()
   , m_corr()
@@ -52,7 +53,6 @@ TileCorrelation::TileCorrelation()
   , m_S11()
   , m_S12()
   , m_S22()
-  , m_msg("TileCorrelation")
 {
 }
 

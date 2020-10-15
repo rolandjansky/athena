@@ -25,15 +25,10 @@ const InterfaceID& TileRawChannelBuilder::interfaceID() {
   return IID_ITileRawChannelBuilder;
 }
 
-int TileRawChannelBuilder::s_error[MAX_CHANNELS] = {0};
-int TileRawChannelBuilder::s_dmuerr[MAX_DMUS] = {0};
-int TileRawChannelBuilder::s_lastDrawer = -1;
-bool TileRawChannelBuilder::s_badDrawer = false;
-
 
 void TileRawChannelBuilder::resetDrawer() {
-  s_lastDrawer = -1;
-  s_badDrawer = false;
+  m_lastDrawer = -1;
+  m_badDrawer = false;
 }
 
 void TileRawChannelBuilder::resetOverflows() {
@@ -76,8 +71,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_tileInfo(nullptr)
 {
   resetDrawer();
-  memset(s_error, 0, sizeof(s_error));
-  memset(s_dmuerr, 0, sizeof(s_dmuerr));
+  memset(m_error, 0, sizeof(m_error));
 
   declareProperty("calibrateEnergy", m_calibrateEnergy = false);
   declareProperty("correctTime", m_correctTime = false);
@@ -291,28 +285,28 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
   int ros = (frag >> 8);
   int drawer = (frag & 0xff);
 
-  s_lastDrawer = frag;
+  m_lastDrawer = frag;
 
-  memset(s_error, 0, sizeof(s_error));
-  memset(s_dmuerr, 0, sizeof(s_dmuerr));
+  memset(m_error, 0, sizeof(m_error));
+  int dmuerr[MAX_DMUS] = {0};
   int nch = 0;
   bool bigain = DQstatus->isBiGain();
   if (!bigain) { // in bigain runs we don't have DQ status fragment
     for (int ch = 0; ch < MAX_CHANNELS; ch += 3) {
       if (!DQstatus->isAdcDQgood(ros, drawer, ch, 0)) {
-        s_error[ch + 2] = s_error[ch + 1] = s_error[ch] = -3;
-        s_dmuerr[ch / 3] = 3;
+        m_error[ch + 2] = m_error[ch + 1] = m_error[ch] = -3;
+        dmuerr[ch / 3] = 3;
         nch += 3;
       }
     }
   }
   if (nch == MAX_CHANNELS) { // all bad - nothing to do
-    s_badDrawer = true;
+    m_badDrawer = true;
     ATH_MSG_VERBOSE( "Drawer 0x" << MSG::hex << frag << MSG::dec
                     << " is bad - skipping bad patterns check " );
     return;
   } else {
-    s_badDrawer = false;
+    m_badDrawer = false;
     ATH_MSG_VERBOSE(  "Drawer 0x" << MSG::hex << frag << MSG::dec
                     << " looking for bad patterns in digits" );
   }
@@ -330,7 +324,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
     int channel = m_tileHWID->channel(adcId);
     int gain = m_tileHWID->adc(adcId);
 
-    if (s_error[channel]) {
+    if (m_error[channel]) {
       ATH_MSG_VERBOSE( "BadCh " << ros
                         << "/" << drawer
                         << "/" << channel
@@ -342,9 +336,9 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 
       if (err) {
 
-        s_error[channel] = err;
+        m_error[channel] = err;
         if (err > -5) {
-          ++s_dmuerr[channel / 3];
+          ++dmuerr[channel / 3];
           ++nchbad[channel / 24];
         }
 
@@ -374,7 +368,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
       } else {
         if (mindig < 0.01) err += 1;
         if (maxdig > m_ADCmaxMinusEps) err += 2;
-        if (err) s_error[channel] = err - 10;
+        if (err) m_error[channel] = err - 10;
       }
     }
   }
@@ -385,11 +379,11 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
   int ndmubad[2] = { 0, 0 };
   int dmu = 0;
   for (; dmu < MAX_DMUS / 2; ++dmu) { // first half
-    if (s_dmuerr[dmu] > 1)
+    if (dmuerr[dmu] > 1)
       ++ndmubad[0]; // count DMUs with at least two bad channels
   }
   for (; dmu < MAX_DMUS; ++dmu) { // second half
-    if (s_dmuerr[dmu] > 1)
+    if (dmuerr[dmu] > 1)
       ++ndmubad[1]; // count DMUs with at least two bad channels
   }
 
@@ -412,16 +406,16 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
         if (printall) {
           msg(MSG::VERBOSE) << "nDMuErr ";
           for (int d = 0; d < MAX_DMUS; ++d) {
-            msg(MSG::VERBOSE) << " " << s_dmuerr[d];
+            msg(MSG::VERBOSE) << " " << dmuerr[d];
           }
           msg(MSG::VERBOSE) << " total " << ndmubad[p] << " errors" << endmsg;
 
           msg(MSG::VERBOSE) << "ChErr ";
           int ch = 0;
           while (ch < MAX_CHANNELS) {
-            msg(MSG::VERBOSE) << " " << s_error[ch++];
-            msg(MSG::VERBOSE) << " " << s_error[ch++];
-            msg(MSG::VERBOSE) << " " << s_error[ch++];
+            msg(MSG::VERBOSE) << " " << m_error[ch++];
+            msg(MSG::VERBOSE) << " " << m_error[ch++];
+            msg(MSG::VERBOSE) << " " << m_error[ch++];
             msg(MSG::VERBOSE) << "  ";
           }
 
@@ -433,8 +427,8 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
       int ch = (p) ? MAX_CHANNELS / 2 : 0;
       int chmax = (p) ? MAX_CHANNELS : MAX_CHANNELS / 2;
       for (; ch < chmax; ++ch) {
-        if (s_error[ch] == 0 || s_error[ch] < -5) { // channel was good before
-          s_error[ch] = -4;
+        if (m_error[ch] == 0 || m_error[ch] < -5) { // channel was good before
+          m_error[ch] = -4;
         }
       }
     }
@@ -443,7 +437,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
 }
 
 const char * TileRawChannelBuilder::BadPatternName(float ped) {
-  static const char * errname[25] = {
+  static const char * const errname[25] = {
       "-10 - good signal",
       "-9 - underflow",
       "-8 - overflow",
@@ -482,7 +476,7 @@ StatusCode TileRawChannelBuilder::build(const TileDigitsCollection* coll)
   int frag = coll->identify();
 
   // make sure that error array is up-to-date
-  if (frag != s_lastDrawer && m_notUpgradeCabling) {
+  if (frag != m_lastDrawer && m_notUpgradeCabling) {
     fill_drawer_errors(ctx, coll);
   }
 
@@ -496,13 +490,13 @@ StatusCode TileRawChannelBuilder::build(const TileDigitsCollection* coll)
 
     if (m_notUpgradeCabling) {
 
-      int err = s_error[m_tileHWID->channel(rch->adc_HWID())];
+      int err = m_error[m_tileHWID->channel(rch->adc_HWID())];
       
       if (err) {
         if (err == -8 || err == -7) m_overflows.push_back(std::make_pair(rch, (*digitItr)));
         float ped = rch->pedestal() + 100000 + 10000 * err;
         rch->setPedestal(ped);
-        if (msgLvl(MSG::VERBOSE) && !s_badDrawer) {
+        if (msgLvl(MSG::VERBOSE) && !m_badDrawer) {
           if (err < -5) {
             msg(MSG::VERBOSE) << "BadCh " << m_tileHWID->to_string(rch->adc_HWID())
                               << " warning = " << BadPatternName(ped) << endmsg;

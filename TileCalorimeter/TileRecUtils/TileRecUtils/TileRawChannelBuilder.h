@@ -132,7 +132,7 @@ class TileRawChannelBuilder: public AthAlgTool {
 
     static const char* BadPatternName(float ped);
 
-    static void resetDrawer();
+    void resetDrawer();
     void resetOverflows(void);
     Overflows_t& getOverflowedChannels(void);
     std::string getTileRawChannelContainerID(void);
@@ -226,10 +226,9 @@ class TileRawChannelBuilder: public AthAlgTool {
 
     static const int MAX_CHANNELS = 48;
     static const int MAX_DMUS = 16;
-    static int s_error[MAX_CHANNELS];
-    static int s_dmuerr[MAX_DMUS];
-    static int s_lastDrawer;
-    static bool s_badDrawer;
+    int m_error[MAX_CHANNELS];
+    int m_lastDrawer = -1;
+    bool m_badDrawer = false;
     
     bool m_notUpgradeCabling;
 
