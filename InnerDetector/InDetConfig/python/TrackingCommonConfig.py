@@ -103,7 +103,7 @@ def NnClusterizationFactoryCfg(flags, name = 'NnClusterizationFactory', **kwargs
 
     return NnClusterizationFactory
 
-def InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs):
+def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", **kwargs):
     the_name = makeName(name, kwargs)
     split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
     if (flags.Beam.Type == "cosmics") or flags.InDet.doDBMstandalone:
@@ -230,8 +230,8 @@ def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
         else:
             ToolPixelCluster= InDetPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args)
         acc.addPublicTool(ToolPixelCluster)
-        kwargs.setdefault("ToolPixelCluster", ToolPixelCluster)  
-  
+        kwargs.setdefault("ToolPixelCluster", ToolPixelCluster)
+
     if 'ToolSCT_Cluster' not in kwargs :
         if use_broad_cluster_sct :
             ToolSCT_Cluster = InDetBroadSCT_ClusterOnTrackToolCfg(flags)
@@ -247,7 +247,7 @@ def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
         kwargs.setdefault("ToolTRT_DriftCircle", TRT_DriftCircleOnTrackTool)
 
     kwargs.setdefault('Mode', 'indet')
-    acc.addPublicTool(CompFactory.Trk.RIO_OnTrackCreator(name=the_name, **kwargs), primary = True)
+    acc.setPrivateTools(CompFactory.Trk.RIO_OnTrackCreator(name=the_name, **kwargs))
     return acc
 
 def InDetTRT_DriftCircleOnTrackUniversalToolCfg(name='InDetTRT_RefitRotCreator', **kwargs):
@@ -277,7 +277,8 @@ def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
                 ToolTRT_DriftCircle = acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackUniversalToolCfg(ScaleHitUncertainty = ScaleHitUncertainty))
                 kwargs.setdefault("ToolTRT_DriftCircle", ToolTRT_DriftCircle)
                 acc.addPublicTool(ToolTRT_DriftCircle)
-    acc.merge(InDetRotCreatorCfg(flags, name = name, **kwargs))
+    InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, name = name, **kwargs))
+    acc.setPrivateTools(InDetRotCreator)
     return acc
 
 def InDetPRDtoTrackMapToolGangedPixelsCfg(flags, name='PRDtoTrackMapToolGangedPixels', **kwargs):
@@ -330,6 +331,7 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     do_holes=kwargs.get("doHolesInDet",True)
     if do_holes :
         id_helper_args.update(hlt_args)
+
     if 'InDetSummaryHelperTool' not in kwargs :
         from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
         tmpAcc =  InDetTrackSummaryHelperToolCfg(flags, **id_helper_args)
@@ -391,9 +393,9 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
         if InDetRecTestBLayerToolCfg(flags) is not None:
             InDetRecTestBLayerTool = acc.popToolsAndMerge(InDetRecTestBLayerToolCfg(flags))
             acc.addPublicTool(InDetRecTestBLayerTool)
-            kwargs.setdefault("TestBLayerTool", InDetRecTestBLayerTool)
         else:
-            kwargs.setdefault("TestBLayerTool", None)
+            InDetRecTestBLayerTool = None
+        kwargs.setdefault("TestBLayerTool", InDetRecTestBLayerTool)
 
     kwargs.setdefault("DoSharedHits", flags.InDet.doSharedHits)
 
@@ -476,8 +478,11 @@ def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwar
         kwargs.setdefault( "TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
 
     if 'TRT_ToT_dEdx_Tool' not in kwargs :
-        InDetTRT_dEdxTool = InDetTRT_dEdxToolCfg(flags)
-        acc.addPublicTool(InDetTRT_dEdxTool)
+        if InDetTRT_dEdxToolCfg(flags) is not None:
+            InDetTRT_dEdxTool = InDetTRT_dEdxToolCfg(flags)
+            acc.addPublicTool(InDetTRT_dEdxTool)
+        else:
+            InDetTRT_dEdxTool = None
         kwargs.setdefault( "TRT_ToT_dEdx_Tool", InDetTRT_dEdxTool)
 
     kwargs.setdefault( "isData", not flags.Input.isMC)
@@ -504,13 +509,16 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         if InDetTRT_ElectronPidToolCfg(flags) is not None:
             InDetTRT_ElectronPidTool = InDetTRT_ElectronPidToolCfg(flags)
             acc.addPublicTool(InDetTRT_ElectronPidTool)
-            kwargs.setdefault("TRT_ElectronPidTool", InDetTRT_ElectronPidTool)
         else:
-            kwargs.setdefault("TRT_ElectronPidTool", None)
+            InDetTRT_ElectronPidTool = None
+        kwargs.setdefault("TRT_ElectronPidTool", InDetTRT_ElectronPidTool)
 
     if 'TRT_ToT_dEdxTool' not in kwargs :
-        InDetTRT_dEdxTool = InDetTRT_dEdxToolCfg(flags)
-        acc.addPublicTool(InDetTRT_dEdxTool)
+        if InDetTRT_dEdxToolCfg(flags) is not None:
+            InDetTRT_dEdxTool = InDetTRT_dEdxToolCfg(flags)
+            acc.addPublicTool(InDetTRT_dEdxTool)
+        else:
+            InDetTRT_dEdxTool = None
         kwargs.setdefault("TRT_ToT_dEdxTool", InDetTRT_dEdxTool)
 
     if 'PixelToTPIDTool' not in kwargs :
@@ -562,8 +570,8 @@ def GlobalChi2FitterCfg(flags, name ='InDetTrackFitterTRT', **kwargs):
     InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
     acc.addPublicTool(InDetPropagator)
 
-    acc.merge(InDetRefitRotCreatorCfg(flags))
-    InDetRefitRotCreator = acc.getPublicTool("InDetRefitRotCreator")
+    InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
+    acc.addPublicTool(InDetRefitRotCreator)
 
     InDetUpdator = InDetUpdatorCfg(flags)
     acc.addPublicTool(InDetUpdator)
@@ -627,9 +635,8 @@ def InDetKalmanFitterCfg(flags, name ='InDetKalmanFitter', **kwargs):
     InDetUpdator = InDetUpdatorCfg(flags)
     acc.addPublicTool(InDetUpdator)
 
-    tmpAcc =  InDetRotCreatorCfg(flags)
-    InDetRotCreator = tmpAcc.getPrimary()
-    acc.merge(tmpAcc)
+    InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
+    acc.addPublicTool(InDetRotCreator)
 
     kwargs.setdefault("ExtrapolatorHandle", InDetExtrapolator)
     kwargs.setdefault("RIO_OnTrackCreatorHandle", InDetRotCreator)
