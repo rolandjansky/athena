@@ -31,9 +31,6 @@ class ICPJetCorrectionTool : virtual public asg::IAsgTool,
 
     public:
 
-        /// Virtual destructor
-//        virtual ~ICPJetCorrectionTool()=default;
-
         /// Apply a systematic variation of get a new copy
         virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) const = 0;
         virtual CP::CorrectionCode correctedCopy(const xAOD::Jet& input, xAOD::Jet*& output) const = 0;
