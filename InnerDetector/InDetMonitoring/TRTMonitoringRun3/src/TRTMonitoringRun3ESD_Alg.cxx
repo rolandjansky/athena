@@ -1356,10 +1356,10 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
         }
         // NOTE: failing to retrieve ComTime from store for some reason
         if (!comTimeObject.isValid()) {
-            ATH_MSG_INFO("Could not find com time object " << m_comTimeObjectKey.key() <<
+            ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() <<
                          " in store");
         }
-        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.cptr()) );
+        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.isValid() ? comTimeObject.cptr() :  nullptr) );
     }
 
     if (!m_doTracksMon) {
