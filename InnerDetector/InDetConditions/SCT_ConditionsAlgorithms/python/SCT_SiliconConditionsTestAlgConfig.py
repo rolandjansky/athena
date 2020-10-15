@@ -1,16 +1,16 @@
-"""Define method to configure and test SCTSiPropertiesTestAlg
+"""Define method to configure and test SCT_SiliconConditionsTestAlgConfig
 
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def SCTSiPropertiesTestAlgCfg(flags, name="SCTSiPropertiesTestAlg", **kwargs):
-    """Return a configured SCTSiPropertiesTestAlg"""
+def SCT_SiliconConditionsTestAlgCfg(flags, name="SCT_SiliconConditionsTestAlg", **kwargs):
+    """Return a configured SCT_SiliconConditionsTestAlg"""
     acc = ComponentAccumulator()
-    from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
-    kwargs.setdefault("SCTPropertiesTool", acc.popToolsAndMerge(SCT_SiPropertiesCfg(flags)))
-    acc.addEventAlgo(CompFactory.SCTSiPropertiesTestAlg(**kwargs))
+    from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
+    kwargs.setdefault("SCT_SiliconConditionsTool", acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags)))
+    acc.addEventAlgo(CompFactory.SCT_SiliconConditionsTestAlg(**kwargs))
     return acc
 
 if __name__=="__main__":
@@ -20,7 +20,7 @@ if __name__=="__main__":
 
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
-
+    
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.ProjectName = "mc16_13TeV"
@@ -37,6 +37,6 @@ if __name__=="__main__":
     from McEventSelector.McEventSelectorConfig import McEventSelectorCfg
     cfg.merge(McEventSelectorCfg(ConfigFlags))
 
-    cfg.merge(SCTSiPropertiesTestAlgCfg(ConfigFlags))
+    cfg.merge(SCT_SiliconConditionsTestAlgCfg(ConfigFlags))
 
     cfg.run(maxEvents=20)
