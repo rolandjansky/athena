@@ -167,9 +167,32 @@ class TrigEgammaMonAlgBuilder:
   def setDefaultProperties(self):
    
     # This will be removed for future.
-    monitoring_electron = ['HLT_e5_etcut_L1EM3']
-    monitoring_photon = ['HLT_g25_etcut_L1EM20VH','HLT_g25_loose_L1EM20VH','HLT_g25_medium_L1EM20VH', 'HLT_g25_tight_L1EM20VH', 'HLT_g140_loose_L1EM24VH']
-    monitoringTP_electron = ['HLT_e26_lhtight_L1EM22VHI','HLT_e60_lhmedium_L1EM22VHI','HLT_e140_lhloose_L1EM22VHI']
+    monitoring_electron = [
+            'HLT_e5_etcut_L1EM3',
+            'HLT_e5_lhtight_noringer_L1EM3',
+            'HLT_e5_lhtight_L1EM3',
+
+            ]
+
+    monitoring_photon = [
+            'HLT_g20_tight_icaloloose_L1EM15VH',
+            'HLT_g22_tight_L1EM15VH',
+            'HLT_g25_etcut_L1EM20VH',
+            'HLT_g25_loose_L1EM20VH',
+            'HLT_g25_medium_L1EM20VH',
+            'HLT_g25_tight_L1EM20VH',
+            'HLT_g120_loose_L1EM22VHI',
+            'HLT_g140_loose_L1EM24VH'
+            ]
+
+    monitoringTP_electron = [
+            'HLT_e24_lhvloose_L1EM20VH', 
+            'HLT_e26_lhtight_L1EM22VHI',
+            'HLT_e26_lhtight_ivarloose_L1EM22VHI',
+            'HLT_e60_lhmedium_L1EM22VHI',
+            'HLT_e140_lhloose_L1EM22VHI'
+            ]
+
     #monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose', 'HLT_e26_lhtight_nod0_ivarloose']
 
     #from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_tags, monitoringTP_electron, monitoring_photon , monitoring_electron

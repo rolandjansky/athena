@@ -55,7 +55,7 @@ void TRT_LoLumRawDataContainerCnv_p1::transToPers(const TRT_RDO_Container* trans
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
         InDetRawDataCollection_p1& pcollection = persCont->m_collections[collIndex];
-        pcollection.m_id    = collection.identify().get_compact();
+        pcollection.m_id    = collection.identify().get_identifier32().get_compact();
         pcollection.m_hashId = (unsigned int) collection.identifyHash();
         pcollection.m_begin = chanBegin;
         pcollection.m_end   = chanEnd;

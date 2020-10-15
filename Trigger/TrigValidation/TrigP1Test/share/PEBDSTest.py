@@ -86,11 +86,7 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool.EtaEdge = 5.0
         tool.EtaWidth = 0.1
         tool.PhiWidth = 0.1
-        tool.DetNames = ['All']
-        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel, makeRegSelTool_SCT, makeRegSelTool_TRT 
-        tool.RegSelTool_Pixel = makeRegSelTool_Pixel()
-        tool.RegSelTool_SCT   = makeRegSelTool_SCT()
-        tool.RegSelTool_TRT   = makeRegSelTool_TRT()
+        tool.addRegSelDets(['All'])
         tool.ExtraROBs = []
         tool.ExtraSubDets = []
         tool.addHLTResultToROBList() # add the main (full) HLT result to the list
@@ -100,7 +96,7 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.EtaWidth = 0.5
         tool.PhiWidth = 0.5
-        tool.DetNames = ['MDT', 'CSC', 'RPC', 'TGC', 'MM', 'STGC'] # all muon detectors
+        tool.addRegSelDets(['MDT', 'CSC', 'RPC', 'TGC', 'MM', 'sTGC']) # all muon detectors
         tool.ExtraROBs = []
     elif 'ElectronDSTest' in eventBuildType:
         # ElectronDSTest is an example of pure Data Scouting,
@@ -113,11 +109,7 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.EtaWidth = 0.3
         tool.PhiWidth = 0.3
-        tool.DetNames = ['PIXEL', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD']
-        from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel, makeRegSelTool_SCT, makeRegSelTool_TRT 
-        tool.RegSelTool_Pixel = makeRegSelTool_Pixel()
-        tool.RegSelTool_SCT   = makeRegSelTool_SCT()
-        tool.RegSelTool_TRT   = makeRegSelTool_TRT()
+        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.ExtraROBs = []
         tool.ExtraSubDets = []
 

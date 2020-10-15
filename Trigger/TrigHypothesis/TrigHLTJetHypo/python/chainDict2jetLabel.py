@@ -13,7 +13,7 @@ reject_substr = ( # noqa: W605
     '0i1',
     '1i2',
     'dphi',
-    'ht\d',)
+    'agg\d',)
 
 reject_substr_res = re.compile(r'%s' % '|'.join(reject_substr))
 
@@ -276,21 +276,22 @@ def _make_dijet_label(chain_parts):
             )""" % argvals
 
 
-def _make_ht_label(chain_parts):
-    """ht label. ht cuts, and cuts on particpating jets
+def _make_agg_label(chain_parts):
+    """agg label. cuts on aggregate quantities, and cuts on particpating jets
+    Only partway migrated from pure ht to more general agg
     Currently supported cuts:
     - all jets: ht
     - all jets: et
-    - all jets:  eta
+    - all jets: eta
 
     - default values are used for unspecified cuts.
     The cut set can be extended according to the pattern
     """
 
-    assert len(chain_parts) == 1, '_make_ht_label, no. of chain parts != 1'
+    assert len(chain_parts) == 1, '_make_agg_label, no. of chain parts != 1'
     scenario = chain_parts[0]['hypoScenario']
     
-    assert scenario.startswith('HT'), '_make_ht_label(): scenario does not start with HT'
+    assert scenario.startswith('agg'), '_make_agg_label(): scenario does not start with agg'
 
     arg_res = [
         re.compile(r'^(?P<lo>\d*)(?P<key>ht)(?P<hi>\d*)$'),
@@ -337,7 +338,7 @@ def _make_ht_label(chain_parts):
 
     print ('sent 100')
     result =  """
-    ht([(%(htlo).0fht) 
+    ht([(%(htlo).0fht)
         (%(etlo).0fet)
         (%(etalo).0feta%(etahi).0f)
     ])"""  % argvals
@@ -399,7 +400,7 @@ def chainDict2jetLabel(chain_dict):
     # suported scenarios 
     router = {
         'simple': _make_simple_label,
-        'HT': _make_ht_label,
+        'agg':   _make_agg_label,
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
         'combinationsTest': _make_combinationsTest_label,

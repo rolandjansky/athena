@@ -23,6 +23,13 @@
 
 namespace Overlay
 {
+  struct TRTRDOSorter {
+    bool operator() (TRT_RDORawData *digit1, TRT_RDORawData *digit2)
+    {
+      return digit1->identify() < digit2->identify();
+    }
+  } TRTRDOSorterObject;
+
   // Specialize copyCollection() for the TRT
   template<>
   std::unique_ptr<TRT_RDO_Collection> copyCollection(const IdentifierHash &hashId,
@@ -37,6 +44,14 @@ namespace Overlay
       outputCollection->push_back(datumCopy);
     }
 
+    return outputCollection;
+  }
+
+  std::unique_ptr<TRT_RDO_Collection> copyCollectionAndSort(const IdentifierHash &hashId,
+                                                            const TRT_RDO_Collection *collection)
+  {
+    std::unique_ptr<TRT_RDO_Collection> outputCollection = copyCollection(hashId, collection);
+    std::stable_sort(outputCollection->begin(), outputCollection->end(), TRTRDOSorterObject);
     return outputCollection;
   }
 } // namespace Overlay
@@ -186,7 +201,12 @@ StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
      [](const std::pair<IdentifierHash, bool> &lhs,  IdentifierHash rhs) -> bool { return lhs.first < rhs; } );
     if (search == overlapMap.end() || search->first != hashId) {
       // Copy the background collection
-      std::unique_ptr<TRT_RDO_Collection> bkgCollection = Overlay::copyCollection(hashId, bkgContainer->indexFindPtr(hashId));
+      std::unique_ptr<TRT_RDO_Collection> bkgCollection{};
+      if (m_sortBkgInput) {
+        bkgCollection = Overlay::copyCollectionAndSort(hashId, bkgContainer->indexFindPtr(hashId));
+      } else {
+        bkgCollection = Overlay::copyCollection(hashId, bkgContainer->indexFindPtr(hashId));
+      }
 
       if (outputContainer->addCollection(bkgCollection.get(), hashId).isFailure()) {
         ATH_MSG_ERROR("Adding background Collection with hashId " << hashId << " failed");
@@ -211,7 +231,12 @@ StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
       auto outputCollection = std::make_unique<TRT_RDO_Collection>(hashId);
       outputCollection->setIdentifier(signalCollection->identify());
       // Copy the background collection
-      std::unique_ptr<TRT_RDO_Collection> bkgCollection = Overlay::copyCollection(hashId, bkgContainer->indexFindPtr(hashId));
+      std::unique_ptr<TRT_RDO_Collection> bkgCollection{};
+      if (m_sortBkgInput) {
+        bkgCollection = Overlay::copyCollectionAndSort(hashId, bkgContainer->indexFindPtr(hashId));
+      } else {
+        bkgCollection = Overlay::copyCollection(hashId, bkgContainer->indexFindPtr(hashId));
+      }
 
       // Merge collections
       int det = m_trtId->barrel_ec(signalCollection->identify());

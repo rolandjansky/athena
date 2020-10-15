@@ -43,6 +43,10 @@ atlas_add_test( TestSCTProperties
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=5 )
 
+atlas_add_test( TestSCTPropertiesNewConf
+                SCRIPT python -m SiPropertiesTool.SCTSiPropertiesTestAlgConfig
+                PROPERTIES TIMEOUT 300 )
+
 atlas_add_test( SiPropertiesConfig_test
                 SCRIPT test/SiPropertiesConfig_test.py
                 PROPERTIES TIMEOUT 300 )
@@ -50,4 +54,3 @@ atlas_add_test( SiPropertiesConfig_test
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

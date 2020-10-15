@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: MakeHierTags.py,v 1.5 2009-04-30 20:29:53 ssnyder Exp $
-#
 # File: CaloClusterCorrection/python/MakeHierTags.py
 # Created: Apr 2009, sss
 # Purpose: Add hierarchical cluster correction tags to a COOL database.
@@ -21,7 +19,8 @@ from __future__ import print_function
 
 from PyCool import cool
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COOL, CALOCORR_JO
+from CaloClusterCorrection.common import split_version_spec
 import sys
 
 
@@ -30,7 +29,7 @@ class MakeHierTags:
         self.corrtop = corrtop
         self.dryrun = dryrun
         self.domagic = domagic
-        dbsvc = cool.DatabaseSvcFactory.databaseService()
+        cool.DatabaseSvcFactory.databaseService()
 
         if dbfile.endswith ('.db'):
             connstring = "sqlite://;schema=%s;dbname=OFLP200" % dbfile
@@ -71,7 +70,7 @@ class MakeHierTags:
 
 
     def run (self, generation=None):
-        if generation == None:
+        if generation is None:
             generation = self.corrtop.correction_generation_default
         if generation != '':
             generation = generation + '-'
@@ -89,12 +88,12 @@ class MakeHierTags:
         htag = None
         for toolspec in toollist:
             toolfunc = toolspec[0]
-            if len(toolspec) >= 2 and type(toolspec[1]) == type(''):
+            if len(toolspec) >= 2 and isinstance(toolspec[1], str):
                 toolversion = toolspec[1]
             else:
                 toolversion = ''
 
-            if not toolfunc in self.funcmap:
+            if toolfunc not in self.funcmap:
                 print ("WARNING: skipping tagging for tool", toolfunc.__name__)
                 continue
             folder = self.funcmap[toolfunc]
@@ -102,7 +101,7 @@ class MakeHierTags:
             (dum1, dum2, corrclass, basename) = folder.split ('/')
 
             htmp = corrclass + '-' + generation + version
-            if htag == None:
+            if htag is None:
                 htag = htmp
                 print (htag)
             else:
@@ -114,7 +113,7 @@ class MakeHierTags:
 
             self.set_tag (folder, tag, htag)
 
-        if htag == None:
+        if htag is None:
             return
 
         for folder in self.folders:
@@ -131,7 +130,7 @@ class MakeHierTags:
             for g in geom_strings:
                 (globver, tryhier) = self.corrtop.geom_match('MakeHierTags', g)
                 if globver[0] == '@': continue
-                (vlist, version) = self.corrtop.lookup_version (globver)
+                (vlist, version) = self.corrtop.lookup_version (globver, None)
                 for f in self.folders:
                     self.make_magic_target (f, g, vlist, generation)
                 print ("Made magic targets for", g)
@@ -201,21 +200,21 @@ class MakeHierTags:
             return
 
         oldtag = self.tags.get ((folder, htag))
-        if oldtag == None:
+        if oldtag is None:
             self.tags[(folder,htag)] = tag
             if not self.db.existsFolder(folder):
                 print ("ERROR: Folder %s doesn't exist" % folder)
                 sys.exit(1)
             dbf = self.db.getFolder(folder)
             if check:
-                if not tag in dbf.listTags():
+                if tag not in dbf.listTags():
                     print ("ERROR: Tag %s doesn't exist in folder %s"
                            % (tag,folder))
                     sys.exit(1)
             try:
-                zz=dbf.findTagRelation(htag) # will throw if htag doesn't exist
+                dbf.findTagRelation(htag) # will throw if htag doesn't exist
                 dbf.deleteTagRelation(htag)
-            except:
+            except Exception:
                 pass
             dbf.createTagRelation (htag, tag)
             #print ('set_tag', folder, tag, htag)

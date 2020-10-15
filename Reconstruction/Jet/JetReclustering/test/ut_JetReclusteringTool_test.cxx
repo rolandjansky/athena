@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <xAODRootAccess/Init.h>
@@ -26,7 +26,7 @@ int main() {
 
   //start just by loading the first event of the test MC file
   POOL::TEvent evt(POOL::TEvent::kAthenaAccess);
-  evt.readFrom("$ASG_TEST_FILE_MC");
+  ANA_CHECK(evt.readFrom("$ASG_TEST_FILE_MC"));
   evt.getEntry(0);
 
   //example of configuring the tool

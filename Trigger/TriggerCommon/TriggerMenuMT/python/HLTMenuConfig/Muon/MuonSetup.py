@@ -335,12 +335,33 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   return muDecodeRecoSequence
 
 
-def muFastRecoSequence( RoIs, doFullScanID = False ):
+def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.CFElements import parOR
 
-  muFastRecoSequence = parOR("l2MuViewNode")
+  # muFastRecoSequence = parOR("l2MuViewNode")
+  postFix = ""
+  if InsideOutMode:
+    postFix = "IOmode"
+  muFastRecoSequence = parOR("l2Mu"+postFix+"ViewNode")
+
+  # In insideout mode, need to inherit muon decoding objects for TGC, RPC, MDT, CSC
+  if InsideOutMode:
+    import AthenaCommon.CfgMgr as CfgMgr
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastIOmodeViewDataVerifier")
+    ViewVerify.DataObjects = [('Muon::TgcPrepDataContainer','StoreGateSvc+TGC_Measurements'),
+                              ('TgcRdoContainer' , 'StoreGateSvc+TGCRDO'),
+                              ('Muon::RpcPrepDataContainer','StoreGateSvc+RPC_Measurements'),
+                              ('Muon::MdtPrepDataContainer','StoreGateSvc+MDT_DriftCircles'),
+                              ('TrigRoiDescriptorCollection','StoreGateSvc+MURoIs')]
+    if MuonGeometryFlags.hasCSC():
+      ViewVerify.DataObjects += [('Muon::CscPrepDataContainer','StoreGateSvc+CSC_Clusters')]
+    if MuonGeometryFlags.hasSTGC():
+      ViewVerify.DataObjects += [('Muon::sTgcPrepDataContainer','StoreGateSvc+STGC_Measurements')]
+    if MuonGeometryFlags.hasMM():
+      ViewVerify.DataObjects += [('Muon::MMPrepDataContainer','StoreGateSvc+MM_Measurements')]
+    muFastRecoSequence+=ViewVerify
 
   import AthenaCommon.CfgMgr as CfgMgr
   muFastRecoVDV = CfgMgr.AthViews__ViewDataVerifier("muFastRecoVDV")
@@ -427,7 +448,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
 
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
-  muFastAlg = TrigL2MuonSAMTConfig("Muon")
+  muFastAlg = TrigL2MuonSAMTConfig("Muon"+postFix)
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
   MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator()
@@ -451,11 +472,14 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
 
   muFastAlg.RecMuonRoI = "HLT_RecMURoIs"
   muFastAlg.MuRoIs = RoIs
-  muFastAlg.MuonL2SAInfo = muNames.L2SAName
-  muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
-  muFastAlg.forID = muNames.L2forIDName
-  muFastAlg.forMS = "forMS" 
+  muFastAlg.MuonL2SAInfo = muNames.L2SAName+postFix
+  muFastAlg.L2IOCB = muNames.L2CBName+postFix
+  muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"+postFix
+  muFastAlg.forID = muNames.L2forIDName+postFix
+  muFastAlg.forMS = "forMS"+postFix
   muFastAlg.FILL_FSIDRoI = doFullScanID
+  muFastAlg.InsideOutMode = InsideOutMode
+  muFastAlg.TrackParticlesContainerName = TrackParticlesName
 
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
@@ -737,8 +761,8 @@ def muEFCBRecoSequence( RoIs, name ):
   trackParticles = PTTrackParticles[-1]
 
   #Make InDetCandidates
-  theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
-                                                       InDetCandidateLocation="InDetCandidates_"+name)
+  theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles], 
+                                                       InDetCandidateLocation="InDetCandidates_"+name, TrackSelector="")
   #No easy way to access AtlasHoleSearchTool in theIndetCandidateAlg
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup

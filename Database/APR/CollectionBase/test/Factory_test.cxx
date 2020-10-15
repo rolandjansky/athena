@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdio> // For sprintf on gcc45
@@ -15,6 +15,10 @@
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"
 #include "CollectionBase/CollectionFactory.h"
+#include "CxxUtils/checker_macros.h"
+
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 
 using namespace std;

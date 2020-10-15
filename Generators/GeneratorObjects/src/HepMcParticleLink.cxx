@@ -9,7 +9,6 @@
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "StoreGate/StoreGate.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AthenaKernel/getMessageSvc.h"

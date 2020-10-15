@@ -1,17 +1,17 @@
 /*
   Merge inside-out and outside-in muon trigger containers
   
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEF_MERGEEFMUONSALG_H
 #define TRIGMUONEF_MERGEEFMUONSALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODMuon/MuonContainer.h"
 
-class MergeEFMuonsAlg : public AthAlgorithm
+class MergeEFMuonsAlg : public AthReentrantAlgorithm
 {
   public :
 
@@ -25,7 +25,7 @@ class MergeEFMuonsAlg : public AthAlgorithm
     StatusCode finalize();
   
     /** execute the filter alg */
-    StatusCode execute();
+    StatusCode execute(const EventContext& ctx) const;
 
 
   private :

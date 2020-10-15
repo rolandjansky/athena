@@ -292,7 +292,7 @@ bool VertexCollHandle::cut(AODHandleBase* ah)
 
 
 
-  if (!m_cut_r_allowall || !m_cut_y_allowall || !m_cut_z_allowall)
+  if ( !(m_cut_r_allowall) || !(m_cut_y_allowall) || !(m_cut_z_allowall) )
   {
     messageVerbose("evaluating cuts...");
     

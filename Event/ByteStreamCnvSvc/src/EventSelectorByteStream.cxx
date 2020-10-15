@@ -16,7 +16,6 @@
 
 #include "AthenaKernel/IAthenaIPCTool.h"
 #include "EventInfo/EventInfo.h"
-#include "StoreGate/StoreGate.h"
 
 // EventInfoAttributeList includes
 #include "AthenaPoolUtilities/AthenaAttributeList.h"

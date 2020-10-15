@@ -35,8 +35,6 @@ atlas_add_component( TrkAmbiguityProcessor
                      src/SimpleAmbiguityProcessorTool.cxx
                      src/TrackScoringTool.cxx
                      src/TrackSelectionProcessorTool.cxx
-                     src/ToolVisitor.cxx
-                     src/RenounceToolInputsVisitor.cxx
                      src/components/*.cxx
                      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps  GaudiKernel InDetRecToolInterfaces InDetPrepRawData TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces)

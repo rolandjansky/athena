@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwGap_v2.py,v 1.2 2006-11-16 07:07:45 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwGap_v2.py
 # Created: Nov 2006, sss
@@ -112,7 +110,7 @@
 #
 
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_CLUSTER
 
 
 #############################################################################

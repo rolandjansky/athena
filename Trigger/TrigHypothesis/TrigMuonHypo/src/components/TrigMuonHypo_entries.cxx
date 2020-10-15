@@ -2,7 +2,6 @@
 #include "TrigMuonHypo/MufastHypo.h"
 #include "TrigMuonHypo/MufastStauHypo.h"
 #include "TrigMuonHypo/MufastPEBHypo.h"
-#include "TrigMuonHypo/MufastOTRHypo.h"
 #include "TrigMuonHypo/MufastCALHypo.h"
 #include "TrigMuonHypo/MucombHypo.h"
 #include "TrigMuonHypo/MucombStauHypo.h"
@@ -38,7 +37,6 @@ DECLARE_COMPONENT( MuonRoiFex )
 DECLARE_COMPONENT( MufastHypo )
 DECLARE_COMPONENT( MufastStauHypo )
 DECLARE_COMPONENT( MufastPEBHypo )
-DECLARE_COMPONENT( MufastOTRHypo )
 DECLARE_COMPONENT( MufastCALHypo )
 DECLARE_COMPONENT( MucombHypo )
 DECLARE_COMPONENT( MucombStauHypo )

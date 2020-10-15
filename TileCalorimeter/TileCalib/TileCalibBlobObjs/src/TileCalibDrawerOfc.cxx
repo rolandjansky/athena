@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
@@ -41,6 +41,21 @@ const TileCalibDrawerOfc* TileCalibDrawerOfc::getInstance(const coral::Blob& blo
 //_______________________________________________________________
 TileCalibDrawerOfc::TileCalibDrawerOfc(const coral::Blob& blob)
   : TileCalibDrawerBase(blob)
+{
+  initCheck();
+}
+
+//
+//_______________________________________________________________
+TileCalibDrawerOfc::TileCalibDrawerOfc(coral::Blob& blob)
+  : TileCalibDrawerBase(blob)
+{
+  initCheck();
+}
+
+//
+//_______________________________________________________________
+void TileCalibDrawerOfc::initCheck()
 {
   if(getBlobSize()){
 

@@ -44,6 +44,8 @@ namespace iFatras {
         Output: Changes in information and hitPattern
         Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
     */
+    using IExtendedTrackSummaryHelperTool::analyse;
+    using IExtendedTrackSummaryHelperTool::updateSharedHitCount;
     virtual void analyse(const Trk::Track& track,
                          const Trk::PRDtoTrackMap *prd_to_track_map,
                          const Trk::RIO_OnTrack* rot,

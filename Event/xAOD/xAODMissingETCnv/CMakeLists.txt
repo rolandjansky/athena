@@ -1,17 +1,7 @@
-################################################################################
-# Package: xAODMissingETCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODMissingETCnv )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODMissingET
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Reconstruction/MissingETEvent )
 
 # Component(s) in the package:
 atlas_add_component( xAODMissingETCnv

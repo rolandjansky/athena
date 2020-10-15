@@ -65,12 +65,12 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     ATH_CHECK( muCombHandle.isValid() );
     ATH_MSG_DEBUG( "Muinfo handle size: " << muCombHandle->size() << "...");
 
-    // make a link to the first entry of the container, if there is one
-    if ( muCombHandle->size() ) {
-      auto muCombEL = ViewHelper::makeLink( *viewEL, muCombHandle, 0 );
+    // loop over muCombs (more than one muon can be found by L2 inside-out algos)
+    for(uint i=0; i<muCombHandle->size(); i++){
+      auto muCombEL = ViewHelper::makeLink( *viewEL, muCombHandle, i );
       ATH_CHECK( muCombEL.isValid() );
       const xAOD::L2CombinedMuon* muComb = *muCombEL;
-    
+
       // create new decisions
       auto newd = newDecisionIn( decisions );
 

@@ -172,6 +172,7 @@ void TrigL2MuonSA::MuFastDataPreparator::setExtrapolatorTool(ToolHandle<ITrigMuo
 
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
                                                            const TrigRoiDescriptor*    p_roids,
+                                                           const bool                  insideOut,
                                                            TrigL2MuonSA::RpcHits&      rpcHits,
                                                            TrigL2MuonSA::MuonRoad&     muonRoad,
                                                            TrigL2MuonSA::MdtRegion&    mdtRegion,
@@ -184,7 +185,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   
   StatusCode sc = StatusCode::SUCCESS;
   
-  if(m_use_rpc) {
+  if(m_use_rpc && !insideOut) {
 
     m_rpcPatFinder->clear();
 
@@ -201,6 +202,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     if (!sc.isSuccess()) {
       ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
     }
+  } else {
+    ATH_MSG_DEBUG("Skip RpcDataPreparator");
   }
 
   SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
@@ -217,6 +220,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   ATH_MSG_DEBUG("nr of RPC hits=" << rpcHits.size());
 
   sc = m_rpcRoadDefiner->defineRoad(p_roi,
+                                    insideOut,
                                     muonRoad,
                                     rpcHits,
                                     &m_rpcPatFinder,
@@ -254,6 +258,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
                                                            const TrigRoiDescriptor*    p_roids,
+                                                           const bool                  insideOut,
                                                            TrigL2MuonSA::TgcHits&      tgcHits,
                                                            TrigL2MuonSA::MuonRoad&     muonRoad,
                                                            TrigL2MuonSA::MdtRegion&    mdtRegion,
@@ -266,15 +271,21 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 {
   StatusCode sc = StatusCode::SUCCESS;
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
-  
-  sc = m_tgcDataPreparator->prepareData(p_roi,
-                                        tgcHits);
+
+  if(!insideOut) {
+    sc = m_tgcDataPreparator->prepareData(p_roi,
+                                          tgcHits);
+  } else {
+    ATH_MSG_DEBUG("Skip TgcDataPreparator");
+  }
+
   if (!sc.isSuccess()) {
     ATH_MSG_DEBUG("Error in TGC data preparation. Continue using RoI");
   }
   ATH_MSG_DEBUG("nr of TGC hits=" << tgcHits.size());
-  
+
   sc = m_tgcRoadDefiner->defineRoad(p_roi,
+                                    insideOut,
                                     tgcHits,
                                     muonRoad,
                                     tgcFitResult);
@@ -282,7 +293,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     ATH_MSG_WARNING("Error in road definition.");
     return sc;
   }
-  
+
   sc = m_mdtDataPreparator->prepareData(p_roi,
                                         p_roids,
                                         tgcFitResult,
@@ -297,7 +308,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   }
   ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
   ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
-  
+
   if(!m_cscDataPreparator.empty()) {
     sc = m_cscDataPreparator->prepareData(p_roids,
 					  muonRoad,

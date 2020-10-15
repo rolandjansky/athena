@@ -135,7 +135,7 @@ objects = [
 
 from collections import defaultdict
 streamerChecksums = defaultdict(set)
-print "Reading streamerinfos from", bs_filename
+print("Reading streamerinfos from", bs_filename)
 file = TFile(bs_filename, 'UPDATE')
 streamer_n = 0
 if  file.GetStreamerInfoList():
@@ -144,8 +144,8 @@ if  file.GetStreamerInfoList():
         # print i.GetName(), "%x" % i.GetCheckSum()
         streamerChecksums[i.GetName()].add( i.GetCheckSum() )
         streamer_n += 1
-print "Read", streamer_n, 'streamers for', len(streamerChecksums), 'types'
-print
+print("Read", streamer_n, 'streamers for', len(streamerChecksums), 'types')
+print("")
 
 if doEDM:
   from TrigEDMConfig.TriggerEDM import EDMDetails
@@ -155,10 +155,10 @@ if doEDM:
 
 for pers in objects:
     SIG.inspect(pers)
-    print
+    print("")
 fulllist = SIG.classlist 
-print fulllist
-print '*******************************'
+print(fulllist)
+print('*******************************')
 
 
 from CLIDComps.clidGenerator import clidGenerator
@@ -170,46 +170,46 @@ types_bad = 0
 fulllist = list(set(fulllist))
 for item in fulllist:    
   if doxAODonly and not 'xAOD' in item: continue # current issues seen because of missing xAOD libs not being loaded
-  print "Trying to fill item", item, "to root file"
+  print("Trying to fill item", item, "to root file")
   c_clid = cgen.genClidFromName(item)
   c_typeinfo = cgen.getTidFromClid(c_clid)
-  print "CLID", c_clid
-  print "TypeInfo", c_typeinfo
+  print("CLID", c_clid)
+  print("TypeInfo", c_typeinfo)
   try:
    cls = ROOT.gROOT.GetClass(item)
   except:
    cls = ROOT.gROOT.GetClass(c_typeinfo)      
-  print cls
+  print(cls)
 
   if cls!=None:
     streamerinfo = cls.GetStreamerInfo()
     if streamerinfo.GetCheckSum() == 0:
       # try to patch missing checksum in DataVectors
-      print 'Warning: no checksum in streamerinfo for type: ', cls.GetName()
-      print 'Attempting to fix with 0x%x' %  cls.GetCheckSum()
+      print('Warning: no checksum in streamerinfo for type: ', cls.GetName())
+      print('Attempting to fix with 0x%x' %  cls.GetCheckSum())
       streamerinfo.SetCheckSum( cls.GetCheckSum() )
 
     chksum = streamerinfo.GetCheckSum()
     if chksum not in streamerChecksums[cls.GetName()]:
-      print 'Writing: %s  streamer size=%d, checksum=0x%x' %(cls.GetName(), streamerinfo.Sizeof(), chksum)
+      print('Writing: %s  streamer size=%d, checksum=0x%x' %(cls.GetName(), streamerinfo.Sizeof(), chksum))
       obj = cls.New()
       file.WriteObjectAny(obj, cls, cls.GetName())
       types_new += 1
     else:
-      print 'Skipping', cls.GetName(), 'streamer checksum', chksum, ' - already in the file'
+      print('Skipping', cls.GetName(), 'streamer checksum', chksum, ' - already in the file')
       types_exist += 1
       
   else:
-    print 'skipping ', item
+    print('skipping ', item)
     types_bad += 1
     #sys.exit()
-  print '----'  
+  print('----')  
 
-print 'Wrote', types_new, 'types'
-print 'Skipped', types_exist, ' existing types'
-print 'Problems with', types_bad + len(SIG.problemclasses), ' types'
+print('Wrote', types_new, 'types')
+print('Skipped', types_exist, ' existing types')
+print('Problems with', types_bad + len(SIG.problemclasses), ' types')
 for t in SIG.problemclasses:
-  print '    ', t
+  print('    ', t)
 
 
 

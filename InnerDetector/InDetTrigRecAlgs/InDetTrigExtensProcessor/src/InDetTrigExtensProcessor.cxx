@@ -9,9 +9,6 @@
 
 #include "InDetTrigExtensProcessor/InDetTrigExtensProcessor.h"
 
-// Gaudi includes
-#include "StoreGate/StoreGate.h"
-
 //tools
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"

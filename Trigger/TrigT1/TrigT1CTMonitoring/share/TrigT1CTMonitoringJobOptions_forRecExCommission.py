@@ -47,7 +47,7 @@ from AthenaCommon.AppMgr import ToolSvc as toolSvc
 from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__BSMonitoring as BSMon
 
 #-----------ONLINE CODE---------------------
-if isOnline and jp.ConcurrencyFlags.NumThreads() == 0:
+if athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
     #from TrigServices.TrigServicesConf import TrigMonTHistSvc
     #THistSvc = TrigMonTHistSvc("THistSvc") 
     #svcMgr += THistSvc 
@@ -173,7 +173,7 @@ if isOnline and jp.ConcurrencyFlags.NumThreads() == 0:
 
    
 #-----------OFFLINE CODE---------------------
-if not isOnline and jp.ConcurrencyFlags.NumThreads() == 0:
+if not athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
 
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter()

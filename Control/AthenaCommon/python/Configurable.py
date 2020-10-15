@@ -124,10 +124,6 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
                try:
                   setattr( conf, n, v )
                except AttributeError as originalAttributeError:
-                # rather annoying that we have to be somewhat silent here (the
-                # most common cases are 'name' and user kw args to be supplied
-                # to an overridden __init__)
-                  log.debug( 'not accepting keyword "%s" as a property', n )
 
                 # now for a completely different can of worms ...
                   acceptableKeyWord = False
@@ -149,7 +145,6 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
                       # times, but we shouldn't be in this loop too often anyway
                         confinit = getattr( confklass, '__init__' )
                         if n in six.get_function_code(confinit).co_varnames:
-                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__', n, confklass.__name__ )
                            acceptableKeyWord = True
                            break
                      except AttributeError:

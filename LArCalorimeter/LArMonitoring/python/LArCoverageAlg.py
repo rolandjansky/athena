@@ -21,14 +21,17 @@ def LArCoverageConfig(inputFlags):
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCoverageCfgAlg')
+
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArCoverageConfigCore(helper, CompFactory.LArCoverageAlg,inputFlags)
 
-    cfg.merge(helper.result())
-    return cfg
+    rv = ComponentAccumulator()
+    rv.merge(helper.result())
+    return rv
 
 def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
@@ -107,7 +110,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     ### Configure histograms
 
-    coveragePath='CoverageNewAlg/'
+    coveragePath='Coverage/'
 
     # -- caloNoiseTool histograms --
 
@@ -140,7 +143,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     # -- badChannels histograms --
     badChannels_path=coveragePath+'BadChannels/'
-    badChannelToolArrayBarrel.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsBarrel',
+    badChannelToolArrayBarrel.defineHistogram('mon_FtSlot,single_channel;RAW_DBBadChannelsBarrel',
                                               type='TH2I',
                                               path=badChannels_path,
                                               title='Known Bad Channels - Barrel {0};Feedthrough(+Slot increasing);Channel',
@@ -153,7 +156,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                               ymax=lArDQGlobals.FEB_N_channels-0.5,
                                               xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel,
                                               merge='weightedAverage')
-    badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;DBBadChannelsEndcap',
+    badChannelToolArrayEndcap.defineHistogram('mon_FtSlot,single_channel;RAW_DBBadChannelsEndcap',
                                               type='TH2I',
                                               path=badChannels_path,
                                               title='Known Bad Channels - Endcap {0};Feedthrough(+Slot increasing);Channel',
@@ -170,7 +173,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     #--coverageHW histograms
     coverage_path=coveragePath+'perPartition/'
-    coverageToolArrayEMBA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMBA_statusCode',
+    coverageToolArrayEMBA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMBA_statusCode',
                                             type='TH2I',
                                             path=coverage_path,
                                             title='Coverage - EMBA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -182,7 +185,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                             ymax=lArDQGlobals.FEB_N_channels-0.5,
                                             xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
 
-    coverageToolArrayEMBC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMBC_statusCode',
+    coverageToolArrayEMBC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMBC_statusCode',
                                             type='TH2I',
                                             path=coverage_path,
                                             title='Coverage - EMBC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -194,7 +197,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                             ymax=lArDQGlobals.FEB_N_channels-0.5,
                                             xlabels=lArDQGlobals.Feedthrough_Slot_labels_Barrel)
     
-    coverageToolArrayEMECA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECA_statusCode',
+    coverageToolArrayEMECA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - EMECA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -206,7 +209,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_EMECA_statusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_EMECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - EMECC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -218,7 +221,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayHECA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECA_statusCode',
+    coverageToolArrayHECA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_HECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - HECA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -230,7 +233,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_HECA_statusCode',
+    coverageToolArrayHECC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_HECA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - HECC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -242,7 +245,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayFCalA.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_FCalA_statusCode',
+    coverageToolArrayFCalA.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_FCalA_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - FCalA - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -254,7 +257,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            ymax=lArDQGlobals.FEB_N_channels-0.5,
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
-    coverageToolArrayFCalC.defineHistogram('mon_ChanFtSlot,mon_Channels;CoverageHW_FCalC_statusCode',
+    coverageToolArrayFCalC.defineHistogram('mon_ChanFtSlot,mon_Channels;RAW_CoverageHW_FCalC_statusCode',
                                            type='TH2I',
                                            path=coverage_path,
                                            title='Coverage - FCalC - statusCode={0};Feedthrough(+Slot increasing);Channel',
@@ -267,7 +270,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xlabels=lArDQGlobals.Feedthrough_Slot_labels_Endcap)
 
 
-    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;CoverSampling0EMBA_StatusCode',
+    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling0EMBA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 0 - EMBA;#eta;#phi',
@@ -275,7 +278,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["A"]["0"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["A"]["0"])
 
-    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;CoverSampling1EMBA_StatusCode',
+    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1EMBA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 1 - EMBA;#eta;#phi',
@@ -283,7 +286,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["A"]["1"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["A"]["1"])
 
-    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;CoverSampling2EMBA_StatusCode',
+    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2EMBA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 2 - EMBA;#eta;#phi',
@@ -291,7 +294,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["A"]["2"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["A"]["2"])
     
-    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;CoverSampling3EMBA_StatusCode',
+    coverageToolArrayEMBA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3EMBA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 3 - EMBA;#eta;#phi',
@@ -299,7 +302,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["A"]["3"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["A"]["3"])
 
-    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;CoverSampling0EMBC_StatusCode',
+    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling0EMBC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 0 - EMBC;#eta;#phi',
@@ -307,7 +310,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["C"]["0"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["C"]["0"])
 
-    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;CoverSampling1EMBC_StatusCode',
+    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1EMBC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 1 - EMBC;#eta;#phi',
@@ -315,7 +318,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["C"]["1"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["C"]["1"])
 
-    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;CoverSampling2EMBC_StatusCode',
+    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2EMBC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 2 - EMBC;#eta;#phi',
@@ -323,7 +326,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["C"]["2"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["C"]["2"])
 
-    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;CoverSampling3EMBC_StatusCode',
+    coverageToolArrayEMBC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3EMBC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 3 - EMBC;#eta;#phi',
@@ -332,7 +335,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMB"]["C"]["3"])
 
 
-    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling0EMECA_StatusCode',
+    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling0EMECA_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 0 - EMECA;#eta;#phi',
@@ -340,7 +343,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["A"]["0"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["A"]["0"])
     
-    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling1EMECA_StatusCode',
+    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1EMECA_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 1 - EMECA;#eta;#phi',
@@ -348,7 +351,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["A"]["1"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["A"]["1"])
 
-    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling2EMECA_StatusCode',
+    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2EMECA_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 2 - EMECA;#eta;#phi',
@@ -356,7 +359,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["A"]["2"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["A"]["2"])
                                                                                        
-    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling3EMECA_StatusCode',
+    coverageToolArrayEMECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3EMECA_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 3 - EMECA;#eta;#phi',
@@ -364,7 +367,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["A"]["3"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["A"]["3"])
 
-    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling0EMECC_StatusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling0EMECC_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 0 - EMECC;#eta;#phi',
@@ -372,7 +375,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["C"]["0"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["C"]["0"])
 
-    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling1EMECC_StatusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1EMECC_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 1 - EMECC;#eta;#phi',
@@ -380,7 +383,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["C"]["1"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["C"]["1"])
     
-    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling2EMECC_StatusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2EMECC_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 2 - EMECC;#eta;#phi',
@@ -388,7 +391,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["C"]["2"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["C"]["2"])
     
-    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling3EMECC_StatusCode',
+    coverageToolArrayEMECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3EMECC_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 3 - EMECC;#eta;#phi',
@@ -396,7 +399,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["C"]["3"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["EMEC"]["C"]["3"])
 
-    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling0HECA_StatusCode',
+    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling0HECA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 0 - HECA;#eta;#phi',
@@ -404,7 +407,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["A"]["0"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["A"]["0"])
 
-    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling1HECA_StatusCode',
+    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1HECA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 1 - HECA;#eta;#phi',
@@ -412,7 +415,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["A"]["1"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["A"]["1"])
 
-    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling2HECA_StatusCode',
+    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2HECA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 2 - HECA;#eta;#phi',
@@ -420,7 +423,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["A"]["2"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["A"]["2"])
                                                                                        
-    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;CoverSampling3HECA_StatusCode',
+    coverageToolArrayHECA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3HECA_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 3 - HECA;#eta;#phi',
@@ -428,7 +431,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["A"]["3"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["A"]["3"])
 
-    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling0HECC_StatusCode',
+    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling0HECC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 0 - HECC;#eta;#phi',
@@ -436,7 +439,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["C"]["0"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["C"]["0"])
 
-    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling1HECC_StatusCode',
+    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1HECC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 1 - HECC;#eta;#phi',
@@ -444,7 +447,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["C"]["1"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["C"]["1"])
 
-    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling2HECC_StatusCode',
+    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2HECC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 2 - HECC;#eta;#phi',
@@ -452,7 +455,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["C"]["2"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["C"]["2"])
                                                                                        
-    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;CoverSampling3HECC_StatusCode',
+    coverageToolArrayHECC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3HECC_StatusCode',
                                           type='TH2I', 
                                           path=coverage_path,
                                           title='Coverage status code={0} - Sampling 3 - HECC;#eta;#phi',
@@ -460,7 +463,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                           xbins=lArDQGlobals.Cell_Variables["etaRange"]["HEC"]["C"]["3"],
                                           ybins=lArDQGlobals.Cell_Variables["phiRange"]["HEC"]["C"]["3"])
 
-    coverageToolArrayFCalA.defineHistogram('mon_Eta,mon_Phi;CoverSampling1FCalA_StatusCode',
+    coverageToolArrayFCalA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1FCalA_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 1 - FCalA;#eta;#phi',
@@ -468,7 +471,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["FCal"]["A"]["1"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["FCal"]["A"]["1"])
 
-    coverageToolArrayFCalA.defineHistogram('mon_Eta,mon_Phi;CoverSampling2FCalA_StatusCode',
+    coverageToolArrayFCalA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2FCalA_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 2 - FCalA;#eta;#phi',
@@ -476,7 +479,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["FCal"]["A"]["2"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["FCal"]["A"]["2"])
                                                                                        
-    coverageToolArrayFCalA.defineHistogram('mon_Eta,mon_Phi;CoverSampling3FCalA_StatusCode',
+    coverageToolArrayFCalA.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3FCalA_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 3 - FCalA;#eta;#phi',
@@ -484,7 +487,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["FCal"]["A"]["3"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["FCal"]["A"]["3"])
 
-    coverageToolArrayFCalC.defineHistogram('mon_Eta,mon_Phi;CoverSampling1FCalC_StatusCode',
+    coverageToolArrayFCalC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling1FCalC_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 1 - FCalC;#eta;#phi',
@@ -492,7 +495,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["FCal"]["C"]["1"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["FCal"]["C"]["1"])
 
-    coverageToolArrayFCalC.defineHistogram('mon_Eta,mon_Phi;CoverSampling2FCalC_StatusCode',
+    coverageToolArrayFCalC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling2FCalC_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 2 - FCalC;#eta;#phi',
@@ -500,7 +503,7 @@ def LArCoverageConfigCore(helper, algoinstance,inputFlags):
                                            xbins=lArDQGlobals.Cell_Variables["etaRange"]["FCal"]["C"]["2"],
                                            ybins=lArDQGlobals.Cell_Variables["phiRange"]["FCal"]["C"]["2"])
                                                                                        
-    coverageToolArrayFCalC.defineHistogram('mon_Eta,mon_Phi;CoverSampling3FCalC_StatusCode',
+    coverageToolArrayFCalC.defineHistogram('mon_Eta,mon_Phi;RAW_CoverSampling3FCalC_StatusCode',
                                            type='TH2I', 
                                            path=coverage_path,
                                            title='Coverage status code={0} - Sampling 3 - FCalC;#eta;#phi',

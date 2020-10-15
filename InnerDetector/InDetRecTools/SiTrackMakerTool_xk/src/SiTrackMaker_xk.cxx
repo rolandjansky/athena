@@ -675,8 +675,8 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   // Get detector elements road
   //
   std::list<const InDetDD::SiDetectorElement*> DE;
-  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::alongMomentum,   DE);
-  else                m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::oppositeMomentum,DE);
+  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::alongMomentum,   DE, data.roadMakerData());
+  else                m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::oppositeMomentum,DE, data.roadMakerData());
 
   if (!data.pix() || !data.sct() || data.dbm()) detectorElementsSelection(data, DE);
 
@@ -768,8 +768,8 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   // Get detector elements road
   //
   std::list<const InDetDD::SiDetectorElement*> DE;
-  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::alongMomentum,   DE);
-  else                m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::oppositeMomentum,DE);
+  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::alongMomentum,   DE, data.roadMakerData());
+  else                m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::oppositeMomentum,DE, data.roadMakerData());
 
   if (!data.pix() || !data.sct()) detectorElementsSelection(data, DE);
 

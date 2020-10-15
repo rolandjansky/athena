@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: CaloTopoEMmoments.py,v 1.4 2008-12-04 08:05:51 menke Exp $
-#
 # File: CaloClusterCorrection/python/CaloTopoEMmoments.py
 # Created: Mar 2007, sss, from old job options.
 # Purpose: Cluster moments calculation.
@@ -12,8 +10,10 @@
 #
 #
 
-from CaloRec                      import CaloRecConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_NOPOOL, CALOCORR_DEFAULT_KEY, CALOCORR_EMTOPO
+from CaloClusterCorrection.common import makecorr
 from AthenaCommon.SystemOfUnits   import deg
 
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
@@ -23,7 +23,7 @@ CaloNoiseCondAlg()
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-cls = CaloRecConf.CaloClusterMomentsMaker
+cls = CompFactory.CaloClusterMomentsMaker  # CaloRec
 CaloTopoEMmoments_versions = [
     ['',  cls, ['CaloTopoEMmoments.CaloTopoEMmoments_parms', CALOCORR_NOPOOL]],
     ]
@@ -31,6 +31,7 @@ CaloTopoEMmoments_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -48,7 +49,8 @@ CaloTopoEMmoments_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloTopoEMmoments (name = None,
+def make_CaloTopoEMmoments (flags,
+                            name = None,
                             suffix = None,
                             version = None,
                             key = CALOCORR_DEFAULT_KEY,
@@ -57,7 +59,8 @@ def make_CaloTopoEMmoments (name = None,
                             cells_name = None,
                             **kw):
 
-    return makecorr (versions = CaloTopoEMmoments_versions,
+    return makecorr (flags,
+                     versions = CaloTopoEMmoments_versions,
                      name = name,
                      basename = 'EMTopoMoments',
                      suffix = suffix,
@@ -95,26 +98,6 @@ class CaloTopoEMmoments_parms:
         ,"N_BAD_CELLS"
         ,"N_BAD_CELLS_CORR"
         ,"BAD_CELLS_CORR_E"
-        ,"BADLARQ_FRAC"
-        ,"ENG_POS"
-        ,"SIGNIFICANCE"
-        ]
-
-    AODMomentsNames = [
-        "FIRST_PHI" 
-        ,"FIRST_ETA"
-        ,"SECOND_R" 
-        ,"SECOND_LAMBDA"
-        ,"CENTER_MAG"
-        ,"CENTER_LAMBDA"
-        ,"FIRST_ENG_DENS"
-        ,"SECOND_ENG_DENS"
-        ,"LATERAL"
-        ,"LONGITUDINAL"
-        ,"ENG_FRAC_MAX"
-        ,"ISOLATION"
-        ,"ENG_BAD_CELLS"
-        ,"N_BAD_CELLS"
         ,"BADLARQ_FRAC"
         ,"ENG_POS"
         ,"SIGNIFICANCE"

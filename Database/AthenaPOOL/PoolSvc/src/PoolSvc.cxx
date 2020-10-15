@@ -426,7 +426,8 @@ void PoolSvc::renamePfn(const std::string& pf, const std::string& newpf) const {
    m_catalog->renamePFN(pf, newpf);
 }
 //__________________________________________________________________________
-pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
+pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
+               (const std::string& collectionType,
 		const std::string& connection,
 		const std::string& collectionName,
 		const pool::ICollection::OpenMode& openMode,
@@ -531,7 +532,9 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    return(collPtr);
 }
 //__________________________________________________________________________
-void PoolSvc::registerExistingCollection(pool::ICollection* coll, bool overwrite, bool sharedCat) {
+void PoolSvc::registerExistingCollection ATLAS_NOT_THREAD_SAFE
+  (pool::ICollection* coll, bool overwrite, bool sharedCat)
+{
    std::lock_guard<CallMutex> lock(m_pool_mut);
    m_catalog->commit();
    pool::CollectionFactory* collFac = pool::CollectionFactory::get();

@@ -8,6 +8,7 @@
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 #include "TrigT1TGC/TGCTileMuCoincidenceMap.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
+#include "TrigT1TGC/TGCGoodMF.h"
 #include "TrigT1TGC/TGCConnectionASDToPP.h"
 #include "TrigT1TGC/TGCConnectionInPP.h"
 #include "TrigT1TGC/TGCPatchPanel.h"
@@ -167,7 +168,10 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     }
   }
 
-  }  
+  }
+  if(tgcArgs()->useRun3Config()){
+    m_mapGoodMF.reset(new TGCGoodMF(tgcArgs()));
+  }
 }
 
 void TGCDatabaseManager::deleteConnectionPPToSL()

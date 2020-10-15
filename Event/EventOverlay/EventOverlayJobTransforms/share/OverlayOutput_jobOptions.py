@@ -42,6 +42,8 @@ if DetFlags.overlay.Truth_on():
 
     if DetFlags.overlay.SCT_on():
         outStream.ItemList += ['InDetSimDataCollection#SCT_SDO_Map']
+        if overlayFlags.isDataOverlay():
+            outStream.ItemList += [ 'IDCInDetBSErrContainer#SCT_ByteStreamErrs' ]
 
     if DetFlags.overlay.TRT_on():
         outStream.ItemList += [ 'InDetSimDataCollection#TRT_SDO_Map' ]

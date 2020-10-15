@@ -47,10 +47,10 @@ public:
   /// even if only one is to be used
  
   SG::ReadCondHandleKey<SCT_CablingData> m_sctCablingKey
-    {this, "SCT_CablingData", "SCT_CablingData", "SCT cabling key"};
+    {this, "SCT_CablingData", "", "SCT cabling key"};
 
   SG::ReadCondHandleKey<PixelCablingCondData> m_pixCablingKey
-    {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
+    {this, "PixelCablingCondData", "", "Pixel cabling key"};
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey
     {this, "DetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel/SCT"};

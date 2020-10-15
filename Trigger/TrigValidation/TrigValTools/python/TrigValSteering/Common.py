@@ -55,6 +55,15 @@ def clear_art_summary():
         os.remove(art_result_summary)
 
 
+def find_file(pattern):
+    '''
+    Bash inline command frequently used in multi-step tests
+    to pass the output of one step to the input of another
+    based on a name pattern rather than a fixed full file name
+    '''
+    return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
+
+
 @memoize
 def check_job_options(jo_path):
     '''

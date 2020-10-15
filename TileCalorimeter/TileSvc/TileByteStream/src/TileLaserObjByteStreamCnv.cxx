@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //author Renato Febbraro
@@ -36,10 +36,8 @@
 
 
 TileLaserObjByteStreamCnv::TileLaserObjByteStreamCnv(ISvcLocator* svcloc)
-  : Converter(storageType(), classID(), svcloc)
-  , ::AthMessaging(msgSvc(), "TileLaserObjByteStreamCnv")
-  , m_name("TileLaserObjByteStreamCnv")
-  , m_robSvc("ROBDataProviderSvc", m_name)
+  : AthConstConverter(storageType(), classID(), svcloc, "TileLaserObjByteStreamCnv")
+  , m_robSvc("ROBDataProviderSvc", name())
   , m_decoder("TileROD_Decoder")
   , m_ROBID()
   , m_hid2re(0)
@@ -72,8 +70,8 @@ StatusCode TileLaserObjByteStreamCnv::initialize() {
 }
 
 
-StatusCode TileLaserObjByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-
+StatusCode TileLaserObjByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const
+{
   ATH_MSG_DEBUG( " Executing createObj method" );
 
   ByteStreamAddress *pRE_Addr;
@@ -101,7 +99,8 @@ StatusCode TileLaserObjByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObjec
   return StatusCode::SUCCESS;  
 }
 
-StatusCode TileLaserObjByteStreamCnv::createRep(DataObject* /* pObj */, IOpaqueAddress*& /* pAddr */) {
+StatusCode TileLaserObjByteStreamCnv::createRepConst(DataObject* /* pObj */, IOpaqueAddress*& /* pAddr */) const
+{
   // No conversion from TileLaserObj to BS 
 
   ATH_MSG_ERROR( " Can not create BS from TileLaserObject " );

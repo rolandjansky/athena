@@ -16,6 +16,8 @@ class GeoPixelLadderServices : public GeoVPixelFactory {
  public:
   GeoPixelLadderServices(InDetDD::PixelDetectorManager* ddmgr,
                          PixelGeometryManager* mgr ,int ladderType);
+  GeoPixelLadderServices (const GeoPixelLadderServices&) = delete;
+  GeoPixelLadderServices& operator= (const GeoPixelLadderServices&) = delete;
   virtual ~GeoPixelLadderServices();
   virtual GeoVPhysVol* Build() override;
   const GeoTrf::Vector3D & envelopeCornerA1() {return  m_envelopeCornerA1;}

@@ -49,9 +49,7 @@ globalToLocalVecHelper(double* ATH_RESTRICT P,
 {
   using namespace CxxUtils;
   using vec2 = CxxUtils::vec<double, 2>;
-  using vec4 = CxxUtils::vec<double, 4>;
-
-  /* Calculation
+  /* The calculation (original form)
       P[ 7]-=(s0*P[ 3]); P[ 8]-=(s0*P[ 4]); P[ 9]-=(s0*P[ 5]);
       P[10]-=(s0*P[42]); P[11]-=(s0*P[43]); P[12]-=(s0*P[44]);
       P[14]-=(s1*P[ 3]); P[15]-=(s1*P[ 4]); P[16]-=(s1*P[ 5]);
@@ -73,92 +71,147 @@ globalToLocalVecHelper(double* ATH_RESTRICT P,
    * --> {P[30],P[31]}
    */
   vec2 Pmult1 = { P[3], P[4] };
-  vec4 Pmult2 = { P[5], P[42], P[43], P[44] };
+  vec2 Pmult2 = { P[5], P[42] };
+  vec2 Pmult3 = { P[43], P[44] };
+
   vec2 dXdL0_dYdL0;
   vload(dXdL0_dYdL0, &P[7]);
-  vec4 dZdL0_dAxdL0_dAydL0_dAzdL0;
-  vload(dZdL0_dAxdL0_dAydL0_dAzdL0, &P[9]);
+  vec2 dZdL0_dAxdL0;
+  vload(dZdL0_dAxdL0, &P[9]);
+  vec2 dAydL0_dAzdL0;
+  vload(dAydL0_dAzdL0, &P[11]);
   dXdL0_dYdL0 -= s0 * Pmult1;
-  dZdL0_dAxdL0_dAydL0_dAzdL0 -= s0 * Pmult2;
+  dZdL0_dAxdL0 -= s0 * Pmult2;
+  dAydL0_dAzdL0 -= s0 * Pmult3;
   vstore(&P[7], dXdL0_dYdL0);
-  vstore(&P[9], dZdL0_dAxdL0_dAydL0_dAzdL0);
+  vstore(&P[9], dZdL0_dAxdL0);
+  vstore(&P[11], dAydL0_dAzdL0);
 
   vec2 dXdL1_dYdL1;
   vload(dXdL1_dYdL1, &P[14]);
-  vec4 dZdL1_dAxdL1_dAydL1_dAzdL1;
-  vload(dZdL1_dAxdL1_dAydL1_dAzdL1, &P[16]);
+  vec2 dZdL1_dAxdL1;
+  vload(dZdL1_dAxdL1, &P[16]);
+  vec2 dAydL1_dAzdL1;
+  vload(dAydL1_dAzdL1, &P[18]);
   dXdL1_dYdL1 -= s1 * Pmult1;
-  dZdL1_dAxdL1_dAydL1_dAzdL1 -= s1 * Pmult2;
+  dZdL1_dAxdL1 -= s1 * Pmult2;
+  dAydL1_dAzdL1 -= s1 * Pmult3;
   vstore(&P[14], dXdL1_dYdL1);
-  vstore(&P[16], dZdL1_dAxdL1_dAydL1_dAzdL1);
+  vstore(&P[16], dZdL1_dAxdL1);
+  vstore(&P[18], dAydL1_dAzdL1);
 
   vec2 dXdPhi_dYdPhi;
   vload(dXdPhi_dYdPhi, &P[21]);
-  vec4 dZdPhi_dAxdPhi_dAydPhi_dAzdPhi;
-  vload(dZdPhi_dAxdPhi_dAydPhi_dAzdPhi, &P[23]);
+  vec2 dZdPhi_dAxdPhi;
+  vload(dZdPhi_dAxdPhi, &P[23]);
+  vec2 dAydPhi_dAzdPhi;
+  vload(dAydPhi_dAzdPhi, &P[25]);
   dXdPhi_dYdPhi -= s2 * Pmult1;
-  dZdPhi_dAxdPhi_dAydPhi_dAzdPhi -= s2 * Pmult2;
+  dZdPhi_dAxdPhi -= s2 * Pmult2;
+  dAydPhi_dAzdPhi -= s2 * Pmult3;
   vstore(&P[21], dXdPhi_dYdPhi);
-  vstore(&P[23], dZdPhi_dAxdPhi_dAydPhi_dAzdPhi);
+  vstore(&P[23], dZdPhi_dAxdPhi);
+  vstore(&P[25], dAydPhi_dAzdPhi);
 
   vec2 dXdTheta_dYdTheta;
   vload(dXdTheta_dYdTheta, &P[28]);
-  vec4 dZdTheta_dAxdTheta_dAydTheta_dAzdTheta;
-  vload(dZdTheta_dAxdTheta_dAydTheta_dAzdTheta, &P[30]);
+  vec2 dZdTheta_dAxdTheta;
+  vload(dZdTheta_dAxdTheta, &P[30]);
+  vec2 dAydTheta_dAzdTheta;
+  vload(dAydTheta_dAzdTheta, &P[32]);
   dXdTheta_dYdTheta -= s3 * Pmult1;
-  dZdTheta_dAxdTheta_dAydTheta_dAzdTheta -= s3 * Pmult2;
+  dZdTheta_dAxdTheta -= s3 * Pmult2;
+  dAydTheta_dAzdTheta -= s3 * Pmult3;
   vstore(&P[28], dXdTheta_dYdTheta);
-  vstore(&P[30], dZdTheta_dAxdTheta_dAydTheta_dAzdTheta);
+  vstore(&P[30], dZdTheta_dAxdTheta);
+  vstore(&P[32], dAydTheta_dAzdTheta);
 
   vec2 dXdCM_dYdCM;
   vload(dXdCM_dYdCM, &P[35]);
-  vec4 dZdCM_dAxdCM_AydCM_dAzdCM;
-  vload(dZdCM_dAxdCM_AydCM_dAzdCM, &P[37]);
+  vec2 dZdCM_dAxdCM;
+  vload(dZdCM_dAxdCM, &P[37]);
+  vec2 AydCM_dAzdCM;
+  vload(AydCM_dAzdCM, &P[39]);
   dXdCM_dYdCM -= s4 * Pmult1;
-  dZdCM_dAxdCM_AydCM_dAzdCM -= s4 * Pmult2;
+  dZdCM_dAxdCM -= s4 * Pmult2;
+  AydCM_dAzdCM -= s4 * Pmult3;
   vstore(&P[35], dXdCM_dYdCM);
-  vstore(&P[37], dZdCM_dAxdCM_AydCM_dAzdCM);
+  vstore(&P[37], dZdCM_dAxdCM);
+  vstore(&P[39], AydCM_dAzdCM);
+
 }
 
+/* Helper to replace repeated calculation  of
+ * 5x1 = 5x3 * 3X1
+ * for the Jacobian
+ *
+ * E.g a calculation like :
+ * Jac[ 0] = Ax[0]*P[ 7]+Ax[1]*P[ 8]+Ax[2]*P[ 9]; // dL0/dL0
+ * Jac[ 1] = Ax[0]*P[14]+Ax[1]*P[15]+Ax[2]*P[16];  // dL0/dL1
+ * Jac[ 2] = Ax[0]*P[21]+Ax[1]*P[22]+Ax[2]*P[23]; // dL0/dPhi
+ * Jac[ 3] = Ax[0]*P[28]+Ax[1]*P[29]+Ax[2]*P[30]; // dL0/dThe
+ * Jac[ 4] = Ax[0]*P[35]+Ax[1]*P[36]+Ax[2]*P[37]; // dL0/dCM
+ * Jac[ 5] = Ay[0]*P[ 7]+Ay[1]*P[ 8]+Ay[2]*P[ 9]; // dL1/dL0
+ * Jac[ 6] = Ay[0]*P[14]+Ay[1]*P[15]+Ay[2]*P[16]; // dL1/dL1
+ * Jac[ 7] = Ay[0]*P[21]+Ay[1]*P[22]+Ay[2]*P[23];  // dL1/dPhi
+ * Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30]; // dL1/dThe
+ * Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37]; // dL1/dCM
+ * is replaces with
+ *  mutl3x5Helper(&Jac[0],Ax,&P[7]);
+ *  mutl3x5Helper(&Jac[5],Ay,&P[7]);
+ */
 inline void
 mutl3x5Helper(double* ATH_RESTRICT Jac,
               const double* ATH_RESTRICT V,
               const double* ATH_RESTRICT P)
 {
-  /* The following matrix multiplication
-   * 5x1 = 5x3 * 3X1
-   * for the Jacobian
-   * is repeated multiple times
-   * Jac[ 0] = Ax[0]*P[ 7]+Ax[1]*P[ 8]+Ax[2]*P[ 9];                               // dL0/dL0
-   * Jac[ 1] = Ax[0]*P[14]+Ax[1]*P[15]+Ax[2]*P[16];                               // dL0/dL1
-   * Jac[ 2] = Ax[0]*P[21]+Ax[1]*P[22]+Ax[2]*P[23];                               // dL0/dPhi
-   * Jac[ 3] = Ax[0]*P[28]+Ax[1]*P[29]+Ax[2]*P[30];                               // dL0/dThe
-   * Jac[ 4] = Ax[0]*P[35]+Ax[1]*P[36]+Ax[2]*P[37];                               // dL0/dCM
-   * Jac[ 5] = Ay[0]*P[ 7]+Ay[1]*P[ 8]+Ay[2]*P[ 9];                               // dL1/dL0
-   * Jac[ 6] = Ay[0]*P[14]+Ay[1]*P[15]+Ay[2]*P[16];                               // dL1/dL1
-   * Jac[ 7] = Ay[0]*P[21]+Ay[1]*P[22]+Ay[2]*P[23];                               // dL1/dPhi
-   * Jac[ 8] = Ay[0]*P[28]+Ay[1]*P[29]+Ay[2]*P[30];                               // dL1/dThe
-   * Jac[ 9] = Ay[0]*P[35]+Ay[1]*P[36]+Ay[2]*P[37];                               // dL1/dCM
-  */
+  using vec2 = CxxUtils::vec<double, 2>;
+   /*
+   * |Jac[0] |= |V[0]| * |P[0]| + |V[1]| * |P[1] | + |V[2]| * |P[2] |
+   * |Jac[1] |= |V[0]| * |P[7]| + |V[1]| * |P[8] | + |V[2]| * |P[9] |
+
+   * |Jac[2] |= |V[0]| * |P[14]| + |V[1]| * |P[15]| +  |V[2]| * |P[16]|
+   * |Jac[3] |= |V[0]| * |P[21]| + |V[1]| * |P[22]| +  |V[2]| *  |P[23]|
+   *
+   * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
+   *
+   * The first do we do in vertical SIMD (128 bit ) fashion
+   *
+   * {Jac[0] | Jac[1]} =
+   * {V[0] | V[0]} * {P[0]  | P[7]} +
+   * {V[1] | V[1]} * {P[1]  | P[8]}
+   * {V[2] | V[2]} * {P[16] | P[23}
+   *
+   * {Jac[2] | Jac[3]} =
+   * {V[0] | V[0]} * {P[14] | P[21]} +
+   * {V[1] | V[1]} * {P[15] | P[22]} +
+   * {V[2] | V[2]} * {P[16] | P[23}
+   *
+   * Where  {} is a SIMD size 2 vector
+   *
+   * The remaining odd element is done at the end
+   * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
+   */
   using vec2 = CxxUtils::vec<double, 2>;
   vec2 V1 = { V[0], V[0] };
   vec2 V2 = { V[1], V[1] };
   vec2 V3 = { V[2], V[2] };
 
-  // 1st and 2nd element
+  // 1st/2nd element
   vec2 P1v1 = { P[0], P[7] };
   vec2 P1v2 = { P[1], P[8] };
   vec2 P1v3 = { P[2], P[9] };
   vec2 res1 = V1 * P1v1 + V2 * P1v2 + V3 * P1v3;
-  CxxUtils::vstore(&Jac[0], res1);
 
-  // 3th and 4th element
+  // 3th/4th element
   vec2 P2v1 = { P[14], P[21] };
   vec2 P2v2 = { P[15], P[22] };
   vec2 P2v3 = { P[16], P[23] };
   vec2 res2 = V1 * P2v1 + V2 * P2v2 + V3 * P2v3;
-  CxxUtils::vstore(&Jac[2], res2);
 
+  //store results
+  CxxUtils::vstore(&Jac[0], res1);
+  CxxUtils::vstore(&Jac[2], res2);
   // The 5th element
   Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
 }

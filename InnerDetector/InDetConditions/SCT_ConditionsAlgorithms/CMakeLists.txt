@@ -98,8 +98,14 @@ atlas_add_test( TestSummary
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestTdaqEnabled
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testTdaqEnabled.py
-                PROPERTIES TIMEOUT 720
+                PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
+atlas_add_test( TestDCSConditionsNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_DCSConditionsTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestSummaryNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConditionsSummaryTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

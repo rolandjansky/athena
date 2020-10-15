@@ -19,6 +19,7 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
 
+
 #include <cassert>
 #include <vector>
 #include <algorithm>
@@ -282,12 +283,20 @@ std::vector<float> eProbability(numberOfeProbabilityTypes, 0.5);
 
   ATH_MSG_DEBUG ("Produce summary for: "<<track.info().dumpInfo());
 
+
+  const EventContext& ctx= Gaudi::Hive::currentContext();
   if (track.trackStateOnSurfaces()!=nullptr)
   {
     information[Trk::numberOfOutliersOnTrack] = 0;
-    processTrackStates(track,prd_to_track_map, track.trackStateOnSurfaces(), information, hitPattern,
-                       doHolesInDet, doHolesMuon);
-  }else{
+    processTrackStates(ctx,
+                       track,
+                       prd_to_track_map,
+                       track.trackStateOnSurfaces(),
+                       information,
+                       hitPattern,
+                       doHolesInDet,
+                       doHolesMuon);
+  } else {
     ATH_MSG_WARNING ("Null pointer to TSoS found on Track (author = "
       <<track.info().dumpInfo()<<"). This should never happen! ");
   }
@@ -400,15 +409,19 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::
  * Then the internal helpers
  */
 
-void Trk::TrackSummaryTool::processTrackStates(const Track& track,
-                                               const Trk::PRDtoTrackMap *prd_to_track_map,
-					       const DataVector<const TrackStateOnSurface>* tsos,
-					       std::vector<int>& information,
-					       std::bitset<numberOfDetectorTypes>& hitPattern,
-                                               bool doHolesInDet,
-                                               bool doHolesMuon) const
+void
+Trk::TrackSummaryTool::processTrackStates(
+  const EventContext& ctx,
+  const Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map,
+  const DataVector<const TrackStateOnSurface>* tsos,
+  std::vector<int>& information,
+  std::bitset<numberOfDetectorTypes>& hitPattern,
+  bool doHolesInDet,
+  bool doHolesMuon) const
 {
   ATH_MSG_DEBUG ("Starting to process " << tsos->size() << " track states");
+
 
   int measCounter = 0;
   int cntAddChi2 = 0;
@@ -426,7 +439,7 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
       } else {
         if ((*it)->type(Trk::TrackStateOnSurface::Outlier)) ++information[Trk::numberOfOutliersOnTrack]; // increment outlier counter
         ATH_MSG_VERBOSE ("analysing TSoS " << measCounter << " of type " << (*it)->dumpType() );
-        processMeasurement(track, prd_to_track_map, measurement, *it, information, hitPattern);
+        processMeasurement(ctx,track, prd_to_track_map, measurement, *it, information, hitPattern);
       } // if have measurement pointer
     } // if type measurement, scatterer or outlier
 
@@ -464,12 +477,13 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
   if (varChi2>0 && varChi2<1.e13) information[Trk::standardDeviationOfChi2OS] = int(sqrt(varChi2)*100);
 }
 
-void Trk::TrackSummaryTool::processMeasurement(const Track& track,
+void Trk::TrackSummaryTool::processMeasurement(const EventContext& ctx,
+                                               const Track& track,
                                                const Trk::PRDtoTrackMap *prd_to_track_map,
-					       const Trk::MeasurementBase* meas,
-					       const Trk::TrackStateOnSurface* tsos,
-					       std::vector<int>& information,
-					       std::bitset<numberOfDetectorTypes>& hitPattern) const
+                                               const Trk::MeasurementBase* meas,
+                                               const Trk::TrackStateOnSurface* tsos,
+                                               std::vector<int>& information,
+                                               std::bitset<numberOfDetectorTypes>& hitPattern) const
 {
 
   // Check if the measurement type is RIO on Track (ROT)
@@ -484,7 +498,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
     if (tool==nullptr){
       ATH_MSG_WARNING("Cannot find tool to match ROT. Skipping.");
     } else {
-      tool->analyse(track,prd_to_track_map, rot,tsos,information, hitPattern);
+      tool->analyse(ctx,track,prd_to_track_map, rot,tsos,information, hitPattern);
     }
   } else {
     //check if the measurement type is CompetingRIOsOnTrack
@@ -501,7 +515,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
       if (tool==nullptr){
         ATH_MSG_WARNING("Cannot find tool to match cROT. Skipping.");
       } else {
-        tool->analyse(track,prd_to_track_map, compROT,tsos,information, hitPattern);
+        tool->analyse(ctx,track,prd_to_track_map, compROT,tsos,information, hitPattern);
       }
     }
   }

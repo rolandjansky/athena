@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelDBAlg.h"
@@ -9,7 +9,6 @@
 #include "CoralBase/Blob.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "StoreGate/StoreGate.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "LArBadChannelTool/LArBadChannelDBTools.h"

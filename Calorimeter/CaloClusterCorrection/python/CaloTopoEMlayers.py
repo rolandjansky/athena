@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloTopoEMlayers.py,v 1.3 2007-10-19 15:13:05 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloTopoEMlayers.py
 # Created: Mar 2007, sss, from old job options.
@@ -13,14 +11,16 @@
 #
 #
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_NOPOOL, CALOCORR_DEFAULT_KEY, CALOCORR_EMTOPO
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-cls = CaloClusterCorrectionConf.CaloTopoEMlayers
+cls = CompFactory.CaloTopoEMlayers  # CaloClusterCorrection
 CaloTopoEMlayers_versions = [
     ['',   cls, ['CaloTopoEMlayers.CaloTopoEMlayers_parms',  CALOCORR_NOPOOL]],
     ]
@@ -28,6 +28,7 @@ CaloTopoEMlayers_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -36,6 +37,7 @@ CaloTopoEMlayers_versions = [
 #  KEY is a string to specify the type of cluster to which the correction
 #   applies.  The convention is to use `ele55' for 5x5 electron clusters,
 #   `gam35' for 3x5 photon clusters, and so on.
+
 #  SOURCE tells from where we should read the calibration constants.
 #   See common.py for a description of the possibilities.
 #   None means to use the default.
@@ -48,7 +50,8 @@ CaloTopoEMlayers_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloTopoEMlayers (name = None,
+def make_CaloTopoEMlayers (flags,
+                           name = None,
                            suffix = None,
                            version = None,
                            key = CALOCORR_DEFAULT_KEY,
@@ -57,10 +60,11 @@ def make_CaloTopoEMlayers (name = None,
                            cells_name = None,
                            **kw):
 
-    if cells_name != None:
+    if cells_name is not None:
         kw['cells_name'] = cells_name
 
-    return makecorr (versions = CaloTopoEMlayers_versions,
+    return makecorr (flags,
+                     versions = CaloTopoEMlayers_versions,
                      name = name,
                      basename = 'layers',
                      suffix = suffix,

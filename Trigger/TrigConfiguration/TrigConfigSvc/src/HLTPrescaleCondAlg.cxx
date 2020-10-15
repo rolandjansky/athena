@@ -27,7 +27,6 @@ TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) con
    if( psLoader.loadFile( filename, *pss) ) {
       ATH_MSG_INFO( "HLT prescales set successfully loaded from file " << filename );
    } else {
-      ATH_MSG_WARNING( "Failed loading HLT prescales set from file " << filename ); // will be made an error later
       pss = nullptr;
    }
    return pss;
@@ -71,15 +70,17 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
 
    ATH_CHECK(m_hltPrescalesSetOutputKey.initialize());
 
-   if( m_configSource == "COOL" && m_dbConnection == "JOSVC" ) {
-      if( auto joSvc = serviceLocator()->service<TrigConf::IJobOptionsSvc>( "JobOptionsSvc" ) ) {
-         if( joSvc->hltPrescaleKey()>0 ) {
-            m_psk = joSvc->hltPrescaleKey();
-            m_dbConnection = joSvc->server();
-            ATH_MSG_INFO("Set psk to " << m_psk <<  " and db connection to " << m_dbConnection );
+   if( m_dbConnection == "JOSVC" ) {
+      if( m_configSource == "COOL" || m_configSource == "DB" ) {
+         if( auto joSvc = serviceLocator()->service<TrigConf::IJobOptionsSvc>( "JobOptionsSvc" ) ) {
+            if( joSvc->hltPrescaleKey()>0 ) {
+               m_psk = joSvc->hltPrescaleKey();
+               m_dbConnection = joSvc->server();
+               ATH_MSG_INFO("Set psk to " << m_psk <<  " and db connection to " << m_dbConnection );
+            }
+         } else {
+            ATH_MSG_DEBUG("Did not locate TrigConf::IJobOptionsSvc");
          }
-      } else {
-         ATH_MSG_DEBUG("Did not locate TrigConf::IJobOptionsSvc");
       }
    }
 
@@ -92,15 +93,24 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
 
       // index 0 indicates that the configuration is from a file, a DB
       // PSK is greater than 0
-      m_pssMap[0] = createFromFile( m_filename );
+      std::shared_ptr<HLTPrescalesSet> pss = createFromFile( m_filename );
+      if( pss == nullptr ) {
+         ATH_MSG_ERROR( "Failed loading HLT prescales set from the file " << m_filename );
+         return StatusCode::FAILURE;
+      }
+      m_pssMap[0] = pss;
 
    } else if( m_psk != 0u ) {
 
       // this is for the case where the reading from the DB was
       // configured and also when we read from COOL online and get a
       // PSK through the JobOptionsSvc
-      m_pssMap[m_psk] = createFromDB( m_psk, true );
-
+      std::shared_ptr<HLTPrescalesSet> pss = createFromDB( m_psk, true );
+      if( pss == nullptr ) {
+         ATH_MSG_ERROR( "Failed loading HLT prescales set " << m_psk << " from the database" );
+         return StatusCode::FAILURE;
+      }
+      m_pssMap[m_psk] = pss;
    }
 
    return StatusCode::SUCCESS;
@@ -156,10 +166,15 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
       auto pssi = m_pssMap.find( hltPsk );
 
       if( pssi == m_pssMap.end()) {
-
+         
          bool isRun3 = range.start().run_number()>350000;
 
          pss = m_pssMap[hltPsk] = createFromDB( hltPsk, isRun3 );
+
+         if( pss == nullptr ) {
+            ATH_MSG_ERROR( "Failed loading HLT prescales set from the database" );
+            return StatusCode::FAILURE;
+         }
 
       } else {
       
@@ -181,7 +196,7 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_INFO("Recording empty HLT prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet ) );
    } else {
-      ATH_MSG_INFO("Recording HLT prescales set with range " << range);
+      ATH_MSG_INFO("Recording HLT prescales set with range " << range << " (key = " << hltPsk << ")");
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet(*pss) ) );
    }
 

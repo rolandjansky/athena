@@ -34,7 +34,6 @@ atlas_add_library( xAODEventFormatCnvTestLib
     xAODEventFormat
   PRIVATE_LINK_LIBRARIES AthenaBaseComps StoreGateLib )
 
-
 atlas_add_poolcnv_library( xAODEventFormatCnvTestAthenaPoolCnv
   src/test/cnv/*.h src/test/cnv/*.cxx
   FILES
@@ -65,13 +64,8 @@ atlas_add_xaod_smart_pointer_dicts(
   OUTPUT _selectionFile
   CONTAINERS "xAODMakerTest::AVec_v1" )
 
-
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
-
-atlas_depends_on_subdirs(
-  PUBLIC
-  PRIVATE AtlasTest/TestTools )
 
 # Test(s) in the package.
 atlas_add_test( Write

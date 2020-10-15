@@ -99,8 +99,9 @@ namespace xAODMaker {
     SG::ReadHandleKey<TrackTruthCollection>  m_trackTruth;    
 
 
-    //Online Track monitoring
-    ToolHandle< ITrackParticleMonitoring > m_trackMonitoringTool;
+    //Allow monitoring of track parameters during conversion
+    bool m_doMonitoring;
+    ToolHandle< ITrackParticleMonitoring > m_trackMonitoringTool { this, "MonTool", "", "Tracking Monitoring tool" };
 
 
 

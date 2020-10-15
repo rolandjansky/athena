@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RootCollectionMetadata_h
@@ -55,6 +55,7 @@ namespace pool {
         class RootCollectionMetadataIterator
            : public ICollectionMetadata::ICollectionMetadataIterator
         {
+        public:
        friend class RootCollectionMetadata;
           
           RootCollectionMetadataIterator( const MetadataKeyMap_t::const_iterator& iter,

@@ -664,7 +664,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 
     //Get list of InDet Elements
     std::list<const InDetDD::SiDetectorElement*> DE;
-    m_roadmaker->detElementsRoad(ctx, fieldCache, *per,Trk::alongMomentum,DE);
+    m_roadmaker->detElementsRoad(ctx, fieldCache, *per,Trk::alongMomentum,DE,event_data.roadMakerData());
     delete per;
     if( int(DE.size()) < m_nclusmin){ //Not enough detector elements to satisfy the minimum number of clusters requirement. Stop
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endmsg;
