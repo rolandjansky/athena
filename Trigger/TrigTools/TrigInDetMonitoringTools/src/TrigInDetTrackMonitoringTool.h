@@ -26,7 +26,7 @@ public:
   virtual StatusCode initialize() final;
   virtual StatusCode finalize()   final;
 
-  void monitor_tracks(const std::string &prefix, const std::string &suffix, const xAOD::TrackParticleContainer &tracks );
+  void monitor_tracks(const std::string &prefix, const std::string &suffix, const xAOD::TrackParticleContainer &tracks ) const;
 
 private:
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonitoringTool","","Monitoring tool"};
