@@ -2,7 +2,6 @@
     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "L1CaloFEXSim/eFEXDriver.h"
 #include "L1CaloFEXSim/eFEXSysSim.h"
 #include "L1CaloFEXSim/eFEXSim.h"
@@ -10,8 +9,6 @@
 #include "L1CaloFEXSim/eFEXtauAlgo.h"
 #include "L1CaloFEXSim/eFEXegAlgo.h"
 #include "L1CaloFEXSim/eFEXNtupleWriter.h"
-
-//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 using namespace LVL1;
 
@@ -24,13 +21,3 @@ DECLARE_COMPONENT(eFEXFPGA)
 DECLARE_COMPONENT(eFEXtauAlgo)
 DECLARE_COMPONENT(eFEXegAlgo)
 DECLARE_COMPONENT(eFEXNtupleWriter)
-//Notes:
-//
-//1. The argument to the DECLARE_FACTORY_ENTRIES(XXX) is the name of the
-//   component library (libXXX.so).
-//2. Each Algorithm that is contained in the library should be declared
-//   by the DECLARE_ALGORITHM() statement.
-//3. Each Service that is contained in the library should be declared
-//   by the DECLARE_SERVICE() statement.
-//
-// See Athena User Guide for more information
