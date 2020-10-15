@@ -778,7 +778,36 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
     return CP::CorrectionCode::Ok;
 }
 
+//To apply the correction into a copied jet
+CP::CorrectionCode FFJetSmearingTool::correctedCopy(const xAOD::Jet& input, xAOD::Jet*& output) const
+{
 
+    xAOD::Jet* copy = new xAOD::Jet(input);
+
+    // Call the implemented function
+    if (applyCorrection(*copy) == CP::CorrectionCode::Error)
+    {
+        delete copy;
+        return CP::CorrectionCode::Error;
+    }
+    output = copy;
+    return CP::CorrectionCode::Ok;
+}
+
+//To apply the correction into all the jets inside a jet containter
+CP::CorrectionCode FFJetSmearingTool::applyContainerCorrection(xAOD::JetContainer& inputs) const
+{
+    CP::CorrectionCode result = CP::CorrectionCode::Ok;
+
+    // Loop over the container
+    for (size_t iJet = 0; iJet < inputs.size(); ++iJet)
+    {
+        result = applyCorrection(*inputs.at(iJet));
+        if (result == CP::CorrectionCode::Error)
+            break;
+    }
+    return result;
+}
 
 
 

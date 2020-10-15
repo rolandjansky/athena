@@ -494,6 +494,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
                     Double_t aux_original_jet_mass = jet_reco->m()*MeVtoGeV;
 
                     ffjetsmearingtool.applyCorrection(*jet_reco);
+
                     if(lead_jet == true && aux_original_jet_mass > 0){
                         smeared_reco_jet_mass_hist->Fill(jet_reco->m()*MeVtoGeV); lead_jet=false; 
 
@@ -509,6 +510,21 @@ config.makeTool (ffjetsmearingtool, cleanup);
                     if(kindofmass=="Calo"){ printf("CALO jet mass after smearing = %f \n", jet_reco->m()); }
                     if(kindofmass=="TA"){ printf("TA jet mass after smearing = %f \n", jet_reco_TA->m()); }
                 }
+
+                //-----------------------------------------------------//
+                //To test corrected copy function
+                xAOD::Jet* jet_reco_copy = nullptr;
+                if( ! ffjetsmearingtool.correctedCopy(*jet_reco, jet_reco_copy) ){//The copy is filled only if the jet passes the conditions to be used inside the Tool
+                    if(want_to_debug){ printf("Failed to fill the corrected copy of the jet \n"); }
+                }
+                else{
+                    if(want_to_debug){ printf("Corrected Copy Comb jet mass after smearing = %f \n", jet_reco_copy->m()); }
+                }                   
+                // Delete the corrected copy:
+                delete jet_reco_copy; 
+                //-----------------------------------------------------//
+
+
 
             }
             delete jets_shallowCopy.first;
