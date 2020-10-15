@@ -5,6 +5,7 @@ mlog = logging.getLogger( 'CombinedRec_config' )
 
 
 from AthenaCommon.GlobalFlags  import globalflags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.ObjKeyStore import objKeyStore
@@ -125,12 +126,21 @@ pdr.flag_domain('btagging')
 btaggingOK = False
 if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
-        from BTagging.BTaggingFlags import BTaggingFlags
-        protectedInclude( "BTagging/BTagging_jobOptions.py")
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior=1
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
+        from AthenaCommon.AthenaCommonFlags import jobproperties as jps
+        ConfigFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
+        ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
+        # Configure BTagging algorithm
+        from BTagging.BTagRun3Config import BTagRecoSplitCfg
+        CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
     except Exception:
         treatException("Could not set up btagging reconstruction")
         btaggingOK=False
-        pass
+    finally:
+        Configurable.configurableRun3Behavior=0
     pass
 
 #
@@ -182,3 +192,6 @@ else:
 pdr.flag_domain('caloringer')
 if rec.doCaloRinger:
   include('CaloRingerAlgs/CaloRinger_jobOptions.py')
+
+
+
