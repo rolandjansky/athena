@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_pu40_mt
+# art-description: art job for mu_Zmumu_pu40_st
 # art-type: grid
 # art-include: master/Athena
-# art-input-nfiles: 3
+# art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
+# art-input-nfiles: 4
 # art-athena-mt: 4
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
@@ -26,15 +27,17 @@
 # art-output: *.dat 
 
 
-Slices  = ['fsjet']
-RunEF   = False
-Events  = 2000 
-Threads = 4 
-Slots   = 4 # what about the mt: 4 art directive ? nfiles: 3 ?
-Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+Slices  = ['muon']
+RunEF   = True
+Events  = 8000 
+Threads = 1 
+Slots   = 1
+Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
+GridFiles=True
 
+Args = " -p 13 "
 TrackReference = [ 'Truth', 'Offline' ]
-
+Lowpt          = [ False, True ] 
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-# art-description: art job for mu_singlemu_larged0_pu_mt
+# art-description: art job for mu_ztautau_pu46_st
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728
-# art-input-nfiles: 10
 # art-athena-mt: 4
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
@@ -54,17 +52,13 @@ for opt,arg in opts:
 
 
 rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['muon']
-rdo2aod.max_events = 20000 
-rdo2aod.threads = 4
-rdo2aod.concurrent_events = 4
+rdo2aod.slices = ['tau']
+rdo2aod.max_events = 6000 
+rdo2aod.threads = 1
+rdo2aod.concurrent_events = 1
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-if local:
-    rdo2aod.input = 'Single_mu_larged0'    # defined in TrigValTools/share/TrigValInputs.json  
-else:
-    rdo2aod.input = ''
-    rdo2aod.args += '--inputRDOFile=$ArtInFile '
+rdo2aod.input = 'Ztautau_pu46'    # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -78,41 +72,16 @@ if (not exclude):
 # Run Tidardict
 if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
-    rdict.args='TIDAdata-run3.dat -f data-hists.root -p 13 -b Test_bin.dat '
+    rdict.args='TIDAdata-run3.dat -f data-hists.root -b Test_bin.dat '
     test.check_steps.append(rdict)
-    rdict2 = TrigInDetdictStep('TrigInDetDict2')
-    rdict2.args='TIDAdata-run3-offline.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
-    test.check_steps.append(rdict2)
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
+comp=TrigInDetCompStep('Comp_L2tau','L2','tau')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
+comp2=TrigInDetCompStep('Comp_EFtau','EF','tau')
 test.check_steps.append(comp2)
-
-comp3=TrigInDetCompStep('Comp_L2muonLowpt','L2','muon',lowpt=True)
-test.check_steps.append(comp3)
-  
-comp4=TrigInDetCompStep('Comp_EFmuonLowpt','EF','muon',lowpt=True)
-test.check_steps.append(comp4)
-
-comp5=TrigInDetCompStep('Comp_L2muon_off','L2','muon')
-comp5.type = 'offline'
-test.check_steps.append(comp5)
-  
-comp6=TrigInDetCompStep('Comp_EFmuon_off','EF','muon')
-comp6.type = 'offline'
-test.check_steps.append(comp6)
-
-comp7=TrigInDetCompStep('Comp_L2muonLowpt_off','L2','muon',lowpt=True)
-comp7.type = 'offline'
-test.check_steps.append(comp7)
-  
-comp8=TrigInDetCompStep('Comp_EFmuonLowpt_off','EF','muon',lowpt=True)
-comp8.type = 'offline'
-test.check_steps.append(comp8)
 
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)

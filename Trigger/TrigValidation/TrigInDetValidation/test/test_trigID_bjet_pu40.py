@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for bjet_pu40
+# art-description: art job for bjet_pu40_mt
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -56,9 +56,9 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['bjet']
-rdo2aod.max_events = 2000 
-rdo2aod.threads = 1 
-rdo2aod.concurrent_events = 1 
+rdo2aod.max_events = 4000 
+rdo2aod.threads = 4 
+rdo2aod.concurrent_events = 4 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
