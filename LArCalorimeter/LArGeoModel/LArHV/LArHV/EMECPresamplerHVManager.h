@@ -6,9 +6,14 @@
 #define LARHV_EMECPRESAMPLERHVMANAGER_H
 
 #include "LArHV/EMECPresamplerHVModule.h"
+#include "Identifier/HWIdentifier.h"
+#include "CxxUtils/checker_macros.h"
+#include <memory>
+#include <functional>
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
+class CondAttrListCollection;
 #endif
 
 struct EMECPresamplerHVPayload;
@@ -31,6 +36,22 @@ class CellBinning;
 class EMECPresamplerHVManager
 {
  public:
+  class EMECPresamplerHVData
+  {
+  public:
+    class Payload;
+    EMECPresamplerHVData();
+    EMECPresamplerHVData (std::unique_ptr<Payload> payload);
+    EMECPresamplerHVData& operator= (EMECPresamplerHVData&& other);
+    ~EMECPresamplerHVData();
+    double voltage (const EMECPresamplerHVModule& module, const int& iGap) const;
+    double current (const EMECPresamplerHVModule& module, const int& iGap) const;
+    int  hvLineNo  (const EMECPresamplerHVModule& module, const int& iGap) const;
+  private:
+    int index (const EMECPresamplerHVModule& module) const;
+    std::unique_ptr<Payload> m_payload;
+  };
+
   EMECPresamplerHVManager();
   ~EMECPresamplerHVManager();
     
@@ -46,28 +67,28 @@ class EMECPresamplerHVManager
   // Get a link to the HV module:
   const EMECPresamplerHVModule& getHVModule(unsigned int iSide, unsigned int iPhi) const;
 
-  // Refresh from the database if needed
-  void update() const;
-
-  // Make the data stale.  Force update of data.
-  void reset() const;
-
   // Get the database payload
-  EMECPresamplerHVPayload *getPayload(const EMECPresamplerHVModule &) const;
+  EMECPresamplerHVData getData ATLAS_NOT_THREAD_SAFE () const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
+  EMECPresamplerHVData getData (const LArHVIdMapping& hvIdMapping,
+                                const std::vector<const CondAttrListCollection*>& attrLists) const;
   // Get hvLine for a module
   int hvLineNo(const EMECPresamplerHVModule& module
                , const LArHVIdMapping* hvIdMapping) const;
 #endif
 
  private:
+  using idfunc_t = std::function<std::vector<HWIdentifier>(HWIdentifier)>;
+  EMECPresamplerHVData getData (idfunc_t idfunc,
+                                const std::vector<const CondAttrListCollection*>& attrLists) const;
+
   // Illegal operations
-  EMECPresamplerHVManager& operator=(const EMECPresamplerHVManager& right);
-  EMECPresamplerHVManager(const EMECPresamplerHVManager& right);
+  EMECPresamplerHVManager& operator=(const EMECPresamplerHVManager& right) = delete;
+  EMECPresamplerHVManager(const EMECPresamplerHVManager& right) = delete;
 
   class Clockwork;
-  Clockwork *m_c;
+  std::unique_ptr<const Clockwork> m_c;
 };
 
 

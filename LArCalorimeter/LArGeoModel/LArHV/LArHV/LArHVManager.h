@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_LARHVMANAGER_H
@@ -47,7 +47,6 @@ class LArHVManager
   // Returns the FCALHVManager
   const FCALHVManager& getFCALHVManager() const;
   
-  void reset() const;
   
  protected:
   

@@ -25,6 +25,34 @@
 
 #include <atomic>
 
+
+namespace {
+
+
+struct ATLAS_NOT_THREAD_SAFE LegacyIdFunc
+{
+  LegacyIdFunc();
+  std::vector<HWIdentifier> operator()(HWIdentifier id)
+  {
+    return m_cablingTool->getLArElectrodeIDvec (id);
+  }
+  LArHVCablingTool* m_cablingTool;
+};
+
+
+LegacyIdFunc::LegacyIdFunc()
+{
+  ToolHandle<LArHVCablingTool> tool ("LArHVCablingTool");
+  if (!tool.retrieve().isSuccess()) {
+    std::abort();
+  }
+  m_cablingTool = tool.get();
+}
+
+
+} // Anonymous namespace
+
+
 class FCALHVManager::Clockwork {
 public:
   Clockwork(const FCALHVManager* manager)
@@ -32,7 +60,7 @@ public:
     for(int iSide=0; iSide<2; ++iSide) {
       for(int iSector=0; iSector<16; ++iSector) {
 	for(int iSampling=0; iSampling<3; ++iSampling) {
-	  moduleArray[iSide][iSector][iSampling] = new FCALHVModule(manager,iSide,iSector,iSampling);
+	  moduleArray[iSide][iSector][iSampling] = std::make_unique<FCALHVModule>(manager,iSide,iSector,iSampling);
 	}
       }
     }
@@ -48,30 +76,83 @@ public:
   }
   ~Clockwork()
   {
-    for(int iSide=0; iSide<2; ++iSide) {
-      for(int iSector=0; iSector<16; ++iSector) {
-	for(int iSampling=0; iSampling<3; ++iSampling) {
-	  delete moduleArray[iSide][iSector][iSampling];
-	}
-      }
-    }
   }
-  const FCALHVModule* moduleArray[2][16][3];
-  std::atomic<bool>          init{false};
-  std::mutex                 mtx;
-  std::vector<FCALHVPayload> payloadArray;
+  std::unique_ptr<const FCALHVModule> moduleArray[2][16][3];
   const LArElectrodeID* elecId;
   const LArHVLineID* hvId;
 };
 
+
+class FCALHVManager::FCALHVData::Payload
+{
+public:
+  std::vector<FCALHVPayload> m_payloadArray;
+};
+
+
+FCALHVManager::FCALHVData::FCALHVData()
+{
+}
+  
+
+FCALHVManager::FCALHVData::FCALHVData (std::unique_ptr<Payload> payload)
+  : m_payload (std::move (payload))
+{
+}
+  
+
+FCALHVManager::FCALHVData&
+FCALHVManager::FCALHVData::operator= (FCALHVData&& other)
+{
+  if (this != &other) {
+    m_payload = std::move (other.m_payload);
+  }
+  return *this;
+}
+  
+
+FCALHVManager::FCALHVData::~FCALHVData()
+{
+}
+  
+
+double FCALHVManager::FCALHVData::voltage (const FCALHVLine& line) const
+{
+  return m_payload->m_payloadArray[index(line)].voltage;
+}
+
+
+double FCALHVManager::FCALHVData::current (const FCALHVLine& line) const
+{
+  return m_payload->m_payloadArray[index(line)].current;
+}
+
+
+int  FCALHVManager::FCALHVData::hvLineNo  (const FCALHVLine& line) const
+{
+  return m_payload->m_payloadArray[index(line)].hvLineNo;
+}
+
+
+int  FCALHVManager::FCALHVData::index  (const FCALHVLine& line) const
+{
+  unsigned int lineIndex         = line.getLineIndex();
+  const FCALHVModule& module     = line.getModule();
+  unsigned int sectorIndex       = module.getSectorIndex();
+  unsigned int sideIndex         = module.getSideIndex();
+  unsigned int samplingIndex     = module.getSamplingIndex();
+  unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
+  return index;
+}
+
+
 FCALHVManager::FCALHVManager()
-  : m_c(new Clockwork(this))
+  : m_c (std::make_unique<Clockwork> (this))
 {
 }
 
 FCALHVManager::~FCALHVManager()
 {
-  delete m_c;
 }
 
 unsigned int FCALHVManager::beginSideIndex() const
@@ -112,115 +193,98 @@ const FCALHVModule& FCALHVManager::getHVModule(unsigned int iSide, unsigned int 
   return *(m_c->moduleArray[iSide][iSector][iSampling]);
 }
 
-void FCALHVManager::update() const {
-  std::lock_guard<std::mutex> lock(m_c->mtx);
-  if (!(m_c->init)) {
-    m_c->init=true;
-    m_c->payloadArray.reserve(2*16*3*4);
-    for (unsigned int i=0;i<384;i++) {
-     m_c->payloadArray[i].voltage = -99999;
-    }
+FCALHVManager::FCALHVData
+FCALHVManager::getData (idfunc_t idfunc,
+                       const std::vector<const CondAttrListCollection*>& attrLists) const
+{
+  auto payload = std::make_unique<FCALHVData::Payload>();
+  payload->m_payloadArray.reserve(2*16*3*4);
+  for (unsigned int i=0;i<384;i++) {
+    payload->m_payloadArray[i].voltage=-99999.;
+  }
 
-    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
+  for (const CondAttrListCollection* atrlistcol : attrLists) {
 
-    ISvcLocator* svcLocator = Gaudi::svcLocator(); 
-    IToolSvc* toolSvc;
-    LArHVCablingTool* hvcablingTool;
+    for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
 
-    if(StatusCode::SUCCESS!=svcLocator->service("ToolSvc",toolSvc))
-      return;
+      // 1. decode COOL Channel ID
+      unsigned int chanID = (*citr).first;
+      int cannode = chanID/1000;
+      int line = chanID%1000;
+      //std::cout << " cannode,line " << cannode << " " << line << std::endl;
 
-    if(StatusCode::SUCCESS!=toolSvc->retrieveTool("LArHVCablingTool",hvcablingTool))
-      return;
+      // 2. Construct the identifier
+      HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
 
-    std::vector<std::string> colnames;
-    colnames.push_back("/LAR/DCS/HV/BARREl/I16");
-    colnames.push_back("/LAR/DCS/HV/BARREL/I8");
+      std::vector<HWIdentifier> electrodeIdVec = idfunc(id);
 
-    std::vector<std::string>::const_iterator it = colnames.begin();
-    std::vector<std::string>::const_iterator ie = colnames.end();
+      for(size_t i=0;i<electrodeIdVec.size();i++) {
 
-    for (;it!=ie;it++) {
+        HWIdentifier& elecHWID = electrodeIdVec[i];
+        int detector = m_c->elecId->detector(elecHWID);
+        if (detector==5) {
 
-     //std::cout << " --- Start reading folder " << (*it) << std::endl;
-      const CondAttrListCollection* atrlistcol;
-      if (StatusCode::SUCCESS!=detStore->retrieve(atrlistcol,*it)) 
-        return;
+          //std::cout << " FCAl channel found " << (*citr).first << std::endl; 
 
-      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
-
-        // 1. decode COOL Channel ID
-        unsigned int chanID = (*citr).first;
-        int cannode = chanID/1000;
-        int line = chanID%1000;
-        //std::cout << " cannode,line " << cannode << " " << line << std::endl;
-
-        // 2. Construct the identifier
-        HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
-
-        std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
-
-        for(size_t i=0;i<electrodeIdVec.size();i++) {
-
-          HWIdentifier& elecHWID = electrodeIdVec[i];
-          int detector = m_c->elecId->detector(elecHWID);
-          if (detector==5) {
-
-            //std::cout << " FCAl channel found " << (*citr).first << std::endl; 
-
-            float voltage = -99999.;
-            if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
-            float current = 0.;
-            if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();
-            unsigned int status = 0;
-            if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>();
+          float voltage = -99999.;
+          if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
+          float current = 0.;
+          if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();
 	    
-            unsigned int sideIndex=1-m_c->elecId->zside(elecHWID);      // 0 C side, 1 A side (unline HV numbering)
-            unsigned int samplingIndex=m_c->elecId->hv_eta(elecHWID)-1;   // 0 to 2 for the FCAL modules 1-2-3
-            unsigned int sectorIndex=m_c->elecId->module(elecHWID);       // 0-15 FCAL1, 0-7 FCAl2, 0-3 FCAL3
-            unsigned int lineIndex=m_c->elecId->gap(elecHWID);            // 0-3
+          unsigned int sideIndex=1-m_c->elecId->zside(elecHWID);      // 0 C side, 1 A side (unline HV numbering)
+          unsigned int samplingIndex=m_c->elecId->hv_eta(elecHWID)-1;   // 0 to 2 for the FCAL modules 1-2-3
+          unsigned int sectorIndex=m_c->elecId->module(elecHWID);       // 0-15 FCAL1, 0-7 FCAl2, 0-3 FCAL3
+          unsigned int lineIndex=m_c->elecId->gap(elecHWID);            // 0-3
 
-            //std::cout << " channel found " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << " "<< voltage << std::endl;
+          //std::cout << " channel found " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << " "<< voltage << std::endl;
 
-            // do we have to worry about phi sector numbering running backwards in phi for z<0 like in EM/HEC  ????
+          // do we have to worry about phi sector numbering running backwards in phi for z<0 like in EM/HEC  ????
 
-            unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
+          unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
 
-            if (index>384) {
-              std::cout << " invalid index for FCAL " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << std::endl;
-              continue;
-            }
+          if (index>384) {
+            std::cout << " invalid index for FCAL " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << std::endl;
+            continue;
+          }
 	    
 	    
-            m_c->payloadArray[index].voltage=voltage;
-            m_c->payloadArray[index].current=current;
-            m_c->payloadArray[index].status=status;
-            m_c->payloadArray[index].hvLineNo=chanID;
-          }   // if FCAL
-        }  //   loop over electrodes
-      }   // loop over collection
-    }     // loop over folders
-  }   // m_c->init
+          payload->m_payloadArray[index].voltage=voltage;
+          payload->m_payloadArray[index].current=current;
+          payload->m_payloadArray[index].hvLineNo=chanID;
+        }   // if FCAL
+      }  //   loop over electrodes
+    }   // loop over collection
+  }     // loop over folders
+
+  return FCALHVManager::FCALHVData (std::move (payload));
 }
 
-void FCALHVManager::reset() const {
-  m_c->init=false;
-}
-
-FCALHVPayload *FCALHVManager::getPayload(const FCALHVLine &line) const {
-  update();
-  unsigned int lineIndex         = line.getLineIndex();
-  const FCALHVModule& module     = line.getModule();
-  unsigned int sectorIndex       = module.getSectorIndex();
-  unsigned int sideIndex         = module.getSideIndex();
-  unsigned int samplingIndex     = module.getSamplingIndex();
-  unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
-  //std::cout << "in Fcal getPayload: " << this << ' ' << index << ' ' << sideIndex << ' ' << sectorIndex << ' ' << samplingIndex << ' ' << lineIndex << std::endl;
-  return &m_c->payloadArray[index];
+FCALHVManager::FCALHVData
+FCALHVManager::getData ATLAS_NOT_THREAD_SAFE () const
+{
+  std::vector<const CondAttrListCollection*> attrLists;
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
+  const CondAttrListCollection* atrlistcol = nullptr;
+  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I16").isSuccess()) {
+    attrLists.push_back (atrlistcol);
+  }
+  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I8").isSuccess()) {
+    attrLists.push_back (atrlistcol);
+  }
+  return getData (LegacyIdFunc(), attrLists);
 }
 
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
+FCALHVManager::FCALHVData
+FCALHVManager::getData (const LArHVIdMapping& hvIdMapping,
+                        const std::vector<const CondAttrListCollection*>& attrLists) const
+{
+  auto idfunc = [&] (HWIdentifier id) { return hvIdMapping.getLArElectrodeIDvec(id); };
+  return getData (idfunc, attrLists);
+}
+
+
 int FCALHVManager::hvLineNo(const FCALHVLine& line
 			    , const LArHVIdMapping* hvIdMapping) const
 {

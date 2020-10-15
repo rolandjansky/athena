@@ -7,9 +7,14 @@
 
 #include "LArHV/EMBHVModule.h"
 #include "LArHV/EMBHVDescriptor.h"
+#include "Identifier/HWIdentifier.h"
+#include "CxxUtils/checker_macros.h"
+#include <memory>
+#include <functional>
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
+class CondAttrListCollection;
 #endif
 
 struct EMBHVPayload;
@@ -31,6 +36,22 @@ struct EMBHVPayload;
 class EMBHVManager
 {
  public:
+  class EMBHVData
+  {
+  public:
+    class Payload;
+    EMBHVData();
+    EMBHVData (std::unique_ptr<Payload> payload);
+    EMBHVData& operator= (EMBHVData&& other);
+    ~EMBHVData();
+    double voltage (const EMBHVElectrode& electrode, const int& iGap) const;
+    double current (const EMBHVElectrode& electrode, const int& iGap) const;
+    int  hvLineNo  (const EMBHVElectrode& electrode, const int& iGap) const;
+  private:
+    int index (const EMBHVElectrode& electrode) const;
+    std::unique_ptr<Payload> m_payload;
+  };
+
   EMBHVManager();
   ~EMBHVManager();
 
@@ -56,16 +77,12 @@ class EMBHVManager
   unsigned int beginSideIndex() const;
   unsigned int endSideIndex() const;
 
-  // Refresh from the database if needed
-  void update() const;
-  
-  // Make the data stale.  Force update of data.
-  void reset() const;
-  
   // Get the database payload
-  EMBHVPayload *getPayload(const EMBHVElectrode &) const;
+  EMBHVData getData ATLAS_NOT_THREAD_SAFE () const;
   
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
+  EMBHVData getData (const LArHVIdMapping& hvIdMapping,
+                     const std::vector<const CondAttrListCollection*>& attrLists) const;
   // Get hvLine for an electrode
   int hvLineNo(const EMBHVElectrode& electrode
 	       , int gap
@@ -73,12 +90,16 @@ class EMBHVManager
 #endif
 
  private:
-  EMBHVManager(const EMBHVManager& right);
-  EMBHVManager& operator=(const EMBHVManager& right);
+  using idfunc_t = std::function<std::vector<HWIdentifier>(HWIdentifier)>;
+  EMBHVData getData (idfunc_t idfunc,
+                     const std::vector<const CondAttrListCollection*>& attrLists) const;
+
+  EMBHVManager(const EMBHVManager& right) = delete;
+  EMBHVManager& operator=(const EMBHVManager& right) = delete;
   
   friend class ImaginaryFriend;
   class Clockwork;
-  Clockwork *m_c;
+  std::unique_ptr<const Clockwork> m_c;
 };
 
 #endif 
