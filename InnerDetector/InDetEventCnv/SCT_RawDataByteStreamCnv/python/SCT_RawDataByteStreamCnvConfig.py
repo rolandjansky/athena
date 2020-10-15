@@ -7,33 +7,33 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from InDetConfig.InDetRecToolConfig import SCT_CablingToolCfg, SCT_ConfigurationConditionsToolCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 
-def SCT_RodDecoderCfg(flags):
+def SCT_RodDecoderCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
     acc.merge(SCT_GeometryCfg(flags))
-    SCT_CablingTool = acc.popToolsAndMerge(SCT_CablingToolCfg(flags))
-    SCT_ConfigurationConditionsTool = acc.popToolsAndMerge(SCT_ConfigurationConditionsToolCfg(flags))
-    acc.setPrivateTools(CompFactory.SCT_RodDecoder(name="InDetSCTRodDecoder",
-                                                   SCT_CablingTool=SCT_CablingTool,
-                                                   ConfigTool=SCT_ConfigurationConditionsTool))
+    kwargs.setdefault("SCT_CablingTool", acc.popToolsAndMerge(SCT_CablingToolCfg(flags)))
+    kwargs.setdefault("ConfigTool", acc.popToolsAndMerge(SCT_ConfigurationConditionsToolCfg(flags)))
+    acc.setPrivateTools(CompFactory.SCT_RodDecoder(name=prefix+"SCTRodDecoder"+suffix,
+                                                   **kwargs))
     return acc
 
-def SCTRawDataProviderToolCfg(flags):
+def SCTRawDataProviderToolCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
-    InDetSCTRodDecoder = acc.popToolsAndMerge(SCT_RodDecoderCfg(flags))
-    acc.setPrivateTools(CompFactory.SCTRawDataProviderTool(name="InDetSCTRawDataProviderTool",
-                                                           Decoder=InDetSCTRodDecoder))
+    kwargs.setdefault("Decoder", acc.popToolsAndMerge(SCT_RodDecoderCfg(flags, prefix=prefix, suffix=suffix)))
+    acc.setPrivateTools(CompFactory.SCTRawDataProviderTool(name=prefix+"SCTRawDataProviderTool"+suffix,
+                                                           **kwargs))
     return acc
 
-def SCTRawDataProviderCfg(flags):
+def SCTRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
-    InDetSCTRawDataProviderTool = acc.popToolsAndMerge(SCTRawDataProviderToolCfg(flags))
-    acc.addEventAlgo(CompFactory.SCTRawDataProvider(name="InDetSCTRawDataProvider",
-                                                    ProviderTool=InDetSCTRawDataProviderTool))
+    kwargs.setdefault("ProviderTool", acc.popToolsAndMerge(SCTRawDataProviderToolCfg(flags, prefix, suffix)))
+    acc.addEventAlgo(CompFactory.SCTRawDataProvider(name=prefix+"SCTRawDataProvider"+suffix,
+                                                    **kwargs))
     return acc
 
-def SCTEventFlagWriterCfg(flags):
+def SCTEventFlagWriterCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
-    acc.addEventAlgo(CompFactory.SCTEventFlagWriter(name="InDetSCTEventFlagWriter"))
+    acc.addEventAlgo(CompFactory.SCTEventFlagWriter(name=prefix+"SCTEventFlagWriter"+suffix,
+                                                    **kwargs))
     return acc
 
 if __name__ == "__main__":

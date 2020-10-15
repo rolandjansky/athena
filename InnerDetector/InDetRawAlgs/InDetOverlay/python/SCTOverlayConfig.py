@@ -29,35 +29,6 @@ def SCT_ConfigurationConditionsCfg(flags, **kwargs):
     return acc
 
 
-def SCTRawDataProviderAlgCfg(flags, name="SCTRawDataProvider", **kwargs):
-    """Return a ComponentAccumulator for SCT raw data provider"""
-    # Temporary until available in the central location
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
-    kwargs.setdefault("LVL1IDKey", flags.Overlay.BkgPrefix + "SCT_LVL1ID")
-    kwargs.setdefault("BCIDKey", flags.Overlay.BkgPrefix + "SCT_BCID")
-
-    from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
-    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags)))
-
-    SCTRawDataProvider = CompFactory.SCTRawDataProvider
-    alg = SCTRawDataProvider(name, **kwargs)
-    acc.addEventAlgo(alg)
-
-    return acc
-
-
-def SCTEventFlagWriterCfg(flags, **kwargs):
-    """Return a ComponentAccumulator for SCT event flag writer"""
-    # Temporary until available in the central location
-    acc = ComponentAccumulator()
-    SCTEventFlagWriter = CompFactory.SCTEventFlagWriter
-    alg = SCTEventFlagWriter()
-    acc.addEventAlgo(alg)
-    return acc
-
-
 def SCTDataOverlayExtraCfg(flags, **kwargs):
     """Return a ComponentAccumulator with SCT data overlay specifics"""
     acc = ComponentAccumulator()
@@ -70,10 +41,15 @@ def SCTDataOverlayExtraCfg(flags, **kwargs):
     acc.merge(SCT_ConfigurationConditionsCfg(flags))
 
     # We need to convert BS to RDO for data overlay
-    acc.merge(SCTRawDataProviderAlgCfg(flags))
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
+    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
+    kwargs.setdefault("LVL1IDKey", flags.Overlay.BkgPrefix + "SCT_LVL1ID")
+    kwargs.setdefault("BCIDKey", flags.Overlay.BkgPrefix + "SCT_BCID")
+    acc.merge(SCTRawDataProviderCfg(flags, prefix="", **kwargs))
 
     # Add SCT event flag writer
-    acc.merge(SCTEventFlagWriterCfg(flags))
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg
+    acc.merge(SCTEventFlagWriterCfg(flags, prefix=""))
 
     return acc
 

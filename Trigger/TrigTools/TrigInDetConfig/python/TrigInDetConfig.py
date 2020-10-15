@@ -504,34 +504,19 @@ def TrigInDetConfig( inflags, roisKey="EMRoIs", signatureName='' ):
 
 
     #SCT
-    SCT_RodDecoder=CompFactory.SCT_RodDecoder
-    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder"+ signature)
-    acc.addPublicTool(InDetSCTRodDecoder)
-
-    SCTRawDataProviderTool=CompFactory.SCTRawDataProviderTool
-    InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool"+ signature,
-                                                         Decoder = InDetSCTRodDecoder)
-    acc.addPublicTool(InDetSCTRawDataProviderTool)
-
     # load the SCTRawDataProvider
-    SCTRawDataProvider=CompFactory.SCTRawDataProvider
-    InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider"+ signature,
-                                                 RDOKey       = InDetKeys.SCT_RDOs(),
-                                                 ProviderTool = InDetSCTRawDataProviderTool, )
-
-    InDetSCTRawDataProvider.isRoI_Seeded = True
-    InDetSCTRawDataProvider.RoIs = roisKey
-    InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
-
-    InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT
-
-    acc.addEventAlgo(InDetSCTRawDataProvider)
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
+    sctProviderArgs = {}
+    sctProviderArgs["RDOKey"] = InDetKeys.SCT_RDOs()
+    sctProviderArgs["isRoI_Seeded"] = True
+    sctProviderArgs["RoIs"] = roisKey
+    sctProviderArgs["RDOCacheKey"] = InDetCacheNames.SCTRDOCacheKey
+    sctProviderArgs["RegSelTool"] = RegSelTool_SCT
+    acc.merge(SCTRawDataProviderCfg(flags, suffix=signature, **sctProviderArgs))
 
     # load the SCTEventFlagWriter
-    SCTEventFlagWriter=CompFactory.SCTEventFlagWriter
-    InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter"+ signature)
-
-    acc.addEventAlgo(InDetSCTEventFlagWriter)
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg
+    acc.merge(SCTEventFlagWriterCfg(flags, suffix=signature))
 
 
     #TRT
