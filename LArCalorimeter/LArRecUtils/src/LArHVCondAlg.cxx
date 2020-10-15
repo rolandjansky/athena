@@ -197,10 +197,6 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     }
   }
  
-  const LArHVManager *manager = NULL; 
-  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
-        manager->reset();
-  }
   std::vector<float> voltage;
   std::vector<float> current;
   std::vector<unsigned int> hvlineidx;
