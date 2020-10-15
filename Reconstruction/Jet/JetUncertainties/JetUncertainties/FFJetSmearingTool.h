@@ -145,7 +145,7 @@ namespace CP {
 
             StatusCode readFFJetSmearingToolSimplifiedData(TEnv& settings);
 
-            StatusCode getJMSJMR( xAOD::Jet& jet_reco, double jet_mass,  JetTools::FFJetAllowedMassDefEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
+            StatusCode getJMSJMR( xAOD::Jet& jet_reco, double jet_mass,  JetTools::FFJetAllowedMassDefEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err) const;
 
             StatusCode getJetTopology( xAOD::Jet& jet_reco, std::string& jetTopology) const;
 

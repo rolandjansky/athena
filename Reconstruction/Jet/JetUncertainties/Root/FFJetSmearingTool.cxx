@@ -478,20 +478,20 @@ LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(acc
 // The function "getJMSJMR" read the JMS and JMR uncertainties associated with the systematic 
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet& jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err){
+StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet& jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err) const{
 
     //JMS/JMR systematic variations
     JMS_err=0;
     JMR_err=0;
 
-    if(m_Syst_MassDefAffected_map[m_currentSysData->SysBaseName] ==  JetTools::enumToString(MassDef_of_syst)){
+    if(m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName) ==  JetTools::enumToString(MassDef_of_syst)){
         ATH_MSG_VERBOSE("This uncertainty affects to the " << JetTools::enumToString(MassDef_of_syst) << " mass");
     } //Only apply the systematic to the proper mass definition
     else{return StatusCode::SUCCESS;}
 
 
 
-    if(m_Syst_TopologyAffected_map[m_currentSysData->SysBaseName] != "All" && m_Syst_TopologyAffected_map[m_currentSysData->SysBaseName] != jetTopology){
+    if(m_Syst_TopologyAffected_map.at(m_currentSysData->SysBaseName) != "All" && m_Syst_TopologyAffected_map.at(m_currentSysData->SysBaseName) != jetTopology){
         ATH_MSG_VERBOSE("The systematic do not affects to this jet topology");
         return StatusCode::SUCCESS;
     }
@@ -501,17 +501,17 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet& jet_reco, double jet_mass_va
     float jet_pT = jet_reco.pt()*m_MeVtoGeV;
 
 
-    if(m_Syst_Affects_JMSorJMR[m_currentSysData->SysBaseName] == "JMS"){
+    if(m_Syst_Affects_JMSorJMR.at(m_currentSysData->SysBaseName) == "JMS"){
 
-        JMS_err=m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetBinContent(m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
+        JMS_err=m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetBinContent(m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
 
         JMR_err= 0;
     }
 
-    if(m_Syst_Affects_JMSorJMR[m_currentSysData->SysBaseName] == "JMR"){
+    if(m_Syst_Affects_JMSorJMR.at(m_currentSysData->SysBaseName) == "JMR"){
 
         JMS_err=0;
-        JMR_err= m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetBinContent(m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
+        JMR_err= m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetBinContent(m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
     }
 
 
