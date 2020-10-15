@@ -351,11 +351,9 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  
 	  // Sum the cells above in phi for EM1 and EM2
 	  double abovePhiCellET = 0;
-	  abovePhiCellET += m_SupercellMapEM1->GetBinContent(i_fine, aboveInPhi);
 	  abovePhiCellET += m_SupercellMapEM2->GetBinContent(i_fine, aboveInPhi);
 	  // Sum the cells below in phi for EM1 and EM2
 	  double belowPhiCellET = 0;
-	  belowPhiCellET += m_SupercellMapEM1->GetBinContent(i_fine, belowInPhi);
 	  belowPhiCellET += m_SupercellMapEM2->GetBinContent(i_fine, belowInPhi);
 	  
 	  // If more energy deposited below in phi, then orient shapes downward
@@ -453,14 +451,16 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  // Calculate isolation value as the ratio of inner over outer energies
 	  double eFEX_OregonIso = oreIsoInnerET / oreIsoOuterET;
 	  
+	  // Calculation of isolation cut values discussed here https://indico.cern.ch/event/867020/contributions/3726146/attachments/2003208/3344698/L1CALOJoint03132020.pdf
+
 	  // Set boolean for whether event passes 12 GeV isolation cut, hardcoding isolation threshold for now
 	  bool eFEX_OregonIso_12pass = true;
-	  if (10000. < eFEX_OregonET && 15000. > eFEX_OregonET && eFEX_OregonIso < 0.67)
+	  if (10000. < eFEX_OregonET && 15000. > eFEX_OregonET && eFEX_OregonIso < 0.69)
 	    eFEX_OregonIso_12pass = false;
 
 	  // Set boolean for whether event passes 20 GeV isolation cut, hardcoding isolation threshold for now
 	  bool eFEX_OregonIso_20pass = true;
-	  if (20000. < eFEX_OregonET && 25000. > eFEX_OregonET && eFEX_OregonIso < 0.62)
+	  if (20000. < eFEX_OregonET && 25000. > eFEX_OregonET && eFEX_OregonIso < 0.61)
 	    eFEX_OregonIso_20pass = false;
 
 	  // Code Oregon cluster later

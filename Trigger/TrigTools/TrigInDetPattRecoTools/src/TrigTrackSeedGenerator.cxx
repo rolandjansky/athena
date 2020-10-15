@@ -17,7 +17,7 @@
 
 TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& tcs) 
   : m_settings(tcs), 
-    m_minDeltaRadius(10.0), 
+    m_minDeltaRadius(10.0),
     m_zTol(3.0), 
     m_pStore(nullptr)
 {
@@ -33,7 +33,7 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
   const double ptCoeff = 0.29997*1.9972/2.0;// ~0.3*B/2 - assumes nominal field of 2*T
   m_minR_squ = m_settings.m_tripletPtMin*m_settings.m_tripletPtMin/std::pow(ptCoeff,2);
   m_dtPreCut = std::tan(2.0*m_settings.m_tripletDtCut*sqrt(m_CovMS));
-  
+
 }
 
 TrigTrackSeedGenerator::~TrigTrackSeedGenerator() {
@@ -66,6 +66,7 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
   for(std::vector<TrigSiSpacePointBase>::const_iterator it = vSP.begin();it != vSP.end();++it) {
     //  if((*it).r()>m_maxRadius || (*it).r() < m_minRadius) continue;
     // int rIdx = ((*it).r()-m_minRadius)/m_radBinWidth;
+
     int layerId = (*it).layer();
     
     bool isPixel = (m_settings.m_layerGeometry[layerId].m_subdet == 1);
@@ -181,6 +182,7 @@ void TrigTrackSeedGenerator::createSeeds() {
     bool isSct = (m_settings.m_layerGeometry[layerI].m_subdet == 2);
 
     if((!m_settings.m_useSCT_middleSP) && isSct) continue;
+    if(m_settings.m_requireSCT_middleSP && !isSct) continue;
 
     for(int phiI=0;phiI<m_settings.m_nMaxPhiSlice;phiI++) {
 
@@ -1166,32 +1168,27 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
       }
 
       //6. add new triplet
-
-      const double Q = fabs_d0*fabs_d0;
+      
+      //  Calculate triplet weight: No weighting in LRT mode, but d0**2 weighting for normal (non LRT) mode. Triplets are then sorted by lowest weight.
+      const double Q= (m_settings.m_LRTmode ? 0 : fabs_d0*fabs_d0);
       if(output.size()>=m_settings.m_maxTripletBufferLength) {
-        std::sort(output.begin(), output.end(), 
-          [](const std::pair<float, TrigInDetTriplet*>& A, const std::pair<float, TrigInDetTriplet*>& B) {
-            return A.first > B.first;
-          }
-        );
-        //unsigned int count = 0;
-        //std::cout << "Q: \t" << Q << std::endl;
-        //for (auto entry : output) {
-        //  std::cout << "BEFORE:\t" << count << "\t" << entry.first << std::endl;
-        //  count++;
-        //}
 
-        INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
-        if( Q >= (*it).first) {
-          continue;
-        }
-        delete (*it).second;
-        output.erase(it);
-        //count = 0;
-        //for (auto entry : output) {
-        //  std::cout << "AFTER: \t" << count << "\t" << entry.first << std::endl;
-        //  count++;
-        //}
+	if (m_settings.m_LRTmode) { // take the first m_maxTripletBufferLength triplets
+	  continue;
+	} else { // choose smallest d0
+	  std::sort(output.begin(), output.end(), 
+		    [](const std::pair<float, TrigInDetTriplet*>& A, const std::pair<float, TrigInDetTriplet*>& B) {
+		      return A.first > B.first;
+		    }
+		    );
+	  
+	  INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
+	  if( Q >= (*it).first) {
+	    continue;
+	  }
+	  delete (*it).second;
+	  output.erase(it);
+	} 
       }
 
       const TrigSiSpacePointBase* pSPI = (type1==0) ? m_SoA.m_sorted_sp[iter1] : m_SoA.m_sorted_sp[iter2];
@@ -1209,8 +1206,16 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 void TrigTrackSeedGenerator::storeTriplets(INTERNAL_TRIPLET_BUFFER& tripletVec) {
   for(INTERNAL_TRIPLET_BUFFER::iterator it=tripletVec.begin();it!=tripletVec.end();++it) {
     double Q = (*it).first;
-    if((*it).second->s3().isSCT()) {
-      Q += (*it).second->s1().isSCT() ? 1000.0 : 10000.0;
+    if (m_settings.m_LRTmode) {
+      // In LRT mode penalize pixels in Triplets
+      if((*it).second->s1().isPixel()) Q+=1000;
+      if((*it).second->s2().isPixel()) Q+=1000;
+      if((*it).second->s3().isPixel()) Q+=1000;
+    } else {
+      // In normal (non LRT) mode penalise SSS by 1000, PSS (if enabled) and PPS by 10000
+      if((*it).second->s3().isSCT()) {
+	Q += (*it).second->s1().isSCT() ? 1000.0 : 10000.0;
+      } 
     }
     m_triplets.push_back(std::pair<double, TrigInDetTriplet*>(Q, (*it).second));
   }

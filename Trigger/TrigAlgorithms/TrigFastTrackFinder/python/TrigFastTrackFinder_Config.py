@@ -422,6 +422,7 @@ def remapper(type):
         "Jet"      : "bjet",
         #"Jet"      : "bjetVtx",
         "FullScan" : "fullScan",
+        "FullScanlrt" : "fullScanlrt",
         "BeamSpot" : "beamSpot",
         "Bphysics" : "bphysics",
         "Cosmic"   : "cosmics",
@@ -474,8 +475,11 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
           spTool.UseBeamTilt = False
           spTool.layerNumberTool = numberingTool
+          spTool.UsePixelSpacePoints=InDetTrigSliceSettings[('usePixelSP',remapped_type)]
           ToolSvc += spTool
+
           self.SpacePointProviderTool=spTool
+
           self.MinSPs = 5 #Only process RoI with more than 5 spacepoints 
           
           self.Triplet_MinPtFrac = 1
@@ -483,14 +487,17 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           if remapped_type=="cosmics":
             self.Triplet_nMaxPhiSlice = 2 #Divide detector in 2 halves for cosmics
           
+          if remapped_type=="fullScanlrt":
+              self.LRT_Mode=True
+          else:
+              self.LRT_Mode=False
+          
           self.Triplet_MaxBufferLength = 3
           self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
           self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
           self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)] 
-          self.TrackInitialD0Max = 20.
-          if remapped_type=='cosmics':
-            self.TrackInitialD0Max = 1000.
-            self.TrackZ0Max   = 1000.
+          self.TrackInitialD0Max = InDetTrigSliceSettings[('d0TrackMax',remapped_type)]
+          self.TrackZ0Max = InDetTrigSliceSettings[('z0TrackMax',remapped_type)]
 
           self.TripletDoPSS   = False
           self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
@@ -521,9 +528,13 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           if remapped_type=="cosmics":
             from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
             TrackingCuts = EFIDTrackingCutsCosmics
+          elif remapped_type=="fullScanlrt":
+            from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsLRT
+            TrackingCuts = EFIDTrackingCutsLRT
 
           from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
+              
           TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+type,
                                                 RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
                                                 CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
@@ -537,7 +548,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                                 nWeightedClustersMin= TrackingCuts.nWeightedClustersMin(),
                                                 Xi2maxMultiTracks         = TrackingCuts.Xi2max(),
                                                 UseAssociationTool       = False)
-
+              
           from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
           if type=='eGamma' and InDetTrigFlags.doBremRecovery():
             TrackMaker_FTF.useBremModel = True
@@ -628,3 +639,7 @@ class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_FTKMon"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKMon","FTKMon")
+
+class TrigFastTrackFinder_LRT(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_LRT"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_LRT","LRT")

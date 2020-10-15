@@ -45,5 +45,5 @@ atlas_add_component( CaloSamplingFractionAnalysis
 # Install files from the package:
 # atlas_install_headers( CaloSamplingFractionAnalysis )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.C )
+atlas_install_runtime( share/*.C share/HEC_SF_analysis share/run*.sh )
 

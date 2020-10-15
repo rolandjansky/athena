@@ -26,7 +26,7 @@ if(not os.path.isdir(customInput) and not os.path.isfile(customInput) ):
 if(os.path.isdir(customInput)):
     customInput+="/*.root"
 
-MessageSvc.defaultLimit=100
+MessageSvc.defaultLimit=2000
 MessageSvc.useColors = True
 MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
 
@@ -34,17 +34,18 @@ MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.AllowIgnoreConfigError=False #This job will stop if an include fails.
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-RUN12-SDR-25")
-globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R3-2021-00-00-00")
+globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC16-SDR-25") #("OFLCOND-RUN12-SDR-25")
+globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R3S-2021-01-00-00")#("ATLAS-R3-2021-00-00-00")
 
 from RecExConfig.RecFlags import rec as recFlags 
 recFlags.doNameAuditor = True
 
 globalflags.InputFormat.set_Value_and_Lock('pool')
-
+import AthenaPoolCnvSvc.ReadAthenaPool
+#theApp.EvtMax = 575
 athenaCommonFlags.EvtMax = -1
-athenaCommonFlags.SkipEvents = 0
-
+#athenaCommonFlags.SkipEvents = 585     # This one does not works
+#svcMgr.EventSelector.SkipEvents = 580  # This one works
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 
@@ -80,7 +81,7 @@ from AtlasGeoModel import GeoModelInit
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
-GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.09.00.NSW"
+GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.09.00.NSW" #"MuonSpectrometer-R.09.00.NSW"
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
 DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
 

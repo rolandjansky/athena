@@ -5,25 +5,6 @@
 # art-ci: 21.0
 # art-include: 21.0/AthDataQuality
 
-#Check the hcfg file for git hash
-check_hcfg_hash()
-{
-    hcfg_file=$1
-
-    grep -q "hash = $" /tmp/hcfg_out.txt
-    if [ $? -eq 0 ]; then
-        return 1
-    fi
-}
-#check that the config file contains no histograms in top_level
-check_hcfg_top_level()
-{
-    hcfg_file=$1
-    grep -q "BEGIN ASSESSMENTS of \"top_level\"" /tmp/hcfg_out.txt
-    if [ $? -eq 0 ]; then
-        return 1
-    fi
-}
 #Run a test webdisplay of the new config 
 run_test_display()
 {
@@ -41,7 +22,7 @@ run_test()
     if [[ $hcfg_dir == "" ]]; then
 	echo hcfg path not found
 	echo Tests failed
-	return 0
+	return 1
     fi
 
     cd $hcfg_dir
@@ -72,7 +53,7 @@ run_test()
     fi
     
     echo Tests passed
-    return 1
+    return 0
 }
 
 run_test

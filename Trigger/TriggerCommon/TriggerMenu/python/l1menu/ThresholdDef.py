@@ -30,7 +30,7 @@ class ThresholdDef:
         for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 22, 30, 50]:
             tc.registerThr('EM%i' % thrV, 'EM').addThrValue(thrV)
 
-        for thrV in [3, 7, 8, 10, 15, 20, 22]:
+        for thrV in [3, 7, 8, 10, 12, 15, 20, 22]:
             tc.registerThr('eEM%i' % thrV, 'EM', run=3).addThrValue(thrV)
 
 
@@ -159,6 +159,15 @@ class ThresholdDef:
             .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
             .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
             .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
+        tc.registerThr( 'eEM24VHIM', type='EM', run=3).addThrValue(24, priority=1)\
+            .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
+            .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
+            .addThrValue(24, -11, -8, priority=2).addThrValue(24, 8, 11, priority=2)\
+            .addThrValue(23, -13, -11, priority=2).addThrValue(23, 11, 13, priority=2)\
+            .addThrValue(22, -14, -13, priority=2).addThrValue(22, 13, 14, priority=2)\
+            .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
+            .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
+            .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
 
 
         ThresholdValue.setDefaults('EM', {'isobits' : '00100', 'use_relIso' : True })
@@ -273,17 +282,26 @@ class ThresholdDef:
             .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
             .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
             .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)
+        tc.registerThr( 'eEM22VH', type='EM', run=3).addThrValue(24, priority=1)\
+            .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
+            .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
+            .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
+            .addThrValue(21, -13, -11, priority=2).addThrValue(21, 11, 13, priority=2)\
+            .addThrValue(20, -14, -13, priority=2).addThrValue(20, 13, 14, priority=2)\
+            .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
+            .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
+            .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
 
         ThresholdValue.setDefaults('EM', {'isobits' : '000101', 'use_relIso' : True })
 
         tc.registerThr( 'eEM15VHI', type='EM', run=3).addThrValue(17, isobits="000101", priority=1)\
-            .addThrValue(17,  -7,   0, isobits="000101", priority=2).addThrValue(17,  0,  7, isobits="000101", priority=2)\
-            .addThrValue(16,  -9,  -7, isobits="000101", priority=2).addThrValue(16,  7,  9, isobits="000101", priority=2)\
-            .addThrValue(15, -12,  -9, isobits="000101", priority=2).addThrValue(15,  9, 12, isobits="000101", priority=2)\
-            .addThrValue(14, -14, -12, isobits="000101", priority=2).addThrValue(14, 12, 14, isobits="000101", priority=2)\
-            .addThrValue(13, -15, -14, isobits="000101", priority=2).addThrValue(13, 14, 15, isobits="000101", priority=2)\
-            .addThrValue(15, -17, -15, isobits="000101", priority=2).addThrValue(15, 15, 17, isobits="000101", priority=2)\
-            .addThrValue(16, -25, -17, isobits="000101", priority=2).addThrValue(16, 17, 25, isobits="000101", priority=2)
+            .addThrValue(17,  -7,   0, priority=2).addThrValue(17,  0,  7, priority=2)\
+            .addThrValue(16,  -9,  -7, priority=2).addThrValue(16,  7,  9, priority=2)\
+            .addThrValue(15, -12,  -9, priority=2).addThrValue(15,  9, 12, priority=2)\
+            .addThrValue(14, -14, -12, priority=2).addThrValue(14, 12, 14, priority=2)\
+            .addThrValue(13, -15, -14, priority=2).addThrValue(13, 14, 15, priority=2)\
+            .addThrValue(15, -17, -15, priority=2).addThrValue(15, 15, 17, priority=2)\
+            .addThrValue(16, -25, -17, priority=2).addThrValue(16, 17, 25, priority=2)
         tc.registerThr( 'eEM18VHI', type='EM', run=3).addThrValue(20, priority=1)\
             .addThrValue(20, -7, 0, priority=2).addThrValue(20, 0, 7, priority=2)\
             .addThrValue(19, -8, -7, priority=2).addThrValue(19, 7, 8, priority=2)\
@@ -311,6 +329,15 @@ class ThresholdDef:
             .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
             .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
             .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
+        tc.registerThr( 'eEM24VHI', type='EM', run=3).addThrValue(26, priority=1)\
+            .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
+            .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
+            .addThrValue(24, -11, -8, priority=2).addThrValue(24, 8, 11, priority=2)\
+            .addThrValue(23, -13, -11, priority=2).addThrValue(23, 11, 13, priority=2)\
+            .addThrValue(22, -14, -13, priority=2).addThrValue(22, 13, 14, priority=2)\
+            .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
+            .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
+            .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
 
 
 

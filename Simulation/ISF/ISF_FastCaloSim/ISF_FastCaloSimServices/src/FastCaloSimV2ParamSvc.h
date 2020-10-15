@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMV2PARAMSVC_H
@@ -50,6 +50,7 @@ namespace ISF {
     std::unique_ptr<CaloGeometryFromCaloDDM> m_caloGeo{};
 
     bool m_printParametrization{false};
+    bool m_CompressMemory{true};
   };
 
 }

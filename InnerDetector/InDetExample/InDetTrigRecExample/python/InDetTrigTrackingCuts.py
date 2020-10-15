@@ -214,6 +214,27 @@ class InDetTrigTrackingCuts :
       #self.__Xi2maxNoAdd             = 35.0
       self.__nWeightedClustersMin    = self.__minClusters-1
 
+    if mode == "LRT":
+      self.__minClusters             = 8
+      self.__minSiNotShared          = 6
+      self.__maxShared               = 1
+      self.__maxHoles                = 2
+      self.__maxPixelHoles           = 1
+      self.__maxSctHoles             = 1
+      self.__maxDoubleHoles          = 0
+      self.__maxPrimaryImpact        = 300.0 * Units.mm
+      self.__maxZImpact              = 500. * Units.mm    
+      self.__roadWidth               = 5.
+      self.__seedFilterLevel         = 1
+      self.__nHolesMax               = self.__maxHoles
+      self.__nHolesGapMax            = 1
+      self.__Xi2max                  = 9.
+      self.__Xi2maxNoAdd             = 25.0
+      self.__nWeightedClustersMin    = 8
+      self.__doZBoundary             = True
+      self.__maxdImpactSSSSeeds      = 300.0
+
+      
     if mode == "FTK":
       self.__extension        = "FTK"
       # --- cluster cuts

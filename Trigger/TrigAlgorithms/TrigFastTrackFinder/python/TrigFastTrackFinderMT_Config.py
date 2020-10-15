@@ -6,6 +6,7 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
     def __init__(self, name="FTF", type= "eGamma"):
         TrigFastTrackFinderMT.__init__(self,name)
         remapped_type = "electron"
+
         from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigL2LayerNumberTool
 
         self.retrieveBarCodes = False#Look at truth information for spacepoints from barcodes
@@ -21,7 +22,7 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
         numberingTool.UseNewLayerScheme = self.useNewLayerNumberScheme
         ToolSvc += numberingTool
         self.LayerNumberTool = numberingTool
-        
+
         from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
         if type=="FTK" or type=="FTKRefit":
           from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
@@ -80,7 +81,7 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
           InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
           ToolSvc += InDetTrigSiComTrackFinder_FTF
-          print InDetTrigSiComTrackFinder_FTF
+          print (InDetTrigSiComTrackFinder_FTF)
         
         
           from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
@@ -149,7 +150,7 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
                                                                          useSCT             = True,#DetFlags.haveRIO.SCT_on(), 
                                                                          SCTManagerLocation = InDetKeys.SCT_Manager(),         
                                                                          RoadWidth          = 10.0)
-          print InDetSiDetElementsRoadMaker
+          print (InDetSiDetElementsRoadMaker)
           ToolSvc += InDetSiDetElementsRoadMaker
 
           from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
@@ -217,6 +218,10 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
           if remapped_type == "tauCore":
+            from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
+            self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
+
+          if remapped_type=="fullScanlrt":
             from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
             self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
 

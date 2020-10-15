@@ -3,7 +3,7 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
-# art-html: https://atlas-art-data.web.cern.ch/atlas-art-data/scripts/TrigInDetValidation/TIDAart/?jobdir=
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-type: grid
 # art-output: HLTEF-plots-electron
 # art-output: HLTL2-plots-electron

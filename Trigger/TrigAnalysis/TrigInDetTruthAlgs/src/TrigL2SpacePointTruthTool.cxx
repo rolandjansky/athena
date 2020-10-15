@@ -284,8 +284,6 @@ int TrigL2SpacePointTruthTool::analyzeClusterMatchings(std::vector<HepMcParticle
   for(std::vector<HepMcParticleLink>::iterator pIt = vPL.begin(); pIt!=vPL.end();++pIt) {
     HepMcParticleLink partLink =  (*pIt);
     int barCode = partLink.barcode();
-    int eventIndex = partLink.eventIndex();
-    if(eventIndex!=0) continue;
     nTotalParticles++;
     std::map<int,int>::iterator it = codeMap.find(barCode);
     if(it==codeMap.end()) {
