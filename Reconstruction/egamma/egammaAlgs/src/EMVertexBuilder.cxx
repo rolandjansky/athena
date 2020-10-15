@@ -12,7 +12,7 @@ email   : kerstin.tackmann@cern.ch, Bruno.Lenzi@cern.ch
 changes :
           Nov 2011 (KT) Initial version
           Mar 2014 (BL) xAOD migration, creates both double and single track vertices
-         
+
 ***************************************************************************/
 
 #include "EMVertexBuilder.h"
@@ -27,35 +27,21 @@ changes :
 
 EMVertexBuilder::EMVertexBuilder(const std::string& name,
                                  ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
 StatusCode EMVertexBuilder::initialize() {
 
   ATH_MSG_DEBUG( "Initializing " << name() << "...");
-  
+
   ATH_CHECK(m_inputTrackParticleContainerKey.initialize());
   ATH_CHECK(m_outputConversionContainerKey.initialize());
 
   // Get the ID VertexFinderTool
-  if ( m_vertexFinderTool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve vertex finder tool " << m_vertexFinderTool);
-    return StatusCode::FAILURE;
-  } 
-    ATH_MSG_DEBUG( "Retrieved tool " << m_vertexFinderTool);
-  
-
+  ATH_CHECK( m_vertexFinderTool.retrieve());
   // Retrieve EMExtrapolationTool
-  if(m_EMExtrapolationTool.retrieve().isFailure()){
-    ATH_MSG_FATAL("Cannot retrieve extrapolationTool " << m_EMExtrapolationTool);
-    return StatusCode::FAILURE;
-  } 
-    ATH_MSG_DEBUG("Retrieved extrapolationTool " << m_EMExtrapolationTool);
-  
-
-
-  ATH_MSG_DEBUG( "Initialization successful");
+  ATH_CHECK(m_EMExtrapolationTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -64,9 +50,9 @@ StatusCode EMVertexBuilder::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMVertexBuilder::execute_r(const EventContext& ctx) const
-{   
-  
+StatusCode EMVertexBuilder::execute(const EventContext& ctx) const
+{
+
   //retrieve TrackParticleContainer
   SG::ReadHandle<xAOD::TrackParticleContainer> TPCol(m_inputTrackParticleContainerKey,ctx);
 
@@ -91,13 +77,13 @@ StatusCode EMVertexBuilder::execute_r(const EventContext& ctx) const
 
   ATH_MSG_DEBUG("New conversion container size: " << vertices->size());
 
-  // Remove vertices with radii above m_maxRadius   
+  // Remove vertices with radii above m_maxRadius
   xAOD::VertexContainer::iterator itVtx = vertices->begin();
   xAOD::VertexContainer::iterator itVtxEnd = vertices->end();
-  
+
   while (itVtx != itVtxEnd){
     xAOD::Vertex& vertex = **itVtx;
-    
+
     Amg::Vector3D momentum(0., 0., 0.);
     for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i){
       momentum += m_EMExtrapolationTool->getMomentumAtVertex(ctx,vertex, i);
@@ -109,7 +95,7 @@ StatusCode EMVertexBuilder::execute_r(const EventContext& ctx) const
     accPx(vertex) = momentum.x();
     accPy(vertex) = momentum.y();
     accPz(vertex) = momentum.z();
-    
+
     xAOD::EgammaParameters::ConversionType convType(xAOD::EgammaHelpers::conversionType((*itVtx)));
     bool vxDoubleTRT = (convType == xAOD::EgammaParameters::doubleTRT);
     bool vxSingleTRT = (convType == xAOD::EgammaParameters::singleTRT);
@@ -124,8 +110,8 @@ StatusCode EMVertexBuilder::execute_r(const EventContext& ctx) const
       ++itVtx;
     }
   }
-  
-  // Decorate the vertices with the momentum at the conversion point and 
+
+  // Decorate the vertices with the momentum at the conversion point and
   // etaAtCalo, phiAtCalo (extrapolate each vertex)
   float etaAtCalo = -9999.;
   float phiAtCalo = -9999.;
@@ -143,6 +129,6 @@ StatusCode EMVertexBuilder::execute_r(const EventContext& ctx) const
     accetaAtCalo(*vertex) = etaAtCalo;
     accphiAtCalo(*vertex) = phiAtCalo;
   }
-  
+
   return StatusCode::SUCCESS;
 }
