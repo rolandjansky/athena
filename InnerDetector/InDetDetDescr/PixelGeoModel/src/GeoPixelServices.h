@@ -18,6 +18,8 @@ class GeoPixelServices : public GeoVPixelFactory {
 public:
   GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
                    PixelGeometryManager* mgr, InDetDD::Zone * envelopeZone = 0);
+  GeoPixelServices (const GeoPixelServices&) = delete;
+  GeoPixelServices& operator= (const GeoPixelServices&) = delete;
   ~GeoPixelServices();
   virtual GeoVPhysVol* Build() override;
   void initialize(const std::string &);
