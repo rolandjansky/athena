@@ -19,13 +19,28 @@ class L2OverlapRemoverMonMT : public TrigMuonMonitorAlgorithm{
  protected:
   virtual StatusCode fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const override;
 
-  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL2) const;
-  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2CombinedMuonContainer> muEL1, const ElementLink<xAOD::L2CombinedMuonContainer> muEL2) const;
-  StatusCode chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> > featureCont, std::vector<unsigned int> muResult) const;
-  StatusCode chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> > featureCont, std::vector<unsigned int> muResult) const;
+ private:
 
+  /**
+   * @brief Function that fills variables of L2OverlapRemover plots.
+   * @see @c L2OverlapRemoverMonMT.icc for the implementation
+   * @param chain Trigger chain provided in @cfillHistograms
+   * @param trigstep trigger step
+   */ 
   template<class T>
   StatusCode fillVariablesOverlapRemoverPlots(const std::string &chain, std::string &&trigstep) const;
+
+  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL2) const;
+  bool isOverlap(const std::string &chain, const ElementLink<xAOD::L2CombinedMuonContainer> muEL1, const ElementLink<xAOD::L2CombinedMuonContainer> muEL2) const;
+
+  /**
+   * @brief Function that choose best muon.
+   * @param chain Trigger chain provided in @cfillHistograms
+   * @param featureCont vector of LinkInfo
+   * @param muResult vector of number assigned to each muon to make overlap judgment
+   */ 
+  StatusCode chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> > featureCont, std::vector<unsigned int> muResult) const;
+  StatusCode chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> > featureCont, std::vector<unsigned int> muResult) const;
 
   float calcinvMass(double m1, double pt1, double eta1, double phi1, double m2, double pt2, double eta2, double phi2) const;
   static inline std::tuple<float,float,float> L2ORPosForMatchFunc(const xAOD::L2StandAloneMuon *trig);
