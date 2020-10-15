@@ -29,17 +29,6 @@ namespace InDet{
 
     public:
 
-       class UsedFlag {
-       public:
-          UsedFlag() : m_used(false) {}
-
-          bool used() const { return m_used; }
-
-          void setUsed() { m_used=true; }
-       private:
-          bool m_used;
-       };
-
        class ElementWay {
        public:
           ElementWay(const InDet::SiDetElementLink_xk*link, float way, float distance)
