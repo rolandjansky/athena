@@ -158,57 +158,6 @@ class MufastStauHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15) ]
 
 
-class MufastOTRHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="MufastOTRHypoValidationMonitoring"):
-        super(MufastOTRHypoValidationMonitoring, self).__init__(name)
-        self.defineTarget("Validation")
-        self.Histograms  = [ defineHistogram('RpcOutOfTimeIn', type='TH1F', title="Distribution of the BCID difference for the Rpc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('TgcOutOfTimeIn', type='TH1F', title="Distribution of the BCID difference for the Tgc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('RpcOutOfTimeOut', type='TH1F', title="Distribution of the BCID difference for the Rpc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                            xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('TgcOutOfTimeOut', type='TH1F', title="Distribution of the BCID difference for the Tgc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #muFast; P_{T} (MeV)",
-                                             xbins=200, xmin=-100, xmax=100) ]
-        self.Histograms += [ defineHistogram('Eta , Phi', type='TH2F', title="Eta vs Phi reconstruction of #muFast; Eta; Phi",
-                                             xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15) ]
-
-class MufastOTRHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="MufastOTRHypoOnlineMonitoring"):
-        super(MufastOTRHypoOnlineMonitoring, self).__init__(name)
-        self.defineTarget("Online")
-        self.Histograms  = [ defineHistogram('RpcOutOfTimeIn', type='TH1F', title="Distribution of the BCID difference for the Rpc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('TgcOutOfTimeIn', type='TH1F', title="Distribution of the BCID difference for the Tgc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('RpcOutOfTimeOut', type='TH1F', title="Distribution of the BCID difference for the Rpc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('TgcOutOfTimeOut', type='TH1F', title="Distribution of the BCID difference for the Tgc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                            xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #muFast; P_{T} (MeV)",
-                                             xbins=200, xmin=-100, xmax=100) ]
-        self.Histograms += [ defineHistogram('Eta , Phi', type='TH2F', title="Eta vs Phi reconstruction of #muFast; Eta; Phi",
-                                             xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15) ]
-
-class MufastOTRHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="MufastOTRHypoCosmicMonitoring"):
-        super(MufastOTRHypoCosmicMonitoring, self).__init__(name)
-        self.defineTarget("Cosmic")
-        self.Histograms  = [ defineHistogram('RpcOutOfTimeIn', type='TH1F', title="Distribution of the BCID difference for the Rpc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('TgcOutOfTimeIn', type='TH1F', title="Distribution of the BCID difference for the Tgc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('RpcOutOfTimeOut', type='TH1F', title="Distribution of the BCID difference for the Rpc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('TgcOutOfTimeOut', type='TH1F', title="Distribution of the BCID difference for the Tgc RoI out of Time; (Muon RoI BCID - Event BCID)",
-                                             xbins=21, xmin=-10.5, xmax=10.5) ]
-        self.Histograms += [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #muFast; P_{T} (MeV)",
-                                             xbins=200, xmin=-100, xmax=100) ]
-        self.Histograms += [ defineHistogram('Eta , Phi', type='TH2F', title="Eta vs Phi reconstruction of #muFast; Eta; Phi",
-                                             xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15) ]
-
 class MucombHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MucombHypoValidationMonitoring"):
         super(MucombHypoValidationMonitoring, self).__init__(name)

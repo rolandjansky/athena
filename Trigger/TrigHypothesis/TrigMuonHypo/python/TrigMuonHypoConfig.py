@@ -529,32 +529,6 @@ class MufastCALHypoConfig(MufastCALHypo) :
         self.AthenaMonTools = [ validation, online, cosmic ]
 
 
-class MufastOTRHypoConfig(MufastOTRHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        if len(args) == 4:
-            newargs = ['%s_%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2],args[3])] + list(args)
-        return super( MufastOTRHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastOTRHypoConfig, self ).__init__( name )
-
-        threshold = int(args[1])
-
-        self.SegmentsTh = threshold
-
-        validation = MufastOTRHypoValidationMonitoring()
-        online     = MufastOTRHypoOnlineMonitoring()
-        cosmic     = MufastOTRHypoCosmicMonitoring()
-
-        self.AthenaMonTools = [ validation, online, cosmic ]
-
-
-
 class MucombHypoConfig(MucombHypo) :
 
     __slots__ = []
