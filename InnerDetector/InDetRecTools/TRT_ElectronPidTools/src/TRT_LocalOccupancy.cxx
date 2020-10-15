@@ -492,11 +492,11 @@ int TRT_LocalOccupancy::mapEtaToPartition(const double t_eta) const {
 
 const TRT_LocalOccupancy::OccupancyData* TRT_LocalOccupancy::getData(const EventContext& ctx) const
 {
-  SG::ReadHandle<OccupancyData> rh (name() + "OccupancyData",ctx);
+  SG::ReadHandle<OccupancyData> rh (name() + "OccupancyData");
   if (rh.isValid())
     return rh.cptr();
 
-  SG::WriteHandle<OccupancyData> wh (name() + "OccupancyData",ctx);
+  SG::WriteHandle<OccupancyData> wh (name() + "OccupancyData");
   return wh.put (makeData(ctx), true);
 }
 
