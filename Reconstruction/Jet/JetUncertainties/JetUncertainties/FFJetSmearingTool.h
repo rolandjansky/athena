@@ -136,9 +136,9 @@ namespace CP {
             /// @}
 
 
-            virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) const;// The user has to use this function to smear it's jet mass
-            virtual CP::CorrectionCode correctedCopy(const xAOD::Jet& input, xAOD::Jet*& output) const;
-            virtual CP::CorrectionCode applyContainerCorrection(xAOD::JetContainer& inputs) const;
+            virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet_reco) const override;// The user has to use this function to smear it's jet mass
+            virtual CP::CorrectionCode correctedCopy(const xAOD::Jet& input, xAOD::Jet*& output) const override;
+            virtual CP::CorrectionCode applyContainerCorrection(xAOD::JetContainer& inputs) const override;
 
             StatusCode getMatchedTruthJet( xAOD::Jet& jet_reco, xAOD::Jet& jet_truth_matched) const;
 
