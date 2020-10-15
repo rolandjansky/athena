@@ -14,103 +14,24 @@ L2OverlapRemoverMonMT :: L2OverlapRemoverMonMT(const std::string& name, ISvcLoca
 StatusCode L2OverlapRemoverMonMT :: fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const {
 
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
-  const float ZERO_LIMIT = 0.00001;
-
-  auto NInMuon = Monitored::Scalar<int>(chain+"_NInMuon", -999.);
-  auto NOutMuon = Monitored::Scalar<int>(chain+"_NOutMuon", -999.);
-  auto NRemovedMuon = Monitored::Scalar<int>(chain+"_NRemovedMuon", -999.);
-
-  std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> > featureCont = getTrigDecisionTool()->features<xAOD::L2StandAloneMuonContainer>( chain, TrigDefs::includeFailedDecisions );
-  NInMuon = featureCont.size();
-
-
-  // Check overlap
-  std::vector<int> vec_OverlapInsonsistent;
-  auto OverlapInsonsistent = Monitored::Collection(chain+"_OverlapInsonsistent", vec_OverlapInsonsistent);
-
-  unsigned int i,j;
-  std::vector<unsigned int> muResult;
-  bool errorWhenIdentifyingOverlap = false;
-
-  for(i=0; i<featureCont.size(); i++) muResult.emplace_back(i);
-  for(i=0; i<featureCont.size(); i++){
-    ATH_CHECK( featureCont[i].isValid() );
-    for(j=i+1; j<featureCont.size(); j++){
-      ATH_CHECK( featureCont[j].isValid() );
-      bool overlapped = isOverlap(chain, featureCont[i].link, featureCont[j].link, L2SAPosForMatchFunc);
-      if( !overlapped ){ // judged as different
-        if( muResult[i] == muResult[j] ) { // but marked as same by someone
-          ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
-          ATH_MSG_DEBUG( "two objects are judged as different but both were already marked as identical by someone else as: " );
-          ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << muResult[i] << " / "  << muResult[j] );
-          vec_OverlapInsonsistent.push_back(0);
-          errorWhenIdentifyingOverlap = true;
-        }
-      }
-      else{ // judged as overlap
-	if( (muResult[j] != j && muResult[i] != muResult[j]) || (muResult[j] == j && muResult[i] != i) ){
-	  ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
-	  ATH_MSG_DEBUG( "two objects are judged as overlap but only either was already marked as overlap to someone else: " );
-	  ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << muResult[i] << " / "  << muResult[j] );
-          vec_OverlapInsonsistent.push_back(1);
-	  errorWhenIdentifyingOverlap = true;
-        }
-	if( muResult[i] == i ) {
-	  ATH_MSG_DEBUG( "   i is not yet marked as overlap. so, it is a newly found overlap" );
-	  ATH_MSG_DEBUG( "   -> marking muResult[j] as i..." );
-	  muResult[j] = i;
-	} else {
-	  ATH_MSG_DEBUG( "   both i/j already marked as overlap by: muResult[i]=" << muResult[i] );
-	  ATH_MSG_DEBUG( "   -> do nothing..." );
-	}
-      }
-    }
-  }
-
-  // If there is inconsistency in the overlap judgment, input becomes output as it is.
-  if( errorWhenIdentifyingOverlap ) {
-    NOutMuon = featureCont.size();
-    NRemovedMuon = 0;
-    fill(m_group+"_"+chain, NInMuon, NOutMuon, NRemovedMuon);
-    return StatusCode::SUCCESS;
-  }
-      
-  // check number of unique muon
-  unsigned int NUniqueMuon = 0;
-  for(i=0; i<featureCont.size(); i++) {
-    if( muResult[i] == i )  NUniqueMuon++;
-  }
-  ATH_MSG_DEBUG( "number of unique Muons after overlap removal=" << NUniqueMuon );
-
-
-  if( featureCont.size() != NUniqueMuon ){
-    ATH_CHECK(chooseBestMuon(chain, featureCont, muResult));
-    NOutMuon = NUniqueMuon;
-    ATH_MSG_DEBUG("debugdebug::: NInMuon = " << NInMuon << ",  NOutMuon = " << NOutMuon);
-  } else {
-    NOutMuon = featureCont.size();
-  }
-
-  NRemovedMuon = featureCont.size() - NUniqueMuon;
-
-  fill(m_group+"_"+chain, NInMuon, NOutMuon, NRemovedMuon);
+  ATH_CHECK( fillVariablesOverlapRemoverPlots<xAOD::L2StandAloneMuon>(chain, "L2SA") );
+  ATH_CHECK( fillVariablesOverlapRemoverPlots<xAOD::L2CombinedMuon>(chain, "L2CB") );
 
   return StatusCode::SUCCESS;
 }
 
 
-bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL2,
-                                        std::tuple<float,float,float> (*trigPosForMatchFunc)(const xAOD::L2StandAloneMuon*)) const {
+bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL1, const ElementLink<xAOD::L2StandAloneMuonContainer> muEL2) const {
 
   const float ZERO_LIMIT = 0.00001;
 
-  auto dR = Monitored::Scalar<float>(chain+"_dR", -999.);
-  auto invMass = Monitored::Scalar<float>(chain+"_invMass", -999.);
-  auto dRLog10 = Monitored::Scalar<float>(chain+"_dRLog10", -999.);
-  auto invMassLog10 = Monitored::Scalar<float>(chain+"_invMassLog10", -999.);
+  auto dR           = Monitored::Scalar<float>("L2SA_"+chain+"_dR", -999.);
+  auto invMass      = Monitored::Scalar<float>("L2SA_"+chain+"_invMass", -999.);
+  auto dRLog10      = Monitored::Scalar<float>("L2SA_"+chain+"_dRLog10", -999.);
+  auto invMassLog10 = Monitored::Scalar<float>("L2SA_"+chain+"_invMassLog10", -999.);
 
-  const auto [mu1Pt, mu1Eta, mu1Phi] = trigPosForMatchFunc((*muEL1));
-  const auto [mu2Pt, mu2Eta, mu2Phi] = trigPosForMatchFunc((*muEL2));
+  const auto [mu1Pt, mu1Eta, mu1Phi] = L2ORPosForMatchFunc((*muEL1));
+  const auto [mu2Pt, mu2Eta, mu2Phi] = L2ORPosForMatchFunc((*muEL2));
 
   if( ( (std::abs(mu1Eta) < ZERO_LIMIT) && (std::abs(mu1Phi) < ZERO_LIMIT) ) || 
       ( (std::abs(mu2Eta) < ZERO_LIMIT) && (std::abs(mu2Phi) < ZERO_LIMIT) ) || 
@@ -122,27 +43,22 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
   bool isBarrel2 = (*muEL2)->sAddress() != -1 ? true : false;
 
   if(  isBarrel1 && isBarrel2 ) { // BB
-    ATH_MSG_DEBUG( "   ...B-B" );
-    dRThres  =m_dRThresBB;
-    massThres=m_massThresBB;
+    dRThres  =m_dRSAThresBB;
+    massThres=m_massSAThresBB;
   }
   else if( (isBarrel1 && ! isBarrel2) || (!isBarrel1 && isBarrel2) ) { // BE
-    ATH_MSG_DEBUG( "   ...B-E" );
-    dRThres  =m_dRThresBE;
-    massThres=m_massThresBE;
+    dRThres  =m_dRSAThresBE;
+    massThres=m_massSAThresBE;
   }
   else { // EE
-    ATH_MSG_DEBUG( "   ...E-E" );
     double absEta = (std::abs(mu1Pt) > std::abs(mu2Pt)) ? std::abs(mu1Eta) : std::abs(mu2Eta);
     unsigned int iThres=0;
-    for(unsigned int i=0; i<(m_etaBinsEC.size()-1); i++) {
-      if ( m_etaBinsEC[i] <= absEta && absEta < m_etaBinsEC[i+1] ) iThres = i;
+    for(unsigned int i=0; i<(m_etaBins.size()-1); i++) {
+      if ( m_etaBins[i] <= absEta && absEta < m_etaBins[i+1] ) iThres = i;
     }
-    dRThres   = m_dRThresEC[iThres];
-    massThres = m_massThresEC[iThres];
+    dRThres   = m_dRSAThresEC[iThres];
+    massThres = m_massSAThresEC[iThres];
   }
-  ATH_MSG_DEBUG( "   ...dR   threshold=" << dRThres );
-  ATH_MSG_DEBUG( "   ...mass threshold=" << massThres );
 
 
   // same sign cut
@@ -174,14 +90,81 @@ bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementL
 }
 
 
+bool L2OverlapRemoverMonMT :: isOverlap(const std::string &chain, const ElementLink<xAOD::L2CombinedMuonContainer> muEL1, const ElementLink<xAOD::L2CombinedMuonContainer> muEL2) const {
+
+  const float ZERO_LIMIT = 0.00001;
+
+  auto dR           = Monitored::Scalar<float>("L2CB_"+chain+"_dR", -999.);
+  auto invMass      = Monitored::Scalar<float>("L2CB_"+chain+"_invMass", -999.);
+  auto dRLog10      = Monitored::Scalar<float>("L2CB_"+chain+"_dRLog10", -999.);
+  auto invMassLog10 = Monitored::Scalar<float>("L2CB_"+chain+"_invMassLog10", -999.);
+
+  const auto [mu1Pt, mu1Eta, mu1Phi] = L2ORPosForMatchFunc((*muEL1));
+  const auto [mu2Pt, mu2Eta, mu2Phi] = L2ORPosForMatchFunc((*muEL2));
+
+  if( ( (std::abs(mu1Eta) < ZERO_LIMIT) && (std::abs(mu1Phi) < ZERO_LIMIT) ) || 
+      ( (std::abs(mu2Eta) < ZERO_LIMIT) && (std::abs(mu2Phi) < ZERO_LIMIT) ) || 
+      (std::abs(mu1Pt) < ZERO_LIMIT) || (std::abs(mu2Pt) < ZERO_LIMIT) ) return false;
+
+  double absEta = (std::abs(mu1Pt) > std::abs(mu2Pt)) ? std::abs(mu1Eta) : std::abs(mu2Eta);
+  unsigned int iThres=0;
+  for(unsigned int i=0; i<(m_etaBins.size()-1); i++) {
+    if ( m_etaBins[i] <= absEta && absEta < m_etaBins[i+1] ) iThres = i;
+  }
+  float dRThres   = m_dRCBThres[iThres];
+  float dRbySAThres = m_dRbySAThres[iThres];
+  float massThres = m_massCBThres[iThres];
+
+
+  // same sign cut
+  bool sameSign = ( mu1Pt*mu2Pt > 0) ? true : false;
+
+  // dR cut
+  float deta = mu1Eta - mu2Eta;
+  float dphi = xAOD::P4Helpers::deltaPhi(mu1Phi, mu2Phi);
+  dR = sqrt(deta*deta + dphi*dphi);
+  bool dRisClose = ( dR < dRThres ) ? true : false;
+
+  // dR(by L2SA) cut
+  bool dRbySAisClose = false;
+  const xAOD::L2StandAloneMuon* muSA1 = (*muEL1)->muSATrack();
+  const xAOD::L2StandAloneMuon* muSA2 = (*muEL2)->muSATrack();
+  if( muSA1 == 0 || muSA2 == 0 ) return false;
+  else {
+    float deta = muSA1->etaMS() - muSA2->etaMS();
+    float dphi = xAOD::P4Helpers::deltaPhi(muSA1->phiMS(), muSA2->phiMS());
+    float dRBySA = sqrt(deta*deta + dphi*dphi);
+    if( dRBySA < dRbySAThres ) dRbySAisClose = true;
+  }
+
+  // mass cut
+  invMass = calcinvMass(0., mu1Pt, mu1Eta, mu1Phi, 0., mu2Pt, mu2Eta, mu2Phi);
+  bool massIsClose = ( invMass < massThres ) ? true : false;
+
+  // for monitorinng log10 plot
+  const float monitor_limit = 1e-4;
+  dRLog10 = ( dR >= monitor_limit ) ? log10(dR) : log10(monitor_limit);
+  invMassLog10 = ( invMass >= monitor_limit ) ? log10(invMass) : log10(monitor_limit);
+
+
+  // total judge
+  bool overlap = ( sameSign && dRisClose && massIsClose && dRbySAisClose ) ? true : false;
+  ATH_MSG_DEBUG( "   ...=> isOverlap=" << overlap );
+
+  fill(m_group+"_"+chain, dR, invMass, dRLog10, invMassLog10);
+
+  return overlap;
+}
+
+
 StatusCode L2OverlapRemoverMonMT::chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> > featureCont, std::vector<unsigned int> muResult) const
 {
   unsigned int i,j,k;
 
   std::vector<float> vec_RemovedEta, vec_RemovedPhi, vec_RemovedPt;
-  auto RemovedEta  = Monitored::Collection(chain+"_RemovedEta", vec_RemovedEta);
-  auto RemovedPhi  = Monitored::Collection(chain+"_RemovedPhi", vec_RemovedPhi);
-  auto RemovedPt   = Monitored::Collection(chain+"_RemovedPt", vec_RemovedPt);
+  auto RemovedEta = Monitored::Collection("L2SA_"+chain+"_RemovedEta", vec_RemovedEta);
+  auto RemovedPhi = Monitored::Collection("L2SA_"+chain+"_RemovedPhi", vec_RemovedPhi);
+  auto RemovedPt  = Monitored::Collection("L2SA_"+chain+"_RemovedPt", vec_RemovedPt);
 
   for(i=0; i<featureCont.size(); i++) {
     ATH_MSG_DEBUG( "++ i=" << i << ": result=" << muResult[i] );
@@ -197,8 +180,7 @@ StatusCode L2OverlapRemoverMonMT::chooseBestMuon(const std::string &chain, std::
       ATH_MSG_DEBUG( "   unique object. keep it active." );
       continue;
     }
-    else {
-      // must choose one best
+    else { // must choose one best
       ATH_MSG_DEBUG( "   overlapped objects among: " << others );
       unsigned int BestMuon = 0;
       float maxPt  = 0.;
@@ -239,11 +221,64 @@ StatusCode L2OverlapRemoverMonMT::chooseBestMuon(const std::string &chain, std::
   return StatusCode::SUCCESS;
 }
 
+StatusCode L2OverlapRemoverMonMT::chooseBestMuon(const std::string &chain, std::vector< TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> > featureCont, std::vector<unsigned int> muResult) const
+{
+  unsigned int i,j,k;
+
+  std::vector<float> vec_RemovedEta, vec_RemovedPhi, vec_RemovedPt;
+  auto RemovedEta = Monitored::Collection("L2CB_"+chain+"_RemovedEta", vec_RemovedEta);
+  auto RemovedPhi = Monitored::Collection("L2CB_"+chain+"_RemovedPhi", vec_RemovedPhi);
+  auto RemovedPt  = Monitored::Collection("L2CB_"+chain+"_RemovedPt", vec_RemovedPt);
+
+  for(i=0; i<featureCont.size(); i++) {
+    ATH_MSG_DEBUG( "++ i=" << i << ": result=" << muResult[i] );
+    if( muResult[i] != i ) {
+      ATH_MSG_DEBUG( "   overlap to some one. skip." );
+      continue;
+    }
+    std::vector<unsigned int> others;
+    for(j=0; j<featureCont.size(); j++) {
+      if( muResult[j] == muResult[i] ) others.emplace_back(j);
+    }
+    if( others.size() == 1 ) {
+      ATH_MSG_DEBUG( "   unique object. keep it active." );
+      continue;
+    }
+    else { // must choose one best
+      ATH_MSG_DEBUG( "   overlapped objects among: " << others );
+      unsigned int BestMuon = 0;
+      float maxPt  = 0.;
+      for(k=0; k<others.size(); k++) {
+        j=others[k];
+        const ElementLink<xAOD::L2CombinedMuonContainer> muEL = featureCont[j].link;
+        float pt  = std::abs((*muEL)->pt()/1e3);
+        if( pt > maxPt ) {
+          maxPt  = pt;
+          BestMuon = j;
+        }
+      }
+
+      for(k=0; k<others.size(); k++) {
+        j=others[k];
+        if( j != BestMuon ) { // removed muon
+          const ElementLink<xAOD::L2CombinedMuonContainer> muEL = featureCont[j].link;
+          vec_RemovedPt.push_back( (*muEL)->pt()/1e3 * (*muEL)->charge() );
+          vec_RemovedEta.push_back( (*muEL)->eta() );
+          vec_RemovedPhi.push_back( (*muEL)->phi() );
+        }
+      }
+    }
+  }
+
+  fill(m_group+"_"+chain, RemovedEta, RemovedPhi, RemovedPt);
+
+  return StatusCode::SUCCESS;
+}
 
 
 
 float L2OverlapRemoverMonMT::calcinvMass(double m1, double pt1, double eta1, double phi1,
-				     double m2, double pt2, double eta2, double phi2) const
+                                         double m2, double pt2, double eta2, double phi2) const
 {
   const double ZERO_LIMIT = 1e-12;
 
@@ -276,7 +311,10 @@ float L2OverlapRemoverMonMT::calcinvMass(double m1, double pt1, double eta1, dou
 }
 
 
-std::tuple<float,float,float> L2OverlapRemoverMonMT :: L2SAPosForMatchFunc(const xAOD::L2StandAloneMuon *trig){
+std::tuple<float,float,float> L2OverlapRemoverMonMT :: L2ORPosForMatchFunc(const xAOD::L2StandAloneMuon *trig){
   return std::forward_as_tuple(trig->pt(), trig->etaMS(), trig->phiMS());
 }
 
+std::tuple<float,float,float> L2OverlapRemoverMonMT :: L2ORPosForMatchFunc(const xAOD::L2CombinedMuon *trig){
+  return std::forward_as_tuple( (trig->pt()/1e3 * trig->charge() ), trig->eta(), trig->phi());
+}
