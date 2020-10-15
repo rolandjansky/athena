@@ -26,8 +26,6 @@ class ConfiguredActsTrackingGeometry( ActsTrackingGeometryTool ) :
       subDetectors += ["SCT"]
     if DetFlags.TRT_on():
       subDetectors += ["TRT"]
-    if DetFlags.Calo_on():
-      subDetectors += ["Calo"]
         
     from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
     actsTrackingGeometrySvc = ActsTrackingGeometrySvc(name = "ActsTrackingGeometrySvc",
