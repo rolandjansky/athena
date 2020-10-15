@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArFCALCalculator
@@ -19,6 +19,8 @@
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
+#include "LArHV/FCALHVManager.h"
+#include "CxxUtils/checker_macros.h"
 #include "globals.hh"
 #include <stdexcept>
 class LArG4BirksLaw;
@@ -29,7 +31,7 @@ class LArFCALCalculatorBase : public LArCalculatorSvcImp
  public:
   // constructor
   LArFCALCalculatorBase(const std::string& name, ISvcLocator *pSvcLocator);
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
   virtual StatusCode finalize() override;
 
   /////////////////////////////////////////////
@@ -57,6 +59,8 @@ class LArFCALCalculatorBase : public LArCalculatorSvcImp
   // sampling
   G4int   m_FCalSampling;
   LArG4BirksLaw *m_birksLaw;
+
+  FCALHVManager::FCALHVData m_hvdata;
 
   LArFCALCalculatorBase (const LArFCALCalculatorBase&);
   LArFCALCalculatorBase operator= (const LArFCALCalculatorBase&);

@@ -48,7 +48,8 @@ LArFCALCalculatorBase::LArFCALCalculatorBase(const std::string& name, ISvcLocato
   //m_FCalSampling.verifier().setUpper(3); //Would need to make m_FCalSampling an IntegerProperty for this to work. Overkill?
 }
 
-StatusCode LArFCALCalculatorBase::initialize()
+// Uses not-thread-safe FCALHVManager::getData()
+StatusCode LArFCALCalculatorBase::initialize ATLAS_NOT_THREAD_SAFE ()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore" ,"LArFCALCalculatorBase");
   ATH_CHECK(detStore->retrieve(m_ChannelMap));
@@ -67,6 +68,8 @@ StatusCode LArFCALCalculatorBase::initialize()
       const FCALDetectorManager* fcalManager=manager->getFcalManager();
       m_posModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::POS);
       m_negModule = fcalManager->getFCAL(FCALModule::Module(m_FCalSampling),FCALModule::NEG);
+
+      m_hvdata = fcalManager->getHVManager().getData();
     }
   }
   return StatusCode::SUCCESS;
@@ -136,9 +139,9 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
         FCALTubeConstLink tube=tile->getTube(i);
         if (tube->getXLocal() == (*t).second.x() && tube->getYLocal()==(*t).second.y()) {
           const FCALHVLine& line =tube->getHVLine();
-	  double voltage = line.voltage();
+	  double voltage = m_hvdata.voltage (line);
 	  //double current = line->current();
-	  bool   hvOn    = line.hvOn();
+	  bool   hvOn    = voltage > -99999;
 	  if (!hvOn) hdata[0].energy=0.0;
 	  hdata[0].energy *= pow((voltage)/2000.0,0.6);
 	  tubeFound=true;
