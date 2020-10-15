@@ -361,6 +361,12 @@ TrigSignatureMoniMT                                 INFO -- #385248610 Features 
 TrigSignatureMoniMT                                 INFO HLT_g5_tight_L1EM3 #3280865118
 TrigSignatureMoniMT                                 INFO -- #3280865118 Events         20         20         9          9          9          1          -          -          -          -          -          -          -          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #3280865118 Features                             13         13         29         1          -          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20 #2436664735
+TrigSignatureMoniMT                                 INFO -- #2436664735 Events         20         20         0          0          0          0          0          0          0          0          0          0          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #2436664735 Features                             0          0          0          0          0          0          0          0          0          0          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20 #4013575747
+TrigSignatureMoniMT                                 INFO -- #4013575747 Events         20         20         0          0          0          0          0          0          0          0          0          0          -          -          -          0          
+TrigSignatureMoniMT                                 INFO -- #4013575747 Features                             0          0          0          0          0          0          0          0          0          0          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j0_perf_L1J12_EMPTY #1341875780
 TrigSignatureMoniMT                                 INFO -- #1341875780 Events         20         20         0          0          0          0          0          0          0          0          0          8          -          -          -          8          
 TrigSignatureMoniMT                                 INFO -- #1341875780 Features                             0          0          0          0          0          0          0          0          0          117        -          -          -          

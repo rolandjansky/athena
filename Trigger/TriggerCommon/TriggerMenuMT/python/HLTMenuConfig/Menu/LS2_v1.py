@@ -239,6 +239,9 @@ def setupMenu():
 
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
 
+        ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
+
         # ATR-20624
         ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=SingleJetGroup),
 
