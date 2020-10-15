@@ -2,15 +2,22 @@
  *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Trk includes
+#include "GaudiKernel/ISvcLocator.h"
+
 #include "AthenaKernel/IOVSvcDefs.h"
 
+// Trk includes
 #include "TrkCondTest/TrackingGeometryCondAlgTest.h"
+#include "TrkGeometry/Layer.h"
 
 
 Trk::TrackingGeometryCondAlgTest::TrackingGeometryCondAlgTest(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator),
+  m_trackingGeometry(nullptr),
+  m_trackingGeometrySvc("AtlasTrackingGeometrySvc", name),
+  m_trackingGeometryProcessors()
 {
+  declareProperty("GeometryProcessors", m_trackingGeometryProcessors);
 }
 
 StatusCode Trk::TrackingGeometryCondAlgTest::initialize()
@@ -20,6 +27,9 @@ StatusCode Trk::TrackingGeometryCondAlgTest::initialize()
   // Read Handle Key
   ATH_CHECK(m_trackingGeometryReadKey.initialize());
 
+
+  ATH_CHECK(m_trackingGeometrySvc.retrieve());
+  ATH_CHECK(m_trackingGeometryProcessors.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -33,15 +43,17 @@ StatusCode Trk::TrackingGeometryCondAlgTest::execute(const EventContext& ctx) co
   }
   const Trk::TrackingGeometry* trkGeom = *readHandle;
   ATH_MSG_INFO( "eventID: "  << ctx.eventID());
-
-  Amg::Vector3D center = trkGeom->highestTrackingVolume()->center();
-  ATH_MSG_INFO("Center coordinates of highest tracking volume");
-  ATH_MSG_INFO(center);
-  if(m_worldVolumeCenterCollection.size()>=1 && m_worldVolumeCenterCollection.back() != center){
-    ATH_MSG_INFO("hooray, we have moved the world");
+  m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+  if( m_trackingGeometry == nullptr){
+    ATH_MSG_FATAL( "TRACKING GEOMETRY NOT FOUND IN SVC");
+    return StatusCode::FAILURE;
   }
-  m_worldVolumeCenterCollection.push_back(center);
 
-  ATH_MSG_INFO("TrackingGeometry retrieved");
+  for (const ToolHandle<Trk::IGeometryProcessor>& proc : m_trackingGeometryProcessors) {
+    ATH_MSG_VERBOSE("PRINT SVC TG");
+    ATH_CHECK(proc->process(*m_trackingGeometry));
+    ATH_MSG_VERBOSE("PRINT COND TG");
+    ATH_CHECK(proc->process(*trkGeom));
+  }
   return StatusCode::SUCCESS;
 }
