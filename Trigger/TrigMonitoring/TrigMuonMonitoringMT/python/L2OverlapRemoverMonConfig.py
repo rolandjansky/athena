@@ -48,7 +48,7 @@ def defineOverlapRemoverHistograms(histGroup, GroupName, chain, trigstep):
 
     histGroup.defineHistogram(trigstep+'_'+chain+'_invMass,'+trigstep+'_'+chain+'_dR;'+trigstep+GroupName+'_invMass_vs_dR',
                               title=trigstep+' OverlapRemover invariant mass vs dR '+chain+';invariant mass [GeV];dR', 
-                              type='TH2F', path='',xbins=100,xmin=0.,xmax=200.,ybins=105,ymin=0.,ymax=3.5)
+                              type='TH2F', path='',xbins=200,xmin=0.,xmax=100.,ybins=105,ymin=0.,ymax=3.5)
 
     histGroup.defineHistogram(trigstep+'_'+chain+'_dRLog10;'+trigstep+GroupName+'_dRLog10',
                               title=trigstep+' OverlapRemover dR (Log10) '+chain+';dR (Log10);Events', 
