@@ -141,7 +141,9 @@ LuminosityCondAlg::updateAvgLumi (const CondAttrListCollection& lumiData,
   lumi.setLbAverageValid (valid);
   if (valid & 0x01) {
     if (m_skipInvalid) {
-      ATH_MSG_WARNING( " Invalid LB Average luminosity ... set lumi to 0" );
+      if (!m_expectInvalid) {
+        ATH_MSG_WARNING( " Invalid LB Average luminosity ... set lumi to 0" );
+      }
       return StatusCode::SUCCESS;
     } else {
       ATH_MSG_WARNING( " Invalid LB Average luminosity ... continuing because skipInvalid == FALSE" );
@@ -235,8 +237,10 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
                                        LuminosityCondData& lumi) const
 {
   if (lumi.lbAverageLuminosity() <= 0.) {
-    ATH_MSG_WARNING( "LBAvInstLumi is zero or negative in updatePerBunchLumi():"
-                     << lumi.lbAverageLuminosity());
+    if (!m_expectInvalid) {
+      ATH_MSG_WARNING( "LBAvInstLumi is zero or negative in updatePerBunchLumi():"
+                       << lumi.lbAverageLuminosity());
+    }
     range = EventIDRange::intersect (range, fullrange);
     return StatusCode::SUCCESS;
   }

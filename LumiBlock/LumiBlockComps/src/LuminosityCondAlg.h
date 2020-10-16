@@ -140,6 +140,9 @@ private:
   Gaudi::Property<bool> m_skipInvalid
     { this, "SkipInvalid", true, "Flag to control whether invalid data is skipped:  True (default), returning a zero luminosity; false, returning available luminosity values anyway." };
 
+  Gaudi::Property<bool> m_expectInvalid
+    { this, "ExpectInvalid", false, "Flag to control printouts when invalid data are encountered: True suppresses messages, False (default) leaves them in" };
+
   SG::ReadCondHandleKey<CondAttrListCollection> m_luminosityFolderInputKey
   { this, "LuminosityFolderInputKey", "/TRIGGER/OFLLUMI/LBLESTOFL",
     "Input luminosity COOL folder." };
