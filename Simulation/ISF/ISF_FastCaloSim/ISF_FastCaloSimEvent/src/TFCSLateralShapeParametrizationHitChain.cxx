@@ -237,11 +237,12 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
       sumEhit+=hit.E();
       ++ihit;
       
-      if( (ihit==20*nhit) || (ihit==100*nhit) ) {
-        ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
+      if( ( (ihit==20*nhit) || (ihit==100*nhit) ) && ihit>=100 ) {
+        ATH_MSG_DEBUG("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
       }                                                                                                                         
-      if(ihit>1000*nhit && ihit>1000) {
-        ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Aborting hit chain, iterated " << 1000*nhit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
+      if(ihit>=1000*nhit && ihit>=1000) {
+        ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Aborting hit chain, iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer<<", caused by:");
+        Print();
         break;
       }  
     } else {
