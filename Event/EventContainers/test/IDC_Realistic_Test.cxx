@@ -16,7 +16,6 @@ namespace IDC_TEST
 class MyCollection;
 }
 
-std::vector<IDC_TEST::MyCollection*> initialdata;
 namespace IDC_TEST
 {
 constexpr int nthreads=10;
@@ -25,7 +24,6 @@ constexpr int Ncontainers = 5000;
 constexpr int Nevents = 50;
 
 std::mutex abortedlock;
-std::set<size_t> abortedhashes;
 
 
 class MyID
@@ -169,12 +167,14 @@ public:
     size_t RoIEnd;
     int threads;
     counters c;
+    const std::set<size_t>& m_abortedhashes;
+    const std::vector<IDC_TEST::MyCollection*>& m_initialdata;
 
     void Check(MyCollectionContainer &container) {
         //Collections filled
         c.aborted=0;
 
-        for(auto x : abortedhashes) {
+        for(auto x : m_abortedhashes) {
             c.aborted+= x >=RoIStart && x<RoIEnd;
         }
 
@@ -194,7 +194,7 @@ public:
             auto p = container.indexFindPtr(x);
             int j =0;
             for(auto q : *p) {
-                if(q->val() != (initialdata[x.value()]->at(j++))->val()) wrong++;
+                if(q->val() != (m_initialdata[x.value()]->at(j++))->val()) wrong++;
             }
             if(j!=ndigits) {
                 std::cout << "n digits wrong"<<std::endl;
@@ -207,7 +207,7 @@ public:
         for(auto p : container){
             int j =0;
             for(auto q : *p) {
-                if(q->val() != (initialdata[hashes[orig]]->at(j++))->val()) wrong++;
+                if(q->val() != (m_initialdata[hashes[orig]]->at(j++))->val()) wrong++;
             }
             if(j!=ndigits) {
                 std::cout << "n digits wrong"<<std::endl;
@@ -225,7 +225,7 @@ public:
                 std::abort();
             }
             for(auto q : *ptr) {
-                if(q->val() != (initialdata[hashes[orig2]]->at(j++))->val()) {
+                if(q->val() != (m_initialdata[hashes[orig2]]->at(j++))->val()) {
                     std::cout << "directaccess broke " << std::endl;
                     std::abort();
                 }
@@ -245,8 +245,12 @@ public:
         ExecuteFill(container);
         Check(container);
     }
-    PseudoView(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i) : IDC(inIDC), RoIStart(s), RoIEnd(r),
-        threads(i), c()   {}
+    PseudoView(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i,
+               const std::set<size_t>& abortedhashes,
+               const std::vector<IDC_TEST::MyCollection*>& initialdata) : IDC(inIDC), RoIStart(s), RoIEnd(r),
+        threads(i), c(),
+        m_abortedhashes (abortedhashes),
+        m_initialdata (initialdata) {}
 
     virtual ~PseudoView() = default;
 };
@@ -254,7 +258,10 @@ public:
 class PseudoViewNoLock : public PseudoView {
 public:
 
-    PseudoViewNoLock(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i) : PseudoView(s, r, inIDC, i ) { }
+    PseudoViewNoLock(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i,
+                     const std::set<size_t>& abortedhashes,
+                     const std::vector<IDC_TEST::MyCollection*>& initialdata)
+      : PseudoView(s, r, inIDC, i, abortedhashes, initialdata ) { }
 
     virtual void ExecuteFill(MyCollectionContainer &container) override {
 
@@ -271,7 +278,7 @@ public:
             for(int j=0; j<ndigits; j++) {
                 dcoll->add(new MyDigit(dis(gen)));
             }
-            if(abortedhashes.count(i)) { //testing aborting collections
+            if(m_abortedhashes.count(i)) { //testing aborting collections
                 continue;
             }
 //       std::this_thread::sleep_for(0.005s);
@@ -290,7 +297,10 @@ public:
 class PseudoViewLock : public PseudoView {
 public:
 
-    PseudoViewLock(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i) : PseudoView(s, r, inIDC, i ) { }
+    PseudoViewLock(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i,
+                   const std::set<size_t>& abortedhashes,
+                   const std::vector<IDC_TEST::MyCollection*>& initialdata)
+      : PseudoView(s, r, inIDC, i, abortedhashes, initialdata ) { }
 
     virtual void ExecuteFill(MyCollectionContainer &container) override {
 
@@ -307,7 +317,7 @@ public:
             for(int j=0; j<ndigits; j++) {
                 dcoll->add(new MyDigit(dis(gen)));
             }
-            if(abortedhashes.count(i)) { //testing aborting collections
+            if(m_abortedhashes.count(i)) { //testing aborting collections
                continue;
             }
             bool deleted = false;
@@ -330,11 +340,12 @@ public:
     std::vector< T > m_views;
     EventContainers::IdentifiableCache<MyCollection> *IDCache;
 
-    void Execute() {
+    void Execute(const std::set<size_t>& abortedhashes,
+                 const std::vector<IDC_TEST::MyCollection*>& initialdata) {
         int x = 0;
         IDCache = new EventContainers::IdentifiableCache<MyCollection>(IdentifierHash(Ncontainers), nullptr);
         for(int i=0; i<nthreads; i++) {
-            m_views.emplace_back(x, x+1000,IDCache, i);
+           m_views.emplace_back(x, x+1000,IDCache, i, abortedhashes, initialdata);
             x+=50;
         }
         std::vector<std::thread> threads;
@@ -373,9 +384,12 @@ int main() {
 
     std::mt19937 genabort(0);
     std::uniform_int_distribution<> abort(0, highestvalue);
+    std::set<size_t> abortedhashes;
     for(int i =0; i<20; i++) {
        abortedhashes.insert(abort(genabort));
     }
+
+    std::vector<IDC_TEST::MyCollection*> initialdata;
 
     MyDigit::s_total=0;
     for(int i =0; i<Ncontainers; i++) {
@@ -396,7 +410,7 @@ int main() {
         for(int i =0; i<Nevents; i++) {
             if(i%10==0) std::cout << i << "/" << Nevents << std::endl;
             PseudoEvent<PseudoViewNoLock> event;
-            event.Execute();
+            event.Execute(abortedhashes, initialdata);
             c.Add(event.getcounters());
         }
         std::cout << "NoLock\n";
@@ -413,7 +427,7 @@ int main() {
         for(int i =0; i<Nevents; i++) {
             if(i%10==0) std::cout << i << "/" << Nevents << std::endl;
             PseudoEvent<PseudoViewLock> event;
-            event.Execute();
+            event.Execute(abortedhashes, initialdata);
             c.Add(event.getcounters());
         }
         std::cout << "Lock\n";

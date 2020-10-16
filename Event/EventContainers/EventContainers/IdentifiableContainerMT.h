@@ -168,6 +168,7 @@ public:
     /// Tries to add the item to the cache, if the item already exists then it is deleted
     /// This is a convenience method for online multithreaded scenarios
     virtual StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId) override final;
+    virtual StatusCode addOrDelete(std::unique_ptr<const T>, IdentifierHash hashId) override final;
 
     ///identical to previous excepts allows counting of deletions
     StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId, bool &deleted);
@@ -186,7 +187,7 @@ public:
     StatusCode fetchOrCreate(const std::vector<IdentifierHash> &hashId);
 
     //This is a method to support bad behaviour in old code. Remove ASAP
-    virtual StatusCode naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve) const override final;
+    virtual StatusCode naughtyRetrieve ATLAS_NOT_THREAD_SAFE (IdentifierHash hashId, T* &collToRetrieve) const override final;
 
 
 #ifdef IdentifiableCacheBaseRemove
@@ -346,6 +347,17 @@ IdentifiableContainerMT<T>::naughtyRetrieve(IdentifierHash hashId, T* &collToRet
 template < class T>
 StatusCode
 IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> uptr, IdentifierHash hashId)
+{
+    if(ATH_UNLIKELY(hashId >= m_link->fullSize())) return StatusCode::FAILURE;
+    auto ptr = uptr.release();
+    bool b = IdentifiableContainerBase::insert(hashId, ptr);
+    if(!b) delete ptr;
+    return StatusCode::SUCCESS;
+}
+
+template < class T>
+StatusCode
+IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<const T> uptr, IdentifierHash hashId)
 {
     if(ATH_UNLIKELY(hashId >= m_link->fullSize())) return StatusCode::FAILURE;
     auto ptr = uptr.release();

@@ -11,10 +11,11 @@
 #include "GaudiKernel/System.h" 
 #include "AthenaKernel/CLASS_DEF.h"
 
+#include <atomic>
+
 // define a bunch of fake data classes 
 using namespace std;
 
-static EventContainers::Mode s_mode;
 
 namespace IDC_TEST
 {
@@ -36,11 +37,11 @@ namespace IDC_TEST
         MyDigit(float d) :m_digit(d) {s_total++;} 
         float val() const { return m_digit ;}
     ~MyDigit(){ s_total--; }
-    static int s_total;
+    static std::atomic<int> s_total;
     private: 
         float m_digit; 
     }; 
-    int MyDigit::s_total = 0;
+    std::atomic<int> MyDigit::s_total = 0;
     static const CLID CLID_MYCOLLECTION=10000; 
 
     class MyCollection
@@ -134,11 +135,11 @@ ID_ContainerTest::ID_ContainerTest()
 } 
 
 // ------ initialize() 
-int ID_ContainerTest::initialize()  
+int ID_ContainerTest::initialize(EventContainers::Mode mode)
 { 
     // we own the Container 
 
-    m_container = new MyCollectionContainer(m_ncollections, s_mode);
+    m_container = new MyCollectionContainer(m_ncollections, mode);
 
     std::cout <<" Collection, Skip = " << m_ncollections<<" "<<m_nskip<<std::endl;
     std::cout <<" Test level =  " << m_test<<std::endl;
@@ -155,7 +156,7 @@ return 0;}
 
 //------ execute() 
 
-int ID_ContainerTest::execute(){
+int ID_ContainerTest::execute(EventContainers::Mode mode){
 
     typedef SelectAllObject<MyCollectionContainer,MyDigit> SELECTOR ;
     typedef SELECTOR::const_iterator digit_const_iterator; 
@@ -181,14 +182,7 @@ int ID_ContainerTest::execute(){
 
     std::string key("MyDIgitCont"); 
 
-    static bool first=true; 
-
     int skip= m_nskip; 
-
-    if(first) { 
-	first = false;	
-        //	skip = 0 ; 
-    }
 
     std::vector< MyCollection* > vColl; 
     std::vector< const MyCollection* > vCollRem; 
@@ -504,7 +498,7 @@ int ID_ContainerTest::execute(){
  
 
 {
-   auto container2 = new MyCollectionContainer(m_ncollections, s_mode);
+   auto container2 = new MyCollectionContainer(m_ncollections, mode);
    int itemsadded=0;
    for (int coll =0; coll <hfmax; coll=coll+(1+skip) ){
         MyID id(coll); 
@@ -538,7 +532,7 @@ int ID_ContainerTest::execute(){
     }
     delete container2; container2 = nullptr;
 //Test Empty
-    MyCollectionContainer* dempty = new MyCollectionContainer(100, s_mode); 
+    MyCollectionContainer* dempty = new MyCollectionContainer(100, mode); 
     if(dempty->begin() != dempty->end()){
        std::cout << __FILE__ << " empty container not working see LINE " << __LINE__ << std::endl; std::abort();
     }
@@ -549,7 +543,7 @@ int ID_ContainerTest::execute(){
     delete dempty; dempty = nullptr;
 
 //Test Online IDC
-    static const DefaultMaker* maker= new DefaultMaker();
+    static const DefaultMaker* const maker= new DefaultMaker();
     auto cache = new EventContainers::IdentifiableCache<MyCollection>(IdentifierHash(100), maker);
     cache->add(IdentifierHash(0), new MyCollection(MyID(0)));
     cache->add(IdentifierHash(3), new MyCollection(MyID(3)));//Some pre cached collections
@@ -618,7 +612,7 @@ int ID_ContainerTest::execute(){
     delete cache;
 
 
-    auto containerordertest = new MyCollectionContainer(500, s_mode);
+    auto containerordertest = new MyCollectionContainer(500, mode);
     containerordertest->addCollection(new MyCollection, 4).ignore();
     containerordertest->addCollection(new MyCollection, 3).ignore();
     containerordertest->addCollection(new MyCollection, 2).ignore();
@@ -664,10 +658,9 @@ int main (int /*argc*/, char** /*argv[]*/)
     ID_ContainerTest test;
     for(auto x : { EventContainers::Mode::OfflineLowMemory, EventContainers::Mode::OfflineFast, 
         EventContainers::Mode::OfflineMap }){
-       s_mode = x;
-       std::cout <<" container mode " << static_cast<int>(s_mode) << std::endl;
-       test.initialize();
-       for (unsigned int i = 0; i < 5; i++) test.execute();
+       std::cout <<" container mode " << static_cast<int>(x) << std::endl;
+       test.initialize(x);
+       for (unsigned int i = 0; i < 5; i++) test.execute(x);
        test.finalize();
     }
     EventContainers::IdentifiableContTemp<MyCollection> emptyContContainer(10); //Put here to test compilation of IdentifiableContTemp

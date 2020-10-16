@@ -105,7 +105,7 @@ StatusCode InternalOfflineFast::addLock(IdentifierHash hashId, const void* ptr) 
 }
 
 void* InternalOfflineFast::removeCollection( IdentifierHash hashId ) {
-   void* ptr = const_cast< void* > (m_fullMap[hashId]);
+   void* ptr ATLAS_THREAD_SAFE = const_cast< void* > (m_fullMap[hashId]);
    m_fullMap[hashId] = nullptr;
    m_needsupdate.store(true, std::memory_order_relaxed);
    return ptr;
