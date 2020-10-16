@@ -29,5 +29,6 @@ EFIDTrackingCutsBeamGas = ConfiguredNewTrackingTrigCuts("BeamGas")
 EFIDTrackingCutsLowPt = ConfiguredNewTrackingTrigCuts("LowPt")
 EFIDTrackingCutsTRT = ConfiguredNewTrackingTrigCuts("TRT")
 EFIDTrackingCutsHeavyIon = ConfiguredNewTrackingTrigCuts("HeavyIon")
+EFIDTrackingCutsLRT = ConfiguredNewTrackingTrigCuts("LRT")
 FTKTrackingCuts = ConfiguredNewTrackingTrigCuts("FTK")
 L2IDTrackingCuts = EFIDTrackingCuts

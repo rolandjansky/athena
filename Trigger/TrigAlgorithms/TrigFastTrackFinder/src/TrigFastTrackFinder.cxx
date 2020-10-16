@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -89,6 +90,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_shift_y(0.0),
   m_doCloneRemoval(true),
   m_ftkMode(false),
+  m_LRTmode(false),
   m_ftkRefit(false),
   m_useBeamSpot(true),
   m_nfreeCut(5), 
@@ -128,6 +130,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("UseTrigSeedML",            m_tcs.m_useTrigSeedML = 0);
   declareProperty("TrigSeedML_LUT",      m_trigseedML_LUT = "trigseed_ML_loose.lut");
   declareProperty("UseSCT_MiddleSP", m_tcs.m_useSCT_middleSP = true);
+  declareProperty("RequireSCT_MiddleSP", m_tcs.m_requireSCT_middleSP = false);
 
   declareProperty("maxEC_Pixel_cluster_length", m_tcs.m_maxEC_len = 1.5);
 
@@ -177,6 +180,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "doResMon",       m_doResMonitoring = true);
 
   declareProperty("doCloneRemoval", m_doCloneRemoval = true);
+
+  declareProperty("LRT_Mode",            m_LRTmode);
 
   declareProperty("FTK_Mode",            m_ftkMode = false);
   declareProperty("FTK_DataProviderService",             m_ftkDataProviderSvc);
@@ -296,6 +301,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     m_TrackFitterTimer          = addTimer("TrackFitter","TrackFitter_nTracks");
   }
 
+
   if(m_ftkMode) {
     StatusCode sc= m_ftkDataProviderSvc.retrieve();
     if(sc.isFailure()) {
@@ -345,8 +351,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
       return HLT::BAD_JOB_SETUP;
     }
     
-    ATH_MSG_DEBUG("In Initialize m_doZFinder, m_doFTKZFinder " << m_doZFinder << " " << m_doFTKZFinder);
-
     if (m_doZFinder) {
       sc = m_trigZFinder.retrieve();
       if(sc.isFailure()) {
@@ -410,7 +414,12 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
-  ATH_MSG_DEBUG(" Initialized successfully"); 
+  if (m_LRTmode) {
+    ATH_MSG_INFO(" FTF configures in Long Range Tracking Mode");
+    // set TrigTrackSeedGenerator to LRTmode
+    m_tcs.m_LRTmode=m_LRTmode;
+
+  }
 
   if(m_tcs.m_useTrigSeedML > 0) {
     //create dummy LUT
@@ -448,6 +457,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     
     m_tcs.m_vLUT.push_back(pL);
   }
+  ATH_MSG_DEBUG(" Initialized successfully"); 
 
   return HLT::OK;
 }
@@ -541,13 +551,30 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     return HLT::OK;
   }
   else {
+
     StatusCode sc(StatusCode::SUCCESS);
     m_tcs.roiDescriptor = internalRoI;
   
     std::vector<TrigSiSpacePointBase> convertedSpacePoints;
     convertedSpacePoints.reserve(5000);
-    sc = m_spacePointTool->getSpacePoints( *internalRoI, convertedSpacePoints, m_nPixSPsInRoI, m_nSCTSPsInRoI);
-    
+
+    if (m_LRTmode) {
+      // In LRT mode read the input track collection and enter the clusters on track into the cluster map so these are not used for seeding
+      m_siClusterMap.clear();
+      const TrackCollection* inputTracks = nullptr;
+      if ( HLT::OK != getFeature(outputTE, inputTracks) ) {
+	ATH_MSG_DEBUG(" In LRT mode but no input track collection found ");
+      } else {
+	ATH_MSG_DEBUG(" Got " << inputTracks->size() << " input tracks");
+	long int trackIndex=0;
+	for (auto t:*inputTracks) {
+	  updateClusterMap(trackIndex++, t, m_siClusterMap);
+	}
+      }
+      sc = m_spacePointTool->getSpacePoints( *internalRoI, convertedSpacePoints, m_nPixSPsInRoI, m_nSCTSPsInRoI, &m_siClusterMap);
+    } else {
+      sc = m_spacePointTool->getSpacePoints( *internalRoI, convertedSpacePoints, m_nPixSPsInRoI, m_nSCTSPsInRoI);
+    }
     ////Record spacepoint x and y
     //for(std::vector<TrigSiSpacePointBase>::const_iterator spIt = convertedSpacePoints.begin(); spIt != convertedSpacePoints.end(); ++spIt) {
     //  m_sp_x.push_back((*spIt).original_x());
@@ -685,8 +712,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     if (m_retrieveBarCodes) {
       std::vector<int> vBar;
       m_TrigL2SpacePointTruthTool->getBarCodes(convertedSpacePoints,vBar);
-      
-      //for(auto barCode : vBar) std::cout<<"SP bar code = "<<barCode<<std::endl;
     } 
     
     m_tcs.m_tripletPtMin = m_tripletMinPtFrac*m_pTmin;

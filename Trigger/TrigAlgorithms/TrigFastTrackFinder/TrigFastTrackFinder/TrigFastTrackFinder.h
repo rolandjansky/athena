@@ -112,6 +112,7 @@ protected:
 
   bool m_doCloneRemoval;
   bool m_ftkMode;//If True: Retrieve FTK tracks
+  bool m_LRTmode;
   bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
@@ -285,6 +286,7 @@ protected:
   bool m_useNewLayerNumberScheme;
 
   std::string m_trigseedML_LUT;
+  
 
 };
 

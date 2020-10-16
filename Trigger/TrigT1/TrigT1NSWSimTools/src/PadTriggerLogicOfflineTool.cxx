@@ -1,3 +1,4 @@
+ 
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -494,10 +495,16 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     float trgPhiCntr=pt.m_phi;
     int nPhiSlices=1<<m_phiIdBits;//6 bits for Phi Id; i.e interval of [0,....63]
 
-    if( trgPhiCntr<stationPhiMin || trgPhiCntr> stationPhiMax ){
-        ATH_MSG_FATAL("Pad Trigger Phi is outside of the station!");
-        //better to change the return type to return a statuscode ?
+    if(stationPhiMin> stationPhiMax) {//station crossses -x axis consider convention [-pi,pi] for calculation(s)
+        stationPhiMax+=2*TMath::Pi();
+        if(trgPhiCntr<0) trgPhiCntr+=2*TMath::Pi();
     }
+    
+    if( trgPhiCntr<stationPhiMin || trgPhiCntr> stationPhiMax ){
+        ATH_MSG_FATAL("Pad Trigger Phi is outside of the station!"<<" Side="<<pt.sideId()<<" Sector="<<pt.triggerSectorNumber()<<" FirstModule="<<pt.firstPad()->moduleId()<<" trgPhi="<<trgPhiCntr<<" stationPhiMin="<<stationPhiMin<<" stationPhiMax="<<stationPhiMax);        
+        //better to return a statuscode
+    }
+
     float step=(stationPhiMax-stationPhiMin)/nPhiSlices;
     for( int i=0;i<nPhiSlices;i++){
         if(stationPhiMin+i*step>=trgPhiCntr){

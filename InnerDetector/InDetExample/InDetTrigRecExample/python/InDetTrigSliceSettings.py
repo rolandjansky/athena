@@ -34,6 +34,7 @@ class InDetTrigSliceSettingsDB:
                'heavyIon', 'heavyIonFS',   #RoI and FS instances for the heavy ion
                'minBias400',          #another minBias with 400MeV threshold
                'fullScan2',           #2GeV threshold for MET
+               'fullScanlrt',           #lrt tracking
                'tauCore', 'tauIso',
                'beamSpot', 'cosmics',
                'bjetVtx',
@@ -53,14 +54,17 @@ class InDetTrigSliceSettingsDB:
     #FTF-specific settings
     drdoubletmax = {}
     seedradbinwidth = {}
+    usePixelSP = {}
     d0seedmax = {}
     d0seedppsmax = {}
+    d0trackmax = {}
+    z0trackmax = {}
     checkseedredundancy = {}
     dospphifiltering = {}
     dozfinder = {}
     docloneremoval = {}
     doresmon = {}
-
+    
     #ptmin
     for i in _slices:
       ptmin[i] = 1.*GeV
@@ -83,8 +87,15 @@ class InDetTrigSliceSettingsDB:
     self.db['pTmin']=ptmin
 
     for i in _slices:
+      usePixelSP[i]=True
+    usePixelSP['fullScanlrt']=False
+    self.db['usePixelSP']=usePixelSP
+
+    for i in _slices:
       d0seedmax[i] = 4.0
       d0seedppsmax[i] = 1.7
+      d0trackmax[i]=20.
+      z0trackmax[i]=300.
 
     d0seedmax['bphysics'] = 10.0
     d0seedmax['bphysHighPt'] = 10.0
@@ -94,9 +105,18 @@ class InDetTrigSliceSettingsDB:
 
     d0seedmax['cosmics'] = 1000.0
     d0seedppsmax['cosmics'] = 1000.0
+    d0trackmax['cosmics'] = 1000.0
+    z0trackmax['cosmics'] = 1000.0
+    
+    d0seedmax['fullScanlrt'] = 300.
+    d0seedppsmax['fullScanlrt'] = 300.
+    d0trackmax['fullScanlrt'] = 300.0
+    z0trackmax['fullScanlrt'] = 500.0
 
     self.db['d0SeedMax']=d0seedmax
     self.db['d0SeedPPSMax']=d0seedppsmax
+    self.db['d0TrackMax']=d0trackmax
+    self.db['z0TrackMax']=z0trackmax
 
     for i in _slices:
       dozfinder[i] = False 
@@ -133,6 +153,7 @@ class InDetTrigSliceSettingsDB:
     checkseedredundancy['muonBtrk'] = True
     checkseedredundancy['muonCore'] = True
     checkseedredundancy['bphysics'] = True
+    checkseedredundancy['fullScanlrt'] = True
     self.db['checkRedundantSeeds'] = checkseedredundancy
 
     
@@ -158,6 +179,7 @@ class InDetTrigSliceSettingsDB:
       'bphysHighPt'  : 0.75,
       'hadCalib'  : 0.4,
       'fullScan'  : 3.0,
+      'fullScanlrt'  : 3.0,
       'fullScan500': 3.0,
       'fullScan2' : 3.0,
       'minBias'   : 3.0,
@@ -190,6 +212,7 @@ class InDetTrigSliceSettingsDB:
       'bphysHighPt'  : 0.75,
       'hadCalib'  : 0.4,
       'fullScan'  : 3.14159,
+      'fullScanlrt'  : 3.14159,
       'fullScan500' : 3.14159,
       'fullScan2' : 3.14159,
       'minBias'   : 3.14159,
@@ -212,6 +235,7 @@ class InDetTrigSliceSettingsDB:
     for i in _slices:
       fullscan[i] = False
     fullscan['fullScan'] = True
+    fullscan['fullScanlrt'] = True
     fullscan['fullScan2']= True
     fullscan['fullScan500'] = True
     fullscan['minBias']  = True

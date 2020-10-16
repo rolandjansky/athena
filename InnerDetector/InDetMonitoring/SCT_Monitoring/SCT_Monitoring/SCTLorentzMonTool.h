@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTLorentzMonTool.h
@@ -36,6 +36,7 @@
 #include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
 
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 // Forward declarations
 class IInterface;
@@ -83,30 +84,99 @@ private:
 
   //for Vertex and perigee
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
+  
+  bool m_getTrackHoles;
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
   Prof_t m_phiVsNstrips[4];
-  /// dividing for each eta segment
-  Prof_t m_phiVsNstrips_eta[4][12];
+  /// dividing for two eta index
+  Prof_t m_phiVsNstrips_eta[4][2];
+  /// dividing for each pT chunk
+  Prof_t m_phiVsNstrips_pT[4][8];
+  /// dividing for each pT chunk and two eta index
+  Prof_t m_phiVsNstrips_pT_eta[4][8][2];
 
 
   Prof_t m_phiVsNstrips_100[4];
   Prof_t m_phiVsNstrips_111[4];
-  /// dividing for each eta segment
-  Prof_t m_phiVsNstrips_100_eta[4][12];
-  Prof_t m_phiVsNstrips_111_eta[4][12];
+  /// dividing for two eta segment
+  Prof_t m_phiVsNstrips_100_eta[4][2];
+  Prof_t m_phiVsNstrips_111_eta[4][2];
+  /// dividing for each pT chunk
+  Prof_t m_phiVsNstrips_100_pT[4][8];
+  Prof_t m_phiVsNstrips_111_pT[4][8];
+  /// dividing for each pT chunk and two eta index
+  Prof_t m_phiVsNstrips_100_pT_eta[4][8][2];
+  Prof_t m_phiVsNstrips_111_pT_eta[4][8][2];
 
 
   /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer/side)
   Prof_t m_phiVsNstrips_Side[4][2];
   Prof_t m_phiVsNstrips_Side_100[4][2];
   Prof_t m_phiVsNstrips_Side_111[4][2];
-  /// dividing for each eta segment
-  Prof_t m_phiVsNstrips_Side_eta[4][2][12];
-  Prof_t m_phiVsNstrips_Side_100_eta[4][2][12];
-  Prof_t m_phiVsNstrips_Side_111_eta[4][2][12];
+  /// dividing for two eta segment
+  Prof_t m_phiVsNstrips_Side_eta[4][2][2];
+  Prof_t m_phiVsNstrips_Side_100_eta[4][2][2];
+  Prof_t m_phiVsNstrips_Side_111_eta[4][2][2];
+  //// dividing for each pT chunk
+  Prof_t m_phiVsNstrips_Side_pT[4][2][8];
+  Prof_t m_phiVsNstrips_Side_100_pT[4][2][8];
+  Prof_t m_phiVsNstrips_Side_111_pT[4][2][8];
+  /// dividing for each pT segment and two eta segment
+  Prof_t m_phiVsNstrips_Side_pT_eta[4][2][8][2];
+  Prof_t m_phiVsNstrips_Side_100_pT_eta[4][2][8][2];
+  Prof_t m_phiVsNstrips_Side_111_pT_eta[4][2][8][2];
+  
+  
+  
+  /// profile plots with eta < 0.5 cuts
+  /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer)
+  Prof_t m_phiVsNstrips_eta0p5[4];
+  /// dividing for two eta index
+  Prof_t m_phiVsNstrips_eta0p5_eta[4][2];
+  /// dividing for each pT chunk
+  Prof_t m_phiVsNstrips_eta0p5_pT[4][8];
+  /// dividing for each pT chunk and two eta index
+  Prof_t m_phiVsNstrips_eta0p5_pT_eta[4][8][2];
+
+
+  Prof_t m_phiVsNstrips_eta0p5_100[4];
+  Prof_t m_phiVsNstrips_eta0p5_111[4];
+  /// dividing for two eta segment
+  Prof_t m_phiVsNstrips_eta0p5_100_eta[4][2];
+  Prof_t m_phiVsNstrips_eta0p5_111_eta[4][2];
+  /// dividing for each pT chunk
+  Prof_t m_phiVsNstrips_eta0p5_100_pT[4][8];
+  Prof_t m_phiVsNstrips_eta0p5_111_pT[4][8];
+  /// dividing for each pT chunk and two eta index
+  Prof_t m_phiVsNstrips_eta0p5_100_pT_eta[4][8][2];
+  Prof_t m_phiVsNstrips_eta0p5_111_pT_eta[4][8][2];
+
+
+  /// Vector of pointers to profile histogram of local inc angle (phi) vs nStrips (one/layer/side)
+  Prof_t m_phiVsNstrips_eta0p5_Side[4][2];
+  Prof_t m_phiVsNstrips_eta0p5_Side_100[4][2];
+  Prof_t m_phiVsNstrips_eta0p5_Side_111[4][2];
+  /// dividing for two eta segment
+  Prof_t m_phiVsNstrips_eta0p5_Side_eta[4][2][2];
+  Prof_t m_phiVsNstrips_eta0p5_Side_100_eta[4][2][2];
+  Prof_t m_phiVsNstrips_eta0p5_Side_111_eta[4][2][2];
+  //// dividing for each pT chunk
+  Prof_t m_phiVsNstrips_eta0p5_Side_pT[4][2][8];
+  Prof_t m_phiVsNstrips_eta0p5_Side_100_pT[4][2][8];
+  Prof_t m_phiVsNstrips_eta0p5_Side_111_pT[4][2][8];
+  /// dividing for each pT segment and two eta segment
+  Prof_t m_phiVsNstrips_eta0p5_Side_pT_eta[4][2][8][2];
+  Prof_t m_phiVsNstrips_eta0p5_Side_100_pT_eta[4][2][8][2];
+  Prof_t m_phiVsNstrips_eta0p5_Side_111_pT_eta[4][2][8][2];
+  
+  
 
   ToolHandle < Trk::ITrackHoleSearchTool >  m_holeSearchTool;
+  
+  ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
+  bool m_rejectSharedHit;
+
 
   std::string m_stream;
   std::string m_path;

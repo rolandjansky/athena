@@ -31,7 +31,7 @@ namespace egammaMonitoring {
       TH1D *efficiency = (TH1D*) p.second->Clone(Form("%s_%s",m_name.c_str(),p.first.c_str()));
 
 
-      efficiency->Divide(total->histoMap[p.first]);
+      efficiency->Divide(p.second, total->histoMap[p.first], 1, 1, "B");
       efficiency->GetYaxis()->SetTitle("Efficiency");
       efficiency->GetYaxis()->SetRangeUser(0,1.1);
       ATH_CHECK(m_rootHistSvc->regHist(Form("%sEff_%s", m_folder.c_str(),  p.first.c_str()), efficiency));

@@ -52,7 +52,7 @@ class OnlineSpacePointProviderTool: public AthAlgTool, virtual public ISpacePoin
   virtual StatusCode initialize();
   virtual StatusCode finalize  ();
   
-  spacePointVec getSpacePoints(bool getPixeSP=true, bool getSctSP=true);
+  spacePointVec getSpacePoints(bool getPixeSP=true, bool getSctSP=true, std::map<Identifier, std::vector<long int> >  *clustermap=nullptr);
 	StatusCode fillCollections(const IRoiDescriptor&, bool, bool, 
 			std::vector<int>&, std::vector<int>&);
   StatusCode fillCollections(bool, bool, std::vector<int>&, std::vector<int>&);

@@ -74,8 +74,6 @@ namespace InDet {
       int                            m_nfreeCut           ; // Min number free clusters
       bool                            m_doRandomSpot          ; // Low-pT tracking in random spot?
 
-      SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
-      SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
       SG::WriteHandle<TrackCollection>    m_outputTracks    ;
 
       std::string m_vxOutputName;

@@ -11,6 +11,7 @@
 #include "ParticleHistograms.h"
 
 #include "TH1.h"
+#include "TH2D.h"
 
 namespace egammaMonitoring {
 
@@ -19,6 +20,8 @@ namespace egammaMonitoring {
 
     using ParticleHistograms::ParticleHistograms;
     using ParticleHistograms::initializePlots;
+
+    std::map<std::string, TH2D* > histo2DMap;
 
     StatusCode initializePlots();
 

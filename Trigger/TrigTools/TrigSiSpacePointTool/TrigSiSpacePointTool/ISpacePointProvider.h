@@ -25,7 +25,7 @@ class ISpacePointProvider: virtual public IAlgTool
     return IID_ISpacePointProvider;
   }
 
-  virtual spacePointVec getSpacePoints(bool getPixeSP=true, bool getSctSP=true) = 0;
+  virtual spacePointVec getSpacePoints(bool getPixeSP=true, bool getSctSP=true, std::map<Identifier, std::vector<long int> >  *clustermap=nullptr) = 0;
 
   virtual StatusCode fillCollections(const IRoiDescriptor&, bool,bool,
 				     std::vector<int>&, std::vector<int>&) = 0;

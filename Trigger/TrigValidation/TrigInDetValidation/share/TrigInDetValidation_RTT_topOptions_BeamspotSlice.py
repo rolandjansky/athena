@@ -1,3 +1,8 @@
+###############################################################
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+###############################################################
 
 #####################################################################################################
 #
@@ -43,6 +48,16 @@ def resetSigs():
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
 
+FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
+if 'mlExtensions' in dir() and mlExtensions==True:
+  FTF.doSeedRedundancyCheck = True
+  if 'seedML' in dir():
+    FTF.UseTrigSeedML  = seedML #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
+  else:
+    FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
+  FTF.TrigSeedML_LUT = 'trigseed_ML_medium.lut' #can be _loose, _medium, or _strict
+  print FTF
+
 if 'fastZFinder' in dir() and fastZFinder==True:
   from AthenaCommon.AppMgr import ToolSvc
   zfinder = ToolSvc.TrigZFinder
@@ -58,15 +73,10 @@ if 'fastZFinder' in dir() and fastZFinder==True:
   print 'zfinder settings modified by TrigInDetValidation_RTT_topOptions_BeamspotSlice.py'
   print zfinder
 
+
 else:
-  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
   FTF.doZFinder = False
 
-  if 'mlExtensions' in dir() and mlExtensions==True:
-
-    FTF.doSeedRedundancyCheck = True
-    FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
-    FTF.TrigSeedML_LUT = 'trigseed_ML_medium.lut' #can be _loose, _medium, or _strict
   
 # good options for any slice - leave here commented while for use in 
 # tests in the near future  
