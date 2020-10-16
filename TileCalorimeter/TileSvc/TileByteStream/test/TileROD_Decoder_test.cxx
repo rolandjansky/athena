@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -27,14 +27,13 @@
 #include <fstream>
 
 
-IdDictParser parser;
-
 
 class TileCablingSvc
 {
 public:
-  static
-  void init_idhelpers()
+  IdDictParser parser;
+
+  TileCablingSvc()
   {
     ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "test");
     assert( detStore.retrieve().isSuccess() );
@@ -311,7 +310,7 @@ int main()
   if (!Athena_test::initGaudi("TileROD_Decoder_test.txt", svcloc)) {
     return 1;
   }
-  TileCablingSvc::init_idhelpers();
+  TileCablingSvc cabling;
 
   ToolHandle<TileROD_Decoder> decoder ("TileROD_Decoder");
   assert( decoder.retrieve().isSuccess() );
