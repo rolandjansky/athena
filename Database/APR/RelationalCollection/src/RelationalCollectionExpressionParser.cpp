@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RelationalCollectionExpressionParser.h"
@@ -138,7 +138,7 @@ pool::RelationalCollection::RelationalCollectionExpressionParser::parse(
    std::vector< std::string > newWhereClauseFragments;
    unsigned pos = 0;
    for( std::vector< std::string >::const_iterator iWord = whereClauseFragments.begin(); 
-        iWord != whereClauseFragments.end(); iWord++, pos++ )
+        iWord != whereClauseFragments.end(); ++iWord, ++pos )
    {
       // cout << "Parsing: cond: " << *iWord << endl;
       bool	isAttribute(false),  isToken(false);
@@ -160,10 +160,10 @@ pool::RelationalCollection::RelationalCollectionExpressionParser::parse(
       if( isAttribute || isToken ) {
 	 fragmentName = description.collectionFragmentName( *iWord );
 	 columnName = it->second;
-	 for( std::vector< std::string >::const_iterator iName = collectionFragmentNames.begin();
-	      iName != collectionFragmentNames.end(); iName++ )
+         for (const std::string& name : collectionFragmentNames )
 	 {
-	    if( *iName == fragmentName ) {
+	    if( name == fragmentName ) {
+               // cppcheck-suppress invalidContainerLoop; ok: we break after this
 	       collectionFragmentNames.push_back( fragmentName );
 	       break;
 	    }
@@ -190,16 +190,16 @@ pool::RelationalCollection::RelationalCollectionExpressionParser::parse(
          }
 
          // Check if where clause fragment is part of a Token column condition.
-         if( nextWord.find( "." ) == 0 ) {
+         if( !nextWord.empty() && nextWord[0] == '.' ) {
             // Is Token column condition. Increment iterator and position and get Token column name.
-            iWord++; pos++;
+            ++iWord; ++pos;
 
             // Find name of Token column used for condition.
             std::string columnName;
             if( whereClauseFragments.size() > pos+1 )  {
                // Column name found. Increment iterator and position.
                columnName = whereClauseFragments[pos+1];
-               iWord++; pos++;
+               ++iWord; ++pos;
 
 	       bool	isOIDColumn =
 		  ( columnName == RelationalCollectionNames::oid_1_variableInCollectionDataTable() ||
@@ -273,15 +273,15 @@ pool::RelationalCollection::RelationalCollectionExpressionParser::parse(
                    comparator.find_first_not_of( " >(" ) == comparator.npos ) )
             {
                // Comparison operator found. Increment iterator and position.
-               iWord++;
-               pos++;
+               ++iWord;
+               ++pos;
 
                // Look for the Token value in the next where clause fragment to the right.
                if ( whereClauseFragments.size() > pos+1 ) {
                   // Token value found. Increment iterator and position.
                   valueAsString = whereClauseFragments[pos+1];
-                  iWord++;
-                  pos++;
+                  ++iWord;
+                  ++pos;
                }
                else {
                   std::string errorMsg = "Badly formed Token condition. No value found for Token '" + *iWord + "'.";
@@ -331,7 +331,7 @@ pool::RelationalCollection::RelationalCollectionExpressionParser::parse(
             unsigned oid2ColumnValue = 0;
             std::map< std::string, unsigned >* linkIdForTokenKey =
                ( mapOfLinkIdForTokenKeyMaps.find( fragmentName ) )->second;
-            if ( valueAsString.find( ":" ) == 0 )
+            if ( !valueAsString.empty() && valueAsString[0] == ':' )
             {
                // Get bind variable for Token.
                std::string bindVariable = valueAsString.substr( 1 );
@@ -439,10 +439,9 @@ pool::RelationalCollection::RelationalCollectionExpressionParser::parse(
    }
 
    // Add all new where clause fragments to the output string sequentially.
-   for ( std::vector< std::string >::const_iterator iFragment = newWhereClauseFragments.begin();
-         iFragment != newWhereClauseFragments.end(); iFragment++ )
+   for (const std::string& fragment : newWhereClauseFragments )
    {
-      parsingOutput << *iFragment;
+      parsingOutput << fragment;
    }
 
    coral::MessageStream log( "pool::RelationalCollectionExpressionParser::parse()" );
