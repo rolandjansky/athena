@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
@@ -19,16 +19,16 @@ def declareDefaultTools():
   jtm += WeightPFOTool("pflowweighter_LC",NeutralPFOScale="LC")
 
   useVertices = True
-  if False == jetFlags.useVertices:
+  if False is jetFlags.useVertices:
     useVertices = False
 
-  if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+  if True is jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
     useChargedWeights = True
   else:
     useChargedWeights = False
 
   useTrackVertexTool = False
-  if True == jetFlags.useTrackVertexTool:
+  if True is jetFlags.useTrackVertexTool:
     useTrackVertexTool = True
 
   # EM-scale pflow.
