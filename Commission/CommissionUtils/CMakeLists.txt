@@ -1,19 +1,7 @@
-################################################################################
-# Package: CommissionUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CommissionUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel
-                          PRIVATE
-                          Commission/CommissionEvent
-                          LArCalorimeter/LArSimEvent
-                          Simulation/G4Sim/TrackRecord )
 
 # External dependencies:
 find_package( CLHEP )
@@ -25,12 +13,11 @@ atlas_add_library( CommissionUtilsLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CommissionEvent LArSimEvent )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CommissionEvent LArSimEvent TrackRecordLib )
 
 atlas_add_component( CommissionUtils
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CommissionEvent LArSimEvent CommissionUtilsLib )
+                     LINK_LIBRARIES CommissionUtilsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

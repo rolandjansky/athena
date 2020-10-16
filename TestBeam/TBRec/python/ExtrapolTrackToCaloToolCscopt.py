@@ -1,17 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from TBRec.ExtrapolTrackToCaloToolBase import ExtrapolTrackToCaloToolBase
 
 class ExtrapolTrackToCaloToolCscopt ( ExtrapolTrackToCaloToolBase )  :
 
-    def __init__(self):
-        ExtrapolTrackToCaloToolBase.__init__( self) # call base class constructor        
-        pass
-
-    def __init__(self, name="ExtrapolTrackToCaloToolCscopt"):        
+    def __init__(self, name="ExtrapolTrackToCaloToolCscopt"):
         mlog = logging.getLogger( name+'__init__ ' )
         mlog.info("entering")
         mlog.warning("ExtrapolTrackToCaloToolCscopt obsolete !")
