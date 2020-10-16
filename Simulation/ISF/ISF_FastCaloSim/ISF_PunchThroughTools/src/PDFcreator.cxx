@@ -92,10 +92,10 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
         //select the smaller of the two energies to find the bin edge between them (energy bands are logarithmic)
         double energyBinEdge;
         if(selectedEnergy->first < secondSelectedEnergy->first){
-          energyBinEdge = selectedEnergy->first*pow(2,0.5);
+          energyBinEdge = selectedEnergy->first*sqrtOf2;
         }
         else{
-          energyBinEdge = secondSelectedEnergy->first*pow(2,0.5);
+          energyBinEdge = secondSelectedEnergy->first*sqrtOf2;
         }
 
         //calculate a distance of the input energy to the bin edge
@@ -116,9 +116,9 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 
     //Now move on to selecting the correct eta window
     //first get the map of eta windows to hists.
-    std::map< std::vector<double>, TH1*> etaMinEtaMax_hists = selectedEnergy->second;
+    const std::map< std::vector<double>, TH1*>& etaMinEtaMax_hists = selectedEnergy->second;
 
-    std::map< std::vector<double>, TH1*>::iterator itSelectedEtaWindow, itSecondEtaWindow;
+    std::map< std::vector<double>, TH1*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
 
     //choose first max eta that is not less than input eta
     itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax1D);
@@ -220,10 +220,10 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
         //select the smaller of the two energies to find the bin edge between them (energy bands are logarithmic)
         double energyBinEdge;
         if(selectedEnergy->first < secondSelectedEnergy->first){
-          energyBinEdge = selectedEnergy->first*pow(2,0.5);
+          energyBinEdge = selectedEnergy->first*sqrtOf2;
         }
         else{
-          energyBinEdge = secondSelectedEnergy->first*pow(2,0.5);
+          energyBinEdge = secondSelectedEnergy->first*sqrtOf2;
         }
 
         //calculate a distance of the input energy to the bin edge
@@ -246,9 +246,9 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 
     //Now move on to selecting the correct eta window
     //first get the map of eta windows to hists.
-    std::map< std::vector<double>, TH2*> etaMinEtaMax_hists = selectedEnergy->second;
+    const std::map< std::vector<double>, TH2*>& etaMinEtaMax_hists = selectedEnergy->second;
 
-    std::map< std::vector<double>, TH2*>::iterator itSelectedEtaWindow, itSecondEtaWindow;
+    std::map< std::vector<double>, TH2*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
 
     //choose first max eta that is not less than input eta
     itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax2D);
