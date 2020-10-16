@@ -106,11 +106,10 @@ for chain_name in GetFileMD(athenaCommonFlags.FilesInput.get_Value())['TriggerMe
    if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
    if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 
 # Create trigger matching decorations
-# More migration work needed as of 14th October. New MR will be made.
-#trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
-#        trigger_list = trigger_names_notau, add_to_df_job=True)
-#trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau',
-#        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
+trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
+        trigger_list = trigger_names_notau, add_to_df_job=True)
+trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau',
+        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
 
 
 
@@ -357,9 +356,8 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
-# Needs a further MR as described above
-#trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
-#trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
