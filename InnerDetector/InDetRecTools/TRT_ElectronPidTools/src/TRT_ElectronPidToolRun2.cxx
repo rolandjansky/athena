@@ -183,7 +183,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   double eta  = -log(tan(theta/2.0));
 
   // Check the tool to get the local occupancy (i.e. for the track in question):
-  occ_local = m_LocalOccTool->LocalOccupancy(track);
+  occ_local = m_LocalOccTool->LocalOccupancy(ctx,track);
 
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("");
