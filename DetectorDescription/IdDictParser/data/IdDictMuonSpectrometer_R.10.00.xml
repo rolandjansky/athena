@@ -1,8 +1,8 @@
 <!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 
-<IdDictionary name="MuonSpectrometer" version="R.09.02">
+<IdDictionary name="MuonSpectrometer" version="R.10.00">
 
-  <!--  IdDictionary for symmetric layout wrt NSW/BIS78: NSW and BIS78 on both sides, no EI+CSC+TGC4F  -->
+  <!--  IdDictionary for phase-II layout: NSW and BI upgrades on both sides -->
 
   <field name="stationName" >
     <label name="BIL" value="0" />
@@ -409,6 +409,7 @@
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
     <range field="tube" minvalue="1" maxvalue="96" />
   </region>
+
   
   <region group="mdt">
     <range field="stationName" value="BEE" />
@@ -2124,7 +2125,452 @@
     <range field="rpcStrip" minvalue="1" maxvalue="99" />
   </region>
 
+  <!-- BIR rpc -->
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-1 1" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-2 2" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-3 3" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-5 5" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-6 6" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-1 1" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-2 2" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-3 3" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-5 5" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIR" />
+    <range field="stationEta" values="-6 6" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <!-- BIM rpc -->
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-1 1" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-2 2" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-3 3" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-5 5" />
+    <range field="stationPhi"  minvalue="6" maxvalue="6" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-1 1" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-2 2" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-3 3" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIM" />
+    <range field="stationEta" values="-5 5" />
+    <range field="stationPhi"  minvalue="8" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <!-- BIL rpc -->
+  <region group="rpc">
+    <range field="stationName" value="BIL" />
+    <range field="stationEta" values="-1 1" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIL" />
+    <range field="stationEta" values="-2 2" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIL" />
+    <range field="stationEta" values="-3 3" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIL" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIL" />
+    <range field="stationEta" values="-5 5" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIL" />
+    <range field="stationEta" values="-6 6" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
   <!-- BIS rpc -->
+  <region group="rpc">
+    <range field="stationName" value="BIS" />
+    <range field="stationEta" values="-1 1" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIS" />
+    <range field="stationEta" values="-2 2" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIS" />
+    <range field="stationEta" values="-3 3" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIS" />
+    <range field="stationEta" values="-4 4" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIS" />
+    <range field="stationEta" values="-5 5" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
+  <region group="rpc">
+    <range field="stationName" value="BIS" />
+    <range field="stationEta" values="-6 6" />
+    <range field="stationPhi"  minvalue="1" maxvalue="8" />
+    <range field="technology" value="RPC" />
+    <range field="doubletR" value="1" />
+    <range field="doubletZ" values="1 2" />
+    <range field="doubletPhi" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
+    <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
+    <range field="rpcStrip" minvalue="1" maxvalue="99" />
+  </region>
+
   <region group="rpc">
     <range field="stationName" value="BIS" />
     <range field="stationEta" values="-7 7" />
