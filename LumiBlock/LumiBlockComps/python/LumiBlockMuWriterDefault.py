@@ -10,13 +10,13 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.BeamFlags import jobproperties
 
 
-def LumiBlockMuWriterDefault (name = 'LumiBlockMuWriter'):
+def LumiBlockMuWriterDefault (name = 'LumiBlockMuWriter', sequence = None):
     from AthenaCommon.AlgSequence import AthSequencer
     from AthenaCommon.AlgSequence import AlgSequence
 
     condSeq = AthSequencer ('AthCondSeq')
     topSequence = AlgSequence()
-    if hasattr (condSeq, name) or hasattr (topSequence, name):
+    if (sequence and hasattr (sequence, name)) or hasattr (condSeq, name) or hasattr (topSequence, name):
         return
 
     LumiBlockMuWriter = CompFactory.LumiBlockMuWriter # LumiBlockComps
@@ -40,10 +40,13 @@ def LumiBlockMuWriterDefault (name = 'LumiBlockMuWriter'):
 
     # FIXME: If EventInfoCnvAlg is in topSequence, then this needs to come
     # after it.  Otherwise, schedule to condSeq so we'll be run early.
-    if cnvalg and cnvseq is topSequence:
-        topSequence += alg
+    if sequence:
+        sequence += alg
     else:
-        condSeq += alg
+        if cnvalg and cnvseq is topSequence:
+            topSequence += alg
+        else:
+            condSeq += alg
 
     from AthenaCommon.GlobalFlags  import globalflags
     from RecExConfig.ObjKeyStore import objKeyStore
