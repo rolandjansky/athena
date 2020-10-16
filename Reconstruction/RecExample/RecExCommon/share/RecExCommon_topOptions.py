@@ -594,7 +594,7 @@ if globalflags.InputFormat.is_bytestream():
     pass
 
 ### write mu values into xAOD::EventInfo
-if rec.doESD() and rec.readRDO():
+if rec.readRDO():
     if globalflags.DataSource()=='geant4':
         include_muwriter = (globalflags.InputFormat.is_bytestream() or
                             hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
@@ -603,12 +603,8 @@ if rec.doESD() and rec.readRDO():
         include_muwriter = not athenaCommonFlags.isOnline()
 
     if include_muwriter:
-        try:
-            include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
-        except Exception:
-            treatException("Could not load LumiBlockMuWriter_jobOptions.py")
-            pass
-        pass
+        from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+        LumiBlockMuWriterDefault()
 
 if rec.doMonitoring():
     try:
