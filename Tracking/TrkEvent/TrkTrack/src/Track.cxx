@@ -83,7 +83,7 @@ Trk::Track::operator=(const Trk::Track& rhs)
     m_cachedOutlierVector.reset();
     // perigee parameters set to invalid
     m_perigeeParameters.reset();
-    // The following is a DataVectors and so will delete
+    // The following is a DataVector and so will delete
     // the contained objects automatically.
     delete m_trackStateVector;
     m_trackStateVector = nullptr;
@@ -274,7 +274,7 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() 
 {
 
   // We only need to do work if not valid.
-  if ( !m_cachedMeasurementVector.isValid()){
+  if ( m_trackStateVector and !m_cachedMeasurementVector.isValid()){
     // create new DataVector which DOES NOT OWN ELEMENTS .
     DataVector< const Trk::MeasurementBase> tmpMeasurementVector(SG::VIEW_ELEMENTS);
     // for measurements on track it is very likely that #(meas) ~ #(TSOS)-> reserve(#(TSOS))
@@ -283,7 +283,6 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() 
     TSoS_iterator itTSoSEnd = m_trackStateVector->end();
     for ( TSoS_iterator itTSoS = m_trackStateVector->begin(); itTSoS!=itTSoSEnd; ++itTSoS)
     {
-      //    if ((*itTSoS)->type(TrackStateOnSurface::Measurement) )
       if ( ! (*itTSoS)->type(TrackStateOnSurface::Outlier) )
       {
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();

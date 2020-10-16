@@ -271,7 +271,7 @@ namespace Trk
         * These objects link the various parameters related to a surface,	   
         * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
         */									   
-       DataVector<const TrackStateOnSurface>* m_trackStateVector;		   
+       DataVector<const TrackStateOnSurface>* m_trackStateVector{nullptr};		   
  
         /**									   
         * A vector of TrackParameters: these can be any of the classes that	   
@@ -316,7 +316,7 @@ namespace Trk
         * A pointer to the Track's FitQuality. This is guaranteed to		   
         * exist and will never be null. 					   
         */									   
-       const FitQuality*   m_fitQuality;					   
+       const FitQuality*   m_fitQuality{nullptr};					   
         									        									   
        /**									   
         * Datamember to cache the TrackSummary  				   
