@@ -6,7 +6,6 @@
 
 // Local include(s):
 #include "TopEventReconstructionTools/KLFitterTool.h"
-#include "TopEvent/KLFitterResult.h"
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
@@ -27,12 +26,16 @@ namespace top {
     m_leptonType("SetMe"),
     m_customParameters("SetMe"),
     m_LHType("SetMe"),
+    m_canBeBJets(std::vector<unsigned int>(0)),
+    m_canBeLFJets(std::vector<unsigned int>(0)),
     m_myFitter(nullptr) {
     declareProperty("config", m_config, "Set the configuration");
     declareProperty("LeptonType", m_leptonType = "kUndefined", "Define the lepton type");
     declareProperty("CustomParameters", m_customParameters = "", "Define the custom parameters");
     declareProperty("SelectionName", m_selectionName = "kUndefined", "Define the name of the selection");
     declareProperty("LHType", m_LHType = "kUndefined", "Define the Likelihood type");
+    declareProperty( "CanBeBJets", m_canBeBJets, "Force KLF to run on these (>=2) B jets" );
+    declareProperty( "CanBeLFJets", m_canBeLFJets, "Force KLF to run on these (>=4) LF jets" );
   }
 
   /// Function initialising the tool
@@ -133,12 +136,14 @@ namespace top {
       m_myLikelihood_TTZ->SetLeptonType(m_leptonTypeKLFitterEnum_TTZ);
       m_myLikelihood_BoostedLJets->SetLeptonType(m_leptonTypeKLFitterEnum_BoostedLJets);
     }
+
     // 4.b) Jet Selection Mode
     std::string JetSelectionMode = "";
     if (findOption(custom_tokens, "KLFitterJetSelectionMode", temp_option)) JetSelectionMode = temp_option;
     else JetSelectionMode = m_config->KLFitterJetSelectionMode();
 
-    if (JetSelectionMode == "kLeadingThree") m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingThree;
+    if(JetSelectionMode.find("kAutoSet")!=std::string::npos )  m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kAutoSet;
+    else if (JetSelectionMode == "kLeadingThree") m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingThree;
     else if (JetSelectionMode ==
              "kLeadingFour") m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingFour;
     else if (JetSelectionMode ==
@@ -168,7 +173,7 @@ namespace top {
         top::KLFitterJetSelection::kBtagPriorityEightJets;
     else {
       ATH_MSG_ERROR(
-        "Please supply a valid JetSelectionMode : kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kLeadingEight , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets , kBtagPriorityEightJets");
+        "Please supply a valid JetSelectionMode : kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kLeadingEight , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets , kBtagPriorityEightJets, AutoSet");
       return StatusCode::FAILURE;
     }
 
@@ -177,13 +182,17 @@ namespace top {
         m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingSeven &&
         m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPrioritySevenJets &&
         m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kLeadingEight &&
-        m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPriorityEightJets) {
-      if (m_LHType == "ttH" || m_LHType == "ttbar_AllHadronic") {
+        m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kBtagPriorityEightJets)
+      if (m_LHType == "ttH" || (m_LHType == "ttbar_AllHadronic" && m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kAutoSet)) {
         ATH_MSG_ERROR(
-          "You want to run the ttH or ttbar_AllHadronic Likelihood, you need to use either : kLeadingSix , kBtagPrioritySixJets , kLeadingSeven , kBtagPrioritySevenJets , kLeadingEight , kBtagPriorityEightJets");
+          "You want to run the ttH or ttbar_AllHadronic Likelihood, you need to use either : kLeadingSix , kBtagPrioritySixJets , kLeadingSeven , kBtagPrioritySevenJets , kLeadingEight , kBtagPriorityEightJets, AutoSet (only for ttbar_AllHadronic)");
         return StatusCode::FAILURE;
       }
-    }
+
+    if(m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kAutoSet && m_LHType != "ttbar_AllHadronic") {
+      ATH_MSG_ERROR("AutoSet only works for fully hadronic ttbar");
+      return StatusCode::FAILURE;
+  }
 
     // 4.c) SetBTagging method
     std::string BTaggingMethod = "";
@@ -483,9 +492,11 @@ namespace top {
     }
 
     // add the particles to the fitter
-    if (!m_myFitter->SetParticles(myParticles)) {
-      ATH_MSG_ERROR("KLFitter: Error adding particles to fitter...");
-      return StatusCode::FAILURE;
+    if(m_jetSelectionModeKLFitterEnum != top::KLFitterJetSelection::kAutoSet) { //NOTE: moving this inside loop on jet combinations. It only works for allHadronic ttbar (otherwise one looses the leptons
+      if (!m_myFitter->SetParticles(myParticles)) {
+	ATH_MSG_ERROR("KLFitter: Error adding particles to fitter...");
+	return StatusCode::FAILURE;
+      }
     }
 
     // add the MET x and y components as well as the SumET to the fitter
@@ -519,180 +530,18 @@ namespace top {
                                                   outputSGKey),
                       "KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
 
+
     // loop over all permutations
-    const int nperm = m_myFitter->Permutations()->NPermutations();
-    for (int iperm = 0; iperm < nperm; ++iperm) {
-      // Perform the fit
-      m_myFitter->Fit(iperm);
-      // create a result
-      xAOD::KLFitterResult* result = new xAOD::KLFitterResult {};
-      resultContainer->push_back(result);
-
-      //Set name hash. This is because it seems std::string is not supported by AuxContainers...
-      std::hash<std::string> hash_string;
-      result->setSelectionCode(hash_string(m_selectionName));
-
-      unsigned int ConvergenceStatusBitWord = m_myFitter->ConvergenceStatus();
-      bool MinuitDidNotConverge = (ConvergenceStatusBitWord & m_myFitter->MinuitDidNotConvergeMask) != 0;
-      bool FitAbortedDueToNaN = (ConvergenceStatusBitWord & m_myFitter->FitAbortedDueToNaNMask) != 0;
-      bool AtLeastOneFitParameterAtItsLimit =
-        (ConvergenceStatusBitWord & m_myFitter->AtLeastOneFitParameterAtItsLimitMask) != 0;
-      bool InvalidTransferFunctionAtConvergence =
-        (ConvergenceStatusBitWord & m_myFitter->InvalidTransferFunctionAtConvergenceMask) != 0;
-
-      result->setMinuitDidNotConverge(((MinuitDidNotConverge) ? 1 : 0));
-      result->setFitAbortedDueToNaN(((FitAbortedDueToNaN) ? 1 : 0));
-      result->setAtLeastOneFitParameterAtItsLimit(((AtLeastOneFitParameterAtItsLimit) ? 1 : 0));
-      result->setInvalidTransferFunctionAtConvergence(((InvalidTransferFunctionAtConvergence) ? 1 : 0));
-
-      result->setLogLikelihood(m_myFitter->Likelihood()->LogLikelihood(m_myFitter->Likelihood()->GetBestFitParameters()));
-      result->setEventProbability(std::exp(m_myFitter->Likelihood()->LogEventProbability()));
-      result->setParameters(m_myFitter->Likelihood()->GetBestFitParameters());
-      result->setParameterErrors(m_myFitter->Likelihood()->GetBestFitParameterErrors());
-
-      KLFitter::Particles* myModelParticles = m_myFitter->Likelihood()->ParticlesModel();
-      KLFitter::Particles** myPermutedParticles = m_myFitter->Likelihood()->PParticlesPermuted();
-
-
-      if (m_LHType == "ttbar" || m_LHType == "ttH" || m_LHType == "ttbar_JetAngles" || m_LHType == "ttZTrilepton" ||
-          m_LHType == "ttbar_BoostedLJets") {
-        result->setModel_bhad_pt(myModelParticles->Parton(0)->Pt());
-        result->setModel_bhad_eta(myModelParticles->Parton(0)->Eta());
-        result->setModel_bhad_phi(myModelParticles->Parton(0)->Phi());
-        result->setModel_bhad_E(myModelParticles->Parton(0)->E());
-        result->setModel_bhad_jetIndex((*myPermutedParticles)->JetIndex(0));
-
-        result->setModel_blep_pt(myModelParticles->Parton(1)->Pt());
-        result->setModel_blep_eta(myModelParticles->Parton(1)->Eta());
-        result->setModel_blep_phi(myModelParticles->Parton(1)->Phi());
-        result->setModel_blep_E(myModelParticles->Parton(1)->E());
-        result->setModel_blep_jetIndex((*myPermutedParticles)->JetIndex(1));
-
-        result->setModel_lq1_pt(myModelParticles->Parton(2)->Pt());
-        result->setModel_lq1_eta(myModelParticles->Parton(2)->Eta());
-        result->setModel_lq1_phi(myModelParticles->Parton(2)->Phi());
-        result->setModel_lq1_E(myModelParticles->Parton(2)->E());
-        result->setModel_lq1_jetIndex((*myPermutedParticles)->JetIndex(2));
-
-        // boosted likelihood has only one light jet
-        if (m_LHType != "ttbar_BoostedLJets") {
-          result->setModel_lq2_pt(myModelParticles->Parton(3)->Pt());
-          result->setModel_lq2_eta(myModelParticles->Parton(3)->Eta());
-          result->setModel_lq2_phi(myModelParticles->Parton(3)->Phi());
-          result->setModel_lq2_E(myModelParticles->Parton(3)->E());
-          result->setModel_lq2_jetIndex((*myPermutedParticles)->JetIndex(3));
-
-          if (m_LHType == "ttH") {
-            result->setModel_Higgs_b1_pt(myModelParticles->Parton(4)->Pt());
-            result->setModel_Higgs_b1_eta(myModelParticles->Parton(4)->Eta());
-            result->setModel_Higgs_b1_phi(myModelParticles->Parton(4)->Phi());
-            result->setModel_Higgs_b1_E(myModelParticles->Parton(4)->E());
-            result->setModel_Higgs_b1_jetIndex((*myPermutedParticles)->JetIndex(4));
-
-            result->setModel_Higgs_b2_pt(myModelParticles->Parton(5)->Pt());
-            result->setModel_Higgs_b2_eta(myModelParticles->Parton(5)->Eta());
-            result->setModel_Higgs_b2_phi(myModelParticles->Parton(5)->Phi());
-            result->setModel_Higgs_b2_E(myModelParticles->Parton(5)->E());
-            result->setModel_Higgs_b2_jetIndex((*myPermutedParticles)->JetIndex(5));
-          }
-        }
-
-        if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron ||
-            m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron ||
-            m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron ||
-            m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kElectron ||
-            m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron) {
-          result->setModel_lep_pt(myModelParticles->Electron(0)->Pt());
-          result->setModel_lep_eta(myModelParticles->Electron(0)->Eta());
-          result->setModel_lep_phi(myModelParticles->Electron(0)->Phi());
-          result->setModel_lep_E(myModelParticles->Electron(0)->E());
-
-          if (m_leptonType == "kTriElectron") {
-            result->setModel_lep_index((*myPermutedParticles)->ElectronIndex(0));
-
-            result->setModel_lepZ1_pt(myModelParticles->Electron(1)->Pt());
-            result->setModel_lepZ1_eta(myModelParticles->Electron(1)->Eta());
-            result->setModel_lepZ1_phi(myModelParticles->Electron(1)->Phi());
-            result->setModel_lepZ1_E(myModelParticles->Electron(1)->E());
-            result->setModel_lepZ1_index((*myPermutedParticles)->ElectronIndex(1));
-
-            result->setModel_lepZ2_pt(myModelParticles->Electron(2)->Pt());
-            result->setModel_lepZ2_eta(myModelParticles->Electron(2)->Eta());
-            result->setModel_lepZ2_phi(myModelParticles->Electron(2)->Phi());
-            result->setModel_lepZ2_E(myModelParticles->Electron(2)->E());
-            result->setModel_lepZ2_index((*myPermutedParticles)->ElectronIndex(2));
-          }
-        }
-
-        if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon ||
-            m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon ||
-            m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon ||
-            m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kMuon ||
-            m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon) {
-          result->setModel_lep_pt(myModelParticles->Muon(0)->Pt());
-          result->setModel_lep_eta(myModelParticles->Muon(0)->Eta());
-          result->setModel_lep_phi(myModelParticles->Muon(0)->Phi());
-          result->setModel_lep_E(myModelParticles->Muon(0)->E());
-
-          if (m_leptonType == "kTriMuon") {
-            result->setModel_lep_index((*myPermutedParticles)->MuonIndex(0));
-
-            result->setModel_lepZ1_pt(myModelParticles->Muon(1)->Pt());
-            result->setModel_lepZ1_eta(myModelParticles->Muon(1)->Eta());
-            result->setModel_lepZ1_phi(myModelParticles->Muon(1)->Phi());
-            result->setModel_lepZ1_E(myModelParticles->Muon(1)->E());
-            result->setModel_lepZ1_index((*myPermutedParticles)->MuonIndex(1));
-
-            result->setModel_lepZ2_pt(myModelParticles->Muon(2)->Pt());
-            result->setModel_lepZ2_eta(myModelParticles->Muon(2)->Eta());
-            result->setModel_lepZ2_phi(myModelParticles->Muon(2)->Phi());
-            result->setModel_lepZ2_E(myModelParticles->Muon(2)->E());
-            result->setModel_lepZ2_index((*myPermutedParticles)->MuonIndex(2));
-          }
-        }
-
-        result->setModel_nu_pt(myModelParticles->Neutrino(0)->Pt());
-        result->setModel_nu_eta(myModelParticles->Neutrino(0)->Eta());
-        result->setModel_nu_phi(myModelParticles->Neutrino(0)->Phi());
-        result->setModel_nu_E(myModelParticles->Neutrino(0)->E());
-      } else if (m_LHType == "ttbar_AllHadronic") {
-        result->setModel_b_from_top1_pt(myModelParticles->Parton(0)->Pt());
-        result->setModel_b_from_top1_eta(myModelParticles->Parton(0)->Eta());
-        result->setModel_b_from_top1_phi(myModelParticles->Parton(0)->Phi());
-        result->setModel_b_from_top1_E(myModelParticles->Parton(0)->E());
-        result->setModel_b_from_top1_jetIndex((*myPermutedParticles)->JetIndex(0));
-
-        result->setModel_b_from_top2_pt(myModelParticles->Parton(1)->Pt());
-        result->setModel_b_from_top2_eta(myModelParticles->Parton(1)->Eta());
-        result->setModel_b_from_top2_phi(myModelParticles->Parton(1)->Phi());
-        result->setModel_b_from_top2_E(myModelParticles->Parton(1)->E());
-        result->setModel_b_from_top2_jetIndex((*myPermutedParticles)->JetIndex(1));
-
-        result->setModel_lj1_from_top1_pt(myModelParticles->Parton(2)->Pt());
-        result->setModel_lj1_from_top1_eta(myModelParticles->Parton(2)->Eta());
-        result->setModel_lj1_from_top1_phi(myModelParticles->Parton(2)->Phi());
-        result->setModel_lj1_from_top1_E(myModelParticles->Parton(2)->E());
-        result->setModel_lj1_from_top1_jetIndex((*myPermutedParticles)->JetIndex(2));
-
-        result->setModel_lj2_from_top1_pt(myModelParticles->Parton(3)->Pt());
-        result->setModel_lj2_from_top1_eta(myModelParticles->Parton(3)->Eta());
-        result->setModel_lj2_from_top1_phi(myModelParticles->Parton(3)->Phi());
-        result->setModel_lj2_from_top1_E(myModelParticles->Parton(3)->E());
-        result->setModel_lj2_from_top1_jetIndex((*myPermutedParticles)->JetIndex(3));
-
-        result->setModel_lj1_from_top2_pt(myModelParticles->Parton(4)->Pt());
-        result->setModel_lj1_from_top2_eta(myModelParticles->Parton(4)->Eta());
-        result->setModel_lj1_from_top2_phi(myModelParticles->Parton(4)->Phi());
-        result->setModel_lj1_from_top2_E(myModelParticles->Parton(4)->E());
-        result->setModel_lj1_from_top2_jetIndex((*myPermutedParticles)->JetIndex(4));
-
-        result->setModel_lj2_from_top2_pt(myModelParticles->Parton(5)->Pt());
-        result->setModel_lj2_from_top2_eta(myModelParticles->Parton(5)->Eta());
-        result->setModel_lj2_from_top2_phi(myModelParticles->Parton(5)->Phi());
-        result->setModel_lj2_from_top2_E(myModelParticles->Parton(5)->E());
-        result->setModel_lj2_from_top2_jetIndex((*myPermutedParticles)->JetIndex(5));
+    xAOD::KLFitterResult* result = NULL;
+    if(m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kAutoSet) {
+      if(!permutationLoopAutoSet(result,resultContainer,event)) {
+	ATH_MSG_ERROR("KLFitter: error in the 'AutoSet' loop");
+	return StatusCode::FAILURE;
       }
-    } // Loop over permutations
+    }
+    else permutationLoopStandard(result,resultContainer);
+
+
 
     // Normalize event probability to unity
     // work out best permutation
@@ -793,7 +642,7 @@ namespace top {
 
     /// Return gracefully:
     return StatusCode::SUCCESS;
-  }
+    }
 
   bool KLFitterTool::HasTag(const xAOD::Jet& jet, double& weight) const {
     weight = -99.;
@@ -831,6 +680,10 @@ namespace top {
   }
 
   bool KLFitterTool::setJets(const top::Event& event, KLFitter::Particles* inputParticles) {
+    if(m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kAutoSet) {
+      ATH_MSG_DEBUG("Jet selection will be done together with combination loop");
+      return true;
+    }
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingThree) return setJetskLeadingThree(event,
                                                                                                                 inputParticles);
 
@@ -1035,6 +888,294 @@ namespace top {
     }  // for (jet)
     return true;
   }
+
+  bool KLFitterTool::setJetsFromAutoSet(const top::Event& event,KLFitter::Particles* inputParticles,std::vector<uint> BjetsToRun,std::vector<uint> LFjetsToRun)
+  {
+    if(BjetsToRun.size()!=2 || LFjetsToRun.size()!=4) {
+      ATH_MSG_INFO("BjetsToRun.size()!=2 || LFjetsToRun.size()!=4");
+      return false;
+    }
+
+    TLorentzVector jet_p4;
+    for(auto bji : BjetsToRun) {
+      if(bji>event.m_jets.size()) {
+	ATH_MSG_INFO("b-jet index too large");
+	return false;
+      }
+      auto jet = event.m_jets.at(bji);
+      jet_p4.SetPtEtaPhiE(jet->pt() / 1.e3, jet->eta(), jet->phi(), jet->e() / 1.e3);
+      //should work without this (results to be checked)-->  float eff(0.), ineff(0.); 
+      double weight(999);
+      HasTag(*jet, weight); 
+      // should work without this (results to be checked)-->      retrieveEfficiencies(*jet, &eff, &ineff);
+      inputParticles->AddParticle(&jet_p4, 
+				  jet_p4.Eta(), 
+				  KLFitter::Particles::kParton, 
+				  "", 
+				  bji,
+				  true);
+      /*should work without this (results to be checked)				  , 
+				  eff, 
+				  1./ineff, 
+				  KLFitter::Particles::kNone, 
+				  weight);*/
+    }
+
+    for(auto qji : LFjetsToRun) {
+      if(qji>event.m_jets.size()) {
+	ATH_MSG_INFO("LF-jet index too large");
+	return false;
+      }
+      auto jet = event.m_jets.at(qji);
+      jet_p4.SetPtEtaPhiE(jet->pt() / 1.e3, jet->eta(), jet->phi(), jet->e() / 1.e3);
+      //should work without this (results to be checked) --> float eff(0.), ineff(0.); 
+      double weight(0);
+      HasTag(*jet, weight);
+      //should work without this (results to be checked) -->      retrieveEfficiencies(*jet, &eff, &ineff);
+      inputParticles->AddParticle(&jet_p4, 
+				  jet_p4.Eta(), 
+				  KLFitter::Particles::kParton, 
+				  "", 
+				  qji,
+				  false);
+				  /*should work without this (results to be checked)     , 
+				  eff, 
+				  1./ineff, 
+				  KLFitter::Particles::kNone, 
+				  weight);*/
+    }
+    return true;
+  }
+
+
+  void KLFitterTool::permutationLoopStandard(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer) {
+    const int nperm = m_myFitter->Permutations()->NPermutations();
+    for (int iperm = 0; iperm < nperm; ++iperm) {
+      // Perform the fit
+      m_myFitter->Fit(iperm);
+      // create a result
+      result = new xAOD::KLFitterResult {};
+      resultContainer->push_back(result);
+      
+      //Set name hash. This is because it seems std::string is not supported by AuxContainers...
+      std::hash<std::string> hash_string;
+      result->setSelectionCode(hash_string(m_selectionName));
+      
+      unsigned int ConvergenceStatusBitWord = m_myFitter->ConvergenceStatus();
+      bool MinuitDidNotConverge = (ConvergenceStatusBitWord & m_myFitter->MinuitDidNotConvergeMask) != 0;
+      bool FitAbortedDueToNaN = (ConvergenceStatusBitWord & m_myFitter->FitAbortedDueToNaNMask) != 0;
+      bool AtLeastOneFitParameterAtItsLimit =
+	(ConvergenceStatusBitWord & m_myFitter->AtLeastOneFitParameterAtItsLimitMask) != 0;
+      bool InvalidTransferFunctionAtConvergence =
+	(ConvergenceStatusBitWord & m_myFitter->InvalidTransferFunctionAtConvergenceMask) != 0;
+      
+      result->setMinuitDidNotConverge(((MinuitDidNotConverge) ? 1 : 0));
+      result->setFitAbortedDueToNaN(((FitAbortedDueToNaN) ? 1 : 0));
+      result->setAtLeastOneFitParameterAtItsLimit(((AtLeastOneFitParameterAtItsLimit) ? 1 : 0));
+      result->setInvalidTransferFunctionAtConvergence(((InvalidTransferFunctionAtConvergence) ? 1 : 0));
+      
+      result->setLogLikelihood(m_myFitter->Likelihood()->LogLikelihood(m_myFitter->Likelihood()->GetBestFitParameters()));
+      result->setEventProbability(std::exp(m_myFitter->Likelihood()->LogEventProbability()));
+      result->setParameters(m_myFitter->Likelihood()->GetBestFitParameters());
+      result->setParameterErrors(m_myFitter->Likelihood()->GetBestFitParameterErrors());
+      
+      KLFitter::Particles* myModelParticles = m_myFitter->Likelihood()->ParticlesModel();
+      KLFitter::Particles** myPermutedParticles = m_myFitter->Likelihood()->PParticlesPermuted();
+
+
+      if (m_LHType == "ttbar" || m_LHType == "ttH" || m_LHType == "ttbar_JetAngles" || m_LHType == "ttZTrilepton" ||
+          m_LHType == "ttbar_BoostedLJets") {
+        result->setModel_bhad_pt(myModelParticles->Parton(0)->Pt());
+        result->setModel_bhad_eta(myModelParticles->Parton(0)->Eta());
+        result->setModel_bhad_phi(myModelParticles->Parton(0)->Phi());
+        result->setModel_bhad_E(myModelParticles->Parton(0)->E());
+        result->setModel_bhad_jetIndex((*myPermutedParticles)->JetIndex(0));
+
+        result->setModel_blep_pt(myModelParticles->Parton(1)->Pt());
+        result->setModel_blep_eta(myModelParticles->Parton(1)->Eta());
+        result->setModel_blep_phi(myModelParticles->Parton(1)->Phi());
+        result->setModel_blep_E(myModelParticles->Parton(1)->E());
+        result->setModel_blep_jetIndex((*myPermutedParticles)->JetIndex(1));
+
+        result->setModel_lq1_pt(myModelParticles->Parton(2)->Pt());
+        result->setModel_lq1_eta(myModelParticles->Parton(2)->Eta());
+        result->setModel_lq1_phi(myModelParticles->Parton(2)->Phi());
+        result->setModel_lq1_E(myModelParticles->Parton(2)->E());
+        result->setModel_lq1_jetIndex((*myPermutedParticles)->JetIndex(2));
+
+        // boosted likelihood has only one light jet
+        if (m_LHType != "ttbar_BoostedLJets") {
+          result->setModel_lq2_pt(myModelParticles->Parton(3)->Pt());
+          result->setModel_lq2_eta(myModelParticles->Parton(3)->Eta());
+          result->setModel_lq2_phi(myModelParticles->Parton(3)->Phi());
+          result->setModel_lq2_E(myModelParticles->Parton(3)->E());
+          result->setModel_lq2_jetIndex((*myPermutedParticles)->JetIndex(3));
+
+          if (m_LHType == "ttH") {
+            result->setModel_Higgs_b1_pt(myModelParticles->Parton(4)->Pt());
+            result->setModel_Higgs_b1_eta(myModelParticles->Parton(4)->Eta());
+            result->setModel_Higgs_b1_phi(myModelParticles->Parton(4)->Phi());
+            result->setModel_Higgs_b1_E(myModelParticles->Parton(4)->E());
+            result->setModel_Higgs_b1_jetIndex((*myPermutedParticles)->JetIndex(4));
+
+            result->setModel_Higgs_b2_pt(myModelParticles->Parton(5)->Pt());
+            result->setModel_Higgs_b2_eta(myModelParticles->Parton(5)->Eta());
+            result->setModel_Higgs_b2_phi(myModelParticles->Parton(5)->Phi());
+            result->setModel_Higgs_b2_E(myModelParticles->Parton(5)->E());
+            result->setModel_Higgs_b2_jetIndex((*myPermutedParticles)->JetIndex(5));
+          }
+        }
+
+        if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kElectron ||
+            m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kElectron ||
+            m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kElectron ||
+            m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kElectron ||
+            m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kElectron) {
+          result->setModel_lep_pt(myModelParticles->Electron(0)->Pt());
+          result->setModel_lep_eta(myModelParticles->Electron(0)->Eta());
+          result->setModel_lep_phi(myModelParticles->Electron(0)->Phi());
+          result->setModel_lep_E(myModelParticles->Electron(0)->E());
+
+          if (m_leptonType == "kTriElectron") {
+            result->setModel_lep_index((*myPermutedParticles)->ElectronIndex(0));
+
+            result->setModel_lepZ1_pt(myModelParticles->Electron(1)->Pt());
+            result->setModel_lepZ1_eta(myModelParticles->Electron(1)->Eta());
+            result->setModel_lepZ1_phi(myModelParticles->Electron(1)->Phi());
+            result->setModel_lepZ1_E(myModelParticles->Electron(1)->E());
+            result->setModel_lepZ1_index((*myPermutedParticles)->ElectronIndex(1));
+
+            result->setModel_lepZ2_pt(myModelParticles->Electron(2)->Pt());
+            result->setModel_lepZ2_eta(myModelParticles->Electron(2)->Eta());
+            result->setModel_lepZ2_phi(myModelParticles->Electron(2)->Phi());
+            result->setModel_lepZ2_E(myModelParticles->Electron(2)->E());
+            result->setModel_lepZ2_index((*myPermutedParticles)->ElectronIndex(2));
+          }
+        }
+
+        if (m_leptonTypeKLFitterEnum == KLFitter::LikelihoodTopLeptonJets::LeptonType::kMuon ||
+            m_leptonTypeKLFitterEnum_TTH == KLFitter::LikelihoodTTHLeptonJets::LeptonType::kMuon ||
+            m_leptonTypeKLFitterEnum_TTZ == KLFitter::LikelihoodTTZTrilepton::LeptonType::kMuon ||
+            m_leptonTypeKLFitterEnum_BoostedLJets == KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType::kMuon ||
+            m_leptonTypeKLFitterEnum_JetAngles == KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType::kMuon) {
+          result->setModel_lep_pt(myModelParticles->Muon(0)->Pt());
+          result->setModel_lep_eta(myModelParticles->Muon(0)->Eta());
+          result->setModel_lep_phi(myModelParticles->Muon(0)->Phi());
+          result->setModel_lep_E(myModelParticles->Muon(0)->E());
+
+          if (m_leptonType == "kTriMuon") {
+            result->setModel_lep_index((*myPermutedParticles)->MuonIndex(0));
+
+            result->setModel_lepZ1_pt(myModelParticles->Muon(1)->Pt());
+            result->setModel_lepZ1_eta(myModelParticles->Muon(1)->Eta());
+            result->setModel_lepZ1_phi(myModelParticles->Muon(1)->Phi());
+            result->setModel_lepZ1_E(myModelParticles->Muon(1)->E());
+            result->setModel_lepZ1_index((*myPermutedParticles)->MuonIndex(1));
+
+            result->setModel_lepZ2_pt(myModelParticles->Muon(2)->Pt());
+            result->setModel_lepZ2_eta(myModelParticles->Muon(2)->Eta());
+            result->setModel_lepZ2_phi(myModelParticles->Muon(2)->Phi());
+            result->setModel_lepZ2_E(myModelParticles->Muon(2)->E());
+            result->setModel_lepZ2_index((*myPermutedParticles)->MuonIndex(2));
+          }
+        }
+
+        result->setModel_nu_pt(myModelParticles->Neutrino(0)->Pt());
+        result->setModel_nu_eta(myModelParticles->Neutrino(0)->Eta());
+        result->setModel_nu_phi(myModelParticles->Neutrino(0)->Phi());
+        result->setModel_nu_E(myModelParticles->Neutrino(0)->E());
+      } else if (m_LHType == "ttbar_AllHadronic") {
+        result->setModel_b_from_top1_pt(myModelParticles->Parton(0)->Pt());
+        result->setModel_b_from_top1_eta(myModelParticles->Parton(0)->Eta());
+        result->setModel_b_from_top1_phi(myModelParticles->Parton(0)->Phi());
+        result->setModel_b_from_top1_E(myModelParticles->Parton(0)->E());
+        result->setModel_b_from_top1_jetIndex((*myPermutedParticles)->JetIndex(0));
+
+        result->setModel_b_from_top2_pt(myModelParticles->Parton(1)->Pt());
+        result->setModel_b_from_top2_eta(myModelParticles->Parton(1)->Eta());
+        result->setModel_b_from_top2_phi(myModelParticles->Parton(1)->Phi());
+        result->setModel_b_from_top2_E(myModelParticles->Parton(1)->E());
+        result->setModel_b_from_top2_jetIndex((*myPermutedParticles)->JetIndex(1));
+
+        result->setModel_lj1_from_top1_pt(myModelParticles->Parton(2)->Pt());
+        result->setModel_lj1_from_top1_eta(myModelParticles->Parton(2)->Eta());
+        result->setModel_lj1_from_top1_phi(myModelParticles->Parton(2)->Phi());
+        result->setModel_lj1_from_top1_E(myModelParticles->Parton(2)->E());
+        result->setModel_lj1_from_top1_jetIndex((*myPermutedParticles)->JetIndex(2));
+
+        result->setModel_lj2_from_top1_pt(myModelParticles->Parton(3)->Pt());
+        result->setModel_lj2_from_top1_eta(myModelParticles->Parton(3)->Eta());
+        result->setModel_lj2_from_top1_phi(myModelParticles->Parton(3)->Phi());
+        result->setModel_lj2_from_top1_E(myModelParticles->Parton(3)->E());
+        result->setModel_lj2_from_top1_jetIndex((*myPermutedParticles)->JetIndex(3));
+
+        result->setModel_lj1_from_top2_pt(myModelParticles->Parton(4)->Pt());
+        result->setModel_lj1_from_top2_eta(myModelParticles->Parton(4)->Eta());
+        result->setModel_lj1_from_top2_phi(myModelParticles->Parton(4)->Phi());
+        result->setModel_lj1_from_top2_E(myModelParticles->Parton(4)->E());
+        result->setModel_lj1_from_top2_jetIndex((*myPermutedParticles)->JetIndex(4));
+
+        result->setModel_lj2_from_top2_pt(myModelParticles->Parton(5)->Pt());
+        result->setModel_lj2_from_top2_eta(myModelParticles->Parton(5)->Eta());
+        result->setModel_lj2_from_top2_phi(myModelParticles->Parton(5)->Phi());
+        result->setModel_lj2_from_top2_E(myModelParticles->Parton(5)->E());
+        result->setModel_lj2_from_top2_jetIndex((*myPermutedParticles)->JetIndex(5));
+      }
+    } // Loop over permutations
+  }
+
+  bool KLFitterTool::permutationLoopAutoSet(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event) {
+    
+    std::vector<uint> BjetsToRun(0);
+    std::vector<uint> LFjetsToRun(0);
+    
+    //loop on jet combinations
+   bool hasrun=false;
+   for(uint ib1=0;ib1<m_canBeBJets.size();ib1++) {
+	for(uint ib2=ib1+1;ib2<m_canBeBJets.size();ib2++) {
+	  for(uint iq1=0;iq1<m_canBeLFJets.size();iq1++) {
+	    if(m_canBeLFJets[iq1]==m_canBeBJets[ib1] || m_canBeLFJets[iq1]==m_canBeBJets[ib2]) continue;
+	    for(uint iq2=iq1+1;iq2<m_canBeLFJets.size();iq2++) {
+	      if(m_canBeLFJets[iq2]==m_canBeBJets[ib1] || m_canBeLFJets[iq2]==m_canBeBJets[ib2]) continue;
+	      for(uint iq3=iq2+1;iq3<m_canBeLFJets.size();iq3++) {
+		if(m_canBeLFJets[iq3]==m_canBeBJets[ib1] || m_canBeLFJets[iq3]==m_canBeBJets[ib2]) continue;
+		for(uint iq4=iq3+1;iq4<m_canBeLFJets.size();iq4++) {
+		  if(m_canBeLFJets[iq4]==m_canBeBJets[ib1] || m_canBeLFJets[iq4]==m_canBeBJets[ib2]) continue;
+
+		  //these is the jet combination you are running on
+		  std::vector<unsigned int> bjts = {m_canBeBJets[ib1],m_canBeBJets[ib2]};
+		  std::vector<unsigned int> lfjts = {m_canBeLFJets[iq1], m_canBeLFJets[iq2], m_canBeLFJets[iq3], m_canBeLFJets[iq4]};
+
+		  //set this jet combination as KLFitter inputs
+		  KLFitter::Particles* myInputParticles = new KLFitter::Particles {};
+		  if(!setJetsFromAutoSet(event,myInputParticles,bjts,lfjts)) {
+		    ATH_MSG_INFO("KLFitterTool::execute: It was not possible to properly fill the jets in AutoSet mode");
+		    return false;
+		  }
+		  //now pass the inputs to the fitter
+		  if (!m_myFitter->SetParticles(myInputParticles)) {
+		    ATH_MSG_ERROR("KLFitter: Error adding particles to fitter...");
+		    return false;
+		  }
+		  //now do your permutation thing
+		  permutationLoopStandard(result,resultContainer);
+
+		  //check that you ran at least once
+		  hasrun=true;
+
+		  //and delete this
+		  delete myInputParticles;
+		}//iq4
+	      }//iq3
+	    }//iq2
+	  }//iq1
+	}//ib2
+      }//ib1
+
+      if(!hasrun) std::cout << "WARNING   KLFitterRun:: KLF hasn't run. Something wrong with the combinatorics!" << std::endl;
+      return true;
+  }
+ 
 
   /// Function finalizing the tool
   StatusCode KLFitterTool::finalize() {
