@@ -1,17 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWUTILS_LARRAWORDERING_H
 #define LARRAWUTILS_LARRAWORDERING_H
 
 
-#include "LArRawEvent/LArRawChannel.h" 
+#include "LArRawEvent/LArRawChannel.h"
+#include "CxxUtils/checker_macros.h"
 
 class LArRoI_Map; 
 
 
-class LArRawOrdering
+class ATLAS_NOT_THREAD_SAFE LArRawOrdering
 {
 
   public: 
