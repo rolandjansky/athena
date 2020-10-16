@@ -247,7 +247,7 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     // Induced Charged Module. M.Togawa    
     if ( m_doInducedChargedModel ){
       m_InducedChargedModel = std::make_unique<SCT_InducedChargedModel>();
-      m_InducedChargedModel->Init(m_vdepl,m_vbias,m_hashId,m_siConditionsSvc);
+      m_InducedChargedModel->init(m_vdepl,m_vbias,m_hashId,m_siConditionsSvc);
     }
 
     m_smallStepLength *= CLHEP::micrometer;
