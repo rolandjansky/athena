@@ -4,7 +4,7 @@
 def addWeights(seq, pdfMap = {'CT14nlo':20}, pref = ""):
 
   from AthenaCommon.AppMgr import ToolSvc
-  from ReweightUtils.ReweightUtilsConf import * 
+  from ReweightUtils.ReweightUtilsConf import McEventWeight,SumOfWeightsAlg,PDFWeight,WeightsAgregator
 
   #Load standard generator event weight
   mcEventWeightNom = McEventWeight(name = pref+"mcWNom")
@@ -46,7 +46,7 @@ def addWeightsHist(stream, seq, svcMgr, CfgMgr, ToolSvc, derivName, fileName, pd
   svcMgr.THistSvc.PrintAll = True
   stream.OtherAlgs += svcMgr.THistSvc 
 
-  from ReweightUtils.ReweightUtilsConf import * 
+  from ReweightUtils.ReweightUtilsConf import McEventWeight,PDFWeight,WeightsAgregator
 
   #Load standard generator event weight
   mcEventWeightNom = McEventWeight(name = derivName+"_mcEventWeightNom")
@@ -90,7 +90,6 @@ def addWeightsHist(stream, seq, svcMgr, CfgMgr, ToolSvc, derivName, fileName, pd
       seq += CfgMgr.CP__PileupReweightingProvider(derivName+"_pdfProvWeight"+pdfName+"_"+str(i),Tool=provTools[i],ConfigOutputStream="METADATA/pdfWeight"+pdfName+"_"+str(i))
 
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
 #addWeights(DerivationFrameworkJob, {'CT10nlo':52, 'MSTW2008nlo68cl': 40, 'NNPDF23_lo_as_0130_qed': 100, 'NNPDF30_nlo_as_0118': 100}, "")
 listPDF = {}
 #listPDF["CT14nlo"] = 56
@@ -119,7 +118,7 @@ listPDF["CT10"] = 52
 #listPDF["abm12lhc_4_nnlo"] = 28
 
 # skip this in data
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth,DerivationFrameworkJob
 if DerivationFrameworkHasTruth:
     addWeights(DerivationFrameworkJob, listPDF, "")
 
