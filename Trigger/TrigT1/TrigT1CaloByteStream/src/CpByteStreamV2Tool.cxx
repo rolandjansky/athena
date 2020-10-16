@@ -102,20 +102,13 @@ CpByteStreamV2Tool::~CpByteStreamV2Tool()
 
 StatusCode CpByteStreamV2Tool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                   << PACKAGE_VERSION << endmsg;
+    ATH_MSG_INFO ("Initializing " << name() << " - package version "
+                  << PACKAGE_VERSION);
 
     CHECK(m_cpmMaps.retrieve());
     CHECK(m_errorTool.retrieve());
     CHECK(m_robDataProvider.retrieve());
     
-    return StatusCode::SUCCESS;
-}
-
-// Finalize
-
-StatusCode CpByteStreamV2Tool::finalize()
-{
     return StatusCode::SUCCESS;
 }
 
@@ -207,7 +200,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
 
     LVL1::TriggerTowerKey towerKey;
 
-   // CPM tower map
+    // CPM tower map
     ConstCpmTowerMap  ttMap;
     setupCpmTowerMap(cp->towers(), ttMap, towerKey);
 
@@ -531,7 +524,7 @@ StatusCode CpByteStreamV2Tool::convertBs(
 {
     LocalData ld;
 
-    const std::string flag("Overlap");
+    const static std::string flag("Overlap");
     const std::string::size_type pos = sgKey.find(flag);
     ld.coreOverlap =
         (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;
