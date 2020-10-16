@@ -11,8 +11,8 @@ mlog = logging.getLogger ('TrigEgammaMVACalibFactories')
 
 from egammaMVACalib import egammaMVACalibConf
 from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
-mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
+mlog.info("MVA version version %s", EgammaSliceFlags.calibMVAVersion() )
+mlog.info("Cluster Correction version %s", EgammaSliceFlags.clusterCorrectionVersion() )
 EgammaSliceFlags.calibMVAVersion.set_On()
 
 from xAODEgamma.xAODEgammaParameters import xAOD
