@@ -23,6 +23,29 @@
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
+void ISF::PDFcreator::addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist) {
+
+ if(m_energy_etaRange_hists1D.find(energy) != m_energy_etaRange_hists1D.end()){ //if energy entry exists, insert into inner eta map
+   (m_energy_etaRange_hists1D.find(energy)->second).insert(std::make_pair(etaMinEtaMax, hist));
+ }
+ else{ //if energy entry does not exist create new full energy entry
+   std::map< std::vector<double>, TH1*> inner;
+   inner.insert(std::make_pair(etaMinEtaMax, hist));
+   m_energy_etaRange_hists1D.insert(std::make_pair(energy, inner));
+ }
+}
+
+void ISF::PDFcreator::addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, TH2 *hist){
+  if(m_energy_etaRange_hists2D.find(energy) != m_energy_etaRange_hists2D.end()){ //if energy entry exists, insert into inner eta map
+    (m_energy_etaRange_hists2D.find(energy)->second).insert(std::make_pair(etaMinEtaMax, hist));
+  }
+  else{ //if energy entry does not exist create new full energy entry
+    std::map< std::vector<double>, TH2*> inner;
+    inner.insert(std::make_pair(etaMinEtaMax, hist));
+    m_energy_etaRange_hists2D.insert(std::make_pair(energy, inner));
+  }
+}
+
 double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, const double& outEnergy, const double& randMin, const double& randMax) const
 {
 
