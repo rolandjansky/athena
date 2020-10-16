@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file LumiBlockComps/src/LuminosityCondAlg.h
@@ -139,6 +139,9 @@ private:
 
   Gaudi::Property<bool> m_skipInvalid
     { this, "SkipInvalid", true, "Flag to control whether invalid data is skipped:  True (default), returning a zero luminosity; false, returning available luminosity values anyway." };
+
+  Gaudi::Property<bool> m_expectInvalid
+    { this, "ExpectInvalid", false, "Flag to control printouts when invalid data are encountered: True suppresses messages, False (default) leaves them in" };
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_luminosityFolderInputKey
   { this, "LuminosityFolderInputKey", "/TRIGGER/OFLLUMI/LBLESTOFL",
