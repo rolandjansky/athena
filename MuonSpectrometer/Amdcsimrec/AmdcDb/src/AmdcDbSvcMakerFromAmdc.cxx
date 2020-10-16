@@ -11,6 +11,13 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 #include <cmath>
+
+// the values calculated in fortran in readmdb.F90 can slightly deviate from 0 although with a large enough precision
+// they would be exactly 0, so doing a consistency check here
+double checkForZero(const double toCheck, const double tolerance=1e-6) {
+  if (std::abs(toCheck)<tolerance) return 0;
+  return toCheck;
+}
  
 AmdcDbSvcMakerFromAmdc::AmdcDbSvcMakerFromAmdc(){
 
@@ -213,14 +220,10 @@ if (Ifound == 1 ){
 void AmdcDbSvcMakerFromAmdc::ACUT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "ACUT";
-//   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
-//   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DbVar	   = "";
   std::string DbVarComment = "";
   int	      iDbVal	   = 0 ;
-//double      dDbVal	   = 0.;
   std::string sDbVal	   = ""; 
 
   AmdcDbRecordset* pAmdcDbRecordset = new AmdcDbRecordset();
@@ -305,7 +308,6 @@ void AmdcDbSvcMakerFromAmdc::WRPC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "WRPC";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "RPC";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -331,23 +333,23 @@ void AmdcDbSvcMakerFromAmdc::WRPC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 //DRING: What is it? This is a guess       
   DbVar = "LAYRPC"  ; DbVarComment="LAYERS NUMBER"                         ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)       ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-  DbVar = "TCKRLA"  ; DbVarComment="THICK. OF AN RPC LAYER"                ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 4)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "TOTTCK"  ; DbVarComment="TOTAL THICKNESS"                       ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 9)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "TCKFSP"  ; DbVarComment="THICK. OF FOAM SPACER"                 ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 5)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "ACKFSP"  ; DbVarComment="THICK. OF AL PLATE OF FOAM SPACER"     ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 6)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "TLOHCB"  ; DbVarComment="THICK. OF LOWER HONEYCOMB"             ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 7)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "ALOHCB"  ; DbVarComment="THICK. OF AL PLATE OF LOWER HONEYCOMB" ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 8)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "TCKBAK"  ; DbVarComment="THICK. OF BAKELITE"                    ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,13)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "TCKGAS"  ; DbVarComment="THICK. OF GAS GAP "                    ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,14)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "TCKSSU"  ; DbVarComment="THICK. OF STRIPS SUPPORT"              ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,15)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "TCKSTR"  ; DbVarComment="THICK. OF STRIPS"                      ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,16)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "SDEDMI"  ; DbVarComment="S INTERNAL MID-CHBER DEAD REGION"      ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,17)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "ZDEDMI"  ; DbVarComment="Z INTERNAL MID-CHBER DEAD REGION"      ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,18)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "SPDIAM"  ; DbVarComment="SPACER DIAMETER"                       ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,19)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "SPPITC"  ; DbVarComment="SPACER PITCH"                          ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,20)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-  DbVar = "STROFF_0"; DbVarComment="STRIP OFFSET S, FIRST Z, SECOND Z"     ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 1)	; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-  DbVar = "STROFF_1"; DbVarComment=""                                      ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 4)	; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-  DbVar = "STROFF_2"; DbVarComment=""                                      ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 5)	; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+  DbVar = "TCKRLA"  ; DbVarComment="THICK. OF AN RPC LAYER"                ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 4)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "TOTTCK"  ; DbVarComment="TOTAL THICKNESS"                       ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 9)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "TCKFSP"  ; DbVarComment="THICK. OF FOAM SPACER"                 ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 5)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "ACKFSP"  ; DbVarComment="THICK. OF AL PLATE OF FOAM SPACER"     ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 6)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "TLOHCB"  ; DbVarComment="THICK. OF LOWER HONEYCOMB"             ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 7)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "ALOHCB"  ; DbVarComment="THICK. OF AL PLATE OF LOWER HONEYCOMB" ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 8)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "TCKBAK"  ; DbVarComment="THICK. OF BAKELITE"                    ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,13)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "TCKGAS"  ; DbVarComment="THICK. OF GAS GAP "                    ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,14)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "TCKSSU"  ; DbVarComment="THICK. OF STRIPS SUPPORT"              ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,15)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "TCKSTR"  ; DbVarComment="THICK. OF STRIPS"                      ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,16)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "SDEDMI"  ; DbVarComment="S INTERNAL MID-CHBER DEAD REGION"      ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,17)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "ZDEDMI"  ; DbVarComment="Z INTERNAL MID-CHBER DEAD REGION"      ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,18)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "SPDIAM"  ; DbVarComment="SPACER DIAMETER"                       ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,19)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "SPPITC"  ; DbVarComment="SPACER PITCH"                          ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,20)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+  DbVar = "STROFF_0"; DbVarComment="STRIP OFFSET S, FIRST Z, SECOND Z"     ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+  DbVar = "STROFF_1"; DbVarComment=""                                      ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 4)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+  DbVar = "STROFF_2"; DbVarComment=""                                      ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 5)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
   pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -384,16 +386,16 @@ void AmdcDbSvcMakerFromAmdc::AWLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "JSTA"   ; DbVarComment="JSTA TYPE NUMBER"               ; iDbVal = DB_Jsta                                        ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
   
-      DbVar = "SPITCH" ; DbVarComment="S-STRIPS PITCH"                 ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,10)/10.     ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "ZPITCH" ; DbVarComment="Z-STRIPS PITCH"                 ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,11)/10.     ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "DEDSTR" ; DbVarComment="DEAD REAGION BETWEEN STRIP"     ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,12)/10.     ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "SPITCH" ; DbVarComment="S-STRIPS PITCH"                 ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,10)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "ZPITCH" ; DbVarComment="Z-STRIPS PITCH"                 ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,11)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "DEDSTR" ; DbVarComment="DEAD REAGION BETWEEN STRIP"     ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,12)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       DbVar = "NSREST" ; DbVarComment="NBER OF S STRIPS READOUTS"      ; iDbVal = int ( pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 2) ) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
       DbVar = "NZREST" ; DbVarComment="NBER OF S GAS GAPS"             ; iDbVal = int ( pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 3) ) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "SFIRST" ; DbVarComment="S-PHI STRIP OFFSET"             ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,11)         ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "ZFIRST" ; DbVarComment="Z-ETA STRIP OFFSET"             ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,12)         ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "DEDSEP" ; DbVarComment="DEAD SEPARATION"                ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,13)         ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SFIRST" ; DbVarComment="S-PHI STRIP OFFSET"             ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,11)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "ZFIRST" ; DbVarComment="Z-ETA STRIP OFFSET"             ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,12)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "DEDSEP" ; DbVarComment="DEAD SEPARATION"                ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,13)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
       DbVar = "NSROST" ; DbVarComment="NUMBER OF S-PHI READOUT STRIPS" ; iDbVal = int ( pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,14) ) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
       DbVar = "NZROST" ; DbVarComment="NUMBER OF Z-ETA READOUT STRIPS" ; iDbVal = int ( pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,15) ) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
@@ -413,7 +415,6 @@ void AmdcDbSvcMakerFromAmdc::WTGC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "WTGC";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "TGC";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -439,10 +440,10 @@ void AmdcDbSvcMakerFromAmdc::WTGC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "NBEVOL"  ; DbVarComment="NUMBER OF DETAILS"          ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)    ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "X0"      ; DbVarComment="X0"                         ; dDbVal = pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)    ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "WIDCHB"  ; DbVarComment="WIDTH OF THE CHBER ALONG Z" ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "FWIRCH"  ; DbVarComment="FRAME WIDTH IN R"           ; dDbVal = pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "FWIXCH"  ; DbVarComment="FRAME WIDTH IN X"           ; dDbVal = pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/10.; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "X0"      ; DbVarComment="X0"                         ; dDbVal = checkForZero(pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "WIDCHB"  ; DbVarComment="WIDTH OF THE CHBER ALONG Z" ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "FWIRCH"  ; DbVarComment="FRAME WIDTH IN R"           ; dDbVal = checkForZero(pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "FWIXCH"  ; DbVarComment="FRAME WIDTH IN X"           ; dDbVal = checkForZero(pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       for (int DB_Item=1; DB_Item<=9 ; DB_Item++){
         DbVar = "ALLNAME" ;
@@ -477,8 +478,6 @@ void AmdcDbSvcMakerFromAmdc::GGLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 
   std::string NameOfTheSet = "GGLN";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
-//  int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "TGC";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -521,8 +520,8 @@ void AmdcDbSvcMakerFromAmdc::GGLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 //DRING: What is it?  From SB reserved but never used    
      DbVar = "POFFST_2"; DbVarComment=""                                          ; dDbVal = 0.                              ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
-      DbVar = "WIRESP"  ; DbVarComment="WIRE SPACING [MM]"                        ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta, 4); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "STRIPSP" ; DbVarComment="STRIP SPACING [MM]"                       ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta, 5); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "WIRESP"  ; DbVarComment="WIRE SPACING [MM]"                        ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta, 4)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "STRIPSP" ; DbVarComment="STRIP SPACING [MM]"                       ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta, 5)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
       for (int DB_IWGS=1; DB_IWGS<=3 ; DB_IWGS++){
         for (int DB_Item=1; DB_Item<=130 ; DB_Item++){
@@ -546,18 +545,18 @@ void AmdcDbSvcMakerFromAmdc::GGLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
         }
       }
     
-      DbVar = "PDIST"   ; DbVarComment="! PHYSICAL DISTANCE OF STRIPS W.R.T. BAS" ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta, 1); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "S1PP"    ; DbVarComment="WIRE SUPPORT : WIDTH"                     ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta, 6); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "S2PP"    ; DbVarComment="WIRE SUPPORT : WIDTH OF GAS CHANNEL"      ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta, 7); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "WSEP"    ; DbVarComment="WIRE SUPPORT : SEPARATION"                ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta, 8); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "SP1WI"   ; DbVarComment="WIRE SUPPORT : OFFSET OF WIRE SUPPORT LA" ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta, 9); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "SP2WI"   ; DbVarComment="WIRE SUPPORT : LAYER 2"                   ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta,10); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "SP3WI"   ; DbVarComment="WIRE SUPPORT : LAYER 3"                   ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta,11); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "TILT"    ; DbVarComment="WIRE SUPPORT : TILT ANGLE (DEG)"          ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta,12); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "SP1BU"   ; DbVarComment="BUTTON SUPPORT : RADIUS"                  ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta,13); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "SP2BU"   ; DbVarComment="BUTTON SUPPORT :SEPARATION"               ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta,14); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "SP3BU"   ; DbVarComment="BUTTON SUPPORT : PITCH"                   ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta,15); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "SP4BU"   ; DbVarComment="BUTTON SUPPORT : ANGLE IN TRAPEZOID REGI" ; dDbVal = pAmdcsimrec->XtgcAdd(DB_Jsta,16); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "PDIST"   ; DbVarComment="! PHYSICAL DISTANCE OF STRIPS W.R.T. BAS" ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta, 1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "S1PP"    ; DbVarComment="WIRE SUPPORT : WIDTH"                     ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta, 6)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "S2PP"    ; DbVarComment="WIRE SUPPORT : WIDTH OF GAS CHANNEL"      ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta, 7)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "WSEP"    ; DbVarComment="WIRE SUPPORT : SEPARATION"                ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta, 8)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SP1WI"   ; DbVarComment="WIRE SUPPORT : OFFSET OF WIRE SUPPORT LA" ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta, 9)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SP2WI"   ; DbVarComment="WIRE SUPPORT : LAYER 2"                   ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta,10)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SP3WI"   ; DbVarComment="WIRE SUPPORT : LAYER 3"                   ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta,11)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "TILT"    ; DbVarComment="WIRE SUPPORT : TILT ANGLE (DEG)"          ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta,12)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SP1BU"   ; DbVarComment="BUTTON SUPPORT : RADIUS"                  ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta,13)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SP2BU"   ; DbVarComment="BUTTON SUPPORT :SEPARATION"               ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta,14)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SP3BU"   ; DbVarComment="BUTTON SUPPORT : PITCH"                   ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta,15)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "SP4BU"   ; DbVarComment="BUTTON SUPPORT : ANGLE IN TRAPEZOID REGI" ; dDbVal = checkForZero(pAmdcsimrec->XtgcAdd(DB_Jsta,16)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
       for (int DB_Item=1; DB_Item<=33 ; DB_Item++){
         DbVar = "SLARGE" ;
@@ -566,7 +565,7 @@ void AmdcDbSvcMakerFromAmdc::GGLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 	int DB_Item_Shifted = DB_Item - 1 ;
         Aostringstream << DB_Item_Shifted ;
         DbVar = DbVar+Aostringstream.str();
-	dDbVal = pAmdcsimrec->XtgcStrp(DB_Jsta,DB_Item,1); 
+	dDbVal = checkForZero(pAmdcsimrec->XtgcStrp(DB_Jsta,DB_Item,1)); 
         DbVarComment="";
         if (DB_Item==1) DbVarComment="STRIPS LAYOUT";
 
@@ -581,7 +580,7 @@ void AmdcDbSvcMakerFromAmdc::GGLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 	int DB_Item_Shifted = DB_Item - 1 ;
         Aostringstream << DB_Item_Shifted ;
         DbVar = DbVar+Aostringstream.str();
-	dDbVal = pAmdcsimrec->XtgcStrp(DB_Jsta,DB_Item,2); 
+	dDbVal = checkForZero(pAmdcsimrec->XtgcStrp(DB_Jsta,DB_Item,2)); 
         DbVarComment="";
         if (DB_Item==1) DbVarComment="START OF STRIP ON LARGE BASE 1ST PLANE";
 
@@ -601,9 +600,7 @@ void AmdcDbSvcMakerFromAmdc::GGLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::ATLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "ATLN";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "TGC";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -630,8 +627,8 @@ void AmdcDbSvcMakerFromAmdc::ATLN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
         DbVar = "ICOVOL"  ; DbVarComment="MATERIAL CODE"       ; iDbVal = pAmdcsimrec->ISTAMA(DB_Jtec,DB_Jsta,DB_I)	  ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-        DbVar = "ZPOVOL"  ; DbVarComment="RELATIVE Z POSITION" ; dDbVal = pAmdcsimrec->STATT (DB_Jtec,DB_Jsta,DB_I) / 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-        DbVar = "WIDVOL"  ; DbVarComment="Z WIDTH"             ; dDbVal = pAmdcsimrec->STAOO (DB_Jtec,DB_Jsta,DB_I) / 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+        DbVar = "ZPOVOL"  ; DbVarComment="RELATIVE Z POSITION" ; dDbVal = checkForZero(pAmdcsimrec->STATT (DB_Jtec,DB_Jsta,DB_I) / 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+        DbVar = "WIDVOL"  ; DbVarComment="Z WIDTH"             ; dDbVal = checkForZero(pAmdcsimrec->STAOO (DB_Jtec,DB_Jsta,DB_I) / 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
       
         DbVar = "NAMVOL"  ; DbVarComment="MATERIAL NAME" ;
         sDbVal ="?";
@@ -659,7 +656,6 @@ void AmdcDbSvcMakerFromAmdc::WCSC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "WCSC";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "CSC";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -686,30 +682,28 @@ void AmdcDbSvcMakerFromAmdc::WCSC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "LAYCSC"  ; DbVarComment="NBER OF CSCS LAYERS"               ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)         ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "TTOTAL"  ; DbVarComment="TOTAL THICKNESS"                   ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 1)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TNOMEX"  ; DbVarComment="NOMEX HONEYCOMB THICKNESS"         ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 2)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TLAG10"  ; DbVarComment="G10 LAMINATES THICKNESS"           ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 3)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "WISPA"   ; DbVarComment="WIRE SPACING"                      ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 4)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "DANCAT"  ; DbVarComment="ANODE-CATHODE DISTANCE"            ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 5)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "PCATRE"  ; DbVarComment="CATHODE READOUT PITCH"             ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 6)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-
-      DbVar = "AZCAT"   ; DbVarComment="CATHODE READOUT PITCH, AZIMUTAL"   ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 4)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-
-      DbVar = "GSTRIP"  ; DbVarComment="GAP BETWEEN CATHODE STRIPS"        ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 7)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "WRESTR"  ; DbVarComment="WIDTH OF READOUT STRIPS"           ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 8)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "WFLSTR"  ; DbVarComment="WIDTH OF FLOATING STRIPS"          ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 9)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TRRWAS"  ; DbVarComment="RIGIT RECTANGULAR WASHER THICKNES" ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,10)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "WROXA"   ; DbVarComment="ROXACELL WIDTH"                    ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,11)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "GROXWI"  ; DbVarComment="ROXACELL AND WIRE BAR GAP"         ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,12)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "WGASBA"  ; DbVarComment="FULL GAS GAP BAR WIDTH"            ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,14)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TGASBA"  ; DbVarComment="FULL GAS GAP BAR THICK."           ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,13)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "WGASCU"  ; DbVarComment="CUTS GAS GAP BAR WIDTH"            ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,15)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TGASCU"  ; DbVarComment="CUTS GAS GAP BAR THICK."           ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,16)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "WFIXWI"  ; DbVarComment="FULL WIRE FIX. BAR WID."           ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,17)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TFIXWI"  ; DbVarComment="FULL WIRE FIX. BAR THICK."         ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,18)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "PBA1WI"  ; DbVarComment="WIRE BAR POSITION"                 ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 1)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "PBA2WI"  ; DbVarComment="WIRE BAR POSITION"                 ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 2)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "PBA3WI"  ; DbVarComment="WIRE BAR POSITION"                 ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 3)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TTOTAL"  ; DbVarComment="TOTAL THICKNESS"                   ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 1)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TNOMEX"  ; DbVarComment="NOMEX HONEYCOMB THICKNESS"         ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 2)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TLAG10"  ; DbVarComment="G10 LAMINATES THICKNESS"           ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 3)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "WISPA"   ; DbVarComment="WIRE SPACING"                      ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 4)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "DANCAT"  ; DbVarComment="ANODE-CATHODE DISTANCE"            ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 5)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "PCATRE"  ; DbVarComment="CATHODE READOUT PITCH"             ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 6)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "AZCAT"   ; DbVarComment="CATHODE READOUT PITCH, AZIMUTAL"   ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 4)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "GSTRIP"  ; DbVarComment="GAP BETWEEN CATHODE STRIPS"        ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 7)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "WRESTR"  ; DbVarComment="WIDTH OF READOUT STRIPS"           ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 8)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "WFLSTR"  ; DbVarComment="WIDTH OF FLOATING STRIPS"          ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta, 9)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TRRWAS"  ; DbVarComment="RIGIT RECTANGULAR WASHER THICKNES" ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,10)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "WROXA"   ; DbVarComment="ROXACELL WIDTH"                    ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,11)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "GROXWI"  ; DbVarComment="ROXACELL AND WIRE BAR GAP"         ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,12)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "WGASBA"  ; DbVarComment="FULL GAS GAP BAR WIDTH"            ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,14)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TGASBA"  ; DbVarComment="FULL GAS GAP BAR THICK."           ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,13)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "WGASCU"  ; DbVarComment="CUTS GAS GAP BAR WIDTH"            ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,15)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TGASCU"  ; DbVarComment="CUTS GAS GAP BAR THICK."           ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,16)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "WFIXWI"  ; DbVarComment="FULL WIRE FIX. BAR WID."           ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,17)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TFIXWI"  ; DbVarComment="FULL WIRE FIX. BAR THICK."         ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,18)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "PBA1WI"  ; DbVarComment="WIRE BAR POSITION"                 ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 1)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "PBA2WI"  ; DbVarComment="WIRE BAR POSITION"                 ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 2)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "PBA3WI"  ; DbVarComment="WIRE BAR POSITION"                 ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta, 3)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
 //DRING: What is it?  From SB reserved but never used     
       DbVar = "PSNDCO"  ; DbVarComment="2ND COORDINATE PITCH"              ; dDbVal = 0.                                          ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
@@ -726,14 +720,10 @@ void AmdcDbSvcMakerFromAmdc::WCSC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::DBAM(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "DBAM";
-//   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
-//   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DbVar	   = "";
   std::string DbVarComment = "";
   int	      iDbVal	   = 0 ;
-//double      dDbVal	   = 0.;
   std::string sDbVal	   = ""; 
 
   AmdcDbRecordset* pAmdcDbRecordset = new AmdcDbRecordset();
@@ -788,14 +778,10 @@ void AmdcDbSvcMakerFromAmdc::DBAM(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::ASMP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "ASMP";
-//   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
-//   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DbVar	   = "";
   std::string DbVarComment = "";
   int	      iDbVal	   = 0 ;
-//double      dDbVal	   = 0.;
   std::string sDbVal	   = ""; 
 
   AmdcDbRecordset* pAmdcDbRecordset = new AmdcDbRecordset();
@@ -879,7 +865,6 @@ void AmdcDbSvcMakerFromAmdc::WDED(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "WDED";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "DED";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -905,9 +890,9 @@ void AmdcDbSvcMakerFromAmdc::WDED(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "NB"     ; DbVarComment="NUMBER OF DETAILS"   ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)        ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "X0"     ; DbVarComment="X0"                  ; dDbVal = pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)	  ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "AUPHCB" ; DbVarComment="HONEYCOMB THICKNESS" ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)  / 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TCKDED" ; DbVarComment="ALUMINIUM THICKNESS" ; dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,1)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "X0"     ; DbVarComment="X0"                  ; dDbVal = checkForZero(pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "AUPHCB" ; DbVarComment="HONEYCOMB THICKNESS" ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)  / 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TCKDED" ; DbVarComment="ALUMINIUM THICKNESS" ; dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,1)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -921,9 +906,7 @@ void AmdcDbSvcMakerFromAmdc::WDED(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::WLBI(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "WLBI";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "LB";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -949,11 +932,10 @@ void AmdcDbSvcMakerFromAmdc::WLBI(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "NUM"       ; DbVarComment="NUMBER OF OBJECTS" ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "HEIGHT"    ; DbVarComment="HEIGHT"            ; dDbVal = pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "THICKNESS" ; DbVarComment="WALL THICKNESS"    ; dDbVal = pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-
-      DbVar = "LOWERTHICK"    ; DbVarComment="LOWER THICK"   ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "SHIFTYSTATION" ; DbVarComment="SHIFTY STATION"; dDbVal = pAmdcsimrec->STAPG(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "HEIGHT"    ; DbVarComment="HEIGHT"            ; dDbVal = checkForZero(pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "THICKNESS" ; DbVarComment="WALL THICKNESS"    ; dDbVal = checkForZero(pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "LOWERTHICK"    ; DbVarComment="LOWER THICK"   ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "SHIFTYSTATION" ; DbVarComment="SHIFTY STATION"; dDbVal = checkForZero(pAmdcsimrec->STAPG(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -967,9 +949,7 @@ void AmdcDbSvcMakerFromAmdc::WLBI(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::WCRO(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "WCRO";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "CRO";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -995,9 +975,9 @@ void AmdcDbSvcMakerFromAmdc::WCRO(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "NUM"        ; DbVarComment="NUMBER OF OBJECTS" ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)	  ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "HEIGHTNESS" ; DbVarComment="HEIGHT"	      ; dDbVal = pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "LARGENESS"  ; DbVarComment="T-SHAPE LARGENESS" ; dDbVal = pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "THICKNESS"  ; DbVarComment="T-SHAPE THICKNESS" ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "HEIGHTNESS" ; DbVarComment="HEIGHT"	      ;     dDbVal = checkForZero(pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "LARGENESS"  ; DbVarComment="T-SHAPE LARGENESS" ; dDbVal = checkForZero(pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "THICKNESS"  ; DbVarComment="T-SHAPE THICKNESS" ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -1011,9 +991,7 @@ void AmdcDbSvcMakerFromAmdc::WCRO(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::WCMI(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "WCMI";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "CMI";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -1039,9 +1017,9 @@ void AmdcDbSvcMakerFromAmdc::WCMI(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
    
       DbVar = "NUM"        ; DbVarComment="NUMBER OF OBJECTS" ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "HEIGHTNESS" ; DbVarComment="HEIGHT"            ; dDbVal = pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "LARGENESS"  ; DbVarComment="T-SHAPE LARGENESS" ; dDbVal = pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "THICKNESS"  ; DbVarComment="T-SHAPE THICKNESS" ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "HEIGHTNESS" ; DbVarComment="HEIGHT"            ; dDbVal = checkForZero(pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "LARGENESS"  ; DbVarComment="T-SHAPE LARGENESS" ; dDbVal = checkForZero(pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "THICKNESS"  ; DbVarComment="T-SHAPE THICKNESS" ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -1055,9 +1033,7 @@ void AmdcDbSvcMakerFromAmdc::WCMI(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::WCHV(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "WCHV";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "CHV";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -1083,9 +1059,9 @@ void AmdcDbSvcMakerFromAmdc::WCHV(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "NUM"        ; DbVarComment="NUMBER OF OBJECTS" ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)	  ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "HEIGHTNESS" ; DbVarComment="HEIGHT"	      ; dDbVal = pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "LARGENESS"  ; DbVarComment="T-SHAPE LARGENESS" ; dDbVal = pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "THICKNESS"  ; DbVarComment="T-SHAPE THICKNESS" ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "HEIGHTNESS" ; DbVarComment="HEIGHT"	      ;     dDbVal = checkForZero(pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "LARGENESS"  ; DbVarComment="T-SHAPE LARGENESS" ; dDbVal = checkForZero(pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "THICKNESS"  ; DbVarComment="T-SHAPE THICKNESS" ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -1101,7 +1077,6 @@ void AmdcDbSvcMakerFromAmdc::WSUP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "WSUP";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "SUP";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -1128,8 +1103,8 @@ void AmdcDbSvcMakerFromAmdc::WSUP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
       DbVar = "NXXSUP" ; DbVarComment="MAX NB. FOR X FRAGMENTS" ; iDbVal = pAmdcsimrec->NLAS (DB_Jtec,DB_Jsta)	   ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
       DbVar = "NZZSUP" ; DbVarComment="MAX NB. FOR Z FRAGMENTS" ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)	   ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "X0"     ; DbVarComment="X0"                      ; dDbVal = pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)	   ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "THICKN" ; DbVarComment="THICKNESS"               ; dDbVal = pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "X0"     ; DbVarComment="X0"                      ; dDbVal = (pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "THICKN" ; DbVarComment="THICKNESS"               ; dDbVal = (pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
       
       for (int DB_Item=1; DB_Item<=4 ; DB_Item++){
         DbVar = "XXSUP" ;
@@ -1139,7 +1114,7 @@ void AmdcDbSvcMakerFromAmdc::WSUP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
         Aostringstream << DB_Item_Shifted ;
         DbVar = DbVar+Aostringstream.str();
 	dDbVal = 0. ;
-	if (DB_Item<=pAmdcsimrec->NLAS (DB_Jtec,DB_Jsta)) dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,DB_Item)/10. ; 
+	if (DB_Item<=pAmdcsimrec->NLAS (DB_Jtec,DB_Jsta)) dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,DB_Item)/10.); 
         DbVarComment="" ;
 	if (DB_Item==1) DbVarComment="X DIMENSION" ; 
  
@@ -1155,7 +1130,7 @@ void AmdcDbSvcMakerFromAmdc::WSUP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
         Aostringstream << DB_Item_Shifted ;
         DbVar = DbVar+Aostringstream.str();
 	dDbVal = 0. ;
-	if (DB_Item<=pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)) dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,DB_Item)/10. ; 
+	if (DB_Item<=pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)) dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,DB_Item)/10.); 
         DbVarComment="" ;
 	if (DB_Item==1) DbVarComment="Z DIMENSION" ; 
 
@@ -1177,7 +1152,6 @@ void AmdcDbSvcMakerFromAmdc::WSPA(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "WSPA";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "SPA";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -1203,8 +1177,8 @@ void AmdcDbSvcMakerFromAmdc::WSPA(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "NB"     ; DbVarComment="NUMBER OF DETAILS"   ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "X0"     ; DbVarComment="X0"                  ; dDbVal = pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)	; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-      DbVar = "TCKSPA" ; DbVarComment="THICKNESS OF SPACER" ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "X0"     ; DbVarComment="X0"                  ; dDbVal = checkForZero(pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "TCKSPA" ; DbVarComment="THICKNESS OF SPACER" ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
       pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -1220,7 +1194,6 @@ void AmdcDbSvcMakerFromAmdc::WMDT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "WMDT";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DB_TecName = "MDT";
   int	      DB_Jtec	 = pAmdcsimrec->GetJtec(DB_TecName);
@@ -1246,14 +1219,14 @@ void AmdcDbSvcMakerFromAmdc::WMDT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   
       DbVar = "IW"     ; DbVarComment="INDEX"                ; iDbVal = DB_Jsta			                 ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "X0"     ; DbVarComment="X0"                   ; dDbVal = pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)	 ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+      DbVar = "X0"     ; DbVarComment="X0"                   ; dDbVal = checkForZero(pAmdcsimrec->STAX0(DB_Jtec,DB_Jsta)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
       DbVar = "LAYMDT" ; DbVarComment="MAXIMUM LAYER NUMBER" ; iDbVal = pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "TUBPIT" ; DbVarComment="PITCH BETWEEN TUBE"   ; dDbVal = pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TUBRAD" ; DbVarComment="RADIUS OF TUBE"       ; dDbVal = pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TUBSTA" ; DbVarComment="THICKNESS OF TUBE"    ; dDbVal = pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-      DbVar = "TUBDEA" ; DbVarComment="DEAD LENGTH IN TUBES" ; dDbVal = pAmdcsimrec->STAPG(DB_Jtec,DB_Jsta)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TUBPIT" ; DbVarComment="PITCH BETWEEN TUBE"   ; dDbVal = checkForZero(pAmdcsimrec->STAPP(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TUBRAD" ; DbVarComment="RADIUS OF TUBE"       ; dDbVal = checkForZero(pAmdcsimrec->STARR(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TUBSTA" ; DbVarComment="THICKNESS OF TUBE"    ; dDbVal = checkForZero(pAmdcsimrec->STAEE(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+      DbVar = "TUBDEA" ; DbVarComment="DEAD LENGTH IN TUBES" ; dDbVal = checkForZero(pAmdcsimrec->STAPG(DB_Jtec,DB_Jsta)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
       
       for (int DB_Item=1; DB_Item<=4 ; DB_Item++){
         DbVar = "TUBXCO" ;
@@ -1263,7 +1236,7 @@ void AmdcDbSvcMakerFromAmdc::WMDT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
         Aostringstream << DB_Item_Shifted ;
         DbVar = DbVar+Aostringstream.str();
 	dDbVal = 0. ;
-	if (DB_Item<=pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)) dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,DB_Item)/10.; 
+	if (DB_Item<=pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)) dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,DB_Item)/10.); 
         DbVarComment="" ;
 	if (DB_Item==1) DbVarComment="Y TUBE POSITION" ;
 	
@@ -1279,7 +1252,7 @@ void AmdcDbSvcMakerFromAmdc::WMDT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
         Aostringstream << DB_Item_Shifted ;
         DbVar = DbVar+Aostringstream.str();
 	dDbVal = 0.;
-	if (DB_Item<=pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)) dDbVal = pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,DB_Item)/10.; 
+	if (DB_Item<=pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)) dDbVal = checkForZero(pAmdcsimrec->STATT(DB_Jtec,DB_Jsta,DB_Item)/10.); 
         DbVarComment="" ;
 	if (DB_Item==1) DbVarComment="X TUBE POSITION" ;
 
@@ -1287,7 +1260,7 @@ void AmdcDbSvcMakerFromAmdc::WMDT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 
       }
 
-      DbVar = "TUBWAL" ; DbVarComment="TUBE WALL THICKNESS" ; dDbVal = pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)+1)/ 10. ; 
+      DbVar = "TUBWAL" ; DbVarComment="TUBE WALL THICKNESS" ; dDbVal = checkForZero(pAmdcsimrec->STAOO(DB_Jtec,DB_Jsta,pAmdcsimrec->NLAZ (DB_Jtec,DB_Jsta)+1)/ 10.); 
                                                                                                               pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
       pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -1303,7 +1276,6 @@ void AmdcDbSvcMakerFromAmdc::ALIN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string NameOfTheSet = "ALIN";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DbVar	   = "";
   std::string DbVarComment = "";
@@ -1341,7 +1313,7 @@ if ((StationNameHEAD[0] != 'T'
 
               DbVar = "VERS"     ; DbVarComment="VERSION"                                  ; iDbVal = m_version		                                                                     ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-              DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = pAmdcsimrec->Cutdx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = checkForZero(pAmdcsimrec->Cutdx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
               DbVar = "DY";
               DbVarComment="Y RELATIVE POSITION OF THE SUB-CUT";
               int theDbIdx = DB_INDX;
@@ -1351,11 +1323,7 @@ if ((StationNameHEAD[0] != 'T'
               // (https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/Amdcsimrec/AmdcStand/src/readmdb.F90#0971)
               // this Cut_dy function only returns the correct H Line dy values in case the original amdb station number is given.
               // This only happens for BI upgrades, BIS78 and BI1-6
-              if (TheStationName.find("BI")!=std::string::npos) {
-                if (DB_INDX>16) {
-                  MsgStream log(Athena::getMessageSvc(),"AmdcDbSvcMakerFromAmdc::ALIN");
-                  log<<MSG::WARNING<<"ATTENTION: Adjusting DB_INDX value for H Line Cutdy method call. This should only be done for BI upgrade chambers."<<endmsg;
-                }
+              if (TheStationName.find("BIS")!=std::string::npos) {
                 if (DB_INDX==17) theDbIdx=7;
                 else if (DB_INDX==18) theDbIdx=13;
                 else if (DB_INDX==19) theDbIdx=9;
@@ -1365,21 +1333,22 @@ if ((StationNameHEAD[0] != 'T'
                 else if (DB_INDX==25) theDbIdx=12;
                 else if (DB_INDX==26) theDbIdx=14;
               }
-              dDbVal = pAmdcsimrec->Cutdy(pAmdcsimrec->INOCUT(DB_JTYP,theDbIdx,DB_ICUT),KounterCutLines)/10.; 
-// JFL Thu Apr  3 14:47:44 CEST 2008: 
-//  found by Stefania Spagnolo: When computed for the -Z part there are rounding errors which giving non nul value to Dy while it should be null
-//  patch: put it a 0. if too small
-              double Alim_DySmall = 0.0002 ;
-              if ( std::abs(dDbVal) <= Alim_DySmall ) dDbVal = 0.;
+              if (DB_INDX!=theDbIdx) {
+                MsgStream log(Athena::getMessageSvc(),"AmdcDbSvcMakerFromAmdc::ALIN");
+                log<<MSG::WARNING<<"ATTENTION: Adjusting DB_INDX value for H Line Cutdy method call for station "<<TheStationName<<" from "<<DB_INDX<<" to "<<theDbIdx<<". This should only be done for BI upgrade chambers."<<endmsg;
+              }
+              // found by Stefania Spagnolo: When computed for the -Z part there are rounding errors which giving non nul value to Dy 
+              // while it should be null, put it a 0 if too small
+              dDbVal = checkForZero(pAmdcsimrec->Cutdy(pAmdcsimrec->INOCUT(DB_JTYP,theDbIdx,DB_ICUT),KounterCutLines)/10.,1e-3); 
               pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
               DbVar = "I"        ; DbVarComment="SERIAL NB. OF THE OBJECT IN WHICH THE SU" ; iDbVal = pAmdcsimrec->IOBCUT(pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)	     ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
   
-              DbVar = "WIDTH_XS" ; DbVarComment="S DIMENSIONS OF THE SUB-CUT"              ; dDbVal = pAmdcsimrec->CutWs (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "WIDTH_XL" ; DbVarComment="L DIMENSIONS OF THE SUB-CUT"              ; dDbVal = pAmdcsimrec->CutWl (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "LENGTH_Y" ; DbVarComment="Y DIMENSIONS OF THE SUB-CUT"              ; dDbVal = pAmdcsimrec->CutLe (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "EXCENT"   ; DbVarComment="EXC DIMENSIONS OF THE SUB-CUT"            ; dDbVal = pAmdcsimrec->CutEx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "DEAD1"    ; DbVarComment="D1 DIMENSIONS OF THE SUB-CUT"             ; dDbVal = pAmdcsimrec->CutAn (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)	     ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+              DbVar = "WIDTH_XS" ; DbVarComment="S DIMENSIONS OF THE SUB-CUT"              ; dDbVal = checkForZero(pAmdcsimrec->CutWs (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "WIDTH_XL" ; DbVarComment="L DIMENSIONS OF THE SUB-CUT"              ; dDbVal = checkForZero(pAmdcsimrec->CutWl (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "LENGTH_Y" ; DbVarComment="Y DIMENSIONS OF THE SUB-CUT"              ; dDbVal = checkForZero(pAmdcsimrec->CutLe (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "EXCENT"   ; DbVarComment="EXC DIMENSIONS OF THE SUB-CUT"            ; dDbVal = checkForZero(pAmdcsimrec->CutEx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "DEAD1"    ; DbVarComment="D1 DIMENSIONS OF THE SUB-CUT"             ; dDbVal = checkForZero(pAmdcsimrec->CutAn (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
               DbVar = "JTYP"     ; DbVarComment="STATION TYPE"                             ; iDbVal = DB_JTYP                                                                                ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
               DbVar = "INDX"     ; DbVarComment="INDEX"                                    ; iDbVal = DB_INDX                                                                                ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
@@ -1416,16 +1385,16 @@ if (Ifound == 1 ){
 
               DbVar = "VERS"     ; DbVarComment="VERSION"                                  ; iDbVal = m_version		                                                                     ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-              DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = pAmdcsimrec->Cutdx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "DY"       ; DbVarComment="Y RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = pAmdcsimrec->Cutdy (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = checkForZero(pAmdcsimrec->Cutdx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "DY"       ; DbVarComment="Y RELATIVE POSITION OF THE SUB-CUT"       ; dDbVal = checkForZero(pAmdcsimrec->Cutdy (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
               DbVar = "I"        ; DbVarComment="SERIAL NB. OF THE OBJECT IN WHICH THE SU" ; iDbVal = pAmdcsimrec->IOBCUT(pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)	     ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
   
-              DbVar = "WIDTH_XS" ; DbVarComment="S DIMENSIONS OF THE SUB-CUT"              ; dDbVal = pAmdcsimrec->CutWs (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "WIDTH_XL" ; DbVarComment="L DIMENSIONS OF THE SUB-CUT"              ; dDbVal = pAmdcsimrec->CutWl (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "LENGTH_Y" ; DbVarComment="Y DIMENSIONS OF THE SUB-CUT"              ; dDbVal = pAmdcsimrec->CutLe (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "EXCENT"   ; DbVarComment="EXC DIMENSIONS OF THE SUB-CUT"            ; dDbVal = pAmdcsimrec->CutEx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-              DbVar = "DEAD1"    ; DbVarComment="D1 DIMENSIONS OF THE SUB-CUT"             ; dDbVal = pAmdcsimrec->CutAn (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)	     ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+              DbVar = "WIDTH_XS" ; DbVarComment="S DIMENSIONS OF THE SUB-CUT"              ; dDbVal = checkForZero(pAmdcsimrec->CutWs (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "WIDTH_XL" ; DbVarComment="L DIMENSIONS OF THE SUB-CUT"              ; dDbVal = checkForZero(pAmdcsimrec->CutWl (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "LENGTH_Y" ; DbVarComment="Y DIMENSIONS OF THE SUB-CUT"              ; dDbVal = checkForZero(pAmdcsimrec->CutLe (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "EXCENT"   ; DbVarComment="EXC DIMENSIONS OF THE SUB-CUT"            ; dDbVal = checkForZero(pAmdcsimrec->CutEx (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+              DbVar = "DEAD1"    ; DbVarComment="D1 DIMENSIONS OF THE SUB-CUT"             ; dDbVal = checkForZero(pAmdcsimrec->CutAn (pAmdcsimrec->INOCUT(DB_JTYP,DB_INDX,DB_ICUT),KounterCutLines)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
               DbVar = "JTYP"     ; DbVarComment="STATION TYPE"                             ; iDbVal = DB_JTYP                                                                                ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
               DbVar = "INDX"     ; DbVarComment="INDEX"                                    ; iDbVal = DB_INDX                                                                                ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
@@ -1451,9 +1420,7 @@ if (Ifound == 1 ){
 void AmdcDbSvcMakerFromAmdc::ALMN(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "ALMN";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DbVar	   = "";
   std::string DbVarComment = "";
@@ -1483,7 +1450,7 @@ if ((StationNameHEAD[0] != 'T'
         int DB_JOB_Max = pAmdcsimrec->NOBJ (DB_JTYP,DB_INDX); 
         for (int DB_JOB=1 ; DB_JOB<=DB_JOB_Max ; DB_JOB++){
 
-          m_UniversalIdKounter = m_UniversalIdKounter + 1;
+          // m_UniversalIdKounter = m_UniversalIdKounter + 1;
           AmdcDbRecord* pAmdcDbRecord = new AmdcDbRecord(m_UniversalIdKounter,NameOfTheSet);
 
           DbVar = "VERS"     ; DbVarComment="VERSION"                                  ; iDbVal = m_version                                        ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
@@ -1491,9 +1458,9 @@ if ((StationNameHEAD[0] != 'T'
 //DRING: this is a guess
           DbVar = "I"        ; DbVarComment="ELEMENT NUMBER"                           ; iDbVal = DB_JOB                                           ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-          DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE OBJECT"        ; dDbVal = pAmdcsimrec->Geodx (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DY"       ; DbVarComment="Y RELATIVE POSITION OF THE OBJECT"        ; dDbVal = pAmdcsimrec->Geody (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DZ"       ; DbVarComment="Z RELATIVE POSITION OF THE OBJECT"        ; dDbVal = pAmdcsimrec->Geodz (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE OBJECT"        ; dDbVal = checkForZero(pAmdcsimrec->Geodx (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DY"       ; DbVarComment="Y RELATIVE POSITION OF THE OBJECT"        ; dDbVal = checkForZero(pAmdcsimrec->Geody (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DZ"       ; DbVarComment="Z RELATIVE POSITION OF THE OBJECT"        ; dDbVal = checkForZero(pAmdcsimrec->Geodz (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
           DbVar = "JOB"      ; DbVarComment="OBJECT SERIAL NUMBER IN THE STATION"      ; iDbVal = DB_JOB                                           ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
@@ -1510,13 +1477,13 @@ if ((StationNameHEAD[0] != 'T'
           DbVar = "ISPLIT_Y" ; DbVarComment="NUMBER OF SECTIONS IN Y"                  ; iDbVal = pAmdcsimrec->ISPLIY(DB_JTYP,DB_INDX,DB_JOB)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
           DbVar = "ISHAPE"   ; DbVarComment="TYPE OF GEOMETRICAL SHAPE 0-TRAPEZOIDAL," ; iDbVal = pAmdcsimrec->ISHAPE(DB_JTYP,DB_INDX,DB_JOB)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-          DbVar = "WIDTH_XS" ; DbVarComment="S WIDTH, WS"                              ; dDbVal = pAmdcsimrec->GeoWs (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "WIDTH_XL" ; DbVarComment="L WIDTH, WL"                              ; dDbVal = pAmdcsimrec->GeoWl (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "LENGTH_Y" ; DbVarComment="Y LENGTH, LE"                             ; dDbVal = pAmdcsimrec->GeoLe (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "EXCENT"   ; DbVarComment="ADDITIONAL INFORMATION, EX"               ; dDbVal = pAmdcsimrec->GeoEx (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DEAD1"    ; DbVarComment="FIRST DEAD MATERIAL, D1"                  ; dDbVal = pAmdcsimrec->GeoD1 (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DEAD2"    ; DbVarComment="SECOND DEAD MATERIAL, D2"                 ; dDbVal = pAmdcsimrec->GeoD2 (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DEAD3"    ; DbVarComment="STEPS, D3"                                ; dDbVal = pAmdcsimrec->GeoD3 (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "WIDTH_XS" ; DbVarComment="S WIDTH, WS"                              ; dDbVal = checkForZero(pAmdcsimrec->GeoWs (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "WIDTH_XL" ; DbVarComment="L WIDTH, WL"                              ; dDbVal = checkForZero(pAmdcsimrec->GeoWl (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "LENGTH_Y" ; DbVarComment="Y LENGTH, LE"                             ; dDbVal = checkForZero(pAmdcsimrec->GeoLe (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "EXCENT"   ; DbVarComment="ADDITIONAL INFORMATION, EX"               ; dDbVal = checkForZero(pAmdcsimrec->GeoEx (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DEAD1"    ; DbVarComment="FIRST DEAD MATERIAL, D1"                  ; dDbVal = checkForZero(pAmdcsimrec->GeoD1 (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DEAD2"    ; DbVarComment="SECOND DEAD MATERIAL, D2"                 ; dDbVal = checkForZero(pAmdcsimrec->GeoD2 (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DEAD3"    ; DbVarComment="STEPS, D3"                                ; dDbVal = checkForZero(pAmdcsimrec->GeoD3 (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
           DbVar = "JTYP"     ; DbVarComment="STATION TYPE"                             ; iDbVal = DB_JTYP                                          ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
           DbVar = "INDX"     ; DbVarComment="ELEMENT NUMBER"                           ; iDbVal = DB_INDX                                          ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
@@ -1554,9 +1521,9 @@ if (Ifound == 1 ){
 //DRING: this is a guess
           DbVar = "I"        ; DbVarComment="ELEMENT NUMBER"                           ; iDbVal = DB_JOB                                           ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-          DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE OBJECT"        ; dDbVal = pAmdcsimrec->Geodx (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DY"       ; DbVarComment="Y RELATIVE POSITION OF THE OBJECT"        ; dDbVal = pAmdcsimrec->Geody (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DZ"       ; DbVarComment="Z RELATIVE POSITION OF THE OBJECT"        ; dDbVal = pAmdcsimrec->Geodz (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DX"       ; DbVarComment="X RELATIVE POSITION OF THE OBJECT"        ; dDbVal = checkForZero(pAmdcsimrec->Geodx (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DY"       ; DbVarComment="Y RELATIVE POSITION OF THE OBJECT"        ; dDbVal = checkForZero(pAmdcsimrec->Geody (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DZ"       ; DbVarComment="Z RELATIVE POSITION OF THE OBJECT"        ; dDbVal = checkForZero(pAmdcsimrec->Geodz (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
           DbVar = "JOB"      ; DbVarComment="OBJECT SERIAL NUMBER IN THE STATION"      ; iDbVal = DB_JOB                                           ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
@@ -1573,13 +1540,13 @@ if (Ifound == 1 ){
           DbVar = "ISPLIT_Y" ; DbVarComment="NUMBER OF SECTIONS IN Y"                  ; iDbVal = pAmdcsimrec->ISPLIY(DB_JTYP,DB_INDX,DB_JOB)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
           DbVar = "ISHAPE"   ; DbVarComment="TYPE OF GEOMETRICAL SHAPE 0-TRAPEZOIDAL," ; iDbVal = pAmdcsimrec->ISHAPE(DB_JTYP,DB_INDX,DB_JOB)      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-          DbVar = "WIDTH_XS" ; DbVarComment="S WIDTH, WS"                              ; dDbVal = pAmdcsimrec->GeoWs (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "WIDTH_XL" ; DbVarComment="L WIDTH, WL"                              ; dDbVal = pAmdcsimrec->GeoWl (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "LENGTH_Y" ; DbVarComment="Y LENGTH, LE"                             ; dDbVal = pAmdcsimrec->GeoLe (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "EXCENT"   ; DbVarComment="ADDITIONAL INFORMATION, EX"               ; dDbVal = pAmdcsimrec->GeoEx (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DEAD1"    ; DbVarComment="FIRST DEAD MATERIAL, D1"                  ; dDbVal = pAmdcsimrec->GeoD1 (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DEAD2"    ; DbVarComment="SECOND DEAD MATERIAL, D2"                 ; dDbVal = pAmdcsimrec->GeoD2 (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-          DbVar = "DEAD3"    ; DbVarComment="STEPS, D3"                                ; dDbVal = pAmdcsimrec->GeoD3 (DB_JTYP,DB_INDX,DB_JOB)/ 10. ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "WIDTH_XS" ; DbVarComment="S WIDTH, WS"                              ; dDbVal = checkForZero(pAmdcsimrec->GeoWs (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "WIDTH_XL" ; DbVarComment="L WIDTH, WL"                              ; dDbVal = checkForZero(pAmdcsimrec->GeoWl (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "LENGTH_Y" ; DbVarComment="Y LENGTH, LE"                             ; dDbVal = checkForZero(pAmdcsimrec->GeoLe (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "EXCENT"   ; DbVarComment="ADDITIONAL INFORMATION, EX"               ; dDbVal = checkForZero(pAmdcsimrec->GeoEx (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DEAD1"    ; DbVarComment="FIRST DEAD MATERIAL, D1"                  ; dDbVal = checkForZero(pAmdcsimrec->GeoD1 (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DEAD2"    ; DbVarComment="SECOND DEAD MATERIAL, D2"                 ; dDbVal = checkForZero(pAmdcsimrec->GeoD2 (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+          DbVar = "DEAD3"    ; DbVarComment="STEPS, D3"                                ; dDbVal = checkForZero(pAmdcsimrec->GeoD3 (DB_JTYP,DB_INDX,DB_JOB)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
 
           DbVar = "JTYP"     ; DbVarComment="STATION TYPE"                             ; iDbVal = DB_JTYP                                          ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
           DbVar = "INDX"     ; DbVarComment="ELEMENT NUMBER"                           ; iDbVal = DB_INDX                                          ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
@@ -1602,7 +1569,6 @@ if (Ifound == 1 ){
 void AmdcDbSvcMakerFromAmdc::APTP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "APTP";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
@@ -1669,17 +1635,16 @@ if ((StationNameHEAD[0] != 'T'
             DbVar = "DPHI"  ; 
             double PIS180 = M_PI/180.;
             double PI2SN  = 360./8.;
-            dDbVal = pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN ; 
+            dDbVal = checkForZero(pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN); 
             DbVarComment="RELATIVE PHI POSITION OF THE STATION IN" ;
             pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
 
-            DbVar = "Z"     ; DbVarComment="Z POSITION OF THE LOWEST Z EDGE OF THE S" ; dDbVal = pAmdcsimrec->PosZ   (DB_JTYP,DB_JFF,DB_IZ)/ 10.  ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-            DbVar = "R"     ; DbVarComment="RADIAL POSITION OF ITS INNERMOST EDGE"    ; dDbVal = pAmdcsimrec->PosR   (DB_JTYP,DB_JFF,DB_IZ)/ 10.  ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-            DbVar = "S"     ; DbVarComment="ORTHO-RADIAL POSITION OF THE CENTER OF T" ; dDbVal = pAmdcsimrec->PosS   (DB_JTYP,DB_JFF,DB_IZ)/ 10.  ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
-	  
-            DbVar = "ALFA"  ; DbVarComment="ALFA ANGLE DEFINING THE DEVIATION [GRAD]" ; dDbVal = pAmdcsimrec->PosAlfa(DB_JTYP,DB_JFF,DB_IZ)       ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
-            DbVar = "BETA"  ; DbVarComment="BETA ANGLE DEFINING THE DEVIATION"        ; dDbVal = pAmdcsimrec->PosBeta(DB_JTYP,DB_JFF,DB_IZ)       ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
-            DbVar = "GAMMA" ; DbVarComment="GAMMA ANGLE DEFINING THE DEVIATION"       ; dDbVal = pAmdcsimrec->PosGama(DB_JTYP,DB_JFF,DB_IZ)       ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
+            DbVar = "Z"     ; DbVarComment="Z POSITION OF THE LOWEST Z EDGE OF THE S" ; dDbVal = checkForZero(pAmdcsimrec->PosZ   (DB_JTYP,DB_JFF,DB_IZ)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+            DbVar = "R"     ; DbVarComment="RADIAL POSITION OF ITS INNERMOST EDGE"    ; dDbVal = checkForZero(pAmdcsimrec->PosR   (DB_JTYP,DB_JFF,DB_IZ)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+            DbVar = "S"     ; DbVarComment="ORTHO-RADIAL POSITION OF THE CENTER OF T" ; dDbVal = checkForZero(pAmdcsimrec->PosS   (DB_JTYP,DB_JFF,DB_IZ)/ 10.); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthCM);
+            DbVar = "ALFA"  ; DbVarComment="ALFA ANGLE DEFINING THE DEVIATION [GRAD]" ; dDbVal = checkForZero(pAmdcsimrec->PosAlfa(DB_JTYP,DB_JFF,DB_IZ)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
+            DbVar = "BETA"  ; DbVarComment="BETA ANGLE DEFINING THE DEVIATION"        ; dDbVal = checkForZero(pAmdcsimrec->PosBeta(DB_JTYP,DB_JFF,DB_IZ)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
+            DbVar = "GAMMA" ; DbVarComment="GAMMA ANGLE DEFINING THE DEVIATION"       ; dDbVal = checkForZero(pAmdcsimrec->PosGama(DB_JTYP,DB_JFF,DB_IZ)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsAngle);
 
             pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
 
@@ -1738,15 +1703,15 @@ if ((StationNameHEAD[0] != 'T'
 
           double PIS180 = M_PI/180.;
           double PI2SN  = 360./8.;
-          dDbVal_DPHI = pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN ;
+          dDbVal_DPHI = checkForZero(pAmdcsimrec->PosPhi (DB_JTYP,DB_JFF,DB_IZ) / PIS180 -  ( DB_JFF * 1. - 1.) * PI2SN);
 	  
-          dDbVal_Z = pAmdcsimrec->PosZ	(DB_JTYP,DB_JFF,DB_IZ)/ 10. ; 
-          dDbVal_R = pAmdcsimrec->PosR	(DB_JTYP,DB_JFF,DB_IZ)/ 10. ; 
-          dDbVal_S = pAmdcsimrec->PosS	(DB_JTYP,DB_JFF,DB_IZ)/ 10. ; 
+          dDbVal_Z = checkForZero(pAmdcsimrec->PosZ	(DB_JTYP,DB_JFF,DB_IZ)/ 10.); 
+          dDbVal_R = checkForZero(pAmdcsimrec->PosR	(DB_JTYP,DB_JFF,DB_IZ)/ 10.); 
+          dDbVal_S = checkForZero(pAmdcsimrec->PosS	(DB_JTYP,DB_JFF,DB_IZ)/ 10.); 
 
-          dDbVal_ALFA  = pAmdcsimrec->PosAlfa(DB_JTYP,DB_JFF,DB_IZ) ;
-          dDbVal_BETA  = pAmdcsimrec->PosBeta(DB_JTYP,DB_JFF,DB_IZ) ;
-          dDbVal_GAMMA = pAmdcsimrec->PosGama(DB_JTYP,DB_JFF,DB_IZ) ;
+          dDbVal_ALFA  = checkForZero(pAmdcsimrec->PosAlfa(DB_JTYP,DB_JFF,DB_IZ));
+          dDbVal_BETA  = checkForZero(pAmdcsimrec->PosBeta(DB_JTYP,DB_JFF,DB_IZ));
+          dDbVal_GAMMA = checkForZero(pAmdcsimrec->PosGama(DB_JTYP,DB_JFF,DB_IZ));
         }
       }
       
@@ -1815,7 +1780,6 @@ if ((StationNameHEAD[0] != 'T'
 void AmdcDbSvcMakerFromAmdc::ASZT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "ASZT";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
@@ -1880,7 +1844,6 @@ void AmdcDbSvcMakerFromAmdc::ASZT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::ISZT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "ISZT";
-//  int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
@@ -1942,14 +1905,10 @@ void AmdcDbSvcMakerFromAmdc::ISZT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
 void AmdcDbSvcMakerFromAmdc::HwSwIdMapping(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   std::string NameOfTheSet = "HwSwIdMapping";
-//   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
-//   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DbVar	   = "";
   std::string DbVarComment = "";
   int	      iDbVal	   = 0 ;
-//double      dDbVal	   = 0.;
   std::string sDbVal	   = ""; 
 
   AmdcDbRecordset* pAmdcDbRecordset = new AmdcDbRecordset();
@@ -1980,8 +1939,6 @@ void AmdcDbSvcMakerFromAmdc::XtomoData(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcD
 
   std::string NameOfTheSet = "XtomoData";
   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
-//   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
   std::string DbVar	   = "";
   std::string DbVarComment = "";
@@ -2007,34 +1964,34 @@ void AmdcDbSvcMakerFromAmdc::XtomoData(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcD
     DbVar = "XtomoNberTube2"  ; DbVarComment="XtomoNberTube2"   ; iDbVal = pAmdcsimrec->GetXtomoNberTube2 (iXtomoEntries1) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal)                    ;
     DbVar = "XtomoNberML"     ; DbVarComment="XtomoNberML   "   ; iDbVal = pAmdcsimrec->GetXtomoNberML    (iXtomoEntries1) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal)                    ;
     DbVar = "XtomoNberLayer"  ; DbVarComment="XtomoNberLayer"   ; iDbVal = pAmdcsimrec->GetXtomoNberLayer (iXtomoEntries1) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal)                    ;
-    DbVar = "XtomoML1NYtub"   ; DbVarComment="XtomoML1NYtub "   ; dDbVal = pAmdcsimrec->GetXtomoML1NYtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1NZtub"   ; DbVarComment="XtomoML1NZtub "   ; dDbVal = pAmdcsimrec->GetXtomoML1NZtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1NDely"   ; DbVarComment="XtomoML1NDely "   ; dDbVal = pAmdcsimrec->GetXtomoML1NDely  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1NDelz"   ; DbVarComment="XtomoML1NDelz "   ; dDbVal = pAmdcsimrec->GetXtomoML1NDelz  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1NDela"   ; DbVarComment="XtomoML1NDela "   ; dDbVal = pAmdcsimrec->GetXtomoML1NDela  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1NYpit"   ; DbVarComment="XtomoML1NYpit "   ; dDbVal = pAmdcsimrec->GetXtomoML1NYpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1NZpit"   ; DbVarComment="XtomoML1NZpit "   ; dDbVal = pAmdcsimrec->GetXtomoML1NZpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1PYtub"   ; DbVarComment="XtomoML1PYtub "   ; dDbVal = pAmdcsimrec->GetXtomoML1PYtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1PZtub"   ; DbVarComment="XtomoML1PZtub "   ; dDbVal = pAmdcsimrec->GetXtomoML1PZtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1PDely"   ; DbVarComment="XtomoML1PDely "   ; dDbVal = pAmdcsimrec->GetXtomoML1PDely  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1PDelz"   ; DbVarComment="XtomoML1PDelz "   ; dDbVal = pAmdcsimrec->GetXtomoML1PDelz  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1PDela"   ; DbVarComment="XtomoML1PDela "   ; dDbVal = pAmdcsimrec->GetXtomoML1PDela  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1PYpit"   ; DbVarComment="XtomoML1PYpit "   ; dDbVal = pAmdcsimrec->GetXtomoML1PYpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML1PZpit"   ; DbVarComment="XtomoML1PZpit "   ; dDbVal = pAmdcsimrec->GetXtomoML1PZpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2NYtub"   ; DbVarComment="XtomoML2NYtub "   ; dDbVal = pAmdcsimrec->GetXtomoML2NYtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2NZtub"   ; DbVarComment="XtomoML2NZtub "   ; dDbVal = pAmdcsimrec->GetXtomoML2NZtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2NDely"   ; DbVarComment="XtomoML2NDely "   ; dDbVal = pAmdcsimrec->GetXtomoML2NDely  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2NDelz"   ; DbVarComment="XtomoML2NDelz "   ; dDbVal = pAmdcsimrec->GetXtomoML2NDelz  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2NDela"   ; DbVarComment="XtomoML2NDela "   ; dDbVal = pAmdcsimrec->GetXtomoML2NDela  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2NYpit"   ; DbVarComment="XtomoML2NYpit "   ; dDbVal = pAmdcsimrec->GetXtomoML2NYpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2NZpit"   ; DbVarComment="XtomoML2NZpit "   ; dDbVal = pAmdcsimrec->GetXtomoML2NZpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2PYtub"   ; DbVarComment="XtomoML2PYtub "   ; dDbVal = pAmdcsimrec->GetXtomoML2PYtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2PZtub"   ; DbVarComment="XtomoML2PZtub "   ; dDbVal = pAmdcsimrec->GetXtomoML2PZtub  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2PDely"   ; DbVarComment="XtomoML2PDely "   ; dDbVal = pAmdcsimrec->GetXtomoML2PDely  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2PDelz"   ; DbVarComment="XtomoML2PDelz "   ; dDbVal = pAmdcsimrec->GetXtomoML2PDelz  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2PDela"   ; DbVarComment="XtomoML2PDela "   ; dDbVal = pAmdcsimrec->GetXtomoML2PDela  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2PYpit"   ; DbVarComment="XtomoML2PYpit "   ; dDbVal = pAmdcsimrec->GetXtomoML2PYpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
-    DbVar = "XtomoML2PZpit"   ; DbVarComment="XtomoML2PZpit "   ; dDbVal = pAmdcsimrec->GetXtomoML2PZpit  (iXtomoEntries1) ; pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1NYtub"   ; DbVarComment="XtomoML1NYtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1NYtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1NZtub"   ; DbVarComment="XtomoML1NZtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1NZtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1NDely"   ; DbVarComment="XtomoML1NDely "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1NDely(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1NDelz"   ; DbVarComment="XtomoML1NDelz "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1NDelz(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1NDela"   ; DbVarComment="XtomoML1NDela "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1NDela(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1NYpit"   ; DbVarComment="XtomoML1NYpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1NYpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1NZpit"   ; DbVarComment="XtomoML1NZpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1NZpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1PYtub"   ; DbVarComment="XtomoML1PYtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1PYtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1PZtub"   ; DbVarComment="XtomoML1PZtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1PZtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1PDely"   ; DbVarComment="XtomoML1PDely "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1PDely(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1PDelz"   ; DbVarComment="XtomoML1PDelz "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1PDelz(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1PDela"   ; DbVarComment="XtomoML1PDela "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1PDela(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1PYpit"   ; DbVarComment="XtomoML1PYpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1PYpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML1PZpit"   ; DbVarComment="XtomoML1PZpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML1PZpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2NYtub"   ; DbVarComment="XtomoML2NYtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2NYtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2NZtub"   ; DbVarComment="XtomoML2NZtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2NZtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2NDely"   ; DbVarComment="XtomoML2NDely "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2NDely(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2NDelz"   ; DbVarComment="XtomoML2NDelz "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2NDelz(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2NDela"   ; DbVarComment="XtomoML2NDela "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2NDela(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2NYpit"   ; DbVarComment="XtomoML2NYpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2NYpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2NZpit"   ; DbVarComment="XtomoML2NZpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2NZpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2PYtub"   ; DbVarComment="XtomoML2PYtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2PYtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2PZtub"   ; DbVarComment="XtomoML2PZtub "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2PZtub(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2PDely"   ; DbVarComment="XtomoML2PDely "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2PDely(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2PDelz"   ; DbVarComment="XtomoML2PDelz "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2PDelz(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2PDela"   ; DbVarComment="XtomoML2PDela "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2PDela(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2PYpit"   ; DbVarComment="XtomoML2PYpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2PYpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
+    DbVar = "XtomoML2PZpit"   ; DbVarComment="XtomoML2PZpit "   ; dDbVal = checkForZero(pAmdcsimrec->GetXtomoML2PZpit(iXtomoEntries1)); pAmdcDbRecord->addDouble(DbVar,DbVarComment,dDbVal,LocalEpsLengthMM);
 
     pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
   }
