@@ -38,8 +38,8 @@ EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
     }
   }
 
-  m_HVManager[0]=hvManagerInner;
-  m_HVManager[1]=hvManagerOuter;
+  m_HVManager[0].store (hvManagerInner);
+  m_HVManager[1].store (hvManagerOuter);
 
   // The EMEC gets and managers certain arrays needed to build descriptors.  Here is that:
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -129,25 +129,25 @@ void EMECDetectorManager::addTreeTop (PVLink treeTop)
 
 const EMECHVManager& EMECDetectorManager::getHVManager (EMECHVManager::IOType io) const
 {
-  if(!m_HVManager[io]) {
+  if(!m_HVManager[io].get()) {
     //Support lazy initialization for testbeams
     ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
     const LArHVManager *manager{nullptr};
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_HVManager[io]=&(manager->getEMECHVManager(io));
+      m_HVManager[io].set (&(manager->getEMECHVManager(io)));
     }
   }
-  return *(m_HVManager[io]);
+  return *(m_HVManager[io].get());
 }
 
 const EMECPresamplerHVManager& EMECDetectorManager::getPresamplerHVManager () const
 {
-  if (!m_presamplerHVManager) {
+  if (!m_presamplerHVManager.get()) {
     ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
     const LArHVManager *manager{nullptr};
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      m_presamplerHVManager=&(manager->getEMECPresamplerHVManager());
+      m_presamplerHVManager.set (&(manager->getEMECPresamplerHVManager()));
     }
   } 
-  return *m_presamplerHVManager;
+  return *m_presamplerHVManager.get();
 }

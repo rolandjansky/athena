@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMBCell.h"
@@ -26,30 +26,31 @@ double EMBCell::getPhiLocalUpper(double /*r*/) const {
 }
 
 unsigned int EMBCell::getNumElectrodes() const {
-  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  if(!m_initHVdone) initHV();
-  return m_electrode.size();
+  return getHVInfo().m_electrode.size();
 }
 
 const EMBHVElectrode & EMBCell::getElectrode (unsigned int i) const {
-  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  if(!m_initHVdone) initHV();
-  return *(m_electrode[i]);
+  return *getHVInfo().m_electrode[i];
 }
 
 const EMBPresamplerHVModule& EMBCell::getPresamplerHVModule () const {
-  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  if(!m_initHVdone) initHV();
-  return *m_presamplerModule;
+  return *getHVInfo().m_presamplerModule;
 }
 
 
-void EMBCell::initHV() const {
+const EMBCell::HVInfo& EMBCell::getHVInfo() const
+{
+  if (!m_hvinfo.isValid()) {
+    HVInfo hvinfo;
+    initHV (hvinfo);
+    m_hvinfo.set (std::move (hvinfo));
+  }
+  return *m_hvinfo.ptr();
+}
 
-  if(m_initHVdone) return; // should be done only once
 
-  std::lock_guard<std::mutex> lock(m_mut);
-
+void EMBCell::initHV (HVInfo& hvinfo) const
+{
   if (getSamplingIndex()==0) {
     const EMBPresamplerHVManager& presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
     double phiUpper = getPhiMaxNominal();
@@ -72,7 +73,7 @@ void EMBCell::initHV() const {
     if (iEta==lastDivision) throw std::runtime_error ("Error in EMBCell:  Presampler HV not found");
 
     unsigned int iSide=getEndcapIndex();
-    m_presamplerModule = &(presamplerHVManager.getHVModule(iSide,iEta,iPhi));
+    hvinfo.m_presamplerModule = &(presamplerHVManager.getHVModule(iSide,iEta,iPhi));
 
   }
   else {
@@ -105,11 +106,10 @@ void EMBCell::initHV() const {
     
     for (unsigned int iElectrode=iOffset;iElectrode<iOffset+N;iElectrode++) {
       const EMBHVElectrode& hvElec = hvMod.getElectrode(iElectrode);
-      m_electrode.push_back(&hvElec);
+      hvinfo.m_electrode.push_back(&hvElec);
     }
     
   }
-  m_initHVdone=true;
 } 
 
 

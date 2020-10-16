@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMBCELL_H
@@ -8,10 +8,10 @@
 #include "LArReadoutGeometry/EMBDetDescr.h"
 #include "LArReadoutGeometry/EMBHVPathologies.h"
 #include "LArHV/EMBHVElectrode.h"
-#include <cmath>
 #include "GeoModelKernel/RCBase.h"
+#include "CxxUtils/CachedValue.h"
+#include <cmath>
 #include <vector>
-#include <mutex>
 
 class EMBPresamplerHVModule;
 
@@ -174,29 +174,29 @@ class EMBCell : public RCBase
 
       const EMBDetDescr *m_embDetDescr;
 
-      // The cell does NOT own the pointers to its electrodes
-      mutable std::vector<const EMBHVElectrode*> m_electrode;
+      struct HVInfo
+      {
+        // The cell does NOT own the pointers to its electrodes
+        std::vector<const EMBHVElectrode*> m_electrode;
+        const EMBPresamplerHVModule* m_presamplerModule = nullptr;
+      };
+      CxxUtils::CachedValue<HVInfo> m_hvinfo;
 
-      mutable const EMBPresamplerHVModule* m_presamplerModule{nullptr};
-
-      mutable std::vector<EMBHVPathologiesConstLink> m_hvPathologies;
+      std::vector<EMBHVPathologiesConstLink> m_hvPathologies;
 
       unsigned int m_clockwork;
 
       friend class ImaginaryFriend;
 
-      void initHV() const;
-
-      mutable std::mutex m_mut;
-
-      mutable bool m_initHVdone;
+      const HVInfo& getHVInfo() const;
+      void initHV (HVInfo& hvinfo) const;
 };
 
 
 // Class EMBCell 
 
 inline EMBCell::EMBCell (unsigned int side, const EMBDetDescr *embDescriptor, unsigned int eta, unsigned int phi)
-  :m_embDetDescr(embDescriptor),m_clockwork(phi | (eta<<8) | (side <<17) ), m_initHVdone(false)
+  :m_embDetDescr(embDescriptor),m_clockwork(phi | (eta<<8) | (side <<17) )
 {
 }
 

@@ -79,23 +79,25 @@ unsigned int FCALTile::getNumHVLines() const {
 }
 
 const FCALHVLine* FCALTile::getHVLine (unsigned int i) const {
-  if (!m_line[i]) {
+  if (!m_line[i].get()) {
     
     for (unsigned int j=0;j<getNumTubes();j++) {
       unsigned int index=getTube(j)->getHVLine().getLineIndex();
       if (i==index) { 
-	m_line[i]=&(getTube(j)->getHVLine());
+	m_line[i].set (&(getTube(j)->getHVLine()));
 	break;
       }
     }
   }
-  return m_line[i];
+  return m_line[i].get();
 }
 
 
 FCALTubeConstLink FCALTile::getTube (unsigned int i) const {
 
-  if (m_tube.size()==0) {
+  if (!m_tube.isValid()) {
+
+    std::vector<FCALTubeConstLink> tube;
 
     //std::cout << " in FCALTile::getTube " << std::endl;
     // Then go to storegate..
@@ -169,9 +171,10 @@ FCALTubeConstLink FCALTile::getTube (unsigned int i) const {
 	
 	FCALTubeConstLink tubeLink(new FCALTube(this, hvElec, (*t).second.x(),(*t).second.y()));
 	
-	m_tube.push_back(tubeLink);
+	tube.push_back(tubeLink);
       }
     }
+    m_tube.set (std::move (tube));
   }
-  return m_tube[i];
+  return (*m_tube.ptr())[i];
 }

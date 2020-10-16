@@ -1,9 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "LArReadoutGeometry/EMECDetDescr.h"
+
+
+namespace {
+
 
 /** 
  * @brief An internal class which is none of your business
@@ -13,7 +17,9 @@ struct Boundary {
   double min;
   double max;
   unsigned int nDiv;
-} etaBoundariesEndcap[4][2][6] = {{{{1.500, 1.800, 12},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0}},    // presampler outer
+};
+const Boundary
+etaBoundariesEndcap[4][2][6] = {{{{1.500, 1.800, 12},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0}},    // presampler outer
 				   {{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0}}},   // presampler inner
 				  {{{1.375, 1.425,  1},{1.425, 1.500,  3},{1.500, 1.800, 96},{1.800, 2.000, 48},{2.000, 2.400, 64},{2.400, 2.500,  4}},    // sample 1 outer 
 				   {{2.500, 3.200,  7},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0}}},   // sample 1 inner
@@ -21,6 +27,10 @@ struct Boundary {
 				   {{2.500, 3.200,  7},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0}}},   // sample 2 inner
 				  {{{1.500, 2.500, 20},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0}},    // sample 3 outer
 				   {{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0},{0.000, 0.000,  0}}}};  // sample 3 inner
+
+
+} // anonymous namespace
+
 
 EMECDetDescr::EMECDetDescr (const EMECDetectorManager *detManager
 			    , unsigned int sampling
