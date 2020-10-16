@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,28 +7,18 @@
  -----------------------------------------
 ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MM_IDDetDescrCnv.h"
 
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
+#include "AthenaKernel/StorableConversions.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
 #include "MuonIdHelpers/MmIdHelper.h"
 
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 //--------------------------------------------------------------------
 long int MM_IDDetDescrCnv::repSvcType() const {
@@ -121,7 +111,7 @@ StatusCode MM_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
   } 
 
   // Pass a pointer to the container to the Persistency service by reference.
-  pObj = StoreGateSvc::asStorable(mm_id);
+  pObj = SG::asStorable(mm_id);
 
   return StatusCode::SUCCESS; 
 }   //end MM_IDDetDescrCnv::createObj
