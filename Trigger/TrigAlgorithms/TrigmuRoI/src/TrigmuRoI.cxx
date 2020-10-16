@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigNavigation/TriggerElement.h"
@@ -136,7 +136,8 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
    //--------------------------------------------------------------------------
    // Gather the Muon RoIs out of time by the
    //--------------------------------------------------------------------------
-   auto roiVectors = m_trigMuonRoITool->decodeMuCTPi();
+   auto ctx = getContext();
+   auto roiVectors = m_trigMuonRoITool->decodeMuCTPi(ctx);
    if(!roiVectors){
      ATH_MSG_VERBOSE("No RoIs found");
      return HLT::OK;
