@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_LArStraightAbsorbers_H
@@ -20,7 +20,7 @@ private:
   static LArStraightAbsorbers* s_instance;
   int m_parity;
 public:
-  static LArStraightAbsorbers* GetInstance(std::string strDetector="") ;
+  static LArStraightAbsorbers* GetInstance(const std::string& strDetector="") ;
   double XCentAbs(int stackid, int cellid) const;
   double YCentAbs(int stackid, int cellid) const;
   double SlantAbs(int stackid, int cellid) const;
