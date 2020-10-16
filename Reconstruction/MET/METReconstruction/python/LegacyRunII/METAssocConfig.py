@@ -47,7 +47,7 @@ def getAssociator(config,suffix,doPFlow=False,
     if doModClus:
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
-    from AthenaCommon.AppMgr import ToolSvc
+
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
         from ROOT import met
@@ -107,7 +107,7 @@ def getAssociator(config,suffix,doPFlow=False,
 
 class METAssocConfig:
     def outputCollections(self):
-        if doTruth: return 'MET_Core_'+self.suffix
+        if self.doTruth: return 'MET_Core_'+self.suffix
         else: return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
     #
     def outputMap(self):
@@ -160,7 +160,7 @@ class METAssocConfig:
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth
-        from AthenaCommon.AppMgr import ToolSvc
+
         if trksel:
             self.trkseltool = trksel
         else:
