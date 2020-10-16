@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
@@ -80,38 +80,12 @@ FCALModule::Module FCALModule::getModuleIndex () const
 
 double FCALModule::getFullWidthX (const FCALTile& tile) const
 {
-  double newVal=0.0;
-  unsigned int ntubes = tile.getNumTubes();
-  if (m_TileSizeX.size()<ntubes) {
-    m_TileSizeX.resize(ntubes,newVal);
-    m_TileSizeY.resize(ntubes,newVal);
-  }
-  if (m_TileSizeX[ntubes-1]==newVal) {
-    const FCAL_ChannelMap *cMap=m_manager->getChannelMap();
-    float dx,dy;
-    cMap->tileSize(m_Mod,ntubes,dx,dy);
-    m_TileSizeX[ntubes-1]=dx;
-    m_TileSizeY[ntubes-1]=dy;
-  }
-  return m_TileSizeX[ntubes-1];
+  return getFullWidths (tile.getNumTubes()).first;
 }
 
 double FCALModule::getFullWidthY (const FCALTile& tile) const
 {
-  double newVal=0.0;
-  unsigned int ntubes = tile.getNumTubes();
-  if (m_TileSizeY.size()<ntubes) {
-    m_TileSizeX.resize(ntubes,newVal);
-    m_TileSizeY.resize(ntubes,newVal);
-  }
-  if (m_TileSizeY[ntubes-1]==newVal) {
-    const FCAL_ChannelMap *cMap=m_manager->getChannelMap();
-    float dx,dy;
-    cMap->tileSize(m_Mod,ntubes,dx,dy);
-    m_TileSizeX[ntubes-1]=dx;
-    m_TileSizeY[ntubes-1]=dy;
-  }
-  return m_TileSizeY[ntubes-1];
+  return getFullWidths (tile.getNumTubes()).second;
 }
 
 double FCALModule::getFullDepthZ (const FCALTile& ) const
@@ -153,3 +127,16 @@ void FCALModule::setManager (FCALDetectorManager* fcalManager)
   std::sort(m_tileList.begin(),m_tileList.end());
 }
 
+
+const FCALModule::tubexy_t&
+FCALModule::getFullWidths (unsigned int ntubes) const
+{
+  if (ntubes > MAXTUBES) std::abort();
+  if (!m_tileSizes[ntubes-1].isValid()) {
+    const FCAL_ChannelMap *cMap=m_manager->getChannelMap();
+    float dx,dy;
+    cMap->tileSize(m_Mod,ntubes,dx,dy);
+    m_tileSizes[ntubes-1].set (std::make_pair (dx, dy));
+  }
+  return *m_tileSizes[ntubes-1].ptr();
+}

@@ -29,7 +29,8 @@ public:
 
 EMBDetectorManager::EMBDetectorManager(const EMBHVManager& hvManager
 				       , const EMBPresamplerHVManager& presamplerHVManager)
-  : m_hvManager(hvManager)
+  : m_basicReadoutNumbers (std::make_unique<EMBBasicReadoutNumbers>())
+  , m_hvManager(hvManager)
   , m_presamplerHVManager(presamplerHVManager)
 {
   setName("LArEMB");
@@ -42,10 +43,6 @@ EMBDetectorManager::EMBDetectorManager(const EMBHVManager& hvManager
       }
     } 
   }
-
-
-  m_basicReadoutNumbers = new EMBBasicReadoutNumbers();
-  m_accordionDetails    = NULL;
 }
 
 
@@ -53,8 +50,6 @@ EMBDetectorManager::~EMBDetectorManager()
 {
   for (unsigned int i=0;i<getNumDetectorRegions();i++) delete m_DetRegionsIterative[i];
   for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();
-  delete m_basicReadoutNumbers;
-  delete m_accordionDetails;
 }
 
 
