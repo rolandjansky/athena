@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -122,11 +122,7 @@ LArG4Identifier::element_type & LArG4Identifier::operator [] (size_type index)
 
   if (index >= m_fields.size ())
     {
-      static element_type dummy = 0;
-
-      set_last_error (field_not_found);
-
-      return (dummy);
+      throw std::out_of_range ("LArG4Identifier::operator[]");
     }
 
   return (m_fields[index]);
@@ -355,7 +351,7 @@ void LArG4Identifier::show () const
 //----------------------------------------------------------------
 LArG4Identifier::error_code LArG4Identifier::set_last_error (error_code code) const
 {
-  static error_code last = none;
+  static thread_local error_code last = none;
   
   if (code != get)
     {
