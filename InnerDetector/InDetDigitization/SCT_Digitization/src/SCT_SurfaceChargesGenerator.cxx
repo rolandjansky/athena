@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SurfaceChargesGenerator.h"
@@ -63,7 +63,6 @@ parent)
     m_doHistoTrap(false),
     m_doRamo(false),
     m_doCTrap(false),
-    m_doInducedChargedModel(false),
     m_thistSvc(nullptr),
     m_h_efieldz(nullptr),
     m_h_efield(nullptr),
@@ -91,11 +90,12 @@ parent)
     m_distortionsTool("SCT_DistortionsTool", this),
     m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
-    m_magFieldSvc("AtlasFieldSvc", name),
     m_radDamageSvc("SCT_RadDamageSummarySvc", name),
+    m_magFieldSvc("AtlasFieldSvc", name),
     m_element(0),
     m_rndmEngine(0),
-    m_rndmEngineName("SCT_Digitization") {
+    m_rndmEngineName("SCT_Digitization"),
+    m_doInducedChargedModel(false) {
     declareInterface< ISCT_SurfaceChargesGenerator  >(this);
 
     declareProperty("FixedTime", m_tfix = -999);                // !< fixed
