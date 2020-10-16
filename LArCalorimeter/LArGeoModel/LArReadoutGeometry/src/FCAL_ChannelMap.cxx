@@ -453,7 +453,7 @@ FCAL_ChannelMap::print_tubemap( int imap) const
   boost::io::ios_all_saver ias (std::cout);
   std::cout << "First 10 elements of the New FCAL tube map : " << imap << std::endl;
   std::cout.precision(5);
-  for ( int i=0;  i<10; i++, it++)
+  for ( int i=0;  i<10; ++i, ++it)
     std::cout << std::hex << it->first << "\t" 
 	      << (it->second).get_tileName() << std::dec <<"\t" 
 	      << (it->second).x() <<"\t" 
