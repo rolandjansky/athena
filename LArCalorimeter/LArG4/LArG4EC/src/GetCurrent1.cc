@@ -225,8 +225,9 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
                       << gaperr << " correction still computed"
                       << " bad edep ratio=" << s_CHCEbad/s_CHCEtotal
                       << endmsg;
-                      }
-    }
+                      )
+      }
+  }
 #endif
 
     return current;
