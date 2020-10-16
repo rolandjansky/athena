@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPedestalCumul.h"
@@ -96,7 +96,7 @@ double  L1CaloPedestalCumul::get_rms() const {
   return noise;
 }
 
-void  L1CaloPedestalCumul::add(const std::vector<int> samples) {
+void  L1CaloPedestalCumul::add(const std::vector<int>& samples) {
   unsigned int nsamples = samples.size();
   int k=0;
 

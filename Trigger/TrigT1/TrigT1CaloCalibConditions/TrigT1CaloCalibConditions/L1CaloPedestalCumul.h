@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPEDESTALCUMUL_H
@@ -74,7 +74,7 @@ class L1CaloPedestalCumul
   inline const short& get_max() const { return m_max; }
   
   // Fill the m_sum and m_matrix vector 
-  void add(const std::vector<int> samples);
+  void add(const std::vector<int>& samples);
 
 };
  

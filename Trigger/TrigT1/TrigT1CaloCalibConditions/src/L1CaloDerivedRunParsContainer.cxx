@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigT1CaloCalibConditions/L1CaloDerivedRunParsContainer.h"
 
@@ -22,6 +22,7 @@ L1CaloDerivedRunParsContainer::L1CaloDerivedRunParsContainer()
 L1CaloDerivedRunParsContainer::L1CaloDerivedRunParsContainer(const std::string& folderKey)
   : L1CaloDerivedRunParsContainer() // delegating constructor
 {
+  // cppcheck-suppress useInitializationList
   m_coolFolderKey = folderKey;
 }
 
@@ -46,7 +47,7 @@ DataObject* L1CaloDerivedRunParsContainer::makePersistent() const
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloDerivedRunParsContainer::makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap)
+void L1CaloDerivedRunParsContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
 
