@@ -24,6 +24,7 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getService
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from InDetRecExample import TrackingCommon
 
 #--------------------------------------------------------------------------------
 # Hit-on-track creation tools
@@ -52,8 +53,7 @@ def CscClusterOnTrackCreator(name="CscClusterOnTrackCreator",**kwargs):
     kwargs.setdefault("CscClusterFitter", getPrivateTool("QratCscClusterFitter") )
     kwargs.setdefault("CscClusterUtilTool", getPrivateTool("CscClusterUtilTool") )
     if False  : # enable CscClusterOnTrack error scaling :
-        from InDetRecExample.TrackingCommon import createAndAddCondAlg
-        createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
+        TrackingCommon.createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
 
         kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")
 
@@ -315,6 +315,10 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     Extrapolator = getPublicTool(kwargs["ExtrapolationTool"])
     kwargs.setdefault("PropagatorTool",Extrapolator.Propagators[0].getName())
     kwargs.setdefault("NavigatorTool",Extrapolator.Navigator.getName())
+
+    if TrackingCommon.use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
+        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+        kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
 
     return Trk__GlobalChi2Fitter(name,**kwargs)
 

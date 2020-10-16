@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
 #include "TrkGlobalChi2Fitter/GlobalChi2Fitter.h"
@@ -21,7 +21,6 @@
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/MaterialLayer.h"
 #include "TrkGeometry/TrackingVolume.h"
-#include "TrkGeometry/TrackingGeometry.h"
 
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
@@ -67,7 +66,7 @@
 
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
-
+#include "TrkVolumes/VolumeBounds.h"
 using CLHEP::MeV;
 using CLHEP::mm;
 
@@ -161,10 +160,8 @@ namespace Trk {
     const IInterface * p
   ):
     base_class(t, n, p),
-    m_trackingGeometrySvc("", n),
     m_idVolume(nullptr, std::make_unique<Trk::CylinderVolumeBounds>(560, 2750).release())
   {
-    declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
   }
 
   StatusCode GlobalChi2Fitter::initialize() {
@@ -217,11 +214,13 @@ namespace Trk {
       m_acceleration = false;
     }
 
+#ifdef LEGACY_TRKGEOM
     if (!m_trackingGeometrySvc.empty()) {
       ATH_CHECK(m_trackingGeometrySvc.retrieve());
       ATH_MSG_INFO("  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
     }
-
+#endif
+    ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
     if (m_useCaloTG) {
       ATH_CHECK(m_caloMaterialProvider.retrieve());
       ATH_MSG_INFO(m_caloMaterialProvider << " retrieved ");
@@ -420,7 +419,7 @@ namespace Trk {
     bool firstfitwasattempted = false;
 
     if (cache.m_caloEntrance == nullptr) {
-      const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
+       const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
       
       if (geometry != nullptr) {
         cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
@@ -605,7 +604,7 @@ namespace Trk {
     std::unique_ptr<const TrackParameters> tmppar;
 
     if (cache.m_msEntrance == nullptr) {
-      const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
+      const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
       
       if (geometry != nullptr) {
         cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
@@ -1233,7 +1232,7 @@ namespace Trk {
         previousz = trajectory.trackStates().back()->position().z();
       }
     }
-    
+
     Track *track = myfit(
       ctx,
       cache, 
@@ -3698,7 +3697,7 @@ namespace Trk {
      * use.
      */
     if (cache.m_caloEntrance == nullptr) {
-      const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
+      const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
       
       if (geometry != nullptr) {
         cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
@@ -3735,7 +3734,7 @@ namespace Trk {
       if (!ok) {
         ATH_MSG_DEBUG("Falling back to slow material collection");
         cache.m_fastmat = false;
-        addMaterial(cache, trajectory, refpar2, matEffects);
+        addMaterial(ctx, cache, trajectory, refpar2, matEffects);
         return;
       }
       
@@ -3864,6 +3863,7 @@ namespace Trk {
   }
 
   void GlobalChi2Fitter::addMaterial(
+    const EventContext& ctx,
     Cache & cache,
     GXFTrajectory & trajectory,
     const TrackParameters * refpar2,
@@ -4063,7 +4063,7 @@ namespace Trk {
         
         if (firstmuonhit != nullptr) {
           if (cache.m_caloEntrance == nullptr) {
-            const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
+            const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
             
             if (geometry != nullptr) {
               cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
@@ -4128,7 +4128,7 @@ namespace Trk {
         std::unique_ptr<Surface> calosurf;
         if (firstmuonhit != nullptr) {
           if (cache.m_caloEntrance == nullptr) {
-            const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
+            const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
 
             if (geometry != nullptr) {
               cache.m_caloEntrance = geometry->trackingVolume("InDet::Containers::InnerDetector");
@@ -4368,8 +4368,8 @@ namespace Trk {
       
       if (lastcalopar != nullptr) {
         if (cache.m_msEntrance == nullptr) {
-          const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
-          
+          const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
+
           if (geometry != nullptr) {
             cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
           } else {
@@ -4525,8 +4525,8 @@ namespace Trk {
       
       if (firstcalopar != nullptr) {
         if (cache.m_msEntrance == nullptr) {
-          const TrackingGeometry *geometry = m_trackingGeometrySvc->trackingGeometry();
-          
+          const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
+
           if (geometry != nullptr) {
             cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
           } else {
@@ -4833,7 +4833,11 @@ namespace Trk {
         cache.m_fastmat && 
         cache.m_acceleration &&
         trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == trajectory.numberOfHits() && 
-        (m_matupdator.empty() || m_trackingGeometrySvc.empty())
+        (m_matupdator.empty() || (m_trackingGeometryReadKey.key().empty()
+#ifdef LEGACY_TRKGEOM
+                                  && m_trackingGeometrySvc.empty()
+#endif
+                                  ))
       ) {
         ATH_MSG_WARNING("Tracking Geometry Service and/or Material Updator Tool not configured");
         ATH_MSG_WARNING("Falling back to slow material collection");
@@ -4846,7 +4850,7 @@ namespace Trk {
         !cache.m_acceleration ||
         trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() != trajectory.numberOfHits()
       ) {
-        addMaterial(cache, trajectory, per != nullptr ? per.get() : &param, matEffects);
+        addMaterial(ctx, cache, trajectory, per != nullptr ? per.get() : &param, matEffects);
       } else {
         addIDMaterialFast(
           ctx, cache, trajectory, per != nullptr ? per.get() : &param, matEffects);
@@ -6987,7 +6991,6 @@ namespace Trk {
         DistanceSolution distsol = layer->surfaceRepresentation().straightLineDistanceEstimate(
           prevpar->position(), prevpar->momentum().unit()
         );
-        
         double distance = getDistance(distsol);
 
         if (distsol.numberOfSolutions() == 2) {
@@ -8444,7 +8447,7 @@ namespace Trk {
     return !(theta < 0 || theta > M_PI || phi < -M_PI || phi > M_PI);
   }
 
-  bool Trk::GlobalChi2Fitter::isMuonTrack(const Track & intrk1) const {
+  bool GlobalChi2Fitter::isMuonTrack(const Track & intrk1) const {
     int nmeas1 = (int) intrk1.measurementsOnTrack()->size();
     
     const RIO_OnTrack *testrot = dynamic_cast<const RIO_OnTrack *>((*intrk1.measurementsOnTrack())[nmeas1 - 1]);
@@ -8477,13 +8480,13 @@ namespace Trk {
     );
   }
 
-  void Trk::GlobalChi2Fitter::incrementFitStatus(enum FitterStatusType status) const {
+  void GlobalChi2Fitter::incrementFitStatus(enum FitterStatusType status) const {
     std::scoped_lock lock(m_fit_status_lock);
     m_fit_status[status]++;
   }
 
   void
-  Trk::GlobalChi2Fitter::initFieldCache(const EventContext& ctx, Cache& cache)
+  GlobalChi2Fitter::initFieldCache(const EventContext& ctx, Cache& cache)
     const
   {
     SG::ReadCondHandle<AtlasFieldCacheCondObj> rh(
@@ -8499,5 +8502,11 @@ namespace Trk {
     }
 
     cond_obj->getInitializedCache(cache.m_field_cache);
+  }
+
+  void GlobalChi2Fitter::throwFailedToGetTrackingGeomtry() const {
+     std::stringstream msg;
+     msg << "Failed to get conditions data " << m_trackingGeometryReadKey.key() << ".";
+     throw std::runtime_error(msg.str());
   }
 }

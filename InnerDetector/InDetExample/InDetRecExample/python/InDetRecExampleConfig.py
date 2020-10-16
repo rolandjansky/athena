@@ -2,7 +2,7 @@
 
 from AthenaCommon import CfgGetter
 import AthenaCommon.SystemOfUnits as Units
-from InDetRecExample.TrackingCommon import setDefaults,copyArgs
+from InDetRecExample.TrackingCommon import setDefaults,copyArgs,createAndAddCondAlg
 
 def setTool(prop,tool_name,kwargs) :
     if tool_name is None :
@@ -217,6 +217,10 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
     from InDetRecExample.InDetJobProperties      import InDetFlags
     import InDetRecExample.TrackingCommon as TrackingCommon
 
+    cond_alg = None
+    if TrackingCommon.use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
+        cond_alg = createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+
     kwargs=setDefaults(kwargs,
                        ExtrapolationTool      = TrackingCommon.getInDetExtrapolator(),
                        NavigatorTool          = TrackingCommon.getInDetNavigator(),
@@ -236,7 +240,8 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
                        Acceleration           = True,
                        RecalculateDerivatives = InDetFlags.doMinBias() or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
                        TRTExtensionCuts       = True,
-                       TrackChi2PerNDFCut     = 7)
+                       TrackChi2PerNDFCut     = 7,
+                       TrackingGeometryReadKey= cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     return Trk__GlobalChi2Fitter(name, **kwargs)
 
