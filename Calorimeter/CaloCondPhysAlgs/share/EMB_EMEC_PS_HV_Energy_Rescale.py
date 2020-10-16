@@ -107,10 +107,6 @@ theRescaler.HVvalues = [ 0.992, 0.992, 0.992, 0.992, 0.992, 0.992, 0.992, 0.992,
 
 topSequence += theRescaler
 
-from CaloCondPhysAlgs.CaloCondPhysAlgsConf import LArHVMapTool
-theLArHV=LArHVMapTool("LArHVMapTool")
-ToolSvc += theLArHV
-
 #--------------------------------------------------------------
 #--- Dummy event loop parameters
 #--------------------------------------------------------------
