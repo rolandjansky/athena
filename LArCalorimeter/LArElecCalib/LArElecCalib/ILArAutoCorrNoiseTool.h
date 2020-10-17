@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILARAUTOCORRNOISETOOL_H
@@ -12,17 +12,19 @@
 
 static const InterfaceID IID_ILArAutoCorrNoiseTool("ILArAutoCorrNoiseTool", 1 , 0);
 
-class ILArAutoCorrNoiseTool: virtual public IAlgTool {
+class ATLAS_NOT_THREAD_SAFE ILArAutoCorrNoiseTool: virtual public IAlgTool {
 
  public: 
 
   virtual ~ILArAutoCorrNoiseTool() {};
   
-  virtual const std::vector<float>& autoCorrSqrt(const HWIdentifier& id, 
+  virtual const std::vector<float>& autoCorrSqrt ATLAS_NOT_THREAD_SAFE
+                                                 (const HWIdentifier& id, 
 						  int gain,
 						  int Nsampl=-1) = 0;
   
-  virtual const std::vector<float>& autoCorrSqrt(const Identifier& id, 
+  virtual const std::vector<float>& autoCorrSqrt ATLAS_NOT_THREAD_SAFE
+                                                 (const Identifier& id, 
 						  int gain,
 						  int Nsampl=-1) = 0;
 
