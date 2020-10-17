@@ -132,6 +132,7 @@ private:
   DoubleProperty m_fitterMaxDistToLinPoint{this, "fitterMaxDistToLinPoint", 0.5, "Vertex fitter max. distance to LinPoint"};
   DoubleProperty m_fitterMaxRelativeShift{this, "fitterMaxRelativeShift", 0.01, "Vertex fitter max. relative shift"};
   BooleanProperty m_fitterDoSmoothing{this, "fitterDoSmoothing", true, "Vertex fitter doSmoothing"};
+  DoubleProperty m_minWeightFitter{this, "minWeightFitter", 0.001, "Min track weight for fitter"};
   // Finder config variables
   BooleanProperty m_useBeamConstraint{this, "useBeamConstraint", true, "Use beam constraint"};
   DoubleProperty m_tracksMaxZinterval{this, "tracksMaxZinterval", 1., "Tracks max. Z-interval"};
@@ -140,7 +141,7 @@ private:
   BooleanProperty m_doRealMultiVertex{this, "doRealMultiVertex", true, "Do real multivertex fit"};
   BooleanProperty m_useFastCompatibility{this, "useFastCompatibility", true, "Use fast compatibility estimation"};
   DoubleProperty m_maxMergeVertexSignificance{this, "maxMergeVertexSignificance", 3., "Max merge vertex significance"};
-  DoubleProperty m_minWeight{this, "minWeight", 0.0001, "Min track weight for finder and fitter"};
+  DoubleProperty m_minWeight{this, "minWeight", 0.0001, "Min track weight for finder"};
   UnsignedIntegerProperty m_maxIterations{this, "maxIterations", 100, "Vertex finder max. iterations"};
   BooleanProperty m_addSingleTrackVertices{this, "addSingleTrackVertices", false, "Add single-track vertices"};
   BooleanProperty m_do3dSplitting{this, "do3dSplitting", false, "Do 3d-splitting"};

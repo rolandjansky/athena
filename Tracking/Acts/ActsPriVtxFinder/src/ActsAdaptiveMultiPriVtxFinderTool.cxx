@@ -87,7 +87,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     fitterCfg.annealingTool = annealingUtility;
     fitterCfg.maxIterations = m_fitterMaxIterations;
     fitterCfg.maxDistToLinPoint = m_fitterMaxDistToLinPoint;
-    fitterCfg.minWeight = m_minWeight;
+    fitterCfg.minWeight = m_minWeightFitter;
     fitterCfg.maxRelativeShift = m_fitterMaxRelativeShift;
     fitterCfg.doSmoothing = m_fitterDoSmoothing;
     VertexFitter fitter(fitterCfg, extractParameters);
