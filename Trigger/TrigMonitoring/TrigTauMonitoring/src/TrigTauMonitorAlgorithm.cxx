@@ -149,6 +149,8 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     fillRNNTrack( trigger, tau_vec_np, false );
     fillRNNCluster( trigger, tau_vec_1p, false );
     fillRNNCluster( trigger, tau_vec_np, false );
+    fillbasicVars( trigger, tau_vec_1p, false);
+    fillbasicVars( trigger, tau_vec_np, false);
   }
 
   tau_vec_1p.clear();
@@ -175,6 +177,9 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     fillRNNTrack( trigger, tau_vec_np, true );
     fillRNNCluster( trigger, tau_vec_1p, true );
     fillRNNCluster( trigger, tau_vec_np, true );
+    fillbasicVars( trigger, tau_vec_1p, true);
+    fillbasicVars( trigger, tau_vec_np, true);
+
   }
   
   
