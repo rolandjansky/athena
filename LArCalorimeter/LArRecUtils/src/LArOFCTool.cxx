@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOFCTool.h"
@@ -587,8 +587,9 @@ unsigned int LArOFCTool::findTheNSamples(ILArShape::ShapeRef_t Shape,
 /////////////////////////////////////////////////////////////////////////////
 
 // *** retrieve OFC_a for a given cell ***
-ILArOFCTool::OFCRef_t LArOFCTool::OFC_a(const HWIdentifier& CellID, 
-                                        int gain, float Nminbias)  const
+ILArOFCTool::OFCRef_t
+LArOFCTool::OFC_a ATLAS_NOT_THREAD_SAFE (const HWIdentifier& CellID, 
+                                         int gain, float Nminbias)  const
 {  
   int thisgain = (m_isSC ? 0 : gain);
   if(!m_cacheValid){
@@ -628,8 +629,9 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_a(const HWIdentifier& CellID,
 /////////////////////////////////////////////////////////////////////////////
 
 // *** retrieve OFC_a for a given cell ***
-ILArOFCTool::OFCRef_t LArOFCTool::OFC_a(const Identifier& CellID, 
-                                        int gain, float Nminbias)  const
+ILArOFCTool::OFCRef_t
+LArOFCTool::OFC_a ATLAS_NOT_THREAD_SAFE (const Identifier& CellID, 
+                                         int gain, float Nminbias)  const
 {
   HWIdentifier id = m_cablingService->createSignalChannelID(CellID);  
   return this->OFC_a(id, gain, Nminbias);
@@ -638,8 +640,9 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_a(const Identifier& CellID,
 /////////////////////////////////////////////////////////////////////////////
 
 // *** retrieve OFC_b for a given cell ***
-ILArOFCTool::OFCRef_t LArOFCTool::OFC_b(const HWIdentifier& CellID, 
-                                        int gain, float Nminbias)  const
+ILArOFCTool::OFCRef_t
+LArOFCTool::OFC_b ATLAS_NOT_THREAD_SAFE (const HWIdentifier& CellID, 
+                                         int gain, float Nminbias)  const
 {
 
   int thisgain = (m_isSC ? 0 : gain);
@@ -681,8 +684,9 @@ ILArOFCTool::OFCRef_t LArOFCTool::OFC_b(const HWIdentifier& CellID,
 /////////////////////////////////////////////////////////////////////////////
 
 // *** retrieve OFC_b for a given cell ***
-ILArOFCTool::OFCRef_t LArOFCTool::OFC_b(const Identifier& CellID, 
-                                        int gain, float Nminbias)  const
+ILArOFCTool::OFCRef_t
+LArOFCTool::OFC_b ATLAS_NOT_THREAD_SAFE (const Identifier& CellID, 
+                                         int gain, float Nminbias)  const
 {
   HWIdentifier id = m_cablingService->createSignalChannelID(CellID);  
   return this->OFC_b(id, gain, Nminbias);
