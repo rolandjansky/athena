@@ -113,7 +113,8 @@ atlas_install_scripts( scripts/generateMenuMT.py
                        scripts/trigCompareOldandNewL1Menus.py
                        scripts/trigL1MenuMigrationCheck.sh
                        scripts/verify_menu_config.py
-                       scripts/test_full_menu_cf.py )
+                       scripts/test_full_menu_cf.py
+                       scripts/generateBunchGroupSetFromOldKey.py )
 
 atlas_install_joboptions( share/*.py )
 atlas_install_xmls( data/*.dtd data/*.xml )
