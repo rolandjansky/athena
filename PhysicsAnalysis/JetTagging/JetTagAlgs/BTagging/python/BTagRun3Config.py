@@ -153,6 +153,10 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):
 
     result=ComponentAccumulator()
 
+    # Can only configure b-tagging for collisions; not cosmics, etc.
+    if inputFlags.Beam.Type != 'collisions':
+        return result
+
     taggerList = inputFlags.BTagging.run2TaggersList
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
 
