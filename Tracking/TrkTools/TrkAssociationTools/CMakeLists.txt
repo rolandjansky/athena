@@ -1,32 +1,10 @@
-################################################################################
-# Package: TrkAssociationTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkAssociationTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkEvent/TrkEventUtils
-			  MuonSpectrometer/MuonIdHelpers
-                          PRIVATE
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-			  Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-                          Tracking/TrkEvent/TrkTrack )
 
 # Component(s) in the package:
 atlas_add_component( TrkAssociationTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps TrkToolInterfaces AtlasDetDescr Identifier GaudiKernel TrkDetElementBase TrkEventUtils TrkRIO_OnTrack TrkCompetingRIOsOnTrack MuonIdHelpersLib TrkTrack TrkEventUtils StoreGateLib )
-
-# Install files from the package:
-atlas_install_headers( TrkAssociationTools )
-
+                     LINK_LIBRARIES AthenaBaseComps TrkToolInterfaces GaudiKernel TrkDetElementBase TrkEventUtils TrkRIO_OnTrack TrkCompetingRIOsOnTrack MuonIdHelpersLib TrkTrack TrkEventUtils StoreGateLib )
