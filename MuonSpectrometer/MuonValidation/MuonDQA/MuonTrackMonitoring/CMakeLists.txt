@@ -14,7 +14,7 @@ atlas_add_component( MuonTrackMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests GeoPrimitives EventPrimitives FourMomUtils xAODEventInfo xAODMuon xAODTracking GaudiKernel MuonIdHelpersLib MuonPrepRawData MuonRecHelperToolsLib MuonRecToolInterfaces MuonHistUtils MuonResonanceToolsLib MuonSelectorToolsLib TrkEventPrimitives TrkParameters TrkTrack TrkToolInterfaces TrkValHistUtils TrigConfL1Data TrkMeasurementBase TrkMultiComponentStateOnSurface )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaMonitoringLib StoreGateLib GeoPrimitives EventPrimitives FourMomUtils xAODEventInfo xAODMuon xAODTracking GaudiKernel MuonPrepRawData MuonRecHelperToolsLib MuonHistUtils MuonResonanceToolsLib TrkEventPrimitives TrkParameters TrkTrack TrkToolInterfaces TrkValHistUtils TrigConfL1Data TrkMeasurementBase TrkMultiComponentStateOnSurface )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
