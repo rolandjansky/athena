@@ -247,9 +247,9 @@ addVRJets(higg5d1Seq, largeRColls=largeRJetCollections)
 addVRJets(higg5d1Seq, largeRColls=largeRJetCollections, do_ghost=True)
 addVRJets(higg5d1Seq, largeRColls=largeRJetCollections, training='201903') #new trackjet training!
 addVRJets(higg5d1Seq, largeRColls=largeRJetCollections, do_ghost=True, training='201903')
-#Add VR ghostlink to PFlow
-HIGG5Common.addVRSmallJets(higg5d1Seq)
-HIGG5Common.addVRSmallJets(higg5d1Seq, training='201903')
+#Add VR ghostlink to PFlow, postponed, need additional studies
+#HIGG5Common.addVRSmallJets(higg5d1Seq)
+#HIGG5Common.addVRSmallJets(higg5d1Seq, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg5d1Seq, ToolSvc)
 

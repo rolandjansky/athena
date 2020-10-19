@@ -313,9 +313,9 @@ addVRJets(higg2d4Seq, largeRColls=largeRJetCollections, training='201903') #new 
 addVRJets(higg2d4Seq, largeRColls=largeRJetCollections, do_ghost=True, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg2d4Seq, ToolSvc)
-#Add ghost links of VR track-jet to PFlow 
-HIGG5Common.addVRSmallJets(higg2d4Seq)
-HIGG5Common.addVRSmallJets(higg2d4Seq, training='201903')
+#Add ghost links of VR track-jet to PFlow, postponed due to additional studies
+#HIGG5Common.addVRSmallJets(higg2d4Seq)
+#HIGG5Common.addVRSmallJets(higg2d4Seq, training='201903')
 
 #===================================================================
 # Run b-tagging
