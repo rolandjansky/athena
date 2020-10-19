@@ -54,9 +54,6 @@ if DerivationFrameworkHasTruth:
   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
   # Add sumOfWeights metadata for LHE3 multiweights =======
   from DerivationFrameworkCore.LHE3WeightMetadata import *
-  from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-  if IsSUSYSignal():
-     from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 #==============================================================================
 # HEAVY FLAVOR DECORATION

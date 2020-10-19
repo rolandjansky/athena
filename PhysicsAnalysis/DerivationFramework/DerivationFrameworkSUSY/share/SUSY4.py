@@ -212,18 +212,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
-#==============================================================================
-# SUSY signal augmentation (before skimming!)
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-
-   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-   SeqSUSY4 += CfgMgr.DerivationFramework__DerivationKernel("SUSY4KernelSigAug",
-                                                            AugmentationTools = DecorateSUSYProcess("SUSY4")
-                                                            )
-
-   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 #==============================================================================
 # SUSY skimming selection

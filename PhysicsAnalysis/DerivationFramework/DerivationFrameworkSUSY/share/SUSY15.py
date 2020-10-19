@@ -337,20 +337,6 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 #==============================================================================
-# SUSY signal augmentation (before skimming!)
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-
-   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-   SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel("SUSY15KernelSigAug",
-                                                            AugmentationTools = DecorateSUSYProcess("SUSY15")
-                                                            )
-
-   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
-
-
-#==============================================================================
 # SUSY skimming selection
 #==============================================================================
 SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel(
