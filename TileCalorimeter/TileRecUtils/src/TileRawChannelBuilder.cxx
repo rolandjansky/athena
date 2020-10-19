@@ -348,10 +348,8 @@ void TileRawChannelBuilder::fill_drawer_errors(const EventContext& ctx,
                             << "/" << drawer
                             << "/" << channel
                             << "/" << gain;
-          if (err) {
-            if (err < -5) msg(MSG::VERBOSE) << " Warning " << err;
-            else msg(MSG::VERBOSE) << " Error " << err;
-          }
+          if (err < -5) msg(MSG::VERBOSE) << " Warning " << err;
+          else msg(MSG::VERBOSE) << " Error " << err;
           if (mindig > m_ADCmaskValueMinusEps) msg(MSG::VERBOSE) << " BADDQ";
           if (maxdig > m_ADCmaxMinusEps) msg(MSG::VERBOSE) << " Overflow";
           if (mindig < 0.1) msg(MSG::VERBOSE) << " Underflow";

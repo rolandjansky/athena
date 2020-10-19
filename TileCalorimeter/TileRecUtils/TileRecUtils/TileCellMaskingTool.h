@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECELLMASKINGTOOL_H
@@ -38,7 +38,7 @@ class TileCellMaskingTool: public AthAlgTool, virtual public ICaloCellMakerTool 
   private:
 
     StatusCode fillIncludedCellsMap();
-    void killer(std::string component, int ros, int drw, int index);
+    void killer(const std::string& component, int ros, int drw, int index);
 
     std::vector<std::string> m_rejectedTileDrawer;
     std::vector<std::string> m_rejectedTileMB;
