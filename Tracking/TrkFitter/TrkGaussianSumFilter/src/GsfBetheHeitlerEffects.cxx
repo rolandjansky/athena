@@ -241,13 +241,13 @@ Trk::GsfBetheHeitlerEffects::readParameters()
                   << maxNumberofComponents << " : " << m_numberOfComponents);
     return false;
   }
-  if (not inRange(orderPolynomial, 0, maxOrderPolynomial)) {
-    ATH_MSG_ERROR("orderPolynomial Parameter out of range 0- "
-                  << maxOrderPolynomial << " : " << orderPolynomial);
+  if (orderPolynomial != (polynomialCoefficients - 1)) {
+    ATH_MSG_ERROR(
+      "orderPolynomial  order !=  " << (polynomialCoefficients - 1));
     return false;
   }
-  if (not inRange(m_transformationCode, 0, 10)) {
-    ATH_MSG_ERROR("transformationCode Parameter out of range 0-10: "
+  if (not inRange(m_transformationCode, 0, 1)) {
+    ATH_MSG_ERROR("transformationCode Parameter out of range 0-1: "
                   << m_transformationCode);
     return false;
   }
@@ -256,6 +256,7 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     return false;
   }
 
+  // Fill the polynomials
   int componentIndex = 0;
   for (; componentIndex < m_numberOfComponents; ++componentIndex) {
     m_polynomialWeights[componentIndex] = readPolynomial(fin, orderPolynomial);
@@ -276,7 +277,6 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     }
 
     const char* filename = resolvedFileName.c_str();
-
     std::ifstream fin(filename);
 
     if (fin.bad()) {
@@ -298,14 +298,13 @@ Trk::GsfBetheHeitlerEffects::readParameters()
       ATH_MSG_ERROR(" numberOfComponentsHighX0 != numberOfComponents");
       return false;
     }
-
-    if (not inRange(orderPolynomial, 0, maxOrderPolynomial)) {
-      ATH_MSG_ERROR("orderPolynomial Parameter out of range 0- "
-                    << maxOrderPolynomial << " : " << orderPolynomial);
+    if (orderPolynomial != (polynomialCoefficients - 1)) {
+      ATH_MSG_ERROR(
+        "orderPolynomial  order !=  " << (polynomialCoefficients - 1));
       return false;
     }
-    if (not inRange(m_transformationCodeHighX0, 0, 10)) {
-      ATH_MSG_ERROR("transformationCode Parameter out of range 0-10: "
+    if (not inRange(m_transformationCodeHighX0, 0, 1)) {
+      ATH_MSG_ERROR("transformationCode Parameter out of range 0-1: "
                     << m_transformationCodeHighX0);
       return false;
     }
@@ -314,6 +313,7 @@ Trk::GsfBetheHeitlerEffects::readParameters()
       return false;
     }
 
+    // Fill the polynomials
     int componentIndex = 0;
     for (; componentIndex < m_numberOfComponentsHighX0; ++componentIndex) {
       m_polynomialWeightsHighX0[componentIndex] =
@@ -373,8 +373,9 @@ Trk::GsfBetheHeitlerEffects::compute(
   if (pathlengthInX0 < m_lowerRange) {
     const double meanZ = std::exp(-1. * pathlengthInX0);
     const double sign = (direction == Trk::oppositeMomentum) ? 1. : -1.;
-    const double varZ = std::exp(-1. * pathlengthInX0 * std::log(3.) / std::log(2.)) -
-                        std::exp(-2. * pathlengthInX0);
+    const double varZ =
+      std::exp(-1. * pathlengthInX0 * std::log(3.) / std::log(2.)) -
+      std::exp(-2. * pathlengthInX0);
     double deltaP(0.);
     double varQoverP(0.);
     if (direction == Trk::alongMomentum) {

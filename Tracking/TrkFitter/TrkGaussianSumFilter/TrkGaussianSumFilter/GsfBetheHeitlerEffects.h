@@ -27,8 +27,10 @@ class GsfBetheHeitlerEffects
 {
 
 public:
+  /// Maximum number of Gaussian components in the mixture
   static constexpr int maxNumberofComponents = 8;
-  static constexpr int maxOrderPolynomial = 10;
+  /// Polynomail coefficients , order is this -1 
+  static constexpr int polynomialCoefficients = 6;
   struct ComponentValues
   {
     // Default ctors/dtor/assignment operators
