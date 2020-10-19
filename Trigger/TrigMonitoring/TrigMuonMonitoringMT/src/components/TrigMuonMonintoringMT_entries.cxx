@@ -4,6 +4,7 @@
 
 #include "../L1MuonMonMT.h"
 #include "../L2MuonSAMonMT.h"
+#include "../L2MuonSAIOMonMT.h"
 #include "../L2muCombMonMT.h"
 #include "../EFMuonMonMT.h"
 #include "../TrigMuonEfficiencyMonMT.h"
@@ -12,6 +13,7 @@
 
 DECLARE_COMPONENT( L1MuonMonMT )
 DECLARE_COMPONENT( L2MuonSAMonMT )
+DECLARE_COMPONENT( L2MuonSAIOMonMT )
 DECLARE_COMPONENT( L2muCombMonMT )
 DECLARE_COMPONENT( EFMuonMonMT )
 DECLARE_COMPONENT( TrigMuonEfficiencyMonMT )
