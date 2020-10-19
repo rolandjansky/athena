@@ -25,6 +25,7 @@ namespace ISF
       The TF1 function parameters will be retrieved from a histogram given by addPar.
 
       @author  Elmar Ritsch <Elmar.Ritsch@cern.ch>
+      @maintainer/updater Thomas Carter <thomas.michael.carter@cern.ch>
   */
 
   class PDFcreator
@@ -54,7 +55,7 @@ namespace ISF
     std::string                         m_name;               //!< Give pdf a name for debug purposes
     std::map< double , std::map< std::vector<double>, TH1*> > m_energy_etaRange_hists1D; //!< map of energies to map of eta ranges to 1D histograms
     std::map< double , std::map< std::vector<double>, TH2*> > m_energy_etaRange_hists2D; //!< map of energies to map of eta ranges to 2D histograms
-    constexpr static double sqrtOf2 = std::sqrt(2); 
+    constexpr static double sqrtOf2 = std::sqrt(2);
 
   };
 }

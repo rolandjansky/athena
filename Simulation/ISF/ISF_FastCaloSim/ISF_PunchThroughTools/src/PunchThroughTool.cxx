@@ -913,8 +913,8 @@ std::unique_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int p
       while ((key = (TKey*)keyList())) {
 
         //Get histogram object from key and its name
-        TH1* hist1D;
-        TH2* hist2D;
+        TH1* hist1D = nullptr;
+        TH2* hist2D = nullptr;
         std::string histName;
         if(strcmp(key->GetClassName(), "TH1F") == 0){
           hist1D = (TH1*)key->ReadObj();

@@ -26,6 +26,7 @@ namespace ISF
       particle (energy, theta, phi) distributions
 
       @author  Elmar Ritsch <Elmar.Ritsch@cern.ch>
+      @maintainer/updater Thomas Carter <thomas.michael.carter@cern.ch>
   */
 
   class PunchThroughParticle
