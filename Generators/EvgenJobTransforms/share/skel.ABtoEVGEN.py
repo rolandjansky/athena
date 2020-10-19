@@ -406,6 +406,12 @@ if not dsid.isdigit():
     dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
 
+if postSeq.CountHepMC.CorrectRunNumber:
+    postSeq.CountHepMC.NewRunNumber = int(dsid)
+    evgenLog.info("Set new run number in skel " + str(postSeq.CountHepMC.NewRunNumber))
+else:
+    evgenLog.info("No new run number set in skel " + dsid)
+
 #svcMgr.EventSelector.RunNumber = runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
 
