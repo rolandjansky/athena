@@ -70,3 +70,17 @@ TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.topoEgammaBuilder,
         doElectrons = False,
         )
 
+def PrecisionPhotonTopoMonitorCfg(name = 'PrecisionPhotonTopoEgammaBuilder'):
+    
+    from TrigEgammaMonitoring import TrigEgammaMonitoringConf
+    from TrigEgammaMonitoring.egammaMonitorPrecisionConfig import egammaMonitorPrecisionCfg
+    monTool = egammaMonitorPrecisionCfg(name)
+
+    PrecisionPhotonTopoMonitor = AlgFactory( TrigEgammaMonitoringConf.egammaMonitorPhotonAlgorithm,
+            name = name,
+            doAdd = False,
+            PhotonKey = TrigEgammaKeys.outputPhotonKey,
+            MonTool = monTool
+            )
+
+    return PrecisionPhotonTopoMonitor()
