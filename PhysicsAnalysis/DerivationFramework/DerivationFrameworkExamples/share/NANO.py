@@ -233,20 +233,6 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 #==============================================================================
-# SUSY signal augmentation (before skimming!)
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-   
-   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-   SeqNANO += CfgMgr.DerivationFramework__DerivationKernel("NANOKernelSigAug",
-                                                            AugmentationTools = DecorateSUSYProcess("NANO")
-                                                            )
-   
-   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
-
-
-#==============================================================================
 # Jet building
 #==============================================================================
 OutputJets["NANO"] = []
