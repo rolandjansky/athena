@@ -57,7 +57,7 @@ def generateChains():
     # muon chains
     ##################################################################
     if opt.doMuonSlice == True:
-        from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
+        from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
 
         MuonChains  = []
         # step1
@@ -69,7 +69,6 @@ def generateChains():
         # step3
         muEFSAS = muEFSASequence()
         step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSAS ])
-        step3muIso =ChainStep("Step3_muIso",  [ muIsoSequence() ])
         # step4
         muEFCBS = muEFCBSequence()
         step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBS ])
@@ -81,7 +80,6 @@ def generateChains():
         MuonChains += [ makeChain(name='HLT_mu6Comb_L1MU6',     L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb ])]
         MuonChains += [ makeChain(name='HLT_mu6_L1MU6',         L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb, step3muEFSA, step4muEFCB ])]
         MuonChains += [ makeChain(name='HLT_mu6msonly_L1MU6',   L1Thresholds=["MU6"], ChainSteps=[ step1mufast, emptyStep,   step3muEFSA ])] # removed due to muEFSA isuue(?)
-        MuonChains += [ makeChain(name='HLT_mu20_ivar_L1MU6',   L1Thresholds=["MU6"], ChainSteps=[ step1mufast, step2muComb, step3muIso ])]
 
         # multi muon trigger
         # 2muons symmetric

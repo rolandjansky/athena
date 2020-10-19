@@ -522,51 +522,6 @@ def efLateMuSequence():
 
 
 ######################
-### l2Muiso step ###
-######################
-def muIsoAlgSequence(ConfigFlags):
-
-    l2muIsoViewsMaker = EventViewCreatorAlgorithm("IMl2muIso")
-    #
-    l2muIsoViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
-    l2muIsoViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
-    #
-    l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
-    l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs"
-    #
-    l2muIsoViewsMaker.RequireParentView = True
-    l2muIsoViewsMaker.ViewFallThrough = True
-
-    ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import l2muisoRecoSequence
-    l2muisoRecoSequence, sequenceOut = l2muisoRecoSequence( l2muIsoViewsMaker.InViewRoIs )
- 
-    l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
-     
-    ### Define a Sequence to run for muIso ### 
-    l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence ] )
-
-    return (l2muIsoSequence, l2muIsoViewsMaker, sequenceOut)
-
-def muIsoSequence():
- 
-    (l2muIsoSequence, l2muIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muIsoAlgSequence, ConfigFlags)
-
-    # set up hypo    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoAlg
-    trigmuIsoHypo = TrigMuisoHypoAlg("L2MuisoHypoAlg")
-    trigmuIsoHypo.MuonL2ISInfoName = sequenceOut
-   
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromDict
-
-    return MenuSequence( Sequence    = l2muIsoSequence,
-                         Maker       = l2muIsoViewsMaker,
-                         Hypo        = trigmuIsoHypo,
-                         HypoToolGen = TrigMuisoHypoToolFromDict )
-
-
-
-######################
 ### efMuiso step ###
 ######################
 def muEFIsoAlgSequence(ConfigFlags):
