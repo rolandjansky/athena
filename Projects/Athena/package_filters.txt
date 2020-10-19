@@ -54,7 +54,6 @@
 
 # Huge D3PD librarys not really useful any more
 - PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
-- PhysicsAnalysis/D3PDMaker/CaloSysD3PDMaker
 
 # Don't build PerfMonVTune which has external Intel tool dependency
 - Control/PerformanceMonitoring/PerfMonVTune
