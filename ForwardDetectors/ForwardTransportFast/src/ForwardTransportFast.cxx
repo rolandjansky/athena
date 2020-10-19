@@ -6,7 +6,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "AtlasHepMC/GenEvent.h"
 
-#include "ForwardTransportFast/ForwardTransportFast.h"
+#include "ForwardTransportFast.h"
 #include "ForwardTracker/Particle.h"
 #include "ForwardTracker/Point.h"
 
