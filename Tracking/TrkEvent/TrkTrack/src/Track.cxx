@@ -194,6 +194,10 @@ Trk::Track::~Track()
 
 const DataVector<const Trk::TrackParameters>* Trk::Track::trackParameters() const
 {
+
+  if(!m_trackStateVector){
+    return nullptr;
+  }
   // Do work only if it is not valid.
   if ( !m_cachedParameterVector.isValid()){
     // create cached parameter vector (which DOES NOT OWN ELEMENTS ...
@@ -255,16 +259,15 @@ void Trk::Track::findPerigeeImpl() const
 const Trk::Perigee*
 Trk::Track::perigeeParameters() const
 {
-
   if (!m_perigeeParameters.isValid()) {
     // findPerigee performs the setting of the parameters
     // i.e does the CachedValue set
     findPerigeeImpl();
   }
 
-  //Return payload if valid
-  if(m_perigeeParameters.isValid()){
-    return  *(m_perigeeParameters.ptr());
+  // Return payload if valid
+  if (m_perigeeParameters.isValid()) {
+    return *(m_perigeeParameters.ptr());
   }
 
   return nullptr;
@@ -272,9 +275,12 @@ Trk::Track::perigeeParameters() const
 
 const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() const
 {
+  if (!m_trackStateVector) {
+    return nullptr;
+  }
 
   // We only need to do work if not valid.
-  if ( m_trackStateVector and !m_cachedMeasurementVector.isValid()){
+  if (!m_cachedMeasurementVector.isValid()){
     // create new DataVector which DOES NOT OWN ELEMENTS .
     DataVector< const Trk::MeasurementBase> tmpMeasurementVector(SG::VIEW_ELEMENTS);
     // for measurements on track it is very likely that #(meas) ~ #(TSOS)-> reserve(#(TSOS))
@@ -299,6 +305,9 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() 
 
 const DataVector<const Trk::MeasurementBase>* Trk::Track::outliersOnTrack() const
 {
+  if (!m_trackStateVector) {
+    return nullptr;
+  }
   //We only need to do work if not valid
   if ( !m_cachedOutlierVector.isValid()){
     // create new DataVector which DOES NOT OWN ELEMENTS .
@@ -318,7 +327,14 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::outliersOnTrack() cons
   return m_cachedOutlierVector.ptr();
 }
 
-void Trk::Track::setTrackStateOnSurfaces(DataVector<const Trk::TrackStateOnSurface>*  input)
+void Trk::Track::setFitQuality(const FitQuality* quality)
+{
+  delete m_fitQuality;
+  m_fitQuality = quality;
+}
+
+void Trk::Track::setTrackStateOnSurfaces(
+  DataVector<const Trk::TrackStateOnSurface>* input)
 {
   delete m_trackStateVector;  // delete existing
   m_trackStateVector = input; // add new
