@@ -86,6 +86,17 @@ namespace GSFUtils {
 constexpr size_t alignment = 32;
 
 /**
+ * The maximum size ColsxRows
+ * we allow for the triangular array is 128x128
+ *
+ * 8 ( max Bethe heitle material components)
+ * x 16 ( max state components)
+ *
+ * The typical number we use is 6x12 = 72.
+ */
+constexpr int16_t triangularMaxRowsColums = 128;
+
+/**
  * @brief struct representing 1D component
  * Negative weight means invalidated component
  */
@@ -120,10 +131,14 @@ findMerges(Component1D* componentsIn,
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2"))) int32_t
+__attribute__((target("avx2")))
+
+int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 
-__attribute__((target("sse4.1"))) int32_t
+__attribute__((target("sse4.1")))
+
+int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 #endif // x86_64 specific targets
 

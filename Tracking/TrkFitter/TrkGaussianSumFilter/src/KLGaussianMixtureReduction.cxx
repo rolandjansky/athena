@@ -41,18 +41,12 @@ struct triangularToIJ
 };
 
 std::vector<triangularToIJ>
-createToIJ128()
+createToIJMaxRowCols()
 {
-  // Create a trangular array mapping for the maximum size
-  // we will ever have 8 (max bethe heitle material) x16 (state components)
-  // =128. 128 * (128-1)/2 = 8128
-  //
-  // The typical number we use is 6x12 = 72.
-  //
-  constexpr int16_t n = 128;
-  constexpr int32_t nn = n * (n - 1) / 2;
+  constexpr int32_t nn =
+    triangularMaxRowsColums * (triangularMaxRowsColums - 1) / 2;
   std::vector<triangularToIJ> indexMap(nn);
-  for (int16_t i = 1; i < n; ++i) {
+  for (int16_t i = 1; i < triangularMaxRowsColums; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
     for (int16_t j = 0; j < i; ++j) {
       indexMap[indexConst + j] = { i, j };
@@ -224,11 +218,12 @@ findMerges(Component1D* componentsIn,
     __builtin_assume_aligned(componentsIn, alignment));
 
   // Sanity check. Function  throw on invalid inputs
-  if (inputSize < 0 || inputSize > 128 || reducedSize > inputSize) {
+  if (inputSize < 0 || inputSize > triangularMaxRowsColums ||
+      reducedSize > inputSize) {
     throw std::runtime_error("Invalid InputSize or reducedSize");
   }
   // We need just one for the full duration of a job
-  const static std::vector<triangularToIJ> convert = createToIJ128();
+  const static std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
   // Based on the inputSize allocate enough space for the pairwise distances
   const int16_t n = inputSize;
@@ -289,7 +284,9 @@ findMerges(Component1D* componentsIn,
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2"))) int32_t
+__attribute__((target("avx2")))
+
+int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
@@ -322,7 +319,9 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
-__attribute__((target("sse4.1"))) int32_t
+__attribute__((target("sse4.1")))
+
+int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
