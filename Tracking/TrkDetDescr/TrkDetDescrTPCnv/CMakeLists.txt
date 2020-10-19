@@ -1,22 +1,7 @@
-################################################################################
-# Package: TrkDetDescrTPCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkDetDescrTPCnv )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Tracking/TrkDetDescr/TrkDetDescrUtils
-                          Tracking/TrkDetDescr/TrkGeometry
-                          PRIVATE
-                          AtlasTest/TestTools
-                          GaudiKernel )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( TrkDetDescrTPCnv
@@ -24,79 +9,28 @@ atlas_add_library( TrkDetDescrTPCnv
                    src/TrkDetDescrUtils/*.cxx
                    src/TrkGeometry/*.cxx
                    PUBLIC_HEADERS TrkDetDescrTPCnv
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaPoolUtilities TrkDetDescrUtils TrkGeometry AthenaPoolCnvSvcLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools GaudiKernel )
+                   LINK_LIBRARIES AthenaPoolUtilities TrkDetDescrUtils TrkGeometry AthenaPoolCnvSvcLib )
 
 atlas_add_dictionary( TrkDetDescrTPCnvDict
                       TrkDetDescrTPCnv/TrkDetDescrTPCnvDict.h
                       TrkDetDescrTPCnv/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
+                      LINK_LIBRARIES TrkDetDescrTPCnv )
 
-atlas_add_test( BinnedLayerMaterialCnv_p1_test
-                SOURCES
-                test/BinnedLayerMaterialCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
+# Tests in the package:
+function( _add_test name )
+   atlas_add_test( ${name}
+                   SOURCES test/${name}.cxx
+                   LINK_LIBRARIES GaudiKernel TestTools TrkDetDescrTPCnv )
+endfunction( _add_test )
 
-atlas_add_test( BinUtilityCnv_p1_test
-                SOURCES
-                test/BinUtilityCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( CompressedLayerMaterialCnv_p1_test
-                SOURCES
-                test/CompressedLayerMaterialCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( CompoundLayerMaterialCnv_p1_test
-                SOURCES
-                test/CompoundLayerMaterialCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( ElementTableCnv_p1_test
-                SOURCES
-                test/ElementTableCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( HomogeneousLayerMaterialCnv_p1_test
-                SOURCES
-                test/HomogeneousLayerMaterialCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( LayerMaterialMapCnv_p1_test
-                SOURCES
-                test/LayerMaterialMapCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( MaterialCnv_p1_test
-                SOURCES
-                test/MaterialCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( MaterialPropertiesCnv_p1_test
-                SOURCES
-                test/MaterialPropertiesCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( MaterialStepCnv_p1_test
-                SOURCES
-                test/MaterialStepCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
-atlas_add_test( MaterialStepCollectionCnv_p1_test
-                SOURCES
-                test/MaterialStepCollectionCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities TrkDetDescrUtils TrkGeometry TestTools GaudiKernel TrkDetDescrTPCnv )
-
+_add_test( BinnedLayerMaterialCnv_p1_test )
+_add_test( BinUtilityCnv_p1_test )
+_add_test( CompressedLayerMaterialCnv_p1_test )
+_add_test( CompoundLayerMaterialCnv_p1_test )
+_add_test( ElementTableCnv_p1_test )
+_add_test( HomogeneousLayerMaterialCnv_p1_test )
+_add_test( LayerMaterialMapCnv_p1_test )
+_add_test( MaterialCnv_p1_test )
+_add_test( MaterialPropertiesCnv_p1_test )
+_add_test( MaterialStepCnv_p1_test )
+_add_test( MaterialStepCollectionCnv_p1_test )
