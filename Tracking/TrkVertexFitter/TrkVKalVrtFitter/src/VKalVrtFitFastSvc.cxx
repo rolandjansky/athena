@@ -13,8 +13,7 @@
 
 
 namespace Trk {
- extern void vkvfast_( double* , double* , double* , double*);
- extern void vkvFastV( double* , double* , double* vRef, double dbmag, double*);
+ extern double vkvFastV( double* , double* , double* vRef, double dbmag, double*);
 }
 //
 //__________________________________________________________________________
@@ -28,75 +27,17 @@ namespace Trk{
 //
 
 
-
-  StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const Track*>& InpTrk,
-                                              Amg::Vector3D& Vertex,
+  StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& InpTrk,
+                                              Amg::Vector3D& Vertex, 
                                               IVKalState& istate) const
   {
-    assert(dynamic_cast<State*> (&istate)!=nullptr);
-    State& state = static_cast<State&> (istate);
-//
-//  Convert particles and setup reference frame
-//
-    int ntrk=0; 
-    StatusCode sc = CvtTrkTrack(InpTrk,ntrk,state);
-    if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
-    double fx,fy,BMAG_CUR;
-    state.m_fitField.getMagFld(0.,0.,0.,fx,fy,BMAG_CUR);
-    if(fabs(BMAG_CUR) < 0.1) BMAG_CUR=0.1;
-//
-//------ Variables and arrays needed for fitting kernel
-//
-    double out[3];
-    int i,j;
-    std::vector<double> xx,yy,zz;
-    Vertex[0]=Vertex[1]=Vertex[2]=0.;
-//
-//
-    double xyz0[3]={ -state.m_refFrameX, -state.m_refFrameY, -state.m_refFrameZ};
-    if(ntrk==2){	 
-    //Trk::vkvfast_(&state.m_apar[0][0],&state.m_apar[1][0],&BMAG_CUR,out);
-      Trk::vkvFastV(&state.m_apar[0][0],&state.m_apar[1][0], xyz0, BMAG_CUR, out);
-    } else {
-      for( i=0;      i<ntrk-1; i++){
-	 for( j=i+1; j<ntrk;   j++){
-          //Trk::vkvfast_(&state.m_apar[i][0],&state.m_apar[j][0],&BMAG_CUR,out);
-            Trk::vkvFastV(&state.m_apar[i][0],&state.m_apar[j][0], xyz0, BMAG_CUR, out);
-	    xx.push_back(out[0]);
-	    yy.push_back(out[1]);
-	    zz.push_back(out[2]);
-	  }
-	}
-	int n=xx.size();
-	std::sort(xx.begin(), xx.end());
-	std::sort(yy.begin(), yy.end());
-	std::sort(zz.begin(), zz.end());
-
-	std::vector<double>::iterator it1,it2;
-	it1=it2=xx.begin();
-	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
-	out[0]=0.5*( (*it1) + (*it2) );
-		
-	it1=it2=yy.begin();
-	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
-	out[1]=0.5*( (*it1) + (*it2) );
-
-	it1=it2=zz.begin();
-	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
-	out[2]=0.5*( (*it1) + (*it2) );
-
-    }
-    Vertex[0]= out[0] + state.m_refFrameX;
-    Vertex[1]= out[1] + state.m_refFrameY;
-    Vertex[2]= out[2] + state.m_refFrameZ;
-
-
-    return StatusCode::SUCCESS;
+    double minDZ=0.;  
+    return VKalVrtFitFast(InpTrk,Vertex,minDZ,istate);
   }
 
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& InpTrk,
-                                              Amg::Vector3D& Vertex,
+                                              Amg::Vector3D& Vertex, double & minDZ,
                                               IVKalState& istate) const
   {
     assert(dynamic_cast<State*> (&istate)!=nullptr);
@@ -115,41 +56,45 @@ namespace Trk{
 //
     double out[3];
     int i,j;
-    std::vector<double> xx,yy,zz;
+    std::vector<double> xx,yy,zz,difz;
     Vertex[0]=Vertex[1]=Vertex[2]=0.;
 //
 //
     double xyz0[3]={ -state.m_refFrameX, -state.m_refFrameY, -state.m_refFrameZ};
     if(ntrk==2){	 
-    //Trk::vkvfast_(&state.m_apar[0][0],&state.m_apar[1][0],&BMAG_CUR,out);
-      Trk::vkvFastV(&state.m_apar[0][0],&state.m_apar[1][0], xyz0, BMAG_CUR, out);
+      minDZ=Trk::vkvFastV(&state.m_apar[0][0],&state.m_apar[1][0], xyz0, BMAG_CUR, out);
     } else {
       for( i=0;      i<ntrk-1; i++){
 	 for( j=i+1; j<ntrk;   j++){
-          //Trk::vkvfast_(&state.m_apar[i][0],&state.m_apar[j][0],&BMAG_CUR,out);
-            Trk::vkvFastV(&state.m_apar[i][0],&state.m_apar[j][0], xyz0, BMAG_CUR, out);
+            double dZ=Trk::vkvFastV(&state.m_apar[i][0],&state.m_apar[j][0], xyz0, BMAG_CUR, out);
 	    xx.push_back(out[0]);
 	    yy.push_back(out[1]);
 	    zz.push_back(out[2]);
+	    difz.push_back(dZ);
 	  }
 	}
 	int n=xx.size();
 	std::sort(xx.begin(), xx.end());
 	std::sort(yy.begin(), yy.end());
 	std::sort(zz.begin(), zz.end());
+	std::sort(difz.begin(), difz.end());
 
 	std::vector<double>::iterator it1,it2;
-	it1=it2=xx.begin();
-	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
+	it1=xx.begin()+(n+1)/2;
+	it2=xx.begin()+(n/2+1);
 	out[0]=0.5*( (*it1) + (*it2) );
 		
-	it1=it2=yy.begin();
-	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
+	it1=yy.begin()+(n+1)/2;
+	it2=yy.begin()+(n/2+1);
 	out[1]=0.5*( (*it1) + (*it2) );
 
-	it1=it2=zz.begin();
-	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
+	it1=zz.begin()+(n+1)/2;
+	it2=zz.begin()+(n/2+1);
 	out[2]=0.5*( (*it1) + (*it2) );
+
+	it1=difz.begin()+(n+1)/2;
+	it2=difz.begin()+(n/2+1);
+	minDZ=0.5*( (*it1) + (*it2) );
 
     }
     Vertex[0]= out[0] + state.m_refFrameX;

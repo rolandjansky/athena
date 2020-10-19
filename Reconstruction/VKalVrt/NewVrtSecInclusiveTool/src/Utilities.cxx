@@ -20,11 +20,11 @@
 namespace Rec{  
 
 
-//  void NewVrtSecInclusiveTool::printWrkSet(const std::vector<WrkVrt> *, const & std::string ) const {
   void NewVrtSecInclusiveTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string &name) const {
     int nGoodV=0;
+    if(msgLvl(MSG::INFO)){
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
-      std::cout<<name
+      msg(MSG::INFO)<<name
       <<"= "<<(*WrkVrtSet)[iv].vertex[0]
       <<", "<<(*WrkVrtSet)[iv].vertex[1]
       <<", "<<(*WrkVrtSet)[iv].vertex[2]
@@ -36,13 +36,14 @@ namespace Rec{
       <<"  proj.dist="<<(*WrkVrtSet)[iv].projectedVrt
       <<" trk=";
       for(int kk=0; kk<(int)(*WrkVrtSet)[iv].selTrk.size(); kk++) {
-                std::cout<<", "<<(*WrkVrtSet)[iv].selTrk[kk];}
-      //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].selTrk.size(); kk++) {
-      //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].trkAtVrt[kk]).Perp();}
-      std::cout<<'\n';
+                msg(MSG::INFO)<<", "<<(*WrkVrtSet)[iv].selTrk[kk];}
+      for(int kk=0; kk<(int)(*WrkVrtSet)[iv].selTrk.size(); kk++) {
+                msg(MSG::INFO)<<", "<<MomAtVrt((*WrkVrtSet)[iv].trkAtVrt[kk]).Perp();}
+      msg(MSG::INFO)<<endmsg;
       if((*WrkVrtSet)[iv].Good)nGoodV++;
     }
-    std::cout<<name<<" N="<<nGoodV<<'\n'; 
+    msg(MSG::INFO)<<name<<" N="<<nGoodV<<endmsg; 
+    }
   }
 
                /*  Technicalities */
@@ -81,9 +82,9 @@ namespace Rec{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
-    signif=sqrt(fabs(signif));
+    signif=std::sqrt(std::abs(signif));
     if( signif!=signif ) signif = 0.;
-    return sqrt(distx*distx+disty*disty+distz*distz);
+    return std::sqrt(distx*distx+disty*disty+distz*distz);
   }
 
   double NewVrtSecInclusiveTool::VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
@@ -106,9 +107,9 @@ namespace Rec{
     signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
          +2.*distx*WgtMtx(0,1)*disty;
-    signif=sqrt(fabs(signif));
+    signif=std::sqrt(std::abs(signif));
     if( signif!=signif ) signif = 0.;
-    return sqrt(distx*distx+disty*disty);
+    return std::sqrt(distx*distx+disty*disty);
   }
 
 
@@ -138,7 +139,7 @@ namespace Rec{
            +2.*distx*WgtMtx(0,1)*disty
            +2.*distx*WgtMtx(0,2)*distz
            +2.*disty*WgtMtx(1,2)*distz;
-    signif=sqrt(fabs(signif));
+    signif=std::sqrt(std::abs(signif));
     if(signif != signif)  signif = 0.;
     return signif;
   }
@@ -148,7 +149,7 @@ namespace Rec{
     double dx =  Vrt1.x()- Vrt2.x();
     double dy =  Vrt1.y()- Vrt2.y();
     double dz =  Vrt1.z()- Vrt2.z();
-    return sqrt(dx*dx+dy*dy*dz*dz);
+    return std::sqrt(dx*dx+dy*dy*dz*dz);
   }
 //--------------------------------------------------
 // significance along some direction
@@ -182,7 +183,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
                  +2.*distx*WgtMtx(0,1)*disty
                  +2.*distx*WgtMtx(0,2)*distz
                  +2.*disty*WgtMtx(1,2)*distz;
-     signif=sqrt(fabs(signif));
+     signif=std::sqrt(std::abs(signif));
      if( signif!=signif ) signif = 0.;
      if(projDist<0)signif=-signif;
      return signif;
@@ -198,7 +199,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
                   +2.*DirX*VrtErr[1]*DirY
                      +DirY*VrtErr[2]*DirY;
     Covar /= DirX*DirX + DirY*DirY;
-    Covar=sqrt(fabs(Covar));
+    Covar=std::sqrt(std::abs(Covar));
     if(Covar != Covar)  Covar = 0.;
     return Covar;
   }
@@ -212,7 +213,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
                                double massP, double massPi )
    const
    {
-        double ap1i=fabs(TrkAtVrt[0][2]); double ap2i=fabs(TrkAtVrt[1][2]);
+        double ap1i=std::abs(TrkAtVrt[0][2]); double ap2i=std::abs(TrkAtVrt[1][2]);
         double px = cos(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])*ap1i 
                   + cos(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])*ap2i;
         double py = sin(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])*ap1i 
@@ -220,10 +221,10 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
         double pz =                     cos(TrkAtVrt[0][1])*ap1i 
                   +                     cos(TrkAtVrt[1][1])*ap2i;
         double ee= (ap1i > ap2i) ? 
-            (sqrt(ap1i*ap1i+massP*massP)+sqrt(ap2i*ap2i+massPi*massPi)):
-            (sqrt(ap2i*ap2i+massP*massP)+sqrt(ap1i*ap1i+massPi*massPi));
+            (std::sqrt(ap1i*ap1i+massP*massP)+std::sqrt(ap2i*ap2i+massPi*massPi)):
+            (std::sqrt(ap2i*ap2i+massP*massP)+std::sqrt(ap1i*ap1i+massPi*massPi));
         double test=(ee-pz)*(ee+pz)-px*px-py*py;
-        return test>0 ? sqrt(test) : 0.; 
+        return test>0 ? std::sqrt(test) : 0.; 
     }
 
 
@@ -231,11 +232,11 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
   TLorentzVector NewVrtSecInclusiveTool::MomAtVrt(const std::vector< double >& inpTrk) 
   const
   {
-     double api=1./fabs(inpTrk[2]);
+     double api=1./std::abs(inpTrk[2]);
      double px = cos ( inpTrk[0]) * sin(inpTrk[1])*api;
      double py = sin ( inpTrk[0]) * sin(inpTrk[1])*api;
      double pz =                    cos(inpTrk[1])*api;
-     double ee = sqrt( px*px + py*py + pz*pz + m_massPi*m_massPi);
+     double ee = std::sqrt( px*px + py*py + pz*pz + m_massPi*m_massPi);
      return TLorentzVector(px,py,pz,ee); 
    }
 

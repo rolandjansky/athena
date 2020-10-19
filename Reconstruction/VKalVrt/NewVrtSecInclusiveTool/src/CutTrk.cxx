@@ -64,7 +64,7 @@ namespace Rec{
             m_hb_trkD0->Fill( impactA0, m_w_1);
             m_hb_trkZ ->Fill( impactZ, m_w_1);
           }
-          if(fabs(impactZ)>m_cutZVrt) continue;
+          if(std::abs(impactZ)*std::sin((*i_ntrk)->theta())>m_cutZVrt) continue;
           if(impactA0>m_cutA0)        continue;
           if(m_fillHist){ m_hb_trkSelect->Fill( 3., m_w_1);}
      
