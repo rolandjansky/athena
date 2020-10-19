@@ -54,7 +54,10 @@ athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 from RecExConfig.InputFilePeeker import inputFileSummary
 if inputFileSummary is not None:
-    if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
+    # If we have Simulation metadata in the file or if this is simulation, add it to the IOVDbSvc
+    # Might have Simulation metadata but not IS_SIMULATION if we're running data overlay
+    if ('metadata' in inputFileSummary and '/Simulation/Parameters' in inputFileSummary['metadata']) or \
+       (inputFileSummary['evt_type'][0] == 'IS_SIMULATION' and inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
         svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
     
 # Set up the metadata tool:
