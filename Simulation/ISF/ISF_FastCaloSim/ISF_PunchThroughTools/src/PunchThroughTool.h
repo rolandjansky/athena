@@ -80,7 +80,7 @@ namespace ISF {
     StatusCode registerCorrelation(int pdgID1, int pdgID2,double minCorrEnergy = 0., double fullCorrEnergy = 0.);
 
     /** reads out the lookuptable for the given type of particle */
-    PDFcreator *readLookuptablePDF(int pdgID, std::string folderName);
+    std::unique_ptr<ISF::PDFcreator> readLookuptablePDF(int pdgID, std::string folderName);
 
     /** create the right number of punch-through particles for the given pdg
      *  and return the number of particles which was created. also create these
@@ -157,6 +157,8 @@ namespace ISF {
     /** Properties */
     std::string                          m_filenameLookupTable{"CaloPunchThroughParametrisation.root"};     //!< holds the filename of the lookup table (property)
     std::vector<int>                     m_pdgInitiators;           //!< vector of punch-through initiator pgds
+    std::vector<int>                     m_initiatorsMinEnergy;     //!< vector of punch-through initiator min energyies to create punch through
+    std::vector<double>                  m_initiatorsEtaRange;      //!< vector of min and max abs eta range to allow punch through initiators
     std::vector<int>                     m_punchThroughParticles;   //!< vector of pdgs of the particles produced in punch-throughs
     std::vector<bool>                    m_doAntiParticles;         //!< vector of bools to determine if anti-particles are created for each punch-through particle type
     std::vector<int>                     m_correlatedParticle;      //!< holds the pdg of the correlated particle for each given pdg

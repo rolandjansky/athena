@@ -16,148 +16,318 @@
 #include "TFile.h"
 #include "TH2F.h"
 #include "TAxis.h"
+#include "TF1.h"
+
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discrete, double randMin, double randMax)
+void ISF::PDFcreator::addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist) {
+
+ if(m_energy_etaRange_hists1D.find(energy) != m_energy_etaRange_hists1D.end()){ //if energy entry exists, insert into inner eta map
+   (m_energy_etaRange_hists1D.find(energy)->second).insert(std::make_pair(etaMinEtaMax, hist));
+ }
+ else{ //if energy entry does not exist create new full energy entry
+   std::map< std::vector<double>, TH1*> inner;
+   inner.insert(std::make_pair(etaMinEtaMax, hist));
+   m_energy_etaRange_hists1D.insert(std::make_pair(energy, inner));
+ }
+}
+
+void ISF::PDFcreator::addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, TH2 *hist){
+  if(m_energy_etaRange_hists2D.find(energy) != m_energy_etaRange_hists2D.end()){ //if energy entry exists, insert into inner eta map
+    (m_energy_etaRange_hists2D.find(energy)->second).insert(std::make_pair(etaMinEtaMax, hist));
+  }
+  else{ //if energy entry does not exist create new full energy entry
+    std::map< std::vector<double>, TH2*> inner;
+    inner.insert(std::make_pair(etaMinEtaMax, hist));
+    m_energy_etaRange_hists2D.insert(std::make_pair(energy, inner));
+  }
+}
+
+double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, const double& outEnergy, const double& randMin, const double& randMax) const
 {
-  // Since the histograms which hold the function's fit parameters are binned
-  // we have to choose which bin we use for the current energy & eta regime.
-  // It's very unlikely to exactly hit a bin's center, therefore we randomly
-  // choose either the lower next or the upper next bin.
 
-  int numInputPar = inputParameters.size();
-  TAxis **axis = new TAxis*[numInputPar];
-  Int_t *chosenBin = new Int_t[numInputPar];
+    //define variable to return from getRand call, should never return zero
+    double random = 0;
+
+    //Implementation for 1D hist
+    if(!m_energy_etaRange_hists1D.empty()){
+    //Select energy values neighbouring input energy
+    std::map< double , std::map< std::vector<double>, TH1*> >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
+
+    //selects first energy that is not less than input energy
+    itUpperEnergy = std::lower_bound(m_energy_etaRange_hists1D.begin(), std::prev(m_energy_etaRange_hists1D.end()), inputParameters.at(0), compareEnergy1D);
 
 
-  // get the axis from the first (could be any other too, but the first one
-  // always exists) histogram (which holds the function's first fit parameter)
-  axis[0] = m_par[0]->GetXaxis();
-  axis[1] = m_par[0]->GetYaxis();
+    //if we have more than one energy parameterisation then run interpolation code
+    if(m_energy_etaRange_hists1D.size() > 1){
 
-  // loop over all input inputParameters (e.g. eta & energy)
-  for (int inputPar=0; inputPar<numInputPar; inputPar++) {
-    // store the axis for the current inputParameter
-    TAxis *curaxis = axis[inputPar];
-    double curvalue = inputParameters[inputPar];
+      //if closest energy is largest entry in pdf select that
+      if (itUpperEnergy == std::prev(m_energy_etaRange_hists1D.end())) {
+        selectedEnergy = std::prev(m_energy_etaRange_hists1D.end());
+      }
+      //if closest energy is smallest entry in pdf select that
+      else if (itUpperEnergy == m_energy_etaRange_hists1D.begin()) {
+        selectedEnergy = m_energy_etaRange_hists1D.begin();
+      }
+      else {
+        //Check if iterator input energy is closer to previous energy, if yes choose this instead
+        itPrevEnergy = std::prev(itUpperEnergy);
+        if (std::fabs(inputParameters.at(0) - itPrevEnergy->first) < std::fabs(itUpperEnergy->first - inputParameters.at(0))){
+          selectedEnergy = itPrevEnergy;
+          secondSelectedEnergy = itUpperEnergy;
+        }
+        else{
+          selectedEnergy = itUpperEnergy;
+          secondSelectedEnergy = itPrevEnergy;
+        }
+      }
 
-    // get the id of the bin corresponding to the current value
-    // (use FindFixBin to avoid the axis from being rebinned)
-    Int_t bin = curaxis->FindFixBin(curvalue);
-    // get the center of the closest bin to the input inputParameter
-    double closestCenter = curaxis->GetBinCenter(bin);
-    // get the bins edge closest to the current value
-    // and find out if the next closest bin has id bin+1 or bin-1
-    double closestEdge = (curvalue <= closestCenter) ? curaxis->GetBinLowEdge(bin) : curaxis->GetBinUpEdge(bin);
-    int binDelta = (curvalue <= closestCenter) ? -1 : +1;
+      //next interpolate between energy values
+      //only interpolate if energy is not greater than max in param, and not lower than min in param
+      if( selectedEnergy->first < std::prev(m_energy_etaRange_hists1D.end())->first && selectedEnergy != m_energy_etaRange_hists1D.begin() ){
 
-    // Calculate the 'normalised distance' between the input-value,
-    // the closest bin's center and this bin's closest edge
-    // distance == 0 means that the input value lies exactly on its closest bin's center.
-    // distance == 0.5 means that the input value lies exactly on the edge to the next bin
-    double distance = (curvalue - closestCenter) / (closestEdge - closestCenter) / 2.;
+        //select the smaller of the two energies to find the bin edge between them (energy bands are logarithmic)
+        double energyBinEdge;
+        if(selectedEnergy->first < secondSelectedEnergy->first){
+          energyBinEdge = selectedEnergy->first*sqrtOf2;
+        }
+        else{
+          energyBinEdge = secondSelectedEnergy->first*sqrtOf2;
+        }
 
-    // now randomly choose if we take the closest bin or the one next to the closest one.
-    // with this, we kind of linearly interpolate between two bins if an input value
-    // betweeen these two bins does occure many times.
+        //calculate a distance of the input energy to the bin edge
+        double distance = std::fabs(energyBinEdge - inputParameters.at(0))/std::fabs(selectedEnergy->first - energyBinEdge);
+
+        //if we get a random number larger than the distance then choose other energy.
+        double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+        if(rand > distance){
+          selectedEnergy = secondSelectedEnergy;
+        }
+
+      }
+    }
+    else{
+      selectedEnergy = itUpperEnergy;
+    }
+
+
+    //Now move on to selecting the correct eta window
+    //first get the map of eta windows to hists.
+    const std::map< std::vector<double>, TH1*>& etaMinEtaMax_hists = selectedEnergy->second;
+
+    std::map< std::vector<double>, TH1*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
+
+    //choose first max eta that is not less than input eta
+    itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax1D);
+
+    //if we have multiple eta params do interpolation
+    if(m_energy_etaRange_hists1D.size() > 1){
+
+    //if input eta is closer to upper eta boundary in itSelecteEtaWindow then select next window as second best choice
+    if(std::fabs(inputParameters.at(1) - itSelectedEtaWindow->first.at(1)) <  std::fabs(inputParameters.at(1) - itSelectedEtaWindow->first.at(0))){
+      if(itSelectedEtaWindow != std::prev(etaMinEtaMax_hists.end())){
+        itSecondEtaWindow = std::next(itSelectedEtaWindow);
+      }
+      else{
+        itSecondEtaWindow = std::prev(itSelectedEtaWindow);
+      }
+    }
+    //if input eta is closer to min boundary of itSelectedEtaWindow select prev window as second best choice unless first entry
+    else if(itSelectedEtaWindow != etaMinEtaMax_hists.begin()){
+      itSecondEtaWindow = std::prev(itSelectedEtaWindow);
+    }
+    else{
+      itSecondEtaWindow = std::next(itSelectedEtaWindow);
+    }
+    //find the boundary between the two selected eta windows
+    double etaBinEdge;
+    if(itSelectedEtaWindow->first.at(0) > itSecondEtaWindow->first.at(0)){
+      etaBinEdge = itSelectedEtaWindow->first.at(0);
+    }
+    else{
+      etaBinEdge = itSecondEtaWindow->first.at(0);
+    }
+    //calculate a distance of the input eta to the bin edge
+    double distance = std::fabs(etaBinEdge - inputParameters.at(1))/std::fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
+    //if we get a random number larger than the distance then choose other energy.
     double rand = CLHEP::RandFlat::shoot(m_randomEngine);
-    chosenBin[inputPar] = ( rand >= distance ) ? bin : bin+binDelta;
-
-    // check if we have chosen an over- or underflow-bin
-    // if this has happened, choose the last bin still in range
-
-    if ( chosenBin[inputPar] <= 0 )				chosenBin[inputPar] = 1;
-    else if ( chosenBin[inputPar] > curaxis->GetNbins() )       chosenBin[inputPar] = curaxis->GetNbins();
-  }
-
-  // now get the bin number (since all histograms are binned
-  // in exactly the same way it should be the same for all
-  // of them)
-  Int_t bin = 0;
-  if (numInputPar == 1)             bin = m_par[0]->GetBin( chosenBin[0] );
-  else if (numInputPar ==2 )        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1] );
-  else if (numInputPar == 3)        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], chosenBin[2] );
-  // TODO: implement case of >3 input parameters
-
-  // free some memory
-  delete [] axis;
-
-  // fill in the parameters into the distribution-function
-  // (e.g. for the current energy & eta regime)
-  for (int funcPar = 0; funcPar < m_pdf->GetNpar(); funcPar++) {
-    double value = m_par[funcPar]->GetBinContent(bin);
-    m_pdf->SetParameter(funcPar, value);
-  }
-
-  // now finally we can determine the random number from the given distribution
-  //
-  // set the minimum and maximum random values
-  double xMin = ( (randMin != 0.) && (randMin <  m_randmax->GetBinContent(bin)) )
-    ? randMin : m_randmin->GetBinContent(bin);
-  double xMax = ( (randMax != 0.) && (randMax <= m_randmax->GetBinContent(bin)) )
-    ? randMax : m_randmax->GetBinContent(bin);
-
-  // free some more memory
-  delete [] chosenBin;
-
-  // (1.) for discrete distributions
-  //       - this is implemented separately from the continuous case,
-  //         since it significantly speeds up the creation of random
-  //         numbers from a distribution with a high negative gradient
-  //       - for this the sum( f(x_i) ) has to be normalized !
-  if (discrete) {
-    // get a flat random value between 0. and 1.
-    double flat = CLHEP::RandFlat::shoot(m_randomEngine);
-
-    double sum = 0.;
-
-    // set the minimum x value
-    xMin = lround(xMin);
-
-    // now determine the corresponding value from the distribution
-    for (int rand=xMin; rand<lround(xMax); rand++) {
-      // sum up the probabilities for each current bin
-      sum += m_pdf->Eval(rand);
-      // if the sum gets larger than the random value
-      //   -> the current 'rand' is the value from the distribution
-      //   -> return this value
-      if (sum >= flat) return ((double)rand);
-    }
-
-    // This point is reached if the the x value corresponding to the random
-    // value is the maximum possible value in the probability distribution
-    // or if the distribution is not normalized.
-    //    -> return the maximum value
-    return (double)m_pdf->GetXmax();
-  }
-
-
-  // (2.) for continuous distributions
-  //      * algorithmus: rejection sampling
-  else {
-    // find max and min values in the PDF
-    double yMin = m_pdf->GetMinimum(xMin, xMax);
-    //if (yMin < 0.) yMin = 0.; // in case the PDF contains negative values
-    double yMax = m_pdf->GetMaximum(xMin, xMax);
-
-    // now get a random value rx with the right distribution
-    //  - use the count variable just for backup to prevent
-    //    an endless loop
-    for (int count=0; count < 1e7; count++) {
-      // first choose a random value within [yMin, yMax]
-      double ry = CLHEP::RandFlat::shoot(m_randomEngine)*(yMax-yMin) + yMin;
-      // then choose a random value within [xMin, xMax]
-      double rx = CLHEP::RandFlat::shoot(m_randomEngine)*(xMax-xMin) + xMin;
-      // calculate y=pdf(rx)
-      double y = m_pdf->Eval(rx);
-      // if ry<=pdf(rx) is fulfilled, we have our random value
-      if ( ry <= y ) return rx;
+    if(rand > distance){
+      itSelectedEtaWindow = itSecondEtaWindow;
     }
   }
 
-  // this point will only be reached, if something went wrong
-  return 0.;
+
+    //get the chosen histogram from the map
+    TH1* hist = itSelectedEtaWindow->second;
+    //Draw randomly from the histogram distribution.
+    //if obj is 1D histogram just draw randomly from it
+    random = hist->GetRandom();
+    if(randMax != 0.){
+      while (random < randMin || random > randMax){
+      random = hist->GetRandom();
+      }
+    }
+    else{
+      while (random < randMin){
+        random = hist->GetRandom();
+      }
+    }
+
+
+    }
+
+
+
+    //Implementation for 2D hist
+    if(!m_energy_etaRange_hists2D.empty()){
+    //Select energy values neighbouring input energy
+    std::map< const double , std::map< std::vector<double>, TH2*> >::const_iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
+
+    //selects first energy that is not less than input energy
+    itUpperEnergy = std::lower_bound(m_energy_etaRange_hists2D.begin(), std::prev(m_energy_etaRange_hists2D.end()), inputParameters.at(0), compareEnergy2D);
+
+
+    //if we have more than one energy parameterisation then run interpolation code
+    if(m_energy_etaRange_hists2D.size() > 1){
+      if (itUpperEnergy == std::prev(m_energy_etaRange_hists2D.end())) {
+        //select final iterator in map
+        selectedEnergy = std::prev(m_energy_etaRange_hists2D.end());
+      }
+      else if (itUpperEnergy == m_energy_etaRange_hists2D.begin()) {
+        //choose first iterator in map
+        selectedEnergy = m_energy_etaRange_hists2D.begin();
+        //do some sort of interpolation in this case to zero with log energy
+      } else {
+        //Check if iterator input energy is closer to previous iterator energy, if yes choose this instead
+        itPrevEnergy = std::prev(itUpperEnergy);
+        if (std::fabs(inputParameters.at(0) - itPrevEnergy->first) < std::fabs(itUpperEnergy->first - inputParameters.at(0))){
+          selectedEnergy = itPrevEnergy;
+          secondSelectedEnergy = itUpperEnergy;
+        }
+        else{
+          selectedEnergy = itUpperEnergy;
+          secondSelectedEnergy = itPrevEnergy;
+        }
+      }
+
+      //next interpolate between energy values
+      //only interpolate if we haven't chosen an edge case
+      if( selectedEnergy->first < std::prev(m_energy_etaRange_hists2D.end())->first && selectedEnergy != m_energy_etaRange_hists2D.begin() ){
+
+        //select the smaller of the two energies to find the bin edge between them (energy bands are logarithmic)
+        double energyBinEdge;
+        if(selectedEnergy->first < secondSelectedEnergy->first){
+          energyBinEdge = selectedEnergy->first*sqrtOf2;
+        }
+        else{
+          energyBinEdge = secondSelectedEnergy->first*sqrtOf2;
+        }
+
+        //calculate a distance of the input energy to the bin edge
+        double distance = std::fabs(energyBinEdge - inputParameters.at(0))/std::fabs(selectedEnergy->first - energyBinEdge);
+
+        //if we get a random number larger than the distance then choose other energy.
+        double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+        if(rand > distance){
+          selectedEnergy = secondSelectedEnergy;
+        }
+
+      }
+    }
+    else{
+      selectedEnergy = itUpperEnergy;
+    }
+
+
+
+
+    //Now move on to selecting the correct eta window
+    //first get the map of eta windows to hists.
+    const std::map< std::vector<double>, TH2*>& etaMinEtaMax_hists = selectedEnergy->second;
+
+    std::map< std::vector<double>, TH2*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
+
+    //choose first max eta that is not less than input eta
+    itSelectedEtaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), std::prev(etaMinEtaMax_hists.end()), inputParameters.at(1), compareEtaMax2D);
+
+    //if we have multiple eta params do interpolation
+    if(etaMinEtaMax_hists.size() > 1){
+      //if input eta is closer to upper eta boundary in itSelecteEtaWindow then select next window as second best choice
+      if(std::abs(inputParameters.at(1) - itSelectedEtaWindow->first.at(1)) <  std::abs(inputParameters.at(1) - itSelectedEtaWindow->first.at(0))){
+        if(itSelectedEtaWindow != std::prev(etaMinEtaMax_hists.end())){
+          itSecondEtaWindow = std::next(itSelectedEtaWindow);
+        }
+        else{
+          itSecondEtaWindow = std::prev(itSelectedEtaWindow);
+        }
+      }
+      //if closer to min boundary of itSelectedEtaWindow do selection based on this
+      else if(itSelectedEtaWindow != etaMinEtaMax_hists.begin()){
+        itSecondEtaWindow = std::prev(itSelectedEtaWindow);
+      }
+      else{
+        itSecondEtaWindow = std::next(itSelectedEtaWindow);
+      }
+
+      //find the boundary between the two selected eta windows
+      double etaBinEdge;
+      if(itSelectedEtaWindow->first.at(0) > itSecondEtaWindow->first.at(0)){
+        etaBinEdge = itSelectedEtaWindow->first.at(0);
+      }
+      else{
+        etaBinEdge = itSecondEtaWindow->first.at(0);
+      }
+      //calculate a distance of the input eta to the bin edge
+      double distance = std::fabs(etaBinEdge - inputParameters.at(1))/std::fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
+      //if we get a random number larger than the distance then choose other energy.
+      double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+      if(rand > distance){
+        itSelectedEtaWindow = itSecondEtaWindow;
+      }
+    }
+
+
+    TH2* hist2d = itSelectedEtaWindow->second;
+
+    TAxis *xaxis = hist2d->GetXaxis();
+    Int_t binx = xaxis->FindBin(outEnergy);
+
+    TH1 * hist = hist2d->ProjectionY("projectionHist",binx,binx);
+    std::unique_ptr<TH1> hist_unique(hist);
+
+    //incase we select an empty x bin, chose next closest appropriate bin
+    while (hist->GetEntries() == 0.){
+      if(outEnergy > (xaxis->GetXmax() + xaxis->GetXmin())/2.){
+        binx--; //increment bin choice towards center of distribution
+      }
+      else{
+        binx++; //increment bin choice towards center of distribution
+      }
+      hist = hist2d->ProjectionY("projectionHist",binx,binx);
+    }
+
+    //Draw randomly from the histogram distribution.
+    //if obj is 1D histogram just draw randomly from it
+    random = hist->GetRandom();
+
+    if(randMax != 0.){
+      while (random < randMin || random > randMax){
+      random = hist->GetRandom();
+      }
+    }
+    else{
+      while (random < randMin){
+        random = hist->GetRandom();
+      }
+    }
+
+    }
+
+    return random;
+
+
+
 }

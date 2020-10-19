@@ -13,9 +13,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 // ROOT includes
-#include "TFile.h"
-#include "TF1.h"
+#include "TH1F.h"
 #include "TH2F.h"
+
 
 namespace ISF
 {
@@ -25,6 +25,7 @@ namespace ISF
       The TF1 function parameters will be retrieved from a histogram given by addPar.
 
       @author  Elmar Ritsch <Elmar.Ritsch@cern.ch>
+      @maintainer/updater Thomas Carter <thomas.michael.carter@cern.ch>
   */
 
   class PDFcreator
@@ -32,24 +33,30 @@ namespace ISF
 
   public:
     /** construct the class with a given TF1 and a random engine */
-    PDFcreator(TF1 *pdf, CLHEP::HepRandomEngine *engine):m_randomEngine(engine), m_pdf(pdf), m_randmin(0), m_randmax(0) {} ;
+    PDFcreator(CLHEP::HepRandomEngine *engine):m_randomEngine(engine) {} ;
 
     ~PDFcreator() { };
 
     /** all following is used to set up the class */
-    void addPar(TH1 *hist) { m_par.push_back(hist); };             //!< get the function's parameter from the given histogram
-    void setRange( TH1 *min, TH1 *max) { m_randmin = min; m_randmax = max; }; //!< get the function's range from the given histograms
+    void setName( std::string PDFname ){ m_name = PDFname; }; //get the pdf's name
+    void addToEnergyEtaRangeHist1DMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist); //add entry to map linking energy, eta window and histogram
+    void addToEnergyEtaRangeHist2DMap(double energy, std::vector<double> etaMinEtaMax, TH2 *hist);//add entry to map linking energy, eta window and histogram
 
-    /** get the random value with this methode, by providing the input parameters */
-    double getRand( std::vector<double> inputPar, bool discrete = false, double randMin = 0., double randMax = 0.);
+    /** get the random value with this method, by providing the input parameters */
+    double getRand( const std::vector<double>& inputPar, const double& outEnergy = 0., const double& randMin = 0., const double& randMax = 0.) const;
+    std::string getName() const {return m_name;};
+    static bool compareEnergy1D(const std::pair< double , std::map< std::vector<double>, TH1*> > map, const double value){ return map.first < value; };
+    static bool compareEnergy2D(const std::pair< double , std::map< std::vector<double>, TH2*> > map, const double value){ return map.first < value; };
+    static bool compareEtaMax1D(const std::pair< std::vector<double>, TH1*> map, const double value){ return map.first.at(1) < value; };
+    static bool compareEtaMax2D(const std::pair< std::vector<double>, TH2*> map, const double value){ return map.first.at(1) < value; };
 
   private:
     CLHEP::HepRandomEngine             *m_randomEngine;       //!< Random Engine
-    TF1                                *m_pdf;                //!< the probability density function
-    TH1                                *m_randmin;            //!< the fit-functions minimum values
-    TH1                                *m_randmax;            //!< the fit-functions maximum values
-    std::vector<TH1*>                   m_par;                /*!< the 'histograms' which hold the parameters
-                                                                for the above PDF */
+    std::string                         m_name;               //!< Give pdf a name for debug purposes
+    std::map< double , std::map< std::vector<double>, TH1*> > m_energy_etaRange_hists1D; //!< map of energies to map of eta ranges to 1D histograms
+    std::map< double , std::map< std::vector<double>, TH2*> > m_energy_etaRange_hists2D; //!< map of energies to map of eta ranges to 2D histograms
+    constexpr static double sqrtOf2 = std::sqrt(2);
+
   };
 }
 
