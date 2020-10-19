@@ -1,6 +1,6 @@
 <lcgdict>
     <class name="JetUncertaintiesTool" />
-
+    <class name="FFJetSmearingTool" />
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
   <exclusion>

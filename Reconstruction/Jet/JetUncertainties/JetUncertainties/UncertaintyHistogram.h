@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_UNCERTAINTYHISTOGRAM_H
@@ -8,6 +8,8 @@
 #include "AsgTools/AsgMessaging.h"
 
 #include "JetUncertainties/UncertaintyEnum.h"
+
+#include "JetUncertainties/JetHelpers.h"
 
 #include "TString.h"
 #include "TH1.h"
@@ -57,13 +59,6 @@ class UncertaintyHistogram : public asg::AsgMessaging
         double readHisto(const double var1, const double var2=0, const double var3=0) const;
         double checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const;
 
-        // Helper to have a const method for interpolation (why is there not a const version in ROOT???)
-        double Interpolate(const TH1* histo, const double x) const;
-        double Interpolate(const TH1* histo, const double x, const double y) const;
-        double Interpolate(const TH1* histo, const double x, const double y, const double z) const;
-        Int_t FindBin(const TAxis* axis, const double x) const;
-        
-        double Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis=1, const int yAxis=2, const int otherDimBin=-1) const;
 };
 
 } // end jet namespace
