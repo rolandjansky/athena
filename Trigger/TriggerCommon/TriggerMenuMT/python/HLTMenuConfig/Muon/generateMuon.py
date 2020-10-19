@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, createStepView, EmptyMenuSequence
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
@@ -56,7 +56,7 @@ def MuCombViewDataVerifier():
     result.addEventAlgo(alg)
     return result
 
-#Not the ideal place to keep the track cnv alg configuration. Temproarily adding it here 
+#Not the ideal place to keep the track cnv alg configuration. Temproarily adding it here
 #until a better location can be found
 def MuonTrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", **kwargs):
     TrackCollectionCnvTool = CompFactory.xAODMaker.TrackCollectionCnvTool
@@ -121,7 +121,7 @@ def efMuMSHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
 
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
-    
+
     # Step 1 (L2MuonSA)
     stepName = 'L2MuonSA'
     stepReco, stepView = createStepView(stepName)
@@ -138,50 +138,50 @@ def generateChains( flags, chainDict ):
 
 
     # decoding
-    # Get RPC BS decoder 
+    # Get RPC BS decoder
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcAcc = RpcBytestreamDecodeCfg( flags, forTrigger=True )
     rpcAcc.getEventAlgo("RpcRawDataProvider").RoIs = reco.name+"RoIs"
     reco.mergeReco( rpcAcc )
 
     # Get RPC BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg    
+    from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg
     rpcAcc = RpcRDODecodeCfg( flags, forTrigger=True )
     rpcAcc.getEventAlgo("RpcRdoToRpcPrepData").RoIs = reco.name+"RoIs"
     reco.mergeReco( rpcAcc )
 
-    # Get TGC BS decoder 
+    # Get TGC BS decoder
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcAcc = TgcBytestreamDecodeCfg( flags, forTrigger=True )
     tgcAcc.getEventAlgo("TgcRawDataProvider").RoIs = reco.name+"RoIs"
     reco.mergeReco( tgcAcc )
 
     # Get TGC BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import TgcRDODecodeCfg    
+    from MuonConfig.MuonRdoDecodeConfig import TgcRDODecodeCfg
     tgcAcc = TgcRDODecodeCfg( flags, forTrigger=True )
     tgcAcc.getEventAlgo("TgcRdoToTgcPrepData").RoIs = reco.name+"RoIs"
     reco.mergeReco( tgcAcc )
 
-    # Get MDT BS decoder 
+    # Get MDT BS decoder
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
     mdtAcc = MdtBytestreamDecodeCfg( flags, forTrigger=True )
     mdtAcc.getEventAlgo("MdtRawDataProvider").RoIs = reco.name+"RoIs"
     reco.mergeReco( mdtAcc )
 
     # Get MDT BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import MdtRDODecodeCfg    
+    from MuonConfig.MuonRdoDecodeConfig import MdtRDODecodeCfg
     mdtAcc = MdtRDODecodeCfg( flags, forTrigger=True )
     mdtAcc.getEventAlgo("MdtRdoToMdtPrepData").RoIs = reco.name+"RoIs"
     reco.mergeReco( mdtAcc )
 
-    # Get CSC BS decoder 
+    # Get CSC BS decoder
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
     cscAcc = CscBytestreamDecodeCfg( flags, forTrigger=True )
     cscAcc.getEventAlgo("CscRawDataProvider").RoIs = reco.name+"RoIs"
     reco.mergeReco( cscAcc )
 
     # Get CSC BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import CscRDODecodeCfg    
+    from MuonConfig.MuonRdoDecodeConfig import CscRDODecodeCfg
     cscAcc = CscRDODecodeCfg( flags, forTrigger=True )
     cscAcc.getEventAlgo("CscRdoToCscPrepData").RoIs = reco.name+"RoIs"
     reco.mergeReco( cscAcc )
@@ -198,7 +198,7 @@ def generateChains( flags, chainDict ):
 
     l2MuFastAlgAcc = ComponentAccumulator()
     l2MuFastAlgAcc.addEventAlgo(alg)
-    
+
     reco.mergeReco( l2MuFastAlgAcc )
     reco.merge( algAcc )
     #    l2muFastReco = l2MuFastRecoCfg(flags)
@@ -219,7 +219,7 @@ def generateChains( flags, chainDict ):
 
     l2muFastStep = ChainStep( name=stepName, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
-    if 'msonly' not in chainDict['chainName']: 
+    if 'msonly' not in chainDict['chainName']:
         #only run in combined muon chains
         ### Set muon step2 - L2muComb ###
         stepL2CBName = 'L2MuonCB'
@@ -227,7 +227,7 @@ def generateChains( flags, chainDict ):
 
         accL2CB = ComponentAccumulator()
         accL2CB.addSequence(stepL2CBView)
-        
+
         # Set EventViews for L2MuonCB step
         recoL2CB = l2MuCombRecoCfg(flags)
         #external data loading to view
@@ -237,7 +237,7 @@ def generateChains( flags, chainDict ):
         #ID tracking
         accID = TrigInDetConfig( flags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
         recoL2CB.mergeReco(accID)
-        
+
         accL2CB.merge(recoL2CB, sequenceName = stepL2CBReco.getName())
 
         l2muCombHypo = l2MuCombHypoCfg( flags,
@@ -253,9 +253,9 @@ def generateChains( flags, chainDict ):
                                            CA = accL2CB )
 
         l2muCombStep = ChainStep( name=stepL2CBName, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
-    
 
-    if 'msonly' in chainDict['chainName']: 
+
+    if 'msonly' in chainDict['chainName'] or True:
         #only runningn in MS-only chains for now
         #EF MS only
         stepEFMSName = 'EFMSMuon'
@@ -268,31 +268,31 @@ def generateChains( flags, chainDict ):
         muonflags.Muon.MuonTrigger=True
         muonflags.Muon.SAMuonTrigger=True
         muonflags.lock()
-        
+
         accMS = ComponentAccumulator()
         accMS.addSequence(stepEFMSView)
 
         from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
         recoMS = InViewReco("EFMuMSReco")
         recoMS.inputMaker().RequireParentView = True
-    
+
         #Probably this block will eventually need to move somewhere more central
         from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-        accMS.merge( BeamPipeGeometryCfg(flags) ) 
-        
+        accMS.merge( BeamPipeGeometryCfg(flags) )
+
         from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
         accMS.merge(PixelGeometryCfg(flags))
-    
+
         from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
         accMS.merge(SCT_GeometryCfg(flags))
-        
+
         from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
         accMS.merge(TRT_GeometryCfg(flags))
-    
+
         from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
         accMS.merge(TrackingGeometrySvcCfg(flags))
         ###################
-    
+
         EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
         recoMS.mergeReco(EFMuonViewDataVerifier)
 
@@ -325,7 +325,7 @@ def generateChains( flags, chainDict ):
 
         efmuMSSequence = CAMenuSequence( Sequence = recoMS.sequence(),
                                          Maker = recoMS.inputMaker(),
-                                         Hypo = efmuMSHypo, 
+                                         Hypo = efmuMSHypo,
                                          HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict,
                                          CA = accMS )
 
@@ -334,12 +334,13 @@ def generateChains( flags, chainDict ):
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
-    
+
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
-    if 'msonly' in chainDict['chainName']: 
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )
+    if 'msonly' in chainDict['chainName']:
+        emptyStep = ChainStep(name="EmptyNoL2MuComb", Sequences=[EmptyMenuSequence("EmptyNoL2MuComb")], chainDicts=[chainDict])
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, emptyStep, efmuMSStep ] )
     else:
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep ] )
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep, efmuMSStep ] )
     return chain
 

@@ -50,7 +50,7 @@ def collectHypos( steps ):
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.debug("Hypo type is combo {}".format( __isCombo( hypo ) ) )
+    __log.debug("Hypo type {} is combo {}".format( hypo.getName(), __isCombo( hypo ) ) )
     if __isCombo( hypo ):
         return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
@@ -130,9 +130,9 @@ def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
     decisionObjects = set()
     for step, stepFilters in six.iteritems (filters):
         for filt in stepFilters:
-            if inputs:
+            if inputs and hasattr( filt, "Input" ):
                 decisionObjects.update( filt.Input )
-            if outputs:
+            if outputs and hasattr( filt, "Output" ):
                 decisionObjects.update( filt.Output )
     __log.info("Collecting %i decision objects from filters", len(decisionObjects))
     return decisionObjects

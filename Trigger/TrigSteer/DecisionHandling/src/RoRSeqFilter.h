@@ -7,6 +7,7 @@
 #include <string>
 #include <set>
 
+#include "Gaudi/Parsers/Factory.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -66,9 +67,18 @@ class RoRSeqFilter
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputKeys{ this, "Output", {}, "Output" };
 
   Gaudi::Property<std::vector<std::string> > m_chainsProperty{ this, "Chains", {}, "Chains of which this filter is concerned" };
-  Gaudi::Property<bool> m_mergeInputs{ this, "MergeInputs", false, "Produce one output" };
   std::set<HLT::Identifier> m_chains;
 
+  Gaudi::Property<std::vector <std::vector<std::string>> > m_chainsPerInputProperty{ this, "ChainsPerInput", {}, "Chains of which this filter is concerned" };
+  std::vector<std::set<HLT::Identifier>> m_chainsPerInput;
+
+  /**
+   * It can be used to define a custom routing from input to output collections
+   * Example: [[0,1,3], [2]] means that inputs 0, 1, and 3 are directed to output 0, and input under the index 2  to aoutput 1
+   * When not set the default is used. I.e. nth input -> nth output
+   **/
+  Gaudi::Property< std::vector<std::vector<unsigned>> > m_ioMappingProperty { this, "IOMapping", {}, "Maps which inputs should be routed to which output" };
+  std::vector<std::vector<unsigned>> m_ioMapping;
 
 /**
  * @brief Applies generic filter to input container, keeping only the decision objects with at least 
@@ -82,7 +92,7 @@ class RoRSeqFilter
  * parent and stored in the output collection. It will form the starting point for the next Step. 
  **/
   size_t copyPassing( const TrigCompositeUtils::DecisionContainer& input, 
-                      TrigCompositeUtils::DecisionContainer& output) const;
+                      TrigCompositeUtils::DecisionContainer& output, const std::set<HLT::Identifier>& topass) const;
 
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Filter I/O monitoring" };
 }; 
