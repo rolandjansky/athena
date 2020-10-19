@@ -27,8 +27,9 @@ namespace{
  * Hide all internal implementation methods
  * inside an anonymous namespace
  */
+
 /*The notation of this package
-in array P[42].
+for array P[42].
                  /dL0    /dL1    /dPhi   /dThe   /dCM
 X  ->P[0]  dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]
 Y  ->P[1]  dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]
@@ -38,6 +39,7 @@ Ay ->P[4]  dAy/   P[11]   P[18]   P[25]   P[32]   P[39]
 Az ->P[5]  dAz/   P[12]   P[19]   P[26]   P[33]   P[40]
 CM ->P[6]  dCM/   P[13]   P[20]   P[27]   P[34]   P[41]
 */
+
 
 inline void
 globalToLocalVecHelper(double* ATH_RESTRICT P,
@@ -169,13 +171,13 @@ mutl3x5Helper(double* ATH_RESTRICT Jac,
    /*
    * |Jac[0] |= |V[0]| * |P[0]| + |V[1]| * |P[1] | + |V[2]| * |P[2] |
    * |Jac[1] |= |V[0]| * |P[7]| + |V[1]| * |P[8] | + |V[2]| * |P[9] |
-
+   *
    * |Jac[2] |= |V[0]| * |P[14]| + |V[1]| * |P[15]| +  |V[2]| * |P[16]|
-   * |Jac[3] |= |V[0]| * |P[21]| + |V[1]| * |P[22]| +  |V[2]| *  |P[23]|
+   * |Jac[3] |= |V[0]| * |P[21]| + |V[1]| * |P[22]| +  |V[2]| * |P[23]|
    *
    * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
    *
-   * The first do we do in vertical SIMD (128 bit ) fashion
+   * The first 2  we can do in vertical SIMD (128 bit ) fashion
    *
    * {Jac[0] | Jac[1]} =
    * {V[0] | V[0]} * {P[0]  | P[7]} +
@@ -189,29 +191,28 @@ mutl3x5Helper(double* ATH_RESTRICT Jac,
    *
    * Where  {} is a SIMD size 2 vector
    *
-   * The remaining odd element is done at the end
+   * The remaining odd (5th) element is done at the end
    * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
    */
   using vec2 = CxxUtils::vec<double, 2>;
-  vec2 V1 = { V[0], V[0] };
-  vec2 V2 = { V[1], V[1] };
-  vec2 V3 = { V[2], V[2] };
-
   // 1st/2nd element
-  vec2 P1v1 = { P[0], P[7] };
-  vec2 P1v2 = { P[1], P[8] };
-  vec2 P1v3 = { P[2], P[9] };
-  vec2 res1 = V1 * P1v1 + V2 * P1v2 + V3 * P1v3;
+  vec2 P1v1 = {P[0], P[7]};
+  vec2 res1 = V[0] * P1v1;
+  vec2 P1v2 = {P[1], P[8]};
+  res1 += V[1] * P1v2;
+  vec2 P1v3 = {P[2], P[9]};
+  res1 += V[2] * P1v3;
+  CxxUtils::vstore(&Jac[0], res1);
 
   // 3th/4th element
-  vec2 P2v1 = { P[14], P[21] };
-  vec2 P2v2 = { P[15], P[22] };
-  vec2 P2v3 = { P[16], P[23] };
-  vec2 res2 = V1 * P2v1 + V2 * P2v2 + V3 * P2v3;
-
-  //store results
-  CxxUtils::vstore(&Jac[0], res1);
+  vec2 P2v1 = {P[14], P[21]};
+  vec2 res2 = V[0] * P2v1;
+  vec2 P2v2 = {P[15], P[22]};
+  res2 += V[1] * P2v2;
+  vec2 P2v3 = {P[16], P[23]};
+  res2 += V[2] * P2v3;
   CxxUtils::vstore(&Jac[2], res2);
+
   // The 5th element
   Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
 }
