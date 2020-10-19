@@ -8,7 +8,7 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 
-Reco_tf.py --AMI=q220 --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --imf False --preExec "r2e:from MuonRecExample.MuonRecFlags import muonRecFlags; muonRecFlags.doMuonIso.set_Value_and_Lock(False)"
+Reco_tf.py --AMI=q220 --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --imf False
 echo "art-result: $?"
 
 ArtPackage=$1
