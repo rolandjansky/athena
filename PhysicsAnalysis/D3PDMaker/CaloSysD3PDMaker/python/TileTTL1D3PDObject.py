@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import CaloSysD3PDMaker
 import D3PDMakerCoreComps
@@ -11,10 +11,10 @@ def makeTileTTL1D3PDObject (name, prefix, object_name='TileTTL1D3PDObject', gett
     if label == None: label = prefix
 
     
-    print " makeTileTTL1D3PDObject: name = ", name
-    print " makeTileTTL1D3PDObject: prefix = ", prefix
-    print " makeTileTTL1D3PDObject: object_name = ", object_name
-    print " makeTileTTL1D3PDObject: sgkey = ", sgkey
+    print(" makeTileTTL1D3PDObject: name = ", name)
+    print(" makeTileTTL1D3PDObject: prefix = ", prefix)
+    print(" makeTileTTL1D3PDObject: object_name = ", object_name)
+    print(" makeTileTTL1D3PDObject: sgkey = ", sgkey)
 
     if not getter:
         getter = D3PDMakerCoreComps.SGDataVectorGetterTool \

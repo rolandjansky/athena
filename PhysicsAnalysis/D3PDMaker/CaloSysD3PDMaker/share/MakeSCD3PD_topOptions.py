@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 if "doSimpleSC" not in dir() : 
      doSimpleSC = False
 
@@ -151,7 +153,7 @@ addBunchStructureMetadata(alg)
 def _args (level, name, kwin, **kw):
     kw = kw.copy()
     kw['level'] = level
-    for (k, v) in kwin.items():
+    for (k, v) in list(kwin.items()):
         if k.startswith (name + '_'):
             kw[k[len(name)+1:]] = v
     return kw
