@@ -334,6 +334,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 meta_dict[filename]['eventTypes'] = bs_metadata.get('eventTypes', [])
                 meta_dict[filename]['GeoAtlas'] = bs_metadata.get('geometry', None)
                 meta_dict[filename]['conditions_tag'] = bs_metadata.get('conditions_tag', None)
+                meta_dict[filename]['project_name'] = bs_metadata.get('projectTag', None)
 
                 # Promote up one level
                 meta_dict[filename]['runNumbers'] = [bs_metadata.get('runNumbers', None)]
