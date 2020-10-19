@@ -6,6 +6,8 @@
 
 #include "gtest/gtest.h"
 
+#include <vector>
+
 #include "TestTools/initGaudi.h"
 
 #include "G4HCofThisEvent.hh"
@@ -57,9 +59,9 @@ TEST_F ( CSCSensitiveDetectortest, ProcessHits )
   G4HCofThisEvent hce;  
 
   G4double totalenergydeposit = 3.0;
-  G4String physicalname = "physical_CscArCO2_av___impr_Name";//set a proper name for the physical volume, which will decide which block of the tested class would be executed(i.e. block "else if ((npos = volName.find("CscArCO2")) != std::string::npos)")
+  std::vector<G4String> physicalname = {"World::World","Atlas::Atlas","MUONQ02::MUONQ02","Muon::MuonSys","av_102_impr_1_Muon::CSL2CSC02_pv_1_cl[2]CSC02component","Muon::CscMultilayer","CscArCO2"};//set a proper name for the physical volume, which will decide which block of the tested class would be executed(i.e. block "else if ((npos = volName.find("CSC")) != std::string::npos && isAssembly )")
   G4String logicalname = "BBBBBBBBBTubeGas";
-  G4int copyno = 1;
+  std::vector<G4int> copynos = {0,0,0,0,1110600003,16969,0};
   G4ThreeVector preStepPos = G4ThreeVector(0,0,1);
   G4ThreeVector postStepPos = G4ThreeVector(0,0,2);
   G4double globaltime0 = 0.5;
@@ -79,7 +81,7 @@ TEST_F ( CSCSensitiveDetectortest, ProcessHits )
   G4String nop1 = "gamma";//set particle name as gamma
   G4String nop2 = "gamma";
   G4String nop3 = "gamma";
-  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copyno, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);//invoking of this function aims to setting testing environment
+  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copynos, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);//invoking of this function aims to setting testing environment
 
   CSCSensitiveDetector sd2("name2", "name2" );
   sd2.Initialize( &hce );
@@ -94,7 +96,7 @@ TEST_F ( CSCSensitiveDetectortest, ProcessHits )
   ASSERT_EQ(a->begin()->getHitStart(), Amg::Vector3D(0,0,1));
   ASSERT_EQ(a->begin()->getHitEnd(), Amg::Vector3D(0,0,2));
   ASSERT_EQ(a->begin()->particleID(), 1);
-  ASSERT_EQ(a->begin()->CSCid(), 147456);
+  ASSERT_EQ(a->begin()->CSCid(), 234691);
   ASSERT_EQ(a->begin()->kineticEnergy(), 1.5);
   ASSERT_EQ(a->begin()->particleLink(), plink);
 

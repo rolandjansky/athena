@@ -21,10 +21,12 @@
 //In this function, the reasons why I use 'new' to define objects instead of using smart pointers are as follows:
 // 1. this function aims to set environment for test code, which means the objects that were defined in the function should exist throughout the whole code running. Therefore, defining the objects with 'new' can meet the requirement. If I define them with smart pointer, they will be destruct once they are out of scope.
 // 2. this function will only be used in the unit test code for testing the sensitive detector classes based on G4VSensitiveDetector. So it will never be responsible for memory leaks in production jobs.
-void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydeposit, G4String& physicalname, G4String& logicalname1, G4int& copyno, G4ThreeVector& preStepPos, G4ThreeVector& postStepPos, G4double& globaltime0/*for preSP*/, G4double& kineticenergy0/*for preSP*/, G4double& velocity0/*for preSP*/, G4double& globaltime/*for track*/, G4double& kineticenergy/*for track*/, G4double& globaltime1/*for postSP*/, G4double& kineticenergy1/*for postSP*/, G4double& velocity1/*for postSP*/, G4double& steplength, G4double& charge, G4int& encoding, G4int& antiencoding, G4String& astring, G4ProcessType& atype, G4String& nop1, G4String& nop2, G4String& nop3)
+void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalEnergyDeposit, std::vector<G4String>& physicalNames, G4String& logicalName1, std::vector<G4int>& copyNos, G4ThreeVector& preStepPos, G4ThreeVector& postStepPos, G4double& globalTime0/*for preSP*/, G4double& kineticEnergy0/*for preSP*/, G4double& velocity0/*for preSP*/, G4double& globalTime/*for track*/, G4double& kineticEnergy/*for track*/, G4double& globalTime1/*for postSP*/, G4double& kineticEnergy1/*for postSP*/, G4double& velocity1/*for postSP*/, G4double& steplength, G4double& charge, G4int& encoding, G4int& antiencoding, G4String& astring, G4ProcessType& atype, G4String& nop1, G4String& nop2, G4String& nop3)
 {
+
+  if (copyNos.size()!=physicalNames.size()) { throw std::runtime_error("ERROR: physicalNames and copyNos must have the same length."); }
 //decorate sp with the variable called TotalEnergyDeposit
-  G4double TotalEnergyDeposit = totalenergydeposit;//para(i.e. there is a parameter in this line)
+  G4double TotalEnergyDeposit = totalEnergyDeposit;//para(i.e. there is a parameter in this line)
   sp.SetTotalEnergyDeposit( TotalEnergyDeposit );
 //end
 
@@ -38,23 +40,37 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
   G4Material* material = man->FindOrBuildMaterial("G4_AIR");
   G4String name = "logicalName";
   G4LogicalVolume* fLogical = new G4LogicalVolume(box, material, name);
-  G4String PhysicalName = physicalname;//para
+  G4String PhysicalName = physicalNames[0];//para
   G4VPhysicalVolume* pPhysical = nullptr;
   G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName, fLogical, pPhysical);
-  G4int CopyNo = copyno;
+  G4int CopyNo = copyNos[0];
   physicalVolume->SetCopyNo(CopyNo);//para
   G4int nReplica = 2;
   navigationHistory->SetFirstEntry(physicalVolume);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+  if (physicalNames.size()==1) {
+    // temporary workaround
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+  }
+  else {
+    bool skip(true);
+    size_t idx(0);
+    for( const auto& name : physicalNames) {
+      if (skip) { skip=false; ++idx; continue; }//skip first entry
+      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), name, fLogical, pPhysical);
+      parentPhysVol->SetCopyNo(copyNos[idx]);
+      ++idx;
+      navigationHistory->NewLevel(parentPhysVol, kNormal, nReplica);
+    }
+  }
   G4TouchableHistory* touchableHistory = new G4TouchableHistory(*navigationHistory);
   G4TouchableHandle touchableHandle(touchableHistory);
   stepPoint->SetTouchableHandle(touchableHandle);
-  G4double GlobalTime0 = globaltime0;
-  G4double KineticEnergy0 = kineticenergy0;
+  G4double GlobalTime0 = globalTime0;
+  G4double KineticEnergy0 = kineticEnergy0;
   G4double Velocity0 = velocity0;
   stepPoint->SetGlobalTime(GlobalTime0);//para
   stepPoint->SetKineticEnergy(KineticEnergy0);//para
@@ -66,8 +82,8 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
 //decorate sp with another G4StepPoint object
   G4StepPoint* stepPoint1 = new G4StepPoint();
   stepPoint1->SetPosition(postStepPos);//para
-  G4double GlobalTime1 = globaltime1;
-  G4double KineticEnergy1 = kineticenergy1;
+  G4double GlobalTime1 = globalTime1;
+  G4double KineticEnergy1 = kineticEnergy1;
   G4double Velocity1 = velocity1;
   stepPoint1->SetGlobalTime(GlobalTime1);//para
   stepPoint1->SetKineticEnergy(KineticEnergy1);//para
@@ -96,12 +112,12 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
              false,           NOP3,          Antiencoding//para
               );
   G4ThreeVector aMomentumDirection(0,0,0);
-  G4double aKineticEnergy = kineticenergy;//para
+  G4double aKineticEnergy = kineticEnergy;//para
   G4DynamicParticle* dynamicPar = new G4DynamicParticle(particle, aMomentumDirection, aKineticEnergy);
   G4double aValueTime = 1;
   G4ThreeVector ValuePosition(1.0, 1.0, 1.0);
   G4Track* track = new G4Track(dynamicPar, aValueTime, ValuePosition);
-  G4double globalTime = globaltime;
+  //G4double globalTime = globalTime;
   track->SetGlobalTime(globalTime);//para
   int trackID = 3;
   track->SetTrackID(trackID);
@@ -109,7 +125,7 @@ void DerivedG4SensitiveDetectorTestSetting(G4Step& sp, G4double& totalenergydepo
   G4Box* box1 = new G4Box(boxName1, 1.0, 1.0, 1.0);
   G4NistManager* man1 = G4NistManager::Instance();
   G4Material* material1 = man1->FindOrBuildMaterial("G4_AIR");
-  G4String name2 = logicalname1;//para
+  G4String name2 = logicalName1;//para
   G4LogicalVolume* fLogical1 = new G4LogicalVolume(box1, material1, name2);
   track->SetLogicalVolumeAtVertex(fLogical1);
   G4Step* stepForTrack = new G4Step();
