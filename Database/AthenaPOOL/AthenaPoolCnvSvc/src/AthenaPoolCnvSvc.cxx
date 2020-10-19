@@ -51,15 +51,17 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    if (!m_outputStreamingTool.empty()) {
       m_streamClientFiles = m_streamClientFilesProp.value();
       ATH_CHECK(m_outputStreamingTool.retrieve());
-   }
-   if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
-      // Retrieve AthenaSerializeSvc
-      ATH_CHECK(m_serializeSvc.retrieve());
-      if (!m_outputStreamingTool.empty() && m_makeStreamingToolClient.value() == -1) {
+      if (m_makeStreamingToolClient.value() == -1) {
          // Initialize AthenaRootSharedWriter
          ServiceHandle<IService> arswsvc("AthenaRootSharedWriterSvc", this->name());
          ATH_CHECK(arswsvc.retrieve());
       }
+      // Put PoolSvc into share mode to avoid duplicating catalog.
+      m_poolSvc->setShareMode(true);
+   }
+   if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
+      // Retrieve AthenaSerializeSvc
+      ATH_CHECK(m_serializeSvc.retrieve());
    }
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
