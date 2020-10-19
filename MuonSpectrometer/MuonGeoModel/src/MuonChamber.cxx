@@ -3,6 +3,7 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaKernel/getMessageSvc.h"
 //
 #include "MuonGeoModel/MuonChamber.h"
@@ -1441,17 +1442,16 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           if (nRpc > 1 && nDoubletR == 2 && ypos>0.) doubletR=2;
           ndbz[doubletR-1]++;
 
-          // the BI RPCs are 3-gap RPCs mounted inside of the BI sMDTs, 
-          // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
+          // the BI RPCs are 3-gap RPCs mounted inside of the BI (s)MDTs
           if (stname.find("BI")!=std::string::npos) {
-            if (std::abs(stationPhi)>=7 && rp->posz>100) doubletZ=2;
-            else doubletZ = ndbz[doubletR-1];
+            // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
+            if (stname.find("BIS")!=std::string::npos && std::abs(stationEta)>=7 && rp->posz>100) doubletZ=2;
+            else doubletZ=ndbz[doubletR-1];
           } else {
-          // non BI RPCs
             if (zi <= 0 && !is_mirrored) {
-              if (zpos<-100*CLHEP::mm) doubletZ=2;
+              if (zpos < -100*Gaudi::Units::mm) doubletZ=2;
             } else {
-              if (zpos>100*CLHEP::mm) doubletZ=2;
+              if (zpos > 100*Gaudi::Units::mm) doubletZ=2;
             }
           }
 
