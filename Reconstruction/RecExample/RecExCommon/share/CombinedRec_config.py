@@ -133,6 +133,7 @@ if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
         from AthenaCommon.AthenaCommonFlags import jobproperties as jps
         ConfigFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
         ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
+        ConfigFlags.GeoModel.AtlasVersion = jps.Global.DetDescrVersion()
         # Configure BTagging algorithm
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
