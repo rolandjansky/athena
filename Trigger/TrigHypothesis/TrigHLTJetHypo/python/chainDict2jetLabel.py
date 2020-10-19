@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import re
 
 # substrings that cannot occur in any chainPartName for simple chains.
-reject_substr = ( # noqa: W605
+reject_substr = (
     #    'gsc',
     'ion',
     'dphi',
@@ -13,7 +13,7 @@ reject_substr = ( # noqa: W605
     '0i1',
     '1i2',
     'dphi',
-    'agg\d',)
+    r'agg\d',)
 
 reject_substr_res = re.compile(r'%s' % '|'.join(reject_substr))
 
