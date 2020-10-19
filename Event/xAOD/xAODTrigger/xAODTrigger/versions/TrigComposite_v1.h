@@ -129,7 +129,7 @@ namespace xAOD {
                                   const uint16_t beginIndex, 
                                   const uint16_t endIndex = 0 );
 
-      /// Fetches a single link without type. Note: Will not work for collections of links
+      /// Fetches a single link without type. Note: Will not work for collections of links, use typelessGetObjectCollectionLinks
       /// @param[in] name Name of the stored link
       /// @param[out] key Storegte key of the link-object's collection
       /// @param[out] clid Type of the object's collection
@@ -139,6 +139,17 @@ namespace xAOD {
                                   uint32_t& key,
                                   uint32_t& clid, 
                                   uint16_t& index ) const;
+
+      /// Fetches a collection of links without type.
+      /// @param[in] name Name of the stored link
+      /// @param[out] keyVec Storegte key of the link-objects will be pushed on to this vector
+      /// @param[out] clidVec Type of the objects will be pushed on to this vector
+      /// @param[out] indexVec Index of the objects within their collections  will be pushed on to this vector
+      /// @return True if at least one link was found
+      bool typelessGetObjectCollectionLinks( const std::string& name, 
+                                  std::vector<uint32_t>& keyVec,
+                                  std::vector<uint32_t>& clidVec, 
+                                  std::vector<uint16_t>& indexVec ) const;
 
 
       /// Look up all links stored to objects of (container) type CONTAINER
