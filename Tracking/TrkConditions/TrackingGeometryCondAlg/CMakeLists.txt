@@ -16,6 +16,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkDetDescr/TrkGeometry
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    PRIVATE
+   Tracking/TrkDetDescr/TrkDetDescrSvc
     )
 
 find_package( Eigen )
@@ -33,6 +34,7 @@ atlas_add_component( TrackingGeometryCondAlg
    TrkDetDescrUtils
    TrkGeometry
    InDetReadoutGeometry
+   TrkDetDescrSvcLib
     )
 
 # Install files from the package:
