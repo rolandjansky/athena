@@ -156,6 +156,7 @@ namespace Rec {
       float m_trackDetachCut{};
       float m_beampipeR{};
       float m_removeTrkMatSignif{};
+      float m_fastZSVCut{};
 
       bool m_fillHist{};
       bool m_useVertexCleaning{};
@@ -193,7 +194,9 @@ namespace Rec {
        static constexpr int maxNVrt=100;
        int   nTrk;
        float pttrk[maxNTrk];
+       float d0trk[maxNTrk];
        float Sig3D[maxNTrk];
+       int   idHF[maxNTrk];
        int   n2Vrt;
        int   VrtTrkHF[maxNVrt];
        int   VrtTrkI[maxNVrt];
