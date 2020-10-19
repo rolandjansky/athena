@@ -306,7 +306,8 @@ def isFilterAlg(alg):
 def isComboHypoAlg(alg):
     return  ('MultiplicitiesMap'  in alg.__class__.__dict__)
 
-
+def isHypoAlg(alg):
+    return isHypoBase(alg) and not isComboHypoAlg(alg)
 
 
 ##########################################################
@@ -513,6 +514,7 @@ class CAMenuSequence(MenuSequence):
         hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name)
         self._hypo.Alg = hypoAlg
         return self._hypo
+
 
 
 class Chain(object):

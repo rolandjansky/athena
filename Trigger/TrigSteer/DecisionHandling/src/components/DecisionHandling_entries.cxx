@@ -1,5 +1,6 @@
 #include "../DumpDecisions.h"
 #include "../RoRSeqFilter.h"
+#include "../PassFilter.h"
 #include "../TriggerSummaryAlg.h"
 #include "DecisionHandling/ComboHypo.h"
 #include "../InputMakerForRoI.h"
@@ -28,6 +29,7 @@ DECLARE_COMPONENT( HLTTest::TestRecoAlg )
 
 DECLARE_COMPONENT( DumpDecisions )
 DECLARE_COMPONENT( RoRSeqFilter )
+DECLARE_COMPONENT( PassFilter )
 DECLARE_COMPONENT( TriggerSummaryAlg )
 DECLARE_COMPONENT( ComboHypo )
 DECLARE_COMPONENT( InputMakerForRoI )
