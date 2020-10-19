@@ -73,7 +73,7 @@ atlas_add_executable( han-results-print
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py
-   POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,E402,W1 --extend-ignore E731 )
+   POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,W1 --extend-ignore E731 )
 
 atlas_install_scripts( scripts/DQHistogramMerge.py scripts/DQHistogramPrintStatistics.py scripts/DQWebDisplay.py scripts/hancool_histo.py scripts/hancool.py scripts/handi.py scripts/DQFileMove.py scripts/CreateMDTConfig_algos.sh scripts/CreateMDTConfig_chambers.sh scripts/CreateMDTConfig_config.sh scripts/CreateMDTConfig_files.sh scripts/CreateMDTConfig_readme.sh scripts/DQM_Tier0Wrapper_trf.py scripts/DQM_Tier0Wrapper_tf.py scripts/DQHistogramMergeRegExp.py scripts/dq_make_web_display.py scripts/ScanHistFile.py scripts/physval_make_web_display.py )
 

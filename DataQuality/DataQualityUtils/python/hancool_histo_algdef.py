@@ -1,13 +1,13 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import os
-CWD = os.getcwd() # noqa
+CWD = os.getcwd()
 from ROOT import gSystem
 
 ## Import the ROOT library for reading han results
-gSystem.Load('libDataQualityUtils') # noqa
+gSystem.Load('libDataQualityUtils')
 from ROOT import dqutils
 os.chdir(CWD)
 
