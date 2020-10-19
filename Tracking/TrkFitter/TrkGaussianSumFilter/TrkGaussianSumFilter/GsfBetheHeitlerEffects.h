@@ -12,11 +12,11 @@
 #ifndef Trk_GsfBetheHeitlerEffects_H
 #define Trk_GsfBetheHeitlerEffects_H
 
-#include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
+#include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 namespace Trk {
@@ -27,10 +27,6 @@ class GsfBetheHeitlerEffects
 {
 
 public:
-  /// Maximum number of Gaussian components in the mixture
-  static constexpr int maxNumberofComponents = 8;
-  /// Polynomail coefficients , order is this -1 
-  static constexpr int polynomialCoefficients = 6;
   struct ComponentValues
   {
     // Default ctors/dtor/assignment operators
@@ -51,7 +47,8 @@ public:
     double variance;
   };
 
-  using MixtureParameters = std::array<ComponentValues, maxNumberofComponents>;
+  using MixtureParameters =
+    std::array<ComponentValues, GSFConstants::maxNumberofBHComponents>;
 
   /** Helper class for construction and evaluation of polynomial */
   class Polynomial
@@ -63,8 +60,8 @@ public:
     Polynomial& operator=(const Polynomial&) = default;
     Polynomial(Polynomial&&) = default;
     Polynomial& operator=(Polynomial&&) = default;
-    
-    /** Constructor from a vector of coefficients 
+
+    /** Constructor from a vector of coefficients
      * (in decreasing order of powers of x) */
     Polynomial(const std::vector<double>& coefficients)
       : m_coefficients(coefficients){};
@@ -110,12 +107,18 @@ private:
   // Read coeffients for a single polynomial fit
   Polynomial readPolynomial(std::ifstream&, const int);
 
-  std::array<Polynomial,maxNumberofComponents> m_polynomialWeights;
-  std::array<Polynomial,maxNumberofComponents> m_polynomialMeans;
-  std::array<Polynomial,maxNumberofComponents> m_polynomialVariances;
-  std::array<Polynomial,maxNumberofComponents> m_polynomialWeightsHighX0;
-  std::array<Polynomial,maxNumberofComponents> m_polynomialMeansHighX0;
-  std::array<Polynomial,maxNumberofComponents> m_polynomialVariancesHighX0;
+  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+    m_polynomialWeights;
+  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+    m_polynomialMeans;
+  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+    m_polynomialVariances;
+  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+    m_polynomialWeightsHighX0;
+  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+    m_polynomialMeansHighX0;
+  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+    m_polynomialVariancesHighX0;
 
   int m_numberOfComponents;
   int m_transformationCode;

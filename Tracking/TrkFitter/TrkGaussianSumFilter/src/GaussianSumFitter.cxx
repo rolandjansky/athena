@@ -10,6 +10,7 @@
  */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
@@ -67,8 +68,9 @@ StatusCode
 Trk::GaussianSumFitter::initialize()
 {
 
-  if (m_maximumNumberOfComponents > 16) {
-    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
+  if (m_maximumNumberOfComponents > GSFConstants::maxNumberofStateComponents) {
+    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > "
+                  << GSFConstants::maxNumberofStateComponents);
     return StatusCode::FAILURE;
   }
 

@@ -6,9 +6,9 @@
 #include "CxxUtils/features.h"
 #include "CxxUtils/vec.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
 #include <limits>
 #include <stdexcept>
-
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -36,19 +36,19 @@ using namespace GSFUtils;
  */
 struct triangularToIJ
 {
-  int16_t I = -1;
-  int16_t J = -1;
+  int8_t I = -1;
+  int8_t J = -1;
 };
 
 std::vector<triangularToIJ>
 createToIJMaxRowCols()
 {
-  constexpr int32_t nn =
-    triangularMaxRowsColums * (triangularMaxRowsColums - 1) / 2;
+  constexpr int32_t nn = GSFConstants::maxComponentsAfterConvolution *
+                         (GSFConstants::maxComponentsAfterConvolution - 1) / 2;
   std::vector<triangularToIJ> indexMap(nn);
-  for (int16_t i = 1; i < triangularMaxRowsColums; ++i) {
+  for (int8_t i = 1; i < GSFConstants::maxComponentsAfterConvolution; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
-    for (int16_t j = 0; j < i; ++j) {
+    for (int8_t j = 0; j < i; ++j) {
       indexMap[indexConst + j] = { i, j };
     }
   }
@@ -209,16 +209,17 @@ namespace GSFUtils {
  * Merge the componentsIn and return
  * which componets got merged.
  */
-std::vector<std::pair<int16_t, int16_t>>
+std::vector<std::pair<int8_t, int8_t>>
 findMerges(Component1D* componentsIn,
-           const int16_t inputSize,
-           const int16_t reducedSize)
+           const int8_t inputSize,
+           const int8_t reducedSize)
 {
   Component1D* components = static_cast<Component1D*>(
     __builtin_assume_aligned(componentsIn, alignment));
 
   // Sanity check. Function  throw on invalid inputs
-  if (inputSize < 0 || inputSize > triangularMaxRowsColums ||
+  if (inputSize < 0 ||
+      inputSize > GSFConstants::maxComponentsAfterConvolution ||
       reducedSize > inputSize) {
     throw std::runtime_error("Invalid InputSize or reducedSize");
   }
@@ -226,7 +227,7 @@ findMerges(Component1D* componentsIn,
   const static std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
   // Based on the inputSize allocate enough space for the pairwise distances
-  const int16_t n = inputSize;
+  const int8_t n = inputSize;
   const int32_t nn = n * (n - 1) / 2;
   // We work with a  multiple of 8*floats (32 bytes).
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
@@ -234,7 +235,7 @@ findMerges(Component1D* componentsIn,
     nn2, std::numeric_limits<float>::max());
 
   // vector to be returned
-  std::vector<std::pair<int16_t, int16_t>> merges;
+  std::vector<std::pair<int8_t, int8_t>> merges;
   merges.reserve(inputSize - reducedSize);
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
@@ -245,8 +246,8 @@ findMerges(Component1D* componentsIn,
     // see if we have the next already
     const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
     const triangularToIJ conversion = convert[minIndex];
-    const int16_t mini = conversion.I;
-    const int16_t minj = conversion.J;
+    const int8_t mini = conversion.I;
+    const int8_t minj = conversion.J;
     // Combine the 2 components
     combine(components[mini], components[minj]);
     // re-calculate distances wrt the new component at mini

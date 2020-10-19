@@ -23,9 +23,8 @@ namespace {
 
 using BH = Trk::GsfBetheHeitlerEffects;
 
-template<class T>
-bool
-inRange(const T& var, const T& lo, const T& hi)
+inline bool
+inRange(int var,  int lo, int hi)
 {
   return ((var <= hi) and (var >= lo));
 }
@@ -113,10 +112,11 @@ correctedFirstVariance(const double pathlengthInX0,
 
 BH::MixtureParameters
 getTranformedMixtureParameters(
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialWeights,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>& polynomialMeans,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialMeans,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
@@ -136,10 +136,11 @@ getTranformedMixtureParameters(
 
 BH::MixtureParameters
 getMixtureParameters(
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialWeights,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>& polynomialMeans,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialMeans,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
@@ -236,14 +237,16 @@ Trk::GsfBetheHeitlerEffects::readParameters()
   fin >> orderPolynomial;
   fin >> m_transformationCode;
   //
-  if (not inRange(m_numberOfComponents, 0, maxNumberofComponents)) {
+  if (not inRange(
+        m_numberOfComponents, 0, GSFConstants::maxNumberofBHComponents)) {
     ATH_MSG_ERROR("numberOfComponents Parameter out of range 0- "
-                  << maxNumberofComponents << " : " << m_numberOfComponents);
+                  << GSFConstants::maxNumberofBHComponents << " : "
+                  << m_numberOfComponents);
     return false;
   }
-  if (orderPolynomial != (polynomialCoefficients - 1)) {
-    ATH_MSG_ERROR(
-      "orderPolynomial  order !=  " << (polynomialCoefficients - 1));
+  if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
+    ATH_MSG_ERROR("orderPolynomial  order !=  "
+                  << (GSFConstants::polynomialCoefficients - 1));
     return false;
   }
   if (not inRange(m_transformationCode, 0, 1)) {
@@ -288,9 +291,11 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     fin >> orderPolynomial;
     fin >> m_transformationCodeHighX0;
     //
-    if (not inRange(m_numberOfComponentsHighX0, 0, maxNumberofComponents)) {
+    if (not inRange(m_numberOfComponentsHighX0,
+                    0,
+                    GSFConstants::maxNumberofBHComponents)) {
       ATH_MSG_ERROR("numberOfComponentsHighX0 Parameter out of range 0- "
-                    << maxNumberofComponents << " : "
+                    << GSFConstants::maxNumberofBHComponents << " : "
                     << m_numberOfComponentsHighX0);
       return false;
     }
@@ -298,9 +303,9 @@ Trk::GsfBetheHeitlerEffects::readParameters()
       ATH_MSG_ERROR(" numberOfComponentsHighX0 != numberOfComponents");
       return false;
     }
-    if (orderPolynomial != (polynomialCoefficients - 1)) {
-      ATH_MSG_ERROR(
-        "orderPolynomial  order !=  " << (polynomialCoefficients - 1));
+    if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
+      ATH_MSG_ERROR("orderPolynomial  order !=  "
+                    << (GSFConstants::polynomialCoefficients - 1));
       return false;
     }
     if (not inRange(m_transformationCodeHighX0, 0, 1)) {

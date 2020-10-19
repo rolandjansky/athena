@@ -3,7 +3,6 @@
 */
 
 /**
-
  * @author Anthony Morley, Christos Anastopoulos
  * @brief  Dynamic array fullfilling alignment requirements
  */
