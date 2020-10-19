@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file CaloSysD3PDMaker/python/__init__.py
@@ -17,8 +17,8 @@
 
 
 import CaloSysD3PDMakerConf
-for k, v in CaloSysD3PDMakerConf.__dict__.items():
+for k, v in list(CaloSysD3PDMakerConf.__dict__.items()):
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
 
-from ClusterMomentFillerTool import ClusterMomentFillerTool
+from .ClusterMomentFillerTool import ClusterMomentFillerTool
