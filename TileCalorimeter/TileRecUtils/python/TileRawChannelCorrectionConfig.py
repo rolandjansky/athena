@@ -89,6 +89,49 @@ def TileRawChannelNoiseFilterCfg(flags, **kwargs):
 
 
 
+def TileTimeBCOffsetFilterCfg(flags, **kwargs):
+    """Return component accumulator with configured private Tile raw channel timing jump correction tool
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+        EneThreshold3 - energy threshold on 3 channels in one DMU (in MeV)
+        EneThreshold1 - energy threshold on 1 channel (in MeV)
+        TimeThreshold - threshold on time difference (in ns)
+    """
+
+    acc = ComponentAccumulator()
+    kwargs.setdefault('CheckDCS', flags.Tile.useDCS)
+    kwargs.setdefault('EneThreshold3', 3000)
+    kwargs.setdefault('EneThreshold1', 4000)
+    kwargs.setdefault('TimeThreshold', 15)
+
+    from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
+    acc.merge( TileDQstatusAlgCfg(flags) )
+
+    from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
+    acc.merge(TileCablingSvcCfg(flags))
+
+    if 'TileCondToolEmscale' not in kwargs:
+        from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
+        emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
+        kwargs['TileCondToolEmscale'] = emScaleTool
+
+    if 'TileBadChanTool' not in kwargs:
+        from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
+        badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
+        kwargs['TileBadChanTool'] = badChanTool
+
+    if kwargs['CheckDCS'] and 'TileDCSTool' not in kwargs:
+        from TileConditions.TileDCSConfig import TileDCSToolCfg
+        kwargs['TileDCSTool'] = acc.popToolsAndMerge( TileDCSToolCfg(flags) )
+
+    TileTimeBCOffsetFilter=CompFactory.TileTimeBCOffsetFilter
+    acc.setPrivateTools( TileTimeBCOffsetFilter(**kwargs) )
+
+    return acc
+
+
+
 def TileRawChannelCorrectionToolsCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile raw channel correction tools
 
@@ -103,7 +146,11 @@ def TileRawChannelCorrectionToolsCfg(flags, **kwargs):
     if flags.Tile.correctPedestalDifference or flags.Tile.zeroAmplitudeWithoutDigits:
         noiseFilterTools += [ acc.popToolsAndMerge( TileRawChannelOF1CorrectorCfg(flags) ) ]
 
-    noiseFilterTools += [ acc.popToolsAndMerge( TileRawChannelNoiseFilterCfg(flags) ) ]
+    if flags.Tile.NoiseFilter == 1:
+        noiseFilterTools += [ acc.popToolsAndMerge( TileRawChannelNoiseFilterCfg(flags) ) ]
+
+    if flags.Tile.correctTimeJumps:
+        noiseFilterTools += [ acc.popToolsAndMerge( TileTimeBCOffsetFilterCfg(flags) ) ]
 
     acc.setPrivateTools( noiseFilterTools )
 

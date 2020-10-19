@@ -569,8 +569,14 @@ StatusCode TileRawChannelBuilder::commitContainer()
                              << " corr " << corr );
             if (corr<10000.) {
               rch->setAmplitude (rch->amplitude() - corr); // just baseline shift
+              rch->setPedestal (rch->pedestal() + corr); // just baseline shift
+            } else {
+              float ped = rch->pedestal();
+              if (corr > ped) {
+                rch->setPedestal (fmod(ped,10000.) + int(corr)/10000 * 10000); // changing error status
+                ATH_MSG_VERBOSE( "New error status in ped "<<rch->pedestal());
+              }
             }
-            rch->setPedestal (rch->pedestal() + corr); // baseline shift or change in error status
           } else {
             ATH_MSG_WARNING(" Problem in applying noise corrections " 
                             << " can not find channel in DSP container with HWID "
