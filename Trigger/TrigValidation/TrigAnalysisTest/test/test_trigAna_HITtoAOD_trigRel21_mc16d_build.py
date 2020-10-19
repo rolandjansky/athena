@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-# art-description: Test running HITS->RDO in master, then RDO->RDO_TRIG in 21.0, then RDO_TRIG->AOD in master
+# art-description: Test running HITS->RDO in master, then RDO->RDO_TRIG in 21.0-mc16d, then RDO_TRIG->AOD in master
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
@@ -16,12 +16,12 @@ hit2rdo.type = 'Reco_tf'
 hit2rdo.input = 'ttbar_HITS'
 
 hit2rdo_lumidict = {
-  'run': 310000,
+  'run': 300000,
   'startmu': 40.0,
   'endmu': 70.0,
   'stepmu': 1.0,
   'startlb': 1,
-  'timestamp': 1550000000
+  'timestamp': 1500000000
 }
 
 hit2rdo_preexec = ';'.join([
@@ -56,8 +56,8 @@ rdo2rdotrig.input = ''
 rdo2rdotrig.imf = False
 rdo2rdotrig.explicit_input = True
 rdo2rdotrig.args = '--inputRDOFile=RDO.pool.root --outputRDO_TRIGFile=RDO_TRIG.pool.root'
-rdo2rdotrig.args += ' --asetup="RDOtoRDOTrigger:Athena,21.0,latest"'
-rdo2rdotrig.args += ' --triggerConfig="MCRECO:MC_pp_v7_BulkMCProd_mc_prescale"'
+rdo2rdotrig.args += ' --asetup="RDOtoRDOTrigger:Athena,21.0-mc16d,slc6,latest"'
+rdo2rdotrig.args += ' --triggerConfig="MCRECO:MC_pp_v7_tight_mc_prescale"'
 rdo2rdotrig.args += ' --imf="all:True"'
 
 # RDO_TRIG -> AOD step in master
