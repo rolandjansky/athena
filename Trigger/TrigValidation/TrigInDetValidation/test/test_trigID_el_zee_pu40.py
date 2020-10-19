@@ -5,7 +5,7 @@
 # art-include: master/Athena
 # art-input: mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191
 # art-input-nfiles: 8
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -56,8 +56,8 @@ for opt,arg in opts:
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['electron']
 rdo2aod.max_events = 16000 
-rdo2aod.threads = 1 # TODO: change to 4
-rdo2aod.concurrent_events = 1 # TODO: change to 4
+rdo2aod.threads = 8
+rdo2aod.concurrent_events = 8
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 if local:

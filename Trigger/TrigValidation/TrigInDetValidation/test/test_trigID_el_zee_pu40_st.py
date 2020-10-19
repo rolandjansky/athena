@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for bjet_pu40_mt
+# art-description: art job for el_zee_pu40_st
 # art-type: grid
 # art-include: master/Athena
-# art-input-nfiles: 3
+# art-input: mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191
+# art-input-nfiles: 8
 # art-athena-mt: 4
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
@@ -29,7 +30,6 @@
 from TrigValTools.TrigValSteering import Test, CheckSteps
 from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
-
 import sys,getopt
 
 try:
@@ -53,15 +53,18 @@ for opt,arg in opts:
         postproc=True
 
 
-
 rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['bjet']
-rdo2aod.max_events = 2000 
-rdo2aod.threads = 4 
-rdo2aod.concurrent_events = 4 
+rdo2aod.slices = ['electron']
+rdo2aod.max_events = 8000 
+rdo2aod.threads = 1 # TODO: change to 4
+rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
+if local:
+    rdo2aod.input = 'Zee_pu40'      # defined in TrigValTools/share/TrigValInputs.json  
+else:
+    rdo2aod.input = ''
+    rdo2aod.args += '--inputRDOFile=$ArtInFile '
 
 
 test = Test.Test()
@@ -71,20 +74,45 @@ if (not exclude):
     test.exec_steps.append(TrigInDetAna()) # Run analysis to produce TrkNtuple
     test.check_steps = CheckSteps.default_check_steps(test)
 
+ 
 # Run Tidardict
 if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
-    rdict.args='TIDAdata-run3.dat  -f data-hists.root -b Test_bin.dat '
+    rdict.args='TIDAdata-run3.dat -f data-hists.root -p 11 -b Test_bin.dat '
     test.check_steps.append(rdict)
+    rdict2 = TrigInDetdictStep('TrigInDetDict2')
+    rdict2.args='TIDAdata-run3-offline.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
+    test.check_steps.append(rdict2)
 
  
 # Now the comparitor steps
-comp1=TrigInDetCompStep('Comp_L2bjet','L2','bjet')
-test.check_steps.append(comp1)
-
-comp2=TrigInDetCompStep('Comp_EFbjet','EF','bjet')
+comp=TrigInDetCompStep('Comp_L2ele','L2','electron')
+test.check_steps.append(comp)
+  
+comp2=TrigInDetCompStep('Comp_EFele','EF','electron')
 test.check_steps.append(comp2)
 
+comp3=TrigInDetCompStep('Comp_L2eleLowpt','L2','electron',lowpt=True)
+test.check_steps.append(comp3)
+
+comp4=TrigInDetCompStep('Comp_EFeleLowpt','EF','electron',lowpt=True)
+test.check_steps.append(comp4)
+
+comp5=TrigInDetCompStep('Comp_L2ele_off','L2','electron')
+comp5.type = 'offline'
+test.check_steps.append(comp5)
+  
+comp6=TrigInDetCompStep('Comp_EFele_off','EF','electron')
+comp6.type = 'offline'
+test.check_steps.append(comp6)
+
+comp7=TrigInDetCompStep('Comp_L2eleLowpt_off','L2','electron',lowpt=True)
+comp7.type = 'offline'
+test.check_steps.append(comp7)
+
+comp8=TrigInDetCompStep('Comp_EFeleLowpt_off','EF','electron',lowpt=True)
+comp8.type = 'offline'
+test.check_steps.append(comp8)
 
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
