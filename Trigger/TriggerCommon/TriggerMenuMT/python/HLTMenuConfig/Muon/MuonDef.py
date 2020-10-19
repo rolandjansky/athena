@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:
@@ -43,9 +43,6 @@ def mul2IOOvlpRmSequenceCfg(flags):
 
 def muEFSASequenceCfg(flags):
     return muEFSASequence()
-
-def muIsoSequenceCfg(flags):
-    return muIsoSequence()
 
 def muEFCBSequenceCfg(flags):
     return muEFCBSequence()
@@ -108,11 +105,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = {
             "":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
-            "fast":[['getmuFast']],
-            "Comb":[['getmuFast', 'getmuComb']],
             "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
-            "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFSA']],
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
@@ -166,10 +160,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getmuEFSA(self):
         return self.getStep(3,'muEFSA',[ muEFSASequenceCfg])
 
-
-    # --------------------
-    def getmuIso(self):
-        return self.getStep(3,'muIso', [muIsoSequenceCfg])
 
     # --------------------
     def getmuEFCB(self):
