@@ -1280,7 +1280,8 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
-            if rec.readESD() and rec.doTau:
+            from tauRec.tauRecFlags import tauFlags
+            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
                 from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
                 alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauInitialPi0Clusters',
                                                 StreamName = 'StreamAOD',
