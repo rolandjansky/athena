@@ -89,6 +89,10 @@ def error_check(errors):
             if 'python2 support will be removed' in err:
                 mglog.info(err)
                 continue
+            # silly ghostscript issue in 21.6.46 nightly
+            if 'required by /lib64/libfontconfig.so' in err:
+                mglog.info(err)
+                continue
             mglog.error(err)
             unmasked_error = True
     # This is a bit clunky, but needed because we could be several places when we get here
@@ -977,7 +981,7 @@ decay_events '''+run)
 
     mglog.info('Started running madspin at '+str(time.asctime()))
 
-    generate = subprocess.Popen([me_exec,'madspin_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    generate = subprocess.Popen([python,me_exec,'madspin_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
     error_check(err)
     if len(glob.glob(process_dir+'/Events/'+run+'_decayed_*/')) == 0:
