@@ -6,11 +6,14 @@
 #define TRIGHLTJETHYPO_JETGROUPPRODUCT_H
 
 #include "./ProductGen.h"
+#include "./DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <vector>
 #include <optional>
 
 using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
+
+typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 class JetGroupProduct{
   /*
@@ -29,7 +32,7 @@ class JetGroupProduct{
  public:
   JetGroupProduct(const std::vector<std::size_t>& siblings,
 		  const CondInd2JetGroupsInds& satisfiedBy);
-  std::optional<std::vector<std::size_t>> next();
+  std::optional<std::vector<std::size_t>> next(const Collector&);
   
  private:
   const std::vector<std::size_t> m_siblings;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./FastReducer.h"
@@ -141,22 +141,23 @@ bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
   /*
     Will now test the incoming jet groups against the leaf conditions.
   */
-
+  
   std::size_t ijg{0};
   for(auto iter = groups_b; iter != groups_e; ++iter){
     auto jg = *iter;
     
     if(jg.size() != 1){
-      collector->collect("FastReducer", "No jet groups");
+      collector->collect("FastReducer", "Initial jet group size != 1");
       return false;
     }
-
-    // if a jet group satisfies a condition, note the fact, and store it by index
+    
+    // if a jet group satisfies a condition, note the fact,
+    // and store it by index
     bool jg_used{false};
     
     auto cur_jg = m_jgIndAllocator(std::vector<std::size_t>{ijg});
     for(const auto& leaf: leaves){
-
+      
       m_testedBy[leaf].insert(cur_jg);
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
 	  jg_used= true;
@@ -177,16 +178,56 @@ bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
       recordJetGroup(p.first, p.second, collector);
     }
   }
-  
+
   // check all leaf conditions are satisfied
   for (const auto& i : leaves) {
-    if ((m_satisfiedBy.at(i)).empty()) { return false; }
+    auto& satisfiedBy = m_satisfiedBy.at(i);
+    if (satisfiedBy.empty()) {
+      return false;
+    }
+  }
+
+  /*
+    For the special but important case where all leaf nodes have
+    the root node as a parent, check that there are enough jets
+    to pass the hypo. This prevents doing a long calculation 
+    to discover that the hypo will fail. For example, if the chain
+    requires 10j40, and there are 5 jets that pass the condition,
+    each condition will be satisfied by th 5 jets, and 5^10 combinations
+    will be attempted in th seach for a successful combination. As there
+    are only 5 jets involved, such a combination does not exist.
+
+    Such trees have a tree vector with all entries == 0.
+
+    This check cannot be applied in the general case. For example,
+    if the root condition requires 4 jets, and has three children,
+    two of which are leaf nodes, while the other is not, then the
+    check will fail the event as no jets have yet ben assigned to the
+    second child, while the full popagation through the tree may pass the
+    event.
+
+    A possible way to tighten the chck would be to forbid children to be
+    separated from thir parent by more than 1 generation.
+  */
+
+  if (std::all_of(m_tree.cbegin(),
+		  m_tree.cend(),
+		  [](std::size_t i){return i == 0;})) {
+
+    if (m_conditions[0]->capacity() > ijg) {
+      
+      if (collector){
+	collector->collect("FastReducer", "too few children. root capacity "
+			   + std::to_string(m_conditions[0]->capacity()) +
+			   " no of children: " + std::to_string(ijg));
+      }
+
+      return false;
+    }
   }
   
   return true;
-}
-
-
+}  
 
 bool FastReducer::propagateJetGroups(const Collector& collector){
   
@@ -218,6 +259,7 @@ bool FastReducer::propagateJetGroups(const Collector& collector){
   }
   
   while(!to_process.empty()){
+
     auto k = to_process.top();
     to_process.pop();
 
@@ -269,7 +311,7 @@ bool FastReducer::propagate_(std::size_t child,
   // Edges are contructed between satisfying jet groups and the parent.
   // if any such edge is constructed, the calling rroutine is notified so it
   // can scheduling processing the parent as a child.
-
+        
   std::size_t par =  m_tree.parent(child);
 
   // child == 0  do not attempt to process parent of node.
@@ -282,11 +324,12 @@ bool FastReducer::propagate_(std::size_t child,
   // eg if condition c1 is satisfied by jg11 and jg12, while its only
   // sibling c2 is satisfied by jg21, the external jet groups are
   // jg11jg21, jg12jg21. Each of these  are flattened.
-  
+
+   
   auto jg_product = JetGroupProduct(siblings, m_satisfiedBy);
-  
+   
   // obtain the next product of hob groups passing siblings
-  auto next = jg_product.next();
+  auto next = jg_product.next(collector);
 
   // step through the jet groups found by combining ghe child groups
   // check ecach combination to see if it satisfies the parent. If so
@@ -316,7 +359,7 @@ bool FastReducer::propagate_(std::size_t child,
     std::set<std::size_t> unique_indices(elem_jgs.begin(),
 					 elem_jgs.end());
     if(unique_indices.size() != elem_jgs.size()){
-      next = jg_product.next();
+      next = jg_product.next(collector);
       continue;
     }
 
@@ -325,7 +368,7 @@ bool FastReducer::propagate_(std::size_t child,
     // obtain an index for the new jet group.
     auto cur_jg = m_jgIndAllocator(elem_jgs);
     if(m_testedBy[par].find(cur_jg) != m_testedBy[par].end()){
-      next = jg_product.next();
+      next = jg_product.next(collector);
       continue;
     }
     m_testedBy[par].insert(cur_jg);
@@ -344,7 +387,7 @@ bool FastReducer::propagate_(std::size_t child,
       if(collector){recordJetGroup(cur_jg, jg, collector);}
     }
     
-    next = jg_product.next();
+    next = jg_product.next(collector);
   }
 
   if(collector and !par_satisfied){
