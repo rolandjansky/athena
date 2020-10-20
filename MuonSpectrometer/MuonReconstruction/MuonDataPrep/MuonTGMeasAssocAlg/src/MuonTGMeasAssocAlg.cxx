@@ -17,7 +17,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonSegment/MuonSegment.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/ParamDefs.h"

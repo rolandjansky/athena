@@ -10,7 +10,6 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGate.h"
  
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
