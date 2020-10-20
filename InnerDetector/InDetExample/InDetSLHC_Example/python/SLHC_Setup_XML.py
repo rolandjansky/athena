@@ -224,5 +224,6 @@ class SLHC_Setup_XMLReader :
         gmxReader.addBCL= XMLReaderFlags.addBCL()
         gmxReader.readGMXfromDB = ReadStripXMLFromDB
         gmxReader.pathToGMXFile = pathToGMX
+        gmxReader.createXMLDictionary = createXML
         svcMgr += gmxReader
         theApp.CreateSvc.insert(1,"InDet::GMXReaderSvc/InDetGMXReaderSvc")
