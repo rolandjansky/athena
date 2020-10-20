@@ -3,6 +3,7 @@
 echo  $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
 
 ### DEFAULTS
+export USEIMF=1 
 
 if [ -z ${MENU} ]; then
   export MENU="MC_pp_v8"
@@ -68,6 +69,9 @@ if [[ $ART_AVAILABLE == "0" ]]; then
 fi
 
 ######################################
+
+echo "Setting ATHENA_ADD_PRELOAD env pointing libimf.so lib"
+export ATHENA_ADD_PRELOAD=${ATLASMKLLIBDIR_PRELOAD}/libimf.so
 
 echo "Running athena command:"
 if [[ $INPUT == 'data' ]]; then
