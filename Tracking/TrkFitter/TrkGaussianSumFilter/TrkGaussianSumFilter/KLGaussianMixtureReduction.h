@@ -86,17 +86,6 @@ namespace GSFUtils {
 constexpr size_t alignment = 32;
 
 /**
- * The maximum size ColsxRows
- * we allow for the triangular array is 128x128
- *
- * 8 ( max Bethe heitle material components)
- * x 16 ( max state components)
- *
- * The typical number we use is 6x12 = 72.
- */
-constexpr int16_t triangularMaxRowsColums = 128;
-
-/**
  * @brief struct representing 1D component
  * Negative weight means invalidated component
  */
@@ -120,10 +109,10 @@ struct Component1D
  * GSFUtils::alignment aligned.
  * Can be created via the AlignedDynArray.
  */
-std::vector<std::pair<int16_t, int16_t>>
+std::vector<std::pair<int8_t, int8_t>>
 findMerges(Component1D* componentsIn,
-           const int16_t inputSize,
-           const int16_t reducedSize);
+           const int8_t inputSize,
+           const int8_t reducedSize);
 
 /**
  * @brief For finding the index of the minumum pairwise distance
