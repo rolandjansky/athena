@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetRegionSelector_InDetRegionSelectorLUT_h
@@ -27,10 +27,6 @@ namespace InDetDD {
   
   private:
     
-    ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolPixel;
-    ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolSCT;
-    ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolTRT;
-  
     bool m_doTests;
 
   };
