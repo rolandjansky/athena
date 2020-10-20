@@ -202,7 +202,7 @@ def createTrackingFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
     icf = AthConfigFlags()
 
-    icf.addFlag("extension", "" ) ### for extension
+    icf.addFlag("extension", "Offline" ) ### for extension
 
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
