@@ -214,9 +214,6 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     Acts::Vertex<TrackWrapper> beamSpotConstraintVtx(beamSpotPos);
     beamSpotConstraintVtx.setCovariance(beamSpotHandle->beamVtx().covariancePosition());
 
-    std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
-    Acts::Surface::makeShared<Acts::PerigeeSurface>(beamSpotPos);
-
     // Get the magnetic field context
     Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
@@ -227,6 +224,9 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     std::vector<TrackWrapper> allTracks;
 
     for (const auto& trk : trackVector) {
+
+      std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
+      Acts::Surface::makeShared<Acts::PerigeeSurface>(trk->parameters()->associatedSurface().transform());
 
       const auto& trkParams = trk->parameters();
       const auto& params = trkParams->parameters();
