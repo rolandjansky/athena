@@ -1,0 +1,98 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+/** Return method for the full material */
+inline const Material&
+MaterialProperties::material() const
+{
+  return m_material;
+}
+
+inline Material&
+MaterialProperties::material()
+{
+  return m_material;
+}
+
+/** Return method for thicknes in units of radiation length - dimensionless */
+inline float
+MaterialProperties::thicknessInX0() const
+{
+  return m_dInX0;
+}
+
+/** Return method for thickness in units of nuclear interaction length -
+ * dimensionless */
+inline float
+MaterialProperties::thicknessInL0() const
+{
+  return m_dInL0;
+}
+
+/** Return method for thickness in mm */
+inline float
+MaterialProperties::thickness() const
+{
+  return m_dInX0 * m_material.X0;
+}
+
+/** Return method for radiation length - in [mm] */
+inline float
+MaterialProperties::x0() const
+{
+  return m_material.X0;
+}
+
+/** Return method for nuclear interaction length - in [mm] */
+inline float
+MaterialProperties::l0() const
+{
+  return m_material.L0;
+}
+
+/** Return method for @f$ \frac{A}{Z}\cdot\rho @f$ */
+inline float
+MaterialProperties::zOverAtimesRho() const
+{
+  return m_material.zOaTr;
+}
+
+/** Return method for @f$ \frac{A}{Z}\cdot\rho\cdot d @f$ */
+inline float
+MaterialProperties::zOverAtimesRhoTimesD() const
+{
+  return m_zOaTrTd;
+}
+
+/** Return method for @f$ A @f$ */
+inline float
+MaterialProperties::averageA() const
+{
+  return m_material.A;
+}
+
+/** Return method for @f$ Z @f$ */
+inline float
+MaterialProperties::averageZ() const
+{
+  return m_material.Z;
+}
+
+/** Return method for @f$ Z @f$ */
+inline float
+MaterialProperties::averageRho() const
+{
+  return m_material.rho;
+}
+
+/** Return method for @f$ dE/dX @f$ */
+inline float
+MaterialProperties::dEdX() const
+{
+  return m_material.dEdX;
+}
+
+}
