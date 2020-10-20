@@ -459,9 +459,6 @@ if InDetTBFlags.SiTBLineFitter or InDetTBFlags.xKalman or InDetTBFlags.iPatRec o
 if doTrigger:
     # prepare LUT for Region Selector
     include("InDetRegionSelector/InDetRegionSelectorTable_jobOptions.py" )
-if InDetTBFlags.iPatRec and not doTrigger:
-    # prepare LUT for Region Selector used in TRT_Rec
-    include("InDetRegionSelector/TRT_RegionSelectorTable_jobOptions.py" )
 
 # -----------------------------
 # Reconstruction
