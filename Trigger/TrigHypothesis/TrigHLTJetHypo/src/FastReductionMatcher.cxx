@@ -47,7 +47,7 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
                       m_conditions,
                       m_tree,
                       m_sharedNodes,
-		      jetCollector,
+                      jetCollector,
                       collector);
 
   return std::make_optional<bool>(reducer.pass());
