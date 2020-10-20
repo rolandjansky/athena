@@ -1518,4 +1518,9 @@ namespace Muon {
     return newTracks;
   }
 
+  void MooTrackBuilder::cleanUp() const {
+    m_candidateHandler->cleanUp();
+
+  }
+
 }
