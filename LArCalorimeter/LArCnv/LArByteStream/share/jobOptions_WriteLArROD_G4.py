@@ -110,8 +110,8 @@ theApp.EvtMax = 50
 ByteStreamEventStorageOutputSvc.FileTag = "csc12"
 from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
 
-svcMgr.ToolSvc += LArRawDataContByteStreamToolConfig()
-svcMgr.ToolSvc.LArRawDataContByteStreamTool.InitializeForWriting = True
+svcMgr.ToolSvc += LArRawDataContByteStreamToolConfig(InitializeForWriting = True,
+                                                     stream = StreamBS)
 
 
 from AthenaCommon.AppMgr import theAuditorSvc

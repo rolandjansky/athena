@@ -15,7 +15,7 @@ atlas_add_library( LArByteStreamLib
    AthenaKernel xAODEventInfo ByteStreamData GaudiKernel LArIdentifier LArRawEvent
    LArRecConditions LArRecEvent CaloDetDescrLib CaloUtilsLib StoreGateLib
    ByteStreamCnvSvcBaseLib LArRawUtilsLib LArRecUtilsLib LArCablingLib
-   ByteStreamCnvSvcLib
+   ByteStreamCnvSvcLib CaloConditions
    PRIVATE_LINK_LIBRARIES AtlasDetDescr CaloInterfaceLib Identifier LArRawConditions )
 
 atlas_add_component( LArByteStream

@@ -1480,13 +1480,9 @@ if rec.doWriteBS():
     #        StreamBS.ItemList +=["LArRawChannels#*"]
     StreamBSFileOutput.ItemList +=["2721#*"]
 
-    # GU LAr bytestream writing now using calonoisetool, make sure it is configured
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    theNoiseTool = CaloNoiseToolDefault()
-    ToolSvc += theNoiseTool
-
     from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
-    ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
+    ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True,
+                                                stream = StreamBSFileOutput)
 
     # Tile
     #        StreamBS.ItemList +=["TileRawChannelCnt#*"]
