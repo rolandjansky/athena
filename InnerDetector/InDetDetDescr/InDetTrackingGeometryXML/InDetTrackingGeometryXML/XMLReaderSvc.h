@@ -102,7 +102,6 @@ namespace InDet {
     void writeSctBarrelDict(std::ofstream& file);
     void writeSctEndcapDict(std::ofstream& file);
     void writeSctGMXDict(std::ofstream& file);
-    void writeHgtdDict(std::ofstream& file);
     // Init stage to be done after initialization!
     void retrieveTools();
 
