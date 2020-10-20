@@ -2,14 +2,12 @@
    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-/*********************************************************************************
-  GsfExtrapolator.cxx  -  description
-  -----------------------------------
-begin                : Tuesday 25th January 2005
-author               : amorley,anastopoulos
-email                : amorley@cern.ch
-decription           : Implementation code for GsfExtrapolator class
-*********************************************************************************/
+/**
+ * @file   GsfExtrapolator.cxx
+ * @date   Tuesday 25th January 2005
+ * @author Anthony Morley, Christos Anastopoulos
+ * @brief  Implementation code for GsfExtrapolator class
+ */
 
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
 

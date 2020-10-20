@@ -279,21 +279,20 @@ Trk::GaussianSumFitter::fit(
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
 
   // Perform GSF forwards fit
-  std::unique_ptr<ForwardTrajectory> forwardTrajectory =
-    fitPRD(ctx,
-           extrapolatorCache,
-           sortedPrepRawDataSet,
-           estimatedParametersNearOrigin,
-           particleHypothesis);
+  ForwardTrajectory forwardTrajectory = fitPRD(ctx,
+                                               extrapolatorCache,
+                                               sortedPrepRawDataSet,
+                                               estimatedParametersNearOrigin,
+                                               particleHypothesis);
 
-  if (!forwardTrajectory || forwardTrajectory->empty()) {
+  if (forwardTrajectory.empty()) {
     ++m_ForwardFailure;
     return nullptr;
   }
 
   // Perform GSF smoother operation
   std::unique_ptr<SmoothedTrajectory> smoothedTrajectory =
-    fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis);
+    fit(ctx, extrapolatorCache, forwardTrajectory, particleHypothesis);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -413,19 +412,14 @@ Trk::GaussianSumFitter::fit(
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
 
   // Perform GSF forwards fit - new memory allocated in forwards fitter
-  std::unique_ptr<ForwardTrajectory> forwardTrajectory =
+  ForwardTrajectory forwardTrajectory =
     fitMeasurements(ctx,
                     extrapolatorCache,
                     sortedMeasurementSet,
                     estimatedParametersNearOrigin,
                     particleHypothesis);
 
-  if (!forwardTrajectory) {
-    ++m_ForwardFailure;
-    return nullptr;
-  }
-
-  if (forwardTrajectory->empty()) {
+  if (forwardTrajectory.empty()) {
     ++m_ForwardFailure;
     return nullptr;
   }
@@ -433,7 +427,7 @@ Trk::GaussianSumFitter::fit(
   // Perform GSF smoother operation
 
   std::unique_ptr<SmoothedTrajectory> smoothedTrajectory =
-    fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis, ccot);
+    fit(ctx, extrapolatorCache, forwardTrajectory, particleHypothesis, ccot);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -755,7 +749,7 @@ Trk::GaussianSumFitter::buildFitQuality(
 /*
  * Forwards fit on a set of PrepRawData
  */
-std::unique_ptr<Trk::ForwardTrajectory>
+Trk::ForwardTrajectory
 Trk::GaussianSumFitter::fitPRD(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
@@ -788,7 +782,7 @@ Trk::GaussianSumFitter::fitPRD(
   }
 
   // Create new trajectory
-  auto forwardTrajectory = std::make_unique<Trk::ForwardTrajectory>();
+  Trk::ForwardTrajectory forwardTrajectory{};
 
   // Prepare the multi-component state. For starting guess this has single
   // component, weight 1
@@ -818,7 +812,7 @@ Trk::GaussianSumFitter::fitPRD(
     bool stepIsValid = stepForwardFit(
       ctx,
       extrapolatorCache,
-      forwardTrajectory.get(),
+      forwardTrajectory,
       *prepRawData,
       nullptr,
       (*prepRawData)->detectorElement()->surface((*prepRawData)->identify()),
@@ -826,7 +820,7 @@ Trk::GaussianSumFitter::fitPRD(
       configuredParticleHypothesis);
 
     if (!stepIsValid) {
-      return nullptr;
+      return Trk::ForwardTrajectory{};
     }
   }
   return forwardTrajectory;
@@ -835,7 +829,7 @@ Trk::GaussianSumFitter::fitPRD(
 /*
  * Forwards fit on a set of Measurements
  */
-std::unique_ptr<Trk::ForwardTrajectory>
+Trk::ForwardTrajectory
 Trk::GaussianSumFitter::fitMeasurements(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
@@ -844,14 +838,9 @@ Trk::GaussianSumFitter::fitMeasurements(
   const Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  if (!m_extrapolator) {
-    ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
-    return nullptr;
-  }
-
   if (inputMeasurementSet.empty()) {
     ATH_MSG_ERROR("Input MeasurementSet is empty... Exiting!");
-    return nullptr;
+    return Trk::ForwardTrajectory{};
   }
 
   // Configure for forwards filtering material effects overide
@@ -863,9 +852,7 @@ Trk::GaussianSumFitter::fitMeasurements(
     configuredParticleHypothesis = particleHypothesis;
   }
 
-  // This memory should be freed by the fitter / smoother master method
-  auto forwardTrajectory = std::make_unique<Trk::ForwardTrajectory>();
-
+  Trk::ForwardTrajectory forwardTrajectory{};
   // Prepare the multi-component state. For starting guess this has single
   // component, weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
@@ -893,7 +880,7 @@ Trk::GaussianSumFitter::fitMeasurements(
 
     bool stepIsValid = stepForwardFit(ctx,
                                       extrapolatorCache,
-                                      forwardTrajectory.get(),
+                                      forwardTrajectory,
                                       nullptr,
                                       *measurement,
                                       (*measurement)->associatedSurface(),
@@ -901,7 +888,7 @@ Trk::GaussianSumFitter::fitMeasurements(
                                       configuredParticleHypothesis);
 
     if (!stepIsValid) {
-      return nullptr;
+      return Trk::ForwardTrajectory{};
     }
   }
   return forwardTrajectory;
@@ -914,7 +901,7 @@ bool
 Trk::GaussianSumFitter::stepForwardFit(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
-  ForwardTrajectory* forwardTrajectory,
+  ForwardTrajectory& forwardTrajectory,
   const Trk::PrepRawData* originalPrepRawData,
   const Trk::MeasurementBase* originalMeasurement,
   const Trk::Surface& surface,
@@ -934,11 +921,6 @@ Trk::GaussianSumFitter::stepForwardFit(
     return false;
   }
 
-  // Protect against ForwardTrajectory not defined
-  if (!forwardTrajectory) {
-    ATH_MSG_WARNING("ForwardTrajectory object is not defined... Exiting!");
-    return false;
-  }
   // Extrapolate multi-component state to the next measurement surface
   Trk::MultiComponentState extrapolatedState =
     m_extrapolator->extrapolate(ctx,
@@ -1002,7 +984,7 @@ Trk::GaussianSumFitter::stepForwardFit(
         nullptr,
         type);
 
-    forwardTrajectory->push_back(multiComponentStateOnSurface);
+    forwardTrajectory.push_back(multiComponentStateOnSurface);
     // Clean up objects associated with removed measurement
     updatedState = std::move(extrapolatedState);
   } else {
@@ -1011,7 +993,7 @@ Trk::GaussianSumFitter::stepForwardFit(
         measurement.release(),
         MultiComponentStateHelpers::clone(extrapolatedState).release(),
         fitQuality.release());
-    forwardTrajectory->push_back(multiComponentStateOnSurface);
+    forwardTrajectory.push_back(multiComponentStateOnSurface);
   }
   return true;
 }
