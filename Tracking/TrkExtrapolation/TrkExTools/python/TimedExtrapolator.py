@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # TimedExtrapolator module
@@ -7,9 +7,6 @@
 # the AtlasTrackingGeometrySvc
 #
 ######################################################
-
-# import the include statement
-from AthenaCommon.Include import Include, IncludeError, include
 
 # define the non-interacting material updator
 from TrkExTools.TrkExToolsConf import Trk__NIMatEffUpdator
@@ -21,12 +18,11 @@ class NIMatEffUpdator( Trk__NIMatEffUpdator ):
        # get defaut material updator
        from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator 
        MaterialEffectsUpdator = Trk__MaterialEffectsUpdator(name = 'MaterialEffectsUpdator')
+       from AthenaCommon.AppMgr import ToolSvc
        ToolSvc += MaterialEffectsUpdator
 
        # call the base class constructor
-       Trk__NIMatEffUpdator.__init__(self,name,\
-                                         MaterialEffectsUpdator = MaterialEffectsUpdator
-                                     )
+       Trk__NIMatEffUpdator.__init__(self,name,MaterialEffectsUpdator = MaterialEffectsUpdator)
 
 
 # import the Extrapolator configurable
@@ -38,9 +34,8 @@ class TimedExtrapolator( Trk__TimedExtrapolator ):
     def __init__(self,name = 'TimedExtrapolator'):
        
        # get the correct TrackingGeometry setup
-       from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+       from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc  # noqa: F401
        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-       AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc 
 
        # import the ToolSvc
        from AthenaCommon.AppMgr import ToolSvc
@@ -80,7 +75,7 @@ class TimedExtrapolator( Trk__TimedExtrapolator ):
        # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
        from TrkExTools.TrkExToolsConf import Trk__Navigator
        AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
-       AtlasNavigator.TrackingGeometrySvc = AtlasTrackingGeometrySvc
+       AtlasNavigator.TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
        ToolSvc += AtlasNavigator
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
@@ -116,13 +111,13 @@ class TimedExtrapolator( Trk__TimedExtrapolator ):
        # ----------------------------------------------------------------------------------------------------------          
        
        # call the base class constructor
-       Trk__TimedExtrapolator.__init__(self,name,\
-                                  Navigator = AtlasNavigator,\
-                                  MaterialEffectsUpdators = self.TimedUpdators,\
-                                  Propagators = self.TimedPropagators,\
-                                  SubPropagators = TimedSubPropagators,\
-                                  SubMEUpdators = TimedSubUpdators,\
-                                  DoCaloDynamic = False
+       Trk__TimedExtrapolator.__init__(self,name,
+                                       Navigator = AtlasNavigator,
+                                       MaterialEffectsUpdators = self.TimedUpdators,
+                                       Propagators = self.TimedPropagators,
+                                       SubPropagators = TimedSubPropagators,
+                                       SubMEUpdators = TimedSubUpdators,
+                                       DoCaloDynamic = False
                                   )
 
     # switches for simple steering : output navigators
