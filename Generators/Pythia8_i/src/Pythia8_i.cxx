@@ -324,6 +324,8 @@ StatusCode Pythia8_i::genInitialize() {
   
 
   StatusCode returnCode = SUCCESS;
+  m_pythia.particleData.listXML(m_outputParticleDataFile.substr(0,m_outputParticleDataFile.find("xml"))+"orig.xml");
+  m_pythia.settings.writeFile("Settings_before.log",true);
 
   if(canInit){
     canInit = m_pythia.init();
@@ -335,6 +337,7 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   m_pythia.particleData.listXML(m_outputParticleDataFile);
+  m_pythia.settings.writeFile("Settings_after.log",true);
 
   //counter for event failures;
   m_failureCount = 0;
