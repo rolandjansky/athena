@@ -6,7 +6,7 @@ atlas_subdir( xAODCaloEvent )
 # Extra dependencies and sources, based on what environment we're in.
 set( extra_libs )
 set( extra_sources )
-if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE AND NOT GENERATIONBASE )
+if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE )
    set( extra_libs CaloEvent )
    set( extra_sources src/*.cxx )
 endif()

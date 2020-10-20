@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloCluster_v1.h 794609 2017-01-30 15:51:25Z menke $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -24,22 +22,19 @@ extern "C" {
 #include "AthLinks/ElementLink.h"
 
 
-#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
-#endif // not (defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#else
+class CaloClusterCellLink {};
+typedef unsigned CaloRecoStatus;
+#endif // not (defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
 
 //Already include the DataVector specialization for this type
 #include "xAODCaloEvent/CaloClusterContainerFwd.h"
-
-// Declare a dummy CaloClusterCellLink definition for standalone compilation:
-#if defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
-class CaloClusterCellLink {};
-typedef unsigned CaloRecoStatus;
-#endif // defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
 class CaloClusterChangeSignalState;
 
@@ -176,24 +171,24 @@ namespace xAOD {
          ENG_CALIB_OUT_L   = 10010, /**< Attached Calibration Hit energy
                                        outside clusters but inside the calorimeter
                                        with loose matching (Angle < 1.0)
-                                    */ 
+                                    */
          ENG_CALIB_OUT_M   = 10011, /**< Attached Calibration Hit energy
                                        outside clusters but inside the
                                        calorimeter with medium matching
-                                       (Angle < 0.5). */ 
+                                       (Angle < 0.5). */
          ENG_CALIB_OUT_T   = 10012, /**< Attached Calibration Hit energy
                                        outside clusters but inside the
                                        calorimeter with tight matching
-                                       (Angle < 0.3). */ 
+                                       (Angle < 0.3). */
          ENG_CALIB_DEAD_L  = 10020, /**< Attached Calibration Hit energy in
                                        dead material with loose matching
-                                       (Angle < 1.0). */ 
+                                       (Angle < 1.0). */
          ENG_CALIB_DEAD_M  = 10021, /**< Attached Calibration Hit energy in
                                        dead material with medium matching
-                                       (Angle < 0.5). */ 
+                                       (Angle < 0.5). */
          ENG_CALIB_DEAD_T  = 10022,  /**< Attached Calibration Hit energy in
                                         dead material with tight matching
-                                        (Angle < 0.3). */ 
+                                        (Angle < 0.3). */
          /// Calibration Hit energy inside the cluster barrel presampler
          ENG_CALIB_EMB0         = 10030,
          /// Calibration Hit energy inside the cluster endcap presampler
@@ -280,15 +275,15 @@ namespace xAOD {
          DM_WEIGHT_DigiHSTruth         = 50903  ///< Dead-material weight (E_dm/E_ooc)
       };
 
-     /// enum of possible signal states. 
-     enum State { 
+     /// enum of possible signal states.
+     enum State {
        UNKNOWN             = -1,
        UNCALIBRATED        =  0,
        CALIBRATED          =  1,
        ALTCALIBRATED       =  2,
        NSTATES             =  3
      };
-     
+
      /// @}
 
      /// Default constructor
@@ -326,16 +321,16 @@ namespace xAOD {
      typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
 
      ///  The full 4-momentum of the particle : GenVector type.
-     GenVecFourMom_t genvecP4() const; 
+     GenVecFourMom_t genvecP4() const;
 
      ///  The full 4-momentum of the particle : GenVector type.
-     GenVecFourMom_t genvecP4(const State s) const; 
+     GenVecFourMom_t genvecP4(const State s) const;
 
       /// The full 4-momentum of the particle
      virtual FourMom_t p4() const;
 
      FourMom_t p4(const State s) const;
-     
+
      /// The type of the object as a simple enumeration
      virtual Type::ObjectType type() const;
       /// @}
@@ -346,7 +341,7 @@ namespace xAOD {
      double et() const;
 
      ///}
-  
+
    public:
 
      /// @name Energy/Eta/Phi per sampling
@@ -357,13 +352,13 @@ namespace xAOD {
      float etaSample(const CaloSample sampling) const;
      /// Retrieve barycenter \f$ \varphi \f$ in a given sample
      float phiSample(const CaloSample sampling) const;
-   
+
       /*! \brief Retrieve maximum cell energy in given sampling */
      float energy_max(const CaloSample sampling) const;
-     /*! \brief Retrieve \f$ \eta \f$ of cell with maximum energy in 
+     /*! \brief Retrieve \f$ \eta \f$ of cell with maximum energy in
       *         given sampling */
      float etamax(const CaloSample sampling) const;
-     /*! \brief Retrieve \f$ \varphi \f$ of cell with maximum energy in 
+     /*! \brief Retrieve \f$ \varphi \f$ of cell with maximum energy in
       *         given sampling */
      float phimax(const CaloSample sampling) const;
 
@@ -371,29 +366,29 @@ namespace xAOD {
      float etasize(const CaloSample sampling) const;
      /*! \brief Returns cluster size in \f$ \varphi \f$ for a given sampling */
      float phisize(const CaloSample sampling) const;
-     
 
-     /**@brief Get the energy in one layer of the EM Calo 
+
+     /**@brief Get the energy in one layer of the EM Calo
       * @param layer Layer between 0 (Presampler) and 3 (Back)
       * @return energy
       * Works for both, barrel and endcap
       */
      float energyBE(const unsigned layer) const;
 
-     /**@brief Get the eta in one layer of the EM Calo 
+     /**@brief Get the eta in one layer of the EM Calo
       * @param layer Layer between 0 (Presampler) and 3 (Back)
       * @return energy
       * Works for both, barrel and endcap
       */
      float etaBE(const unsigned layer) const;
-     /**@brief Get the phi in one layer of the EM Calo 
+     /**@brief Get the phi in one layer of the EM Calo
       * @param layer Layer between 0 (Presampler) and 3 (Back)
       * @return energy
       * Works for both, barrel and endcap
       */
      float phiBE(const unsigned layer) const;
 
-  
+
      /// Set energy for a given sampling. Returns false if the sample isn't part of the cluster
      bool setEnergy(const CaloSample sampling, const float e);
      /// Set \f$ \eta \f$ in a given sampling. Returns false if the sample isn't part of the cluster
@@ -406,11 +401,11 @@ namespace xAOD {
      /// Set the eta of the cell with the highest energy in a particular sampling
      bool setEtamax(const CaloSample sampling, const float etaMax );
      /// Set the phi of the cell with the highest energy in a particular sampling
-     bool setPhimax(const CaloSample sampling, const float phiMax );  
-     /// Set the cluster size in \f$ \varphi \f$ for a given sampling 
+     bool setPhimax(const CaloSample sampling, const float phiMax );
+     /// Set the cluster size in \f$ \varphi \f$ for a given sampling
      bool setEtasize(const CaloSample sampling, const float etaSize );
-     /// Set the cluster size in \f$ \vareta \f$ for a given sampling 
-     bool setPhisize(const CaloSample sampling, const float phiSize );  
+     /// Set the cluster size in \f$ \vareta \f$ for a given sampling
+     bool setPhisize(const CaloSample sampling, const float phiSize );
 
 
 
@@ -445,13 +440,13 @@ namespace xAOD {
      /// Returns raw \f$ \phi \f$ of cluster seed
      flt_t phi0() const;
 
-     /// Set cluster time 
+     /// Set cluster time
      void setTime(flt_t);
      /// Access cluster time
      flt_t time() const;
 
      /// Access to sampling pattern (one bit per sampling) (Method may be removed later)
-     unsigned samplingPattern() const; 
+     unsigned samplingPattern() const;
      /// Set sampling pattern (one bit per sampling
      void  setSamplingPattern(const unsigned sp, const bool clearSamplingVars=false);
 
@@ -459,13 +454,13 @@ namespace xAOD {
      void clearSamplingData();
 
      unsigned nSamples() const;
-     
+
      ///  Checks if certain smapling contributes to cluster
      bool hasSampling(const CaloSample s) const;
 
 
-     /// Get cluster size 
-     ClusterSize clusterSize() const; 
+     /// Get cluster size
+     ClusterSize clusterSize() const;
      /// Get cluster size
      void  setClusterSize(const ClusterSize);
 
@@ -476,7 +471,7 @@ namespace xAOD {
 
      /// }@
 
-     /// @name 4Momentum setter (signal-state dependent) 
+     /// @name 4Momentum setter (signal-state dependent)
      /// @{
      /// Set Energy for the current signal state
      void setE(flt_t);
@@ -492,24 +487,24 @@ namespace xAOD {
      /// @name 4Momentum in different signal states
      /// @{
      /// Get Energy in signal state UNCALIBRATED
-     flt_t rawE() const; 
+     flt_t rawE() const;
      /// Set Energy for signal state UNCALIBRATED
      void  setRawE(flt_t);
      /// Get \f$ \eta \f$ in signal state UNCALIBRATED
-     flt_t rawEta() const; 
+     flt_t rawEta() const;
      /// Set \f$ \eta \f$ for signal state UNCALIBRATED
      void  setRawEta(flt_t);
      /// Get \f$ \phi \f$ in signal state UNCALIBRATED
-     flt_t rawPhi() const; 
+     flt_t rawPhi() const;
      /// Set \f$ \phi \f$ for signal state UNCALIBRATED
      void  setRawPhi(flt_t);
      /// Get mass in signal state UNCALIBRATED
-     flt_t rawM() const; 
+     flt_t rawM() const;
      /// Set mass for singal state UNCALIBRATED
      void  setRawM(flt_t);
 
      /// Get Energy in signal state ALTCALIBRATED
-     flt_t altE() const; 
+     flt_t altE() const;
      /// Set Energy for signal state ALTCALIBRATED
      void  setAltE(flt_t);
      /// Get \f$ \eta \f$ in signal state ALTCALIBRATED
@@ -521,9 +516,9 @@ namespace xAOD {
      /// Set \f$ \phi \f$ for signal state ALTCALIBRATED
      void  setAltPhi(flt_t);
      /// Get mass in signal state ALTCALIBRATED
-     flt_t altM() const; 
+     flt_t altM() const;
      /// Set mass for singal state ALTCALIBRATED
-     void  setAltM(flt_t);                
+     void  setAltM(flt_t);
 
      /// Geet Energy in signal state CALIBRATED
      flt_t calE() const;
@@ -541,10 +536,10 @@ namespace xAOD {
      flt_t calM() const;
      /// Set mass for singal state CALIBRATED
      void  setCalM(flt_t);
-#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
    private:
-#endif //not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
-     /// Switch signal state 
+#endif //not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+     /// Switch signal state
      bool setSignalState(const State s) ;
    public:
      /// Get the current signal state
@@ -569,15 +564,15 @@ namespace xAOD {
      ///  @}
 
 
-     /// Get eta size from cluster size 
+     /// Get eta size from cluster size
      unsigned int getClusterEtaSize() const;
 
-     /// Get phi size from cluster size 
+     /// Get phi size from cluster size
      unsigned int getClusterPhiSize() const;
 
-     void setBadChannelList(const CaloClusterBadChannelList& bcl); 
+     void setBadChannelList(const CaloClusterBadChannelList& bcl);
      const CaloClusterBadChannelList& badChannelList() const;
-     
+
      /// Get a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
      const CaloCluster_v1* getSisterCluster() const;
 
@@ -594,9 +589,9 @@ namespace xAOD {
      /// bit-pattern describing the calo samplings contributing to this cluster
      unsigned m_samplingPattern;
 
-     /// Current signal state 
+     /// Current signal state
      State m_signalState;
-     ///Unique ptr to cell links. For cluster building 
+     ///Unique ptr to cell links. For cluster building
      /// transient only , holds cells owned by the cluster if non-nullptr
      std::unique_ptr<CaloClusterCellLink> m_cellLinks;
 
@@ -605,13 +600,13 @@ namespace xAOD {
 
      unsigned sampVarIdx(const CaloSample) const;
 
-     float getSamplVarFromAcc(const Accessor<std::vector<float > >& acc, 
+     float getSamplVarFromAcc(const Accessor<std::vector<float > >& acc,
 			      const CaloSample sampling, const float errorvalue=-999) const; //FIXME find a better errorcode
 
-     bool setSamplVarFromAcc(const Accessor<std::vector<float> >& acc, 
+     bool setSamplVarFromAcc(const Accessor<std::vector<float> >& acc,
 			     const CaloSample sampling, const float value);
    public:
-#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
 
      /// @name Athena-only methods, used during building stage
      /// @{
@@ -630,25 +625,25 @@ namespace xAOD {
       * @param CCCL_key StoreGate key of the CaloClusterCellLinkContainer
       * @param index Index of inside the CaloClusterCellLinkContainer container
       * @return true on success
-      */     
+      */
      //bool createCellElemLink(const std::string& CCCL_key, const size_t index);
 
      /**@brief Push the CaloClusterCellLink object into the cell-link container and hand-over ownership to it
       * @param CCCL pointer to the CaloClusterCellLinkContainer
       * @param sg Explicitly specify the store to use for the ElementLink.
       * @return true on success
-      */  
+      */
      bool setLink(CaloClusterCellLinkContainer* CCCL,
                   IProxyDict* sg = nullptr);
 
      /**@brief Get a pointer to the CaloClusterCellLink object (const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link
-      */  
+      */
      const CaloClusterCellLink* getCellLinks() const;
 
      /**@brief Get a pointer to the owned CaloClusterCellLink object (non-const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid owned cell links.
-      */ 
+      */
      CaloClusterCellLink* getOwnCellLinks() {
        return m_cellLinks.get();
      }
@@ -657,7 +652,7 @@ namespace xAOD {
       * @param index Index of the cell in the CaloCelLContainer
       * @param weight Weight of the cell in the cluster
       * @return true if the link to the CaloClusterCellLinkContainer exists, false otherwise
-      */ 
+      */
      bool addCell(const unsigned index, const double weight) {
        if (!m_cellLinks) {
          return false;
@@ -667,15 +662,15 @@ namespace xAOD {
 
      /**@brief Method to remove a cell to the cluster (slow!) (Beware: Kinematics not updated!)
       * @param index Index of the cell in the CaloCelLContainer
-      * @return true on success, false if the cell or the CaloCellLinkContainer is not found 
-      * A more efficient way to remove cells is to use the iterator fucnctionality of the 
+      * @return true on success, false if the cell or the CaloCellLinkContainer is not found
+      * A more efficient way to remove cells is to use the iterator fucnctionality of the
       * linked CaloCellLink object and use the remove(iterator) method from there.
-      */ 
+      */
       bool removeCell(const CaloCell* ptr);
 
 
      /**@brief size method (forwarded from CaloClusterCellLink obj)
-      *@return The number of cells 
+      *@return The number of cells
       */
       size_t size() const;
 
@@ -690,7 +685,7 @@ namespace xAOD {
         }
         return links->begin();
       }
-     const_cell_iterator cell_cend() const { 
+     const_cell_iterator cell_cend() const {
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) {
          return CaloClusterCellLink::dummyIt;
@@ -699,14 +694,14 @@ namespace xAOD {
      }
 
      ///Iterator of the underlying CaloClusterCellLink (const version)
-     const_cell_iterator cell_begin() const { return cell_cbegin(); } 
+     const_cell_iterator cell_begin() const { return cell_cbegin(); }
      const_cell_iterator cell_end() const { return cell_cend(); }
 
      ///Iterator of the underlying CaloClusterCellLink (non-const version)
-     typedef CaloClusterCellLink::iterator cell_iterator; 
+     typedef CaloClusterCellLink::iterator cell_iterator;
      //Fixme: Check ret-val of getCellLinks (might be NULL);
      cell_iterator cell_begin() { return getOwnCellLinks()->begin();}
-     cell_iterator cell_end() { return getOwnCellLinks()->end();} 
+     cell_iterator cell_end() { return getOwnCellLinks()->end();}
 
      /// STL-compatible iterators.
      typedef const_cell_iterator const_iterator;
@@ -721,21 +716,21 @@ namespace xAOD {
      /**@brief Method to reweight a cell in the cluster (Beware: Kinematics not updated!)
       * @param it Non-const cell-iterator
       * @param weight The new weight
-      */ 
+      */
      void reweightCell(cell_iterator it, const double weight) {it.reweight(weight);}
-     
+
      /**@brief Accesssor to CaloRecoStatus (non-const)
       * @return Reference to the CaloRecoStatus of this cluster
-      */ 
+      */
      CaloRecoStatus& recoStatus() {return m_recoStatus;}
 
      /**@brief Accesssor to CaloRecoStatus (const)
       * @return const reference to the CaloRecoStatus of this cluster
-      */ 
+      */
      const CaloRecoStatus& recoStatus() const {return m_recoStatus;}
      ///  @}
 
-#endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+#endif // not defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
       /// Function preparing the object to be persistified
       void toPersistent();
@@ -787,8 +782,8 @@ namespace xAOD {
   inline bool CaloCluster_v1::inBarrel() const {
        return (m_samplingPattern & CaloSampling::barrelPattern());
   }
-     
-  
+
+
   inline bool CaloCluster_v1::inEndcap() const {
     return (m_samplingPattern & CaloSampling::endcapPattern());
   }
