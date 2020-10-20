@@ -5,7 +5,7 @@
 #ifndef L1DECODER_CTPUNPACKINGEMULATIONTOOL_H
 #define L1DECODER_CTPUNPACKINGEMULATIONTOOL_H
 
-#include "CTPUnpackingToolBase.h"
+#include "L1Decoder/CTPUnpackingToolBase.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 

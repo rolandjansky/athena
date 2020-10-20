@@ -6,7 +6,6 @@
 #define L1DECODER_CTPUNPACKINGTOOL_H 1
 
 #include "CTPUnpackingToolBase.h"
-
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
@@ -30,7 +29,7 @@ public:
 
   virtual StatusCode start() override;
 
-
+  StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const;
 
 private:
   // Menu objects (that act here as configuration) need to be available in detector store.
@@ -40,6 +39,8 @@ private:
   SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   Gaudi::Property<bool> m_useTBPBit{ this, "UseTBPBits", false, "When true, use Trigger Before Prescale bits instead of Trigger After Veto (for testing only)" };
+
+  std::map<std::string, size_t> m_itemNametoCTPIDMap;
 };
 
 
