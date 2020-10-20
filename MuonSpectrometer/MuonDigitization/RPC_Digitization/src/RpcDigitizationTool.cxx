@@ -765,10 +765,10 @@ StatusCode RpcDigitizationTool::doDigitization() {
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
 
-      // as long there is no proper implementation of the BIS78 cabling and digitisation,
+      // as long there is no proper implementation of the BI RPC cabling and digitisation,
       // skip this method to avoid hard crash of digitisation
-      if (stationName.find("BIS")!=std::string::npos && std::abs(stationEta)>6) {
-        ATH_MSG_WARNING("skipping DetectionEfficiency for BIS78");
+      if (stationName.find("BI")!=std::string::npos) {
+        ATH_MSG_WARNING("skipping RPC DetectionEfficiency for BI");
       } else {
         if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, hit).isFailure()) return StatusCode::FAILURE ;
       }
