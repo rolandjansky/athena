@@ -29,6 +29,9 @@ namespace Muon {
 	@return a pointer to a track, the ownership of the output track is passed to the client calling the tool.
     */
     virtual Trk::Track* recover( const Trk::Track& track ) const = 0;
+
+    virtual void cleanUp() const {};
+
   };
   
   inline const InterfaceID& IMuonHoleRecoveryTool::interfaceID()

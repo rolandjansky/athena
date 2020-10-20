@@ -341,5 +341,10 @@ namespace MuonCombined {
     }
     return true;
   }
+
+  void MuonInsideOutRecoTool::cleanUp() const {
+    m_candidateTrackBuilder->cleanUp();
+  }
+
 }
  

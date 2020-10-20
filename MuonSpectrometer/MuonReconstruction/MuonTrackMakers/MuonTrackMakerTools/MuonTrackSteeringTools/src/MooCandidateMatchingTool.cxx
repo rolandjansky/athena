@@ -1463,6 +1463,9 @@ namespace Muon {
     if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Yes!" << endmsg;
     return true;
   }
-  
+ 
 
+  void MooCandidateMatchingTool::cleanUp() const {
+    m_candidateTool->cleanUp();
+  }
 }
