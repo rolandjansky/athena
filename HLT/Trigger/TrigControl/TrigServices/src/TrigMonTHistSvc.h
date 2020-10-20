@@ -121,7 +121,7 @@ public:
 private:
   /// Helper struct that bundles the histogram, name and mutex
   struct THistID {
-    THistID(const std::string s, TObject* o) : id(s), obj(o) {};
+    THistID(const std::string& s, TObject* o) : id(s), obj(o) {};
     ~THistID() { delete mutex; }
     std::string id;
     TObject* obj{nullptr};
