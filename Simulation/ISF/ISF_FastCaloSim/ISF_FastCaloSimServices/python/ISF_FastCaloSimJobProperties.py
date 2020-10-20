@@ -62,6 +62,18 @@ class ParamsInputFilename(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'FastCaloSim/MC16/TFCSparam_v011.root'
 
+class DoPunchThroughSimulation(JobProperty):
+    """ Determines whether to run the punch through simulation"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class PunchThroughParamsInputFilename(JobProperty):
+    """ Filename of the muon punch through input parametrizations file. """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FastCaloSim/MC16/TFCSparam_mpt_v01.root'
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -85,11 +97,13 @@ jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( CaloCellsName       
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( FastShowerInputCollection  )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( DoRandomFluctuations       )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( ParamsInputFilename        )
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( DoPunchThroughSimulation   )
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughParamsInputFilename)
 
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people
-## carefull: do not select ISF_FastCaloSimJobProperties as a short name as well. 
+## carefull: do not select ISF_FastCaloSimJobProperties as a short name as well.
 ## otherwise problems with pickle
 ## Note: you still have to import it:
 ## >>> from ISF_FatrasServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags

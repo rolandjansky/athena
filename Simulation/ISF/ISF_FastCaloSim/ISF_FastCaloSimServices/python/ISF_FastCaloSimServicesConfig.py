@@ -103,7 +103,7 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
                                                            'ISF_FastHitConvertTool' ])
     kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
     kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
-    kwargs.setdefault("DoPunchThroughSimulation"         , False                                            )
+    kwargs.setdefault("DoPunchThroughSimulation"         , ISF_FastCaloSimFlags.DoPunchThroughSimulation())
     kwargs.setdefault("ParticleBroker"                   , 'ISF_AFIIParticleBrokerSvc'               )
 
     kwargs.setdefault("ParamSvc", "ISF_FastCaloSimV2ParamSvc")
@@ -132,10 +132,8 @@ def getDNNCaloSimSvc(name="ISF_DNNCaloSimSvc", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
         simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
-    
+
     kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
     kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvc.get_Value() )
-        
+
     return CfgMgr.ISF__DNNCaloSimSvc(name, **kwargs )
-
-
