@@ -35,7 +35,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkSurfaces/Surface.h" 
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -82,9 +81,6 @@ iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t
   m_recordEnergyDeposition(false),
   m_layerIndexCaloSampleMapName("LayerIndexCaloSampleMap"),
   m_layerIndexCaloSampleMap(nullptr),
-  m_trackingGeometry(nullptr),
-  m_trackingGeometrySvc("ISF_FatrasTrackingGeometrySvc", n),
-  m_trackingGeometryName("ISF_FatrasTrackingGeometry"),
   m_projectionFactor(sqrt(2.)),
   m_validationMode(false),
   m_validationTool(""),
@@ -159,8 +155,6 @@ iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t
       declareProperty("PhysicsValidationTool"               , m_validationTool);
       declareProperty("BremPhotonValidation"                , m_bremValidation);
       declareProperty("EnergyDepositValidation"             , m_edValidation);      
-      // TrackingGeometry Service      
-      declareProperty("TrackingGeometrySvc",                  m_trackingGeometrySvc);     
       declareProperty("RandomNumberService"                 , m_rndGenSvc               , "Random number generator");
       declareProperty("RandomStreamName"                    , m_randomEngineName        , "Name of the random number stream");
 
@@ -242,14 +236,8 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
     }    
          
     // get the tracking geometry for layer lookup     
-    // get the TrackingGeometrySvc
-    if (m_trackingGeometrySvc.retrieve().isSuccess()){
-        ATH_MSG_INFO( "Successfully retrieved " << m_trackingGeometrySvc );
-        m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-    } else {
-        ATH_MSG_WARNING( "Couldn't retrieve " << m_trackingGeometrySvc << ". " );
-        ATH_MSG_WARNING( " -> Trying to retrieve default '" << m_trackingGeometryName << "' from DetectorStore." );
-    }         
+    // init the TrackingGeometryReadKey                                          
+    ATH_CHECK(m_trackingGeometryReadKey.initialize());
 
     // Particle decayer
     if (m_particleDecayer.retrieve().isFailure()){
@@ -1096,15 +1084,18 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::update( double /
        ATH_MSG_VERBOSE( "  [+] try to record deposited energy (if mapped with a calo sample) " );
                
        // need to identify the layer first
-       if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
-          ATH_MSG_WARNING( "  [ ----] Could not retrieve TrackingGeometry." );
-       } else {
+       SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+       if (!readHandle.isValid() || *readHandle == nullptr) {
+	 ATH_MSG_WARNING( "Could not retrieve TrackingGeometry '" << m_trackingGeometryReadKey << "'     from DetectorStore." );
+       }
+       else {
        
+       const Trk::TrackingGeometry* trackingGeometry = *readHandle;
         const Trk::LayerIndexSampleMap* lism     = layerIndexSampleMap();
 
         if (lism){  
           // get the Volume and then get the layer
-          const Trk::TrackingVolume* currentVolume = m_trackingGeometry->lowestTrackingVolume(parm->position()); 
+          const Trk::TrackingVolume* currentVolume = trackingGeometry->lowestTrackingVolume(parm->position()); 
           const Trk::Layer* associatedLayer = currentVolume ? currentVolume->associatedLayer(parm->position()) : 0;
       
            // only go on if you have found an associated Layer && the guy has an index
@@ -1254,23 +1245,6 @@ bool  iFatras::McMaterialEffectsUpdator::handleEnergyLoss( Trk::TrackParameters&
 
 }
 */     
-
-StatusCode iFatras::McMaterialEffectsUpdator::updateTrackingGeometry() const
-{
-
-  // -------------------- public TrackingGeometry (from DetectorStore) ----------------------------
-  // get the DetectorStore
-
-  StatusCode s = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
-  if (s.isFailure())
-  {
-       ATH_MSG_FATAL( "Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
-       ATH_MSG_FATAL( "  - probably the chosen layout is not supported / no cool tag exists. "                     );
-       return s;
-   }
-
-  return s;
-}                                                    
 
 double iFatras::McMaterialEffectsUpdator::msSigma(double dInX0,double p,Trk::ParticleHypothesis particle) const {
    

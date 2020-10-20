@@ -21,10 +21,10 @@
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
+#include "TrkGeometry/TrackingGeometry.h"
 
 namespace Trk {
   class IExtrapolator;
-  class ITrackingGeometrySvc;
   class TrackingGeometry;
   class TrackingVolume;
   class PdgToParticleHypothesis;
@@ -59,12 +59,9 @@ namespace ISF {
       ISF::ISFParticle* extrapolate( const ISF::ISFParticle &particle ) const;
 
     private:
-      bool retrieveTrackingGeometry() const;
 
       /** tracking geometry for geometry signature */
-      mutable const Trk::TrackingGeometry*      m_trackingGeometry;     //!< the tracking geometry owned by the navigator      
-      ServiceHandle<Trk::ITrackingGeometrySvc>  m_trackingGeometrySvc;  //!< ServiceHandle to the TrackingGeometrySvc
-      std::string                               m_trackingGeometryName; //!< default name of the TrackingGeometry  
+      SG::ReadCondHandleKey<Trk::TrackingGeometry>      m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "AlignedTrackingGeometry", "Key of input TrackingGeometry"};  
 
       /** extrapolation to calo entry */
       ToolHandle<Trk::IExtrapolator>       m_extrapolator;              //!< ToolHandle for track extrapolator

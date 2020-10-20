@@ -61,7 +61,6 @@ def getParametricSimServiceID(name="ISF_ParametricSimSvc", **kwargs):
     kwargs.setdefault("Identifier"                       , "ParametricSim")
     kwargs.setdefault("OutputLevel"                      , ISF_ParSimFlags.OutputLevelGeneral() )
     kwargs.setdefault("ParticleSmearers"                 , [getPublicTool('ISF_TrackParticleSmearer')] )
-    kwargs.setdefault("TrackingGeometrySvc"              , getService("AtlasTrackingGeometrySvc") )
 
    
     from ISF_ParSimServices.ISF_ParSimServicesConf import iParSim__ParametricSimSvc

@@ -9,7 +9,6 @@ from AthenaCommon.CfgGetter import getPublicTool, getService
 
 def getCaloEntryTrkExtrapolator(name="ISF_CaloEntryTrkExtrapolator", **kwargs):
     kwargs.setdefault( 'TrackingVolumeName'  , 'InDet::Containers::EntryVolume'       )
-    kwargs.setdefault( 'TrackingGeometrySvc' , getService('AtlasTrackingGeometrySvc') )
     atlasExtrapolator = getPublicTool('AtlasExtrapolator')
     atlasExtrapolator.ApplyMaterialEffects=False
     kwargs.setdefault( 'Extrapolator'        , atlasExtrapolator                      )

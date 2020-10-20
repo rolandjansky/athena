@@ -89,5 +89,3 @@ StatusCode iParSim::ParametricSimSvc::simulate(const ISF::ISFParticle& isp, McEv
   }
   return StatusCode::SUCCESS;
 }
-
-
