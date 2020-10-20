@@ -13,13 +13,29 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
                           Tracking/TrkEvent/TrkPrepRawData )
+                          
+find_package( Boost COMPONENTS unit_test_framework )
+find_package( Eigen )
+find_package( GeoModelCore )
+
 
 # Component(s) in the package:
 atlas_add_component( TrkTrackCollectionMerger
                      src/*.cxx
+                     test/PutTrackCollectionsInSG.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkTrack TrkToolInterfaces TrkPrepRawData )
+                     
+atlas_add_test( TrackCollectionMerger_test
+                SOURCES test/TrackCollectionMerger_test.cxx test/PutTrackCollectionsInSG.cxx src/TrackCollectionMerger.cxx 
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+                LINK_LIBRARIES TestTools ${Boost_LIBRARIES} AthenaKernel GaudiKernel SGTools StoreGateLib CxxUtils AthenaBaseComps TrkTrack TrkToolInterfaces
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
+
 
 # Install files from the package:
 atlas_install_headers( TrkTrackCollectionMerger )
+atlas_install_joboptions( share/*.txt )
 
