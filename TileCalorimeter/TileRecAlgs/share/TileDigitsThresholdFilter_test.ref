@@ -23,7 +23,6 @@ test1
 TileHWID             INFO initialize_from_dictionary 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -31,14 +30,12 @@ AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'Det
 TileTBID             INFO initialize_from_dictionary 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
