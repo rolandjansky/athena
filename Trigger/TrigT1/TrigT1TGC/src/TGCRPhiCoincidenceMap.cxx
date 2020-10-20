@@ -360,9 +360,9 @@ bool TGCRPhiCoincidenceMap::readMap_Run3()
       int phimod2=moduleName[iModule].find("b")!=std::string::npos ? 1 : 0;
       std::string fn;
       if (m_fullCW) {
-        fn = "/BW/cm_"+ sideName[m_side]+octantName[m_octant]+moduleName[iModule]+coincidenceTypeName[iCoinType]+"_v0001.db";}
+        fn = "/BW/cm_"+ sideName[m_side]+octantName[m_octant]+moduleName[iModule]+coincidenceTypeName[iCoinType]+"_"+m_verName+".db";}
       else{
-        fn = "/BW/cm_"+ sideName[m_side]+moduleName[iModule]+coincidenceTypeName[iCoinType]+"_Octant_v0001.db";
+        fn = "/BW/cm_"+ sideName[m_side]+moduleName[iModule]+coincidenceTypeName[iCoinType]+"_Octant_"+m_verName+".db";
       }
       bool Forward_type1=(moduleName[iModule]=="2b"||moduleName[iModule]=="5a"||moduleName[iModule]=="8b");
       bool Forward_type2=(moduleName[iModule]=="2a"||moduleName[iModule]=="5b"||moduleName[iModule]=="8a");
@@ -371,7 +371,7 @@ bool TGCRPhiCoincidenceMap::readMap_Run3()
       int type = -1;
       int lDR, hDR, lDPhi, hDPhi;
 
-      fullName = PathResolver::FindCalibDirectory("TrigT1TGC_CW")+fn;
+      fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC"+fn;
       if( fullName.length() == 0 ) { 
         log << MSG::ERROR
             << " Could not found "
