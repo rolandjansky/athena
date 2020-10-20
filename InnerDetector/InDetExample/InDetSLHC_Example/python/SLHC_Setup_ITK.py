@@ -21,6 +21,7 @@ class SLHC_Setup_XMLReader :
                             createXML = True,
                             doPix=True,
                             doSCT=True,
+                            doHGTD=True,
                             isGMX=auto_isGMX,
                                  )
 

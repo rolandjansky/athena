@@ -56,6 +56,7 @@ class SLHC_Setup_XMLReader :
         doPix = kwargs["doPix"]
         doSCT = kwargs["doSCT"]
         isGMX = kwargs["isGMX"]
+        doHGTD = kwargs["doHGTD"]
         AddBCL = False
         if kwargs.has_key("addBCL"): AddBCL = kwargs["addBCL"]
         
@@ -126,8 +127,9 @@ class SLHC_Setup_XMLReader :
                                            PixelEndcapLayout = pixEndcapLayout,
                                            doPix = kwargs["doPix"],
                                            doSCT = kwargs["doSCT"],
-					   isGMX = kwargs["isGMX"],
-					   addBCL = AddBCL,
+                                           isGMX = kwargs["isGMX"],
+                                           doHGTD = kwargs["doHGTD"],
+                                           addBCL = AddBCL,
                                            readXMLfromDB = readXMLfromDB_PIXXDD
                                            )
 
@@ -149,6 +151,7 @@ class SLHC_Setup_XMLReader :
         xmlReader.doPix = XMLReaderFlags.doPix()
         xmlReader.doSCT = XMLReaderFlags.doSCT()
         xmlReader.isGMX = XMLReaderFlags.isGMX()
+        xmlReader.doHGTD = XMLReaderFlags.doHGTD()
         xmlReader.readXMLfromDB = XMLReaderFlags.readXMLfromDB()
         if kwargs.has_key("XML_SLHC_Version"):
             xmlReader.XML_SLHCVersion = kwargs["XML_SLHC_Version"]
@@ -221,9 +224,19 @@ class SLHC_Setup_XMLReader :
         
         gmxReader = InDet__GMXReaderSvc(name='InDetGMXReaderSvc')
         gmxReader.dictionaryFileName=xmlReader.dictionaryFileName
-        gmxReader.addBCL= XMLReaderFlags.addBCL()
+        gmxReader.doHGTD = doHGTD
+        gmxReader.addBCL = XMLReaderFlags.addBCL()
         gmxReader.readGMXfromDB = ReadStripXMLFromDB
         gmxReader.pathToGMXFile = pathToGMX
         gmxReader.createXMLDictionary = createXML
         svcMgr += gmxReader
         theApp.CreateSvc.insert(1,"InDet::GMXReaderSvc/InDetGMXReaderSvc")
+
+        from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import HGTD_IdDictSvc
+
+        HGTD_IdDictSvc = HGTD_IdDictSvc(name='HGTD_IdDictSvc')
+        HGTD_IdDictSvc.dictionaryFileName=xmlReader.dictionaryFileName
+        HGTD_IdDictSvc.doHGTD = doHGTD
+        HGTD_IdDictSvc.createXMLDictionary = createXML
+        svcMgr += HGTD_IdDictSvc
+        theApp.CreateSvc.insert(1,"HGTD_IdDictSvc/HGTD_IdDictSvc")

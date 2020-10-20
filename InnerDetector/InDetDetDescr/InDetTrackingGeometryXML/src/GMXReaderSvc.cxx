@@ -26,6 +26,7 @@ InDet::GMXReaderSvc::GMXReaderSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("createXMLDictionary",   m_createDict);
   declareProperty("addBCL",                m_addBCL);
   declareProperty("readGMXfromDB",         m_useDb);
+  declareProperty("doHGTD",                m_doHGTD);
   declareProperty("pathToGMXFile",         m_pathToGMXFile);
 }
 
