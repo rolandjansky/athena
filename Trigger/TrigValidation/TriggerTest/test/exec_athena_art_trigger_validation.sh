@@ -3,7 +3,6 @@
 echo  $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
 
 ### DEFAULTS
-export USEIMF=1 
 
 if [ -z ${MENU} ]; then
   export MENU="MC_pp_v8"
