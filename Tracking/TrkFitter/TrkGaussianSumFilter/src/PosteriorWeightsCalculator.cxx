@@ -238,7 +238,7 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     } else {
       updatedWeight = 1e-10;
     }
-    returnMultiComponentState.emplace_back(component->first.release(),
+    returnMultiComponentState.emplace_back(std::move(component->first),
                                            updatedWeight);
     sumWeights += updatedWeight;
   }
