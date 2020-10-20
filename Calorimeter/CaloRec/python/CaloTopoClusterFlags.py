@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: CaloTopoClusterFlags.py,v 1.5 2009-05-04 16:23:04 lochp Exp $
@@ -118,6 +118,14 @@ class doTimeCut(JobProperty):
     StoredValue=False
 
 
+class extendTimeCut(JobProperty):
+    """                                                                                                                    
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 # add the flags container to the top container 
 jobproperties.add_Container(CaloTopoClusterFlags)
 
@@ -139,6 +147,7 @@ list_jobproperties = [
     ,doTreatEnergyCutAsAbsolute
     ,doMomentsfromAbs
     ,doTimeCut
+    ,extendTimeCut
     ]
 
 for i in list_jobproperties:

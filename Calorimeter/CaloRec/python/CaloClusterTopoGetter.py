@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 #
@@ -364,6 +364,7 @@ class CaloClusterTopoGetter ( Configured )  :
         TopoMaker.SeedThresholdOnEorAbsEinSigma     =    4.0
         #timing
         TopoMaker.SeedCutsInT = jobproperties.CaloTopoClusterFlags.doTimeCut()
+        TopoMaker.CutOOTseed = jobproperties.CaloTopoClusterFlags.extendTimeCut() and jobproperties.CaloTopoClusterFlags.doTimeCut()
 
         # note E or AbsE 
         #

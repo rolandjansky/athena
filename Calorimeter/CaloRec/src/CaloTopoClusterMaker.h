@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTOPOCLUSTERMAKER_H
@@ -63,7 +63,7 @@ public:
 
 private: 
 
-  inline bool passCellTimeCut(const CaloCell*) const;
+  inline bool passCellTimeCut(const CaloCell*, float) const;
   
   const CaloCell_ID* m_calo_id;
   
@@ -131,7 +131,7 @@ private:
 
 
   /**                                                                                                             
-   * threshold used for timing cut. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
+   * threshold used for timing cut on seed cells. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
   float m_seedThresholdOnTAbs;
   
 
@@ -239,6 +239,11 @@ private:
    * if set to true, time cut is applied to seed cells, no cut otherwise 
    */
   bool m_seedCutsInT;                                      
+
+  /**                                                                                              
+   * if set to true, seed cells failing the time cut are also excluded from cluster at all 
+   */
+  bool m_cutOOTseed;
 
   /** 
    * @brief vector of names of the calorimeter samplings to consider
