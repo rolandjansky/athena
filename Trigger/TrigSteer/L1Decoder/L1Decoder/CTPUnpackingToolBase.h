@@ -34,6 +34,8 @@ public:
 
   virtual StatusCode initialize() override;
 
+  virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const override;
+
 protected:
 
   static constexpr int s_CTPIDForUndeededChains = -1;

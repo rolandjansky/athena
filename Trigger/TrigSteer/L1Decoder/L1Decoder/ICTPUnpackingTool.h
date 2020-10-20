@@ -30,6 +30,12 @@ public:
    */
   virtual StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const = 0;
 
+  /**
+   * The method decodes CTP bits content of the RoIBResult and checks if L1 Items
+   * from a given list of names passed before prescale
+   */
+  virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const = 0;
+
 };  
 
 

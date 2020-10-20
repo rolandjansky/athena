@@ -702,7 +702,7 @@ EnhancedBiasChainParts = {
     'alignmentGroup' : ['EnhancedBias'],
     'chainPartName'  : '',
     'L1threshold'    : '',
-    'algType'        : ['high','firstempty','empty','unpairediso','unpairednoniso', 'low'],
+    'algType'        : ['medium','firstempty','empty','unpairediso','unpairednoniso', 'low'],
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : '',
