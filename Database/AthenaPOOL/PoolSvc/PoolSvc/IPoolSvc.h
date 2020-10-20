@@ -73,6 +73,10 @@ public: // Non-static members
    /// @param compName [IN] string name of the component to be loaded.
    virtual void loadComponent(const std::string& compName) const = 0;
 
+   /// @return void
+   /// @param shareCat [IN] bool to share the file catalog.
+   virtual void setShareMode(bool shareCat) = 0;
+
    /// @return the file catalog.
    virtual const pool::IFileCatalog* catalog() const = 0;
 
