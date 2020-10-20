@@ -1067,6 +1067,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 FEFlags = FEFlags & 0xF3; // mask out the parity bits, they don't work
                 if ((MCCFlags | FEFlags) != 0) {
                     sc = StatusCode::RECOVERABLE;
+		    errorcode = errorcode & 0xfff0000f; // clean-up MCC and FE bits before writing them
                     errorcode = errorcode | (MCCFlags << 12) | (FEFlags << 4); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
                     //for now just sum all flagged errors
                     if (MCCFlags & (1 << 7))
