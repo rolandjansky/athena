@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cmath>
 #include <sstream>
+#include <functional>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -77,14 +78,25 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    declareProperty( "UseROIBOutput", m_useROIBOutput, "Set to true the ROIBResult should be used for Run 2 data (not likely)");
 
    // input data
-   declareProperty( "gFEXMETPufitInput", m_gFEXMETPufitLoc, "StoreGate location of gFEX PUfit MET input" );
-   declareProperty( "gFEXMETRhoInput", m_gFEXMETRhoLoc, "StoreGate location of gFEX rho MET input" );
-   declareProperty( "gFEXMETJwoJInput", m_gFEXMETJwoJLoc, "StoreGate location of gFEX JwoJ MET input" );
-   declareProperty( "jJetInput", m_jJetLoc, "StoreGate location of jFEX Jet inputs" );
-   declareProperty( "jLJetInput", m_jLJetLoc, "StoreGate location of jFEX large-R Jet inputs" );
-   declareProperty( "gJetInput", m_gJetLoc, "StoreGate location of gFEX Jet inputs" );
-   declareProperty( "eFEXClusterInput", m_eFEXClusterLoc, "StoreGate location of eFEX Cluster inputs" );
-   
+   // MET
+   declareProperty( "jFEXMETNoiseCutInput", m_jFEX_MET_NCLoc, "StoreGate location of jFEX noisecut MET input" );
+   declareProperty( "jFEXMETRhoInput",      m_jFEX_MET_RhoLoc, "StoreGate location of jFEX rho MET input" );
+   declareProperty( "gFEXMETPufitInput",    m_gFEX_MET_PufitLoc, "StoreGate location of gFEX PUfit MET input" );
+   declareProperty( "gFEXMETRhoInput",      m_gFEX_MET_RhoLoc, "StoreGate location of gFEX rho MET input" );
+   declareProperty( "gFEXMETJwoJInput",     m_gFEX_MET_JwoJLoc, "StoreGate location of gFEX JwoJ MET input" );
+   declareProperty( "gFEXMETNoiseCutInput", m_gFEX_MET_NCLoc, "StoreGate location of gFEX noisecut MET input" );
+   // jets
+   declareProperty( "jJetInput",  m_jFEX_Jet_Loc, "StoreGate location of jFEX Jet inputs" );
+   declareProperty( "jLJetInput", m_jFEX_Jet_LR_Loc, "StoreGate location of jFEX large-R Jet inputs" );
+   declareProperty( "gJetInput",  m_gFEX_Jet_Loc, "StoreGate location of gFEX Jet inputs" );
+   // electrons
+   declareProperty( "eFEXClusterInput", m_eFEX_Cluster_Loc, "StoreGate location of eFEX Cluster inputs" );
+   declareProperty( "jFEXClusterInput", m_jFEX_Cluster_Loc, "StoreGate location of jFEX Cluster inputs" );
+   // taus
+   declareProperty( "eFEXTauInput", m_eFEX_Tau_Loc, "StoreGate location of eFEX Tau inputs" );
+   declareProperty( "jFEXTauInput", m_jFEX_Tau_Loc, "StoreGate location of jFEX Tau inputs" );
+
+
    // muon threshold counts from CTP input recorded in data
    declareProperty( "MuonCTPInput", m_muonCTPLoc, "StoreGate location of Muon inputs" );
    declareProperty( "EmTauCTPLocation", m_emtauCTPLoc, "StoreGate location of EmTau inputs" );
@@ -163,6 +175,26 @@ StatusCode
 LVL1CTP::CTPEmulation::initialize() {
 
    CHECK(m_configSvc.retrieve());
+   ATH_MSG_INFO( "Container for jFEX MET " << m_jFEX_MET_NCLoc.value());
+   ATH_MSG_INFO( "Container for jFEX MET " << m_jFEX_MET_RhoLoc.value());
+   ATH_MSG_INFO( "Container for gFEX MET " << m_gFEX_MET_NCLoc.value());
+   ATH_MSG_INFO( "Container for gFEX MET " << m_gFEX_MET_PufitLoc.value());
+   ATH_MSG_INFO( "Container for gFEX MET " << m_gFEX_MET_RhoLoc.value());
+   ATH_MSG_INFO( "Container for gFEX MET " << m_gFEX_MET_JwoJLoc.value());
+   ATH_MSG_INFO( "Container for jFEX Jet container " << m_jFEX_Jet_Loc.value());
+   ATH_MSG_INFO( "Container for jFEX large-R Jet container " << m_jFEX_Jet_LR_Loc.value());
+   ATH_MSG_INFO( "Container for gFEX Jet container " << m_gFEX_Jet_Loc.value());
+   ATH_MSG_INFO( "Container for eFEX em cluster container " << m_eFEX_Cluster_Loc.value());
+   ATH_MSG_INFO( "Container for jFEX em cluster container " << m_jFEX_Cluster_Loc.value());
+   ATH_MSG_INFO( "Container for eFEX em tau container: " << m_eFEX_Tau_Loc.value());
+   ATH_MSG_INFO( "Container for jFEX em tau container: " << m_jFEX_Tau_Loc.value());
+
+   // Legacy inputs
+   ATH_MSG_INFO( "Container for legacy MUCTPI LVL1::MuCTPICTP " << m_muonCTPLoc.value());
+   ATH_MSG_INFO( "Container for legacy L1Calo LVL1::EmTauCTP " << m_emtauCTPLoc.value());
+   ATH_MSG_INFO( "Container for legacy L1Calo LVL1::JetCTP " << m_jetCTPLoc.value());
+   ATH_MSG_INFO( "Container for legacy L1Calo LVL1::EnergyCTP " << m_energyCTPLoc.value());
+   ATH_MSG_INFO( "Container for legacy L1Topo LVL1::FrontPanelCTP " << m_topoCTPLoc.value());
 
    CHECK( setEFexConfig(m_eFEXREta , m_reta ) );
    CHECK( setEFexConfig(m_eFEXRHad , m_rhad ) );
@@ -347,12 +379,17 @@ LVL1CTP::CTPEmulation::bookHists() {
 
    // MET
    histpath = histBasePath() + "/input/MET/";
-   CHECK ( m_histSvc->regHist( histpath + "Pufit",    new TH1I("MET_Pufit","Missing ET from algorithm pufit", 40, 0, 80)) );
-   CHECK ( m_histSvc->regHist( histpath + "PufitPhi", new TH1I("MET_PufitPhi","Missing ET PUfit phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "Rho",      new TH1I("MET_Rho","Missing ET from algorithm rhosub", 40, 0, 80)) ); 
-   CHECK ( m_histSvc->regHist( histpath + "RhoPhi",   new TH1I("MET_RhoPhi","Missing ET rhosub phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "JwoJ",     new TH1I("MET_JwoJ","Missing ET from algorithm jet without jets", 40, 0, 80)) );
-   CHECK ( m_histSvc->regHist( histpath + "JwoJPhi",  new TH1I("MET_JwoJPhi","Missing ET jet without jet phi", 64, -3.2, 3.2)) );
+   std::vector<std::string> metType { "jXENC", "jXERHO", "gXENC", "gXEJWOJ", "gXERHO", "gXEPUFIT" };
+   for( auto x : metType ) {
+      auto hname = std::string("MET_") + x;
+      auto htitle = std::string("Missing ET from algorithm ") + x;
+      CHECK ( m_histSvc->regHist( histpath + x, new TH1I(hname.c_str(), htitle.c_str(), 80, 0, 1500)) );
+   }
+   for( auto x : metType ) {
+      auto hname = std::string("MET_") + x + "Phi";
+      auto htitle = std::string("Phi of missing ET from algorithm") + x;
+      CHECK ( m_histSvc->regHist( histpath + x + "Phi", new TH1I( hname.c_str(), htitle.c_str(), 64, -3.2, 3.2)) );
+   }
 
    // cluster
    histpath = histBasePath() + "/input/em/";
@@ -416,13 +453,16 @@ LVL1CTP::CTPEmulation::bookHists() {
 
    // input counts
    histpath = histBasePath() + "/input/counts/";
+   // run 3 data
    CHECK ( m_histSvc->regHist( histpath + "jJets", new TH1I("jJets","Number of jets (jJ)", 40, 0, 40)) );
    CHECK ( m_histSvc->regHist( histpath + "jLJets", new TH1I("jLJets","Number of jets (jLJ)", 40, 0, 40)) );
    CHECK ( m_histSvc->regHist( histpath + "gJets", new TH1I("gJets","Number of jets (gJ)", 40, 0, 40)) );
    CHECK ( m_histSvc->regHist( histpath + "muons", new TH1I("muons","Number of muons", 10, 0, 10)) );  
-   CHECK ( m_histSvc->regHist( histpath + "emcluster", new TH1I("emcluster","Number of EM clusters", 20, 0, 20)) );
-   CHECK ( m_histSvc->regHist( histpath + "taus", new TH1I("taus","Number of TAU candidates", 20, 0, 20)) );
- 
+   CHECK ( m_histSvc->regHist( histpath + "emcluster", new TH1I("emcluster","Number of eFEX clusters", 20, 0, 20)) );
+   CHECK ( m_histSvc->regHist( histpath + "etaus", new TH1I("etaus","Number of eFEX TAU candidates", 40, 0, 40)) );
+   CHECK ( m_histSvc->regHist( histpath + "jcluster", new TH1I("jcluster","Number of jFEX clusters", 20, 0, 20)) );
+   CHECK ( m_histSvc->regHist( histpath + "jtaus", new TH1I("jtaus","Number of jFEX TAU candidates", 20, 0, 20)) );
+   // run 2 data
    CHECK ( m_histSvc->regHist( histpath + "jetRoIData", new TH1I("nJetRoIs","Number of JET ROIs from data", 20, 0, 20)) );
    CHECK ( m_histSvc->regHist( histpath + "emTauRoIData", new TH1I("nEMTauRoIs","Number of EMTau ROIs from data", 20, 0, 20)) );
    CHECK ( m_histSvc->regHist( histpath + "emRoIData", new TH1I("nEMRoIs","Number of EM ROIs from data", 20, 0, 20)) );
@@ -430,12 +470,13 @@ LVL1CTP::CTPEmulation::bookHists() {
    CHECK ( m_histSvc->regHist( histpath + "muonRoIData", new TH1I("nMuonRoIs","Number of muon ROIs from data", 20, 0, 20)) );
 
    // threshold multiplicities
+   CHECK ( createMultiplicityHist( "em", L1DataDef::EM) );
    CHECK ( createMultiplicityHist( "muon", L1DataDef::MUON, 5) );
+   CHECK ( createMultiplicityHist( "tau", L1DataDef::TAU) );
    CHECK ( createMultiplicityHist( "jet", L1DataDef::JET) );
    CHECK ( createMultiplicityHist( "xe", L1DataDef::XE, 2) );
    CHECK ( createMultiplicityHist( "te", L1DataDef::TE, 2) );
-   CHECK ( createMultiplicityHist( "em", L1DataDef::EM) );
-   CHECK ( createMultiplicityHist( "tau", L1DataDef::TAU) );
+   CHECK ( createMultiplicityHist( "xs", L1DataDef::XS, 2) );
 
    // Topo
    histpath = histBasePath() + "/input/topo/";
@@ -494,32 +535,48 @@ LVL1CTP::CTPEmulation::retrieveCollections() {
    // new L1Calo collections
 
    // met
-   CHECK ( evtStore()->retrieve( m_gFEXMETPufit, m_gFEXMETPufitLoc ) );
-   ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEXMETPufitLoc << "'");
+   CHECK ( evtStore()->retrieve( m_jFEXMETNC, m_jFEX_MET_NCLoc ) );
+   ATH_MSG_DEBUG( "Retrieved jFEX MET '" << m_jFEX_MET_NCLoc << "'");
 
-   CHECK ( evtStore()->retrieve( m_gFEXMETRho, m_gFEXMETRhoLoc ) );
-   ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEXMETRhoLoc << "'");
+   CHECK ( evtStore()->retrieve( m_jFEXMETRho, m_jFEX_MET_RhoLoc ) );
+   ATH_MSG_DEBUG( "Retrieved jFEX MET '" << m_jFEX_MET_RhoLoc << "'");
 
-   CHECK ( evtStore()->retrieve( m_gFEXMETJwoJ, m_gFEXMETJwoJLoc ) );
-   ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEXMETJwoJLoc << "'");
+   CHECK ( evtStore()->retrieve( m_gFEXMETNC, m_gFEX_MET_NCLoc ) );
+   ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEX_MET_NCLoc << "'");
+
+   CHECK ( evtStore()->retrieve( m_gFEXMETPufit, m_gFEX_MET_PufitLoc ) );
+   ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEX_MET_PufitLoc << "'");
+
+   CHECK ( evtStore()->retrieve( m_gFEXMETRho, m_gFEX_MET_RhoLoc ) );
+   ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEX_MET_RhoLoc << "'");
+
+   CHECK ( evtStore()->retrieve( m_gFEXMETJwoJ, m_gFEX_MET_JwoJLoc ) );
+   ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEX_MET_JwoJLoc << "'");
 
    // jets
-   CHECK ( evtStore()->retrieve( m_jJet, m_jJetLoc ) );
-   ATH_MSG_DEBUG( "Retrieved jFEX Jet container '" << m_jJetLoc << "' with size " << m_jJet->size());
+   CHECK ( evtStore()->retrieve( m_jJet, m_jFEX_Jet_Loc ) );
+   ATH_MSG_DEBUG( "Retrieved jFEX Jet container '" << m_jFEX_Jet_Loc << "' with size " << m_jJet->size());
 
-   CHECK ( evtStore()->retrieve( m_jLJet, m_jLJetLoc ) );
-   ATH_MSG_DEBUG( "Retrieved jFEX large-R Jet container '" << m_jLJetLoc << "' with size " << m_jLJet->size());
+   CHECK ( evtStore()->retrieve( m_jLJet, m_jFEX_Jet_LR_Loc ) );
+   ATH_MSG_DEBUG( "Retrieved jFEX large-R Jet container '" << m_jFEX_Jet_LR_Loc << "' with size " << m_jLJet->size());
 
-   CHECK ( evtStore()->retrieve( m_gJet, m_gJetLoc ) );
-   ATH_MSG_DEBUG( "Retrieved gFEX Jet container '" << m_gJetLoc << "' with size " << m_gJet->size());
+   CHECK ( evtStore()->retrieve( m_gJet, m_gFEX_Jet_Loc ) );
+   ATH_MSG_DEBUG( "Retrieved gFEX Jet container '" << m_gFEX_Jet_Loc << "' with size " << m_gJet->size());
 
    // em clusters
-   CHECK ( evtStore()->retrieve( m_eFEXCluster, m_eFEXClusterLoc ) );
-   ATH_MSG_DEBUG( "Retrieved eFEX em cluster container '" << m_eFEXClusterLoc << "' with size " << m_eFEXCluster->size());
+   CHECK ( evtStore()->retrieve( m_eFEXCluster, m_eFEX_Cluster_Loc ) );
+   ATH_MSG_DEBUG( "Retrieved eFEX em cluster container '" << m_eFEX_Cluster_Loc << "' with size " << m_eFEXCluster->size());
+
    
+   CHECK ( evtStore()->retrieve( m_jFEXCluster, m_jFEX_Cluster_Loc ) );
+   ATH_MSG_DEBUG( "Retrieved jFEX em cluster container '" << m_jFEX_Cluster_Loc << "' with size " << m_jFEXCluster->size());
+
    // taus
-   CHECK ( evtStore()->retrieve( m_eFEXTau, m_eFEXTauLoc ) );
-   ATH_MSG_DEBUG( "Retrieved eFEX em tau container '" << m_eFEXTauLoc << "' with size " << m_eFEXTau->size());
+   CHECK ( evtStore()->retrieve( m_eFEXTau, m_eFEX_Tau_Loc ) );
+   ATH_MSG_DEBUG( "Retrieved eFEX em tau container '" << m_eFEX_Tau_Loc << "' with size " << m_eFEXTau->size());
+
+   CHECK ( evtStore()->retrieve( m_jFEXTau, m_jFEX_Tau_Loc ) );
+   ATH_MSG_DEBUG( "Retrieved jFEX em tau container '" << m_jFEX_Tau_Loc << "' with size " << m_eFEXTau->size());
 
 
    // Run 2 ROIs 
@@ -582,7 +639,9 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/muons", h) ); h->Fill(m_muonRoIs->size());
    }
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/emcluster", h) ); h->Fill(m_eFEXCluster->size());
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/taus", h) ); h->Fill(m_eFEXTau->size());
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/etaus", h) ); h->Fill(m_eFEXTau->size());
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/jcluster", h) ); h->Fill(m_jFEXCluster->size());
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/jtaus", h) ); h->Fill(m_jFEXTau->size());
    
    // counts of objects from ROIBResult
    if ( m_useROIBOutput ) {
@@ -618,12 +677,17 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    }
 
    // MET
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/Pufit", h) ); if(h) h->Fill(m_gFEXMETPufit->energyT()/1000.);
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/PufitPhi", h) ); if(h) h->Fill(atan2(m_gFEXMETPufit->energyX(), m_gFEXMETPufit->energyY()));
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/Rho", h) ); if(h) h->Fill(m_gFEXMETRho->energyT()/1000.);
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/RhoPhi", h) ); if(h) h->Fill(atan2(m_gFEXMETRho->energyX(), m_gFEXMETRho->energyY()));
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/JwoJ", h) ); if(h) h->Fill(m_gFEXMETJwoJ->energyT()/1000.);
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/JwoJPhi", h) ); if(h) h->Fill(atan2(m_gFEXMETJwoJ->energyX(), m_gFEXMETJwoJ->energyY()));
+   std::vector<std::string> metType { "jXENC", "jXERHO", "gXENC", "gXEJWOJ", "gXERHO", "gXEPUFIT" };
+   for( auto x : metType ) {
+      TH1 *hist{nullptr};
+      const xAOD::EnergySumRoI * met = getMET(x);
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/" + x, hist) );
+      if(hist) {
+         hist->Fill(abs(met->energyT())/1000.);
+      }
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/" + x + "Phi", hist) );
+      if(hist) hist->Fill(atan2(met->energyX(), met->energyY()));
+   }
 
    // eFEX EM cluster
    {
@@ -1031,33 +1095,22 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
                unsigned int selection_reta = ((isoMask >> BITMASK_OFFSET_RETA) & 0x3);
                unsigned int selection_rhad = ((isoMask >> BITMASK_OFFSET_RHAD) & 0x3);
                unsigned int selection_wstot = ((isoMask >> BITMASK_OFFSET_WSTOT) & 0x3);
-               std::cout << "JOERG new thr " << confThr->name() << " has isolation defined: " << clThrV->isolationMask()
-                         << " reta " << selection_reta << ", rhad " << selection_rhad << ", wstot " << selection_wstot << std::endl;
                if( selection_reta>0 ) {
                   auto & wp = m_reta.at(selection_reta).getWP(ieta);
                   if( (cl->et() < wp.maxEt) && reta(*cl) < wp.value) {
                      clusterPasses = false;
-                     std::cout << "JOERG Fails reta" << std::endl;
-                  } else {
-                     std::cout << "JOERG Passes reta" << std::endl;
                   }
                }
                if( clusterPasses && selection_rhad>0 ) {
                   auto & wp = m_rhad.at(selection_rhad).getWP(ieta);
                   if( (cl->et() < wp.maxEt) && rhad(*cl) < wp.value) {
                      clusterPasses = false;
-                     std::cout << "JOERG Fails rhad" << std::endl;
-                  } else {
-                     std::cout << "JOERG Passes rhad" << std::endl;
                   }
                }
                if( clusterPasses && selection_wstot>0 ) {
                   auto & wp = m_wstot.at(selection_wstot).getWP(ieta);
                   if( (cl->et() < wp.maxEt) && cl->wstot() < wp.value) {
                      clusterPasses = false;
-                     std::cout << "JOERG Fails wstot" << std::endl;
-                  } else {
-                     std::cout << "JOERG Passes wstot" << std::endl;
                   }
                }
             }
@@ -1246,33 +1299,62 @@ LVL1CTP::CTPEmulation::calculateMETMultiplicity( const TrigConf::TriggerThreshol
    } else {
       // new XE 
       // input depends on the name of the threshold
-      const DataHandle< xAOD::EnergySumRoI > * dh ( nullptr );
-      if ( confThr->name().find("gXEPUFIT")==0 ) {
-         dh = & m_gFEXMETPufit;
-         ATH_MSG_DEBUG("Using Pufit input for threshold " << confThr->name() );
-      } else if ( confThr->name().find("gXERHO")==0 ) {
-         dh = & m_gFEXMETRho;
-         ATH_MSG_DEBUG("Using Rho input for threshold " << confThr->name() );
-      } else if ( confThr->name().find("gXEJWOJ")==0 ) {
-         dh = & m_gFEXMETJwoJ;
-         ATH_MSG_DEBUG("Using JwoJ input for threshold " << confThr->name() );
-      } else {
-         dh = & m_gFEXMETJwoJ;
-         ATH_MSG_DEBUG("Using default input JwoJ for threshold " << confThr->name() );
-      }
-      multiplicity = ( (*dh)->energyT()/1000. < confThr->thresholdValueVector()[0]->ptcut() ) ? 0 : 1; // energyT value is in MeV, cut in GeV
+      const xAOD::EnergySumRoI * met = getMET(confThr->name());
+      multiplicity = ( abs(met->energyT()/1000.) < confThr->thresholdValueVector()[0]->ptcut() ) ? 0 : 1; // energyT value is in MeV, cut in GeV
    }
 
    TH1 * h { nullptr };
-   if ( confThr->name().find("TE")==0 ) {
+   if ( confThr->type() == "TE" ) {
       CHECK( m_histSvc->getHist( histBasePath() + "/multi/te", h) ); h->Fill(confThr->mapping(), multiplicity);
-   } else {
+   } else if ( confThr->type() == "XS" ) {
+      CHECK( m_histSvc->getHist( histBasePath() + "/multi/xs", h) ); h->Fill(confThr->mapping(), multiplicity);
+   } else if ( confThr->type() == "XE" ) {
       CHECK( m_histSvc->getHist( histBasePath() + "/multi/xe", h) ); h->Fill(confThr->mapping(), multiplicity);
    }
 
    ATH_MSG_DEBUG("XE/TE/XS MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    return multiplicity;
 
+}
+
+const xAOD::EnergySumRoI *
+LVL1CTP::CTPEmulation::getMET(const std::string & thresholdName) const {
+
+   std::size_t found = thresholdName.find_first_of("0123456789");
+
+   std::string thresholdType = thresholdName.substr(0,found);
+
+   if( thresholdType == "gXEPUFIT" )
+      return &*m_gFEXMETPufit;
+
+   if( thresholdType == "gXERHO" )
+      return &*m_gFEXMETRho;
+
+   if( thresholdType == "gXEJWOJ" )
+      return &*m_gFEXMETJwoJ;
+
+   if( thresholdType == "gXENC" )
+      return &*m_gFEXMETNC;
+
+   if( thresholdType == "jXERHO" )
+      return &*m_jFEXMETRho;
+
+   if( thresholdType == "jXENC" )
+      return &*m_jFEXMETNC;
+
+   if( thresholdType == "gXE" ) {
+      ATH_MSG_WARNING("MET threshold " << thresholdName << " of deprecated type " << thresholdType );
+      return &*m_gFEXMETNC;
+   }
+
+   if( thresholdType == "jXE" ) {
+      ATH_MSG_WARNING("MET threshold " << thresholdName << " of deprecated type " << thresholdType );
+      return &*m_jFEXMETNC;
+   }
+
+   ATH_MSG_ERROR("MET threshold " << thresholdName << " of unknown type " << thresholdType );
+
+   return nullptr;
 }
 
 unsigned int

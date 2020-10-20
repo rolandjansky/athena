@@ -124,6 +124,9 @@ namespace LVL1CTP {
       // fill eFEX selection cuts object
       StatusCode setEFexConfig(const std::string & prop, std::map<unsigned int, eFEXParWP> & cfgMap);
 
+      const xAOD::EnergySumRoI *
+      getMET(const std::string & thresholdType) const;
+
       // member variables
 
       // Needed services
@@ -134,14 +137,19 @@ namespace LVL1CTP {
 
       // Inputs from the new L1Calo
       // gFEX
+      const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETNC;      //!< MET from gFEX
       const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETPufit;   //!< MET from gFEX
       const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETRho;     //!< MET from gFEX
       const DataHandle< xAOD::EnergySumRoI >    m_gFEXMETJwoJ;    //!< MET from gFEX
       const DataHandle< xAOD::JetRoIContainer > m_gJet;           //!< jets from gFEX 
       // eFEX
       const DataHandle< xAOD::TrigEMClusterContainer > m_eFEXCluster; //!< cluster from eFEX
+      const DataHandle< xAOD::EmTauRoIContainer > m_jFEXCluster; //!< cluster from eFEX
       const DataHandle< xAOD::EmTauRoIContainer > m_eFEXTau; //!< taus from eFEX
+      const DataHandle< xAOD::EmTauRoIContainer > m_jFEXTau; //!< taus from eFEX
       // jFEX
+      const DataHandle< xAOD::EnergySumRoI >    m_jFEXMETNC;      //!< MET from jFEX
+      const DataHandle< xAOD::EnergySumRoI >    m_jFEXMETRho;     //!< MET from jFEX
       const DataHandle< xAOD::JetRoIContainer > m_jJet;           //!< jets from jFEX 
       const DataHandle< xAOD::JetRoIContainer > m_jLJet;          //!< large jets from jFEX 
       // Inputs from old L1Calo and L1Muon
@@ -163,14 +171,31 @@ namespace LVL1CTP {
 
       // name of input collections
       // new FEX collections
-      StringProperty m_gFEXMETPufitLoc {"gXEPUFIT_MET"};
-      StringProperty m_gFEXMETRhoLoc {"gXERHO_MET"};
-      StringProperty m_gFEXMETJwoJLoc {"gXEJWOJ_MET"};
-      StringProperty m_gJetLoc {"gL1Jets"};
-      StringProperty m_jJetLoc {"jRoundJets"};
-      StringProperty m_jLJetLoc {"jRoundLargeRJets"};
-      StringProperty m_eFEXClusterLoc {"SClusterCl"};
-      StringProperty m_eFEXTauLoc {"SClusterTau"};
+
+      // see https://twiki.cern.ch/twiki/bin/view/Atlas/L1CaloUpgradeSimulation#Mapping_of_container_names_to_me
+
+      // MET
+      StringProperty m_jFEX_MET_NCLoc  {"jNOISECUT_MET"};
+      StringProperty m_jFEX_MET_RhoLoc {"jXERHO_MET"};
+
+      StringProperty m_gFEX_MET_PufitLoc {"gXEPUFIT_MET"};
+      StringProperty m_gFEX_MET_RhoLoc   {"gXERHO_MET"};
+      StringProperty m_gFEX_MET_JwoJLoc  {"gXEJWOJ_MET"};
+      StringProperty m_gFEX_MET_NCLoc    {"gXENOISECUT_MET"};
+
+      // jets
+      StringProperty m_gFEX_Jet_Loc    {"gL1Jets"};
+      StringProperty m_jFEX_Jet_Loc    {"jRoundJetsPUsub"};
+      StringProperty m_jFEX_Jet_LR_Loc {"jRoundLargeRJetsPUsub"};
+
+      // electrons
+      StringProperty m_eFEX_Cluster_Loc {"SClusterCl"};
+      StringProperty m_jFEX_Cluster_Loc {"jEles"};
+
+      // taus
+      StringProperty m_eFEX_Tau_Loc {"SClusterTau"};
+      StringProperty m_jFEX_Tau_Loc {"jTaus"};
+
       // name of the CTP input words
       StringProperty m_muonCTPLoc   { LVL1MUCTPI::DEFAULT_MuonCTPLocation};
       StringProperty m_emtauCTPLoc  { LVL1::TrigT1CaloDefs::EmTauCTPLocation };
