@@ -183,11 +183,11 @@ class ItemDef:
         LVL1MenuItem('L1_eEM15VH_MU10'         ).setLogic( eEM15VH & MU10    & physcond).setTriggerType( TT.calo )       # noqa: F821
         LVL1MenuItem('L1_eEM7_MU20'         ).setLogic( eEM7 & MU20    & physcond).setTriggerType( TT.calo )       # noqa: F821
         # EM, tau and jet
-        LVL1MenuItem('L1_eEM15VHI_2eTAU12IM_4jJ12'         ).setLogic( eEM15VHI & eTAU12IM.x(2) & jJ12.x(4)    & physcond).setTriggerType( TT.calo )       # noqa: F821
-        LVL1MenuItem('L1_eEM15VHI_2eTAU12IM_jJ25_3jJ12'         ).setLogic( eEM15VHI & eTAU12IM.x(2) & jJ25 & jJ12.x(3)   & physcond).setTriggerType( TT.calo )       # noqa: F821
-        LVL1MenuItem('L1_eEM20VHI_eTAU20IM_2eTAU20_jJ25_3jJ20'         ).setLogic( eEM20VHI & eTAU20IM & eTAU20.x(2) & jJ25 & jJ20.x(3)   & physcond).setTriggerType( TT.calo )       # noqa: F821
+        LVL1MenuItem('L1_eEM15VHI_2eTAU12IL_4jJ12'         ).setLogic( eEM15VHI & eTAU12IL.x(2) & jJ12.x(4)    & physcond).setTriggerType( TT.calo )       # noqa: F821
+        LVL1MenuItem('L1_eEM15VHI_2eTAU12IL_jJ25_3jJ12'         ).setLogic( eEM15VHI & eTAU12IL.x(2) & jJ25 & jJ12.x(3)   & physcond).setTriggerType( TT.calo )       # noqa: F821
+        LVL1MenuItem('L1_eEM20VHI_eTAU20IT_2eTAU20_jJ25_3jJ20'         ).setLogic( eEM20VHI & eTAU20IT & eTAU20.x(2) & jJ25 & jJ20.x(3)   & physcond).setTriggerType( TT.calo )       # noqa: F821
         # EM, tau and XE
-        LVL1MenuItem('L1_eEM15VHI_2eTAU12IM_gXERHO35'         ).setLogic( eEM15VHI & eTAU12IM.x(2) & gXERHO35    & physcond).setTriggerType( TT.calo )       # noqa: F821
+        LVL1MenuItem('L1_eEM15VHI_2eTAU12IL_gXERHO35'         ).setLogic( eEM15VHI & eTAU12IL.x(2) & gXERHO35    & physcond).setTriggerType( TT.calo )       # noqa: F821
 
 
 
@@ -528,9 +528,9 @@ class ItemDef:
         LVL1MenuItem('L1_MU10_TAU20IM_J25_2J20'     ).setLogic( MU10  & HA20IM   & J25 & J20.x(2) & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_MU10_TAU20I'       ).setLogic( MU10  & HA20I        & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_MU20_TAU12IM').setLogic( MU20 & HA12IM & physcond).setTriggerType( TT.calo)                  # noqa: F821
-        LVL1MenuItem('L1_MU10_eTAU20IM'     ).setLogic( MU10  & eTAU20IM        & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_MU10_eTAU12IM_3jJ12'     ).setLogic( MU10  & eTAU12IM & jJ12.x(3)        & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_MU10_eTAU12IM_jJ25_2jJ12'     ).setLogic( MU10  & eTAU12IM & jJ25 & jJ12.x(2)        & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_MU10_eTAU20IT'     ).setLogic( MU10  & eTAU20IT        & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_MU10_eTAU12IL_3jJ12'     ).setLogic( MU10  & eTAU12IL & jJ12.x(3)        & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_MU10_eTAU12IL_jJ25_2jJ12'     ).setLogic( MU10  & eTAU12IL & jJ25 & jJ12.x(2)        & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU12I_MU10_J25'  ).setLogic( HA12I & MU10 & J25    & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU12I_MU10_J25_2J12'  ).setLogic( HA12I & MU10 & J25 & J12.x(2)  & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_MU10_TAU12_J25_2J12' ).setLogic( MU10 & HA12 & J25 & J12.x(2)     & physcond).setTriggerType( TT.calo )    # noqa: F821
@@ -582,12 +582,12 @@ class ItemDef:
             LVL1MenuItem('L1_MU10_TAU12IL_XE35'            ).setLogic( MU10    & HA12IL     & XE35 & physcond).setTriggerType( TT.calo )    # noqa: F821
             LVL1MenuItem('L1_MU10_TAU12IT_XE35'            ).setLogic( MU10    & HA12IT     & XE35 & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_MU10_TAU12IM_XE40'            ).setLogic( MU10    & HA12IM     & XE40 & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_MU10_eTAU12IM_gXERHO35'            ).setLogic( MU10    & eTAU12IM     & gXERHO35 & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_MU10_eTAU12IL_gXERHO35'            ).setLogic( MU10    & eTAU12IL     & gXERHO35 & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU20I_2TAU12I_XE35'          ).setLogic( HA20I   & HA12I.x(2) & XE35 & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_eTAU20IM_2jJ20_gXERHO45'          ).setLogic( eTAU20IM   & jJ20.x(2) & gXERHO45 & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_eTAU20IM_2eTAU12IM_4jJ12.0ETA25'          ).setLogic( eTAU20IM   & eTAU12IM.x(2) & jJ120ETA25.x(4) & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20'          ).setLogic( eTAU25IM   & eTAU20IM.x(2) & jJ25.x(2) & jJ20.x(3)  & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_eTAU40_2eTAU12IM_gXERHO40'          ).setLogic( eTAU40   & eTAU12IM.x(2) & gXERHO40 & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_eTAU20IT_2jJ20_gXERHO45'          ).setLogic( eTAU20IT   & jJ20.x(2) & gXERHO45 & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_eTAU20IT_2eTAU12IL_4jJ12.0ETA25'          ).setLogic( eTAU20IT   & eTAU12IL.x(2) & jJ120ETA25.x(4) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_eTAU25IT_2eTAU20IT_2jJ25_3jJ20'          ).setLogic( eTAU25IT   & eTAU20IT.x(2) & jJ25.x(2) & jJ20.x(3)  & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_eTAU40_2eTAU12IL_gXERHO40'          ).setLogic( eTAU40   & eTAU12IL.x(2) & gXERHO40 & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_eTAU60_2eTAU40'          ).setLogic( eTAU60 & eTAU40.x(2) & physcond).setTriggerType( TT.calo )    # noqa: F821
 
         if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():

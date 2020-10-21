@@ -294,7 +294,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('EM', {'isobits' : '000101', 'use_relIso' : True })
 
-        tc.registerThr( 'eEM15VHI', type='EM', run=3).addThrValue(17, isobits="000101", priority=1)\
+        tc.registerThr( 'eEM15VHI', type='EM', run=3).addThrValue(17, priority=1)\
             .addThrValue(17,  -7,   0, priority=2).addThrValue(17,  0,  7, priority=2)\
             .addThrValue(16,  -9,  -7, priority=2).addThrValue(16,  7,  9, priority=2)\
             .addThrValue(15, -12,  -9, priority=2).addThrValue(15,  9, 12, priority=2)\
@@ -361,6 +361,7 @@ class ThresholdDef:
         for thrV in [1, 2, 3, 5, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60, 90, 100]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
+        ThresholdValue.setDefaults('TAU',{'isobits' : '000000', 'use_relIso' : True })
         for thrV in [12, 20, 40, 60, 100]:
             tc.registerThr('eTAU%i' % thrV, 'TAU', run=3).addThrValue(thrV)
 
@@ -368,15 +369,6 @@ class ThresholdDef:
         for thrV in [20]: 
             tc.registerThr('HA%iA' % thrV, 'TAU').addThrValue(255, priority=1).addThrValue( thrV, etamin = 12,  etamax = 16, priority=2) 
             tc.registerThr('HA%iC' % thrV, 'TAU').addThrValue(255, priority=1).addThrValue( thrV, etamin = -16,  etamax = -12, priority=2) 
-
-
-#        ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
-#        for thrV in [12,20]:
-#            tc.registerThr('HA%iI' % thrV, 'TAU').addThrValue(thrV)
-#
-#        ThresholdValue.setDefaults('TAU', {'isobits' : '00001', 'use_relIso' : True })
-#        for thrV in [12]:
-#            tc.registerThr('HA%iIL' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00001', 'use_relIso' : True })
         for thrV in [12,20]:
@@ -390,8 +382,13 @@ class ThresholdDef:
             for thrV in [12,20,25]:
                 tc.registerThr('HA%iIM' % thrV, 'TAU').addThrValue(thrV)   
         
-        for thrV in [12,20, 25]:
-            tc.registerThr('eTAU%iIM' % thrV, 'TAU', run=3).addThrValue(thrV)   
+
+        ThresholdValue.setDefaults('TAU',{'isobits' : '000001', 'use_relIso' : True })
+        for thrV in [12]:
+            tc.registerThr('eTAU%iIL' % thrV, 'TAU', run=3).addThrValue(thrV)   
+        ThresholdValue.setDefaults('TAU',{'isobits' : '000011', 'use_relIso' : True })
+        for thrV in [20, 25]:
+            tc.registerThr('eTAU%iIT' % thrV, 'TAU', run=3).addThrValue(thrV)   
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
         if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():

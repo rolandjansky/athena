@@ -21,8 +21,21 @@ def getRun3EFexParameterSelection( parameter ):
             "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }],
             "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }]
         })
+    elif parameter == 'tauIso':
+        return str({
+            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.69, "maxEt" : 15 }],
+            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.69, "maxEt" : 15 }],
+            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.61, "maxEt" : 25 }]
+        })
+
+
+
     else:
         raise RuntimeError("No Run3 EFex settings available for parameter %s" % parameter )
+
+
+
+
 
 class CaloDef:
 
