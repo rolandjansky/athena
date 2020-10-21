@@ -1,4 +1,5 @@
 #include "VrtSecInclusive/VrtSecInclusive.h"
+#include "VrtSecInclusive/MultiSecVertexTool.h"
 #include "VrtSecInclusive/IPAugmentor.h"
 #include "VrtSecInclusive/TrackRandomizer.h"
 #include "VrtSecInclusive/SoftBtagTrackSelector.h"
@@ -7,11 +8,13 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( VKalVrtAthena, VrtSecInclusive )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( VKalVrtAthena, IPAugmentor )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( VKalVrtAthena, TrackRandomizer )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( VKalVrtAthena, SoftBtagTrackSelector )
+DECLARE_NAMESPACE_TOOL_FACTORY( Rec, MultiSecVertexTool )
 DECLARE_FACTORY_ENTRIES(VrtSecInclusive) {
     DECLARE_NAMESPACE_ALGORITHM( VKalVrtAthena, VrtSecInclusive )
     DECLARE_NAMESPACE_ALGORITHM( VKalVrtAthena, IPAugmentor )
     DECLARE_NAMESPACE_ALGORITHM( VKalVrtAthena, TrackRandomizer )
     DECLARE_NAMESPACE_ALGORITHM( VKalVrtAthena, SoftBtagTrackSelector )
+    DECLARE_NAMESPACE_ALGTOOL( Rec, MultiSecVertexTool )
 }
 //Notes:
 //
