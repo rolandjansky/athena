@@ -10,7 +10,7 @@
 
 #include <string>
 #include <vector>
-#include <AsgTools/CLASS_DEF.h>
+#include <xAODCore/CLASS_DEF.h>
 
 namespace CP
 {
