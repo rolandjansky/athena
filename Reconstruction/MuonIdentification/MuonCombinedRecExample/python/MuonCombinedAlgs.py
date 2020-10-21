@@ -43,7 +43,7 @@ def MuonCaloTagAlg_LRT(name="MuonCaloTagAlg_LRT", **kwargs):
     tools = [getPublicTool("MuonCaloTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","caloTagMap_LRT")
-    kwargs.setdefault("InDetCandidateLocation",MuonCbKeys.InDetTrackParticlesLargeD0())  
+    kwargs.setdefault("InDetCandidateLocation", MuonCbKeys.InDetTrackParticlesLargeD0())  
     kwargs.setdefault("CombinedTrackCollection","")
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","")
@@ -118,7 +118,11 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
 def MuonCombinedInDetCandidateAlg_LRT( name="MuonCombinedInDetCandidateAlg_LRT",**kwargs ):
     kwargs.setdefault("TrackSelector",getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool_LRT") )
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
-    kwargs.setdefault("TrackParticleLocation",[InDetKeys.xAODLargeD0TrackParticleContainer()])
+    ### Use the Standard Track particle container in cases where no separate containters will be
+    ### saved for the LRT tracking
+    track_container = InDetKeys.xAODLargeD0TrackParticleContainer()
+    if not InDetFlags.storeSeparateLargeD0Container(): track_container = InDetKeys.xAODTrackParticleContainer()
+    kwargs.setdefault("TrackParticleLocation",[track_container])
     kwargs.setdefault("InDetCandidateLocation",MuonCbKeys.InDetTrackParticlesLargeD0())
     kwargs.setdefault("DoSiliconAssocForwardMuons", False)
     kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
