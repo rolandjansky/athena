@@ -46,7 +46,7 @@ namespace IDC_TEST
         typedef std::vector<DIGIT*>::const_iterator const_iterator; 
 
         MyCollection( ) :m_id(0) { return; } 
-        MyCollection(MyID& id ){ m_id=id; return; } 
+        MyCollection(MyID& id ) : m_id(id) {  } 
         ~MyCollection()         {
             std::vector<DIGIT*>::const_iterator it = m_vector.begin();
             std::vector<DIGIT*>::const_iterator it_end = m_vector.end();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "EventContainers/IdentifiableContainerBase.h"
 #include <algorithm>
@@ -18,9 +18,10 @@ using namespace EventContainers;
     m_OnlineMode = true;
   }
 
-  IdentifiableContainerBase::IdentifiableContainerBase(size_t max){
-    m_OnlineMode = false;
-    m_link = std::make_unique<EventContainers::InternalOffline>(max);
+  IdentifiableContainerBase::IdentifiableContainerBase(size_t max)
+    : m_OnlineMode (false),
+      m_link (std::make_unique<EventContainers::InternalOffline>(max))
+  {
   }
 
 

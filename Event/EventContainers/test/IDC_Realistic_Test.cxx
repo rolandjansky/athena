@@ -69,9 +69,9 @@ public:
     MyCollection( ) :m_id(0) {
         return;
     }
-    MyCollection(const MyID& id ) {
-        m_id=id;
-        return;
+    MyCollection(const MyID& id )
+      : m_id(id)
+    {
     }
     ~MyCollection()         {
         std::vector<DIGIT*>::const_iterator it = m_vector.begin();
