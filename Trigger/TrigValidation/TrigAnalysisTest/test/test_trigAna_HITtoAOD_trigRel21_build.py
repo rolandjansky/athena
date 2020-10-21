@@ -7,7 +7,7 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Input
+from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Input, Step
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 # HITS -> RDO step in master
@@ -60,6 +60,15 @@ rdo2rdotrig.args += ' --asetup="RDOtoRDOTrigger:Athena,21.0,latest"'
 rdo2rdotrig.args += ' --triggerConfig="MCRECO:MC_pp_v7_BulkMCProd_mc_prescale"'
 rdo2rdotrig.args += ' --imf="all:True"'
 
+# Clear AthFile cache from r21 because it is incompatible with py3 r22 (ATR-21489)
+rm_cache = ExecStep.ExecStep('ClearAthFileCache')
+rm_cache.type = 'other'
+rm_cache.input = ''
+rm_cache.executable = 'rm'
+rm_cache.args = '-f athfile-cache.ascii.gz'
+rm_cache.auto_report_result = False  # Do not set art-result for this step
+rm_cache.output_stream = Step.Step.OutputStream.STDOUT_ONLY  # Do not create a log file for this step
+
 # RDO_TRIG -> AOD step in master
 rdotrig2aod = ExecStep.ExecStep('RDOTriggertoAOD')
 rdotrig2aod.type = 'Reco_tf'
@@ -71,7 +80,7 @@ rdotrig2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import Tri
 # Define the test with the above steps
 test = Test.Test()
 test.art_type = 'build'
-test.exec_steps = [hit2rdo, rdo2rdotrig, rdotrig2aod]
+test.exec_steps = [hit2rdo, rdo2rdotrig, rm_cache, rdotrig2aod]
 test.check_steps = CheckSteps.default_check_steps(test)
 add_analysis_steps(test)
 
