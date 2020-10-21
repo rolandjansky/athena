@@ -7,14 +7,14 @@
 
 #include "GeneratorModules/GenModule.h"
 
-#include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/HepMC2.h"
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Pythia8_i/UserHooksFactory.h"
+
+#include "Pythia8Plugins/HepMC2.h"
 
 #include <stdexcept>
 
@@ -74,6 +74,7 @@ public:
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode fillEvt(HepMC::GenEvent *evt);
+  virtual StatusCode fillWeights(HepMC::GenEvent *evt);
   virtual StatusCode genFinalize();
 
   double pythiaVersion()const;
@@ -145,6 +146,7 @@ private:
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
+  double m_mergingWeight, m_enhanceWeight;
   std::vector<std::string> m_weightIDs;
   bool m_doLHE3Weights;
   std::vector<std::string> m_weightCommands;

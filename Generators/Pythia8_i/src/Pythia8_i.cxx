@@ -139,6 +139,9 @@ StatusCode Pythia8_i::genInitialize() {
   // switch off verbose event print out
   m_pythia.readString("Next:numberShowEvent = 0");
 
+  // Add flag to switch off from JO the Pythia8ToHepMC::print_inconsistency internal variable
+  m_pythia.settings.addFlag("AthenaPythia8ToHepMC:print_inconsistency",true);
+
   // Add UserHooks first because these potentially add new settings that must exist prior to parsing commands
 
   bool firstHook=true;
@@ -318,8 +321,11 @@ StatusCode Pythia8_i::genInitialize() {
       canInit = false;
     }
   }
+  
 
   StatusCode returnCode = SUCCESS;
+  m_pythia.particleData.listXML(m_outputParticleDataFile.substr(0,m_outputParticleDataFile.find("xml"))+"orig.xml");
+  m_pythia.settings.writeFile("Settings_before.log",true);
 
   if(canInit){
     canInit = m_pythia.init();
@@ -331,11 +337,15 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   m_pythia.particleData.listXML(m_outputParticleDataFile);
+  m_pythia.settings.writeFile("Settings_after.log",true);
 
   //counter for event failures;
   m_failureCount = 0;
 
   m_internal_event_number = 0;
+
+  // Set set_print_inconsistency to Athena corresponding flag (allowing to change it from JO)
+  m_pythiaToHepMC.set_print_inconsistency(  m_pythia.settings.flag("AthenaPythia8ToHepMC:print_inconsistency")  );
 
   m_pythiaToHepMC.set_store_pdf(true);
 
@@ -440,28 +450,59 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   // set the randomseeds
   if(m_useRndmGenSvc)evt->set_random_states(m_seeds);
 
-  double phaseSpaceWeight = m_pythia.info.weight();
-  double mergingWeight    = m_pythia.info.mergingWeight();
+  // fill weights
+  StatusCode returnCode = fillWeights(evt);
+
+  return returnCode;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+StatusCode Pythia8_i::fillWeights(HepMC::GenEvent *evt){
+
+  // reset
+  m_mergingWeight    = m_pythia.info.mergingWeightNLO(); // first initialisation, good for the nominal weightin any case (see Merging:includeWeightInXsection).
+  m_enhanceWeight    = 1.0;  // better to keep the enhancement from UserHooks in a separate variable, to keep the code clear
+  evt->weights().clear();
+
   // include Enhance userhook weight
   for(const auto &hook: m_userHooksPtrs) {
     if (hook->canEnhanceEmission()) {
-      mergingWeight *= hook->getEnhancedEventWeight();
+      m_enhanceWeight *= hook->getEnhancedEventWeight();
     }
   }
-  double eventWeight = phaseSpaceWeight*mergingWeight;
 
-  ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
-  evt->weights().clear();
+  // DO NOT try to distinguish between phase space and merging contributions: only their product contains both, so always multiply them in order to be robust
+  double eventWeight = m_pythia.info.weight() * m_mergingWeight * m_enhanceWeight; 
 
-// For Giancarlo's fix   std::vector<string>::const_iterator id = m_weightIDs.begin();
-// save as Default the usual pythia8 weight/LHEF event one
-  if (m_lheFile!="") evt->weights()["Default"]=m_pythia.info.eventWeightLHEF * mergingWeight;
-  else evt->weights()["Default"]=eventWeight;;
+  // save as Default the usual pythia8 weight, including enhancements
+  // NB: info.weight() is built upon info.eventWeightLHEF (but includes shower "decorations"), not from the rwgt LHE vector.
+  size_t atlas_specific_weights = 1;
+  evt->weights()["Default"]=eventWeight;
   if(m_internal_event_number == 1)  m_weightIDs.push_back("Default");
 
-  std::vector<string>::const_iterator id = m_weightIDs.begin()+1;
-// end of Giancarlo's fix
+  // Now systematic weights: a) generator and b) shower variations
+  // merging implies reading from lhe files (while the opposite is not true, ok, but still works)
+  if (m_lheFile!="") {
+       // as a backup, save also the LHEF weight without enhancements (useful for possible, rare, non-default cases)
+       // Also remember that the true merging component can be disentangled only when there are LHE input events
+       evt->weights()["Bare_not_for_analyses"]=m_pythia.info.eventWeightLHEF;
+       if(m_internal_event_number == 1)  m_weightIDs.push_back("Bare_not_for_analyses");
+       atlas_specific_weights=2; // "Default" and "Bare_not_for_analyses" 
 
+
+       // make sure to get the merging weight correctly: this is needed  -only- for systematic weights (generator and parton shower variations)
+       // NB: most robust way, regardless of the specific value of Merging:includeWeightInXsection (if on, info.mergingWeight() is always 1.0 ! )
+       m_mergingWeight *= ( m_pythia.info.weight() / m_pythia.info.eventWeightLHEF ); // this is the actual merging component, regardless of conventions,
+                                                                                      // needed by systematic variation weights
+                                                                                      // this includes rare compensation or selection-biased weights
+  }
+
+  ATH_MSG_DEBUG("Event weights: enhancing weight, merging weight, total weight = "<<m_enhanceWeight<<", "<<m_mergingWeight<<", "<<eventWeight);
+
+  // we already filled the "Default" and, possibly, "Bare_not_for_analyses" weights
+  std::vector<string>::const_iterator id = m_weightIDs.begin()+atlas_specific_weights;
+
+  // a) fill generator weights
   if(m_pythia.info.getWeightsDetailedSize() != 0){
     for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();
         wgt != m_pythia.info.rwgt->wgts.end(); ++wgt){
@@ -479,28 +520,26 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
       std::map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia.info.init_weights->find(wgt->first);
       if(weightName != m_pythia.info.init_weights->end()){
-        evt->weights()[weightName->second.contents] = mergingWeight * wgt->second.contents;
+        evt->weights()[weightName->second.contents] = m_mergingWeight * m_enhanceWeight * wgt->second.contents;
       }else{
-        evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
+        evt->weights()[wgt->first] = m_mergingWeight * m_enhanceWeight * wgt->second.contents;
       }
 
     }
   }
 
-  size_t firstWeight = (m_doLHE3Weights)? 1: 0;
+  // b) shower weight variations
+  // always start from second shower weight: the first was saved already as "Default"
 
-  for(int iw = firstWeight; iw < m_pythia.info.PYTHIA8_NWEIGHTS(); ++iw){
+  for(int iw = 1; iw < m_pythia.info.PYTHIA8_NWEIGHTS(); ++iw){
 
     std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
 
-    if(m_pythia.info.PYTHIA8_NWEIGHTS() != 1){
-      if(m_internal_event_number == 1) {
-          m_weightIDs.push_back(wtName);
-          ATH_MSG_DEBUG("Shower weight name, value, conversion: "<<wtName<<", "<<mergingWeight*m_pythia.info.PYTHIA8_WEIGHT(iw)*m_conversion<<","<<m_conversion );
-      }
-      evt->weights()[wtName] = mergingWeight*m_pythia.info.PYTHIA8_WEIGHT(iw)*m_conversion;
-    }else{
-      evt->weights().push_back(eventWeight);
+    evt->weights()[wtName] = m_mergingWeight * m_enhanceWeight * m_pythia.info.PYTHIA8_WEIGHT(iw)*m_conversion;
+
+    if(m_internal_event_number == 1) {
+        m_weightIDs.push_back(wtName);
+        ATH_MSG_DEBUG("Shower weight name, value, conversion: "<<wtName<<", "<< evt->weights()[wtName]  <<","<<m_conversion );
     }
   }
 
