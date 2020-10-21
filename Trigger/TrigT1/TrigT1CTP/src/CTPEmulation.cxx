@@ -115,6 +115,7 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    declareProperty( "eFEXRHad", m_eFEXRHad , "Defines the eEM shower parameter R_had selection" );
    declareProperty( "eFEXWStot", m_eFEXWStot, "Defines the eEM shower parameter W_Stot selection" );
    declareProperty( "eFEXTauIso", m_eFEXTauIso, "Defines the eTAU shower parameter isolation selection" );
+   declareProperty( "jFEXTauIso", m_jFEXTauIso, "Defines the jTAU shower parameter isolation selection" );
 
    m_decoder = new LVL1::CPRoIDecoder();
    m_jetDecoder = new LVL1::JEPRoIDecoder();
@@ -200,7 +201,8 @@ LVL1CTP::CTPEmulation::initialize() {
    CHECK( setEFexConfig(m_eFEXREta , m_reta ) );
    CHECK( setEFexConfig(m_eFEXRHad , m_rhad ) );
    CHECK( setEFexConfig(m_eFEXWStot, m_wstot) );
-   CHECK( setEFexConfig(m_eFEXTauIso, m_tauIso) );
+   CHECK( setEFexConfig(m_eFEXTauIso, m_eTauIso) );
+   CHECK( setEFexConfig(m_jFEXTauIso, m_jTauIso) );
 
    if ( m_useROIBOutput ) {
       CHECK(m_lvl1Tool.retrieve());
@@ -413,13 +415,16 @@ LVL1CTP::CTPEmulation::bookHists() {
 
    // tau
    histpath = histBasePath() + "/input/tau/";
-   CHECK ( m_histSvc->regHist( histpath + "et",  new TH1I("et","Tau et", 40, 0, 40)) );
-   CHECK ( m_histSvc->regHist( histpath + "eta", new TH1I("eta","Tau eta ", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "phi", new TH1I("phi","Tau phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "emIso",  new TH1I("emIso","Tau em isolation", 40, 0, 1)) );
-   CHECK ( m_histSvc->regHist( histpath + "hadIso", new TH1I("hadIso","Tau hadronic isolation", 40, 0, 1)) );
-   CHECK ( m_histSvc->regHist( histpath + "R3ClusterET",  new TH1I("R3ET","Tau (Oregon) eT", 40, 0, 40)) );
-   CHECK ( m_histSvc->regHist( histpath + "R3ClusterIso", new TH1I("R3Iso","Tau (Oregon) isolation", 40, 0, 1)) );
+   CHECK ( m_histSvc->regHist( histpath + "et",  new TH1I("et","eFEX Tau et", 40, 0, 40)) );
+   CHECK ( m_histSvc->regHist( histpath + "eta", new TH1I("eta","eFEX Tau eta ", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "phi", new TH1I("phi","eFEX Tau phi", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "iso", new TH1I("iso","eFEX Tau (Oregon) isolation", 40, 0, 2)) );
+
+   CHECK ( m_histSvc->regHist( histpath + "jEt",  new TH1I("jEt","jFEX Tau et", 40, 0, 40)) );
+   CHECK ( m_histSvc->regHist( histpath + "jEta", new TH1I("jEta","jFEX Tau eta ", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "jPhi", new TH1I("jPhi","jFEX Tau phi", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "jEmIso",  new TH1I("jEmIso","jFEX Tau em isolation", 40, 0, 1)) );
+
 
    // ROI
    // jet ROI
@@ -771,20 +776,28 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/et", h1) );
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/eta", h2) );
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/phi", h3) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/emIso", h4) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/hadIso", h5) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/R3ClusterET", h6) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/R3ClusterIso", h7) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/iso", h4) );
    const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3_Ore_ClusterET");
    const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3_Ore_ClusterIso");
    for( const auto & tau : *m_eFEXTau ) {
-      h1->Fill(tau->eT());
+      h1->Fill(accR3ClET(*tau)/1000.);
       h2->Fill(tau->eta());
       h3->Fill(tau->phi());
-      h4->Fill(tau->emIsol());
-      h5->Fill(tau->hadIsol());
-      h6->Fill(accR3ClET(*tau)/1000.);
-      h7->Fill(accR3ClIso(*tau));
+      h4->Fill(accR3ClIso(*tau));
+   }
+
+
+   {
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEt", h1) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEta", h2) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jPhi", h3) );
+      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEmIso", h4) );
+      for( const auto & tau : *m_jFEXTau ) {
+         h1->Fill(tau->tauClus());
+         h2->Fill(tau->eta());
+         h3->Fill(tau->phi());
+         h4->Fill(tau->emIsol());
+      }
    }
 
    // ===
@@ -1184,6 +1197,7 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
       const static SG::AuxElement::ConstAccessor<float> accIso ("R3_Ore_ClusterIso");
       if( m_eFEXTau ) {
          for ( const auto & tau : * m_eFEXTau ) {
+
             float eT = accET(*tau)/1000.; // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
             float iso = accIso(*tau);
             const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue(0,0);
@@ -1194,7 +1208,29 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
             static const uint16_t BITMASK_OFFSET_TAUISO = 0;
             unsigned int selection_tauiso = ((isoMask >> BITMASK_OFFSET_TAUISO) & 0x3);
             if(tauPasses and selection_tauiso>0) {
-               auto & wp = m_tauIso.at(selection_tauiso).getWP(/*ieta=*/0);
+               auto & wp = m_eTauIso.at(selection_tauiso).getWP(/*ieta=*/0);
+               if( (eT < wp.maxEt) && iso < wp.value) {
+                  tauPasses = false;
+               }
+            }
+            multiplicity +=  tauPasses ? 1 : 0;
+         }
+      }
+   } else if ( confThr->name()[0]=='j' ) { 
+      // new TAU threshold from jFEX
+      if( m_eFEXTau ) {
+         for ( const auto & tau : * m_eFEXTau ) {
+            float eT = tau->tauClus()/1000.; // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
+            float iso = tau->emIsol();
+            const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue(0,0);
+            const TrigConf::ClusterThresholdValue * clThrV = dynamic_cast<const TrigConf::ClusterThresholdValue*> ( thrV );
+            auto isoMask = clThrV->isolationMask();
+            bool tauPasses = eT >= thrV->ptcut();
+            // apply isolation according to ATR-22204
+            static const uint16_t BITMASK_OFFSET_TAUISO = 0;
+            unsigned int selection_tauiso = ((isoMask >> BITMASK_OFFSET_TAUISO) & 0x3);
+            if(tauPasses and selection_tauiso>0) {
+               auto & wp = m_jTauIso.at(selection_tauiso).getWP(/*ieta=*/0);
                if( (eT < wp.maxEt) && iso < wp.value) {
                   tauPasses = false;
                }
@@ -1203,6 +1239,7 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
          }
       }
    } else {
+
       // old TAU threshold
       if ( false ) {
          if ( m_roibResult ) {

@@ -3,6 +3,10 @@
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 def getRun3EFexParameterSelection( parameter ):
+
+    if parameter == "jTauIso":
+        parameter = "eTauIso"
+
     if parameter == 'reta':
         return str({
             "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }],
@@ -21,15 +25,12 @@ def getRun3EFexParameterSelection( parameter ):
             "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }],
             "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }]
         })
-    elif parameter == 'tauIso':
+    elif parameter == 'eTauIso':
         return str({
             "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.69, "maxEt" : 15 }],
             "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.69, "maxEt" : 15 }],
             "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.61, "maxEt" : 25 }]
         })
-
-
-
     else:
         raise RuntimeError("No Run3 EFex settings available for parameter %s" % parameter )
 
