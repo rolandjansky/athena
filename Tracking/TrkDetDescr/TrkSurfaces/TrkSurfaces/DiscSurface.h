@@ -48,6 +48,7 @@ class DiscSurface : public Surface
 {
 
 public:
+  static constexpr SurfaceType staticType = Surface::Disc;
   /**Default Constructor*/
   DiscSurface();
 
@@ -162,10 +163,7 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
-  /** Return the surface type */
-  static constexpr SurfaceType staticType();
-
-  /** Returns a global reference point:
+   /** Returns a global reference point:
      For the Disc this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
      Where  @f$ r,  \phi @f$ denote the r(), averagePhi() of the Bounds.
    */
