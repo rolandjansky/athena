@@ -1,22 +1,7 @@
-################################################################################
-# Package: TrkVertexFitterValidationUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkVertexFitterValidationUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PRIVATE
-                          Generators/GeneratorObjects
-                          Generators/AtlasHepMC
-                          Reconstruction/ParticleTruth
-                          Tracking/TrkEvent/TrkParticleBase
-                          Tracking/TrkEvent/VxVertex )
-
-# External dependencies:
 
 # Component(s) in the package:
 atlas_add_library( TrkVertexFitterValidationUtilsLib
@@ -28,6 +13,4 @@ atlas_add_library( TrkVertexFitterValidationUtilsLib
 
 atlas_add_component( TrkVertexFitterValidationUtils
                      src/components/*.cxx
-                     INCLUDE_DIRS 
-                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps GaudiKernel GeneratorObjects ParticleTruth TrkParticleBase VxVertex TrkVertexFitterValidationUtilsLib )
-
+                     LINK_LIBRARIES TrkVertexFitterValidationUtilsLib )
