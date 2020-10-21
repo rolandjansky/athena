@@ -79,6 +79,8 @@ StoreGateSvc* EventSelectorAthenaPool::eventStore() const {
    }
    return(m_activeStoreSvc->operator->());
 }
+#include <boost/tokenizer.hpp>
+#include <sstream>
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::initialize() {
    if (m_isSecondary.value()) {
@@ -97,8 +99,37 @@ StatusCode EventSelectorAthenaPool::initialize() {
 		      << "[ \"<collectionName>\" ] (list of collections)");
       return(StatusCode::FAILURE);
    }
-   m_skipEventSequence = m_skipEventSequenceProp.value();
-   std::sort(m_skipEventSequence.begin(), m_skipEventSequence.end());
+   boost::char_separator<char> sep_coma(","), sep_hyph("-");
+   boost::tokenizer  ranges(m_skipEventRangesProp.value(), sep_coma);
+   for( const std::string r: ranges ) {
+      boost::tokenizer  fromto(r, sep_hyph);
+      auto from_iter = fromto.begin();
+      std::stringstream strstr1( *from_iter );
+      long from, to;
+      strstr1 >> from;
+      if( ++from_iter != fromto.end() ) {
+         std::stringstream strstr2( *from_iter );
+         strstr2 >> to;
+      } else {
+         to = from;
+      }
+      m_skipEventRanges.push_back( std::pair(from,to) );
+   }
+
+   for( auto v : m_skipEventSequenceProp.value() ) {
+      m_skipEventRanges.push_back( std::pair(v,v) );
+   }
+   std::sort(m_skipEventRanges.begin(), m_skipEventRanges.end());
+   if( msgLvl(MSG::DEBUG) ) {
+      std::stringstream skip_ranges_ss;
+      for( auto& r: m_skipEventRanges ) {
+         if( not skip_ranges_ss.str().empty() ) skip_ranges_ss << ", ";
+         skip_ranges_ss << r.first;
+         if( r.first != r.second) skip_ranges_ss << "-" << r.second;
+      }
+      if( not skip_ranges_ss.str().empty() )
+         ATH_MSG_DEBUG("Events to skip: " << skip_ranges_ss.str());
+   }
    // CollectionType must be one of:
    if (m_collectionType.value() != "ExplicitROOT" && m_collectionType.value() != "ImplicitROOT") {
       ATH_MSG_FATAL("EventSelector.CollectionType must be one of: ExplicitROOT, ImplicitROOT (default)");
@@ -498,7 +529,9 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
       if (!m_counterTool.empty() && !m_counterTool->preNext().isSuccess()) {
          ATH_MSG_WARNING("Failed to preNext() CounterTool.");
       }
-      if (m_evtCount > m_skipEvents && (m_skipEventSequence.empty() || m_evtCount != m_skipEventSequence.front())) {
+      if( m_evtCount > m_skipEvents
+          && (m_skipEventRanges.empty() || m_evtCount < m_skipEventRanges.front().first))
+      {
          if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isServer()) {
             std::string token = m_headerIterator->eventRef().toString();
             StatusCode sc = m_eventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
@@ -548,8 +581,8 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
             break;
          }
       } else {
-         if (!m_skipEventSequence.empty() && m_evtCount == m_skipEventSequence.front()) {
-            m_skipEventSequence.erase(m_skipEventSequence.begin());
+         while( !m_skipEventRanges.empty() && m_evtCount >= m_skipEventRanges.front().second ) {
+            m_skipEventRanges.erase(m_skipEventRanges.begin());
          }
          ATH_MSG_INFO("skipping event " << m_evtCount);
       }
