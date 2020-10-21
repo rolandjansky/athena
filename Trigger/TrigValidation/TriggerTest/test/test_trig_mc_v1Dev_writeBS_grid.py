@@ -33,6 +33,7 @@ checkBS = Step.Step("CheckBS")
 checkBS.executable = 'trigbs_dumpHLTContentInBS_run3.py'
 checkBS.args = ' --l1 --hlt --hltres --stag --sizeSummary'
 checkBS.args += ' ' + find_file('*unknown_SingleStream.daq.RAW.*Athena.*.data')
+checkBS.timeout = 600  # 10 minutes
 checkBS.required = True
 checkBS.auto_report_result = True
 
