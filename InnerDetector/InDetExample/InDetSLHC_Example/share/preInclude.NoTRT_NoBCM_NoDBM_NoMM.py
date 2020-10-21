@@ -1,3 +1,9 @@
+####Just for running on HITS where MM are included,
+#### but we want to skip MM digi because of speed concerns (to be fixed)
+print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("!!! WARNING - Temporary Workaround for slow Micromegas digi, not for production/general use! !!!")
+print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
 DetFlags.TRT_setOff()
@@ -14,8 +20,11 @@ DetFlags.MBTS_setOff()
 DetFlags.detdescr.MBTS_setOff()
 DetFlags.makeRIO.MBTS_setOff()
 DetFlags.Muon_setOn()
-DetFlags.Micromegas_setOff()
-DetFlags.detdescr.Micromegas_setOff()
 DetFlags.makeRIO.Micromegas_setOff()
+DetFlags.digitize.Micromegas_setOff()
+DetFlags.writeRDOPool.Micromegas_setOff()
+DetFlags.readRDOPool.Micromegas_setOff()
+DetFlags.writeRIOPool.Micromegas_setOff()
+DetFlags.readRIOPool.Micromegas_setOff()
 DetFlags.Truth_setOn()
 DetFlags.overlay.all_setOff()
