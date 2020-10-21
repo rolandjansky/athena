@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -101,7 +101,7 @@ if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map", roiMap ) )
      {std::cout << " Can't get AlgTool LArRoI_Map " << std::endl;
       return StatusCode::FAILURE; 
      }
-std::vector<CaloCellCorrection*> LArCellCorrTools;
+std::vector<const CaloCellCorrection*> LArCellCorrTools;
      
 MakeLArCellFromRaw makeCell;
 makeCell.setThreshold(-100);
