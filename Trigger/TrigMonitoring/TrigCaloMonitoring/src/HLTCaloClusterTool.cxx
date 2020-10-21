@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloMonitoring/HLTCaloClusterTool.h"
@@ -9,8 +9,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "StoreGate/StoreGate.h" 
-#include "StoreGate/DataHandle.h" 
 #include "egammaEvent/EMShower.h"
 #include "egammaEvent/PhotonContainer.h"
 #include "TH1F.h"
