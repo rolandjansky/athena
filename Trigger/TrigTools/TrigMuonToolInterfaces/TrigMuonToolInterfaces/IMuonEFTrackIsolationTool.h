@@ -31,7 +31,7 @@ class IMuonEFTrackIsolationTool : virtual public IAlgTool {
  public:
   
   /// Function where the isolation should be calculated for an L2 muon & FTK tracks (xAOD version)                                                                                       
-  virtual StatusCode calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, const std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, std::vector<double>* selfremoval) =0;
+  virtual StatusCode calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, const std::vector<double> conesizes, std::vector<double>& results, std::vector<double>* dzvals, std::vector<double>* drvals, std::vector<double>* selfremoval) const =0;
 
   /// Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_IMuonEFTrackIsolationTool;}

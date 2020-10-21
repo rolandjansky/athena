@@ -21,6 +21,8 @@ atlas_add_dictionary( SCT_MonitoringDict
                       SCT_Monitoring/selection.xml )
 
 # Run tests:
+# This is a standalone test with ESD input.
+# This is not essential and can be abandoned if it won't run.
 atlas_add_test( SCTLorentzMonAlg_test
                 SCRIPT python -m SCT_Monitoring.SCTLorentzMonAlg
                 PROPERTIES TIMEOUT 600 )

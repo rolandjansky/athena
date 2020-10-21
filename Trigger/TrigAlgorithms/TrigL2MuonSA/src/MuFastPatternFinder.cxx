@@ -113,12 +113,12 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
   ATH_CHECK( findPatterns(muonRoad, mdtHits, v_trackPatterns) );
   ATH_CHECK( m_nswPatternFinder->findPatterns(muonRoad, stgcHits, mmHits, v_trackPatterns.back()) );
 
-  for(unsigned int i_hit=0; i_hit<v_trackPatterns.at(0).stgcSegment.size(); i_hit++) {
-    ATH_MSG_DEBUG("PatternFinder: output sTGC hits global eta/phi/r/z/layer/channelType/isOutlier " << v_trackPatterns.at(0).stgcSegment[i_hit].eta << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].phi << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].r << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].z << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].layerNumber << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].channelType << "/" << v_trackPatterns.at(0).stgcSegment[i_hit].isOutlier);
+  for(unsigned int i_hit=0; i_hit<v_trackPatterns.back().stgcSegment.size(); i_hit++) {
+    ATH_MSG_DEBUG("PatternFinder: output sTGC hits global eta/phi/r/z/layer/channelType/isOutlier " << v_trackPatterns.back().stgcSegment[i_hit].eta << "/" << v_trackPatterns.back().stgcSegment[i_hit].phi << "/" << v_trackPatterns.back().stgcSegment[i_hit].r << "/" << v_trackPatterns.back().stgcSegment[i_hit].z << "/" << v_trackPatterns.back().stgcSegment[i_hit].layerNumber << "/" << v_trackPatterns.back().stgcSegment[i_hit].channelType << "/" << v_trackPatterns.back().stgcSegment[i_hit].isOutlier);
   }
 
-  for(unsigned int i_hit=0; i_hit<v_trackPatterns.at(0).mmSegment.size(); i_hit++) {
-    ATH_MSG_DEBUG("PatternFinder: output MM hits global eta/phi/r/z/layer/isOutlier " << v_trackPatterns.at(0).mmSegment[i_hit].eta << "/" << v_trackPatterns.at(0).mmSegment[i_hit].phi << "/" << v_trackPatterns.at(0).mmSegment[i_hit].r << "/" << v_trackPatterns.at(0).mmSegment[i_hit].z << "/" << v_trackPatterns.at(0).mmSegment[i_hit].layerNumber << "/" << v_trackPatterns.at(0).mmSegment[i_hit].isOutlier);
+  for(unsigned int i_hit=0; i_hit<v_trackPatterns.back().mmSegment.size(); i_hit++) {
+    ATH_MSG_DEBUG("PatternFinder: output MM hits global eta/phi/r/z/layer/isOutlier " << v_trackPatterns.back().mmSegment[i_hit].eta << "/" << v_trackPatterns.back().mmSegment[i_hit].phi << "/" << v_trackPatterns.back().mmSegment[i_hit].r << "/" << v_trackPatterns.back().mmSegment[i_hit].z << "/" << v_trackPatterns.back().mmSegment[i_hit].layerNumber << "/" << v_trackPatterns.back().mmSegment[i_hit].isOutlier);
   }
 
   return StatusCode::SUCCESS;

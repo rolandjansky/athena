@@ -6,6 +6,7 @@
 
 #include "TrkSurfaces/PerigeeSurface.h" 
 #include "TrkSurfaces/AnnulusBounds.h" 
+#include "TrkExUtils/JacobianHelper.h" 
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
@@ -1220,103 +1221,25 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     //   
     if((!ste && S0 > fabs(S)*100.) || fabs(P[45]+=S) > 2000.) return false;
     ste = true;
-
-    double A00 = A[0], A11=A[1], A22=A[2];
-
-    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*(1./3.);
-    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*(1./3.);
-    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*(1./3.);
 	
+    double A0arr[3]{A0,B0,C0}; 
+    double A3arr[3]{A3,B3,C3}; 
+    double A4arr[3]{A4,B4,C4}; 
+    double A6arr[3]{A6,B6,C6}; 
+    
+    if(Jac) {
+      Trk::propJacobian(P,H0,H1,H2,A,A0arr,A3arr,A4arr,A6arr,S3); 
+    }
+
+    R[0]+=(A2+A3+A4)*S3; 
+    A[0] = ((A0+2.*A3)+(A5+A6))*(1./3.);
+    R[1]+=(B2+B3+B4)*S3; 
+    A[1] = ((B0+2.*B3)+(B5+B6))*(1./3.);
+    R[2]+=(C2+C3+C4)*S3; 
+    A[2] = ((C0+2.*C3)+(C5+C6))*(1./3.);
+
     double D   = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
     A[0]*=D; A[1]*=D; A[2]*=D;
-
-    if(Jac) {
-
-      double* d2A = &P[24];
-      double* d3A = &P[31]; 
-      double* d4A = &P[38]; 
-      double d2A0 = H0[2]*d2A[1]-H0[1]*d2A[2];
-      double d2B0 = H0[0]*d2A[2]-H0[2]*d2A[0];
-      double d2C0 = H0[1]*d2A[0]-H0[0]*d2A[1];
-      double d3A0 = H0[2]*d3A[1]-H0[1]*d3A[2];
-      double d3B0 = H0[0]*d3A[2]-H0[2]*d3A[0];
-      double d3C0 = H0[1]*d3A[0]-H0[0]*d3A[1];
-      double d4A0 =(A0+H0[2]*d4A[1])-H0[1]*d4A[2];
-      double d4B0 =(B0+H0[0]*d4A[2])-H0[2]*d4A[0];
-      double d4C0 =(C0+H0[1]*d4A[0])-H0[0]*d4A[1];
-      double d2A2 = d2A0+d2A[0];                
-      double d2B2 = d2B0+d2A[1];                
-      double d2C2 = d2C0+d2A[2];
-      double d3A2 = d3A0+d3A[0];                
-      double d3B2 = d3B0+d3A[1];                
-      double d3C2 = d3C0+d3A[2];
-      double d4A2 = d4A0+d4A[0];                
-      double d4B2 = d4B0+d4A[1];                
-      double d4C2 = d4C0+d4A[2];
-      double d0   = d4A[0]-A00;
-      double d1   = d4A[1]-A11;
-      double d2   = d4A[2]-A22;
-      double d2A3 = ( d2A[0]+d2B2*H1[2])-d2C2*H1[1];
-      double d2B3 = ( d2A[1]+d2C2*H1[0])-d2A2*H1[2];
-      double d2C3 = ( d2A[2]+d2A2*H1[1])-d2B2*H1[0];
-      double d3A3 = ( d3A[0]+d3B2*H1[2])-d3C2*H1[1];
-      double d3B3 = ( d3A[1]+d3C2*H1[0])-d3A2*H1[2];
-      double d3C3 = ( d3A[2]+d3A2*H1[1])-d3B2*H1[0];
-      double d4A3 = ((A3+d0)+d4B2*H1[2])-d4C2*H1[1];
-      double d4B3 = ((B3+d1)+d4C2*H1[0])-d4A2*H1[2];
-      double d4C3 = ((C3+d2)+d4A2*H1[1])-d4B2*H1[0];
-      double d2A4 = ( d2A[0]+d2B3*H1[2])-d2C3*H1[1];
-      double d2B4 = ( d2A[1]+d2C3*H1[0])-d2A3*H1[2];
-      double d2C4 = ( d2A[2]+d2A3*H1[1])-d2B3*H1[0];
-      double d3A4 = ( d3A[0]+d3B3*H1[2])-d3C3*H1[1];
-      double d3B4 = ( d3A[1]+d3C3*H1[0])-d3A3*H1[2];
-      double d3C4 = ( d3A[2]+d3A3*H1[1])-d3B3*H1[0];
-      double d4A4 = ((A4+d0)+d4B3*H1[2])-d4C3*H1[1];
-      double d4B4 = ((B4+d1)+d4C3*H1[0])-d4A3*H1[2];
-      double d4C4 = ((C4+d2)+d4A3*H1[1])-d4B3*H1[0];
-      double d2A5 = 2.*d2A4-d2A[0];            
-      double d2B5 = 2.*d2B4-d2A[1];            
-      double d2C5 = 2.*d2C4-d2A[2];
-      double d3A5 = 2.*d3A4-d3A[0];            
-      double d3B5 = 2.*d3B4-d3A[1];            
-      double d3C5 = 2.*d3C4-d3A[2];            
-      double d4A5 = 2.*d4A4-d4A[0];            
-      double d4B5 = 2.*d4B4-d4A[1];            
-      double d4C5 = 2.*d4C4-d4A[2];            
-      double d2A6 = d2B5*H2[2]-d2C5*H2[1];      
-      double d2B6 = d2C5*H2[0]-d2A5*H2[2];      
-      double d2C6 = d2A5*H2[1]-d2B5*H2[0];      
-      double d3A6 = d3B5*H2[2]-d3C5*H2[1];      
-      double d3B6 = d3C5*H2[0]-d3A5*H2[2];      
-      double d3C6 = d3A5*H2[1]-d3B5*H2[0];
-      double d4A6 = d4B5*H2[2]-d4C5*H2[1];      
-      double d4B6 = d4C5*H2[0]-d4A5*H2[2];      
-      double d4C6 = d4A5*H2[1]-d4B5*H2[0];      
-      
-      double* dR  = &P[21];
-      dR [0]+=(d2A2+d2A3+d2A4)*S3;
-      dR [1]+=(d2B2+d2B3+d2B4)*S3;
-      dR [2]+=(d2C2+d2C3+d2C4)*S3;
-      d2A[0] =((d2A0+2.*d2A3)+(d2A5+d2A6))*(1./3.);      
-      d2A[1] =((d2B0+2.*d2B3)+(d2B5+d2B6))*(1./3.); 
-      d2A[2] =((d2C0+2.*d2C3)+(d2C5+d2C6))*(1./3.);
-
-      dR          = &P[28];
-      dR [0]+=(d3A2+d3A3+d3A4)*S3;
-      dR [1]+=(d3B2+d3B3+d3B4)*S3;
-      dR [2]+=(d3C2+d3C3+d3C4)*S3;
-      d3A[0] =((d3A0+2.*d3A3)+(d3A5+d3A6))*(1./3.);      
-      d3A[1] =((d3B0+2.*d3B3)+(d3B5+d3B6))*(1./3.); 
-      d3A[2] =((d3C0+2.*d3C3)+(d3C5+d3C6))*(1./3.);
-
-      dR          = &P[35];
-      dR [0]+=(d4A2+d4A3+d4A4)*S3;
-      dR [1]+=(d4B2+d4B3+d4B4)*S3;
-      dR [2]+=(d4C2+d4C3+d4C4)*S3;
-      d4A[0] =((d4A0+2.*d4A3)+(d4A5+d4A6+A6))*(1./3.);      
-      d4A[1] =((d4B0+2.*d4B3)+(d4B5+d4B6+B6))*(1./3.); 
-      d4A[2] =((d4C0+2.*d4C3)+(d4C5+d4C6+C6))*(1./3.);
-    }
 
     // New step estimation
     //
@@ -1395,7 +1318,7 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_xi2B        = 0.;
   m_xi2totalF   = 0.;
   m_xi2totalB   = 0.;
-  m_halflenght  = 0.;
+  m_halflength  = 0.;
   m_step        = 0.;
   m_xi2max      = 0.;
   m_dist        = 0.;
@@ -1462,7 +1385,7 @@ InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator =
   m_radlength    = E.m_radlength   ;
   m_radlengthN   = E.m_radlengthN  ;
   m_energylose   = E.m_energylose  ;
-  m_halflenght   = E.m_halflenght  ;
+  m_halflength   = E.m_halflength  ;
   m_step         = E.m_step        ;
   m_nlinksF      = E.m_nlinksF     ;
   m_nlinksB      = E.m_nlinksB     ;

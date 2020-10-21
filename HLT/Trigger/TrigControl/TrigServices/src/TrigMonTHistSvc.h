@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMONTHISTSVC_THISTSVC_H
@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 
 class TObject;
 class TH1;
@@ -44,7 +45,7 @@ class TrigMonTHistSvc: public extends<AthService, ITHistSvc>
 public:
   TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
 
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   
@@ -120,7 +121,7 @@ public:
 private:
   /// Helper struct that bundles the histogram, name and mutex
   struct THistID {
-    THistID(const std::string s, TObject* o) : id(s), obj(o) {};
+    THistID(const std::string& s, TObject* o) : id(s), obj(o) {};
     ~THistID() { delete mutex; }
     std::string id;
     TObject* obj{nullptr};

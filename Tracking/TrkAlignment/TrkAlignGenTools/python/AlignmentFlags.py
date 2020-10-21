@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file:   AlignmentFlags.py
 ## @brief:  Flags specific to alignment, inherit from 
@@ -12,7 +12,7 @@ __doc__ = "Alignment specific flags"
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import *
+from AthenaCommon.Constants import ALL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL
 
 mlog = logging.getLogger( 'AlignmentFlags.py' )
 

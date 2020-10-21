@@ -24,7 +24,6 @@
 
 #include "RegionSelector/IRegionLUT_Creator.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -450,12 +449,8 @@ private:
   typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;
   
   //! Tools to create the lookup tables in StoreGate
-  ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolPixel;
-  ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolSCT;
-  ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolTRT;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolLAR;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolTile;
-  ToolHandle< ISCT_CablingTool > m_SCTCablingToolInc; // Retrieve SCT_CablingToolInc in initialize of RegSelSvc so that SCT_RegionSelectorTable can use ready SCT_CablingToolInc in BeginRun incident.
   ServiceHandle< IGeoModelSvc > m_geoModelSvc;
   std::vector<std::string> m_enabledDetectors;
   bool m_errorFlag;

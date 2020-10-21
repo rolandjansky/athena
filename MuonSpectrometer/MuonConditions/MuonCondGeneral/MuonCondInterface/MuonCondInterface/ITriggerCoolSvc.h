@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_ITRIGGERCOOLSVC_H
 #define MUONCONDSVC_ITRIGGERCOOLSVC_H
 
 #include "GaudiKernel/Service.h"
-#include "StoreGate/StoreGate.h"
 
 #include <string>
 #include "GaudiKernel/IInterface.h"

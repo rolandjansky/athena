@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // Trk
+#include "TrkDetDescrSvc/TrackingGeometryMirror.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
@@ -44,16 +45,21 @@ Trk::TrackingGeometrySvc::~TrackingGeometrySvc()
 /** Initialize Service */
 StatusCode Trk::TrackingGeometrySvc::initialize()
 {
+  // get the DetectorStore
+  ATH_CHECK( service("DetectorStore", m_pDetStore ) );
+
+  // alternative mode which only uses an externally provided TrackingGeometry rather than building its own
+  if (m_useConditionsData) {
+     for (auto &handle : m_geometryProcessors ) {
+         handle.disable();
+     }
+     m_trackingGeometryBuilder.disable();
+     return StatusCode::SUCCESS;
+  }
+
   if (m_geometryProcessors.retrieve().isFailure()){
       ATH_MSG_FATAL( "Could not retrieve " << m_geometryProcessors );
       return StatusCode::FAILURE;
-  }
-
-  // get the DetectorStore
-  if (service("DetectorStore", m_pDetStore ).isFailure()) 
-  {
-    ATH_MSG_FATAL( "DetectorStore service not found!" );
-    return StatusCode::FAILURE;
   }
 
   // get the key -- from StoreGate (DetectorStore)
@@ -93,6 +99,9 @@ StatusCode Trk::TrackingGeometrySvc::initialize()
 
 StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
+    if (m_useConditionsData) {
+       ATH_MSG_FATAL("Logic error: TrackingGeometry init callback called despite being configured to use external TrackingGeometries provided by a conditions algorithm.");
+    }
     // Retrieve the tracking geometry builder tool   ----------------------------------------------------    
     if (!m_trackingGeometryBuilder.empty() && m_trackingGeometryBuilder.retrieve().isFailure()) {
         ATH_MSG_FATAL( "Failed to retrieve tool '" << m_trackingGeometryBuilder << "'. Aborting." );
@@ -125,7 +134,7 @@ StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(IOVSVC_CALLBACK_ARGS_P
     if (needsInit || !m_callbackStringCheck) {
         // cleanup the geometry if you have one 
         // (will delete what is in detector store, because new one will overwrite old one)
-        delete m_trackingGeometry; m_trackingGeometry = 0;
+        m_trackingGeometry = nullptr;
     
 #ifdef TRKDETDESCR_MEMUSAGE           
         // memory monitoring    
@@ -179,7 +188,12 @@ StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(IOVSVC_CALLBACK_ARGS_P
 #endif            
           }
       }
-    
+
+      if (msgLvl(MSG::VERBOSE)) {
+         Trk::TrackingGeometryMirror mirror(atlasTrackingGeometry);
+         mirror.dump(msg(MSG::VERBOSE), name()+" TrackingGeometry dump ");
+         mirror.cleanup();
+      }
       // record the resulting TrackingGeometry 
       if (m_pDetStore->record(atlasTrackingGeometry, m_trackingGeometryName, false).isFailure() ){
          ATH_MSG_WARNING( "Couldn't write TrackingGeometry to DetectorStore." );
@@ -189,6 +203,41 @@ StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(IOVSVC_CALLBACK_ARGS_P
     return StatusCode::SUCCESS;
 }
 
+void Trk::TrackingGeometrySvc::setTrackingGeometry(const Trk::TrackingGeometry *ptr) {
+   if (!m_useConditionsData) {
+      ATH_MSG_FATAL("Logic error:  external TrackingGeometry provided despite being configured to build an internal one.");
+   }
+   if (m_pDetStore->contains<Trk::TrackingGeometry>(m_trackingGeometryName)) {
+      const TrackingGeometry *mirror;
+      if (m_pDetStore->retrieve(mirror, m_trackingGeometryName).isFailure()) {
+         ATH_MSG_FATAL("TrackingGeometry " << m_trackingGeometryName << " exists, but cannot be retrieved.");
+      }
+      TrackingGeometry *non_const_mirror ATLAS_NOT_THREAD_SAFE = const_cast<TrackingGeometry *>(mirror);
+      static_cast<Trk::TrackingGeometryMirror *>(non_const_mirror)->update(const_cast<TrackingGeometry *>(ptr));
+      if (msgLvl(MSG::VERBOSE)) {
+         ATH_MSG_VERBOSE( "Setting TrackingGeometry from cond alg ptr="  << static_cast<const void *>(ptr));
+         static_cast<const Trk::TrackingGeometryMirror *>(mirror)->dump(msg(MSG::VERBOSE), "external TrackingGeometry dump ");
+      }
+   }
+   else {
+      std::unique_ptr<Trk::TrackingGeometryMirror> mirror=std::make_unique<Trk::TrackingGeometryMirror>(const_cast<TrackingGeometry *>(ptr));
+      if (msgLvl(MSG::VERBOSE)) {
+         ATH_MSG_VERBOSE( "Setting TrackingGeometry from cond alg ptr="  << static_cast<const void *>(ptr));
+         mirror->dump(msg(MSG::VERBOSE), "external TrackingGeometry dump ");
+      }
+
+      // record the resulting TrackingGeometry
+      if (m_pDetStore->record(static_cast<TrackingGeometry *>(mirror.release()), m_trackingGeometryName, false).isFailure() ){
+         ATH_MSG_WARNING( "Couldn't write TrackingGeometry to DetectorStore." );
+      } else {
+         ATH_MSG_DEBUG( "initialize() successful: TrackingGeometry '" << m_trackingGeometryName << "' built and written to DetectorStore." );
+      }
+   }
+   m_trackingGeometry=ptr;
+}
+void Trk::TrackingGeometrySvc::trackingGeometryNotSet() const {
+   ATH_MSG_WARNING( "TrackingGeometry not set  ptr="  << static_cast<const void *>(m_trackingGeometry));
+}
 
 /** Finalize Service */
 StatusCode Trk::TrackingGeometrySvc::finalize()
@@ -200,6 +249,17 @@ StatusCode Trk::TrackingGeometrySvc::finalize()
     ATH_MSG_INFO( "[ memory usage ]    Real memory change (rss)      : " <<  m_changeRss        );
     ATH_MSG_INFO( "[ memory usage ] ---------------------------------------------------------"  );
 #endif
+
+    if (m_useConditionsData) {
+       const TrackingGeometry *clone=nullptr;
+       if (m_pDetStore->retrieve(clone, m_trackingGeometryName).isFailure() ){
+          ATH_MSG_WARNING( "Failed to retrieve TrackingGeometry " << m_trackingGeometryName << " from DetectorStore." );
+       }
+       if (clone) {
+          static_cast<Trk::TrackingGeometryMirror *>(const_cast<TrackingGeometry *>(clone))->cleanup();
+          ATH_MSG_WARNING( "Cleaned TrackingGeometryMirror " << m_trackingGeometryName << "." );
+       }
+    }
 
     ATH_MSG_INFO( "finalize() successful." );
     return StatusCode::SUCCESS;
@@ -217,4 +277,3 @@ StatusCode Trk::TrackingGeometrySvc::queryInterface(const InterfaceID& riid, voi
   addRef();
   return StatusCode::SUCCESS;
 }
-

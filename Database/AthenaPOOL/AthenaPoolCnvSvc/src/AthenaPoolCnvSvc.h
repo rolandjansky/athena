@@ -12,15 +12,17 @@
 
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 
+#include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "StorageSvc/DbType.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
 #include "AthenaKernel/IAthenaIPCTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "PoolSvc/IPoolSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
+#include "PoolSvc/IPoolSvc.h"
 
 #include <vector>
 #include <map>
@@ -37,7 +39,8 @@ template <class TYPE> class SvcFactory;
  **/
 class ATLAS_CHECK_THREAD_SAFETY AthenaPoolCnvSvc : public ::AthCnvSvc,
 		public virtual IAthenaPoolCnvSvc,
-		public virtual IIncidentListener {
+		public virtual IIncidentListener,
+		public virtual IIoComponent {
    // Allow the factory class access to the constructor
    friend class SvcFactory<AthenaPoolCnvSvc>;
 
@@ -45,8 +48,10 @@ public:
 
    /// Required of all Gaudi Services
    StatusCode initialize();
+   StatusCode io_reinit();
    /// Required of all Gaudi Services
    StatusCode finalize();
+   StatusCode io_finalize();
    /// Required of all Gaudi services:  see Gaudi documentation for details
    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
@@ -187,8 +192,6 @@ private: // data
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
    //The following doesn't work because of Gaudi issue #122
    //ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool{this,"OutputStreamingTool", {} };
-   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
-   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
    std::size_t     m_streamServer=0;
    int m_metadataClient=0;
 
@@ -241,8 +244,15 @@ private: // properties
    /// bool to activate the chrono stats, depending on the m_skipFirstChronoCommit data member
    bool m_doChronoStat=true;
 
-   /// For SharedWriter to use MetadataSvc to merge data placed in a certain container
+   /// For SharedWriter:
+   /// To use MetadataSvc to merge data placed in a certain container
    StringProperty  m_metadataContainerProp{this,"OutputMetadataContainer",""};
+   /// Make this instance a Streaming Client during first connect/write automatically
+   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
+   /// Use Athena Object sharing for metadata only, event data is collected and send via ROOT TMemFile
+   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
+   /// When using TMemFile call Write on number of Events, respecting CollectionTree auto_flush
+   IntegerProperty m_numberEventsPerWrite{this,"NumberEventsPerWrite",10};
 };
 
 #endif

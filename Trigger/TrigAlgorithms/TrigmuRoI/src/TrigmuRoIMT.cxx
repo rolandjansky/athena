@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigmuRoIMT.h"
@@ -11,7 +11,7 @@
 // ================================================================================
 
 TrigmuRoIMT::TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
     m_recTGCRoiSvc("LVL1TGC::TGCRecRoiSvc","")
 {   
@@ -46,7 +46,7 @@ StatusCode TrigmuRoIMT::initialize()
 // ================================================================================
 // ================================================================================
 
-unsigned int TrigmuRoIMT::getBitMaskValue( const unsigned int uintValue, const unsigned int mask ) {
+unsigned int TrigmuRoIMT::getBitMaskValue( const unsigned int uintValue, const unsigned int mask ) const {
   unsigned int result;
   unsigned int maskcopy;
   maskcopy = mask;
@@ -63,7 +63,7 @@ unsigned int TrigmuRoIMT::getBitMaskValue( const unsigned int uintValue, const u
 // ================================================================================
 // ================================================================================
 
-StatusCode TrigmuRoIMT::execute()
+StatusCode TrigmuRoIMT::execute(const EventContext& ctx) const
 {
 
   std::vector<int> outOfTimeRpc, outOfTimeTgc;
@@ -81,12 +81,12 @@ StatusCode TrigmuRoIMT::execute()
   // Gather the Muon RoIs out of time by the
   //--------------------------------------------------------------------------
       
-  SG::WriteHandle<TrigRoiDescriptorCollection> wh_roiCollection(m_roisWriteHandleKey);
+  SG::WriteHandle<TrigRoiDescriptorCollection> wh_roiCollection(m_roisWriteHandleKey, ctx);
   ATH_CHECK(wh_roiCollection.record(std::make_unique<TrigRoiDescriptorCollection>()));
   auto roiColl = wh_roiCollection.ptr();
 
   //get rois and loop over out of time rois
-  auto roiVectors = m_trigMuonRoITool->decodeMuCTPi();
+  auto roiVectors = m_trigMuonRoITool->decodeMuCTPi(ctx);
   if(!roiVectors){
     ATH_MSG_VERBOSE("No RoIs found");
     return StatusCode::SUCCESS;

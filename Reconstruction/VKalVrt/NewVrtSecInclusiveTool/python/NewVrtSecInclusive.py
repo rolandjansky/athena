@@ -171,13 +171,13 @@ class DVFinderTool( Rec__NewVrtSecInclusiveTool ):
         # Soft B-hadron vertex finder itself
         #
         Rec__NewVrtSecInclusiveTool.__init__( self, name = name,
-                                             VertexFitterTool   = SVertexFitterTool,
+                                             VertexFitterTool   = DVertexFitterTool,
 					     CutBLayHits  = 0,
 					     CutPixelHits = 0,
-					     CutSiHits    = 0,
+					     CutSiHits    = 7,
 					     useVertexCleaning  = False,
 					     MultiWithOneTrkVrt = False,
-					     removeTrkMatSignif = 2.,
+					     removeTrkMatSignif = -1.,
 					     AntiPileupSigRCut = 6.0,
 					     TrkSigCut         = 6.0,
 					     SelVrtSigCut      = 8.0,
@@ -185,5 +185,8 @@ class DVFinderTool( Rec__NewVrtSecInclusiveTool ):
 					     v2tFinBDTCut      = 0.0,
 					     VrtMassLimit      = 50000.,
 					     Vrt2TrMassLimit   = 50000.,
-					     CutPt             = 1000.
+					     CutPt             = 1000.,
+					     CutA0             = 30.,
+					     CutZVrt           = 30.,
+					     MaxSVRadiusCut    = 350.
                                              )

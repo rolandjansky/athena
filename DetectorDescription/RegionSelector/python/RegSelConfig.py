@@ -36,36 +36,6 @@ def regSelCfg( flags ):
         TileRegionSelectorTable=CompFactory.TileRegionSelectorTable
         regSel.TileRegionSelectorTable = TileRegionSelectorTable(name="TileRegionSelectorTable")
 
-    if flags.Detector.GeometryPixel:
-        regSel.enableID = True
-        regSel.enablePixel = True        
-        SiRegionSelectorTable=CompFactory.SiRegionSelectorTable
-        regSel.PixelRegionLUT_CreatorTool = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
-                                                                  ManagerName = "Pixel",
-                                                                  OutputFile  = "RoITablePixel.txt",
-                                                                  PrintHashId = True,
-                                                                  PrintTable  = False)
-
-    if flags.Detector.GeometrySCT:
-        regSel.enableID = True
-        regSel.enableSCT = True
-        SiRegionSelectorTable=CompFactory.SiRegionSelectorTable
-        regSel.SCT_RegionLUT_CreatorTool = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
-                                                                 ManagerName = "SCT",
-                                                                 OutputFile  = "RoITableSCT.txt",
-                                                                 PrintHashId = True,
-                                                                 PrintTable  = False)
-
-    if flags.Detector.GeometryTRT:
-        regSel.enableID = True
-        regSel.enableTRT = True
-        TRT_RegionSelectorTable=CompFactory.TRT_RegionSelectorTable
-        regSel.TRT_RegionLUT_CreatorTool = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
-                                                                   ManagerName = "TRT",
-                                                                   OutputFile  = "RoITableTRT.txt",
-                                                                   PrintHashId = True,
-                                                                   PrintTable  = False)
-
     # by default, all 'enableX' flags of RegSelSvc are set to True, so turn them off if not needed
     if not flags.Detector.GeometryRPC:
         regSel.enableRPC  = False

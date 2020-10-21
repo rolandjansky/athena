@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwEtaoff.py,v 1.10 2008-01-25 04:14:21 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwEtaoff.py
 # Created: Nov 2006, sss
@@ -20,20 +18,23 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW, \
+     EMB1, EME1, EMB2, EME2
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls_g3 = {EMB1 : CaloClusterCorrectionConf.CaloSwEta1b_g3,
-          EMB2 : CaloClusterCorrectionConf.CaloSwEta2b_g3,
-          EME1 : CaloClusterCorrectionConf.CaloSwEta1e_g3,
-          EME2 : CaloClusterCorrectionConf.CaloSwEta2e_g3}
-cls_v2 = CaloClusterCorrectionConf.CaloSwEtaoff_v2
-cls_v3 = CaloClusterCorrectionConf.CaloSwEtaoff_v3
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls_g3 = {EMB1 : CompFactory.CaloSwEta1b_g3,  # CaloClusterCorrection
+          EMB2 : CompFactory.CaloSwEta2b_g3,  # CaloClusterCorrection
+          EME1 : CompFactory.CaloSwEta1e_g3,  # CaloClusterCorrection
+          EME2 : CompFactory.CaloSwEta2e_g3}  # CaloClusterCorrection
+cls_v2 = CompFactory.CaloSwEtaoff_v2  # CaloClusterCorrection
+cls_v3 = CompFactory.CaloSwEtaoff_v3  # CaloClusterCorrection
 CaloSwEtaoff_versions = [
 
     # The original G3-based correction, translated from the
@@ -84,6 +85,7 @@ CaloSwEtaoff_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  SAMPLING is the calorimeter sampling (EMB1, EMB2, EME1, EME2) to which
 #   this correction will be applied.
 #  NAME is the base name for this tool.  If defaulted, a name will
@@ -103,7 +105,8 @@ CaloSwEtaoff_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwEtaoff (sampling,
+def make_CaloSwEtaoff (flags,
+                       sampling,
                        name = None,
                        suffix = None,
                        version = None,
@@ -112,7 +115,8 @@ def make_CaloSwEtaoff (sampling,
                        confclass = None,
                        **kw):
     # Make the tool.
-    return makecorr (versions  = CaloSwEtaoff_versions,
+    return makecorr (flags,
+                     versions  = CaloSwEtaoff_versions,
                      name      = name,
                      basename  = 'etaoff',
                      suffix    = suffix,

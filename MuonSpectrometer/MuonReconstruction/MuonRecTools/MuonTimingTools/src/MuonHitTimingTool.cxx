@@ -10,7 +10,9 @@
 namespace Muon {
 
   MuonHitTimingTool::MuonHitTimingTool(const std::string& t, const std::string& n, const IInterface* p):
-    AthAlgTool(t,n,p) {
+    AthAlgTool(t,n,p),
+    m_hitTimingTools(this)
+  {
     declareInterface<IMuonHitTimingTool>(this);
     
     for( unsigned int tech = 0;tech<MuonStationIndex::TechnologyIndexMax;++tech ){

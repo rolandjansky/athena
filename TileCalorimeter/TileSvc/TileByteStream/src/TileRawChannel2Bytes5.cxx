@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileByteStream/TileRawChannel2Bytes5.h" 
@@ -33,7 +33,7 @@ const int OF_E_FRACBITS[4] = { 4, 5, 5, -5 };
 
 // ampcorr lookup table, step = 0.5 ns, scale = 2^14,
 // time = [-32 .. 31], index = time + 32
-unsigned short ampcorr_lookup[64] = {
+const unsigned short ampcorr_lookup[64] = {
   0x505A, 0x4F62, 0x4E71, 0x4D87, 0x4CA4, 0x4BC8, 0x4AF4, 0x4A26,
   0x4960, 0x48A1, 0x47EA, 0x473A, 0x4692, 0x45F1, 0x4558, 0x44C7,
   0x443D, 0x43BC, 0x4342, 0x42D0, 0x4267, 0x4205, 0x41AC, 0x415B,
@@ -339,7 +339,7 @@ int get_s4(const UINT32* ofw, int unit, int chan, int gain, int ene,
   return s4;
 }
 
-inline UINT32 pop_buf(unsigned char** pptr_buff, int size)
+inline UINT32 pop_buf(const unsigned char** pptr_buff, int size)
 {
   UINT32 data = _mem4(*pptr_buff);
   data = _extu(data, 0, 32 - size);
@@ -410,7 +410,7 @@ void calc_raw(const UINT32* ofw, int unit, int chan, int gain, int ene,
   fill_samp(s1, s2, s3, s4, s5, s6, s7, s);
 }
 
-int unpack_null(const UINT32* /* ofw */, int /* chan */, UINT32** pptr_reco,
+int unpack_null(const UINT32* /* ofw */, int /* chan */, const UINT32** pptr_reco,
   int* gain, int* ene, int* time, int s[])
 {
   UINT32 reco = **pptr_reco;
@@ -429,7 +429,7 @@ int unpack_null(const UINT32* /* ofw */, int /* chan */, UINT32** pptr_reco,
 }
 
 int unpack_ped(const UINT32* ofw, int unit, int chan,
-  UINT32** pptr_reco, unsigned char** pptr_buff,
+  const UINT32** pptr_reco, const unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
   int nbits;
@@ -474,7 +474,7 @@ int unpack_ped(const UINT32* ofw, int unit, int chan,
 }
 
 int unpack_amp(const UINT32* ofw, int unit, int chan, 
-  UINT32** pptr_reco, unsigned char** pptr_buff,
+  const UINT32** pptr_reco, const unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
   int nbits = 0;
@@ -511,7 +511,7 @@ int unpack_amp(const UINT32* ofw, int unit, int chan,
 }
 
 int unpack_raw(const UINT32* ofw, int unit, int chan,
-  UINT32** pptr_reco, unsigned char** pptr_buff,
+  const UINT32** pptr_reco, const unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
   int s1, s2, s3, s5, s6, s7;
@@ -555,7 +555,7 @@ int unpack_raw(const UINT32* ofw, int unit, int chan,
 }
 
 int unpack_full(const UINT32* /* ofw */, int /* chan */,
-  UINT32** pptr_reco, unsigned char** pptr_buff,
+  const UINT32** pptr_reco, const unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
   UINT32 diff1, diff2;
@@ -585,7 +585,7 @@ int unpack_full(const UINT32* /* ofw */, int /* chan */,
 }
 
 int unpack_dump(const UINT32* /* ofw */, int /* chan */,
-  UINT32** pptr_reco, unsigned char** pptr_buff,
+  const UINT32** pptr_reco, const unsigned char** pptr_buff,
   int* gain, int* ene, int* time, int s[])
 {
   UINT32 diff1, diff2;
@@ -666,26 +666,26 @@ int TileRawChannel2Bytes5::amplitude(const UINT32* ofw, int unit, int chan, int 
 }
 
 
-void TileRawChannel2Bytes5::unpack(const UINT32* ofw, UINT32* ptr_frag, TileChanData* ChanData) const
+void TileRawChannel2Bytes5::unpack(const UINT32* ofw, const UINT32* ptr_frag, TileChanData* ChanData) const
 {
   int unit    = _extu(ptr_frag[2], 0, 32 - 2); // frag_info = xx......
   int size_L2 = _extu(ptr_frag[2], 2, 32 - 3); // frag_info = ..xxx...
   int i, chan, code, size;
   int gain(0), bad, ene(0), time(0), u[7];
-  UINT32* ptr_reco = (UINT32*) (ptr_frag + 3); // + Header
-  unsigned char* ptr_buff = (unsigned char*) (ptr_frag + 3 + 48 + size_L2); // + Header + Reco + Size_L2
-  UINT32* ptr = ptr_reco;
+  const UINT32* ptr_reco = (const UINT32*) (ptr_frag + 3); // + Header
+  const unsigned char* ptr_buff = (const unsigned char*) (ptr_frag + 3 + 48 + size_L2); // + Header + Reco + Size_L2
+  const UINT32* ptr = ptr_reco;
   UINT16 bad_bits[3];
   UINT16 bad16 = 0;
 
-  unsigned char* ptr_ped4;
-  unsigned char* ptr_ped5;
-  unsigned char* ptr_amp5;
-  unsigned char* ptr_amp6;
-  unsigned char* ptr_raws;
-  unsigned char* ptr_rawf;
-  unsigned char* ptr_full;
-  unsigned char* ptr_dump;
+  const unsigned char* ptr_ped4;
+  const unsigned char* ptr_ped5;
+  const unsigned char* ptr_amp5;
+  const unsigned char* ptr_amp6;
+  const unsigned char* ptr_raws;
+  const unsigned char* ptr_rawf;
+  const unsigned char* ptr_full;
+  const unsigned char* ptr_dump;
 
   int cnt_ped4, cnt_ped5, cnt_amp5, cnt_amp6, 
       cnt_raws, cnt_rawf, cnt_full, cnt_null, cnt_dump;
@@ -756,7 +756,7 @@ bool TileRawChannel2Bytes5::check_raw(const uint32_t* feb, int of_energy[], Tile
   bool OK = true;
   int chan, i;
   int gain, ene, u[7], s[7];
-  UINT32* data = (UINT32*) (feb + 3);
+  const UINT32* data = feb + 3;
   for (chan = 0; chan < 48; ++chan) {
     bool chOK = true;
     //code = Data[chan].code;

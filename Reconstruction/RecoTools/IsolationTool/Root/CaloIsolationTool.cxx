@@ -155,7 +155,7 @@ namespace xAOD {
 
     // muon etcone isolation
     const Muon* muon = dynamic_cast<const Muon*>(&particle);
-    if(muon) return caloCellIsolation(result,*muon,cones,corrlist,coneCoreSize, derefMap);
+    if(muon) return caloCellIsolation(result,*muon,cones,corrlist,coneCoreSize,derefMap);
 
     // egamma etcone isolation
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
@@ -719,62 +719,82 @@ namespace xAOD {
       conesf.push_back(cone);
       if(cone>maxConeSize) maxConeSize = cone;
     }
-
-    const xAOD::CaloCluster* muonCluster=*muon.clusterLink();
-    if(!muonCluster){//have to figure this part out
-      ATH_MSG_WARNING("muon has no cluster, cannot calculate etcone isolation");
-      return false;
-    }
     /// add coreCone if asked -- make sure it's the last one! or a better
     const double coreConeDR = coneCoreSize;
     bool doCoreCone = (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)));
     if(doCoreCone && maxConeSize<coreConeDR) maxConeSize = coreConeDR;
-    /// start the calculation
-    ATH_MSG_DEBUG("calculating etcone for # " << conesf.size() << " cones");
-    Trk::CaloCellSelectorLayerdR selector(maxConeSize);
-    selector.preSelectAction(*muonCluster);
-    ATH_MSG_DEBUG("looping over cells " << muonCluster->size());
-    for(unsigned int i=0; i<conesf.size(); i++){
-      double totE = 0.;
-      selector.setConeSize(conesf[i]);
-      xAOD::CaloCluster::const_cell_iterator cell_itr=muonCluster->begin();
-      for(; cell_itr!=muonCluster->end(); ++cell_itr){
-        if( !selector.select(**cell_itr) ) continue;
-        if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*cell_itr)->caloDDE()->getSampling()) continue;
-        totE += (*cell_itr)->et();
-      }
-      result.etcones[i] = totE;
-      ATH_MSG_DEBUG("etcone raw: coneSize = " << conesf[i] << "; etcone = " << result.etcones[i]);
-    }
-    ATH_MSG_DEBUG("done looping over cells ");
-    /// do coreCone
-    if(doCoreCone){
-      ATH_MSG_DEBUG("starting etcone, coreCone");
-      double totE = 0.;
-      selector.setConeSize(coreConeDR);
-      xAOD::CaloCluster::const_cell_iterator cell_itr=muonCluster->begin();
-      for(; cell_itr!=muonCluster->end(); ++cell_itr){
-        if( !selector.select(**cell_itr) ) continue;
-        if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*cell_itr)->caloDDE()->getSampling()) continue;
-        totE += (*cell_itr)->et();
-      }
-      std::map<Iso::IsolationCorrectionParameter,float> corecorr;
-      corecorr[Iso::coreEnergy] = totE;
-      corecorr[Iso::coreArea]   = coreConeDR*coreConeDR*M_PI;
-      result.coreCorrections[Iso::coreCone] = corecorr;
-      ATH_MSG_DEBUG("done etcone, coreCone");
 
-      /// apply the correction if required.
-      if(result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))){
-        double ecore = totE;
-        ATH_MSG_DEBUG("Applying coreCone correction for trackParticle etcone isolation.");
-        for( unsigned int i=0;i<result.etcones.size();++i ) {
-          result.etcones[i] -= ecore;
-          ATH_MSG_DEBUG("i: " << i << " cone [before] " << result.etcones[i]+ecore << " cone [after] " << result.etcones[i]);
-        }
+    if(!muon.clusterLink().isValid()){
+      ATH_MSG_DEBUG("no valid cluster link");
+      //no cluster, set everything to 0
+      for(unsigned int i=0; i<conesf.size(); i++) result.etcones[i] = 0;
+      if(doCoreCone){
+	ATH_MSG_DEBUG("starting etcone, coreCone");
+	double totE = 0.;
+	std::map<Iso::IsolationCorrectionParameter,float> corecorr;
+	corecorr[Iso::coreEnergy] = totE;
+	corecorr[Iso::coreArea]   = coreConeDR*coreConeDR*M_PI;
+	result.coreCorrections[Iso::coreCone] = corecorr;
+	ATH_MSG_DEBUG("done etcone, coreCone");
+	/// apply the correction if required.                                                                                                                                                           
+	if(result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))){
+	  double ecore = totE;
+	  ATH_MSG_DEBUG("Applying coreCone correction for trackParticle etcone isolation.");
+	  for( unsigned int i=0;i<result.etcones.size();++i ) {
+	    result.etcones[i] -= ecore;
+	    ATH_MSG_DEBUG("i: " << i << " cone [before] " << result.etcones[i]+ecore << " cone [after] " << result.etcones[i]);
+	  }
+	}
       }
     }
-
+    else{
+      const xAOD::CaloCluster* muonCluster=*muon.clusterLink();
+      /// start the calculation
+      ATH_MSG_DEBUG("calculating etcone for # " << conesf.size() << " cones");
+      Trk::CaloCellSelectorLayerdR selector(maxConeSize);
+      selector.preSelectAction(*muonCluster);
+      ATH_MSG_DEBUG("looping over cells " << muonCluster->size());
+      for(unsigned int i=0; i<conesf.size(); i++){
+	double totE = 0.;
+	selector.setConeSize(conesf[i]);
+	xAOD::CaloCluster::const_cell_iterator cell_itr=muonCluster->begin();
+	for(; cell_itr!=muonCluster->end(); ++cell_itr){
+	  if( !selector.select(**cell_itr) ) continue;
+	  if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*cell_itr)->caloDDE()->getSampling()) continue;
+	  totE += (*cell_itr)->et();
+	}
+	result.etcones[i] = totE;
+	ATH_MSG_DEBUG("etcone raw: coneSize = " << conesf[i] << "; etcone = " << result.etcones[i]);
+      }
+      ATH_MSG_DEBUG("done looping over cells ");
+      /// do coreCone
+      if(doCoreCone){
+	ATH_MSG_DEBUG("starting etcone, coreCone");
+	double totE = 0.;
+	selector.setConeSize(coreConeDR);
+	xAOD::CaloCluster::const_cell_iterator cell_itr=muonCluster->begin();
+	for(; cell_itr!=muonCluster->end(); ++cell_itr){
+	  if( !selector.select(**cell_itr) ) continue;
+	  if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*cell_itr)->caloDDE()->getSampling()) continue;
+	  totE += (*cell_itr)->et();
+	}
+	std::map<Iso::IsolationCorrectionParameter,float> corecorr;
+	corecorr[Iso::coreEnergy] = totE;
+	corecorr[Iso::coreArea]   = coreConeDR*coreConeDR*M_PI;
+	result.coreCorrections[Iso::coreCone] = corecorr;
+	ATH_MSG_DEBUG("done etcone, coreCone");
+	
+	/// apply the correction if required.
+	if(result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))){
+	  double ecore = totE;
+	  ATH_MSG_DEBUG("Applying coreCone correction for trackParticle etcone isolation.");
+	  for( unsigned int i=0;i<result.etcones.size();++i ) {
+	    result.etcones[i] -= ecore;
+	    ATH_MSG_DEBUG("i: " << i << " cone [before] " << result.etcones[i]+ecore << " cone [after] " << result.etcones[i]);
+	  }
+	}
+      }
+    }
     // calculate etcore
     if(!m_saveOnlyRequestedCorrections ||
        result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreMuon))){

@@ -594,7 +594,7 @@ if globalflags.InputFormat.is_bytestream():
     pass
 
 ### write mu values into xAOD::EventInfo
-if rec.doESD() and rec.readRDO():
+if rec.readRDO():
     if globalflags.DataSource()=='geant4':
         include_muwriter = (globalflags.InputFormat.is_bytestream() or
                             hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
@@ -603,12 +603,8 @@ if rec.doESD() and rec.readRDO():
         include_muwriter = not athenaCommonFlags.isOnline()
 
     if include_muwriter:
-        try:
-            include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
-        except Exception:
-            treatException("Could not load LumiBlockMuWriter_jobOptions.py")
-            pass
-        pass
+        from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+        LumiBlockMuWriterDefault()
 
 if rec.doMonitoring():
     try:
@@ -1284,6 +1280,15 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
+            from tauRec.tauRecFlags import tauFlags
+            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
+                from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
+                alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauInitialPi0Clusters',
+                                                StreamName = 'StreamAOD',
+                                                Clusters = 'TauInitialPi0Clusters',
+                                                Cells = 'TauCommonPi0Cells')
+                topSequence += alg
+
         except Exception:
             treatException("Could not make AOD cells" )
 
@@ -1475,13 +1480,9 @@ if rec.doWriteBS():
     #        StreamBS.ItemList +=["LArRawChannels#*"]
     StreamBSFileOutput.ItemList +=["2721#*"]
 
-    # GU LAr bytestream writing now using calonoisetool, make sure it is configured
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    theNoiseTool = CaloNoiseToolDefault()
-    ToolSvc += theNoiseTool
-
     from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
-    ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
+    ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True,
+                                                stream = StreamBSFileOutput)
 
     # Tile
     #        StreamBS.ItemList +=["TileRawChannelCnt#*"]

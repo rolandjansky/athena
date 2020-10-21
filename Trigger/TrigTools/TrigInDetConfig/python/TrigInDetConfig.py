@@ -58,11 +58,10 @@ def SCT_ClusterOnTrackToolCfg( flags, **kwargs ):
   acc = ComponentAccumulator()
   from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
   sctLATool =  acc.popToolsAndMerge( SCT_LorentzAngleCfg( flags ) )
-  acc.addPublicTool( sctLATool )
   tool = CompFactory.InDet.SCT_ClusterOnTrackTool("SCT_ClusterOnTrackTool",
                                                     CorrectionStrategy = 0,  # do correct position bias
                                                     ErrorStrategy      = 2,  # do use phi dependent errors
-                                                    LorentzAngleTool   = acc.getPublicTool( "SCT_LorentzAngleTool" ) # default name
+                                                    LorentzAngleTool   = sctLATool # default name
                                                     )
   acc.addPublicTool ( tool )
   return acc
@@ -287,16 +286,6 @@ def TrigInDetCondCfg( flags ):
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
 
-  from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg, SCT_DCSConditionsToolCfg
-  dcsTool =  acc.popToolsAndMerge( SCT_DCSConditionsCfg( flags, DCSConditionsTool = SCT_DCSConditionsToolCfg( flags, ReadAllDBFolders = True, ReturnHVTemp = True)) )
-#  SCT_DCSConditionsTool=CompFactory.SCT_DCSConditionsTool
-#  dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
-
-  from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg #, SCT_SiliconConditionsToolCfg
-  #sctSiliconConditionsTool= SCT_SiliconConditionsCfg(flags, toolName="InDetSCT_SiliconConditionsTool", dcsTool=dcsTool )
-  #sctSiliconConditionsTool = SCT_SiliconConditionsToolCfg(flags)
-  acc.merge(SCT_SiliconConditionsCfg(flags, DCSConditionsTool=dcsTool))
-
   SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
   acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders = True))
 
@@ -315,14 +304,6 @@ def TrigInDetCondCfg( flags ):
                                            ReadKeyModule = moduleFolder,
                                            ReadKeyMur = murFolder))
   acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder], "SCT", className="CondAttrListVec"))
-  # Set up SCTSiLorentzAngleCondAlg
-  SCT_ConfigurationConditionsTool=CompFactory.SCT_ConfigurationConditionsTool
-  stateFolder = "/SCT/DCS/CHANSTAT"
-  hvFolder = "/SCT/DCS/HV"
-  tempFolder = "/SCT/DCS/MODTEMP"
-  dbInstance = "DCS_OFL"
-  acc.merge(addFolders(flags, [stateFolder, hvFolder, tempFolder], dbInstance, className="CondAttrListCollection"))
-
 
   # from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
   # sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags, withFlaggedCondTool=False, withTdaqTool=False ) )
@@ -504,34 +485,19 @@ def TrigInDetConfig( inflags, roisKey="EMRoIs", signatureName='' ):
 
 
     #SCT
-    SCT_RodDecoder=CompFactory.SCT_RodDecoder
-    InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder"+ signature)
-    acc.addPublicTool(InDetSCTRodDecoder)
-
-    SCTRawDataProviderTool=CompFactory.SCTRawDataProviderTool
-    InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool"+ signature,
-                                                         Decoder = InDetSCTRodDecoder)
-    acc.addPublicTool(InDetSCTRawDataProviderTool)
-
     # load the SCTRawDataProvider
-    SCTRawDataProvider=CompFactory.SCTRawDataProvider
-    InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider"+ signature,
-                                                 RDOKey       = InDetKeys.SCT_RDOs(),
-                                                 ProviderTool = InDetSCTRawDataProviderTool, )
-
-    InDetSCTRawDataProvider.isRoI_Seeded = True
-    InDetSCTRawDataProvider.RoIs = roisKey
-    InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
-
-    InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT
-
-    acc.addEventAlgo(InDetSCTRawDataProvider)
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
+    sctProviderArgs = {}
+    sctProviderArgs["RDOKey"] = InDetKeys.SCT_RDOs()
+    sctProviderArgs["isRoI_Seeded"] = True
+    sctProviderArgs["RoIs"] = roisKey
+    sctProviderArgs["RDOCacheKey"] = InDetCacheNames.SCTRDOCacheKey
+    sctProviderArgs["RegSelTool"] = RegSelTool_SCT
+    acc.merge(SCTRawDataProviderCfg(flags, suffix=signature, **sctProviderArgs))
 
     # load the SCTEventFlagWriter
-    SCTEventFlagWriter=CompFactory.SCTEventFlagWriter
-    InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter"+ signature)
-
-    acc.addEventAlgo(InDetSCTEventFlagWriter)
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg
+    acc.merge(SCTEventFlagWriterCfg(flags, suffix=signature))
 
 
     #TRT

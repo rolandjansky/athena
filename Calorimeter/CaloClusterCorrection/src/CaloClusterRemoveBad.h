@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTERREMOVEBAD_H
@@ -67,9 +67,6 @@ public:
   
   // property, energy threshold below which a cluster will be rejected.
   float  m_eThreshold ; 
-
-  // Not used, but required to use this with CaloRunClusterCorrections.
-  int m_order;
 };
 
 #endif

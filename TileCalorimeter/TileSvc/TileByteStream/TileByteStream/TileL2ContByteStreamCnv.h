@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEL2_BYTESTREAMCNV_H
 #define TILEBYTESTREAM_TILEL2_BYTESTREAMCNV_H
 
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "TileEvent/TileContainer.h"
-#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaKernel/RecyclableDataObject.h"
 #include "AthenaKernel/BaseInfo.h"
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+#include "CxxUtils/checker_macros.h"
 
 
 class DataObject;
@@ -53,7 +54,7 @@ SG_BASE (TileRecyclableL2Container, TileL2Container);
 
 /**
  * @class TileL2ContByteStreamCnv
- * @brief This Converter class provides conversion between ByteStream and TileL2Container
+ * @brief This AthConstConverter class provides conversion between ByteStream and TileL2Container
  * @author Aranzazu Ruiz
  *
  * This class provides methods to convert the bytestream data into
@@ -62,8 +63,7 @@ SG_BASE (TileRecyclableL2Container, TileL2Container);
  */
 
 class TileL2ContByteStreamCnv
-  : public Converter
-  , public ::AthMessaging
+  : public AthConstConverter
 {
   public:
     TileL2ContByteStreamCnv(ISvcLocator* svcloc);
@@ -71,8 +71,8 @@ class TileL2ContByteStreamCnv
     typedef TileL2ContByteStreamTool  BYTESTREAMTOOL ; 
 
     virtual StatusCode initialize() override;
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+    virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override;
+    virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
     virtual StatusCode finalize() override;
     
     /// Storage type and class ID
@@ -81,9 +81,6 @@ class TileL2ContByteStreamCnv
     static const CLID& classID();
     
   private: 
-
-    std::string m_name;
-
     //    BYTESTREAMTOOL* m_tool ;
     ToolHandle<BYTESTREAMTOOL> m_tool;
     
@@ -100,7 +97,7 @@ class TileL2ContByteStreamCnv
     ToolHandle<TileROD_Decoder> m_decoder;
 
     /** Queue of data objects to recycle. */
-    Athena::RecyclableDataQueue<TileRecyclableL2Container> m_queue;
+    mutable Athena::RecyclableDataQueue<TileRecyclableL2Container> m_queue ATLAS_THREAD_SAFE;
 };
 #endif
 

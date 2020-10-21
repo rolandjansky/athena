@@ -13,7 +13,6 @@
 //#include <strstream>
 #include <cassert>
 
-#include "StoreGate/StoreGate.h"
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPad.h"

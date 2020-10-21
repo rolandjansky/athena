@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwRfac_v3.py,v 1.4 2006-11-10 03:47:27 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwRfac_v3.py
 # Created: Nov 2006, sss
@@ -11,7 +9,7 @@
 # E=100 GeV electrons/photons were used.
 #
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 
 #
 # The correction is tabulated as a function of eta separately for

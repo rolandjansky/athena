@@ -80,23 +80,23 @@ Trk::GsfCombinedMaterialEffects::compute(
                      particleHypothesis);
   }
 
-  // Protect if there are no new components
+  // Protect if there are no new energy loss
+  // components
+  // we want at least on dummy to "combine"
+  // with scattering
   if (cache_energyLoss.weights.empty()) {
     cache_energyLoss.weights.push_back(1.);
     cache_energyLoss.deltaPs.push_back(0.);
     cache_energyLoss.deltaQOvePCov.push_back(0.);
   }
-
   /*
    * 3. Combine the multiple scattering with each of the  energy loss components
    */
-  // Iterators over the energy loss components
   auto energyLoss_weightsIterator = cache_energyLoss.weights.begin();
   auto energyLoss_deltaPsIterator = cache_energyLoss.deltaPs.begin();
   auto energyLoss_deltaQOvePCovIterator =
     cache_energyLoss.deltaQOvePCov.begin();
 
-  // Loop over energy loss components
   for (; energyLoss_weightsIterator != cache_energyLoss.weights.end();
        ++energyLoss_weightsIterator,
        ++energyLoss_deltaPsIterator,
@@ -108,18 +108,17 @@ Trk::GsfCombinedMaterialEffects::compute(
     cache.deltaPs.push_back(combinedDeltaP);
 
     if (measuredCov) {
-      // Create a covariance to sum scattering and energy loss effects
-      AmgSymMatrix(5) summedCovariance;
-      summedCovariance.setZero();
-      // Add  the multiple Scattering
-      summedCovariance(Trk::theta, Trk::theta) +=
-        cache_multipleScatter.deltaThetaCov;
-      summedCovariance(Trk::phi, Trk::phi) += cache_multipleScatter.deltaPhiCov;
-      // Add  energy loss
-      summedCovariance(Trk::qOverP, Trk::qOverP) +=
-        (*energyLoss_deltaQOvePCovIterator);
-
-      cache.deltaCovariances.push_back(std::move(summedCovariance));
+      // Create the covariance
+      const double covPhi = cache_multipleScatter.deltaPhiCov;
+      const double covTheta = cache_multipleScatter.deltaThetaCov;
+      const double covQoverP = (*energyLoss_deltaQOvePCovIterator);
+      AmgSymMatrix(5) cov;
+      cov << 0, 0, 0, 0, 0,   // 5
+        0, 0, 0, 0, 0,        // 10
+        0, 0, covPhi, 0, 0,   // 15
+        0, 0, 0, covTheta, 0, // 20
+        0, 0, 0, 0, covQoverP;
+      cache.deltaCovariances.emplace_back(std::move(cov));
     }
   } // end for loop over energy loss components
 }

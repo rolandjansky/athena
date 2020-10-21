@@ -2,7 +2,7 @@
 
 import os
 ## Needed to correct ROOT behavior; see below
-CWD = os.getcwd() # noqa
+CWD = os.getcwd()
 
 ## MB: before starting, set ROOT to batch mode
 from ROOT import gROOT
@@ -14,7 +14,7 @@ from ROOT import gSystem
 
 ## Import the ROOT library for reading han results
 gSystem.Load('libDataQualityUtils')
-from ROOT import dqutils # noqa
+from ROOT import dqutils
 
 os.chdir(CWD)
 gROOT.SetBatch(True)

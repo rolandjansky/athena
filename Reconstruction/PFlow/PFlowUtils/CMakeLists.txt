@@ -1,28 +1,7 @@
-# $Id: CMakeLists.txt 782349 2016-11-04 11:47:49Z krasznaa $
-################################################################################
-# Package: PFlowUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PFlowUtils )
-
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Calorimeter/CaloCalibHitRec
-  Control/AthToolSupport/AsgTools  
-  Event/xAOD/xAODPFlow
-  PRIVATE
-  Control/AthContainers
-  Event/xAOD/xAODJet
-  Event/xAOD/xAODTruth
-  ${extra_deps} )
 
 # Component(s) in the package:
 atlas_add_library( PFlowUtilsLib
@@ -33,10 +12,10 @@ atlas_add_library( PFlowUtilsLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PFlowUtils
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps xAODJet xAODPFlow GaudiKernel xAODTruth
-      PFlowUtilsLib CaloCalibHitRecLib )
+      LINK_LIBRARIES AthContainers AthenaBaseComps xAODJet xAODPFlow xAODTruth
+      xAODCore PFlowUtilsLib CaloCalibHitRecLib CaloSimEvent StoreGateLib )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )

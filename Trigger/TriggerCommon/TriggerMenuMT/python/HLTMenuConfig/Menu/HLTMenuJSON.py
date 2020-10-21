@@ -44,7 +44,7 @@ def __getChainSequencers(stepsData, chainName):
         endOfChain = False
         for sequencer in step:
             sequencerFilter = getSequenceChildren( sequencer )[0] # Always the first child in the step
-            if any(chainName in chainNameFromLegName(fChain) for fChain in sequencerFilter.Chains):
+            if hasattr(sequencerFilter, "Chains") and any(chainName in chainNameFromLegName(fChain) for fChain in sequencerFilter.Chains):
                 if mySequencer is not None:
                     __log.error( "Multiple Filters found (corresponding Sequencers %s, %s) for %s in Step %i!",
                         mySequencer.getName(), sequencer.getName(), chainName, counter)
@@ -52,12 +52,12 @@ def __getChainSequencers(stepsData, chainName):
         if mySequencer is None:
             endOfChain = True
             if counter == 1 and  'noalg' not in chainName:
-                __log.warn("No Filter found for %s in Step 1", chainName)
+                __log.info("No Filter found for %s in Step 1", chainName)
         else:
             if endOfChain is True:
                 __log.error( "Found another Step, (Step %i) for chain %s "
                     "which looked like it had already finished after %i Steps!", 
-                    counter, chainName, sequencers.len())
+                    counter, chainName, len(sequencers))
             sequencers.append(mySequencer.getName())
     return sequencers
 

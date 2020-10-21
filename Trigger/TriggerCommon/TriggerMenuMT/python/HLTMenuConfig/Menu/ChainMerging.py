@@ -5,6 +5,8 @@ log = logging.getLogger( __name__ )
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import getAlignmentGroupOrdering
+from collections import OrderedDict
 from copy import deepcopy
 import re
 
@@ -21,6 +23,35 @@ def mergeChainDefs(listOfChainDefs, chainDict):
         return mergeParallel(listOfChainDefs,  offset)
     elif strategy=="serial":
         return mergeSerial(listOfChainDefs)
+
+    elif strategy=="auto":
+        ordering = getAlignmentGroupOrdering()
+        merging_dict = OrderedDict()
+        for ich,cConfig in enumerate(listOfChainDefs):
+            chain_ag = cConfig.alignmentGroups[0]
+            if chain_ag not in ordering:
+                log.error("Alignment group %s can't be auto-merged because it's not in the grouping list!",chain_ag)
+            if chain_ag in merging_dict:
+                merging_dict[chain_ag] += [ich]
+            else:
+                merging_dict[chain_ag] = [ich]
+                
+        tmp_merged = []
+        for ag in ordering:
+            if ag not in merging_dict:
+                continue
+            if len(merging_dict[ag]) > 1:
+                tmp_merged += [mergeParallel(list( listOfChainDefs[i] for i in merging_dict[ag] ),offset)]
+            else:
+                tmp_merged += [listOfChainDefs[merging_dict[ag][0]]]
+
+        # only serial merge if necessary
+        if len(tmp_merged) == 1:
+            return tmp_merged[0]
+
+        return mergeSerial(tmp_merged)
+            
+        
     else:
         log.error("Merging failed for %s. Merging strategy '%s' not known.", (listOfChainDefs, strategy))
         return -1

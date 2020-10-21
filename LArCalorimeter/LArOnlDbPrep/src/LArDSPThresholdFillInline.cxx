@@ -4,7 +4,6 @@
 
 #include "LArOnlDbPrep/LArDSPThresholdFillInline.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "StoreGate/StoreGate.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloInterface/ICaloNoiseTool.h"

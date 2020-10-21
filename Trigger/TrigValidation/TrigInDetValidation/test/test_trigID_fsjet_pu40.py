@@ -4,7 +4,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -29,8 +29,8 @@
 Slices  = ['fsjet']
 RunEF   = False
 Events  = 2000 
-Threads = 1 
-Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
+Threads = 8 
+Slots   = 8
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
 TrackReference = [ 'Truth', 'Offline' ]

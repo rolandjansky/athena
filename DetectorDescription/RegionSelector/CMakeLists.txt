@@ -7,7 +7,7 @@ atlas_subdir( RegionSelector )
 atlas_add_library( RegionSelectorLib
                    src/*.cxx
                    PUBLIC_HEADERS RegionSelector
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel GeoModelInterfaces IRegionSelector Identifier RegSelLUT SCT_CablingLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel GeoModelInterfaces IRegionSelector Identifier RegSelLUT
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities CxxUtils InDetConditionsSummaryService PathResolver StoreGateLib )
 
 atlas_add_component( RegionSelector

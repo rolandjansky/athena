@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
-
 #include "InDetSecVxFinderTool/JetFitterTrackSelectorTool.h"
+#include <cassert>
 
 using namespace InDet;
 
@@ -70,7 +70,8 @@ using namespace InDet;
       int counter = 0;
       for ( ; trk_iter != trk_end; trk_iter++ ) {
 	// Convert xAOD::IParticle to xAOD::TrackParticle
-	const xAOD::TrackParticle * tmp = dynamic_cast< const xAOD::TrackParticle* > ( *trk_iter ); 
+	const xAOD::TrackParticle * tmp = dynamic_cast< const xAOD::TrackParticle* > ( *trk_iter );
+	assert( tmp != nullptr ); // in principle should really check that inputTracks only contains TrackParticle objects
 
 	// Apply track filter
 	if ( m_trkFilter->decision( *tmp,&primaryVertex ) == false ) continue;
@@ -82,14 +83,17 @@ using namespace InDet;
 	int type = computeTrackCompatibility( primaryVertex,jetMomentum,*tmp );
 
 	// Create Trk::ITrackLink collections to be given to selected tracks
-	ElementLink< xAOD::TrackParticleContainer > linkTP;                                                                                                           
-	linkTP.setElement( tmp ); 
+	if (type==1 || type==2) {
+           ElementLink< xAOD::TrackParticleContainer > linkTP;
+           linkTP.setElement( tmp );
+           Trk::LinkToXAODTrackParticle* link= new Trk::LinkToXAODTrackParticle( linkTP );
 
-	Trk::LinkToXAODTrackParticle* link= new Trk::LinkToXAODTrackParticle( linkTP );
-
-	if ( type == 1) primaryTrackLinks.push_back( link );
-	else if ( type == 2 ) secondaryTrackLinks.push_back( link );  
-	else continue;
+           if ( type == 1) primaryTrackLinks.push_back( link );
+           else if ( type == 2 ) secondaryTrackLinks.push_back( link );
+	}
+	else {
+           continue;
+	}
 
 	// How many tracks we are selecting
 	counter++;
@@ -111,11 +115,11 @@ using namespace InDet;
       
       // Recomputing Perigee w.r.t PV
       Trk::PerigeeSurface mySurface( primaryVertex.position() );
-      const Trk::TrackParameters* myMeasuredPerigee = m_extrapolator->extrapolate( track,mySurface );
-      if ( myMeasuredPerigee == nullptr ) {
-	ATH_MSG_DEBUG( " Extrapolation to primary vertex failed. Skipping track " );
-	compatibilityDecorator ( track ) = 0.;
-	return 0;
+      std::unique_ptr<const Trk::TrackParameters>  myMeasuredPerigee(m_extrapolator->extrapolate( track,mySurface ));
+      if ( !myMeasuredPerigee) {
+        ATH_MSG_DEBUG( " Extrapolation to primary vertex failed. Skipping track " );
+        compatibilityDecorator ( track ) = 0.;
+        return 0;
       }
       
       

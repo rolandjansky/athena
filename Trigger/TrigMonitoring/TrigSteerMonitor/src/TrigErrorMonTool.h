@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/EventContext.h"
+#include "TrigCompositeUtils/AlgToChainTool.h"
 
 class IAlgExecStateSvc;
 
@@ -30,6 +31,7 @@ public:
 private:
   ServiceHandle<IAlgExecStateSvc> m_aess{this, "AlgExecStateSvc", "AlgExecStateSvc"};
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
+  ToolHandle<TrigCompositeUtils::AlgToChainTool> m_algToChainTool {this, "AlgToChainTool", "",  "Tool to retrieve chains for algorithm"};
 };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <type_traits>
@@ -79,7 +79,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereo
 
     r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/MV2                                       ;
-    r1 -= m_halflenght                                      ;
+    r1 -= m_halflength                                      ;
     
     if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
 
@@ -189,10 +189,10 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     
     double dP1 = (P1-M[1])+PV1*d*r0;
 
-    if(fabs(dP1) > m_halflenght) {
+    if(fabs(dP1) > m_halflength) {
 
       double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
+      dP1 > m_halflength ? r1 = m_halflength-P1 : r1 = -(m_halflength+P1);
       
       double v1 = PV1;
       double v2 = PV2;  
@@ -261,7 +261,7 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
 
     r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/MV2                                       ;
-    r1 -= m_halflenght                                      ;
+    r1 -= m_halflength                                      ;
     
     if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
 
@@ -374,10 +374,10 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     
     double dP1 = (P1-M[1])+PV1*d*r0;
 
-    if(fabs(dP1) > m_halflenght) {
+    if(fabs(dP1) > m_halflength) {
 
       double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
+      dP1 > m_halflength ? r1 = m_halflength-P1 : r1 = -(m_halflength+P1);
       
       double v1 = PV1;
       double v2 = PV2;  
@@ -411,7 +411,8 @@ void InDet::SiTrajectoryElement_xk::set
  const InDet::SiDetElementBoundaryLink_xk*& dl,
  const T& sb, 
  const T& se,
- const InDet::SiCluster* si)
+ const InDet::SiCluster* si,
+ const EventContext& ctx)
 {
   if      (std::is_same<T, InDet::SiClusterCollection::const_iterator>::value)    m_itType = SiClusterColl;
   else if (std::is_same<T, InDet::PixelClusterCollection::const_iterator>::value) m_itType = PixelClusterColl;
@@ -448,7 +449,7 @@ void InDet::SiTrajectoryElement_xk::set
   m_xi2totalF    = 0.                      ;
   m_xi2totalB    = 0.                      ;
   m_tools->electron() ? m_xi2max = m_tools->xi2maxBrem() : m_xi2max = m_tools->xi2max();
-  m_halflenght   = 0.                      ;
+  m_halflength   = 0.                      ;
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
 
   if(m_tools->heavyion()) {
@@ -460,13 +461,13 @@ void InDet::SiTrajectoryElement_xk::set
   (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
     m_stereo = true : m_stereo = false;
 
-  if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
+  if(m_detstatus && m_ndf == 1) m_halflength = (*sb)->width().z()*.5;
 
   if(!m_detstatus) {
 
     IdentifierHash idHash = m_detelement->identifyHash();
-    if(m_ndf==2) {if(!m_tools->pixcond()->isGood(idHash)) m_detstatus = -1;}
-    else         {if(!m_tools->sctcond()->isGood(idHash)) m_detstatus = -1;}
+    if(m_ndf==2) {if(!m_tools->pixcond()->isGood(idHash, ctx)) m_detstatus = -1;}
+    else         {if(!m_tools->sctcond()->isGood(idHash, ctx)) m_detstatus = -1;}
   }
   
   const Amg::Transform3D& tr = m_surface->transform();
@@ -506,13 +507,13 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationForClusterSeach
   m_detlink      = dl                      ;
   m_surface      = &m_detelement->surface();
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
-  m_halflenght   = 0.                      ;
+  m_halflength   = 0.                      ;
   m_stereo       = false                   ;
 
   (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
     m_stereo = true : m_stereo = false;
 
-  if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
+  if(m_detstatus && m_ndf == 1) m_halflength = (*sb)->width().z()*.5;
 
   if(!n) {
     Trk::PatternTrackParameters Tp; if(!Tp.production(&Tpa)) return false;
@@ -562,12 +563,12 @@ void InDet::SiTrajectoryElement_xk::CloseClusterSeach
   m_detlink      = dl                      ;
   m_surface      = &m_detelement->surface();
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
-  m_halflenght   = 0.                      ;
+  m_halflength   = 0.                      ;
   m_stereo       = false                   ;
 
   (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
     m_stereo = true : m_stereo = false;
-  if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
+  if(m_detstatus && m_ndf == 1) m_halflength = (*sb)->width().z()*.5;
 
   if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkF)) return;
   m_cluster = m_linkF[0].cluster();

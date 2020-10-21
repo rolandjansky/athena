@@ -58,6 +58,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     m_trackDetachCut(6.),
     m_beampipeR(24.3),
     m_removeTrkMatSignif(0.),
+    m_fastZSVCut(15.),
     m_fillHist(false),
     m_useVertexCleaning(true),
     m_multiWithOneTrkVrt(true),
@@ -99,6 +100,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     declareProperty("dRdZRatioCut",      m_dRdZRatioCut,  "Cut on dR/dZ ratio to remove pileup tracks"  );
     declareProperty("v2tIniBDTCut",      m_v2tIniBDTCut,  "Initial BDT cut for 2track vertices selection "  );
     declareProperty("v2tFinBDTCut",      m_v2tFinBDTCut,  "Final BDT cut for 2track vertices selection "  );
+    declareProperty("FastZSVCut",        m_fastZSVCut,  "Cut to remove SV candidates based on fast SV estimation. To save full fit CPU."  );
 
     declareProperty("FillHist",   m_fillHist, "Fill technical histograms"  );
 
@@ -229,7 +231,9 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
        if (sc.isSuccess()) {
           m_tuple->Branch("ntrk",       &m_curTup->nTrk,    "ntrk/I");
           m_tuple->Branch("pttrk",      &m_curTup->pttrk,   "pttrk[ntrk]/F");
+          m_tuple->Branch("d0trk",      &m_curTup->d0trk,   "d0trk[ntrk]/F");
           m_tuple->Branch("Sig3D",      &m_curTup->Sig3D,   "Sig3D[ntrk]/F");
+          m_tuple->Branch("idHF",       &m_curTup->idHF,    "idHF[ntrk]/I");
 
           m_tuple->Branch("n2Vrt",      &m_curTup->n2Vrt,      "n2Vrt/I");
           m_tuple->Branch("VrtTrkHF",   &m_curTup->VrtTrkHF,   "VrtTrkHF[n2Vrt]/I");

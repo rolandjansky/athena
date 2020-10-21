@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RelationalCollectionDataEditor.h"
@@ -712,7 +712,7 @@ deleteRows( const std::string& whereClause, coral::AttributeList* attributeBindD
 
       // Loop over all collection fragments.
       for ( std::map< std::string, std::string >::const_iterator iName = m_dataTableNameForCollectionFragmentName.begin();
-            iName != m_dataTableNameForCollectionFragmentName.end(); iName++ )
+            iName != m_dataTableNameForCollectionFragmentName.end(); ++iName )
       {
          // Get names of collection fragment, data table and links table.
          std::string fragmentName = iName->first;

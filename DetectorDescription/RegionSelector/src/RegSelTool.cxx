@@ -43,11 +43,11 @@ const IRegSelLUT* RegSelTool::lookup() const {
 
 
 StatusCode RegSelTool::initialize() {
-  ATH_CHECK( m_tableKey.initialize() );
   ATH_MSG_DEBUG( "Initialising RegSelTool " << name() << "\ttable: " << m_tableKey );
   if ( !m_initialised ) { 
     ATH_MSG_WARNING( "Lookup table will not be initialised " << name() << "\tkey " << m_tableKey );
   } 
+  ATH_CHECK( m_tableKey.initialize(m_initialised) );
   if ( name().find( "RPC") != std::string::npos ) m_rpcflag = true;
   return StatusCode::SUCCESS;
 }

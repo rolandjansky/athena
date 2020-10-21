@@ -16,7 +16,6 @@
 #ifndef DBDATAOBJECTS_CONDATTRLISTCOLLECTION_H
 #define DBDATAOBJECTS_CONDATTRLISTCOLLECTION_H 
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
@@ -24,7 +23,6 @@
 
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/DataObject.h"
 
 #include <vector>
@@ -133,9 +131,9 @@ public:
     bool                 hasUniqueIOV() const;
 
     /// Adding in chan/attrList pairs
-    bool                 add ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList);
+    bool                 add(ChanNum chanNum, const AttributeList& attributeList);
     /// Adding in chan/attrList pairs with shared data
-    void                 addShared ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList);
+    void                 addShared(ChanNum chanNum, const AttributeList& attributeList);
 
     /// Adding in chan/iov range pairs
     void                 add(ChanNum chanNum, const IOVRange& range);
@@ -449,7 +447,7 @@ CondAttrListCollection::hasUniqueIOV() const
 
 /// Adding in chan/attrList pairs: ASSUMED TO BE IN ORDER
 inline bool                    
-CondAttrListCollection::add ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList)
+CondAttrListCollection::add(ChanNum chanNum, const AttributeList& attributeList)
 {
   if (m_attrMap.size()==0) {   
     m_spec=new coral::AttributeListSpecification();
@@ -466,7 +464,7 @@ CondAttrListCollection::add ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const Attrib
 
 /// Adding in chan/attrList pairs with shared AttrList: ASSUMED TO BE IN ORDER
 inline void                    
-CondAttrListCollection::addShared ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList)
+CondAttrListCollection::addShared(ChanNum chanNum, const AttributeList& attributeList)
 {
   if (m_attrMap.size()==0) {   
     m_spec=new coral::AttributeListSpecification();

@@ -10,7 +10,6 @@
 
 #include <string>
 
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 
 static const InterfaceID IID_MuonIdHelperSvc("Muon::MuonIdHelperSvc",1,0);

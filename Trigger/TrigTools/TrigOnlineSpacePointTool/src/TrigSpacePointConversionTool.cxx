@@ -34,6 +34,7 @@ TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t,
   declareProperty( "layerNumberTool",        m_layerNumberTool);
   declareProperty( "PixelSP_ContainerName",  m_pixelSpacePointsContainerKey = std::string("PixelTrigSpacePoints"));
   declareProperty( "SCT_SP_ContainerName",   m_sctSpacePointsContainerKey = "SCT_TrigSpacePoints" );
+  declareProperty( "UsePixelSpacePoints",    m_usePixelSpacePoints = true );
 }
 
 StatusCode TrigSpacePointConversionTool::initialize() {
@@ -83,6 +84,8 @@ StatusCode TrigSpacePointConversionTool::initialize() {
   ATH_CHECK(m_pixelSpacePointsContainerKey.initialize());
   ATH_CHECK(m_sctSpacePointsContainerKey.initialize());
 
+ if (!m_usePixelSpacePoints) ATH_MSG_INFO(" Only converting SCT spacepoints => SSS seeds only");
+
   ATH_MSG_INFO("TrigSpacePointConversionTool initialized ");
 
   return sc;
@@ -96,7 +99,7 @@ StatusCode TrigSpacePointConversionTool::finalize() {
 
 
 StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& internalRoI, 
-							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct, const EventContext& ctx) const {
+							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct, const EventContext& ctx, std::map<Identifier, std::vector<long int> > *clustermap) const {
 
   output.clear();
   
@@ -125,24 +128,43 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
   FTF::LayerCalculator lc(m_atlasId, m_pixelId, m_sctId, offsets);
     
   //filter spacepoints to reject those beyound internalRoI boundaries
-    
-  FTF::RoI_Filter filter(output, lc, &internalRoI, m_filter_phi);
-  FTF::SpacePointSelector<FTF::RoI_Filter> selector(filter);
-  
+      
   nPix = 0;
   nSct = 0;
+  if ( clustermap!=nullptr ) { 
 
-  if(m_useNewScheme) {
-    nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds, m_layerNumberTool->pixelLayers());
-    nSct=selector.select(*sctSpacePointsContainer,listOfSctIds, m_layerNumberTool->sctLayers());
-  }
-  else {
-    nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds);
-    nSct=selector.select(*sctSpacePointsContainer,listOfSctIds);
+    ATH_MSG_DEBUG("LRT Mode: clustermap supplied and being used to remove spacepoints from clusters already on tracks");
+    //  In LRT mode a cluster map is supplied to enable removal of clusters on tracks.
+    FTF::RoI_Filter filter(output, lc, &internalRoI, m_filter_phi, clustermap);
+    FTF::SpacePointSelector<FTF::RoI_Filter> selector(filter);
+    
+    if(m_useNewScheme) {
+      if (m_usePixelSpacePoints)  nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds, m_layerNumberTool->pixelLayers());
+      nSct=selector.select(*sctSpacePointsContainer,listOfSctIds, m_layerNumberTool->sctLayers());
+    }
+    else {
+      if (m_usePixelSpacePoints)  nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds);
+      nSct=selector.select(*sctSpacePointsContainer,listOfSctIds);
+    }
+
+
+  } else {
+    FTF::RoI_Filter filter(output, lc, &internalRoI, m_filter_phi);
+    FTF::SpacePointSelector<FTF::RoI_Filter> selector(filter);
+    
+    if(m_useNewScheme) {
+      nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds, m_layerNumberTool->pixelLayers());
+      nSct=selector.select(*sctSpacePointsContainer,listOfSctIds, m_layerNumberTool->sctLayers());
+    }
+    else {
+      nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds);
+      nSct=selector.select(*sctSpacePointsContainer,listOfSctIds);
+    }
   }
   if(!m_useBeamTilt) shiftSpacePoints(output, ctx);
   else transformSpacePoints(output, ctx);
 
+  ATH_MSG_DEBUG("Returning "<<nPix<< " Pixel Spacepoints and "<<nSct<< " SCT SpacePoints");
   return StatusCode::SUCCESS;
 }
 

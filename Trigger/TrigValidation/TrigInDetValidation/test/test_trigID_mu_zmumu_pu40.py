@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-# art-description: art job for mu_Zmumu_pu40_grid
+# art-description: art job for mu_Zmumu_pu40
 # art-type: grid
 # art-include: master/Athena
 # art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
 # art-input-nfiles: 4
-# art-athena-mt: 1
+# art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -29,11 +29,13 @@
 
 Slices  = ['muon']
 RunEF   = True
-Events  = 2000 
-Threads = 1 
-Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
+Events  = 8000 
+Threads = 8 
+Slots   = 8
 Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
+GridFiles=True
 
+Args = " -p 13 "
 TrackReference = [ 'Truth', 'Offline' ]
 Lowpt          = [ False, True ] 
 

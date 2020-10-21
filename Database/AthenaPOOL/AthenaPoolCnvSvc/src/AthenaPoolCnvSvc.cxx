@@ -9,12 +9,12 @@
 
 #include "AthenaPoolCnvSvc.h"
 
+#include "GaudiKernel/AttribStringParser.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/FileIncident.h"
-
-#include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/AttribStringParser.h"
+#include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
@@ -23,7 +23,6 @@
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
 #include "PersistentDataModel/DataHeader.h"
-
 
 #include "StorageSvc/DbReflex.h"
 
@@ -52,15 +51,24 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    if (!m_outputStreamingTool.empty()) {
       m_streamClientFiles = m_streamClientFilesProp.value();
       ATH_CHECK(m_outputStreamingTool.retrieve());
-   }
-   if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
-      // Retrieve AthenaSerializeSvc
-      ATH_CHECK(m_serializeSvc.retrieve());
-      if (!m_outputStreamingTool.empty() && m_makeStreamingToolClient.value() == -1) {
+      if (m_makeStreamingToolClient.value() == -1) {
          // Initialize AthenaRootSharedWriter
          ServiceHandle<IService> arswsvc("AthenaRootSharedWriterSvc", this->name());
          ATH_CHECK(arswsvc.retrieve());
       }
+      // Put PoolSvc into share mode to avoid duplicating catalog.
+      m_poolSvc->setShareMode(true);
+   }
+   if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
+      // Retrieve AthenaSerializeSvc
+      ATH_CHECK(m_serializeSvc.retrieve());
+   }
+   // Register this service for 'I/O' events
+   ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
+   ATH_CHECK(iomgr.retrieve());
+   if (!iomgr->io_register(this).isSuccess()) {
+      ATH_MSG_FATAL("Could not register myself with the IoComponentMgr !");
+      return(StatusCode::FAILURE);
    }
    // Extracting MaxFileSizes for global default and map by Database name.
    for (std::vector<std::string>::const_iterator iter = m_maxFileSizes.value().begin(),
@@ -101,6 +109,12 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
+StatusCode AthenaPoolCnvSvc::io_reinit() {
+   ATH_MSG_DEBUG("I/O reinitialization...");
+   m_contextAttr.clear();
+   return(StatusCode::SUCCESS);
+}
+//______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::finalize() {
    // Release AthenaSerializeSvc
    if (!m_serializeSvc.empty()) {
@@ -135,6 +149,11 @@ StatusCode AthenaPoolCnvSvc::finalize() {
 
    m_cnvs.clear();
    m_cnvs.shrink_to_fit();
+   return(StatusCode::SUCCESS);
+}
+//______________________________________________________________________________
+StatusCode AthenaPoolCnvSvc::io_finalize() {
+   ATH_MSG_DEBUG("I/O finalization...");
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -266,7 +285,10 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       return(StatusCode::FAILURE);
    }
    if (m_makeStreamingToolClient.value() > 0 && !m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer() && !m_outputStreamingTool[0]->isClient()) {
-      m_outputStreamingTool[0]->makeClient(m_makeStreamingToolClient.value()).ignore();
+      if (!makeClient(m_makeStreamingToolClient.value()).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+         return(StatusCode::FAILURE);
+      }
    }
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_streamMetaDataOnly || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
@@ -320,8 +342,22 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          const std::string& opt = (*iter)[0];
          std::string data = (*iter)[1];
          const std::string& file = (*iter)[2];
-         if (opt == "TREE_AUTO_FLUSH" && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
-            m_fileFlushSetting[file] = atoi(data.c_str());
+         const std::string& cont = (*iter)[3];
+         std::size_t colon = m_containerPrefixProp.value().find(":");
+         if (colon == std::string::npos) colon = 0; // Used to remove leading technology
+         else colon++;
+         std::size_t equal = cont.find("="); // Used to remove leading "TTree="
+         if (equal == std::string::npos) equal = 0;
+         else equal++;
+         if (opt == "TREE_AUTO_FLUSH" && cont.substr(equal) == m_containerPrefixProp.value().substr(colon) && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
+            int flush = atoi(data.c_str());
+            if (flush < m_numberEventsPerWrite.value()) {
+               flush = flush * (int((m_numberEventsPerWrite.value() - 1) / flush) + 1);
+            }
+            if (flush > 0) {
+               ATH_MSG_DEBUG("connectOutput setting auto write for: " << file << " to " << flush << " events");
+               m_fileFlushSetting[file] = flush;
+            }
          }
       }
    }
@@ -670,7 +706,10 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
       m_chronoStatSvc->chronoStart("cRepR_ALL");
    }
    if (m_makeStreamingToolClient.value() > 0 && !m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer() && !m_outputStreamingTool[0]->isClient()) {
-      m_outputStreamingTool[0]->makeClient(m_makeStreamingToolClient.value()).ignore();
+      if (!makeClient(m_makeStreamingToolClient.value()).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+         return(nullptr);
+      }
    }
    Token* token = nullptr;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()

@@ -483,9 +483,6 @@ if doInDet:
    if InDetTBFlags.CTBTracking or InDetTBFlags.xKalman or InDetTBFlags.iPatRec or InDetTBFlags.TRT_LUT:    
       # particle property service
       include( "PartPropSvc/PartPropSvc.py" )
-   if InDetTBFlags.iPatRec and not doTrigger:
-      # prepare LUT for Region Selector used in TRT_Rec
-      include("InDetRegionSelector/TRT_RegionSelectorTable_jobOptions.py" )
 if doTrigger:
     # prepare LUT for Region Selector
     include("InDetRegionSelector/InDetRegionSelectorTable_jobOptions.py" )

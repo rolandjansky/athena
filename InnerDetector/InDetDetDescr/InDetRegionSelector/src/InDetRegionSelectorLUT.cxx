@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRegionSelector/InDetRegionSelectorLUT.h"
@@ -21,15 +21,9 @@
 using namespace InDetDD;
 
 InDetRegionSelectorLUT::InDetRegionSelectorLUT(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_lutCreatorToolPixel("InDetDD::SiRegionSelectorTable/PixelRegionSelectorTable"),
-  m_lutCreatorToolSCT  ("InDetDD::SiRegionSelectorTable/SCT_RegionSelectorTable"),
-  m_lutCreatorToolTRT  ("InDetDD::TRT_RegionSelectorTable/TRT_RegionSelectorTable")
+  AthAlgorithm(name, pSvcLocator)
 {  
   // Get parameter values from jobOptions file
-  declareProperty("PixelRegionLUT_CreatorTool", m_lutCreatorToolPixel);
-  declareProperty("SCT_RegionLUT_CreatorTool",  m_lutCreatorToolSCT);
-  declareProperty("TRT_RegionLUT_CreatorTool",  m_lutCreatorToolTRT);
   declareProperty("DoTests", m_doTests = false);
 }
 

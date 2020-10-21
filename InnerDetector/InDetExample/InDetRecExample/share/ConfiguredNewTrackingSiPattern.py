@@ -109,6 +109,9 @@ class  ConfiguredNewTrackingSiPattern:
                # limit size of space-point vector, uses auto-grow mechanism 
                # to avoid exceeding bounds (should rarely happen) 
                InDetSiSpacePointsSeedMaker.maxSizeSP  = 200 
+               InDetSiSpacePointsSeedMaker.dImpactCutSlopeUnconfirmedSSS  = 1.25 
+               InDetSiSpacePointsSeedMaker.dImpactCutSlopeUnconfirmedPPP  = 2.0 
+
 
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.optimisePhiBinning = False
@@ -530,7 +533,6 @@ class  ConfiguredNewTrackingSiPattern:
               else :
                  fitter_list.append(CfgGetter.getPublicTool('KalmanFitter'))
                  fitter_list.append(CfgGetter.getPublicTool('ReferenceKalmanFitter'))
-
 
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
                                                    Fitter             = fitter_list ,

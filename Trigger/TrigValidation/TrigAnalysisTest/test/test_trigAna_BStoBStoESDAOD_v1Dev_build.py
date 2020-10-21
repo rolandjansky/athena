@@ -1,15 +1,13 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Run Trigger on data with athena and write ByteStream output, then run offline reco
 # art-type: build
 # art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering.Common import find_file
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
-
-def findFile(pattern):
-    '''Bash inline file name finder'''
-    return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
 
 menu_name = 'LS2_v1_TriggerValidation_mc_prescale'
 
@@ -32,7 +30,7 @@ filterBS = ExecStep.ExecStep('FilterBS')
 filterBS.type = 'other'
 filterBS.executable = 'trigbs_extractStream.py'
 filterBS.input = ''
-filterBS.args = '-s Main ' + findFile('data_test.*.Single_Stream.daq.RAW.*.data')
+filterBS.args = '-s Main ' + find_file('*unknown_SingleStream.daq.RAW.*Athena.*.data')
 
 # Reconstruction step, BS->ESD->AOD
 recoPreExec = ' '.join([
@@ -62,7 +60,7 @@ reco.type = 'Reco_tf'
 reco.threads = 1
 reco.input = ''
 reco.explicit_input = True
-reco.args = '--inputBSFile=' + findFile('*.physics_Main*.data')  # output of the previous step
+reco.args = '--inputBSFile=' + find_file('*.physics_Main*.data')  # output of the previous step
 reco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 reco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 reco.args += ' --preExec="{:s}"'.format(recoPreExec)

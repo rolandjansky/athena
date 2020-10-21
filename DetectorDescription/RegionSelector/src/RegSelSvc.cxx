@@ -60,12 +60,8 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_disableTRTFromConditions(true),
     m_roiFileName        ("RSOutputTable.txt"),
     m_LArFebRodMapKey    ("/LAR/Identifier/FebRodMap"),
-    m_lutCreatorToolPixel("SiRegionSelectorTable/PixelRegionSelectorTable", this),
-    m_lutCreatorToolSCT  ("SiRegionSelectorTable/SCT_RegionSelectorTable", this),
-    m_lutCreatorToolTRT  ("TRT_RegionSelectorTable", this),
     m_lutCreatorToolLAR  ("LArRegionSelectorTable", this),
     m_lutCreatorToolTile ("TileRegionSelectorTable", this),
-    m_SCTCablingToolInc("SCT_CablingToolInc"),
     m_geoModelSvc("GeoModelSvc",name),
     m_DeltaZ(168),
     m_initRPC(true),
@@ -99,9 +95,6 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "enablesTGC",  m_initsTGC,     "enable sTGC map" );
   declareProperty( "WriteTables", m_dumpTable,    "write out maps to files for debugging" );
   declareProperty( "OutputFile",  m_roiFileName,  "base filename used to write maps to" );
-  declareProperty( "PixelRegionLUT_CreatorTool", m_lutCreatorToolPixel);
-  declareProperty( "SCT_RegionLUT_CreatorTool",  m_lutCreatorToolSCT);
-  declareProperty( "TRT_RegionLUT_CreatorTool",  m_lutCreatorToolTRT);
   declareProperty( "LArRegionSelectorTable",     m_lutCreatorToolLAR);
   declareProperty( "TileRegionSelectorTable",    m_lutCreatorToolTile);
   declareProperty( "RPCRegionSelectorTable",     m_lutCreatorToolRPC);

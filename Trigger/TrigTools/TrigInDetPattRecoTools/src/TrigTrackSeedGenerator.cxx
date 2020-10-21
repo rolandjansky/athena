@@ -599,6 +599,7 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool ch
 void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int nInner, int nOuter,
 					    std::vector<TrigInDetTriplet>& output, const IRoiDescriptor* roiDescriptor) {
 
+  if (m_settings.m_LRTmode) std::cout<<"TrigTrackSeedGenerator::createTriplets in LRT mode "<<std::endl;
 
   if(nInner==0 || nOuter==0) return;
 
@@ -765,21 +766,26 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       //6. add new triplet
 
-      const float Q = fabs_d0*fabs_d0;
+      //  Calculate triplet weight: No weighting in LRT mode, but d0**2 weighting for normal (non LRT) mode. Triplets are then sorted by lowest weight.
+      const double Q= (m_settings.m_LRTmode ? 0 : fabs_d0*fabs_d0);
       if(output.size()>=m_settings.m_maxTripletBufferLength) {
-        std::sort(output.begin(), output.end(), 
-          [](const TrigInDetTriplet& A, const TrigInDetTriplet& B) {
-            return A.Q() > B.Q();
-          }
-        );
+	if (m_settings.m_LRTmode) { // take the first m_maxTripletBufferLength triplets
+	  continue;
+	} else { // choose smallest d0
 
-        std::vector<TrigInDetTriplet>::iterator it = output.begin();
-        if( Q >= (*it).Q()) {
-          continue;
-        }
-        output.erase(it);
+	  std::sort(output.begin(), output.end(), 
+		    [](TrigInDetTriplet A, const TrigInDetTriplet B) {
+		      return A.Q() > B.Q();
+		    }
+		    );
+
+	  std::vector<TrigInDetTriplet>::iterator it = output.begin();
+	  if( Q >= (*it).Q()) {
+	    continue;
+	  }
+	  output.erase(it);
+	}
       }
-
       output.emplace_back(*m_SoA.m_spi[innIdx], *pS, *m_SoA.m_spo[outIdx-nInner], Q);
     }
   }
@@ -1090,7 +1096,9 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 void TrigTrackSeedGenerator::storeTriplets(std::vector<TrigInDetTriplet>& tripletVec) {
   for(std::vector<TrigInDetTriplet>::iterator it=tripletVec.begin();it!=tripletVec.end();++it) {
     float newQ = (*it).Q();
-    if((*it).s3().isSCT()) {
+
+    if((!m_settings.m_LRTmode) && (*it).s3().isSCT()) {
+      // In normal (non LRT) mode penalise SSS by 1000, PSS (if enabled) and PPS by 10000
       newQ += (*it).s1().isSCT() ? 1000.0 : 10000.0;
     }
     (*it).Q(newQ);

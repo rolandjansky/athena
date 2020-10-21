@@ -370,7 +370,7 @@ static std::string formatOutputName(const SH::MetaObject& sampleMeta,
   static const std::string nickname = 
     gSystem->GetFromPipe(Form("python -c \"%s\" 2>/dev/null", 
 			      "from pandatools import PsubUtils;"
-			      "print PsubUtils.getNickname();")).Data();
+			      "print(PsubUtils.getNickname());")).Data();
     
   TString out = pattern.c_str();
 

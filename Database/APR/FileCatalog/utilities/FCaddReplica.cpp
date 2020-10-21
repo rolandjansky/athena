@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**FCaddReplica.cpp -- FileCatalog command line tool to add replica pfn 
@@ -20,8 +20,6 @@ void printUsage(){
   std::cout<<"usage: FCaddReplica -r replica [-p pfname -g guid -u contactstring -h]" <<std::endl;
 }
 
-static const char* opts[] = {"r","p","g","u","h",0};
-
 
 int main(int argc, char** argv)
 {
@@ -33,6 +31,7 @@ int main(int argc, char** argv)
   FileCatalog::FileID myguid;
   try{
     CommandLine commands(argc,argv);
+    const char* opts[] = {"r","p","g","u","h",0};
     commands.CheckOptions(opts);
     
     if( commands.Exists("u") ){
@@ -51,22 +50,22 @@ int main(int argc, char** argv)
     }
     if( commands.Exists("h") ){
       printUsage();
-      exit(0);
+      return 0;
     }
   }catch(std::string& strError){
     std::cerr << "Error: command parsing error "<<strError<<std::endl;
-    exit(-1);
+    return -1;
   }
   
   if( myrpf.empty() ){
     printUsage();
     std::cerr<<"Error: must specify replica name using -r"<<std::endl;
-    exit(0);
+    return 0;
   }
   if( mypfn.empty()&& myguid.empty() ){
     printUsage();
     std::cerr<<"Error: must specify PFN using -p or guid using -g"<<std::endl;
-    exit(0);
+    return 0;
   }
   try{
     std::unique_ptr<IFileCatalog> mycatalog(new IFileCatalog);
@@ -88,10 +87,10 @@ int main(int argc, char** argv)
     }
   }catch (const pool::Exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }catch (const std::exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }
 }
 

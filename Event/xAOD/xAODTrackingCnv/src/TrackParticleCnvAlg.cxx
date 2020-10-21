@@ -51,6 +51,9 @@ namespace xAODMaker {
     declareProperty( "ConvertTracks",           m_convertTracks = false ); 
     declareProperty( "TrackCollectionCnvTool",                 m_TrackCollectionCnvTool );
     declareProperty( "RecTrackParticleContainerCnvTool",       m_RecTrackParticleContainerCnvTool );
+    declareProperty( "DoMonitoring",      m_doMonitoring = false  );
+    declareProperty( "TrackMonTool",      m_trackMonitoringTool  );
+
   }
 
   StatusCode TrackParticleCnvAlg::initialize() {
@@ -62,11 +65,11 @@ namespace xAODMaker {
     if(m_addTruthLink) ATH_CHECK(m_truthClassifier.retrieve());
     else m_truthClassifier.disable();
     ATH_CHECK( m_TrackCollectionCnvTool.retrieve() );
-    ATH_CHECK( m_RecTrackParticleContainerCnvTool.retrieve() );
+    ATH_CHECK( m_RecTrackParticleContainerCnvTool.retrieve(DisableTool{!m_convertAODTrackParticles}) );
     // to preserve the inisialised parameters of the ParticleCreatorTool:
     ATH_MSG_DEBUG( "Overriding particle creator tool settings." );
     ATH_CHECK( m_TrackCollectionCnvTool->setParticleCreatorTool( &m_particleCreator ) );
-    ATH_CHECK( m_RecTrackParticleContainerCnvTool->setParticleCreatorTool( &m_particleCreator ) );
+    if(m_convertAODTrackParticles) ATH_CHECK( m_RecTrackParticleContainerCnvTool->setParticleCreatorTool( &m_particleCreator ) );
 
     ATH_CHECK(m_xaodout.initialize(m_convertTracks));
     ATH_CHECK(m_xaodTrackParticlesout.initialize(m_convertAODTrackParticles));
@@ -75,6 +78,9 @@ namespace xAODMaker {
     ATH_CHECK(m_truthParticleLinkVec.initialize(m_addTruthLink));
     ATH_CHECK(m_aodTruth.initialize(m_addTruthLink && m_convertAODTrackParticles));
     ATH_CHECK(m_trackTruth.initialize(m_addTruthLink && m_convertTracks));
+
+    //Retrieve monitoring tool if provided
+    ATH_CHECK( m_trackMonitoringTool.retrieve(DisableTool{!m_doMonitoring}) );
 
 
     // Return gracefully:
@@ -140,6 +146,10 @@ namespace xAODMaker {
       SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodout(m_xaodout, ctx);
       ATH_CHECK(wh_xaodout.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
       convert((*tracks), trackTruth, m_TrackCollectionCnvTool,  wh_xaodout, truthLinks);
+
+      //Monitor track parameters
+      if( m_doMonitoring) m_trackMonitoringTool->monitor_tracks( "Track", "Pass", *wh_xaodout );
+
     }
     if (m_convertAODTrackParticles){
       SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodTrackParticlesout(m_xaodTrackParticlesout, ctx);

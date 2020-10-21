@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ForwardRegionProperties/ForwardRegionProperties.h"
+#include "ForwardRegionProperties.h"
 
 ForwardRegionProperties::ForwardRegionProperties( const std::string& type, const std::string& name, const IInterface* parent )
 : base_class( type, name, parent )

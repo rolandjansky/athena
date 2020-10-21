@@ -3,7 +3,7 @@
 */
 
 //#include "ActsPriVtxFinder/ActsPrimaryVtxFinderAlg.h"
-#include "ActsPriVtxFinder/ActsAdaptiveMultiPriVtxFinderTool.h"
+#include "../ActsAdaptiveMultiPriVtxFinderTool.h"
 
 // DECLARE_COMPONENT( ActsPrimaryVtxFinderAlg )
 DECLARE_COMPONENT( ActsAdaptiveMultiPriVtxFinderTool )

@@ -12,8 +12,6 @@ from __future__ import print_function
 # import the DetFlags for the setting
 from AthenaCommon.DetFlags import DetFlags
 
-from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-
 # import the Extrapolator configurable
 from ActsGeometry.ActsGeometryConf import ActsTrackingGeometryTool
    

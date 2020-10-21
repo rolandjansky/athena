@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/CollectionDescription.h"
@@ -20,8 +20,8 @@ using namespace std;
 
 pool::CollectionDescription::CollectionDescription( const std::string& name,
                                                     const std::string& type,
-                                                    std::string connection,
-                                                    std::string eventReferenceColumnName ) 
+                                                    const std::string& connection,
+                                                    const std::string& eventReferenceColumnName ) 
   : m_name( name ),
     m_type( type ),
     m_connection( connection ),
@@ -343,7 +343,7 @@ pool::CollectionDescription::setName( const std::string& name )
       // rename frament in column map
       for( std::map< std::string, std::string >::iterator colI = m_fragmentNameForColumnName.begin();
 	   colI != m_fragmentNameForColumnName.end();
-	   colI++ ) {
+	   ++colI ) {
 	 if( colI->second == m_name ) {
 	    colI->second = name;
 	    // change the reference inside the column
@@ -409,7 +409,7 @@ pool::CollectionDescription::setColumnId( pool::CollectionColumn *column, int id
       while( column_iter != m_columnIdForColumnName.end() ) {
 	 if( id < column_iter->second )
 	    id = column_iter->second;
-	 column_iter++;
+	 ++column_iter;
       }
       id++;
    }
@@ -869,8 +869,8 @@ pool::CollectionDescription::createIndex( std::string indexName, const std::vect
   // Generate unique name for index.
   if( !indexName.size() ) {
      indexName = fragmentName;
-     for( std::vector< std::string >::const_iterator iName = columnNames.begin(); iName != columnNames.end(); iName++ )     {
-	indexName += "_" + *iName; 
+     for (const std::string& name : columnNames) {
+	indexName += "_" + name; 
      }
      indexName += "_IDX";
   }
@@ -923,7 +923,7 @@ pool::CollectionDescription::dropIndex( const std::vector<std::string>& columnNa
 
 
 void
-pool::CollectionDescription::setUniqueConstraint( std::string constraintName, const std::string& columnName )
+pool::CollectionDescription::setUniqueConstraint( const std::string& constraintNameIn, const std::string& columnName )
 {
    const std::string& methodName("setUniqueConstraint");
    // Check that column is defined in collection description and get its description object.
@@ -933,6 +933,7 @@ pool::CollectionDescription::setUniqueConstraint( std::string constraintName, co
    std::string fragmentName = collectionFragmentName( columnName );
 
   // Generate unique name for unique constraint.
+   std::string constraintName = constraintNameIn;
    if( !constraintName.size() ) {
       constraintName = fragmentName + columnName + "_UC";
    }
@@ -953,8 +954,10 @@ pool::CollectionDescription::setUniqueConstraint( std::string constraintName, co
 
 void
 pool::CollectionDescription::
-setUniqueConstraint( std::string constraintName, const std::vector< std::string >& columnNames )
+setUniqueConstraint( const std::string& constraintNameIn, const std::vector< std::string >& columnNames )
 {
+    std::string constraintName = constraintNameIn;
+
     const std::string& methodName("setUniqueConstraint");
     // Check if constraint is on a single column.
     if ( columnNames.size() == 1 ){
@@ -1023,9 +1026,9 @@ setUniqueConstraint( std::string constraintName, const std::vector< std::string 
   if( !constraintName.size() ) {
      // Generate unique name for unique constraint.
      constraintName = fragmentName;
-     for ( std::vector< std::string >::const_iterator iName = columnNames.begin(); iName != columnNames.end(); iName++ )
+     for (const std::string& name : columnNames)
      {
-	constraintName += "_" + *iName; 
+	constraintName += "_" + name; 
      }
      constraintName += "_UC";
   }
@@ -1109,7 +1112,7 @@ pool::CollectionDescription::unsetUniqueConstraint( const std::vector< std::stri
       delete *iConstraint;
       iConstraint = m_uniqueConstraints.erase( iConstraint );
       for ( std::map< std::string, pool::CollectionColumn* >::iterator iColumn = columnForColumnName.begin();
-            iColumn != columnForColumnName.end(); iColumn++ )
+            iColumn != columnForColumnName.end(); ++iColumn )
       {
         iColumn->second->setIsUnique( false );
       }
@@ -1450,7 +1453,7 @@ pool::CollectionDescription::numberOfColumns( std::string fragmentName ) const
    if( !fragmentName.size() )  {
       return  m_attributeColumnForColumnName.size() + m_tokenColumnForColumnName.size();
    }
-   CollectionFragment* fragment = collectionFragment( fragmentName, "numberOfColumns" );
+   const CollectionFragment* fragment = collectionFragment( fragmentName, "numberOfColumns" );
    return fragment->attributeColumns().size() + fragment->tokenColumns().size();
 }
 
@@ -1481,7 +1484,7 @@ pool::CollectionDescription::columnPtr( const std::string& name ) const
 
 // internal use protected method (when non-const column is needed). throws exceptions
 pool::CollectionColumn *
-pool::CollectionDescription::column( const std::string& name, const std::string& method ) const
+pool::CollectionDescription::column( const std::string& name, const std::string& method )
 {
    std::map< std::string, pool::CollectionColumn* >::const_iterator iColumn;
    iColumn = m_attributeColumnForColumnName.find( name );
@@ -1496,6 +1499,22 @@ pool::CollectionDescription::column( const std::string& name, const std::string&
 }
    
 
+
+const pool::CollectionColumn *
+pool::CollectionDescription::column( const std::string& name, const std::string& method ) const
+{
+   std::map< std::string, pool::CollectionColumn* >::const_iterator iColumn;
+   iColumn = m_attributeColumnForColumnName.find( name );
+   if( iColumn == m_attributeColumnForColumnName.end() ) {
+      iColumn = m_tokenColumnForColumnName.find( name );
+      if( iColumn == m_tokenColumnForColumnName.end() )  {
+         std::string errorMsg = "Column with name `" + name + "' does NOT exist.";
+         throw pool::Exception(errorMsg, "CollectionDescription::" + method, "CollectionBase");
+      }
+   }
+   return iColumn->second;
+}
+   
 
 int 
 pool::CollectionDescription::numberOfTokenColumns( std::string fragmentName ) const
@@ -1609,7 +1628,7 @@ pool::CollectionDescription::attributeColumn( const std::string& columnName ) co
 const pool::ICollectionColumn&
 pool::CollectionDescription::attributeColumn( int columnId, int fragmentId ) const
 {
-   CollectionFragment* fragment = collectionFragment( fragmentId, "attributeColumn" );
+   const CollectionFragment* fragment = collectionFragment( fragmentId, "attributeColumn" );
    std::vector< pool::CollectionColumn* > columns = fragment->attributeColumns();
 
    if( columnId >= 0 && columnId < (int) columns.size() )  {
@@ -1630,7 +1649,7 @@ pool::CollectionDescription::attributeColumn( int columnId, int fragmentId ) con
 const pool::ICollectionColumn&
 pool::CollectionDescription::attributeColumn( int columnId, const std::string& fragmentName ) const
 {
-   CollectionFragment* fragment = collectionFragment( fragmentName, "attributeColumn" );
+   const CollectionFragment* fragment = collectionFragment( fragmentName, "attributeColumn" );
    std::vector< pool::CollectionColumn* > columns = fragment->attributeColumns();
    if( columnId >= 0 && columnId < (int)columns.size() )    {
       return *( columns[ columnId ] );
@@ -1777,6 +1796,22 @@ pool::CollectionDescription::collectionFragment( const std::string& fragmentName
    
 
 pool::CollectionFragment *
+pool::CollectionDescription::collectionFragment( const std::string& fragmentName, const std::string& method )
+{
+   std::map< std::string, pool::CollectionFragment* >::const_iterator iFragment = 
+      m_fragmentForFragmentName.find( fragmentName );
+
+   if( iFragment == m_fragmentForFragmentName.end() )  {
+      std::string errorMsg = "Collection fragment `" + fragmentName + "' NOT found.";
+      throw pool::Exception( errorMsg,
+			     "CollectionDescription::" + method,
+			     "CollectionBase" );
+   } 
+   return iFragment->second;
+}
+
+
+const pool::CollectionFragment *
 pool::CollectionDescription::collectionFragment( const std::string& fragmentName, const std::string& method ) const
 {
    std::map< std::string, pool::CollectionFragment* >::const_iterator iFragment = 
@@ -1800,6 +1835,24 @@ pool::CollectionDescription::collectionFragment( int fragmentId ) const
 
 
 pool::CollectionFragment *
+pool::CollectionDescription::collectionFragment( int fragmentId, const std::string& method  )
+{
+  std::map< int, pool::CollectionFragment* >::const_iterator iFragment = m_fragmentForFragmentId.find( fragmentId );
+
+  if ( iFragment == m_fragmentForFragmentId.end() )
+  {
+    std::string errorMsg = "Not using a collection fragment with ID " + std::to_string(fragmentId);
+    throw pool::Exception( errorMsg,
+                           "CollectionDescription::" + method,
+                           "CollectionBase" );
+  }
+ 
+  return iFragment->second;
+}
+
+
+
+const pool::CollectionFragment *
 pool::CollectionDescription::collectionFragment( int fragmentId, const std::string& method  ) const
 {
   std::map< int, pool::CollectionFragment* >::const_iterator iFragment = m_fragmentForFragmentId.find( fragmentId );

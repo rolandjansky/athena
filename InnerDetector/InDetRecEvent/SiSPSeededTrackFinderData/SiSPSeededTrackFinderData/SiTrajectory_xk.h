@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,8 @@ namespace InDet{
          const Trk::TrackParameters                          &,
          std::list<const InDet::SiCluster*>                  &,
          std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
-         bool                                                &);
+         bool                                                &,
+         const EventContext&);
 
       bool trackParametersToClusters
         (const PixelClusterContainer*                             ,

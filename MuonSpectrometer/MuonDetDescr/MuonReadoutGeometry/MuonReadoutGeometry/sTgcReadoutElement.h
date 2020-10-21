@@ -2,19 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- sTgc Readout Element properties
- -----------------------------------------
-***************************************************************************/
-
 #ifndef MUONGEOMODEL_STGCREADOUTELEMENT_H
-# define MUONGEOMODEL_STGCREADOUTELEMENT_H
+#define MUONGEOMODEL_STGCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include "MuonReadoutGeometry/MuonPadDesign.h"
-
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
 class BLinePar;
@@ -22,7 +16,6 @@ class BLinePar;
 namespace Trk{
   class PlaneSurface;
 }
-
 
 namespace MuonGM {
   /**

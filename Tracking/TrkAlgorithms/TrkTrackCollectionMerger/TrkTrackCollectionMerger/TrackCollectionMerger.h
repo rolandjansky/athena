@@ -72,7 +72,7 @@ namespace Trk {
 
       /** @brief A routine that merges the track collections. */
       StatusCode    mergeTrack(const TrackCollection* trackCol,
-                               Trk::PRDtoTrackMap &prd_to_track_map,
+                               Trk::PRDtoTrackMap *pPrdToTrackMap,
                                TrackCollection* outputCol);
 
       MsgStream&    dumptools(MsgStream&    out) const;

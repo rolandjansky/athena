@@ -306,7 +306,8 @@ def isFilterAlg(alg):
 def isComboHypoAlg(alg):
     return  ('MultiplicitiesMap'  in alg.__class__.__dict__)
 
-
+def isHypoAlg(alg):
+    return isHypoBase(alg) and not isComboHypoAlg(alg)
 
 
 ##########################################################
@@ -515,6 +516,7 @@ class CAMenuSequence(MenuSequence):
         return self._hypo
 
 
+
 class Chain(object):
     """Basic class to define the trigger menu """
     __slots__ ='name','steps','nSteps','alignmentGroups','vseeds','L1decisions'
@@ -655,6 +657,7 @@ class Chain(object):
                 # new way to configure hypo tools, works if the chain dictionaries have been attached to the steps
                 log.debug('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
                 log.debug("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.chainDicts))
+
                 assert len(step.sequences)==len(step.chainDicts), "createHypoTools only makes sense if number of sequences == number of chain dicts"
                 for seq, onePartChainDict in zip(step.sequences, step.chainDicts):
                     log.debug('    seq: %s, onePartChainDict:', seq.name)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/CollectionBaseNames.h"
@@ -222,7 +222,7 @@ dropIndex( const std::vector<std::string>& /* columnNames  */)
 
 void
 pool::RootCollection::RootCollectionSchemaEditor::
-setUniqueConstraint( std::string /* constraintName */, const std::string& /* columnName  */)
+setUniqueConstraint( const std::string& /* constraintName */, const std::string& /* columnName  */)
 {
    methodNotImplemented("setUniqueConstraint ");
 }
@@ -233,7 +233,7 @@ setUniqueConstraint( std::string /* constraintName */, const std::string& /* col
 
 void
 pool::RootCollection::RootCollectionSchemaEditor::
-setUniqueConstraint( std::string /* constraintName */, const std::vector<std::string>& /* columnNames  */)
+setUniqueConstraint( const std::string& /* constraintName */, const std::vector<std::string>& /* columnNames  */)
 {
    methodNotImplemented("setUniqueConstraint ");
 }
@@ -301,7 +301,7 @@ renameCollectionFragment( const std::string& /* oldName */, const std::string& /
 
 void
 pool::RootCollection::RootCollectionSchemaEditor::
-addTreeBranch( const std::string& name, const std::string type_name )
+addTreeBranch( const std::string& name, const std::string& type_name )
 {
    static std::map< std::string, char > typeDict;
    if( !typeDict.size() ) {

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from InDetRecExample import TrackingCommon as TrackingCommon
@@ -6,32 +6,31 @@ from InDetRecExample import TrackingCommon as TrackingCommon
 print("EMCommonRefitter.py")
 
 
-def getGSFTrackFitter():
-    egRotCreator = TrackingCommon.getInDetRotCreator(
-        name='egRotCreator',
-        private=True)
+def getGSFTrackFitter(doRefitOnMeasurementBase=True):
 
-    TrackingCommon.createAndAddCondAlg(
-        TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
-        'RIO_OnTrackErrorScalingCondAlg')
+    egRotCreator = None
+    if not doRefitOnMeasurementBase:
+        egRotCreator = TrackingCommon.getInDetRotCreator(
+            name='egRotCreator',
+            private=True)
 
-    # get Rk propagator
+        TrackingCommon.createAndAddCondAlg(
+            TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
+            'RIO_OnTrackErrorScalingCondAlg')
+
+    # setup Rk propagator
     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import (
         Trk__RungeKuttaPropagator as Propagator)
 
     egTrkPropagator = Propagator(name='egTrkPropagator')
     egTrkPropagator.AccuracyParameter = 0.0001
 
-    # Setup the Navigator (default)
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import (
-        AtlasTrackingGeometrySvc)
-
-    from TrkExTools.TrkExToolsConf import Trk__Navigator
-    egTrkNavigator = Trk__Navigator(
+    # setup Navigator
+    egTrkNavigator = TrackingCommon.getInDetNavigator(
         name='egTrkNavigator',
-        TrackingGeometrySvc=AtlasTrackingGeometrySvc)
+        private=True)
 
-    # Set up the GSF
+    # setup the GSF
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GsfMaterialMixtureConvolution)
 
@@ -59,7 +58,7 @@ def getGSFTrackFitter():
         ToolForExtrapolation=GsfExtrapolator,
         ReintegrateOutliers=True,
         MakePerigee=True,
-        RefitOnMeasurementBase=True,
+        RefitOnMeasurementBase=doRefitOnMeasurementBase,
         DoHitSorting=True,
         ToolForROTCreation=egRotCreator)
     # --- end of fitter loading

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -636,6 +636,7 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
   }
 
   if (m_emulateDsp) {
+    using TileRawChannelBuilderOpt2::lookup;
     round = 1 << (ascale - 2);
     short e2Dsp = (unsigned short) ((dspEnergy + round) >> (ascale - 1));
     size_t OptInd = abs(e2Dsp);

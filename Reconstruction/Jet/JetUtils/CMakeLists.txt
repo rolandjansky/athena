@@ -1,40 +1,7 @@
-# $Id: CMakeLists.txt 801794 2017-03-29 15:34:20Z elmsheus $
-################################################################################
-# Package: JetUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetUtils )
-
-# Declare the package's dependencies:
-if( XAOD_STANDALONE OR XAOD_ANALYSIS )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Event/xAOD/xAODCaloEvent
-      Event/xAOD/xAODJet
-      Event/xAOD/xAODTracking
-      PRIVATE
-      Calorimeter/CaloGeoHelpers
-      Event/xAOD/xAODPFlow
-      Control/AthLinks )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Calorimeter/CaloEvent
-      Event/xAOD/xAODCaloEvent
-      Event/xAOD/xAODJet
-      Event/xAOD/xAODTracking
-      PRIVATE
-      Calorimeter/CaloGeoHelpers
-      Control/AthLinks
-      Control/SGTools
-      Control/AthenaKernel
-      Event/xAOD/xAODPFlow
-      TileCalorimeter/TileEvent )
-endif()
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree RIO )
 
 # Component(s) in the package:
 if( XAOD_STANDALONE OR XAOD_ANALYSIS )
@@ -55,14 +22,12 @@ endif()
 if( NOT XAOD_STANDALONE )
    atlas_add_test( JetUtils_CaloQual_test
       SOURCES test/JetUtils_CaloQual_test.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent JetUtils AthLinks SGTools AthenaKernel
+      LINK_LIBRARIES xAODCaloEvent JetUtils SGTools AthenaKernel
       LOG_IGNORE_PATTERN "no dictionary for class" )
 elseif( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_test( JetUtils_CaloQual_test
       SOURCES test/JetUtils_CaloQual_test.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCaloEvent JetUtils AthLinks 
+      LINK_LIBRARIES xAODRootAccess xAODCaloEvent JetUtils
       LOG_IGNORE_PATTERN "no dictionary for class|xAOD::Init" )
 endif()
 

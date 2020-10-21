@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestDriver.h"
@@ -91,7 +91,7 @@ TestDriver::write()
        token.oid().first = i%4;
        token.oid().second = 100000*tok_n + i;
        if( iToken.tokenName() == "Ref" )
-          token.oid().second += 1<<31U;
+          token.oid().second += 1u<<31U;
        token.setData( &*iToken );
        cout << "Storing token:" << iToken->toString() << endl;
        tok_n++;  ++iToken;

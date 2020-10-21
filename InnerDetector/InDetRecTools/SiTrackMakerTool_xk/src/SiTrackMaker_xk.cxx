@@ -675,8 +675,8 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   // Get detector elements road
   //
   std::list<const InDetDD::SiDetectorElement*> DE;
-  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::alongMomentum,   DE);
-  else                m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::oppositeMomentum,DE);
+  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::alongMomentum,   DE, data.roadMakerData());
+  else                m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::oppositeMomentum,DE, data.roadMakerData());
 
   if (!data.pix() || !data.sct() || data.dbm()) detectorElementsSelection(data, DE);
 
@@ -695,15 +695,15 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   // Find possible list of tracks using space points space points information
   //
   if (!m_useBremModel) {
-    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack());
+    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(),ctx);
   } else if (!m_useCaloSeeds) {
     ++data.summaryStatAll()[kTotalBremSeeds][K];
-    tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), false);
+    tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), false,ctx);
   } else if (isCaloCompatible(data)) {
     ++data.summaryStatAll()[kTotalBremSeeds][K];
-    tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), true);
+    tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), true,ctx);
   } else {
-    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack());
+    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(),ctx);
   }
 
   std::array<bool,SiCombinatorialTrackFinderData_xk::kNCombStats> inf{0,0,0,0,0,0};   m_tracksfinder->fillStatistic(data.combinatorialData(),inf);                                      
@@ -768,8 +768,8 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   // Get detector elements road
   //
   std::list<const InDetDD::SiDetectorElement*> DE;
-  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::alongMomentum,   DE);
-  else                m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::oppositeMomentum,DE);
+  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::alongMomentum,   DE, data.roadMakerData());
+  else                m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::oppositeMomentum,DE, data.roadMakerData());
 
   if (!data.pix() || !data.sct()) detectorElementsSelection(data, DE);
 
@@ -780,13 +780,13 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   std::vector<const Trk::SpacePoint*>  Sp;
   
   if (!m_useBremModel) {
-    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack());
+    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(),ctx);
   } else if (!m_useCaloSeeds) {
-   tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(), false);
+   tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(), false,ctx);
   } else if (isCaloCompatible(data)) {
-    tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(), true);
+    tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(), true,ctx);
   } else {
-    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack());
+    tracks = m_tracksfinder->getTracks        (data.combinatorialData(), Tp, Sp, Gp, DE, data.clusterTrack(),ctx);
   }
   
   if (m_seedsfilter) {

@@ -10,6 +10,7 @@
  */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
@@ -66,31 +67,33 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
 StatusCode
 Trk::GaussianSumFitter::initialize()
 {
-  StatusCode sc;
+
+  if (m_maximumNumberOfComponents > GSFConstants::maxNumberofStateComponents) {
+    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > "
+                  << GSFConstants::maxNumberofStateComponents);
+    return StatusCode::FAILURE;
+  }
+
   // Request the GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
+
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used
-  if (m_rioOnTrackCreator.retrieve().isFailure()) {
-    if (!m_refitOnMeasurementBase) {
-      ATH_MSG_FATAL("Attempting to use PrepRawData with no RIO_OnTrack creator "
-                    "tool provided... Exiting!");
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO(
-      "Request to retrieve the RIO_OnTrack Creator"
-      << "failed but track is fit at the MeasurementBase level... Continuing!");
+  if (!m_refitOnMeasurementBase) {
+    ATH_MSG_INFO("NOT refitOnMeasurementBase");
+    ATH_CHECK(m_rioOnTrackCreator.retrieve());
+  } else {
+    ATH_MSG_INFO("refitOnMeasurementBase");
+    m_rioOnTrackCreator.disable();
   }
+
   if (m_overideMaterialEffectsSwitch) {
-    ATH_MSG_INFO("Material effects in forwards fitter have been overiden by "
+    ATH_MSG_INFO("Material effects in forward fitter have been overiden by "
                  "jobOptions... New "
                  "Trk::ParticleHypothesis: "
                  << m_overideMaterialEffects);
   }
-  if (m_maximumNumberOfComponents > 16) {
-    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
-    return StatusCode::FAILURE;
-  }
+
   // Initialise the closest track parameters search algorithm
   Amg::Vector3D referencePosition(m_sortingReferencePoint[0],
                                   m_sortingReferencePoint[1],
@@ -278,21 +281,20 @@ Trk::GaussianSumFitter::fit(
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
 
   // Perform GSF forwards fit
-  std::unique_ptr<ForwardTrajectory> forwardTrajectory =
-    fitPRD(ctx,
-           extrapolatorCache,
-           sortedPrepRawDataSet,
-           estimatedParametersNearOrigin,
-           particleHypothesis);
+  ForwardTrajectory forwardTrajectory = fitPRD(ctx,
+                                               extrapolatorCache,
+                                               sortedPrepRawDataSet,
+                                               estimatedParametersNearOrigin,
+                                               particleHypothesis);
 
-  if (!forwardTrajectory || forwardTrajectory->empty()) {
+  if (forwardTrajectory.empty()) {
     ++m_ForwardFailure;
     return nullptr;
   }
 
   // Perform GSF smoother operation
   std::unique_ptr<SmoothedTrajectory> smoothedTrajectory =
-    fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis);
+    fit(ctx, extrapolatorCache, forwardTrajectory, particleHypothesis);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -412,19 +414,14 @@ Trk::GaussianSumFitter::fit(
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
 
   // Perform GSF forwards fit - new memory allocated in forwards fitter
-  std::unique_ptr<ForwardTrajectory> forwardTrajectory =
+  ForwardTrajectory forwardTrajectory =
     fitMeasurements(ctx,
                     extrapolatorCache,
                     sortedMeasurementSet,
                     estimatedParametersNearOrigin,
                     particleHypothesis);
 
-  if (!forwardTrajectory) {
-    ++m_ForwardFailure;
-    return nullptr;
-  }
-
-  if (forwardTrajectory->empty()) {
+  if (forwardTrajectory.empty()) {
     ++m_ForwardFailure;
     return nullptr;
   }
@@ -432,7 +429,7 @@ Trk::GaussianSumFitter::fit(
   // Perform GSF smoother operation
 
   std::unique_ptr<SmoothedTrajectory> smoothedTrajectory =
-    fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis, ccot);
+    fit(ctx, extrapolatorCache, forwardTrajectory, particleHypothesis, ccot);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -754,7 +751,7 @@ Trk::GaussianSumFitter::buildFitQuality(
 /*
  * Forwards fit on a set of PrepRawData
  */
-std::unique_ptr<Trk::ForwardTrajectory>
+Trk::ForwardTrajectory
 Trk::GaussianSumFitter::fitPRD(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
@@ -787,7 +784,7 @@ Trk::GaussianSumFitter::fitPRD(
   }
 
   // Create new trajectory
-  auto forwardTrajectory = std::make_unique<Trk::ForwardTrajectory>();
+  Trk::ForwardTrajectory forwardTrajectory{};
 
   // Prepare the multi-component state. For starting guess this has single
   // component, weight 1
@@ -817,7 +814,7 @@ Trk::GaussianSumFitter::fitPRD(
     bool stepIsValid = stepForwardFit(
       ctx,
       extrapolatorCache,
-      forwardTrajectory.get(),
+      forwardTrajectory,
       *prepRawData,
       nullptr,
       (*prepRawData)->detectorElement()->surface((*prepRawData)->identify()),
@@ -825,7 +822,7 @@ Trk::GaussianSumFitter::fitPRD(
       configuredParticleHypothesis);
 
     if (!stepIsValid) {
-      return nullptr;
+      return Trk::ForwardTrajectory{};
     }
   }
   return forwardTrajectory;
@@ -834,7 +831,7 @@ Trk::GaussianSumFitter::fitPRD(
 /*
  * Forwards fit on a set of Measurements
  */
-std::unique_ptr<Trk::ForwardTrajectory>
+Trk::ForwardTrajectory
 Trk::GaussianSumFitter::fitMeasurements(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
@@ -843,14 +840,9 @@ Trk::GaussianSumFitter::fitMeasurements(
   const Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  if (!m_extrapolator) {
-    ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
-    return nullptr;
-  }
-
   if (inputMeasurementSet.empty()) {
     ATH_MSG_ERROR("Input MeasurementSet is empty... Exiting!");
-    return nullptr;
+    return Trk::ForwardTrajectory{};
   }
 
   // Configure for forwards filtering material effects overide
@@ -862,9 +854,7 @@ Trk::GaussianSumFitter::fitMeasurements(
     configuredParticleHypothesis = particleHypothesis;
   }
 
-  // This memory should be freed by the fitter / smoother master method
-  auto forwardTrajectory = std::make_unique<Trk::ForwardTrajectory>();
-
+  Trk::ForwardTrajectory forwardTrajectory{};
   // Prepare the multi-component state. For starting guess this has single
   // component, weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
@@ -892,7 +882,7 @@ Trk::GaussianSumFitter::fitMeasurements(
 
     bool stepIsValid = stepForwardFit(ctx,
                                       extrapolatorCache,
-                                      forwardTrajectory.get(),
+                                      forwardTrajectory,
                                       nullptr,
                                       *measurement,
                                       (*measurement)->associatedSurface(),
@@ -900,7 +890,7 @@ Trk::GaussianSumFitter::fitMeasurements(
                                       configuredParticleHypothesis);
 
     if (!stepIsValid) {
-      return nullptr;
+      return Trk::ForwardTrajectory{};
     }
   }
   return forwardTrajectory;
@@ -913,7 +903,7 @@ bool
 Trk::GaussianSumFitter::stepForwardFit(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
-  ForwardTrajectory* forwardTrajectory,
+  ForwardTrajectory& forwardTrajectory,
   const Trk::PrepRawData* originalPrepRawData,
   const Trk::MeasurementBase* originalMeasurement,
   const Trk::Surface& surface,
@@ -922,14 +912,14 @@ Trk::GaussianSumFitter::stepForwardFit(
 {
   // Protect against undefined Measurement or PrepRawData
   if (!originalPrepRawData && !originalMeasurement) {
-    ATH_MSG_WARNING(
-      "No measurement information passed to StepForwardFit... Exiting!");
+    ATH_MSG_WARNING("No measurement base or PrepRawData  passed to "
+                    "StepForwardFit... Exiting!");
     return false;
   }
 
-  // Protect against ForwardTrajectory not defined
-  if (!forwardTrajectory) {
-    ATH_MSG_WARNING("ForwardTrajectory object is not defined... Exiting!");
+  if (!originalMeasurement && m_refitOnMeasurementBase) {
+    ATH_MSG_WARNING(
+      "No measurement base information passed to StepForwardFit... Exiting!");
     return false;
   }
 
@@ -996,7 +986,7 @@ Trk::GaussianSumFitter::stepForwardFit(
         nullptr,
         type);
 
-    forwardTrajectory->push_back(multiComponentStateOnSurface);
+    forwardTrajectory.push_back(multiComponentStateOnSurface);
     // Clean up objects associated with removed measurement
     updatedState = std::move(extrapolatedState);
   } else {
@@ -1005,7 +995,7 @@ Trk::GaussianSumFitter::stepForwardFit(
         measurement.release(),
         MultiComponentStateHelpers::clone(extrapolatedState).release(),
         fitQuality.release());
-    forwardTrajectory->push_back(multiComponentStateOnSurface);
+    forwardTrajectory.push_back(multiComponentStateOnSurface);
   }
   return true;
 }

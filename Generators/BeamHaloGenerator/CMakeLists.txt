@@ -1,18 +1,7 @@
-################################################################################
-# Package: BeamHaloGenerator
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( BeamHaloGenerator )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          Generators/AtlasHepMC
-                          Generators/GeneratorModules
-                          Generators/AtlasHepMC
-                          PRIVATE
-                          Control/AthenaKernel )
 
 # External dependencies:
 find_package( CLHEP )
@@ -31,8 +20,7 @@ atlas_add_library( BeamHaloGeneratorLib
 
 atlas_add_component( BeamHaloGenerator
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel GeneratorModulesLib AthenaKernel BeamHaloGeneratorLib )
+                     LINK_LIBRARIES BeamHaloGeneratorLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

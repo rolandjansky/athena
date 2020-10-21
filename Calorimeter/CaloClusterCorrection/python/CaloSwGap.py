@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwGap.py,v 1.7 2007-10-17 21:05:52 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwGap.py
 # Created: Nov 2006, sss
@@ -19,17 +17,19 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls_g3 = CaloClusterCorrectionConf.CaloSwGap_g3
-cls_v2 = CaloClusterCorrectionConf.CaloSwGap_v2
-cls_v3 = CaloClusterCorrectionConf.CaloSwGap_v3
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls_g3 = CompFactory.CaloSwGap_g3  # CaloClusterCorrection
+cls_v2 = CompFactory.CaloSwGap_v2  # CaloClusterCorrection
+cls_v3 = CompFactory.CaloSwGap_v3  # CaloClusterCorrection
 CaloSwGap_versions = [
     # The original G3-based gap correction, translated from the
     # original fortran version.
@@ -75,6 +75,7 @@ CaloSwGap_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -95,7 +96,8 @@ CaloSwGap_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwGap (name = None,
+def make_CaloSwGap (flags,
+                    name = None,
                     suffix = None,
                     version = None,
                     key = CALOCORR_DEFAULT_KEY,
@@ -104,11 +106,12 @@ def make_CaloSwGap (name = None,
                     cells_name = None,
                     **kw):
 
-    if cells_name != None:
+    if cells_name is not None:
         kw['cells_name'] = cells_name
 
     # Make the tool.
-    return makecorr (versions  = CaloSwGap_versions,
+    return makecorr (flags,
+                     versions  = CaloSwGap_versions,
                      name      = name,
                      basename  = 'gap',
                      suffix    = suffix,

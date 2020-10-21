@@ -101,4 +101,10 @@ def precisionElectronRecoSequence(RoIs):
     isoBuilder = TrigElectronIsoBuilderCfg()
     thesequence += isoBuilder
 
+    #online monitoring for topoEgammaBuilder
+    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
+    PrecisionElectronRecoMonAlgo = PrecisionElectronTopoMonitorCfg()
+    PrecisionElectronRecoMonAlgo.ElectronKey = trigTopoEgammaAlgo.ElectronOutputName
+    thesequence += PrecisionElectronRecoMonAlgo
+
     return (thesequence, electronPrecisionTrack, collectionOut)

@@ -8,7 +8,7 @@
 
 TrigMuonEFTrackIsolationAlgMT::TrigMuonEFTrackIsolationAlgMT( const std::string& name, 
                                                               ISvcLocator* pSvcLocator )
-  :AthAlgorithm(name, pSvcLocator),
+  :AthReentrantAlgorithm(name, pSvcLocator),
    m_coneSizes()
 {
   // cone sizes are hard-coded to ensure the correct result goes to the edm
@@ -55,11 +55,10 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::finalize()
 }
 
 
-StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
+StatusCode TrigMuonEFTrackIsolationAlgMT::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Execution");
 
-  auto ctx = getContext();
 
   // variables to initialize and keep values for monitoring variables
   std::vector<double> ini_cone2(0);
@@ -115,13 +114,13 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
   std::vector<double> drvals; // for monitoring
   std::vector<double> selfremoval;
   
-  SG::WriteHandle<xAOD::MuonContainer> muonOutput(m_muonContainerKey);
+  SG::WriteHandle<xAOD::MuonContainer> muonOutput(m_muonContainerKey, ctx);
   ATH_CHECK(muonOutput.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>())); 
   ATH_MSG_DEBUG("Record EF isolation muon : " << m_muonContainerKey.key());
   muonContainer = muonOutput.ptr();
 
-  SG::WriteDecorHandle<xAOD::MuonContainer, double> muonptCone20(m_muonIso20Key);
-  SG::WriteDecorHandle<xAOD::MuonContainer, double> muonptCone30(m_muonIso30Key);
+  SG::WriteDecorHandle<xAOD::MuonContainer, double> muonptCone20(m_muonIso20Key, ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer, double> muonptCone30(m_muonIso30Key, ctx);
 
   for ( auto muon : *efMuonContainer ) {
     const xAOD::Muon::MuonType muonType = muon->muonType();

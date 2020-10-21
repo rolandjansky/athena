@@ -53,7 +53,8 @@ class _Settings :
       self._doFullScan          = False
       self._monPS               = 1
       self._monPtMin            = 1*GeV
-      self._doTRT               = False
+      self._doTRT               = False #Apply TRT extension sequence after ambiguity solving
+      self._keepTrackParameters = False #Keep track parameters in conversion to TrackParticles
 
 #Previous version in:
 #https://gitlab.cern.ch/atlas/athena/-/blob/master/InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigSliceSettings.py#L70
@@ -125,6 +126,10 @@ class _Settings :
    @property
    def doTRT(self):
       return self._doTRT
+
+   @property
+   def keepTrackParameters(self):
+      return self._keepTrackParameters
    
    def printout(self): 
       print( self._name, " :")
@@ -152,6 +157,7 @@ class _Tracking_electron( _Settings ):
       self._doCloneRemoval      = True #Previously False in Run2!
       self._checkRedundantSeeds = True
       self._doTRT               = True
+      self._keepTrackParameters = True
 
 class _Tracking_tauCore( _Settings ): 
    def __init__( self ): 

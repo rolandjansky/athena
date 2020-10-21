@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 ## @file   TrigPSCPythonDbSetup.py
@@ -6,8 +6,8 @@
 ## @author Frank Winklmeier
 ###############################################################
 
-## This is a very minimal Python setup. It is only included when
-## the POSTCOMMAND is non-empty while running from the DB.
+## This is a very minimal Python setup. It is only used when running
+## with athenaHLT from the DB. It is not used in a partition!
 ## Besides providing basic python bindings it also takes care of
 ## switching the OutputLevel in case the "-l" option was used.
 
@@ -38,6 +38,10 @@ logLevel=PscConfig.optmap['LOGLEVEL'].split(',')[0]
 from GaudiPython import *
 from GaudiPython.Bindings import iProperty
 from TrigCommon.TrigPyHelper import trigApp
+
+## If HLT PSK is set on command line read it from DB (and not COOL)
+if 'hltkey' in PscConfig.optmap['JOBOPTIONSPATH']:
+   trigApp.changeJobProperties('HLTPrescaleCondAlg', 'Source', 'DB')
 
 ## Set OutputLevel in JobOptionsSvc if "-l" option was used in athenaHLT
 if logLevel!="INFO":

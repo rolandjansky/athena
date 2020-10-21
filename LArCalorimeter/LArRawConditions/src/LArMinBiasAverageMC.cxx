@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArMinBiasAverageMC.h" 
-
-float LArMinBiasAverageMC::dummy = ERRORCODE;
 
 LArMinBiasAverageMC::LArMinBiasAverageMC()  :LArMinBiasAverageComplete()
 {}
@@ -22,6 +20,5 @@ const float& LArMinBiasAverageMC::minBiasAverage(const HWIdentifier&) const {
   
   std::cout << "LArMinBiasAverageMC is deprecated. Use LArMinBiasAverageSym" << std::endl;
   std::abort();
-  return LArMinBiasAverageMC::dummy;
 }
 

@@ -32,5 +32,6 @@ atlas_add_library( TrkExUtils
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrUtils TrkGeometry 
 		   TrkSurfaces TrkEventPrimitives TrkMaterialOnTrack TrkNeutralParameters TrkParameters CxxUtils
-                   PRIVATE_LINK_LIBRARIES TrkPatternParameters )
+                   TrkPatternParameters
+)
 

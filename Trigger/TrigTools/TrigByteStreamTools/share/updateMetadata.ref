@@ -16,12 +16,13 @@ Py:MetaReader        INFO Current filenames: ['newMeta._0001.data']
     |-- conditions_tag    : None
     |-- eventTypes        : ['IS_DATA', 'IS_ATLAS', 'IS_PHYSICS']
     |-- evt_number        : [38471]
-    |-- file_guid         : AEF2E659-AED8-EA11-BADF-0242AC110002
+    |-- file_guid         : 2A681347-1313-EB11-9120-FA163ED3DF9B
     |-- file_size         : 5513920
     |-- file_type         : BS
     |-- lumiBlockNumbers  : [151]
     |-- nentries          : 5
     |-- processingTags    : ['CostMonitoring', 'Main']
+    |-- project_name      : data18_13TeV
     |-- runNumbers        : [360026]
     |-- run_type          : ['PHYSICS']
     `-- stream            : physics_EnhancedBias

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonPatternCombination.h
@@ -58,11 +58,10 @@ namespace Muon {
     std::vector< MuonPatternChamberIntersect > m_chamberData;
 
     /** type of road **/
-    mutable int m_roadType;
+    int m_roadType;
 
   public:
     int trackRoadType() const;
-    void setTrackRoadType(int roadType);
 
   };
 
@@ -78,10 +77,6 @@ namespace Muon {
     return m_roadType;
   }
 
-  inline void MuonPatternCombination::setTrackRoadType(const int roadType) {
-    m_roadType = roadType;
-    return;
-  }
 }
  
 

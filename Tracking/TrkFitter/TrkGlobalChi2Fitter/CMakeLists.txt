@@ -1,50 +1,16 @@
-################################################################################
-# Package: TrkGlobalChi2Fitter
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir(TrkGlobalChi2Fitter)
 
-# Define the library:
-atlas_add_library(
-    TrkGlobalChi2FitterLib
-    PUBLIC_HEADERS
-    TrkGlobalChi2Fitter
-    LINK_LIBRARIES
-    AthenaBaseComps
-    GaudiKernel
-    TrkEventPrimitives
-    TrkMaterialOnTrack
-    TrkParameters
-    TrkFitterInterfaces
-    TrkFitterUtils
-    AtlasDetDescr
-    IdDictDetDescr
-    EventPrimitives
-    TrkDetDescrInterfaces
-    TrkGeometry
-    TrkSurfaces
-    TrkCompetingRIOsOnTrack
-    TrkMeasurementBase
-    TrkPrepRawData
-    TrkPseudoMeasurementOnTrack
-    TrkRIO_OnTrack
-    TrkSegment
-    TrkTrack
-    TrkVertexOnTrack
-    TrkExInterfaces
-    TrkExUtils
-    TrkToolInterfaces
-    MagFieldElements
-    MagFieldConditions
-    InDetReadoutGeometry
-)
+# External dependencies:
+find_package( CLHEP )
+find_package( Eigen )
 
 # Component(s) in the package:
-atlas_add_component(
+atlas_add_component (
     TrkGlobalChi2Fitter
     src/*.cxx
     src/components/*.cxx
-    LINK_LIBRARIES
-    TrkGlobalChi2FitterLib
-)
+    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AtlasDetDescr EventPrimitives GaudiKernel IdDictDetDescr InDetReadoutGeometry MagFieldConditions MagFieldElements TrkCompetingRIOsOnTrack TrkDetDescrInterfaces TrkEventPrimitives TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkGeometry TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkSurfaces TrkToolInterfaces TrkTrack TrkTrackSummary TrkVertexOnTrack TrkVolumes )

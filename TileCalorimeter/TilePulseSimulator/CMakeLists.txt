@@ -1,13 +1,7 @@
-################################################################################
-# Package: TilePulseSimulator
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TilePulseSimulator )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          GaudiKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Core Tree MathCore RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )

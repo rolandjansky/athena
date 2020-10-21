@@ -1,26 +1,18 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
+import InDetConfig.TrackingCommonConfig         as   TC
 
-def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool',**kwargs) :
+def TRTPhaseCondCfg(flags, name = "TRTPhaseCondAlg", **kwargs):
     acc = ComponentAccumulator()
+    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
+    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(InDetTRTCalDbTool)
 
-    ISF_TrackSummaryHelperTool = CompFactory.iFatras.ISF_TrackSummaryHelperTool(name         = "ISF_TrackSummaryHelperTool",
-                                                                                AssoTool     = "",
-                                                                                DoSharedHits = True)
-
-    kwargs.setdefault("doSharedHits", True)
-    kwargs.setdefault("InDetSummaryHelperTool", ISF_TrackSummaryHelperTool)
-    kwargs.setdefault("AddDetailedInDetSummary", False)
-    kwargs.setdefault("doHolesInDet", False)
-    kwargs.setdefault("doHolesMuon", False)
-    kwargs.setdefault("MuonSummaryHelperTool", "")
-    kwargs.setdefault("AddDetailedMuonSummary", False)
-    kwargs.setdefault("TRT_ElectronPidTool", "")
-    kwargs.setdefault("PixelToTPIDTool", "")
-    kwargs.setdefault("PixelExists", True)
-
-    acc.setPrivateTools(CompFactory.Trk.TrackSummaryTool(name = name, **kwargs))
+    kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
+    # Average T0 CondAlg
+    TRTPhaseCondAlg = CompFactory.TRTPhaseCondAlg(name = name, **kwargs)
+    acc.addCondAlgo(TRTPhaseCondAlg)
     return acc
 
 def InDetCosmicsEventPhaseToolCfg(flags, name='InDetCosmicsEventPhaseTool', **kwargs) :
@@ -36,7 +28,10 @@ def InDetCosmicsEventPhaseToolCfg(flags, name='InDetCosmicsEventPhaseTool', **kw
     else:
         kwargs.setdefault("GlobalOffset", -3.125)
     # CalDb tool
-    InDetTRTCalDbTool = CompFactory.TRT_CalDbTool(name = "TRT_CalDbTool")
+    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
+    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(InDetTRTCalDbTool)
+
     kwargs.setdefault("UseNewEP", True)
     kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
 
@@ -56,7 +51,10 @@ def InDetFixedWindowTrackTimeToolCfg(flags, name='InDetFixedWindowTrackTimeTool'
     else:
         kwargs.setdefault("GlobalOffset", -3.125)
     # CalDb tool
-    InDetTRTCalDbTool = CompFactory.TRT_CalDbTool(name = "TRT_CalDbTool")
+    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
+    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(InDetTRTCalDbTool)
+
     cutWindowCenter  = -8.5
     cutWindowSize    = 7
     kwargs.setdefault("UseNewEP"     , True)
@@ -81,7 +79,10 @@ def InDetSlidingWindowTrackTimeToolCfg(flags, name='InDetSlidingWindowTrackTimeT
     else:
         kwargs.setdefault("GlobalOffset", -3.125)
     # CalDb tool
-    InDetTRTCalDbTool = CompFactory.TRT_CalDbTool(name = "TRT_CalDbTool")
+    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
+    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(InDetTRTCalDbTool)
+
     numberIterations = 5
     cutWindowSize    = 7
     kwargs.setdefault("UseNewEP"         , True)
@@ -107,11 +108,14 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
     InDetFixedWindowTrackTimeTool  = acc.popToolsAndMerge(InDetFixedWindowTrackTimeToolCfg(flags))
     acc.addPublicTool(InDetFixedWindowTrackTimeTool )
 
-    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+    InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
     acc.addPublicTool(InDetTrackSummaryTool)
 
     # CalDb tool
-    InDetTRTCalDbTool = CompFactory.TRT_CalDbTool(name = "TRT_CalDbTool")
+    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
+    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(InDetTRTCalDbTool)
+
     kwargs.setdefault("InputTracksNames" , InputTrackCollections)
     kwargs.setdefault("TrackSummaryTool" , InDetTrackSummaryTool)
     kwargs.setdefault("TRTCalDbTool"     , InDetTRTCalDbTool)
@@ -123,7 +127,6 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
 
     acc.addEventAlgo(CompFactory.InDet.InDetCosmicsEventPhase(name = name, **kwargs))
     return acc
-
 # --------------------------------------------------------------------------------
 #
 # --- TRT phase calculation
@@ -132,6 +135,7 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
 def TRTPhaseCfg(flags, self, InputTrackCollections = [], **kwargs):
     acc = ComponentAccumulator()
     if flags.InDet.doPRDFormation and flags.Detector.RecoTRT:
+        acc.merge(TRTPhaseCondCfg(flags))
         #    
         # --- calculation of the event phase from all 3 input collections
         #

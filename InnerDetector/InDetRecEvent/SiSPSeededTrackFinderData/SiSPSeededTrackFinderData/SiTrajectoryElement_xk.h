@@ -144,7 +144,8 @@ namespace InDet{
 	       const InDet::SiDetElementBoundaryLink_xk*& dl,
 	       const T& sb,
 	       const T& se,
-	       const InDet::SiCluster* si);
+	       const InDet::SiCluster* si,
+	       const EventContext& ctx);
 
       void setTools(const InDet::SiTools_xk*); 
       void setParameters(); 
@@ -377,7 +378,7 @@ namespace InDet{
       double                                      m_radlength   ;
       double                                      m_radlengthN  ;
       double                                      m_energylose  ;
-      double                                      m_halflenght  ;
+      double                                      m_halflength  ;
       double                                      m_step        ;
       double                                      m_xi2max      ;
       double                                      m_xi2maxNoAdd ;

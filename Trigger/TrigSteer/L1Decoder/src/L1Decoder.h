@@ -13,7 +13,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigTimeAlgs/TrigTimeStamp.h"
-#include "ICTPUnpackingTool.h"
+#include "L1Decoder/ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
 #include "IPrescalingTool.h"
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"

@@ -13,7 +13,9 @@ import logging
 import glob
 
 from PROCTools.RunTier0TestsTools import ciRefFileMap, \
-    SimInput, OverlayInputHits, OverlayInputBkg
+    SimInput, \
+    OverlayInputHits, OverlayInputHitsData, \
+    OverlayInputBkg, OverlayInputBkgData
 
 ### Setup global logging
 logging.basicConfig(level=logging.INFO,
@@ -27,14 +29,23 @@ formatter = logging.Formatter('%(levelname)-8s %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-def RunCleanOTest(otest,input_file,bkg_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
+def RunCleanOTest(otest,input_file,bkg_file,pwd,release,extraArg,CleanRunHeadDir,UniqID,data_overlay=False):
 
     if "maxEvents" not in extraArg:
-        extraArg += " --maxEvents=10 "
+        extraArg += " --maxEvents=10"
+
+    if data_overlay and "triggerConfig" not in extraArg:
+        extraArg += " --triggerConfig 'Overlay=NONE'"
+    
+    if not data_overlay and "CA" not in extraArg:
+        extraArg += " --CA Overlay:True"
 
     o=otest.split('-')[-1]
     logging.info("Running clean in rel "+release)
-    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    if data_overlay:
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    else:
+        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
 
     CleanDirName="clean_run_"+otest+"_"+UniqID
 
@@ -42,22 +53,37 @@ def RunCleanOTest(otest,input_file,bkg_file,pwd,release,extraArg,CleanRunHeadDir
             " cd "       + CleanRunHeadDir +" ;" +
             " mkdir -p " + CleanDirName    +" ;" +
             " cd "       + CleanDirName    +" ;" +
-            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            " Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1" )
+            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" )
+    if data_overlay:
+        cmd += "Overlay_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
+    else:
+        cmd += "Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished clean in rel "+release)
-    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    if data_overlay:
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    else:
+        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     pass
 
-def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False):
+def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False,data_overlay=False):
 
     if "maxEvents" not in extraArg:
-        extraArg += " --maxEvents=10 "
+        extraArg += " --maxEvents=10"
+
+    if data_overlay and "triggerConfig" not in extraArg:
+        extraArg += " --triggerConfig 'Overlay=NONE'"
+    
+    if not data_overlay and "CA" not in extraArg:
+        extraArg += " --CA Overlay:True"
 
     o=otest.split('-')[-1]
     logging.info("Running patched in rel "+release)
-    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    if data_overlay:
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    else:
+        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
 
     cmd = " cd "+pwd+" ;"
     if nosetup:
@@ -69,12 +95,18 @@ def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False
     else :
         cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
     cmd += " mkdir -p run_"+otest+"; cd run_"+otest+";"
-    cmd += " Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
+    if data_overlay:
+        cmd += " Overlay_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
+    else:
+        cmd += " Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
 
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished patched in rel "+release)
-    logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    if data_overlay:
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+    else:
+        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     pass
 
 def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
@@ -330,14 +362,14 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,Diff
         exclusion_list = []
         with open(diff_rules_file) as f:
             for line in f:
-                exclusion_list.append('"'+line.rstrip()+'"')
+                exclusion_list.append(r"'{}'".format(line.rstrip()))
     else:
         logging.info("No diff rules file exists, using the default list")
-        exclusion_list = ['"index_ref"', '"(.*)_timings$"', '"(.*)_mems$"']
+        exclusion_list = [r"'index_ref'", r"'(.*)_timings\.(.*)'", r"'(.*)_mems\.(.*)'"]
 
     exclusion_list = ' '.join(exclusion_list)
 
-    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root -v --error-mode resilient --ignore-leaves "+exclusion_list+" --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves "+exclusion_list+" --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     output,error = output.decode('utf-8'), error.decode('utf-8')
 
@@ -678,7 +710,8 @@ def main():
             }
         elif RunOverlay:
             qTestsToRun = {
-            'overlay-d1498':[ 'OverlayPool' ]
+            'overlay-d1592':[ 'Overlay' ],
+            'dataoverlay-d1590':[ 'Overlay' ]
             }
         elif RunPileUp:
             qTestsToRun = { 
@@ -724,6 +757,7 @@ def main():
 
         release = os.environ['AtlasVersion'][0:4]
         OverlayInputBkgFormatted = OverlayInputBkg.format(release, ciRefFileMap['overlay-bkg-' + release])
+        OverlayInputHitsDataFormatted = OverlayInputHitsData.format(release, ciRefFileMap['dataoverlay-hits-' + release])
 
         if RunFast:
             for qtest in qTestsToRun:
@@ -733,7 +767,10 @@ def main():
                     if RunSim:
                         RunCleanSTest(q,SimInput,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     elif RunOverlay:
-                        RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                        if 'data' in q:
+                            RunCleanOTest(q,OverlayInputHitsDataFormatted,OverlayInputBkgData,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,data_overlay=True)
+                        else:
+                            RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass
@@ -742,7 +779,10 @@ def main():
                     if RunSim:
                         RunPatchedSTest(q,SimInput,mypwd,cleanSetup,extraArg)
                     elif RunOverlay:
-                        RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
+                        if 'data' in q:
+                            RunPatchedOTest(q,OverlayInputHitsDataFormatted,OverlayInputBkgData,mypwd,cleanSetup,extraArg,data_overlay=True)
+                        else:
+                            RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
                     else:
                         RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
@@ -764,7 +804,10 @@ def main():
                     if RunSim:
                         RunPatchedSTest(q,SimInput,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     elif RunOverlay:
-                        RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg, nosetup=ciMode)
+                        if 'data' in q:
+                            RunPatchedOTest(q,OverlayInputHitsDataFormatted,OverlayInputBkgData,mypwd,cleanSetup,extraArg, nosetup=ciMode, data_overlay=True)
+                        else:
+                            RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
                         RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config, nosetup=ciMode)
                     pass
@@ -785,7 +828,10 @@ def main():
                     if RunSim:
                         RunCleanSTest(q,SimInput,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     elif RunOverlay:
-                        RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                        if 'data' in q:
+                            RunCleanOTest(q,OverlayInputHitsDataFormatted,OverlayInputBkgData,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,data_overlay=True)
+                        else:
+                            RunCleanOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass
@@ -794,7 +840,10 @@ def main():
                     if RunSim:
                         RunPatchedSTest(q,SimInput,mypwd,cleanSetup,extraArg)
                     elif RunOverlay:
-                        RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
+                        if 'data' in q:
+                            RunPatchedOTest(q,OverlayInputHitsDataFormatted,OverlayInputBkgData,mypwd,cleanSetup,extraArg,data_overlay=True)
+                        else:
+                            RunPatchedOTest(q,OverlayInputHits,OverlayInputBkgFormatted,mypwd,cleanSetup,extraArg)
                     else:   
                         RunPatchedQTest(q,mypwd,mysetup,extraArg,doR2A=r2aMode,trigConfig=trigRun2Config)
                     pass

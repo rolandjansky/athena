@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -147,10 +147,10 @@ private:
     void                    fillMap(unsigned int channel, const FEBIdVector& febIdVec);
 
     /// File map from existing ChannelMap - e.g. on read back
-    void                    fillMap() const; 
+    //void                    fillMap() const; 
 
     ChannelMap              m_febIdVecs;
-    mutable FEBIdMap        m_channelMap;
+    FEBIdMap                m_channelMap;
     unsigned int            m_chansPerGain;
     unsigned int            m_totalChannels;
     unsigned int            m_minGain;
@@ -202,18 +202,22 @@ LArCondFEBIdChanMap::fillMap(unsigned int channel, const FEBIdVector& febIdVec)
     }
 }
 
+#if 0
 inline
 void                 
 LArCondFEBIdChanMap::fillMap() const
 {
     // loop over existing vector of feb id vectors and set up map for
     // each feb id. This is needed, for example on readback
+    // Though these objects are not read directly, so this should
+    // no longer be needed.
     for (unsigned int i = 0; i < m_febIdVecs.size(); ++i) {
 	for (unsigned int j = 0; j < m_febIdVecs[i].size(); ++j) {
 	    m_channelMap[m_febIdVecs[i][j]] = i;
 	}
     }
 }
+#endif
 
 
 
@@ -244,9 +248,7 @@ LArCondFEBIdChanMap::getChannel (FEBId febId,
 	return (true);
     }
     coolChannel = 9999;
-    // Make sure that the map has been filled, e.g. after readback
-    if (!m_channelMap.size()) fillMap(); 
-    FEBIdMap::iterator it = m_channelMap.find(febId);
+    FEBIdMap::const_iterator it = m_channelMap.find(febId);
     if (it != m_channelMap.end()) {
 	if (m_minGain <= gain && gain <= m_maxGain) {
 	    coolChannel = (gain - m_minGain)*m_chansPerGain + (*it).second + m_numOffsetChannels;

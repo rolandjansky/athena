@@ -254,24 +254,25 @@ InDetPhysValMonitoringTool::fillHistograms() {
   }
 
 
-  // get truth vertex container name - m_truthVertexContainerName
-  SG::ReadHandle<xAOD::TruthVertexContainer> truthVrt = SG::ReadHandle<xAOD::TruthVertexContainer>( m_truthVertexContainerName );
+  if( not m_truthVertexContainerName.key().empty()){
+    // get truth vertex container name - m_truthVertexContainerName
+    SG::ReadHandle<xAOD::TruthVertexContainer> truthVrt = SG::ReadHandle<xAOD::TruthVertexContainer>( m_truthVertexContainerName );
 
-  //
-  //Get the HS vertex position from the truthVertexContainer
-  //FIXME: Add plots w.r.t truth HS positions (vertexing plots)
-  //
-  const xAOD::TruthVertex* truthVertex = 0;
-  if (truthVrt.isValid()) {
-    const auto& stdVertexContainer = truthVrt->stdcont();
-    //First truth particle vertex?
-    auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptTruthVertex);
-    truthVertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
-  } else {
-    ATH_MSG_WARNING("Cannot open " << m_truthVertexContainerName.key() << " truth vertex container");
+    //
+    //Get the HS vertex position from the truthVertexContainer
+    //FIXME: Add plots w.r.t truth HS positions (vertexing plots)
+    //
+    const xAOD::TruthVertex* truthVertex = 0;
+    if (truthVrt.isValid()) {
+      const auto& stdVertexContainer = truthVrt->stdcont();
+      //First truth particle vertex?
+      auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptTruthVertex);
+      truthVertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
+    } else {
+      ATH_MSG_WARNING("Cannot open " << m_truthVertexContainerName.key() << " truth vertex container");
+    }
+    if (not truthVertex) ATH_MSG_INFO ("Truth vertex did not pass cuts");
   }
-  if (not truthVertex) ATH_MSG_INFO ("Truth vertex did not pass cuts");
-
   //
   //Counters for cutflow
   //

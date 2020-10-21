@@ -274,14 +274,14 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
   uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex) const 
 {
   uint32_t featureClid = 0; // Note: Unused. We don't care what the type of the feature is here
-  const bool result = (*dEL)->typelessGetObjectLink(featureString(), featureKey, featureClid, featureIndex);
+  const bool foundFeature = typelessFindLink((*dEL), featureString(), featureKey, featureClid, featureIndex);
   // Try and get seeding ROI data too. Don't need to be type-less here
   LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
   if (roiSeedLI.isValid()) {
     roiKey = roiSeedLI.link.key();
     roiIndex = roiSeedLI.link.index();
   }
-  if (!result && !roiSeedLI.isValid()) {
+  if (!foundFeature && !roiSeedLI.isValid()) {
     ATH_MSG_WARNING("Did not find the feature or initialRoI for " << dEL.dataID() << " index " << dEL.index());
   }
   return StatusCode::SUCCESS;

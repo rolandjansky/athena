@@ -31,6 +31,7 @@
 #include "../MmDataPreparator.h"
 #include "../NswPatternFinder.h"
 #include "../NswStationFitter.h"
+#include "../FtfRoadDefiner.h"
 
 using namespace TrigL2MuonSA;
 
@@ -63,6 +64,7 @@ DECLARE_COMPONENT( StgcDataPreparator )
 DECLARE_COMPONENT( MmDataPreparator )
 DECLARE_COMPONENT( NswPatternFinder )
 DECLARE_COMPONENT( NswStationFitter )
+DECLARE_COMPONENT( FtfRoadDefiner )
 
 DECLARE_COMPONENT( PtBarrelLUTSvc )
 DECLARE_COMPONENT( PtEndcapLUTSvc )

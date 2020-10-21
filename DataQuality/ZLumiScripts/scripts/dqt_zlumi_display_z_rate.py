@@ -34,7 +34,7 @@ if min(runs) == max(runs):
     titlestr += ' Run %d' % min(runs)
 
 lumitree.Draw("zrate:lb+10:zratestat", "", "goff")
-print 'Selected rows', lumitree.GetSelectedRows()
+print('Selected rows', lumitree.GetSelectedRows())
 if lumitree.GetSelectedRows() > 0: 
     gr = ROOT.TGraphErrors(lumitree.GetSelectedRows(), lumitree.GetV2(), lumitree.GetV1(), ROOT.nullptr, lumitree.GetV3())
     gr.Draw("ap")
@@ -55,14 +55,15 @@ for i in xrange(lumitree.GetSelectedRows()):
     zrate = lumitree.GetV1()[i]
     instlumi = lumitree.GetVal(5)[i]
     livetime = lumitree.GetVal(4)[i]
-    print >>csvout, '%d, %s, %s, %6f, %6f, %4f, %6f' % (lumitree.GetV4()[i],
-                                                    time.strftime(timeformat, time.gmtime(lumitree.GetV2()[i])), 
-                                                    time.strftime(timeformat, time.gmtime(lumitree.GetV3()[i])), 
-                                                    lumitree.GetV1()[i],
-                                                    instlumi/1e3,
-                                                    instlumi*livetime/1e3,
-                                                    lumitree.GetV1()[i]*livetime
-                                                    )
+    print('%d, %s, %s, %6f, %6f, %4f, %6f' % (lumitree.GetV4()[i],
+                                              time.strftime(timeformat, time.gmtime(lumitree.GetV2()[i])), 
+                                              time.strftime(timeformat, time.gmtime(lumitree.GetV3()[i])), 
+                                              lumitree.GetV1()[i],
+                                              instlumi/1e3,
+                                              instlumi*livetime/1e3,
+                                              lumitree.GetV1()[i]*livetime
+                                              ),
+          file=csvout)
 csvout.close()
 
 lumitree.Draw("zlumi:lb+10:zlumistat", "", "goff")

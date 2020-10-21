@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # D3PDMaker
@@ -58,7 +58,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         self.cid = self.cdd.getCaloCell_ID()
         self.tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
         self.ntfile =  TFile(self.NtupleFileName,"RECREATE")
-        self.hectree = TTree("HECNoise","HECNoise");
+        self.hectree = TTree("HECNoise","HECNoise")
         self.iRun = array('i',[0])
         self.iEvent = array('L',[0])            
         self.iEventCount = array('i',[0])            
@@ -101,30 +101,30 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
             self.hectree.Branch(tl+"_Prescale",self.fPrescale[tl],tl+"_Prescale/F")
             self.hectree.Branch(tl+"_Trigger",self.iTrigger[tl],tl+"_Trigger/I")
             pass
-        self.hectree.Branch("iTime",self.iTime,"iTime/I");
-        self.hectree.Branch("iLB",self.iLB,"iLB/I");
-        self.hectree.Branch("iBCID",self.iBCID,"iBCID/I");
+        self.hectree.Branch("iTime",self.iTime,"iTime/I")
+        self.hectree.Branch("iLB",self.iLB,"iLB/I")
+        self.hectree.Branch("iBCID",self.iBCID,"iBCID/I")
         self.hectree.Branch("avgMu",self.avgMu,"avgMu/F")
         self.hectree.Branch("actMu",self.actMu,"actMu/F")
-        self.hectree.Branch("iGain",self.iGain,"iGain/I");
-        self.hectree.Branch("iOID",self.iOID,"iOID/l");
-        self.hectree.Branch("iSide",self.iSide,"iSide/I");
-        self.hectree.Branch("iSamp",self.iSamp,"iSamp/I");
-        self.hectree.Branch("iReg",self.iReg,"iReg/I");
-        self.hectree.Branch("iEta",self.iEta,"iEta/I");
-        self.hectree.Branch("iPhi",self.iPhi,"iPhi/I");
+        self.hectree.Branch("iGain",self.iGain,"iGain/I")
+        self.hectree.Branch("iOID",self.iOID,"iOID/l")
+        self.hectree.Branch("iSide",self.iSide,"iSide/I")
+        self.hectree.Branch("iSamp",self.iSamp,"iSamp/I")
+        self.hectree.Branch("iReg",self.iReg,"iReg/I")
+        self.hectree.Branch("iEta",self.iEta,"iEta/I")
+        self.hectree.Branch("iPhi",self.iPhi,"iPhi/I")
         self.hectree.Branch("iQuality",self.iQuality,"iQuality/I")
-        self.hectree.Branch("e",self.e,"e/F");
-        self.hectree.Branch("t",self.t,"t/F");
-        self.hectree.Branch("eta",self.eta,"eta/F");
-        self.hectree.Branch("phi",self.phi,"phi/F");
-        self.hectree.Branch("z",self.z,"z/F");
-        self.hectree.Branch("r",self.r,"r/F");
-        self.hectree.Branch("Ped",self.Ped,"Ped/F");
-        self.hectree.Branch("PedRMS",self.PedRMS,"PedRMS/F");
-        self.hectree.Branch("iDigi",self.iDigi,"iDigi[32]/I");
-        self.hectree.Branch("iMax",self.iMax,"iMax/I");
-        self.hectree.Branch("iMin",self.iMin,"iMin/I");
+        self.hectree.Branch("e",self.e,"e/F")
+        self.hectree.Branch("t",self.t,"t/F")
+        self.hectree.Branch("eta",self.eta,"eta/F")
+        self.hectree.Branch("phi",self.phi,"phi/F")
+        self.hectree.Branch("z",self.z,"z/F")
+        self.hectree.Branch("r",self.r,"r/F")
+        self.hectree.Branch("Ped",self.Ped,"Ped/F")
+        self.hectree.Branch("PedRMS",self.PedRMS,"PedRMS/F")
+        self.hectree.Branch("iDigi",self.iDigi,"iDigi[32]/I")
+        self.hectree.Branch("iMax",self.iMax,"iMax/I")
+        self.hectree.Branch("iMin",self.iMin,"iMin/I")
         #
         return True
 

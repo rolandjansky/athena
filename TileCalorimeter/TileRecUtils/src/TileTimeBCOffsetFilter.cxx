@@ -88,11 +88,12 @@ StatusCode
 TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  ATH_MSG_DEBUG("in process()");
+  ATH_MSG_DEBUG("in TileTimeBCOffsetFilter::process()");
 
   // Now retrieve the TileDQstatus
   const TileDQstatus* DQstatus = SG::makeHandle (m_DQstatusKey, ctx).get();
 
+  const char * part[5] = {"AUX","LBA","LBC","EBA","EBC"};
   const int nchan_dmu = 3; // number of channels in a single DMU
 
   TileRawChannelUnit::UNIT rchUnit = rchCont.get_unit();
@@ -117,7 +118,6 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
     if (msgLvl(MSG::VERBOSE)) {
       for (unsigned int ch=0; ch<TileCalibUtils::MAX_CHAN; ++ch) {
         if (!channel_time_ok[ch]) {
-          const char * part[5] = {"AUX","LBA","LBC","EBA","EBC"};
           ATH_MSG_VERBOSE( "Checking timing jump in module " << part[ros]
                            << std::setw(2) << std::setfill('0') << drawer+1
                            << " channel " << std::setw(2) << std::setfill(' ') << ch );
@@ -267,8 +267,16 @@ TileTimeBCOffsetFilter::process (TileMutableRawChannelContainer& rchCont) const
       // now apply mask to RawChannelContainer for channels spotted above
       for(int i=1; i<= nchan_dmu;++i) {
         if ((ch_number[i] >= 0) && ch_mask[i]) {
-          ATH_MSG_VERBOSE( "Masking channel " << ch_number[i]);
-          coll->at(ch_number[i])->setPedestal(240000.0);
+          ATH_MSG_DEBUG( "Masking " << part[ros]
+                         << std::setw(2) << std::setfill('0') << drawer+1
+                         << " ch " << std::setw(2) << std::setfill(' ') << ch_number[i]
+                         << " ene " << ch_amp[i]
+                         << " time " << ch_time[i]
+                         << " ref_ene " << ch_amp[0]
+                         << " ref_time " << ch_time[0]
+                         << " run " << ctx.eventID().run_number()
+                         << " evt " <<  ctx.eventID().event_number() );
+          coll->at(ch_number[i])->setPedestal(fmod(coll->at(ch_number[i])->pedestal(),10000.)+240000.0);
         }
       }
     } // end-of-loop over all DMUs in the given drawer

@@ -12,7 +12,7 @@ atlas_add_library( CollectionBase
                    src/*.cpp
                    PUBLIC_HEADERS CollectionBase
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} FileCatalog
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} FileCatalog CxxUtils
                    PRIVATE_LINK_LIBRARIES POOLCore PersistentDataModel )
 
 atlas_add_dictionary( CollectionDict

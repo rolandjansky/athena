@@ -1,32 +1,17 @@
-################################################################################
-# Package: TrkV0Vertex
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkV0Vertex )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthLinks
-                          Control/AthContainers
-                          Event/EventKernel
-                          Tracking/TrkEvent/VxVertex )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( TrkV0Vertex
                    src/*.cxx
                    PUBLIC_HEADERS TrkV0Vertex
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers EventKernel VxVertex )
+                   LINK_LIBRARIES AthLinks AthContainers AthenaKernel EventKernel VxVertex )
 
 atlas_add_dictionary( TrkV0VertexDict
                       TrkV0Vertex/V0VertexDict.h
                       TrkV0Vertex/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers EventKernel VxVertex TrkV0Vertex
+                      LINK_LIBRARIES AthLinks TrkV0Vertex VxVertex
                       ELEMENT_LINKS V0Container )
 

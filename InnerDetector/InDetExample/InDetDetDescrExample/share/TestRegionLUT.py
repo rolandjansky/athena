@@ -41,9 +41,6 @@ include("InDetRegionSelector/InDetRegionSelectorTable_jobOptions.py")
 
 from InDetRegionSelector.InDetRegionSelectorConf import InDetDD__InDetRegionSelectorLUT
 InDetRegionSelectorLUT = InDetDD__InDetRegionSelectorLUT(name                       = "InDetRegionSelectorLut",
-                                                         PixelRegionLUT_CreatorTool = PixelRegionSelectorTable,
-                                                         SCT_RegionLUT_CreatorTool  = SCT_RegionSelectorTable,
-                                                         TRT_RegionLUT_CreatorTool  = TRT_RegionSelectorTable,
                                                          DoTests                    = True)
 
 

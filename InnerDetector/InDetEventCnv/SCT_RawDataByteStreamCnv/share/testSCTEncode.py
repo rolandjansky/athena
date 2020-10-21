@@ -123,6 +123,7 @@ include("ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py")
 from ByteStreamCnvSvc import WriteByteStream
 StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
 StreamBSFileOutput.ItemList += [ "SCT_RDO_Container#SCT_RDOs" ]
+svcMgr.ByteStreamEventStorageOutputSvc.WriteEventlessFiles = False
 
 # Print algorithms
 if doPrint:

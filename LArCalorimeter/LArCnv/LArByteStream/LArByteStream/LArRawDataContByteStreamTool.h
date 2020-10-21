@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,6 +23,8 @@
 #include "LArByteStream/LArRodDecoder.h"
 
 #include "CaloIdentifier/CaloGain.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
 // Map of ROBs need this
@@ -31,7 +33,6 @@
 class LArRawChannelContainer; 
 class LArDigitContainer;
 class IByteStreamEventAccess;
-class ICaloNoiseTool;
 
 /** 
  *@class LArRawDataContByteStreamTool
@@ -141,7 +142,6 @@ private:
   */
   bool m_initializeForWriting;
   uint16_t m_subDetId;
-  ToolHandle<ICaloNoiseTool> m_noisetool;
   double m_nfebsigma;
   // map with ROB group (LAr) to rob addresses
   std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> > m_robIndex;
@@ -151,13 +151,12 @@ private:
   bool m_includeDigits;
   // Name of Digit container to retrieve
   std::string m_DigitContName;
-  
+
+  SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey
+  { this, "CaloNoiseKey", "totalNoise", "" };
 };
 
 
-#endif
 #include "LArByteStream/LArRawDataContByteStreamTool.icc" 
 
-
-
-
+#endif

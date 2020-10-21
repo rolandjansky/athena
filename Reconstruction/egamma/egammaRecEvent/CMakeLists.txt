@@ -1,27 +1,13 @@
-# $Id: CMakeLists.txt 778348 2016-10-13 18:53:21Z krasznaa $
-################################################################################
-# Package: egammaRecEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( egammaRecEvent )
 
 # Extra dependencies based on the environment:
-set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/AthenaKernel )
    set( extra_libs AthenaKernel )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODTracking
-   ${extra_deps} )
 
 # Component(s) in the package:
 atlas_add_library( egammaRecEvent

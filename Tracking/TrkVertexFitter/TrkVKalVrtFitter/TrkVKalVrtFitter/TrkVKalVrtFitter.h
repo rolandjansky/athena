@@ -215,9 +215,11 @@ namespace Trk{
                                           dvect& CovPerigee,
                                           IVKalState& istate) const override final;
         //-----
-        virtual StatusCode VKalVrtFitFast(const std::vector<const Trk::Track*>&,
-                                          Amg::Vector3D& Vertex,
-                                          IVKalState& istate) const override final;
+        virtual StatusCode VKalVrtFitFast(
+          const std::vector<const xAOD::TrackParticle*>&,
+          Amg::Vector3D& Vertex, double &minDZ,
+          IVKalState& istate) const;
+
         virtual StatusCode VKalVrtFitFast(
           const std::vector<const xAOD::TrackParticle*>&,
           Amg::Vector3D& Vertex,

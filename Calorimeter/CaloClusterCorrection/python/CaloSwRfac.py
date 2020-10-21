@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwRfac.py,v 1.8 2008-01-25 04:14:21 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwRfac.py
 # Created: Nov 2006, sss
@@ -28,15 +26,17 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls = CaloClusterCorrectionConf.CaloScaleCluster
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls = CompFactory.CaloScaleCluster  # CaloClusterCorrection
 CaloSwRfac_versions = [
     # From 11.0.41 simulation and 12.0.0 reconstruction.
     # In CaloClusterCorrection-00-02-38, 12.0.0.
@@ -64,6 +64,7 @@ CaloSwRfac_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -81,7 +82,8 @@ CaloSwRfac_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwRfac (name = None,
+def make_CaloSwRfac (flags,
+                     name = None,
                      suffix = None,
                      version = None,
                      key = CALOCORR_DEFAULT_KEY,
@@ -89,7 +91,8 @@ def make_CaloSwRfac (name = None,
                      confclass = None,
                      **kw):
     # Make the tool.
-    return makecorr (versions  = CaloSwRfac_versions,
+    return makecorr (flags,
+                     versions  = CaloSwRfac_versions,
                      name      = name,
                      basename  = 'rfac',
                      suffix    = suffix,

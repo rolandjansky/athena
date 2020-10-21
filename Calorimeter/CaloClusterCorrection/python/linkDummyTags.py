@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: CaloClusterCorrection/python/linkDummyTags.py
@@ -23,8 +23,8 @@ def get_htags (folder):
     htags = []
     for t in tags:
         try:
-            rtag = subf.resolveTag(t)
-        except:
+            subf.resolveTag(t)
+        except Exception:
             htags.append (t)
 
     tags = subf.listTags()
@@ -40,7 +40,7 @@ def link_tag (f, htag, dtag):
     try:
         f.findTagRelation(htag)
         f.deleteTagRelation(htag)
-    except:
+    except Exception:
         pass
     f.createTagRelation (htag, dtag)
     print ('Linked', htag)

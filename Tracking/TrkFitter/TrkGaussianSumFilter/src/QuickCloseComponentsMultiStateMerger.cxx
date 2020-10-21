@@ -42,13 +42,13 @@ mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
   }
 
   // Gather the merges
-  const std::vector<std::pair<int16_t, int16_t>> merges =
+  const std::vector<std::pair<int8_t, int8_t>> merges =
     findMerges(components.buffer(), n, maximumNumberOfComponents);
 
   // Do the full 5D calculations of the merge
   for (const auto& mergePair : merges) {
-    const int16_t mini = mergePair.first;
-    const int16_t minj = mergePair.second;
+    const int8_t mini = mergePair.first;
+    const int8_t minj = mergePair.second;
     Trk::MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
                                                         statesToMerge[minj]);
     statesToMerge[minj].first.reset();
@@ -61,7 +61,7 @@ mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
       continue;
     }
     cache.multiComponentState.emplace_back(
-      Trk::ComponentParameters(state.first.release(), state.second));
+      Trk::ComponentParameters(std::move(state.first), state.second));
     cache.validWeightSum += state.second;
   }
   Trk::MultiComponentState mergedState =

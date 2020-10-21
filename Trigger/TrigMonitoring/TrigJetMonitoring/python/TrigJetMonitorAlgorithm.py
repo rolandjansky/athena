@@ -38,13 +38,14 @@ Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
 Chain2JetCollDict  = dict() # set HLT jet collection for AT and legacy master HLT jet chains
 JetCollections     = dict() # List of HLT jet collections for AT and legacy master
 TurnOnCurves       = dict() # List reference chains and offline jet collections to be used for producing turn-on curves
+JetColls2Match     = dict()
 
 # AthenaMT
 JetCollections['MT'] = [
   'HLT_AntiKt4EMTopoJets_subjesIS',                   # default small-R EM
   'HLT_AntiKt10JetRCJets_subjesIS',                   # a10r
   'HLT_AntiKt10LCTopoJets_subjes',                    # a10
-  'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes', # a10t
+  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', # a10t
   'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',              # pflow w/o calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',           # pflow w/ calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        # pflow w/ residual + calo+track GSC
@@ -58,11 +59,10 @@ Chain2JetCollDict['MT'] = {
   'HLT_3j200_L1J100'                       : 'HLT_AntiKt4EMTopoJets_subjesIS',
   'HLT_j460_a10r_L1J100'                   : 'HLT_AntiKt10JetRCJets_subjesIS',
   'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_AntiKt10LCTopoJets_subjes',
-  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
+  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
   'HLT_j45_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
   'HLT_j45_pf_subjesgscIS_ftf_L1J20'       : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',
-  'HLT_j45_pf_subresjesgscIS_ftf_L1J20'    : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
   'HLT_j85_pf_ftf_L1J20'                   : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',
   'HLT_j45_pf_nojcalib_ftf_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
   'HLT_j45_csskpf_nojcalib_ftf_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
@@ -75,6 +75,12 @@ TurnOnCurves['MT'] = { # ref chain, offline jet coll
   'HLT_j460_a10t_lcw_jes_L1J100'           : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
   'HLT_j85_pf_ftf_L1J20'                   : ['HLT_j45_pf_ftf_L1J20','AntiKt4EMPFlowJets'],
+}
+JetColls2Match['MT'] = {
+  'HLT_AntiKt4EMTopoJets_subjesIS'            : 'AntiKt4EMPFlowJets',
+  'HLT_AntiKt4EMPFlowJets_subjesIS_ftf'       : 'AntiKt4EMPFlowJets',
+  'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'    : 'AntiKt4EMPFlowJets',
+  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf' : 'AntiKt4EMPFlowJets',
 }
 
 # Legacy
@@ -167,17 +173,27 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def TrigJetMonConfig(inputFlags):
 
-  # The following class will make a sequence, configure algorithms, and link
-  # them to GenericMonitoringTools
-  from AthenaMonitoring import AthMonitorCfgHelper
-  helper = AthMonitorCfgHelper(inputFlags,'TrigJetMonitorAlgorithm')
-
   # This is the right place to get the info, but the autoconfig of the flag
   # is not yet implemented
   AthenaMT = ConfigFlags.Trigger.EDMDecodingVersion==3
 
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
+
+  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+  cfg = ComponentAccumulator()
+
+  # Match HLT to offline jets
+  for j1,j2 in JetColls2Match[InputType].items():
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    name = 'Matching_{}_{}'.format(j1,j2)
+    alg = CompFactory.JetMatcherAlg(name, JetContainerName1=j1,JetContainerName2=j2)
+    cfg.addEventAlgo(alg)
+
+  # The following class will make a sequence, configure algorithms, and link
+  # them to GenericMonitoringTools
+  from AthenaMonitoring import AthMonitorCfgHelper
+  helper = AthMonitorCfgHelper(inputFlags,'TrigJetMonitorAlgorithm')
 
   # Loop over L1 jet collectoins
   for jetcoll in L1JetCollections:
@@ -219,8 +235,8 @@ def TrigJetMonConfig(inputFlags):
       effMonitorConf = jetEfficiencyMonitoringConfig(inputFlags,jetcoll,offlineJetColl,chain,refChain,AthenaMT)
       effMonitorConf.toAlg(helper)
 
-  # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
-  return helper.result()
+  cfg.merge(helper.result())
+  return cfg
 
 
 # Basic selection of histograms common for online and offline jets
@@ -305,9 +321,19 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
 def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''
 
+   isOnline  = True if 'HLT' in jetcoll else False
+   InputType = 'Legacy' if not athenaMT else 'MT'
+   conf      = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
+
+   def defineHistoForJetMatch(conf, parentAlg, monhelper , path):
+       # create a monitoring group with the histo path starting from the parentAlg
+       print('toplevel = '+str(conf.topLevelDir))
+       print('bottomlevel = '+str(conf.bottomLevelDir))
+       group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+'/'+conf.bottomLevelDir+'/NoTriggerSelection/')
+       # define the histogram
+       group.defineHistogram('ptdiff',title='title', type="TH1F", path='MatchedJets_{}'.format(JetColls2Match[InputType][jetcoll]), xbins=100 , xmin=-100000, xmax=100000. ,)
+
    # Declare a configuration dictionnary for a JetContainer
-   isOnline = True if 'HLT' in jetcoll else False
-   conf     = basicJetMonAlgSpec(jetcoll,isOnline,athenaMT)
    if isOnline:
      if 'AntiKt4' in jetcoll or 'a4tcem' in jetcoll:
        for hist in ExtraSmallROnlineHists: conf.appendHistos(hist)
@@ -322,6 +348,13 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
            conf.appendHistos("fCharged")
      else:
        for hist in ExtraLargeROnlineHists: conf.appendHistos(hist)
+     # Add matched jets plots
+     if jetcoll in JetColls2Match[InputType]:
+       matchedJetColl = JetColls2Match[InputType][jetcoll]
+       name           = 'jetMatched_{}_{}'.format(jetcoll,matchedJetColl)
+       jetmatchKey    = '{}.matched_{}'.format(jetcoll,matchedJetColl)
+       jetptdiffKey   = '{}.ptdiff_{}'.format(jetcoll,matchedJetColl)
+       conf.appendHistos(ToolSpec('JetHistoMatchedFiller',name,JetMatchedKey=jetmatchKey,JetPtDiffKey=jetptdiffKey,defineHistoFunc=defineHistoForJetMatch,Group='matchedJets_'+jetcoll))
    else: # offline
      for hist in ExtraOfflineHists: conf.appendHistos(hist)
      if 'PF' in jetcoll: # dedicated histograms for offline PFlow jets

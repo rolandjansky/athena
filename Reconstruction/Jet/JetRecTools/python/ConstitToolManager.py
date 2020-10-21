@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os
 from AthenaCommon import Logging, CfgMgr
 
 
@@ -33,7 +32,7 @@ class ConstituentToolManager(object):
     import cppyy
     try:
         cppyy.load_library('libxAODBaseObjectTypeDict')
-    except:
+    except Exception:
         pass
     from ROOT import xAODType
     xAODType.ObjectType
@@ -54,8 +53,6 @@ class ConstituentToolManager(object):
         if alias is not None and alias in self.modifiersMap:
             self.log.warning("Tool named "+alias+" already registered. Not adding a new one under this alias. Was "+name)            
             return self.modifiersMap[alias]
-
-        from AthenaCommon.AppMgr import ToolSvc
 
         self.modifiersMap[name] = tool
         if alias: self.modifiersMap[alias] = tool

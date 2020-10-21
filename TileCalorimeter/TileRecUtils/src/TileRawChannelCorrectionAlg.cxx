@@ -22,7 +22,7 @@ StatusCode TileRawChannelCorrectionAlg::initialize() {
   ATH_CHECK( m_outputRawChannelContainerKey.initialize() );
 
   ATH_CHECK( m_noiseFilterTools.retrieve() );
-  ATH_MSG_DEBUG( "Successfully retrieve  NoiseFilterTools: " << m_noiseFilterTools );
+  ATH_MSG_DEBUG( "Successfully retrieved corection tools: " << m_noiseFilterTools );
 
   ATH_MSG_DEBUG( "initialization completed" );
 
@@ -39,9 +39,9 @@ StatusCode TileRawChannelCorrectionAlg::execute(const EventContext& ctx) const {
 
   for (const ToolHandle<ITileRawChannelTool>& noiseFilterTool : m_noiseFilterTools) {
     if (noiseFilterTool->process(*outputRawChannels.get()).isFailure()) {
-      ATH_MSG_ERROR( " Error status returned from noise filter " );
+      ATH_MSG_ERROR( " Error status returned from " << noiseFilterTool.name() );
     } else {
-      ATH_MSG_DEBUG( "Noise filter applied to the container" );
+      ATH_MSG_DEBUG( noiseFilterTool.name() << " applied to the container" );
     }
   }
 

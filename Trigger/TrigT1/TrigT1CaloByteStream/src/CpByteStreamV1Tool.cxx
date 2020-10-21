@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,7 +25,6 @@
 #include "CmmSubBlock.h"
 #include "CpmSubBlockV1.h"
 #include "L1CaloErrorByteStreamTool.h"
-#include "L1CaloSrcIdMap.h"
 #include "L1CaloSubBlock.h"
 #include "L1CaloUserHeader.h"
 #include "ModifySlices.h"
@@ -52,9 +51,7 @@ CpByteStreamV1Tool::CpByteStreamV1Tool(const std::string& type,
      m_cpmMaps("LVL1::CpmMappingTool/CpmMappingTool"),
      m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
      m_channels(80), m_crates(4), m_modules(14),
-     m_coreOverlap(0), m_subDetector(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ),
-     m_srcIdMap(0), m_towerKey(0), m_cpmSubBlock(0), m_cmmCpSubBlock(0),
-     m_rodStatus(0), m_fea(0)
+     m_subDetector(eformat::TDAQ_CALO_CLUSTER_PROC_DAQ)
 {
   declareInterface<CpByteStreamV1Tool>(this);
 
@@ -69,7 +66,7 @@ CpByteStreamV1Tool::CpByteStreamV1Tool(const std::string& type,
                   "Offset of CP crate numbers in RDOs");
 
   // Properties for reading bytestream only
-  declareProperty("ROBSourceIDs",       m_sourceIDs,
+  declareProperty("ROBSourceIDs",       m_sourceIDsProp,
                   "ROB fragment source identifiers");
 
   // Properties for writing bytestream only
@@ -101,87 +98,60 @@ CpByteStreamV1Tool::~CpByteStreamV1Tool()
 
 StatusCode CpByteStreamV1Tool::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO ("Initializing " << name() << " - package version "
+                << PACKAGE_VERSION);
 
-  StatusCode sc = m_cpmMaps.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_cpmMaps << endmsg;
-    return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_cpmMaps << endmsg;
+  ATH_CHECK( m_cpmMaps.retrieve() );
+  ATH_CHECK( m_errorTool.retrieve() );
 
-  sc = m_errorTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
-    return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
-
-  m_srcIdMap      = new L1CaloSrcIdMap();
-  m_towerKey      = new LVL1::TriggerTowerKey();
-  m_cpmSubBlock   = new CpmSubBlockV1();
-  m_cmmCpSubBlock = new CmmCpSubBlock();
-  m_rodStatus     = new std::vector<uint32_t>(2);
-  m_fea           = new FullEventAssembler<L1CaloSrcIdMap>();
-  return StatusCode::SUCCESS;
-}
-
-// Finalize
-
-StatusCode CpByteStreamV1Tool::finalize()
-{
-  delete m_fea;
-  delete m_rodStatus;
-  delete m_cmmCpSubBlock;
-  delete m_cpmSubBlock;
-  delete m_towerKey;
-  delete m_srcIdMap;
   return StatusCode::SUCCESS;
 }
 
 // Conversion bytestream to CPM towers
 
 StatusCode CpByteStreamV1Tool::convert(
+                            const std::string& sgKey,
                             const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            DataVector<LVL1::CPMTower>* const ttCollection)
+                            DataVector<LVL1::CPMTower>* const ttCollection) const
 {
   CpmTowerData data (ttCollection);
-  return convertBs(robFrags, data);
+  return convertBs(sgKey, robFrags, data);
 }
 
 // Conversion bytestream to CPM hits
 
 StatusCode CpByteStreamV1Tool::convert(
+                            const std::string& sgKey,
                             const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            DataVector<LVL1::CPMHits>* const hitCollection)
+                            DataVector<LVL1::CPMHits>* const hitCollection) const
 {
   CpmHitsData data (hitCollection);
-  return convertBs(robFrags, data);
+  return convertBs(sgKey, robFrags, data);
 }
 
 // Conversion bytestream to CMM-CP hits
 
 StatusCode CpByteStreamV1Tool::convert(
+                            const std::string& sgKey,
                             const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            DataVector<LVL1::CMMCPHits>* const hitCollection)
+                            DataVector<LVL1::CMMCPHits>* const hitCollection) const
 {
   CmmHitsData data (hitCollection);
-  return convertBs(robFrags, data);
+  return convertBs(sgKey, robFrags, data);
 }
 
 // Conversion of CP container to bytestream
 
 StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
-                                             RawEventWrite* const re)
+                                             RawEventWrite* const re) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 
   // Clear the event assembler
-
-  m_fea->clear();
-  const uint16_t minorVersion = m_srcIdMap->minorVersionPreLS1();
-  m_fea->setRodMinorVersion(minorVersion);
-  m_rodStatusMap.clear();
+  FullEventAssembler<L1CaloSrcIdMap> fea;
+  const uint16_t minorVersion = m_srcIdMap.minorVersionPreLS1();
+  fea.setRodMinorVersion(minorVersion);
 
   // Pointer to ROD data vector
 
@@ -189,9 +159,19 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 
   // Set up the container maps
 
-  setupCpmTowerMap(cp->towers());
-  setupCpmHitsMap(cp->hits());
-  setupCmmCpHitsMap(cp->cmmHits());
+  LVL1::TriggerTowerKey towerKey;
+
+  // CPM tower map
+  ConstCpmTowerMap ttMap;
+  setupCpmTowerMap(cp->towers(), ttMap, towerKey);
+
+  // CPM hits map
+  ConstCpmHitsMap hitsMap;
+  setupCpmHitsMap(cp->hits(), hitsMap);
+
+  // CMM-CP hits map
+  ConstCmmCpHitsMap cmmHitsMap;
+  setupCmmCpHitsMap(cp->cmmHits(), cmmHitsMap);
 
   // Loop over data
 
@@ -221,7 +201,11 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 	// Get number of CPM slices and triggered slice offset
 	// for this slink
 	if ( ! slinkSlices(crate, module, modulesPerSlink,
-	                                  timeslices, trigCpm)) {
+                           timeslices, trigCpm,
+                           ttMap,
+                           hitsMap,
+                           cmmHitsMap,
+                           towerKey)) {
 	  msg(MSG::ERROR) << "Inconsistent number of slices or "
 	                  << "triggered slice offsets in data for crate "
 	                  << hwCrate << " slink " << slink << endmsg;
@@ -240,22 +224,23 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
         }
         L1CaloUserHeader userHeader;
         userHeader.setCpm(trigCpmNew);
-	const uint32_t rodIdCpm = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-	                                                        m_subDetector);
-	theROD = m_fea->getRodData(rodIdCpm);
+	const uint32_t rodIdCpm = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
+                                                      m_subDetector);
+	theROD = fea.getRodData(rodIdCpm);
 	theROD->push_back(userHeader.header());
-	m_rodStatusMap.insert(make_pair(rodIdCpm, m_rodStatus));
       }
       if (debug) msg() << "Module " << module << endmsg;
 
       // Create a sub-block for each slice (except Neutral format)
 
-      m_cpmBlocks.clear();
+      // Vector for current CPM sub-blocks
+      DataVector<CpmSubBlockV1> cpmBlocks;
+
       for (int slice = 0; slice < timeslicesNew; ++slice) {
         CpmSubBlockV1* const subBlock = new CpmSubBlockV1();
 	subBlock->setCpmHeader(m_version, m_dataFormat, slice,
 	                       hwCrate, module, timeslicesNew);
-        m_cpmBlocks.push_back(subBlock);
+        cpmBlocks.push_back(subBlock);
 	if (neutralFormat) break;
       }
 
@@ -267,8 +252,8 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 	double phi = 0.;
 	int layer = 0;
 	if (m_cpmMaps->mapping(crate, module, chan, eta, phi, layer)) {
-          const unsigned int key = m_towerKey->ttKey(phi, eta);
-          const LVL1::CPMTower* const tt = findCpmTower(key);
+          const unsigned int key = towerKey.ttKey(phi, eta);
+          const LVL1::CPMTower* const tt = findCpmTower(key, ttMap);
 	  if (tt ) {
 	    std::vector<int> emData;
 	    std::vector<int> hadData;
@@ -288,7 +273,7 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 	                     (hadErrBits.get(LVL1::DataError::LinkDown) << 1) |
 	                      hadErrBits.get(LVL1::DataError::Parity);
 	      const int index  = ( neutralFormat ) ? 0 : slice;
-              CpmSubBlockV1* const subBlock = m_cpmBlocks[index];
+              CpmSubBlockV1* const subBlock = cpmBlocks[index];
               subBlock->fillTowerData(slice, chan, emData[slice],
 	                              hadData[slice], emErr, hadErr);
 	    }
@@ -298,7 +283,7 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 
       // Add CPM hits
 
-      const LVL1::CPMHits* const hits = findCpmHits(crate, module);
+      const LVL1::CPMHits* const hits = findCpmHits(crate, module, hitsMap);
       if (hits) {
         std::vector<unsigned int> vec0;
         std::vector<unsigned int> vec1;
@@ -306,7 +291,7 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 	ModifySlices::data(hits->HitsVec1(), vec1, timeslicesNew);
         for (int slice = 0; slice < timeslicesNew; ++slice) {
 	  const int index = ( neutralFormat ) ? 0 : slice;
-	  CpmSubBlockV1* const subBlock = m_cpmBlocks[index];
+	  CpmSubBlockV1* const subBlock = cpmBlocks[index];
 	  subBlock->setHits(slice, vec0[slice], vec1[slice]);
         }
       }
@@ -314,7 +299,7 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
       // Pack and write the sub-blocks
 
       DataVector<CpmSubBlockV1>::iterator pos;
-      for (pos = m_cpmBlocks.begin(); pos != m_cpmBlocks.end(); ++pos) {
+      for (pos = cpmBlocks.begin(); pos != cpmBlocks.end(); ++pos) {
         CpmSubBlockV1* const subBlock = *pos;
 	if ( !subBlock->pack()) {
 	  msg(MSG::ERROR) << "CPM sub-block packing failed" << endmsg;
@@ -332,8 +317,11 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 
     // Create a sub-block for each slice (except Neutral format)
 
-    m_cmmHit0Blocks.clear();
-    m_cmmHit1Blocks.clear();
+    /// Vector for current CMM-CP hit0 sub-blocks
+    DataVector<CmmCpSubBlock> cmmHit0Blocks;
+    /// Vector for current CMM-CP hit1 sub-blocks
+    DataVector<CmmCpSubBlock> cmmHit1Blocks;
+
     const int summing = (crate == m_crates - 1) ? CmmSubBlock::SYSTEM
                                                 : CmmSubBlock::CRATE;
     for (int slice = 0; slice < timeslicesNew; ++slice) {
@@ -341,12 +329,12 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
       h0Block->setCmmHeader(m_version, m_dataFormat, slice, hwCrate,
                             summing, CmmSubBlock::CMM_CP,
 			    CmmSubBlock::RIGHT, timeslicesNew);
-      m_cmmHit0Blocks.push_back(h0Block);
+      cmmHit0Blocks.push_back(h0Block);
       CmmCpSubBlock* const h1Block = new CmmCpSubBlock();
       h1Block->setCmmHeader(m_version, m_dataFormat, slice, hwCrate,
                             summing, CmmSubBlock::CMM_CP,
 			    CmmSubBlock::LEFT, timeslicesNew);
-      m_cmmHit1Blocks.push_back(h1Block);
+      cmmHit1Blocks.push_back(h1Block);
       if (neutralFormat) break;
     }
 
@@ -378,7 +366,7 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 	    continue;
         }
       }
-      const LVL1::CMMCPHits* const ch = findCmmCpHits(crate, dataID);
+      const LVL1::CMMCPHits* const ch = findCmmCpHits(crate, dataID, cmmHitsMap);
       if ( ch ) {
         std::vector<unsigned int> hits0;
         std::vector<unsigned int> hits1;
@@ -392,17 +380,17 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 	  const LVL1::DataError err0Bits(err0[slice]);
 	  const LVL1::DataError err1Bits(err1[slice]);
 	  const int index = ( neutralFormat ) ? 0 : slice;
-	  CmmCpSubBlock* subBlock = m_cmmHit0Blocks[index];
+	  CmmCpSubBlock* subBlock = cmmHit0Blocks[index];
 	  subBlock->setHits(slice, source, hits0[slice],
 	                           err0Bits.get(LVL1::DataError::Parity));
-	  subBlock = m_cmmHit1Blocks[index];
+	  subBlock = cmmHit1Blocks[index];
 	  subBlock->setHits(slice, source, hits1[slice],
 	                           err1Bits.get(LVL1::DataError::Parity));
         }
       }
     }
-    DataVector<CmmCpSubBlock>::iterator cos = m_cmmHit0Blocks.begin();
-    for (; cos != m_cmmHit0Blocks.end(); ++cos) {
+    DataVector<CmmCpSubBlock>::iterator cos = cmmHit0Blocks.begin();
+    for (; cos != cmmHit0Blocks.end(); ++cos) {
       CmmCpSubBlock* const subBlock = *cos;
       if ( !subBlock->pack()) {
         msg(MSG::ERROR) << "CMM-Cp sub-block packing failed" << endmsg;
@@ -414,8 +402,8 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
       }
       subBlock->write(theROD);
     }
-    cos = m_cmmHit1Blocks.begin();
-    for (; cos != m_cmmHit1Blocks.end(); ++cos) {
+    cos = cmmHit1Blocks.begin();
+    for (; cos != cmmHit1Blocks.end(); ++cos) {
       CmmCpSubBlock* const subBlock = *cos;
       if ( !subBlock->pack()) {
         msg(MSG::ERROR) << "CMM-Cp sub-block packing failed" << endmsg;
@@ -431,50 +419,63 @@ StatusCode CpByteStreamV1Tool::convert(const LVL1::CPBSCollectionV1* const cp,
 
   // Fill the raw event
 
-  m_fea->fill(re, msg());
-
-  // Set ROD status words
-
-  //L1CaloRodStatus::setStatus(re, m_rodStatusMap, m_srcIdMap);
+  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }
 
 // Return reference to vector with all possible Source Identifiers
 
-const std::vector<uint32_t>& CpByteStreamV1Tool::sourceIDs(
-                                               const std::string& sgKey)
+std::vector<uint32_t> CpByteStreamV1Tool::makeSourceIDs() const
 {
-  // Check if overlap tower channels wanted
-  const std::string flag("Overlap");
-  const std::string::size_type pos = sgKey.find(flag);
-  m_coreOverlap =
-   (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;
+  std::vector<uint32_t> sourceIDs;
 
-  if (m_sourceIDs.empty()) {
+  if (!m_sourceIDsProp.empty()) {
+    sourceIDs = m_sourceIDsProp;
+  }
+  else {
     const int maxCrates = m_crates + m_crateOffsetHw;
-    const int maxSlinks = m_srcIdMap->maxSlinks();
-    for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate) {
-      for (int slink = 0; slink < maxSlinks; ++slink) {
+    const int maxSlinks = m_srcIdMap.maxSlinks();
+    for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate)
+    {
+      for (int slink = 0; slink < maxSlinks; ++slink)
+      {
         const int daqOrRoi = 0;
-        const uint32_t rodId = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-                                                             m_subDetector);
-        const uint32_t robId = m_srcIdMap->getRobID(rodId);
-        m_sourceIDs.push_back(robId);
+        const uint32_t rodId = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
+                                                   m_subDetector);
+        const uint32_t robId = m_srcIdMap.getRobID(rodId);
+        sourceIDs.push_back(robId);
       }
     }
   }
-  return m_sourceIDs;
+  return sourceIDs;
+}
+
+const std::vector<uint32_t>& CpByteStreamV1Tool::sourceIDs() const
+{
+  static const std::vector<uint32_t> sourceIDs = makeSourceIDs();
+  return sourceIDs;
 }
 
 // Convert bytestream to given container type
 
 StatusCode CpByteStreamV1Tool::convertBs(
+                            const std::string& sgKey,
                             const IROBDataProviderSvc::VROBFRAG& robFrags,
-                            CpByteStreamToolData& data)
+                            CpByteStreamToolData& data) const
 {
+  LocalData ld;
+
+  const static std::string flag("Overlap");
+  const std::string::size_type pos = sgKey.find(flag);
+  ld.coreOverlap =
+    (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;
+
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
+
+  CmmCpSubBlock cmmCpSubBlock;
+  CpmSubBlockV1 cpmSubBlock;
 
   // Loop over ROB fragments
 
@@ -525,12 +526,12 @@ StatusCode CpByteStreamV1Tool::convertBs(
 
     // Check identifier
     const uint32_t sourceID = (*rob)->rod_source_id();
-    if (m_srcIdMap->getRobID(sourceID) != robid           ||
-        m_srcIdMap->subDet(sourceID)   != m_subDetector   ||
-	m_srcIdMap->daqOrRoi(sourceID) != 0               ||
-       (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
-	m_srcIdMap->crate(sourceID)    <  m_crateOffsetHw ||
-	m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates) {
+    if (m_srcIdMap.getRobID(sourceID) != robid           ||
+        m_srcIdMap.subDet(sourceID)   != m_subDetector   ||
+	m_srcIdMap.daqOrRoi(sourceID) != 0               ||
+       (m_srcIdMap.slink(sourceID) != 0 && m_srcIdMap.slink(sourceID) != 2) ||
+	m_srcIdMap.crate(sourceID)    <  m_crateOffsetHw ||
+	m_srcIdMap.crate(sourceID)    >= m_crateOffsetHw + m_crates) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_ROD_ID);
       if (debug) {
         msg() << "Wrong source identifier in data: ROD "
@@ -542,14 +543,14 @@ StatusCode CpByteStreamV1Tool::convertBs(
 
     // Check minor version
     const int minorVersion = (*rob)->rod_version() & 0xffff;
-    if (minorVersion > m_srcIdMap->minorVersionPreLS1()) {
+    if (minorVersion > m_srcIdMap.minorVersionPreLS1()) {
       if (debug) msg() << "Skipping post-LS1 data" << endmsg;
       continue;
     }
-    const int rodCrate = m_srcIdMap->crate(sourceID);
+    const int rodCrate = m_srcIdMap.crate(sourceID);
     if (debug) {
       msg() << "Treating crate " << rodCrate 
-            << " slink " << m_srcIdMap->slink(sourceID) << endmsg;
+            << " slink " << m_srcIdMap.slink(sourceID) << endmsg;
     }
 
     // First word should be User Header
@@ -586,12 +587,12 @@ StatusCode CpByteStreamV1Tool::convertBs(
 
     // Loop over sub-blocks
 
-    m_rodErr = L1CaloSubBlock::ERROR_NONE;
+    ld.rodErr = L1CaloSubBlock::ERROR_NONE;
     while (payload != payloadEnd) {
       
       if (L1CaloSubBlock::wordType(*payload) != L1CaloSubBlock::HEADER) {
         if (debug) msg() << "Unexpected data sequence" << endmsg;
-	m_rodErr = L1CaloSubBlock::ERROR_MISSING_HEADER;
+	ld.rodErr = L1CaloSubBlock::ERROR_MISSING_HEADER;
 	break;
       }
       if (L1CaloSubBlock::version(*payload) != 1) {                          // <<== CHECK
@@ -601,47 +602,48 @@ StatusCode CpByteStreamV1Tool::convertBs(
       if (CmmSubBlock::cmmBlock(*payload)) {
         // CMM
 	if (CmmSubBlock::cmmType(*payload) == CmmSubBlock::CMM_CP) {
-	  m_cmmCpSubBlock->clear();
-          payload = m_cmmCpSubBlock->read(payload, payloadEnd);
-	  if (m_cmmCpSubBlock->crate() != rodCrate) {
+	  cmmCpSubBlock.clear();
+          payload = cmmCpSubBlock.read(payload, payloadEnd);
+	  if (cmmCpSubBlock.crate() != rodCrate) {
 	    if (debug) msg() << "Inconsistent crate number in ROD source ID"
 	                     << endmsg;
-	    m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
+	    ld.rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
 	    break;
           }
 	  if (data.m_collection == CMM_CP_HITS) {
-	    decodeCmmCp(m_cmmCpSubBlock, trigCmm, static_cast<CmmHitsData&>(data));
-	    if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
+	    decodeCmmCp(&cmmCpSubBlock, trigCmm, static_cast<CmmHitsData&>(data),
+                        ld);
+	    if (ld.rodErr != L1CaloSubBlock::ERROR_NONE) {
 	      if (debug) msg() << "decodeCmmCp failed" << endmsg;
 	      break;
 	    }
           }
         } else {
           if (debug) msg() << "Invalid CMM type in module field" << endmsg;
-          m_rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
+          ld.rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
 	  break;
         }
       } else {
         // CPM
-	m_cpmSubBlock->clear();
-        payload = m_cpmSubBlock->read(payload, payloadEnd);
-	if (m_cpmSubBlock->crate() != rodCrate) {
+	cpmSubBlock.clear();
+        payload = cpmSubBlock.read(payload, payloadEnd);
+	if (cpmSubBlock.crate() != rodCrate) {
 	  if (debug) msg() << "Inconsistent crate number in ROD source ID"
 	                   << endmsg;
-	  m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
+	  ld.rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
 	  break;
         }
 	if (data.m_collection == CPM_TOWERS || data.m_collection == CPM_HITS) {
-	  decodeCpm(m_cpmSubBlock, trigCpm, data);
-	  if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
+	  decodeCpm(&cpmSubBlock, trigCpm, data, ld);
+	  if (ld.rodErr != L1CaloSubBlock::ERROR_NONE) {
 	    if (debug) msg() << "decodeCpm failed" << endmsg;
 	    break;
 	  }
         }
       }
     }
-    if (m_rodErr != L1CaloSubBlock::ERROR_NONE) 
-                                       m_errorTool->rodError(robid, m_rodErr);
+    if (ld.rodErr != L1CaloSubBlock::ERROR_NONE) 
+                                       m_errorTool->rodError(robid, ld.rodErr);
   }
 
   return StatusCode::SUCCESS;
@@ -650,7 +652,8 @@ StatusCode CpByteStreamV1Tool::convertBs(
 // Unpack CMM-CP sub-block
 
 void CpByteStreamV1Tool::decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm,
-                                     CmmHitsData& data)
+                                     CmmHitsData& data,
+                                     LocalData& ld) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -673,13 +676,13 @@ void CpByteStreamV1Tool::decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm,
     if (debug) msg() << "Triggered CMM slice from header "
                      << "inconsistent with number of slices: "
                      << trigCmm << ", " << timeslices << endmsg;
-    m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+    ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
   if (timeslices <= sliceNum) {
     if (debug) msg() << "Total slices inconsistent with slice number: "
                      << timeslices << ", " << sliceNum << endmsg;
-    m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+    ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
   // Unpack sub-block
@@ -688,7 +691,7 @@ void CpByteStreamV1Tool::decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm,
       std::string errMsg(subBlock->unpackErrorMsg());
       msg() << "CMM-CP sub-block unpacking failed: " << errMsg << endmsg;
     }
-    m_rodErr = subBlock->unpackErrorCode();
+    ld.rodErr = subBlock->unpackErrorCode();
     return;
   }
 
@@ -711,23 +714,23 @@ void CpByteStreamV1Tool::decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm,
         if (summing == CmmSubBlock::CRATE &&
 	    source != CmmCpSubBlock::LOCAL) continue;
 	switch (source) {
-	  case CmmCpSubBlock::LOCAL:
-	    dataID = LVL1::CMMCPHits::LOCAL;
-	    break;
-	  case CmmCpSubBlock::REMOTE_0:
-	    dataID = LVL1::CMMCPHits::REMOTE_0;
-	    break;
-	  case CmmCpSubBlock::REMOTE_1:
-	    dataID = LVL1::CMMCPHits::REMOTE_1;
-	    break;
-	  case CmmCpSubBlock::REMOTE_2:
-	    dataID = LVL1::CMMCPHits::REMOTE_2;
-	    break;
-	  case CmmCpSubBlock::TOTAL:
-	    dataID = LVL1::CMMCPHits::TOTAL;
-	    break;
-          default:
-	    continue;
+        case CmmCpSubBlock::LOCAL:
+          dataID = LVL1::CMMCPHits::LOCAL;
+          break;
+        case CmmCpSubBlock::REMOTE_0:
+          dataID = LVL1::CMMCPHits::REMOTE_0;
+          break;
+        case CmmCpSubBlock::REMOTE_1:
+          dataID = LVL1::CMMCPHits::REMOTE_1;
+          break;
+        case CmmCpSubBlock::REMOTE_2:
+          dataID = LVL1::CMMCPHits::REMOTE_2;
+          break;
+        case CmmCpSubBlock::TOTAL:
+          dataID = LVL1::CMMCPHits::TOTAL;
+          break;
+        default:
+          continue;
         }
       }
       const unsigned int hits = subBlock->hits(slice, source);
@@ -739,50 +742,50 @@ void CpByteStreamV1Tool::decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm,
       if (hits || err) {
         LVL1::CMMCPHits* ch = findCmmCpHits(data, crate, dataID);
 	if ( ! ch ) {   // create new CMM hits
-	  m_hitsVec0.assign(timeslices, 0);
-	  m_hitsVec1.assign(timeslices, 0);
-	  m_errVec0.assign(timeslices, 0);
-	  m_errVec1.assign(timeslices, 0);
+	  ld.hitsVec0.assign(timeslices, 0);
+	  ld.hitsVec1.assign(timeslices, 0);
+	  ld.errVec0.assign(timeslices, 0);
+	  ld.errVec1.assign(timeslices, 0);
 	  if (module == CmmSubBlock::RIGHT) {
-	    m_hitsVec0[slice] = hits;
-	    m_errVec0[slice]  = err;
+	    ld.hitsVec0[slice] = hits;
+	    ld.errVec0[slice]  = err;
 	  } else {
-	    m_hitsVec1[slice] = hits;
-	    m_errVec1[slice]  = err;
+	    ld.hitsVec1[slice] = hits;
+	    ld.errVec1[slice]  = err;
 	  }
 	  auto chp =
-            std::make_unique<LVL1::CMMCPHits>(swCrate, dataID, m_hitsVec0, m_hitsVec1,
-                                              m_errVec0, m_errVec1, trigCmm);
+            std::make_unique<LVL1::CMMCPHits>(swCrate, dataID, ld.hitsVec0, ld.hitsVec1,
+                                              ld.errVec0, ld.errVec1, trigCmm);
           const int key = crate*100 + dataID;
 	  data.m_cmmHitsMap.insert(std::make_pair(key, chp.get()));
 	  data.m_cmmHitCollection->push_back(std::move(chp));
         } else {
-	  m_hitsVec0 = ch->HitsVec0();
-	  m_hitsVec1 = ch->HitsVec1();
-	  m_errVec0  = ch->ErrorVec0();
-	  m_errVec1  = ch->ErrorVec1();
-	  const int nsl = m_hitsVec0.size();
+	  ld.hitsVec0 = ch->HitsVec0();
+	  ld.hitsVec1 = ch->HitsVec1();
+	  ld.errVec0  = ch->ErrorVec0();
+	  ld.errVec1  = ch->ErrorVec1();
+	  const int nsl = ld.hitsVec0.size();
 	  if (timeslices != nsl) {
 	    if (debug) msg() << "Inconsistent number of slices in sub-blocks"
 	                     << endmsg;
-            m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+            ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
 	    return;
           }
-	  if ((module == CmmSubBlock::RIGHT && (m_hitsVec0[slice] != 0 ||
-	       m_errVec0[slice] != 0)) || (module == CmmSubBlock::LEFT &&
-	       (m_hitsVec1[slice] != 0 || m_errVec1[slice]  != 0))) {
+	  if ((module == CmmSubBlock::RIGHT && (ld.hitsVec0[slice] != 0 ||
+	       ld.errVec0[slice] != 0)) || (module == CmmSubBlock::LEFT &&
+	       (ld.hitsVec1[slice] != 0 || ld.errVec1[slice]  != 0))) {
             if (debug) msg() << "Duplicate data for slice " << slice << endmsg;
-	    m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
+	    ld.rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 	    return;
           }
 	  if (module == CmmSubBlock::RIGHT) {
-	    m_hitsVec0[slice] = hits;
-	    m_errVec0[slice]  = err;
+	    ld.hitsVec0[slice] = hits;
+	    ld.errVec0[slice]  = err;
 	  } else {
-	    m_hitsVec1[slice] = hits;
-	    m_errVec1[slice]  = err;
+	    ld.hitsVec1[slice] = hits;
+	    ld.errVec1[slice]  = err;
 	  }
-	  ch->addHits(m_hitsVec0, m_hitsVec1, m_errVec0, m_errVec1);
+	  ch->addHits(ld.hitsVec0, ld.hitsVec1, ld.errVec0, ld.errVec1);
         }
       }
     }
@@ -794,7 +797,8 @@ void CpByteStreamV1Tool::decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm,
 // Unpack CPM sub-block
 
 void CpByteStreamV1Tool::decodeCpm(CpmSubBlockV1* subBlock,
-                                   int trigCpm, CpByteStreamToolData& data)
+                                   int trigCpm, CpByteStreamToolData& data,
+                                   LocalData& ld) const
 {
   const bool debug   = msgLvl(MSG::DEBUG);
   const bool verbose = msgLvl(MSG::VERBOSE);
@@ -812,20 +816,20 @@ void CpByteStreamV1Tool::decodeCpm(CpmSubBlockV1* subBlock,
   }
   if (module < 1 || module > m_modules) {
     if (debug) msg() << "Unexpected module number: " << module << endmsg;
-    m_rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
+    ld.rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
     return;
   }
   if (timeslices <= trigCpm) {
     if (debug) msg() << "Triggered CPM slice from header "
                      << "inconsistent with number of slices: "
                      << trigCpm << ", " << timeslices << endmsg;
-    m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+    ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
   if (timeslices <= sliceNum) {
     if (debug) msg() << "Total slices inconsistent with slice number: "
                      << timeslices << ", " << sliceNum << endmsg;
-    m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+    ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
   // Unpack sub-block
@@ -834,7 +838,7 @@ void CpByteStreamV1Tool::decodeCpm(CpmSubBlockV1* subBlock,
       std::string errMsg(subBlock->unpackErrorMsg());
       msg() << "CPM sub-block unpacking failed: " << errMsg << endmsg;
     }
-    m_rodErr = subBlock->unpackErrorCode();
+    ld.rodErr = subBlock->unpackErrorCode();
     return;
   }
 
@@ -880,49 +884,49 @@ void CpByteStreamV1Tool::decodeCpm(CpmSubBlockV1* subBlock,
 	  double phi = 0.;
 	  int layer = 0;
 	  if (m_cpmMaps->mapping(crate, module, chan, eta, phi, layer)) {
-	    if (layer == m_coreOverlap) {
-	      const unsigned int key = m_towerKey->ttKey(phi, eta);
+	    if (layer == ld.coreOverlap) {
+	      const unsigned int key = ld.towerKey.ttKey(phi, eta);
 	      LVL1::CPMTower* tt = findCpmTower(tdata, key);
 	      if ( ! tt ) {   // create new CPM tower
-	        m_emVec.assign(timeslices, 0);
-	        m_hadVec.assign(timeslices, 0);
-	        m_emErrVec.assign(timeslices, 0);
-	        m_hadErrVec.assign(timeslices, 0);
-	        m_emVec[slice]     = em;
-	        m_hadVec[slice]    = had;
-	        m_emErrVec[slice]  = emErr1;
-	        m_hadErrVec[slice] = hadErr1;
+	        ld.emVec.assign(timeslices, 0);
+	        ld.hadVec.assign(timeslices, 0);
+	        ld.emErrVec.assign(timeslices, 0);
+	        ld.hadErrVec.assign(timeslices, 0);
+	        ld.emVec[slice]     = em;
+	        ld.hadVec[slice]    = had;
+	        ld.emErrVec[slice]  = emErr1;
+	        ld.hadErrVec[slice] = hadErr1;
 	        auto ttp =
-                  std::make_unique<LVL1::CPMTower>(phi, eta, m_emVec, m_emErrVec,
-                                                   m_hadVec, m_hadErrVec, trigCpm);
+                  std::make_unique<LVL1::CPMTower>(phi, eta, ld.emVec, ld.emErrVec,
+                                                   ld.hadVec, ld.hadErrVec, trigCpm);
 	        tdata.m_ttMap.insert(std::make_pair(key, ttp.get()));
                 tdata.m_ttCollection->push_back(std::move(ttp));
               } else {
-	        m_emVec     = tt->emEnergyVec();
-	        m_hadVec    = tt->hadEnergyVec();
-	        m_emErrVec  = tt->emErrorVec();
-	        m_hadErrVec = tt->hadErrorVec();
-		const int nsl = m_emVec.size();
+	        ld.emVec     = tt->emEnergyVec();
+	        ld.hadVec    = tt->hadEnergyVec();
+	        ld.emErrVec  = tt->emErrorVec();
+	        ld.hadErrVec = tt->hadErrorVec();
+		const int nsl = ld.emVec.size();
 	        if (timeslices != nsl) {
 	          if (debug) {
 		    msg() << "Inconsistent number of slices in sub-blocks"
 	                  << endmsg;
 	          }
-                  m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+                  ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
 	          return;
                 }
-		if (m_emVec[slice]    != 0 || m_hadVec[slice]    != 0 ||
-		    m_emErrVec[slice] != 0 || m_hadErrVec[slice] != 0) {
+		if (ld.emVec[slice]    != 0 || ld.hadVec[slice]    != 0 ||
+		    ld.emErrVec[slice] != 0 || ld.hadErrVec[slice] != 0) {
                   if (debug) msg() << "Duplicate data for slice "
 		                   << slice << endmsg;
-	          m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
+	          ld.rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 	          return;
                 }
-	        m_emVec[slice]     = em;
-	        m_hadVec[slice]    = had;
-	        m_emErrVec[slice]  = emErr1;
-	        m_hadErrVec[slice] = hadErr1;
-	        tt->fill(m_emVec, m_emErrVec, m_hadVec, m_hadErrVec, trigCpm);
+	        ld.emVec[slice]     = em;
+	        ld.hadVec[slice]    = had;
+	        ld.emErrVec[slice]  = emErr1;
+	        ld.hadErrVec[slice] = hadErr1;
+	        tt->fill(ld.emVec, ld.emErrVec, ld.hadVec, ld.hadErrVec, trigCpm);
 	      }
 	    }
           } else if (verbose && (em || had || emErr || hadErr)) {
@@ -946,32 +950,32 @@ void CpByteStreamV1Tool::decodeCpm(CpmSubBlockV1* subBlock,
       if (hits0 || hits1) {
         LVL1::CPMHits* ch = findCpmHits(hdata, crate, module);
 	if ( ! ch ) {   // create new CPM hits
-	  m_hitsVec0.assign(timeslices, 0);
-	  m_hitsVec1.assign(timeslices, 0);
-	  m_hitsVec0[slice] = hits0;
-	  m_hitsVec1[slice] = hits1;
+	  ld.hitsVec0.assign(timeslices, 0);
+	  ld.hitsVec1.assign(timeslices, 0);
+	  ld.hitsVec0[slice] = hits0;
+	  ld.hitsVec1[slice] = hits1;
 	  auto chp =
-            std::make_unique<LVL1::CPMHits>(swCrate, module, m_hitsVec0, m_hitsVec1, trigCpm);
+            std::make_unique<LVL1::CPMHits>(swCrate, module, ld.hitsVec0, ld.hitsVec1, trigCpm);
 	  hdata.m_hitsMap.insert(std::make_pair(crate*m_modules+module-1, chp.get()));
 	  hdata.m_hitCollection->push_back(std::move(chp));
         } else {
-	  m_hitsVec0 = ch->HitsVec0();
-	  m_hitsVec1 = ch->HitsVec1();
-	  const int nsl = m_hitsVec0.size();
+	  ld.hitsVec0 = ch->HitsVec0();
+	  ld.hitsVec1 = ch->HitsVec1();
+	  const int nsl = ld.hitsVec0.size();
 	  if (timeslices != nsl) {
 	    if (debug) msg() << "Inconsistent number of slices in sub-blocks"
 	                     << endmsg;
-            m_rodErr = L1CaloSubBlock::ERROR_SLICES;
+            ld.rodErr = L1CaloSubBlock::ERROR_SLICES;
 	    return;
           }
-	  if (m_hitsVec0[slice] != 0 || m_hitsVec1[slice] != 0) {
+	  if (ld.hitsVec0[slice] != 0 || ld.hitsVec1[slice] != 0) {
             if (debug) msg() << "Duplicate data for slice " << slice << endmsg;
-	    m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
+	    ld.rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 	    return;
           }
-	  m_hitsVec0[slice] = hits0;
-	  m_hitsVec1[slice] = hits1;
-	  ch->addHits(m_hitsVec0, m_hitsVec1);
+	  ld.hitsVec0[slice] = hits0;
+	  ld.hitsVec1[slice] = hits1;
+	  ch->addHits(ld.hitsVec0, ld.hitsVec1);
         }
       } else if (verbose) {
         msg(MSG::VERBOSE) << "No CPM hits data for crate/module/slice "
@@ -987,10 +991,11 @@ void CpByteStreamV1Tool::decodeCpm(CpmSubBlockV1* subBlock,
 // Find a CPM tower for given key
 
 const
-LVL1::CPMTower* CpByteStreamV1Tool::findCpmTower(const unsigned int key) const
+LVL1::CPMTower* CpByteStreamV1Tool::findCpmTower(const unsigned int key,
+                                                 const ConstCpmTowerMap& ttMap) const
 {
-  ConstCpmTowerMap::const_iterator mapIter = m_ttMap.find(key);
-  if (mapIter != m_ttMap.end()) return mapIter->second;
+  ConstCpmTowerMap::const_iterator mapIter = ttMap.find(key);
+  if (mapIter != ttMap.end()) return mapIter->second;
   return nullptr;
 }
 
@@ -1005,16 +1010,18 @@ LVL1::CPMTower* CpByteStreamV1Tool::findCpmTower(const CpmTowerData& data,
 // Find CPM hits for given crate, module
 
 const
-LVL1::CPMHits* CpByteStreamV1Tool::findCpmHits(const int crate, const int module) const
+LVL1::CPMHits* CpByteStreamV1Tool::findCpmHits(const int crate,
+                                               const int module,
+                                               const ConstCpmHitsMap& hitsMap) const
 {
   ConstCpmHitsMap::const_iterator mapIter =
-    m_hitsMap.find(crate*m_modules + module - 1);
-  if (mapIter != m_hitsMap.end()) return mapIter->second;
+    hitsMap.find(crate*m_modules + module - 1);
+  if (mapIter != hitsMap.end()) return mapIter->second;
   return nullptr;
 }
 
 LVL1::CPMHits* CpByteStreamV1Tool::findCpmHits(const CpmHitsData& data,
-                                             const int crate, const int module) const
+                                               const int crate, const int module) const
 {
   CpmHitsMap::const_iterator mapIter =
     data.m_hitsMap.find(crate*m_modules + module - 1);
@@ -1026,10 +1033,11 @@ LVL1::CPMHits* CpByteStreamV1Tool::findCpmHits(const CpmHitsData& data,
 
 const
 LVL1::CMMCPHits* CpByteStreamV1Tool::findCmmCpHits(const int crate,
-                                                 const int dataID) const
+                                                   const int dataID,
+                                                   const ConstCmmCpHitsMap& cmmHitsMap) const
 {
-  ConstCmmCpHitsMap::const_iterator mapIter = m_cmmHitsMap.find(crate*100 + dataID);
-  if (mapIter != m_cmmHitsMap.end()) return mapIter->second;
+  ConstCmmCpHitsMap::const_iterator mapIter = cmmHitsMap.find(crate*100 + dataID);
+  if (mapIter != cmmHitsMap.end()) return mapIter->second;
   return nullptr;
 }
 
@@ -1044,17 +1052,18 @@ LVL1::CMMCPHits* CpByteStreamV1Tool::findCmmCpHits(const CmmHitsData& data,
 
 // Set up CPM tower map
 
-void CpByteStreamV1Tool::setupCpmTowerMap(const CpmTowerCollection*
-                                                          const ttCollection)
+void CpByteStreamV1Tool::setupCpmTowerMap(const CpmTowerCollection* ttCollection,
+                                          ConstCpmTowerMap& ttMap,
+                                          LVL1::TriggerTowerKey& towerKey) const
 {
-  m_ttMap.clear();
+  ttMap.clear();
   if (ttCollection) {
     CpmTowerCollection::const_iterator pos  = ttCollection->begin();
     CpmTowerCollection::const_iterator pose = ttCollection->end();
     for (; pos != pose; ++pos) {
       const LVL1::CPMTower* const tt = *pos;
-      const unsigned int key = m_towerKey->ttKey(tt->phi(), tt->eta());
-      m_ttMap.insert(std::make_pair(key, tt));
+      const unsigned int key = towerKey.ttKey(tt->phi(), tt->eta());
+      ttMap.insert(std::make_pair(key, tt));
     }
   }
 }
@@ -1062,9 +1071,10 @@ void CpByteStreamV1Tool::setupCpmTowerMap(const CpmTowerCollection*
 // Set up CPM hits map
 
 void CpByteStreamV1Tool::setupCpmHitsMap(const CpmHitsCollection*
-                                                        const hitCollection)
+                                         const hitCollection,
+                                         ConstCpmHitsMap& hitsMap) const
 {
-  m_hitsMap.clear();
+  hitsMap.clear();
   if (hitCollection) {
     CpmHitsCollection::const_iterator pos  = hitCollection->begin();
     CpmHitsCollection::const_iterator pose = hitCollection->end();
@@ -1072,7 +1082,7 @@ void CpByteStreamV1Tool::setupCpmHitsMap(const CpmHitsCollection*
       const LVL1::CPMHits* const hits = *pos;
       const int crate = hits->crate() - m_crateOffsetSw;
       const int key   = m_modules * crate + hits->module() - 1;
-      m_hitsMap.insert(std::make_pair(key, hits));
+      hitsMap.insert(std::make_pair(key, hits));
     }
   }
 }
@@ -1080,9 +1090,10 @@ void CpByteStreamV1Tool::setupCpmHitsMap(const CpmHitsCollection*
 // Set up CMM-CP hits map
 
 void CpByteStreamV1Tool::setupCmmCpHitsMap(const CmmCpHitsCollection*
-                                                          const hitCollection)
+                                           const hitCollection,
+                                           ConstCmmCpHitsMap& cmmHitsMap) const
 {
-  m_cmmHitsMap.clear();
+  cmmHitsMap.clear();
   if (hitCollection) {
     CmmCpHitsCollection::const_iterator pos  = hitCollection->begin();
     CmmCpHitsCollection::const_iterator pose = hitCollection->end();
@@ -1090,7 +1101,7 @@ void CpByteStreamV1Tool::setupCmmCpHitsMap(const CmmCpHitsCollection*
       const LVL1::CMMCPHits* const hits = *pos;
       const int crate = hits->crate() - m_crateOffsetSw;
       const int key   = crate*100 + hits->dataID();
-      m_cmmHitsMap.insert(std::make_pair(key, hits));
+      cmmHitsMap.insert(std::make_pair(key, hits));
     }
   }
 }
@@ -1098,7 +1109,13 @@ void CpByteStreamV1Tool::setupCmmCpHitsMap(const CmmCpHitsCollection*
 // Get number of slices and triggered slice offset for next slink
 
 bool CpByteStreamV1Tool::slinkSlices(const int crate, const int module,
-                  const int modulesPerSlink, int& timeslices, int& trigCpm)
+                                     const int modulesPerSlink,
+                                     int& timeslices,
+                                     int& trigCpm,
+                                     const ConstCpmTowerMap& ttMap,
+                                     const ConstCpmHitsMap& hitsMap,
+                                     const ConstCmmCpHitsMap& cmmHitsMap,
+                                     LVL1::TriggerTowerKey& towerKey) const
 {
   int slices = -1;
   int trigC  = m_dfltSlices/2;
@@ -1108,8 +1125,8 @@ bool CpByteStreamV1Tool::slinkSlices(const int crate, const int module,
       double phi = 0.;
       int layer = 0;
       if ( !m_cpmMaps->mapping(crate, mod, chan, eta, phi, layer)) continue;
-      const unsigned int key = m_towerKey->ttKey(phi, eta);
-      const LVL1::CPMTower* const tt = findCpmTower(key);
+      const unsigned int key = towerKey.ttKey(phi, eta);
+      const LVL1::CPMTower* const tt = findCpmTower(key, ttMap);
       if ( !tt ) continue;
       const int numdat = 4;
       std::vector<int> sums(numdat);
@@ -1135,7 +1152,7 @@ bool CpByteStreamV1Tool::slinkSlices(const int crate, const int module,
 	} else if (slices != sizes[i] || trigC != peak) return false;
       }
     }
-    const LVL1::CPMHits* const hits = findCpmHits(crate, mod);
+    const LVL1::CPMHits* const hits = findCpmHits(crate, mod, hitsMap);
     if (hits) {
       const int numdat = 2;
       std::vector<unsigned int> sums(numdat);
@@ -1163,7 +1180,7 @@ bool CpByteStreamV1Tool::slinkSlices(const int crate, const int module,
       const int numdat = 4;
       std::vector<unsigned int> sums(numdat);
       std::vector<int> sizes(numdat);
-      const LVL1::CMMCPHits* const hits = findCmmCpHits(crate, dataID);
+      const LVL1::CMMCPHits* const hits = findCmmCpHits(crate, dataID, cmmHitsMap);
       if (hits) {
         sums[0] = std::accumulate((hits->HitsVec0()).begin(),
                                              (hits->HitsVec0()).end(), 0);

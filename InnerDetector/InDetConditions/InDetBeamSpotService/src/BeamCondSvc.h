@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetBeamSpotService_BEAMCOND_H
@@ -11,7 +11,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 #ifndef SIMULATIONBASE
 namespace Trk {
@@ -41,7 +42,7 @@ public:
 #endif
   virtual bool fillRec() const;
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE ();
   virtual StatusCode finalize();
 
 private:

@@ -211,17 +211,23 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
     bool pass1 = false;
     bool pass2 = false;
 
-    m_matchTool->matchEFCB(dimu.first, m_tag_trig, pass1);
-    m_matchTool->matchEFCB(dimu.second, m_tag_trig, pass2);
+    m_matchTool->matchEFIso(dimu.first, m_tag_trig, pass1);
+    m_matchTool->matchEFIso(dimu.second, m_tag_trig, pass2);
     
     if(pass1){
       if(std::find(probes.begin(), probes.end(), dimu.second)==probes.end()){
-	probes.push_back(dimu.second);
+	if(m_BarrelOnly){
+          if( std::abs( dimu.second->eta() ) > 0. && std::abs( dimu.second->eta() ) < 1.05 ) probes.push_back(dimu.second);
+        }
+        else probes.push_back(dimu.second);
       }
     }
     if(pass2){
       if(std::find(probes.begin(), probes.end(), dimu.first)==probes.end()){
-	probes.push_back(dimu.first);
+	if(m_BarrelOnly){
+          if( std::abs( dimu.first->eta() ) > 0. && std::abs( dimu.first->eta() ) < 1.05 ) probes.push_back(dimu.first);
+        }
+        else probes.push_back(dimu.first);
       }
     }
   }
