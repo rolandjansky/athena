@@ -33,6 +33,12 @@ atlas_add_test( TrackCollectionMerger_test
                 POST_EXEC_SCRIPT "nopost.sh"
 )
 
+atlas_add_test( SimpleTrackCollectionMerger_test
+                SOURCES test/SimpleTrackCollectionMerger_test.cxx test/PutTrackCollectionsInSG.cxx src/SimpleTrackCollectionMerger.cxx 
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+                LINK_LIBRARIES TestTools ${Boost_LIBRARIES} AthenaKernel GaudiKernel SGTools StoreGateLib CxxUtils AthenaBaseComps TrkTrack TrkToolInterfaces
+                POST_EXEC_SCRIPT "nopost.sh"
+)
 
 
 # Install files from the package:
