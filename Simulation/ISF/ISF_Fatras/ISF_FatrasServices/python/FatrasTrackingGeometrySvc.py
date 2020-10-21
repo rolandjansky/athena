@@ -133,7 +133,7 @@ class FatrasTrackingGeometryCondAlg:
   
     from FatrasExample.FatrasTuning import FatrasTuningFlags
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg as GeometryCondAlg
-    FatrasTrackingGeometryCondAlg = GeometryCondAlg(name = 'FatrasTrackingGeometrySvc')
+    FatrasTrackingGeometryCondAlg = GeometryCondAlg(name = 'FatrasTrackingGeometryCondAlg')
 
     # register the Builder 
     FatrasTrackingGeometryCondAlg.GeometryBuilder = FatrasGeometryBuilder
@@ -156,10 +156,3 @@ class FatrasTrackingGeometryCondAlg:
     print ('* [ GeometryBuilder       ]')
     print (FatrasGeometryBuilder)
     print ('* [ Configuration : end   ] *** FatrasTrackingGeometry ********************************')
-
-    ##################################################################################    
-
-    self.__geoSvc__ = FatrasTrackingGeometryCondAlg
-
-  def getGeoSvc(self):
-    return self.__geoSvc__

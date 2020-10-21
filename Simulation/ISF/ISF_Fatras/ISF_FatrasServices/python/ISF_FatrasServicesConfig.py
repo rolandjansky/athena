@@ -172,11 +172,13 @@ def getFatrasTrackingGeometrySvc(name="ISF_FatrasTrackingGeometrySvc", **kwargs)
 
 def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     # the Navigator (needed for several instances)
-    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg                                                                                        
-    TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    condSeq+= TrkGeoCondAlg
+    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg                                                                                        
+      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+      condSeq+= TrkGeoCondAlg
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
     return Trk__Navigator(name, **kwargs )
@@ -398,11 +400,13 @@ def getFatrasMultipleScatteringSamplerGeneralMixture(name="ISF_MultipleScatterin
 # Combining all in the MaterialEffectsUpdator
 def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg                                                                        
-    TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    condSeq+= TrkGeoCondAlg
+    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+      condSeq+= TrkGeoCondAlg
 
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
