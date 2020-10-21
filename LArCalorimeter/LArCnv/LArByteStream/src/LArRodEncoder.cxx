@@ -135,7 +135,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
  // The sort alorithm for the vectors inside the data object of the map fails
  // when I use const_iterator at this point. Don't ask me why
  //std::cout << "Have " << m_mFEB.size() << " FEBs in this ROD" << std::endl;
- for(;it!=it_end;it++) {
+ for(;it!=it_end;++it) {
    //std::cout << "Setting values for feb # " << febcounter << " ID=" << it->first << std::endl;
     m_BlStruct->initializeFEB(it->first);                                     // Set FEB id
     //std::cout << "Setting Energy" << std::endl;
@@ -143,8 +143,6 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
     if (m_BlStruct->canSetEnergy() && it->second.vLArRC.size()>0) {
       //int j=0;
 //      m_BlStruct->sortDataVector(it->second.vLArRC);
-      std::vector<const LArRawChannel*>::const_iterator chit=it->second.vLArRC.begin();
-      std::vector<const LArRawChannel*>::const_iterator chit_e=it->second.vLArRC.end();
       // compute Ex, Ey for this FEB : initialisation phase
       
       {
@@ -154,10 +152,9 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 	double SumE=0;
 	Identifier myofflineID;
 
-	for (;chit!=chit_e;chit++) {
-	  if ( ((LArRawChannel*)(*chit))!=0 ){
-	  int cId =  m_onlineHelper->channel((*chit)->hardwareID());
-	  const LArRawChannel *theChannel = *chit;
+        for (const LArRawChannel *theChannel : it->second.vLArRC) {
+	  if ( theChannel != nullptr ){
+	  int cId =  m_onlineHelper->channel(theChannel->hardwareID());
 
 	  int e=theChannel->energy();
           uint32_t quality = theChannel->quality();
@@ -191,15 +188,10 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
     if (m_BlStruct->canIncludeRawData() && it->second.vLArDigit.size()>0) {
       // Order channels according to ROD numbering
       m_BlStruct->sortDataVector(it->second.vLArDigit);
-      std::vector<const LArDigit*>::const_iterator digit_it = it->second.vLArDigit.begin();
-      std::vector<const LArDigit*>::const_iterator digit_it_end=it->second.vLArDigit.end();
-      if(digit_it!=digit_it_end) { //Container not empty
-        //m_BlStruct->setNumberOfSamples((*digit_it)->samples().size());
-        for (;digit_it!=digit_it_end;digit_it++)  {
-          int cId =  m_onlineHelper->channel((*digit_it)->hardwareID());
-          m_BlStruct->setRawData(cId, (*digit_it)->samples(), (*digit_it)->gain());
-        } // end of for digits
-      }// end container not empty
+      for (const LArDigit* digit : it->second.vLArDigit) {
+        int cId =  m_onlineHelper->channel(digit->hardwareID());
+        m_BlStruct->setRawData(cId, digit->samples(), digit->gain());
+      } // end of for digits
     } // End of can Include Raw Data check
     //std::cout << "Setting Raw Data" << std::endl;
     // ************** Raw Data Block ***********
@@ -210,7 +202,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
       std::vector<const LArDigit*>::const_iterator digit_it_end=it->second.vLArDigit.end();
       if(digit_it!=digit_it_end) { //Container not empty
 	m_BlStruct->setNumberOfSamples((*digit_it)->samples().size());
-	for (;digit_it!=digit_it_end;digit_it++)  {
+	for (;digit_it!=digit_it_end;++digit_it)  {
 	  int cId =  m_onlineHelper->channel((*digit_it)->hardwareID());
 	  //cId = m_BlStruct->FebToRodChannel(cId);
 	  m_BlStruct->setRawData(cId, (*digit_it)->samples(), (*digit_it)->gain());
@@ -228,7 +220,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 	std::vector<const LArDigit*>::const_iterator digit_it_end=it->second.vLArDigitFixed[i].end();
 	if(digit_it!=digit_it_end) {//Container not empty
 	  m_BlStruct->setNumberOfSamples((*digit_it)->samples().size());
-	  for (;digit_it!=digit_it_end;digit_it++)  {
+	  for (;digit_it!=digit_it_end;++digit_it)  {
 	    int cId =  m_onlineHelper->channel((*digit_it)->hardwareID()); 
 	    //cId = m_BlStruct->FebToRodChannel(cId);
 	    m_BlStruct->setRawDataFixed(cId, (*digit_it)->samples(), (*digit_it)->gain());
@@ -248,7 +240,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 	    m_BlStruct->setNumberOfSamples((*digit_it)->samples().size());
 	    m_BlStruct->setDelay((*digit_it)->delay());
 	    m_BlStruct->setDAC((*digit_it)->DAC());
-	    for (;digit_it!=digit_it_end;digit_it++) { 
+	    for (;digit_it!=digit_it_end;++digit_it) { 
 	      int cId =  m_onlineHelper->channel((*digit_it)->hardwareID()); 
 	      //cId = m_BlStruct->FebToRodChannel(cId);
 	      m_BlStruct->setRawDataFixed(cId, (*digit_it)->samples(), (*digit_it)->gain());
