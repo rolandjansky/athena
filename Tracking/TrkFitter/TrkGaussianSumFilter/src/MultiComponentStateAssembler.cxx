@@ -55,7 +55,7 @@ doStateAssembly(Cache& cache, const double newWeight)
     Trk::MultiComponentState assembledState;
     assembledState.reserve(cacheSize);
     for (auto& component : cache.multiComponentState) {
-      assembledState.emplace_back(component.first.release(), component.second);
+      assembledState.emplace_back(std::move(component.first), component.second);
     }
     // Reset the cache before leaving
     reset(cache);
@@ -66,7 +66,7 @@ doStateAssembly(Cache& cache, const double newWeight)
   const double scalingFactor =
     cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
   for (auto& component : cache.multiComponentState) {
-    assembledState.emplace_back(component.first.release(),
+    assembledState.emplace_back(std::move(component.first),
                                 component.second * scalingFactor);
   }
   // Reset the cache before leaving
@@ -95,7 +95,7 @@ Trk::MultiComponentStateAssembler::addComponent(
     return false;
   }
   cache.validWeightSum += componentParameters.second;
-  cache.multiComponentState.emplace_back(componentParameters.first.release(),
+  cache.multiComponentState.emplace_back(std::move(componentParameters.first),
                                          componentParameters.second);
   return true;
 }
@@ -111,7 +111,7 @@ Trk::MultiComponentStateAssembler::addMultiState(
   double sumW(0.);
   for (auto& component : multiComponentState) {
     sumW += component.second;
-    cache.multiComponentState.emplace_back(component.first.release(),
+    cache.multiComponentState.emplace_back(std::move(component.first),
                                            component.second);
   }
   multiComponentState.clear();

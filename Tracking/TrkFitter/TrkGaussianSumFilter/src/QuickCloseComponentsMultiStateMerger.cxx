@@ -61,7 +61,7 @@ mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
       continue;
     }
     cache.multiComponentState.emplace_back(
-      Trk::ComponentParameters(state.first.release(), state.second));
+      Trk::ComponentParameters(std::move(state.first), state.second));
     cache.validWeightSum += state.second;
   }
   Trk::MultiComponentState mergedState =
