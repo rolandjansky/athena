@@ -33,7 +33,6 @@
 // core stuff
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGate.h"
 
 // trigger/configuration stuff
 #include "TrigDecisionEvent/TrigDecision.h"
