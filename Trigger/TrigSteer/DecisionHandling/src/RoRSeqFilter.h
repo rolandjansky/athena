@@ -91,9 +91,10 @@ class RoRSeqFilter
  * at least one of the chains which this filter algorithm is configured for. This new object is linked to its 
  * parent and stored in the output collection. It will form the starting point for the next Step. 
  **/
-  size_t copyPassing( const TrigCompositeUtils::DecisionContainer& input, 
-                      TrigCompositeUtils::DecisionContainer& output, const std::set<HLT::Identifier>& topass) const;
-
+  size_t copyPassing( const TrigCompositeUtils::DecisionContainer& input,
+                      TrigCompositeUtils::DecisionContainer& output,
+                      const std::set<HLT::Identifier>& topass,
+                      const EventContext& ctx) const;
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Filter I/O monitoring" };
 }; 
 
