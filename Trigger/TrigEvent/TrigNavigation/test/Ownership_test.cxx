@@ -8,7 +8,6 @@
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
