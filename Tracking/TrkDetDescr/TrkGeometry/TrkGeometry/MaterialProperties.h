@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,10 +40,19 @@ namespace Trk {
   class MaterialProperties {
           
     public:
-        
       /** Default Constructor */
-      MaterialProperties();
-      
+      MaterialProperties() = default;
+      /** Copy Constructor */
+      MaterialProperties(const MaterialProperties& mprop) = default;
+      /** Assignment Operator */
+      MaterialProperties& operator=(const MaterialProperties& mprop) = default;
+      /** Move Constructor */
+      MaterialProperties(MaterialProperties&& mprop) = default;
+      /** Move Assignment Operator */
+      MaterialProperties& operator=(MaterialProperties&& mprop) = default;
+      /** Destructor */
+      ~MaterialProperties() = default;
+
       /** Constructor - for averaged material */
       MaterialProperties(float path,
                          float Xo,
@@ -51,23 +60,15 @@ namespace Trk {
                          float averageA,
                          float averageZ,
                          float averageRho,
-                         float dEdX=0.);
+                         float dEdX = 0.);
 
       /** Constructor - for full Material class */
       MaterialProperties(const Material& material, float path);
 
-      /** Copy Constructor */
-      MaterialProperties(const MaterialProperties& mprop);
-                
-      /** Destructor */
-      virtual ~MaterialProperties(){}
-
       /** Pseudo-Constructor clone() */
-      virtual MaterialProperties* clone() const;
+      MaterialProperties* clone() const;
        
-      /** Assignment Operator */
-      MaterialProperties& operator =( const MaterialProperties& mprop);
-      
+     
       /** Scale operator - scales the material thickness */
       MaterialProperties& operator *= ( float scale);
 
@@ -122,75 +123,24 @@ namespace Trk {
       friend class ::MaterialPropertiesCnv_p1;
 
       /** Set dEdX       - important for material calibarion */
-      virtual void setDeDx(float dEdX);        
-      
-      Material   m_material;
-      
-      float      m_dInX0;      //!< thickness in units of radiation length
-      float      m_dInL0;      //!< thickness in units of nuclear interaction length
-      float      m_zOaTrTd;    //!< @f$ \frac{Z}{A}\cdot\rho\cdot d @f$ - in ATLAS units
+      void setDeDx(float dEdX);
 
+      Material m_material;
+      float m_dInX0 = 0; //!< thickness in units of radiation length
+      float m_dInL0 = 0; //!< thickness in units of nuclear interaction length
+      float m_zOaTrTd = 0; //!< @f$ \frac{Z}{A}\cdot\rho\cdot d @f$ - in ATLAS units
   };
-
-  /** Return method for the full material */
-  inline const Material& MaterialProperties::material() const 
-    { return m_material; }
-
-  inline Material& MaterialProperties::material() 
-    { return m_material; }
-
-  /** Return method for thicknes in units of radiation length - dimensionless */
-  inline float MaterialProperties::thicknessInX0() const { return m_dInX0; }
-
-  /** Return method for thickness in units of nuclear interaction length - dimensionless */
-  inline float MaterialProperties::thicknessInL0() const { return m_dInL0; }
-
-  /** Return method for thickness in mm */
-  inline float MaterialProperties::thickness() const { return m_dInX0*m_material.X0; }
-
-  /** Return method for radiation length - in [mm] */
-  inline float MaterialProperties::x0() const
-    { return m_material.X0; }
-    
-  /** Return method for nuclear interaction length - in [mm] */
-  inline float MaterialProperties::l0() const
-    { return m_material.L0; }
-
-  /** Return method for @f$ \frac{A}{Z}\cdot\rho @f$ */
-  inline float MaterialProperties::zOverAtimesRho() const
-    { return m_material.zOaTr; }
-
-  /** Return method for @f$ \frac{A}{Z}\cdot\rho\cdot d @f$ */
-  inline float MaterialProperties::zOverAtimesRhoTimesD() const
-    { return m_zOaTrTd; }
-
-  /** Return method for @f$ A @f$ */
-  inline float MaterialProperties::averageA() const
-    { return m_material.A; }
-
-  /** Return method for @f$ Z @f$ */
-  inline float MaterialProperties::averageZ() const
-    { return m_material.Z; }
-
-  /** Return method for @f$ Z @f$ */
-  inline float MaterialProperties::averageRho() const
-    { return m_material.rho; }
-
-  /** Return method for @f$ dE/dX @f$ */
-  inline float MaterialProperties::dEdX() const
-    { return m_material.dEdX; }
-
   /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
   MsgStream& operator<<( MsgStream& sl, const MaterialProperties& mprop);
   std::ostream& operator<<( std::ostream& sl, const MaterialProperties& mprop);
 
   /** Useful typedefs */
-
   typedef std::vector< const MaterialProperties*>   MaterialPropertiesVector;
   typedef std::vector<MaterialPropertiesVector>     MaterialPropertiesMatrix;
 
        
 } // end of namespace
 
+#include "TrkGeometry/MaterialProperties.icc"
 #endif // TRKGEOMETRY_MATERIALPROPERTIES_H
 
