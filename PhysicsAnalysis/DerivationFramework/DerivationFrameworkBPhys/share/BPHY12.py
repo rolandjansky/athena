@@ -15,9 +15,9 @@ skimTruth = False
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
-isSimulation = False
-if globalflags.DataSource()=='geant4':
-    isSimulation = True
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+isSimulation = DerivationFrameworkHasTruth
+
 
 print 'is this simulation? ', isSimulation
 
@@ -313,7 +313,7 @@ print BPHY12TruthThinTool
 
 # Added by ASC
 BPHY12ThinningTools = [BPHY12Thin_vtxTrk, BPHY12MuonTPThinningTool]
-if globalflags.DataSource()=='geant4':
+if isSimulation:
     BPHY12ThinningTools.append(BPHY12TruthThinTool)
 
 # The name of the kernel (BPHY12Kernel in this case) must be unique to this derivation
