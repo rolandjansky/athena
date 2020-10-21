@@ -37,8 +37,8 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   StatusCode finalize() override;
 
   //concrete implementations
-
-  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&, const EventContext& ctx) const override final;
+  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&, const EventContext& ctx, std::map<Identifier, std::vector<long int> >*clustermap=nullptr) const override final;
+  
 
  protected:
 
@@ -57,6 +57,7 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   bool m_filter_phi;
   bool m_useBeamTilt;
   bool m_useNewScheme;
+  bool m_usePixelSpacePoints;
 
   void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&, const EventContext&) const;
   void transformSpacePoints(std::vector<TrigSiSpacePointBase>&, const EventContext&) const;
