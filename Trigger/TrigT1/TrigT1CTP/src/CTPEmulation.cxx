@@ -114,6 +114,7 @@ LVL1CTP::CTPEmulation::CTPEmulation( const std::string& name, ISvcLocator* pSvcL
    declareProperty( "eFEXREta", m_eFEXREta , "Defines the eEM shower parameter R_eta  selection " );
    declareProperty( "eFEXRHad", m_eFEXRHad , "Defines the eEM shower parameter R_had selection" );
    declareProperty( "eFEXWStot", m_eFEXWStot, "Defines the eEM shower parameter W_Stot selection" );
+   declareProperty( "eFEXTauIso", m_eFEXTauIso, "Defines the eTAU shower parameter isolation selection" );
 
    m_decoder = new LVL1::CPRoIDecoder();
    m_jetDecoder = new LVL1::JEPRoIDecoder();
@@ -199,7 +200,8 @@ LVL1CTP::CTPEmulation::initialize() {
    CHECK( setEFexConfig(m_eFEXREta , m_reta ) );
    CHECK( setEFexConfig(m_eFEXRHad , m_rhad ) );
    CHECK( setEFexConfig(m_eFEXWStot, m_wstot) );
-   
+   CHECK( setEFexConfig(m_eFEXTauIso, m_tauIso) );
+
    if ( m_useROIBOutput ) {
       CHECK(m_lvl1Tool.retrieve());
    }
@@ -416,8 +418,8 @@ LVL1CTP::CTPEmulation::bookHists() {
    CHECK ( m_histSvc->regHist( histpath + "phi", new TH1I("phi","Tau phi", 64, -3.2, 3.2)) );
    CHECK ( m_histSvc->regHist( histpath + "emIso",  new TH1I("emIso","Tau em isolation", 40, 0, 1)) );
    CHECK ( m_histSvc->regHist( histpath + "hadIso", new TH1I("hadIso","Tau hadronic isolation", 40, 0, 1)) );
-   CHECK ( m_histSvc->regHist( histpath + "R3ClusterET",  new TH1I("R3ET","Tau eT", 40, 0, 40)) );
-   CHECK ( m_histSvc->regHist( histpath + "R3ClusterIso", new TH1I("R3Iso","Tau isolation", 40, 0, 1)) );
+   CHECK ( m_histSvc->regHist( histpath + "R3ClusterET",  new TH1I("R3ET","Tau (Oregon) eT", 40, 0, 40)) );
+   CHECK ( m_histSvc->regHist( histpath + "R3ClusterIso", new TH1I("R3Iso","Tau (Oregon) isolation", 40, 0, 1)) );
 
    // ROI
    // jet ROI
@@ -683,7 +685,8 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
       const xAOD::EnergySumRoI * met = getMET(x);
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/" + x, hist) );
       if(hist) {
-         hist->Fill(abs(met->energyT())/1000.);
+         auto eMiss = sqrt( met->energyX()*met->energyX() + met->energyY()*met->energyY() ) / 1000.;
+         hist->Fill(eMiss);
       }
       CHECK ( m_histSvc->getHist( histBasePath() + "/input/MET/" + x + "Phi", hist) );
       if(hist) hist->Fill(atan2(met->energyX(), met->energyY()));
@@ -772,8 +775,8 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/hadIso", h5) );
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/R3ClusterET", h6) );
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/R3ClusterIso", h7) );
-   const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3ClusterET");
-   const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3ClusterIso");
+   const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3_Ore_ClusterET");
+   const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3_Ore_ClusterIso");
    for( const auto & tau : *m_eFEXTau ) {
       h1->Fill(tau->eT());
       h2->Fill(tau->eta());
@@ -1177,17 +1180,25 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
    unsigned int multiplicity = 0;
    if ( confThr->name()[0]=='e' ) { 
       // new TAU threshold from eFEX
-      const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3ClusterET");
-      const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3ClusterIso");
+      const static SG::AuxElement::ConstAccessor<float> accET ("R3_Ore_ClusterET");
+      const static SG::AuxElement::ConstAccessor<float> accIso ("R3_Ore_ClusterIso");
       if( m_eFEXTau ) {
          for ( const auto & tau : * m_eFEXTau ) {
-            unsigned int eT = (unsigned int) (accR3ClET(*tau)/1000.); // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
-            //float iso = accR3ClIso(*tau);
-            float eta = tau->eta();
-            int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
-            int iphi = 0;
-            const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue( ieta, iphi );
-            bool tauPasses = ( eT >= thrV->ptcut() ); // need to add cut on isolation and other variables, once available
+            float eT = accET(*tau)/1000.; // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
+            float iso = accIso(*tau);
+            const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue(0,0);
+            const TrigConf::ClusterThresholdValue * clThrV = dynamic_cast<const TrigConf::ClusterThresholdValue*> ( thrV );
+            auto isoMask = clThrV->isolationMask();
+            bool tauPasses = eT >= thrV->ptcut();
+            // apply isolation according to ATR-22204
+            static const uint16_t BITMASK_OFFSET_TAUISO = 0;
+            unsigned int selection_tauiso = ((isoMask >> BITMASK_OFFSET_TAUISO) & 0x3);
+            if(tauPasses and selection_tauiso>0) {
+               auto & wp = m_tauIso.at(selection_tauiso).getWP(/*ieta=*/0);
+               if( (eT < wp.maxEt) && iso < wp.value) {
+                  tauPasses = false;
+               }
+            }
             multiplicity +=  tauPasses ? 1 : 0;
          }
       }
@@ -1300,7 +1311,8 @@ LVL1CTP::CTPEmulation::calculateMETMultiplicity( const TrigConf::TriggerThreshol
       // new XE 
       // input depends on the name of the threshold
       const xAOD::EnergySumRoI * met = getMET(confThr->name());
-      multiplicity = ( abs(met->energyT()/1000.) < confThr->thresholdValueVector()[0]->ptcut() ) ? 0 : 1; // energyT value is in MeV, cut in GeV
+      auto eMiss = sqrt( met->energyX()*met->energyX() + met->energyY()*met->energyY() ) / 1000.;
+      multiplicity = ( eMiss < confThr->thresholdValueVector()[0]->ptcut() ) ? 0 : 1; // energyT value is in MeV, cut in GeV
    }
 
    TH1 * h { nullptr };
@@ -1343,12 +1355,10 @@ LVL1CTP::CTPEmulation::getMET(const std::string & thresholdName) const {
       return &*m_jFEXMETNC;
 
    if( thresholdType == "gXE" ) {
-      ATH_MSG_WARNING("MET threshold " << thresholdName << " of deprecated type " << thresholdType );
       return &*m_gFEXMETNC;
    }
 
    if( thresholdType == "jXE" ) {
-      ATH_MSG_WARNING("MET threshold " << thresholdName << " of deprecated type " << thresholdType );
       return &*m_jFEXMETNC;
    }
 

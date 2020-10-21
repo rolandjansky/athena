@@ -213,9 +213,11 @@ namespace LVL1CTP {
       StringProperty m_eFEXREta { "" };
       StringProperty m_eFEXRHad { "" };
       StringProperty m_eFEXWStot { "" };
+      StringProperty m_eFEXTauIso { "" };
       std::map<unsigned int, eFEXParWP> m_reta;
       std::map<unsigned int, eFEXParWP> m_rhad;
       std::map<unsigned int, eFEXParWP> m_wstot;
+      std::map<unsigned int, eFEXParWP> m_tauIso;
 
 
       std::string m_histStream {"EXPERT"};
