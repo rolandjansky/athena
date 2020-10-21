@@ -69,8 +69,8 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.combined = [
-        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=CombinedGroup),
-        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', groups=CombinedGroup)
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup),
+        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup)
     ]
 
 if __name__ == "__main__":

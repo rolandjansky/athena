@@ -33,8 +33,8 @@ def setupMenu():
         #ATR-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu20_ivarmedium_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu20_ivarmedium_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
     
         #test chains
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
@@ -65,12 +65,12 @@ def setupMenu():
         ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu80_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu60_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20', 'FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu28_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu22_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu24_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu26_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20', 'FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu28_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu22_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name="HLT_mu10_L1MU10", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU4',  groups=MultiMuonGroup),
 
@@ -198,8 +198,8 @@ def setupMenu():
         # MultiMET Chain
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10', l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
         # ATR-21934
-        ChainProp(name='HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50',l1SeedThresholds=['XE50']*3, mergingStrategy='parallel',  groups=MultiMETGroup),
-        ChainProp(name='HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50', l1SeedThresholds=['XE50']*3, mergingStrategy='parallel',  groups=MultiMETGroup),
+        ChainProp(name='HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50',l1SeedThresholds=['XE50']*3,  groups=MultiMETGroup),
+        ChainProp(name='HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50', l1SeedThresholds=['XE50']*3,  groups=MultiMETGroup),
     ]
 
 
@@ -339,9 +339,9 @@ def setupMenu():
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
         # ATR-21797
         # the following 3 chains were in serial mode in Run-2
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40",         l1SeedThresholds=['TAU60','TAU40'],     mergingStrategy='parallel', groups=MultiTauGroup),
-        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I",l1SeedThresholds=['TAU60','TAU12IM'],   mergingStrategy='parallel', groups=MultiTauGroup),
-        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25",  l1SeedThresholds=['TAU20IM','TAU12IM'], mergingStrategy='parallel', groups=MultiTauGroup),
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40",         l1SeedThresholds=['TAU60','TAU40'],     groups=MultiTauGroup),
+        ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I",l1SeedThresholds=['TAU60','TAU12IM'],   groups=MultiTauGroup),
+        ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25",  l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup),
     ]
 
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
@@ -359,26 +359,26 @@ def setupMenu():
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
         # groups need to be properly assigned here later
         # Primary e-mu chains
-        ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e12_lhloose_2mu10_L12MU10', l1SeedThresholds=['EM8VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_2e12_lhloose_mu10_L12EM8VH_MU10', l1SeedThresholds=['EM8VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e12_lhloose_2mu10_L12MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2e12_lhloose_mu10_L12EM8VH_MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # Primary g-mu chains
-        ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_g35_loose_mu18_L1EM24VHI', l1SeedThresholds=['EM24VHI','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_2g10_loose_mu20_L1MU20', l1SeedThresholds=['EM7','MU20'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup), # unsure what EM seed should be    
+        ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_g35_loose_mu18_L1EM24VHI', l1SeedThresholds=['EM24VHI','MU10'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2g10_loose_mu20_L1MU20', l1SeedThresholds=['EM7','MU20'], stream=[PhysicsStream], groups=MultiElectronGroup), # unsure what EM seed should be    
 
         # Primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
         # test
-        ChainProp(name='HLT_e3_etcut1step_g5_etcut_L12EM3',l1SeedThresholds=['EM3','EM3'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e3_etcut1step_g5_etcut_L12EM3',l1SeedThresholds=['EM3','EM3'], stream=[PhysicsStream], groups=MultiElectronGroup),
         # primaries
-        ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup), # unsure about l1SeedThresholds
+        ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], stream=[PhysicsStream], groups=MultiElectronGroup), # unsure about l1SeedThresholds
 
         # Test chains for muon + jet/MET merging/aligning
-        ChainProp(name='HLT_mu6_xe30_mht_L1XE10', l1SeedThresholds=['MU6','XE10'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),
-        ChainProp(name='HLT_mu6_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),    
+        ChainProp(name='HLT_mu6_xe30_mht_L1XE10', l1SeedThresholds=['MU6','XE10'], stream=[PhysicsStream], groups=SingleMETGroup),
+        ChainProp(name='HLT_mu6_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], stream=[PhysicsStream], groups=SingleMETGroup),    
     
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []

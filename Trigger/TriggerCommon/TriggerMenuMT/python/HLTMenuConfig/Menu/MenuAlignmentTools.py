@@ -24,6 +24,10 @@ the_signature_grouping = OrderedDict([
     ('UnconventionalTracking','UnconventionalTracking'),
     ])
 
+def getAlignmentGroupOrdering():
+    seen = set()
+    return [v for _,v in the_signature_grouping.items() if not (v in seen or seen.add(v))]
+
 def getAlignmentGroupFromPattern(sName, extra):
     signature_for_alignment = sName + extra
     
@@ -32,7 +36,7 @@ def getAlignmentGroupFromPattern(sName, extra):
     elif sName in  the_signature_grouping.keys():
         return the_signature_grouping[sName]
     else:
-        log.info("No alignment grouping for signature %s (%s)",sName,extra)
+        log.info("No dedicated alignment grouping for signature %s (%s)",sName,extra)
         return sName
 
 # Here, we use a list of all the signature combinations in the menu and the signature
