@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 class PixelSiPropertiesToolSetup:
   "Class to simplify setup of PixelSiPropertiesTool and required conditions algorithm"
@@ -44,7 +44,6 @@ class PixelSiPropertiesToolSetup:
     if not conddb.folderRequested(tempFolder):
       conddb.addFolder(dbInstance, tempFolder, className="CondAttrListCollection")
 
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
  
@@ -56,7 +55,6 @@ class PixelSiPropertiesToolSetup:
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
       condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=tempFolder)
 
-    from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(condSeq, "PixelSiPropertiesCondAlg"):
       from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
       condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg")
