@@ -24,7 +24,7 @@ namespace {
 using BH = Trk::GsfBetheHeitlerEffects;
 
 inline bool
-inRange(int var,  int lo, int hi)
+inRange(int var, int lo, int hi)
 {
   return ((var <= hi) and (var >= lo));
 }
@@ -158,6 +158,21 @@ getMixtureParameters(
   return mixture;
 }
 
+Trk::GsfBetheHeitlerEffects::Polynomial
+readPolynomial(std::ifstream& fin)
+{
+  Trk::GsfBetheHeitlerEffects::Polynomial poly{};
+  for (size_t i = 0; i < GSFConstants::polynomialCoefficients; ++i) {
+    if (!fin) {
+      throw std::runtime_error(
+        "Reached end of stream but still expecting data.");
+    }
+    fin >> poly.coefficients[i];
+  }
+  return poly;
+}
+
+
 } // end of Anonymous namespace for Helper methods
 
 Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type,
@@ -262,10 +277,9 @@ Trk::GsfBetheHeitlerEffects::readParameters()
   // Fill the polynomials
   int componentIndex = 0;
   for (; componentIndex < m_numberOfComponents; ++componentIndex) {
-    m_polynomialWeights[componentIndex] = readPolynomial(fin, orderPolynomial);
-    m_polynomialMeans[componentIndex] = readPolynomial(fin, orderPolynomial);
-    m_polynomialVariances[componentIndex] =
-      readPolynomial(fin, orderPolynomial);
+    m_polynomialWeights[componentIndex] = readPolynomial(fin);
+    m_polynomialMeans[componentIndex] = readPolynomial(fin);
+    m_polynomialVariances[componentIndex] = readPolynomial(fin);
   }
 
   // Read the high X0 polynomial
@@ -321,30 +335,12 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     // Fill the polynomials
     int componentIndex = 0;
     for (; componentIndex < m_numberOfComponentsHighX0; ++componentIndex) {
-      m_polynomialWeightsHighX0[componentIndex] =
-        readPolynomial(fin, orderPolynomial);
-      m_polynomialMeansHighX0[componentIndex] =
-        readPolynomial(fin, orderPolynomial);
-      m_polynomialVariancesHighX0[componentIndex] =
-        readPolynomial(fin, orderPolynomial);
+      m_polynomialWeightsHighX0[componentIndex] = readPolynomial(fin);
+      m_polynomialMeansHighX0[componentIndex] = readPolynomial(fin);
+      m_polynomialVariancesHighX0[componentIndex] = readPolynomial(fin);
     }
   }
   return true;
-}
-
-Trk::GsfBetheHeitlerEffects::Polynomial
-Trk::GsfBetheHeitlerEffects::readPolynomial(std::ifstream& fin, const int order)
-{
-  std::vector<double> coefficients(order + 1);
-  int orderIndex = 0;
-  for (; orderIndex < (order + 1); ++orderIndex) {
-    if (!fin) {
-      throw std::runtime_error(
-        "Reached end of stream but still expecting data.");
-    }
-    fin >> coefficients[orderIndex];
-  }
-  return Polynomial(coefficients);
 }
 
 void
