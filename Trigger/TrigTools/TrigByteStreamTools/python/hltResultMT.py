@@ -8,6 +8,12 @@ Methods to deserialise HLTResultMT using Python bindings of C++ classes
 and reimplementing some logic from TriggerEDMDeserialiserAlg
 '''
 
+from ROOT import vector, StringSerializer
+from functools import lru_cache
+
+# Global StringSerialiser to avoid constructing per call
+_string_serialiser = StringSerializer()
+
 # Copy of variables defined in TrigOutputHandling/src/TriggerEDMDeserialiserAlg.h
 SizeWord = 0
 CLIDOffset = 1
@@ -49,22 +55,24 @@ class EDMCollection:
         return '_p' in self.name_persistent
 
 
-def get_collection_name(raw_data_words):
-    '''Use Python bindings of C++ StringSerialiser to deserialise collection names'''
+@lru_cache(maxsize=2048)
+def deserialise_name(name_words):
+    '''Use Python bindings of C++ StringSerialiser to deserialise collection type and name'''
 
-    from ROOT import string, vector, StringSerializer
+    name_raw_vec = vector['unsigned int'](name_words)
+    name_str_vec = vector['string']()
+    _string_serialiser.deserialize(name_raw_vec, name_str_vec)
+    return name_str_vec
+
+
+@lru_cache(maxsize=4096)
+def get_collection_name(raw_data_words):
+    '''Extract type+name words from the full collection raw data and convert to string'''
+
     nw = raw_data_words[NameLengthOffset]
-    name_raw = raw_data_words[NameOffset:NameOffset+nw]
-    name_raw_vec = vector('unsigned int')()
-    for w in name_raw:
-        name_raw_vec.push_back(w)
-    name_str_vec = vector(string)()
-    ss = StringSerializer()
-    ss.deserialize(name_raw_vec, name_str_vec)
-    name_list = []
-    for s in name_str_vec:
-        name_list.append(str(s))
-    return name_list
+    name_words = raw_data_words[NameOffset:NameOffset+nw]
+    name_str_vec = deserialise_name(tuple(name_words))
+    return [str(s) for s in name_str_vec]
 
 
 def get_collections(raw_data_words):
@@ -78,8 +86,8 @@ def get_collections(raw_data_words):
     last_aux_cont = None
     while start < len(raw_data_words):
         size = raw_data_words[start+SizeWord]
-        coll_raw = raw_data_words[start:start+size]
-        coll = EDMCollection(get_collection_name(coll_raw), size)
+        coll_name = get_collection_name(tuple(raw_data_words[start:start+size]))
+        coll = EDMCollection(coll_name, size)
         if coll.is_xAOD_aux_container():
             last_aux_cont = coll
         if coll.is_xAOD_decoration():
