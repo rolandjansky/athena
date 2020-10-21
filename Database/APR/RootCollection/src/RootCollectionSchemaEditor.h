@@ -256,7 +256,7 @@ namespace pool {
         virtual ~RootCollectionSchemaEditor();
 
      protected:
-        void         addTreeBranch( const std::string& name, const std::string type_name );
+        void         addTreeBranch( const std::string& name, const std::string& type_name );
         void        readSchema();
         void        createTreeBranches();
         void        writeSchema();

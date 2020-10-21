@@ -301,7 +301,7 @@ renameCollectionFragment( const std::string& /* oldName */, const std::string& /
 
 void
 pool::RootCollection::RootCollectionSchemaEditor::
-addTreeBranch( const std::string& name, const std::string type_name )
+addTreeBranch( const std::string& name, const std::string& type_name )
 {
    static std::map< std::string, char > typeDict;
    if( !typeDict.size() ) {
