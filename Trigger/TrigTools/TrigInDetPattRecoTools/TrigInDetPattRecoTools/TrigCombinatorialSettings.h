@@ -33,7 +33,7 @@ public:
     m_maxTripletBufferLength = 3;
 
     m_zvError = 10.0;
-
+    m_LRTmode=false;
     m_layerGeometry.clear();
   }
 
@@ -53,6 +53,7 @@ public:
   unsigned int m_maxTripletBufferLength;
 
   float m_zvError;
+  bool m_LRTmode;
 
   std::vector<TRIG_INDET_SI_LAYER> m_layerGeometry;
 } TRIG_COMBINATORIAL_SETTINGS;
