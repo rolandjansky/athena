@@ -66,6 +66,8 @@ def setupMenu():
         ChainProp(name='HLT_3mu6_msonly_L13MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         #-- 4 mu
         ChainProp(name='HLT_4mu4_L14MU4', l1SeedThresholds=['MU4'],   groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -110,6 +112,10 @@ def setupMenu():
         ChainProp(name="HLT_j275_subjesgscIS_ftf_bmv2c1060_split_L1J100", groups=SingleBjetGroup),
         ChainProp(name="HLT_j300_subjesgscIS_ftf_bmv2c1070_split_L1J100", groups=SingleBjetGroup),
         ChainProp(name="HLT_j360_subjesgscIS_ftf_bmv2c1077_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name='HLT_j275_pf_subjesgscIS_ftf_boffperf_split_L1J100', groups=SingleBjetGroup),
+        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20',   groups=SingleBjetGroup),
+        ChainProp(name="HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20",   groups=SingleBjetGroup),
+        ChainProp(name="HLT_j275_subjesgscIS_ftf_boffperf_split_L1J100", groups=SingleBjetGroup),
     ]
 
     TriggerFlags.TauSlice.signatures = [
