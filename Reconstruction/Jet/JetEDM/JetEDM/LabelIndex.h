@@ -14,7 +14,7 @@
 
 #include <vector>
 #include <string>
-#include "AsgTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 #include "xAODJet/JetTypes.h"
 
 namespace jet {
