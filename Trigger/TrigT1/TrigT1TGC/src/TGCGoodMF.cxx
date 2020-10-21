@@ -34,8 +34,9 @@ namespace LVL1TGCTrigger {
 //
 // ====================================================================
 
-TGCGoodMF::TGCGoodMF(TGCArguments* tgcargs)
-  :m_tgcArgs(tgcargs)
+TGCGoodMF::TGCGoodMF(TGCArguments* tgcargs,const std::string& version)
+  :m_tgcArgs(tgcargs),
+   m_verName(version)
 {
   if(tgcArgs()->useRun3Config()){
     this->readBadMFList();
@@ -45,6 +46,7 @@ TGCGoodMF::TGCGoodMF(TGCArguments* tgcargs)
 TGCGoodMF::TGCGoodMF(const TGCGoodMF& right)
 {
   m_tgcArgs=right.m_tgcArgs;
+  m_verName=right.m_verName;
   if(tgcArgs()->useRun3Config()){
     this->readBadMFList();
   }
@@ -54,6 +56,7 @@ const TGCGoodMF& TGCGoodMF::operator=(const TGCGoodMF& right)
 {
   if(this != &right){
     m_tgcArgs=right.m_tgcArgs;
+    m_verName=right.m_verName;
     if(tgcArgs()->useRun3Config()){
       this->readBadMFList();
     }
@@ -67,9 +70,9 @@ bool TGCGoodMF::readBadMFList()
   //initialize
   std::string buf;
   std::string fullName, tag;    char delimiter = '\n';
-  std::string fn = "/HotRoI/HotRoI.v1.db";
+  std::string fn = "/HotRoI/HotRoI."+m_verName+".db";
 
-  fullName = PathResolver::FindCalibDirectory("dev")+fn;
+  fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC"+fn;
   int mod,maxssc;
   std::ifstream file(fullName.c_str(),std::ios::in); 
   while(getline(file,buf,delimiter)) {

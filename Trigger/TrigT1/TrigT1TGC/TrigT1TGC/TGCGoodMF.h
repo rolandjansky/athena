@@ -30,7 +30,7 @@ class TGCArguments;
 
 class TGCGoodMF {
 public:
-  TGCGoodMF(TGCArguments*);
+  TGCGoodMF(TGCArguments*,const std::string& version);
   ~TGCGoodMF() = default;
 
   TGCGoodMF(const TGCGoodMF& right);
@@ -44,6 +44,7 @@ public:
 private:
   std::map<int, std::map<int,int> > m_mapisgoodMF; //Number of moduleId
   TGCArguments* m_tgcArgs;
+  std::string m_verName;
 
 };
 
