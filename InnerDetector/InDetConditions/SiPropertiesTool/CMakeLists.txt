@@ -1,24 +1,7 @@
-################################################################################
-# Package: SiPropertiesTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SiPropertiesTool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetConditions/PixelConditionsData
-                          InnerDetector/InDetConditions/PixelConditionsTools
-                          InnerDetector/InDetConditions/SCT_ConditionsData )
 
 # External dependencies:
 find_package( CLHEP )
@@ -29,13 +12,12 @@ atlas_add_library( SiPropertiesToolLib
                    PUBLIC_HEADERS SiPropertiesTool
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier InDetIdentifier InDetConditionsSummaryService )
+                   LINK_LIBRARIES AthenaKernel GaudiKernel Identifier InDetConditionsSummaryService InDetReadoutGeometry PixelConditionsData SCT_ConditionsData
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps InDetIdentifier StoreGateLib )
 
 atlas_add_component( SiPropertiesTool
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry PixelConditionsData SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesToolLib InDetConditionsSummaryService )
+                     LINK_LIBRARIES SiPropertiesToolLib )
 
 # Run tests:
 atlas_add_test( TestSCTProperties
@@ -52,5 +34,5 @@ atlas_add_test( SiPropertiesConfig_test
                 PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )

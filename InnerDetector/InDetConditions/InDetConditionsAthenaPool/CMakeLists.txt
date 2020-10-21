@@ -1,18 +1,7 @@
-################################################################################
-# Package: InDetConditionsAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetConditionsAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Database/AthenaPOOL/AthenaPoolUtilities
-   PRIVATE
-   GaudiKernel
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   InnerDetector/InDetConditions/TRT_ConditionsData )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( InDetConditionsAthenaPoolPoolCnv src/*.cxx
@@ -43,6 +32,3 @@ atlas_add_dictionary( InDetConditionsAthenaPoolCnvDict
    InDetConditionsAthenaPool/selection.xml
    LINK_LIBRARIES AthenaPoolUtilities
    AthenaPoolCnvSvcLib TRT_ConditionsData )
-
-# Install files from the package:
-atlas_install_headers( InDetConditionsAthenaPool )
