@@ -72,7 +72,7 @@ class PunchThroughParamsInputFilename(JobProperty):
     """ Filename of the muon punch through input parametrizations file. """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FastCaloSim/MC16/TFCSparam_mpt_v01.root'
+    StoredValue  = 'FastCaloSim/MC16/TFCSparam_mpt_v01.root'
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
