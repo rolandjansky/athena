@@ -4,9 +4,7 @@
 
 #include "InDetRegionSelector/InDetRegionSelectorLUT.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
-#include "RegSelLUT/RegSelSiLUT.h" 
+#include "RegSelLUT/RegSelSiLUT.h"
 
 #include <vector>
 #include <string>
