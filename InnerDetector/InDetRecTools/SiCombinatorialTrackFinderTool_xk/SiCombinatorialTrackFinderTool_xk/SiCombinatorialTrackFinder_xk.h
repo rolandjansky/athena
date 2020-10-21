@@ -91,7 +91,7 @@ namespace InDet {
 	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 const TrackQualityCuts&) const override;
+	 const TrackQualityCuts&, const EventContext& ctx) const override;
 
       virtual const std::list<Trk::Track*>& getTracks
         (SiCombinatorialTrackFinderData_xk& data,
@@ -99,7 +99,7 @@ namespace InDet {
 	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const override;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&, const EventContext& ctx) const override;
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
         (SiCombinatorialTrackFinderData_xk& data,
@@ -108,7 +108,7 @@ namespace InDet {
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
-	 bool) const override;
+	 bool, const EventContext& ctx) const override;
    
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const override;
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data,
@@ -196,7 +196,8 @@ namespace InDet {
 	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
+   const EventContext&) const;
 
       void getTrackQualityCuts(SiCombinatorialTrackFinderData_xk& data, const TrackQualityCuts&) const;
 
@@ -211,7 +212,8 @@ namespace InDet {
 
       void detectorElementLinks
 	(std::list<const InDetDD::SiDetectorElement*>        &,
-	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&) const;
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
+   const EventContext& ctx) const;
 
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/SiTrajectory_xk.h"
@@ -487,7 +487,8 @@ bool InDet::SiTrajectory_xk::initialize
  const Trk::TrackParameters                          & Tp        ,
  std::list<const InDet::SiCluster*>                  & lSiCluster, 
  std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DE      ,
- bool                                                & rquality  )
+ bool                                                & rquality  ,
+ const EventContext                                  & ctx       )
 {
   m_nholes          =    0;
   m_nholesb         =    0;
@@ -539,10 +540,10 @@ bool InDet::SiTrajectory_xk::initialize
               break;
             }
           }
-          m_elements[m_nElements].set(1,(*r),sib,sie,sic);
+          m_elements[m_nElements].set(1,(*r),sib,sie,sic,ctx);
           ++m_naElements;
         } else if (m_naElements) {
-          m_elements[m_nElements].set(0,(*r),sib,sie,sic);
+          m_elements[m_nElements].set(0,(*r),sib,sie,sic,ctx);
         } else {
           continue;
         }
@@ -568,10 +569,10 @@ bool InDet::SiTrajectory_xk::initialize
             break;
           }
         }
-        m_elements[m_nElements].set(1,(*r),sib,sie,sic);
+        m_elements[m_nElements].set(1,(*r),sib,sie,sic,ctx);
         ++m_naElements;
       } else if (m_naElements) {
-        m_elements[m_nElements].set(0,(*r),sib,sie,sic);
+        m_elements[m_nElements].set(0,(*r),sib,sie,sic,ctx);
       } else {
         continue;
       }

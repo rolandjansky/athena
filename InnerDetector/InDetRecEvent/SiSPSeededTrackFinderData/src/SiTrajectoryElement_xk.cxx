@@ -1318,7 +1318,7 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_xi2B        = 0.;
   m_xi2totalF   = 0.;
   m_xi2totalB   = 0.;
-  m_halflenght  = 0.;
+  m_halflength  = 0.;
   m_step        = 0.;
   m_xi2max      = 0.;
   m_dist        = 0.;
@@ -1385,7 +1385,7 @@ InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator =
   m_radlength    = E.m_radlength   ;
   m_radlengthN   = E.m_radlengthN  ;
   m_energylose   = E.m_energylose  ;
-  m_halflenght   = E.m_halflenght  ;
+  m_halflength   = E.m_halflength  ;
   m_step         = E.m_step        ;
   m_nlinksF      = E.m_nlinksF     ;
   m_nlinksB      = E.m_nlinksB     ;

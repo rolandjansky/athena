@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,8 @@ namespace InDet {
 	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 const TrackQualityCuts&) const =0;
+	 const TrackQualityCuts&,
+   const EventContext&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracks
 	(SiCombinatorialTrackFinderData_xk& data,
@@ -80,7 +81,8 @@ namespace InDet {
 	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
-	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const =0;
+	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
+   const EventContext&) const =0;
 
       virtual const std::list<Trk::Track*>& getTracksWithBrem
 	(SiCombinatorialTrackFinderData_xk& data,
@@ -89,7 +91,8 @@ namespace InDet {
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
-	 bool) const =0;
+	 bool,
+   const EventContext&) const =0;
 
       virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const =0;
 
