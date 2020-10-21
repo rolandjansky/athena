@@ -337,10 +337,11 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
  const std::vector<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
- const TrackQualityCuts& Cuts) const
+ const TrackQualityCuts& Cuts,
+ const EventContext& ctx) const
 {
 
-  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
+  if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
 
   data.statistic().fill(false);
 
@@ -357,7 +358,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
   getTrackQualityCuts(data, Cuts);
   std::multimap<const Trk::PrepRawData*, const Trk::Track*> PT;
 
-  EStat_t FT = findTrack(data, Tp, Sp, Gp, DE, PT);
+  EStat_t FT = findTrack(data, Tp, Sp, Gp, DE, PT, ctx);
  
   if(FT!=Success) {
     data.statistic()[FT] = true;
@@ -390,10 +391,11 @@ const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
  const std::vector<const Trk::SpacePoint*>& Sp,
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
- std::multimap<const Trk::PrepRawData*, const Trk::Track*>& PT) const
+ std::multimap<const Trk::PrepRawData*, const Trk::Track*>& PT,
+ const EventContext& ctx) const
 {
 
-  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
+  if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
 
   data.tools().setBremNoise(false, false);
   data.tracks().erase(data.tracks().begin(), data.tracks().end());
@@ -404,7 +406,7 @@ const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
     return data.tracks();
   }
 
-  EStat_t FT = findTrack(data, Tp, Sp, Gp, DE, PT);
+  EStat_t FT = findTrack(data, Tp, Sp, Gp, DE, PT,ctx);
   if(FT!=Success) {
     data.statistic()[FT] = true;
     return data.tracks();
@@ -445,10 +447,11 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
  const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
  std::multimap<const Trk::PrepRawData*, const Trk::Track*>& PT,
- bool isCaloCompatible) const
+ bool isCaloCompatible,
+ const EventContext& ctx) const
 {
 
-  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
+  if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
 
   data.statistic().fill(false);
 
@@ -466,7 +469,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
     return data.tracks();
   }
 
-  EStat_t FT = findTrack(data,Tp,Sp,Gp,DE,PT);
+  EStat_t FT = findTrack(data,Tp,Sp,Gp,DE,PT,ctx);
   
   bool Q = (FT==Success);
   if (Q){
@@ -502,7 +505,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   data.statistic()[BremAttempt] = true;
 
   data.tools().setBremNoise(true,true);
-  FT = findTrack(data, Tp, Sp, Gp, DE, PT);
+  FT = findTrack(data, Tp, Sp, Gp, DE, PT,ctx);
 
   if (FT!=Success) {
     data.statistic()[FT] = true;
@@ -544,26 +547,27 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
  const Trk::TrackParameters& Tp,
  const std::vector<const Trk::SpacePoint*>& Sp,const std::list<Amg::Vector3D>& Gp,
  std::list<const InDetDD::SiDetectorElement*>& DE,
- std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT) const
+ std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT,
+ const EventContext& ctx) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(Gaudi::Hive::currentContext(), data);
+  if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
 
   // List detector element links preparation
   //
   std::vector<const InDet::SiDetElementBoundaryLink_xk*> DEL;
-  detectorElementLinks(DE, DEL);
+  detectorElementLinks(DE, DEL,ctx);
 
   // Retrieve cached pointers to SG collections, or create the cache
   //
   const InDet::PixelClusterContainer* p_pixcontainer = data.pixContainer();
   if (m_usePIX && !p_pixcontainer) {
-    SG::ReadHandle<InDet::PixelClusterContainer> pixcontainer(m_pixcontainerkey);
+    SG::ReadHandle<InDet::PixelClusterContainer> pixcontainer(m_pixcontainerkey,ctx);
     p_pixcontainer = pixcontainer.ptr();
     data.setPixContainer(p_pixcontainer);
   }
   const InDet::SCT_ClusterContainer* p_sctcontainer = data.sctContainer();
   if (m_useSCT && !p_sctcontainer) {
-    SG::ReadHandle<InDet::SCT_ClusterContainer> sctcontainer(m_sctcontainerkey);
+    SG::ReadHandle<InDet::SCT_ClusterContainer> sctcontainer(m_sctcontainerkey,ctx);
     p_sctcontainer = sctcontainer.ptr();
     data.setSctContainer(p_sctcontainer);
   }
@@ -588,13 +592,13 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
   // Build initial trajectory
   //
   bool Qr;
-  bool Q = data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr);
+  bool Q = data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr,ctx);
 
   if (!Q && Sp.size() < 2 && Gp.size() > 3) {
 
     Cl.clear();
     if (!data.trajectory().trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return TwoCluster;
-    if (!data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr)) return TwoCluster;
+    if (!data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr,ctx)) return TwoCluster;
     Q = Qr = true;
   }
 
@@ -733,19 +737,20 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 
 void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 (std::list<const InDetDD::SiDetectorElement*>        & DE,
- std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DEL) const
+ std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DEL,
+ const EventContext& ctx) const
 {
   const InDet::SiDetElementBoundaryLinks_xk* boundaryPixel{nullptr};
   const InDet::SiDetElementBoundaryLinks_xk* boundarySCT{nullptr};
   if (m_usePIX) {
-    SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundaryPixelHandle(m_boundaryPixelKey);
+    SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundaryPixelHandle(m_boundaryPixelKey,ctx);
     boundaryPixel = *boundaryPixelHandle;
     if (boundaryPixel==nullptr) {
       ATH_MSG_FATAL(m_boundaryPixelKey.fullKey() << " returns null pointer");
     }
   }
   if (m_useSCT) {
-    SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundarySCTHandle(m_boundarySCTKey);
+    SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundarySCTHandle(m_boundarySCTKey,ctx);
     boundarySCT = *boundarySCTHandle;
     if (boundarySCT==nullptr) {
       ATH_MSG_FATAL(m_boundarySCTKey.fullKey() << " returns null pointer");
