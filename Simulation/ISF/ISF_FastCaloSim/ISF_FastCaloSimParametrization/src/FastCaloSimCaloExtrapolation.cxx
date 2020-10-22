@@ -25,6 +25,18 @@
 /* Particle data */
 #include "HepPDT/ParticleDataTable.hh"
 
+/* Preprocessor macro to use
+   -- DEBUG   if CONDITION is True
+   -- WARNING if CONDITION is False
+ */
+#define ATH_MSG_COND(MSG, CONDITION) \
+do {                                 \
+    if (CONDITION) {                 \
+      ATH_MSG_DEBUG(MSG);            \
+    } else {                         \
+      ATH_MSG_WARNING(MSG);          \
+    }                                \
+} while (0)
 
 
 FastCaloSimCaloExtrapolation::FastCaloSimCaloExtrapolation(const std::string& t, const std::string& n, const IInterface* p)
@@ -171,10 +183,8 @@ bool FastCaloSimCaloExtrapolation::getCaloSurface(TFCSExtrapolationState& result
       result.set_CaloSurface_z(surface_hitPos[Amg::z]);
 
       double pT=(*it).trackParms->momentum().perp();
-      if(std::abs(result.CaloSurface_eta())>4.9 || pT<500 || (std::abs(result.CaloSurface_eta())>4 && pT<1000))
-        ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<result.CaloSurface_eta()<<" phi="<<result.CaloSurface_phi()<<" r="<<result.CaloSurface_r()<<" z="<<result.CaloSurface_z()<<" pT="<<pT);
-      else
-        ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<result.CaloSurface_eta()<<" phi="<<result.CaloSurface_phi()<<" r="<<result.CaloSurface_r()<<" z="<<result.CaloSurface_z()<<" pT="<<pT);
+
+      ATH_MSG_COND("only entrance to calo entrance layer found, no surface : eta="<<result.CaloSurface_eta()<<" phi="<<result.CaloSurface_phi()<<" r="<<result.CaloSurface_r()<<" z="<<result.CaloSurface_z()<<" pT="<<pT, std::abs(result.CaloSurface_eta())>4.9 || pT<500 || (std::abs(result.CaloSurface_eta())>4 && pT<1000));
     
     } //sample
   else ATH_MSG_DEBUG("entrance to calo surface : sample="<<result.CaloSurface_sample()<<" eta="<<result.CaloSurface_eta()<<" phi="<<result.CaloSurface_phi()<<" r="<<result.CaloSurface_r()<<" z="<<result.CaloSurface_z()<<" deta="<<min_calo_surf_dist);
@@ -323,11 +333,12 @@ std::unique_ptr<std::vector<Trk::HitInfo>> FastCaloSimCaloExtrapolation::caloHit
 }
 
 
-void FastCaloSimCaloExtrapolation::extrapolateToID(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector) const{
-
+void FastCaloSimCaloExtrapolation::extrapolateToID(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector, const TFCSTruthState* truth) const{
 
   ATH_MSG_DEBUG("Start extrapolateToID()");
 
+  //pT threshold of truth particles over which extrapolation failures will be printed as warnings
+  const float transverseMomWarningLimit = 500;
 
   //initialize values
   result.set_IDCaloBoundary_eta(-999.);
@@ -378,15 +389,14 @@ void FastCaloSimCaloExtrapolation::extrapolateToID(TFCSExtrapolationState& resul
 
   } //end of loop over surfaces
   
-  if(result.IDCaloBoundary_eta() == -999) ATH_MSG_DEBUG("Failed extrapolation to ID-Calo boundary!");
-
+  if(result.IDCaloBoundary_eta() == -999) ATH_MSG_COND("[ExtrapolateToID] Failed extrapolation to ID-Calo boundary. \n[ExtrapolateToID] Particle with truth vertex at (" << truth->vertex().X() <<","<<truth->vertex().Y()<<","<<truth->vertex().Z()<<")"<<" with"<<" PdgId="<<truth->pdgid()<<" pT="<<truth->Pt()<<" eta="<<truth->Eta()<<" phi="<<truth->Phi()<<" E="<<truth->E()<<" Ekin_off="<<truth->Ekin_off(), truth->Pt() < transverseMomWarningLimit);
+  
   ATH_MSG_DEBUG("[ExtrapolateToID] End extrapolateToID()");
 
 } 
 
 void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result, const TFCSTruthState* truth) const{ 
-
-
+  
   ATH_MSG_DEBUG("Start FastCaloSimCaloExtrapolation::extrapolate");
   auto hitVector = caloHits(truth);
   
@@ -396,10 +406,10 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result, c
   getCaloSurface(result, hitVector.get());
 
   ATH_MSG_DEBUG("FastCaloSimCaloExtrapolation::extrapolate:*** Do extrapolation to ID-calo boundary ***");
-  extrapolateToID(result, hitVector.get());
+  extrapolateToID(result, hitVector.get(), truth);
  
   ATH_MSG_DEBUG("FastCaloSimCaloExtrapolation::extrapolate:*** Do extrapolation ***");
-  extrapolateToLayers(result, hitVector.get());
+  extrapolateToLayers(result, hitVector.get(), truth);
 
   ATH_MSG_DEBUG("FastCaloSimCaloExtrapolation::extrapolate: Truth extrapolation done");
 
@@ -414,9 +424,12 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result, c
 }
 
 
-void FastCaloSimCaloExtrapolation::extrapolateToLayers(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector) const
+void FastCaloSimCaloExtrapolation::extrapolateToLayers(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector, const TFCSTruthState* truth) const
 {
   ATH_MSG_DEBUG("[extrapolateToLayers] Start extrapolate");
+
+  //pT threshold of truth particles over which extrapolation failures will be printed as warnings
+  const float transverseMomWarningLimit = 500;
 
   //////////////////////////////////////
   // Start calo extrapolation
@@ -479,7 +492,8 @@ void FastCaloSimCaloExtrapolation::extrapolateToLayers(TFCSExtrapolationState& r
         } //for sample
     } //inside calo
   
-  else ATH_MSG_WARNING( "[extrapolateToLayers] Ups. Not inside calo. result.IDCaloBoundary_eta()="<<result.IDCaloBoundary_eta());
+  else ATH_MSG_COND("[extrapolateToLayers] Ups. Not inside calo. result.IDCaloBoundary_eta()="<<result.IDCaloBoundary_eta()<< "\n[extrapolateToLayers] Particle with truth vertex at (" << truth->vertex().X() <<","<<truth->vertex().Y()<<","<<truth->vertex().Z()<<")"<<" with"<<" PdgId="<<truth->pdgid()<<" pT="<<truth->Pt()<<" eta="<<truth->Eta()<<" phi="<<truth->Phi()<<" E="<<truth->E()<<" Ekin_off="<<truth->Ekin_off(), truth->Pt() < transverseMomWarningLimit);
+  
 
   ATH_MSG_DEBUG("[extrapolateToLayers] End extrapolateToLayers()");
 }
