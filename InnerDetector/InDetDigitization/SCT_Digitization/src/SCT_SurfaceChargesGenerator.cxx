@@ -4,6 +4,9 @@
 
 #include "SCT_SurfaceChargesGenerator.h"
 #include <cmath>
+
+#include "InDetIdentifier/SCT_ID.h"
+
 // DD
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
@@ -95,7 +98,7 @@ parent)
     m_element(0),
     m_rndmEngine(0),
     m_rndmEngineName("SCT_Digitization"),
-    m_doInducedChargedModel(false) {
+    m_doInducedChargeModel(false) {
     declareInterface< ISCT_SurfaceChargesGenerator  >(this);
 
     declareProperty("FixedTime", m_tfix = -999);                // !< fixed
@@ -127,8 +130,8 @@ parent)
                     "Tool to retrieve SCT distortions");
     declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
     declareProperty("isOverlay", m_isOverlay=false);
-    declareProperty("m_doInducedChargedModel", m_doInducedChargedModel,
-                    "Flag for Induced Charged Model"); //
+    declareProperty("m_doInducedChargeModel", m_doInducedChargeModel,
+                    "Flag for Induced Charge Model"); //
 }
 
 // Destructor:
@@ -244,10 +247,11 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     }
     ///////////////////////////////////////////////////
 
-    // Induced Charged Module. M.Togawa    
-    if ( m_doInducedChargedModel ){
-      m_InducedChargedModel = std::make_unique<SCT_InducedChargedModel>();
-      m_InducedChargedModel->init(m_vdepl,m_vbias,m_hashId,m_siConditionsSvc);
+    // Induced Charge Module. M.Togawa    
+    if ( m_doInducedChargeModel ){
+      const SCT_ID* sct_id;
+      ATH_CHECK(detStore()->retrieve(sct_id, "SCT_ID"));
+      m_InducedChargeModel = std::make_unique<SCT_InducedChargeModel>(sct_id->wafer_hash_max());
     }
 
     m_smallStepLength *= CLHEP::micrometer;
@@ -510,19 +514,13 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
     float yhit = xPhi;
     float zhit = xDep;
 
-    if ( m_doInducedChargedModel ){ // Setting magnetic field for the ICM.
-      HepGeom::Point3D<double> localpos(xhit,yhit,zhit);
-      HepGeom::Point3D<double> globalpos;
-      globalpos = m_element->globalPositionHit(localpos);
-      double point[3] = {globalpos.x(),globalpos.y(),globalpos.z()};
-      double field[3] = {0};
-      m_magFieldSvc->getField(point, field);
-      if ( m_isBarrel ){
-	m_InducedChargedModel->setMagneticField(field[2]);
-      }else{
-	double B_r = sqrt(pow(field[0],2)+pow(field[1],2));
-	m_InducedChargedModel->setMagneticField( B_r );
-      }
+    SCT_InducedChargeModel::SCT_InducedChargeModelData* data = nullptr;
+    if ( m_doInducedChargeModel ){ // Setting magnetic field for the ICM.
+      data = m_InducedChargeModel->setWaferData(m_depletionVoltage/CLHEP::volt,
+                                                m_biasVoltage/CLHEP::volt,
+                                                m_element,
+                                                m_magFieldSvc,
+                                                m_siConditionsSvc);
     }
 
     if (m_doDistortions) {
@@ -614,10 +612,10 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
             float y1 = yhit + StepY * dstep;// (static_cast<float>(istep)+0.5) ;
 
 	    float diffusionSigma = 0;
-	    if ( !m_doInducedChargedModel ){ 
+	    if ( !m_doInducedChargeModel ){ 
 	      diffusionSigma = DiffusionSigma(zReadout);
 	      y1 += m_tanLorentz * zReadout; // !< Taking into account the magnetic field	      
-	    } // Should be treated in Induced Charged Model.
+	    } // Should be treated in Induced Charge Model.
 
             for (int i = 0; i < m_numberOfCharges; ++i) {
                 float rx = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
@@ -766,47 +764,55 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
 
                 if (!m_doRamo) {
 
-		  if ( m_doInducedChargedModel ){ // Induced Charged Model
+		  if ( m_doInducedChargeModel ){ // Induced Charge Model
 
 		    // Charges storages for 50 ns. 0.5 ns steps.
-		    double Q_m2[100]={0}, Q_m1[100]={0}, Q_00[100]={0}, Q_p1[100]={0},Q_p2[100]={0}; 
+		    double Q_m2[SCT_InducedChargeModel::NTransportSteps]={0};
+                    double Q_m1[SCT_InducedChargeModel::NTransportSteps]={0};
+                    double Q_00[SCT_InducedChargeModel::NTransportSteps]={0};
+                    double Q_p1[SCT_InducedChargeModel::NTransportSteps]={0};
+                    double Q_p2[SCT_InducedChargeModel::NTransportSteps]={0};
 
-		    // Unit for y and z : mm -> cm in SCT_InducedChargedModel
-		    m_InducedChargedModel->holeTransport(y0/10,z0/10,Q_m2,Q_m1,
-							 Q_00,Q_p1,Q_p2,
-							 m_hashId, m_siPropertiesSvc);
-		    m_InducedChargedModel->electronTransport(y0/10,z0/10,Q_m2,
-							     Q_m1,Q_00,Q_p1,Q_p2,
-							     m_hashId, m_siPropertiesSvc);
+                    const double mm2cm = 0.1; // For mm -> cm conversion
 
-		    for (int it=0; it<100; it++){
+		    // Unit for y and z : mm -> cm in SCT_InducedChargeModel
+		    m_InducedChargeModel->holeTransport(*data,
+                                                        y0*mm2cm, z0*mm2cm,
+                                                        Q_m2, Q_m1, Q_00, Q_p1, Q_p2,
+                                                        m_hashId, m_siPropertiesSvc);
+		    m_InducedChargeModel->electronTransport(*data,
+                                                            y0*mm2cm, z0*mm2cm,
+                                                            Q_m2, Q_m1, Q_00, Q_p1, Q_p2,
+                                                            m_hashId, m_siPropertiesSvc);
+
+		    for (int it=0; it<SCT_InducedChargeModel::NTransportSteps; it++){
 		      if ( Q_00[it] == 0.0) continue;
 
 		      double ICM_time = (it+0.5)*0.5 + timeOfFlight;
 
-		      double Q_new[5]={0};
+		      double Q_new[SCT_InducedChargeModel::NStrips]={0};
 		      Q_new[0] = Q_m2[it];
 		      Q_new[1] = Q_m1[it];
 		      Q_new[2] = Q_00[it];
 		      Q_new[3] = Q_p1[it];
 		      Q_new[4] = Q_p2[it];
 
-		      for (int strip = -2; strip <= 2; strip++) {
+		      for (int strip = SCT_InducedChargeModel::StartStrip; strip <= SCT_InducedChargeModel::EndStrip; strip++) {
 			double ystrip = y1 + strip * stripPitch;
 			SiLocalPosition position(m_element->hitLocalToLocal(x1, ystrip));
 			if (m_design->inActiveArea(position)) {
 			  inserter(SiSurfaceCharge(position,
-						   SiCharge(q1 * Q_new[strip+2],
+						   SiCharge(q1 * Q_new[strip+SCT_InducedChargeModel::Offset],
 							    ICM_time, hitproc,
 							    trklink)));
 			}
 		      }		   
 		    }
 
-		  } // End Induced Charged Model
+		  } // End Induced Charge Model
 
 
-		  if ( !m_doInducedChargedModel ){  // SCT_Digitization
+		  if ( !m_doInducedChargeModel ){  // SCT_Digitization
 		    
                     SiLocalPosition position(m_element->hitLocalToLocal(xd,
                                                                         yd));

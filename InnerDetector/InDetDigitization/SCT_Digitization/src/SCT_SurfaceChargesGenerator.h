@@ -35,7 +35,7 @@
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 
-#include "SCT_InducedChargedModel.h"
+#include "SCT_InducedChargeModel.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include <iostream>
@@ -93,8 +93,8 @@ private:
   void setComTimeFlag(bool useComTime)                           {m_useComTime = useComTime;}      
   void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) {
     m_rndmEngine = rndmEngine;
-    if ( m_doInducedChargedModel ){
-      m_InducedChargedModel->setRandomEngine( m_rndmEngine );
+    if ( m_doInducedChargeModel ){
+      m_InducedChargeModel->setRandomEngine( m_rndmEngine );
     }
   }
   void setDetectorElement(const InDetDD::SiDetectorElement *ele) {m_element = ele; setVariables();} 
@@ -191,9 +191,9 @@ private:
   double m_tanLorentz;
   bool m_isBarrel;
 
-  // For Induced Charged Module, M.Togawa
-  std::unique_ptr<SCT_InducedChargedModel> m_InducedChargedModel;
-  bool m_doInducedChargedModel;  //!< Flag to use Induced Charged Model
+  // For Induced Charge Module, M.Togawa
+  std::unique_ptr<SCT_InducedChargeModel> m_InducedChargeModel;
+  bool m_doInducedChargeModel;  //!< Flag to use Induced Charge Model
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H
