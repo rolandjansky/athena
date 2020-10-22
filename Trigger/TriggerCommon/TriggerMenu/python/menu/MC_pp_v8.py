@@ -187,6 +187,7 @@ def setupMenu():
         ['2j45',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['4j15',   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['4j45',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        
         # ATR-19554
         ['j0_perf_L1jJ100',   'L1_jJ100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j0_perf_L14jJ15',   'L1_4jJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -254,7 +255,12 @@ def setupMenu():
         ['3j60_gsc85_boffperf_split_3j45_gsc55_boffperf_split_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['4j50_gsc70_boffperf_split_3j35_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['6j45_gsc55_boffperf_split_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-			 ]
+
+        # for L1Calo validation
+        ['j0_perf_L1J100',   'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j0_perf_L14J15',   'L1_4J15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+    ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
         ['j35_boffperf_split_L1J15',  'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
@@ -407,7 +413,16 @@ def setupMenu():
         ['tau25_perf_tracktwoEFmvaTES',                  'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1NoPt_tracktwoEFmvaTES',           'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwoEFmvaTES',               'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-			 ]
+
+        # L1Calo validation
+        ['tau25_idperf_tracktwoMVA_L1eTAU12',      'L1_eTAU12', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1], # requested L1_eTAU12IM, but doesn't exist as standalone L1 item
+        ['tau25_mediumRNN_tracktwoMVA_L1eTAU12',   'L1_eTAU12', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_idperf_tracktwoMVA_L1eTAU100',      'L1_eTAU100', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_medium1_tracktwoEF_L1eTAU100',      'L1_eTAU100', [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:SingleTau', 'BW:Tau'], -1],
+        # requested Run3 L1Calo version of HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25
+        # ['tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',   'L1_DR-TAU20ITAU12I-J25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_mediumRNN_tracktwoMVA","tau25_mediumRNN_tracktwoMVA"]]]
+
+    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
 
@@ -489,6 +504,30 @@ def setupMenu():
         ['g24_tight_g20_tight_L12EM15VHI', 'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
         ['g27_tight_g22_tight_L12EM20VH', 'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
         ['g60_loose_g40_loose_L12EM20VH', 'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+
+        # for L1Calo validation
+        ['g15_loose_L1eEM3',       'L1_eEM3',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        # ['g15_loose_L1eEM3',       'L1_eEM3',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], # with shower shape info - not yet implemented in menu
+        ['2g15_tight_L12eEM12',   'L1_2eEM12', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], # requested with 2eEM12I, doesn't exist
+        # ['2g15_tight_L12eEM12Ixxx',   'L1_2eEM12Ixxx', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], # with shower shape - not yet implemented in menu
+        # ['2g15_tight_L12eEM12VH',  'L1_2eEM12VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], # requested with 2eEM12VH, doesn't exist
+
+        # ['e26_L1EM22VHI', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], # defaults to ringer, cannot be configured -> think this chain is typo
+        # ['e26_L1eEM22', 'L1_eEM22', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], # defaults to ringer, cannot be configured -> think this chain is typo
+        # ['e26_lhtight_nod0_isvalloose_L1eEM22', 'L1_eEM22', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], # isvalloose is not understood in the chain name
+
+        # ['e26_lhtight_icalovloose_L1eEM22', 'L1_eEM22', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], # requested with eEM22I, doesn't exist; icalovloose isn't recognised for e
+        # ['e26_lhtight_icalovloose_L1EM22VHI', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], # icalovloose isn't recognised for e
+        ['e26_lhtight_L1eEM22', 'L1_eEM22', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], # requested with eEM22I, doesn't exist
+        ['e26_lhtight_L1EM22VHI', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e26_lhtight_ivarloose_L1EM22VHI', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+
+        # ['g25_medium_L1eEM20I',          'L1_eEM20I',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], # requested with eEM20I, doesn't exist
+        ['g25_medium_L1eEM20',           'L1_eEM20',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+
+        ['g20_tight_L1eEM15',            'L1_eEM15', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], # requested with eEM15I, doesn't exist
+        ['g20_tight_L1EM15VH',           'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g20_tight_icaloloose_L1EM15VH',           'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         ]
 
