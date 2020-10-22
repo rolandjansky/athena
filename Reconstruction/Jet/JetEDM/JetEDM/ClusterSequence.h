@@ -9,7 +9,7 @@
 
 #include <vector>
 #include "fastjet/ClusterSequence.hh"
-#include "AsgTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 
 // David Adams
 // January 2014
