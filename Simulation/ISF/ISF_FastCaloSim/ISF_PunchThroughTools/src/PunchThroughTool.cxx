@@ -134,7 +134,7 @@ StatusCode ISF::PunchThroughTool::initialize()
   ATH_MSG_INFO( "initialize()" );
 
   // resolving lookuptable file
-  std::string resolvedFileName = PathResolver::find_file (m_filenameLookupTable, "DATAPATH");
+  std::string resolvedFileName = PathResolverFindCalibFile (m_filenameLookupTable);
   if (resolvedFileName != "")
     {
       ATH_MSG_INFO( "[ punchthrough ] Parameterisation file found: " << resolvedFileName );

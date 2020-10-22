@@ -665,7 +665,7 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService"     , simFlags.RandomSvc()                               )
     kwargs.setdefault("RandomStreamName"        , ISF_FastCaloSimFlags.RandomStreamName()            )
-    kwargs.setdefault("FilenameLookupTable"     , "CaloPunchThroughParametrisation.root"             )
+    kwargs.setdefault("FilenameLookupTable"     , ISF_FastCaloSimFlags.PunchThroughParamsInputFilename())
     kwargs.setdefault("PunchThroughInitiators"  , [ 211 ]                                            )
     kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
     kwargs.setdefault("InitiatorsEtaRange"      , [       0.,     2.7 ]                               )
@@ -850,7 +850,7 @@ def getFastHitConvertTool(name="ISF_FastHitConvertTool", **kwargs):
     kwargs.setdefault('fcalHitContainername', FCAL_hits_collection_name)
     kwargs.setdefault('hecHitContainername', HEC_hits_collection_name)
     kwargs.setdefault('tileHitContainername', tile_hits_collection_name)
-    
+
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     return FastHitConvertTool(name,**kwargs)
 
