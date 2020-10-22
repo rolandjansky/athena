@@ -83,7 +83,7 @@ StatusCode TileRawChannelContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr
   }
 
   const std::string containerName(*(pRE_Addr->par()));
-  bool isTMDB(containerName == "MuRcvRawChCnt");
+  bool isTMDB(containerName == std::string("MuRcvRawChCnt"));
 
   uint32_t newrob = 0x0;
 
