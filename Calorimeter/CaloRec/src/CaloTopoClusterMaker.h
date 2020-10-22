@@ -134,6 +134,9 @@ private:
    * threshold used for timing cut on seed cells. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
   float m_seedThresholdOnTAbs;
   
+  /**                                                                                                             
+   * upper limit on the energy significance, for applying the cell time cut */
+  float m_timeCutUpperLimit;
 
 
   /** @brief Key of the CaloNoise Conditions data object. Typical values 
@@ -244,6 +247,11 @@ private:
    * if set to true, seed cells failing the time cut are also excluded from cluster at all 
    */
   bool m_cutOOTseed;
+
+  /**                                                                                              
+   * if set to true, the time cut is not applied on cell of large significance
+   */
+  bool m_useTimeCutUpperLimit;
 
   /** 
    * @brief vector of names of the calorimeter samplings to consider

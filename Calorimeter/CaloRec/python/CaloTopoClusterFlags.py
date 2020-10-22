@@ -125,6 +125,12 @@ class extendTimeCut(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class useUpperLimitForTimeCut(JobProperty):
+    """                                                                                                                    
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
 
 # add the flags container to the top container 
 jobproperties.add_Container(CaloTopoClusterFlags)
@@ -148,6 +154,7 @@ list_jobproperties = [
     ,doMomentsfromAbs
     ,doTimeCut
     ,extendTimeCut
+    ,useUpperLimitForTimeCut
     ]
 
 for i in list_jobproperties:

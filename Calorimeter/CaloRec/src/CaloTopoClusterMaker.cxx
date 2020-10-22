@@ -62,6 +62,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_neighborThresholdOnEorAbsEinSigma(    3.),
     m_seedThresholdOnEorAbsEinSigma    (    6.),
     m_seedThresholdOnTAbs              (  12.5*ns),
+    m_timeCutUpperLimit                (    20.),
     m_neighborOption                   ("super3D"),
     m_nOption                          (LArNeighbours::super3D),
     m_restrictHECIWandFCalNeighbors    (false),
@@ -74,6 +75,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_treatL1PredictedCellsAsGood      (true),
     m_seedCutsInT                      (false),
     m_cutOOTseed                       (false),
+    m_useTimeCutUpperLimit             (false),
     m_minSampling                      (0),
     m_maxSampling                      (0),
     m_hashMin                          (999999),
@@ -104,11 +106,15 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
   // Time thresholds (in abs. val.)
   declareProperty("SeedThresholdOnTAbs",m_seedThresholdOnTAbs);
 
+  // Significance upper limit for applying time cut
+  declareProperty("TimeCutUpperLimit",m_timeCutUpperLimit);
+
   //do Seed cuts on Time              
   declareProperty("SeedCutsInT",m_seedCutsInT);
   //exclude out-of-time seeds from neighbouring and cell stage              
   declareProperty("CutOOTseed",m_cutOOTseed);
-
+  //do not apply time cut on cells of large significance
+  declareProperty("UseTimeCutUpperLimit",m_useTimeCutUpperLimit);
 
   // Neighbor cuts are in E or Abs E
   declareProperty("NeighborCutsInAbsE",m_neighborCutsInAbsE);
@@ -381,7 +387,8 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 	  bool passedNeighborCut = (m_neighborCutsInAbsE?std::abs(signedRatio):signedRatio) > m_neighborThresholdOnEorAbsEinSigma;
 	  bool passedSeedCut = (m_seedCutsInAbsE?std::abs(signedRatio):signedRatio) > m_seedThresholdOnEorAbsEinSigma;
 
-	  bool passTimeCut_seedCell = (!m_seedCutsInT || passCellTimeCut(pCell,m_seedThresholdOnTAbs));
+	  bool applyTimeCut = m_seedCutsInT && !(m_useTimeCutUpperLimit && signedRatio > m_timeCutUpperLimit);
+	  bool passTimeCut_seedCell = (!applyTimeCut || passCellTimeCut(pCell,m_seedThresholdOnTAbs));
 	  bool passedSeedAndTimeCut = (passedSeedCut && passTimeCut_seedCell);
 
 	  bool passedNeighborAndTimeCut = passedNeighborCut;
