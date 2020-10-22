@@ -989,12 +989,12 @@ namespace InDet {
     // for each pixel you build the network connection accordingly to the 4- or 8-cells connections
     for(int currentPixel = 0; currentPixel!=collectionSize-1; ++currentPixel) {
       int NB  = 0;
-      int row = collectionID.at(currentPixel).ROW;
-      int col = collectionID.at(currentPixel).COL; 
+      int row = collectionID[currentPixel].ROW;
+      int col = collectionID[currentPixel].COL; 
       
       for(int otherPixel = currentPixel+1; otherPixel!=collectionSize; ++otherPixel) {
-        int deltaCol = std::abs(collectionID.at(otherPixel).COL - col);
-        int deltaRow = std::abs(collectionID.at(otherPixel).ROW - row);
+        int deltaCol = std::abs(collectionID[otherPixel].COL - col);
+        int deltaRow = std::abs(collectionID[otherPixel].ROW - row);
 
         // break if you are too far way in columns, as these ones will be taken in the next iterations
         if( deltaCol > 1) {
@@ -1017,8 +1017,8 @@ namespace InDet {
         
         // this builds the single pixel connection and breaks if the max number of elements is reached:        
         if( (deltaCol+deltaRow) == 1 or (m_addCorners and deltaCol == 1 and deltaRow == 1) ) {
-          connections.at(currentPixel).CON.at(connections.at(currentPixel).NC++) = otherPixel;
-          connections.at(otherPixel).CON.at(connections.at(otherPixel).NC++) = currentPixel ;
+          connections[currentPixel].CON[connections[currentPixel].NC++] = otherPixel;
+          connections[otherPixel].CON[connections[otherPixel].NC++] = currentPixel ;
           if(++NB==maxElements) {
             break;
           }
@@ -1031,8 +1031,8 @@ namespace InDet {
     // Once the connections are built, the pixel clusterisation can start grouping together pixels
     int Ncluster = 0;
     for(int currentPixel=0; currentPixel!=collectionSize; ++currentPixel) {
-      if(collectionID.at(currentPixel).NCL < 0) {
-        collectionID.at(currentPixel).NCL = Ncluster;
+      if(collectionID[currentPixel].NCL < 0) {
+        collectionID[currentPixel].NCL = Ncluster;
         addClusterNumber(currentPixel,Ncluster,connections,collectionID);
         ++Ncluster;
       }
@@ -1042,14 +1042,14 @@ namespace InDet {
     //
     if(--collectionSize > 1) {
       for(int i(1); i<collectionSize; ++i ) {
-        rowcolID U  = collectionID.at(i+1);
+        rowcolID U  = collectionID[i+1];
         
         int j(i);
-        while(collectionID.at(j).NCL > U.NCL) {
-          collectionID.at(j+1)=collectionID.at(j); 
+        while(collectionID[j].NCL > U.NCL) {
+          collectionID[j+1]=collectionID[j]; 
           --j;
         }
-        collectionID.at(j+1)=U;
+        collectionID[j+1]=U;
       }
     }
 
@@ -1059,9 +1059,9 @@ namespace InDet {
     clusterCollection->setIdentifier(elementID);
     clusterCollection->reserve(Ncluster);
 
-    std::vector<Identifier> DVid = {collectionID.at(0).ID };
-    std::vector<int>        Totg = {collectionID.at(0).TOT};
-    std::vector<int>        Lvl1 = {collectionID.at(0).LVL1};
+    std::vector<Identifier> DVid = {collectionID[0].ID };
+    std::vector<int>        Totg = {collectionID[0].TOT};
+    std::vector<int>        Lvl1 = {collectionID[0].LVL1};
     
     int clusterNumber = 0;
     int NCL0          = 0;
@@ -1073,10 +1073,10 @@ namespace InDet {
     ++collectionSize;    
     for(int i=1; i<=collectionSize; ++i) {
 
-      if(i!=collectionSize and collectionID.at(i).NCL==NCL0) {
-        DVid.push_back(collectionID.at(i).ID );
-        Totg.push_back(collectionID.at(i).TOT);
-        Lvl1.push_back(collectionID.at(i).LVL1);
+      if(i!=collectionSize and collectionID[i].NCL==NCL0) {
+        DVid.push_back(collectionID[i].ID );
+        Totg.push_back(collectionID[i].TOT);
+        Lvl1.push_back(collectionID[i].LVL1);
       
       } else {
         
@@ -1099,10 +1099,10 @@ namespace InDet {
         
         // Preparation for next cluster
         if (i!=collectionSize) {
-          NCL0   = collectionID.at(i).NCL                     ;
-          DVid.clear(); DVid = {collectionID.at(i).ID };
-          Totg.clear(); Totg = {collectionID.at(i).TOT};
-          Lvl1.clear(); Lvl1 = {collectionID.at(i).LVL1};
+          NCL0   = collectionID[i].NCL                     ;
+          DVid.clear(); DVid = {collectionID[i].ID };
+          Totg.clear(); Totg = {collectionID[i].TOT};
+          Lvl1.clear(); Lvl1 = {collectionID[i].LVL1};
         }
       }
     }
@@ -1118,10 +1118,10 @@ void MergedPixelsTool::addClusterNumber(const int& r,
                                         const int& Ncluster,
                                         const std::vector<network>& connections,                                         
                                         std::vector<rowcolID>& collectionID) const {
-    for(int i=0; i!=connections.at(r).NC; ++i) {      
-      const int k = connections.at(r).CON.at(i);
-      if(collectionID.at(k).NCL < 0) {
-        collectionID.at(k).NCL = Ncluster;
+    for(int i=0; i!=connections[r].NC; ++i) {      
+      const int k = connections[r].CON[i];
+      if(collectionID[k].NCL < 0) {
+        collectionID[k].NCL = Ncluster;
         addClusterNumber(k, Ncluster, connections, collectionID);
       }
     }
