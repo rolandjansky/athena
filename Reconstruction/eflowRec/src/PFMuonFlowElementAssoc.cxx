@@ -42,6 +42,12 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
   ATH_CHECK(m_ChargedFEmuonWriteHandleKey.initialize());
   ATH_CHECK(m_NeutralFEmuonWriteHandleKey.initialize());
   ATH_CHECK(m_NeutralFE_efrac_match_muonWriteHandleKey.initialize());
+  
+  //init the experimental keys
+  ATH_CHECK(m_muonNeutralFE_muon_efrac_WriteDecorHandleKey.initialize());
+  ATH_CHECK(m_NeutralFEmuon_nMatches_WriteDecorHandleKey.initialize());
+  ATH_CHECK(m_muon_ClusterInfo_deltaRVec_WriteDecorHandleKey.initialize());
+  ATH_CHECK(m_muon_ClusterInfo_nCluster_WriteDecorHandleKey.initialize());
 
   //init ReadHandleKeys
   ATH_CHECK(m_muonReadHandleKey.initialize());
@@ -179,6 +185,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 		  FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
 		  // index() is the unique index of the cFlowElement in the cFlowElementcontaine
 		  muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
+		  ATH_MSG_INFO("Got a match between NFE and Muon");
 		  nMatchedFE++; // count number of matches between FE and muons
 		} // check block of index matching
 	      } // loop over list of topoclusters	      
