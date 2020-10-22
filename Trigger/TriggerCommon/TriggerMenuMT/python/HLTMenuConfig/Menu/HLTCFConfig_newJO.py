@@ -112,8 +112,9 @@ def traverse(acc, startCollectionName, functor):
 
 def generateDecisionTree(chains):
     acc = ComponentAccumulator()
-    mainSequenceName = 'HLTAllSteps'
-    acc.addSequence( seqAND(mainSequenceName) )
+    mainSequence = seqAND('HLTAllSteps')
+    mainSequence.StopOverride=False
+    acc.addSequence( mainSequence )
 
     @lru_cache(None)
     def getFiltersStepSeq( stepNumber ):
@@ -124,7 +125,7 @@ def generateDecisionTree(chains):
         if stepNumber > 1:
             getRecosStepSeq( stepNumber -1 ) # make sure steps sequencers are correctly made: Step1_filter, Step1_recos, Step2_filters, Step2_recos ...
         seq = parOR( name )
-        acc.addSequence( seq, parentName = mainSequenceName )
+        acc.addSequence( seq, parentName = mainSequence.name )
         return acc.getSequence(seq.name)
 
     @lru_cache(None)
@@ -135,14 +136,14 @@ def generateDecisionTree(chains):
         getFiltersStepSeq( stepNumber ) # make sure there is always filters step before reco
         name = 'Step{}{}'.format(stepNumber, CFNaming.RECO_POSTFIX)
         seq = parOR( name )
-        acc.addSequence( seq, parentName = mainSequenceName )
+        acc.addSequence( seq, parentName = mainSequence.name )
         return acc.getSequence(seq.name)
 
     @lru_cache(None)
     def getSingleMenuSeq( stepNumber, stepName ):
         """
         """
-        name = "Menu{}_{}".format(stepNumber, stepName)
+        name = "Step{}_menu_{}".format(stepNumber, stepName)
         seq = seqAND( name )
 
         allRecoSeqName = getRecosStepSeq( stepNumber ).name
@@ -177,10 +178,10 @@ def generateDecisionTree(chains):
             filterAlg = CompFactory.PassFilter(CFNaming.filterName("Pass"))
         else:
             filterAlg = CompFactory.RoRSeqFilter(CFNaming.filterName(stepName))
-        acc.addEventAlgo(filterAlg, sequenceName=filtersStep.name)
+            acc.addEventAlgo(filterAlg, sequenceName=filtersStep.name)
         acc.addEventAlgo(filterAlg, sequenceName=singleMenuSeq.name)
 
-        log.debug('Creted filter {}'.format(filterAlg.name))
+        log.debug('Created filter {}'.format(filterAlg.name))
         return acc.getEventAlgo(filterAlg.name)
 
 
