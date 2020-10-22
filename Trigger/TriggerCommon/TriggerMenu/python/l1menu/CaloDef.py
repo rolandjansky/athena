@@ -7,29 +7,32 @@ def getRun3EFexParameterSelection( parameter ):
     if parameter == "jTauIso":
         parameter = "eTauIso"
 
+
+    # values are taken from slide 3 of
+    # https://indico.cern.ch/event/967557/contributions/4071979/attachments/2126399/3580112/optimization1.pdf
     if parameter == 'reta':
         return str({
-            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }],
-            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }],
-            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }]
+            "LOOSE"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.12, "maxEt" : 60 }],
+            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.09, "maxEt" : 60 }],
+            "TIGHT"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.08, "maxEt" : 60 }]
         })
     elif parameter == 'rhad':
         return str({
-            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.16, "maxEt" : 60 }],
-            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.16, "maxEt" : 60 }],
-            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.16, "maxEt" : 60 }]
+            "LOOSE"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.31, "maxEt" : 60 }],
+            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.20, "maxEt" : 60 }],
+            "TIGHT"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.19, "maxEt" : 60 }]
         })
     elif parameter == 'wstot':
         return str({
-            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }],
-            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }],
-            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.02, "maxEt" : 60 }]
+            "LOOSE"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.79, "maxEt" : 60 }],
+            "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.65, "maxEt" : 60 }],
+            "TIGHT"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.52, "maxEt" : 60 }]
         })
     elif parameter == 'eTauIso':
         return str({
-            "LOOSE" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.69, "maxEt" : 15 }],
+            "LOOSE"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.69, "maxEt" : 15 }],
             "MEDIUM" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.69, "maxEt" : 15 }],
-            "TIGHT" : [{ "etamin" : -49, "etamax" : 49, "value" : 0.61, "maxEt" : 25 }]
+            "TIGHT"  : [{ "etamin" : -49, "etamax" : 49, "value" : 0.61, "maxEt" : 25 }]
         })
     else:
         raise RuntimeError("No Run3 EFex settings available for parameter %s" % parameter )
