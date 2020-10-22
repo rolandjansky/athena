@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_CPMROIBYTESTREAMV2TOOL_H
@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "L1CaloSrcIdMap.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
@@ -52,21 +53,20 @@ class CpmRoiByteStreamV2Tool : public AthAlgTool {
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
 
    /// Convert ROB fragments to CPM RoIs
    StatusCode convert(const std::string& robFrags,
-                      DataVector<LVL1::CPMTobRoI>* roiCollection);
+                      DataVector<LVL1::CPMTobRoI>* roiCollection) const;
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                      DataVector<LVL1::CPMTobRoI>* roiCollection);
+                      DataVector<LVL1::CPMTobRoI>* roiCollection) const;
 
    /// Convert CPM RoI to bytestream
    StatusCode convert(const DataVector<LVL1::CPMTobRoI>* roiCollection,
-                      RawEventWrite* re);
+                      RawEventWrite* re) const;
 
    /// Return reference to vector with all possible Source Identifiers
-   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey);
+   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey) const;
 
  private:
 
@@ -76,54 +76,46 @@ class CpmRoiByteStreamV2Tool : public AthAlgTool {
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      ROBPointer;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      RODPointer;
 
+   std::vector<uint32_t> makeSourceIDs (bool roiDaq) const;
+
    /// Set up CPM RoI map
-   void setupCpmRoiMap(const CpmRoiCollection* roiCollection);
+   void setupCpmRoiMap(const CpmRoiCollection* roiCollection,
+                       CpmRoiMap& roiMap) const;
 
    ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-   /// Error collection tool
+   /// Property: Error collection tool
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
 
-   /// Hardware crate number offset
+   /// Property: Hardware crate number offset
    int m_crateOffsetHw;
-   /// Software crate number offset
+   /// Property: Software crate number offset
    int m_crateOffsetSw;
-   /// Sub_block header version
+   /// Property: Sub_block header version
    int m_version;
-   /// Data compression format
+   /// Property: Data compression format
    int m_dataFormat;
    /// Number of crates
-   int m_crates;
+   const int m_crates;
    /// Number of CPM modules per crate
-   int m_modules;
-   /// Number of slinks per crate when writing out bytestream
+   const int m_modules;
+   /// Property: Number of slinks per crate when writing out bytestream
    int m_slinks;
-   /// Minimum crate number when writing out bytestream
+   /// Property: Minimum crate number when writing out bytestream
    int m_crateMin;
-   /// Maximum crate number when writing out bytestream
+   /// Property: Maximum crate number when writing out bytestream
    int m_crateMax;
-   /// ROB source IDs
-   std::vector<uint32_t> m_sourceIDs;
-   /// ROB source IDs for RoIB
-   std::vector<uint32_t> m_sourceIDsRoIB;
+   /// Property: ROB source IDs
+   std::vector<uint32_t> m_sourceIDsProp;
+   /// Property: ROB source IDs for RoIB
+   std::vector<uint32_t> m_sourceIDsRoIBProp;
    /// Sub-detector type
-   eformat::SubDetector m_subDetector;
+   const eformat::SubDetector m_subDetector;
    /// Source ID converter
-   L1CaloSrcIdMap* m_srcIdMap;
-   /// Sub-block for neutral format
-   CpmRoiSubBlockV2* m_subBlock;
-   /// CPM RoI map
-   CpmRoiMap m_roiMap;
-   /// ROD Status words
-   std::vector<uint32_t>* m_rodStatus;
-   /// ROD status map
-   std::map<uint32_t, std::vector<uint32_t>* > m_rodStatusMap;
-   /// Event assembler
-   FullEventAssembler<L1CaloSrcIdMap>* m_fea;
+   const L1CaloSrcIdMap m_srcIdMap;
 
-   // M7 format follows old specification, so we have two zeros 
+   // Property: M7 format follows old specification, so we have two zeros 
    // as most significant bits instead of 0xa
    bool m_isM7Format;
-
 };
 
 } // end namespace
