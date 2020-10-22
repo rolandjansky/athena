@@ -113,6 +113,7 @@ monitoring_photon = ['HLT_g25_medium_L1EM20VH',
                      'HLT_g22_tight',
                      'HLT_g120_loose',
                      'HLT_g140_loose',
+                     'HLT_g140_loose_L1EM22VHI',
                      'HLT_g200_loose'
                      ]
 
