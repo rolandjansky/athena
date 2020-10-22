@@ -2,7 +2,6 @@
 MdtIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -445,7 +444,6 @@ MdtIdHelper         DEBUG  Maximum number of MDT tubes is 78
 RpcIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -638,7 +636,6 @@ RpcIdHelper         DEBUG  Maximum number of RPC gas gaps is 2
 TgcIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -739,7 +736,6 @@ TgcIdHelper       VERBOSE MuonIdHelper::init_neighbors
 CscIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -784,7 +780,6 @@ checking module hashes...
 checking channel hashes...
 =========>  checking dictionnary file=IdDictMuonSpectrometer_R.09.02.Asym.xml
 MdtIdHelper         DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 MdtIdHelper         DEBUG  MDT decode index and bit fields for each level: 
@@ -1226,7 +1221,6 @@ MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ..
 MdtIdHelper       VERBOSE MuonIdHelper::init_neighbors 
 MdtIdHelper         DEBUG  Maximum number of MDT tubes is 110
 RpcIdHelper         DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 RpcIdHelper         DEBUG  RPC decode index and bit fields for each level: 
@@ -1418,7 +1412,6 @@ RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ..
 RpcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
 RpcIdHelper         DEBUG  Maximum number of RPC gas gaps is 3
 TgcIdHelper         DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 TgcIdHelper         DEBUG  TGC decode index and bit fields for each level: 
@@ -1515,7 +1508,6 @@ TgcIdHelper          INFO The detector element hash max is 1554
 TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
 TgcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
 CscIdHelper         DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 CscIdHelper         DEBUG  CSC decode index and bit fields for each level: 
@@ -1558,7 +1550,6 @@ checking module hashes...
 CscIdHelper       WARNING Invalid stationEta=1 for stationName=CSS stationEtaMin=-1 stationEtaMax=-1
 checking channel hashes...
 TgcIdHelper         DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 TgcIdHelper         DEBUG  TGC decode index and bit fields for each level: 
@@ -1655,7 +1646,6 @@ TgcIdHelper          INFO The detector element hash max is 1554
 TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
 TgcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
 MmIdHelper          DEBUG (Re)initialize 
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 MmIdHelper          DEBUG  MicroMegas decode index and bit fields for each level: 
@@ -1694,7 +1684,6 @@ MmIdHelper        VERBOSE MuonIdHelper::init_neighbors
 =========>  checking dictionnary file=IdDictMuonSpectrometer_R.09.02.xml
 MdtIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find csc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 MdtIdHelper         DEBUG  MDT decode index and bit fields for each level: 
@@ -2113,7 +2102,6 @@ MdtIdHelper       VERBOSE MuonIdHelper::init_neighbors
 MdtIdHelper         DEBUG  Maximum number of MDT tubes is 110
 RpcIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find csc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 RpcIdHelper         DEBUG  RPC decode index and bit fields for each level: 
@@ -2306,7 +2294,6 @@ RpcIdHelper       VERBOSE MuonIdHelper::init_neighbors
 RpcIdHelper         DEBUG  Maximum number of RPC gas gaps is 3
 TgcIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find csc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 TgcIdHelper         DEBUG  TGC decode index and bit fields for each level: 
@@ -2400,7 +2387,6 @@ TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ..
 TgcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
 TgcIdHelper         DEBUG (Re)initialize
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find csc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 TgcIdHelper         DEBUG  TGC decode index and bit fields for each level: 
@@ -2494,7 +2480,6 @@ TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ..
 TgcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
 MmIdHelper          DEBUG (Re)initialize 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find csc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 MmIdHelper          DEBUG  MicroMegas decode index and bit fields for each level: 
