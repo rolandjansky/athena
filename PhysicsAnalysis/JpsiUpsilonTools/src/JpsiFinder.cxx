@@ -57,8 +57,8 @@ namespace Analysis {
             ATH_MSG_ERROR("Could not initialize Particle Properties Service");
             return StatusCode::SUCCESS;
         } else {
-            m_particleDataTable = partPropSvc->PDT();
-            const HepPDT::ParticleData* pd_mu = m_particleDataTable->particle(PDG::mu_minus);
+            auto particleDataTable = partPropSvc->PDT();
+            const HepPDT::ParticleData* pd_mu = particleDataTable->particle(PDG::mu_minus);
             if (m_diMuons) {m_trk1M = pd_mu->mass(); m_trk2M = pd_mu->mass();}
         }
         
@@ -98,16 +98,13 @@ namespace Analysis {
         if (illogicalOptions) return StatusCode::FAILURE;;
 
 
-        ATH_MSG_INFO("Initialize successful");
+        ATH_MSG_DEBUG("Initialize successful");
         
         return StatusCode::SUCCESS;
         
     }
     
-    StatusCode JpsiFinder::finalize() {
-        return StatusCode::SUCCESS;
-        
-    }
+
     JpsiFinder::JpsiFinder(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
     m_mumu(true),
     m_mutrk(false),
@@ -120,7 +117,6 @@ namespace Analysis {
     m_diMuons(true),
     m_trk1M(105.66),
     m_trk2M(105.66),
-    m_particleDataTable(0),
     m_thresholdPt(0.0),
     m_higherPt(0.0),
     m_trkThresholdPt(0.0),
@@ -177,7 +173,7 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
     // Find the candidates
     //-------------------------------------------------------------------------------------
-    StatusCode JpsiFinder::performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer)
+    StatusCode JpsiFinder::performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const
     {
         ATH_MSG_DEBUG( "JpsiFinder::performSearch" );
         vxContainer = new xAOD::VertexContainer;

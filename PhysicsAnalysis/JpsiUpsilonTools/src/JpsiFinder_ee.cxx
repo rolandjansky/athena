@@ -51,8 +51,8 @@ namespace Analysis {
             ATH_MSG_ERROR("Could not initialize Particle Properties Service");
             return StatusCode::FAILURE;
         } else {
-            m_particleDataTable = partPropSvc->PDT();
-            const HepPDT::ParticleData* pd_el = m_particleDataTable->particle(PDG::e_minus);
+            auto particleDataTable = partPropSvc->PDT();
+            const HepPDT::ParticleData* pd_el = particleDataTable->particle(PDG::e_minus);
             if (m_diElectrons) {m_trk1M = pd_el->mass(); m_trk2M = pd_el->mass();}
         }
         
@@ -87,12 +87,7 @@ namespace Analysis {
         
     }
     
-    StatusCode JpsiFinder_ee::finalize() {
-        
-        ATH_MSG_DEBUG("Finalize successful, i ran on " << m_numberOfEventsWithJpsi << " events that had jpis from Bs");
-        return StatusCode::SUCCESS;
-        
-    }
+
     JpsiFinder_ee::JpsiFinder_ee(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
     m_elel(true),
     m_eltrk(false),
@@ -103,7 +98,6 @@ namespace Analysis {
     m_diElectrons(true),
     m_trk1M(0.511),
     m_trk2M(0.511),
-    m_particleDataTable(0),
     m_thresholdPt(0.0),
     m_higherPt(0.0),
     m_trkThresholdPt(0.0),
@@ -123,8 +117,7 @@ namespace Analysis {
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_egammaCuts(true),
     m_elSelection("LHLoose"),
-    m_doTagAndProbe(false),
-    m_numberOfEventsWithJpsi(0)
+    m_doTagAndProbe(false)
     
     {
         declareInterface<JpsiFinder_ee>(this);
@@ -167,7 +160,7 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
  
   
-  StatusCode JpsiFinder_ee::performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer)
+  StatusCode JpsiFinder_ee::performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const
     {
         ATH_MSG_DEBUG( "JpsiFinder_ee::performSearch" );
         vxContainer = new xAOD::VertexContainer;
@@ -242,7 +235,6 @@ namespace Analysis {
         if (m_elel) jpsiCandidates = getPairs(theElectronsAfterSelection);
         if (m_trktrk) jpsiCandidates = getPairs(theIDTracksAfterSelection);
         if (m_eltrk) jpsiCandidates = getPairs2Colls(theIDTracksAfterSelection,theElectronsAfterSelection,m_doTagAndProbe);
-        if (jpsiCandidates.size() > 0) m_numberOfEventsWithJpsi++;
 
         ATH_MSG_DEBUG("Number of pairs with ee from a B decay: " << jpsiCandidates.size() );
 
@@ -582,7 +574,7 @@ namespace Analysis {
     // particles (true for oppositely charged)
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiEECandidate> JpsiFinder_ee::selectCharges(const std::vector<JpsiEECandidate> &jpsisIn, const std::string &selection) {
+    std::vector<JpsiEECandidate> JpsiFinder_ee::selectCharges(const std::vector<JpsiEECandidate> &jpsisIn, const std::string &selection) const {
         
         bool opposite(false),same(false),all(false);
         if (selection=="OPPOSITE") opposite=true;
