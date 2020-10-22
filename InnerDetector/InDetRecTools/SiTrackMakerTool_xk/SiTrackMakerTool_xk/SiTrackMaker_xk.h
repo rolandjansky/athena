@@ -176,21 +176,21 @@ namespace InDet{
       /////////////////////////////////////////////////////////////////////       
 
       mutable std::mutex            m_counterMutex;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalInputSeeds        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalUsedSeeds        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalNoTrackPar        ATLAS_THREAD_SAFE; 
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalBremSeeds        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_twoClusters           ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongRoad        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongInit        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_noTrack        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_notNewTrack        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_bremAttempt        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_outputTracks        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_extraTracks        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_bremTracks        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_seedsWithTrack        ATLAS_THREAD_SAFE;
-      mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_deSize        ATLAS_THREAD_SAFE;
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalInputSeeds        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalUsedSeeds        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalNoTrackPar        ATLAS_THREAD_SAFE {}; 
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_totalBremSeeds        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_twoClusters           ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongRoad        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_wrongInit        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_noTrack        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_notNewTrack        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_bremAttempt        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_outputTracks        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_extraTracks        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_bremTracks        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<int>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_seedsWithTrack        ATLAS_THREAD_SAFE {};
+      mutable std::array<std::atomic<double>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>      m_deSize        ATLAS_THREAD_SAFE {};
 
       mutable std::vector<std::vector<double>>     m_usedSeedsEta          ATLAS_THREAD_SAFE;
       mutable std::vector<std::vector<double>>     m_seedsWithTracksEta    ATLAS_THREAD_SAFE;
@@ -255,6 +255,14 @@ namespace InDet{
       MsgStream& dumpStatistics(MsgStream &out) const; 
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) const;
+
+      /// helper for working with the stat arrays 
+      template <typename T, size_t N,size_t M> void resetCounter(std::array<std::array<T,M>,N> & a) const{
+        for (auto & subarr : a) resetCounter(subarr); 
+      }
+      template <typename T, size_t N> void resetCounter(std::array<T,N> & a) const{
+        std::fill(a.begin(),a.end(),0); 
+      }
     };
 
 } // end of name space

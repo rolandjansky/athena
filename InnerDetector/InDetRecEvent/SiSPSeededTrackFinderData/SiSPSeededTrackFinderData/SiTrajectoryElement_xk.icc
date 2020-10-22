@@ -423,31 +423,31 @@ void InDet::SiTrajectoryElement_xk::set
   m_status       = 0                       ;
   m_detstatus    = st                      ;
   m_ndist        = 0                       ;
-  m_nlinksF      = 0                       ;
-  m_nlinksB      = 0                       ;
-  m_nholesF      = 0                       ;
-  m_nholesB      = 0                       ;
-  m_dholesF      = 0                       ;
-  m_dholesB      = 0                       ;
-  m_nclustersF   = 0                       ;
-  m_nclustersB   = 0                       ;
-  m_npixelsB     = 0                       ;
-  m_ndfF         = 0                       ;
-  m_ndfB         = 0                       ;
-  m_ntsos        = 0                       ;
-  m_detelement   = dl->detElement()        ;
-  m_detlink      = dl                      ;
-  m_surface      = &m_detelement->surface();
-  m_sibegin      = sb                      ;
-  m_siend        = se                      ; 
-  m_cluster      = si                      ;
-  m_clusterOld   = si                      ;
-  m_clusterNoAdd = 0                       ;
-  m_stereo       = false                   ; 
-  m_xi2F         = 10000.                  ;
-  m_xi2B         = 10000.                  ;
-  m_xi2totalF    = 0.                      ;
-  m_xi2totalB    = 0.                      ;
+  m_nlinksForward      = 0                       ;
+  m_nlinksBackward     = 0                       ;
+  m_nholesForward      = 0                       ;
+  m_nholesBackward     = 0                       ;
+  m_dholesForward      = 0                       ;
+  m_dholesBackward     = 0                       ;
+  m_nclustersForward   = 0                       ;
+  m_nclustersBackward  = 0                       ;
+  m_npixelsBackward    = 0                       ;
+  m_ndfForward         = 0                       ;
+  m_ndfBackward        = 0                       ;
+  m_ntsos              = 0                       ;
+  m_detelement         = dl->detElement()        ;
+  m_detlink            = dl                      ;
+  m_surface            = &m_detelement->surface();
+  m_sibegin            = sb                      ;
+  m_siend              = se                      ; 
+  m_cluster            = si                      ;
+  m_clusterOld         = si                      ;
+  m_clusterNoAdd       = 0                       ;
+  m_stereo             = false                   ; 
+  m_xi2Forward         = 10000.                  ;
+  m_xi2Backward        = 10000.                  ;
+  m_xi2totalForward    = 0.                      ;
+  m_xi2totalBackward   = 0.                      ;
   m_tools->electron() ? m_xi2max = m_tools->xi2maxBrem() : m_xi2max = m_tools->xi2max();
   m_halflength   = 0.                      ;
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
@@ -472,12 +472,14 @@ void InDet::SiTrajectoryElement_xk::set
   
   const Amg::Transform3D& tr = m_surface->transform();
 
-  m_Tr[ 0] = tr(0,0); m_Tr[ 1]=tr(1,0); m_Tr[ 2]=tr(2,0);
-  m_Tr[ 3] = tr(0,1); m_Tr[ 4]=tr(1,1); m_Tr[ 5]=tr(2,1);
-  m_Tr[ 6] = tr(0,2); m_Tr[ 7]=tr(1,2); m_Tr[ 8]=tr(2,2);
-  m_Tr[ 9] = tr(0,3); m_Tr[10]=tr(1,3); m_Tr[11]=tr(2,3);
-  m_Tr[12] = m_Tr[ 9]*m_Tr[ 6]+m_Tr[10]*m_Tr[ 7]+m_Tr[11]*m_Tr[ 8];
-  m_A[0] = 1.; m_A[1] = 0.; m_A[2] = 0.;
+  m_localTransform[ 0] = tr(0,0); m_localTransform[ 1]=tr(1,0); m_localTransform[ 2]=tr(2,0);
+  m_localTransform[ 3] = tr(0,1); m_localTransform[ 4]=tr(1,1); m_localTransform[ 5]=tr(2,1);
+  m_localTransform[ 6] = tr(0,2); m_localTransform[ 7]=tr(1,2); m_localTransform[ 8]=tr(2,2);
+  m_localTransform[ 9] = tr(0,3); m_localTransform[10]=tr(1,3); m_localTransform[11]=tr(2,3);
+  m_localTransform[12] = m_localTransform[ 9]*m_localTransform[ 6]+m_localTransform[10]*m_localTransform[ 7]+m_localTransform[11]*m_localTransform[ 8];
+  m_localDir[0] = 1.; 
+  m_localDir[1] = 0.; 
+  m_localDir[2] = 0.;
   return;
 }
 
@@ -517,9 +519,9 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationForClusterSeach
 
   if(!n) {
     Trk::PatternTrackParameters Tp; if(!Tp.production(&Tpa)) return false;
-    if(!propagateParameters(Tp,m_parametersPF,m_step)) return false;
+    if(!propagateParameters(Tp,m_parametersPredForward,m_step)) return false;
  
-    if(!m_parametersPF.iscovariance()) {
+    if(!m_parametersPredForward.iscovariance()) {
 
       double cv[15]={ .02 ,
                       0., .02,
@@ -527,13 +529,13 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationForClusterSeach
                       0., 0.,   0.,.000001,
                       0., 0.,   0.,   0.,.000000001};
       
-      m_parametersPF.setCovariance(cv);
+      m_parametersPredForward.setCovariance(cv);
     }
   }
   else {
-    if(!propagate(m_parametersPF,m_parametersPF,m_step)) return false;
+    if(!propagate(m_parametersPredForward,m_parametersPredForward,m_step)) return false;
   }
-  m_nlinksF=searchClusters(m_parametersPF,m_linkF);
+  m_nlinksForward=searchClusters(m_parametersPredForward,m_linkForward);
   return true;
 }
 
@@ -570,7 +572,7 @@ void InDet::SiTrajectoryElement_xk::CloseClusterSeach
     m_stereo = true : m_stereo = false;
   if(m_detstatus && m_ndf == 1) m_halflength = (*sb)->width().z()*.5;
 
-  if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkF)) return;
-  m_cluster = m_linkF[0].cluster();
-  m_xi2F    = m_linkF[0].xi2    ();
+  if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkForward)) return;
+  m_cluster = m_linkForward[0].cluster();
+  m_xi2Forward    = m_linkForward[0].xi2    ();
 }

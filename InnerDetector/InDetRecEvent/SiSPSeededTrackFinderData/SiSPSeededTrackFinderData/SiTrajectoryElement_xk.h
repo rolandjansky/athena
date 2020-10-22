@@ -48,21 +48,21 @@ namespace InDet{
       const int&  detstatus   () const {return m_detstatus;}
       const int&  inside      () const {return m_inside;    }
       const int&  ndist       () const {return m_ndist ;    }
-      const int&  nlinksF     () const {return m_nlinksF;   }
-      const int&  nlinksB     () const {return m_nlinksB;   }
-      const int&  nholesF     () const {return m_nholesF;   }
-      const int&  nholesB     () const {return m_nholesB;   }
-      const int&  dholesF     () const {return m_dholesF;   }
-      const int&  dholesB     () const {return m_dholesB;   }
-      const int&  nclustersF  () const {return m_nclustersF;}
-      const int&  nclustersB  () const {return m_nclustersB;}
-      const int&  npixelsB    () const {return m_npixelsB;  }
+      const int&  nlinksF     () const {return m_nlinksForward;   }
+      const int&  nlinksB     () const {return m_nlinksBackward;   }
+      const int&  nholesF     () const {return m_nholesForward;   }
+      const int&  nholesB     () const {return m_nholesBackward;   }
+      const int&  dholesF     () const {return m_dholesForward;   }
+      const int&  dholesB     () const {return m_dholesBackward;   }
+      const int&  nclustersF  () const {return m_nclustersForward;}
+      const int&  nclustersB  () const {return m_nclustersBackward;}
+      const int&  npixelsB    () const {return m_npixelsBackward;  }
       const bool& stereo      () const {return m_stereo;    }
       const int&  status      () const {return m_status;    }
       const int&  noiseModel  () const {return m_noisemodel;}
       const int&  ndf         () const {return m_ndf;       }
-      const int&  ndfF        () const {return m_ndfF;      }
-      const int&  ndfB        () const {return m_ndfB;      }
+      const int&  ndfF        () const {return m_ndfForward;      }
+      const int&  ndfB        () const {return m_ndfBackward;      }
       const int&  ntsos       () const {return m_ntsos;     }
       const double& step      () const {return m_step;      }
       const double& dist      () const {return m_dist;      }
@@ -111,22 +111,26 @@ namespace InDet{
       void setNdist(int);
 
       int   numberClusters() const;
-      const double& xi2F      () const {return m_xi2F      ;}
-      const double& xi2B      () const {return m_xi2B      ;}
-      const double& xi2totalF () const {return m_xi2totalF ;}
-      const double& xi2totalB () const {return m_xi2totalB ;}
+      const double& xi2F      () const {return m_xi2Forward      ;}
+      const double& xi2B      () const {return m_xi2Backward      ;}
+      const double& xi2totalF () const {return m_xi2totalForward ;}
+      const double& xi2totalB () const {return m_xi2totalBackward ;}
       const double& radlength () const {return m_radlength ;}
       const double& energylose() const {return m_energylose;}
-
-      const Trk::PatternTrackParameters& parametersPF() const {return m_parametersPF;} 
-      const Trk::PatternTrackParameters& parametersUF() const {return m_parametersUF;} 
-      const Trk::PatternTrackParameters& parametersPB() const {return m_parametersPB;} 
-      const Trk::PatternTrackParameters& parametersUB() const {return m_parametersUB;} 
+      /// track parameters for forward filter / smoother 
+      /// predicted
+      const Trk::PatternTrackParameters& parametersPF() const {return m_parametersPredForward;} 
+      /// updated
+      const Trk::PatternTrackParameters& parametersUF() const {return m_parametersUpdatedForward;} 
+      /// predicted
+      const Trk::PatternTrackParameters& parametersPB() const {return m_parametersPredBackward;} 
+      /// observed
+      const Trk::PatternTrackParameters& parametersUB() const {return m_parametersUpdatedBackward;} 
       const Trk::PatternTrackParameters& parametersSM() const {return m_parametersSM;} 
 
       const Trk::Surface*  surface()  const {return m_surface;}
-      const InDet::SiClusterLink_xk& linkF (int i) const {return m_linkF[i];}
-      const InDet::SiClusterLink_xk& linkB (int i) const {return m_linkB[i];}
+      const InDet::SiClusterLink_xk& linkF (int i) const {return m_linkForward[i];}
+      const InDet::SiClusterLink_xk& linkB (int i) const {return m_linkBackward[i];}
       //@}
  
       ///////////////////////////////////////////////////////////////////
@@ -238,12 +242,8 @@ namespace InDet{
         int searchClustersWithStereoAss      (Trk::PatternTrackParameters&,SiClusterLink_xk*, const Trk::PRDtoTrackMap &);
       //@}
 
-      ///////////////////////////////////////////////////////////////////
-      /// @name Is difference between forward and backward propagation   
-      ///////////////////////////////////////////////////////////////////
-      //@{
+      /// check for a difference between forward and back propagation
       bool difference() const;
-      //@}
 
       ///////////////////////////////////////////////////////////////////
       // @name TrackStateOnSurface production  
@@ -265,9 +265,13 @@ namespace InDet{
 
       ///////////////////////////////////////////////////////////////////
       // @name Initiate state
+      /// inputPars: input parameters. 
+      /// outputPars: output parameters. 
+      /// Gives outputPars the x and (for pix) the y of the associated cluster, and the corresponding cov elements, 
+      /// and copies all other elements else from inputPars
       ///////////////////////////////////////////////////////////////////
       //@{
-      bool initiateState(Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
+      bool initiateState(Trk::PatternTrackParameters& inputPars,Trk::PatternTrackParameters& outputPars);
       //@}
 
       ///////////////////////////////////////////////////////////////////
@@ -303,34 +307,91 @@ namespace InDet{
       /// @name Propagate parameters with covariance
       ///////////////////////////////////////////////////////////////////
       //@{
-      bool propagate
-	(Trk::PatternTrackParameters  &,
-	 Trk::PatternTrackParameters  &,
-	 double                       &);
+      /// Will propagate the startingParameters from their reference 
+      /// to the surface associated with this element and write the result into 
+      /// the second argument. The third argument records the step length traversed. 
+      bool propagate(Trk::PatternTrackParameters  & startingParameters,
+                     Trk::PatternTrackParameters  & outParameters,
+                     double                       & step);
       //@}
 
       ////////////////////////////////////////////////////////////////////
-      /// @name Propagate parameters without covariance
+      /// @name Propagate parameters without covariance update.
+      /// Will propagate the startingParameters from their reference 
+      /// to the surface associated with this element and write the result into 
+      /// the second argument. The third argument records the step length traversed. 
       ///////////////////////////////////////////////////////////////////
       //@{
-      bool propagateParameters
-	(Trk::PatternTrackParameters&,
-	 Trk::PatternTrackParameters&,
-	 double                     &);
+      bool propagateParameters(Trk::PatternTrackParameters& startingParameters,
+                               Trk::PatternTrackParameters& outParameters,
+                               double                     & step);
       //@}
 
       ///////////////////////////////////////////////////////////////////
       /// @name Work methods for propagation
       ///////////////////////////////////////////////////////////////////
       //@{
-      void transformPlaneToGlobal
-	(bool,Trk::PatternTrackParameters&,double*);
-      bool transformGlobalToPlane
-	(bool,double*,Trk::PatternTrackParameters&,Trk::PatternTrackParameters&);
-      bool rungeKuttaToPlane
-	(bool,double*);
-      bool straightLineStepToPlane
-	(bool,double*);
+
+        
+      /////////////////////////////////////////////////////////////////////////////////
+      /// Tramsform from plane to global
+      /// Will take the surface and parameters from localParameters
+      /// and populate globalPars with the result. 
+      /// globalPars needs to be at least 46 elements long. 
+      /// Convention: 
+      ///                       /dL0    /dL1    /dPhi   /dThe   /dCM
+      ///    X  ->globalPars[0]  dX /   globalPars[ 7]   globalPars[14]   globalPars[21]   globalPars[28]   globalPars[35]  
+      ///    Y  ->globalPars[1]  dY /   globalPars[ 8]   globalPars[15]   globalPars[22]   globalPars[29]   globalPars[36]  
+      ///    Z  ->globalPars[2]  dZ /   globalPars[ 9]   globalPars[16]   globalPars[23]   globalPars[30]   globalPars[37]   
+      ///    Ax ->globalPars[3]  dAx/   globalPars[10]   globalPars[17]   globalPars[24]   globalPars[31]   globalPars[38]  
+      ///    Ay ->globalPars[4]  dAy/   globalPars[11]   globalPars[18]   globalPars[25]   globalPars[32]   globalPars[39]  
+      ///    Az ->globalPars[5]  dAz/   globalPars[12]   globalPars[19]   globalPars[26]   globalPars[33]   globalPars[40]  
+      ///    CM ->globalPars[6]  dCM/   globalPars[13]   globalPars[20]   globalPars[27]   globalPars[34]   globalPars[41] 
+      ///    + dA/dS (42-44) and step (45) 
+      // /////////////////////////////////////////////////////////////////////////////////
+      void transformPlaneToGlobal(bool,
+                                  Trk::PatternTrackParameters& localParameters,
+                                  double* globalPars);
+
+  
+      /////////////////////////////////////////////////////////////////////////////////
+      /// Tramsform from global to plane surface
+      /// Will take the global parameters in globalPars, the surface from this trajectory
+      /// element and populate outputParameters with the result. 
+      /// If covariance update ("updateJacobian") is requested, also transport the covariance
+      /// from "startingParameters" using the jacobian stored in the globalPars and write this 
+      /// into outputParameters. 
+      /// Convention for globalPars: 
+      ///                       /dL0    /dL1    /dPhi   /dThe   /dCM
+      ///    X  ->globalPars[0]  dX /   globalPars[ 7]   globalPars[14]   globalPars[21]   globalPars[28]   globalPars[35]  
+      ///    Y  ->globalPars[1]  dY /   globalPars[ 8]   globalPars[15]   globalPars[22]   globalPars[29]   globalPars[36]  
+      ///    Z  ->globalPars[2]  dZ /   globalPars[ 9]   globalPars[16]   globalPars[23]   globalPars[30]   globalPars[37]   
+      ///    Ax ->globalPars[3]  dAx/   globalPars[10]   globalPars[17]   globalPars[24]   globalPars[31]   globalPars[38]  
+      ///    Ay ->globalPars[4]  dAy/   globalPars[11]   globalPars[18]   globalPars[25]   globalPars[32]   globalPars[39]  
+      ///    Az ->globalPars[5]  dAz/   globalPars[12]   globalPars[19]   globalPars[26]   globalPars[33]   globalPars[40]  
+      ///    CM ->globalPars[6]  dCM/   globalPars[13]   globalPars[20]   globalPars[27]   globalPars[34]   globalPars[41] 
+      ///    + dA/dS (42-44) and step (45) 
+      // /////////////////////////////////////////////////////////////////////////////////
+      bool transformGlobalToPlane(bool updateJacobian,
+                                  double* globalPars ,
+                                  Trk::PatternTrackParameters& startingParameters,
+                                  Trk::PatternTrackParameters& outputParameters);
+
+            
+      /////////////////////////////////////////////////////////////////////////////////
+      /// Runge Kutta step to plane
+      /// Updates the "globalPars" array, which is also used to 
+      /// pass the input.  
+      /// This array follows the convention outlined above (46 components) 
+      /////////////////////////////////////////////////////////////////////////////////
+      bool rungeKuttaToPlane(bool updateJacobian, double* globalPars);
+      /////////////////////////////////////////////////////////////////////////////////
+      /// Straight line step to plane
+      /// Updates the "globalPars" array, which is also used to 
+      /// pass the input.  
+      /// This array follows the convention outlined above (46 components) 
+      /////////////////////////////////////////////////////////////////////////////////
+      bool straightLineStepToPlane(bool updateJacobian, double* globalPars);
       //@}
 
     private:
@@ -350,31 +411,35 @@ namespace InDet{
       bool                                        m_utsos[3]    ;
       bool                                        m_fieldMode   ;
       bool                                        m_useassoTool = false ;
+      /// status flag. Start as 0. 
+      /// set to 1 if set up for forward 
+      /// set to 2 if set up for backward 
+      /// set to 3 by lastTrajectoryElement or  BackwardPropagationSmoother if m_cluster
       int                                         m_status      ;  
       int                                         m_detstatus   ; //!< 0 (no clusters) 
       int                                         m_inside      ;
       int                                         m_ndist       ;
-      int                                         m_nlinksF     ;
-      int                                         m_nlinksB     ;
-      int                                         m_nholesF     ;
-      int                                         m_nholesB     ;
-      int                                         m_dholesF     ;
-      int                                         m_dholesB     ;
-      int                                         m_nclustersF  ;
-      int                                         m_nclustersB  ;
-      int                                         m_npixelsB    ;
+      int                                         m_nlinksForward     ;
+      int                                         m_nlinksBackward     ;
+      int                                         m_nholesForward     ;
+      int                                         m_nholesBackward     ;
+      int                                         m_dholesForward     ;
+      int                                         m_dholesBackward     ;
+      int                                         m_nclustersForward  ;
+      int                                         m_nclustersBackward  ;
+      int                                         m_npixelsBackward    ;
       int                                         m_noisemodel  ;
       int                                         m_ndf         ;
-      int                                         m_ndfF        ;
-      int                                         m_ndfB        ;
+      int                                         m_ndfForward        ;
+      int                                         m_ndfBackward        ;
       int                                         m_ntsos       ;
       int                                         m_maxholes    ;
       int                                         m_maxdholes   ;
       double                                      m_dist        ;
-      double                                      m_xi2F        ;
-      double                                      m_xi2B        ;
-      double                                      m_xi2totalF   ;
-      double                                      m_xi2totalB   ;
+      double                                      m_xi2Forward        ;
+      double                                      m_xi2Backward        ;
+      double                                      m_xi2totalForward   ;
+      double                                      m_xi2totalBackward   ;
       double                                      m_radlength   ;
       double                                      m_radlengthN  ;
       double                                      m_energylose  ;
@@ -384,8 +449,8 @@ namespace InDet{
       double                                      m_xi2maxNoAdd ;
       double                                      m_xi2maxlink  ;  
       double                                      m_xi2multi    ;
-      double                                      m_Tr[13]      ;
-      double                                      m_A [ 3]      ;
+      double                                      m_localTransform[13]      ;     /// the transform for this element
+      double                                      m_localDir [ 3]      ;
 
       const InDetDD::SiDetectorElement*           m_detelement  ;
       const InDet::SiDetElementBoundaryLink_xk*   m_detlink     ;
@@ -405,13 +470,22 @@ namespace InDet{
       const InDet::SiCluster*                     m_cluster     ;
       const InDet::SiCluster*                     m_clusterOld  ;
       const InDet::SiCluster*                     m_clusterNoAdd;
-      Trk::PatternTrackParameters                 m_parametersPF; 
-      Trk::PatternTrackParameters                 m_parametersUF; 
-      Trk::PatternTrackParameters                 m_parametersPB; 
-      Trk::PatternTrackParameters                 m_parametersUB;
+
+      /// Pattern track parameters 
+
+      /// For forward filtering / smoothing 
+      /// Predicted state, forward
+      Trk::PatternTrackParameters                 m_parametersPredForward; 
+      /// Updated state, forward
+      Trk::PatternTrackParameters                 m_parametersUpdatedForward; 
+      /// For backward filtering / smoothing 
+      /// Predicted state, backward
+      Trk::PatternTrackParameters                 m_parametersPredBackward; 
+      /// Updated state, backward
+      Trk::PatternTrackParameters                 m_parametersUpdatedBackward;
       Trk::PatternTrackParameters                 m_parametersSM;
-      InDet::SiClusterLink_xk                     m_linkF[10]   ; 
-      InDet::SiClusterLink_xk                     m_linkB[10]   ; 
+      InDet::SiClusterLink_xk                     m_linkForward[10]   ; 
+      InDet::SiClusterLink_xk                     m_linkBackward[10]   ; 
       Trk::NoiseOnSurface                         m_noise       ; 
       const InDet::SiTools_xk*                    m_tools       ; 
       MagField::AtlasFieldCache                   m_fieldCache;
