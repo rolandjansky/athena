@@ -154,6 +154,7 @@ namespace Muon {
     /** @brief return whether the 2 segments are in neighbouring chambers */
     bool areInNeighbouringChambers( const MuPatSegment& seg1, const MuPatSegment& seg2 ) const;
 
+    void cleanUp() const;
 
   private:
 

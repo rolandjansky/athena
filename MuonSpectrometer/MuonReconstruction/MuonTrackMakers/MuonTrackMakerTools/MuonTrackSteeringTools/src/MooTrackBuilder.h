@@ -246,6 +246,9 @@ namespace Muon {
     */
     virtual void refine( MuPatTrack& track ) const override;
 
+    void cleanUp() const;
+
+
   private:
 
     void removeDuplicateWithReference( std::unique_ptr<Trk::SegmentCollection>& segments,
