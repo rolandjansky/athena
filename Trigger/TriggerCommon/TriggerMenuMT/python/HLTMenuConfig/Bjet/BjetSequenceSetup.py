@@ -51,9 +51,9 @@ def bJetStep2Sequence():
 
 
     # Prepare data objects for view verifier
-    viewDataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + InputMakerAlg.InViewRoIs ),
-                       ( 'xAOD::VertexContainer' , 'StoreGateSvc+' + prmVtxKey ),
-                       ( 'xAOD::JetContainer' , 'StoreGateSvc+' + InputMakerAlg.InViewJets )]
+    viewDataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % InputMakerAlg.InViewRoIs ),
+                       ( 'xAOD::VertexContainer' , 'StoreGateSvc+%s' % prmVtxKey ),
+                       ( 'xAOD::JetContainer' , 'StoreGateSvc+%s' % InputMakerAlg.InViewJets )]
 
     # Second stage of Fast Tracking and Precision Tracking
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
@@ -64,7 +64,7 @@ def bJetStep2Sequence():
 
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-    acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=str(InputMakerAlg.InViewJets), inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
     
     Configurable.configurableRun3Behavior=0
 

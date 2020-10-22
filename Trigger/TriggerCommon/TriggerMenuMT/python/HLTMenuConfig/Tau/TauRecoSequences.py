@@ -255,7 +255,7 @@ def tauIdSequence( RoIs, name):
 
     ViewVerifyId = CfgMgr.AthViews__ViewDataVerifier("tauIdViewDataVerifier_"+signatureName)
     ViewVerifyId.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs'    ),
-                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs          ),
+                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs      ),
                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+RoiForTauCore'  ),
                                 ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),  
                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor'   ),
@@ -296,20 +296,19 @@ def precTrackSequence( RoIs , name):
 
 
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier_"+signatureName)
-    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+IDTrigConfig.FT.tracksFTF() ),
+    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+%s' % IDTrigConfig.FT.tracksFTF() ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
-                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs ),
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                  ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                  ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' ),    
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+IDTrigConfig.FT.tracksFTF() ),
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+%s' % IDTrigConfig.FT.tracksFTF() ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
     if "TrackInView" not in name:
        ViewVerifyTrk.DataObjects += [ ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+RoiForTauCore' ) ]
-
 
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
@@ -357,7 +356,7 @@ def tauFTFSequence( RoIs, name ):
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
 
-    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
+    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),#For some reason not picked up properly
                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 

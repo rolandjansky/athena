@@ -19,7 +19,7 @@ def TrigMuonRoIToolCfg():
         topSequence = AlgSequence()
         if not hasattr(topSequence,'SGInputLoader'):
             raise RuntimeError('Cannot configure TrigMuonRoITool because SGInputLoader is missing from topSequence')
-        topSequence.SGInputLoader.Load += [( rdoType, 'StoreGateSvc+'+tool.MUCTPILocation )]
+        topSequence.SGInputLoader.Load += [( rdoType, 'StoreGateSvc+%s' % tool.MUCTPILocation )]
 
         # Enable using the Converter to load MUCTPI_RDO from ByteStream
         from AthenaCommon.GlobalFlags import globalflags
@@ -27,6 +27,6 @@ def TrigMuonRoIToolCfg():
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             if not hasattr(svcMgr, 'ByteStreamAddressProviderSvc'):
                 raise RuntimeError('Cannot configure TrigMuonRoITool because ByteStreamAddressProviderSvc is missing from svcMgr')
-            svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ rdoType+'/'+tool.MUCTPILocation ]
+            svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ '%s/%s' % (rdoType, tool.MUCTPILocation) ]
 
     return tool

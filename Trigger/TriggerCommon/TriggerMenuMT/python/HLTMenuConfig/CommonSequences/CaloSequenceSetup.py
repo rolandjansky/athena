@@ -62,7 +62,7 @@ def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs=caloFSRoI, outputNam
     alg.RoIs=RoIs
     alg.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
     alg.CellsName=outputName
-    return parOR(name+"RecoSequence", [alg]), alg.CellsName
+    return parOR(name+"RecoSequence", [alg]), str(alg.CellsName)
 
 def caloClusterRecoSequence(
         flags, name="HLTCaloClusterMakerFS", RoIs=caloFSRoI,
@@ -76,7 +76,7 @@ def caloClusterRecoSequence(
             doLC=False,
             cells=cells_name)
     alg.CaloClusters = recordable(outputName)
-    return parOR(name+"RecoSequence", [cell_sequence, alg]), alg.CaloClusters
+    return parOR(name+"RecoSequence", [cell_sequence, alg]), str(alg.CaloClusters)
 
 def LCCaloClusterRecoSequence(
         flags, name="HLTCaloClusterCalibratorLCFS", RoIs=caloFSRoI,
@@ -92,4 +92,4 @@ def LCCaloClusterRecoSequence(
             InputClusters = em_clusters,
             OutputClusters = outputName,
             OutputCellLinks = outputName+"_cellLinks")
-    return parOR(name+"RecoSequence", [em_sequence, alg]), alg.OutputClusters
+    return parOR(name+"RecoSequence", [em_sequence, alg]), str(alg.OutputClusters)
