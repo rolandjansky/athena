@@ -119,7 +119,7 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
   }
   std::vector<const ROBFragment*> listOfRobf;
 
-  m_robDataProvider->getROBData( listOfRobs, listOfRobf);
+  m_robDataProvider->getROBData(ctx, listOfRobs, listOfRobf);
 
 #ifdef PIXEL_DEBUG
     ATH_MSG_DEBUG("Number of ROB fragments " << listOfRobf.size()

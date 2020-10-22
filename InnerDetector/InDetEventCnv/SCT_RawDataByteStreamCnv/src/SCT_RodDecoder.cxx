@@ -167,6 +167,7 @@ StatusCode SCT_RodDecoder::finalize()
 StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                           SCT_RDO_Container& rdoIDCont,
                                           IDCInDetBSErrContainer& errorsIDC,
+                                          const EventContext& ctx,
                                           const std::vector<IdentifierHash>* vecHash) const
 {
   SCT_RodDecoderErrorsHelper errs{errorsIDC}; // on destruction will fill the IDC
@@ -255,7 +256,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
       bool hasError{false};
       if (((data16[n]>>13) & 0x7) == 0x1) { // Header
         bool breakNow{false};
-        ATH_CHECK(processHeader(data16[n], robID, data, rdoIDCont, cache, errs, hasError, breakNow));
+        ATH_CHECK(processHeader(data16[n], robID, data, rdoIDCont, cache, errs, hasError, breakNow,ctx));
         if (hasError) sc = StatusCode::RECOVERABLE;
         if (breakNow) break;
         continue;
@@ -630,7 +631,8 @@ StatusCode SCT_RodDecoder::processHeader(const uint16_t inData,
                                          CacheHelper& cache,
                                          SCT_RodDecoderErrorsHelper& errs,
                                          bool& hasError,
-                                         bool& breakNow) const
+                                         bool& breakNow,
+                                         const EventContext& ctx) const
 {
   StatusCode sc{StatusCode::SUCCESS, true};
 
@@ -668,7 +670,7 @@ StatusCode SCT_RodDecoder::processHeader(const uint16_t inData,
     return sc;
   }
   else {
-    data.setCollection(m_sctID, m_cabling->getHashFromOnlineId(onlineID), rdoIDCont, errs);
+    data.setCollection(m_sctID, m_cabling->getHashFromOnlineId(onlineID, ctx), rdoIDCont, errs);
   }
   // Look for masked off links - bit 7
   if ((inData >> 7) & 0x1) {
