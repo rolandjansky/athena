@@ -119,8 +119,14 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	}// end switch(rodMinorVersion)
       }//end of rodBlockType==4
       else {
-	ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType);
-	return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+        if(rob.rod_source_id()& 0x1000 ){
+               ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rod_source_id());
+               rodBlock=nullptr;
+               continue;
+        } else {  
+	       ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType);
+	       return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+        }
       }
     }//End if need to re-init RodBlock
 
