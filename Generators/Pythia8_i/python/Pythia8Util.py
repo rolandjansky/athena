@@ -41,20 +41,27 @@ class Pythia8Util(EvgenAlg):
         os.rename(dummy_file, file_name)
 
 
-    def cmpsettings(self):
+    def cmpsettings(self, requestedsettings):
         if ( filecmp.cmp("Settings_before.log","Settings_after.log") ):
           self.msg.info("Settings match before and after initialisation of Pythia8.")
         else:
-          self.msg.warning("Settings before and after initialisation of Pythia8 don't match.")
+          if requestedsettings.has_key("PartonShowers:model"):
+             if (requestedsettings["PartonShowers:model"] !="1"):
+               self.msg.info("Settings before and after initialisation of Pythia8 don't match, because you asked PartonShowers:model = %s" % requestedsettings["PartonShowers:model"])
+          else:
+             self.msg.warning("Settings before and after initialisation of Pythia8 don't match.")
           with open("Settings_before.log") as f1:
-              f1_lines = f1.readlines()
+              f1_lines = f1.read().splitlines()
           with open("Settings_after.log") as f2:
-              f2_lines = f2.readlines()
+              f2_lines = f2.read().splitlines()
           # Find and print the diff:
           if (len(f1_lines) == len(f2_lines)):
             for iline in range(len(f1_lines)):
                 if  (f1_lines[iline]!=f2_lines[iline]):
-                  print (f1_lines[iline],f2_lines[iline])
+                  if ( requestedsettings.has_key(f2_lines[iline].split("=")[0]) ):
+                    self.msg.warning("  >>      %s != %s. You requested %s." % (f1_lines[iline],f2_lines[iline].split("=")[1],requestedsettings[f2_lines[iline].split("=")[0]]) )
+                  else:
+                    self.msg.info("  >>      %s != %s" % (f1_lines[iline],f2_lines[iline].split("=")[1]) )
           else:
             self.msg.warning("Not even the -number- of settings before and after initialisation of Pythia8 matches, check yourself what's going wrong.")
 
@@ -120,12 +127,11 @@ class Pythia8Util(EvgenAlg):
         return StatusCode.Success
 
     def finalize(self):
-        #self.msg.info("Finalizing this empty algorithm.")
-
         # get list of PIDs for which user asked some changes
         joparticles = [ i.replace(" ", "").split(":")[0] for i in self.Pythia8Commands if (i[0].isdigit()) ]
         requestedparticledata = { i.replace(" ", "").split("=")[0]:i.split("=")[1].strip() for i in self.Pythia8Commands if (i[0].isdigit()) }
-        self.cmpsettings()
+        requestedsettings = { i.replace(" ", "").split("=")[0]:i.split("=")[1].strip() for i in self.Pythia8Commands if (not i[0].isdigit()) }
+        self.cmpsettings(requestedsettings) 
         self.cmpparticledata(joparticles,requestedparticledata)
         return StatusCode.Success
 

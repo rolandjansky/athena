@@ -483,12 +483,7 @@ StatusCode Pythia8_i::fillWeights(HepMC::GenEvent *evt){
   // Now systematic weights: a) generator and b) shower variations
   // merging implies reading from lhe files (while the opposite is not true, ok, but still works)
   if (m_lheFile!="") {
-       // as a backup, save also the LHEF weight without enhancements (useful for possible, rare, non-default cases)
-       // Also remember that the true merging component can be disentangled only when there are LHE input events
-       evt->weights()["Bare_not_for_analyses"]=m_pythia.info.eventWeightLHEF;
-       if(m_internal_event_number == 1)  m_weightIDs.push_back("Bare_not_for_analyses");
-       atlas_specific_weights=2; // "Default" and "Bare_not_for_analyses" 
-
+       // remember that the true merging component can be disentangled only when there are LHE input events
 
        // make sure to get the merging weight correctly: this is needed  -only- for systematic weights (generator and parton shower variations)
        // NB: most robust way, regardless of the specific value of Merging:includeWeightInXsection (if on, info.mergingWeight() is always 1.0 ! )
@@ -499,7 +494,7 @@ StatusCode Pythia8_i::fillWeights(HepMC::GenEvent *evt){
 
   ATH_MSG_DEBUG("Event weights: enhancing weight, merging weight, total weight = "<<m_enhanceWeight<<", "<<m_mergingWeight<<", "<<eventWeight);
 
-  // we already filled the "Default" and, possibly, "Bare_not_for_analyses" weights
+  // we already filled the "Default" weight
   std::vector<string>::const_iterator id = m_weightIDs.begin()+atlas_specific_weights;
 
   // a) fill generator weights
@@ -543,6 +538,13 @@ StatusCode Pythia8_i::fillWeights(HepMC::GenEvent *evt){
     }
   }
 
+  // Now save, as a backup, also the LHEF weight without enhancements (useful for possible, rare, non-default cases)
+  // to make clear that it should not be used in analyses, save it always with a -10 factor (so that its goal is clear even if not checking its name)
+  if (m_lheFile!="") 
+  {
+       evt->weights()["AUX_bare_not_for_analyses"]=(-10.0)*m_pythia.info.eventWeightLHEF;
+       if(m_internal_event_number == 1)  m_weightIDs.push_back("AUX_bare_not_for_analyses");
+  }
   return SUCCESS;
 }
 
