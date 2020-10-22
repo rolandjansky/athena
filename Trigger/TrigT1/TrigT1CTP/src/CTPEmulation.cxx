@@ -415,15 +415,15 @@ LVL1CTP::CTPEmulation::bookHists() {
 
    // tau
    histpath = histBasePath() + "/input/tau/";
-   CHECK ( m_histSvc->regHist( histpath + "et",  new TH1I("et","eFEX Tau et", 40, 0, 40)) );
-   CHECK ( m_histSvc->regHist( histpath + "eta", new TH1I("eta","eFEX Tau eta ", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "phi", new TH1I("phi","eFEX Tau phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "iso", new TH1I("iso","eFEX Tau (Oregon) isolation", 40, 0, 2)) );
+   CHECK ( m_histSvc->regHist( histpath + "eEt",  new TH1I("eEt","eFEX Tau ET", 40, 0, 10000)) );
+   CHECK ( m_histSvc->regHist( histpath + "eEta", new TH1I("eEta","eFEX Tau eta ", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "ePhi", new TH1I("ePhi","eFEX Tau phi", 64, -3.2, 3.2)) );
+   CHECK ( m_histSvc->regHist( histpath + "eIso", new TH1I("eIso","eFEX Tau (Oregon) isolation", 42, 0, 1.05)) );
 
-   CHECK ( m_histSvc->regHist( histpath + "jEt",  new TH1I("jEt","jFEX Tau et", 40, 0, 40)) );
+   CHECK ( m_histSvc->regHist( histpath + "jEt",  new TH1I("jEt","jFEX Tau et", 40, 0, 10000)) );
    CHECK ( m_histSvc->regHist( histpath + "jEta", new TH1I("jEta","jFEX Tau eta ", 64, -3.2, 3.2)) );
    CHECK ( m_histSvc->regHist( histpath + "jPhi", new TH1I("jPhi","jFEX Tau phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "jEmIso",  new TH1I("jEmIso","jFEX Tau em isolation", 40, 0, 1)) );
+   CHECK ( m_histSvc->regHist( histpath + "jIso", new TH1I("jIso","jFEX Tau isolation", 80, -25000, 5000)) );
 
 
    // ROI
@@ -636,7 +636,7 @@ StatusCode
 LVL1CTP::CTPEmulation::fillInputHistograms() {
 
    TH1 *h (nullptr ), *h0 ( nullptr ),  *h1 ( nullptr ), *h2 ( nullptr ), *h3 ( nullptr ),
-      *h4 ( nullptr ), *h5 ( nullptr ),  *h6 ( nullptr ), *h7 ( nullptr );
+      *h4 ( nullptr ), *h5 ( nullptr ),  *h6 ( nullptr );
 
    // counts
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/counts/jJets", h) ); h->Fill(m_jJet->size());
@@ -773,32 +773,30 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    }
 
    // eFEX Tau
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/et", h1) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/eta", h2) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/phi", h3) );
-   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/iso", h4) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/eEt", h1) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/eEta", h2) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/ePhi", h3) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/eIso", h4) );
    const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3_Ore_ClusterET");
    const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3_Ore_ClusterIso");
    for( const auto & tau : *m_eFEXTau ) {
-      h1->Fill(accR3ClET(*tau)/1000.);
+      h1->Fill(accR3ClET(*tau));
       h2->Fill(tau->eta());
       h3->Fill(tau->phi());
       h4->Fill(accR3ClIso(*tau));
    }
-
-
-   {
-      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEt", h1) );
-      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEta", h2) );
-      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jPhi", h3) );
-      CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEmIso", h4) );
-      for( const auto & tau : *m_jFEXTau ) {
-         h1->Fill(tau->tauClus());
-         h2->Fill(tau->eta());
-         h3->Fill(tau->phi());
-         h4->Fill(tau->emIsol());
-      }
+   // jFEX Tau
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEt", h1) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEta", h2) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jPhi", h3) );
+   CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jIso", h4) );
+   for( const auto & tau : *m_jFEXTau ) {
+      h1->Fill(tau->tauClus());
+      h2->Fill(tau->eta());
+      h3->Fill(tau->phi());
+      h4->Fill(tau->emIsol());
    }
+
 
    // ===
    // ROI
