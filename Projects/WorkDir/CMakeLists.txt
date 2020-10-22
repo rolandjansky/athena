@@ -1,3 +1,4 @@
+
 #
 # Project file for building a selected set of packages against an
 # installed ATLAS release/nightly.
@@ -10,12 +11,6 @@ cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 # Remember that it's not a problem if AtlasCMake is not found, that's why
 # we use the QUIET keyword.
 find_package( AtlasCMake QUIET )
-
-set( PYTHIA8_LCGVERSION 244p3 )
-set( PYTHIA8_LCGROOT    
- /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_LCGVERSION}/${LCG_PLATFORM} )
-set( PYTHIA8_VERSION ${PYTHIA8_LCGVERSION})
-set( PYTHIA8_ROOT    ${PYTHIA8_LCGROOT})
 
 MESSAGE (STATUS "Looking for parent projects ...")
 
@@ -72,6 +67,12 @@ atlas_project( WorkDir ${${ATLAS_PROJECT}_VERSION}
    ${_useFortran} )
 unset( _useFortran )
 
+# Install the external configurations:
+MESSAGE (STATUS " Installing external configurations from AthGeneration ...")
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/../AthGeneration/externals
+   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
+
+
 MESSAGE (STATUS "Setting up runtime environment scripts ...")
 # Set up the runtime environment setup script(s):
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
@@ -81,6 +82,7 @@ install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
 # Set up CPack:
 set (CMAKE_INSTALL_PREFIX /InstallArea/x86_64-centos7-gcc62-opt) 
 atlas_cpack_setup()
+
 
 # Remind to set up the environment
 message( STATUS "")

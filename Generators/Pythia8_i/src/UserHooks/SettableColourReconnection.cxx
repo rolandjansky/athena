@@ -25,8 +25,7 @@ namespace Pythia8{
       
       if(m_crHook == 0){
         _init();
-        m_crHook->initPtr(infoPtr, settingsPtr, particleDataPtr, rndmPtr, beamAPtr, beamBPtr, beamPomAPtr, beamPomBPtr, coupSMPtr, partonSystemsPtr, sigmaTotPtr);
-        
+        PYTHIA8_INITUSERHOOK_WRAP(m_crHook);
       }
       return m_crHook->doReconnectResonanceSystems(oldSizeEvent, event);
     }
