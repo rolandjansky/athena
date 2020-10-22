@@ -130,10 +130,12 @@ if [ $dorec -ne 0 ]; then
     --outputAODFile    physval.AOD.root \
     --outputDAOD_IDTRKVALIDFile "$daod" \
     --maxEvents        10 \
-    --AMI              r12064 \
-    --preExec 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'RAWtoALL:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)' \
+    --AMI              r12166 \
     --steering doRAWtoALL \
     
+#    --maxEvents        10 \
+#    --AMI              r12064 \
+#    --preExec 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'RAWtoALL:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)' \
 
 
 
