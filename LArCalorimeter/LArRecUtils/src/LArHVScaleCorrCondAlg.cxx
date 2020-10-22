@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVScaleCorrCondAlg.h"
@@ -31,13 +31,9 @@ LArHVScaleCorrCondAlg::LArHVScaleCorrCondAlg(const std::string& name, ISvcLocato
     m_larfcal_id(nullptr),	
     m_electrodeID(nullptr)
 {
-
-  m_deltatupdate = 0;
   m_T0 = 90.371;   // parameter for vdrift
 
   declareProperty("fixHVCorr",    m_fixHVStrings);
-  declareProperty("DeltaTupdate", m_deltatupdate);
-  declareProperty("UpdateIfChanged",m_updateIfChanged=true,"Update HV regions for which the HV has acutally changed");
   declareProperty("UndoOnlineHVCorr",m_undoOnlineHVCorr=true,"Undo the HVCorr done online");
 
 }
@@ -91,12 +87,7 @@ StatusCode LArHVScaleCorrCondAlg::initialize() {
   m_completeRange.push_back(std::make_pair<IdentifierHash,IdentifierHash>(0,182468));
 
 
-  if (m_updateIfChanged) 
-    ATH_MSG_INFO( "Will re-compute HV correction for channels with updated voltage" );
-  else {
-      if (m_deltatupdate) ATH_MSG_INFO( "Will re-compute HV corrections after " << m_deltatupdate <<" seconds." );
-      ATH_MSG_INFO( "Will re-compute HV corrections for each new LumiBlock" );
-  }
+  ATH_MSG_INFO( "Will re-compute HV correction for channels with updated voltage" );
 
   ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_hvKey.initialize());
@@ -166,71 +157,19 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
   vScale.resize(182468,(float)1.0);
 
   ATH_MSG_DEBUG("LArHVScaleCorrCondAlg execute()"); 
-  if (m_updateIfChanged) {
-    const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
-    if (updatedCells.size()) {
-      const HASHRANGEVEC hashranges=this->cellsIDsToPartition(updatedCells);
-      StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr, cabling);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
-	return sc;
-      }
+  const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
+  if (updatedCells.size()) {
+    const HASHRANGEVEC hashranges=this->cellsIDsToPartition(updatedCells);
+    StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr, cabling);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
+      return sc;
     }
-    else {
-      ATH_MSG_DEBUG("No real voltage change, no update necessary");
-      return StatusCode::SUCCESS;
-    }
-  }//end if updateIfChanges
+  }
   else {
-    // FIXME: statics are not MT-safe!!!
-    static unsigned int timestamp_old = 0; 
-    static unsigned int lumiblock_old = 0;
-    static unsigned int run_old = 0;
-
-    const unsigned int lumiblock = ctx.eventID().lumi_block();
-    const unsigned int run       = ctx.eventID().run_number();
-    const unsigned int timestamp = ctx.eventID().time_stamp();
-  
-    ATH_MSG_DEBUG("run|lbn|timestamp [CURRENT][CACHED] --> [ " 
-		  << run << " | " << lumiblock << " | " << timestamp << " ] [ " 
-		  << run_old << " | " << lumiblock_old << " | " << timestamp_old << " ] ");
-    
-    const bool updateAfterDeltaT = ( m_deltatupdate && (timestamp - timestamp_old) >= m_deltatupdate );
-    const unsigned int deltat = m_deltatupdate > 0?m_deltatupdate:120;
-
-    if (lumiblock != lumiblock_old || run != run_old || updateAfterDeltaT ) {
-      
-      timestamp_old = timestamp;    
-      lumiblock_old = lumiblock;
-      run_old       = run;
-
-      const EventIDBase start{run, EventIDBase::UNDEFEVT, timestamp, 0, lumiblock, EventIDBase::UNDEFNUM};
-      const EventIDBase stop{run, EventIDBase::UNDEFEVT, timestamp+deltat, 0, lumiblock+1, EventIDBase::UNDEFNUM};
-      const EventIDRange rangeWLB{start, stop};
-
-      rangeW = EventIDRange::intersect(rangeW,rangeWLB);
-      const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
-      if (updatedCells.size()) {
-	IChronoStatSvc* chrono;
-	if (StatusCode::SUCCESS!=service("ChronoStatSvc" , chrono )) {
-	  ATH_MSG_ERROR("cannot find chronostat " );
-	  return StatusCode::FAILURE;
-	}
-	std::string chronoName = "LArHVScaleCorrCondAlg";
-	chrono -> chronoStart( chronoName); 
-	StatusCode sc=this->getScale(m_completeRange, vScale, hvdata, onlHVCorr,cabling);
-	if (sc.isFailure()) {
-	  ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
-	  return sc;
-	}
-	chrono -> chronoStop( chronoName );
-	ATH_MSG_DEBUG("LArHVScaleCorrCondAlg Chrono stop : delta " 
-		      << chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) 
-		      * (microsecond / second) << " second ");
-
-      }
-    }//end if 
-  }//end else m_updateIfChanged
+    ATH_MSG_DEBUG("No real voltage change, no update necessary");
+    return StatusCode::SUCCESS;
+  }
 
   // and now record output object
   std::unique_ptr<LArHVCorr> hvCorr = std::make_unique<LArHVCorr>(std::move(vScale), cabling, m_calocell_id );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 // Rewritten from LArHVScaleCorrTool
 
@@ -91,8 +91,6 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
   */
 
 
-  unsigned int m_deltatupdate;
-  bool m_updateIfChanged;
   bool m_undoOnlineHVCorr;
 
   struct HVfix_t {
