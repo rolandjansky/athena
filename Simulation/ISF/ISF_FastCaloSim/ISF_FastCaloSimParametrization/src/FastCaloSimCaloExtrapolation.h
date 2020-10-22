@@ -74,9 +74,9 @@ protected:
   ///Finds best extrapolation extPos from the hitVector for a cylinder defined by radius cylR and half-length cylZ as well as corresponding momentum direction 
   bool extrapolateToCylinder(std::vector<Trk::HitInfo>* hitVector, float cylR, float cylZ, Amg::Vector3D& extPos, Amg::Vector3D& momDir) const;
   ///Extrapolates to ID using three uniquely defined cylinder surfaces
-  void extrapolateToID(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector) const;
+  void extrapolateToID(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector, const TFCSTruthState* truth) const;
   ///Extrapolates to all other layers of the calorimeter
-  void extrapolateToLayers(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector) const;
+  void extrapolateToLayers(TFCSExtrapolationState& result, std::vector<Trk::HitInfo>* hitVector, const TFCSTruthState* truth) const;
   
   /*Extrapolator helper methods*/
 
