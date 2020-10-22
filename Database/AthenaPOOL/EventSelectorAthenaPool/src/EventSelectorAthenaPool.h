@@ -198,7 +198,7 @@ private: // properties
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "InputCollections", {}, ""};
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator ATLAS_THREAD_SAFE;
    void inputCollectionsHandler(Gaudi::Details::PropertyBase&);
-   /// Query, query string.
+   /// Query string passed to APR when opening DataHeader container (kind of useless).
    Gaudi::Property<std::string> m_query{this, "Query", "", ""};
 
    /// KeepInputFilesOpen, boolean flag to keep files open after PoolCollection reaches end: default = false.
@@ -233,7 +233,9 @@ private: // properties
    /// SkipEvents, numbers of events to skip: default = 0.
    Gaudi::Property<int> m_skipEvents{this, "SkipEvents", 0, ""};
    Gaudi::Property<std::vector<long>> m_skipEventSequenceProp{this, "SkipEventSequence", {}, ""};
-   mutable std::vector<long> m_skipEventSequence ATLAS_THREAD_SAFE;
+   /// Skip Events - comma separated list of event to skip, ranges with '-': <start> - <end>
+   Gaudi::Property<std::string> m_skipEventRangesProp{this, "SkipEventRanges", {}, ""};
+   mutable std::vector<std::pair<long,long>> m_skipEventRanges ATLAS_THREAD_SAFE;
 
    mutable std::atomic_int m_evtCount{}; // internal count of events
    mutable std::atomic_bool m_firedIncident{};
