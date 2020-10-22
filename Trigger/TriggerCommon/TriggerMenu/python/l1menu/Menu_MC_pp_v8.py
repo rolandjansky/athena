@@ -455,6 +455,7 @@ def defineMenu():
         'L1_eEM22',
         'L1_eEM22VH',
         'L1_eEM22VHI',
+        'L1_eEM20',
         'L1_eEM20VH',
         'L1_eEM20VHI',
         'L1_eEM24VHI',
