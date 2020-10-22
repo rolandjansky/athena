@@ -27,24 +27,7 @@
 
 InDet::SiTrackMaker_xk::SiTrackMaker_xk
 (const std::string& t,const std::string& n,const IInterface* p)
-  : base_class(t, n, p),
-    m_totalInputSeeds{ },
-    m_totalUsedSeeds{ },
-    m_totalNoTrackPar{ },
-    m_totalBremSeeds{ }, 
-    m_twoClusters{ },
-    m_wrongRoad{ },
-    m_wrongInit{ },
-    m_noTrack{ },
-    m_notNewTrack{ },
-    m_bremAttempt{ },
-    m_outputTracks{ },
-    m_extraTracks{ },
-    m_bremTracks{ },
-    m_seedsWithTrack{ },
-    m_deSize{ },
-    m_usedSeedsEta( SiCombinatorialTrackFinderData_xk::kNSeedTypes, std::vector<double>(SiCombinatorialTrackFinderData_xk::kNRapidityRanges, 0.) ),
-    m_seedsWithTracksEta( SiCombinatorialTrackFinderData_xk::kNSeedTypes, std::vector<double>(SiCombinatorialTrackFinderData_xk::kNRapidityRanges, 0.) )
+  : base_class(t, n, p)
 {
 
 }
@@ -55,18 +38,19 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
 
 StatusCode InDet::SiTrackMaker_xk::initialize()
 {
-  // Get beam geometry
-  //
+  /// Get beam geometry
+  ///
   if (not m_beamSpotKey.empty()) {
     ATH_CHECK( m_beamSpotKey.initialize() );
   }
 
+  /// read the config string for the field mode
   if (m_fieldmode == "NoField") m_fieldModeEnum = Trk::NoField;
-  else if (m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;
+  else if (m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;    /// this one is the default
   else m_fieldModeEnum = Trk::FullField;
 
-  // Get detector elements road maker tool
-  //
+  /// Get detector elements road maker tool
+  ///
   if ( m_roadmaker.retrieve().isFailure() ) {
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_roadmaker );
     return StatusCode::FAILURE;
@@ -74,8 +58,8 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     ATH_MSG_INFO( "Retrieved tool " << m_roadmaker );
   }
 
-  // Get combinatorial track finder tool
-  //
+  /// Get combinatorial track finder tool
+  ///
   if ( m_tracksfinder.retrieve().isFailure() ) {
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_tracksfinder );
     return StatusCode::FAILURE;
@@ -83,8 +67,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     ATH_MSG_INFO( "Retrieved tool " << m_tracksfinder );
   }
 
-  // Get seed to track conversion tool
-  //
+  /// Get seed to track conversion tool
+  /// This is used if we want to write out the seeds for 
+  /// performance studies
   if (m_seedsegmentsWrite) {
     if (m_seedtrack.retrieve().isFailure()) {
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_seedtrack );
@@ -97,6 +82,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     m_seedtrack.disable();
   }
 
+  /// flag for HI running
   m_heavyion = false;
 
 
@@ -121,31 +107,37 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder                  );
   } 
 
+  /// this overrides the seed filter property for cosmic reco, in case it is not already set to 3 in the config. 
+  /// For p-p, we usually operate either 1 (LRT, some special configs) or 2 (standard inside-out) 
   if (m_cosmicTrack) m_seedsfilter = 3;
 
+  /// this is on by default in offline tracking 
   ATH_CHECK(m_caloCluster.initialize(m_useBremModel && m_useCaloSeeds));
+  /// useSSSfilter is on by default in offline, m_useHClusSeed is off by default. 
   ATH_CHECK(m_caloHad.initialize( !m_useSSSfilter && m_useHClusSeed) );
 
+  /// pt cut can never be below 20 MeV
   if (m_pTmin < 20.) m_pTmin = 20.;
 
-
-  for (int i=0; i!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++i) {
-    m_totalInputSeeds[i] = 0;
-    m_totalNoTrackPar[i]  = 0;
-    m_totalUsedSeeds[i]  = 0.;
-    m_outputTracks[i]      = 0;
-    m_totalBremSeeds[i]  = 0;
-    m_bremTracks[i]     = 0;
-    m_twoClusters[i]     = 0;
-    m_wrongRoad[i]       = 0;
-    m_wrongInit[i]       = 0;
-    m_noTrack[i]         = 0;
-    m_notNewTrack[i]     = 0;
-    m_bremAttempt[i]     = 0;
-    m_seedsWithTrack[i]        = 0;
-    m_deSize[i]          = 0.;
-    for(int j=0; j!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges ;++j) { m_usedSeedsEta[i][j]=0.; m_seedsWithTracksEta[i][j]=0.;}
-  }
+  /// initialize counters
+  resetCounter(m_totalInputSeeds); 
+  resetCounter(m_totalNoTrackPar); 
+  resetCounter(m_totalUsedSeeds); 
+  resetCounter(m_outputTracks); 
+  resetCounter(m_totalBremSeeds); 
+  resetCounter(m_bremTracks); 
+  resetCounter(m_twoClusters); 
+  resetCounter(m_wrongRoad); 
+  resetCounter(m_wrongInit); 
+  resetCounter(m_noTrack); 
+  resetCounter(m_notNewTrack); 
+  resetCounter(m_bremAttempt); 
+  resetCounter(m_seedsWithTrack); 
+  resetCounter(m_deSize); 
+  m_usedSeedsEta.resize(SiCombinatorialTrackFinderData_xk::kNSeedTypes);
+  m_seedsWithTracksEta.resize(SiCombinatorialTrackFinderData_xk::kNSeedTypes);
+  std::fill(m_usedSeedsEta.begin(), m_usedSeedsEta.end(), std::vector<double>(SiCombinatorialTrackFinderData_xk::kNRapidityRanges, 0.)); 
+  std::fill(m_seedsWithTracksEta.begin(), m_seedsWithTracksEta.end(), std::vector<double>(SiCombinatorialTrackFinderData_xk::kNRapidityRanges, 0.)); 
 
   ////////////////////////////////////////////////////////////////////////////////
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
@@ -470,6 +462,8 @@ MsgStream& InDet::SiTrackMaker_xk::dumpevent(SiTrackMakerEventData_xk& data, Msg
 
 void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const
 {
+
+  /// initialize beam position 
   data.xybeam()[0] = 0.;
   data.xybeam()[1] = 0.;
   if (not m_beamSpotKey.empty()) {
@@ -479,33 +473,33 @@ void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEvent
       data.xybeam()[1] = beamSpotHandle->beamPos()[1];
     }
   }
-  
+  /// propagate pixel / strip usage to the event data object 
   data.pix() = PIX and m_usePix;
   data.sct() = SCT and m_useSct;
-  bool simpleTrack = false;
 
-  InDet::TrackQualityCuts trackquality = setTrackQualityCuts(simpleTrack);
+  /// build a holder for the configured track quality cuts
+  InDet::TrackQualityCuts trackquality = setTrackQualityCuts(false);
 
-  // New event for track finder tool
-  //
+  /// Setup New event for track finder tool
   m_tracksfinder->newEvent(ctx, data.combinatorialData(), m_trackinfo, trackquality);
 
-  // Erase cluster to track association
-  //
+  /// Erase cluster to track association
+  /// m_seedsfilter is non-zero in the vast majority of all applications,
+  /// so this is usually done 
   if (m_seedsfilter) data.clusterTrack().clear();
 
-  // Erase statistic information
-  //
+  /// Erase statistic information
+  ///
   data.inputseeds() = 0;
   data.goodseeds()  = 0;
   data.findtracks() = 0;
-  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatAllTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) data.summaryStatAll()[i][k]; }
-  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatEtaTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) { for(int r=0; r!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges; ++r) data.summaryStatUsedInTrack()[i][k][r]; } }  
+  resetCounter(data.summaryStatAll()); 
+  resetCounter(data.summaryStatUsedInTrack()); 
 
-  // Retrieve 
-  //
+  /// retrieve calo seeds for brem fit 
   if (m_useBremModel && m_useCaloSeeds) {
 
+    /// reset old event data entries if any
     data.caloF().clear();
     data.caloR().clear();
     data.caloZ().clear();
@@ -513,6 +507,7 @@ void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEvent
     if (!m_caloCluster.key().empty()) {
       SG::ReadHandle<CaloClusterROI_Collection> calo_cluster(m_caloCluster, ctx);
       if (calo_cluster.isValid()) {
+        /// loop over the cluster ROIs and write them into the event data
         for (const Trk::CaloClusterROI *c : * calo_cluster) {
           data.caloF().push_back( c->globalPosition().phi ());
           data.caloR().push_back( c->globalPosition().perp());
@@ -522,7 +517,9 @@ void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEvent
     }
   }
 
+  /// retrieve hadronic seeds for SSS seed filter
   if (!m_useSSSfilter && m_useHClusSeed) {
+    /// reset old event data entries if any
     data.hadF().clear();
     data.hadR().clear();
     data.hadZ().clear();
@@ -531,6 +528,7 @@ void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEvent
       SG::ReadHandle<CaloClusterROI_Collection> calo_had(m_caloHad, ctx);
       if (calo_had.isValid()) {
         for (const Trk::CaloClusterROI *c : * calo_had) {
+        /// loop over the cluster ROIs and write them into the event data
           data.hadF().push_back( c->globalPosition().phi ());
           data.hadR().push_back( c->globalPosition().perp());
           data.hadZ().push_back( c->globalPosition().z   ());
@@ -538,6 +536,7 @@ void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEvent
       }
     }
   }
+  /// if we want to write out the seeds, also call newEvent for the seed-to-track converter
   if (m_seedsegmentsWrite) m_seedtrack->newEvent(data.conversionData(), m_trackinfo, m_patternName);
 }
 
@@ -577,11 +576,10 @@ void InDet::SiTrackMaker_xk::newTrigEvent(const EventContext& ctx, SiTrackMakerE
 
 void InDet::SiTrackMaker_xk::endEvent(SiTrackMakerEventData_xk& data) const
 {
-  // End event for track finder tool
-  //
+  /// End event for track finder tool
   m_tracksfinder->endEvent(data.combinatorialData());
 
-  //correction to exclude memory fragmentation
+  /// correction to exclude memory fragmentation
   data.clusterTrack().clear();
 
   // end event for seed to track tool
@@ -598,22 +596,22 @@ void InDet::SiTrackMaker_xk::endEvent(SiTrackMakerEventData_xk& data) const
       }
     }
   }
-    for (int K = 0; K != SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++K) { 
-      m_totalInputSeeds[K] +=  data.summaryStatAll()[kTotalInputSeeds][K]; 
-      m_totalUsedSeeds[K] = m_totalUsedSeeds[K] + data.summaryStatAll()[kTotalUsedSeeds][K];
-      m_totalNoTrackPar[K] += data.summaryStatAll()[kTotalNoTrackPar][K];
-      m_totalBremSeeds[K] += data.summaryStatAll()[kTotalBremSeeds][K];
-      m_twoClusters[K] += data.summaryStatAll()[kTwoClusters][K];
-      m_wrongRoad[K] += data.summaryStatAll()[kWrongRoad][K];
-      m_wrongInit[K] += data.summaryStatAll()[kWrongInit][K];
-      m_noTrack[K] += data.summaryStatAll()[kNoTrack][K];
-      m_notNewTrack[K] += data.summaryStatAll()[kNotNewTrack][K];
-      m_bremAttempt[K] += data.summaryStatAll()[kBremAttempt][K];
-      m_outputTracks[K] += data.summaryStatAll()[kOutputTracks][K];
-      m_extraTracks[K] += data.summaryStatAll()[kExtraTracks][K];
-      m_bremTracks[K] += data.summaryStatAll()[kBremTracks][K];
-      m_seedsWithTrack[K] += data.summaryStatAll()[kSeedsWithTracks][K];
-      m_deSize[K] = m_deSize[K] + data.summaryStatAll()[kDESize][K];
+  for (int K = 0; K != SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++K) { 
+    m_totalInputSeeds[K] +=  data.summaryStatAll()[kTotalInputSeeds][K]; 
+    m_totalUsedSeeds[K] = m_totalUsedSeeds[K] + data.summaryStatAll()[kTotalUsedSeeds][K];
+    m_totalNoTrackPar[K] += data.summaryStatAll()[kTotalNoTrackPar][K];
+    m_totalBremSeeds[K] += data.summaryStatAll()[kTotalBremSeeds][K];
+    m_twoClusters[K] += data.summaryStatAll()[kTwoClusters][K];
+    m_wrongRoad[K] += data.summaryStatAll()[kWrongRoad][K];
+    m_wrongInit[K] += data.summaryStatAll()[kWrongInit][K];
+    m_noTrack[K] += data.summaryStatAll()[kNoTrack][K];
+    m_notNewTrack[K] += data.summaryStatAll()[kNotNewTrack][K];
+    m_bremAttempt[K] += data.summaryStatAll()[kBremAttempt][K];
+    m_outputTracks[K] += data.summaryStatAll()[kOutputTracks][K];
+    m_extraTracks[K] += data.summaryStatAll()[kExtraTracks][K];
+    m_bremTracks[K] += data.summaryStatAll()[kBremTracks][K];
+    m_seedsWithTrack[K] += data.summaryStatAll()[kSeedsWithTracks][K];
+    m_deSize[K] = m_deSize[K] + data.summaryStatAll()[kDESize][K];
 
   }
   // Print event information 
@@ -631,26 +629,35 @@ void InDet::SiTrackMaker_xk::endEvent(SiTrackMakerEventData_xk& data) const
 std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 (const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const
 {
+  /// incremenet seed counter
   ++data.inputseeds();
   
+  /// 0 or 3 typically (PPP or SSS), other numbers indicate PPS/PSS (1/2) 
   int K = kindSeed(Sp);     
+  /// eta of the seed, rounded down to leading digit via int-conversion
   int r = rapidity(Sp); 
 
+  /// more counter incrementation
   ++data.summaryStatAll()[kTotalInputSeeds][K];
 
+  /// prepare output list
   std::list<Trk::Track*> tracks;
+  /// if we run the SI track maker without using the Si, this becomes a trivial task... 
   if (!data.pix() && !data.sct()) return tracks;
   
-  bool good;
-  !m_seedsfilter ? good=true : good=newSeed(data, Sp);  
-
-  if (!good) return tracks;
+  /// check seed quality. 
+  bool isGoodSeed{true};
+  /// this checks if all of the clusters on the seed are already on one single existing track. 
+  /// If not, we consider the seed to be "good" 
+  if (m_seedsfilter) isGoodSeed=newSeed(data, Sp);  
+  if (!isGoodSeed) return tracks;
 
   data.dbm() = isDBMSeeds(*Sp.begin());
 
   // Get AtlasFieldCache
   MagField::AtlasFieldCache fieldCache;
 
+  /// read the B-field cache
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (fieldCondObj == nullptr) {
@@ -659,61 +666,78 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
   }
   fieldCondObj->getInitializedCache (fieldCache);
   
-  // Get initial parameters estimation
-  //
-  bool sss = false;
+  /// Get initial parameters estimation from our seed
   const Trk::TrackParameters* Tp = nullptr;
   if (data.dbm()) Tp = getAtaPlaneDBM(fieldCache, data, Sp);
-  else Tp = getAtaPlane(fieldCache, data, sss && m_useHClusSeed, Sp);
-  if (!Tp) 
-  {
+  else Tp = getAtaPlane(fieldCache, data, false, Sp);
+  /// if we failed to get the initial parameters, we bail out.
+  /// Can happen in certain pathological cases (e.g. malformed strip hits), 
+  /// or if we would be running with calo-ROI strip seeds (we aren't)
+  if (!Tp) {
      ++data.summaryStatAll()[kTotalNoTrackPar][K];
      return tracks;
   }
+  /// otherwise, increment the 'good seeds' counter
   ++data.goodseeds(); 
 
-  // Get detector elements road
-  //
+  /// Now, obtain a search road of detector elements. 
+  /// This is done by extrapolating our estimated starting parameters through the detector
+  /// and collecting all detector elements reasonably close to the projected trajectory. 
+  /// This will populate the 'DE" list. 
   std::list<const InDetDD::SiDetectorElement*> DE;
   if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::alongMomentum,   DE, data.roadMakerData());
   else                m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::oppositeMomentum,DE, data.roadMakerData());
 
+  /// if we don't use all of pix and SCT, filter our list, erasing any that don't fit our requirements
   if (!data.pix() || !data.sct() || data.dbm()) detectorElementsSelection(data, DE);
 
+  /// if we did not find sufficient detector elements to fulfill the minimum cluster requirement,
+  /// bail out. We will not be able to build a track satisfying the cuts. 
   if ( static_cast<int>(DE.size())  <   m_nclusmin) {
     delete Tp;
     return tracks;
   }
 
+  /// update statistics tables - we have sufficient detector elements to have a chance of finding a track!
   data.summaryStatAll()[kDESize][K] += double(DE.size());
   ++data.summaryStatAll()[kTotalUsedSeeds][K];
 
+  /// prepare a list of global positions
   std::list<Amg::Vector3D> Gp;
 
+  /// update another counter
   ++data.summaryStatUsedInTrack()[kUsedSeedsEta][K][r];
 
-  // Find possible list of tracks using space points space points information
-  //
+  /// Find possible list of tracks using space points space points information
+  ///
   if (!m_useBremModel) {
     tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(),ctx);
   } else if (!m_useCaloSeeds) {
     ++data.summaryStatAll()[kTotalBremSeeds][K];
     tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), false,ctx);
-  } else if (isCaloCompatible(data)) {
+  } 
+  /// Note: The branch below is the one taken in ATLAS default inside-out tracking for run-3
+  else if (isCaloCompatible(data)) {
+
     ++data.summaryStatAll()[kTotalBremSeeds][K];
     tracks = m_tracksfinder->getTracksWithBrem(data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(), true,ctx);
   } else {
     tracks = m_tracksfinder->getTracks        (data.combinatorialData(), *Tp, Sp, Gp, DE, data.clusterTrack(),ctx);
   }
 
-  std::array<bool,SiCombinatorialTrackFinderData_xk::kNCombStats> inf{0,0,0,0,0,0};   m_tracksfinder->fillStatistic(data.combinatorialData(),inf);                                      
+  /// update stat tables
+  std::array<bool,SiCombinatorialTrackFinderData_xk::kNCombStats> inf{0,0,0,0,0,0};   
+  m_tracksfinder->fillStatistic(data.combinatorialData(),inf);                                      
   for (size_t p =0; p<inf.size(); ++p){
     if(inf[p]) ++data.summaryStatAll()[m_indexToEnum[p]][K];
   } 
 
+  /// update the cluster-track-map to allow to filter any 
+  /// upcoming seeds with hits that are already taken
   if (m_seedsfilter) {
     std::list<Trk::Track*>::iterator t = tracks.begin();
     while (t!=tracks.end()) {
+      /// require sufficient free clusters on track
       if (!isNewTrack(data, *t)) {
         delete (*t);
         tracks.erase(t++);
@@ -814,17 +838,23 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
  bool sss,
  const std::vector<const Trk::SpacePoint*>& SP) const
 {
+  /// we need at least three space points on the seed. 
   if (SP.size() < 3) return nullptr;
 
+  /// get the first cluster on the first hit
   const Trk::PrepRawData* cl  = SP[0]->clusterList().first;
   if (!cl) return nullptr;
+  /// and use the surface from this cluster as our reference plane 
   const Trk::PlaneSurface* pla = 
     static_cast<const Trk::PlaneSurface*>(&cl->detectorElement()->surface());
   if (!pla) return nullptr;
 
+  /// write the global positions into arrays. This includes an improved position estimate
+  /// for strip spacepoints. If this improvement fails, the method can return false -> then we abort 
   double p0[3],p1[3],p2[3]; 
   if (!globalPositions(*(SP[0]),*(SP[1]),*(SP[2]),p0,p1,p2)) return nullptr;
 
+  /// translate second and third SP w.r.t first one 
   double x0 = p0[0]   ;
   double y0 = p0[1]   ;
   double z0 = p0[2]   ;
@@ -834,62 +864,92 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   double y2 = p2[1]-y0;
   double z2 = p2[2]-z0; 
 
+  /// distance of second SP to first in transverse plane 
+  /// Also happens to be u-coordinate of second SP in conformal mapping
   double u1 = 1./sqrt(x1*x1+y1*y1)       ;
+  /// denominator for conformal mapping 
   double rn = x2*x2+y2*y2                ;
   double r2 = 1./rn                      ;
+  /// coordinate system for conformal mapping - this is local x 
   double a  = x1*u1                      ;
   double b  = y1*u1                      ;
+  /// u-coordinate of third SP in conformal mapping 
   double u2 = (a*x2+b*y2)*r2             ;
+  /// v-coordinate of third SP in conformal mapping
   double v2 = (a*y2-b*x2)*r2             ;
-  double A  = v2/(u2-u1)                 ;
-  double B  = 2.*(v2-A*u2)               ;
-  double C  = B/sqrt(1.+A*A)             ;
-  double T  = z2*sqrt(r2)/(1.+.04*C*C*rn);
+  /// A,B are slope and intercept of the straight line in the u,v plane 
+  /// connecting the three points. 
+  double A  = v2/(u2-u1)                 ;  /// Keep in mind that v1 == 0 
+  double B  = 2.*(v2-A*u2)               ;  /// From inserting A into linear equation. Note that Igor sneaks in a factor two here 
+  double C  = B/sqrt(1.+A*A)             ;  /// Curvature estimate. (2R)²=(1+A²)/b² => 1/2R = b/sqrt(1+A²) = B / sqrt(1+A²). 
+  double T  = z2*sqrt(r2)/(1.+.04*C*C*rn);  /// estimate of the track dz/dr (1/tanTheta), corrected for curvature effects
   
   const Amg::Transform3D& Tp = pla->transform();
 
-  double Ax[3] = {Tp(0,0),Tp(1,0),Tp(2,0)}; 
+  /// local x of the surface in the global frame 
+  double Ax[3] = {Tp(0,0),Tp(1,0),Tp(2,0)};   
+  /// local y of the surface in the global frame 
   double Ay[3] = {Tp(0,1),Tp(1,1),Tp(2,1)}; 
+  /// centre of the surface in the global frame
   double D [3] = {Tp(0,3),Tp(1,3),Tp(2,3)}; 
-  
+  /// location of the first SP w.r.t centre of the surface
   double   d[3] = {x0-D[0],y0-D[1],z0-D[2]};
-
+  /// local x and y - project onto local axes
   data.par()[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
   data.par()[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
+  /// silently switch off field if solenoid is off
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
   if (!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
+  
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
+  /// if we are not running with "no field": 
   if (fieldprop.magneticFieldMode() > 0) {
 
+    /// get the field at our first SP
     double H[3],gP[3] ={x0,y0,z0};
     fieldCache.getFieldZR(gP, H);
 
+    /// field is in kiloTesla. So here we check for more 
+    /// than 0.1 Tesla 
     if (fabs(H[2])>.0001) {
+      /// phi estimate 
       data.par()[2] = atan2(b+a*A,a-b*A);
+      /// theta estimate 
       data.par()[3] = atan2(1.,T)       ;  
+      /// inverse transverse momentum estimate 
       data.par()[5] = -C/(300.*H[2])    ;
     } else {
-      T    =  z2*sqrt(r2)  ;
-      data.par()[2] = atan2(y2,x2);
+      /// if we have low field, use a 
+      /// straight-line estimate
+      T    =  z2*sqrt(r2)  ;  /// note: Now no curvature correction
+      data.par()[2] = atan2(y2,x2);  
       data.par()[3] = atan2(1.,T) ;
-      data.par()[5] = 1./m_pTmin  ;
+      data.par()[5] = 1./m_pTmin  ; /// no pt estimate, assume min pt 
     }
-  } else {
+  }
+  /// treat absence of solenoid like the low-field case 
+  else {
     T    = z2*sqrt(r2)   ;
     data.par()[2] = atan2(y2,x2);
     data.par()[3] = atan2(1.,T) ;
     data.par()[5] = 1./m_pTmin  ;
   }
   
+  /// apply the pt on the initial parameter estimate, with some margin 
   if (fabs(data.par()[5])*m_pTmin > 1.1) return nullptr;
-  data.par()[4] = data.par()[5]/sqrt(1.+T*T);
-  data.par()[6] = x0                              ;
+  /// update qoverp 
+  data.par()[4] = data.par()[5]/sqrt(1.+T*T);   /// qoverp from qoverpt and theta 
+  data.par()[6] = x0                              ;   /// ref point = first SP 
   data.par()[7] = y0                              ;
   data.par()[8] = z0                              ;
 
+  /// never done in main ATLAS tracking. Would otherwise check if the seed is compatible with a 
+  /// hadronic ROI
   if (sss && !isHadCaloCompatible(data)) return nullptr;
 
+  /// now we can return the initial track parameters we built, parameterised using the ref surface. 
+  /// Pass a nullptr for the covariance
   return pla->createTrackParameters(data.par()[0],data.par()[1],data.par()[2],data.par()[3],data.par()[4],0); 
 }
 
@@ -1061,48 +1121,65 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(SiTrackMakerEventData_xk&
 bool InDet::SiTrackMaker_xk::newSeed(SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const
 {
   std::multiset<const Trk::Track*> trackseed;
-  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator pt,pte = data.clusterTrack().end();
-  std::vector<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+  std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator iter_clusterOnTrack,iter_clusterOnTrackEnd = data.clusterTrack().end();
 
+  /// counter for clusters on track
   size_t n = 0;
-  for (;s!=se; ++s) {
 
-    const Trk::PrepRawData* p = (*s)->clusterList().first; 
-   
-    for (pt = data.clusterTrack().find(p); pt!=pte; ++pt) {
-      if ((*pt).first!=p) break;
-      trackseed.insert((*pt).second);
-    }
-    ++n;
-    p = (*s)->clusterList().second;
-    if (!p) continue;
+  for (const Trk::SpacePoint* spacePoint : Sp) {
 
-    for (pt = data.clusterTrack().find(p); pt!=pte; ++pt) {
-      if ((*pt).first!=p) break;
-      trackseed.insert((*pt).second);
-    }
-    ++n;
-
-  }
-   if(trackseed.size() < n) return true;
-   if( m_heavyion && n==3 ) return true;
+    /// start by checking the first cluster - always needed
+    const Trk::PrepRawData* prd = spacePoint->clusterList().first; 
     
-  std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
+    /// lookup if the cluster is already used by another track
+    for (iter_clusterOnTrack = data.clusterTrack().find(prd); iter_clusterOnTrack!=iter_clusterOnTrackEnd; ++iter_clusterOnTrack) {
+      if ((*iter_clusterOnTrack).first!=prd) break;
+        /// add tracks consuming our seed space-points to the trackseed list. 
+        trackseed.insert((*iter_clusterOnTrack).second);
+    }
+    /// increment cluster counter 
+    ++n;
+    /// now, prepare to check also the second cluster on any strip seed
+    prd = spacePoint->clusterList().second;
+    /// if we don't have one, nothing to do
+    if (!prd) continue;
+    /// otherwise, same game as before. Note that a track consuming both clusters on a strip hit is counted twice into the map 
+    for (iter_clusterOnTrack = data.clusterTrack().find(prd); iter_clusterOnTrack!=iter_clusterOnTrackEnd; ++iter_clusterOnTrack) {
+      if ((*iter_clusterOnTrack).first!=prd) break;
+      trackseed.insert((*iter_clusterOnTrack).second);
+    }
+    /// incremenent counter again
+    ++n;
+  }
+  /// check if at least on cluster is not already used by any track. 
+  /// This works since the multiset allows adding the same track multiple times
+  /// If this is the case, we accept the seed. 
+  if(trackseed.size() < n) return true;
+  /// in the case of HI reco, we accept any 3-cluster (PPP) seed. 
+  if( m_heavyion && n==3 ) return true;
+    
+  /// Now we look for the track consuming the largest number of clusters 
 
-  const Trk::Track* tr  = (*t)                             ;
-  
-  size_t               nt  = 1                                ;
-
-   for(++t; t!=te; ++t) {
-
-    if((*t) != tr) {
-      tr = (*t);
-      nt =    1;
+  /// This is done by looping over all tracks using any of our clusters,
+  /// and counting the appearance of each track in the multiset. 
+  /// If one single track contains all of the clusters (--> is included n times), 
+  /// we reject this seed. 
+  const Trk::Track* currentTrack {nullptr};
+  size_t clustersOnCurrent  = 1;
+  /// loop over the list of tracks
+   for(const Trk::Track* track : trackseed) {
+    /// if this is a new track, reset the counter
+    if(track != currentTrack) {
+      currentTrack = track;
+      clustersOnCurrent =    1;
       continue ;
     }
-    if(++nt == n) return false;
+    /// otherwise increment the counter.
+    /// If this track has all clusters from the seed on it, reject the event 
+    if(++clustersOnCurrent == n) return false;
   }
-  return nt!=n;
+  /// If we have no single track 'eating' all of our clusters, we accept the seed
+  return clustersOnCurrent!=n;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1206,6 +1283,7 @@ bool InDet::SiTrackMaker_xk::globalPositions
  double* p0, double* p1, double* p2) const
 {
 
+  /// first, fill the arrays with the global positions of the 3 points
   p0[0] = s0.globalPosition().x();
   p0[1] = s0.globalPosition().y();
   p0[2] = s0.globalPosition().z();
@@ -1218,12 +1296,16 @@ bool InDet::SiTrackMaker_xk::globalPositions
   p2[1] = s2.globalPosition().y();
   p2[2] = s2.globalPosition().z();
  
+  /// for PPP seeds, we are done 
   if (!s0.clusterList().second && !s1.clusterList().second && !s2.clusterList().second) return true;
 
+  /// for SSS, we need some extra work 
   double dir0[3],dir1[3],dir2[3]; 
 
   globalDirections(p0,p1,p2,dir0,dir1,dir2);
 
+  /// try to refine the position estimate for strip SP using the cluster information
+  /// in combination with the direction estimate
   if (s0.clusterList().second && !globalPosition(s0,dir0,p0)) return false;
   if (s1.clusterList().second && !globalPosition(s1,dir1,p1)) return false;
   if (s2.clusterList().second && !globalPosition(s2,dir2,p2)) return false;
@@ -1235,15 +1317,20 @@ bool InDet::SiTrackMaker_xk::globalPositions
 // Calculation global position for space points
 ///////////////////////////////////////////////////////////////////
 
+/// This is a refinement of the global position for strip space-points. 
+/// It uses the direction estimate to fix the hit position along the 
+/// strip axis (non-sensitive direction). 
 bool InDet::SiTrackMaker_xk::globalPosition
 (const Trk::SpacePoint& sp, double* dir,double* p) const
 {
+  /// pick up the two components of the space point
   const Trk::PrepRawData*  c0  = sp.clusterList().first;
   const Trk::PrepRawData*  c1  = sp.clusterList().second;
  
   const InDetDD::SiDetectorElement* de0 = static_cast<const InDet::SiCluster*>(c0)->detectorElement(); 
   const InDetDD::SiDetectorElement* de1 = static_cast<const InDet::SiCluster*>(c1)->detectorElement(); 
 
+  /// get the two ends of the strip in the global frame for each of the two clusters
   Amg::Vector2D localPos = c0->localPosition();  
   std::pair<Amg::Vector3D,Amg::Vector3D> e0
     (de0->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0.))); 
@@ -1252,28 +1339,56 @@ bool InDet::SiTrackMaker_xk::globalPosition
   std::pair<Amg::Vector3D,Amg::Vector3D> e1
     (de1->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0.))); 
  
+  /// get the "strip axis" in the global frame for each of the two clusters
+  /// these define two planes in which the strips are sensitive
   double a0[3] = {e0.second.x()-e0.first.x(), e0.second.y()-e0.first.y(), e0.second.z()-e0.first.z()};
   double a1[3] = {e1.second.x()-e1.first.x(), e1.second.y()-e1.first.y(), e1.second.z()-e1.first.z()};
+  /// get the connection vector between the bottom ends of the two strips 
   double dr[3] = {e1.first .x()-e0.first.x(), e1.first .y()-e0.first.y(), e1.first .z()-e0.first.z()};
   
+  /// divide max distance by the first strip length 
   double d0    = m_distmax/sqrt(a0[0]*a0[0]+a0[1]*a0[1]+a0[2]*a0[2]);
 
-  // u = a1 x dir and  v = a0 x dir
-  //
+  /// Get the cross products of the direction vector and the strip axes.
+  /// This gives us a normal representation of the planes containing both. 
   double u[3]  = {a1[1]*dir[2]-a1[2]*dir[1],a1[2]*dir[0]-a1[0]*dir[2],a1[0]*dir[1]-a1[1]*dir[0]};
   double v[3]  = {a0[1]*dir[2]-a0[2]*dir[1],a0[2]*dir[0]-a0[0]*dir[2],a0[0]*dir[1]-a0[1]*dir[0]};
 
+  /// The two planes are still only defined up to a shift along the normal. 
+  /// Now, we fix this degree of freedom by requiring that the u-plane (perpendicular to momentum and second strip direction) 
+  /// should actually contain the second strip itself. 
+  /// To do so, we virtually 'hold' the u-plane at its intersection plane with the first strip, 
+  /// starting with it touching the very bottom of the first strip, and then move the intersection 
+  /// point along the strip. We can thus parameterise the shift by the distance we need to walk this way 
+
+  /// Find the maximum distance we can go until we have walked past the full length of the first strip.  
+  /// Equivalent to the projection of the full strip length on the u-plane normal. 
   double du    = a0[0]*u[0]+a0[1]*u[1]+a0[2]*u[2];
 
+  /// if no such component, bail out - no solution exists
   if (du==0. ) return false;
   
-  //these need checking; original code calculated dv and used
-  //s1 = -(dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/dv;
+  /// The distance we need to walk to contain the second strip in the u-plane is 
+  /// is obtained by projecting the separation vector between the strip starting points 
+  /// onto the normal. 
+  /// (remember, we virtually start our shift with the u-plane intersecting the first strip
+  /// at its starting point).
+  /// We normalise the shifts to the maximum allowed shift. 
   double s0 = (dr[0]*u[0]+dr[1]*u[1]+dr[2]*u[2])/du;
+  /// this is playing the same game, but for shifting the v-plane w.r.t the 
+  /// version that intersects with the bottom of the second strip until we contain
+  /// the first strip in it. 
+  /// du has the same length as dv (symmetry of the problem)
   double s1 = (dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/du;
 
+  /// check that the result is valid. We want the final fixed planes to still 
+  /// intersect the respective other strip within some tolerance. 
+  /// Keep in mind that s=0 --> intersect start of strip, s == 1 --> intersect end of strip. 
+  /// We apply a tolerance beyond each end  
   if (s0 < -d0 || s0 > 1.+d0 ||  s1 < -d0 || s1 > 1.+d0) return false;
 
+  /// now, update the position estimate as the intersection of the 
+  /// updated u-plane with the first strip. 
   p[0] = e0.first.x()+s0*a0[0]; 
   p[1] = e0.first.y()+s0*a0[1]; 
   p[2] = e0.first.z()+s0*a0[2];
@@ -1361,39 +1476,76 @@ bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s) const
 // Calculation global direction for positions of space points
 ///////////////////////////////////////////////////////////////////
 
+/// Here, we derive the local track direction in the space-points as the 
+/// tangents to the estimated trajectory (assuming a circle in x-y and straight
+/// line in r-z) 
 void InDet::SiTrackMaker_xk::globalDirections
 (double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const
 {
+  /// transform transverse coordinates relative to the first SP 
   double x01 = p1[0]-p0[0]      ;
   double y01 = p1[1]-p0[1]      ;
   double x02 = p2[0]-p0[0]      ;
   double y02 = p2[1]-p0[1]      ;
 
+  /// Now apply the same transform used in the seed maker: 
+  /// x,y -->  u:=x/(x²+y²); v:=y/(x²+y²); 
+  /// in a frame centered around first SP
+
+  /// set x axis as direction unit vector in transverse plane, from first to second SP
   double d01 = x01*x01+y01*y01  ; 
   double x1  = sqrt(d01)        ;
-  double u01 = 1./x1            ;
+  double u01 = 1./x1            ; /// reasoning: u = sqrt(d01)/d01, and v01 = 0 
   double a   = x01*u01          ; 
   double b   = y01*u01          ;
+  /// decompose the SP3-SP1 separation into components parallel... 
   double x2  = a*x02+b*y02      ;
+  /// and orthogonal to our new local x axis
   double y2  = a*y02-b*x02      ;
+  
+  /// squared distance third to first SP the transverse plane
   double d02 = x2*x2+y2*y2      ;
+  /// u,v coordinates of third SP in the new frame 
   double u02 = x2/d02           ;
   double v02 = y2/d02           ;
+  /// Now obtain A,B parameters from circle parameterisation in the new frame: 
+  /// V = (-x0/y0) x U + 1/(2y0) =: A x U + B.      
+  /// A ~= delta V / delta U, 
+  /// B = V - A x U, add a factor 2 for utility
+  double A0  =  v02 /(u02-u01)  ; /// v01 is 0, as the direction from SP 1 to 2 is the u-axis
+  double B0  = 2.*(v02-A0*u02)  ; 
 
-  double A0  =  v02 /(u02-u01)  ;
-  double B0  = 2.*(v02-A0*u02)  ;
+  /// Now we can resolve the related geometry.
+  /// Note that A0, in the original frame, 
+  /// is related to the angle Phi1 between the tangent the 
+  /// central SP and the tendon between the first and second
+  /// SP, alpha, as tan(alpha) = A0. 
 
   double C2  = (1.-B0*y2)       ;
   double S2  = (A0+B0*x2)       ;
 
-  double T   = (p2[2]-p0[2])/sqrt(d02);
-  double Se  = 1./sqrt(1.+T*T)        ;
-  double Ce  = Se*T                   ;
-  Se        /= sqrt(1.+A0*A0)         ;
-  double Sa  = Se*a                   ;
-  double Sb  = Se*b                   ;
+  double T   = (p2[2]-p0[2])/sqrt(d02);   /// dz/dr along the seed = 1 / tan(theta)
+  double sinTheta  = 1./sqrt(1.+T*T)        ;   /// 1/sqrt(1+1/tan²(theta)) -> sin(theta)
+  double cosTheta  = sinTheta*T                   ;   /// cos theta (= sin(theta)/tan(theta)) 
+  double sinThetaCosAlpha        = sinTheta / sqrt(1.+A0*A0)         ;    /// multiply with cos(alpha) via A0
+  double Sa  = sinThetaCosAlpha*a                   ;
+  double Sb  = sinThetaCosAlpha*b                   ;
 
-  d0[0] = Sa   -Sb*A0; d0[1]= Sa*A0+Sb   ; d0[2]=Ce;  
-  d1[0] = Sa   +Sb*A0; d1[1]= Sb   -Sa*A0; d1[2]=Ce;  
-  d2[0] = Sa*C2-Sb*S2; d2[1]= Sa*S2+Sb*C2; d2[2]=Ce;  
+  /// (a,b) parameterises the direction corresponding to the tendon between the first two SP. 
+  /// Now, go from there to the local tangents by removing or adding the angle 'alpha' from before, derived from A0.
+  /// direction at first SP - rotated by - 1 x alpha w.r.t the tendon defining a and b  
+  /// The structure below comes from the formulae for sin / cos of a sum of two angles with (a,b) = r(cos phi / - sin phi)
+  d0[0] = Sa   -Sb*A0;      /// px0: a sin theta cos alpha - b sin theta sin alpha
+  d0[1]=  Sb   +Sa*A0;      /// py0: b sin theta cos alpha + a sin theta sin alpha
+  d0[2]=cosTheta;           /// pz0: cos theta
+
+  /// direction at second SP - rotated by + 1 x alpha w.r.t the tendon 
+  d1[0] = Sa   +Sb*A0;      /// px1: a sin theta cos alpha + b sin theta sin alpha
+  d1[1]=  Sb   -Sa*A0;      /// py1: b sin theta cos alpha - a sin theta sin alpha
+  d1[2]=cosTheta;           /// pz1: cos theta
+
+  /// direction at third SP 
+  d2[0] = Sa*C2-Sb*S2;       /// px2: a sin theta cos alpha * C2 - b sin theta cos alpha S2
+  d2[1]=  Sb*C2+Sa*S2;       /// py2: b sin theta cos alpha * C2 + a sin theta cos alpha S2
+  d2[2]=cosTheta;  
 }
