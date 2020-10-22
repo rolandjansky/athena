@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # UserExtrapolator module
@@ -8,12 +8,6 @@
 # to the TrackingGeometry
 #
 ######################################################
-
-# import the include statement
-from AthenaCommon.Include import Include, IncludeError, include
-
-# import the ToolSvc
-from AthenaCommon.AppMgr import ToolSvc
 
 # import the Extrapolator configurable
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator

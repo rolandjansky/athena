@@ -1,16 +1,7 @@
-################################################################################
-# Package: TrkValEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkValEvent )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack 
-                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( CLHEP )
