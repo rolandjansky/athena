@@ -8,6 +8,7 @@
 #include "GeneratorFilters/ZtoLeptonFilter.h"
 #include "GeneratorFilters/ZHWWLeptonPairMassFilter.h"
 #include "GeneratorFilters/MultiLeptonFilter.h"
+#include "GeneratorFilters/MultiLeptonWithParentFilter.h"
 #include "GeneratorFilters/MultiMuonFilter.h"
 #include "GeneratorFilters/BSignalFilter.h"
 #include "GeneratorFilters/JetFilter.h"
@@ -79,6 +80,7 @@ DECLARE_ALGORITHM_FACTORY(LeptonFilter)
 DECLARE_ALGORITHM_FACTORY(ZtoLeptonFilter)
 DECLARE_ALGORITHM_FACTORY(ZHWWLeptonPairMassFilter)
 DECLARE_ALGORITHM_FACTORY(MultiLeptonFilter)
+DECLARE_ALGORITHM_FACTORY(MultiLeptonWithParentFilter)
 DECLARE_ALGORITHM_FACTORY(MultiMuonFilter)
 DECLARE_ALGORITHM_FACTORY(BSignalFilter)
 DECLARE_ALGORITHM_FACTORY(JetFilter)
@@ -152,6 +154,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(ZHWWLeptonPairMassFilter)
     DECLARE_ALGORITHM(BSignalFilter)
     DECLARE_ALGORITHM(MultiLeptonFilter)
+    DECLARE_ALGORITHM(MultiLeptonWithParentFilter)
     DECLARE_ALGORITHM(MultiMuonFilter)
     DECLARE_ALGORITHM(JetFilter)
     DECLARE_ALGORITHM(ParticleFilter)
