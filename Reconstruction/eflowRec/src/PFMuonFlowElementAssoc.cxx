@@ -75,9 +75,13 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteHandleKey,ctx);
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteHandleKey,ctx);
 
-  //extra container handle with frac_e matched between neutral FE cluster and Muon CaloCluster
+  //extra container handles between neutral FE cluster and Muon CaloCluster - these are all for studies based on neutral Flow Element matching - All of these handles are experimental
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<double> > NeutralFE_efrac_match_muonWriteDecorHandle(m_NeutralFE_efrac_match_muonWriteHandleKey,ctx);
-
+  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<double> >muonNeutralFE_muon_efrac_WriteDecorHandle(m_muonNeutralFE_muon_efrac_WriteDecorHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,int> NeutralFEmuon_nMatches_WriteDecorHandle(m_NeutralFEmuon_nMatches_WriteDecorHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<double> > muon_ClusterInfo_deltaRVec_WriteDecorHandle(m_muon_ClusterInfo_deltaRVec_WriteDecorHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer,int> muon_ClusterInfo_nCluster_WriteDecorHandle(m_muon_ClusterInfo_nCluster_WriteDecorHandleKey,ctx);
+  
   //store readhandles for muon and charged flow elements
   SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonReadHandleKey,ctx); // readhandle for muon
   SG::ReadHandle<xAOD::FlowElementContainer> ChargedFEReadHandle(m_chargedFEReadHandleKey,ctx);
@@ -86,6 +90,9 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   //now init some Flow element link containers
   std::vector<std::vector<FlowElementLink_t> > muonChargedFEVec(muonReadHandle->size());
   std::vector<std::vector<FlowElementLink_t> > muonNeutralFEVec(muonReadHandle->size());
+  
+  //for neutral flow element studies
+  std::vector<std::vector<double> >muonNeutralFE_frac_cluster_energy_matched_Vec(muonReadHandle->size()); 
 
   //Loop over the Flow Elements 
 
@@ -131,6 +138,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   if(m_LinkNeutralFEClusters){
     ATH_MSG_DEBUG("Experimental: Cluster Linkers between neutral FEs and Muons are used");
     for (const xAOD::FlowElement* FE: *NeutralFEmuonWriteDecorHandle){
+      int nMatchedFE=0;
       //get the index of the cluster corresponding to the Neutral FlowElements
       size_t FEclusterindex=FE->otherObjects().at(0)->index();
       
@@ -149,6 +157,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       //design the vector of ElementLinks
       std::vector<MuonLink_t> FEMuonLinks;
       std::vector<double> FE_efrac_clustermatch;
+      std::vector<double> Muon_efrac_clustermatch;
       for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
 	//Retrieve the ElementLink vector of clusters      
 	const ElementLink<xAOD::CaloClusterContainer> ClusterLink=muon->clusterLink();
@@ -170,6 +179,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 		  FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
 		  // index() is the unique index of the cFlowElement in the cFlowElementcontaine
 		  muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
+		  nMatchedFE++; // count number of matches between FE and muons
 		} // check block of index matching
 	      } // loop over list of topoclusters	      
 	    } // end of loop over element links
@@ -188,6 +198,8 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	    //Now we check if any match and sum the energy of the cells that are matched. Current algo allows for at least one match.
 	    bool isCellMatched=false;
 	    double FE_sum_matched_cellEnergy=0;
+	    double Muon_sum_matched_cellEnergy=0;
+	    
 	    for(;FE_FirstCell != FE_LastCell; ++FE_FirstCell){
 	      Identifier index_FECell=FE_FirstCell->ID();
 	      for(; Muon_Clus_FirstCell != Muon_Clus_LastCell; ++Muon_Clus_FirstCell){
@@ -196,6 +208,8 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 		  isCellMatched=true;
 		  double FE_cell_energy=FE_FirstCell->e();
 		  FE_sum_matched_cellEnergy=FE_sum_matched_cellEnergy+FE_cell_energy;
+		  double Muon_cell_energy=Muon_Clus_FirstCell->e();
+		  Muon_sum_matched_cellEnergy= Muon_sum_matched_cellEnergy+Muon_cell_energy;
 		}
 	      }
 	    } // end of cell matching double loop
@@ -205,16 +219,26 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	    if(tot_FE_cluster_energy!=0){ // ! div 0
 	      frac_FE_cluster_energy_matched=FE_sum_matched_cellEnergy / tot_FE_cluster_energy ;
 	    }
+	    double tot_muon_cluster_energy=cluster->e();
+	    double frac_muon_cluster_energy_matched=0;
+	    if(tot_muon_cluster_energy!=0){
+	      frac_muon_cluster_energy_matched=Muon_sum_matched_cellEnergy/tot_muon_cluster_energy;
+	    }
 	    if(frac_FE_cluster_energy_matched>0){ 
-	      ATH_MSG_INFO("Fraction of energy used in match: "<<frac_FE_cluster_energy_matched<<", ismatched? "<<isCellMatched<<"");}
+	      ATH_MSG_INFO("Fraction of FE cluster energy used in match: "<<frac_FE_cluster_energy_matched<<", ismatched? "<<isCellMatched<<"");
+	      ATH_MSG_INFO("Fraction of Muon cluster energy used in match: "<<frac_muon_cluster_energy_matched<<"");
+	    }
+
 	    if(isCellMatched){ // cell matched => Link the two objects.
 	      // Add Muon element link to a vector
 	      // index() is the unique index of the muon in the muon container   
 	      FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
-	      // index() is the unique index of the cFlowElement in the cFlowElementcontaine
+	      // index() is the unique index of the nFlowElement in the nFlowElementcontainer
 	      muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
-	      // save the energy fraction used in the cluster matching
-	      FE_efrac_clustermatch.push_back(frac_FE_cluster_energy_matched);	      
+	      // save the energy fraction used in the cluster matching - mostly for debug/extension studies
+	      FE_efrac_clustermatch.push_back(frac_FE_cluster_energy_matched); // fraction of FE cluster energy matched
+	      muonNeutralFE_frac_cluster_energy_matched_Vec.at(muon->index()).push_back(frac_muon_cluster_energy_matched);//fraction of Muon cluster energy matched
+	      nMatchedFE++; // count number of matches incrementally
 	    }
 
 	    
@@ -222,6 +246,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	  
 	}  // loop over caloclusters
       } // loop over muons
+      NeutralFEmuon_nMatches_WriteDecorHandle(*FE)=nMatchedFE;
       NeutralFEmuonWriteDecorHandle(*FE)=FEMuonLinks;
       NeutralFE_efrac_match_muonWriteDecorHandle(*FE)=FE_efrac_clustermatch;
     } // loop over neutral FE
@@ -234,13 +259,30 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
     muonChargedFEWriteDecorHandle(*muon)=muonChargedFEVec.at(muon->index());    
   } // end of muon loop
-  if(m_LinkNeutralFEClusters){
+  if(m_LinkNeutralFEClusters){// Experimental
     for(const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle){
       if(muonNeutralFEVec.size()>0){
 	muonNeutralFEWriteDecorHandle(*muon)=muonNeutralFEVec.at(muon->index());
+	muonNeutralFE_muon_efrac_WriteDecorHandle(*muon)=muonNeutralFE_frac_cluster_energy_matched_Vec.at(muon->index());
       }
+      // For debug of the muon clusters used, add also: dR between caloclusters and number of caloclusters associated to each muon.
+      //retrieve element link again to cluster container
+      const ElementLink<xAOD::CaloClusterContainer> ClusterContLink=muon->clusterLink();
+      // use elem link to retrieve container
+      const xAOD::CaloClusterContainer* MuonClusterContainer=ClusterContLink.getDataPtr();
+      int nClusters=MuonClusterContainer->size();
+      TLorentzVector muon_fourvec=muon->p4();
+      std::vector<double> vec_deltaR_muon_cluster;
+      // retrieve the vector of delta R between muon and its associated calo cluster(s).
+      for (const xAOD::CaloCluster* muon_cluster: *MuonClusterContainer){
+	TLorentzVector cluster_fourvec=muon_cluster->p4();
+	double deltaR_muon_cluster=cluster_fourvec.DeltaR(muon_fourvec);
+	vec_deltaR_muon_cluster.push_back(deltaR_muon_cluster);
+      }
+      muon_ClusterInfo_deltaRVec_WriteDecorHandle(*muon)=vec_deltaR_muon_cluster;
+      muon_ClusterInfo_nCluster_WriteDecorHandle(*muon)=nClusters;
     }
-  }
+  }// end of experimental block
   ATH_MSG_DEBUG("Execute completed successfully");   
   
   return StatusCode::SUCCESS;
