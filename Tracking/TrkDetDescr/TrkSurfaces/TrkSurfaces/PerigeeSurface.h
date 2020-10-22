@@ -40,6 +40,9 @@ class PerigeeSurface : public Surface
 {
 
 public:
+  /** The surface type static constexpr */
+  static constexpr SurfaceType staticType = Surface::Perigee;
+
   /**Default Constructor - needed for persistency*/
   PerigeeSurface();
 
@@ -127,10 +130,6 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
-
-  /** Return the surface type static constexpr */
-  static constexpr SurfaceType staticType() ;
-
 
   /**Return method for transfromation, overwrites the transform() form base
    * class*/

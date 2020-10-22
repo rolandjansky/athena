@@ -254,7 +254,7 @@ template<int DIM, class T, class S>
 int
 CurvilinearParametersT<DIM, T, S>::surfaceType() const
 {
-  return S::staticType();
+  return S::staticType;
 }
 
 

@@ -7,14 +7,7 @@ namespace Trk {
 inline Surface::SurfaceType
 PlaneSurface::type() const
 {
-  return Surface::Plane;
-}
-
-/** Return the surface type static constexpr */
-inline constexpr Surface::SurfaceType
-PlaneSurface::staticType()
-{
-  return Surface::Plane;
+  return PlaneSurface::staticType;
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -

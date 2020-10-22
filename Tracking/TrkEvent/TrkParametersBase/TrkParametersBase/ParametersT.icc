@@ -260,7 +260,7 @@ template<int DIM, class T, class S>
 int
 ParametersT<DIM, T, S>::surfaceType() const
 {
-  return S::staticType();
+  return S::staticType;
 }
 
 // return the measurementFrame
@@ -288,10 +288,8 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
     (updatedParameters[Trk::theta] != m_parameters[Trk::theta]) ||
     (updatedParameters[qOverP] != m_parameters[qOverP]);
 
-  if constexpr (
-    S::staticType() == Trk::Surface::Line ||
-    S::staticType() == Trk::Surface::Perigee
-  ) {
+  if constexpr (S::staticType == Trk::Surface::Line ||
+                S::staticType == Trk::Surface::Perigee) {
     updatePosition |= updateMomentum;
   }
 
