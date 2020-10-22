@@ -129,7 +129,8 @@ if InDetFlags.doPRDFormation():
                                                       MinimalSplitProbability = 0,
                                                       DoIBLSplitting = True,
                                                       SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap(),
-                                                      doITkClustering         = False ) #InDetFlags.doSLHC())
+                                                      doITkClustering         = InDetFlags.doSLHC(),
+                                                      addCorners = not InDetFlags.doFastTracking())
       # assign the tools if there are any                                                
       if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
       if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
@@ -187,7 +188,7 @@ if InDetFlags.doPRDFormation():
                                                           globalPosAlg      = InDetClusterMakerTool,
                                                           useRowInformation = InDetFlags.doSLHC(),
                                                           conditionsService = InDetSCT_ConditionsSummarySvc,
-                                                          doITkClustering   = False ) #InDetFlags.doSLHC())
+                                                          doITkClustering   = InDetFlags.doSLHC())
       if InDetFlags.selectSCTIntimeHits():
          if InDetFlags.InDet25nsec(): 
             InDetSCT_ClusteringTool.timeBins = "01X" 
