@@ -415,15 +415,15 @@ LVL1CTP::CTPEmulation::bookHists() {
 
    // tau
    histpath = histBasePath() + "/input/tau/";
-   CHECK ( m_histSvc->regHist( histpath + "eEt",  new TH1I("eEt","eFEX Tau ET", 40, 0, 10000)) );
+   CHECK ( m_histSvc->regHist( histpath + "eEt",  new TH1I("eEt","eFEX Tau ET", 40, 0, 60)) );
    CHECK ( m_histSvc->regHist( histpath + "eEta", new TH1I("eEta","eFEX Tau eta ", 64, -3.2, 3.2)) );
    CHECK ( m_histSvc->regHist( histpath + "ePhi", new TH1I("ePhi","eFEX Tau phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "eIso", new TH1I("eIso","eFEX Tau (Oregon) isolation", 42, 0, 1.05)) );
+   CHECK ( m_histSvc->regHist( histpath + "eIso", new TH1I("eIso","eFEX Tau (Oregon) isolation (eT>10GeV)", 42, 0, 1.05)) );
 
-   CHECK ( m_histSvc->regHist( histpath + "jEt",  new TH1I("jEt","jFEX Tau et", 40, 0, 10000)) );
+   CHECK ( m_histSvc->regHist( histpath + "jEt",  new TH1I("jEt","jFEX Tau et", 40, 0, 60)) );
    CHECK ( m_histSvc->regHist( histpath + "jEta", new TH1I("jEta","jFEX Tau eta ", 64, -3.2, 3.2)) );
    CHECK ( m_histSvc->regHist( histpath + "jPhi", new TH1I("jPhi","jFEX Tau phi", 64, -3.2, 3.2)) );
-   CHECK ( m_histSvc->regHist( histpath + "jIso", new TH1I("jIso","jFEX Tau isolation", 80, -25000, 5000)) );
+   CHECK ( m_histSvc->regHist( histpath + "jIso", new TH1I("jIso","jFEX Tau isolation (eT>10GeV)", 80, -15000, 15000)) );
 
 
    // ROI
@@ -780,10 +780,13 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3_Ore_ClusterET");
    const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3_Ore_ClusterIso");
    for( const auto & tau : *m_eFEXTau ) {
-      h1->Fill(accR3ClET(*tau));
+      auto eT = accR3ClET(*tau)/1000.;
+      h1->Fill(eT);
       h2->Fill(tau->eta());
       h3->Fill(tau->phi());
-      h4->Fill(accR3ClIso(*tau));
+      if(eT>=10) {
+         h4->Fill(accR3ClIso(*tau));
+      }
    }
    // jFEX Tau
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jEt", h1) );
@@ -791,10 +794,13 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jPhi", h3) );
    CHECK ( m_histSvc->getHist( histBasePath() + "/input/tau/jIso", h4) );
    for( const auto & tau : *m_jFEXTau ) {
-      h1->Fill(tau->tauClus());
+      auto eT = tau->tauClus()/1000.;
+      h1->Fill(eT);
       h2->Fill(tau->eta());
       h3->Fill(tau->phi());
-      h4->Fill(tau->emIsol());
+      if(eT>=10) {
+         h4->Fill(tau->emIsol());
+      }
    }
 
 
@@ -843,13 +849,6 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
 	    uint32_t roIWord = roi.roIWord();
 	    // RoI type
 	    int roiType = m_jetDecoder->roiType( roIWord );
-
-            // ATH_MSG_DEBUG("MET t=" << roiType << " " << roi.roIType() << " w=" << roIWord << " et=" << roi.jetEt()
-            //               << " etLarge=" << roi.etLarge() << " etSmall=" << roi.etSmall() 
-            //               << " eX=" << roi.energyX() << " eY=" << roi.energyY() << " eSum=" << roi.energySum()
-            //               << " eTsumType=" << roi.etSumType()
-            //               );
-
             if( roi.etSumType() == 1 ) // eta-restricted range XE and TE
                continue;
 
@@ -860,13 +859,6 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
             } else if( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType2 ) { //etSum (XE)
                energyT = m_jetDecoder->energyT( roi.roIWord() );
             }
-
- 	    // // Jet ROI
-	    // if( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType ) {
-	    // 	  // RecRoI
-	    // 	  // LVL1::RecJetRoI recRoI( roIWord, &jetThresholds );
-	    // }
-
 	 }
       }
       h1->Fill(sqrt(energyX*energyX + energyY*energyY));
@@ -1216,8 +1208,8 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
       }
    } else if ( confThr->name()[0]=='j' ) { 
       // new TAU threshold from jFEX
-      if( m_eFEXTau ) {
-         for ( const auto & tau : * m_eFEXTau ) {
+      if( m_jFEXTau ) {
+         for ( const auto & tau : * m_jFEXTau ) {
             float eT = tau->tauClus()/1000.; // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
             float iso = tau->emIsol();
             const TrigConf::TriggerThresholdValue * thrV = confThr->triggerThresholdValue(0,0);
