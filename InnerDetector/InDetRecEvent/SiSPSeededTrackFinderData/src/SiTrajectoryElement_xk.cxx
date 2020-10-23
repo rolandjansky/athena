@@ -103,7 +103,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   m_xi2totalForward    =  0.  ;
   m_status             =  1   ;
   m_inside             = -1   ;
-  m_ndist              =  0   ;
+  m_nMissing           =  0   ;
   m_nlinksForward      =  0   ;
   m_nholesForward      =  0   ;
   m_dholesForward      =  0   ;
@@ -133,7 +133,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement()
   m_xi2totalForward    =  0.  ;
   m_status             =  1   ;
   m_inside             = -1   ;
-  m_ndist              =  0   ;
+  m_nMissing           =  0   ;
   m_nlinksForward      =  0   ;
   m_nholesForward      =  0   ;
   m_dholesForward      =  0   ;
@@ -159,7 +159,7 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
 
   m_status              =      3 ;
   m_inside              =     -1 ;
-  m_ndist               =      0 ;
+  m_nMissing               =      0 ;
   m_nlinksBackward      =      0 ;
   m_nholesBackward      =      0 ;
   m_dholesBackward      =      0 ;
@@ -206,7 +206,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   /// copy information from starting TE 
   m_nclustersForward = TE.m_nclustersForward;
   m_nholesForward    = TE.m_nholesForward   ; 
-  m_ndist      = TE.m_ndist     ;
+  m_nMissing      = TE.m_nMissing     ;
   m_ndfForward       = TE.m_ndfForward      ;
   m_xi2totalForward  = TE.m_xi2totalForward ;
   m_step      += TE.m_step      ;  
@@ -237,7 +237,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
         ++m_dholesForward;
       }
       /// for bond gaps, increment ndist
-      if(m_dist   < -2.) ++m_ndist;
+      if(m_dist   < -2.) ++m_nMissing;
     }
   }
 
@@ -267,13 +267,15 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
 bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
 (InDet::SiTrajectoryElement_xk& TE)
 {
-  // Track propagation
-  // 
+  /// Track propagation
+  /// as usual, if the previous element has a cluster, propagate the updated parameters.
+  /// otherwise the predicted ones. 
   if(TE.m_cluster) {
 
     TE.m_parametersUpdatedForward.addNoise   (TE.m_noise,Trk::alongMomentum);
     if(!propagate(TE.m_parametersUpdatedForward,m_parametersPredForward,m_step)) return false; 
     TE.m_parametersUpdatedForward.removeNoise(TE.m_noise,Trk::alongMomentum);
+    /// double hole running counter is reset if the prev element has a cluster
     m_dholesForward = 0;
   }
   else             {
@@ -284,47 +286,73 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
     m_dholesForward = TE.m_dholesForward;
   }
 
-  m_status       =         1                           ;
+  /// reset old fwd propagation info
+  m_status             =         1                           ;  /// note the socially distant semicolons! 
   m_nlinksForward      =         0                           ;
-  m_clusterOld   = m_cluster                           ;
-  m_cluster      =         0                           ;
-  m_clusterNoAdd =         0                           ;  
+  /// current cluster --> old cluster, reset current 
+  m_clusterOld   = m_cluster                                 ;
+  m_cluster      =         nullptr                           ;
+  m_clusterNoAdd =         nullptr                           ;  
   m_xi2Forward         =    10000.                           ;
+  /// re-evaluate if we are expected to intersect this element based on the updated prediction
   m_inside       = m_detlink->intersect(m_parametersPredForward,m_dist);
+  /// copy running counts from previous element
   m_nholesForward      = TE.m_nholesForward                        ;
-  m_ndist        = TE.m_ndist                          ;
+  m_nMissing              = TE.m_nMissing                                ;
   m_nclustersForward   = TE.m_nclustersForward                     ; 
   m_ndfForward         = TE.m_ndfForward                           ;
   m_xi2totalForward    = TE.m_xi2totalForward                      ;
-  m_step        += TE.m_step                           ;
+  m_step              += TE.m_step                                 ;
   
-  if(m_inside > 0) {noiseInitiate(); return true;}
+  /// if we are not passing through this element, reset noise production and return 
+  if(m_inside > 0) {
+    noiseInitiate(); return true;
+  }
   
-  if((m_nlinksForward=searchClusters(m_parametersPredForward,m_linkForward))) {
-
+  /// now perform cluster search.
+  m_nlinksForward=searchClusters(m_parametersPredForward,m_linkForward);  
+  /// if we found any: 
+  if(m_nlinksForward!=0) {
+    /// set chi2 to the one for the first candidate
     m_xi2Forward =  m_linkForward[0].xi2();
 
+    /// if the chi2 is acceptable: 
     if     (m_xi2Forward <= m_xi2max    ) {
-
+      /// use first cluster as cluster on this element 
       m_cluster = m_linkForward[0].cluster();
+      /// try to add it to the trajectory, update our parameters
       if(!addCluster(m_parametersPredForward,m_parametersUpdatedForward)) return false;
+      /// update noise based on this cluster
       noiseProduction(1,m_parametersUpdatedForward);
-      ++m_nclustersForward; m_xi2totalForward+=m_xi2Forward; m_ndfForward+=m_ndf;
+      /// increment running cluster count for forward trajectory
+      ++m_nclustersForward; 
+      /// increment total chi2 for forward trajectory
+      m_xi2totalForward+=m_xi2Forward; 
+      /// and the degrees of freedom as well 
+      m_ndfForward+=m_ndf;
     }
+    /// if we have an outlier: 
     else if(m_xi2Forward <= m_xi2maxNoAdd) { 
-	
+      /// update outlier cluster member
       m_clusterNoAdd =  m_linkForward[0].cluster();
+      /// and reset noise 
       noiseProduction(1,m_parametersPredForward);
     }
-  }
+  } /// end of branch for found clusters
   else {
+    /// reset noise if nothing was found
     noiseProduction(1,m_parametersPredForward);
   }
-  
+  /// if we are in an active module (with nonzero clusters) and didn't find anything: 
   if(m_detstatus >=0 && !m_cluster) {
-    if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesForward; ++m_dholesForward;} 
-    if(m_dist < -2. ) ++m_ndist;
-  }
+    /// if we expect a hit, and didn't see an outlier: increment hole counts
+    if(m_inside < 0 && !m_clusterNoAdd) {
+      ++m_nholesForward; 
+      ++m_dholesForward;
+    } 
+    /// if we are well within bounds, increment nDist (may be bond-gap case)
+    if(m_dist < -2. ) ++m_nMissing;
+  } /// end of case covering no found cluster
   return true;
 }
 
@@ -375,7 +403,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_xi2Backward         =    10000.;
   m_inside       = m_detlink->intersect(m_parametersPredBackward,m_dist);
   m_nholesBackward      = TE.m_nholesBackward                        ;
-  m_ndist        = TE.m_ndist                          ;
+  m_nMissing        = TE.m_nMissing                          ;
   m_nclustersBackward   = TE.m_nclustersBackward                     ; 
   m_npixelsBackward     = TE.m_npixelsBackward                       ;
   m_ndfBackward         = TE.m_ndfBackward                           ;
@@ -407,7 +435,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
 
   if(m_detstatus >=0 && !m_cluster){
     if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesBackward; ++m_dholesBackward;}
-    if(m_dist < -2.) ++m_ndist;
+    if(m_dist < -2.) ++m_nMissing;
   }
   return true;
 }
@@ -450,7 +478,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   m_clusterNoAdd  	    =         0               ;
   m_xi2Backward         =    10000.               ;
   m_nholesBackward      = TE.m_nholesBackward     ;
-  m_ndist               = TE.m_ndist              ;
+  m_nMissing               = TE.m_nMissing              ;
   m_nclustersBackward   = TE.m_nclustersBackward  ; 
   m_npixelsBackward     = TE.m_npixelsBackward    ;
   m_ndfBackward         = TE.m_ndfBackward        ; 
@@ -482,7 +510,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
     }
     if(m_detstatus >=0 && !m_cluster) {
       if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesBackward; ++m_dholesBackward;}
-      if(m_dist < -2.) ++m_ndist;
+      if(m_dist < -2.) ++m_nMissing;
     } 
     return true;
   }
@@ -498,7 +526,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
 
   if(!m_cluster) {
     if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesBackward; ++m_dholesBackward;}
-    if(m_dist < -2.) ++m_ndist;
+    if(m_dist < -2.) ++m_nMissing;
 
   }
   return true;
@@ -529,7 +557,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB()
     m_nlinksBackward = 0;
     m_cluster = 0; --m_nclustersBackward; m_ndfBackward-=m_ndf; if(m_ndf==2) --m_npixelsBackward;
     if(m_inside < 0 ) {++m_nholesBackward; ++m_dholesBackward;} m_xi2Backward = 0.;
-    if(m_dist   < -2.) ++m_ndist;
+    if(m_dist   < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -559,7 +587,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF()
     m_nlinksForward = 0;
     m_cluster = 0; --m_nclustersForward; m_ndfForward-=m_ndf;
     if(m_inside < 0) {++m_nholesForward; ++m_dholesForward;} m_xi2Forward = 0.;
-    if(m_dist   < -2.) ++m_ndist;
+    if(m_dist   < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -578,7 +606,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   m_npixelsBackward   = TE.m_npixelsBackward  ;
   m_ndfBackward       = TE.m_ndfBackward      ;
   m_nholesBackward    = TE.m_nholesBackward   ;
-  m_ndist      = TE.m_ndist     ;
+  m_nMissing      = TE.m_nMissing     ;
   m_xi2totalBackward  = TE.m_xi2totalBackward ; 
 
   TE.m_cluster ? m_dholesBackward = 0 : m_dholesBackward = TE.m_dholesBackward;
@@ -592,7 +620,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   else  {
 
     if(m_inside < 0) {++m_nholesBackward; ++m_dholesBackward;} m_xi2Backward = 0.;
-    if(m_dist < -2.) ++m_ndist;
+    if(m_dist < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -612,7 +640,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
   m_nclustersForward = TE.m_nclustersForward;
   m_ndfForward       = TE.m_ndfForward      ;
   m_nholesForward    = TE.m_nholesForward   ;
-  m_ndist      = TE.m_ndist     ;
+  m_nMissing      = TE.m_nMissing     ;
   m_xi2totalForward  = TE.m_xi2totalForward ; 
   /// if the previous element has a hit, reset incremental 
   /// hole counter 
@@ -645,8 +673,8 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
       } 
       /// no chi2 contribution here
       m_xi2Forward = 0.;
-      /// if bond gap, increment ndist
-    if(m_dist < -2.) ++m_ndist;
+      /// if crossed
+    if(m_dist < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -1574,7 +1602,7 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_status            = 0  ;
   m_nlinksForward     = 0  ;
   m_nlinksBackward    = 0  ;
-  m_ndist             = 0  ;
+  m_nMissing          = 0  ;
   m_radlength         = .03;
   m_radlengthN        = .03;
   m_energylose        = .4 ;
@@ -1636,7 +1664,7 @@ InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator =
   m_status                    = E.m_status      ;
   m_detstatus                 = E.m_detstatus   ;
   m_inside                    = E.m_inside      ;
-  m_ndist                     = E.m_ndist       ;
+  m_nMissing                  = E.m_nMissing    ;
   m_stereo                    = E.m_stereo      ;
   m_detelement                = E.m_detelement  ;
   m_detlink                   = E.m_detlink     ;
@@ -1748,21 +1776,35 @@ bool InDet::SiTrajectoryElement_xk::isNextClusterHoleB(bool& cl,double& X)
   return true;
 }
 
+/// checks if removing this cluster from the forward propagation would 
+/// result in a critical number of holes or double holes.
+/// Fills "cl" with true if we would still find another cluster after removing 
+/// the preferred one. Fills X with the chi square we would have on removal. 
+/// Return true if we would *not* get a problematic number of holes
 bool InDet::SiTrajectoryElement_xk::isNextClusterHoleF(bool& cl,double& X)
 {
   cl = false             ;
+  /// chi2 if we drop this cluster
   X  = m_xi2totalForward-m_xi2Forward;
-
+  /// not used in SiTrajectory? 
   if(m_detstatus == 2) return false;
+  /// if we have another good cluster on this element which could replace
+  /// the current one were it dropped: 
   if(m_nlinksForward >  1 && m_linkForward[1].xi2() <= m_xi2max) {
+    /// add the chi2 of the second forward link to the second arg
     X+=m_linkForward[1].xi2();
-    cl = true; return true;
+    /// set the return-arg signifying we would still see a cluster and return
+    cl = true; 
+    return true;
   }
-
+  /// if we expect a hit: 
   if(m_inside < 0) {
+    /// return true if we are below the max allowed holes (so we can add one)
     if(m_nholesForward < m_maxholes && m_dholesForward < m_maxdholes) return true;
+    /// otherwise return false 
     return false;
   }
+  /// if we do not expect a hit return true 
   return true;
 }
 
@@ -1784,7 +1826,7 @@ void InDet::SiTrajectoryElement_xk::setParametersF(Trk::PatternTrackParameters& 
 
 void InDet::SiTrajectoryElement_xk::setNdist(int n)
 {
-  m_ndist = n;
+  m_nMissing = n;
 }
  
 /////////////////////////////////////////////////////////////////////////////////
@@ -1926,6 +1968,7 @@ void InDet::SiTrajectoryElement_xk::bremNoiseModel()
 ///////////////////////////////////////////////////////////////////
 
 int InDet::SiTrajectoryElement_xk::searchClusters(Trk::PatternTrackParameters& Tp, SiClusterLink_xk* L) {
+  /// delegate work to subsystem-specific template implementation
   if (m_itType==PixelClusterColl) return searchClustersSub<InDet::PixelClusterCollection::const_iterator>(Tp, L);
   if (m_itType==SCT_ClusterColl) return searchClustersSub<InDet::SCT_ClusterCollection::const_iterator>(Tp, L);
   return searchClustersSub<InDet::SiClusterCollection::const_iterator>(Tp, L);
