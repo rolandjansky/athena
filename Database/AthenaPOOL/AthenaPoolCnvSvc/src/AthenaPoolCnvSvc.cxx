@@ -314,7 +314,7 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
    }
 
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
-      outputConnection = outputConnection + "?pmerge=localhost:1095";
+      outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
    try {
@@ -607,7 +607,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          doCommit = true;
          ATH_MSG_DEBUG("commitOutput sending data.");
       }
-      outputConnection = outputConnection + "?pmerge=localhost:1095";
+      outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
@@ -683,7 +683,7 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput(const std::string& outputConnectio
       ATH_MSG_DEBUG("disconnectOutput not SKIPPED for server: " << m_streamServer);
    }
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
-      outputConnection = outputConnection + "?pmerge=localhost:1095";
+      outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
    StatusCode sc = m_poolSvc->disconnect(contextId);
@@ -830,7 +830,7 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          }
       } else {
          if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
-            placement->setFileName(placement->fileName() + "?pmerge=localhost:1095");
+            placement->setFileName(placement->fileName() + m_streamPortString.value());
          }
          if (m_persSvcPerOutput) {
             char text[32];
