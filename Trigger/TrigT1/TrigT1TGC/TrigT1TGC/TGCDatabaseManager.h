@@ -11,6 +11,7 @@
 #include "TrigT1TGC/TGCConnectionPPToSB.h"
 
 #include "MuonCondSvc/TGCTriggerData.h"
+#include "TGCTriggerCondSvc/TGCTriggerLUTs.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaBaseComps/AthMessaging.h"
 
@@ -39,6 +40,7 @@ class TGCDatabaseManager : public AthMessaging
   TGCDatabaseManager(TGCArguments*);
   TGCDatabaseManager(TGCArguments*,
                      const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+		     const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey,
                      const std::string& version, bool flag=false);
   virtual ~TGCDatabaseManager();
 

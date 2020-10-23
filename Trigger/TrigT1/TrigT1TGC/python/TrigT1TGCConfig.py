@@ -6,6 +6,8 @@ from AthenaCommon.GlobalFlags import globalflags
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.AlgSequence import AthSequencer
 from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
+from TGCTriggerCondSvc.TGCTriggerCondSvcConf import TGCTriggerCondAlg
+from PathResolver import PathResolver
 
 class TrigT1TGCConfig (LVL1TGCTrigger__LVL1TGCTrigger):
     
@@ -47,5 +49,10 @@ if globalflags.DataSource() == 'geant4':
     conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW",className='CondAttrListCollection')
     conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE",className='CondAttrListCollection')
 
+    # DB files will be put in COOOLDB
+    bwCW_Run3_filePath=PathResolver.FindCalibFile("TrigT1TGC_CW/BW/CW_BW_Run3.v01.db")
+    conddb.addFolder(bwCW_Run3_filePath,"/TGC/TRIGGER/CW_BW_RUN3 <tag>TgcTriggerCwBwRun3-01</tag>", className='CondAttrListCollection')
+
     condSequence = AthSequencer("AthCondSeq")
     condSequence += TGCTriggerDbAlg("TGCTriggerDbAlg")
+    condSequence += TGCTriggerCondAlg("TGCTriggerCondAlg")
