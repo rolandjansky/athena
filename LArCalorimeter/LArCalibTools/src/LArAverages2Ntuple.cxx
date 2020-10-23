@@ -16,7 +16,7 @@ LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSv
   //  m_eventCounter(0)
 {
   declareProperty("ContainerKey",m_contKey);
-  declareProperty("NSamples",m_Nsamples=7);
+  declareProperty("NSamples",m_Nsamples=50);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=true);
   declareProperty("isSC",m_isSC=false);
   m_ipass=0;
