@@ -47,6 +47,33 @@ class QualBitMask(JobProperty):
     StoredValue = 0x200
 _caloflags.append(QualBitMask)
 
+class minTowerET(JobProperty):
+    """
+    If Tower ET < min then set tower ET = 0 
+    """
+    statusOn = True
+    allowedType = ['float']
+    StoredValue = -9e9
+_caloflags.append(minTowerET) 
+
+class minSCETp(JobProperty): 
+    """
+    if ET > 0, ET > minSCETp is required to build towers
+    """
+    statusOn = True 
+    allowedType = ['float']
+    StoredValue = -1
+_caloflags.append(minSCETp)
+
+class maxSCETm(JobProperty):
+    """
+    if ET < 0, ET < maxSCETm is required to build towers 
+    """
+    statusOn = True
+    allowedType = ['float']
+    StoredValue = 1
+_caloflags.append(maxSCETm)
+
 class DataNoPedestal(JobProperty):
     """
     Disable pedestal related features for data, since it crashes in some cases 

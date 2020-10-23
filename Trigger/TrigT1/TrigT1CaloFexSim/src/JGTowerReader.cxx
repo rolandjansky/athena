@@ -80,7 +80,6 @@ histSvc("THistSvc",name){
   declareProperty("jJetRound_LargeR_r", m_jJetRound_LargeR_r=0.8);
   declareProperty("jJetRound_LargeR_seed_min_ET_MeV", m_jJetRound_LargeR_seed_min_ET_MeV = 2000.0);
   declareProperty("jJetRound_LargeR_jet_min_ET_MeV",  m_jJetRound_LargeR_jet_min_ET_MeV = 2000.0);
-
   
   declareProperty("makeJetsFromMap", m_makeJetsFromMap = false);
   declareProperty("towerMap", m_towerMap = "");
@@ -108,7 +107,7 @@ histSvc("THistSvc",name){
   declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=true); 
   declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=false); 
   declareProperty("gFEX_pTcone_cut", m_gFEX_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
-  
+
   declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200510.r11881.root");  //correction file for jXERHO
   declareProperty("jXERHO_fixed_noise_cut"  , m_jXERHO_fixed_noise_cut=0.0);  
   declareProperty("jXERHO_rho_up_threshold" , m_jXERHO_rho_up_threshold=1000.0);
@@ -383,9 +382,12 @@ StatusCode JGTowerReader::BuildBlocksFromTowers(std::vector<TowerObject::Block>&
   TowerObject::TowerGrid grid = TowerObject::TowerGrid(towers);
 
   for(const xAOD::JGTower* seed: towers){
+    float eta = std::abs(seed->eta()); 
+    int r = blockRows; int c = blockCols; 
+    if(eta>2.9) {r = 1; c = 1;}//The towers beyond eta = 2.9 get much larger and more complicated. Make the blocks a single tower... 
     int seedIndex = std::find(towers.begin(), towers.end(), seed) - towers.begin();
 
-    std::vector<int> neighbors = grid.neighbors(*seed, blockRows, blockCols);
+    std::vector<int> neighbors = grid.neighbors(*seed, r, c);
     float seed_Et = seed->et();
     if(!useNegTowers && seed->et() < 0)continue;
     double block_area(0.0);
