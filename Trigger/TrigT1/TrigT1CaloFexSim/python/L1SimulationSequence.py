@@ -80,7 +80,8 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
     #python options for supercells
-    include('LArROD/LArConfigureCablingSCFolder.py')
+    if(simflags.Calo.DataNoPedestal==False):
+        include('LArROD/LArConfigureCablingSCFolder.py')
 
     ## CaloCells need to be created from LAr and Tile data when running on raw data
     ## (when running on ESD, CaloCells should be taken from the file)
@@ -122,7 +123,16 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDAlg
         l1simAlgSeq += createSuperCellBCIDAlg(SCellContainerIn="SCell",SCellContainerOut="SCellBCID")
         SCIn="SCellBCID"
-    elif simflags.Calo.SCellType() == "Emulated":
+    elif simflags.Calo.SCellType() == "Emulated" and simflags.Calo.DataNoPedestal == True:
+        # If the pedestal correction is broken, then disable the things 
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        theNoiseTool=CaloNoiseToolDefault()
+        svcMgr.ToolSvc += theNoiseTool
+        from LArL1Sim.LArL1SimConf import LArSCSimpleMaker
+        l1simAlgSeq += LArSCSimpleMaker( SCellContainer="SimpleSCell",CaloNoiseTool=theNoiseTool, addBCID = False) 
+        SCIn="SimpleSCell" 
+    elif simflags.Calo.SCellType() == "Emulated" and simflags.Calo.DataNoPedestal == False:
         # Supercells are reconstructed from the ET sum of the constituent calo cells 
         # This sets simflags.Calo.ApplySCQual to False
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr

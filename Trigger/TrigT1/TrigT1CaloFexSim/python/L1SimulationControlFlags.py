@@ -47,6 +47,14 @@ class QualBitMask(JobProperty):
     StoredValue = 0x200
 _caloflags.append(QualBitMask)
 
+class DataNoPedestal(JobProperty):
+    """
+    Disable pedestal related features for data, since it crashes in some cases 
+    """
+    statusOn = True
+    allowType = ['bool'] 
+    StoredValue = False 
+_caloflags.append(DataNoPedestal) 
 
 class ComputeEFexClusters(JobProperty):
     """ ComputeClusters """
