@@ -44,7 +44,7 @@ def CaloGeoAndNoiseCfg(inputFlags):
 def HLTPFTrackSelectorCfg(inputFlags,tracksin,verticesin):
 
     from eflowRec.PFCfg import PFTrackSelectorAlgCfg
-    result = getPFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector_HLT",False)
+    result = PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector_HLT",False)
     PFTrackSelector = result.getEventAlgo ("PFTrackSelector_HLT")
     PFTrackSelector.electronsName = ""
     PFTrackSelector.muonsName = ""
