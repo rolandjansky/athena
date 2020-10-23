@@ -4,6 +4,7 @@
 
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
@@ -222,7 +223,7 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
  else if ( taggerName.find("MV2") != string::npos ){
 
 
-    const xAOD::BTagging* btag = jet.btagging();
+    const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
 
     if ((!btag) || (!btag->MVx_discriminant(taggerName, tagweight))){
       if(m_ErrorOnTagWeightFailure){
@@ -243,7 +244,7 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
   double dl1_pc(-10.);
   double dl1_pu(-10.);
 
-  const xAOD::BTagging* btag = jet.btagging();
+  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
 
   if ((!btag)){
    ATH_MSG_ERROR("Failed to retrieve the BTagging information");
@@ -372,7 +373,8 @@ asg::AcceptData BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const {
 
     double weight_mv2c100(-10.);
     double weight_mv2cl100(-10.);
-    const xAOD::BTagging* btag = jet.btagging();
+    const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
+
 
     if ((!btag)){
       ATH_MSG_ERROR("Failed to retrieve the BTagging information");

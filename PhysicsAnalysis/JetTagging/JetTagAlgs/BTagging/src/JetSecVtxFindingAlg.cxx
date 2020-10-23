@@ -2,13 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "BTagging/JetSecVtxFindingAlg.h"
-
 //general interface for secondary vertex finders
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 #include "VxSecVertex/VxJetFitterVertexInfo.h"
- 
+#include "xAODTracking/TrackParticleContainer.h" 
+
+#include "BTagging/JetSecVtxFindingAlg.h"
+
 #include "StoreGate/ReadDecorHandle.h"
 #include "StoreGate/ReadHandle.h"
 

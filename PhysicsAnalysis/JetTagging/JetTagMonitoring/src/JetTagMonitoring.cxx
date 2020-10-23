@@ -4,6 +4,7 @@
 
 #include "xAODJet/JetAttributes.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 #include "JetTagMonitoring.h"
 
@@ -1248,7 +1249,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
 
 void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_histos) { // added by SARA (just moved already existing code into this function for better readibility)
   
-  const xAOD::BTagging* btag = jet->btagging();
+  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
   
   if (!btag) return; 
   
@@ -1290,7 +1291,7 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
   ATH_MSG_DEBUG("in fillDetailedHistograms()");
 
   //* get detailed information *//
-  const xAOD::BTagging* btag = jet->btagging(); 
+  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
 
   if (not btag){
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillDetailedHistograms; filling these histograms will be skipped");
@@ -1435,7 +1436,7 @@ void JetTagMonitoring::fillBadTrackBits(const std::bitset<17> failedCuts, double
 
 void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
 
-  const xAOD::BTagging* btag = jet->btagging();
+  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
   if (not btag){
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillGoodJetHistos; filling these histograms will be skipped");
     return;
@@ -1552,7 +1553,7 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
 
   m_track_selector_suspect->Fill(jet->eta(), jet->phi(), 1.);
   
-  const xAOD::BTagging* btag = jet->btagging();
+  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
   if (not btag){
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillSuspectJetHistos; filling these histograms will be skipped");
     return;

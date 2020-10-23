@@ -6,6 +6,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "FlavorTagDiscriminants/BTagMuonAugmenter.h"
 #include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -67,7 +68,7 @@ namespace FlavorTagDiscriminants {
     ElementLink<xAOD::MuonContainer> muon_link;
 
 
-    const xAOD::BTagging &btag = *jet.btagging();
+    const xAOD::BTagging &btag = *xAOD::BTaggingUtilities::getBTagging( jet );
 
     // Find associated combined muon closest to jet axis (like legacy SMT)
     std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;

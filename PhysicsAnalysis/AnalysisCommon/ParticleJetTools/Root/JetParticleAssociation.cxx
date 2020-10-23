@@ -5,6 +5,7 @@
 // author: cpollard@cern.ch
 
 #include "ParticleJetTools/JetParticleAssociation.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 using namespace std;
 using namespace xAOD;

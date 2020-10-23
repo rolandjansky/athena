@@ -6,6 +6,7 @@
 
 // Local includes
 #include "AssociationUtils/OverlapRemovalDefs.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 #include "OverlapRemovalTestAlg.h"
 
 namespace
@@ -112,7 +113,7 @@ bool OverlapRemovalTestAlg::selectObject<xAOD::Jet>(const xAOD::Jet& jet)
   static ort::inputDecorator_t bJetDec(m_bJetLabel);
   bJetDec(jet) = false;
   double mv2c10 = 0.;
-  auto btag = jet.btagging();
+  auto btag = xAOD::BTaggingUtilities::getBTagging( jet );
   if(btag && btag->MVx_discriminant("MV2c10", mv2c10)){
     if(mv2c10 > -0.1416) bJetDec(jet) = true;
   }

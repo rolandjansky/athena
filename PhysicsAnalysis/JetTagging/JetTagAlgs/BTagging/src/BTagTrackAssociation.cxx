@@ -9,6 +9,7 @@
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 #include "xAODJet/Jet.h"
 
@@ -110,7 +111,7 @@ namespace Analysis {
       if ( m_TracksToTagList.size() ) {
           for (const std::string& trackColName : m_TracksToTagList) {
               for (const xAOD::Jet* jet : *theJets) {
-                  xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(jet->btagging());
+                  xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(xAOD::BTaggingUtilities::getBTagging( *jet ));
 
                   if (!tagInfo) {
                       ATH_MSG_FATAL("The pointer from Jet to BTagging object is invalid");
@@ -168,7 +169,7 @@ namespace Analysis {
               // non-const pointer to the BTagging object like that. That would keep
               // const-correctness intact, as StoreGate could tell us whether it's allowed
               // to modify the BTagging object or not.
-              xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>((*jetIter)->btagging());
+               xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(xAOD::BTaggingUtilities::getBTagging( **jetIter ));
               if (!tagInfo) {
                   ATH_MSG_FATAL("The pointer from Jet to BTagging object is invalid");
                   return StatusCode::FAILURE;
@@ -213,7 +214,7 @@ namespace Analysis {
           // then store them in the BTagging objects. Note that for this to work, the ElementLink from Jet to BTagging object must exist 
           unsigned int i = 0;
           for (jetcollection_t::iterator jetIter = theJets->begin(); jetIter != theJets->end(); ++jetIter) {
-              xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>((*jetIter)->btagging());
+               xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(xAOD::BTaggingUtilities::getBTagging( **jetIter ));
               std::vector< ElementLink< xAOD::MuonContainer > > associationLinks;
               for (std::vector<const xAOD::Muon*>::const_iterator muonIter = assocs[i]->begin(); muonIter != assocs[i]->end(); ++muonIter) {
                   ElementLink<xAOD::MuonContainer> EL;

@@ -8,6 +8,7 @@
 #include "xAODJet/JetContainer.h"   
 #include "xAODJet/JetAttributes.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -836,7 +837,7 @@ double JetTagMonitorAlgorithm::getMVweight(const xAOD::Jet *jet) const {
 
   ATH_MSG_DEBUG("retrieving MV2c10/DL1* weight");
   
-  const xAOD::BTagging* btag = jet->btagging();
+  const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
 
   if (!btag) return 0;
 
