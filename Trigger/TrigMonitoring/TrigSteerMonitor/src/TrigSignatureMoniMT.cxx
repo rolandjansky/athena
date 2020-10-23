@@ -179,11 +179,13 @@ StatusCode TrigSignatureMoniMT::stop() {
 
       std::string stepName = stepNameMatch[0];
       stepName[0] = std::toupper(stepName[0]); // fix for "step1" names
-      chainToSteps[chain.name()].insert( stepName );
-      chainToStepsId[chain.name()].insert( nstep );
-      //check that the step name is set with the same position in the execution
-      if ("Step"+std::to_string(nstep) != stepName)
-	ATH_MSG_INFO("Sequence "<<seqName<<" (step "<<stepName<<") used at step "<<nstep<<" in chain "<<chain.name());
+      //check that the step name is set with the same position in the execution (empty steps support)
+      if ("Step"+std::to_string(nstep) == stepName) {
+        chainToSteps[chain.name()].insert( stepName );
+        chainToStepsId[chain.name()].insert( nstep );
+      } else {
+      	ATH_MSG_INFO("Missing step" << nstep << " in chain " << chain.name());
+      }
       nstep++;
     }
   }
@@ -196,9 +198,12 @@ StatusCode TrigSignatureMoniMT::stop() {
         // skip steps where chain wasn't active
         // ybins are for all axis labes, steps are in bins from 3 to stepsSize + 2
         const std::string chainName = m_passHistogram->GetXaxis()->GetBinLabel(xbin);
-        ybin < 3 || ybin > stepsSize + 2 || chainToStepsId[chainName].find(ybin - 2) != chainToStepsId[chainName].end() ?
-	  v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 )
-          : v += fixedWidth( "-", 11 );
+
+        if( ybin < 3 || ybin > stepsSize + 2 || chainToStepsId[chainName].count(ybin - 2) != 0 ) {
+	        v += fixedWidth( std::to_string( int(hist->GetBinContent( xbin, ybin ))) , 11 );
+        } else {
+          v += fixedWidth( "-", 11 );
+        }
       } else {
         v += fixedWidth( " ", 11 );
       }
