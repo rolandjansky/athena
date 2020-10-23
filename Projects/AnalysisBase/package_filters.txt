@@ -38,6 +38,7 @@
 + DetectorDescription/GeoPrimitives
 + DetectorDescription/IRegionSelector
 + DetectorDescription/RoiDescriptor
++ Event/EventBookkeeperTools
 + Event/EventPrimitives
 + Event/FourMomUtils
 - Event/xAOD/.*AthenaPool

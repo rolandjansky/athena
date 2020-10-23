@@ -7,10 +7,9 @@
  * @brief Implementation of class BookkeeperDumperTool
  */
  
-#include "BookkeeperDumperTool.h"
-
 #include <xAODCutFlow/CutBookkeeperContainer.h>
 
+#include <EventBookkeeperTools/BookkeeperDumperTool.h>
 
 
 BookkeeperDumperTool::BookkeeperDumperTool(const std::string &name)
