@@ -38,6 +38,7 @@ namespace {
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, CaloTowerContainer_v1 );
       std::vector< xAOD::CaloClusterBadChannelData_v1 > v1;
       std::vector< std::vector< xAOD::CaloClusterBadChannelData_v1 > > v2;
+      SG::AuxTypeVectorFactory<std::vector< xAOD::CaloClusterBadChannelData_v1 >  > v3;
    };
 }
 

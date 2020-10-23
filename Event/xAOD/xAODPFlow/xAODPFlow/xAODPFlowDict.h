@@ -47,6 +47,7 @@ namespace {
      std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > FlowElemdummy2;
      std::vector< std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double > > > FlowElemdummy3;
      std::vector< xAOD::PFODetails::PFOLeptonType > FlowElemdummy4;
+     SG::AuxTypeVectorFactory<std::vector< std::pair< ElementLink< xAOD::CaloClusterContainer >, double> > > FlowElemdummy5;
      
 
    };
