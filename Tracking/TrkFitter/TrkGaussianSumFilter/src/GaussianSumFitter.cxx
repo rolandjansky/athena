@@ -712,7 +712,7 @@ Trk::GaussianSumFitter::makePerigee(
     new MultiComponentStateOnSurface(
       nullptr,
       combinedPerigee.release(),
-      MultiComponentStateHelpers::clone(stateExtrapolatedToPerigee).release(),
+      Trk::MultiComponentStateHelpers::toPtr(std::move(stateExtrapolatedToPerigee)).release(),
       nullptr,
       nullptr,
       pattern,
@@ -981,7 +981,7 @@ Trk::GaussianSumFitter::stepForwardFit(
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
       new MultiComponentStateOnSurface(
         measurement.release(),
-        MultiComponentStateHelpers::clone(extrapolatedState).release(),
+        Trk::MultiComponentStateHelpers::toPtr(std::move(extrapolatedState)).release(),
         fitQuality.release(),
         nullptr,
         type);
@@ -993,7 +993,7 @@ Trk::GaussianSumFitter::stepForwardFit(
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
       new MultiComponentStateOnSurface(
         measurement.release(),
-        MultiComponentStateHelpers::clone(extrapolatedState).release(),
+        Trk::MultiComponentStateHelpers::toPtr(std::move(extrapolatedState)).release(),
         fitQuality.release());
     forwardTrajectory.push_back(multiComponentStateOnSurface);
   }
@@ -1206,7 +1206,7 @@ Trk::GaussianSumFitter::fit(
       continue;
     }
 
-    // Update newly extrapolated state with MeasurementBase measurement
+
     updatedState =
       m_updator.update(std::move(extrapolatedState), *measurement, fitQuality);
     if (updatedState.empty()) {
@@ -1246,6 +1246,7 @@ Trk::GaussianSumFitter::fit(
       }
       Trk::MultiComponentState combinedState2 =
         combine(*forwardsMultiState, updatedState);
+
       if (combinedState2.empty()) {
         ATH_MSG_WARNING("Could not combine state from forward fit with "
                         "smoother state... rejecting track!");
@@ -1258,7 +1259,7 @@ Trk::GaussianSumFitter::fit(
       const Trk::MultiComponentStateOnSurface* combinedStateOnSurface =
         new MultiComponentStateOnSurface(
           measurement.release(),
-          MultiComponentStateHelpers::clone(combinedState2).release(),
+          Trk::MultiComponentStateHelpers::toPtr(std::move(combinedState2)).release(),
           combinedFitQuality.release());
       smoothedTrajectory->push_back(combinedStateOnSurface);
     } else {

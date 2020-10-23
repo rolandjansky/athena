@@ -16,6 +16,13 @@ decription           : Implementation code for MultiComponentState class
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 
+/** ctor a unique_ptr from input */
+std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentStateHelpers::toPtr(MultiComponentState&& in)
+{
+  return std::make_unique<Trk::MultiComponentState>(std::move(in));
+}
+
 std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentStateHelpers::clone(const Trk::MultiComponentState& in)
 {
@@ -35,7 +42,7 @@ Trk::MultiComponentStateHelpers::cloneWithScaledError(const Trk::MultiComponentS
                                                       double errorScaleTheta,
                                                       double errorScaleQoverP)
 {
- 
+
   AmgSymMatrix(5) coefficients;
   coefficients(0, 0) = (errorScaleLocX * errorScaleLocX);
   coefficients(1, 1) = (errorScaleLocY * errorScaleLocY);
@@ -56,7 +63,7 @@ Trk::MultiComponentStateHelpers::cloneWithScaledError(const Trk::MultiComponentS
 
   auto stateWithScaledErrors = std::make_unique<Trk::MultiComponentState>();
   stateWithScaledErrors->reserve(in.size());
- 
+
   for (const ComponentParameters& component : in) {
     const Trk::TrackParameters* trackParameters = component.first.get();
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
