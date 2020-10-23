@@ -8,7 +8,7 @@ from JetTagTools.JetFitterNNToolConfig import JetFitterNNToolCfg
 # import the JetFitterTag configurable
 Analysis__JetFitterTag=CompFactory.Analysis.JetFitterTag
 
-def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, useBTagFlagsDefaults = True, **options):
+def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, useBTagFlagsDefaults = True, runNN=False, **options):
     """Sets up a JetFitterTagNN tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -34,8 +34,19 @@ def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = 
     if scheme == "" or scheme == "Trig":
         if useBTagFlagsDefaults:
             if not CombinedIPNN:
+                if runNN:
+                    jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg('JetFitterNNTool', scheme))
+                else:
+                    # FIXME: there has to be an easier way to instance
+                    # a #@$%ing tool :'(
+                    inneracc = ComponentAccumulator()
+                    DummyClassifier = (
+                        CompFactory.Analysis.JetFitterDummyClassifier)
+                    inneracc.setPrivateTools(DummyClassifier(
+                        name='JetFitterDummyClassifier'))
+                    jetfitterClassifier = acc.popToolsAndMerge(inneracc)
+
                 jetFitterNtupleWriterNN = acc.popToolsAndMerge(JetFitterNtupleWriterNNCfg('JetFitterNtupleWriterNN'))
-                jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg('JetFitterNNTool', scheme))
                 defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'jetCollectionList'                : [], #used only in reference mode
                      'SecVxFinderName'                  : 'JetFitter',
