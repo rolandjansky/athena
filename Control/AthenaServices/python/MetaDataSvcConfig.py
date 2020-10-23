@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-def MetaDataSvcCfg(flags, toolNames=[]):
+def MetaDataSvcCfg(flags, toolNames=[], tools=[]):
     # should cover most use cases (POOL, RAW) when called with appropriate toolNames argument
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -15,6 +15,10 @@ def MetaDataSvcCfg(flags, toolNames=[]):
     svc.MetaDataContainer = "MetaDataHdr"
     result.addService(svc)
     result.addService(CompFactory.ProxyProviderSvc(ProviderNames=["MetaDataSvc"]))
+
+    for tool in tools:
+        result.addPublicTool(tool)
+        svc.MetaDataTools += [tool]
 
     for name in toolNames:
         if not isinstance(name, string_types):
