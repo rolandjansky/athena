@@ -24,7 +24,7 @@ namespace {
 using BH = Trk::GsfBetheHeitlerEffects;
 
 inline bool
-inRange(int var,  int lo, int hi)
+inRange(int var, int lo, int hi)
 {
   return ((var <= hi) and (var >= lo));
 }
@@ -356,8 +356,7 @@ Trk::GsfBetheHeitlerEffects::compute(
   Trk::PropDirection direction,
   Trk::ParticleHypothesis) const
 {
-  // Clear cache
-  cache.reset();
+  cache.numElements = 0;
 
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
@@ -367,9 +366,8 @@ Trk::GsfBetheHeitlerEffects::compute(
   double pathlengthInX0 = pathLength / radiationLength;
 
   if (pathlengthInX0 < m_singleGaussianRange) {
-    cache.weights.push_back(1.);
-    cache.deltaPs.push_back(0.);
-    cache.deltaQOvePCov.push_back(0.);
+    cache.elements[0] = { 1., 0., 0. };
+    cache.numElements = 1;
     return;
   }
 
@@ -390,9 +388,8 @@ Trk::GsfBetheHeitlerEffects::compute(
       deltaP = sign * momentum * (1. / meanZ - 1.);
       varQoverP = varZ / (momentum * momentum);
     }
-    cache.deltaPs.push_back(deltaP);
-    cache.weights.push_back(1.);
-    cache.deltaQOvePCov.push_back(varQoverP);
+    cache.elements[0] = { 1., deltaP, varQoverP };
+    cache.numElements = 1;
     return;
   }
 
@@ -467,29 +464,27 @@ Trk::GsfBetheHeitlerEffects::compute(
     if (mixture[componentIndex].mean < m_componentMeanCut) {
       continue;
     }
+    double weight = mixture[componentIndex].weight;
     if (componentIndex == componentWithHighestMean) {
-      cache.weights.push_back(mixture[componentIndex].weight +
-                              weightToBeRemoved);
-    } else {
-      cache.weights.push_back(mixture[componentIndex].weight);
+      weight += weightToBeRemoved;
     }
-
     double deltaP(0.);
     if (direction == alongMomentum) {
       // For forward propagation
       deltaP = momentum * (mixture[componentIndex].mean - 1.);
-      cache.deltaPs.push_back(deltaP);
       const double f = 1. / (momentum * mixture[componentIndex].mean);
       varianceInverseMomentum = f * f * mixture[componentIndex].variance;
     } // end forward propagation if clause
     else {
       // For backwards propagation
       deltaP = momentum * (1. / mixture[componentIndex].mean - 1.);
-      cache.deltaPs.push_back(deltaP);
       varianceInverseMomentum =
         mixture[componentIndex].variance / (momentum * momentum);
     } // end backwards propagation if clause
-    cache.deltaQOvePCov.push_back(varianceInverseMomentum);
+    cache.elements[cache.numElements] = { weight,
+                                          deltaP,
+                                          varianceInverseMomentum };
+    ++cache.numElements;
   } // end for loop over all components
 }
 
