@@ -47,7 +47,8 @@ namespace InDet{
 
       const int&  detstatus   () const {return m_detstatus;}
       const int&  inside      () const {return m_inside;    }
-      const int&  ndist       () const {return m_ndist ;    }
+      /// number of crossed without hit - dead + holes
+      const int&  ndist       () const {return m_nMissing ;    }
       const int&  nlinksF     () const {return m_nlinksForward;   }
       const int&  nlinksB     () const {return m_nlinksBackward;   }
       const int&  nholesF     () const {return m_nholesForward;   }
@@ -418,7 +419,7 @@ namespace InDet{
       int                                         m_status      ;  
       int                                         m_detstatus   ; //!< 0 (no clusters) 
       int                                         m_inside      ;
-      int                                         m_ndist       ;
+      int                                         m_nMissing       ;
       int                                         m_nlinksForward     ;
       int                                         m_nlinksBackward     ;
       int                                         m_nholesForward     ;
