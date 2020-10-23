@@ -749,8 +749,6 @@ def defineMenu():
                        'L1_2TAU3_VTE200',
                        'L1_EM20VH_FIRSTEMPTY',
                        'L1_EM20VHI',
-                       'L1_EM7_EMPTY',
-                       'L1_EM7_FIRSTEMPTY',
                        'L1_J100',
                        #'L1_J100.31ETA49',
                        #'L1_J100.31ETA49_FIRSTEMPTY',
