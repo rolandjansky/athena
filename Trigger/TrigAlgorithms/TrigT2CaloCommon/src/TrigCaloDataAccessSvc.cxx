@@ -17,6 +17,11 @@ TrigCaloDataAccessSvc::TrigCaloDataAccessSvc( const std::string& name, ISvcLocat
 TrigCaloDataAccessSvc::~TrigCaloDataAccessSvc() {}
 
 StatusCode TrigCaloDataAccessSvc::initialize() {
+
+  /// Temporary fix
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+          
   CHECK( m_roiMapTool.retrieve() );
   CHECK( m_larDecoder.retrieve() );
   CHECK( m_tileDecoder.retrieve() );
