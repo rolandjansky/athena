@@ -7,6 +7,8 @@
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
 
+#include "xAODBTagging/BTaggingUtilities.h"
+
 namespace {
     // This is a workaround because a lot of our builds still don't
     // support C++17. It's meant to look just as ugly as it is.
@@ -162,7 +164,8 @@ namespace FlavorTagDiscriminants {
       // the second argument to compute(...) is for sequences
       auto out_vals = m_graph->compute(nodes, seqs, dec.first);
       for (const auto& node: dec.second) {
-        node.second(*jet.btagging(), out_vals.at(node.first));
+        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
+        node.second(*btag, out_vals.at(node.first));
       }
     }
   }
@@ -193,7 +196,7 @@ namespace FlavorTagDiscriminants {
     {
     }
     Tracks TracksFromJet::operator()(const xAOD::Jet& jet) const {
-      const xAOD::BTagging *btagging = jet.btagging();
+      const xAOD::BTagging *btagging = xAOD::BTaggingUtilities::getBTagging( jet );
       if (!btagging) throw std::runtime_error("can't find btagging object");
       std::vector<std::pair<double, const xAOD::TrackParticle*>> tracks;
       for (const auto &link : m_trackAssociator(*btagging)) {

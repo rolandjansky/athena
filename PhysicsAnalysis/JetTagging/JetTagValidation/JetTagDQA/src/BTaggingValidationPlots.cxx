@@ -3,7 +3,8 @@
 */
 
 #include "BTaggingValidationPlots.h"
-#include "ParticleJetTools/JetFlavourInfo.h" 
+#include "ParticleJetTools/JetFlavourInfo.h"
+#include "xAODBTagging/BTaggingUtilities.h" 
 using CLHEP::GeV;
 
 namespace JetTagDQA{
@@ -138,7 +139,7 @@ namespace JetTagDQA{
 		else jet->getAttribute("TruthLabelID",label);	
 
  		//ANDREA --- Store tracking quantities
-		const xAOD::BTagging* bjet = jet->btagging();
+ 		const xAOD::BTagging* bjet = xAOD::BTaggingUtilities::getBTagging( *jet );
  		std::vector< ElementLink< xAOD::TrackParticleContainer > > assocTracks = bjet->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >("BTagTrackToJetAssociator");
 		for (unsigned int iT=0; iT<assocTracks.size(); iT++) {
       		  if (!assocTracks.at(iT).isValid()) continue;

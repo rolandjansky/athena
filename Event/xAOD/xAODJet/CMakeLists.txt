@@ -17,7 +17,7 @@ endif()
 set( extra_srcs )
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( extra_srcs Root/JetTrigAuxContainer*.cxx )
-   set( extra_libs xAODBTagging xAODPFlow xAODTrigger )
+   set( extra_libs xAODPFlow xAODTrigger )
 endif()
 
 # External dependencies:

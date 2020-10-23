@@ -14,6 +14,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 #include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
@@ -113,7 +114,7 @@ StatusCode DerivationFramework::SV1TrackThinning::doThinning() const
     // ... jets
     if (m_selectionString=="") { // check all jets as user didn't provide a selection string
         for (xAOD::JetContainer::const_iterator jetIt=importedJets->begin(); jetIt!=importedJets->end(); ++jetIt) {
-            const xAOD::BTagging* btag = (*jetIt)->btagging();
+            const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( **jetIt );
             const std::vector< ElementLink<xAOD::TrackParticleContainer> >& SV1_trackParticleLinks =
                 btag->SV1_TrackParticleLinks();
 
@@ -125,7 +126,7 @@ StatusCode DerivationFramework::SV1TrackThinning::doThinning() const
         }
     } else { // check only jets passing user selection string
         for (std::vector<const xAOD::Jet*>::iterator jetIt = jetToCheck.begin(); jetIt!=jetToCheck.end(); ++jetIt) {
-            const xAOD::BTagging* btag = (*jetIt)->btagging();
+            const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( **jetIt );
             const std::vector< ElementLink<xAOD::TrackParticleContainer> >& SV1_trackParticleLinks =
                 btag->SV1_TrackParticleLinks();
 

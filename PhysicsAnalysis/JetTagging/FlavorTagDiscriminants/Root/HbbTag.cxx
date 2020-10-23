@@ -7,7 +7,8 @@
 
 // EDM includes
 #include "xAODJet/Jet.h"
-
+#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 // atlas utilities
 #include "PathResolver/PathResolver.h"
 
@@ -142,7 +143,7 @@ namespace {
   template <typename T>
   std::pair<std::string, double>
   BTagPairGetter<T>::operator()(const xAOD::Jet& jet) {
-    const xAOD::BTagging* btag = jet.btagging();
+    const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
     if (!btag) throw std::runtime_error("can't find btagging object");
     return {m_key, m_getter(*btag)};
   }

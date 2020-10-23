@@ -4,6 +4,7 @@
 
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
@@ -985,7 +986,7 @@ BTaggingEfficiencyTool::fillVariables( const xAOD::Jet & jet, CalibrationDataVar
   x.jetAuthor = m_jetAuthor;
   //bool weightOK = true;
   if (m_isContinuous) {
-    const xAOD::BTagging* tagInfo = jet.btagging();
+    const xAOD::BTagging* tagInfo = xAOD::BTaggingUtilities::getBTagging( jet );
     if (!tagInfo) return false;
     // x.jetTagWeight = (tagInfo->*m_getTagWeight)();
     // For now, we defer the tag weight computation to the selection tool only in the case of DL1* (this is likely to be revisited)

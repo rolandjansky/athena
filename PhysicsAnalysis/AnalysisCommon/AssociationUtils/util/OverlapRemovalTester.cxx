@@ -37,6 +37,8 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODBTagging/BTagging.h" 
+#include "xAODBTagging/BTaggingUtilities.h"
 
 // Local includes
 #include "AssociationUtils/OverlapRemovalInit.h"
@@ -93,7 +95,8 @@ template<> void selectObjects<xAOD::JetContainer>
     selectDec(*jet) = pass;
     // Label bjets
     double mv2c10 = 0.;
-    if(!jet->btagging()->MVx_discriminant("MV2c10", mv2c10))
+    const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
+    if(!btag->MVx_discriminant("MV2c10", mv2c10))
       throw std::runtime_error("MV2c10 unavailable");
     // This is the 85% efficiency working point
     bJetDec(*jet) = (mv2c10 > -0.1416);

@@ -14,6 +14,7 @@ if( XAOD_STANDALONE )
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
+      Event/xAOD/xAODTracking
       Event/xAOD/xAODTruth
       PhysicsAnalysis/MCTruthClassifier
       Reconstruction/Jet/JetInterface
@@ -28,6 +29,7 @@ else()
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
+      Event/xAOD/xAODTracking
       Event/xAOD/xAODTruth
       GaudiKernel
       PhysicsAnalysis/MCTruthClassifier
@@ -44,14 +46,14 @@ if( XAOD_STANDALONE )
    atlas_add_library( ParticleJetToolsLib
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS ParticleJetTools
-      LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth
+      LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTracking xAODTruth
       JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES AthContainers TruthUtils )
 else()
    atlas_add_library( ParticleJetToolsLib
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS ParticleJetTools
-      LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth GaudiKernel
+      LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTracking xAODTruth GaudiKernel
       JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES AthAnalysisBaseCompsLib AthContainers TruthUtils )
 endif()

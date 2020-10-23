@@ -20,7 +20,7 @@ if(NOT BUILDVP1LIGHT)
        VP1AODSystems/*.h src/*.h src/*.cxx
        PUBLIC_HEADERS VP1AODSystems
        PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
-       LINK_LIBRARIES xAODMuon xAODEgamma xAODTracking GaudiKernel VP1Base StoreGateLib
+       LINK_LIBRARIES xAODMuon xAODEgamma xAODTracking xAODBTagging GaudiKernel VP1Base StoreGateLib
        Qt5::Core Qt5::Gui
        PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
        xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces
@@ -31,7 +31,7 @@ else()
        src/*.h VP1AODSystems/*.h src/*cxx
        PUBLIC_HEADERS VP1AODSystems
        PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
-       LINK_LIBRARIES xAODMuon xAODEgamma xAODTracking VP1Base
+       LINK_LIBRARIES xAODMuon xAODEgamma xAODTracking xAODBTagging VP1Base
        Qt5::Core Qt5::Gui
        PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
        xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces xAODEventInfo

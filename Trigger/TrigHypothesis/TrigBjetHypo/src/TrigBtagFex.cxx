@@ -30,6 +30,7 @@
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 #include "xAODBTagging/BTagVertex.h"
 #include "xAODBTagging/BTagVertexContainer.h"
@@ -270,7 +271,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       // Link the BTagging object to the jet for track association
       ElementLink< xAOD::BTaggingContainer> linkBTagger;
       linkBTagger.toContainedElement(*trigBTaggingContainer, trigBTagging);
-      jet->setBTaggingLink(linkBTagger);
+      xAOD::BTaggingUtilities::setBTaggingLink( *jet,linkBTagger );
 
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(jet);

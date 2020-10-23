@@ -43,6 +43,9 @@
   #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
 #endif
 
+#include "xAODTracking/VertexContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 //____________________________________________________________________
 class IParticleHandle_Jet::Imp {
@@ -718,8 +721,8 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 {
     double weight = 0.0;
 
-	const xAOD::BTagging * myBTag = nullptr;
-    myBTag = m_d->m_jet->btagging();
+    const xAOD::BTagging * myBTag = nullptr;
+    myBTag = xAOD::BTaggingUtilities::getBTagging( *m_d->m_jet );
 
    if (myBTag == nullptr) {
     VP1Msg::messageWarningRed("It was not possible to access the pointer to b-tagging info, for the selected collection! Returning 'weight': 0.0"); //("It was not possible to access the tagger '"+ tagger +"' for the selected collection: " + m_d->m_jet->getInputType() + m_d->m_jet->getAlgorithmType() );

@@ -28,6 +28,7 @@
 #include "xAODTracking/Vertex.h" 
 #include "xAODEventInfo/EventInfo.h" 
 #include "xAODBTagging/BTagging.h" 
+#include "xAODBTagging/BTaggingUtilities.h"
 
 #include "RecEvent/RecoTimingObj.h"
 
@@ -133,7 +134,7 @@ namespace PhysVal {
     ATH_CHECK(evtStore()->retrieve(jets, m_jetName));
     for (auto jet : *jets) {
       m_jetPlots.fill(jet);
-      const xAOD::BTagging* btag = jet->btagging();
+      const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
       if (btag && btag->IP3D_loglikelihoodratio() > 1.2) ++nbtag;
     }
     m_jetPlots.fill();
