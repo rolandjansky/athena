@@ -138,7 +138,7 @@ namespace InDetDDSLHC {
 
   }
   
-  string StripDetectorFactory::getBlob() {
+  string PixelDetectorFactory::getBlob() {
     DecodeVersionKey versionKey(geoDbTagSvc(), "Pixel");
     std::string versionTag  = versionKey.tag();
     std::string versionNode = versionKey.node();
