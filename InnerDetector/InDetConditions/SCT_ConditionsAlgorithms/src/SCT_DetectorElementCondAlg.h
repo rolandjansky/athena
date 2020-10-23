@@ -38,6 +38,7 @@ class SCT_DetectorElementCondAlg : public AthReentrantAlgorithm
   SG::WriteCondHandleKey<InDetDD::SiDetectorElementCollection> m_writeKey{this, "WriteKey", "SCT_DetectorElementCollection", "Key of output SiDetectorElementCollection for SCT"};
 
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+  std::string m_detManagerName;
   const InDetDD::SCT_DetectorManager* m_detManager{nullptr};
 };
 
