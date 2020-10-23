@@ -255,7 +255,6 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
 
-jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
 
 #Add new FlowElement creators
 if jobproperties.eflowRecFlags.useFlowElements:
@@ -281,7 +280,7 @@ if jobproperties.eflowRecFlags.useFlowElements:
   PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
   #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
   PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
-  PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=True # second switch combined with first implies Muon topoclusters are linked to neutral Flow Elements
+  PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # requires m_LinkNeutralFEClusters=True and if set to True= Retrieves TopoClusters from Aux. If not, cell-match muon calocluster to NFE topocluster.
   topSequence += PFMuonFlowElementAssocAlg
 
 

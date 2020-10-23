@@ -72,7 +72,7 @@ private:
 
 
   /** Write key to measure dR between calo clusters and the muon -EXPERIMENTAL **/
-  SG::WriteDecorHandleKey<xAOD::MuonContainer>m_muon_ClusterInfo_deltaR_WriteDecorHandleKey{this,"MuonContainer_ClusterInfo_deltaRVec","Muons.ClusterInfo_deltaRVec","WriteHandleKey for the delta R between the muon and it's associated calocluster(s)"};
+  SG::WriteDecorHandleKey<xAOD::MuonContainer>m_muon_ClusterInfo_deltaR_WriteDecorHandleKey{this,"MuonContainer_ClusterInfo_deltaR","Muons.ClusterInfo_deltaR","WriteHandleKey for the delta R between the muon and it's associated calocluster"};
 
 
 
