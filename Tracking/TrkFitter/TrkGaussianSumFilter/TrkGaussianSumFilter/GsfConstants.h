@@ -7,6 +7,8 @@
  * @brief  Collect constants we use
  * in GSF and their meaning in one place
  */
+#ifndef GSFCONSTANTS_H
+#define GSFCONSTANTS_H
 
 #include <cstdint>
 namespace GSFConstants {
@@ -58,4 +60,4 @@ constexpr int8_t maxComponentsAfterConvolution =
   maxNumberofBHComponents * maxNumberofStateComponents;
 
 }
-
+#endif
