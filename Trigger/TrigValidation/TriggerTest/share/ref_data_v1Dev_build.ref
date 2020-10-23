@@ -205,9 +205,9 @@ TrigSignatureMoniMT                                 INFO -- #628534730 Features 
 TrigSignatureMoniMT                                 INFO HLT_costmonitor_CostMonDS_L1All #843341480
 TrigSignatureMoniMT                                 INFO -- #843341480 Events          20         20         20         -          -          -          -          -          -          -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #843341480 Features                              20         -          -          -          -          -          -          -          -          -          -          -          -          
-TrigSignatureMoniMT                                 INFO HLT_cscmon_L1All #1000936179
-TrigSignatureMoniMT                                 INFO -- #1000936179 Events         20         20         -          -          -          -          -          -          -          -          -          -          -          -          -          20         
-TrigSignatureMoniMT                                 INFO -- #1000936179 Features                             -          -          -          -          -          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_cscmon_CSCPEB_L1All #445495871
+TrigSignatureMoniMT                                 INFO -- #445495871 Events          20         20         20         -          -          -          -          -          -          -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #445495871 Features                              20         -          -          -          -          -          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_e12_lhloose_2mu10_L12MU10 #4167710884
 TrigSignatureMoniMT                                 INFO -- #4167710884 Events         20         20         0          0          0          0          0          0          0          0          -          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #4167710884 Features                             0          0          0          0          0          0          0          0          -          -          -          -          -          
