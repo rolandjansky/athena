@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -12,10 +12,10 @@
 
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "StoreGate/StoreGate.h"
 
 #include "TBDetDescr/TBDetDescrManager.h"
 
@@ -90,7 +90,7 @@ TBDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
   TBDetDescrManager* TBmgr = new TBDetDescrManager();
 
   // Pass a pointer to the container to the Persistency service by reference.
-  pObj = StoreGateSvc::asStorable(TBmgr);
+  pObj = SG::asStorable(TBmgr);
 
   // Initialize the TBDetDescr manager from FADS
 
