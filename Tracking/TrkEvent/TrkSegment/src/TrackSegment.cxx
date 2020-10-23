@@ -55,7 +55,7 @@ Trk::TrackSegment::TrackSegment(const Trk::TrackSegment& tseg)
 
 // move constructor
 Trk::TrackSegment::TrackSegment(Trk::TrackSegment&& tseg)
-: Trk::Segment(tseg)
+ noexcept : Trk::Segment(tseg)
 {
      m_associatedSurface = tseg.m_associatedSurface;
      tseg.m_associatedSurface = nullptr;
@@ -89,7 +89,7 @@ Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
 
 
 // move assignment operator
-Trk::TrackSegment& Trk::TrackSegment::operator=(Trk::TrackSegment&& tseg) {
+Trk::TrackSegment& Trk::TrackSegment::operator=(Trk::TrackSegment&& tseg)  noexcept {
    if (this!=&tseg){
      Trk::Segment::operator=(tseg);
      delete m_associatedSurface;

@@ -61,7 +61,7 @@ Trk::Segment::Segment(const Trk::LocalParameters& locpars,
 
 // move constructor
 Trk::Segment::Segment(Trk::Segment&& seg)
-     : Trk::MeasurementBase(seg),
+ noexcept      : Trk::MeasurementBase(seg),
        m_author( seg.m_author)
 {
      m_fitQuality = seg.m_fitQuality;
@@ -118,7 +118,7 @@ Trk::Segment& Trk::Segment::operator=(const Trk::Segment& seg)
 
 
 // move assignment operator
-Trk::Segment& Trk::Segment::operator=(Trk::Segment&& seg) {
+Trk::Segment& Trk::Segment::operator=(Trk::Segment&& seg)  noexcept {
    if (this!=&seg){
      Trk::MeasurementBase::operator=(seg);
      delete m_fitQuality;

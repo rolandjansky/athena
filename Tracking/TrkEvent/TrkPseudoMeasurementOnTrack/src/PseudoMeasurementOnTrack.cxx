@@ -78,7 +78,7 @@ Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack( const Trk::PseudoMeasur
 }
 
 // move constructor:
-Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(Trk::PseudoMeasurementOnTrack&& pmot) :
+Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(Trk::PseudoMeasurementOnTrack&& pmot)  noexcept :
   Trk::MeasurementBase(pmot),
   m_associatedSurface(move_ptr(pmot.m_associatedSurface)),
   m_globalPosition(move_ptr(pmot.m_globalPosition))
@@ -110,7 +110,7 @@ Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(const Ps
 
 // move assignment operator:
 Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(PseudoMeasurementOnTrack&& pmot)
-{
+ noexcept {
   if ( &pmot != this) {
     Trk::MeasurementBase::operator=(pmot);
     if (m_associatedSurface && m_associatedSurface->isFree()){

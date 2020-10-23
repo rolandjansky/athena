@@ -85,7 +85,7 @@ std::atomic<unsigned int> VxCandidate::s_numberOfInstantiations=0;
   }
 
   VxCandidate &VxCandidate::operator= (VxCandidate&& rhs)
-  {
+ noexcept   {
     if (this!=&rhs)
     {
       m_recVertex = std::move(rhs.m_recVertex);

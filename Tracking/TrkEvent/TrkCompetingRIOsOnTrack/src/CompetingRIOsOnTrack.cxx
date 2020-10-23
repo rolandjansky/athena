@@ -56,7 +56,7 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(const Trk::Compe
     return (*this);
 }
 
-Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(Trk::CompetingRIOsOnTrack&& compROT) {
+Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(Trk::CompetingRIOsOnTrack&& compROT)  noexcept {
     if (this!=&compROT) {
       Trk::MeasurementBase::operator=(compROT);
 

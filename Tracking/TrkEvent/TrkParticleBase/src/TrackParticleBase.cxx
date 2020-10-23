@@ -144,7 +144,7 @@ namespace Trk
     }
 
     TrackParticleBase& TrackParticleBase::operator= (TrackParticleBase&& rhs)
-    {
+ noexcept     {
         if (this!=&rhs)
         {
           delete m_trackSummary;

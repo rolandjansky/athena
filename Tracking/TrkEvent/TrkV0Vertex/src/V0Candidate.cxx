@@ -71,7 +71,7 @@ namespace Trk {
   }
 
   V0Candidate & V0Candidate::operator= (V0Candidate && rhs)
-  {
+ noexcept   {
    if (this!=&rhs)
    {
      m_v0Hyp = std::move (rhs.m_v0Hyp);

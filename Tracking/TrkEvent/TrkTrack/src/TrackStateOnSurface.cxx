@@ -137,7 +137,7 @@ TrackStateOnSurface& TrackStateOnSurface::operator=(const TrackStateOnSurface& r
 
 Trk::TrackStateOnSurface&
 Trk::TrackStateOnSurface::operator=(Trk::TrackStateOnSurface&& rhs)
-{
+ noexcept {
     if (this!=&rhs){
       delete m_fitQualityOnSurface;
       m_fitQualityOnSurface = rhs.m_fitQualityOnSurface;
