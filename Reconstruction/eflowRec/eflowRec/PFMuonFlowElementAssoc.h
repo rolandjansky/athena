@@ -70,11 +70,9 @@ private:
   /** Write key to count number of muons matched to a given neutral FE - EXPERIMENTAL **/
   SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_NeutralFEmuon_nMatches_WriteDecorHandleKey{this,"FlowElementContainer_nMatchedMuons","JetETMissNeutralFlowElements.FE_nMatchedMuons","WriteHandleKey for the number of muons matched to a given neutral flow element"};
 
-  /** Write key to count number of calo clusters a given muon actually has - EXPERIMENTAL **/
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muon_ClusterInfo_nCluster_WriteDecorHandleKey{this,"MuonContainer_ClusterInfo_nClusters","Muons.ClusterInfo_nClusters","WriteHandleKey for the number of calo clusters associated to each muon"};
 
   /** Write key to measure dR between calo clusters and the muon -EXPERIMENTAL **/
-  SG::WriteDecorHandleKey<xAOD::MuonContainer>m_muon_ClusterInfo_deltaRVec_WriteDecorHandleKey{this,"MuonContainer_ClusterInfo_deltaRVec","Muons.ClusterInfo_deltaRVec","WriteHandleKey for the delta R between the muon and it's associated calocluster(s)"};
+  SG::WriteDecorHandleKey<xAOD::MuonContainer>m_muon_ClusterInfo_deltaR_WriteDecorHandleKey{this,"MuonContainer_ClusterInfo_deltaRVec","Muons.ClusterInfo_deltaRVec","WriteHandleKey for the delta R between the muon and it's associated calocluster(s)"};
 
 
 
