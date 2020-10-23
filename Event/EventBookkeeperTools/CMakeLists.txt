@@ -6,19 +6,24 @@
 atlas_subdir( EventBookkeeperTools )
 
 if( XAOD_STANDALONE )
-   set( athena_libs )
+   set( extra_libs )
    set( xaod_access_lib xAODRootAccess )
 # ... for AthAnalysisBase (Athena calls this POOLRootAccess)
 else()
-   set( athena_libs AthenaKernel GaudiKernel )
+   set( extra_libs GaudiKernel AthenaKernel AthenaPoolUtilities EventInfo IOVDbDataModel )
    set( xaod_access_lib POOLRootAccessLib )
+endif()
+
+if( NOT GENERATIONBASE )
+   set( extra_libs ${extra_libs} AnaAlgorithmLib xAODMetaData xAODTruth )
 endif()
 
 # Component(s) in the package:
 atlas_add_library( EventBookkeeperToolsLib
                    EventBookkeeperTools/*.h Root/*.cxx
                    PUBLIC_HEADERS EventBookkeeperTools
-                   LINK_LIBRARIES ${athena_libs} AsgDataHandlesLib AsgMessagingLib AsgTools xAODCutFlow xAODEventInfo )
+                   LINK_LIBRARIES ${extra_libs} AsgDataHandlesLib AsgMessagingLib AsgTools
+                                  xAODCutFlow xAODEventInfo )
 
 atlas_add_dictionary( EventBookkeeperToolsDict
                       EventBookkeeperTools/EventBookkeeperToolsDict.h
@@ -50,6 +55,11 @@ atlas_add_test( DumpCbkTest
 if( NOT XAOD_STANDALONE )
    atlas_add_test( BookkeeperDumperTool
                    SCRIPT test/test_BookkeeperDumperTool.py
+                   PROPERTIES TIMEOUT 300
+                   POST_EXEC_SCRIPT nopost.sh )
+
+   atlas_add_test( CutFlowSvcTest
+                   SCRIPT test/test_CutFlowSvc.py
                    PROPERTIES TIMEOUT 300
                    POST_EXEC_SCRIPT nopost.sh )
 
