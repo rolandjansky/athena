@@ -152,8 +152,12 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const EventContext& ctx,
           ATH_MSG_ERROR("Could not cast pixel RoT to PixelClusterOnTrack!");
         } else {
           const InDet::PixelCluster* pixPrd = pix->prepRawData();
-          const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixPrd);
-          if ( pixPrd and splitProb.isSplit() ) { information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
+          const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&
+            splitProb = getClusterSplittingProbability(ctx,pixPrd);
+          if (pixPrd and splitProb.isSplit()) {
+            information[Trk::numberOfPixelSplitHits]++;
+            hitIsSplit = true;
+          }
           if (pixPrd and m_pixelId->is_barrel(id) and
               m_pixelId->layer_disk(id) == 0 and splitProb.isSplit())
             information[Trk::numberOfInnermostLayerSplitHits]++;
@@ -384,6 +388,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
     summary.m_information[Trk::numberOfNextToInnermostLayerSplitHits]   = 0;
   }
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();
   if (measurements){
     for (const auto& ms : *measurements){
@@ -404,7 +409,8 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
             }
             if (pix) {
               const InDet::PixelCluster* pixPrd = pix->prepRawData();
-              const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixPrd);
+              const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&
+                splitProb = getClusterSplittingProbability(ctx, pixPrd);
               if (pixPrd and splitProb.isSplit()) {
                 summary.m_information[Trk::numberOfPixelSplitHits]++;
                 hitIsSplit=true;
