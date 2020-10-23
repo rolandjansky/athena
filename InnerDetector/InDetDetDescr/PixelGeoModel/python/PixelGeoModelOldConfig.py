@@ -3,7 +3,6 @@
 from AthenaCommon import CfgMgr
 
 def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     kwargs.setdefault("ServiceBuilderTool",    "")
 
     return CfgMgr.PixelDetectorTool(name, **kwargs)

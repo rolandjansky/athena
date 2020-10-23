@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from IOVDbSvc.CondDB import conddb
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.DetFlags          import DetFlags
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 

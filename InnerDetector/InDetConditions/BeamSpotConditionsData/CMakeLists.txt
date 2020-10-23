@@ -1,29 +1,16 @@
-#################################
-# Package: BeamSpotConditionsData
-#################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# package name
+# Declare the package name:
 atlas_subdir( BeamSpotConditionsData )
 
 # possible extra dependencies
-set ( extra_dep )
 set ( extra_lib )
 if ( NOT SIMULATIONBASE )
-   set ( extra_dep Tracking/TrkEvent/VxVertex )
    set ( extra_lib VxVertex )
 endif()
 
-# dependencies
-atlas_depends_on_subdirs( PUBLIC
-			  Control/AthenaKernel
-			  Database/AthenaPOOL/AthenaPoolUtilities
-			  DetectorDescription/GeoPrimitives
-			  ${extra_dep}
-			)
-
-# components
+# Component(s) in the package:
 atlas_add_library( BeamSpotConditionsData
-		   src/*.cxx
-		   PUBLIC_HEADERS BeamSpotConditionsData
-		   LINK_LIBRARIES AthenaPoolUtilities GeoPrimitives ${extra_lib}
-		 )
+		           src/*.cxx
+		           PUBLIC_HEADERS BeamSpotConditionsData
+		           LINK_LIBRARIES AthenaKernel GeoPrimitives ${extra_lib} )
