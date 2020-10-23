@@ -87,6 +87,7 @@ namespace FlavorTagDiscriminants {
       m_outputs.emplace_back(node_name, node_writer);
     }
   }
+  HbbTag::HbbTag(HbbTag&&) = default;
   HbbTag::~HbbTag() {}
 
   void HbbTag::decorate(const xAOD::Jet& jet) const {
