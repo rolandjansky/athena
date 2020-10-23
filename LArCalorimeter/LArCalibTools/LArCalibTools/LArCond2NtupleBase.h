@@ -78,8 +78,11 @@ class LArCond2NtupleBase : public AthAlgorithm {
   ToolHandle<ILArFEBTempTool> m_FEBTempTool;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingSCKey{this,"CablingSCKey","LArOnOffIdMapSC","SG Key of LArOnOffIdMapping object"};
+
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapSCKey{this,"CalibMapSCKey","LArCalibIdMapSC","SG Key of calib line mapping object"};
 
   bool m_isSC;
   bool m_isFlat;

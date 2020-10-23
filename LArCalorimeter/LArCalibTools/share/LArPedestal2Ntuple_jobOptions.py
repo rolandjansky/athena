@@ -57,7 +57,7 @@ GlobalFlags.DataSource.set_data()
 GlobalFlags.InputFormat.set_bytestream()
 
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.Calo_setOff()
+DetFlags.Calo_setOn()  # ON for geometry
 DetFlags.ID_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()

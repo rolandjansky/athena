@@ -145,8 +145,15 @@ StatusCode LArCond2NtupleBase::initialize() {
   }
 
   ATH_CHECK( m_BCKey.initialize() );
-  ATH_CHECK( m_cablingKey.initialize() );
-  ATH_CHECK( m_calibMapKey.initialize() );
+  /// do we need both of them at some point when data has both SC and cells?
+  if(m_isSC){
+    ATH_CHECK( m_cablingSCKey.initialize() );
+    ATH_CHECK( m_calibMapSCKey.initialize() );
+  }
+  else{
+    ATH_CHECK( m_cablingKey.initialize() );
+    ATH_CHECK( m_calibMapKey.initialize() );
+  }
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
@@ -303,27 +310,41 @@ StatusCode LArCond2NtupleBase::initialize() {
 
 bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
- ATH_MSG_DEBUG("Starting.....");
+  ATH_MSG_DEBUG("Starting fillFromIdentifier");
  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
  const LArBadChannelCont *bcCont {*readHandle};
  if(m_addBC && !bcCont) {
      ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
      return false;
  }
- SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
- const LArCalibLineMapping *clCont {*clHdl};
+ const LArCalibLineMapping *clCont=0;
+ if(m_isSC){
+   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapSCKey};
+   clCont={*clHdl};
+ }
+ else{
+   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+   clCont={*clHdl};
+ }
  if(!clCont) {
      ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
      return false;
  }
- SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
- const LArOnOffIdMapping* cabling=*cablingHdl;
+ const LArOnOffIdMapping* cabling=0;
+ if(m_isSC){
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingSCKey};
+   cabling=*cablingHdl;
+ }
+ else{
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   cabling=*cablingHdl;
+ }
+
  if(!cabling) {
      ATH_MSG_WARNING( "Do not have cabling !" );
      return false;
  }
 
- ATH_MSG_DEBUG("Starting 1.....");
  m_onlChanId = hwid.get_identifier32().get_compact();
  
  m_barrel_ec = m_onlineId->barrel_ec(hwid);
@@ -349,7 +370,7 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
    m_eta=NOT_VALID;
    m_phi=NOT_VALID;
   } else {
-   ATH_MSG_DEBUG(&m_reta << " " << &m_rphi << " " << &m_layer);
+    //ATH_MSG_DEBUG(&m_reta << " " << &m_rphi << " " << &m_layer);
    m_reta=NOT_VALID;
    m_rphi=NOT_VALID;
   } 
@@ -437,5 +458,6 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 const SG::ReadCondHandleKey<LArOnOffIdMapping>&
 LArCond2NtupleBase::cablingKey() const
 {
+  if(m_isSC) return m_cablingSCKey;
   return m_cablingKey;
 }
