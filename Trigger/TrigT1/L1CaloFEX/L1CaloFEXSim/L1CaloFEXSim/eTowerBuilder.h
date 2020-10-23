@@ -25,7 +25,7 @@ class eTowerBuilder: public AthAlgTool, virtual public IeTowerBuilder {
 
  public:
   eTowerBuilder(const std::string& type,const std::string& name,const IInterface* parent);
-  virtual ~eTowerBuilder();
+  virtual ~eTowerBuilder() = default;
 
   virtual void init(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) override ;
   virtual void execute(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) override ;
@@ -33,12 +33,12 @@ class eTowerBuilder: public AthAlgTool, virtual public IeTowerBuilder {
 
  private:
 
-  virtual void BuildEMBeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) override ;
-  virtual void BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) override ;
-  virtual void BuildEMEeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) override ;
-  virtual void BuildHECeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) override ;
-  virtual void BuildAllTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) override ;
-  virtual void BuildSingleTower(std::unique_ptr<eTowerContainer> & eTowerContainerRawRaw,float eta, float phi, float keybase, int posneg) override ;
+  virtual void BuildEMBeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const override ;
+  virtual void BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const override ;
+  virtual void BuildEMEeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const override ;
+  virtual void BuildHECeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const override ;
+  virtual void BuildAllTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const override ;
+  virtual void BuildSingleTower(std::unique_ptr<eTowerContainer> & eTowerContainerRawRaw,float eta, float phi, float keybase, int posneg) const override ;
 
 };
 

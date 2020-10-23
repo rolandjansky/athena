@@ -3,14 +3,14 @@
 */
 
 //***************************************************************************
-//                           eTower.h  -  description
+//                           jTower.h  -  description
 //                              -------------------
 //     begin                : 19 02 2019
 //     email                : Alan.Watson@cern.ch, jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 
-#include "L1CaloFEXSim/eTower.h"
-#include "L1CaloFEXSim/eFEXCompression.h"
+#include "L1CaloFEXSim/jTower.h"
+#include "L1CaloFEXSim/jFEXCompression.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -19,56 +19,57 @@
 
 namespace LVL1 {
 
-  const int s_cells[] = {1,4,4,1,4};
-  const int s_offsets[] = {0,1,5,9,10};
+  const int s_cells[] = {1,1};
+  const int s_offsets[] = {0,1};
   
   // default constructor
-  eTower::eTower():
+  jTower::jTower():
     m_eta(0.),
     m_phi(0.),
     m_tower_id(-9999999),
     m_posneg(0)
   {
-    this->clear_scIDs();
     this->clearET();
   }
   
   /** constructs a tower and sets the coordinates and identifier */
-  eTower::eTower(float eta, float phi, int id_modifier, int posneg):
+  jTower::jTower(float eta, float phi, int id_modifier, int posneg):
     m_eta(eta),
     m_phi(phi),
     m_tower_id(id_modifier + phi + (64 * eta)),
     m_posneg(posneg)
   {
-    this->clear_scIDs();
     this->clearET();
   }
   
+  
   /** Clear and resize ET value vector */
-  void eTower::clearET()
+  void jTower::clearET()
   {
     m_et.clear();
-    m_et.resize(14);
+    m_et.resize(2);
     m_et_float.clear();
-    m_et_float.resize(14);
+    m_et_float.resize(2);
     for (unsigned int i=0; i<m_et.size(); i++){
       m_et[i] = 0;
       m_et_float[i] = 0.0;
     }
   }
 
-  /** Clear and resize Identifier value vector */
-  void eTower::clear_scIDs()
+  /** Clear and resize EM SC Identifier value vector */
+  void jTower::clear_EM_scIDs()
   {
-    m_scID.clear();
-    m_scID.resize(14);
-    for (unsigned int i=0; i<m_scID.size(); i++){
-      m_scID[i] = Identifier();
-    }
+    m_EM_scID.clear();
+  }
+
+  /** Clear and resize HAD SC Identifier value vector */
+  void jTower::clear_HAD_scIDs()
+  {
+    m_HAD_scID.clear();
   }
 
 
-  void eTower::setPosNeg(int posneg){
+  void jTower::setPosNeg(int posneg){
     
     m_posneg = posneg;
 
@@ -77,49 +78,73 @@ namespace LVL1 {
   }
 
   /** Add ET to a specified cell */
-  void eTower::addET(float et, int cell)
+  void jTower::addET(float et, int cell)
   {
     /// Check cell index in range for layer - should probably throw a warning...
-    if (cell < 0  || cell > 13){ return; }
+    if (cell < 0  || cell > 2){ return; }
     
     m_et_float[cell] += et;
 
     return;
 
   }
-  void eTower::setET(int cell, float et, int layer) {
+  void jTower::setET(int cell, float et, int layer) {
     /// Check cell index in range for layer
-    if (cell < 0  || cell > 13){ return; }
+
+    if((layer < 0) || (layer > 2)){
+      return; //need to throw an error really...
+    }
+
+    if (cell < 0  || cell > 2){ return; } //need to throw an error really...
       
     addET(et, cell);
     
     //multi linear digitisation encoding
-    unsigned int ecode = eFEXCompression::Compress(m_et_float[cell]);
-    int outET = eFEXCompression::Expand(ecode);
+    unsigned int ecode = jFEXCompression::Compress(m_et_float[cell]);
+    int outET = jFEXCompression::Expand(ecode);
     
     //noise cut
     const bool SCpass = noiseCut(outET,layer);
     if (SCpass){ m_et[cell] = outET;}
     else{ m_et[cell] = 0; }
+    
+    return;
+
   }
 
   /** Set supercell position ID and ET**/
-  void eTower::setSCID(Identifier ID, int cell, float et, int layer, bool doenergysplit)
+  void jTower::setSCID(Identifier ID, int cell, float et, int layer, bool doenergysplit)
   {
+
+    if((layer < 0) || (layer > 2)){
+      std::stringstream errMsg;
+      errMsg << "Attempt to set jTower SCID in invalid layer (" << layer << ")";
+      throw std::runtime_error(errMsg.str().c_str());
+      return; //need to throw an error really...
+    }
     
     /// Check cell index in range for layer
-    if (cell < 0  || cell > 13){ return; }
+    if (cell < 0  || cell > 2){
+      std::stringstream errMsg;
+      errMsg << "Attempt to set jTower SCID in invalid cell slot (" << cell << ")";
+      throw std::runtime_error(errMsg.str().c_str());
+      return; 
+    }
 
     if(!doenergysplit){
-      
+
       addET(et, cell);
-      
-      m_scID[cell] = ID;
-      
+
+      if(layer == 0){
+	m_EM_scID.push_back(ID);
+      }
+      else if(layer == 1){
+	m_HAD_scID.push_back(ID);
+      }
+	
       //multi linear digitisation encoding
-      unsigned int ecode = eFEXCompression::Compress(m_et_float[cell]);
-      int outET = eFEXCompression::Expand(ecode);
-      
+      unsigned int ecode = jFEXCompression::Compress(m_et_float[cell]); //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
+      int outET = jFEXCompression::Expand(ecode); //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
       //noise cut
       const bool SCpass = noiseCut(outET,layer);
       if (SCpass){ m_et[cell] = outET;}
@@ -132,10 +157,10 @@ namespace LVL1 {
       addET(et_half, cell);
       addET(et_half, cell+1);
 
-      unsigned int ecode1 = eFEXCompression::Compress(m_et_float[cell]);
-      int outET1 = eFEXCompression::Expand(ecode1);
-      unsigned int ecode2 = eFEXCompression::Compress(m_et_float[cell+1]);
-      int outET2 = eFEXCompression::Expand(ecode2);
+      unsigned int ecode1 = jFEXCompression::Compress(m_et_float[cell]); //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
+      int outET1 = jFEXCompression::Expand(ecode1); //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
+      unsigned int ecode2 = jFEXCompression::Compress(m_et_float[cell+1]); //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
+      int outET2 = jFEXCompression::Expand(ecode2); //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
 
       //noise cuts
       const bool SCpass1 = noiseCut(outET1,layer);
@@ -152,24 +177,15 @@ namespace LVL1 {
   }
 
   /** Apply noise cut per layer **/
-  bool eTower::noiseCut(int et, int layer) const
+  bool jTower::noiseCut(int et, int layer) const //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
   {
 
     bool pass=true;                                                                                                         
     if(layer==0) {
-      if(et<m_noisecutPS){ pass = false; }
+      if(et<m_noisecutPS){ pass = false; } //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
     } 
     else if (layer==1) {
-      if(et<m_noisecutL1){ pass = false; }
-    } 
-    else if (layer==2) {
-      if(et<m_noisecutL2){ pass = false; }
-    } 
-    else if (layer==3) {
-      if(et<m_noisecutL3){ pass = false; }
-    } 
-    else if (layer==4) {
-      if(et<m_noisecutHad){ pass = false; }
+      if(et<m_noisecutL1){ pass = false; } //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
     } 
     else { pass = false; }
     
@@ -180,15 +196,15 @@ namespace LVL1 {
   /** Return global eta index.
       Should be derived from tower ID, should be corrected in the future.
       Need to also think what index range should be (thinking ahead to Run2) */
-  int eTower::iEta() const {
-    const int index = (m_eta + 2.5)/0.1; // /0.1;  // Equivalent to divide by 0.1 which is the Tower size
+  int jTower::iEta() const {
+    const int index = (m_eta + 2.5)*10; // /0.1;  // Equivalent to divide by 0.1 which is the Tower size
     return index;
   }
   
   /** Return global phi index.
       Should be derived from tower ID, should be corrected in the future.
       Decision here is whether phi is signed or not */
-  int eTower::iPhi() const {
+  int jTower::iPhi() const {
     int index = 32*m_phi/M_PI;
     if (m_phi < 0) index = 32*(m_phi + 2*M_PI)/M_PI;
     const int cindex = index;
@@ -196,10 +212,10 @@ namespace LVL1 {
   }
   
   /** Return ET of specified supercell */
-  int eTower::getET(unsigned int layer,  int cell) const {
+  int jTower::getET(unsigned int layer,  int cell) const {
     
     /// Check cell index in range for layer
-    if (layer > 5 || cell < 0 || cell >= s_cells[layer]) return 0;
+    if (layer > 2 || cell < 0 || cell >= s_cells[layer]) return 0;
     
     // Return ET
     return m_et[s_offsets[layer] + cell];
@@ -207,10 +223,10 @@ namespace LVL1 {
   }
 
   /** Return ET of specified supercell FLOAT VERSION */
-  float eTower::getET_float(unsigned int layer, int cell) const {
+  float jTower::getET_float(unsigned int layer, int cell) const {
 
     /// Check cell index in range for layer
-    if (layer > 5 || cell < 0 || cell >= s_cells[layer]) return 0;
+    if (layer > 2 || cell < 0 || cell >= s_cells[layer]) return 0;
 
     // Return ET
     return m_et_float[s_offsets[layer] + cell];
@@ -218,7 +234,7 @@ namespace LVL1 {
   }
 
   /** Return ET of all supercells together*/
-  int eTower::getTotalET() const{
+  int jTower::getTotalET() const{
     
     int tmp = 0;
     for (unsigned int i=0; i<m_et.size(); i++){
@@ -230,7 +246,7 @@ namespace LVL1 {
   }
 
   /** Return ET of all supercells together FLOAT VERSION */
-  float eTower::getTotalET_float() const{
+  float jTower::getTotalET_float() const{
 
     float tmp = 0;
     for (unsigned int i=0; i<m_et_float.size(); i++){
@@ -243,13 +259,13 @@ namespace LVL1 {
 
   
   /** Return supercell ET values for specified layer */
-  std::vector<int> eTower::getLayerETvec(unsigned int layer) const {
+  std::vector<int> jTower::getLayerETvec(unsigned int layer) const {
     
     /// Create empty vector of data
     std::vector<int> cells;
     
     /// Check cell index in range for layer
-    if (layer > 5) return cells;
+    if (layer > 2) return cells;
     
     /// Fill output vector
     for (int cell = 0; cell < s_cells[layer]; ++cell) cells.push_back(m_et[s_offsets[layer] + cell]);
@@ -259,13 +275,13 @@ namespace LVL1 {
 
 
   /** Return supercell ET values for specified layer FLOAT VERSION */
-  std::vector<float> eTower::getLayerETvec_float(unsigned int layer) const {
+  std::vector<float> jTower::getLayerETvec_float(unsigned int layer) const {
 
     /// Create empty vector of data
     std::vector<float> cells;
 
     /// Check cell index in range for layer
-    if (layer > 5) return cells;
+    if (layer > 2) return cells;
 
     /// Fill output vector
     for (int cell = 0; cell < s_cells[layer]; ++cell) cells.push_back(m_et_float[s_offsets[layer] + cell]);
@@ -275,83 +291,43 @@ namespace LVL1 {
 
 
   /** Return supercell ET values for specified layer */
-  int eTower::getLayerTotalET(unsigned int layer) const {
+  int jTower::getLayerTotalET(unsigned int layer) const {
         
     if (layer == 0){
       return m_et[0];
     }
     else if (layer == 1){
-      return (m_et[1] + m_et[2] + m_et[3] + m_et[4]);
+      return (m_et[1]);
     }
-    else if (layer == 2){
-      return (m_et[5] + m_et[6] + m_et[7] + m_et[8]);
-    }
-    else if (layer == 3){
-      return m_et[9];
-    }
-    else if (layer == 4){
-      return (m_et[10] + m_et[11] + m_et[12] + m_et[13]);
-    }
-
     
     return 0;
     
   }
 
   /** Return supercell ET values for specified layer FLOAT VERSION */
-  float eTower::getLayerTotalET_float(unsigned int layer) const {
+  float jTower::getLayerTotalET_float(unsigned int layer) const {
 
     if (layer == 0){
       return m_et_float[0];
     }
     else if (layer == 1){
-      return (m_et_float[1] + m_et_float[2] + m_et_float[3] + m_et_float[4]);
+      return (m_et_float[1]);
     }
-    else if (layer == 2){
-      return (m_et_float[5] + m_et_float[6] + m_et_float[7] + m_et_float[8]);
-    }
-    else if (layer == 3){
-      return m_et_float[9];
-    }
-    else if (layer == 4){
-      return (m_et_float[10] + m_et_float[11] + m_et_float[12] + m_et_float[13]);
-    }
-
 
     return 0;
 
   }
 
-  std::vector<Identifier> eTower::getLayerSCIDs(unsigned int layer) const{
+  std::vector<Identifier> jTower::getLayerSCIDs(unsigned int layer) const{
 
-    std::vector<Identifier> cells_in_layer;
-    
     if (layer == 0){
-      cells_in_layer.push_back(m_scID[0]);
+      return m_EM_scID;
     }
     else if (layer == 1){
-      cells_in_layer.push_back(m_scID[1]);
-      cells_in_layer.push_back(m_scID[2]);
-      cells_in_layer.push_back(m_scID[3]);
-      cells_in_layer.push_back(m_scID[4]);
-    }
-    else if (layer == 2){
-      cells_in_layer.push_back(m_scID[5]);
-      cells_in_layer.push_back(m_scID[6]);
-      cells_in_layer.push_back(m_scID[7]);
-      cells_in_layer.push_back(m_scID[8]);
-    }
-    else if (layer == 3){
-      cells_in_layer.push_back(m_scID[9]);
-    }
-    else if (layer == 4){
-      cells_in_layer.push_back(m_scID[10]);
-      cells_in_layer.push_back(m_scID[11]);
-      cells_in_layer.push_back(m_scID[12]);
-      cells_in_layer.push_back(m_scID[13]);
+      return m_HAD_scID;
     }
 
-    return cells_in_layer;
+    return std::vector<Identifier>();
 
   }
 
