@@ -18,7 +18,6 @@ import six
 import copy
 import sys
 
-from AthenaConfiguration.UnifyProperties import unifySet
 
 
 
@@ -466,7 +465,7 @@ class ComponentAccumulator(object):
             if self._theAppProps[key] == value:
                 self._msg.debug("ApplicationMgr property '%s' already set to '%s'.", key, value)
             elif isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
-                value=unifySet(self._theAppProps[key],value)
+                value=self._theAppProps[key] + [el for el in value if el not in self._theAppProps[key]]
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
                 self._theAppProps[key]=value
             else:
@@ -1077,7 +1076,7 @@ def appendCAtoAthena(ca):
                 if origPropValue == propValue:
                     _log.debug("ApplicationMgr property '%s' already set to '%s'.", propName, propValue)
                 elif isinstance(origPropValue, collections.Sequence) and not isinstance(origPropValue, str):
-                    propValue = unifySet(origPropValue, propValue)
+                    propValue =  origPropValue + [el for el in propValue if el not in origPropValue]
                     _log.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", propName, origPropValue, propValue)
                     setattr(theApp, propName, propValue)
                 else:
