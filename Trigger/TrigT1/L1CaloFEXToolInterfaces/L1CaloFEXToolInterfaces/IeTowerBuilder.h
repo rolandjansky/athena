@@ -29,12 +29,12 @@ Interface definition for eTowerBuilder
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    virtual void BuildEMBeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) = 0;
-    virtual void BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) = 0;
-    virtual void BuildEMEeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) = 0 ;
-    virtual void BuildHECeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) = 0;
-    virtual void BuildAllTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) = 0;
-    virtual void BuildSingleTower(std::unique_ptr<eTowerContainer> & eTowerContainer,float eta, float phi, float keybase, int posneg) = 0;
+    virtual void BuildEMBeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) const = 0;
+    virtual void BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) const = 0;
+    virtual void BuildEMEeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) const = 0 ;
+    virtual void BuildHECeTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) const = 0;
+    virtual void BuildAllTowers(std::unique_ptr<eTowerContainer> & eTowerContainer) const = 0;
+    virtual void BuildSingleTower(std::unique_ptr<eTowerContainer> & eTowerContainer,float eta, float phi, float keybase, int posneg) const = 0;
     
     virtual void init(std::unique_ptr<eTowerContainer> & eTowerContainer) = 0;
     virtual void execute(std::unique_ptr<eTowerContainer> & eTowerContainer) = 0;

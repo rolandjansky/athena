@@ -3,15 +3,15 @@
 */
 
 //***************************************************************************
-//                           eTower.h  -  description
+//                           jTower.h  -  description
 //                              -------------------
 //     begin                : 19 02 2019
 //     email                : Alan.Watson@cern.ch, jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 
 
-#ifndef eTower_H
-#define eTower_H
+#ifndef jTower_H
+#define jTower_H
 
 #include <vector>
 #include "AthenaKernel/CLASS_DEF.h"
@@ -25,34 +25,35 @@
 namespace LVL1 {
   
   //Doxygen class description below:
-  /** The eTower class is an interface object for eFEX trigger algorithms
+  /** The jTower class is an interface object for jFEX trigger algorithms
       The purposes are twofold:
       - to provide inputs to the algorithms in a way that reflects the cell
-      structure within a tower (the basic element of an eFEX algorithm window)
+      structure within a tower (the basic element of an jFEX algorithm window)
       - to hide the details of the individual data sources, e.g. which hadronic
       cells are LAr and which are HEC, from the algorithms
       It needs to contain supercell ET values and a tower coordinate or identifier
-      (not yet defined). ET values should be on the eFEX's internal ET scale, not MeV.
+      (not yet defined). ET values should be on the jFEX's internal ET scale, not MeV.
       This should be a purely transient object, but will need to enter the transient
       event store (so class_def etc will be needed before it can be used for real)
   */
   
-  class eTower {
+  class jTower {
     
   public:
     
     /** Constructors */
-    eTower();
-    eTower(float eta, float phi, int id_modifier, int posneg);
+    jTower();
+    jTower(float eta, float phi, int id_modifier, int posneg);
     
     /** Destructor */
-    virtual ~eTower() = default;
-    
+    virtual ~jTower() = default;
+
     /** Clear supercell ET values */
     void clearET();
     
     /** Clear and resize Identifier value vector */
-    void clear_scIDs();
+    void clear_EM_scIDs();
+    void clear_HAD_scIDs();
 
     /** Add to ET of a specified cell in MeV */
     void addET(float et, int cell);
@@ -79,7 +80,7 @@ namespace LVL1 {
     /** Get ET of a specified cell in MeV */
     int getET(unsigned int layer, int cell = 0) const;
     
-    /** Get ET sum of all cells in the eTower in MeV */
+    /** Get ET sum of all cells in the jTower in MeV */
     int getTotalET() const;
 
     /** Get total ET sum of all cells in a given layer in MeV */
@@ -94,7 +95,7 @@ namespace LVL1 {
     /** Get ET of a specified cell in MeV FLOAT VERSION */
     float getET_float(unsigned int layer, int cell = 0) const;
 
-    /** Get ET sum of all cells in the eTower in MeV FLOAT VERSION */
+    /** Get ET sum of all cells in the jTower in MeV FLOAT VERSION */
     float getTotalET_float() const;
 
     /** Get total ET sum of all cells in a given layer in MeV FLOAT VERSION */
@@ -111,9 +112,11 @@ namespace LVL1 {
     /** Set supercell position ID **/
     void setSCID(Identifier ID, int cell, float et, int layer, bool doenergysplit);
 
-    std::vector<Identifier> getSCIDs() const { return m_scID; }
+    std::vector<Identifier> getEMSCIDs() const { return m_EM_scID; }
+    std::vector<Identifier> getHADSCIDs() const { return m_HAD_scID; }
 
-    Identifier getSCID(int cell) const { return m_scID[cell]; }
+    Identifier getEMSCID(int cell) const { return m_EM_scID[cell]; }
+    Identifier getHADSCID(int cell) const { return m_HAD_scID[cell]; }
 
     std::vector<Identifier> getLayerSCIDs(unsigned int layer) const;
 
@@ -128,7 +131,8 @@ namespace LVL1 {
   private:
     float m_eta;
     float m_phi;
-    std::vector<Identifier> m_scID;
+    std::vector<Identifier> m_EM_scID;
+    std::vector<Identifier> m_HAD_scID;
     std::vector<int> m_et;    
     std::vector<float> m_et_float;
     int m_tower_id;
@@ -143,7 +147,6 @@ namespace LVL1 {
   
 } // end of namespace
 
-CLASS_DEF( LVL1::eTower , 32201259 , 1 )
-
+CLASS_DEF( LVL1::jTower , 41848655 , 1 )
 
 #endif
