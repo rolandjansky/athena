@@ -14,6 +14,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
 #include <cmath>
 #include <cassert>
 
@@ -95,7 +96,7 @@ else{
     }
   }
 
-if (m_corRunNumber) {
+  if (m_corRunNumber) {
     // Change the EventID in the eventinfo header
     const EventInfo* pInputEvt(0);
     ATH_MSG_INFO("Set new run number called !!" << m_newRunNumber);
@@ -106,6 +107,13 @@ if (m_corRunNumber) {
       eventID->set_run_number(m_newRunNumber);
       ATH_MSG_INFO("Set new run number" << m_newRunNumber);
       ATH_MSG_DEBUG("Set new run number in event_ID");
+
+      // also set the MC channel number
+      EventType* event_type = const_cast<EventType*>(pInputEvt->event_type());
+      ATH_MSG_INFO("got event_type !! " );
+      event_type->set_mc_channel_number(m_newRunNumber);
+      ATH_MSG_INFO("Set new MC channel number" << event_type->mc_channel_number());
+      ATH_MSG_DEBUG("Set new mc_channel_number in event_type");
     } else {
       ATH_MSG_ERROR("No EventInfo object found");
       return StatusCode::SUCCESS;
