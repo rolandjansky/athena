@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ Trk::MaterialMapper::MaterialMapper(const std::string& t, const std::string& n, 
   m_maxMappingEvents(100000),
   m_processedEvents(0),
   m_totalMaterialTree("TotalMaterial"),
-  m_validationTree(0),
+  m_validationTree(nullptr),
   m_validationTreeName("MaterialMapper"),
   m_validationTreeDescription("Material Effects Updator information"),
   m_validationTreeFolder("/val/MaterialMapper"),
@@ -426,7 +426,7 @@ Trk::VolumeTreeObject* Trk::MaterialMapper::volumeTreeObject(const Trk::Layer* l
     auto endIter =  lay ? m_volumeTrees.end() : m_volumeTreesUnmapped.end();
     auto findIter = lay ? m_volumeTrees.end() : m_volumeTreesUnmapped.end();
 
-    Trk::VolumeTreeObject* tvolTreeObj = 0;
+    Trk::VolumeTreeObject* tvolTreeObj = nullptr;
 
     findIter = lay ? m_volumeTrees.find(tvol) : m_volumeTreesUnmapped.find(tvol);
 
@@ -457,14 +457,14 @@ Trk::VolumeTreeObject* Trk::MaterialMapper::volumeTreeObject(const Trk::Layer* l
             m_volumeTreesUnmapped.insert(std::make_pair(tvol,tvolTreeObj));
 
         // now register the Tree
-        ITHistSvc* tHistSvc = 0;
+        ITHistSvc* tHistSvc = nullptr;
         if (service("THistSvc",tHistSvc).isFailure()) {
             ATH_MSG_ERROR( "initialize() Could not find Hist Service  -> Switching Tree output for this volume off !" );
-            delete tvolTreeObj; tvolTreeObj = 0;
+            delete tvolTreeObj; tvolTreeObj = nullptr;
         }
         else if (tHistSvc && (tHistSvc->regTree(treeRegName.Data(), (*tvolTreeObj).tree)).isFailure()) {
             ATH_MSG_ERROR( "initialize() Could not register the validation Tree -> Switching Tree output for this volume off !" );
-            delete tvolTreeObj; tvolTreeObj = 0;
+            delete tvolTreeObj; tvolTreeObj = nullptr;
         }
 
     } else  // a tree is found
@@ -476,13 +476,13 @@ Trk::VolumeTreeObject* Trk::MaterialMapper::volumeTreeObject(const Trk::Layer* l
 
 Trk::LayerTreeObject* Trk::MaterialMapper::layerTreeObject(const Trk::Layer& lay, bool full) const
 {
-    if (!lay.layerIndex().value()) return 0;
+    if (!lay.layerIndex().value()) return nullptr;
 
     // try to find the histogram
     auto endIter  = m_layerTrees.end();
     auto findIter = m_layerTrees.end();
 
-    Trk::LayerTreeObject* layTreeObj = 0;
+    Trk::LayerTreeObject* layTreeObj = nullptr;
 
     findIter = full ?  m_layerFullTrees.find(&lay) : m_layerTrees.find(&lay);
     if (findIter == endIter) {
@@ -520,14 +520,14 @@ Trk::LayerTreeObject* Trk::MaterialMapper::layerTreeObject(const Trk::Layer& lay
         else m_layerTrees.insert(std::make_pair(&lay,layTreeObj));
 
         // now register the Tree
-        ITHistSvc* tHistSvc = 0;
+        ITHistSvc* tHistSvc = nullptr;
         if (service("THistSvc",tHistSvc).isFailure()) {
             ATH_MSG_ERROR( "initialize() Could not find Hist Service  -> Switching Tree output for this layer off !" );
-            delete layTreeObj; layTreeObj = 0;
+            delete layTreeObj; layTreeObj = nullptr;
         }
         else if (tHistSvc && (tHistSvc->regTree(treeRegName.Data(), (*layTreeObj).tree)).isFailure()) {
             ATH_MSG_ERROR( "initialize() Could not register the validation Tree -> Switching Tree output for this layer off !" );
-            delete layTreeObj; layTreeObj = 0;
+            delete layTreeObj; layTreeObj = nullptr;
         }
 
     } else  // a tree is found
@@ -543,7 +543,7 @@ Trk::SurfaceTreeObject* Trk::MaterialMapper::surfaceTreeObject(const Trk::Layer&
     auto endIter  = m_surfaceTrees.end();
     auto findIter = m_surfaceTrees.end();
 
-    Trk::SurfaceTreeObject* surfTreeObj = 0;
+    Trk::SurfaceTreeObject* surfTreeObj = nullptr;
 
     findIter = m_surfaceTrees.find(&lay);
     if (findIter == endIter) {
@@ -568,14 +568,14 @@ Trk::SurfaceTreeObject* Trk::MaterialMapper::surfaceTreeObject(const Trk::Layer&
         m_surfaceTrees.insert(std::make_pair(&lay,surfTreeObj));
 
         // now register the Tree
-        ITHistSvc* tHistSvc = 0;
+        ITHistSvc* tHistSvc = nullptr;
         if (service("THistSvc",tHistSvc).isFailure()) {
             ATH_MSG_INFO( "initialize() Could not find Hist Service  -> Switching Tree output for this surface off !" );
-            delete surfTreeObj; surfTreeObj = 0;
+            delete surfTreeObj; surfTreeObj = nullptr;
         }
         else if (tHistSvc && (tHistSvc->regTree(treeRegName.Data(), (*surfTreeObj).tree)).isFailure()) {
             ATH_MSG_INFO( "initialize() Could not register the validation Tree -> Switching Tree output for this surface off !" );
-            delete surfTreeObj; surfTreeObj = 0;
+            delete surfTreeObj; surfTreeObj = nullptr;
         }
 
     } else  // a tree is found
@@ -624,7 +624,7 @@ void Trk::MaterialMapper::bookValidationTree()
     ATH_MSG_INFO( "Booking the Validation Tree ... " );
 
     // now register the Tree
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
 
     // (1) Main MaterialMapper TTree
     // ------------- validation section ------------------------------------------
@@ -662,12 +662,12 @@ void Trk::MaterialMapper::bookValidationTree()
     // now register the Tree
     if (service("THistSvc",tHistSvc).isFailure()) {
         ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
-        delete m_validationTree; m_validationTree = 0;
+        delete m_validationTree; m_validationTree = nullptr;
         return;
     }
     if ((tHistSvc->regTree(m_validationTreeFolder.c_str(), m_validationTree)).isFailure()) {
         ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !" );
-        delete m_validationTree; m_validationTree = 0;
+        delete m_validationTree; m_validationTree = nullptr;
         return;
     }
     

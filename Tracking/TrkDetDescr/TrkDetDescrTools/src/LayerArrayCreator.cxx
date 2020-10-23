@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,9 +66,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
     std::sort(cylLayers.begin(), cylLayers.end(), rSorter);
 
     // needed for all cases
-    const Trk::Layer*                   cylinderLayer      = 0;
-    Trk::LayerArray*                    cylinderLayerArray = 0;
-    Trk::BinUtility*                    binUtility         = 0;
+    const Trk::Layer*                   cylinderLayer      = nullptr;
+    Trk::LayerArray*                    cylinderLayerArray = nullptr;
+    Trk::BinUtility*                    binUtility         = nullptr;
     std::vector< LayerOrderPosition >   layerOrderVector;
 
     switch (btype) {
@@ -84,8 +84,8 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
                 const Trk::CylinderSurface& layerSurface = layIter->surfaceRepresentation();
                 double currentR = layerSurface.bounds().r();
                 ATH_MSG_VERBOSE( "equidistant : registering cylindrical MaterialLayer at   radius : " << currentR );
-                layerOrderVector.push_back( Trk::LayerOrderPosition(Trk::SharedObject<const Layer>(layIter),
-                                                                    Amg::Vector3D(currentR, 0.,0.)));
+                layerOrderVector.emplace_back(Trk::SharedObject<const Layer>(layIter),
+                                                                    Amg::Vector3D(currentR, 0.,0.));
             }        
             // create the binUtility
             binUtility = new Trk::BinUtility(layers,rmin,rmax,Trk::open, Trk::binR);
@@ -106,16 +106,16 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             // the radialstep
             double radialStep = (rmax-rmin)/(layers-1);            
             // the next step
-            Trk::NavigationLayer* navLayer         = 0;
+            Trk::NavigationLayer* navLayer         = nullptr;
             double navigationR                     = 0.;
             double navLayerHalflengthZ             = 0.;
-            const Amg::Transform3D* layerTransform = 0;
+            const Amg::Transform3D* layerTransform = nullptr;
             
             // loop over layers
             for (auto& layIter : cylLayers ) {
               // get the dimensions
               const Trk::CylinderSurface& layerSurface = layIter->surfaceRepresentation();
-              layerTransform = layerSurface.transform().isApprox(Amg::Transform3D::Identity()) ? 0 : &layerSurface.transform();
+              layerTransform = layerSurface.transform().isApprox(Amg::Transform3D::Identity()) ? nullptr : &layerSurface.transform();
               
               double currentR = layerSurface.bounds().r();
               navigationR = currentR - 0.5*radialStep;
@@ -128,12 +128,12 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
               // the navigation layer
               navLayer = new Trk::NavigationLayer(navLayerSurface);
               // push the navigation layer in
-              layerOrderVector.push_back(Trk::LayerOrderPosition(Trk::SharedObject<const Trk::Layer>(navLayer),
-                                                                 Amg::Vector3D(navigationR, 0., 0.)));               
+              layerOrderVector.emplace_back(Trk::SharedObject<const Trk::Layer>(navLayer),
+                                                                 Amg::Vector3D(navigationR, 0., 0.));               
               ATH_MSG_VERBOSE( "bi-equidistant : registering cylindrical MaterialLayer at   radius : " << currentR );
               // push the original layer in
-              layerOrderVector.push_back(Trk::LayerOrderPosition(Trk::SharedObject<const Trk::Layer>(layIter),
-                                                                 Amg::Vector3D(currentR, 0., 0.)));
+              layerOrderVector.emplace_back(Trk::SharedObject<const Trk::Layer>(layIter),
+                                                                 Amg::Vector3D(currentR, 0., 0.));
             }
             
             // special treatment for the last one
@@ -144,8 +144,8 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             // the navigation layer
             navLayer = new Trk::NavigationLayer(navLayerSurfacFinal);
             // push the navigation layer in
-            layerOrderVector.push_back(Trk::LayerOrderPosition(Trk::SharedObject<const Trk::Layer>(navLayer),
-                                                               Amg::Vector3D(navigationR+radialStep, 0., 0.)));
+            layerOrderVector.emplace_back(Trk::SharedObject<const Trk::Layer>(navLayer),
+                                                               Amg::Vector3D(navigationR+radialStep, 0., 0.));
 
             ATH_MSG_VERBOSE( layerOrderVector.size() << " cylindrical Layers (material + navigation) built. " );
             
@@ -166,7 +166,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             std::vector<float> boundaries;
             // maz z extension
             double halfLengthZ                     = 0;
-            const Amg::Transform3D* layerTransform = 0;
+            const Amg::Transform3D* layerTransform = nullptr;
             
             // initial step
             boundaries.push_back(rmin);
@@ -175,7 +175,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
             for (auto& layIter : cylLayers) {
                 // get the cylinder surface
                 const Trk::CylinderSurface& layerSurface = layIter->surfaceRepresentation();
-                layerTransform = layerSurface.transform().isApprox(Amg::Transform3D::Identity()) ? 0 : &layerSurface.transform();
+                layerTransform = layerSurface.transform().isApprox(Amg::Transform3D::Identity()) ? nullptr : &layerSurface.transform();
                 // and get the halflength
                 double currentHalfLengthZ = layerSurface.bounds().halflengthZ();
                 takeBigger(halfLengthZ, currentHalfLengthZ);
@@ -190,13 +190,13 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
                 cylinderLayer = checkAndReplaceEmptyLayer(layIter);
                 if (cylinderLayer){ 
                     ATH_MSG_VERBOSE( "arbitrary : creating cylindrical NavigationLayer at radius : " << navLayerRadius );
-                    layerOrderVector.push_back(Trk::LayerOrderPosition(
+                    layerOrderVector.emplace_back(
                                                Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
-                                               Amg::Vector3D(navLayerRadius, 0., 0.)));
+                                               Amg::Vector3D(navLayerRadius, 0., 0.));
                     ATH_MSG_VERBOSE( "arbitrary : registering cylindrical MaterialLayer at   radius :" << layerRadius );
-                    layerOrderVector.push_back(Trk::LayerOrderPosition(
+                    layerOrderVector.emplace_back(
                                                Trk::SharedObject<const Trk::Layer>(cylinderLayer),
-                                               Amg::Vector3D(layerRadius, 0.,0.)));
+                                               Amg::Vector3D(layerRadius, 0.,0.));
                     boundaries.push_back(layerRadius-0.5*layerThickness);
                     boundaries.push_back(layerRadius+0.5*layerThickness);                                                              
                 } else {
@@ -211,9 +211,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
                                         new Trk::CylinderSurface(navLayerRadiusFinal, halfLengthZ);
             boundaries.push_back(rmax);
             ATH_MSG_VERBOSE( "arbitrary : creating cylindrical NavigationLayer at radius : " << navLayerRadiusFinal );
-            layerOrderVector.push_back(Trk::LayerOrderPosition(
+            layerOrderVector.emplace_back(
                                        Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurfaceFinal)),
-                                       Amg::Vector3D(navLayerRadiusFinal, 0., 0.)));
+                                       Amg::Vector3D(navLayerRadiusFinal, 0., 0.));
         
             ATH_MSG_VERBOSE( layerOrderVector.size() << " cylindrical Layers (material + navigation) built. " );
             // create the BinUtility
@@ -226,7 +226,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<co
         } break;
         
         // default return 0
-        default : { return 0; }
+        default : { return nullptr; }
     }
 
     return cylinderLayerArray;
@@ -243,8 +243,8 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
     ATH_MSG_VERBOSE( "       zmin/zmax provided : " << zmin << " / " << zmax );
 
     // needed for all cases
-    Trk::LayerArray*                    discLayerArray = 0;
-    Trk::BinUtility*                    binUtility = 0;
+    Trk::LayerArray*                    discLayerArray = nullptr;
+    Trk::BinUtility*                    binUtility = nullptr;
     std::vector< LayerOrderPosition >   layerOrderVector;
 
     //copy so that you can sort
@@ -253,7 +253,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
     Trk::DiscLayerSorterZ zSorter;
     std::sort(discLayers.begin(), discLayers.end(), zSorter);
     // the layer to be pushed back
-    const Trk::Layer* discLayer      = 0;
+    const Trk::Layer* discLayer      = nullptr;
 
     switch (btype) {
                 
@@ -268,8 +268,8 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 // get the Z
                 const Trk::Surface& layerSurface = discLayer->surfaceRepresentation();
                 ATH_MSG_VERBOSE( "equidistant : registering disc-like MaterialLayer   at z-Position : " << layerSurface.center().z() );
-                layerOrderVector.push_back( Trk::LayerOrderPosition(Trk::SharedObject<const Layer>(discLayer),
-                                                                    layerSurface.center()));
+                layerOrderVector.emplace_back(Trk::SharedObject<const Layer>(discLayer),
+                                                                    layerSurface.center());
             }
             // create the binUitlity
             binUtility = new Trk::BinUtility(layers,zmin,zmax,Trk::open,Trk::binZ);
@@ -293,8 +293,8 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             double minR = 0.;
             double maxR = 0.;
         
-            Amg::Transform3D* navLayerTransform = 0;
-            Trk::DiscSurface* navLayerSurface   = 0;
+            Amg::Transform3D* navLayerTransform = nullptr;
+            Trk::DiscSurface* navLayerSurface   = nullptr;
             double navigationZ                  = 0.;
             // loop over layers
             for (auto& layIter : discLayers) {   
@@ -308,9 +308,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
                 // push that layer back
                 ATH_MSG_VERBOSE( "bi-equidistant : creating disc-like NavigationLayer at z-Position : " << navigationZ );
-                layerOrderVector.push_back( Trk::LayerOrderPosition(
+                layerOrderVector.emplace_back(
                                             Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
-                                            navLayerSurface->center()));
+                                            navLayerSurface->center());
                 // and get dimensions
                 const Trk::DiscBounds* dbounds = dynamic_cast<const Trk::DiscBounds*>(&(layerSurface.bounds()));
                 if (dbounds) {
@@ -322,17 +322,17 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 }
                 // get the material layer first
                 ATH_MSG_VERBOSE( "bi-equidistant : registering disc-like MaterialLayer at z-Position : " << currentZ );
-                layerOrderVector.push_back( Trk::LayerOrderPosition(Trk::SharedObject<const Trk::Layer>(layIter),
-                                                                    layerSurface.center()));
+                layerOrderVector.emplace_back(Trk::SharedObject<const Trk::Layer>(layIter),
+                                                                    layerSurface.center());
             }
             // special treatment for last bin
             ATH_MSG_VERBOSE( "bi-equidistant : creating disc-like NavigationLayer at z-Position : " << navigationZ + zStep );
             navLayerTransform = new Amg::Transform3D;
             (*navLayerTransform) = Amg::Translation3D(0.,0.,navigationZ+zStep);
             navLayerSurface = new Trk::DiscSurface(navLayerTransform, minR, maxR);
-            layerOrderVector.push_back( Trk::LayerOrderPosition(
+            layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
-                                        navLayerSurface->center()));
+                                        navLayerSurface->center());
             // verbose output 
             ATH_MSG_VERBOSE( layerOrderVector.size() << " disc Layers (material + navigation) built. " );
 
@@ -389,13 +389,13 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
                 discLayer = checkAndReplaceEmptyLayer(layIter);
                 if (discLayer) {
                     ATH_MSG_VERBOSE( "arbitrary : creating disc-like NavigationLayer at z-Position : " << navLayerPositionZ );
-                    layerOrderVector.push_back( Trk::LayerOrderPosition(
+                    layerOrderVector.emplace_back(
                                                 Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
-                                                Amg::Vector3D(0., 0., navLayerPositionZ)));
+                                                Amg::Vector3D(0., 0., navLayerPositionZ));
                     ATH_MSG_VERBOSE( "arbitrary : registering disc-like MaterialLayer at z-Position : " << layerPositionZ );
-                    layerOrderVector.push_back( Trk::LayerOrderPosition(
+                    layerOrderVector.emplace_back(
                                                 Trk::SharedObject<const Trk::Layer>(discLayer),
-                                                Amg::Vector3D(0.,0., layerPositionZ)));
+                                                Amg::Vector3D(0.,0., layerPositionZ));
                     boundaries.push_back(layerPositionZ-0.5*layerThickness);
                     boundaries.push_back(layerPositionZ+0.5*layerThickness);                               
                 } else {
@@ -409,9 +409,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
             (*navLayerTransformFinal) = Amg::Translation3D(0.,0.,navLayerPositionZFinal);
             Trk::DiscSurface* navLayerSurfaceFinal = new Trk::DiscSurface(navLayerTransformFinal, minR, maxR);
             ATH_MSG_VERBOSE( "arbitrary : creating disc-like NavigationLayer at z-Position : " << navLayerPositionZFinal );
-            layerOrderVector.push_back( Trk::LayerOrderPosition(
+            layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurfaceFinal)), 
-                                        Amg::Vector3D(0., 0., navLayerPositionZFinal)));
+                                        Amg::Vector3D(0., 0., navLayerPositionZFinal));
             ATH_MSG_VERBOSE( layerOrderVector.size() << " disc Layers (material + navigation) built. " );
             // register the last bounday
             boundaries.push_back(zmax);
@@ -426,7 +426,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::discLayerArray(const std::vector<const 
         } break;
         
         // default return 0
-        default : { return 0; }
+        default : { return nullptr; }
     }
 
     return discLayerArray;
@@ -439,8 +439,8 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
     ATH_MSG_VERBOSE( " build LayerArray with " << planeLayersInput.size() << " plane-like material layers." );
 
     // needed for all cases
-    Trk::LayerArray*                    planeLayerArray = 0;
-    Trk::BinUtility*                    binUtility = 0;
+    Trk::LayerArray*                    planeLayerArray = nullptr;
+    Trk::BinUtility*                    binUtility = nullptr;
     std::vector< LayerOrderPosition >   layerOrderVector;
     Amg::Vector3D layerCenter(0.,0.,0.);
 
@@ -455,7 +455,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
         case Trk::binZ : { std::sort(sortBegin, sortEnd, Trk::PlaneLayerSorterZ()); } break;
         default : {
             ATH_MSG_WARNING("Plane Layers can only be sorted in x/y/z. Returning 0.");
-            return 0;  
+            return nullptr;  
         }  
     }
 
@@ -475,9 +475,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                 const Trk::PlaneSurface& layerSurface = (*layIter)->surfaceRepresentation();        
                 ATH_MSG_VERBOSE( "equidistant : registering plane-like MaterialLayer   at position : " << layerSurface.center() );
         
-                layerOrderVector.push_back( Trk::LayerOrderPosition(
+                layerOrderVector.emplace_back(
                                             Trk::SharedObject<const Layer>(*layIter),
-                                            layerSurface.center()));
+                                            layerSurface.center());
             }
             // create the binUitlity
             binUtility = new Trk::BinUtility(layers,posmin,posmax, Trk::open, bv);
@@ -538,7 +538,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                 double navigationZ = (bv == Trk::binZ) ? navigationPos : 0.;
                 Amg::Translation3D(navigationX,navigationY,navigationZ);
                 
-                Trk::PlaneSurface* navLayerSurface = 0;
+                Trk::PlaneSurface* navLayerSurface = nullptr;
                 Amg::Transform3D* navLayerTransform  = new Amg::Transform3D;
                 (*navLayerTransform)  = Amg::Translation3D(navigationX,0.,0.);
 
@@ -555,17 +555,17 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
         
                 ATH_MSG_VERBOSE( "bi-equidistant : creating plane-like NavigationLayer at position : " << navigationX );
         
-                layerOrderVector.push_back( Trk::LayerOrderPosition(
+                layerOrderVector.emplace_back(
                                             Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
-                                            Amg::Vector3D(navigationX, 0.,0.)));
+                                            Amg::Vector3D(navigationX, 0.,0.));
                 // restore
                 lastPos = currentPos;
                 // the material Layer
         
                 ATH_MSG_VERBOSE( "bi-equidistant : registering plane-like MaterialLayer at position : " << currentPos );
-                layerOrderVector.push_back( Trk::LayerOrderPosition (
+                layerOrderVector.emplace_back(
                                             Trk::SharedObject<const Trk::Layer>(*layIter),
-                                            layerSurface.center()));
+                                            layerSurface.center());
         
                 // increase the Step
                 currentPos += posStep;
@@ -586,9 +586,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
         
             ATH_MSG_VERBOSE( "bi-equidistant : creating plane-like NavigationLayer at position : " << navLayerSurface->center() );
         
-            layerOrderVector.push_back( Trk::LayerOrderPosition(
+            layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
-                                        navLayerSurface->center() ));
+                                        navLayerSurface->center() );
         
             // create the binUtility
             binUtility = new Trk::BinUtility(layers, layerThickness, posmin, posmax, Trk::open, bv);
@@ -653,15 +653,15 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                         new Trk::PlaneSurface( navLayerTransform, maxHalfX, halfY ) :
                         new Trk::PlaneSurface( navLayerTransform, minHalfX, maxHalfX, halfY );
                 ATH_MSG_VERBOSE( "arbitrary : creating plane-like NavigationLayer at position : " << navLayerPositionX );
-                layerOrderVector.push_back( Trk::LayerOrderPosition(
+                layerOrderVector.emplace_back(
                                             Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurface)),
-                                            Amg::Vector3D(navLayerPositionX, navLayerPositionY, navLayerPositionZ)));        
+                                            Amg::Vector3D(navLayerPositionX, navLayerPositionY, navLayerPositionZ));        
                 // register the material layer
                 boundaries.push_back(layerPosition+0.5*layerThickness);                            
                 // material layer
-                layerOrderVector.push_back( Trk::LayerOrderPosition(
+                layerOrderVector.emplace_back(
                                             Trk::SharedObject<const Trk::Layer>(*layIter),
-                                            layerSurface.center()));                                        
+                                            layerSurface.center());                                        
 
             } 
             // last NavigationLayer
@@ -676,9 +676,9 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
                         new Trk::PlaneSurface( navLayerTransformFinal, maxHalfX, halfY ) :
                         new Trk::PlaneSurface( navLayerTransformFinal, minHalfX, maxHalfX, halfY );
             ATH_MSG_VERBOSE( "arbitrary : creating plane-like NavigationLayer at position : " << 0.5*(posmax+boundaries[boundaries.size()-1]) );
-            layerOrderVector.push_back( Trk::LayerOrderPosition(
+            layerOrderVector.emplace_back(
                                         Trk::SharedObject<const Trk::Layer>(new Trk::NavigationLayer(navLayerSurfaceFinal)),
-                                        Amg::Vector3D(navLayerPositionXFinal, navLayerPositionYFinal, navLayerPositionZFinal)));
+                                        Amg::Vector3D(navLayerPositionXFinal, navLayerPositionYFinal, navLayerPositionZFinal));
     
             ATH_MSG_VERBOSE( layerOrderVector.size() << " plane Layers (material + navigation) built. " );
         
@@ -689,7 +689,7 @@ Trk::LayerArray* Trk::LayerArrayCreator::planeLayerArray(const std::vector<const
         
         } break;
         // default return 0
-        default : { return 0; }
+        default : { return nullptr; }
     }
 
     return planeLayerArray;
@@ -701,7 +701,7 @@ const Trk::Layer* Trk::LayerArrayCreator::checkAndReplaceEmptyLayer(const Trk::L
     if (m_emptyLayerMode){
         if (lay->layerMaterialProperties() || lay->surfaceArray()) return lay;
          ATH_MSG_VERBOSE("         replacing dummyMaterial layer with " << ( m_emptyLayerMode > 1 ? " nothing" :" NavigationLayer." ) );
-         Trk::NavigationLayer* nLayer = m_emptyLayerMode > 1 ? 0 : new Trk::NavigationLayer(lay->surfaceRepresentation().clone(), 1.);
+         Trk::NavigationLayer* nLayer = m_emptyLayerMode > 1 ? nullptr : new Trk::NavigationLayer(lay->surfaceRepresentation().clone(), 1.);
          delete lay;
          return nLayer;
     }

@@ -24,7 +24,7 @@
 // constructor
 Trk::GeometryTTreeDumper::GeometryTTreeDumper(const std::string& t, const std::string& n, const IInterface* p) : 
   Trk::RecursiveGeometryProcessor(t,n,p),
-  m_currentTree(0),
+  m_currentTree(nullptr),
   m_treeFolder("/val/")
 {}
 
@@ -41,7 +41,7 @@ StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::TrackingVolume& tvol
    
    // create the Tree for this TrackingVolume
    m_currentTree = new TTree(tvol.volumeName().c_str(),"Geometrical information");
-   ITHistSvc* tHistSvc = 0;
+   ITHistSvc* tHistSvc = nullptr;
    if (service("THistSvc",tHistSvc).isFailure()) {
        ATH_MSG_FATAL( "initialize() Could not find Hist Service! Aborting." );
        delete m_currentTree;
