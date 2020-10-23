@@ -44,13 +44,7 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
 
         // only want to seed from FCAL0 towers in forward region. sampling 2 = FCAL0, also have 3, 4
         if(tower->sampling() > 2) continue;
-
-
-        //make seeds at the edge of tower in eta (the edge that is closer to eta=0)
-        float candi_eta = tower->eta()-tower->deta()/2;           
-        if(tower->eta()<0) candi_eta = tower->eta()+tower->deta()/2;
-        //forward seeds are at the centre of towers
-        if(fabs(tower->eta())>3.2) candi_eta = tower->eta();
+        float candi_eta = tower->eta();           
 
         if( candi_eta<tmp && seed_candi_eta.size()==0) { tmp=candi_eta; t_eta = candi_eta;}
         else if( candi_eta > t_eta && candi_eta<tmp )  {  tmp = candi_eta; }
@@ -74,9 +68,7 @@ StatusCode JetAlg::SeedGrid(const xAOD::JGTowerContainer*towers, TString seedNam
            std::vector<int> SC_indices = tower->SCIndex();
 	   bool isTile = (fabs(tower->eta())<1.5 && tower->sampling()==1);
            if(SC_indices.size()==0 && !isTile) continue;
-           float eta = tower->eta()-tower->deta()/2;
-           if(tower->eta()<0) eta = tower->eta()+tower->deta()/2;
-           if(fabs(tower->eta())>3.2)  eta = tower->eta();
+           float eta = tower->eta();
            if(eta!=seed_candi_eta.at(i)) continue;
            // only want EM towers for central seeds. 0 = barrel EM. 1 = barrel had
            if(tower->sampling()==1) continue;
