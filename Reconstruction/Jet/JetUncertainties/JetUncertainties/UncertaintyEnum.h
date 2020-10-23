@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_UNCERTAINTYENUM_H
@@ -47,9 +47,12 @@ namespace CompParametrization
         Pt,             // 1D, (pT) dependence
         PtEta,          // 2D, (pT,eta) dependence
         PtAbsEta,       // 2D, (pT,|eta|) dependence
+        PtAbsMass,      // 2D, (pT,mass) dependence
         PtMass,         // 2D, (pt,m/pT) dependence
         PtMassEta,      // 3D, (pT,m/pT,eta) dependence
         PtMassAbsEta,   // 3D, (pT,m/pT,|eta|) dependence
+        PtAbsMassEta,   // 3D, (pT,mass,eta) dependence
+        PtAbsMassAbsEta,// 3D, (pT,mass,|eta|) dependence
         eLOGmOe,        // 2D, (E,log(m/E)) dependence
         eLOGmOeEta,     // 3D, (E,log(m/E),eta) dependence
         eLOGmOeAbsEta,  // 3D, (E,log(m/E),|eta|) dependence

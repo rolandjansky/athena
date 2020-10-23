@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_UNCERTAINTYCOMPONENT_H
@@ -67,6 +67,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         // Helper methods
         virtual bool getValidBool(const double validity) const;
         virtual double getSplitFactor(const xAOD::Jet& jet) const;
+        virtual double getAbsMass(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
         virtual double getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
         virtual double getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
 

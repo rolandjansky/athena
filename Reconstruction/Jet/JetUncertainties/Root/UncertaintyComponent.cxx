@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/UncertaintyComponent.h"
@@ -305,6 +305,30 @@ bool UncertaintyComponent::getValidBool(const double validity) const
     if (validity < 1+1.e-5 && validity > 1-1.e-5) return true;
     ATH_MSG_ERROR(Form("Validity value not in expected range: %lf for histogram %s",validity,getValidName().Data()));
     return false;
+}
+
+double UncertaintyComponent::getAbsMass(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
+{
+    bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    
+    if (isSimpleCase)
+        return jet.m();
+    
+    // Check if the specified scale is available and return it if so
+    if (scale.isAvailable(jet))
+        return scale(jet).M();
+    // Fall-back on the TA moment as a float if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
+        return scaleTAMoment(jet);
+    // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::CaloMass)
+        return jet.m();
+
+    // Specified scale is not available, error
+    ATH_MSG_ERROR("Failed to retrieve the " << CompMassDef::enumToString(massDef).Data() << " mass from the jet");
+    return JESUNC_ERROR_CODE;
 }
 
 double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const

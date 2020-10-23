@@ -49,12 +49,28 @@ double JetHelpers::Interpolate(const TH1* histo, const double x, const double y)
 
 double JetHelpers::Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis, const int yAxis, const int otherDimBin)
 {
+    if (xAxis == 0 || xAxis > histo->GetDimension())
+    {
+        histo->Error("Interpolate2D","Invalid x-axis specified");
+        return 0;
+    }
+    if (yAxis == 0 || yAxis > histo->GetDimension())
+    {
+        histo->Error("Interpolate2D","Invalid y-axis specified");
+        return 0;
+    }
+    if (xAxis == yAxis)
+    {
+        histo->Error("Interpolate2D","Requested x-axis == y-axis, invalid for 2D interpolation");
+        return 0;
+    }
+
     // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
     // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
     const TAxis* fXaxis = xAxis == 1 ? histo->GetXaxis() : xAxis == 2 ? histo->GetYaxis() : xAxis == 3 ? histo->GetZaxis() : nullptr;
     const TAxis* fYaxis = yAxis == 1 ? histo->GetXaxis() : yAxis == 2 ? histo->GetYaxis() : yAxis == 3 ? histo->GetZaxis() : nullptr;
 
-    if (!fXaxis || !fYaxis || histo->GetDimension() != 3)
+    if (!fXaxis || !fYaxis)
     {
         histo->Error("Interpolate2D","Failed to parse axes from inputs");
         return 0;
