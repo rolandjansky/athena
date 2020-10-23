@@ -58,7 +58,7 @@ std::atomic<unsigned int> VxCandidate::s_numberOfInstantiations=0;
       s_numberOfInstantiations++;
 #endif
     }//end of copy-constructor
-  
+
   VxCandidate &VxCandidate::operator= (const VxCandidate& rhs)
   {
     if (this!=&rhs)
@@ -84,10 +84,10 @@ std::atomic<unsigned int> VxCandidate::s_numberOfInstantiations=0;
     return *this;
   }
 
-  VxCandidate &VxCandidate::operator= (VxCandidate&& rhs)
- noexcept   {
-    if (this!=&rhs)
-    {
+  VxCandidate&
+  VxCandidate::operator=(VxCandidate&& rhs) noexcept
+  {
+    if (this != &rhs) {
       m_recVertex = std::move(rhs.m_recVertex);
       m_vertexType = rhs.m_vertexType;
       for (Trk::VxTrackAtVertex* tav : m_vxTrackAtVertex)
@@ -97,7 +97,7 @@ std::atomic<unsigned int> VxCandidate::s_numberOfInstantiations=0;
     return *this;
   }
 
-  VxCandidate::~VxCandidate() { 
+  VxCandidate::~VxCandidate() {
     for (std::vector<Trk::VxTrackAtVertex*>::iterator i = m_vxTrackAtVertex.begin();
 	 i != m_vxTrackAtVertex.end() ; ++i) {
       delete (*i);
@@ -131,11 +131,11 @@ std::atomic<unsigned int> VxCandidate::s_numberOfInstantiations=0;
     }
     return sl;
   }
-  
-  MsgStream& operator << ( MsgStream& sl, const VxCandidate& sf) 
+
+  MsgStream& operator << ( MsgStream& sl, const VxCandidate& sf)
   { return sf.dump(sl); }
 
-  std::ostream& operator << ( std::ostream& sl, const VxCandidate& sf) 
+  std::ostream& operator << ( std::ostream& sl, const VxCandidate& sf)
   { return sf.dump(sl); }
 
   unsigned int VxCandidate::numberOfInstantiations()

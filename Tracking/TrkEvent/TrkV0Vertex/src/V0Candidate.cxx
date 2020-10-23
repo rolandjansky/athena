@@ -29,13 +29,13 @@ namespace Trk {
 
   V0Candidate::V0Candidate(const V0Candidate& rhs) : m_v0Hyp(std::vector<Trk::V0Hypothesis *>())
   {
-   std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin(); 
+   std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin();
    std::vector<Trk::V0Hypothesis *>::const_iterator itre = rhs.m_v0Hyp.end();
    for(;itr!=itre;++itr) m_v0Hyp.push_back((*itr)->clone());
   }
 
 //destructor taking care of produced pointers
-  V0Candidate::~V0Candidate() 
+  V0Candidate::~V0Candidate()
   {
    std::vector<Trk::V0Hypothesis *>::iterator i  = m_v0Hyp.begin();
    std::vector<Trk::V0Hypothesis *>::iterator ie = m_v0Hyp.end();
@@ -44,14 +44,14 @@ namespace Trk {
     if(0!=(*i)) delete (*i);
     (*i)=0;
    }
-   m_v0Hyp.clear();  
+   m_v0Hyp.clear();
   }
 
   V0Candidate & V0Candidate::operator= (const V0Candidate & rhs)
   {
    if (this!=&rhs)
    {
-    
+
 //cleaning the local vector before assignement
     std::vector<Trk::V0Hypothesis *>::iterator i = m_v0Hyp.begin();
     std::vector<Trk::V0Hypothesis *>::iterator ie = m_v0Hyp.end();
@@ -60,22 +60,22 @@ namespace Trk {
      if(0!=(*i)) delete (*i);
      (*i)=0;
     }
-    m_v0Hyp.clear();   
-    
-//now copying the rhs content over     
-    std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin(); 
+    m_v0Hyp.clear();
+
+//now copying the rhs content over
+    std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin();
     std::vector<Trk::V0Hypothesis *>::const_iterator itre = rhs.m_v0Hyp.end();
-    for(;itr!=itre;++itr) m_v0Hyp.push_back((*itr)->clone()); 
+    for(;itr!=itre;++itr) m_v0Hyp.push_back((*itr)->clone());
    }
-   return *this;    
+   return *this;
   }
 
-  V0Candidate & V0Candidate::operator= (V0Candidate && rhs)
- noexcept   {
-   if (this!=&rhs)
-   {
-     m_v0Hyp = std::move (rhs.m_v0Hyp);
-   }
-   return *this;    
+  V0Candidate&
+  V0Candidate::operator=(V0Candidate&& rhs) noexcept
+  {
+    if (this != &rhs) {
+      m_v0Hyp = std::move(rhs.m_v0Hyp);
+    }
+    return *this;
   }
 } // end of namespace

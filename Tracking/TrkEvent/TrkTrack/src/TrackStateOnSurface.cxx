@@ -69,8 +69,8 @@ TrackStateOnSurface::TrackStateOnSurface(
   assert(isSane());
   //setFlags();
 }
- 
-  
+
+
 TrackStateOnSurface::TrackStateOnSurface
     (
     const MeasurementBase* meas,
@@ -89,11 +89,11 @@ TrackStateOnSurface::TrackStateOnSurface
 TrackStateOnSurface::TrackStateOnSurface(
     const TrackStateOnSurface& rhs
     ):
-    m_fitQualityOnSurface(rhs.m_fitQualityOnSurface 
+    m_fitQualityOnSurface(rhs.m_fitQualityOnSurface
         ? new FitQualityOnSurface(*rhs.m_fitQualityOnSurface) : nullptr ),
-    m_trackParameters(rhs.m_trackParameters 
+    m_trackParameters(rhs.m_trackParameters
         ? rhs.m_trackParameters->clone() : nullptr),
-    m_measurementOnTrack(rhs.m_measurementOnTrack 
+    m_measurementOnTrack(rhs.m_measurementOnTrack
         ? rhs.m_measurementOnTrack->clone() : nullptr),
     m_materialEffectsOnTrack(rhs.m_materialEffectsOnTrack
         ? rhs.m_materialEffectsOnTrack->clone() : nullptr),
@@ -119,12 +119,12 @@ TrackStateOnSurface& TrackStateOnSurface::operator=(const TrackStateOnSurface& r
         delete m_measurementOnTrack;
         delete m_materialEffectsOnTrack;
         delete m_alignmentEffectsOnTrack;
-        m_fitQualityOnSurface = rhs.m_fitQualityOnSurface 
+        m_fitQualityOnSurface = rhs.m_fitQualityOnSurface
             ? new FitQualityOnSurface(*rhs.m_fitQualityOnSurface) : nullptr ;
-        m_trackParameters = rhs.m_trackParameters 
+        m_trackParameters = rhs.m_trackParameters
             ? rhs.m_trackParameters->clone() : nullptr;
-        m_measurementOnTrack = rhs.m_measurementOnTrack 
-            ? rhs.m_measurementOnTrack->clone() : nullptr ; 
+        m_measurementOnTrack = rhs.m_measurementOnTrack
+            ? rhs.m_measurementOnTrack->clone() : nullptr ;
         m_materialEffectsOnTrack = rhs.m_materialEffectsOnTrack
             ? rhs.m_materialEffectsOnTrack->clone() : nullptr;
         m_alignmentEffectsOnTrack = rhs.m_alignmentEffectsOnTrack
@@ -136,33 +136,33 @@ TrackStateOnSurface& TrackStateOnSurface::operator=(const TrackStateOnSurface& r
 }
 
 Trk::TrackStateOnSurface&
-Trk::TrackStateOnSurface::operator=(Trk::TrackStateOnSurface&& rhs)
- noexcept {
-    if (this!=&rhs){
-      delete m_fitQualityOnSurface;
-      m_fitQualityOnSurface = rhs.m_fitQualityOnSurface;
-      rhs.m_fitQualityOnSurface = nullptr;
+Trk::TrackStateOnSurface::operator=(Trk::TrackStateOnSurface&& rhs) noexcept
+{
+  if (this != &rhs) {
+    delete m_fitQualityOnSurface;
+    m_fitQualityOnSurface = rhs.m_fitQualityOnSurface;
+    rhs.m_fitQualityOnSurface = nullptr;
 
-      delete m_trackParameters;
-      m_trackParameters = rhs.m_trackParameters;
-      rhs.m_trackParameters = nullptr;
+    delete m_trackParameters;
+    m_trackParameters = rhs.m_trackParameters;
+    rhs.m_trackParameters = nullptr;
 
-      delete m_measurementOnTrack;
-      m_measurementOnTrack = rhs.m_measurementOnTrack;
-      rhs.m_measurementOnTrack = nullptr;
+    delete m_measurementOnTrack;
+    m_measurementOnTrack = rhs.m_measurementOnTrack;
+    rhs.m_measurementOnTrack = nullptr;
 
-      delete m_alignmentEffectsOnTrack;
-      m_alignmentEffectsOnTrack = rhs.m_alignmentEffectsOnTrack;
-      rhs.m_alignmentEffectsOnTrack = nullptr;
+    delete m_alignmentEffectsOnTrack;
+    m_alignmentEffectsOnTrack = rhs.m_alignmentEffectsOnTrack;
+    rhs.m_alignmentEffectsOnTrack = nullptr;
 
-      delete m_materialEffectsOnTrack;
-      m_materialEffectsOnTrack = rhs.m_materialEffectsOnTrack;
-      rhs.m_materialEffectsOnTrack = nullptr;
+    delete m_materialEffectsOnTrack;
+    m_materialEffectsOnTrack = rhs.m_materialEffectsOnTrack;
+    rhs.m_materialEffectsOnTrack = nullptr;
 
-      m_typeFlags = std::move (rhs.m_typeFlags);
-      assert(isSane());
-    }
-    return *this;
+    m_typeFlags = std::move(rhs.m_typeFlags);
+    assert(isSane());
+  }
+  return *this;
 }
 
 std::string TrackStateOnSurface::dumpType() const{
@@ -192,7 +192,7 @@ std::string TrackStateOnSurface::dumpType() const{
     return type;
 }
 
-const Surface& 
+const Surface&
 TrackStateOnSurface::surface() const {
   if (m_trackParameters) { return m_trackParameters->associatedSurface();}
   if (m_measurementOnTrack) { return m_measurementOnTrack->associatedSurface();}
@@ -203,7 +203,7 @@ TrackStateOnSurface::surface() const {
   // return *dummy;
 }
 
-bool 
+bool
 TrackStateOnSurface::isSane() const {
   std::vector<const Surface* > surfaces;
 
@@ -222,7 +222,7 @@ TrackStateOnSurface::isSane() const {
     }
     surfaceIt++;
   }
-  
+
   if (surfacesDiffer){
     std::cerr<<"TrackStateOnSurface::isSane. Surfaces differ! "<<std::endl;
     if (m_trackParameters) {
@@ -243,7 +243,7 @@ TrackStateOnSurface::isSane() const {
     }
     return false;
   }
- 
+
   return true;
 }
 
@@ -269,85 +269,85 @@ TrackStateOnSurface::isSane() const {
   }
 
 
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
+/**Overload of << operator for both, MsgStream and std::ostream for debug output*/
 MsgStream& operator << ( MsgStream& sl, const TrackStateOnSurface& tsos)
-{ 
+{
     std::string name("TrackStateOnSurface: ");
     sl <<name<<"\t of type : "<<tsos.dumpType()<<endmsg;
     //write out "type" of object
-    
-    if (sl.level()<MSG::INFO) 
+
+    if (sl.level()<MSG::INFO)
     {
         sl<<name<<"Detailed dump of contained objects follows:"<<endmsg;
-        if ( tsos.fitQualityOnSurface()!=nullptr) { 
+        if ( tsos.fitQualityOnSurface()!=nullptr) {
             sl << *(tsos.fitQualityOnSurface() )<<"\n (end of FitQualityOnSurface dump)"<<endmsg;}
-    
-        if ( tsos.trackParameters() !=nullptr) { 
+
+        if ( tsos.trackParameters() !=nullptr) {
             sl << *(tsos.trackParameters() )<<"\n (end of TrackParameters dump)"<<endmsg;}
-    
-        if ( tsos.measurementOnTrack()!=nullptr) { 
+
+        if ( tsos.measurementOnTrack()!=nullptr) {
             sl << *(tsos.measurementOnTrack() )<<"\n (end of MeasurementBase dump"<<endmsg;}
-    
-        if (tsos.materialEffectsOnTrack()!=nullptr) { 
+
+        if (tsos.materialEffectsOnTrack()!=nullptr) {
             sl << *(tsos.materialEffectsOnTrack() )<<"\n (end of MaterialEffectsBase dump)"<<endmsg;}
-        
-        if (tsos.alignmentEffectsOnTrack()!=nullptr) { 
+
+        if (tsos.alignmentEffectsOnTrack()!=nullptr) {
             sl << *(tsos.alignmentEffectsOnTrack() )<<"\n (end of AlignmentEffectsOnTrack dump)"<<endmsg;}
     }
-    return sl; 
+    return sl;
 }
 
 std::ostream& operator << ( std::ostream& sl, const TrackStateOnSurface& tsos)
 {
     std::string name("TrackStateOnSurface: ");
     sl <<name<<"\t of type : "<<tsos.dumpType()<<std::endl;
-    
-    if ( tsos.fitQualityOnSurface()!=nullptr) 
+
+    if ( tsos.fitQualityOnSurface()!=nullptr)
     {
         sl <<"\t HAS FitQualityOnSurface(s)."<<std::endl;
         sl <<"\t \t"<< *(tsos.fitQualityOnSurface() )<<std::endl;
-    } 
-    else 
+    }
+    else
     {
         sl <<"\t NO FitQualityOnSurfaces."<<std::endl;
     }
 
-    if ( tsos.trackParameters()!=nullptr) 
+    if ( tsos.trackParameters()!=nullptr)
     {
         sl <<"\t HAS TrackParameter(s)."<<std::endl;
         sl <<"\t \t"<< *(tsos.trackParameters() )<<std::endl;
-    } 
-    else 
+    }
+    else
     {
         sl <<"\t NO TrackParameters."<<std::endl;
     }
 
-    if (tsos.measurementOnTrack()!=nullptr) 
+    if (tsos.measurementOnTrack()!=nullptr)
     {
         sl <<"\t HAS MeasurementBase(s)."<<std::endl;
         sl <<"\t \t"<< *(tsos.measurementOnTrack() )<<std::endl;
-    } 
-    else 
+    }
+    else
     {
         sl <<"\t NO MeasurementBase."<<std::endl;
     }
 
-    if (tsos.materialEffectsOnTrack()!=nullptr) 
+    if (tsos.materialEffectsOnTrack()!=nullptr)
     {
         sl <<"\t HAS MaterialEffectsBase."<<std::endl;
         sl <<"\t \t"<< *(tsos.materialEffectsOnTrack() )<<std::endl;
-    } 
-    else 
+    }
+    else
     {
         sl <<"\t NO MaterialEffects."<<std::endl;
     }   /**return sl; don't return here, the next code becomes dead**/
-    
-    if (tsos.alignmentEffectsOnTrack()!=nullptr) 
+
+    if (tsos.alignmentEffectsOnTrack()!=nullptr)
     {
         sl <<"\t HAS AlignmentEffectsOnTrack."<<std::endl;
         sl <<"\t \t"<< *(tsos.alignmentEffectsOnTrack() )<<std::endl;
-    } 
-    else 
+    }
+    else
     {
         sl <<"\t NO AlignmentEffectsOnTrack."<<std::endl;
     }   return sl;

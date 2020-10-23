@@ -47,7 +47,7 @@ class VxCandidate
     virtual ~VxCandidate();
     VxCandidate(const VxCandidate& rhs);
     VxCandidate &operator= (const VxCandidate &); 
-    VxCandidate &operator= (VxCandidate &&); 
+    VxCandidate &operator= (VxCandidate &&) noexcept; 
     virtual VxCandidate* clone() const;                
 
 /** Output Method for MsgStream, to be overloaded by child classes */

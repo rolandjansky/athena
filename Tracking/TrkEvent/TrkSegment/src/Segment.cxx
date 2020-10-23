@@ -45,7 +45,7 @@ Trk::Segment::Segment(const Trk::Segment& seg)
 Trk::Segment::Segment(const Trk::LocalParameters& locpars,
                       const Amg::MatrixX& locerr,
                       DataVector<const MeasurementBase>* measurements,
-                      FitQuality* fitqual, 
+                      FitQuality* fitqual,
 		      Author author )
     :
     Trk::MeasurementBase(locpars,locerr),
@@ -60,19 +60,18 @@ Trk::Segment::Segment(const Trk::LocalParameters& locpars,
 
 
 // move constructor
-Trk::Segment::Segment(Trk::Segment&& seg)
- noexcept      : Trk::MeasurementBase(seg),
-       m_author( seg.m_author)
+Trk::Segment::Segment(Trk::Segment&& seg) noexcept
+  : Trk::MeasurementBase(seg)
+  , m_author(seg.m_author)
 {
-     m_fitQuality = seg.m_fitQuality;
-     seg.m_fitQuality = nullptr;
-     m_containedMeasBases = seg.m_containedMeasBases;
-     seg.m_containedMeasBases = nullptr;
+  m_fitQuality = seg.m_fitQuality;
+  seg.m_fitQuality = nullptr;
+  m_containedMeasBases = seg.m_containedMeasBases;
+  seg.m_containedMeasBases = nullptr;
 #ifndef NDEBUG
      s_numberOfInstantiations++; // new Segment, so increment total count
-#endif 
+#endif
 }
-
 
 // destructor - child save
 Trk::Segment::~Segment()
@@ -93,47 +92,45 @@ Trk::Segment& Trk::Segment::operator=(const Trk::Segment& seg)
   if (this!=&seg){
     Trk::MeasurementBase::operator=(seg);
     delete m_fitQuality;
-    
+
     m_fitQuality = seg.m_fitQuality ? seg.m_fitQuality->clone() : nullptr;
     if (seg.m_containedMeasBases) {
       if (!m_containedMeasBases) {
          m_containedMeasBases = new DataVector<const Trk::MeasurementBase>;
-      }  
+      }
        else {
            m_containedMeasBases->clear();
        }
       m_containedMeasBases->reserve(seg.m_containedMeasBases->size());
       for(const Trk::MeasurementBase *const measurement : *(seg.m_containedMeasBases)) {
        m_containedMeasBases->push_back(measurement->clone());
-      } 
+      }
     }
     else {
       delete m_containedMeasBases;
-      m_containedMeasBases = nullptr; 
+      m_containedMeasBases = nullptr;
     }
     m_author = seg.m_author;
   }
   return (*this);
 }
 
-
 // move assignment operator
-Trk::Segment& Trk::Segment::operator=(Trk::Segment&& seg)  noexcept {
-   if (this!=&seg){
-     Trk::MeasurementBase::operator=(seg);
-     delete m_fitQuality;
-     m_fitQuality = seg.m_fitQuality;
-     seg.m_fitQuality = nullptr;
-     delete m_containedMeasBases;
-     m_containedMeasBases = seg.m_containedMeasBases;
-     seg.m_containedMeasBases = nullptr;
-     m_author = seg.m_author;
-   }
-   return (*this);
- } 
-
-
-
+Trk::Segment&
+Trk::Segment::operator=(Trk::Segment&& seg) noexcept
+{
+  if (this != &seg) {
+    Trk::MeasurementBase::operator=(seg);
+    delete m_fitQuality;
+    m_fitQuality = seg.m_fitQuality;
+    seg.m_fitQuality = nullptr;
+    delete m_containedMeasBases;
+    m_containedMeasBases = seg.m_containedMeasBases;
+    seg.m_containedMeasBases = nullptr;
+    m_author = seg.m_author;
+  }
+  return (*this);
+}
 
 unsigned int Trk::Segment::numberOfInstantiations()
 {
