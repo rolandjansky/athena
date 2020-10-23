@@ -124,7 +124,7 @@ result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[mccnvsvc.
 result.merge(BunchCrossingCondAlgCfg(ConfigFlags))
     
 result.getService("IOVDbSvc").Folders=["<db>sqlite://;schema=test.db;dbname=CONDBR2</db><tag>HEAD</tag>/TDAQ/OLC/LHC/FILLPARAMS"]
-result.getCondAlgo("BunchCrossingCondAlg").OutputLevel=1
+result.getCondAlgo("BunchCrossingCondAlgDefault").OutputLevel=1
     
 BunchCrossingCondTest=CompFactory.BunchCrossingCondTest
 result.addEventAlgo(BunchCrossingCondTest(FileName="BCData.txt",compact=True))
