@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu40
+# art-description: art job for mu_Zmumu_pu40
 # art-type: grid
 # art-include: master/Athena
+# art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
+# art-input-nfiles: 4
 # art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
@@ -25,16 +27,20 @@
 # art-output: *.dat 
 
 
-Slices  = ['muon','electron','tau','bjet']
-RunEF   = False
-Events  = 4000 
+Slices  = ['muon']
+RunEF   = True
+Events  = 2000 
 Threads = 8 
 Slots   = 8
-Input   = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
+Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
+GridFiles=True
 
-TrackReference = [ 'Offline' ]
-
+Args = " -p 13 "
+TrackReference = [ 'Truth', 'Offline' ]
+Lowpt          = [ False, True ] 
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")
 
+
+ 
