@@ -361,14 +361,14 @@ class trigRecoExecutor(athenaExecutor):
             elif(len(matchedOutputFileNames)):
                 msg.info('Single BS file found: will split (if requested) and rename file')
 
-                #TODO (ATR-20974) First check if we want to produce the COST BS output
-                #if 'COST' in self.conf.dataDictionary:
-                #    splitFailed = self._splitBSfile('Cost', matchedOutputFileNames[0],self.conf.dataDictionary['COST'].value[0])
-                #    if(splitFailed):
-                #        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                #            'Did not produce any BS file when selecting stream with trigbs_extractStream.py in file')
+                #First check if we want to produce the COST DRAW output
+                if 'DRAW_TRIGCOST' in self.conf.dataDictionary:
+                    splitFailed = self._splitBSfile('CostMonitoring', matchedOutputFileNames[0],self.conf.dataDictionary['DRAW_TRIGCOST'].value[0])
+                    if(splitFailed):
+                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                            'Did not produce any BS file when selecting CostMonitoring stream with trigbs_extractStream.py in file')
 
-                # If a stream (not All) is selected then slim the output to the particular stream out of the original BS file with many streams
+                # If a stream (not All) is selected, then slim the orignal (many stream) BS output to the particular stream
                 if 'streamSelection' in self.conf.argdict and self.conf.argdict['streamSelection'].value != "All":
                     splitFailed = self._splitBSfile(self.conf.argdict['streamSelection'].value, matchedOutputFileNames[0], argInDict.value[0])
                     if(splitFailed):
