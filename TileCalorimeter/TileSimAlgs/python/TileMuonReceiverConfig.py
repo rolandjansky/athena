@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile pulse for muon receiver algorithm"""
 
@@ -104,7 +104,7 @@ def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
         muRcvDigitsCnt = tilePulseForMuRcv.MuonReceiverDigitsContainer
     else:
         muRcvDigitsCnt = tilePulseForMuRcv.getDefaultProperty('MuonReceiverDigitsContainer')
-    muRcvDigitsCnt = muRcvDigitsCnt.split('+').pop()
+    muRcvDigitsCnt = str(muRcvDigitsCnt).split('+').pop()
     outputItemList = ['TileDigitsContainer#' + muRcvDigitsCnt]
 
     if not flags.Digitization.PileUpPremixing:
@@ -112,7 +112,7 @@ def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
             muRcvRawChCnt = tilePulseForMuRcv.MuonReceiverRawChannelContainer
         else:
             muRcvRawChCnt = tilePulseForMuRcv.getDefaultProperty('MuonReceiverRawChannelContainer')
-        muRcvRawChCnt = muRcvRawChCnt.split('+').pop()
+        muRcvRawChCnt = str(muRcvRawChCnt).split('+').pop()
         outputItemList += ['TileRawChannelContainer#' + muRcvRawChCnt]
 
     if flags.Output.doWriteRDO:
