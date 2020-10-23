@@ -59,10 +59,8 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
   return StatusCode::SUCCESS; 
 } 
 
-// ========================================================================= 
-StatusCode PFMuonFlowElementAssoc::finalize() {   
-  return StatusCode::SUCCESS; 
-} 
+
+
 
 // ========================================================================= 
 StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const 
@@ -82,9 +80,9 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 
   //extra container handles between neutral FE cluster and Muon CaloCluster - these are all for studies based on neutral Flow Element matching - All of these handles are experimental
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<double> > NeutralFE_efrac_match_muonWriteDecorHandle(m_NeutralFE_efrac_match_muonWriteHandleKey,ctx);
-  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<double> >muonNeutralFE_muon_efrac_WriteDecorHandle(m_muonNeutralFE_muon_efrac_WriteDecorHandleKey,ctx);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,int> NeutralFEmuon_nMatches_WriteDecorHandle(m_NeutralFEmuon_nMatches_WriteDecorHandleKey,ctx);
-  SG::WriteDecorHandle<xAOD::MuonContainer,double > muon_ClusterInfo_deltaR_WriteDecorHandle(m_muon_ClusterInfo_deltaR_WriteDecorHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer ,std::vector<double> >muonNeutralFE_muon_efrac_WriteDecorHandle(m_muonNeutralFE_muon_efrac_WriteDecorHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer ,int> NeutralFEmuon_nMatches_WriteDecorHandle(m_NeutralFEmuon_nMatches_WriteDecorHandleKey,ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer ,double > muon_ClusterInfo_deltaR_WriteDecorHandle(m_muon_ClusterInfo_deltaR_WriteDecorHandleKey,ctx);
   
   //store readhandles for muon and charged flow elements
   SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonReadHandleKey,ctx); // readhandle for muon
@@ -98,6 +96,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   //for neutral flow element studies
   std::vector<std::vector<double> >muonNeutralFE_frac_cluster_energy_matched_Vec(muonReadHandle->size()); 
 
+  
   //Loop over the Flow Elements 
 
   //////////////////////////////
