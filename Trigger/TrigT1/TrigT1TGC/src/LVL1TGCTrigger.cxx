@@ -24,9 +24,6 @@
 #include "TrigT1TGC/TGCTMDBOut.h"
 #include "TrigT1TGC/TGCNSW.h"
 
-// Athena/Gaudi
-#include "StoreGate/StoreGate.h"
-
 // Other stuff
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
