@@ -282,14 +282,15 @@ TrigConf::operator<<(std::ostream & os, const TrigConf::IsolationLegacy & iso) {
 
 TrigConf::Isolation::Isolation( const boost::property_tree::ptree & pt ) {
    m_isDefined = true;
-   m_reta = pt.get_child("reta").get_value<int>();
-   m_wstot = pt.get_child("wstot").get_value<int>();
-   m_had = pt.get_child("had").get_value<int>();
+   m_reta  = lround(100 * pt.get_optional<float>("reta").get_value_or(0));
+   m_wstot = lround(100 * pt.get_optional<float>("wstot").get_value_or(0));
+   m_rhad  = lround(100 * pt.get_optional<float>("rhad").get_value_or(0));
+   m_maxEt = pt.get_optional<unsigned int>("rhad").get_value_or(0);
 }
 
 std::ostream &
 TrigConf::operator<<(std::ostream & os, const TrigConf::Isolation & iso) {
-   os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", had=" << iso.had();
+   os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", rhad=" << iso.rhad();
    return os;
 }
 

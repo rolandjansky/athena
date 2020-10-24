@@ -28,8 +28,11 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    if( thrTypeName == "MU" )
       return std::make_unique<L1ThrExtraInfo_MU>(thrTypeName, data);
 
-   if( thrTypeName == "eEM" or thrTypeName == "eTAU" )
+   if( thrTypeName == "eEM" )
       return std::make_unique<L1ThrExtraInfo_eEMTAU>(thrTypeName, data);
+
+   if( thrTypeName == "eTAU" )
+      return std::make_unique<L1ThrExtraInfo_eTAU>(thrTypeName, data);
 
    if( thrTypeName == "jJ" )
       return std::make_unique<L1ThrExtraInfo_jJ>(thrTypeName, data);      
@@ -84,9 +87,9 @@ TrigConf::L1ThrExtraInfo::eEM() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_eEMTAU&>( * m_thrExtraInfo.at("eEM") );
 }
 
-const TrigConf::L1ThrExtraInfo_eEMTAU &
+const TrigConf::L1ThrExtraInfo_eTAU &
 TrigConf::L1ThrExtraInfo::eTAU() const {
-   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eEMTAU&>( * m_thrExtraInfo.at("eTAU") );
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eTAU&>( * m_thrExtraInfo.at("eTAU") );
 }
 
 const TrigConf::L1ThrExtraInfo_jJ &
@@ -197,19 +200,6 @@ TrigConf::L1ThrExtraInfo_JETLegacy::load()
 /*******
  * eEM
  *******/
-const TrigConf::Isolation &
-TrigConf::L1ThrExtraInfo_eEMTAU::isolation(TrigConf::Isolation::WP wp, int eta) const
-{
-   return m_isolation.at(wp).at(eta);
-}
-
-const TrigConf::ValueWithEtaDependence<TrigConf::Isolation> &
-TrigConf::L1ThrExtraInfo_eEMTAU::isolation(TrigConf::Isolation::WP wp) const
-{
-   return m_isolation.at(wp);
-}
-
-
 void
 TrigConf::L1ThrExtraInfo_eEMTAU::load()
 {
@@ -230,6 +220,39 @@ TrigConf::L1ThrExtraInfo_eEMTAU::load()
       }
    }
 }
+
+
+/*******
+ * eTAU
+ *******/
+TrigConf::L1ThrExtraInfo_eTAU::Isolation::Isolation( const boost::property_tree::ptree & pt ) {
+   m_isolation = lround(100 * pt.get_optional<float>("isolation").get_value_or(0));
+}
+
+void
+TrigConf::L1ThrExtraInfo_eTAU::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopo" ) {
+         m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
+      } else if( x.first == "workingPoints" ) {
+         for( auto & y : x.second.data() ) {
+            auto wp = (y.first == "Loose") ? TrigConf::Isolation::WP::LOOSE :
+               ( (y.first == "Medium") ? TrigConf::Isolation::WP::MEDIUM : TrigConf::Isolation::WP::TIGHT );
+            auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
+            for(auto & c : y.second ) {
+               int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
+               int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
+               unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
+               iso.addRangeValue(Isolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+            }
+         }
+      }
+   }
+}
+
+
+
 
 
 /*******

@@ -291,12 +291,18 @@ namespace TrigConf {
       bool isDefined() const { return m_isDefined; } 
       int reta()       const { return m_reta; } 
       int wstot()      const { return m_wstot; }
-      int had()        const { return m_had; }
+      int rhad()       const { return m_rhad; }
+      int had()        const { return m_rhad; }
+      int maxEt()      const { return m_maxEt; }
+      float reta_f()       const { return m_reta/100.; } 
+      float wstot_f()      const { return m_wstot/100.; }
+      float rhad_f()       const { return m_rhad/100.; }
    private:
       bool m_isDefined { false };
       int m_reta { 0 };
       int m_wstot { 0 };
-      int m_had { 0 };
+      int m_rhad { 0 };
+      unsigned int m_maxEt { 0 };
    };
    std::ostream & operator<<(std::ostream & os, const TrigConf::Isolation & iso);
 

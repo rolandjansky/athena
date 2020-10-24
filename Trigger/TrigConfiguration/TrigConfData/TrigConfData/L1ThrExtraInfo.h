@@ -19,6 +19,7 @@ namespace TrigConf {
    class L1ThrExtraInfo_JETLegacy;
    class L1ThrExtraInfo_XSLegacy;
    class L1ThrExtraInfo_eEMTAU;
+   class L1ThrExtraInfo_eTAU;
    class L1ThrExtraInfo_jJ;
    class L1ThrExtraInfo_jTAU;
    class L1ThrExtraInfo_gXE;
@@ -35,7 +36,7 @@ namespace TrigConf {
       const L1ThrExtraInfo_JETLegacy & JET() const;
       const L1ThrExtraInfo_XSLegacy & XS() const;
       const L1ThrExtraInfo_eEMTAU & eEM() const;
-      const L1ThrExtraInfo_eEMTAU & eTAU() const;
+      const L1ThrExtraInfo_eTAU & eTAU() const;
       const L1ThrExtraInfo_jJ & jJ() const;
       const L1ThrExtraInfo_jTAU & jTAU() const;
       const L1ThrExtraInfo_gXE & gXE() const;
@@ -132,8 +133,8 @@ namespace TrigConf {
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
       unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
       unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
-      const TrigConf::Isolation & isolation(TrigConf::Isolation::WP wp, int eta) const;
-      const ValueWithEtaDependence<TrigConf::Isolation> & isolation(TrigConf::Isolation::WP wp) const;
+      const TrigConf::Isolation & isolation(TrigConf::Isolation::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
+      const ValueWithEtaDependence<TrigConf::Isolation> & isolation(TrigConf::Isolation::WP wp) const { return m_isolation.at(wp); }
    private:
       /** Update the internal members */
       void load();
@@ -142,6 +143,33 @@ namespace TrigConf {
       std::map<TrigConf::Isolation::WP, ValueWithEtaDependence<Isolation>> m_isolation{};
    };
 
+   class L1ThrExtraInfo_eTAU final : public L1ThrExtraInfoBase {
+   public:
+      class Isolation {
+      public:
+         Isolation( const boost::property_tree::ptree & );
+         int isolation() const { return m_isolation; }
+         float isolation_f() const { return m_isolation/100.; }
+      private:
+         int m_isolation {0};
+         unsigned int m_maxEt { 0 };
+      };
+      L1ThrExtraInfo_eTAU(const std::string & thrTypeName, const ptree & data) :
+         L1ThrExtraInfoBase(thrTypeName, data) { load(); }
+      virtual ~L1ThrExtraInfo_eTAU() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_eTAU"; }
+      float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
+      unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
+      unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
+      const Isolation & isolation(TrigConf::Isolation::WP wp, int eta) const;
+      const ValueWithEtaDependence<TrigConf::Isolation> & isolation(TrigConf::Isolation::WP wp) const;
+   private:
+      /** Update the internal members */
+      void load();
+      /** eEM specific data */
+      unsigned int m_ptMinToTopoMeV{0};
+      std::map<TrigConf::Isolation::WP, ValueWithEtaDependence<Isolation>> m_isolation{};
+   };
 
    class L1ThrExtraInfo_jJ final : public L1ThrExtraInfoBase {
    public:
@@ -161,8 +189,6 @@ namespace TrigConf {
       /** jJ specific data */
       ValueWithEtaDependence<unsigned int> m_ptMinToTopoSmallMeV{"jJptMinTopoLarge"};
       ValueWithEtaDependence<unsigned int> m_ptMinToTopoLargeMeV{"jJptMinTopoSmall"};
-      //std::map<std::pair<int,int>,unsigned int> m_ptMinToTopoSmallMeV{};
-      //std::map<std::pair<int,int>,unsigned int> m_ptMinToTopoLargeMeV{};
    };
 
 
