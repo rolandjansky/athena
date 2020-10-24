@@ -105,6 +105,10 @@ HltEventLoopMgr::~HltEventLoopMgr()
 // =============================================================================
 StatusCode HltEventLoopMgr::initialize()
 {
+  // Do not auto-retrieve tools (see Gaudi!1124)
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   ATH_MSG_INFO(" ---> HltEventLoopMgr = " << name() << " initialize - package version " << PACKAGE_VERSION);
