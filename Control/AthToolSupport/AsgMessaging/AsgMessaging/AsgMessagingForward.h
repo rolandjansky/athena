@@ -12,6 +12,8 @@
 #include "AsgMessaging/MsgStream.h"
 #include "AsgMessaging/MsgStreamMacros.h"
 
+#include <functional>
+
 namespace asg
 {
   /// \brief base class to forward messages to another class
@@ -65,15 +67,21 @@ namespace asg
     //
 
     /// \brief the message stream we use
+    ///
+    /// This used to be a simple pointer to the `MsgStream` itself,
+    /// but in AthenaMT the actual object used is local to the thread.
+    /// So instead of pointing to it directly we are now using a
+    /// function to look it up, which will get the thread-local
+    /// object.
   private:
-    MsgStream *m_msg {nullptr};
+    std::function<MsgStream& ()> m_msg;
   };
 
 
 
   template<typename T>  AsgMessagingForward ::
   AsgMessagingForward( T *owner )
-    : m_msg (&owner->msg())
+    : m_msg ([owner] () -> MsgStream& {return owner->msg();})
   {}
 }
 
