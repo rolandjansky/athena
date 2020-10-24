@@ -87,6 +87,10 @@ def Lvl1SimulationSequence( flags = None ):
             #conddb.addFolderWithTag("TRIGGER_OFL", l1calofolder, "HEAD")
             conddb.addFolder( "TRIGGER_OFL", l1calofolder )
 
+    if flags.Trigger.enableL1Phase1:
+        from AthenaCommon import CfgMgr
+        l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
+
     ##################################################
     # Muons
     ##################################################
