@@ -240,5 +240,3 @@ class SLHC_Setup_XMLReader :
         HGTD_IdDictSvc.createXMLDictionary = createXML
         svcMgr += HGTD_IdDictSvc
         theApp.CreateSvc.insert(2,"HGTD_IdDictSvc/HGTD_IdDictSvc")
-        print "here's the service manager:"
-        print svcMgr

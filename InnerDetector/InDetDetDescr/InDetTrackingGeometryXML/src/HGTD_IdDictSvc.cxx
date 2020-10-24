@@ -6,8 +6,11 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometryXML/HGTD_IdDictSvc.h"
+
 #include <boost/filesystem.hpp>
 #include "TMath.h"
+
+using namespace std;
 
 HGTD_IdDictSvc::HGTD_IdDictSvc(const std::string& name,ISvcLocator* svc) :
     AthService(name, svc),
@@ -75,8 +78,7 @@ void HGTD_IdDictSvc::writeDictionary(std::string filename)
 
 void HGTD_IdDictSvc::openDictFile(std::ofstream& file,std::string filename) const
 {
-    // file.open(filename, ios::app);
-    file.open(filename);
+    file.open(filename, ios::app);
     ATH_MSG_DEBUG("HGTD_IdDictSvc::openDictFile ");
 }
 
@@ -105,7 +107,7 @@ void HGTD_IdDictSvc::writeHgtdDict(std::ofstream& file)
 
   // loop over front side rows
   for (unsigned int row = 0; row < disk_front_modules_per_row.size(); row++) {
-    file << " <region group=\"hgtd\" >" << std::endl;
+    file << "  <region group=\"hgtd\" >" << std::endl;
     file << "    <range field=\"part\" value=\"HGTD\" />" << std::endl;
     file << "    <range field=\"hgtd_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
     file << "    <range field=\"hgtd_disk\" values=\"inner_disk outer_disk\" />" << std::endl;
@@ -120,7 +122,7 @@ void HGTD_IdDictSvc::writeHgtdDict(std::ofstream& file)
 
   // loop over back side rows
   for (unsigned int row = 0; row < disk_back_modules_per_row.size(); row++) {
-    file << " <region group=\"hgtd\" >" << std::endl;
+    file << "  <region group=\"hgtd\" >" << std::endl;
     file << "    <range field=\"part\" value=\"HGTD\" />" << std::endl;
     file << "    <range field=\"hgtd_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
     file << "    <range field=\"hgtd_disk\" values=\"inner_disk outer_disk\" />" << std::endl;

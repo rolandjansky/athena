@@ -1077,7 +1077,9 @@ void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename)
        side=barrel\n\
          layer phi_module straw_layer straw\n\
        side=endcap\n\
-         wheel phi_module straw_layer straw\n\n  -->\n\
+         wheel phi_module straw_layer straw\n\
+     part=HGTD\n\
+       hgtd_endcap hgtd_disk hgtd_side quadrant row module phi_index eta_index\n\n  -->\n\
 \n\
 <IdDictionary name=\"InnerDetector\" version=\""<<xmlvers_for_dictionary<<"\" >\n\
   <field name=\"part\" >\n\
