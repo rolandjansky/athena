@@ -1469,9 +1469,10 @@ def searchProb(prob_val) :
                if isinstance(prop,ConfigurableAlgTool) and not prop.isInToolSvc() :
                    yield prop
 
+    from GaudiKernel.DataHandle import DataHandle
     for a_comp in iterateComp() :
         for name,prop in a_comp.getProperties().items() :
-            if isinstance(prop ,str) and prop == prob_val :
+            if isinstance(prop,(str,DataHandle)) and str(prop) == prob_val :
                 return True
     return False
 
@@ -1594,6 +1595,7 @@ def combinedClusterSplitProbName() :
           pass # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
       if InDetFlags.doDBMstandalone():
           CombinedInDetClusterSplitProbContainer=''
+
   return CombinedInDetClusterSplitProbContainer if hasSplitProb(CombinedInDetClusterSplitProbContainer) else ''
 
 def pixelClusterSplitProbName() :
