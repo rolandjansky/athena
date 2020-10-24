@@ -318,7 +318,7 @@ if __name__=='__main__':
     cfg.merge(noisemon) 
 
     ConfigFlags.dump()
-    f=open("NoisyROMonMaker.pkl","w")
+    f=open("NoisyROMonMaker.pkl","wb")
     cfg.store(f)
     f.close()
    
