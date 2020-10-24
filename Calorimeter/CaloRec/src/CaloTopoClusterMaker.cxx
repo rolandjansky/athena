@@ -165,6 +165,9 @@ StatusCode CaloTopoClusterMaker::initialize()
                 << m_cellThresholdOnEorAbsEinSigma
                 );
 
+  ATH_MSG_INFO( "Time cut option: " << ((!m_seedCutsInT) ? "None" : (m_cutOOTseed ? "Seed Extended" : "Seed")));
+  ATH_MSG_INFO( "E/sigma veto on T cut: m_useTimeCutUpperLimit=" << (m_useTimeCutUpperLimit ? "true" : "false") << ", m_timeCutUpperLimit=" << m_timeCutUpperLimit);
+
   //--- set Neighbor Option
 
   if ( m_neighborOption == "all2D" ) 
