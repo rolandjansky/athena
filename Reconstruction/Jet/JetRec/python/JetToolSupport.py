@@ -417,7 +417,7 @@ class JetToolManager:
     lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
                                               variableRMinRadius, variableRMassScale, constmods=constmods)
     jetrec = JetRecTool(output)
-    jetrec.InputPseudoJets = [getter.OutputContainer for getter in getters]
+    jetrec.InputPseudoJets = [str(getter.OutputContainer) for getter in getters]
     jetrec.JetFinder = hifinder
     jetrec.OutputContainer = output
     ptminSave = self.ptminFilter
