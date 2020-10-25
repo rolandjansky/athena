@@ -3,17 +3,20 @@
 # Declare the package name:
 atlas_subdir( TrigConfxAOD )
 
+find_package( Boost )
+
 # Libraries in the package:
 atlas_add_library( TrigConfxAODLib
    TrigConfxAOD/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfxAOD
-   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData TrigConfData ${Boost_LIBRARIES}
    TrigConfInterfaces )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrigConfxAOD
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel TrigConfData
+      LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib GaudiKernel 
       TrigConfxAODLib )
 endif()
 

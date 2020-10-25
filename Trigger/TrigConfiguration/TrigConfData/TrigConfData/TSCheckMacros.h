@@ -11,12 +11,16 @@
 #define ATLAS_THREAD_SAFE [[gnu::thread_safe]]
 #else
 #define ATLAS_THREAD_SAFE
-#endif
+#endif // ATLAS_GCC_CHECKERS
 
 #else
 
+#ifdef XAOD_STANDALONE
+#define ATLAS_THREAD_SAFE
+#else
 #include "CxxUtils/checker_macros.h"
+#endif // XAOD_STANDALONE
 
-#endif
+#endif // TRIGCONF_STANDALONE
 
-#endif
+#endif // TRIGCONFDATA_TSCHECKMACROS_H
