@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -112,15 +112,15 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"electronicNoise"))
 
     #Cache the track extrapolations
-    from TrackToCalo.CaloExtensionBuilderAlgCfg import getCaloExtenstionBuilderAlgorithm
-    result.addEventAlgo(getCaloExtenstionBuilderAlgorithm(inputFlags))
+    from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+    result.merge(CaloExtensionBuilderAlgCfg(inputFlags))
 
     #Configure the pflow algorithms
     PFLeptonSelector=CompFactory.PFLeptonSelector
     result.addEventAlgo(PFLeptonSelector("PFLeptonSelector"))
 
-    from eflowRec.PFCfg import getPFTrackSelectorAlgorithm
-    result.addEventAlgo(getPFTrackSelectorAlgorithm(inputFlags,"PFTrackSelector"))
+    from eflowRec.PFCfg import PFTrackSelectorAlgCfg
+    result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector"))
 
     result.addEventAlgo(getOfflinePFAlgorithm(inputFlags))
 
