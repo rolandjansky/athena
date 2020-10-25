@@ -477,6 +477,8 @@ Trk::GsfBetheHeitlerEffects::compute(
       varianceInverseMomentum =
         mixture[componentIndex].variance / (momentum * momentum);
     } // end backwards propagation if clause
+
+    //set in the cache and increase the elements
     cache.elements[cache.numElements] = { weight,
                                           deltaP,
                                           varianceInverseMomentum };
