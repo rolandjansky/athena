@@ -13,6 +13,8 @@ if metadata['eventTypes'][0] == 'IS_SIMULATION' \
 recoMetadataItemList = CfgItemList("RecoMetadata",
                                     items = ["xAOD::TriggerMenuContainer#*",
                                              "xAOD::TriggerMenuAuxContainer#*",
+                                             "xAOD::TriggerMenuJsonContainer#*",
+                                             "xAOD::TriggerMenuJsonAuxContainer#*",
                                              "IOVMetaDataContainer#*",
                                              "xAOD::LumiBlockRangeContainer#*",
 	                                     "xAOD::LumiBlockRangeAuxContainer#*",
