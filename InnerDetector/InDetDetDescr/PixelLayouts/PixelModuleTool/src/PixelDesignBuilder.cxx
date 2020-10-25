@@ -7,7 +7,7 @@
 #include "PixelGeoModel/PixelGeoBuilder.h"
 
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 #include "ReadoutGeometryBase/SiCommonItems.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 
