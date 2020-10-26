@@ -1,15 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
-import copy
-
 from IOVDbSvc.CondDB import conddb
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
