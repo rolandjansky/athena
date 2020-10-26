@@ -1,42 +1,7 @@
-# $Id: CMakeLists.txt 730306 2016-03-16 10:26:06Z krasznaa $
-################################################################################
-# Package: InDetEventTPCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetEventTPCnv )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthAllocators
-   Control/AthLinks
-   Control/DataModelAthenaPool
-   Control/StoreGate
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   Database/AthenaPOOL/AthenaPoolUtilities
-   DetectorDescription/Identifier
-   GaudiKernel
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   InnerDetector/InDetRecEvent/InDetCompetingRIOsOnTrack
-   InnerDetector/InDetRecEvent/InDetLowBetaInfo
-   InnerDetector/InDetRecEvent/InDetPrepRawData
-   InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-   Tracking/TrkEventCnv/TrkEventCnvTools
-   Tracking/TrkEventCnv/TrkEventTPCnv
-   PRIVATE
-   AtlasTest/TestTools
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/SGTools
-   DetectorDescription/IdDictParser
-   Event/EventPrimitives
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-   Tracking/TrkDetDescr/TrkSurfaces
-   Tracking/TrkEvent/TrkEventPrimitives
-   Tracking/TrkEvent/TrkMeasurementBase
-   Tracking/TrkEvent/TrkRIO_OnTrack )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( InDetEventTPCnv

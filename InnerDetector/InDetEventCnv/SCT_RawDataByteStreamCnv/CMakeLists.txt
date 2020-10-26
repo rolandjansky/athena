@@ -1,33 +1,10 @@
-################################################################################
-# Package: SCT_RawDataByteStreamCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_RawDataByteStreamCnv )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          GaudiKernel
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetConditions/InDetByteStreamErrors
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
-                          InnerDetector/InDetConditions/SCT_ConditionsData
-                          InnerDetector/InDetConditions/SCT_ConditionsTools
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/SCT_Cabling
-                          Trigger/TrigEvent/TrigSteeringEvent )
-
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat_write DataWriter )
+find_package( tdaq-common COMPONENTS eformat )
 
 atlas_add_library( SCT_RawDataByteStreamCnvLib
                    SCT_RawDataByteStreamCnv/*.h
@@ -40,7 +17,7 @@ atlas_add_component( SCT_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} SCT_RawDataByteStreamCnvLib ByteStreamData_test AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry SCT_CablingLib TrigSteeringEvent SCT_ConditionsData SCT_ConditionsToolsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamCnvSvcBaseLib ByteStreamData EventContainers GaudiKernel IRegionSelector Identifier InDetIdentifier InDetRawData InDetReadoutGeometry SCT_CablingLib SCT_ConditionsData SCT_ConditionsToolsLib SCT_RawDataByteStreamCnvLib SCT_ReadoutGeometry StoreGateLib TrigSteeringEvent xAODEventInfo )
 
 # Run tests:
 atlas_add_test( TestSCTDecode
@@ -59,5 +36,5 @@ atlas_add_test( TestSCTDecodeNewConf
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
