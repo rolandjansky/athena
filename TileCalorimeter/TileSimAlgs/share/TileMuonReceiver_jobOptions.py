@@ -47,7 +47,6 @@ topSequence = AlgSequence()
 #  Set up TilePulseForTileMuonReceiver
 from TileConditions.TileConditionsConf import TileCondToolNoiseSample
 topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver'
-#                                                   , OutputLevel = VERBOSE 
                                                    , IntegerDigits = not jobproperties.Digitization.PileUpPremixing()
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
@@ -58,12 +57,22 @@ if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.D
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = overlayFlags.bkgPrefix() + "MuRcvDigitsCnt"
 
+#
+# Thresholds
+#
+
 topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
-#                                                , OutputLevel = VERBOSE 
-						, MuonReceiverEneThreshCellD6Low = 500
-						, MuonReceiverEneThreshCellD6andD5Low = 500
-						, MuonReceiverEneThreshCellD6High = 600
-						, MuonReceiverEneThreshCellD6andD5High = 600)
+# run 2 thresholds
+                                                , MuonReceiverEneThreshCellD6Low = 500
+                                                , MuonReceiverEneThreshCellD6andD5Low = 500
+                                                , MuonReceiverEneThreshCellD6High = 600
+                                                , MuonReceiverEneThreshCellD6andD5High = 600
+# run 3 thresholds
+                                                , MuonReceiverEneThreshCellD5 = 500
+                                                , MuonReceiverEneThreshCellD6 = 500
+                                                , MuonReceiverEneThreshCellD5andD6 = 500)
+
+
 if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     topSequence.TileMuonReceiverDecision.TileMuonReceiverContainer = overlayFlags.bkgPrefix() + "TileMuRcvCnt"
