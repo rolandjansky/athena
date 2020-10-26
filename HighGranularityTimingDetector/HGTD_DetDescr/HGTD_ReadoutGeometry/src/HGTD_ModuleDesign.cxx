@@ -158,12 +158,6 @@ HGTD_ModuleDesign::connectedCell(const SiReadoutCellId & readoutId, int number) 
     return m_readoutScheme.connectedCell(readoutId, number);
 }
 
-SiCellId
-HGTD_ModuleDesign::gangedCell(const SiCellId & cellId) const
-{
-    return m_readoutScheme.gangedCell(cellId);  
-}
-
 SiReadoutCellId
 HGTD_ModuleDesign::readoutIdOfCell(const SiCellId & cellId) const
 {
@@ -185,11 +179,6 @@ SiCellId
 HGTD_ModuleDesign::cellIdInRange(const SiCellId & cellId) const
 {
     return m_diodeMap.cellIdInRange(cellId);
-}
-
-void HGTD_ModuleDesign::setGeneralLayout()
-{
-  m_diodeMap.setGeneralLayout();
 }
 
 } // namespace InDetDD

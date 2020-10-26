@@ -152,9 +152,6 @@ public:
     /** readout id -> id of connected diodes */
     virtual int numberOfConnectedCells(const SiReadoutCellId & readoutId) const;
     virtual SiCellId connectedCell(const SiReadoutCellId & readoutId, int number) const;
-    
-    /** If cell is ganged return the other cell, otherwise return an invalid id. */
-    virtual SiCellId gangedCell(const SiCellId & cellId) const;
 
     /** diode id -> readout id */
     virtual SiReadoutCellId readoutIdOfCell(const SiCellId & cellId) const;
@@ -187,10 +184,6 @@ public:
        to which the corresponding diode is connected */
     void addMultipleRowConnection(const int lowerRow,
                 const std::vector<int> &connections);
-
-    /** Indicate that it is a more complex layout where cells are not
-       lined up with each other. Eg bricking. Probably never will be needed. */
-    void setGeneralLayout();
 
     ///////////////////////////////////////////////////////////////////
     // Private methods:
