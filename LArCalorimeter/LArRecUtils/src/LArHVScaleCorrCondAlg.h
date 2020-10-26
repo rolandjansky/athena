@@ -92,6 +92,9 @@ class LArHVScaleCorrCondAlg: public AthAlgorithm
 
 
   bool m_undoOnlineHVCorr;
+  bool m_useCurrentEMB;
+  bool m_useCurrentFCAL1;
+  bool m_useCurrentOthers;
 
   struct HVfix_t {
     unsigned int subdet;   // 0-1-2-3 for EMB-EMEC-HEC-FCAL

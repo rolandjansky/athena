@@ -23,6 +23,7 @@ def LArHVScaleCfg(configFlags):
 
         result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap"], "LAR_OFL", className="AthenaAttributeList"))
         result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Pathologies"], "LAR_OFL", className="AthenaAttributeList"))
+        result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Rvalues"], "LAR_OFL", className="AthenaAttributeList"))
 
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg
         result.merge(LArBadChannelCfg(configFlags))
