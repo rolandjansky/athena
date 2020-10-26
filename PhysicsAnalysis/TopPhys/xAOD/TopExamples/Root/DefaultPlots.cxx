@@ -132,7 +132,7 @@ namespace top {
       manager.hist("jet_e")->Fill(jetPtr->e() * toGeV, eventWeight);
 
       double mv2c10_discriminant = 0.;
-      jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
+      //jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
 
       manager.hist("jet_mv2c10")->Fill(mv2c10_discriminant, eventWeight);
 

@@ -528,10 +528,10 @@ namespace top {
           } // Loop over container
 
           // Reset b-tagging links
-          for (std::map<unsigned int, unsigned int>::const_iterator i = currentSystematicThinningMap.begin();
-               i != currentSystematicThinningMap.end(); ++i) {
-            output->at((*i).second)->setBTaggingLink(xaod->at((*i).first)->btaggingLink());
-          }
+          //for (std::map<unsigned int, unsigned int>::const_iterator i = currentSystematicThinningMap.begin();
+          //     i != currentSystematicThinningMap.end(); ++i) {
+          //  output->at((*i).second)->setBTaggingLink(xaod->at((*i).first)->btaggingLink());
+          //}
         } // saveEventObjects
         top::check(evtStore()->event()->record(output, sgKey), "Failed to record xAOD::JetContainer");
         thinningMap->insert(std::make_pair(currentSystematic.first, currentSystematicThinningMap));
@@ -581,10 +581,10 @@ namespace top {
           } // Loop over container
 
           // Reset b-tagging links
-          for (std::map<unsigned int, unsigned int>::const_iterator i = currentSystematicThinningMap.begin();
-               i != currentSystematicThinningMap.end(); ++i) {
-            output->at((*i).second)->setBTaggingLink(xaod->at((*i).first)->btaggingLink());
-          }
+          //for (std::map<unsigned int, unsigned int>::const_iterator i = currentSystematicThinningMap.begin();
+          //     i != currentSystematicThinningMap.end(); ++i) {
+          //  output->at((*i).second)->setBTaggingLink(xaod->at((*i).first)->btaggingLink());
+          //}
         } // saveEventObjects
         top::check(evtStore()->event()->record(output, sgKey), "Failed to record xAOD::JetContainer");
         thinningMap->insert(std::make_pair(currentSystematic.first, currentSystematicThinningMap));
@@ -634,10 +634,10 @@ namespace top {
           } // Loop over container
 
           // Reset b-tagging links
-          for (std::map<unsigned int, unsigned int>::const_iterator i = currentSystematicThinningMap.begin();
-               i != currentSystematicThinningMap.end(); ++i) {
-            output->at((*i).second)->setBTaggingLink(xaod->at((*i).first)->btaggingLink());
-          }
+          //for (std::map<unsigned int, unsigned int>::const_iterator i = currentSystematicThinningMap.begin();
+          //     i != currentSystematicThinningMap.end(); ++i) {
+          //  output->at((*i).second)->setBTaggingLink(xaod->at((*i).first)->btaggingLink());
+          //}
         } // saveEventObjects
         top::check(evtStore()->event()->record(output, sgKey), "Failed to record xAOD::JetContainer");
         thinningMap->insert(std::make_pair(currentSystematic.first, currentSystematicThinningMap));

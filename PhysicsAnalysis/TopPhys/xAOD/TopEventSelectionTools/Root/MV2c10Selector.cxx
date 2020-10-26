@@ -14,11 +14,11 @@ namespace top {
   }
 
   bool MV2c10Selector::apply(const top::Event& event) const {
-    auto func = [&](const xAOD::Jet* const jetPtr) {
-                  double mv2c10_discriminant = 0.;
-                  const bool hasMv2c10 = jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
+    auto func = [&](const xAOD::Jet* const /*jetPtr*/) {
+                  //double mv2c10_discriminant = 0.;
+                  //const bool hasMv2c10 = jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
 
-                  if (hasMv2c10) return mv2c10_discriminant > value();
+                  //if (hasMv2c10) return mv2c10_discriminant > value();
 
                   return false;
                 };

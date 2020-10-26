@@ -128,11 +128,11 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MissingETObjectCollectionMaker::recalculateEventMET(const xAOD::SystematicEvent* event,
-                                                                 const xAOD::MissingETContainer* xaod_met_core,
-                                                                 const xAOD::MissingETAssociationMap* xaod_met_map,
-                                                                 bool forceUseLooseObjects,
-                                                                 std::string outputContainerSuffix) {
+  StatusCode MissingETObjectCollectionMaker::recalculateEventMET(const xAOD::SystematicEvent* /*event*/,
+                                                                 const xAOD::MissingETContainer* /*xaod_met_core*/,
+                                                                 const xAOD::MissingETAssociationMap* /*xaod_met_map*/,
+                                                                 bool /*forceUseLooseObjects*/,
+                                                                 std::string /*outputContainerSuffix*/){
 //    // decoration for objects that pass pre OR selection
 //    std::string passPreORSelection = "passPreORSelection";
 //

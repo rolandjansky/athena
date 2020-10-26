@@ -755,14 +755,14 @@ namespace top {
 
   bool EventCleaningSelection::isElectronTrigger(std::string const& trigger) const {
     top::check(trigger.find("HLT_") == 0, "Expected trigger name to start with `HLT_'");
-    bool success;
+    //bool success;
     return true;
    // return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Electron);
   }
 
   bool EventCleaningSelection::isMuonTrigger(std::string const& trigger) const {
     top::check(trigger.find("HLT_") == 0, "Expected trigger name to start with `HLT_'");
-    bool success;
+    //bool success;
     return true;
     //return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Muon);
   }

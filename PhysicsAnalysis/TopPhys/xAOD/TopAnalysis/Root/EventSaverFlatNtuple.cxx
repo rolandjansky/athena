@@ -1112,20 +1112,20 @@ namespace top {
       }
 
       if (m_config->useTracks()) {
-	systematicTree->makeOutputVariable(m_track_pt,     "track_pt");
-	systematicTree->makeOutputVariable(m_track_eta,    "track_eta");
-	systematicTree->makeOutputVariable(m_track_phi,    "track_phi");
-	systematicTree->makeOutputVariable(m_track_e,      "track_e");
-	systematicTree->makeOutputVariable(m_track_charge, "track_charge");
-	systematicTree->makeOutputVariable(m_track_d0,     "track_d0");
-	systematicTree->makeOutputVariable(m_track_d0_significance, "track_d0_significance");
-	systematicTree->makeOutputVariable(m_track_z0,     "track_z0");
-	systematicTree->makeOutputVariable(m_track_z0_significance, "track_z0_significance");
-	systematicTree->makeOutputVariable(m_track_phi0,   "track_phi0");
-	systematicTree->makeOutputVariable(m_track_theta,  "track_theta");
-	systematicTree->makeOutputVariable(m_track_qOverP, "track_qOverP");
-	systematicTree->makeOutputVariable(m_track_chiSquared, "track_chiSquared");
-	systematicTree->makeOutputVariable(m_track_numberDoF, "track_numberDoF");
+        systematicTree->makeOutputVariable(m_track_pt,     "track_pt");
+        systematicTree->makeOutputVariable(m_track_eta,    "track_eta");
+        systematicTree->makeOutputVariable(m_track_phi,    "track_phi");
+        systematicTree->makeOutputVariable(m_track_e,      "track_e");
+        systematicTree->makeOutputVariable(m_track_charge, "track_charge");
+        systematicTree->makeOutputVariable(m_track_d0,     "track_d0");
+        systematicTree->makeOutputVariable(m_track_d0_significance, "track_d0_significance");
+        systematicTree->makeOutputVariable(m_track_z0,     "track_z0");
+        systematicTree->makeOutputVariable(m_track_z0_significance, "track_z0_significance");
+        systematicTree->makeOutputVariable(m_track_phi0,   "track_phi0");
+        systematicTree->makeOutputVariable(m_track_theta,  "track_theta");
+        systematicTree->makeOutputVariable(m_track_qOverP, "track_qOverP");
+        systematicTree->makeOutputVariable(m_track_chiSquared, "track_chiSquared");
+        systematicTree->makeOutputVariable(m_track_numberDoF, "track_numberDoF");
       }
       
 
@@ -2782,8 +2782,8 @@ namespace top {
         m_jet_phi[i] = jetPtr->phi();
         m_jet_e[i] = jetPtr->e();
         // In R21, list of b-tagging variables is changing and this is outdated
-        const xAOD::BTagging* btag(nullptr);
-        btag = jetPtr->btagging();
+        //const xAOD::BTagging* btag(nullptr);
+        //btag = jetPtr->btagging();
         if (m_config->isMC()) {
           m_jet_truthflav[i] = -99;
           if (jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")) {
@@ -2888,7 +2888,7 @@ namespace top {
 
         if (m_config->bTagAlgo_MV2c10_used()) {
           double mvx = -999;
-          if (btag) btag->MVx_discriminant("MV2c10", mvx);
+          //if (btag) btag->MVx_discriminant("MV2c10", mvx);
           m_jet_mv2c10[i] = mvx;
         }
 
@@ -2913,27 +2913,27 @@ namespace top {
       // calculated by BtaggingSelectionTool
       for (const std::string& algo : m_config->bTagAlgo_available()) {
         std::vector<float>& m_jet_DLx_pick = m_jet_DLx.at(algo);
-        std::vector<float>& m_jet_DLx_pb_pick = m_jet_DLx_pb.at(algo);
-        std::vector<float>& m_jet_DLx_pc_pick = m_jet_DLx_pc.at(algo);
-        std::vector<float>& m_jet_DLx_pu_pick = m_jet_DLx_pu.at(algo);
+        //std::vector<float>& m_jet_DLx_pb_pick = m_jet_DLx_pb.at(algo);
+        //std::vector<float>& m_jet_DLx_pc_pick = m_jet_DLx_pc.at(algo);
+        //std::vector<float>& m_jet_DLx_pu_pick = m_jet_DLx_pu.at(algo);
         const SG::AuxElement::ConstAccessor<float>& DLx_acc = DLx.at(algo);
         i = 0;
         for (const auto* const jetPtr : event.m_jets) {
           m_jet_DLx_pick[i] = DLx_acc(*jetPtr);
 
-          const xAOD::BTagging* btag(nullptr);
-          btag = jetPtr->btagging();
-          if (btag) {
-            double pu = -999;
-            double pc = -999;
-            double pb = -999;
-            btag->pu(algo, pu);
-            btag->pc(algo, pc);
-            btag->pb(algo, pb);
-            m_jet_DLx_pb_pick[i] = pb;
-            m_jet_DLx_pc_pick[i] = pc;
-            m_jet_DLx_pu_pick[i] = pu;
-          }
+          //const xAOD::BTagging* btag(nullptr);
+          //btag = jetPtr->btagging();
+          //if (btag) {
+          //  double pu = -999;
+          //  double pc = -999;
+          //  double pb = -999;
+          //  btag->pu(algo, pu);
+          //  btag->pc(algo, pc);
+          //  btag->pb(algo, pb);
+          //  m_jet_DLx_pb_pick[i] = pb;
+          //  m_jet_DLx_pc_pick[i] = pc;
+          //  m_jet_DLx_pu_pick[i] = pu;
+          //}
           ++i;
         }
       }
@@ -3208,9 +3208,9 @@ namespace top {
         m_ljet_e[i] = jetPtr->e();
         m_ljet_m[i] = jetPtr->m();
 
-	for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
-	  m_ljet_substructure[it.first][i] = jetPtr->isAvailable<float>(it.second) ? jetPtr->auxdata<float>(it.second) : -999;
-	}
+	    for (const std::pair<std::string,std::string>& it : m_config->largeRJetSubstructureVariables()) {
+	      m_ljet_substructure[it.first][i] = jetPtr->isAvailable<float>(it.second) ? jetPtr->auxdata<float>(it.second) : -999;
+	    }
 
         for (const std::string& taggerName : m_boostedJetTaggersNames) {
           m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_" + taggerName);
@@ -3270,10 +3270,10 @@ namespace top {
         m_tjet_e[i] = jetPtr->e();
 
         if (m_config->bTagAlgo_MV2c10_used_trkJet()) {
-          const xAOD::BTagging* btag(nullptr);
-          btag = jetPtr->btagging();
+          //const xAOD::BTagging* btag(nullptr);
+          //btag = jetPtr->btagging();
           double mvx = -999;
-          if (btag) btag->MVx_discriminant("MV2c10", mvx);
+          //if (btag) btag->MVx_discriminant("MV2c10", mvx);
           m_tjet_mv2c10[i] = mvx;
         }
 
@@ -3315,27 +3315,27 @@ namespace top {
       // calculated by BtaggingSelectionTool
       for (const std::string& algo : m_config->bTagAlgo_available_trkJet()) {
         std::vector<float>& m_tjet_DLx_pick = m_tjet_DLx.at(algo);
-        std::vector<float>& m_tjet_DLx_pb_pick = m_tjet_DLx_pb.at(algo);
-        std::vector<float>& m_tjet_DLx_pc_pick = m_tjet_DLx_pc.at(algo);
-        std::vector<float>& m_tjet_DLx_pu_pick = m_tjet_DLx_pu.at(algo);
+        //std::vector<float>& m_tjet_DLx_pb_pick = m_tjet_DLx_pb.at(algo);
+        //std::vector<float>& m_tjet_DLx_pc_pick = m_tjet_DLx_pc.at(algo);
+        //std::vector<float>& m_tjet_DLx_pu_pick = m_tjet_DLx_pu.at(algo);
         const SG::AuxElement::ConstAccessor<float>& DLx_acc = DLx.at(algo);
         i = 0;
         for (const auto* const jetPtr : event.m_trackJets) {
           m_tjet_DLx_pick[i] = DLx_acc(*jetPtr);
 
-          const xAOD::BTagging* btag(nullptr);
-          btag = jetPtr->btagging();
-          if (btag) {
-            double pu = -999;
-            double pc = -999;
-            double pb = -999;
-            btag->pu(algo, pu);
-            btag->pc(algo, pc);
-            btag->pb(algo, pb);
-            m_tjet_DLx_pb_pick[i] = pb;
-            m_tjet_DLx_pc_pick[i] = pc;
-            m_tjet_DLx_pu_pick[i] = pu;
-          }
+          //const xAOD::BTagging* btag(nullptr);
+          //btag = jetPtr->btagging();
+          //if (btag) {
+          //  double pu = -999;
+          //  double pc = -999;
+          //  double pb = -999;
+          //  btag->pu(algo, pu);
+          //  btag->pc(algo, pc);
+          //  btag->pb(algo, pb);
+          //  m_tjet_DLx_pb_pick[i] = pb;
+          //  m_tjet_DLx_pc_pick[i] = pc;
+          //  m_tjet_DLx_pu_pick[i] = pu;
+          //}
           ++i;
         }
       }
@@ -3556,21 +3556,21 @@ namespace top {
         }
 
         const xAOD::Jet* subjet(nullptr);
-        const xAOD::BTagging* btag(nullptr);
+        //const xAOD::BTagging* btag(nullptr);
         for (auto rc_jet_subjet : rc_jet->getConstituents()) {
           subjet = static_cast<const xAOD::Jet*>(rc_jet_subjet->rawConstituent());
 
           if (m_config->bTagAlgo_MV2c10_used()) {
-            btag = subjet->btagging();
+            //btag = subjet->btagging();
 
-            double mvx10(-999.);  // b-tagging mv2c10
+            //double mvx10(-999.);  // b-tagging mv2c10
 
-            if (btag) {
-              btag->MVx_discriminant("MV2c10", mvx10);
-            } else {
-              mvx10 = -999.;
-            }
-            m_rcjetsub_mv2c10[i].push_back(mvx10);
+            //if (btag) {
+            //  btag->MVx_discriminant("MV2c10", mvx10);
+            //} else {
+            //  mvx10 = -999.;
+            //}
+            //m_rcjetsub_mv2c10[i].push_back(mvx10);
           }
 
           m_rcjetsub_pt[i].push_back(subjet->pt());
@@ -3745,7 +3745,7 @@ namespace top {
 
             // loop over subjets
             const xAOD::Jet* subjet(nullptr);
-            const xAOD::BTagging* btag(nullptr);
+            //const xAOD::BTagging* btag(nullptr);
             m_VarRCjetsubBranches[VarRC + "_" + name + "_sub_pt"][i].clear();     // clear the vector size (otherwise it
                                                                                   // grows out of control!)
             m_VarRCjetsubBranches[VarRC + "_" + name + "_sub_eta"][i].clear();
@@ -3758,16 +3758,16 @@ namespace top {
               subjet = static_cast<const xAOD::Jet*>(rc_jet_subjet->rawConstituent());
 
               if (m_config->bTagAlgo_MV2c10_used()) {
-                btag = subjet->btagging();
+                //btag = subjet->btagging();
 
-                double mvx10(-999.);  // b-tagging mv2c10
+                //double mvx10(-999.);  // b-tagging mv2c10
 
-                if (btag) {
-                  btag->MVx_discriminant("MV2c10", mvx10);
-                } else {
-                  mvx10 = -999.;
-                }
-                m_VarRCjetsubBranches[VarRC + "_" + name + "_sub_mv2c10"][i].push_back(mvx10);
+                //if (btag) {
+                //  btag->MVx_discriminant("MV2c10", mvx10);
+                //} else {
+                //  mvx10 = -999.;
+                //}
+                //m_VarRCjetsubBranches[VarRC + "_" + name + "_sub_mv2c10"][i].push_back(mvx10);
               }
 
               m_VarRCjetsubBranches[VarRC + "_" + name + "_sub_pt"][i].push_back(subjet->pt());

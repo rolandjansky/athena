@@ -21,7 +21,7 @@ namespace top {
   }
 
   bool GlobalTrigMatchSelector::apply(top::Event const& event) const {
-    auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
+//    auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
     bool result = false;
 
     std::vector<xAOD::IParticle const*> particles;

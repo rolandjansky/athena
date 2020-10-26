@@ -529,8 +529,8 @@ int main(int argc, char** argv) {
 
   unsigned int totalYieldSoFar = 0;
   unsigned int skippedEventsSoFar = 0;
-  unsigned int eventSavedReco(0), eventSavedRecoLoose(0), eventSavedTruth(0), eventSavedParticle(0),
-  eventSavedUpgrade(0);
+  unsigned int eventSavedReco(0), eventSavedRecoLoose(0), eventSavedTruth(0), eventSavedParticle(0);
+//  unsigned int  eventSavedUpgrade(0);
 
   // Close the file that we opened only for metadata
   metadataInitFile->Close();

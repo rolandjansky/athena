@@ -86,7 +86,6 @@ namespace top {
       m_hists.addHist("jet_truthflav", ";Jet truth flavor;Jets", 20, 0., 20.);
       m_hists.addHist("jet_btagSF_MV2c10_77", ";Jet btag SF;Jets", 100, 0.5, 1.5);
     }
-    m_hists.addHist("jet_isbtagged_MV2c10_77", ";Jet is b-tagged;Jets", 2, 0., 2.);
 
     m_hists.addHist("jet0_pt", ";Jet0 p_{T} / GeV; Events / 10 GeV", 25, 5, 505);
     m_hists.addHist("jet0_eta", ";Jet0 #eta; Jets", 25, -2.5, 2.5);
@@ -302,11 +301,6 @@ namespace top {
       m_hists.hist("jet_e")->Fill(jetPtr->e() * toGeV, eventWeight);
 
       double mv2c10_discriminant = 0.;
-      const bool hasmv2c10 = jetPtr->btagging()->MVx_discriminant("MV2c10", mv2c10_discriminant);
-      if (hasmv2c10) {
-        m_hists.hist("jet_mv2c10")->Fill(mv2c10_discriminant, eventWeight);
-      }
-
       int jet_truthflav = -1;
       if (m_config->isMC()) {
         if (jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")) {
