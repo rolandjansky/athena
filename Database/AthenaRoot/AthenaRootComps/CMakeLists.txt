@@ -23,7 +23,7 @@ atlas_add_component( AthenaRootComps
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaRootCompsLib AthenaRootKernel DataModelRoot EventInfo FileCatalog GaudiKernel PersistentDataModel PoolSvcLib RootUtils SGTools StoreGateLib xAODCore xAODEventInfo xAODRootAccess )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/tests/*.py )
 atlas_install_scripts( test/*.sh test/ref.* test/*.py )
 
