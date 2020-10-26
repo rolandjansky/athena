@@ -1,4 +1,5 @@
-#include "../BookkeeperDumperTool.h"
+#include <EventBookkeeperTools/BookkeeperDumperTool.h>
+
 #include "../BookkeeperTool.h"
 #include "../CppFilterTester.h"
 #include "../CutFlowSvc.h"
