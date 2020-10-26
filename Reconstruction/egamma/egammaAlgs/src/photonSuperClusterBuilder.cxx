@@ -91,8 +91,8 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
     // Used to revert status of topos
     // in case we fail to make a supercluser.
     std::vector<bool> isUsedRevert(isUsed);
-    const auto egRec = egammaRecs->at(i);
-    const auto clus = egRec->caloCluster();
+    const auto *const egRec = egammaRecs->at(i);
+    const auto *const clus = egRec->caloCluster();
     // First some basic seed cuts
     if (isUsed.at(i)) {
       continue;
@@ -132,7 +132,7 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
       searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed, nWindowClusters, nExtraClusters);
 
     for (auto secClus : secondaryClusters) {
-      const auto secRec = egammaRecs->at(secClus);
+      const auto *const secRec = egammaRecs->at(secClus);
       accumulatedClusters.push_back(secRec->caloCluster());
       // no need to add vertices
     }
@@ -206,8 +206,8 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
     return secondaryClusters;
   }
 
-  const auto seedPhoton = egammaRecs->at(photonInd);
-  const auto seedCaloClus = seedPhoton->caloCluster();
+  const auto *const seedPhoton = egammaRecs->at(photonInd);
+  const auto *const seedCaloClus = seedPhoton->caloCluster();
   if (!seedCaloClus) {
     ATH_MSG_WARNING("The seed egammaRec does not have a cluster");
     return secondaryClusters;
@@ -224,7 +224,7 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
   }
 
   for (std::size_t vx = 0; vx < numVertices; ++vx) {
-    const auto vertex = seedPhoton->vertex(vx);
+    const auto *const vertex = seedPhoton->vertex(vx);
     const auto convType = xAOD::EgammaHelpers::conversionType(vertex);
     seedVertices.push_back(vertex);
     seedVertexType.push_back(convType);
@@ -245,8 +245,8 @@ photonSuperClusterBuilder::searchForSecondaryClusters(std::size_t photonInd,
       continue;
     }
 
-    const auto egRec = egammaRecs->at(i);
-    const auto caloClus = egRec->caloCluster();
+    const auto *const egRec = egammaRecs->at(i);
+    const auto *const caloClus = egRec->caloCluster();
     if (!caloClus) {
       ATH_MSG_WARNING("The potentially secondary egammaRec does not have a cluster");
       continue;
@@ -309,7 +309,7 @@ photonSuperClusterBuilder::matchesVtxTrack(
   if (m_useOnlyLeadingTrack && numTestTracks > 0) {
     numTestTracks = 1;
   }
-  for (auto seedVertexTrack : seedVertexTracks) {
+  for (const auto *seedVertexTrack : seedVertexTracks) {
     // selected tracks alread are just Si if we are only looking at Si tracks
     for (size_t testTk = 0; testTk < numTestTracks; ++testTk) {
       if (seedVertexTrack == egRec->trackParticle(testTk)) {

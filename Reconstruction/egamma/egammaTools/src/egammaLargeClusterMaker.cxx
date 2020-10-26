@@ -54,7 +54,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
   ATH_CHECK(detStore()->retrieve(dd_man, "CaloMgr"));
 
   // The main loop over clusters
-  for (auto cluster : *inputClusters) {
+  for (const auto *cluster : *inputClusters) {
 
     // find the center of the cluster, copying the logic of
     // egammaMiddleShape.cxx
