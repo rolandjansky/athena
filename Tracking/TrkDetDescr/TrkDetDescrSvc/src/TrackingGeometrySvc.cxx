@@ -66,7 +66,7 @@ StatusCode Trk::TrackingGeometrySvc::initialize()
   std::vector< std::string > tagInfoKeys = m_pDetStore->keys<TagInfo> ();
   std::string tagInfoKey = "";
 
-  if(tagInfoKeys.size()==0)   ATH_MSG_WARNING( " No TagInfo keys in DetectorStore ");
+  if(tagInfoKeys.empty())   ATH_MSG_WARNING( " No TagInfo keys in DetectorStore ");
   else {
     if(tagInfoKeys.size() > 1) ATH_MSG_WARNING( " More than one TagInfo key in the DetectorStore, using the first one " );
     tagInfoKey = tagInfoKeys[0];
@@ -163,7 +163,7 @@ StatusCode Trk::TrackingGeometrySvc::trackingGeometryInit(IOVSVC_CALLBACK_ARGS_P
       if ( m_pDetStore->contains<Trk::TrackingGeometry>(m_trackingGeometryName) ) {
           ATH_MSG_VERBOSE( "New Callback evoked remove of existing object!" ); 
           // you need to retrieve the object first to remove it
-          const Trk::TrackingGeometry* oldTrackingGeometry = 0;
+          const Trk::TrackingGeometry* oldTrackingGeometry = nullptr;
           if ( m_pDetStore->retrieve(oldTrackingGeometry,m_trackingGeometryName).isFailure() )
               ATH_MSG_WARNING( "Callback evoked remove of '" << m_trackingGeometryName << "'. But retrieve did not succeed! " );
           if (oldTrackingGeometry &&  m_pDetStore->remove<Trk::TrackingGeometry>(oldTrackingGeometry).isFailure() )

@@ -16,8 +16,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 //STD
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 Trk::CuboidVolumeBounds::CuboidVolumeBounds() :
  VolumeBounds(),
@@ -62,18 +62,18 @@ const std::vector<const Trk::Surface*>* Trk::CuboidVolumeBounds::decomposeToSurf
 
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;
     // memory optimisation
-    retsf->reserve(6);                
+    retsf->reserve(6);
     // face surfaces xy
     //   (1) - at negative local z
     retsf->push_back(new Trk::PlaneSurface( new Amg::Transform3D( transform * Amg::AngleAxis3D(180.*Gaudi::Units::deg, Amg::Vector3D(0.,1.,0.))
 								*Amg::Translation3D(Amg::Vector3D(0.,0.,this->halflengthZ())) ),
-					    this->faceXYRectangleBounds() ) );  
+					    this->faceXYRectangleBounds() ) );
     //   (2) - at positive local z
     retsf->push_back(new Trk::PlaneSurface( new Amg::Transform3D( transform*Amg::Translation3D(Amg::Vector3D(0.,0.,this->halflengthZ()))),
-					    this->faceXYRectangleBounds() ) );    
+					    this->faceXYRectangleBounds() ) );
     // face surfaces yz
     // transmute cyclical
-    //   (3) - at negative local x     
+    //   (3) - at negative local x
     retsf->push_back(new Trk::PlaneSurface( new Amg::Transform3D( transform * Amg::AngleAxis3D(180.*Gaudi::Units::deg, Amg::Vector3D(0.,0.,1.))
 								*Amg::Translation3D(Amg::Vector3D(this->halflengthX(), 0.,0))
 								*Amg::AngleAxis3D(90.*Gaudi::Units::deg, Amg::Vector3D(0.,1.,0))*Amg::AngleAxis3D(90.*Gaudi::Units::deg, Amg::Vector3D(0.,0.,1.)) ),
@@ -99,7 +99,7 @@ const std::vector<const Trk::Surface*>* Trk::CuboidVolumeBounds::decomposeToSurf
 
 Trk::RectangleBounds* Trk::CuboidVolumeBounds::faceXYRectangleBounds() const
 { return new Trk::RectangleBounds(m_halfX, m_halfY); }
-    
+
 Trk::RectangleBounds* Trk::CuboidVolumeBounds::faceYZRectangleBounds() const
 { return new Trk::RectangleBounds(m_halfY, m_halfZ); }
 
@@ -115,18 +115,18 @@ MsgStream& Trk::CuboidVolumeBounds::dump( MsgStream& sl ) const
     temp_sl << std::setiosflags(std::ios::fixed);
     temp_sl << std::setprecision(7);
     temp_sl << "Trk::CuboidVolumeBounds: (halfX, halfY, halfZ) = ";
-    temp_sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";  
+    temp_sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";
     sl << temp_sl.str();
     return sl;
 }
 
-std::ostream& Trk::CuboidVolumeBounds::dump( std::ostream& sl ) const 
+std::ostream& Trk::CuboidVolumeBounds::dump( std::ostream& sl ) const
 {
     std::stringstream temp_sl;
     temp_sl << std::setiosflags(std::ios::fixed);
     temp_sl << std::setprecision(7);
     temp_sl << "Trk::CuboidVolumeBounds: (halfX, halfY, halfZ) = ";
-    temp_sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";  
+    temp_sl << "(" << m_halfX << ", " << m_halfY << ", " << m_halfZ << ")";
     sl << temp_sl.str();
     return sl;
 }

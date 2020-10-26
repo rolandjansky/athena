@@ -73,8 +73,8 @@ public:
     CompetingRIOsOnTrack(const CompetingRIOsOnTrack& compROT);
     //! Assignment operator
     CompetingRIOsOnTrack& operator=(const CompetingRIOsOnTrack& compROT);
-    CompetingRIOsOnTrack& operator=( CompetingRIOsOnTrack&& compROT);
-    //! Constructor with parameters 
+    CompetingRIOsOnTrack& operator=(CompetingRIOsOnTrack&& compROT) noexcept;
+    //! Constructor with parameters
     CompetingRIOsOnTrack( std::vector<AssignmentProb>* assgnProb);
 
     //! Destructor

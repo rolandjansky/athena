@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ StatusCode Trk::LayerProvider::initialize()
 const std::vector< const Trk::Layer* > Trk::LayerProvider::negativeLayers() const
 {
     // if any cache is there it has to be returned
-    if (m_layerCache.size()) return m_layerCache;
+    if (!m_layerCache.empty()) return m_layerCache;
     // this will fill the cache with positive layers
     return discLayers(-1);
 }    
@@ -57,7 +57,7 @@ const std::vector< const Trk::Layer* > Trk::LayerProvider::centralLayers() const
     const std::vector< const Trk::CylinderLayer* >*   cylinderLayers = m_layerBuilder->cylindricalLayers();
     // loop over it and push into the return vector;
     if (cylinderLayers){
-        for (auto& cL : (*cylinderLayers))
+        for (const auto & cL : (*cylinderLayers))
             cLayers.push_back(cL);
     }
     // memory cleanup
@@ -70,7 +70,7 @@ const std::vector< const Trk::Layer* > Trk::LayerProvider::centralLayers() const
 const std::vector< const Trk::Layer* > Trk::LayerProvider::positiveLayers() const
 {
     // if any cache is there it has to be returned
-    if (m_layerCache.size()) return m_layerCache;
+    if (!m_layerCache.empty()) return m_layerCache;
     // this will fill the cache with negative layers
     return discLayers(1);
 }
@@ -85,7 +85,7 @@ const std::vector< const Trk::Layer* > Trk::LayerProvider::discLayers(int posneg
     // loop and fill either cache or dLayers
     if (discLayers){
         // loop over and push into the return/cache vector 
-        for (auto& dL : (*discLayers) ){
+        for (const auto & dL : (*discLayers) ){
             // get the center posituion 
             double zpos = dL->surfaceRepresentation().center().z();
             if (posneg > 0){

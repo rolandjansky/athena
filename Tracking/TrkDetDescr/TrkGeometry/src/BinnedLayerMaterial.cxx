@@ -102,12 +102,12 @@ void Trk::BinnedLayerMaterial::clearMaterial()
 void Trk::BinnedLayerMaterial::fillMaterial(const Trk::MaterialPropertiesMatrix& matMatrix)
 {
     m_fullMaterial.reserve(m_binUtility->max(1)+1);
-    for (auto& matMatrixIter : matMatrix){
+    for (const auto & matMatrixIter : matMatrix){
       // the vector to be copied
       Trk::MaterialPropertiesVector matVector;
       matVector.reserve(m_binUtility->max(0)+1);
       // reassign
-      for (auto& matIter : matMatrixIter)
+      for (const auto & matIter : matMatrixIter)
             matVector.push_back( matIter ? matIter->clone() : nullptr);
       m_fullMaterial.push_back(matVector);
     }
@@ -151,10 +151,10 @@ MsgStream& Trk::BinnedLayerMaterial::dump( MsgStream& sl) const
   sl << "   - Parse full update material    : " << std::endl;
   // output  the full material
   unsigned int imat2 = 0;
-  for (auto& matMatrixIter : m_fullMaterial){
+  for (const auto & matMatrixIter : m_fullMaterial){
     unsigned int imat1 = 0;
     // the vector iterator
-    for (auto& matIter : matMatrixIter){
+    for (const auto & matIter : matMatrixIter){
       if (matIter)  sl << " Bin [" << imat2 << "][" << imat1 << "] - " << (*matIter) << std::endl;
       else  sl << " Bin [" << imat2 << "][" << imat1 << "] -  empty "  << std::endl;
       ++imat1;
@@ -171,10 +171,10 @@ std::ostream& Trk::BinnedLayerMaterial::dump( std::ostream& sl) const
   sl << "   - Parse full update material    : " << std::endl;  // 
   // output  the full material
   unsigned int imat2 = 0;
-  for (auto& matMatrixIter : m_fullMaterial){
+  for (const auto & matMatrixIter : m_fullMaterial){
     unsigned int imat1 = 0;
     // the vector iterator
-    for (auto& matIter : matMatrixIter){
+    for (const auto & matIter : matMatrixIter){
       if (matIter)  sl << " Bin [" << imat2 << "][" << imat1 << "] - " << (*matIter) << std::endl;
       else  sl << " Bin [" << imat2 << "][" << imat1 << "] -  empty "  << std::endl;
       ++imat1;

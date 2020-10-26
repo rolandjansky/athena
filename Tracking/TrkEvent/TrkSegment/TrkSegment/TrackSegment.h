@@ -55,11 +55,11 @@ class FitQuality;
       /** Copy Constructor */
       TrackSegment(const TrackSegment& seg);
       /** Move Constructor */
-      TrackSegment(TrackSegment&&); 
+      TrackSegment(TrackSegment&&) noexcept; 
       /** Assignment operator */
       TrackSegment& operator=(const TrackSegment& seg); 
       /** Move assignment operator*/
-      TrackSegment& operator=(TrackSegment&&);
+      TrackSegment& operator=(TrackSegment&&) noexcept;
     
       /** Constructor with parameters */
       TrackSegment( const LocalParameters& locpars,

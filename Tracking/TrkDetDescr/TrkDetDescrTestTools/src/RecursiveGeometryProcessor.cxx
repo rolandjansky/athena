@@ -75,9 +75,9 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& t
   const Trk::LayerArray* layerArray = tvol.confinedLayers();
   if (layerArray) {
       // display output
-      auto& layers = layerArray->arrayObjects();
+      const auto & layers = layerArray->arrayObjects();
       ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << layers.size() << " confined layers." ); 
-      for (auto& layIter : layers){
+      for (const auto & layIter : layers){
           if (!layIter)
              ATH_MSG_WARNING("Zero-pointer found in LayerArray - indicates problem !");
           if ((layIter) && process(*layIter, level).isFailure()){
@@ -88,8 +88,8 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& t
    } 
 
    // Process the boundary surface layers 
-   auto& bSurfaces = tvol.boundarySurfaces();
-   for (auto& bsIter : bSurfaces ){
+   const auto & bSurfaces = tvol.boundarySurfaces();
+   for (const auto & bsIter : bSurfaces ){
        if (bsIter->surfaceRepresentation().associatedLayer()){
            ATH_MSG_VERBOSE(displayBuffer.str() << "--> has a boundary layer." ); 
            if ( process(*bsIter->surfaceRepresentation().associatedLayer(), level).isFailure() ){
@@ -104,8 +104,8 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& t
    const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
    // register the next round
    if (confinedVolumes) {
-       auto& volumes = confinedVolumes->arrayObjects();
-       for (auto& volumesIter : volumes){
+       const auto & volumes = confinedVolumes->arrayObjects();
+       for (const auto & volumesIter : volumes){
            if (!volumesIter)
               ATH_MSG_WARNING("Zero-pointer found in VolumeArray - indicates problem !");
            if (volumesIter && process(*volumesIter, ++level).isFailure() ){
