@@ -1,40 +1,23 @@
-################################################################################
-# Package: InDetSimEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetSimEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthAllocators
-                          Control/CxxUtils
-                          Generators/GeneratorObjects
-                          Simulation/HitManagement
-                          
-                          PRIVATE
-                          Control/StoreGate
-                          InnerDetector/InDetDetDescr/InDetIdentifier )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( InDetSimEvent
                    src/*.cxx
                    PUBLIC_HEADERS InDetSimEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaKernel CxxUtils GeneratorObjects HitManagement StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} InDetIdentifier )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaKernel GeneratorObjects HitManagement
+                   PRIVATE_LINK_LIBRARIES ${GEANT4_LIBRARIES} GaudiKernel InDetIdentifier StoreGateLib )
 
 atlas_add_dictionary( InDetSimEventDict
                       InDetSimEvent/InDetSimEventDict.h
                       InDetSimEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthAllocators CxxUtils GeneratorObjects HitManagement StoreGateLib SGtests InDetIdentifier InDetSimEvent )
-
+                      LINK_LIBRARIES InDetSimEvent )
