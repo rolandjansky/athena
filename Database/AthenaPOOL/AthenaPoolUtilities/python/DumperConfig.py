@@ -6,10 +6,8 @@ import subprocess
 from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena
 from PyUtils.fprint import fprintln
-import builtins
-printfunc = getattr(builtins,'print')
 
-if (not 'ATLAS_REFERENCE_TAG' in globals() and
+if ('ATLAS_REFERENCE_TAG' not in globals() and
     'ATLAS_REFERENCE_TAG' in os.environ):
     ATLAS_REFERENCE_TAG = os.environ['ATLAS_REFERENCE_TAG']
 
@@ -19,7 +17,7 @@ def find_file (fname,refPaths):
             path = os.path.join (p, fname)
             if os.path.exists (path):
                 return path
-    printfunc ('ERROR: Cannot find file: ', fname)
+    print ('ERROR: Cannot find file: ', fname)
     return None
 
 
@@ -81,10 +79,10 @@ class Dumper (PyAthena.Alg):
         if ret != 0:
             newvars = checknewvars (output)
             if newvars:
-                printfunc ('WARNING: new xAOD variables ', newvars)
+                print ('WARNING: new xAOD variables ', newvars)
             else:
-                printfunc ('ERROR running diff with reference')
-                printfunc (output)
+                print ('ERROR running diff with reference')
+                print (output)
         return 1
 
     def execute (self):
