@@ -13,8 +13,10 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ProjectionMatricesSet.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include <array>
+#include <stdexcept>
 namespace {
 
 using namespace Trk;
@@ -100,6 +102,17 @@ calculateWeight_2D_3(const TrackParameters* componentTrackParameters,
     det, 0.5 * ((r.transpose() * R.inverse() * r)(0, 0)));
 }
 
+struct componentsCache
+{
+  struct element
+  {
+    double determinantR;
+    double chi2;
+  };
+  std::array<element, GSFConstants::maxComponentsAfterConvolution> elements;
+  size_t numElements = 0;
+};
+
 } // end of anonymous namespace
 
 std::vector<Trk::ComponentParameters>
@@ -111,6 +124,10 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
   if (predictedStateSize == 0) {
     return {};
   }
+  if (predictedStateSize > GSFConstants::maxComponentsAfterConvolution) {
+    throw std::runtime_error(
+      "PosteriorWeightsCalculator :Invalid predictedState size");
+  }
   const Trk::LocalParameters& measurementLocalParameters =
     measurement.localParameters();
   int nLocCoord = measurement.localParameters().dimension();
@@ -121,11 +138,7 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
 
   std::vector<Trk::ComponentParameters> returnMultiComponentState{};
   returnMultiComponentState.reserve(predictedStateSize);
-  std::vector<double> componentDeterminantR;
-  componentDeterminantR.reserve(predictedStateSize);
-  std::vector<double> componentChi2;
-  componentChi2.reserve(predictedStateSize);
-
+  componentsCache determinantRandChi2{};
   // Calculate chi2 and determinant of each component.
   double minimumChi2(10.e10); // Initalise high
 
@@ -135,17 +148,15 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
 
     const Trk::TrackParameters* componentTrackParameters =
       (*component).first.get();
-
     if (!componentTrackParameters) {
       continue;
     }
-
     const AmgSymMatrix(5)* predictedCov =
       componentTrackParameters->covariance();
-
     if (!predictedCov) {
       continue;
     }
+
     std::pair<double, double> result(0, 0);
     switch (nLocCoord) {
       case 1: {
@@ -202,20 +213,19 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     if (result.first == 0) {
       continue;
     }
-    // Compute Chi2
-    componentDeterminantR.push_back(result.first);
-    componentChi2.push_back(result.second);
-
+    // Cache R and Chi2
+    determinantRandChi2.elements[determinantRandChi2.numElements] = {
+      result.first, result.second
+    };
+    ++determinantRandChi2.numElements;
     if (result.second < minimumChi2) {
       minimumChi2 = result.second;
     }
   } // end loop over components
 
-  if (componentDeterminantR.size() != predictedState.size() ||
-      componentChi2.size() != predictedState.size()) {
+  if (determinantRandChi2.numElements != predictedState.size()) {
     return {};
   }
-
   // Calculate posterior weights.
   unsigned int index(0);
   double sumWeights(0.);
@@ -227,14 +237,16 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     double priorWeight = (*component).second;
 
     // Extract common factor to avoid numerical problems during exponentiation
-    double chi2 = componentChi2[index] - minimumChi2;
+    double chi2 = determinantRandChi2.elements[index].chi2 - minimumChi2;
 
     double updatedWeight(0.);
     // Determinant can not be belowe 1e-19 in CLHEP .... rather ugly but protect
     // against 0 determinants Normally occur when the component is a poor fit
-    if (componentDeterminantR[index] > 1e-20) {
-      updatedWeight = priorWeight * sqrt(1. / componentDeterminantR[index]) *
-                      exp(-0.5 * chi2);
+    if (determinantRandChi2.elements[index].determinantR > 1e-20) {
+      updatedWeight =
+        priorWeight *
+        sqrt(1. / determinantRandChi2.elements[index].determinantR) *
+        exp(-0.5 * chi2);
     } else {
       updatedWeight = 1e-10;
     }

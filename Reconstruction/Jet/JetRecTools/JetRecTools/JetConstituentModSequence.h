@@ -25,6 +25,7 @@
 #include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
@@ -73,7 +74,16 @@ protected:
 
   SG::WriteHandleKey<xAOD::PFOContainer> m_outAllPFOKey{this, "OutAllPFOKey", "", "WriteHandleKey for all modified PFlow Objects"};
 
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_inChargedFEKey{this, "InChargedFEKey", "", "ReadHandleKey for modified Charged FlowElements"};
+  SG::WriteHandleKey<xAOD::FlowElementContainer> m_outChargedFEKey{this, "OutChargedFEKey", "", "WriteHandleKey for modified Charged FlowElements"};
+
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_inNeutralFEKey{this, "InNeutralFEKey", "", "ReadHandleKey for modified Neutral FlowElements"};
+  SG::WriteHandleKey<xAOD::FlowElementContainer> m_outNeutralFEKey{this, "OutNeutralFEKey", "", "WriteHandleKey for modified Neutral FlowElements"};
+
+  SG::WriteHandleKey<xAOD::FlowElementContainer> m_outAllFEKey{this, "OutAllFEKey", "", "WriteHandleKey for all modified FlowElements"};
+
   StatusCode copyModRecordPFO() const;
+  StatusCode copyModRecordFE() const;
 
   /// helper function to cast, shallow copy and record a container.
 

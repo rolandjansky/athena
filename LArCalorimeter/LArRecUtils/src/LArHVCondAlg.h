@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -70,6 +70,8 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
 
+  SG::ReadCondHandleKey<AthenaAttributeList>   m_hvRKey{this, "RvaluesKey", "/LAR/HVPathologiesOfl/Rvalues", "Cool folder with HV R values"};
+
   // Conditions keys write:
   SG::WriteCondHandleKey<LArHVData> m_hvDataKey {this, "OutputHVData", "LArHVData", "Key for output HV data object"};
   
@@ -86,6 +88,7 @@ class LArHVCondAlg: public AthReentrantAlgorithm
   ServiceHandle<ICondSvc> m_condSvc;
 
   bool m_doHV;
+  bool m_doR;
   bool m_doAffected;
   bool m_doAffectedHV;
 
@@ -104,7 +107,8 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 			 , const LArHVPathology& pathologies
 			 , pathVec& hasPathologyEM
 			 , pathVec& hasPathologyHEC
-			 , pathVec& hasPathologyFCAL) const;
+			 , pathVec& hasPathologyFCAL
+                         , const float* rValues) const;
 
   void addHV(std::vector< LArHVData::HV_t > & v, double hv, double wt) const;
   void addCurr(std::vector< LArHVData::CURRENT_t > & ihv, double curr, double wt) const;

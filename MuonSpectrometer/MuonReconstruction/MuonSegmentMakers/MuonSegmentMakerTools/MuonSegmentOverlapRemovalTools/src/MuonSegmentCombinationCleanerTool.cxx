@@ -45,7 +45,7 @@ MuonSegmentCombinationCleanerTool::initialize()
 
 std::unique_ptr<MuonSegmentCombinationCollection>
 MuonSegmentCombinationCleanerTool::clean(const MuonSegmentCombinationCollection&   combiCol,
-                                         MuonSegmentCombPatternCombAssociationMap* segPattMap)
+                                         MuonSegmentCombPatternCombAssociationMap* segPattMap) const
 {
 
     std::unique_ptr<MuonSegmentCombinationCollection> combiCleanCol(new MuonSegmentCombinationCollection);
@@ -58,7 +58,7 @@ MuonSegmentCombinationCleanerTool::clean(const MuonSegmentCombinationCollection&
 void
 MuonSegmentCombinationCleanerTool::cleanAndMergeCombis(const MuonSegmentCombinationCollection&   combiCol,
                                                        MuonSegmentCombinationCollection*         combiCleanCol,
-                                                       MuonSegmentCombPatternCombAssociationMap* segPattMap)
+                                                       MuonSegmentCombPatternCombAssociationMap* segPattMap) const
 {
 
     ATH_MSG_DEBUG(" cleaning combis " << combiCol.size());

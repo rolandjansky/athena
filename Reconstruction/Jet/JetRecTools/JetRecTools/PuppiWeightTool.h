@@ -11,6 +11,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 #include "JetRecTools/Puppi.h"
 #include <string>
 
@@ -25,7 +26,8 @@ class PuppiWeightTool: public JetConstituentModifierBase {
   StatusCode finalize() override final;
 
   StatusCode process_impl(xAOD::IParticleContainer* cont) const override final;
-  StatusCode applyPuppiWeights(xAOD::PFOContainer* cont) const; 
+  StatusCode applyPuppiWeights(xAOD::PFOContainer* cont) const;
+  StatusCode applyPuppiWeights(xAOD::FlowElementContainer* cont) const;
 
  private:
 

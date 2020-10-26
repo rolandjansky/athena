@@ -22,10 +22,19 @@
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTSequenceList.h"
 
+#include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/L1Menu.h"
+#include "TrigConfData/HLTPrescalesSet.h"
+#include "TrigConfData/L1PrescalesSet.h"
+#include "TrigConfData/L1BunchGroupSet.h"
+
 // xAOD include(s):
 #include "xAODTrigger/TriggerMenu.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
 #include "xAODTrigger/TriggerMenuAuxContainer.h"
+#include "xAODTrigger/TriggerMenuJson.h"
+#include "xAODTrigger/TriggerMenuJsonContainer.h"
+#include "xAODTrigger/TriggerMenuJsonAuxContainer.h"
 #include "xAODTrigger/TrigConfKeys.h"
 
 #include <shared_mutex>
@@ -43,6 +52,14 @@ namespace TrigConf {
    struct MenuPtrWrapper {
       MenuPtrWrapper() : m_ptr(nullptr) {}
       const xAOD::TriggerMenu* m_ptr;
+   };
+
+   /**
+    *  @short Small utility class to wrap a pointer to a const xAOD::TriggerMenuJson
+    */
+   struct TriggerMenuJsonPtrWrapper {
+      TriggerMenuJsonPtrWrapper() : m_ptr(nullptr) {}
+      const xAOD::TriggerMenuJson* m_ptr;
    };
 
    /**
@@ -145,6 +162,26 @@ namespace TrigConf {
 
       /// @}
 
+      /// @name Impliment the JSON config interface. TODO - add this to an abstract interface
+      /// @{
+
+      /// Returns the JSON configured HLTMenu ptree
+      const HLTMenu& hltMenu(const EventContext& ctx) const;
+
+      /// Returns the JSON configured L1 ptree
+      const L1Menu& l1Menu(const EventContext& ctx) const;
+
+      /// Returns the JSON configured HLT prescales ptree
+      const HLTPrescalesSet& hltPrescalesSet(const EventContext& ctx) const;
+
+      /// Returns the JSON configured L1 prescales ptree
+      const L1PrescalesSet& l1PrescalesSet(const EventContext& ctx) const;
+
+      /// Returns the JSON configured bunchgroup ptree
+      const L1BunchGroupSet& l1BunchGroupSet(const EventContext& ctx) const;
+
+      /// @}
+
       /// Function describing to Gaudi the interface(s) implemented
       virtual StatusCode queryInterface( const InterfaceID& riid,
                                          void** ppvIf ) override;
@@ -162,27 +199,104 @@ namespace TrigConf {
       /// Function setting up the service for a new event
       StatusCode prepareEvent();
 
+      /// Helper function for copying into the service's private data store
+      void copyMetadataToPersonalStore(const xAOD::TriggerMenuJsonContainer* input, xAOD::TriggerMenuJsonContainer* existing);
+
+      /// Do per-event decoding for R3 serialised xAOD::TriggerMenuJson metadata
+      StatusCode prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const EventContext& context);
+
+      /// Do per-event decoding for R2 serliased xAOD::TriggerMenu metadata 
+      StatusCode prepareEventxAODTriggerMenu(const xAOD::TrigConfKeys* keys, const EventContext& context);
+
+      /// Helper function to find a JSON in a given TriggerMenuJsonContainer using a given key, extract its ptree data
+      /// @param humanName Name to print if things go wrong
+      /// @param metaContainer Metadata container of TriggerMenuJson objects from which to load a ptree
+      /// @param keyToCheck The key of the ptree to load
+      /// @param cacheOfLoadedMenuPtr Slot's cache of the currently loaded TriggerMenuJson
+      /// @param DataStructure dataStructure object to fill with the TriggerMenuJson's payload
+      StatusCode loadPtree(const std::string& humanName, 
+                           const xAOD::TriggerMenuJsonContainer* metaContainer, 
+                           const uint32_t keyToCheck,
+                           TriggerMenuJsonPtrWrapper& cacheOfLoadedMenuPtr,
+                           DataStructure& dataStructure);
 
       SG::ReadHandleKey<xAOD::TrigConfKeys> m_eventKey{this, "EventObjectName", "TrigConfKeys", 
         "Key for the event-level configuration identifier object"};
+
+      /// @name Names for reading the R2 (and R1) AOD metadata payload
+      /// @{
       Gaudi::Property<std::string> m_metaName{this, "MetaObjectName", "TriggerMenu", 
         "Key for the trigger configuration metadata object"};
+      /// @}
+
+      /// @name Names for reading the R3 AOD metadata payload
+      /// @{
+      Gaudi::Property< std::string > m_metaNameJSON_hlt {this, "JSONMetaObjectNameHLT", "TriggerMenuJson_HLT",
+        "StoreGate key for the xAOD::TriggerMenuJson HLT configuration object"};
+
+      Gaudi::Property< std::string > m_metaNameJSON_l1 {this, "JSONMetaObjectNameL1", "TriggerMenuJson_L1",
+        "StoreGate key for the xAOD::TriggerMenuJson L1 configuration object"};
+
+      Gaudi::Property< std::string > m_metaNameJSON_hltps {this, "JSONMetaObjectNameHLTPS", "TriggerMenuJson_HLTPS",
+        "StoreGate key for the xAOD::TriggerMenuJson HLT prescales configuration object"};
+
+      Gaudi::Property< std::string > m_metaNameJSON_l1ps {this, "JSONMetaObjectNameL1PS", "TriggerMenuJson_L1PS",
+        "StoreGate key for the xAOD::TriggerMenuJson L1 prescales configuration object"};
+
+      Gaudi::Property< std::string > m_metaNameJSON_bg {this, "JSONMetaObjectNameBunchgroup", "TriggerMenuJson_BG",
+        "StoreGate key for the xAOD::TriggerMenuJson BunchGroup configuration object"};
+      /// @}
 
       Gaudi::Property<bool> m_stopOnFailure{this, "StopOnFailure", true, "Flag for stopping the job in case of a failure"};
       /// Internal state of the service
       bool m_isInFailure;
 
-      /// The configuration objects copied from all input files
+      /// 
+      /// @name The configuration objects copied from all input files. R1 and R2 AOD
+      /// @{
       std::unique_ptr<xAOD::TriggerMenuAuxContainer> m_tmcAux;
-      /// The configuration objects copied from all input files
       std::unique_ptr<xAOD::TriggerMenuContainer> m_tmc;
+
+      // The menu currently being used by each slot (wrapped 'const xAOD::TriggerMenu' ptr)
+      SG::SlotSpecificObj<MenuPtrWrapper> m_menu;
+      /// @}
+
+      /// 
+      /// @name The configuration objects copied from all input files. R3 AOD
+      /// @{
+      std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_hltJsonAux;
+      std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_hltJson;
+      std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_l1JsonAux;
+      std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_l1Json;
+      std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_hltpsJsonAux;
+      std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_hltpsJson;
+      std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_l1psJsonAux;
+      std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_l1psJson;
+      std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_bgJsonAux;
+      std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_bgJson;
+
+      // The menu JSONs being used in the current event by each slot (wrapped 'const xAOD::TriggerMenuJson' ptr)
+      SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentHltJson;
+      SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentL1Json;
+      SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentHltpsJson;
+      SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentL1psJson;
+      SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentBgJson;
+
+      // The decoded menu JSON data stored in ptree objects
+      SG::SlotSpecificObj<HLTMenu> m_currentHlt;
+      SG::SlotSpecificObj<L1Menu> m_currentL1;
+      SG::SlotSpecificObj<HLTPrescalesSet> m_currentHltps;
+      SG::SlotSpecificObj<L1PrescalesSet> m_currentL1ps;
+      SG::SlotSpecificObj<L1BunchGroupSet> m_currentBg;
+      /// @}
 
       /// The mutex used to to restrict access to m_tmc when it is being written to
       std::shared_mutex m_sharedMutex;
 
-      // The menu currently being used by each slot (wrapped 'const xAOD::TriggerMenu' ptr)
-      SG::SlotSpecificObj<MenuPtrWrapper> m_menu;
 
+      /// 
+      /// @name The legacy configuration objects which are populated either from a R1, R2 TriggerMenuContainer or the R3 JSONs
+      /// @{
       /// The "translated" LVL1 configuration object
       SG::SlotSpecificObj<CTPConfig> m_ctpConfig;
       /// The "translated" HLT configuration object
@@ -191,12 +305,20 @@ namespace TrigConf {
       SG::SlotSpecificObj<HLTSequenceList> m_sequenceList;
       /// The "translated" bunch group set object
       SG::SlotSpecificObj<BunchGroupSet> m_bgSet;
+      /// @}
 
       /// Connection to the metadata store
       ServiceHandle< StoreGateSvc > m_metaStore{this, "MetaDataStore", "InputMetaDataStore"};
 
+      /// Is decoded R2 format data available?
+      bool m_triggerMenuContainerAvailable;
+      /// Is decoded R3 format data available?
+      bool m_menuJSONContainerAvailable;
+
    }; // class xAODConfigSvc
 
 } // namespace TrigConf
+
+
 
 #endif // TRIGCONFXAOD_XAODCONFIGSVC_H

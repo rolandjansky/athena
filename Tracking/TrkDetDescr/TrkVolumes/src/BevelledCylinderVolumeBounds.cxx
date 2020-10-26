@@ -25,8 +25,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 //STD
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 const double Trk::BevelledCylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::millimeter;
 

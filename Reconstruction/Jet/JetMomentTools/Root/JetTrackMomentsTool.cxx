@@ -7,6 +7,7 @@
 #include <sstream>
 #include "JetUtils/JetDistances.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 #include "AsgDataHandles/WriteDecorHandle.h"
 
 JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
@@ -105,6 +106,20 @@ StatusCode JetTrackMomentsTool::decorate(const xAOD::JetContainer& jets) const {
         }// We have a charged PFO
       }// Loop on jet constituents
     }// This jet is made from xAOD::PFO, so we do calculate the pflow moments
+    else if (ctype  == xAOD::Type::FlowElement) {
+      size_t numConstit = jet->numConstituents();
+      for ( size_t i=0; i<numConstit; i++ ) {
+        const xAOD::FlowElement* constit = dynamic_cast<const xAOD::FlowElement*>(jet->rawConstituent(i));
+        if(constit != nullptr && (constit->signalType() & xAOD::FlowElement::PFlow)){
+          isPFlowJet = true;
+          if (constit->isCharged()){
+            const xAOD::TrackParticle *thisTrack = dynamic_cast<const xAOD::TrackParticle*>(constit->chargedObject(0));//PFO should have only 1 track
+            if(thisTrack != nullptr) pflowTracks.push_back(thisTrack);
+            else ATH_MSG_WARNING("Charged PFO had no associated TrackParticle");
+          }// We have a charged PFO
+        }// The FlowElement is a PFO
+      }// Loop on jet constituents
+    }// This jet is made from xAOD::FlowElement, so we calculate the pflow moments if they're PFOs
 
     // For each track cut, compute and set the associated moments
     for (size_t iCut = 0; iCut < m_minTrackPt.size(); ++iCut) {

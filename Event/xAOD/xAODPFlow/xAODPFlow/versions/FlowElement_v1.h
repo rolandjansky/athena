@@ -76,6 +76,7 @@ namespace xAOD {
     virtual Type::ObjectType type() const override ;
     
     void setP4(float pt, float eta, float phi, float m) ;
+    void setP4(FourMom_t p4);
     ///@}
 
     // *************************************************

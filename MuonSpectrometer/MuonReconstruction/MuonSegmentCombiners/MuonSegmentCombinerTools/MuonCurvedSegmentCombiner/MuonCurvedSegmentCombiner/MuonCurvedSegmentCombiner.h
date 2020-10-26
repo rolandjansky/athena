@@ -44,29 +44,30 @@ class MuonCurvedSegmentCombiner : virtual public IMuonCurvedSegmentCombiner,
     /** INSERT main method here.*/
     std::unique_ptr<MuonSegmentCombinationCollection> combineSegments(
         const MuonSegmentCombinationCollection& mdtCombiColl, const MuonSegmentCombinationCollection& csc4DCombiColl,
-        const MuonSegmentCombinationCollection& csc2DCombiColl, MuonSegmentCombPatternCombAssociationMap* segPattMap);
+        const MuonSegmentCombinationCollection& csc2DCombiColl, MuonSegmentCombPatternCombAssociationMap* segPattMap) const;
 
-    void trackParameters(Muon::MuonSegment& seg, double& theta, double& curvature, int& imeth);
-    //    void fulltrackParameters( const Muon::MuonSegment& seg ,HepMatrix & T , HepMatrix & CovT ,int &imeth );
-    void extrapolateSegment(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull);
-
-    void fit2Segments(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull);
-    void fit2SegmentsC(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull);
-    void fit2SegmentsSL(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull);
 
   private:
-    std::unique_ptr<MuonSegmentCombinationCollection> processCombinationCollection(
-        const MuonSegmentCombinationCollection& mdtCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap);
+    typedef std::map<Muon::MuonSegment*, Muon::MCSCSegmentInfo> SegInfoMap;
+    void trackParameters(Muon::MuonSegment& seg, double& theta, double& curvature, int& imeth, SegInfoMap segInfoMap) const;
+    void extrapolateSegment(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull, SegInfoMap segInfoMap) const;
+
+    void fit2Segments(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull, SegInfoMap segInfoMap) const;
+    void fit2SegmentsC(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull, SegInfoMap segInfoMap) const;
+    void fit2SegmentsSL(Muon::MuonSegment& seg, Muon::MuonSegment& sege, Amg::VectorX& Res, Amg::VectorX& Pull, SegInfoMap segInfoMap) const;
+    std::unique_ptr<MuonSegmentCombinationCollection> processCombinationCollection(const MuonSegmentCombinationCollection& mdtCombiCol, 
+										   MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap seg2DCscInfoMap, SegInfoMap seg4DCscInfoMap, SegInfoMap &segInfoMap,  std::map<Muon::MuonSegment*, const MuonPatternCombination*> &segAssoMap, int &segmentIndex) const;
     void processCscCombinationCollection(const MuonSegmentCombinationCollection&   cscCombiCol,
-                                         MuonSegmentCombPatternCombAssociationMap* segPattMap);
-    void process2DCscCombinationCollection(const MuonSegmentCombinationCollection& csc2DcombiCol);
+                                         MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap segInfoMap, SegInfoMap &seg4DCscInfoMap, std::set<Identifier> &cscIdSet, std::map<Muon::MuonSegment*, const MuonPatternCombination*> &segAssoMap, int &segmentIndex) const;
+    void process2DCscCombinationCollection(const MuonSegmentCombinationCollection& csc2DcombiCol, SegInfoMap segInfoMap, std::set<Identifier> cscIdSet, SegInfoMap &seg2DCscInfoMap, std::map<Muon::MuonSegment*, const MuonPatternCombination*> &segAssoMap, int &segmentIndex) const;
 
     void muonCurvedSegmentCombinations(MuonSegmentCombinationCollection*         curvedCombiCol,
-                                       MuonSegmentCombPatternCombAssociationMap* segPattMap);
+                                       MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap segInfoMap, 
+				       std::map<Muon::MuonSegment*, const MuonPatternCombination*> segAssoMap) const;
 
-    Muon::MCSCSegmentInfo segInfo(Muon::MuonSegment* seg);
+    Muon::MCSCSegmentInfo segInfo(Muon::MuonSegment* seg, SegInfoMap segInfoMap, std::map<Muon::MuonSegment*, const MuonPatternCombination*> segAssoMap) const;
 
-    unsigned int missedHits(Muon::MuonSegment* segment);
+    unsigned int missedHits(Muon::MuonSegment* segment) const;
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
@@ -94,17 +95,8 @@ class MuonCurvedSegmentCombiner : virtual public IMuonCurvedSegmentCombiner,
     double m_phiAssociationCut2;
     bool   m_addUnassociatedMiddleEndcapSegments;
 
-    typedef std::map<Muon::MuonSegment*, Muon::MCSCSegmentInfo> SegInfoMap;
     typedef SegInfoMap::iterator                                SegInfoIt;
-    int                                                         m_segmentIndex;
-    SegInfoMap                                                  m_segInfoMap;
 
-    SegInfoMap m_seg2DCscInfoMap;
-    SegInfoMap m_seg4DCscInfoMap;
-    SegInfoMap m_segMdtInfoMap;
-
-    std::map<Muon::MuonSegment*, const MuonPatternCombination*> m_segAssoMap;
-    std::set<Identifier>                                        m_cscIdSet;
 };
 }  // namespace Muon
 

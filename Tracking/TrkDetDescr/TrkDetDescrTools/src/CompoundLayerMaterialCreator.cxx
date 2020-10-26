@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,6 +7,8 @@
 ///////////////////////////////////////////////////////////////////
 
 // STL
+#include <cmath>
+
 #include <sstream>
 // Trk include
 #include "TrkDetDescrTools/CompoundLayerMaterialCreator.h"
@@ -115,8 +117,8 @@ Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCompoundL
     double tMax   = 0., xMax  = 0., lMax  = 0., aMax   = 0., zMax   = 0., rMax = 0.;
     
     // first loop to get the min/max values
-    for (auto& mo : materialMatrix)    
-        for (auto& mi : mo) {
+    for (const auto & mo : materialMatrix)    
+        for (const auto & mi : mo) {
             if (mi){
               const Trk::MaterialProperties& mp = (*mi);
               // macro defined in GeometryStatics
@@ -177,17 +179,17 @@ Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCompoundL
     
     // second loop : assign the bins & and copy the material composition
     size_t obin = 0; 
-    for (auto& mo : materialMatrix){   
+    for (const auto & mo : materialMatrix){   
         size_t ibin =0;
-        for (auto& mi : mo) {
+        for (const auto & mi : mo) {
             if (mi){
               const Trk::MaterialProperties& mp = (*mi);
-              if (tStore.valueStep > 0.) tStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.thickness()/tStore.valueStep)+1); 
-              xStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.x0()/xStore.valueStep)+1); 
-              lStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.l0()/lStore.valueStep)+1); 
-              aStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.averageA()/aStore.valueStep)+1); 
-              zStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.averageZ()/zStore.valueStep)+1); 
-              rStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.averageRho()/rStore.valueStep)+1); 
+              if (tStore.valueStep > 0.) tStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(std::lrint(mp.thickness()/tStore.valueStep)+1); 
+              xStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(std::lrint(mp.x0()/xStore.valueStep)+1); 
+              lStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(std::lrint(mp.l0()/lStore.valueStep)+1); 
+              aStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(std::lrint(mp.averageA()/aStore.valueStep)+1); 
+              zStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(std::lrint(mp.averageZ()/zStore.valueStep)+1); 
+              rStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(std::lrint(mp.averageRho()/rStore.valueStep)+1); 
               // set the material composition 
               if (mp.material().composition) {
                   compositionMatrix[obin][ibin] = Trk::MaterialComposition(*(mp.material().composition));

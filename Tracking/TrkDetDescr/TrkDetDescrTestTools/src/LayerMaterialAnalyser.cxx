@@ -65,7 +65,7 @@ StatusCode Trk::LayerMaterialAnalyser::initialize()
 {
 
     // now register the Tree
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
     
     // ------------- validation section ------------------------------------------
     m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
@@ -94,12 +94,12 @@ StatusCode Trk::LayerMaterialAnalyser::initialize()
     // now register the Tree
     if (service("THistSvc",tHistSvc).isFailure()) {
         ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
-        delete m_validationTree; m_validationTree = 0;
+        delete m_validationTree; m_validationTree = nullptr;
         return StatusCode::SUCCESS;
     }
     if ((tHistSvc->regTree(m_validationTreeFolder.c_str(), m_validationTree)).isFailure()) {
         ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !" );
-        delete m_validationTree; m_validationTree = 0;
+        delete m_validationTree; m_validationTree = nullptr;
         return StatusCode::SUCCESS;
     }
 
@@ -140,7 +140,7 @@ StatusCode Trk::LayerMaterialAnalyser::analyseLayerMaterial(const Trk::Layer& la
     size_t mBins0 = bUtility ? bUtility->max(0)+1 : 1;
     size_t mBins1 = bUtility ? bUtility->max(1)+1 : 1;
     
-    Trk::MaterialPropertiesMatrix mpMatrix(mBins1, std::vector< const Trk::MaterialProperties*>(mBins0, 0));    
+    Trk::MaterialPropertiesMatrix mpMatrix(mBins1, std::vector< const Trk::MaterialProperties*>(mBins0, nullptr));    
     for (size_t ibin1 = 0; ibin1 < mBins1; ++ ibin1){
         for (size_t ibin0 = 0; ibin0 < mBins0; ++ibin0)
             mpMatrix[ibin1][ibin0] = lMaterial.material(ibin0, ibin1);
@@ -210,9 +210,9 @@ StatusCode Trk::LayerMaterialAnalyser::analyse(const Trk::Layer& layer,
     m_layerBins1  = 0;
     m_layerBins   = 0; 
     int bin1      = 0;
-    for (auto& outerIter : mpMatrix){
+    for (const auto & outerIter : mpMatrix){
         int bin0 = 0;
-        for (auto& innerIter : outerIter ){
+        for (const auto & innerIter : outerIter ){
             m_bin0[m_layerBins] = bin0;
             m_bin1[m_layerBins] = bin1;
             // get the material

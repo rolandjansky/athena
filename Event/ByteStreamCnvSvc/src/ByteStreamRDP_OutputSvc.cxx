@@ -36,12 +36,12 @@ StatusCode ByteStreamRDP_OutputSvc::initialize() {
 }
 
 // Receive the next event without explicit context
-bool ByteStreamRDP_OutputSvc::putEvent(RawEvent* re) {
+bool ByteStreamRDP_OutputSvc::putEvent(const RawEvent* re) {
    return putEvent(re, Gaudi::Hive::currentContext());
 }
 
 // Receive the next event
-bool ByteStreamRDP_OutputSvc::putEvent(RawEvent* re, const EventContext& ctx) {
+bool ByteStreamRDP_OutputSvc::putEvent(const RawEvent* re, const EventContext& ctx) {
    EventCache* cache = m_eventsCache.get(ctx);
    cache->releaseEvent();
    const uint32_t reSize = re->fragment_size_word();

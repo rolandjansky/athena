@@ -8,6 +8,7 @@ if not conddb.isMC and not conddb.isOnline:
     conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8",className="CondAttrListCollection")
     conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap",className="AthenaAttributeList")
     conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Pathologies",className="AthenaAttributeList")
+    conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Rvalues",className="AthenaAttributeList")
 
     from AthenaCommon.AlgSequence import AthSequencer
     from Gaudi.Configuration import DEBUG

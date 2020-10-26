@@ -198,7 +198,7 @@ const Trk::Surface& Trk::DiscLayer::approachSurface(const Amg::Vector3D& pos,
             const Trk::Surface* aSurface = nullptr;
             double aPathLength           = 10e10;
             //!< @TODO -> optimise by breaking the loop if possible
-            for (auto& sfIter : (*surfacesOnApproach)){
+            for (const auto & sfIter : (*surfacesOnApproach)){
                 // get the intersection with the surface
                 Trk::Intersection sIntersection = sfIter->straightLineIntersection(pos, dir, true, bcheck); 
                 // validation

@@ -17,13 +17,20 @@
  */
 
 #include <AsgTools/AsgMetadataTool.h>
+#include <AsgTools/PropertyWrapper.h>
+#ifndef XAOD_STANDALONE
 #include <AthenaKernel/IMetaDataTool.h>
+#endif
 
-class BookkeeperDumperTool : public asg::AsgMetadataTool,
-                             public virtual IMetaDataTool
+class BookkeeperDumperTool : public asg::AsgMetadataTool
+#ifndef XAOD_STANDALONE
+                           , public virtual IMetaDataTool
+#endif
 {
+#ifndef XAOD_STANDALONE
   /// Declare the correct constructor for Athena
   ASG_TOOL_CLASS( BookkeeperDumperTool, IMetaDataTool )
+#endif
 
 public:
   BookkeeperDumperTool(const std::string &name = "BookkeeperDumperTool");
@@ -31,10 +38,13 @@ public:
   virtual StatusCode initialize() final;
 
   virtual StatusCode beginInputFile() final;
-  virtual StatusCode beginInputFile(const SG::SourceID &) final { return StatusCode::SUCCESS; }
   virtual StatusCode endInputFile() final { return StatusCode::SUCCESS; }
-  virtual StatusCode endInputFile(const SG::SourceID &) final { return StatusCode::SUCCESS; }
   virtual StatusCode metaDataStop() final { return StatusCode::SUCCESS; }
+
+#ifndef XAOD_STANDALONE
+  virtual StatusCode beginInputFile(const SG::SourceID &) final { return StatusCode::SUCCESS; }
+  virtual StatusCode endInputFile(const SG::SourceID &) final { return StatusCode::SUCCESS; }
+#endif
 
   Gaudi::Property<bool> m_standaloneMode{this, "StandaloneMode", false, "Dump on initialize when running standalone"};
 };

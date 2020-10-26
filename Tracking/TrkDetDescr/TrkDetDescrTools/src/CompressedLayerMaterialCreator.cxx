@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -186,13 +186,13 @@ Trk::LayerMaterialProperties* Trk::CompressedLayerMaterialCreator::createCompres
         }
     }
     // merge the bins and ready
-    materialVector.push_back(0);
+    materialVector.push_back(nullptr);
     // prepare the histogram
     for (size_t izarho = 0; izarho < m_compressedMaterialZARhoBins; ++izarho) {
         for (size_t ix0 = 0; ix0 < m_compressedMaterialX0Bins; ++ix0) {
             // get the indexed material properties
             std::vector< Trk::IndexedMaterial > indexedMaterial = materialHistogram[izarho][ix0];
-            if (indexedMaterial.size()) {
+            if (!indexedMaterial.empty()) {
                 double avT          = 0.; // thickness: by default on one layer it should be the same !
                 double tinX0        = 0.;
                 double tinL0        = 0.;

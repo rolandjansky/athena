@@ -58,6 +58,12 @@ class doTJVA(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class useLargeD0Tracks(JobProperty):
+    """ Use LRT tracks in tau track finding """
+    statusOn=False
+    allowedTypes=['bool']
+    StoredValue=False
+
 #deprecated
 class TauDiscriminantCVMFSPath(JobProperty):
     """ path to cvmfs file location
@@ -224,7 +230,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useSubtractedCluster]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useSubtractedCluster,useLargeD0Tracks]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

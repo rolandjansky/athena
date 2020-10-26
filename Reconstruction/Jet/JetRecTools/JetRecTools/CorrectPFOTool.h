@@ -22,6 +22,7 @@
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODTracking/VertexContainer.h" 
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 #include "AsgTools/ToolHandle.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
@@ -41,10 +42,14 @@ class CorrectPFOTool : public JetConstituentModifierBase{
   StatusCode process_impl(xAOD::IParticleContainer* cont) const override final;
   // Type-specific operation
   StatusCode correctPFO(xAOD::PFOContainer& cont) const;
+  StatusCode correctPFO(xAOD::FlowElementContainer& cont) const;
+
 
   const xAOD::Vertex* getPrimaryVertex() const;
   StatusCode applyNeutralCorrection(xAOD::PFO& pfo, const xAOD::Vertex& vtx) const;
+  StatusCode applyNeutralCorrection(xAOD::FlowElement& pfo, const xAOD::Vertex& vtx) const;
   StatusCode applyChargedCorrection(xAOD::PFO& pfo) const;
+  StatusCode applyChargedCorrection(xAOD::FlowElement& pfo) const;
 
   bool m_inputIsEM;   /// If true EM clusters are used for neutral PFOs.
   bool m_calibrate;   /// If true, EM PFOs are calibrated to LC.

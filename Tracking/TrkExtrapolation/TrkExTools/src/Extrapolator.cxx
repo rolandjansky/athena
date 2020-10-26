@@ -2443,7 +2443,9 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
 {
   // set the model action of the material effects updaters
   for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
-    m_subupdaters[imueot]->modelAction();
+    if(m_subupdaters[imueot] && cache.m_MaterialUpCache[imueot]){
+      m_subupdaters[imueot]->modelAction(*(cache.m_MaterialUpCache[imueot]));
+    }
   }
 
   // reset the destination surface
@@ -2656,7 +2658,9 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
         // destination reached : indicated through result parameters
         // set the model action of the material effects updaters
         for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
-          m_subupdaters[imueot]->modelAction();
+          if(m_subupdaters[imueot] && cache.m_MaterialUpCache[imueot]){
+            m_subupdaters[imueot]->modelAction(*(cache.m_MaterialUpCache[imueot]));
+          }
         }
         // return the parameters at destination
         ATH_MSG_DEBUG("  [+] Destination surface successfully hit.");

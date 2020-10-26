@@ -499,8 +499,10 @@ class SlimmingHelper:
                         items.extend(AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent)
                 elif collectionName=="AntiKt4EMPFlowJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
-                        #from DerivationFrameworkCore.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         items.extend(AntiKt4EMPFlowJetsCPContent)
+                elif collectionName=="AntiKt4EMPFlowFEJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowFEJetsCPContent import AntiKt4EMPFlowFEJetsCPContent
+                        items.extend(AntiKt4EMPFlowFEJetsCPContent)
                 elif collectionName=="AntiKt4EMPFlowJets_BTagging201810":
                         if "AntiKt4EMPFlowJets_BTagging201810" not in self.AppendToDictionary:
                                 self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201810"]='xAOD::JetContainer'

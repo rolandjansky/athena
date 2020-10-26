@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,9 +40,11 @@
 
 #include "FileCatalog/IFileCatalog.h"
 
+#include "CxxUtils/checker_macros.h"
+
 void eventLoop(DataReader*, EventStorage::DataWriter*, unsigned&, const std::vector<uint32_t>*, uint32_t, bool, bool, bool, const std::vector<long long int>* = 0);
 
-int main (int argc, char *argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]) {
   using namespace eformat;
 
   //Interpret arguments

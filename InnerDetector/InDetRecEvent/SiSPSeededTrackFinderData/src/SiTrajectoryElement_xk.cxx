@@ -1261,82 +1261,86 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
 		 acos(globalPars[5]),                         /// theta (from global cosTheta)
 		 globalPars[6]                                /// qoverp 
   };
-  /// write into output parameters. Assign our surface to them 
-  outputParameters.setParameters(m_surface,p); 
-  /// update local direction vector 
-  m_localDir[0] = globalPars[3]; 
-  m_localDir[1] = globalPars[4]; 
+
+  /// update local direction vector
+  m_localDir[0] = globalPars[3];
+  m_localDir[1] = globalPars[4];
   m_localDir[2] = globalPars[5];
 
-  /// if we don't need the cov, we are done 
-  if(!useJac) return true;
+  if (useJac) {
+    /// Condition trajectory on surface
+    double A  = Az[0]*globalPars[3]+Az[1]*globalPars[4]+Az[2]*globalPars[5];
+    if(A!=0.) A=1./A;
+    double s0 = Az[0]*globalPars[ 7]+Az[1]*globalPars[ 8]+Az[2]*globalPars[ 9];
+    double s1 = Az[0]*globalPars[14]+Az[1]*globalPars[15]+Az[2]*globalPars[16];
+    double s2 = Az[0]*globalPars[21]+Az[1]*globalPars[22]+Az[2]*globalPars[23];
+    double s3 = Az[0]*globalPars[28]+Az[1]*globalPars[29]+Az[2]*globalPars[30];
+    double s4 = Az[0]*globalPars[35]+Az[1]*globalPars[36]+Az[2]*globalPars[37];
+    double T0 =(Ax[0]*globalPars[ 3]+Ax[1]*globalPars[ 4]+Ax[2]*globalPars[ 5])*A;
+    double T1 =(Ay[0]*globalPars[ 3]+Ay[1]*globalPars[ 4]+Ay[2]*globalPars[ 5])*A;
+    double n  = 1./globalPars[6];
 
-  /// Condition trajectory on surface
-  double A  = Az[0]*globalPars[3]+Az[1]*globalPars[4]+Az[2]*globalPars[5]; 
-  if(A!=0.) A=1./A;
-  double s0 = Az[0]*globalPars[ 7]+Az[1]*globalPars[ 8]+Az[2]*globalPars[ 9];
-  double s1 = Az[0]*globalPars[14]+Az[1]*globalPars[15]+Az[2]*globalPars[16]; 
-  double s2 = Az[0]*globalPars[21]+Az[1]*globalPars[22]+Az[2]*globalPars[23];
-  double s3 = Az[0]*globalPars[28]+Az[1]*globalPars[29]+Az[2]*globalPars[30];
-  double s4 = Az[0]*globalPars[35]+Az[1]*globalPars[36]+Az[2]*globalPars[37]; 
-  double T0 =(Ax[0]*globalPars[ 3]+Ax[1]*globalPars[ 4]+Ax[2]*globalPars[ 5])*A; 
-  double T1 =(Ay[0]*globalPars[ 3]+Ay[1]*globalPars[ 4]+Ay[2]*globalPars[ 5])*A;
-  double n  = 1./globalPars[6]; 
+    double Jac[21];
 
-  double Jac[21];
+    // Jacobian production
+    //
+    Jac[ 0] = (Ax[0]*globalPars[ 7]+Ax[1]*globalPars[ 8])+(Ax[2]*globalPars[ 9]-s0*T0);    // dL0/dL0
+    Jac[ 1] = (Ax[0]*globalPars[14]+Ax[1]*globalPars[15])+(Ax[2]*globalPars[16]-s1*T0);    // dL0/dL1
+    Jac[ 2] = (Ax[0]*globalPars[21]+Ax[1]*globalPars[22])+(Ax[2]*globalPars[23]-s2*T0);    // dL0/dPhi
+    Jac[ 3] = (Ax[0]*globalPars[28]+Ax[1]*globalPars[29])+(Ax[2]*globalPars[30]-s3*T0);    // dL0/dThe
+    Jac[ 4] =((Ax[0]*globalPars[35]+Ax[1]*globalPars[36])+(Ax[2]*globalPars[37]-s4*T0))*n; // dL0/dCM
 
-  // Jacobian production
-  //
-  Jac[ 0] = (Ax[0]*globalPars[ 7]+Ax[1]*globalPars[ 8])+(Ax[2]*globalPars[ 9]-s0*T0);    // dL0/dL0
-  Jac[ 1] = (Ax[0]*globalPars[14]+Ax[1]*globalPars[15])+(Ax[2]*globalPars[16]-s1*T0);    // dL0/dL1
-  Jac[ 2] = (Ax[0]*globalPars[21]+Ax[1]*globalPars[22])+(Ax[2]*globalPars[23]-s2*T0);    // dL0/dPhi
-  Jac[ 3] = (Ax[0]*globalPars[28]+Ax[1]*globalPars[29])+(Ax[2]*globalPars[30]-s3*T0);    // dL0/dThe
-  Jac[ 4] =((Ax[0]*globalPars[35]+Ax[1]*globalPars[36])+(Ax[2]*globalPars[37]-s4*T0))*n; // dL0/dCM
+    Jac[ 5] = (Ay[0]*globalPars[ 7]+Ay[1]*globalPars[ 8])+(Ay[2]*globalPars[ 9]-s0*T1);    // dL1/dL0
+    Jac[ 6] = (Ay[0]*globalPars[14]+Ay[1]*globalPars[15])+(Ay[2]*globalPars[16]-s1*T1);    // dL1/dL1
+    Jac[ 7] = (Ay[0]*globalPars[21]+Ay[1]*globalPars[22])+(Ay[2]*globalPars[23]-s2*T1);    // dL1/dPhi
+    Jac[ 8] = (Ay[0]*globalPars[28]+Ay[1]*globalPars[29])+(Ay[2]*globalPars[30]-s3*T1);    // dL1/dThe
+    Jac[ 9] =((Ay[0]*globalPars[35]+Ay[1]*globalPars[36])+(Ay[2]*globalPars[37]-s4*T1))*n; // dL1/dCM
 
-  Jac[ 5] = (Ay[0]*globalPars[ 7]+Ay[1]*globalPars[ 8])+(Ay[2]*globalPars[ 9]-s0*T1);    // dL1/dL0
-  Jac[ 6] = (Ay[0]*globalPars[14]+Ay[1]*globalPars[15])+(Ay[2]*globalPars[16]-s1*T1);    // dL1/dL1
-  Jac[ 7] = (Ay[0]*globalPars[21]+Ay[1]*globalPars[22])+(Ay[2]*globalPars[23]-s2*T1);    // dL1/dPhi
-  Jac[ 8] = (Ay[0]*globalPars[28]+Ay[1]*globalPars[29])+(Ay[2]*globalPars[30]-s3*T1);    // dL1/dThe
-  Jac[ 9] =((Ay[0]*globalPars[35]+Ay[1]*globalPars[36])+(Ay[2]*globalPars[37]-s4*T1))*n; // dL1/dCM
+    double P3=0;
+    double P4=0;
+    /// transverse direction component
+    double C = globalPars[3]*globalPars[3]+globalPars[4]*globalPars[4];
+    if(C > 1.e-20) {
+      C= 1./C ;
+      /// unit direction vector in the X,Y plane
+      P3 = globalPars[3]*C;
+      P4 =globalPars[4]*C;
+      C =-sqrt(C);
+    }
+    else{
+      C=-1.e10;
+      P3 = 1.;
+      P4 =0.;
+    }
 
-  double P3=0;
-  double P4=0; 
-  /// transverse direction component 
-  double C = globalPars[3]*globalPars[3]+globalPars[4]*globalPars[4]; 
-  if(C > 1.e-20) {
-    C= 1./C ; 
-    /// unit direction vector in the X,Y plane 
-    P3 = globalPars[3]*C; 
-    P4 =globalPars[4]*C; 
-    C =-sqrt(C);
+    double T2  =(P3*globalPars[43]-P4*globalPars[42])*A;
+    double C44 = C*globalPars[44]           *A;
+
+    Jac[10] = P3*globalPars[11]-P4*globalPars[10]-s0*T2;    // dPhi/dL0
+    Jac[11] = P3*globalPars[18]-P4*globalPars[17]-s1*T2;    // dPhi/dL1
+    Jac[12] = P3*globalPars[25]-P4*globalPars[24]-s2*T2;    // dPhi/dPhi
+    Jac[13] = P3*globalPars[32]-P4*globalPars[31]-s3*T2;    // dPhi/dThe
+    Jac[14] =(P3*globalPars[39]-P4*globalPars[38]-s4*T2)*n; // dPhi/dCM
+
+    Jac[15] = C*globalPars[12]-s0*C44;             // dThe/dL0
+    Jac[16] = C*globalPars[19]-s1*C44;             // dThe/dL1
+    Jac[17] = C*globalPars[26]-s2*C44;             // dThe/dPhi
+    Jac[18] = C*globalPars[33]-s3*C44;             // dThe/dThe
+    Jac[19] =(C*globalPars[40]-s4*C44)*n;          // dThe/dCM
+    Jac[20] = 1.;                         // dCM /dCM
+
+    /// covariance matrix production using jacobian - CovNEW = J*CovOLD*Jt
+    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(startingParameters.covariance(), Jac);
+    outputParameters.setParametersWithCovariance(m_surface, p, newCov);
+
+    /// check for negative diagonals in the cov
+    const double* t = &outputParameters.cov()[0];
+    if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
+  } else {
+    /// write into output parameters. Assign our surface to them
+    outputParameters.setParameters(m_surface,p);
   }
-  else{
-    C=-1.e10; 
-    P3 = 1.; 
-    P4 =0.;             
-  }
 
-  double T2  =(P3*globalPars[43]-P4*globalPars[42])*A;
-  double C44 = C*globalPars[44]           *A;
-
-  Jac[10] = P3*globalPars[11]-P4*globalPars[10]-s0*T2;    // dPhi/dL0
-  Jac[11] = P3*globalPars[18]-P4*globalPars[17]-s1*T2;    // dPhi/dL1
-  Jac[12] = P3*globalPars[25]-P4*globalPars[24]-s2*T2;    // dPhi/dPhi
-  Jac[13] = P3*globalPars[32]-P4*globalPars[31]-s3*T2;    // dPhi/dThe
-  Jac[14] =(P3*globalPars[39]-P4*globalPars[38]-s4*T2)*n; // dPhi/dCM
-
-  Jac[15] = C*globalPars[12]-s0*C44;             // dThe/dL0
-  Jac[16] = C*globalPars[19]-s1*C44;             // dThe/dL1
-  Jac[17] = C*globalPars[26]-s2*C44;             // dThe/dPhi
-  Jac[18] = C*globalPars[33]-s3*C44;             // dThe/dThe
-  Jac[19] =(C*globalPars[40]-s4*C44)*n;          // dThe/dCM
-  Jac[20] = 1.;                         // dCM /dCM
-
-  /// covariance matrix production using jacobian - CovNEW = J*CovOLD*Jt
-  outputParameters.newCovarianceMatrix(startingParameters,Jac); 
-  /// check for negative diagonals in the cov 
-  const double* t = &outputParameters.cov()[0];
-  if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
   return true;
 }
 

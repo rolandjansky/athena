@@ -143,11 +143,12 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
             return [jtm.tools[tmpName]]
 
         # no container exist. simply build a new one.
-        if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow":
+        if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow" or inputtype == "EMPFlowFE":
             defaultmods = {"EMTopo":"emtopo_ungroomed",
                            "LCTopo":"lctopo_ungroomed",
                            "EMPFlow":"pflow_ungroomed",
                            "EMCPFlow":"pflow_ungroomed",
+                           "EMPFlowFE":"pflow_ungroomed",
                            "Truth":"truth_ungroomed",
                            "TruthWZ":"truth_ungroomed",
                            "PV0Track":"track_ungroomed"}
@@ -191,6 +192,8 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
             constit = JetConstit( xAODType.CaloCluster, ["LC","Origin"])
         elif inputtype == "EMPFlow":
             constit = JetConstit( xAODType.ParticleFlow )
+        elif inputtype == "EMPFlowFE":
+            constit = JetConstit( xAODType.FlowElement )
 
         constit.modifiers += constmods
 
@@ -441,6 +444,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
                        "EMCPFlow":"pflow_ungroomed",
+                       "EMPFlowFE":"pflow_ungroomed",
                        "Truth":"truth_ungroomed",
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",
@@ -459,7 +463,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             finderArgs['overwrite']=True
     
         # map the input to the jtm code for PseudoJetGetter
-        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', 
+        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', EMPFlowFE = 'empflowfe',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged',
                           PV0Track='pv0track')
         # create the finder for the temporary collection.
@@ -483,7 +487,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         alg = JetAlgorithm(algname, Tools = pretools+[finderTool])
         dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
         algseq += alg
-        DFJetAlgs[algname] = alg;
+        DFJetAlgs[algname] = alg
 
 ################################################################## 
 # Schedule the adding of BCID info

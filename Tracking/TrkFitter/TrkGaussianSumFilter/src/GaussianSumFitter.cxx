@@ -10,9 +10,9 @@
  */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
-#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkParameters/TrackParameters.h"
@@ -709,14 +709,15 @@ Trk::GaussianSumFitter::makePerigee(
   }
 
   const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-    new MultiComponentStateOnSurface(
-      nullptr,
-      combinedPerigee.release(),
-      Trk::MultiComponentStateHelpers::toPtr(std::move(stateExtrapolatedToPerigee)).release(),
-      nullptr,
-      nullptr,
-      pattern,
-      modeQoverP);
+    new MultiComponentStateOnSurface(nullptr,
+                                     combinedPerigee.release(),
+                                     Trk::MultiComponentStateHelpers::toPtr(
+                                       std::move(stateExtrapolatedToPerigee))
+                                       .release(),
+                                     nullptr,
+                                     nullptr,
+                                     pattern,
+                                     modeQoverP);
   return perigeeMultiStateOnSurface;
 }
 
@@ -964,6 +965,8 @@ Trk::GaussianSumFitter::stepForwardFit(
   }
 
   auto fitQuality = std::make_unique<Trk::FitQualityOnSurface>();
+  //Here we need to clone as the extrapolated state can be used
+  //afterwards
   updatedState = m_updator.update(
     std::move(*(MultiComponentStateHelpers::clone(extrapolatedState))),
     *measurement,
@@ -981,7 +984,8 @@ Trk::GaussianSumFitter::stepForwardFit(
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
       new MultiComponentStateOnSurface(
         measurement.release(),
-        Trk::MultiComponentStateHelpers::toPtr(std::move(extrapolatedState)).release(),
+        //used below for the updated state so clone
+        Trk::MultiComponentStateHelpers::clone(extrapolatedState).release(),
         fitQuality.release(),
         nullptr,
         type);
@@ -993,7 +997,8 @@ Trk::GaussianSumFitter::stepForwardFit(
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
       new MultiComponentStateOnSurface(
         measurement.release(),
-        Trk::MultiComponentStateHelpers::toPtr(std::move(extrapolatedState)).release(),
+        Trk::MultiComponentStateHelpers::toPtr(std::move(extrapolatedState))
+          .release(),
         fitQuality.release());
     forwardTrajectory.push_back(multiComponentStateOnSurface);
   }
@@ -1094,6 +1099,8 @@ Trk::GaussianSumFitter::fit(
     MultiComponentStateCombiner::combine(firstSmoothedState, true);
 
   /*Create updatedStateOnSurface which owned be the tragectory*/
+  //we clone do not just move firstSmoothedState as used
+  //afterwards
   const Trk::MultiComponentStateOnSurface* updatedStateOnSurface =
     new MultiComponentStateOnSurface(
       firstSmootherMeasurementOnTrack,
@@ -1131,7 +1138,7 @@ Trk::GaussianSumFitter::fit(
     MultiComponentStateHelpers::cloneWithScaledError(
       firstSmoothedState, 15., 5., 15., 5., 15.);
 
-  // Perform a measurement update on this new state
+  // Perform a measurement update on this new state before loop
   Trk::MultiComponentState updatedState = m_updator.update(
     std::move(*smoothedStateWithScaledError), *firstSmootherMeasurementOnTrack);
 
@@ -1187,6 +1194,7 @@ Trk::GaussianSumFitter::fit(
       return nullptr;
     }
 
+    // In the following the updated state is reset
     // Original measurement was flagged as  an outlier
     if (!(*trackStateOnSurface)->type(TrackStateOnSurface::Measurement)) {
       updatedState = std::move(extrapolatedState);
@@ -1205,7 +1213,6 @@ Trk::GaussianSumFitter::fit(
       smoothedTrajectory->push_back(updatedStateOnSurface);
       continue;
     }
-
 
     updatedState =
       m_updator.update(std::move(extrapolatedState), *measurement, fitQuality);
@@ -1259,7 +1266,8 @@ Trk::GaussianSumFitter::fit(
       const Trk::MultiComponentStateOnSurface* combinedStateOnSurface =
         new MultiComponentStateOnSurface(
           measurement.release(),
-          Trk::MultiComponentStateHelpers::toPtr(std::move(combinedState2)).release(),
+          Trk::MultiComponentStateHelpers::toPtr(std::move(combinedState2))
+            .release(),
           combinedFitQuality.release());
       smoothedTrajectory->push_back(combinedStateOnSurface);
     } else {
@@ -1271,6 +1279,7 @@ Trk::GaussianSumFitter::fit(
         std::unique_ptr<Trk::TrackParameters> combinedLastState =
           MultiComponentStateCombiner::combine(updatedState, true);
 
+        //Here we can move the updated state we created above
         if (combinedLastState) {
           updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
             measurement.release(),

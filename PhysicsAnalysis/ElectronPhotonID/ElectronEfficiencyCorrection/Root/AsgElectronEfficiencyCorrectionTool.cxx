@@ -507,7 +507,7 @@ AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::Systemat
 
         if (filteredSys.empty() && !systConfig.empty()) {
             ATH_MSG_DEBUG("systematics : ");
-            for (auto &syst : systConfig) {
+            for (const auto &syst : systConfig) {
                 ATH_MSG_DEBUG(syst.name());
             }
             ATH_MSG_DEBUG(" Not supported ");

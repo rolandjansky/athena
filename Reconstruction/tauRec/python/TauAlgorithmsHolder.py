@@ -21,6 +21,7 @@ bAODmode = False
 # standard container names
 _DefaultVertexContainer = "PrimaryVertices"
 _DefaultTrackContainer ="InDetTrackParticles"
+_DefaultLargeD0TrackContainer ="InDetLargeD0TrackParticles"
 
 ######################################################################## 
 def setPrefix(prefix): 
@@ -664,6 +665,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     tauParticleCache = getParticleCache(),
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
                                     Key_trackPartInputContainer = _DefaultTrackContainer,
+                                    Key_LargeD0TrackInputContainer = _DefaultLargeD0TrackContainer if tauFlags.useLargeD0Tracks else "",
                                     TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
                                     #removeTracksOutsideZ0wrtLeadTrk = True
