@@ -842,19 +842,22 @@ std::vector<int> getComponentIndicesFromName(const JetUncertaintiesTool* provide
             }
             else if (midWild)
             {
+                // There is a wildcard in the middle of the name
                 // Check if the string starts with the first token and ends with the last token
                 // We already ensured there are only two tokens
                 if ( ( provNames.at(iProvComp).BeginsWith(tokensToFind.at(0),TString::kIgnoreCase) || (namePrefix != "" && provNames.at(iProvComp).BeginsWith(namePrefix+tokensToFind.at(0),TString::kIgnoreCase)) ) && provNames.at(iProvComp).EndsWith(tokensToFind.at(1),TString::kIgnoreCase))
                 {
+                    // The wildcard may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
-                    //break;
                 }
             }
             else if (!beginWild && !endWild)
             {
+                // Direct name equalitty (no wildcards)
                 if (!provNames.at(iProvComp).CompareTo(toFind,TString::kIgnoreCase) || ( namePrefix != "" && !provNames.at(iProvComp).CompareTo(namePrefix+toFind,TString::kIgnoreCase) ) )
                 {
+                    // There can only be one component with a given name, so break out if we find it
                     foundIndex = true;
                     indices.push_back(iProvComp);
                     break;
@@ -862,24 +865,31 @@ std::vector<int> getComponentIndicesFromName(const JetUncertaintiesTool* provide
             }
             else if (beginWild && !endWild)
             {
+                // The start of the name is a wildcard
                 if (provNames.at(iProvComp).EndsWith(toFind,TString::kIgnoreCase))
                 {
+                    // The wildcard may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
                 }
             }
             else if (!beginWild && endWild)
             {
+                // The end of the name is a wildcard
                 if (provNames.at(iProvComp).BeginsWith(toFind,TString::kIgnoreCase) || ( namePrefix != "" && provNames.at(iProvComp).BeginsWith(namePrefix+toFind,TString::kIgnoreCase) ) )
                 {
+                    // The wildcard may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
                 }
             }
             else
             {
+                // There are wildcards at the start and end of the name
+                // Look for the desired substring within the name
                 if (provNames.at(iProvComp).Contains(toFind,TString::kIgnoreCase))
                 {
+                    // The wildcards may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
                 }
