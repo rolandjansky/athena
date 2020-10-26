@@ -125,4 +125,23 @@
 + Trigger/TrigSteer/TrigCompositeUtils
 #+ Trigger/TrigValidation/TrigAnalysisTest
 
+#
+### AnalysisTop packages
+#
+
++ PhysicsAnalysis/TopPhys/TopPhysUtils/TopDataPreparation
++ PhysicsAnalysis/TopPhys/xAOD/TopAnalysis
++ PhysicsAnalysis/TopPhys/xAOD/TopCPTools
++ PhysicsAnalysis/TopPhys/xAOD/TopConfiguration
++ PhysicsAnalysis/TopPhys/xAOD/TopCorrections
++ PhysicsAnalysis/TopPhys/xAOD/TopEvent
++ PhysicsAnalysis/TopPhys/xAOD/TopEventReconstructionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopEventSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopExamples
++ PhysicsAnalysis/TopPhys/xAOD/TopJetSubstructure
++ PhysicsAnalysis/TopPhys/xAOD/TopObjectSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopParticleLevel
++ PhysicsAnalysis/TopPhys/xAOD/TopPartons
++ PhysicsAnalysis/TopPhys/xAOD/TopSystematicObjectMaker
+
 - .*
