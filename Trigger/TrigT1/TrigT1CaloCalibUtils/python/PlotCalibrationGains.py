@@ -2,21 +2,14 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-#from ROOT import gRandom,TCanvas,TH1F,TH2F
 import ROOT
 import sys
 import time
 import os
 
-from array import *
-
+from array import array
 from PyCool import cool
 from optparse import OptionParser
-
-#from coolTools import *
-
 from math import fabs
 
 
@@ -24,7 +17,7 @@ class L1CaloMap:
  
      def __init__(self,title,XaxisTitle="",YaxisTitle=""):
 
-         self.nxbins = 66;
+         self.nxbins = 66
          self.xbins = array('d',[-49.5,-44.5,-40.50,-36.5,-32.5,-31.5,-29.5,
                                  -27.5,-25.5,-24.5,-23.5,-22.5,-21.5,-20.5,-19.5,
                                  -18.5,-17.5,-16.5,-15.5,-14.5,-13.5,-12.5,-11.5,
@@ -35,15 +28,15 @@ class L1CaloMap:
                                   30.5,31.5,35.5,39.5,43.5,47.5])
 
          self.h_1 = ROOT.TH2F("GainTTsMap" ,title, self.nxbins,self.xbins,64,0.,64)     
-	 
+
          self.h_1.GetXaxis().SetTitle(XaxisTitle)
          self.h_1.GetYaxis().SetTitle(YaxisTitle)
-	 
+
      def Draw(self):
          self.h_1.SetStats(0)
-         self.h_1.Draw("colz")	 
+         self.h_1.Draw("colz")
          ROOT.gPad.RedrawAxis()
-	 
+
      def Fill(self,eta,phi,gain=1):
 
          if eta >= 32 or eta < -32:
@@ -54,13 +47,13 @@ class L1CaloMap:
          elif eta >= 25 or eta < -25:
            self.h_1.Fill(eta,phi+1.5,gain) 
            self.h_1.Fill(eta,phi+0.5,gain) 
-         else:	 
+         else:
            self.h_1.Fill(eta,phi+0.5,gain) 
 
-	      
+
      def SetMinimum(self,minimum):
          self.h_1.SetMinimum(minimum)
-     	                          
+
      def SetMaximum(self,maximum):
          self.h_1.SetMaximum(maximum)
 
@@ -80,12 +73,12 @@ class L1CaloGeometryConvertor:
                self.list_of_channels_had[(parts[0],parts[1])] = '0x'+hadCool
      
           input.close()
-	  
+
      def LoadReceiverPPMMap(self):
      
          self.receiver_to_ppm_map={}
          self.UNIX2COOL = 1000000000
-	 
+
          # get database service and open database
          dbSvc = cool.DatabaseSvcFactory.databaseService()
 
@@ -98,7 +91,6 @@ class L1CaloGeometryConvertor:
 
          folder_name = "/TRIGGER/Receivers/RxPpmIdMap"
          folder=db.getFolder(folder_name)
-         ch = folder.listChannels()
        
          startUtime = int(time.time())
          endUtime = int(time.time())
@@ -128,13 +120,13 @@ class L1CaloGeometryConvertor:
        if ReceiverId in self.receiver_to_ppm_map:
          return self.receiver_to_ppm_map[ReceiverId]
        else:
-         return None	 
+         return None
 
      def getReceiverfromPPM(self,PPMId,strategy_string=None):
         
        ReceiverChannels = [item[0] for item in self.receiver_to_ppm_map.items() if item[1]==PPMId]       
 
-       if strategy_string == None:
+       if strategy_string is None:
          print (" Warning! in getReceiverfromPPM no runtype given, using default!")
          return ReceiverChannels[0]
 
@@ -162,7 +154,7 @@ class L1CaloGeometryConvertor:
 
        else:
          return ReceiverChannels[0]
-	 
+
 
      def getCoolEm(self,i_eta,i_phi):
           if (str(i_eta),str(i_phi)) in self.list_of_channels_em:
@@ -185,10 +177,10 @@ class L1CaloGeometryConvertor:
      
      def isCoolEm(self,CoolId):
           return (CoolId in self.list_of_channels_em.values())
-	  
+
      def isCoolHad(self,CoolId):
           return (CoolId in self.list_of_channels_had.values())
-	  	
+
      def getEtaBin(self,CoolId):
           if self.isCoolEm(CoolId):
             channel = [item[0] for item in self.list_of_channels_em.items() if item[1]==CoolId]
@@ -198,7 +190,7 @@ class L1CaloGeometryConvertor:
             return int(channel[0][0])
           else:
             return -1
-	  
+
      def getPhiBin(self,CoolId):
           if self.isCoolEm(CoolId):
             channel = [item[0] for item in self.list_of_channels_em.items() if item[1]==CoolId]
@@ -245,7 +237,7 @@ class L1CaloGeometryConvertor:
      def isPPMOverlap(self,CoolId):
 
        eta_bin = self.getEtaBin(CoolId)  
-       if self.isCoolEm(CoolId) == True and (eta_bin == 14 or eta_bin == -15):
+       if self.isCoolEm(CoolId) is True and (eta_bin == 14 or eta_bin == -15):
          return True
        else:
          return False
@@ -294,9 +286,9 @@ class L1CaloGeometryConvertor:
            return 'LowEta' 
         
 
-class GainReader:	  
+class GainReader:
 
-     def __init__(self):	  	  	  
+     def __init__(self):
 
           self.measured_gains={}
           self.reference_gains={}
@@ -305,7 +297,7 @@ class GainReader:
           self.UNIX2COOL = 1000000000
 
           self.run_nr=None
-          self.strategy=None	  
+          self.strategy=None
 
      def LoadGainsXml(self,name):
      
@@ -361,8 +353,7 @@ class GainReader:
 
        folder_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanResults'
        folder=db.getFolder(folder_name)
-       ch = folder.listChannels()
-       
+
        startUtime = int(time.time())
        endUtime = int(time.time())
        startValKey = startUtime * self.UNIX2COOL
@@ -395,7 +386,7 @@ class GainReader:
            self.strategy = payload['GainStrategy']
          print ("Run nr. = ", self.run_nr , " Strategy = ", self.strategy)
 
-       except:                                     # Doesn't seem to catch C++ exceptions :-(
+       except Exception:                                     # Doesn't seem to catch C++ exceptions :-(
          print ("Warning, in LoadGainsSqlite can't get runtype info! Hope this is not serious!")
 
 
@@ -416,7 +407,6 @@ class GainReader:
 
        folder_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanResults'
        folder=db.getFolder(folder_name)
-       ch = folder.listChannels()
        
        startUtime = int(time.time())
        endUtime = int(time.time())
@@ -454,7 +444,6 @@ class GainReader:
 
        folder_name = "/TRIGGER/Receivers/Factors/CalibGains"
        folder=db.getFolder(folder_name)
-       ch = folder.listChannels()
        
        startUtime = int(time.time())
        endUtime = int(time.time())
@@ -474,8 +463,8 @@ class GainReader:
          payload = row.payload()
          gain = payload['factor']
 
-         if not PPMId == None:
-           if self.strategy == None:                 #run type not known
+         if PPMId is not None:
+           if self.strategy is None:                 #run type not known
              self.reference_gains[PPMId]=gain
            else:
              if mapping_tool.getReceiverfromPPM(PPMId,self.strategy) == ReceiverId:  # correct receiver?
@@ -521,8 +510,8 @@ class GainReader:
 #               (self.getGain(coolId) > 0.5 and self.getGain(coolId)<2.1) and
 #               (self.getOffset(coolId) > -2 and self.getOffset(coolId) < 2)):
                (self.getOffset(coolId) > -10 and self.getOffset(coolId) < 10)):
-             return True	   
-           else:	   
+             return True
+           else:
              return False
 
 
@@ -567,13 +556,13 @@ class EmPartitionPlots:
      def Fill(self,eta_bin,gain):
      
         partition=self.get_partition_number(eta_bin)
-	
+
         if partition > 0:
           self.his_partitions[0].Fill(gain)
           self.his_partitions[partition].Fill(gain)
         else:
           print ("Warning in EmPartitionPlots, nonexisting partition!"  )
-	  
+
 
 class HadPartitionPlots:
   
@@ -612,7 +601,7 @@ class HadPartitionPlots:
      def Fill(self,eta_bin,gain):
      
         partition=self.get_partition_number(eta_bin)
-	
+
         if partition > 0:
           self.his_partitions[0].Fill(gain)
           self.his_partitions[partition].Fill(gain)
@@ -674,10 +663,10 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
   bad_gain_file = open('bad_gains.txt','w')
   drifted_towers_file = open('drifted_towers.txt','w')
   
-  if isInputXml == True:
+  if isInputXml is True:
     print ("Taking input from xml file: ", input_file_name)
     receiver_gains.LoadGainsXml(input_file_name)
-  elif isInputSqlite == True:
+  elif isInputSqlite is True:
     print ("Taking input from Sqlite file: ", input_file_name)
     receiver_gains.LoadGainsSqlite(input_file_name)
   else:
@@ -685,13 +674,13 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
     receiver_gains.LoadGainsSqlite("energyscanresults.sqlite")
          
 
-  if isRefXml == True:
+  if isRefXml is True:
     print ("Taking reference from Xml file: ",reference_file_name)
     receiver_gains.LoadReferenceXml(reference_file_name)
-  elif isRefSqlite == True:
+  elif isRefSqlite is True:
     print ("Taking reference from Sqlite file: ",reference_file_name)
     receiver_gains.LoadReferenceSqlite(reference_file_name)
-  elif isRefOracle == True:
+  elif isRefOracle is True:
     print ("Taking reference from Oracle")
     geometry_convertor.LoadReceiverPPMMap()
     receiver_gains.LoadReferenceOracle(geometry_convertor)
@@ -716,12 +705,12 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
          passes_selection = receiver_gains.passesSelection(coolEm)
 
          if (not gain == '') and (not reference_gain == ''):        # both  gains should be available
-	 
+
            if gain == -1. :
              h_unfitted_em.Fill(i_eta,i_phi)  
              bad_gain_file.write('%i %i %s EM gain= %.3f \n' % (i_eta,i_phi,coolEm,float(gain))) 
              h_gains_em_reference.Fill(i_eta,i_phi,-100.)
-             h_gains_em_reference_rel.Fill(i_eta,i_phi,-100.)	     
+             h_gains_em_reference_rel.Fill(i_eta,i_phi,-100.)
            else:
              h_gains_em.Fill(i_eta,i_phi,gain)
              h_chi2_em.Fill(i_eta,i_phi,chi2)
@@ -730,11 +719,11 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
              em_partition_gains_ref.Fill(i_eta,gain-reference_gain)  
              h_gains_em_reference.Fill(i_eta,i_phi,gain-reference_gain)
 
-             if passes_selection == False:
+             if passes_selection is False:
                h_gains_em_fselect.Fill(i_eta,i_phi)
                bad_gain_file.write('%i %i %s  EM gain= %.3f  chi2= %.3f offset= %.3f \n' %  (i_eta,i_phi,coolEm,float(gain),float(chi2),float(offset))) 
 #               h_gains_em_reference.Fill(i_eta,i_phi,-100.)
-#               h_gains_em_reference_rel.Fill(i_eta,i_phi,-100.)	              
+#               h_gains_em_reference_rel.Fill(i_eta,i_phi,-100.)
 
              if reference_gain > 0:
                em_partition_gains_ref_rel.Fill(i_eta,(gain-reference_gain)/reference_gain)  
@@ -750,7 +739,7 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
 
          gain = receiver_gains.getGain(coolHad)
          chi2   = receiver_gains.getChi2(coolHad)
-         offset = receiver_gains.getOffset(coolHad)	 
+         offset = receiver_gains.getOffset(coolHad)
          reference_gain = receiver_gains.getReferenceGain(coolHad)
          passes_selection = receiver_gains.passesSelection(coolHad)
 
@@ -769,7 +758,7 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
              had_partition_gains_ref.Fill(i_eta,gain-reference_gain)
              h_gains_had_reference.Fill(i_eta,i_phi,gain-reference_gain)
 
-             if passes_selection == False:
+             if passes_selection is False:
                h_gains_had_fselect.Fill(i_eta,i_phi)
                bad_gain_file.write( '%i %i %s  HAD gain= %.3f  chi2= %.3f offset= %.3f \n' % (i_eta,i_phi,coolHad,float(gain),float(chi2),float(offset))) 
 #               h_gains_had_reference.Fill(i_eta,i_phi,-100.)
@@ -781,10 +770,10 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
                if fabs((gain-reference_gain)/reference_gain) > threshold_change:
                  h_drifted_had.Fill(i_eta,i_phi)
                  drifted_towers_file.write('%i %i %s  HAD gain= %.3f   refGain= %.3f   (%.3f %%) \n' %  (i_eta,i_phi,coolHad,float(gain),float(reference_gain),(gain-reference_gain)*100/reference_gain))
-	    
 
-	   
-#print (measured_gains	 )
+
+
+#print (measured_gains   )
   c1.cd()
   ROOT.gPad.SetLogy(0)
 
