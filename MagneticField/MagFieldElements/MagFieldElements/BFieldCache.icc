@@ -57,8 +57,7 @@ BFieldCache::inside(double z, double r, double phi) const
   if (phi < m_phimin) {
     phi += 2.0 * M_PI;
   }
-  return (phi >= m_phimin && phi <= m_phimax && z >= m_zmin && z <= m_zmax &&
-          r >= m_rmin && r <= m_rmax);
+  return (r <= m_rmax && r >= m_rmin && z <= m_zmax && z >= m_zmin &&
+          phi <= m_phimax && phi >= m_phimin);
 }
-
 
