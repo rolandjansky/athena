@@ -114,9 +114,28 @@ StatusCode eFEXFPGA::execute(){
       // temporarily(?) removed for debugging
       //if (eFEXFPGA_egAlgo->haveSeed() == false) continue;
       
-      std::vector<unsigned int> RetaND = m_eFEXegAlgoTool->getReta();
-      std::vector<unsigned int> RhadND; m_eFEXegAlgoTool->getRhad(RhadND);
+      // Get Reta and Rhad outputs
+      std::vector<unsigned int> RetaCoreEnv; 
+      m_eFEXegAlgoTool->getReta(RetaCoreEnv);
+      std::vector<unsigned int> RhadCoreEnv; 
+      m_eFEXegAlgoTool->getRhad(RhadCoreEnv);
+      std::vector<unsigned int> WstotCoreEnv;
+      m_eFEXegAlgoTool->getWstot(WstotCoreEnv);
+
+      // temp thresholds that will come from Trigger menu
+      std::vector<unsigned int> tempThrs;
+      tempThrs.push_back(40);
+      tempThrs.push_back(30);
+      tempThrs.push_back(20);
       
+      // Set Reta, Rhad and Wstot WP
+      unsigned int RetaWP = 0;
+      unsigned int RhadWP = 0;
+      unsigned int WstotWP = 0;
+      SetIsoWP(RetaCoreEnv,tempThrs,RetaWP);
+      SetIsoWP(RhadCoreEnv,tempThrs,RhadWP);
+      SetIsoWP(WstotCoreEnv,tempThrs,WstotWP);
+
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
       tmp_tob->setFPGAID(m_id);
@@ -200,6 +219,45 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
   }
   
 }
+
+void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint) {
+
+  bool CoreOverflow = false;
+  bool EnvOverflow = false;
+  bool ThrEnvOverflowL = false;
+  bool ThrEnvOverflowM = false;
+  bool ThrEnvOverflowT = false;
+
+  if (CoreEnv[0] > 0xffff) CoreOverflow = true;
+  if (CoreEnv[1] > 0xffff) EnvOverflow = true;
+  if (CoreEnv[1]*thresholds[0] > 0xffff) ThrEnvOverflowL = true;
+  if (CoreEnv[1]*thresholds[1] > 0xffff) ThrEnvOverflowM = true;
+  if (CoreEnv[1]*thresholds[2] > 0xffff) ThrEnvOverflowT = true;
+
+  if (CoreOverflow == false) {
+    if (EnvOverflow == false) {
+      if ( (CoreEnv[0] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
+	workingPoint = 3;
+      } 
+      else if ( (CoreEnv[0] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
+	workingPoint = 2;
+      } 
+      else if ( (CoreEnv[0] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
+	workingPoint = 1;
+      }
+      else { 
+	workingPoint = 0;
+      }
+    } else {
+      workingPoint = 0; //env overflow
+    }
+  } 
+  else {
+    workingPoint = 3; // core overflow 
+  }
+
+}
+
   
 } // end of namespace bracket
 
