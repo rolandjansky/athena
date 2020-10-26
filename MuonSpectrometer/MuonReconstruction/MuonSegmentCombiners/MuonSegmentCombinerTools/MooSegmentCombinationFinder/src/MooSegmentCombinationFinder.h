@@ -65,7 +65,7 @@ class MooSegmentCombinationFinder : virtual public IMooSegmentCombinationFinder,
                       const std::vector<const CscPrepDataCollection*>& cscCols,
                       const std::vector<const TgcPrepDataCollection*>& tgcCols,
                       const std::vector<const RpcPrepDataCollection*>& rpcCols,
-                      IMooSegmentCombinationFinder::Output&            output);
+                      IMooSegmentCombinationFinder::Output&            output) const;
 
   private:
     /** helper functions to print summary output for the different stages */
@@ -76,7 +76,7 @@ class MooSegmentCombinationFinder : virtual public IMooSegmentCombinationFinder,
 
     /** helper functions to write out intermediate results */
     void postProcess(MuonSegmentCombinationCollection*         col,
-                     MuonSegmentCombPatternCombAssociationMap& segmentPatternMap);
+                     MuonSegmentCombPatternCombAssociationMap& segmentPatternMap) const;
 
     /** extract a segment collection from a segment combination collection */
     void extractSegmentCollection(const MuonSegmentCombinationCollection* combiCol,
