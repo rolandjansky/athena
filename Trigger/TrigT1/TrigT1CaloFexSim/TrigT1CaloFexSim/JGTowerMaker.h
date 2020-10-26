@@ -58,6 +58,9 @@ class JGTowerMaker: public ::AthAlgorithm {
   bool  m_useAllRun2TT;
   bool  m_EmulateSC; 
   bool  m_TileMapped;
+  float m_minSCETp; 
+  float m_maxSCETm; 
+  float m_minTowerEt; 
   std::string m_scType;
   uint16_t m_scQuality;
   bool  JMatched;
