@@ -37,6 +37,8 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
     // use CaloExtensionTool when key is empty 
     ATH_CHECK( m_ParticleCacheKey.initialize(SG::AllowEmpty) );
+    // allow empty for LRT
+    ATH_CHECK( m_largeD0TracksInputContainer.initialize(SG::AllowEmpty) );
 
     if (inTrigger()) {
       ATH_CHECK(m_beamSpotKey.initialize());
@@ -51,7 +53,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   std::vector<const xAOD::TrackParticle*> tauTracks;
   std::vector<const xAOD::TrackParticle*> wideTracks;
   std::vector<const xAOD::TrackParticle*> otherTracks;
-  
+
+  //Retrieve standard tracking for offline
   const xAOD::TrackParticleContainer* trackParticleCont = nullptr; 
   
   if (! m_trackPartInputContainer.empty()) { // MT version of trigger or offline
@@ -72,13 +75,33 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     }
   }
 
+  //Retrieve LRT tracking container
+  const xAOD::TrackParticleContainer* largeD0TracksParticleCont = nullptr; 
+  
+  if (! m_largeD0TracksInputContainer.empty()) { 
+    SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_largeD0TracksInputContainer );
+    if (!trackPartInHandle.isValid()) {
+      ATH_MSG_VERBOSE ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
+      ATH_MSG_VERBOSE ("LRT container " << trackPartInHandle.key()<<" is not being used for tau tracks");
+    }
+    else { largeD0TracksParticleCont = trackPartInHandle.cptr();
+}
+  
+  }
+
   // get the primary vertex
   const xAOD::Vertex* pVertex = nullptr;
   if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
 
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
+
   getTauTracksFromPV(pTau, *trackParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
+  bool foundLRTCont = bool (largeD0TracksParticleCont != nullptr);
+  // additional LRT with vertex association added to tracks
+  if (foundLRTCont){
+    getTauTracksFromPV(pTau, *largeD0TracksParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
+  }
 
   // remove core and wide tracks outside a maximal delta z0 wrt lead core track                                                                                
   if (m_applyZ0cut) {
@@ -118,7 +141,14 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     tauTrackCon.push_back(track);
 
     ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
-    linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
+    if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
+      linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
+      ATH_MSG_VERBOSE(name()     << " core track nr: " << i << "is LargeD0Track"	    );
+
+    }else{
+      linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
+    }
+
     track->addTrackLink(linkToTrackParticle);
 
     track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
@@ -152,7 +182,13 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     tauTrackCon.push_back(track);
 
     ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
-    linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
+    if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
+      linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
+      ATH_MSG_VERBOSE(name()     << " wide track nr: " << i << "is LargeD0Track"	    );
+    }else{
+
+      linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
+    }
     track->addTrackLink(linkToTrackParticle);
 
     track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
@@ -185,7 +221,12 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
     tauTrackCon.push_back(track);
 
     ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
-    linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
+    if (foundLRTCont && isLargeD0Track(trackParticle)){//Check LRT track and link to container
+      linkToTrackParticle.toContainedElement(*largeD0TracksParticleCont, trackParticle);
+      ATH_MSG_VERBOSE(name()     << " other track nr: " << i << "is LargeD0Track"    );
+    }else{
+      linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
+    }
     track->addTrackLink(linkToTrackParticle);
 
     track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
@@ -300,6 +341,7 @@ void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
         const xAOD::TrackParticle *trackParticle = *tpcItr;
 
         TauTrackType type = tauTrackType(pTau, *trackParticle, primaryVertex);
+		
         if (type == TauTrackCore)
 	  tauTracks.push_back(trackParticle);
         else if (type == TauTrackWide)
@@ -502,5 +544,16 @@ float TauTrackFinder::getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex
     delete perigee; //cleanup necessary to prevent mem leak
 
     return z0;
+}
+
+bool TauTrackFinder::isLargeD0Track(const xAOD::TrackParticle* track) const
+{
+  const std::bitset<xAOD::NumberOfTrackRecoInfo> patternReco = track->patternRecoInfo();
+  if (patternReco.test(xAOD::TrackPatternRecoInfo::SiSpacePointsSeedMaker_LargeD0)) {
+    ATH_MSG_DEBUG("LargeD0Track found");
+    return true;
+  }
+  return false;
+
 }
 #endif
