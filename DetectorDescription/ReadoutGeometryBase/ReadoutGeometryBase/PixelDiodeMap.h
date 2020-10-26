@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,15 +8,15 @@
 // (c) ATLAS Pixel Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef INDETREADOUTGEOMETRY_PIXELDIODEMAP_H
-#define INDETREADOUTGEOMETRY_PIXELDIODEMAP_H
+#ifndef READOUTGEOMETRYBASE_PIXELDIODEMAP_H
+#define READOUTGEOMETRYBASE_PIXELDIODEMAP_H
 
 // STL classes
 #include <vector>
 #include <list>
 
 // Data member classes
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 
 // Input/output classes
 #include "ReadoutGeometryBase/SiCellId.h"
@@ -192,4 +192,4 @@ class PixelDiodeMatrix;
 
 } // namespace InDetDD
 
-#endif // INDETREADOUTGEOMETRY_PIXELDIODEMAP_H
+#endif // READOUTGEOMETRYBASE_PIXELDIODEMAP_H

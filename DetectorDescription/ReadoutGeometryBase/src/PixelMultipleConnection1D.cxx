@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 // 06/02/2008 Grant Gorfine
 ///////////////////////////////////////////////////////////////////
 
-#include "PixelReadoutGeometry/PixelMultipleConnection1D.h"
+#include "ReadoutGeometryBase/PixelMultipleConnection1D.h"
 #include <iostream>
 
 namespace InDetDD {

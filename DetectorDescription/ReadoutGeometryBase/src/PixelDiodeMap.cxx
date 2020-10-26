@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,8 +12,8 @@
 // Modified: Grant Gorfine
 ///////////////////////////////////////////////////////////////////
 
-#include "PixelReadoutGeometry/PixelDiodeMap.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMap.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 #include "ReadoutGeometryBase/SiCellId.h"
 
 #include <cmath>

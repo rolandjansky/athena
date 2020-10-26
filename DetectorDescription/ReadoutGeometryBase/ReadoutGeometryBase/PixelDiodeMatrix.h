@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,8 +8,8 @@
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
-#define INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
+#ifndef READOUTGEOMETRYBASE_PIXELDIODEMATRIX_H
+#define READOUTGEOMETRYBASE_PIXELDIODEMATRIX_H
 
 #include "ReadoutGeometryBase/SiCellId.h"
 #include "GeoModelKernel/RCBase.h"
@@ -187,4 +187,4 @@ namespace InDetDD {
 
 } // end namespace
 
-#endif //INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
+#endif //READOUTGEOMETRYBASE_PIXELDIODEMATRIX_H
