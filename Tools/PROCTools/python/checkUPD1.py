@@ -8,15 +8,7 @@
 #pcaltag.schema InDetAlign-RUN2-BLK-UPD4-13 
 #pcaltag.status 1
 
-from __future__ import print_function
-
-import time
 from PyCool import cool
-from collections import OrderedDict
-import json
-import urllib2  # the lib that handles the url stuff
-import logging
-from CoolRunQuery.utils.AtlRunQueryIOV    import IOVTime, IOVRange
 
 def getDBNumberFromUPD4(run, tag, foldername, connstr):
    readonly=(connstr.find('//')==-1)
@@ -29,7 +21,6 @@ def getDBNumberFromUPD4(run, tag, foldername, connstr):
    folder=dbconn.getFolder(foldername)   
    iovstart=int(run)<<32
    iovend=iovstart+0xFFFFFFFF
-   nobj=0
    objs=folder.browseObjects(iovstart,iovend,cool.ChannelSelection.all(),tag)
    for obj in objs:
       payload = obj.payload()
@@ -49,8 +40,7 @@ def getRunNumberFromUPD1(DB_number, tag, run, foldername, connstr):
    dbSvc=cool.DatabaseSvcFactory.databaseService()
    dbconn=dbSvc.openDatabase(connstr2,readonly)
    folder=dbconn.getFolder(foldername)   
-   iovstart=int(run)<<32
-   nobj=0
+   #iovstart=int(run)<<32
    objs=folder.browseObjects( cool.ValidityKeyMin,
                               #iovstart, 
                               cool.ValidityKeyMax,
@@ -68,12 +58,6 @@ def getRunNumberFromUPD1(DB_number, tag, run, foldername, connstr):
       if test_number == DB_number:
          return run_string 
    return 0
-
-      #return run_string
-      #else:
-      #   return 0
-      
-
 
 
 
