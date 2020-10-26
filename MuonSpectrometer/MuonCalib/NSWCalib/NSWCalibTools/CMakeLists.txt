@@ -24,4 +24,4 @@ atlas_add_component(NSWCalibTools
                     LINK_LIBRARIES NSWCalibToolsLib
                     PRIVATE_LINK_LIBRARIES AthenaBaseComps )
  
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
