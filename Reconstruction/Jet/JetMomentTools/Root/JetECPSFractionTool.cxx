@@ -8,11 +8,11 @@
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
 using xAOD::IParticle;
 using xAOD::CaloCluster;
-using xAOD::PFO;
 using xAOD::JetConstituent;
 using xAOD::JetFourMom_t;
 
@@ -62,11 +62,16 @@ double JetECPSFractionTool::energyFraction(const xAOD::Jet& jet) const {
       continue;
     }
     const IParticle* ppar = pcon->rawConstituent();
+    if(ppar == nullptr){
+      ATH_MSG_WARNING("Constituent has no associated raw constituent.");
+      continue;
+    }
     double conEnergy = pcon->e();
+
     // If constituent is pflow, then look to see if it is cluster-based.
-    const PFO* ppfl = dynamic_cast<const PFO*>(ppar);
     const CaloCluster* pclu = nullptr;
-    if ( ppfl != nullptr ) {
+    if ( ppar->type() == xAOD::Type::ParticleFlow){
+      const xAOD::PFO* ppfl = static_cast<const xAOD::PFO*>(ppar);
       if ( !ppfl->isCharged() ) {
         pclu = ppfl->cluster(0);  // Assume PFO has exactly one cluster.
         if ( pclu != nullptr ) ATH_MSG_VERBOSE("  Constituent is a PFO pointing to a cluster");
@@ -74,8 +79,22 @@ double JetECPSFractionTool::energyFraction(const xAOD::Jet& jet) const {
       } else {
         ATH_MSG_VERBOSE("  Constituent is a PFO pointing to a track");
       }
-    // Otherwise check if constituent is cluster.
-    } else {
+    }
+    else if ( ppar->type() == xAOD::Type::FlowElement){
+      const xAOD::FlowElement* pfe = static_cast<const xAOD::FlowElement*>(ppar);
+      if(!(pfe->signalType() & xAOD::FlowElement::PFlow)){
+        ATH_MSG_WARNING("  Constituent is a FlowElement but not a PFO. This isn't supported; skipping.");
+        continue;
+      }
+      if ( !pfe->isCharged() ) {
+        pclu = dynamic_cast<const CaloCluster*>(pfe->otherObject(0));  // Assume PFO has exactly one cluster.
+        if ( pclu != nullptr ) ATH_MSG_VERBOSE("  Constituent is a PFO pointing to a cluster");
+        else ATH_MSG_WARNING("  Constituent is a non-charge PFO but no cluster is found.");
+      }
+      else ATH_MSG_VERBOSE("  Constituent is a charged PFO");
+    }
+    else {
+      // Not a PFO. Check if constituent is a cluster.
       pclu = dynamic_cast<const CaloCluster*>(ppar);
       if ( pclu != nullptr ) ATH_MSG_VERBOSE("  Constituent is a cluster");
     }

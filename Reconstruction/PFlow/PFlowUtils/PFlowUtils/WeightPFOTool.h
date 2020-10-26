@@ -26,6 +26,7 @@ namespace CP {
 
     // given a PFO, extract weight
     StatusCode fillWeight( const xAOD::PFO& cpfo, float& weight) const;
+    StatusCode fillWeight( const xAOD::FlowElement& cpfo, float& weight) const;
 
   private:
 

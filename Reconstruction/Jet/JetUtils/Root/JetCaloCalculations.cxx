@@ -8,8 +8,10 @@
 #include "xAODCaloEvent/CaloCluster.h"
 
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 
 #include "JetUtils/JetCaloCalculations.h"
+#include "PFlowUtils/FEHelpers.h"
 #include "xAODJet/JetAttributes.h"
 ////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -77,6 +79,43 @@ namespace CaloConstitHelpers {
 
   };
 
+  ///****************************************************
+  /// \class FlowElementExtractor
+  /// 
+  /// Extract cluster moments when JetConstituents are FlowElements.
+  struct FlowElementExtractor : public CaloConstitExtractor {
+    virtual ~FlowElementExtractor(){}
+    virtual bool valid(JetConstitIterator & it ) {
+      const xAOD::FlowElement* fe = dynamic_cast<const xAOD::FlowElement*>(it->rawConstituent());
+      if (fe != nullptr) return (!fe->isCharged());
+      return false;
+    }
+
+    virtual double moment(JetConstitIterator & it , xAOD::CaloCluster::MomentType momentType){
+      float m;
+      const xAOD::FlowElement* fe = static_cast<const xAOD::FlowElement*>(it->rawConstituent());
+      FEHelpers::getClusterMoment(*fe, momentType, m);
+      return m;      
+    }
+
+    virtual double time(JetConstitIterator & it){
+      const xAOD::FlowElement* fe = static_cast<const xAOD::FlowElement*>(it->rawConstituent());
+      const static SG::AuxElement::ConstAccessor<float> accTiming("TIMING");
+      return accTiming(*fe);
+    }        
+
+    virtual double energyHEC(JetConstitIterator & it ){
+      const xAOD::FlowElement* fe = static_cast<const xAOD::FlowElement*>(it->rawConstituent());
+      // Add up the four individual HEC layers
+      const static SG::AuxElement::ConstAccessor<float> accHEC0("LAYERENERGY_HEC0");
+      const static SG::AuxElement::ConstAccessor<float> accHEC1("LAYERENERGY_HEC1");
+      const static SG::AuxElement::ConstAccessor<float> accHEC2("LAYERENERGY_HEC2");
+      const static SG::AuxElement::ConstAccessor<float> accHEC3("LAYERENERGY_HEC3");
+      return accHEC0(*fe) + accHEC1(*fe) + accHEC2(*fe) + accHEC3(*fe);
+    }
+
+  };
+
 
   /// returns a pointer to a CaloConstitExtractor for a given jet. Do not delete the pointer !
   /// WARNING : not entirely safe. Assumes that all jet constituents have the same type as 1st constit.
@@ -84,6 +123,7 @@ namespace CaloConstitHelpers {
     static CaloConstitExtractor nullEx;
     static CaloClusterExtractor clusteEx;
     static PFOExtractor pfoEx;
+    static FlowElementExtractor feEx;
 
     if(jet->numConstituents() == 0 ) return &nullEx;    
 
@@ -94,6 +134,8 @@ namespace CaloConstitHelpers {
       return &clusteEx;
     case xAOD::Type::ParticleFlow:
       return &pfoEx;
+    case xAOD::Type::FlowElement:
+      return &feEx;
     default:
       break;
     }

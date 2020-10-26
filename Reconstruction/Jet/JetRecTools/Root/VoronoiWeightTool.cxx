@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRecTools/VoronoiWeightTool.h"
@@ -11,6 +11,7 @@
 
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/TrackCaloCluster.h"
+#include "xAODPFlow/FlowElement.h"
 
 namespace SortHelper {
   //
@@ -122,6 +123,14 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
       accept &= (tcc->taste()!= 0);
+    }
+    if(m_inputType==xAOD::Type::FlowElement){
+      xAOD::FlowElement* fe = static_cast<xAOD::FlowElement*>(part);
+      if(fe->signalType() & xAOD::FlowElement::PFlow){
+        if(m_ignoreChargedPFOs) accept = !fe->isCharged();
+      }
+      else
+        accept = !fe->isCharged();
     }
     if(accept) {
       particles.push_back( fastjet::PseudoJet(part->p4()) );

@@ -122,6 +122,10 @@ def addAntiKt10TruthWZJets(sequence,outputlist):
     if DerivationFrameworkIsMonteCarlo:
         addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
+def addAntiKt4EMPFlowJetsFE(sequence, outputlist):
+    addCHSPFlowObjectsFE()
+    addStandardJets("AntiKt", 0.4, "EMPFlowFE", ptmin=10000, ptminFilter=15000, mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist)
+
 ##################################################################  
 
 def replaceAODReducedJets(jetlist,sequence,outputlist):
@@ -395,7 +399,7 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     if hasattr(ToolSvc,jetptassociationtoolname):
         jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
     else:
-        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
+        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, JetContainer=jetalg+'Jets', MatchingJetContainer=truthjetalg, AssociationName="GhostTruth")
         ToolSvc += jetptassociationtool
         jetaugtool.JetPtAssociationTool = jetptassociationtool
 
@@ -480,7 +484,7 @@ def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
         if hasattr(ToolSvc,jetptassociationtoolname):
             jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
         else:
-            jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
+            jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, JetContainer=jetalg+'Jets', MatchingJetContainer=truthjetalg, AssociationName="GhostTruth")
             ToolSvc += jetptassociationtool
             jetaugtool.JetPtAssociationTool = jetptassociationtool
 
@@ -693,6 +697,8 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,custom
         constit = JetConstit( xAODType.CaloCluster, ["LC","Origin"])
     elif inputtype == "EMPFlow":
         constit = JetConstit( xAODType.ParticleFlow )
+    elif inputtype == "EMPFlowFE":
+        constit = JetConstit( xAODType.FlowElement )
 
     constit.modifiers += constmods
 
@@ -772,6 +778,26 @@ def addCHSPFlowObjects():
             # This was added by JetCommon
             job.jetalg.Tools.append(jtm.jetconstitCHSPFlow)
             extjetlog.info("Added CHS PFlow sequence to \'jetalg\'")
+            extjetlog.info(job.jetalg.Tools)
+
+def addCHSPFlowObjectsFE():
+    # Only act if the collection does not already exist
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if not IsInInputFile("xAOD::FlowElementContainer","CHSFlowElements"):
+        # Check that an alg doing this has not already been inserted
+        from AthenaCommon.AlgSequence import AlgSequence
+        job = AlgSequence()
+        from JetRec.JetRecStandard import jtm
+        if not hasattr(job,"jetalgCHSPFlowFE") and not hasattr(jtm,"jetconstitCHSPFlowFE"):
+            from JetRec.JetRecConf import JetToolRunner
+            jtm += JetToolRunner("jetconstitCHSPFlowFE",
+                                 EventShapeTools=[],
+                                 Tools=[jtm.JetConstitSeq_PFlowCHS_FE])
+            # Add this tool runner to the JetAlgorithm instance "jetalg"
+            # which runs all preparatory tools
+            # This was added by JetCommon
+            job.jetalg.Tools.append(jtm.jetconstitCHSPFlowFE)
+            extjetlog.info("Added CHS PFlow (FlowElement) sequence to \'jetalg\'")
             extjetlog.info(job.jetalg.Tools)
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
