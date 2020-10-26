@@ -123,7 +123,7 @@ StatusCode Trk::LayerMaterialInspector::processNode(const Trk::Layer& lay, size_
     TString regHistName = folderName+"/"+hName+"/"+hName+pXo;
     TString regTreeName = folderName+"/"+hName+"/"+hName+info;
     
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
     if (service("THistSvc",tHistSvc).isFailure()) {
        ATH_MSG_FATAL( "initialize() Could not find Hist Service! Aborting." );
        return StatusCode::FAILURE;

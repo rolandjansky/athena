@@ -32,7 +32,6 @@ public:
         PrimaryVertexRefitter(const std::string& t, const std::string& n, const IInterface*  p);
         ~PrimaryVertexRefitter();
         StatusCode initialize();
-        StatusCode finalize();
 
 	static const InterfaceID& interfaceID() { return IID_PrimaryVertexRefitter;};
 

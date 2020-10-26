@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -73,8 +73,19 @@ int TGCRPhiCoincidenceMap::test_Run3(int octantId, int moduleId, int subsector,
   int phimod2 = (moduleId==2||moduleId==5||moduleId==8)&&(sector%2==1) ? 1 : 0;
   int addr=SUBSECTORADD(subsector, moduleId, phimod2,type);
 
-  std::map<int, std::map<int, std::map<int, char> > >::const_iterator it=m_mapDB_Run3.find(addr);
-  if (it==m_mapDB_Run3.end()) return false;
+  SG::ReadCondHandle<TGCTriggerLUTs> readHandle{m_readLUTsCondKey};
+  const TGCTriggerLUTs* readCdo{*readHandle};
+
+  std::map<int, std::map<int, std::map<int, char> > > readMap;
+
+  if (tgcArgs()->USE_CONDDB()){
+    readMap = readCdo->getReadMapBw(m_side, m_octant);
+  } else {
+    readMap = m_mapDB_Run3;
+  }
+
+  std::map<int, std::map<int, std::map<int, char> > >::const_iterator it=readMap.find(addr);
+  if (it==readMap.end()) return false;
 
   std::map<int, std::map<int, char> > mapR = it->second;
   std::map<int, std::map<int, char> >::const_iterator itR=mapR.find(dr);
@@ -96,6 +107,8 @@ int TGCRPhiCoincidenceMap::test_Run3(int octantId, int moduleId, int subsector,
 
 TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(TGCArguments* tgcargs,
 					     const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+					     const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey,
+
                                              const std::string& version,
 					     int   sideId, int octantId)
   :m_numberOfDR(0), m_numberOfDPhi(0),
@@ -104,7 +117,8 @@ TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(TGCArguments* tgcargs,
    m_octant(octantId),
    m_fullCW(false),
    m_tgcArgs(tgcargs),
-   m_readCondKey(readCondKey)
+   m_readCondKey(readCondKey),
+   m_readLUTsCondKey(readLUTsCondKey)
 {
   if (!tgcArgs()->USE_CONDDB()) {
     if(!tgcArgs()->useRun3Config()){
@@ -117,7 +131,6 @@ TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(TGCArguments* tgcargs,
     else{
       this -> readMap_Run3();// read Coincidence Map for Run3 (15 thresholds)
     }
-
   } 
 }
 
@@ -195,6 +208,7 @@ TGCRPhiCoincidenceMap::~TGCRPhiCoincidenceMap()
 
 TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right)
   : m_readCondKey(right.m_readCondKey)
+  , m_readLUTsCondKey(right.m_readLUTsCondKey)
 {
   m_numberOfDR=right.m_numberOfDR;
   m_numberOfDPhi=right.m_numberOfDPhi;

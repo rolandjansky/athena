@@ -18,7 +18,6 @@
  **********************************************************************/
 
 #include "TrigEgammaMonitorTagAndProbeAlgorithm.h"
-#include "TrigConfxAOD/xAODConfigTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "string"
 #include <algorithm>
@@ -28,7 +27,6 @@
 
 //**********************************************************************
 using namespace Trig;
-using namespace TrigConf;
 using namespace xAOD;
 using namespace boost;
 

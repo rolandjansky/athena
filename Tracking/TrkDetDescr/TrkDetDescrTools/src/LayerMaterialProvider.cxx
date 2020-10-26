@@ -20,7 +20,7 @@
 // constructor
 Trk::LayerMaterialProvider::LayerMaterialProvider(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
-  m_layerMaterialMap(0), 
+  m_layerMaterialMap(nullptr), 
   m_layerMaterialMapName("/GLOBAL/TrackingGeo/LayerMaterialV2")
 {
     declareInterface<Trk::IGeometryProcessor>(this);
@@ -50,7 +50,7 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo
           return StatusCode::FAILURE;
       }
       // Boundary layers
-      if (tgeo.boundaryLayers().size()){
+      if (!tgeo.boundaryLayers().empty()){
           ATH_MSG_VERBOSE("TrackingGeometry has " <<  tgeo.boundaryLayers().size() << " unique bounday layers, loading material.");
           auto bLayerIter = tgeo.boundaryLayers().begin();
           auto bLayerE    = tgeo.boundaryLayers().end();
@@ -106,7 +106,7 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
       // display output
       const std::vector<const Trk::Layer*>& layers = layerArray->arrayObjects(); 
       ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << layers.size() << " confined layers." ); 
-      for ( auto& layIter : layers ){
+      for ( const auto & layIter : layers ){
           if (!layIter)
               ATH_MSG_WARNING("Zero-pointer found in LayerArray - indicates problem !");
           else {
@@ -212,7 +212,7 @@ StatusCode Trk::LayerMaterialProvider::loadMaterialMap() const {
     // screen output as most VERBOSE debugging        
     if (msgLvl (MSG::VERBOSE)) {
         ATH_MSG_VERBOSE("Listing the layer indeces found in the loaded LayerMaterialMap");
-        for ( auto& lmIter : (*m_layerMaterialMap) ){
+        for ( const auto & lmIter : (*m_layerMaterialMap) ){
             ATH_MSG_VERBOSE("  -> Found map for layer with index " << lmIter.first);
         }
     }        

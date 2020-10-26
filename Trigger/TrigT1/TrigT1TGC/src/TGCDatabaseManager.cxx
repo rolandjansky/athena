@@ -99,6 +99,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
 
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 				       const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+				       const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey,
 				       const std::string& ver, bool )
  : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
    m_tgcArgs(tgcargs)
@@ -147,7 +148,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   // RPhi Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
     for (int oct=0; oct<NumberOfOctant; oct++) {
-      m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey, ver_BW, side, oct);
+      m_mapRphi[side][oct] = new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey,readLUTsCondKey, ver_BW, side, oct);
     }
   }
 

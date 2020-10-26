@@ -294,8 +294,17 @@ StatusCode LArRamps2Ntuple::stop() {
  }//end-if rampComplete
  
 
- SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
- const LArOnOffIdMapping* cabling=*cablingHdl;
+ const LArOnOffIdMapping *cabling=0;
+ if(m_isSC) {
+   ATH_MSG_DEBUG( "LArRamps2Ntuple: using SC cabling" );
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingSCKey};
+   cabling=*cablingHdl;
+ }else{
+   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+   cabling=*cablingHdl;
+ }
+
+
  if(!cabling) {
      ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
      return StatusCode::FAILURE;

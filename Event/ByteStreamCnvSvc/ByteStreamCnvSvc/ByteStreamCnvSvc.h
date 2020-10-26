@@ -1,12 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_BYTESTREAMCNVSVC_H
 #define BYTESTREAMCNVSVC_BYTESTREAMCNVSVC_H
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
+#include "ByteStreamCnvSvcBase/FullEventAssembler.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <map>
@@ -15,7 +18,7 @@ class ByteStreamOutputSvc;
 class FullEventAssemblerBase;
 
 /** @class ByteStreamCnvSvc
-    @brief Gaudi COnversion Service class for ByteStream Persistency
+    @brief Gaudi Conversion Service class for ByteStream Persistency
 
     This class is responsible for converting data object to and from BS format
     It inherits from ByteStreamCnvSvcBase, which is used by HLT in online.
@@ -38,22 +41,27 @@ public:
    virtual ~ByteStreamCnvSvc();
 
    /// Gaudi Service Interface method implementations:
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// Implements ConversionSvc's connectOutput
-   virtual StatusCode connectOutput(const std::string& t, const std::string& mode);
-   virtual StatusCode connectOutput(const std::string& t);
+   virtual StatusCode connectOutput(const std::string& t, const std::string& mode) override;
+   virtual StatusCode connectOutput(const std::string& t) override;
 
    /// Implements ConversionSvc's commitOutput
-   virtual StatusCode commitOutput(const std::string& outputConnection, bool b);
+   virtual StatusCode commitOutput(const std::string& outputConnection, bool b) override;
 
-   /// @brief Access to FullEventAssembler
-   template <class T> StatusCode getFullEventAssembler(T*&t, std::string nm);
+   /// Implementation of IByteStreamEventAccess: Get RawEvent
+   virtual RawEventWrite* getRawEvent() override
+   {
+     return m_slots->m_rawEventWrite.get();
+   }
+
+  /// @brief Access to FullEventAssembler
+   template <class T> StatusCode getFullEventAssembler(T*&t, const std::string& nm);
 
 protected:
-   /// Write the FEA to RawEvent.
-   void writeFEA();
+   RawEventWrite* setRawEvent (std::unique_ptr<RawEventWrite> rawEventWrite);
 
 private:
    /// name of the service
@@ -81,22 +89,43 @@ private:
    std::string m_userType;
 
    /// @brief common FEA, indexed by string key
-   std::map<std::string, FullEventAssemblerBase*> m_feaMap;
+   using FEAPtr_t = std::unique_ptr<FullEventAssemblerBase>;
+   using FEAMap_t = std::map<std::string,  FEAPtr_t>;
 
-   /// Cache for serialised event header data
-   std::vector<std::unique_ptr<uint32_t[]>> m_serialiseCache;
+   /// Slot-specific state.
+   struct SlotData
+   {
+     std::unique_ptr<RawEventWrite> m_rawEventWrite;
+     FEAMap_t m_feaMap;
+     std::vector<uint32_t> m_tagBuff;
+     std::vector<uint32_t> m_l1Buff;
+     std::vector<uint32_t> m_l2Buff;
+     std::vector<uint32_t> m_efBuff;
 
-   /// Add new array to the cache
-   uint32_t* newCachedArray(const size_t size) {
-      return m_serialiseCache.emplace_back(std::make_unique<uint32_t[]>(size)).get();
-   }
+     void clear()
+     {
+       m_rawEventWrite.reset();
+       m_feaMap.clear();
+       m_tagBuff.clear();
+       m_l1Buff.clear();
+       m_l2Buff.clear();
+       m_efBuff.clear();
+     }
+   };
+   SG::SlotSpecificObj<SlotData> m_slots;
+
+   /// Write the FEA to RawEvent.
+   void writeFEA (SlotData& slot);
 };
 
 // Implementation of template method:
-template <class T> StatusCode ByteStreamCnvSvc::getFullEventAssembler(T*& t, std::string nm) {
-   std::map<std::string, FullEventAssemblerBase*>::const_iterator it = m_feaMap.find(nm);
-   if (it != m_feaMap.end()) {
-      T* p = dynamic_cast<T*>((*it).second);
+template <class T> StatusCode ByteStreamCnvSvc::getFullEventAssembler(T*& t, const std::string& nm)
+{
+   const EventContext& ctx = Gaudi::Hive::currentContext();
+   FEAMap_t& feaMap = m_slots.get (ctx)->m_feaMap;
+   FEAPtr_t& fea = feaMap[nm];
+   if (fea) {
+      T* p = dynamic_cast<T*>(fea.get());
       if (p == 0) {
          ATH_MSG_WARNING(" Key = " << nm << " exists, but of different type");
          return(StatusCode::FAILURE);
@@ -106,8 +135,9 @@ template <class T> StatusCode ByteStreamCnvSvc::getFullEventAssembler(T*& t, std
    }
 
    // reach here if key does not exist
-   t = new T();
-   m_feaMap[nm] = t;
+   auto ptr = std::make_unique<T>();
+   t = ptr.get();
+   fea = std::move (ptr);
    return(StatusCode::SUCCESS);
 }
 

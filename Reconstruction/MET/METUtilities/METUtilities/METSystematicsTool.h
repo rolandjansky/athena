@@ -23,6 +23,8 @@ class TH1D;
 
 #include "TRandom3.h"
 
+#include "xAODTracking/VertexContainer.h"
+
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETAssociationHelper.h"

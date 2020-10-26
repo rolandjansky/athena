@@ -160,9 +160,9 @@ StatusCode RoRSeqFilter::execute( const EventContext& ctx ) const {
         if ( inputHandles[inputIndex].isValid() and not inputHandles[inputIndex]->empty() ) {
           ATH_MSG_DEBUG( "Checking inputHandle: "<< inputHandles[inputIndex].key() <<" has " << inputHandles[inputIndex]->size() <<" elements");
           if ( not m_chainsPerInput.empty() ) {
-            passCounter += copyPassing( *inputHandles[inputIndex], *output, m_chainsPerInput[inputIndex] );
+            passCounter += copyPassing( *inputHandles[inputIndex], *output, m_chainsPerInput[inputIndex], ctx );
           } else {
-            passCounter += copyPassing( *inputHandles[inputIndex], *output, m_chains );
+            passCounter += copyPassing( *inputHandles[inputIndex], *output, m_chains, ctx );
           }
           ATH_MSG_DEBUG( "Recorded output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
         }
@@ -183,7 +183,8 @@ StatusCode RoRSeqFilter::execute( const EventContext& ctx ) const {
 }
   
 size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
-                                  DecisionContainer& output, const std::set<HLT::Identifier>& topass ) const {
+                                  DecisionContainer& output, const std::set<HLT::Identifier>& topass,
+                                  const EventContext& ctx ) const {
   size_t passCounter = 0;
   for (size_t i = 0; i < input.size(); ++i) {
     const Decision* inputDecision = input.at(i);
@@ -200,7 +201,7 @@ size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
 
     if ( not intersection.empty() ) {      
       // This sets up the 'self' link & the 'seed' link (seeds from inputDecision)
-      Decision* decisionCopy = newDecisionIn( &output, inputDecision, "F" );
+      Decision* decisionCopy = newDecisionIn( &output, inputDecision, "F", ctx );
 
       // Copy accross only the DecisionIDs which have passed through this Filter for this Decision object. 
       // WARNING: Still need to 100% confirm if the correct set to propagate forward is objDecisions or intersection.

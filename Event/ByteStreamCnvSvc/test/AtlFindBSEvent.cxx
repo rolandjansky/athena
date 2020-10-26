@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,7 +34,9 @@
 #include "EventStorage/pickDataReader.h"
 #include <time.h>
 
-int main (int argc, char *argv[])
+#include "CxxUtils/checker_macros.h"
+
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
 {
   using namespace eformat;
 

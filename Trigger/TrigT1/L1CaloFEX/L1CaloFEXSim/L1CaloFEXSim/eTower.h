@@ -46,7 +46,7 @@ namespace LVL1 {
     eTower(float eta, float phi, int id_modifier, int posneg);
     
     /** Destructor */
-    virtual ~eTower();
+    virtual ~eTower() = default;
     
     /** Clear supercell ET values */
     void clearET();
@@ -61,8 +61,8 @@ namespace LVL1 {
     void recordMD_ET(float et, int cell);
 
     /** Get coordinates of tower */
-    int iEta();
-    int iPhi();
+    int iEta() const;
+    int iPhi() const;
     float eta() {return m_eta;};
     float phi() {return m_phi;};
     float eta() const {return m_eta;};
@@ -118,7 +118,7 @@ namespace LVL1 {
     std::vector<Identifier> getLayerSCIDs(unsigned int layer) const;
 
     /** Apply supercell noise cut **/
-    bool noiseCut(int et, int layer);
+    bool noiseCut(int et, int layer) const;
 
     void setPosNeg(int posneg);
 

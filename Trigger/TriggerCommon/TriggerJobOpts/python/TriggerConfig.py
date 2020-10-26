@@ -429,6 +429,11 @@ def triggerPOOLOutputCfg(flags, edmSet):
     menuwriter.IsL1JSONConfig = True
     acc.addEventAlgo( menuwriter )
 
+    # Schedule the insertion of L1 prescales into the conditions store
+    # Required for metadata production
+    from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg
+    acc.merge( L1PrescaleCondAlgCfg( flags ) )
+
     # Add metadata to the output stream
     streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 

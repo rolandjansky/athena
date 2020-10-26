@@ -29,8 +29,8 @@ public:
 
    virtual StatusCode initialize() override;
    /// Implementation of the ByteStreamOutputSvc interface methods.
-   virtual bool putEvent(RawEvent* re) override;
-   virtual bool putEvent(RawEvent* re, const EventContext& ctx) override;
+   virtual bool putEvent(const RawEvent* re) override;
+   virtual bool putEvent(const RawEvent* re, const EventContext& ctx) override;
 
    /// Required of all Gaudi services:  see Gaudi documentation for details
    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;

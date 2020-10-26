@@ -36,7 +36,7 @@ const LVL1::eTower * eTowerContainer::findTower(int towerID) const
   if(container_index >= 0){
     return (*this)[container_index];
   }
-  return 0;
+  return nullptr;
 }
 
 LVL1::eTower * eTowerContainer::findTower(int towerID)
@@ -46,7 +46,7 @@ LVL1::eTower * eTowerContainer::findTower(int towerID)
   if(container_index >= 0){
     return (*this)[container_index];
   }
-  return 0;
+  return nullptr;
 }
 
 void eTowerContainer::clearContainerMap()

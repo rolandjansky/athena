@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBSEXTRACTION_TRIGBSEXTRACTION_H
@@ -10,7 +10,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "TrigNavigation/Navigation.h"
-#include "StoreGate/StoreGate.h"
 
 namespace HLT {  
   class HLTResult;

@@ -198,7 +198,6 @@ def L1DecoderCfg(flags, seqName = None):
     acc.merge( TrigConfigSvcCfg( flags ) )
     acc.merge( HLTPrescaleCondAlgCfg( flags ) )
 
-
     Configurable.configurableRun3Behavior -= 1
 
     return acc

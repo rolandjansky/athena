@@ -16,36 +16,23 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkMultiComponentStateOnSurface/ComponentParameters.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
+#include "TrkMultiComponentStateOnSurface/ComponentParameters.h"
+#include <array>
 
 namespace Trk {
 struct GSFEnergyLossCache
 {
-  GSFEnergyLossCache()
+  struct element
   {
-    weights.reserve(6);
-    deltaPs.reserve(6);
-    deltaQOvePCov.reserve(6);
-  }
-
-  GSFEnergyLossCache(GSFEnergyLossCache&&) noexcept = default;
-  GSFEnergyLossCache& operator=(GSFEnergyLossCache&&) noexcept = default;
-  GSFEnergyLossCache(const GSFEnergyLossCache&) noexcept = default;
-  GSFEnergyLossCache& operator=(const GSFEnergyLossCache&) noexcept = default;
-  ~GSFEnergyLossCache() noexcept = default;
-
-  std::vector<double> weights;
-  std::vector<double> deltaPs;
-  std::vector<double> deltaQOvePCov;
-
-  void reset()
-  {
-    weights.clear();
-    deltaPs.clear();
-    deltaQOvePCov.clear();
-  }
+    double weight = 0;
+    double deltaP = 0;
+    double deltaQOvePCov = 0;
+  };
+  std::array<element, GSFConstants::maxNumberofBHComponents> elements = {};
+  int numElements = 0;
 };
 
 class MaterialProperties;

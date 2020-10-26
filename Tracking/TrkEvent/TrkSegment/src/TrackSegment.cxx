@@ -39,12 +39,12 @@ Trk::TrackSegment::TrackSegment(const Trk::LocalParameters& locpars,
       m_globalPosition(nullptr)
 {
   if(m_associatedSurface){
-    m_globalPosition = m_associatedSurface->localToGlobal(localParameters()); 
+    m_globalPosition = m_associatedSurface->localToGlobal(localParameters());
   }
 }
 
 // copy constructor
-Trk::TrackSegment::TrackSegment(const Trk::TrackSegment& tseg) 
+Trk::TrackSegment::TrackSegment(const Trk::TrackSegment& tseg)
     :
     Trk::Segment(tseg),
     m_associatedSurface(tseg.m_associatedSurface ? tseg.m_associatedSurface->clone() : nullptr),
@@ -52,17 +52,15 @@ Trk::TrackSegment::TrackSegment(const Trk::TrackSegment& tseg)
 {
 }
 
-
 // move constructor
-Trk::TrackSegment::TrackSegment(Trk::TrackSegment&& tseg)
-: Trk::Segment(tseg)
+Trk::TrackSegment::TrackSegment(Trk::TrackSegment&& tseg) noexcept
+  : Trk::Segment(tseg)
 {
-     m_associatedSurface = tseg.m_associatedSurface;
-     tseg.m_associatedSurface = nullptr;
-     m_globalPosition = tseg.m_globalPosition;
-     tseg.m_globalPosition = nullptr;
+  m_associatedSurface = tseg.m_associatedSurface;
+  tseg.m_associatedSurface = nullptr;
+  m_globalPosition = tseg.m_globalPosition;
+  tseg.m_globalPosition = nullptr;
 }
-
 
 Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
 {
@@ -72,35 +70,36 @@ Trk::TrackSegment& Trk::TrackSegment::operator=(const Trk::TrackSegment& tseg)
        delete m_associatedSurface;
      }
      delete m_globalPosition;
- 
+
      // assingment operator of base class
-     Trk::Segment::operator=(tseg); 
-    
+     Trk::Segment::operator=(tseg);
+
      if (tseg.m_associatedSurface){
        // copy only if surface is not one owned by a detector Element
        m_associatedSurface = (!tseg.m_associatedSurface->associatedDetectorElement()) ? tseg.m_associatedSurface->clone() : tseg.m_associatedSurface;
-     } else { 
-       m_associatedSurface = nullptr; 
+     } else {
+       m_associatedSurface = nullptr;
      }
-     m_globalPosition = tseg.m_globalPosition ? new Amg::Vector3D(*tseg.m_globalPosition) : nullptr; 
+     m_globalPosition = tseg.m_globalPosition ? new Amg::Vector3D(*tseg.m_globalPosition) : nullptr;
    }
   return (*this);
 }
 
-
 // move assignment operator
-Trk::TrackSegment& Trk::TrackSegment::operator=(Trk::TrackSegment&& tseg) {
-   if (this!=&tseg){
-     Trk::Segment::operator=(tseg);
-     delete m_associatedSurface;
-     m_associatedSurface = tseg.m_associatedSurface;
-     tseg.m_associatedSurface = nullptr;
-     delete m_globalPosition;
-     m_globalPosition = tseg.m_globalPosition;
-     tseg.m_globalPosition = nullptr;
-   }
-   return (*this);
- }
+Trk::TrackSegment&
+Trk::TrackSegment::operator=(Trk::TrackSegment&& tseg) noexcept
+{
+  if (this != &tseg) {
+    Trk::Segment::operator=(tseg);
+    delete m_associatedSurface;
+    m_associatedSurface = tseg.m_associatedSurface;
+    tseg.m_associatedSurface = nullptr;
+    delete m_globalPosition;
+    m_globalPosition = tseg.m_globalPosition;
+    tseg.m_globalPosition = nullptr;
+  }
+  return (*this);
+}
 
 Trk::TrackSegment::~TrackSegment()
 {
@@ -111,12 +110,12 @@ Trk::TrackSegment::~TrackSegment()
 }
 
 const Amg::Vector3D& Trk::TrackSegment::globalPosition() const
-{ 
+{
   if (m_globalPosition) {
     return (*m_globalPosition);
   }
-   return INVALID_VECTOR3D;  
-} 
+   return INVALID_VECTOR3D;
+}
 
 MsgStream& Trk::TrackSegment::dump( MsgStream& out ) const
  {
@@ -126,7 +125,7 @@ MsgStream& Trk::TrackSegment::dump( MsgStream& out ) const
     out << "  - parameter key : " << std::endl;
     //TODO - out proper output (see MuonSegment) EJWM
     return out;
- }  
+ }
 
 std::ostream& Trk::TrackSegment::dump( std::ostream& out ) const
  {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,10 +30,10 @@
 Trk::MaterialValidation::MaterialValidation(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name,pSvcLocator)    ,
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc",name),
-  m_trackingGeometry(0),
+  m_trackingGeometry(nullptr),
   m_materialMapper("Trk::MaterialMapper/MappingMaterialMapper"),
   m_maxMaterialMappingEvents(25000),
-  m_flatDist(0),
+  m_flatDist(nullptr),
   m_etaMin(-3.),
   m_etaMax(3.),
   m_runNativeNavigation(true),
@@ -131,7 +131,7 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
     
     if (m_runNativeNavigation){
         // A : collect all hit layers 
-        auto layerIntersections = tvol.materialLayersOrdered<Trk::NeutralCurvilinearParameters>(NULL,NULL,cvp,Trk::alongMomentum);
+        auto layerIntersections = tvol.materialLayersOrdered<Trk::NeutralCurvilinearParameters>(nullptr,nullptr,cvp,Trk::alongMomentum);
         // loop over the layers
         for (auto& lCandidate : layerIntersections ) {
             // get the layer
@@ -148,11 +148,11 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
              }
          }             
         // B : collect all boundary layers, start from last hit layer         
-        Amg::Vector3D lastPosition = collectedMaterial.size() ? collectedMaterial.rbegin()->second.materialPosition() : (position + direction.unit());
+        Amg::Vector3D lastPosition = !collectedMaterial.empty() ? collectedMaterial.rbegin()->second.materialPosition() : (position + direction.unit());
         Trk::NeutralCurvilinearParameters lcp(lastPosition,direction,0.);
         // boundary surfaces
         auto boundaryIntersections = tvol.boundarySurfacesOrdered<Trk::NeutralCurvilinearParameters>(lcp,Trk::alongMomentum);
-        if (boundaryIntersections.size()){
+        if (!boundaryIntersections.empty()){
             // by definition is the first one
             lastPosition = boundaryIntersections.begin()->intersection.position;
             const Trk::BoundarySurface<Trk::TrackingVolume>* bSurfaceTV = boundaryIntersections.begin()->object;
@@ -210,7 +210,7 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
         // material for confined layers collected, now go to boundary
         
         // update the position to the last one
-        Amg::Vector3D lastPosition = intersectedLayers.size() ? (*(--(intersectedLayers.end()))).second.second : position;
+        Amg::Vector3D lastPosition = !intersectedLayers.empty() ? (*(--(intersectedLayers.end()))).second.second : position;
         
         std::map<double, Trk::VolumeExit > volumeExits;
         // now find the exit point
@@ -235,7 +235,7 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
                 ATH_MSG_VERBOSE("[>>>>] starting position is on surface ! " );
         }
         // prepare the boundary    
-        if (volumeExits.size()){
+        if (!volumeExits.empty()){
             // get the first entry in the map: closest next volume
             VolumeExit closestVolumeExit = (*volumeExits.begin()).second;
             // check if the volume exit boundary has material attached

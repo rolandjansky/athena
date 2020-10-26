@@ -291,7 +291,7 @@ for(auto jet: *in_jets){
       continue;
     }
     subjet = static_cast<const xAOD::Jet*>(constit->rawConstituent());
-    btag = subjet->btagging();
+    btag = xAOD::BTaggingUtilities::getBTagging( *subjet );
     if(btag)
       Info("execute()", "btagging: %0.2f", btag->MV1_discriminant());
 

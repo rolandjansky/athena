@@ -5,7 +5,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.NeuralNetworkToHistoToolConfig import NeuralNetworkToHistoToolCfg
 
 # import the JetFitterNNTool configurable
-Analysis__JetFitterNNTool=CompFactory.Analysis.JetFitterNNTool
 
 def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterNNTool tool and returns it.
@@ -25,12 +24,7 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = Fals
     options['name'] = name
     if scheme == 'Trig':
         options['HistosKey'] = 'JetTagTrigCalibHistosKey'
-    # you can force the NN tool off with this flag (avoids loading
-    # old jetfitter nns which sometimes crash
-    RunJetFitterNNTool = True
 
-    if not RunJetFitterNNTool:
-        raise ValueError("This case is not implemented because always True during Run2. Contact BTagging software team.")
     if useBTagFlagsDefaults:
         if not CombinedIPNN:
             nnToHistoTool = acc.popToolsAndMerge(NeuralNetworkToHistoToolCfg('NeuralNetworkToHistoToolNN'))
@@ -47,6 +41,8 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = Fals
 
         for option in defaults:
             options.setdefault(option, defaults[option])
+
+    Analysis__JetFitterNNTool=CompFactory.Analysis.JetFitterNNTool
     acc.setPrivateTools(Analysis__JetFitterNNTool( **options))
  
     return acc

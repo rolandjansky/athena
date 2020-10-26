@@ -42,7 +42,6 @@ namespace Analysis {
         JpsiPlus1Track(const std::string& t, const std::string& n, const IInterface*  p);
         ~JpsiPlus1Track();
         virtual StatusCode initialize() override;
-        virtual StatusCode finalize() override;
         
         static const InterfaceID& interfaceID() { return IID_JpsiPlus1Track;};
         static double getInvariantMass(const std::vector<const xAOD::TrackParticle*> &trk, double mass1,
@@ -52,7 +51,7 @@ namespace Analysis {
       
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) override;
+        virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) const override;
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer*, const xAOD::TrackParticleContainer*) const;
         //-------------------------------------------------------------------------------------
         

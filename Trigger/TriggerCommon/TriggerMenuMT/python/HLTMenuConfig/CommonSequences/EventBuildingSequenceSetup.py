@@ -96,7 +96,8 @@ def pebInfoWriterTool(name, eventBuildType):
     elif 'CSCPEB' in eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([
-            SubDetector.CSC
+            SubDetector.MUON_CSC_ENDCAP_A_SIDE,
+            SubDetector.MUON_CSC_ENDCAP_C_SIDE
          ])
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():

@@ -10,6 +10,7 @@
 
 // EDM includes
 #include "xAODJet/Jet.h"
+#include "xAODTracking/TrackParticle.h"
 
 #include <functional>
 #include <string>

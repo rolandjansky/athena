@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
     ATH_MSG_VERBOSE("Starting to build TrackingGeometry for GeometrySignature : " << m_geometrySignature );
 
     // the geometry to be constructed
-    const Trk::TrackingGeometry* tGeometry = 0;
+    const Trk::TrackingGeometry* tGeometry = nullptr;
     
     double innerVolumeRadius             = 0.;
     double innerVolumeHalfZ              = 0.;
@@ -129,7 +129,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
 
     // ------------------------------- overall dimensions ----------------------------------------------
     // get the maximum extend in R
-    for ( auto& rzIter : envelopeDefs){
+    for ( const auto & rzIter : envelopeDefs){
         if ( rzIter.first > enclosingVolumeRadius ) {
             // maximal r-extend
             enclosingVolumeRadius = rzIter.first;
@@ -149,7 +149,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
             << envelopeDefs[0].second << ", " << envelopeDefs[0].first << " and " << envelopeDefs[1].second << ", " << envelopeDefs[1].first );
         // now parse for the extended barrel  
         size_t irz = 0;  
-        for ( auto& rzIter : envelopeDefs){
+        for ( const auto & rzIter : envelopeDefs){
             if (irz > 1 && rzIter.second > 0 && rzIter.first >= enclosingVolumeRadius ) {
                 // maximal r-extend
                 enclosingExtendedVolumeRadius = envelopeDefs[irz-clockwise*2].first;
@@ -166,7 +166,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
     // --------------------------------------------------------------------------------------------------
 
     // get the inner radius and half length if a volume is provided
-    const Trk::CylinderVolumeBounds* cvb = 0;
+    const Trk::CylinderVolumeBounds* cvb = nullptr;
     if (innerVol){
         cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(innerVol->volumeBounds()));
         if (cvb){
@@ -253,7 +253,7 @@ const Trk::TrackingGeometry* Trk::GenericGeometryBuilder::trackingGeometry(const
        }
     }
     // and now create the triple
-    allVolumes = extendedVolumes.size() ?  std::vector<const Trk::TrackingVolume*>{extendedVolumes[0],nSector,cSector,pSector,extendedVolumes[1]} : 
+    allVolumes = !extendedVolumes.empty() ?  std::vector<const Trk::TrackingVolume*>{extendedVolumes[0],nSector,cSector,pSector,extendedVolumes[1]} : 
                                            std::vector<const Trk::TrackingVolume*>{nSector,cSector,pSector};
     const Trk::TrackingVolume* tVolume = m_trackingVolumeCreator->createContainerTrackingVolume(allVolumes,
                                                                                                 vacuum,

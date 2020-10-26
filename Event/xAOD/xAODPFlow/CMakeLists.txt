@@ -25,3 +25,5 @@ atlas_add_dictionary( xAODPFlowDict
    ${_selectionFile}
    LINK_LIBRARIES AthLinks xAODCore xAODPFlow
    EXTRA_FILES Root/dict/*.cxx )
+
+atlas_generate_cliddb( xAODPFlow)

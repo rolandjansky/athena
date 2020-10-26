@@ -1,31 +1,13 @@
-# $Id: CMakeLists.txt 773822 2016-09-19 10:04:57Z krasznaa $
-################################################################################
-# Package: InDetBeamSpotService
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetBeamSpotService )
 
 # Possible extra dependencies:
-set( extra_dep )
 set( extra_lib )
 if( NOT SIMULATIONBASE )
-   set( extra_dep Tracking/TrkEvent/VxVertex )
    set( extra_lib VxVertex )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   DetectorDescription/GeoPrimitives
-   GaudiKernel
-   ${extra_dep}
-   PRIVATE
-   Control/AthenaBaseComps
-   Control/CxxUtils
-   Control/StoreGate
-   Database/AthenaPOOL/AthenaPoolUtilities
-   Event/EventPrimitives )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase )

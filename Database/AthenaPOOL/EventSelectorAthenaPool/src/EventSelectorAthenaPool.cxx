@@ -39,6 +39,7 @@
 #include "CollectionBase/CollectionRowBuffer.h"
 #include "CollectionBase/TokenList.h"
 
+#include <boost/tokenizer.hpp>
 #include <algorithm>
 #include <sstream>
 #include <vector>
@@ -79,8 +80,6 @@ StoreGateSvc* EventSelectorAthenaPool::eventStore() const {
    }
    return(m_activeStoreSvc->operator->());
 }
-#include <boost/tokenizer.hpp>
-#include <sstream>
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::initialize() {
    if (m_isSecondary.value()) {

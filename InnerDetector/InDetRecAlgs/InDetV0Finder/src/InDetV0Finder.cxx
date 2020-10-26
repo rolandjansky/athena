@@ -234,7 +234,7 @@ StatusCode InDetV0Finder::execute()
 					   ksContainer, ksAuxContainer,
 					   laContainer, laAuxContainer,
              lbContainer, lbAuxContainer,
-					   primaryVertex, importedVxContainer);
+					   primaryVertex, importedVxContainer.cptr());
 	//
 	typedef std::unique_ptr<xAOD::VertexContainer> Container_p;
 	typedef std::unique_ptr<xAOD::VertexAuxContainer> Aux_p;

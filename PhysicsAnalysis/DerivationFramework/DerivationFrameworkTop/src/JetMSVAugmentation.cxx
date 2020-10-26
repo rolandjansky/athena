@@ -10,6 +10,7 @@
 #include "xAODBTagging/SecVtxHelper.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 
 namespace DerivationFramework {
@@ -76,7 +77,7 @@ StatusCode JetMSVAugmentation::addBranches() const{
 
 
   for(auto jet : *jets){
-    const xAOD::BTagging* bjet = jet->btagging();
+    const xAOD::BTagging* bjet = xAOD::BTaggingUtilities::getBTagging( *jet );
 
     if(!bjet){
       ATH_MSG_WARNING("btagging information not available" );

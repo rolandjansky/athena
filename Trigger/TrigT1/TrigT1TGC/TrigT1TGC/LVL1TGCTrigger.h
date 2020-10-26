@@ -26,6 +26,8 @@
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
+#include "TGCTriggerCondSvc/TGCTriggerLUTs.h"
+
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -182,6 +184,7 @@ namespace LVL1TGCTrigger {
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};
     SG::ReadHandleKey<Muon::NSW_TrigRawDataContainer> m_keyNSWTrigOut{this,"NSWTrigger_Input","NSWTRGRDO","Location of NSW_TrigRawDataContainer"};
     SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey{this,"ReadCondKey","TGCTriggerData"};
+    SG::ReadCondHandleKey<TGCTriggerLUTs> m_readLUTs_CondKey{this,"ReadLUTCondKey","TGCTriggerLUTs"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationTGC", "L1MuctpiStoreTGC", "Location of muctpi for Tgc"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
 

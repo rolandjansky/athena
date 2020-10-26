@@ -162,15 +162,24 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
       BooleanProperty streamMetaDataOnlyProp(propertyName, streamMetaDataOnly);
       if (propertyServer->getProperty(&streamMetaDataOnlyProp).isFailure()) {
          ATH_MSG_INFO("Conversion service does not have StreamMetaDataOnly property");
-      } else if(streamMetaDataOnlyProp.value()) {
-         m_rootServerSocket = new TServerSocket(1095, true, 100);
+      } else if (streamMetaDataOnlyProp.value()) {
+         int streamPort = 1095;
+         propertyName = "StreamPortString";
+         std::string streamPortString("");
+         StringProperty streamPortStringProp(propertyName, streamPortString);
+         if (propertyServer->getProperty(&streamPortStringProp).isFailure()) {
+            ATH_MSG_INFO("Conversion service does not have StreamPortString property, using default: " << streamPort);
+         } else {
+            streamPort = atoi(streamPortStringProp.value().substr(streamPortStringProp.value().find(":") + 1).c_str());
+         }
+         m_rootServerSocket = new TServerSocket(streamPort, true, 100);
          if (m_rootServerSocket == nullptr || !m_rootServerSocket->IsValid()) {
-            ATH_MSG_FATAL("Could not create ROOT TServerSocket");
+            ATH_MSG_FATAL("Could not create ROOT TServerSocket: " << streamPort);
             return StatusCode::FAILURE;
          }
          m_rootMonitor = new TMonitor;
          m_rootMonitor->Add(m_rootServerSocket);
-         ATH_MSG_DEBUG("Successfully created ROOT TServerSocket and added it to TMonitor: ready to accept connections!");
+         ATH_MSG_DEBUG("Successfully created ROOT TServerSocket and added it to TMonitor: ready to accept connections, " << streamPort);
       }
    }
 

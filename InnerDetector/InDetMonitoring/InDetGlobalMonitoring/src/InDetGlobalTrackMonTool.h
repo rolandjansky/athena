@@ -35,6 +35,7 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 //Detector Managers
 #include "AtlasDetDescr/AtlasDetectorID.h"

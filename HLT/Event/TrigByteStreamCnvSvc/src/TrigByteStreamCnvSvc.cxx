@@ -136,15 +136,15 @@ StatusCode TrigByteStreamCnvSvc::connectOutput(const std::string& /*outputFile*/
 
   ATH_MSG_DEBUG("Creating new RawEventWrite for EventContext = " << *eventContext);
   // Create a new RawEventWrite and copy the header from the input RawEvent
-  m_rawEventWrite = new RawEventWrite;
+  RawEventWrite* re = setRawEvent (std::make_unique<RawEventWrite>());
   const uint32_t* inputRawEvent = m_robDataProviderSvc->getEvent(*eventContext)->start();
   if (!inputRawEvent) {
     ATH_MSG_ERROR("Input RawEvent is nullptr, cannot create output");
     return StatusCode::FAILURE;
   }
-  m_rawEventWrite->copy_header(inputRawEvent);
+  re->copy_header(inputRawEvent);
 
-  ATH_MSG_VERBOSE("Created RawEventWrite pointer = " << m_rawEventWrite);
+  ATH_MSG_VERBOSE("Created RawEventWrite pointer = " << re);
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -168,11 +168,13 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
 
   if (msgLvl(MSG::DEBUG)) printRawEvent();
 
+  RawEventWrite* re = getRawEvent();
+
   // Serialise the output FullEventFragment
   std::unique_ptr<uint32_t[]> rawEventPtr;
   try {
-    const eformat::write::node_t* top = m_rawEventWrite->bind();
-    uint32_t rawEventSize = m_rawEventWrite->size_word();
+    const eformat::write::node_t* top = re->bind();
+    uint32_t rawEventSize = re->size_word();
     rawEventPtr = std::make_unique<uint32_t[]>(rawEventSize);
     uint32_t copiedSize = eformat::write::copy(*top,rawEventPtr.get(),rawEventSize);
     if(copiedSize!=rawEventSize) {
@@ -213,8 +215,7 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
     result = StatusCode::FAILURE;
   }
 
-  delete m_rawEventWrite;
-  m_rawEventWrite = nullptr;
+  setRawEvent (std::unique_ptr<RawEventWrite>());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return result;
@@ -346,44 +347,46 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
 
 // =============================================================================
 void TrigByteStreamCnvSvc::printRawEvent() {
-  if (!m_rawEventWrite) {
+  RawEventWrite* re = getRawEvent();
+
+  if (!re) {
     ATH_MSG_WARNING("RawEventWrite pointer is null");
     return;
   }
   std::ostringstream ss;
   ss << "Dumping header of the FullEventFragment with HLT result:" << std::endl;
   ss << "--> status              = "
-     << printNWordsHex<uint32_t>(m_rawEventWrite->nstatus(), m_rawEventWrite->status())
+     << printNWordsHex<uint32_t>(re->nstatus(), re->status())
      << std::endl;
-  ss << "--> source_id           = " << printWordHex<uint32_t>(m_rawEventWrite->source_id()) << std::endl;
-  ss << "--> checksum_type       = " << printWordHex<uint32_t>(m_rawEventWrite->checksum_type()) << std::endl;
-  ss << "--> compression_type    = " << printWordHex<uint32_t>(m_rawEventWrite->compression_type()) << std::endl;
-  ss << "--> compression_level   = " << m_rawEventWrite->compression_level() << std::endl;
-  ss << "--> bc_time_seconds     = " << m_rawEventWrite->bc_time_seconds() << std::endl;
-  ss << "--> bc_time_nanoseconds = " << m_rawEventWrite->bc_time_nanoseconds() << std::endl;
-  ss << "--> global_id           = " << m_rawEventWrite->global_id() << std::endl;
-  ss << "--> run_type            = " << m_rawEventWrite->run_type() << std::endl;
-  ss << "--> run_no              = " << m_rawEventWrite->run_no() << std::endl;
-  ss << "--> lumi_block          = " << m_rawEventWrite->lumi_block() << std::endl;
-  ss << "--> lvl1_id             = " << m_rawEventWrite->lvl1_id() << std::endl;
-  ss << "--> bc_id               = " << m_rawEventWrite->bc_id() << std::endl;
-  ss << "--> lvl1_trigger_type   = " << printWordHex<uint8_t>(m_rawEventWrite->lvl1_trigger_type()) << std::endl;
+  ss << "--> source_id           = " << printWordHex<uint32_t>(re->source_id()) << std::endl;
+  ss << "--> checksum_type       = " << printWordHex<uint32_t>(re->checksum_type()) << std::endl;
+  ss << "--> compression_type    = " << printWordHex<uint32_t>(re->compression_type()) << std::endl;
+  ss << "--> compression_level   = " << re->compression_level() << std::endl;
+  ss << "--> bc_time_seconds     = " << re->bc_time_seconds() << std::endl;
+  ss << "--> bc_time_nanoseconds = " << re->bc_time_nanoseconds() << std::endl;
+  ss << "--> global_id           = " << re->global_id() << std::endl;
+  ss << "--> run_type            = " << re->run_type() << std::endl;
+  ss << "--> run_no              = " << re->run_no() << std::endl;
+  ss << "--> lumi_block          = " << re->lumi_block() << std::endl;
+  ss << "--> lvl1_id             = " << re->lvl1_id() << std::endl;
+  ss << "--> bc_id               = " << re->bc_id() << std::endl;
+  ss << "--> lvl1_trigger_type   = " << printWordHex<uint8_t>(re->lvl1_trigger_type()) << std::endl;
   ss << "--> lvl1_trigger_info   = "
-     << printNWordsHex<uint32_t>(m_rawEventWrite->nlvl1_trigger_info(), m_rawEventWrite->lvl1_trigger_info())
+     << printNWordsHex<uint32_t>(re->nlvl1_trigger_info(), re->lvl1_trigger_info())
      << std::endl;
   ss << "--> lvl2_trigger_info   = "
-     << printNWordsHex<uint32_t>(m_rawEventWrite->nlvl2_trigger_info(), m_rawEventWrite->lvl2_trigger_info())
+     << printNWordsHex<uint32_t>(re->nlvl2_trigger_info(), re->lvl2_trigger_info())
      << std::endl;
   ss << "--> event_filter_info   = "
-     << printNWordsHex<uint32_t>(m_rawEventWrite->nevent_filter_info(), m_rawEventWrite->event_filter_info())
+     << printNWordsHex<uint32_t>(re->nevent_filter_info(), re->event_filter_info())
      << std::endl;
   ss << "--> hlt_info            = "
-     << printNWordsHex<uint32_t>(m_rawEventWrite->nhlt_info(), m_rawEventWrite->hlt_info())
+     << printNWordsHex<uint32_t>(re->nhlt_info(), re->hlt_info())
      << std::endl;
 
   std::vector<eformat::helper::StreamTag> stream_tags;
   try {
-    eformat::helper::decode(m_rawEventWrite->nstream_tag(), m_rawEventWrite->stream_tag(), stream_tags);
+    eformat::helper::decode(re->nstream_tag(), re->stream_tag(), stream_tags);
   }
   catch (const std::exception& ex) {
     ATH_MSG_ERROR("StreamTag decoding failed, caught an unexpected std::exception " << ex.what());

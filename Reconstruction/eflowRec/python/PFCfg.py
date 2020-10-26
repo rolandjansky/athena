@@ -1,14 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def getPFTrackSelectorAlgorithm(inputFlags,algName,useCaching=True):
+def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
     PFTrackSelector=CompFactory.PFTrackSelector
     PFTrackSelector=PFTrackSelector(algName)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
     Trk__ParticleCaloExtensionTool=CompFactory.Trk.ParticleCaloExtensionTool
-    extrapCfg = AtlasExtrapolatorCfg(inputFlags)
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = extrapCfg.popPrivateTools())
+    result = AtlasExtrapolatorCfg(inputFlags)
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = result.popPrivateTools())
 
     eflowTrackCaloExtensionTool=CompFactory.eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
@@ -25,7 +25,9 @@ def getPFTrackSelectorAlgorithm(inputFlags,algName,useCaching=True):
     
     PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
-    return PFTrackSelector
+    result.addEventAlgo (PFTrackSelector)
+
+    return result
 
 def getPFClusterSelectorTool(clustersin,calclustersin,algName):
 

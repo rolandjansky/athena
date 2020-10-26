@@ -12,8 +12,10 @@
 SCT_AlignCondAlg::SCT_AlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_writeKey{"SCTAlignmentStore", "SCTAlignmentStore"}
+  , m_DetManagerName("SCT")
 {
   declareProperty("WriteKey", m_writeKey);
+  declareProperty("DetManagerName", m_DetManagerName);
 }
 
 StatusCode SCT_AlignCondAlg::initialize()
@@ -37,7 +39,7 @@ StatusCode SCT_AlignCondAlg::initialize()
   // Register write handle
   ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
-  ATH_CHECK(detStore()->retrieve(m_detManager, "SCT"));
+  ATH_CHECK(detStore()->retrieve(m_detManager, m_DetManagerName));
 
   return StatusCode::SUCCESS;
 }

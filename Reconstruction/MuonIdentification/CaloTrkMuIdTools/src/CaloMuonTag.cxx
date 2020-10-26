@@ -41,7 +41,8 @@ StatusCode CaloMuonTag::initialize()
 		} */
 
 	// Retrieve histogram
-	std::string rootFilePath = PathResolver::find_file("CaloTag.CutConfig.root","DATAPATH");
+        std::string rootFilePath = PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloTag.CutConfig.root");
+
 	TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");
 	ATH_CHECK(getHist(rootFile, m_tagMode.c_str(), m_hist));
   rootFile->Close(); delete rootFile; rootFile = nullptr; // don't need the file anymore

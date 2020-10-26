@@ -336,6 +336,7 @@ if DQMonFlags.doMonitoring():
       ConfigFlags.Detector.GeometrySCT=DetFlags.SCT_on()
       ConfigFlags.Detector.GeometryTRT=DetFlags.TRT_on()
       ConfigFlags.InDet.usePixelDCS=InDetFlags.usePixelDCS()
+      ConfigFlags.InDet.doTIDE_Ambi=InDetFlags.doTIDE_Ambi()
 
       ConfigFlags.Output.HISTFileName=DQMonFlags.histogramFile()
       ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()

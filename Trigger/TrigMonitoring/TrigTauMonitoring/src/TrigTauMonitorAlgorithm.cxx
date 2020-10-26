@@ -14,6 +14,7 @@ TrigTauMonitorAlgorithm::~TrigTauMonitorAlgorithm() {}
 
 StatusCode TrigTauMonitorAlgorithm::initialize() {
 
+  ATH_CHECK( AthMonitorAlgorithm::initialize() );
   ATH_CHECK( m_offlineTauJetKey.initialize() );
   ATH_CHECK( m_l1TauRoIKey.initialize() );
   ATH_CHECK( m_hltTauJetKey.initialize() );
@@ -34,7 +35,7 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
      }
   }
 
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -183,7 +184,7 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::v
 {
   ATH_MSG_DEBUG("Fill RNN input variables: " << trigger);
 
-  auto monGroup = getGroup(trigger+( online ? "/RNN/HLT/InputScalar_"+nProng : "/RNN/Offline/InputScalar_"+nProng));  
+  auto monGroup = getGroup(trigger+( online ? "_RNN_HLT_InputScalar_"+nProng : "_RNN_Offline_InputScalar_"+nProng));  
 
   auto centFrac           = Monitored::Collection("centFrac", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     float detail = -999;
@@ -241,7 +242,7 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
   ATH_MSG_DEBUG("Fill RNN input Track: " << trigger);
   
 
-  auto monGroup = getGroup(trigger+( online ? "/RNN/HLT/InputTrack" : "/RNN/Offline/InputTrack"));
+  auto monGroup = getGroup(trigger+( online ? "_RNN_HLT_InputTrack" : "_RNN_Offline_InputTrack"));
   
     for(auto tau: tau_vec){
       // Don't call ->allTracks() unless the element links are valid
@@ -319,7 +320,7 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
 {
   ATH_MSG_DEBUG("Fill RNN input Cluster: " << trigger);
   
-  auto monGroup = getGroup(trigger+( online ? "/RNN/HLT/InputCluster" : "/RNN/Offline/InputCluster"));
+  auto monGroup = getGroup(trigger+( online ? "_RNN_HLT_InputCluster" : "_RNN_Offline_InputCluster"));
   
   for(auto tau: tau_vec){
 

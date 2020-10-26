@@ -78,10 +78,11 @@ Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack( const Trk::PseudoMeasur
 }
 
 // move constructor:
-Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(Trk::PseudoMeasurementOnTrack&& pmot) :
-  Trk::MeasurementBase(pmot),
-  m_associatedSurface(move_ptr(pmot.m_associatedSurface)),
-  m_globalPosition(move_ptr(pmot.m_globalPosition))
+Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(
+  Trk::PseudoMeasurementOnTrack&& pmot) noexcept
+  : Trk::MeasurementBase(pmot)
+  , m_associatedSurface(move_ptr(pmot.m_associatedSurface))
+  , m_globalPosition(move_ptr(pmot.m_globalPosition))
 {}
 
 
@@ -93,25 +94,27 @@ Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(const Ps
       delete m_associatedSurface;
     }
     delete m_globalPosition;
-    
+
     Trk::MeasurementBase::operator=(pmot);
-    
-    m_associatedSurface  = 
+
+    m_associatedSurface  =
       ( pmot.m_associatedSurface? (pmot.m_associatedSurface->isFree() ? pmot.m_associatedSurface->clone():pmot.m_associatedSurface) : nullptr);
 
-    m_globalPosition=nullptr;  
-    if(pmot.m_globalPosition){ 
+    m_globalPosition=nullptr;
+    if(pmot.m_globalPosition){
       m_globalPosition = new Amg::Vector3D(*(pmot.m_globalPosition));
     }
-  
+
   }
   return *this;
 }
 
 // move assignment operator:
-Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(PseudoMeasurementOnTrack&& pmot)
+Trk::PseudoMeasurementOnTrack&
+Trk::PseudoMeasurementOnTrack::operator=(
+  PseudoMeasurementOnTrack&& pmot) noexcept
 {
-  if ( &pmot != this) {
+  if (&pmot != this) {
     Trk::MeasurementBase::operator=(pmot);
     if (m_associatedSurface && m_associatedSurface->isFree()){
       delete m_associatedSurface;

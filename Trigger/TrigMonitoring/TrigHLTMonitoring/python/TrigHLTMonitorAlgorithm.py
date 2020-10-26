@@ -10,9 +10,12 @@
 
 def createHLTDQConfigFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     acf=AthConfigFlags()
 
-    acf.addFlag('DQ.Steering.HLT.doGeneral', True)
+    # need to (temporarily) block General monitoring by default when it is
+    # running on bytestream
+    acf.addFlag('DQ.Steering.HLT.doGeneral', lambda flags: 'TriggerMenu' in GetFileMD(flags.Input.Files))
     acf.addFlag('DQ.Steering.HLT.doBjet', True)
     acf.addFlag('DQ.Steering.HLT.doBphys', True)
     acf.addFlag('DQ.Steering.HLT.doCalo', True)
@@ -38,45 +41,47 @@ def TrigHLTMonTopConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
-    if inputFlags.DQ.Steering.HLT.doGeneral:
-        from TrigHLTMonitoring.TrigGeneralMonitorAlgorithm import TrigGeneralMonConfig
-        result.merge(TrigGeneralMonConfig(inputFlags))
+    # do not run in RAWtoESD, if we have two-step reco
+    if inputFlags.DQ.Environment in ('online', 'tier0', 'tier0ESD', 'AOD'):
+        if inputFlags.DQ.Steering.HLT.doGeneral:
+            from TrigHLTMonitoring.TrigGeneralMonitorAlgorithm import TrigGeneralMonConfig
+            result.merge(TrigGeneralMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doBjet:
-        from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig
-        result.merge(TrigBjetMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doBjet:
+            from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig
+            result.merge(TrigBjetMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doBphys:
-        from TrigBphysMonitoring.TrigBphysMonitorAlgorithm import TrigBphysMonConfig
-        result.merge(TrigBphysMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doBphys:
+            from TrigBphysMonitoring.TrigBphysMonitorAlgorithm import TrigBphysMonConfig
+            result.merge(TrigBphysMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doCalo:
-        from TrigCaloMonitoring.TrigCaloMonitorAlgorithm import TrigCaloMonConfig
-        result.merge(TrigCaloMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doCalo:
+            from TrigCaloMonitoring.TrigCaloMonitorAlgorithm import TrigCaloMonConfig
+            result.merge(TrigCaloMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doEgamma:
-        from TrigEgammaMonitoring.TrigEgammaMonitorAlgorithm import TrigEgammaMonConfig
-        result.merge(TrigEgammaMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doEgamma:
+            from TrigEgammaMonitoring.TrigEgammaMonitorAlgorithm import TrigEgammaMonConfig
+            result.merge(TrigEgammaMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doJet:
-        from TrigJetMonitoring.TrigJetMonitorAlgorithm import TrigJetMonConfig
-        result.merge(TrigJetMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doJet:
+            from TrigJetMonitoring.TrigJetMonitorAlgorithm import TrigJetMonConfig
+            result.merge(TrigJetMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doMET:
-        from TrigMETMonitoring.TrigMETMonitorAlgorithm import TrigMETMonConfig
-        result.merge(TrigMETMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doMET:
+            from TrigMETMonitoring.TrigMETMonitorAlgorithm import TrigMETMonConfig
+            result.merge(TrigMETMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doMinBias:
-        from TrigMinBiasMonitoring.TrigMinBiasMonitoringMT import TrigMinBias
-        result.merge(TrigMinBias(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doMinBias:
+            from TrigMinBiasMonitoring.TrigMinBiasMonitoringMT import TrigMinBias
+            result.merge(TrigMinBias(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doMuon:
-        from TrigMuonMonitoringMT.TrigMuonMonitoringMTConfig import TrigMuonMonConfig
-        result.merge(TrigMuonMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doMuon:
+            from TrigMuonMonitoringMT.TrigMuonMonitoringMTConfig import TrigMuonMonConfig
+            result.merge(TrigMuonMonConfig(inputFlags))
 
-    if inputFlags.DQ.Steering.HLT.doTau:
-        from TrigTauMonitoring.TrigTauMonitorAlgorithm import TrigTauMonConfig
-        result.merge(TrigTauMonConfig(inputFlags))
+        if inputFlags.DQ.Steering.HLT.doTau:
+            from TrigTauMonitoring.TrigTauMonitorAlgorithm import TrigTauMonConfig
+            result.merge(TrigTauMonConfig(inputFlags))
 
     return result
 

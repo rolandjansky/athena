@@ -100,6 +100,7 @@ JetChainParts = {
     'multiplicity'  : '',
     'etaRange'      : ['0eta320', '320eta490', '0eta240', '0eta290'],
     'jvt'           : ['011jvt', '015jvt', '059jvt'],
+    'momCuts'       : ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
     # May need to reinstate in the event that preselection is
     # needed before running tracking
     #'gscThreshold' : ['gsc'],
@@ -145,6 +146,7 @@ JetChainParts_Default = {
     'multiplicity'  : '',
     'etaRange'      : '0eta320',
     'jvt'           : '',
+    'momCuts'       : '',
     'trigType'      :'j',
     'extra'         : '',
     'cleaning'      : 'noCleaning',

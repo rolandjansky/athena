@@ -10,7 +10,7 @@ find_package( ROOT COMPONENTS Core RIO )
 atlas_add_component( DerivationFrameworkFlavourTag
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps FlavorTagDiscriminants GaudiKernel xAODJet xAODTracking )
+                     LINK_LIBRARIES AthenaBaseComps FlavorTagDiscriminants GaudiKernel xAODJet xAODTracking xAODBTagging )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
@@ -20,9 +20,9 @@ atlas_install_joboptions( share/*.py )
 atlas_add_executable( test_btagging
                       util/test-btagging.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODRootAccess )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODTracking xAODBTagging xAODRootAccess )
 
 atlas_add_executable( test_jet_links
                       util/test-jet-links.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODRootAccess )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODTracking xAODBTagging xAODRootAccess )

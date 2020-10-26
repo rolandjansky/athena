@@ -16,6 +16,15 @@
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigConfHLTData/HLTSignature.h"
 
+#include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/L1Menu.h"
+#include "TrigConfData/HLTPrescalesSet.h"
+#include "TrigConfData/L1PrescalesSet.h"
+#include "TrigConfData/L1BunchGroupSet.h"
+
+#include "TrigConfData/HLTChain.h"
+#include "TrigConfData/L1Item.h"
+
 // Local include(s):
 #include "TrigConfxAOD/tools/prepareTriggerMenu.h"
 
@@ -235,7 +244,7 @@ namespace TrigConf {
       }
 
       // Let the user know what happened:
-      msg << MSG::INFO << "Loaded configuration:" << endmsg;
+      msg << MSG::INFO << "Loaded xAOD::TriggerMenu configuration:" << endmsg;
       msg << MSG::INFO << "  SMK = " << menu->smk()
           << ", L1PSK = " << menu->l1psk()
           << ", HLTPSK = " << menu->hltpsk() << endmsg;
@@ -243,5 +252,132 @@ namespace TrigConf {
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
+
+   /// Load JSON derived data into legacy structures to maintain 
+   /// compatiblity with existing code.
+   ///
+   /// @param loadedHlt The incoming HLT trigger menu object to translate
+   /// @param loadedL1 The incoming L1 trigger menu object to translate
+   /// @param loadedHltps The incoming HLT prescales menu object to translate
+   /// @param loadedL1ps The incoming L1 prescales menu object to translate
+   /// @param loadedBg The incoming bunchgroup object to translate
+   /// @param ctpConfig The LVL1 configuration object to fill
+   /// @param chainList The HLT configuration object to fill
+   /// @param bgSet The bunch structure configuration object to fill
+   /// @param msg MsgStream to print messages to
+   /// @returns <code>StatusCode::SUCCESS</code> if successful,
+   ///          <code>StatusCode::FAILURE</code> if not
+   ///
+   StatusCode prepareTriggerMenu(const HLTMenu& loadedHlt,
+                                 const L1Menu& loadedL1,
+                                 const HLTPrescalesSet& loadedHltps,
+                                 const L1PrescalesSet& loadedL1ps,
+                                 const L1BunchGroupSet& /*loadedBgSet unused so far*/,
+                                 CTPConfig& ctpConfig,
+                                 HLTChainList& chainList,
+                                 HLTSequenceList& sequenceList,
+                                 BunchGroupSet& /*bgSet unused so far*/,
+                                 MsgStream& msg ) {
+
+      // Clear the current LVL1 configuration:
+      ctpConfig.menu().clear();
+      ctpConfig.clearPrescaleSets();
+      ctpConfig.prescaleSet().resize( 512 );
+
+      // Fill the LVL1 configuration:
+      for (const L1Item& loadedItem : loadedL1) {
+         TriggerItem* item = new TriggerItem();
+         item->setName( loadedItem.name() );
+         item->setCtpId( loadedItem.ctpId() );
+         ctpConfig.menu().addTriggerItem( item );
+
+         const L1PrescalesSet::L1Prescale& loadedPrescale = loadedL1ps.prescale( loadedItem.name() );
+         ctpConfig.prescaleSet().setPrescale( loadedItem.ctpId(), static_cast< float >( loadedPrescale.prescale ) );
+         ctpConfig.prescaleSet().setPrescale( loadedItem.ctpId(), static_cast< float >( 1.0 ) );
+
+         if( msg.level() <= MSG::VERBOSE ) {
+            msg << MSG::VERBOSE << "L1 item " << loadedItem.name()
+                << " has ctpid " << loadedItem.ctpId()
+                << " and prescale " << static_cast< float >( loadedPrescale.prescale ) 
+                << endmsg;
+         }
+      }
+
+      // Clear the current HLT configuration:
+      chainList.clear();
+      sequenceList.clear();
+
+      // Fill the HLT configuration:
+      for (const Chain& loadedChain : loadedHlt) {
+         // Figure out which level this chain is from:
+         std::string level = "";
+         if( loadedChain.name().find( "L2_" ) == 0 ) {
+            level = "L2";
+         } else if( loadedChain.name().find( "EF_" ) == 0 ) {
+            level = "EF";
+         } else if( loadedChain.name().find( "HLT_" ) == 0 ) {
+            level = "HLT";
+         } else {
+            msg << MSG::WARNING << "prepareTriggerMenu(...): "
+                << "Couldn't figure out 'level' for chain: "
+                << loadedChain.name() << endmsg;
+         }
+         // An empty signature list for the chain:
+         // This is not populated from JSON data
+         std::vector< HLTSignature* > signatures;
+
+         // Create the chain object:
+         HLTChain* chain = new HLTChain( loadedChain.name(),
+                                         loadedChain.counter(),
+                                         1, // Chain version not important
+                                         level,
+                                         loadedChain.l1item(), // L1 seeds (string)
+                                         -1, // Lower chain ID not important
+                                         signatures ); // Note: Empty
+
+         const HLTPrescalesSet::HLTPrescale& loadedPrescale = loadedHltps.prescale( loadedChain.name() );
+         chain->set_rerun_prescale( -1.0 ); // Not used in R3
+         chain->set_pass_through( -1.0 );  // Not used in R3
+         chain->set_prescale( loadedPrescale.prescale );
+
+         // Add it to the list of chains:
+         if( ! chainList.addHLTChain( chain ) ) {
+            msg << MSG::FATAL << "prepareTriggerMenu(...): "
+                << "Couldn't add chain \"" << chain->name()
+                << "\"" << endmsg;
+            delete chain;
+            return StatusCode::FAILURE;
+         }
+      }
+
+      // Do not add sequence info to legacy structures (format is different)
+
+      // Bunchgroup data is TODO
+      // // Create a new BunchGroupSet object, since an existing one can't be
+      // // modified... :-/
+      // BunchGroupSet bgSetNew;
+
+      // // Fill it with info:
+      // for( size_t i = 0; i < loadedBgSet.size(); ++i ) {
+
+      //    const L1BunchGroup& loadedBg = loadedBgSet.getBunchGroup(i);
+
+      //    // Create a BunchGroup object:
+      //    BunchGroup bg;
+      //    bg.setInternalNumber( i );
+      //    // TODO - need to call  bg.addBunch( B ); for each bunch
+      //    // Might need to make some changes to L1BunchGroupSet to make this more efficient
+
+      //    // Add it to the set:
+      //     bgSetNew.addBunchGroup( bg );
+      // }
+
+      // // Replace the current bunch-group set with the new one:
+      // bgSet = bgSetNew;
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
 
 } // namespace TrigConf

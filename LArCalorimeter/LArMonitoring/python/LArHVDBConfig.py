@@ -15,7 +15,7 @@ def LArHVDBCfg(configFlags):
 
    if not isMC and not isOnline:
       result.merge(addFolders(configFlags,["/LAR/DCS/HV/BARREl/I16","/LAR/DCS/HV/BARREL/I8"],detDb="DCS_OFL",className="CondAttrListCollection"))
-      result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap","/LAR/HVPathologiesOfl/Pathologies"],detDb="LAR_OFL",className="AthenaAttributeList"))
+      result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap","/LAR/HVPathologiesOfl/Pathologies","/LAR/HVPathologiesOfl/Rvalues"],detDb="LAR_OFL",className="AthenaAttributeList"))
  
       from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
       result.addCondAlgo(LArHVIdMappingAlg(ReadKey="/LAR/IdentifierOfl/HVLineToElectrodeMap",WriteKey="LArHVIdMap"))

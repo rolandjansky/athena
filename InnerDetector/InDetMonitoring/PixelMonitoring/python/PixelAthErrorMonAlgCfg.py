@@ -7,11 +7,10 @@
 @brief Configuration of Pixel Error Monitoring Histograms for Run 3
 '''
 from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist
-from PixelMonitoring.PixelAthMonitoringBase import define1DLayers, defineMapVsLumiLayers
+from PixelMonitoring.PixelAthMonitoringBase import defineMapVsLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
-from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx
-from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, fullDressTitle
-from PixelMonitoring.PixelAthMonitoringBase import runtext
+from PixelMonitoring.PixelAthMonitoringBase import layers
+from PixelMonitoring.PixelAthMonitoringBase import fullDressTitle
 from PixelMonitoring.PixelAthMonitoringBase import errbbinsy, errbminsy, errbbsizy, errtbinsy
 from PixelMonitoring.PixelAthMonitoringBase import ErrBitLabels, ErrCatRODModLabels, ErrCatLabels, ErrCatRODModLabelsNorm, ErrCatLabelsNorm
 from PixelMonitoring.PixelAthMonitoringBase import ErrStateLabelsFEI3, ErrStateLabelsFEI4
@@ -23,12 +22,8 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
          alg     -- algorithm Configurable object returned from addAlgorithm
          kwargs  -- jo agruments
     '''
-    doOnline  = kwargs.get('doOnline',  False)
-    doLumiBlock = kwargs.get('doLumiBlock', False)
-
     path        = '/Pixel/Errors/'
     pathExpert  = '/Pixel/ErrorsExpert/'
-    pathLowStat = '/Pixel/LumiBlock/'
 
     errorGroup = helper.addGroup(alg, 'Error')
 
@@ -107,12 +102,11 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
     title = fullDressTitle('IBL ServiceRecord Unweighted', False, ';SR',';# errors/event')
     varName += ';ServiceRecord_Unweighted_IBL'
     errorGroup.defineHistogram(varName, 
-                             type='TH1F', path=pathExpert, title=title,
-                             xbins=40, xmin=-0.5, xmax=39.5)
+                               type='TH1F', path=pathExpert, title=title,
+                               xbins=40, xmin=-0.5, xmax=39.5)
     varName = 'ServiceRecord_val'
     title = fullDressTitle('IBL ServiceRecord Weighted with Payload', False, ';SR',';# errors/event')
     varName += ';ServiceRecord_Weighted_IBL'
     errorGroup.defineHistogram(varName, weight='ServiceRecord_wgt',
-                             type='TH1F', path=pathExpert, title=title,
-                             xbins=40, xmin=-0.5, xmax=39.5)
- 
+                               type='TH1F', path=pathExpert, title=title,
+                               xbins=40, xmin=-0.5, xmax=39.5)

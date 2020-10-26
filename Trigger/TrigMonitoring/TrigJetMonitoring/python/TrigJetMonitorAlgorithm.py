@@ -109,6 +109,8 @@ TurnOnCurves['Legacy'] = { # ref chain, offline jet coll
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j175','AntiKt4EMTopoJets'],
   'HLT_3j200'                              : ['HLT_j175','AntiKt4EMTopoJets'],
 }
+JetColls2Match['Legacy'] = {
+}
 
 #########################################################
 # Helpful functions

@@ -78,13 +78,8 @@ namespace Analysis {
         m_useGSFTrack.reset();
         for(int i : m_useGSFTrackIndices) m_useGSFTrack.set(i, true);
 
-        ATH_MSG_INFO("Initialize successful");
+        ATH_MSG_DEBUG("Initialize successful");
         
-        return StatusCode::SUCCESS;
-        
-    }
-    
-    StatusCode JpsiPlus2Tracks::finalize() {
         return StatusCode::SUCCESS;
         
     }
@@ -180,7 +175,7 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
     // Find the candidates
     //-------------------------------------------------------------------------------------
-    StatusCode JpsiPlus2Tracks::performSearch(xAOD::VertexContainer*& bContainer, xAOD::VertexAuxContainer*& bAuxContainer)
+    StatusCode JpsiPlus2Tracks::performSearch(xAOD::VertexContainer*& bContainer, xAOD::VertexAuxContainer*& bAuxContainer) const
     {
         ATH_MSG_DEBUG( "JpsiPlus2Tracks::performSearch" );
         bContainer = new xAOD::VertexContainer;

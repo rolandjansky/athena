@@ -44,6 +44,7 @@ def _make_simple_label(chain_parts):
     for cp in chain_parts:
         smcstr =  str(cp['smc'])
         jvtstr =  str(cp['jvt'])
+        momstr =  str(cp['momCuts'])
         if smcstr == 'nosmc':
             smcstr = ''
         for i in range(int(cp['multiplicity'])):
@@ -53,10 +54,18 @@ def _make_simple_label(chain_parts):
             condition_str = '(%set,%s' % (str(cp['threshold']),
                                               str(cp['etaRange']),)
             if smcstr: # Run 2 chains have "INF" in the SMC substring
-                condition_str += ',%s)' % smcstr.replace('INF','')
-            elif jvtstr:
-                condition_str += ',%s)' % jvtstr
-            else:
+                condition_str += ',%s' % smcstr.replace('INF','')
+            if jvtstr:
+                condition_str += ',%s' % jvtstr
+            if momstr:
+                if 'SEP' in momstr:
+                    print('_cuts_from_momCuts(momstr):')
+                    print(_cuts_from_momCuts(momstr))
+                    for cut in _cuts_from_momCuts(momstr):
+                        condition_str += ',%s' % cut
+                else:
+                    condition_str += ',%s' % momstr
+            if not condition_str.endswith(')'):
                 condition_str += ')'
             label += condition_str
     label += '])'
@@ -126,6 +135,14 @@ def _args_from_scenario(scenario):
     args = scenario.split(separator)
     if len(args) > 1:
         return args[1:]
+    return ''
+
+
+def _cuts_from_momCuts(momCuts):
+    separator = 'SEP'
+    args      = momCuts.split(separator)
+    if len(args) > 1:
+        return args
     return ''
 
 

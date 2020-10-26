@@ -15,6 +15,8 @@
 #include "xAODParticleEvent/IParticleLink.h"
 #include "xAODParticleEvent/IParticleLinkContainer.h"
 
+#include "xAODTracking/VertexContainer.h"
+
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"

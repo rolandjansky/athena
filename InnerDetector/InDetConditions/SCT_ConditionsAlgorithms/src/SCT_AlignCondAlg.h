@@ -56,6 +56,7 @@ class SCT_AlignCondAlg : public AthAlgorithm
 
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   const InDetDD::SCT_DetectorManager* m_detManager{nullptr};
+  std::string m_DetManagerName;
 };
 
 #endif // SCT_CONDITIONSALGORITHMS_SCT_ALIGNCONDALG_H

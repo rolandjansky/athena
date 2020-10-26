@@ -103,7 +103,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   m_xi2totalForward    =  0.  ;
   m_status             =  1   ;
   m_inside             = -1   ;
-  m_ndist              =  0   ;
+  m_nMissing           =  0   ;
   m_nlinksForward      =  0   ;
   m_nholesForward      =  0   ;
   m_dholesForward      =  0   ;
@@ -133,7 +133,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement()
   m_xi2totalForward    =  0.  ;
   m_status             =  1   ;
   m_inside             = -1   ;
-  m_ndist              =  0   ;
+  m_nMissing           =  0   ;
   m_nlinksForward      =  0   ;
   m_nholesForward      =  0   ;
   m_dholesForward      =  0   ;
@@ -159,7 +159,7 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
 
   m_status              =      3 ;
   m_inside              =     -1 ;
-  m_ndist               =      0 ;
+  m_nMissing               =      0 ;
   m_nlinksBackward      =      0 ;
   m_nholesBackward      =      0 ;
   m_dholesBackward      =      0 ;
@@ -206,7 +206,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   /// copy information from starting TE 
   m_nclustersForward = TE.m_nclustersForward;
   m_nholesForward    = TE.m_nholesForward   ; 
-  m_ndist      = TE.m_ndist     ;
+  m_nMissing      = TE.m_nMissing     ;
   m_ndfForward       = TE.m_ndfForward      ;
   m_xi2totalForward  = TE.m_xi2totalForward ;
   m_step      += TE.m_step      ;  
@@ -237,7 +237,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
         ++m_dholesForward;
       }
       /// for bond gaps, increment ndist
-      if(m_dist   < -2.) ++m_ndist;
+      if(m_dist   < -2.) ++m_nMissing;
     }
   }
 
@@ -267,13 +267,15 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
 bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
 (InDet::SiTrajectoryElement_xk& TE)
 {
-  // Track propagation
-  // 
+  /// Track propagation
+  /// as usual, if the previous element has a cluster, propagate the updated parameters.
+  /// otherwise the predicted ones. 
   if(TE.m_cluster) {
 
     TE.m_parametersUpdatedForward.addNoise   (TE.m_noise,Trk::alongMomentum);
     if(!propagate(TE.m_parametersUpdatedForward,m_parametersPredForward,m_step)) return false; 
     TE.m_parametersUpdatedForward.removeNoise(TE.m_noise,Trk::alongMomentum);
+    /// double hole running counter is reset if the prev element has a cluster
     m_dholesForward = 0;
   }
   else             {
@@ -284,47 +286,73 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
     m_dholesForward = TE.m_dholesForward;
   }
 
-  m_status       =         1                           ;
+  /// reset old fwd propagation info
+  m_status             =         1                           ;  /// note the socially distant semicolons! 
   m_nlinksForward      =         0                           ;
-  m_clusterOld   = m_cluster                           ;
-  m_cluster      =         0                           ;
-  m_clusterNoAdd =         0                           ;  
+  /// current cluster --> old cluster, reset current 
+  m_clusterOld   = m_cluster                                 ;
+  m_cluster      =         nullptr                           ;
+  m_clusterNoAdd =         nullptr                           ;  
   m_xi2Forward         =    10000.                           ;
+  /// re-evaluate if we are expected to intersect this element based on the updated prediction
   m_inside       = m_detlink->intersect(m_parametersPredForward,m_dist);
+  /// copy running counts from previous element
   m_nholesForward      = TE.m_nholesForward                        ;
-  m_ndist        = TE.m_ndist                          ;
+  m_nMissing              = TE.m_nMissing                                ;
   m_nclustersForward   = TE.m_nclustersForward                     ; 
   m_ndfForward         = TE.m_ndfForward                           ;
   m_xi2totalForward    = TE.m_xi2totalForward                      ;
-  m_step        += TE.m_step                           ;
+  m_step              += TE.m_step                                 ;
   
-  if(m_inside > 0) {noiseInitiate(); return true;}
+  /// if we are not passing through this element, reset noise production and return 
+  if(m_inside > 0) {
+    noiseInitiate(); return true;
+  }
   
-  if((m_nlinksForward=searchClusters(m_parametersPredForward,m_linkForward))) {
-
+  /// now perform cluster search.
+  m_nlinksForward=searchClusters(m_parametersPredForward,m_linkForward);  
+  /// if we found any: 
+  if(m_nlinksForward!=0) {
+    /// set chi2 to the one for the first candidate
     m_xi2Forward =  m_linkForward[0].xi2();
 
+    /// if the chi2 is acceptable: 
     if     (m_xi2Forward <= m_xi2max    ) {
-
+      /// use first cluster as cluster on this element 
       m_cluster = m_linkForward[0].cluster();
+      /// try to add it to the trajectory, update our parameters
       if(!addCluster(m_parametersPredForward,m_parametersUpdatedForward)) return false;
+      /// update noise based on this cluster
       noiseProduction(1,m_parametersUpdatedForward);
-      ++m_nclustersForward; m_xi2totalForward+=m_xi2Forward; m_ndfForward+=m_ndf;
+      /// increment running cluster count for forward trajectory
+      ++m_nclustersForward; 
+      /// increment total chi2 for forward trajectory
+      m_xi2totalForward+=m_xi2Forward; 
+      /// and the degrees of freedom as well 
+      m_ndfForward+=m_ndf;
     }
+    /// if we have an outlier: 
     else if(m_xi2Forward <= m_xi2maxNoAdd) { 
-	
+      /// update outlier cluster member
       m_clusterNoAdd =  m_linkForward[0].cluster();
+      /// and reset noise 
       noiseProduction(1,m_parametersPredForward);
     }
-  }
+  } /// end of branch for found clusters
   else {
+    /// reset noise if nothing was found
     noiseProduction(1,m_parametersPredForward);
   }
-  
+  /// if we are in an active module (with nonzero clusters) and didn't find anything: 
   if(m_detstatus >=0 && !m_cluster) {
-    if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesForward; ++m_dholesForward;} 
-    if(m_dist < -2. ) ++m_ndist;
-  }
+    /// if we expect a hit, and didn't see an outlier: increment hole counts
+    if(m_inside < 0 && !m_clusterNoAdd) {
+      ++m_nholesForward; 
+      ++m_dholesForward;
+    } 
+    /// if we are well within bounds, increment nDist (may be bond-gap case)
+    if(m_dist < -2. ) ++m_nMissing;
+  } /// end of case covering no found cluster
   return true;
 }
 
@@ -375,7 +403,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_xi2Backward         =    10000.;
   m_inside       = m_detlink->intersect(m_parametersPredBackward,m_dist);
   m_nholesBackward      = TE.m_nholesBackward                        ;
-  m_ndist        = TE.m_ndist                          ;
+  m_nMissing        = TE.m_nMissing                          ;
   m_nclustersBackward   = TE.m_nclustersBackward                     ; 
   m_npixelsBackward     = TE.m_npixelsBackward                       ;
   m_ndfBackward         = TE.m_ndfBackward                           ;
@@ -407,7 +435,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
 
   if(m_detstatus >=0 && !m_cluster){
     if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesBackward; ++m_dholesBackward;}
-    if(m_dist < -2.) ++m_ndist;
+    if(m_dist < -2.) ++m_nMissing;
   }
   return true;
 }
@@ -450,7 +478,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   m_clusterNoAdd  	    =         0               ;
   m_xi2Backward         =    10000.               ;
   m_nholesBackward      = TE.m_nholesBackward     ;
-  m_ndist               = TE.m_ndist              ;
+  m_nMissing               = TE.m_nMissing              ;
   m_nclustersBackward   = TE.m_nclustersBackward  ; 
   m_npixelsBackward     = TE.m_npixelsBackward    ;
   m_ndfBackward         = TE.m_ndfBackward        ; 
@@ -482,7 +510,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
     }
     if(m_detstatus >=0 && !m_cluster) {
       if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesBackward; ++m_dholesBackward;}
-      if(m_dist < -2.) ++m_ndist;
+      if(m_dist < -2.) ++m_nMissing;
     } 
     return true;
   }
@@ -498,7 +526,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
 
   if(!m_cluster) {
     if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesBackward; ++m_dholesBackward;}
-    if(m_dist < -2.) ++m_ndist;
+    if(m_dist < -2.) ++m_nMissing;
 
   }
   return true;
@@ -529,7 +557,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB()
     m_nlinksBackward = 0;
     m_cluster = 0; --m_nclustersBackward; m_ndfBackward-=m_ndf; if(m_ndf==2) --m_npixelsBackward;
     if(m_inside < 0 ) {++m_nholesBackward; ++m_dholesBackward;} m_xi2Backward = 0.;
-    if(m_dist   < -2.) ++m_ndist;
+    if(m_dist   < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -559,7 +587,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF()
     m_nlinksForward = 0;
     m_cluster = 0; --m_nclustersForward; m_ndfForward-=m_ndf;
     if(m_inside < 0) {++m_nholesForward; ++m_dholesForward;} m_xi2Forward = 0.;
-    if(m_dist   < -2.) ++m_ndist;
+    if(m_dist   < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -578,7 +606,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   m_npixelsBackward   = TE.m_npixelsBackward  ;
   m_ndfBackward       = TE.m_ndfBackward      ;
   m_nholesBackward    = TE.m_nholesBackward   ;
-  m_ndist      = TE.m_ndist     ;
+  m_nMissing      = TE.m_nMissing     ;
   m_xi2totalBackward  = TE.m_xi2totalBackward ; 
 
   TE.m_cluster ? m_dholesBackward = 0 : m_dholesBackward = TE.m_dholesBackward;
@@ -592,7 +620,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   else  {
 
     if(m_inside < 0) {++m_nholesBackward; ++m_dholesBackward;} m_xi2Backward = 0.;
-    if(m_dist < -2.) ++m_ndist;
+    if(m_dist < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -612,7 +640,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
   m_nclustersForward = TE.m_nclustersForward;
   m_ndfForward       = TE.m_ndfForward      ;
   m_nholesForward    = TE.m_nholesForward   ;
-  m_ndist      = TE.m_ndist     ;
+  m_nMissing      = TE.m_nMissing     ;
   m_xi2totalForward  = TE.m_xi2totalForward ; 
   /// if the previous element has a hit, reset incremental 
   /// hole counter 
@@ -645,8 +673,8 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
       } 
       /// no chi2 contribution here
       m_xi2Forward = 0.;
-      /// if bond gap, increment ndist
-    if(m_dist < -2.) ++m_ndist;
+      /// if crossed
+    if(m_dist < -2.) ++m_nMissing;
   }
   return true;
 } 
@@ -1233,82 +1261,86 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
 		 acos(globalPars[5]),                         /// theta (from global cosTheta)
 		 globalPars[6]                                /// qoverp 
   };
-  /// write into output parameters. Assign our surface to them 
-  outputParameters.setParameters(m_surface,p); 
-  /// update local direction vector 
-  m_localDir[0] = globalPars[3]; 
-  m_localDir[1] = globalPars[4]; 
+
+  /// update local direction vector
+  m_localDir[0] = globalPars[3];
+  m_localDir[1] = globalPars[4];
   m_localDir[2] = globalPars[5];
 
-  /// if we don't need the cov, we are done 
-  if(!useJac) return true;
+  if (useJac) {
+    /// Condition trajectory on surface
+    double A  = Az[0]*globalPars[3]+Az[1]*globalPars[4]+Az[2]*globalPars[5];
+    if(A!=0.) A=1./A;
+    double s0 = Az[0]*globalPars[ 7]+Az[1]*globalPars[ 8]+Az[2]*globalPars[ 9];
+    double s1 = Az[0]*globalPars[14]+Az[1]*globalPars[15]+Az[2]*globalPars[16];
+    double s2 = Az[0]*globalPars[21]+Az[1]*globalPars[22]+Az[2]*globalPars[23];
+    double s3 = Az[0]*globalPars[28]+Az[1]*globalPars[29]+Az[2]*globalPars[30];
+    double s4 = Az[0]*globalPars[35]+Az[1]*globalPars[36]+Az[2]*globalPars[37];
+    double T0 =(Ax[0]*globalPars[ 3]+Ax[1]*globalPars[ 4]+Ax[2]*globalPars[ 5])*A;
+    double T1 =(Ay[0]*globalPars[ 3]+Ay[1]*globalPars[ 4]+Ay[2]*globalPars[ 5])*A;
+    double n  = 1./globalPars[6];
 
-  /// Condition trajectory on surface
-  double A  = Az[0]*globalPars[3]+Az[1]*globalPars[4]+Az[2]*globalPars[5]; 
-  if(A!=0.) A=1./A;
-  double s0 = Az[0]*globalPars[ 7]+Az[1]*globalPars[ 8]+Az[2]*globalPars[ 9];
-  double s1 = Az[0]*globalPars[14]+Az[1]*globalPars[15]+Az[2]*globalPars[16]; 
-  double s2 = Az[0]*globalPars[21]+Az[1]*globalPars[22]+Az[2]*globalPars[23];
-  double s3 = Az[0]*globalPars[28]+Az[1]*globalPars[29]+Az[2]*globalPars[30];
-  double s4 = Az[0]*globalPars[35]+Az[1]*globalPars[36]+Az[2]*globalPars[37]; 
-  double T0 =(Ax[0]*globalPars[ 3]+Ax[1]*globalPars[ 4]+Ax[2]*globalPars[ 5])*A; 
-  double T1 =(Ay[0]*globalPars[ 3]+Ay[1]*globalPars[ 4]+Ay[2]*globalPars[ 5])*A;
-  double n  = 1./globalPars[6]; 
+    double Jac[21];
 
-  double Jac[21];
+    // Jacobian production
+    //
+    Jac[ 0] = (Ax[0]*globalPars[ 7]+Ax[1]*globalPars[ 8])+(Ax[2]*globalPars[ 9]-s0*T0);    // dL0/dL0
+    Jac[ 1] = (Ax[0]*globalPars[14]+Ax[1]*globalPars[15])+(Ax[2]*globalPars[16]-s1*T0);    // dL0/dL1
+    Jac[ 2] = (Ax[0]*globalPars[21]+Ax[1]*globalPars[22])+(Ax[2]*globalPars[23]-s2*T0);    // dL0/dPhi
+    Jac[ 3] = (Ax[0]*globalPars[28]+Ax[1]*globalPars[29])+(Ax[2]*globalPars[30]-s3*T0);    // dL0/dThe
+    Jac[ 4] =((Ax[0]*globalPars[35]+Ax[1]*globalPars[36])+(Ax[2]*globalPars[37]-s4*T0))*n; // dL0/dCM
 
-  // Jacobian production
-  //
-  Jac[ 0] = (Ax[0]*globalPars[ 7]+Ax[1]*globalPars[ 8])+(Ax[2]*globalPars[ 9]-s0*T0);    // dL0/dL0
-  Jac[ 1] = (Ax[0]*globalPars[14]+Ax[1]*globalPars[15])+(Ax[2]*globalPars[16]-s1*T0);    // dL0/dL1
-  Jac[ 2] = (Ax[0]*globalPars[21]+Ax[1]*globalPars[22])+(Ax[2]*globalPars[23]-s2*T0);    // dL0/dPhi
-  Jac[ 3] = (Ax[0]*globalPars[28]+Ax[1]*globalPars[29])+(Ax[2]*globalPars[30]-s3*T0);    // dL0/dThe
-  Jac[ 4] =((Ax[0]*globalPars[35]+Ax[1]*globalPars[36])+(Ax[2]*globalPars[37]-s4*T0))*n; // dL0/dCM
+    Jac[ 5] = (Ay[0]*globalPars[ 7]+Ay[1]*globalPars[ 8])+(Ay[2]*globalPars[ 9]-s0*T1);    // dL1/dL0
+    Jac[ 6] = (Ay[0]*globalPars[14]+Ay[1]*globalPars[15])+(Ay[2]*globalPars[16]-s1*T1);    // dL1/dL1
+    Jac[ 7] = (Ay[0]*globalPars[21]+Ay[1]*globalPars[22])+(Ay[2]*globalPars[23]-s2*T1);    // dL1/dPhi
+    Jac[ 8] = (Ay[0]*globalPars[28]+Ay[1]*globalPars[29])+(Ay[2]*globalPars[30]-s3*T1);    // dL1/dThe
+    Jac[ 9] =((Ay[0]*globalPars[35]+Ay[1]*globalPars[36])+(Ay[2]*globalPars[37]-s4*T1))*n; // dL1/dCM
 
-  Jac[ 5] = (Ay[0]*globalPars[ 7]+Ay[1]*globalPars[ 8])+(Ay[2]*globalPars[ 9]-s0*T1);    // dL1/dL0
-  Jac[ 6] = (Ay[0]*globalPars[14]+Ay[1]*globalPars[15])+(Ay[2]*globalPars[16]-s1*T1);    // dL1/dL1
-  Jac[ 7] = (Ay[0]*globalPars[21]+Ay[1]*globalPars[22])+(Ay[2]*globalPars[23]-s2*T1);    // dL1/dPhi
-  Jac[ 8] = (Ay[0]*globalPars[28]+Ay[1]*globalPars[29])+(Ay[2]*globalPars[30]-s3*T1);    // dL1/dThe
-  Jac[ 9] =((Ay[0]*globalPars[35]+Ay[1]*globalPars[36])+(Ay[2]*globalPars[37]-s4*T1))*n; // dL1/dCM
+    double P3=0;
+    double P4=0;
+    /// transverse direction component
+    double C = globalPars[3]*globalPars[3]+globalPars[4]*globalPars[4];
+    if(C > 1.e-20) {
+      C= 1./C ;
+      /// unit direction vector in the X,Y plane
+      P3 = globalPars[3]*C;
+      P4 =globalPars[4]*C;
+      C =-sqrt(C);
+    }
+    else{
+      C=-1.e10;
+      P3 = 1.;
+      P4 =0.;
+    }
 
-  double P3=0;
-  double P4=0; 
-  /// transverse direction component 
-  double C = globalPars[3]*globalPars[3]+globalPars[4]*globalPars[4]; 
-  if(C > 1.e-20) {
-    C= 1./C ; 
-    /// unit direction vector in the X,Y plane 
-    P3 = globalPars[3]*C; 
-    P4 =globalPars[4]*C; 
-    C =-sqrt(C);
+    double T2  =(P3*globalPars[43]-P4*globalPars[42])*A;
+    double C44 = C*globalPars[44]           *A;
+
+    Jac[10] = P3*globalPars[11]-P4*globalPars[10]-s0*T2;    // dPhi/dL0
+    Jac[11] = P3*globalPars[18]-P4*globalPars[17]-s1*T2;    // dPhi/dL1
+    Jac[12] = P3*globalPars[25]-P4*globalPars[24]-s2*T2;    // dPhi/dPhi
+    Jac[13] = P3*globalPars[32]-P4*globalPars[31]-s3*T2;    // dPhi/dThe
+    Jac[14] =(P3*globalPars[39]-P4*globalPars[38]-s4*T2)*n; // dPhi/dCM
+
+    Jac[15] = C*globalPars[12]-s0*C44;             // dThe/dL0
+    Jac[16] = C*globalPars[19]-s1*C44;             // dThe/dL1
+    Jac[17] = C*globalPars[26]-s2*C44;             // dThe/dPhi
+    Jac[18] = C*globalPars[33]-s3*C44;             // dThe/dThe
+    Jac[19] =(C*globalPars[40]-s4*C44)*n;          // dThe/dCM
+    Jac[20] = 1.;                         // dCM /dCM
+
+    /// covariance matrix production using jacobian - CovNEW = J*CovOLD*Jt
+    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(startingParameters.covariance(), Jac);
+    outputParameters.setParametersWithCovariance(m_surface, p, newCov);
+
+    /// check for negative diagonals in the cov
+    const double* t = &outputParameters.cov()[0];
+    if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
+  } else {
+    /// write into output parameters. Assign our surface to them
+    outputParameters.setParameters(m_surface,p);
   }
-  else{
-    C=-1.e10; 
-    P3 = 1.; 
-    P4 =0.;             
-  }
 
-  double T2  =(P3*globalPars[43]-P4*globalPars[42])*A;
-  double C44 = C*globalPars[44]           *A;
-
-  Jac[10] = P3*globalPars[11]-P4*globalPars[10]-s0*T2;    // dPhi/dL0
-  Jac[11] = P3*globalPars[18]-P4*globalPars[17]-s1*T2;    // dPhi/dL1
-  Jac[12] = P3*globalPars[25]-P4*globalPars[24]-s2*T2;    // dPhi/dPhi
-  Jac[13] = P3*globalPars[32]-P4*globalPars[31]-s3*T2;    // dPhi/dThe
-  Jac[14] =(P3*globalPars[39]-P4*globalPars[38]-s4*T2)*n; // dPhi/dCM
-
-  Jac[15] = C*globalPars[12]-s0*C44;             // dThe/dL0
-  Jac[16] = C*globalPars[19]-s1*C44;             // dThe/dL1
-  Jac[17] = C*globalPars[26]-s2*C44;             // dThe/dPhi
-  Jac[18] = C*globalPars[33]-s3*C44;             // dThe/dThe
-  Jac[19] =(C*globalPars[40]-s4*C44)*n;          // dThe/dCM
-  Jac[20] = 1.;                         // dCM /dCM
-
-  /// covariance matrix production using jacobian - CovNEW = J*CovOLD*Jt
-  outputParameters.newCovarianceMatrix(startingParameters,Jac); 
-  /// check for negative diagonals in the cov 
-  const double* t = &outputParameters.cov()[0];
-  if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
   return true;
 }
 
@@ -1574,7 +1606,7 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_status            = 0  ;
   m_nlinksForward     = 0  ;
   m_nlinksBackward    = 0  ;
-  m_ndist             = 0  ;
+  m_nMissing          = 0  ;
   m_radlength         = .03;
   m_radlengthN        = .03;
   m_energylose        = .4 ;
@@ -1636,7 +1668,7 @@ InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator =
   m_status                    = E.m_status      ;
   m_detstatus                 = E.m_detstatus   ;
   m_inside                    = E.m_inside      ;
-  m_ndist                     = E.m_ndist       ;
+  m_nMissing                  = E.m_nMissing    ;
   m_stereo                    = E.m_stereo      ;
   m_detelement                = E.m_detelement  ;
   m_detlink                   = E.m_detlink     ;
@@ -1748,21 +1780,35 @@ bool InDet::SiTrajectoryElement_xk::isNextClusterHoleB(bool& cl,double& X)
   return true;
 }
 
+/// checks if removing this cluster from the forward propagation would 
+/// result in a critical number of holes or double holes.
+/// Fills "cl" with true if we would still find another cluster after removing 
+/// the preferred one. Fills X with the chi square we would have on removal. 
+/// Return true if we would *not* get a problematic number of holes
 bool InDet::SiTrajectoryElement_xk::isNextClusterHoleF(bool& cl,double& X)
 {
   cl = false             ;
+  /// chi2 if we drop this cluster
   X  = m_xi2totalForward-m_xi2Forward;
-
+  /// not used in SiTrajectory? 
   if(m_detstatus == 2) return false;
+  /// if we have another good cluster on this element which could replace
+  /// the current one were it dropped: 
   if(m_nlinksForward >  1 && m_linkForward[1].xi2() <= m_xi2max) {
+    /// add the chi2 of the second forward link to the second arg
     X+=m_linkForward[1].xi2();
-    cl = true; return true;
+    /// set the return-arg signifying we would still see a cluster and return
+    cl = true; 
+    return true;
   }
-
+  /// if we expect a hit: 
   if(m_inside < 0) {
+    /// return true if we are below the max allowed holes (so we can add one)
     if(m_nholesForward < m_maxholes && m_dholesForward < m_maxdholes) return true;
+    /// otherwise return false 
     return false;
   }
+  /// if we do not expect a hit return true 
   return true;
 }
 
@@ -1784,7 +1830,7 @@ void InDet::SiTrajectoryElement_xk::setParametersF(Trk::PatternTrackParameters& 
 
 void InDet::SiTrajectoryElement_xk::setNdist(int n)
 {
-  m_ndist = n;
+  m_nMissing = n;
 }
  
 /////////////////////////////////////////////////////////////////////////////////
@@ -1926,6 +1972,7 @@ void InDet::SiTrajectoryElement_xk::bremNoiseModel()
 ///////////////////////////////////////////////////////////////////
 
 int InDet::SiTrajectoryElement_xk::searchClusters(Trk::PatternTrackParameters& Tp, SiClusterLink_xk* L) {
+  /// delegate work to subsystem-specific template implementation
   if (m_itType==PixelClusterColl) return searchClustersSub<InDet::PixelClusterCollection::const_iterator>(Tp, L);
   if (m_itType==SCT_ClusterColl) return searchClustersSub<InDet::SCT_ClusterCollection::const_iterator>(Tp, L);
   return searchClustersSub<InDet::SiClusterCollection::const_iterator>(Tp, L);

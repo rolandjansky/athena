@@ -13,6 +13,7 @@
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetModifier.h"
 #include "BTagging/IJetBTaggerTool.h"
+#include "xAODBTagging/BTaggingContainer.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"

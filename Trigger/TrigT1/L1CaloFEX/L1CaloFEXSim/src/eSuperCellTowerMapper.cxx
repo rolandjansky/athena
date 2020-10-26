@@ -57,7 +57,9 @@ StatusCode eSuperCellTowerMapper::initialize()
     
 }
 
-StatusCode eSuperCellTowerMapper::AssignTriggerTowerMapper(/*eTowerContainer* my_eTowerContainerRaw*/ std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw){
+StatusCode eSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw){
+
+  static constexpr float pi_over_32 = std::acos(-1)/32;
   
   SG::ReadHandle<xAOD::TriggerTowerContainer> jk_triggerTowerCollection(m_triggerTowerCollectionSGKey/*,ctx*/);
   if(!jk_triggerTowerCollection.isValid()){
@@ -67,7 +69,7 @@ StatusCode eSuperCellTowerMapper::AssignTriggerTowerMapper(/*eTowerContainer* my
 
   for(auto eachTower : *jk_triggerTowerCollection) {
     if(fabs(eachTower->eta())<1.5 && eachTower->sampling()==1) {
-      int i_phi = int(eachTower->phi()/(3.14159/32));
+      int i_phi = int(eachTower->phi()/pi_over_32);
       int etaSign{-1};
       int towerID_Modifier{100000};
       if (eachTower->eta() > 0) {
@@ -87,7 +89,7 @@ StatusCode eSuperCellTowerMapper::AssignTriggerTowerMapper(/*eTowerContainer* my
         if (targetTower->getET_float(4, 0) > 0) {
           ATH_MSG_WARNING("\n==== eSuperCellTowerMapper ============ Hadronic layer energy filled more than once - it will be ignored. (Needs investigation).  Please report this!");
         }
-        targetTower->setET(10, int(eachTower->cpET()) * 0.5 * 1000., 4);
+        targetTower->setET(10, int(eachTower->cpET()) * 500., 4);  // cf 0.5 * 1000.0
       } else {
         ATH_MSG_WARNING("\n==== eSuperCellTowerMapper ============ Tower id is officially unknown - it will be ignored. (Needs investigation).  Please report this!");
       }
@@ -101,7 +103,7 @@ void eSuperCellTowerMapper::reset(){
 }
 
   // works for real supercells from MC
-  StatusCode eSuperCellTowerMapper::AssignSuperCellsToTowers(/*eTowerContainer* my_eTowerContainerRaw*/std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw)
+  StatusCode eSuperCellTowerMapper::AssignSuperCellsToTowers(std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw)
 {
 
   bool doPrint = false;
@@ -117,16 +119,17 @@ void eSuperCellTowerMapper::reset(){
   const CaloCell_Base_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
 
-  for (CaloCellContainer::const_iterator cell = jk_scellsCollection->begin(); cell != jk_scellsCollection->end(); ++cell){
-    const CaloSampling::CaloSample sample = (*cell)->caloDDE()->getSampling();
-    const Identifier ID = (*cell)->ID(); // super cell unique ID
+  for (const auto& cell : * jk_scellsCollection){
+
+    const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
+    const Identifier ID = (cell)->ID(); // super cell unique ID
     int region = idHelper->region(ID);
     int layer = -1;
     int pos_neg = idHelper->pos_neg(ID);
     int eta_index = idHelper->eta(ID);
     const int phi_index = idHelper->phi(ID);
-    float et = (*cell)->energy();
-    int prov = (*cell)->provenance();
+    float et = (cell)->energy();
+    int prov = (cell)->provenance();
 
     /*
   CaloSampling:
@@ -193,17 +196,17 @@ void eSuperCellTowerMapper::reset(){
 }
 
 
-  int eSuperCellTowerMapper::ConnectSuperCellToTower(/*eTowerContainer* my_eTowerContainerRaw*/std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw,int iETower, Identifier ID, int iCell, float et, int layer, bool doenergysplit){
-
-  if(my_eTowerContainerRaw->findTower(iETower)){
-    (my_eTowerContainerRaw->findTower(iETower))->setSCID(ID,iCell,et,layer,doenergysplit);
+void eSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw,int iETower, Identifier ID, int iCell, float et, int layer, bool doenergysplit){
+    
+  LVL1::eTower * tmpTower = my_eTowerContainerRaw->findTower(iETower);
+  
+  if(tmpTower){
+    tmpTower->setSCID(ID,iCell,et,layer,doenergysplit);
   }
-
-  return 1;
 
 }
 
-  int eSuperCellTowerMapper::FindAndConnectTower(/*eTowerContainer* my_eTowerContainerRaw*/std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw,CaloSampling::CaloSample sample,const int region, int layer, const int pos_neg, const int eta_index, const int phi_index, Identifier ID, float et, int prov,bool doPrint)
+  int eSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw,CaloSampling::CaloSample sample,const int region, int layer, const int pos_neg, const int eta_index, const int phi_index, Identifier ID, float et, int prov,bool doPrint)
 {
 
   // bool for the special case of 1.8 < eta < 2.0 only in the front layer
@@ -750,22 +753,20 @@ int eSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
   }
   }
   
-  if(true){
-    ATH_MSG_DEBUG("ASSIGNED CELL:::  CASE: " << sampleName
-	      << "\tSample: " << sample
-	      << "\tLayer: " << layer
-	      << "\tRegion: " << region
-	      << "\tEta_Index: " << eta_index
-	      << "\tPhi_Index: " << phi_index
-	      << "\tPosNeg: " << pos_neg
-	      << "\tiETower: " << iETower
-	      << "\tiCell: " << iCell
-	      << "\tDoEnergySplit: " << doenergysplit
-	      << "\tProvenance: " << prov
-	      << "\tID: " << ID
-		  << " ");
-  }
-
+  ATH_MSG_DEBUG("ASSIGNED CELL:::  CASE: " << sampleName
+		<< "\tSample: " << sample
+		<< "\tLayer: " << layer
+		<< "\tRegion: " << region
+		<< "\tEta_Index: " << eta_index
+		<< "\tPhi_Index: " << phi_index
+		<< "\tPosNeg: " << pos_neg
+		<< "\tiETower: " << iETower
+		<< "\tiCell: " << iCell
+		<< "\tDoEnergySplit: " << doenergysplit
+		<< "\tProvenance: " << prov
+		<< "\tID: " << ID
+		<< " ");
+  
   return;
 }
 
