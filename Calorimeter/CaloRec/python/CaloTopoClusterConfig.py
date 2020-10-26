@@ -288,6 +288,12 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
     TopoMaker.CellThresholdOnEorAbsEinSigma     =    0.0
     TopoMaker.NeighborThresholdOnEorAbsEinSigma =    2.0
     TopoMaker.SeedThresholdOnEorAbsEinSigma     =    4.0
+
+    #timing
+    TopoMaker.SeedCutsInT = configFlags.Calo.TopoCluster.doTimeCut
+    TopoMaker.CutOOTseed = configFlags.Calo.TopoCluster.extendTimeCut and configFlags.Calo.TopoCluster.doTimeCut
+    TopoMaker.UseTimeCutUpperLimit = configFlags.Calo.TopoCluster.useUpperLimitForTimeCut
+    TopoMaker.TimeCutUpperLimit = 20.0
     
     # note E or AbsE 
     #
