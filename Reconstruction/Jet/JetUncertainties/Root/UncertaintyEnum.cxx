@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -95,9 +95,12 @@ namespace CompParametrization
             case Pt:            return "Pt";
             case PtEta:         return "PtEta";
             case PtAbsEta:      return "PtAbsEta";
+            case PtAbsMass:     return "PtAbsMass";
             case PtMass:        return "PtMass";
             case PtMassEta:     return "PtMassEta";
             case PtMassAbsEta:  return "PtMassAbsEta";
+            case PtAbsMassEta:  return "PtAbsMassEta";
+            case PtAbsMassAbsEta: return "PtAbsMassAbsEta";
             case eLOGmOe:       return "eLOGmOe";
             case eLOGmOeEta:    return "eLOGmOeEta";
             case eLOGmOeAbsEta: return "eLOGmOeAbsEta";
@@ -114,12 +117,18 @@ namespace CompParametrization
             return PtEta;
         if (!type.CompareTo("PtAbsEta",TString::kIgnoreCase))
             return PtAbsEta;
+        if (!type.CompareTo("PtAbsMass",TString::kIgnoreCase))
+            return PtAbsMass;
         if (!type.CompareTo("PtMass",TString::kIgnoreCase))
             return PtMass;
         if (!type.CompareTo("PtMassEta",TString::kIgnoreCase))
             return PtMassEta;
         if (!type.CompareTo("PtMassAbsEta",TString::kIgnoreCase))
             return PtMassAbsEta;
+        if (!type.CompareTo("PtAbsMassEta",TString::kIgnoreCase))
+            return PtAbsMassEta;
+        if (!type.CompareTo("PtAbsMassAbsEta",TString::kIgnoreCase))
+            return PtAbsMassAbsEta;
         if (!type.CompareTo("eLOGmOe",TString::kIgnoreCase))
             return eLOGmOe;
         if (!type.CompareTo("eLOGmOeEta",TString::kIgnoreCase))
@@ -137,6 +146,7 @@ namespace CompParametrization
         {
             case PtAbsEta:
             case PtMassAbsEta:  
+            case PtAbsMassAbsEta:
             case eLOGmOeAbsEta: return true;
             
             default:            return false;
@@ -147,10 +157,13 @@ namespace CompParametrization
     {
         switch(type)
         {
+            case PtAbsMass:
             case PtMass:
 	    case PtLOGPtMassForTagSF:
             case PtMassEta:
             case PtMassAbsEta:
+            case PtAbsMassEta:
+            case PtAbsMassAbsEta:
             case eLOGmOe:
             case eLOGmOeEta:
             case eLOGmOeAbsEta:

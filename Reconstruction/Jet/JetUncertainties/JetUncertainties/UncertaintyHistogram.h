@@ -57,6 +57,7 @@ class UncertaintyHistogram : public asg::AsgMessaging
 
         // Histogram reading helpers
         double readHisto(const double var1, const double var2=0, const double var3=0) const;
+        double checkBoundariesByBin(const TAxis* axis, const int numBins, const double valInput) const;
         double checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const;
 
 };

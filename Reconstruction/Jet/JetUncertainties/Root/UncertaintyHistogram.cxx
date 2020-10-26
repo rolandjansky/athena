@@ -193,7 +193,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check first dimension boundaries, always applicable
-    const float valX = checkBoundaries(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
+    const float valX = checkBoundariesByBin(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
     if (m_nDim == 1)
     {
         switch (m_interpolate)
@@ -212,7 +212,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check second dimension boundaries, if applicable
-    const float valY = checkBoundaries(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
+    const float valY = checkBoundariesByBin(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
     if (m_nDim == 2)
     {
         // We need a 2D histogram for the projection calls
@@ -239,7 +239,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check third dimension boundaries, if applicable
-    const float valZ = checkBoundaries(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
+    const float valZ = checkBoundariesByBin(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
     
     switch (m_interpolate)
     {
@@ -263,6 +263,29 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 }
 
+
+double UncertaintyHistogram::checkBoundariesByBin(const TAxis* axis, const int numBins, const double valInput) const
+{
+    double val = valInput;
+
+    // Root histogram binning:
+    //  bin 0 = underflow bin
+    //  bin 1 = first actual bin
+    //  bin N = last actual bin
+    //  bin N+1 = overflow bin
+    const int binIndex = axis->FindBin(valInput);
+    if (binIndex < 1)
+        val = axis->GetBinLowEdge(1);
+    else if (binIndex > numBins)
+    {
+        // Don't use the upper edge as floating point can make it roll into the next bin (which is overflow)
+        // Instead, use the last bin width to go slightly within the boundary
+        // An offset of 1.e-4*binWidth is negligible for physics as the values don't change fast, but above floating point precision
+        val = 1.e-4*axis->GetBinWidth(numBins)+axis->GetBinLowEdge(numBins);
+    }
+    
+    return val;
+}
 
 double UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const
 {

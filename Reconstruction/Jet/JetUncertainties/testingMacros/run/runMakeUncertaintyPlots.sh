@@ -3280,7 +3280,7 @@ function JER_Fall_2018_Compare \
     outFile="JER-Fall2018-${MCtype}-Compare-${jetdef}.pdf"
     compList="JER#@JER#@JER#"
     compLabels="Total JER uncertainty, ${jetdef}, 7NP@Total JER uncertainty, ${jetdef}, 12NP@Total JER uncertainty, ${jetdef}, All NP"
-    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;drawTotal=false;scaleVar=${scaleVar};IsData=false"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;drawTotal=false;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-07/\""
 }
 
 function JER_Fall_2018_Nominal \
@@ -3289,11 +3289,11 @@ function JER_Fall_2018_Nominal \
     jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
     MCtype="MC16"
     CalibArea=""
-    configFile="rel21/Fall2018/R4_GlobalReduction_SimpleJER.config;rel21/Summer2018/R4_GlobalReduction_SimpleJER.config"
+    configFile="rel21/Fall2018/R4_GlobalReduction_SimpleJER.config;rel21/Fall2018/R4_GlobalReduction_SimpleJER.config"
     outFile="JER-Fall2018-${MCtype}-Nominal.pdf"
     compList="NOMINALRESMC;NOMINALRESDATA@NOMINALRESMC;NOMINALRESDATA"
     compLabels="Nominal MC JER, EMTopo;Nominal data JER, EMTopo@Nominal MC JER, EMPFlow;Nominal data JER,EMPFlow"
-    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;drawTotal=false;scaleVar=${scaleVar};IsData=false;axisMax=0.4"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;drawTotal=false;scaleVar=${scaleVar};IsData=false;axisMax=0.4;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-07/\""
 }
 
 function JER_Fall2018 \
@@ -3306,8 +3306,638 @@ function JER_Fall2018 \
     outFile="JER-Fall2018-${MCtype}-Recommendations.pdf"
     compList="JER_DataVsMC_#;JER_N_#;JER_dijet_c#,JER_dijet_j#,JER_dijet_m#,JER_dijet_p#;JER_dijet_stat#"
     compLabels="Nominal data vs MC difference;Noise term, random cones method;Dijet #it{in situ} JER (systematics);Dijet #it{in situ} JER (statistics)"
-    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40;scaleVar=${scaleVar};IsData=false;axisMax=0.05"
+    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40,60;scaleVar=${scaleVar};IsData=false;axisMax=0.05;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-07/\""
 }
+
+function JER_Fall2018_TotalCompare \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2018/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JER-Fall2018-${MCtype}-Recommendations-CompareJetDef.pdf"
+    compList=""
+    compLabels=""
+    options="prefix=JET_;fixedEtaVals=0.202;fixedPtVals=40,60;scaleVar=${scaleVar};IsData=false;axisMax=0.05;"
+    options="${options};doCompare=rel21/Summer2019/R4_AllNuisanceParameters_AllJERNP.config&MC16&PFlow+JES total uncertainty&AntiKt4EMPFlow;totalUncName=EMTopo+JES total uncertainty"
+}
+
+function JER_Fall_2018_CompareAllEtaInt \
+{
+    scaleVar="FourVecResAbs"
+    jetdef="EMTopo"
+    jetDefinition="AntiKt4${jetdef};AntiKt4${jetdef};AntiKt4${jetdef}"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2018/R4_GlobalReduction_SimpleJER.config;rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2015_16_AllJERNP.config;rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2017_AllJERNP.config"
+    outFile="JER-Fall2018-${MCtype}-CompareEtaInt-${jetdef}.pdf"
+    compList="JER#@JER#@JER#"
+    compLabels="Total JER uncertainty, ${jetdef}, normal@Total JER uncertainty, ${jetdef}, AllEtaInt 15+16@Total JER uncertainty, ${jetdef}, AllEtaInt 17"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;drawTotal=false;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-07/\""
+}
+
+function LargeR_Spring_2019 \
+{
+    topology="qcd"
+    topoStr="UNKNOWN"
+    flavStr=""
+    if [[ $topology = "qcd" ]] ; then
+        topoStr="QCD jets (#equiv 0)"
+        flavStr=", QCD jets (unknown comp.)"
+    elif [[ $topology = "Wqq" ]] ; then
+        topoStr="W/Z bosons"
+        flavStr=", propagated from R=0.4 jets"
+    elif [[ $topology = "tqqb" ]] ; then
+        topoStr="top quarks"
+        flavStr=", propagated from R=0.4 jets"
+    fi
+
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Spring2019/R10_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Spring2019-AllComponents-${topology}.pdf"
+    #configFile="rel21/Spring2019/R10_GlobalReduction.config"
+    #outFile="JetUncertainties-Spring2019-GR-${topology}.pdf"
+    compList="InSituProp#,LAr_#,Zjet#,Gjet#,MJB#,Effective#;EtaInt#;Flavor_Comp#;Flavor_Resp#;LargeR_Topo#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition${flavStr};Flav. response${flavStr};Large-R topology dependence, $topoStr"
+    options="isDijet=false;isLargeR=false;prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/;xAxisRange=175&3000;FatjetTruthLabel=${topology}"
+    options="${options};fixedPtVals=200,500,1000,2500;fixedEtaVals=0,0.5,1.5,2.499;axisMax=0.05;etaBins=U&1000&-2.5&2.5;fixedMoverPtVals=0.2"
+    #options="${options};fixedPtVals=NONE;fixedEtaVals=0;axisMax=0.05;etaBins=U&1000&-2.5&2.5;fixedMoverPtVals=0.2"
+    options="${options};FillLabelShift=-350&-385"
+}
+
+function LargeR_Spring_2019_CompareRtrk \
+{
+    topology="qcd"
+
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Spring2019/R10_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Spring2019-CompareRtrk.pdf"
+    compList="InSituProp#,LAr_#,Zjet#,Gjet#,MJB#,Effective#;EtaInt#;Flavor_Comp#;Flavor_Resp#;LargeR_Topo#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Large-R topology"
+    options="isDijet=false;isLargeR=true;prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/;xAxisRange=200&3000;FatjetTruthLabel=${topology}"
+    options="${options};fixedPtVals=200,500,1000,2500;fixedEtaVals=0,0.5,1.5,2.499;axisMax=0.20;etaBins=U&1000&-2.5&2.5"
+    #options="${options};fixedPtVals=200,500,1000,2500;fixedEtaVals=0,0.5,1.5,2.499;axisMax=0.20;etaBins=U&1000&-2.5&2.5;fixedMoverPtVals=0.2"
+    options="${options};doCompare=rel21/Moriond2018/R10_CombMass_all_FV.config&MC16a&Total uncertainty, Moriond 2018;scaleVar=FourVec"
+    options="${options};totalUncName=\"Total uncertainty (QCD jets, unknown comp.)\"" #;FillLabelShift=10&10"
+}
+
+function LargeR_Spring_2019_topology \
+{
+    topology="qcd"
+
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Spring2019/R10_AllNuisanceParameters_QCD.config;rel21/Spring2019/R10_AllNuisanceParameters_V.config;rel21/Spring2019/R10_AllNuisanceParameters_top.config"
+    outFile="JetUncertainties-Spring2019-TopologyCompare.eps"
+    compList="TOTAL@TOTAL@TOTAL"
+    compLabels="Total uncertainty, QCD jets (unknown comp.)@Total uncertainty, W/Z bosons@Total uncertainty, top quarks"
+    options="isDijet=false;isLargeR=false;prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/;xAxisRange=175&3000;FatjetTruthLabel=${topology}"
+    options="${options};fixedPtVals=200,500,1000,2500;fixedEtaVals=0,0.5,1.5,2.499;axisMax=0.05;etaBins=U&1000&-2.5&2.5;drawTotal=false"
+    #options="${options};fixedPtVals=NONE;fixedEtaVals=0;axisMax=0.05;etaBins=U&1000&-2.5&2.5;drawTotal=false"
+}
+
+function LargeR_Spring2019_test \
+{
+    topology="qcd"
+    scale="FourVec"
+    config="AllNuisanceParameters"
+    
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Spring2019/R10_${config}.config"
+    outFile="JetUncertainties-Spring2019-${config}-${scale}-${topology}.pdf"
+    #configFile="rel21/Spring2019/R10_GlobalReduction.config"
+    #outFile="JetUncertainties-Spring2019-GR-${topology}.pdf"
+    compList="InSituProp#,LAr_#,Zjet#,Gjet#,MJB#,Effective#;EtaInt#;Flavor_Comp#;Flavor_Resp#;LargeR_Topo#;CombMass_#;MassRes_Top_comb;MassRes_WZ_comb;MassRes_Hbb_comb"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Large-R topology;JMS total;JMR (top);JMR (W/Z);JMR (Hbb)"
+    options="isDijet=false;isLargeR=false;prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/;xAxisRange=170&3000;FatjetTruthLabel=${topology}"
+    options="${options};fixedPtVals=200,500,1000,2500;fixedEtaVals=0,0.5,1.5,2.499;etaBins=U&1000&-2.5&2.5;fixedMoverPtVals=0.1;scaleVar=${scale}"
+    if [[ $scale = "FourVec" ]] ; then
+        options="${options};axisMax=0.05"
+    elif [[ $scale = "Mass" ]] ; then
+        options="${options};axisMax=0.3"
+    elif [[ $scale = "MassRes" ]] ; then
+        options="${options};axisMax=0.5"
+    else
+        options="${options};axisMax=0.5"
+    fi
+}
+
+function LargeR_TCC_SF \
+{
+    TagType="W"
+    topology="qcd"
+    tagResult=1
+
+    # From BoostedJetTaggers, for tagResult
+    #if ( type==1 ){
+    #  return passMpassD2_2Var;
+    #}else if ( type==2 ){
+    #  return passMfailD2_2Var;
+    #}else if ( type==3 ){
+    #  return failMpassD2_2Var;
+    #}else if ( type==4 ){
+    #  return failMfailD2_2Var;
+    #}
+
+
+    jetDefinition="AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Summer2019/R10_SF_TCC_2VarSmooth_${TagType}Tag.config"
+    outFile="JetUncertainties-Summer2019-SF-TCC-2VarSmooth-${TagType}Tag-${topology}Jet-Result${tagResult}.pdf"
+
+    compList="Rtrk_#;BGSF_Dijet#;BGSF_Gammajet#;SigSF_ttbar#;SigSF_V_qq_Modelling_highPt"
+    compLabels="Propagated R_{trk} p_{T} uncertainties;Background SF uncertainty (dijet);Background SF uncertainty (#gamma+jet);Signal SF uncertainty (ttbar);Signal SF uncertainty (extrap)"
+
+    #options="prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="prefix=JET_;CalibArea=CalibArea-08"
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,45,50,80,90,175,300"
+    options="${options};etaBins=U&1000&-2.5&2.5;xAxisRange=170&3000;axisMax=0.5"
+    options="${options};FillLabelShift=-350&-385"
+    options="${options};scaleVar=TagScaleFactor;TagSFName=Smooth${TagType}Contained2VarMaxSig_SF;FatjetTruthLabel=${topology};TagAcceptName=Smooth${TagType}Contained2VarMaxSig_accept;TagAcceptResult=${tagResult}"
+}
+
+function LargeR_TCC_Scale \
+{
+    doFixedMass="true"
+    scaleVar="mass"
+
+    jetDefinition="AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Summer2019/R10_Scale_TCC_all.config"
+    if ! [[ -z $doFixedMass ]] ; then
+        outFile="JetUncertainties-Summer2019-Scale-TCC-${scaleVar}-FixedM.pdf"
+    else
+        outFile="JetUncertainties-Summer2019-Scale-TCC-${scaleVar}-FixedMpT.pdf"
+    fi
+
+    compList="Rtrk_Baseline#;Rtrk_Tracking#;Rtrk_TotalStat#;Rtrk_Modelling#;Rtrk_Closure#"
+    compLabels="Baseline;Tracking;Statistical;Modelling;Closure"
+
+    options="prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    if ! [[ -z $doFixedMass ]] ; then
+        options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,50,80,90,175,300"
+    else
+        options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMoverPtVals=0.05,0.1,0.2,0.3,0.5"
+    fi
+    options="${options};etaBins=U&1000&-2.5&2.5;xAxisRange=170&3000;axisMax=0.3"
+    options="${options};FillLabelShift=-350&-385"
+    options="${options};scaleVar=${scaleVar}"
+}
+
+function LargeR_TCC_Both \
+{
+    TagType="Z"
+    topology="qcd"
+    tagResult=1
+
+    scaleVar="pT"
+    #scaleVar="mass"
+    #scaleVar="TagScaleFactor"
+
+    # From BoostedJetTaggers, for tagResult
+    #if ( type==1 ){
+    #  return passMpassD2_2Var;
+    #}else if ( type==2 ){
+    #  return passMfailD2_2Var;
+    #}else if ( type==3 ){
+    #  return failMpassD2_2Var;
+    #}else if ( type==4 ){
+    #  return failMfailD2_2Var;
+    #}
+
+
+    jetDefinition="AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Summer2019/R10_SF_TCC_2VarSmooth_${TagType}Tag.config;rel21/Summer2019/R10_Scale_TCC_all.config"
+    outFile="JetUncertainties-Summer2019-Both-TCC-2VarSmooth-${TagType}Tag-${topology}Jet-Result${tagResult}-${scaleVar}.pdf"
+
+    compList="Rtrk_#_pT;Rtrk_#_mass;BGSF#;SigSF#"
+    compLabels="Rtrk p_{T} (original + propagated);Rtrk mass (original + propagated);Background SF (dijet + #gamma+jet);Signal SF (ttbar + extrap)"
+
+    options="prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/;ignoreNoMatch=true;drawTotal=false"
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,50,80,90,175,300"
+    if [[ $scaleVar = TagScaleFactor ]] ; then
+        options="${options};etaBins=U&1000&-2.5&2.5;xAxisRange=170&3000;axisMax=0.5"
+    else
+        options="${options};etaBins=U&1000&-2.5&2.5;xAxisRange=170&3000;axisMax=0.3"
+    fi
+    options="${options};FillLabelShift=-350&-385"
+    options="${options};scaleVar=${scaleVar};TagSFName=Smooth${TagType}Contained2VarMaxSig_SF;FatjetTruthLabel=${topology};TagAcceptName=Smooth${TagType}Contained2VarMaxSig_accept;TagAcceptResult=${tagResult}"
+
+}
+
+
+function LargeR_LC_SF_top \
+{
+    TagType="Top"
+    topology="tqqb"
+
+    # From BoostedJetTaggers, for topology
+    # case tqqb:         return 1;
+    # case Wqq:          return 2;
+    # case Zqq:          return 3;
+    # case Wqq_From_t:   return 4;
+    # case other_From_t: return 5;
+    # case other_From_V: return 6;
+    # case notruth:      return 7;
+    # case qcd:          return 8;
+
+
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Summer2019/R10_SF_LC_DNNContained80_${TagType}Tag.config"
+    outFile="JetUncertainties-Summer2019-SF-LC-DNNContained80-${TagType}Tag-${topology}Jet.pdf"
+
+    compList="Rtrk_#;BGSF_Dijet#;BGSF_Gammajet#;SigSF_ttbar#;SigSF_ttbar_Modelling_highPt"
+    compLabels="Propagated R_{trk} p_{T} uncertainties;Background SF uncertainty (dijet);Background SF uncertainty (#gamma+jet);Signal SF uncertainty (ttbar);Signal SF uncertainty (extrap)"
+
+    options="prefix=JET_;path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,45,50,80,90,175,300;fixedMoverPtVals=0.05,0.1,0.2,0.3,0.5"
+    options="${options};etaBins=U&1000&-2.5&2.5;xAxisRange=170&3000;axisMax=0.5"
+    options="${options};FillLabelShift=-350&-385"
+    options="${options};scaleVar=TagScaleFactor;TagSFName=DNNTaggerTopQuarkContained80_SF;FatjetTruthLabel=${topology}"
+}
+
+function EtaInt2018 \
+{
+    doDijet="false"
+
+    if [[ $doDijet = "true" ]] ; then
+        comp="dijet"
+        isdijet="true"
+    else
+        comp="unknown"
+        isdijet="false"
+    fi
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Summer2019/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JetUncertainties-Summer2019-EtaInt2018-AllComponents-${comp}Comp.pdf"
+    compList="LAr#,Zjet#,Gjet#,SingleParticle#;EtaIntercalibration_Modelling,EtaIntercalibration_TotalStat,EtaIntercalibration_NonClosure_highE,EtaIntercalibration_NonClosure_negEta,EtaIntercalibration_NonClosure_posEta;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#;EtaIntercalibration_NonClosure_2018data"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${comp});Flav. response (${comp});Pileup;Punch-through;New 2018 component"
+    options="isDijet=${isdijet};isGSC=true;isLargeR=false;prefix=JET_;"
+    #options="${options};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=20,40,60,100,150,200,300,500,700,1000,1500"
+    #options="${options};fixedEtaVals=1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0;fixedPtVals=NONE"
+}
+
+function EtaInt2018_Compare \
+{
+    doDijet="false"
+
+    if [[ $doDijet = "true" ]] ; then
+        comp="dijet"
+        isdijet="true"
+    else
+        comp="unknown"
+        isdijet="false"
+    fi
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018/R4_AllNuisanceParameters_AllJERNP.config"
+    outFile="JetUncertainties-Summer2019-EtaInt2018-Compare-${comp}Comp.pdf"
+    compList="LAr#,Zjet#,Gjet#,SingleParticle#;EtaInter#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${comp});Flav. response (${comp});Pileup;Punch-through"
+    options="isDijet=${isdijet};isGSC=true;isLargeR=false;prefix=JET_;"
+    #options="${options};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=20,40,60,100,150,200,300,500,700,1000,1500"
+    options="${options};doCompare=rel21/Summer2019/R4_AllNuisanceParameters_AllJERNP.config&MC16&Total uncertainty, including 2018 eta-intercal;scaleVar=FourVec"
+}
+
+function EtaInt2018_LR \
+{
+    topology="qcd"
+
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Summer2019/R10_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Summer2019-EtaInt2018-AllComponents-LR.pdf"
+    compList="InSituProp#,LAr_#,Zjet#,Gjet#,MJB#,Effective#;EtaIntercalibration_Modelling,EtaIntercalibration_R10_TotalStat,EtaIntercalibration_NonClosure_highE,EtaIntercalibration_NonClosure_negEta,EtaIntercalibration_NonClosure_posEta;Flavor_Comp#;Flavor_Resp#;LargeR_Topo#;EtaIntercalibration_NonClosure_2018data"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${topology});Flav. response (${topology});Lage-R topology (${topology});New 2018 component"
+    options="isLargeR=false;prefix=JET_;FatjetTruthLabel=${topology}"
+    #options="${options};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=175,200,300,500,700,1000,1500;etaBins=U&1000&-2.5&2.5;FillLabelShift=-0.7&-0.525"
+}
+
+function EtaInt2018_LR_Compare \
+{
+    topology="qcd"
+
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    configFile="rel21/Spring2019/R10_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Summer2019-EtaInt2018-Compare-LR.pdf"
+    compList="InSituProp#,LAr_#,Zjet#,Gjet#,MJB#,Effective#;EtaIntercal#;Flavor_Comp#;Flavor_Resp#;LargeR_Topo#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${topology});Flav. response (${topology});Lage-R topology (${topology})"
+    options="isLargeR=false;prefix=JET_;FatjetTruthLabel=${topology}"
+    #options="${options};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=175,200,300,500,700,1000,1500;etaBins=U&1000&-2.5&2.5;FillLabelShift=-0.7&-0.525"
+    options="${options};doCompare=rel21/Summer2019/R10_AllNuisanceParameters.config&MC16&Total uncertainty, including 2018 eta-intercal;scaleVar=FourVec"
+}
+
+
+function EtaInt2018_FullStat16_Compare \
+{
+    doDijet="false"
+
+    if [[ $doDijet = "true" ]] ; then
+        comp="dijet"
+        isdijet="true"
+    else
+        comp="unknown"
+        isdijet="false"
+    fi
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2015_16_AllJERNP.config"
+    outFile="JetUncertainties-Summer2019-EtaInt2018-FullStat16-Compare-${comp}Comp.pdf"
+    compList="LAr#,Zjet#,Gjet#,SingleParticle#;EtaInter#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${comp});Flav. response (${comp});Pileup;Punch-through"
+    options="isDijet=${isdijet};isGSC=true;isLargeR=false;prefix=JET_;"
+    #options="${options};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=20,40,60,100,150,200,300,500,700,1000,1500"
+    options="${options};doCompare=rel21/Summer2019_fullStatUncertainties/R4_AllNuisanceParameters_2015_16_AllJERNP.config&MC16&Total uncertainty, including 2018 eta-intercal;scaleVar=FourVec"
+}
+
+function EtaInt2018_FullStat17_Compare \
+{
+    doDijet="false"
+
+    if [[ $doDijet = "true" ]] ; then
+        comp="dijet"
+        isdijet="true"
+    else
+        comp="unknown"
+        isdijet="false"
+    fi
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2017_AllJERNP.config"
+    outFile="JetUncertainties-Summer2019-EtaInt2018-FullStat17-Compare-${comp}Comp.pdf"
+    compList="LAr#,Zjet#,Gjet#,SingleParticle#;EtaInter#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${comp});Flav. response (${comp});Pileup;Punch-through"
+    options="isDijet=${isdijet};isGSC=true;isLargeR=false;prefix=JET_;"
+    #options="${options};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=20,40,60,100,150,200,300,500,700,1000,1500"
+    options="${options};doCompare=rel21/Summer2019_fullStatUncertainties/R4_AllNuisanceParameters_2017_AllJERNP.config&MC16&Total uncertainty, including 2018 eta-intercal;scaleVar=FourVec"
+}
+
+
+function EtaInt2018_FullStat18_Compare \
+{
+    doDijet="false"
+
+    if [[ $doDijet = "true" ]] ; then
+        comp="dijet"
+        isdijet="true"
+    else
+        comp="unknown"
+        isdijet="false"
+    fi
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Fall2018_fullStatUncertanties/R4_AllNuisanceParameters_2017_AllJERNP.config"
+    outFile="JetUncertainties-Summer2019-EtaInt2018-FullStat18-Compare-${comp}Comp.pdf"
+    compList="LAr#,Zjet#,Gjet#,SingleParticle#;EtaInter#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${comp});Flav. response (${comp});Pileup;Punch-through"
+    options="isDijet=${isdijet};isGSC=true;isLargeR=false;prefix=JET_;"
+    #options="${options};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/testing/"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=20,40,60,100,150,200,300,500,700,1000,1500"
+    options="${options};doCompare=rel21/Summer2019_fullStatUncertainties/R4_AllNuisanceParameters_2018_AllJERNP.config&MC16&Total uncertainty, including 2018 eta-intercal;scaleVar=FourVec"
+}
+
+function TestSummer2019 \
+{
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Summer2019/R4_CategoryReduction_SimpleJER.config"
+    outFile="JetUncertainties-Summer2019-CategoryJES-SimpleJER.pdf"
+    compList="Effective#,SingleParticle#;EtaIntercalibration_Modelling,EtaIntercalibration_TotalStat,EtaIntercalibration_NonClosure_highE,EtaIntercalibration_NonClosure_negEta,EtaIntercalibration_NonClosure_posEta;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#;EtaIntercalibration_NonClosure_2018data"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition (${comp});Flav. response (${comp});Pileup;Punch-through;New 2018 component"
+    options="isDijet=true;isGSC=true;isLargeR=false;prefix=JET_;"
+}
+
+function JES_2011 \
+{
+    jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo"
+    MCtype="MC11c"
+    CalibArea=""
+    configFile="JES_2011/Final/InsituJES2011_12NP.config"
+    outFile="JES-Final2011.pdf"
+    compList="EffectiveNP_1;EffectiveNP_2;EffectiveNP_3;EffectiveNP_4;EffectiveNP_5;EffectiveNP_6#;EtaIntercalibration_TotalStat;EtaIntercalibration_Modelling;SingleParticle_HighPt;RelativeNonClosure#"
+    compLabels="JetScaleEff1;JetScaleEff2;JetScaleEff3;JetScaleEff4;JetScaleEff5;JetScaleEff6;JetScaleEta1;JetScaleEta2;JetScaleHighPt;JetScaleMC (${MCtype})"
+    options="prefix=JET_;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/SVNBACKUP/JetUncertainties/trunk/share/\""
+}
+
+
+
+function JER_Fall2020_R10_xcheck_JES \
+{
+    # Perfect agreement, this test is successful
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="R10_AllNuisanceParameters_AllJERNP_TEST.config"
+    outFile="JER-Fall2020-${MCtype}-Tests-JES.pdf"
+    compList="JER_dijet_jes#;JER_xcheck_JES"
+    compLabels="Direct sum of JES terms;xcheck JES term"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/JERtests/\";drawTotal=false"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=150,200,300,500,1000,2000;xAxisRange=-2.5&2.5;axisMax=0.2"
+}
+
+function JER_Fall2020_R10_xcheck_NC \
+{
+    # Perfect agreement, this test is successful
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="R10_AllNuisanceParameters_AllJERNP_TEST.config"
+    outFile="JER-Fall2020-${MCtype}-Tests-NC.pdf"
+    compList="JER_dijet_closure#;JER_xcheck_NC"
+    compLabels="Direct sum of nonclosure terms;xcheck NC term"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/JERtests/\";drawTotal=false"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=150,200,300,500,1000,2000;xAxisRange=-2.5&2.5;axisMax=0.2"
+}
+
+function JER_Fall2020_R10_xcheck_MC \
+{
+    # Perfect agreement, this test is successful
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="R10_AllNuisanceParameters_AllJERNP_TEST.config"
+    outFile="JER-Fall2020-${MCtype}-Tests-MC.pdf"
+    compList="JER_dijet_mcgenerator_R10;JER_xcheck_MC"
+    compLabels="Direct sum of MC terms;xcheck MC term"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/JERtests/\";drawTotal=false"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=150,200,300,500,1000,2000;xAxisRange=-2.5&2.5;axisMax=0.2"
+}
+
+function JER_Fall2020_R10_xcheck_DT \
+{
+    # Perfect agreement, this test is successful
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="R10_AllNuisanceParameters_AllJERNP_TEST.config"
+    outFile="JER-Fall2020-${MCtype}-Tests-DT.pdf"
+    compList="JER_dijet_selection_R10;JER_xcheck_DT"
+    compLabels="Direct sum of DT terms;xcheck DT term"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/JERtests/\";drawTotal=false"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=150,200,300,500,1000,2000;xAxisRange=-2.5&2.5;axisMax=0.2"
+}
+
+function JER_Fall2020_R10_xcheck_Total \
+{
+    # Perfect agreement, this test is successful
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="R10_AllNuisanceParameters_AllJERNP_TEST.config"
+    outFile="JER-Fall2020-${MCtype}-Tests-Total.pdf"
+    compList="JER_dijet_c#,JER_dijet_sel#,JER_dijet_jes#,JER_dijet_mc#;JER_xcheck_Total"
+    compLabels="Direct sum of all dijet terms;xcheck total term"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/JERtests/\";drawTotal=false"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=150,200,300,500,1000,2000;xAxisRange=-2.5&2.5;axisMax=0.2"
+}
+
+function JER_Fall2020_R10_fixPt \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP.config"
+    outFile="JER-Fall2020-${jetDefinition}-${MCtype}-fixedPt.pdf"
+    compList="JER_DataVsMC_R10#;JER_dijet_R10_closure;JER_dijet_R10_selection;JER_dijet_R10_mcgen#;JER_dijet_R10_jes#;JER_dijet_R10_stat"
+    compLabels="Nominal data vs MC difference;Dijet #it{in situ} JER, closure;Dijet #it{in situ} JER, selection;Dijet #it{in situ} JER, MC generator;Dijet #it{in situ} JER, propagated JES;Dijet #it{in situ} JER, statistics"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\";FillLabelShift=-0.7&-0.525"
+    options="${options};fixedEtaVals=NONE;fixedPtVals=150.,200.,300.,500.,1000.,2000.;xAxisRange=-2.5&2.5;axisMax=0.04"
+    options="${options};doCompare=rel21/Summer2019/R10_AllNuisanceParameters_FlatJER.config&MC16&Total uncertainty, previous;totalUncName=\"Total uncertainty, consolidated\""
+}
+
+function JER_Fall2020_R10_fixEta \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP.config"
+    outFile="JER-Fall2020-${jetDefinition}-${MCtype}-fixedEta.pdf"
+    compList="JER_DataVsMC_R10#;JER_dijet_R10_closure;JER_dijet_R10_selection;JER_dijet_R10_mcgen#;JER_dijet_R10_jes#;JER_dijet_R10_stat"
+    compLabels="Nominal data vs MC difference;Dijet #it{in situ} JER, closure;Dijet #it{in situ} JER, selection;Dijet #it{in situ} JER, MC generator;Dijet #it{in situ} JER, propagated JES;Dijet #it{in situ} JER, statistics"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\";FillLabelShift=-305&-340"
+    options="${options};fixedEtaVals=0,0.201,0.701,1.01,1.31,1.61,2.01;fixedPtVals=NONE;xAxisRange=150&3000;axisMax=0.04"
+    options="${options};doCompare=rel21/Summer2019/R10_AllNuisanceParameters_FlatJER.config&MC16&Total uncertainty, previous;totalUncName=\"Total uncertainty, consolidated\""
+}
+
+function JER_Fall2020_R10_fixEta_onlyJES_proposal \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP.config"
+    outFile="JER-Fall2020-${jetDefinition}-${MCtype}-fixedEta-onlyJES-proposal.pdf"
+    compList="JER_dijet_R10_jes#;JER_dijet_R10_jesEffNP1;JER_dijet_R10_jesEffNP3;JER_dijet_R10_jesEffNP4;JER_dijet_R10_jesEtaIntMod;JER_dijet_R10_jesFlavComp;JER_dijet_R10_jesFlavResp;JER_dijet_R10_jesEffNP2,JER_dijet_R10_jesEffNP5,JER_dijet_R10_jesEffNP6,JER_dijet_R10_jesEtaIntStat,JER_dijet_R10_jesHighPt"
+    compLabels="Merger of all 11x JES NPs;Effective NP 1;Effective NP 3;Effective NP 4;Eta intercalibration, modelling;Flavour composition;Flavour response;Remaining 5x NPs merged"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\";FillLabelShift=-305&-340"
+    options="${options};fixedEtaVals=0,0.201,0.701,1.01,1.31,1.61,2.01;fixedPtVals=NONE;xAxisRange=150&3000;axisMax=0.025"
+    options="${options};totalUncName=\"Total uncertainty, consolidated\";TwoColumnLegend=True"
+}
+
+function JER_Fall2020_R10_fixEta_onlyJES \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP.config"
+    outFile="JER-Fall2020-${jetDefinition}-${MCtype}-fixedEta-onlyJES.pdf"
+    compList="JER_dijet_R10_jes#;JER_dijet_R10_jesEffNP1;JER_dijet_R10_jesEffNP2;JER_dijet_R10_jesEffNP3;JER_dijet_R10_jesEffNP4;JER_dijet_R10_jesEffNP5;JER_dijet_R10_jesEffNP6;JER_dijet_R10_jesEtaIntMod;JER_dijet_R10_jesEtaIntStat;JER_dijet_R10_jesFlavComp;JER_dijet_R10_jesFlavResp;JER_dijet_R10_jesHighPt"
+    compLabels="Merger of all 11x JES NPs;Effective NP 1;Effective NP 2;Effective NP 3;Effective NP 4;Effective NP 5;Effective NP 6;Eta intercalibration, modelling;Eta intercalibration, statistical;Flavour composition;Flavour response;High pT term"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\";FillLabelShift=-305&-340"
+    options="${options};fixedEtaVals=0,0.201,0.701,1.01,1.31,1.61,2.01;fixedPtVals=NONE;xAxisRange=150&3000;axisMax=0.04"
+    options="${options};doCompare=rel21/Summer2019/R10_AllNuisanceParameters_FlatJER.config&MC16&Total uncertainty, previous;totalUncName=\"Total uncertainty, consolidated\";TwoColumnLegend=True"
+}
+
+function JMS_Fall2020_R10_Calo \
+{
+    scaleVar="mass"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP-Calo.config"
+    outFile="JMS-Fall2020-${jetDefinition}-${MCtype}-mCalo.pdf"
+    compList="FF_Larger#;FF_Matrix#;FF_Parton#;FF_Radiation#;FF_Shape#;FF_SmallRjet#;FF_Stat#;Rtrk_Generator#;Rtrk_Track#;Rtrk_Stat#"
+    compLabels="FF, LargerSample;FF, MatrixElement;FF, PartonShower;FF, Radiation;FF, Shape;FF, small-R jet;FF, Statistical;Rtrk, Generator;Rtrk, Tracking;Rtrk, Statistical"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\""
+    options="${options};massDef=calo;xAxisRange=150&3000;axisMax=0.1;TwoColumnLegend=True;FillLabelShift=-320&-350;totalUncName=\"Total Uncertainty, mCalo\""
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,50,80,175,275,325,500"
+}
+
+function JMS_Fall2020_R10_TA \
+{
+    scaleVar="mass"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP-TA.config"
+    outFile="JMS-Fall2020-${jetDefinition}-${MCtype}-mTA.pdf"
+    compList="FF_Larger#;FF_Matrix#;FF_Parton#;FF_Radiation#;FF_Shape#;FF_SmallRjet#;FF_Stat#;Rtrk_Generator#;Rtrk_Track#;Rtrk_Stat#"
+    compLabels="FF, LargerSample;FF, MatrixElement;FF, PartonShower;FF, Radiation;FF, Shape;FF, small-R jet;FF, Statistical;Rtrk, Generator;Rtrk, Tracking;Rtrk, Statistical"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\""
+    options="${options};massDef=calo;xAxisRange=150&3000;axisMax=0.2;TwoColumnLegend=True;FillLabelShift=-320&-350;totalUncName=\"Total Uncertainty, mTA\""
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,50,80,175,275,325,500"
+}
+
+function JMS_Fall2020_R10_comb \
+{
+    scaleVar="mass"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP.config"
+    outFile="JMS-Fall2020-${jetDefinition}-${MCtype}-mComb.pdf"
+    compList="CombMass_FF_Larger#;CombMass_FF_Matrix#;CombMass_FF_Parton#;CombMass_FF_Radiation#;CombMass_FF_Shape#;CombMass_FF_SmallRjet#;CombMass_FF_Stat#;CombMass_Rtrk_Generator#;CombMass_Rtrk_Track#;CombMass_Rtrk_Stat#"
+    compLabels="FF, LargerSample;FF, MatrixElement;FF, PartonShower;FF, Radiation;FF, Shape;FF, small-R jet;FF, Statistical;Rtrk, Generator;Rtrk, Tracking;Rtrk, Statistical"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\""
+    options="${options};massDef=calo;xAxisRange=150&3000;axisMax=0.2;TwoColumnLegend=True;FillLabelShift=-320&-350;totalUncName=\"Total Uncertainty, mComb\""
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,50,80,175,275,325,500"
+    options="${options};doCompare=rel21/Summer2019/R10_AllNuisanceParameters_FlatJER.config&MC16&Total uncertainty, previous;totalUncName=\"Total uncertainty, consolidated\""
+}
+
+function JMS_Fall2020_R10_compare \
+{
+    scaleVar="mass"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP.config;rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP-Calo.config;rel21/Fall2020/R10_AllNuisanceParameters_AllJERNP_AllJMSNP-TA.config"
+    outFile="JMS-Fall2020-${jetDefinition}-${MCtype}-compare.pdf"
+    compList="TOTAL@TOTAL@TOTAL"
+    compLabels="Total Uncertainty, mComb@Total Uncertainty, mCalo@Total Uncertainty, mTA"
+    #compList="TOTAL;CombMass_FF#;CombMass_Rtrk#@TOTAL;FF_#;Rtrk_#@TOTAL;FF_#;Rtrk_#"
+    #compLabels="Total uncertainty, mComb;FF, mComb;Rtrk, mComb@Total uncertanty, mCalo;FF, mCalo;Rtrk, mCalo@Total uncertainty, mTA;FF, mTA;Rtrk mTA"
+    options="prefix=JET_;scaleVar=${scaleVar};IsData=false;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/LargeRConsolidated/Recommendation/\""
+    options="${options};massDef=calo;xAxisRange=150&3000;axisMax=0.2;drawTotal=False"
+    options="${options};fixedPtVals=NONE;fixedEtaVals=NONE;fixedMassVals=30,50,80,175,275,325,500"
+}
+
 
 
 
