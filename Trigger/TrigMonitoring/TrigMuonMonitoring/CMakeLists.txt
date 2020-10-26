@@ -15,5 +15,5 @@ atlas_add_component( TrigMuonMonitoring
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AnalysisTriggerEvent AthenaMonitoringLib EventInfo GaudiKernel StoreGateLib TrigAnalysisInterfaces TrigConfHLTData TrigDecisionToolLib TrigHLTMonitoringLib TrigMuonEvent TrigObjectMatchingLib TrigSteeringEvent VxVertex muonEvent xAODMuon xAODPrimitives xAODTracking xAODTrigMuon xAODTrigger xAODTruth )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

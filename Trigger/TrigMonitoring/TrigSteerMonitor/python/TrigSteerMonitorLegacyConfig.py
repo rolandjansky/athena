@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigSteerMonitor.TrigSteerMonitorConf import *
+import TrigSteerMonitor.TrigSteerMonitorConf as Conf
 
 
-class TrigErrorMonConfigValidation(TrigErrorMon):
+class TrigErrorMonConfigValidation(Conf.TrigErrorMon):
     """ HLT Error Code monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigErrorMonValidation"):
@@ -13,7 +13,7 @@ class TrigErrorMonConfigValidation(TrigErrorMon):
     def target(self):
         return [ "Validation" ]
 
-class TrigRoIMoniConfigValidation(TrigRoIMoni):
+class TrigRoIMoniConfigValidation(Conf.TrigRoIMoni):
     """ RoI monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigRoIMoniValidation"):
@@ -24,7 +24,7 @@ class TrigRoIMoniConfigValidation(TrigRoIMoni):
     def target(self):
         return [ "Validation" ]
 
-class TrigSignatureMoniConfigValidation(TrigSignatureMoni):
+class TrigSignatureMoniConfigValidation(Conf.TrigSignatureMoni):
     """ Signature monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigSignatureMoniValidation"):
@@ -34,7 +34,7 @@ class TrigSignatureMoniConfigValidation(TrigSignatureMoni):
     def target(self):
         return [ "Validation" ]
 
-class TrigTEMoniConfig(TrigTEMoni):
+class TrigTEMoniConfig(Conf.TrigTEMoni):
     """ TriggerElement monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigTEMoni"):
@@ -45,7 +45,7 @@ class TrigTEMoniConfig(TrigTEMoni):
         return [ "Validation" ]
 
 
-class TrigChainMoniConfig(TrigChainMoni):
+class TrigChainMoniConfig(Conf.TrigChainMoni):
     """ Chains monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigChainMoni"):
@@ -55,7 +55,7 @@ class TrigChainMoniConfig(TrigChainMoni):
     def target(self):
         return [ "Online", "Validation" ]
 
-class TrigErrorMonitor(TrigErrorMon):
+class TrigErrorMonitor(Conf.TrigErrorMon):
     """ HLT Error Code monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigErrorMonitor"):
@@ -66,7 +66,7 @@ class TrigErrorMonitor(TrigErrorMon):
     def target(self):
         return [ "Online", "Validation" ]
 
-class TrigErrorExpertMonitor(TrigErrorMon):
+class TrigErrorExpertMonitor(Conf.TrigErrorMon):
     """ HLT Error Code monitoring for experts (all errorcodes) """
     __slots__ =  [ ]
     def __init__(self,name="TrigErrorExpertMonitor"):
@@ -77,7 +77,7 @@ class TrigErrorExpertMonitor(TrigErrorMon):
     def target(self):
         return [ "Online", "Validation" ]    
 
-class TrigRoIMoniConfigOnline(TrigRoIMoni):
+class TrigRoIMoniConfigOnline(Conf.TrigRoIMoni):
     """ RoI monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigRoIMoniOnline"):
@@ -88,7 +88,7 @@ class TrigRoIMoniConfigOnline(TrigRoIMoni):
     def target(self):
         return [ "Online" ]
 
-class TrigSignatureMoniConfigOnline(TrigSignatureMoni):
+class TrigSignatureMoniConfigOnline(Conf.TrigSignatureMoni):
     """ Signature monitoring """
     __slots__ =  [ ]
     def __init__(self,name="TrigSignatureMoniOnline"):
@@ -98,7 +98,7 @@ class TrigSignatureMoniConfigOnline(TrigSignatureMoni):
     def target(self):
         return [ "Online" ]
 
-class TrigRateMoniConfig20s(TrigRateMoni):
+class TrigRateMoniConfig20s(Conf.TrigRateMoni):
     """ Rates monitor for online use only """
     def __init__(self,name="TrigRate20s"):
         super(TrigRateMoniConfig20s, self).__init__(name)
@@ -109,13 +109,12 @@ class TrigRateMoniConfig20s(TrigRateMoni):
         self.StreamSets = [
             'recording_physics_prompt:Main',
             'recording_physics_delayed:BphysDelayed,ExoDelayed',
-            'recording_physics_other:'
-            ]
+            'recording_physics_other:']
         
     def target(self):
         return [ "Online" ]    
 
-class TrigMemMonitor(TrigMemMoni):
+class TrigMemMonitor(Conf.TrigMemMoni):
     """ Memory monitor """
     def __init__(self,name="TrigMemMonitor"):
         super(TrigMemMonitor, self).__init__(name)
@@ -129,7 +128,7 @@ class TrigMemMonitor(TrigMemMoni):
     def target(self):
         return [ "Online" ]
 
-class TrigROBMoniConfig(TrigROBMoni):
+class TrigROBMoniConfig(Conf.TrigROBMoni):
     """ ROB request monitor for online use """
     def __init__(self,name="TrigROBMoni"):
         super(TrigROBMoniConfig, self).__init__(name)
@@ -137,7 +136,7 @@ class TrigROBMoniConfig(TrigROBMoni):
     def target(self):
         return [ "OnlineDetail" ]
 
-class TrigCorMonitor(TrigCorMoni):
+class TrigCorMonitor(Conf.TrigCorMoni):
     """ Trigger L1 and HLT correlation monitor """
     def __init__(self,name="TrigCorMonitor"):
         super(TrigCorMonitor, self).__init__(name)
