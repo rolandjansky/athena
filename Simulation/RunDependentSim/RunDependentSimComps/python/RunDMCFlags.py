@@ -194,7 +194,7 @@ for jpname in dir():
     import inspect
     if inspect.isclass(jp):
         if issubclass(jp, JobProperty) and jp is not JobProperty:
-            logRunDMCFlags.debug("Adding RunDMCFlag '%s' to RunDMCFlags container" % jpname)
+            logRunDMCFlags.debug("Adding RunDMCFlag '%s' to RunDMCFlags container", jpname)
             jobproperties.RunDMCFlags.add_JobProperty(jp)
 
 
