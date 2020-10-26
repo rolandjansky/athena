@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Basic class with all the flags to run on cosmics
@@ -57,10 +57,10 @@ class MuonDQAFlags:
   doCallgrind = True
   CallgrindHitAlgs = ["MDTRawDataESDValAlg","MDTvsRPCRawDataValAlg",
                       "RPCRawDataValAlg","RPCLV1RawDataValAlg",
-		      "TGCRawDataValAlg","TGCRawDataESDValAlg","TGCLV1RawDataValAlg","TGCLV1RawDataESDValAlg",
-		      "MDTvsTGCLV1RawDataValAlg","MDTvsTGCRawDataESDValAlg",
-		      "CSCRdoValAlg","CSCPrdValAlg","CSCClusterTree","CSCClusterValAlg",
-		      "MuonMonManager","AthenaMonManager"] #list of algs to check
+                      "TGCRawDataValAlg","TGCRawDataESDValAlg","TGCLV1RawDataValAlg","TGCLV1RawDataESDValAlg",
+                      "MDTvsTGCLV1RawDataValAlg","MDTvsTGCRawDataESDValAlg",
+                      "CSCRdoValAlg","CSCPrdValAlg","CSCClusterTree","CSCClusterValAlg",
+                      "MuonMonManager","AthenaMonManager"] #list of algs to check
   CallgrindTrkAlgs = ["MuonGenericTracksMon","MuonSelectedTracksMon","MuonMonManager","AthenaMonManager"] #list of algs to check
   CallgrindTrkAlignAlgs = ["MuonAlignValidation","MuonMonManager","AthenaMonManager"] #list of algs to check
   CallgrindSegmAlgs = ["MuonSegmValidation","MuonMonManager","AthenaMonManager"] #list of algs to check  

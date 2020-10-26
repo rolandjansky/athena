@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file MuonDQAMonFlags/python/MuonDQAProperFlags.py
@@ -13,7 +13,6 @@
 __author__ = "Nektarios Chr. Benekos"
 __version__= "$Revision: 1.3 $"
 __doc__    = "MuonDQAProperFlags"
-__all__    = [ "MuonDQAProperFlags" ]
 
 ##-----------------------------------------------------------------------------
 ## Import
