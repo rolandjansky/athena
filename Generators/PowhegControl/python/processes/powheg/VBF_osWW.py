@@ -51,10 +51,10 @@ class VBF_osWW(PowhegV2):
 
         self.allowed_decay_modes = ["w+ w- > {} {}".format(*x) for x in itertools.product(wp_decay_products, wm_decay_products)]
         # Add all keywords for this process, overriding defaults if required
-        # self.add_keyword("alphas_from_lhapdf")
+        self.add_keyword("alphas_from_lhapdf")
         self.add_keyword("bornktmin")
         self.add_keyword("bornonly")
-        self.add_keyword("bornsuppfact", 0) # self.add_keyword("bornsuppfact", 1)
+        self.add_keyword("bornsuppfact", 100) # self.add_keyword("bornsuppfact", 1)
         self.add_keyword("bornzerodamp")
         self.add_keyword("bottomthr")
         self.add_keyword("bottomthrpdf")
@@ -86,6 +86,8 @@ class VBF_osWW(PowhegV2):
         self.add_keyword("fullrwgtmode")
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
+        self.add_keyword("hmass")
+        self.add_keyword("hwidth")
         self.add_keyword("icsimax")
         self.add_keyword("ih1")
         self.add_keyword("ih2")
@@ -122,6 +124,7 @@ class VBF_osWW(PowhegV2):
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
         self.add_keyword("par_dijexp")
+        self.add_keyword("parallelstage")
         self.add_keyword("pdfreweight")
         self.add_keyword("ptsqmin")
         self.add_keyword("ptsupp")
@@ -145,23 +148,17 @@ class VBF_osWW(PowhegV2):
         self.add_keyword("ubsigmadetails")
         self.add_keyword("use-old-grid")
         self.add_keyword("use-old-ubound")
+        self.add_keyword("vdecaymodeWm", hidden=True)
+        self.add_keyword("vdecaymodeWp", self.allowed_decay_modes[0], name="decay_mode")
         self.add_keyword("withdamp", 1)
         self.add_keyword("withnegweights")
         self.add_keyword("withsubtr")
+        self.add_keyword("wmass")
+        self.add_keyword("ww_res_type")
+        self.add_keyword("wwidth")
+        self.add_keyword("xgriditeration")
         self.add_keyword("xupbound", 2)
         self.add_keyword("zerowidth")
-        # Keywords related to multicore running
-        self.add_keyword("xgriditeration", 1)
-        self.add_keyword("parallelstage", -1) # self.add_keyword("parallelstage", -1)
-        #self.add_keyword("manyseeds", 0) # self.add_keyword("manyseeds", 0)
-        # Keywords specific to this process that are explicitly mentioned in the process documentation:
-        self.add_keyword("vdecaymodeWp", self.allowed_decay_modes[0], name="decay_mode")
-        self.add_keyword("vdecaymodeWm", hidden=True)
-        self.add_keyword("hmass")
-        self.add_keyword("hwidth")
-        self.add_keyword("wmass")
-        self.add_keyword("wwidth")
-        self.add_keyword("ww_res_type")
         # Note: the process-specific parameter 'fat jet' is not currently implemented in PowhegControl.
         #       If you need it, please contact the PowhegControl maintainer(s).
 

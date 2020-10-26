@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from ..powheg_V2 import PowhegV2
+from textwrap import dedent
 
 
 class yj(PowhegV2):
@@ -14,6 +15,9 @@ class yj(PowhegV2):
 
     For a study using this process, see https://arxiv.org/abs/1709.04154
 
+    The enhancement of photon radiation is described on page 137ff of this PhD thesis:
+    https://www.uni-muenster.de/imperia/md/content/physik_tp/theses/klasen/koenig_phd.pdf
+
     @author Stefan Richter  <stefan.richter@cern.ch>
     """
 
@@ -25,11 +29,19 @@ class yj(PowhegV2):
         """
         super(yj, self).__init__(base_directory, "directphoton", **kwargs)
 
+        # Add the writing of an initial reweighting file needed to get the Sudakov reweighting factor
+        # into the nominal event weight.
+        self.validation_functions.append("write_enhancedradfac_reweighting_file")
+
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphaem_inv")
         self.add_keyword("alphas_from_lhapdf")
         self.add_keyword("bornktmin", 50.0)
         self.add_keyword("bornonly")
+        # According to the authors' example located at (e.g.)
+        # /cvmfs/atlas.cern.ch/repo/sw/Generators/powheg/ATLASOTF-00-04-02/POWHEG-BOX-V2/directphoton/testrun-lhc/powheg.input-save
+        # bornsuppfact=4000 is used "to get photons over a wide range of 100 GeV
+        # to over 1 TeV, not for low energy photons":
         self.add_keyword("bornsuppfact", 4000)
         self.add_keyword("bornzerodamp")
         self.add_keyword("bottomthr")
@@ -50,6 +62,7 @@ class yj(PowhegV2):
         self.add_keyword("compute_rwgt")
         self.add_keyword("doublefsr", 1)
         self.add_keyword("emvirtual")
+        self.add_keyword("enhancedradfac", 50)
         self.add_keyword("evenmaxrat")
         self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fastbtlbound")
@@ -101,15 +114,27 @@ class yj(PowhegV2):
         self.add_keyword("par_diexp", 4)
         self.add_keyword("par_dijexp", 4)
         self.add_keyword("parallelstage")
-        self.add_keyword("pdfreweight")
+        #self.add_keyword("pdfreweight")
         self.add_keyword("ptsqmin")
         self.add_keyword("ptsupp")
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
         self.add_keyword("renscfact", self.default_scales[1])
-        self.add_keyword("rwl_add")
-        self.add_keyword("rwl_file")
+        # Reweighting needs to already be run during the initial event
+        # generation for this process. The reason is that the additional event
+        # weight multiplied by a special Sudakov reweighting factor for enhanced
+        # photon radiation sampling (needed to get good signal statistics) needs
+        # to be written into the LHE file to be able to use it later as the
+        # nominal event weight. Any additional multiweights also use this weight
+        # as the reference weight. The "bare" weight not including the Sudakov
+        # reweighting factor is unphysical and should not be used. To enable the
+        # reweighting, a rwl_file provided (which is written
+        # automatically when this constructor is called).
+        # Note that rwl_add has to be set to 0! This parameter is for adding
+        # further weights to an LHE file from a previous run
+        self.add_keyword("rwl_add", 0)
+        self.add_keyword("rwl_file", 'reweighting_needed_for_enhancedradfac.xml')
         self.add_keyword("rwl_format_rwgt")
         self.add_keyword("rwl_group_events")
         self.add_keyword("skipextratests")
@@ -129,3 +154,15 @@ class yj(PowhegV2):
         self.add_keyword("withsubtr")
         self.add_keyword("xgriditeration")
         self.add_keyword("xupbound", 2)
+
+    def write_enhancedradfac_reweighting_file(self):
+        """Writes reweighting XML file needed for initial event generation."""
+        with open('reweighting_needed_for_enhancedradfac.xml', 'w') as xmlfile:
+            contents = dedent('''\
+            <initrwgt>
+            <weightgroup name='nominal' combine='None'>
+            <weight id='0'>default</weight>
+            </weightgroup>
+            </initrwgt>
+            ''')
+            xmlfile.write(contents)

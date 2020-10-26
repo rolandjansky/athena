@@ -64,11 +64,11 @@ We try to make the naming of processes consistent in Athena. Therefore some proc
 | `tj`               | `STJ`                     | single t + jet                | TODO                                                                     | [1805.09855](https://arxiv.org/abs/1805.09855) |                      |
 | `tt`               | `hvq`                     | ttbar                         | `PowhegControl-00-00-10`                                                 | [0707.3088](https://arxiv.org/abs/0707.3088)   |                      |
 | `tt_NLOdecays`     | `ttb_NLO_dec`             | ttbar with NLO decays         | `PowhegControl-00-03-00`                                                 | [1412.1828](https://arxiv.org/abs/1412.1828)   |                      |
-| `ttbb`             | -                         | $`\mathrm{t}\bar{\mathrm{t}}\mathrm{b}\bar{\mathrm{b}}`$  | TODO                                         | [1802.00426](https://arxiv.org/abs/1802.00426) |                      |
+| `ttbb`             | -                         | $`\mathrm{t}\bar{\mathrm{t}}\mathrm{b}\bar{\mathrm{b}}`$  | TODO                                         | [1802.00426](https://arxiv.org/abs/1802.00426) | [Process-specific documentation](process_specific/ttbb.md) |
 | `ttH`              | -                         | ttbar+Higgs                   | `PowhegControl-00-02-09`                                                 | [1501.04498](https://arxiv.org/abs/1501.04498) |                      |
 | `ttj`              | `ttJ`                     | ttbar+1 jet                   | `PowhegControl-00-02-14`                                                 | [1110.5251](https://arxiv.org/abs/1110.5251)   |                      |
 | `VBF_H`            | -                         | VBF Higgs                     | `PowhegControl-00-02-00`                                                 | [0911.5299](https://arxiv.org/abs/0911.5299)   |                      |
-| `VBF_osWW`         | `VBF_Wp_Wm`               | VBF $`\mathrm{W}^+\mathrm{W}^-`$ | In testing phase                                                      | [1301.1695](https://arxiv.org/abs/1301.1695)   | PDF/scale reweighting broken, being investigated |
+| `VBF_osWW`         | `VBF_Wp_Wm`               | VBF $`\mathrm{W}^+\mathrm{W}^-`$ | In testing phase                                                      | [1301.1695](https://arxiv.org/abs/1301.1695)   | [Process-specific documentation](process_specific/VBF_osWW.md). PDF/scale reweighting broken, being investigated |
 | `VBF_ssWW`         | `Wp_Wp_J_J`               | VBF $`\mathrm{W}^{\pm}\mathrm{W}^{\pm}`$ | `PowhegControl-00-02-14`                                      | [1108.0864](https://arxiv.org/abs/1108.0864)   |                      |
 | `VBF_W`            | `VBF_W-Z`                 | VBF W                         | `PowhegControl-00-02-17`                                                 | [1302.2884](https://arxiv.org/abs/1302.2884)   |                      |
 | `VBF_Z`            | `VBF_W-Z`                 | VBF Z                         | `PowhegControl-00-02-17`                                                 | [1302.2884](https://arxiv.org/abs/1302.2884)   |                      |
@@ -84,7 +84,7 @@ We try to make the naming of processes consistent in Athena. Therefore some proc
 | `Wt_DS`            | `ST_wtch_DS`              | W+t (diagram subtraction)     | `PowhegControl-00-02-09`                                                 | [1009.2450](https://arxiv.org/abs/1009.2450)   |                      |
 | `WW`               | -                         | W+W-                          | `PowhegControl-00-00-08`                                                 | [1311.1365](https://arxiv.org/abs/1311.1365)   |                      |
 | `Wy`               | `Wgamma`                  | W+gamma                       | `PowhegControl-00-03-10`                                                 | [1410.3802](https://arxiv.org/abs/1410.3802)   |                      |
-| `WZ`               | -                         | WZ                            | `PowhegControl-00-00-08`                                                 | [1311.1365](https://arxiv.org/abs/1311.1365)   |                      |
+| `WZ`               | -                         | WZ                            | `PowhegControl-00-00-08`                                                 | [1311.1365](https://arxiv.org/abs/1311.1365)   | [Process-specific documentation](process_specific/WZ.md) |
 | `yj`               | `directphoton`            | γ + jet                       | In testing phase                                                         | [1610.02275](https://arxiv.org/abs/1610.02275), see also [1709.04154](https://arxiv.org/abs/1709.04154) |                      |
 | `Z`                | -                         | Z                             | `PowhegControl-00-00-09`                                                 | [0805.4802](https://arxiv.org/abs/0805.4802)   |                      |
 | `Z_EW`             | `Z_ew-BMNNPV`             | Z with EW effects             | `PowhegControl-00-02-18`                                                 | [1302.4606](https://arxiv.org/abs/1302.4606)   |                      |
@@ -157,11 +157,27 @@ Gen_tf.py --jobConfig foo --ecmEnergy 13000 --runNumber 999999 --firstEvent 1 --
 * the underlying event (beam remnants, soft multiple parton interactions),
 * resonance decays (e.g. $`H \to b\bar{b}`$; if these were not included in the Powheg matrix element or performed by Powheg in the narrow-width approximation),
 * hadronisation (formation of physically observable, colour-neutral composite states from unobservable partons),
-* decays of ``long-lived'' particles such as τ-leptons and hadrons.
+* decays of "long-lived" particles such as τ-leptons and hadrons.
 
 For some processes, PowhegControl implements a few special features that go beyond this simple picture, e.g. performing more sophisticated resonance decays using MadSpin before handing the events over to Pythia or Herwig. For more information, see the [process-specific instructions](#supported-processes).
 
 Since Powheg Box does not provide an [application programming interface](https://en.wikipedia.org/wiki/API), but only *executables*, event generation with Powheg is done quite differently in Athena than for most other generators: PowhegControl simply writes out a config file that Powheg understands and then calls the right Powheg process executable with that input file. So the entire Powheg run is finished and the LHE events written out before any other MC generator comes into play.
+
+#### Setting the number of events
+
+**Use the `Gen_tf.py` argument `--maxEvents` to request the number of events you want.** If you are generating showered events, i.e. not just [LHE-level events](#generating-lhe-only-events), PowhegControl applies a **default safety factor of 1.1 to your requested number of events**. This is to prevent the parton shower MC from "running out" of events **in cases where a generator filter is used** that rejects some of your events. The optimal safety factor is $`1.0 / \mathrm{filter\,efficiency}`$ with an extra safety buffer.
+
+If your parton shower MC does run out of events (you should see a line similar to: `Abort from Pythia::next: reached end of Les Houches Events File...` in the `log.generate` file), you can increase the safety factor in your job option like this:
+
+```py
+PowhegConfig.nEvents *= 1.2 # or whatever factor
+```
+
+This gets applied on top of the 1.1 default factor, so the overall safety factor in this example would be $`1.1 \times 1.2`$.
+
+**If `--maxEvents` is not provided, Powheg defaults to 10000 events**. Also in this case a default safety factor of 1.1 is applied automatically if showering is done, i.e. you actually get 11000 events from Powheg.
+
+
 
 ### Generating LHE-only events
 
@@ -187,7 +203,7 @@ Most Powheg parameters exist for multiple processes. Important ones are listed h
 
 | Parameter name | Meaning | Allowed values | Notes and examples |
 | :------------: | :-----: | :------------: |:----------------: |
-| `PDF`          | Choice of nominal and (optionally) variation PDF sets | A single LHAPDF ID (``int``) or a ``list`` of LHAPDF IDs. You can find a table of all available LHAPDF sets and their IDs [here](https://lhapdf.hepforge.org/pdfsets). Some more unusual ones might not be installed in the ATLAS setup, so be aware of that. Ask experts for help if necessary.
+| `PDF`          | Choice of nominal and (optionally) variation PDF sets | A single LHAPDF ID (`int`) or a `list` of LHAPDF IDs. You can find a table of all available LHAPDF sets and their IDs [here](https://lhapdf.hepforge.org/pdfsets). Some more unusual ones might not be installed in the ATLAS setup, so be aware of that. Ask experts for help if necessary.
 
 
 
@@ -552,29 +568,6 @@ user.**
   - Use `Gen_tf` as explained
     [here](powheg_for_atlas#Generating_events_with_Powheg_OT)
 
-**How do I stop my parton shower from running out of events?**
-
-If you're seeing lines like this in your log file
-
-```
-17:11:52 PYTHIA Abort from Pythia::next: reached end of Les Houches Events File...
-```
-
-then you've run out of LHE events before enough events have passed your
-generator filter and been written to your EVNT file. You can increase
-the number of events generated by Powheg by adding a line like
-
-```py
-PowhegConfig.nEvents *= 1.2
-```
-
-to your jobOptions. This particular example will ask PowhegBox to
-generate an additional 20% more events on top of how many are already
-requested (the default number if nothing is specified would be 10% more
-than requested in the `Generate_tf` parameters). Adjust this value as
-appropriate for your needs - typically you will want to use `1.0 /
-filter_efficiency` with an extra buffer to account for the fact that the
-actual filter efficiency will be different from run-to-run.
 
 **How do I run with additional event weights?**
 
