@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ namespace Muon
 			       const std::vector<const CscPrepDataCollection*>& cscCols,
 			       const std::vector<const TgcPrepDataCollection*>& tgcCols,
 			       const std::vector<const RpcPrepDataCollection*>& rpcCols,
-			       Output& output) = 0;
+			       Output& output) const = 0;
     
   };
 
