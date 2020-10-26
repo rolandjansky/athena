@@ -66,10 +66,6 @@ if (DerivationFrameworkIsMonteCarlo):
    addPVCollection(SeqPHYS)
    # Set appropriate truth jet collection for tau truth matching
    ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
-   # SUSY signal
-   from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-   if IsSUSYSignal():
-      from DerivationFrameworkSUSY import SUSYWeightMetadata
    # Add sumOfWeights metadata for LHE3 multiweights =======
    #from DerivationFrameworkCore.LHE3WeightMetadata import *
 
