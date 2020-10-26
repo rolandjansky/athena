@@ -13,8 +13,8 @@
 #include "ReadoutGeometryBase/DetectorDesign.h"
 
 // Data member classes
-#include "PixelReadoutGeometry/PixelDiodeMap.h"
-#include "PixelReadoutGeometry/PixelReadoutScheme.h"
+#include "ReadoutGeometryBase/PixelDiodeMap.h"
+#include "ReadoutGeometryBase/PixelReadoutScheme.h"
 
 // Other includes
 #include "ReadoutGeometryBase/InDetDD_Defs.h"

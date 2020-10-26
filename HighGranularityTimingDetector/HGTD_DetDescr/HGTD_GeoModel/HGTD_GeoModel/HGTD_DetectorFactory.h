@@ -16,7 +16,7 @@
 
 namespace InDetDD {
     class AthenaComps;
-    class PixelModuleDesign;
+    class HGTD_ModuleDesign;
 }
 class GeoPhysVol;
 
@@ -98,7 +98,7 @@ private:
     std::vector<ModulePosition> calculateHgtdModulePositionsInQuadrant(int layer);
     std::vector<ModulePosition> calculateHgtdModulePositionsInRow(int row, bool back = false);
 
-    InDetDD::PixelModuleDesign* createPixelDesign(double thickness, bool isBaseline = true, bool isflipped = false);
+    InDetDD::HGTD_ModuleDesign* createHgtdDesign(double thickness, bool isBaseline = true, bool isflipped = false);
 
 };
 
