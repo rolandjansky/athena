@@ -46,7 +46,7 @@ namespace LVL1 {
     virtual StatusCode safetyTest() override;
     virtual void setup(int inputTable[3][3]) override; 
 
-    virtual std::vector<unsigned int> getReta() override;
+    virtual void getReta(std::vector<unsigned int> & ) override;
     virtual void getRhad(std::vector<unsigned int> & ) override;
     virtual void getWstot(std::vector<unsigned int> & ) override;
     virtual void getRealPhi(float & phi) override;
@@ -59,7 +59,7 @@ namespace LVL1 {
     virtual void getCoreEMTowerET(unsigned int & et) override;
     virtual void getCoreHADTowerET(unsigned int & et) override;
   private:
-    virtual void setSeed() override;
+    void setSeed();
     bool m_seed_UnD = false; 
     unsigned int m_seedID = 999;
     int m_eFEXegAlgoTowerID[3][3];
