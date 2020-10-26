@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file AthenaPool_jobOptions.py
 ## @brief Core job options file for AthenaPOOL to setup the basic sercives.
 ## @author Peter van Gemmeren <gemmeren@anl.gov>
-## $Id: AthenaPool.py,v 1.10 2008-11-18 22:44:00 binet Exp $
 ###############################################################
 #
 # The core jobOptions for AthenaPOOL
@@ -18,7 +17,7 @@ def _loadBasicAthenaPool():
 
     from AthenaCommon import CfgMgr
     ## make sure we have been -at least- minimally correctly configured
-    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
 
     from AthenaCommon.Logging import logging
     from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
