@@ -82,8 +82,30 @@ double HGTD_ModuleDesign::maxWidth() const
     return width();
 }
 
+// Method to calculate eta width from a column range
+double HGTD_ModuleDesign::widthFromColumnRange(const int colMin, const int colMax) const
+{
+    SiCellId idMin(0, colMin);
+    SiCellId idMax(0, colMax);
+    double minEta = parameters(idMin).xEtaMin();
+    double maxEta = parameters(idMax).xEtaMax();
+
+    return fabs(maxEta-minEta);
+}
+
+// Method to calculate phi width from a row range
+double HGTD_ModuleDesign::widthFromRowRange(const int rowMin, const int rowMax) const
+{
+    SiCellId idMin(rowMin, 0);
+    SiCellId idMax(rowMax, 0);
+    double minPhi = parameters(idMin).xPhiMin();
+    double maxPhi = parameters(idMax).xPhiMax();
+
+    return fabs(maxPhi-minPhi);
+}
+
 // Pitch in phi direction
-double 
+double
 HGTD_ModuleDesign::phiPitch() const
 {
     // Average pitch. 
@@ -91,7 +113,7 @@ HGTD_ModuleDesign::phiPitch() const
 }
 
 // Pitch in phi direction
-double 
+double
 HGTD_ModuleDesign::phiPitch(const SiLocalPosition &) const
 {
     // Cheat since we know its constant.
@@ -99,7 +121,7 @@ HGTD_ModuleDesign::phiPitch(const SiLocalPosition &) const
 }
 
 // Pitch in eta direction
-double 
+double
 HGTD_ModuleDesign::etaPitch() const
 {
     // Average pitch
@@ -109,7 +131,7 @@ HGTD_ModuleDesign::etaPitch() const
 const Trk::SurfaceBounds & 
 HGTD_ModuleDesign::bounds() const
 {
-    // We create on demand as width and length are 0 when PixeModuleDesign first gets
+    // We create on demand as width and length are 0 when HGTD_ModuleDesign first gets
     // created.
     if (!m_bounds) m_bounds = new Trk::RectangleBounds(0.5*width(), 0.5*length());
     return *m_bounds;
@@ -130,13 +152,13 @@ int HGTD_ModuleDesign::numberOfConnectedCells(const SiReadoutCellId & readoutId)
     return m_readoutScheme.numberOfConnectedCells(readoutId);
 }
 
-SiCellId 
+SiCellId
 HGTD_ModuleDesign::connectedCell(const SiReadoutCellId & readoutId, int number) const
 {
     return m_readoutScheme.connectedCell(readoutId, number);
 }
 
-SiCellId 
+SiCellId
 HGTD_ModuleDesign::gangedCell(const SiCellId & cellId) const
 {
     return m_readoutScheme.gangedCell(cellId);  
@@ -148,7 +170,7 @@ HGTD_ModuleDesign::readoutIdOfCell(const SiCellId & cellId) const
     return m_readoutScheme.readoutIdOfCell(cellId);
 }
 
-SiReadoutCellId 
+SiReadoutCellId
 HGTD_ModuleDesign::readoutIdOfPosition(const SiLocalPosition & localPos) const
 {
     return m_readoutScheme.readoutIdOfCell(m_diodeMap.cellIdOfPosition(localPos));
@@ -159,10 +181,15 @@ SiCellId HGTD_ModuleDesign::cellIdOfPosition(const SiLocalPosition & localPositi
     return m_diodeMap.cellIdOfPosition(localPosition);
 }
 
-SiCellId 
+SiCellId
 HGTD_ModuleDesign::cellIdInRange(const SiCellId & cellId) const
 {
     return m_diodeMap.cellIdInRange(cellId);
+}
+
+void HGTD_ModuleDesign::setGeneralLayout()
+{
+  m_diodeMap.setGeneralLayout();
 }
 
 } // namespace InDetDD

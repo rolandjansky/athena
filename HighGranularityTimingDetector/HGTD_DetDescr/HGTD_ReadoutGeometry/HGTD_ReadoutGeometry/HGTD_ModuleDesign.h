@@ -32,7 +32,11 @@ namespace InDetDD {
 
     @class HGTD_ModuleDesign
 
-    TODO: fill in class description
+     Class used to describe the design of a module
+      (diode segmentation and readout scheme)
+
+      - to get the PixelReadoutCell connected to a PixelDiode
+      - to get the list of PixelDiodes connected to a PixelReadoutCell
 
 */
 
@@ -76,8 +80,6 @@ public:
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
-
-    // TODO: a number of other methods possible if using PixelDiodeMatrix and PixelReadoutScheme, see PixelModuleDesign class
 
     /** Returns distance to nearest detector active edge 
      +ve = inside
@@ -130,6 +132,12 @@ public:
     /** Pitch in eta direction*/
     virtual double etaPitch() const;
 
+    /** Method to calculate eta width from a column range*/
+    double widthFromColumnRange(const int colMin, const int colMax) const;
+
+    /** Method to calculate phi width from a row range*/
+    double widthFromRowRange(const int rowMin, const int rowMax) const;
+
     /** Return true if hit local direction is the same as readout direction.*/
     virtual bool swapHitPhiReadoutDirection() const;
     virtual bool swapHitEtaReadoutDirection() const;
@@ -170,6 +178,21 @@ public:
     virtual SiCellId cellIdInRange(const SiCellId & cellId) const;
 
     ///////////////////////////////////////////////////////////////////
+    // Non-const methods:
+    ///////////////////////////////////////////////////////////////////
+
+    /** Add a new multiple connection for rows:
+       lower diode row for which the connection scheme is given
+       vector containing, for each diode, the readout cell row number
+       to which the corresponding diode is connected */
+    void addMultipleRowConnection(const int lowerRow,
+                const std::vector<int> &connections);
+
+    /** Indicate that it is a more complex layout where cells are not
+       lined up with each other. Eg bricking. Probably never will be needed. */
+    void setGeneralLayout();
+
+    ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////
 private:
@@ -179,7 +202,6 @@ private:
     // Private data:
     ///////////////////////////////////////////////////////////////////
 private:
-    // TODO: replace PixelDiodeMap and PixelReadoutScheme with HGTD equivalents?
     PixelDiodeMap m_diodeMap;
     PixelReadoutScheme m_readoutScheme;
     mutable Trk::RectangleBounds * m_bounds;
@@ -193,6 +215,12 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
+
+inline void HGTD_ModuleDesign::addMultipleRowConnection(const int lowerRow,
+                            const std::vector<int> &connections)
+{
+  m_readoutScheme.addMultipleRowConnection(lowerRow,connections);
+}
 
 inline double HGTD_ModuleDesign::sensorLeftColumn() const
 {

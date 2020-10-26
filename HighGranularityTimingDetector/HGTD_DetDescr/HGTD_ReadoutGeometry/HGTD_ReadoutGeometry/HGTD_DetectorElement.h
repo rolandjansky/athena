@@ -32,7 +32,8 @@ namespace InDetDD {
 
     @class HGTD_DetectorElement
 
-    TODO: fill in class description
+    Class to hold geometrical description of an HGTD detector element.
+    A detector element in this case is a single module in the HGTD.
 
 */
 
