@@ -9,9 +9,8 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
-isSimulation = False
-if globalflags.DataSource()=='geant4':
-    isSimulation = True
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+isSimulation = DerivationFrameworkHasTruth
 
 print isSimulation
 #====================================================================
@@ -234,7 +233,7 @@ print      BPHY6TruthThinTool
 
 # Added by ASC
 BPHY6ThinningTools = [BPHY6Thin_vtxTrk, BPHY6MuonTPThinningTool]
-if globalflags.DataSource()=='geant4':
+if isSimulation:
     BPHY6ThinningTools.append(BPHY6TruthThinTool)
 
 

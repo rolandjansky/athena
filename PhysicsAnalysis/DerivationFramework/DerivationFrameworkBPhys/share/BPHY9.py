@@ -11,7 +11,9 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkHiggs.TruthCategories import *
 from AthenaCommon.GlobalFlags import globalflags
 
-is_MC = globalflags.DataSource()=='geant4'
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+
+is_MC = DerivationFrameworkHasTruth
 print 'is_MC = ',is_MC
 
 if is_MC:

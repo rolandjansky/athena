@@ -15,9 +15,9 @@ addMuExtrapolationForTrigger = True
 
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-isSimulation = False
-if globalflags.DataSource()=='geant4':
-    isSimulation = True
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+isSimulation = DerivationFrameworkHasTruth
+
 
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *

@@ -21,9 +21,10 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.ElectronsCPContent import *
 
-isSimulation = False
-if globalflags.DataSource()=='geant4':
-    isSimulation = True
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+isSimulation = DerivationFrameworkHasTruth
+
+print isSimulation
 
 #====================================================================
 # AUGMENTATION TOOLS 

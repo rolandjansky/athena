@@ -54,8 +54,8 @@ print BPHY8_MetaDataTool
 pprint(BPHY8_MetaDataTool.properties())
 
 # data or simulation?
-if globalflags.DataSource() == 'geant4':
-    BPHY8cf.isSimulation = True
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+BPHY8cf.isSimulation = DerivationFrameworkHasTruth
 
 # project tag
 BPHY8cf.projectTag = rec.projectName()
