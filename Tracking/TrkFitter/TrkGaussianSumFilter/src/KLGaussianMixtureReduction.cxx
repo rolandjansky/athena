@@ -221,7 +221,7 @@ findMerges(Component1D* componentsIn,
   if (inputSize < 0 ||
       inputSize > GSFConstants::maxComponentsAfterConvolution ||
       reducedSize > inputSize) {
-    throw std::runtime_error("Invalid InputSize or reducedSize");
+    throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
   }
   // We need just one for the full duration of a job
   const static std::vector<triangularToIJ> convert = createToIJMaxRowCols();
