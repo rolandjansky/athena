@@ -99,6 +99,7 @@ def filterout(skiptoolnames, tools):
 
 # Pseudojet getters
 empfgetters =  [jtm.empflowget]
+empfgetters_fe = [jtm.empflowget_fe]
 
 trackgetters = [jtm.trackget]
 # Add track ghosts
@@ -114,11 +115,13 @@ if jetFlags.useTracks():
   emgetters += [jtm.gtrackget]
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
+  empfgetters_fe += [jtm.gtrackget]
 
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]
   lcgetters += [jtm.gmusegget]
   empfgetters  += [jtm.gmusegget]
+  empfgetters_fe  += [jtm.gmusegget]
 # Add jet ghosts.
 if 1:
   for gettername in jetFlags.additionalTopoGetters():
@@ -133,6 +136,7 @@ if jetFlags.useTruth():
   emgetters += [jtm.gtruthget]
   lcgetters += [jtm.gtruthget]
   empfgetters += [jtm.gtruthget]
+  empfgetters_fe += [jtm.gtruthget]
   # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
   for ptype in jetFlags.truthFlavorTags():
@@ -143,6 +147,7 @@ if jetFlags.useTruth():
   truthwzgetters += flavorgetters
   trackgetters   += flavorgetters
   empfgetters    += flavorgetters
+  empfgetters_fe += flavorgetters
 # Add track jet ghosts.
 if jetFlags.useTracks():
   trackjetgetters = []
@@ -152,12 +157,14 @@ if jetFlags.useTracks():
   emgetters += trackjetgetters
   lcgetters += trackjetgetters
   empfgetters += trackjetgetters
+  empfgetters_fe += trackjetgetters
 
 
 # Add getter lists to jtm indexed by input type name.
 jtm.gettersMap["emtopo"]    = list(emgetters)
 jtm.gettersMap["lctopo"]    = list(lcgetters)
 jtm.gettersMap["empflow"]   = list(empfgetters)
+jtm.gettersMap["empflowfe"] = list(empfgetters_fe)
 jtm.gettersMap["track"]     = list(trackgetters)
 jtm.gettersMap["pv0track"]  = list(trackgetters)
 if jetFlags.useTruth():
@@ -167,6 +174,7 @@ if jetFlags.useTruth():
 jtm.gettersMap["emtopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],emgetters)
 jtm.gettersMap["lctopo_reduced"]  = filterout(["gakt2trackget","gakt4trackget"],lcgetters)
 jtm.gettersMap["empflow_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters)
+jtm.gettersMap["empflowfe_reduced"] = filterout(["gakt2trackget","gakt4trackget"],empfgetters_fe)
 
 
 #########################################################

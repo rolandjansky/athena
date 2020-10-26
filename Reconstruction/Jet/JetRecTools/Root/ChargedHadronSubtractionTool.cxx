@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
 
@@ -22,9 +22,9 @@ ChargedHadronSubtractionTool::ChargedHadronSubtractionTool(const std::string& na
 }
 
 StatusCode ChargedHadronSubtractionTool::initialize() {
-  if(m_inputType!=xAOD::Type::ParticleFlow) {
+  if(m_inputType!=xAOD::Type::ParticleFlow && m_inputType!=xAOD::Type::FlowElement) {
     ATH_MSG_ERROR("ChargedHadronSubtractionTool requires PFO inputs. It cannot operate on objects of type "
-		  << m_inputType);
+                  << m_inputType);
     return StatusCode::FAILURE;
   }
   // Only initialise the DataHandle we will use, to avoid superfluous dependencies
@@ -38,8 +38,21 @@ StatusCode ChargedHadronSubtractionTool::initialize() {
 }
 
 StatusCode ChargedHadronSubtractionTool::process_impl(xAOD::IParticleContainer* cont) const {
+  
   // Type-checking happens in the JetConstituentModifierBase class
   // so it is safe just to static_cast
+  if(m_inputType==xAOD::Type::FlowElement){
+    xAOD::FlowElementContainer* feCont = static_cast<xAOD::FlowElementContainer*>(cont);
+
+    // Check that these FlowElements are actually PFOs; nothing else is supported
+    if(!feCont->empty() && !(feCont->front()->signalType() & xAOD::FlowElement::PFlow)){
+      ATH_MSG_ERROR("This tool correctly recieved a FlowElement, but it wasn't a PFO!"
+                 << " Signal type was " << feCont->front()->signalType());
+      return StatusCode::FAILURE;
+    }
+
+    return matchToPrimaryVertex(*feCont);
+  }
   xAOD::PFOContainer* pfoCont = static_cast<xAOD::PFOContainer*> (cont);
   return matchToPrimaryVertex(*pfoCont);
 }
@@ -91,17 +104,17 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
     if(m_useTrackToVertexTool) {
       auto handle = SG::makeHandle(m_trkVtxAssoc_key);
       if(!handle.isValid()){
-	ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
+        return StatusCode::FAILURE;
       }
       trkVtxAssoc = handle.cptr();
     } else {
       vtx = getPrimaryVertex();
       if(vtx==nullptr) {
-	ATH_MSG_ERROR("Primary vertex container was empty or no valid vertex found!");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Primary vertex container was empty or no valid vertex found!");
+        return StatusCode::FAILURE;
       } else if (vtx->vertexType()==xAOD::VxType::NoVtx) {
-	ATH_MSG_VERBOSE("No genuine primary vertex found. Will consider all PFOs matched.");
+        ATH_MSG_VERBOSE("No genuine primary vertex found. Will consider all PFOs matched.");
       }
     }
   }
@@ -118,22 +131,85 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::PFOContainer
     } else {
       const xAOD::TrackParticle* ptrk = ppfo->track(0);
       if(ptrk==nullptr) {
-	ATH_MSG_WARNING("Charged PFO with index " << ppfo->index() << " has no ID track!");
-	continue;
+        ATH_MSG_WARNING("Charged PFO with index " << ppfo->index() << " has no ID track!");
+        continue;
       }
       if(trkVtxAssoc) { // Use TrackVertexAssociation
-	const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
-	matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+        const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
+        matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
       } else { // Use Primary Vertex
-	if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices
-	  matchedToPrimaryVertex = true; // simply match all cPFOs in this case
-	} else { // Had a good reconstructed vertex.
-	  // vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0).
-	  // Thus we correct the track z0 to be w.r.t z = 0
-	  float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
-	  float theta = ptrk->theta();
-	  matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < 2.0 );
-	}
+        if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices
+          matchedToPrimaryVertex = true; // simply match all cPFOs in this case
+        } else { // Had a good reconstructed vertex.
+          // vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0).
+          // Thus we correct the track z0 to be w.r.t z = 0
+          float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
+          float theta = ptrk->theta();
+          matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < 2.0 );
+        }
+      } // TVA vs PV decision
+    }
+    PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::FlowElementContainer& cont) const {
+  const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
+
+  // Use only one of TVA or PV
+  const jet::TrackVertexAssociation* trkVtxAssoc = nullptr;
+  const xAOD::Vertex* vtx = nullptr;
+  if(!m_ignoreVertex) {
+    // In cosmics, there's no PV container so we need to avoid attempting
+    // to retrieve anything related to it
+    if(m_useTrackToVertexTool) {
+      auto handle = SG::makeHandle(m_trkVtxAssoc_key);
+      if(!handle.isValid()){
+        ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
+        return StatusCode::FAILURE;
+      }
+      trkVtxAssoc = handle.cptr();
+    } else {
+      vtx = getPrimaryVertex();
+      if(vtx==nullptr) {
+        ATH_MSG_ERROR("Primary vertex container was empty or no valid vertex found!");
+        return StatusCode::FAILURE;
+      } else if (vtx->vertexType()==xAOD::VxType::NoVtx) {
+        ATH_MSG_VERBOSE("No genuine primary vertex found. Will consider all PFOs matched.");
+      }
+    }
+  }
+
+  for ( xAOD::FlowElement* ppfo : cont ) {
+    // Ignore neutral PFOs
+    if(!ppfo->isCharged()) continue;
+
+    bool matchedToPrimaryVertex = false;
+    if(m_ignoreVertex) {
+      // If we don't use vertex information, don't bother computing the decision
+      // Just pass every cPFO -- there shouldn't be many in cosmics!
+      matchedToPrimaryVertex = true;
+    } else {
+      const xAOD::TrackParticle* ptrk = dynamic_cast<const xAOD::TrackParticle*>(ppfo->chargedObject(0));
+      if(ptrk==nullptr) {
+        ATH_MSG_WARNING("Charged PFO with index " << ppfo->index() << " has no ID track!");
+        continue;
+      }
+      if(trkVtxAssoc) { // Use TrackVertexAssociation
+        const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
+        matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+      } else { // Use Primary Vertex
+        if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices
+          matchedToPrimaryVertex = true; // simply match all cPFOs in this case
+        } else { // Had a good reconstructed vertex.
+          // vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0).
+          // Thus we correct the track z0 to be w.r.t z = 0
+          float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
+          float theta = ptrk->theta();
+          matchedToPrimaryVertex = ( fabs(z0*sin(theta)) < 2.0 );
+        }
       } // TVA vs PV decision
     }
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;

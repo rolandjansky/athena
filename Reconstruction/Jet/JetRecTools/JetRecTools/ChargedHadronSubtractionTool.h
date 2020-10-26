@@ -22,6 +22,7 @@
 #include "JetEDM/TrackVertexAssociation.h"
 #include "xAODTracking/VertexContainer.h" 
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(ChargedHadronSubtractionTool, IJetConstituentModifier)
@@ -38,6 +39,7 @@ class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
   // Type-specific operation
   StatusCode matchToPrimaryVertex(xAOD::PFOContainer& cont) const;
+  StatusCode matchToPrimaryVertex(xAOD::FlowElementContainer& cont) const;
 
   const xAOD::Vertex* getPrimaryVertex() const;
   bool m_useTrackToVertexTool;

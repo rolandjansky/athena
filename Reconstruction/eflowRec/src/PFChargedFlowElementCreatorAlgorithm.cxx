@@ -63,6 +63,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
 
     //Now set the charge
     thisFE->setCharge(efRecTrack->getTrack()->charge());
+    thisFE->setSignalType(xAOD::FlowElement::ChargedPFlow);
 
     std::pair<double,double> etaPhi(0.0,0.0);
 

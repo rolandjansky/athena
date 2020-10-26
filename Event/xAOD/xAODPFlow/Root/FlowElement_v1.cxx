@@ -48,6 +48,9 @@ namespace xAOD {
 
   }
 
+  void FlowElement_v1::setP4(FourMom_t p4){
+    setP4(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
+  }
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(FlowElement_v1, float, charge, setCharge) 
   bool  FlowElement_v1::isCharged() const { return !bool( signalType()& Neutral );}
