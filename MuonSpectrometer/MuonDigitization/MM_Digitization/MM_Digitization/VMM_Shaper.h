@@ -5,25 +5,26 @@
 #ifndef MM_DIGITIZATION_VMM_SHAPER_H
 #define MM_DIGITIZATION_VMM_SHAPER_H
 
-#include <TH1F.h>
 #include <vector>
 
 
 class VMM_Shaper{
  public:
-    VMM_Shaper(float peakTime);
+    VMM_Shaper(float peakTime, float lowerTimeWindow, float upperTimeWindow);
     virtual ~VMM_Shaper() {}
 
     void initialize();
 
-    void vmmPeakResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak);
-    void vmmThresholdResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold);
+    void vmmPeakResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak);
+    void vmmThresholdResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold);
 
-    bool hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double &electronicsThreshold);
+    bool hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold);
 
 
  private:
      double m_peakTime;
+     double m_lowerTimeWindow, m_upperTimeWindow;
+     
      double m_timeStep;
      double m_maxTime;
 
@@ -34,8 +35,8 @@ class VMM_Shaper{
 
      double m_peakTimeChargeScaling;
 
-     void vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, TH1F &response);
-     int findPeak(const TH1F &response, const double &electronicsThreshold);
+     double vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time);
+     double findPeak(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold);
 
 
 
