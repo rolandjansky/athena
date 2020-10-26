@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 #include "VP1TestSystems/TrackingSurfacesSystem.h"
 #include "ui_trackingsurfacescontrollerform.h"
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
