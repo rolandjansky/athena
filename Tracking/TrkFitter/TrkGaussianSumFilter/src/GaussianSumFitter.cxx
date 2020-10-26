@@ -1321,7 +1321,7 @@ Trk::GaussianSumFitter::combine(
      Loop over all components in forwards multi-state
      ================================================ */
 
-  for (auto& forwardsComponent : forwardsMultiState) {
+  for (const auto & forwardsComponent : forwardsMultiState) {
     // Need to check that all components have associated weight matricies
     const AmgSymMatrix(5)* forwardMeasuredCov =
       forwardsComponent.first->covariance();
@@ -1330,7 +1330,7 @@ Trk::GaussianSumFitter::combine(
        Loop over all components in the smoother multi-state
        ==================================================== */
 
-    for (auto& smootherComponent : smootherMultiState) {
+    for (const auto & smootherComponent : smootherMultiState) {
       // Need to check that all components have associated weight matricies
       const AmgSymMatrix(5)* smootherMeasuredCov =
         smootherComponent.first->covariance();
