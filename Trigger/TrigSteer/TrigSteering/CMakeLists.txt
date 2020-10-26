@@ -41,7 +41,7 @@ atlas_add_test( SteeringChain_test
                 POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py share/Lvl1Results.txt )
 atlas_install_xmls( share/*.dtd )
 
