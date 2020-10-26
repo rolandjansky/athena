@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfoByteStreamAuxCnv.h"
@@ -278,7 +278,7 @@ StatusCode EventInfoByteStreamAuxCnv::createRep(DataObject* /*pObj*/, IOpaqueAdd
   return StatusCode::SUCCESS;
 }
 
-const char* EventInfoByteStreamAuxCnv::ascTime(unsigned int tstamp) 
+std::string EventInfoByteStreamAuxCnv::ascTime(unsigned int tstamp) 
 {
    struct tm t;
    t.tm_sec   = tstamp;
@@ -291,6 +291,9 @@ const char* EventInfoByteStreamAuxCnv::ascTime(unsigned int tstamp)
    t.tm_yday  = 00;
    t.tm_isdst = 0;
    time_t ct = mktime(&t);
-   tm* t2 = gmtime(&ct);
-   return(asctime(t2));
+   struct tm t2;
+   gmtime_r(&ct, &t2);
+   char buf[32];
+   asctime_r (&t2, buf);
+   return std::string (buf);
 }

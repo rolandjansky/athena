@@ -171,7 +171,7 @@ ByteStreamEventStorageOutputSvc::initDataWriterContents(
 
 
 bool
-ByteStreamEventStorageOutputSvc::putEvent(RawEvent* re) {
+ByteStreamEventStorageOutputSvc::putEvent(const RawEvent* re) {
   // Read the next event.
   return putEvent(re, Gaudi::Hive::currentContext());
 }
@@ -179,7 +179,7 @@ ByteStreamEventStorageOutputSvc::putEvent(RawEvent* re) {
 
 bool
 ByteStreamEventStorageOutputSvc::putEvent(
-    RawEvent* re, const EventContext& ctx) {
+    const RawEvent* re, const EventContext& ctx) {
   // Read the next event.
   using OFFLINE_FRAGMENTS_NAMESPACE::DataType;
   using OFFLINE_FRAGMENTS_NAMESPACE::PointerType;

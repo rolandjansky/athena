@@ -77,9 +77,9 @@ uint32_t ByteStreamMergeOutputSvc::reducedROBid(uint32_t source_id) {
 }
 
 // Read the next event.
-bool  ByteStreamMergeOutputSvc::putEvent(RawEvent* newEvent) {
+bool  ByteStreamMergeOutputSvc::putEvent(const RawEvent* newEvent) {
    // get original event
-   RawEvent* orgEvent = (RawEvent*)m_inSvc->currentEvent();
+   const RawEvent* orgEvent = m_inSvc->currentEvent();
 
    ATH_MSG_DEBUG("original BS size = " << 4 * orgEvent->fragment_size_word());
    ATH_MSG_DEBUG("athena BS size = " << 4 * newEvent->fragment_size_word());
@@ -120,7 +120,7 @@ bool  ByteStreamMergeOutputSvc::putEvent(RawEvent* newEvent) {
    }
    RawEventWrite* mergedEventWrite = new RawEventWrite();
    // copy header
-   RawEvent *event = orgEvent;
+   const RawEvent *event = orgEvent;
    if (m_overwriteHeader) {
       event = newEvent;
    }
@@ -171,7 +171,7 @@ bool  ByteStreamMergeOutputSvc::putEvent(RawEvent* newEvent) {
    return(true);
 }
 
-bool ByteStreamMergeOutputSvc::putEvent(RawEvent* /*re*/, const EventContext& /*ctx*/) {
+bool ByteStreamMergeOutputSvc::putEvent(const RawEvent* /*re*/, const EventContext& /*ctx*/) {
   ATH_MSG_FATAL(name() << " does not implement the context-aware putEvent method");
   return false;
 }
