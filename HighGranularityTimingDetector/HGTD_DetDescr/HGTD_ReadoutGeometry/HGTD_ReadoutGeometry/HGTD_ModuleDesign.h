@@ -3,11 +3,11 @@
 */
 
 //////////////////////////////////////////////////////////
-// HGTD_DetectorDesign.h, (c) ATLAS Detector software
+// HGTD_ModuleDesign.h, (c) ATLAS Detector software
 //////////////////////////////////////////////////////////
 
-#ifndef HGTD_READOUTGEOMETRY_HGTD_DETECTORDESIGN_H
-#define HGTD_READOUTGEOMETRY_HGTD_DETECTORDESIGN_H
+#ifndef HGTD_READOUTGEOMETRY_HGTD_MODULEDESIGN_H
+#define HGTD_READOUTGEOMETRY_HGTD_MODULEDESIGN_H
 
 // base class
 #include "ReadoutGeometryBase/DetectorDesign.h"
@@ -30,13 +30,13 @@ namespace InDetDD {
 
 /**
 
-    @class HGTD_DetectorDesign
+    @class HGTD_ModuleDesign
 
     TODO: fill in class description
 
 */
 
-class HGTD_DetectorDesign: public DetectorDesign {
+class HGTD_ModuleDesign: public DetectorDesign {
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -59,19 +59,19 @@ public:
         @param carrierType: Carrier type, either holes or electrons
         @param readoutSide: Readout side, +ve = positive Depth Side, -ve = negative depth side
     */
-    HGTD_DetectorDesign(double thickness,
-                        const int circuitsPerColumn,
-                        const int circuitsPerRow,
-                        const int cellColumnsPerCircuit,
-                        const int cellRowsPerCircuit,
-                        const int diodeColumnsPerCircuit,
-                        const int diodeRowsPerCircuit,
-                        const InDetDD::PixelDiodeMatrix * matrix,
-                        InDetDD::CarrierType carrierType,
-                        int readoutSide);
+    HGTD_ModuleDesign(double thickness,
+                      const int circuitsPerColumn,
+                      const int circuitsPerRow,
+                      const int cellColumnsPerCircuit,
+                      const int cellRowsPerCircuit,
+                      const int diodeColumnsPerCircuit,
+                      const int diodeRowsPerCircuit,
+                      const InDetDD::PixelDiodeMatrix * matrix,
+                      InDetDD::CarrierType carrierType,
+                      int readoutSide);
 
     // Destructor:
-    virtual ~HGTD_DetectorDesign();
+    virtual ~HGTD_ModuleDesign();
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -173,7 +173,7 @@ public:
     // Private methods:
     ///////////////////////////////////////////////////////////////////
 private:
-    HGTD_DetectorDesign();
+    HGTD_ModuleDesign();
 
     ///////////////////////////////////////////////////////////////////
     // Private data:
@@ -185,8 +185,8 @@ private:
     mutable Trk::RectangleBounds * m_bounds;
 
     // Disallow Copy and assignment;
-    HGTD_DetectorDesign(const HGTD_DetectorDesign &design);
-    HGTD_DetectorDesign &operator = (const HGTD_DetectorDesign &design);
+    HGTD_ModuleDesign(const HGTD_ModuleDesign &design);
+    HGTD_ModuleDesign &operator = (const HGTD_ModuleDesign &design);
 
 };
 
@@ -194,73 +194,73 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-inline double HGTD_DetectorDesign::sensorLeftColumn() const
+inline double HGTD_ModuleDesign::sensorLeftColumn() const
 {
     return m_diodeMap.leftColumn();
 }
 
-inline double HGTD_DetectorDesign::sensorRightColumn() const
+inline double HGTD_ModuleDesign::sensorRightColumn() const
 {
     return m_diodeMap.rightColumn();
 }
 
-inline double HGTD_DetectorDesign::sensorLeftRow() const
+inline double HGTD_ModuleDesign::sensorLeftRow() const
 {
     return m_diodeMap.leftRow();
 }
 
-inline double HGTD_DetectorDesign::sensorRightRow() const
+inline double HGTD_ModuleDesign::sensorRightRow() const
 {
     return m_diodeMap.rightRow();
 }
 
-inline int HGTD_DetectorDesign::numberOfDiodes() const
+inline int HGTD_ModuleDesign::numberOfDiodes() const
 {
     return m_diodeMap.diodes();
 }
 
-inline int HGTD_DetectorDesign::numberOfCircuits() const
+inline int HGTD_ModuleDesign::numberOfCircuits() const
 {
     return m_readoutScheme.numberOfCircuits();
 }
 
-inline int HGTD_DetectorDesign::columnsPerCircuit() const
+inline int HGTD_ModuleDesign::columnsPerCircuit() const
 {
     return m_readoutScheme.columnsPerCircuit();
 }
 
-inline int HGTD_DetectorDesign::rowsPerCircuit() const
+inline int HGTD_ModuleDesign::rowsPerCircuit() const
 {
     return m_readoutScheme.rowsPerCircuit();
 }
 
-inline int HGTD_DetectorDesign::columns() const
+inline int HGTD_ModuleDesign::columns() const
 {
     return m_readoutScheme.columns();
 }
 
-inline int HGTD_DetectorDesign::rows() const
+inline int HGTD_ModuleDesign::rows() const
 {
     return m_readoutScheme.rows();
 }
 
-inline bool HGTD_DetectorDesign::swapHitPhiReadoutDirection() const
+inline bool HGTD_ModuleDesign::swapHitPhiReadoutDirection() const
 {
     return true;
 }
 
-inline bool HGTD_DetectorDesign::swapHitEtaReadoutDirection() const
+inline bool HGTD_ModuleDesign::swapHitEtaReadoutDirection() const
 {
     return true;
 }
 
-inline void HGTD_DetectorDesign::neighboursOfCell(const SiCellId & cellId,
+inline void HGTD_ModuleDesign::neighboursOfCell(const SiCellId & cellId,
                                 std::vector<SiCellId> &neighbours) const
 {
     return m_diodeMap.neighboursOfCell(cellId, neighbours);
 }
 
-inline double HGTD_DetectorDesign::intersectionLength(const SiCellId &diode1,
+inline double HGTD_ModuleDesign::intersectionLength(const SiCellId &diode1,
                                 const SiCellId &diode2) const
 {
     return m_diodeMap.intersectionLength(diode1, diode2);
@@ -268,4 +268,4 @@ inline double HGTD_DetectorDesign::intersectionLength(const SiCellId &diode1,
 
 } // namespace InDetDD
 
-#endif // HGTD_READOUTGEOMETRY_HGTD_DETECTORDESIGN_H
+#endif // HGTD_READOUTGEOMETRY_HGTD_MODULEDESIGN_H

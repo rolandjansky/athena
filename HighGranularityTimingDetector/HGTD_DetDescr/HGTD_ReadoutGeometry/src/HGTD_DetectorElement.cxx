@@ -26,7 +26,7 @@ namespace InDetDD {
 
 // Constructor with parameters:
 HGTD_DetectorElement::HGTD_DetectorElement(const Identifier &id,
-                                           const HGTD_DetectorDesign *design,
+                                           const HGTD_ModuleDesign *design,
                                            const GeoVFullPhysVol *geophysvol,
                                            SiCommonItems * commonItems) :
   SolidStateDetectorElementBase(id, design, geophysvol, commonItems),

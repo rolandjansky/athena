@@ -15,7 +15,7 @@
 // Data member classes
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "HGTD_ReadoutGeometry/HGTD_DetectorDesign.h"
+#include "HGTD_ReadoutGeometry/HGTD_ModuleDesign.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "ReadoutGeometryBase/SiCommonItems.h"
 #include "ReadoutGeometryBase/SiCellId.h"
@@ -45,7 +45,7 @@ public:
 
     /// Constructor:
     HGTD_DetectorElement(const Identifier &id, 
-                         const HGTD_DetectorDesign *design,
+                         const HGTD_ModuleDesign *design,
                          const GeoVFullPhysVol *geophysvol,
                          SiCommonItems * commonItems);
 
@@ -83,7 +83,7 @@ public:
     //@{
     
     /// access to the local description:
-    const HGTD_DetectorDesign &design() const;
+    const HGTD_ModuleDesign &design() const;
 
     // carrier type for readout. ie electrons for pixels.
     InDetDD::CarrierType carrierType() const;
@@ -121,14 +121,14 @@ protected:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-inline const HGTD_DetectorDesign &HGTD_DetectorElement::design() const
+inline const HGTD_ModuleDesign &HGTD_DetectorElement::design() const
 {
-  return *dynamic_cast<const HGTD_DetectorDesign *>(m_design);
+  return *dynamic_cast<const HGTD_ModuleDesign *>(m_design);
 }
 
 inline InDetDD::CarrierType HGTD_DetectorElement::carrierType() const
 {
-  return dynamic_cast<const HGTD_DetectorDesign *>(m_design)->carrierType();
+  return dynamic_cast<const HGTD_ModuleDesign *>(m_design)->carrierType();
 }
 
 inline void HGTD_DetectorElement::updateAllCaches() const
