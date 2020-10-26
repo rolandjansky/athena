@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import urllib, re, string, os, time
 
 from future import standard_library
@@ -91,7 +89,7 @@ class eventLookupClient:
       for run_ev in inputEvents:
          runs_events += sep + run_ev[0] + " " + run_ev[1]
          sep = "\n"
-         runs.add(run_ev[0]);
+         runs.add(run_ev[0])
 
       if asyncFlag is None:
          if len(runs) > 50 or len(inputEvents) > 1000:
@@ -175,7 +173,6 @@ class eventLookupClient:
             runs_events += sep + run_ev[0] + " " + run_ev[1]
             sep = "\n"
 
-      tagtype = 'TAG'
       args = ' -F "runs_events=' + runs_events +'"'
       if tokens != "": args = args + ' --form-string "tokens=' + tokens +'"'
       if stream != "": args = args + ' --form-string "stream=' + stream +'"'
@@ -263,7 +260,7 @@ class eventLookupClient:
       error1 = "You may try selectuing a different worker host. Use debug option to see the entire output"
       # check for errors
       if not output:  output = self.output
-      if type(output) == type('str'):  output = output.split('\n')
+      if isinstance(output, str):  output = output.split('\n')
       for line in output:
          if re.search("certificate expired", line):
             print ("Your CA certificate proxy may have expired. The returned error is:\n" + line)
