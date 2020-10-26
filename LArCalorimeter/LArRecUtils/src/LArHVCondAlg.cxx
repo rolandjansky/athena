@@ -39,6 +39,8 @@
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
+#include "CoralBase/Blob.h"
+
 //#include <iostream> 
 #include <cmath> 
 #include <cstdlib>
@@ -64,6 +66,7 @@ LArHVCondAlg::LArHVCondAlg( const std::string& name, ISvcLocator* pSvcLocator )
     m_condSvc("CondSvc",name)
  {
   declareProperty("doHV",m_doHV=true,"create HV data");
+  declareProperty("doR",m_doR=true,"Use R values with current to improve HV");
   declareProperty("doAffected",m_doAffected=true,"create affected region info");
   declareProperty("doAffectedHV",m_doAffectedHV=true,"include HV non nominal regions info");
  
@@ -94,6 +97,7 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( m_BFKey.initialize() );
   ATH_CHECK(m_hvMappingKey.initialize (m_doHV || m_doAffectedHV));
+  ATH_CHECK( m_hvRKey.initialize(m_doR && (m_doHV || m_doAffectedHV)));
 
   // Write Handle
   
@@ -149,6 +153,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
 
   std::vector<const CondAttrListCollection*> attrvec;
   const LArHVIdMapping* hvCabling{nullptr};
+  const float* rValues{nullptr};
 
   if(doHVData || (doAffected && m_doAffectedHV) ) {
     SG::ReadCondHandle<LArHVIdMapping> mappingHdl{m_hvMappingKey, ctx};
@@ -175,6 +180,21 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
          ATH_MSG_WARNING("Why do not have DCS folder " << fldkey.fullKey());
       }
     } // over DCS folders
+    if(m_doR) {
+      SG::ReadCondHandle<AthenaAttributeList> readAttrHandle{m_hvRKey, ctx};
+      const AthenaAttributeList* attr = *readAttrHandle;
+      if(!attr) {
+        ATH_MSG_ERROR("Unable to access R values Cond Object");
+        return StatusCode::FAILURE;
+      }
+      // store the conditions blob
+      const coral::Blob& rBlob = (*attr)["ElectrodeRvalues"].data<coral::Blob>();
+      if(rBlob.size()/sizeof(float) != m_electrodeID->electrodeHashMax()) {
+        ATH_MSG_ERROR("Expected " << m_electrodeID->electrodeHashMax() << " R values, but got " << rBlob.size()/sizeof(float) << " aborting");
+        return StatusCode::FAILURE;
+      }
+      rValues = static_cast<const float*>(rBlob.startingAddress());
+    }
   }
  
   const LArHVManager *manager = NULL; 
@@ -271,7 +291,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     
     std::unique_ptr<LArHVData> hvdata = std::make_unique<LArHVData>();
   
-    ATH_CHECK(fillPayload(hvdata.get(), hvdataOld, hvCabling, voltage, current, hvlineidx, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL));
+    ATH_CHECK(fillPayload(hvdata.get(), hvdataOld, hvCabling, voltage, current, hvlineidx, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL, rValues));
   
  
     ATH_CHECK(writeHandle.record(std::move(hvdata)));
@@ -337,7 +357,8 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
 				     , const LArHVPathology& pathologies
 				     , pathVec& hasPathologyEM
 				     , pathVec& hasPathologyHEC
-				     , pathVec& hasPathologyFCAL) const
+				     , pathVec& hasPathologyFCAL
+                                     , const float* rValues) const
 {
   LArHVData::hvMap &hvmap = hvdata->m_voltage;
   LArHVData::currMap &currmap = hvdata->m_current;
@@ -372,7 +393,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
          unsigned int nelec = cell->getNumElectrodes();
-         //std::cout << " nelec " << nelec << std::endl;
+         //std::cout << " nelec: " << nelec << std::endl;
          unsigned int ngap = 2*nelec;
          double wt = 1./ngap;
          v.clear(); ihv.clear();
@@ -396,6 +417,17 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                  unsigned idx = itrLine - hvlineidx.begin(); 
                  double hv=voltage[idx];
                  double curr=current[idx];
+                 if(rValues) { // modify the current record
+                    const EMBHVModule &hvmod = electrode.getModule();
+                    unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(0,
+                                                                            hvmod.getSideIndex(),
+                                                                            hvCabling->getCellModule(id),
+                                                                            hvmod.getPhiIndex(),
+                                                                            hvmod.getEtaIndex(),
+                                                                            igap,
+                                                                            electrode.getElectrodeIndex() ));
+                    curr *= rValues[ridx];
+                 }
                  if (hasPathology) {
                     ATH_MSG_VERBOSE( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]);
                     msg(MSG::VERBOSE) << "Original hv: "<<hv<<" ";
@@ -439,6 +471,17 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
 	     unsigned idx = itrLine - hvlineidx.begin();
 	     double hv=voltage[idx];
 	     double curr=current[idx];
+             if(rValues) { // modify the current record
+                unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(1,
+                                                                        hvmodule.getSideIndex(),
+                                                                        hvCabling->getCellModule(id),
+                                                                        0, // not used in EMBPS
+                                                                        hvmodule.getEtaIndex(),
+                                                                        igap,
+                                                                        0 // not used in EMBPS
+                                                              ));
+                curr *= rValues[ridx];
+             }
 	     addHV(v,hv,wt);
 	     addCurr(ihv,curr,wt);
            }
@@ -481,6 +524,17 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                    unsigned idx = itrLine - hvlineidx.begin(); 
                    double hv=voltage[idx];
                    double curr=current[idx];
+                   if(rValues) { // modify the current record
+                      const EMECHVModule &hvmod = electrode.getModule();
+                      unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(2,
+                                                                        hvmod.getSideIndex(),
+                                                                        hvCabling->getCellModule(id),
+                                                                        hvmod.getPhiIndex(),
+                                                                        hvmod.getEtaIndex(),
+                                                                        hvmod.getSectorIndex(),
+                                                                        electrode.getElectrodeIndex() ));
+                      curr *= rValues[ridx];
+                   }
                    if (hasPathology) {
                       msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]<<endmsg;
                       for (unsigned int ii=0;ii<listElec.size();ii++) {
@@ -521,6 +575,17 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                unsigned idx = itrLine - hvlineidx.begin(); 
                double hv=voltage[idx];
                double curr=current[idx];
+                   if(rValues) { // modify the current record
+                      unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(3,
+                                                                        hvmodule.getSideIndex(),
+                                                                        hvCabling->getCellModule(id),
+                                                                        0, // not used in EMECPS
+                                                                        0,
+                                                                        igap,
+                                                                        0 // not used in EMECPS
+                                                                    ));
+                      curr *= rValues[ridx];
+                   }
                addHV(v,hv,wt);
                addCurr(ihv,curr,wt);
              }
@@ -589,6 +654,18 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
            unsigned idx = itrLine - hvlineidx.begin(); 
            double hv=voltage[idx];
            double curr=current[idx];
+           if(rValues) { // modify the current record
+              const HECHVModule &hvmod = subgap.getModule();
+              unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(4,
+                                                                hvmod.getSideIndex(),
+                                                                hvCabling->getCellModule(id),
+                                                                0, // not used in HEC
+                                                                hvmod.getSamplingIndex(),
+                                                                subgap.getSubgapIndex(),
+                                                                0 // not used in HEC
+                                                                 ));
+              curr *= rValues[ridx];
+           }
            //std::cout << "     hv value " << hv << std::endl;
            if (hasPathology) {
               msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<hasPathologyHEC[index]<<endmsg;
@@ -627,7 +704,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
           updatedCells.emplace(id);
        }
     }
-   } // loop over HEC
+   } // loop over FCAL
    for(auto id: m_larfcal_id->channel_ids()) { // LAr FCAL
       v.clear();
       ihv.clear();
@@ -671,6 +748,18 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
            unsigned idx = itrLine - hvlineidx.begin(); 
            double hv=voltage[idx];
            double curr=current[idx];
+           if(rValues) { // modify the current record
+              const FCALHVModule& hvmod = line->getModule();
+              unsigned ridx = m_electrodeID->electrodeHash(m_electrodeID->ElectrodeId(5,
+                                                                hvmod.getSideIndex(),
+                                                                hvCabling->getCellModule(id),
+                                                                0, // not used in FCAL
+                                                                hvmod.getSamplingIndex(),
+                                                                hvmod.getSectorIndex(),
+                                                                line->getLineIndex()
+                                                                 ));
+              curr *= rValues[ridx];
+           }
            //std::cout << " line " << line;
            if (hasPathology) {
               msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<hasPathologyFCAL[index]<<endmsg;
