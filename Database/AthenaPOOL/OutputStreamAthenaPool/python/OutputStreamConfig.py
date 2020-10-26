@@ -4,8 +4,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, Confi
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 
-def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False ,
-                    trigNavThinningSvc = None):
+def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
+                    disableEventTag=False, trigNavThinningSvc=None):
    MakeEventStreamInfo=CompFactory.MakeEventStreamInfo
    AthenaOutputStream=CompFactory.AthenaOutputStream
    AthenaOutputStreamTool=CompFactory.AthenaOutputStreamTool
@@ -42,13 +42,14 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
       outputAlgName,
       WritingTool = writingTool,
       ItemList    = [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."  ]+ItemList, 
+      MetadataItemList = MetadataItemList,
       OutputFile = fileName,
       HelperTools = [ streamInfoTool, tct ],
       )
    outputStream.ExtraOutputs += [("DataHeader", "StoreGateSvc+" + streamName)]
    result.addService(StoreGateSvc("MetaDataStore"))
    outputStream.MetadataStore = result.getService("MetaDataStore")
-   outputStream.MetadataItemList = [
+   outputStream.MetadataItemList += [
         "EventStreamInfo#Stream" + streamName,
         "IOVMetaDataContainer#*",
    ]
