@@ -48,6 +48,8 @@ def makeEventSelectionAnalysisSequence( dataType,
     # Set up the event cleaning selection:
     if runEventCleaning:
         alg = createAlgorithm( 'CP::EventFlagSelectionAlg', 'EventFlagSelectorAlg' )
+        alg.FilterKey = 'JetCleaning'
+        alg.FilterDescription = 'selecting events passing DFCommonJets_eventClean_LooseBad'
         alg.selectionFlags = ['DFCommonJets_eventClean_LooseBad,as_char']
 
         seq.append( alg, inputPropName = None )
