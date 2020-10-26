@@ -31,7 +31,7 @@ svcMgr.EventSelector.InputCollections = [testFile]
 
 from JetAnalysisAlgorithms.JetAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType, jetContainer)
-print algSeq # For debugging
+print (algSeq) # For debugging
 
 # Add all algorithms from the sequence to the job.
 athAlgSeq += algSeq
