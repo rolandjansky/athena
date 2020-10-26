@@ -410,7 +410,7 @@ if __name__=='__main__':
     cfg.merge(affregmon)
 
     ConfigFlags.dump()
-    f=open("AffectedRegionsMonMaker.pkl","w")
+    f=open("AffectedRegionsMonMaker.pkl","wb")
     cfg.store(f)
     f.close()
 
