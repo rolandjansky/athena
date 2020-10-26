@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
@@ -10,8 +10,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #---------------------------------------------------------------
 # CTP / MuCTPI bytestream conversion
 #---------------------------------------------------------------
-from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import MuCTPIByteStreamTool,RecMuCTPIByteStreamTool
-from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import CTPByteStreamTool,RecCTPByteStreamTool
 
 if not hasattr( svcMgr, "THistSvc" ):
   from GaudiSvc.GaudiSvcConf import THistSvc
