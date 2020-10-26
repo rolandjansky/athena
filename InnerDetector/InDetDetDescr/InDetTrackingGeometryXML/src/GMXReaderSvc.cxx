@@ -18,6 +18,7 @@ InDet::GMXReaderSvc::GMXReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_createDict(true),
   m_addBCL(false),
   m_useDb(true),
+  m_doHGTD(false),
   m_pathToGMXFile("")
 {
   declareProperty("dictionaryFileName",    m_dictionaryFileName);
@@ -25,6 +26,7 @@ InDet::GMXReaderSvc::GMXReaderSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("createXMLDictionary",   m_createDict);
   declareProperty("addBCL",                m_addBCL);
   declareProperty("readGMXfromDB",         m_useDb);
+  declareProperty("doHGTD",                m_doHGTD);
   declareProperty("pathToGMXFile",         m_pathToGMXFile);
 }
 
@@ -99,7 +101,8 @@ void InDet::GMXReaderSvc::openDictFile(std::ofstream& file,std::string filename)
 
 void InDet::GMXReaderSvc::closeDictFile(std::ofstream& file) const
 {
-  file << "</IdDictionary>" << std::endl;
+  if (!m_doHGTD)
+    file << "</IdDictionary>" << std::endl;
   file.close();
 }
 

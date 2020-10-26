@@ -34,6 +34,10 @@ class isGMX(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False   
+class doHGTD(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 class addBCL(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -82,6 +86,7 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
         self.doPix  = kwargs["doPix"]
         self.doSCT  = kwargs["doSCT"]
         self.isGMX  = kwargs["isGMX"]
+        self.doHGTD = kwargs["doHGTD"]
         self.addBCL = kwargs["addBCL"]
 
         self.splitBarrelLayers = False
@@ -117,7 +122,7 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
 
     def dump(self):
         print "Pixel = ", self.PixelBarrelLayout(), " ", self.PixelEndcapLayout()
-        print "ID    =>  doPixel ", self.doPix,"  doSCT ",self.doSCT, "  isGMX ",self.isGMX, "  addBCL ",self.addBCL
+        print "ID    =>  doPixel ", self.doPix,"  doSCT ",self.doSCT,"  isGMX ",self.isGMX,"  doHGTD ",self.doHGTD,"  addBCL ",self.addBCL
         print "splitBarrel  : ", self.splitBarrelLayers()
         print "isRingLayout : ", self.isRingLayout()
         print "InnerLayer   : ", self.InnerLayerIndices()
@@ -131,6 +136,7 @@ jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(PixelEndcapLayout)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doPix)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doSCT)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(isGMX)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doHGTD)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(addBCL)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(splitBarrelLayers)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(isRingLayout)
