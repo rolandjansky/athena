@@ -25,13 +25,13 @@ atlas_add_library( tauRecLib
                    src/*.cxx
                    PUBLIC_HEADERS tauRec
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry ParticleEvent tauRecToolsLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry ParticleEvent tauRecToolsLib CaloEvent xAODCaloEvent CaloUtilsLib
                    PRIVATE_LINK_LIBRARIES tauEvent )
 
 atlas_add_component( tauRec
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ParticleEvent tauRecToolsLib tauEvent tauRecLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ParticleEvent tauRecToolsLib CaloEvent xAODCaloEvent CaloUtilsLib tauEvent tauRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
