@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -198,7 +198,8 @@ StatusCode TrigT1CaloDataAccess::loadCollection(
   m_robDataProvider->getROBData(m_robs_full_je, m_robFrags);
 
   m_jetCol->clear();
-  StatusCode sc = m_JetConverter->convert(m_robFrags, m_jetCol);
+  // FIXME: Assuming not Overlap.
+  StatusCode sc = m_JetConverter->convert("", m_robFrags, m_jetCol);
   if (sc.isFailure() ) {
     msg(MSG::ERROR) << "JET bytestream conversion failed" << endmsg;
     return sc;

@@ -21,7 +21,10 @@ class BFieldCond
 {
 public:
   // constructor
-  BFieldCond(bool finite, const double* p1, const double* p2, double curr)
+  BFieldCond(bool finite,
+             const double* p1,
+             const double* p2,
+             double curr)
     : m_finite(finite)
     , m_p1(Eigen::Map<const Eigen::Vector3d>(p1))
     , m_p2(Eigen::Map<const Eigen::Vector3d>(p2))
@@ -32,9 +35,9 @@ public:
 
   // compute magnetic field, plus derivatives if requested, and add
   void addBiotSavart(double scaleFactor,
-                     const double* xyz,
-                     double* B,
-                     double* deriv = nullptr) const;
+                     const double* ATH_RESTRICT xyz,
+                     double* ATH_RESTRICT B,
+                     double* ATH_RESTRICT deriv = nullptr) const;
   // scale the current wrt the nominal current
   void scaleCurrent(double factor) { m_curr = factor * m_nomCurr; }
   // accessors

@@ -83,7 +83,7 @@ private: // data
 
   std::unique_ptr<EventStorage::DataReader>  m_reader; //!< DataReader from EventStorage
 
-  mutable std::vector<long long int> m_evtOffsets;  //!< offset for event i in that file
+  std::vector<long long int> m_evtOffsets;  //!< offset for event i in that file
   unsigned int       m_evtInFile;
   long long int      m_evtFileOffset;   //!< last read in event offset within a file, can be -1     
   // Event back navigation info

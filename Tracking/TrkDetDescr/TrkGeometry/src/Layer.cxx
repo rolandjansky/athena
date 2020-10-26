@@ -208,7 +208,7 @@ bool Trk::Layer::needsMaterialProperties() const {
   //!< @todo this is temporary    
   if (m_surfaceArray){
     const std::vector<const Trk::Surface*>& surfaces = m_surfaceArray->arrayObjects();
-    for ( auto& sIter : surfaces ) {
+    for ( const auto & sIter : surfaces ) {
       if (sIter && sIter->materialLayer() && (sIter->materialLayer())->layerMaterialProperties())
 	     return false;	
     }
@@ -234,7 +234,7 @@ void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
     // set the subsurface representation, usually already owned by DetElement
     if (m_surfaceArray){
         const std::vector<const Trk::Surface*>& surfaces = m_surfaceArray->arrayObjects();
-        for ( auto& sIter : surfaces ){
+        for ( const auto & sIter : surfaces ){
             if ( sIter && (*sIter).owner() == Trk::noOwn){
                 (*sIter).setOwner(Trk::TGOwn);
                 ++cSurfaces;

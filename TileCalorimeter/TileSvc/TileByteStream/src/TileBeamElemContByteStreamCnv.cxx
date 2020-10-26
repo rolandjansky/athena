@@ -16,7 +16,6 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 
-#include "StoreGate/StoreGate.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
 

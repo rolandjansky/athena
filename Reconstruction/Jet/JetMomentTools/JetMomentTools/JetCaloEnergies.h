@@ -30,6 +30,7 @@ public:
 protected:
   void fillEperSamplingCluster(const xAOD::Jet &jet, std::vector<float> & ePerSampling ) const ;
   void fillEperSamplingPFO(const xAOD::Jet &jet, std::vector<float> & ePerSampling ) const ;
+  void fillEperSamplingFE(const xAOD::Jet &jet, std::vector<float> & ePerSampling ) const ;
 
 private:
   Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};

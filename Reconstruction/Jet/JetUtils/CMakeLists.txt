@@ -8,13 +8,13 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_library( JetUtils
       JetUtils/*.h JetUtils/*.icc Root/*.cxx
       PUBLIC_HEADERS JetUtils
-      LINK_LIBRARIES xAODCaloEvent xAODJet xAODTracking
+      LINK_LIBRARIES xAODCaloEvent xAODJet xAODTracking PFlowUtilsLib
       PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODPFlow )
 else()
    atlas_add_library( JetUtils
       JetUtils/*.h JetUtils/*.icc Root/*.cxx src/*.cxx
       PUBLIC_HEADERS JetUtils
-      LINK_LIBRARIES CaloEvent xAODCaloEvent xAODJet xAODTracking
+      LINK_LIBRARIES CaloEvent xAODCaloEvent xAODJet xAODTracking PFlowUtilsLib
       PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODPFlow TileEvent )
 endif()
 

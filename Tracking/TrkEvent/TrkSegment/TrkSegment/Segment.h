@@ -79,11 +79,11 @@ class FitQuality;
       /** Copy Constructor */
       Segment(const Segment& seg);
       /** Move Constructor */   
-      Segment(Segment&&);      
+      Segment(Segment&&) noexcept;      
       /** Assignment operator */
       Segment& operator=(const Segment& seg);
       /** Move assignment operator*/
-      Segment& operator=(Segment&&);
+      Segment& operator=(Segment&&) noexcept;
 
       /** Constructor with parameters */
       Segment( const LocalParameters& locpars,

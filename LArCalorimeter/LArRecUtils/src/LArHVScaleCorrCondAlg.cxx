@@ -35,7 +35,9 @@ LArHVScaleCorrCondAlg::LArHVScaleCorrCondAlg(const std::string& name, ISvcLocato
 
   declareProperty("fixHVCorr",    m_fixHVStrings);
   declareProperty("UndoOnlineHVCorr",m_undoOnlineHVCorr=true,"Undo the HVCorr done online");
-
+  declareProperty("UseCurrentsInHVEMB",  m_useCurrentEMB=false, "Use currents in EMB as well");
+  declareProperty("UseCurrentsInHVFCAL1",  m_useCurrentFCAL1=false, "Use currents in FCAL1 as well");
+  declareProperty("UseCurrentsInHVOthers",  m_useCurrentOthers=false, "Use currents in other partitions as well");
 }
 
 
@@ -331,30 +333,45 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges,
 	if (notfound) {
 	  ATH_MSG_WARNING( " At least one HV value not found in database for cell " << m_larem_id->show_to_string(offid) );
 	}
+        std::vector<LArHVData::CURRENT_t> currlist;
+        if(m_useCurrentEMB || m_useCurrentFCAL1 || m_useCurrentOthers) {
+             sc = hvdata->getCurrent(offid,currlist);
+             if (sc.isFailure() || currlist.size() != hvlist.size()) {
+	        ATH_MSG_WARNING( " Current values not the same size as hv for cell " << m_larem_id->show_to_string(offid) << " resetting to 0" );
+                currlist.resize(hvlist.size(),LArHVData::CURRENT_t{0,0});
+             }
+
+        }
 
 	mycorr=0.;
 	mynorm=0.;
 	for (unsigned int i=0;i<hvlist.size();i++) {
-	  double E = champ_e(hvlist[i].hv,d);
-
-	  // dont correct if E is very close to E nominal to avoid small glitches
-	  if (std::fabs(E_nominal)>1e-3) {
-	    const double deviation = std::fabs((E-E_nominal)/E_nominal);
-	    if (deviation<1e-3) E = E_nominal;
-	  }
-
 // barrel accordion
 	  if (isbarrelEM) {
-	    const double corr = this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
-	    mycorr += corr;
+	    //const double corr = this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
+	    //mycorr += corr;
+            if(m_useCurrentEMB) mycorr += this->Scale_barrel(hvlist[i].hv-currlist[i].current)*hvlist[i].weight;
+            else mycorr += this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
 	  }
 //FCAL module 1
 	  else if (isFCAL1) {
-	    const double corr = this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
-	    mycorr+=corr;
+	    //const double corr = this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
+	    //mycorr+=corr;
+            if(m_useCurrentFCAL1) mycorr += this->Scale_FCAL1(hvlist[i].hv-currlist[i].current) * hvlist[i].weight;
+            else mycorr += this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
 	  }
 // other subdetectors
 	  else {
+	    double E;
+            if(m_useCurrentOthers) E = champ_e(hvlist[i].hv-currlist[i].current,d);
+            else E = champ_e(hvlist[i].hv,d);
+
+	    // dont correct if E is very close to E nominal to avoid small glitches
+	    if (std::fabs(E_nominal)>1e-3) {
+	       const double deviation = std::fabs((E-E_nominal)/E_nominal);
+	       if (deviation<1e-3) E = E_nominal;
+	    }
+
 	    const double corr = Respo(E,E_nominal,T)*hvlist[i].weight;
 	    mycorr+= corr;
 	  }    

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
@@ -16,8 +16,8 @@
 
 //______________________________________________________________________________
 ByteStreamCnvSvcBase::ByteStreamCnvSvcBase(const std::string& name, ISvcLocator* pSvcLocator) :
-   ::AthCnvSvc(name, pSvcLocator, ByteStreamAddress::storageType()),
-	m_rawEventWrite(0) {
+   ::AthCnvSvc(name, pSvcLocator, ByteStreamAddress::storageType())
+{
    declareProperty("InitCnvs", m_initCnvs); 
    // This property is used by Tile BS converter, not by this class.
    declareProperty("ROD2ROBmap", m_ROD2ROBmap);

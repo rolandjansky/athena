@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOSEGMENTFINDERS_MOOSEGMENTFINDERALGS_H
 #define MOOSEGMENTFINDERS_MOOSEGMENTFINDERALGS_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPrepRawData/CscPrepDataCollection.h"
@@ -26,19 +26,19 @@ class IMooSegmentCombinationFinder;
 class IMuonSegmentOverlapRemovalTool;
 }  // namespace Muon
 
-class MooSegmentFinderAlg : public AthAlgorithm {
+class MooSegmentFinderAlg : public AthReentrantAlgorithm {
   public:
     MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual ~MooSegmentFinderAlg();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const;
     virtual StatusCode finalize() override;
 
   private:
     template <class T, class Y>
-    void retrieveCollections(std::vector<const T*>& cols, SG::ReadHandleKey<Y>& key);
+      void retrieveCollections(std::vector<const T*>& cols, const SG::ReadHandleKey<Y>& key, const EventContext& ctx) const;
 
     /** extract segments from a MuonSegmentCombinationCollection */
     Trk::SegmentCollection* extractSegmentCollection(const MuonSegmentCombinationCollection& segmentCombinations) const;
@@ -94,10 +94,10 @@ class MooSegmentFinderAlg : public AthAlgorithm {
 
 template <class T, class Y>
 void
-MooSegmentFinderAlg::retrieveCollections(std::vector<const T*>& cols, SG::ReadHandleKey<Y>& key)
+  MooSegmentFinderAlg::retrieveCollections(std::vector<const T*>& cols, const SG::ReadHandleKey<Y>& key, const EventContext& ctx) const
 {
 
-    SG::ReadHandle<Y> cscPrds(key);
+  SG::ReadHandle<Y> cscPrds(key, ctx);
     if (cscPrds.isValid() == false) {
         ATH_MSG_ERROR("Cannot retrieve Container " << key.key() << " accessing via collections ");
 

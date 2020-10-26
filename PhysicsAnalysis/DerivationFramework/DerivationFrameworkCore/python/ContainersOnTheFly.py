@@ -68,6 +68,8 @@ ContainersOnTheFly = [
                         ["AntiKt4EMTopoCSSKJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4EMPFlowCSSKJets","xAOD::JetContainer"],
                         ["AntiKt4EMPFlowCSSKJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt4EMPFlowFEJets","xAOD::JetContainer"],
+                        ["AntiKt4EMPFlowFEJetsAux","xAOD::JetContainerAux"],
                         ["AntiKt4EMTopoJets_BTagging201810","xAOD::JetContainer"],
                         ["AntiKt4EMTopoJets_BTagging201810Aux","xAOD::ShallowAuxContainer"],
                         ["AntiKt4EMPFlowJets_BTagging201903","xAOD::JetContainer"],

@@ -146,7 +146,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::TrackingVolume& 
     }
 
    // get the name
-   std::string volumeName = tvol.volumeName();
+   const std::string& volumeName = tvol.volumeName();
    // write a debug line
    m_fileVolumeOutput << "// Processing TrackingVolume '" << volumeName << "'. " << '\n'; 
    m_fileVolumeOutput << "CylinderVolume" << m_volumeCounter  << " = new TTUBE(\"" << volumeName << "\",\"" << volumeName << "\",\"void\",";
@@ -186,9 +186,9 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
     if (m_fileSurfaceOutputMode) {
         const Trk::SurfaceArray* surfArray = lay.surfaceArray();
         if (surfArray) {
-            auto& layerSurfaces = surfArray->arrayObjects();
+            const auto & layerSurfaces = surfArray->arrayObjects();
             // loop over the surfaces and draw them
-            for (auto& laySurfIter : layerSurfaces) {
+            for (const auto & laySurfIter : layerSurfaces) {
                 if ( laySurfIter && processNode(*laySurfIter).isFailure()){
                     ATH_MSG_FATAL("Failed to call processNode(const Surface& sf) on sub surface. Abort.");
                     return StatusCode::FAILURE;
@@ -291,8 +291,8 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Surface& sf, siz
     nodeString     += s_displaySurfaces;
     // test version just with planar bounds
     const Trk::RectangleBounds* recBo = dynamic_cast<const Trk::RectangleBounds*>(&(sf.bounds()));
-    const Trk::TrapezoidBounds* traBo = recBo ? 0 : dynamic_cast<const Trk::TrapezoidBounds*>(&(sf.bounds()));
-    const Trk::DiscTrapezoidalBounds* disctraBo = (recBo || traBo) ? 0 : dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(sf.bounds()));
+    const Trk::TrapezoidBounds* traBo = recBo ? nullptr : dynamic_cast<const Trk::TrapezoidBounds*>(&(sf.bounds()));
+    const Trk::DiscTrapezoidalBounds* disctraBo = (recBo || traBo) ? nullptr : dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(sf.bounds()));
     if (recBo) {
         // it is a rectangle surface
         double halfX = recBo->halflengthX();

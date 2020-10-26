@@ -17,9 +17,9 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 //STD
-#include <iostream>
+#include <cmath>
 #include <iomanip>
-#include <math.h>
+#include <iostream>
 
 Trk::PrismVolumeBounds::PrismVolumeBounds() :
  VolumeBounds(),

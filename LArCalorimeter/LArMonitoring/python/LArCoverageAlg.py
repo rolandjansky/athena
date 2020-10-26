@@ -544,7 +544,7 @@ if __name__=='__main__':
     cfg.merge(larCoverageAcc)
 
     ConfigFlags.dump()
-    f=open("CoverageMaker.pkl","w")
+    f=open("CoverageMaker.pkl","wb")
     cfg.store(f)
     f.close()
 

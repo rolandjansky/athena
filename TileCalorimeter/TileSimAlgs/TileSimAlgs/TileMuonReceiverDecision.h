@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -13,10 +13,13 @@
 //
 // Properties (JobOption Parameters):
 //
-//       MuonReceiverEneThreshCellD6Low        "Setting the lowest trigger threshold for cell D6 in MeV (Def=500 MeV)"
-//       MuonReceiverEneThreshCellD6andD5Low   "Setting the lowest trigger threshold for cell D5+D6 in MeV (Def=500 MeV)"
-//       MuonReceiverEneThreshCellD6High       "Setting the highest trigger threshold for cell D6 in MeV (Def=600 MeV)"
-//       MuonReceiverEneThreshCellD6andD5High  "Setting the highest trigger threshold for cell D5+D6 in MeV (Def=600 MeV)"
+//       MuonReceiverEneThreshCellD6Low        "(RUN2) Setting the lowest trigger threshold for cell D6 in MeV (Def=500 MeV)"
+//       MuonReceiverEneThreshCellD6andD5Low   "(RUN2) Setting the lowest trigger threshold for cell D5+D6 in MeV (Def=500 MeV)"
+//       MuonReceiverEneThreshCellD6High       "(RUN2) Setting the highest trigger threshold for cell D6 in MeV (Def=600 MeV)"
+//       MuonReceiverEneThreshCellD6andD5High  "(RUN2) Setting the highest trigger threshold for cell D5+D6 in MeV (Def=600 MeV)"
+//       MuonReceiverEneThreshCellD5           "(RUN3) Setting the single trigger threshold for cell D5 in MeV (Def=500 MeV)"
+//       MuonReceiverEneThreshCellD6           "(RUN3) Setting the single trigger threshold for cell D6 in MeV (Def=500 MeV)"
+//       MuonReceiverEneThreshCellD5andD6      "(RUN3) Setting the single trigger threshold for cell d5+D6 in MeV (Def=500 MeV)"
 //       SelectionCutForMatchedFilterQf        "Selection cut for the quality factor of the matched filters (NOT implemented)"
 //       TileMuonReceiverContainer             "Tile Calorimeter decision to TGC Sector Logic"
 //
@@ -88,6 +91,9 @@ class TileMuonReceiverDecision: public AthAlgorithm {
   float m_threshold_d6_hi;
   float m_threshold_d5d6_lo;
   float m_threshold_d5d6_hi;
+  float m_threshold_d5;
+  float m_threshold_d6;
+  float m_threshold_d5d6;
   float m_selCutQf;
 
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
@@ -98,9 +104,8 @@ class TileMuonReceiverDecision: public AthAlgorithm {
    */
   ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
       "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
+  int m_runPeriod;
 
-
-  bool m_run2;
 };
 
 #endif

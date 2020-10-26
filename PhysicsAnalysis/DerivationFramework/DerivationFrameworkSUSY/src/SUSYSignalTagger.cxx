@@ -102,61 +102,61 @@ namespace DerivationFramework {
 
       //check ifSUSY particle
       if ((abs(tp->pdgId()) > 1000000 && abs(tp->pdgId()) < 1000007) || // squarkL
-	  (abs(tp->pdgId()) > 1000010 && abs(tp->pdgId()) < 1000017) || // sleptonL
-	  (abs(tp->pdgId()) > 2000000 && abs(tp->pdgId()) < 2000007) || // squarkR
-	  (abs(tp->pdgId()) > 2000010 && abs(tp->pdgId()) < 2000017) || // sleptonR
-	  (abs(tp->pdgId()) > 1000020 && abs(tp->pdgId()) < 1000040)) { // gauginos
+          (abs(tp->pdgId()) > 1000010 && abs(tp->pdgId()) < 1000017) || // sleptonL
+          (abs(tp->pdgId()) > 2000000 && abs(tp->pdgId()) < 2000007) || // squarkR
+          (abs(tp->pdgId()) > 2000010 && abs(tp->pdgId()) < 2000017) || // sleptonR
+          (abs(tp->pdgId()) > 1000020 && abs(tp->pdgId()) < 1000040)) { // gauginos
 
-	if (tp->nParents() != 0) {
-	  if ( tp->parent(0)->absPdgId()  < 1000000) {
-	    if (!firstsp) {
-	      firstsp = tp;
-	    } else if (!secondsp) {
-	      secondsp = tp;
-	    } else {
-	      if (firstsp->nChildren() != 0 && tp->barcode() == firstsp->child(0)->barcode()) {
-		firstsp = tp;
-	      }
-	      else if (secondsp->nChildren() != 0 && tp->barcode() == secondsp->child(0)->barcode()) {
-		secondsp = tp;
-	      }
-	      else if (firstsp->nChildren() != 0 && firstsp->child(0)->barcode() == secondsp->barcode()) {
-		firstsp = secondsp;
-		secondsp = tp;
-	      }
-	      else if (secondsp->nChildren() != 0 && secondsp->child(0)->barcode() == firstsp->barcode()) {
-		secondsp = firstsp;
-		firstsp = tp;
-	      }
-	    }
-	  }
-	}
+        if (tp->nParents() != 0) {
+          if ( tp->parent(0)->absPdgId()  < 1000000) {
+            if (!firstsp) {
+              firstsp = tp;
+            } else if (!secondsp) {
+              secondsp = tp;
+            } else {
+              if (firstsp->nChildren() != 0 && tp->barcode() == firstsp->child(0)->barcode()) {
+                firstsp = tp;
+              }
+              else if (secondsp->nChildren() != 0 && tp->barcode() == secondsp->child(0)->barcode()) {
+                secondsp = tp;
+              }
+              else if (firstsp->nChildren() != 0 && firstsp->child(0)->barcode() == secondsp->barcode()) {
+                firstsp = secondsp;
+                secondsp = tp;
+              }
+              else if (secondsp->nChildren() != 0 && secondsp->child(0)->barcode() == firstsp->barcode()) {
+                secondsp = firstsp;
+                firstsp = tp;
+              }
+            }
+          }
+        }
       }
     }
 
     // quit if no sparticles found
     if (!firstsp && !secondsp) return false; // should find none or two
 
-    if (firstsp->nChildren() == 1) {
+    if (firstsp && firstsp->nChildren() == 1) {
       for (const auto& tp : *truthP) {
-	if (tp->barcode() == firstsp->child(0)->barcode() && tp->pdgId() != firstsp->pdgId()) {
-	  firstsp = tp;
-	  break;
-	}
+        if (tp->barcode() == firstsp->child(0)->barcode() && tp->pdgId() != firstsp->pdgId()) {
+          firstsp = tp;
+          break;
+        }
       }
     }
 
-    if (secondsp->nChildren() == 1) {
+    if (secondsp && secondsp->nChildren() == 1) {
       for (const auto& tp : *truthP) {
-	if (tp->barcode() == secondsp->child(0)->barcode() && tp->pdgId() != secondsp->pdgId()) {
-	  secondsp = tp;
-	  break;
-	}
+        if (tp->barcode() == secondsp->child(0)->barcode() && tp->pdgId() != secondsp->pdgId()) {
+          secondsp = tp;
+          break;
+        }
       }
     }
 
-    if (abs(firstsp->pdgId()) > 1000000) pdgid1 = firstsp->pdgId();
-    if (abs(secondsp->pdgId()) > 1000000) pdgid2 = secondsp->pdgId();
+    if (firstsp && abs(firstsp->pdgId()) > 1000000) pdgid1 = firstsp->pdgId();
+    if (secondsp && abs(secondsp->pdgId()) > 1000000) pdgid2 = secondsp->pdgId();
 
     // Return gracefully:
     return true;

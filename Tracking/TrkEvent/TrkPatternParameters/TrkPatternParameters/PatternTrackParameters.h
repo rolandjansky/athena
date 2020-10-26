@@ -74,6 +74,7 @@ namespace Trk {
       void setParameters              (const Surface*,const double*              );
       void setCovariance              (                             const double*);
       void setParametersWithCovariance(const Surface*,const double*,const double*);
+      void setParametersWithCovariance(const Surface*,const double*,const AmgSymMatrix(5)&);
 
       ///////////////////////////////////////////////////////////////////
       // Convertors
@@ -101,8 +102,7 @@ namespace Trk {
       // Covariance matrix production using jacobian CovNEW = J*CovOLD*Jt
       ///////////////////////////////////////////////////////////////////
       
-      void newCovarianceMatrix
-	(PatternTrackParameters&,double*);
+      static AmgSymMatrix(5) newCovarianceMatrix(const AmgSymMatrix(5) &, const double *);
 
       ///////////////////////////////////////////////////////////////////
       // Print
@@ -260,6 +260,19 @@ namespace Trk {
     {
       setParameters(s,p);
       setCovariance(c  );
+    }
+
+  inline void PatternTrackParameters::setParametersWithCovariance
+    (const Surface* s,const double* p,const AmgSymMatrix(5)& c)
+    {
+      double C[15] = {
+        c(0, 0),
+        c(1, 0), c(1, 1),
+        c(2, 0), c(2, 1), c(2, 2),
+        c(3, 0), c(3, 1), c(3, 2), c(3, 3),
+        c(4, 0), c(4, 1), c(4, 2), c(4, 3), c(4, 4)
+      };
+      setParametersWithCovariance(s, p, C);
     }
   
   ///////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
 */
 
 #include "PFlowUtils/WeightPFOTool.h"
+#include "PFlowUtils/FEHelpers.h"
 
 namespace CP {
 
@@ -48,7 +49,7 @@ namespace CP {
       ATH_MSG_WARNING("PFO with invalid pt " << cpfo.pt() << ", quitting.");
       return StatusCode::FAILURE;
     }
-	
+        
     int isInDenseEnvironment = false;
     float expectedEnergy = 0.0;
     bool gotVariable = cpfo.attribute(xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment,isInDenseEnvironment);
@@ -59,35 +60,99 @@ namespace CP {
     } else {
       //EM case first
       if (CP::EM == theNeutralPFOScale){
-	// Start by computing the correction as though we subtracted the calo energy
-	// This interpolates between the full track P and the expected calo E
-	float EoverP = expectedEnergy/cpfo.e(); // divide once only
-	if(m_doEoverPweight) {
-	  if(cpfo.pt()<30e3) {        // take full track
-	    weight = 1.;
-	  } else if(cpfo.pt()<60e3) { // linearly interpolate between 1 and E/P
-	    float interpolf = (1.0 - (cpfo.pt()-30000)/30000);
-	    weight = EoverP + interpolf * (1-EoverP);
-	  } else {                    // take the expected energy
-	    weight = EoverP;
-	  }
-	}
+        // Start by computing the correction as though we subtracted the calo energy
+        // This interpolates between the full track P and the expected calo E
+        float EoverP = expectedEnergy/cpfo.e(); // divide once only
+        if(m_doEoverPweight) {
+          if(cpfo.pt()<30e3) {        // take full track
+            weight = 1.;
+          } else if(cpfo.pt()<60e3) { // linearly interpolate between 1 and E/P
+            float interpolf = (1.0 - (cpfo.pt()-30000)/30000);
+            weight = EoverP + interpolf * (1-EoverP);
+          } else {                    // take the expected energy
+            weight = EoverP;
+          }
+        }
 
-	ATH_MSG_VERBOSE("cpfo in dense environment? " << isInDenseEnvironment);
-	ATH_MSG_VERBOSE("cpfo pt: " << cpfo.pt() << ", E/P: " << EoverP << ", weight: " << weight);
+        ATH_MSG_VERBOSE("cpfo in dense environment? " << isInDenseEnvironment);
+        ATH_MSG_VERBOSE("cpfo pt: " << cpfo.pt() << ", E/P: " << EoverP << ", weight: " << weight);
 
-	if(isInDenseEnvironment) {
-	  // In this case we further remove the expected deposited energy from the track
-	  weight -= EoverP;
-	}
+        if(isInDenseEnvironment) {
+          // In this case we further remove the expected deposited energy from the track
+          weight -= EoverP;
+        }
       }//EM Scale
       else if (CP::LC == theNeutralPFOScale){
-	if(!isInDenseEnvironment){
-	  if(cpfo.pt()<30e3 || cpfo.pt() >= 60e03) weight = 1;
-	}
+        if(!isInDenseEnvironment){
+          if(cpfo.pt()<30e3 || cpfo.pt() >= 60e03) weight = 1;
+        }
       }
     }
-	
+        
+    ATH_MSG_VERBOSE("Weight before zero check: " << weight);
+    // If the weight went to 0, set it to the ghost scale, so that the cPFOs
+    // are always added to the track.
+    if (weight<1e-9) {weight = 1e-20;}
+    ATH_MSG_VERBOSE("Final weight: " << weight);
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode WeightPFOTool::fillWeight( const xAOD::FlowElement& cpfo, float& weight ) const {
+
+    if(!(cpfo.signalType() & xAOD::FlowElement::PFlow)){
+      ATH_MSG_WARNING("FlowElement was not a PFO. Signal type was: " << cpfo.signalType());
+      return StatusCode::FAILURE;
+    }
+
+    //we need to convert the string scale back to the enum
+    PFO_JetMETConfig_inputScale theNeutralPFOScale = CP::EM;
+    CP::inputScaleMapper inputScaleMapper;
+    bool answer = inputScaleMapper.getValue(m_theNeutralPFOScaleString,theNeutralPFOScale);
+    if (false == answer) ATH_MSG_FATAL("Invalid neutral PFO Scale has been specified in PFlowUtils::PFOWeightTool");
+
+    // Compute the weights internally
+    weight = 0.;
+    if(cpfo.pt()>100e3) {
+      ATH_MSG_WARNING("PFO with invalid pt " << cpfo.pt() << ", quitting.");
+      return StatusCode::FAILURE;
+    }
+
+    const static SG::AuxElement::ConstAccessor<int> accDenseEnv("IsInDenseEnvironment");
+    const static SG::AuxElement::ConstAccessor<float> accExpE("TracksExpectedEnergyDeposit");
+
+    int isInDenseEnvironment = accDenseEnv(cpfo);
+    float expectedEnergy = accExpE(cpfo);
+
+    //EM case first
+    if (CP::EM == theNeutralPFOScale){
+      // Start by computing the correction as though we subtracted the calo energy
+      // This interpolates between the full track P and the expected calo E
+      float EoverP = expectedEnergy/cpfo.e(); // divide once only
+      if(m_doEoverPweight) {
+        if(cpfo.pt()<30e3) {        // take full track
+          weight = 1.;
+        } else if(cpfo.pt()<60e3) { // linearly interpolate between 1 and E/P
+          float interpolf = (1.0 - (cpfo.pt()-30000)/30000);
+          weight = EoverP + interpolf * (1-EoverP);
+        } else {                    // take the expected energy
+          weight = EoverP;
+        }
+      }
+
+      ATH_MSG_VERBOSE("cpfo in dense environment? " << isInDenseEnvironment);
+      ATH_MSG_VERBOSE("cpfo pt: " << cpfo.pt() << ", E/P: " << EoverP << ", weight: " << weight);
+
+      if(isInDenseEnvironment) {
+        // In this case we further remove the expected deposited energy from the track
+        weight -= EoverP;
+      }
+    }//EM Scale
+    else if (CP::LC == theNeutralPFOScale){
+      if(!isInDenseEnvironment){
+        if(cpfo.pt()<30e3 || cpfo.pt() >= 60e03) weight = 1;
+      }
+    }
+        
     ATH_MSG_VERBOSE("Weight before zero check: " << weight);
     // If the weight went to 0, set it to the ghost scale, so that the cPFOs
     // are always added to the track.

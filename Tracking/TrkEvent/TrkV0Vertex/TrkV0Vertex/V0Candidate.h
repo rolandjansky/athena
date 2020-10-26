@@ -54,22 +54,22 @@ class V0Candidate
  /**
    * Assignement constructor
    */	  
-  V0Candidate &operator= (const V0Candidate & rhs);  
-  V0Candidate &operator= (V0Candidate && rhs);  
+  V0Candidate &operator= (const V0Candidate & rhs);
+  V0Candidate& operator=(V0Candidate&& rhs) noexcept;
   /**
-     * Clone method
-      */ 
-   virtual V0Candidate* clone() const;         
- 
-/**
- * Destructor.
- */ 
-   virtual ~V0Candidate();
+   * Clone method
+   */
+  virtual V0Candidate* clone() const;
 
-/**
- * Unconst access to the vector of V0Hypothesis
- * Required by the finder to set the element links properly.
- */
+  /**
+   * Destructor.
+   */
+  virtual ~V0Candidate();
+
+  /**
+   * Unconst access to the vector of V0Hypothesis
+   * Required by the finder to set the element links properly.
+   */
   std::vector<Trk::V0Hypothesis *>* v0Hypothesis(void);
 
 /**

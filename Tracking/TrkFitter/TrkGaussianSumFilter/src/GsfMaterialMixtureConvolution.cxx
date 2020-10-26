@@ -307,7 +307,7 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   if (componentWithoutMeasurement) {
-    auto result = std::max_element(
+    auto *result = std::max_element(
       components.begin(), components.end(), [](const auto& a, const auto& b) {
         return a.weight < b.weight;
       });

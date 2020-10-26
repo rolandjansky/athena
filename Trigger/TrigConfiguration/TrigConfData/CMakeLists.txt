@@ -3,6 +3,12 @@
 # Declare the package name:
 atlas_subdir( TrigConfData )
 
+# Extra dependencies, based on the environment:
+set( extra_libs )
+if( NOT XAOD_STANDALONE )
+   set( extra_libs AthenaKernel )
+endif()
+
 # External dependencies:
 find_package( Boost )
 
@@ -12,7 +18,7 @@ atlas_add_library ( TrigConfData
                     TrigConfData/*.h src/*.cxx
                     PUBLIC_HEADERS TrigConfData
                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-                    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel CxxUtils
+                    LINK_LIBRARIES ${Boost_LIBRARIES} ${extra_libs} CxxUtils
                     )
 
 # standalone library for use by detector software:
