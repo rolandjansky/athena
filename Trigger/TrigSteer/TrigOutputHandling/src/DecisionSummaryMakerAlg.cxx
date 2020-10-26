@@ -42,7 +42,6 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
 
   Decision* passRawOutput = newDecisionIn( container, "HLTPassRaw" );
   Decision* prescaledOutput = newDecisionIn( container, "HLTPrescaled" );
-  Decision* rerunOutput = newDecisionIn( container, "HLTRerun" );
 
   DecisionIDContainer allPassingFinalIDs;
 
@@ -50,7 +49,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   for ( auto& key: m_finalDecisionKeys ) {
     auto handle{ SG::makeHandle(key, context) };
     if ( not handle.isValid() )  {
-      ATH_MSG_DEBUG("missing input " <<  key.key() << " likely rejected");
+      ATH_MSG_DEBUG("Input " <<  key.key() << " not present, did not run in this event.");
       continue;
     }
     const auto thisCollFilter = m_collectionFilter.find( key.key() );
@@ -75,10 +74,20 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
         continue;
       }
 
+      // Create a node to act as a filter between the final summary node and this HypoAlg.
+      // This ensures that we follow this edge (now two edges) in the graph only for the chains in
+      // passingFinalIDs rather than for other chains which are active in decisionObject which
+      // may accept the event via other objects
+
+      // filter -> HypoAlg
+      Decision* filter = newDecisionIn( container, decisionObject, "F", context );
+      decisionIDs(filter).insert( decisionIDs(filter).end(), passingFinalIDs.begin(), passingFinalIDs.end() );
+
+      // HLTPassRaw -> filter
+      linkToPrevious(passRawOutput, filter, context);
+
       // Accumulate and de-duplicate passed IDs for which this hypo was the Chain's final step
       allPassingFinalIDs.insert( passingFinalIDs.begin(), passingFinalIDs.end() );
-      // Create seed links for the navigation to follow
-      linkToPrevious(passRawOutput, decisionObject, context);
     }
   }
 
@@ -93,14 +102,11 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     }
   }
 
-  // TODO collate final rerun decisions & terminus links into the rerunOutput object
-
   // Get the data from the L1 decoder, this is where prescales were applied
   SG::ReadHandle<DecisionContainer> l1DecoderSummary( m_l1SummaryKey, context );
   const Decision* l1SeededChains = nullptr; // Activated by L1
   const Decision* activeChains = nullptr; // Activated and passed prescale check
   const Decision* prescaledChains = nullptr; // Activated but failed prescale check
-  const Decision* rerunChains = nullptr; // Set to activate in the second pass
   for (const Decision* d : *l1DecoderSummary) {
     if (d->name() == "l1seeded") {
       l1SeededChains = d;
@@ -108,15 +114,13 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
       activeChains = d;
     } else if (d->name() == "prescaled") {
       prescaledChains = d;
-    } else if (d->name() == "rerun") {
-      rerunChains = d;
     } else {
       ATH_MSG_ERROR("DecisionSummaryMakerAlg encountered an unknown set of decisions from the L1Decoder, name '" << d->name() << "'");
       return StatusCode::FAILURE;
     }
   }
 
-  if (l1SeededChains == nullptr || activeChains == nullptr || prescaledChains == nullptr || rerunChains == nullptr) {
+  if (l1SeededChains == nullptr || activeChains == nullptr || prescaledChains == nullptr) {
     ATH_MSG_ERROR("Unable to read in the summary from the L1Decoder. Cannot write to the HLT output summary the prescale status of HLT chains.");
     return StatusCode::FAILURE;
   }
@@ -130,12 +134,6 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   decisionIDs( prescaledChains, prescaledIDs ); // Extract from prescaledChains (a Decision*) into prescaledIDs (a set<int>)
   decisionIDs( prescaledOutput ).insert( decisionIDs( prescaledOutput ).end(),
         prescaledIDs.begin(), prescaledIDs.end() ); // Save this to the output
-
-  // Save the set of chains which were flagged as only executing in rerun.
-  DecisionIDContainer rerunIDs;
-  decisionIDs( rerunChains, rerunIDs ); 
-  decisionIDs( rerunOutput ).insert( decisionIDs( rerunOutput ).end(),
-        rerunIDs.begin(), rerunIDs.end() );
 
   // Do cost monitoring
   if (m_doCostMonitoring) {
